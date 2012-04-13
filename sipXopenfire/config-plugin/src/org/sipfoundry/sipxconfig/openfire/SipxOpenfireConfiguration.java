@@ -37,8 +37,8 @@ public class SipxOpenfireConfiguration {
         VelocityContext context = new VelocityContext();
         OpenfireSettings settings = m_openfire.getSettings();
         Address proxyAddress = m_addressManager.getSingleAddress(ProxyManager.TCP_ADDRESS);
-        Address restAddress = m_addressManager.getSingleAddress(RestServer.HTTPS_API);
-        Address restExtAddress = m_addressManager.getSingleAddress(RestServer.EXTERNAL_API);
+        Address restAddress = m_addressManager.getSingleAddress(RestServer.HTTP_API);
+        Address restPublicAddress = m_addressManager.getSingleAddress(RestServer.PUBLIC_HTTP_API);
 
         context.put("settings", settings);
         String username = XMPP_SERVER.getUserName();
@@ -52,7 +52,7 @@ public class SipxOpenfireConfiguration {
             context.put("proxyPort", proxyAddress.getPort());
         }
         context.put("restAddress", restAddress);
-        context.put("restExtAddress", restExtAddress);
+        context.put("restPublicAddress", restPublicAddress);
         try {
             m_velocityEngine.mergeTemplate("openfire/sipxopenfire.vm", context, writer);
         } catch (Exception e) {

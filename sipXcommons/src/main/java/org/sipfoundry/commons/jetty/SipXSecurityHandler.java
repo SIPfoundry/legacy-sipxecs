@@ -14,35 +14,25 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.commons.security;
+package org.sipfoundry.commons.jetty;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.mortbay.http.HttpException;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.http.handler.SecurityHandler;
 
-public class CustomSecurityHandler extends SecurityHandler {
-    public static final String TRUSTED_SOURCE_KEY = "trustedSource";
-    private List<String> _hosts = new ArrayList<String>();
-    private String _secret = null;
-    public void addTrustedSource(String ipSource) {
-        _hosts.add(ipSource);
-    }
+public class SipXSecurityHandler extends SecurityHandler {
+    private int m_publicHttpPort;
 
-    public void addSharedSecret(String secret) {
-        _secret = secret;
+    public SipXSecurityHandler(int port) {
+        m_publicHttpPort = port;
     }
-
     public void handle(String pathInContext, String pathParams, HttpRequest request, HttpResponse response)
             throws HttpException, IOException {
-        if (!_hosts.contains(request.getRemoteAddr())) {
+        if (request.getPort() == m_publicHttpPort) {
             getHttpContext().checkSecurityConstraints(pathInContext, request, response);
-        } else {
-            request.setAttribute(TRUSTED_SOURCE_KEY, _secret);
         }
     }
 }

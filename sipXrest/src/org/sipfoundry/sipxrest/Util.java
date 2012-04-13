@@ -8,13 +8,6 @@ package org.sipfoundry.sipxrest;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.sipfoundry.commons.security.CustomSecurityHandler;
-import org.sipfoundry.commons.util.DomainConfiguration;
-
-import com.noelios.restlet.ext.servlet.ServletCall;
-
 public class Util {
     /**
      * to hex converter
@@ -55,15 +48,4 @@ public class Util {
             throw new RuntimeException("Failed to instantiate an MD5 algorithm", ex);
         }
     }
-
-    public static boolean isSourceTrusted(org.restlet.data.Request request) {
-        DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir") + "/domain-config");
-        String sharedSecret = config.getSharedSecret();
-
-        HttpServletRequest httpRequest = ServletCall.getRequest(request);
-
-        String trusted = (String)httpRequest.getAttribute(CustomSecurityHandler.TRUSTED_SOURCE_KEY);
-        return trusted != null && trusted.equals(sharedSecret);
-    }
-
 }

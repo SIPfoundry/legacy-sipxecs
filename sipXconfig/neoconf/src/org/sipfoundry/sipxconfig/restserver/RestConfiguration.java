@@ -25,15 +25,12 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-import org.sipfoundry.sipxconfig.address.Address;
-import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
-import org.sipfoundry.sipxconfig.imbot.ImBot;
 
 public class RestConfiguration implements ConfigProvider {
     private RestServer m_restServer;
@@ -47,8 +44,6 @@ public class RestConfiguration implements ConfigProvider {
         }
 
         RestServerSettings settings = m_restServer.getSettings();
-        Address adminApi = manager.getAddressManager().getSingleAddress(AdminContext.HTTP_ADDRESS);
-        Address imbotApi = manager.getAddressManager().getSingleAddress(ImBot.XML_RPC);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(RestServer.FEATURE);
@@ -58,22 +53,18 @@ public class RestConfiguration implements ConfigProvider {
             }
             Writer wtr = new FileWriter(new File(dir, "sipxrest-config.xml"));
             try {
-                write(wtr, settings, location, manager.getDomainManager().getDomain(),
-                        adminApi.getAddress(), imbotApi.getAddress());
+                write(wtr, settings, location, manager.getDomainManager().getDomain());
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
         }
     }
 
-    void write(Writer wtr, RestServerSettings settings, Location location, Domain domain,
-            String configAddress, String imbotAddress) throws IOException {
+    void write(Writer wtr, RestServerSettings settings, Location location, Domain domain) throws IOException {
         VelocityContext context = new VelocityContext();
         context.put("settings", settings.getSettings().getSetting("rest-config"));
         context.put("location", location);
         context.put("domainName", domain.getName());
-        context.put("configAddress", configAddress);
-        context.put("imbotAddress", imbotAddress);
         try {
             m_velocityEngine.mergeTemplate("sipxrest/sipxrest-config.vm", context, wtr);
         } catch (Exception e) {

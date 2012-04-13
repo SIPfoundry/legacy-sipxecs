@@ -56,23 +56,23 @@ public class RestRedirectorResourceTest extends TestCase {
     }
 
     public void testRepresentIvr() throws Exception {
-        represent("https://host.example.com:8085", "https://host.example.com:8085/mailbox/200/messages", RestRedirectorResource.MAILBOX, "<messages></messages>");
+        represent("http://host.example.com:8085", "http://host.example.com:8085/mailbox/200/messages", RestRedirectorResource.MAILBOX, "<messages></messages>");
     }
 
     public void testRepresentCdr() throws Exception {
-        represent("http://host.example.com:6667", "https://host.example.com:6666/cdr/200", RestRedirectorResource.CDR, "<cdr></cdr>");
+        represent("http://host.example.com:6667", "http://host.example.com:6666/cdr/200", RestRedirectorResource.CDR, "<cdr></cdr>");
     }
 
     public void testPost() throws Exception {
-        post("http://host.example.com:6667", "https://host.example.com:6666/callcontroller/200/201", RestRedirectorResource.CALLCONTROLLER);
+        post("http://host.example.com:6667", "http://host.example.com:6666/callcontroller/200/201", RestRedirectorResource.CALLCONTROLLER);
     }
 
     public void testPut() throws Exception {
-        put("https://host.example.com:8085", "https://host.example.com:8085/mailbox/200/message/0000001/heard", RestRedirectorResource.MAILBOX);
+        put("http://host.example.com:8085", "http://host.example.com:8085/mailbox/200/message/0000001/heard", RestRedirectorResource.MAILBOX);
     }
 
     public void testDelete() throws Exception {
-        delete("https://host.example.com:8085", "https://host.example.com:8085/mailbox/200/message/0000001/heard", RestRedirectorResource.MAILBOX);
+        delete("http://host.example.com:8085", "http://host.example.com:8085/mailbox/200/message/0000001/heard", RestRedirectorResource.MAILBOX);
     }
 
     private void represent(String address, String resIdentifier, String resourceType, String result) throws Exception{

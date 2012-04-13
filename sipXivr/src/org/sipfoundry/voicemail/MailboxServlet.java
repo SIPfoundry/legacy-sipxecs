@@ -27,7 +27,6 @@ import org.sipfoundry.commons.util.DomainConfiguration;
 import org.sipfoundry.commons.util.SipUriUtil;
 import org.sipfoundry.sipxivr.SipxIvrConfiguration;
 import org.sipfoundry.sipxivr.rest.SipxIvrServletHandler;
-import org.sipfoundry.sipxivr.rest.WebServer;
 import org.sipfoundry.voicemail.mailbox.Folder;
 import org.sipfoundry.voicemail.mailbox.MailboxDetails;
 import org.sipfoundry.voicemail.mailbox.MailboxManager;
@@ -102,19 +101,16 @@ public class MailboxServlet extends HttpServlet {
         User user = validUsers.getUser(mailboxString);
         // only superadmin and mailbox owner can access this service
         // TODO allow all admin user to access it
-        boolean trustedSource = request.getAttribute("trustedSource") != null
-                && request.getAttribute("trustedSource").equals(sharedSecret);
-        if (!trustedSource) {
-            if (isForbidden(request, user.getUserName())) {
-                response.sendError(403); // Send 403 Forbidden
-                return;
-            }
+
+        if (isForbidden(request, user.getUserName())) {
+            response.sendError(403); // Send 403 Forbidden
+            return;
         }
 
         // delete mailbox could come only from a trusted source, when user already deleted from
         // mongo
         if (context.equals("delete")) {
-            if (trustedSource) {
+            //if (trustedSource) {
                 if (method.equals(METHOD_PUT)) {
                     try {
                         mailboxManager.deleteMailbox(mailboxString);
@@ -124,7 +120,7 @@ public class MailboxServlet extends HttpServlet {
                 } else {
                     response.sendError(405);
                 }
-            }
+            //}
         } else {
             if (user != null) {
                 PrintWriter pw = response.getWriter();
@@ -342,11 +338,8 @@ public class MailboxServlet extends HttpServlet {
     private boolean isForbidden(HttpServletRequest request, String userName) {
         Principal principal = request.getUserPrincipal();
         String authenticatedUserName = (principal == null) ? null : principal.getName();
-        String requestHost = request.getRemoteHost();
-        boolean trustedHost = requestHost != null && requestHost.equals(WebServer.TRUSTED_SOURCE);
-        String trustedUserName = request.getHeader("sipx-user");
-        String allowedUser = authenticatedUserName != null ? authenticatedUserName : (trustedHost ? trustedUserName : null);
-        return allowedUser == null || (!allowedUser.equals(userName) && !allowedUser.equals("superadmin"));
+
+        return authenticatedUserName != null && (!authenticatedUserName.equals(userName) && !authenticatedUserName.equals("superadmin"));
     }
 
     private void listMessages(List<VmMessage> messages, String folder, PrintWriter pw) {
