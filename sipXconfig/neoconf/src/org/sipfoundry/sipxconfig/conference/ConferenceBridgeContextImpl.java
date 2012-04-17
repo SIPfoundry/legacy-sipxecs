@@ -95,6 +95,12 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
         if (conference.getModeratorAccessCode() == null && !conference.isQuickstart()) {
             throw new UserException("&error.non.qs.no.mod");
         }
+
+        if (!conference.isQuickstart() && StringUtils.equals(conference.getModeratorAccessCode(),
+                conference.getParticipantAccessCode())) {
+            throw new UserException("&error.moderator.eq.participant");
+        }
+
         if (!m_aliasManager.canObjectUseAlias(conference, name)) {
             throw new NameInUseException(CONFERENCE, name);
         }
@@ -244,8 +250,8 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
         Criteria criteria = session.createCriteria(Conference.class);
         criteria.createCriteria("bridge", "b").add(Restrictions.eq("b.id", bridgeId));
         if (ownerGroupId != null) {
-            criteria.createCriteria(OWNER, "o").createCriteria("groups", "g").add(
-                    Restrictions.eq("g.id", ownerGroupId));
+            criteria.createCriteria(OWNER, "o").createCriteria("groups", "g")
+                    .add(Restrictions.eq("g.id", ownerGroupId));
         }
         return criteria;
     }
