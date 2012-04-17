@@ -344,7 +344,7 @@ form_recipe_cond_crv(Atm, P) ->
 		% <<"!=">> -> '!=';
 		_ -> undefined
 	end,
-
+	
 	case {T, Rel} of
 		{undefined, _} -> {error, invalid_vlu};
 		{_, undefined} -> {error, invalid_rln};
@@ -363,7 +363,7 @@ form_recipe_cond_str_crv(Atm, P) ->
 		<<"!=">> -> '!=';
 		_ -> undefined
 	end,
-
+	
 	case {T, Rel} of
 		{undefined, _} -> {error, invalid_vlu};
 		{_, undefined} -> {error, invalid_rln};
@@ -382,7 +382,7 @@ form_recipe_cond_atm_crv(Atm, P) ->
 		<<"!=">> -> '!=';
 		_ -> undefined
 	end,
-
+	
 	case {T, Rel} of
 		{undefined, _} -> {error, invalid_vlu};
 		{_, undefined} -> {error, invalid_rln};
@@ -476,11 +476,11 @@ build_agent_test_() ->
 		?_assertEqual({error, noid}, spx_util:build_agent([])),
 		?_assertMatch({ok, #agent_auth{id="fooid"}},
 			Build([])),
-
+		
 		%% login
 		?_assertMatch({ok, #agent_auth{login="foo"}},
 			Build([{<<"name">>, <<"foo">>}])),
-
+		
 		%% skills
 		?_assertMatch({ok, #agent_auth{skills=[]}}, Build([])),
 		?_assertMatch({ok, #agent_auth{
@@ -492,12 +492,12 @@ build_agent_test_() ->
 				{<<"qs">>, {array,[<<"cyber">>, <<"mega">>]}},
 				{<<"clns">>,{array,[<<"dalek">>, <<"master">>]}}
 			])),
-
+		
 		%% security level
 		?_assertMatch({ok, #agent_auth{securitylevel=agent}}, Build([])),
-		?_assertMatch({ok, #agent_auth{securitylevel=admin}},
+		?_assertMatch({ok, #agent_auth{securitylevel=admin}}, 
 			Build([{<<"scrty">>,<<"ADMIN">>}])),
-		?_assertMatch({ok, #agent_auth{securitylevel=supervisor}},
+		?_assertMatch({ok, #agent_auth{securitylevel=supervisor}}, 
 			Build([{<<"scrty">>,<<"SUPERVISOR">>}])),
 
 		%% profile
@@ -520,11 +520,11 @@ build_agent_test_() ->
 				{freeswitch_media, [{type, pstn},
 					{data, "201@sipfoundry.org"}]}
 				]}},
-			Build([{<<"cnt">>, <<"201@sipfoundry.org">>}])),
+			Build([{<<"cnt">>, <<"201@sipfoundry.org">>}])),		
 
 		% unknown
 		?_assertMatch({ok, _}, Build([{<<"unknownprop">>, <<"blabber">>}]))
-
+		  
 	].
 
 build_profile_test_() ->
@@ -535,8 +535,8 @@ build_profile_test_() ->
 		?_assertEqual({error, noid}, spx_util:build_profile([])),
 		?_assertEqual({error, noname}, spx_util:build_profile([{<<"_id">>, <<"b">>}])),
 		?_assertMatch({ok, #agent_profile{name="baz"}}, Build([])),
-
-		%% skills
+	
+		%% skills		
 		?_assertMatch({ok, #agent_profile{skills=[]}}, Build([])),
 		?_assertMatch({ok, #agent_profile{
 				skills=['_agent', english,
@@ -615,7 +615,7 @@ build_queue_group_test_() ->
 				{<<"skl">>, {array,[<<"_agent">>, <<"english">>]}},
 				{<<"qs">>, {array,[<<"cyber">>, <<"mega">>]}},
 				{<<"clns">>,{array,[<<"dalek">>, <<"master">>]}}
-			])),
+			])),		
 
 		%% recipe
 		?_assertMatch({ok, #queue_group{recipe=[]}}, Build([])),
@@ -632,7 +632,7 @@ build_queue_group_test_() ->
 % ).
 build_recipe_test_() ->
 	CondsOnlyExp = fun(Conds) -> [{Conds, [], run_once, <<>>}] end,
-	BuildRecipeWithSingleCond = fun(Cndt, Cond) ->
+	BuildRecipeWithSingleCond = fun(Cndt, Cond) -> 
 		build_recipe([[{<<"cndt">>, {array, [[{<<"cndt">>, Cndt}|Cond]]}}]])
 	end,
 
@@ -668,7 +668,7 @@ build_recipe_test_() ->
 		str_crv_cond_test_desc(client),
 		str_crv_cond_test_desc(caller_name),
 		str_crv_cond_test_desc(caller_id),
-
+		
 		atm_crv_cond_test_desc(type),
 		%% TODO custom conditions
 
@@ -679,14 +679,14 @@ build_recipe_test_() ->
 				          {<<"rln">>, <<">">>},
 				          {<<"vlu">>, 5}]]}}]])),
 
-
+	
 		?_assertEqual(ActionOnlyExp({add_skills, [english, german]}),
-			BuildRecipeWithAction(<<"add_skills">>,
+			BuildRecipeWithAction(<<"add_skills">>, 
 				{array, [<<"english">>, <<"german">>]})),
 		?_assertEqual(EmptyStep, BuildRecipeWithAction(<<"add_skills">>, 5.0)),
 
 		?_assertEqual(ActionOnlyExp({remove_skills, [english, german]}),
-			BuildRecipeWithAction(<<"remove_skills">>,
+			BuildRecipeWithAction(<<"remove_skills">>, 
 				{array, [<<"english">>, <<"german">>]})),
 		?_assertEqual(EmptyStep, BuildRecipeWithAction(<<"remove_skills">>, 5.0)),
 
@@ -733,11 +733,11 @@ build_client_test_() ->
 	Build = fun(P) -> spx_util:build_client([{<<"ident">>, <<"client1">>}, {<<"name">>, <<"MyClient">>}|P]) end,
 	[
 		?_assertEqual({error, noid}, spx_util:build_client([])),
-
+		
 		?_assertEqual({error, nolabel}, spx_util:build_client([{<<"ident">>, <<"client1">>}])),
 		?_assertMatch({ok, #client{label="MyClient"}}, Build([])),
 
-		?_assertMatch({ok, #client{}}, Build([{<<"unknown">>, <<"prop">>}]))
+		?_assertMatch({ok, #client{}}, Build([{<<"unknown">>, <<"prop">>}]))	
 	].
 
 
@@ -746,7 +746,7 @@ num_crv_cond_test_desc(Atm) ->
 	Str = atom_to_list(Atm),
 
 	CondsOnlyExp = fun(Conds) -> [{Conds, [], run_once, <<>>}] end,
-	BuildRecipeWithSingleCond = fun(Cndt, Cond) ->
+	BuildRecipeWithSingleCond = fun(Cndt, Cond) -> 
 		build_recipe([[{<<"cndt">>, {array, [[{<<"cndt">>, Cndt}|Cond]]}}]])
 	end,
 
