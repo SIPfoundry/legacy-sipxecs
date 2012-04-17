@@ -20,12 +20,12 @@ import org.mortbay.http.HttpServer;
 import org.mortbay.http.SocketListener;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.util.InetAddrPort;
+import org.sipfoundry.commons.jetty.SocketFactory;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.restconfig.RestServerConfig;
 import org.sipfoundry.commons.restconfig.RestServerConfigFileParser;
 import org.sipfoundry.commons.util.DomainConfiguration;
-import org.sipfoundry.commons.util.SocketFactory;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 
 public class RestServer {
