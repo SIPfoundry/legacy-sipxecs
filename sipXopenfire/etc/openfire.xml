@@ -58,6 +58,10 @@
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
+    <setting name="console">
+      <type refid="switch" />
+      <value>false</value>
+    </setting>
     <setting name="openfire-xml-rpc-port">
       <type refid="requiredNonRootPort"/>
       <value>9094</value>

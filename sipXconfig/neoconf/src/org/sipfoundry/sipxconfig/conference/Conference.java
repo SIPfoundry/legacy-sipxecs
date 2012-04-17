@@ -9,10 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_DESCRIPTION;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_ENABLED;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_EXT;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_NAME;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_OWNER;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_PIN;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_PUBLIC;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_MODERATED;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_MEMBERS_ONLY;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -324,14 +329,19 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
         Map<String, Object> props = new HashMap<String, Object>();
+        props.put(CONF_ENABLED, isEnabled());
         props.put(CONF_EXT, getExtension());
         props.put(CONF_NAME, getName());
+        props.put(CONF_DESCRIPTION, getDescription());
         if (getOwner() != null) {
             props.put(CONF_OWNER, getOwner().getUserName());
         } else {
             props.put(CONF_OWNER, StringUtils.EMPTY);
         }
         props.put(CONF_PIN, getParticipantAccessCode());
+        props.put(CONF_MODERATED, getSettingValue("chat-meeting/moderated"));
+        props.put(CONF_PUBLIC, getSettingValue("chat-meeting/public"));
+        props.put(CONF_MEMBERS_ONLY, getSettingValue("chat-meeting/members-only"));
         return props;
     }
 

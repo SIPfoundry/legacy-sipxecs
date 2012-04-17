@@ -9,13 +9,25 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.DESCR;
+import static org.sipfoundry.commons.mongo.MongoConstants.GROUP_RESOURCE;
+import static org.sipfoundry.commons.mongo.MongoConstants.IM_GROUP;
+import static org.sipfoundry.commons.mongo.MongoConstants.UID;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
 /**
@@ -24,7 +36,7 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
  * @author dhubler
  *
  */
-public class Group extends ValueStorage implements Comparable, NamedObject {
+public class Group extends ValueStorage implements Comparable, NamedObject, Replicable {
     private String m_name;
     private String m_description;
     private String m_resource;
@@ -183,5 +195,35 @@ public class Group extends ValueStorage implements Comparable, NamedObject {
         Collections.<Group> sort(localGroupList);
 
         return localGroupList.get(0);
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        return null;
+    }
+
+    @Override
+    public String getIdentity(String domainName) {
+        return null;
+    }
+
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
+        return null;
+    }
+
+    @Override
+    public boolean isValidUser() {
+        return false;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put(UID, getName());
+        props.put(GROUP_RESOURCE, getResource());
+        props.put(DESCR, getDescription());
+        props.put(IM_GROUP, getSettingValue("im/im-group"));
+        return props;
     }
 }

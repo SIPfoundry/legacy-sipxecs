@@ -48,6 +48,7 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     private ConfigManager m_configManager;
     private FeatureManager m_featureManager;
     private WebSocket m_websocket;
+    private Openfire m_openfire;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -71,6 +72,8 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
             if (!enabled) {
                 continue;
             }
+            boolean consoleEnabled = (Boolean) m_openfire.getSettings().getSettingTypedValue("settings/console");
+            ConfigUtils.enableCfengineClass(dir, "ofconsole.cfdat", consoleEnabled, "ofconsole");
             File f = new File(dir, "sipx.properties.part");
             if(!f.exists()) {
                 f.createNewFile();
@@ -158,5 +161,10 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     @Required
     public void setWebsocket(WebSocket websocket) {
         m_websocket = websocket;
+    }
+
+    @Required
+    public void setOpenfire(Openfire openfire) {
+        m_openfire = openfire;
     }
 }
