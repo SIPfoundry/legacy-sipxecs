@@ -16,6 +16,8 @@ import java.util.List;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.dialplan.ResetDialPlanTask;
 import org.springframework.beans.factory.annotation.Required;
@@ -28,6 +30,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     private String m_defaultLanguage;
     private ResetDialPlanTask m_resetDialPlanTask;
     private AutoAttendantManager m_autoAttendantManager;
+    private ReplicationManager m_replicationManager;
 
     public void setPromptsDir(String promptsDir) {
         m_promptsDir = promptsDir;
@@ -143,6 +146,12 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         m_autoAttendantManager.updatePrompts(new File(m_promptsDir, getCurrentLanguageDir()));
         getHibernateTemplate().saveOrUpdate(localization);
         getDaoEventPublisher().publishSave(localization);
+        m_replicationManager.replicateAllData(DataSet.MAILSTORE);
         return 1;
+    }
+
+    @Required
+    public void setReplicationManager(ReplicationManager replManager) {
+        m_replicationManager = replManager;
     }
 }

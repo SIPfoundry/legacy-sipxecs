@@ -10,6 +10,7 @@
     <property name="defaultLanguage" value="en" />
     <property name="resetDialPlanTask" ref="resetDialPlanTask" />
     <property name="autoAttendantManager" ref="autoAttendantManager" />
+    <property name="replicationManager" ref="replicationManagerImpl" />
   </bean>
 
   <bean id="localizationContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
