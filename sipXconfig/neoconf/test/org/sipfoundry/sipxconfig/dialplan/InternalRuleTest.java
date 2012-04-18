@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.dialplan.MappingRule.Operator;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.dialplan.config.UrlTransform;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.forwarding.GeneralSchedule;
 import org.sipfoundry.sipxconfig.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
@@ -99,6 +100,12 @@ public class InternalRuleTest extends TestCase {
         ir.setVoiceMailPrefix("7");
         ir.setEnabled(true);
 
+        FeatureManager featureManager = createMock(FeatureManager.class);
+        featureManager.isFeatureEnabled(FreeswitchFeature.FEATURE);
+        expectLastCall().andReturn(true).anyTimes();
+        replay(featureManager);
+        ir.setFeatureManager(featureManager);
+
         replayMocks();
         MediaServerFactory mediaServerFactory = new MediaServerFactory();
         mediaServerFactory.setBeanFactory(m_beanFactory);
@@ -152,6 +159,12 @@ public class InternalRuleTest extends TestCase {
         ir.setVoiceMailPrefix("7");
         ir.setEnabled(true);
 
+        FeatureManager featureManager = createMock(FeatureManager.class);
+        featureManager.isFeatureEnabled(FreeswitchFeature.FEATURE);
+        expectLastCall().andReturn(true).anyTimes();
+        replay(featureManager);
+        ir.setFeatureManager(featureManager);
+
         replayMocks();
         MediaServerFactory mediaServerFactory = new MediaServerFactory();
         mediaServerFactory.setBeanFactory(m_beanFactory);
@@ -200,6 +213,12 @@ public class InternalRuleTest extends TestCase {
         ir.setVoiceMail("20004");
         ir.setVoiceMailPrefix("7");
         ir.setEnabled(true);
+
+        FeatureManager featureManager = createMock(FeatureManager.class);
+        featureManager.isFeatureEnabled(FreeswitchFeature.FEATURE);
+        expectLastCall().andReturn(true).anyTimes();
+        replay(featureManager);
+        ir.setFeatureManager(featureManager);
 
         EasyMock.expect(m_localizationContext.getCurrentLanguage()).andReturn("pl").atLeastOnce();
         replayMocks();

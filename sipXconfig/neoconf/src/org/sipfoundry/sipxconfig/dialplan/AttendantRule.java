@@ -21,6 +21,8 @@ import org.sipfoundry.sipxconfig.dialplan.attendant.ScheduledAttendant;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.springframework.beans.factory.annotation.Required;
 
 public class AttendantRule extends DialingRule {
@@ -32,12 +34,13 @@ public class AttendantRule extends DialingRule {
     private String m_attendantAliases;
     private String m_extension;
     private String m_did;
+    private FeatureManager m_featureManager;
 
     private MediaServer m_mediaServer;
 
     @Override
     public void appendToGenerationRules(List<DialingRule> rules) {
-        if (!isEnabled()) {
+        if (!isEnabled() || !m_featureManager.isFeatureEnabled(FreeswitchFeature.FEATURE)) {
             return;
         }
         String[] aliases = AttendantRule.getAttendantAliasesAsArray(m_attendantAliases);
@@ -133,6 +136,11 @@ public class AttendantRule extends DialingRule {
     @Required
     public void setMediaServer(MediaServer mediaServer) {
         m_mediaServer = mediaServer;
+    }
+
+    @Required
+    public void setFeatureManager(FeatureManager manager) {
+        m_featureManager = manager;
     }
 
     /**

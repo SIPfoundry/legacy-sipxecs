@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.dialplan.config.RulesXmlFile;
 import org.sipfoundry.sipxconfig.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.dialplan.config.UrlTransform;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchMediaServer;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
@@ -69,9 +70,14 @@ public class AttendantRuleTest extends TestCase {
         AddressManager addressManager = createMock(AddressManager.class);
         addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
         expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "ivr.example.org", 3333)).anyTimes();
-        replay(addressManager);        
+        replay(addressManager);
         mediaServer.setAddressManager(addressManager);
-        
+
+        FeatureManager featureManager = createMock(FeatureManager.class);
+        featureManager.isFeatureEnabled(FreeswitchFeature.FEATURE);
+        expectLastCall().andReturn(true).anyTimes();
+        replay(featureManager);
+        rule.setFeatureManager(featureManager);
         LocalizationContext lc = createNiceMock(LocalizationContext.class);
         replay(lc);
         mediaServer.setLocalizationContext(lc);
@@ -109,6 +115,11 @@ public class AttendantRuleTest extends TestCase {
 
     public void testMappingRulesIvr() throws Exception {
         AttendantRule rule = new AttendantRule();
+        FeatureManager featureManager = createMock(FeatureManager.class);
+        featureManager.isFeatureEnabled(FreeswitchFeature.FEATURE);
+        expectLastCall().andReturn(true).anyTimes();
+        replay(featureManager);
+        rule.setFeatureManager(featureManager);
         FreeswitchMediaServer mediaServer = new FreeswitchMediaServer();
 
         LocalizationContext lc = createMock(LocalizationContext.class);
