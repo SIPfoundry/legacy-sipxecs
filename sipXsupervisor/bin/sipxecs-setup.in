@@ -14,6 +14,7 @@ $user = "@SIPXPBXUSER@"
 $group = "@SIPXPBXGROUP@"
 
 $domain_dat = "#{$cfdatadir}/domain.cfdat"
+$domain_part = "#{$cfdatadir}/domain-config.part"
 $root_keydir = "/var/cfengine/ppkeys"
 home_dir = `awk -F : '/#{$user}/ { print $6 }' /etc/passwd`.chomp
 $user_keydir = "#{home_dir}/.cfagent/ppkeys"
@@ -205,6 +206,7 @@ end
 
 def reset
   rm_file($domain_dat)
+  rm_file($domain_part)
   rm_file($primary_dat)
   rm_file($secondary_dat)
   rm_file($master_dat)
