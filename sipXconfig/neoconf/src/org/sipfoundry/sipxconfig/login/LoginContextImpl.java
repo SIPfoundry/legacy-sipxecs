@@ -20,7 +20,6 @@ import java.util.List;
 import org.acegisecurity.event.authentication.AbstractAuthenticationEvent;
 import org.acegisecurity.event.authentication.AbstractAuthenticationFailureEvent;
 import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
-import org.acegisecurity.ui.WebAuthenticationDetails;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -29,6 +28,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.security.SipxAuthenticationDetails;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
@@ -142,9 +142,9 @@ public class LoginContextImpl implements LoginContext, ApplicationListener {
         final boolean success = event instanceof InteractiveAuthenticationSuccessEvent;
 
         Object details = authEvent.getAuthentication().getDetails();
-        if (details instanceof WebAuthenticationDetails) {
+        if (details instanceof SipxAuthenticationDetails) {
             String remoteIp = null;
-            WebAuthenticationDetails webDetails = (WebAuthenticationDetails) details;
+            SipxAuthenticationDetails webDetails = (SipxAuthenticationDetails) details;
             remoteIp = webDetails.getRemoteAddress();
             logLoginAttempt(username, success, remoteIp);
         }
