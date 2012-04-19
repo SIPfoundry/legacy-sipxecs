@@ -1030,7 +1030,7 @@
       </setting>
     </group>
   </group>
-   <group name="qualityMonitoring" if="voiceQualityMonitoring" hidden="yes">
+   <group name="qualityMonitoring" if="voiceQualityMonitoring">
     <group name="collector">
       <setting name="enable.periodic">
         <type><boolean /></type>
