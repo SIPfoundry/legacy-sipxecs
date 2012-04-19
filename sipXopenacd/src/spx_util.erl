@@ -272,7 +272,7 @@ build_recipe([S|T], Acc) ->
 
 build_recipe_step([], Acc) ->
 	{Acc#spx_recipe.conditions, Acc#spx_recipe.operations,
-		Acc#spx_recipe.frequency, <<>>};
+		Acc#spx_recipe.frequency, Acc#spx_recipe.comment};
 build_recipe_step([{<<"cndt">>, {array, Conds}}|T], Acc) ->
 	build_recipe_step(T, Acc#spx_recipe{conditions=build_recipe_conds(Conds, [])});
 build_recipe_step([{<<"actn">>, Action}|T], Acc) when is_list(Action) ->
@@ -285,7 +285,15 @@ build_recipe_step([{<<"actn">>, Action}|T], Acc) when is_list(Action) ->
 					?WARNING("Error reading action: ~p: ~p", [Action, Err]),
 					build_recipe_step(T, Acc)
 			end
-	end.
+	end;
+build_recipe_step([{<<"frq">>, <<"run_once">>}|T], Acc) ->
+	build_recipe_step(T, Acc#spx_recipe{frequency=run_once});
+build_recipe_step([{<<"frq">>, <<"run_many">>}|T], Acc) ->
+	build_recipe_step(T, Acc#spx_recipe{frequency=run_many});
+build_recipe_step([{<<"stpnm">>, StepNm}|T], Acc) when is_binary(StepNm) ->
+	build_recipe_step(T, Acc#spx_recipe{comment=StepNm});
+build_recipe_step([_|T], Acc) ->
+	build_recipe_step(T, Acc).
 
 build_recipe_conds([], Acc) ->
 	lists:reverse(Acc);
@@ -650,6 +658,9 @@ build_recipe_test_() ->
 		?_assertEqual([], build_recipe([])),
 
 		{"empty step", ?_assertEqual([{[], [], run_once, <<>>}], build_recipe([[]]))},
+		{"frequency", ?_assertEqual([{[], [], run_many, <<>>}], build_recipe([[{<<"frq">>, <<"run_many">>}]]))},
+		{"name", ?_assertEqual([{[], [], run_once, <<"newstep">>}], build_recipe([[{<<"stpnm">>, <<"newstep">>}]]))},
+		{"unknow prop", ?_assertEqual([{[], [], run_once, <<>>}], build_recipe([[{<<"family">>, <<"reptile">>}]]))},
 
 		{"ticks",
 		[?_assertEqual(CondsOnlyExp([{ticks, 10}]),
