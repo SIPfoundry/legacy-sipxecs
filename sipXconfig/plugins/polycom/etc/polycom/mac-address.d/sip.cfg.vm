@@ -305,7 +305,7 @@
       voice.${setting.ProfileName}="$!{setting.Value}"
 #end
     />
-#if ($phone.model.qualityMonitoringSupported)
+#if ($phone.model.isSupported("voiceQualityMonitoring"))
     <qualityMonitoring>
 #set ($group = $cfg.EndpointSettings.getSetting('qualityMonitoring').getSetting('collector'))
         <collector
