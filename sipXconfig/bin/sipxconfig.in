@@ -164,16 +164,13 @@ buildCommand() {
         -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
         -Djava.awt.headless=true"
 
-    setJavaSslOpts
-
     # -Dprocname needs to be early in the command so cfengine can detect it
     Command="$JavaCmd \
        -Dprocname=${procNameId} \
        -XX:MaxPermSize=128M \
        -Xmx1024m \
        ${SIPXCONFIG_OPTS} \
-       $SystemProps \
-       $TrustStoreOpts"
+       $SystemProps"
 }
 
 runTask() {

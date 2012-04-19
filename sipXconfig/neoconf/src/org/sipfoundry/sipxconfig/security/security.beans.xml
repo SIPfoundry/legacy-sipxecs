@@ -10,7 +10,7 @@
     in DEBUG builds. Since Tapestry pages enforce authorization through pageValidate of their Border component,
     filterInvocationInterceptor is not added to the chain for the remaining URLs.
   -->
-  <bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
+  <bean id="sipxFilterChainProxy" class="org.sipfoundry.sipxconfig.security.SipxFilterChainProxy">
     <property name="filterInvocationDefinitionSource">
       <value>
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -21,6 +21,8 @@
         /.*=httpSessionContextIntegrationFilter,authenticationProcessingFilter,digestExceptionTranslationFilter
       </value>
     </property>
+    <property name="domainManager" ref="domainManager" />
+    <property name="internalPort" value="${sysdir.port}"/>
   </bean>
 
   <!-- ======================== AUTHENTICATION ======================= -->
