@@ -121,9 +121,19 @@ bundle agent sipxproxy_running {
         comment => "start sipxproxy",
         args => "start";
 
-    sipxproxy.sipxproxy_running.(restart_sipxproxy|restart_sipxecs|restart_sipxproxy_and_registrar)::
+    sipxproxy.sipxproxy_running.(restart_sipxproxy|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
         comment => "restart sipxproxy",
+        args => "restart";
+
+    restart_sipxproxy_and_registrar.sipxproxy::
+      "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
+        comment => "restart sipxproxy",
+        args => "restart";
+
+    restart_sipxproxy_and_registrar.sipxregistrar::
+      "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
+        comment => "restart sipxregistrar",
         args => "restart";
         
 }
