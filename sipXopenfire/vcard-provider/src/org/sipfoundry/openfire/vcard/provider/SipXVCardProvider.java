@@ -42,7 +42,6 @@ public class SipXVCardProvider implements VCardProvider {
     /**
      * The name of the avatar element (<tt>&lt;PHOTO&gt;</tt>) in the vCard XML.
      */
-    static final String DOMAIN_CONFIG_FILENAME = "/domain-config";
     static final String PLUGIN_CONFIG_FILENAME = "/config.properties";
     static final String MONGO_CLIENT_CONFIG = "/mongo-client.ini";
     static final String PROP_SIPX_CONF_DIR = "sipxpbx.conf.dir";
@@ -56,8 +55,6 @@ public class SipXVCardProvider implements VCardProvider {
     static final String AVATAR_ELEMENT = "PHOTO";
     static final int MAX_ATTEMPTS = 12; // Try 12 times at most when connects to sipXconfig
     static final int ATTEMPT_INTERVAL = 5000; // 5 seconds
-    private String m_ConfigHostName;
-    private String m_SharedSecret;
     static long ID_index = 0;
     static final int DEFAULT_RPC_PORT = 9099;
     static final String NAME_VCARD_RPC_PORT = "sipx-vcard-xml-rpc-port";
@@ -71,13 +68,6 @@ public class SipXVCardProvider implements VCardProvider {
         super();
 
         defaultProvider = new DefaultVCardProvider();
-
-        Properties domain_config = loadProperties(DOMAIN_CONFIG_FILENAME);
-        if (null != domain_config) {
-
-            m_ConfigHostName = domain_config.getProperty(PROP_CONFIG_HOST_NAME, DEFAULT_DOMAIN_NAME).split(" ")[0];
-            m_SharedSecret = domain_config.getProperty(PROP_SECRET, DEFAULT_SECRET);
-        }
         
         String clientConfig = getConfDir() + MONGO_CLIENT_CONFIG;
         try {
@@ -85,8 +75,6 @@ public class SipXVCardProvider implements VCardProvider {
         } catch (Exception e) {
             Log.error(e);
         }
-
-        Log.info("CONFIG_HOSTS is " + m_ConfigHostName);
 
         initTLS();
 
@@ -212,8 +200,7 @@ public class SipXVCardProvider implements VCardProvider {
                 do {
                     tryAgain = false;
                     try {
-                        RestInterface.sendRequest(MODIFY_METHOD, m_ConfigHostName, sipUserName, m_SharedSecret,
-                                vCardElement);
+                        RestInterface.sendRequest(MODIFY_METHOD, vCardElement);
                     } catch (ConnectException e) {
                         try {
                             Thread.sleep(ATTEMPT_INTERVAL);

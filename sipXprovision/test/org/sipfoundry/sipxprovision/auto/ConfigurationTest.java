@@ -99,11 +99,6 @@ public class ConfigurationTest extends TestCase {
 
         Configuration apc = new Configuration();
 
-        // domain-config (some include constants)
-        assertEquals("fun.pm", apc.getSipDomainName());
-        assertEquals(Configuration.SUPERADMIN_USERNAME + ":HideMe_during_dumpConfiguration",
-                apc.getConfigurationRestCredentials());
-
         // sipxprovision-config (some include constants)
         assertEquals("DEBUG", apc.getLog4jLevel());
         assertEquals("/home/sipxchange/WORKING/INSTALL/var/log/sipxpbx/sipxprovision.log", apc.getLogfile());

@@ -72,15 +72,7 @@ public class RestServer {
 
 
     private static void initWebServer() throws Exception {
-
-
         webServer = new HttpServer();
-        InetAddrPort inetAddrPort = new InetAddrPort(restServerConfig.getIpAddress(),
-                restServerConfig.getHttpPort());
-        InetAddrPort externalInetAddrPort = new InetAddrPort(restServerConfig.getIpAddress(),
-                restServerConfig.getPublicHttpPort());
-        logger.debug("External Inet Port = " + externalInetAddrPort.toString());
-        DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir")+"/domain-config");
         Logger.getLogger("org.mortbay").setLevel(Level.OFF);
 
 
@@ -183,9 +175,9 @@ public class RestServer {
     public static SipStackBean getSipStack() {
         return sipStackBean;
     }
-
+    
     public static String getRealm() {
-    	DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir")+"/domain-config");
-    	return config.getSipRealm();
-    }
+        DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir")+"/domain-config");
+        return config.getSipRealm();
+    }    
 }
