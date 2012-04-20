@@ -92,7 +92,6 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
     };
 
     private CoreContext m_coreContext;
-    private OpenAcdSkillGroupMigrationContext m_migrationContext;
     private FeatureManager m_featureManager;
     private OpenAcdReplicationProvider m_openAcdReplicationProvider;
 
@@ -106,7 +105,6 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         loadDataSetXml("commserver/seedLocations.xml");
         loadDataSetXml("domain/DomainSeed.xml");
         sql("openacd/openacd.sql");
-        m_migrationContext.migrateSkillGroup();
         getEntityCollection().drop();
         m_featureManager.enableLocationFeature(OpenAcdContext.FEATURE, new Location("localhost", "127.0.0.1"), true);
     }
@@ -682,6 +680,15 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
             fail();
         } catch (UserException ex) {
         }
+        // test save a magic skill
+        OpenAcdSkillGroup magicSkillGroup = m_openAcdContext
+                .getSkillGroupByName(OpenAcdContext.MAGIC_SKILL_GROUP_NAME);
+        newSkill.setGroup(magicSkillGroup);
+        try {
+            m_openAcdContext.saveSkill(newSkill);
+            fail();
+        } catch (UserException ex) {
+        }
 
         // test save skill
         OpenAcdSkillGroup skillGroup = new OpenAcdSkillGroup();
@@ -1244,10 +1251,6 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    public void setOpenAcdSkillGroupMigrationContext(OpenAcdSkillGroupMigrationContext migrationContext) {
-        m_migrationContext = migrationContext;
     }
 
     public void setFeatureManager(FeatureManager featureManager) {
