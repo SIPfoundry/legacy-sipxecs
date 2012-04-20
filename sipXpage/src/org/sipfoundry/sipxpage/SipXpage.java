@@ -3,7 +3,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package sipxpage;
+package org.sipfoundry.sipxpage;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -21,8 +21,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.siprouter.ProxyRouter;
 import org.sipfoundry.commons.util.Hostname;
-
-import sipxpage.Configuration.PageGroupConfig;
+import org.sipfoundry.sipxpage.Configuration.PageGroupConfig;
 
 public class SipXpage implements LegListener
 {

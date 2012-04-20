@@ -38,7 +38,7 @@ start() {
       -Dprocname=sipxpage \
       -Dconf.dir=@SIPX_CONFDIR@ \
       ${SIPXPAGE_OPTS} \
-      sipxpage.SipXpage \
+      org.sipfoundry.sipxpage.SipXpage \
       $Args"
     if [ -n "${NoFork}" ] ; then
       runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"

@@ -10,15 +10,19 @@
 package org.sipfoundry.sipxconfig.paging;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.feature.Feature;
 
-public class PagingGroup extends BeanWithId {
+public class PagingGroup extends BeanWithId implements DeployConfigOnEdit {
 
     private int m_pageGroupNumber;
 
@@ -86,5 +90,10 @@ public class PagingGroup extends BeanWithId {
 
     public void setTimeout(int timeout) {
         m_timeout = timeout;
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singletonList((Feature) PagingContext.FEATURE);
     }
 }
