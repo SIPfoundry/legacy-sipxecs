@@ -66,6 +66,10 @@
       <type refid="requiredNonRootPort"/>
       <value>9094</value>
     </setting>
+    <setting name="openfire-xml-rpc-vcard-port">
+      <type refid="requiredNonRootPort"/>
+      <value>9099</value>
+    </setting>    
     <setting name="locale" hidden="yes">
       <type>
         <string required="yes" />

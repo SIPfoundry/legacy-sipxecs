@@ -48,6 +48,8 @@ provider_PKGS = \
 	sipxcommons \
 	ws-commons-util \
 	xmlrpc-client \
-	xmlrpc-server
+	xmlrpc-server \
+	log4j \
+	commons-digester
 
 sipxvcard_JAVAROOT = $(abspath $(top_builddir)/vcard-provider/classes)

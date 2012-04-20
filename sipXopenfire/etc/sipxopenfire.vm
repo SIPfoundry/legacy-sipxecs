@@ -19,6 +19,7 @@
 	<log-directory>${settings.logDir}</log-directory>
 	<log-level>${settings.logLevel}</log-level>
 	<openfire-xml-rpc-port>$settings.xmlRpcPort</openfire-xml-rpc-port>
+	<openfire-xml-rpc-vcard-port>$settings.xmlRpcVcardPort</openfire-xml-rpc-vcard-port>
 	<openfire-host>${location.fqdn}</openfire-host>
 	<locale>${settings.locale}</locale>
 	<sipxrest-ip-address>$!{restAddress.address}</sipxrest-ip-address>

@@ -10,17 +10,12 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
 import java.util.Properties;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.dom4j.Namespace;
-import org.dom4j.io.SAXReader;
 import org.jivesoftware.openfire.vcard.DefaultVCardProvider;
 import org.jivesoftware.openfire.vcard.VCardManager;
 import org.jivesoftware.openfire.vcard.VCardProvider;
@@ -31,6 +26,7 @@ import org.jivesoftware.util.cache.Cache;
 import org.jivesoftware.util.cache.CacheFactory;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
+import org.xml.sax.SAXException;
 
 /**
  * <p>
@@ -55,14 +51,10 @@ public class SipXVCardProvider implements VCardProvider {
     static final String AVATAR_ELEMENT = "PHOTO";
     static final int MAX_ATTEMPTS = 12; // Try 12 times at most when connects to sipXconfig
     static final int ATTEMPT_INTERVAL = 5000; // 5 seconds
-    static long ID_index = 0;
-    static final int DEFAULT_RPC_PORT = 9099;
-    static final String NAME_VCARD_RPC_PORT = "sipx-vcard-xml-rpc-port";
-    static final String NAME_SIXOPENFIRE_CONFIG_FILE_NAME = "/sipxopenfire-vcard.xml";
+    static long ID_index = 0;    
 
     private Cache<String, Element> vcardCache;
     private DefaultVCardProvider defaultProvider;
-    private String m_openfireConfigFile = null;
 
     public SipXVCardProvider() {
         super();
@@ -72,20 +64,26 @@ public class SipXVCardProvider implements VCardProvider {
         String clientConfig = getConfDir() + MONGO_CLIENT_CONFIG;
         try {
             UnfortunateLackOfSpringSupportFactory.initialize(clientConfig);
+            if (new File("/tmp/sipx.properties").exists()) {
+                System.getProperties()
+                        .load(new FileInputStream(new File("/tmp/sipx.properties")));
+            }
+            
         } catch (Exception e) {
             Log.error(e);
-        }
-
-        initTLS();
+        }        
 
         String cacheName = "SipXVCardCache";
         vcardCache = CacheFactory.createCache(cacheName);
 
         Log.info(this.getClass().getName() + " starting XML RPC server ...");
-        VCardRpcServer vcardRpcServer = new VCardRpcServer(getRpcPort(m_openfireConfigFile));
-        vcardRpcServer.start();
-
-        Log.info(this.getClass().getName() + " initialized");
+        try {
+            VCardRpcServer vcardRpcServer = new VCardRpcServer(getRpcPort());
+            vcardRpcServer.start();
+            Log.info(this.getClass().getName() + " initialized");
+        } catch (Exception ex) {
+            Log.error(ex);
+        }
 
     }
 
@@ -263,9 +261,6 @@ public class SipXVCardProvider implements VCardProvider {
         String file_path = properties.getProperty(PROP_SIPX_CONF_DIR) + path_under_conf_dir;
         Log.info("Domain config file path is  " + file_path);
 
-        m_openfireConfigFile = properties.getProperty(PROP_SIPX_CONF_DIR) + NAME_SIXOPENFIRE_CONFIG_FILE_NAME;
-        Log.info("openfire config file is  " + m_openfireConfigFile);
-
         try {
             FileInputStream fis = new FileInputStream(file_path);
             result = new Properties();
@@ -291,22 +286,6 @@ public class SipXVCardProvider implements VCardProvider {
         }
 
         return properties.getProperty("sipxpbx.conf.dir");
-    }
-
-    public void initTLS() {
-        // Setup SSL properties so we can talk to HTTPS servers
-        String path = getConfDir();
-        String keyStore = path + "/ssl/ssl.keystore";
-        if (System.getProperty("javax.net.ssl.keyStore") == null) {
-            System.setProperty("javax.net.ssl.keyStore", keyStore);
-            System.setProperty("javax.net.ssl.keyStorePassword", "changeit"); // wow
-        }
-        String trustStore = path + "/ssl/authorities.jks";
-        if (System.getProperty("javax.net.ssl.trustStore") == null) {
-            System.setProperty("javax.net.ssl.trustStore", trustStore);
-            System.setProperty("javax.net.ssl.trustStoreType", "JKS");
-            System.setProperty("javax.net.ssl.trustStorePassword", "changeit"); // wow
-        }
     }
 
     public String getAORFromJABBERID(String jabberid) {
@@ -404,28 +383,11 @@ public class SipXVCardProvider implements VCardProvider {
         return avatarElement;
     }
 
-    int getRpcPort(String fileName) {
-        SAXReader sreader = new SAXReader();
-        try {
-            Document configDoc = sreader.read(new FileReader(fileName));
-            Log.info("filename is " + fileName);
-            Element rootElement = configDoc.getRootElement();
-
-            rootElement
-                    .add(new Namespace("default", "http://www.sipfoundry.org/sipX/schema/xml/sipxopenfire-00-00"));
-            String portStr = RestInterface.getNodeText(rootElement, "default:" + NAME_VCARD_RPC_PORT);
-            Log.info("sipx vcard xml rpc port is " + portStr);
-            if (!portStr.equals("")) {
-                return Integer.parseInt(portStr);
-            }
-        } catch (FileNotFoundException e) {
-            Log.error(fileName + " is not found!");
-        } catch (DocumentException e) {
-            Log.error(fileName + " parsing error!" + e.getMessage());
-        } catch (Exception e) {
-            Log.error(" exception" + e.getMessage());
-        }
-        return DEFAULT_RPC_PORT;
+    int getRpcPort() throws SAXException, IOException {
+        String configurationFile = System.getProperty("conf.dir", "/etc/sipxpbx") + "/sipxopenfire.xml";
+        VcardConfigurationParser parser = new VcardConfigurationParser();
+        VcardConfig vcardConfig  = parser.parse( "file://" + configurationFile );
+        return vcardConfig.getOpenfireXmlRpcVcardPort();
     }
 
 }

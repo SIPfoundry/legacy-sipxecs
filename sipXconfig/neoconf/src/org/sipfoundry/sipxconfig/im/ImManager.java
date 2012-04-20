@@ -23,9 +23,12 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
  * Implementation is in sipXopenfire project
  */
 public abstract class ImManager  {
+    public static final String URL_FORMAT = "http://%s:%d/xmlrpc";
     public static final LocationFeature FEATURE = new LocationFeature("instantMessage");
     public static final AddressType XMPP_ADDRESS = new AddressType("instantMessageXmpp");
     public static final AddressType XMLRPC_ADDRESS = new AddressType("instantMessageXmlrpc",
-        "http://%s:%d/xmlrpc");
+        URL_FORMAT);
+    public static final AddressType XMLRPC_VCARD_ADDRESS = new AddressType("instantMessageVcardXmlrpc",
+            URL_FORMAT);
     public static final AddressType WATCHER_ADDRESS = new AddressType("instantMessageWatcher");
 }

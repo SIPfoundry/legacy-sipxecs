@@ -141,10 +141,7 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
 
     protected String getMailboxServerUrl() {
         Address ivrAddress = m_addressManager.getSingleAddress(Ivr.REST_API);
-        if (ivrAddress != null) {
-            return String.format("https://%s:%s", ivrAddress.getAddress(), ivrAddress.getPort());
-        }
-        return null;
+        return ivrAddress.toString();
     }
 
     public void setFeatureManager(FeatureManager featureManager) {

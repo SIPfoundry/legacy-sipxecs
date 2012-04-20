@@ -45,7 +45,7 @@ import org.springframework.beans.factory.annotation.Required;
 public class OpenfireImpl extends ImManager implements FeatureProvider, AddressProvider, ProcessProvider, Openfire,
     FirewallProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
-        XMPP_ADDRESS, XMLRPC_ADDRESS, WATCHER_ADDRESS
+        XMPP_ADDRESS, XMLRPC_ADDRESS, XMLRPC_VCARD_ADDRESS, WATCHER_ADDRESS
     });
     private BeanWithSettingsDao<OpenfireSettings> m_settingsDao;
     private String m_openfireHome;
@@ -90,6 +90,8 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
                 address = new Address(XMPP_ADDRESS, location.getAddress(), settings.getXmppPort());
             } else if (type.equals(XMLRPC_ADDRESS)) {
                 address = new Address(XMLRPC_ADDRESS, location.getAddress(), settings.getXmlRpcPort());
+            } else if (type.equals(XMLRPC_VCARD_ADDRESS)) {
+                address = new Address(XMLRPC_VCARD_ADDRESS, location.getAddress(), settings.getXmlRpcVcardPort());
             } else if (type.equals(WATCHER_ADDRESS)) {
                 address = new Address(WATCHER_ADDRESS, location.getAddress(), settings.getWatcherPort());
             }

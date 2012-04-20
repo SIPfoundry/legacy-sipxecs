@@ -36,6 +36,7 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
     private static final String LOG_LEVEL = "settings/log.level";
     private static final String WATCHER_PORT = "settings/watcher-port";
     private static final String XML_RPC_PORT = "settings/openfire-xml-rpc-port";
+    private static final String XML_RPC_VCARD_PORT = "settings/openfire-xml-rpc-vcard-port";
     private static final String SERVER_TO_SERVER_ENABLED = "openfire-server-to-server/enabled";
     private static final String ALLOWED_SERVERS = "openfire-server-to-server/allowed-servers";
     private static final String DISCONNECT_ON_IDLE = "openfire-server-to-server/disconnect-on-idle";
@@ -61,6 +62,10 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
     public int getXmlRpcPort() {
         return (Integer) getSettingTypedValue(XML_RPC_PORT);
     }
+    
+    public int getXmlRpcVcardPort() {
+        return (Integer) getSettingTypedValue(XML_RPC_VCARD_PORT);
+    }    
 
     public int getXmppPort() {
         return XMPP_PORT;
