@@ -141,7 +141,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
 
     // not synchronized so new incoming work can accumulate.
     public void doWork(ConfigRequest request) {
-        String jobLabel = "Configuration";
+        String jobLabel = "Configuration generation";
         runProviders(request, jobLabel);
         runCfengine(request, jobLabel);
         runPostProviders(request, jobLabel);

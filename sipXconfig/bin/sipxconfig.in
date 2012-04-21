@@ -288,6 +288,14 @@ restart() {
   start
 }
 
+checkPrimary() {
+  if [ ! -f @SIPX_CFDATA@/defaults/primary.cfdat ]; then
+    "This process only runs on the primary machine and only after sipxecs-setup has completed" >&2
+    exit 1
+  fi
+}
+checkPrimary
+
 case "$1" in
   nofork)
     NoFork=1
