@@ -28,7 +28,7 @@ deps() ->
 
 stop() ->
     lists:foreach(fun(Dep) -> application:stop(Dep) end),
-    application:stop(sipxplogin).
+    application:stop(sipxplugin).
 
 ensure_deps() ->
     lists:foreach(fun(Dep) -> application:start(Dep) end).

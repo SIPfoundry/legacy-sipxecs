@@ -17,8 +17,6 @@ public class RestServerConfig {
 	private String loggingLevel = Level.INFO.toString();
 	private String logDirectory = "/var/log/sipxpbx/";
 	private String sipxProxyDomain;
-	private String configAddress;
-	private String imbotAddress;
 
 	public void setIpAddress(String ipAddress) {
 		this.ipAddress = ipAddress;
@@ -79,21 +77,4 @@ public class RestServerConfig {
     public int getCacheTimeout() {
         return 30;
     }
-
-    public String getConfigAddress() {
-        return configAddress;
-    }
-
-    public void setConfigAddress(String configAddress) {
-        this.configAddress = configAddress;
-    }
-
-    public String getImbotAddress() {
-        return imbotAddress;
-    }
-
-    public void setImbotAddress(String imbotAddress) {
-        this.imbotAddress = imbotAddress;
-    }
-
 }

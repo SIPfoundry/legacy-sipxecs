@@ -208,13 +208,23 @@ public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestC
             // expected
         }
 
+        conf.setSettingValue(Conference.MODERATOR_CODE, "1234");
+        conf.setSettingValue(Conference.PARTICIPANT_CODE, "1234");
+        conf.setSettingTypedValue(Conference.QUICKSTART, false);
+        try {
+            m_context.validate(conf);
+            fail("mod and participant pin same");
+        } catch (UserException e) {
+            // expected
+        }
+
         conf.setSettingValue(Conference.MODERATOR_CODE, null);
         conf.setSettingValue(Conference.PARTICIPANT_CODE, null);
         conf.setSettingTypedValue(Conference.QUICKSTART, true);
         m_context.validate(conf);
 
         conf.setSettingValue(Conference.MODERATOR_CODE, "1234");
-        conf.setSettingValue(Conference.PARTICIPANT_CODE, "1234");
+        conf.setSettingValue(Conference.PARTICIPANT_CODE, "1235");
         conf.setSettingTypedValue(Conference.QUICKSTART, false);
         m_context.validate(conf);
     }

@@ -33,7 +33,8 @@
 	get_agent/2,
 	auth_agent/2,
 	get_profiles/0,
-	get_profile/1
+	get_profile/1,
+	get_releases/0
 ]).
 
 %%====================================================================
@@ -48,6 +49,7 @@ start() ->
 	cpx_hooks:set_hook(spx_auth_agent, auth_agent, ?MODULE, auth_agent, [], 200),
 	cpx_hooks:set_hook(spx_get_profiles, get_profiles, ?MODULE, get_profiles, [], 200),
 	cpx_hooks:set_hook(spx_get_profile, get_profile, ?MODULE, get_profile, [], 200),
+	cpx_hooks:set_hook(spx_get_releases, get_releases, ?MODULE, get_releases, [], 200),
 	ok.
 
 -spec(get_agents/0 :: () -> {ok, [#agent_auth{}]}).
@@ -86,7 +88,6 @@ auth_agent(Username, Password) ->
 			DigestHexBin = iolist_to_binary([io_lib:format("~2.16.0b", [C]) || <<C>> <= DigestBin]),
 
 			PntkHexBin = proplists:get_value(<<"pntk">>, P, <<>>),
-
 			case PntkHexBin of
 				DigestHexBin ->
 					{ok, Auth} = spx_util:build_agent(P),
@@ -111,11 +112,18 @@ get_profile(Profile) ->
 			spx_util:build_profile(P)
 	end.
 
+-spec(get_releases/0 :: () -> {ok, [#release_opt{}]}).
+get_releases() ->
+	{ok, Props} = db_find(release_opt, []),
+	{ok, [R || P <- Props, {ok, R} <- [spx_util:build_release_opt(P)]]}.
+
 %% Internal functions
 db_find(agent, Props) ->
 	db_find(<<"openacdagent">>, Props);
 db_find(profile, Props) ->
 	db_find(<<"openacdagentgroup">>, Props);
+db_find(release_opt, Props) ->
+	db_find(<<"openacdreleasecode">>, Props);
 db_find(Type, Props) when is_binary(Type) ->
 	db_find([{<<"type">>, Type}|Props]).
 
@@ -142,7 +150,7 @@ db_find_one(Props) when is_list(Props) ->
 
 start_test_() ->
 	{setup, fun() ->
-		cpx_hooks:start_link(),
+		cpx_hooks:start_link(),	
 		spx_agent_auth:start()
 	end, [
 		?_assert(has_hook(spx_get_agents, get_agents)),
@@ -177,10 +185,10 @@ integ_get_agent_test_() ->
 		?_assertMatch(none, spx_agent_auth:get_agent(id, "noone")),
 
 		?_assertMatch({ok,
-			#agent_auth{id="agent1", login="foo", securitylevel=admin}},
+			#agent_auth{id="agent1", login="foo", securitylevel=admin}}, 
 			spx_agent_auth:get_agent(login, "foo")),
 		?_assertMatch({ok,
-			#agent_auth{id="agent1", login="foo", securitylevel=admin}},
+			#agent_auth{id="agent1", login="foo", securitylevel=admin}}, 
 			spx_agent_auth:get_agent(id, "agent1"))
 		]
 	}.
@@ -189,7 +197,7 @@ integ_auth_agent_test_() ->
 	{setup, fun reset_test_db/0, fun stop_test_db/1,
 		[?_assertMatch(pass, spx_agent_auth:auth_agent("not", "here")),
 		?_assertMatch({ok, deny}, spx_agent_auth:auth_agent("foo", "wrongpass")),
-		?_assertMatch({ok,
+		?_assertMatch({ok, 
 			{allow, "agent1", _, admin, "foobaz"}}, %% TODO fill up
 			spx_agent_auth:auth_agent("foo", "foosecret"))
 		]
@@ -211,6 +219,14 @@ integ_get_profile_test_() ->
 			spx_agent_auth:get_profile("foobaz"))]
 	}.
 
+integ_get_releases_test_() ->
+	{setup, fun reset_test_db/0, fun stop_test_db/1,
+		[?_assertMatch({ok, [
+			#release_opt{id="opt1", label="in a meeting", bias= -1},
+			#release_opt{id="opt2", label="busy", bias=0}
+			]}, spx_agent_auth:get_releases())]
+	}.
+
 %% Test helpers
 
 has_hook(Name, Hook) ->
@@ -225,7 +241,7 @@ reset_test_db() ->
 		Dir -> Dir
 	end,
 	Path = filename:join(PrivDir, "test_entries.json"),
-
+	
 	{ok, Bin} = file:read_file(Path),
 	{struct, [{"entries", {array, Entries}}]} = mochijson:decode(Bin),
 

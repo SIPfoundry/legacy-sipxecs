@@ -39,7 +39,7 @@
     <filter-class>org.acegisecurity.util.FilterToBeanProxy</filter-class>
     <init-param>
       <param-name>targetClass</param-name>
-      <param-value>org.acegisecurity.util.FilterChainProxy</param-value>
+      <param-value>org.sipfoundry.sipxconfig.security.SipxFilterChainProxy</param-value>
     </init-param>
   </filter>
 

@@ -5,12 +5,7 @@
  */
 package org.sipfoundry.sipxrest;
 
-import java.net.InetAddress;
-import java.util.Collection;
 import java.util.Random;
-
-import javax.sip.address.Hop;
-import javax.sip.address.SipURI;
 
 import org.apache.log4j.Logger;
 import org.restlet.Filter;
@@ -19,12 +14,10 @@ import org.restlet.data.ChallengeResponse;
 import org.restlet.data.ChallengeScheme;
 import org.restlet.data.MediaType;
 import org.restlet.data.Parameter;
-import org.restlet.data.Protocol;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.util.Series;
-import org.sipfoundry.commons.siprouter.FindSipServer;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 
@@ -50,34 +43,15 @@ public class DigestAuthenticationFilter extends Filter {
         this.plugin = plugin;
     }
 
-
-
     @Override
     protected int beforeHandle(Request request, Response response) {
-        if (Util.isSourceTrusted(request)) {
-            return Filter.CONTINUE;
-        }
         String remoteAddr = request.getClientInfo().getAddress();
         int httpPort = request.getHostRef().getHostPort();
+        //if internal port is used, do not perform authentication
+        if (httpPort == RestServer.getRestServerConfig().getHttpPort()) {
+            return Filter.CONTINUE;
+        }
         try {
-            String proxyDomain = RestServer.getRestServerConfig().getSipxProxyDomain();
-            SipURI sipUri = RestServer.getAddressFactory().createSipURI(null, proxyDomain);
-
-            logger.debug("Authentication request " + remoteAddr);
-            Collection<Hop> hops = new FindSipServer(logger).getSipxProxyAddresses(sipUri);
-
-            for (Hop hop : hops) {
-                if (InetAddress.getByName(hop.getHost()).getHostAddress().equals(remoteAddr)) {
-                    if (!request.getProtocol().equals(Protocol.HTTPS)) {
-                        logger.debug("Request from Proxy must be over HTTPS ");
-                        return Filter.STOP;
-                    }
-
-                    logger.debug("Request from sipx domain");
-                    return Filter.CONTINUE;
-                }
-            }
-
             if (! plugin.getMetaInf().getSecurity().equals(MetaInf.LOCAL_AND_REMOTE)) {
                 response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
                 response.setEntity("Remote access is not permitted ", MediaType.TEXT_PLAIN);

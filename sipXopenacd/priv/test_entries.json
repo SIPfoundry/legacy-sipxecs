@@ -141,4 +141,20 @@
 	"name" : "UST",
 	"type" : "openacdclient"
 }
+
+, {
+	"_id" : "opt1",
+	"lbl" : "in a meeting",
+	"bias" : -1,
+	"type" : "openacdreleasecode"
+}
+
+
+, {
+	"_id" : "opt2",
+	"lbl" : "busy",
+	"bias" : 0,
+	"type" : "openacdreleasecode"
+}
+
 ]}

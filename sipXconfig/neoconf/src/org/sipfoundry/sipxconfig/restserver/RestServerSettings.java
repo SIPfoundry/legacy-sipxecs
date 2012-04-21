@@ -32,12 +32,12 @@ public class RestServerSettings extends PersistableSettings implements DeployCon
         return getModelFilesContext().loadModelFile("sipxrest/sipxrest.xml");
     }
 
-    public int getExternalPort() {
-        return (Integer) getSettingTypedValue("rest-config/extHttpPort");
+    public int getPublicHttpPort() {
+        return (Integer) getSettingTypedValue("rest-config/publicHttpPort");
     }
 
-    public int getHttpsPort() {
-        return (Integer) getSettingTypedValue("rest-config/httpsPort");
+    public int getHttpPort() {
+        return (Integer) getSettingTypedValue("rest-config/httpPort");
     }
 
     public int getSipPort() {

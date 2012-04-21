@@ -14,6 +14,9 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.dialplan.config.Transform;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * InternalRule
@@ -32,6 +35,7 @@ public class InternalRule extends DialingRule {
     private MediaServerFactory m_mediaServerFactory;
     private String m_mediaServerHostname;
     private String m_did;
+    private FeatureManager m_featureManager;
 
     @Override
     public String[] getPatterns() {
@@ -100,10 +104,8 @@ public class InternalRule extends DialingRule {
 
     @Override
     public void appendToGenerationRules(List<DialingRule> rules) {
-        if (!isEnabled()) {
-            return;
-        }
-        if (StringUtils.isBlank(m_voiceMail)) {
+        if (!isEnabled() || StringUtils.isBlank(m_voiceMail)
+                || !m_featureManager.isFeatureEnabled(FreeswitchFeature.FEATURE)) {
             return;
         }
         MediaServer mediaServer = m_mediaServerFactory.create(m_mediaServerType);
@@ -154,6 +156,11 @@ public class InternalRule extends DialingRule {
 
     public void setDid(String did) {
         m_did = did;
+    }
+
+    @Required
+    public void setFeatureManager(FeatureManager manager) {
+        m_featureManager = manager;
     }
 
 }

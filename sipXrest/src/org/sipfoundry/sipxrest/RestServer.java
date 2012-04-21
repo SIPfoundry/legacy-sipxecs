@@ -8,7 +8,6 @@ package org.sipfoundry.sipxrest;
 import java.io.File;
 import java.util.Timer;
 
-import javax.net.ssl.SSLServerSocket;
 import javax.sip.address.AddressFactory;
 import javax.sip.header.HeaderFactory;
 import javax.sip.message.MessageFactory;
@@ -19,15 +18,13 @@ import org.apache.log4j.Logger;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpServer;
 import org.mortbay.http.SocketListener;
-import org.mortbay.http.SslListener;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.util.InetAddrPort;
-import org.mortbay.util.ThreadedServer;
+import org.sipfoundry.commons.jetty.SocketFactory;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.restconfig.RestServerConfig;
 import org.sipfoundry.commons.restconfig.RestServerConfigFileParser;
-import org.sipfoundry.commons.security.CustomSecurityHandler;
 import org.sipfoundry.commons.util.DomainConfiguration;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 
@@ -44,8 +41,6 @@ public class RestServer {
     private static RestServerConfig restServerConfig;
 
     private static HttpServer webServer;
-
-    public static boolean isSecure = true;
 
     public static final Timer timer = new Timer();
 
@@ -77,69 +72,15 @@ public class RestServer {
 
 
     private static void initWebServer() throws Exception {
-
-
         webServer = new HttpServer();
-        InetAddrPort inetAddrPort = new InetAddrPort(restServerConfig.getIpAddress(),
-                restServerConfig.getHttpPort());
-        InetAddrPort externalInetAddrPort = new InetAddrPort(restServerConfig.getIpAddress(),
-                restServerConfig.getPublicHttpPort());
-        logger.debug("External Inet Port = " + externalInetAddrPort.toString());
-        DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir")+"/domain-config");
-        String secret = config.getSharedSecret();
         Logger.getLogger("org.mortbay").setLevel(Level.OFF);
 
-        if (isSecure) {
-                SslListener sslListener = new SslListener();
-                sslListener.setPort(restServerConfig.getHttpPort());
-                String keystore = System.getProperties().getProperty(
-                        "javax.net.ssl.keyStore");
-                logger.debug("keystore = " + keystore);
-                sslListener.setKeystore(keystore);
-                String algorithm = System.getProperties().getProperty(
-                        "jetty.x509.algorithm");
-                logger.debug("algorithm = " + algorithm);
-                sslListener.setAlgorithm(algorithm);
-                String password = System.getProperties().getProperty(
-                        "jetty.ssl.password");
-                sslListener.setPassword(password);
-                String keypassword = System.getProperties().getProperty(
-                        "jetty.ssl.keypassword");
-                sslListener.setKeyPassword(keypassword);
-                sslListener.setMaxThreads(32);
-                sslListener.setMinThreads(4);
-                sslListener.setLingerTimeSecs(30000);
 
-
-                ((ThreadedServer) sslListener).open();
-
-                String[] cypherSuites = ((SSLServerSocket) sslListener
-                        .getServerSocket()).getSupportedCipherSuites();
-
-
-                ((SSLServerSocket) sslListener.getServerSocket())
-                        .setEnabledCipherSuites(cypherSuites);
-
-                String[] protocols = ((SSLServerSocket) sslListener
-                        .getServerSocket()).getSupportedProtocols();
-
-
-                ((SSLServerSocket) sslListener.getServerSocket())
-                        .setEnabledProtocols(protocols);
-                sslListener.setMaxIdleTimeMs(60000);
-
-                webServer.addListener(sslListener);
-                sslListener.start();
-        }
-
-
-        // create a listener for the unsecure port.
-        SocketListener socketListener = new SocketListener();
-        socketListener.setPort(restServerConfig.getPublicHttpPort());
-        socketListener.setMaxThreads(32);
-        socketListener.setMinThreads(4);
-        socketListener.setLingerTimeSecs(30000);
-        socketListener.setMaxIdleTimeMs(60000);
+        // create a listener for the public port.
+        SocketListener publicSocketListener = SocketFactory.createSocketListener(restServerConfig.getPublicHttpPort());
+        SocketListener socketListener = SocketFactory.createSocketListener(restServerConfig.getHttpPort());
+        webServer.addListener(publicSocketListener);
+        webServer.addListener(socketListener);
 
         HttpContext httpContext = new HttpContext();
         httpContext.setContextPath("/");
@@ -149,19 +90,10 @@ public class RestServer {
         Class<?> servletClass = com.noelios.restlet.ext.servlet.ServerServlet.class;
         servletHandler.addServlet("rest", "/*", servletClass.getName());
 
-        CustomSecurityHandler sh = new CustomSecurityHandler();
-
-        sh.addTrustedSource("localhost");
-        sh.addSharedSecret(secret);
-        sh.addTrustedSource(restServerConfig.getConfigAddress());
-        sh.addTrustedSource(restServerConfig.getImbotAddress());
-        httpContext.addHandler(0, sh);
-        httpContext.addHandler(1, servletHandler);
+        httpContext.addHandler(servletHandler);
 
         webServer.addContext(httpContext);
-        webServer.addListener(socketListener);
         webServer.start();
-
     }
 
     /**
@@ -243,9 +175,9 @@ public class RestServer {
     public static SipStackBean getSipStack() {
         return sipStackBean;
     }
-
+    
     public static String getRealm() {
-    	DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir")+"/domain-config");
-    	return config.getSipRealm();
-    }
+        DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir")+"/domain-config");
+        return config.getSipRealm();
+    }    
 }

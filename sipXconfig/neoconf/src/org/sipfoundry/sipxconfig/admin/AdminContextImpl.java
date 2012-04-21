@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
@@ -34,6 +35,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     AlarmProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTP_ADDRESS, HTTPS_ADDRESS);
     private LocationsManager m_locationsManager;
+    private int m_internalPort;
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
@@ -44,7 +46,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         Location location = m_locationsManager.getPrimaryLocation();
         Address address;
         if (type.equals(HTTP_ADDRESS)) {
-            address = new Address(HTTP_ADDRESS, location.getAddress(), 12000);
+            address = new Address(HTTP_ADDRESS, location.getAddress(), m_internalPort);
         } else {
             address = new Address(type, location.getAddress());
         }
@@ -84,5 +86,10 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     @Override
     public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
         return Collections.singleton(ALARM_LOGIN_FAILED);
+    }
+
+    @Required
+    public void setInternalPort(int internalPort) {
+        m_internalPort = internalPort;
     }
 }

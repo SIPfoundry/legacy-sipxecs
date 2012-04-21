@@ -3,11 +3,12 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <bean id="webServer" class="org.sipfoundry.sipxivr.rest.WebServer" init-method="init">
-    <property name="configAddress" value="${ivr.configAddress}" />
-    <property name="httpsPort" value="${ivr.httpsPort}" />
+    <property name="httpPort" value="${ivr.httpPort}" />
+    <property name="publicHttpPort" value="${ivr.publicHttpPort}" />
     <property name="servletHandler" ref="servletHandler" />
     <property name="userRealm" ref="userRealm" />
-    <property name="secret" value="${SHARED_SECRET}" />
+    <property name="digestAuthenticator" ref="digestAuthenticator" />
+    <property name="securityHandler" ref="securityHandler" />
   </bean>
 
   <bean id="servletHandler" class="org.sipfoundry.sipxivr.rest.SipxIvrServletHandler">
@@ -17,6 +18,10 @@
     <property name="depositMap" ref="depositMap" />
     <property name="mailboxManager" ref="mailboxManager" />
     <property name="mwiManager" ref="mwiManager" />
+  </bean>
+
+  <bean id="securityHandler" class="org.sipfoundry.commons.jetty.SipXSecurityHandler">
+  	<constructor-arg><value>${ivr.publicHttpPort}</value></constructor-arg>
   </bean>
 
   <bean id="userRealm" class="org.sipfoundry.sipxivr.rest.SipxIvrUserRealm">
@@ -53,6 +58,9 @@
     <constructor-arg><value>manage</value></constructor-arg>
     <constructor-arg><value>/manage/*</value></constructor-arg>
     <constructor-arg><value>org.sipfoundry.voicemail.ManagementServlet</value></constructor-arg>
+  </bean>
+  
+  <bean id="digestAuthenticator" class="org.sipfoundry.sipxivr.rest.SipxIvrDigestAuthenticator">
   </bean>
 
 </beans>

@@ -8,7 +8,7 @@
     <load-library></load-library>
     <plugin-factory>MwiFactory</plugin-factory>
     <plugin-data>
-      <voicemail-cgi-url>https://ivr.example.org:100/mwi</voicemail-cgi-url>
+      <voicemail-cgi-url>http://ivr.example.org:100/mwi</voicemail-cgi-url>
     </plugin-data>
   </subscribe-plugin>
 </subscribe-server-plugins>

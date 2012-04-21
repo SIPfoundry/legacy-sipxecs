@@ -1,7 +1,7 @@
 /**
  *
  *
- * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
  * Contributed to SIPfoundry under a Contributor Agreement
  *
  * This software is free software; you can redistribute it and/or modify it under
@@ -14,10 +14,16 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.openacd;
+package org.sipfoundry.openfire.vcard.provider;
 
-public interface OpenAcdSkillGroupMigrationContext {
-    public static final String CONTEXT_BEAN_NAME = "openAcdSkillGroupMigrationContext";
+public class VcardConfig {
+    private int openfireXmlRpcVcardPort = 9099;
+        
+    public int getOpenfireXmlRpcVcardPort() {
+        return openfireXmlRpcVcardPort;
+    }
 
-    void migrateSkillGroup();
+    public void setOpenfireXmlRpcVcardPort(int openfireXmlRpcVcardPort) {
+        this.openfireXmlRpcVcardPort = openfireXmlRpcVcardPort;
+    }
 }

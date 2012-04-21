@@ -3,7 +3,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package sipxpage;
+package org.sipfoundry.sipxpage;
 
 /**
  * Represents an incoming Leg of a call.

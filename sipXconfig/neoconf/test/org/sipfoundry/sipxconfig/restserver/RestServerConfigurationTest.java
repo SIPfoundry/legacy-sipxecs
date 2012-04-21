@@ -38,7 +38,7 @@ public class RestServerConfigurationTest {
         Domain domain = new Domain("example.org");
         Location location = TestHelper.createDefaultLocation();
         StringWriter actual = new StringWriter();
-        config.write(actual, settings, location, domain,"192.168.1.100", "192.168.1.101");
+        config.write(actual, settings, location, domain);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-sipxrest-config"));
         assertEquals(expected, actual.toString());
     }

@@ -40,10 +40,12 @@ public class BasicAuthenticationFilter extends Filter {
 
     @Override
     protected int beforeHandle(Request request, Response response) {
-      if (Util.isSourceTrusted(request)) {
-            return Filter.CONTINUE;
-      }
       String remoteAddr = request.getClientInfo().getAddress();
+      int httpPort = request.getHostRef().getHostPort();
+      //if internal port is used, do not perform authentication
+      if (httpPort == RestServer.getRestServerConfig().getHttpPort()) {
+          return Filter.CONTINUE;
+      }
       try {
 
           logger.debug("Authentication request " + remoteAddr );

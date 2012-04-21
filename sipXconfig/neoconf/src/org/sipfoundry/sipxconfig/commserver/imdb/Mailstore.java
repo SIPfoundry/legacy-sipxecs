@@ -64,6 +64,7 @@ import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.im.ImAccount;
+import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.vm.DistributionList;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
@@ -76,6 +77,7 @@ import com.mongodb.DBObject;
 //Make sure all are needed, and break this apart if necessary
 public class Mailstore extends AbstractDataSetGenerator {
     private MailboxManager m_mailboxManager;
+    private LocalizationContext m_localizationContext;
 
     @Override
     public boolean generate(Replicable entity, DBObject top) {
@@ -144,6 +146,8 @@ public class Mailstore extends AbstractDataSetGenerator {
             }
             if (pa.getOverrideLanguage() && StringUtils.isNotEmpty(pa.getLanguage())) {
                 pao.put(LANGUAGE, pa.getLanguage());
+            } else {
+                pao.put(LANGUAGE, m_localizationContext.getCurrentLanguage());
             }
             if (pa.getMenu() != null && !pa.getMenu().getMenuItems().isEmpty()) {
                 List<DBObject> buttonsList = new ArrayList<DBObject>();
@@ -184,5 +188,9 @@ public class Mailstore extends AbstractDataSetGenerator {
 
     public void setMailboxManager(MailboxManager mailboxManager) {
         m_mailboxManager = mailboxManager;
+    }
+
+    public void setLocalizationContext(LocalizationContext localizationContext) {
+        m_localizationContext = localizationContext;
     }
 }

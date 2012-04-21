@@ -189,6 +189,7 @@ code_change(_OldVsn, State, _Extra) ->
 autoload(State) ->
 	NewMods = lists:map(
 		fun({Mod = {Name, ActionFun, LoadFun, UnloadFun, ReloadFun}, Conf}) ->
+			%?DEBUG("Checking autoload of ~p with config: ~p", [Name, Conf]),
 			NewConf = case catch ActionFun(Conf) of
 				{load, NConf} ->
 					try_do(Name, load, LoadFun, Conf, NConf);
@@ -212,7 +213,7 @@ try_do(Name, Action, Fun, Conf, NConf) ->
 			?WARNING("Error occured while ~p ~p: ~p", [Name, Action, Err]),
 			Conf;
 		_ ->
-			?DEBUG("~p doing ~p", [Name, Action]),
+			?INFO("~p doing ~p", [Name, Action]),
 			NConf
 	end.
 

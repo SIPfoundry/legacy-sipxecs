@@ -26,6 +26,7 @@
     <property name="enabled" value="true" />
     <property name="mediaServerFactory" ref="mediaServerFactory" />
     <property name="mediaServerType" value="freeswitchMediaServer" />
+    <property name="featureManager" ref="featureManager" />
   </bean>
 
   <bean id="defaultAttendantRule" class="org.sipfoundry.sipxconfig.dialplan.AttendantRule" abstract="true">
@@ -33,6 +34,7 @@
     <property name="description" value="Default autoattendant dialing plan" />
     <property name="enabled" value="true" />
     <property name="mediaServer" ref="freeswitchMediaServer" />
+    <property name="featureManager" ref="featureManager" />
   </bean>
 
   <bean id="defaultEmergencyRule" class="org.sipfoundry.sipxconfig.dialplan.EmergencyRule" abstract="true">

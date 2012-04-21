@@ -23,6 +23,8 @@ import java.io.Writer;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
@@ -48,6 +50,7 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     private ConfigManager m_configManager;
     private FeatureManager m_featureManager;
     private WebSocket m_websocket;
+    private Openfire m_openfire;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -71,6 +74,8 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
             if (!enabled) {
                 continue;
             }
+            boolean consoleEnabled = (Boolean) m_openfire.getSettings().getSettingTypedValue("settings/console");
+            ConfigUtils.enableCfengineClass(dir, "ofconsole.cfdat", consoleEnabled, "ofconsole");
             File f = new File(dir, "sipx.properties.part");
             if(!f.exists()) {
                 f.createNewFile();
@@ -78,7 +83,8 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
             Writer wtr = new FileWriter(f);
             try {
                 if (m_featureManager.isFeatureEnabled(WebSocket.FEATURE, location)) {
-                    write(wtr, location.getAddress(), m_websocket.getSettings().getWebSocketPort());
+                    Address addr = m_configManager.getAddressManager().getSingleAddress(AdminContext.HTTP_ADDRESS);
+                    write(wtr, location.getAddress(), m_websocket.getSettings().getWebSocketPort(), addr.toString());
                 }
 
             } finally {
@@ -108,10 +114,11 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
         }
     }
 
-    void write(Writer wtr, String wsAddress, int wsPort) throws IOException {
+    void write(Writer wtr, String wsAddress, int wsPort, String adminRestUrl) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.write("websocket.address", wsAddress);
         config.write("websocket.port", wsPort);
+        config.write("admin.rest.url", adminRestUrl);
     }
 
     public void setConfig(OpenfireConfigurationFile config) {
@@ -158,5 +165,10 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     @Required
     public void setWebsocket(WebSocket websocket) {
         m_websocket = websocket;
+    }
+
+    @Required
+    public void setOpenfire(Openfire openfire) {
+        m_openfire = openfire;
     }
 }

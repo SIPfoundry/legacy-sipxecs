@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.commons.util.DomainConfiguration;
+import org.sipfoundry.sipxivr.SipxIvrConfiguration;
 import org.sipfoundry.sipxivr.rest.SipxIvrServletHandler;
 import org.sipfoundry.voicemail.mailbox.MailboxManager;
 import org.sipfoundry.voicemail.mailbox.VmMessage;
@@ -39,7 +40,6 @@ public class MediaServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final String METHOD_GET = "GET";
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
-    private String sharedSecret = null;
 
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doIt(request, response);
@@ -57,10 +57,8 @@ public class MediaServlet extends HttpServlet {
     public void doIt(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ValidUsers validUsers = (ValidUsers) request.getAttribute(SipxIvrServletHandler.VALID_USERS_ATTR);
         MailboxManager mailboxManager = (MailboxManager) request.getAttribute(SipxIvrServletHandler.MAILBOX_MANAGER);
-        if (sharedSecret == null) {
-            DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir") + "/domain-config");
-            sharedSecret = config.getSharedSecret();
-        }
+        SipxIvrConfiguration ivrConfig = (SipxIvrConfiguration) request
+                .getAttribute(SipxIvrServletHandler.IVR_CONFIG_ATTR);
         String method = request.getMethod().toUpperCase();
 
         String pathInfo = request.getPathInfo();
@@ -80,9 +78,7 @@ public class MediaServlet extends HttpServlet {
         User user = validUsers.getUser(mailboxString);
         // only superadmin and mailbox owner can access this service
         // TODO allow all admin user to access it
-        boolean trustedSource = request.getAttribute("trustedSource") != null
-                && request.getAttribute("trustedSource").equals(sharedSecret);
-        if (!trustedSource) {
+        if (ivrConfig.getHttpPort() != request.getLocalPort()) {
             String authenticatedUserName = request.getUserPrincipal().getName();
             if (!authenticatedUserName.equals(user.getUserName())) {
                 if (!authenticatedUserName.equals("superadmin")) {

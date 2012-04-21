@@ -146,7 +146,7 @@ public class IvrImpl implements FeatureProvider, AddressProvider, FeatureListene
                 // TODO take port from FS
                 address = new Address(SIP_ADDRESS, location.getAddress(), 15060);
             } else if (type.equals(REST_API)) {
-                address = new Address(REST_API, location.getFqdn(), settings.getHttpsPort());
+                address = new Address(REST_API, location.getFqdn(), settings.getHttpPort());
             }
             addresses.add(address);
         }

@@ -33,9 +33,10 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class OpenfireSettings extends PersistableSettings implements DeployConfigOnEdit {
     private static final String LOCALE = "settings/locale";
-    private static final String LOG_LEVEL = "settings/log-level";
+    private static final String LOG_LEVEL = "settings/log.level";
     private static final String WATCHER_PORT = "settings/watcher-port";
     private static final String XML_RPC_PORT = "settings/openfire-xml-rpc-port";
+    private static final String XML_RPC_VCARD_PORT = "settings/openfire-xml-rpc-vcard-port";
     private static final String SERVER_TO_SERVER_ENABLED = "openfire-server-to-server/enabled";
     private static final String ALLOWED_SERVERS = "openfire-server-to-server/allowed-servers";
     private static final String DISCONNECT_ON_IDLE = "openfire-server-to-server/disconnect-on-idle";
@@ -53,62 +54,66 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("openfire/openfire.xml");
     }
-    
+
     public int getWatcherPort() {
-        return (Integer) getSettingTypedValue(WATCHER_PORT);        
+        return (Integer) getSettingTypedValue(WATCHER_PORT);
     }
 
     public int getXmlRpcPort() {
         return (Integer) getSettingTypedValue(XML_RPC_PORT);
     }
     
+    public int getXmlRpcVcardPort() {
+        return (Integer) getSettingTypedValue(XML_RPC_VCARD_PORT);
+    }    
+
     public int getXmppPort() {
         return XMPP_PORT;
     }
-    
+
     public List<Address> getAllowedServers() {
         String value = getSettingValue(ALLOWED_SERVERS);
         return parseServerArray(value);
     }
-    
+
     public List<Address> getDisallowedServers() {
         String value = getSettingValue(DISALLOWED_SERVERS);
         // not sure why disallowed includes ports, but keeping it as is was when i found it --Douglas
-        return parseServerArray(value);        
+        return parseServerArray(value);
     }
 
     public String getLocale() {
-        return (String) getSettingTypedValue(LOCALE);        
+        return (String) getSettingTypedValue(LOCALE);
     }
 
     public String getLogLevel() {
-        return (String) getSettingTypedValue(LOG_LEVEL);        
+        return (String) getSettingTypedValue(LOG_LEVEL);
     }
 
     public String getServerToServer() {
-        return (String) getSettingTypedValue(SERVER_TO_SERVER_ENABLED).toString();        
+        return (String) getSettingTypedValue(SERVER_TO_SERVER_ENABLED).toString();
     }
 
     public String getDisconnectOnIdle() {
-        return (String) getSettingTypedValue(DISCONNECT_ON_IDLE).toString();        
+        return (String) getSettingTypedValue(DISCONNECT_ON_IDLE).toString();
     }
 
     public Integer getIdleTimeout() {
-        return (Integer) getSettingTypedValue(IDLE_TIMEOUT);        
+        return (Integer) getSettingTypedValue(IDLE_TIMEOUT);
     }
 
     public String getAnyCanConnect() {
-        return (String) getSettingTypedValue(ANY_CAN_CONNECT).toString();        
+        return (String) getSettingTypedValue(ANY_CAN_CONNECT).toString();
     }
 
     public String getMessageLogEnabled() {
-        return (String) getSettingTypedValue(MESSAGE_LOG_ENABLED).toString();        
+        return (String) getSettingTypedValue(MESSAGE_LOG_ENABLED).toString();
     }
 
     public String getLogDir() {
         return m_logDir;
     }
-     
+
     /**
      * Example:
      * Given
@@ -136,10 +141,10 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
             }
             servers.add(address);
         }
-        
+
         return servers;
     }
-    
+
     class Defaults {
         @SettingEntry(path = LOCALE)
         public String getLocale() {

@@ -10,6 +10,7 @@
   <bean id="adminContextImpl" class="org.sipfoundry.sipxconfig.admin.AdminContextImpl" autowire="byType">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="locationsManager" ref="locationsManager"/>
+    <property name="internalPort" value="${sysdir.port}"/>
   </bean>
 
   <bean id="firstRun" class="org.sipfoundry.sipxconfig.admin.FirstRunTask">

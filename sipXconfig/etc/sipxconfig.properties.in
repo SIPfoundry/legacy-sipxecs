@@ -74,6 +74,7 @@ sysdir.vxml.moh=@SIPX_IVRDATADIR@/moh
 sysdir.webtest.srcdir=@top_srcdir@/web/test
 sysdir.mongo_ns=
 sysdir.mongo_client_ini=@SIPX_CONFDIR@/mongo-client.ini
+sysdir.port=12001
 openfire.home=@OPENFIRE_HOME@
 openAcdContextImpl.openacdHome=@OPENACD_HOME@
 

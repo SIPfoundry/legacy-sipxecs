@@ -42,10 +42,8 @@ import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.openfire.vcard.provider.SipXVCardProvider;
 
 public class RestInterface {
-
-    public static final String REST_CALL_PROTO = "https://";
-    public static final String REST_CALL_URL_CONTACT_INFO = "/sipxconfig/rest/my/contact-information";
-    public static final String REST_CALL_PORT = "8443";
+    public static final String REST_CALL_URL_CONTACT_INFO = System.getProperty("admin.rest.url") 
+            + "/sipxconfig/rest/my/contact-information";    
     public static final int SSL_CONNECTION_TIMEOUT = 10000; // milliseconds
     public static final int CONNECTION_TIMEOUT = 30000; // milliseconds
     public static final int READ_TIMEOUT = 30000; // milliseconds
@@ -60,32 +58,22 @@ public class RestInterface {
 
     }
 
-    public static String sendRequest(String method, String sipXserver, String username, String password,
-            Element vcardElement) throws ConnectException {
+    public static String sendRequest(String method, Element vcardElement) throws ConnectException {
         try {
-            StringBuilder urlStr = new StringBuilder().append(REST_CALL_PROTO).append(sipXserver).append(":")
-                    .append(REST_CALL_PORT).append(REST_CALL_URL_CONTACT_INFO);
-            Log.debug("call REST URL " + urlStr.toString() + "[username:" + username + "]" );
-            URL serverURL = new URL(urlStr.toString());
-            HttpsURLConnection conn = (HttpsURLConnection) serverURL.openConnection();
-            conn.setConnectTimeout(SSL_CONNECTION_TIMEOUT);
+            Log.debug("call REST URL " + REST_CALL_URL_CONTACT_INFO);
+            URL serverURL = new URL(REST_CALL_URL_CONTACT_INFO);
+            HttpURLConnection conn = (HttpURLConnection) serverURL.openConnection();            
             conn.setReadTimeout(READ_TIMEOUT);
 
             conn.setDoOutput(true);
-            conn.setRequestMethod(method);
-
-            String val = (new StringBuilder(username).append(":").append(password)).toString();
-            byte[] base = val.getBytes();
-            String authorizationString = "Basic " + new String(new Base64().encode(base));
-            conn.setRequestProperty("Authorization", authorizationString);
+            conn.setRequestMethod(method);                                               
 
             if (vcardElement != null) {
                 conn.setDoInput(true);
                 conn.setRequestProperty("Content-type", "text/xml");
                 OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
                 String vcardXml = RestInterface.buildXMLContactInfo(vcardElement);
-                String contactXml = RestInterface.sendRequest(SipXVCardProvider.QUERY_METHOD, sipXserver, username,
-                        password, null);
+                String contactXml = RestInterface.sendRequest(SipXVCardProvider.QUERY_METHOD, null);
                 if (contactXml != null) {
                     vcardXml = refillMissingContactInfo(vcardXml, contactXml);
                 }

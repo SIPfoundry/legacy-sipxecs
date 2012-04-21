@@ -35,7 +35,7 @@ public class XmppContactInformationUpdate {
     }
 
     private ContactInfoChangeApi getApi() {
-        Address imApi = m_addressManager.getSingleAddress(ImManager.XMLRPC_ADDRESS);
+        Address imApi = m_addressManager.getSingleAddress(ImManager.XMLRPC_VCARD_ADDRESS);
         return m_contactInfoChangeApiProvider.getApi(imApi.toString());
     }
 
