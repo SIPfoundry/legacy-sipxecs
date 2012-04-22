@@ -26,9 +26,11 @@ bundle agent tunnel {
 
 bundle agent tunnel_config {
   vars:
-    "modes" slist { "client", "server" };
-
-    "template" string => ;
+    any::
+      "mode" slist => { 
+        "client", 
+        "server" 
+      };
 
   files:
     any::
@@ -37,18 +39,18 @@ bundle agent tunnel_config {
         transformer => "$(sipx.SIPX_LIBEXECDIR)/sipx-config-maker \
             --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/tunnel.yaml \
             --out $(sipx.SIPX_TMPDIR)/tunnel-$(mode).tmp \
-            --template $(sipx.SIPX_CONFDIR)/tunnel/tunnel-$(mode).ini";
+            --template $(sipx.SIPX_CONFDIR)/tunnel/tunnel-$(mode).erb";
 
       "$(sipx.SIPX_CONFDIR)/tunnel-$(mode).ini"
         comment => "tunnels $(mode) - connects to other systems. $(this.promiser)",
         create => "true",
         perms => m("644"),
         edit_defaults => empty,
-        edit_line => expand_template("$$(sipx.SIPX_TMPDIR)/tunnel-$(mode).tmp"),
+        edit_line => expand_template("$(sipx.SIPX_TMPDIR)/tunnel-$(mode).tmp"),
         classes => if_repaired("restart_tunnel_$(mode)");
 }
 
-bundle agent tunnel_server_running(mode) {
+bundle agent tunnel_running(mode) {
   vars:
     any::
       "service_command" string => "/usr/bin/stunnel";

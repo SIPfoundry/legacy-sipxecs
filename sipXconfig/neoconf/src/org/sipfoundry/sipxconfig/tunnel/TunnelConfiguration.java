@@ -30,12 +30,15 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 
-public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
+public class TunnelConfiguration implements ConfigProvider, FeatureListener {
     private ConfigManager m_configManager;
     private FirewallManager m_firewallManager;
     private LocationsManager m_locationsManager;
@@ -44,7 +47,7 @@ public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(TunnelManager.FEATURE)) {
+        if (!request.applies(TunnelManager.FEATURE, FirewallManager.FEATURE)) {
             return;
         }
         Set<Location> locations = request.locations(manager);
@@ -77,7 +80,7 @@ public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
     private void writeConfig(Writer w, Collection<AllowedIncomingTunnel> in, Collection<RemoteOutgoingTunnel> out)
         throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
-        c.startArray("in");
+        c.startArray("incoming");
         String name = ":name";
         String localPort = ":local_port";
         for (AllowedIncomingTunnel i : in) {
@@ -87,7 +90,7 @@ public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
             c.nextElement();
         }
         c.endArray();
-        c.startArray("out");
+        c.startArray("outgoing");
         for (RemoteOutgoingTunnel o : out) {
             c.write(name, o.getName());
             c.write(localPort, o.getLocalhostPort());
@@ -96,23 +99,6 @@ public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
             c.nextElement();
         }
         c.endArray();
-    }
-
-    @Override
-    public void onDelete(Object entity) {
-        if (entity instanceof Location) {
-            m_configManager.configureEverywhere(TunnelManager.FEATURE);
-        }
-    }
-
-    @Override
-    public void onSave(Object entity) {
-        if (entity instanceof Location) {
-            Location l = (Location) entity;
-            if (l.hasFqdnOrIpChangedOnSave()) {
-                m_configManager.configureEverywhere(TunnelManager.FEATURE);
-            }
-        }
     }
 
     public void setConfigManager(ConfigManager configManager) {
@@ -133,5 +119,19 @@ public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
 
     public void setTunnelManager(TunnelManager tunnelManager) {
         m_tunnelManager = tunnelManager;
+    }
+
+    @Override
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location) {
+        // every feature enable/disable will trigger firewall rules to reconfig
+        // because cannot tell what this affects
+        m_configManager.configureEverywhere(FirewallManager.FEATURE);
+    }
+
+    @Override
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
+        // see enableLocationFeature
+        m_configManager.configureEverywhere(FirewallManager.FEATURE);
     }
 }

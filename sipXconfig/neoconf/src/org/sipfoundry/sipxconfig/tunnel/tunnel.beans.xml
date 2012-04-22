@@ -27,6 +27,7 @@
     <property name="configManager" ref="configManager" />
     <property name="addressManager" ref="addressManager" />
     <property name="locationsManager" ref="locationsManager" />
+    <property name="tunnelManager" ref="tunnelManager" />
   </bean>
 
 </beans>

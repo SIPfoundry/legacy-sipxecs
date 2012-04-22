@@ -7,8 +7,8 @@ debug = 5
 output = $(sipx.SIPX_LOGDIR)/tunnel-client.log
 pid = $(sipx.SIPX_RUNDIR)/tunnel-client.pid
 <%
-  unless out.nil?
-    out.each { |tunnel|
+  unless outgoing.nil?
+    outgoing.each { |tunnel|
 %>[<%= tunnel[:name] %>]
 accept = <%= tunnel[:local_port] %>
 connect = <%= tunnel[:remote_address] %>:<%= tunnel[:remote_port] %>

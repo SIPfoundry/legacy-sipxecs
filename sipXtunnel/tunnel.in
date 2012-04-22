@@ -34,7 +34,7 @@ PidFile=@SIPX_RUNDIR@/tunnel-@MODE@.pid
 
 start() {
     echo "Starting tunnel service in @MODE@ mode..."
-    /usr/bin/stunnel -f @SIPX_CONFDIR@/tunnel-@MODE@.ini
+    /usr/bin/stunnel @SIPX_CONFDIR@/tunnel-@MODE@.ini
 }
 
 stop() {

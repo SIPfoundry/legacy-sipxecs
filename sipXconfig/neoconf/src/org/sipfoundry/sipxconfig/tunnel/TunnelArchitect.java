@@ -95,7 +95,7 @@ public class TunnelArchitect {
     }
 
     String tunnelName(Location l, AddressType t) {
-        return format("%d-%s", l.getId(), t.getId());
+        return format("%s-%d", t.getId(), l.getId());
     }
 
     public void setAddressManager(AddressManager addressManager) {

@@ -3,13 +3,11 @@ cert = $(sipx.SIPX_CONFDIR)/ssl/tunnel.crt
 key = $(sipx.SIPX_CONFDIR)/ssl/tunnel.key
 verify = 0
 debug = 0
-output = /root/stunnel-client.log
-pid = /root/stunnel-client.pid
 output = $(sipx.SIPX_LOGDIR)/tunnel-client.log
 pid = $(sipx.SIPX_RUNDIR)/tunnel-client.pid
 <%
-  unless in.nil?
-    in.each { |tunnel|
+  unless incoming.nil?
+    incoming.each { |tunnel|
 %>
 [<%= tunnel[:name] %>]
 accept = <%= tunnel[:incoming_port] %>

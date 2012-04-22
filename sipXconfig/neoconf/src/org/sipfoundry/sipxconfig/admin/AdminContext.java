@@ -15,8 +15,7 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface AdminContext {
     public static final LocationFeature FEATURE = new LocationFeature("admin");
-    public static final AddressType HTTP_ADDRESS = new AddressType("adminApi", "http://%s:%d");
-    public static final AddressType HTTPS_ADDRESS = new AddressType("secureAdminApi", "https://%s:%d", 443);
+    public static final AddressType HTTP_ADDRESS = new AddressType("adminApi", "http://%s:%d", 12000);
     public static final AlarmDefinition ALARM_LOGIN_FAILED = new AlarmDefinition("LOGIN_FAILED", 3);
 
     final String CONTEXT_BEAN_NAME = "adminContext";
