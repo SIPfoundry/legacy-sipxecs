@@ -408,6 +408,7 @@ public class Servlet extends HttpServlet {
             LOG.info("doProvisionPhone - " + phone);
 
             // Write the REST representation of the phone(s).
+            HttpsURLConnection.setDefaultHostnameVerifier(new CertificateHostnameVerifier(m_config.getSipDomainName()));
             HttpsURLConnection connection = createRestConnection("POST", m_config.getConfigurationUri() + "/rest/phone");
             DataOutputStream dstream = new java.io.DataOutputStream(connection.getOutputStream());
             dstream.writeBytes("<phones>");
