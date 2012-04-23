@@ -72,6 +72,16 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
     }
 
     @Override
+    public String getNamedPrivateKey(String id) {
+        return getSecurityData(CERT_TABLE, KEY_COLUMN, id);
+    }
+
+    @Override
+    public String getNamedCertificate(String id) {
+        return getSecurityData(CERT_TABLE, CERT_COLUMN, id);
+    }
+
+    @Override
     public void setCommunicationsCertificate(String cert) {
         setCommunicationsCertificate(cert, null);
     }
@@ -82,10 +92,15 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
     }
 
     void updateCertificate(String name, String cert, String key, String authority) {
+        updateNamedCertificate(name, cert, key, authority);
+        m_configManager.configureEverywhere(FEATURE);
+    }
+
+    @Override
+    public void updateNamedCertificate(String name, String cert, String key, String authority) {
         m_jdbc.update("delete from cert where name = ?", name);
         m_jdbc.update("insert into cert (name, data, private_key, authority) values (?, ?, ?, ?)", name, cert, key,
                 authority);
-        m_configManager.configureEverywhere(FEATURE);
     }
 
     void addThirdPartyAuthority(String name, String data) {

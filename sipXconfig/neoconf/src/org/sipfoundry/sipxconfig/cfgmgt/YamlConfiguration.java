@@ -27,13 +27,16 @@ import org.apache.commons.lang.StringUtils;
 /**
  * Primitive YAML writer.
  *
- * Limitations/Notes: Does not support associative lists, but you can use write(key, "[ a, b ]")
+ * Limitations/Notes:
+ * Tip: Does not support associative lists, but you can use write(key, "[ a, b ]")
  * Does not escape text Does not support multi-line Consider introducing a library before
  * expanding on this too, too much.
  */
 public class YamlConfiguration extends AbstractConfigurationFile {
     private static final String BEGIN_ARRAY = "[ ";
     private static final String END_ARRAY = " ]";
+    private static final String EMPTY = "";
+    private static final String EOL = "\n";
     private static final String INDEX = "                                                      ";
     private Writer m_out;
     private int m_nestLevel;
@@ -48,8 +51,8 @@ public class YamlConfiguration extends AbstractConfigurationFile {
         m_out.write(indent());
         m_out.write(key);
         m_out.write(": ");
-        m_out.write(value == null ? "" : value.toString());
-        m_out.write("\n");
+        m_out.write(value == null ? EMPTY : value.toString());
+        m_out.write(EOL);
     }
 
     private String indent() {
@@ -80,6 +83,20 @@ public class YamlConfiguration extends AbstractConfigurationFile {
 
     private void down() {
         m_nestLevel--;
+    }
+
+    public void writeArray(String key, Collection< ? > values) throws IOException {
+        m_out.write(indent());
+        m_out.write(key);
+        m_out.write(":\n");
+        up();
+        for (Object value : values) {
+            m_newStruct = true;
+            m_out.write(indent());
+            m_out.write(value == null ? EMPTY : value.toString());
+            m_out.write(EOL);
+        }
+        down();
     }
 
     public void startStruct(String key) throws IOException {

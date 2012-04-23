@@ -293,4 +293,20 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
     @Override
     public void onSave(Object entity) {
     }
+
+    @Override
+    public List<String> getCustomRules(Location location, Map<Object, Object> requestData) {
+        List<String> custom = new ArrayList<String>();
+        for (FirewallProvider provider : getProviders()) {
+            if (provider instanceof FirewallCustomRuleProvider) {
+                FirewallCustomRuleProvider customProvider = (FirewallCustomRuleProvider) provider;
+                Collection<String> customRules = customProvider.getCustomRules(this, location, requestData);
+                if (customRules != null && !customRules.isEmpty()) {
+                    custom.addAll(customRules);
+                }
+            }
+        }
+
+        return custom;
+    }
 }

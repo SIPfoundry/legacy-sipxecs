@@ -70,10 +70,11 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         List<ServerGroup> groups = m_firewallManager.getServerGroups();
         List<Location> locations = manager.getLocationManager().getLocationsList();
         for (Location location : request.locations(manager)) {
+            List<String> custom = m_firewallManager.getCustomRules(location, request.getRequestData());
             File dir = manager.getLocationDataDirectory(location);
             Writer config = new FileWriter(new File(dir, "firewall.yaml"));
             try {
-                writeIptables(config, rules, groups, locations, location);
+                writeIptables(config, rules, custom, groups, locations, location);
             } finally {
                 IOUtils.closeQuietly(config);
             }
@@ -85,8 +86,8 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         c.write(settings.getSettings().getSetting("sysctl"));
     }
 
-    void writeIptables(Writer w, List<FirewallRule> rules, List<ServerGroup> groups, List<Location> cluster,
-        Location thisLocation) throws IOException {
+    void writeIptables(Writer w, List<FirewallRule> rules, List<String> custom, List<ServerGroup> groups,
+        List<Location> cluster, Location thisLocation) throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
 
         Collection<?> ips = CollectionUtils.collect(cluster, Location.GET_ADDRESS);
@@ -145,6 +146,8 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
             }
         }
         c.endArray();
+
+        c.writeArray("custom", custom);
     }
 
     public void setFirewallManager(FirewallManager firewallManager) {

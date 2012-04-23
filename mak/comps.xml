@@ -20,6 +20,7 @@
      <packagereq type="mandatory">sipxdns</packagereq>
      <packagereq type="mandatory">sipxpage</packagereq>
      <packagereq type="mandatory">sipxpark</packagereq>
+     <packagereq type="mandatory">sipxtunnel</packagereq>
      <!-- polycom arguable the defacto, but not strictly required -->
      <packagereq type="mandatory">sipxpolycom</packagereq>
      <!-- good to have one gateway option installed -->

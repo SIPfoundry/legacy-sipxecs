@@ -25,9 +25,11 @@
   <bean id="tunnelConfig" class="org.sipfoundry.sipxconfig.tunnel.TunnelConfiguration">
     <property name="firewallManager" ref="firewallManager" />
     <property name="configManager" ref="configManager" />
+    <property name="featureManager" ref="featureManager" />
     <property name="addressManager" ref="addressManager" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="tunnelManager" ref="tunnelManager" />
+    <property name="certificateManager" ref="certificateManager" />
   </bean>
 
 </beans>

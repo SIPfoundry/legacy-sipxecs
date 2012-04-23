@@ -1,4 +1,4 @@
-#!@BASH@
+#!/bin/bash
 # sipxtunnel - Startup script for stunnel for internal encryption
 # chkconfig: 35 85 15
 # description: sipxtunnel is encrypted communications service

@@ -1,18 +1,21 @@
 include config/utility.am
 include config/project.am
 
+EXTRA_DIST = \
+	tunnel.in
+
 initddir = @SIPX_SERVICEDIR@
 initd_SCRIPTS = \
 	tunnel-server \
 	tunnel-client
 
 confdir = @SIPX_CONFDIR@/tunnel
-conf_DATA = \
+dist_conf_DATA = \
 	tunnel-server.erb \
 	tunnel-client.erb
 
 cfinputdir = @SIPX_CFINPUTS@/plugin.d
-cfinput_DATA = \
+dist_cfinput_DATA = \
 	tunnel.cf
 
 tunnel-% : MODE = $(word 2,$(subst -, ,$@))

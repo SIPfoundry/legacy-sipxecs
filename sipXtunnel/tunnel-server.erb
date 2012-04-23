@@ -3,8 +3,8 @@ cert = $(sipx.SIPX_CONFDIR)/ssl/tunnel.crt
 key = $(sipx.SIPX_CONFDIR)/ssl/tunnel.key
 verify = 0
 debug = 0
-output = $(sipx.SIPX_LOGDIR)/tunnel-client.log
-pid = $(sipx.SIPX_RUNDIR)/tunnel-client.pid
+output = $(sipx.SIPX_LOGDIR)/tunnel-server.log
+pid = $(sipx.SIPX_RUNDIR)/tunnel-server.pid
 <%
   unless incoming.nil?
     incoming.each { |tunnel|

@@ -22,6 +22,7 @@ package org.sipfoundry.sipxconfig.tunnel;
  */
 public class AllowedIncomingTunnel extends AbstractTunnel {
     private int m_allowedConnectionsPort;
+    private RemoteOutgoingTunnel m_outgoingTunnel;
 
     public AllowedIncomingTunnel(String name) {
         super(name);
@@ -33,5 +34,13 @@ public class AllowedIncomingTunnel extends AbstractTunnel {
 
     public void setAllowedConnectionsPort(int remoteConnectPort) {
         m_allowedConnectionsPort = remoteConnectPort;
+    }
+
+    public RemoteOutgoingTunnel getOutgoingTunnel() {
+        return m_outgoingTunnel;
+    }
+
+    public void setOutgoingTunnel(RemoteOutgoingTunnel outgoingTunnel) {
+        m_outgoingTunnel = outgoingTunnel;
     }
 }

@@ -64,13 +64,18 @@ public class TunnelArchitect {
                     AllowedIncomingTunnel s = new AllowedIncomingTunnel(name);
                     s.setLocalhostPort(address.getCanonicalPort());
                     s.setAllowedConnectionsPort(serverPort);
+                    s.setProtocol(address.getType().getProtocol());
                     server.add(s);
 
                     RemoteOutgoingTunnel c = new RemoteOutgoingTunnel(name);
+                    c.setIncomingTunnel(s);
                     c.setLocalhostPort(clientPort);
                     c.setPortOnRemoteMachine(serverPort);
                     c.setRemoteMachineAddress(address.getAddress());
+                    c.setProtocol(address.getType().getProtocol());
                     m_client.add(c);
+
+                    s.setOutgoingTunnel(c);
 
                     serverPort++;
                     clientPort++;
@@ -94,6 +99,9 @@ public class TunnelArchitect {
         return CollectionUtils.select(m_client, remoteOnly);
     }
 
+    /**
+     * @return any useful, arbitrary, unique name
+     */
     String tunnelName(Location l, AddressType t) {
         return format("%s-%d", t.getId(), l.getId());
     }

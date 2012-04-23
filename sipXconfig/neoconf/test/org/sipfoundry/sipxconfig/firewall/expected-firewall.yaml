@@ -15,3 +15,6 @@ rules:
    :service: t2
    :priority: false
    :chain: ClassA
+custom:
+ - custom 1
+ - custom 2

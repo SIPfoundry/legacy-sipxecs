@@ -31,9 +31,20 @@ bundle agent tunnel_config {
         "client", 
         "server" 
       };
+      "ssl" slist => { 
+        "tunnel.crt", 
+        "tunnel.key" 
+      };
 
   files:
     any::
+      "$(sipx.SIPX_CONFDIR)/ssl/$(ssl)"
+        comment => "tunnels cert data $(this.promiser)",
+        create => "true",
+        perms => mog("600","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
+        copy_from => copy_from_cfdata("$(ssl)"),
+        classes => if_repaired("restart_tunnel");
+
       "$(sipx.SIPX_TMPDIR)/tunnel-$(mode).tmp"
         create => "true",
         transformer => "$(sipx.SIPX_LIBEXECDIR)/sipx-config-maker \
@@ -54,15 +65,15 @@ bundle agent tunnel_running(mode) {
   vars:
     any::
       "service_command" string => "/usr/bin/stunnel";
-      "service" string => "$(sipx.SIPX_SERVICEDIR)/tunnel_$(mode)";
+      "service" string => "$(sipx.SIPX_SERVICEDIR)/tunnel-$(mode)";
 
   methods:
     any::
-      "any" usebundle => find_service_by_command("$(service_command) -f $(sipx.SIPX_CONFDIR)/tunnel-$(mode).ini", "tunnel_running", "root");
-    tunnel::
-      "any" usebundle => rh_chkconfig_status("tunnel_$(mode) on");
-    !tunnel::
-      "any" usebundle => rh_chkconfig_status("tunnel_$(mode) off");
+      "any" usebundle => find_service_by_command("$(service_command) $(sipx.SIPX_CONFDIR)/tunnel-$(mode).ini", "tunnel_running", "root");
+    !src.tunnel::
+      "any" usebundle => rh_chkconfig_status("tunnel-$(mode) on");
+    !src.!tunnel::
+      "any" usebundle => rh_chkconfig_status("tunnel-$(mode) off");
 
   commands:
     !tunnel.tunnel_running::
@@ -78,6 +89,7 @@ bundle agent tunnel_running(mode) {
     tunnel.tunnel_running.(restart_sipxecs|restart_tunnel)::
       "$(service)"
         comment => "restart tunnel $(mode)",
-        args => "restart";
+        args => "restart",
+        ifvarclass => "restart_tunnel_$(mode)";
 }
 

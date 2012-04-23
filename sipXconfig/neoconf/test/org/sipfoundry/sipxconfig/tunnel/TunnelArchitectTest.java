@@ -67,25 +67,25 @@ public class TunnelArchitectTest {
         architect.build(Arrays.asList(l1, l2), Arrays.asList(r1, r2));
         AllowedIncomingTunnel[] in1 = architect.getAllowedIncomingTunnels(l1).toArray(new AllowedIncomingTunnel[0]);
         assertEquals(2, in1.length);
-        assertEquals("1-t1", in1[0].getName());
+        assertEquals("t1-1", in1[0].getName());
         assertEquals(100, in1[0].getLocalhostPort());
         assertEquals(1000, in1[0].getAllowedConnectionsPort());
-        assertEquals("1-t2", in1[1].getName());
+        assertEquals("t2-1", in1[1].getName());
         assertEquals(200, in1[1].getLocalhostPort());
         assertEquals(1001, in1[1].getAllowedConnectionsPort());
 
         AllowedIncomingTunnel[] in2 = architect.getAllowedIncomingTunnels(l2).toArray(new AllowedIncomingTunnel[0]);
         assertEquals(2, in2.length);
-        assertEquals("2-t1", in2[0].getName());
+        assertEquals("t1-2", in2[0].getName());
         assertEquals(100, in2[0].getLocalhostPort());
         assertEquals(1000, in2[0].getAllowedConnectionsPort());
-        assertEquals("2-t2", in2[1].getName());
+        assertEquals("t2-2", in2[1].getName());
         assertEquals(200, in2[1].getLocalhostPort());
         assertEquals(1001, in2[1].getAllowedConnectionsPort());
         
         RemoteOutgoingTunnel[] out1 = architect.getRemoteOutgoingTunnels(l1).toArray(new RemoteOutgoingTunnel[0]);
         assertEquals(2, out1.length);
-        assertEquals("2-t1", out1[0].getName());
+        assertEquals("t1-2", out1[0].getName());
         assertEquals(2002, out1[0].getLocalhostPort());
         assertEquals(1000, out1[0].getPortOnRemoteMachine());
         assertEquals(l2.getAddress(), out1[0].getRemoteMachineAddress());        

@@ -37,6 +37,16 @@
   }
 %>
 
+<% 
+  unless custom.nil?
+    custom.each { |rule|
+%><%= rule %>
+<%
+    }
+  end
+%>
+
+
 <%# Simple things like outgoing DNS queries would not work w/o allowing response traffic back in %>
 -A INPUT -i $(sipx.iface) -m state --state RELATED,ESTABLISHED -j ACCEPT
 
