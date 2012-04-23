@@ -85,39 +85,14 @@ public class PagingContextImplTestIntegration extends IntegrationTestCase {
         assertEquals(1, groups.size());
     }
 
-    public void testSaveCodeConflict() throws Exception {        
+    public void testSaveCode() throws Exception {        
         PagingSettings settings = new PagingSettings();        
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
         assertEquals("*77", settings.getPrefix());
-        PagingGroup pg = m_pagingContext.getPagingGroupById(100);
-        assertEquals("858585", DummyAliasConflicter.MY_ALIAS); // if this fails, you need to change seed data 85 and 8585
-        pg.setPageGroupNumber(85);
-        m_pagingContext.savePagingGroup(pg);
-
-        try {
-            settings.setPrefix("8585");
-            m_pagingContext.saveSettings(settings);
-            fail();
-        } catch (UserException e) {
-        }
-
-        pg.setPageGroupNumber(7);
-        m_pagingContext.savePagingGroup(pg);
         settings = m_pagingContext.getSettings();
         settings.setPrefix("8585");
         m_pagingContext.saveSettings(settings);
-
-        PagingGroup group = new PagingGroup();
-        group.setDescription("test");
-        group.setSound("TadaTada.wav");
-        group.setTimeout(120);
-        group.setPageGroupNumber(85);
-        try {
-            m_pagingContext.savePagingGroup(group);
-            fail();
-        } catch (UserException e) {
-
-        }
+        assertEquals("8585", settings.getPrefix());
     }
 
     public void testSavePagingGroup() throws Exception {

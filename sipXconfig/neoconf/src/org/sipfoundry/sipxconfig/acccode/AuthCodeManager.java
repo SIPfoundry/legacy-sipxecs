@@ -14,9 +14,10 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 
-public interface AuthCodeManager extends DataObjectSource<AuthCode> {
+public interface AuthCodeManager extends DataObjectSource<AuthCode>, AliasOwner {
     AuthCode getAuthCode(Integer authCodeId);
 
     void saveAuthCode(AuthCode authCode);
