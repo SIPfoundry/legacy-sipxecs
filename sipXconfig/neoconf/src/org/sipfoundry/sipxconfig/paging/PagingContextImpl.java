@@ -67,7 +67,6 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
     }
 
     public void saveSettings(PagingSettings settings) {
-        checkAliasUse(getPagingGroups(), settings.getPrefix());
         m_settingsDao.upsert(settings);
     }
 
@@ -77,12 +76,6 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
 
     public PagingGroup getPagingGroupById(Integer pagingGroupId) {
         return (PagingGroup) getHibernateTemplate().load(PagingGroup.class, pagingGroupId);
-    }
-
-    void checkAliasUse(List<PagingGroup> groups, String prefix) {
-        for (PagingGroup group : groups) {
-            checkAliasUse(group, prefix);
-        }
     }
 
     void checkAliasUse(PagingGroup group, String prefix) {
