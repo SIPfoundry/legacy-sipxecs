@@ -43,15 +43,6 @@
    <li>
      <a jwcid="@PageLink" id="menu.phonebook" page="phonebook/ManagePhonebooks" ><span key="menu.phonebook">Phonebooks</span></a>
    </li>
-  <li jwcid="@If" condition="ognl:isOn('imbot')">
-    <a jwcid="@PageLink" page="imbot/EditIMBot"><span key="menu.imbot.featureMenu"/></a>
-  </li>
-  <li jwcid="@If" condition="ognl:isOn('event')">
-	  <a jwcid="@PageLink" page="websocket/EditWebsocket"><span key="menu.websocket.featureMenu"/></a>
-  </li>
-  <li jwcid="@If" condition="ognl:isOn('restServer')">
-	  <a jwcid="@PageLink" page="restServer/EditRestServer"><span key="menu.restServer.featureMenu"/></a>
-  </li>  
 </span>
 <span jwcid="InternalPluginsSystemBottom@Block">
   <li jwcid="@If" condition="ognl:isOn('sipxdns')">
@@ -75,6 +66,15 @@
   <li jwcid="@If" condition="ognl:isOn('natTraversal')">
 	  <a jwcid="@PageLink" page="nat/EditNatTraversal"><span key="menu.nat.featureMenu"/></a>
   </li>
+  <li jwcid="@If" condition="ognl:isOn('imbot')">
+    <a jwcid="@PageLink" page="imbot/EditIMBot"><span key="menu.imbot.featureMenu"/></a>
+  </li>
+  <li jwcid="@If" condition="ognl:isOn('restServer')">
+	  <a jwcid="@PageLink" page="restServer/EditRestServer"><span key="menu.restServer.featureMenu"/></a>
+  </li>
+  <li jwcid="@If" condition="ognl:isOn('event')">
+	  <a jwcid="@PageLink" page="websocket/EditWebsocket"><span key="menu.websocket.featureMenu"/></a>
+  </li>  
 </span>
 <span jwcid="InternalPluginsDiagnosticsTop@Block">
 	<li jwcid="@If" condition="ognl:isOn('registrar')">
