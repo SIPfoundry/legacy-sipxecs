@@ -24,8 +24,10 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.AuthorizationCodeRule;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
@@ -44,10 +46,12 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class AuthCodesImpl implements ReplicableProvider, DialingRuleProvider, FeatureProvider, AuthCodes,
         ProcessProvider {
+    private static final String ALIAS_IN_USE = "&error.aliasinuse";
     private AuthCodeManager m_authCodeManager;
     private AddressManager m_addressManager;
     private FeatureManager m_featureManager;
     private BeanWithSettingsDao<AuthCodeSettings> m_settingsDao;
+    private AliasManager m_aliasManager;
 
     @Override
     public List< ? extends DialingRule> getDialingRules(Location location) {
@@ -74,6 +78,16 @@ public class AuthCodesImpl implements ReplicableProvider, DialingRuleProvider, F
     }
 
     public void saveSettings(AuthCodeSettings settings) {
+        if (!m_aliasManager.canObjectUseAlias(settings, settings.getAuthCodePrefix())) {
+            throw new UserException(ALIAS_IN_USE, settings.getAuthCodePrefix());
+        }
+
+        for (String alias : settings.getAliasesAsSet()) {
+            if (!m_aliasManager.canObjectUseAlias(settings, alias)) {
+                throw new UserException(ALIAS_IN_USE, alias);
+            }
+        }
+
         m_settingsDao.upsert(settings);
     }
 
@@ -135,5 +149,9 @@ public class AuthCodesImpl implements ReplicableProvider, DialingRuleProvider, F
         if (b.isBasic()) {
             b.addFeature(FEATURE);
         }
+    }
+
+    public void setAliasManager(AliasManager aliasManager) {
+        m_aliasManager = aliasManager;
     }
 }
