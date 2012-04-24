@@ -94,7 +94,6 @@ bundle agent firewall_iptables_config {
       # brand new rules were generated, mark as outstanding by making a copy
       "$(unapplied)"
         comment => "Marking new iptables for install",
-        create => "true",
         copy_from => local_cp("$(iptables)"),
         classes => if_repaired("apply_iptables");
 
@@ -106,10 +105,7 @@ bundle agent firewall_iptables_config {
       "/sbin/iptables-restore"
         comment => "Installing and peristing new firewall rules",
         contain => in_shell,
-        # Calling restore and save immediately after will ignore new settings
-        # adding a delay seems to give enough time for tables to build and save
-        # to work
-        args => "< $(unapplied) && sleep 2 && /etc/init.d/iptables save && rm -f $(unapplied)";
+        args => "< $(unapplied) && /etc/init.d/iptables save && rm -f $(unapplied)";
 }
 
 bundle agent firewall_systemctl_running {

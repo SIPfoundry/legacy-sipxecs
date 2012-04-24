@@ -18,6 +18,7 @@ package org.sipfoundry.sipxconfig.tunnel;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -28,6 +29,9 @@ import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -39,7 +43,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
  * with services on another machine without allowing unauthorized connections for services that either
  * don't have authentication mechanisms or are to cumbersome to configure such as the mongo database service.
  */
-public class TunnelManagerImpl implements TunnelManager, BeanFactoryAware, FeatureProvider {
+public class TunnelManagerImpl implements TunnelManager, BeanFactoryAware, FeatureProvider, ProcessProvider {
     private ListableBeanFactory m_beanFactory;
     private volatile Collection<TunnelProvider> m_providers;
     private BeanWithSettingsDao<TunnelSettings> m_settingsDao;
@@ -99,5 +103,14 @@ public class TunnelManagerImpl implements TunnelManager, BeanFactoryAware, Featu
 
     public void setSettingsDao(BeanWithSettingsDao<TunnelSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        if (!manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
+            return null;
+        }
+        return Arrays.asList(new ProcessDefinition("encryption (outbound)", ".*/stunnel\\s.*/tunnel-client.ini"),
+                new ProcessDefinition("encryption (inbound)", ".*/stunnel\\s.*/tunnel-server.ini"));
     }
 }
