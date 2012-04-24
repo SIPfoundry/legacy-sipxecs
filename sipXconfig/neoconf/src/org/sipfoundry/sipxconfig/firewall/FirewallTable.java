@@ -14,13 +14,6 @@
  */
 package org.sipfoundry.sipxconfig.firewall;
 
-import java.util.Collection;
-import java.util.Map;
-
-import org.sipfoundry.sipxconfig.commserver.Location;
-
-public interface FirewallCustomRuleProvider extends FirewallProvider {
-
-    public Collection<CustomFirewallRule> getCustomRules(FirewallManager manager, Location location,
-            Map<Object, Object> requestData);
+public enum FirewallTable {
+    mangle, nat, filter
 }

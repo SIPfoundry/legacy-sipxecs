@@ -20,20 +20,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.firewall.CustomFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallTable;
+
 /**
  * Create the firewall redirect rules based on the current tunnels to/from each server
  */
 public class TunnelFirewallRules {
-    private String m_rule = "-t nat -A OUTPUT -o $(sipx.iface) -p %s -d %s "
+    private String m_rule = "-A OUTPUT -o $(sipx.iface) -p %s -d %s "
             + "--dport %d -j DNAT --to-destination 127.0.0.1:%d";
 
-    public Collection<String> build(Collection<RemoteOutgoingTunnel> tunnels) {
-        List<String> rules = new ArrayList<String>();
+    public Collection<CustomFirewallRule> build(Collection<RemoteOutgoingTunnel> tunnels) {
+        List<CustomFirewallRule> rules = new ArrayList<CustomFirewallRule>();
         for (RemoteOutgoingTunnel out : tunnels) {
             AllowedIncomingTunnel in = out.getIncomingTunnel();
             String rule = format(m_rule, out.getProtocol(), out.getRemoteMachineAddress(), in.getLocalhostPort(),
                     out.getLocalhostPort());
-            rules.add(rule);
+            rules.add(new CustomFirewallRule(FirewallTable.nat, rule));
         }
         return rules;
     }

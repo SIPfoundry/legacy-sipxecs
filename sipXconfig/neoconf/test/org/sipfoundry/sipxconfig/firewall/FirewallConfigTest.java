@@ -91,7 +91,11 @@ public class FirewallConfigTest {
         replay(addressManager);
         m_config.setAddressManager(addressManager);
         
-        List<String> custom = Arrays.asList("custom 1", "custom 2");
+        List<CustomFirewallRule> custom = Arrays.asList(
+          new CustomFirewallRule(FirewallTable.nat, "nat 2"),
+          new CustomFirewallRule(FirewallTable.nat, "nat 1"),
+          new CustomFirewallRule(FirewallTable.mangle, "mangle 1")
+        );
         
         m_config.writeIptables(m_actual, rules, custom, groups, cluster, l1);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-firewall.yaml"));

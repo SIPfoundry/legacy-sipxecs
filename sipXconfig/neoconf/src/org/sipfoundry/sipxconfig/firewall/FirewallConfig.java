@@ -70,7 +70,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         List<ServerGroup> groups = m_firewallManager.getServerGroups();
         List<Location> locations = manager.getLocationManager().getLocationsList();
         for (Location location : request.locations(manager)) {
-            List<String> custom = m_firewallManager.getCustomRules(location, request.getRequestData());
+            List<CustomFirewallRule> custom = m_firewallManager.getCustomRules(location, request.getRequestData());
             File dir = manager.getLocationDataDirectory(location);
             Writer config = new FileWriter(new File(dir, "firewall.yaml"));
             try {
@@ -86,7 +86,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         c.write(settings.getSettings().getSetting("sysctl"));
     }
 
-    void writeIptables(Writer w, List<FirewallRule> rules, List<String> custom, List<ServerGroup> groups,
+    void writeIptables(Writer w, List<FirewallRule> rules, List<CustomFirewallRule> custom, List<ServerGroup> groups,
         List<Location> cluster, Location thisLocation) throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
 
@@ -147,7 +147,12 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         }
         c.endArray();
 
-        c.writeArray("custom", custom);
+        for (FirewallTable table : FirewallTable.values()) {
+            Collection<?> tableRules = CollectionUtils.select(custom, CustomFirewallRule.byTable(table));
+            if (!tableRules.isEmpty()) {
+                c.writeArray(table.toString(), tableRules);
+            }
+        }
     }
 
     public void setFirewallManager(FirewallManager firewallManager) {

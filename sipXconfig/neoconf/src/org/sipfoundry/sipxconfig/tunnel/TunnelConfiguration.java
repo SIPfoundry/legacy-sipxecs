@@ -40,6 +40,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.CustomFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallCustomRuleProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
@@ -182,7 +183,7 @@ public class TunnelConfiguration implements ConfigProvider, FeatureListener, Fir
     }
 
     @Override
-    public Collection<String> getCustomRules(FirewallManager manager, Location location,
+    public Collection<CustomFirewallRule> getCustomRules(FirewallManager manager, Location location,
             Map<Object, Object> requestData) {
         boolean enabled = m_featureManager.isFeatureEnabled(TunnelManager.FEATURE);
         if (!enabled) {
@@ -192,7 +193,7 @@ public class TunnelConfiguration implements ConfigProvider, FeatureListener, Fir
         TunnelArchitect architect = getArchitect(requestData, settings, enabled);
         TunnelFirewallRules builder = new TunnelFirewallRules();
         Collection<RemoteOutgoingTunnel> out = architect.getRemoteOutgoingTunnels(location);
-        Collection<String> rules = builder.build(out);
+        Collection<CustomFirewallRule> rules = builder.build(out);
         return rules;
     }
 

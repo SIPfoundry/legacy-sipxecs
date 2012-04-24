@@ -66,6 +66,6 @@ public interface FirewallManager {
 
     public List<FirewallRule> getFirewallRules();
 
-    public List<String> getCustomRules(Location location, Map<Object, Object> requestData);
+    public List<CustomFirewallRule> getCustomRules(Location location, Map<Object, Object> requestData);
 
 }
