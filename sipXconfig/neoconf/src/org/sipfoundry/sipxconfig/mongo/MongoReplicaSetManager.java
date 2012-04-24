@@ -152,9 +152,6 @@ public class MongoReplicaSetManager implements FeatureListener {
                 members.add(host + ':' + MongoSettings.SERVER_PORT);
             }
         }
-        String primary = m_jdbcTemplate.queryForObject("select fqdn from location where primary_location = true",
-                String.class);
-        members.add(primary + ':' + MongoSettings.SERVER_PORT);
     }
 
     void getMongoMembers(Set<String> members, Set<String> arbiters) {

@@ -61,7 +61,7 @@ public class MongoConfig implements ConfigProvider, PostConfigListener {
             }
 
             // SERVERS
-            boolean mongod = fm.isFeatureEnabled(MongoManager.FEATURE_ID, location) || location.isPrimary();
+            boolean mongod = fm.isFeatureEnabled(MongoManager.FEATURE_ID, location);
             boolean arbiter = fm.isFeatureEnabled(MongoManager.ARBITER_FEATURE, location);
             FileWriter server = new FileWriter(new File(dir, "mongodb.cfdat"));
             try {
