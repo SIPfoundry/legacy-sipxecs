@@ -33,13 +33,14 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
-public class FirewallConfig implements ConfigProvider, FeatureListener {
+public class FirewallConfig implements ConfigProvider, FeatureListener, DaoEventListener {
     private static final Logger LOG = Logger.getLogger(FirewallConfig.class);
     private FirewallManager m_firewallManager;
     private AddressManager m_addressManager;
@@ -86,11 +87,11 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         c.write(settings.getSettings().getSetting("sysctl"));
     }
 
-    void writeIptables(Writer w, List<FirewallRule> rules, List<CustomFirewallRule> custom, List<ServerGroup> groups,
-        List<Location> cluster, Location thisLocation) throws IOException {
+    void writeIptables(Writer w, List<FirewallRule> rules, List<CustomFirewallRule> custom,
+            List<ServerGroup> groups, List<Location> cluster, Location thisLocation) throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
 
-        Collection<?> ips = CollectionUtils.collect(cluster, Location.GET_ADDRESS);
+        Collection< ? > ips = CollectionUtils.collect(cluster, Location.GET_ADDRESS);
         c.writeInlineArray("cluster", ips);
 
         c.startArray("chains");
@@ -148,7 +149,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         c.endArray();
 
         for (FirewallTable table : FirewallTable.values()) {
-            Collection<?> tableRules = CollectionUtils.select(custom, CustomFirewallRule.byTable(table));
+            Collection< ? > tableRules = CollectionUtils.select(custom, CustomFirewallRule.byTable(table));
             if (!tableRules.isEmpty()) {
                 c.writeArray(table.toString(), tableRules);
             }
@@ -179,5 +180,21 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
 
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        onChange(entity);
+    }
+
+    @Override
+    public void onSave(Object entity) {
+        onChange(entity);
+    }
+
+    void onChange(Object entity) {
+        if (entity instanceof Location) {
+            m_configManager.configureEverywhere(FirewallManager.FEATURE);
+        }
     }
 }
