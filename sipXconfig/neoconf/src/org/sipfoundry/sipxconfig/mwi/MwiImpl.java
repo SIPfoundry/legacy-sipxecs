@@ -50,7 +50,7 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvider, FeatureListener,
         ProcessProvider, FirewallProvider {
-    private static final Collection<AddressType> ADDRESSES = Arrays.asList(SIP_UDP, SIP_TCP, HTTPS_API);
+    private static final Collection<AddressType> ADDRESSES = Arrays.asList(SIP_UDP, SIP_TCP, HTTP_API);
     private BeanWithSettingsDao<MwiSettings> m_settingsDao;
     private ConfigManager m_configManager;
 
@@ -88,8 +88,8 @@ public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvid
         List<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location location : locations) {
             Address address;
-            if (type.equals(HTTPS_API)) {
-                address = new Address(HTTPS_API, location.getAddress(), settings.getHttpApiPort());
+            if (type.equals(HTTP_API)) {
+                address = new Address(HTTP_API, location.getAddress(), settings.getHttpApiPort());
             } else if (type.equals(SIP_UDP)) {
                 address = new Address(SIP_UDP, location.getAddress(), settings.getUdpPort());
             } else {
