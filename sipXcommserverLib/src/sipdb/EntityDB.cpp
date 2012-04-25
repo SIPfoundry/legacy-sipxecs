@@ -186,6 +186,7 @@ bool  EntityDB::tail(std::vector<std::string>& opLogs) {
         if( c->isDead() )
         {
           // we need to requery
+          conn.done();
           return false;
         }
         // No need to wait here, cursor will block for several sec with _AwaitData
@@ -212,15 +213,18 @@ bool  EntityDB::tail(std::vector<std::string>& opLogs) {
       if( c->isDead() )
       {
         // we need to requery
+        conn.done();
         return false;
       }
       // No need to wait here, cursor will block for several sec with _AwaitData
+      conn.done();
       return !opLogs.empty();
     }
     mongo::BSONObj o = c->next();
     _lastTailId = o["_id"];
     opLogs.push_back(o.toString());
   }
+  conn.done();
   return true;
 }
 
