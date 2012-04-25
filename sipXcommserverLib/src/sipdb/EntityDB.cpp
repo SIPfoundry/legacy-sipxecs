@@ -164,3 +164,64 @@ bool EntityDB::findByIdentity(const Url& uri, EntityRecord& entity) const
 	uri.getIdentity(identity);
 	return findByIdentity(identity.str(), entity);
 }
+
+
+bool  EntityDB::tail(std::vector<std::string>& opLogs) {
+  // minKey is smaller than any other possible value
+
+  static bool hasLastTailId = false;
+  mongo::ScopedDbConnection conn(_info.getConnectionString());
+  if (!hasLastTailId)
+  {
+    mongo::Query query = QUERY( "_id" << mongo::GT << _lastTailId
+          << "ns" << NS).sort("$natural");
+
+    std::auto_ptr<mongo::DBClientCursor> c =
+      conn->query("local.oplog", query, 0, 0, 0,
+                 mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData );
+    while(true)
+    {
+      if( !c->more() )
+      {
+        if( c->isDead() )
+        {
+          // we need to requery
+          return false;
+        }
+        // No need to wait here, cursor will block for several sec with _AwaitData
+        break;
+      }
+      mongo::BSONObj o = c->next();
+      _lastTailId = o["_id"];
+      hasLastTailId = true;
+    }
+  }
+
+  mongo::Query query = QUERY( "_id" << mongo::GT << _lastTailId
+          << "ns" << NS).sort("$natural");
+
+  // capped collection insertion order
+
+  std::auto_ptr<mongo::DBClientCursor> c =
+    conn->query("local.oplog", query, 0, 0, 0,
+               mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData );
+  while(true)
+  {
+    if( !c->more() )
+    {
+      if( c->isDead() )
+      {
+        // we need to requery
+        return false;
+      }
+      // No need to wait here, cursor will block for several sec with _AwaitData
+      return !opLogs.empty();
+    }
+    mongo::BSONObj o = c->next();
+    _lastTailId = o["_id"];
+    opLogs.push_back(o.toString());
+  }
+  return true;
+}
+
+
