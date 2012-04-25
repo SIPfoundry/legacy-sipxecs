@@ -1,0 +1,95 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# stunnel server and client configuration for sipxecs
+#
+
+bundle agent tunnel {
+  methods:
+    tunnel::
+      "any" usebundle => "tunnel_config";
+    any::
+      "any" usebundle => tunnel_running("client");
+      "any" usebundle => tunnel_running("server");
+}
+
+bundle agent tunnel_config {
+  vars:
+    any::
+      "mode" slist => { 
+        "client", 
+        "server" 
+      };
+      "ssl" slist => { 
+        "tunnel.crt", 
+        "tunnel.key" 
+      };
+
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/ssl/$(ssl)"
+        comment => "tunnels cert data $(this.promiser)",
+        create => "true",
+        perms => mog("600","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
+        copy_from => copy_from_cfdata("$(ssl)"),
+        classes => if_repaired("restart_tunnel");
+
+      "$(sipx.SIPX_TMPDIR)/tunnel-$(mode).tmp"
+        create => "true",
+        transformer => "$(sipx.SIPX_LIBEXECDIR)/sipx-config-maker \
+            --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/tunnel.yaml \
+            --out $(sipx.SIPX_TMPDIR)/tunnel-$(mode).tmp \
+            --template $(sipx.SIPX_CONFDIR)/tunnel/tunnel-$(mode).erb";
+
+      "$(sipx.SIPX_CONFDIR)/tunnel-$(mode).ini"
+        comment => "tunnels $(mode) - connects to other systems. $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_defaults => empty,
+        edit_line => expand_template("$(sipx.SIPX_TMPDIR)/tunnel-$(mode).tmp"),
+        classes => if_repaired("restart_tunnel_$(mode)");
+}
+
+bundle agent tunnel_running(mode) {
+  vars:
+    any::
+      "service_command" string => "/usr/bin/stunnel";
+      "service" string => "$(sipx.SIPX_SERVICEDIR)/tunnel-$(mode)";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command) $(sipx.SIPX_CONFDIR)/tunnel-$(mode).ini", "tunnel_running", "root");
+    !src.tunnel::
+      "any" usebundle => rh_chkconfig_status("tunnel-$(mode) on");
+    !src.!tunnel::
+      "any" usebundle => rh_chkconfig_status("tunnel-$(mode) off");
+
+  commands:
+    !tunnel.tunnel_running::
+      "$(service)"
+        comment => "stop tunnel $(mode)",
+        args => "stop";
+
+    tunnel.!tunnel_running::
+      "$(service)"
+        comment => "start tunnel $(mode)",
+        args => "start";
+
+    tunnel.tunnel_running.(restart_sipxecs|restart_tunnel)::
+      "$(service)"
+        comment => "restart tunnel $(mode)",
+        args => "restart",
+        ifvarclass => "restart_tunnel_$(mode)";
+}
+

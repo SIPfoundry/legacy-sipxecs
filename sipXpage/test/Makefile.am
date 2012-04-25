@@ -9,7 +9,10 @@ noinst_DATA = javac-test
 
 test_PKGS = \
 	$(page_PKGS) \
-	junit
+	junit \
+	commons-lang
+
+precommit : check
 
 test_DEPS = \
 	$(JAVAROOT) \

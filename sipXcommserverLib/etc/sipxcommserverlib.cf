@@ -96,6 +96,7 @@ body file_select authority_files {
 bundle edit_line domain_config {
   classes:
     "part_exists" expression => fileexists("$(sipx.SIPX_CFDATA)/domain-config.part");
+    "fqdn_domain" expression => strcmp("$(sipx.host).$(sipx.net_domain)", "$(sipx.domain)");
 
   insert_lines:
     any::
@@ -107,8 +108,11 @@ bundle edit_line domain_config {
     part_exists::
       "$(sipx.SIPX_CFDATA)/domain-config.part"
         insert_type => "file";
-    !part_exists::
+    !part_exists.!fqdn_domain::
        "SIP_DOMAIN_ALIASES : $(sys.ipv4) $(sipx.host).$(sipx.net_domain)";
+       "CONFIG_HOSTS : $(sipx.host).$(sipx.net_domain)";
+    !part_exists.fqdn_domain::
+       "SIP_DOMAIN_ALIASES : $(sys.ipv4)";
        "CONFIG_HOSTS : $(sipx.host).$(sipx.net_domain)";
 
   delete_lines:

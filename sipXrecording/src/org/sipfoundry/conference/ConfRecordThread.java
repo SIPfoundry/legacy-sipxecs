@@ -10,20 +10,13 @@ package org.sipfoundry.conference;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthPolicy;
-import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.ConfBasicThread;
 import org.sipfoundry.commons.freeswitch.ConferenceTask;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEvent;
-import org.sipfoundry.commons.util.DomainConfiguration;
 import org.sipfoundry.sipxrecording.RecordCommand;
 import org.sipfoundry.sipxrecording.RecordingConfiguration;
 
@@ -111,23 +104,16 @@ public class ConfRecordThread extends ConfBasicThread {
             String mboxServerAndPort = item.getMailboxServer();
 
             // Trigger the servlet on the voicemail server to read the WAV file
-            // E.g. "http://s1.example.com:8085/recording/conference?test1_6737347.wav"
+            // E.g. "http://s1.example.com:8086/recording/conference?test1_6737347.wav"
             try {
                 HttpClient httpClient = new HttpClient();
-                List<String> authPrefs = new ArrayList<String>(1);
-                // call ivr API with digest auth policy
-                authPrefs.add(AuthPolicy.DIGEST);
-                httpClient.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authPrefs);
-                DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir") + "/domain-config");
-                Credentials credentials = new UsernamePasswordCredentials(item.getOwnerName(), config.getSharedSecret());
-                httpClient.getState().setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM),
-                    credentials);
-                String urlString = "https://" + mboxServerAndPort +
+                String urlString = "http://" + mboxServerAndPort +
                                    "/recording/conference" +
                                    "?wn=" + wavName +
                                    "&on=" + item.getOwnerName() +
                                    "&oi=" + item.getOwnerId() +
                                    "&bc=" + item.getBridgeContact();
+                LOG.debug("Notify IVR to pick the recorded file and copy it into user mailbox: "+urlString);
                 GetMethod triggerRecording = new GetMethod(urlString);
                 httpClient.executeMethod(triggerRecording);
             } catch (IOException e) {

@@ -21,7 +21,11 @@ import java.util.Collection;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 
 public interface TunnelManager {
-    public static final GlobalFeature FEATURE = new GlobalFeature("tunnels");
+    public static final GlobalFeature FEATURE = new GlobalFeature("tunnel");
 
     public Collection<TunnelProvider> getTunnelProviders();
+
+    public TunnelSettings getSettings();
+
+    public void saveSettings(TunnelSettings settings);
 }

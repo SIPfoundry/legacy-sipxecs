@@ -166,11 +166,12 @@ bundle agent postgres_sysv_running {
 
 bundle agent postgres_sysctl_running {
   vars:
-    fedora16_or_greater::
+    any::
       "service" string => "postgresql.service";
 
   classes:
-    "postgres_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+    fedora16_or_greater::
+      "postgres_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:
     !postgres.postgres_running::

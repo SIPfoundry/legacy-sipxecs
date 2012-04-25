@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
@@ -49,12 +50,16 @@ public class ImBotConfiguration implements ConfigProvider {
         if (!request.applies(ImBot.FEATURE, LocalizationContext.FEATURE)) {
             return;
         }
-
+        List<Location> restServerLocations = manager.getFeatureManager().getLocationsForEnabledFeature(
+                RestServer.FEATURE);
+        if (restServerLocations.isEmpty()) {
+            return;
+        }
         FeatureManager featureManager = manager.getFeatureManager();
 
         Address ivr = manager.getAddressManager().getSingleAddress(Ivr.REST_API);
-        Address admin = manager.getAddressManager().getSingleAddress(AdminContext.HTTPS_ADDRESS);
-        Address rest = manager.getAddressManager().getSingleAddress(RestServer.HTTPS_API);
+        Address admin = manager.getAddressManager().getSingleAddress(AdminContext.HTTP_ADDRESS);
+        Address rest = manager.getAddressManager().getSingleAddress(RestServer.HTTP_API);
         Address imApi = manager.getAddressManager().getSingleAddress(ImManager.XMLRPC_ADDRESS);
         Domain domain = manager.getDomainManager().getDomain();
         ImBotSettings settings = m_imbot.getSettings();

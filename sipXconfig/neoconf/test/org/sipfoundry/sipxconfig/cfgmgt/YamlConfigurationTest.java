@@ -20,6 +20,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -50,13 +52,21 @@ public class YamlConfigurationTest {
     }
 
     @Test
-    public void array() throws IOException {
+    public void arrayOfStructs() throws IOException {
         m_config.startArray("bird");
         m_config.write("name", "robin");
         m_config.write("species", "thrush");
         m_config.endArray();
         assertEquals("bird:\n - name: robin\n   species: thrush\n", m_actual.toString());
     }
+    
+    @Test
+    public void arrayOfElements() throws IOException {
+        List<String> values = Arrays.asList("hearing gull", "northern cardinal", "scrub jay");
+        m_config.writeArray("birds", values);
+        String expected = "birds:\n - hearing gull\n - northern cardinal\n - scrub jay\n";
+        assertEquals(expected, m_actual.toString());
+    }    
 
     @Test
     public void table() throws IOException {

@@ -14,10 +14,10 @@
 -module(spx_autoloader).
 -author("eZuce").
 
--include("log.hrl").
--include("call.hrl").
--include("cpx.hrl").
--include("agent.hrl").
+-include_lib("OpenACD/include/log.hrl").
+-include_lib("OpenACD/include/call.hrl").
+-include_lib("OpenACD/include/cpx.hrl").
+-include_lib("OpenACD/include/agent.hrl").
 
 %% API
 -export([
@@ -101,7 +101,7 @@ get_states() ->
 	gen_server:call(?MODULE, get_states).
 
 %set_interval() ->
-	
+
 %%====================================================================
 %% gen_server callbacks
 %%====================================================================
@@ -189,6 +189,7 @@ code_change(_OldVsn, State, _Extra) ->
 autoload(State) ->
 	NewMods = lists:map(
 		fun({Mod = {Name, ActionFun, LoadFun, UnloadFun, ReloadFun}, Conf}) ->
+			%?DEBUG("Checking autoload of ~p with config: ~p", [Name, Conf]),
 			NewConf = case catch ActionFun(Conf) of
 				{load, NConf} ->
 					try_do(Name, load, LoadFun, Conf, NConf);
@@ -212,7 +213,7 @@ try_do(Name, Action, Fun, Conf, NConf) ->
 			?WARNING("Error occured while ~p ~p: ~p", [Name, Action, Err]),
 			Conf;
 		_ ->
-			?DEBUG("~p doing ~p", [Name, Action]),
+			?INFO("~p doing ~p", [Name, Action]),
 			NConf
 	end.
 
@@ -250,9 +251,9 @@ try_do(Name, Action, Fun, Conf, NConf) ->
 % get_db_configs() ->
 % 	Types = [
 % 	{agent_dialplan_listener,
-	
+
 % 	, freeswitch_media_manager],
-	
+
 % 	lists:foldl(fun({Name, ConfigGetFun, ConfigReloadFun}, Acc) ->
 % 			case T of
 % 				none ->
@@ -328,7 +329,7 @@ try_do(Name, Action, Fun, Conf, NConf) ->
 
 % get_client_options(Client) ->
 % 	Options = proplists:get_value(<<"additionalObjects">>, Client, []),
-	
+
 % 	lists:foldl(
 % 		fun({<<"vm_priority_diff">>, N}, Acc) when is_float(N) ->
 % 			[{vm_priority_diff, trunc(N)}|Acc];
@@ -360,7 +361,7 @@ try_do(Name, Action, Fun, Conf, NConf) ->
 % 	end.
 
 add_autoloads() ->
-	spx_integration:register_autoload(),
+	%spx_integration:register_autoload(),
 	spx_agentconfig_loader:start(),
 	spx_log_loader:start(),
 	spx_freeswitchmedia_loader:start(),
@@ -390,7 +391,7 @@ ping_test_() ->
 			meck:expect(fke, load, fun(_) -> ok end),
 			meck:expect(fke, unload, fun(_) -> ok end),
 			meck:expect(fke, reload, fun(_) -> ok end)
-		end, 
+		end,
 		fun(_) ->
 			stop(),
 			meck:unload(fke)
@@ -411,13 +412,13 @@ ping_test_() ->
 		fun() ->
 			add_mod_with_action({unload, 10}),
 			autoload(),
-			
+
 			?assert(meck:validate(fke)),
 			?assert(meck:called(fke, unload, [10]))
 		end,
 		fun() ->
 			add_mod_with_action({reload, 10}),
-			
+
 			autoload(),
 
 			?assert(meck:validate(fke)),
@@ -425,7 +426,7 @@ ping_test_() ->
 		end,
 		fun() ->
 			add_mod_with_action(fun(X) -> {load, X+1} end),
-			
+
 			autoload(),
 			autoload(),
 

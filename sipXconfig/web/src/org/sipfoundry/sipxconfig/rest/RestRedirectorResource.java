@@ -25,7 +25,6 @@ import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.restlet.Context;
@@ -37,15 +36,17 @@ import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.StringRepresentation;
 import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
+import org.sipfoundry.sipxconfig.restserver.RestServer;
 
 public class RestRedirectorResource extends UserResource {
-    private static final String CALLCONTROLLER = "callcontroller";
-    private static final String CDR = "cdr";
-    private static final String MAILBOX = "mailbox";
-
-    private static final String TRUSTED_HOST = "localhost";
+    public static final String CALLCONTROLLER = "/callcontroller";
+    public static final String CDR = "/cdr";
+    public static final String MAILBOX = "/mailbox";
 
     private HttpInvoker m_httpInvoker;
+    private AddressManager m_addressManager;
 
     @Override
     public void init(Context context, Request request, Response response) {
@@ -80,7 +81,8 @@ public class RestRedirectorResource extends UserResource {
         String callcontrollerRelativeUrl = StringUtils.substringAfter(url, CALLCONTROLLER);
 
         if (!StringUtils.isEmpty(callcontrollerRelativeUrl)) {
-            m_httpInvoker.invokePost(6666, CALLCONTROLLER + callcontrollerRelativeUrl);
+            m_httpInvoker.invokePost(m_addressManager.getSingleAddress(RestServer.HTTP_API).toString()
+                    + CALLCONTROLLER + callcontrollerRelativeUrl);
         }
     }
 
@@ -90,7 +92,8 @@ public class RestRedirectorResource extends UserResource {
         String mailboxRelativeUrl = StringUtils.substringAfter(url, MAILBOX);
 
         if (!StringUtils.isEmpty(mailboxRelativeUrl)) {
-            m_httpInvoker.invokePut(8085, MAILBOX + mailboxRelativeUrl);
+            m_httpInvoker.invokePut(m_addressManager.getSingleAddress(Ivr.REST_API).toString()
+                    + MAILBOX + mailboxRelativeUrl);
         }
     }
 
@@ -102,11 +105,14 @@ public class RestRedirectorResource extends UserResource {
         String callcontrollerRelativeUrl = StringUtils.substringAfter(url, CALLCONTROLLER);
         String result = null;
         if (!StringUtils.isEmpty(cdrRelativeUrl)) {
-            result = m_httpInvoker.invokeGet(6666, CDR + cdrRelativeUrl);
+            result = m_httpInvoker.invokeGet(m_addressManager.getSingleAddress(RestServer.HTTP_API)
+                    + CDR + cdrRelativeUrl);
         } else if (!StringUtils.isEmpty(mailboxRelativeUrl)) {
-            result = m_httpInvoker.invokeGet(8085, MAILBOX + mailboxRelativeUrl);
+            result = m_httpInvoker.invokeGet(m_addressManager.getSingleAddress(Ivr.REST_API).toString()
+                    + MAILBOX + mailboxRelativeUrl);
         } else if (!StringUtils.isEmpty(callcontrollerRelativeUrl)) {
-            result = m_httpInvoker.invokeGet(6666, CALLCONTROLLER + callcontrollerRelativeUrl);
+            result = m_httpInvoker.invokeGet(m_addressManager.getSingleAddress(RestServer.HTTP_API)
+                    + CALLCONTROLLER + callcontrollerRelativeUrl);
         }
         return new StringRepresentation(result);
     }
@@ -117,44 +123,41 @@ public class RestRedirectorResource extends UserResource {
         String mailboxRelativeUrl = StringUtils.substringAfter(url, MAILBOX);
 
         if (!StringUtils.isEmpty(mailboxRelativeUrl)) {
-            m_httpInvoker.invokeDelete(8085, MAILBOX + mailboxRelativeUrl);
+            m_httpInvoker.invokeDelete(m_addressManager.getSingleAddress(Ivr.REST_API).toString()
+                    + MAILBOX + mailboxRelativeUrl);
         }
     }
 
     public interface HttpInvoker {
-        public String invokeGet(int port, String uri) throws ResourceException;
-        public void invokePut(int port, String uri) throws ResourceException;
-        public void invokePost(int port, String uri) throws ResourceException;
-        public void invokeDelete(int port, String uri) throws ResourceException;
+        public String invokeGet(String address) throws ResourceException;
+        public void invokePut(String address) throws ResourceException;
+        public void invokePost(String address) throws ResourceException;
+        public void invokeDelete(String address) throws ResourceException;
     }
 
     public class HttpInvokerImpl implements HttpInvoker {
 
-        private String getRestServerUrl(String fqdn, int port, String uri) {
-            return String.format("https://%s:%d/" + uri, fqdn, port);
-        }
-
         @Override
-        public String invokeGet(int port, String uri) throws ResourceException {
-            HttpMethodBase method = new GetMethod(getRestServerUrl(TRUSTED_HOST, port, uri));
+        public String invokeGet(String address) throws ResourceException {
+            HttpMethodBase method = new GetMethod(address.toString());
             return invokeRestService(method);
         }
 
         @Override
-        public void invokePut(int port, String uri) throws ResourceException {
-            HttpMethodBase method = new PutMethod(getRestServerUrl(TRUSTED_HOST, port, uri));
+        public void invokePut(String address) throws ResourceException {
+            HttpMethodBase method = new PutMethod(address.toString());
             invokeRestService(method);
         }
 
         @Override
-        public void invokePost(int port, String uri) throws ResourceException {
-            HttpMethodBase method = new PostMethod(getRestServerUrl(TRUSTED_HOST, port, uri));
+        public void invokePost(String address) throws ResourceException {
+            HttpMethodBase method = new PostMethod(address.toString());
             invokeRestService(method);
         }
 
         @Override
-        public void invokeDelete(int port, String uri) throws ResourceException {
-            HttpMethodBase method = new DeleteMethod(getRestServerUrl(TRUSTED_HOST, port, uri));
+        public void invokeDelete(String address) throws ResourceException {
+            HttpMethodBase method = new DeleteMethod(address.toString());
             invokeRestService(method);
         }
 
@@ -183,5 +186,9 @@ public class RestRedirectorResource extends UserResource {
 
     public void setHttpInvoker(HttpInvoker httpInvoker) {
         m_httpInvoker = httpInvoker;
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 }

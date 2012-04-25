@@ -58,4 +58,10 @@ public interface CertificateManager {
     public void addTrustedAuthority(String authority, String cert);
 
     public void deleteTrustedAuthority(String authority);
+
+    public void updateNamedCertificate(String name, String cert, String privateKey, String authority);
+
+    public String getNamedPrivateKey(String name);
+
+    public String getNamedCertificate(String name);
 }

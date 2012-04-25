@@ -9,9 +9,9 @@ import org.apache.commons.digester.Digester;
 import org.xml.sax.InputSource;
 
 public class RestServerConfigFileParser {
-	
+
 	public static final String REST_CONFIG = "rest-config";
-	
+
 	  /**
      * Add the digester rules.
      *
@@ -22,15 +22,15 @@ public class RestServerConfigFileParser {
         digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"ip-address"), "setIpAddress",0);
         digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"sip-port"), "setSipPort",0, new Class[] {
             Integer.class});
-        digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"https-port"), "setHttpPort",0, new Class[] {
+        digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"http-port"), "setHttpPort",0, new Class[] {
             Integer.class});
-        digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"external-http-port"), "setPublicHttpPort",0, new Class[] {
+        digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"public-http-port"), "setPublicHttpPort",0, new Class[] {
             Integer.class});
         digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"sipx-proxy-domain"), "setSipxProxyDomain",0);
         digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"log-directory"), "setLogDirectory",0);
         digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"log-level"), "setLogLevel",0);
     }
-    
+
     public RestServerConfig parse(String url) {
         Digester digester = new Digester();
         addRules(digester);
@@ -42,7 +42,7 @@ public class RestServerConfigFileParser {
         } catch (Exception ex) {
       	  throw new RuntimeException(ex);
         }
-     
+
   }
 
 }

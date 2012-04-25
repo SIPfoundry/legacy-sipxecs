@@ -47,9 +47,9 @@
       <type refid="nonRootPort"/>
       <value>8100</value>
     </setting>
-    <setting name="SIP_STATUS_HTTPS_PORT" advanced="yes">
+    <setting name="SIP_STATUS_HTTPS_PORT" hidden="yes">
       <type refid="nonRootPort"/>
-      <value>8101</value>
+      <value>0</value>
     </setting>
     <setting name="SIP_STATUS_LOG_LEVEL">
       <type refid="loglevel" />

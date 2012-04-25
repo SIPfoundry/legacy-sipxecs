@@ -72,7 +72,7 @@
     <property name="realm" value="${ivr.realm}" />
     <property name="mwiUrl" value="${ivr.mwiUrl}" />
     <property name="configUrl" value="${ivr.configUrl}" />
-    <property name="httpsPort" value="${ivr.httpsPort}" />
+    <property name="httpPort" value="${ivr.httpPort}" />
     <property name="openfireHost" value="${ivr.openfireHost}" />
     <property name="openfireXmlRpcPort" value="9094" />
     <property name="configAddress" value="${ivr.configAddress}" />

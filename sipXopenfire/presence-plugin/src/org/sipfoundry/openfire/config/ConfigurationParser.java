@@ -21,7 +21,7 @@ public class ConfigurationParser {
 	public static String s2sTag = String.format("%s/%s", WATCHER_CONFIG, S2S_INFO);
 	public static String s2sAllowedServersTag = String.format("%s/%s", s2sTag, S2S_ALLOWED_SERVERS);
 	public static String s2sDisallowedServersTag = String.format("%s/%s", s2sTag, S2S_DISALLOWED_SERVERS);
-    
+
     private static String currentTag = null;
     private static Digester digester;
 
@@ -44,23 +44,23 @@ public class ConfigurationParser {
 		digester.addCallMethod(String.format("%s/%s", currentTag, elementName),
 				methodName, 0, new Class[] { Integer.class });
 	}
-    
+
     /*
     * Add the digester rules.
-    * 
+    *
     * @param digester
     */
    private static void addRules(Digester digester) throws Exception {
 
 	   digester.setUseContextClassLoader(true);
        digester.addObjectCreate(WATCHER_CONFIG, WatcherConfig.class.getName());
-       
+
        digester.addObjectCreate(s2sTag, XmppS2sInfo.class.getName());
        digester.addSetNext(s2sTag, "addS2sInfo");
-       
+
        digester.addObjectCreate(s2sAllowedServersTag, XmppS2sPolicy.class.getName());
        digester.addSetNext(s2sAllowedServersTag, "addS2sAllowedPolicy");
-       
+
        digester.addObjectCreate(s2sDisallowedServersTag, XmppS2sPolicy.class.getName());
        digester.addSetNext(s2sDisallowedServersTag, "addS2sDisallowedPolicy");
 
@@ -78,8 +78,8 @@ public class ConfigurationParser {
        addCallMethodInt("openfire-xml-rpc-port", "setOpenfireXmlRpcPort");
        addCallMethodString("openfire-host", "setOpenfireHost");
        addCallMethodString("sipxrest-ip-address", "setSipXrestIpAddress");
-       addCallMethodInt("sipxrest-https-port", "setSipXrestHttpsPort");
-       addCallMethodInt("sipxrest-external-http-port", "setSipXrestHttpPort");
+       addCallMethodInt("sipxrest-public-http-port", "setSipXrestPublicHttpPort");
+       addCallMethodInt("sipxrest-http-port", "setSipXrestHttpPort");
        addCallMethodString("IM-message-logging", "setImMessageLogging");
        addCallMethodString("IM-message-logging-directory", "setImMessageLoggingDirectory");
        addCallMethodString("locale", "setLocale");
@@ -99,7 +99,7 @@ public class ConfigurationParser {
        addCallMethodString("host", "setXmppDomainName");
        addCallMethodInt("port", "setXmppServerPort");
     }
-   
+
    public WatcherConfig parse(String url) {
 
        digester = new Digester();
@@ -107,19 +107,19 @@ public class ConfigurationParser {
        try {
 
            addRules(digester);
-       
+
            InputSource inputSource = new InputSource(url);
            digester.parse(inputSource);
            WatcherConfig watcherConfig = (WatcherConfig) digester.getRoot();
            return watcherConfig;
        } catch (Exception ex) {
-           
+
            System.err.println(ex);
            throw new SipXOpenfirePluginException(ex);
        }
-      
+
    }
 
-   
-    
+
+
 }

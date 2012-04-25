@@ -12,19 +12,18 @@ public class MetaInf {
     private String serviceDescription;
     private String sipUserName;
     private String sipListenerClassName;
-    private String remoteAuthenticationMethod = BASIC_AND_DIGEST;
-    
+    private String remoteAuthenticationMethod = HTTP_DIGEST;
+
     /*
      * Standard access control models.
      */
     public static String LOCAL_AND_REMOTE  = "LOCAL-AND-REMOTE";
     public static String LOCAL_ONLY = "LOCAL-ONLY";
     public static String HTTP_DIGEST = "HTTP-DIGEST";
-    public static String HTTPS_BASIC = "HTTPS-BASIC";
-    public static String BASIC_AND_DIGEST = "BASIC-AND-DIGEST";
+    public static String HTTP_BASIC = "HTTP-BASIC";
     /**
      * @param pluginClass the fully qualified class path of the Plugin class.
-     * @throws ClassNotFoundException 
+     * @throws ClassNotFoundException
      */
     public void setPluginClass(String pluginClass) throws ClassNotFoundException {
         Class<?> clazz = Class.forName(pluginClass);
@@ -33,7 +32,7 @@ public class MetaInf {
         }
         this.pluginClass = pluginClass;
     }
-    
+
     /**
      * @return the restletClass
      */
@@ -54,7 +53,7 @@ public class MetaInf {
      * @return the security
      */
     public String getSecurity() {
-        
+
         return security;
     }
     /**
@@ -96,7 +95,7 @@ public class MetaInf {
         return sipUserName;
     }
 
-    
+
     /**
      * Get the Sip Listener class
      */
@@ -115,11 +114,12 @@ public class MetaInf {
      * @param remoteAuthenticationMethod the remoteAuthenticationMethod to set
      */
     public void setRemoteAuthenticationMethod(String remoteAuthenticationMethod) {
-        if ( remoteAuthenticationMethod.equals(HTTPS_BASIC) || remoteAuthenticationMethod.equals(HTTP_DIGEST) ||
-                remoteAuthenticationMethod.equals(BASIC_AND_DIGEST) )  {
+        if (remoteAuthenticationMethod.equals(HTTP_BASIC) || remoteAuthenticationMethod.equals(HTTP_DIGEST))  {
             this.remoteAuthenticationMethod = remoteAuthenticationMethod;
-        }  else throw new IllegalArgumentException("Illegal authentication method " + remoteAuthenticationMethod);
-            
+        } else {
+            throw new IllegalArgumentException("Illegal authentication method " + remoteAuthenticationMethod);
+        }
+
     }
 
     /**

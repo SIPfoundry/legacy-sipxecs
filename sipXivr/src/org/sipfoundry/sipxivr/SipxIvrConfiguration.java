@@ -19,7 +19,7 @@ package org.sipfoundry.sipxivr;
 
 /**
  * Holds the configuration data needed for sipXivr.
- * 
+ *
  */
 public class SipxIvrConfiguration {
 
@@ -37,7 +37,7 @@ public class SipxIvrConfiguration {
     private String m_realm;
     private String m_mwiUrl; // The url of the Status Server we send MWI requests to
     private String m_configUrl; // The url of the Config Server for PIN change requests
-    private int m_httpsPort; // The port on which we listen for HTTPS services
+    private int m_httpPort; // The port on which we listen for HTTP services
     private String m_sendIMUrl;
     private String m_openfireHost; // The host name where the Openfire service runs
     private int m_openfireXmlRpcPort; // The port number to use for XML-RPC Openfire requests
@@ -47,7 +47,7 @@ public class SipxIvrConfiguration {
     private String m_binDirectory;
     private String m_logDirectory;
     private String m_backupPath;
-    
+
     public String getLogLevel() {
         return m_logLevel;
     }
@@ -79,14 +79,14 @@ public class SipxIvrConfiguration {
     public void setDataDirectory(String dir) {
         m_dataDirectory = dir;
     }
-    
+
     public String getMailstoreDirectory() {
         return m_mailstoreDirectory;
     }
 
     public void setMailstoreDirectory(String dir) {
         m_mailstoreDirectory = dir;
-    } 
+    }
 
     public String getPromptsDirectory() {
         return m_promptsDirectory;
@@ -94,8 +94,8 @@ public class SipxIvrConfiguration {
 
     public void setPromptsDirectory(String dir) {
         m_promptsDirectory = dir;
-    } 
-    
+    }
+
     public String getOrganizationPrefs() {
         return m_organizationPrefs;
     }
@@ -119,7 +119,7 @@ public class SipxIvrConfiguration {
     public void setDocDirectory(String dir) {
         m_docDirectory = dir;
     }
-    
+
     public String getSendIMUrl() {
         return m_sendIMUrl;
     }
@@ -147,15 +147,15 @@ public class SipxIvrConfiguration {
     public String getRealm() {
         return m_realm;
     }
-    
+
     public void setRealm(String realm) {
         m_realm = realm;
     }
-    
+
     public String getMwiUrl() {
         return m_mwiUrl;
     }
-    
+
     public void setMwiUrl(String mwiUrl) {
         m_mwiUrl = mwiUrl;
     }
@@ -163,27 +163,23 @@ public class SipxIvrConfiguration {
     public String getConfigUrl() {
         return m_configUrl;
     }
-    
+
     public void setConfigUrl(String configUrl) {
         m_configUrl = configUrl;
     }
-    
-    public int getHttpsPort() {
-        return m_httpsPort;
-    }
-    
-    public void setHttpsPort(int httpsPort) {
-        m_httpsPort = httpsPort;
+
+    public int getHttpPort() {
+        return m_httpPort;
     }
 
-    public String get3pccSecureUrl() {
-        return "https://" + m_sipxchangeDomainName + ":6666" + "/callcontroller/";
+    public void setHttpPort(int httpPort) {
+        m_httpPort = httpPort;
     }
 
     public String getOpenfireHost() {
         return m_openfireHost;
     }
-    
+
     public void setOpenfireHost(String host) {
     	m_openfireHost = host;
     }
@@ -191,11 +187,11 @@ public class SipxIvrConfiguration {
     public int getOpenfireXmlRpcPort() {
         return m_openfireXmlRpcPort;
     }
-    
+
     public void setOpenfireXmlRpcPort(int port) {
         m_openfireXmlRpcPort = port;
     }
-    
+
     public String getSipxSupervisorHost() {
         return m_sipxSupervisorHost;
     }
@@ -235,7 +231,7 @@ public class SipxIvrConfiguration {
     public void setBackupPath(String path) {
         m_backupPath = path;
     }
-    
+
     public int getSipxSupervisorXmlRpcPort() {
         return m_sipxSupervisorXmlRpcPort;
     }

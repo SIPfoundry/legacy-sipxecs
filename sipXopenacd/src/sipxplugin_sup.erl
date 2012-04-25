@@ -24,17 +24,16 @@ start_link() ->
 
 init([]) ->
     {ok, {{one_for_one, 5, 10}, [
-    	{spx_autoloader,
-    		{spx_autoloader, start_link, []},
-    		permanent,
-    		1000,
-    		worker,
-    		[spx_autoloader]},
-    	{spx_integration,
-    		{spx_integration, start_link, []},
-    		permanent,
-    		1000,
-    		worker,
-    		[spx_integration]}
+	{spx_autoloader,
+		{spx_autoloader, start_link, []},
+		permanent,
+		1000,
+		worker,
+		[spx_autoloader]},
+	{spx_integration,
+		{spx_integration, start_link, []},
+		permanent,
+		1000,
+		worker,
+		[spx_integration]}
     ]} }.
-

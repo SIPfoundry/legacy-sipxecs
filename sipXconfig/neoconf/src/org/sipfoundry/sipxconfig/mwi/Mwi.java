@@ -23,7 +23,7 @@ public interface Mwi {
     public static final LocationFeature FEATURE = new LocationFeature("mwi");
     public static final AddressType SIP_UDP = AddressType.sipUdp("mwiSipUdp");
     public static final AddressType SIP_TCP = AddressType.sipTcp("mwiSipTcp");
-    public static final AddressType HTTP_API = new AddressType("mwiHttpApi", "https://%s:%d/cgi/StatusEvent.cgi");
+    public static final AddressType HTTP_API = new AddressType("mwiHttpApi", "http://%s:%d/cgi/StatusEvent.cgi");
 
     public MwiSettings getSettings();
 

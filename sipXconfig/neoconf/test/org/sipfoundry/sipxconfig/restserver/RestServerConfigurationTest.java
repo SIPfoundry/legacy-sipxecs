@@ -28,7 +28,7 @@ import org.sipfoundry.sipxconfig.test.TestHelper;
 
 
 public class RestServerConfigurationTest {
-    
+
     @Test
     public void testConfig() throws Exception {
         RestConfiguration config = new RestConfiguration();

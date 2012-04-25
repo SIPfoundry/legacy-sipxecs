@@ -534,6 +534,10 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         if (skill.isNew() || (!skill.isNew() && isAtomChanged(skill))) {
             checkForDuplicateAtom(skill);
         }
+        // Magic skills cannot be added, changed or deleted
+        if (skill.getGroupName().equals(MAGIC_SKILL_GROUP_NAME)) {
+            throw new UserException("&error.forbiddenMagicSkillGroup");
+        }
 
         if (!skill.isNew()) {
             getHibernateTemplate().merge(skill);

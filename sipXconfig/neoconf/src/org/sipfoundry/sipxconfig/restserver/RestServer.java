@@ -20,9 +20,10 @@ import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface RestServer {
+    public static final String HTTP_FORMAT = "http://%s:%d";
     public static final LocationFeature FEATURE = new LocationFeature("restServer");
-    public static final AddressType HTTPS_API = new AddressType("restServerApi", "https://%s:%d");
-    public static final AddressType EXTERNAL_API = new AddressType("restServerExternalApi");
+    public static final AddressType HTTP_API = new AddressType("restServerApi", HTTP_FORMAT);
+    public static final AddressType PUBLIC_HTTP_API = new AddressType("publicRestServerApi", HTTP_FORMAT);
     public static final AddressType SIP_TCP = AddressType.sipTcp("restServerSip");
 
     public RestServerSettings getSettings();

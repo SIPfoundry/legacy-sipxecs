@@ -50,16 +50,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements MailboxManager {
-    private static final String GET_VOICEMAILS_URL = "https://{host}:{port}/mailbox/{userId}/{folder}";
-    private static final String GET_VOICEMAIL_URL = "https://{host}:{port}/mailbox/{userId}/{folder}/{messageId}";
-    private static final String DELETE_MAILBOX_URL = "https://{host}:{port}/mailbox/{userId}/delete";
-    private static final String RENAME_MAILBOX_URL = "https://{host}:{port}/mailbox/{userId}/rename/{oldUserId}";
-    private static final String MESSAGE_READ_URL = "https://{host}:{port}/mailbox/{userId}/message/{messageId}/heard";
-    private static final String MOVE_MSG = "https://{host}:{port}/mailbox/{userId}/"
+    private static final String GET_VOICEMAILS_URL = "/mailbox/{userId}/{folder}";
+    private static final String GET_VOICEMAIL_URL = "/mailbox/{userId}/{folder}/{messageId}";
+    private static final String DELETE_MAILBOX_URL = "/mailbox/{userId}/delete";
+    private static final String RENAME_MAILBOX_URL = "/mailbox/{userId}/rename/{oldUserId}";
+    private static final String MESSAGE_READ_URL = "/mailbox/{userId}/message/{messageId}/heard";
+    private static final String MOVE_MSG = "/mailbox/{userId}/"
             + "message/{messageId}/move/{destination}";
-    private static final String DEL_MSG_URL = "https://{host}:{port}/mailbox/{userId}/message/{messageId}/delete";
-    private static final String SAVE_SUBJECT = "https://{host}:{port}/mailbox/{userId}/message/{messageId}/subject";
-    private static final String RESTORE_LOG_URL = "https://{host}:{port}/manage/restore/log";
+    private static final String DEL_MSG_URL = "/mailbox/{userId}/message/{messageId}/delete";
+    private static final String SAVE_SUBJECT = "/mailbox/{userId}/message/{messageId}/subject";
+    private static final String RESTORE_LOG_URL = "/manage/restore/log";
     private static final Log LOG = LogFactory.getLog(RemoteMailboxManagerImpl.class);
     private XPathOperations m_xPathTemplate;
     private RestTemplate m_restTemplate;
@@ -87,9 +87,8 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
 
     private List<Voicemail> retrieveVoicemails(String url, final String userId, final String folder) {
         try {
-            Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
-            Source voicemails = m_restTemplate.getForObject(url, Source.class, ivrAddress.getAddress(),
-                    ivrAddress.getPort(), userId, folder);
+            Address ivrRestAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
+            Source voicemails = m_restTemplate.getForObject(ivrRestAddress + url, Source.class, userId, folder);
             List<Voicemail> voicemailList = m_xPathTemplate.evaluate("//message", voicemails,
                     new NodeMapper<Voicemail>() {
                         @Override
@@ -105,39 +104,39 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
 
     @Override
     public void deleteMailbox(String userId) {
-        Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
-        put(DELETE_MAILBOX_URL, null, ivrAddress.getAddress(), ivrAddress.getPort(), userId);
+        Address ivrRestAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
+        put(ivrRestAddress + DELETE_MAILBOX_URL, null, userId);
     }
 
     @Override
     public void renameMailbox(String oldUserId, String newUserId) {
-        Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
-        put(RENAME_MAILBOX_URL, null, ivrAddress.getAddress(), ivrAddress.getPort(), newUserId, oldUserId);
+        Address ivrRestAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
+        put(ivrRestAddress + RENAME_MAILBOX_URL, null, newUserId, oldUserId);
     }
 
     @Override
     public void markRead(String userId, String messageId) {
-        Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
-        put(MESSAGE_READ_URL, null, ivrAddress.getAddress(), ivrAddress.getPort(), userId, messageId);
+        Address ivrRestAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
+        put(ivrRestAddress + MESSAGE_READ_URL, null, userId, messageId);
     }
 
     @Override
     public void move(String userId, Voicemail voicemail, String destinationFolderId) {
-        Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
-        put(MOVE_MSG, null, ivrAddress.getAddress(), ivrAddress.getPort(), userId, voicemail.getMessageId(),
+        Address ivrRestAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
+        put(ivrRestAddress + MOVE_MSG, null, userId, voicemail.getMessageId(),
                 destinationFolderId);
     }
 
     @Override
     public void delete(String userId, Voicemail voicemail) {
-        Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
-        put(DEL_MSG_URL, null, ivrAddress.getAddress(), ivrAddress.getPort(), userId, voicemail.getMessageId());
+        Address ivrRestAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
+        put(ivrRestAddress + DEL_MSG_URL, null, userId, voicemail.getMessageId());
     }
 
     @Override
     public void save(Voicemail voicemail) {
-        Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
-        put(SAVE_SUBJECT, voicemail.getSubject(), ivrAddress.getAddress(), ivrAddress.getPort(),
+        Address ivrRestAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
+        put(ivrRestAddress + SAVE_SUBJECT, voicemail.getSubject(),
                 voicemail.getUserId(), voicemail.getMessageId());
     }
 
@@ -189,12 +188,11 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
 
     @Override
     public String getMailboxRestoreLog() {
-        Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
+        Address ivrRestAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
         StringBuilder log = new StringBuilder();
         log.append(String.format("\n\n:::: Voicemail restore log on remote server %s ::::\n\n",
-                ivrAddress.getAddress()));
-        log.append(m_restTemplate.getForObject(RESTORE_LOG_URL, String.class, ivrAddress.getAddress(),
-                ivrAddress.getPort()));
+                ivrRestAddress.getAddress()));
+        log.append(m_restTemplate.getForObject(ivrRestAddress + RESTORE_LOG_URL, String.class));
         return log.toString();
     }
 

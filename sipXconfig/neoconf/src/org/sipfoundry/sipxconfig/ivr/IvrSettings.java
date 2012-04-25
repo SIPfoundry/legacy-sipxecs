@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class IvrSettings extends PersistableSettings implements DeployConfigOnEdit {
-    private static final String HTTPS_PORT = "ivr/ivr.httpsPort";
+    private static final String HTTP_PORT = "ivr/ivr.httpPort";
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
@@ -37,8 +37,8 @@ public class IvrSettings extends PersistableSettings implements DeployConfigOnEd
         return getModelFilesContext().loadModelFile("sipxivr/sipxivr.xml");
     }
 
-    public int getHttpsPort() {
-        return (Integer) getSettingTypedValue(HTTPS_PORT);
+    public int getHttpPort() {
+        return (Integer) getSettingTypedValue(HTTP_PORT);
     }
 
     @Override

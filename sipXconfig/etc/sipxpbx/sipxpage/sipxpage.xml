@@ -34,33 +34,11 @@
   <type id="nonRootRequiredPort">
     <integer min="1025" max="65535"/>
   </type>
-  <group name="page-dial">
+  <group name="page-config">
     <setting name="prefix">
       <value>*77</value>
-    </setting>    
-  </group>
-  <group name="page-config">
-    <setting name="sip.tcpPort">
-      <type refid="nonRootRequiredPort"/>
-      <value>5160</value>
     </setting>
-    <setting name="sip.udpPort">
-      <type refid="nonRootRequiredPort"/>
-      <value>5160</value>
-    </setting>
-    <setting name="sip.tlsPort">
-      <type refid="nonRootRequiredPort"/>
-      <value>5161</value>
-    </setting>
-    <setting name="rtp.port">
-      <type refid="nonRootRequiredPort"/>
-      <value>8500</value>
-    </setting>
-    <setting name="log.level">
-      <type refid="loglevel" />
-      <value>NOTICE</value>
-    </setting>
-    <setting name="sip.trace" advanced="yes">
+    <setting name="sip.trace">
       <type>
         <enum>
           <option>
@@ -75,6 +53,26 @@
         </enum>
       </type>
       <value>NONE</value>
+    </setting>  
+    <setting name="sip.tcpPort" advanced="yes">
+      <type refid="nonRootRequiredPort"/>
+      <value>5160</value>
+    </setting>
+    <setting name="sip.udpPort" advanced="yes">
+      <type refid="nonRootRequiredPort"/>
+      <value>5160</value>
+    </setting>
+    <setting name="sip.tlsPort" advanced="yes">
+      <type refid="nonRootRequiredPort"/>
+      <value>5161</value>
+    </setting>
+    <setting name="rtp.port" advanced="yes">
+      <type refid="nonRootRequiredPort"/>
+      <value>8500</value>
+    </setting>
+    <setting name="log.level" advanced="yes">
+      <type refid="loglevel" />
+      <value>NOTICE</value>
     </setting>
   </group>
 </model>

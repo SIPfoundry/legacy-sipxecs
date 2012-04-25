@@ -36,7 +36,7 @@
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
-    <setting name="servlet.port">
+    <setting name="provision.servlet.port">
       <type>
         <integer min="1025" max="65335" />
       </type>

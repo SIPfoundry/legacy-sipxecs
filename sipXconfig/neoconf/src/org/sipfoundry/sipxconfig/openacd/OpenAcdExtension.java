@@ -192,7 +192,6 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable,
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return (!isEnabled() ? null : Collections.singleton((Feature) FreeswitchFeature.FEATURE));
+        return Collections.singleton((Feature) FreeswitchFeature.FEATURE);
     }
-
 }

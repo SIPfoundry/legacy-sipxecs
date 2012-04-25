@@ -21,7 +21,6 @@ import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
-import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApi;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.mwi.Mwi;
@@ -36,7 +35,6 @@ public class IvrConfigTest {
     private Address m_mwiApi;
     private Address m_restApi;
     private Address m_adminApi;
-    private Address m_primaryIp;
     private Address m_imApi;
     private Address m_imbotApi;
     private Address m_fsEvent;
@@ -50,13 +48,13 @@ public class IvrConfigTest {
         m_settings = new IvrSettings();
         m_settings.setModelFilesContext(TestHelper.getModelFilesContext());
         m_mwiApi = new Address(Mwi.HTTP_API, "mwi.example.org", 100);
-        m_restApi = new Address(RestServer.HTTPS_API, "rest.example.org", 101);
-        m_adminApi = new Address(AdminContext.HTTPS_ADDRESS, "admin.example.org", 102);
+        m_restApi = new Address(RestServer.HTTP_API, "rest.example.org", 101);
+        m_adminApi = new Address(AdminContext.HTTP_ADDRESS, "admin.example.org", 102);
         m_imApi = new Address(ImManager.XMLRPC_ADDRESS, "im.example.org", 103);
         m_imbotApi = new Address(ImBot.XML_RPC, "imbot.example.org", 104);
         m_fsEvent = new Address(FreeswitchFeature.EVENT_ADDRESS, "fsevent.example.org", 105);
     }
-    
+
     @Test
     public void testWriteWithOpenfireService() throws Exception {
         StringWriter actual = new StringWriter();
@@ -64,7 +62,7 @@ public class IvrConfigTest {
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-sipxivr-with-openfire.properties"));
         assertEquals(expected, actual.toString());
     }
-    
+
     @Test
     public void testWriteWithoutOpenfireService() throws Exception {
         StringWriter actual = new StringWriter();

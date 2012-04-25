@@ -16,6 +16,7 @@
   <bean id="setup" class="org.sipfoundry.sipxconfig.setup.SetupMain">
     <property name="configManager" ref="configManager"/>
     <property name="setupManager" ref="setupManager"/>
+    <property name="jobContext" ref="jobContext"/>
   </bean>
   
 </beans>

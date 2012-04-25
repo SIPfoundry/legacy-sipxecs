@@ -524,7 +524,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
             addHistoryEvent(msgSubType, multiStringMessage);
             {
                 OsWriteLock lock(mDtmfQMutex);
-                int ev = ((CpMultiStringMessage&)eventMessage).getInt1Data();
+                intptr_t ev = ((CpMultiStringMessage&)eventMessage).getInt1Data();
 
                 assert(mDtmfQLen < MAX_NUM_TONE_LISTENERS);
 
@@ -688,7 +688,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                                         mCallId.data(), (long)eventData);
                                     continue; // previous key still down, ignore long key event
                                 }
-                                OsQueuedEvent* dtmfEvent = reinterpret_cast<OsQueuedEvent*>(mDtmfEvents[i].event);
+                                OsQueuedEvent* dtmfEvent = (OsQueuedEvent*)(mDtmfEvents[i].event);
                                 if (dtmfEvent)
                                 {
                                     OsStatus res = dtmfEvent->signal((eventData & 0xfffffff0));

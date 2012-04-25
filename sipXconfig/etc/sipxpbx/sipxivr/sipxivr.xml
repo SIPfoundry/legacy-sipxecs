@@ -50,12 +50,18 @@
       <type refid="faxformat" />
       <value>pdf</value>
     </setting>
-    <setting name="ivr.httpsPort" advanced="yes">
+    <setting name="ivr.publicHttpPort" advanced="yes">
       <type>
         <integer />
       </type>
       <value>8085</value>
     </setting>
+    <setting name="ivr.httpPort">
+      <type>
+        <integer />
+      </type>
+      <value>8086</value>
+    </setting>    
     <setting name="ivr.voiceMailExpiry" advanced="yes">
       <type>
         <integer min="0" />

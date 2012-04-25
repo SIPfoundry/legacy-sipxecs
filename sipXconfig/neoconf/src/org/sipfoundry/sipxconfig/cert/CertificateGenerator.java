@@ -7,6 +7,7 @@
  */
 package org.sipfoundry.sipxconfig.cert;
 
+
 import static java.lang.String.format;
 
 import java.security.GeneralSecurityException;

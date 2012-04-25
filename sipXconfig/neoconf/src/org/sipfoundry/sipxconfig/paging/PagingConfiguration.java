@@ -59,7 +59,13 @@ public class PagingConfiguration implements ConfigProvider {
     void write(Writer writer, Location location, List<PagingGroup> groups, PagingSettings settings, String domainName)
         throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(writer);
-        config.write(settings.getSettings().getSetting("page-config"));
+        config.write("sip.address", location.getAddress());
+        config.write("rtp.port", settings.getRtpPort());
+        config.write("sip.tlsPort", settings.getSipTlsPort());
+        config.write("sip.udpPort", settings.getSipUdpPort());
+        config.write("sip.tcpPort", settings.getSipTcpPort());
+        config.write("sip.trace", settings.getSipTraceLevel());
+        config.write("log.level", settings.getLogLevel());
         for (int i = 0; i < groups.size(); i++) {
             PagingGroup g = groups.get(i);
             if (g.isEnabled()) {

@@ -35,8 +35,8 @@ public class ImbotConfigurationTest {
         domain.setSipRealm("grapefruit");
         Address ivr = new Address(Ivr.REST_API, "ivr.example.org", 100);
         Address admin = new Address(AdminContext.HTTP_ADDRESS, "admin.example.org", 101);
-        Address rest = new Address(RestServer.HTTPS_API, "rest.example.org", 102);
-        Address imApi = new Address(RestServer.HTTPS_API, "imapi.example.org", 103);
+        Address rest = new Address(RestServer.HTTP_API, "rest.example.org", 102);
+        Address imApi = new Address(RestServer.HTTP_API, "imapi.example.org", 103);
         config.write(actual, settings, domain, ivr, admin, rest, imApi);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-sipximbot.properties"));
         assertEquals(expected, actual.toString());

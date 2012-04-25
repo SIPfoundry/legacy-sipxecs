@@ -2,13 +2,19 @@
 [{description, "OpenACD and sipXecs integration"},
 {vsn, "@VERSION@.@PACKAGE_REVISION@"},
 {modules,[
+	sipxplugin,
 	sipxplugin_app,
 	sipxplugin_sup,
 	sipxplugin_poller,
 	spx_autoloader,
 	spx_freeswitchmedia_loader,
+	spx_agentconfig_loader,
 	spx_integration,
-	spx_util]},
+	spx_log_loader,
+	spx_util,
+    spx_agent_auth,
+	spx_call_queue_config
+]},
 {registered, [
 	sipxplugin_sup,
 	spx_autoloader

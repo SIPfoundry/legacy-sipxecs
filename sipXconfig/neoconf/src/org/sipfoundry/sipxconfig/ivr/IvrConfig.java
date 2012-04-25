@@ -54,8 +54,8 @@ public class IvrConfig implements ConfigProvider {
         Set<Location> locations = request.locations(manager);
         FeatureManager featureManager = manager.getFeatureManager();
         Address mwiApi = manager.getAddressManager().getSingleAddress(Mwi.HTTP_API);
-        Address adminApi = manager.getAddressManager().getSingleAddress(AdminContext.HTTPS_ADDRESS);
-        Address restApi = manager.getAddressManager().getSingleAddress(RestServer.HTTPS_API);
+        Address adminApi = manager.getAddressManager().getSingleAddress(AdminContext.HTTP_ADDRESS);
+        Address restApi = manager.getAddressManager().getSingleAddress(RestServer.HTTP_API);
         Address imApi = manager.getAddressManager().getSingleAddress(ImManager.XMLRPC_ADDRESS);
         Address imbotApi = manager.getAddressManager().getSingleAddress(ImBot.XML_RPC);
         Address fsEvent = manager.getAddressManager().getSingleAddress(FreeswitchFeature.EVENT_ADDRESS);
@@ -97,7 +97,6 @@ public class IvrConfig implements ConfigProvider {
         if (adminApi == null) {
             throw new ConfigException("Admin feature needs to be enabled. No addresses found.");
         }
-        config.write("ivr.configAddress", adminApi.getAddress());
         config.write("ivr.configUrl", adminApi.toString());
 
         // optional services

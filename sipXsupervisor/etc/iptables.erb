@@ -3,34 +3,76 @@
 :FORWARD DROP [0:0]
 :OUTPUT ACCEPT [60:6096]
 :syn-flood - [0:0]
-
 <%
-  chains.each { |chain|
+  unless chains.nil?
+    chains.each { |chain|
 %>-N <%= chain[:name] %>
 <%
-    chain[:ipv4s].each { |ipv4|
-%>-A <%= chain[:name] %> -s <%= ipv4 %> -j ACCEPT 
+      chain[:ipv4s].each { |ipv4|
+%>-A <%= chain[:name] %> -s <%= ipv4 %> -j ACCEPT
+<%
+      }
+%>-A <%= chain[:name] %> -j DROP
 <%
     }
-%>-A <%= chain[:name] %> -j DROP 
+  end
+
+  cluster.each { |ipv4|
+%>-A INPUT -i $(sipx.iface) -s <%= ipv4 %> -j ACCEPT
 <%
   }
-%>
 
-<% 
   rules.each { |rule|
 %>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> --dport <%= rule[:port] %> -m state --state NEW,ESTABLISHED -j <%= rule[:chain] %>
 <%
-    if rule[:prioritize]
-%>-t mangle -A OUTPUT -i $(sipx.iface) -p <%= rule[:protocol] %> --dport <%= rule[:port] %> -j DSCP --set-dscp-class EF
+  }
+
+  if defined? filter && !filter.nil?
+    filter.each { |rule|
+%><%= rule %>
+<%
+    }
+  end
+%>
+<%# Simple things like outgoing DNS queries would not work w/o allowing response traffic back in %>
+-A INPUT -i $(sipx.iface) -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+COMMIT
+
+*nat
+:PREROUTING ACCEPT [804:106008]
+:POSTROUTING ACCEPT [1376:92796]
+:OUTPUT ACCEPT [1376:92796]
+<%
+  if defined? nat && !nat.nil?
+    nat.each { |rule|
+%><%= rule %>
+<%
+    }
+  end
+%>
+COMMIT
+
+*mangle
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+<%
+  rules.each { |rule|
+    if rule[:priority]
+%>-A OUTPUT -o $(sipx.iface) -p <%= rule[:protocol] %> --dport <%= rule[:port] %> -j DSCP --set-dscp-class EF
 <%
     end
   }
+
+  if defined? mangle && !mangle.nil?
+    mangle.each { |rule|
+%><%= rule %>
+<%
+    }
+  end
 %>
-
-<%# Simple things like outgoing DNS queries would not work w/o allowing response traffic back in %>
--A INPUT -i $(sipx.iface) -m state --state RELATED,ESTABLISHED -j ACCEPT
-
--A INPUT -p icmp -j ACCEPT
--A INPUT -i lo -j ACCEPT
 COMMIT

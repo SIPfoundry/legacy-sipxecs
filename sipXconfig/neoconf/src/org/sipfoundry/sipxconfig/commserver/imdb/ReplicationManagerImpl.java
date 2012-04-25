@@ -355,12 +355,14 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             Map<String, ReplicableProvider> beanMap = m_beanFactory.getBeansOfType(ReplicableProvider.class);
             for (ReplicableProvider provider : beanMap.values()) {
                 for (Replicable entity : provider.getReplicables()) {
-                    if (!entity.getDataSets().contains(ds)) {
-                        continue;
-                    }
-                    DBObject top = findOrCreate(entity);
-                    if (replicateEntity(entity, ds, top)) {
-                        getDbCollection().save(top);
+                    if (entity != null) {
+                        if (!entity.getDataSets().contains(ds)) {
+                            continue;
+                        }
+                        DBObject top = findOrCreate(entity);
+                        if (replicateEntity(entity, ds, top)) {
+                            getDbCollection().save(top);
+                        }
                     }
                 }
             }

@@ -33,22 +33,15 @@ start() {
   Args=""
   JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
   Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @rest_PKGS@`
-  export CLASSPATH=`echo @SIPX_CONFDIR@/sipxrest @SIPX_JAVADIR@/sipXrest/*.jar @SIPX_JAVADIR@/sipXrest/plugins/*.jar ${Dependencies} | sed -e 's/ /:/g'`  
-  
-  setJavaSslOpts
+  export CLASSPATH=`echo @SIPX_CONFDIR@/sipxrest @SIPX_JAVADIR@/sipXrest/*.jar @SIPX_JAVADIR@/sipXrest/plugins/*.jar ${Dependencies} | sed -e 's/ /:/g'`    
   
   Command="$JavaCmd \
       -Dprocname=sipxrest \
       -Dconf.dir=@SIPX_CONFDIR@	\
       -Dplugin.dir=@SIPX_JAVADIR@/sipXrest/plugins \
-	  $TrustStoreOpts \
-	  $KeyStoreOpts	\
-	 -Djetty.x509.algorithm=$X509Algorithm \
-	 -Djetty.ssl.password=$StorePassword \
-	 -Djetty.ssl.keypassword=$StorePassword	\
-	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
-     -Dsipxrest.command=start \
-     org.sipfoundry.sipxrest.RestServer \
+	  -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+      -Dsipxrest.command=start \
+      org.sipfoundry.sipxrest.RestServer \
 	 $Args"
 
   if [ -n "${NoFork}" ] ; then

@@ -94,7 +94,6 @@ bundle agent firewall_iptables_config {
       # brand new rules were generated, mark as outstanding by making a copy
       "$(unapplied)"
         comment => "Marking new iptables for install",
-        create => "true",
         copy_from => local_cp("$(iptables)"),
         classes => if_repaired("apply_iptables");
 
@@ -114,6 +113,7 @@ bundle agent firewall_systemctl_running {
     "service" string => "iptables.service";
 
   classes:
+    fedora16_or_greater::
     "iptables_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:

@@ -43,8 +43,8 @@ public class ApacheManagerImpl extends SipxHibernateDaoSupport<Object> implement
 
         Set<Location> locations = request.locations(manager);
         for (Location l : locations) {
-            File dir = manager.getLocationDataDirectory(l);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, l);
+            File dir = manager.getLocationDataDirectory(l);
             ConfigUtils.enableCfengineClass(dir, "apache.cfdat", enabled, "apache");
         }
     }

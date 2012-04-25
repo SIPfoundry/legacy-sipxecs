@@ -27,7 +27,6 @@ import org.sipfoundry.commons.util.DomainConfiguration;
 import org.sipfoundry.commons.util.SipUriUtil;
 import org.sipfoundry.sipxivr.SipxIvrConfiguration;
 import org.sipfoundry.sipxivr.rest.SipxIvrServletHandler;
-import org.sipfoundry.sipxivr.rest.WebServer;
 import org.sipfoundry.voicemail.mailbox.Folder;
 import org.sipfoundry.voicemail.mailbox.MailboxDetails;
 import org.sipfoundry.voicemail.mailbox.MailboxManager;
@@ -57,7 +56,6 @@ public class MailboxServlet extends HttpServlet {
     private static final String METHOD_GET = "GET";
     private static final String METHOD_PUT = "PUT";
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
-    private String sharedSecret = null;
 
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doIt(request, response);
@@ -80,10 +78,7 @@ public class MailboxServlet extends HttpServlet {
                 .getAttribute(SipxIvrServletHandler.DEPOSIT_MAP_ATTR);
         MailboxManager mailboxManager = (MailboxManager) request.getAttribute(SipxIvrServletHandler.MAILBOX_MANAGER);
         Mwi mwiManager = (Mwi) request.getAttribute(SipxIvrServletHandler.MWI_MANAGER);
-        if (sharedSecret == null) {
-            DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir") + "/domain-config");
-            sharedSecret = config.getSharedSecret();
-        }
+
         String method = request.getMethod().toUpperCase();
 
         String pathInfo = request.getPathInfo();
@@ -102,19 +97,16 @@ public class MailboxServlet extends HttpServlet {
         User user = validUsers.getUser(mailboxString);
         // only superadmin and mailbox owner can access this service
         // TODO allow all admin user to access it
-        boolean trustedSource = request.getAttribute("trustedSource") != null
-                && request.getAttribute("trustedSource").equals(sharedSecret);
-        if (!trustedSource) {
-            if (isForbidden(request, user.getUserName())) {
-                response.sendError(403); // Send 403 Forbidden
-                return;
-            }
+
+        if (isForbidden(request, user.getUserName(), request.getLocalPort(), ivrConfig.getHttpPort())) {
+            response.sendError(403); // Send 403 Forbidden
+            return;
         }
 
-        // delete mailbox could come only from a trusted source, when user already deleted from
+        // delete mailbox could come only from a internal port, when user already deleted from
         // mongo
         if (context.equals("delete")) {
-            if (trustedSource) {
+            if (ivrConfig.getHttpPort() == request.getLocalPort()) {
                 if (method.equals(METHOD_PUT)) {
                     try {
                         mailboxManager.deleteMailbox(mailboxString);
@@ -339,14 +331,15 @@ public class MailboxServlet extends HttpServlet {
 
     }
 
-    private boolean isForbidden(HttpServletRequest request, String userName) {
-        Principal principal = request.getUserPrincipal();
-        String authenticatedUserName = (principal == null) ? null : principal.getName();
-        String requestHost = request.getRemoteHost();
-        boolean trustedHost = requestHost != null && requestHost.equals(WebServer.TRUSTED_SOURCE);
-        String trustedUserName = request.getHeader("sipx-user");
-        String allowedUser = authenticatedUserName != null ? authenticatedUserName : (trustedHost ? trustedUserName : null);
-        return allowedUser == null || (!allowedUser.equals(userName) && !allowedUser.equals("superadmin"));
+    private boolean isForbidden(HttpServletRequest request, String userName, int requestPort, int port) {
+        if (requestPort != port) {
+            Principal principal = request.getUserPrincipal();
+            String authenticatedUserName = (principal == null) ? null : principal.getName();
+
+            return authenticatedUserName != null && (!authenticatedUserName.equals(userName) && !authenticatedUserName.equals("superadmin"));
+        } else {
+            return false;
+        }
     }
 
     private void listMessages(List<VmMessage> messages, String folder, PrintWriter pw) {

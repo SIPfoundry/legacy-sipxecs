@@ -67,16 +67,22 @@ bundle agent mongodb_arbiter_config {
       "server[replSet]" string => "sipxecs";
       "server[bind_ip]" string => "$(sipx.mongoArbiterBindIp)";
       "server[port]" string => "$(sipx.mongoArbiterPort)";
-      "server[logpath]" string => "/var/log/mongodb/mongodb-arbiter.log";
+      "server[logpath]" string => "/var/log/mongo/mongodb-arbiter.log";
       "server[fork]" string => "true";
-      "server[pidfilepath]" string => "/var/run/mongodb/mongodb-arbiter.pid";
+      "server[pidfilepath]" string => "/var/run/mongo/mongodb-arbiter.pid";
       "server[journal]" string => "true";
       "server[nohttpinterface]" string => "true";
       "server[dbpath]" string => "/var/lib/mongodb-arbiter";
 
+      "dirs" slist => {
+        "/var/lib/mongodb-arbiter",
+        "/var/run/mongo"
+      };
+
   files:
     any::
-      "$(server[dbpath])/."
+      "$(dirs)/."
+        comment => "required mongo dirs $(this.promiser)",
         create => "true",
         perms => mog(755,"$(mongodb.user)","$(mongodb.group)");
 
@@ -198,7 +204,8 @@ bundle agent mongodb_systemctl_running {
       "service" string => "mongod.service";
 
   classes:
-    "mongodb_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+    mongodb_sysctl::
+      "mongodb_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:
     !mongod.mongodb_running::

@@ -58,7 +58,7 @@ import com.mongodb.DBCollection;
  */
 public class OpenAcdContextTestIntegration extends MongoTestIntegration {
     private OpenAcdContext m_openAcdContext;
-    private static String[][] ACTIONS = {
+    private static String[][] LINE_ACTIONS = {
         {
             "answer", ""
         }, {
@@ -77,8 +77,21 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
             "erlang", "freeswitch_media_manager:! testme@192.168.1.1"
         },
     };
+
+    private static String[][] AGENT_DIAL_SRING_ACTIONS = {
+        {
+            "erlang_sendmsg",
+            "agent_dialplan_listener testme@localhost agent_login ${sip_from_user} pstn ${sip_from_uri}"
+        }, {
+            "answer", ""
+        }, {
+            "sleep", "2000"
+        }, {
+            "hangup", "NORMAL_CLEARING"
+        },
+    };
+
     private CoreContext m_coreContext;
-    private OpenAcdSkillGroupMigrationContext m_migrationContext;
     private FeatureManager m_featureManager;
     private OpenAcdReplicationProvider m_openAcdReplicationProvider;
 
@@ -92,7 +105,6 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         loadDataSetXml("commserver/seedLocations.xml");
         loadDataSetXml("domain/DomainSeed.xml");
         sql("openacd/openacd.sql");
-        m_migrationContext.migrateSkillGroup();
         getEntityCollection().drop();
         m_featureManager.enableLocationFeature(OpenAcdContext.FEATURE, new Location("localhost", "127.0.0.1"), true);
     }
@@ -106,10 +118,10 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         condition.setExpression("^300$");
         extension.addCondition(condition);
 
-        for (int i = 0; i < ACTIONS.length; i++) {
+        for (int i = 0; i < LINE_ACTIONS.length; i++) {
             FreeswitchAction action = new FreeswitchAction();
-            action.setApplication(ACTIONS[i][0]);
-            action.setData(ACTIONS[i][1]);
+            action.setApplication(LINE_ACTIONS[i][0]);
+            action.setData(LINE_ACTIONS[i][1]);
             condition.addAction(action);
         }
         Address address = new Address(FreeswitchFeature.SIP_ADDRESS, "127.0.0.1", 1234);
@@ -232,8 +244,73 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         assertEquals(0, m_openAcdContext.getLines().size());
     }
 
-    public void testOpenAcdExtensionAliasProvider() throws Exception {
+    public static OpenAcdCommand createOpenAcdAgentDialString(String dialStringName) {
+        OpenAcdCommand agentDialString = new OpenAcdCommand();
+        agentDialString.setName(dialStringName);
 
+        FreeswitchCondition condition = new FreeswitchCondition();
+        condition.setField("destination_number");
+        condition.setExpression("^*99$");
+        agentDialString.addCondition(condition);
+
+        for (int i = 0; i < AGENT_DIAL_SRING_ACTIONS.length; i++) {
+            FreeswitchAction action = new FreeswitchAction();
+            action.setApplication(AGENT_DIAL_SRING_ACTIONS[i][0]);
+            action.setData(AGENT_DIAL_SRING_ACTIONS[i][1]);
+            condition.addAction(action);
+        }
+        Address address = new Address(FreeswitchFeature.SIP_ADDRESS, "127.0.0.1", 1234);
+        AddressManager mockAddressManager = EasyMock.createMock(AddressManager.class);
+        mockAddressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        EasyMock.expectLastCall().andReturn(address).anyTimes();
+
+        EasyMock.replay(mockAddressManager);
+
+        agentDialString.setAddressManager(mockAddressManager);
+        return agentDialString;
+    }
+
+    public void testOpenAcdCommandCrud() throws Exception {
+        // test existing 'login', 'logout', 'go available' and 'release' default agent dial
+        // strings
+        assertEquals(4, m_openAcdContext.getCommands().size());
+
+        // test save agent dial string
+        OpenAcdCommand dialString = createOpenAcdAgentDialString("test");
+        m_openAcdContext.saveExtension(dialString);
+        assertEquals(5, m_openAcdContext.getCommands().size());
+
+        // test save agent dial string with same name
+        try {
+            OpenAcdCommand sameName = new OpenAcdCommand();
+            sameName.setName("test");
+            FreeswitchCondition condition = new FreeswitchCondition();
+            condition.setField("destination_number");
+            condition.setExpression("^*100$");
+            sameName.addCondition(condition);
+            m_openAcdContext.saveExtension(sameName);
+            fail();
+        } catch (NameInUseException ex) {
+        }
+
+        // test get agent dial string by name
+        OpenAcdCommand savedDialString = (OpenAcdCommand) m_openAcdContext.getExtensionByName("test");
+        assertNotNull(savedDialString);
+        assertEquals("test", savedDialString.getName());
+
+        // test get agent dial string by id
+        Integer id = savedDialString.getId();
+        OpenAcdCommand dialStringById = (OpenAcdCommand) m_openAcdContext.getExtensionById(id);
+        assertNotNull(dialStringById);
+        assertEquals("test", dialStringById.getName());
+
+        // test remove agent dial string
+        assertEquals(5, m_openAcdContext.getFreeswitchExtensions().size());
+        m_openAcdContext.deleteExtension(dialStringById);
+        assertEquals(4, m_openAcdContext.getFreeswitchExtensions().size());
+    }
+
+    public void testOpenAcdExtensionAliasProvider() throws Exception {
         OpenAcdLine extension = createOpenAcdLine("sales");
         m_openAcdContext.saveExtension(extension);
         assertEquals(1, m_openAcdContext.getBeanIdsOfObjectsWithAlias("sales").size());
@@ -598,6 +675,15 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         }
         // test save skill without group
         newSkill.setAtom("_atom");
+        try {
+            m_openAcdContext.saveSkill(newSkill);
+            fail();
+        } catch (UserException ex) {
+        }
+        // test save a magic skill
+        OpenAcdSkillGroup magicSkillGroup = m_openAcdContext
+                .getSkillGroupByName(OpenAcdContext.MAGIC_SKILL_GROUP_NAME);
+        newSkill.setGroup(magicSkillGroup);
         try {
             m_openAcdContext.saveSkill(newSkill);
             fail();
@@ -1165,10 +1251,6 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    public void setOpenAcdSkillGroupMigrationContext(OpenAcdSkillGroupMigrationContext migrationContext) {
-        m_migrationContext = migrationContext;
     }
 
     public void setFeatureManager(FeatureManager featureManager) {

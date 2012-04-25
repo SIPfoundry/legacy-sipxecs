@@ -86,7 +86,8 @@ bundle agent apache_sysctl_running {
       "service" string => "httpd.service";
 
   classes:
-    "apache_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+    fedora16_or_greater::
+      "apache_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:
     !apache.apache_running::

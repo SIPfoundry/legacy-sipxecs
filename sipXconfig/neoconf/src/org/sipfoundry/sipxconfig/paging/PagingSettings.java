@@ -17,16 +17,18 @@
 package org.sipfoundry.sipxconfig.paging;
 
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class PagingSettings extends PersistableSettings implements DeployConfigOnEdit {
-    private static final String PREFIX = "page-dial/prefix";
+    private static final String PREFIX = "page-config/prefix";
+    private static final String SIP_TRACE_LEVEL = "page-config/sip.trace";
 
     @Override
     protected Setting loadSettings() {
@@ -41,9 +43,21 @@ public class PagingSettings extends PersistableSettings implements DeployConfigO
         setSettingValue(PREFIX, prefix);
     }
 
+    public String getSipTraceLevel() {
+        return getSettingValue(SIP_TRACE_LEVEL);
+    }
+
+    public void setSipTraceLevel(String level) {
+        setSettingValue(SIP_TRACE_LEVEL, level);
+    }
+
+    public String getLogLevel() {
+        return getSettingValue("page-config/log.level");
+    }
+
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Collections.singleton((Feature) PagingContext.FEATURE);
+        return Arrays.asList((Feature) PagingContext.FEATURE, (Feature) DialPlanContext.FEATURE);
     }
 
     public int getSipTcpPort() {

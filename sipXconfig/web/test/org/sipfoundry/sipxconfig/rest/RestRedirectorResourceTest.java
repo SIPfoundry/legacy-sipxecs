@@ -6,6 +6,8 @@ import static org.easymock.classextension.EasyMock.createMock;
 
 import java.io.StringWriter;
 
+import junit.framework.TestCase;
+
 import org.acegisecurity.Authentication;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.apache.commons.lang.StringUtils;
@@ -15,20 +17,19 @@ import org.restlet.data.Reference;
 import org.restlet.data.Request;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.rest.RestRedirectorResource.HttpInvoker;
+import org.sipfoundry.sipxconfig.restserver.RestServer;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
 
-import junit.framework.TestCase;
-
 public class RestRedirectorResourceTest extends TestCase {
-    private static final String CALLCONTROLLER = "callcontroller";
-    private static final String CDR = "cdr";
-    private static final String MAILBOX = "mailbox";
-
     private User m_user;
     private CoreContext m_coreContext;
+    private AddressManager m_addressManager;
 
     @Override
     protected void setUp() throws Exception {
@@ -45,32 +46,39 @@ public class RestRedirectorResourceTest extends TestCase {
         m_coreContext.loadUser(m_user.getId());
         expectLastCall().andReturn(m_user);
         replay(m_coreContext);
+
+        m_addressManager = createMock(AddressManager.class);
+        m_addressManager.getSingleAddress(RestServer.HTTP_API);
+        expectLastCall().andReturn(new Address(RestServer.HTTP_API, "host.example.com", 6667));
+        m_addressManager.getSingleAddress(Ivr.REST_API);
+        expectLastCall().andReturn(new Address(Ivr.REST_API, "host.example.com", 8085));
+        replay(m_addressManager);
     }
 
     public void testRepresentIvr() throws Exception {
-        represent("https://host.example.com:8085/mailbox/200/messages", MAILBOX, "<messages></messages>", 8085);
+        represent("http://host.example.com:8085", "http://host.example.com:8085/mailbox/200/messages", RestRedirectorResource.MAILBOX, "<messages></messages>");
     }
 
     public void testRepresentCdr() throws Exception {
-        represent("https://host.example.com:6666/cdr/200", CDR, "<cdr></cdr>", 6666);
+        represent("http://host.example.com:6667", "http://host.example.com:6666/cdr/200", RestRedirectorResource.CDR, "<cdr></cdr>");
     }
 
     public void testPost() throws Exception {
-        post("https://host.example.com:6666/callcontroller/200/201", CALLCONTROLLER, 6666);
+        post("http://host.example.com:6667", "http://host.example.com:6666/callcontroller/200/201", RestRedirectorResource.CALLCONTROLLER);
     }
 
     public void testPut() throws Exception {
-        put("https://host.example.com:8085/mailbox/200/message/0000001/heard", MAILBOX, 8085);
+        put("http://host.example.com:8085", "http://host.example.com:8085/mailbox/200/message/0000001/heard", RestRedirectorResource.MAILBOX);
     }
 
     public void testDelete() throws Exception {
-        delete("https://host.example.com:8085/mailbox/200/message/0000001/heard", MAILBOX, 8085);
+        delete("http://host.example.com:8085", "http://host.example.com:8085/mailbox/200/message/0000001/heard", RestRedirectorResource.MAILBOX);
     }
 
-    private void represent(String resIdentifier, String resourceType, String result, int port) throws Exception{
+    private void represent(String address, String resIdentifier, String resourceType, String result) throws Exception{
         HttpInvoker invoker = createMock(HttpInvoker.class);
         String uri = StringUtils.substringAfter(resIdentifier, resourceType);
-        invoker.invokeGet(port, resourceType + uri);
+        invoker.invokeGet(address + resourceType + uri);
         expectLastCall().andReturn(result).once();
         replay(invoker);
 
@@ -83,10 +91,10 @@ public class RestRedirectorResourceTest extends TestCase {
         assertEquals(result, generated);
     }
 
-    private void post(String resIdentifier, String resourceType, int port) throws Exception{
+    private void post(String address, String resIdentifier, String resourceType) throws Exception{
         HttpInvoker invoker = createMock(HttpInvoker.class);
         String uri = StringUtils.substringAfter(resIdentifier, resourceType);
-        invoker.invokePost(port, resourceType + uri);
+        invoker.invokePost(address + resourceType + uri);
         expectLastCall().once();
         replay(invoker);
 
@@ -95,10 +103,10 @@ public class RestRedirectorResourceTest extends TestCase {
         resource.acceptRepresentation(null);
     }
 
-    private void put(String resIdentifier, String resourceType, int port) throws Exception{
+    private void put(String address, String resIdentifier, String resourceType) throws Exception{
         HttpInvoker invoker = createMock(HttpInvoker.class);
         String uri = StringUtils.substringAfter(resIdentifier, resourceType);
-        invoker.invokePut(port, resourceType + uri);
+        invoker.invokePut(address + resourceType + uri);
         expectLastCall().once();
         replay(invoker);
 
@@ -107,10 +115,10 @@ public class RestRedirectorResourceTest extends TestCase {
         resource.storeRepresentation(null);
     }
 
-    private void delete(String resIdentifier, String resourceType, int port) throws Exception{
+    private void delete(String address, String resIdentifier, String resourceType) throws Exception{
         HttpInvoker invoker = createMock(HttpInvoker.class);
         String uri = StringUtils.substringAfter(resIdentifier, resourceType);
-        invoker.invokeDelete(port, resourceType + uri);
+        invoker.invokeDelete(address + resourceType + uri);
         expectLastCall().once();
         replay(invoker);
 
@@ -122,6 +130,7 @@ public class RestRedirectorResourceTest extends TestCase {
     private RestRedirectorResource createResource(HttpInvoker invoker, String resIdentifier) {
         RestRedirectorResource resource = new RestRedirectorResource();
         resource.setCoreContext(m_coreContext);
+        resource.setAddressManager(m_addressManager);
         resource.setHttpInvoker(invoker);
 
         ChallengeResponse challengeResponse = new ChallengeResponse(null, "200", new char[0]);

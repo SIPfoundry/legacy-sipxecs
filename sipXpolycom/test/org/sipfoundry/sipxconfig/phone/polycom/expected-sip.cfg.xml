@@ -23,6 +23,7 @@
       voIpProt.SIP.ms-forking="0"
       voIpProt.SIP.keepalive.sessionTimers="0"
       voIpProt.SIP.requestURI.E164.addGlobalPrefix=""
+      voIpProt.SIP.tcpFastFailover="0"
       voIpProt.SIP.allowTransferOnProceeding="2"
       voIpProt.SIP.serverFeatureControl.cf="0"
       voIpProt.SIP.serverFeatureControl.dnd="0"
@@ -201,6 +202,27 @@
       voice.vadEnable="0"
       voice.vadThresh="15"
     />
+    <qualityMonitoring>
+       <collector
+           voice.qualityMonitoring.collector.enable.periodic="0"
+           voice.qualityMonitoring.collector.enable.session="0"
+           voice.qualityMonitoring.collector.enable.triggeredPeriodic="0"
+           voice.qualityMonitoring.collector.period="20">
+           <alert
+             voice.qualityMonitoring.collector.alert.moslq.threshold.warning=""
+             voice.qualityMonitoring.collector.alert.moslq.threshold.critical=""
+             voice.qualityMonitoring.collector.alert.delay.threshold.warning=""
+             voice.qualityMonitoring.collector.alert.delay.threshold.critical=""
+           />
+           <server
+             voice.qualityMonitoring.collector.server.1.address=""
+             voice.qualityMonitoring.collector.server.1.port="5060"
+           />
+       </collector>
+       <rtcpxr
+         voice.qualityMonitoring.rtcpxr.enable="0"
+       />
+   </qualityMonitoring>
   </voice>
   <QOS>
     <Ethernet>

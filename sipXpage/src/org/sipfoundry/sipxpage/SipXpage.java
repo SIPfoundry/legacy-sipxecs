@@ -3,7 +3,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package sipxpage;
+package org.sipfoundry.sipxpage;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -21,8 +21,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.siprouter.ProxyRouter;
 import org.sipfoundry.commons.util.Hostname;
-
-import sipxpage.Configuration.PageGroupConfig;
+import org.sipfoundry.sipxpage.Configuration.PageGroupConfig;
 
 public class SipXpage implements LegListener
 {
@@ -60,7 +59,7 @@ public class SipXpage implements LegListener
       props.setProperty("log4j.logger.org.sipfoundry.sipxpage",
             SipFoundryLayout.mapSipFoundry2log4j(config.logLevel).toString()) ;
       props.setProperty("log4j.appender.file", "org.sipfoundry.commons.log4j.SipFoundryAppender") ;
-      props.setProperty("log4j.appender.file.File", "./sipxpage.log") ;
+      props.setProperty("log4j.appender.file.File", config.logFile) ;
       props.setProperty("log4j.appender.file.layout","org.sipfoundry.commons.log4j.SipFoundryLayout") ;
       props.setProperty("log4j.appender.file.layout.facility","sipXpage") ;
       PropertyConfigurator.configure(props) ;

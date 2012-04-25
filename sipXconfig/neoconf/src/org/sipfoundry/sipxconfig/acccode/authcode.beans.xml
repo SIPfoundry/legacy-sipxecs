@@ -4,6 +4,8 @@
 
   <bean id="authCodeManagerImpl" class="org.sipfoundry.sipxconfig.acccode.AuthCodeManagerImpl" parent="abstractDaoImpl">
     <property name="coreContext" ref="coreContext" />
+    <property name="authCodesImpl" ref="authCodesImpl"/>
+    <property name="featureManager" ref="featureManager" />
   </bean>
 
   <bean id="authCodeManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -27,6 +29,7 @@
     <property name="authCodeManager" ref="authCodeManager" />
     <property name="addressManager" ref="addressManager" />
     <property name="featureManager" ref="featureManager" />
+    <property name="aliasManager" ref="aliasManager" />
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">
@@ -40,14 +43,10 @@
   
   <bean id="authCodesConfig" class="org.sipfoundry.sipxconfig.acccode.AuthCodesConfig">
 	<property name="authCodes" ref="authCodesImpl"/>
+	<property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
   </bean>
 
   <bean id="authCodeSettings" class="org.sipfoundry.sipxconfig.acccode.AuthCodeSettings" parent="settingsBean">
-  </bean>
-  
-  <bean id="authCodeAliases" class="org.sipfoundry.sipxconfig.acccode.AuthCodeAliases">
-    <property name="featureManager" ref="featureManager"/>
-    <property name="authCodes" ref="authCodesImpl"/>
   </bean>
   
 </beans>

@@ -42,6 +42,8 @@
 #end
     />
     <SIP
+#set ($failover = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('failover').getValue())
+      voIpProt.SIP.tcpFastFailover="$!{failover}"
 #set ($allow_Transfer_On_Proceeding = "2")
       voIpProt.SIP.allowTransferOnProceeding="$!{allow_Transfer_On_Proceeding}"
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('protocol'))
@@ -303,7 +305,7 @@
       voice.${setting.ProfileName}="$!{setting.Value}"
 #end
     />
-#if ($phone.model.qualityMonitoringSupported)
+#if ($phone.model.isSupported("voiceQualityMonitoring"))
     <qualityMonitoring>
 #set ($group = $cfg.EndpointSettings.getSetting('qualityMonitoring').getSetting('collector'))
         <collector

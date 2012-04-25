@@ -164,16 +164,13 @@ buildCommand() {
         -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
         -Djava.awt.headless=true"
 
-    setJavaSslOpts
-
     # -Dprocname needs to be early in the command so cfengine can detect it
     Command="$JavaCmd \
        -Dprocname=${procNameId} \
        -XX:MaxPermSize=128M \
        -Xmx1024m \
        ${SIPXCONFIG_OPTS} \
-       $SystemProps \
-       $TrustStoreOpts"
+       $SystemProps"
 }
 
 runTask() {
@@ -183,6 +180,7 @@ runTask() {
     buildCommand task-$taskId
     Command="$Command org.sipfoundry.sipxconfig.common.SystemTaskRunner $*"
     runuser -m -s @BASH@ @SIPXPBXUSER@ -c "${Command}"
+    Status=$?
 }
 
 
@@ -197,9 +195,11 @@ start() {
     Command="$Command org.mortbay.jetty.Server @SIPX_CONFDIR@/sipxconfig-jetty.xml"
     if [ -n "${NoFork}" ] ; then
       runuser -m -s @BASH@ @SIPXPBXUSER@ -c "${Command}"
+      Status=$?
     else
       echo -n $"Starting sipxconfig: "
       runuser -s @BASH@ @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
+      Status=$?
       echo $! > ${PidFile}
       echo
       echo_success
@@ -284,6 +284,14 @@ restart() {
   stop
   start
 }
+
+checkPrimary() {
+  if [ ! -f @SIPX_CFDATA@/defaults/primary.cfdat ]; then
+    "This process only runs on the primary machine and only after sipxecs-setup has completed" >&2
+    exit 1
+  fi
+}
+checkPrimary
 
 case "$1" in
   nofork)

@@ -21,13 +21,19 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 
 public class ConferenceReplicationProvider implements ReplicableProvider {
     private ConferenceBridgeContext m_bridgeContext;
+    private FeatureManager m_featureManager;
 
     @Override
     public List<Replicable> getReplicables() {
         List<Replicable> replicables = new ArrayList<Replicable>();
+        if (!m_featureManager.isFeatureEnabled(FreeswitchFeature.FEATURE)) {
+            return replicables;
+        }
         for (Conference conf : m_bridgeContext.getAllConferences()) {
             replicables.add(conf);
         }
@@ -36,5 +42,9 @@ public class ConferenceReplicationProvider implements ReplicableProvider {
 
     public void setBridgeContext(ConferenceBridgeContext bridgeContext) {
         m_bridgeContext = bridgeContext;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
     }
 }

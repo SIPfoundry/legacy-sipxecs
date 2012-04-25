@@ -68,10 +68,10 @@ jprop_to_config(JProp) ->
     LogFile = spx_util:get_str(<<"lgfile">>, JProp),
     LogLevel = spx_util:get_atom(<<"lglvl">>, JProp),
 
-    {ok, {LogFile, LogLevel}}.
+    {ok, {LogLevel, LogFile}}.
 
 -spec load(conf()) -> {ok, conf()}.
-load({LogFile, LogLevel}) ->
+load({LogLevel, LogFile}) ->
     cpxlog:set_loglevel(LogFile, LogLevel),
     ok;
 load(_) ->
@@ -84,16 +84,16 @@ unload(_) ->
 -ifdef(TEST).
 
 load_test() ->
-    LogLevel = 2,
-    LogFile = "/tmp/oacd.log",
+    LogLevel = debug,
+    LogFile = "/opt/OpenACD/log/full.log",
 
     meck:new(cpxlog),
     meck:expect(cpxlog, set_loglevel, fun(_, _) -> ok end),
 
-    ?assertEqual(ok, load({LogLevel, LogDir})),
+    ?assertEqual(ok, load({LogLevel, LogFile})),
     ?assert(meck:validate(cpxlog)),
-    ?assert(meck:called(cpxlog, set_loglevel, ["/tmp/oacd.log", LogLevel])),
-    
+    ?assert(meck:called(cpxlog, set_loglevel, [LogFile, LogLevel])),
+
     meck:unload(cpxlog).
 
 unload_test() ->
@@ -107,18 +107,17 @@ unload_test() ->
     meck:unload(cpxlog).
 
 empty_jprop_to_config_test() ->
-    ?assertEqual(none, jprop_to_config([])).
+    ?assertEqual({ok, none}, jprop_to_config([])).
 
 good_jprop_to_config_test() ->
     JSON = <<"{
         \"_id\" : \"OpenAcdLogConfigCommand-1\",
-        \"lgfile\" : \"null/openacd/\",
-        \"lglvl\" : \"notice\",
-        \"uuid\" : \"08393547-8d37-40dc-977d-273439b2919e\",
+        \"lglvl\" : \"debug\",
+        \"lgfile\" : \"/opt/OpenACD/log/full.log\",
         \"type\" : \"openacdlogconfigcommand\"
     }">>,
     {struct, JProp} = mochijson2:decode(JSON),
-    ?assertEqual({"null/openacd/", notice}, jprop_to_config(JProp)).
+    ?assertEqual({ok, {debug, "/opt/OpenACD/log/full.log"}}, jprop_to_config(JProp)).
 
 get_db_config_test_() ->
     {foreach,
@@ -135,7 +134,7 @@ get_db_config_test_() ->
         % mongodb:stop()
     end,
     [fun() ->
-        M = mongoapi:new(spx, ?DB),
+        mongoapi:new(spx, ?DB),
         F = fun([]) -> none; (_) -> something end,
         ?assertEqual(none, get_db_config(F))
     end,

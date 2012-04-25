@@ -36,7 +36,7 @@ public class FtpSettings extends PersistableSettings implements DeployConfigOnEd
     public class Defaults {
         @SettingEntry(path = "vsftp-config/pasv_address")
         public String getPassiveAddress() {
-            DefaultSbc sbc = m_sbcManager.loadDefaultSbc();
+            DefaultSbc sbc = m_sbcManager.getDefaultSbc();
             return (sbc != null ? sbc.getAddress() : "");
         }
     }

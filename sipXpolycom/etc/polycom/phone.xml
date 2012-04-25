@@ -1030,7 +1030,7 @@
       </setting>
     </group>
   </group>
-   <group name="qualityMonitoring" if="voiceQualityMonitoring" hidden="yes">
+   <group name="qualityMonitoring" if="voiceQualityMonitoring">
     <group name="collector">
       <setting name="enable.periodic">
         <type><boolean /></type>
@@ -2363,6 +2363,12 @@
     </group>
   </group>
   <group name="voIpProt.SIP">
+     <setting name="failover">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+    </setting>
     <group name="serverFeatureControl">
       <setting name="cf">
         <type>

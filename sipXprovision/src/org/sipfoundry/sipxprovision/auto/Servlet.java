@@ -360,17 +360,14 @@ public class Servlet extends HttpServlet {
      *
      *  @return the HTTPS connection, or null upon failure.
      */
-    protected HttpsURLConnection createRestConnection(String method, String string_url) {
+    protected HttpURLConnection createRestConnection(String method, String string_url) {
         LOG.debug("Creating connection: " + method + " " + string_url);
 
-        HttpsURLConnection connection = null;
+        HttpURLConnection connection = null;
         try {
             URL url = new URL(string_url);
-            connection = (HttpsURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
 
-            // TODO --> org.apache.http.auth.UsernamePasswordCredentials ?????
-            connection.setRequestProperty("Authorization", "Basic " +
-                    m_config.getBase64ConfigurationRestCredentials());
             connection.setDoOutput(true);
             connection.setDoInput(true);
             connection.setUseCaches(false);
@@ -408,7 +405,7 @@ public class Servlet extends HttpServlet {
             LOG.info("doProvisionPhone - " + phone);
 
             // Write the REST representation of the phone(s).
-            HttpsURLConnection connection = createRestConnection("POST", m_config.getConfigurationUri() + "/rest/phone");
+            HttpURLConnection connection = createRestConnection("POST", m_config.getConfigurationUri() + "/rest/phone");
             DataOutputStream dstream = new java.io.DataOutputStream(connection.getOutputStream());
             dstream.writeBytes("<phones>");
             dstream.writeBytes(String.format("<phone><serialNumber>%s</serialNumber>" +
@@ -567,7 +564,7 @@ public class Servlet extends HttpServlet {
             // Construct the REST request.
             String uri = String.format("%s/rest/phone/%s/profile%s", m_config.getConfigurationUri(),
                     mac, encoded_path);
-            HttpsURLConnection connection = createRestConnection("GET", uri);
+            HttpURLConnection connection = createRestConnection("GET", uri);
 
             // Do the HTTPS GET, and write the content.
             connection.connect();

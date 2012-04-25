@@ -37,7 +37,7 @@
 // CONSTANTS
 // STRUCTS
 struct DtmfEvent {
-    int     event;
+    intptr_t     event;
     int interdigitSecs;
     int timeoutSecs;
     int ignoreKeyUp;

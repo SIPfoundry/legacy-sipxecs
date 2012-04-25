@@ -29,9 +29,11 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.dialplan.PagingRule;
 import org.sipfoundry.sipxconfig.feature.Bundle;
+import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -47,7 +49,7 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext, FeatureProvider,
-        AddressProvider, ProcessProvider, FirewallProvider {
+        AddressProvider, ProcessProvider, FirewallProvider, FeatureListener {
 
     /** Default ALERT-INFO - hardcoded in Polycom phone configuration */
     private static final String ALERT_INFO = "sipXpage";
@@ -65,7 +67,6 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
     }
 
     public void saveSettings(PagingSettings settings) {
-        checkAliasUse(getPagingGroups(), settings.getPrefix());
         m_settingsDao.upsert(settings);
     }
 
@@ -75,12 +76,6 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
 
     public PagingGroup getPagingGroupById(Integer pagingGroupId) {
         return (PagingGroup) getHibernateTemplate().load(PagingGroup.class, pagingGroupId);
-    }
-
-    void checkAliasUse(List<PagingGroup> groups, String prefix) {
-        for (PagingGroup group : groups) {
-            checkAliasUse(group, prefix);
-        }
     }
 
     void checkAliasUse(PagingGroup group, String prefix) {
@@ -285,5 +280,35 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
         if (b.isBasic()) {
             b.addFeature(FEATURE);
         }
+    }
+
+    @Override
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location) {
+        if (!feature.equals(FEATURE)) {
+            return;
+        }
+
+        switch (event) {
+        case PRE_ENABLE:
+            if (m_featureManager.isFeatureEnabled(FEATURE)) {
+                throw new UserException("&error.page.enabled");
+            }
+            PagingSettings settings = getSettings();
+            if (settings.isNew()) {
+                saveSettings(settings);
+            }
+            break;
+        case POST_DISABLE:
+        case POST_ENABLE:
+            m_configManager.configureEverywhere(DialPlanContext.FEATURE);
+            break;
+        default:
+            break;
+        }
+    }
+
+    @Override
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
     }
 }

@@ -36,7 +36,6 @@ public class ManagementServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final String METHOD_GET = "GET";
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
-    private String sharedSecret = null;
 
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doIt(request, response);
@@ -55,17 +54,11 @@ public class ManagementServlet extends HttpServlet {
         SipxIvrConfiguration ivrConfig = (SipxIvrConfiguration) request
                 .getAttribute(SipxIvrServletHandler.IVR_CONFIG_ATTR);
 
-        if (sharedSecret == null) {
-            DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir") + "/domain-config");
-            sharedSecret = config.getSharedSecret();
-        }
         String method = request.getMethod().toUpperCase();
         String pathInfo = request.getPathInfo();
 
-        // only trusted source can access this service
-        boolean trustedSource = request.getAttribute("trustedSource") != null
-                && request.getAttribute("trustedSource").equals(sharedSecret);
-        if (!trustedSource) {
+        // this service can be accessed only internally
+        if (ivrConfig.getHttpPort() != request.getLocalPort()) {
             response.sendError(403); // Send 403 Forbidden
             return;
         }

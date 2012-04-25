@@ -18,6 +18,14 @@ public interface SbcManager {
     public static final LocationFeature FEATURE = new LocationFeature("borderController");
     public static final String CONTEXT_BEAN_NAME = "sbcManager";
 
+    /**
+     * returns default SBC if one if defined, otherwise null
+     */
+    DefaultSbc getDefaultSbc();
+
+    /**
+     * Creates default SBC if one is not found
+     */
     DefaultSbc loadDefaultSbc();
 
     List<AuxSbc> loadAuxSbcs();

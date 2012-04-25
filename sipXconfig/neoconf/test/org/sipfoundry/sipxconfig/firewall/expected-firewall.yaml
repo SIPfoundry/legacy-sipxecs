@@ -1,23 +1,22 @@
+cluster: [ 1.1.1.1, 2.2.2.2 ]
 chains:
- - :name: CLUSTER
-   :ipv4s: [ 1.1.1.1, 2.2.2.2 ]
  - :name: ClassA
    :ipv4s: 192.168.1.0/8, 192.168.2.1/32
  - :name: ClassB
    :ipv4s: 192.168.0.0/16
 rules:
- - :port: 100
-   :protocol: tcp
-   :service: t1
-   :priority: false
-   :chain: CLUSTER
- - :port: 200
-   :protocol: tcp
-   :service: t1
-   :priority: false
-   :chain: CLUSTER
  - :port: 300
    :protocol: tcp
    :service: t2
    :priority: false
    :chain: ACCEPT
+ - :port: 400
+   :protocol: tcp
+   :service: t2
+   :priority: false
+   :chain: ClassA
+mangle:
+ - mangle 1
+nat:
+ - nat 2
+ - nat 1

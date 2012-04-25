@@ -42,21 +42,17 @@
       </type>
       <value>6050</value>
     </setting>
-    <setting name="httpsPort">
-      <type>
-        <integer />
-      </type>
-      <value>6666</value>
-    </setting>
-    <setting name="extHttpPort" advanced="yes">
+    <setting name="httpPort">
       <type>
         <integer />
       </type>
       <value>6667</value>
     </setting>
-    <setting name="SIPX_REST_LOG_LEVEL" hidden="yes">
-      <type refid="loglevel" />
-      <value>NOTICE</value>
+    <setting name="publicHttpPort" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>6666</value>
     </setting>
   </group>
 </model>

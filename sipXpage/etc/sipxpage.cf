@@ -32,6 +32,15 @@ bundle agent sipxpage_config {
         perms => m("644"),
         edit_line => sipxpage_properties,
         classes => if_repaired("restart_sipxpage");
+
+    !primary::
+      "$(sipx.SIPX_VARDIR)/sipxpage/music"
+        comment => "sync Page Server prompts",
+        create => "true",
+        perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
+        copy_from => copy_prompts("$(sipx.master_address)","$(sipx.SIPX_VARDIR)/sipxpage/music"),
+        file_select => wav_prompt,
+        depth_search => recurse("1");
 }
 
 bundle edit_line sipxpage_properties {
@@ -39,7 +48,6 @@ bundle edit_line sipxpage_properties {
     any::
       "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxpage.properties.part"
         insert_type => "file";
-      "sip.address : $(sipx.bind_ip)";
       "log.file : $(sipx.SIPX_LOGDIR)/sipxpage.log";
 
   delete_lines:

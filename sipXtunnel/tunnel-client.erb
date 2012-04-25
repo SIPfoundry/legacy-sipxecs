@@ -1,0 +1,19 @@
+client = yes
+foreground = no
+cert = $(sipx.SIPX_CONFDIR)/ssl/tunnel.crt
+key = $(sipx.SIPX_CONFDIR)/ssl/tunnel.key
+verify = 0
+debug = 0
+output = $(sipx.SIPX_LOGDIR)/tunnel-client.log
+pid = $(sipx.SIPX_RUNDIR)/tunnel-client.pid
+<%
+  unless outgoing.nil?
+    outgoing.each { |tunnel|
+%>
+[<%= tunnel[:name] %>]
+accept = <%= tunnel[:local_port] %>
+connect = <%= tunnel[:remote_address] %>:<%= tunnel[:remote_port] %>
+<%
+    }
+  end
+%>

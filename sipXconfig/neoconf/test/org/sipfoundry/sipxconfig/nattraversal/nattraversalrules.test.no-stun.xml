@@ -21,6 +21,7 @@
     <sipx-supervisor-host>sipx.example.org</sipx-supervisor-host>
     <sipx-supervisor-xml-rpc-port>8092</sipx-supervisor-xml-rpc-port>
     <rejectStrayPackets>true</rejectStrayPackets>
+    <secureXMLRPC>false</secureXMLRPC>
   </info>
   <localtopology>
     <ipV4subnet>10.0.0.0/22</ipV4subnet>

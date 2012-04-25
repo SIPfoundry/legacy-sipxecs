@@ -20,7 +20,7 @@ public class WatcherConfig {
     private String openfireHost;
     private String sipXrestIpAddress;
     private int sipXrestHttpPort;
-    private int sipXrestHttpsPort;
+    private int sipXrestPublicHttpPort;
     private boolean bImMessageLogging = false;
     private String imMessageLoggingDirectory;
     private XmppS2sInfo xmppS2sInfo;     // Server to server settings
@@ -29,12 +29,12 @@ public class WatcherConfig {
     public String getSipxProxyTransport() {
         return sipxProxyTransport;
     }
-    
+
     public String getLogLevel() {
         return logLevel;
     }
-    
-    public void setLogLevel(String logLevel) 
+
+    public void setLogLevel(String logLevel)
     {
         this.logLevel = logLevel;
     }
@@ -137,9 +137,9 @@ public class WatcherConfig {
 	public void setResourceList(String resourceList) {
 		this.resourceList = resourceList;
 	}
-	
+
 	public WatcherConfig() {
-	    
+
 	}
 
     /**
@@ -190,14 +190,14 @@ public class WatcherConfig {
         this.sipXrestHttpPort = sipXrestHttpPort;
     }
 
-    public int getSipXrestHttpsPort()
+    public int getSipXrestPublicHttpPort()
     {
-        return sipXrestHttpsPort;
+        return sipXrestPublicHttpPort;
     }
 
-    public void setSipXrestHttpsPort( int sipXrestHttpsPort )
+    public void setSipXrestPublicHttpPort( int sipXrestPublicHttpPort )
     {
-        this.sipXrestHttpsPort = sipXrestHttpsPort;
+        this.sipXrestPublicHttpPort = sipXrestPublicHttpPort;
     }
 
     public boolean isImMessageLoggingEnabled()
@@ -205,7 +205,7 @@ public class WatcherConfig {
         return this.bImMessageLogging;
     }
 
-    public void setImMessageLogging( String imMessageLogging ) throws IllegalArgumentException 
+    public void setImMessageLogging( String imMessageLogging ) throws IllegalArgumentException
     {
         this.bImMessageLogging = Boolean.parseBoolean(imMessageLogging);
     }
@@ -224,12 +224,12 @@ public class WatcherConfig {
     {
         this.locale = locale;
     }
-    
+
     public String getLocale()
     {
         return this.locale;
     }
-    
+
     public void addS2sInfo(XmppS2sInfo xmppS2sInfo) throws Exception {
     	this.xmppS2sInfo = xmppS2sInfo;
     }

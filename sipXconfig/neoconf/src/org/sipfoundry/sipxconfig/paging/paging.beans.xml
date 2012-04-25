@@ -6,7 +6,8 @@
     <property name="pagingContext" ref="pagingContext" />
   </bean>
 
-  <bean id="pagingSettings" class="org.sipfoundry.sipxconfig.paging.PagingSettings" scope="prototype" parent="settingsBean">
+  <bean id="pagingSettings" class="org.sipfoundry.sipxconfig.paging.PagingSettings" parent="settingsBean">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
   </bean>
 
   <bean id="pagingContextImpl" class="org.sipfoundry.sipxconfig.paging.PagingContextImpl" parent="abstractDaoImpl">

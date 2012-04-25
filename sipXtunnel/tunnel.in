@@ -1,0 +1,74 @@
+#!/bin/bash
+# sipxtunnel - Startup script for stunnel for internal encryption
+# chkconfig: 35 85 15
+# description: sipxtunnel is encrypted communications service
+# processname: tunnel
+
+. /etc/rc.d/init.d/functions || exit 1
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+#
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+#
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+usage() {
+cat <<USAGE
+Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart}"
+
+Start a tunnel in @MODE@ mode for encryption with other servers.
+
+USAGE
+}
+
+Status=0
+PidFile=@SIPX_RUNDIR@/tunnel-@MODE@.pid
+
+start() {
+    echo "Starting tunnel service in @MODE@ mode..."
+    /usr/bin/stunnel @SIPX_CONFDIR@/tunnel-@MODE@.ini
+}
+
+stop() {
+    sipx_stop tunnel ${PidFile}
+}
+
+case "$1" in
+  nofork)
+    NoFork=1
+    start
+    ;;
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    stop
+    start
+    ;;
+  condrestart)
+    [ -f ${PidFile} ] && restart || :
+    ;;
+  status)
+    status -p ${PidFile} tunnel-@MODE@
+    ;;
+  configtest)
+    configtest
+    ;;
+  *)
+    usage
+    Status=1
+esac
+
+exit $Status
+

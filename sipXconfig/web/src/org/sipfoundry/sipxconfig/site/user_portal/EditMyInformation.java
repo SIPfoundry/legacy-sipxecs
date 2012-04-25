@@ -20,6 +20,7 @@ import org.apache.tapestry.components.Block;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.FaxServicePanel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.Conference;
@@ -30,6 +31,7 @@ import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
 import org.sipfoundry.sipxconfig.site.user.UserForm;
+import org.sipfoundry.sipxconfig.update.XmppContactInformationUpdate;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
@@ -46,8 +48,8 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     @InjectObject(value = "spring:featureManager")
     public abstract FeatureManager getFeatureManager();
 
-//    @InjectObject("spring:xmppContactInformationUpdate")
-//    public abstract XmppContactInformationUpdate getXmppContactInformationUpdate();
+    @InjectObject("spring:xmppContactInformationUpdate")
+    public abstract XmppContactInformationUpdate getXmppContactInformationUpdate();
 
     public abstract String getPin();
 
@@ -148,11 +150,11 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     }
 
     public void syncXmppContacts() {
-//        try {
-//            getXmppContactInformationUpdate().notifyChange(getUser());
-//        } catch (Exception e) {
-//            throw new UserException(getMessages().getMessage("xmpp.sync.error"), e.getMessage());
-//        }
+        try {
+            getXmppContactInformationUpdate().notifyChange(getUser());
+        } catch (Exception e) {
+            throw new UserException(getMessages().getMessage("xmpp.sync.error"), e.getMessage());
+        }
     }
 
     private void initAvailableTabs() {

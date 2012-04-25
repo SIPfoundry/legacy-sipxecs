@@ -5,10 +5,6 @@
  */
 package org.sipfoundry.sipxrest;
 
-import java.net.InetAddress;
-import java.util.Collection;
-
-import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -17,13 +13,11 @@ import org.restlet.Filter;
 import org.restlet.data.ChallengeRequest;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.ChallengeScheme;
-import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Protocol;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
-import org.sipfoundry.commons.siprouter.FindSipServer;
 import org.sipfoundry.commons.userdb.User;
 
 public class BasicAuthenticationFilter extends Filter {
@@ -47,20 +41,10 @@ public class BasicAuthenticationFilter extends Filter {
     @Override
     protected int beforeHandle(Request request, Response response) {
       String remoteAddr = request.getClientInfo().getAddress();
-      if(remoteAddr.equals(RestServer.TRUSTED_SOURCE)) {
-          logger.debug("Request from trusted source: "+RestServer.TRUSTED_SOURCE);
-          Form headers = (Form) request.getAttributes().get("org.restlet.http.headers");
-          String requestedUser = headers.getFirstValue("sipx-user");
-          String agentName = plugin.getAgent(request);
-          if (requestedUser != null && agentName != null) {
-              if (requestedUser.equals(agentName)) {
-                  return Filter.CONTINUE;
-              } else {
-                  response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
-                  response.setEntity("user missmatch ", MediaType.TEXT_PLAIN);
-                  return Filter.STOP;
-              }
-          }
+      int httpPort = request.getHostRef().getHostPort();
+      //if internal port is used, do not perform authentication
+      if (httpPort == RestServer.getRestServerConfig().getHttpPort()) {
+          return Filter.CONTINUE;
       }
       try {
 
@@ -69,15 +53,6 @@ public class BasicAuthenticationFilter extends Filter {
           if ( ! request.getProtocol().equals(Protocol.HTTPS)  ) {
               logger.debug("Request was not recieved over HTTPS protocol");
               return Filter.STOP;
-          }
-
-          Collection<Hop> hops = new FindSipServer(logger).getSipxProxyAddresses(sipUri);
-
-          for (Hop hop : hops) {
-              if (InetAddress.getByName(hop.getHost()).getHostAddress().equals(remoteAddr)) {
-                  logger.debug("Authenticated request from sipx domain");
-                  return Filter.CONTINUE;
-              }
           }
 
           String agentName = plugin.getAgent(request);

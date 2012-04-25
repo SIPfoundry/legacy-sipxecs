@@ -6,10 +6,8 @@
  */
 package org.sipfoundry.sipxbridge;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.Properties;
@@ -53,7 +51,6 @@ public class BridgeConfiguration {
     private String sipxbridgePassword = null;
     private int musicOnHoldDelayMiliseconds = 500;
     private HashSet<Integer> parkServerCodecs = new HashSet<Integer>();
-    private boolean isSecure = true;
     private String sipxSupervisorHost;
     private int sipxSupervisorXmlRpcPort;
     private int callLimit = -1;
@@ -211,7 +208,7 @@ public class BridgeConfiguration {
      * @param logLevel the logLevel to set (one of the sipXecs-defined levels)
      */
     public void setLogLevel(String level) {
-        this.logLevel = SipFoundryLayout.mapSipFoundry2log4j(level).toString();  
+        this.logLevel = SipFoundryLayout.mapSipFoundry2log4j(level).toString();
         if (logLevel.equals("DEBUG")) {
             try {
                 String log4jProps = Gateway.configurationPath + "/log4j.properties";
@@ -253,9 +250,9 @@ public class BridgeConfiguration {
         this.musicOnHoldName = musicOnHoldName;
     }
 
-   
-    
-    
+
+
+
 
     /**
      * @param musicOnHoldEnabled the musicOnHoldEnabled to set
@@ -442,14 +439,6 @@ public class BridgeConfiguration {
         return false;
     }
 
-    public void setSecure(boolean isSecure) {
-        this.isSecure = isSecure;
-    }
-
-    public boolean isSecure() {
-        return this.isSecure;
-    }
-
     /**
      * @param sipXbridgeUserName the sipXbridgeUserName to set
      */
@@ -493,7 +482,7 @@ public class BridgeConfiguration {
     }
 
     public void setMohSupportedCodecs(String mohCodecs) throws IllegalArgumentException {
-    	
+
         String[] codecs = mohCodecs.split("\\,");
         for (String codec : codecs) {
             if (!RtpPayloadTypes.isPayload(codec)) {
@@ -549,7 +538,7 @@ public class BridgeConfiguration {
     public boolean isStrictProtocolEnforcement() {
        return this.strictProtocolEnforcement ;
     }
-    
+
     public void setStrictProtocolEnforcement(String flagString) {
         this.strictProtocolEnforcement = Boolean.parseBoolean(flagString);
     }
@@ -562,5 +551,5 @@ public class BridgeConfiguration {
         this.enableBridgeProxyRelay = enabled;
     }
 
-  
+
 }

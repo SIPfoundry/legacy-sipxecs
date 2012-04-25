@@ -93,10 +93,15 @@ public interface MongoConstants {
     static final String UID = "uid";
     static final String GROUPS = "gr";
     static final String VALID_USER = "vld";
+    static final String CONF_ENABLED = "cnfenbl";
     static final String CONF_EXT = "cnfext";
     static final String CONF_NAME = "cnfnm";
+    static final String CONF_DESCRIPTION = "cnfdescr";
     static final String CONF_OWNER = "cnfown";
     static final String CONF_PIN = "cnfpin";
+    static final String CONF_MODERATED = "cnfmod";
+    static final String CONF_PUBLIC = "cnfpbl";
+    static final String CONF_MEMBERS_ONLY = "cnfmonly";
     static final String PERMISSIONS = "prm";
     static final String CFWDTIME = "cfwdtm";
     static final String USER_LOCATION = "loc";
@@ -129,4 +134,8 @@ public interface MongoConstants {
     static final String DISTRIB_LISTS = "dlst";
     //AUTH CODE
     static final String AUTH_CODE = "authc";
+    // GROUP
+    static final String DESCR = "dscr";
+    static final String IM_GROUP = "imgrp";
+    static final String GROUP_RESOURCE = "grprsc";
 }

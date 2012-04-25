@@ -10,7 +10,7 @@
     in DEBUG builds. Since Tapestry pages enforce authorization through pageValidate of their Border component,
     filterInvocationInterceptor is not added to the chain for the remaining URLs.
   -->
-  <bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
+  <bean id="sipxFilterChainProxy" class="org.sipfoundry.sipxconfig.security.SipxFilterChainProxy">
     <property name="filterInvocationDefinitionSource">
       <value>
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
@@ -21,6 +21,8 @@
         /.*=httpSessionContextIntegrationFilter,authenticationProcessingFilter,digestExceptionTranslationFilter
       </value>
     </property>
+    <property name="domainManager" ref="domainManager" />
+    <property name="internalPort" value="${sysdir.port}"/>
   </bean>
 
   <!-- ======================== AUTHENTICATION ======================= -->
@@ -109,9 +111,13 @@
     <property name="authenticationEntryPoint" ref="basicProcessingFilterEntryPoint" />
   </bean>
 
+  <bean id="authenticationDetailsSource" class="org.sipfoundry.sipxconfig.security.SipxAuthenticationDetailsSource">
+  </bean>
+
   <bean id="basicProcessingFilter" class="org.acegisecurity.ui.basicauth.BasicProcessingFilter">
     <property name="authenticationManager" ref="authenticationManager" />
     <property name="authenticationEntryPoint" ref="basicProcessingFilterEntryPoint" />
+    <property name="authenticationDetailsSource" ref="authenticationDetailsSource" />
   </bean>
 
   <bean id="basicProcessingFilterEntryPoint" class="org.sipfoundry.sipxconfig.security.SipxBasicProcessingFilterEntryPoint">
@@ -123,6 +129,7 @@
     <property name="userCache" ref="userCache" />
     <property name="userDetailsService" ref="standardUserDetailsService" />
     <property name="passwordAlreadyEncoded" value="true" />
+    <property name="authenticationDetailsSource" ref="authenticationDetailsSource" />
   </bean>
 
   <bean id="digestProcessingFilterEntryPoint" class="org.sipfoundry.sipxconfig.security.SipxDigestProcessingFilterEntryPoint">
@@ -134,6 +141,7 @@
     <property name="authenticationManager" ref="authenticationManager" />
     <property name="authenticationFailureUrl" value="/LoginPage.html?error=badCredentials" />
     <property name="defaultTargetUrl" value="/Home.html" />
+    <property name="authenticationDetailsSource" ref="authenticationDetailsSource" />
   </bean>
 
   <bean id="privateUserKeyProcessingFilter" class="org.sipfoundry.sipxconfig.security.PrivateUserKeyProcessingFilter">

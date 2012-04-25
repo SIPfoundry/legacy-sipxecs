@@ -461,8 +461,8 @@ StatusServer::startStatusServer (
                   defaultMinExpiresTime.data());
 
 
-    int webServerPort = portIsValid(httpsPort) ? httpsPort : httpPort;
-    UtlBoolean isSecureServer = portIsValid(httpsPort);
+    int webServerPort = httpPort;
+    UtlBoolean isSecureServer = false;
 
     // Determine whether we should start the web server or not.  Use the port
     // value as the decision point.  A valid port means enable.

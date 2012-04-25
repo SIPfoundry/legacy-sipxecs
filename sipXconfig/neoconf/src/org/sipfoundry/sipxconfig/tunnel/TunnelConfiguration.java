@@ -20,134 +20,188 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.cert.CertificateAuthorityGenerator;
+import org.sipfoundry.sipxconfig.cert.CertificateManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.springframework.beans.factory.annotation.Required;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.CustomFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallCustomRuleProvider;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 
-public class TunnelConfiguration implements ConfigProvider, DaoEventListener {
-    private VelocityEngine m_velocityEngine;
-    private TunnelManager m_tunnelManager;
+public class TunnelConfiguration implements ConfigProvider, FeatureListener, FirewallCustomRuleProvider {
+    private static final String TUNNEL_CERT = "tunnelCert";
     private ConfigManager m_configManager;
+    private FirewallManager m_firewallManager;
+    private LocationsManager m_locationsManager;
+    private AddressManager m_addressManager;
+    private TunnelManager m_tunnelManager;
+    private FeatureManager m_featureManager;
+    private CertificateManager m_certificateManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(TunnelManager.FEATURE)) {
+        if (!request.applies(TunnelManager.FEATURE, FirewallManager.FEATURE)) {
             return;
         }
         Set<Location> locations = request.locations(manager);
-        boolean enabled = manager.getFeatureManager().isFeatureEnabled(TunnelManager.FEATURE);
+        boolean enabled = m_featureManager.isFeatureEnabled(TunnelManager.FEATURE);
+
+        // security
+        if (enabled) {
+            String certificate = m_certificateManager.getNamedCertificate(TUNNEL_CERT);
+            if (certificate == null) {
+                certificate = generateCertificate();
+            }
+            File gdir = manager.getGlobalDataDirectory();
+            FileUtils.writeStringToFile(new File(gdir, "tunnel.crt"), certificate);
+            String key = m_certificateManager.getNamedPrivateKey(TUNNEL_CERT);
+            FileUtils.writeStringToFile(new File(gdir, "tunnel.key"), key);
+        }
+
+        // config
+        TunnelSettings settings = m_tunnelManager.getSettings();
+        TunnelArchitect architect = getArchitect(request.getRequestData(), settings, enabled);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            ConfigUtils.enableCfengineClass(dir, "sipxtunnel.cfdat", enabled, "sipxtunneld");
-            if (enabled) {
-                List<AllowedIncomingTunnel> in = getIncomingTunnels(location, locations);
-                Writer inConfig = new FileWriter(new File(dir, "tunnel-client.conf.cfdat"));
-                try {
-                    writeIncomingTunnels(inConfig, in);
-                } finally {
-                    IOUtils.closeQuietly(inConfig);
-                }
-
-                List<RemoteOutgoingTunnel> out = getOutgoingTunnels(location, locations);
-                Writer outConfig = new FileWriter(new File(dir, "tunnel-server.conf.cfdat"));
-                try {
-                    writeOutgoingTunnels(outConfig, out);
-                } finally {
-                    IOUtils.closeQuietly(inConfig);
-                }
+            ConfigUtils.enableCfengineClass(dir, "tunnel.cfdat", enabled, "tunnel");
+            if (!enabled) {
+                continue;
+            }
+            Collection<AllowedIncomingTunnel> in = architect.getAllowedIncomingTunnels(location);
+            Collection<RemoteOutgoingTunnel> out = architect.getRemoteOutgoingTunnels(location);
+            Writer w = new FileWriter(new File(dir, "tunnel.yaml"));
+            try {
+                writeConfig(w, in, out);
+            } finally {
+                IOUtils.closeQuietly(w);
             }
         }
     }
 
-    void writeIncomingTunnels(Writer wtr, List<AllowedIncomingTunnel> tunnels) throws IOException {
-        writeTunnels(wtr, "tunnel/tunnel-server.conf.vm", tunnels);
+    String generateCertificate() {
+        // With no verify configured on tunnel, no need for valid CA
+        CertificateAuthorityGenerator gen = new CertificateAuthorityGenerator(TUNNEL_CERT, "self");
+        String key = gen.getPrivateKeyText();
+        String cert = gen.getCertificateText();
+        m_certificateManager.updateNamedCertificate(TUNNEL_CERT, cert, key, null);
+        return cert;
     }
 
-    void writeOutgoingTunnels(Writer wtr, List<RemoteOutgoingTunnel> tunnels) throws IOException {
-        writeTunnels(wtr, "tunnel/tunnel-client.conf.vm", tunnels);
-    }
-
-    List<RemoteOutgoingTunnel> getOutgoingTunnels(Location location, Set<Location> locations) {
-        List<RemoteOutgoingTunnel> tunnels = new ArrayList<RemoteOutgoingTunnel>();
-        List<Location> otherLocations = getOtherLocations(location, locations);
-        for (TunnelProvider p : m_tunnelManager.getTunnelProviders()) {
-            tunnels.addAll(p.getClientSideTunnels(otherLocations, location));
+    TunnelArchitect getArchitect(Map<Object, Object> requestData, TunnelSettings settings, boolean enabled) {
+        TunnelArchitect architect = (TunnelArchitect) requestData.get(this);
+        if (architect == null) {
+            architect = new TunnelArchitect();
+            if (enabled) {
+                architect.setAddressManager(m_addressManager);
+                architect.setServerStartPort(settings.getServerStartPort());
+                architect.setClientStartPort(settings.getClientStartPort());
+                architect.build(m_locationsManager.getLocationsList(), m_firewallManager.getDefaultFirewallRules());
+            }
         }
-        return tunnels;
+
+        return architect;
     }
 
-    void writeTunnels(Writer writer, String template, List< ? extends AbstractTunnel> tunnels) throws IOException {
-        VelocityContext context = new VelocityContext();
-        context.put("tunnelManager", m_tunnelManager);
-        context.put("tunnels", tunnels);
-        try {
-            m_velocityEngine.mergeTemplate(template, context, writer);
-        } catch (Exception e) {
-            throw new IOException(e);
+    private void writeConfig(Writer w, Collection<AllowedIncomingTunnel> in, Collection<RemoteOutgoingTunnel> out)
+        throws IOException {
+        YamlConfiguration c = new YamlConfiguration(w);
+        c.startArray("incoming");
+        String name = ":name";
+        String localPort = ":local_port";
+        for (AllowedIncomingTunnel i : in) {
+            c.write(name, i.getName());
+            c.write(localPort, i.getLocalhostPort());
+            c.write(":incoming_port", i.getAllowedConnectionsPort());
+            c.nextElement();
         }
-    }
-
-    /**
-     * Collect all the server-side tunnel configs from all the providers
-     */
-    List<AllowedIncomingTunnel> getIncomingTunnels(Location location, Set<Location> locations) {
-        List<AllowedIncomingTunnel> tunnels = new ArrayList<AllowedIncomingTunnel>();
-        List<Location> otherLocations = getOtherLocations(location, locations);
-        for (TunnelProvider p : m_tunnelManager.getTunnelProviders()) {
-            tunnels.addAll(p.getServerSideTunnels(otherLocations, location));
+        c.endArray();
+        c.startArray("outgoing");
+        for (RemoteOutgoingTunnel o : out) {
+            c.write(name, o.getName());
+            c.write(localPort, o.getLocalhostPort());
+            c.write(":remote_port", o.getPortOnRemoteMachine());
+            c.write(":remote_address", o.getRemoteMachineAddress());
+            c.nextElement();
         }
-        return tunnels;
+        c.endArray();
     }
 
-    List<Location> getOtherLocations(Location location, Set<Location> locations) {
-        // Although it should be only locations that have stunnel service running, if the
-        // system is unregistered, service will not be running, but we'll want to generate
-        // the configuration for it. Also, providers and ultimately control what the actual
-        // tunnels are anyway
-        List<Location> otherLocations = new ArrayList<Location>(locations);
-        otherLocations.remove(location);
-        return otherLocations;
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
     }
 
-    @Required
-    public void setVelocityEngine(VelocityEngine velocityEngine) {
-        m_velocityEngine = velocityEngine;
+    public void setFirewallManager(FirewallManager firewallManager) {
+        m_firewallManager = firewallManager;
     }
 
-    @Required
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
+    }
+
     public void setTunnelManager(TunnelManager tunnelManager) {
         m_tunnelManager = tunnelManager;
     }
 
     @Override
-    public void onDelete(Object entity) {
-        if (entity instanceof Location) {
-            m_configManager.configureEverywhere(TunnelManager.FEATURE);
-        }
+    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
+            Location location) {
+        // every feature enable/disable will trigger firewall rules to reconfig
+        // because cannot tell what this affects
+        m_configManager.configureEverywhere(FirewallManager.FEATURE);
     }
 
     @Override
-    public void onSave(Object entity) {
-        if (entity instanceof Location) {
-            Location l = (Location) entity;
-            if (l.hasFqdnOrIpChangedOnSave()) {
-                m_configManager.configureEverywhere(TunnelManager.FEATURE);
-            }
-        }
+    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
+        // see enableLocationFeature
+        m_configManager.configureEverywhere(FirewallManager.FEATURE);
     }
 
-    public void setConfigManager(ConfigManager configManager) {
-        m_configManager = configManager;
+    @Override
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return null;
+    }
+
+    @Override
+    public Collection<CustomFirewallRule> getCustomRules(FirewallManager manager, Location location,
+            Map<Object, Object> requestData) {
+        boolean enabled = m_featureManager.isFeatureEnabled(TunnelManager.FEATURE);
+        if (!enabled) {
+            return null;
+        }
+        TunnelSettings settings = m_tunnelManager.getSettings();
+        TunnelArchitect architect = getArchitect(requestData, settings, enabled);
+        TunnelFirewallRules builder = new TunnelFirewallRules();
+        Collection<RemoteOutgoingTunnel> out = architect.getRemoteOutgoingTunnels(location);
+        Collection<CustomFirewallRule> rules = builder.build(out);
+        return rules;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
+    public void setCertificateManager(CertificateManager certificateManager) {
+        m_certificateManager = certificateManager;
     }
 }

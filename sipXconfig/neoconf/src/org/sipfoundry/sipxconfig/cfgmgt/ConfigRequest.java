@@ -20,7 +20,9 @@ package org.sipfoundry.sipxconfig.cfgmgt;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -35,10 +37,7 @@ public final class ConfigRequest {
     private Set<Feature> m_affectedFeatures;
     private boolean m_always;
     private Set<Location> m_locations;
-
-    // NOTE: not sure this is nec. Idea was to allow singleton providers a place to store state
-    // per request. Consider removing --Douglas
-    private Set<Object> m_tokens = new HashSet<Object>();
+    private Map<Object, Object> m_data = new HashMap<Object, Object>();
 
     private ConfigRequest() {
     }
@@ -54,15 +53,6 @@ public final class ConfigRequest {
         }
         return request;
     }
-
-    /**
-     * Only configuration in these areas
-    public static ConfigRequest only(Set<Feature> affectedFeatures) {
-        ConfigRequest request = new ConfigRequest();
-        request.m_affectedFeatures = affectedFeatures;
-        return request;
-    }
-     */
 
     /**
      * All configuration should be generated
@@ -81,12 +71,6 @@ public final class ConfigRequest {
         request.m_locations = new HashSet<Location>(locations);
         return request;
     }
-
-    /*
-    public static ConfigRequest specificLocation(Location...location) {
-        return ConfigRequest.specificLocations(Collections.singleton(location));
-    }
-    */
 
     public static ConfigRequest merge(ConfigRequest a, ConfigRequest b) {
         if (a == null) {
@@ -114,12 +98,12 @@ public final class ConfigRequest {
         return m;
     }
 
-    public boolean isFirstTime(Object token) {
-        return m_tokens.contains(token);
-    }
-
-    public void firstTimeOver(Object token) {
-        m_tokens.add(token);
+    /**
+     * When 2 or more ConfigProviders want to pass information to each other, one of them can
+     * get/put data into the map
+     */
+    public Map<Object, Object> getRequestData() {
+        return m_data;
     }
 
     /**

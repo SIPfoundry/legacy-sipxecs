@@ -54,7 +54,7 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
     }
 
     public String getMediaFileURL(String userId, String folder, String messageId) {
-        String url = "https://%s:%s/media/%s/%s/%s";
+        String url = "http://%s:%s/media/%s/%s/%s";
         Address ivrAddress = m_addressManager.getSingleAddress(Ivr.REST_API);
         if (ivrAddress != null) {
             return String.format(url, ivrAddress.getAddress(), ivrAddress.getPort(), userId, folder, messageId);
@@ -141,10 +141,7 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
 
     protected String getMailboxServerUrl() {
         Address ivrAddress = m_addressManager.getSingleAddress(Ivr.REST_API);
-        if (ivrAddress != null) {
-            return String.format("https://%s:%s", ivrAddress.getAddress(), ivrAddress.getPort());
-        }
-        return null;
+        return ivrAddress.toString();
     }
 
     public void setFeatureManager(FeatureManager featureManager) {

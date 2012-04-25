@@ -31,10 +31,6 @@ public class Configuration {
 
     private String m_LogLevel = DEFAULT_STRING;
 
-    private String m_SipDomainName = DEFAULT_STRING;
-
-    private String m_SharedSecret = DEFAULT_STRING;
-
     private String m_Logfile = DEFAULT_STRING;
 
     private String m_TftpRoot = DEFAULT_STRING;
@@ -58,14 +54,6 @@ public class Configuration {
         if (null != var_dir) {
 
             m_TftpRoot = var_dir + "/configserver/phone/profile/tftproot";
-        }
-
-        // domain-config
-        Properties domain_config = loadProperties("/domain-config");
-        if (null != domain_config) {
-
-            m_SipDomainName = domain_config.getProperty("SIP_DOMAIN_NAME", DEFAULT_STRING);
-            m_SharedSecret = domain_config.getProperty("SHARED_SECRET", DEFAULT_STRING);
         }
 
         // sipxprovision-config
@@ -134,10 +122,6 @@ public class Configuration {
         return "";
     }
 
-    public String getSipDomainName() {
-        return m_SipDomainName;
-    }
-
     public String getLogfile() {
         return m_Logfile;
     }
@@ -151,14 +135,6 @@ public class Configuration {
     public String getConfigurationUri() {
         return m_ConfigurationUri + "/sipxconfig";
 
-    }
-
-    public String getConfigurationRestCredentials() {
-        return SUPERADMIN_USERNAME + ":" + m_SharedSecret;
-    }
-
-    public String getBase64ConfigurationRestCredentials() {
-        return new String(Base64.encodeBase64((getConfigurationRestCredentials()).getBytes()));
     }
 
     public String getProvisionSipUsername() {

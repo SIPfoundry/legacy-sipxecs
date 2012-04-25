@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# sipXrecording - Startup script for sipxrecording
-# processname: sipxrecording
+# chkconfig: 35 85 15
+# description: sipxprovision is a device auto provisioning system
+# processname: sipxprovision
 
 # Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
 # Contributors retain copyright to elements licensed under a Contributor Agreement.

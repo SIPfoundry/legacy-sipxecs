@@ -43,7 +43,7 @@ start() {
     runuser - @SIPXPBXUSER@ -c "$exec console"
   else
     echo -n $"Starting $prog: "
-    runuser - @SIPXPBXUSER@ -c "$exec start -noinput"
+    runuser - @SIPXPBXUSER@ -c "export ERL_LIBS=$ERL_LIBS:@OPENACD_DIR@/plugin.d; $exec start -noinput"
     Status=$?
     echo_success
   fi

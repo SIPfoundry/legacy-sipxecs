@@ -11,10 +11,22 @@
         <value>INFO</value>
       </option>
       <option>
+        <value>NOTICE</value>
+      </option>
+      <option>
         <value>WARNING</value>
       </option>
       <option>
         <value>ERR</value>
+      </option>
+      <option>
+        <value>CRIT</value>
+      </option>
+      <option>
+        <value>ALERT</value>
+      </option>
+      <option>
+        <value>EMERG</value>
       </option>
     </enum>
   </type>
@@ -42,14 +54,22 @@
       <type refid="requiredNonRootPort"/>
       <value>5064</value>
     </setting>
-    <setting name="log-level">
+    <setting name="log.level">
       <type refid="loglevel" />
       <value>NOTICE</value>
+    </setting>
+    <setting name="console">
+      <type refid="switch" />
+      <value>false</value>
     </setting>
     <setting name="openfire-xml-rpc-port">
       <type refid="requiredNonRootPort"/>
       <value>9094</value>
     </setting>
+    <setting name="openfire-xml-rpc-vcard-port">
+      <type refid="requiredNonRootPort"/>
+      <value>9099</value>
+    </setting>    
     <setting name="locale" hidden="yes">
       <type>
         <string required="yes" />

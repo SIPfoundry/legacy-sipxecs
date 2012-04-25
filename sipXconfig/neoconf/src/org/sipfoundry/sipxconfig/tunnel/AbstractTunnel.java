@@ -16,6 +16,8 @@
  */
 package org.sipfoundry.sipxconfig.tunnel;
 
+import org.sipfoundry.sipxconfig.address.AddressType;
+
 /**
  * Common code for server and client tunnel settings
  *
@@ -35,6 +37,7 @@ package org.sipfoundry.sipxconfig.tunnel;
 public class AbstractTunnel {
     private String m_name;
     private int m_localhostPort;
+    private AddressType.Protocol m_protocol;
 
     public AbstractTunnel(String name) {
         m_name = name;
@@ -50,5 +53,13 @@ public class AbstractTunnel {
 
     public void setLocalhostPort(int localhostPort) {
         m_localhostPort = localhostPort;
+    }
+
+    public AddressType.Protocol getProtocol() {
+        return m_protocol;
+    }
+
+    public void setProtocol(AddressType.Protocol protocol) {
+        m_protocol = protocol;
     }
 }

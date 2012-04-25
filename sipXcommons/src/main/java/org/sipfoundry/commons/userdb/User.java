@@ -16,6 +16,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 
 public class User {
+    private String m_sysId;
     private String m_identity;
     private String m_userName;
     private String m_displayName;
@@ -39,6 +40,7 @@ public class User {
     private ImapInfo m_imapInfo;
     private String m_cellNumber;
     private String m_homeNumber;
+    private boolean m_imEnabled;
     private String m_jid;
     private String m_altjid;
     private String m_confName;
@@ -420,6 +422,14 @@ public class User {
         m_showOnCallDetails = showOnCallDetails;
     }
 
+    public boolean isImEnabled() {
+        return m_imEnabled;
+    }
+
+    public void setImEnabled(boolean enabled) {
+        m_imEnabled = enabled;
+    }
+
     public String getImPassword() {
         return m_imPassword;
     }
@@ -583,6 +593,14 @@ public class User {
 
     public void setAvatar(String avatar) {
         m_avatar = avatar;
+    }
+
+    public String getSysId() {
+        return m_sysId;
+    }
+
+    public void setSysId(String id) {
+        m_sysId = id;
     }
 
     public String getFirstName() {

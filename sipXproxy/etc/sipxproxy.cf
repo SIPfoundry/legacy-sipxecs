@@ -66,7 +66,7 @@ bundle agent sipxproxy_config {
         create => "true",
         perms => m("644"),
         copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
-        classes => if_repaired("restart_sipxproxy");
+        classes => if_repaired("restart_sipxproxy_and_registrar");
 }
 
 bundle edit_line sipXproxy_config_contents() {
@@ -125,5 +125,16 @@ bundle agent sipxproxy_running {
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
         comment => "restart sipxproxy",
         args => "restart";
+
+    restart_sipxproxy_and_registrar.sipxproxy::
+      "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
+        comment => "restart sipxproxy",
+        args => "restart";
+
+    restart_sipxproxy_and_registrar.sipxregistrar::
+      "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
+        comment => "restart sipxregistrar",
+        args => "restart";
+        
 }
 

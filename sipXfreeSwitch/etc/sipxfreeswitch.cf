@@ -113,6 +113,7 @@ any::
     <load module=\"mod_dialplan_xml\"/>
     <load module=\"mod_voipcodecs\"/>
     <load module=\"mod_g723_1\"/>
+    <load module=\"mod_timerfd\"/>
 ";
 
 fs_g729::

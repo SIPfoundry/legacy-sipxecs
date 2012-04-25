@@ -30,7 +30,6 @@ import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
@@ -55,7 +54,6 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
     private static final Log LOG = LogFactory.getLog(FirewallManagerImpl.class);
     private static final String SERVER_GROUP_COL = "firewall_server_group_id";
     private BeanWithSettingsDao<FirewallSettings> m_settingsDao;
-    private AddressManager m_addressManager;
     private List<FirewallProvider> m_providers;
     private ListableBeanFactory m_beanFactory;
     private JdbcTemplate m_jdbc;
@@ -93,11 +91,11 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
 
     @Override
     public void setup(SetupManager manager) {
-// do not enable by default until all is working ok -- Douglas
-//        if (!manager.isSetup(FEATURE.getId())) {
-//            manager.getFeatureManager().enableGlobalFeature(FEATURE, true);
-//            manager.setSetup(FEATURE.getId());
-//        }
+        // do not enable until all working -- Douglas
+        //if (!manager.isSetup(FEATURE.getId())) {
+        //     manager.getFeatureManager().enableGlobalFeature(FEATURE, true);
+        //    manager.setSetup(FEATURE.getId());
+        //}
     }
 
     public List<ServerGroup> getServerGroups() {
@@ -186,10 +184,6 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
             m_providers = new ArrayList<FirewallProvider>(beanMap.values());
         }
         return m_providers;
-    }
-
-    public void setAddressManager(AddressManager addressManager) {
-        m_addressManager = addressManager;
     }
 
     @Override
@@ -292,5 +286,21 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
 
     @Override
     public void onSave(Object entity) {
+    }
+
+    @Override
+    public List<CustomFirewallRule> getCustomRules(Location location, Map<Object, Object> requestData) {
+        List<CustomFirewallRule> custom = new ArrayList<CustomFirewallRule>();
+        for (FirewallProvider provider : getProviders()) {
+            if (provider instanceof FirewallCustomRuleProvider) {
+                FirewallCustomRuleProvider customProvider = (FirewallCustomRuleProvider) provider;
+                Collection<CustomFirewallRule> customRules = customProvider.getCustomRules(this, location, requestData);
+                if (customRules != null && !customRules.isEmpty()) {
+                    custom.addAll(customRules);
+                }
+            }
+        }
+
+        return custom;
     }
 }

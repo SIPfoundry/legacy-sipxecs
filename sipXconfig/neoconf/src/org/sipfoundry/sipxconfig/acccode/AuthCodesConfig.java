@@ -20,13 +20,17 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
+import org.sipfoundry.sipxconfig.cfgmgt.PostConfigListener;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.springframework.beans.factory.annotation.Required;
 
-public class AuthCodesConfig implements ConfigProvider {
+public class AuthCodesConfig implements ConfigProvider, PostConfigListener {
     private AuthCodesImpl m_authCodes;
+    private SipxReplicationContext m_sipxReplicationContext;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -54,6 +58,15 @@ public class AuthCodesConfig implements ConfigProvider {
         }
     }
 
+    @Override
+    public void postReplicate(ConfigManager manager, ConfigRequest request) throws IOException {
+        if (request.applies(AuthCodes.FEATURE)) {
+            for (Replicable accObject : m_authCodes.getReplicables()) {
+                m_sipxReplicationContext.generate(accObject);
+            }
+        }
+    }
+
     void writeConfig(Writer wtr, AuthCodeSettings settings, Domain domain, int freeswithPort) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.write(settings.getSettings().getSetting("acccode-config"));
@@ -63,5 +76,9 @@ public class AuthCodesConfig implements ConfigProvider {
     @Required
     public void setAuthCodes(AuthCodesImpl authCodes) {
         m_authCodes = authCodes;
+    }
+
+    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_sipxReplicationContext = sipxReplicationContext;
     }
 }

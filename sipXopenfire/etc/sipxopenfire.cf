@@ -24,7 +24,11 @@ bundle agent sipxopenfire {
 }
 
 bundle agent sipxopenfire_config {
-  vars:    
+  vars:
+    !ofconsole::
+      "web_file" string => "$(sipx.SIPX_JAVADIR)/sipXopenfire/conf/web.xml.disable_openfire_admin_console";
+    ofconsole::
+      "web_file" string => "$(sipx.SIPX_JAVADIR)/sipXopenfire/conf/web.xml.enable_openfire_admin_console";
     any::
       "xml_file_restart" slist => { 
         "sipxopenfire.xml"
@@ -42,6 +46,14 @@ bundle agent sipxopenfire_config {
         create => "true",
         perms => m("644"),
         copy_from => copy_from_cfdata("$(sipx.location_id)/openfire.xml"),
+        classes => if_repaired("restart_sipxopenfire");
+
+     any::
+      "$(sipx.OPENFIRE_HOME)/plugins/admin/webapp/WEB-INF/web.xml"
+        comment => "modify openfire console props",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_ofdir("$(web_file)"),
         classes => if_repaired("restart_sipxopenfire");
 
     any::
@@ -116,5 +128,9 @@ bundle agent sipxopenfire_running {
         args => "restart";
 }
 
-
+body copy_from copy_from_ofdir(filename) {
+  source => "$(filename)";
+  compare => "digest";
+  purge => "true";
+}
 

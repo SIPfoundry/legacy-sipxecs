@@ -14,7 +14,6 @@ sf_broken = \
   sipXtools \
   sipXpark \
   sipXpresence \
-  sipXpage \
   sipXphonelog
 
 sf = \

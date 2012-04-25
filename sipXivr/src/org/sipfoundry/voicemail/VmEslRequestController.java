@@ -83,6 +83,11 @@ public class VmEslRequestController extends AbstractEslRequestController {
         String ident;
         if (m_currentUser != null) {
             ident = "Mailbox " + m_currentUser.getUserName();
+            if (!m_currentUser.hasVoicemail() && !m_currentUser.isInDirectory()) {
+                m_currentUser = null;
+                play("invalid_extension", "");
+                return;
+            }
         } else {
             ident = "Mailbox (unknown)";
         }

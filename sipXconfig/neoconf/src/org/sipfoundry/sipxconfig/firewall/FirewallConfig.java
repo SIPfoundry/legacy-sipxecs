@@ -33,13 +33,14 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
-public class FirewallConfig implements ConfigProvider, FeatureListener {
+public class FirewallConfig implements ConfigProvider, FeatureListener, DaoEventListener {
     private static final Logger LOG = Logger.getLogger(FirewallConfig.class);
     private FirewallManager m_firewallManager;
     private AddressManager m_addressManager;
@@ -70,10 +71,11 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         List<ServerGroup> groups = m_firewallManager.getServerGroups();
         List<Location> locations = manager.getLocationManager().getLocationsList();
         for (Location location : request.locations(manager)) {
+            List<CustomFirewallRule> custom = m_firewallManager.getCustomRules(location, request.getRequestData());
             File dir = manager.getLocationDataDirectory(location);
             Writer config = new FileWriter(new File(dir, "firewall.yaml"));
             try {
-                writeIptables(config, rules, groups, locations, location);
+                writeIptables(config, rules, custom, groups, locations, location);
             } finally {
                 IOUtils.closeQuietly(config);
             }
@@ -85,20 +87,18 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         c.write(settings.getSettings().getSetting("sysctl"));
     }
 
-    void writeIptables(Writer w, List<FirewallRule> rules, List<ServerGroup> groups, List<Location> cluster,
-        Location thisLocation) throws IOException {
+    void writeIptables(Writer w, List<FirewallRule> rules, List<CustomFirewallRule> custom,
+            List<ServerGroup> groups, List<Location> cluster, Location thisLocation) throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
 
+        Collection< ? > ips = CollectionUtils.collect(cluster, Location.GET_ADDRESS);
+        c.writeInlineArray("cluster", ips);
+
         c.startArray("chains");
-        Collection<?> ips = CollectionUtils.collect(cluster, Location.GET_ADDRESS);
-        String nameId = ":name";
-        String ipv4sId = ":ipv4s";
-        c.write(nameId, FirewallRule.SystemId.CLUSTER.toString());
-        c.writeInlineArray(ipv4sId, ips);
         for (ServerGroup group : groups) {
             c.nextElement();
-            c.write(nameId, group.getName());
-            c.write(ipv4sId, group.getServerList().replaceAll("\\s", ", "));
+            c.write(":name", group.getName());
+            c.write(":ipv4s", group.getServerList().replaceAll("\\s", ", "));
         }
         c.endArray();
 
@@ -108,32 +108,52 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
             List<Address> addresses = m_addressManager.getAddresses(type, thisLocation);
             if (addresses != null) {
                 for (Address address : addresses) {
+
+                    // not a rule for this server
+                    if (!address.getAddress().equals(thisLocation.getAddress())) {
+                        continue;
+                    }
+
                     AddressType atype = address.getType();
                     String id = atype.getId();
                     int port = address.getCanonicalPort();
+                    // internal error
                     if (port == 0) {
                         LOG.error("Cannot open up port zero for service id " + id);
-                    } else {
-                        c.write(":port", port);
-                        c.write(":protocol", atype.getProtocol());
-                        c.write(":service", id);
-                        c.write(":priority", rule.isPriority());
-                        ServerGroup group = rule.getServerGroup();
-                        String chain;
-                        if (group != null) {
-                            chain = group.getName();
-                        } else if (rule.getSystemId() == FirewallRule.SystemId.PUBLIC) {
-                            chain = "ACCEPT";
-                        } else {
-                            chain = rule.getSystemId().name();
-                        }
-                        c.write(":chain", chain);
-                        c.nextElement();
+                        continue;
                     }
+
+                    // blindly allowed
+                    if (FirewallRule.SystemId.CLUSTER == rule.getSystemId()) {
+                        continue;
+                    }
+
+                    c.write(":port", port);
+                    c.write(":protocol", atype.getProtocol());
+                    c.write(":service", id);
+                    c.write(":priority", rule.isPriority());
+                    ServerGroup group = rule.getServerGroup();
+                    String chain;
+                    if (group != null) {
+                        chain = group.getName();
+                    } else if (rule.getSystemId() == FirewallRule.SystemId.PUBLIC) {
+                        chain = "ACCEPT";
+                    } else {
+                        chain = rule.getSystemId().name();
+                    }
+                    c.write(":chain", chain);
+                    c.nextElement();
                 }
             }
         }
         c.endArray();
+
+        for (FirewallTable table : FirewallTable.values()) {
+            Collection< ? > tableRules = CollectionUtils.select(custom, CustomFirewallRule.byTable(table));
+            if (!tableRules.isEmpty()) {
+                c.writeArray(table.toString(), tableRules);
+            }
+        }
     }
 
     public void setFirewallManager(FirewallManager firewallManager) {
@@ -160,5 +180,21 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
 
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        onChange(entity);
+    }
+
+    @Override
+    public void onSave(Object entity) {
+        onChange(entity);
+    }
+
+    void onChange(Object entity) {
+        if (entity instanceof Location) {
+            m_configManager.configureEverywhere(FirewallManager.FEATURE);
+        }
     }
 }

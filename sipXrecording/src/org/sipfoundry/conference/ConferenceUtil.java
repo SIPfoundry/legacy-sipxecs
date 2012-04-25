@@ -40,7 +40,6 @@ import org.sipfoundry.commons.util.DomainConfiguration;
 
 public class ConferenceUtil {
     private static String sourceName = "/tmp/freeswitch/recordings";
-    private static DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir") + "/domain-config");
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxrecording");
 
     public static void saveInMailboxSynch(String confName) {
@@ -49,15 +48,9 @@ public class ConferenceUtil {
         String ownerId = props.getProperty("ownerId");
         String bridgeContact = props.getProperty("bridgeContact");
         String mboxServer = props.getProperty("mboxServer");
-        HttpClient httpClient = new HttpClient();
-        List<String> authPrefs = new ArrayList<String>(1);
-        // call ivr API with digest auth policy
-        authPrefs.add(AuthPolicy.DIGEST);
-        httpClient.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authPrefs);
-        Credentials credentials = new UsernamePasswordCredentials("superadmin", config.getSharedSecret());
-        httpClient.getState().setCredentials(
-                new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM), credentials);
-        String urlString = "https://" + mboxServer + "/recording/conference" +
+        HttpClient httpClient = new HttpClient();              
+        
+        String urlString = "http://" + mboxServer + "/recording/conference" +
                         "?wn=" + getWavName(confName) +
                         "&on=" + ownerName +
                         "&oi=" + ownerId +

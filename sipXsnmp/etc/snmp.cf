@@ -163,7 +163,7 @@ bundle agent snmp_systemctl_running {
       "service" string => "snmpd.service";
 
   classes:
-    any::
+    fedora16_or_greater::
       "snmp_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:
@@ -199,7 +199,7 @@ bundle agent snmptrap_systemctl_running {
       "service" string => "snmptrapd.service";
 
   classes:
-    any::
+    fedora16_or_greater::
       "snmptrap_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:

@@ -3,14 +3,33 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <bean id="tunnelManagerImpl" class="org.sipfoundry.sipxconfig.tunnel.TunnelManagerImpl">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.tunnel.TunnelSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="tunnelSettings" class="org.sipfoundry.sipxconfig.tunnel.TunnelSettings" parent="settingsBean">
   </bean>
   
-  <alias alias="tunnelManager" name="tunnelManagerImpl"/>
+  <bean id="tunnelManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="tunnelManagerImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.tunnel.TunnelManager"/>
+  </bean>
 
   <bean id="tunnelConfig" class="org.sipfoundry.sipxconfig.tunnel.TunnelConfiguration">
-    <property name="velocityEngine" ref="velocityEngine" />
-    <property name="tunnelManager" ref="tunnelManager" />
+    <property name="firewallManager" ref="firewallManager" />
     <property name="configManager" ref="configManager" />
+    <property name="featureManager" ref="featureManager" />
+    <property name="addressManager" ref="addressManager" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="tunnelManager" ref="tunnelManager" />
+    <property name="certificateManager" ref="certificateManager" />
   </bean>
 
 </beans>

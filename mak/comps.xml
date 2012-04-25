@@ -15,8 +15,12 @@
      <packagereq type="mandatory">sipxbridge</packagereq>
      <packagereq type="mandatory">sipxivr</packagereq>
      <packagereq type="mandatory">sipxopenfire</packagereq>
+     <packagereq type="mandatory">sipximbot</packagereq>
      <packagereq type="mandatory">sipxfreeswitch</packagereq>
      <packagereq type="mandatory">sipxdns</packagereq>
+     <packagereq type="mandatory">sipxpage</packagereq>
+     <packagereq type="mandatory">sipxpark</packagereq>
+     <packagereq type="mandatory">sipxtunnel</packagereq>
      <!-- polycom arguable the defacto, but not strictly required -->
      <packagereq type="mandatory">sipxpolycom</packagereq>
      <!-- good to have one gateway option installed -->
@@ -29,6 +33,30 @@
      <packagereq type="mandatory">sipxsnmp</packagereq>
      <packagereq type="mandatory">sipxrecording</packagereq>
      <packagereq type="mandatory">sipxcdr</packagereq>
+     <packagereq type="mandatory">sipxprovision</packagereq>
+     <packagereq type="mandatory">sipxrest</packagereq>
+     <packagereq type="mandatory">sipxevent</packagereq>
+     <packagereq type="mandatory">sipxcdrlog</packagereq>
+     <packagereq type="mandatory">sipxevent</packagereq>
+     <packagereq type="mandatory">sipxacccode</packagereq>
+     <packagereq type="mandatory">sipxaastra</packagereq>
+     <packagereq type="mandatory">sipxacccode</packagereq>
+     <packagereq type="mandatory">sipxaudiocodes</packagereq>
+     <packagereq type="mandatory">sipxcallcontroller</packagereq>
+     <packagereq type="mandatory">sipxcdrlog</packagereq>
+     <packagereq type="mandatory">sipxcisco</packagereq>
+     <packagereq type="mandatory">sipxclearone</packagereq>
+     <packagereq type="mandatory">sipxevent</packagereq>
+     <packagereq type="mandatory">sipxgrandstream</packagereq>
+     <packagereq type="mandatory">sipxgtek</packagereq>
+     <packagereq type="mandatory">sipxhitachi</packagereq>
+     <packagereq type="mandatory">sipxipdialog</packagereq>
+     <packagereq type="mandatory">sipxisphone</packagereq>
+     <packagereq type="mandatory">sipxlg-nortel</packagereq>
+     <packagereq type="mandatory">sipxmitel</packagereq>
+     <packagereq type="mandatory">sipxnortel</packagereq>
+     <packagereq type="mandatory">sipxsnom</packagereq>
+     <packagereq type="mandatory">sipxunidata</packagereq>
    </packagelist>
   </group>
   <group>

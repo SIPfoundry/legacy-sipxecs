@@ -403,6 +403,7 @@
     <antcall target="openacd-agent-remove-pin" />
     <antcall target="cert" />
     <antcall target="firewall" />
+	<antcall target="migrate-openacd-skill-groups" />
   </target>
 
   <target name="plugin-patches">
@@ -1289,6 +1290,9 @@
   </target>
   <target name="firewall" unless="firewall">
 	<db-patch patch="firewall" />
+  </target>
+  <target name="migrate-openacd-skill-groups" unless="migrate-openacd-skill-groups">
+	<plsql-patch patch="migrate-openacd-skill-groups"/>
   </target>
 
   <!--

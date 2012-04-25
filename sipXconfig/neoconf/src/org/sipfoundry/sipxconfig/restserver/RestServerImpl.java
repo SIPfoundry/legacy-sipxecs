@@ -41,7 +41,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class RestServerImpl implements FeatureProvider, AddressProvider, RestServer, ProcessProvider, FirewallProvider {
-    private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTPS_API, EXTERNAL_API, SIP_TCP);
+    private static final Collection<AddressType> ADDRESSES = Arrays.asList(HTTP_API, PUBLIC_HTTP_API, SIP_TCP);
     private BeanWithSettingsDao<RestServerSettings> m_settingsDao;
 
     @Override
@@ -75,10 +75,10 @@ public class RestServerImpl implements FeatureProvider, AddressProvider, RestSer
         List<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location location : locations) {
             Address address = null;
-            if (type.equals(HTTPS_API)) {
-                address = new Address(HTTPS_API, location.getAddress(), settings.getHttpsPort());
-            } else if (type.equals(EXTERNAL_API)) {
-                address = new Address(EXTERNAL_API, location.getAddress(), settings.getExternalPort());
+            if (type.equals(HTTP_API)) {
+                address = new Address(HTTP_API, location.getAddress(), settings.getHttpPort());
+            } else if (type.equals(PUBLIC_HTTP_API)) {
+                address = new Address(PUBLIC_HTTP_API, location.getAddress(), settings.getPublicHttpPort());
             } else if (type.equals(SIP_TCP)) {
                 address = new Address(SIP_TCP, location.getAddress(), settings.getSipPort());
             }
@@ -108,10 +108,10 @@ public class RestServerImpl implements FeatureProvider, AddressProvider, RestSer
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        List<DefaultFirewallRule> rules = DefaultFirewallRule.rules(Arrays.asList(HTTPS_API, SIP_TCP));
+        List<DefaultFirewallRule> rules = DefaultFirewallRule.rules(Arrays.asList(HTTP_API, SIP_TCP));
 
         // this should probably proxies thru apache, if so remove this line
-        rules.add(new DefaultFirewallRule(EXTERNAL_API, FirewallRule.SystemId.PUBLIC));
+        rules.add(new DefaultFirewallRule(PUBLIC_HTTP_API, FirewallRule.SystemId.PUBLIC));
         return rules;
     }
 }

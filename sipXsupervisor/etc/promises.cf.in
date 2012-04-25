@@ -40,7 +40,7 @@ bundle common g {
 
       # only files in base plugin.d dir with automatically use bundle.  plugin.d/foo.cf will load bundle "foo", but
       # plugin.d/mylib/bar.cf will not load bundle "bar"
-      "bundles" slist => splitstring(execresult("/bin/find @SIPX_CFINPUTS@/plugin.d -maxdepth 1 -name '*.cf' -printf '%f\n' | /bin/sed 's/.cf//g'", "useshell"),"\n", "$(max_plugin_count)");
+      "bundles" slist => splitstring(execresult("/bin/find @SIPX_CFINPUTS@/plugin.d -maxdepth 1 -name '*.cf' -printf '%f\n' | /bin/sed 's/.cf//g' | sort", "useshell"),"\n", "$(max_plugin_count)");
 }
 
 #

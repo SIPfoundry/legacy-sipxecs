@@ -60,6 +60,7 @@
   <bean id="mailstoreDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.commserver.imdb.Mailstore">
     <property name="mailboxManager" ref="mailboxManager" />
+    <property name="localizationContext" ref="localizationContext" />
   </bean>
   <bean id="openacdDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.commserver.imdb.OpenAcd">

@@ -14,6 +14,7 @@ sipx = \
   sipXcommserverLib \
   sipXsnmp \
   sipXpostgres \
+  sipXtunnel \
   sipXmongo \
   sipXdns \
   sipXhttpd \
@@ -33,6 +34,7 @@ sipx = \
   sipXpublisher \
   sipXregistry \
   sipXpark \
+  sipXpage \
   sipXpolycom
 
 # re: ruby-postgres, there's a new one we should be using ruby-pgsql i 

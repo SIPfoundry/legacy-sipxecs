@@ -11,7 +11,7 @@
 %% FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
 %% details.
 
--module(spx_agentconfig_loader).
+-module(spx_freeswitchmedia_loader).
 -author("eZuce").
 
 -export([start/0]).
@@ -26,10 +26,10 @@
 -define(DB, <<"imdb">>).
 -endif.
 
--include("cpx.hrl").
--define(AGENT_CONFIG_TYPE, <<"openacdagentconfigcommand">>).
+-include_lib("OpenACD/include/cpx.hrl").
+-define(FREESWITCH_CONFIG_TYPE, <<"freeswitchmediacommand">>).
 
--type conf() :: {Level :: pos_integer(), Dir :: string()}.
+-record(spx_fwconfig, {cnode, dialstring=""}).
 
 start() ->
     ActionFun = fun get_action/1,
@@ -40,7 +40,7 @@ start() ->
 %% Internal Functions
 
 get_action(OldConf) ->
-    case get_db_config(fun jprop_to_config/1) of
+    case get_db_config(fun(X) -> jprop_to_config(X, #spx_fwconfig{}) end) of
         {ok, OldConf} ->
             none;
         {ok, none} ->
@@ -58,36 +58,41 @@ get_action(OldConf) ->
 
 get_db_config(JPropToConfig) ->
     M = mongoapi:new(spx, ?DB),
-    case M:findOne(<<"entity">>, [{<<"type">>, ?AGENT_CONFIG_TYPE}]) of
+    case M:findOne(<<"entity">>, [{<<"type">>, ?FREESWITCH_CONFIG_TYPE}]) of
         {ok, Prop} ->
             JPropToConfig(Prop)
     end.
 
-jprop_to_config([]) ->
+%% { "_id" : "FreeswitchMediaCommand-1", "nd" : "freeswitch@127.0.0.1", "active" : true, "dlst" : "{ignore_early_media=true}sofia/sipxdev.chikka.ph/$1;sipx-noroute=VoiceMail;sipx-userforward=false", "uuid" : "7b86aa73-5789-4439-be38-ff41c603480f", "type" : "freeswitchmediacommand" }
+jprop_to_config([], Acc) ->
+    {ok, Acc};
+jprop_to_config([{<<"active">>, false} | _], _) ->
     {ok, none};
-jprop_to_config([{<<"lstenbl">>, B} | _]) ->
-    case B of
-        true ->
-            {ok, true};
-        false ->
-            {ok, none}
-    end;
-jprop_to_config([_ | T]) ->
-    jprop_to_config(T).
+jprop_to_config([{<<"nd">>, CNode} | T], Acc) ->
+	jprop_to_config(T, Acc#spx_fwconfig{cnode = binary_to_atom(CNode, utf8)});
+jprop_to_config([{<<"dlst">>, DialString} | T], Acc) ->
+	jprop_to_config(T, Acc#spx_fwconfig{dialstring = binary_to_list(DialString)});
+jprop_to_config([_ | T], Acc) ->
+    jprop_to_config(T, Acc).
 
 
--spec load(conf()) -> ok.
-load(_) ->
-    cpx_supervisor:update_conf(agent_dialplan_listener,
-        #cpx_conf{id = agent_dialplan_listener,
-            module_name = agent_dialplan_listener,
-            start_function = start_link,
-            start_args = [],
-            supervisor = agent_connection_sup}).
+load(Conf) ->
+	cpx_supervisor:update_conf(freeswitch_media_manager,
+		#cpx_conf{
+			id = freeswitch_media_manager,
+			module_name = freeswitch_media_manager,
+				start_function = start_link,
+				start_args = [
+					Conf#spx_fwconfig.cnode,
+					[{h323,[]}, {iax2,[]}, {sip,[]},
+					 {dialstring,
+					 Conf#spx_fwconfig.dialstring}]],
+				supervisor = mediamanager_sup
+		}).
 
 -spec unload(any()) -> ok.
 unload(_) ->
-    cpx_supervisor:destroy(agent_dialplan_listener).
+    cpx_supervisor:destroy(freeswitch_media_manager).
 
 -ifdef(TEST).
 

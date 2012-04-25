@@ -71,7 +71,7 @@ public class AuthCodeSettings extends PersistableSettings implements DeployConfi
     }
 
     public String getAuthCodeAliases() {
-        return getSettingValue(AUTH_CODE_PREFIX);
+        return getSettingValue(AUTH_CODE_ALIASES);
     }
 
     public void setAuthCodeAliases(String aliases) {

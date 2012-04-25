@@ -36,7 +36,7 @@ bundle agent ftp_config {
   methods:
     any::
       # default user account polycom phones use
-      "polycom_user" usebundle => verify_system_user("PlcmSpIp", "PlcpSpIp", "$(rootdir)");
+      "polycom_user" usebundle => verify_system_user("PlcmSpIp", "PlcmSpIp", "$(rootdir)");
 
        # default user account Nortel 1535 phones use
       "nortel_user" usebundle => verify_system_user("lvp2890", "28904all", "$(rootdir)");

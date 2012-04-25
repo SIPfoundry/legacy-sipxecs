@@ -6,52 +6,32 @@
 package org.sipfoundry.openfire.plugin.presence;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Properties;
 import java.util.Random;
 
-import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.dom4j.Element;
-import org.jivesoftware.openfire.XMPPServer;
-import org.jivesoftware.openfire.interceptor.PacketInterceptor;
 import org.jivesoftware.openfire.interceptor.PacketRejectedException;
 import org.jivesoftware.openfire.muc.MUCRole;
 import org.jivesoftware.openfire.muc.MUCRoom;
 import org.jivesoftware.openfire.session.Session;
-import org.jivesoftware.openfire.PacketDeliverer; 
-import org.restlet.Client;
-import org.restlet.data.Method;
-import org.restlet.data.Protocol;
-import org.restlet.data.Request;
-import org.restlet.data.Response;
-import org.restlet.resource.Representation;
-import org.sipfoundry.commons.log4j.SipFoundryAppender;
-import org.sipfoundry.commons.log4j.SipFoundryLayout;
-import org.xmpp.packet.Message;
-import org.xmpp.packet.Packet;
-import org.xmpp.packet.JID;
-import org.xmpp.packet.PacketExtension;
 import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.jivesoftware.util.NotFoundException;
+import org.xmpp.packet.JID;
+import org.xmpp.packet.Message;
+import org.xmpp.packet.Packet;
 
 public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterceptor {
     private static Logger log = Logger.getLogger(DefaultMessagePacketInterceptor.class);
     private SipXOpenfirePlugin plugin;
     private int cookedMessageId = new Random().nextInt();
     HashMap<String, String> multiUserChatSubstitutionMessages = new HashMap<String, String>();
- 
+
     private final static String CALL_DIRECTIVE = "@call";
     private final static String CONF_DIRECTIVE = "@conf";
     private final static String TRANSFER_DIRECTIVE = "@xfer";
-    
+
     public void start(SipXOpenfirePlugin plugin) {
         this.plugin = plugin;
     }
@@ -65,7 +45,7 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
                     processChatMessage(message, incoming, processed);
                 }
                 else if (message.getType() == Message.Type.groupchat) {
-                    processGroupChatMessage(message, incoming, processed);                    
+                    processGroupChatMessage(message, incoming, processed);
                 }
             }
         } catch (PacketRejectedException e) {
@@ -77,24 +57,24 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
     }
 
     String buildRestCallCommand(String callerNumber, String calledNumber) {
-        String restCallCommand =  "https://"+ plugin.getSipXopenfireConfig().getSipXrestIpAddress()
-                + ":" + plugin.getSipXopenfireConfig().getSipXrestHttpsPort() + "/callcontroller/"
+        String restCallCommand =  "http://"+ plugin.getSipXopenfireConfig().getSipXrestIpAddress()
+                + ":" + plugin.getSipXopenfireConfig().getSipXrestHttpPort() + "/callcontroller/"
                 + callerNumber + "/" + calledNumber + "?timeout=30&isForwardingAllowed=true";
         log.debug("rest call command is: " + restCallCommand);
         return restCallCommand;
     }
 
     String buildRestCallCommand(String agentId, String caller, String calledNumber) {
-        String restCallCommand =  "https://" + plugin.getSipXopenfireConfig().getSipXrestIpAddress()
-                + ":" + plugin.getSipXopenfireConfig().getSipXrestHttpsPort() + "/callcontroller/"
+        String restCallCommand =  "http://" + plugin.getSipXopenfireConfig().getSipXrestIpAddress()
+                + ":" + plugin.getSipXopenfireConfig().getSipXrestHttpPort() + "/callcontroller/"
                 + caller + "/" + calledNumber
                 + "?agent=" + agentId + "&timeout=30&isForwardingAllowed=true";
         return restCallCommand;
     }
 
     String buildRestConferenceCommand(String agentId, String caller, String calledNumber, String conferencePin) {
-        String restCallCommand =  "https://" + plugin.getSipXopenfireConfig().getSipXrestIpAddress()
-                + ":" + plugin.getSipXopenfireConfig().getSipXrestHttpsPort() + "/callcontroller/"
+        String restCallCommand =  "http://" + plugin.getSipXopenfireConfig().getSipXrestIpAddress()
+                + ":" + plugin.getSipXopenfireConfig().getSipXrestHttpPort() + "/callcontroller/"
                 + caller + "/" + calledNumber
                 + "?agent=" + agentId + "&timeout=30&isForwardingAllowed=true";
         if (conferencePin != null && conferencePin.length() > 0 ){
@@ -104,7 +84,7 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
     }
 
 
-    
+
     /*
      * TODO : Convert this to use the REST client. Does not seem to work.
      */
@@ -127,7 +107,7 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
         }
 
     }
-    
+
     private void processChatMessage(Message message, boolean incoming, boolean processed) throws Exception{
         String chatText = message.getBody();
         if (chatText != null) {
@@ -141,7 +121,7 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
                     log.debug("from node: " + message.getFrom().toBareJID());
                     String fromSipId = plugin.getSipId(message.getFrom().toBareJID());
                     if (fromSipId == null) {
-                        log.debug("fromSipId is null for " +message.getFrom().toBareJID() + 
+                        log.debug("fromSipId is null for " +message.getFrom().toBareJID() +
                                 " user does not have an associated SIP URL -- not handling call");
                         return;
                     }
@@ -156,20 +136,20 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
                         String numberToCall;
                         if (expression.length() > 0) {
                             // a name was specified - try to map it to a SIP ID that we can call
-                            numberToCall = mapArbitraryNameToSipEndpoint( expression );                            
+                            numberToCall = mapArbitraryNameToSipEndpoint( expression );
                             reply( message, plugin.getLocalizer().localize("attemptingcall.prompt") + " " + numberToCall);
                         } else {
-                            // number to call was not specified, assume that the other 
+                            // number to call was not specified, assume that the other
                             // end of the chat session is the party to call.
                             if ( toSipId != null ) {
                                 numberToCall = toSipId;
                                 changeMessageBody( message, plugin.getXmppDisplayName(message.getFrom().getNode()) + " " + plugin.getLocalizer().localize("callingyou.prompt") );
                             } else {
-                                log.debug("no SIP ID associated with user " + 
+                                log.debug("no SIP ID associated with user " +
                                         message.getTo().toBareJID());
                                 reply( message, plugin.getLocalizer().localize("commandfailed.prompt") +
                                                 " - " +
-                                                message.getTo().getNode() + 
+                                                message.getTo().getNode() +
                                                 " " +
                                                 plugin.getLocalizer().localize("notassociatedwithsip.prompt") );
                                 return;
@@ -186,7 +166,7 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
                             expression = expression.trim();
                             String numberToCall;
                             if (expression.length() > 0) {
-                                numberToCall = mapArbitraryNameToSipEndpoint( expression );  
+                                numberToCall = mapArbitraryNameToSipEndpoint( expression );
                                 log.debug("xfer username is " + numberToCall);
                                 String restCallCommand = buildRestCallCommand(fromSipId,
                                         toSipId, numberToCall);
@@ -194,36 +174,36 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
                                 changeMessageBody( message, plugin.getXmppDisplayName(message.getFrom().getNode()) +
                                                             " " +
                                                             plugin.getLocalizer().localize("isreferring.prompt") );
-                            }    
+                            }
                             else{
                                 reply( message, plugin.getLocalizer().localize("commandfailed.prompt") +
                                                 " - " +
-                                                plugin.getLocalizer().localize("xfertargetreq.prompt") );                                
+                                                plugin.getLocalizer().localize("xfertargetreq.prompt") );
                             }
                         }
                         else{
                             reply( message, plugin.getLocalizer().localize("commandfailed.prompt") +
                                             " - " +
-                                            message.getTo().getNode() + 
+                                            message.getTo().getNode() +
                                             " " +
-                                            plugin.getLocalizer().localize("notassociatedwithsip.prompt"));                            
+                                            plugin.getLocalizer().localize("notassociatedwithsip.prompt"));
                         }
                     }
                 }
-                        
+
             }
         }
-    }    
+    }
 
     private void processGroupChatMessage(Message message, boolean incoming, boolean processed) throws Exception
     {
         String chatText = message.getBody();
         if (chatText != null) {
             if (incoming && !processed) {
-                if (chatText.startsWith(CONF_DIRECTIVE) ) { 
+                if (chatText.startsWith(CONF_DIRECTIVE) ) {
                     if( message.getID() == null )
                     {
-                        // Message IDs are optional be we need them to 
+                        // Message IDs are optional be we need them to
                         // track data related to @conf directives.  If we
                         // find that a given message does not have an ID,
                         // we make one up and add it to the message.
@@ -250,14 +230,14 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
                             try
                             {
                                 conferenceName = plugin.getConferenceName(subdomain, roomName);
-                                // verify that the command issuer has the privilege to start the conference and 
+                                // verify that the command issuer has the privilege to start the conference and
                                 // has a SIP ID.
                                 String commandRequester = message.getFrom().toBareJID();
                                 Collection<String> owners = chatRoom.getOwners();
-                                String commandRequesterSipId = plugin.getSipId(commandRequester); 
+                                String commandRequesterSipId = plugin.getSipId(commandRequester);
                                 if (commandRequesterSipId != null && owners.contains(commandRequester)) {
                                     String conferencePin = plugin.getConferencePin(subdomain, roomName);
-                                    // Check who is to be invited to the conference.  If the @conf directive 
+                                    // Check who is to be invited to the conference.  If the @conf directive
                                     // is not followed by anything then everyone in the room will get invited.
                                     // If the directive is followed by an expression, only the SIP user mapping to that
                                     // expression will be invited.
@@ -265,11 +245,11 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
                                     expression = expression.trim();
                                     if (expression.length() > 0) {
                                         String numberToCall;
-                                        numberToCall = mapArbitraryNameToSipEndpoint( chatRoom, expression );  
+                                        numberToCall = mapArbitraryNameToSipEndpoint( chatRoom, expression );
                                         log.debug("@conf username is " + numberToCall);
                                         String restCallCommand = buildRestConferenceCommand(
                                                 commandRequesterSipId, numberToCall, conferenceName, conferencePin);
-                                        sendRestRequest(restCallCommand);                                                    
+                                        sendRestRequest(restCallCommand);
                                         reply( message, plugin.getLocalizer().localize("tryingtoinvite.prompt") +
                                                 		" " +
                                                 		numberToCall +
@@ -280,26 +260,26 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
                                                         " " +
                                                         plugin.getLocalizer().localize("audioconference.prompt"));
                                         throw new PacketRejectedException();
-                                    }    
+                                    }
                                     else{
                                         for (MUCRole occupant : chatRoom.getOccupants()) {
                                             if (occupant.getRole() != MUCRole.Role.none) {
                                                 String occupantJID = occupant.getUserAddress().toBareJID();
                                                 log.info( "occupantJID " + occupantJID);
-                                                String mapKey = message.getID() + occupantJID; 
+                                                String mapKey = message.getID() + occupantJID;
                                                 try{
                                                     String occupantSipId = plugin.getSipId(occupantJID);
                                                     if ( occupantSipId != null) {
                                                         String restCallCommand = buildRestConferenceCommand(
                                                                 commandRequesterSipId, occupantSipId, conferenceName, conferencePin);
-                                                        sendRestRequest(restCallCommand);    
+                                                        sendRestRequest(restCallCommand);
                                                         multiUserChatSubstitutionMessages.put(mapKey, plugin.getLocalizer().localize("invitetojoin.prompt") +
                                                                                                       " " +
-                                                                                                      roomName + 
+                                                                                                      roomName +
                                                                                                       " " +
                                                                                                       plugin.getLocalizer().localize("audioconference.prompt") +
-                                                                                                      " - " + 
-                                                                                                      plugin.getLocalizer().localize("willringshortly.prompt") );                                                
+                                                                                                      " - " +
+                                                                                                      plugin.getLocalizer().localize("willringshortly.prompt") );
                                                     }
                                                     else{
                                                         throw new UserNotFoundException("could not find SIP id for JID " + occupantJID );
@@ -309,7 +289,7 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
                                                     log.warn( "processGroupChatMessage " + ex + ": skipping user");
                                                     multiUserChatSubstitutionMessages.put(mapKey, message.getFrom().getNode() +
                                                                                             " " +
-                                                                                            plugin.getLocalizer().localize("nosipaccount.prompt"));                                                
+                                                                                            plugin.getLocalizer().localize("nosipaccount.prompt"));
                                                 }
                                             }
                                         }
@@ -322,7 +302,7 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
                                                     " - " +
                                                     plugin.getLocalizer().localize("onlyowners.prompt") +
                                                     " " +
-                                                    roomName + 
+                                                    roomName +
                                                     " " +
                                                     plugin.getLocalizer().localize("allowedtoperformoperation.prompt") );
                                     throw new PacketRejectedException(commandRequesterSipId + " is not the owner of MUC room " + subdomain + ":" + roomName);
@@ -344,7 +324,7 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
                     } catch (Exception ex) {
                         log.debug("caught: " + ex.getMessage() + " while processing room chat message to " + message.getTo());
                     }
-                }                    
+                }
             }
             else if (!incoming && !processed) {
                 // check if we have an output message substitution stored for this message Id and destination.
@@ -352,18 +332,18 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
                     String mapKey =  message.getID() + message.getTo().toBareJID();
                     String messageSubstitution = multiUserChatSubstitutionMessages.get(mapKey);
                     if( messageSubstitution != null ){
-                        changeMessageBody(message, messageSubstitution);    
+                        changeMessageBody(message, messageSubstitution);
                         multiUserChatSubstitutionMessages.remove(mapKey);
                     }
                 }
             }
         }
-    }    
+    }
 
     /*
      * Tries to convert a supplied name to a dialable SIP URI.  The conversion routine will look for the following:
      * #1- routine assumes that the name is the node of a JID and tries to map it to a SIP Id; if that fails
-     * #2- routine assumes that the name is an XMPP display name and tries to map it to a JID then #1 is attempted; if that fails 
+     * #2- routine assumes that the name is an XMPP display name and tries to map it to a JID then #1 is attempted; if that fails
      * #3- assume that the name is the userpart of the SIP URI.  Append the SIP domain to it
      */
     private String mapArbitraryNameToSipEndpoint( String name )
@@ -385,7 +365,7 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
                 catch( UserNotFoundException ex2 ){
                     // name was not an XMPP username either - assume it is a SIP Id
                     sipEndpoint = name;
-                }                
+                }
             }
         }
         else{
@@ -401,7 +381,7 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
      * Tries to convert a supplied name to a dialable SIP URI.  The conversion routine will look for the following:
      * #1- routine assumes that the name is chatroom nickname (aka nick, alias or handle ) and tries to map it to a SIP Id; if that fails
      * #2- routine assumes that the name is the node of a JID and tries to map it to a SIP Id; if that fails
-     * #3- routine assumes that the name is an XMPP display name and tries to map it to a JID then #1 is attempted; if that fails 
+     * #3- routine assumes that the name is an XMPP display name and tries to map it to a JID then #1 is attempted; if that fails
      * #4- assume that the name is the userpart of the SIP URI.  Append the SIP domain to it
      */
     private String mapArbitraryNameToSipEndpoint( MUCRoom room, String name ){
@@ -416,19 +396,19 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
         }
         return sipEndpoint;
     }
-    
+
     // turns a message into a reply.  Note that this operation destroys the original message (i.e. the original
     // message will never be delivered to the original destination).
     private void reply( Message message, String replyText ){
         JID from = message.getFrom();
         JID to   = message.getTo();
         message.setTo(from);
-        message.setFrom(to);   
-        changeMessageBody(message, replyText);     
+        message.setFrom(to);
+        changeMessageBody(message, replyText);
     }
-    
+
     private void changeMessageBody( Message message, String newBodyText ){
-        // the message can carry the chat text in two places: 
+        // the message can carry the chat text in two places:
         // #1 -[mandatory]- the message's body element carries the vanilla version of the chat text
         // #2 -[optional]- the message's html extension carries a style-enhanced version of the chat text
         // IM Clients that can handle html will render #2 in priority if present so both need to be modified.
@@ -442,7 +422,7 @@ public class DefaultMessagePacketInterceptor extends AbstractMessagePacketInterc
     }
 
     private void appendToMessageBody( Message message, String textToAppend ){
-        String currentBody = message.getBody(); 
+        String currentBody = message.getBody();
         if( currentBody == null ){
             message.setBody(textToAppend);
         }

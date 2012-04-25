@@ -45,9 +45,6 @@ public abstract class EditOpenAcdCommand extends PageWithCallback implements Pag
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
-//    @InjectObject("spring:sipxOpenAcdService")
-//    public abstract SipxOpenAcdService getSipxOpenAcdService();
-
     public abstract boolean isEnabled();
 
     public abstract void setEnabled(boolean enabled);

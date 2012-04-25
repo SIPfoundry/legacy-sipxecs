@@ -22,7 +22,6 @@
         </property>
       </bean>
     </property>
-    <property name="addressManager" ref="addressManager"/>
     <property name="jdbc" ref="configJdbcTemplate"/>
   </bean>
   

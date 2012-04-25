@@ -408,7 +408,7 @@ body action fix {
 bundle agent verify_system_user(user,password,home) {
   classes:
     any::
-      "has_user" not => userexists("$(user)");
+      "has_user" expression => userexists("$(user)");
 
   files:
     has_user::
@@ -418,7 +418,7 @@ bundle agent verify_system_user(user,password,home) {
 
   commands:
     !has_user::
-      "$(useradd)",
+      "$(sipx.adduser)",
         comment => "Creating user $(user)",
         contain => in_shell,
         args => "-d $(home) -s /sbin/nologin -M $(user) && \
