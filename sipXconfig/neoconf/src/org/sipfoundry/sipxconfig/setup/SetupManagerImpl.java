@@ -40,6 +40,7 @@ public class SetupManagerImpl implements SetupManager, ApplicationListener<Appli
     private Set<SetupListener> m_setupListeners;
     private boolean m_dirty;
     private boolean m_enabled = true;
+    private boolean m_triggerConfigOnStartup = true;
 
     @Override
     public boolean isSetup(String id) {
@@ -121,6 +122,9 @@ public class SetupManagerImpl implements SetupManager, ApplicationListener<Appli
             }
             saveSetupIds();
         }
+        if (m_triggerConfigOnStartup) {
+            m_configManager.configureAllFeaturesEverywhere();
+        }
     }
 
     @Override
@@ -137,5 +141,17 @@ public class SetupManagerImpl implements SetupManager, ApplicationListener<Appli
      */
     public void setEnabled(boolean enabled) {
         m_enabled = enabled;
+    }
+
+    public boolean isTriggerConfigOnStartup() {
+        return m_triggerConfigOnStartup;
+    }
+
+    public void setTriggerConfigOnStartup(boolean triggerConfigOnStartup) {
+        m_triggerConfigOnStartup = triggerConfigOnStartup;
+    }
+
+    public boolean isEnabled() {
+        return m_enabled;
     }
 }

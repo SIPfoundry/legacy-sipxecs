@@ -114,6 +114,13 @@ public:
         const int& timeNow,
         Subscriptions& subscriptions);
 
+    void getUnexpiredSubscriptionsAndIncrementCSeq (
+        const UtlString& component,
+        const UtlString& key,
+        const UtlString& eventTypeKey,
+        const int& timeNow,
+        Subscriptions& subscriptions);
+
     void getUnexpiredContactsFieldsContaining(
         UtlString& substringToMatch,
         const int& timeNow,

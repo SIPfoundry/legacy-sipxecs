@@ -44,14 +44,11 @@ public class MongoConfig implements ConfigProvider, PostConfigListener {
         }
         FeatureManager fm = manager.getFeatureManager();
         Location[] all = manager.getLocationManager().getLocations();
-        //TODO  - get firewall/encryption details from system
-        boolean encrypt = false;
-        List<Location> secondary = fm.getLocationsForEnabledFeature(MongoManager.FEATURE_ID);
-        Location primary = manager.getLocationManager().getPrimaryLocation();
+        List<Location> servers = fm.getLocationsForEnabledFeature(MongoManager.FEATURE_ID);
         MongoSettings settings = m_mongoManager.getSettings();
         int port = settings.getPort();
-        String connStr = getConnectionString(primary, secondary, port, encrypt);
-        String connUrl = getConnectionUrl(primary, secondary, port, encrypt);
+        String connStr = getConnectionString(servers, port);
+        String connUrl = getConnectionUrl(servers, port);
         for (Location location : all) {
 
             // CLIENT
@@ -64,7 +61,7 @@ public class MongoConfig implements ConfigProvider, PostConfigListener {
             }
 
             // SERVERS
-            boolean mongod = fm.isFeatureEnabled(MongoManager.FEATURE_ID, location) || location.isPrimary();
+            boolean mongod = fm.isFeatureEnabled(MongoManager.FEATURE_ID, location);
             boolean arbiter = fm.isFeatureEnabled(MongoManager.ARBITER_FEATURE, location);
             FileWriter server = new FileWriter(new File(dir, "mongodb.cfdat"));
             try {
@@ -103,24 +100,24 @@ public class MongoConfig implements ConfigProvider, PostConfigListener {
         config.write("connectionString", connStr);
     }
 
-    String getConnectionString(Location primary, List<Location> secondary, int port,
-            boolean encrypt) {
-        StringBuilder r = new StringBuilder("sipxecs/").append(primary.getFqdn()).append(':').append(port);
-        if (secondary != null) {
-            for (Location location : secondary) {
-                r.append(',').append(location.getFqdn()).append(':').append(port);
+    String getConnectionString(List<Location> servers, int port) {
+        StringBuilder r = new StringBuilder("sipxecs/");
+        for (int i = 0; i < servers.size(); i++) {
+            if (i > 0) {
+                r.append(',');
             }
+            r.append(servers.get(i).getFqdn()).append(':').append(port);
         }
         return r.toString();
     }
 
-    String getConnectionUrl(Location primary, List<Location> secondary, int port, boolean encrypt) {
-        StringBuilder r = new StringBuilder("mongodb://").append(primary.getFqdn());
-        r.append(':').append(port);
-        if (secondary != null) {
-            for (Location location : secondary) {
-                r.append(',').append(location.getFqdn()).append(':').append(port);
+    String getConnectionUrl(List<Location> servers, int port) {
+        StringBuilder r = new StringBuilder("mongodb://");
+        for (int i = 0; i < servers.size(); i++) {
+            if (i > 0) {
+                r.append(',');
             }
+            r.append(servers.get(i).getFqdn()).append(':').append(port);
         }
         r.append("/?slaveOk=true");
         return r.toString();

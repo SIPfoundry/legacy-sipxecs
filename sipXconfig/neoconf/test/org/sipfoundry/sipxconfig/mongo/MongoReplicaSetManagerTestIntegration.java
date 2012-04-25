@@ -36,7 +36,7 @@ public class MongoReplicaSetManagerTestIntegration extends IntegrationTestCase {
         Set<String> actualMembers = new HashSet<String>();
         Set<String> actualArbiters = new HashSet<String>();
         m_mongoReplicaSetManager.getPostgresMembers(actualMembers, actualArbiters);
-        assertEquals("[localhost:27017, remote.example.org:27017]", actualMembers.toString());
+        assertEquals("[remote.example.org:27017]", actualMembers.toString());
         assertEquals("[localhost:27018]", actualArbiters.toString());
     }
     

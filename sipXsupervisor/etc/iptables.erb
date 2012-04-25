@@ -25,10 +25,6 @@
   rules.each { |rule|
 %>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> --dport <%= rule[:port] %> -m state --state NEW,ESTABLISHED -j <%= rule[:chain] %>
 <%
-    if rule[:prioritize]
-%>-t mangle -A OUTPUT -i $(sipx.iface) -p <%= rule[:protocol] %> --dport <%= rule[:port] %> -j DSCP --set-dscp-class EF
-<%
-    end
   }
 
   if defined? filter && !filter.nil?
@@ -66,8 +62,8 @@ COMMIT
 :POSTROUTING ACCEPT [0:0]
 <%
   rules.each { |rule|
-    if rule[:prioritize]
-%>-A OUTPUT -i $(sipx.iface) -p <%= rule[:protocol] %> --dport <%= rule[:port] %> -j DSCP --set-dscp-class EF
+    if rule[:priority]
+%>-A OUTPUT -o $(sipx.iface) -p <%= rule[:protocol] %> --dport <%= rule[:port] %> -j DSCP --set-dscp-class EF
 <%
     end
   }

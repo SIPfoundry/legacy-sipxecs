@@ -33,6 +33,7 @@ public:
 	EntityDB(const MongoDB::ConnectionInfo& info) :
 		BaseDB(info)
 	{
+    _lastTailId = mongo::minKey.firstElement();
 	}
 	;
 
@@ -59,6 +60,11 @@ public:
 	// Query interface to return a set of mapped full URI
 	// contacts associated with the alias
 	void getAliasContacts(const Url& aliasIdentity, Aliases& aliases, bool& isUserIdentity) const;
+	
+	bool tail(std::vector<std::string>& opLogs);
+
+private:
+  mongo::BSONElement _lastTailId;
 };
 
 #endif	/* ENTITYDB_H */
