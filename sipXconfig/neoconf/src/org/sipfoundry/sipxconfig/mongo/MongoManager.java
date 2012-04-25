@@ -20,10 +20,12 @@ import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface MongoManager {
-    public static final String BEAN_ID = "mongo";
-    public static final AddressType ADDRESS_ID = new AddressType(BEAN_ID);
-    public static final LocationFeature FEATURE_ID = new LocationFeature(BEAN_ID);
-    public static final LocationFeature ARBITER_FEATURE = new LocationFeature("mongoArbiter");
+    public static final String MONGO = "mongo";
+    public static final String ARBITOR = "mongoArbiter";
+    public static final AddressType ADDRESS_ID = new AddressType(MONGO, MongoSettings.SERVER_PORT);
+    public static final AddressType ARBITOR_ADDRESS_ID = new AddressType(ARBITOR, MongoSettings.ARBITER_PORT);
+    public static final LocationFeature FEATURE_ID = new LocationFeature(MONGO);
+    public static final LocationFeature ARBITER_FEATURE = new LocationFeature(ARBITOR);
 
     public MongoSettings getSettings();
 

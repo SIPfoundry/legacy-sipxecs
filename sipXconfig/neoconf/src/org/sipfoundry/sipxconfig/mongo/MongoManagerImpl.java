@@ -55,20 +55,19 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        return Collections.singleton(new DefaultFirewallRule(ADDRESS_ID));
+        return Arrays.asList(new DefaultFirewallRule(ADDRESS_ID), new DefaultFirewallRule(ARBITOR_ADDRESS_ID));
     }
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
             Location requester) {
-        if (!type.equalsAnyOf(ADDRESS_ID)) {
+        if (!type.equalsAnyOf(ADDRESS_ID, ARBITOR_ADDRESS_ID)) {
             return null;
         }
-        Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE_ID);
-        Collection<Address> addresses = new ArrayList<Address>(locations.size());
-        for (Location location : locations) {
-            addresses.add(new Address(ADDRESS_ID, location.getAddress(), MongoSettings.SERVER_PORT));
-        }
+
+        LocationFeature feature = (type == ADDRESS_ID ? FEATURE_ID : ARBITER_FEATURE);
+        Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(feature);
+        Collection<Address> addresses = Location.toAddresses(type, locations);
         return addresses;
     }
 
