@@ -51,6 +51,9 @@
   <li jwcid="@If" condition="ognl:isOn('firewall')">
     <a jwcid="@PageLink" page="firewall/ManageFirewall"><span key="menu.firewall.featureMenu"/></a>
   </li>
+  <li jwcid="@If" condition="ognl:isOn('tunnel')">
+    <a jwcid="@PageLink" page="tunnel/EditTunnel"><span key="menu.tunnel.featureMenu"/></a>
+  </li>
   <li jwcid="@If" condition="ognl:isOn('dhcpd')">
     <a jwcid="@PageLink" page="dhcp/EditDhcpd"><span key="menu.dhcpd.featureMenu"/></a>
   </li>

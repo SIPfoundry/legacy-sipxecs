@@ -88,7 +88,7 @@ public class TunnelConfiguration implements ConfigProvider, FeatureListener, Fir
             Collection<RemoteOutgoingTunnel> out = architect.getRemoteOutgoingTunnels(location);
             Writer w = new FileWriter(new File(dir, "tunnel.yaml"));
             try {
-                writeConfig(w, in, out);
+                writeConfig(w, in, out, settings);
             } finally {
                 IOUtils.closeQuietly(w);
             }
@@ -119,8 +119,8 @@ public class TunnelConfiguration implements ConfigProvider, FeatureListener, Fir
         return architect;
     }
 
-    private void writeConfig(Writer w, Collection<AllowedIncomingTunnel> in, Collection<RemoteOutgoingTunnel> out)
-        throws IOException {
+    private void writeConfig(Writer w, Collection<AllowedIncomingTunnel> in, Collection<RemoteOutgoingTunnel> out,
+        TunnelSettings settings) throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
         c.startArray("incoming");
         String name = ":name";
@@ -141,6 +141,7 @@ public class TunnelConfiguration implements ConfigProvider, FeatureListener, Fir
             c.nextElement();
         }
         c.endArray();
+        c.write(settings.getSettings());
     }
 
     public void setConfigManager(ConfigManager configManager) {
