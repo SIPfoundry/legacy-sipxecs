@@ -177,6 +177,39 @@ void SubscribeDB::getUnexpiredSubscriptions (
     conn.done();
 }
 
+void SubscribeDB::getUnexpiredSubscriptionsAndIncrementCSeq (
+  const UtlString& component,
+  const UtlString& key,
+  const UtlString& eventTypeKey,
+  const int& timeNow,
+  Subscriptions& subscriptions)
+{
+  removeExpired(component, timeNow);
+  //query="key=",key,"and eventtypekey=",eventTypeKey;
+   mongo::BSONObj query = BSON("$findAndModify" 
+           << BSON("query"
+           << BSON(
+              Subscription::key_fld() << key.str() <<
+              Subscription::eventTypeKey_fld() << eventTypeKey.str())) << "," <<
+              BSON("update" << BSON_INC(Subscription::notifyCseq_fld() << "1")  )  );
+
+  mongo::ScopedDbConnection conn(_info.getConnectionString());
+  mongo::BSONObj result;
+  if (conn->runCommand(_info.getNS(), query, result))
+  {
+    for (mongo::BSONObjIterator iter = result.begin(); iter.more();)
+    {
+      subscriptions.push_back(Subscription(iter.next().embeddedObject()));
+    }
+  }
+
+  //while (pCursor.get() && pCursor->more())
+  //{
+  //    subscriptions.push_back(Subscription(pCursor->next()));
+  //}
+  conn.done();
+}
+
 void SubscribeDB::getUnexpiredContactsFieldsContaining(
     UtlString& substringToMatch,
     const int& timeNow,

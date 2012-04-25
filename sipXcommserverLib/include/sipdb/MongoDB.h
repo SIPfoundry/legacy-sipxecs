@@ -59,6 +59,7 @@
 #define BSON_GREATER_THAN_EQUAL(val) BSON("$gte" << val)
 #define BSON_ELEM_MATCH(val) BSON("$elemMatch" << val)
 #define BSON_OR(val) BSON("$or" << val)
+#define BSON_INC(val) BSON("$inc" << BSON(val))
 
 typedef boost::error_info<struct tag_errmsg, std::string> errmsg_info;
 
