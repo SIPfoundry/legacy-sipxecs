@@ -25,6 +25,8 @@ import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class NatSettings extends PersistableSettings implements DeployConfigOnEdit {
+    public static final int START_RTP_PORT = 30000;
+    public static final int END_RTP_PORT = 31000;
     private static final String BEHIND_NAT = "nat/behind-nat";
 
     @Override

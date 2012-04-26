@@ -24,6 +24,8 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class FreeswitchSettings extends SettingsWithLocation {
+    public static final int RTP_START_PORT = 11000;
+    public static final int RTP_END_PORT = 12999;
     private static final String FREESWITCH_XMLRPC_PORT = "freeswitch-config/FREESWITCH_XMLRPC_PORT";
     private static final String FREESWITCH_SIP_PORT = "freeswitch-config/FREESWITCH_SIP_PORT";
     private static final String FREESWITCH_CODECS = "freeswitch-config/FREESWITCH_CODECS";

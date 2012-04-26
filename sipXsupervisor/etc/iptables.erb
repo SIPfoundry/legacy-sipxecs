@@ -1,4 +1,11 @@
-*filter
+<%
+  def dports(rule)
+    s = "--dport #{rule[:port]}"
+    unless rule[:end_port].nil?
+      s += ':' + rule[:end_port].to_s
+    end
+  end
+%>*filter
 :INPUT DROP [0:0]
 :FORWARD DROP [0:0]
 :OUTPUT ACCEPT [60:6096]
@@ -23,7 +30,7 @@
   }
 
   rules.each { |rule|
-%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> --dport <%= rule[:port] %> -m state --state NEW,ESTABLISHED -j <%= rule[:chain] %>
+%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m state --state NEW,ESTABLISHED -j <%= rule[:chain] %>
 <%
   }
 

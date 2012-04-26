@@ -35,6 +35,7 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
@@ -43,6 +44,8 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 public class FreeswitchFeature implements FeatureProvider, AddressProvider, ProcessProvider, FirewallProvider {
     public static final LocationFeature FEATURE = new LocationFeature("freeSwitch");
     public static final AddressType SIP_ADDRESS = AddressType.sipTcp("freeswitch-sip");
+    public static final AddressType RTP_ADDRESS = new AddressType("freeswitch-rtp", "rtp:%s:%d",
+            FreeswitchSettings.RTP_START_PORT, AddressType.Protocol.udp);
     public static final AddressType XMLRPC_ADDRESS = new AddressType("freeswitch-xmlrpc", "http://%s:%d/RPC2");
     public static final AddressType EVENT_ADDRESS = new AddressType("freeswitch-event");
     public static final AddressType ACC_EVENT_ADDRESS = new AddressType("acc-freeswitch-event");
@@ -68,12 +71,17 @@ public class FreeswitchFeature implements FeatureProvider, AddressProvider, Proc
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        return Collections.singleton(new DefaultFirewallRule(XMLRPC_ADDRESS));
+        DefaultFirewallRule[] rules = new DefaultFirewallRule[] {
+            new DefaultFirewallRule(XMLRPC_ADDRESS), new DefaultFirewallRule(EVENT_ADDRESS),
+            new DefaultFirewallRule(ACC_EVENT_ADDRESS), new DefaultFirewallRule(SIP_ADDRESS),
+            new DefaultFirewallRule(RTP_ADDRESS, FirewallRule.SystemId.PUBLIC, true)
+        };
+        return Arrays.asList(rules);
     }
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
-        if (!ADDRESSES.contains(type)) {
+        if (!type.equalsAnyOf(SIP_ADDRESS, XMLRPC_ADDRESS, EVENT_ADDRESS, ACC_EVENT_ADDRESS, RTP_ADDRESS)) {
             return null;
         }
 
@@ -87,13 +95,16 @@ public class FreeswitchFeature implements FeatureProvider, AddressProvider, Proc
             FreeswitchSettings settings = getSettings(location);
             Address address = null;
             if (type.equals(XMLRPC_ADDRESS)) {
-                address = new Address(XMLRPC_ADDRESS, location.getAddress(), settings.getXmlRpcPort());
+                address = new Address(type, location.getAddress(), settings.getXmlRpcPort());
             } else if (type.equals(EVENT_ADDRESS)) {
-                address = new Address(EVENT_ADDRESS, location.getAddress(), settings.getEventSocketPort());
+                address = new Address(type, location.getAddress(), settings.getEventSocketPort());
             } else if (type.equals(ACC_EVENT_ADDRESS)) {
-                address = new Address(ACC_EVENT_ADDRESS, location.getAddress(), settings.getAccEventSocketPort());
+                address = new Address(type, location.getAddress(), settings.getAccEventSocketPort());
             } else if (type.equals(SIP_ADDRESS)) {
-                address = new Address(SIP_ADDRESS, location.getAddress(), settings.getFreeswitchSipPort());
+                address = new Address(type, location.getAddress(), settings.getFreeswitchSipPort());
+            } else if (type.equalsAnyOf(RTP_ADDRESS)) {
+                address = new Address(type, location.getAddress());
+                address.setEndPort(FreeswitchSettings.RTP_END_PORT);
             }
             addresses.add(address);
         }

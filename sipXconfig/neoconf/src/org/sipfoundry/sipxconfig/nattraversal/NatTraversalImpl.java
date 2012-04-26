@@ -17,9 +17,16 @@
 package org.sipfoundry.sipxconfig.nattraversal;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressProvider;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
@@ -27,13 +34,18 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class NatTraversalImpl implements FeatureListener, NatTraversal, FeatureProvider, ProcessProvider {
+public class NatTraversalImpl implements FeatureListener, NatTraversal, FeatureProvider, ProcessProvider,
+    FirewallProvider, AddressProvider {
     private BeanWithSettingsDao<NatSettings> m_settingsDao;
 
     public NatSettings getSettings() {
@@ -93,8 +105,35 @@ public class NatTraversalImpl implements FeatureListener, NatTraversal, FeatureP
     @Override
     public void getBundleFeatures(Bundle b) {
         if (b.isRouter()) {
-            // NAT traveral is debatable but proxy requires it ATM AFAIU
+            // NAT traveral as basic bundle is debatable but proxy requires it ATM AFAIU
             b.addFeature(FEATURE);
         }
+    }
+
+    @Override
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
+        if (!type.equals(RELAY_RTP)) {
+            return null;
+        }
+
+        boolean relayEnabled = manager.getFeatureManager().isFeatureEnabled(FEATURE);
+        if (!relayEnabled) {
+            return null;
+        }
+
+        List<Address> proxy = manager.getAddresses(ProxyManager.TCP_ADDRESS);
+        List<Address> addresses = new ArrayList<Address>(proxy.size());
+        for (Address proxyAddress : proxy) {
+            Address a = new Address(type, proxyAddress.getAddress(), NatSettings.START_RTP_PORT);
+            a.setEndPort(NatSettings.END_RTP_PORT);
+            addresses.add(a);
+        }
+
+        return addresses;
+    }
+
+    @Override
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return Arrays.asList(new DefaultFirewallRule(RELAY_RTP, FirewallRule.SystemId.PUBLIC));
     }
 }

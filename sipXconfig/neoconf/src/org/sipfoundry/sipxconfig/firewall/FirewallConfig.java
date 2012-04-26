@@ -132,6 +132,9 @@ public class FirewallConfig implements ConfigProvider, FeatureListener, DaoEvent
                     c.write(":protocol", atype.getProtocol());
                     c.write(":service", id);
                     c.write(":priority", rule.isPriority());
+                    if (address.getEndPort() != 0) {
+                        c.write(":end_port", address.getEndPort());
+                    }
                     ServerGroup group = rule.getServerGroup();
                     String chain;
                     if (group != null) {

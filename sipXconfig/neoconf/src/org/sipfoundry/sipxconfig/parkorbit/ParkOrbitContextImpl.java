@@ -193,7 +193,11 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
             } else if (type.equals(SIP_UDP_PORT)) {
                 address = new Address(SIP_UDP_PORT, location.getAddress(), settings.getSipUdpPort());
             } else if (type.equals(SIP_RTP_PORT)) {
-                address = new Address(SIP_RTP_PORT, location.getAddress(), settings.getRtpPort());
+                int startPort = settings.getRtpPort();
+                int maxCalls = settings.getMaxSessions();
+                address = new Address(SIP_RTP_PORT, location.getAddress(), startPort);
+                // end port is 2x max calls was based on code found in sipXpark/src/main.cpp
+                address.setEndPort(startPort + (2 * maxCalls));
             }
             addresses.add(address);
         }

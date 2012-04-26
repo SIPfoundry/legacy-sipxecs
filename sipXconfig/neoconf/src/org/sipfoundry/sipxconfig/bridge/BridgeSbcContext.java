@@ -18,6 +18,7 @@ package org.sipfoundry.sipxconfig.bridge;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -34,11 +35,14 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
 
 public class BridgeSbcContext implements FeatureProvider, AddressProvider, FirewallProvider {
     public static final LocationFeature FEATURE = new LocationFeature("sbcBridge");
     public static final AddressType XMLRPC_ADDRESS = new AddressType("sbcBridgeXmlRpc", "http://%s:%d");
+    public static final AddressType SIP_ADDRESS = AddressType.sipTcp("sbcBridgeSip");
+    public static final AddressType TLS_ADDRESS = AddressType.sipTcp("sbcBridgeTls");
     private SbcDeviceManager m_sbcDeviceManager;
 
     @Override
@@ -60,7 +64,7 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider, Firew
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
-        if (!type.equals(XMLRPC_ADDRESS)) {
+        if (!type.equalsAnyOf(XMLRPC_ADDRESS, SIP_ADDRESS, TLS_ADDRESS)) {
             return null;
         }
 
@@ -74,7 +78,16 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider, Firew
         for (BridgeSbc bridge : bridges) {
             Location location = bridge.getLocation();
             if (locations.contains(location)) {
-                addresses.add(newSbcAddress(bridge, type));
+                Address a = new Address(type, bridge.getLocation().getFqdn());
+                if (type.equals(XMLRPC_ADDRESS)) {
+                    a.setPort(bridge.getXmlRpcPort());
+                } else if (type.equals(SIP_ADDRESS)) {
+                    a.setPort(bridge.getPort());
+                } else {
+                    // no TLS port setting available?
+                    a.setPort(bridge.getPort() + 1);
+                }
+                addresses.add(a);
             }
         }
         return addresses;
@@ -93,6 +106,7 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider, Firew
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        return Collections.singleton(new DefaultFirewallRule(XMLRPC_ADDRESS));
+        return Arrays.asList(new DefaultFirewallRule(XMLRPC_ADDRESS), new DefaultFirewallRule(SIP_ADDRESS,
+                FirewallRule.SystemId.PUBLIC), new DefaultFirewallRule(TLS_ADDRESS, FirewallRule.SystemId.PUBLIC));
     }
 }

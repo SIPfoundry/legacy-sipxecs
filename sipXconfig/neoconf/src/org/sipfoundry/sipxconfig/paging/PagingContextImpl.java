@@ -260,7 +260,12 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
             } else if (type.equals(SIP_TLS)) {
                 address = new Address(SIP_TLS, l.getAddress(), settings.getSipTlsPort());
             } else if (type.equals(RTP_PORT)) {
-                address = new Address(RTP_PORT, l.getAddress(), settings.getRtpPort());
+                int startPort = settings.getRtpPort();
+                int maxSessions = settings.getMaxSessions();
+                address = new Address(RTP_PORT, l.getAddress(), startPort);
+                // no code was found in sipXpage that seemed to limit rtp range
+                // but assume ports that are 2x max calls seems reasonable
+                address.setEndPort(startPort + (2 * maxSessions));
             }
             addresses.add(address);
         }

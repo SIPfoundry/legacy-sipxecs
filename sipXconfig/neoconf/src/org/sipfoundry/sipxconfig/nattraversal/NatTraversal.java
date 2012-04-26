@@ -9,10 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.nattraversal;
 
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 
 public interface NatTraversal {
     public static final GlobalFeature FEATURE = new GlobalFeature("natTraversal");
+
+    public static final AddressType RELAY_RTP = new AddressType("natRtp", "rtp:%s:%d", 30000,
+            AddressType.Protocol.udp);
 
     public NatSettings getSettings();
 

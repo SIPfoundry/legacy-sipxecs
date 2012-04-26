@@ -70,6 +70,15 @@
       <type refid="nonRootRequiredPort"/>
       <value>8500</value>
     </setting>
+    <!--  
+     - there is no support in sipXpage for this ATM, but need something user can change to
+     - influence firewall upper end rtp range.
+     -->
+    <setting name="max.sessions" advanced="yes">
+      <type><integer required="yes"/></type>
+      <value>50</value>
+    </setting>
+    
     <setting name="log.level" advanced="yes">
       <type refid="loglevel" />
       <value>NOTICE</value>

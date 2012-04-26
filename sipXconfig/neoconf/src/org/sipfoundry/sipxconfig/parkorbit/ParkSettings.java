@@ -38,6 +38,10 @@ public class ParkSettings extends PersistableSettings {
         return (Integer) getSettingTypedValue("park-config/SIP_PARK_RTP_PORT");
     }
 
+    public int getMaxSessions() {
+        return (Integer) getSettingTypedValue("park-config/SIP_PARK_MAX_SESSIONS");
+    }
+
     @Override
     public String getBeanId() {
         return "parkSettings";

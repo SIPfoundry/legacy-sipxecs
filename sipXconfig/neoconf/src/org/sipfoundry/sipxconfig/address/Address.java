@@ -27,6 +27,7 @@ public class Address {
     };
     private String m_address;
     private int m_port;
+    private int m_endPort;
     private AddressType m_type;
 
     public Address(AddressType t) {
@@ -119,5 +120,13 @@ public class Address {
 
     public AddressType getType() {
         return m_type;
+    }
+
+    public int getEndPort() {
+        return m_endPort;
+    }
+
+    public void setEndPort(int endPort) {
+        m_endPort = endPort;
     }
 }

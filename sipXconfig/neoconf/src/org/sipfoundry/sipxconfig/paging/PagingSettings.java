@@ -76,6 +76,10 @@ public class PagingSettings extends PersistableSettings implements DeployConfigO
         return (Integer) getSettingTypedValue("page-config/rtp.port");
     }
 
+    public int getMaxSessions() {
+        return (Integer) getSettingTypedValue("page-config/max.sessions");
+    }
+
     @Override
     public String getBeanId() {
         return "pagingSettings";
