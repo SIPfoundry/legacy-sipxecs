@@ -18,6 +18,7 @@ package org.sipfoundry.commons.mongo;
 
 import static java.lang.String.format;
 
+import org.apache.commons.lang.StringUtils;
 import org.bson.BasicBSONObject;
 
 import com.mongodb.CommandResult;
@@ -58,6 +59,12 @@ public final class MongoUtil {
         int ok = o.getInt("ok");
         if (ok == 0) {
             String what = o.getString("assertion");
+            if (StringUtils.isBlank(what)) {
+                what = o.getString("errmsg");
+                if (StringUtils.isBlank(what)) {
+                    what = "undetermined error";
+                }                
+            }
             throw new MongoCommandException(what);
         }
     }
