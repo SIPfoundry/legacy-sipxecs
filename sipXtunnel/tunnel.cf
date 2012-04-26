@@ -86,10 +86,10 @@ bundle agent tunnel_running(mode) {
         comment => "start tunnel $(mode)",
         args => "start";
 
-    tunnel.tunnel_running.(restart_sipxecs|restart_tunnel)::
+    tunnel.tunnel_running::
       "$(service)"
         comment => "restart tunnel $(mode)",
         args => "restart",
-        ifvarclass => "restart_tunnel_$(mode)";
+        ifvarclass => "restart_sipxecs|restart_tunnel|restart_tunnel_$(mode)";
 }
 
