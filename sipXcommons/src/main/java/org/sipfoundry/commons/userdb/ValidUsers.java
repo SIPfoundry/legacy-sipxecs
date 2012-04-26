@@ -596,6 +596,8 @@ public class ValidUsers {
             user.setActiveGreeting(getStringValue(obj, ACTIVEGREETING));
         }
 
+        user.setPlayDefaultVmOption(Boolean.valueOf(getStringValue(obj, PLAY_DEFAULT_VM)));
+
         // personal attendant related data
         if (obj.keySet().contains(PERSONAL_ATT)) {
             BasicDBObject pao = (BasicDBObject) obj.get(PERSONAL_ATT);

@@ -51,7 +51,7 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
 
         Greeting greeting = createGreeting();
         PromptList pl = greeting.getPromptList(getPromptList(), getActiveGreeting(),
-                m_mailboxManager.getGreetingPath(getCurrentUser(), getActiveGreeting()));
+                m_mailboxManager.getGreetingPath(getCurrentUser(), getActiveGreeting()), user.shouldPlayDefaultVmOption());
         try {
 
             LOG.info("Mailbox " + user + " Deposit Voicemail from " + getDisplayUri());
