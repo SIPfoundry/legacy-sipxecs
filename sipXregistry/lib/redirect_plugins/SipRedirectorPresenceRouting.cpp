@@ -819,12 +819,11 @@ OsStatus PresenceRoutingUserPreferences::parseDocument()
 
 bool PresenceRoutingUserPreferences::forwardToVoicemailOnDnd(const UtlString& sipUsername )
 {
-   OsLock lock( mMutex );
-   UtlBool* pForwardToVoicemailOnDnd = 
-                (UtlBool*)(mUserVmOnDndPreferences.findValue( &sipUsername ));
-   if( pForwardToVoicemailOnDnd != NULL )
+   EntityRecord entity;
+   EntityDB* entityDb = SipRegistrar::getInstance(NULL)->getEntityDB();
+   if (entityDb->findByUserId(sipUsername.str(), entity))
    {
-      return pForwardToVoicemailOnDnd->getValue();
+      return entity.vmOnDnd();
    }
    else
    {
