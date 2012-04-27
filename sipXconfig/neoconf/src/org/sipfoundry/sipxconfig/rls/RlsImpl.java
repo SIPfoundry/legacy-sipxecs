@@ -28,6 +28,7 @@ import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -54,13 +55,13 @@ public class RlsImpl implements AddressProvider, FeatureProvider, Rls, ProcessPr
     }
 
     @Override
-    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+    public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+    public Collection<LocationFeature> getAvailableLocationFeatures(FeatureManager featureManager, Location l) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -102,8 +103,8 @@ public class RlsImpl implements AddressProvider, FeatureProvider, Rls, ProcessPr
     }
 
     @Override
-    public void getBundleFeatures(Bundle b) {
-        if (b.isUnifiedCommunications()) {
+    public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
+        if (b == Bundle.CORE_TELEPHONY) {
             b.addFeature(FEATURE);
         }
     }

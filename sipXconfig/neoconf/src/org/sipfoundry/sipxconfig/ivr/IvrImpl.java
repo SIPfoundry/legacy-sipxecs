@@ -79,12 +79,12 @@ public class IvrImpl implements FeatureProvider, AddressProvider, FeatureListene
     }
 
     @Override
-    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+    public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
         return Collections.singleton(CALLPILOT);
     }
 
     @Override
-    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+    public Collection<LocationFeature> getAvailableLocationFeatures(FeatureManager featureManager, Location l) {
         return Collections.singleton(FEATURE);
     }
 
@@ -209,8 +209,8 @@ public class IvrImpl implements FeatureProvider, AddressProvider, FeatureListene
     }
 
     @Override
-    public void getBundleFeatures(Bundle b) {
-        if (b.isBasic()) {
+    public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
+        if (b == Bundle.CORE_TELEPHONY) {
             b.addFeature(FEATURE);
         }
     }

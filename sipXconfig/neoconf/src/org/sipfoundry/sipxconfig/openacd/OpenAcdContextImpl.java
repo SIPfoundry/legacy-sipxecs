@@ -44,7 +44,6 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.BundleProvider;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -64,7 +63,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext, BeanFactoryAware,
-        FeatureProvider, AddressProvider, ProcessProvider, DaoEventListener, BundleProvider, FirewallProvider {
+        FeatureProvider, AddressProvider, ProcessProvider, DaoEventListener, FirewallProvider {
 
     private static final String VALUE = "value";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
@@ -94,12 +93,12 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private String m_openacdHome;
 
     @Override
-    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+    public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
         return null;
     }
 
     @Override
-    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+    public Collection<LocationFeature> getAvailableLocationFeatures(FeatureManager featureManager, Location l) {
         return Collections.singleton(FEATURE);
     }
 
@@ -1027,13 +1026,8 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     }
 
     @Override
-    public Collection<Bundle> getBundles(FeatureManager manager) {
-        return Collections.singleton(CALL_CENTER);
-    }
-
-    @Override
-    public void getBundleFeatures(Bundle b) {
-        if (b.basedOn(CALL_CENTER)) {
+    public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
+        if (b == Bundle.CALL_CENTER) {
             b.addFeature(FEATURE);
         }
     }

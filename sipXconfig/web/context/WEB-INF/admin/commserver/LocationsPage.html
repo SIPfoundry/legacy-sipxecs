@@ -1,72 +1,24 @@
 <div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'locations', 'roles'}" selectedTab="ognl:tab"/>
+  <div jwcid="@common/LeftNavigation">
+    <span jwcid="@common/TabControl">
+      <span jwcid="@RenderBody"/>
+      <div jwcid="@common/Tab" isActive="ognl:tab == 'locations'">
+        <a jwcid="@DirectLink" listener="listener:editLocations" id="ognl:'link:locations'"><span
+          key="locations">Locations</span> </a>
+      </div> <span jwcid="@For" source="ognl:bundles" value="ognl:currentBundle" volatile="ognl:true"
+      renderTag="ognl:false">
+        <div jwcid="@common/Tab" isActive="ognl:tab == currentBundle.id">
+          <a jwcid="@DirectLink" listener="listener:editBundle" parameters="ognl:currentBundle.id"
+            id="ognl:'link:' + currentBundle.id"><span jwcid="@Insert"
+            value="ognl:messages.getMessage('bundle.' + currentBundle.id)" /> </a>
+        </div> </span> </span>
+  </div>
   <div id="settings-content">
-    <span jwcid="@common/ErrorMsg"/>
-    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
-  </div>
-  <div jwcid="locationsTab@Block">    
-	<div jwcid="@common/QuickLinks">
-	  <ul>
-	    <li>
-	      <a jwcid="@PageLink" page="admin/JobStatusPage" href="#"><span key="label.jobStatus">Job Status</span></a>
-	    </li>
-	  </ul>
-	</div>
-	<span jwcid="@common/QuickHelp" value="message:quick.help"/>
-	<form jwcid="@common/AutoRefreshForm">
-	  <ul class="component-links">
-	    <li>
-	      <a jwcid="@DirectLink" id="locations:add" listener="listener:addLocation">
-	        <span key="link.addLocation">Add Location</span>
-	      </a>
-	    </li>
-	  </ul>
-	  <table jwcid="@common/Table" id="locations:list"
-	    source="ognl:locations"
-	    columns="* name, id, address, description:name, status"
-	    row="ognl:currentRow"
-	    selections="bean:selections">
-	    <span jwcid="nameColumnValue@Block">
-	      <span jwcid="editLocationLink@DirectLink"
-	          listener="listener:editLocation" parameters="ognl:currentRow.id">
-	        <span jwcid="@Insert" value="ognl:currentRow.fqdn"/>
-	      </span>
-	    </span>
-	    <span jwcid="idColumnValue@Block">
-	      <span jwcid="@Insert" value="ognl:currentRow.id"/>
-	    </span>
-	    <span jwcid="statusColumnValue@Block">
-			<span jwcid="@Insert" value="ognl:statusLabel" renderTag="false" raw="true"/>
-	    </span>	    
-	  </table>
-	  <ul class="component-submit">
-	    <li>
-	      <input id="locations:sendProfiles"
-	        jwcid="sendProfiles@Submit"
-	        action="listener:generateProfiles"
-	        value="message:button.sendProfiles" />
-	      <span jwcid="@common/Confirm" component="component:sendProfiles" prompt="message:confirm.sendProfiles"/>
-	    </li>
-	    <li>
-	      <input jwcid="delete@Submit"
-	        id="locations:delete"
-	        action="listener:deleteLocations"
-	        value="message:button.delete" />
-	      <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
-	    </li>
-	  </ul>
-	</form>
-  </div>
-  <div jwcid="settingsTab@Block">
-	  <form jwcid="form@Form" delegate="bean:validator">
-	    <fieldset jwcid="@setting/SettingsFieldset"
-	        settings="ognl:unmanagedServiceSettings.settings" />
-	    <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
-	        listener="listener:applyUnmanagedServiceSettings"/>
-	  </form>
-  </div>
-  <div jwcid="rolesTab@Block">
-    <div jwcid="@admin/commserver/RolesPanel">
-    </div>  
+    <div jwcid="@If" condition="ognl:tab == 'locations'">
+      <div jwcid="@admin/commserver/LocationsPanel"></div>
+    </div>
+    <div jwcid="@If" condition="ognl:tab != 'locations'">
+      <div jwcid="@admin/commserver/BundlePanel" bundleId="ognl:tab"></div>
+    </div>
   </div>
 </div>

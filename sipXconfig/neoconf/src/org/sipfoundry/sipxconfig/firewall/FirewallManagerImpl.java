@@ -35,6 +35,7 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -73,18 +74,18 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
     }
 
     @Override
-    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+    public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
         return Collections.singleton(FEATURE);
     }
 
     @Override
-    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+    public Collection<LocationFeature> getAvailableLocationFeatures(FeatureManager featureManager, Location l) {
         return null;
     }
 
     @Override
-    public void getBundleFeatures(Bundle b) {
-        if (b.isRouter()) {
+    public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
+        if (b == Bundle.CORE) {
             b.addFeature(FEATURE);
         }
     }

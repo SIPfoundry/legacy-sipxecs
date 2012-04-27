@@ -31,12 +31,12 @@ public class ConferenceFeature implements FeatureListener, FeatureProvider {
     private ConferenceBridgeContext m_conferenceBridgeContext;
 
     @Override
-    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+    public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
         return null;
     }
 
     @Override
-    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+    public Collection<LocationFeature> getAvailableLocationFeatures(FeatureManager featureManager, Location l) {
         return Collections.singleton(ConferenceBridgeContext.FEATURE);
     }
 
@@ -67,8 +67,8 @@ public class ConferenceFeature implements FeatureListener, FeatureProvider {
     }
 
     @Override
-    public void getBundleFeatures(Bundle b) {
-        if (b.isBasic()) {
+    public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
+        if (b == Bundle.CORE_TELEPHONY) {
             b.addFeature(ConferenceBridgeContext.FEATURE);
         }
     }

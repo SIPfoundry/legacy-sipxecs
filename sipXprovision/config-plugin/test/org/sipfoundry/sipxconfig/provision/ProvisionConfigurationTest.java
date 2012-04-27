@@ -50,7 +50,7 @@ public class ProvisionConfigurationTest {
         expectLastCall().andReturn(provisionUser).once();
         replay(coreContext);
         AddressManager addressManager = createMock(AddressManager.class);
-        addressManager.getSingleAddress(AdminContext.HTTPS_ADDRESS);
+        addressManager.getSingleAddress(AdminContext.HTTP_ADDRESS);
         expectLastCall().andReturn(new Address(AdminContext.HTTP_ADDRESS, "admin.example.org", 12000)).once();
         replay(addressManager);
         settings.setModelFilesContext(TestHelper.getModelFilesContext());

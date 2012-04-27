@@ -85,12 +85,12 @@ public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeaturePr
     }
 
     @Override
-    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+    public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
         return Collections.singleton(FEATURE);
     }
 
     @Override
-    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+    public Collection<LocationFeature> getAvailableLocationFeatures(FeatureManager featureManager, Location l) {
         return null;
     }
 
@@ -101,8 +101,8 @@ public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeaturePr
     }
 
     @Override
-    public void getBundleFeatures(Bundle b) {
-        if (b.isRouter()) {
+    public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
+        if (b == Bundle.CORE) {
             b.addFeature(FEATURE);
         }
     }

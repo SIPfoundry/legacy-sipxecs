@@ -22,56 +22,37 @@ import java.util.Map;
 
 public class Bundle {
 
-    /** Minimal system */
-    public static final Bundle ROUTER = new Bundle("router");
+    /** Minimal VoIP system */
+    public static final Bundle CORE_TELEPHONY = new Bundle("coreTelephony");
 
-    /** Things that don't fit anywhere */
-    public static final Bundle OTHER = new Bundle("other");
+    /** Minimal VoIP system */
+    public static final Bundle ADVANCED_TELEPHONY = new Bundle("advancedTelephony");
 
     /** Minimal system plus media services */
-    public static final Bundle BASIC = new Bundle("basic", ROUTER);
+    public static final Bundle CORE = new Bundle("core");
+
+    /** Minimal system plus media services */
+    public static final Bundle ADVANCED = new Bundle("advanced");
+
+    /** ACD */
+    public static final Bundle CALL_CENTER = new Bundle("callCenter");
+
+    /** Used to hide features that are not ready  */
+    public static final Bundle EXPERIMENTAL = new Bundle("experimental");
 
     /** Fully integrated media and IM services */
-    public static final Bundle UNIFIED_COMMUNICATIONS = new Bundle("uc", BASIC);
+    public static final Bundle IM = new Bundle("im");
+
+    /** End-point provisioning */
+    public static final Bundle PROVISION = new Bundle("provision");
+
+    public static final Bundle SIP_TRUNKING = new Bundle("sipTrunking");
 
     private String m_id;
-    private Bundle[] m_basedOn;
     private Map<Feature, BundleConstraint> m_features = new HashMap<Feature, BundleConstraint>();
 
     public Bundle(String id) {
         m_id = id;
-    }
-
-    public Bundle(String id, Bundle...basedOn) {
-        m_id = id;
-        m_basedOn = basedOn;
-    }
-
-    public boolean isBasic() {
-        return basedOn(BASIC);
-    }
-
-    public boolean isRouter() {
-        return basedOn(ROUTER);
-    }
-
-    public boolean isUnifiedCommunications() {
-        return basedOn(UNIFIED_COMMUNICATIONS);
-    }
-
-    public boolean basedOn(Bundle b) {
-        if (m_id.equals(b.m_id)) {
-            return true;
-        }
-        if (m_basedOn != null) {
-            for (Bundle parent : m_basedOn) {
-                // recurse
-                if (parent.basedOn(b)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     public void addFeature(Feature f, BundleConstraint c) {

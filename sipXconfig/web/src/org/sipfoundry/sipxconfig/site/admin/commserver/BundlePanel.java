@@ -25,10 +25,11 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
+import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Lifecycle;
-import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -36,7 +37,6 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.BundleConstraint;
@@ -45,12 +45,10 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
-public abstract class ConfigureBundlePage extends PageWithCallback implements PageBeginRenderListener {
-    public static final String PAGE = "admin/commserver/ConfigureBundlePage";
-
+public abstract class BundlePanel extends BaseComponent implements PageBeginRenderListener {
     public abstract void setBundleId(String bundleId);
 
-    @Persist
+    @Parameter
     public abstract String getBundleId();
 
     public abstract Bundle getBundle();

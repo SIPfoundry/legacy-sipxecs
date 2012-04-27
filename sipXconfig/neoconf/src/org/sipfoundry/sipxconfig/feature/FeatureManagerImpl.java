@@ -100,7 +100,7 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     public Set<GlobalFeature> getAvailableGlobalFeatures() {
         Set<GlobalFeature> features = new HashSet<GlobalFeature>();
         for (FeatureProvider p : getFeatureProviders()) {
-            Collection<GlobalFeature> gfeatures = p.getAvailableGlobalFeatures();
+            Collection<GlobalFeature> gfeatures = p.getAvailableGlobalFeatures(this);
             if (gfeatures != null) {
                 features.addAll(gfeatures);
             }
@@ -139,7 +139,7 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     public Set<LocationFeature> getAvailableLocationFeatures(Location location) {
         Set<LocationFeature> features = new HashSet<LocationFeature>();
         for (FeatureProvider p : getFeatureProviders()) {
-            Collection<LocationFeature> lfeatures = p.getAvailableLocationFeatures(location);
+            Collection<LocationFeature> lfeatures = p.getAvailableLocationFeatures(this, location);
             if (lfeatures != null) {
                 features.addAll(lfeatures);
             }
@@ -347,7 +347,7 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
                 if (sublist != null) {
                     for (Bundle b : sublist) {
                         for (FeatureProvider fp : getFeatureProviders()) {
-                            fp.getBundleFeatures(b);
+                            fp.getBundleFeatures(this, b);
                         }
                         m_bundles.add(b);
                     }
@@ -360,7 +360,8 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
 
     @Override
     public Collection<Bundle> getBundles(FeatureManager manager) {
-        return Arrays.asList(Bundle.BASIC, Bundle.ROUTER, Bundle.UNIFIED_COMMUNICATIONS, Bundle.OTHER);
+        return Arrays.asList(Bundle.CORE, Bundle.ADVANCED, Bundle.CORE_TELEPHONY, Bundle.ADVANCED_TELEPHONY,
+                Bundle.CALL_CENTER, Bundle.IM, Bundle.PROVISION);
     }
 
     @Override

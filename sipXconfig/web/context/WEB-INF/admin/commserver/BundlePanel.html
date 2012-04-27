@@ -1,14 +1,15 @@
-<div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
-  <span jwcid="@common/ErrorMsg"/>
+<span jwcid="$content$">
+  <span jwcid="@common/ErrorMsg" validator="ognl:validator"/>
+  <span jwcid="@common/QuickHelp" value="ognl:messages.getMessage('bundle.' + bundleId + '.description')" />
   <form jwcid="@Form" id="configureBundler" delegate="bean:validator">
     <div class="tableDiv">
       <table class="component">
         <thead>
           <tr>
             <th class="activeColumnHeader"></th>
-            <th class="activeColumnHeader"><span key="all"/></th>
+            <th class="activeColumnHeader"><span key="all"/>  <input type="checkbox" onclick="alert('coming soon')"></th>
             <span jwcid="@For" source="ognl:locations" value="ognl:locationObject">
-              <th class="activeColumnHeader"><span jwcid="@Insert" value="ognl:locationObject.hostname"/></th>
+              <th class="activeColumnHeader"><span jwcid="@Insert" value="ognl:locationObject.hostname"/>  <input type="checkbox" onclick="alert('coming soon')"></th>
             </span>
           </tr>
         </thead>
@@ -44,6 +45,6 @@
         </tbody>
       </table>
     </div>
-    <span jwcid="@common/FormActions" callback="ognl:callback" listener="listener:save" />
+    <span jwcid="@common/FormActions" callback="ognl:page.callback" listener="listener:save" validator="bean:validator"/>
   </form>
-</div>
+</span>

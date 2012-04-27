@@ -54,6 +54,9 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
+/**
+ * ACD Presence system. Determining when an agent is available.
+ */
 public class PresenceServerImpl implements FeatureProvider, AddressProvider, BeanFactoryAware, FeatureListener,
         PresenceServer, ProcessProvider, FirewallProvider {
     public static final LocationFeature FEATURE = new LocationFeature("acdPresence");
@@ -173,12 +176,12 @@ public class PresenceServerImpl implements FeatureProvider, AddressProvider, Bea
     }
 
     @Override
-    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+    public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
         return null;
     }
 
     @Override
-    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+    public Collection<LocationFeature> getAvailableLocationFeatures(FeatureManager featureManager, Location l) {
         return Collections.singleton(FEATURE);
     }
 
@@ -245,7 +248,10 @@ public class PresenceServerImpl implements FeatureProvider, AddressProvider, Bea
     }
 
     @Override
-    public void getBundleFeatures(Bundle b) {
+    public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
+        if (b == Bundle.EXPERIMENTAL) {
+            b.addFeature(FEATURE);
+        }
     }
 
     @Override

@@ -27,9 +27,9 @@ import org.sipfoundry.sipxconfig.commserver.Location;
  */
 public interface FeatureProvider {
 
-    public Collection<GlobalFeature> getAvailableGlobalFeatures();
+    public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager);
 
-    public Collection<LocationFeature> getAvailableLocationFeatures(Location l);
+    public Collection<LocationFeature> getAvailableLocationFeatures(FeatureManager featureManager, Location l);
 
-    public void getBundleFeatures(Bundle b);
+    public void getBundleFeatures(FeatureManager featureManager, Bundle b);
 }

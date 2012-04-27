@@ -21,6 +21,7 @@ import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -33,12 +34,12 @@ public class WebSocketImpl implements FeatureProvider, WebSocket, ProcessProvide
     private BeanWithSettingsDao<WebSocketSettings> m_settingsDao;
 
     @Override
-    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+    public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
         return null;
     }
 
     @Override
-    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+    public Collection<LocationFeature> getAvailableLocationFeatures(FeatureManager featureManager, Location l) {
         return Collections.singleton(FEATURE);
     }
 
@@ -54,8 +55,8 @@ public class WebSocketImpl implements FeatureProvider, WebSocket, ProcessProvide
         m_settingsDao.upsert(settings);
     }
     @Override
-    public void getBundleFeatures(Bundle b) {
-        if (b.isBasic()) {
+    public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
+        if (b == Bundle.ADVANCED) {
             b.addFeature(FEATURE);
         }
     }

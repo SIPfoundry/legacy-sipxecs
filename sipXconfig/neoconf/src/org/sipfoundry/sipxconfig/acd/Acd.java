@@ -50,12 +50,12 @@ public class Acd implements FeatureProvider, AddressProvider, FeatureListener, F
     private AcdContext m_acdContext;
 
     @Override
-    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+    public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
         return null;
     }
 
     @Override
-    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+    public Collection<LocationFeature> getAvailableLocationFeatures(FeatureManager featureManager, Location l) {
         return Collections.singleton(FEATURE);
     }
 
@@ -118,7 +118,10 @@ public class Acd implements FeatureProvider, AddressProvider, FeatureListener, F
     }
 
     @Override
-    public void getBundleFeatures(Bundle b) {
+    public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
+        if (b == Bundle.EXPERIMENTAL) {
+            b.addFeature(FEATURE);
+        }
     }
 
     @Override

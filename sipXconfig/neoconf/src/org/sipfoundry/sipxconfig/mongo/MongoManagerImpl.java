@@ -28,6 +28,7 @@ import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.BundleConstraint;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -72,12 +73,12 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     }
 
     @Override
-    public Collection<GlobalFeature> getAvailableGlobalFeatures() {
+    public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
         return null;
     }
 
     @Override
-    public Collection<LocationFeature> getAvailableLocationFeatures(Location l) {
+    public Collection<LocationFeature> getAvailableLocationFeatures(FeatureManager featureManager, Location l) {
         if (l.isPrimary()) {
             return Collections.singleton(ARBITER_FEATURE);
         }
@@ -101,10 +102,18 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     }
 
     @Override
-    public void getBundleFeatures(Bundle b) {
-        if (b.isBasic()) {
+    public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
+        if (b == Bundle.CORE) {
             b.addFeature(FEATURE_ID);
-            b.addFeature(ARBITER_FEATURE, BundleConstraint.SINGLE_LOCATION);
+            int nMongos = featureManager.getLocationsForEnabledFeature(FEATURE_ID).size();
+            int nArbiters = featureManager.getLocationsForEnabledFeature(ARBITER_FEATURE).size();
+
+            // show arbiters if there are any (so they can potentially disable them when then have odd number
+            // of mongo servers) OR when they have an odd number of mongo servers and should really have an
+            // arbiter
+            if (nArbiters > 0 || (nMongos % 2) == 0) {
+                b.addFeature(ARBITER_FEATURE, BundleConstraint.SINGLE_LOCATION);
+            }
         }
     }
 
