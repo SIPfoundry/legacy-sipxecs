@@ -53,6 +53,7 @@ public class User {
     private String m_onthePhoneMessage;
     private boolean m_advertiseOnCallStatus;
     private boolean m_showOnCallDetails;
+    private boolean m_playDefaultVmOption;
     private String m_imDisplayName;
     private String m_imPassword;
     private String m_activeGreeting;
@@ -601,6 +602,14 @@ public class User {
 
     public void setSysId(String id) {
         m_sysId = id;
+    }
+
+    public boolean shouldPlayDefaultVmOption() {
+        return m_playDefaultVmOption;
+    }
+
+    public void setPlayDefaultVmOption(boolean playDefaultOption) {
+        m_playDefaultVmOption = playDefaultOption;
     }
 
     public String getFirstName() {

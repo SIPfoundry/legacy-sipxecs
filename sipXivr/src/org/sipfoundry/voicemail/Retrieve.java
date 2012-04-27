@@ -824,20 +824,21 @@ public class Retrieve extends AbstractVmAction {
                         // "Your extended absence greeting is...{prompts}"
                         // "The default system greeting is...{prompts}"
                         // "Your active greeting is...{prompts}"
+                        boolean playVmOption = user.shouldPlayDefaultVmOption();
                         greetings.addFragment(
                                 "play_greetings",
                                 greeting.getPromptList(greetings, GreetingType.STANDARD,
-                                        m_mailboxManager.getGreetingPath(user, GreetingType.STANDARD)).toString(),
+                                        m_mailboxManager.getGreetingPath(user, GreetingType.STANDARD), playVmOption).toString(),
                                 greeting.getPromptList(greetings, GreetingType.OUT_OF_OFFICE,
-                                        m_mailboxManager.getGreetingPath(user, GreetingType.OUT_OF_OFFICE))
+                                        m_mailboxManager.getGreetingPath(user, GreetingType.OUT_OF_OFFICE), playVmOption)
                                         .toString(),
                                 greeting.getPromptList(greetings, GreetingType.EXTENDED_ABSENCE,
-                                        m_mailboxManager.getGreetingPath(user, GreetingType.EXTENDED_ABSENCE))
+                                        m_mailboxManager.getGreetingPath(user, GreetingType.EXTENDED_ABSENCE), playVmOption)
                                         .toString(),
                                 greeting.getPromptList(greetings, GreetingType.NONE,
-                                        m_mailboxManager.getGreetingPath(user, GreetingType.NONE)).toString(),
+                                        m_mailboxManager.getGreetingPath(user, GreetingType.NONE), playVmOption).toString(),
                                 greeting.getPromptList(greetings, getActiveGreeting(),
-                                        m_mailboxManager.getGreetingPath(user, getActiveGreeting())).toString());
+                                        m_mailboxManager.getGreetingPath(user, getActiveGreeting()), playVmOption).toString());
                         continue;
                     }
 

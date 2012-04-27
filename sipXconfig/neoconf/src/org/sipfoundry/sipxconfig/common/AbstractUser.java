@@ -70,6 +70,7 @@ public abstract class AbstractUser extends BeanWithGroups {
     public static final String DID_SETTING = "voicemail/fax/did";
     public static final String CALLFWD_TIMER = "callfwd/timer";
     public static final String OPERATOR_SETTING = "personal-attendant/operator";
+    public static final String DEFAULT_VM_OPTION = "personal-attendant/default-vm-option";
 
 
     public static enum MohAudioSource {
@@ -558,6 +559,10 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     public String getOperator() {
         return getSettingValue(OPERATOR_SETTING);
+    }
+
+    public boolean getPlayVmDefaultOptions() {
+        return (Boolean) getSettingTypedValue(DEFAULT_VM_OPTION);
     }
 
     public void setOperator(String oper) {

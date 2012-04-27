@@ -138,4 +138,5 @@ public interface MongoConstants {
     static final String DESCR = "dscr";
     static final String IM_GROUP = "imgrp";
     static final String GROUP_RESOURCE = "grprsc";
+    static final String PLAY_DEFAULT_VM = "defvmopt";
 }

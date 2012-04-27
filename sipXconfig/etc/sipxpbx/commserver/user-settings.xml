@@ -169,6 +169,10 @@
         <sip-uri />
       </type>
     </setting>
+    <setting name="default-vm-option">
+      <type refid="enable-disable" />
+      <value>ENABLE</value>
+    </setting>
   </group>
   <group name="distribution-lists" hidden="yes">
     <setting name="item1">

@@ -46,6 +46,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.NOTIFICATION;
 import static org.sipfoundry.commons.mongo.MongoConstants.OPERATOR;
 import static org.sipfoundry.commons.mongo.MongoConstants.PASSWD;
 import static org.sipfoundry.commons.mongo.MongoConstants.PERSONAL_ATT;
+import static org.sipfoundry.commons.mongo.MongoConstants.PLAY_DEFAULT_VM;
 import static org.sipfoundry.commons.mongo.MongoConstants.PORT;
 import static org.sipfoundry.commons.mongo.MongoConstants.SYNC;
 import static org.sipfoundry.commons.mongo.MongoConstants.TLS;
@@ -138,6 +139,7 @@ public class Mailstore extends AbstractDataSetGenerator {
         top.put(IM_SHOW_ON_CALL_DETAILS, imAccount.includeCallInfo());
         top.put(IM_PASSWORD, imAccount.getImPassword());
         //personal attendant
+        top.put(PLAY_DEFAULT_VM, user.getPlayVmDefaultOptions());
         PersonalAttendant pa = m_mailboxManager.getPersonalAttendantForUser(user);
         if (pa != null) {
             DBObject pao = new BasicDBObject();
