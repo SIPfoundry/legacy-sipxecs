@@ -288,6 +288,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         getHibernateTemplate().delete(params);
         getHibernateTemplate().delete(getAttrMap(connectionId));
         getDaoEventPublisher().publishDelete(params);
+        m_applicationContext.publishEvent(new LdapImportTrigger.ScheduleDeletedEvent(this, connectionId));
     }
 
     public void setApplicationContext(ApplicationContext applicationContext) {

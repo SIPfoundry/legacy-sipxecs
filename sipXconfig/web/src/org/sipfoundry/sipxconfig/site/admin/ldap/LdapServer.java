@@ -134,10 +134,10 @@ public abstract class LdapServer extends BaseComponent implements PageBeginRende
             setSchema(schema);
             setStage(stage);
             setCurrentConnectionId(connectionParams.getId());
+            setAddMode(false);
         } catch (UserException e) {
             validator.record(e, getMessages());
         }
-        setAddMode(false);
     }
 
     public void cancel() {

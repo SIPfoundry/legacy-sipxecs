@@ -9,7 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -24,7 +26,7 @@ public class LdapImportTrigger implements ApplicationListener {
 
     private LdapImportManager m_ldapImportManager;
 
-    private Timer m_timer;
+    private Map<Integer, Timer> m_timerHash = new HashMap<Integer, Timer>();
 
     public void setLdapManager(LdapManager ldapManager) {
         m_ldapManager = ldapManager;
@@ -47,15 +49,28 @@ public class LdapImportTrigger implements ApplicationListener {
         } else if (event instanceof ScheduleChangedEvent) {
             ScheduleChangedEvent sce = (ScheduleChangedEvent) event;
             onScheduleChanged(sce.getSchedule(), sce.getConnectionId());
+        } else if (event instanceof ScheduleDeletedEvent) {
+            ScheduleDeletedEvent sde = (ScheduleDeletedEvent) event;
+            onScheduleDeleted(sde.getConnectionId());
         }
     }
 
     private synchronized void onScheduleChanged(CronSchedule schedule, int connectionId) {
-        if (m_timer != null) {
-            m_timer.cancel();
+        Timer timer = m_timerHash.get(connectionId);
+        if (timer != null) {
+            timer.cancel();
         }
         TimerTask ldapImportTask = new LdapImportTask(m_ldapImportManager, connectionId);
-        m_timer = schedule.schedule(ldapImportTask);
+        timer = schedule.schedule(ldapImportTask);
+        m_timerHash.put(connectionId, timer);
+    }
+
+    private synchronized void onScheduleDeleted(int connectionId) {
+        Timer timer = m_timerHash.get(connectionId);
+        if (timer != null) {
+            timer.cancel();
+        }
+        m_timerHash.remove(connectionId);
     }
 
     public static final class ScheduleChangedEvent extends ApplicationEvent {
@@ -70,6 +85,19 @@ public class LdapImportTrigger implements ApplicationListener {
 
         public CronSchedule getSchedule() {
             return m_schedule;
+        }
+
+        public int getConnectionId() {
+            return m_connectionId;
+        }
+    }
+
+    public static final class ScheduleDeletedEvent extends ApplicationEvent {
+        private int m_connectionId;
+
+        public ScheduleDeletedEvent(Object eventSource, int connectionId) {
+            super(eventSource);
+            m_connectionId = connectionId;
         }
 
         public int getConnectionId() {

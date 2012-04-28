@@ -89,6 +89,6 @@ public abstract class LdapPage extends SipxBasePage implements PageBeginRenderLi
     }
 
     public boolean isLdapConfigured() {
-        return !getLdapManager().getAllConnectionParams().isEmpty() && isConnectionStage();
+        return !getLdapManager().getAllConnectionParams().isEmpty() && isConnectionStage() && !isAddMode();
     }
 }
