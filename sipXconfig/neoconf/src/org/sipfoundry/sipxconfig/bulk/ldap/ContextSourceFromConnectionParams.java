@@ -19,17 +19,6 @@ import org.springframework.ldap.support.LdapContextSource;
  * time and that is not our situation
  */
 public class ContextSourceFromConnectionParams extends LdapContextSource {
-    private LdapManager m_ldapManager;
-
-    public void setLdapManager(LdapManager ldapManager) {
-        m_ldapManager = ldapManager;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        LdapConnectionParams params = m_ldapManager.getConnectionParams();
-        applyParameters(params);
-    }
 
     public void applyParameters(LdapConnectionParams params) {
         params.applyToContext(this);

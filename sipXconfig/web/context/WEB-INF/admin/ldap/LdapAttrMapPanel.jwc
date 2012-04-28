@@ -17,6 +17,7 @@
     <binding name="field" value="components.searchBase" />
     <binding name="label" value="message:label.searchBase" />
     <binding name="description" value="message:description.searchBase" />
+    <binding name="defaultValue" value="attrMap.searchBaseDefault" />
   </component>
   <component id="searchBase" type="TextField">
     <binding name="value" value="attrMap.searchBase" />

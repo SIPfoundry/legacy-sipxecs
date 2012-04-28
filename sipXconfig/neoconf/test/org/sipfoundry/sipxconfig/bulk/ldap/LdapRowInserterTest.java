@@ -67,12 +67,11 @@ public class LdapRowInserterTest extends TestCase {
 
         AttrMap map = new AttrMap();
         map.setObjectClass("person");
+        map.setDefaultGroupName("test-import");
 
         IMocksControl coreContextControl = EasyMock.createControl();
         CoreContext coreContext = coreContextControl.createMock(CoreContext.class);
         LdapManager ldapManager = coreContextControl.createMock(LdapManager.class);
-        ldapManager.getAttrMap();
-        coreContextControl.andReturn(map);
         coreContext.getGroupByName("test-import", false);
         coreContextControl.andReturn(importGroup);
 
@@ -120,6 +119,7 @@ public class LdapRowInserterTest extends TestCase {
         m_rowInserter.setCoreContext(coreContext);
         m_rowInserter.setUserMapper(userMapper);
         m_rowInserter.setMailboxManager(mailboxManager);
+        m_rowInserter.setAttrMap(map);
         m_rowInserter.beforeInserting();
         m_rowInserter.insertRow(searchResult, attributes);
         m_rowInserter.afterInserting();

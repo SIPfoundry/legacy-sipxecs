@@ -1,17 +1,42 @@
-<div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
+<div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">	  
   <span jwcid="@common/TabNavigation"
     tabNames="ognl:availableTabNames"
     selectedTab="ognl:tab"
-    renderCondition="ognl:ldapManager.verifyLdapConnection" />
+    renderCondition="ognl:ldapManager.verifyAllLdapConnections" />
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')"/>
   </div>
+  
   <div jwcid="configurationTargetTab@Block">
-     <span jwcid="configurationPanel@admin/ldap/LdapServer" id="ldapConfiguration"/>
+     <form jwcid="ldap@Form">
+  	    <fieldset>
+  	      <span jwcid="@If" condition="ognl:ldapConfigured">
+  	       <table>
+            <tr jwcid="configuredPanel@common/FieldPanel" for="ldap:configured"
+        	  field="ognl:components.configured" label="message:label.configured"
+        	  description="message:description.configured">        	  
+              <input jwcid="configured@Checkbox" id="ldap:configured" value="ognl:settings.configured"/><br>  
+              <input jwcid="applySettings@Submit" action="listener:applySettings" value="message:label.applySettings"/>            
+            </tr>    	         	     
+    	    <tr jwcid="@common/FieldPanel"
+              for="backupPlan:type"
+              field="component:ldapSelector"
+              label="message:label.selectServer"
+              description="message:description.selectServer">    	     
+    	      <select jwcid="ldapSelector@PropertySelection"
+          	   model="ognl:ldapSelectionModel"
+          	   value="ognl:currentConnectionId"
+          	   onchange="literal:javascript:this.form.submit();"/>
+            </tr>
+           </table>          	  
+          </span>
+  	    </fieldset>
+    </form>
+    <span jwcid="configurationPanel@admin/ldap/LdapServer" id="ldapConfiguration" currentConnectionId="ognl:currentConnectionId" addMode="ognl:addMode"/>
   </div>
   <div jwcid="importTargetTab@Block">
-     <span jwcid="importPanel@admin/ldap/LdapImport" id="ldapImport"/>
+     <span jwcid="importPanel@admin/ldap/LdapImport" id="ldapImport" currentConnectionId="ognl:currentConnectionId"/>
   </div>
   <div jwcid="settingsTargetTab@Block">
      <span jwcid="settingsPanel@admin/ldap/LdapSettings" id="ldapSettings"/>

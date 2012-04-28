@@ -52,13 +52,14 @@ public class OpenfireConfigurationFile {
     private LdapManager m_ldapManager;
     private CoreContext m_coreContext;
     private VelocityEngine m_velocityEngine;
-    
+
     public void write(Writer writer) throws IOException {
         VelocityContext context = new VelocityContext();
         LdapSystemSettings settings = m_ldapManager.getSystemSettings();
         boolean isEnableOpenfireConfiguration = settings.isEnableOpenfireConfiguration() && settings.isConfigured();
         context.put("isEnableOpenfireConfiguration", isEnableOpenfireConfiguration);
-        if (!isEnableOpenfireConfiguration) {
+        List<LdapConnectionParams> allParams = m_ldapManager.getAllConnectionParams();
+        if (!isEnableOpenfireConfiguration || allParams == null || allParams.isEmpty()) {
             context.put("adminProvider", PROVIDER_ADMIN_CLASSNAME);
             context.put("authProvider", PROVIDER_AUTH_CLASSNAME);
             context.put("groupProvider", PROVIDER_GROUP_CLASSNAME);
@@ -66,20 +67,20 @@ public class OpenfireConfigurationFile {
             context.put("lockoutProvider", PROVIDER_LOCKOUT_CLASSNAME);
             context.put("securityAuditProvider", PROVIDER_SECURITY_AUDIT_CLASSNAME);
             context.put("sipxVcardProvider", PROVIDER_SIPX_VCARD_CLASSNAME);
-        } else {
-            LdapConnectionParams ldapConnectionParams = m_ldapManager.getConnectionParams();
+        } else if (allParams != null && !allParams.isEmpty()) {
+            LdapConnectionParams ldapConnectionParams = allParams.get(0);
             boolean isLdapAnonymousAccess = (StringUtils.isBlank(ldapConnectionParams.getPrincipal())) ? true
                     : false;
             context.put("isLdapAnonymousAccess", isLdapAnonymousAccess);
             context.put("ldapParams", ldapConnectionParams);
-            context.put("attrMap", m_ldapManager.getAttrMap());
+            context.put("attrMap", m_ldapManager.getAttrMap(ldapConnectionParams.getId()));
             context.put("ldapAuthProvider", PROVIDER_LDAP_AUTH_CLASSNAME);
             context.put("ldapUserProvider", PROVIDER_LDAP_USER_CLASSNAME);
             context.put("ldapVcardProvider", PROVIDER_LDAP_VCARD_CLASSNAME);
         }
 
         context.put("authorizedUsernames", getAuthorizedUsernames());
-        
+
         try {
             m_velocityEngine.mergeTemplate("openfire/openfire.vm", context, writer);
         } catch (Exception e) {

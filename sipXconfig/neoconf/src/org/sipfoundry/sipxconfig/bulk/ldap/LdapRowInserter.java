@@ -20,12 +20,12 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserValidationUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.GroupAutoAssign;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
@@ -49,7 +49,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
 
     public void beforeInserting() {
         // Make sure m_userMapper's AttrMap is set up.
-        m_userMapper.setAttrMap(m_ldapManager.getAttrMap());
+        m_userMapper.setAttrMap(m_attrMap);
         // get all the users from LDAP group
         m_existingUserNames = new HashSet<String>();
         Group defaultGroup = m_coreContext.getGroupByName(getAttrMap().getDefaultGroupName(),
@@ -186,11 +186,6 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
     }
 
     private AttrMap getAttrMap() {
-        if (m_attrMap != null) {
-            return m_attrMap;
-        }
-
-        m_attrMap = m_ldapManager.getAttrMap();
         return m_attrMap;
     }
 }

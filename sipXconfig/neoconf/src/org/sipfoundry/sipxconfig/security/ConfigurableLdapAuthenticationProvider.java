@@ -16,7 +16,11 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationServiceException;
 import org.acegisecurity.ldap.DefaultInitialDirContextFactory;
 import org.acegisecurity.ldap.InitialDirContextFactory;
@@ -46,7 +50,7 @@ import org.springframework.dao.DataAccessException;
 public class ConfigurableLdapAuthenticationProvider implements AuthenticationProvider, DaoEventListener {
 
     private LdapManager m_ldapManager;
-    private LdapAuthenticationProvider m_provider;
+    private List<LdapAuthenticationProvider> m_providers = new ArrayList<LdapAuthenticationProvider>();
     private LdapAuthoritiesPopulator m_authoritiesPopulator;
     private UserDetailsService m_userDetailsService;
     private boolean m_initialized;
@@ -75,8 +79,8 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         m_authoritiesPopulator = authoritiesPopulator;
     }
 
-    public void setProvider(LdapAuthenticationProvider provider) {
-        m_provider = provider;
+    public void addProvider(LdapAuthenticationProvider provider) {
+        m_providers.add(provider);
     }
 
     @Override
@@ -85,7 +89,24 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
             return null;
         }
         initialize();
-        return (isEnabled() ? m_provider.authenticate(authentication) : null);
+        if (!isEnabled()) {
+            return null;
+        } else {
+            Authentication result = null;
+            for (LdapAuthenticationProvider provider : m_providers) {
+                try {
+                    result = provider.authenticate(authentication);
+                } catch (AuthenticationException ex) {
+                    result = null;
+                }
+                if (result == null) {
+                    continue;
+                } else {
+                    return result;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -93,34 +114,52 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         if (!m_ldapManager.getSystemSettings().isConfigured()) {
             return false;
         }
-        if (!m_ldapManager.verifyLdapConnection()) {
+        if (!m_ldapManager.verifyAllLdapConnections()) {
             return false;
         }
         initialize();
-        return (isEnabled() ? m_provider.supports(authentication) : false);
+        if (!isEnabled()) {
+            return false;
+        } else {
+            boolean result = false;
+            for (LdapAuthenticationProvider provider : m_providers) {
+                result = provider.supports(authentication);
+                if (!result) {
+                    continue;
+                } else {
+                    return result;
+                }
+            }
+        }
+        return false;
+
     }
 
     private boolean isEnabled() {
-        return m_provider != null && m_ldapManager.getSystemSettings().isLdapEnabled();
+        return !m_providers.isEmpty() && m_ldapManager.getSystemSettings().isLdapEnabled();
     }
 
     private void initialize() {
         if (!m_initialized) {
             synchronized (this) {
-                m_provider = createProvider();
+                m_providers.clear();
+                List<LdapConnectionParams> params = m_ldapManager.getAllConnectionParams();
+                for (LdapConnectionParams param : params) {
+                    addProvider(createProvider(param.getId()));
+                }
                 m_initialized = true;
             }
         }
     }
 
-    LdapAuthenticationProvider createProvider() {
-        LdapConnectionParams params = m_ldapManager.getConnectionParams();
+    LdapAuthenticationProvider createProvider(int connectionId) {
+        LdapConnectionParams params = m_ldapManager.getConnectionParams(connectionId);
         if (params == null) {
             return null;
         }
         InitialDirContextFactory dirFactory = getDirFactory(params);
         BindAuthenticator authenticator = new BindAuthenticator(dirFactory);
-        authenticator.setUserSearch(getSearch(dirFactory)); // used for user login
+        authenticator.setUserSearch(getSearch(dirFactory, connectionId)); // used for user login
         LdapAuthenticationProvider provider = new SipxLdapAuthenticationProvider(authenticator);
 
         return provider;
@@ -137,8 +176,8 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         return dirContextFactory;
     }
 
-    LdapUserSearch getSearch(InitialDirContextFactory dirFactory) {
-        AttrMap attrMap = m_ldapManager.getAttrMap();
+    LdapUserSearch getSearch(InitialDirContextFactory dirFactory, int connectionId) {
+        AttrMap attrMap = m_ldapManager.getAttrMap(connectionId);
 
         String sbase = StringUtils.defaultString(attrMap.getSearchBase());
         //Any additional LDAP filters (RFC 2254) are removed from authentication search because

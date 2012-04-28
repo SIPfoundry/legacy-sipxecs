@@ -28,8 +28,7 @@
   </class>
 
   <class name="AttrMap" table="ldap_attr_map">
-    <id name="id" column="ldap_attr_map_id" type="int" unsaved-value="-1">
-      <generator class="native" />
+    <id name="id" column="ldap_attr_map_id" type="int" unsaved-value="-1">      
     </id>
     <property name="defaultGroupName" />
     <property name="defaultPin" />
@@ -47,4 +46,10 @@
       <element column="object_class" type="string" />
     </bag>
   </class>
+  <query name="ldapConnection">
+    <![CDATA[select con  from LdapConnectionParams con where con.id = :connectionId]]>
+  </query>
+  <query name="ldapConnectionAttrMap">
+    <![CDATA[select attrMap  from AttrMap attrMap where attrMap.id = :attrMapId]]>
+  </query>    
 </hibernate-mapping>

@@ -185,11 +185,6 @@ public class UserMapper implements NameClassPairMapper {
     }
 
     private AttrMap getAttrMap() {
-        if (m_attrMap != null) {
-            return m_attrMap;
-        }
-
-        m_attrMap = m_ldapManager.getAttrMap();
         return m_attrMap;
     }
 

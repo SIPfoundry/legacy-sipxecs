@@ -9,6 +9,7 @@ import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class LdapManagerTestIntegration extends IntegrationTestCase {
     private LdapManager m_ldapManager;
+    private AttrMap m_attrMap;
 
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
@@ -24,14 +25,14 @@ public class LdapManagerTestIntegration extends IntegrationTestCase {
         settings.setEnableOpenfireConfiguration(true);
         m_ldapManager.saveSystemSettings(settings);
         commit();
-        assertEquals(1, countRowsInTable("ldap_settings"));        
+        assertEquals(1, countRowsInTable("ldap_settings"));
         Map<String, Object> after = db().queryForMap("select * from ldap_settings");
         assertEquals("LDAP", after.get("authentication_options"));
         assertTrue((Boolean)after.get("enable_openfire_configuration"));
         //by default LDAP configuration is not activated
         assertFalse((Boolean)after.get("configured"));
     }
-        
+
     public void testNoLdapSystemSettings() throws Exception {
         LdapSystemSettings settings = m_ldapManager.getSystemSettings();
         //test noLDAP / unconfigured
@@ -45,7 +46,7 @@ public class LdapManagerTestIntegration extends IntegrationTestCase {
         assertEquals("noLDAP", after.get("authentication_options"));
         assertFalse((Boolean)after.get("configured"));
     }
-    
+
     public void testPinLdapSystemSettings() throws Exception {
         LdapSystemSettings settings = m_ldapManager.getSystemSettings();
         //test pinLDAP
@@ -59,14 +60,18 @@ public class LdapManagerTestIntegration extends IntegrationTestCase {
     }
 
     public void testGetConnectionParams() throws Exception {
-        LdapConnectionParams connectionParams = m_ldapManager.getConnectionParams();
+        LdapConnectionParams params1 = new LdapConnectionParams();
+        LdapConnectionParams params2 = new LdapConnectionParams();
+        m_ldapManager.setConnectionParams(params1);
+        m_ldapManager.setConnectionParams(params2);
+        LdapConnectionParams connectionParams = m_ldapManager.getAllConnectionParams().get(0);
         assertNotNull(connectionParams);
         assertNotNull(connectionParams.getSchedule());
         commit();
-        assertEquals(1, countRowsInTable("ldap_connection"));
+        assertEquals(2, countRowsInTable("ldap_connection"));
 
         // this will change once we start keeping something else in the table
-        assertEquals(1, countRowsInTable("cron_schedule"));
+        assertEquals(2, countRowsInTable("cron_schedule"));
     }
 
     public void testSetConnectionParams() throws Exception {
@@ -88,17 +93,19 @@ public class LdapManagerTestIntegration extends IntegrationTestCase {
     }
 
     public void testGetAttrMapInit() throws Exception {
-        AttrMap attrMap = m_ldapManager.getAttrMap();
+        m_attrMap.setUniqueId(1);
+        m_ldapManager.setAttrMap(m_attrMap);
+        AttrMap attrMap = m_ldapManager.getAttrMap(1);
         assertNotNull(attrMap);
         commit();
         assertEquals(1, countRowsInTable("ldap_attr_map"));
         assertTrue(1 < countRowsInTable("ldap_user_property_to_ldap_attr"));
     }
-       
+
     public void testGetAttrMap() throws Exception {
         sql("bulk/ldap/ldap_attr_map.sql");
         commit();
-        AttrMap attrMap = m_ldapManager.getAttrMap();
+        AttrMap attrMap = m_ldapManager.getAttrMap(1000);
         Map<String, String> userToLdap = attrMap.getUserToLdap();
         assertEquals(2, userToLdap.size());
 
@@ -114,7 +121,7 @@ public class LdapManagerTestIntegration extends IntegrationTestCase {
     }
 
     public void testSetAttrMap() throws Exception {
-        AttrMap attrMap = m_ldapManager.getAttrMap();
+        AttrMap attrMap = m_ldapManager.getAttrMap(1);
         attrMap.setFilter("ou=marketing");
         assertNotNull(attrMap);
 
@@ -133,8 +140,10 @@ public class LdapManagerTestIntegration extends IntegrationTestCase {
         CronSchedule schedule = new CronSchedule();
         schedule.setType(CronSchedule.Type.HOURLY);
         schedule.setMin(15);
-
-        m_ldapManager.setSchedule(schedule);
+        LdapConnectionParams params = new LdapConnectionParams();
+        params.setSchedule(schedule);
+        m_ldapManager.setConnectionParams(params);
+        m_ldapManager.setSchedule(schedule,params.getId());
 
         commit();
         assertEquals(1, db().queryForLong("select count(*) from cron_schedule where cron_string = '0 15 * ? * *'"));
@@ -146,27 +155,29 @@ public class LdapManagerTestIntegration extends IntegrationTestCase {
         schedule.setDayOfWeek(4);
         schedule.setMin(15);
         schedule.setEnabled(true);
-
-        m_ldapManager.setSchedule(schedule);
+        LdapConnectionParams params = new LdapConnectionParams();
+        params.setSchedule(schedule);
+        m_ldapManager.setConnectionParams(params);
+        m_ldapManager.setSchedule(schedule,params.getId());
 
         commit();
-        assertEquals(1, db().queryForLong("select count(*) from cron_schedule where " 
-                + " cron_string = '0 15 0 ? * 4' and enabled = 'true'")); 
+        assertEquals(1, db().queryForLong("select count(*) from cron_schedule where "
+                + " cron_string = '0 15 0 ? * 4' and enabled = 'true'"));
     }
 
     public void testGetSetSchedule() throws Exception {
-        CronSchedule schedule = m_ldapManager.getSchedule();
-        m_ldapManager.setSchedule(schedule);
+        CronSchedule schedule = m_ldapManager.getSchedule(1);
+        m_ldapManager.setSchedule(schedule,1);
     }
-    
+
     public void testSetConnectionParamsDefaultPort() throws Exception {
-        LdapConnectionParams params = m_ldapManager.getConnectionParams();
+        LdapConnectionParams params = m_ldapManager.getConnectionParams(-1);
         params.setHost("abc");
         params.setPrincipal("principal");
         params.setSecret("secret");
 
         m_ldapManager.setConnectionParams(params);
-        LdapConnectionParams connParams = m_ldapManager.getConnectionParams();
+        LdapConnectionParams connParams = m_ldapManager.getConnectionParams(params.getId());
 
         assertEquals("secret", connParams.getSecret());
         assertNull(connParams.getPort());
@@ -176,8 +187,13 @@ public class LdapManagerTestIntegration extends IntegrationTestCase {
         params.setUseTls(true);
         assertEquals("ldaps://abc:636", connParams.getUrl());
     }
-    
+
     public void setLdapManager(LdapManager ldapManager) {
         m_ldapManager = ldapManager;
     }
+
+    public void setAttrMap(AttrMap attrMap) {
+        m_attrMap = attrMap;
+    }
+
 }

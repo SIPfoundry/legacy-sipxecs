@@ -81,20 +81,7 @@
     </property>
   </bean>
 
-  <bean id="ldapTemplate" class="org.springframework.ldap.LdapTemplate" scope="prototype">
-    <property name="contextSource">
-      <ref local="ldapContextSource" />
-    </property>
-  </bean>
-
   <bean id="ldapTemplateFactory" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapTemplateFactory" />
-
-  <bean id="ldapContextSource" class="org.sipfoundry.sipxconfig.bulk.ldap.ContextSourceFromConnectionParams"
-    scope="prototype">
-    <property name="ldapManager">
-      <ref local="ldapManager" />
-    </property>
-  </bean>
 
   <bean id="ldapManagerImpl" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapManagerImpl" parent="abstractDaoImpl">
     <property name="templateFactory" ref="ldapTemplateFactory"/>
