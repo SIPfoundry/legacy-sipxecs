@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.ssl.HostnameVerifier;
 import org.apache.log4j.Logger;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -180,7 +181,8 @@ public class Servlet extends HttpServlet {
 
             // Start it up.
             LOG.info(String.format("Starting %s servlet on *:%d%s", Servlet.class.getCanonicalName(),
-                    m_config.getServletPort(), m_config.getServletUriPath()));
+                    m_config.getServletPort(), m_config.getServletUriPath()));                        
+            
             server.start();
         } catch (Exception e) {
             LOG.error("Failed to start the servlet:", e);
@@ -407,8 +409,7 @@ public class Servlet extends HttpServlet {
         try {
             LOG.info("doProvisionPhone - " + phone);
 
-            // Write the REST representation of the phone(s).
-            HttpsURLConnection.setDefaultHostnameVerifier(new CertificateHostnameVerifier(m_config.getSipDomainName()));
+            // Write the REST representation of the phone(s).            
             HttpsURLConnection connection = createRestConnection("POST", m_config.getConfigurationUri() + "/rest/phone");
             DataOutputStream dstream = new java.io.DataOutputStream(connection.getOutputStream());
             dstream.writeBytes("<phones>");
@@ -456,8 +457,8 @@ public class Servlet extends HttpServlet {
 
     // TODO: Test case (x2 phone types) when MAC is too short (should not invoke the do___Get...)
     @Override
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {        
+        HttpsURLConnection.setDefaultHostnameVerifier(HostnameVerifier.DEFAULT_AND_LOCALHOST);
         String path = request.getPathInfo();
         String useragent = request.getHeader("User-Agent");
         LOG.info("GET " + path + "  User-Agent: " + useragent);

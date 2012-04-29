@@ -18,6 +18,7 @@
         <pathelement location="${javax.servlet.jar}" />
         <pathelement location="${jetty.jar}" />
         <pathelement location="${velocity.jar}" />
+    	<pathelement location="${apache.ssl.jar}" />
     </path>
     <property name="classpath" refid="base.path" />
 
