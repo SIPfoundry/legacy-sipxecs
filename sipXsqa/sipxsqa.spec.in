@@ -1,0 +1,70 @@
+Name:     @PACKAGE@
+Version:  @VERSION@
+Release:  @PACKAGE_REVISION@
+
+Summary:  State Queue Agent client and Server Library
+License:  Pingtel Commercial License
+Group:    Productivity/Telephony/SIP/Servers
+Vendor:   Pingtel Corp.
+Packager: Pingtel <support@pingtel.com>
+Url:      http://www.pingtel.com
+
+BuildRequires: automake
+BuildRequires: gcc-c++
+
+BuildRequires: sipxcommserverlib-devel  >= %version
+BuildRequires: sipxportlib-devel        >= %version
+
+Source:   %name-%version.tar.gz
+
+
+Prefix:    %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%define sipxpbxvarlib %{_var}/lib/sipxpbx
+
+%description
+State Queue Agent is a network event queue using a proprietary RPC protocol 
+combined with ZeroMQ Message Queue .
+
+%if %{_vendor} == suse
+%debug_package
+%endif
+
+%package devel
+Requires: %name
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Internal documentation for %name
+Requires: sipxcommserverlib-devel >= %version
+
+%description devel
+Internal class documentation for the SQA classes
+
+%prep
+%setup -q
+
+%build
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make %{_smp_mflags}
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/sipXsqa
+%attr(755,root,root) %{_libdir}/plugins/libsqaclient_plugin.so*
+%attr(755,root,root) %{_libdir}/libsipXsqa.so*
+
+%files devel
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/plugins/libsqaclient_plugin.la
+%attr(755,root,root) %{_libdir}/libsipXsqa.la
+%{_includedir}/sqa/*
+
