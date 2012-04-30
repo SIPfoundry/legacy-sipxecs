@@ -32,6 +32,7 @@ libsipdb_la_LIBADD = \
 
 libsipdb_la_SOURCES =  \
    MongoDB.cpp \
+   MongoOpLog.cpp \
    EntityDB.cpp \
    EntityRecord.cpp \
    RegBinding.cpp \
