@@ -27,7 +27,7 @@ public class AddressType {
      * we need to support.
      */
     public enum Protocol {
-        tcp, udp, tlsp, icmp
+        tcp, udp, tlsp, icmp, smtp
     }
 
     public AddressType(String uniqueId) {
