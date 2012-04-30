@@ -173,6 +173,9 @@ void catch_global()
     } catch (boost::exception& e)
     {
         Os::Logger::instance().log(FAC_LOG, PRI_CRIT, diagnostic_information(e).c_str());
+    } catch (std::exception& e)
+    {
+        Os::Logger::instance().log(FAC_LOG, PRI_CRIT, e.what());
     } catch (...)
     {
         Os::Logger::instance().log(FAC_LOG, PRI_CRIT, "Error occurred. Unknown exception type.");
