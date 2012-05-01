@@ -495,6 +495,21 @@ class CallControlManager implements SymmitronResetHandler {
                 return;
 
             }
+            else if ( SipUtilities.getFromTag(request) != null
+                    && SipUtilities.getToTag(request) != null )
+            {
+              //
+              // This is a reinvite but the dialog state is unknown.
+              // If we allow this to pass, it will eventually loop back
+              // to us because the request-uri and possibly a route header
+              // is already set.  Drop this transaction!
+              //
+              if ( logger.isDebugEnabled() ) logger.debug("Dialog State is unknown.  Dropping transaction!");
+                Response response = SipUtilities.createResponse(serverTransaction,
+                        Response.SERVER_INTERNAL_ERROR);
+                serverTransaction.sendResponse(response);
+                return;
+            }
 
             if (Gateway.getGlobalAddress() == null) {
                 if ( logger.isDebugEnabled() ) logger.debug("Global address not available -- cannot process request");
@@ -2537,8 +2552,15 @@ class CallControlManager implements SymmitronResetHandler {
                         SipUtilities.getViaTransport(newResponse));
                 newResponse.setHeader(contactHeader);
                 SipUtilities.setSessionDescription(newResponse, clonedSd);
+
+                // JEB: If this is a response for the ITSP set the global IP here
+                if (dialogContext.getItspInfo() == null || dialogContext.getItspInfo().isGlobalAddressingUsed() ) {
+                    SipUtilities.setGlobalAddress(newResponse);
+                }
+
                 continuation.getServerTransaction().sendResponse(newResponse);
 
+                
             }
 
         } else {
