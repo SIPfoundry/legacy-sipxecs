@@ -101,10 +101,16 @@ public class FeatureChangeRequest {
     public void enableLocationFeature(LocationFeature f, Location location, boolean enable) {
         if (enable) {
             getEnableByLocation().get(location).add(f);
-            getDisableByLocation().get(location).remove(f);
+            safeRemove(getDisableByLocation().get(location), f);
         } else {
-            getEnableByLocation().get(location).remove(f);
+            safeRemove(getEnableByLocation().get(location), f);
             getDisableByLocation().get(location).add(f);
+        }
+    }
+
+    public <T extends Feature> void safeRemove(Set<T> s, T f) {
+        if (s != null) {
+            s.remove(f);
         }
     }
 
