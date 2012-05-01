@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
-  
+
   <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
     <property name="host" value="localhost" />
     <property name="defaultFileTypeMap">
@@ -34,16 +34,17 @@
       <value>org.sipfoundry.sipxconfig.mail</value>
     </property>
   </bean>
-  
+
   <bean id="mailManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.mail.MailManager"/>
     <property name="target" ref="mailManagerImpl" />
   </bean>
-  
+
   <bean id="mailManagerImpl" class="org.sipfoundry.sipxconfig.mail.MailManagerImpl">
+	<property name="locationsManager" ref="locationsManager"/>
   </bean>
-  
+
   <bean id="mailManagerConfig" class="org.sipfoundry.sipxconfig.mail.MailConfig">
-  </bean>  
+  </bean>
 
 </beans>

@@ -16,12 +16,15 @@
  */
 package org.sipfoundry.sipxconfig.mail;
 
+import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.address.AddressType.Protocol;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 
 public interface MailManager {
     public static final GlobalFeature FEATURE = new GlobalFeature("mail");
     public static final ProcessDefinition SERVICE = new ProcessDefinition("sendmail");
+    public static final AddressType SMTP = new AddressType("smtp", 25, Protocol.smtp);
 
     /** avoids checkstyle error */
     public void nop();

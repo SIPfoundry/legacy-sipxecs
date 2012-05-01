@@ -16,10 +16,17 @@
  */
 package org.sipfoundry.sipxconfig.mail;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressProvider;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
@@ -27,13 +34,20 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
+import org.springframework.beans.factory.annotation.Required;
 
-public class MailManagerImpl implements MailManager, SetupListener, FeatureProvider, ProcessProvider {
+public class MailManagerImpl implements MailManager, SetupListener, FeatureProvider, ProcessProvider,
+        AddressProvider, FirewallProvider {
+
+    private LocationsManager m_locationsManager;
 
     @Override
     public void setup(SetupManager manager) {
@@ -58,6 +72,23 @@ public class MailManagerImpl implements MailManager, SetupListener, FeatureProvi
     }
 
     @Override
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
+        if (!type.equals(SMTP)) {
+            return null;
+        }
+
+        List<Location> locations = m_locationsManager.getLocationsList();
+        List<Address> addresses = new ArrayList<Address>(locations.size());
+        if (manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
+            for (Location location : locations) {
+                addresses.add(new Address(SMTP, location.getAddress()));
+            }
+        }
+
+        return addresses;
+    }
+
+    @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         return Collections.singleton(SERVICE);
     }
@@ -75,5 +106,14 @@ public class MailManagerImpl implements MailManager, SetupListener, FeatureProvi
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+    }
+
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return Collections.singleton(new DefaultFirewallRule(SMTP));
+    }
+
+    @Required
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 }

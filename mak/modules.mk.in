@@ -36,6 +36,7 @@ sipx = \
   sipXpark \
   sipXpage \
   sipXpolycom \
+  sipXrls \
   sipXsqa
 
 # re: ruby-postgres, there's a new one we should be using ruby-pgsql i 

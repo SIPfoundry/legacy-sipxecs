@@ -10,7 +10,8 @@ sipxrls_LDADD = \
         @SIPXCALL_LIBS@ \
 	@SIPXMEDIAADAPTER_LIBS@ \
 	@SIPXCOMMSERVER_LIBS@ \
-	@GIPS_NEQ_OBJS@
+	@GIPS_NEQ_OBJS@ \
+	-lmongoclient
 
 sipxrls_CXXFLAGS = \
         -DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \

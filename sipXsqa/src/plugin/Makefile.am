@@ -1,6 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = .
 
 SQAPLUGIN_COMMON_CXX_FLAGS = \
 	-I$(top_builddir)/config \
