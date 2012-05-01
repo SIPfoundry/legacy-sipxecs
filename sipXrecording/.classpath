@@ -5,18 +5,7 @@
 	<classpathentry kind="src" path="config-plugin/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/dom4j.jar" sourcepath="LIB_SRC/dom4j/1.6.1/src.zip"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-io.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/jaxen.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-codec.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/javax.servlet.jar" sourcepath="JRE_SRC"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/jetty.jar" sourcepath="LIB_SRC/jetty/src.zip"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-logging.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/javamail.jar"/>
-	<classpathentry kind="var" path="SIPX_BUILD_TOP/sipXopenfire/sipx-openfire-presence-plugin.jar" sourcepath="SIPX_SRC_TOP/sipXopenfire"/>
-	<classpathentry kind="var" path="SIPX_BUILD_TOP/sipXcommons/dist/sipxcommons.jar" sourcepath="/SIPX_SRC_TOP/sipXcommons/src/main/java"/>
 	<classpathentry kind="src" path="/sipxcommons"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-httpclient-3.0.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-neoconf"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-web"/>
 	<classpathentry kind="output" path="bin.eclipse"/>

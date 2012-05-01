@@ -28,7 +28,8 @@ import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -37,7 +38,7 @@ import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 
-public class Acd implements FeatureProvider, AddressProvider, FeatureListener, FirewallProvider {
+public class Acd implements FeatureProvider, AddressProvider, FirewallProvider {
     public static final LocationFeature FEATURE = new LocationFeature("acd");
     public static final AddressType CONFIG_ADDRESS = new AddressType("acdConfig");
     public static final AddressType MONITOR_ADDRESS = new AddressType("acdMonitor");
@@ -64,8 +65,7 @@ public class Acd implements FeatureProvider, AddressProvider, FeatureListener, F
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Location requester) {
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         List<Address> addresses = null;
         if (ADRESSES.contains(type)) {
             m_acdContext.getServers();
@@ -91,24 +91,6 @@ public class Acd implements FeatureProvider, AddressProvider, FeatureListener, F
         return addresses;
     }
 
-    @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-        if (!Acd.FEATURE.equals(feature)) {
-            return;
-        }
-        if (event == FeatureEvent.PRE_ENABLE) {
-            m_acdContext.addNewServer(location);
-        } else if (event == FeatureEvent.POST_DISABLE) {
-            List<AcdServer> servers = m_acdContext.getServers();
-            m_acdContext.removeServers(servers);
-        }
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
-    }
-
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
     }
@@ -127,5 +109,29 @@ public class Acd implements FeatureProvider, AddressProvider, FeatureListener, F
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
         return DefaultFirewallRule.rules(ADRESSES);
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+    }
+
+    /**
+     * Return true is request had to be changed
+     */
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        for (Location l : request.getLocationsForEnabledFeature(Acd.FEATURE)) {
+            m_acdContext.addNewServer(l);
+        }
+        for (Location l : request.getLocationsForDisabledFeature(Acd.FEATURE)) {
+            List<AcdServer> remove = new ArrayList<AcdServer>();
+            for (AcdServer server : m_acdContext.getServers()) {
+                if (server.getLocation().getId().equals(l.getId())) {
+                    remove.add(server);
+                }
+            }
+            if (!remove.isEmpty()) {
+                m_acdContext.removeServers(remove);
+            }
+        }
     }
 }

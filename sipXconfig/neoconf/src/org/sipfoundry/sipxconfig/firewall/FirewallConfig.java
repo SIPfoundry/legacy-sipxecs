@@ -33,14 +33,14 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
-import org.sipfoundry.sipxconfig.feature.GlobalFeature;
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
-public class FirewallConfig implements ConfigProvider, FeatureListener, DaoEventListener {
+public class FirewallConfig implements ConfigProvider, FeatureListener {
     private static final Logger LOG = Logger.getLogger(FirewallConfig.class);
     private FirewallManager m_firewallManager;
     private AddressManager m_addressManager;
@@ -48,7 +48,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener, DaoEvent
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(FirewallManager.FEATURE)) {
+        if (!request.applies(FirewallManager.FEATURE, LocationsManager.FEATURE)) {
             return;
         }
 
@@ -167,37 +167,17 @@ public class FirewallConfig implements ConfigProvider, FeatureListener, DaoEvent
         m_addressManager = addressManager;
     }
 
-    @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-        // every feature enable/disable will trigger firewall rules to reconfig
-        // because cannot tell what this affects
-        m_configManager.configureEverywhere(FirewallManager.FEATURE);
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
-        // see enableLocationFeature
-        m_configManager.configureEverywhere(FirewallManager.FEATURE);
-    }
-
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
     }
 
     @Override
-    public void onDelete(Object entity) {
-        onChange(entity);
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
     }
 
     @Override
-    public void onSave(Object entity) {
-        onChange(entity);
-    }
-
-    void onChange(Object entity) {
-        if (entity instanceof Location) {
-            m_configManager.configureEverywhere(FirewallManager.FEATURE);
-        }
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        // cannot tell what features would effect firewall, so need to re-evaluate
+        m_configManager.configureEverywhere(FirewallManager.FEATURE);
     }
 }

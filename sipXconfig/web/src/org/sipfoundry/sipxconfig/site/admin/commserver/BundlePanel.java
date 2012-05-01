@@ -18,14 +18,18 @@ package org.sipfoundry.sipxconfig.site.admin.commserver;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IAsset;
+import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Lifecycle;
@@ -35,17 +39,23 @@ import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.BundleConstraint;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.feature.InvalidChange;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public abstract class BundlePanel extends BaseComponent implements PageBeginRenderListener {
+    private static final String ERR_CLASS = " hilite-user-error";
+
     public abstract void setBundleId(String bundleId);
 
     @Parameter
@@ -79,11 +89,37 @@ public abstract class BundlePanel extends BaseComponent implements PageBeginRend
 
     public abstract void setCellIds(Set<String> ids);
 
+    public abstract Map<Feature, InvalidChange> getInvalidFeatures();
+
+    public abstract void setInvalidFeatures(Map<Feature, InvalidChange> rows);
+
     @Bean(lifecycle = Lifecycle.RENDER)
     public abstract EvenOdd getRowClass();
 
+    public String getCellClass() {
+        String cls = "activeColumnValue";
+        Map<Feature, InvalidChange> errs = getInvalidFeatures();
+        if (errs != null) {
+            InvalidChange invalidItem = errs.get(getFeature());
+            if (invalidItem != null) {
+                if (getFeature() instanceof GlobalFeature) {
+                    cls += ERR_CLASS;
+                } else if (invalidItem.getLocation() == null) {
+                    cls += ERR_CLASS;
+                } else if (invalidItem.getLocation().getId() == getLocationObject().getId()) {
+                    cls += ERR_CLASS;
+                }
+            }
+        }
+
+        return cls;
+    }
+
     @Bean
     public abstract SipxValidationDelegate getValidator();
+
+    @Asset(value = "context:/WEB-INF/admin/commserver/BundlePanel.script")
+    public abstract IAsset getScript();
 
     public String getConstraintBlockId() {
         Feature f = getFeature();
@@ -132,55 +168,75 @@ public abstract class BundlePanel extends BaseComponent implements PageBeginRend
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public void save() {
-        getFeatureManager().enableGlobalFeatures(getGlobalFeatures());
+    public void validate() {
+        FeatureChangeRequest request = buildFeatureChangeRequest();
+        FeatureChangeValidator validator = new FeatureChangeValidator(getFeatureManager(), request);
+        getFeatureManager().validateFeatureChange(validator);
+        for (InvalidChange err : validator.getInvalidChanges()) {
+            getValidator().record(new UserException(err.getMessage()), getMessages());
+        }
+        setInvalidFeatures(indexByFeature(validator.getInvalidChanges()));
+        rebuildForm(request);
+    }
 
-        Set<LocationFeature> bundleFeatures = getBundleLocationFeatures();
+    void rebuildForm(FeatureChangeRequest request) {
+        setGlobalFeatures(request.getEnable());
+        Set<String> cellIds = new HashSet<String>();
+        List<Location> locations = getLocations();
+        for (Location l : locations) {
+            Set<LocationFeature> enabled = request.getEnableByLocation().get(l);
+            for (LocationFeature f : enabled) {
+                cellIds.add(Cell.encodeId(f, l));
+            }
+        }
+        setCellIds(cellIds);
+    }
+
+    public void save() {
+        FeatureChangeRequest request = buildFeatureChangeRequest();
+        FeatureChangeValidator validator = new FeatureChangeValidator(getFeatureManager(), request);
+        getFeatureManager().applyFeatureChange(validator);
+        setInvalidFeatures(indexByFeature(validator.getInvalidChanges()));
+        rebuildForm(request);
+    }
+
+    @SuppressWarnings("unchecked")
+    public FeatureChangeRequest buildFeatureChangeRequest() {
+        Map<Location, Set<LocationFeature>> byLocation = new HashMap<Location, Set<LocationFeature>>();
+        // location
         for (Location l : getLocations()) {
-            ByLocation filter = new ByLocation(l);
+            ByLocation filter = new ByLocation(l, getBundle());
             Collection<String> subset = CollectionUtils.select(getCellIds(), filter);
             Collection<LocationFeature> selected = CollectionUtils.collect(subset, filter);
-            Collection<LocationFeature> unselected = CollectionUtils.disjunction(bundleFeatures, selected);
-            Set<LocationFeature> enabledFeatures = getFeatureManager().getEnabledLocationFeatures(l);
-            enabledFeatures.addAll(selected);
-            enabledFeatures.removeAll(unselected);
-            Set<LocationFeature> featureSet = new HashSet<LocationFeature>(enabledFeatures);
-            if (featureSet.contains(null)) {
-                featureSet.remove(null);
-            }
-            getFeatureManager().enableLocationFeatures(featureSet, l);
+            Set<LocationFeature> featureSet = new HashSet<LocationFeature>(selected);
+            byLocation.put(l, featureSet);
         }
+
+        FeatureChangeRequest req = FeatureChangeRequest.byBundle(getBundle(), getGlobalFeatures(), byLocation);
+        return req;
     }
 
-    private Set<LocationFeature> getBundleLocationFeatures() {
-        Set<LocationFeature> featureSet = new HashSet<LocationFeature>();
-        for (Feature feature : getBundle().getFeatures()) {
-            if (feature instanceof LocationFeature) {
-                featureSet.add((LocationFeature) feature);
-            }
-        }
-        return featureSet;
-    }
-
-    class ByLocation implements Transformer, Predicate {
+    static class ByLocation implements Transformer, Predicate {
         private String m_locationId;
+        private Bundle m_bundle;
 
-        public ByLocation(Location l) {
+        public ByLocation(Location l, Bundle bundle) {
             m_locationId = l.getId().toString();
+            m_bundle = bundle;
         }
 
         @Override
         public Object transform(Object arg0) {
             String[] ids = Cell.decodeId(arg0.toString());
-            Feature f = getBundle().getFeature(ids[0]);
+            Feature f = m_bundle.getFeature(ids[0]);
             return f;
         }
 
         @Override
         public boolean evaluate(Object arg0) {
             String[] ids = Cell.decodeId(arg0.toString());
-            return ids[1].equals(m_locationId);
+            Feature f = m_bundle.getFeature(ids[0]);
+            return (ids[1].equals(m_locationId) && f != null);
         }
     }
 
@@ -318,5 +374,14 @@ public abstract class BundlePanel extends BaseComponent implements PageBeginRend
                 return new Cell(f, l);
             }
         };
+    }
+
+    public Map<Feature, InvalidChange> indexByFeature(List<InvalidChange> items) {
+        Map<Feature, InvalidChange> index = new HashMap<Feature, InvalidChange>(items.size());
+        for (InvalidChange item : items) {
+            index.put(item.getFeature(), item);
+
+        }
+        return index;
     }
 }

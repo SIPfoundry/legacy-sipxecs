@@ -29,7 +29,8 @@ import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -37,13 +38,13 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, ProcessProvider, FeatureListener,
-        FirewallProvider {
+public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, ProcessProvider, FirewallProvider {
     private static final int PASS_LENGTH = 8;
     private BeanWithSettingsDao<ImBotSettings> m_settingsDao;
 
@@ -104,30 +105,23 @@ public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, Proce
         }
     }
 
-    @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-        if (!feature.equals(ImBot.FEATURE)) {
-            return;
-        }
-        switch (event) {
-        case PRE_ENABLE:
-            initializeSettings();
-            break;
-        default:
-            break;
-        }
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
-    }
-
     private void initializeSettings() {
         ImBotSettings settings = getSettings();
         if (settings.isNew()) {
             settings.setPaPassword(randomAlphanumeric(PASS_LENGTH));
             saveSettings(settings);
+        }
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        validator.requiresAtLeastOne(ImBot.FEATURE, ImManager.FEATURE);
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        if (request.getAllNewlyEnabledFeatures().contains(ImBot.FEATURE)) {
+            initializeSettings();
         }
     }
 }

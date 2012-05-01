@@ -19,11 +19,6 @@ import org.sipfoundry.sipxconfig.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.feature.FeatureListener;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
-import org.sipfoundry.sipxconfig.feature.GlobalFeature;
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
-import org.sipfoundry.sipxconfig.feature.FeatureListener.FeatureEvent;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext.CONFIG_CHANGE_TYPE;
 import org.springframework.beans.factory.BeanFactory;
@@ -33,7 +28,7 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> implements SbcDeviceManager,
-        BeanFactoryAware, FeatureListener {
+        BeanFactoryAware {
     private static final String SBC_ID = "sbcId";
     private static final String SBC_NAME = "sbcName";
     private static final String AUDIT_LOG_CONFIG_TYPE = "SBC Device";
@@ -230,23 +225,5 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
 
     public List<Sbc> getSbcsForSbcDeviceId(Integer sbcDeviceId) {
         return getHibernateTemplate().findByNamedQueryAndNamedParam("sbcsForSbcDeviceId", SBC_ID, sbcDeviceId);
-    }
-
-    @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-        if (feature.equals(SbcManager.FEATURE)) {
-            BridgeSbc bridgeSbc = getBridgeSbc(location);
-            if (event == FeatureEvent.PRE_ENABLE && bridgeSbc == null) {
-                newBridgeSbc(location);
-            }
-            if (event == FeatureEvent.POST_DISABLE && bridgeSbc != null) {
-                deleteSbcDevice(bridgeSbc.getId());
-            }
-        }
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
     }
 }

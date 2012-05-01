@@ -39,4 +39,8 @@ public abstract class Feature {
     public int hashCode() {
         return m_id.hashCode();
     }
+
+    public String toString() {
+        return m_id;
+    }
 }

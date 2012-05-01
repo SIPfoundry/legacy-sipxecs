@@ -28,7 +28,6 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
-import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dns.DnsManager;
@@ -36,7 +35,8 @@ import org.sipfoundry.sipxconfig.dns.DnsProvider;
 import org.sipfoundry.sipxconfig.dns.ResourceRecords;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -45,13 +45,14 @@ import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.mwi.Mwi;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class IvrImpl implements FeatureProvider, AddressProvider, FeatureListener, Ivr, ProcessProvider,
-     DnsProvider, FirewallProvider {
+public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessProvider, DnsProvider,
+    FirewallProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
         REST_API, SIP_ADDRESS
     });
@@ -99,37 +100,6 @@ public class IvrImpl implements FeatureProvider, AddressProvider, FeatureListene
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
         return Collections.singleton(new DefaultFirewallRule(REST_API));
-    }
-
-    @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-        if (!feature.equals(Ivr.FEATURE)) {
-            return;
-        }
-
-        switch (event) {
-        case PRE_ENABLE:
-            if (m_featureManager.isFeatureEnabled(Ivr.FEATURE)) {
-                throw new UserException("&error.ivr.enabled");
-            }
-            IvrSettings settings = getSettings();
-            if (settings.isNew()) {
-                saveSettings(settings);
-            }
-            break;
-        case POST_DISABLE:
-        case POST_ENABLE:
-            m_configManager.configureEverywhere(DnsManager.FEATURE, DialPlanContext.FEATURE,
-                    FreeswitchFeature.FEATURE);
-            break;
-        default:
-            break;
-        }
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
     }
 
     @Override
@@ -212,6 +182,27 @@ public class IvrImpl implements FeatureProvider, AddressProvider, FeatureListene
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
         if (b == Bundle.CORE_TELEPHONY) {
             b.addFeature(FEATURE);
+        }
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        validator.requiresAtLeastOne(FEATURE, FreeswitchFeature.FEATURE);
+        validator.requiresAtLeastOne(FEATURE, Mwi.FEATURE);
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        if (request.getAllNewlyEnabledFeatures().contains(Ivr.FEATURE)) {
+            IvrSettings settings = getSettings();
+            if (settings.isNew()) {
+                saveSettings(settings);
+            }
+        }
+
+        if (request.hasChanged(Ivr.FEATURE)) {
+            m_configManager.configureEverywhere(DnsManager.FEATURE, DialPlanContext.FEATURE,
+                    FreeswitchFeature.FEATURE);
         }
     }
 }

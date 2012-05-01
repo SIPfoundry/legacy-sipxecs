@@ -21,12 +21,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.acd.Acd;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -101,5 +104,14 @@ public class AcdStatsImpl implements AcdStats, FeatureProvider, AddressProvider,
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
         return Collections.singleton(new DefaultFirewallRule(API_ADDRESS));
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        validator.requiresAtLeastOne(FEATURE, Acd.FEATURE);
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
     }
 }

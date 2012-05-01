@@ -20,17 +20,21 @@ import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.logwatcher.LogWatcher;
+import org.sipfoundry.sipxconfig.mail.MailManager;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class Alarms implements FeatureProvider {
     public static final GlobalFeature FEATURE = new GlobalFeature("alarms");
 
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
-        // not something we can enable/disable at this time
         return null;
     }
 
@@ -44,5 +48,16 @@ public class Alarms implements FeatureProvider {
         if (b == Bundle.CORE) {
             b.addFeature(FEATURE);
         }
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        validator.requiresGlobalFeature(FEATURE, SnmpManager.FEATURE);
+        validator.requiresGlobalFeature(FEATURE, LogWatcher.FEATURE);
+        validator.requiresGlobalFeature(FEATURE, MailManager.FEATURE);
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
     }
 }

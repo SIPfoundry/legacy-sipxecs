@@ -17,14 +17,14 @@
 package org.sipfoundry.sipxconfig.cfgmgt;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
-import org.sipfoundry.sipxconfig.feature.GlobalFeature;
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public class ConfigTrigger implements DaoEventListener, FeatureListener {
     private ConfigManager m_configManager;
@@ -57,19 +57,15 @@ public class ConfigTrigger implements DaoEventListener, FeatureListener {
     }
 
     @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-        if (event == FeatureEvent.POST_DISABLE || event == FeatureEvent.POST_ENABLE) {
-            // even though location is given, we configure everywhere because it's up to the
-            // ConfigProvider to decide
-            m_configManager.configureEverywhere(feature);
-        }
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator request) {
     }
 
     @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
-        if (event == FeatureEvent.POST_DISABLE || event == FeatureEvent.POST_ENABLE) {
-            m_configManager.configureEverywhere(feature);
-        }
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        // even though location is given, we configure everywhere because it's up to the
+        // ConfigProvider to decide
+        Set<Feature> changes =  request.getAllNewlyEnabledFeatures();
+        changes.addAll(request.getAllNewlyDisabledFeatures());
+        m_configManager.configureEverywhere(changes.toArray(new Feature[0]));
     }
 }

@@ -29,6 +29,8 @@ import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -37,6 +39,8 @@ import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
+import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
 
 public class BridgeSbcContext implements FeatureProvider, AddressProvider, FirewallProvider {
@@ -109,5 +113,15 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider, Firew
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
         return Arrays.asList(new DefaultFirewallRule(XMLRPC_ADDRESS), new DefaultFirewallRule(SIP_ADDRESS,
                 FirewallRule.SystemId.PUBLIC), new DefaultFirewallRule(TLS_ADDRESS, FirewallRule.SystemId.PUBLIC));
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        validator.requiresAtLeastOne(FEATURE, ProxyManager.FEATURE);
+        validator.requiresGlobalFeature(FEATURE, NatTraversal.FEATURE);
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
     }
 }

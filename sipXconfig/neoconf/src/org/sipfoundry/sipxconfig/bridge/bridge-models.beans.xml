@@ -19,7 +19,6 @@
     <!-- eager replication here: profile generation is already in the background -->
     <property name="locationsManager" ref="locationsManager" />
     <property name="configManager" ref="configManager"/>
-    <property name="proxyManager" ref="proxyManager"/>
   </bean>
 
   <bean id="sbcSipXbridgeConfiguration" class="org.sipfoundry.sipxconfig.bridge.BridgeSbcConfiguration">

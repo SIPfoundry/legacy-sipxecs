@@ -35,11 +35,18 @@ public interface FeatureManager {
 
     public void enableLocationFeature(LocationFeature feature, Location location, boolean enable);
 
-    public void enableLocationFeatures(Set<LocationFeature> features, Location location);
+    public void enableLocationFeatures(Set<LocationFeature> features, Location location, boolean enable);
 
     public void enableGlobalFeature(GlobalFeature feature, boolean enable);
 
-    public void enableGlobalFeatures(Set<GlobalFeature> features);
+    public void enableGlobalFeatures(Set<GlobalFeature> features, boolean enable);
+
+    void validateFeatureChange(FeatureChangeValidator validator);
+
+    /**
+     * Will validate change before applying so no need to call validateFeatureChange manually
+     */
+    public void applyFeatureChange(FeatureChangeValidator validator);
 
     public boolean isFeatureEnabled(LocationFeature feature, Location location);
 
@@ -60,5 +67,5 @@ public interface FeatureManager {
 
     public List<Bundle> getBundles();
 
-    public void enableBundleOnPrimary(Bundle b);
+//    public void enableBundleOnPrimary(Bundle b);
 }

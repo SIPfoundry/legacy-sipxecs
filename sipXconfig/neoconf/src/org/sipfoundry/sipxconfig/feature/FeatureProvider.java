@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.commserver.Location;
  * they want enabled on a system or in a specific location. To find out what the user has enabled,
  * consult FeatureManager.
  */
-public interface FeatureProvider {
+public interface FeatureProvider extends FeatureListener {
 
     public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager);
 

@@ -21,13 +21,15 @@ import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 
-public class ConferenceFeature implements FeatureListener, FeatureProvider {
+public class ConferenceFeature implements FeatureProvider {
     private ConferenceBridgeContext m_conferenceBridgeContext;
 
     @Override
@@ -40,28 +42,6 @@ public class ConferenceFeature implements FeatureListener, FeatureProvider {
         return Collections.singleton(ConferenceBridgeContext.FEATURE);
     }
 
-    @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-        if (!feature.equals(ConferenceBridgeContext.FEATURE)) {
-            return;
-        }
-
-        Bridge bridge = m_conferenceBridgeContext.getBridgeByServer(location.getFqdn());
-        if (bridge == null && event == FeatureEvent.PRE_ENABLE) {
-            bridge = m_conferenceBridgeContext.newBridge();
-            bridge.setLocation(location);
-            m_conferenceBridgeContext.store(bridge);
-        }
-        if (bridge != null && event == FeatureEvent.POST_ENABLE) {
-            m_conferenceBridgeContext.deploy(bridge);
-        }
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
-    }
-
     public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
         m_conferenceBridgeContext = conferenceBridgeContext;
     }
@@ -70,6 +50,24 @@ public class ConferenceFeature implements FeatureListener, FeatureProvider {
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
         if (b == Bundle.CORE_TELEPHONY) {
             b.addFeature(ConferenceBridgeContext.FEATURE);
+        }
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        validator.requiredOnSameHost(ConferenceBridgeContext.FEATURE, FreeswitchFeature.FEATURE);
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        for (Location location : request.getLocationsForEnabledFeature(ConferenceBridgeContext.FEATURE)) {
+            Bridge bridge = m_conferenceBridgeContext.getBridgeByServer(location.getFqdn());
+            if (bridge == null) {
+                bridge = m_conferenceBridgeContext.newBridge();
+                bridge.setLocation(location);
+                m_conferenceBridgeContext.store(bridge);
+            }
+            m_conferenceBridgeContext.deploy(bridge);
         }
     }
 }

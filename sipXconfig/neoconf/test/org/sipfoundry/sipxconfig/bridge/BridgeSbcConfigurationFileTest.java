@@ -64,7 +64,6 @@ public class BridgeSbcConfigurationFileTest {
         sbc.setDefaults(deviceDefaults);
         sbc.setModelFilesContext(modelFilesContext);
         sbc.setPort(5090);
-        sbc.setProxyManager(mgr);
         TestHelper.setVelocityProfileGenerator(sbc, TestHelper.getSystemEtcDir());
 
         GatewayContext gatewayContext = createMock(GatewayContext.class);

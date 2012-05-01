@@ -12,10 +12,7 @@ package org.sipfoundry.sipxconfig.sbc;
 import java.util.Collection;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
-
 public interface SbcManager {
-    public static final LocationFeature FEATURE = new LocationFeature("borderController");
     public static final String CONTEXT_BEAN_NAME = "sbcManager";
 
     /**

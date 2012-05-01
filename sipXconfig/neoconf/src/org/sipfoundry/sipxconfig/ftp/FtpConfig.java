@@ -26,15 +26,17 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.sbc.SbcManager;
+import org.sipfoundry.sipxconfig.sbc.SbcDevice;
 
-public class FtpConfig implements ConfigProvider {
+public class FtpConfig implements ConfigProvider, DaoEventListener {
     private FtpManager m_ftpManager;
+    private ConfigManager m_configManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(FtpManager.FTP_FEATURE, FtpManager.TFTP_FEATURE, SbcManager.FEATURE)) {
+        if (!request.applies(FtpManager.FTP_FEATURE, FtpManager.TFTP_FEATURE)) {
             return;
         }
 
@@ -65,5 +67,26 @@ public class FtpConfig implements ConfigProvider {
 
     public void setFtpManager(FtpManager ftpManager) {
         m_ftpManager = ftpManager;
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        onChange(entity);
+    }
+
+    @Override
+    public void onSave(Object entity) {
+        onChange(entity);
+    }
+
+    public void onChange(Object entity) {
+        // SBC address is used as default config for passive ftp connections
+        if (entity instanceof SbcDevice) {
+            m_configManager.configureEverywhere(FtpManager.FTP_FEATURE);
+        }
+    }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
     }
 }
