@@ -20,8 +20,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.commserver.Location;
 
@@ -63,40 +61,27 @@ public class FeatureChangeValidator {
         if (!isEnabledSomewhere(subject)) {
             return;
         }
-        Collection<Location> requiredLocations = m_request.getLocationsForEnabledFeature(required);
-        final Collection<Integer> requiredLocationIds = DataCollectionUtil.extractPrimaryKeys(requiredLocations);
-        Collection<Location> subjectLocations = m_request.getLocationsForEnabledFeature(subject);
-        Collection<Location> select = CollectionUtils.select(subjectLocations, new Predicate() {
-            public boolean evaluate(Object arg0) {
-                return !requiredLocationIds.contains(((Location) arg0).getId());
-            }
-        });
-        for (Location invalid : select) {
+        Collection<Location> requiredLocations = getLocationsForEnabledFeature(required);
+        Collection<Location> subjectLocations = getLocationsForEnabledFeature(subject);
+        Collection<Location> missingLocations = DataCollectionUtil.remove(subjectLocations, requiredLocations);
+        for (Location invalid : missingLocations) {
             m_invalid.add(InvalidChange.requires(subject, required, invalid));
         }
     }
 
-    Collection<Location> getLocationsForEnabledFeature(LocationFeature feature) {
-        Collection<Location> newly = m_request.getLocationsForEnabledFeature(feature);
-        Collection<Location> current = m_manager.getLocationsForEnabledFeature(feature);
-        return DataCollectionUtil.merge(newly, current);
+    public Collection<Location> getLocationsForEnabledFeature(LocationFeature feature) {
+        Collection<Location> newlyOn = m_request.getLocationsForEnabledFeature(feature);
+        Collection<Location> wasOn = m_manager.getLocationsForEnabledFeature(feature);
+        Collection<Location> nowOn = DataCollectionUtil.merge(newlyOn, wasOn);
+        Collection<Location> newlyOff = m_request.getLocationsForDisabledFeature(feature);
+        Collection<Location> on = DataCollectionUtil.remove(nowOn, newlyOff);
+        return on;
     }
 
     public void requiresAtLeastOne(Feature subject, LocationFeature required) {
         if (isEnabledSomewhere(subject) && !isEnabledSomewhere(required)) {
             m_invalid.add(InvalidChange.requires(subject, required));
         }
-    }
-
-    public void enableAtSameLocationAs(LocationFeature what, LocationFeature where) {
-        Collection<Location> newly = m_request.getLocationsForEnabledFeature(where);
-        Location location;
-        if (!newly.isEmpty()) {
-            location = newly.iterator().next();
-        } else {
-            location = m_manager.getLocationsForEnabledFeature(what).get(0);
-        }
-        m_request.getEnableByLocation().get(location).add(what);
     }
 
     public boolean isEnabledSomewhere(Feature f) {

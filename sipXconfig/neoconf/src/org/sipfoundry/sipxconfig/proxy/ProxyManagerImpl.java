@@ -45,6 +45,7 @@ import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
+import org.sipfoundry.sipxconfig.registrar.Registrar;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
@@ -144,6 +145,7 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         // ugh, just because proxy reads the config file to determine gateways
         validator.requiredOnSameHost(FEATURE, BridgeSbcContext.FEATURE);
+        validator.requiredOnSameHost(FEATURE, Registrar.FEATURE);
         // ideal case, this is not nec. but it is now
         validator.requiresGlobalFeature(FEATURE, NatTraversal.FEATURE);
     }

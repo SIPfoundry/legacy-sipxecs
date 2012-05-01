@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.BundleConstraint;
@@ -132,18 +133,18 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
-        Collection<Location> mongos = validator.getRequest().getLocationsForEnabledFeature(FEATURE_ID);
-        Collection<Location> arbiters = validator.getRequest().getLocationsForEnabledFeature(ARBITER_FEATURE);
+        Collection<Location> mongos = validator.getLocationsForEnabledFeature(FEATURE_ID);
+        Collection<Location> arbiters = validator.getLocationsForEnabledFeature(ARBITER_FEATURE);
         if ((mongos.size() % 2) == 0) {
             if (arbiters.size() != 1) {
-                InvalidChange needArbiter = new InvalidChange(ARBITER_FEATURE,
-                        "Database arbiter is required if you have an even number of distributed databases.");
+                UserException err = new UserException("&error.missingMongoArbiter");
+                InvalidChange needArbiter = new InvalidChange(ARBITER_FEATURE, err);
                 validator.getInvalidChanges().add(needArbiter);
             }
         } else {
             if (arbiters.size() != 0) {
-                InvalidChange removeArbiter = new InvalidChange(ARBITER_FEATURE,
-                        "Database arbiter is not required if you have an even number of distributed databases.");
+                UserException err = new UserException("&error.extraMongoArbiter");
+                InvalidChange removeArbiter = new InvalidChange(ARBITER_FEATURE, err);
                 validator.getInvalidChanges().add(removeArbiter);
             }
         }

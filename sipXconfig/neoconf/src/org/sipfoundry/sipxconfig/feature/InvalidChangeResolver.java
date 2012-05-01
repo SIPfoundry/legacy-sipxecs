@@ -31,11 +31,11 @@ public class InvalidChangeResolver {
         boolean singleLocation = request.getEnableByLocation().size() == 1;
         for (InvalidChange change : validator.getInvalidChanges()) {
             if (change.getFeature() instanceof GlobalFeature) {
-                request.getEnable().add((GlobalFeature) change.getFeature());
+                request.enableFeature((GlobalFeature) change.getFeature(), true);
             } else if (singleLocation) {
-                request.getEnableByLocation().get(primary).add((LocationFeature) change.getFeature());
+                request.enableLocationFeature((LocationFeature) change.getFeature(), primary, true);
             } else if (change.getLocation() != null) {
-                request.getEnableByLocation().get(change.getLocation()).add((LocationFeature) change.getFeature());
+                request.enableLocationFeature((LocationFeature) change.getFeature(), change.getLocation(), true);
             } else {
                 continue;
             }

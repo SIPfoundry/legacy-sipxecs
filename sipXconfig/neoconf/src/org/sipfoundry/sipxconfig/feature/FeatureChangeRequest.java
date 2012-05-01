@@ -88,6 +88,26 @@ public class FeatureChangeRequest {
         return new FeatureChangeRequest(enable, disable, enableByLocation, disableByLocation);
     }
 
+    public void enableFeature(GlobalFeature f, boolean enable) {
+        if (enable) {
+            getEnable().add(f);
+            getDisable().remove(f);
+        } else {
+            getEnable().remove(f);
+            getDisable().add(f);
+        }
+    }
+
+    public void enableLocationFeature(LocationFeature f, Location location, boolean enable) {
+        if (enable) {
+            getEnableByLocation().get(location).add(f);
+            getDisableByLocation().get(location).remove(f);
+        } else {
+            getEnableByLocation().get(location).remove(f);
+            getDisableByLocation().get(location).add(f);
+        }
+    }
+
     public Set<GlobalFeature> getEnable() {
         return m_enable;
     }
@@ -136,12 +156,13 @@ public class FeatureChangeRequest {
     }
 
     @SuppressWarnings({
-        "unchecked"
+        "unchecked", "rawtypes"
     })
     Collection<Location> findLocationsByFeature(LocationFeature f, Map<Location, Set<LocationFeature>> map) {
-        LocationByFeature alg = new LocationByFeature(f);
-        return (Collection<Location>) CollectionUtils.collect(
-                CollectionUtils.select(map.entrySet(), alg), alg);
+        LocationByFeature findAndFilter = new LocationByFeature(f);
+        Collection select = CollectionUtils.select(map.entrySet(), findAndFilter);
+        Collection locations = CollectionUtils.collect(select, findAndFilter);
+        return (Collection<Location>) locations;
     }
 
     static class LocationByFeature implements Transformer, Predicate {

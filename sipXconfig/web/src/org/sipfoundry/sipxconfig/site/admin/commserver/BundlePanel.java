@@ -173,10 +173,23 @@ public abstract class BundlePanel extends BaseComponent implements PageBeginRend
         FeatureChangeValidator validator = new FeatureChangeValidator(getFeatureManager(), request);
         getFeatureManager().validateFeatureChange(validator);
         for (InvalidChange err : validator.getInvalidChanges()) {
-            getValidator().record(new UserException(err.getMessage()), getMessages());
+            getValidator().record(localize(err.getMessage()), getMessages());
         }
         setInvalidFeatures(indexByFeature(validator.getInvalidChanges()));
         rebuildForm(request);
+    }
+
+    UserException localize(UserException err) {
+        Object[] params = err.getRawParams();
+        if (params != null && params.length > 0) {
+            for (int i = 0; i < params.length; i++) {
+                if (params[i] instanceof Feature) {
+                    params[i] = getMessages().getMessage("feature." + params[i]);
+                }
+            }
+        }
+
+        return err;
     }
 
     void rebuildForm(FeatureChangeRequest request) {

@@ -15,33 +15,33 @@
  */
 package org.sipfoundry.sipxconfig.feature;
 
-import static java.lang.String.format;
-
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 
 public class InvalidChange {
     private Feature m_feature;
     private Location m_location;
-    private String m_message;
+    private UserException m_message;
 
-    public InvalidChange(Feature f, String msg) {
+    public InvalidChange(Feature f, UserException msg) {
         m_feature = f;
         m_message = msg;
     }
 
-    public InvalidChange(LocationFeature f, Location where, String msg) {
+    public InvalidChange(LocationFeature f, Location where, UserException msg) {
         m_feature = f;
         m_location = where;
         m_message = msg;
     }
 
     public static InvalidChange requires(Feature subject, LocationFeature required, Location where) {
-        String msg = format("Feature %s requires feature %s be enabled %s", subject, required, where.getHostname());
-        return new InvalidChange(required, msg);
+        UserException msg = new UserException("&error.requiredFeatureAtLocation", subject, required,
+                where.getHostname());
+        return new InvalidChange(required, where, msg);
     }
 
     public static InvalidChange requires(Feature subject, Feature required) {
-        String msg = format("Feature %s requires feature %s", subject, required);
+        UserException msg = new UserException("&error.requiredFeature", subject, required);
         return new InvalidChange(required, msg);
     }
 
@@ -53,7 +53,7 @@ public class InvalidChange {
         return m_location;
     }
 
-    public String getMessage() {
+    public UserException getMessage() {
         return m_message;
     }
 }

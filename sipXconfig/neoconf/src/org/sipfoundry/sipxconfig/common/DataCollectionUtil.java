@@ -152,6 +152,17 @@ public final class DataCollectionUtil {
         return map.values();
     }
 
+    public static <T extends BeanWithId> Collection<T> remove(Collection<T> a, Collection<T> b) {
+        Map<Integer, T> map = new HashMap<Integer, T>();
+        for (T t : a) {
+            map.put(t.getId(), t);
+        }
+        for (T t : b) {
+            map.remove(t.getId());
+        }
+        return map.values();
+    }
+
     /**
      * Move a single item in the list by specified offset
      *
