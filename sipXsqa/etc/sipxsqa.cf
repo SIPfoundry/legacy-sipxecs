@@ -32,22 +32,6 @@ bundle agent sipxsqa_config {
         perms => m("644"),
         edit_line => sipxsqa_config_contents(),
         classes => if_repaired("restart_sipxsqa");
-
-      "$(sipx.SIPX_CONFDIR)/orbits.xml"
-        comment => "install sipxsqa orbits config $(this.promiser)",
-        create => "true",
-        perms => m("644"),
-        copy_from => copy_from_cfdata("$(sipx.location_id)/orbits.xml"),
-        classes => if_repaired("restart_sipxsqa");
-
-    !primary::
-      "$(sipx.SIPX_VARDIR)/parkserver/music"
-        comment => "sync Parkserver prompts",
-        create => "true",
-        perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
-        copy_from => copy_prompts("$(sipx.master_address)","$(sipx.SIPX_VARDIR)/parkserver/music"),
-        file_select => wav_prompt,
-        depth_search => recurse("1");
 }
 
 bundle edit_line sipxsqa_config_contents {

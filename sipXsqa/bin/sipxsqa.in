@@ -15,7 +15,9 @@
 prog=sipxsqa
 exec="@SIPX_BINDIR@/${prog}"
 config="@SIPX_CONFDIR@/sipxsqa-config"
+mongoconfig="@SIPX_CONFDIR@/mongo-client.ini"
 pidfile="@SIPX_RUNDIR@/sipxsqa.pid"
+logfile="@SIPX_LOGDIR@/sipxsqa.log"
 
 [ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
 
@@ -23,10 +25,19 @@ start() {
     [ -x $exec ] || exit 5
     [ -f $config ] || exit 6
     if [ -n "${NoFork}" ] ; then
-      runuser - @SIPXPBXUSER@ -c $exec --config-file $config
+      runuser - @SIPXPBXUSER@ -c $exec  \
+        --config-file $config \
+        --pid-file $pidfile \
+        --log-file $logfile \
+        --publish-entity-oplog-config $mongoconfig
     else
       echo -n $"Starting $prog: "
-      daemon --user @SIPXPBXUSER@ --pidfile $pidfile $exec --config-file $config --pid-file $pidfile --daemonize
+      daemon --user @SIPXPBXUSER@ --pidfile $pidfile $exec \
+        --config-file $config \
+        --pid-file $pidfile \
+        --log-file $logfile \
+        --publish-entity-oplog-config $mongoconfig \
+        --daemonize
       Status=$?
       echo_success
     fi
@@ -46,7 +57,6 @@ restart() {
 }
 
 configtest() {
-  logfile="@SIPX_LOGDIR@/sipxsqa.log"
   if [ -e $logfile -a ! -w $logfile ]
   then
      echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
