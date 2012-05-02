@@ -21,6 +21,8 @@ import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -56,7 +58,7 @@ public class WebSocketImpl implements FeatureProvider, WebSocket, ProcessProvide
     }
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.ADVANCED) {
+        if (b == Bundle.CORE) {
             b.addFeature(FEATURE);
         }
     }
@@ -66,5 +68,14 @@ public class WebSocketImpl implements FeatureProvider, WebSocket, ProcessProvide
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
         return (enabled ? Collections.singleton(
                 new ProcessDefinition("sipxevent", ".*\\s-Dprocname=sipxevent\\s.*")) : null);
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        // components this required are not available yet -- Douglas
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
     }
 }

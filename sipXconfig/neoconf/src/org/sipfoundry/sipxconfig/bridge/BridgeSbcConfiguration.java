@@ -31,10 +31,14 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
-import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.Bundle;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
@@ -42,7 +46,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.sipfoundry.sipxconfig.tls.TlsPeerManager;
 
-public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener, ProcessProvider {
+public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, FeatureProvider {
     // uses of this definition are not related, just defined in one place to avoid checkstyle err
     private static final String SIPXBRIDGE = "sipxbridge";
     private SbcDeviceManager m_sbcDeviceManager;
@@ -72,35 +76,6 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener, 
         }
     }
 
-    @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-
-        if (feature.equals(ProxyManager.FEATURE) && event == FeatureEvent.PRE_ENABLE) {
-            // HACK: Proxy requires one or more bridges to be running on your system
-            // this should in turn call this function again with BridgeFeature on
-            if (!manager.isFeatureEnabled(BridgeSbcContext.FEATURE)) {
-                manager.enableLocationFeature(BridgeSbcContext.FEATURE, location, true);
-            }
-        }
-
-        if (!feature.equals(BridgeSbcContext.FEATURE)) {
-            return;
-        }
-
-        BridgeSbc bridgeSbc = m_sbcDeviceManager.getBridgeSbc(location);
-        if (event == FeatureEvent.PRE_ENABLE && bridgeSbc == null) {
-            m_sbcDeviceManager.newBridgeSbc(location);
-        }
-        if (event == FeatureEvent.POST_DISABLE && bridgeSbc != null) {
-            m_sbcDeviceManager.deleteSbcDevice(bridgeSbc.getId());
-        }
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
-    }
-
     public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
         m_sbcDeviceManager = sbcDeviceManager;
     }
@@ -110,5 +85,48 @@ public class BridgeSbcConfiguration implements ConfigProvider, FeatureListener, 
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(BridgeSbcContext.FEATURE, location);
         return (enabled ? Collections
                 .singleton(new ProcessDefinition(SIPXBRIDGE, ".*\\s-Dprocname=sipxbridge\\s.*")) : null);
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        validator.requiresGlobalFeature(BridgeSbcContext.FEATURE, NatTraversal.FEATURE);
+        validator.requiresAtLeastOne(BridgeSbcContext.FEATURE, ProxyManager.FEATURE);
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        if (request.hasChanged(BridgeSbcContext.FEATURE)) {
+            for (Location l : request.getLocationsForEnabledFeature(BridgeSbcContext.FEATURE)) {
+                BridgeSbc bridgeSbc = m_sbcDeviceManager.getBridgeSbc(l);
+                if (bridgeSbc == null) {
+                    m_sbcDeviceManager.newBridgeSbc(l);
+                }
+            }
+            for (Location l : request.getLocationsForDisabledFeature(BridgeSbcContext.FEATURE)) {
+                BridgeSbc bridgeSbc = m_sbcDeviceManager.getBridgeSbc(l);
+                if (bridgeSbc != null) {
+                    m_sbcDeviceManager.deleteSbcDevice(bridgeSbc.getId());
+                }
+            }
+        }
+    }
+
+    @Override
+    public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Collection<LocationFeature> getAvailableLocationFeatures(FeatureManager featureManager, Location l) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
+        if (b == Bundle.CORE_TELEPHONY) {
+            b.addFeature(BridgeSbcContext.FEATURE);
+        }
     }
 }

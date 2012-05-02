@@ -86,7 +86,6 @@ public class BridgeSbcTest {
         m_sbc.setSettingValue("bridge-configuration/log-level", "INFO");
         m_sbc.setSettingValue("bridge-configuration/route-inbound-calls-to-extension", "operator");
         m_sbc.setSettingValue("bridge-configuration/log-directory", "/var/log/sipxpbx/");
-        m_sbc.setProxyManager(mgr);
 
         m_sipTrunk = new SipTrunk();
         m_sipTrunk.setDefaults(deviceDefaults);

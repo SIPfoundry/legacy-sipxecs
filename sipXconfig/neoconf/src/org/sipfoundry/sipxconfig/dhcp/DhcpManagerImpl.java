@@ -26,6 +26,8 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.BundleConstraint;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -93,5 +95,13 @@ public class DhcpManagerImpl extends SipxHibernateDaoSupport implements DhcpMana
 
     public void setSettingsDao(BeanWithSettingsDao<DhcpSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
     }
 }

@@ -16,16 +16,16 @@
  */
 package org.sipfoundry.sipxconfig.feature;
 
-import org.sipfoundry.sipxconfig.commserver.Location;
 
 public interface FeatureListener {
 
-    public static enum FeatureEvent {
-        PRE_ENABLE, POST_ENABLE, PRE_DISABLE, POST_DISABLE
-    };
+    /**
+     * Return true is request had to be changed
+     */
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator);
 
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location);
-
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature);
+    /**
+     * Return true is request had to be changed
+     */
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request);
 }

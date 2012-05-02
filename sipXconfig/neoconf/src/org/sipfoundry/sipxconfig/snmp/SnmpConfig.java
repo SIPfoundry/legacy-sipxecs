@@ -31,10 +31,10 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
-import org.sipfoundry.sipxconfig.feature.GlobalFeature;
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
 
@@ -91,20 +91,17 @@ public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListene
         m_snmp = snmp;
     }
 
-    @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-        // cannot tell what processes will become alive/dead
-        m_configManager.configureEverywhere(SnmpManager.FEATURE);
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
-        // cannot tell what processes will become alive/dead
-        m_configManager.configureEverywhere(SnmpManager.FEATURE);
-    }
-
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        // cannot tell what processes will become alive/dead
+        m_configManager.configureEverywhere(SnmpManager.FEATURE);
     }
 }

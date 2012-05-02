@@ -16,18 +16,22 @@
  */
 package org.sipfoundry.sipxconfig.feature;
 
+import static java.lang.String.format;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -40,11 +44,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 /**
- * NOTE: This implementation pays no attention to efficiency.  Should work in caching or optimize queries
- * accordingly if found to be inefficient during testing.
+ * NOTE: This implementation pays no attention to efficiency. Should work in caching or optimize
+ * queries accordingly if found to be inefficient during testing.
  */
 public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanFactoryAware, FeatureManager,
-    DaoEventListener, BundleProvider {
+        DaoEventListener, BundleProvider {
     private ListableBeanFactory m_beanFactory;
     private Collection<FeatureProvider> m_providers;
     private Collection<BundleProvider> m_bundleProviders;
@@ -71,8 +75,8 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
 
     Collection<BundleProvider> getBundleProviders() {
         if (m_bundleProviders == null) {
-            Map<String, BundleProvider> beanMap = safeGetListableBeanFactory().getBeansOfType(
-                    BundleProvider.class, false, false);
+            Map<String, BundleProvider> beanMap = safeGetListableBeanFactory().getBeansOfType(BundleProvider.class,
+                    false, false);
             m_bundleProviders = new ArrayList<BundleProvider>(beanMap.values());
         }
 
@@ -127,11 +131,10 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
         return queryForRowSet.first();
     }
 
-
     @Override
     public boolean isFeatureEnabled(LocationFeature feature) {
-        SqlRowSet queryForRowSet = m_jdbcTemplate.queryForRowSet(
-                "select 1 from feature_local where feature_id = ?", feature.getId());
+        SqlRowSet queryForRowSet = m_jdbcTemplate.queryForRowSet("select 1 from feature_local where feature_id = ?",
+                feature.getId());
         return queryForRowSet.first();
     }
 
@@ -148,26 +151,68 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     }
 
     @Override
-    public void enableGlobalFeatures(Set<GlobalFeature> features) {
-        DeltaSet<GlobalFeature> delta = new DeltaSet<GlobalFeature>(features, getEnabledGlobalFeatures());
-        sendGlobalFeatureEvent(FeatureListener.FeatureEvent.PRE_ENABLE, FeatureListener.FeatureEvent.PRE_DISABLE,
-                delta.m_newlyAdded, delta.m_newlyRemoved);
-        String remove = "delete from feature_global";
-        StringBuilder update = new StringBuilder();
-        for (GlobalFeature f : features) {
-            if (update.length() == 0) {
-                update.append("insert into feature_global values");
-            } else {
-                update.append(',');
-            }
-            update.append("('").append(f.getId()).append("')");
+    public void enableGlobalFeatures(Set<GlobalFeature> features, boolean enable) {
+        FeatureChangeRequest request = FeatureChangeRequest.enable(features, enable);
+        applyFeatureChange(new FeatureChangeValidator(this, request));
+    }
+
+    @Override
+    public void applyFeatureChange(FeatureChangeValidator validator) {
+        validateFeatureChange(validator);
+        if (!validator.isValid()) {
+            // todo better err
+            throw new UserException("invalid feature change request");
+        } else {
+            FeatureChangeRequest request = validator.getRequest();
+            saveFeatureChange(request);
+            sendPostcommitEvent(request);
         }
-        m_jdbcTemplate.batchUpdate(new String[] {
-            remove, update.toString()
-        });
-        sendGlobalFeatureEvent(FeatureListener.FeatureEvent.POST_ENABLE, FeatureListener.FeatureEvent.POST_DISABLE,
-                delta.m_newlyAdded, delta.m_newlyRemoved);
-        m_daoEventPublisher.publishSave(delta);
+    }
+
+    @Override
+    public void validateFeatureChange(FeatureChangeValidator validator) {
+        boolean resubmit;
+        do {
+            resubmit = false;
+            for (FeatureListener listener : getFeatureListeners()) {
+                listener.featureChangePrecommit(this, validator);
+            }
+            if (!validator.isValid()) {
+                Location primary = m_locationsManager.getPrimaryLocation();
+                resubmit = new InvalidChangeResolver().resolve(validator, primary);
+            }
+        } while (resubmit);
+    }
+
+    void sendPostcommitEvent(FeatureChangeRequest request) {
+        for (FeatureListener listener : getFeatureListeners()) {
+            listener.featureChangePostcommit(this, request);
+        }
+    }
+
+    public void saveFeatureChange(FeatureChangeRequest request) {
+        List<String> sql = new ArrayList<String>();
+        if (!request.getDisable().isEmpty()) {
+            sql.add(format("delete from feature_global where feature_id in (%s)", comma(request.getDisable())));
+        }
+        if (!request.getEnable().isEmpty()) {
+            sql.add(format("insert into feature_global values (%s)", comma(request.getEnable())));
+        }
+        for (Entry<Location, Set<LocationFeature>> entry : request.getEnableByLocation().entrySet()) {
+            sql.add(format("insert into feature_local (feature_id, location_id) values (%s, %d)",
+                    comma(entry.getValue()), entry.getKey().getId()));
+        }
+        for (Entry<Location, Set<LocationFeature>> entry : request.getDisableByLocation().entrySet()) {
+            sql.add(format("delete from feature_local where feature_id in (%s) and location_id = %d",
+                    comma(entry.getValue()), entry.getKey().getId()));
+        }
+        m_jdbcTemplate.batchUpdate(sql.toArray(new String[0]));
+    }
+
+    <T> String comma(Collection<T> l) {
+        StringBuilder sb = new StringBuilder();
+        sb.append('\'').append(StringUtils.join(l, "\',\'")).append('\'');
+        return sb.toString();
     }
 
     static class DeltaSet<T extends Feature> implements DeployConfigOnEdit {
@@ -192,33 +237,10 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
         }
     }
 
-    void sendLocationFeatureEvent(FeatureListener.FeatureEvent enable, FeatureListener.FeatureEvent disable,
-            Set<LocationFeature> enabled, Set<LocationFeature> disabled, Location location) {
-        for (FeatureListener listener : getFeatureListeners()) {
-            for (LocationFeature feature : enabled) {
-                listener.enableLocationFeature(this, enable, feature, location);
-            }
-            for (LocationFeature feature : disabled) {
-                listener.enableLocationFeature(this, disable, feature, location);
-            }
-        }
-    }
-
-    void sendGlobalFeatureEvent(FeatureListener.FeatureEvent enable, FeatureListener.FeatureEvent disable,
-            Set<GlobalFeature> enabled, Set<GlobalFeature> disabled) {
-        for (FeatureListener listener : getFeatureListeners()) {
-            for (GlobalFeature feature : enabled) {
-                listener.enableGlobalFeature(this, enable, feature);
-            }
-            for (GlobalFeature feature : disabled) {
-                listener.enableGlobalFeature(this, disable, feature);
-            }
-        }
-    }
-
     @Override
     public Set<GlobalFeature> getEnabledGlobalFeatures() {
-        List<String> queryForList = m_jdbcTemplate.queryForList("select feature_id from feature_global", String.class);
+        List<String> queryForList = m_jdbcTemplate.queryForList("select feature_id from feature_global",
+                String.class);
         Set<GlobalFeature> features = new HashSet<GlobalFeature>(queryForList.size());
         for (String id : queryForList) {
             features.add(new GlobalFeature(id));
@@ -227,7 +249,8 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     }
 
     public Set<LocationFeature> getEnabledLocationFeatures() {
-        List<String> queryForList = m_jdbcTemplate.queryForList("select feature_id from feature_local", String.class);
+        List<String> queryForList = m_jdbcTemplate
+                .queryForList("select feature_id from feature_local", String.class);
         return locationFeatures(queryForList);
     }
 
@@ -247,41 +270,17 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     }
 
     @Override
-    public void enableLocationFeatures(Set<LocationFeature> features, Location location) {
-
-        // Only send sends for changes. newly enabled and newly disabled.
-        DeltaSet<LocationFeature> delta = new DeltaSet<LocationFeature>(features, getEnabledLocationFeatures(location));
-
-        sendLocationFeatureEvent(FeatureListener.FeatureEvent.PRE_ENABLE, FeatureListener.FeatureEvent.PRE_DISABLE,
-                delta.m_newlyAdded, delta.m_newlyRemoved, location);
-        String remove = "delete from feature_local where location_id = " + location.getId();
-        StringBuilder update = new StringBuilder();
-        for (LocationFeature f : features) {
-            if (update.length() == 0) {
-                update.append("insert into feature_local values");
-            } else {
-                update.append(',');
-            }
-            update.append('(');
-            update.append('\'').append(f.getId()).append('\'');
-            update.append(',');
-            update.append(location.getId());
-            update.append(')');
-        }
-        m_jdbcTemplate.batchUpdate(new String[] {
-            remove, update.toString()
-        });
-
-        sendLocationFeatureEvent(FeatureListener.FeatureEvent.POST_ENABLE, FeatureListener.FeatureEvent.POST_DISABLE,
-                delta.m_newlyAdded, delta.m_newlyRemoved, location);
-
-        m_daoEventPublisher.publishSave(delta);
+    public void enableLocationFeatures(Set<LocationFeature> features, Location location, boolean enable) {
+        Map<Location, Set<LocationFeature>> byLocation = new HashMap<Location, Set<LocationFeature>>(1);
+        byLocation.put(location, features);
+        FeatureChangeRequest request = FeatureChangeRequest.enable(byLocation, enable);
+        applyFeatureChange(new FeatureChangeValidator(this, request));
     }
 
     public void enableLocationFeature(LocationFeature feature, Location location, boolean enable) {
         Set<LocationFeature> features = getEnabledLocationFeatures(location);
         if (update(features, feature, enable)) {
-            enableLocationFeatures(features, location);
+            enableLocationFeatures(features, location, enable);
         }
     }
 
@@ -296,7 +295,7 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     public void enableGlobalFeature(GlobalFeature feature, boolean enable) {
         Set<GlobalFeature> features = getEnabledGlobalFeatures();
         if (update(features, feature, enable)) {
-            enableGlobalFeatures(features);
+            enableGlobalFeatures(features, enable);
         }
     }
 
@@ -328,9 +327,11 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     @Override
     public void onDelete(Object entity) {
         if (entity instanceof Location) {
-            // When deleting a location, treat this as if someone disabled all features at this location.
-            Set<LocationFeature> none = Collections.emptySet();
-            enableLocationFeatures(none, (Location) entity);
+            // When deleting a location, treat this as if someone disabled all features at this
+            // location.
+            Location location = (Location) entity;
+            Set<LocationFeature> on = getEnabledLocationFeatures(location);
+            enableLocationFeatures(on, location, false);
         }
     }
 
@@ -360,17 +361,7 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
 
     @Override
     public Collection<Bundle> getBundles(FeatureManager manager) {
-        return Arrays.asList(Bundle.CORE, Bundle.ADVANCED, Bundle.CORE_TELEPHONY, Bundle.ADVANCED_TELEPHONY,
-                Bundle.CALL_CENTER, Bundle.IM, Bundle.PROVISION);
-    }
-
-    @Override
-    public void enableBundleOnPrimary(Bundle b) {
-        HashSet<GlobalFeature> global = new HashSet<GlobalFeature>();
-        HashSet<LocationFeature> local = new HashSet<LocationFeature>();
-        separateGlobalFromLocal(b.getFeatures(), global, local);
-        enableGlobalFeatures(global);
-        enableLocationFeatures(local, m_locationsManager.getPrimaryLocation());
+        return Arrays.asList(Bundle.CORE, Bundle.CORE_TELEPHONY, Bundle.CALL_CENTER, Bundle.IM, Bundle.PROVISION);
     }
 
     void separateGlobalFromLocal(Collection<Feature> features, Set<GlobalFeature> global, Set<LocationFeature> local) {

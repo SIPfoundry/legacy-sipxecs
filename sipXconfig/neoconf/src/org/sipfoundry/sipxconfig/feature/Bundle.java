@@ -16,9 +16,13 @@
  */
 package org.sipfoundry.sipxconfig.feature;
 
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 
 public class Bundle {
 
@@ -26,13 +30,13 @@ public class Bundle {
     public static final Bundle CORE_TELEPHONY = new Bundle("coreTelephony");
 
     /** Minimal VoIP system */
-    public static final Bundle ADVANCED_TELEPHONY = new Bundle("advancedTelephony");
+    //public static final Bundle ADVANCED_TELEPHONY = new Bundle("advancedTelephony");
 
     /** Minimal system plus media services */
     public static final Bundle CORE = new Bundle("core");
 
     /** Minimal system plus media services */
-    public static final Bundle ADVANCED = new Bundle("advanced");
+    //public static final Bundle ADVANCED = new Bundle("advanced");
 
     /** ACD */
     public static final Bundle CALL_CENTER = new Bundle("callCenter");
@@ -46,7 +50,7 @@ public class Bundle {
     /** End-point provisioning */
     public static final Bundle PROVISION = new Bundle("provision");
 
-    public static final Bundle SIP_TRUNKING = new Bundle("sipTrunking");
+    //public static final Bundle SIP_TRUNKING = new Bundle("sipTrunking");
 
     private String m_id;
     private Map<Feature, BundleConstraint> m_features = new HashMap<Feature, BundleConstraint>();
@@ -82,5 +86,21 @@ public class Bundle {
 
     public Collection<Feature> getFeatures() {
         return m_features.keySet();
+    }
+
+    public Collection<GlobalFeature> getGlobalFeatures() {
+        return CollectionUtils.select(m_features.keySet(), new Predicate() {
+            public boolean evaluate(Object arg0) {
+                return arg0 instanceof GlobalFeature;
+            }
+        });
+    }
+
+    public Collection<LocationFeature> getLocationFeatures() {
+        return CollectionUtils.select(m_features.keySet(), new Predicate() {
+            public boolean evaluate(Object arg0) {
+                return arg0 instanceof LocationFeature;
+            }
+        });
     }
 }

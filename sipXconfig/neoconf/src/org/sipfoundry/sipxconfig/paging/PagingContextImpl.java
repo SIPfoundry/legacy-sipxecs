@@ -33,7 +33,8 @@ import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.dialplan.PagingRule;
 import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -42,6 +43,7 @@ import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
@@ -49,7 +51,7 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext, FeatureProvider,
-        AddressProvider, ProcessProvider, FirewallProvider, FeatureListener {
+        AddressProvider, ProcessProvider, FirewallProvider {
 
     /** Default ALERT-INFO - hardcoded in Polycom phone configuration */
     private static final String ALERT_INFO = "sipXpage";
@@ -282,38 +284,27 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.ADVANCED_TELEPHONY) {
+        if (b == Bundle.CORE_TELEPHONY) {
             b.addFeature(FEATURE);
         }
     }
 
     @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-        if (!feature.equals(FEATURE)) {
-            return;
-        }
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        validator.requiresAtLeastOne(FEATURE, ProxyManager.FEATURE);
+    }
 
-        switch (event) {
-        case PRE_ENABLE:
-            if (m_featureManager.isFeatureEnabled(FEATURE)) {
-                throw new UserException("&error.page.enabled");
-            }
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        if (request.getAllNewlyEnabledFeatures().contains(FEATURE)) {
             PagingSettings settings = getSettings();
             if (settings.isNew()) {
                 saveSettings(settings);
             }
-            break;
-        case POST_DISABLE:
-        case POST_ENABLE:
-            m_configManager.configureEverywhere(DialPlanContext.FEATURE);
-            break;
-        default:
-            break;
         }
-    }
 
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
+        if (request.hasChanged(FEATURE)) {
+            m_configManager.configureEverywhere(DialPlanContext.FEATURE);
+        }
     }
 }

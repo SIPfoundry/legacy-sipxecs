@@ -35,7 +35,8 @@ import org.sipfoundry.sipxconfig.dns.DnsManager;
 import org.sipfoundry.sipxconfig.dns.DnsProvider;
 import org.sipfoundry.sipxconfig.dns.ResourceRecords;
 import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -43,13 +44,14 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvider, FeatureListener,
-        ProcessProvider, FirewallProvider {
+public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvider, ProcessProvider,
+    FirewallProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(SIP_UDP, SIP_TCP, HTTP_API);
     private BeanWithSettingsDao<MwiSettings> m_settingsDao;
     private ConfigManager m_configManager;
@@ -122,27 +124,6 @@ public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvid
         return Collections.singletonList(rr);
     }
 
-    @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-        if (!feature.equals(FEATURE)) {
-            return;
-        }
-
-        switch (event) {
-        case POST_DISABLE:
-        case POST_ENABLE:
-            m_configManager.configureEverywhere(DnsManager.FEATURE, DialPlanContext.FEATURE);
-            break;
-        default:
-            break;
-        }
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
-    }
-
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
     }
@@ -157,6 +138,18 @@ public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvid
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
         if (b == Bundle.CORE_TELEPHONY) {
             b.addFeature(FEATURE);
+        }
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        validator.requiresAtLeastOne(FEATURE, Ivr.FEATURE);
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        if (request.hasChanged(FEATURE)) {
+            m_configManager.configureEverywhere(DnsManager.FEATURE, DialPlanContext.FEATURE);
         }
     }
 }

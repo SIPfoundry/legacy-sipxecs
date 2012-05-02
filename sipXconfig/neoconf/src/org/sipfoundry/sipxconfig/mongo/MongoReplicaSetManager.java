@@ -34,11 +34,6 @@ import org.bson.BasicBSONObject;
 import org.sipfoundry.commons.mongo.MongoUtil;
 import org.sipfoundry.commons.mongo.MongoUtil.MongoCommandException;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigException;
-import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.feature.FeatureListener;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
-import org.sipfoundry.sipxconfig.feature.GlobalFeature;
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -57,7 +52,7 @@ import com.mongodb.MongoException;
  * good reasons, replication manipulation like adding or removing servers can only in the local db
  * on the primary server. Priority > 1 will do this.
  */
-public class MongoReplicaSetManager implements FeatureListener {
+public class MongoReplicaSetManager {
     private static final Log LOG = LogFactory.getLog(MongoReplicaSetManager.class);
     private static final String REPLSET = "sipxecs";
     private static final String CHECK_COMMAND = "rs.config()";
@@ -189,25 +184,6 @@ public class MongoReplicaSetManager implements FeatureListener {
             LOG.error(msg, e);
             throw new ConfigException(msg);
         }
-    }
-
-    @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-
-        if (!feature.equals(MongoManager.FEATURE_ID) || feature.equals(MongoManager.ARBITER_FEATURE)) {
-            return;
-        }
-
-        if (event != FeatureEvent.POST_ENABLE || event != FeatureEvent.POST_DISABLE) {
-            return;
-        }
-        // don't check members here, do it after mongo is running on nodes first
-        // checkMembers();
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
     }
 
     public void setLocalDb(MongoTemplate localDb) {

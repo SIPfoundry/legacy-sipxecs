@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.acd.Acd;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
@@ -36,7 +37,8 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -57,8 +59,8 @@ import org.springframework.beans.factory.ListableBeanFactory;
 /**
  * ACD Presence system. Determining when an agent is available.
  */
-public class PresenceServerImpl implements FeatureProvider, AddressProvider, BeanFactoryAware, FeatureListener,
-        PresenceServer, ProcessProvider, FirewallProvider {
+public class PresenceServerImpl implements FeatureProvider, AddressProvider, BeanFactoryAware, PresenceServer,
+    ProcessProvider, FirewallProvider {
     public static final LocationFeature FEATURE = new LocationFeature("acdPresence");
     public static final AddressType HTTP_ADDRESS = new AddressType("acdPresenceApi", "http://%s:%d/RPC2");
     public static final AddressType SIP_TCP_ADDRESS = new AddressType("acdPresenceTcp");
@@ -215,20 +217,6 @@ public class PresenceServerImpl implements FeatureProvider, AddressProvider, Bea
         return addresses;
     }
 
-    @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-        if (feature.equals(PresenceServer.FEATURE)) {
-            if (event == FeatureEvent.PRE_ENABLE) {
-                initialize();
-            }
-        }
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
-    }
-
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
     }
@@ -257,5 +245,17 @@ public class PresenceServerImpl implements FeatureProvider, AddressProvider, Bea
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
         return DefaultFirewallRule.rules(Arrays.asList(HTTP_ADDRESS, SIP_TCP_ADDRESS, SIP_UDP_ADDRESS));
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        validator.requiresAtLeastOne(FEATURE, Acd.FEATURE);
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        if (request.getAllNewlyEnabledFeatures().contains(PresenceServer.FEATURE)) {
+            initialize();
+        }
     }
 }

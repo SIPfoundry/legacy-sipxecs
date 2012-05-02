@@ -24,18 +24,20 @@ import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.dialplan.IntercomRule;
 import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class IntercomManagerImpl extends SipxHibernateDaoSupport implements IntercomManager, BeanFactoryAware,
-        FeatureProvider, FeatureListener {
+        FeatureProvider {
 
     public static final String CONTEXT_BEAN_NAME = "intercomManagerImpl";
     private ConfigManager m_configManager;
@@ -125,41 +127,36 @@ public class IntercomManagerImpl extends SipxHibernateDaoSupport implements Inte
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.ADVANCED_TELEPHONY) {
+        if (b == Bundle.CORE_TELEPHONY) {
             b.addFeature(FEATURE);
-        }
-    }
-
-    @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
-        if (!feature.equals(IntercomManager.FEATURE)) {
-            return;
-        }
-
-        Intercom intercom = getIntercom();
-        if (!intercom.isNew()) {
-            switch (event) {
-            case POST_ENABLE:
-                intercom.setEnabled(true);
-                saveIntercom(intercom);
-                m_configManager.configureEverywhere(DialPlanContext.FEATURE);
-                break;
-            case PRE_DISABLE:
-                intercom.setEnabled(false);
-                saveIntercom(intercom);
-                m_configManager.configureEverywhere(DialPlanContext.FEATURE);
-            default:
-                break;
-            }
         }
     }
 
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        validator.requiresAtLeastOne(FEATURE, ProxyManager.FEATURE);
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        if (request.getAllNewlyEnabledFeatures().contains(IntercomManager.FEATURE)) {
+            enableIntercom(true);
+        }
+        if (request.getAllNewlyDisabledFeatures().contains(IntercomManager.FEATURE)) {
+            enableIntercom(false);
+        }
+    }
+
+    void enableIntercom(boolean enable) {
+        Intercom intercom = getIntercom();
+        if (!intercom.isNew()) {
+            intercom.setEnabled(enable);
+            saveIntercom(intercom);
+        }
+        m_configManager.configureEverywhere(DialPlanContext.FEATURE);
     }
 }

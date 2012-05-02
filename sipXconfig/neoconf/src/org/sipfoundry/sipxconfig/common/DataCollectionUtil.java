@@ -11,9 +11,11 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -137,6 +139,28 @@ public final class DataCollectionUtil {
             BeanWithId bean = (BeanWithId) i.next();
             to.add(bean.duplicate());
         }
+    }
+
+    public static <T extends BeanWithId> Collection<T> merge(Collection<T> a, Collection<T> b) {
+        Map<Integer, T> map = new HashMap<Integer, T>();
+        for (T t : a) {
+            map.put(t.getId(), t);
+        }
+        for (T t : b) {
+            map.put(t.getId(), t);
+        }
+        return map.values();
+    }
+
+    public static <T extends BeanWithId> Collection<T> remove(Collection<T> a, Collection<T> b) {
+        Map<Integer, T> map = new HashMap<Integer, T>();
+        for (T t : a) {
+            map.put(t.getId(), t);
+        }
+        for (T t : b) {
+            map.remove(t.getId());
+        }
+        return map.values();
     }
 
     /**

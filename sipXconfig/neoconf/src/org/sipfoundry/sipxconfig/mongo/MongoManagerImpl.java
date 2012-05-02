@@ -25,12 +25,16 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.BundleConstraint;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.feature.InvalidChange;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
@@ -43,7 +47,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class MongoManagerImpl implements AddressProvider, FeatureProvider, MongoManager, ProcessProvider,
-    SetupListener, FirewallProvider {
+        SetupListener, FirewallProvider {
     private BeanWithSettingsDao<MongoSettings> m_settingsDao;
 
     public MongoSettings getSettings() {
@@ -60,8 +64,7 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Location requester) {
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         if (!type.equalsAnyOf(ADDRESS_ID, ARBITOR_ADDRESS_ID)) {
             return null;
         }
@@ -108,10 +111,12 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
             int nMongos = featureManager.getLocationsForEnabledFeature(FEATURE_ID).size();
             int nArbiters = featureManager.getLocationsForEnabledFeature(ARBITER_FEATURE).size();
 
-            // show arbiters if there are any (so they can potentially disable them when then have odd number
-            // of mongo servers) OR when they have an odd number of mongo servers and should really have an
+            // show arbiters if there are any (so they can potentially disable them when then have
+            // odd number
+            // of mongo servers) OR when they have an odd number of mongo servers and should
+            // really have an
             // arbiter
-            if (nArbiters > 0 || (nMongos % 2) == 0) {
+            if (nMongos > 1) {
                 b.addFeature(ARBITER_FEATURE, BundleConstraint.SINGLE_LOCATION);
             }
         }
@@ -124,5 +129,28 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
             manager.getFeatureManager().enableLocationFeature(FEATURE_ID, primary, true);
             manager.setSetup(FEATURE_ID.getId());
         }
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        Collection<Location> mongos = validator.getLocationsForEnabledFeature(FEATURE_ID);
+        Collection<Location> arbiters = validator.getLocationsForEnabledFeature(ARBITER_FEATURE);
+        if ((mongos.size() % 2) == 0) {
+            if (arbiters.size() != 1) {
+                UserException err = new UserException("&error.missingMongoArbiter");
+                InvalidChange needArbiter = new InvalidChange(ARBITER_FEATURE, err);
+                validator.getInvalidChanges().add(needArbiter);
+            }
+        } else {
+            if (arbiters.size() != 0) {
+                UserException err = new UserException("&error.extraMongoArbiter");
+                InvalidChange removeArbiter = new InvalidChange(ARBITER_FEATURE, err);
+                validator.getInvalidChanges().add(removeArbiter);
+            }
+        }
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
     }
 }

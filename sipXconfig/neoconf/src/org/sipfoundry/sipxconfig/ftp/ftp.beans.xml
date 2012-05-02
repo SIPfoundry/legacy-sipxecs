@@ -30,6 +30,7 @@
 
   <bean id="ftpConfig" class="org.sipfoundry.sipxconfig.ftp.FtpConfig">
     <property name="ftpManager" ref="ftpManager"/>
+    <property name="configManager" ref="configManager"/>
   </bean>
 
 </beans>

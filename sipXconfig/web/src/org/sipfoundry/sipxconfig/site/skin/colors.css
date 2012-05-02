@@ -239,6 +239,11 @@ form.with-sections legend
 {
 }
 
+.hilite-user-error
+{
+	background: #CC3333;
+}
+
 .user-error
 {
 	color: #CC3333;

@@ -17,21 +17,15 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
-import org.sipfoundry.sipxconfig.feature.FeatureProvider;
-import org.sipfoundry.sipxconfig.feature.GlobalFeature;
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-public class SbcManagerImpl extends SipxHibernateDaoSupport implements SbcManager, BeanFactoryAware, FeatureProvider {
+public class SbcManagerImpl extends SipxHibernateDaoSupport implements SbcManager, BeanFactoryAware {
     private DomainManager m_domainManager;
     private BeanFactory m_beanFactory;
 
@@ -122,22 +116,5 @@ public class SbcManagerImpl extends SipxHibernateDaoSupport implements SbcManage
         sbcRoutes.setDomains(domains);
 
         return sbcRoutes;
-    }
-
-    @Override
-    public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
-        return null;
-    }
-
-    @Override
-    public Collection<LocationFeature> getAvailableLocationFeatures(FeatureManager featureManager, Location l) {
-        return null;
-    }
-
-    @Override
-    public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.SIP_TRUNKING) {
-            b.addFeature(FEATURE);
-        }
     }
 }

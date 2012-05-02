@@ -1,15 +1,15 @@
 <span jwcid="$content$">
-  <span jwcid="@common/ErrorMsg" validator="ognl:validator"/>
   <span jwcid="@common/QuickHelp" value="ognl:messages.getMessage('bundle.' + bundleId + '.description')" />
-  <form jwcid="@Form" id="configureBundler" delegate="bean:validator">
+  <form jwcid="configureBundler@Form" id="configureBundler" delegate="bean:validator" refresh="listener:validate">
+    <span jwcid="@Script" scriptAsset="asset:script" />
     <div class="tableDiv">
       <table class="component">
         <thead>
           <tr>
             <th class="activeColumnHeader"></th>
-            <th class="activeColumnHeader"><span key="all"/>  <input type="checkbox" onclick="alert('coming soon')"></th>
+            <th class="activeColumnHeader"><span key="all"/></th>
             <span jwcid="@For" source="ognl:locations" value="ognl:locationObject">
-              <th class="activeColumnHeader"><span jwcid="@Insert" value="ognl:locationObject.hostname"/>  <input type="checkbox" onclick="alert('coming soon')"></th>
+              <th class="activeColumnHeader"><span jwcid="@Insert" value="ognl:locationObject.hostname"/></th>
             </span>
           </tr>
         </thead>
@@ -21,8 +21,8 @@
                 jwcid="@Insert" value="ognl:messages.getMessage('feature.' + feature.id)" /></span></td>
             <span jwcid="@RenderBlock" block="ognl:components.get(constraintBlockId)"/>
             <span jwcid="global@Block">
-               <td style="text-align:center" class="activeColumnValue" jwcid="@Any">
-                 <input jwcid="@Checkbox" value="ognl:globalFeatureEnabled"/>
+               <td style="text-align:center" class="ognl:cellClass" jwcid="@Any">
+                 <input jwcid="@Checkbox" value="ognl:globalFeatureEnabled" onclick="javascript: validateBundle()"/>
                </td>                
               <td jwcid="@Any" colspan="ognl:locations.size"/>
             </span>
@@ -30,20 +30,21 @@
               <td/>
               <span jwcid="@RadioGroup" selected="ognl:pickedSingleCell">
                 <span jwcid="@For" source="ognl:cells" value="ognl:cell" converter="ognl:cellConverter">
-                  <td class="activeColumnValue"><input jwcid="@Radio" value="ognl:cell" disabled="ognl:!cell.enabled"/></td>
+                  <td style="text-align:center" class="ognl:cellClass" jwcid="@Any"><input jwcid="@Radio" value="ognl:cell" disabled="ognl:!cell.enabled"  onclick="javascript: validateBundle()"/></td>
                 </span>
               </span>
             </span>
             <span jwcid="pickAny@Block">
               <td/>
               <span jwcid="@For" source="ognl:cells" value="ognl:cell" converter="ognl:cellConverter">
-                <td class="activeColumnValue"><input jwcid="@Checkbox" value="ognl:cellPickedFromAnyInRow"  disabled="ognl:!cell.enabled"/></td>
+                <td style="text-align:center" class="ognl:cellClass" jwcid="@Any"><input jwcid="@Checkbox" value="ognl:cellPickedFromAnyInRow"  disabled="ognl:!cell.enabled"  onclick="javascript: validateBundle()"/></td>
               </span>
             </span>
           </tr>
         </span>
         </tbody>
       </table>
+      <span jwcid="@common/ErrorMsg" validator="ognl:validator"/>
     </div>
     <span jwcid="@common/FormActions" callback="ognl:page.callback" listener="listener:save" validator="bean:validator"/>
   </form>

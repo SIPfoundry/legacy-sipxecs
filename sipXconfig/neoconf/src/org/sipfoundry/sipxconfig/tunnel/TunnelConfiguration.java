@@ -36,10 +36,10 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
-import org.sipfoundry.sipxconfig.feature.GlobalFeature;
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.CustomFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallCustomRuleProvider;
@@ -165,20 +165,6 @@ public class TunnelConfiguration implements ConfigProvider, FeatureListener, Fir
     }
 
     @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-        // every feature enable/disable will trigger firewall rules to reconfig
-        // because cannot tell what this affects
-        m_configManager.configureEverywhere(FirewallManager.FEATURE);
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
-        // see enableLocationFeature
-        m_configManager.configureEverywhere(FirewallManager.FEATURE);
-    }
-
-    @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
         return null;
     }
@@ -204,5 +190,18 @@ public class TunnelConfiguration implements ConfigProvider, FeatureListener, Fir
 
     public void setCertificateManager(CertificateManager certificateManager) {
         m_certificateManager = certificateManager;
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        // firewall will be configured with "transparent proxy" rules to leverage tunnels
+        validator.requiresGlobalFeature(TunnelManager.FEATURE, FirewallManager.FEATURE);
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        // every feature enable/disable will trigger firewall rules to reconfig
+        // because cannot tell what this affects
+        m_configManager.configureEverywhere(FirewallManager.FEATURE);
     }
 }

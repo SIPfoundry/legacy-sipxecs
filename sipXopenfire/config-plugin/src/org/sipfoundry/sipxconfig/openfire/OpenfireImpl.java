@@ -28,6 +28,8 @@ import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -130,5 +132,14 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
         List<DefaultFirewallRule> rules = DefaultFirewallRule.rules(Arrays.asList(XMLRPC_ADDRESS, WATCHER_ADDRESS));
         rules.add(new DefaultFirewallRule(XMPP_ADDRESS, FirewallRule.SystemId.PUBLIC));
         return rules;
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {        
+        // require postgres ? that's about all i can think of but we do not have a role for that -- Douglas
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
     }
 }

@@ -16,7 +16,6 @@
  */
 package org.sipfoundry.sipxconfig.nattraversal;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,7 +28,8 @@ import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -44,8 +44,8 @@ import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class NatTraversalImpl implements FeatureListener, NatTraversal, FeatureProvider, ProcessProvider,
-    FirewallProvider, AddressProvider {
+public class NatTraversalImpl implements NatTraversal, FeatureProvider, ProcessProvider, FirewallProvider,
+    AddressProvider {
     private BeanWithSettingsDao<NatSettings> m_settingsDao;
 
     public NatSettings getSettings() {
@@ -54,30 +54,6 @@ public class NatTraversalImpl implements FeatureListener, NatTraversal, FeatureP
 
     public void saveSettings(NatSettings settings) {
         m_settingsDao.upsert(settings);
-    }
-
-    @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
-        if (feature.equals(FEATURE)) {
-            if (event == FeatureEvent.PRE_ENABLE) {
-                NatSettings settings = getSettings();
-                if (!settings.isBehindNat()) {
-                    settings.setBehindNat(true);
-                    saveSettings(settings);
-                }
-            } else if (event == FeatureEvent.PRE_DISABLE) {
-                NatSettings settings = getSettings();
-                if (settings.isBehindNat()) {
-                    settings.setBehindNat(false);
-                    saveSettings(settings);
-                }
-            }
-        }
     }
 
     public void setSettingsDao(BeanWithSettingsDao<NatSettings> settingsDao) {
@@ -135,5 +111,22 @@ public class NatTraversalImpl implements FeatureListener, NatTraversal, FeatureP
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
         return Arrays.asList(new DefaultFirewallRule(RELAY_RTP, FirewallRule.SystemId.PUBLIC));
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        validator.requiresAtLeastOne(FEATURE, ProxyManager.FEATURE);
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        if (request.hasChanged(FEATURE)) {
+            NatSettings settings = getSettings();
+            if (!settings.isBehindNat()) {
+                boolean enable = request.getAllNewlyEnabledFeatures().contains(FEATURE);
+                settings.setBehindNat(enable);
+                saveSettings(settings);
+            }
+        }
     }
 }

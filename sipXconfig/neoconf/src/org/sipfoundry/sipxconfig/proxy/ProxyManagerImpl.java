@@ -28,12 +28,14 @@ import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
 import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
+import org.sipfoundry.sipxconfig.bridge.BridgeSbcContext;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dns.DnsManager;
 import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -42,13 +44,15 @@ import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
+import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
+import org.sipfoundry.sipxconfig.registrar.Registrar;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressProvider, ProcessProvider,
-    FeatureListener, AlarmProvider, FirewallProvider {
+    AlarmProvider, FirewallProvider {
     public static final LocationFeature FEATURE = new LocationFeature("proxy");
     public static final AddressType TCP_ADDRESS = AddressType.sipTcp("proxyTcp");
     public static final AddressType UDP_ADDRESS = AddressType.sipUdp("procyUdp");
@@ -121,27 +125,6 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
         return (enabled ? Collections.singleton(new ProcessDefinition("sipXproxy")) : null);
     }
 
-    @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-        if (!feature.equals(FEATURE)) {
-            return;
-        }
-
-        switch (event) {
-        case POST_DISABLE:
-        case POST_ENABLE:
-            m_configManager.configureEverywhere(DnsManager.FEATURE, DialPlanContext.FEATURE);
-            break;
-        default:
-            break;
-        }
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
-    }
-
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
     }
@@ -155,6 +138,22 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
         if (b == Bundle.CORE_TELEPHONY) {
             b.addFeature(FEATURE);
+        }
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        // ugh, just because proxy reads the config file to determine gateways
+        validator.requiredOnSameHost(FEATURE, BridgeSbcContext.FEATURE);
+        validator.requiredOnSameHost(FEATURE, Registrar.FEATURE);
+        // ideal case, this is not nec. but it is now
+        validator.requiresGlobalFeature(FEATURE, NatTraversal.FEATURE);
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        if (request.hasChanged(FEATURE)) {
+            m_configManager.configureEverywhere(DnsManager.FEATURE, DialPlanContext.FEATURE);
         }
     }
 }

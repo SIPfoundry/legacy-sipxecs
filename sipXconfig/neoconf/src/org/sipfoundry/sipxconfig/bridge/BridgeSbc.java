@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.bridge;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,23 +17,23 @@ import java.util.List;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.SipTrunk;
-import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.sbc.SbcDevice;
-import org.sipfoundry.sipxconfig.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.springframework.beans.factory.annotation.Required;
 
-public class BridgeSbc extends SbcDevice {
+public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
     public static final String LOG_SETTING = "bridge-configuration/log-level";
     public static final String LOCATION_ID_SETTING = "bridge-configuration/location-id";
     public static final String ITSP_PROXY_DOMAIN_SETTING = "itsp-account/itsp-proxy-domain";
@@ -46,7 +47,6 @@ public class BridgeSbc extends SbcDevice {
     private GatewayContext m_gatewayContext;
     private LocationsManager m_locationsManager;
     private Location m_location;
-    private ProxyManager m_proxyManager;
     private ConfigManager m_configManager;
 
     @Required
@@ -254,11 +254,7 @@ public class BridgeSbc extends SbcDevice {
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Arrays.asList((Feature) SbcManager.FEATURE, (Feature) BridgeSbcContext.FEATURE);
-    }
-
-    public void setProxyManager(ProxyManager proxyManager) {
-        m_proxyManager = proxyManager;
+        return Arrays.asList((Feature) DialPlanContext.FEATURE, (Feature) BridgeSbcContext.FEATURE);
     }
 
     public void setConfigManager(ConfigManager configManager) {

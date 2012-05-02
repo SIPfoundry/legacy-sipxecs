@@ -35,7 +35,8 @@ import org.sipfoundry.sipxconfig.dns.DnsManager;
 import org.sipfoundry.sipxconfig.dns.DnsProvider;
 import org.sipfoundry.sipxconfig.dns.ResourceRecords;
 import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -43,6 +44,7 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
@@ -52,7 +54,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFactoryAware, Registrar,
-        FeatureListener, DnsProvider, ProcessProvider, FirewallProvider {
+        DnsProvider, ProcessProvider, FirewallProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
         TCP_ADDRESS, UDP_ADDRESS, PRESENCE_MONITOR_ADDRESS, EVENT_ADDRESS
     });
@@ -134,33 +136,6 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
     }
 
     @Override
-    public void enableLocationFeature(FeatureManager manager, FeatureEvent event, LocationFeature feature,
-            Location location) {
-        if (!feature.equals(Registrar.FEATURE)) {
-            return;
-        }
-
-        switch (event) {
-        case PRE_ENABLE:
-            RegistrarSettings settings = getSettings();
-            if (settings.isNew()) {
-                saveSettings(settings);
-            }
-            break;
-        case POST_DISABLE:
-        case POST_ENABLE:
-            m_configManager.configureEverywhere(DnsManager.FEATURE, DialPlanContext.FEATURE);
-            break;
-        default:
-            break;
-        }
-    }
-
-    @Override
-    public void enableGlobalFeature(FeatureManager manager, FeatureEvent event, GlobalFeature feature) {
-    }
-
-    @Override
     public Address getAddress(DnsManager manager, AddressType t, Collection<Address> addresses, Location whoIsAsking) {
         if (!t.equals(Registrar.TCP_ADDRESS)) {
             return null;
@@ -192,6 +167,24 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
         if (b == Bundle.CORE_TELEPHONY) {
             b.addFeature(FEATURE);
+        }
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        validator.requiredOnSameHost(FEATURE, ProxyManager.FEATURE);
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        if (request.getAllNewlyEnabledFeatures().contains(FEATURE)) {
+            RegistrarSettings settings = getSettings();
+            if (settings.isNew()) {
+                saveSettings(settings);
+            }
+        }
+        if (request.hasChanged(FEATURE)) {
+            m_configManager.configureEverywhere(DnsManager.FEATURE, DialPlanContext.FEATURE);
         }
     }
 }
