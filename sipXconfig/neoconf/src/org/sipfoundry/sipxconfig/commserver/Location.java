@@ -363,12 +363,17 @@ public class Location extends BeanWithId implements DeployConfigOnEdit {
      * Convenience method to turn collection of locations into addresses
      */
     public static List<Address> toAddresses(AddressType t, Collection<Location> locations) {
+        return toAddresses(t, locations, -1);
+    }
+
+    public static List<Address> toAddresses(AddressType t, Collection<Location> locations, int port) {
         if (locations == null || locations.size() == 0) {
             return Collections.emptyList();
         }
         List<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location l : locations) {
-            addresses.add(new Address(t, l.getAddress()));
+            Address a = (port > 0 ? new Address(t, l.getAddress(), port) : new Address(t, l.getAddress()));
+            addresses.add(a);
         }
         return addresses;
     }

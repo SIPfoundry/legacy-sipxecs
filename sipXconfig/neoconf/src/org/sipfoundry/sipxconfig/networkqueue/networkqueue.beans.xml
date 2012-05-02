@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="networkQueueManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.networkqueue.NetworkQueueManager</value>
+    </property>
+    <property name="target">
+      <ref local="networkQueueManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="networkQueueManagerImpl" class="org.sipfoundry.sipxconfig.networkqueue.NetworkQueueManagerImpl" parent="abstractDaoImpl">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.networkqueue.NetworkQueueSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+  </bean>
+  
+  <bean id="networkQueueSettings" class="org.sipfoundry.sipxconfig.networkqueue.NetworkQueueSettings" parent="settingsBean">
+  </bean>
+</beans>

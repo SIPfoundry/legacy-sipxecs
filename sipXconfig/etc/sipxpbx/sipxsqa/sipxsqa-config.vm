@@ -1,7 +1,0 @@
-sqa-log-level : $settings.getSetting('SQA_LOG_LEVEL').Value
-zmq-subscription-address : ${location.address}:${sqaService.zmqPort}
-sqa-control-port : $sqaService.controlPort
-sqa-control-address : $location.address
-
-
-

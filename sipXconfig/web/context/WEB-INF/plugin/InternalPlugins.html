@@ -51,6 +51,9 @@
   <li jwcid="@If" condition="ognl:isOn('firewall')">
     <a jwcid="@PageLink" page="firewall/ManageFirewall"><span key="menu.firewall.featureMenu"/></a>
   </li>
+  <li jwcid="@If" condition="ognl:isOn('sipxsqa')">
+    <a jwcid="@PageLink" page="networkqueue/EditNetworkQueue"><span key="menu.sipxsqa.featureMenu"/></a>
+  </li>
   <li jwcid="@If" condition="ognl:isOn('tunnel')">
     <a jwcid="@PageLink" page="tunnel/EditTunnel"><span key="menu.tunnel.featureMenu"/></a>
   </li>

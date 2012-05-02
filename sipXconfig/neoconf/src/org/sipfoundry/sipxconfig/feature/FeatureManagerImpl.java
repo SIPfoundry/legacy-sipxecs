@@ -54,6 +54,7 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     private JdbcTemplate m_jdbcTemplate;
     private LocationsManager m_locationsManager;
     private List<Bundle> m_bundles;
+    private boolean m_showExperimentalBundles = true;
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
@@ -373,7 +374,12 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
 
     @Override
     public Collection<Bundle> getBundles(FeatureManager manager) {
-        return Arrays.asList(Bundle.CORE, Bundle.CORE_TELEPHONY, Bundle.CALL_CENTER, Bundle.IM, Bundle.PROVISION);
+        List<Bundle> bundles = new ArrayList<Bundle>(Arrays.asList(Bundle.CORE, Bundle.CORE_TELEPHONY,
+                Bundle.CALL_CENTER, Bundle.IM, Bundle.PROVISION));
+        if (m_showExperimentalBundles) {
+            bundles.add(Bundle.EXPERIMENTAL);
+        }
+        return bundles;
     }
 
     void separateGlobalFromLocal(Collection<Feature> features, Set<GlobalFeature> global, Set<LocationFeature> local) {
@@ -398,5 +404,9 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
             }
         }
         return null;
+    }
+
+    public void setShowExperimentalBundles(boolean showExperimentalBundles) {
+        m_showExperimentalBundles = showExperimentalBundles;
     }
 }
