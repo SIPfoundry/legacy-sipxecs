@@ -1,0 +1,84 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# sipXpark configuration and process management
+#
+bundle agent sipxsqa {
+  methods:
+    sipxsqa::
+      "any" usebundle => "sipxsqa_config";
+    any::
+      "any" usebundle => "sipxsqa_setup";
+      "any" usebundle => "sipxsqa_running";
+}
+
+bundle agent sipxsqa_config {
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipxsqa-config"
+        comment => "install sipxsqa config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => sipxsqa_config_contents(),
+        classes => if_repaired("restart_sipxsqa");
+}
+
+bundle edit_line sipxsqa_config_contents {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxsqa-config.part"
+        insert_type => "file";
+      "sqa-control-address : $(sipx.bind_ip)";
+      "sqa-control-port : 5240";
+      "zmq-subscription-address : $(sipx.bind_ip):5242";
+
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle agent sipxsqa_setup {
+  methods:
+    !src.sipxsqa::
+      "any" usebundle => rh_chkconfig_status("sipxsqa on");
+    !src.!sipxsqa::
+      "any" usebundle => rh_chkconfig_status("sipxsqa off");
+}
+
+bundle agent sipxsqa_running {
+  vars:
+    any::
+      "service_command" string => "$(sipx.SIPX_BINDIR)/sipxsqa";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxsqa_running");
+
+  commands:
+    (!sipxsqa|stop_sipxecs).sipxsqa_running::
+      "$(sipx.SIPX_SERVICEDIR)/sipxsqa"
+        comment => "stop sipxsqa",
+        args => "stop";
+
+    sipxsqa.!sipxsqa_running::
+      "$(sipx.SIPX_SERVICEDIR)/sipxsqa"
+        comment => "start sipxsqa",
+        args => "start";
+
+    sipxsqa.sipxsqa_running.restart_sipxsqa::
+      "$(sipx.SIPX_SERVICEDIR)/sipxsqa"
+        comment => "restart sipxsqa",
+        args => "restart";
+}
+

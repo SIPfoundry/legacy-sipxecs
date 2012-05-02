@@ -28,6 +28,7 @@
 #include <os/OsEventMsg.h>
 #include <os/OsMsg.h>
 
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -45,16 +46,34 @@ static const char dumpStateUri[] = "~~rl~D~dumpstate";
 // Constructor
 ResourceListTask::ResourceListTask(ResourceListServer* parent) :
    OsServerTask("ResourceListTask-%d"),
-   mResourceListServer(parent)
+   mResourceListServer(parent),
+   _pSqaNotifier(0)
 {
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListTask:: this = %p, mResourceListServer = %p",
                  this, mResourceListServer);
+
+   //
+   // Initialize State Queue Agent Publisher if an address is provided
+   //
+   std::string sqaControlAddress;
+   std::string sqaControlPort;
+   mResourceListServer->getSqaControlAddress(sqaControlAddress, sqaControlPort);
+   if (!sqaControlAddress.empty() && !sqaControlPort.empty())
+   {
+     _pSqaNotifier = new StateQueueNotification(sqaControlAddress, sqaControlPort);
+     _pSqaNotifier->run();
+   }
 }
 
 // Destructor
 ResourceListTask::~ResourceListTask()
 {
+  if (_pSqaNotifier)
+  {
+    _pSqaNotifier->stop();
+    delete _pSqaNotifier;
+  }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -136,6 +155,9 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
       getResourceListServer()->getResourceListSet().
          notifyEventCallbackSync(pNotifyMsg->getDialogHandle(),
                                  pNotifyMsg->getContent());
+
+      handleNotifyRequest(*((SipMessageEvent&) rMsg).getMessage());
+
       handled = TRUE;
    }
    else if (rMsg.getMsgType() == OsMsg::PHONE_APP &&
@@ -209,6 +231,64 @@ void ResourceListTask::handleMessageRequest(const SipMessage& msg)
 
    // Send the response.
    getResourceListServer()->getServerUserAgent().send(response);
+}
+
+void ResourceListTask::handleNotifyRequest(const SipMessage& msg)
+{
+  //
+  // Extract the notification data and publish it to SQA
+  //
+  if (!_pSqaNotifier)
+    return;
+
+
+  //std::string contact;
+  //std::string content;
+  //std::string key;
+
+  //
+  // Extract the aor
+  //
+  Url fromUrl;
+  UtlString aor;
+  msg.getFromUrl(fromUrl);
+  fromUrl.getIdentity(aor);
+
+  //
+  // Extract the contact
+  //
+  UtlString contactStr;
+  msg.getContactEntry (0, &contactStr);
+
+  //
+  // Extract the content
+  //
+  UtlString bodyStr;
+  if (msg.getBody())
+  {
+    const char* body = msg.getBody()->getBytes();
+    if (body)
+      bodyStr = body;
+  }
+
+  //
+  // Extract the dialoghandle and make it our key
+  //
+  UtlString dialogHandle;
+  msg.getDialogHandle(dialogHandle);
+
+  if (!aor.isNull() && !bodyStr.isNull() && !dialogHandle.isNull())
+  {
+    StateQueueNotification::NotifyData notifyData;
+    notifyData.aor = aor.data();
+    notifyData.content = bodyStr.data();
+    notifyData.key = dialogHandle.data();
+
+    if (!contactStr.isNull())
+      notifyData.contact = contactStr.data();
+
+    _pSqaNotifier->enqueue(notifyData);
+  }
 }
 
 // Dump the state of the RLS into the log.

@@ -5,4 +5,6 @@ SUBDIRS = \
 	. \
 	include \
 	src \
-	src/plugin
+	src/plugin \
+	bin \
+	etc

@@ -1,0 +1,96 @@
+#!@BASH@
+# sipxsqa - Startup script for sipxsqa
+
+# chkconfig: 35 85 15
+# description: sipxsqa is a SIP park for telecommunications
+# processname: sipXsqa
+
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+. /etc/rc.d/init.d/functions || exit 1
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+prog=sipxsqa
+exec="@SIPX_BINDIR@/${prog}"
+config="@SIPX_CONFDIR@/sipxsqa-config"
+mongoconfig="@SIPX_CONFDIR@/mongo-client.ini"
+pidfile="@SIPX_RUNDIR@/sipxsqa.pid"
+logfile="@SIPX_LOGDIR@/sipxsqa.log"
+
+[ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
+
+start() {
+    [ -x $exec ] || exit 5
+    [ -f $config ] || exit 6
+    if [ -n "${NoFork}" ] ; then
+      runuser - @SIPXPBXUSER@ -c $exec  \
+        --config-file $config \
+        --pid-file $pidfile \
+        --log-file $logfile \
+        --publish-entity-oplog-config $mongoconfig
+    else
+      echo -n $"Starting $prog: "
+      daemon --user @SIPXPBXUSER@ --pidfile $pidfile $exec \
+        --config-file $config \
+        --pid-file $pidfile \
+        --log-file $logfile \
+        --publish-entity-oplog-config $mongoconfig \
+        --daemonize
+      Status=$?
+      echo_success
+    fi
+}
+
+stop() {
+  echo -n $"Stopping sipXsqa: "
+  killproc -p "${pidfile}" -t30 -TERM "${binfile}"
+  Status=$?
+  echo
+  [ $Status -eq 0 ] && rm -f "${pidfile}"
+}
+
+restart() {
+  stop
+  start
+}
+
+configtest() {
+  if [ -e $logfile -a ! -w $logfile ]
+  then
+     echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+     Status=1
+  fi
+}
+
+case "$1" in
+  nofork)
+    NoFork=1
+    start
+    ;;
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    restart
+    ;;
+  condrestart)
+    [ -f ${pidfile} ] && restart || :
+    ;;
+  status)
+    status -p "${pidfile}" "${prog}"
+    Status=$?
+    ;;
+  configtest)
+    configtest
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart|nofork}"
+    Status=1
+esac
+
+exit $Status

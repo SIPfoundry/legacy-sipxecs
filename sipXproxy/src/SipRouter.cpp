@@ -52,6 +52,7 @@ const char* AuthPlugin::Prefix  = "SIPX_PROXY";
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 static SipBridgeRouter* _pBridgeRouter = 0;
+#define SIPX_PROXY_ENABLE_BRIDGE_ROUTER 0
 
 /* ============================ CREATORS ================================== */
 
@@ -169,6 +170,8 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
                                       NULL,    // SipSession* pSession,
                                       NULL     // observerData
                                       );
+
+#if SIPX_PROXY_ENABLE_BRIDGE_ROUTER
    if (_pBridgeRouter)
     delete _pBridgeRouter;
    _pBridgeRouter = new SipBridgeRouter(this);
@@ -179,7 +182,8 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
       delete _pBridgeRouter;
       _pBridgeRouter = 0;
    }
-
+#endif
+   
    MongoDB::ConnectionInfo info(MongoDB::ConnectionInfo::connectionStringFromFile(), EntityDB::NS);
    mpEntityDb = new EntityDB(info);
 
@@ -338,6 +342,7 @@ SipRouter::handleMessage( OsMsg& eventMessage )
              else
              {
 								bool isBridgeRelay = false;
+#if SIPX_PROXY_ENABLE_BRIDGE_ROUTER
 								if (_pBridgeRouter && _pBridgeRouter->isEnabled())
 								{
 									SipMessage bridgeResponse;
@@ -375,7 +380,7 @@ SipRouter::handleMessage( OsMsg& eventMessage )
 											assert(false);
 									}
 								}
-
+#endif
 								if (!isBridgeRelay)
 								{
 		              SipMessage sipResponse;
