@@ -20,6 +20,7 @@ BuildRequires: sipxmediaadapterlib-devel >= %version
 BuildRequires: sipxmedialib-devel >= %version
 BuildRequires: sipxportlib-devel >= %version
 BuildRequires: sipxtacklib-devel >= %version
+BuildRequires: sipxsqa-devel >= %version
 
 Source:   %name-%version.tar.gz
 Obsoletes: %name-devel

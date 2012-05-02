@@ -31,6 +31,17 @@ combined with ZeroMQ Message Queue .
 %debug_package
 %endif
 
+%package server
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Internal documentation for %name
+Requires: %name
+Requires: sipxcommserverlib >= %version
+Requires: sipxsupervisor >= %version
+
+%description server
+SQA Network Queue server
+
 %package devel
 Requires: %name
 Group: Development/Libraries
@@ -58,9 +69,13 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_bindir}/sipxsqa
 %attr(755,root,root) %{_libdir}/plugins/libsqaclient_plugin.so*
 %attr(755,root,root) %{_libdir}/libsipXsqa.so*
+
+%files server
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxsqa
+%attr(755,root,root) %{_bindir}/sipxsqa
 
 %files devel
 %defattr(644,root,root,755)
