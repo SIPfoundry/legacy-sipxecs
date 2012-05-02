@@ -69,8 +69,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/plugins/libsqaclient_plugin.so*
+%attr(755,root,root) %{_libdir}/plugin/libsqaclient_plugin.so*
 %attr(755,root,root) %{_libdir}/libsipXsqa.so*
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxsqa.cf
 
 %files server
 %defattr(644,root,root,755)
@@ -79,7 +80,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/plugins/libsqaclient_plugin.la
+%attr(755,root,root) %{_libdir}/plugin/libsqaclient_plugin.la
 %attr(755,root,root) %{_libdir}/libsipXsqa.la
 %{_includedir}/sqa/*
 
