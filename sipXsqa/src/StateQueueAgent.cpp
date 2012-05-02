@@ -27,9 +27,11 @@ StateQueueAgent::StateQueueAgent(ServiceOptions& options) :
   _pEntityDb(0),
   _pEntityDbConnectionInfo(0)
 {
-  _options.getOption("zmq-subscription-address", _publisherAddress);
-  OS_LOG_INFO(FAC_NET, "StateQueueAgent CREATED.");
-
+    std::string port;
+    _options.getOption("zmq-subscription-address", _publisherAddress);
+    _options.getOption("zmq-subscription-port", port);
+    _publisherAddress.append(":").append(port);
+    OS_LOG_INFO(FAC_NET, "StateQueueAgent CREATED.");
 }
 
 StateQueueAgent::~StateQueueAgent()

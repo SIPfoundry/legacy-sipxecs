@@ -6,28 +6,28 @@
   <type id="loglevel">
     <enum>
       <option>
-        <value>DEBUG</value>
+        <value>7</value>
       </option>
       <option>
-        <value>INFO</value>
+        <value>6</value>
       </option>
       <option>
-        <value>NOTICE</value>
+        <value>5</value>
       </option>
       <option>
-        <value>WARNING</value>
+        <value>4</value>
       </option>
       <option>
-        <value>ERR</value>
+        <value>3</value>
       </option>
       <option>
-        <value>CRIT</value>
+        <value>2</value>
       </option>
       <option>
-        <value>ALERT</value>
+        <value>1</value>
       </option>
       <option>
-        <value>EMERG</value>
+        <value>0</value>
       </option>
     </enum>
   </type>
@@ -35,9 +35,9 @@
     <integer min="1025" max="65535" />
   </type>
   <group name="sqa-config">
-    <setting name="sqa-log-level">
+    <setting name="log-level">
       <type refid="loglevel" />
-      <value>NOTICE</value>
+      <value>5</value>
     </setting>
     <setting name="sqa-control-port">
       <type refid="port" />

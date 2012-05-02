@@ -7,16 +7,16 @@ SUBDIRS = . plugin
 SIPXSQA_COMMON_CXX_FLAGS = \
 	-I$(top_srcdir)/include \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" 
-bin_PROGRAMS = sipXsqa
+bin_PROGRAMS = sipxsqa
 
-sipXsqa_CXXFLAGS = \
+sipxsqa_CXXFLAGS = \
 	$(SIPXSQA_COMMON_CXX_FLAGS)
 
-sipXsqa_LDFLAGS = \
+sipxsqa_LDFLAGS = \
     -shared \
     -rdynamic
 
-sipXsqa_LDADD = \
+sipxsqa_LDADD = \
 	libsipXsqa.la \
 	@SIPXCOMMSERVER_LIBS@ \
 	  -lboost_date_time-mt \
@@ -28,7 +28,7 @@ sipXsqa_LDADD = \
 	  -lzmq \
 	  -lmongoclient
 
-sipXsqa_SOURCES =   main.cpp
+sipxsqa_SOURCES =   main.cpp
 
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed

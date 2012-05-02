@@ -69,7 +69,7 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
             if (!enabled) {
                 continue;
             }
-            Writer config = new FileWriter(new File(dir, "sipxsqa.part"));
+            Writer config = new FileWriter(new File(dir, "sipxsqa-config.part"));
             try {
                 writeConfig(config, settings);
             } finally {

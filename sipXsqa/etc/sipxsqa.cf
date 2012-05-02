@@ -19,7 +19,6 @@ bundle agent sipxsqa {
     sipxsqa::
       "any" usebundle => "sipxsqa_config";
     any::
-      "any" usebundle => "sipxsqa_setup";
       "any" usebundle => "sipxsqa_running";
 }
 
@@ -30,6 +29,7 @@ bundle agent sipxsqa_config {
         comment => "install sipxsqa config $(this.promiser)",
         create => "true",
         perms => m("644"),
+        edit_defaults => empty,
         edit_line => sipxsqa_config_contents(),
         classes => if_repaired("restart_sipxsqa");
 }
@@ -40,20 +40,7 @@ bundle edit_line sipxsqa_config_contents {
       "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxsqa-config.part"
         insert_type => "file";
       "sqa-control-address : $(sipx.bind_ip)";
-      "sqa-control-port : 5240";
-      "zmq-subscription-address : $(sipx.bind_ip):5242";
-
-  delete_lines:
-    any::
-      ".*";
-}
-
-bundle agent sipxsqa_setup {
-  methods:
-    !src.sipxsqa::
-      "any" usebundle => rh_chkconfig_status("sipxsqa on");
-    !src.!sipxsqa::
-      "any" usebundle => rh_chkconfig_status("sipxsqa off");
+      "zmq-subscription-address : $(sipx.bind_ip)";
 }
 
 bundle agent sipxsqa_running {
@@ -64,6 +51,10 @@ bundle agent sipxsqa_running {
   methods:
     any::
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxsqa_running");
+    !src.sipxsqa::
+      "any" usebundle => rh_chkconfig_status("sipxsqa on");
+    !src.!sipxsqa::
+      "any" usebundle => rh_chkconfig_status("sipxsqa off");
 
   commands:
     (!sipxsqa|stop_sipxecs).sipxsqa_running::
@@ -76,7 +67,7 @@ bundle agent sipxsqa_running {
         comment => "start sipxsqa",
         args => "start";
 
-    sipxsqa.sipxsqa_running.restart_sipxsqa::
+    sipxsqa.sipxsqa_running.(restart_sipxsqa|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxsqa"
         comment => "restart sipxsqa",
         args => "restart";
