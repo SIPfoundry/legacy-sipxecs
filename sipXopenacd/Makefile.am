@@ -41,7 +41,7 @@ deps:
 rcompile:
 	$(shell cp -r $(erlang_src) $(abs_builddir) )
 	$(shell cp -r $(rebar) $(abs_builddir) )
-	$(REBAR) compile skip_deps=true
+	ERL_LIBS=@OPENACD_DIR@/lib $(REBAR) compile skip_deps=true
 
 clean:
 	$(REBAR) clean

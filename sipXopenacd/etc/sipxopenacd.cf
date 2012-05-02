@@ -27,14 +27,14 @@ bundle agent sipxopenacd {
 bundle agent sipxopenacd_config {
   files:
     any::
-      "$(sipx.OPENACD_HOME)/etc/vm.args"
+      "$(sipx.OPENACD_CONFDIR)/vm.args"
         comment => "install openacd config $(this.promiser)",
         create => "true",
         perms => m("644"),
         edit_line => sipxopenacd_vm_args;
 
     any::
-      "$(sipx.OPENACD_HOME)/etc/app.config"
+      "$(sipx.OPENACD_CONFDIR)/app.config"
         comment => "install openacd config $(this.promiser)",
         create => "true",
         perms => m("644"),
@@ -62,7 +62,7 @@ bundle edit_line sipxopenacd_vm_args() {
 ## Increase number of concurrent ports/sockets
 -env ERL_MAX_PORTS 4096
 
--mnesia dir '\"$(sipx.OPENACD_HOME)/run/Mnesia.openacd@$(sys.fqhost)\"'
+-mnesia dir '\"$(sipx.OPENACD_DBDIR)/Mnesia.openacd@$(sys.fqhost)\"'
 
 ## Tweak GC to run more often
 -env ERL_FULLSWEEP_AFTER 10"
@@ -79,7 +79,7 @@ bundle edit_line sipxopenacd_app_config() {
 "
 [{'OpenACD', [
 	{console_loglevel, $(sipx.OPENACD_LOG_LEVEl)},
-	{logfiles, [{\"$(sipx.OPENACD_HOME)/log/full.log\", $(sipx.OPENACD_LOG_LEVEl)}]},
+	{logfiles, [{\"$(sipx.OPENACD_LOGDIR)/full.log\", $(sipx.OPENACD_LOG_LEVEl)}]},
 	{plugin_dir, \"plugin.d\"}, {plugins, [sipxplugin]}, {agent_auth_storage, spx_agent_auth}, {call_queue_config_storage, spx_call_queue_config}
 ]},
 {sasl, [
@@ -103,7 +103,7 @@ bundle agent sipxopenacd_setup {
 bundle agent sipxopenacd_running {
   vars:
     any::
-      "service_command" string => ".*\s$(sipx.OPENACD_HOME)/bin/openacd\s.*";
+      "service_command" string => ".*\s$(sipx.OPENACD_BINDIR)/openacd\s.*";
 
   methods:
     any::

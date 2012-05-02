@@ -14,7 +14,8 @@ BuildRequires: erlang
 BuildRequires: erlmongo
 BuildRequires: openacd
 
-%define plugindir /opt/OpenACD/plugin.d
+%define plugindir @OPENACD_DIR@/plugin.d
+%define ebindir @OPENACD_DIR@/lib/ebin
 
 Source: %name-%version.tar.gz
 Prefix: %_prefix
@@ -47,7 +48,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxopenacd.cf
 %{plugindir}/sipxplugin.app
 %{plugindir}/erlmongo.app
-%{plugindir}/sipxplugin/ebin/sipxplugin.app
-%{plugindir}/sipxplugin/ebin/*.beam
+%{ebindir}/*.beam
 %dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/cfdata
 %{_localstatedir}/sipxdata/cfdata/defaults/sipxopenacd.cfdat

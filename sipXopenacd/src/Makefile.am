@@ -4,12 +4,13 @@ sipxplugin.app: ../ebin/sipxplugin.app
 	@$(call SearchAndReplace, $<, $@)
 
 PLUGIN_DIR = @OPENACD_DIR@/plugin.d
+EBIN_DIR = @OPENACD_DIR@/lib/ebin
 
 install: sipxplugin.app
-	$(INSTALL) -d $(DESTDIR)$(PLUGIN_DIR)/sipxplugin/ebin
-	$(INSTALL) ../ebin/*.beam $(DESTDIR)$(PLUGIN_DIR)/sipxplugin/ebin/
-	$(INSTALL) sipxplugin.app $(DESTDIR)$(PLUGIN_DIR)/sipxplugin/ebin/sipxplugin.app
+	$(INSTALL) -d $(DESTDIR)$(PLUGIN_DIR)
+	$(INSTALL) -d $(DESTDIR)$(EBIN_DIR)
+	$(INSTALL) ../ebin/*.beam $(DESTDIR)$(EBIN_DIR)
+	$(INSTALL) sipxplugin.app $(DESTDIR)$(PLUGIN_DIR)
 	$(INSTALL) ../deps/erlmongo/ebin/erlmongo.app $(DESTDIR)$(PLUGIN_DIR)/erlmongo.app
-	ln -snf $(PLUGIN_DIR)/sipxplugin/ebin/sipxplugin.app $(DESTDIR)$(PLUGIN_DIR)/sipxplugin.app
 
 .PHONY: all install sipxplugin.app

@@ -8,4 +8,10 @@ cfdefaultsdir = $(SIPX_CFDATA)/defaults
 dist_cfdefaults_DATA = \
 	sipxopenacd.cfdat
 
+OPENACD_VARS = \
+	$(filter OPENACD%,$(.VARIABLES))
+
+$(dist_cfdefaults_DATA) : % : %.in Makefile
+	@$(call SearchAndReplace, $<, $@, $(OPENACD_VARS))
+
 DISTCLEANFILES = $(cfdefaults_DATA)

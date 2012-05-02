@@ -10,7 +10,7 @@
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
 prog=openacd
-exec="@OPENACD_DIR@/bin/${prog}"
+exec="@OPENACD_BINDIR@/${prog}"
 
 [ -e @SIPX_CONFDIR@/${prog}rc ] && . @SIPX_CONFDIR@/${prog}rc
 
@@ -43,7 +43,7 @@ start() {
     runuser - @SIPXPBXUSER@ -c "$exec console"
   else
     echo -n $"Starting $prog: "
-    runuser - @SIPXPBXUSER@ -c "export ERL_LIBS=$ERL_LIBS:@OPENACD_DIR@/plugin.d; $exec start -noinput"
+    runuser - @SIPXPBXUSER@ -c "export ERL_LIBS=$ERL_LIBS:@OPENACD_DIR@/plugin.d:/@OPENACD_DIR@/lib; $exec start -noinput"
     Status=$?
     echo_success
   fi
@@ -67,7 +67,7 @@ restart() {
 }
 
 resync() {
-  dir=@OPENACD_DIR@/run/Mnesia.openacd@`hostname -f`
+  dir=@OPENACD_DBDIR@/run/Mnesia.openacd@`hostname -f`
   ! test -d $dir || rm -rf $dir
   Status=$?
 }
