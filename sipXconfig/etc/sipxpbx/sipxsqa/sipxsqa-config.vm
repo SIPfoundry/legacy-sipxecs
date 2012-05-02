@@ -1,0 +1,6 @@
+SQA_LOG_LEVEL : $settings.getSetting('SQA_LOG_LEVEL').Value
+SQA_CONTROL_ADDRESS : $location.address
+SQA_CONTROL_PORT : $sqaService.controlPort
+SQA_ZMQ_ADDRESS : $location.address
+SQA_ZMQ_PORT : $sqaService.zmqPort
+
