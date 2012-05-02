@@ -9,7 +9,7 @@ Summary:  Configuration Management for SIP
 License:  LGPL
 Group:    Productivity/Telephony/SIP/Servers
 Vendor:   SIPfoundry
-Packager: SIPfoundry <sipx-dev@lif.sipfoundry.org>
+Packager: SIPfoundry <sipx-dev@list.sipfoundry.org>
 Url:      http://www.sipfoundry.org/
 
 BuildRequires: automake
