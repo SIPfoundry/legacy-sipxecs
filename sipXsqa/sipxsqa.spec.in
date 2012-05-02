@@ -3,20 +3,20 @@ Version:  @VERSION@
 Release:  @PACKAGE_REVISION@
 
 Summary:  State Queue Agent client and Server Library
-License:  Pingtel Commercial License
+License:  AGPL
 Group:    Productivity/Telephony/SIP/Servers
-Vendor:   Pingtel Corp.
-Packager: Pingtel <support@pingtel.com>
-Url:      http://www.pingtel.com
+Vendor:   SIPfoundry
+Packager: SIPfoundry <sipx-dev@list.sipfoundry.org>
+Url:      http://www.sipfoundry.org/
 
 BuildRequires: automake
 BuildRequires: gcc-c++
-
+BuildRequires: zeromq-devel
+BuildRequires: swig
 BuildRequires: sipxcommserverlib-devel  >= %version
 BuildRequires: sipxportlib-devel        >= %version
 
 Source:   %name-%version.tar.gz
-
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
