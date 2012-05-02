@@ -108,17 +108,7 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
         if (b == Bundle.CORE) {
             b.addFeature(FEATURE_ID);
-            int nMongos = featureManager.getLocationsForEnabledFeature(FEATURE_ID).size();
-            int nArbiters = featureManager.getLocationsForEnabledFeature(ARBITER_FEATURE).size();
-
-            // show arbiters if there are any (so they can potentially disable them when then have
-            // odd number
-            // of mongo servers) OR when they have an odd number of mongo servers and should
-            // really have an
-            // arbiter
-            if (nMongos > 1) {
-                b.addFeature(ARBITER_FEATURE, BundleConstraint.SINGLE_LOCATION);
-            }
+            b.addFeature(ARBITER_FEATURE, BundleConstraint.SINGLE_LOCATION);
         }
     }
 
