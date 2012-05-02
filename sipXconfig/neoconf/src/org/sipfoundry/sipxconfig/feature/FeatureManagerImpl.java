@@ -31,9 +31,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.springframework.beans.factory.BeanFactory;
@@ -54,7 +52,6 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     private Collection<BundleProvider> m_bundleProviders;
     private Collection<FeatureListener> m_listeners;
     private JdbcTemplate m_jdbcTemplate;
-    private DaoEventPublisher m_daoEventPublisher;
     private LocationsManager m_locationsManager;
     private List<Bundle> m_bundles;
 
@@ -160,8 +157,7 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     public void applyFeatureChange(FeatureChangeValidator validator) {
         validateFeatureChange(validator);
         if (!validator.isValid()) {
-            // todo better err
-            throw new UserException("invalid feature change request");
+            throw validator.getInvalidChanges().get(0).getMessage();
         } else {
             FeatureChangeRequest request = validator.getRequest();
             saveFeatureChange(request);
@@ -191,22 +187,42 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     }
 
     public void saveFeatureChange(FeatureChangeRequest request) {
+        // we delete what we're about to enable to avoid duplicate key constraints in case
+        // we're enabling features that are already enabled.
         List<String> sql = new ArrayList<String>();
-        if (!request.getDisable().isEmpty()) {
-            sql.add(format("delete from feature_global where feature_id in (%s)", comma(request.getDisable())));
+        deleteSql(sql, request.getDisable());
+        deleteSql(sql, request.getEnable());
+        for (GlobalFeature f : request.getEnable()) {
+            sql.add(format("insert into feature_global values ('%s')", f));
         }
-        if (!request.getEnable().isEmpty()) {
-            sql.add(format("insert into feature_global values (%s)", comma(request.getEnable())));
-        }
+        deleteSql(sql, request.getDisableByLocation());
+        deleteSql(sql, request.getEnableByLocation());
         for (Entry<Location, Set<LocationFeature>> entry : request.getEnableByLocation().entrySet()) {
-            sql.add(format("insert into feature_local (feature_id, location_id) values (%s, %d)",
-                    comma(entry.getValue()), entry.getKey().getId()));
-        }
-        for (Entry<Location, Set<LocationFeature>> entry : request.getDisableByLocation().entrySet()) {
-            sql.add(format("delete from feature_local where feature_id in (%s) and location_id = %d",
-                    comma(entry.getValue()), entry.getKey().getId()));
+            Location location = entry.getKey();
+            for (LocationFeature f : entry.getValue()) {
+                sql.add(format("insert into feature_local (feature_id, location_id) values ('%s', %d)",
+                    f, location.getId()));
+            }
         }
         m_jdbcTemplate.batchUpdate(sql.toArray(new String[0]));
+    }
+
+    void deleteSql(List<String> sql, Set<GlobalFeature> set) {
+        if (!set.isEmpty()) {
+            sql.add(format("delete from feature_global where feature_id in (%s)", comma(set)));
+        }
+    }
+
+    void deleteSql(List<String> sql, Map<Location, Set<LocationFeature>> map) {
+        if (!map.isEmpty()) {
+            for (Entry<Location, Set<LocationFeature>> entry : map.entrySet()) {
+                Location location = entry.getKey();
+                if (!entry.getValue().isEmpty()) {
+                    sql.add(format("delete from feature_local where feature_id in (%s) and location_id = %d",
+                            comma(entry.getValue()), location.getId()));
+                }
+            }
+        }
     }
 
     <T> String comma(Collection<T> l) {
@@ -318,10 +334,6 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
 
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         m_jdbcTemplate = jdbcTemplate;
-    }
-
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
     }
 
     @Override

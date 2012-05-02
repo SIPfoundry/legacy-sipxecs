@@ -25,7 +25,6 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
-import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.BundleConstraint;
@@ -35,6 +34,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.InvalidChange;
+import org.sipfoundry.sipxconfig.feature.InvalidChangeException;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
@@ -133,17 +133,22 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        FeatureChangeRequest request = validator.getRequest();
+        if (!request.hasChanged(FEATURE_ID) || !request.hasChanged(ARBITER_FEATURE)) {
+            return;
+        }
+
         Collection<Location> mongos = validator.getLocationsForEnabledFeature(FEATURE_ID);
         Collection<Location> arbiters = validator.getLocationsForEnabledFeature(ARBITER_FEATURE);
         if ((mongos.size() % 2) == 0) {
             if (arbiters.size() != 1) {
-                UserException err = new UserException("&error.missingMongoArbiter");
+                InvalidChangeException err = new InvalidChangeException("&error.missingMongoArbiter");
                 InvalidChange needArbiter = new InvalidChange(ARBITER_FEATURE, err);
                 validator.getInvalidChanges().add(needArbiter);
             }
-        } else {
+        } else if (mongos.size() > 1) {
             if (arbiters.size() != 0) {
-                UserException err = new UserException("&error.extraMongoArbiter");
+                InvalidChangeException err = new InvalidChangeException("&error.extraMongoArbiter");
                 InvalidChange removeArbiter = new InvalidChange(ARBITER_FEATURE, err);
                 validator.getInvalidChanges().add(removeArbiter);
             }

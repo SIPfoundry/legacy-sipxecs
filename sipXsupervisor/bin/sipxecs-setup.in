@@ -22,6 +22,7 @@ $primary_dat = "#{$cfdatadir}/defaults/primary.cfdat"
 $secondary_dat = "#{$cfdatadir}/defaults/secondary.cfdat"
 $master_dat= "#{$cfdatadir}/defaults/master"
 $location_dat = "#{$cfdatadir}/defaults/location_id"
+$mongo_client_ini = "#{$cfdatadir}/1/mongo-client.ini"
 $log = "#{$logdir}/sipxagent.log"
 $verbose = false
 $advanced = false
@@ -211,6 +212,7 @@ def reset
   rm_file($secondary_dat)
   rm_file($master_dat)
   rm_file($location_dat)
+  rm_file($mongo_client_ini)
 end
 
 def reset_all

@@ -4,7 +4,6 @@
 
   <bean id="featureManagerImpl" class="org.sipfoundry.sipxconfig.feature.FeatureManagerImpl" parent="abstractDaoImpl">
     <property name="jdbcTemplate" ref="configJdbcTemplate"/>
-    <property name="daoEventPublisher" ref="daoEventPublisher"/>
     <property name="locationsManager" ref="locationsManager"/>
   </bean>
 

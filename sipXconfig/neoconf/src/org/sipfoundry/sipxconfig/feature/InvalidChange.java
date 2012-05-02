@@ -21,27 +21,27 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 public class InvalidChange {
     private Feature m_feature;
     private Location m_location;
-    private UserException m_message;
+    private InvalidChangeException m_message;
 
-    public InvalidChange(Feature f, UserException msg) {
+    public InvalidChange(Feature f, InvalidChangeException msg) {
         m_feature = f;
         m_message = msg;
     }
 
-    public InvalidChange(LocationFeature f, Location where, UserException msg) {
+    public InvalidChange(LocationFeature f, Location where, InvalidChangeException msg) {
         m_feature = f;
         m_location = where;
         m_message = msg;
     }
 
     public static InvalidChange requires(Feature subject, LocationFeature required, Location where) {
-        UserException msg = new UserException("&error.requiredFeatureAtLocation", subject, required,
-                where.getHostname());
+        InvalidChangeException msg = new InvalidChangeException("&error.requiredFeatureAtLocation.{0}.{1}.{2}",
+                subject, required, where.getHostname());
         return new InvalidChange(required, where, msg);
     }
 
     public static InvalidChange requires(Feature subject, Feature required) {
-        UserException msg = new UserException("&error.requiredFeature", subject, required);
+        InvalidChangeException msg = new InvalidChangeException("&error.requiredFeature.{0}.{1}", subject, required);
         return new InvalidChange(required, msg);
     }
 

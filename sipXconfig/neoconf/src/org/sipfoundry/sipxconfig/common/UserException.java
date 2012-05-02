@@ -34,6 +34,7 @@ import org.apache.commons.lang.StringUtils;
  * throw new UserException(e)
  *
  */
+@SuppressWarnings("serial")
 public class UserException extends RuntimeException {
     private String m_message;
 
@@ -78,5 +79,9 @@ public class UserException extends RuntimeException {
 
     public String getRawMessage() {
         return m_message;
+    }
+
+    protected void setMessage(String message) {
+        m_message = message;
     }
 }
