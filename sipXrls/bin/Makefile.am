@@ -1,13 +1,18 @@
 include $(top_srcdir)/config/utility.am
 
-bin_SCRIPTS = \
-    sipxrls.sh \
-    sipx-snapshot-rls
+# script doesn't work, but keep in case it can be
+# restored someday -- Douglas
+EXTRA_DIST = \
+	sipx-snapshot-rls.in
+
+initddir = @SIPX_SERVICEDIR@
+initd_SCRIPTS = \
+    sipxrls
 
 EXTRA_DIST = \
-	$(bin_SCRIPTS:=.in)
+	$(initd_SCRIPTS:=.in)
 
-$(bin_SCRIPTS) : % : %.in Makefile
+$(initd_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)
 
-CLEANFILES = $(bin_SCRIPTS)
+CLEANFILES = $(initd_SCRIPTS)
