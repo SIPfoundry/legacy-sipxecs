@@ -58,7 +58,9 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
                                        int serverDefaultExpiration,
                                        int serverMaxExpiration,
                                        SubscribeDB&  subscriptionDb,
-                                       EntityDB&  entityDb) :
+                                       EntityDB&  entityDb,
+                                       const std::string& sqaControlAddress,
+                                       const std::string& sqaControlPort) :
    mDomainName(domainName),
    mEventType(eventType),
    mContentType(contentType),
@@ -126,7 +128,9 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
    // doesn't add elements to the ResourceListSet before we have the
    // SIP tasks set up.
    mResourceListFileReader(UtlString(""), &mResourceListSet),
-   mChangeDelay(sRunningChangeDelay)
+   mChangeDelay(sRunningChangeDelay),
+   _sqaControlAddress(sqaControlAddress),
+   _sqaControlPort(sqaControlPort)
 {
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListServer::_ this = %p, mDomainName = '%s', mEventType = '%s', mContentType = '%s', "

@@ -15,6 +15,7 @@
 
 #include <os/OsServerTask.h>
 #include <os/OsMsg.h>
+#include <sqa/StateQueueNotification.h>
 
 // DEFINES
 // MACROS
@@ -63,6 +64,9 @@ public:
    //! Process a MESSAGE request, which is used to trigger debugging actions.
    void handleMessageRequest(const SipMessage& msg);
 
+   //! Handle NOTIFY request
+   void handleNotifyRequest(const SipMessage& msg);
+
    //! Dump the state of the RLS into the log.
    void debugDumpState(const SipMessage& msg);
 
@@ -88,6 +92,7 @@ private:
    ResourceListTask& operator=(const ResourceListTask& rResourceListTask);
    //:Assignment operator
 
+   StateQueueNotification* _pSqaNotifier;
 };
 
 /* ============================ INLINE METHODS ============================ */

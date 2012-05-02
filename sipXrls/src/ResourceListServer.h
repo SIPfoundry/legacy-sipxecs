@@ -29,6 +29,7 @@
 #include "ResourceListFileReader.h"
 #include "ResourceListSet.h"
 #include <sipdb/SubscribeDB.h>
+#include <string>
 
 // DEFINES
 // MACROS
@@ -99,7 +100,9 @@ class ResourceListServer : public UtlContainableAtomic
                       /// subscription DB to use
                       SubscribeDB&  subscriptionDb,
                       /// entity DB to use
-                      EntityDB&  entityDb
+                      EntityDB&  entityDb,
+                      const std::string& sqaControlAddress = std::string(),
+                      const std::string& sqaControlPort = std::string()
       );
 
    //! Destroy the ResourceListServer.
@@ -211,6 +214,8 @@ class ResourceListServer : public UtlContainableAtomic
 
    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
 
+   void setSqaControlAddress(const std::string& address, const std::string& port);
+   void getSqaControlAddress(std::string& address, std::string& port) const;
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
 
@@ -317,6 +322,9 @@ class ResourceListServer : public UtlContainableAtomic
    int mChangeDelay;
    static const int sRunningChangeDelay;
    static const int sShutdownChangeDelay;
+
+   std::string _sqaControlAddress;
+   std::string _sqaControlPort;
 
    //! Disabled copy constructor
    ResourceListServer(const ResourceListServer& rResourceListServer);
@@ -476,5 +484,17 @@ inline int ResourceListServer::getChangeDelay()
 {
    return mChangeDelay;
 }
+
+ inline void ResourceListServer::setSqaControlAddress(const std::string& address, const std::string& port)
+ {
+   _sqaControlAddress = address;
+   _sqaControlPort = port;
+ }
+
+ inline void ResourceListServer::getSqaControlAddress(std::string& address, std::string& port) const
+ {
+   address = _sqaControlAddress;
+   port = _sqaControlPort;
+ }
 
 #endif  // _ResourceListServer_h_
