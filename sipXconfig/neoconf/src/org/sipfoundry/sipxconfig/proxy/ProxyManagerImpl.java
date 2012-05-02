@@ -28,7 +28,6 @@ import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
 import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
-import org.sipfoundry.sipxconfig.bridge.BridgeSbcContext;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
@@ -143,8 +142,6 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
-        // ugh, just because proxy reads the config file to determine gateways
-        validator.requiredOnSameHost(FEATURE, BridgeSbcContext.FEATURE);
         validator.requiredOnSameHost(FEATURE, Registrar.FEATURE);
         // ideal case, this is not nec. but it is now
         validator.requiresGlobalFeature(FEATURE, NatTraversal.FEATURE);
