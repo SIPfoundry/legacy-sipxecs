@@ -13,10 +13,14 @@ nobase_include_HEADERS = \
 	sqa/StateQueueDriverTest.h \
 	sqa/StateQueueListener.h \
 	sqa/StateQueueMessage.h \
+	sqa/StateQueueNotification.h \
 	sqa/StateQueuePersistence.h \
 	sqa/StateQueuePublisher.h \
 	sqa/StateQueueRecord.h \
 	sqa/StateQueueRegData.h \
+	sqa/BlockingQueue.h \
+	sqa/Semaphore.h \
+	sqa/ServiceOptions.h \
 	sqa/TimedMap.h \
 	sqa/TimedQueue.h \
 	sqa/UnitTest.h \
