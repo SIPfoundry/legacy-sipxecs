@@ -9,6 +9,11 @@ Vendor:   SIPfoundry
 Packager: SIPfoundry <sipx-dev@list.sipfoundry.org>
 Url:      http://www.sipfoundry.org/
 
+%if %{_vendor} == suse
+BuildRequires: java-1_6_0-sun-devel
+%else
+BuildRequires: java-devel >= 1.6
+%endif
 BuildRequires: automake
 BuildRequires: gcc-c++
 BuildRequires: zeromq-devel
@@ -72,6 +77,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/plugin/libsqaclient_plugin.so*
 %attr(755,root,root) %{_libdir}/libsipXsqa.so*
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxsqaclient.cf
+%{_datadir}/java/sipXecs/sipXcommons/sipxsqaclient.jar
+%{_libdir}/libsqaclient.so*
 
 %files server
 %defattr(644,root,root,755)
@@ -83,5 +90,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/plugin/libsqaclient_plugin.la
 %attr(755,root,root) %{_libdir}/libsipXsqa.la
+%{_libdir}/libsqaclient.la
 %{_includedir}/sqa/*
 
