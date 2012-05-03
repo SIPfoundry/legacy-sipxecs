@@ -12,7 +12,7 @@
 # details.
 
 #
-# sipXpark configuration and process management
+# sipXsqa server configuration and process management
 #
 bundle agent sipxsqa {
   methods:

@@ -63,26 +63,42 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
         Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "sipxsqa.cfdat", enabled, "sipxsqa");
+
             // CLIENT
+            Address queue = manager.getAddressManager().getSingleAddress(QUEUE_ADDRESS, location);
+            Writer client = new FileWriter(new File(dir, "sipxsqa-client.ini"));
+            try {
+                writeClientConfig(client, queue);
+            } finally {
+                IOUtils.closeQuietly(client);
+            }
 
             // SERVER
-            if (!enabled) {
-                continue;
-            }
-            Writer server = new FileWriter(new File(dir, "sipxsqa-config.part"));
-            try {
-                writeConfig(server, settings);
-            } finally {
-                IOUtils.closeQuietly(server);
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
+            ConfigUtils.enableCfengineClass(dir, "sipxsqa.cfdat", enabled, "sipxsqa");
+            if (enabled) {
+                Writer server = new FileWriter(new File(dir, "sipxsqa-config.part"));
+                try {
+                    writeServerConfig(server, settings);
+                } finally {
+                    IOUtils.closeQuietly(server);
+                }
             }
         }
     }
 
-    void writeConfig(Writer w, NetworkQueueSettings settings) throws IOException {
+    void writeServerConfig(Writer w, NetworkQueueSettings settings) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
         config.write(settings.getSettings().getSetting("sqa-config"));
+    }
+
+    void writeClientConfig(Writer w, Address queue) throws IOException {
+        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
+        config.write("enabled", queue != null);
+        if (queue != null) {
+            config.write("zmq-subscription-port", queue.getCanonicalPort());
+            config.write("zmq-subscription-address", queue.getAddress());
+        }
     }
 
     @Override

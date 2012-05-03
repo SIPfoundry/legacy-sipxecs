@@ -40,10 +40,10 @@ public class NetworkQueueSettings extends PersistableSettings implements DeployC
     }
 
     public int getControlPort() {
-        return (Integer) getSettingTypedValue("sqa-config/SQA_CONTROL_PORT");
+        return (Integer) getSettingTypedValue("sqa-config/sqa-control-port");
     }
 
     public int getQueuePort() {
-        return (Integer) getSettingTypedValue("sqa-config/SQA_ZMQ_PORT");
+        return (Integer) getSettingTypedValue("sqa-config/zmq-subscription-port");
     }
 }
