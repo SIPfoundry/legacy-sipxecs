@@ -12,7 +12,10 @@ package org.sipfoundry.sipxconfig.sbc;
 import java.util.Arrays;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class SbcManagerImplTestIntegration extends IntegrationTestCase {
@@ -22,11 +25,15 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     private SbcManager m_sbcManager;
     private SbcDeviceManager m_sbcDeviceManager;
     private DomainManager m_domainManager;
+    private FeatureManager m_featureManager;
+    private LocationsManager m_locationsManager;
     
     @Override
-    protected void onSetUpBeforeTransaction() throws Exception {
-        super.onSetUpBeforeTransaction();
+    protected void onSetUpInTransaction() throws Exception {
         clear();
+        loadDataSetXml("commserver/seedLocations.xml");
+        loadDataSetXml("domain/DomainSeed.xml");
+        m_featureManager.enableLocationFeature(ProxyManager.FEATURE, m_locationsManager.getPrimaryLocation(), true);
     }
 
     public void testCreateDefaultSbc() throws Exception {
@@ -106,7 +113,6 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testSaveSbc() throws Exception {
-        sql("domain/DomainSeed.sql");
         sql("sbc/sbc-device.sql");
         assertEquals(0, countRowsInTable("sbc"));
         Sbc sbc = m_sbcManager.loadDefaultSbc();
@@ -203,5 +209,13 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
 
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 }
