@@ -48,6 +48,7 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
 
     public void insert(int connectionId) {
         m_rowInserter.setAttrMap(m_ldapManager.getAttrMap(connectionId));
+        m_rowInserter.setDomain(m_ldapManager.getConnectionParams(connectionId).getDomain());
         m_rowInserter.beforeInserting();
         NameClassPairCallbackHandler handler = new NameClassPairMapperClosureAdapter(
                 m_rowInserter);

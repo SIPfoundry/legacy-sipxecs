@@ -47,7 +47,7 @@ public class UserMapper implements NameClassPairMapper {
         List<String> groupNames = new ArrayList<String>(getGroupNames(searchResult));
 
         setUserProperties(user, attrs);
-
+        setAliasesSet(getAliasesSet(attrs), user);
         UserPreview preview = new UserPreview(user, groupNames);
         return preview;
     }
@@ -87,11 +87,18 @@ public class UserMapper implements NameClassPairMapper {
         setProperty(user, attrs, Index.OFFICE_STATE);
         setProperty(user, attrs, Index.OFFICE_COUNTRY);
         setProperty(user, attrs, Index.OFFICE_ZIP);
+    }
 
-        Set<String> aliases = getValues(attrs, Index.ALIAS);
+    public void setAliasesSet(Set<String> aliases, User user) {
         if (aliases != null) {
             user.copyAliases(deleteWhitespace(aliases));
+        } else {
+            user.setAliasesString(null);
         }
+    }
+
+    public Set<String> getAliasesSet(Attributes attrs) throws NamingException {
+        return getValues(attrs, Index.ALIAS);
     }
 
     public Collection<String> getGroupNames(SearchResult sr) throws NamingException {
@@ -156,9 +163,7 @@ public class UserMapper implements NameClassPairMapper {
     private void setProperty(User user, Attributes attrs, Index index) throws NamingException {
         try {
             String value = getValue(attrs, index);
-            if (value != null) {
-                BeanUtils.setProperty(user, index.getName(), value);
-            }
+            BeanUtils.setProperty(user, index.getName(), value);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
@@ -240,6 +245,14 @@ public class UserMapper implements NameClassPairMapper {
             pin = getAttrMap().getDefaultPin();
         }
         return pin;
+    }
+
+    public String getAliases(Attributes attrs) throws NamingException {
+        return getValue(attrs, Index.ALIAS);
+    }
+
+    public String getImId(Attributes attrs) throws NamingException {
+        return getValue(attrs, Index.IM_ID);
     }
 
     public String getUserName(Attributes attrs) throws NamingException {

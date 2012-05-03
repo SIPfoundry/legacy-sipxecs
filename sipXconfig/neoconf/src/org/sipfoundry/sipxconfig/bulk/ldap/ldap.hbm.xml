@@ -16,7 +16,7 @@
     <id name="id" column="ldap_connection_id" type="int" unsaved-value="-1">
       <generator class="native" />
     </id>
-    <property name="host" />
+    <property name="fullHost" column="host" />
     <property name="port" />
     <property name="principal" />
     <property name="secret" />
