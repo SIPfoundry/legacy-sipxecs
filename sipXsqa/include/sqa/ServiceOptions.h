@@ -31,7 +31,308 @@
 #include <boost/program_options.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/detail/ptree_utils.hpp>
+#include <stdexcept>
+#include <locale>
 #include "os/OsLogger.h"
+
+
+
+
+
+
+
+namespace boost { namespace property_tree { namespace sipx_ini_parser
+{
+    /**
+     * Determines whether the @c flags are valid for use with the ini_parser.
+     * @param flags value to check for validity as flags to ini_parser.
+     * @return true if the flags are valid, false otherwise.
+     */
+    inline bool validate_flags(int flags)
+    {
+        return flags == 0;
+    }
+
+    /** Indicates an error parsing INI formatted data. */
+    class sipx_ini_parser_error: public file_parser_error
+    {
+    public:
+        /**
+         * Construct an @c sipx_ini_parser_error
+         * @param message Message describing the parser error.
+         * @param filename The name of the file being parsed containing the
+         *                 error.
+         * @param line The line in the given file where an error was
+         *             encountered.
+         */
+        sipx_ini_parser_error(const std::string &message,
+                         const std::string &filename,
+                         unsigned long line)
+            : file_parser_error(message, filename, line)
+        {
+        }
+    };
+
+    /**
+     * Read INI from a the given stream and translate it to a property tree.
+     * @note Clears existing contents of property tree. In case of error
+     *       the property tree is not modified.
+     * @throw sipx_ini_parser_error If a format violation is found.
+     * @param stream Stream from which to read in the property tree.
+     * @param[out] pt The property tree to populate.
+     */
+    template<class Ptree>
+    void sipx_read_ini(std::basic_istream<
+                    typename Ptree::key_type::value_type> &stream,
+                  Ptree &pt,
+                  char pairDelimiter)
+    {
+        typedef typename Ptree::key_type::value_type Ch;
+        typedef std::basic_string<Ch> Str;
+        const Ch semicolon = stream.widen(';');
+        const Ch hash = stream.widen('#');
+        const Ch lbracket = stream.widen('[');
+        const Ch rbracket = stream.widen(']');
+
+        Ptree local;
+        unsigned long line_no = 0;
+        Ptree *section = 0;
+        Str line;
+
+        // For all lines
+        while (stream.good())
+        {
+
+            // Get line from stream
+            ++line_no;
+            std::getline(stream, line);
+            if (!stream.good() && !stream.eof())
+                BOOST_PROPERTY_TREE_THROW(sipx_ini_parser_error(
+                    "read error", "", line_no));
+
+            // If line is non-empty
+            line = property_tree::detail::trim(line, stream.getloc());
+            if (!line.empty())
+            {
+                // Comment, section or key?
+                if (line[0] == semicolon || line[0] == hash)
+                {
+                    // Ignore comments
+                }
+                else if (line[0] == lbracket)
+                {
+                    // If the previous section was empty, drop it again.
+                    if (section && section->empty())
+                        local.pop_back();
+                    typename Str::size_type end = line.find(rbracket);
+                    if (end == Str::npos)
+                        BOOST_PROPERTY_TREE_THROW(sipx_ini_parser_error(
+                            "unmatched '['", "", line_no));
+                    Str key = property_tree::detail::trim(
+                        line.substr(1, end - 1), stream.getloc());
+                    if (local.find(key) != local.not_found())
+                        BOOST_PROPERTY_TREE_THROW(sipx_ini_parser_error(
+                            "duplicate section name", "", line_no));
+                    section = &local.push_back(
+                        std::make_pair(key, Ptree()))->second;
+                }
+                else
+                {
+                    Ptree &container = section ? *section : local;
+                    typename Str::size_type eqpos = line.find(Ch(pairDelimiter));
+                    if (eqpos == Str::npos)
+                        BOOST_PROPERTY_TREE_THROW(sipx_ini_parser_error(
+                            "'=' character not found in line", "", line_no));
+                    if (eqpos == 0)
+                        BOOST_PROPERTY_TREE_THROW(sipx_ini_parser_error(
+                            "key expected", "", line_no));
+                    Str key = property_tree::detail::trim(
+                        line.substr(0, eqpos), stream.getloc());
+                    Str data = property_tree::detail::trim(
+                        line.substr(eqpos + 1, Str::npos), stream.getloc());
+                    if (container.find(key) != container.not_found())
+                        BOOST_PROPERTY_TREE_THROW(sipx_ini_parser_error(
+                            "duplicate key name", "", line_no));
+                    container.push_back(std::make_pair(key, Ptree(data)));
+                }
+            }
+        }
+        // If the last section was empty, drop it again.
+        if (section && section->empty())
+            local.pop_back();
+
+        // Swap local ptree with result ptree
+        pt.swap(local);
+
+    }
+
+    /**
+     * Read INI from a the given file and translate it to a property tree.
+     * @note Clears existing contents of property tree.  In case of error the
+     *       property tree unmodified.
+     * @throw sipx_ini_parser_error In case of error deserializing the property tree.
+     * @param filename Name of file from which to read in the property tree.
+     * @param[out] pt The property tree to populate.
+     * @param loc The locale to use when reading in the file contents.
+     */
+    template<class Ptree>
+    void sipx_read_ini(const std::string &filename,
+                  Ptree &pt,
+                  const std::locale &loc = std::locale(),
+                  char pairDelimiter = ':')
+    {
+        std::basic_ifstream<typename Ptree::key_type::value_type>
+            stream(filename.c_str());
+        if (!stream)
+            BOOST_PROPERTY_TREE_THROW(sipx_ini_parser_error(
+                "cannot open file", filename, 0));
+        stream.imbue(loc);
+        try {
+            sipx_read_ini(stream, pt, pairDelimiter);
+        }
+        catch (sipx_ini_parser_error &e) {
+            BOOST_PROPERTY_TREE_THROW(sipx_ini_parser_error(
+                e.message(), filename, e.line()));
+        }
+    }
+
+    namespace detail
+    {
+        template<class Ptree>
+        void check_dupes(const Ptree &pt)
+        {
+            if(pt.size() <= 1)
+                return;
+            const typename Ptree::key_type *lastkey = 0;
+            typename Ptree::const_assoc_iterator it = pt.ordered_begin(),
+                                                 end = pt.not_found();
+            lastkey = &it->first;
+            for(++it; it != end; ++it) {
+                if(*lastkey == it->first)
+                    BOOST_PROPERTY_TREE_THROW(sipx_ini_parser_error(
+                        "duplicate key", "", 0));
+                lastkey = &it->first;
+            }
+        }
+    }
+
+    /**
+     * Translates the property tree to INI and writes it the given output
+     * stream.
+     * @pre @e pt cannot have data in its root.
+     * @pre @e pt cannot have keys both data and children.
+     * @pre @e pt cannot be deeper than two levels.
+     * @pre There cannot be duplicate keys on any given level of @e pt.
+     * @throw sipx_ini_parser_error In case of error translating the property tree to
+     *                         INI or writing to the output stream.
+     * @param stream The stream to which to write the INI representation of the
+     *               property tree.
+     * @param pt The property tree to tranlsate to INI and output.
+     * @param flags The flags to use when writing the INI file.
+     *              No flags are currently supported.
+     */
+    template<class Ptree>
+    void sipx_write_ini(std::basic_ostream<
+                       typename Ptree::key_type::value_type
+                   > &stream,
+                   const Ptree &pt,
+                   int flags = 0,
+                   char pairDelimiter = ':')
+    {
+        using detail::check_dupes;
+
+        typedef typename Ptree::key_type::value_type Ch;
+        typedef std::basic_string<Ch> Str;
+
+        BOOST_ASSERT(validate_flags(flags));
+        (void)flags;
+
+        if (!pt.data().empty())
+            BOOST_PROPERTY_TREE_THROW(sipx_ini_parser_error(
+                "ptree has data on root", "", 0));
+        check_dupes(pt);
+
+        for (typename Ptree::const_iterator it = pt.begin(), end = pt.end();
+             it != end; ++it)
+        {
+            check_dupes(it->second);
+            if (it->second.empty()) {
+                stream << it->first << Ch(pairDelimiter)
+                    << it->second.template get_value<
+                        std::basic_string<Ch> >()
+                    << Ch('\n');
+            } else {
+                if (!it->second.data().empty())
+                    BOOST_PROPERTY_TREE_THROW(sipx_ini_parser_error(
+                        "mixed data and children", "", 0));
+                stream << Ch('[') << it->first << Ch(']') << Ch('\n');
+                for (typename Ptree::const_iterator it2 = it->second.begin(),
+                         end2 = it->second.end(); it2 != end2; ++it2)
+                {
+                    if (!it2->second.empty())
+                        BOOST_PROPERTY_TREE_THROW(sipx_ini_parser_error(
+                            "ptree is too deep", "", 0));
+                    stream << it2->first << Ch(pairDelimiter)
+                        << it2->second.template get_value<
+                            std::basic_string<Ch> >()
+                        << Ch('\n');
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Translates the property tree to INI and writes it the given file.
+     * @pre @e pt cannot have data in its root.
+     * @pre @e pt cannot have keys both data and children.
+     * @pre @e pt cannot be deeper than two levels.
+     * @pre There cannot be duplicate keys on any given level of @e pt.
+     * @throw info_parser_error In case of error translating the property tree
+     *                          to INI or writing to the file.
+     * @param filename The name of the file to which to write the INI
+     *                 representation of the property tree.
+     * @param pt The property tree to tranlsate to INI and output.
+     * @param flags The flags to use when writing the INI file.
+     *              The following flags are supported:
+     * @li @c skip_ini_validity_check -- Skip check if ptree is a valid ini. The
+     *     validity check covers the preconditions but takes <tt>O(n log n)</tt>
+     *     time.
+     * @param loc The locale to use when writing the file.
+     */
+    template<class Ptree>
+    void sipx_write_ini(const std::string &filename,
+                   const Ptree &pt,
+                   int flags = 0,
+                   const std::locale &loc = std::locale(),
+                   char pairDelimiter = ':')
+    {
+        std::basic_ofstream<typename Ptree::key_type::value_type>
+            stream(filename.c_str());
+        if (!stream)
+            BOOST_PROPERTY_TREE_THROW(sipx_ini_parser_error(
+                "cannot open file", filename, 0));
+        stream.imbue(loc);
+        try {
+            sipx_write_ini(stream, pt, flags, pairDelimiter);
+        }
+        catch (sipx_ini_parser_error &e) {
+            BOOST_PROPERTY_TREE_THROW(sipx_ini_parser_error(
+                e.message(), filename, e.line()));
+        }
+    }
+
+} } }
+
+namespace boost { namespace property_tree
+{
+    using sipx_ini_parser::sipx_ini_parser_error;
+    using sipx_ini_parser::sipx_read_ini;
+    using sipx_ini_parser::sipx_write_ini;
+} }
+
 
 namespace Os
 {
@@ -199,7 +500,8 @@ public:
   bool parseOptions();
   void displayUsage(std::ostream& strm) const;
   void displayVersion(std::ostream& strm) const;
-  size_t hasOption(const std::string& optionName) const;
+  size_t hasOption(const std::string& optionName, bool consolidate = true) const;
+  size_t hasConfigOption(const std::string& optionName) const;
   bool getOption(const std::string& optionName, std::string& value, const std::string& defValue = std::string()) const;
   bool getOption(const std::string& optionName, std::vector<std::string>& value) const;
   bool getOption(const std::string& optionName, int& value) const;
@@ -285,22 +587,22 @@ inline bool ServiceOptions::parseOptions()
     boost::program_options::store(boost::program_options::parse_command_line(_argc, _argv, _optionItems), _options);
     boost::program_options::notify(_options);
 
-    if (hasOption("help"))
+    if (hasOption("help", false))
     {
       displayUsage(std::cout);
       exit(0);
     }
 
-    if (hasOption("version"))
+    if (hasOption("version", false))
     {
       displayVersion(std::cout);
       exit(0);
     }
 
-    if (hasOption("pid-file"))
+    if (hasOption("pid-file", false))
       getOption("pid-file", _pidFile);
 
-    if (hasOption("daemonize"))
+    if (hasOption("daemonize", false))
     {
       if (_pidFile.empty())
       {
@@ -312,16 +614,16 @@ inline bool ServiceOptions::parseOptions()
       _isDaemon = true;
     }
 
-    if (hasOption("config-file"))
+    if (hasOption("config-file", false))
     {
       if (getOption("config-file", _configFile) && !_configFile.empty())
       {
         std::ifstream config(_configFile.c_str());
         if (config.good())
         {
-          boost::program_options::store(boost::program_options::parse_config_file(config, _optionItems, true), _options);
-          boost::program_options::notify(_options);
-          boost::property_tree::ini_parser::read_ini(_configFile.c_str(), _ptree);
+          //boost::program_options::store(boost::program_options::parse_config_file(config, _optionItems, true), _options);
+          //boost::program_options::notify(_options);
+          boost::property_tree::sipx_ini_parser::sipx_read_ini(_configFile.c_str(), _ptree);
           _hasConfig = true;
         }
         else
@@ -338,7 +640,7 @@ inline bool ServiceOptions::parseOptions()
   {
     if (!onParseUnknownOptions(_argc, _argv))
     {
-      std::cerr << _daemonName << "is not able to parse the options - " << e.what() << std::endl;
+      std::cerr << _daemonName << " is not able to parse the options - " << e.what() << std::endl;
       return false;
     }
   }
@@ -355,11 +657,11 @@ inline void ServiceOptions::initlogger()
 {
   std::string logFile;
   int priorityLevel = PRI_INFO;
-  if (hasOption("log-file"))
+  if (hasOption("log-file", true))
   {
     if (getOption("log-file", logFile) && !logFile.empty())
     {
-      if (hasOption("log-level"))
+      if (hasOption("log-level", true))
         getOption("log-level", priorityLevel, priorityLevel);
 
       int logLevel = SYSLOG_NUM_PRIORITIES - priorityLevel - 1;
@@ -560,14 +862,22 @@ inline void ServiceOptions::displayVersion(std::ostream& strm) const
   strm.flush();
 }
 
-inline size_t ServiceOptions::hasOption(const std::string& optionName) const
+inline std::size_t ServiceOptions::hasOption(const std::string& optionName, bool consolidate) const
 {
-  return _options.count(optionName.c_str());
+  std::size_t ct = _options.count(optionName.c_str());
+  if (!ct && consolidate && _hasConfig)
+    ct = _ptree.count(optionName.c_str());
+  return ct;
+}
+
+inline size_t ServiceOptions::hasConfigOption(const std::string& optionName) const
+{
+  return _ptree.count(optionName.c_str());
 }
 
 inline bool ServiceOptions::getOption(const std::string& optionName, std::string& value, const std::string& defValue) const
 {
-  if (defValue.empty() && !hasOption(optionName))
+  if (defValue.empty() && !hasOption(optionName, false))
   {
     //
     // Check if ptree has it
@@ -587,7 +897,7 @@ inline bool ServiceOptions::getOption(const std::string& optionName, std::string
     {
       return false;
     }
-  }else if (!hasOption(optionName))
+  }else if (!hasOption(optionName, false))
   {
     value = defValue;
     return true;
@@ -599,7 +909,7 @@ inline bool ServiceOptions::getOption(const std::string& optionName, std::string
 
 inline bool ServiceOptions::getOption(const std::string& optionName, std::vector<std::string>& value) const
 {
-  if (!hasOption(optionName))
+  if (!hasOption(optionName, false))
     return false;
   value = _options[optionName.c_str()].as<std::vector<std::string> >();
   return true;
@@ -607,7 +917,7 @@ inline bool ServiceOptions::getOption(const std::string& optionName, std::vector
 
 inline bool ServiceOptions::getOption(const std::string& optionName, int& value) const
 {
-  if (!hasOption(optionName))
+  if (!hasOption(optionName, false))
   {
     //
     // Check if ptree has it
@@ -624,14 +934,13 @@ inline bool ServiceOptions::getOption(const std::string& optionName, int& value)
       }
     }
   }
-
   value = _options[optionName.c_str()].as<int>();
   return true;
 }
 
 inline bool ServiceOptions::getOption(const std::string& optionName, int& value, int defValue) const
 {
-  if (!hasOption(optionName))
+  if (!hasOption(optionName, false))
   {
     //
     // Check if ptree has it
@@ -660,7 +969,7 @@ inline bool ServiceOptions::getOption(const std::string& optionName, int& value,
 
 inline bool ServiceOptions::getOption(const std::string& optionName, std::vector<int>& value) const
 {
-  if (!hasOption(optionName))
+  if (!hasOption(optionName,false))
     return false;
   value = _options[optionName.c_str()].as<std::vector<int> >();
   return true;
