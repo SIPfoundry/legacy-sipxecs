@@ -127,13 +127,6 @@ public abstract class BundlePanel extends BaseComponent implements PageBeginRend
             return "global";
         }
 
-        FeatureManager fm = getFeatureManager();
-        BundleConstraint c = getBundle().getConstraint(f);
-        Collection<Location> candidates = c.getApplicableLocations(fm, f, getLocations());
-        if (c.isSingleLocation(fm, f) && candidates.size() > 1) {
-            return "pickOne";
-        }
-
         return "pickAny";
     }
 

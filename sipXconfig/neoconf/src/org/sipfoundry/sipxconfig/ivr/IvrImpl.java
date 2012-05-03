@@ -62,6 +62,7 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
     private ConfigManager m_configManager;
     private FeatureManager m_featureManager;
     private DomainManager m_domainManager;
+    private boolean m_highAvailabilitySupport;
 
     public IvrSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
@@ -189,6 +190,9 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         validator.requiresAtLeastOne(FEATURE, FreeswitchFeature.FEATURE);
         validator.requiresAtLeastOne(FEATURE, Mwi.FEATURE);
+        if (!m_highAvailabilitySupport) {
+            validator.singleLocationOnly(FEATURE);
+        }
     }
 
     @Override
@@ -204,5 +208,12 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
             m_configManager.configureEverywhere(DnsManager.FEATURE, DialPlanContext.FEATURE,
                     FreeswitchFeature.FEATURE);
         }
+    }
+
+    /**
+     * Setting this to true just relaxes the validator, Stock sipXivr will not work in HA mode
+     */
+    public void setHighAvailabilitySupport(boolean highAvailabilitySupport) {
+        m_highAvailabilitySupport = highAvailabilitySupport;
     }
 }

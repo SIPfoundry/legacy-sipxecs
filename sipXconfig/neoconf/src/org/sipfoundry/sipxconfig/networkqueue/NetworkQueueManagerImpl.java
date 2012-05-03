@@ -37,7 +37,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.BundleConstraint;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
@@ -107,6 +106,7 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        validator.singleLocationOnly(FEATURE);
         // redis?
     }
 
@@ -127,7 +127,7 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
         if (b == Bundle.EXPERIMENTAL) {
-            b.addFeature(FEATURE, BundleConstraint.SINGLE_LOCATION);
+            b.addFeature(FEATURE);
         }
     }
 
