@@ -5,7 +5,7 @@ EXTRA_DIST = \
 	sqaclient.h
 
 lib_LTLIBRARIES = libsqaclient.la
-INCLUDES = $(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/include
 
 noinst_DATA = javac-sipxsqaclient
 
@@ -33,7 +33,7 @@ libsqaclient_la_LIBADD = \
 
 sqaclient_wrap.cxx : sipxsqaclient-src
 
-libsqaclient_la_SOURCES = \
+nodist_libsqaclient_la_SOURCES = \
 	sqaclient_wrap.cxx
 
 CLEANFILES = *.java $(libsqaclient_la_SOURCES)
