@@ -65,20 +65,23 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
             ConfigUtils.enableCfengineClass(dir, "sipxsqa.cfdat", enabled, "sipxsqa");
+            // CLIENT
+
+            // SERVER
             if (!enabled) {
                 continue;
             }
-            Writer config = new FileWriter(new File(dir, "sipxsqa-config.part"));
+            Writer server = new FileWriter(new File(dir, "sipxsqa-config.part"));
             try {
-                writeConfig(config, settings);
+                writeConfig(server, settings);
             } finally {
-                IOUtils.closeQuietly(config);
+                IOUtils.closeQuietly(server);
             }
         }
     }
 
     void writeConfig(Writer w, NetworkQueueSettings settings) throws IOException {
-        KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(w);
+        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
         config.write(settings.getSettings().getSetting("sqa-config"));
     }
 
