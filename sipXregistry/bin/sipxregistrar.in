@@ -39,7 +39,7 @@ start() {
 
 stop() {
   echo -n $"Stopping sipXregistrar: "
-  killproc -p "${pidfile}" -t30 -TERM "${binfile}"
+  killproc -p "${pidfile}" "${exec}"
   Status=$?
   echo
   [ $Status -eq 0 ] && rm -f "${pidfile}"

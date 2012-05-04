@@ -34,7 +34,7 @@ start() {
 
 stop() {
   echo -n $"Stopping sipXrls: "
-  killproc -p "${pidfile}" -t30 "${exec}"
+  killproc -p "${pidfile}" "${exec}"
   Status=$?
   echo
   [ $Status -eq 0 ] && rm -f "${pidfile}"

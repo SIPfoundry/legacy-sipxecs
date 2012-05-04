@@ -71,7 +71,7 @@ start() {
 
 stop() {
   echo -n $"Stopping sipxrecording: "
-  killproc -p "${pidfile}" -t30 -TERM "sipxrecording"
+  killproc -p "${pidfile}" "sipxrecording"
   Status=$?
   echo
   [ $Status -eq 0 ] && rm -f "${pidfile}"
