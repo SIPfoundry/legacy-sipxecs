@@ -16,6 +16,9 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
+import static org.sipfoundry.commons.security.Util.retrieveDomain;
+import static org.sipfoundry.commons.security.Util.retrieveUsername;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +53,7 @@ import org.springframework.dao.DataAccessException;
 public class ConfigurableLdapAuthenticationProvider implements AuthenticationProvider, DaoEventListener {
 
     private LdapManager m_ldapManager;
-    private List<LdapAuthenticationProvider> m_providers = new ArrayList<LdapAuthenticationProvider>();
+    private List<SipxLdapAuthenticationProvider> m_providers = new ArrayList<SipxLdapAuthenticationProvider>();
     private LdapAuthoritiesPopulator m_authoritiesPopulator;
     private UserDetailsService m_userDetailsService;
     private boolean m_initialized;
@@ -79,7 +82,7 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         m_authoritiesPopulator = authoritiesPopulator;
     }
 
-    public void addProvider(LdapAuthenticationProvider provider) {
+    public void addProvider(SipxLdapAuthenticationProvider provider) {
         m_providers.add(provider);
     }
 
@@ -93,7 +96,13 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
             return null;
         } else {
             Authentication result = null;
-            for (LdapAuthenticationProvider provider : m_providers) {
+            String username = authentication.getName();
+            String userDomain = retrieveDomain(username);
+
+            for (SipxLdapAuthenticationProvider provider : m_providers) {
+                if (userDomain != null && !userDomain.equals(provider.getDomain())) {
+                    continue;
+                }
                 try {
                     result = provider.authenticate(authentication);
                 } catch (AuthenticationException ex) {
@@ -152,7 +161,7 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         }
     }
 
-    LdapAuthenticationProvider createProvider(int connectionId) {
+    SipxLdapAuthenticationProvider createProvider(int connectionId) {
         LdapConnectionParams params = m_ldapManager.getConnectionParams(connectionId);
         if (params == null) {
             return null;
@@ -160,8 +169,8 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         InitialDirContextFactory dirFactory = getDirFactory(params);
         BindAuthenticator authenticator = new BindAuthenticator(dirFactory);
         authenticator.setUserSearch(getSearch(dirFactory, connectionId)); // used for user login
-        LdapAuthenticationProvider provider = new SipxLdapAuthenticationProvider(authenticator);
-
+        SipxLdapAuthenticationProvider provider = new SipxLdapAuthenticationProvider(authenticator);
+        provider.setDomain(params.getDomain());
         return provider;
     }
 
@@ -195,11 +204,20 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
      * otherwise we wouldn't have have to extend LdapAuthenticationProvider
      */
     class SipxLdapAuthenticationProvider extends LdapAuthenticationProvider {
+        private String m_domain;
 
         public SipxLdapAuthenticationProvider(LdapAuthenticator authenticator) {
             // 2nd, arg - no authority provider nec, the userdetailservice adds
             // those
             super(authenticator);
+        }
+
+        public String getDomain() {
+            return m_domain;
+        }
+
+        public void setDomain(String domain) {
+            m_domain = domain;
         }
 
         /**
@@ -209,11 +227,18 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         @Override
         protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) {
             UserDetailsImpl user = null;
+            String userLoginName = retrieveUsername(username);
+            String domain = retrieveDomain(username);
             try {
-                user = (UserDetailsImpl) m_userDetailsService.loadUserByUsername(username);
+                user = (UserDetailsImpl) m_userDetailsService.loadUserByUsername(userLoginName);
                 if (user == null) {
                     throw new AuthenticationServiceException("UserDetailsService returned null, which "
                         + "is an interface contract violation");
+                }
+                if (domain != null && !StringUtils.equals(user.getUserDomain(), domain)) {
+                    throw new AuthenticationServiceException(
+                            "The following domain does not belong to the actual user: " + domain
+                            + " in the system - is an interface contract violation");
                 }
                 UsernamePasswordAuthenticationToken myAuthentication = new UsernamePasswordAuthenticationToken(
                         user.getCanonicalUserName(), authentication.getCredentials());

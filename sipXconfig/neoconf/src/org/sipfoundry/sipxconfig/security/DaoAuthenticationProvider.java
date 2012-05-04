@@ -15,6 +15,9 @@
 
 package org.sipfoundry.sipxconfig.security;
 
+import static org.sipfoundry.commons.security.Util.retrieveDomain;
+import static org.sipfoundry.commons.security.Util.retrieveUsername;
+
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationServiceException;
 import org.acegisecurity.BadCredentialsException;
@@ -117,16 +120,17 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
     @Override
     protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
             throws AuthenticationException {
-        UserDetails loadedUser;
+        UserDetailsImpl loadedUser;
 
         LdapSystemSettings settings = m_ldapManager.getSystemSettings();
         if (settings.isConfigured() && settings.isLdapOnly() && ! StringUtils.equals(username, AbstractUser.SUPERADMIN)) {
             throw new AuthenticationServiceException(
                 "Only LDAP authentication is permitted");
         }
-
+        String userLoginName = retrieveUsername(username);
+        String domain = retrieveDomain(username);
         try {
-            loadedUser = this.getUserDetailsService().loadUserByUsername(username);
+            loadedUser = (UserDetailsImpl)getUserDetailsService().loadUserByUsername(userLoginName);
         }
         catch (DataAccessException repositoryProblem) {
             throw new AuthenticationServiceException(repositoryProblem.getMessage(), repositoryProblem);
@@ -135,6 +139,11 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         if (loadedUser == null) {
             throw new AuthenticationServiceException(
                     "UserDetailsService returned null, which is an interface contract violation");
+        }
+
+        if (domain != null && !StringUtils.equals(loadedUser.getUserDomain(), domain)) {
+            throw new AuthenticationServiceException("The following domain does not belong to the actual user: " + domain
+                    + " in the system - is an interface contract violation");
         }
         return loadedUser;
     }

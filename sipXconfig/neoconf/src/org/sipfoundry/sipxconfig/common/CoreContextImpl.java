@@ -60,6 +60,16 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         + "where u.user_name= :alias or alias.alias= :alias or abe.im_id= :alias  "
         + "or (sv.path='voicemail/fax/did' and sv.value= :alias)  "
         + "or (sv.path='voicemail/fax/extension' and sv.value= :alias) ";
+    private static final String SQL_QUERY_USER_IDS_BY_NAME_OR_ALIAS_OR_IM_ID_EXCEPT_THIS =
+        "select distinct u.user_id from users "
+        + "u left outer join user_alias alias  "
+        + "on u.user_id=alias.user_id left "
+        + "outer join address_book_entry abe on u.address_book_entry_id=abe.address_book_entry_id left "
+        + "outer join value_storage vs on vs.value_storage_id=u.value_storage_id left "
+        + "outer join setting_value sv on sv.value_storage_id=vs.value_storage_id  "
+        + "where (u.user_name= :alias or alias.alias= :alias or abe.im_id = :alias  "
+        + "or (sv.path='voicemail/fax/did' and sv.value = :alias)  "
+        + "or (sv.path='voicemail/fax/extension' and sv.value = :alias)) and u.user_name != :username";
     private static final String ALIAS = "alias";
     private static final String QUERY_USER = "from AbstractUser";
     private static final String QUERY_PARAM_GROUP_ID = "groupId";
@@ -769,6 +779,16 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         Query q = getHibernateTemplate().getSessionFactory().getCurrentSession()
         .createSQLQuery(SQL_QUERY_USER_IDS_BY_NAME_OR_ALIAS_OR_IM_ID).addScalar(USER_ID, Hibernate.INTEGER);
         q.setString(ALIAS, alias);
+        List<Integer> userIds = q.list();
+        return SipxCollectionUtils.safeSize(userIds) > 0;
+    }
+
+    @Override
+    public boolean isAliasInUseForOthers(String alias, String username) {
+        Query q = getHibernateTemplate().getSessionFactory().getCurrentSession()
+        .createSQLQuery(SQL_QUERY_USER_IDS_BY_NAME_OR_ALIAS_OR_IM_ID_EXCEPT_THIS).addScalar(USER_ID, Hibernate.INTEGER);
+        q.setString(ALIAS, alias);
+        q.setString("username", username);
         List<Integer> userIds = q.list();
         return SipxCollectionUtils.safeSize(userIds) > 0;
     }
