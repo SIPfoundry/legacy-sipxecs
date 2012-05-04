@@ -58,7 +58,7 @@ public class ProvisionSettings extends PersistableSettings {
     }
 
     public int getPort() {
-        return (Integer) getSettingTypedValue("provision-config/servlet.port");
+        return (Integer) getSettingTypedValue("provision-config/provision.servlet.port");
     }
 
     private Address getAdminAddress() {
