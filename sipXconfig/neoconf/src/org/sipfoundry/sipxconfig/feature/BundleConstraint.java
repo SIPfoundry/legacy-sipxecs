@@ -24,13 +24,6 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 
 public interface BundleConstraint {
 
-    public static final BundleConstraint SINGLE_LOCATION = new SimpleConstraint() {
-        @Override
-        public boolean isSingleLocation(FeatureManager manager, Feature feature) {
-            return true;
-        }
-    };
-
     public static final BundleConstraint PRIMARY_ONLY = new BundleConstraint() {
         @Override
         public boolean isSingleLocation(FeatureManager manager, Feature feature) {

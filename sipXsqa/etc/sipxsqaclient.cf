@@ -1,0 +1,31 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# sipXsqa Network Queue client configuration
+#
+# Conventions of note decided here:
+#  *  If there's a change to SQA config, including no available SQA server
+#     or an address change, then class 'sipxsqaclient_changed' will be 
+#     defined. You may want to restart your service. Be sure to order 
+#     sipxsqaclient first. See sipx cfengine docs on wiki.
+#
+bundle agent sipxsqaclient {
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipxsqa-client.ini"
+        comment => "install sipxsqa client config $(this.promiser)",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/sipxsqa-client.ini"),
+        classes => if_repaired("sipxsqaclient_changed");
+}

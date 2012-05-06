@@ -39,18 +39,15 @@
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
-    <setting name="SIP_RLS_LOG_CONSOLE" hidden="yes">
-      <type><string/></type>
-    </setting>
-    <setting name="SIP_RLS_UDP_PORT" hidden="yes">
+    <setting name="SIP_RLS_UDP_PORT">
       <type refid="port" />
       <value>5140</value>
     </setting>
-    <setting name="SIP_RLS_TCP_PORT" hidden="yes">
+    <setting name="SIP_RLS_TCP_PORT">
       <type refid="port" />
       <value>5140</value>
     </setting>
-    <setting name="SIP_RLS_SERVER_MIN_EXPIRATION" hidden="yes">
+    <setting name="SIP_RLS_SERVER_MIN_EXPIRATION">
       <type>
         <integer />
       </type>

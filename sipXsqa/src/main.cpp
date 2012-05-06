@@ -24,6 +24,7 @@ int main(int argc, char** argv)
   ServiceOptions service(argc, argv, "StateQueueAgent", "1.0.0", "Copyright Ezuce Inc. (All Rights Reserved)");
   service.addDaemonOptions();
   service.addOptionString("zmq-subscription-address", ": Address where to subscribe for events.");
+  service.addOptionString("zmq-subscription-port", ": Port where to send subscription for events.");
   service.addOptionString("sqa-control-port", ": Port where to send control commands.");
   service.addOptionString("sqa-control-address", ": Address where to send control commands.");
   service.addOptionString("publish-entity-oplog-config", ": Set this value if you want SQA to publish oplogs from mongo for the IdentityDB.");
@@ -33,9 +34,13 @@ int main(int argc, char** argv)
 
   if (!service.parseOptions() ||
           !service.hasOption("zmq-subscription-address") ||
+          !service.hasOption("zmq-subscription-port") ||
           !service.hasOption("sqa-control-port") ||
           !service.hasOption("sqa-control-address") )
+  {
     service.displayUsage(std::cerr);
+    return -1;
+  }
 
   StateQueueAgent sqa(service);
   sqa.run();

@@ -12,7 +12,7 @@
 # details.
 
 #
-# sipXpark configuration and process management
+# sipXsqa server configuration and process management
 #
 bundle agent sipxsqa {
   methods:
@@ -39,8 +39,8 @@ bundle edit_line sipxsqa_config_contents {
     any::
       "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxsqa-config.part"
         insert_type => "file";
-      "sqa-control-address : $(sipx.bind_ip)";
-      "zmq-subscription-address : $(sipx.bind_ip)";
+      "sqa-control-address = $(sipx.bind_ip)";
+      "zmq-subscription-address = $(sipx.bind_ip)";
 }
 
 bundle agent sipxsqa_running {

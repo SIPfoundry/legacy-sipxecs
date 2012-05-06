@@ -1,9 +1,9 @@
 #!@BASH@
-# sipxpark - Startup script for sipxpark
+# sipxrls - Startup script for sipxrls
 
 # chkconfig: 35 85 15
-# description: sipxpark is a SIP park for telecommunications
-# processname: sipXpark
+# description: sipxrls is a SIP rls for telecommunications
+# processname: sipXrls
 
 # Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
@@ -12,10 +12,10 @@
 . /etc/rc.d/init.d/functions || exit 1
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
-prog=sipxpark
+prog=sipxrls
 exec="@SIPX_BINDIR@/${prog}"
-config="@SIPX_CONFDIR@/sipxpark-config"
-pidfile="@SIPX_RUNDIR@/sipxpark.pid"
+config="@SIPX_CONFDIR@/sipxrls-config"
+pidfile="@SIPX_RUNDIR@/sipxrls.pid"
 
 [ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
 
@@ -33,7 +33,7 @@ start() {
 }
 
 stop() {
-  echo -n $"Stopping sipXpark: "
+  echo -n $"Stopping sipXrls: "
   killproc -p "${pidfile}" "${exec}"
   Status=$?
   echo
@@ -43,15 +43,6 @@ stop() {
 restart() {
   stop
   start
-}
-
-configtest() {
-  logfile="@SIPX_LOGDIR@/sipxpark.log"
-  if [ -e $logfile -a ! -w $logfile ]
-  then
-     echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
-     Status=1
-  fi
 }
 
 case "$1" in
@@ -76,7 +67,6 @@ case "$1" in
     Status=$?
     ;;
   configtest)
-    configtest
     ;;
   *)
     echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart|nofork}"

@@ -187,6 +187,12 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport<AuthCode> imple
         List<Location> locations = m_featureManager.getLocationsForEnabledFeature(AuthCodes.FEATURE);
         if (!locations.isEmpty()) {
             AuthCodeSettings settings = m_authCodesImpl.getSettings();
+            //when enabling auth code feature, default settings bean has id -1
+            //thus the test is always true (see AliasManagerImpl.canObjectUseAlias
+            //we need to disable the test for this situation
+            if (settings.isNew()) {
+                return false;
+            }
             Set<String> aliases = settings.getAliasesAsSet();
             aliases.add(settings.getAuthCodePrefix());
             for (String serviceAlias : aliases) {

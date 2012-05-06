@@ -37,7 +37,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.BundleConstraint;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
@@ -64,23 +63,42 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
         Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
+
+            // CLIENT
+            Address queue = manager.getAddressManager().getSingleAddress(QUEUE_ADDRESS, location);
+            Writer client = new FileWriter(new File(dir, "sipxsqa-client.ini"));
+            try {
+                writeClientConfig(client, queue);
+            } finally {
+                IOUtils.closeQuietly(client);
+            }
+
+            // SERVER
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
             ConfigUtils.enableCfengineClass(dir, "sipxsqa.cfdat", enabled, "sipxsqa");
-            if (!enabled) {
-                continue;
-            }
-            Writer config = new FileWriter(new File(dir, "sipxsqa-config.part"));
-            try {
-                writeConfig(config, settings);
-            } finally {
-                IOUtils.closeQuietly(config);
+            if (enabled) {
+                Writer server = new FileWriter(new File(dir, "sipxsqa-config.part"));
+                try {
+                    writeServerConfig(server, settings);
+                } finally {
+                    IOUtils.closeQuietly(server);
+                }
             }
         }
     }
 
-    void writeConfig(Writer w, NetworkQueueSettings settings) throws IOException {
-        KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(w);
+    void writeServerConfig(Writer w, NetworkQueueSettings settings) throws IOException {
+        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
         config.write(settings.getSettings().getSetting("sqa-config"));
+    }
+
+    void writeClientConfig(Writer w, Address queue) throws IOException {
+        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
+        config.write("enabled", queue != null);
+        if (queue != null) {
+            config.write("zmq-subscription-port", queue.getCanonicalPort());
+            config.write("zmq-subscription-address", queue.getAddress());
+        }
     }
 
     @Override
@@ -107,6 +125,7 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        validator.singleLocationOnly(FEATURE);
         // redis?
     }
 
@@ -127,7 +146,7 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
         if (b == Bundle.EXPERIMENTAL) {
-            b.addFeature(FEATURE, BundleConstraint.SINGLE_LOCATION);
+            b.addFeature(FEATURE);
         }
     }
 

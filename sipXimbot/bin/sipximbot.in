@@ -60,7 +60,7 @@ start() {
 
 stop() {
   echo -n $"Stopping sipximbot: "
-  killproc -p "${pidfile}" -t30 -TERM "sipximbot"
+  killproc -p "${pidfile}" "sipximbot"
   Status=$?
   echo
   [ $Status -eq 0 ] && rm -f "${pidfile}"

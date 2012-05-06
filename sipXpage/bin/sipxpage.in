@@ -52,7 +52,7 @@ start() {
 
 stop() {
   echo -n $"Stopping sipxpage: "
-  killproc -p "${pidfile}" -t30 -TERM "sipxpage"
+  killproc -p "${pidfile}" "sipxpage"
   Status=$?
   echo
   [ $Status -eq 0 ] && rm -f "${pidfile}"

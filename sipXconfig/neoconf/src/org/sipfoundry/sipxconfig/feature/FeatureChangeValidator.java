@@ -38,6 +38,17 @@ public class FeatureChangeValidator {
         m_invalid = new ArrayList<InvalidChange>();
     }
 
+    public void singleLocationOnly(LocationFeature subject) {
+        if (m_request.hasChanged(subject)) {
+            Collection<Location> on = getLocationsForEnabledFeature(subject);
+            if (on.size() > 1) {
+                InvalidChangeException err = new InvalidChangeException("&error.singleLocationOnly.{0}", subject);
+                InvalidChange singleLocation = new InvalidChange(subject, err);
+                m_invalid.add(singleLocation);
+            }
+        }
+    }
+
     public void requiresGlobalFeature(Feature subject, GlobalFeature required) {
         if (!isEnabledSomewhere(subject)) {
             return;

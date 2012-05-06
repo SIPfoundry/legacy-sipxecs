@@ -25,11 +25,11 @@ start() {
     [ -x $exec ] || exit 5
     [ -f $config ] || exit 6
     if [ -n "${NoFork}" ] ; then
-      runuser - @SIPXPBXUSER@ -c $exec  \
+      runuser - @SIPXPBXUSER@ -c "$exec  \
         --config-file $config \
         --pid-file $pidfile \
         --log-file $logfile \
-        --publish-entity-oplog-config $mongoconfig
+        --publish-entity-oplog-config $mongoconfig"
     else
       echo -n $"Starting $prog: "
       daemon --user @SIPXPBXUSER@ --pidfile $pidfile $exec \
@@ -45,7 +45,7 @@ start() {
 
 stop() {
   echo -n $"Stopping sipXsqa: "
-  killproc -p "${pidfile}" -t30 -TERM "${binfile}"
+  killproc -p "${pidfile}" "${binfile}"
   Status=$?
   echo
   [ $Status -eq 0 ] && rm -f "${pidfile}"

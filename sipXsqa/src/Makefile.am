@@ -1,6 +1,9 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = . plugin
+SUBDIRS = \
+	. \
+	plugin \
+	swig
 
 ## Process this file with automake to produce Makefile.in
 

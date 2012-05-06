@@ -10,6 +10,12 @@
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
 
+import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang.StringUtils.split;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,7 +23,6 @@ import java.util.Map;
 
 import javax.naming.Context;
 
-import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CronSchedule;
@@ -32,6 +37,8 @@ public class LdapConnectionParams extends BeanWithId implements DeployConfigOnEd
     private static final int DEFAULT_SSL_PORT = 636;
 
     private String m_host;
+    private String m_fullHost;
+    private String m_domain;
     private Integer m_port;
     private String m_principal;
     private String m_secret;
@@ -50,6 +57,15 @@ public class LdapConnectionParams extends BeanWithId implements DeployConfigOnEd
 
     public void setHost(String host) {
         m_host = host;
+        m_fullHost = getFullHostValue();
+    }
+
+    private String getFullHostValue() {
+        if (!isBlank(m_domain) && !isBlank(m_host)) {
+            return join(new String [] {m_host, " ", m_domain});
+        } else {
+            return m_host;
+        }
     }
 
     public Integer getPort() {
@@ -113,8 +129,8 @@ public class LdapConnectionParams extends BeanWithId implements DeployConfigOnEd
     }
 
     public void applyToContext(LdapContextSource config) {
-        config.setUserName(StringUtils.defaultString(m_principal, StringUtils.EMPTY));
-        config.setPassword(StringUtils.defaultString(m_secret, StringUtils.EMPTY));
+        config.setUserName(defaultString(m_principal, EMPTY));
+        config.setPassword(defaultString(m_secret, EMPTY));
         config.setUrl(getUrl());
         Map<String, String> otherParams = new HashMap<String, String>();
         otherParams.put(Context.REFERRAL, m_referral);
@@ -124,5 +140,29 @@ public class LdapConnectionParams extends BeanWithId implements DeployConfigOnEd
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) LdapManager.FEATURE);
+    }
+
+    public String getDomain() {
+        return m_domain;
+    }
+
+    public void setDomain(String domain) {
+        m_domain = domain;
+        m_fullHost = getFullHostValue();
+    }
+
+    public String getFullHost() {
+        return m_fullHost;
+    }
+
+    public void setFullHost(String fullHost) {
+        m_fullHost = fullHost;
+        String[] host = split(m_fullHost);
+        if (host.length == 2) {
+            m_host = host[0];
+            m_domain = host[1];
+        } else {
+            m_host = fullHost;
+        }
     }
 }

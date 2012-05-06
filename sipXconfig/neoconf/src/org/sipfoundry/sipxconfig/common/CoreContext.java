@@ -217,4 +217,6 @@ public interface CoreContext extends DataObjectSource<User>, AliasOwner {
 
     Collection<Integer> getBranchMembersByPage(int bid, int first, int pageSize);
 
+    public boolean isAliasInUseForOthers(String alias, String username);
+
 }

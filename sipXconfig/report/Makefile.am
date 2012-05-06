@@ -30,9 +30,6 @@ CLEANFILES = jasper-build.xml $(report_OUT)
 jasper-build.xml : Makefile
 	echo "$$jasper_report_compiler" > $@
 
-classes/goo classes/foo : jasper-build.xml $(report_SRC)
-	echo here > $@
-
 $(report_OUT) : jasper-build.xml $(report_SRC)
 # force a whole new compilation because jasper report compiler only builds if
 # it thinks it needs to.  we already have dependency management here and don't

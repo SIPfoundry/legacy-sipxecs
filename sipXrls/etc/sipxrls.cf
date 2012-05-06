@@ -1,0 +1,86 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# sipXrls configuration and process management
+#
+bundle agent sipxrls {
+  methods:
+    sipxrls::
+      "any" usebundle => "sipxrls_config";
+    any::
+      "any" usebundle => "sipxrls_running";
+}
+
+bundle agent sipxrls_config {
+  files:
+    sipxrls::
+      "$(sipx.SIPX_CONFDIR)/resource-lists.xml"
+        comment => "install $(this.promiser)",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/resource-lists.xml"),
+        classes => if_repaired("restart_sipxrls");
+
+      "$(sipx.SIPX_CONFDIR)/sipxrls-config"
+        comment => "install $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_defaults => empty,
+        edit_line => sipXrls_config_contents(),
+        classes => if_repaired("restart_sipxrls");
+}
+
+bundle edit_line sipXrls_config_contents() {
+  insert_lines:
+    sipxrls::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxrls-config.part"
+        insert_type => "file";
+"SIP_RLS_LOG_DIR : $(sipx.SIPX_LOGDIR)
+SIP_RLS_FILE_NAME : $(sipx.SIPX_CONFDIR)/resource-lists.xml
+SIP_RLS_LOG_CONSOLE :
+SIP_RLS_BIND_IP : $(sipx.bind_ip)
+SIP_RLS_DOMAIN_NAME : $(sipx.domain)
+SIP_RLS_AUTHENTICATE_REALM : $(sipx.realm)
+";
+}
+
+bundle agent sipxrls_running {
+  vars:
+    any::
+      "service_command" string => "$(sipx.SIPX_BINDIR)/sipXrls";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxrls_running");
+    !src.sipxrls::
+      "any" usebundle => rh_chkconfig_status("sipxrls on");
+    !src.!sipxrls::
+      "any" usebundle => rh_chkconfig_status("sipxrls off");
+
+  commands:
+    (!sipxrls|stop_sipxecs).sipxrls_running::
+      "$(sipx.SIPX_SERVICEDIR)/sipxrls"
+        comment => "stop sipxrls",
+        args => "stop";
+
+    sipxrls.!sipxrls_running::
+      "$(sipx.SIPX_SERVICEDIR)/sipxrls"
+        comment => "start sipxrls",
+        args => "start";
+
+    sipxrls.sipxrls_running.(restart_sipxrls|restart_sipxecs)::
+      "$(sipx.SIPX_SERVICEDIR)/sipxrls"
+        comment => "restart sipxrls",
+        args => "restart";
+}
+

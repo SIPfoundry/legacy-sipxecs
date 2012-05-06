@@ -3,6 +3,8 @@ AC_INIT(sipXsqa, 0.0.4.5.2, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
+m4_include([config/java.m4])
+m4_include([config/java2.m4])
 AM_INIT_AUTOMAKE(foreign tar-ustar)
 SFAC_AUTOMAKE_VERSION([1.6])
 AC_DISABLE_STATIC
@@ -14,13 +16,19 @@ AC_PROG_CXX
 AX_COMPILER_VENDOR
 AC_PROG_CC
 CHECK_XARGS_REPLACE
-AM_CONDITIONAL(IS_RPMBUILD, test x$enable_rpmbuild = xyes)
+AC_PROG_JAVA_CC([javac])
+AC_PROG_JAVA([java])
+AC_PATH_PROG([SWIG], [swig])
+CHECK_JDK
+CHECK_JNI
+PROG_JAVA_DEP
 SFAC_INIT_FLAGS
 SFAC_LIB_COMMSERVER
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
   src/plugin/Makefile
+  src/swig/Makefile
   include/Makefile
   bin/Makefile
   etc/Makefile

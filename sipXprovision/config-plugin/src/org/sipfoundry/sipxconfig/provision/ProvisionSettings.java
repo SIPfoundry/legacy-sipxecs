@@ -16,17 +16,22 @@
  */
 package org.sipfoundry.sipxconfig.provision;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
-public class ProvisionSettings extends PersistableSettings {
+public class ProvisionSettings extends PersistableSettings implements DeployConfigOnEdit {
     private static final String ADMIN_URL = "provision-config/provision.configUrl";
     private CoreContext m_coreContext;
     private AddressManager m_addressManager;
@@ -58,7 +63,7 @@ public class ProvisionSettings extends PersistableSettings {
     }
 
     public int getPort() {
-        return (Integer) getSettingTypedValue("provision-config/servlet.port");
+        return (Integer) getSettingTypedValue("provision-config/provision.servlet.port");
     }
 
     private Address getAdminAddress() {
@@ -86,5 +91,10 @@ public class ProvisionSettings extends PersistableSettings {
     @Override
     public String getBeanId() {
         return "provisionSettings";
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) Provision.FEATURE);
     }
 }

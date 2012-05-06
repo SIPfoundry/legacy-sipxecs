@@ -31,7 +31,12 @@
 #include <boost/program_options.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/detail/ptree_utils.hpp>
+#include <stdexcept>
+#include <locale>
 #include "os/OsLogger.h"
+
 
 namespace Os
 {
@@ -199,7 +204,8 @@ public:
   bool parseOptions();
   void displayUsage(std::ostream& strm) const;
   void displayVersion(std::ostream& strm) const;
-  size_t hasOption(const std::string& optionName) const;
+  size_t hasOption(const std::string& optionName, bool consolidate = true) const;
+  size_t hasConfigOption(const std::string& optionName) const;
   bool getOption(const std::string& optionName, std::string& value, const std::string& defValue = std::string()) const;
   bool getOption(const std::string& optionName, std::vector<std::string>& value) const;
   bool getOption(const std::string& optionName, int& value) const;
@@ -285,22 +291,22 @@ inline bool ServiceOptions::parseOptions()
     boost::program_options::store(boost::program_options::parse_command_line(_argc, _argv, _optionItems), _options);
     boost::program_options::notify(_options);
 
-    if (hasOption("help"))
+    if (hasOption("help", false))
     {
       displayUsage(std::cout);
       exit(0);
     }
 
-    if (hasOption("version"))
+    if (hasOption("version", false))
     {
       displayVersion(std::cout);
       exit(0);
     }
 
-    if (hasOption("pid-file"))
+    if (hasOption("pid-file", false))
       getOption("pid-file", _pidFile);
 
-    if (hasOption("daemonize"))
+    if (hasOption("daemonize", false))
     {
       if (_pidFile.empty())
       {
@@ -312,15 +318,15 @@ inline bool ServiceOptions::parseOptions()
       _isDaemon = true;
     }
 
-    if (hasOption("config-file"))
+    if (hasOption("config-file", false))
     {
       if (getOption("config-file", _configFile) && !_configFile.empty())
       {
         std::ifstream config(_configFile.c_str());
         if (config.good())
         {
-          boost::program_options::store(boost::program_options::parse_config_file(config, _optionItems, true), _options);
-          boost::program_options::notify(_options);
+          //boost::program_options::store(boost::program_options::parse_config_file(config, _optionItems, true), _options);
+          //boost::program_options::notify(_options);
           boost::property_tree::ini_parser::read_ini(_configFile.c_str(), _ptree);
           _hasConfig = true;
         }
@@ -338,7 +344,7 @@ inline bool ServiceOptions::parseOptions()
   {
     if (!onParseUnknownOptions(_argc, _argv))
     {
-      std::cerr << _daemonName << "is not able to parse the options - " << e.what() << std::endl;
+      std::cerr << _daemonName << " is not able to parse the options - " << e.what() << std::endl;
       return false;
     }
   }
@@ -355,11 +361,11 @@ inline void ServiceOptions::initlogger()
 {
   std::string logFile;
   int priorityLevel = PRI_INFO;
-  if (hasOption("log-file"))
+  if (hasOption("log-file", true))
   {
     if (getOption("log-file", logFile) && !logFile.empty())
     {
-      if (hasOption("log-level"))
+      if (hasOption("log-level", true))
         getOption("log-level", priorityLevel, priorityLevel);
 
       int logLevel = SYSLOG_NUM_PRIORITIES - priorityLevel - 1;
@@ -560,14 +566,22 @@ inline void ServiceOptions::displayVersion(std::ostream& strm) const
   strm.flush();
 }
 
-inline size_t ServiceOptions::hasOption(const std::string& optionName) const
+inline std::size_t ServiceOptions::hasOption(const std::string& optionName, bool consolidate) const
 {
-  return _options.count(optionName.c_str());
+  std::size_t ct = _options.count(optionName.c_str());
+  if (!ct && consolidate && _hasConfig)
+    ct = _ptree.count(optionName.c_str());
+  return ct;
+}
+
+inline size_t ServiceOptions::hasConfigOption(const std::string& optionName) const
+{
+  return _ptree.count(optionName.c_str());
 }
 
 inline bool ServiceOptions::getOption(const std::string& optionName, std::string& value, const std::string& defValue) const
 {
-  if (defValue.empty() && !hasOption(optionName))
+  if (defValue.empty() && !hasOption(optionName, false))
   {
     //
     // Check if ptree has it
@@ -587,7 +601,7 @@ inline bool ServiceOptions::getOption(const std::string& optionName, std::string
     {
       return false;
     }
-  }else if (!hasOption(optionName))
+  }else if (!hasOption(optionName, false))
   {
     value = defValue;
     return true;
@@ -599,7 +613,7 @@ inline bool ServiceOptions::getOption(const std::string& optionName, std::string
 
 inline bool ServiceOptions::getOption(const std::string& optionName, std::vector<std::string>& value) const
 {
-  if (!hasOption(optionName))
+  if (!hasOption(optionName, false))
     return false;
   value = _options[optionName.c_str()].as<std::vector<std::string> >();
   return true;
@@ -607,7 +621,7 @@ inline bool ServiceOptions::getOption(const std::string& optionName, std::vector
 
 inline bool ServiceOptions::getOption(const std::string& optionName, int& value) const
 {
-  if (!hasOption(optionName))
+  if (!hasOption(optionName, false))
   {
     //
     // Check if ptree has it
@@ -624,14 +638,13 @@ inline bool ServiceOptions::getOption(const std::string& optionName, int& value)
       }
     }
   }
-
   value = _options[optionName.c_str()].as<int>();
   return true;
 }
 
 inline bool ServiceOptions::getOption(const std::string& optionName, int& value, int defValue) const
 {
-  if (!hasOption(optionName))
+  if (!hasOption(optionName, false))
   {
     //
     // Check if ptree has it
@@ -660,7 +673,7 @@ inline bool ServiceOptions::getOption(const std::string& optionName, int& value,
 
 inline bool ServiceOptions::getOption(const std::string& optionName, std::vector<int>& value) const
 {
-  if (!hasOption(optionName))
+  if (!hasOption(optionName,false))
     return false;
   value = _options[optionName.c_str()].as<std::vector<int> >();
   return true;

@@ -269,7 +269,7 @@ EOF
 
 stop() {
   echo -n $"Stopping sipxconfig: "
-  killproc -p "${PidFile}" -d 60 sipxconfig -TERM
+  killproc -p "${PidFile}" -d 10 sipxconfig
   Status=$?
   if [ $Status -eq 0 ]; then
      echo_success

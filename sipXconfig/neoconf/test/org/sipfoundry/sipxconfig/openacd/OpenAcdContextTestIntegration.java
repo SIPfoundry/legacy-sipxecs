@@ -35,7 +35,7 @@ import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
@@ -94,6 +94,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
     private CoreContext m_coreContext;
     private FeatureManager m_featureManager;
     private OpenAcdReplicationProvider m_openAcdReplicationProvider;
+    private LocationsManager m_locationsManager;
 
     private DBCollection getEntityCollection() {
         return getImdb().getCollection("entity");
@@ -106,7 +107,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         loadDataSetXml("domain/DomainSeed.xml");
         sql("openacd/openacd.sql");
         getEntityCollection().drop();
-        m_featureManager.enableLocationFeature(OpenAcdContext.FEATURE, new Location("localhost", "127.0.0.1"), true);
+        m_featureManager.enableLocationFeature(OpenAcdContext.FEATURE, m_locationsManager.getPrimaryLocation(), true);
     }
 
     public static OpenAcdLine createOpenAcdLine(String extensionName) {
@@ -1259,5 +1260,9 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
 
     public void setOpenAcdReplicationProvider(OpenAcdReplicationProvider openAcdReplicationProvider) {
         m_openAcdReplicationProvider = openAcdReplicationProvider;
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 }

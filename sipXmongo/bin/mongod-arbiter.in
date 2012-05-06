@@ -25,7 +25,7 @@ LOCKFILE=/var/lock/subsys/mongod-arbiter
 # FIXME: 1.9.x has a --shutdown flag that parses the config file and
 # shuts down the correct running pid, but that's unavailable in 1.8
 # for now.  This can go away when this script stops supporting 1.8.
-DBPATH=`awk -F= '/^dbpath=/{print $2}' "$CONFIGFILE"`
+DBPATH=`awk -F= '/^dbpath ?= ?/{print $2}' "$CONFIGFILE"`
 mongod=${MONGOD-/usr/bin/mongod}
 
 # 10gen v.s. fedora
@@ -56,7 +56,7 @@ start()
 stop()
 {
   echo -n $"Stopping mongod: "
-  killproc -p "$DBPATH"/mongod-arbiter.lock -t30 -TERM /usr/bin/mongod
+  killproc -p $PIDFILE /usr/bin/mongod
   RETVAL=$?
   echo
   [ $RETVAL -eq 0 ] && rm -f $LOCKFILE

@@ -26,14 +26,6 @@
                </td>                
               <td jwcid="@Any" colspan="ognl:locations.size"/>
             </span>
-            <span jwcid="pickOne@Block">
-              <td/>
-              <span jwcid="@RadioGroup" selected="ognl:pickedSingleCell">
-                <span jwcid="@For" source="ognl:cells" value="ognl:cell" converter="ognl:cellConverter">
-                  <td style="text-align:center" class="ognl:cellClass" jwcid="@Any"><input jwcid="@Radio" value="ognl:cell" disabled="ognl:!cell.enabled"  onclick="javascript: validateBundle()"/></td>
-                </span>
-              </span>
-            </span>
             <span jwcid="pickAny@Block">
               <td/>
               <span jwcid="@For" source="ognl:cells" value="ognl:cell" converter="ognl:cellConverter">

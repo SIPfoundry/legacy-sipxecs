@@ -438,7 +438,7 @@ start() {
 
 stop() {
   echo -n $"Stopping sipxcdr: "
-  killproc -p "${PidFile}" -t30 -TERM "sipxcdr"
+  killproc -p "${PidFile}" "sipxcdr"
   Status=$?
   echo
   [ $Status -eq 0 ] && rm -f "${PidFile}"

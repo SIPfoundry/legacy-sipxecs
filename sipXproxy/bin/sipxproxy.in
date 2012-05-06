@@ -34,7 +34,9 @@ start() {
 
 stop() {
   echo -n $"Stopping sipXproxy: "
-  killproc -p "${pidfile}" -t30 "${binfile}"
+  # can take a while to shutdown because of relay
+  # dont wait too long as service availability is in jeopardy
+  killproc -p "${pidfile}" -d 10 "${exec}"
   Status=$?
   echo
   [ $Status -eq 0 ] && rm -f "${pidfile}"

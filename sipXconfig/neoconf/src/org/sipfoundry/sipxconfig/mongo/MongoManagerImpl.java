@@ -27,7 +27,6 @@ import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.BundleConstraint;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
@@ -108,7 +107,7 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
         if (b == Bundle.CORE) {
             b.addFeature(FEATURE_ID);
-            b.addFeature(ARBITER_FEATURE, BundleConstraint.SINGLE_LOCATION);
+            b.addFeature(ARBITER_FEATURE);
         }
     }
 

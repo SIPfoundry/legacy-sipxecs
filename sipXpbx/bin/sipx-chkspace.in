@@ -32,7 +32,7 @@ Partition=@localstatedir@
 LogDir=@localstatedir@/log/sipxpbx
 
 ## voicemail_clean script is now in same directory -get path
-Clean=`pwd`
+Clean=@sysconfdir@/cron.daily
 
 ## Action functions - these are called when one of the thresholds is exceeded
 

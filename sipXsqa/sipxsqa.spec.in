@@ -9,6 +9,11 @@ Vendor:   SIPfoundry
 Packager: SIPfoundry <sipx-dev@list.sipfoundry.org>
 Url:      http://www.sipfoundry.org/
 
+%if %{_vendor} == suse
+BuildRequires: java-1_6_0-sun-devel
+%else
+BuildRequires: java-devel >= 1.6
+%endif
 BuildRequires: automake
 BuildRequires: gcc-c++
 BuildRequires: zeromq-devel
@@ -30,6 +35,17 @@ combined with ZeroMQ Message Queue .
 %if %{_vendor} == suse
 %debug_package
 %endif
+
+%package server
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Internal documentation for %name
+Requires: %name
+Requires: sipxcommserverlib >= %version
+Requires: sipxsupervisor >= %version
+
+%description server
+SQA Network Queue server
 
 %package devel
 Requires: %name
@@ -58,13 +74,22 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_bindir}/sipxsqa
-%attr(755,root,root) %{_libdir}/plugins/libsqaclient_plugin.so*
+%attr(755,root,root) %{_libdir}/plugin/libsqaclient_plugin.so*
 %attr(755,root,root) %{_libdir}/libsipXsqa.so*
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxsqaclient.cf
+%{_datadir}/java/sipXecs/sipXcommons/sipxsqaclient.jar
+%{_libdir}/libsqaclient.so*
+
+%files server
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxsqa
+%attr(755,root,root) %{_bindir}/sipxsqa
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxsqa.cf
 
 %files devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/plugins/libsqaclient_plugin.la
+%attr(755,root,root) %{_libdir}/plugin/libsqaclient_plugin.la
 %attr(755,root,root) %{_libdir}/libsipXsqa.la
+%{_libdir}/libsqaclient.la
 %{_includedir}/sqa/*
 

@@ -9,6 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createMock;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,7 +30,9 @@ import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 public class LdapRowInserterTest extends TestCase {
@@ -58,6 +64,11 @@ public class LdapRowInserterTest extends TestCase {
         control.replay();
 
         User joe = new User();
+        PermissionManager pManager = createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+        replay(pManager);
+        joe.setPermissionManager(pManager);
         Group salesGroup = new Group();
         salesGroup.setName(SALES);
         salesGroup.setUniqueId();
@@ -120,6 +131,7 @@ public class LdapRowInserterTest extends TestCase {
         m_rowInserter.setUserMapper(userMapper);
         m_rowInserter.setMailboxManager(mailboxManager);
         m_rowInserter.setAttrMap(map);
+        m_rowInserter.setDomain("example.com");
         m_rowInserter.beforeInserting();
         m_rowInserter.insertRow(searchResult, attributes);
         m_rowInserter.afterInserting();
@@ -131,6 +143,7 @@ public class LdapRowInserterTest extends TestCase {
 
     public void testInsertRowExistingUser() throws Exception {
         User joe = insertRow(true);
+        assertEquals("example.com", joe.getSettingValue(User.DOMAIN_SETTING));
         assertEquals(2, joe.getGroups().size());
         //existing ldap group have been deleted and replaced with new ldap group
         for (Group group : joe.getGroups()) {

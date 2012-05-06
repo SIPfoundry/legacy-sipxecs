@@ -30,6 +30,7 @@
 #include <net/SipLineMgr.h>
 #include <net/HttpMessage.h>
 #include <sipXecsService/SipXecsService.h>
+#include <sipXecsService/daemon.h>
 #include <sipdb/EntityDB.h>
 
 // DEFINES
@@ -275,32 +276,46 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm, EntityDB& entityD
    return lineMgr;
 }
 
+void signal_handler(int sig) {
+    switch(sig) {
+    case SIGPIPE:
+        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGPIPE caught. Ignored.");
+    break;
+
+    case SIGHUP:
+        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGHUP caught. Ignored.");
+	break;
+
+    case SIGTERM:
+        gShutdownFlag = TRUE;
+        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGTERM caught. Shutting down.");
+	break;
+    }
+}
+
 //
 // The main entry point to sipXrls.
 //
 int main(int argc, char* argv[])
 {
+    char* pidFile = NULL;
+    for(int i = 1; i < argc; i++) {
+        if(strncmp("-v", argv[i], 2) == 0) {
+          std::cout << "Version: " << PACKAGE_VERSION << PACKAGE_REVISION << std::endl;
+          exit(0);
+        } else {
+          pidFile = argv[i];
+        }
+    }
+    if (pidFile) {
+      daemonize(pidFile);
+    }
+    signal(SIGHUP, signal_handler); // catch hangup signal
+    signal(SIGTERM, signal_handler); // catch kill signal
+    signal(SIGPIPE, signal_handler); // r/w socket failure
+
    // Configuration Database (used for OsSysLog)
    OsConfigDb configDb;
-
-   UtlString argString;
-   for (int argIndex = 1; argIndex < argc; argIndex++)
-   {
-      osPrintf("arg[%d]: %s\n", argIndex, argv[argIndex]);
-      argString = argv[argIndex];
-      NameValueTokenizer::frontBackTrim(&argString, "\t ");
-      if (argString.compareTo("-v") == 0)
-      {
-         osPrintf("Version: %s (%s)\n", VERSION, PACKAGE_REVISION);
-         return 1;
-      }
-      else
-      {
-         osPrintf("usage: %s [-v]\nwhere:\n -v provides the software version\n",
-                  argv[0]);
-         return 1;
-      }
-   }
 
    // Load configuration file.
    OsPath workingDirectory;
@@ -459,14 +474,10 @@ int main(int argc, char* argv[])
    
    // Delete the LineMgr Object
    delete lineMgr;
-
    
-   // Flush the log file
-   Os::Logger::instance().flush();
-   
-   
-		    
    // Say goodnight Gracie...
+   Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "Exiting") ;
+   Os::Logger::instance().flush();
    return 0;
 }
 

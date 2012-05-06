@@ -20,12 +20,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
@@ -42,15 +43,18 @@ public class RlsConfig implements ConfigProvider {
             return;
         }
 
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(Rls.FEATURE);
-        if (locations.isEmpty()) {
-            return;
-        }
+        Set<Location> locations = request.locations(manager);
 
         RlsSettings settings = m_rls.getSettings();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            Writer wtr = new FileWriter(new File(dir, "sipxrls-config.cfdat"));
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(Rls.FEATURE, location);
+            ConfigUtils.enableCfengineClass(dir, "sipxrls.cfdat", enabled, "sipxrls");
+            if (!enabled) {
+                continue;
+            }
+
+            Writer wtr = new FileWriter(new File(dir, "sipxrls-config.part"));
             try {
                 write(wtr, settings, location, manager.getDomainManager().getDomain());
             } finally {

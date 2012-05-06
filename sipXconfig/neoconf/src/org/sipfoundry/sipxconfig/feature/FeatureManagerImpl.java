@@ -205,7 +205,9 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
                     f, location.getId()));
             }
         }
-        m_jdbcTemplate.batchUpdate(sql.toArray(new String[0]));
+        if (!sql.isEmpty()) {
+            m_jdbcTemplate.batchUpdate(sql.toArray(new String[0]));
+        }
     }
 
     void deleteSql(List<String> sql, Set<GlobalFeature> set) {
