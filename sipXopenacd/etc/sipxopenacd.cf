@@ -20,20 +20,43 @@ bundle agent sipxopenacd {
     sipxopenacd::
       "any" usebundle => "sipxopenacd_config";
     any::
-      "any" usebundle => "sipxopenacd_setup";
       "any" usebundle => "sipxopenacd_running";
 }
 
 bundle agent sipxopenacd_config {
   files:
+    # Those that install via git/tarball (i.e. developers) don't install code directly
+    # into OpenACD dirs for 2 reasons
+    #  1.) Hard to support 2 or more sipxecs installs on one machine.  Each system would
+    #      have to ininstall the other version before it could run
+    #  2.) make install shouldn't require root permissions and asking users to change
+    #      permissions of OpenACD install dirs is awkward at best and in very
+    #      bad taste.
+    # So here we simply inform openacd startup to include our code when it starts up.
+    src::
+      "$(sipx.OPENACD_CONFDIR)/sysopenacd"
+        create => "true",
+        perms => m("644"),
+        edit_defaults => empty,
+        # NOTE: as long as $(OAPLUGINDIR) is *not* a defined cfengine var
+        # it should pass thru unreplaced.
+        edit_line => insert_lines("OAPLUGINDIR=$(OAPLUGINDIR):$(sipx.SIPX_LIBDIR)/openacd/plugin.d");
+
     any::
+      # symlink service script mostly so it can be used registered to system
+      # when system starts in rh_chkconfig_status but also for user convienience
+      "$(sipx.SIPX_SERVICEDIR)/openacd"
+        comment => "install openacd config $(this.promiser)",
+        perms => m("755"),
+        link_from => ln_s("$(sipx.OPENACD_DIR)/bin/openacd");
+
+      # regular configs
       "$(sipx.OPENACD_CONFDIR)/vm.args"
         comment => "install openacd config $(this.promiser)",
         create => "true",
         perms => m("644"),
         edit_line => sipxopenacd_vm_args;
 
-    any::
       "$(sipx.OPENACD_CONFDIR)/app.config"
         comment => "install openacd config $(this.promiser)",
         create => "true",
@@ -92,14 +115,6 @@ bundle edit_line sipxopenacd_app_config() {
       ".*";
 }
 
-bundle agent sipxopenacd_setup {
-  methods:
-    !src.sipxopenacd::
-      "any" usebundle => rh_chkconfig_status("sipxopenacd on");
-    !src.!sipxopenacd::
-      "any" usebundle => rh_chkconfig_status("sipxopenacd off");
-}
-
 bundle agent sipxopenacd_running {
   vars:
     any::
@@ -108,20 +123,24 @@ bundle agent sipxopenacd_running {
   methods:
     any::
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxopenacd_running");
+    !src.sipxopenacd::
+      "any" usebundle => rh_chkconfig_status("openacd on");
+    !src.!sipxopenacd::
+      "any" usebundle => rh_chkconfig_status("openacd off");
 
   commands:
     (!sipxopenacd|stop_sipxecs).sipxopenacd_running::
-      "$(sipx.SIPX_SERVICEDIR)/sipxopenacd"
-        comment => "stop sipxopenacd",
+      "$(sipx.SIPX_SERVICEDIR)/openacd"
+        comment => "stop openacd",
         args => "stop";
 
     sipxopenacd.!sipxopenacd_running::
-      "$(sipx.SIPX_SERVICEDIR)/sipxopenacd"
-        comment => "start sipxopenacd",
+      "$(sipx.SIPX_SERVICEDIR)/openacd"
+        comment => "start openacd",
         args => "start";
 
     sipxopenacd.sipxopenacd_running.(restart_sipxecs|restart_sipxopenacd)::
-      "$(sipx.SIPX_SERVICEDIR)/sipxopenacd"
-        comment => "restart sipxopenacd",
+      "$(sipx.SIPX_SERVICEDIR)/openacd"
+        comment => "restart openacd",
         args => "restart";
 }

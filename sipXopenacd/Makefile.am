@@ -1,54 +1,70 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/project.am
+include $(top_srcdir)/common.am
 
 SUBDIRS = \
-	bin \
-	etc \
-	src
+	. \
+	etc
 
 @PACKAGE@_EXTRA_DIST = \
+	$(DEPS) \
 	src \
-	bin \
-	etc \
-	deps \
-	$(REBAR) \
-	$(REBAR).config \
+	rebar \
+	rebar.config \
 	README \
 	LICENSE
 
-REBAR=./rebar
-TARBALL = $(abspath $(DESTDIR)sipxopenacd-$(VERSION).tar.gz)
+DEPS = $(addprefix deps/,\
+	erlmongo \
+	meck)
 
-erlang_src = $(srcdir)/src
-rebar= $(srcdir)/rebar \
-	$(srcdir)/rebar.config
-OPENACD_VARS = \
-	$(filter OPENACD%,$(.VARIABLES))
-dist_EXTRA_REPLACE = $(OPENACD_VARS)
+all : $(BEAM_FILES)
 
-noinst_SCRIPTS = sipxopenacd.spec
-
-all: deps rcompile 
-
-deps:
-	$(shell cp -r $(erlang_src) $(abs_builddir) )
-	$(shell cp -r $(rebar) $(abs_builddir) )
-	$(REBAR) get-deps update-deps
-	rm -f deps/OpenACD/openacd.spec
-	rm -f deps/protobuffs/cover.spec
+deps/% :
+	./rebar get-deps update-deps
 	rm -f deps/erlmongo/erlmongo.spec
 
-rcompile:
-	$(shell cp -r $(erlang_src) $(abs_builddir) )
-	$(shell cp -r $(rebar) $(abs_builddir) )
-	ERL_LIBS=@OPENACD_DIR@/lib $(REBAR) compile skip_deps=true
+deps : $(DEPS)
 
-clean:
-	$(REBAR) clean
+dist-hook : deps
 
-dist: deps
+.PHONY : deps
 
-rpm: dist
-	QA_RPATHS=0x0003 rpmbuild -tb $(TARBALL)
+# C O M P I L E   S R C
+# Normally there's a makefile in src to compile but we leverage
+# a trick to symlink all of the src files to the build directory
+# to comply with a rebar limitation that it's incompatible with
+# Automake's VPATH concept.
 
-.PHONY: all deps rcompile clean install dist rpm sipxopenacd.spec
+ERL_FILES = $(shell cd $(srcdir)/src; find ./ -name '*.erl')
+SRC_FILES = $(addprefix src/,$(ERL_FILES))
+BEAM_FILES = $(addprefix ebin/,$(ERL_FILES:.erl=.beam))
+
+LINK_TARGETS = $(addprefix $(abspath $(builddir))/, src rebar rebar.config)
+
+# rebar wants to mix source and binaries in the same dir so if
+# srcdir != bindir then we symlink them from srcdir. Don't copy as
+# that can only introduce stale files. Also, this target is safely 
+# ignored when srcdir == bindir.
+$(SRC_FILES) : $(LINK_TARGETS);
+$(LINK_TARGETS) :
+	ln -s $(abspath $(srcdir))/$(notdir $@) $@
+
+# this ensures any change to source then recompile is triggered
+ebin/%.beam : src/%.erl
+	ERL_LIBS=@OPENACD_DIR@/lib ./rebar compile skip_deps=true
+
+ebindir = $(SIPX_LIBDIR)/openacd/lib/ebin
+ebin_DATA = \
+	$(BEAM_FILES)
+
+plugindir = $(SIPX_LIBDIR)/openacd/plugin.d
+plugin_DATA = \
+	sipxplugin.app \
+	deps/erlmongo/ebin/erlmongo.app
+
+sipxplugin.app : %  : src/%.src Makefile
+	@$(call SearchAndReplace,$<,$@,$(OPENACD_VARS))
+
+clean : $(LINK_TARGETS)
+	./rebar clean
