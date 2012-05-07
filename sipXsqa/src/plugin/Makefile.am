@@ -3,7 +3,11 @@
 
 SQAPLUGIN_COMMON_CXX_FLAGS = \
 	-I$(top_builddir)/config \
-	-I$(top_srcdir)/include
+	-I$(top_srcdir)/include \
+	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
+        -DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
+        -DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
+        -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed

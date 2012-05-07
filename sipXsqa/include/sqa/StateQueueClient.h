@@ -27,6 +27,7 @@
 #include "BlockingQueue.h"
 #include "os/OsLogger.h"
 #include <boost/lexical_cast.hpp>
+#include "ServiceOptions.h"
 
 
 class StateQueueClient : public boost::enable_shared_from_this<StateQueueClient>, private boost::noncopyable
@@ -94,6 +95,37 @@ public:
       }
 
       return _isConnected;
+    }
+
+    bool connect()
+    {
+      //
+      // Initialize State Queue Agent Publisher if an address is provided
+      //
+      std::string sqaControlAddress;
+      std::string sqaControlPort;
+      std::ostringstream sqaconfig;
+      sqaconfig << SIPX_CONFDIR << "/" << "sipxsqa-client.ini";
+      ServiceOptions configOptions(sqaconfig.str());
+      std::string controlAddress;
+      std::string controlPort;
+      if (configOptions.parseOptions())
+      {
+        bool enabled = false;
+        if (configOptions.getOption("enabled", enabled, enabled) && enabled)
+        {
+          configOptions.getOption("sqa-control-address", _serviceAddress);
+          configOptions.getOption("sqa-control-port", _servicePort);
+        }
+        {
+          return false;
+        }
+      }
+
+      if(_serviceAddress.empty() || _servicePort.empty())
+        return false;
+      
+      return connect(_serviceAddress, _servicePort);
     }
 
     bool sendAndReceive(const StateQueueMessage& request, StateQueueMessage& response)
@@ -223,6 +255,7 @@ public:
     std::string _serviceAddress;
     std::string _servicePort;
     bool _isConnected;
+    friend class StateQueueClient;
   };
 
 protected:
@@ -285,6 +318,63 @@ public:
       {
         BlockingTcpClient* pClient = new BlockingTcpClient(_ioService);
         pClient->connect(_serviceAddress, _servicePort);
+        _clientPointers.push_back(pClient);
+        BlockingTcpClient::Ptr client(pClient);
+        _clientPool.enqueue(client);
+      }
+
+      if (_type == Watcher)
+        _zmqEventId = "sqw.";
+      else
+        _zmqEventId = "sqa.";
+
+      _zmqEventId += zmqEventId;
+
+      if (_type != Publisher)
+      {
+        std::ostringstream controlAddress;
+        controlAddress << "inproc://" << this;
+        _zmqControlSocket.bind(controlAddress.str().c_str());
+        subscribe("_TERMINATE", controlAddress.str());
+        _pEventThread = new boost::thread(boost::bind(&StateQueueClient::eventLoop, this));
+      }
+      else
+      {
+        std::string publisherAddress;
+        signin(publisherAddress);
+      }
+  }
+
+  StateQueueClient(
+        Type type,
+        const std::string& applicationId,
+        const std::string& zmqEventId,
+        std::size_t poolSize
+        ) :
+    _type(type),
+    _ioService(),
+    _poolSize(poolSize),
+    _clientPool(_poolSize),
+    _terminate(false),
+    _keepAliveThread(boost::bind(&StateQueueClient::keepAliveLoop, this)),
+    _zmqContext(1),
+    _zmqSocket(_zmqContext,ZMQ_SUB),
+    _zmqControlSocket(_zmqContext, ZMQ_PUB),
+    _pEventThread(0),
+    _applicationId(applicationId),
+    _eventQueue(1000),
+    _expires(10),
+    _subscriptionExpires(1800),
+    _backoffCount(0),
+    _refreshSignin(false),
+    _currentSigninTick(-1)
+  {
+      for (std::size_t i = 0; i < _poolSize; i++)
+      {
+        BlockingTcpClient* pClient = new BlockingTcpClient(_ioService);
+        pClient->connect();
+        _serviceAddress = pClient->_serviceAddress;
+        _servicePort = pClient->_servicePort;
         _clientPointers.push_back(pClient);
         BlockingTcpClient::Ptr client(pClient);
         _clientPool.enqueue(client);

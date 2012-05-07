@@ -22,6 +22,12 @@ sipxsqaclient_SRC = $(shell find . -name '*.java')
 sipxsqaclient-src : sqaclient.h
 	$(SWIG) -c++ -java -package org.sipfoundry.sqaclient -outcurrentdir $<
 
+libsqaclient_la_CXXFLAGS = \
+	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
+        -DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
+        -DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
+        -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
+
 libsqaclient_la_LIBADD = \
 	-lboost_date_time-mt \
 	-lboost_filesystem-mt \

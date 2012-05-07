@@ -68,6 +68,12 @@ public:
     int poolSize // Number of active connections to SQA
   );
 
+  SQAWatcher(
+    const char* applicationId, // Unique application ID that will identify this watcher to SQA
+    const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
+    int poolSize // Number of active connections to SQA
+  );
+
   ~SQAWatcher();
 
   //
@@ -121,6 +127,11 @@ public:
     int poolSize // Number of active connections to SQA
   );
 
+  SQAPublisher(
+    const char* applicationId, // Unique application ID that will identify this watcher to SQA
+    int poolSize // Number of active connections to SQA
+  );
+
   ~SQAPublisher();
 
   bool isConnected();
@@ -166,6 +177,12 @@ public:
     const char* applicationId, // Unique application ID that will identify this watcher to SQA
     const char* serviceAddress, // The IP address of the SQA
     const char* servicePort, // The port where SQA is listening for connections
+    const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
+    int poolSize // Number of active connections to SQA
+  );
+
+  SQAWorker(
+    const char* applicationId, // Unique application ID that will identify this watcher to SQA
     const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
     int poolSize // Number of active connections to SQA
   );
@@ -220,6 +237,12 @@ public:
     const char* applicationId, // Unique application ID that will identify this watcher to SQA
     const char* serviceAddress, // The IP address of the SQA
     const char* servicePort, // The port where SQA is listening for connections
+    const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
+    int poolSize // Number of active connections to SQA
+  );
+
+  SQADealer(
+    const char* applicationId, // Unique application ID that will identify this watcher to SQA
     const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
     int poolSize // Number of active connections to SQA
   );
@@ -316,6 +339,19 @@ inline SQAWatcher::SQAWatcher(
           applicationId,
           serviceAddress,
           servicePort,
+          eventId,
+          poolSize));
+}
+
+inline SQAWatcher::SQAWatcher(
+  const char* applicationId, // Unique application ID that will identify this watcher to SQA
+  const char* eventId, // Event ID of the event being watched. Example: "reg"
+  int poolSize // Number of active connections to SQA
+)
+{
+  _connection = (uintptr_t)(new StateQueueClient(
+          StateQueueClient::Watcher,
+          applicationId,
           eventId,
           poolSize));
 }
@@ -430,6 +466,18 @@ inline SQAPublisher::SQAPublisher(
           poolSize));
 }
 
+inline SQAPublisher::SQAPublisher(
+  const char* applicationId, // Unique application ID that will identify this watcher to SQA
+  int poolSize // Number of active connections to SQA
+)
+{
+  _connection = (uintptr_t)(new StateQueueClient(
+          StateQueueClient::Publisher,
+          applicationId,
+          "publisher",
+          poolSize));
+}
+
 inline SQAPublisher::SQAPublisher(const SQAPublisher& copy)
 {
 }
@@ -526,6 +574,19 @@ inline SQADealer::SQADealer(
           applicationId,
           serviceAddress,
           servicePort,
+          eventId,
+          poolSize));
+}
+
+inline SQADealer::SQADealer(
+  const char* applicationId, // Unique application ID that will identify this watcher to SQA
+  const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
+  int poolSize // Number of active connections to SQA
+)
+{
+  _connection = (uintptr_t)(new StateQueueClient(
+          StateQueueClient::Publisher,
+          applicationId,
           eventId,
           poolSize));
 }
@@ -627,6 +688,19 @@ inline SQAWorker::SQAWorker(
           applicationId,
           serviceAddress,
           servicePort,
+          eventId,
+          poolSize));
+}
+
+inline SQAWorker::SQAWorker(
+  const char* applicationId, // Unique application ID that will identify this watcher to SQA
+  const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
+  int poolSize // Number of active connections to SQA
+)
+{
+  _connection = (uintptr_t)(new StateQueueClient(
+          StateQueueClient::Worker,
+          applicationId,
           eventId,
           poolSize));
 }
