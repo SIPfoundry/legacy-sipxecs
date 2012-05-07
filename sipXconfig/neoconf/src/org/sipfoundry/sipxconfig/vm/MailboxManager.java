@@ -32,7 +32,7 @@ public interface MailboxManager {
 
     void renameMailbox(String oldUserId, String newUserId);
 
-    void saveDistributionLists(User user, DistributionList[] lists);
+    void saveDistributionLists(Integer userId, DistributionList[] lists);
 
     DistributionList[] loadDistributionLists(User users);
 
