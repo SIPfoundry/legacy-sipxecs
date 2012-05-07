@@ -16,8 +16,7 @@ noinst_DATA = \
 
 jardir = @SIPX_JAVADIR@/sipXopenfire/plugins
 jar_DATA = \
-	$(presence_JAR) \
-	$(plugin_JAR)
+	$(presence_JAR)
 
 plugin_JAR = sipx-openfire-presence-plugin.jar
 plugin_SRC = $(shell cd $(srcdir); find src -name '*.java')

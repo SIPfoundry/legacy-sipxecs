@@ -65,6 +65,7 @@ Status=0
 JAVACMD=`@bindir@/sipx-config --java`
 OPENFIRE_HOME="@OPENFIRE_HOME@"
 OPENFIRE_LIB="${OPENFIRE_HOME}/lib"
+OPENFIRE_PLUGINS="${OPENFIRE_HOME}/plugins"
 Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @plugin_PKGS@`
 export CLASSPATH=`echo ${OPENFIRE_LIB}/*.jar @SIPX_JAVADIR@/sipXopenfire/*.jar ${Dependencies} | sed -e 's/ /:/g'`
 CONFIG_FILES="@SIPX_CONFDIR@/sipxopenfire.xml"
@@ -190,23 +191,34 @@ configure() {
    chgrp -R @SIPXPBXUSER@ @OPENFIRE_HOME@ 2> /dev/null
    chmod -R u+rwX,ga+rX   @OPENFIRE_HOME@ 2> /dev/null
 
-   # Remove all softlinks under @OPENFIRE_HOME@/lib
-   find @OPENFIRE_HOME@/lib -maxdepth 1 -type l -print0 2> /dev/null | xargs -0 rm -f 2> /dev/null
-
    rm  -f @OPENFIRE_HOME@/resources/security/truststore 2> /dev/null
    rm  -f @OPENFIRE_HOME@/resources/security/keystore 2> /dev/null
    ln -s @SIPX_CONFDIR@/ssl/authorities.jks  @OPENFIRE_HOME@/resources/security/truststore 2> /dev/null
-   ln -s @SIPX_CONFDIR@/ssl/ssl.keystore  @OPENFIRE_HOME@/resources/security/keystore 2> /dev/null
-   rm -f @OPENFIRE_HOME@/plugins/sipx-openfire.jar 2> /dev/null
-   rm -f @OPENFIRE_HOME@/plugins/sipx-openfire-presence.jar 2> /dev/null
-   ln -s ${SIPX_OPENFIRE_DIR}/plugins/sipx-openfire-presence.jar @OPENFIRE_HOME@/plugins 2> /dev/null
-   ln -s ${SIPX_OPENFIRE_DIR}/plugins/sipx-openfire-ws-plugin.jar @OPENFIRE_HOME@/plugins 2> /dev/null
-   rm -f ${OPENFIRE_LIB}/sipx-openfire-vcard-provider.jar 2> /dev/null
-   ln -s ${SIPX_OPENFIRE_DIR}/lib/sipx-openfire-vcard-provider.jar ${OPENFIRE_LIB} 2> /dev/null
-   for f in ws-commons-util xmlrpc-client xmlrpc-server xmlrpc-common log4j mongo commons-logging commons-digester commons-collections commons-beanutils-core jain-sip-sdp dnsjava dom4j commons-io not-yet-commons-ssl; do
+   ln -s @SIPX_CONFDIR@/ssl/ssl.keystore  @OPENFIRE_HOME@/resources/security/keystore 2> /dev/null   
+
+   # Remove all softlinks under @OPENFIRE_HOME@/plugins
+   find ${OPENFIRE_PLUGINS} -maxdepth 1 -type l -print0 2> /dev/null | xargs -0 rm -f 2> /dev/null
+   
+   # Deploy sipxecs plugins (plugins directory)
+   find ${SIPX_OPENFIRE_DIR}/plugins -name "*.jar" | while read PLUGIN_FILE_PATH; do
+   	   PLUGIN_FILE_NAME=$(basename ${PLUGIN_FILE_PATH} .jar)
+   	   rm -rf ${OPENFIRE_PLUGINS}/${PLUGIN_FILE_NAME} 2> /dev/null       	
+       ln -s ${PLUGIN_FILE_PATH} ${OPENFIRE_PLUGINS} 2> /dev/null	
+   done 
+
+   # Remove all softlinks under @OPENFIRE_HOME@/lib
+   find ${OPENFIRE_LIB} -maxdepth 1 -type l -print0 2> /dev/null | xargs -0 rm -f 2> /dev/null
+
+   # Deploy sipxecs openfire jars in openfire classpath (lib directory)
+   find ${SIPX_OPENFIRE_DIR}/lib -name "*.jar" | while read LIB_FILE_PATH; do	
+       ln -s ${LIB_FILE_PATH} ${OPENFIRE_LIB} 2> /dev/null	
+   done   
+   
+   #Deploy sipxcommons needed jars in openfire classpath (lib directory)
+   for f in sipxcommons ws-commons-util xmlrpc-client sipxsqaclient xmlrpc-server xmlrpc-common log4j mongo commons-logging commons-digester commons-collections commons-beanutils-core jain-sip-sdp dnsjava dom4j commons-io not-yet-commons-ssl; do
        ln -snf ${SIPX_COMMONS}/$f*.jar ${OPENFIRE_LIB}/$f.jar
    done
-   ln -snf ${SIPX_COMMONS}/sipxcommons.jar ${OPENFIRE_LIB}/sipxcommons.jar
+   
    chown -R @SIPXPBXUSER@ @OPENFIRE_LIB@ 2> /dev/null
    chgrp -R @SIPXPBXUSER@ @OPENFIRE_LIB@ 2> /dev/null
    rm -f @OPENFIRE_HOME@/extras/sipXecs/lib 2> /dev/null
