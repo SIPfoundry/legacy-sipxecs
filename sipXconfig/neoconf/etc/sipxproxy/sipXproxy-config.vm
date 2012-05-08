@@ -51,3 +51,10 @@ SIPX_PROXY_HOOK_LIBRARY.990_emergnotif: @sipxpbx.lib.dir@/authplugins/libEmergen
 SIPX_PROXY.990_emergnotif.EMERGRULES  : @sipxpbx.conf.dir@/authrules.xml
 
 SIPX_PROXY_HOOK_LIBRARY.995_requestlinter: @sipxpbx.lib.dir@/authplugins/libRequestLinter.so
+
+SIPX_TRAN_HOOK_LIBRARY.100_sipheadercheck : @sipxpbx.lib.dir@/transactionplugins/libSipHeaderCheck.so
+SIPX_TRAN.100_sipheadercheck.REMOVE_ACCEPT_LANGUAGE : false
+SIPX_TRAN.100_sipheadercheck.REMOVE_REMOTE_PARTY_ID : false
+SIPX_TRAN.100_sipheadercheck.INSERT_RECORD_ROUTE_AFTER_SPIRAL : false
+SIPX_TRAN.100_sipheadercheck.INSERT_PATH_ON_REGISTER : false
+SIPX_TRAN.100_sipheadercheck.INSERT_PATH_ON_REGISTER_UA_REGEX : ^(CSCO|Cisco)

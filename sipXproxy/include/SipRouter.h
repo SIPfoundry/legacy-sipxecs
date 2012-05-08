@@ -18,6 +18,7 @@
 #include <sipXecsService/SipNonceDb.h>
 #include <utl/PluginHooks.h>
 #include "AuthPlugin.h"
+#include "TransactionPlugin.h"
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -121,6 +122,8 @@ class SipRouter : public OsServerTask
    
    /// Get the domain shared secret for signing.
    const SharedSecret* authSecret();
+
+   const UtlString& getHostPort() const;
    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
@@ -176,7 +179,8 @@ class SipRouter : public OsServerTask
    UtlString     mRouteHostSecurePort;
    SharedSecret* mSharedSecret;          ///< secret value to include in authentication hashes
    ForwardRules* mpForwardingRules;      ///< Holds to forwarding rules instructions
-   PluginHooks   mAuthPlugins;           ///< decision making modules from configuration 
+   PluginHooks   mAuthPlugins;           ///< decision making modules from configuration
+   PluginHooks   mTransactionPlugins;
 
    /// P-Asserted-Identity header is only applicable for INVITE, REFER, BYE,
    /// OPTIONS, NOTIFY, and SUBSCRIBE
@@ -196,5 +200,11 @@ class SipRouter : public OsServerTask
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+
+inline const UtlString& SipRouter::getHostPort() const
+{
+  return mRouteHostPort;
+}
 
 #endif  // _SipRouter_h_
