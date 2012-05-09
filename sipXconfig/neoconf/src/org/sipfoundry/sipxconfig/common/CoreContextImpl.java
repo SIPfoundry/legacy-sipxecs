@@ -89,7 +89,6 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private JdbcTemplate m_jdbcTemplate;
     private boolean m_debug;
 
-
     /** limit number of users */
     private int m_maxUserCount = -1;
 
@@ -599,6 +598,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         admin.setPin(StringUtils.defaultString(pin), getAuthorizationRealm());
         admin.addGroup(adminGroup);
         saveUser(admin);
+        getDaoEventPublisher().publishSave(admin);
     }
 
     private void createAgentsGroup() {
@@ -928,4 +928,5 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     public void setConfigJdbcTemplate(JdbcTemplate jdbcTemplate) {
         m_jdbcTemplate = jdbcTemplate;
     }
+
 }

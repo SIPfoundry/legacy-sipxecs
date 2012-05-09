@@ -20,6 +20,7 @@
     <property name="taskName" value="first-run" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="auditLogContext" ref="auditLogContext" />
+    <property name="replicationManager" ref="replicationManagerImpl" />
   </bean>
 
 </beans>
