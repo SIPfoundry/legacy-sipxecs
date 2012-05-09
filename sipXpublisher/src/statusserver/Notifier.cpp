@@ -136,7 +136,7 @@ Notifier::sendNotifyForeachSubscription (
     // Get all subscriptions associated with this identity
     StatusServer* server = StatusServer::getInstance();
     SubscribeDB* subscribeDb = server->getSubscribeDb();
-    subscribeDb->getUnexpiredSubscriptionsAndIncrementCSeq(
+    subscribeDb->getUnexpiredSubscriptions(
            SUBSCRIPTION_COMPONENT_STATUS, key, event, timeNow, subscriptions );
 
     // Add the static configured contacts.
@@ -249,13 +249,11 @@ Notifier::sendNotifyForeachSubscription (
                           eventtype, id, subscriptionState, recordroute);
 
 
-#if 0 // CSEQ is already incremented by getUnexpiredSubscriptionsAndIncrementCSeq()
             // Update the Notify sequence number (CSeq) in the IMDB
             // (We must supply a dummy XML version number.)
             subscribeDb->updateNotifyUnexpiredSubscription (
                SUBSCRIPTION_COMPONENT_STATUS, to, from, callid,
                eventtype, id, timeNow, notifycseq, 0 );
-#endif
         }
     }
     else
