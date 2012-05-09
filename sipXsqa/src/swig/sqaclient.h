@@ -17,7 +17,7 @@
 #define	SQACLIENT_H
 
 #ifndef EXCLUDE_SQA_INLINES
-#include "StateQueueClient.h"
+#include "sqa/StateQueueClient.h"
 #include <boost/lexical_cast.hpp>
 #endif
 
