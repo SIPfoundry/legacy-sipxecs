@@ -510,7 +510,7 @@ EOF
 
 	   # Place extract.log at the top level of the tar file.
 	   CommentFiles="${CommentFiles} ${cutDir}/extract.log"
-	   for base_log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log $(openfireLogs) @SIPX_LOGDIR@/trace/*.pcap* @OPENACD_HOME@/log/*.log
+	   for base_log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log $(openfireLogs) @SIPX_LOGDIR@/trace/*.pcap*
 	   do
 	       # Start cutting at the base log.
 	       if cutIfTimestamps "${base_log}"
@@ -554,7 +554,7 @@ EOF
 	   done
 	   ;;
        current)
-	   for log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log  $(openfireLogs) @SIPX_LOGDIR@/trace/*.pcap* @OPENACD_HOME@/log/*.log
+	   for log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log  $(openfireLogs) @SIPX_LOGDIR@/trace/*.pcap*
 	   do
 	     echo $log >> $Work.copy-files
 	   done
@@ -564,7 +564,6 @@ EOF
 		@SIPX_LOGDIR@/*log.${Logs}{,.gz} \
 		@SIPX_LOGDIR@/phone/*.log.${Logs}{,.gz} \
 		$(openfireLogs) \
-                @OPENACD_HOME@/log/*.log.${Logs}{,.gz}
 		2>/dev/null \
 		| grep '.' \
 		>> $Work.copy-files
@@ -574,7 +573,7 @@ EOF
 	   fi
 	   ;;
        all)
-	   for log in @SIPX_LOGDIR@/*log  @SIPX_LOGDIR@/*log.* @SIPX_LOGDIR@/phone/*.log.* @SIPX_LOGDIR@/openfire/*.log @SIPX_LOGDIR@/trace/*.pcap* @OPENACD_HOME@/log/*.log
+	   for log in @SIPX_LOGDIR@/*log  @SIPX_LOGDIR@/*log.* @SIPX_LOGDIR@/phone/*.log.* @SIPX_LOGDIR@/openfire/*.log @SIPX_LOGDIR@/trace/*.pcap*
 	   do
 	     echo $log >> $Work.copy-files
 	   done
@@ -1113,6 +1112,10 @@ EOF
 ( marshal_configuration_information 2>&1 1>&3 | tee ${Work}/stderr ) >${SystemConfig} 3>&1
 # Output any stderr output to the user.
 cat ${Work}/stderr
+
+for i in `ls @SIPX_BINDIR@/snapshot/`;
+  do @SIPX_BINDIR@/snapshot/$i ${Work};
+done;
 
 if [ ${Tar} = YES ]
 then

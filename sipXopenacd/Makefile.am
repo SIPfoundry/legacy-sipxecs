@@ -4,7 +4,8 @@ include $(top_srcdir)/common.am
 
 SUBDIRS = \
 	. \
-	etc
+	etc \
+	bin
 
 @PACKAGE@_EXTRA_DIST = \
 	$(DEPS) \

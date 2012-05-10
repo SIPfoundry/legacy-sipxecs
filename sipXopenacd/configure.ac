@@ -10,5 +10,6 @@ AC_ERLANG_PATH_ERLC
 AC_CONFIG_FILES([
   Makefile
   etc/Makefile
+  bin/Makefile
 ])
 AC_OUTPUT
