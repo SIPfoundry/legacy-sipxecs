@@ -36,7 +36,7 @@
       <value>notice</value>
     </setting>
     <setting name="log_dir" advanced="yes">
-      <type><string/></type>
+      <type><string><value>/var/log/openacd</value></string></type>
     </setting>
   </group>
   <group name="freeswitch_media_manager">

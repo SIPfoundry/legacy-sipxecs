@@ -33,7 +33,6 @@ public class OpenAcdSettings extends PersistableSettings implements DeployConfig
     private static final String DIALPLAN_LISTENER = "agent_configuration/DIALPLAN_LISTENER";
     private static final String LOG_DIR = "openacd-config/log_dir";
     private DomainManager m_domainManager;
-    private String m_logDirectory;
     private String m_audioDirectory;
 
     public OpenAcdSettings() {
@@ -57,7 +56,7 @@ public class OpenAcdSettings extends PersistableSettings implements DeployConfig
 
         @SettingEntry(path = LOG_DIR)
         public String getLogDir() {
-            return m_logDirectory;
+            return "/var/log/openacd";
         }
     }
 
@@ -97,10 +96,6 @@ public class OpenAcdSettings extends PersistableSettings implements DeployConfig
 
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
-    }
-
-    public void setLogDirectory(String logDirectory) {
-        m_logDirectory = logDirectory;
     }
 
     public void setAudioDirectory(String audioDirectory) {

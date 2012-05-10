@@ -47,7 +47,7 @@ $(LINK_TARGETS) :
 ebin/%.beam : src/%.erl
 	ERL_LIBS=@OPENACD_DIR@/lib ./rebar compile skip_deps=true
 
-ebindir = $(SIPX_LIBDIR)/openacd/lib/sipxplugin/ebin
+ebindir = $(SIPX_LIBDIR)/openacd/lib/plugin.d/sipxplugin/ebin
 ebin_DATA = \
 	$(BEAM_FILES)
 

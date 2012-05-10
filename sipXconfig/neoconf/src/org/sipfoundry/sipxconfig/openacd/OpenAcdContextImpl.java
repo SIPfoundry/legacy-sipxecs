@@ -93,8 +93,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private CoreContext m_coreContext;
     private ReplicationManager m_replicationManager;
 
-    private String m_openacdHome;
-
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
         return null;
@@ -1021,7 +1019,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
         return (enabled ? Collections.singleton(new ProcessDefinition(OPEN_ACD_PROCESS_NAME,
-                new StringBuilder(m_openacdHome).append("/bin/").append(OPEN_ACD_PROCESS_NAME).toString())) : null);
+                new StringBuilder(System.getProperty("sysdir.bin")).append(OPEN_ACD_PROCESS_NAME).toString())) : null);
     }
 
     public void setReplicationManager(ReplicationManager replicationManager) {
@@ -1033,10 +1031,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         if (b == Bundle.CALL_CENTER) {
             b.addFeature(FEATURE);
         }
-    }
-
-    public void setOpenacdHome(String openAcdHome) {
-        m_openacdHome = openAcdHome;
     }
 
     @Override

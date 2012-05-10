@@ -40,7 +40,7 @@ bundle agent sipxopenacd_config {
         edit_defaults => empty,
         # NOTE: as long as $(OAPLUGINDIR) is *not* a defined cfengine var
         # it should pass thru unreplaced.
-        edit_line => insert_lines("OAPLUGINDIR=$(OAPLUGINDIR):$(sipx.SIPX_LIBDIR)/openacd/plugin.d");
+        edit_line => insert_lines("OAPLUGINDIR=$OAPLUGINDIR:$(sipx.SIPX_LIBDIR)/openacd/plugin.d");
 
     any::
       # symlink service script mostly so it can be used registered to system
