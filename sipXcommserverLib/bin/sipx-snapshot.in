@@ -1085,11 +1085,6 @@ EOF
 	 rm -rf ${cutDir}
      fi
 
-     #include OpenAcd configuration
-     OpenacdDir=${Work}@OPENACD_HOME@
-     mkdir ${OpenacdDir}
-     cp -r @OPENACD_HOME@/etc ${OpenacdDir}
-     cp -r @OPENACD_HOME@/run ${OpenacdDir}
    fi
 
    #Dump the mongo database in bson format
@@ -1113,8 +1108,8 @@ EOF
 # Output any stderr output to the user.
 cat ${Work}/stderr
 
-for i in `ls @SIPX_BINDIR@/snapshot/`;
-  do @SIPX_BINDIR@/snapshot/$i ${Work};
+for i in `ls @SIPX_SNAPSHOTBINDIR@/`;
+  do @SIPX_SNAPSHOTBINDIR@/$i ${Work};
 done;
 
 if [ ${Tar} = YES ]
