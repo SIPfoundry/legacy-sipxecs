@@ -62,9 +62,6 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
     AC_ARG_VAR(OPENFIRE_HOME, [The home for openfire ])
     test -z "$OPENFIRE_HOME" && OPENFIRE_HOME=/opt/openfire
 
-    AC_ARG_VAR(OPENACD_HOME, [The home for OpenACD ])
-    test -z "$OPENACD_HOME" && OPENACD_HOME=/opt/OpenACD
-
     AC_ARG_ENABLE(rpmbuild, 
       AC_HELP_STRING([--enable-rpmbuild], [Build an rpm]),
       enable_rpmbuild=yes)

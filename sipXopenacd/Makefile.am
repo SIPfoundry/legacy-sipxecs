@@ -6,7 +6,8 @@ noinst_DATA = deps/erlmongo deps/meck $(LINK_TARGETS)
 
 SUBDIRS = \
 	. \
-	etc
+	etc \
+	bin
 
 @PACKAGE@_EXTRA_DIST = \
 	deps \
