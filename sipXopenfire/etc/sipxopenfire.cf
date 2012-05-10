@@ -87,6 +87,7 @@ bundle edit_line sipxopenfire_sipx_properties {
     "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipx.properties.part"
       insert_type => "file";	
     "conf.dir=$(sipx.SIPX_CONFDIR)";
+    "lib.dir=$(sipx.SIPX_LIBDIR)";
     "localization.file=$(sipx.SIPX_CONFDIR)/openfire/sipxopenfire-prompts.properties";
     "openfire.home=$(sipx.OPENFIRE_HOME)";
 
