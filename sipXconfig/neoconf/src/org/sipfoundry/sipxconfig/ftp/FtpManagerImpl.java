@@ -47,7 +47,7 @@ public class FtpManagerImpl extends SipxHibernateDaoSupport<Object> implements F
 
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-        return (location.isPrimary() ? Collections.singleton(new ProcessDefinition("vsftpd")) : null);
+        return (location.isPrimary() ? Collections.singleton(ProcessDefinition.sysvDefault("vsftpd")) : null);
     }
 
     @Override

@@ -68,8 +68,11 @@ public class RecordingImpl implements FeatureProvider, Recording, ProcessProvide
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean conf = manager.getFeatureManager().isFeatureEnabled(ConferenceBridgeContext.FEATURE, location);
         boolean rec = manager.getFeatureManager().isFeatureEnabled(Recording.FEATURE);
-        return (conf && rec ? Collections.singleton(new ProcessDefinition("sipxrecording",
-            ".*\\s-Dprocname=sipxrecording\\s.*")) : null);
+        if (!rec || !conf) {
+            return null;
+        }
+        return Collections.singleton(ProcessDefinition.sipxDefault("sipxrecording",
+                ".*\\s-Dprocname=sipxrecording\\s.*"));
     }
 
     @Override

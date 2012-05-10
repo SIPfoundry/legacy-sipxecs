@@ -56,7 +56,7 @@ public class OpenAcdConfiguration implements ConfigProvider, PostConfigListener 
             try {
                 CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
                 config.writeClass("sipxopenacd", enabled);
-                config.write("OPENACD_LOG_LEVEl", settings.getLogLevel());
+                config.write("OPENACD_LOG_LEVEL", settings.getLogLevel());
             } finally {
                 IOUtils.closeQuietly(w);
             }

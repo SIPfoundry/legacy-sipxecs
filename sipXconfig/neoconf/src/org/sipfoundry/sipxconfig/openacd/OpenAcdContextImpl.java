@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1019,9 +1020,12 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(new ProcessDefinition(OPEN_ACD_PROCESS_NAME,
-                new StringBuilder(m_openacdHome).append("/bin/").append(OPEN_ACD_PROCESS_NAME).toString())) : null);
+        if (!manager.getFeatureManager().isFeatureEnabled(FEATURE, location)) {
+            return null;
+        }
+        ProcessDefinition def = ProcessDefinition.sysvDefault(OPEN_ACD_PROCESS_NAME, "$(sipx.OPENACD_DIR)/bin/"
+                + OPEN_ACD_PROCESS_NAME);
+        return Collections.singleton(def);
     }
 
     public void setReplicationManager(ReplicationManager replicationManager) {

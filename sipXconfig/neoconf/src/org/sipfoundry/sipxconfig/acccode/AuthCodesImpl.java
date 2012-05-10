@@ -142,7 +142,7 @@ public class AuthCodesImpl implements ReplicableProvider, DialingRuleProvider, F
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(new ProcessDefinition("sipxacccode",
+        return (enabled ? Collections.singleton(ProcessDefinition.sipxDefault("sipxacccode",
                 ".*\\s-Dprocname=sipxacccode\\s.*")) : null);
     }
 

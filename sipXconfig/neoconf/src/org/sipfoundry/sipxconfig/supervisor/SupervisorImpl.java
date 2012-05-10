@@ -28,6 +28,8 @@ public class SupervisorImpl implements Supervisor, ProcessProvider {
 
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-        return Collections.singleton(new ProcessDefinition("cf-serverd"));
+        ProcessDefinition def = new ProcessDefinition("cf-serverd");
+        def.setSipxServiceName("sipxsupervisor");
+        return Collections.singleton(def);
     }
 }

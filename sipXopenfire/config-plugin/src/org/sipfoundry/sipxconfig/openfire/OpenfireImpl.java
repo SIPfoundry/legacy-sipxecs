@@ -117,9 +117,11 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
 
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(
-                new ProcessDefinition("sipxopenfire", String.format(".*\\s-Dexe4j.moduleName=%s/bin/openfire\\s.*", m_openfireHome))) : null);
+        if (!manager.getFeatureManager().isFeatureEnabled(FEATURE, location)) {
+            return null;
+        }
+        return Collections.singleton(ProcessDefinition.sipxDefault("sipxopenfire",
+                ".*\\s-Dexe4j.moduleName=$(sipx.OPENFIRE_HOME)/bin/openfire\\s.*"));
     }
 
     @Required

@@ -114,8 +114,11 @@ public class TunnelManagerImpl implements TunnelManager, BeanFactoryAware, Featu
         if (!manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
             return null;
         }
-        return Arrays.asList(new ProcessDefinition("encryption-outbound", ".*/stunnel\\s.*/tunnel-client.ini"),
-                new ProcessDefinition("encryption-inbound", ".*/stunnel\\s.*/tunnel-server.ini"));
+        ProcessDefinition c = new ProcessDefinition("encryption-outbound", ".*/stunnel\\s.*/tunnel-client.ini");
+        c.setSipxServiceName("tunnel-client");
+        ProcessDefinition s = new ProcessDefinition("encryption-inbound", ".*/stunnel\\s.*/tunnel-server.ini");
+        s.setSipxServiceName("tunnel-server");
+        return Arrays.asList(c, s);
     }
 
     @Override

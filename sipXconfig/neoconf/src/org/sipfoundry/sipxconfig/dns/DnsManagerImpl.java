@@ -164,7 +164,7 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(new ProcessDefinition("named")) : null);
+        return (enabled ? Collections.singleton(ProcessDefinition.sysvDefault("named")) : null);
     }
 
     @Override

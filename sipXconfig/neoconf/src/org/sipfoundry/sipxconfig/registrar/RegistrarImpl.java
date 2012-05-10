@@ -159,8 +159,12 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
 
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(new ProcessDefinition("sipregistrar")) : null);
+        if (!manager.getFeatureManager().isFeatureEnabled(FEATURE, location)) {
+            return null;
+        }
+        ProcessDefinition def = new ProcessDefinition("sipregistrar");
+        def.setSipxServiceName("sipxregistrar");
+        return Collections.singleton(def);
     }
 
     @Override

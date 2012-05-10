@@ -34,8 +34,9 @@ bundle agent snmp_config {
       "/etc/snmp/snmpd.conf"
         create => "true",
         perms => m("644"),
-        classes => if_repaired("reload_snmp"),
-        edit_line => snmpd_conf;
+        edit_defaults => empty,
+        edit_line => snmpd_conf,
+        classes => if_repaired("reload_snmp");
 }
 
 
@@ -44,8 +45,9 @@ bundle agent snmptrap_config {
       "/etc/snmp/snmptrapd.conf"
         create => "true",
         perms => m("644"),
-        classes => if_repaired("reload_snmptrapd"),
-        edit_line => snmptrapd_conf;
+        edit_defaults => empty,
+        edit_line => snmptrapd_conf,
+        classes => if_repaired("reload_snmptrapd");
 
     snmp.src::
       "/usr/share/snmp/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.txt"
@@ -60,10 +62,6 @@ bundle edit_line snmptrapd_conf {
     any::
 "authCommunity   log,execute,net public
 traphandle SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications $(sipx.SIPX_LIBEXECDIR)/sipxtrap-handler sipxecs-alarm";
-
-  delete_lines:
-    any::
-      ".*";
 }
 
 bundle edit_line snmpd_conf {
@@ -81,15 +79,16 @@ access  rwgroup \"\"      any       noauth    exact  all none none
 syslocation Unknown
 syscontact Root <root@localhost>
 dontLogTCPWrappersConnects yes
-dlmod regexp_proc $(sipx.SIPX_LIBDIR)/snmpagent/regexp_proc.so
+createUser _internal
+rwuser _internal
+iquerySecName _internal
+setEvent prFixIt prErrFix = 1
+monitor -r 10 -e prFixIt \"procTable\" prErrorFlag != 0
 ";
 
    "$(part)"
-     insert_type => "file";
-
-  delete_lines:
-    any::
-     ".*";
+     insert_type => "file",
+     expand_scalars => "true";
 }
 
 

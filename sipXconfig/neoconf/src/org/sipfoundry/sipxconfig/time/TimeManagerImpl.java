@@ -282,6 +282,6 @@ public class TimeManagerImpl implements TimeManager, ProcessProvider {
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE);
-        return (enabled ? Collections.singleton(new ProcessDefinition("ntpd")) : null);
+        return (enabled ? Collections.singleton(ProcessDefinition.sysvDefault("ntpd")) : null);
     }
 }
