@@ -15,7 +15,7 @@ imbot_SRC = $(shell cd $(srcdir); find org -type f -name '*.java')
 
 imbot_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(imbot_PKGS)) \
-	@SIPX_JAVADIR@/sipXopenfire/plugins/sipx-openfire-presence-plugin.jar
+	@SIPX_JAVADIR@/sipXcommons/sipx-openfire-presence-plugin.jar
 
 $(JAR_FILE) : javac-imbot
 	jar -cf $@ -C $(JAVAROOT) .
