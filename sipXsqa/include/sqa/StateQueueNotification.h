@@ -127,8 +127,6 @@ inline void StateQueueNotification::internal_run()
 {
   assert(!_isRunning && _queueThread);
 
-  std::string address;
-  std::string port;
 
   if (_sqaControlAddress.empty() || _sqaControlPort.empty())
     return;
@@ -137,7 +135,7 @@ inline void StateQueueNotification::internal_run()
   ss << "ssw-" << std::hex << std::uppercase
      << std::setw(4) << std::setfill('0') << (int) ((float) (0x10000) * random () / (RAND_MAX + 1.0));
 
-  _pPublisher = new SQAPublisher(ss.str().c_str(), address.c_str(), port.c_str(), 1);
+  _pPublisher = new SQAPublisher(ss.str().c_str(), _sqaControlAddress.c_str(), _sqaControlPort.c_str(), 1);
 
 
   std::string key;
