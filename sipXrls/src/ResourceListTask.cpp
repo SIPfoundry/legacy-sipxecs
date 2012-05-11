@@ -58,11 +58,17 @@ ResourceListTask::ResourceListTask(ResourceListServer* parent) :
    //
    std::string sqaControlAddress;
    std::string sqaControlPort;
-   mResourceListServer->getSqaControlAddress(sqaControlAddress, sqaControlPort);
-   if (!sqaControlAddress.empty() && !sqaControlPort.empty())
+   std::ostringstream sqaconfig;
+   sqaconfig << SIPX_CONFDIR << "/" << "sipxsqa-client.ini";
+   ServiceOptions configOptions(sqaconfig.str());
+   if (configOptions.parseOptions())
    {
-     _pSqaNotifier = new StateQueueNotification(sqaControlAddress, sqaControlPort);
-     _pSqaNotifier->run();
+     bool enabled = false;
+     if (configOptions.getOption("enabled", enabled, enabled) && enabled)
+     {
+       _pSqaNotifier = new StateQueueNotification(configOptions);
+       _pSqaNotifier->run();
+     }
    }
 }
 

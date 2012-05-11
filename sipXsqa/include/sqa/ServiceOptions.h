@@ -182,6 +182,7 @@ public:
     ConfigOption
   };
   ServiceOptions(int argc, char** argv, const std::string& daemonName, const std::string& version = "1.0", const std::string& copyright = "All Rights Reserved.");
+  ServiceOptions(const std::string& configFile);
   ~ServiceOptions();
   //
   // Options processing
@@ -211,6 +212,7 @@ public:
   bool getOption(const std::string& optionName, int& value) const;
   bool getOption(const std::string& optionName, int& value, int defValue) const;
   bool getOption(const std::string& optionName, std::vector<int>& value) const;
+  bool getOption(const std::string& optionName, bool& value, bool defValue) const;
 
   virtual bool onParseUnknownOptions(int argc, char** argv) {return false;};
   void waitForTerminationRequest();
@@ -237,6 +239,7 @@ protected:
   std::string _configFile;
   boost::property_tree::ptree _ptree;
   bool _hasConfig;
+  bool _isConfigOnly;
   Os::ServiceLogger _logger;
 };
 
@@ -254,7 +257,22 @@ inline ServiceOptions::ServiceOptions(int argc, char** argv,
   _configOptions("Configuration"),
   _optionItems(_daemonName  + " Options"),
   _isDaemon(false),
-  _hasConfig(false)
+  _hasConfig(false),
+  _isConfigOnly(false)
+{
+}
+
+inline ServiceOptions::ServiceOptions(const std::string& configFile) :
+  _argc(0),
+  _argv(0),
+  _daemonOptions("Daemon"),
+  _commandLineOptions("Generic"),
+  _configOptions("Configuration"),
+  _optionItems(_daemonName  + " Options"),
+  _isDaemon(false),
+  _configFile(configFile),
+  _hasConfig(true),
+  _isConfigOnly(true)
 {
 }
 
@@ -271,8 +289,26 @@ inline void ServiceOptions::addDaemonOptions()
 
 inline bool ServiceOptions::parseOptions()
 {
+
+  if (_isConfigOnly)
+  {
+    try
+    {
+      boost::property_tree::ini_parser::read_ini(_configFile.c_str(), _ptree);
+      _hasConfig = true;
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << _daemonName << " is not able to parse the options - " << e.what() << std::endl;
+        return false;
+    }
+    return true;
+  }
+
   try
   {
+
+
     addOptionFlag('h', "help", ": Display help information.", CommandLineOption);
     addOptionFlag('v', "version", ": Display version information.", CommandLineOption);
     addOptionString('C', "config-file", ": Optional daemon config file.", CommandLineOption);
@@ -568,6 +604,9 @@ inline void ServiceOptions::displayVersion(std::ostream& strm) const
 
 inline std::size_t ServiceOptions::hasOption(const std::string& optionName, bool consolidate) const
 {
+  if (_isConfigOnly && consolidate)
+    return _ptree.count(optionName.c_str());
+
   std::size_t ct = _options.count(optionName.c_str());
   if (!ct && consolidate && _hasConfig)
     ct = _ptree.count(optionName.c_str());
@@ -679,6 +718,41 @@ inline bool ServiceOptions::getOption(const std::string& optionName, std::vector
   return true;
 }
 
+
+inline bool ServiceOptions::getOption(const std::string& optionName, bool& value, bool defValue) const
+{
+  if (!hasOption(optionName, false))
+  {
+    //
+    // Check if ptree has it
+    //
+    if (_hasConfig)
+    {
+      try
+      {
+        std::string str = _ptree.get<std::string>(optionName.c_str());
+        value = defValue;
+        if (!str.empty())
+        {
+          char ch = str.at(0);
+          value = (ch == '1' || ch == 't' || ch == 'T');
+        }
+        return true;
+      }catch(...)
+      {
+        value = defValue;
+      }
+    }
+    else
+    {
+      value = defValue;
+    }
+  }else
+  {
+    value = _options[optionName.c_str()].as<bool>();
+  }
+  return true;
+}
 
 
 inline ServiceOptions::~ServiceOptions()

@@ -1,66 +1,61 @@
-718183 - Provide native systemd unit file
+commit df3acf469c6e789ef318ddebd274c9969298ef13
+Author: Douglas Hubler <dhubler@ezuce.com>
+Date:   Tue May 8 16:29:29 2012 -0400
 
-Gathered from following upstream git commits and backported to 5.7.
+    reroll patch net-snmp-5.7.1-systemd.patch from koji
 
-commit 19499c3c90bf9d7b2b9e5d08baa26cc6bba28a11
-Author: Jan Safranek <jsafranek@users.sourceforge.net>
-Date:   Mon Aug 8 15:48:54 2011 +0200
-
-    CHANGES: snmpd: integrated with systemd, see README.systemd for details.
-    
-    It brings sd-daemon.c and .h directly downloaded from systemd. I've made very
-    few changes to it to match our NETSNMP_NO_SYSTEMD and include paths.
-
-commit fef6cddfdb94da1a6b1fb768af62918b80f11fd3
-Author: Jan Safranek <jsafranek@users.sourceforge.net>
-Date:   Mon Aug 8 15:48:54 2011 +0200
-
-    CHANGES: snmptrapd: integrate systemd notification support.
-
-commit 0641e43c694c485cbbffef0556efc4641bd3ff50
-Author: Jan Safranek <jsafranek@users.sourceforge.net>
-Date:   Mon Aug 8 15:48:54 2011 +0200
-
-    Add sd_find_inet_socket() and sd_find_inet_unisx() helpers into
-    system-specific code. This will help us to find various sockets
-    created by systemd much easier.
-
-commit 76530a89f1c8bbd0b63acce63e10d5d4812a1a16
-Author: Jan Safranek <jsafranek@users.sourceforge.net>
-Date:   Mon Aug 8 15:48:54 2011 +0200
-
-    Check sockets created by systemd when opening new server sockets.
-    
-    systemd can pass sockets to our daemons during startup using LISTEN_FDS
-    environment variable. So check this variable when opening new listening
-    socket - maybe system has already opened the socket for us.
-
-commit bf108d7f1354f6276fc43c129963f2c49b9fc242
-Author: Jan Safranek <jsafranek@users.sourceforge.net>
-Date:   Mon Aug 8 15:48:54 2011 +0200
-
-    Added sample systemd service files.
-
-commit 884ec488a6596380ba283d707827dd926a52e0b2
-Author: Jan Safranek <jsafranek@users.sourceforge.net>
-Date:   Mon Aug 8 15:48:55 2011 +0200
-
-    Run autoheader+autoconf.
-
-commit 86132e3f1e6ef7b4e0b96d8fa24e37c81b71b0e0
-Author: Jan Safranek <jsafranek@users.sourceforge.net>
-Date:   Tue Aug 9 10:53:43 2011 +0200
-
-    Update systemd documentation and samples.
-    
-    - add socket unit for snmpd to paralelize boot
-    - update WantedBy in socket units as recommended by http://0pointer.de/blog/projects/socket-activation.html
-    - rephrase README.systemd
-
-
-diff -up net-snmp-5.7.1/agent/snmpd.c.systemd net-snmp-5.7.1/agent/snmpd.c
---- net-snmp-5.7.1/agent/snmpd.c.systemd	2011-09-28 06:53:47.000000000 +0200
-+++ net-snmp-5.7.1/agent/snmpd.c	2011-10-04 09:13:55.051789141 +0200
+diff --git a/README.systemd b/README.systemd
+new file mode 100644
+index 0000000..f731851
+--- /dev/null
++++ b/README.systemd
+@@ -0,0 +1,41 @@
++README.systemd
++--------------
++Net-SNMP provides two daemons, which support systemd system manager. 
++See http://www.freedesktop.org/wiki/Software/systemd to learn how
++systemd works. Both socket activation and notification is supported by these
++daemons.
++
++To enable systemd support, the sources must be compiled with
++--with-systemd configure option.
++
++snmpd - The SNMP agent
++----------------------
++Socket activation od snmpd daemon is implemented, but it's discouraged.
++The reason is simple - snmpd not only listens and processes SNMP requests
++from network, but also gathers system statistics counters, sends traps and
++communicates with subagents. It even opens few netlink sockets.
++
++In other words, snmpd should run from system start to properly work.
++This can be done in two ways:
++1) either as snmpd service unit with 'Type=notification' and without a socket
++   unit
++2) or as snmpd service unit with 'Type=simple', appropriate socket socket unit
++   and the snmpd service enabled. This way systemd creates the snmpd listening
++   socket early during boot and passes the sockets to snmpd slightly later
++   (but still during machine boot). This way systemd can paralelize start of
++   services, which depend on snmpd. Admins must adjust the socket file manually,
++   depending if the snmpd support AgentX, IPv6, SMUX etc.
++
++snmpd should be started with '-f' command line parameter to disable forking -
++systemd does that for us automatically.
++
++
++snmptrapd - The trap processing daemon
++--------------------------------------
++snmptrapd supports full socket activation and also notification (if needed).
++Both 'Type=simple' (with appropriate socket unit) and 'Type=notify' services
++will work. Again, '-f' parameter should be provided on snmptrapd command line.
++
++If integration with SNMP agent using AgentX protocol is enabled, snmptrapd should
++start during boot and not after first SNMP trap arrives. Same rules as for snmpd
++applies then.
+\ No newline at end of file
+diff --git a/agent/snmpd.c b/agent/snmpd.c
+index b177d5b..4e89e51 100644
+--- a/agent/snmpd.c
++++ b/agent/snmpd.c
 @@ -164,6 +164,10 @@ typedef long    fd_mask;
  
  #endif
@@ -72,7 +67,7 @@ diff -up net-snmp-5.7.1/agent/snmpd.c.systemd net-snmp-5.7.1/agent/snmpd.c
  netsnmp_feature_want(logging_file)
  netsnmp_feature_want(logging_stdio)
  netsnmp_feature_want(logging_syslog)
-@@ -442,6 +446,7 @@ main(int argc, char *argv[])
+@@ -441,18 +445,26 @@ main(int argc, char *argv[])
      int             agent_mode = -1;
      char           *pid_file = NULL;
      char            option_compatability[] = "-Le";
@@ -80,7 +75,6 @@ diff -up net-snmp-5.7.1/agent/snmpd.c.systemd net-snmp-5.7.1/agent/snmpd.c
  #if HAVE_GETPID
      int fd;
      FILE           *PID;
-@@ -454,12 +459,19 @@ main(int argc, char *argv[])
  #endif
  
  #ifndef WIN32
@@ -102,7 +96,7 @@ diff -up net-snmp-5.7.1/agent/snmpd.c.systemd net-snmp-5.7.1/agent/snmpd.c
      }
  #endif /* #WIN32 */
      
-@@ -1097,6 +1109,19 @@ main(int argc, char *argv[])
+@@ -1100,6 +1112,19 @@ main(int argc, char *argv[])
      netsnmp_addrcache_initialise();
  
      /*
@@ -122,9 +116,10 @@ diff -up net-snmp-5.7.1/agent/snmpd.c.systemd net-snmp-5.7.1/agent/snmpd.c
       * Forever monitor the dest_port for incoming PDUs.  
       */
      DEBUGMSGTL(("snmpd/main", "We're up.  Starting to process data.\n"));
-diff -up net-snmp-5.7.1/apps/snmptrapd.c.systemd net-snmp-5.7.1/apps/snmptrapd.c
---- net-snmp-5.7.1/apps/snmptrapd.c.systemd	2011-09-28 06:53:47.000000000 +0200
-+++ net-snmp-5.7.1/apps/snmptrapd.c	2011-10-04 09:13:55.052789127 +0200
+diff --git a/apps/snmptrapd.c b/apps/snmptrapd.c
+index 1a52080..4d82260 100644
+--- a/apps/snmptrapd.c
++++ b/apps/snmptrapd.c
 @@ -125,6 +125,10 @@ SOFTWARE.
  
  #include <net-snmp/net-snmp-features.h>
@@ -136,7 +131,7 @@ diff -up net-snmp-5.7.1/apps/snmptrapd.c.systemd net-snmp-5.7.1/apps/snmptrapd.c
  #ifndef BSD4_3
  #define BSD4_2
  #endif
-@@ -587,15 +591,22 @@ main(int argc, char *argv[])
+@@ -655,15 +659,22 @@ main(int argc, char *argv[])
      int             agentx_subagent = 1;
  #endif
      netsnmp_trapd_handler *traph;
@@ -161,7 +156,7 @@ diff -up net-snmp-5.7.1/apps/snmptrapd.c.systemd net-snmp-5.7.1/apps/snmptrapd.c
      }
  #endif /* #WIN32 */
      
-@@ -1244,6 +1255,19 @@ main(int argc, char *argv[])
+@@ -1311,6 +1322,19 @@ main(int argc, char *argv[])
  #endif
  #endif
  
@@ -181,47 +176,11 @@ diff -up net-snmp-5.7.1/apps/snmptrapd.c.systemd net-snmp-5.7.1/apps/snmptrapd.c
  #ifdef WIN32SERVICE
      trapd_status = SNMPTRAPD_RUNNING;
  #endif
-diff -up net-snmp-5.7.1/configure.d/config_modules_lib.systemd net-snmp-5.7.1/configure.d/config_modules_lib
---- net-snmp-5.7.1/configure.d/config_modules_lib.systemd	2011-09-28 06:53:47.000000000 +0200
-+++ net-snmp-5.7.1/configure.d/config_modules_lib	2011-10-04 09:13:55.053789113 +0200
-@@ -53,6 +53,14 @@ if test "x$PARTIALTARGETOS" = "xmingw32"
-   other_ftobjs_list="$other_ftobjs_list winpipe.ft"
- fi
- 
-+# Linux systemd
-+if test "x$with_systemd" == "xyes"; then
-+  other_src_list="$other_src_list sd-daemon.c"
-+  other_objs_list="$other_objs_list sd-daemon.o"
-+  other_lobjs_list="$other_lobjs_list sd-daemon.lo"
-+  other_ftobjs_list="$other_ftobjs_list sd-daemon.ft"
-+fi
-+
- AC_SUBST(other_src_list)
- AC_SUBST(other_objs_list)
- AC_SUBST(other_lobjs_list)
-diff -up net-snmp-5.7.1/configure.d/config_project_with_enable.systemd net-snmp-5.7.1/configure.d/config_project_with_enable
---- net-snmp-5.7.1/configure.d/config_project_with_enable.systemd	2011-09-28 06:53:47.000000000 +0200
-+++ net-snmp-5.7.1/configure.d/config_project_with_enable	2011-10-04 09:13:55.054789098 +0200
-@@ -672,6 +672,15 @@ if test "x$with_dummy_values" != "xyes";
-      data for])
- fi
- 
-+NETSNMP_ARG_WITH(systemd,
-+[  --with-systemd                 Provide systemd support. See README.systemd
-+                                  for details.])
-+# Define unless specifically suppressed (i.e., option defaults to false).
-+if test "x$with_systemd" != "xyes"; then
-+  AC_DEFINE(NETSNMP_NO_SYSTEMD, 1,
-+    [If you don't want to integrate with systemd.])
-+fi
-+
- NETSNMP_ARG_ENABLE(set-support,
- [  --disable-set-support           Do not allow SNMP set requests.])
- if test "x$enable_set_support" = "xno"; then
-diff -up net-snmp-5.7.1/configure.systemd net-snmp-5.7.1/configure
---- net-snmp-5.7.1/configure.systemd	2011-09-28 06:54:21.000000000 +0200
-+++ net-snmp-5.7.1/configure	2011-10-04 09:13:55.066788919 +0200
-@@ -950,6 +950,8 @@ with_kmem_usage
+diff --git a/configure b/configure
+index b7f1a73..d89371d 100755
+--- a/configure
++++ b/configure
+@@ -940,6 +940,8 @@ with_kmem_usage
  enable_kmem_usage
  with_dummy_values
  enable_dummy_values
@@ -230,7 +189,7 @@ diff -up net-snmp-5.7.1/configure.systemd net-snmp-5.7.1/configure
  enable_set_support
  with_set_support
  with_sys_contact
-@@ -1865,6 +1867,8 @@ Configuring the agent:
+@@ -1853,6 +1855,8 @@ Configuring the agent:
                                    This is technically not compliant with the
                                    SNMP specifications, but was how the agent
                                    operated for versions < 4.0.
@@ -239,7 +198,7 @@ diff -up net-snmp-5.7.1/configure.systemd net-snmp-5.7.1/configure
    --with-sys-contact="who@where"  Default system contact.
                                      (Default: LOGIN@DOMAINNAME)
    --with-sys-location="location"  Default system location.
-@@ -4375,6 +4379,24 @@ $as_echo "#define NETSNMP_NO_DUMMY_VALUE
+@@ -4382,6 +4386,24 @@ $as_echo "#define NETSNMP_NO_DUMMY_VALUES 1" >>confdefs.h
  
  fi
  
@@ -264,7 +223,7 @@ diff -up net-snmp-5.7.1/configure.systemd net-snmp-5.7.1/configure
  # Check whether --enable-set-support was given.
  if test "${enable_set_support+set}" = set; then :
    enableval=$enable_set_support;
-@@ -18196,6 +18218,14 @@ if test "x$PARTIALTARGETOS" = "xmingw32"
+@@ -17575,6 +17597,14 @@ if test "x$PARTIALTARGETOS" = "xmingw32" -o "x$PARTIALTARGETOS" = "xmingw32msvc"
    other_ftobjs_list="$other_ftobjs_list winpipe.ft"
  fi
  
@@ -279,9 +238,50 @@ diff -up net-snmp-5.7.1/configure.systemd net-snmp-5.7.1/configure
  
  
  
-diff -up net-snmp-5.7.1/dist/snmpd.service.systemd net-snmp-5.7.1/dist/snmpd.service
---- net-snmp-5.7.1/dist/snmpd.service.systemd	2011-10-04 09:13:55.070788861 +0200
-+++ net-snmp-5.7.1/dist/snmpd.service	2011-10-04 09:13:55.070788861 +0200
+diff --git a/configure.d/config_modules_lib b/configure.d/config_modules_lib
+index b6609c1..5849072 100644
+--- a/configure.d/config_modules_lib
++++ b/configure.d/config_modules_lib
+@@ -53,6 +53,14 @@ if test "x$PARTIALTARGETOS" = "xmingw32" -o "x$PARTIALTARGETOS" = "xmingw32msvc"
+   other_ftobjs_list="$other_ftobjs_list winpipe.ft"
+ fi
+ 
++# Linux systemd
++if test "x$with_systemd" == "xyes"; then
++  other_src_list="$other_src_list sd-daemon.c"
++  other_objs_list="$other_objs_list sd-daemon.o"
++  other_lobjs_list="$other_lobjs_list sd-daemon.lo"
++  other_ftobjs_list="$other_ftobjs_list sd-daemon.ft"
++fi
++
+ AC_SUBST(other_src_list)
+ AC_SUBST(other_objs_list)
+ AC_SUBST(other_lobjs_list)
+diff --git a/configure.d/config_project_with_enable b/configure.d/config_project_with_enable
+index 8b46ad2..59d6d5c 100644
+--- a/configure.d/config_project_with_enable
++++ b/configure.d/config_project_with_enable
+@@ -689,6 +689,15 @@ if test "x$with_dummy_values" != "xyes"; then
+      data for])
+ fi
+ 
++NETSNMP_ARG_WITH(systemd,
++[  --with-systemd                 Provide systemd support. See README.systemd
++                                  for details.])
++# Define unless specifically suppressed (i.e., option defaults to false).
++if test "x$with_systemd" != "xyes"; then
++  AC_DEFINE(NETSNMP_NO_SYSTEMD, 1,
++    [If you don't want to integrate with systemd.])
++fi
++
+ NETSNMP_ARG_ENABLE(set-support,
+ [  --disable-set-support           Do not allow SNMP set requests.])
+ if test "x$enable_set_support" = "xno"; then
+diff --git a/dist/snmpd.service b/dist/snmpd.service
+new file mode 100644
+index 0000000..31391e5
+--- /dev/null
++++ b/dist/snmpd.service
 @@ -0,0 +1,18 @@
 +#
 +# SNMP agent service file for systemd
@@ -301,9 +301,11 @@ diff -up net-snmp-5.7.1/dist/snmpd.service.systemd net-snmp-5.7.1/dist/snmpd.ser
 +
 +[Install]
 +WantedBy=multi-user.target
-diff -up net-snmp-5.7.1/dist/snmpd.socket.systemd net-snmp-5.7.1/dist/snmpd.socket
---- net-snmp-5.7.1/dist/snmpd.socket.systemd	2011-10-04 09:13:55.071788846 +0200
-+++ net-snmp-5.7.1/dist/snmpd.socket	2011-10-04 09:13:55.071788846 +0200
+diff --git a/dist/snmpd.socket b/dist/snmpd.socket
+new file mode 100644
+index 0000000..7f3a2d9
+--- /dev/null
++++ b/dist/snmpd.socket
 @@ -0,0 +1,17 @@
 +[Unit]
 +Description=Socket listening for SNMP and AgentX messages
@@ -322,9 +324,11 @@ diff -up net-snmp-5.7.1/dist/snmpd.socket.systemd net-snmp-5.7.1/dist/snmpd.sock
 +
 +[Install]
 +WantedBy=sockets.target
-diff -up net-snmp-5.7.1/dist/snmptrapd.service.systemd net-snmp-5.7.1/dist/snmptrapd.service
---- net-snmp-5.7.1/dist/snmptrapd.service.systemd	2011-10-04 09:13:55.071788846 +0200
-+++ net-snmp-5.7.1/dist/snmptrapd.service	2011-10-04 09:13:55.071788846 +0200
+diff --git a/dist/snmptrapd.service b/dist/snmptrapd.service
+new file mode 100644
+index 0000000..e88a5b4
+--- /dev/null
++++ b/dist/snmptrapd.service
 @@ -0,0 +1,16 @@
 +#
 +# SNMP trap-processing service file for systemd
@@ -342,9 +346,11 @@ diff -up net-snmp-5.7.1/dist/snmptrapd.service.systemd net-snmp-5.7.1/dist/snmpt
 +
 +[Install]
 +WantedBy=multi-user.target
-diff -up net-snmp-5.7.1/dist/snmptrapd.socket.systemd net-snmp-5.7.1/dist/snmptrapd.socket
---- net-snmp-5.7.1/dist/snmptrapd.socket.systemd	2011-10-04 09:13:55.072788831 +0200
-+++ net-snmp-5.7.1/dist/snmptrapd.socket	2011-10-04 09:13:55.072788831 +0200
+diff --git a/dist/snmptrapd.socket b/dist/snmptrapd.socket
+new file mode 100644
+index 0000000..0fc8a7c
+--- /dev/null
++++ b/dist/snmptrapd.socket
 @@ -0,0 +1,14 @@
 +[Unit]
 +Description=Socket listening for SNMP trap messages
@@ -360,9 +366,11 @@ diff -up net-snmp-5.7.1/dist/snmptrapd.socket.systemd net-snmp-5.7.1/dist/snmptr
 +
 +[Install]
 +WantedBy=sockets.target
-diff -up net-snmp-5.7.1/include/net-snmp/library/sd-daemon.h.systemd net-snmp-5.7.1/include/net-snmp/library/sd-daemon.h
---- net-snmp-5.7.1/include/net-snmp/library/sd-daemon.h.systemd	2011-10-04 09:13:55.072788831 +0200
-+++ net-snmp-5.7.1/include/net-snmp/library/sd-daemon.h	2011-10-04 09:13:55.072788831 +0200
+diff --git a/include/net-snmp/library/sd-daemon.h b/include/net-snmp/library/sd-daemon.h
+new file mode 100644
+index 0000000..008cb62
+--- /dev/null
++++ b/include/net-snmp/library/sd-daemon.h
 @@ -0,0 +1,286 @@
 +/*-*- Mode: C; c-basic-offset: 8; indent-tabs-mode: nil -*-*/
 +
@@ -650,10 +658,11 @@ diff -up net-snmp-5.7.1/include/net-snmp/library/sd-daemon.h.systemd net-snmp-5.
 +#endif
 +
 +#endif /* SNMPD_SD_DAEMON_H */
-diff -up net-snmp-5.7.1/include/net-snmp/net-snmp-config.h.in.systemd net-snmp-5.7.1/include/net-snmp/net-snmp-config.h.in
---- net-snmp-5.7.1/include/net-snmp/net-snmp-config.h.in.systemd	2011-09-28 06:53:47.000000000 +0200
-+++ net-snmp-5.7.1/include/net-snmp/net-snmp-config.h.in	2011-10-04 09:13:55.074788801 +0200
-@@ -1350,6 +1350,9 @@
+diff --git a/include/net-snmp/net-snmp-config.h.in b/include/net-snmp/net-snmp-config.h.in
+index c464f94..2d3fb6d 100644
+--- a/include/net-snmp/net-snmp-config.h.in
++++ b/include/net-snmp/net-snmp-config.h.in
+@@ -1398,6 +1398,9 @@
  /* If you don't have root access don't exit upon kmem errors */
  #undef NETSNMP_NO_ROOT_ACCESS
  
@@ -663,55 +672,11 @@ diff -up net-snmp-5.7.1/include/net-snmp/net-snmp-config.h.in.systemd net-snmp-5
  /* Define if you want to remove all SET/write access from the code */
  #undef NETSNMP_NO_WRITE_SUPPORT
  
-diff -up net-snmp-5.7.1/README.systemd.systemd net-snmp-5.7.1/README.systemd
---- net-snmp-5.7.1/README.systemd.systemd	2011-10-04 09:13:55.075788786 +0200
-+++ net-snmp-5.7.1/README.systemd	2011-10-04 09:13:55.075788786 +0200
-@@ -0,0 +1,41 @@
-+README.systemd
-+--------------
-+Net-SNMP provides two daemons, which support systemd system manager. 
-+See http://www.freedesktop.org/wiki/Software/systemd to learn how
-+systemd works. Both socket activation and notification is supported by these
-+daemons.
-+
-+To enable systemd support, the sources must be compiled with
-+--with-systemd configure option.
-+
-+snmpd - The SNMP agent
-+----------------------
-+Socket activation od snmpd daemon is implemented, but it's discouraged.
-+The reason is simple - snmpd not only listens and processes SNMP requests
-+from network, but also gathers system statistics counters, sends traps and
-+communicates with subagents. It even opens few netlink sockets.
-+
-+In other words, snmpd should run from system start to properly work.
-+This can be done in two ways:
-+1) either as snmpd service unit with 'Type=notification' and without a socket
-+   unit
-+2) or as snmpd service unit with 'Type=simple', appropriate socket socket unit
-+   and the snmpd service enabled. This way systemd creates the snmpd listening
-+   socket early during boot and passes the sockets to snmpd slightly later
-+   (but still during machine boot). This way systemd can paralelize start of
-+   services, which depend on snmpd. Admins must adjust the socket file manually,
-+   depending if the snmpd support AgentX, IPv6, SMUX etc.
-+
-+snmpd should be started with '-f' command line parameter to disable forking -
-+systemd does that for us automatically.
-+
-+
-+snmptrapd - The trap processing daemon
-+--------------------------------------
-+snmptrapd supports full socket activation and also notification (if needed).
-+Both 'Type=simple' (with appropriate socket unit) and 'Type=notify' services
-+will work. Again, '-f' parameter should be provided on snmptrapd command line.
-+
-+If integration with SNMP agent using AgentX protocol is enabled, snmptrapd should
-+start during boot and not after first SNMP trap arrives. Same rules as for snmpd
-+applies then.
-\ No newline at end of file
-diff -up net-snmp-5.7.1/snmplib/sd-daemon.c.systemd net-snmp-5.7.1/snmplib/sd-daemon.c
---- net-snmp-5.7.1/snmplib/sd-daemon.c.systemd	2011-10-04 09:13:55.076788771 +0200
-+++ net-snmp-5.7.1/snmplib/sd-daemon.c	2011-10-04 09:13:55.076788771 +0200
+diff --git a/snmplib/sd-daemon.c b/snmplib/sd-daemon.c
+new file mode 100644
+index 0000000..42dba29
+--- /dev/null
++++ b/snmplib/sd-daemon.c
 @@ -0,0 +1,532 @@
 +/*
 + * Systemd integration parts.
@@ -1245,12 +1210,13 @@ diff -up net-snmp-5.7.1/snmplib/sd-daemon.c.systemd net-snmp-5.7.1/snmplib/sd-da
 +}
 +
 +#endif /* ! NETSNMP_NO_SYSTEMD */
-diff -up net-snmp-5.7.1/snmplib/transports/snmpTCPDomain.c.systemd net-snmp-5.7.1/snmplib/transports/snmpTCPDomain.c
---- net-snmp-5.7.1/snmplib/transports/snmpTCPDomain.c.systemd	2011-09-28 06:53:47.000000000 +0200
-+++ net-snmp-5.7.1/snmplib/transports/snmpTCPDomain.c	2011-10-04 09:13:55.077788756 +0200
-@@ -42,6 +42,10 @@
- #include <net-snmp/library/snmpSocketBaseDomain.h>
+diff --git a/snmplib/transports/snmpTCPDomain.c b/snmplib/transports/snmpTCPDomain.c
+index b8bdba4..ab7f3a1 100644
+--- a/snmplib/transports/snmpTCPDomain.c
++++ b/snmplib/transports/snmpTCPDomain.c
+@@ -43,6 +43,10 @@
  #include <net-snmp/library/snmpTCPBaseDomain.h>
+ #include <net-snmp/library/tools.h>
  
 +#ifndef NETSNMP_NO_SYSTEMD
 +#include <net-snmp/library/sd-daemon.h>
@@ -1259,7 +1225,7 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpTCPDomain.c.systemd net-snmp-5.7.
  /*
   * needs to be in sync with the definitions in snmplib/snmpUDPDomain.c
   * and perl/agent/agent.xs
-@@ -147,6 +151,7 @@ netsnmp_tcp_transport(struct sockaddr_in
+@@ -149,6 +153,7 @@ netsnmp_tcp_transport(struct sockaddr_in *addr, int local)
      netsnmp_transport *t = NULL;
      netsnmp_udp_addr_pair *addr_pair = NULL;
      int rc = 0;
@@ -1267,7 +1233,7 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpTCPDomain.c.systemd net-snmp-5.7.
  
  #ifdef NETSNMP_NO_LISTEN_SUPPORT
      if (local)
-@@ -177,7 +182,19 @@ netsnmp_tcp_transport(struct sockaddr_in
+@@ -178,7 +183,19 @@ netsnmp_tcp_transport(struct sockaddr_in *addr, int local)
      t->domain_length =
          sizeof(netsnmp_snmpTCPDomain) / sizeof(netsnmp_snmpTCPDomain[0]);
  
@@ -1288,7 +1254,7 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpTCPDomain.c.systemd net-snmp-5.7.
      if (t->sock < 0) {
          netsnmp_transport_free(t);
          return NULL;
-@@ -214,11 +231,13 @@ netsnmp_tcp_transport(struct sockaddr_in
+@@ -215,11 +232,13 @@ netsnmp_tcp_transport(struct sockaddr_in *addr, int local)
          setsockopt(t->sock, SOL_SOCKET, SO_REUSEADDR, (void *)&opt,
  		   sizeof(opt));
  
@@ -1307,7 +1273,7 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpTCPDomain.c.systemd net-snmp-5.7.
          }
  
          /*
-@@ -234,12 +253,13 @@ netsnmp_tcp_transport(struct sockaddr_in
+@@ -235,12 +254,13 @@ netsnmp_tcp_transport(struct sockaddr_in *addr, int local)
          /*
           * Now sit here and wait for connections to arrive.  
           */
@@ -1327,12 +1293,13 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpTCPDomain.c.systemd net-snmp-5.7.
          }
          
          /*
-diff -up net-snmp-5.7.1/snmplib/transports/snmpTCPIPv6Domain.c.systemd net-snmp-5.7.1/snmplib/transports/snmpTCPIPv6Domain.c
---- net-snmp-5.7.1/snmplib/transports/snmpTCPIPv6Domain.c.systemd	2011-09-28 06:53:47.000000000 +0200
-+++ net-snmp-5.7.1/snmplib/transports/snmpTCPIPv6Domain.c	2011-10-04 09:13:55.078788741 +0200
-@@ -48,6 +48,10 @@
- #include <net-snmp/library/snmpSocketBaseDomain.h>
+diff --git a/snmplib/transports/snmpTCPIPv6Domain.c b/snmplib/transports/snmpTCPIPv6Domain.c
+index 3c96856..49f4610 100644
+--- a/snmplib/transports/snmpTCPIPv6Domain.c
++++ b/snmplib/transports/snmpTCPIPv6Domain.c
+@@ -49,6 +49,10 @@
  #include <net-snmp/library/snmpTCPBaseDomain.h>
+ #include <net-snmp/library/tools.h>
  
 +#ifndef NETSNMP_NO_SYSTEMD
 +#include <net-snmp/library/sd-daemon.h>
@@ -1341,15 +1308,15 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpTCPIPv6Domain.c.systemd net-snmp-
  #include "inet_ntop.h"
  
  oid netsnmp_TCPIPv6Domain[] = { TRANSPORT_DOMAIN_TCP_IPV6 };
-@@ -139,6 +143,7 @@ netsnmp_tcp6_transport(struct sockaddr_i
+@@ -140,6 +144,7 @@ netsnmp_tcp6_transport(struct sockaddr_in6 *addr, int local)
+ {
      netsnmp_transport *t = NULL;
      int             rc = 0;
-     char           *str = NULL;
 +    int             socket_initialized = 0;
  
  #ifdef NETSNMP_NO_LISTEN_SUPPORT
      if (local)
-@@ -174,7 +179,19 @@ netsnmp_tcp6_transport(struct sockaddr_i
+@@ -174,7 +179,19 @@ netsnmp_tcp6_transport(struct sockaddr_in6 *addr, int local)
      t->domain = netsnmp_TCPIPv6Domain;
      t->domain_length = sizeof(netsnmp_TCPIPv6Domain) / sizeof(oid);
  
@@ -1370,7 +1337,7 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpTCPIPv6Domain.c.systemd net-snmp-
      if (t->sock < 0) {
          netsnmp_transport_free(t);
          return NULL;
-@@ -220,12 +237,14 @@ netsnmp_tcp6_transport(struct sockaddr_i
+@@ -220,12 +237,14 @@ netsnmp_tcp6_transport(struct sockaddr_in6 *addr, int local)
  
          setsockopt(t->sock, SOL_SOCKET, SO_REUSEADDR, (void *)&opt, sizeof(opt));
  
@@ -1391,7 +1358,7 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpTCPIPv6Domain.c.systemd net-snmp-
          }
  
          /*
-@@ -242,11 +261,13 @@ netsnmp_tcp6_transport(struct sockaddr_i
+@@ -242,11 +261,13 @@ netsnmp_tcp6_transport(struct sockaddr_in6 *addr, int local)
           * Now sit here and wait for connections to arrive.  
           */
  
@@ -1410,9 +1377,10 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpTCPIPv6Domain.c.systemd net-snmp-
          }
          
          /*
-diff -up net-snmp-5.7.1/snmplib/transports/snmpUDPIPv4BaseDomain.c.systemd net-snmp-5.7.1/snmplib/transports/snmpUDPIPv4BaseDomain.c
---- net-snmp-5.7.1/snmplib/transports/snmpUDPIPv4BaseDomain.c.systemd	2011-09-28 06:53:47.000000000 +0200
-+++ net-snmp-5.7.1/snmplib/transports/snmpUDPIPv4BaseDomain.c	2011-10-04 09:13:55.079788726 +0200
+diff --git a/snmplib/transports/snmpUDPIPv4BaseDomain.c b/snmplib/transports/snmpUDPIPv4BaseDomain.c
+index c67427b..428e6d6 100644
+--- a/snmplib/transports/snmpUDPIPv4BaseDomain.c
++++ b/snmplib/transports/snmpUDPIPv4BaseDomain.c
 @@ -40,6 +40,10 @@
  
  #include <net-snmp/library/snmpSocketBaseDomain.h>
@@ -1424,7 +1392,7 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpUDPIPv4BaseDomain.c.systemd net-s
  #if (defined(linux) && defined(IP_PKTINFO)) \
      || defined(IP_RECVDSTADDR) && HAVE_STRUCT_MSGHDR_MSG_CONTROL \
                                 && HAVE_STRUCT_MSGHDR_MSG_FLAGS
-@@ -68,6 +72,7 @@ netsnmp_udpipv4base_transport(struct soc
+@@ -67,6 +71,7 @@ netsnmp_udpipv4base_transport(struct sockaddr_in *addr, int local)
      char           *client_socket = NULL;
      netsnmp_indexed_addr_pair addr_pair;
      socklen_t       local_addr_len;
@@ -1432,9 +1400,9 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpUDPIPv4BaseDomain.c.systemd net-s
  
  #ifdef NETSNMP_NO_LISTEN_SUPPORT
      if (local)
-@@ -90,7 +95,19 @@ netsnmp_udpipv4base_transport(struct soc
-                 str));
-     free(str);
+@@ -91,7 +96,19 @@ netsnmp_udpipv4base_transport(struct sockaddr_in *addr, int local)
+         free(str);
+     }
  
 -    t->sock = socket(PF_INET, SOCK_DGRAM, 0);
 +#ifndef NETSNMP_NO_SYSTEMD
@@ -1453,8 +1421,8 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpUDPIPv4BaseDomain.c.systemd net-s
      DEBUGMSGTL(("UDPBase", "openned socket %d as local=%d\n", t->sock, local)); 
      if (t->sock < 0) {
          netsnmp_transport_free(t);
-@@ -129,12 +146,14 @@ netsnmp_udpipv4base_transport(struct soc
-             DEBUGMSGTL(("netsnmp_udpbase", "set IP_PKTINFO\n"));
+@@ -141,12 +158,14 @@ netsnmp_udpipv4base_transport(struct sockaddr_in *addr, int local)
+             DEBUGMSGTL(("netsnmp_udp", "set IP_RECVDSTADDR\n"));
          }
  #endif
 -        rc = bind(t->sock, (struct sockaddr *) addr,
@@ -1474,12 +1442,13 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpUDPIPv4BaseDomain.c.systemd net-s
          }
          t->data = NULL;
          t->data_length = 0;
-diff -up net-snmp-5.7.1/snmplib/transports/snmpUDPIPv6Domain.c.systemd net-snmp-5.7.1/snmplib/transports/snmpUDPIPv6Domain.c
---- net-snmp-5.7.1/snmplib/transports/snmpUDPIPv6Domain.c.systemd	2011-09-28 06:53:47.000000000 +0200
-+++ net-snmp-5.7.1/snmplib/transports/snmpUDPIPv6Domain.c	2011-10-04 09:13:55.080788711 +0200
-@@ -66,6 +66,10 @@ static const struct in6_addr in6addr_any
- #include <net-snmp/library/snmp_transport.h>
+diff --git a/snmplib/transports/snmpUDPIPv6Domain.c b/snmplib/transports/snmpUDPIPv6Domain.c
+index b3eaae4..e275ead 100644
+--- a/snmplib/transports/snmpUDPIPv6Domain.c
++++ b/snmplib/transports/snmpUDPIPv6Domain.c
+@@ -67,6 +67,10 @@ static const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
  #include <net-snmp/library/snmpSocketBaseDomain.h>
+ #include <net-snmp/library/tools.h>
  
 +#ifndef NETSNMP_NO_SYSTEMD
 +#include <net-snmp/library/sd-daemon.h>
@@ -1488,15 +1457,15 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpUDPIPv6Domain.c.systemd net-snmp-
  #include "inet_ntop.h"
  #include "inet_pton.h"
  
-@@ -185,6 +189,7 @@ netsnmp_udp6_transport(struct sockaddr_i
+@@ -190,6 +194,7 @@ netsnmp_udp6_transport(struct sockaddr_in6 *addr, int local)
+ {
      netsnmp_transport *t = NULL;
      int             rc = 0;
-     char           *str = NULL;
 +    int             socket_initialized = 0;
  
  #ifdef NETSNMP_NO_LISTEN_SUPPORT
      if (local)
-@@ -212,7 +217,19 @@ netsnmp_udp6_transport(struct sockaddr_i
+@@ -217,7 +222,19 @@ netsnmp_udp6_transport(struct sockaddr_in6 *addr, int local)
      t->domain_length =
          sizeof(netsnmp_UDPIPv6Domain) / sizeof(netsnmp_UDPIPv6Domain[0]);
  
@@ -1517,7 +1486,7 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpUDPIPv6Domain.c.systemd net-snmp-
      if (t->sock < 0) {
          netsnmp_transport_free(t);
          return NULL;
-@@ -237,13 +254,14 @@ netsnmp_udp6_transport(struct sockaddr_i
+@@ -242,13 +259,14 @@ netsnmp_udp6_transport(struct sockaddr_in6 *addr, int local)
  	  } 
  	}
  #endif
@@ -1539,12 +1508,13 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpUDPIPv6Domain.c.systemd net-snmp-
          }
          t->local = (unsigned char*)malloc(18);
          if (t->local == NULL) {
-diff -up net-snmp-5.7.1/snmplib/transports/snmpUnixDomain.c.systemd net-snmp-5.7.1/snmplib/transports/snmpUnixDomain.c
---- net-snmp-5.7.1/snmplib/transports/snmpUnixDomain.c.systemd	2011-09-28 06:53:47.000000000 +0200
-+++ net-snmp-5.7.1/snmplib/transports/snmpUnixDomain.c	2011-10-04 09:13:55.082788683 +0200
-@@ -36,6 +36,10 @@
- #include <net-snmp/library/snmpSocketBaseDomain.h>
+diff --git a/snmplib/transports/snmpUnixDomain.c b/snmplib/transports/snmpUnixDomain.c
+index 674dc2b..f0d8e4f 100644
+--- a/snmplib/transports/snmpUnixDomain.c
++++ b/snmplib/transports/snmpUnixDomain.c
+@@ -37,6 +37,10 @@
  #include <net-snmp/library/system.h> /* mkdirhier */
+ #include <net-snmp/library/tools.h>
  
 +#ifndef NETSNMP_NO_SYSTEMD
 +#include <net-snmp/library/sd-daemon.h>
@@ -1553,15 +1523,15 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpUnixDomain.c.systemd net-snmp-5.7
  netsnmp_feature_child_of(transport_unix_socket_all, transport_all)
  netsnmp_feature_child_of(unix_socket_paths, transport_unix_socket_all)
  
-@@ -295,6 +299,7 @@ netsnmp_unix_transport(struct sockaddr_u
+@@ -295,6 +299,7 @@ netsnmp_unix_transport(struct sockaddr_un *addr, int local)
+     netsnmp_transport *t = NULL;
      sockaddr_un_pair *sup = NULL;
      int             rc = 0;
-     char           *string = NULL;
 +    int             socket_initialized = 0;
  
  #ifdef NETSNMP_NO_LISTEN_SUPPORT
      /* SPECIAL CIRCUMSTANCE: We still want AgentX to be able to operate,
-@@ -333,7 +338,18 @@ netsnmp_unix_transport(struct sockaddr_u
+@@ -333,7 +338,18 @@ netsnmp_unix_transport(struct sockaddr_un *addr, int local)
      t->data_length = sizeof(sockaddr_un_pair);
      sup = (sockaddr_un_pair *) t->data;
  
@@ -1581,7 +1551,7 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpUnixDomain.c.systemd net-snmp-5.7
      if (t->sock < 0) {
          netsnmp_transport_free(t);
          return NULL;
-@@ -357,25 +373,26 @@ netsnmp_unix_transport(struct sockaddr_u
+@@ -357,25 +373,26 @@ netsnmp_unix_transport(struct sockaddr_un *addr, int local)
  
          t->flags |= NETSNMP_TRANSPORT_FLAG_LISTEN;
  
@@ -1622,7 +1592,7 @@ diff -up net-snmp-5.7.1/snmplib/transports/snmpUnixDomain.c.systemd net-snmp-5.7
          }
  
          /*
-@@ -391,16 +408,17 @@ netsnmp_unix_transport(struct sockaddr_u
+@@ -391,16 +408,17 @@ netsnmp_unix_transport(struct sockaddr_un *addr, int local)
           * Now sit here and listen for connections to arrive.
           */
  

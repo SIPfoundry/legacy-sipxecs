@@ -120,8 +120,12 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
 
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-        boolean enabled = m_featureManager.isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(new ProcessDefinition("sipXproxy")) : null);
+        if (!m_featureManager.isFeatureEnabled(FEATURE, location)) {
+            return null;
+        }
+        ProcessDefinition def = new ProcessDefinition("sipXproxy");
+        def.setSipxServiceName("sipxproxy");
+        return Collections.singleton(def);
     }
 
     public void setConfigManager(ConfigManager configManager) {

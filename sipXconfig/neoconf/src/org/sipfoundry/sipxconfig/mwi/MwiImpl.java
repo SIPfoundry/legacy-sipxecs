@@ -131,7 +131,9 @@ public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvid
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(new ProcessDefinition("sipstatus")) : null);
+        ProcessDefinition def = ProcessDefinition.sipxDefault("sipstatus");
+        def.setSipxServiceName("sipxpublisher");
+        return (enabled ? Collections.singleton(def) : null);
     }
 
     @Override

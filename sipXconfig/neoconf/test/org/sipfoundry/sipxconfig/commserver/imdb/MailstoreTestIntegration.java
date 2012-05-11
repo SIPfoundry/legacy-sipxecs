@@ -97,7 +97,7 @@ public class MailstoreTestIntegration extends ImdbTestCase {
         dls[1] = dl1;
         dls[3] = dl2;
         try {
-            m_mailboxManager.saveDistributionLists(m_user, dls);
+            m_mailboxManager.saveDistributionLists(m_user.getId(), dls);
             fail();
         } catch (UserException e) {
 
@@ -118,7 +118,7 @@ public class MailstoreTestIntegration extends ImdbTestCase {
         getCoreContext().saveUser(u204);
 
         try {
-            m_mailboxManager.saveDistributionLists(m_user,dls);
+            m_mailboxManager.saveDistributionLists(m_user.getId(), dls);
             fail();
         } catch (UserException e) {
 
@@ -126,7 +126,7 @@ public class MailstoreTestIntegration extends ImdbTestCase {
 
         u202.setPermission(PermissionName.VOICEMAIL, true);
         getCoreContext().saveUser(u202);
-        m_mailboxManager.saveDistributionLists(m_user, dls);
+        m_mailboxManager.saveDistributionLists(m_user.getId(), dls);
         List<DBObject> dLists = new ArrayList<DBObject>();
 
         DBObject dlist1 = new BasicDBObject();

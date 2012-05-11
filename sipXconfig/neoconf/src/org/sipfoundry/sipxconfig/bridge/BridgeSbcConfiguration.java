@@ -84,7 +84,7 @@ public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, 
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(BridgeSbcContext.FEATURE, location);
         return (enabled ? Collections
-                .singleton(new ProcessDefinition(SIPXBRIDGE, ".*\\s-Dprocname=sipxbridge\\s.*")) : null);
+                .singleton(ProcessDefinition.sipxDefault(SIPXBRIDGE, ".*\\s-Dprocname=sipxbridge\\s.*")) : null);
     }
 
     @Override

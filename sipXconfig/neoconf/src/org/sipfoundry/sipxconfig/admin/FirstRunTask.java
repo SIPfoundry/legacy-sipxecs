@@ -15,6 +15,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.Location.State;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.springframework.beans.factory.annotation.Required;
@@ -29,11 +30,13 @@ public class FirstRunTask implements ApplicationListener {
     private String m_taskName;
     private LocationsManager m_locationsManager;
     private AuditLogContext m_auditLogContext;
+    private ReplicationManager m_replicationManager;
 
     public void runTask() {
         LOG.info("Executing first run tasks...");
         m_domainManager.initializeDomain();
         m_coreContext.initializeSpecialUsers();
+        m_replicationManager.replicateAllData();
     }
 
     @Override
@@ -69,7 +72,7 @@ public class FirstRunTask implements ApplicationListener {
     }
 
     private void removeTask() {
-        m_adminContext.deleteInitializationTask(m_taskName);
+        //m_adminContext.deleteInitializationTask(m_taskName);
     }
 
     private boolean checkForTask() {
@@ -103,5 +106,9 @@ public class FirstRunTask implements ApplicationListener {
     @Required
     public void setAuditLogContext(AuditLogContext auditLogContext) {
         m_auditLogContext = auditLogContext;
+    }
+
+    public void setReplicationManager(ReplicationManager replicationManager) {
+        m_replicationManager = replicationManager;
     }
 }

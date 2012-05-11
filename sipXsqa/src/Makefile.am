@@ -9,7 +9,11 @@ SUBDIRS = \
 
 SIPXSQA_COMMON_CXX_FLAGS = \
 	-I$(top_srcdir)/include \
-	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" 
+	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
+        -DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
+        -DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
+        -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
+
 bin_PROGRAMS = sipxsqa
 
 sipxsqa_CXXFLAGS = \

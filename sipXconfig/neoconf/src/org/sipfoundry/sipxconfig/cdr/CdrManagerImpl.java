@@ -557,7 +557,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(new ProcessDefinition("sipxcdr",
+        return (enabled ? Collections.singleton(ProcessDefinition.sipxDefault("sipxcdr",
                 ".*\\s$(sipx.SIPX_LIBDIR)/ruby/gems/[0-9.]+/gems/sipxcallresolver-[0-9.]+/lib/main.rb\\s.*")) : null);
     }
 

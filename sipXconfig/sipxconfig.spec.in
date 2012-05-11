@@ -79,12 +79,8 @@ Requires: java-ibm-unrestricted
 
 # jasperreports
 Requires: fontconfig
-# todo: find equiv. bitstream font pkg for centos 6
-%if %{_vendor} == redhat && 0%{?fedora} == 0 && 0%{?rhel} < 6
-Requires: bitstream-vera-fonts
-%endif
-%if %{_vendor} == redhat && 0%{?fedora} > 6
-Requires: bitstream-vera-sans-fonts
+%if %{_vendor} == redhat
+Requires: dejavu-serif-fonts
 %endif
 
 %if %{_vendor} == redhat

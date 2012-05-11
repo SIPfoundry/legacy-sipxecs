@@ -33,6 +33,15 @@ public class SnmpConfigTest {
         List<ProcessDefinition> defs = Arrays.asList(new ProcessDefinition("jay"), new ProcessDefinition("robin", ".*whatever.*"));
         StringWriter actual = new StringWriter();
         config.writeProcesses(actual, defs);
-        assertEquals("regexp_proc jay\nregexp_proc robin 0 1 .*whatever.*\n", actual.toString());
+        assertEquals("proc jay\nproc robin 0 1 .*whatever.*\n", actual.toString());
+    }
+
+    @Test
+    public void configWithRestart() throws IOException {
+        SnmpConfig config = new SnmpConfig();
+        List<ProcessDefinition> defs = Arrays.asList(new ProcessDefinition("robin", ".*whatever.*", "$(sipx.SIPX_SERVICEDIR)/foo restart"));
+        StringWriter actual = new StringWriter();
+        config.writeProcesses(actual, defs);
+        assertEquals("proc robin 0 1 .*whatever.*\nprocfix robin $(sipx.SIPX_SERVICEDIR)/foo restart\n", actual.toString());
     }
 }

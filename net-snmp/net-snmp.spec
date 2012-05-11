@@ -11,7 +11,7 @@
 Summary: A collection of SNMP protocol tools and libraries
 Name: net-snmp
 Version: 5.7.1
-Release: 5%{?dist}
+Release: 99%{?dist}
 Epoch: 1
 
 License: BSD
@@ -77,6 +77,8 @@ BuildRequires: lm_sensors-devel >= 3
 %if %{netsnmp_tcp_wrappers}
 BuildRequires: tcp_wrappers-devel
 %endif
+# ucd-mib/proc
+BuildRequires: pcre-devel
 
 %description
 SNMP (Simple Network Management Protocol) is a protocol used for
@@ -196,18 +198,26 @@ The net-snmp-sysvinit package provides SysV init scripts for Net-SNMP daemons.
 
 %patch2 -p1 -b .dir-fix
 %patch3 -p1 -b .multilib
-%patch4 -p1 -b .include-struct
+
+# looks to be no longer needed
+#%patch4 -p1 -b .include-struct
+
 %patch5 -p1 -b .apsl
 # Following patch removes -Wl,-rpath,/usr/lib64/perl5/CORE from 
 # net-snmp-config --agent-libs output. As for Fedora 15, this
 # rpath is needed to link subagents, because libperl.so is in
 # non-default directory - so leave the rpath there.
 #%patch6 -p1 -b .perl-linking
-%patch7 -p1
+
+# Does not apply cleanly and disables test that do not work on koji
+#%patch7 -p1
+
 %patch8 -p1 -b .mysql
 %patch9 -p1 -b .systemd
-%patch10 -p1 -b .libtool
-%patch11 -p1 -b .mibs-perl
+
+# Does not apply and looks to be not nec.
+#%patch10 -p1 -b .libtool
+# %patch11 -p1 -b .mibs-perl
 
 %ifarch sparc64 s390 s390x
 # disable failing test - see https://bugzilla.redhat.com/show_bug.cgi?id=680697
@@ -514,6 +524,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_initrddir}/snmptrapd
 
 %changelog
+* Tue May 8 2012 Douglas Hubler <dhubler@ezuce.com> - 1:5.7.1-99
+- Include pcre to find processes in process table by regex.
+
 * Wed Feb 22 2012 Douglas Hubler <dhubler@ezuce.com> - 1:5.7.1-4
 - Only require systemd-sysv for Fedora 15 or higher. Cause unwanted dep issues on F14
 

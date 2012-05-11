@@ -121,8 +121,12 @@ public class FreeswitchFeature implements FeatureProvider, AddressProvider, Proc
 
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(new ProcessDefinition(m_name)) : null);
+        if (!manager.getFeatureManager().isFeatureEnabled(FEATURE, location)) {
+            return null;
+        }
+        ProcessDefinition def = new ProcessDefinition(m_name);
+        def.setSipxServiceName("sipxfreeswitch");
+        return Collections.singleton(def);
     }
 
     @Override

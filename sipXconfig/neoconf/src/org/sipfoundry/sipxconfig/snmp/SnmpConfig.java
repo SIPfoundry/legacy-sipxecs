@@ -16,6 +16,8 @@
  */
 package org.sipfoundry.sipxconfig.snmp;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -74,8 +76,9 @@ public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListene
     }
 
     void writeProcesses(Writer w, List<ProcessDefinition> defs) throws IOException {
+        String eol = "\n";
         for (ProcessDefinition def : defs) {
-            w.write("regexp_proc ");
+            w.write("proc ");
             w.write(def.getProcess());
             String regexp = def.getRegexp();
             if (StringUtils.isNotBlank(regexp)) {
@@ -83,7 +86,11 @@ public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListene
                 w.write(" 0 1 ");
                 w.write(regexp);
             }
-            w.write("\n");
+            w.write(eol);
+            if (StringUtils.isNotBlank(def.getRestartCommand())) {
+                String fix = format("procfix %s %s\n", def.getProcess(), def.getRestartCommand());
+                w.write(fix);
+            }
         }
     }
 

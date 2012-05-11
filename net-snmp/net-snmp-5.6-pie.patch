@@ -1,24 +1,26 @@
-diff -up net-snmp-5.6/agent/Makefile.in.pie net-snmp-5.6/agent/Makefile.in
---- net-snmp-5.6/agent/Makefile.in.pie	2010-06-08 23:05:11.000000000 +0200
-+++ net-snmp-5.6/agent/Makefile.in	2010-10-25 17:34:55.802975874 +0200
-@@ -245,7 +245,7 @@ getmibstat.o: mibgroup/kernel_sunos5.c
+diff --git a/agent/Makefile.in b/agent/Makefile.in
+index 748b01c..9a54d50 100644
+--- a/agent/Makefile.in
++++ b/agent/Makefile.in
+@@ -294,7 +294,7 @@ getmibstat.o: mibgroup/kernel_sunos5.c
  	$(CC) $(CFLAGS) -o $@ -D_GETMIBSTAT_TEST -DDODEBUG -c $? 
  
- snmpd$(EXEEXT):	${LAGENTOBJS} $(USELIBS) $(AGENTLIB) $(MIBLIB) $(LIBTARG) 
--	$(LINK) $(CFLAGS) -o $@ ${LAGENTOBJS} $(LOCAL_LIBS) ${LDFLAGS} ${OUR_AGENT_LIBS}
-+	$(LINK) $(CFLAGS) -pie -o $@ ${LAGENTOBJS} $(LOCAL_LIBS) ${LDFLAGS} ${OUR_AGENT_LIBS}
- 
+ snmpd$(EXEEXT):	${LAGENTOBJS} $(USELIBS) $(AGENTLIB) $(HELPERLIB) $(MIBLIB) $(LIBTARG) 
+-	$(LINK) $(CFLAGS) -o $@ ${LAGENTOBJS} ${LDFLAGS} ${OUR_AGENT_LIBS}
++	$(LINK) $(CFLAGS) -pie -o $@ ${LAGENTOBJS} ${LDFLAGS} ${OUR_AGENT_LIBS}
  
  libnetsnmpagent.$(LIB_EXTENSION)$(LIB_VERSION):    ${LLIBAGENTOBJS} $(USELIBS)
-diff -up net-snmp-5.6/apps/Makefile.in.pie net-snmp-5.6/apps/Makefile.in
---- net-snmp-5.6/apps/Makefile.in.pie	2010-07-02 18:27:52.000000000 +0200
-+++ net-snmp-5.6/apps/Makefile.in	2010-10-25 17:03:57.414725652 +0200
-@@ -127,7 +127,7 @@ snmptest$(EXEEXT):    snmptest.$(OSUFFIX
- 	$(LINK) ${CFLAGS} -o $@ snmptest.$(OSUFFIX) $(LOCAL_LIBS) ${LDFLAGS} ${LIBS} 
+ 	$(LIB_LD_CMD) $(AGENTLIB) ${LLIBAGENTOBJS} $(USELIBS) ${LAGENTLIBS} @LD_NO_UNDEFINED@ $(LDFLAGS) $(PERLLDOPTS_FOR_LIBS) $(LIB_LD_LIBS) @AGENTLIBS@
+diff --git a/apps/Makefile.in b/apps/Makefile.in
+index 77404dd..d15e78d 100644
+--- a/apps/Makefile.in
++++ b/apps/Makefile.in
+@@ -170,7 +170,7 @@ snmptest$(EXEEXT):    snmptest.$(OSUFFIX) $(USELIBS)
+ 	$(LINK) ${CFLAGS} -o $@ snmptest.$(OSUFFIX) ${LDFLAGS} ${LIBS}
  
  snmptrapd$(EXEEXT):    $(TRAPD_OBJECTS) $(USETRAPLIBS) $(INSTALLLIBS)
--	$(LINK) ${CFLAGS} -o $@ $(TRAPD_OBJECTS) $(INSTALLLIBS) $(LOCAL_LIBS) ${LDFLAGS} ${TRAPLIBS}
-+	$(LINK) ${CFLAGS} -o $@ -pie $(TRAPD_OBJECTS) $(INSTALLLIBS) $(LOCAL_LIBS) ${LDFLAGS} ${TRAPLIBS}
+-	$(LINK) ${CFLAGS} -o $@ $(TRAPD_OBJECTS) $(INSTALLLIBS) ${LDFLAGS} ${TRAPLIBS}
++	$(LINK) ${CFLAGS} -o $@ -pie $(TRAPD_OBJECTS) $(INSTALLLIBS) ${LDFLAGS} ${TRAPLIBS}
  
  snmptrap$(EXEEXT):    snmptrap.$(OSUFFIX) $(USELIBS)
- 	$(LINK) ${CFLAGS} -o $@ snmptrap.$(OSUFFIX) $(LOCAL_LIBS) ${LDFLAGS} ${LIBS} 
+ 	$(LINK) ${CFLAGS} -o $@ snmptrap.$(OSUFFIX) ${LDFLAGS} ${LIBS}

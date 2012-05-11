@@ -65,7 +65,7 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
             File dir = manager.getLocationDataDirectory(location);
 
             // CLIENT
-            Address queue = manager.getAddressManager().getSingleAddress(QUEUE_ADDRESS, location);
+            Address queue = manager.getAddressManager().getSingleAddress(CONTROL_ADDRESS, location);
             Writer client = new FileWriter(new File(dir, "sipxsqa-client.ini"));
             try {
                 writeClientConfig(client, queue);
@@ -96,8 +96,8 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
         config.write("enabled", queue != null);
         if (queue != null) {
-            config.write("zmq-subscription-port", queue.getCanonicalPort());
-            config.write("zmq-subscription-address", queue.getAddress());
+            config.write("sqa-control-port", queue.getCanonicalPort());
+            config.write("sqa-control-address", queue.getAddress());
         }
     }
 

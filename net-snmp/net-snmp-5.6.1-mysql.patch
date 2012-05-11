@@ -1,14 +1,16 @@
-MySQL 5.5 does not export 'const char *my_progname', so MY_INIT cannot be used.
-
-diff -up net-snmp-5.6.1/apps/snmptrapd_sql.c.orig net-snmp-5.6.1/apps/snmptrapd_sql.c
---- net-snmp-5.6.1/apps/snmptrapd_sql.c.orig	2010-11-30 22:08:59.000000000 +0100
-+++ net-snmp-5.6.1/apps/snmptrapd_sql.c	2011-02-15 13:01:31.631486477 +0100
-@@ -434,7 +434,7 @@ netsnmp_mysql_init(void)
+diff --git a/apps/snmptrapd_sql.c b/apps/snmptrapd_sql.c
+index ccba258..56832a1 100644
+--- a/apps/snmptrapd_sql.c
++++ b/apps/snmptrapd_sql.c
+@@ -437,11 +437,7 @@ netsnmp_mysql_init(void)
          return -1;
      }
  
+-#ifdef HAVE_BROKEN_LIBMYSQLCLIENT
+     my_init();
+-#else
 -    MY_INIT("snmptrapd");
-+    my_init();
+-#endif
  
      /** load .my.cnf values */
      load_defaults ("my", _sql.groups, &not_argc, &not_argv);

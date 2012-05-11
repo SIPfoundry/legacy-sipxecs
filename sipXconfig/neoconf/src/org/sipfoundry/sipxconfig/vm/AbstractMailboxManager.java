@@ -103,9 +103,10 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
     }
 
 
-    public void saveDistributionLists(User user, DistributionList[] lists) {
+    public void saveDistributionLists(Integer userId, DistributionList[] lists) {
         Collection<String> aliases = DistributionList.getUniqueExtensions(lists);
         getCoreContext().checkForValidExtensions(aliases, PermissionName.VOICEMAIL);
+        User user = getCoreContext().getUser(userId);
         for (int i = 1; i < lists.length; i++) {
             if (lists[i].getExtensions() != null) {
                 user.setSettingValue(new StringBuilder(DistributionList.SETTING_PATH_DISTRIBUTION_LIST).

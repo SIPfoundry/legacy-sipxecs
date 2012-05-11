@@ -96,7 +96,7 @@ public class MongoReplicaSetManager {
             boolean complete = false;
             // A new mongo server takes a while before it will accept connections
             // hang out until it's available
-            for (int i = 0; !complete || i < 3; i++) {
+            for (int i = 0; !complete && i < 3; i++) {
                 try {
                     BasicBSONObject result = MongoUtil.runCommand(m_localDb.getDb(), cmd);
                     MongoUtil.checkForError(result);
