@@ -4,6 +4,7 @@
     unless rule[:end_port].nil?
       s += ':' + rule[:end_port].to_s
     end
+    s
   end
 %>*filter
 :INPUT DROP [0:0]
