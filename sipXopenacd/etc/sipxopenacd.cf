@@ -48,7 +48,7 @@ bundle agent sipxopenacd_config {
       "$(sipx.SIPX_SERVICEDIR)/openacd"
         comment => "install openacd config $(this.promiser)",
         perms => m("755"),
-        link_from => ln_s("$(sipx.OPENACD_DIR)/bin/openacd");
+        link_from => ln_s("$(sipx.OPENACD_BINDIR)/openacd");
 
       # regular configs
       "$(sipx.OPENACD_CONFDIR)/vm.args"
@@ -101,8 +101,8 @@ bundle edit_line sipxopenacd_app_config() {
     any::
 "
 [{'OpenACD', [
-	{console_loglevel, $(sipx.OPENACD_LOG_LEVEl)},
-	{logfiles, [{\"$(sipx.OPENACD_LOGDIR)/full.log\", $(sipx.OPENACD_LOG_LEVEl)}]},
+	{console_loglevel, $(sipx.OPENACD_LOG_LEVEL)},
+	{logfiles, [{\"$(sipx.OPENACD_LOGDIR)/full.log\", $(sipx.OPENACD_LOG_LEVEL)}]},
 	{plugin_dir, \"plugin.d\"}, {plugins, [sipxplugin]}, {agent_auth_storage, spx_agent_auth}, {call_queue_config_storage, spx_call_queue_config}
 ]},
 {sasl, [

@@ -17,7 +17,7 @@ openacd_prefix="yes")
         OPENACD_LOGDIR="${PREFIX}/var/log/openacd"
         OPENACD_CONFDIR="${PREFIX}/etc/openacd"
         OPENACD_DBDIR="${PREFIX}/var/lib/openacd/db"
-        OPENACD_BINDIR="${PREFIX}/bin"
+        OPENACD_BINDIR="$d/bin"
         AC_MSG_RESULT([yes - $d])
         openacd_found=yes
         break;
