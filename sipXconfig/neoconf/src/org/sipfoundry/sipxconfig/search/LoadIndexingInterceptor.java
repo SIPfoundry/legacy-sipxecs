@@ -32,7 +32,7 @@ public class LoadIndexingInterceptor extends SpringHibernateInstantiator {
     public boolean onLoad(Object entity, Serializable id, Object[] state, String[] propertyNames,
             Type[] types) {
         BeanIndexProperties beanIndexProperties = new BeanIndexProperties(entity, id, state, propertyNames, types);
-        m_beanIndexHelper.setupIndexProperties(beanIndexProperties);
+        m_beanIndexHelper.setupIndexProperties(beanIndexProperties, true);
         m_indexer.indexBean(entity, id, beanIndexProperties.getState(), beanIndexProperties.getPropertyNames(),
                 beanIndexProperties.getTypes(), true);
         return false;
