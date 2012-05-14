@@ -82,6 +82,10 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     @Override
     public Collection<LocationFeature> getAvailableLocationFeatures(FeatureManager featureManager, Location l) {
         if (l.isPrimary()) {
+            // we show arbiter as an option even though there are many situations where
+            // it would not make sense, but there are situations where you have to show it
+            // in case admins needs to disable it. e.g admin deletes 2 of 3 servers and
+            // then needs to disable arbiter on primary.
             return Collections.singleton(ARBITER_FEATURE);
         }
         return Arrays.asList(FEATURE_ID, ARBITER_FEATURE);
