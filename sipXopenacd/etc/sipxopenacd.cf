@@ -40,7 +40,7 @@ bundle agent sipxopenacd_config {
         edit_defaults => empty,
         # NOTE: as long as $(OAPLUGINDIR) is *not* a defined cfengine var
         # it should pass thru unreplaced.
-        edit_line => insert_lines("OAPLUGINDIR=$OAPLUGINDIR:$(sipx.SIPX_LIBDIR)/openacd/plugin.d");
+        edit_line => insert_lines("OAPLUGINDIR=$OAPLUGINDIR:$(sipx.SIPX_LIBDIR)/openacd/plugin.d:$(sipx.SIPX_LIBDIR)/openacd/lib");
 
     any::
       # symlink service script mostly so it can be used registered to system
@@ -103,7 +103,7 @@ bundle edit_line sipxopenacd_app_config() {
 [{'OpenACD', [
 	{console_loglevel, $(sipx.OPENACD_LOG_LEVEL)},
 	{logfiles, [{\"$(sipx.OPENACD_LOGDIR)/full.log\", $(sipx.OPENACD_LOG_LEVEL)}]},
-	{plugin_dir, \"plugin.d\"}, {plugins, [sipxplugin]}, {agent_auth_storage, spx_agent_auth}, {call_queue_config_storage, spx_call_queue_config}
+	{plugin_dir, \"$(sipx.SIPX_LIBDIR)/openacd/plugin.d\"}, {plugins, [erlmongo, sipxplugin]}, {agent_auth_storage, spx_agent_auth}, {call_queue_config_storage, spx_call_queue_config}
 ]},
 {sasl, [
 	{errlog_type, error} % disable SASL progress reports
@@ -118,7 +118,7 @@ bundle edit_line sipxopenacd_app_config() {
 bundle agent sipxopenacd_running {
   vars:
     any::
-      "service_command" string => ".*\s$(sipx.OPENACD_BINDIR)/openacd\s.*";
+      "service_command" string => ".*\s/bin/openacd\s.*";
 
   methods:
     any::

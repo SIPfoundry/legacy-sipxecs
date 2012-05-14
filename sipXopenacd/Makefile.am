@@ -47,14 +47,13 @@ $(LINK_TARGETS) :
 ebin/%.beam : src/%.erl
 	ERL_LIBS=@OPENACD_DIR@/lib ./rebar compile skip_deps=true
 
-ebindir = $(SIPX_LIBDIR)/openacd/lib/plugin.d/sipxplugin/ebin
+ebindir = $(SIPX_LIBDIR)/openacd/lib/sipxplugin/ebin
 ebin_DATA = \
 	$(BEAM_FILES)
 
-plugindir = $(SIPX_LIBDIR)/openacd/plugin.d
+plugindir = $(SIPX_LIBDIR)/openacd/lib/sipxplugin/ebin
 plugin_DATA = \
-	sipxplugin.app \
-	deps/erlmongo/ebin/erlmongo.app
+	sipxplugin.app
 
 sipxplugin.app : %  : src/%.src Makefile
 	@$(call SearchAndReplace,$<,$@,$(OPENACD_VARS))
@@ -75,5 +74,9 @@ install-meck : deps/meck/ebin/meck.beam
 install-erlmongo : deps/erlmongo/ebin/erlmongo.beam
 install-% :
 	$(INSTALL) -d $(DESTDIR)$(SIPX_LIBDIR)/openacd/lib/$*/ebin
+	$(INSTALL) -d $(DESTDIR)$(SIPX_LIBDIR)/openacd/plugin.d
 	$(INSTALL) -t $(DESTDIR)$(SIPX_LIBDIR)/openacd/lib/$*/ebin $(wildcard deps/$*/ebin/*)
+	ln -snf $(SIPX_LIBDIR)/openacd/lib/sipxplugin/ebin/sipxplugin.app $(SIPX_LIBDIR)/openacd/plugin.d/sipxplugin.app
+	ln -snf $(SIPX_LIBDIR)/openacd/lib/erlmongo/ebin/erlmongo.app $(SIPX_LIBDIR)/openacd/plugin.d/erlmongo.app 
+	ln -snf $(OPENACD_BINDIR)/openacd $(SIPX_SERVICEDIR)/openacd
 

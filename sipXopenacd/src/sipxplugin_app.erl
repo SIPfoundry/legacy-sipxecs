@@ -18,6 +18,7 @@
 -export([start/2, stop/1]).
 
 start(_Type, _Args) ->
+	application:start(erlmongo),
 	sipxplugin_sup:start_link().
 
 
