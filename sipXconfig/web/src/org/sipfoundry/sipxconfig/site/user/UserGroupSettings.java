@@ -27,8 +27,11 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.forwarding.UserGroupSchedule;
+import org.sipfoundry.sipxconfig.imbot.ImBot;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -60,6 +63,9 @@ public abstract class UserGroupSettings extends GroupSettings {
     @InjectObject(value = "spring:conferenceBridgeContext")
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
 
+    @InjectObject("spring:featureManager")
+    public abstract FeatureManager getFeatureManager();
+
     public abstract void setSchedules(List<UserGroupSchedule> schedules);
 
     public abstract List<UserGroupSchedule> getSchedules();
@@ -85,9 +91,6 @@ public abstract class UserGroupSettings extends GroupSettings {
 
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
-
-//    @InjectObject("spring:sipxServiceManager")
-//    public abstract SipxServiceManager getSipxServiceManager();
 
     @Persist
     public abstract SpeedDialGroup getSpeedDialGroup();
@@ -116,9 +119,19 @@ public abstract class UserGroupSettings extends GroupSettings {
 
     public Collection<String> getAvailableTabNames() {
         Collection<String> tabNames = new ArrayList<String>();
-        tabNames.addAll(Arrays.asList(CONFIGURE, VOICEMAIL, SCHEDULES, CONFERENCE, EXTCONTACT, SPEEDDIAL, MOH));
-
+        tabNames.add(CONFIGURE);
+        if (isVoicemailEnabled()) {
+            tabNames.add(VOICEMAIL);
+        }
+        tabNames.addAll(Arrays.asList(SCHEDULES, CONFERENCE, EXTCONTACT, SPEEDDIAL));
+        if (isVoicemailEnabled()) {
+            tabNames.add(MOH);
+        }
         return tabNames;
+    }
+
+    private boolean isVoicemailEnabled() {
+        return (getFeatureManager().isFeatureEnabled(Ivr.FEATURE) ? true : false);
     }
 
     @Override
@@ -286,18 +299,23 @@ public abstract class UserGroupSettings extends GroupSettings {
         List<String> names = new LinkedList<String>();
         names.add(VOICEMAIL);
         names.add(MOH);
-//        if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
-//            names.add("im_notification");
-//        }
+        if (!getFeatureManager().isFeatureEnabled(ImBot.FEATURE)) {
+            names.add("im_notification");
+        }
+        if (!isVoicemailEnabled()) {
+            names.add("personal-attendant");
+        }
         return StringUtils.join(names, SEPARATOR);
     }
 
     public String getSettingsToHide() {
         List<String> names = new LinkedList<String>();
-
-//        if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
-//            names.add("add-pa-to-group");
-//        }
+        if (!getFeatureManager().isFeatureEnabled(ImBot.FEATURE)) {
+            names.add("add-pa-to-group");
+        }
+        if (!isVoicemailEnabled()) {
+            names.add("leaveMsgBeginIM, leaveMsgEndIM");
+        }
         return StringUtils.join(names, SEPARATOR);
     }
 

@@ -22,6 +22,8 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 
@@ -32,6 +34,9 @@ public abstract class MyAssistantComponent extends BaseComponent {
 
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
+
+    @InjectObject(value = "spring:featureManager")
+    public abstract FeatureManager getFeatureManager();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -71,5 +76,17 @@ public abstract class MyAssistantComponent extends BaseComponent {
         String msg = getMessages().getMessage(msgKey);
         ValidatorException validatorException = new ValidatorException(msg);
         getValidator().record(validatorException);
+    }
+
+    public String getSettingsToHide() {
+        if (!isVoicemailEnabled()) {
+            return "leaveMsgBeginIM, leaveMsgEndIM";
+        }
+
+        return "";
+    }
+
+    private boolean isVoicemailEnabled() {
+        return (getFeatureManager().isFeatureEnabled(Ivr.FEATURE) ? true : false);
     }
 }

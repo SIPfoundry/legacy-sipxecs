@@ -22,6 +22,7 @@ import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
 import org.sipfoundry.sipxconfig.site.moh.MusicOnHoldPage;
@@ -188,6 +189,10 @@ public abstract class UserNavigation extends BeanNavigation {
             names.add("im_notification");
         }
         return StringUtils.join(names, ",");
+    }
+
+    public boolean isVoicemailEnabled() {
+        return (getFeatureManager().isFeatureEnabled(Ivr.FEATURE) ? true : false);
     }
 
     public boolean isConferencesTabActive() {
