@@ -117,6 +117,7 @@ public:
           configOptions.getOption("sqa-control-address", _serviceAddress);
           configOptions.getOption("sqa-control-port", _servicePort);
         }
+        else
         {
           return false;
         }
