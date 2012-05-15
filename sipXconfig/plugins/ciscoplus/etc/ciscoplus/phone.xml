@@ -3,8 +3,19 @@
     PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
     "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
+  <group name="general">
+    <label>General Settings</label>
+    <setting name="sshUserId">
+      <label>SSH User ID</label>
+      <value></value>
+    </setting>
+    <setting name="sshPassword">
+      <label>SSH Password</label>
+      <value></value>
+    </setting>
+  </group>
   <group name="dateTimeSetting">
-    <label>Date Time Setting</label>
+    <label>Date-Time Setting</label>
     <setting name="dateTemplate">
       <label>Date Template</label>
       <value>M/D/YA</value>
@@ -17,7 +28,7 @@
   <group name="ntp">
     <label>NTP</label>
     <setting name="name">
-      <label>NTP Name</label>
+      <label>NTP server IP</label>
       <value/>
     </setting>
     <setting name="ntpMode">
@@ -25,87 +36,100 @@
       <value>Unicast</value>
     </setting>
   </group>
+  
   <group name="nodeName">
-    <label>Node Name</label>
+    <label>SIP Server</label>
     <setting name="processNodeName">
-      <label>processNodeName</label>
+      <label>Primary SIP Server</label>
+      <value/>
+    </setting>
+    <setting name="sipserver2">
+      <label>Fallback SIP Server Priority 1</label>
+      <value/>
+    </setting>
+    <setting name="sipserver3">
+      <label>Fallback SIP Server Priority 2</label>
+      <value/>
+    </setting>
+    <setting name="sipserver4">
+      <label>Fallback SIP Server Priority 3</label>
       <value/>
     </setting>
   </group>
 
   <group name="srstInfo">
-    <label>srstInfo</label>
+    <label>SRST Configuration</label>
     <setting name="name">
-      <label>name</label>
+      <label>Name</label>
       <value>Disable</value>
     </setting>
     <setting name="srstOption">
-      <label>srstOption</label>
+      <label>SRST Option</label>
       <value>Disable</value>
     </setting>
     <setting name="userModifiable">
-      <label>userModifiable</label>
+      <label>User Modifiable</label>
       <value>false</value>
     </setting>
     <setting name="ipAddr1">
-      <label>ipAddr1</label>
+      <label>IP Address 1</label>
       <value/>
     </setting>
     <setting name="port1">
-      <label>port1</label>
+      <label>Port 1</label>
       <value>2000</value>
     </setting>
     <setting name="ipAddr2">
-      <label>ipAddr2</label>
+      <label>IP Address 2</label>
       <value/>
     </setting>
     <setting name="port2">
-      <label>port2</label>
+      <label>Port 2</label>
       <value>2000</value>
     </setting>
     <setting name="ipAddr3">
-      <label>ipAddr3</label>
+      <label>IP Address 3</label>
       <value/>
     </setting>
     <setting name="port3">
-      <label>port3</label>
+      <label>Port 3</label>
       <value>2000</value>
     </setting>
     <setting name="sipIpAddr1">
-      <label>sipIpAddr1</label>
+      <label>SIP IP Address 1</label>
       <value/>
     </setting>
     <setting name="sipPort1">
-      <label>sipPort1</label>
+      <label>SIP Port 1</label>
       <value>5060</value>
     </setting>
     <setting name="sipIpAddr2">
-      <label>sipIpAddr2</label>
+      <label>SIP IP Address 2</label>
       <value/>
     </setting>
     <setting name="sipPort2">
-      <label>sipPort2</label>
+      <label>SIP Port 2</label>
       <value>5060</value>
     </setting>
     <setting name="sipIpAddr3">
-      <label>sipIpAddr3</label>
+      <label>SIP IP Address 3</label>
       <value/>
     </setting>
     <setting name="sipPort3">
-      <label>sipPort3</label>
+      <label>SIP Port 3</label>
       <value>5060</value>
     </setting>
     <setting name="isSecure">
-      <label>isSecure</label>
+      <label>Is Secure</label>
       <value>false</value>
     </setting>
   </group>
 
   <group name="sipProxies">
-    <label>sipProxies</label>
+    <label>SIP Proxies</label>
     <setting name="backupProxy">
       <label>Backup Proxy</label>
-      <value/>
+      <value>USECALLMANAGER</value>
     </setting>
     <setting name="backupProxyPort">
       <label>Backup Proxy Port</label>
@@ -113,7 +137,7 @@
     </setting>
     <setting name="emergencyProxy">
       <label>Emergency Proxy</label>
-      <value/>
+      <value>USECALLMANAGER</value>
     </setting>
     <setting name="emergencyProxyPort">
       <label>Emergency Proxy Port</label>
@@ -121,7 +145,7 @@
     </setting>
     <setting name="outboundProxy">
       <label>Outbound Proxy</label>
-      <value/>
+      <value>USECALLMANAGER</value>
     </setting>
     <setting name="outboundProxyPort">
       <label>Outbound Proxy Port</label>
@@ -135,61 +159,61 @@
 
 
   <group name="sipCallFeatures">
-    <label>sipCallFeatures</label>
+    <label>SIP Call Features</label>
     <setting name="cnfJoinEnabled">
-      <label>Cnf Join Enabled</label>
+      <label>Conf Join Enabled</label>
       <value>true</value>
     </setting>
     <setting name="callForwardURI">
-      <label>Call ForwardURI</label>
+      <label>Call Forward URI</label>
       <value>x-cisco-serviceuri-cfwdall</value>
     </setting>
     <setting name="callPickupURI">
-      <label>callPickupURI</label>
+      <label>Call Pickup URI</label>
       <value>*36</value>
     </setting>
     <setting name="callPickupListURI">
-      <label>call Pickup ListURI</label>
+      <label>Call Pickup List URI</label>
       <value>x-cisco-serviceuri-opickup</value>
     </setting>
     <setting name="callPickupGroupURI">
-      <label>call Pickup GroupURI</label>
+      <label>Call Pickup Group URI</label>
       <value>x-cisco-serviceuri-gpickup</value>
     </setting>
     <setting name="meetMeServiceURI">
-      <label>meetMe ServiceURI</label>
+      <label>meetMe Service URI</label>
       <value>x-cisco-serviceuri-meetme</value>
     </setting>
     <setting name="abbreviatedDialURI">
-      <label>abbreviated DialURI</label>
+      <label>Abbreviated Dial URI</label>
       <value>x-cisco-serviceuri-abbrdial</value>
     </setting>
     <setting name="rfc2543Hold">
-      <label>rfc2543Hold</label>
+      <label>RFC2543 Style Hold</label>
       <value>false</value>
     </setting>
     <setting name="callHoldRingback">
-      <label>call Hold Ringback</label>
+      <label>Call Hold Ringback</label>
       <value>2</value>
     </setting>
     <setting name="localCfwdEnable">
-      <label>local Cfwd Enable</label>
+      <label>Local Call Fwd Enable</label>
       <value>true</value>
     </setting>
     <setting name="semiAttendedTransfer">
-      <label>semi Attended Transfer</label>
+      <label>Semi Attended Transfer</label>
       <value>true</value>
     </setting>
     <setting name="anonymousCallBlock">
-      <label>anonymous CallBlock</label>
+      <label>Anonymous CallBlock</label>
       <value>2</value>
     </setting>
     <setting name="callerIdBlocking">
-      <label>callerId Blocking</label>
+      <label>Caller ID Blocking</label>
       <value>2</value>
     </setting>
     <setting name="dndControl">
-      <label>dnd Control</label>
+      <label>DND Control</label>
       <value>1</value>
     </setting>
     <setting name="remoteCcEnable">
@@ -200,57 +224,57 @@
 
 
   <group name="sipStack">
-    <label>sipStack</label>
+    <label>SIP Stack</label>
     <setting name="sipInviteRetx">
-      <label>sipInviteRetx</label>
+      <label>SIP Invite Retry times</label>
       <value>6</value>
     </setting>
     <setting name="sipRetx">
-      <label>sipRetx</label>
+      <label>SIP Retry Times</label>
       <value>10</value>
     </setting>
     <setting name="timerInviteExpires">
-      <label>timerInviteExpires</label>
+      <label>Timer Invite Expires</label>
       <value>180</value>
     </setting>
     <setting name="timerRegisterExpires">
-      <label>timerRegisterExpires</label>
+      <label>Timer Register Expires</label>
       <value>3600</value>
     </setting>
     <setting name="timerRegisterDelta">
-      <label>timerRegisterDelta</label>
+      <label>Timer Register Delta</label>
       <value>5</value>
     </setting>
     <setting name="timerKeepAliveExpires">
-      <label>timerKeepAliveExpires</label>
+      <label>Timer KeepAlive Expires</label>
       <value>120</value>
     </setting>
     <setting name="timerSubscribeExpires">
-      <label>timerSubscribeExpires</label>
+      <label>Timer Subscribe Expires</label>
       <value>120</value>
     </setting>
     <setting name="timerSubscribeDelta">
-      <label>timerSubscribeDelta</label>
+      <label>Timer Subscribe Delta</label>
       <value>5</value>
     </setting>
     <setting name="timerT1">
-      <label>timerT1</label>
+      <label>Timer T1 (in ms)</label>
       <value>500</value>
     </setting>
     <setting name="timerT2">
-      <label>timerT2</label>
+      <label>Timer T2 (in ms)</label>
       <value>4000</value>
     </setting>
     <setting name="maxRedirects">
-      <label>maxRedirects</label>
+      <label>Max Number of Redirects</label>
       <value>70</value>
     </setting>
     <setting name="remotePartyID">
-      <label>remotePartyID</label>
+      <label>Pemote Party ID</label>
       <value>true</value>
     </setting>
     <setting name="userInfo">
-      <label>userInfo</label>
+      <label>User Info</label>
       <value>None</value>
     </setting>
    </group>
@@ -258,47 +282,47 @@
   <group name="audio">
     <label>Audio</label>
     <setting name="autoAnswerTimer">
-      <label>autoAnswerTimer</label>
+      <label>Auto Answer Ring Time</label>
       <value>1</value>
     </setting>
     <setting name="autoAnswerAltBehavior">
-      <label>autoAnswerAltBehavior</label>
+      <label>Auto Answer Alt Behavior</label>
       <value>false</value>
     </setting>
     <setting name="autoAnswerOverride">
-      <label>autoAnswerOverride</label>
+      <label>Auto Answer UI Override</label>
       <value>true</value>
     </setting>
     <setting name="transferOnhookEnabled">
-      <label>transferOnhookEnabled</label>
+      <label>On-hook Transfer Enabled</label>
       <value>false</value>
     </setting>
     <setting name="enableVad">
-      <label>enableVad</label>
+      <label>Voice Activity Detector</label>
       <value>false</value>
     </setting>
     <setting name="preferredCodec">
-      <label>preferredCodec</label>
-      <value>g711ulaw</value>
+      <label>Preferred Codec</label>
+      <value/>
     </setting>
     <setting name="dtmfAvtPayload">
-      <label>dtmfAvtPayload</label>
+      <label>DTMF Avt Payload</label>
       <value>101</value>
     </setting>
     <setting name="dtmfDbLevel">
-      <label>dtmfDbLevel</label>
+      <label>DTMF dB Level</label>
       <value>3</value>
     </setting>
     <setting name="dtmfOutofBand">
-      <label>dtmfOutofBand</label>
+      <label>DTMF Out of Band Setting</label>
       <value>avt</value>
     </setting>
     <setting name="alwaysUsePrimeLine">
-      <label>alwaysUsePrimeLine</label>
+      <label>Always Use Primary Line for Calls</label>
       <value>false</value>
     </setting>
     <setting name="alwaysUsePrimeLineVoiceMail">
-      <label>alwaysUsePrimeLineVoiceMail</label>
+      <label>Always Use Primary Line for Voicemail</label>
       <value>false</value>
     </setting>
     <setting name="kpml">
@@ -306,36 +330,40 @@
       <value>3</value>
     </setting>
     <setting name="phoneLabel">
-      <label>phoneLabel</label>
+      <label>Phone Label</label>
       <value/>
     </setting>
     <setting name="stutterMsgWaiting">
-      <label>stutterMsgWaiting</label>
+      <label>Stutter Tone on Message Waiting</label>
       <value>2</value>
     </setting>
     <setting name="callStats">
-      <label>callStats</label>
-      <value>false</value>
+      <label>Call Stats</label>
+      <value>true</value>
     </setting>
     <setting name="offhookToFirstDigitTimer">
-      <label>offhookToFirstDigitTimer</label>
+      <label>Offhook To First Digit Timer</label>
       <value>15000</value>
     </setting>
     <setting name="silentPeriodBetweenCallWaitingBursts">
-      <label>silentPeriodBetweenCallWaitingBursts</label>
+      <label>Silent Period Between Call Waiting Bursts</label>
       <value>10</value>
     </setting>
     <setting name="disableLocalSpeedDialConfig">
-      <label>disableLocalSpeedDialConfig</label>
+      <label>Disable Local Speed Dial Config</label>
       <value>false</value>
     </setting>
     <setting name="startMediaPort">
-      <label>startMediaPort</label>
+      <label>RTP Start Port</label>
       <value>16384</value>
     </setting>
     <setting name="stopMediaPort">
-      <label>stopMediaPort</label>
+      <label>RTP End Port</label>
       <value>32766</value>
+    </setting>
+    <setting name="advertiseG722Codec">
+      <label>Advertise G.722 Codec (79x2 and newer)</label>
+      <value>0</value>
     </setting>
   </group>
 
@@ -356,29 +384,29 @@
   </group>
 
   <group name="sipLoadInfo">
-    <label>sipLoadInfo</label>
+    <label>Software Load</label>
     <setting name="loadInformation">
-      <label>loadInformation</label>
+      <label>Software Load String</label>
       <value/>
     </setting>
    </group>
 
   <group name="vendorConfig">
-    <label>vendorConfig</label>
+    <label>Vendor Configuration</label>
     <setting name="disableSpeaker">
-      <label>disableSpeaker</label>
+      <label>Disable Speaker</label>
       <value>false</value>
     </setting>
     <setting name="disableSpeakerAndHeadset">
-      <label>disableSpeakerAndHeadset</label>
+      <label>Disable Speaker and Headset</label>
       <value>false</value>
     </setting>
     <setting name="pcPort">
-      <label>pcPort</label>
+      <label>PC Port</label>
       <value>0</value>
     </setting>
     <setting name="settingsAccess">
-      <label>settingsAccess</label>
+      <label>UI Settings Access</label>
       <value>1</value>
     </setting>
     <setting name="garp">
@@ -386,52 +414,92 @@
       <value>0</value>
     </setting>
     <setting name="voiceVlanAccess">
-      <label>voiceVlanAccess</label>
+      <label>Voice VLAN Access</label>
       <value>0</value>
     </setting>
     <setting name="videoCapability">
-      <label>videoCapability</label>
+      <label>Video Capability</label>
       <value>0</value>
     </setting>
     <setting name="autoSelectLineEnable">
-      <label>autoSelectLineEnable</label>
+      <label>Auto Select Line Enable</label>
       <value>0</value>
     </setting>
     <setting name="webAccess">
-      <label>webAccess</label>
+      <label>Web Access</label>
       <value>0</value>
     </setting>
     <setting name="daysDisplayNotActive">
-      <label>daysDisplayNotActive</label>
+      <label>Days of Week Display is Not Active</label>
       <value>1,7</value>
     </setting>
     <setting name="displayOnTime">
-      <label>displayOnTime</label>
+      <label>Display Turn-on Time</label>
       <value>08:00</value>
     </setting>
     <setting name="displayOnDuration">
-      <label>displayOnDuration</label>
+      <label>Display On Duration</label>
       <value>10:30</value>
     </setting>
     <setting name="displayIdleTimeout">
-      <label>displayIdleTimeout</label>
+      <label>Display Idle Timeout</label>
       <value>01:00</value>
     </setting>
     <setting name="spanToPCPort">
-      <label>spanToPCPort</label>
+      <label>PC Port Traffic Passthrough (useful for captures)</label>
       <value>1</value>
+    </setting>
+    <setting name="ehookEnable">
+      <label>Headset Electronic Hookswitch</label>
+      <value>0</value>
+    </setting>
+    <setting name="g722CodecSupport">
+      <label>Enable G.722 Codec (79x2 and newer)</label>
+      <value>0</value>
+    </setting>
+    <setting name="headsetWidebandUIControl">
+      <label>Wideband UI Headset Option</label>
+      <value>0</value>
+    </setting>
+    <setting name="headsetWidebandEnable">
+      <label>Wideband Headset</label>
+      <value>0</value>
+    </setting>
+    <setting name="enableCdpSwPort">
+      <label>CDP Switch Port Broadcast</label>
+      <value>1</value>
+    </setting>
+    <setting name="enableCdpPcPort">
+      <label>CDP PC port Broadcast</label>
+      <value>1</value>
+    </setting>
+    <setting name="enableLldpSwPort">
+      <label>LLDP Switch Port Broadcast</label>
+      <value>1</value>
+    </setting>
+    <setting name="enableLldpPcPort">
+      <label>LLDP PC port Broadcast</label>
+      <value>1</value>
+    </setting>
+    <setting name="lldpAssetId">
+      <label>LLDP Asset ID</label>
+      <value/>
+    </setting>
+    <setting name="powerPriority">
+      <label>PoE Power Priority</label>
+      <value>0</value>
     </setting>
   </group>
 
   <group name="userLocale">
-    <label>userLocale</label>
+    <label>User Locale</label>
     <setting name="name">
-      <label>name</label>
-      <value/>
+      <label>Locale Name</label>
+      <value>English_United_States</value>
     </setting>
     <setting name="uid">
       <label>uid</label>
-      <value/>
+      <value>1</value>
     </setting>
     <setting name="langCode">
       <label>langCode</label>
@@ -439,88 +507,131 @@
     </setting>
     <setting name="version">
       <label>version</label>
-      <value/>
+      <value>7.1.0.0(3)</value>
     </setting>
     <setting name="winCharSet">
       <label>winCharSet</label>
-      <value/>
+      <value>iso-8859-1</value>
     </setting>
   </group>
 
   <group name="networkLocaleInfo">
-    <label>networkLocaleInfo</label>
+    <label>Network Locale Info</label>
     <setting name="name">
-      <label>name</label>
-      <value/>
+      <label>Locale Name</label>
+      <value>United_States</value>
     </setting>
     <setting name="uid">
       <label>uid</label>
-      <value/>
+      <value>64</value>
     </setting>
     <setting name="version">
       <label>version</label>
-      <value>1.0.0.0-1</value>
+      <value>7.1.0.0(3)</value>
     </setting>
   </group>
 
   <group name="url">
-    <label>url</label>
+    <label>Service URL Configuration</label>
     <setting name="deviceSecurityMode">
-      <label>deviceSecurityMode</label>
+      <label>Device Security Mode</label>
       <value>1</value>
     </setting>
     <setting name="idleTimeout">
-      <label>idleTimeout</label>
+      <label>Idle Timeout</label>
       <value>0</value>
     </setting>
     <setting name="authenticationURL">
-      <label>authenticationURL</label>
+      <label>Authentication URL</label>
       <value/>
     </setting>
     <setting name="directoryURL">
-      <label>directoryURL</label>
+      <label>Directory URL</label>
       <value/>
     </setting>
     <setting name="idleURL">
-      <label>idleURL</label>
+      <label>Idle URL</label>
       <value/>
     </setting>
     <setting name="informationURL">
-      <label>informationURL</label>
+      <label>Information URL</label>
       <value/>
     </setting>
     <setting name="messagesURL">
-      <label>messagesURL</label>
+      <label>Messages URL</label>
       <value/>
     </setting>
     <setting name="proxyServerURL">
-      <label>proxyServerURL</label>
+      <label>Web Proxy Server URL</label>
       <value/>
     </setting>
     <setting name="servicesURL">
-      <label>servicesURL</label>
+      <label>Services URL</label>
       <value/>
     </setting>
     <setting name="dscpForSCCPPhoneConfig">
-      <label>dscpForSCCPPhoneConfig</label>
+      <label>DSCP For SCCP Phone Config</label>
       <value>96</value>
     </setting>
     <setting name="dscpForSCCPPhoneServices">
-      <label>dscpForSCCPPhoneServices</label>
+      <label>DSCP For SCCP Phone Services</label>
       <value>0</value>
     </setting>
     <setting name="dscpForCm2Dvce">
-      <label>dscpForCm2Dvce</label>
+      <label>DSCP For CM2 Device</label>
       <value>96</value>
     </setting>
     <setting name="transportLayerProtocol">
-      <label>transportLayerProtocol</label>
+      <label>SIP Transport Layer Protocol</label>
       <value>4</value>
     </setting>
     <setting name="capfAuthMode">
       <label>capfAuthMode</label>
       <value>0</value>
     </setting>
+  </group>
+   
+   <group name="extfiles">
+    <label>External Files</label>
+    <setting name="dialTemplate">
+      <label>Dialplan Template File</label>
+      <value>dialplan.xml</value>
+    </setting>
+    <setting name="softKeyFile">
+      <label>SoftKey Mapping File</label>
+      <value></value>
+    </setting>
+   </group>
+   
+   <group name="addOnModules">
+	<label>Add On Modules</label>
+	<setting name="addonModulesEnabled">
+	  <label>Enable Add On Module Capilitiy</label>
+	  <type>
+		<boolean />
+	  </type>
+	  <value>0</value>
+	</setting>
+	<setting name="deviceType1">
+	  <label>Add on Module #1 Model Number</label>
+	  <value/>
+	</setting>
+	<setting name="deviceLine1">
+	  <label>Number of Lines on Module #1</label>
+	  <value/>
+	</setting>
+	<setting name="deviceType2">
+	  <label>Add on Module #2 Model Number</label>
+	  <value/>
+	</setting>
+	<setting name="deviceLine2">
+	  <label>Number of Lines on Module #2</label>
+	  <value/>
+	</setting>
+	<setting name="loadInformation">
+	  <label>Expansion Module Software Load String</label>
+	  <value/>
+	</setting>
   </group>
 
 </model>

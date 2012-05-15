@@ -1,8 +1,13 @@
 <device>
   <fullConfig>true</fullConfig>
   <deviceProtocol>SIP</deviceProtocol>
-  <sshUserId>user</sshUserId>
-  <sshPassword>pass</sshPassword>
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="general")
+#foreach ($setting in $group.Values)
+  <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#end
   <devicePool>
     <name></name>
     <dateTimeSetting>
@@ -29,10 +34,15 @@
       <name>5.0 Beta</name>
       <tftpDefault>true</tftpDefault>
       <members>
-        <member priority="0">
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="nodeName")
+#set ($j = 0)
+#foreach ($setting in $group.Values)
+#if ($setting.Value)
+        <member priority="${j}">
           <callManager>
-            <name>ccm-beta-5-1</name>
-            <description>CallManager 5.0 Beta Pub - 5.0.1.032</description>
+            <name>$!{setting.Value}</name>
+            <description>CallManager</description>
             <ports>
               <ethernetPhonePort>2000</ethernetPhonePort>
               <sipPort>5060</sipPort>
@@ -42,15 +52,14 @@
                 <keepAlive>2428</keepAlive>
               </mgcpPorts>
             </ports>
-#foreach ($group in $phone.Settings.Values)
-#if (${group.ProfileName}=="nodeName")
-#foreach ($setting in $group.Values)
-            <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
-#end
-#end
-#end
+            <processNodeName>$!{setting.Value}</processNodeName>
           </callManager>
         </member>
+#set ($j = $j + 1)
+#end
+#end
+#end
+#end
       </members>
     </callManagerGroup>
 #foreach ($group in $phone.Settings.Values)
@@ -129,12 +138,25 @@
       </line>
 #end
 #end
+#foreach ($button in $phone.SpeedDialButtons)
+#set ($m = $i + $velocityCount)
+      <line button="${m}">
+		<featureID>21</featureID>
+		<featureLabel>$!{button.Label}</featureLabel>
+		<speedDialNumber>$!{button.Number}</speedDialNumber>
+	  </line>
+#end
     </sipLines>
     <voipControlPort>5060</voipControlPort>
     <dscpForAudio>184</dscpForAudio>
     <ringSettingBusyStationPolicy>0</ringSettingBusyStationPolicy>
-    <dialTemplate>dialplan.xml</dialTemplate>
-    <softKeyFile></softKeyFile>
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="extfiles")
+#foreach ($setting in $group.Values)
+    <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#end
   </sipProfile>
 #foreach ($group in $phone.Settings.Values)
 #if (${group.ProfileName}=="commonProfile")
@@ -162,6 +184,28 @@
 #end
 #end
   <versionStamp></versionStamp>
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="addOnModules")
+#if ($phone.getSettingValue('addOnModules/addonModulesEnabled') == 1)
+  <addOnModules>
+#if ($phone.getSettingValue('addOnModules/deviceType1'))
+    <addOnModule idx="1">
+		<deviceType>$!{phone.getSettingValue('addOnModules/deviceType1')}</deviceType>
+		<deviceLine>$!{phone.getSettingValue('addOnModules/deviceLine1')}</deviceLine>
+		<loadInformation>$!{phone.getSettingValue('addOnModules/loadInformation')}</loadInformation>
+	</addOnModule>
+#end
+#if ($phone.getSettingValue('addOnModules/deviceType2'))
+    <addOnModule idx="2">
+		<deviceType>$!{phone.getSettingValue('addOnModules/deviceType2')}</deviceType>
+		<deviceLine>$!{phone.getSettingValue('addOnModules/deviceLine2')}</deviceLine>
+		<loadInformation>$!{phone.getSettingValue('addOnModules/loadInformation')}</loadInformation>
+	</addOnModule>
+#end
+  </addOnModules>
+#end
+#end
+#end
 #foreach ($group in $phone.Settings.Values)
 #if (${group.ProfileName}=="userLocale")
   <${group.Name}>

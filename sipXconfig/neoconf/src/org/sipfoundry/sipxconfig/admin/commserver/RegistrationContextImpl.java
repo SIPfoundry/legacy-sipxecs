@@ -71,6 +71,7 @@ public class RegistrationContextImpl implements RegistrationContext {
             item.setExpires((Integer) r.get("expires"));
             item.setUri((String) r.get("uri"));
             item.setInstrument((String) r.get("instrument"));
+            item.setRegCallId((String) r.get("callid"));
             items.add(item);
         }
         return items;

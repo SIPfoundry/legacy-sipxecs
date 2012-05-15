@@ -20,6 +20,8 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
+import org.sipfoundry.sipxconfig.speeddial.Button;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 /**
  * Ciscoplus942 phone.
@@ -110,8 +112,7 @@ public class CiscoplusPhone extends Ciscoplus {
 
         @SettingEntry(path = PROXY_SETTING)
         public String getRegistrationServer() {
-            DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
-            return defaults.getDomainName();
+            return "USECALLMANAGER";
         }
 
         @SettingEntry(path = PROXY_PORT_SETTING)
@@ -147,5 +148,13 @@ public class CiscoplusPhone extends Ciscoplus {
         info.setRegistrationServer(line.getSettingValue(PROXY_SETTING));
         info.setRegistrationServerPort(line.getSettingValue(PROXY_PORT_SETTING));
         return info;
+    }
+
+    public List<Button> getSpeedDialButtons() {
+        SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
+        if (speedDial != null) {
+            return speedDial.getButtons();
+        }
+        return null;
     }
 }
