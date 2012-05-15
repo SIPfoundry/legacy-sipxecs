@@ -72,7 +72,7 @@ public class FirstRunTask implements ApplicationListener {
     }
 
     private void removeTask() {
-        //m_adminContext.deleteInitializationTask(m_taskName);
+        m_adminContext.deleteInitializationTask(m_taskName);
     }
 
     private boolean checkForTask() {

@@ -31,7 +31,8 @@ bundle agent sipxopenfire_config {
       "web_file" string => "$(sipx.SIPX_JAVADIR)/sipXopenfire/conf/web.xml.enable_openfire_admin_console";
     any::
       "xml_file_restart" slist => { 
-        "sipxopenfire.xml"
+        "sipxopenfire.xml",
+        "multipleldap-openfire.xml"
       };
 
     any::
@@ -46,7 +47,7 @@ bundle agent sipxopenfire_config {
         create => "true",
         perms => m("644"),
         copy_from => copy_from_cfdata("$(sipx.location_id)/openfire.xml"),
-        classes => if_repaired("restart_sipxopenfire");
+        classes => if_repaired("restart_sipxopenfire");              
 
      any::
       "$(sipx.OPENFIRE_HOME)/plugins/admin/webapp/WEB-INF/web.xml"
