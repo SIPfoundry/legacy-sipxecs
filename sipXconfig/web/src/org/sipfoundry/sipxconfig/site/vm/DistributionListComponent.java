@@ -72,6 +72,10 @@ public abstract class DistributionListComponent extends BaseComponent implements
     }
 
     public void setExtensionsString(String extensions) {
-        getDistributionList().setExtensions(TapestryUtils.splitBySpace(extensions));
+        String[] ext = TapestryUtils.splitBySpace(extensions);
+        if (ext == null) {
+            ext = new String[0];
+        }
+        getDistributionList().setExtensions(ext);
     }
 }
