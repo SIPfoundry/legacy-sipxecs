@@ -97,6 +97,13 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
                 IOUtils.closeQuietly(sipxopenfire);
             }
 
+            Writer multipleldap = new FileWriter(new File(dir, "multipleldap-openfire.xml"));
+            try {
+                m_config.writeMultipleLdapConfiguration(multipleldap);
+            } finally {
+                IOUtils.closeQuietly(multipleldap);
+            }
+
             Writer openfire = new FileWriter(new File(dir, "sipxopenfire.xml"));
             try {
                 m_sipxConfig.write(openfire, location);
