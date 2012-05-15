@@ -21,6 +21,7 @@ public class AlarmEvent implements Serializable {
     private static final DateFormat LOG_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     private AlarmDefinition m_alarmDefinition;
     private Date m_date;
+    private String m_message;
 
     /**
      * Parse a single line of log line into Alarm event
@@ -30,6 +31,12 @@ public class AlarmEvent implements Serializable {
      *        .example.org:sipXsupervisor::SPX00002:"Some description."
      */
     protected AlarmEvent() {
+    }
+
+    public AlarmEvent(Date when, AlarmDefinition def, String message) {
+        m_date = when;
+        m_alarmDefinition = def;
+        m_message = message;
     }
 
     public static AlarmEvent parseEvent(AlarmServerManager manager, String logLine) {
@@ -57,6 +64,10 @@ public class AlarmEvent implements Serializable {
     }
 
     public AlarmDefinition geAlarmDefinition() {
+        return m_alarmDefinition;
+    }
+
+    public AlarmDefinition getAlarmDefinition() {
         return m_alarmDefinition;
     }
 }

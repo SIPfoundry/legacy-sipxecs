@@ -2,15 +2,19 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
+  <bean id="alarms" class="org.sipfoundry.sipxconfig.alarm.Alarms">
+    <property name="locationsManager" ref="locationsManager" />
+  </bean>
+
   <bean id="alarmConfiguration" class="org.sipfoundry.sipxconfig.alarm.AlarmConfiguration">
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="alarmServerManager" ref="alarmServerManager" />
   </bean>
 
   <bean id="alarmHistoryManager" class="org.sipfoundry.sipxconfig.alarm.AlarmHistoryManagerImpl">
-    <property name="logDirectory" value="${sysdir.log}" />
-    <property name="locationsManager" ref="locationsManager" />
-    <property name="alarmServerManager" ref="alarmServerManager"/>
+    <property name="configManager" ref="configManager"/>
+    <property name="locationsManager" ref="locationsManager"/>
+    <property name="logDirectory" value="${sysdir.var}/upload/snmptrapd"/>
   </bean>
 
   <bean id="alarmServerManagerImpl" class="org.sipfoundry.sipxconfig.alarm.AlarmServerManagerImpl" parent="abstractDaoImpl">
@@ -20,7 +24,7 @@
     <property name="configDirectory" value="${sysdir.etc}" />
     <property name="alarmsStringsDirectory" value="${sysdir.alarmsStrings}" />
     <property name="mibsDirectory" value="${sipxpbx.mibs.dir}" />
-    <property name="jdbcTemplate" ref="configJdbcTemplate"/>
+    <property name="jdbcTemplate" ref="configJdbcTemplate"/>    
   </bean>
 
   <bean id="alarmServerManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

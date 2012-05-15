@@ -19,13 +19,10 @@ bundle agent snmp {
   methods:
     snmp::
       "any" usebundle => "snmp_config";
-      "any" usebundle => "snmptrap_config";
     fedora16_or_greater::
       "any" usebundle => "snmp_systemctl_running";
-      "any" usebundle => "snmptrap_systemctl_running";
     !fedora16_or_greater::
       "any" usebundle => "snmp_sysv_running";
-      "any" usebundle => "snmptrap_sysv_running";
 }
 
 bundle agent snmp_config {
@@ -37,31 +34,6 @@ bundle agent snmp_config {
         edit_defaults => empty,
         edit_line => snmpd_conf,
         classes => if_repaired("reload_snmp");
-}
-
-
-bundle agent snmptrap_config {
-  files:
-      "/etc/snmp/snmptrapd.conf"
-        create => "true",
-        perms => m("644"),
-        edit_defaults => empty,
-        edit_line => snmptrapd_conf,
-        classes => if_repaired("reload_snmptrapd");
-
-    snmp.src::
-      "/usr/share/snmp/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.txt"
-        create => "true",
-        perms => m("644"),
-        classes => if_repaired("reload_snmp"),
-        copy_from => local_cp("$(sipx.datadir)/snmp/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.txt");
-}
-
-bundle edit_line snmptrapd_conf {
-  insert_lines:
-    any::
-"authCommunity   log,execute,net public
-traphandle SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications $(sipx.SIPX_LIBEXECDIR)/sipxtrap-handler sipxecs-alarm";
 }
 
 bundle edit_line snmpd_conf {
@@ -125,37 +97,6 @@ bundle agent snmp_sysv_running {
         args => "restart";
 }
 
-bundle agent snmptrap_sysv_running {
-  vars:
-    any::
-      "service" string => "/etc/init.d/snmptrapd";
-      "service_command" string => "/usr/sbin/snmptrapd";
-
-  methods:
-    any::
-      "any" usebundle => find_service_by_command("$(service_command)", "snmptrap_running","root");
-    !snmp::
-      "any" usebundle => rh_chkconfig_status("snmptrapd off");
-    snmp::
-      "any" usebundle => rh_chkconfig_status("snmptrapd on");
-
-  commands:
-    !snmp.snmptrap_running::
-      "$(service)"
-        comment => "stop snmptrap",
-        args => "stop";
-
-    snmp.!snmptrap_running::
-      "$(service)"
-        comment => "start snmptrap",
-        args => "start";
-
-    snmp.snmptrap_running.reload_snmptrap::
-      "$(service)"
-        comment => "reload snmptrap",
-        args => "reload";
-}
-
 bundle agent snmp_systemctl_running {
   vars:
     any::
@@ -192,36 +133,3 @@ bundle agent snmp_systemctl_running {
         args => "restart $(service)";
 }
 
-bundle agent snmptrap_systemctl_running {
-  vars:
-    any::
-      "service" string => "snmptrapd.service";
-
-  classes:
-    fedora16_or_greater::
-      "snmptrap_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
-
-  commands:
-    !snmp.snmptrap_running::
-      "$(sipx.systemctl)"
-        comment => "stop snmptrapd",
-        args => "stop $(service)";
-
-      "$(sipx.systemctl)"
-        comment => "disable snmptrapd",
-        args => "disable $(service)";
-
-    snmp.!snmptrap_running::
-      "$(sipx.systemctl)"
-        comment => "start snmptrapd",
-        args => "start $(service)";
-
-      "$(sipx.systemctl)"
-        comment => "enable snmptrapd",
-        args => "enable $(service)";
-
-    snmp.snmptrap_running.reload_snmptrap::
-      "$(sipx.systemctl)"
-        comment => "reload snmptrapd",
-        args => "reload $(service)";
-}

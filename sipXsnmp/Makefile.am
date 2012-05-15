@@ -3,5 +3,4 @@ include config/project.am
 
 SUBDIRS = \
   bin \
-  etc \
-  src
+  etc
