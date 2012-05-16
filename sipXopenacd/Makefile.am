@@ -76,7 +76,3 @@ install-% :
 	$(INSTALL) -d $(DESTDIR)$(SIPX_LIBDIR)/openacd/lib/$*/ebin
 	$(INSTALL) -d $(DESTDIR)$(SIPX_LIBDIR)/openacd/plugin.d
 	$(INSTALL) -t $(DESTDIR)$(SIPX_LIBDIR)/openacd/lib/$*/ebin $(wildcard deps/$*/ebin/*)
-	ln -snf $(SIPX_LIBDIR)/openacd/plugin.d/sipxplugin/ebin/sipxplugin.app $(SIPX_LIBDIR)/openacd/plugin.d/sipxplugin.app
-	ln -snf $(SIPX_LIBDIR)/openacd/lib/erlmongo/ebin/erlmongo.app $(SIPX_LIBDIR)/openacd/plugin.d/erlmongo.app 
-	ln -snf $(OPENACD_BINDIR)/openacd $(SIPX_SERVICEDIR)/openacd
-

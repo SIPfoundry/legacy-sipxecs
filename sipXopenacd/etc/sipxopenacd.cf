@@ -50,6 +50,16 @@ bundle agent sipxopenacd_config {
         perms => m("755"),
         link_from => ln_s("$(sipx.OPENACD_BINDIR)/openacd");
 
+      "$(sipx.SIPX_LIBDIR)/openacd/plugin.d/sipxplugin.app"
+        comment => "install openacd config $(this.promiser)",
+        perms => m("755"),
+        link_from => ln_s("$(sipx.SIPX_LIBDIR)/openacd/plugin.d/sipxplugin/ebin/sipxplugin.app");
+
+      "$(sipx.SIPX_LIBDIR)/openacd/plugin.d/erlmongo.app"
+        comment => "install openacd config $(this.promiser)",
+        perms => m("755"),
+        link_from => ln_s("$(sipx.SIPX_LIBDIR)/openacd/lib/erlmongo/ebin/erlmongo.app");
+
       # regular configs
       "$(sipx.OPENACD_CONFDIR)/vm.args"
         comment => "install openacd config $(this.promiser)",
