@@ -63,24 +63,14 @@ bundle agent mongodb {
 
 bundle agent mongodb_arbiter_config {
   vars:
-    any::
-      "server[replSet]" string => "sipxecs";
-      "server[bind_ip]" string => "$(sipx.mongoArbiterBindIp)";
-      "server[port]" string => "$(sipx.mongoArbiterPort)";
-      "server[logpath]" string => "/var/log/mongo/mongodb-arbiter.log";
-      "server[fork]" string => "true";
-      "server[pidfilepath]" string => "/var/run/mongo/mongodb-arbiter.pid";
-      "server[journal]" string => "true";
-      "server[nohttpinterface]" string => "true";
-      "server[dbpath]" string => "/var/lib/mongodb-arbiter";
-
+    mongod_arbiter::
       "dirs" slist => {
         "/var/lib/mongodb-arbiter",
         "/var/run/mongo"
       };
 
   files:
-    any::
+    mongod_arbiter::
       "$(dirs)/."
         comment => "required mongo dirs $(this.promiser)",
         create => "true",
@@ -90,8 +80,23 @@ bundle agent mongodb_arbiter_config {
         comment => "install mongo arbiter config $(this.promiser)",
         create => "true",
         perms => m("644"),
-        edit_line => set_variable_values("mongodb_arbiter_config.server"),
+        edit_defaults => empty,
+        edit_line => mongodb_arbiter_config_contents,
         classes => if_repaired("restart_mongodb_arbiter");
+}
+
+bundle edit_line mongodb_arbiter_config_contents {
+  insert_lines:
+"replSet=sipxecs
+bind_ip=0.0.0.0
+port=27018
+logpath=/var/log/mongo/mongod-arbiter.log
+fork=true
+pidfilepath=/var/run/mongo/mongodb-arbiter.pid
+journal=true
+nohttpinterface=true
+dbpath=/var/lib/mongodb-arbiter
+";
 }
 
 bundle agent mongodb_config {

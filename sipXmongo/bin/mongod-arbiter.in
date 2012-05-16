@@ -21,6 +21,9 @@ CONFIGFILE="/etc/mongod-arbiter.conf"
 OPTIONS=" -f $CONFIGFILE"
 SYSCONFIG="/etc/sysconfig/mongod-arbiter"
 LOCKFILE=/var/lock/subsys/mongod-arbiter
+PIDFILE=/var/run/mongo/mongodb-arbiter.pid
+
+test -f $CONFIGFILE || exit 5
 
 # FIXME: 1.9.x has a --shutdown flag that parses the config file and
 # shuts down the correct running pid, but that's unavailable in 1.8
@@ -55,8 +58,8 @@ start()
 
 stop()
 {
-  echo -n $"Stopping mongod: "
-  killproc -p $PIDFILE /usr/bin/mongod
+  echo -n $"Stopping mongod-arbiter: "
+  killproc -p $PIDFILE $mongod
   RETVAL=$?
   echo
   [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
@@ -84,7 +87,7 @@ case "$1" in
     [ -f $LOCKFILE ] && restart || :
     ;;
   status)
-    status -l $LOCKFILE "mongod-arbiter"
+    status -p $PIDFILE "mongod-arbiter"
     RETVAL=$?
     ;;
   *)

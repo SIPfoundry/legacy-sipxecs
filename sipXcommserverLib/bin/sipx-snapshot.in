@@ -990,7 +990,7 @@ EOF
    if [ "${Action}" = "SNAPSHOT" ]
    then
      # Record the sipXconfig database contents
-     pg_dump -d SIPXCONFIG -U @POSTGRESQL_USER@ --attribute-inserts > ${ConfigDb}
+     pg_dump -U @POSTGRESQL_USER@ --attribute-inserts SIPXCONFIG > ${ConfigDb}
 
      if [ "${IncludeCallRecords}" = "TRUE" ]
      then
@@ -1098,6 +1098,7 @@ EOF
      fi
      mongoexport -d imdb -c node -o ${Work}/mongo.imdb.node.json
      mongoexport -d node -c registrar -o ${Work}/mongo.node.registrar.json
+     mongoexport -d node -c subscription -o ${Work}/mongo.node.subscription.json
    fi
 }
 

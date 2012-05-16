@@ -24,10 +24,12 @@ public class AddressType {
 
     /**
      * There are a lot more types (see /etc/protocol) but these are the only imaginable ones
-     * we need to support.
+     * we need to support.  This is not for application level protocols like SMTP or SIP, but
+     * rather network protocols.  Ids here go straight into iptables config so unrecognized
+     * ones will break firewall support.
      */
     public enum Protocol {
-        tcp, udp, tlsp, icmp, smtp
+        tcp, udp, tlsp, icmp
     }
 
     public AddressType(String uniqueId) {

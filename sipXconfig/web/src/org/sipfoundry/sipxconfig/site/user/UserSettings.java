@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
@@ -21,12 +24,17 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.im.ImAccount;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public abstract class UserSettings extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "user/UserSettings";
+
+    @InjectObject("spring:featureManager")
+    public abstract FeatureManager getFeatureManager();
 
     @Persist
     public abstract void setUserId(Integer userId);
@@ -96,6 +104,14 @@ public abstract class UserSettings extends PageWithCallback implements PageBegin
         Setting setting = getParentSetting();
         return LocalizationUtils.getModelMessage(this, setting.getMessageSource(), setting
                 .getDescriptionKey(), StringUtils.EMPTY);
+    }
+
+    public String getSettingsToHide() {
+        List<String> names = new LinkedList<String>();
+        if (!getFeatureManager().isFeatureEnabled(Ivr.FEATURE)) {
+            names.add("leaveMsgBeginIM, leaveMsgEndIM");
+        }
+        return StringUtils.join(names, ",");
     }
 
     @Override

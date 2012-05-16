@@ -14,7 +14,8 @@ PROG_JAVA_DEP
 AC_CONFIG_FILES([
   Makefile
   etc/Makefile
-  bin/Makefile
+  bin/Makefile  
+  presence-plugin/src/Makefile
   presence-plugin/Makefile
   vcard-provider/Makefile
   config-plugin/Makefile

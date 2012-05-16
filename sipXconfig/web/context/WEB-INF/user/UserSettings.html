@@ -12,7 +12,9 @@
 		<span jwcid="@user/ImAccountPanel" user="ognl:user" />
 	</span>
 	<span jwcid="@Else" renderTag="false">
-	<span jwcid="@setting/SettingsFieldset" settings="ognl:parentSetting"
+	<span jwcid="@setting/SettingsFieldset"
+		settings="ognl:parentSetting"
+		settingsToHide="ognl:settingsToHide"
 		requiredEnabled="requiredEnabled" />
 	</span>
     </fieldset>

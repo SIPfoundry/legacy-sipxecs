@@ -1,15 +1,19 @@
 <div class="userPortal">
 	<ul id="nav">
-		<li>
+		<li jwcid="@If" condition="ognl:voicemailEnabled">
 			<div class="roundedMainSectionBoxTopLeft"></div><div class="roundedMainSectionBoxTopRight"></div>
 			<div class="roundedMainSectionBoxInside">
-				<a class="heading" jwcid="@PageLink" id="menu.inbox" page="vm/ManageVoicemail"><span key="menu.voicemail">Voicemail</span></a>
+				<a class="heading" jwcid="@PageLink" id="menu.inbox" page="vm/ManageVoicemail">
+				<span key="menu.voicemail">Voicemail</span>
+				</a>
 			</div>
 		</li>
 		<li>
 			<div class="roundedMainSectionBoxTopLeft"></div><div class="roundedMainSectionBoxTopRight"></div>
 			<div class="roundedMainSectionBoxInside">
-				<a class="heading" jwcid="@PageLink" id="menu.myInformation" page="user_portal/EditMyInformation"><span key="menu.myInformation">MyInformation</span></a>
+				<a class="heading" jwcid="@PageLink" id="menu.myInformation" page="user_portal/EditMyInformation">
+				<span key="menu.myInformation">MyInformation</span>
+				</a>
 			</div>
 		</li>
 		<li>

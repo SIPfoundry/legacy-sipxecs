@@ -11,4 +11,5 @@ imbot_PKGS = \
 	jetty \
 	javax.servlet \
 	mongo \
-	xmlrpc-client
+	xmlrpc-client \
+	sipx-openfire-presence-plugin

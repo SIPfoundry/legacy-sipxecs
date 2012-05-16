@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
@@ -37,6 +38,7 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
 public abstract class EditMyInformation extends UserBasePage implements EditPinComponent {
+
     public static final String TAB_CONFERENCES = "conferences";
 
     @InjectObject(value = "spring:mailboxManager")
@@ -161,17 +163,19 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         List<String> tabNames = new ArrayList<String>();
         tabNames.add("extendedInfo");
         tabNames.add("info");
-        tabNames.add("distributionLists");
+        if (isVoicemailEnabled()) {
+            tabNames.add("distributionLists");
+        }
         tabNames.add(TAB_CONFERENCES);
         tabNames.add("openfire");
 
         String mohPermissionValue = getUser().getSettingValue("permission/application/music-on-hold");
-        if (Permission.isEnabled(mohPermissionValue)) {
+        if (isVoicemailEnabled() && Permission.isEnabled(mohPermissionValue)) {
             tabNames.add("moh");
         }
 
         String paPermissionValue = getUser().getSettingValue("permission/application/personal-auto-attendant");
-        if (Permission.isEnabled(paPermissionValue)) {
+        if (isVoicemailEnabled() && Permission.isEnabled(paPermissionValue)) {
             tabNames.add("menu");
         }
 
@@ -182,4 +186,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         setAvailableTabNames(tabNames);
     }
 
+    public boolean isVoicemailEnabled() {
+        return (getFeatureManager().isFeatureEnabled(Ivr.FEATURE) ? true : false);
+    }
 }

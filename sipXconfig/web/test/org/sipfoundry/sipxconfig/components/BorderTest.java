@@ -23,14 +23,15 @@ import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.components.Block;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.web.ServletWebRequest;
 import org.apache.tapestry.web.WebRequest;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.VersionInfo;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.FeatureManagerImpl;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.security.UserDetailsImpl;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycleImpl;
@@ -252,6 +253,15 @@ public class BorderTest extends TestCase {
             };
         }
 
+        @Override
+        public FeatureManager getFeatureManager() {
+            return new FeatureManagerImpl() {
+                public boolean isFeatureEnabled(LocationFeature feature) {
+                    return true;
+                }
+            };
+        }
+
         public SkinControl getSkin() {
             return null;
         }
@@ -307,24 +317,20 @@ public class BorderTest extends TestCase {
 
         @Override
         public String getInitialSessionId() {
-            // TODO Auto-generated method stub
             return null;
         }
 
         @Override
         public void setInitialSessionId(String sessionId) {
-            // TODO Auto-generated method stub
         }
 
         @Override
         public boolean getHeaderDisplay() {
-            // TODO Auto-generated method stub
             return false;
         }
 
         @Override
         public boolean getFooterDisplay() {
-            // TODO Auto-generated method stub
             return false;
         }
     }

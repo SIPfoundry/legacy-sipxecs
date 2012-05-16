@@ -3,5 +3,6 @@
 <h3><span jwcid="@Insert" value="message:label.imNotification"/></h3>
 <fieldset jwcid="@setting/SettingsFieldset"
     settings="ognl:imNotificationSettings"
-    renderGroupTitle="ognl:false"/>
+    renderGroupTitle="ognl:false"
+	settingsToHide="ognl:settingsToHide" />
 <ul jwcid="@common/FormActions" listener="listener:save"/>

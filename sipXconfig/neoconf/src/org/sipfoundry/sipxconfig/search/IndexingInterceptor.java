@@ -30,7 +30,7 @@ public class IndexingInterceptor extends SpringHibernateInstantiator {
     public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames,
             Type[] types) {
         BeanIndexProperties beanIndexProperties = new BeanIndexProperties(entity, id, state, propertyNames, types);
-        m_beanIndexHelper.setupIndexProperties(beanIndexProperties);
+        m_beanIndexHelper.setupIndexProperties(beanIndexProperties, false);
         m_indexer.indexBean(entity, id, beanIndexProperties.getState(), beanIndexProperties.getPropertyNames(),
                 beanIndexProperties.getTypes(), true);
         return super.onSave(entity, id, state, propertyNames, types);
@@ -46,7 +46,7 @@ public class IndexingInterceptor extends SpringHibernateInstantiator {
             Object[] previousState_, String[] propertyNames, Type[] types) {
         BeanIndexProperties beanIndexProperties = new BeanIndexProperties(entity, id, currentState,
                 propertyNames, types);
-        m_beanIndexHelper.setupIndexProperties(beanIndexProperties);
+        m_beanIndexHelper.setupIndexProperties(beanIndexProperties, false);
         m_indexer.indexBean(entity, id, beanIndexProperties.getState(), beanIndexProperties.getPropertyNames(),
                 beanIndexProperties.getTypes(), false);
         return super.onFlushDirty(entity, id, currentState, previousState_, propertyNames, types);

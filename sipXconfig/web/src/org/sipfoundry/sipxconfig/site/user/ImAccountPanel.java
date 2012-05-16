@@ -12,13 +12,20 @@ package org.sipfoundry.sipxconfig.site.user;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.im.ImAccount;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class ImAccountPanel extends BaseComponent {
+
+    @InjectObject(value = "spring:featureManager")
+    public abstract FeatureManager getFeatureManager();
+
     @Parameter(required = true)
     public abstract User getUser();
 
@@ -41,5 +48,18 @@ public abstract class ImAccountPanel extends BaseComponent {
         if (getImSettings() == null) {
             setImSettings(getUser().getSettings().getSetting("im"));
         }
+    }
+
+    public String getSettingsToHide() {
+        String defaultSettingsToHide = "im-account, im-group, add-pa-to-group";
+        if (isVoicemailEnabled()) {
+            return defaultSettingsToHide;
+        } else {
+            return defaultSettingsToHide + ", fwd-vm-on-dnd";
+        }
+    }
+
+    private boolean isVoicemailEnabled() {
+        return (getFeatureManager().isFeatureEnabled(Ivr.FEATURE) ? true : false);
     }
 }

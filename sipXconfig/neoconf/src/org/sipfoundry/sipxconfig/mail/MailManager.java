@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 public interface MailManager {
     public static final GlobalFeature FEATURE = new GlobalFeature("mail");
     public static final ProcessDefinition SERVICE = ProcessDefinition.sysvDefault("sendmail");
-    public static final AddressType SMTP = new AddressType("smtp", 25, Protocol.smtp);
+    public static final AddressType SMTP = new AddressType("smtp", 25, Protocol.tcp);
 
     /** avoids checkstyle error */
     public void nop();

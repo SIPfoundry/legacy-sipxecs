@@ -82,7 +82,10 @@ public class DomainConfiguration implements ConfigProvider {
         Location[] locations = m_locationsManager.getLocations();
         for (Location location : locations) {
             aliases.add(location.getAddress());
-            aliases.add(location.getFqdn());
+            String fqdn = location.getFqdn();
+            if (!fqdn.equalsIgnoreCase(domain.getName())) {
+                aliases.add(fqdn);
+            }
         }
 
         return StringUtils.join(aliases, ' ');

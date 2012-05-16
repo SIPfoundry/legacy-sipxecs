@@ -139,6 +139,7 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {        
         // require postgres ? that's about all i can think of but we do not have a role for that -- Douglas
+        validator.singleLocationOnly(FEATURE);
     }
 
     @Override
