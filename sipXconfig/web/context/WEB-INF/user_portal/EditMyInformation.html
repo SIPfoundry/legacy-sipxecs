@@ -28,10 +28,14 @@
 	          confirmPasswordDisplayName="message:label.pin2"
 	          passwordMismatchMessage="message:error.pinMismatch">
 	      </tr>
-	      <tr jwcid="@vm/MailboxPreferencesForm" preferences="ognl:mailboxPreferences"/>
+	      <span jwcid="@If" condition="ognl:voicemailEnabled">
+			<tr jwcid="@vm/MailboxPreferencesForm" preferences="ognl:mailboxPreferences"/>
+	      </span>
 	    </table>
 	  </fieldset>
-      <tr jwcid="faxServicePanel@common/FaxServicePanel" mailboxPreferences="ognl:mailboxPreferences" user="ognl:user"/>
+	  <span jwcid="@If" condition="ognl:voicemailEnabled">
+		<tr jwcid="faxServicePanel@common/FaxServicePanel" mailboxPreferences="ognl:mailboxPreferences" user="ognl:user"/>
+	  </span>
 	  <ul jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback"/>
   </form>
 </div>

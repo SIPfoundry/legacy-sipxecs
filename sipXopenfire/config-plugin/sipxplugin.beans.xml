@@ -53,6 +53,13 @@
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="ldapManager" ref="ldapManager" />
     <property name="coreContext" ref="coreContext" />
+    <property name="providerAuthClassName" value="org.jivesoftware.openfire.auth.DefaultAuthProvider"/>
+    <property name="providerUserClassName" value="org.jivesoftware.openfire.user.DefaultUserProvider"/>
+    <property name="providerGroupClassName" value="org.jivesoftware.openfire.group.DefaultGroupProvider"/>
+    <property name="providerVCardClassName" value="org.sipfoundry.openfire.vcard.provider.SipXVCardProvider"/>
+    <property name="providerLdapAuthClassName" value="org.jivesoftware.openfire.ldap.LdapAuthProvider"/>
+    <property name="providerLdapUserClassName" value="org.jivesoftware.openfire.ldap.LdapUserProvider"/>
+    <property name="providerLdapVCardClassName" value="org.jivesoftware.openfire.ldap.LdapVCardProvider"/>
   </bean>
 
   <bean id="openfireApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">

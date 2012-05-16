@@ -507,6 +507,8 @@ bool ResourceListSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
    // The ResourceListSet concerned is applicationData.
    ResourceListSet* resourceListSet = (ResourceListSet*) applicationData;
 
+   if (resourceListSet && notifyRequest);
+    resourceListSet->getResourceListServer()->getResourceListTask().handleNotifyRequest(*notifyRequest);
    // Get the NOTIFY content.
    const char* b;
    ssize_t l;

@@ -18,6 +18,7 @@ package org.sipfoundry.sipxconfig.openfire;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -25,6 +26,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.bulk.ldap.AttrMap;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
@@ -35,19 +37,21 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class OpenfireConfigurationFile {
     private static final String PROVIDER_ADMIN_CLASSNAME = "org.jivesoftware.openfire.admin.DefaultAdminProvider";
-    private static final String PROVIDER_AUTH_CLASSNAME = "org.jivesoftware.openfire.auth.DefaultAuthProvider";
-    private static final String PROVIDER_GROUP_CLASSNAME = "org.jivesoftware.openfire.group.DefaultGroupProvider";
-    private static final String PROVIDER_USER_CLASSNAME = "org.jivesoftware.openfire.user.DefaultUserProvider";
     private static final String PROVIDER_LOCKOUT_CLASSNAME = "org.jivesoftware.openfire.lockout.DefaultLockOutProvider";
     private static final String PROVIDER_SECURITY_AUDIT_CLASSNAME =
         "org.jivesoftware.openfire.security.DefaultSecurityAuditProvider";
-    private static final String PROVIDER_SIPX_VCARD_CLASSNAME =
-        "org.sipfoundry.openfire.vcard.provider.SipXVCardProvider";
-    private static final String PROVIDER_LDAP_AUTH_CLASSNAME = "org.jivesoftware.openfire.ldap.LdapAuthProvider";
-    private static final String PROVIDER_LDAP_USER_CLASSNAME = "org.jivesoftware.openfire.ldap.LdapUserProvider";
-    private static final String PROVIDER_LDAP_VCARD_CLASSNAME = "org.jivesoftware.openfire.ldap.LdapVCardProvider";
     private static final String SEPARATOR = ", ";
     private static final String ADMIN = "admin";
+
+    private String m_providerAuthClassName;
+    private String m_providerUserClassName;
+    private String m_providerGroupClassName;
+    private String m_providerVCardClassName;
+
+    private String m_providerLdapAuthClassName;
+    private String m_providerLdapUserClassName;
+    private String m_providerLdapVCardClassName;
+    private String m_multipleLdapConfFile;
 
     private LdapManager m_ldapManager;
     private CoreContext m_coreContext;
@@ -61,12 +65,12 @@ public class OpenfireConfigurationFile {
         List<LdapConnectionParams> allParams = m_ldapManager.getAllConnectionParams();
         if (!isEnableOpenfireConfiguration || allParams == null || allParams.isEmpty()) {
             context.put("adminProvider", PROVIDER_ADMIN_CLASSNAME);
-            context.put("authProvider", PROVIDER_AUTH_CLASSNAME);
-            context.put("groupProvider", PROVIDER_GROUP_CLASSNAME);
-            context.put("userProvider", PROVIDER_USER_CLASSNAME);
+            context.put("authProvider", m_providerAuthClassName);
+            context.put("groupProvider", m_providerGroupClassName);
+            context.put("userProvider", m_providerUserClassName);
             context.put("lockoutProvider", PROVIDER_LOCKOUT_CLASSNAME);
             context.put("securityAuditProvider", PROVIDER_SECURITY_AUDIT_CLASSNAME);
-            context.put("sipxVcardProvider", PROVIDER_SIPX_VCARD_CLASSNAME);
+            context.put("sipxVcardProvider", m_providerVCardClassName);
         } else if (allParams != null && !allParams.isEmpty()) {
             LdapConnectionParams ldapConnectionParams = allParams.get(0);
             boolean isLdapAnonymousAccess = (StringUtils.isBlank(ldapConnectionParams.getPrincipal())) ? true
@@ -74,9 +78,9 @@ public class OpenfireConfigurationFile {
             context.put("isLdapAnonymousAccess", isLdapAnonymousAccess);
             context.put("ldapParams", ldapConnectionParams);
             context.put("attrMap", m_ldapManager.getAttrMap(ldapConnectionParams.getId()));
-            context.put("ldapAuthProvider", PROVIDER_LDAP_AUTH_CLASSNAME);
-            context.put("ldapUserProvider", PROVIDER_LDAP_USER_CLASSNAME);
-            context.put("ldapVcardProvider", PROVIDER_LDAP_VCARD_CLASSNAME);
+            context.put("ldapAuthProvider", m_providerLdapAuthClassName);
+            context.put("ldapUserProvider", m_providerLdapUserClassName);
+            context.put("ldapVcardProvider", m_providerLdapVCardClassName);
         }
 
         context.put("authorizedUsernames", getAuthorizedUsernames());
@@ -85,6 +89,23 @@ public class OpenfireConfigurationFile {
             m_velocityEngine.mergeTemplate("openfire/openfire.vm", context, writer);
         } catch (Exception e) {
             throw new IOException(e);
+        }
+    }
+
+    public void writeMultipleLdapConfiguration(Writer writer) throws IOException {
+        if (m_multipleLdapConfFile != null) {
+            List<LdapConnectionParams> allParams = m_ldapManager.getAllConnectionParams();
+            VelocityContext context = new VelocityContext();
+            List<LdapData> ldapDataList = new ArrayList<LdapData>();
+            for (LdapConnectionParams params : allParams) {
+                ldapDataList.add(new LdapData(params, m_ldapManager.getAttrMap(params.getId())));
+            }
+            context.put("ldapDataList", ldapDataList);
+            try {
+                m_velocityEngine.mergeTemplate(m_multipleLdapConfFile, context, writer);
+            } catch(Exception e) {
+                throw new IOException(e);
+            }
         }
     }
 
@@ -116,5 +137,76 @@ public class OpenfireConfigurationFile {
 
     public void setVelocityEngine(VelocityEngine velocityEngine) {
         m_velocityEngine = velocityEngine;
+    }
+
+    @Required
+    public void setProviderAuthClassName(String providerAuthClassName) {
+        m_providerAuthClassName = providerAuthClassName;
+    }
+
+    @Required
+    public void setProviderUserClassName(String providerUserClassName) {
+        m_providerUserClassName = providerUserClassName;
+    }
+
+    @Required
+    public void setProviderGroupClassName(String providerGroupClassName) {
+        m_providerGroupClassName = providerGroupClassName;
+    }
+
+    @Required
+    public void setProviderVCardClassName(String providerVCardClassName) {
+        m_providerVCardClassName = providerVCardClassName;
+    }
+
+    @Required
+    public void setProviderLdapAuthClassName(String providerLdapAuthClassName) {
+        m_providerLdapAuthClassName = providerLdapAuthClassName;
+    }
+
+    @Required
+    public void setProviderLdapUserClassName(String providerLdapUserClassName) {
+        m_providerLdapUserClassName = providerLdapUserClassName;
+    }
+
+    @Required
+    public void setProviderLdapVCardClassName(String providerLdapVCardClassName) {
+        m_providerLdapVCardClassName = providerLdapVCardClassName;
+    }
+
+    public void setMultipleLdapConfFile(String multipleLdapConfFile) {
+        m_multipleLdapConfFile = multipleLdapConfFile;
+    }
+
+    public static class LdapData {
+        private LdapConnectionParams m_ldapParams;
+        private AttrMap m_attrMap;
+        private boolean m_ldapAnonymousAccess;
+        public LdapData(LdapConnectionParams ldapParams, AttrMap attrMap) {
+            m_ldapParams = ldapParams;
+            m_attrMap = attrMap;
+            m_ldapAnonymousAccess = (StringUtils.isBlank(m_ldapParams.getPrincipal())) ? true : false;
+        }
+        public LdapConnectionParams getLdapParams() {
+            return m_ldapParams;
+        }
+
+        public AttrMap getAttrMap() {
+            return m_attrMap;
+        }
+
+        public String getImAttribute() {
+            String imAttribute = m_attrMap.getImAttributeName();
+            return  imAttribute == null ? StringUtils.EMPTY : imAttribute;
+        }
+
+        public String getDomain() {
+            String domain = m_ldapParams.getDomain();
+            return domain == null ? StringUtils.EMPTY : domain;
+        }
+
+        public boolean isLdapAnonymousAccess() {
+            return m_ldapAnonymousAccess;
+        }
     }
 }

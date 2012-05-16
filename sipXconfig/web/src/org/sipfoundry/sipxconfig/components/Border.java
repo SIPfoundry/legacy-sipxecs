@@ -43,12 +43,15 @@ import org.apache.tapestry.web.WebRequest;
 import org.apache.tapestry.web.WebSession;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.Home;
 import org.sipfoundry.sipxconfig.site.LoginPage;
 import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.common.LeftNavigation;
 import org.sipfoundry.sipxconfig.site.user.FirstUser;
+import org.sipfoundry.sipxconfig.site.user.UserRegistrations;
 import org.sipfoundry.sipxconfig.site.vm.ManageVoicemail;
 
 @ComponentClass(allowInformalParameters = false)
@@ -56,6 +59,9 @@ public abstract class Border extends BaseComponent implements PageValidateListen
 
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
+
+    @InjectObject("spring:featureManager")
+    public abstract FeatureManager getFeatureManager();
 
     @InjectObject(value = "spring:tapestry")
     public abstract TapestryContext getTapestry();
@@ -196,7 +202,11 @@ public abstract class Border extends BaseComponent implements PageValidateListen
                     throw new PageRedirectException(Home.PAGE);
                 } else {
                     setInitialSessionId(null);
-                    throw new PageRedirectException(ManageVoicemail.PAGE);
+                    if (getFeatureManager().isFeatureEnabled(Ivr.FEATURE)) {
+                        throw new PageRedirectException(ManageVoicemail.PAGE);
+                    } else {
+                        throw new PageRedirectException(UserRegistrations.PAGE);
+                    }
                 }
             }
         }
@@ -210,7 +220,11 @@ public abstract class Border extends BaseComponent implements PageValidateListen
         // redirect the user to the home page since they are not worthy.
         // (We should probably use an error page instead of just tossing them home.)
         if (!user.isAdmin() && isRestricted()) {
-            throw new PageRedirectException(ManageVoicemail.PAGE);
+            if (getFeatureManager().isFeatureEnabled(Ivr.FEATURE)) {
+                throw new PageRedirectException(ManageVoicemail.PAGE);
+            } else {
+                throw new PageRedirectException(UserRegistrations.PAGE);
+            }
         }
     }
 

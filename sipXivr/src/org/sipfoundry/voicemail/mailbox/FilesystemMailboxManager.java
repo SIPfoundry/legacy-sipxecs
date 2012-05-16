@@ -19,6 +19,8 @@ package org.sipfoundry.voicemail.mailbox;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,6 +32,7 @@ import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.voicemail.mailbox.MessageDescriptor.Priority;
 
 public class FilesystemMailboxManager extends AbstractMailboxManager {
+    private static final Comparator<File> FILE_DATE_COMPARATOR = new FileDateComparator();
     private static final String AUDIO_IDENTIFIER = "-00.wav";
     private static final String MESSAGE_IDENTIFIER = "-00.xml";
     private static final String ORIGINAL_MESSAGE_IDENTIFIER = "-01.xml";
@@ -414,7 +417,9 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
     public List<VmMessage> getMessages(String username, Folder folder) {
         File mailboxFolder = getFolder(username, folder);
         List<VmMessage> messages = new LinkedList<VmMessage>();
-        for (File file : mailboxFolder.listFiles(new MessageCountFilter())) {
+        File[] files = mailboxFolder.listFiles(new MessageCountFilter());
+        Arrays.sort(files, FILE_DATE_COMPARATOR);
+        for (File file : files) {
             MessageDescriptor descriptor = m_descriptorReader.readObject(file);
             String messageId = StringUtils.removeEnd(file.getName(), MESSAGE_IDENTIFIER);
             boolean unheard = new File(mailboxFolder, String.format("%s%s", messageId, STATUS_IDENTIFIER)).exists();
@@ -610,6 +615,19 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
     private static class MessageCountFilter implements FilenameFilter {
         public boolean accept(File dir, String name) {
             return name.endsWith(MESSAGE_IDENTIFIER);
+        }
+    }
+
+    private static class FileDateComparator implements Comparator<File> {
+        public int compare(File file1, File file2) {
+            long result = file2.lastModified() - file1.lastModified();
+            if (result < 0) {
+                return -1;
+            } else if (result > 0) {
+                return 1;
+            } else {
+                return 0;
+            }
         }
     }
 

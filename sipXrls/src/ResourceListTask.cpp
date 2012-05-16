@@ -158,11 +158,12 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
                     "ResourceListTask::handleMessage RLS_NOTIFY_MSG");
       NotifyCallbackMsg* pNotifyMsg =
          dynamic_cast <NotifyCallbackMsg*> (&rMsg);
+
+
       getResourceListServer()->getResourceListSet().
          notifyEventCallbackSync(pNotifyMsg->getDialogHandle(),
                                  pNotifyMsg->getContent());
-
-      handleNotifyRequest(*((SipMessageEvent&) rMsg).getMessage());
+      
 
       handled = TRUE;
    }
@@ -253,6 +254,13 @@ void ResourceListTask::handleNotifyRequest(const SipMessage& msg)
   //std::string key;
 
   //
+  // Get the event field
+  //
+  UtlString eventField;
+  if (!msg.getEventField(eventField) || eventField.compareTo("dialog", UtlString::ignoreCase) != 0)
+    return;
+
+  //
   // Extract the aor
   //
   Url fromUrl;
@@ -265,6 +273,7 @@ void ResourceListTask::handleNotifyRequest(const SipMessage& msg)
   //
   UtlString contactStr;
   msg.getContactEntry (0, &contactStr);
+
 
   //
   // Extract the content

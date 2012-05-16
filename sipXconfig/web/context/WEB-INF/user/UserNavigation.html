@@ -15,7 +15,7 @@
               <span key="link.identification">Identification</span>
             </a>
           </span>
-          <span jwcid="@If" condition="ognl:mailboxManager.enabled" renderTag="false">
+          <span jwcid="@If" condition="ognl:mailboxManager.enabled && voicemailEnabled" renderTag="false">
             <span jwcid="@common/Tab" isActive="ognl:mailboxPreferencesTabActive">
               <a id="mailboxPreferencesLink" jwcid="mailboxPreferencesLink@DirectLink"
                 listener="listener:viewMailboxPreferences" parameters="ognl:bean.id">
@@ -59,12 +59,14 @@
               <span key="link.supervisor">Group Supervisor</span>
             </a>
           </span>
-          <span jwcid="@common/Tab" isActive="ognl:personalAttendantTabActive">
-            <a id="personalAttendantLink" jwcid="personalAttendantLink@DirectLink"
-              listener="listener:editPersonalAttendant" parameters="ognl:bean.id">
-              <span key="link.attendant">Personal Attendant</span>
-            </a>
-          </span>
+          <span jwcid="@If" condition="ognl:voicemailEnabled" renderTag="false">
+			<span jwcid="@common/Tab" isActive="ognl:personalAttendantTabActive">
+			  <a id="personalAttendantLink" jwcid="personalAttendantLink@DirectLink"
+				listener="listener:editPersonalAttendant" parameters="ognl:bean.id">
+				<span key="link.attendant">Personal Attendant</span>
+			  </a>
+			</span>
+		  </span>
           <span jwcid="@common/Tab" isActive="ognl:conferencesTabActive">
             <a id="userConferencesLink" jwcid="conferencesLink@DirectLink"
                listener="listener:viewUserConferences" parameters="ognl:bean.id">
@@ -77,12 +79,14 @@
               <span key="link.registrations">Registrations</span>
             </a>
           </span>
-          <span jwcid="@common/Tab" isActive="ognl:MusicOnHoldTabActive">
-            <a jwcid="MusicOnHoldLink@DirectLink" listener="listener:editMusicOnHold"
-              parameters="ognl:bean.id">
-              <span key="link.musicOnHold">Music On Hold</span>
-            </a>
-          </span>
+          <span jwcid="@If" condition="ognl:voicemailEnabled" renderTag="false">
+			<span jwcid="@common/Tab" isActive="ognl:MusicOnHoldTabActive">
+			  <a jwcid="MusicOnHoldLink@DirectLink" listener="listener:editMusicOnHold"
+				parameters="ognl:bean.id">
+				<span key="link.musicOnHold">Music On Hold</span>
+			  </a>
+			</span>
+		  </span>
         </span>
       </div>
       <span jwcid="@RenderBody"/>

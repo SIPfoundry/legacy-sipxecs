@@ -10,10 +10,14 @@
 package org.sipfoundry.sipxconfig.site;
 
 import org.apache.tapestry.PageRedirectException;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
+import org.sipfoundry.sipxconfig.site.user.UserRegistrations;
 import org.sipfoundry.sipxconfig.site.vm.ManageVoicemail;
 
 public abstract class Home extends SipxBasePage implements PageBeginRenderListener {
@@ -22,9 +26,16 @@ public abstract class Home extends SipxBasePage implements PageBeginRenderListen
     @InjectState(value = "userSession")
     public abstract UserSession getUserSession();
 
+    @InjectObject("spring:featureManager")
+    public abstract FeatureManager getFeatureManager();
+
     public void pageBeginRender(PageEvent event) {
         if (!getUserSession().isAdmin()) {
-            throw new PageRedirectException(ManageVoicemail.PAGE);
+            if (getFeatureManager().isFeatureEnabled(Ivr.FEATURE)) {
+                throw new PageRedirectException(ManageVoicemail.PAGE);
+            } else {
+                throw new PageRedirectException(UserRegistrations.PAGE);
+            }
         }
     }
 }
