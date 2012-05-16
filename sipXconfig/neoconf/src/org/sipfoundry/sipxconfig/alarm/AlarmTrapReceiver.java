@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.alarm;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -48,6 +49,18 @@ public class AlarmTrapReceiver implements Serializable {
         m_port = port;
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getHostAddress());
+        if (getPort() != null) {
+            sb.append(':').append(getPort());
+        }
+        if (StringUtils.isNotBlank(getCommunityString())) {
+            sb.append(' ').append(getCommunityString());
+        }
+        return sb.toString();
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().append(m_hostAddress).append(m_communityString).append(m_port).toHashCode();
@@ -62,7 +75,7 @@ public class AlarmTrapReceiver implements Serializable {
             return true;
         }
         AlarmTrapReceiver rhs = (AlarmTrapReceiver) obj;
-        return new EqualsBuilder().append(m_hostAddress, rhs.m_hostAddress).append(m_communityString,
-                rhs.m_communityString).append(m_port, rhs.m_port).isEquals();
+        return new EqualsBuilder().append(m_hostAddress, rhs.m_hostAddress)
+                .append(m_communityString, rhs.m_communityString).append(m_port, rhs.m_port).isEquals();
     }
 }

@@ -15,25 +15,28 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.io.IOUtils;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
+import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.mail.MailManager;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
-import org.springframework.beans.factory.annotation.Required;
 
 public class AlarmConfiguration implements ConfigProvider {
     private AlarmServerManager m_alarmServerManager;
-    private VelocityEngine m_velocityEngine;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -42,12 +45,12 @@ public class AlarmConfiguration implements ConfigProvider {
         }
 
         List<Alarm> alarms = m_alarmServerManager.getAlarms();
+        Location[] locations = manager.getLocationManager().getLocations();
         AlarmServer alarmServer = m_alarmServerManager.getAlarmServer();
         String host = m_alarmServerManager.getHost();
-        Location[] locations = manager.getLocationManager().getLocations();
+        List<AlarmGroup> groups = m_alarmServerManager.getAlarmGroups();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-
             Writer yml = new FileWriter(new File(dir, "alarms.yaml"));
             try {
                 writeAlarms(yml, alarms);
@@ -55,20 +58,12 @@ public class AlarmConfiguration implements ConfigProvider {
                 IOUtils.closeQuietly(yml);
             }
 
-            Writer alarmsGroupsXml = new FileWriter(new File(dir, "alarm-groups.xml"));
+            Address smtp = manager.getAddressManager().getSingleAddress(MailManager.SMTP, location);
+            Writer wtr = new FileWriter(new File(manager.getGlobalDataDirectory(), "sipxtrap-handler.yaml"));
             try {
-                // alters groups collection so get fresh copy for each location. clone could be ok too.
-                List<AlarmGroup> groups = m_alarmServerManager.getAlarmGroups();
-                writeAlarmGroupsXml(alarmsGroupsXml, groups);
-            } finally {
-                IOUtils.closeQuietly(alarmsGroupsXml);
-            }
-
-            Writer alarmsConfigXml = new FileWriter(new File(dir, "alarm-config.xml"));
-            try {
-                writeAlarmConfigXml(alarmsConfigXml, alarmServer, host);
-            } finally {
-                IOUtils.closeQuietly(alarmsConfigXml);
+                writeAlarmHandler(wtr, alarms, groups, alarmServer, host, smtp);
+            } catch (IOException e) {
+                IOUtils.closeQuietly(wtr);
             }
         }
     }
@@ -83,53 +78,52 @@ public class AlarmConfiguration implements ConfigProvider {
         }
     }
 
-    void writeAlarmGroupsXml(Writer wtr, List<AlarmGroup> groups) throws IOException {
-        VelocityContext context = new VelocityContext();
-        setContactAddresses(groups);
-        context.put("groups", groups);
-        write(wtr, context, "alarms/alarm-groups.vm");
-    }
-
-    void writeAlarmConfigXml(Writer wtr, AlarmServer server, String host) throws IOException {
-        VelocityContext context = new VelocityContext();
-        context.put("enabled", server.isAlarmNotificationEnabled());
-        String fromEmailAddress = defaultIfEmpty(server.getFromEmailAddress(), "postmaster@" + host);
-        context.put("fromEmailAddress", fromEmailAddress);
-        context.put("hostName", host);
-        write(wtr, context, "commserver/alarm-config.vm");
-    }
-
-    void write(Writer wtr, VelocityContext context, String template) throws IOException {
-        try {
-            m_velocityEngine.mergeTemplate(template, context, wtr);
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
-        wtr.flush();
-    }
-
-    void setContactAddresses(List<AlarmGroup> alarmGroups) {
-        for (AlarmGroup group : alarmGroups) {
-            List<String> userEmailAddresses = new ArrayList<String>();
-            Set<User> users = group.getUsers();
-            for (User user : users) {
-                String emailAddress = user.getEmailAddress();
-                if (emailAddress != null) {
-                    userEmailAddresses.add(emailAddress);
-                }
-                String altEmailAddress = user.getAlternateEmailAddress();
-                if (altEmailAddress != null) {
-                    userEmailAddresses.add(altEmailAddress);
+    void writeAlarmHandler(Writer wtr, List<Alarm> alarms, List<AlarmGroup> groups, AlarmServer server, String host,
+            Address smtp) throws IOException {
+        YamlConfiguration c = new YamlConfiguration(wtr);
+        c.startStruct("email");
+        for (AlarmGroup g : groups) {
+            Set<String> emails = new HashSet<String>();
+            emails.addAll(g.getContactEmailAddresses());
+            emails.addAll(g.getContactSmsAddresses());
+            Set<User> users = g.getUsers();
+            if (users != null) {
+                for (User user : users) {
+                    String email = user.getEmailAddress();
+                    if (StringUtils.isNotBlank(email)) {
+                        emails.add(email);
+                    }
+                    String altEmailAddress = user.getAlternateEmailAddress();
+                    if (altEmailAddress != null) {
+                        emails.add(altEmailAddress);
+                    }
                 }
             }
-
-            group.setUserEmailAddresses(userEmailAddresses);
+            c.writeInlineArray(g.getName(), emails);
         }
-    }
+        c.endStruct();
 
-    @Required
-    public void setVelocityEngine(VelocityEngine velocityEngine) {
-        m_velocityEngine = velocityEngine;
+        c.startStruct("alarm");
+        for (final Alarm a : alarms) {
+            Collection< ? > byGroup = CollectionUtils.select(groups, new Predicate() {
+                public boolean evaluate(Object o) {
+                    return a.getGroupName().equals(((AlarmGroup) o).getName());
+                }
+            });
+            Collection< ? > groupIds = CollectionUtils.collect(byGroup, new Transformer() {
+                public Object transform(Object o) {
+                    return ((AlarmGroup) o).getName();
+                }
+            });
+            if (!groupIds.isEmpty()) {
+                c.writeInlineArray(a.getAlarmDefinition().getId(), groupIds);
+            }
+        }
+        c.endStruct();
+
+        String fromEmailAddress = defaultIfEmpty(server.getFromEmailAddress(), "postmaster@" + host);
+        c.write("from", fromEmailAddress);
+        c.write("smtp", smtp);
     }
 
     public void setAlarmServerManager(AlarmServerManager alarmServerManager) {

@@ -1,8 +1,86 @@
-#!/bin/bash
+#!/bin/env ruby
 
-# When an alarm is received, dispatch it to configured handler : email, sms, log...
+# When an alarm is received, dispatch ones meant for email here
 # STDIN is alarm body
-# TODO: right now it just logs
 
-echo "Caught $1 " >> @SIPX_LOGDIR@/sipxalarms.log
-cat >> @SIPX_LOGDIR@/sipxalarms.log
+require 'optparse'
+require 'erb'
+require 'yaml'
+require 'net/smtp'
+
+def dispatch(yaml, template, to, send, input_stream)
+  data = YAML::load_file(yaml)
+  alarm = parse_alarm(input_stream)
+  msg = get_email(data, alarm, template, to)
+  if send
+    Net::SMTP.start(data[:smtp]) do |smtp|
+      smtp.send_message(msg, data[:from], to)
+    end
+  else
+    print msg
+  end
+end
+
+def get_email(data, alarm, template, to)
+  erb = ERB.new(File.read(template))
+  erb.filename = template
+  var = binding
+  # this is magic that allows in yaml file
+  #   who : world
+  # when run thru
+  #  hello <%= who %>
+  # be
+  #  hello world
+  data.each_key { |x|
+    eval "#{x} = data['#{x}']", var
+  }
+  return erb.result(var)
+end
+
+def parse_alarm(input_stream)
+  alarm_struct = Struct.new(:name, :message)
+  alarm = alarm_struct.new('test', 'message goes here')
+end
+
+if __FILE__ == $0
+
+args = OptionParser.new { |opts|
+  opts.banner = "Usage : sipx-config-maker [options]"
+
+  opts.separator ""
+  opts.separator "Options:"
+
+  opts.on("--help", "Print this help message.") {
+    puts opts
+    exit
+  }
+
+  $template = '@SIPX_CONFDIR@/snmp/trap-email.erb'
+  opts.on("--template FILE", "ERB formated template for emailing.") {|f|
+    $template = f
+  }
+
+  opts.on("--in FILE", "YAML formated file for email addresses for alarm traps.") {|f|
+    $yaml = f
+  }
+
+  $out = nil
+  opts.on("--out FILE", "Write to file, otherwise email is sent") {|f|
+    $out = File.open(f, 'w')
+  }
+
+  $send = false
+  opts.on("--send", "Actually send the mesage, otherwise print to stdout") {
+    $send = true
+  }
+
+  $to = nil
+  opts.on("--to address", "Email address to send alarm message") {|v|
+    $to = v
+  }
+}
+args.parse!
+  raise "Missing --in missing parameter to an yaml file" if $yaml.nil?
+  raise "Missing --to parameter with email address" if $to.nil?
+  dispatch($yaml, $template, $to, $send, STDIN)
+end

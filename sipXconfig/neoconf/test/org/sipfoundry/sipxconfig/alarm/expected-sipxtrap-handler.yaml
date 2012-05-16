@@ -1,0 +1,13 @@
+email:
+   g1: [ e2@example.org, e1@example.org ]
+   g2: [  ]
+fwd:
+   g1:
+   	- server:1212 public
+   g2:   
+   	- server:1212 public
+alarm:
+   a1: [ g1 ]
+   a2: [ g2 ]
+from: postmaster@post.example.org
+smtp: mail.example.org

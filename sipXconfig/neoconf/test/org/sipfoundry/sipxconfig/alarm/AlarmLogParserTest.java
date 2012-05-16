@@ -23,15 +23,13 @@ import java.util.Map;
 
 import org.junit.Test;
 
-
 public class AlarmLogParserTest {
     
     @Test
     public void decide() {
         AlarmLogParser parser = new AlarmLogParser();
         assertEquals("lion", parser.decodeValue("= STRING: lion"));
-    }
-    
+    }    
     
     @Test
     public void parseFields() throws IOException {

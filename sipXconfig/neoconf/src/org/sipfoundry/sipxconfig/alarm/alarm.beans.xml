@@ -7,7 +7,6 @@
   </bean>
 
   <bean id="alarmConfiguration" class="org.sipfoundry.sipxconfig.alarm.AlarmConfiguration">
-    <property name="velocityEngine" ref="velocityEngine" />
     <property name="alarmServerManager" ref="alarmServerManager" />
   </bean>
 

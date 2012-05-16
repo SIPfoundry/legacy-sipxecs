@@ -9,31 +9,46 @@
  */
 package org.sipfoundry.sipxconfig.alarm;
 
-
 import static org.junit.Assert.assertEquals;
 
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
-import org.sipfoundry.sipxconfig.test.TestHelper;
+import org.sipfoundry.sipxconfig.mail.MailManager;
 
 public class AlarmServerConfigurationTest {
     
     @Test
     public void testGenerateAlarmServer() throws Exception {        
         AlarmConfiguration alarmServerConf = new AlarmConfiguration();
-        alarmServerConf.setVelocityEngine(TestHelper.getVelocityEngine());
         AlarmServer server = new AlarmServer();
         server.setAlarmNotificationEnabled(true);
         String host = "post.example.org";
         StringWriter actual = new StringWriter();
-        alarmServerConf.writeAlarmConfigXml(actual, server, host);       
-        InputStream expected = getClass().getResourceAsStream("alarm-config-test.xml");
+        AlarmGroup g1 = new AlarmGroup();
+        g1.setName("g1");
+        g1.setEmailAddresses(Arrays.asList("e1@example.org", "e2@example.org"));
+        AlarmGroup g2 = new AlarmGroup();        
+        g2.setName("g2");
+        AlarmTrapReceiver r1 = new AlarmTrapReceiver();
+        r1.setHostAddress("s1.example.org");
+        g2.setSnmpAddresses(Collections.singletonList(r1));
+        List<AlarmGroup> groups = Arrays.asList(g1, g2);
+        Alarm a1 = new Alarm(new AlarmDefinition("a1"));
+        Alarm a2 = new Alarm(new AlarmDefinition("a2"));
+        a1.setGroupName(g1.getName());
+        a2.setGroupName(g2.getName());
+        List<Alarm> alarms = Arrays.asList(a1, a2);
+        Address smtp = new Address(MailManager.SMTP, "mail.example.org");
+        alarmServerConf.writeAlarmHandler(actual, alarms, groups, server, host, smtp);
+        InputStream expected = getClass().getResourceAsStream("expected-sipxtrap-handler.yaml");
         assertEquals(IOUtils.toString(expected), actual.toString());
     }
     
