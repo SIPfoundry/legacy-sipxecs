@@ -11,7 +11,8 @@ SUBDIRS = \
 
 @PACKAGE@_EXTRA_DIST = \
 	deps \
-	src \
+	$(wildcard src/*.erl) \
+	$(wildcard src/*.src) \
 	rebar \
 	rebar.config \
 	README \
