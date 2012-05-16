@@ -1,5 +1,7 @@
 include $(top_srcdir)/config/utility.am
 
+EXTRA_DIST=openacd-snapshot.sh.in
+
 snapshotdir = $(SIPX_SNAPSHOTBINDIR)
 dist_snapshot_SCRIPTS = \
 	openacd-snapshot.sh

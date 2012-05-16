@@ -1,5 +1,7 @@
 include $(top_srcdir)/config/utility.am
 
+EXTRA_DIST= sipxopenacd.cfdat.in
+
 cfinputsdir = $(SIPX_CFINPUTS)/plugin.d
 dist_cfinputs_DATA = \
 	sipxopenacd.cf
