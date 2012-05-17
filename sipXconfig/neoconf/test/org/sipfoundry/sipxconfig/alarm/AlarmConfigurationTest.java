@@ -40,9 +40,6 @@ public class AlarmConfigurationTest {
         g1.setEmailAddresses(Arrays.asList("e1@example.org", "e2@example.org"));
         AlarmGroup g2 = new AlarmGroup();        
         g2.setName("g2");
-        AlarmTrapReceiver r1 = new AlarmTrapReceiver();
-        r1.setHostAddress("s1.example.org");
-        g2.setSnmpAddresses(Collections.singletonList(r1));
         List<AlarmGroup> groups = Arrays.asList(g1, g2);
         Alarm a1 = new Alarm(new AlarmDefinition("a1"));
         Alarm a2 = new Alarm(new AlarmDefinition("a2"));

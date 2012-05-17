@@ -16,17 +16,22 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
+import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.alarm.AlarmTrapReceiver;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class AlarmTrapReceiverPanel extends BaseComponent {
 
-    @Parameter(required = true)
-    public abstract String getLabel();
+    @InjectObject("spring:alarmServerManager")
+    public abstract AlarmServerManager getAlarmServerManager();
 
     @Parameter
+    public abstract SipxValidationDelegate getValidator();
+
     public abstract List<AlarmTrapReceiver> getSnmpAddresses();
 
     public abstract void setSnmpAddresses(List<AlarmTrapReceiver> alarmTrapReceiver);
@@ -35,9 +40,9 @@ public abstract class AlarmTrapReceiverPanel extends BaseComponent {
 
     public abstract void setAlarmTrapReceivers(List<AlarmTrapReceiver> alarmTrapReceivers);
 
-    public abstract int getIndex();
-
     public abstract boolean getAdd();
+
+    public abstract int getIndex();
 
     public abstract int getRemoveIndex();
 
@@ -73,6 +78,11 @@ public abstract class AlarmTrapReceiverPanel extends BaseComponent {
     protected void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
         setRemoveIndex(-1);
+
+        if (getSnmpAddresses() == null) {
+            setSnmpAddresses(getAlarmServerManager().getAlarmTrapReceivers());
+        }
+
         if (!TapestryUtils.isRewinding(cycle, this)) {
             if (null != getSnmpAddresses()) {
                 setAlarmTrapReceivers(getSnmpAddresses());
@@ -100,5 +110,9 @@ public abstract class AlarmTrapReceiverPanel extends BaseComponent {
             TapestryUtils.getValidator(this).clearErrors();
         }
         setSnmpAddresses(alarmTrapReceivers);
+    }
+
+    public void save() {
+        getAlarmServerManager().saveAlarmTrapReceivers(getAlarmTrapReceivers());
     }
 }

@@ -29,6 +29,19 @@ import org.springframework.context.NoSuchMessageException;
 
 /**
  * Read resource bundles from all beans that implement MessageSource, including plugins.
+ *
+ * To register your resource bundle into the global pool, just add bean
+ *
+ *   <bean id="alarmMessages" class="org.springframework.context.support.ResourceBundleMessageSource">
+ *     <property name="basename" value="my.package.xyx"/>
+ *   < /bean>
+ *
+ *   And create file with english translations
+ *     src/my/package/xyz.properties
+ *   and optionally other files with other language translations following the java resource rules
+ *
+ *   Code that wished to load strings from global pool can just inject this bean and call one
+ *   of the getMessage methods.
  */
 public class GlobalMessageSource implements MessageSource, BeanFactoryAware {
     private ListableBeanFactory m_beanFactory;

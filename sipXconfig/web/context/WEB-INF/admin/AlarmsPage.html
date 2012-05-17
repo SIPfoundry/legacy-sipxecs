@@ -1,6 +1,6 @@
 <div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
   <span jwcid="@common/TabNavigation"
-    tabNames="ognl:{'configureAlarms', 'notificationGroups', 'historyAlarms'}"
+    tabNames="ognl:{'configureAlarms', 'notificationGroups', 'trapReceivers', 'historyAlarms'}"
     selectedTab="ognl:tab"/>
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
@@ -53,6 +53,10 @@
 	<form jwcid="alarmGroupsForm@Form" delegate="bean:validator">
 	  <span jwcid="notificationGroupsComponent@admin/AlarmGroupsPanel"/>
 	</form>
+  </div>
+  <div jwcid="trapReceiversTab@Block">
+    <div jwcid="@common/QuickHelp" value="message:quick.help.trapReceivers" />
+    <span jwcid="trapReceiversComponent@admin/AlarmTrapReceiverPanel" validator="bean:validator"/>
   </div>
   <div jwcid="historyAlarmsTab@Block">
     <span jwcid="historyAlarmsComponent@admin/HistoryAlarmsPanel" validator="bean:validator"/>

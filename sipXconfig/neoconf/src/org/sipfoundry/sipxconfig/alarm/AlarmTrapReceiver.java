@@ -10,13 +10,18 @@
 
 package org.sipfoundry.sipxconfig.alarm;
 
-import java.io.Serializable;
+
+import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.feature.Feature;
 
-public class AlarmTrapReceiver implements Serializable {
+public class AlarmTrapReceiver extends BeanWithId implements DeployConfigOnEdit {
 
     private String m_hostAddress;
     private String m_communityString;
@@ -77,5 +82,10 @@ public class AlarmTrapReceiver implements Serializable {
         AlarmTrapReceiver rhs = (AlarmTrapReceiver) obj;
         return new EqualsBuilder().append(m_hostAddress, rhs.m_hostAddress)
                 .append(m_communityString, rhs.m_communityString).append(m_port, rhs.m_port).isEquals();
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) Alarms.FEATURE);
     }
 }

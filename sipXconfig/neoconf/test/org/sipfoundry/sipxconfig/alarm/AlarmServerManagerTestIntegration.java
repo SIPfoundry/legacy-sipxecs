@@ -146,4 +146,17 @@ public class AlarmServerManagerTestIntegration extends IntegrationTestCase {
         m_alarmServerManager.removeAlarmGroups(groupsIds, m_alarmServerManager.getAlarms());
         assertEquals(1, m_alarmServerManager.getAlarmGroups().size());
     }
+    
+    public void testTrapReceivers() {
+        AlarmTrapReceiver r = new AlarmTrapReceiver();
+        r.setHostAddress("snmp.example.org");
+        m_alarmServerManager.saveAlarmTrapReceiver(r);
+        flush();
+        db().queryForInt("select 1 from alarm_receiver where address = ? ", r.getHostAddress());
+        List<AlarmTrapReceiver> receivers = m_alarmServerManager.getAlarmTrapReceivers();
+        assertEquals(1, receivers.size());
+        m_alarmServerManager.deleteAlarmTrapReceiver(receivers.get(0));
+        flush();
+        assertEquals(0, db().queryForInt("select count(*) from alarm_receiver"));
+    }
 }

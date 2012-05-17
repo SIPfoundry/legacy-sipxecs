@@ -21,6 +21,12 @@ public interface AlarmServerManager {
 
     List<AlarmTrapReceiver> getAlarmTrapReceivers();
 
+    void saveAlarmTrapReceivers(List<AlarmTrapReceiver> receivers);
+
+    void saveAlarmTrapReceiver(AlarmTrapReceiver r);
+
+    void deleteAlarmTrapReceiver(AlarmTrapReceiver r);
+
     boolean removeAlarmGroups(Collection<Integer> groupsIds, List<Alarm> alarms);
 
     AlarmGroup loadAlarmGroup(Serializable id);

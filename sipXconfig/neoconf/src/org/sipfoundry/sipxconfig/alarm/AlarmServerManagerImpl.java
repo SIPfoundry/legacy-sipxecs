@@ -16,7 +16,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -374,6 +373,21 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
 
     @Override
     public List<AlarmTrapReceiver> getAlarmTrapReceivers() {
-        return Collections.emptyList();
+        return getHibernateTemplate().loadAll(AlarmTrapReceiver.class);
+    }
+
+    @Override
+    public void saveAlarmTrapReceiver(AlarmTrapReceiver r) {
+        getHibernateTemplate().saveOrUpdate(r);
+    }
+
+    @Override
+    public void deleteAlarmTrapReceiver(AlarmTrapReceiver r) {
+        getHibernateTemplate().delete(r);
+    }
+
+    @Override
+    public void saveAlarmTrapReceivers(List<AlarmTrapReceiver> receivers) {
+        getHibernateTemplate().saveOrUpdateAll(receivers);
     }
 }

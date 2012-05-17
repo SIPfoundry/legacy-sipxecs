@@ -39,8 +39,6 @@ public class AlarmGroup extends BeanWithId implements NamedObject, DeployConfigO
 
     private List<String> m_userEmailAddresses = new ArrayList<String>();
 
-    private List<AlarmTrapReceiver> m_snmpAddresses = new ArrayList<AlarmTrapReceiver>();
-
     public String getDescription() {
         return m_description;
     }
@@ -71,15 +69,6 @@ public class AlarmGroup extends BeanWithId implements NamedObject, DeployConfigO
 
     public void setUsers(Set<User> users) {
         m_users = users;
-    }
-
-    // SNMP contacts
-    public List<AlarmTrapReceiver> getSnmpAddresses() {
-        return m_snmpAddresses;
-    }
-
-    public void setSnmpAddresses(List<AlarmTrapReceiver> addresses) {
-        m_snmpAddresses = addresses;
     }
 
     // SMS contacts
@@ -142,15 +131,6 @@ public class AlarmGroup extends BeanWithId implements NamedObject, DeployConfigO
             contactSmsAddresses.addAll(m_smsAddresses);
         }
         return contactSmsAddresses;
-    }
-
-    // List of snmp contacts to export in the XML file
-    public List<AlarmTrapReceiver> getContactSnmpAddresses() {
-        List<AlarmTrapReceiver> contactSnmpAddresses = new ArrayList<AlarmTrapReceiver>();
-        if (m_enabled) {
-            contactSnmpAddresses.addAll(m_snmpAddresses);
-        }
-        return contactSnmpAddresses;
     }
 
     @Override
