@@ -9,12 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.alarm;
 
+
 import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -368,5 +370,10 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
 
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         m_jdbcTemplate = jdbcTemplate;
+    }
+
+    @Override
+    public List<AlarmTrapReceiver> getAlarmTrapReceivers() {
+        return Collections.emptyList();
     }
 }

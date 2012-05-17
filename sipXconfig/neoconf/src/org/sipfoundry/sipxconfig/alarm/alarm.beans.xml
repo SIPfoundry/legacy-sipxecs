@@ -8,6 +8,7 @@
 
   <bean id="alarmConfiguration" class="org.sipfoundry.sipxconfig.alarm.AlarmConfiguration">
     <property name="alarmServerManager" ref="alarmServerManager" />
+    <property name="messageSource" ref="globalMessageSource" />
   </bean>
 
   <bean id="alarmHistoryManager" class="org.sipfoundry.sipxconfig.alarm.AlarmHistoryManagerImpl">
@@ -24,6 +25,12 @@
     <property name="alarmsStringsDirectory" value="${sysdir.alarmsStrings}" />
     <property name="mibsDirectory" value="${sipxpbx.mibs.dir}" />
     <property name="jdbcTemplate" ref="configJdbcTemplate"/>    
+  </bean>
+  
+  <bean id="alarmMessages" class="org.springframework.context.support.ResourceBundleMessageSource">
+    <property name="basename">
+      <value>org.sipfoundry.sipxconfig.alarm.alarm</value>
+    </property>
   </bean>
 
   <bean id="alarmServerManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

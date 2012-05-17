@@ -29,4 +29,10 @@
     <property name="proxyManager" ref="proxyManager" />
   </bean>
 
+  <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+    <property name="basename">
+      <value>org.sipfoundry.sipxconfig.proxy.proxy</value>
+    </property>
+  </bean>
+
 </beans>

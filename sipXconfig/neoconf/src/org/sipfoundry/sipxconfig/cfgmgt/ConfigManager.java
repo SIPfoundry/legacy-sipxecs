@@ -32,7 +32,6 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 public interface ConfigManager {
     public static final AddressType SUPERVISOR_ADDRESS = new AddressType("supervisorXmlRpc");
     public static final AlarmDefinition PROCESS_RESTARTED = new AlarmDefinition("PROCESS_RESTARTED");
-    public static final AlarmDefinition PROCESS_STARTED = new AlarmDefinition("PROCESS_STARTED");
     public static final AlarmDefinition PROCESS_FAILED = new AlarmDefinition("PROCESS_FAILED");
 
     public enum ConfigStatus {

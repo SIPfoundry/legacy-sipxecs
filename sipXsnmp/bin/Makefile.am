@@ -9,7 +9,7 @@ bin_SCRIPTS = \
 
 libexecdir = @SIPX_LIBEXECDIR@
 libexec_SCRIPTS = \
-	sipxtrap-handler
+    snmptrap-email-handler
 
 $(libexec_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)

@@ -17,7 +17,7 @@
 
 bundle agent snmptrap {
   methods:
-    snmp::
+    snmptrap::
       "any" usebundle => "snmptrap_config";
     fedora16_or_greater::
       "any" usebundle => "snmptrap_systemctl_running";
@@ -27,7 +27,7 @@ bundle agent snmptrap {
 
 bundle agent snmptrap_config {
   files:
-    snmp::
+    snmptrap::
       "/etc/snmp/snmptrapd.conf"
         create => "true",
         perms => m("644"),
@@ -51,10 +51,18 @@ bundle agent snmptrap_config {
 }
 
 bundle edit_line snmptrapd_conf {
+  classes:
+    "has_forwarders" expression => isvariable("sipx.snmptrapdForward");
+
   insert_lines:
     any::
-"authCommunity   log,execute,net public
-traphandle SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications $(sipx.SIPX_LIBEXECDIR)/sipxtrap-handler sipxecs-alarm";
+      "authCommunity   log,execute,net public";
+      "traphandle SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications \
+$(sipx.SIPX_LIBEXECDIR)/snmptrap-email-handler --send \
+--in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/snmptrap-emails.yaml";
+
+    has_forwarders::
+      "forward SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications $(sipx.snmptrapdForward) x";
 }
 
 bundle agent snmptrap_sysv_running {
@@ -66,23 +74,23 @@ bundle agent snmptrap_sysv_running {
   methods:
     any::
       "any" usebundle => find_service_by_command("$(service_command)", "snmptrap_running","root");
-    !snmp::
+    !snmptrap::
       "any" usebundle => rh_chkconfig_status("snmptrapd off");
-    snmp::
+    snmptrap::
       "any" usebundle => rh_chkconfig_status("snmptrapd on");
 
   commands:
-    !snmp.snmptrap_running::
+    !snmptrap.snmptrap_running::
       "$(service)"
         comment => "stop snmptrap",
         args => "stop";
 
-    snmp.!snmptrap_running::
+    snmptrap.!snmptrap_running::
       "$(service)"
         comment => "start snmptrap",
         args => "start";
 
-    snmp.snmptrap_running.reload_snmptrap::
+    snmptrap.snmptrap_running.reload_snmptrap::
       "$(service)"
         comment => "reload snmptrap",
         args => "reload";
@@ -98,7 +106,7 @@ bundle agent snmptrap_systemctl_running {
       "snmptrap_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:
-    !snmp.snmptrap_running::
+    !snmptrap.snmptrap_running::
       "$(sipx.systemctl)"
         comment => "stop snmptrapd",
         args => "stop $(service)";
@@ -107,7 +115,7 @@ bundle agent snmptrap_systemctl_running {
         comment => "disable snmptrapd",
         args => "disable $(service)";
 
-    snmp.!snmptrap_running::
+    snmptrap.!snmptrap_running::
       "$(sipx.systemctl)"
         comment => "start snmptrapd",
         args => "start $(service)";
@@ -116,7 +124,7 @@ bundle agent snmptrap_systemctl_running {
         comment => "enable snmptrapd",
         args => "enable $(service)";
 
-    snmp.snmptrap_running.reload_snmptrap::
+    snmptrap.snmptrap_running.reload_snmptrap::
       "$(sipx.systemctl)"
         comment => "reload snmptrapd",
         args => "reload $(service)";

@@ -19,6 +19,8 @@ public interface AlarmServerManager {
 
     List<AlarmGroup> getAlarmGroups();
 
+    List<AlarmTrapReceiver> getAlarmTrapReceivers();
+
     boolean removeAlarmGroups(Collection<Integer> groupsIds, List<Alarm> alarms);
 
     AlarmGroup loadAlarmGroup(Serializable id);

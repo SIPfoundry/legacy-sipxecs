@@ -1,0 +1,5 @@
+LOGIN_FAILED:
+   :groupName: disabled
+   :minThreshold: 3
+   :summary: alarm.LOGIN_FAILED.label
+   :resolution: alarm.LOGIN_FAILED.resolution

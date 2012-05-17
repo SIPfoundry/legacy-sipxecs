@@ -11,7 +11,8 @@ cflib_DATA = upload_alarm_log.cf
 confdir = $(SIPX_CONFDIR)/snmp
 dist_conf_DATA = \
 	snmptrapd.conf.erb \
-	trap-email.erb
+	email.erb \
+	sms.erb
 
 $(cflib_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)

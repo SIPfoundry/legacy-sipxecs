@@ -8,20 +8,33 @@ require 'erb'
 require 'yaml'
 require 'net/smtp'
 
-def dispatch(yaml, template, to, send, input_stream)
+def dispatch(yaml, template, send, input_stream)
   data = YAML::load_file(yaml)
   alarm = parse_alarm(input_stream)
-  msg = get_email(data, alarm, template, to)
-  if send
-    Net::SMTP.start(data[:smtp]) do |smtp|
-      smtp.send_message(msg, data[:from], to)
+  data['emails'].each_key {|template_id|
+    recipients = get_recipients(data, template_id, alarm)
+    unless recipients.nil? || recipients.empty?
+      this_template = sprintf(template, template_id)
+      msg = get_email(data, alarm, this_template, recipients)
+      if send
+        Net::SMTP.start(data[:smtp]) do |smtp|
+          smtp.send_message(msg, data[:from], recipients)
+        end
+      else
+        print msg
+      end
     end
-  else
-    print msg
-  end
+  }
 end
 
-def get_email(data, alarm, template, to)
+def get_recipients(data, template, alarm)
+  group = data['alarms'][alarm.id]
+  return nil if group.nil?
+  return data['emails'][template][group]
+end
+
+
+def get_email(data, alarm, template, recipients)
   erb = ERB.new(File.read(template))
   erb.filename = template
   var = binding
@@ -38,8 +51,13 @@ def get_email(data, alarm, template, to)
 end
 
 def parse_alarm(input_stream)
-  alarm_struct = Struct.new(:name, :message)
-  alarm = alarm_struct.new('test', 'message goes here')
+  alarm = Struct.new(:id, :message).new
+  input_stream.each {|line|
+    if line =~ /^SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmId/
+      alarm.id = line.split[1]
+    end
+  }
+  return alarm.id.nil? ? nil : alarm
 end
 
 if __FILE__ == $0
@@ -55,7 +73,7 @@ args = OptionParser.new { |opts|
     exit
   }
 
-  $template = '@SIPX_CONFDIR@/snmp/trap-email.erb'
+  $template = '@SIPX_CONFDIR@/snmp/%s'
   opts.on("--template FILE", "ERB formated template for emailing.") {|f|
     $template = f
   }
@@ -73,14 +91,8 @@ args = OptionParser.new { |opts|
   opts.on("--send", "Actually send the mesage, otherwise print to stdout") {
     $send = true
   }
-
-  $to = nil
-  opts.on("--to address", "Email address to send alarm message") {|v|
-    $to = v
-  }
 }
 args.parse!
   raise "Missing --in missing parameter to an yaml file" if $yaml.nil?
-  raise "Missing --to parameter with email address" if $to.nil?
-  dispatch($yaml, $template, $to, $send, STDIN)
+  dispatch($yaml, $template, $send, STDIN)
 end
