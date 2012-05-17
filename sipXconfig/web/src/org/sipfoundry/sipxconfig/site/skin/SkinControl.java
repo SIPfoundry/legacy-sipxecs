@@ -48,6 +48,7 @@ public class SkinControl implements BeanFactoryAware {
     private String m_messageSourceBeanId;
     private Set<MessageSource> m_messageSources;
     private ListableBeanFactory m_beanFactory;
+    private MessageSource m_globalMessageSource;
 
     public SkinControl() {
         String pkg = getClass().getPackage().getName().replace('.', '/');
@@ -135,12 +136,15 @@ public class SkinControl implements BeanFactoryAware {
         // lazy load message source beans
         if (m_messageSources == null) {
             m_messageSources = new HashSet<MessageSource>();
+
+            m_messageSources.add(m_globalMessageSource);
+
             if (m_messageSourceBeanId != null) {
                 m_messageSources.add((MessageSource) m_beanFactory.getBean(m_messageSourceBeanId));
             }
 
-            Map<String, MessageSourceProvider> beanMap = m_beanFactory.getBeansOfType(
-                    MessageSourceProvider.class, false, false);
+            Map<String, MessageSourceProvider> beanMap = m_beanFactory.getBeansOfType(MessageSourceProvider.class,
+                    false, false);
             for (MessageSourceProvider p : beanMap.values()) {
                 m_messageSources.add(p.getMessageSource());
             }
@@ -161,5 +165,9 @@ public class SkinControl implements BeanFactoryAware {
 
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = (ListableBeanFactory) beanFactory;
+    }
+
+    public void setGlobalMessageSource(MessageSource globalMessageSource) {
+        m_globalMessageSource = globalMessageSource;
     }
 }

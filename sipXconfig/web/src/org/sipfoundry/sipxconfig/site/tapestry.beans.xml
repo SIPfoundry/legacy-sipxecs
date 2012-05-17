@@ -226,6 +226,7 @@
   <bean id="editPageProvider" class="org.sipfoundry.sipxconfig.site.search.EnumEditPageProvider" />
   <bean id="skin" class="org.sipfoundry.sipxconfig.site.skin.SkinControl">
     <property name="tapestryContext" ref="tapestry" />
+    <property name="globalMessageSource" ref="globalMessageSource" />
   </bean>
   
   <bean id="pluginHookManager" class="org.sipfoundry.sipxconfig.site.PluginHookManager">

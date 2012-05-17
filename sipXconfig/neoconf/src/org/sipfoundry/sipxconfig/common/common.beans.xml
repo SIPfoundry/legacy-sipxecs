@@ -28,6 +28,9 @@
   <bean id="resetAdministrator" class="org.sipfoundry.sipxconfig.common.ResetAdministratorInitTaskListener">
     <property name="coreContext" ref="coreContext"/>
   </bean>
+  
+  <bean id="globalMessageSource" class="org.sipfoundry.sipxconfig.common.GlobalMessageSource">
+  </bean>
 
   <!--
   - E X T E N S I O N  P O O L  C O N T E X T   I M P L
