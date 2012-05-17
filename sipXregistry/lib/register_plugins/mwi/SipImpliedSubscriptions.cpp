@@ -416,6 +416,8 @@ void SipImpliedSubscriptions::addAuthorization( const SipMessage& registerMessag
                                                                             ,&qop  // what kind of Auth?
                                                                             ,HttpMessage::SERVER, 0
                                                                             ,&userBase);
+
+
    // We only support no qop or with qop="auth"
    HttpMessage::AuthQopValues qopValue = registerMessage.parseQopValue(&qop, qopType);
 
@@ -442,7 +444,6 @@ void SipImpliedSubscriptions::addAuthorization( const SipMessage& registerMessag
          if (qopValue == HttpMessage::AUTH_QOP_HAS_AUTH)
          {
              // Use a random number, anything more adds no value
-             UtlString cnonce;
              CallId::getNewTag( cnonce );
 
              // We always generate a new nonce, so it's ok to have fixed nonce count
