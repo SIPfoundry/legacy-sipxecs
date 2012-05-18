@@ -3,9 +3,6 @@
  -  components into one place but these could be separate files for each section 
  -->
 <span jwcid="InternalPluginsFeaturesTop@Block">
-  <li jwcid="@If" condition="ognl:isOn('ivr')">
-	  <a jwcid="@PageLink" page="ivr/EditIvr"><span key="menu.ivr.featureMenu"/></a>
-  </li>
   <li jwcid="@If" condition="ognl:isOn('park')">
 	  <a jwcid="@PageLink" page="park/ListParkOrbits"><span key="menu.park.featureMenu"/></a>
   </li>
@@ -45,6 +42,9 @@
    </li>
 </span>
 <span jwcid="InternalPluginsSystemBottom@Block">
+  <li jwcid="@If" condition="ognl:isOn('ivr')">
+	  <a jwcid="@PageLink" page="ivr/EditIvr"><span key="menu.ivr.featureMenu"/></a>
+  </li>
   <li jwcid="@If" condition="ognl:isOn('sipxdns')">
 	  <a jwcid="@PageLink" page="dns/EditDns"><span key="menu.dns.featureMenu"/></a>
   </li>
