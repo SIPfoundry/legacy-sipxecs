@@ -45,7 +45,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/sipxecs/cfinputs/plugin.d/*.cf
 %{_datadir}/sipxecs/cfinputs/plugin.d/lib/*.cf
 %{_datadir}/snmp/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.txt
-%{_libdir}/snmpagent/regexp_proc.so*
-%{_libdir}/snmpagent/regexp_proc.la
+%config(noreplace) %{_sysconfdir}/sipxpbx/snmp/*.erb
 %attr(755,root,root) %{_bindir}/sipxtrap
-%attr(755,root,root) %{_libexecdir}/sipXecs/sipxtrap-handler
+%attr(755,root,root) %{_libexecdir}/sipXecs/snmptrap-email-handler
