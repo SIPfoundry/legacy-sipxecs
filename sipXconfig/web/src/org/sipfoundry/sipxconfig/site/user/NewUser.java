@@ -32,12 +32,16 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.site.admin.ExtensionPoolsPage;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
-public abstract class NewUser extends PageWithCallback implements PageBeginRenderListener {
+public abstract class NewUser extends PageWithCallback implements PageBeginRenderListener, EditPinComponent {
 
     public static final String PAGE = "user/NewUser";
 
     private static final Log LOG = LogFactory.getLog(NewUser.class);
-    private static final int SIP_PASSWORD_LEN = 8;
+    private static final int SIP_PASSWORD_LEN = 12;
+    private static final int VOICEMAIL_PIN_LEN = 4;
+    private static final int PASSWORD_LEN = 8;
+
+    private static final String USER_FORM = "userForm";
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -127,7 +131,12 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         if (user == null) {
             user = getCoreContext().newUser();
             user.setSipPassword(RandomStringUtils.randomAlphanumeric(SIP_PASSWORD_LEN));
+            user.setVoicemailPin(RandomStringUtils.random(VOICEMAIL_PIN_LEN, false, true),
+                    getCoreContext().getAuthorizationRealm());
+            user.setPin(RandomStringUtils.randomAlphabetic(PASSWORD_LEN), getCoreContext().getAuthorizationRealm());
             setUser(user);
+            UserForm.initializePin(getComponent(USER_FORM).getComponent("pin"), this, user);
+            UserForm.initializeVoicemailPin(getComponent(USER_FORM).getComponent("voicemail_pin"), this, user);
         }
     }
 }

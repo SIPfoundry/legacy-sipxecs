@@ -32,6 +32,9 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class UserForm extends BaseComponent implements EditPinComponent {
+
+    private static final String CONFIRM_PASSWORD = "confirmPassword";
+
     public abstract CoreContext getCoreContext();
 
     public abstract SettingDao getSettingDao();
@@ -44,6 +47,10 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
     public abstract String getPin();
 
     public abstract void setPin(String pin);
+
+    public abstract String getVoicemalPin();
+
+    public abstract void setVoicemailPin(String voicemailPin);
 
     public abstract String getAliasesString();
 
@@ -68,6 +75,7 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
             }
 
             initializePin(getComponent("pin"), this, getUser());
+            initializeVoicemailPin(getComponent("voicemail_pin"), this, getUser());
 
             if (getGroupsString() == null) {
                 setGroupsString(user.getGroupsNames());
@@ -92,6 +100,7 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
 
             // Update the user's PIN and aliases
             updatePin(this, getUser(), getCoreContext().getAuthorizationRealm());
+            updateVoicemailPin(this, getUser(), getCoreContext().getAuthorizationRealm());
 
             String groupsString = getGroupsString();
             if (groupsString != null) {
@@ -165,12 +174,34 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
      * make it clear that the PIN is not empty.
      */
     public static void initializePin(IComponent confirmPassword, EditPinComponent editPin, User user) {
-        if (!user.isNew() && editPin.getPin() == null) {
-            editPin.setPin(DUMMY_PIN);
+        if (editPin.getPin() == null) {
+            if (user.isNew()) {
+                editPin.setPin(user.getClearPin());
+            } else {
+                editPin.setPin(DUMMY_PIN);
+            }
 
             // Reset the confirm PIN field as well. Ugly to reach into the component
             // like this, but I haven't figured out a better way.
-            PropertyUtils.write(confirmPassword, "confirmPassword", DUMMY_PIN);
+            PropertyUtils.write(confirmPassword, CONFIRM_PASSWORD, user.getClearPin());
+        }
+    }
+
+    /**
+     * For an existing user with a non-empty PIN, init the displayed PIN to be the dummy PIN to
+     * make it clear that the PIN is not empty.
+     */
+    public static void initializeVoicemailPin(IComponent confirmPassword, EditPinComponent editPin, User user) {
+        if (editPin.getVoicemailPin() == null) {
+            if (user.isNew()) {
+                editPin.setVoicemailPin(user.getClearVoicemailPin());
+            } else {
+                editPin.setVoicemailPin(DUMMY_PIN);
+            }
+
+            // Reset the confirm PIN field as well. Ugly to reach into the component
+            // like this, but I haven't figured out a better way.
+            PropertyUtils.write(confirmPassword, CONFIRM_PASSWORD, user.getClearVoicemailPin());
         }
     }
 
@@ -183,6 +214,15 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
 
             // Having updated the user, scrub the PIN field for security
             editPin.setPin(null);
+        }
+    }
+
+    public static void updateVoicemailPin(EditPinComponent editPin, User user, String authorizationRealm) {
+        if (!(editPin.getVoicemailPin() == null) && !editPin.getVoicemailPin().equals(DUMMY_PIN)) {
+            user.setVoicemailPin(editPin.getVoicemailPin(), authorizationRealm);
+
+            // Having updated the user, scrub the PIN field for security
+            editPin.setVoicemailPin(null);
         }
     }
 

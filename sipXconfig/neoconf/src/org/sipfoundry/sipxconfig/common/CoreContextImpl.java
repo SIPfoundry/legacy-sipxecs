@@ -46,7 +46,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     public static final String ADMIN_GROUP_NAME = "administrators";
     public static final String AGENT_GROUP_NAME = "Contact-center-agents";
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
-    private static final int SIP_PASSWORD_LEN = 8;
+    private static final int SIP_PASSWORD_LEN = 12;
     private static final String USERNAME_PROP_NAME = "userName";
     private static final String VALUE = "value";
     /** nothing special about this name */
@@ -187,6 +187,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         } else {
             getHibernateTemplate().saveOrUpdate(user);
         }
+        user.clearPasswords();
         return newUserName;
     }
 

@@ -22,6 +22,7 @@ public class User {
     private String m_displayName;
     private String m_uri;
     private String m_pintoken;
+    private String m_voicemailPintoken;
     private String m_passtoken;
     private boolean m_inDirectory;
     private boolean m_hasVoicemail;
@@ -140,6 +141,14 @@ public class User {
         m_pintoken = pintoken;
     }
 
+    public String getVoicemailPintoken() {
+        return m_voicemailPintoken;
+    }
+
+    public void setVoicemailPintoken(String voicemailPintoken) {
+        m_voicemailPintoken = voicemailPintoken;
+    }
+
     public void setPasstoken(String passtoken) {
         m_passtoken = passtoken;
     }
@@ -227,8 +236,8 @@ public class User {
         return DigestUtils.md5Hex(token);
     }
 
-    public boolean isPinCorrect(String pin, String realm) {
-        return m_pintoken.equals(hashPin(pin, realm));
+    public boolean isVoicemailPinCorrect(String pin, String realm) {
+        return m_voicemailPintoken.equals(hashPin(pin, realm));
     }
 
     public Locale getLocale() {
