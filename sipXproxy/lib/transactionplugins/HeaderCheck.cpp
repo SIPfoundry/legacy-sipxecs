@@ -27,7 +27,7 @@ extern "C" TransactionPlugin* getTransactionPlugin(const UtlString& pluginName)
    return new HeaderCheck(pluginName);
 }
 
-static SipRouter* HeaderCheck::_sipRouter = 0;
+SipRouter* HeaderCheck::_sipRouter = 0;
 static bool trnRemoveAcceptLanguage = false;
 static bool trnRemoveRemotePartyId = false;
 static bool trnAddRecordRouteIfNotSpiral = false;
@@ -95,31 +95,6 @@ static void applyUserAgentCompatibility(SipMessage& msg)
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "HeaderCheck::handleOutputMessage::applyUserAgentCompatibility removed header Remote-Party-Id");
     }
   }
-
-
-#if 0
-  //
-  // UserAgent phones expects that the server must respond to the SUBSCRIBE request \\
-  // with a content type of application/pidf+xml even though the SUBSCRIBE request lists application/cpim-pidf+xml.
-  //
-  if (!msg.isResponse() && trnCheckBlfCtype)
-  {
-    UtlString method;
-    msg.getRequestMethod(&method);
-    if (method.compareTo(SIP_NOTIFY_METHOD) == 0)
-    {
-      UtlString contentType;
-      msg.getContentType(&contentType);
-      // Make them all lower case so they compare
-      contentType.toLower();
-      if (contentType.compareTo("application/cpim-pidf+xml") == 0)
-      {
-        msg.setContentType("application/pidf+xml");
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "HeaderCheck::handleOutputMessage::applyUserAgentCompatibility changing application/cpim-pidf+xml to application/pidf+xml for Content-Type.");
-      }
-    }
-  }
-#endif
 }
 
 
