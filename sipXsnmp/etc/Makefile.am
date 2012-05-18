@@ -10,7 +10,6 @@ cflib_DATA = upload_alarm_log.cf
 
 confdir = $(SIPX_CONFDIR)/snmp
 dist_conf_DATA = \
-	snmptrapd.conf.erb \
 	email.erb \
 	sms.erb
 

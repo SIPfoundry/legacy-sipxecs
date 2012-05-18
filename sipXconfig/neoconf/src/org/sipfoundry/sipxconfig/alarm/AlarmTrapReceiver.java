@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.feature.Feature;
 public class AlarmTrapReceiver extends BeanWithId implements DeployConfigOnEdit {
 
     private String m_hostAddress;
-    private String m_communityString;
+    private String m_communityString = "public";
     private int m_port = 162;
 
     public AlarmTrapReceiver() {

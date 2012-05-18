@@ -51,7 +51,7 @@ def get_email(data, alarm, template, recipients)
 end
 
 def parse_alarm(input_stream)
-  alarm = Struct.new(:id, :message).new
+  alarm = Struct.new(:id, :message, :summary, :resolution, :source).new
   input_stream.each {|line|
     if line =~ /^SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmId/
       alarm.id = line.split[1]

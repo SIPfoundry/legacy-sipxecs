@@ -62,7 +62,7 @@ $(sipx.SIPX_LIBEXECDIR)/snmptrap-email-handler --send \
 --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/snmptrap-emails.yaml";
 
     has_forwarders::
-      "forward SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications $(sipx.snmptrapdForward) x";
+        "forward SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications $(sipx.snmptrapdForward)";
 }
 
 bundle agent snmptrap_sysv_running {
