@@ -43,7 +43,7 @@ public class VoicemailPinResource extends UserResource {
     public void storeRepresentation(Representation entity) throws ResourceException {
         String realm = m_domainManager.getDomain().getSipRealm();
         User user = getUser();
-        user.setPin(m_newPin, realm);
+        user.setVoicemailPin(m_newPin, realm);
         getCoreContext().saveUser(user);
     }
 
