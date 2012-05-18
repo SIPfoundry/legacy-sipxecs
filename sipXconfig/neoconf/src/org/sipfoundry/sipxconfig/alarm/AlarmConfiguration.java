@@ -66,15 +66,21 @@ public class AlarmConfiguration implements ConfigProvider {
 
             Writer yml = new FileWriter(new File(dir, "alarms.yaml"));
             try {
-                writeAlarms(yml, alarms, Locale.getDefault());
+                writeAlarms(yml, alarms);
             } finally {
                 IOUtils.closeQuietly(yml);
             }
 
+            // HACK : mail manager may not be configure to accept non-local requests so switch it
+            // over
             Address smtp = manager.getAddressManager().getSingleAddress(MailManager.SMTP, location);
+            if (smtp.getAddress().equals(location.getAddress())) {
+                smtp.setAddress("127.0.0.1");
+            }
+
             Writer wtr = new FileWriter(new File(dir, "snmptrap-emails.yaml"));
             try {
-                writeEmailHandlerConfig(wtr, alarms, groups, alarmServer, host, smtp);
+                writeEmailHandlerConfig(wtr, alarms, groups, alarmServer, host, smtp, Locale.getDefault());
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
@@ -87,22 +93,18 @@ public class AlarmConfiguration implements ConfigProvider {
         cfdat.writeList("snmptrapdForward", fwd);
     }
 
-    void writeAlarms(Writer w, List<Alarm> alarms, Locale l) throws IOException {
+    void writeAlarms(Writer w, List<Alarm> alarms) throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
         for (Alarm a : alarms) {
             c.startStruct(a.getAlarmDefinition().getId());
             c.write(":groupName", a.getGroupName());
             c.write(":minThreshold", a.getMinThreshold());
-            c.write(":summary",
-                    m_messageSource.getMessage(format("alarm.%s.label", a.getAlarmDefinition().getId()), null, l));
-            c.write(":resolution", m_messageSource.getMessage(
-                    format("alarm.%s.resolution", a.getAlarmDefinition().getId()), null, l));
             c.endStruct();
         }
     }
 
     void writeEmailHandlerConfig(Writer wtr, List<Alarm> alarms, List<AlarmGroup> groups, AlarmServer server,
-            String host, Address smtp) throws IOException {
+            String host, Address smtp, Locale l) throws IOException {
         YamlConfiguration c = new YamlConfiguration(wtr);
         c.startStruct("emails");
 
@@ -136,7 +138,13 @@ public class AlarmConfiguration implements ConfigProvider {
 
         c.startStruct("alarms");
         for (Alarm a : alarms) {
-            c.write(a.getAlarmDefinition().getId(), a.getGroupName());
+            c.startStruct(a.getAlarmDefinition().getId());
+            c.write("group", a.getGroupName());
+            c.write("summary",
+                    m_messageSource.getMessage(format("alarm.%s.label", a.getAlarmDefinition().getId()), null, l));
+            c.write("resolution", m_messageSource.getMessage(
+                    format("alarm.%s.resolution", a.getAlarmDefinition().getId()), null, l));
+            c.endStruct();
         }
         c.endStruct();
 

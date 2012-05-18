@@ -15,7 +15,6 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.text.MessageFormat;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -30,7 +29,12 @@ public class AlarmConfigurationTest {
     
     @Test
     public void testGenerateAlarmServer() throws Exception {        
-        AlarmConfiguration alarmServerConf = new AlarmConfiguration();
+        AlarmConfiguration c = new AlarmConfiguration();
+        c.setMessageSource(new AbstractMessageSource() {
+            protected MessageFormat resolveCode(String arg0, Locale arg1) {
+                return new MessageFormat(arg0);
+            }
+        });
         AlarmServer server = new AlarmServer();
         server.setAlarmNotificationEnabled(true);
         String host = "post.example.org";
@@ -47,7 +51,7 @@ public class AlarmConfigurationTest {
         a2.setGroupName(g2.getName());
         List<Alarm> alarms = Arrays.asList(a1, a2);
         Address smtp = new Address(MailManager.SMTP, "mail.example.org");
-        alarmServerConf.writeEmailHandlerConfig(actual, alarms, groups, server, host, smtp);
+        c.writeEmailHandlerConfig(actual, alarms, groups, server, host, smtp, Locale.ENGLISH);
         InputStream expected = getClass().getResourceAsStream("expected-sipxtrap-handler.yaml");
         assertEquals(IOUtils.toString(expected), actual.toString());
     }
@@ -56,13 +60,8 @@ public class AlarmConfigurationTest {
     public void testAlarmYml() throws Exception {
         StringWriter actual = new StringWriter();
         AlarmConfiguration c = new AlarmConfiguration();
-        c.setMessageSource(new AbstractMessageSource() {
-            protected MessageFormat resolveCode(String arg0, Locale arg1) {
-                return new MessageFormat(arg0);
-            }
-        });
         List<Alarm> alarms = Arrays.asList(new Alarm(AdminContext.ALARM_LOGIN_FAILED));
-        c.writeAlarms(actual, alarms, Locale.ENGLISH);
+        c.writeAlarms(actual, alarms);
         InputStream expected = getClass().getResourceAsStream("expected-alarms.yaml");
         assertEquals(IOUtils.toString(expected), actual.toString());
     }

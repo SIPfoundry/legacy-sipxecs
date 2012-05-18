@@ -29,10 +29,18 @@ bundle agent snmp_config {
   files:
     snmp::
       "/etc/snmp/snmpd.conf"
+        comment => "SNMP service settings, $(this.promiser)",
         create => "true",
         perms => m("644"),
         edit_defaults => empty,
         edit_line => snmpd_conf,
+        classes => if_repaired("reload_snmp");
+
+      "/etc/sysconfig/snmpd"
+        comment => "SNMP service settings, $(this.promiser)",
+        perms => m("644"),
+        edit_defaults => empty,
+        edit_line => insert_lines("OPTIONS=\"-A -Lf $(sipx.SIPX_LOGDIR)/snmpd.log -p /var/run/snmptrapd.pid\""),
         classes => if_repaired("reload_snmp");
 }
 

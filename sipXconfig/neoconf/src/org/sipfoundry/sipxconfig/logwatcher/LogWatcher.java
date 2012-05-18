@@ -20,8 +20,8 @@ import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 
 public interface LogWatcher {
     public static final GlobalFeature FEATURE = new GlobalFeature("sipxlogwatcher");
-    /**
-     * Avoids checkstyle error
-     */
-    public void nop();
+
+    public LogWatcherSettings getSettings();
+
+    public void saveSettings(LogWatcherSettings settings);
 }

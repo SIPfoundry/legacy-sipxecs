@@ -1,5 +1,9 @@
 From: <%= from %>
 To: <%= recipients.join(', ') %>
-Subject: SMS Alarm <%= alarm.id %>
+Subject: <%= id %> on <%= source %>
 
-<%= alarm.message %>
+<%= DateTime.now %> <%= summary %>
+<% if defined?(message)
+%>Message <%= message %>
+<% end 
+%>

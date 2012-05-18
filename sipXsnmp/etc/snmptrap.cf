@@ -52,6 +52,8 @@ bundle agent snmptrap_config {
 
 bundle edit_line snmptrapd_conf {
   classes:
+    # with array size zero, cfengine still creates line but just doesn't resolve
+    # variable. i couldn't find array size, but tests show this trick work
     "has_forwarders" expression => isvariable("sipx.snmptrapdForward");
 
   insert_lines:

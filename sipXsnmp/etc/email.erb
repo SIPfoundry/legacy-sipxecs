@@ -1,11 +1,13 @@
 From: "sipXecs Alarm Notification Service" <<%= from %>>
 To: <%= recipients.join(', ') %>
-Subject: Alarm <%= alarm.id %> : <%= alarm.summary %>
+Subject: Alarm <%= id %> : <%= summary %>
 
 Message from sipXecs
-Alarm: <%= alarm.id %>
-Reported on: <%= alarm.source %>
+Alarm: <%= id %>
+Reported on: <%= source %>
 Reported at: <%= DateTime.now %>
-<%= alarm.message %>
-Suggested Resolution: <%= alarm.resolution %>
+<% if defined?(message) 
+%>Message <%= message %>
+<% end 
+%>Suggested Resolution: <%= resolution %>
 

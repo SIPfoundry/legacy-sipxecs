@@ -8,7 +8,13 @@ emails:
        - e1@example.org
       g2:
 alarms:
-   a1: g1
-   a2: g2
+   a1:
+      group: g1
+      summary: alarm.a1.label
+      resolution: alarm.a1.resolution
+   a2:
+      group: g2
+      summary: alarm.a2.label
+      resolution: alarm.a2.resolution
 from: postmaster@post.example.org
 smtp: mail.example.org

@@ -16,15 +16,20 @@
  */
 package org.sipfoundry.sipxconfig.logwatcher;
 
-import java.io.File;
-import java.io.IOException;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+
+import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 
 public class LogWatcherConfig implements ConfigProvider {
+    private LogWatcher m_logWatcher;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -34,6 +39,18 @@ public class LogWatcherConfig implements ConfigProvider {
 
         File gdir = manager.getGlobalDataDirectory();
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(LogWatcher.FEATURE);
-        ConfigUtils.enableCfengineClass(gdir, "sipxlogwatcher.cfdat", enabled, "sipxlogwatcher");
+        LogWatcherSettings settings = m_logWatcher.getSettings();
+        Writer w = new FileWriter(new File(gdir, "sipxlogwatcher.cfdat"));
+        try {
+            CfengineModuleConfiguration cfg = new CfengineModuleConfiguration(w);
+            cfg.writeClass(LogWatcher.FEATURE.getId(), enabled);
+            cfg.write("logwatcher_", settings.getSettings().getSetting("config"));
+        } finally {
+            IOUtils.closeQuietly(w);
+        }
+    }
+
+    public void setLogWatcher(LogWatcher logWatcher) {
+        m_logWatcher = logWatcher;
     }
 }

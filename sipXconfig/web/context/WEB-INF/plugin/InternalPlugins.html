@@ -98,4 +98,7 @@
     <li jwcid="@If" condition="ognl:isOn('sbcBridge')">
 	  <a jwcid="@PageLink" id="menu.sbcStats" page="sbc/BridgeSbcStatisticsPage"><span key="menu.sbcStats">SIP Trunk SBC Statistics</span></a>
     </li>
+    <li jwcid="@If" condition="ognl:isOn('sipxlogwatcher')">
+      <a jwcid="@PageLink" page="logwatcher/EditLogWatcher"><span key="menu.logwatcher.featureMenu"/></a>
+    </li>
 </span>
