@@ -15,7 +15,7 @@ import junit.framework.TestCase;
 public class ValidUsersTest extends TestCase {
 
     public void testCompress() {
-        assertEquals("WOOF", ValidUsers.compress("Woof!")); 
+        assertEquals("WOOF", ValidUsers.compress("Woof!"));
         assertEquals("WOOFWASHERE", ValidUsers.compress("Woof! was here."));
         assertEquals("SPYDERTROBINSONRD", ValidUsers.compress("Spyder T. Robinson 3rd"));
         assertEquals("FRAUBRUCHER", ValidUsers.compress("Fräu BrÜcher"));
@@ -37,7 +37,7 @@ public class ValidUsersTest extends TestCase {
         assertEquals("Quebit T. Dogg", ValidUsers
                 .getDisplayPart("\"Quebit T. Dogg\" <sip:woof@somewhere>"));
     }
-    
+
     public void testGetUserPart() {
         assertNull(ValidUsers.getUserPart(null));
         assertNull(ValidUsers.getUserPart("woof"));
@@ -89,8 +89,8 @@ public class ValidUsersTest extends TestCase {
         User u = new User();
         u.setIdentity("201@woof3.fuzzy");
         u.setUserName("201");
-        u.setPintoken("3c46585d782a8b9444feca1c697e4d4f");
-        
-        assertTrue(u.isPinCorrect("9663", "woof3.fuzzy"));
+        u.setVoicemailPintoken("3c46585d782a8b9444feca1c697e4d4f");
+
+        assertTrue(u.isVoicemailPinCorrect("9663", "woof3.fuzzy"));
     }
 }

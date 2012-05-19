@@ -18,6 +18,7 @@
     <discriminator column="user_type" type="character" />
     <property name="firstName" />
     <property name="pintoken" />
+    <property name="voicemailPintoken" />
     <property name="sipPassword" />
     <property name="lastName" />
     <property name="userName" />
