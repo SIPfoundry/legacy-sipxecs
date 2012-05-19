@@ -48,7 +48,7 @@ public class LogWatcherImpl implements LogWatcher, SetupListener, ProcessProvide
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         ProcessDefinition def = new ProcessDefinition("logwatcher",
-            "/usr/bin/perl -w /usr/bin/sec.*");
+            "/usr/bin/perl\\s+-w\\s+/usr/bin/sec.*");
         def.setSipxServiceName("sipxlogwatcher");
         return Collections.singleton(def);
     }

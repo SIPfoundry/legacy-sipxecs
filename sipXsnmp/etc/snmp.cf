@@ -40,7 +40,7 @@ bundle agent snmp_config {
         comment => "SNMP service settings, $(this.promiser)",
         perms => m("644"),
         edit_defaults => empty,
-        edit_line => insert_lines("OPTIONS=\"-A -Lf $(sipx.SIPX_LOGDIR)/snmpd.log -p /var/run/snmptrapd.pid\""),
+        edit_line => insert_lines("OPTIONS=\"-A -Lf $(sipx.SIPX_LOGDIR)/snmpd.log -p /var/run/snmpd.pid\""),
         classes => if_repaired("reload_snmp");
 }
 
@@ -58,6 +58,7 @@ view    all    included   .1  80
 access  rwgroup \"\"      any       noauth    exact  all none none
 syslocation Unknown
 syscontact Root <root@localhost>
+informsink localhost
 dontLogTCPWrappersConnects yes
 createUser _internal
 rwuser _internal

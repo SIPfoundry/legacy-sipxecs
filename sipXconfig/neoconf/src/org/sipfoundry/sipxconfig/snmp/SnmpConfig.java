@@ -88,7 +88,8 @@ public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListene
             }
             w.write(eol);
             if (StringUtils.isNotBlank(def.getRestartCommand())) {
-                String fix = format("procfix %s %s\n", def.getProcess(), def.getRestartCommand());
+                String fix = format("procfix %s $(sipx.SIPX_LIBEXECDIR)/snmp-fix-process %s\n", def.getProcess(),
+                        def.getRestartCommand());
                 w.write(fix);
             }
         }

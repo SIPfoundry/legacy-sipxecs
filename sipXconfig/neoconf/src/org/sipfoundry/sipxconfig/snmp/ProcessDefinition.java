@@ -51,7 +51,7 @@ public class ProcessDefinition {
 
     public static ProcessDefinition sysvDefault(String process) {
         ProcessDefinition pd = new ProcessDefinition(process);
-        pd.setSipxServiceName(process);
+        pd.setSysVServiceName(process);
         return pd;
     }
 

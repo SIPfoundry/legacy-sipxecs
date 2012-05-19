@@ -46,5 +46,5 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/sipxecs/cfinputs/plugin.d/lib/*.cf
 %{_datadir}/snmp/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.txt
 %config(noreplace) %{_sysconfdir}/sipxpbx/snmp/*.erb
-%attr(755,root,root) %{_bindir}/sipxtrap
-%attr(755,root,root) %{_libexecdir}/sipXecs/snmptrap-email-handler
+%attr(755,root,root) %{_bindir}/*
+%attr(755,root,root) %{_libexecdir}/sipXecs/*
