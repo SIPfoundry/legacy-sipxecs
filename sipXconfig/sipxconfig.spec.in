@@ -215,6 +215,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxdns/*
 %config(noreplace) %{sipxpbxconf}/sipximbot/*
 %config(noreplace) %{sipxpbxconf}/sipxivr/*
+%config(noreplace) %{sipxpbxconf}/sipxlogwatcher/*
 %config(noreplace) %{sipxpbxconf}/sipxpage/*
 %config(noreplace) %{sipxpbxconf}/sipxpark/*
 %config(noreplace) %{sipxpbxconf}/sipxpresence/*
