@@ -14,7 +14,7 @@ BuildRequires: gcc-c++
 BuildRequires: cppunit-devel
 BuildRequires: pcre-devel >= 4.5
 BuildRequires: openssl-devel
-BuildRequires: zeromq--devel
+BuildRequires: zeromq-devel
 BuildRequires: sipxcalllib-devel >= %version
 BuildRequires: sipxcommserverlib-devel >= %version
 BuildRequires: sipxmediaadapterlib-devel >= %version
