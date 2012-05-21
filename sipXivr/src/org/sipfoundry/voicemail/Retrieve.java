@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 package org.sipfoundry.voicemail;
 
@@ -68,9 +68,9 @@ public class Retrieve extends AbstractVmAction {
 
     /**
      * Collect the mailbox status prompts
-     * 
+     *
      * like "You have 2 unheard messages, 5 heard messages and 1 saved message"
-     * 
+     *
      * @return
      */
     PromptList status(MailboxDetails details) {
@@ -447,7 +447,7 @@ public class Retrieve extends AbstractVmAction {
 
     /**
      * Play the "envelope information" about the message
-     * 
+     *
      * @param md
      */
     PromptList messageInfo(MessageDescriptor md) {
@@ -537,7 +537,7 @@ public class Retrieve extends AbstractVmAction {
 
     /**
      * Forward a message, optionally add a recorded comment
-     * 
+     *
      * @param vmMessage
      */
     void forward(org.sipfoundry.voicemail.mailbox.VmMessage vmMessage) {
@@ -612,7 +612,7 @@ public class Retrieve extends AbstractVmAction {
 
     /**
      * Reply to a message, with a recorded comment back to the sender
-     * 
+     *
      * @param vmMessage
      */
     void reply(org.sipfoundry.voicemail.mailbox.VmMessage vmMessage, User sendingUser) {
@@ -639,7 +639,7 @@ public class Retrieve extends AbstractVmAction {
 
     /**
      * Record a new message and send to a selected destination
-     * 
+     *
      * @param vmMessage
      */
     void sendMessage() {
@@ -910,7 +910,7 @@ public class Retrieve extends AbstractVmAction {
                     }
                     String originalPin = choice1.getDigits();
 
-                    if (!user.isPinCorrect(originalPin, getRealm())) {
+                    if (!user.isVoicemailPinCorrect(originalPin, getRealm())) {
                         errorCount++;
                         LOG.info("Retrieve::voicemailOptions:changePin " + getCurrentUser().getUserName()
                                 + " Pin invalid.");
@@ -1065,7 +1065,7 @@ public class Retrieve extends AbstractVmAction {
 
     /**
      * Record a wav file with confirmation dialog.
-     * 
+     *
      * @param recordFragment To play before the recording
      * @param confirmMenuFragment To play after the recording
      * @return the temporary wav file. null if recording is to be tossed

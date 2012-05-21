@@ -1,0 +1,140 @@
+#!/bin/env ruby
+
+# When an alarm is received, dispatch ones meant for email here
+# STDIN is alarm body
+
+require 'optparse'
+require 'erb'
+require 'yaml'
+require 'net/smtp'
+require 'logger'
+
+$log = Logger.new('@SIPX_LOGDIR@/snmptrap-email-handler.log') unless defined?($log)
+
+def dispatch(yaml, template, send, input_stream)
+  data = YAML::load_file(yaml)
+  alarm = parse_alarm(data, input_stream)
+  at_least_one_recipient = false
+  server = data['smtp']
+  data['emails'].each_key {|template_id|
+    recipients = get_recipients(data, template_id, alarm)
+    unless recipients.nil? || recipients.empty?
+      at_least_one_recipient = true
+      this_template = sprintf(template, template_id)
+      msg = get_email(data, alarm, this_template, recipients)
+      if send
+        $log.info "Sending email to #{recipients} thru server #{server}"
+        $log.debug data.inspect
+        Net::SMTP.start(server) do |smtp|
+          smtp.send_message(msg, data[:from], recipients)
+        end
+      else
+        print msg
+      end
+    end
+  }
+
+  if !at_least_one_recipient
+    $log.info "No recipients found for alarm with id #{alarm['id']}"
+  end
+end
+
+# look up email or sms addresses using the alarm group id if available
+def get_recipients(data, template, alarm)
+  group = alarm['group']
+  return nil if group.nil?
+  return data['emails'][template][group]
+end
+
+def get_email(data, alarm, template, recipients)
+  erb = ERB.new(File.read(template))
+  erb.filename = template
+  var = binding
+  # this is magic that allows in yaml file
+  #   who : world
+  # when run thru
+  #  hello <%= who %>
+  # be
+  #  hello world
+  data.each_key { |x|
+    eval "#{x} = data['#{x}']", var
+  }
+  alarm.each_key { |x|
+    eval "#{x} = alarm['#{x}']", var
+  }
+  return erb.result(var)
+end
+
+# Example:
+# =========================
+# localhost
+# UDP: [127.0.0.1]:41347->[127.0.0.1]:162
+# DISMAN-EVENT-MIB::sysUpTimeInstance 2:5:14:40.53
+# SNMPv2-MIB::snmpTrapOID.0 SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications
+# SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmId LOGIN_FAILED
+# SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmSource swift.hubler.us
+# SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmTime "00 00 00 00 "
+# SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmSeverity "00 00 00 00 "
+def parse_alarm(data, input_stream)
+  alarm = {}
+  input_stream.each {|line|
+    case line
+    when /^SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmId/
+      id = line.split[1]
+      meta = data['alarms'][id]
+      unless meta.nil?
+        $log.info 'found alarm definition'
+        alarm = meta.dup
+      else
+        $log.info 'no alarm definition found, using limited data'
+      end
+      alarm['id'] = id
+    when /^SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmSource/
+      alarm['source'] = line.split[1]
+    end
+  }
+  return alarm
+end
+
+if __FILE__ == $0
+$log.info "Called with parameters #{ARGV.join(' ')}"
+
+args = OptionParser.new { |opts|
+  opts.banner = "Usage : sipx-config-maker [options]"
+
+  opts.separator ""
+  opts.separator "Options:"
+
+  opts.on("--help", "Print this help message.") {
+    puts opts
+    exit
+  }
+
+  $template = '@SIPX_CONFDIR@/snmp/%s'
+  opts.on("--template FILE", "ERB formated template for emailing.") {|f|
+    $template = f
+  }
+
+  opts.on("--in FILE", "YAML formated file for email addresses for alarm traps.") {|f|
+    $yaml = f
+  }
+
+  $out = nil
+  opts.on("--out FILE", "Write to file, otherwise email is sent") {|f|
+    $out = File.open(f, 'w')
+  }
+
+  $log.level = Logger::INFO
+  opts.on("--debug level", "Set log level, default INFO. Allowed : FATAL, ERROR, WARN, INFO, DEBUG") {|f|
+    eval "$log.level = Logger::#{f}"
+  }  
+
+  $send = false
+  opts.on("--send", "Actually send the mesage, otherwise print to stdout") {
+    $send = true
+  }
+}
+args.parse!
+  raise "Missing --in missing parameter to an yaml file" if $yaml.nil?
+  dispatch($yaml, $template, $send, STDIN)
+end

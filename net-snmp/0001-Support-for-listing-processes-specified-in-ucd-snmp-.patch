@@ -1,0 +1,352 @@
+From ced8b981663ed5625992f8b3eb5eec4935446b12 Mon Sep 17 00:00:00 2001
+From: Douglas Hubler <dhubler@ezuce.com>
+Date: Tue, 8 May 2012 09:14:39 -0400
+Subject: [PATCH 1/2] Support for listing processes specified in ucd-snmp by
+ regular expressions.  This is backward compatible with
+ non-regex processes. This does not include autotools
+ generated output, that follws this patch.
+
+Example config:
+-----------------------------------
+createUser _internal
+rwuser _internal
+iquerySecName _internal
+
+proc mongod 0 1 .*/mongod.*-f.*/mongod.conf
+procfix mongod /etc/init.d/mongod start
+proc sendmail
+procfix sendmail /etc/init.d/sendmail start
+setEvent prFixIt 1.3.6.1.4.1.7142.100.1.10.102 = 1
+monitor -r 10 -e prFixIt "procTable" 1.3.6.1.4.1.7142.100.1.10.100 != 0
+---
+ agent/mibgroup/host/data_access/swrun.c |   35 ++++++++++++++++
+ agent/mibgroup/mibII/var_route.c        |    1 +
+ agent/mibgroup/struct.h                 |    9 ++++
+ agent/mibgroup/ucd-snmp/proc.c          |   65 ++++++++++++++++++++++++++++---
+ agent/mibgroup/ucd-snmp/proc.h          |    4 ++
+ configure.d/config_os_libs1             |   32 +++++++++++++++
+ include/net-snmp/net-snmp-config.h.in   |    6 +-
+ 7 files changed, 143 insertions(+), 9 deletions(-)
+
+diff --git a/agent/mibgroup/host/data_access/swrun.c b/agent/mibgroup/host/data_access/swrun.c
+index d18ea5f..fab6a8d 100644
+--- a/agent/mibgroup/host/data_access/swrun.c
++++ b/agent/mibgroup/host/data_access/swrun.c
+@@ -15,10 +15,15 @@
+ #include <net-snmp/agent/net-snmp-agent-includes.h>
+ #include <net-snmp/data_access/swrun.h>
+ 
++#if HAVE_PCRE_H
++#include <pcre.h>
++#endif
++
+ netsnmp_feature_child_of(software_running, libnetsnmpmibs)
+ 
+ netsnmp_feature_child_of(swrun_max_processes, software_running)
+ netsnmp_feature_child_of(swrun_count_processes_by_name, software_running)
++netsnmp_feature_child_of(swrun_count_processes_by_regex, software_running)
+ 
+ /**---------------------------------------------------------------------*/
+ /*
+@@ -89,6 +94,36 @@ swrun_max_processes( void )
+ }
+ #endif /* NETSNMP_FEATURE_REMOVE_SWRUN_MAX_PROCESSES */
+ 
++#ifndef NETSNMP_FEATURE_REMOVE_SWRUN_COUNT_PROCESSES_BY_REGEX
++int
++swrun_count_processes_by_regex( char *name, pcre *regexp )
++{
++    netsnmp_swrun_entry *entry;
++    netsnmp_iterator  *it;
++    int i = 0;
++    int found_ndx[30];
++    int found;
++    char fullCommand[64 + 128 + 128 + 3];
++
++    netsnmp_cache_check_and_reload(swrun_cache);
++    if ( !swrun_container || !name || !regexp )
++        return 0;    /* or -1 */
++
++    it = CONTAINER_ITERATOR( swrun_container );
++    while ((entry = (netsnmp_swrun_entry*)ITERATOR_NEXT( it )) != NULL) {
++        // need to assemble full command back so regexps can get full picture
++        sprintf(fullCommand, "%s %s", entry->hrSWRunPath, entry->hrSWRunParameters);
++        found = pcre_exec(regexp, NULL, fullCommand, strlen(fullCommand), 0, 0, found_ndx, 30);
++        if (found > 0) {
++            i++;
++        }
++    }
++    ITERATOR_RELEASE( it );
++
++    return i;
++}
++#endif /* NETSNMP_FEATURE_REMOVE_SWRUN_COUNT_PROCESSES_BY_REGEX */
++
+ #ifndef NETSNMP_FEATURE_REMOVE_SWRUN_COUNT_PROCESSES_BY_NAME
+ int
+ swrun_count_processes_by_name( char *name )
+diff --git a/agent/mibgroup/mibII/var_route.c b/agent/mibgroup/mibII/var_route.c
+index 52fcd86..bc694e3 100644
+--- a/agent/mibgroup/mibII/var_route.c
++++ b/agent/mibgroup/mibII/var_route.c
+@@ -45,6 +45,7 @@ PERFORMANCE OF THIS SOFTWARE.
+  * (simon@switch.ch) 1997
+  */
+ 
++
+ #include <net-snmp/net-snmp-config.h>
+ #include <net-snmp/net-snmp-features.h>
+ 
+diff --git a/agent/mibgroup/struct.h b/agent/mibgroup/struct.h
+index f0162fc..82ff003 100644
+--- a/agent/mibgroup/struct.h
++++ b/agent/mibgroup/struct.h
+@@ -24,8 +24,17 @@ struct extensible {
+ #endif
+ };
+ 
++#if HAVE_PCRE_H
++// Pointer to pcre struct. Abstract pcre native pointer so all *.c files
++// do not have to include pcre.h
++typedef netsnmp_regex_ptr (void *);
++#endif
++
+ struct myproc {
+     char            name[STRMAX];
++#if HAVE_PCRE_H
++    netsnmp_regex_ptr *regexp;
++#endif
+     char            fixcmd[STRMAX];
+     int             min;
+     int             max;
+diff --git a/agent/mibgroup/ucd-snmp/proc.c b/agent/mibgroup/ucd-snmp/proc.c
+index e90c2e8..e8f74c8 100644
+--- a/agent/mibgroup/ucd-snmp/proc.c
++++ b/agent/mibgroup/ucd-snmp/proc.c
+@@ -42,6 +42,9 @@
+ #if HAVE_KVM_H
+ #include <kvm.h>
+ #endif
++#if HAVE_PCRE_H
++#include <pcre.h>
++#endif
+ 
+ #include <net-snmp/net-snmp-includes.h>
+ #include <net-snmp/agent/net-snmp-agent-includes.h>
+@@ -58,6 +61,7 @@
+ #endif
+ #include "util_funcs.h"
+ #include "kernel.h"
++#include <unistd.h>
+ 
+ static struct myproc *get_proc_instance(struct myproc *, oid);
+ struct myproc  *procwatch = NULL;
+@@ -67,6 +71,9 @@ int             numprocs = 0;
+ void
+ init_proc(void)
+ {
++#if HAVE_PCRE_H
++    uselib("libpcre.so");
++#endif
+ 
+     /*
+      * define the structure we're going to ask the agent to register our
+@@ -126,6 +133,11 @@ proc_free_config(void)
+     for (ptmp = procwatch; ptmp != NULL;) {
+         ptmp2 = ptmp;
+         ptmp = ptmp->next;
++#if HAVE_PCRE_H
++        if (ptmp2->regexp) {
++            pcre_free(ptmp2->regexp);
++        }
++#endif
+         free(ptmp2);
+     }
+     procwatch = NULL;
+@@ -177,6 +189,10 @@ proc_parse_config(const char *token, char *cptr)
+ {
+     char            tmpname[STRMAX];
+     struct myproc **procp = &procwatch;
++#if HAVE_PCRE_H
++    const char *pcre_error;
++    int pcre_error_offset;
++#endif
+ 
+     /*
+      * don't allow two entries with the same name 
+@@ -197,6 +213,9 @@ proc_parse_config(const char *token, char *cptr)
+     if (*procp == NULL)
+         return;                 /* memory alloc error */
+     numprocs++;
++#if HAVE_PCRE_H
++    (*procp)->regexp = NULL;
++#endif
+     /*
+      * not blank and not a comment 
+      */
+@@ -205,9 +224,19 @@ proc_parse_config(const char *token, char *cptr)
+     if ((cptr = skip_white(cptr))) {
+         (*procp)->max = atoi(cptr);
+         cptr = skip_not_white(cptr);
+-        if ((cptr = skip_white(cptr)))
++        if ((cptr = skip_white(cptr))) {
+             (*procp)->min = atoi(cptr);
+-        else
++#if HAVE_PCRE_H
++            cptr = skip_not_white(cptr);
++            if ((cptr = skip_white(cptr))) {
++                DEBUGMSGTL(("ucd-snmp/proc", "Loading regex %s\n", cptr));
++                (*procp)->regexp = pcre_compile(cptr, 0,  &pcre_error, &pcre_error_offset, NULL);
++                if ((*procp)->regexp == NULL) {
++                    config_perror(pcre_error);
++                }
++            }
++#endif
++        } else
+             (*procp)->min = 0;
+     } else {
+         /* Default to asssume that we require at least one
+@@ -260,10 +289,10 @@ var_extensible_proc(struct variable *vp,
+             long_ret = proc->max;
+             return ((u_char *) (&long_ret));
+         case PROCCOUNT:
+-            long_ret = sh_count_procs(proc->name);
++            long_ret = sh_count_myprocs(proc);
+             return ((u_char *) (&long_ret));
+         case ERRORFLAG:
+-            long_ret = sh_count_procs(proc->name);
++            long_ret = sh_count_myprocs(proc);
+             if (long_ret >= 0 &&
+                    /* Too few processes running */
+                 ((proc->min && long_ret < proc->min) ||
+@@ -277,7 +306,7 @@ var_extensible_proc(struct variable *vp,
+             }
+             return ((u_char *) (&long_ret));
+         case ERRORMSG:
+-            long_ret = sh_count_procs(proc->name);
++            long_ret = sh_count_myprocs(proc);
+             if (long_ret < 0) {
+                 errmsg[0] = 0;  /* catch out of mem errors return 0 count */
+             } else if (proc->min && long_ret < proc->min) {
+@@ -359,13 +388,37 @@ get_proc_instance(struct myproc *proc, oid inst)
+     return (proc);
+ }
+ 
++int
++sh_count_myprocs(struct myproc *proc)
++{
++    if (proc == NULL)
++        return (NULL);
++
++#if HAVE_PCRE_H
++    if (proc->regexp != NULL)
++      return sh_count_procs_by_regex(proc->name, proc->regexp);
++#endif
++
++    return sh_count_procs(proc->name);
++}
++
+ #ifdef USING_HOST_DATA_ACCESS_SWRUN_MODULE
+ netsnmp_feature_require(swrun_count_processes_by_name)
+ int
+ sh_count_procs(char *procname)
+ {
+-    return swrun_count_processes_by_name( procname );
++  return swrun_count_processes_by_name( procname );
+ }
++
++#if HAVE_PCRE_H
++netsnmp_feature_require(swrun_count_processes_by_regex)
++int
++sh_count_procs_by_regex(char *procname, netsnmp_regex_ptr regexp)
++{
++  return swrun_count_processes_by_regex( procname, (pcre *) regexp );
++}
++#endif
++
+ #else
+ 
+ #ifdef bsdi2
+diff --git a/agent/mibgroup/ucd-snmp/proc.h b/agent/mibgroup/ucd-snmp/proc.h
+index ff97cec..f3bd5ab 100644
+--- a/agent/mibgroup/ucd-snmp/proc.h
++++ b/agent/mibgroup/ucd-snmp/proc.h
+@@ -10,7 +10,11 @@ config_require(util_funcs)
+ 
+      extern FindVarMethod var_extensible_proc;
+      extern WriteMethod fixProcError;
++     int sh_count_myprocs(struct myproc *);
+      int             sh_count_procs(char *);
++#ifdef HAVE_PCRE_H
++     int sh_count_procs_by_regex(char *, netsnmp_regex_ptr);
++#endif
+ 
+ /*
+  * config file parsing routines 
+diff --git a/configure.d/config_os_libs1 b/configure.d/config_os_libs1
+index 35f052a..122b2bb 100644
+--- a/configure.d/config_os_libs1
++++ b/configure.d/config_os_libs1
+@@ -93,3 +93,35 @@ netsnmp_save_LIBS="$LIBS"
+ LIBS="$LMIBLIBS $LAGENTLIBS $LSNMPLIBS $LIBS"
+ AC_CHECK_FUNCS([dlopen])
+ LIBS="$netsnmp_save_LIBS"
++
++#
++#   regex in process table
++#
++AC_CHECK_HEADER([pcre.h], 
++  [
++    AC_DEFINE([HAVE_PCRE_H], [1], [Define to 1 if you have <pcre.h>.])
++    pcre_h=yes
++  ],
++  [
++    pcre_h=no
++  ]
++)
++if test "x$pcreheader_h" = "xno" -o "x$pcre_h" = "xno" ; then
++  if test "x$with_pcre" = "xyes" ; then
++    AC_MSG_ERROR([Could not find the pcre header file needed and was specifically asked to use pcre support])
++  else
++    with_pcre=no
++  fi
++fi
++
++#
++# pcre libraries only needed for the ucd process agent mib software
++#
++if test "x$with_pcre" != "xno"; then
++  _pcrelibs=""
++  NETSNMP_SEARCH_LIBS([pcre_exec], [pcre],,,, _pcrelibs)
++  if test "x$_pcrelibs" != "x"; then
++    LAGENTLIBS="$LAGENTLIBS $_pcrelibs"
++    LMIBLIBS="$LMIBLIBS $_pcrelibs"
++  fi
++fi
+diff --git a/include/net-snmp/net-snmp-config.h.in b/include/net-snmp/net-snmp-config.h.in
+index ff30b46..60fed91 100644
+--- a/include/net-snmp/net-snmp-config.h.in
++++ b/include/net-snmp/net-snmp-config.h.in
+@@ -596,6 +596,9 @@
+ /* Define to 1 if you have the <pci/pci.h> header file. */
+ #undef HAVE_PCI_PCI_H
+ 
++/* Define to 1 if you have <pcre.h>. */
++#undef HAVE_PCRE_H
++
+ /* on aix, if you have perfstat */
+ #undef HAVE_PERFSTAT
+ 
+@@ -1624,9 +1627,6 @@
+ /* Define to `int' if <sys/types.h> does not define. */
+ #undef pid_t
+ 
+-/* Define to `unsigned int' if <sys/types.h> does not define. */
+-#undef size_t
+-
+ /* Define to the type of an unsigned integer type of width exactly 16 bits if
+    such a type exists and the standard includes do not define it. */
+ #undef uint16_t
+-- 
+1.7.4.4
+

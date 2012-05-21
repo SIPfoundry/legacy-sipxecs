@@ -32,19 +32,21 @@
       <index column="index" />
       <element type="string" column="address" not-null="true" />
     </list>
-    <list name="snmpAddresses" table="alarm_group_snmpcontacts">
-      <key column="alarm_group_id" />
-      <index column="index" />
-      <composite-element class="org.sipfoundry.sipxconfig.alarm.AlarmTrapReceiver">
-          <property name="hostAddress" column="address" not-null="true" type="string"/>
-          <property name="port" column="port" not-null="true" type="int"/>
-          <property name="communityString" column="community_string" not-null="true" type="string"/>
-      </composite-element>
-    </list>
     <set name="users" table="user_alarm_group">
       <key column="alarm_group_id" />
       <many-to-many column="user_id" class="org.sipfoundry.sipxconfig.common.User" />
     </set>
+  </class>
+
+  <class name="AlarmTrapReceiver" table="alarm_receiver">
+    <id name="id" column="alarm_receiver_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">alarm_receiver_seq</param>
+      </generator>
+    </id>
+    <property name="hostAddress" column="address" not-null="true" type="string"/>
+    <property name="port" column="port" not-null="true" type="int"/>
+    <property name="communityString" column="community_string" type="string"/>
   </class>
 
   <query name="countAlarmGroupWithSameName">

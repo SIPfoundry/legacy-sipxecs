@@ -8,9 +8,22 @@
   </bean>
   
   <bean id="logWatcherImpl" class="org.sipfoundry.sipxconfig.logwatcher.LogWatcherImpl">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.logwatcher.LogWatcherSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>  
   </bean>
   
+  <bean id="logWatcherSettings" class="org.sipfoundry.sipxconfig.logwatcher.LogWatcherSettings" parent="settingsBean">
+  </bean>
+
   <bean id="logWatcherConfig" class="org.sipfoundry.sipxconfig.logwatcher.LogWatcherConfig">
+    <property name="logWatcher" ref="logWatcher"/>
   </bean>  
   
 </beans>

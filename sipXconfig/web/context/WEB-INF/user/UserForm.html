@@ -13,6 +13,14 @@
         <input jwcid="firstName" id="user:firstName" type="text" autocomplete="off"/>
       </tr>
       <tr jwcid="pin"/>
+	  <tr jwcid="voicemail_pin@user/ConfirmPassword"
+	      password="ognl:voicemailPin"
+	      passwordDisplayName="message:label.voicemail.pin"
+	      confirmPasswordDisplayName="message:label.voicemail.pin2"
+	      passwordMismatchMessage="message:error.voicemail.pinMismatch"
+	      passwordDescription="message:description.voicemail.pin"
+	      passwordValidator="spring-validators:validPin,required">
+	  </tr>	       
       <tr jwcid="ifRenderSipPassword">
         <span jwcid="sipPasswordPanel" for="user:sipPassword">
           <input jwcid="sipPassword" id="user:sipPassword" type="text"/>

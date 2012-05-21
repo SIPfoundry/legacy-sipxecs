@@ -31,7 +31,11 @@ public class ValidatorsTest extends TestCase {
 
     @Override
     protected void setUp() {
-        m_context = new ClassPathXmlApplicationContext("org/sipfoundry/sipxconfig/site/tapestry.beans.xml");
+        String[] cp = {
+            "sipxplugin.beans.xml",
+            "org/sipfoundry/sipxconfig/site/tapestry.beans.xml"            
+        };
+        m_context = new ClassPathXmlApplicationContext(cp);
 
         m_validationMessagesControl = EasyMock.createNiceControl();
         m_validationMessages = m_validationMessagesControl.createMock(ValidationMessages.class);

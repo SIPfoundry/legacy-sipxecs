@@ -9,105 +9,81 @@
  */
 package org.sipfoundry.sipxconfig.alarm;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
+import static java.lang.String.format;
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.cfgmgt.RunRequest;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
-import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
-import org.springframework.beans.factory.annotation.Required;
 
 public class AlarmHistoryManagerImpl implements AlarmHistoryManager {
-
     private static final String ERROR_IO_EXCEPTION = "&error.io.exception";
-    private static final String ALARMS_LOG = "sipXalarms.log";
-
-    private String m_logDirectory;
+    private static final Log LOG = LogFactory.getLog(AlarmHistoryManagerImpl.class);
+    private ConfigManager m_configManager;
     private LocationsManager m_locationsManager;
-    private AlarmServerManager m_alarmServerManager;
-
-    @Required
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
-    }
-
-    @Required
-    public void setLogDirectory(String logDirectory) {
-        m_logDirectory = logDirectory;
-    }
+    private File m_logDirectory;
 
     public List<AlarmEvent> getAlarmEvents(String host, Date startDate, Date endDate) {
-        try {
-            return parseEventsStream(getAlarmDataStream(host), startDate, endDate);
-        } catch (IOException ex) {
-            throw new UserException(ERROR_IO_EXCEPTION, ex.getMessage());
-        }
+        return getAlarmEventsByPage(host, startDate, endDate, 0, Integer.MAX_VALUE);
     }
 
     public List<AlarmEvent> getAlarmEventsByPage(String host, Date startDate, Date endDate, int first, int pageSize) {
+        AlarmLogParser parser = new AlarmLogParser();
+        InputStream in = null;
         try {
-            return parseEventsStreamByPage(getAlarmDataStream(host), startDate, endDate, first, pageSize);
+            in = getAlarmDataStream(host);
+            List<AlarmEvent> events;
+            if (in == null) {
+                events = Collections.emptyList();
+            } else {
+                events = parser.parse(startDate, endDate, first, pageSize, in);
+            }
+            return events;
         } catch (IOException ex) {
             throw new UserException(ERROR_IO_EXCEPTION, ex.getMessage());
+        } finally {
+            IOUtils.closeQuietly(in);
         }
     }
 
     private InputStream getAlarmDataStream(String host) throws IOException {
-        GetMethod httpget = null;
-        try {
-            HttpClient client = new HttpClient();
-            Location location = m_locationsManager.getLocationByFqdn(host);
-            httpget = new GetMethod(location.getHttpsServerUrl() + m_logDirectory + "/" + ALARMS_LOG);
-            int statusCode = client.executeMethod(httpget);
-            if (statusCode != 200) {
-                throw new UserException("&error.https.server.status.code", host, String.valueOf(statusCode));
-            }
-            byte[] bytes = httpget.getResponseBody();
-            return new ByteArrayInputStream(bytes);
-        } catch (HttpException ex) {
-            throw new UserException("&error.https.server", host, ex.getMessage());
-        } catch (XmlRpcRemoteException ex) {
-            throw new UserException("&error.xml.rpc", ex.getMessage(), host);
-        } finally {
-            if (httpget != null) {
-                httpget.releaseConnection();
-            }
+        refreshLogs();
+        File log = new File(m_logDirectory, format("snmptrapd-%s.log", host));
+        if (!log.exists()) {
+            LOG.warn("snmp alarm file not found " + log.getAbsolutePath());
+            return null;
         }
+        return new FileInputStream(log);
     }
 
-    protected List<AlarmEvent> parseEventsStream(InputStream responseStream, Date startDate, Date endDate)
-        throws IOException {
-        BufferedReader input = new BufferedReader(new InputStreamReader(responseStream, "UTF-8"));
-        String line = null;
-        List<AlarmEvent> contents = new ArrayList<AlarmEvent>();
-        while ((line = input.readLine()) != null) {
-            AlarmEvent alarmEvent = AlarmEvent.parseEvent(m_alarmServerManager, line);
-            Date date = alarmEvent.getDate();
-            if (startDate.before(date) && endDate.after(date)) {
-                contents.add(alarmEvent);
-            }
-        }
-        return contents;
+    void refreshLogs() {
+        Location l = m_locationsManager.getPrimaryLocation();
+        RunRequest getLogs = new RunRequest("alarm logs", Collections.singleton(l));
+        getLogs.setBundles("upload_alarm_log");
+        m_configManager.run(getLogs);
     }
 
-    protected List<AlarmEvent> parseEventsStreamByPage(InputStream responseStream, Date startDate, Date endDate,
-            int first, int pageSize) throws IOException {
-        List<AlarmEvent> contents = parseEventsStream(responseStream, startDate, endDate);
-        return DataCollectionUtil.getPage(contents, first, pageSize);
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 
-    public void setAlarmServerManager(AlarmServerManager alarmServerManager) {
-        m_alarmServerManager = alarmServerManager;
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
+    }
+
+    public void setLogDirectory(String logDirectory) {
+        m_logDirectory = new File(logDirectory);
     }
 }

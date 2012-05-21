@@ -99,9 +99,17 @@ public class UserTest extends TestCase {
         checkSetPin("pin");
     }
 
+    public void testSetVoicemailPin() throws Exception {
+        checkSetVoicemailPin("voicemailPin");
+    }
+
     /** Test that setting a null PIN yields expected results */
     public void testSetNullPin() throws Exception {
         checkSetPin(null);
+    }
+
+    public void testSetNullVoicemailPin() throws Exception {
+        checkSetVoicemailPin(null);
     }
 
     private void checkSetPin(String pin) throws Exception {
@@ -110,6 +118,14 @@ public class UserTest extends TestCase {
         user.setPin(pin, "realm.sipfoundry.org");
         String pintoken = getPintoken("username", pin);
         assertEquals(pintoken, user.getPintoken());
+    }
+
+    private void checkSetVoicemailPin(String pin) throws Exception {
+        User user = new User();
+        user.setUserName("username");
+        user.setVoicemailPin(pin, "realm.sipfoundry.org");
+        String pintoken = getPintoken("username", pin);
+        assertEquals(pintoken, user.getVoicemailPintoken());
     }
 
     public void testGetSipPasswordHash() throws Exception {
@@ -192,7 +208,7 @@ public class UserTest extends TestCase {
         user.setPermissionManager(pManager);
 
         user.setSettingTypedValue("im/im-account", true);
-        
+
         AddressManager am = EasyMock.createNiceMock(AddressManager.class);
         am.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
         expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "1111111", 22)).anyTimes();
@@ -206,7 +222,7 @@ public class UserTest extends TestCase {
         lm.getPrimaryLocation();
         expectLastCall().andReturn(l).anyTimes();
         replay(lm);
-        
+
         List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org");
         assertEquals(6, aliasMappings.size());
 
@@ -404,7 +420,7 @@ public class UserTest extends TestCase {
         User user = new User();
         user.setName("1234");
         user.setPermissionManager(pm);
-                
+
         assertEquals("sip:~~mh@example.org", user.getMusicOnHoldUri(moh));
 
         user.setSettingValue(User.MOH_AUDIO_SOURCE_SETTING, User.MohAudioSource.FILES_SRC.toString());

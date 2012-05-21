@@ -16,7 +16,6 @@
  */
 package org.sipfoundry.sipxconfig.logwatcher;
 
-
 import java.util.Collection;
 import java.util.Collections;
 
@@ -28,6 +27,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
@@ -35,6 +35,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class LogWatcherImpl implements LogWatcher, SetupListener, ProcessProvider, FeatureProvider {
+    private BeanWithSettingsDao<LogWatcherSettings> m_settingsDao;
 
     @Override
     public void setup(SetupManager manager) {
@@ -45,13 +46,10 @@ public class LogWatcherImpl implements LogWatcher, SetupListener, ProcessProvide
     }
 
     @Override
-    public void nop() {
-    }
-
-    @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         ProcessDefinition def = new ProcessDefinition("logwatcher",
-            "/usr/bin/perl -w /usr/bin/sec.*", "sipxlogwatcher");
+            "/usr/bin/perl\\s+-w\\s+/usr/bin/sec.*");
+        def.setSipxServiceName("sipxlogwatcher");
         return Collections.singleton(def);
     }
 
@@ -78,5 +76,19 @@ public class LogWatcherImpl implements LogWatcher, SetupListener, ProcessProvide
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+    }
+
+    @Override
+    public LogWatcherSettings getSettings() {
+        return m_settingsDao.findOrCreateOne();
+    }
+
+    @Override
+    public void saveSettings(LogWatcherSettings settings) {
+        m_settingsDao.upsert(settings);
+    }
+
+    public void setSettingsDao(BeanWithSettingsDao<LogWatcherSettings> settingsDao) {
+        m_settingsDao = settingsDao;
     }
 }

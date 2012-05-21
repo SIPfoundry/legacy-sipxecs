@@ -404,6 +404,8 @@
     <antcall target="cert" />
     <antcall target="firewall" />
 	<antcall target="migrate-openacd-skill-groups" />
+	<antcall target="alarm_receiver" />
+  	<antcall target="voicemail-pin" />
   </target>
 
   <target name="plugin-patches">
@@ -1294,7 +1296,12 @@
   <target name="migrate-openacd-skill-groups" unless="migrate-openacd-skill-groups">
 	<plsql-patch patch="migrate-openacd-skill-groups"/>
   </target>
-
+  <target name="alarm_receiver" unless="alarm_receiver">
+	<db-patch patch="alarm_receiver" />
+  </target>	
+  <target name="voicemail-pin" unless="voicemail-pin">
+	<plsql-patch patch="voicemail-pin"/>
+  </target>
   <!--
     - SUPPORT UTILITIES
   -->

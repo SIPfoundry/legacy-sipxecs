@@ -333,7 +333,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
 
     @Override
     public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
-        return Arrays.asList(PROCESS_FAILED, PROCESS_RESTARTED, PROCESS_STARTED);
+        return Arrays.asList(PROCESS_FAILED, PROCESS_RESTARTED);
     }
 
     @Override

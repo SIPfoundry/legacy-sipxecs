@@ -1,8 +1,0 @@
-#!/bin/bash
-
-# When an alarm is received, dispatch it to configured handler : email, sms, log...
-# STDIN is alarm body
-# TODO: right now it just logs
-
-echo "Caught $1 " >> @SIPX_LOGDIR@/sipxalarms.log
-cat >> @SIPX_LOGDIR@/sipxalarms.log

@@ -18,7 +18,6 @@ import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
  * Explicitly exercises the spring configuration
  */
 public class SpringConfigurationTestIntegration extends IntegrationTestCase {
-        
     public void testConfiguration() {
         assertTrue(true);
     }

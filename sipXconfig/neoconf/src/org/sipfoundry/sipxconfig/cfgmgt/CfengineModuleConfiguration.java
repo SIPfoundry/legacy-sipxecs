@@ -18,6 +18,8 @@ package org.sipfoundry.sipxconfig.cfgmgt;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collection;
+import java.util.Iterator;
 
 public class CfengineModuleConfiguration extends AbstractConfigurationFile {
     private static final String EOL = System.getProperty("line.separator");
@@ -41,7 +43,31 @@ public class CfengineModuleConfiguration extends AbstractConfigurationFile {
         }
         m_out.write(key);
         m_out.write('=');
-        m_out.write(value == null ? "" : value.toString());
+        m_out.write(safeToString(value));
         m_out.write(EOL);
+    }
+
+    public void writeList(String key, Collection< ? > items) throws IOException {
+        if (items.isEmpty()) {
+            // cannot seem to be able to define empty list
+            return;
+        }
+        m_out.write('@');
+        m_out.write(key);
+        m_out.write("={\"");
+        Iterator< ? > i = items.iterator();
+        for (int ndx = 0; i.hasNext(); ndx++) {
+            if (ndx != 0) {
+                m_out.write("\", \"");
+            }
+            m_out.write(safeToString(i.next()));
+
+        }
+        m_out.write("\"}");
+        m_out.write(EOL);
+    }
+
+    String safeToString(Object value) {
+        return value == null ? "" : value.toString();
     }
 }

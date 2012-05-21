@@ -66,7 +66,7 @@ EOF
 }
 args.parse!
   raise "Missing --template parameter to an ERB file" if $template.nil?
-  raise "Missing --in parameter to a YAML data file" if $template.nil?
+  raise "Missing --in parameter to a YAML data file" if $yaml.nil?
 
   config($yaml, $template, $out)
 end

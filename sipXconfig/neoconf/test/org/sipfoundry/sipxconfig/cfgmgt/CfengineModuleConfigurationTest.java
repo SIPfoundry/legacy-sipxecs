@@ -20,7 +20,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Arrays;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 
@@ -33,6 +35,8 @@ public class CfengineModuleConfigurationTest {
         config.writeClass("goose", true);
         config.writeClass("gander", false);
         config.write("eggs", "white");
-        assertEquals("+goose\n-gander\n=eggs=white\n", actual.toString());
+        config.writeList("transport", Arrays.asList("water", "land", "air"));
+        String expected = IOUtils.toString(getClass().getResourceAsStream("expected.cfdat"));
+        assertEquals(expected, actual.toString());
     }
 }

@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.alarm;
 
+
+
 import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -368,5 +370,25 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
 
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         m_jdbcTemplate = jdbcTemplate;
+    }
+
+    @Override
+    public List<AlarmTrapReceiver> getAlarmTrapReceivers() {
+        return getHibernateTemplate().loadAll(AlarmTrapReceiver.class);
+    }
+
+    @Override
+    public void saveAlarmTrapReceiver(AlarmTrapReceiver r) {
+        getHibernateTemplate().saveOrUpdate(r);
+    }
+
+    @Override
+    public void deleteAlarmTrapReceiver(AlarmTrapReceiver r) {
+        getHibernateTemplate().delete(r);
+    }
+
+    @Override
+    public void saveAlarmTrapReceivers(List<AlarmTrapReceiver> receivers) {
+        getHibernateTemplate().saveOrUpdateAll(receivers);
     }
 }

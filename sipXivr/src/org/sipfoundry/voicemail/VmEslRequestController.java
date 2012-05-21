@@ -156,7 +156,7 @@ public class VmEslRequestController extends AbstractEslRequestController {
                 LOG.info("Retrieve::login user " + m_currentUser.getUserName() + " doesn't have needed permissions.");
             }
 
-            if (m_currentUser == null || !m_currentUser.isPinCorrect(choice.getDigits(), getFsConfig().getRealm())) {
+            if (m_currentUser == null || !m_currentUser.isVoicemailPinCorrect(choice.getDigits(), getFsConfig().getRealm())) {
                 // WRONG, do it again!
 
                 // "That personal identification number is not valid
@@ -176,7 +176,7 @@ public class VmEslRequestController extends AbstractEslRequestController {
     /**
      * Get the operator URL defined for this user. Uses the PersonalAttendant's operator if
      * defined, else the systems.
-     * 
+     *
      * @param pa
      * @return
      */
@@ -197,7 +197,7 @@ public class VmEslRequestController extends AbstractEslRequestController {
 
     /**
      * Record a message into a file named wavName
-     * 
+     *
      * @param wavName
      * @return The Recording object
      */
@@ -214,7 +214,7 @@ public class VmEslRequestController extends AbstractEslRequestController {
     /**
      * Perform the configured "failure" behavior, which can be either just hangup or transfer to a
      * destination after playing a prompt.
-     * 
+     *
      */
     public void failure() {
         boolean playGoodbye = true;

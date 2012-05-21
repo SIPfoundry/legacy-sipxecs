@@ -1,0 +1,133 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# Postgres configuration for working with sipxecs
+#
+
+bundle agent snmptrap {
+  methods:
+    snmptrap::
+      "any" usebundle => "snmptrap_config";
+    fedora16_or_greater::
+      "any" usebundle => "snmptrap_systemctl_running";
+    !fedora16_or_greater::
+      "any" usebundle => "snmptrap_sysv_running";
+}
+
+bundle agent snmptrap_config {
+  files:
+    snmptrap::
+      "/etc/snmp/snmptrapd.conf"
+        create => "true",
+        perms => m("644"),
+        edit_defaults => empty,
+        edit_line => snmptrapd_conf,
+        classes => if_repaired("reload_snmptrapd");
+
+      "/etc/sysconfig/snmptrapd"
+        comment => "SNMP trap service $(this.promiser)",
+        perms => m("644"),
+        edit_defaults => empty,
+        edit_line => insert_lines("OPTIONS=\"-A -Lf $(sipx.SIPX_LOGDIR)/snmptrapd.log -p /var/run/snmptrapd.pid\""),
+        classes => if_repaired("reload_snmptrapd");
+
+    snmp.src::
+      "/usr/share/snmp/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.txt"
+        create => "true",
+        perms => m("644"),
+        classes => if_repaired("reload_snmp"),
+        copy_from => local_cp("$(sipx.datadir)/snmp/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.txt");
+}
+
+bundle edit_line snmptrapd_conf {
+  classes:
+    # with array size zero, cfengine still creates line but just doesn't resolve
+    # variable. i couldn't find array size, but tests show this trick work
+    "has_forwarders" expression => isvariable("sipx.snmptrapdForward");
+
+  insert_lines:
+    any::
+      "authCommunity   log,execute,net public";
+      "traphandle SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications \
+$(sipx.SIPX_LIBEXECDIR)/snmptrap-email-handler --send \
+--in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/snmptrap-emails.yaml";
+
+    has_forwarders::
+        "forward SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications $(sipx.snmptrapdForward)";
+}
+
+bundle agent snmptrap_sysv_running {
+  vars:
+    any::
+      "service" string => "/etc/init.d/snmptrapd";
+      "service_command" string => "/usr/sbin/snmptrapd";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "snmptrap_running","root");
+    !snmptrap::
+      "any" usebundle => rh_chkconfig_status("snmptrapd off");
+    snmptrap::
+      "any" usebundle => rh_chkconfig_status("snmptrapd on");
+
+  commands:
+    !snmptrap.snmptrap_running::
+      "$(service)"
+        comment => "stop snmptrap",
+        args => "stop";
+
+    snmptrap.!snmptrap_running::
+      "$(service)"
+        comment => "start snmptrap",
+        args => "start";
+
+    snmptrap.snmptrap_running.reload_snmptrap::
+      "$(service)"
+        comment => "reload snmptrap",
+        args => "reload";
+}
+
+bundle agent snmptrap_systemctl_running {
+  vars:
+    any::
+      "service" string => "snmptrapd.service";
+
+  classes:
+    fedora16_or_greater::
+      "snmptrap_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+
+  commands:
+    !snmptrap.snmptrap_running::
+      "$(sipx.systemctl)"
+        comment => "stop snmptrapd",
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable snmptrapd",
+        args => "disable $(service)";
+
+    snmptrap.!snmptrap_running::
+      "$(sipx.systemctl)"
+        comment => "start snmptrapd",
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable snmptrapd",
+        args => "enable $(service)";
+
+    snmptrap.snmptrap_running.reload_snmptrap::
+      "$(sipx.systemctl)"
+        comment => "reload snmptrapd",
+        args => "reload $(service)";
+}

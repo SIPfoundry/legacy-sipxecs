@@ -9,27 +9,27 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
+import org.apache.tapestry.components.IPrimaryKeyConverter;
+import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.alarm.AlarmTrapReceiver;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class AlarmTrapReceiverPanel extends BaseComponent {
 
-    @Parameter(required = true)
-    public abstract String getLabel();
+    @InjectObject("spring:alarmServerManager")
+    public abstract AlarmServerManager getAlarmServerManager();
 
     @Parameter
-    public abstract List<AlarmTrapReceiver> getSnmpAddresses();
-
-    public abstract void setSnmpAddresses(List<AlarmTrapReceiver> alarmTrapReceiver);
+    public abstract SipxValidationDelegate getValidator();
 
     public abstract List<AlarmTrapReceiver> getAlarmTrapReceivers();
 
@@ -37,68 +37,80 @@ public abstract class AlarmTrapReceiverPanel extends BaseComponent {
 
     public abstract int getIndex();
 
-    public abstract boolean getAdd();
+    public abstract Integer getRemove();
 
-    public abstract int getRemoveIndex();
+    public abstract void setRemove(Integer index);
 
-    public abstract void setRemoveIndex(int index);
+    public abstract void setAlarmTrapReceiver(AlarmTrapReceiver alarmTrapReceiver);
 
-    public AlarmTrapReceiver getAlarmTrapReceiver() {
-        return getAlarmTrapReceivers().get(getIndex());
-    }
+    public abstract AlarmTrapReceiver getAlarmTrapReceiver();
 
-    public void setAlarmTrapReceiver(AlarmTrapReceiver alarmTrapReceiver) {
-        getAlarmTrapReceivers().set(getIndex(), alarmTrapReceiver);
-    }
+    public abstract Integer getAlarmTrapReceiversSize();
 
-    public int getAlarmTrapReceiversSize() {
-        return getAlarmTrapReceivers().size();
-    }
+    public abstract void setAlarmTrapReceiversSize(Integer size);
+
+    public abstract Boolean getAdd();
+
+    public abstract void setAdd(Boolean b);
 
     public boolean getAlarmTrapReceiversPresent() {
-        if (getAlarmTrapReceiversSize() > 0) {
-            return true;
-        }
-        return false;
-    }
-
-    public void setAlarmTrapReceiversSize(int size) {
-        List<AlarmTrapReceiver> alarmTrapReceivers = new ArrayList<AlarmTrapReceiver>();
-        for (int i = 0; i < size; i++) {
-            alarmTrapReceivers.add(new AlarmTrapReceiver());
-        }
-        setAlarmTrapReceivers(alarmTrapReceivers);
+        return getAlarmTrapReceivers().size() > 0;
     }
 
     protected void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
-        setRemoveIndex(-1);
-        if (!TapestryUtils.isRewinding(cycle, this)) {
-            if (null != getSnmpAddresses()) {
-                setAlarmTrapReceivers(getSnmpAddresses());
+        initializeData();
+    }
+
+    private void initializeData() {
+        List<AlarmTrapReceiver> receivers = getAlarmTrapReceivers();
+        if (receivers == null) {
+            receivers = getAlarmServerManager().getAlarmTrapReceivers();
+            setAlarmTrapReceivers(receivers);
+        }
+
+        if (getAlarmTrapReceiversSize() == null) {
+            setAlarmTrapReceiversSize(receivers.size());
+        }
+
+        if (Boolean.TRUE.equals(getAdd())) {
+            setAlarmTrapReceiversSize(getAlarmTrapReceiversSize() + 1);
+            setAdd(null);
+        }
+
+        if (receivers.size() < getAlarmTrapReceiversSize()) {
+            for (int i = receivers.size(); i < getAlarmTrapReceiversSize(); i++) {
+                receivers.add(new AlarmTrapReceiver());
+            }
+        }
+
+        if (getRemove() != null) {
+            AlarmTrapReceiver gone = receivers.remove(getRemove().intValue());
+            setRemove(null);
+            setAlarmTrapReceiversSize(getAlarmTrapReceiversSize() - 1);
+            if (gone.getId() > 0) {
+                getAlarmServerManager().deleteAlarmTrapReceiver(gone);
+                TapestryUtils.recordSuccess(this, getMessages().getMessage("msg.actionSuccess"));
             }
         }
     }
 
-    protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
-        super.renderComponent(writer, cycle);
-        if (TapestryUtils.isRewinding(cycle, this)) {
-            afterRewind(cycle);
-        }
+    public IPrimaryKeyConverter getTrapConverter() {
+        initializeData();
+        final List<AlarmTrapReceiver> receivers = getAlarmTrapReceivers();
+        return new IPrimaryKeyConverter() {
+            public Object getPrimaryKey(Object value) {
+                return receivers.lastIndexOf(value);
+            }
+            public Object getValue(Object primaryKey) {
+                return receivers.get((Integer) primaryKey);
+            }
+        };
     }
 
-    private void afterRewind(IRequestCycle cycle) {
-        List<AlarmTrapReceiver> alarmTrapReceivers = getAlarmTrapReceivers();
-        if (TapestryUtils.isValid(cycle, this) && getAdd()) {
-            if (alarmTrapReceivers != null) {
-                alarmTrapReceivers.add(new AlarmTrapReceiver());
-            }
+    public void save() {
+        if (TapestryUtils.isValid(this)) {
+            getAlarmServerManager().saveAlarmTrapReceivers(getAlarmTrapReceivers());
         }
-        int removeIndex = getRemoveIndex();
-        if (removeIndex >= 0) {
-            alarmTrapReceivers.remove(removeIndex);
-            TapestryUtils.getValidator(this).clearErrors();
-        }
-        setSnmpAddresses(alarmTrapReceivers);
     }
 }

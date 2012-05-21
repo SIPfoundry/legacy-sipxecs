@@ -14,6 +14,5 @@ AC_CONFIG_FILES([
     Makefile
     bin/Makefile
     etc/Makefile
-    src/Makefile
 ])
 AC_OUTPUT

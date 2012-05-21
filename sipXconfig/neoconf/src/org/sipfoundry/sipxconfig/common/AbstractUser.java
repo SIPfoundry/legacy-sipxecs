@@ -105,6 +105,12 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     private String m_pintoken;
 
+    private String m_voicemailPintoken;
+
+    private String m_clearPin;
+
+    private String m_clearVoicemailPin;
+
     private String m_lastName;
 
     private String m_userName;
@@ -148,7 +154,23 @@ public abstract class AbstractUser extends BeanWithGroups {
     public void setPin(String pin, String realm) {
         String pin2 = defaultString(pin, EMPTY); // handle null
         // pin
+        m_clearPin = pin;
         setPintoken(Md5Encoder.digestPassword(m_userName, realm, pin2));
+    }
+
+    public String getVoicemailPintoken() {
+        return defaultString(m_voicemailPintoken, EMPTY);
+    }
+
+    public void setVoicemailPintoken(String voicemailPintoken) {
+        m_voicemailPintoken = voicemailPintoken;
+    }
+
+    public void setVoicemailPin(String voicemailPin, String realm) {
+        String pin2 = defaultString(voicemailPin, EMPTY); // handle null
+        // pin
+        m_clearVoicemailPin = voicemailPin;
+        setVoicemailPintoken(Md5Encoder.digestPassword(m_userName, realm, pin2));
     }
 
     public String getFirstName() {
@@ -713,5 +735,18 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     protected AddressManager getAddressManager() {
         return m_addressManager;
+    }
+
+    public String getClearPin() {
+        return m_clearPin;
+    }
+
+    public String getClearVoicemailPin() {
+        return m_clearVoicemailPin;
+    }
+
+    public void clearPasswords() {
+        m_clearPin = null;
+        m_clearVoicemailPin = null;
     }
 }

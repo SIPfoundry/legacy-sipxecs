@@ -5,7 +5,7 @@
       selections="ognl:selections"
       converter="ognl:alarmConverter">
     <span jwcid="descriptionColumnValue@Block">
-      <span jwcid="@Insert" value="ognl:messages.getMessage('alarm.'+currentRow.alarmDefinition.id)"/>
+      <span jwcid="@Insert" value="ognl:messages.getMessage('alarm.'+currentRow.alarmDefinition.id+'.label')"/>
     </span>
     <span jwcid="groupNameColumnValue@Block">
       <input jwcid="@PropertySelection" model="ognl:alarmGroupModel" value="ognl:currentRow.groupName" validators="validators:required" />

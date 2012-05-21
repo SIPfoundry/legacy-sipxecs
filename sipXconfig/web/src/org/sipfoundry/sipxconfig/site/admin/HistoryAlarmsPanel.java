@@ -88,7 +88,7 @@ public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBe
             Location[] locations = getLocationsManager().getLocations();
             String[] hosts = new String[locations.length];
             for (int i = 0; i < locations.length; i++) {
-                hosts[i] = locations[i].getHostname();
+                hosts[i] = locations[i].getFqdn();
             }
             Arrays.sort(hosts);
             StringPropertySelectionModel model = new StringPropertySelectionModel(hosts);

@@ -55,6 +55,8 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
     public abstract String getPin();
 
+    public abstract String getVoicemailPin();
+
     public abstract Conference getCurrentRow();
 
     public abstract void setCurrentRow(Conference currentRow);
@@ -102,6 +104,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
         User user = getUserForEditing();
         UserForm.updatePin(this, user, getCoreContext().getAuthorizationRealm());
+        UserForm.updateVoicemailPin(this, user, getCoreContext().getAuthorizationRealm());
 
         FaxServicePanel fs = (FaxServicePanel) getComponent("faxServicePanel");
         fs.update(user);
@@ -127,6 +130,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         }
 
         UserForm.initializePin(getComponent("pin"), this, user);
+        UserForm.initializeVoicemailPin(getComponent("voicemail_pin"), this, user);
 
         MailboxManager mailMgr = getMailboxManager();
         if (getMailboxPreferences() == null && mailMgr.isEnabled()) {
