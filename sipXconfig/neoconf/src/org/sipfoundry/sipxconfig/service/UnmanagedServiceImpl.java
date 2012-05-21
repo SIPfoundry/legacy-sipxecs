@@ -34,7 +34,7 @@ import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 
 public class UnmanagedServiceImpl  implements AddressProvider, UnmanagedService, FirewallProvider {
-    private static final List<AddressType> ADDRESSES = Arrays.asList(NTP, SYSLOG, DNS, SSH);
+    private static final List<AddressType> ADDRESSES = Arrays.asList(SYSLOG, DNS, SSH);
     private BeanWithSettingsDao<UnmanagedServiceSettings> m_settingsDao;
 
     @Override
@@ -54,9 +54,7 @@ public class UnmanagedServiceImpl  implements AddressProvider, UnmanagedService,
         }
 
         UnmanagedServiceSettings settings = getSettings();
-        if (type.equals(NTP)) {
-            return settings.getAddresses(NTP, "services/ntp");
-        } else if (type.equals(SYSLOG)) {
+        if (type.equals(SYSLOG)) {
             return settings.getAddresses(SYSLOG, "services/syslog");
         } else if (type.equals(DNS)) {
             return settings.getAddresses(DNS, "services/dns");

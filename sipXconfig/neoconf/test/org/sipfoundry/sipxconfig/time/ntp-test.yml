@@ -1,0 +1,14 @@
+local_clock: true
+loopback: true
+sync: true
+drift_file: /var/lib/ntp/drift
+ntp_servers:
+ - :address: 0.pool.ntp.org
+ - :address: 1.pool.ntp.org
+ - :address: 2.pool.ntp.org
+ - :address: 3.pool.ntp.org
+subnets:
+ - :ip: 192.168.0.5
+   :mask: 255.255.0.0
+ - :ip: 10.5.1.0
+   :mask: 255.255.255.255

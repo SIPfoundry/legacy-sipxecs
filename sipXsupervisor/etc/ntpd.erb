@@ -1,0 +1,26 @@
+# ntpd configuration - sipxecs generated
+# ------------------
+<%  if sync%># Permit time synchronization with our time source, but do not
+# permit the source to query or modify the service on this system.
+restrict default kod nomodify notrap nopeer noquery
+restrict -6 default kod nomodify notrap nopeer noquery
+#<%  end%>
+<%  if loopback%>#
+# Permit all access over the loopback interface
+restrict 127.0.0.1
+restrict -6 ::1<%  end%><%  if local_clock%>
+#
+# Local fudge if network servers are not available
+server 127.127.1.0
+fudge  127.127.1.0 stratum 10<%  end%>
+<%  if subnets
+       subnets.each { |address|%> 
+restrict <%= address[:ip] %> mask <%= address[:mask] %> nomodify notrap
+<%} 
+end%>
+driftfile <%= drift_file %>
+# Synchronize with selected time servers
+<%  ntp_servers.each { |server| 
+%><%= server[:address] %> iburst
+<%}
+%>

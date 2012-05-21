@@ -25,12 +25,9 @@ dist_bin_SCRIPTS = \
 
 setupdir = @SIPX_LIBEXECDIR@/setup.d
 setup_SCRIPTS = \
-        sipx-time-manager-init \
-        sipx-change-timezone-init \
         sipxpackage-init \
         sipxswadmin-init \
-        sipxcdrpostgres-init \
-        sipxzoneadmin-init
+        sipxcdrpostgres-init
 
 EXTRA_DIST = \
 	$(libexec_SCRIPTS:=.in) \

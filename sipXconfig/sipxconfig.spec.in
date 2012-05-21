@@ -198,6 +198,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/moh/*
 %config(noreplace) %{sipxpbxconf}/mongo/*
 %config(noreplace) %{sipxpbxconf}/nattraversal/*
+%config(noreplace) %{sipxpbxconf}/ntp/*
 %config(noreplace) %{sipxpbxconf}/openacd/*
 %config(noreplace) %{sipxpbxconf}/scsimbot/*
 %config(noreplace) %{sipxpbxconf}/setting.dtd

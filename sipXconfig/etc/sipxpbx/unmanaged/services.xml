@@ -7,20 +7,6 @@
     <setting name="syslog">
       <type><hostname/></type>
     </setting>
-    <group name="ntp">
-      <setting name="0">
-        <type><hostname/></type>
-      </setting>
-      <setting name="1">
-        <type><hostname/></type>
-      </setting>
-      <setting name="2">
-        <type><hostname/></type>
-      </setting>
-      <setting name="3">
-        <type><hostname/></type>
-      </setting>
-    </group>
     <group name="dns">
       <setting name="0">
         <type><hostname/></type>

@@ -4,9 +4,6 @@ SUBDIRS = \
 	xsdvalid \
 	sipxpackage \
 	sipxswadmin \
-	sipxzoneadmin \
-	sipxtimemanager \
-	sipxchangetimezone \
 	sipxcdrpostgres \
 	test
 
