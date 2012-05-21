@@ -26,9 +26,10 @@ import org.junit.Test;
 public class AlarmLogParserTest {
     
     @Test
-    public void decide() {
+    public void decode() {
         AlarmLogParser parser = new AlarmLogParser();
         assertEquals("lion", parser.decodeValue("= STRING: lion"));
+        assertEquals("lion sleeps tonight", parser.decodeValue("= STRING: \"lion sleeps tonight\""));
     }    
     
     @Test

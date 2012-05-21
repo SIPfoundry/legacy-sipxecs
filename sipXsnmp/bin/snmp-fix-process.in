@@ -3,5 +3,6 @@
 # Send trap to local server
 # pass along command to be execute by shell
 
-@SIPX_BINDIR@/sipxtrap PROCESS_RESTARTED
+@SIPX_BINDIR@/sipxtrap PROCESS_RESTARTED "$1 is not running and is being restarted."
+shift
 $*

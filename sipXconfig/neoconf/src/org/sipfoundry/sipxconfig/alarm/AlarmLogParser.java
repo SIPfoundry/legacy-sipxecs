@@ -87,7 +87,8 @@ public class AlarmLogParser {
     AlarmEvent parseEvent(Date when, String line) {
         Map<String, String> fields = parseFields("SIPXECS-ALARM-NOTIFICATION-MIB", line);
         AlarmDefinition def = new AlarmDefinition(fields.get("sipxecsAlarmId"));
-        AlarmEvent e = new AlarmEvent(when, def, "none");
+        String msg = fields.get("sipxecsAlarmDescr");
+        AlarmEvent e = new AlarmEvent(when, def, msg);
         return e;
     }
 
@@ -122,7 +123,13 @@ public class AlarmLogParser {
         String[] split = StringUtils.split(encoded, ":");
         if (split.length == 2) {
             if (split[0].equals("= STRING")) {
-                return split[1].trim();
+                String v = split[1].trim();
+                if (StringUtils.isNotBlank(v)) {
+                    if (v.charAt(0) == '"' && v.charAt(v.length() - 1) == '"') {
+                        v = v.substring(1, v.length() - 1);
+                    }
+                }
+                return v;
             }
         }
         return null;
