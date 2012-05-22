@@ -176,14 +176,12 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
     public static void initializePin(IComponent confirmPassword, EditPinComponent editPin, User user) {
         if (editPin.getPin() == null) {
             if (user.isNew()) {
-                editPin.setPin(user.getClearPin());
+                editPin.setPin(user.getPintoken());
+                PropertyUtils.write(confirmPassword, CONFIRM_PASSWORD, user.getPintoken());
             } else {
                 editPin.setPin(DUMMY_PIN);
+                PropertyUtils.write(confirmPassword, CONFIRM_PASSWORD, DUMMY_PIN);
             }
-
-            // Reset the confirm PIN field as well. Ugly to reach into the component
-            // like this, but I haven't figured out a better way.
-            PropertyUtils.write(confirmPassword, CONFIRM_PASSWORD, user.getClearPin());
         }
     }
 
@@ -195,13 +193,11 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
         if (editPin.getVoicemailPin() == null) {
             if (user.isNew()) {
                 editPin.setVoicemailPin(user.getClearVoicemailPin());
+                PropertyUtils.write(confirmPassword, CONFIRM_PASSWORD, user.getClearVoicemailPin());
             } else {
                 editPin.setVoicemailPin(DUMMY_PIN);
+                PropertyUtils.write(confirmPassword, CONFIRM_PASSWORD, DUMMY_PIN);
             }
-
-            // Reset the confirm PIN field as well. Ugly to reach into the component
-            // like this, but I haven't figured out a better way.
-            PropertyUtils.write(confirmPassword, CONFIRM_PASSWORD, user.getClearVoicemailPin());
         }
     }
 
@@ -210,7 +206,7 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
      */
     public static void updatePin(EditPinComponent editPin, User user, String authorizationRealm) {
         if (!(editPin.getPin() == null) && !editPin.getPin().equals(DUMMY_PIN)) {
-            user.setPin(editPin.getPin(), authorizationRealm);
+            user.setPin(editPin.getPin());
 
             // Having updated the user, scrub the PIN field for security
             editPin.setPin(null);

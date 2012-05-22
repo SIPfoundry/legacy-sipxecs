@@ -87,7 +87,7 @@ public class AuthCodeManagerImplTestIntegration extends IntegrationTestCase {
         User user = m_coreContext.newUser();
         user.setAliasesString("*81");
         user.setUserName("user1");
-        user.setPin("123", "domain.com");
+        user.setPin("123");
         user.setPintoken("123");
         try {
             m_coreContext.saveUser(user);

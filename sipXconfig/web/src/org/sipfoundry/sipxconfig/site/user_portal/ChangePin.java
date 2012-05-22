@@ -73,7 +73,7 @@ public abstract class ChangePin extends SipxBasePage {
         }
 
         // Change the PIN
-        user.setPin(getNewPin(), coreContext.getAuthorizationRealm());
+        user.setPin(getNewPin());
         coreContext.saveUser(user);
 
         // Scrub the PIN fields, for security

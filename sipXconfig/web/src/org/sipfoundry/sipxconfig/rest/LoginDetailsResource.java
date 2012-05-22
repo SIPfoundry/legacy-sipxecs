@@ -50,7 +50,7 @@ public class LoginDetailsResource extends UserResource {
         User user = getUser();
         boolean ldapAuth = m_ldapManager.getSystemSettings().isEnableOpenfireConfiguration();
         return new LoginDetails(variant.getMediaType(), new Representable(user.getUserName(),
-                user.getImId(), user.getImPassword(), ldapAuth));
+                user.getImId(), ldapAuth));
     }
 
     @Required
@@ -65,14 +65,11 @@ public class LoginDetailsResource extends UserResource {
         @SuppressWarnings("unused")
         private String m_imId;
         @SuppressWarnings("unused")
-        private String m_imPassword;
-        @SuppressWarnings("unused")
         private boolean m_ldapImAuth;
 
-        public Representable(String userName, String imId, String imPassword, boolean ldapAuth) {
+        public Representable(String userName, String imId, boolean ldapAuth) {
             m_userName = userName;
             m_imId = imId;
-            m_imPassword = imPassword;
             m_ldapImAuth = ldapAuth;
         }
     }

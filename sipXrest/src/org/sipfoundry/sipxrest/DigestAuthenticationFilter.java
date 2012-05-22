@@ -18,6 +18,7 @@ import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.util.Series;
+import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 
@@ -137,7 +138,7 @@ public class DigestAuthenticationFilter extends Filter {
 
                     A2 = method + ":" + uri + ":" + RestServer.getRealm();
                 }
-                String pintoken = user.getPintoken();
+                String pintoken = Md5Encoder.digestEncryptPassword(agentName, RestServer.getRealm(), user.getPintoken());
                 String expectedValue = null;
 
                 if (cnonce != null && qop != null && nc != null

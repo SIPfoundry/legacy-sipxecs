@@ -56,7 +56,6 @@ public class User {
     private boolean m_showOnCallDetails;
     private boolean m_playDefaultVmOption;
     private String m_imDisplayName;
-    private String m_imPassword;
     private String m_activeGreeting;
     private String m_companyName;
     private String m_jobDepartment;
@@ -438,14 +437,6 @@ public class User {
 
     public void setImEnabled(boolean enabled) {
         m_imEnabled = enabled;
-    }
-
-    public String getImPassword() {
-        return m_imPassword;
-    }
-
-    public void setImPassword(String imPassword) {
-        m_imPassword = imPassword;
     }
 
     public String getImDisplayName() {

@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -22,6 +21,7 @@ import org.sipfoundry.sipxconfig.common.UserValidationUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -190,10 +190,10 @@ public class CsvRowInserter extends RowInserter<String[]> {
                     user.setPintoken(pinHash);
                 } else {
                     pin = m_resetPin;
-                    user.setPin(pin, localRealm);
+                    user.setPin(pin);
                 }
             } else {
-                user.setPin(pin, localRealm);
+                user.setPin(pin);
             }
         }
 

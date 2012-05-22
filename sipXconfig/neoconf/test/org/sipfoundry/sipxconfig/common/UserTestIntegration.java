@@ -19,7 +19,6 @@ import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.dao.DataIntegrityViolationException;
 
 public class UserTestIntegration extends ImdbTestCase {
@@ -64,7 +63,7 @@ public class UserTestIntegration extends ImdbTestCase {
         assertEquals("password", actual.get("pintoken"));
         assertEquals("sippassword", actual.get("sip_password"));
         assertEquals("C", actual.get("user_type"));
-        assertEquals("1234", actual.get("alias"));        
+        assertEquals("1234", actual.get("alias"));
     }
 
     public void testUpdateUserName() throws Exception {
@@ -82,7 +81,7 @@ public class UserTestIntegration extends ImdbTestCase {
         }
 
         // heed assertion and change pintoken
-        user.setPin("1234", "fake realm");
+        user.setPin("12345");
         m_coreContext.saveUser(user);
     }
 
@@ -212,7 +211,7 @@ public class UserTestIntegration extends ImdbTestCase {
         User supervisor = m_coreContext.loadUser(1001);
         assertTrue(supervisor.isSupervisor());
     }
-    
+
     public void testIsNotSupervisor() throws Exception {
         sql("common/TestUserSeed.sql");
         User peon = m_coreContext.loadUser(1000);
@@ -233,7 +232,7 @@ public class UserTestIntegration extends ImdbTestCase {
         assertEquals(supervisor.getId(), actual.get("user_id"));
         assertEquals(newGroup.getId(), actual.get("group_id"));
     }
-    
+
     public void testAvailableGroup() {
         loadDataSet("setting/user-group-branch.xml");
         User user6 = m_coreContext.loadUser(1005);
@@ -254,17 +253,17 @@ public class UserTestIntegration extends ImdbTestCase {
         User u1 = m_coreContext.newUser();
         u1.setUserName("u1");
         m_coreContext.saveUser(u1);
-        
+
         assertTrue(!m_validUsers.getUsersUpdatedAfter(past).isEmpty());
-        
+
         Long now = System.currentTimeMillis();
         assertTrue(m_validUsers.getUsersUpdatedAfter(now).isEmpty());
-        
+
         m_coreContext.saveUser(u1);
         assertTrue(!m_validUsers.getUsersUpdatedAfter(now).isEmpty());
-        
+
     }
-    
+
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }

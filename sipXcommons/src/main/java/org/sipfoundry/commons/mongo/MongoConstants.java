@@ -48,7 +48,6 @@ public interface MongoConstants {
     static final String IM_ID = "imid";
     static final String IM_DISPLAY_NAME = "imdn";
     static final String ALT_IM_ID = "altimid";
-    static final String IM_PASSWORD = "impwd";
     static final String IM_ON_THE_PHONE_MESSAGE = "onphnmsg";
     static final String IM_ADVERTISE_ON_CALL_STATUS = "advcllsts";
     static final String IM_SHOW_ON_CALL_DETAILS = "clldttls";

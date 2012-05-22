@@ -32,12 +32,12 @@ import static org.sipfoundry.commons.mongo.MongoConstants.IM_DISPLAY_NAME;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ENABLED;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ON_THE_PHONE_MESSAGE;
-import static org.sipfoundry.commons.mongo.MongoConstants.IM_PASSWORD;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_SHOW_ON_CALL_DETAILS;
 import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_BEGIN_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_END_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.NOTIFICATION;
 import static org.sipfoundry.commons.mongo.MongoConstants.PASSWD;
+import static org.sipfoundry.commons.mongo.MongoConstants.PINTOKEN;
 import static org.sipfoundry.commons.mongo.MongoConstants.PORT;
 import static org.sipfoundry.commons.mongo.MongoConstants.SYNC;
 import static org.sipfoundry.commons.mongo.MongoConstants.TLS;
@@ -69,9 +69,11 @@ public class Attendant extends AbstractDataSetGenerator {
         top.put(VOICEMAILTUI, user.getSettingValue("voicemail/mailbox/voicemail-tui")); // can be
                                                                                         // null
         top.put(DISPLAY_NAME, user.getDisplayName());
+        top.put(PINTOKEN, user.getPintoken());
         top.put(HASHED_PASSTOKEN, user.getSipPasswordHash(getCoreContext().getAuthorizationRealm()));
         MailboxPreferences mp = new MailboxPreferences(user);
         String emailAddress = mp.getEmailAddress();
+
         if (StringUtils.isNotBlank(emailAddress)) {
             top.put(EMAIL, emailAddress);
             if (mp.isEmailNotificationEnabled()) {
@@ -113,7 +115,6 @@ public class Attendant extends AbstractDataSetGenerator {
         top.put(IM_ON_THE_PHONE_MESSAGE, imAccount.getOnThePhoneMessage());
         top.put(IM_ADVERTISE_ON_CALL_STATUS, imAccount.advertiseSipPresence());
         top.put(IM_SHOW_ON_CALL_DETAILS, imAccount.includeCallInfo());
-        top.put(IM_PASSWORD, imAccount.getImPassword());
         return true;
     }
 

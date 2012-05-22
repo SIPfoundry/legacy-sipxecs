@@ -11,8 +11,8 @@ package org.sipfoundry.sipxconfig.cmcprov;
 
 import java.util.Collection;
 
+import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -79,7 +79,7 @@ public class ProvisioningContextImpl implements ProvisioningContext {
     }
 
     private String getEncodedPassword(String userName, String password) {
-        return Md5Encoder.digestPassword(userName, m_sipxCoreContext.getAuthorizationRealm(), password);
+        return Md5Encoder.getEncodedPassword(password);
     }
 
     public Phone getPhoneForUser(User user) {

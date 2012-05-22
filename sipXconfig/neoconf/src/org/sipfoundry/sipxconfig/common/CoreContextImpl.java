@@ -596,7 +596,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             admin.setPermission(PermissionName.SUPERADMIN, true);
         }
 
-        admin.setPin(StringUtils.defaultString(pin), getAuthorizationRealm());
+        admin.setPin(StringUtils.defaultString(pin));
         admin.addGroup(adminGroup);
         saveUser(admin);
         getDaoEventPublisher().publishSave(admin);

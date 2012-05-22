@@ -407,6 +407,7 @@
 	<antcall target="migrate-openacd-skill-groups" />
 	<antcall target="alarm_receiver" />
   	<antcall target="voicemail-pin" />
+  	<antcall target="remove-im-password" />
   </target>
 
   <target name="plugin-patches">
@@ -1311,6 +1312,9 @@
   <target name="voicemail-pin" unless="voicemail-pin">
 	<plsql-patch patch="voicemail-pin"/>
   </target>
+  <target name="remove-im-password" unless="remove-im-password">
+	<plsql-patch patch="remove-im-password"/>
+  </target>	
   <!--
     - SUPPORT UTILITIES
   -->

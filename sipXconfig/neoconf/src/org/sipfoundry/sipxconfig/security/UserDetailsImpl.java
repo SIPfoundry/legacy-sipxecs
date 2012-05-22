@@ -57,7 +57,6 @@ public class UserDetailsImpl implements UserDetails {
         return true;
     }
 
-    /** Return the MD5-encoded password, a.k.a. "pintoken" */
     public String getPassword() {
         return m_pintoken;
     }

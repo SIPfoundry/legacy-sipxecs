@@ -35,7 +35,7 @@ public class XmppAccountInfo {
     private static final String PASSWORD = "password";
     private static final String DESCRIPTION = "description";
     private static final String DISPLAY_NAME = "display-name";
-    
+
     private CoreContext m_coreContext;
     private ConferenceBridgeContext m_conferenceContext;
     private ValidUsers m_validUsers;
@@ -66,14 +66,13 @@ public class XmppAccountInfo {
 
         User paUser = m_coreContext.newUser();
         paUser.setUserName(paUserName);
-        paUser.setImPassword(paPassword);
         ImAccount imAccount = new ImAccount(paUser);
         imAccount.setEnabled(true);
 
-        createUserAccount(paUser, accountInfos);
+        createUserAccount(paUser, accountInfos, paPassword);
     }
 
-    private void createUserAccount(User user, Element accountInfos) {
+    private void createUserAccount(User user, Element accountInfos, String paPassword) {
         ImAccount imAccount = new ImAccount(user);
         if (!imAccount.isEnabled()) {
             return;
@@ -83,7 +82,7 @@ public class XmppAccountInfo {
         userAccounts.addElement(USER_NAME).setText(imAccount.getImId());
         userAccounts.addElement("sip-user-name").setText(user.getName());
         userAccounts.addElement(DISPLAY_NAME).setText(imAccount.getImDisplayName());
-        userAccounts.addElement(PASSWORD).setText(imAccount.getImPassword());
+        userAccounts.addElement(PASSWORD).setText(paPassword);
         String email = imAccount.getEmailAddress();
         userAccounts.addElement("email").setText(email != null ? email : "");
         userAccounts.addElement("on-the-phone-message").setText(imAccount.getOnThePhoneMessage());

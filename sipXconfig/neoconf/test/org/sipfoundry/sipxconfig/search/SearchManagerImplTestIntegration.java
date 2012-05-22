@@ -22,7 +22,6 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor.Identity;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
 
 public class SearchManagerImplTestIntegration extends IntegrationTestCase {
     private SearchManager m_searchManager;
@@ -35,7 +34,7 @@ public class SearchManagerImplTestIntegration extends IntegrationTestCase {
         super.onSetUpBeforeTransaction();
         clear();
     }
-    
+
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
         sql("commserver/SeedLocations.sql");
@@ -76,7 +75,7 @@ public class SearchManagerImplTestIntegration extends IntegrationTestCase {
 
         user.setUserName("kuku");
         // when changing username, must change PIN too
-        user.setPin("1234", m_coreContext.getAuthorizationRealm());
+        user.setPin("1234");
         m_coreContext.saveUser(user);
 
         collection = m_searchManager.search("first", m_identityToBean);
@@ -270,7 +269,7 @@ public class SearchManagerImplTestIntegration extends IntegrationTestCase {
 
         m_coreContext.saveUser(user);
         commit();
-        
+
         Collection collection = m_searchManager.search(User.class, "bon*", m_identityToBean);
         assertEquals(1, collection.size());
         assertTrue(collection.contains(user));

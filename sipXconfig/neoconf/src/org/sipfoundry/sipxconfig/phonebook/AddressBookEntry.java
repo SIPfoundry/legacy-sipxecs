@@ -27,7 +27,6 @@ public class AddressBookEntry extends BeanWithId {
     private String m_faxNumber;
     private String m_didNumber;
     private String m_imId;
-    private String m_imPassword;
     private String m_imDisplayName;
     private String m_alternateImId;
     private String m_emailAddress;
@@ -140,15 +139,6 @@ public class AddressBookEntry extends BeanWithId {
 
     public void setImId(String imId) {
         m_imId = imId;
-    }
-
-
-    public String getImPassword() {
-        return m_imPassword;
-    }
-
-    public void setImPassword(String imPassword) {
-        m_imPassword = imPassword;
     }
 
     public String getImDisplayName() {

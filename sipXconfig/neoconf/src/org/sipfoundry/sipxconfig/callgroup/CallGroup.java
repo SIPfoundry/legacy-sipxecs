@@ -19,14 +19,14 @@ import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.commons.security.Md5Encoder;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.dialplan.ForkQueueValue;
 import org.sipfoundry.sipxconfig.dialplan.MappingRule;
-import org.sipfoundry.sipxconfig.common.Md5Encoder;
-import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.SipUri;
-import org.sipfoundry.sipxconfig.common.User;
 
 public class CallGroup extends AbstractCallSequence implements Replicable {
     private static final int SIP_PASSWORD_LEN = 10;
@@ -200,7 +200,7 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
 
     public String getSipPasswordHash(String realm) {
         String password = StringUtils.defaultString(m_sipPassword);
-        return Md5Encoder.digestPassword(m_name, realm, password);
+        return Md5Encoder.digestEncryptPassword(m_name, realm, password);
     }
 
     /**

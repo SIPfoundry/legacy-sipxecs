@@ -128,7 +128,7 @@
     <property name="authenticationEntryPoint" ref="digestProcessingFilterEntryPoint" />
     <property name="userCache" ref="userCache" />
     <property name="userDetailsService" ref="standardUserDetailsService" />
-    <property name="passwordAlreadyEncoded" value="true" />
+    <property name="passwordAlreadyEncoded" value="false" />
     <property name="authenticationDetailsSource" ref="authenticationDetailsSource" />
   </bean>
 

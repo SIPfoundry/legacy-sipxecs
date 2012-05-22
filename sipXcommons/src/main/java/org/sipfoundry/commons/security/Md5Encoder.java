@@ -29,10 +29,20 @@ public final class Md5Encoder {
     /**
      * Computes the digest without DNS domain name
      */
-    public static final String digestPassword(String user, String realm, String password) {
+    public static final String digestEncryptPassword(String user, String realm, String password) {
         String full = user + ':' + realm + ':' + password;
         String digest = DigestUtils.md5Hex(full);
         return digest;
+    }
+
+    /**
+     * We are not going to use a one-way password encryption - if at some point we decide to do encryption,
+     * we change this method, instead of changing code all over the places
+     * @param password
+     * @return
+     */
+    public static final String getEncodedPassword(String password) {
+        return password;
     }
 
     /**
@@ -42,7 +52,7 @@ public final class Md5Encoder {
      * @deprecated use version that does not require credentials
      */
     @Deprecated
-    public static final String digestPassword(String user, String domain, String realm,
+    public static final String digestEncryptPassword(String user, String domain, String realm,
             String password) {
         String full = user + '@' + domain + ':' + realm + ':' + password;
         return DigestUtils.md5Hex(full);

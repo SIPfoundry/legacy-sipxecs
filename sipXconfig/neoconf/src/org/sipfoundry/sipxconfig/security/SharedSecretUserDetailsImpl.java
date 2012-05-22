@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.security;
 
 import org.acegisecurity.GrantedAuthority;
-import org.sipfoundry.sipxconfig.common.Md5Encoder;
+import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 
@@ -34,6 +34,6 @@ public class SharedSecretUserDetailsImpl extends UserDetailsImpl {
     @Override
     public String getPassword() {
         String sharedSecret = m_domainManager.getSharedSecret();
-        return Md5Encoder.digestPassword(getUsername(), m_domainManager.getAuthorizationRealm(), sharedSecret);
+        return Md5Encoder.getEncodedPassword(sharedSecret);
     }
 }

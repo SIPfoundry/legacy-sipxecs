@@ -7,7 +7,6 @@ package org.sipfoundry.sipxrest;
 
 import javax.sip.address.SipURI;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 import org.restlet.Filter;
 import org.restlet.data.ChallengeRequest;
@@ -98,14 +97,9 @@ public class BasicAuthenticationFilter extends Filter {
           logger.debug("userName = " + userName);
           logger.debug("secret = " + passWord);
 
-          String userDomainPassword =  userName +":" +
-          RestServer.getRealm() + ":" +
-          passWord;
-
-          String hashVal = DigestUtils.md5Hex(userDomainPassword);
           logger.debug("pintoken " + user.getPintoken());
-          logger.debug("hashval "  + hashVal);
-          if (user.getPintoken() == null || hashVal.equals(user.getPintoken())) {
+
+          if (user.getPintoken() == null || passWord.equals(user.getPintoken())) {
               return Filter.CONTINUE;
           } else {
               logger.debug("User not authenticated - token mismatch ");

@@ -1,0 +1,1 @@
+alter table address_book_entry drop column im_password;
