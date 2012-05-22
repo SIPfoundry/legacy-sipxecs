@@ -1,28 +1,27 @@
 <div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'timeAndDate','timeZone'}" selectedTab="ognl:tab"/>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'timeAndDate','timeZone','unmanaged'}" selectedTab="ognl:tab"/>
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
   <span jwcid="timeAndDateTab@Block">
-    <form jwcid="changeTime@Form" delegate="bean:validator">
-      <span jwcid="@common/FieldPanel" for="timeSettingType" field="component:timeSettingType"
-		      label="message:label.timeSettingType">
-         <span jwcid="timeSettingType@PropertySelection" id="timeSettingType" model="ognl:timeSettingTypeModel"
-             value="ognl:timeSettingType" onchange="javascript:this.form.submit();"/>
-      </span>
-    </form>
-    <fieldset jwcid="@If" condition="ognl:manualSetting">
-      <span jwcid="@admin/time/EditManualTimeSettings"
-            timeManager="ognl:timeManager"/>
-    </fieldset>
-    <fieldset jwcid="@Else">
-      <span jwcid="@admin/time/EditNtpSettings"
-          timeManager="ognl:timeManager"/>
-    </fieldset>
+	  <form jwcid="form@Form" delegate="bean:validator">
+	    <fieldset jwcid="@setting/SettingsFieldset"
+	        settings="ognl:settings.getSettings().getSetting('ntp-config')" />
+	    <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
+	        listener="listener:apply"/>
+	  </form> 
   </span>
   <span jwcid="timeZoneTab@Block">
     <span jwcid="@admin/time/EditTimeZoneSettings"
           timeManager="ognl:timeManager" />
+  </span>
+  <span jwcid="unmanagedTab@Block">
+	  <form jwcid="unmanagedForm@Form" delegate="bean:validator">
+	    <fieldset jwcid="@setting/SettingsFieldset"
+	        settings="ognl:settings.getSettings().getSetting('ntp-unmanaged')" />
+	    <ul jwcid="unmanagedFormActions@common/FormActions" callback="ognl:callback"
+	        listener="listener:apply"/>
+	  </form> 
   </span>
 </div>

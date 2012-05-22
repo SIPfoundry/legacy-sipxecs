@@ -30,6 +30,7 @@ Requires: net-snmp-libs >= 5.3.1
 Requires: sec
 Requires: sendmail
 Requires: sendmail-cf
+Requires: ntp
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -79,6 +80,7 @@ fi
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sysconfdir}/init.d/*
 %attr(755,root,root) %{_sysconfdir}/sipxpbx/dhcp/*
+%attr(755,root,root) %{_sysconfdir}/sipxpbx/ntpd/*
 %attr(755,root,root) %{_sysconfdir}/sipxpbx/firewall/*
 %attr(755,root,root) %{_datadir}/sipxecs/cfmodules/*
 %attr(755,root,root) %{_libexecdir}/sipXecs/*

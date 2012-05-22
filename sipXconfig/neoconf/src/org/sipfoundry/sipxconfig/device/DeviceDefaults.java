@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
-import org.sipfoundry.sipxconfig.service.UnmanagedService;
+import org.sipfoundry.sipxconfig.time.NtpManager;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
@@ -72,14 +72,14 @@ public class DeviceDefaults {
     }
 
     public String getNtpServer() {
-        return m_addressManager.getSingleAddress(UnmanagedService.NTP).getAddress();
+        return m_addressManager.getSingleAddress(NtpManager.NTP_SERVER).getAddress();
     }
 
     /**
      * @return null if not set
      */
     public String getAlternateNtpServer() {
-        Collection<Address> ntp = m_addressManager.getAddresses(UnmanagedService.NTP);
+        Collection<Address> ntp = m_addressManager.getAddresses(NtpManager.NTP_SERVER);
         if (ntp.size() > 1) {
             return ((Address) ntp.toArray()[1]).getAddress();
         }

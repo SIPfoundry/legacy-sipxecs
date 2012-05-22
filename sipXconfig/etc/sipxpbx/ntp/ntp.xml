@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="ntp-config">
+    <setting name="local-clock">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="server-0">
+      <type><string/></type>
+      <value>0.pool.ntp.org</value>
+    </setting>
+    <setting name="server-1">
+      <type><string/></type>
+      <value>1.pool.ntp.org</value>
+    </setting>
+    <setting name="server-2">
+      <type><string/></type>
+      <value>2.pool.ntp.org</value>
+    </setting>
+    <setting name="server-3">
+      <type><string/></type>
+    </setting>
+    <setting name="drift-file" advanced="yes">
+      <type><string/></type>
+      <value>/var/lib/ntp/drift</value>
+    </setting>
+    <setting name="permit-loopback" advanced="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="permit-sync" advanced="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="provide-time" advanced="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="networks-allowed" advanced="yes">
+      <type>
+        <string multiLine="yes" maxLen="1000"/>
+      </type>
+    </setting>
+  </group>
+  <group name="ntp-unmanaged">
+    <setting name="unmanaged">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="server-0">
+      <type><hostname/></type>
+    </setting>
+    <setting name="server-1">
+      <type><hostname/></type>
+    </setting>
+    <setting name="server-2">
+      <type><hostname/></type>
+    </setting>
+    <setting name="server-3">
+      <type><hostname/></type>
+    </setting>
+  </group>
+</model>

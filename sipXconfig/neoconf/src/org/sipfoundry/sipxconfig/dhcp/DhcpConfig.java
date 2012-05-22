@@ -35,7 +35,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dns.DnsManager;
 import org.sipfoundry.sipxconfig.ftp.FtpManager;
-import org.sipfoundry.sipxconfig.service.UnmanagedService;
+import org.sipfoundry.sipxconfig.time.NtpManager;
 
 public class DhcpConfig implements ConfigProvider {
     private DhcpManager m_dhcpManager;
@@ -50,7 +50,7 @@ public class DhcpConfig implements ConfigProvider {
         Address tftp = addressManager.getSingleAddress(FtpManager.TFTP_ADDRESS);
         Address admin = addressManager.getSingleAddress(AdminContext.HTTP_ADDRESS);
         List<Address> dns = addressManager.getAddresses(DnsManager.DNS_ADDRESS);
-        List<Address> ntp = addressManager.getAddresses(UnmanagedService.NTP);
+        List<Address> ntp = addressManager.getAddresses(NtpManager.NTP_SERVER);
 
         Set<Location> locations = request.locations(manager);
         DhcpSettings settings  = m_dhcpManager.getSettings();
