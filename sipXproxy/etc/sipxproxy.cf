@@ -116,7 +116,7 @@ bundle agent sipxproxy_running {
         comment => "stop sipxproxy",
         args => "stop";
 
-    sipxproxy.!sipxproxy_running::
+    sipxproxy.!sipxproxy_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
         comment => "start sipxproxy",
         args => "start";

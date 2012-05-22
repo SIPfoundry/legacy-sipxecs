@@ -62,7 +62,7 @@ bundle agent sipxsqa_running {
         comment => "stop sipxsqa",
         args => "stop";
 
-    sipxsqa.!sipxsqa_running::
+    sipxsqa.!sipxsqa_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxsqa"
         comment => "start sipxsqa",
         args => "start";

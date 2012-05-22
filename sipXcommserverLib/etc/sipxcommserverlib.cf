@@ -18,6 +18,10 @@
 bundle agent sipxcommserverlib {
   methods:
     any::
+      # run snmpd watchdog first so if this is a stop request, 
+      # it doesn't start things up on shutdown.
+      "any" usebundle => "snmp";
+
       "any" usebundle => "sipxcommserverlib_config";
 }
 

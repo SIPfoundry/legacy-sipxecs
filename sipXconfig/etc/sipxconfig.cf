@@ -49,12 +49,7 @@ bundle agent sipxconfig_running {
       "any" usebundle => rh_chkconfig_status("sipxconfig off");
 
   commands:
-    (!primary|stop_sipxecs).sipxconfig_running::
-      "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
-        comment => "stop sipxconfig",
-        args => "stop";
-
-    primary.!sipxconfig_running::
+    primary.!sipxconfig_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
         comment => "start sipxconfig",
         args => "start";
@@ -63,6 +58,11 @@ bundle agent sipxconfig_running {
       "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
         comment => "restart sipxconfig",
         args => "restart";
+
+    (!primary|stop_sipxecs).sipxconfig_running::
+      "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
+        comment => "stop sipxconfig",
+        args => "stop";
 }
 
 bundle agent sipxconfig_apache {

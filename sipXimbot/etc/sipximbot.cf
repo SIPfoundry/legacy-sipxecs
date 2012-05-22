@@ -86,7 +86,7 @@ bundle agent sipximbot_running {
         comment => "stop sipximbot",
         args => "stop";
 
-    sipximbot.!sipximbot_running::
+    sipximbot.!sipximbot_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipximbot"
         comment => "start sipximbot",
         args => "start";

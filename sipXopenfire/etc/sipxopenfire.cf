@@ -119,7 +119,7 @@ bundle agent sipxopenfire_running {
         comment => "stop sipxopenfire",
         args => "stop";
 
-    sipxopenfire.!sipxopenfire_running::
+    sipxopenfire.!sipxopenfire_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenfire"
         comment => "start sipxopenfire",
         args => "start";

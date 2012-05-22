@@ -121,7 +121,7 @@ bundle agent sipxdns_running {
         comment => "stop named",
         args => "stop";
 
-    sipxdns.!sipxdns_running::
+    sipxdns.!sipxdns_running.!stop_sipxecs::
       "$(service)"
         comment => "start named",
         args => "start";

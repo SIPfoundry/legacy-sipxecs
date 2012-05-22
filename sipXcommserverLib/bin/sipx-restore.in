@@ -3,7 +3,7 @@
 OPERATION="Restore"
 source @SIPX_LIBEXECDIR@/sipx-archive-common
 
-# HACK: allow access to Postgress tools and JVM - those paths should be determined by autoconf
+# HACK: allow access to Postgres tools and JVM - those paths should be determined by autoconf
 export PATH=$PATH:/usr/bin
 
 CHECK_VERSION="no"

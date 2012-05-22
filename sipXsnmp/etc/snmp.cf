@@ -48,6 +48,15 @@ bundle edit_line snmpd_conf {
   vars:
     "part" string => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/snmpd.conf.part";
 
+  #
+  # Notes:
+  #  -S on monitor to avoid race condition on snmp starting processes before cfengine
+  #     has had a chance to start them.
+  #
+  #  informsink local send any traps created in snmpd to local snmptrapd server.
+  #
+  #  open permissions relying on firewall for restricting access.
+  #
   insert_lines:
     any::
 "com2sec local  localhost  public
@@ -64,7 +73,7 @@ createUser _internal
 rwuser _internal
 iquerySecName _internal
 setEvent prFixIt prErrFix = 1
-monitor -r 10 -e prFixIt \"procTable\" prErrorFlag != 0
+monitor -S -r 10 -e prFixIt \"procTable\" prErrorFlag != 0
 ";
 
    "$(part)"
@@ -88,7 +97,7 @@ bundle agent snmp_sysv_running {
       "any" usebundle => rh_chkconfig_status("snmpd on");
 
   commands:
-    !snmp.snmp_running::
+    (!snmp|stop_sipxecs).snmp_running::
       "$(service)"
         comment => "stop snmp",
         args => "stop";
@@ -116,7 +125,7 @@ bundle agent snmp_systemctl_running {
       "snmp_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:
-    !snmp.snmp_running::
+    (!snmp|stop_sipxecs).snmp_running::
       "$(sipx.systemctl)"
         comment => "stop snmpd",
         args => "stop $(service)";

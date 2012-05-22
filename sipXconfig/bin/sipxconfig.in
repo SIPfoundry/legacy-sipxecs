@@ -278,6 +278,8 @@ stop() {
     echo_failure
   fi
   echo
+  # found useful when orphans exist, we should add this to all service scripts
+  killAnyOrphans
 }
 
 restart() {

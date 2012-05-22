@@ -73,7 +73,7 @@ bundle agent sipxrls_running {
         comment => "stop sipxrls",
         args => "stop";
 
-    sipxrls.!sipxrls_running::
+    sipxrls.!sipxrls_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxrls"
         comment => "start sipxrls",
         args => "start";

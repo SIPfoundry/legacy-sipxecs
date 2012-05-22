@@ -73,7 +73,7 @@ bundle agent sipxrecording_running {
         comment => "stop sipxrecording",
         args => "stop";
 
-    sipxrecording.!sipxrecording_running::
+    sipxrecording.!sipxrecording_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxrecording"
         comment => "start sipxrecording",
         args => "start";

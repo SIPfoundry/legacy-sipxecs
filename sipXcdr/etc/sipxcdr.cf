@@ -64,7 +64,7 @@ bundle agent sipxcdr_running {
         comment => "stop sipxcdr",
         args => "stop";
 
-    sipxcdr.!sipxcdr_running::
+    sipxcdr.!sipxcdr_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
         comment => "start sipxcdr",
         args => "start";

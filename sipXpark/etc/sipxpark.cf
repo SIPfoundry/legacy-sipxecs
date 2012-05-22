@@ -85,7 +85,7 @@ bundle agent sipxpark_running {
         comment => "stop sipxpark",
         args => "stop";
 
-    sipxpark.!sipxpark_running::
+    sipxpark.!sipxpark_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxpark"
         comment => "start sipxpark",
         args => "start";

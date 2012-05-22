@@ -115,7 +115,7 @@ bundle agent sipxopenacd_running {
         comment => "stop sipxopenacd",
         args => "stop";
 
-    sipxopenacd.!sipxopenacd_running::
+    sipxopenacd.!sipxopenacd_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxopenacd"
         comment => "start sipxopenacd",
         args => "start";

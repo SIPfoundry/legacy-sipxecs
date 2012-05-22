@@ -177,7 +177,7 @@ bundle agent sipxfreeswitch_running {
         comment => "stop freeswitch",
         args => "stop";
 
-    sipxfreeswitch.!sipxfreeswitch_running::
+    sipxfreeswitch.!sipxfreeswitch_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxfreeswitch"
         comment => "start freeswitch",
         args => "start";
