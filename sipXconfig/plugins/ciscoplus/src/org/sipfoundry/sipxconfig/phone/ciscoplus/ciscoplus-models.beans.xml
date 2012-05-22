@@ -45,5 +45,6 @@
 
   <bean id="ciscoplusPhone" class="org.sipfoundry.sipxconfig.phone.ciscoplus.CiscoplusPhone" singleton="false"
     parent="abstractPhone">
+    <property name="registrationContext" ref="registrationContext" />
   </bean>
 </beans>
