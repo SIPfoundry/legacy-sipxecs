@@ -84,10 +84,10 @@ bundle agent ntpd_systemctl_running {
 bundle agent ntpd_sysv_running {
   vars:
    "service" string => "/etc/init.d/ntpd";
-   "service_command" string => "/usr/sbin/ntpd";
+   "service_command" string => "ntpd";
 
   methods:
-    "any" usebundle => find_service_by_command("$(service_command)", "ntpd_running", "root");
+    "any" usebundle => find_service_by_command("$(service_command)", "ntpd_running", "ntp");
     !src.!ntpd::
       "any" usebundle => rh_chkconfig_status("ntpd off");
     ntpd::
