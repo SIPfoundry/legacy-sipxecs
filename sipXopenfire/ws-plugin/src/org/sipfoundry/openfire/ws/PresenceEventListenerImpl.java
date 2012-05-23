@@ -50,7 +50,9 @@ public class PresenceEventListenerImpl implements PresenceEventListener {
             String status = presence.getStatus();
             String message = StringUtils.isEmpty(status) ? "Offline" : status;
             User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUserByJid(presence.getFrom().getNode());
-            invokePost(user.getUserName(), message);
+            if (user != null) {
+                invokePost(user.getUserName(), message);
+            }
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
