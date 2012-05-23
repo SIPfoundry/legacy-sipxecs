@@ -387,7 +387,6 @@
   	<antcall target="openacd-insert-alias-did" />
 	<antcall target="openacd-add-queue-recipe" />
     <antcall target="location-active" />
-    <antcall target="init-location" />
     <antcall target="openacd-insert-commands" />
     <antcall target="openacd-add-line-regex" />
     <antcall target="feature" />
@@ -408,6 +407,7 @@
 	<antcall target="alarm_receiver" />
   	<antcall target="voicemail-pin" />
   	<antcall target="remove-im-password" />
+  	<antcall target="change-on-restore" />
   </target>
 
   <target name="plugin-patches">
@@ -1255,21 +1255,6 @@
   <target name="migrate_services" unless="migrate_services">
     <db-patch patch="migrate_services" />
   </target>
-
-  <!--
-  This target initializes the location. Parameters are passed by sipxconfig.sh
-  -->
-  <target name="init-location" unless="init-location">
-    <condition property="execute-init-location-sql">
-        <equals arg1="${primary.not.exists}" arg2="true"/>
-    </condition>
-    <antcall target="init-location-sql" />
-  </target>
-  <target name="init-location-sql" if="execute-init-location-sql">
-    <sipx-sql>
-        insert into location(location_id,name,fqdn,ip_address,password,primary_location,registered,stun_address) values(nextval('location_seq'),'Primary Server','${sipxconfig.hostname}','${primary.ip.addr}','${primary.password}',TRUE,TRUE,'stun.ezuce.com');
-    </sipx-sql>
-  </target>
   <target name="openacd-insert-commands" unless="openacd-insert-commands">
 	<db-patch patch="openacd-insert-commands" />
   </target>
@@ -1315,6 +1300,9 @@
   <target name="remove-im-password" unless="remove-im-password">
 	<plsql-patch patch="remove-im-password"/>
   </target>	
+  <target name="change-on-restore" unless="change-on-restore">
+    <plsql-patch patch="change-on-restore" />
+  </target>
   <!--
     - SUPPORT UTILITIES
   -->

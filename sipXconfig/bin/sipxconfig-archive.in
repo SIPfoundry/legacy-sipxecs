@@ -1,0 +1,192 @@
+#!/bin/env ruby
+
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+#
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+#
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# Archive and Restore sipXconfig's postgres database. Can be used as standalone
+# script or within the larger sipx-backup context.
+#
+
+class ArchiveBase
+  attr_writer :verbose
+
+  def initialize
+    @pguser = "postgres"
+    @db = "SIPXCONFIG"
+    @tmpdir = "/tmp"
+    @libexec = "@SIPX_LIBEXECDIR@"
+    @initd = "@SIPX_SERVICEDIR@"
+  end
+
+  def sql_exec(db, sql)
+    cmd "psql -U #{@pguser} #{db} -c \"#{sql}\""
+  end
+
+  def cmd(cmd)
+    puts cmd if @verbose
+    rc = system(cmd)
+    return rc
+  end
+end
+
+class Archive < ArchiveBase
+  def run(params)
+    cmd "pg_dump -U #{@pguser} -F t #{@db} | gzip > #{params[:file]}" or 
+      raise "Could not backup database"
+  end
+end
+
+class Restore < ArchiveBase
+  def initialize
+    super
+    @restoredb = "#{@db}_RESTORE"
+  end
+
+  def run(params)
+    legacy_format = false
+    unless cmd "tar -tzf #{params[:file]} toc.dat 2>/dev/null"
+      cmd "tar -tzf #{params[:file]} db.tar" or
+        raise "Verification failed. Could not determine format of #{params[:file]}"
+      legacy_format = true
+    end
+
+    cmd "dropdb -U #{@pguser} #{@restoredb} 2>/dev/null";
+    cmd "createdb -U #{@pguser} #{@restoredb}" or
+      raise "Restore database failed."
+ 
+    if legacy_format
+      cmd "tar -xzOf #{params[:file]} db.tar > #{@tmpdir}/db.tar" or
+        raise "Failed to extract database from archive."
+      cmd "pg_restore -U #{@pguser} -d #{@restoredb} #{@tmpdir}/db.tar" or
+        raise "Failed to restore database from archive."
+    else
+      cmd "gzip -d -c #{params[:file]} | pg_restore -U #{@pguser} -F t -d #{@restoredb}" or
+        raise "Failed to restore database from archive."
+    end
+
+    cmd "SIPXCONFIG_ANT_OPTS=\"-Dsipxconfig.db.name=#{@restoredb}\" #{@initd}/sipxconfig db upgrade" or
+      raise "Failed to migrate database."
+
+    if params.has_key?(:domain)
+      if legacy_format && params.has_key?(:crack_pin)
+        sql_exec(@restoredb, "select uncover_pin_on_restore('#{params[:crack_pin]}', #{params[:crack_pin_len]});") or
+          raise "Failed to change domain."
+      end
+
+      sql_exec(@restoredb, "select change_domain_on_restore('#{params[:domain]}');") or
+        raise "Failed to change domain."
+    end
+
+    if params.has_key?(:fqdn)
+        sql_exec(@restoredb, "select change_primary_fqdn_on_restore('#{params[:fqdn]}');") or
+          raise "Failed to change domain."
+    end
+
+    sql_exec(@restoredb, "select change_primary_ip_on_restore('#{params[:ipaddress]}');") or
+      raise "Failed to update ip address."
+    
+    unless params[:dryrun]
+      cmd "#{@initd}/sipxconfig stop" if params[:restart]
+      cmd "dropdb -U #{@pguser} #{@db}"
+      # alter database command need double quotes if db name is capitalized. Also, first set of double
+      # quotes is lost passing thru ruby
+      sql_exec('postgres', "alter database \\\"#{@restoredb}\\\" rename to \\\"#{@db}\\\";") or
+        raise "Could not rename database. Please run '#{@initd}/sipxconfig db create' to reset your system."
+      cmd "#{@initd}/sipxconfig start" if params[:restart]
+    end    
+  end
+end
+
+if __FILE__ == $0
+
+require 'optparse'
+params = {}
+operation = nil
+params[:ipaddress] = `hostname -i`.chomp
+params[:restart] = true
+params[:dryrun] = false
+params[:crack_pin_len] = 4
+verbose = false
+args = OptionParser.new { |opts|
+  opts.banner = <<EOF
+Create or restore configuration to/from an archive file.
+EOF
+
+  opts.on("--archive <archive>",
+      "Restore the specified Configuration archive."){ |v|
+    operation = Archive.new
+    params[:file] = v
+  }
+
+  opts.on("--restore <archive>",
+      "Restore the specified Configuration archive."){ |v|
+    operation = Restore.new
+    params[:file] = v
+  }
+
+  opts.on("--verbose",
+      "Restore the specified Configuration archive."){
+    verbose = true
+  }
+
+  opts.separator ""
+  opts.separator "Restore options:"
+
+  opts.on_tail("--ipaddress <address>",
+      "IP Address. Default #{params[:ipaddress]}."){ |v|
+    params[:ipaddress] = v
+  }
+
+  opts.on_tail("--domain <domain>",
+      "SIP domain for new system. i.e. example.org. Default is to keep domain from archive"){ |v|
+    params[:domain] = v
+  }
+
+  opts.on_tail("--fqdn <fqdn of primary machine>",
+      "Set FQDN of this primary machine"){ |v|
+    params[:fqdn] = v
+  }
+
+  opts.on_tail("--dryrun",
+      "Don't actually restore db, but test the db migration process."){
+    params[:dryrun] = true
+  }
+
+  opts.on_tail("--crack-pin default-pin",
+      "When changing the domain and when restoring from backups for versions 4.4.0, attempt to \
+recover original PIN by brute force. If unsuccessful, reset users password to given value."){|v|
+    params[:crack_pin] = v
+  }
+
+  opts.on_tail("--crack-pin-len length",
+               "Maximum length of PIN to attempt. Default is #{params[:crack_pin_len]}. Higher values take exponentially more time."){|v|
+    params[:crack_pin_len] = v
+  }
+
+  opts.on_tail("--no-restart",
+      "Don't actually restore db, but test the db migration process."){
+    params[:restart] = false
+  }
+}
+args.parse!
+
+if operation.nil?
+  raise "Must specify either restore or archive options."
+end
+
+operation.verbose = verbose
+operation.run(params)
+exit 0
+
+end
