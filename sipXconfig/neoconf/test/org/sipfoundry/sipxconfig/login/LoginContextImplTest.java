@@ -57,7 +57,7 @@ public class LoginContextImplTest extends TestCase {
 
     public void testCheckCredentials() {
         m_user.setUserName("superadmin");
-        m_user.setPintoken("e3e367205de83ab477cdf3449f152791");
+        m_user.setPintoken("1234");
 
         // password OK
         assertSame(m_user, m_impl.checkCredentials("superadmin", "1234"));

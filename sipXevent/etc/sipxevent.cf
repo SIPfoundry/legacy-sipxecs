@@ -63,7 +63,7 @@ bundle agent sipxevent_running {
         comment => "stop sipxevent",
         args => "stop";
 
-    sipxevent.!sipxevent_running::
+    sipxevent.!sipxevent_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxevent"
         comment => "start sipxevent",
         args => "start";

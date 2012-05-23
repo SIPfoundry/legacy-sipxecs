@@ -1,0 +1,112 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# This is ntpd configuration. Uses either /etc/init.d./ntpd (centos 6) or 
+# /bin/systemctl (fedora 16) scripts whichever are available.
+#
+
+bundle agent ntpd {
+  methods:
+    ntpd::
+      "any" usebundle => "ntpd_config";
+    fedora16_or_greater::
+      "any" usebundle => "ntpd_systemctl_running";
+    !fedora16_or_greater::
+      "any" usebundle => "ntpd_sysv_running";
+}
+
+bundle agent ntpd_config {
+  vars:
+    "template" string => "$(sipx.SIPX_CONFDIR)/ntpd/ntpd.erb";
+    "temp" string => "$(sipx.SIPX_TMPDIR)/ntpd.conf.temp";
+    "data" string => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/ntpd.yaml";
+
+  files:
+    any::      
+      "$(temp)"
+        comment => "Preprocess NTP template $(this.promiser)",
+        create => "true",
+        transformer => "$(sipx.SIPX_LIBEXECDIR)/sipx-config-maker \
+            --in $(data) --out $(temp) --template $(template)";
+
+      "/etc/ntp.conf"
+        comment => "NTP daemon config $(this.promoiser)",
+        perms => mog("0644","root","root"),
+        create => "true",
+        edit_defaults => empty,
+        edit_line => expand_template("$(temp)"),
+        classes => if_repaired("restart_ntpd");
+}
+
+bundle agent ntpd_systemctl_running {
+  vars:
+    "service" string => "ntpd.service";
+
+  classes:
+    # wrap w/fedora16_or_greater to avoid 
+    fedora16_or_greater::
+      "ntpd_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+
+  commands:
+    # NOTE: Start/stop commands will complain about not being able to open a TTY, but commands
+    # to complete their task
+    ntpd_running.!ntpd::
+      "$(sipx.systemctl)"
+        comment => "stop ntpd",
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable ntpd",
+        args => "disable $(service)";
+
+    !ntpd_running.ntpd::
+      "$(sipx.systemctl)"
+        comment => "start ntpd",
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable ntpd",
+        args => "enable $(service)";
+}
+
+
+bundle agent ntpd_sysv_running {
+  vars:
+   "service" string => "/etc/init.d/ntpd";
+   "service_command" string => "/usr/sbin/ntpd";
+
+  methods:
+    "any" usebundle => find_service_by_command("$(service_command)", "ntpd_running", "root");
+    !src.!ntpd::
+      "any" usebundle => rh_chkconfig_status("ntpd off");
+    ntpd::
+      "any" usebundle => rh_chkconfig_status("ntpd on");
+
+  commands:
+    !ntpd.!src.!unmanaged_ntpd.ntpd_running::
+      "$(service)"
+        comment => "stop ntpd",
+        args => "stop";
+
+    ntpd.!ntpd_running::
+      "$(service)"
+        comment => "start ntpd",
+        args => "start";
+
+    ntpd.ntpd_running.restart_ntpd::
+      "$(service)"
+        comment => "restart ntpd",
+        args => "restart";
+}
+

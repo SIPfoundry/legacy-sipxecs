@@ -26,10 +26,9 @@ import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.muc.MUCRoom;
 import org.jivesoftware.openfire.muc.spi.MUCPersistenceManager;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
-import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePlugin;
 import org.sipfoundry.openfire.plugin.presence.SipXBookmarkManager;
+import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePlugin;
 import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePluginException;
 import org.sipfoundry.openfire.plugin.presence.UserAccount;
 import org.xml.sax.InputSource;
@@ -368,7 +367,7 @@ public class AccountsParser {
         List<User> users = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUsersWithImEnabled();
         for (User user : users) {
             XmppUserAccount account = new XmppUserAccount();
-            account.setPassword(user.getImPassword());
+            account.setPassword(user.getPintoken());
             account.setUserName(user.getJid());
             account.setSipUserName(user.getUserName());
             account.setEmail(StringUtils.defaultIfEmpty(user.getEmailAddress(), StringUtils.EMPTY));

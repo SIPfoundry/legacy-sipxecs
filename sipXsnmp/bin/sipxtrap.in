@@ -1,7 +1,16 @@
 #!/bin/bash
 
 # Send trap to snmpd service, which in turn can send it to snmptrapd service or any other
-# configured trap monitoring service
+# configured trap monitoring service.
+
+# Parameters
+#  1 - Alarm id. 
+#  2 - Alarm specific message
+#
+# Examples:
+#
+#  sipxtrap PROCESS_RESTARTED "The foo process has failed and is in the process of restarting"
+#  sipxtrap LOGIN_FAILED "User foo has failed to login 3 times in a row in a 1 minute time window"
 here=`hostname`
 
 # must be root to call snmptrap command
@@ -12,4 +21,6 @@ snmptrap -v 2c -c public localhost '' SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotif
          SIPXECS-ALARM-NOTIFICATION-MIB::alarmAttributes.1 s "$1" \
          SIPXECS-ALARM-NOTIFICATION-MIB::alarmAttributes.2 s "$here" \
          SIPXECS-ALARM-NOTIFICATION-MIB::alarmAttributes.3 x 0x00000000 \
-         SIPXECS-ALARM-NOTIFICATION-MIB::alarmAttributes.4 x 0x00000000
+         SIPXECS-ALARM-NOTIFICATION-MIB::alarmAttributes.4 x 0x00000000 \
+         SIPXECS-ALARM-NOTIFICATION-MIB::alarmAttributes.5 s "$2"
+

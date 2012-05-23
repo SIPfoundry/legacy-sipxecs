@@ -358,6 +358,7 @@
 	<antcall target="remove_discovered_devices" />
   	<antcall target="add_addressbookentry_did_number" />
     <antcall target="sbc-addressPort" />
+    <antcall target="createlang-plpgsql"/>
     <antcall target="migrate-sbcs" />
     <antcall target="location-add-tls-port" />
     <antcall target="add_did_numbers" />
@@ -378,7 +379,7 @@
 	<antcall target="call-rate-limit" />
 	<antcall target="openacd-add-default-client" />
 	<antcall target="migrate-regionid-to-beanid" />
-    <antcall target="createlang-plpgsql"/>
+    <antcall target="createlang-plpgsql2" />
     <antcall target="migrate-gw-calleralias-info" />
 	<antcall target="openacd-queue-remove-sort" />
 	<antcall target="openacd-add-skill-groups" />
@@ -406,6 +407,7 @@
 	<antcall target="migrate-openacd-skill-groups" />
 	<antcall target="alarm_receiver" />
   	<antcall target="voicemail-pin" />
+  	<antcall target="remove-im-password" />
   </target>
 
   <target name="plugin-patches">
@@ -1099,6 +1101,14 @@
   <target name="createlang-plpgsql" unless="createlang-plpgsql">
     <plsql-patch patch="createlang-plpgsql"/>
   </target>
+  <target name="createlang-plpgsql2" unless="createlang-plpgsql2">
+    <!-- 
+      - if coming from v10 createlang-plpgsql will be true, but from v11 it wont
+      - i think plsql patch was introduced post release but not entirely sure.
+      - so we rerun it here, it's a safe to run multiple times.
+      -->
+    <plsql-patch patch="createlang-plpgsql2"/>
+  </target>
   <target name="migrate-pregroup-alarm-contacts" unless="migrate-pregroup-alarm-contacts">
     <plsql-patch patch="migrate-pregroup-alarm-contacts"/>
   </target>
@@ -1302,6 +1312,9 @@
   <target name="voicemail-pin" unless="voicemail-pin">
 	<plsql-patch patch="voicemail-pin"/>
   </target>
+  <target name="remove-im-password" unless="remove-im-password">
+	<plsql-patch patch="remove-im-password"/>
+  </target>	
   <!--
     - SUPPORT UTILITIES
   -->

@@ -33,6 +33,7 @@ import org.restlet.data.Protocol;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
+import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -107,8 +108,6 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     private String m_voicemailPintoken;
 
-    private String m_clearPin;
-
     private String m_clearVoicemailPin;
 
     private String m_lastName;
@@ -151,11 +150,9 @@ public abstract class AbstractUser extends BeanWithGroups {
      * @param pin PIN
      * @param realm security realm
      */
-    public void setPin(String pin, String realm) {
+    public void setPin(String pin) {
         String pin2 = defaultString(pin, EMPTY); // handle null
-        // pin
-        m_clearPin = pin;
-        setPintoken(Md5Encoder.digestPassword(m_userName, realm, pin2));
+        setPintoken(Md5Encoder.getEncodedPassword(pin2));
     }
 
     public String getVoicemailPintoken() {
@@ -170,7 +167,7 @@ public abstract class AbstractUser extends BeanWithGroups {
         String pin2 = defaultString(voicemailPin, EMPTY); // handle null
         // pin
         m_clearVoicemailPin = voicemailPin;
-        setVoicemailPintoken(Md5Encoder.digestPassword(m_userName, realm, pin2));
+        setVoicemailPintoken(Md5Encoder.digestEncryptPassword(m_userName, realm, pin2));
     }
 
     public String getFirstName() {
@@ -187,7 +184,7 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     public String getSipPasswordHash(String realm) {
         String password = defaultString(m_sipPassword, EMPTY);
-        return Md5Encoder.digestPassword(m_userName, realm, password);
+        return Md5Encoder.digestEncryptPassword(m_userName, realm, password);
     }
 
     public void setSipPassword(String password) {
@@ -565,17 +562,6 @@ public abstract class AbstractUser extends BeanWithGroups {
         useAddressBookEntry().setImDisplayName(trim(imDisplayName));
     }
 
-    public String getImPassword() {
-        if (m_addressBookEntry == null) {
-            return null;
-        }
-        return m_addressBookEntry.getImPassword();
-    }
-
-    public void setImPassword(String imPassword) {
-        useAddressBookEntry().setImPassword(imPassword);
-    }
-
     /**
      * Creates address book entry if it does not exist
      */
@@ -737,16 +723,11 @@ public abstract class AbstractUser extends BeanWithGroups {
         return m_addressManager;
     }
 
-    public String getClearPin() {
-        return m_clearPin;
-    }
-
     public String getClearVoicemailPin() {
         return m_clearVoicemailPin;
     }
 
     public void clearPasswords() {
-        m_clearPin = null;
         m_clearVoicemailPin = null;
     }
 }

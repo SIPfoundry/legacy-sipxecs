@@ -89,7 +89,7 @@ bundle agent sipxacdstatistics_running {
         comment => "stop sipxacdstatistics",
         args => "stop";
 
-    sipxacdstatistics.!sipxacdstatistics_running::
+    sipxacdstatistics.!sipxacdstatistics_running.!stop_sipxecs::
       "$(service)"
         comment => "start sipxacdstatistics",
         args => "start";

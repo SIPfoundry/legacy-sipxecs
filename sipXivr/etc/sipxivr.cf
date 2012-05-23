@@ -21,7 +21,6 @@ bundle agent sipxivr {
     moh::
       "any" usebundle => "sync_moh_prompts";
     any::
-      "any" usebundle => "sipxivr_setup";
       "any" usebundle => "sipxivr_running";
 }
 
@@ -95,14 +94,6 @@ bundle edit_line sipxivr_properties_contents {
 }
 
 
-bundle agent sipxivr_setup {
-  methods:
-    !src.sipxivr::
-      "any" usebundle => rh_chkconfig_status("sipxivr on");
-    !src.!sipxivr::
-      "any" usebundle => rh_chkconfig_status("sipxivr off");
-}
-
 bundle agent sipxivr_running {
   vars:
     any::
@@ -111,6 +102,10 @@ bundle agent sipxivr_running {
   methods:
     any::
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxivr_running");
+    !src.sipxivr::
+      "any" usebundle => rh_chkconfig_status("sipxivr on");
+    !src.!sipxivr::
+      "any" usebundle => rh_chkconfig_status("sipxivr off");
 
   commands:
     (!sipxivr|stop_sipxecs).sipxivr_running::
@@ -118,7 +113,7 @@ bundle agent sipxivr_running {
         comment => "stop sipxivr",
         args => "stop";
 
-    sipxivr.!sipxivr_running::
+    sipxivr.!sipxivr_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxivr"
         comment => "start sipxivr",
         args => "start";

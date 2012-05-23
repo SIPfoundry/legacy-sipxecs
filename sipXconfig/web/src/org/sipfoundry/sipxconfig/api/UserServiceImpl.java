@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
             Group g = m_settingDao.getGroupCreateIfNotFound(GROUP_RESOURCE_ID, groups[i]);
             myUser.addGroup(g);
         }
-        myUser.setPin(addUser.getPin(), m_coreContext.getAuthorizationRealm());
+        myUser.setPin(addUser.getPin());
         if (apiUser.getBranchName() != null) {
             myUser.setBranch(m_branchManager.getBranch(apiUser.getBranchName()));
         }

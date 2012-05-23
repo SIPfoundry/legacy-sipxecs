@@ -248,7 +248,7 @@ public class CounterpathPhone extends Phone {
             if (m_imAccount == null) {
                 return null;
             }
-            return m_imAccount.getImPassword();
+            return m_user.getPintoken();
         }
 
         @SettingEntry(paths = { REG_DOMAIN, "xmpp-config/domain" })

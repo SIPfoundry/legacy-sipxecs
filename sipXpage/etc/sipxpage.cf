@@ -78,7 +78,7 @@ bundle agent sipxpage_running {
         comment => "stop sipxpage",
         args => "stop";
 
-    sipxpage.!sipxpage_running::
+    sipxpage.!sipxpage_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxpage"
         comment => "start sipxpage",
         args => "start";

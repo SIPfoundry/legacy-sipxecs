@@ -36,6 +36,7 @@ dist_cfplugins_DATA = \
 	selinux.cf \
 	firewall.cf \
 	dhcpd.cf \
+	ntpd.cf \
 	sendmail.cf \
 	zz_sipxlogwatcher.cf
 
@@ -47,12 +48,17 @@ dhcpdir = $(SIPX_CONFDIR)/dhcp
 dist_dhcp_DATA = \
 	dhcpd.erb
 
+ntpddir = $(SIPX_CONFDIR)/ntpd
+dist_ntpd_DATA = \
+	ntpd.erb
+
 cflibdir =  $(SIPX_CFINPUTS)/plugin.d/lib
 cflib_DATA = \
 	commands.cf \
 	upload_snapshot.cf \
 	vmbackup.cf \
 	restore_vmbackup.cf \
+	change_timezone.cf \
 	upload_vmbackup.cf \
 	restore.cf \
 	snapshot.cf

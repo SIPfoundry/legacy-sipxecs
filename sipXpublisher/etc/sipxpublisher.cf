@@ -78,7 +78,7 @@ bundle agent sipxpublisher_running {
         comment => "stop sipxpublisher",
         args => "stop";
 
-    sipxpublisher.!sipxpublisher_running::
+    sipxpublisher.!sipxpublisher_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
         comment => "start sipxpublisher",
         args => "start";

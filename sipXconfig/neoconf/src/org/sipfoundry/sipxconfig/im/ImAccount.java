@@ -10,10 +10,10 @@
 
 package org.sipfoundry.sipxconfig.im;
 
-import org.sipfoundry.sipxconfig.common.User;
-
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+
+import org.sipfoundry.sipxconfig.common.User;
 
 /**
  * Flyweight facade for User class that simplifies using it in the context of instant messaging
@@ -99,14 +99,6 @@ public class ImAccount {
 
     public String getDefaultImDisplayName() {
         return defaultString(m_user.getDisplayName(), m_user.getUserName());
-    }
-
-    public String getImPassword() {
-        String imPassword = m_user.getImPassword();
-        if (isNotBlank(imPassword)) {
-            return imPassword;
-        }
-        return getImId();
     }
 
     public String getEmailAddress() {

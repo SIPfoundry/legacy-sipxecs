@@ -1,0 +1,69 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+bundle agent change_timezone {
+  methods:
+    any::
+      "any" usebundle => "sipx_module";
+      "any" usebundle => "prepare_change";
+}
+
+bundle agent prepare_change {
+  vars:
+    any::
+      "timezone_ini_file" string => "@SIPX_CFDATA@/timezone.ini";
+
+  files:
+    any::
+      "$(timezone_ini_file)"
+        comment => "prepare change timezone",
+        create => "true",
+        perms => m("644"),
+        copy_from => master_files("$(sipx.master_address)","$(timezone_ini_file)");
+
+  methods:
+    any::
+      "perform_change" usebundle => perform_change("$(timezone_ini_file)");
+}
+
+bundle agent perform_change(ini) {
+  vars:
+    "timezone" string => readfile("$(ini)", "1500");
+
+  files:
+    any::
+      "/etc/localtime"
+            comment => "Replace localtime",
+            copy_from => local_tz("/usr/share/zoneinfo/$(timezone)"),
+            perms => m("644");
+
+      "/etc/sysconfig/clock"
+            comment => "Change sysconfig clock",
+            perms => m("644"),
+            edit_line => timezone_contents('"$(timezone)"');
+}
+
+bundle edit_line timezone_contents(timezone) {
+  insert_lines:
+    any::
+      "ZONE=$(timezone)";
+  delete_lines:
+    any::
+      ".*";
+}
+
+body copy_from local_tz(from)
+{
+  source => "$(from)";
+  compare => "digest";
+}

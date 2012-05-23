@@ -567,7 +567,6 @@ public class ValidUsers {
         user.setJid(getStringValue(obj, IM_ID));
         user.setAltJid(getStringValue(obj, ALT_IM_ID));
         user.setImDisplayName(getStringValue(obj, IM_DISPLAY_NAME));
-        user.setImPassword(getStringValue(obj, IM_PASSWORD));
         user.setOnthePhoneMessage(getStringValue(obj, IM_ON_THE_PHONE_MESSAGE));
         user.setAdvertiseOnCallStatus(Boolean.valueOf(getStringValue(obj, IM_ADVERTISE_ON_CALL_STATUS)));
         user.setShowOnCallDetails(Boolean.valueOf(getStringValue(obj, IM_SHOW_ON_CALL_DETAILS)));

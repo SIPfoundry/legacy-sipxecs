@@ -93,7 +93,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
 
             String pin = m_userMapper.getPin(attrs, newUser);
             if (pin != null) {
-                user.setPin(pin, m_coreContext.getAuthorizationRealm());
+                user.setPin(pin);
             }
 
             String sipPassword = m_userMapper.getSipPassword(attrs);

@@ -21,14 +21,14 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
-import org.sipfoundry.sipxconfig.time.TimeManager;
+import org.sipfoundry.sipxconfig.time.NtpManager;
 import org.sipfoundry.sipxconfig.time.Timezone;
 
 import com.davekoelle.AlphanumComparator;
 
 public abstract class EditTimeZoneSettings extends BaseComponent implements PageBeginRenderListener {
     @Parameter(required = true)
-    public abstract TimeManager getTimeManager();
+    public abstract NtpManager getTimeManager();
 
     public abstract String getTimezoneType();
 

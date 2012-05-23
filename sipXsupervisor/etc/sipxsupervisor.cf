@@ -110,7 +110,7 @@ bundle agent sipxsupervisor_running {
         comment => "stop sipxsupervisor",
         args => "stop";
 
-    sipxsupervisor.!sipxsupervisor_running::
+    sipxsupervisor.!sipxsupervisor_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxsupervisor"
         comment => "start sipxsupervisor",
         args => "start";

@@ -53,7 +53,7 @@ bundle agent sipxrest_running {
         comment => "stop sipxrest",
         args => "stop";
 
-    sipxrest.!sipxrest_running::
+    sipxrest.!sipxrest_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxrest"
         comment => "start sipxrest",
         args => "start";

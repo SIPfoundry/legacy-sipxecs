@@ -87,7 +87,7 @@ bundle agent sipxregistrar_running {
         comment => "stop sipxregistrar",
         args => "stop";
 
-    sipxregistrar.!sipxregistrar_running::
+    sipxregistrar.!sipxregistrar_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
         comment => "start sipxregistrar",
         args => "start";

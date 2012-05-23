@@ -28,7 +28,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import com.mongodb.QueryBuilder;
 
 public class PermissionsTestIntegration extends ImdbTestCase {
-    
+
     // needs to be adjusted every time a new permission is added
     private static int PERM_COUNT = 5;
     private static int SPEC_COUNT = SpecialUserType.values().length;
@@ -118,7 +118,7 @@ public class PermissionsTestIntegration extends ImdbTestCase {
         user.setPermission(PermissionName.LONG_DISTANCE_DIALING, false);
         user.setPermission(PermissionName.MOBILE, false);
         user.setPermission(PermissionName.TOLL_FREE_DIALING, false);
-        
+
         AuthCode code = new AuthCode();
         code.setInternalUser(user);
         getReplicationManager().replicateEntity(code, DataSet.PERMISSION);
@@ -127,11 +127,11 @@ public class PermissionsTestIntegration extends ImdbTestCase {
         qb.is("AuthCode-1").and(MongoConstants.PERMISSIONS).size(1).and(MongoConstants.PERMISSIONS)
                 .is(PermissionName.NINEHUNDERED_DIALING.getName());
         assertObjectPresent(getEntityCollection(), qb.get());
-        
+
         user.setPermission(PermissionName.NINEHUNDERED_DIALING, false);
         user.setPermission(PermissionName.INTERNATIONAL_DIALING, true);
         code.setInternalUser(user);
-        
+
         getReplicationManager().replicateEntity(code, DataSet.PERMISSION);
         qb.is("AuthCode-1").and(MongoConstants.PERMISSIONS).size(1).and(MongoConstants.PERMISSIONS)
         .is(PermissionName.INTERNATIONAL_DIALING.getName());

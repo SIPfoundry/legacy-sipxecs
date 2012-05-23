@@ -24,8 +24,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.security.SipxAuthenticationDetails;
@@ -82,7 +82,7 @@ public class LoginContextImpl implements LoginContext, ApplicationListener {
     }
 
     public String getEncodedPassword(String userName, String password) {
-        return Md5Encoder.digestPassword(userName, m_coreContext.getAuthorizationRealm(), password);
+        return Md5Encoder.getEncodedPassword(password);
     }
 
     public boolean isAdmin(Integer userId) {

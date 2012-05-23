@@ -15,7 +15,7 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.userdetails.UserDetails;
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.common.Md5Encoder;
+import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.test.TestHelper;
@@ -39,7 +39,7 @@ public class SharedSecretUserDetailsImplTest extends TestCase {
         final String userName = "angelina";
         user.setUserName(userName);
 
-        String hashedSecret = Md5Encoder.digestPassword(userName, "realm.sipfoundry.org", "secret");
+        String hashedSecret = Md5Encoder.getEncodedPassword("secret");
 
         GrantedAuthority[] authorities = new GrantedAuthority[1];
         GrantedAuthority party = new GrantedAuthorityImpl("party");

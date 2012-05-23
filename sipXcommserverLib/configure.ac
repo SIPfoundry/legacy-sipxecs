@@ -45,9 +45,6 @@ AC_CONFIG_FILES([
   meta/Makefile
   src/sipxpackage/Makefile
   src/sipxswadmin/Makefile
-  src/sipxzoneadmin/Makefile
-  src/sipxtimemanager/Makefile
-  src/sipxchangetimezone/Makefile
   src/sipxcdrpostgres/Makefile
 ])
 AC_OUTPUT

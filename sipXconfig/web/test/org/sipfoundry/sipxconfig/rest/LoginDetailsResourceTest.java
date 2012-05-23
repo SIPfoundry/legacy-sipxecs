@@ -52,7 +52,6 @@ public class LoginDetailsResourceTest extends TestCase {
         m_user.setFirstName("John");
         m_user.setLastName("Doe");
         m_user.setImId("JohnIM");
-        m_user.setImPassword("123456");
 
         Authentication token = new TestAuthenticationToken(m_user, false, false).authenticateToken();
         SecurityContextHolder.getContext().setAuthentication(token);

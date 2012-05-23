@@ -22,6 +22,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
+import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
@@ -115,7 +116,7 @@ public class UserTest extends TestCase {
     private void checkSetPin(String pin) throws Exception {
         User user = new User();
         user.setUserName("username");
-        user.setPin(pin, "realm.sipfoundry.org");
+        user.setPin(pin);
         String pintoken = getPintoken("username", pin);
         assertEquals(pintoken, user.getPintoken());
     }
@@ -124,7 +125,7 @@ public class UserTest extends TestCase {
         User user = new User();
         user.setUserName("username");
         user.setVoicemailPin(pin, "realm.sipfoundry.org");
-        String pintoken = getPintoken("username", pin);
+        String pintoken = getVoicemailPintoken("username","realm.sipfoundry.org", pin);
         assertEquals(pintoken, user.getVoicemailPintoken());
     }
 
@@ -132,7 +133,7 @@ public class UserTest extends TestCase {
         User user = new User();
         user.setUserName("username");
         user.setSipPassword("sip password");
-        String hash = Md5Encoder.digestPassword("username", "realm.sipfoundry.org", "sip password");
+        String hash = Md5Encoder.digestEncryptPassword("username", "realm.sipfoundry.org", "sip password");
 
         assertEquals(hash, user.getSipPasswordHash("realm.sipfoundry.org"));
     }
@@ -141,7 +142,7 @@ public class UserTest extends TestCase {
         User user = new User();
         user.setUserName("username");
         user.setSipPassword(null);
-        String hash = Md5Encoder.digestPassword("username", "realm.sipfoundry.org", "");
+        String hash = Md5Encoder.digestEncryptPassword("username", "realm.sipfoundry.org", "");
 
         assertEquals(hash, user.getSipPasswordHash("realm.sipfoundry.org"));
     }
@@ -149,10 +150,10 @@ public class UserTest extends TestCase {
     public void testGetSipPasswordHashMd5() throws Exception {
         User user = new User();
         user.setUserName("username");
-        String hash = Md5Encoder.digestPassword("username", "realm.sipfoundry.org", "");
+        String hash = Md5Encoder.digestEncryptPassword("username", "realm.sipfoundry.org", "");
         user.setSipPassword(hash);
 
-        String newHash = Md5Encoder.digestPassword("username", "realm.sipfoundry.org", hash);
+        String newHash = Md5Encoder.digestEncryptPassword("username", "realm.sipfoundry.org", hash);
 
         assertFalse(hash.equals(newHash));
         assertEquals(newHash, user.getSipPasswordHash("realm.sipfoundry.org"));
@@ -440,6 +441,12 @@ public class UserTest extends TestCase {
     private String getPintoken(String username, String pin) {
         // handle null pin
         String safePin = StringUtils.defaultString(pin);
-        return Md5Encoder.digestPassword(username, "realm.sipfoundry.org", safePin);
+        return Md5Encoder.getEncodedPassword(safePin);
+    }
+
+    private String getVoicemailPintoken(String username, String realm, String pin) {
+        // handle null pin
+        String safePin = StringUtils.defaultString(pin);
+        return Md5Encoder.digestEncryptPassword(username, realm, safePin);
     }
 }

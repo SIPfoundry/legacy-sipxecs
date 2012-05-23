@@ -67,7 +67,7 @@ public class ExportCsvTest extends TestCase {
         User user = new User();
         user.setFirstName("John");
         user.setLastName("Lennon");
-        user.setPin("1234", "example.org");
+        user.setPin("1234");
         user.setSipPassword("sip_pass");
         user.setUserName("jlennon");
         user.setEmailAddress("jlennon@gmail.com");
@@ -101,7 +101,7 @@ public class ExportCsvTest extends TestCase {
         assertEquals(1, userIds.size());
         assertTrue(userIds.contains("jlennon"));
         assertEquals(
-                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"jlennon@gmail.com\",\"ug1 ug2 ug3\",\"665544332211\",\"testPhoneModel\",\"phonegroup1 phonegroup2 phonegroup3, phonegroup4\",\"phone description\",\"imId\"," +
+                "\"jlennon\",\"example.org#1234\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"jlennon@gmail.com\",\"ug1 ug2 ug3\",\"665544332211\",\"testPhoneModel\",\"phonegroup1 phonegroup2 phonegroup3, phonegroup4\",\"phone description\",\"imId\"," +
                 "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
@@ -144,13 +144,13 @@ public class ExportCsvTest extends TestCase {
         User user = new User();
         user.setFirstName("John");
         user.setLastName("Lennon");
-        user.setPin("1234", "example.org");
+        user.setPin("1234");
         user.setSipPassword("sip_pass");
         user.setUserName("jlennon");
 
         exportCsv.exportUser(csv, row, user, "example.org");
         assertEquals(
-                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
+                "\"jlennon\",\"example.org#1234\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
                 ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
@@ -165,7 +165,7 @@ public class ExportCsvTest extends TestCase {
         User user = new User();
         user.setFirstName("John");
         user.setLastName("Lennon");
-        user.setPin("1234", "example.org");
+        user.setPin("1234");
         user.setSipPassword("sip_pass");
         user.setUserName("jlennon");
 
@@ -202,7 +202,7 @@ public class ExportCsvTest extends TestCase {
 
         exportCsv.exportUser(csv, row, user, "example.org");
         assertEquals(
-                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
+                "\"jlennon\",\"example.org#1234\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
                 ",\"job title\",\"job dept\",\"company name\",\"assistant name\"," +
                 "\"001122\",\"112233\",\"223344\",\"33445566\",\"alternate@gmail.com\",\"alternateImId\",\"location\"," +
                 "\"home street\",\"home city\",\"home state\",\"home country\",\"34001\"," +

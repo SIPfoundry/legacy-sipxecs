@@ -1,8 +1,8 @@
 <device>
   <fullConfig>true</fullConfig>
   <deviceProtocol>SIP</deviceProtocol>
-  <sshUserId>user</sshUserId>
-  <sshPassword>pass</sshPassword>
+  <sshUserId></sshUserId>
+  <sshPassword></sshPassword>
   <devicePool>
     <name></name>
     <dateTimeSetting>
@@ -19,22 +19,6 @@
       <name>5.0 Beta</name>
       <tftpDefault>true</tftpDefault>
       <members>
-        <member priority="0">
-          <callManager>
-            <name>ccm-beta-5-1</name>
-            <description>CallManager 5.0 Beta Pub - 5.0.1.032</description>
-            <ports>
-              <ethernetPhonePort>2000</ethernetPhonePort>
-              <sipPort>5060</sipPort>
-              <securedSipPort>5061</securedSipPort>
-              <mgcpPorts>
-                <listen>2427</listen>
-                <keepAlive>2428</keepAlive>
-              </mgcpPorts>
-            </ports>
-            <processNodeName></processNodeName>
-          </callManager>
-        </member>
       </members>
     </callManagerGroup>
     <srstInfo>
@@ -62,11 +46,11 @@
   </devicePool>
   <sipProfile>
     <sipProxies>
-      <backupProxy></backupProxy>
+      <backupProxy>USECALLMANAGER</backupProxy>
       <backupProxyPort>5060</backupProxyPort>
-      <emergencyProxy></emergencyProxy>
+      <emergencyProxy>USECALLMANAGER</emergencyProxy>
       <emergencyProxyPort>5060</emergencyProxyPort>
-      <outboundProxy></outboundProxy>
+      <outboundProxy>USECALLMANAGER</outboundProxy>
       <outboundProxyPort>5060</outboundProxyPort>
       <registerWithProxy>true</registerWithProxy>
     </sipProxies>
@@ -107,7 +91,7 @@
     <autoAnswerOverride>true</autoAnswerOverride>
     <transferOnhookEnabled>false</transferOnhookEnabled>
     <enableVad>false</enableVad>
-    <preferredCodec>g711ulaw</preferredCodec>
+    <preferredCodec></preferredCodec>
     <dtmfAvtPayload>101</dtmfAvtPayload>
     <dtmfDbLevel>3</dtmfDbLevel>
     <dtmfOutofBand>avt</dtmfOutofBand>
@@ -116,18 +100,19 @@
     <kpml>3</kpml>
     <phoneLabel></phoneLabel>
     <stutterMsgWaiting>2</stutterMsgWaiting>
-    <callStats>false</callStats>
+    <callStats>true</callStats>
     <offhookToFirstDigitTimer>15000</offhookToFirstDigitTimer>
     <silentPeriodBetweenCallWaitingBursts>10</silentPeriodBetweenCallWaitingBursts>
     <disableLocalSpeedDialConfig>false</disableLocalSpeedDialConfig>
     <startMediaPort>16384</startMediaPort>
     <stopMediaPort>32766</stopMediaPort>
+    <advertiseG722Codec>0</advertiseG722Codec>
     <sipLines>
       <line button="1">
         <featureID>9</featureID>
         <featureLabel></featureLabel>
-        <proxy>sipfoundry.org</proxy>
-        <port>5555</port>
+        <proxy>USECALLMANAGER</proxy>
+        <port>1234</port>
         <name>juser</name>
         <displayName>Joe User</displayName>
         <autoAnswer>
@@ -148,6 +133,7 @@
           <redirectedNumber>false</redirectedNumber>
           <dialedNumber>true</dialedNumber>
         </forwardCallInfoDisplay>
+        <maxNumCalls>4</maxNumCalls>
       </line>
     </sipLines>
     <voipControlPort>5060</voipControlPort>
@@ -177,20 +163,30 @@
     <displayOnDuration>10:30</displayOnDuration>
     <displayIdleTimeout>01:00</displayIdleTimeout>
     <spanToPCPort>1</spanToPCPort>
+    <ehookEnable>0</ehookEnable>
+    <g722CodecSupport>0</g722CodecSupport>
+    <headsetWidebandUIControl>0</headsetWidebandUIControl>
+    <headsetWidebandEnable>0</headsetWidebandEnable>
+    <enableCdpSwPort>1</enableCdpSwPort>
+    <enableCdpPcPort>1</enableCdpPcPort>
+    <enableLldpSwPort>1</enableLldpSwPort>
+    <enableLldpPcPort>1</enableLldpPcPort>
+    <lldpAssetId></lldpAssetId>
+    <powerPriority>0</powerPriority>
   </vendorConfig>
   <versionStamp></versionStamp>
   <userLocale>
-    <name></name>
-    <uid></uid>
+    <name>English_United_States</name>
+    <uid>1</uid>
     <langCode>en_US</langCode>
-    <version></version>
-    <winCharSet></winCharSet>
+    <version>7.1.0.0(3)</version>
+    <winCharSet>iso-8859-1</winCharSet>
   </userLocale>
   <networkLocale></networkLocale>
   <networkLocaleInfo>
-    <name></name>
-    <uid></uid>
-    <version>1.0.0.0-1</version>
+    <name>United_States</name>
+    <uid>64</uid>
+    <version>7.1.0.0(3)</version>
   </networkLocaleInfo>
   <deviceSecurityMode>1</deviceSecurityMode>
   <idleTimeout>0</idleTimeout>

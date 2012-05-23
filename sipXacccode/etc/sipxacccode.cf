@@ -75,7 +75,7 @@ bundle agent sipxacccode_running {
         comment => "stop sipxacccode",
         args => "stop";
 
-    sipxacccode.!sipxacccode_running::
+    sipxacccode.!sipxacccode_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxacccode"
         comment => "start sipxacccode",
         args => "start";

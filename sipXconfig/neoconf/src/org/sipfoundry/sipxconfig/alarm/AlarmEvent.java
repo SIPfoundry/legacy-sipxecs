@@ -17,6 +17,7 @@ import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 
+@SuppressWarnings("serial")
 public class AlarmEvent implements Serializable {
     private static final DateFormat LOG_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     private AlarmDefinition m_alarmDefinition;
@@ -69,5 +70,9 @@ public class AlarmEvent implements Serializable {
 
     public AlarmDefinition getAlarmDefinition() {
         return m_alarmDefinition;
+    }
+
+    public String getMessage() {
+        return m_message;
     }
 }

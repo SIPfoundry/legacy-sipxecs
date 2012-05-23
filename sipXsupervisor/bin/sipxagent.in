@@ -16,7 +16,7 @@ def cmd(verbose, cmd)
   return system(cmd)
 end
 
-def run(verbose, is_remote, is_raw, hosts, defines, bundles)
+def run(verbose, is_remote, is_raw, hosts, defines, undefines, bundles)
   
   if (Process.uid == 0 && is_remote) # uid == 0 for root?
     #
@@ -33,6 +33,7 @@ def run(verbose, is_remote, is_raw, hosts, defines, bundles)
 
   else
     dstr = (defines.empty? ? '' : "-D " + defines.join(' -D '))
+    nstr = (defines.empty? ? '' : "-N " + undefines.join(' -N '))
     bstr = (bundles.empty? ? '' : "-b " + bundles.join(' -b '))
     hstr = (hosts.empty? ? '' : "-H " + hosts.join(' -H '))
     vstr = (verbose ? '-v' : '')
@@ -53,6 +54,7 @@ end
 verbose = false
 hosts = [ '127.0.0.1' ]
 defines = []
+undefines = []
 bundles = []
 # assume this is a local run
 is_remote = false
@@ -107,8 +109,18 @@ EOF
     defines << v
   }
 
+  opts.on_tail("-n class", "--undefine class", <<EOF
+Undefine a CFEngine 'class' to be sent to remote machine.
+Can be used multiple times. A 'class' is like a boolean and can be used to denote a
+command, state or multitude of things, it's really up to how the promises were written.
+
+EOF
+               ) {|v|
+    undefines << v
+  }
+
 }
 args.parse!
 
-status = run(verbose, is_remote, is_raw, hosts, defines, bundles)
+status = run(verbose, is_remote, is_raw, hosts, defines, undefines, bundles)
 exit status

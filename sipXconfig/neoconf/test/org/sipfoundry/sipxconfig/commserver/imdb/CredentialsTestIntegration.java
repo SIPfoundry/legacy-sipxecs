@@ -9,12 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.commserver.imdb;
 
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValueNotPresent;
 import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
 import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
+import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.callgroup.CallGroup;
-import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class CredentialsTestIntegration extends ImdbTestCase {
@@ -28,7 +29,7 @@ public class CredentialsTestIntegration extends ImdbTestCase {
 
         getReplicationManager().replicateEntity(cg, DataSet.CREDENTIAL);
 
-        String digest = Md5Encoder.digestPassword("sales", DOMAIN, "pass4321");
+        String digest = Md5Encoder.digestEncryptPassword("sales", DOMAIN, "pass4321");
         assertObjectWithIdPresent(getEntityCollection(), "CallGroup1");
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "CallGroup1", MongoConstants.IDENTITY, "sales@" + DOMAIN);
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "CallGroup1", MongoConstants.PASSTOKEN, "pass4321");
@@ -41,7 +42,7 @@ public class CredentialsTestIntegration extends ImdbTestCase {
         user.setUniqueId(1);
         user.setUserName("superadmin");
         final String PIN = "pin1234";
-        user.setPin(PIN, DOMAIN);
+        user.setPin(PIN);
         user.setSipPassword("pass4321");
         user.setDomainManager(getDomainManager());
 
@@ -51,7 +52,7 @@ public class CredentialsTestIntegration extends ImdbTestCase {
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.IDENTITY, "superadmin@" + DOMAIN);
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.PASSTOKEN, "pass4321");
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.PINTOKEN,
-                Md5Encoder.digestPassword("superadmin", DOMAIN, PIN));
+                Md5Encoder.getEncodedPassword(PIN));
     }
 
     public void testAddUserEmptyPasswords() throws Exception {
@@ -59,16 +60,16 @@ public class CredentialsTestIntegration extends ImdbTestCase {
         User user = new User();
         user.setUniqueId(1);
         user.setUserName("superadmin");
-        user.setPin("", DOMAIN);
+        user.setPin("");
         user.setDomainManager(getDomainManager());
 
         getReplicationManager().replicateEntity(user, DataSet.CREDENTIAL);
 
         assertObjectWithIdPresent(getEntityCollection(), "User1");
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.IDENTITY, "superadmin@" + DOMAIN);
-        String emptyHash = Md5Encoder.digestPassword("superadmin", DOMAIN, "");
+        String emptyHash = Md5Encoder.getEncodedPassword("");
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.PASSTOKEN, "");
-        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.PINTOKEN, emptyHash);
+        assertObjectWithIdFieldValueNotPresent(getEntityCollection(), "User1", MongoConstants.PINTOKEN, emptyHash);
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.REALM, DOMAIN);
     }
 

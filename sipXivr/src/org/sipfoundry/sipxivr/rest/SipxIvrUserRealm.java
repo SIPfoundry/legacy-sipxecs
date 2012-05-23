@@ -19,12 +19,12 @@ package org.sipfoundry.sipxivr.rest;
 
 import java.security.Principal;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.UserRealm;
 import org.mortbay.util.Credential;
 import org.mortbay.util.Password;
+import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
 
@@ -45,7 +45,7 @@ public class SipxIvrUserRealm implements UserRealm {
                 principal = checkCredentials(user.getUserName(), user.getPintoken(), credentials);
                 if (principal == null) {
                     // 2nd try with shared secret
-                    String hashedSharedSecret = digestPassword(user.getUserName(), m_sharedSecret);
+                    String hashedSharedSecret = Md5Encoder.digestEncryptPassword(user.getUserName(), m_sipRealm, m_sharedSecret);
                     principal = checkCredentials(user.getUserName(), hashedSharedSecret, credentials);
                 }
             }
@@ -56,17 +56,11 @@ public class SipxIvrUserRealm implements UserRealm {
     }
 
     private Principal checkCredentials(String userName, String pintoken, Object credentials) {
-        Credential password = new Password(pintoken);
+        Credential password = new Password(Md5Encoder.digestEncryptPassword(userName, m_sipRealm, pintoken));
         if (password.check(credentials)) {
             return new SipxIvrPrincipal(userName, "IvrRole");
         }
         return null;
-    }
-
-    private String digestPassword(String user, String password) {
-        String full = user + ':' + m_sipRealm + ':' + password;
-        String digest = DigestUtils.md5Hex(full);
-        return digest;
     }
 
     @Override

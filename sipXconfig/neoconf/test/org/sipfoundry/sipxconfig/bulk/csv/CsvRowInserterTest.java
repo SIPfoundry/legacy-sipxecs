@@ -9,7 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.bulk.csv;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -22,11 +27,6 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.TestPhone;
 import org.sipfoundry.sipxconfig.phone.TestPhoneModel;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 
 public class CsvRowInserterTest extends TestCase {
     public void testUserFromRow() {
@@ -66,14 +66,14 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals("Star", user1.getLastName());
         assertEquals("abcdef", user1.getSipPassword());
         assertEquals("im_id", user1.getImId());
-        assertEquals(32, user1.getPintoken().length());
+        assertEquals(4, user1.getPintoken().length());
 
         User user2 = impl.userFromRow(userRow2);
         assertEquals("kuku", user2.getUserName());
         assertEquals("John", user2.getFirstName());
         assertEquals("Lennon", user2.getLastName());
         assertEquals("abcdef", user2.getSipPassword());
-        assertEquals(32, user2.getPintoken().length());
+        assertEquals(4, user2.getPintoken().length());
         assertEquals("121212 jlennon,", user2.getAliasesString());
 
         verify(coreContext, domainManager);

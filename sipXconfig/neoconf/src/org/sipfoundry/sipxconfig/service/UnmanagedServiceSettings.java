@@ -34,7 +34,7 @@ public class UnmanagedServiceSettings extends PersistableSettings {
     }
 
     public class Defaults {
-        @SettingEntry(paths = { "services/syslog", "services/ntp/0", "services/dns/0" })
+        @SettingEntry(paths = { "services/syslog", "services/dns/0" })
         public String getPrimaryServer() {
             return m_locationsManager.getPrimaryLocation().getAddress();
         }
@@ -43,10 +43,6 @@ public class UnmanagedServiceSettings extends PersistableSettings {
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("unmanaged/services.xml");
-    }
-
-    public String getNtpServer() {
-        return getSettingValue("services/ntp/0");
     }
 
     public String getSyslogServer() {

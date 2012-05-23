@@ -1,6 +1,5 @@
 {"login-details": {
   "userName": "200",
   "imId": "JohnIM",
-  "imPassword": "123456",
   "ldapImAuth": false
 }}

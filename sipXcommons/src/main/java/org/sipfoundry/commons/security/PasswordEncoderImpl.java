@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.commons.security;
 
+
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 
@@ -25,7 +26,7 @@ public class PasswordEncoderImpl implements PasswordEncoder{
 	@Override
 	public String encodePassword(String rawPass, Object salt) {
         if (salt instanceof String) {
-            return Md5Encoder.digestPassword((String)salt, m_realm, rawPass);
+            return Md5Encoder.getEncodedPassword(rawPass);
         }
         return rawPass;
 	}

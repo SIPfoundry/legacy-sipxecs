@@ -44,6 +44,7 @@
 
   <bean id="ciscoplusPhone" class="org.sipfoundry.sipxconfig.phone.ciscoplus.CiscoplusPhone" scope="prototype"
     parent="abstractPhone">
+    <property name="registrationContext" ref="registrationContext"/>
   </bean>
 
   <bean id="ciscoModel" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel" parent="abstractPhoneModel"

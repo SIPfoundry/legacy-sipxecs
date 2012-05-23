@@ -28,7 +28,6 @@ import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -273,12 +272,8 @@ public class ForwardingContextImpl extends SipxHibernateDaoSupport implements Fo
 
     @Override
     public boolean isCallSequenceReplicable(User user) {
-        try {
-            m_jdbcTemplate.queryForInt("select ring_id from ring where user_id=" + user.getId());
-        } catch (EmptyResultDataAccessException e) {
-            return false;
-        }
-        return true;
+        int any = m_jdbcTemplate.queryForInt("select count(*) from ring where user_id = ?", user.getId());
+        return any > 0;
     }
 
     public void setConfigJdbcTemplate(JdbcTemplate jdbcTemplate) {
