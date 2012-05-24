@@ -9,9 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
@@ -19,8 +16,6 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.form.IPropertySelectionModel;
-import org.sipfoundry.sipxconfig.components.MapSelectionModel;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.time.NtpManager;
@@ -50,13 +45,6 @@ public abstract class TimeSettingsPage extends SipxBasePage implements PageBegin
 
     public void apply(IRequestCycle cycle) {
         getTimeManager().saveSettings(getSettings());
-    }
-
-    public IPropertySelectionModel getTimeSettingTypeModel() {
-        Map<Integer, String> map = new HashMap<Integer, String>();
-        map.put(new Integer(0), getMessages().getMessage("label.NTPTime"));
-        map.put(new Integer(1), getMessages().getMessage("label.manualTime"));
-        return new MapSelectionModel(map);
     }
 
 }

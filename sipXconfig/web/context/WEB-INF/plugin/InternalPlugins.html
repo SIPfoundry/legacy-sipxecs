@@ -45,8 +45,8 @@
   <li jwcid="@If" condition="ognl:isOn('ivr')">
 	  <a jwcid="@PageLink" page="ivr/EditIvr"><span key="menu.ivr.featureMenu"/></a>
   </li>
-  <li jwcid="@If" condition="ognl:isOn('sipxdns')">
-	  <a jwcid="@PageLink" page="dns/EditDns"><span key="menu.dns.featureMenu"/></a>
+  <li>
+    <a jwcid="@PageLink" page="dns/EditDns"><span key="menu.dns.featureMenu"/></a>
   </li>
   <li jwcid="@If" condition="ognl:isOn('firewall')">
     <a jwcid="@PageLink" page="firewall/ManageFirewall"><span key="menu.firewall.featureMenu"/></a>

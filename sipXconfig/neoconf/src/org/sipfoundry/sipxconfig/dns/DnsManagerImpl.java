@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -107,6 +108,16 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         if (!type.equals(DNS_ADDRESS)) {
             return null;
+        }
+        DnsSettings settings = getSettings();
+        if (settings.isServiceUnmanaged()) {
+            List<String> dnsServers = settings.getUnmanagedDnsServers();
+            List<Address> addresses = new LinkedList<Address>();
+            for (String server : dnsServers) {
+                Address address = new Address(DNS_ADDRESS, server);
+                addresses.add(address);
+            }
+            return addresses;
         }
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
         return Location.toAddresses(DNS_ADDRESS, locations);

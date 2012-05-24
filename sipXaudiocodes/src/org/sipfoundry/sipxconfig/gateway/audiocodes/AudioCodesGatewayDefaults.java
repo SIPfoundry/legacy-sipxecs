@@ -16,6 +16,7 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
+import org.sipfoundry.sipxconfig.dns.DnsManager;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
@@ -118,14 +119,14 @@ public class AudioCodesGatewayDefaults {
 
     @SettingEntry(path = "Network/DNSPriServerIP")
     public String getDNSPriServerIP() {
-        List<Address> addresses = m_defaults.getAddressManager().getAddresses(UnmanagedService.DNS);
-        return addresses != null && addresses.size() >= 2 ? addresses.get(1).getAddress() : null;
+        List<Address> addresses = m_defaults.getAddressManager().getAddresses(DnsManager.DNS_ADDRESS);
+        return addresses != null && addresses.size() >= 1 ? addresses.get(0).getAddress() : null;
     }
 
     @SettingEntry(path = "Network/DNSSecServerIP")
     public String getDNSSecServerIP() {
-        List<Address> addresses = m_defaults.getAddressManager().getAddresses(UnmanagedService.DNS);
-        return addresses != null && addresses.size() >= 1 ? addresses.get(0).getAddress() : null;
+        List<Address> addresses = m_defaults.getAddressManager().getAddresses(DnsManager.DNS_ADDRESS);
+        return addresses != null && addresses.size() >= 2 ? addresses.get(1).getAddress() : null;
     }
 
     @SettingEntry(path = "Network/EnableSyslog")

@@ -1,9 +1,23 @@
 <div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
-   <span jwcid="@common/ErrorMsg"/>
-  <form jwcid="form@Form" delegate="bean:validator">
-    <fieldset jwcid="@setting/SettingsFieldset"
-        settings="ognl:settings.settings" />
-    <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
-        listener="listener:apply"/>
-  </form>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'dns','unmanaged'}" selectedTab="ognl:tab"/>
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div>
+  <span jwcid="dnsTab@Block">
+    <form jwcid="form@Form" delegate="bean:validator">
+      <fieldset jwcid="@setting/SettingsFieldset"
+          settings="ognl:settings.getSettings().getSetting('named-config')" />
+      <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
+          listener="listener:apply"/>
+    </form>
+  </span>
+  <span jwcid="unmanagedTab@Block">
+	  <form jwcid="unmanagedForm@Form" delegate="bean:validator">
+	    <fieldset jwcid="@setting/SettingsFieldset"
+	        settings="ognl:settings.getSettings().getSetting('named-unmanaged')" />
+	    <ul jwcid="unmanagedFormActions@common/FormActions" callback="ognl:callback"
+	        listener="listener:apply"/>
+	  </form> 
+  </span>
 </div>

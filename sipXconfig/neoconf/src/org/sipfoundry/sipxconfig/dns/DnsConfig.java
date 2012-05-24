@@ -51,10 +51,15 @@ public class DnsConfig implements ConfigProvider {
             return;
         }
 
+        File gdir = manager.getGlobalDataDirectory();
+        DnsSettings settings = m_dnsManager.getSettings();
+        // check if marked as unmanaged service
+        boolean unmanaged = settings.isServiceUnmanaged();
+        ConfigUtils.enableCfengineClass(gdir, "dns_unmanaged.cfdat", unmanaged, "unmanaged_dns");
+
         AddressManager am = manager.getAddressManager();
         String domain = manager.getDomainManager().getDomainName();
         List<Location> all = manager.getLocationManager().getLocationsList();
-        DnsSettings settings = m_dnsManager.getSettings();
         Set<Location> locations = request.locations(manager);
         long serNo = System.currentTimeMillis();
         for (Location location : locations) {
@@ -62,7 +67,7 @@ public class DnsConfig implements ConfigProvider {
             List<Address> dns = am.getAddresses(DnsManager.DNS_ADDRESS, location);
 
             // If there are no dns servers define, there is no reason to touch resolv.conf
-            boolean resolvOn = dns.size() > 0;
+            boolean resolvOn = dns.size() > 0 && !unmanaged;
             ConfigUtils.enableCfengineClass(dir, "resolv.cfdat", resolvOn, "resolv");
             if (resolvOn) {
                 Writer resolv = new FileWriter(new File(dir, "resolv.conf.part"));
@@ -73,7 +78,7 @@ public class DnsConfig implements ConfigProvider {
                 }
             }
 
-            boolean namedOn = manager.getFeatureManager().isFeatureEnabled(DnsManager.FEATURE, location);
+            boolean namedOn = manager.getFeatureManager().isFeatureEnabled(DnsManager.FEATURE, location) && !unmanaged;
             ConfigUtils.enableCfengineClass(dir, "sipxdns.cfdat", namedOn, "sipxdns");
             if (!namedOn) {
                 continue;
