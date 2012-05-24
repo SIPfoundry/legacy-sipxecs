@@ -9,9 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.sbc;
 
-import org.sipfoundry.sipxconfig.admin.InitTaskListener;
+import org.sipfoundry.sipxconfig.setup.MigrationListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 
-public class SbcMigrationTrigger extends InitTaskListener {
+public class SbcSetup implements MigrationListener {
     private SbcMigrationContext m_sbcMigrationContext;
 
     public void setSbcMigrationContext(SbcMigrationContext sbcMigrationContext) {
@@ -19,9 +20,11 @@ public class SbcMigrationTrigger extends InitTaskListener {
     }
 
     @Override
-    public void onInitTask(String task) {
-        if ("sbc_address_migrate_sbc_device".equals(task)) {
+    public void migrate(SetupManager manager) {
+        String id = "sbc_address_migrate_sbc_device";
+        if (manager.isTrue(id)) {
             m_sbcMigrationContext.migrateSbc();
+            manager.setFalse(id);
         }
     }
 }

@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.InternationalRule;
-import org.sipfoundry.sipxconfig.dialplan.ResetDialPlanTask;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanSetup;
 import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
@@ -33,7 +33,7 @@ public class GatewayContextTestIntegration extends IntegrationTestCase {
     private GatewayModel m_genericSipTrunk;
     private SbcDeviceManager m_sbcDeviceManager;
     private BranchManager m_branchManager;
-    private ResetDialPlanTask m_resetDialPlanTask;
+    private DialPlanSetup m_resetDialPlanTask;
 
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
@@ -41,7 +41,7 @@ public class GatewayContextTestIntegration extends IntegrationTestCase {
         m_genericModel = m_nakedGatewayModelSource.getModel("genericGatewayStandard");
         m_genericSipTrunk = m_nakedGatewayModelSource.getModel("sipTrunkStandard");        
         clear();
-        m_resetDialPlanTask.reset(true);
+        m_resetDialPlanTask.setupDefaultRegion();
     }
 
     public void testAddGateway() throws Exception {
@@ -296,7 +296,7 @@ public class GatewayContextTestIntegration extends IntegrationTestCase {
         m_branchManager = branchManager;
     }
 
-    public void setResetDialPlanTask(ResetDialPlanTask resetDialPlanTask) {
+    public void setResetDialPlanTask(DialPlanSetup resetDialPlanTask) {
         m_resetDialPlanTask = resetDialPlanTask;
     }
 }

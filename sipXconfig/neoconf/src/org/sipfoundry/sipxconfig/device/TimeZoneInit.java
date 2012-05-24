@@ -7,19 +7,24 @@
  */
 package org.sipfoundry.sipxconfig.device;
 
-import org.sipfoundry.sipxconfig.admin.InitTaskListener;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.springframework.beans.factory.annotation.Required;
 
-public class TimeZoneInit extends InitTaskListener {
+public class TimeZoneInit implements SetupListener {
     private TimeZoneManager m_timeZoneManager;
-
-    @Override
-    public void onInitTask(String task) {
-        m_timeZoneManager.saveDefault();
-    }
 
     @Required
     public void setTimeZoneManager(TimeZoneManager timeZoneManager) {
         m_timeZoneManager = timeZoneManager;
+    }
+
+    @Override
+    public void setup(SetupManager manager) {
+        String id = "default-time-zone";
+        if (manager.isFalse(id)) {
+            m_timeZoneManager.saveDefault();
+            manager.setTrue(id);
+        }
     }
 }

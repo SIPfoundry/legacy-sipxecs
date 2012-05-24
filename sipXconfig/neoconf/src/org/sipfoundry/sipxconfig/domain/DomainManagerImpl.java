@@ -30,9 +30,11 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.localization.Localization;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.springframework.dao.support.DataAccessUtils;
 
-public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager {
+public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager, SetupListener {
     private static DomainManagerImpl s_instance;
     private static final String DOMAIN_CONFIG_ERROR = "Unable to load initial domain-config file.";
     private static final Log LOG = LogFactory.getLog(DomainManagerImpl.class);
@@ -178,5 +180,12 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
 
     public void setDomainConfigFilename(String domainConfigFilename) {
         m_domainConfigFilename = domainConfigFilename;
+    }
+
+    @Override
+    public void setup(SetupManager manager) {
+        if (getDomain() == null) {
+            initializeDomain();
+        }
     }
 }

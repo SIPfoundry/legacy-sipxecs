@@ -30,13 +30,13 @@
   - How to run some code to initialize tables beyond simple SQL.  
   -  1. Follow the same instructions for adding a patch and add this to your SQL
   -
-  -       insert into initialization_task (name) values ('xxx');
+  -       insert into setup (name) values ('xxx');
   -
   -    where 'xxx' is any meaningful lable you choose to represent your new operation
   - 
   -   2. The follow instructions in 
   -
-  -        sipXconfig/neoconf/src/org/sipfoundry/sipXconfig/common/InitializationTask.java
+  -        sipXconfig/neoconf/src/org/sipfoundry/sipXconfig/setup/SetupListener.java
   -
   -     on how to catch the initialization task event
   -
@@ -104,18 +104,6 @@
     <delete file="${tmp.dir}/patches.properties" />
   </target>
 
-  <!--  
-   - sets flag if any initialization needs to be done
-   -->
-  <target name="tasks">
-    <sipx-sql print="yes" output="${tmp.dir}/tasks.properties" showheaders="no">
-      select 'initialize=true' from initialization_task having count(*)
-      > 0;
-    </sipx-sql>
-    <loadproperties srcfile="${tmp.dir}/tasks.properties" />
-    <delete file="${tmp.dir}/tasks.properties" />
-  </target>
-
   <target name="drop" depends="drop-index" description="drops database!">
     <exec executable="dropdb" outputproperty="eatme">
       <arg line="-U ${sipxconfig.db.user} ${sipxconfig.db.name}" />
@@ -143,13 +131,7 @@
 
   <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9,version10,version11,version12" />
 
-  <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks" depends="upgrade-no-init,plugin-patches,initialize" />
-
-  <target name="initialize" depends="tasks" if="initialize">
-    <sipx-task output="/dev/null" beanId="initializeSystemTask">
-      <arg value="noexit" />
-    </sipx-task>
-  </target>
+  <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks" depends="upgrade-no-init,plugin-patches" />
 
   <target name="add-upload" depends="upgrade">
     <sipx-task beanId="uploadTask">
@@ -408,6 +390,7 @@
   	<antcall target="voicemail-pin" />
   	<antcall target="remove-im-password" />
   	<antcall target="change-on-restore" />
+  	<antcall target="convert-init-task-to-setup" />  	
   </target>
 
   <target name="plugin-patches">
@@ -584,7 +567,7 @@
     </sipx-sql>
   </target>
 
-  <target name="migrate-2.8" depends="migrate-2.8-run,initialize" description="migrate existing 2.8 PDS database, note clears all existing 3.0 data" />
+  <target name="migrate-2.8" depends="migrate-2.8-run" description="migrate existing 2.8 PDS database, note clears all existing 3.0 data" />
 
   <target name="import-2.8" depends="import-2.8-run,migrate-2.8" description="import 2.8 PDS database from backup file, note clears all existing 3.0 data" />
 
@@ -1303,6 +1286,9 @@
   <target name="change-on-restore" unless="change-on-restore">
     <plsql-patch patch="change-on-restore" />
   </target>
+  <target name="convert-init-task-to-setup" unless="convert-init-task-to-setup">
+	<db-patch patch="convert-init-task-to-setup"/>
+  </target>	
   <!--
     - SUPPORT UTILITIES
   -->

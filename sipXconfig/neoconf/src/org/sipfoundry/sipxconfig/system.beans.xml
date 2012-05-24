@@ -129,7 +129,6 @@
         <value>org/sipfoundry/sipxconfig/commserver/location.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/parkorbit/parkOrbit.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/forwarding/ring.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/admin/admin.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/backup/backup.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/ftp/ftp.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/intercom/intercom.hbm.xml</value>

@@ -120,14 +120,7 @@
     </property>
   </bean>
 
-  <bean id="sbcMigrationTrigger" class="org.sipfoundry.sipxconfig.sbc.SbcMigrationTrigger">
-    <property name="sbcMigrationContext">
-      <ref local="sbcMigrationContext" />
-    </property>
-    <property name="taskNames">
-      <list>
-        <value>sbc_address_migrate_sbc_device</value>
-      </list>
-    </property>
+  <bean id="sbcSetup" class="org.sipfoundry.sipxconfig.sbc.SbcSetup">
+    <property name="sbcMigrationContext" ref="sbcMigrationContext" />
   </bean>
 </beans>

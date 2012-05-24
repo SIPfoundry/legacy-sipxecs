@@ -17,20 +17,7 @@ public interface AdminContext {
     public static final LocationFeature FEATURE = new LocationFeature("admin");
     public static final AddressType HTTP_ADDRESS = new AddressType("adminApi", "http://%s:%d", 12000);
     public static final AlarmDefinition ALARM_LOGIN_FAILED = new AlarmDefinition("LOGIN_FAILED", 3);
-
     final String CONTEXT_BEAN_NAME = "adminContext";
 
-    /**
-     * After successfully sending event to application to perform a database related task, remove
-     * task from initialization task table.
-     */
-    void deleteInitializationTask(String task);
-
-    String[] getInitializationTasks();
-
-    /**
-     * @return true if this is an upgrade/data init run, and *not* a real sipXconfig run
-     */
-    boolean inInitializationPhase();
-
+    public void avoidCheckstyleError();
 }

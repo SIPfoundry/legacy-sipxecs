@@ -23,14 +23,14 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.dialplan.ResetDialPlanTask;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanSetup;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class PermissionManagerImplTestIntegration extends IntegrationTestCase {
     private PermissionManager m_permissionManager;
     private DialPlanContext m_dialPlanContext;
-    private ResetDialPlanTask m_resetDialPlanTask;
+    private DialPlanSetup m_resetDialPlanTask;
 
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
@@ -166,7 +166,7 @@ public class PermissionManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testRulesWithCustomPermission() throws Exception {
-        m_resetDialPlanTask.reset(true);
+        m_resetDialPlanTask.setupDefaultRegion();
         sql("commserver/locations.sql");
         Permission permission = new Permission();
         permission.setType(Permission.Type.CALL);
@@ -421,7 +421,7 @@ public class PermissionManagerImplTestIntegration extends IntegrationTestCase {
         m_dialPlanContext = dialPlanContext;
     }
 
-    public void setResetDialPlanTask(ResetDialPlanTask resetDialPlanTask) {
+    public void setResetDialPlanTask(DialPlanSetup resetDialPlanTask) {
         m_resetDialPlanTask = resetDialPlanTask;
     }
 }

@@ -8,8 +8,8 @@
   </bean>
 
   <bean id="locationsManagerImpl" class="org.sipfoundry.sipxconfig.commserver.LocationsManagerImpl" parent="abstractDaoImpl">
-    <property name="jdbcTemplate" ref="configJdbcTemplate"/>
     <property name="auditLogContext" ref="auditLogContext" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="locationsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

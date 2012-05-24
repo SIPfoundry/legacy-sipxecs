@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -36,22 +37,13 @@ public class SetupManagerImpl implements SetupManager, ApplicationListener<Appli
     private Set<String> m_setupIds;
     private ConfigManager m_configManager;
     private FeatureManager m_featureManager;
+    private CoreContext m_coreContext;
     private JdbcTemplate m_jdbcTemplate;
     private Set<SetupListener> m_setupListeners;
-    private boolean m_dirty;
+    private Set<MigrationListener> m_migrationListeners;
     private boolean m_enabled = true;
     private boolean m_triggerConfigOnStartup = true;
-
-    @Override
-    public boolean isSetup(String id) {
-        return getSetupIds().contains(id);
-    }
-
-    @Override
-    public void setSetup(String id) {
-        m_dirty = true;
-        getSetupIds().add(id);
-    }
+    private boolean m_setup;
 
     Set<String> getSetupIds() {
         if (m_setupIds == null) {
@@ -62,22 +54,21 @@ public class SetupManagerImpl implements SetupManager, ApplicationListener<Appli
     }
 
     void saveSetupIds() {
-        if (m_dirty) {
-            String remove = "delete from setup";
-            StringBuilder update = new StringBuilder();
-            for (String setupId : getSetupIds()) {
-                if (update.length() == 0) {
-                    update.append("insert into setup values");
-                } else {
-                    update.append(',');
-                }
-                update.append("('").append(setupId).append("')");
+        // by always deleting and reinserting we guarantee no duplicates even if
+        // it's a bit efficient. Maybe you can improve should it be deemed nec.
+        String remove = "delete from setup";
+        StringBuilder update = new StringBuilder();
+        for (String setupId : getSetupIds()) {
+            if (update.length() == 0) {
+                update.append("insert into setup values");
+            } else {
+                update.append(',');
             }
-            m_jdbcTemplate.batchUpdate(new String[] {
-                remove, update.toString()
-            });
-            m_dirty = false;
+            update.append("('").append(setupId).append("')");
         }
+        m_jdbcTemplate.batchUpdate(new String[] {
+            remove, update.toString()
+        });
     }
 
     @Override
@@ -108,6 +99,16 @@ public class SetupManagerImpl implements SetupManager, ApplicationListener<Appli
         return m_setupListeners;
     }
 
+    public Set<MigrationListener> getMigrationListeners() {
+        if (m_migrationListeners == null) {
+            Map<String, MigrationListener> beanMap = m_beanFactory.getBeansOfType(
+                    MigrationListener.class, false, false);
+            m_migrationListeners = new HashSet<MigrationListener>(beanMap.values());
+        }
+
+        return m_migrationListeners;
+    }
+
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof ApplicationInitializedEvent) {
@@ -116,12 +117,28 @@ public class SetupManagerImpl implements SetupManager, ApplicationListener<Appli
     }
 
     public void setup() {
+        if (m_setup) {
+            return;
+        }
+
         if (m_enabled) {
+            // There's no special detection when we're migrating v.s. starting up
+            // only that migration tasks should run first so setup tasks can ensure
+            // data is valid state before setup
+            for (MigrationListener l : getMigrationListeners()) {
+                l.migrate(this);
+            }
+
+            // fairly critical these are initialized first. Other listeners can use normal deps management
+            m_configManager.getDomainManager().setup(this);
+            m_configManager.getLocationManager().setup(this);
+            m_coreContext.setup(this);
             for (SetupListener l : getSetupListeners()) {
                 l.setup(this);
             }
-            saveSetupIds();
         }
+        m_setup = true;
+
         if (m_triggerConfigOnStartup) {
             m_configManager.configureAllFeaturesEverywhere();
         }
@@ -153,5 +170,31 @@ public class SetupManagerImpl implements SetupManager, ApplicationListener<Appli
 
     public boolean isEnabled() {
         return m_enabled;
+    }
+
+    @Override
+    public boolean isTrue(String id) {
+        return getSetupIds().contains(id);
+    }
+
+    @Override
+    public void setTrue(String id) {
+        getSetupIds().add(id);
+        saveSetupIds();
+    }
+
+    @Override
+    public void setFalse(String id) {
+        getSetupIds().remove(id);
+        saveSetupIds();
+    }
+
+    @Override
+    public boolean isFalse(String id) {
+        return !isTrue(id);
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 }

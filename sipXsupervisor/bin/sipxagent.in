@@ -1,9 +1,11 @@
 #!/usr/bin/ruby
 
 require 'optparse'
+require 'fileutils'
 
 # automake substitution vars
 $user = '@SIPXPBXUSER@'
+$group = '@SIPXPBXGROUP@'
 $bindir = '@SIPX_BINDIR@'
 $cfinputs = '@SIPX_CFINPUTS@'
 $logfile = '@SIPX_LOGDIR@/sipxagent.log'
@@ -35,16 +37,18 @@ def run(verbose, is_remote, is_raw, hosts, defines, undefines, bundles)
     dstr = (defines.empty? ? '' : "-D " + defines.join(' -D '))
     nstr = (defines.empty? ? '' : "-N " + undefines.join(' -N '))
     bstr = (bundles.empty? ? '' : "-b " + bundles.join(' -b '))
+    agentstr = "-v #{dstr} #{nstr} #{bstr}"
     hstr = (hosts.empty? ? '' : "-H " + hosts.join(' -H '))
     vstr = (verbose ? '-v' : '')
     analyzer = (is_raw ? '' : "| #{$bindir}/sipxagent-log-reader #{vstr}")
     if (is_remote || Process.uid != 0)
-      ok = cmd(verbose, "cf-runagent -v #{hstr} -f #{$cfinputs}/sipxagent.cf -o \"-v #{dstr} #{bstr} -K\" | tee -a #{$logfile} #{analyzer}")
+      ok = cmd(verbose, "cf-runagent -v #{hstr} -f #{$cfinputs}/sipxagent.cf -o \"#{agentstr} -K\" | tee -a #{$logfile} #{analyzer}")
     else 
       # Short-cut - If you're root and you're not remote, do not bother going thru 
       # sipxsupervisor.  This is handy if supervisor is dead or in the very initial
       # call to sipxecs-setup on primary when nothing is running yet
-      ok = cmd(verbose, "cf-agent -v #{dstr} #{bstr} -IKf #{$cfinputs}/promises.cf #{analyzer}");
+      ok = cmd(verbose, "cf-agent #{agentstr} -IKf #{$cfinputs}/promises.cf #{analyzer} | tee -a #{$logfile} #{analyzer}");
+      FileUtils.chown($user, $group, $logfile)
     end
   end
   exit(ok ? 0 : 1)

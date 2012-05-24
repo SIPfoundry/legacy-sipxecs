@@ -9,12 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.callgroup;
 
-import org.sipfoundry.sipxconfig.admin.InitTaskListener;
+import org.sipfoundry.sipxconfig.setup.MigrationListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 
-/**
- * Upgrades DB by initializing SIP password field of all existing call groups.
- */
-public class CallGroupSipPasswordInit extends InitTaskListener {
+public class CallGroupSetup implements MigrationListener {
     private CallGroupContext m_callGroupContext;
 
     public void onInitTask(String task) {
@@ -23,5 +21,15 @@ public class CallGroupSipPasswordInit extends InitTaskListener {
 
     public void setCallGroupContext(CallGroupContext callGroupContext) {
         m_callGroupContext = callGroupContext;
+    }
+
+    @Override
+    public void migrate(SetupManager manager) {
+        String id = "callgroup-password-init";
+        if (manager.isTrue(id)) {
+            // earlier versions didn't have sip passwords
+            m_callGroupContext.generateSipPasswords();
+            manager.setFalse(id);
+        }
     }
 }

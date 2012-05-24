@@ -39,9 +39,9 @@ public class LogWatcherImpl implements LogWatcher, SetupListener, ProcessProvide
 
     @Override
     public void setup(SetupManager manager) {
-        if (!manager.isSetup(FEATURE.getId())) {
+        if (manager.isFalse(FEATURE.getId())) {
             manager.getFeatureManager().enableGlobalFeature(FEATURE, true);
-            manager.setSetup(FEATURE.getId());
+            manager.setTrue(FEATURE.getId());
         }
     }
 

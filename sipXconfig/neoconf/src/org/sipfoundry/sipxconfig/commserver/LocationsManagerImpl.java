@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.commserver;
 import static org.springframework.dao.support.DataAccessUtils.intResult;
 import static org.springframework.dao.support.DataAccessUtils.singleResult;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Collections;
@@ -30,13 +32,13 @@ import org.sipfoundry.sipxconfig.common.ReplicationsFinishedEvent;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location.State;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager,
@@ -47,8 +49,9 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     private static final String LOCATION_PROP_IP = "ipAddress";
     private static final String LOCATION_PROP_ID = "locationId";
     private static final String DUPLICATE_FQDN_OR_IP = "&error.duplicateFqdnOrIp";
-    private JdbcTemplate m_jdbcTemplate;
     private AuditLogContext m_auditLogContext;
+    private DomainManager m_domainManager;
+    private String m_defaultStunServer = "ezuce.stun.com";
 
     /** Return the replication URLs, retrieving them on demand */
     @Override
@@ -220,21 +223,43 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         }
     }
 
-    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-        m_jdbcTemplate = jdbcTemplate;
-    }
-
     @Override
     public void setup(SetupManager manager) {
-        if (!manager.isSetup(LocationsManager.FEATURE.getId())) {
-            // Need that host.cfdat file for at least snmpd
-            manager.getFeatureManager().enableGlobalFeature(LocationsManager.FEATURE, true);
-            manager.setSetup(LocationsManager.FEATURE.getId());
+        String id = "init-locations";
+        if (manager.isTrue(id)) {
+            return;
+        }
+        Location[] locations = getLocations();
+        if (locations.length > 0) {
+            manager.setTrue(id);
+            return;
+        }
+
+        try {
+            String fqdn = InetAddress.getLocalHost().getHostName();
+            String ip = InetAddress.getLocalHost().getHostAddress();
+            Location primary = new Location(fqdn, ip);
+            primary.setPrimary(true);
+            primary.setName("Primary");
+            primary.setStunAddress(m_defaultStunServer);
+            saveLocation(primary);
+
+            manager.setTrue(id);
+        } catch (UnknownHostException e) {
+            throw new RuntimeException("Could not determine host name and/or ip address, check /etc/hosts file", e);
         }
     }
 
     @Required
     public void setAuditLogContext(AuditLogContext auditLogContext) {
         m_auditLogContext = auditLogContext;
+    }
+
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
+    }
+
+    public void setDefaultStunServer(String defaultStunServer) {
+        m_defaultStunServer = defaultStunServer;
     }
 }

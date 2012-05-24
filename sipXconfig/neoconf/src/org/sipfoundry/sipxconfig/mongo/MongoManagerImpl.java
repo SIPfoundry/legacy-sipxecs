@@ -119,10 +119,10 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
 
     @Override
     public void setup(SetupManager manager) {
-        if (!manager.isSetup(FEATURE_ID.getId())) {
+        if (!manager.isTrue(FEATURE_ID.getId())) {
             Location primary = manager.getConfigManager().getLocationManager().getPrimaryLocation();
             manager.getFeatureManager().enableLocationFeature(FEATURE_ID, primary, true);
-            manager.setSetup(FEATURE_ID.getId());
+            manager.setTrue(FEATURE_ID.getId());
         }
     }
 

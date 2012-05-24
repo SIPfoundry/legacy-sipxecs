@@ -2,7 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="setupManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+  <bean id="setupManager" class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.setup.SetupManager"/>
     <property name="target" ref="setupManagerImpl" />
   </bean>
@@ -10,6 +10,7 @@
   <bean id="setupManagerImpl" class="org.sipfoundry.sipxconfig.setup.SetupManagerImpl">
     <property name="featureManager" ref="featureManager"/>
     <property name="configManager" ref="configManager"/>
+    <property name="coreContext" ref="coreContext"/>
     <property name="jdbcTemplate" ref="configJdbcTemplate"/>
   </bean>  
   

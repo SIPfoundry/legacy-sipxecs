@@ -30,12 +30,12 @@ public class SetupTestIntegration extends IntegrationTestCase {
     }
 
     public void testSetupIds() {
-        assertTrue(m_setupManager.isSetup("SetupTestIntegration"));
+        assertTrue(m_setupManager.isTrue("SetupTestIntegration"));
         
         String newlySetup = "SetupTestIntegration-newlySetup";
-        assertFalse(m_setupManager.isSetup(newlySetup));
-        m_setupManager.setSetup(newlySetup);
-        assertTrue(m_setupManager.isSetup(newlySetup));
+        assertFalse(m_setupManager.isTrue(newlySetup));
+        m_setupManager.setTrue(newlySetup);
+        assertTrue(m_setupManager.isTrue(newlySetup));
         m_setupManagerImpl.saveSetupIds();
         flush();
         db().queryForInt("select 1 from setup where setup_id = ?", newlySetup);

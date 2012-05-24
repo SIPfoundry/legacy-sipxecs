@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.commserver.imdb;
 
 
+
 import static org.sipfoundry.commons.mongo.MongoConstants.ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.IDENTITY;
 import static org.sipfoundry.commons.mongo.MongoConstants.VALID_USER;
@@ -88,6 +89,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private static final DataSet[] BRANCH_DATASETS = {DataSet.USER_LOCATION};
 
     private boolean m_enabled = true;
+    private boolean m_setup;
 
     private MongoTemplate m_imdb;
     private ValidUsers m_validUsers;

@@ -46,7 +46,6 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
     private static final String KEY_COLUMN = "private_key";
     private static final String SELF_SIGN_AUTHORITY_PREFIX = "ca.";
     private BeanWithSettingsDao<CertificateSettings> m_settingsDao;
-    private SetupListener m_locationSetup;
     private LocationsManager m_locationsManager;
     private JdbcTemplate m_jdbc;
     private ConfigManager m_configManager;
@@ -259,17 +258,11 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
 
     @Override
     public void setup(SetupManager manager) {
-        // ensure it's run first to get primary location
-        m_locationSetup.setup(manager);
         checkSetup();
     }
 
     public void setJdbc(JdbcTemplate jdbc) {
         m_jdbc = jdbc;
-    }
-
-    public void setLocationSetup(SetupListener locationSetup) {
-        m_locationSetup = locationSetup;
     }
 
     public void setLocationsManager(LocationsManager locationsManager) {

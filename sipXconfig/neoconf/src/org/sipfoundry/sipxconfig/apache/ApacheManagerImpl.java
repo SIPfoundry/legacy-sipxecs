@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
@@ -34,6 +35,7 @@ import org.sipfoundry.sipxconfig.setup.SetupManager;
 
 public class ApacheManagerImpl extends SipxHibernateDaoSupport<Object> implements ApacheManager, ConfigProvider,
     SetupListener, FirewallProvider, AddressProvider {
+    private LocationsManager m_locationsManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -51,10 +53,10 @@ public class ApacheManagerImpl extends SipxHibernateDaoSupport<Object> implement
 
     @Override
     public void setup(SetupManager manager) {
-        if (!manager.isSetup(FEATURE.getId())) {
+        if (manager.isFalse(FEATURE.getId())) {
             Location primary = manager.getConfigManager().getLocationManager().getPrimaryLocation();
             manager.getFeatureManager().enableLocationFeature(FEATURE, primary, true);
-            manager.setSetup(FEATURE.getId());
+            manager.setTrue(FEATURE.getId());
         }
     }
 
@@ -75,5 +77,9 @@ public class ApacheManagerImpl extends SipxHibernateDaoSupport<Object> implement
 
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
         return Location.toAddresses(type, locations);
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 }

@@ -75,9 +75,6 @@ IndexDir=${TmpDir}/index
 Dependencies=`@SIPX_BINDIR@/java-dep -d ${CommonsLibDir} -d ${LibDir} sipxconfig sipxconfig-web @web_PKGS@ agent-bindings cdr-binding`
 export CLASSPATH=`echo @SIPX_CONFDIR@ ${Dependencies} ${PluginDir}/*.jar | sed -e 's/ /:/g'`
 
-# set primary system hostname (assume sipxconfig is only run on primary system)
-PRIMARY_HOSTNAME=`hostname -f`
-
 # Incase system failed suddenly, clear previous locks
 clearIndexLocks() {
   rm ${IndexDir}/*.lock 2>/dev/null
@@ -91,24 +88,6 @@ killAnyOrphans() {
 # Turn control over to ant to run database command
 databaseCommand() {
     clearIndexLocks
-    JavaOpts=""
-
-    string=1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
-    pass=""
-    primary_not_exists=true
-    declare -i location_count
-    #get the IP via hostname command
-    ip_addr=`hostname -i`
-
-    for i in {1..8};do
-      pos=$((RANDOM%${#string}))
-      pass+="${string:$pos:1}"
-    done
-    location_count=`psql -U postgres -c 'select count(location_id) from location where primary_location=TRUE' SIPXCONFIG -t 2> /dev/null`
-
-    if [ "$location_count" -gt 0 ]; then
-      primary_not_exists=false
-    fi
 
     # XCF-1275 - Do not want to suppress output if there is an error
     # however want to be quiet if everything is ok for clean rpm install
@@ -124,10 +103,6 @@ databaseCommand() {
         -Dlog.dir=${LogDir} \
         -Dtmp.dir=${TmpDir} \
         -Dsipxconfig.db.user=@POSTGRESQL_USER@ \
-        -Dsipxconfig.hostname=$PRIMARY_HOSTNAME \
-        -Dprimary.ip.addr=$ip_addr \
-        -Dprimary.password=$pass \
-        -Dprimary.not.exists=$primary_not_exists \
         ${SIPXCONFIG_ANT_OPTS} \
         -f @SIPX_CONFDIR@/database/database.xml \
         $@"
@@ -154,15 +129,6 @@ setupCheck() {
 
 buildCommand() {
     procNameId=$1
-    # Used in sipxconfig-jetty.xml only
-    SystemProps="\
-        -Djava.io.tmpdir=${TmpDir} \
-        -Djetty.lib.dir=@SIPX_JAVADIR@/sipXconfig \
-        -Djetty.conf.dir=@SIPX_CONFDIR@ \
-        -Djetty.log.dir=${LogDir} \
-        -Dorg.apache.lucene.lockdir=${IndexDir} \
-        -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
-        -Djava.awt.headless=true"
 
     # -Dprocname needs to be early in the command so cfengine can detect it
     Command="$JavaCmd \
@@ -170,7 +136,13 @@ buildCommand() {
        -XX:MaxPermSize=128M \
        -Xmx1024m \
        ${SIPXCONFIG_OPTS} \
-       $SystemProps"
+       -Djava.io.tmpdir=${TmpDir} \
+       -Djetty.lib.dir=@SIPX_JAVADIR@/sipXconfig \
+       -Djetty.conf.dir=@SIPX_CONFDIR@ \
+       -Djetty.log.dir=${LogDir} \
+       -Dorg.apache.lucene.lockdir=${IndexDir} \
+       -Dorg.apache.commons.loging.Log=org.apache.commons.logging.impl.Log4JLogger \
+       -Djava.awt.headless=true"
 }
 
 runTask() {

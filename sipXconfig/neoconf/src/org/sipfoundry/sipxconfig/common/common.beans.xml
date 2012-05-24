@@ -83,8 +83,4 @@
     </property>
   </bean>
   
-  <bean id="initializeSystemTask" class="org.sipfoundry.sipxconfig.common.DataInitializer">
-    <property name="adminContext" ref="adminContext" />
-  </bean>
-  
 </beans>

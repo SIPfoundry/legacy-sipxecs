@@ -18,10 +18,11 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.InitTaskListener;
+import org.sipfoundry.sipxconfig.setup.MigrationListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 
-public class PhonebookFileEntryTrigger extends InitTaskListener {
-    private static final Log LOG = LogFactory.getLog(PhonebookFileEntryTrigger.class);
+public class PhonebookSetup implements MigrationListener {
+    private static final Log LOG = LogFactory.getLog(PhonebookSetup.class);
 
     private PhonebookManager m_phonebookManager;
 
@@ -29,8 +30,7 @@ public class PhonebookFileEntryTrigger extends InitTaskListener {
         m_phonebookManager = phonebookManager;
     }
 
-    @Override
-    public void onInitTask(String task) {
+    public void setupFileEntries() {
         LOG.info("Begining saving entries from existing CSV/vCard files into the table phonebook_file_entry.");
 
         String directory = m_phonebookManager.getExternalUsersDirectory();
@@ -66,6 +66,21 @@ public class PhonebookFileEntryTrigger extends InitTaskListener {
 
         } else {
             LOG.info("Phonebook's directory " + directory + " doesn't exist!");
+        }
+    }
+
+    @Override
+    public void migrate(SetupManager manager) {
+        String id = "phonebook_file_entry_task";
+        if (manager.isTrue(id)) {
+            setupFileEntries();
+            manager.setFalse(id);
+        }
+
+        String entriesId = "phonebook_entries_update_task";
+        if (manager.isTrue(entriesId)) {
+            m_phonebookManager.updateFilePhonebookEntryInternalIds();
+            manager.setFalse(entriesId);
         }
     }
 }

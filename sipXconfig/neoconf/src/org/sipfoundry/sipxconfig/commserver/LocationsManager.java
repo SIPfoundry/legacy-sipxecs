@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.commserver;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 
 public interface LocationsManager {
     public static final GlobalFeature FEATURE = new GlobalFeature("locations");
@@ -37,4 +38,6 @@ public interface LocationsManager {
     void saveLocation(Location location);
 
     void deleteLocation(Location location);
+
+    void setup(SetupManager manager);
 }

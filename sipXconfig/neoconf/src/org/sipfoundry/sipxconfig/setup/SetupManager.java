@@ -29,9 +29,20 @@ public interface SetupManager {
 
     public FeatureManager getFeatureManager();
 
-    public boolean isSetup(String id);
+    public boolean isTrue(String id);
 
-    public void setSetup(String id);
+    /**
+     * This is just !isFlagOn but make code more readable when flags are used like todo list for
+     * migration related things instead of done list
+     */
+    public boolean isFalse(String id);
+
+    public void setTrue(String id);
+
+    /**
+     * When you want to mark something as not setup
+     */
+    public void setFalse(String id);
 
     public void setup();
 }

@@ -126,9 +126,9 @@ public class NtpManagerImpl implements NtpManager, ProcessProvider, FeatureProvi
 
     @Override
     public void setup(SetupManager manager) {
-        if (!manager.isSetup(FEATURE.getId())) {
+        if (!manager.isTrue(FEATURE.getId())) {
             manager.getFeatureManager().enableGlobalFeature(FEATURE, true);
-            manager.setSetup(FEATURE.getId());
+            manager.setTrue(FEATURE.getId());
         }
     }
 

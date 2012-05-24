@@ -34,6 +34,8 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.support.DataAccessUtils;
@@ -41,7 +43,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> implements CoreContext,
-       ApplicationContextAware, ReplicableProvider {
+       ApplicationContextAware, ReplicableProvider, SetupListener {
 
     public static final String ADMIN_GROUP_NAME = "administrators";
     public static final String AGENT_GROUP_NAME = "Contact-center-agents";
@@ -88,6 +90,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private ApplicationContext m_applicationContext;
     private JdbcTemplate m_jdbcTemplate;
     private boolean m_debug;
+    private boolean m_setup;
 
     /** limit number of users */
     private int m_maxUserCount = -1;
@@ -930,4 +933,14 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         m_jdbcTemplate = jdbcTemplate;
     }
 
+    @Override
+    public void setup(SetupManager manager) {
+        if (m_setup) {
+            return;
+        }
+
+        // this checks special users on every start-up as there seems to be no harm.
+        initializeSpecialUsers();
+        m_setup = true;
+    }
 }

@@ -13,6 +13,7 @@
   </bean>
 
   <bean id="apacheManagerImpl" class="org.sipfoundry.sipxconfig.apache.ApacheManagerImpl" parent="abstractDaoImpl">
+    <property name="locationsManager" ref="locationsManager"/>
   </bean>
   
 </beans>

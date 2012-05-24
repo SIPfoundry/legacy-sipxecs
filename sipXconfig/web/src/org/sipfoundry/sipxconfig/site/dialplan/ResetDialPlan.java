@@ -13,7 +13,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanActivationManager;
-import org.sipfoundry.sipxconfig.dialplan.ResetDialPlanTask;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanSetup;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 
 public abstract class ResetDialPlan extends PageWithCallback {
@@ -27,7 +27,7 @@ public abstract class ResetDialPlan extends PageWithCallback {
     public abstract DialPlanActivationManager getDialPlanActivationManager();
 
     @InjectObject("spring:resetDialPlanTask")
-    public abstract ResetDialPlanTask getResetDialPlanTask();
+    public abstract DialPlanSetup getResetDialPlanTask();
 
     public void cancel(IRequestCycle cycle) {
         getCallback().performCallback(cycle);
@@ -35,7 +35,7 @@ public abstract class ResetDialPlan extends PageWithCallback {
 
     public void reset(IRequestCycle cycle) {
         String id = getLocalizationContext().getCurrentRegionId();
-        getResetDialPlanTask().reset(id + ".dialPlan");
+        getResetDialPlanTask().setup(id + ".dialPlan");
         getCallback().performCallback(cycle);
         getDialPlanActivationManager().replicateDialPlan(true);
     }

@@ -55,8 +55,5 @@
 
   <bean id="timeZoneInit" class="org.sipfoundry.sipxconfig.device.TimeZoneInit">
     <property name="timeZoneManager" ref="timeZoneManager" />
-    <property name="taskNames">
-      <value>default-time-zone</value>
-    </property>
   </bean>
 </beans>

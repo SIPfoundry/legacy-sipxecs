@@ -102,14 +102,9 @@
     </property>
   </bean>
 
-  <bean id="sipTrunkMigrationTrigger" class="org.sipfoundry.sipxconfig.gateway.SipTrunkMigrationTrigger">
+  <bean id="sipTrunkSetup" class="org.sipfoundry.sipxconfig.gateway.SipTrunkSetup">
     <property name="sipTrunkMigrationContext">
       <ref local="sipTrunkMigrationContext" />
-    </property>
-    <property name="taskNames">
-      <list>
-        <value>sip_trunk_address_migrate_sbc_device</value>
-      </list>
     </property>
   </bean>
 </beans>

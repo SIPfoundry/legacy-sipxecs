@@ -162,35 +162,9 @@
     <property name="target" ref="autoAttendantManagerImpl" />
   </bean>
 
-  <bean id="createAttendantTask" class="org.sipfoundry.sipxconfig.dialplan.CreateAttendantTask">
-    <property name="autoAttendantManager" ref="autoAttendantManager" />
-    <property name="dialPlanContext" ref="dialPlanContext" />
-    <property name="taskNames">
-      <list>
-        <value>operator</value>
-        <value>afterhour</value>
-      </list>
-    </property>
-  </bean>
-
-  <bean id="resetDialPlanTask" class="org.sipfoundry.sipxconfig.dialplan.ResetDialPlanTask">
+  <bean id="dialPlanSetup" class="org.sipfoundry.sipxconfig.dialplan.DialPlanSetup">
     <property name="autoAttendantManager" ref="autoAttendantManager" />
     <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="defaultDialPlanId" value="na.dialPlan" />
-    <property name="taskNames">
-      <list>
-        <value>dial-plans</value>
-      </list>
-    </property>
   </bean>
-
-  <bean id="cleanupDialPlanTask" class="org.sipfoundry.sipxconfig.dialplan.CleanupDialPlanTask">
-    <property name="dialPlanContext" ref="dialPlanContext" />
-    <property name="taskNames">
-      <list>
-        <value>cleanup-dial-plans</value>
-      </list>
-    </property>
-  </bean>
-
 </beans>

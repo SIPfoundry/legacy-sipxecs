@@ -1,6 +1,4 @@
 /**
- *
- *
  * Copyright (c) 2012 eZuce, Inc. All rights reserved.
  * Contributed to SIPfoundry under a Contributor Agreement
  *
@@ -18,8 +16,8 @@ package org.sipfoundry.sipxconfig.setup;
 
 /**
  * Implement to be called when any of these conditions are true:
- *  1.) sipxecs-setup was just run or re-run
- *  2.) sipXconfig was simply just started
+ *  1.) sipXconfig has just finished apply sql patches and is now allowing java code
+ *      to further repair data.
  *
  *  In order to decide when to do what and when to not repeat tasks, use SetupManager interface
  *  to record boolean flags.  Flag can mean, if it exists, do something or it can mean if it doesn't
@@ -27,6 +25,8 @@ package org.sipfoundry.sipxconfig.setup;
  *
  *  Use as many flags as you want, but be sure to pick unique ids.
  */
-public interface SetupListener {
-    public void setup(SetupManager manager);
+public interface MigrationListener {
+
+    public void migrate(SetupManager manager);
+
 }

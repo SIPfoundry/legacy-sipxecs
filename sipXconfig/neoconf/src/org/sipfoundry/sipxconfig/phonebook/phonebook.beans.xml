@@ -2,16 +2,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="phonebookFileEntryTrigger"
-    class="org.sipfoundry.sipxconfig.phonebook.PhonebookFileEntryTrigger">
-    <property name="phonebookManager" ref="phonebookManager" />
-    <property name="taskNames">
-      <list>
-        <value>phonebook_file_entry_task</value>
-      </list>
-    </property>
-  </bean>
-  
   <bean id="phonebookManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.phonebook.PhonebookManager</value>
@@ -47,17 +37,10 @@
 	<property name="configJdbcTemplate" ref="configJdbcTemplate" />	
   </bean>
 
-  <bean id="filePhonebookEntryUpgradeTask" class="org.sipfoundry.sipxconfig.phonebook.FilePhonebookEntryUpgradeTask">
+  <bean id="filePhonebookEntryUpgradeTask" class="org.sipfoundry.sipxconfig.phonebook.PhonebookSetup">
     <property name="phonebookManager" ref="phonebookManager" />
-    <property name="taskNames">
-      <list>
-        <value>phonebook_entries_update_task</value>
-      </list>
-    </property>
   </bean>
 
   <bean id="generalPhonebookSettings" class="org.sipfoundry.sipxconfig.phonebook.GeneralPhonebookSettings" parent="settingsBean">
   </bean>
-  
-
 </beans>

@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.dialplan.AutoAttendantManager;
-import org.sipfoundry.sipxconfig.dialplan.ResetDialPlanTask;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanSetup;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 
@@ -28,7 +28,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     private String m_promptsDir;
     private String m_defaultRegion;
     private String m_defaultLanguage;
-    private ResetDialPlanTask m_resetDialPlanTask;
+    private DialPlanSetup m_dialplanSetup;
     private AutoAttendantManager m_autoAttendantManager;
     private ReplicationManager m_replicationManager;
 
@@ -53,8 +53,8 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     }
 
     @Required
-    public void setResetDialPlanTask(ResetDialPlanTask resetDialPlanTask) {
-        m_resetDialPlanTask = resetDialPlanTask;
+    public void setDialPlanSetup(DialPlanSetup resetDialPlanTask) {
+        m_dialplanSetup = resetDialPlanTask;
     }
 
     public String getCurrentRegionId() {
@@ -120,7 +120,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         }
 
         localization.setRegion(regionBeanId);
-        m_resetDialPlanTask.reset(regionBeanId);
+        m_dialplanSetup.setup(regionBeanId);
         getDaoEventPublisher().publishSave(localization);
         getHibernateTemplate().saveOrUpdate(localization);
     }

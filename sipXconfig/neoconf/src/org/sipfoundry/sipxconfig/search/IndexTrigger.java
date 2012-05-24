@@ -11,29 +11,28 @@ package org.sipfoundry.sipxconfig.search;
 
 import java.io.File;
 
-import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
-public class IndexTrigger implements ApplicationListener {
+public class IndexTrigger implements ApplicationListener<ApplicationEvent> {
     private IndexManager m_indexManager;
-
-    private AdminContext m_adminContext;
-
+    private SetupManager m_setupManager;
     private boolean m_enabled = true;
-
     private File m_indexDirectory;
 
+    @Override
     public void onApplicationEvent(ApplicationEvent event) {
         if (!m_enabled) {
             return;
         }
         if (event instanceof ApplicationInitializedEvent) {
-            if (!m_adminContext.inInitializationPhase()) {
-                if (!m_indexDirectory.exists()) {
-                    m_indexManager.indexAll();
-                }
+            // calling SetupManager.setup() forces SetupManager to run first as order is not
+            // guaranteed. Calling multiple times is harmless (idempotent)
+            m_setupManager.setup();
+            if (!m_indexDirectory.exists()) {
+                m_indexManager.indexAll();
             }
         }
     }
@@ -42,15 +41,15 @@ public class IndexTrigger implements ApplicationListener {
         m_indexManager = indexManager;
     }
 
-    public void setAdminContext(AdminContext adminContext) {
-        m_adminContext = adminContext;
-    }
-
     public void setIndexDirectoryName(String indexDirectoryName) {
         m_indexDirectory = new File(indexDirectoryName);
     }
 
     public void setEnabled(boolean enabled) {
         m_enabled = enabled;
+    }
+
+    public void setSetupManager(SetupManager setupManager) {
+        m_setupManager = setupManager;
     }
 }

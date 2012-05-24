@@ -16,6 +16,7 @@ import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 
 /**
  * CoreContext
@@ -219,4 +220,5 @@ public interface CoreContext extends DataObjectSource<User>, AliasOwner {
 
     public boolean isAliasInUseForOthers(String alias, String username);
 
+    public void setup(SetupManager manager);
 }

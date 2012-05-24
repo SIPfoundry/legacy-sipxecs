@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.domain;
 import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.localization.Localization;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 
 public interface DomainManager extends DialingRuleProvider {
     public static final GlobalFeature FEATURE = new GlobalFeature("domain");
@@ -42,4 +43,6 @@ public interface DomainManager extends DialingRuleProvider {
      * For use in tests only.
      */
     public void setNullDomain();
+
+    public void setup(SetupManager manager);
 }

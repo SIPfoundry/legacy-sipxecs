@@ -19,13 +19,8 @@
     </property>
   </bean>
 
-  <bean id="callGroupSipPasswordInit" class="org.sipfoundry.sipxconfig.callgroup.CallGroupSipPasswordInit">
+  <bean id="callGroupSetup" class="org.sipfoundry.sipxconfig.callgroup.CallGroupSetup">
     <property name="callGroupContext" ref="callGroupContext" />
-    <property name="taskNames">
-      <list>
-        <value>callgroup-password-init</value>
-      </list>
-    </property>
   </bean>
 
 </beans>

@@ -67,10 +67,10 @@ begin
 		
 		if new_pin is NULL then
   		  new_pin := reset_pin;
-  		  raise NOTICE 'RESET PIN % for user %', my_user.user_name;
+  		  raise NOTICE 'resetting pin for %', my_user.user_name;
 		end if;
 		
-		update users set pintoken = md5(my_user.user_name || ':' || new_pin) where user_name = my_user.user_name;
+		update users set pintoken = new_pin where user_name = my_user.user_name;
 	end loop;
 end;	
 $$ language plpgsql;

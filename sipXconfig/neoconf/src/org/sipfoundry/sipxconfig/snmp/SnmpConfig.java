@@ -45,10 +45,10 @@ public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListene
     private ConfigManager m_configManager;
 
     public void setup(SetupManager manager) {
-        if (!manager.isSetup(SnmpManager.FEATURE.getId())) {
+        if (!manager.isTrue(SnmpManager.FEATURE.getId())) {
             // SNMP is pretty core to the system, enable it by default
             manager.getFeatureManager().enableGlobalFeature(SnmpManager.FEATURE, true);
-            manager.setSetup(SnmpManager.FEATURE.getId());
+            manager.setTrue(SnmpManager.FEATURE.getId());
         }
     }
 
