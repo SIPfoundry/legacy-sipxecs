@@ -1,5 +1,5 @@
 <div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'rules', 'groups', 'settings'}" selectedTab="ognl:tab" />
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'rules', 'groups', 'settings', 'unmanaged'}" selectedTab="ognl:tab" />
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg" /> <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
@@ -11,8 +11,14 @@
   </div>
   <div jwcid="settingsTab@Block">
     <form jwcid="form@Form" delegate="bean:validator">
-      <fieldset jwcid="@setting/SettingsFieldset" settings="ognl:settings.settings" />
+      <fieldset jwcid="@setting/SettingsFieldset" settings="ognl:settings.getSettings().getSetting('sysctl')" />
       <ul jwcid="formActions@common/FormActions" callback="ognl:callback" listener="listener:saveSettings" />
+    </form>
+  </div>
+  <div jwcid="unmanagedTab@Block">
+    <form jwcid="formUnmanaged@Form" delegate="bean:validator">
+      <fieldset jwcid="@setting/SettingsFieldset" settings="ognl:settings.getSettings().getSetting('firewall-unmanaged')" />
+      <ul jwcid="formUnmanagedActions@common/FormActions" callback="ognl:callback" listener="listener:saveSettings" />
     </form>
   </div>
 </div>

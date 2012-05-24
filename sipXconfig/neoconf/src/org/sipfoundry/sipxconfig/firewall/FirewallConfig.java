@@ -53,13 +53,16 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         }
 
         File gdir = manager.getGlobalDataDirectory();
-        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FirewallManager.FEATURE);
+        FirewallSettings settings = m_firewallManager.getSettings();
+        boolean unmanaged = settings.isServiceUnmanaged();
+        ConfigUtils.enableCfengineClass(gdir, "firewall_unmanaged.cfdat", unmanaged, "unmanaged_firewall");
+
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FirewallManager.FEATURE) && !unmanaged;
         ConfigUtils.enableCfengineClass(gdir, "firewall.cfdat", enabled, "firewall");
         if (!enabled) {
             return;
         }
 
-        FirewallSettings settings = m_firewallManager.getSettings();
         Writer sysctl = new FileWriter(new File(gdir, "sysctl.part"));
         try {
             writeSysctl(sysctl, settings);
