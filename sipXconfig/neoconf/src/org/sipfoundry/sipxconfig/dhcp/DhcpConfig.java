@@ -52,11 +52,15 @@ public class DhcpConfig implements ConfigProvider {
         List<Address> dns = addressManager.getAddresses(DnsManager.DNS_ADDRESS);
         List<Address> ntp = addressManager.getAddresses(NtpManager.NTP_SERVER);
 
-        Set<Location> locations = request.locations(manager);
+        File gdir = manager.getGlobalDataDirectory();
         DhcpSettings settings  = m_dhcpManager.getSettings();
+        boolean unmanaged = settings.isServiceUnmanaged();
+        ConfigUtils.enableCfengineClass(gdir, "dhcpd_unmanaged.cfdat", unmanaged, "unmanaged_dhcpd");
+
+        Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            boolean enabled = manager.getFeatureManager().isFeatureEnabled(DhcpManager.FEATURE, location);
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(DhcpManager.FEATURE, location) && !unmanaged;
             ConfigUtils.enableCfengineClass(dir, "dhcpd.cfdat", enabled, "dhcpd");
             if (!enabled) {
                 continue;

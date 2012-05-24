@@ -17,7 +17,9 @@
 package org.sipfoundry.sipxconfig.site.dhcp;
 
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -37,6 +39,10 @@ public abstract class EditDhcpd extends PageWithCallback implements PageBeginRen
     public abstract DhcpSettings getSettings();
 
     public abstract void setSettings(DhcpSettings settings);
+
+    @Persist
+    @InitialValue(value = "literal:dhcp")
+    public abstract String getTab();
 
     @Override
     public void pageBeginRender(PageEvent arg0) {

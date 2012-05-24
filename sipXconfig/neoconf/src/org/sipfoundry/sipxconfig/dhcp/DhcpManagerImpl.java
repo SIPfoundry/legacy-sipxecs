@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
@@ -79,6 +80,16 @@ public class DhcpManagerImpl extends SipxHibernateDaoSupport implements DhcpMana
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         if (!type.equals(FEATURE)) {
+            return null;
+        }
+
+        DhcpSettings settings = getSettings();
+        if (settings.isServiceUnmanaged()) {
+            String server = settings.getUnmanagedDhcpServer();
+            if (StringUtils.isNotBlank(server)) {
+                Address address = new Address(DHCPD_ADDRESS, server);
+                return Collections.singletonList(address);
+            }
             return null;
         }
 

@@ -19,7 +19,6 @@ package org.sipfoundry.sipxconfig.service;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
@@ -27,10 +26,6 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
-import org.sipfoundry.sipxconfig.firewall.FirewallManager;
-import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
-import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 
 public class UnmanagedServiceImpl  implements AddressProvider, UnmanagedService {
