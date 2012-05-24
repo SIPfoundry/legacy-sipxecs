@@ -21,4 +21,24 @@
       </setting>
     </group>
   </group>
+   <group name="named-unmanaged">
+       <setting name="unmanaged">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="0">
+        <type><hostname/></type>
+      </setting>
+      <setting name="1">
+        <type><hostname/></type>
+      </setting>
+      <setting name="2">
+        <type><hostname/></type>
+      </setting>
+      <setting name="3">
+        <type><hostname/></type>
+      </setting>
+    </group>
 </model>

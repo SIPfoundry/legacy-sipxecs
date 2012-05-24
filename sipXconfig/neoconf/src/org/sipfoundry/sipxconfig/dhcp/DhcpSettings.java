@@ -28,6 +28,8 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class DhcpSettings extends PersistableSettings implements DeployConfigOnEdit {
     private static final String LAST_IPV4_SEGMENT = "\\.\\d+$";
+    private static final String UNMANAGED_SETTING = "dhcpd-unmanaged/unmanaged";
+    private static final String UNMANAGED_SERVER = "dhcpd-unmanaged/dhcpd-server";
     private LocationsManager m_locationsManager;
     private Location m_primary;
 
@@ -68,6 +70,14 @@ public class DhcpSettings extends PersistableSettings implements DeployConfigOnE
     @Override
     public String getBeanId() {
         return "dhcpSettings";
+    }
+
+    public boolean isServiceUnmanaged() {
+        return (Boolean) getSettingTypedValue(UNMANAGED_SETTING);
+    }
+
+    public String getUnmanagedDhcpServer() {
+        return (String) getSettingTypedValue(UNMANAGED_SERVER);
     }
 
     @Override

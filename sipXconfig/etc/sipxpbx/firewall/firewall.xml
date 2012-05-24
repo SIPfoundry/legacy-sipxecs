@@ -21,5 +21,11 @@
       <type refid="true-false"/>
       <value>1</value>
     </setting>
- </group>
+   </group>
+  <group name="firewall-unmanaged">
+    <setting name="unmanaged">
+      <type refid="true-false"/>
+      <value>0</value>
+    </setting>
+  </group>
 </model>

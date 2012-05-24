@@ -3,22 +3,22 @@
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
   <group name="dhcpd-config">
-    <setting name="range_begin" >
+    <setting name="subnet" >
       <type><ipaddress/></type>
     </setting>
-    <setting name="routers" >
-      <type><string/></type>
-    </setting>
-    <setting name="range_end" >
-      <type><ipaddress/></type>
-    </setting>    
     <setting name="netmask" >
       <type><ipaddress/></type>
       <value>255.255.255.0</value>
     </setting>
-    <setting name="subnet" >
+    <setting name="range_begin" >
       <type><ipaddress/></type>
     </setting>
+   <setting name="range_end" >
+      <type><ipaddress/></type>
+    </setting>  
+    <setting name="routers" >
+      <type><string/></type>
+    </setting>  
     <setting name="default_lease_time" >
       <type><integer/></type>
       <value>43200</value>
@@ -26,6 +26,17 @@
     <setting name="max_lease_time" >
       <type><integer/></type>
       <value>43200</value>
+    </setting>
+ </group>
+  <group name="dhcpd-unmanaged">
+    <setting name="unmanaged">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="dhcpd-server" >
+      <type><ipaddress/></type>
     </setting>
  </group>
 </model>

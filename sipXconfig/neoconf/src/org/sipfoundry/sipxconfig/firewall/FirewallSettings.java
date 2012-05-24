@@ -24,10 +24,15 @@ import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class FirewallSettings extends PersistableSettings implements DeployConfigOnEdit {
+    private static final String UNMANAGED_SETTING = "firewall-unmanaged/unmanaged";
 
     @Override
     public String getBeanId() {
         return "firewallSettings";
+    }
+
+    public boolean isServiceUnmanaged() {
+        return (Boolean) getSettingTypedValue(UNMANAGED_SETTING);
     }
 
     @Override
