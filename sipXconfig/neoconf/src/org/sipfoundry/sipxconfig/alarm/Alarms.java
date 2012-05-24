@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.alarm;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -44,6 +45,9 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 public class Alarms implements FeatureProvider, ProcessProvider, FirewallProvider, AddressProvider {
     public static final GlobalFeature FEATURE = new GlobalFeature("alarms");
     public static final AddressType TRAP_ADDRESS = new AddressType("snmptrap", 162, AddressType.Protocol.udp);
+    private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
+        TRAP_ADDRESS
+    });
     private LocationsManager m_locationsManager;
 
     @Override
@@ -82,10 +86,13 @@ public class Alarms implements FeatureProvider, ProcessProvider, FirewallProvide
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
-        if (manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
+        if (!ADDRESSES.contains(type)) {
             return null;
         }
-        return Location.toAddresses(TRAP_ADDRESS, m_locationsManager.getLocationsList());
+        if (!manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
+            Collections.emptyList();
+        }
+        return Location.toAddresses(type, m_locationsManager.getLocationsList());
     }
 
     @Override

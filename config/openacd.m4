@@ -6,7 +6,7 @@ openacd_prefix="$withval",
 openacd_prefix="yes")
 
   if test "$openacd_prefix" == "yes" ; then
-    openacd_prefix="${prefix}/OpenACD /opt/OpenACD"
+    openacd_prefix="${PREFIX}/lib/openacd ${PREFIX}/lib64/openacd"
   fi
 
   if test "$openacd_prefix" != "no"; then
@@ -14,6 +14,10 @@ openacd_prefix="yes")
     for d in $openacd_prefix ; do
       if test -d $d ; then
         OPENACD_DIR=$d
+        OPENACD_LOGDIR="${PREFIX}/var/log/openacd"
+        OPENACD_CONFDIR="${PREFIX}/etc/openacd"
+        OPENACD_DBDIR="${PREFIX}/var/lib/openacd/db"
+        OPENACD_BINDIR="$d/bin"
         AC_MSG_RESULT([yes - $d])
         openacd_found=yes
         break;
@@ -24,6 +28,10 @@ openacd_prefix="yes")
       AC_MSG_RESULT([no])
     fi
     AC_SUBST([OPENACD_DIR])
+    AC_SUBST([OPENACD_LOGDIR])
+    AC_SUBST([OPENACD_CONFDIR])
+    AC_SUBST([OPENACD_DBDIR])
+    AC_SUBST([OPENACD_BINDIR])
 
     AC_MSG_CHECKING([for OpenACD include files])
     openacd_inc="include lib/OpenACD-*/include"

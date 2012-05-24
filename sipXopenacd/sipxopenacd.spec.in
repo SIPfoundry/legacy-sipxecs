@@ -14,7 +14,8 @@ BuildRequires: erlang
 BuildRequires: erlmongo
 BuildRequires: openacd
 
-%define plugindir /opt/OpenACD/plugin.d
+%define ebindir /%{_libdir}/openacd/plugin.d/sipxplugin/ebin
+%define openacdlibdir /%{_libdir}/openacd/lib
 
 Source: %name-%version.tar.gz
 Prefix: %_prefix
@@ -32,7 +33,7 @@ OpenACD integration for sipXecs
 
 %build
 %configure @SIPX_RPM_CONFIGURE_OPTIONS@
-make rcompile
+make all
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -43,11 +44,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_sysconfdir}/init.d/sipxopenacd
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxopenacd.cf
-%{plugindir}/sipxplugin.app
-%{plugindir}/erlmongo.app
-%{plugindir}/sipxplugin/ebin/sipxplugin.app
-%{plugindir}/sipxplugin/ebin/*.beam
+%{ebindir}/*
+/%{openacdlibdir}/erlmongo/ebin/*
+/%{openacdlibdir}/meck/ebin/*
+/%{_bindir}/snapshot/openacd-snapshot.sh
 %dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/cfdata
 %{_localstatedir}/sipxdata/cfdata/defaults/sipxopenacd.cfdat

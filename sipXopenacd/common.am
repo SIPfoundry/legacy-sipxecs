@@ -1,0 +1,2 @@
+OPENACD_VARS = \
+	$(filter OPENACD%,$(.VARIABLES))

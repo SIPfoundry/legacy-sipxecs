@@ -1,16 +1,15 @@
 include $(top_srcdir)/config/utility.am
 
-initddir = @SIPX_SERVICEDIR@
-initd_SCRIPTS = \
-    sipxopenacd
+EXTRA_DIST=openacd-snapshot.sh.in
 
-EXTRA_DIST = \
-	$(initd_SCRIPTS:=.in)
+snapshotdir = $(SIPX_SNAPSHOTBINDIR)
+dist_snapshot_SCRIPTS = \
+	openacd-snapshot.sh
 
 OPENACD_VARS = \
 	$(filter OPENACD%,$(.VARIABLES))
 
-$(initd_SCRIPTS) : % : %.in Makefile
+$(dist_snapshot_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@, $(OPENACD_VARS))
 
-CLEANFILES = $(initd_SCRIPTS)
+DISTCLEANFILES = $(snapshot_SCRIPTS)

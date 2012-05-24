@@ -85,9 +85,10 @@ bundle agent dhcpd_sysv_running {
   vars:
    "service" string => "/etc/init.d/dhcpd";
    "service_command" string => "/usr/sbin/dhcpd";
+   "dhcpd_users" slist => {"root", "dhcpd"};
 
   methods:
-    "any" usebundle => find_service_by_command("$(service_command)", "dhcpd_running", "root");
+    "any" usebundle => find_service_by_command("$(service_command)", "dhcpd_running", "$(dhcpd_users)");
     !src.!dhcpd::
       "any" usebundle => rh_chkconfig_status("dhcpd off");
     dhcpd::

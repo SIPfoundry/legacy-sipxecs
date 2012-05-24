@@ -16,7 +16,6 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -93,8 +92,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private ListableBeanFactory m_beanFactory;
     private CoreContext m_coreContext;
     private ReplicationManager m_replicationManager;
-
-    private String m_openacdHome;
 
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
@@ -214,7 +211,8 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
             throw new NameInUseException(LINE_NAME, extension.getName());
         } else if (!m_aliasManager.canObjectUseAlias(extension, capturedExt)) {
             throw new ExtensionInUseException(LINE_NAME, capturedExt);
-        } else if (extension.getAlias() != null && !m_aliasManager.canObjectUseAlias(extension, extension.getAlias())) {
+        } else if (extension.getAlias() != null
+                && !m_aliasManager.canObjectUseAlias(extension, extension.getAlias())) {
             throw new ExtensionInUseException(LINE_NAME, extension.getAlias());
         } else if (extension.getDid() != null && !m_aliasManager.canObjectUseAlias(extension, extension.getDid())) {
             throw new ExtensionInUseException(LINE_NAME, extension.getDid());
@@ -252,8 +250,8 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         List<OpenAcdLine> lines = getHibernateTemplate().loadAll(OpenAcdLine.class);
         for (OpenAcdLine line : lines) {
             if (line.getExtension() != null && (line.getExtension().equals(alias) || line.getName().equals(alias))
-                    || (line.getAlias() != null && line.getAlias().equals(alias)) || (line.getDid() != null
-                    && line.getDid().equals(alias))) {
+                    || (line.getAlias() != null && line.getAlias().equals(alias))
+                    || (line.getDid() != null && line.getDid().equals(alias))) {
                 bids.add(new BeanId(line.getId(), OpenAcdLine.class));
             }
         }
@@ -965,11 +963,12 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
             User user = (User) entity;
             OpenAcdAgent agent = getAgentByUser(user);
             if (agent != null) {
-                //must manually de-associate group-agent
+                // must manually de-associate group-agent
                 agent.getGroup().removeAgent(agent);
                 getDaoEventPublisher().publishDelete(agent);
-                //do not call deleteAgent here b/c it will re-insert user into mongo
-                //(we don't care about user-group association update since the user is deleted anyway)
+                // do not call deleteAgent here b/c it will re-insert user into mongo
+                // (we don't care about user-group association update since the user is deleted
+                // anyway)
                 getHibernateTemplate().delete(agent);
             }
         } else if (entity instanceof OpenAcdQueueGroup) {
@@ -996,7 +995,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         m_aliasManager = aliasManager;
     }
 
-
     @Override
     public void resync() {
     }
@@ -1021,9 +1019,10 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         if (!manager.getFeatureManager().isFeatureEnabled(FEATURE, location)) {
+
             return null;
         }
-        ProcessDefinition def = ProcessDefinition.sysvDefault(OPEN_ACD_PROCESS_NAME, "$(sipx.OPENACD_DIR)/bin/"
+        ProcessDefinition def = ProcessDefinition.sysvDefault(OPEN_ACD_PROCESS_NAME, "/bin/"
                 + OPEN_ACD_PROCESS_NAME);
         return Collections.singleton(def);
     }
@@ -1037,10 +1036,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         if (b == Bundle.CALL_CENTER) {
             b.addFeature(FEATURE);
         }
-    }
-
-    public void setOpenacdHome(String openAcdHome) {
-        m_openacdHome = openAcdHome;
     }
 
     @Override

@@ -9,8 +9,7 @@ SIPX_OPENACD
 AC_ERLANG_PATH_ERLC
 AC_CONFIG_FILES([
   Makefile
-  bin/Makefile
   etc/Makefile
-  src/Makefile
+  bin/Makefile
 ])
 AC_OUTPUT

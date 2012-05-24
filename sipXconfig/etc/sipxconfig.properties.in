@@ -5,7 +5,6 @@
 parkConfig.audioDirectory=@SIPX_VARDIR@/parkserver/music
 pagingConfiguration.audioDirectory=@SIPX_VARDIR@/sipxpage/music
 openAcdSettings.audioDirectory=@SIPX_VARDIR@/configserver/phone/acd/audio
-openAcdSettings.logDirectory=@OPENACD_HOME@/log
 
 sipImpl.port=5180
 
@@ -76,7 +75,6 @@ sysdir.mongo_ns=
 sysdir.mongo_client_ini=@SIPX_CONFDIR@/mongo-client.ini
 sysdir.port=12001
 openfire.home=@OPENFIRE_HOME@
-openAcdContextImpl.openacdHome=@OPENACD_HOME@
 
 # ACD server defaults - can be changed in UI
 acdServer.port=8110
