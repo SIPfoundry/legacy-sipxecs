@@ -104,7 +104,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
         User user = getUserForEditing();
         UserForm.updatePin(this, user, getCoreContext().getAuthorizationRealm());
-        UserForm.updateVoicemailPin(this, user, getCoreContext().getAuthorizationRealm());
+        UserForm.updateVoicemailPin(this, user);
 
         FaxServicePanel fs = (FaxServicePanel) getComponent("faxServicePanel");
         fs.update(user);

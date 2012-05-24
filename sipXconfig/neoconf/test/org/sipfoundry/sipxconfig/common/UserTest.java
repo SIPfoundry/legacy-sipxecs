@@ -124,8 +124,8 @@ public class UserTest extends TestCase {
     private void checkSetVoicemailPin(String pin) throws Exception {
         User user = new User();
         user.setUserName("username");
-        user.setVoicemailPin(pin, "realm.sipfoundry.org");
-        String pintoken = getVoicemailPintoken("username","realm.sipfoundry.org", pin);
+        user.setVoicemailPin(pin);
+        String pintoken = getVoicemailPintoken("username", pin);
         assertEquals(pintoken, user.getVoicemailPintoken());
     }
 
@@ -444,9 +444,9 @@ public class UserTest extends TestCase {
         return Md5Encoder.getEncodedPassword(safePin);
     }
 
-    private String getVoicemailPintoken(String username, String realm, String pin) {
+    private String getVoicemailPintoken(String username, String pin) {
         // handle null pin
         String safePin = StringUtils.defaultString(pin);
-        return Md5Encoder.digestEncryptPassword(username, realm, safePin);
+        return Md5Encoder.digestEncryptPassword(username, safePin);
     }
 }

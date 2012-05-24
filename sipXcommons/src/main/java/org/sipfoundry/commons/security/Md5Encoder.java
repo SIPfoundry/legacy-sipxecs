@@ -27,7 +27,17 @@ public final class Md5Encoder {
     }
 
     /**
-     * Computes the digest without DNS domain name
+     * Computes the digest without realm domain name
+     */
+    public static final String digestEncryptPassword(String user, String password) {
+        String full = user + ':' + password;
+        String digest = DigestUtils.md5Hex(full);
+        return digest;
+    }
+
+    /**
+     * Computes the digest with realm in accordance with RFC. Note realm == domain in practice
+     * so storing this means your password validation will fail if domain name changes. 
      */
     public static final String digestEncryptPassword(String user, String realm, String password) {
         String full = user + ':' + realm + ':' + password;

@@ -170,12 +170,14 @@ recover original PIN by brute force. If unsuccessful, reset users password to gi
   }
 
   opts.on_tail("--crack-pin-len length",
-               "Maximum length of PIN to attempt. Default is #{params[:crack_pin_len]}. Higher values take exponentially more time."){|v|
+               "Maximum length of PIN to attempt. Default is #{params[:crack_pin_len]}. Higher \
+values take exponentially more time."){|v|
     params[:crack_pin_len] = v
   }
 
   opts.on_tail("--no-restart",
-      "Don't actually restore db, but test the db migration process."){
+      "Use this flag if sipxconfig is already stopped and you do not want this script to re-stop \
+or start sipxconfig after it's done."){
     params[:restart] = false
   }
 }

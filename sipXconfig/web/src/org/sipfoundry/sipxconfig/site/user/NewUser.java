@@ -131,8 +131,7 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         if (user == null) {
             user = getCoreContext().newUser();
             user.setSipPassword(RandomStringUtils.randomAlphanumeric(SIP_PASSWORD_LEN));
-            user.setVoicemailPin(RandomStringUtils.random(VOICEMAIL_PIN_LEN, false, true),
-                    getCoreContext().getAuthorizationRealm());
+            user.setVoicemailPin(RandomStringUtils.random(VOICEMAIL_PIN_LEN, false, true));
             user.setPin(RandomStringUtils.randomAlphabetic(PASSWORD_LEN));
             setUser(user);
             UserForm.initializePin(getComponent(USER_FORM).getComponent("pin"), this, user);

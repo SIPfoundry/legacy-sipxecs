@@ -35,6 +35,7 @@ public class FirstRunTask implements ApplicationListener {
     public void runTask() {
         LOG.info("Executing first run tasks...");
         m_domainManager.initializeDomain();
+        m_locationsManager.initializeLocations(m_domainManager.getDomain());
         m_coreContext.initializeSpecialUsers();
         m_replicationManager.replicateAllData();
     }

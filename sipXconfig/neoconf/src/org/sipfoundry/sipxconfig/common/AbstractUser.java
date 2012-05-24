@@ -163,11 +163,11 @@ public abstract class AbstractUser extends BeanWithGroups {
         m_voicemailPintoken = voicemailPintoken;
     }
 
-    public void setVoicemailPin(String voicemailPin, String realm) {
+    public void setVoicemailPin(String voicemailPin) {
         String pin2 = defaultString(voicemailPin, EMPTY); // handle null
         // pin
         m_clearVoicemailPin = voicemailPin;
-        setVoicemailPintoken(Md5Encoder.digestEncryptPassword(m_userName, realm, pin2));
+        setVoicemailPintoken(Md5Encoder.digestEncryptPassword(m_userName, pin2));
     }
 
     public String getFirstName() {

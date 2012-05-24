@@ -35,7 +35,9 @@ $$ language plpgsql;
 -- use brute force to test all PIN combinations from "0" to "9999" where the
 -- upper bounds is set by max_len.  If PIN cannot be "cracked" because the user
 -- had more digits than max_len or the PIN actually contained letters, then set
--- all of the "uncracked" PINs to a specfic value.     
+-- all of the "uncracked" PINs to a specfic value.    
+--
+--  Very crude report of pins that were restore /var/lib/pgsql/data/pg_log
 create or replace function uncover_pin_on_restore(reset_pin text, max_len integer) returns void as $$
 declare
     realm text;
@@ -65,9 +67,7 @@ begin
 		
 		if new_pin is NULL then
   		  new_pin := reset_pin;
-  		  raise NOTICE 'RESET PIN % to % ', my_user.user_name, new_pin;
-		else
-			raise NOTICE 'RESTORED PIN % to % ', my_user.user_name, new_pin;
+  		  raise NOTICE 'RESET PIN % for user %', my_user.user_name;
 		end if;
 		
 		update users set pintoken = md5(my_user.user_name || ':' || new_pin) where user_name = my_user.user_name;

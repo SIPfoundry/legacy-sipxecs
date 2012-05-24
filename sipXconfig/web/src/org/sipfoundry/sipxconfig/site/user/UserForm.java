@@ -100,7 +100,7 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
 
             // Update the user's PIN and aliases
             updatePin(this, getUser(), getCoreContext().getAuthorizationRealm());
-            updateVoicemailPin(this, getUser(), getCoreContext().getAuthorizationRealm());
+            updateVoicemailPin(this, getUser());
 
             String groupsString = getGroupsString();
             if (groupsString != null) {
@@ -213,9 +213,9 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
         }
     }
 
-    public static void updateVoicemailPin(EditPinComponent editPin, User user, String authorizationRealm) {
+    public static void updateVoicemailPin(EditPinComponent editPin, User user) {
         if (!(editPin.getVoicemailPin() == null) && !editPin.getVoicemailPin().equals(DUMMY_PIN)) {
-            user.setVoicemailPin(editPin.getVoicemailPin(), authorizationRealm);
+            user.setVoicemailPin(editPin.getVoicemailPin());
 
             // Having updated the user, scrub the PIN field for security
             editPin.setVoicemailPin(null);
