@@ -14,7 +14,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.service;
+package org.sipfoundry.sipxconfig.ssh;
 
 
 import java.util.Arrays;
@@ -31,21 +31,10 @@ import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 
-public class UnmanagedServiceImpl  implements AddressProvider, UnmanagedService {
-    private static final List<AddressType> ADDRESSES = Arrays.asList(SYSLOG);
-    private BeanWithSettingsDao<UnmanagedServiceSettings> m_settingsDao;
-
-    @Override
-    public UnmanagedServiceSettings getSettings() {
-        return m_settingsDao.findOrCreateOne();
-    }
-
-    @Override
-    public void saveSettings(UnmanagedServiceSettings settings) {
-        m_settingsDao.upsert(settings);
-    }
+public class SshManager implements AddressProvider, FirewallProvider {
+    public static final AddressType SSH = new AddressType("ssh", 22);
+    private static final List<AddressType> ADDRESSES = Arrays.asList(SSH);
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
@@ -53,15 +42,16 @@ public class UnmanagedServiceImpl  implements AddressProvider, UnmanagedService 
             return null;
         }
 
-        UnmanagedServiceSettings settings = getSettings();
-        if (type.equals(SYSLOG)) {
-            return settings.getAddresses(SYSLOG, "services/syslog");
+        if (type.equals(SSH)) {
+            // return the ssh server on the server that asking. mostly useful for firewall rules
+            return Collections.singleton(new Address(SSH, requester.getAddress()));
         }
 
         return null;
     }
 
-    public void setSettingsDao(BeanWithSettingsDao<UnmanagedServiceSettings> settingsDao) {
-        m_settingsDao = settingsDao;
+    @Override
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return Collections.singleton(new DefaultFirewallRule(SSH, FirewallRule.SystemId.PUBLIC));
     }
 }
