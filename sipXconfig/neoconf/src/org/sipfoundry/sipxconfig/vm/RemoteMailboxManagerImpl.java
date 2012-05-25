@@ -147,14 +147,16 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
             Location ivrLocation = locations.get(0);
             try {
                 m_configCommands.collectVmBackup(ivrLocation);
+                File destfile = new File(workingDir, BackupPlan.VOICEMAIL_ARCHIVE);
+                if (destfile.exists()) {
+                    FileUtils.deleteQuietly(destfile);
+                }
                 if (!ivrLocation.isPrimary()) {
                     m_configCommands.uploadVmBackup(getLocationsManager().getPrimaryLocation());
                     FileUtils.moveFile(
-                            new File(m_backupDirectory, "voicemail-" + ivrLocation.getFqdn() + ".tar.gz"), new File(
-                                    workingDir, BackupPlan.VOICEMAIL_ARCHIVE));
+                            new File(m_backupDirectory, "voicemail-" + ivrLocation.getFqdn() + ".tar.gz"), destfile);
                 } else {
-                    FileUtils.moveFile(new File(m_backupDirectory, BackupPlan.VOICEMAIL_ARCHIVE), new File(
-                            workingDir, BackupPlan.VOICEMAIL_ARCHIVE));
+                    FileUtils.moveFile(new File(m_backupDirectory, BackupPlan.VOICEMAIL_ARCHIVE), destfile);
                 }
             } catch (IOException ex) {
                 LOG.error(String.format("Failed to retrieve backup from voicemail server %s", ex.getMessage()));
