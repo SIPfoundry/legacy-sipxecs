@@ -1,0 +1,143 @@
+#!/bin/env ruby
+
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+#
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+#
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# Archive and Restore sipXconfig's postgres database. Can be used as standalone
+# script or within the larger sipx-backup context.
+#
+
+class ArchiveBase
+  attr_writer :verbose
+
+  def initialize
+    @pguser = "postgres"
+    @db = "SIPXCDR"
+    @tmpdir = "/tmp"
+    @initd = "@SIPX_SERVICEDIR@"
+  end
+
+  def sql_exec(db, sql)
+    cmd "psql -U #{@pguser} #{db} -c \"#{sql}\""
+  end
+
+  def cmd(cmd)
+    puts cmd if @verbose
+    rc = system(cmd)
+    return rc
+  end
+end
+
+class Archive < ArchiveBase
+  def run(params)
+    cmd "pg_dump -U #{@pguser} -F t #{@db} | gzip > #{params[:file]}" or 
+      raise "Could not backup database"
+  end
+end
+
+class Restore < ArchiveBase
+  def initialize
+    super
+    @restoredb = "#{@db}_RESTORE"
+  end
+
+  def run(params)
+    legacy_format = false
+    unless cmd "tar -tzf #{params[:file]} toc.dat 2>/dev/null"
+      cmd "tar -tzf #{params[:file]} db.tar" or
+        raise "Verification failed. Could not determine format of #{params[:file]}"
+      legacy_format = true
+    end
+
+    cmd "dropdb -U #{@pguser} #{@restoredb} 2>/dev/null";
+    cmd "createdb -U #{@pguser} #{@restoredb}" or
+      raise "Restore database failed."
+ 
+    if legacy_format
+      cmd "tar -xzOf #{params[:file]} db.tar > #{@tmpdir}/db.tar" or
+        raise "Failed to extract database from archive."
+      cmd "pg_restore -U #{@pguser} -d #{@restoredb} #{@tmpdir}/db.tar" or
+        raise "Failed to restore database from archive."
+    else
+      cmd "gzip -d -c #{params[:file]} | pg_restore -U #{@pguser} -F t -d #{@restoredb}" or
+        raise "Failed to restore database from archive."
+    end
+    
+    unless params[:dryrun]
+      cmd "#{@initd}/sipxcdr stop" if params[:restart]
+      cmd "dropdb -U #{@pguser} #{@db}"
+      # alter database command need double quotes if db name is capitalized. Also, first set of double
+      # quotes is lost passing thru ruby
+      sql_exec('postgres', "alter database \\\"#{@restoredb}\\\" rename to \\\"#{@db}\\\";") or
+        raise "Could not rename database. Please run '#{@initd}/sipxcdr db create' to reset your system."
+      cmd "#{@initd}/sipxcdr start" if params[:restart]
+    end    
+  end
+end
+
+if __FILE__ == $0
+
+require 'optparse'
+params = {}
+operation = nil
+params[:restart] = true
+params[:dryrun] = false
+verbose = false
+args = OptionParser.new { |opts|
+  opts.banner = <<EOF
+Create or restore configuration to/from an archive file.
+EOF
+
+  opts.on("--archive <archive>",
+      "Restore the specified Configuration archive."){ |v|
+    operation = Archive.new
+    params[:file] = v
+  }
+
+  opts.on("--restore <archive>",
+      "Restore the specified Configuration archive."){ |v|
+    operation = Restore.new
+    params[:file] = v
+  }
+
+  opts.on("--verbose",
+      "Restore the specified Configuration archive."){
+    verbose = true
+  }
+
+  opts.separator ""
+  opts.separator "Restore options:"
+
+  opts.on_tail("--dryrun",
+      "Don't actually restore db, but test the db migration process."){
+    params[:dryrun] = true
+  }
+
+  opts.on_tail("--no-restart",
+      "Use this flag if sipxcdr is already stopped and you do not want this script to re-stop \
+or start sipxcdr after it's done."){
+    params[:restart] = false
+  }
+}
+args.parse!
+
+if operation.nil?
+  raise "Must specify either restore or archive options."
+end
+
+operation.verbose = verbose
+operation.run(params)
+exit 0
+
+end
