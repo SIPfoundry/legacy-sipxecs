@@ -910,7 +910,7 @@ public class Retrieve extends AbstractVmAction {
                     }
                     String originalPin = choice1.getDigits();
 
-                    if (!user.isVoicemailPinCorrect(originalPin, getRealm())) {
+                    if (!user.isVoicemailPinCorrect(originalPin)) {
                         errorCount++;
                         LOG.info("Retrieve::voicemailOptions:changePin " + getCurrentUser().getUserName()
                                 + " Pin invalid.");

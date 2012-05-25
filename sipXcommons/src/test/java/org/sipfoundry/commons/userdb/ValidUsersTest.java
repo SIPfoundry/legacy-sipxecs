@@ -88,9 +88,9 @@ public class ValidUsersTest extends TestCase {
 
         User u = new User();
         u.setIdentity("201@woof3.fuzzy");
-        u.setUserName("201");
-        u.setVoicemailPintoken("3c46585d782a8b9444feca1c697e4d4f");
-
-        assertTrue(u.isVoicemailPinCorrect("9663", "woof3.fuzzy"));
+        u.setUserName("201");      
+        // echo -n '201:9663' | md5sum
+        u.setVoicemailPintoken("e71f95e202a1e24c4c7647f1109fb2c0");
+        assertTrue(u.isVoicemailPinCorrect("9663"));
     }
 }

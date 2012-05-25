@@ -228,15 +228,15 @@ public class User {
         this.m_aliases = aliases;
     }
 
-    public String hashPin(String pin, String realm) {
+    public String hashPin(String pin) {
         // pintoken is MD5 Hash of:
-        // userName:realm:pin
-        String token = m_userName + ":" + realm + ":" + pin;
+        // userName:pin
+        String token = m_userName + ":" + pin;
         return DigestUtils.md5Hex(token);
     }
 
-    public boolean isVoicemailPinCorrect(String pin, String realm) {
-        return m_voicemailPintoken.equals(hashPin(pin, realm));
+    public boolean isVoicemailPinCorrect(String pin) {
+        return m_voicemailPintoken.equals(hashPin(pin));
     }
 
     public Locale getLocale() {

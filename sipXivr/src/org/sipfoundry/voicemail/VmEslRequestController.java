@@ -156,7 +156,7 @@ public class VmEslRequestController extends AbstractEslRequestController {
                 LOG.info("Retrieve::login user " + m_currentUser.getUserName() + " doesn't have needed permissions.");
             }
 
-            if (m_currentUser == null || !m_currentUser.isVoicemailPinCorrect(choice.getDigits(), getFsConfig().getRealm())) {
+            if (m_currentUser == null || !m_currentUser.isVoicemailPinCorrect(choice.getDigits())) {
                 // WRONG, do it again!
 
                 // "That personal identification number is not valid
