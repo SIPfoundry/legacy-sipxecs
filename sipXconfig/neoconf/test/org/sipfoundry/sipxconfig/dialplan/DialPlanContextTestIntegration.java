@@ -49,7 +49,7 @@ public class DialPlanContextTestIntegration extends IntegrationTestCase {
     private GatewayContext m_gatewayContext;
     private ForwardingContext m_forwardingContext;
     private AutoAttendantManager m_autoAttendantManager;
-    private DialPlanSetup m_resetDialPlanTask;
+    private DialPlanSetup m_dialPlanSetup;
 
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
@@ -58,7 +58,7 @@ public class DialPlanContextTestIntegration extends IntegrationTestCase {
     }
 
     public void testAddDeleteRule() {
-        m_resetDialPlanTask.setupDefaultRegion();
+        m_dialPlanSetup.setupDefaultRegion();
         // TODO - replace with IDialingRule mocks
 
         DialingRule r1 = new CustomDialingRule();
@@ -106,7 +106,7 @@ public class DialPlanContextTestIntegration extends IntegrationTestCase {
     }
 
     public void testAddRuleDuplicateName() {
-        m_resetDialPlanTask.setupDefaultRegion();
+        m_dialPlanSetup.setupDefaultRegion();
 
         DialingRule r1 = new CustomDialingRule();
         r1.setName("a1");
@@ -123,16 +123,8 @@ public class DialPlanContextTestIntegration extends IntegrationTestCase {
         }
     }
 
-    public void testMultipleReset() throws Exception {
-        // strange errors if resetting more than once
-        m_resetDialPlanTask.setupDefaultRegion();
-        m_resetDialPlanTask.setupDefaultRegion();
-        commit();
-        m_resetDialPlanTask.setupDefaultRegion();
-    }
-
     public void testDefaultRuleTypes() throws Exception {
-        m_resetDialPlanTask.setupDefaultRegion();
+        m_dialPlanSetup.setupDefaultRegion();
 
         assertEquals(8, countRowsInTable("dialing_rule"));
         // FIXME: test agains the real data - need to remove ids...
@@ -150,7 +142,7 @@ public class DialPlanContextTestIntegration extends IntegrationTestCase {
     }
 
     public void testDuplicateRules() throws Exception {
-        m_resetDialPlanTask.setupDefaultRegion();
+        m_dialPlanSetup.setupDefaultRegion();
         DialingRule r1 = new CustomDialingRule();
         r1.setName("a1");
         m_dialPlanContext.storeRule(r1);
@@ -162,7 +154,7 @@ public class DialPlanContextTestIntegration extends IntegrationTestCase {
     }
 
     public void testDuplicateDefaultRules() throws Exception {
-        m_resetDialPlanTask.setupDefaultRegion();
+        m_dialPlanSetup.setupDefaultRegion();
         List rules = m_dialPlanContext.getRules();
         Transformer bean2id = new BeanWithId.BeanToId();
         Collection ruleIds = CollectionUtils.collect(rules, bean2id);
@@ -234,7 +226,7 @@ public class DialPlanContextTestIntegration extends IntegrationTestCase {
         TestHelper.cleanInsert("dialplan/seedDialPlanWithAttendant.xml");
         AutoAttendant autoAttendant = m_autoAttendantManager.getAutoAttendant(new Integer(2000));
 
-        m_resetDialPlanTask.setupDefaultRegion();
+        m_dialPlanSetup.setupDefaultRegion();
 
         ScheduledAttendant sa = new ScheduledAttendant();
         sa.setAttendant(autoAttendant);
@@ -385,7 +377,7 @@ public class DialPlanContextTestIntegration extends IntegrationTestCase {
         m_autoAttendantManager = autoAttendantManager;
     }
 
-    public void setResetDialPlanTask(DialPlanSetup resetDialPlanTask) {
-        m_resetDialPlanTask = resetDialPlanTask;
+    public void setDialPlanSetup(DialPlanSetup dialPlanSetup) {
+        m_dialPlanSetup = dialPlanSetup;
     }
 }

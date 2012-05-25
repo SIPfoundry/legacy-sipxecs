@@ -30,7 +30,7 @@ import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 public class PermissionManagerImplTestIntegration extends IntegrationTestCase {
     private PermissionManager m_permissionManager;
     private DialPlanContext m_dialPlanContext;
-    private DialPlanSetup m_resetDialPlanTask;
+    private DialPlanSetup m_dialPlanSetup;
 
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
@@ -166,7 +166,7 @@ public class PermissionManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testRulesWithCustomPermission() throws Exception {
-        m_resetDialPlanTask.setupDefaultRegion();
+        m_dialPlanSetup.setupDefaultRegion();
         sql("commserver/locations.sql");
         Permission permission = new Permission();
         permission.setType(Permission.Type.CALL);
@@ -421,7 +421,7 @@ public class PermissionManagerImplTestIntegration extends IntegrationTestCase {
         m_dialPlanContext = dialPlanContext;
     }
 
-    public void setResetDialPlanTask(DialPlanSetup resetDialPlanTask) {
-        m_resetDialPlanTask = resetDialPlanTask;
+    public void setDialPlanSetup(DialPlanSetup dialPlanSetup) {
+        m_dialPlanSetup = dialPlanSetup;
     }
 }

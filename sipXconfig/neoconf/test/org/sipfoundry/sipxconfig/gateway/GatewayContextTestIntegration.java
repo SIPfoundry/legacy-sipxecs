@@ -33,7 +33,7 @@ public class GatewayContextTestIntegration extends IntegrationTestCase {
     private GatewayModel m_genericSipTrunk;
     private SbcDeviceManager m_sbcDeviceManager;
     private BranchManager m_branchManager;
-    private DialPlanSetup m_resetDialPlanTask;
+    private DialPlanSetup m_dialPlanSetup;
 
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
@@ -41,7 +41,7 @@ public class GatewayContextTestIntegration extends IntegrationTestCase {
         m_genericModel = m_nakedGatewayModelSource.getModel("genericGatewayStandard");
         m_genericSipTrunk = m_nakedGatewayModelSource.getModel("sipTrunkStandard");        
         clear();
-        m_resetDialPlanTask.setupDefaultRegion();
+        m_dialPlanSetup.setupDefaultRegion();
     }
 
     public void testAddGateway() throws Exception {
@@ -296,7 +296,7 @@ public class GatewayContextTestIntegration extends IntegrationTestCase {
         m_branchManager = branchManager;
     }
 
-    public void setResetDialPlanTask(DialPlanSetup resetDialPlanTask) {
-        m_resetDialPlanTask = resetDialPlanTask;
+    public void setDialPlanSetup(DialPlanSetup dialPlanSetup) {
+        m_dialPlanSetup = dialPlanSetup;
     }
 }

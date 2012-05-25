@@ -45,7 +45,7 @@ public class SipxIvrUserRealm implements UserRealm {
                 principal = checkCredentials(user.getUserName(), user.getPintoken(), credentials);
                 if (principal == null) {
                     // 2nd try with shared secret
-                    String hashedSharedSecret = Md5Encoder.digestEncryptPassword(user.getUserName(), m_sipRealm, m_sharedSecret);
+                    String hashedSharedSecret = Md5Encoder.digestEncryptPassword(user.getUserName(), m_sharedSecret);
                     principal = checkCredentials(user.getUserName(), hashedSharedSecret, credentials);
                 }
             }
@@ -56,7 +56,7 @@ public class SipxIvrUserRealm implements UserRealm {
     }
 
     private Principal checkCredentials(String userName, String pintoken, Object credentials) {
-        Credential password = new Password(Md5Encoder.digestEncryptPassword(userName, m_sipRealm, pintoken));
+        Credential password = new Password(Md5Encoder.digestEncryptPassword(userName, pintoken));
         if (password.check(credentials)) {
             return new SipxIvrPrincipal(userName, "IvrRole");
         }

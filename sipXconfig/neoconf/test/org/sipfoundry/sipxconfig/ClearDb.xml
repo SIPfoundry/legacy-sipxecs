@@ -9,7 +9,6 @@
   <table name="backup_plan"/>
   <table name="daily_backup_schedule"/>
   <table name="patch"/>
-  <table name="initialization_task"/>
   <table name="upload"/>
   <table name="location"/>
   <table name="location_failed_replications"/>
