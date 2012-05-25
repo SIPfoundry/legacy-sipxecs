@@ -18,7 +18,12 @@ package org.sipfoundry.commons.security;
 
 import static org.apache.commons.lang.StringUtils.split;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class Util {
+    private static final Pattern MD5_HASH_PATTERN = Pattern.compile("(?i)(?<![a-z0-9])[a-f0-9]{32}(?![a-z0-9])");
+
     public static String retrieveUsername(String loginEntry) {
         String[] userArray = split(loginEntry, '@');
         String userLoginName = loginEntry;
@@ -45,5 +50,10 @@ public class Util {
             }
         }
         return domain;
+    }
+
+    public static boolean isHashed(String hashedString) {
+        Matcher matcher = MD5_HASH_PATTERN.matcher(hashedString);
+        return matcher.find();
     }
 }

@@ -19,7 +19,6 @@ import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.ModelSource;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -34,10 +33,6 @@ public class CsvRowInserterTest extends TestCase {
         bongo.setUserName("bongo");
         bongo.setFirstName("Ringo");
 
-        DomainManager domainManager = createMock(DomainManager.class);
-        domainManager.getAuthorizationRealm();
-        expectLastCall().andReturn("sipfoundry.org").times(2);
-
         CoreContext coreContext = createMock(CoreContext.class);
         coreContext.loadUserByUserName("bongo");
         expectLastCall().andReturn(bongo);
@@ -46,22 +41,22 @@ public class CsvRowInserterTest extends TestCase {
         coreContext.newUser();
         expectLastCall().andReturn(new User());
 
-        replay(domainManager, coreContext);
+        replay(coreContext);
 
         String[] userRow1 = new String[] {
-            "bongo", "1234", "abcdef", "", "Star", "","","","","","",""," im_id"
+            "bongo", "1234", "123", "abcdef", "", "Star", "","","","","","",""," im_id"
         };
 
         String[] userRow2 = new String[] {
-            "kuku", "1234", "abcdef", " John", " Lennon  ", "jlennon, 121212"
+            "kuku", "1234", "123", "abcdef", " John", " Lennon  ", "jlennon, 121212"
         };
 
         CsvRowInserter impl = new CsvRowInserter();
         impl.setCoreContext(coreContext);
-        impl.setDomainManager(domainManager);
 
         User user1 = impl.userFromRow(userRow1);
         assertEquals("bongo", user1.getUserName());
+        assertEquals("f9a17b19d3f01f6211415ca101145686", user1.getVoicemailPintoken());
         assertEquals("Ringo", user1.getFirstName());
         assertEquals("Star", user1.getLastName());
         assertEquals("abcdef", user1.getSipPassword());
@@ -76,7 +71,7 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals(4, user2.getPintoken().length());
         assertEquals("121212 jlennon,", user2.getAliasesString());
 
-        verify(coreContext, domainManager);
+        verify(coreContext);
     }
 
     public void testUserDetailsFromRow() {
@@ -84,18 +79,14 @@ public class CsvRowInserterTest extends TestCase {
         bongo.setUserName("bongo");
         bongo.setFirstName("Ringo");
 
-        DomainManager domainManager = createMock(DomainManager.class);
-        domainManager.getAuthorizationRealm();
-        expectLastCall().andReturn("sipfoundry.org").times(1);
-
         CoreContext coreContext = createMock(CoreContext.class);
         coreContext.loadUserByUserName("bongo");
         expectLastCall().andReturn(bongo);
 
-        replay(domainManager, coreContext);
+        replay(coreContext);
 
         String[] userRow1 = new String[] {
-            "bongo", "1234", "abcdef", "", "Star", "","","","","","",""," im_id",
+            "bongo", "1234","123", "abcdef", "", "Star", "","","","","","",""," im_id",
             "job title", "job dept", "company name", "assistant name",
             "001122", "112233", "223344", "33445566", "alternate@gmail.com","alternateImId", "location",
             "home street", "home city", "home state", "home country", "34001",
@@ -104,7 +95,6 @@ public class CsvRowInserterTest extends TestCase {
 
         CsvRowInserter impl = new CsvRowInserter();
         impl.setCoreContext(coreContext);
-        impl.setDomainManager(domainManager);
 
         User user1 = impl.userFromRow(userRow1);
 
@@ -132,59 +122,40 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals("office country", user1.getAddressBookEntry().getOfficeAddress().getCountry());
         assertEquals("34342", user1.getAddressBookEntry().getOfficeAddress().getZip());
 
-        verify(coreContext, domainManager);
+        verify(coreContext);
     }
 
     public void testCheckRowData() {
-        DomainManager domainManager = createMock(DomainManager.class);
-        domainManager.getAuthorizationRealm();
-        expectLastCall().andReturn("sipfoundry.org").times(4);
-
         User superadmin = new User();
         superadmin.setUserName("superadmin");
         superadmin.setPintoken("12345678901234567890123456789012");
 
-        replay(domainManager);
-
         CsvRowInserter impl = new CsvRowInserter();
-        impl.setDomainManager(domainManager);
 
         String[] row = {
-            "kuku", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
+            "kuku", "123", "777", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
         };
         assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(row));
         String[] rowShort = {
-            "kuku", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone"
+            "kuku", "", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone"
         };
         assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(rowShort));
 
         String[] rowAuthRealmMatch = {
-            "authMatch", "sipfoundry.org#12345678901234567890123456789012", "", "", "", "", "", "", "001122334466",
+            "authMatch", "1234", "123", "", "", "", "", "", "", "001122334466",
             "polycom300", "yellow phone", ""
         };
         assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(rowAuthRealmMatch));
 
-        String[] rowAuthRealmNotMatched = {
-            "authNotMatch", "shipfoundry.org#12345678901234567890123456789012", "", "", "", "", "", "", "001122334466",
-            "polycom300", "yellow phone", ""
-        };
-        assertEquals(RowInserter.RowStatus.WARNING_PIN_RESET, impl.checkRowData(rowAuthRealmNotMatched));
-
-        String[] rowHashTooShort = {
-            "hashTooShort", "sipfoundry.org#12345678", "", "", "", "", "", "", "001122334466", "polycom300",
-            "yellow phone", ""
-        };
-        assertEquals(RowInserter.RowStatus.WARNING_PIN_RESET, impl.checkRowData(rowHashTooShort));
-
         String[] rowSuperadminhashpinsuccess = {
-            "superadmin", "sipfoundry.org#12345678901234567890123456789012", "", "", "", "", "", "", "001122334466",
+            "superadmin", "12345678901234567890123456789012", "", "", "", "", "", "", "", "001122334466",
             "polycom300", "yellow phone", ""
         };
         assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(rowSuperadminhashpinsuccess));
 
         superadmin.setPintoken("49b45dc98f67624e117a86ea4c9dc0da");
         String[] rowSuperadminclearpinsuccess = {
-            "superadmin", "1234", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
+            "superadmin", "1234", "444", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
         };
         assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(rowSuperadminclearpinsuccess));
 
@@ -202,8 +173,6 @@ public class CsvRowInserterTest extends TestCase {
             "@200", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
         };
         assertEquals(RowInserter.RowStatus.FAILURE, impl.checkRowData(rowWithInvalidUsername));
-
-        verify(domainManager);
     }
 
     public void testDataToString() {
@@ -226,7 +195,7 @@ public class CsvRowInserterTest extends TestCase {
 
     public void testPhoneFromRowUpdate() {
         final String[] phoneRow = new String[] {
-            "", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
+            "", "", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
         };
 
         Integer phoneId = new Integer(5);
@@ -263,7 +232,7 @@ public class CsvRowInserterTest extends TestCase {
 
     public void testPhoneFromRowNew() {
         final String[] phoneRow1 = new String[] {
-            "", "", "", "", "", "", "", "", "001122334455", "testPhoneModel", "yellow phone", "phone in John room"
+            "", "", "", "", "", "", "", "", "", "001122334455", "testPhoneModel", "yellow phone", "phone in John room"
         };
 
         Phone phone = new TestPhone();
@@ -297,7 +266,7 @@ public class CsvRowInserterTest extends TestCase {
 
     public void testPhoneFromRowSpaces() {
         final String[] phoneRow1 = new String[] {
-            "", "", "", "", "", "", "", "", "001122334455", "testPhoneModel", "yellow phone", "phone in John room"
+            "", "", "", "", "", "", "", "", "", "001122334455", "testPhoneModel", "yellow phone", "phone in John room"
         };
 
         Phone phone = new TestPhone();

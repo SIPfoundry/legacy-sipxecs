@@ -13,12 +13,10 @@
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
     <property name="coreContext" ref="coreContext" />
     <property name="forwardingContext" ref="forwardingContext" />
-    <property name="domainManager" ref="domainManager" />
     <property name="phoneContext" ref="phoneContext" />
     <property name="settingDao" ref="settingDao" />
     <property name="phoneModelSource" ref="phoneModelSource" />
     <property name="mailboxManager" ref="mailboxManager" />
-    <property name="resetPin" value="1234" />
   </bean>
 
   <bean id="bulkManagerImpl" class="org.sipfoundry.sipxconfig.bulk.csv.BulkManagerImpl">

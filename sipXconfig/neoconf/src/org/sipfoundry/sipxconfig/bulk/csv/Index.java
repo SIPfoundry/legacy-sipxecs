@@ -18,41 +18,41 @@ import org.apache.commons.lang.StringUtils;
 /**
  * Values of the enums below determine the exact format of CSV file
  *
- * "Username", "Pintoken", "Sip Password", "FirstName", "LastName", "Alias", "UserGroup",
+ * "Username", "Pintoken", "Voicemail PIN", "Sip Password", "FirstName", "LastName", "Alias", "UserGroup",
  * "SerialNumber", "Manufacturer", "Model", "Phone Group", "Phone Description"
  */
 public enum Index {
     // user fields
-    USERNAME("userName", 0), PIN("pin", 1), SIP_PASSWORD("sipPassword", 2), FIRST_NAME(
-            "firstName", 3), LAST_NAME("lastName", 4), ALIAS("aliasesString", 5), EMAIL(
-            "emailAddress", 6), USER_GROUP("userGroupName", 7),
+    USERNAME("userName", 0), PIN("pin", 1), VOICEMAIL_PIN("voicemailPin", 2),
+    SIP_PASSWORD("sipPassword", 3), FIRST_NAME("firstName", 4),
+    LAST_NAME("lastName", 5), ALIAS("aliasesString", 6), EMAIL("emailAddress", 7), USER_GROUP("userGroupName", 8),
 
     // phone fields
-    SERIAL_NUMBER("serialNumber", 8), MODEL_ID("modelId", 9), PHONE_GROUP("phoneGroupName", 10), PHONE_DESCRIPTION(
-            "description", 11),
+    SERIAL_NUMBER("serialNumber", 9), MODEL_ID("modelId", 10), PHONE_GROUP("phoneGroupName", 11), PHONE_DESCRIPTION(
+            "description", 12),
     // XMPP
-    IM_ID("imId", 12),
-    JOB_TITLE("createdAddressBookEntry.jobTitle", 13),
-    JOB_DEPT("createdAddressBookEntry.jobDept", 14),
-    COMPANY_NAME("createdAddressBookEntry.companyName", 15),
-    ASSISTANT_NAME("createdAddressBookEntry.assistantName", 16),
-    CELL_PHONE_NUMBER("createdAddressBookEntry.cellPhoneNumber", 17),
-    HOME_PHONE_NUMBER("createdAddressBookEntry.homePhoneNumber", 18),
-    ASSISTANT_PHONE_NUMBER("createdAddressBookEntry.assistantPhoneNumber", 19),
-    FAX_NUMBER("createdAddressBookEntry.faxNumber", 20),
-    ALTERNATE_EMAIL("createdAddressBookEntry.alternateEmailAddress", 21),
-    ALTERNATE_IM_ID("createdAddressBookEntry.alternateImId", 22),
-    LOCATION("createdAddressBookEntry.location", 23),
-    HOME_STREET("createdAddressBookEntry.homeAddress.street", 24),
-    HOME_CITY("createdAddressBookEntry.homeAddress.city", 25),
-    HOME_STATE("createdAddressBookEntry.homeAddress.state", 26),
-    HOME_COUNTRY("createdAddressBookEntry.homeAddress.country", 27),
-    HOME_ZIP("createdAddressBookEntry.homeAddress.zip", 28),
-    OFFICE_STREET("createdAddressBookEntry.officeAddress.street", 29),
-    OFFICE_CITY("createdAddressBookEntry.officeAddress.city", 30),
-    OFFICE_STATE("createdAddressBookEntry.officeAddress.state", 31),
-    OFFICE_COUNTRY("createdAddressBookEntry.officeAddress.country", 32),
-    OFFICE_ZIP("createdAddressBookEntry.officeAddress.zip", 33);
+    IM_ID("imId", 13),
+    JOB_TITLE("createdAddressBookEntry.jobTitle", 14),
+    JOB_DEPT("createdAddressBookEntry.jobDept", 15),
+    COMPANY_NAME("createdAddressBookEntry.companyName", 16),
+    ASSISTANT_NAME("createdAddressBookEntry.assistantName", 17),
+    CELL_PHONE_NUMBER("createdAddressBookEntry.cellPhoneNumber", 18),
+    HOME_PHONE_NUMBER("createdAddressBookEntry.homePhoneNumber", 19),
+    ASSISTANT_PHONE_NUMBER("createdAddressBookEntry.assistantPhoneNumber", 20),
+    FAX_NUMBER("createdAddressBookEntry.faxNumber", 21),
+    ALTERNATE_EMAIL("createdAddressBookEntry.alternateEmailAddress", 22),
+    ALTERNATE_IM_ID("createdAddressBookEntry.alternateImId", 23),
+    LOCATION("createdAddressBookEntry.location", 24),
+    HOME_STREET("createdAddressBookEntry.homeAddress.street", 25),
+    HOME_CITY("createdAddressBookEntry.homeAddress.city", 26),
+    HOME_STATE("createdAddressBookEntry.homeAddress.state", 27),
+    HOME_COUNTRY("createdAddressBookEntry.homeAddress.country", 28),
+    HOME_ZIP("createdAddressBookEntry.homeAddress.zip", 29),
+    OFFICE_STREET("createdAddressBookEntry.officeAddress.street", 30),
+    OFFICE_CITY("createdAddressBookEntry.officeAddress.city", 31),
+    OFFICE_STATE("createdAddressBookEntry.officeAddress.state", 32),
+    OFFICE_COUNTRY("createdAddressBookEntry.officeAddress.country", 33),
+    OFFICE_ZIP("createdAddressBookEntry.officeAddress.zip", 34);
 
     private final String m_name;
     private final int m_value;
@@ -121,7 +121,7 @@ public enum Index {
 
     public static String[] labels() {
         return new String[] {
-            "User name", "Voice-mail PIN", "SIP password", "First name", "Last name",
+            "User name", "PIN", "Voicemail PIN", "SIP password", "First name", "Last name",
             "User alias", "EMail address", "User group", "Phone serial number", "Phone model",
             "Phone group", "Phone description", "Im Id", "Job Title", "Job department",
             "Company name", "Assistant name", "Cell phone number", "Home phone number",

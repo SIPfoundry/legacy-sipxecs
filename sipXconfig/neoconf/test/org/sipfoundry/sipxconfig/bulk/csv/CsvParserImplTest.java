@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.collections.Closure;
 import org.sipfoundry.sipxconfig.bulk.BulkParser;
 
@@ -110,9 +111,9 @@ public class CsvParserImplTest extends TestCase {
             Object item = rows.get(i);
             assertTrue("row has to be a String array", item instanceof String[]);
             String[] row = (String[]) item;
-            assertEquals(12, row.length);
-            assertEquals(DESCRIPTIONS[i], row[11]);
-            assertEquals(NAMES[i], row[3]);
+            assertEquals(13, row.length);
+            assertEquals(DESCRIPTIONS[i], row[12]);
+            assertEquals(NAMES[i], row[4]);
         }
     }
 
