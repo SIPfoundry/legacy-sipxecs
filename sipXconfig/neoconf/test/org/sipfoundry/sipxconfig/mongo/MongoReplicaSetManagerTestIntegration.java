@@ -46,7 +46,7 @@ public class MongoReplicaSetManagerTestIntegration extends IntegrationTestCase {
         m_mongoReplicaSetManager.getMongoMembers(actualMembers, actualArbiters);
         String actual = actualMembers.toString();
         // Should be [hostname:27017]
-        assertTrue("Got " + actual, actual.matches("\\[[\\w.]+:27017\\]"));
+        assertTrue("Got " + actual, actual.matches("\\[[\\-\\w.]+:27017\\]"));
     }
 
     public void setMongoReplicaSetManager(MongoReplicaSetManager mongoReplicaSetManager) {
