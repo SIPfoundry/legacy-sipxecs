@@ -48,7 +48,7 @@ public class CsvRowInserterTest extends TestCase {
         };
 
         String[] userRow2 = new String[] {
-            "kuku", "1234", "123", "abcdef", " John", " Lennon  ", "jlennon, 121212"
+            "kuku", "1234", "125c43a02fc91d8229ee307e6d2e2d20", "abcdef", " John", " Lennon  ", "jlennon, 121212"
         };
 
         CsvRowInserter impl = new CsvRowInserter();
@@ -57,6 +57,7 @@ public class CsvRowInserterTest extends TestCase {
         User user1 = impl.userFromRow(userRow1);
         assertEquals("bongo", user1.getUserName());
         assertEquals("f9a17b19d3f01f6211415ca101145686", user1.getVoicemailPintoken());
+        assertEquals("1234", user1.getPintoken());
         assertEquals("Ringo", user1.getFirstName());
         assertEquals("Star", user1.getLastName());
         assertEquals("abcdef", user1.getSipPassword());
@@ -65,6 +66,8 @@ public class CsvRowInserterTest extends TestCase {
 
         User user2 = impl.userFromRow(userRow2);
         assertEquals("kuku", user2.getUserName());
+        assertEquals("125c43a02fc91d8229ee307e6d2e2d20", user2.getVoicemailPintoken());
+        assertEquals("1234", user2.getPintoken());
         assertEquals("John", user2.getFirstName());
         assertEquals("Lennon", user2.getLastName());
         assertEquals("abcdef", user2.getSipPassword());
