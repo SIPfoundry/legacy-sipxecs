@@ -19,7 +19,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -90,16 +89,9 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
 
             m_userMapper.setUserProperties(user, attrs);
             m_userMapper.setAliasesSet(m_aliases, user);
-
-            String pin = m_userMapper.getPin(attrs, newUser);
-            if (pin != null) {
-                user.setPin(pin);
-            }
-
-            String sipPassword = m_userMapper.getSipPassword(attrs);
-            if (sipPassword == null && newUser) {
-                user.setSipPassword(RandomStringUtils.randomAlphanumeric(8));
-            }
+            m_userMapper.setPin(user, attrs);
+            m_userMapper.setVoicemailPin(user, attrs);
+            m_userMapper.setSipPassword(user, attrs);
 
             Collection<String> groupNames = m_userMapper.getGroupNames(searchResult);
 
