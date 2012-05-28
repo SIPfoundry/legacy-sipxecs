@@ -89,7 +89,7 @@ public abstract class MailboxOperation implements Serializable {
 
         public void operate(ManageVoicemail page) {
             MailboxManager mgr = page.getMailboxManager();
-            Voicemail vm = page.getVoicemailSource().getVoicemail(getMessageId());
+            Voicemail vm = mgr.getVoicemail(getUserId(), getFolderId(), getMessageId());
             mgr.move(getUserId(), vm, m_destinationFolderId);
         }
     }

@@ -26,6 +26,9 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.dns.DnsManager;
+import org.sipfoundry.sipxconfig.dns.DnsProvider;
+import org.sipfoundry.sipxconfig.dns.ResourceRecords;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
@@ -34,7 +37,7 @@ import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
 
 public class ApacheManagerImpl extends SipxHibernateDaoSupport<Object> implements ApacheManager, ConfigProvider,
-    SetupListener, FirewallProvider, AddressProvider {
+        SetupListener, FirewallProvider, AddressProvider, DnsProvider {
     private LocationsManager m_locationsManager;
 
     @Override
@@ -54,7 +57,7 @@ public class ApacheManagerImpl extends SipxHibernateDaoSupport<Object> implement
     @Override
     public void setup(SetupManager manager) {
         if (manager.isFalse(FEATURE.getId())) {
-            Location primary = manager.getConfigManager().getLocationManager().getPrimaryLocation();
+            Location primary = m_locationsManager.getPrimaryLocation();
             manager.getFeatureManager().enableLocationFeature(FEATURE, primary, true);
             manager.setTrue(FEATURE.getId());
         }
@@ -77,6 +80,20 @@ public class ApacheManagerImpl extends SipxHibernateDaoSupport<Object> implement
 
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
         return Location.toAddresses(type, locations);
+    }
+
+    @Override
+    public Address getAddress(DnsManager manager, AddressType t, Collection<Address> addresses, Location whoIsAsking) {
+        if (!t.equals(HTTPS_ADDRESS)) {
+            return null;
+        }
+
+        return new Address(t, m_locationsManager.getPrimaryLocation().getFqdn());
+    }
+
+    @Override
+    public List<ResourceRecords> getResourceRecords(DnsManager manager, Location whoIsAsking) {
+        return null;
     }
 
     public void setLocationsManager(LocationsManager locationsManager) {

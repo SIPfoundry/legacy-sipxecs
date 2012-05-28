@@ -20,7 +20,7 @@ import org.springframework.context.ApplicationContextAware;
 
 public class EmailFormatter implements ApplicationContextAware {
 
-    private String m_configUrl;
+    private String m_emailAddressUrl;
     private Object[] m_args;
     private User m_user;
     private ApplicationContext m_context;
@@ -61,7 +61,7 @@ public class EmailFormatter implements ApplicationContextAware {
         args[ 2] = fromUser;                                    //  2 From User Part (phone number, most likely)
         args[ 3] = fromDisplay;                                 //  3 From Display Name
         args[ 4] = String.format("%s/sipxconfig/mailbox/%s/inbox/", 
-                m_configUrl, m_user.getUserName());       
+                m_emailAddressUrl, m_user.getUserName());
                                                                 //  4 Portal Link URL             
         // Using the existing args, add some more, recursively as they are defined with some of the above variables.
         args[ 7] = fmt("SenderName", args);                     //  7 Sender Name
@@ -122,8 +122,8 @@ public class EmailFormatter implements ApplicationContextAware {
         return fmt("TextBodyFull");
     }
 
-    public void setConfigUrl(String configUrl) {
-        m_configUrl = configUrl;
+    public void setEmailAddressUrl(String emailAddressUrl) {
+        m_emailAddressUrl = emailAddressUrl;
     }
 
     @Override
