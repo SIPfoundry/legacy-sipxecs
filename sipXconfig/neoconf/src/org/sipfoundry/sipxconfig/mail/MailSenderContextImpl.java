@@ -33,7 +33,7 @@ public class MailSenderContextImpl implements MailSenderContext {
 
     public void sendMail(String to, String from, String subject, String body) {
         SimpleMailMessage msg = new SimpleMailMessage();
-        msg.setTo(getFullAddress(from));
+        msg.setTo(getFullAddress(to));
         msg.setFrom(getFullAddress(from));
         msg.setSubject(subject);
         msg.setText(body);
