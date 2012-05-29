@@ -124,6 +124,7 @@ public class RestServerImpl implements FeatureProvider, AddressProvider, RestSer
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         validator.requiresAtLeastOne(FEATURE, CdrManager.FEATURE);
         validator.requiresAtLeastOne(FEATURE, ProxyManager.FEATURE);
+        validator.singleLocationOnly(FEATURE);
     }
 
     @Override

@@ -83,6 +83,7 @@ public class RecordingImpl implements FeatureProvider, Recording, ProcessProvide
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         validator.requiredOnSameHost(FEATURE, ConferenceBridgeContext.FEATURE);
+        validator.singleLocationOnly(FEATURE);
     }
 
     @Override

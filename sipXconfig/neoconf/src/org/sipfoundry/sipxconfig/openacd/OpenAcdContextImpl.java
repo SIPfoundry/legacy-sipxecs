@@ -1068,6 +1068,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         validator.requiredOnSameHost(FEATURE, FreeswitchFeature.FEATURE);
+        validator.primaryLocationOnly(FEATURE);
     }
 
     @Override

@@ -292,6 +292,7 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         validator.requiresAtLeastOne(FEATURE, ProxyManager.FEATURE);
+        validator.singleLocationOnly(FEATURE);
     }
 
     @Override

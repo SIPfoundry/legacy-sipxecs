@@ -238,6 +238,7 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         validator.requiredOnSameHost(FEATURE, ProxyManager.FEATURE);
+        validator.singleLocationOnly(FEATURE);
     }
 
     @Override

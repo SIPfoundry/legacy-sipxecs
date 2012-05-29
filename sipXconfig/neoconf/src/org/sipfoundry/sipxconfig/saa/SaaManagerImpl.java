@@ -76,6 +76,7 @@ public class SaaManagerImpl implements FeatureProvider, SaaManager, ProcessProvi
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         validator.requiresAtLeastOne(FEATURE, ProxyManager.FEATURE);
+        validator.singleLocationOnly(FEATURE);
     }
 
     @Override
