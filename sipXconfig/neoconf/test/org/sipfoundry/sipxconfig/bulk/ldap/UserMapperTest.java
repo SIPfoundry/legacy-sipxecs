@@ -52,6 +52,53 @@ public class UserMapperTest extends TestCase {
         m_userMapper.setAttrMap(attrMap);
     }
 
+    public void testVoicemailPin() {
+        User user = new User();
+        Attributes attrs = new BasicAttributes();
+        attrs.put("uid", "200");
+        attrs.put("vmpin", "1234");
+        attrs.put("vmpin2", "1235");
+        attrs.put("vmpin3", "1236");
+        UserMapper userMapper = new UserMapper();
+        AttrMap attrMap = new AttrMap();
+        attrMap.setAttribute("userName", "uid");
+        attrMap.setDefaultPin("5555");
+        userMapper.setAttrMap(attrMap);
+        try {
+            //user is not new
+            userMapper.setUserProperties(user, attrs);
+
+            user.setUniqueId(1);
+            assertEquals("200", user.getUserName());
+
+            attrMap.setAttribute("voicemailPin", "vmpin");
+            userMapper.setVoicemailPin(user, attrs);
+            assertEquals("2331a3a7bce8433908996c6f9f71f2fe", user.getVoicemailPintoken());
+
+            attrMap.setAttribute("voicemailPin", "");
+            userMapper.setVoicemailPin(user, attrs);
+            assertEquals("2331a3a7bce8433908996c6f9f71f2fe", user.getVoicemailPintoken());
+
+            attrMap.setAttribute("voicemailPin", "vmpin2");
+            userMapper.setVoicemailPin(user, attrs);
+            assertEquals("d04f6bd78f3e78d9110b029b5d932b72", user.getVoicemailPintoken());
+
+            //user is new
+            user.setUniqueId(-1);
+
+            attrMap.setAttribute("voicemailPin", "vmpin3");
+            userMapper.setVoicemailPin(user, attrs);
+            assertEquals("bac667f0f8976efe1fc042aefdf5acab", user.getVoicemailPintoken());
+
+            //user is new, no mapping pin found => the default PIN is set
+            attrMap.setAttribute("voicemailPin", "");
+            userMapper.setVoicemailPin(user, attrs);
+            assertEquals("4646f2ec919ec583df43e4087fe66dd2", user.getVoicemailPintoken());
+        } catch (NamingException e) {
+            fail();
+        }
+    }
+
     public void testSetProperties() {
         Attributes attrs = new BasicAttributes();
         attrs.put("uid", "200");

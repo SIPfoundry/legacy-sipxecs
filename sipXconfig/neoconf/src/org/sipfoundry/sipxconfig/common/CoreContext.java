@@ -167,23 +167,6 @@ public interface CoreContext extends DataObjectSource<User>, AliasOwner {
      */
     void createAdminGroupAndInitialUser(String pin);
 
-    /**
-     * Adds a user that is also an agent to the default user group
-     * containing all agents.
-     * Named save in order to be intercepted (for mongo replication)
-     * @param user
-     */
-    void saveUserToAgentsGroup(User user);
-
-    /**
-     * Removes a user from all agents group.
-     *
-     * The name of the method has been prepended with save in order to be
-     * intercepted for mongo replication.
-     * @param user
-     */
-    void saveRemoveUserFromAgentGroup(User user);
-
     void addToGroup(Integer groupId, Collection<Integer> ids);
 
     void removeFromGroup(Integer groupId, Collection<Integer> ids);

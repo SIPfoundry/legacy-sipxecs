@@ -5,19 +5,19 @@
   <bean id="emailer" class="org.sipfoundry.sipxivr.email.Emailer" init-method="init" />
 
   <bean id="FULL" class="org.sipfoundry.sipxivr.email.EmailFormatter" scope="prototype">
-    <property name="configUrl" value="${ivr.configUrl}" />
+    <property name="emailAddressUrl" value="${ivr.emailAddressUrl}" />
   </bean>
 
   <bean id="BRIEF" class="org.sipfoundry.sipxivr.email.EmailFormatterBrief" scope="prototype">
-    <property name="configUrl" value="${ivr.configUrl}" />
+    <property name="emailAddressUrl" value="${ivr.emailAddressUrl}" />
   </bean>
 
   <bean id="IMAP" class="org.sipfoundry.sipxivr.email.EmailFormatterImap" scope="prototype">
-    <property name="configUrl" value="${ivr.configUrl}" />
+    <property name="emailAddressUrl" value="${ivr.emailAddressUrl}" />
   </bean>
 
   <bean id="MEDIUM" class="org.sipfoundry.sipxivr.email.EmailFormatterMedium" scope="prototype">
-    <property name="configUrl" value="${ivr.configUrl}" />
+    <property name="emailAddressUrl" value="${ivr.emailAddressUrls}" />
   </bean>
 
 </beans>

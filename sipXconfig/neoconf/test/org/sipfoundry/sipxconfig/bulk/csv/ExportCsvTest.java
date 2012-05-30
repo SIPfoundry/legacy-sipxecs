@@ -41,10 +41,10 @@ public class ExportCsvTest extends TestCase {
         phone.setModel(new TestPhoneModel());
         phone.setSerialNumber("665544332211");
         phone.setDescription("phone description");
-        Collection<String> userIds = exportCsv.exportPhone(csv, phone, "example.org");
+        Collection<String> userIds = exportCsv.exportPhone(csv, phone);
         assertEquals(0, userIds.size());
         assertEquals(
-                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\"," +
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\"," +
                 "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
@@ -68,6 +68,7 @@ public class ExportCsvTest extends TestCase {
         user.setFirstName("John");
         user.setLastName("Lennon");
         user.setPin("1234");
+        user.setVoicemailPintoken("f09e0cfc1dc0f8852ad731e79230225b");
         user.setSipPassword("sip_pass");
         user.setUserName("jlennon");
         user.setEmailAddress("jlennon@gmail.com");
@@ -97,11 +98,11 @@ public class ExportCsvTest extends TestCase {
         phone.setGroupsAsList(Arrays.asList(phoneGroups));
         phone.addLine(line);
 
-        Collection<String> userIds = exportCsv.exportPhone(csv, phone, "example.org");
+        Collection<String> userIds = exportCsv.exportPhone(csv, phone);
         assertEquals(1, userIds.size());
         assertTrue(userIds.contains("jlennon"));
         assertEquals(
-                "\"jlennon\",\"example.org#1234\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"jlennon@gmail.com\",\"ug1 ug2 ug3\",\"665544332211\",\"testPhoneModel\",\"phonegroup1 phonegroup2 phonegroup3, phonegroup4\",\"phone description\",\"imId\"," +
+                "\"jlennon\",\"1234\",\"f09e0cfc1dc0f8852ad731e79230225b\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"jlennon@gmail.com\",\"ug1 ug2 ug3\",\"665544332211\",\"testPhoneModel\",\"phonegroup1 phonegroup2 phonegroup3, phonegroup4\",\"phone description\",\"imId\"," +
                 "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
@@ -126,10 +127,10 @@ public class ExportCsvTest extends TestCase {
         lineInfo.setRegistrationServer("example.com");
         line.setLineInfo(lineInfo);
 
-        Collection<String> userIds = exportCsv.exportPhone(csv, phone, "example.org");
+        Collection<String> userIds = exportCsv.exportPhone(csv, phone);
         assertEquals(0, userIds.size());
         assertEquals(
-                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\",\"\"" +
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\",\"\"" +
                 ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
@@ -145,12 +146,13 @@ public class ExportCsvTest extends TestCase {
         user.setFirstName("John");
         user.setLastName("Lennon");
         user.setPin("1234");
+        user.setVoicemailPintoken("f09e0cfc1dc0f8852ad731e79230225b");
         user.setSipPassword("sip_pass");
         user.setUserName("jlennon");
 
-        exportCsv.exportUser(csv, row, user, "example.org");
+        exportCsv.exportUser(csv, row, user);
         assertEquals(
-                "\"jlennon\",\"example.org#1234\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
+                "\"jlennon\",\"1234\",\"f09e0cfc1dc0f8852ad731e79230225b\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
                 ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
@@ -168,6 +170,7 @@ public class ExportCsvTest extends TestCase {
         user.setPin("1234");
         user.setSipPassword("sip_pass");
         user.setUserName("jlennon");
+        user.setVoicemailPintoken("f09e0cfc1dc0f8852ad731e79230225b");
 
         AddressBookEntry addressBookEntry = new AddressBookEntry();
         addressBookEntry.setJobTitle("job title");
@@ -200,9 +203,9 @@ public class ExportCsvTest extends TestCase {
 
         user.setAddressBookEntry(addressBookEntry);
 
-        exportCsv.exportUser(csv, row, user, "example.org");
+        exportCsv.exportUser(csv, row, user);
         assertEquals(
-                "\"jlennon\",\"example.org#1234\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
+                "\"jlennon\",\"1234\",\"f09e0cfc1dc0f8852ad731e79230225b\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
                 ",\"job title\",\"job dept\",\"company name\",\"assistant name\"," +
                 "\"001122\",\"112233\",\"223344\",\"33445566\",\"alternate@gmail.com\",\"alternateImId\",\"location\"," +
                 "\"home street\",\"home city\",\"home state\",\"home country\",\"34001\"," +

@@ -13,7 +13,6 @@ import java.io.InputStream;
 import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
-import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
@@ -27,12 +26,6 @@ public class ExportCsvTestIntegration extends IntegrationTestCase {
     @Override
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
-
-        DomainManager domainManager = EasyMock.createMock(DomainManager.class);
-        domainManager.getAuthorizationRealm();
-        EasyMock.expectLastCall().andReturn("realm");
-        EasyMock.replay(domainManager);
-        m_coreContext.setDomainManager(domainManager);
     }
 
     @Override

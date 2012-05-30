@@ -23,6 +23,7 @@
     <property name="mailSenderContext" ref="mailSenderContext" />
     <property name="mailboxManager" ref="mailboxManager" />
     <property name="emailFromAddress" value="backup" />
+    <property name="messageSource" ref="globalMessageSource" />
   </bean>
   
   <bean id="localBackupPlan" class="org.sipfoundry.sipxconfig.backup.LocalBackupPlan" parent="backupPlan"></bean>
@@ -47,4 +48,9 @@
     <property name="configCommands" ref="configCommands" />
   </bean>
 
+  <bean id="backupMessages" class="org.springframework.context.support.ResourceBundleMessageSource">
+    <property name="basename">
+      <value>org.sipfoundry.sipxconfig.backup.mail</value>
+    </property>
+  </bean>
 </beans>

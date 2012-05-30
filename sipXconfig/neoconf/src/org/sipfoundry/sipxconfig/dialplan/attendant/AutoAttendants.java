@@ -52,6 +52,7 @@ public class AutoAttendants implements FeatureProvider {
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         validator.requiredOnSameHost(FEATURE, FreeswitchFeature.FEATURE);
+        validator.singleLocationOnly(FEATURE);
     }
 
     @Override

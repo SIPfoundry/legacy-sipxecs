@@ -27,6 +27,7 @@
       </bean>
     </property>
     <property name="coreContext" ref="coreContext" />
+    <property name="settingDao" ref="settingDao"/>
   </bean>
   
   <bean id="openAcdContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -55,10 +56,6 @@
   <bean id="openAcdDb" class="org.sipfoundry.commons.mongo.MongoSpringTemplate">
     <constructor-arg ref="mongoDbFactory"/>
 	<property name="dbname" value="openacd${sysdir.mongo_ns}"/>
-  </bean>
-
-  <bean id="openAcdProvisioningContext" class="org.sipfoundry.sipxconfig.openacd.OpenAcdProvisioningContextImpl">
-	<property name="db" ref="openAcdDb"/>
   </bean>
 
   <bean id="openAcdConfig" class="org.sipfoundry.sipxconfig.openacd.OpenAcdConfiguration">

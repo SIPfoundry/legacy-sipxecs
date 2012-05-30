@@ -146,6 +146,7 @@ public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvid
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         validator.requiresAtLeastOne(FEATURE, Ivr.FEATURE);
+        validator.singleLocationOnly(FEATURE);
     }
 
     @Override

@@ -27,6 +27,7 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.UserPreview;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
@@ -92,13 +93,32 @@ public class UserMapper implements NameClassPairMapper {
     public void setAliasesSet(Set<String> aliases, User user) {
         if (aliases != null) {
             user.copyAliases(deleteWhitespace(aliases));
-        } else {
-            user.setAliasesString(null);
         }
     }
 
     public Set<String> getAliasesSet(Attributes attrs) throws NamingException {
         return getValues(attrs, Index.ALIAS);
+    }
+
+    public void setPin(User user, Attributes attrs) throws NamingException {
+        String pin = getPin(attrs, user.isNew());
+        if (pin != null) {
+            user.setPin(pin);
+        }
+    }
+
+    public void setVoicemailPin(User user, Attributes attrs) throws NamingException {
+        String voicemailPin = getVoicemailPin(attrs, user.isNew());
+        if (voicemailPin != null) {
+            user.setVoicemailPin(voicemailPin);
+        }
+    }
+
+    public void setSipPassword(User user, Attributes attrs) throws NamingException {
+        String sipPassword = getSipPassword(attrs);
+        if (sipPassword == null && user.isNew()) {
+            user.setSipPassword(RandomStringUtils.randomAlphanumeric(12));
+        }
     }
 
     public Collection<String> getGroupNames(SearchResult sr) throws NamingException {
@@ -163,7 +183,9 @@ public class UserMapper implements NameClassPairMapper {
     private void setProperty(User user, Attributes attrs, Index index) throws NamingException {
         try {
             String value = getValue(attrs, index);
-            BeanUtils.setProperty(user, index.getName(), value);
+            if (value != null) {
+                BeanUtils.setProperty(user, index.getName(), value);
+            }
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
@@ -240,6 +262,15 @@ public class UserMapper implements NameClassPairMapper {
 
     public String getPin(Attributes attrs, boolean newUser) throws NamingException {
         String pin = getValue(attrs, Index.PIN);
+        if (pin == null && newUser) {
+            // for new users consider default pin
+            pin = getAttrMap().getDefaultPin();
+        }
+        return pin;
+    }
+
+    public String getVoicemailPin(Attributes attrs, boolean newUser) throws NamingException {
+        String pin = getValue(attrs, Index.VOICEMAIL_PIN);
         if (pin == null && newUser) {
             // for new users consider default pin
             pin = getAttrMap().getDefaultPin();

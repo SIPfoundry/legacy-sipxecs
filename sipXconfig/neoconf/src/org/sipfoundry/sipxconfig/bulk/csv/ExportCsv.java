@@ -41,7 +41,7 @@ public class ExportCsv {
         m_phoneContext = phoneContext;
     }
 
-    private Collection<String> exportPhoneAndUsers(SimpleCsvWriter csv, String realm) throws IOException {
+    private Collection<String> exportPhoneAndUsers(SimpleCsvWriter csv) throws IOException {
         Set<String> usernames = new HashSet<String>();
         final String[] order = new String[] {
             "serialNumber"
@@ -54,7 +54,7 @@ public class ExportCsv {
             size = phones.size();
             phoneIndex += size;
             for (Phone phone : phones) {
-                usernames.addAll(exportPhone(csv, phone, realm));
+                usernames.addAll(exportPhone(csv, phone));
             }
         } while (size == DEFAULT_PAGE_SIZE);
         return usernames;
@@ -68,7 +68,7 @@ public class ExportCsv {
      * @param realm
      * @return list of user IDs exported with this phone
      */
-    Collection<String> exportPhone(SimpleCsvWriter csv, Phone phone, String realm) throws IOException {
+    Collection<String> exportPhone(SimpleCsvWriter csv, Phone phone) throws IOException {
         String[] row = Index.newRow();
 
         String phoneSerialNumber = phone.getSerialNumber();
@@ -95,7 +95,7 @@ public class ExportCsv {
             // Add username to list that shows this user is associated with a phone.
             usernames.add(userName);
 
-            exportUser(csv, row, user, realm);
+            exportUser(csv, row, user);
         }
 
         if (usernames.isEmpty()) {
@@ -105,7 +105,7 @@ public class ExportCsv {
         return usernames;
     }
 
-    void exportUser(SimpleCsvWriter csv, String[] row, User user, String realm) throws IOException {
+    void exportUser(SimpleCsvWriter csv, String[] row, User user) throws IOException {
         Index.USERNAME.set(row, user.getUserName());
 
         Index.SIP_PASSWORD.set(row, user.getSipPassword());
@@ -115,8 +115,8 @@ public class ExportCsv {
         Index.USER_GROUP.set(row, user.getGroupsNames());
         Index.EMAIL.set(row, user.getEmailAddress());
 
-        String userPinToken = user.getPintoken();
-        Index.PIN.set(row, formatRealmAndHash(realm, userPinToken));
+        Index.PIN.set(row, user.getPintoken());
+        Index.VOICEMAIL_PIN.set(row, user.getVoicemailPintoken());
         // XMPP
         Index.IM_ID.set(row, user.getImId());
 
@@ -155,11 +155,7 @@ public class ExportCsv {
         csv.write(row);
     }
 
-    private String formatRealmAndHash(String realm, String userPinToken) {
-        return String.format("%s#%s", realm, userPinToken);
-    }
-
-    private void exportUsersNotAttachedToPhones(SimpleCsvWriter csv, Collection<String> usernames, String realm)
+    private void exportUsersNotAttachedToPhones(SimpleCsvWriter csv, Collection<String> usernames)
         throws IOException {
         int userIndex = 0;
         int size = 0;
@@ -172,7 +168,7 @@ public class ExportCsv {
                 String userName = user.getUserName();
                 if (!usernames.contains(userName)) {
                     String[] row = Index.newRow();
-                    exportUser(csv, row, user, realm);
+                    exportUser(csv, row, user);
                 }
             }
         } while (size == DEFAULT_PAGE_SIZE);
@@ -185,11 +181,10 @@ public class ExportCsv {
             csv.write(Index.labels(), false);
 
             // Export Phones and associated users
-            String realm = m_coreContext.getAuthorizationRealm();
-            Collection<String> usernames = exportPhoneAndUsers(csv, realm);
+            Collection<String> usernames = exportPhoneAndUsers(csv);
 
             // Export Users that are not associated with any phone.
-            exportUsersNotAttachedToPhones(csv, usernames, realm);
+            exportUsersNotAttachedToPhones(csv, usernames);
 
         } finally {
             writer.flush();

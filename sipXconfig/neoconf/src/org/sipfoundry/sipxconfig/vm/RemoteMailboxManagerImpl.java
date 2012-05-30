@@ -77,23 +77,24 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
     }
 
     @Override
-    public Voicemail getVoicemail(final String userId, final String folder, String messageId) {
-        List<Voicemail> voicemails = retrieveVoicemails(GET_VOICEMAIL_URL, userId, folder);
+    public Voicemail getVoicemail(final String userId, final String folder, final String messageId) {
+        List<Voicemail> voicemails = retrieveVoicemails(GET_VOICEMAIL_URL, userId, folder, messageId);
         if (voicemails != null) {
             return voicemails.get(0);
         }
         return null;
     }
 
-    private List<Voicemail> retrieveVoicemails(String url, final String userId, final String folder) {
+    private List<Voicemail> retrieveVoicemails(String url, final Object... urlVariables) {
         try {
             Address ivrRestAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
-            Source voicemails = m_restTemplate.getForObject(ivrRestAddress + url, Source.class, userId, folder);
+            Source voicemails = m_restTemplate.getForObject(ivrRestAddress + url, Source.class, urlVariables);
             List<Voicemail> voicemailList = m_xPathTemplate.evaluate("//message", voicemails,
                     new NodeMapper<Voicemail>() {
                         @Override
                         public Voicemail mapNode(Node node, int pos) {
-                            return new RemoteVoicemail((Element) node, userId, folder);
+                            return new RemoteVoicemail((Element) node, (String) urlVariables[0],
+                                    (String) urlVariables[1]);
                         }
                     });
             return voicemailList;

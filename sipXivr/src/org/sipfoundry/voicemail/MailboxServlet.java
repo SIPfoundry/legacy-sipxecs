@@ -23,7 +23,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
-import org.sipfoundry.commons.util.DomainConfiguration;
 import org.sipfoundry.commons.util.SipUriUtil;
 import org.sipfoundry.sipxivr.SipxIvrConfiguration;
 import org.sipfoundry.sipxivr.rest.SipxIvrServletHandler;
@@ -98,7 +97,7 @@ public class MailboxServlet extends HttpServlet {
         // only superadmin and mailbox owner can access this service
         // TODO allow all admin user to access it
 
-        if (isForbidden(request, user.getUserName(), request.getLocalPort(), ivrConfig.getHttpPort())) {
+        if (user != null && isForbidden(request, user.getUserName(), request.getLocalPort(), ivrConfig.getHttpPort())) {
             response.sendError(403); // Send 403 Forbidden
             return;
         }

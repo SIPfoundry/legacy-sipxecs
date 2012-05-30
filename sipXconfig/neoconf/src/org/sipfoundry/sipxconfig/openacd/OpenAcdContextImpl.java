@@ -56,7 +56,10 @@ import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
@@ -85,6 +88,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private static final String FS_ACTIONS_WITH_DATA = "freeswitchActionsWithData";
     private static final String OPEN_ACD_RELEASE_CODE_WITH_LABEL = "openAcdClientReleaseCodeWithLabel";
     private static final String OPEN_ACD_PROCESS_NAME = "openacd";
+    private static final String AGENT_GROUP_NAME = "Contact-center-agents";
 
     private AliasManager m_aliasManager;
     private FeatureManager m_featureManager;
@@ -92,6 +96,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private ListableBeanFactory m_beanFactory;
     private CoreContext m_coreContext;
     private ReplicationManager m_replicationManager;
+    private SettingDao m_settingDao;
 
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
@@ -363,12 +368,25 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         return DaoUtils.requireOneOrZero(agents, OPEN_ACD_AGENT_BY_USERID);
     }
 
+    private Group createAgentsGroup() {
+        Group agentGroup = m_settingDao.getGroupByName(User.GROUP_RESOURCE_ID, AGENT_GROUP_NAME);
+        if (agentGroup == null) {
+            agentGroup = new Group();
+            agentGroup.setName(AGENT_GROUP_NAME);
+            agentGroup.setResource(User.GROUP_RESOURCE_ID);
+            agentGroup.setDescription("All contact center agents");
+            agentGroup.setSettingValue(ImAccount.IM_ACCOUNT, "1");
+            m_settingDao.saveGroup(agentGroup);
+        }
+        return agentGroup;
+    }
+
     @Override
     public void saveAgent(OpenAcdAgent agent) {
         checkAgent(agent);
         getHibernateTemplate().saveOrUpdate(agent);
-        agent.setOldName(agent.getName());
-        m_coreContext.saveUserToAgentsGroup(agent.getUser());
+        agent.getUser().getGroups().add(createAgentsGroup());
+        m_coreContext.saveUser(agent.getUser());
     }
 
     private void checkAgent(OpenAcdAgent agent) {
@@ -380,8 +398,10 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     @Override
     public void deleteAgent(OpenAcdAgent agent) {
+        agent.getUser().getGroups().remove(m_settingDao.
+                getGroupByName(CoreContext.USER_GROUP_RESOURCE_ID, AGENT_GROUP_NAME));
         getHibernateTemplate().delete(agent);
-        m_coreContext.saveRemoveUserFromAgentGroup(agent.getUser());
+        m_coreContext.saveUser(agent.getUser());
     }
 
     @Override
@@ -956,6 +976,13 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
             m_replicationManager.replicateEntity(new OpenAcdLogConfigCommand(settings.getLogLevel(), settings
                     .getLogDir() + OpenAcdContext.OPENACD_LOG));
         }
+        if (entity instanceof User) {
+            User u = (User) entity;
+            OpenAcdAgent agent = getAgentByUserId(u.getId());
+            if (agent != null) {
+                getDaoEventPublisher().publishSave(agent);
+            }
+        }
     }
 
     public void onDelete(Object entity) {
@@ -1041,9 +1068,14 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         validator.requiredOnSameHost(FEATURE, FreeswitchFeature.FEATURE);
+        validator.primaryLocationOnly(FEATURE);
     }
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+    }
+
+    public void setSettingDao(SettingDao settingDao) {
+        m_settingDao = settingDao;
     }
 }

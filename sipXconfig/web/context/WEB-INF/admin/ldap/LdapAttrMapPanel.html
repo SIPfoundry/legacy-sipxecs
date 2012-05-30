@@ -30,6 +30,17 @@
     <tr jwcid="pinPanel">
       <input jwcid="pin" />
     </tr>
+    
+    <tr jwcid="@common/FieldPanel" id="voicemailPinPanel"
+    	for="user:voicemailPin"
+        field="component:voicemailPin"
+        label="message:label.voicemailPin"
+        description="message:description.voicemailPin">
+    	<input jwcid="voicemailPin@PropertySelection" id="user:voicemailPin", value="ognl:attrMap.attribute['voicemailPin']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.voicemailPin"/>
+    </tr>    
+    
     <tr jwcid="defaultPin" />
     <tr jwcid="sipPasswordPanel">
       <input jwcid="sipPassword" />

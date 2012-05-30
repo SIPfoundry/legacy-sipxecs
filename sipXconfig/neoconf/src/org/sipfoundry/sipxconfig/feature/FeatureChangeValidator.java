@@ -49,6 +49,27 @@ public class FeatureChangeValidator {
         }
     }
 
+    public void primaryLocationOnly(LocationFeature subject) {
+        if (m_request.hasChanged(subject)) {
+            Collection<Location> on = getLocationsForEnabledFeature(subject);
+            if (on.size() > 1 || !isInstalledOnPrimary(on)) {
+                InvalidChangeException err = new InvalidChangeException("&error.primaryLocationOnly.{0}", subject);
+                InvalidChange primaryLocation = new InvalidChange(subject, err);
+                m_invalid.add(primaryLocation);
+            }
+        }
+    }
+
+    private boolean isInstalledOnPrimary(Collection<Location> locations) {
+        boolean isPrimary = (locations.size() == 0 ? true : false);
+        for (Location location : locations) {
+            if (location.isPrimary()) {
+                isPrimary = true;
+            }
+        }
+        return isPrimary;
+    }
+
     public void requiresGlobalFeature(Feature subject, GlobalFeature required) {
         if (!isEnabledSomewhere(subject)) {
             return;

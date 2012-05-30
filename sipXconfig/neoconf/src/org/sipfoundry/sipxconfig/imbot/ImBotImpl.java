@@ -39,6 +39,7 @@ import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.im.ImManager;
+import org.sipfoundry.sipxconfig.restserver.RestServer;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
@@ -116,6 +117,8 @@ public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, Proce
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         validator.requiresAtLeastOne(ImBot.FEATURE, ImManager.FEATURE);
+        validator.requiresAtLeastOne(ImBot.FEATURE, RestServer.FEATURE);
+        validator.singleLocationOnly(FEATURE);
     }
 
     @Override

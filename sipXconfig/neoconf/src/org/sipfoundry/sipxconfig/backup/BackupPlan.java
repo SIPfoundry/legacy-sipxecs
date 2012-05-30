@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,6 +31,7 @@ import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.MessageSource;
 
 /**
  * Backup various parts of the system to a fixed backup directory.
@@ -76,6 +76,8 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
     private String m_backupDirectory;
 
     private Locale m_locale;
+
+    private MessageSource m_messageSource;
 
     public abstract List<Map<Type, BackupBean>> getBackups();
 
@@ -157,8 +159,8 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
         if (confFile == null) {
             return;
         }
-        String subject = m_applicationContext.getMessage("backup.subject", ArrayUtils.EMPTY_OBJECT_ARRAY, m_locale);
-        String body = m_applicationContext.getMessage("backup.body", ArrayUtils.EMPTY_OBJECT_ARRAY, m_locale);
+        String subject = m_messageSource.getMessage("backup.subject", new Object[]{}, m_locale);
+        String body = m_messageSource.getMessage("backup.body", new Object[]{}, m_locale);
         m_mailSenderContext.sendMail(m_emailAddress, m_emailFromAddress, subject, body, confFile);
     }
 
@@ -397,5 +399,9 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
 
     public Locale getLocale() {
         return m_locale;
+    }
+
+    public void setMessageSource(MessageSource messageSource) {
+        m_messageSource = messageSource;
     }
 }

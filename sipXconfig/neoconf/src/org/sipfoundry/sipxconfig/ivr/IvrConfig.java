@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
+import org.sipfoundry.sipxconfig.apache.ApacheManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigException;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
@@ -48,13 +49,14 @@ public class IvrConfig implements ConfigProvider {
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
         if (!request.applies(DialPlanContext.FEATURE, Ivr.FEATURE, Mwi.FEATURE, RestServer.FEATURE, ImBot.FEATURE,
-                FreeswitchFeature.FEATURE, AdminContext.FEATURE, ImManager.FEATURE)) {
+                FreeswitchFeature.FEATURE, AdminContext.FEATURE, ApacheManager.FEATURE, ImManager.FEATURE)) {
             return;
         }
         Set<Location> locations = request.locations(manager);
         FeatureManager featureManager = manager.getFeatureManager();
         Address mwiApi = manager.getAddressManager().getSingleAddress(Mwi.HTTP_API);
         Address adminApi = manager.getAddressManager().getSingleAddress(AdminContext.HTTP_ADDRESS);
+        Address apacheApi = manager.getAddressManager().getSingleAddress(ApacheManager.HTTPS_ADDRESS);
         Address restApi = manager.getAddressManager().getSingleAddress(RestServer.HTTP_API);
         Address imApi = manager.getAddressManager().getSingleAddress(ImManager.XMLRPC_ADDRESS);
         Address imbotApi = manager.getAddressManager().getSingleAddress(ImBot.XML_RPC);
@@ -72,7 +74,7 @@ public class IvrConfig implements ConfigProvider {
             File f = new File(dir, "sipxivr.properties.part");
             Writer wtr = new FileWriter(f);
             try {
-                write(wtr, settings, domain, location, mwiApi, restApi, adminApi, imApi, imbotApi, fsEvent);
+                write(wtr, settings, domain, location, mwiApi, restApi, adminApi, apacheApi, imApi, imbotApi, fsEvent);
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
@@ -80,7 +82,7 @@ public class IvrConfig implements ConfigProvider {
     }
 
     void write(Writer wtr, IvrSettings settings, Domain domain, Location location, Address mwiApi, Address restApi,
-            Address adminApi, Address imApi, Address imbotApi, Address fsEvent) throws IOException {
+            Address adminApi, Address apacheApi, Address imApi, Address imbotApi, Address fsEvent) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.write(settings.getSettings());
         config.write("freeswitch.eventSocketPort", fsEvent.getPort());
@@ -98,6 +100,9 @@ public class IvrConfig implements ConfigProvider {
             throw new ConfigException("Admin feature needs to be enabled. No addresses found.");
         }
         config.write("ivr.configUrl", adminApi.toString());
+        if (apacheApi != null) {
+            config.write("ivr.emailAddressUrl", apacheApi.toString());
+        }
 
         // optional services
         if (restApi != null) {

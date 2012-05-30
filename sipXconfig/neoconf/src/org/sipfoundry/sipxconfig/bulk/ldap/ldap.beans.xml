@@ -9,6 +9,9 @@
         <entry key="pin">
           <null />
         </entry>
+        <entry key="voicemailPin">
+          <null />
+        </entry>        
         <entry key="sipPassword">
           <null />
         </entry>
