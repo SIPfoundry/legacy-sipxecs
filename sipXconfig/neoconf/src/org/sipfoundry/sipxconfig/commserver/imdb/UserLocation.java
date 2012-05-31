@@ -18,11 +18,11 @@ package org.sipfoundry.sipxconfig.commserver.imdb;
 
 import com.mongodb.DBObject;
 
+import org.sipfoundry.commons.userdb.profile.Address;
+import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.phonebook.Address;
-import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.ALT_IM_ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.ASSISTANT_NAME;
@@ -65,28 +65,34 @@ public class UserLocation extends AbstractDataSetGenerator {
             } else {
                 top.put(USER_LOCATION, null);
             }
-            AddressBookEntry abe = user.getAddressBookEntry();
-            if (abe != null) {
-                top.put(ALT_IM_ID, abe.getAlternateImId());
-                top.put(JOB_TITLE, abe.getJobTitle());
-                top.put(JOB_DEPT, abe.getJobDept());
-                top.put(COMPANY_NAME, abe.getCompanyName());
-                top.put(ASSISTANT_NAME, abe.getAssistantName());
-                top.put(ASSISTANT_PHONE, abe.getAssistantPhoneNumber());
-                top.put(FAX_NUMBER, abe.getFaxNumber());
-                top.put(HOME_PHONE_NUMBER, abe.getHomePhoneNumber());
-                top.put(CELL_PHONE_NUMBER, abe.getCellPhoneNumber());
-                top.put(AVATAR, abe.getAvatar());
-                top.put(LOCATION, abe.getLocation());
+            UserProfile profile = user.getUserProfile();
+            if (profile != null) {
+                top.put(ALT_IM_ID, profile.getAlternateImId());
+                top.put(JOB_TITLE, profile.getJobTitle());
+                top.put(JOB_DEPT, profile.getJobDept());
+                top.put(COMPANY_NAME, profile.getCompanyName());
+                top.put(ASSISTANT_NAME, profile.getAssistantName());
+                top.put(ASSISTANT_PHONE, profile.getAssistantPhoneNumber());
+                top.put(FAX_NUMBER, profile.getFaxNumber());
+                top.put(HOME_PHONE_NUMBER, profile.getHomePhoneNumber());
+                top.put(CELL_PHONE_NUMBER, profile.getCellPhoneNumber());
+                top.put(AVATAR, profile.getAvatar());
+                top.put(LOCATION, profile.getLocation());
                 // FIXME abe.getOfficeAddress should be accurate enough to get real office address
                 // complete fix should be when XX-8002 gets solved
                 Address officeAddress = null;
-                if (abe.getUseBranchAddress() && site != null) {
-                    officeAddress = site.getAddress();
+                if (profile.getUseBranchAddress() && site != null) {
+                    officeAddress = new Address();
+                    officeAddress.setCity(site.getAddress().getCity());
+                    officeAddress.setCountry(site.getAddress().getCountry());
+                    officeAddress.setOfficeDesignation(site.getAddress().getOfficeDesignation());
+                    officeAddress.setState(site.getAddress().getState());
+                    officeAddress.setStreet(site.getAddress().getStreet());
+                    officeAddress.setZip(site.getAddress().getZip());
                 } else {
-                    officeAddress = abe.getOfficeAddress();
+                    officeAddress = profile.getOfficeAddress();
                 }
-                Address home = abe.getHomeAddress();
+                Address home = profile.getHomeAddress();
                 if (home != null) {
                     top.put(HOME_STREET, home.getStreet());
                     top.put(HOME_CITY, home.getCity());

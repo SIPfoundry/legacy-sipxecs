@@ -80,6 +80,7 @@ neoconf_PKGS = \
 	spring-data-commons-core \
 	spring-data-mongodb \
 	spring-ldap \
+	thumbnailator \
 	velocity \
 	velocity-tools-generic \
 	xercesImpl \

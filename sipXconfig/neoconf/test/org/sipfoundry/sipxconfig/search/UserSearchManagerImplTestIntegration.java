@@ -16,6 +16,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 public class UserSearchManagerImplTestIntegration extends IntegrationTestCase {
     private CoreContext m_coreContext;
@@ -46,7 +47,7 @@ public class UserSearchManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testSearchFirstName() throws Exception {
-        User user = m_coreContext.newUser();;
+        User user = m_coreContext.newUser();
         user.setFirstName("first");
         user.setLastName("last");
         user.setUserName("bongo");
@@ -81,6 +82,7 @@ public class UserSearchManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testAliases() {
+        ((MongoTemplate) getUserProfileService()).dropCollection("userProfile");
         User user = m_coreContext.newUser();;
         user.setFirstName("First");
         user.setLastName("Last");
@@ -89,7 +91,7 @@ public class UserSearchManagerImplTestIntegration extends IntegrationTestCase {
         user.setAliasesString("aaA, bcd");
         m_coreContext.saveUser(user);
 
-        User template = m_coreContext.newUser();;
+        User template = m_coreContext.newUser();
         template.setUserName("aaa");
         Collection collection = m_userSearchManager.search(template, 0, -1, m_identityToBean);
         assertEquals(1, collection.size());

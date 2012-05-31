@@ -51,6 +51,11 @@ public class ForwardingContextImplTestIntegration extends ImdbTestCase {
         loadDataSet("forwarding/ScheduleSeed.xml");
         loadDataSet("forwarding/ScheduleHoursSeed.xml");
         loadDataSet("forwarding/RingSeed.xml");
+        User user1000 = m_coreContext.loadUser(1000);
+        getUserProfileService().saveUserProfile(user1000.getUserProfile());
+        User user1001 = m_coreContext.loadUser(1001);
+        getUserProfileService().saveUserProfile(user1001.getUserProfile());
+        
     }
 
     public void testGetCallSequenceForUser() throws Exception {

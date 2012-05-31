@@ -37,6 +37,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.RowInfo;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -126,8 +127,11 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
+    public abstract User getLoadedUser();
+    public abstract void setLoadedUser(User user);
+
     public boolean getHasVoicemailPermission() {
-        return getUser().hasPermission(PermissionName.VOICEMAIL);
+        return getLoadedUser().hasPermission(PermissionName.VOICEMAIL);
     }
 
     public boolean getToolbarInstallerPresent() {
@@ -187,7 +191,7 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         Collection<Serializable> allSelected = getSelections().getAllSelected();
         for (Serializable id : allSelected) {
             Voicemail vm = getVoicemailSource().getVoicemail(id);
-            getMailboxManager().delete(getUser().getUserName(), vm);
+            getMailboxManager().delete(getLoadedUser().getUserName(), vm);
         }
     }
 
@@ -218,11 +222,14 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
 
+        if (getLoadedUser() == null) {
+            setLoadedUser(getUser());
+        }
         // this needs to be first as it may alter data gathered from subsequent steps in this
         // method
         MailboxOperation operation = getMailboxOperation();
         if (operation != null) {
-            String expectedUserId = getUser().getUserName();
+            String expectedUserId = getLoadedUser().getUserName();
             if (!expectedUserId.equals(operation.getUserId())) {
                 String msg = String.format("Unauthorized access attempted to mailbox for user %s from user %s",
                         operation.getUserId(), expectedUserId);
@@ -238,7 +245,7 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
             setSelections(new SelectMap());
         }
 
-        String userId = getUser().getUserName();
+        String userId = getLoadedUser().getUserName();
 
         MailboxManager mgr = getMailboxManager();
         List<String> folderIds = mgr.getFolderIds();
@@ -293,7 +300,7 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
      */
     public void call(String from) {
         String domain = getDomainManager().getDomain().getName();
-        String userAddrSpec = getUser().getAddrSpec(domain);
+        String userAddrSpec = getLoadedUser().getAddrSpec(domain);
         String destAddrSpec = SipUri.format(from, domain, false);
         if (destAddrSpec != null) {
             String displayName = "ClickToCall";
@@ -304,7 +311,7 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     }
 
     public String getFeedLink() {
-        String key = getPrivateUserKeyManager().getPrivateKeyForUser(getUser());
+        String key = getPrivateUserKeyManager().getPrivateKeyForUser(getLoadedUser());
         return String.format("/sipxconfig/rest/private/%s/feed/voicemail/inbox", key);
     }
 

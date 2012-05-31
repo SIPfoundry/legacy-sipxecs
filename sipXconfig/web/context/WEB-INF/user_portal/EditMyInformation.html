@@ -6,6 +6,7 @@
   </div>
 </div>
 <div jwcid="extendedInfoTab@Block">
+  <div jwcid="@user/Avatar" user="ognl:loadedUser" /><br/>
   <iframe id="contact_information" class="contactInformationIframe" src="ContactInformationWidgetPage.html" scrolling="no"
     marginwidth="0" marginheight="0" frameborder="0" vspace="0" hspace="0" allowtransparency="true"> </iframe>
     <form jwcid="syncXmppForm@Form">
@@ -17,9 +18,6 @@
 </div>
 <div jwcid="infoTab@Block">
 	<form jwcid="infoForm@Form" delegate="bean:validator">
-	  <div class="avatar">
-	    <div jwcid="@user/Avatar" user="ognl:user" />
-	  </div>
 	  <fieldset>
 	    <table>
 	      <tr jwcid="pin@user/ConfirmPassword"
@@ -42,7 +40,7 @@
 	    </table>
 	  </fieldset>
 	  <span jwcid="@If" condition="ognl:voicemailEnabled">
-		<tr jwcid="faxServicePanel@common/FaxServicePanel" mailboxPreferences="ognl:mailboxPreferences" user="ognl:user"/>
+		<tr jwcid="faxServicePanel@common/FaxServicePanel" mailboxPreferences="ognl:mailboxPreferences" user="ognl:loadedUser"/>
 	  </span>
 	  <ul jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback"/>
   </form>
@@ -51,7 +49,7 @@
 <div jwcid="conferencesTab@Block">
 	<form jwcid="conterences@common/AutoRefreshForm" delegate="bean:validator" showRefresh="ognl:true"
 	  actionBlock="ognl:actionBlockForConferencesTab">
-        <div jwcid="userConferencesPanel@conference/UserConferencesPanel" user="ognl:user" />
+        <div jwcid="userConferencesPanel@conference/UserConferencesPanel" user="ognl:loadedUser" />
     </form>
 </div>
 <div jwcid="menuTab@Block">
@@ -92,22 +90,22 @@
   <form jwcid="distributionListsForm@Form" delegate="bean:validator">
 	  <p><span key="description.editDistributionLists"/></p>
 	  <span jwcid="@vm/DistributionListComponent"
-	    user="ognl:user"/>
+	    user="ognl:loadedUser"/>
   </form>
 </div>
 <div jwcid="openfireTab@Block">
   <form jwcid="openfireForm@Form" delegate="bean:validator">
-    <span jwcid="@user_portal/XmppUserInfoComponent" user="ognl:user"/>
+    <span jwcid="@user_portal/XmppUserInfoComponent" user="ognl:loadedUser"/>
   </form>
 </div>
 <div jwcid="mohTab@Block">
   <span jwcid="@common/QuickHelp" value="message:moh.quick.help" />
   <form jwcid="omohForm@Form" delegate="bean:validator">
-    <span jwcid="@moh/MusicOnHoldComponent" user="ognl:user"/>
+    <span jwcid="@moh/MusicOnHoldComponent" user="ognl:loadedUser"/>
   </form>
 </div>
 <div jwcid="myAssistantTab@Block">
   <form jwcid="myAssistantForm@Form" delegate="bean:validator">
-    <span jwcid="@user_portal/MyAssistantComponent" user="ognl:user"/>
+    <span jwcid="@user_portal/MyAssistantComponent" user="ognl:loadedUser"/>
   </form>
 </div>

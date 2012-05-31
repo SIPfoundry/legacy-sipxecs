@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 public class BulkManagerImplTestIntegration extends IntegrationTestCase {
     private BulkManager m_bulkManager;
@@ -49,6 +50,7 @@ public class BulkManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testInsertFromCsvAliasDuplication() throws Exception {
+        ((MongoTemplate) getUserProfileService()).dropCollection("userProfile");
         // second user has a duplicated alias - it should be ignored, but remaining users have to
         // be imported
         InputStream cutsheet = getClass().getResourceAsStream("errors.csv");

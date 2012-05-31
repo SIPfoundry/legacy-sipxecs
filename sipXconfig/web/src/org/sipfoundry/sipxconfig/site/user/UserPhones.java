@@ -60,13 +60,16 @@ public abstract class UserPhones extends UserBasePage {
 
     public abstract void setIsShared(boolean shared);
 
+    public abstract User getLoadedUser();
+    public abstract void setLoadedUser(User user);
+
     public Collection<Phone> getPhones() {
         return getPhoneContext().getPhonesByUserId(getUserId());
     }
 
     public IPage addExistingPhones() {
         AddExistingPhone page = getAddExistingPhonePage();
-        page.setUserId(getUser().getId());
+        page.setUserId(getLoadedUser().getId());
         page.setReturnPage(this);
         return page;
     }
@@ -74,8 +77,11 @@ public abstract class UserPhones extends UserBasePage {
     @Override
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
-        setPrivatePhonebook(getPhonebookManager().getPrivatePhonebook(getUser()));
-        setIsShared(getUser().getIsShared());
+        if (getLoadedUser() == null) {
+            setLoadedUser(getUser());
+        }
+        setPrivatePhonebook(getPhonebookManager().getPrivatePhonebook(getLoadedUser()));
+        setIsShared(getLoadedUser().getIsShared());
     }
 
     public void savePrivatePhonebook() {
@@ -84,7 +90,7 @@ public abstract class UserPhones extends UserBasePage {
     }
 
     public void saveSharedLine() {
-        User user = getUser();
+        User user = getLoadedUser();
         user.setIsShared(getIsShared());
         getCoreContext().saveUser(user);
         TapestryUtils.recordSuccess(this, getMessages().getMessage("userSaved.success"));

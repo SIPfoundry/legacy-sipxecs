@@ -34,7 +34,8 @@
         </property>
       </bean>
     </property>
-	<property name="configJdbcTemplate" ref="configJdbcTemplate" />	
+	<property name="configJdbcTemplate" ref="configJdbcTemplate" />
+	<property name="userProfileService" ref="userProfileService"/>
   </bean>
 
   <bean id="filePhonebookEntryUpgradeTask" class="org.sipfoundry.sipxconfig.phonebook.PhonebookSetup">

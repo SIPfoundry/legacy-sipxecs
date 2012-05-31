@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.common;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sipfoundry.commons.userdb.profile.UserProfileService;
+
 import junit.framework.TestCase;
 
 public class CoreContextImplTest extends TestCase {
@@ -28,6 +30,11 @@ public class CoreContextImplTest extends TestCase {
             }
 
             public InternalUser newInternalUser() {
+                return null;
+            }
+
+            @Override
+            public UserProfileService getUserProfileService() {
                 return null;
             }
         };
@@ -64,6 +71,11 @@ public class CoreContextImplTest extends TestCase {
             }
 
             public InternalUser newInternalUser() {
+                return null;
+            }
+
+            @Override
+            public UserProfileService getUserProfileService() {
                 return null;
             }
         };

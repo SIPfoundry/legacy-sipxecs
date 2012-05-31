@@ -58,7 +58,6 @@ public class UserTestIntegration extends ImdbTestCase {
         Map<String, Object> actual = db().queryForMap("select * from users as u, user_alias as a where u.user_id = a.user_id");
         assertEquals("FirstName", actual.get("first_name"));
         assertEquals("userid", actual.get("user_name"));
-        assertEquals(user.getAddressBookEntry().getId(), actual.get("address_book_entry_id"));
         assertEquals(false, actual.get("is_shared"));
         assertEquals("password", actual.get("pintoken"));
         assertEquals("sippassword", actual.get("sip_password"));
@@ -148,6 +147,7 @@ public class UserTestIntegration extends ImdbTestCase {
         user.addSupervisorForGroup(group);
 
         m_coreContext.saveUser(user);
+        commit();
         assertEquals(1, countRowsInTable("supervisor"));
         Map<String, Object> actual = db().queryForMap("select * from supervisor");
         assertEquals(1000, actual.get("user_id"));
@@ -227,6 +227,7 @@ public class UserTestIntegration extends ImdbTestCase {
         supervisor.addSupervisorForGroup(newGroup);
         m_coreContext.saveUser(supervisor);
 
+        commit();
         assertEquals(1, countRowsInTable("supervisor"));
         Map<String, Object> actual = db().queryForMap("select * from supervisor");
         assertEquals(supervisor.getId(), actual.get("user_id"));

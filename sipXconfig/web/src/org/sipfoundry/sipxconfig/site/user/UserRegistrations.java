@@ -42,15 +42,21 @@ public abstract class UserRegistrations extends UserBasePage {
 
     public abstract List<RegistrationItem> getRegistrationsProperty();
 
+    public abstract User getLoadedUser();
+    public abstract void setLoadedUser(User user);
+
     @Override
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
+        if (getLoadedUser() == null) {
+            setLoadedUser(getUser());
+        }
         getRegistrations();
     }
 
     public List<RegistrationItem> getRegistrations() {
         List<RegistrationItem> registrations = getRegistrationsProperty();
-        User user = getUser();
+        User user = getLoadedUser();
         if (registrations != null) {
             return registrations;
         }
@@ -73,7 +79,7 @@ public abstract class UserRegistrations extends UserBasePage {
     }
 
     private Phone getCounterpathPhone() {
-        Collection<Phone> phones = getPhoneContext().getPhonesByUserIdAndPhoneModel(getUser().getId(),
+        Collection<Phone> phones = getPhoneContext().getPhonesByUserIdAndPhoneModel(getLoadedUser().getId(),
                 COUNTERPATH_MODEL);
         return (Phone) DataAccessUtils.singleResult(phones);
     }

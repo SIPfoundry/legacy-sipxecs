@@ -36,10 +36,6 @@
       <key column="user_id" />
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
     </set>
-    <many-to-one name="addressBookEntry" class="org.sipfoundry.sipxconfig.phonebook.AddressBookEntry"
-    unique="true"
-    cascade="all"
-    column="address_book_entry_id"/>
     <many-to-one name="branch" column="branch_id" not-found="ignore" />
 
     <subclass name="User" discriminator-value="C"></subclass>
@@ -79,10 +75,6 @@
 
   <query name="userByAlias">
     <![CDATA[select u from User u join u.aliases alias where alias = :value]]>
-  </query>
-
-  <query name="userByConfiguredImId">
-    <![CDATA[select u from User u where u.addressBookEntry.imId = :value]]>
   </query>
 
   <query name="userAdmin">
@@ -130,10 +122,6 @@
 
   <query name="sharedUsers">
     <![CDATA[select u from User u where u.isShared = :isShared]]>
-  </query>
-
-  <query name="userImIds">
-    <![CDATA[select count (*) from User u where lower(u.addressBookEntry.imId) = lower(:imId) and u.id != :userId]]>
   </query>
 
   <query name="potentialImAccountsByUserNameOrAlias">

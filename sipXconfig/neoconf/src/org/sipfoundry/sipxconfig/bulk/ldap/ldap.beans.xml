@@ -21,19 +21,19 @@
         <entry key="emailAddress" value="mail" />
         <entry key="userGroupName" value="ou" />
         <entry key="imId" value="sAMAccountName" />
-        <entry key="createdAddressBookEntry.jobTitle" value="title" />
-        <entry key="createdAddressBookEntry.jobDept" value="department" />
-        <entry key="createdAddressBookEntry.companyName" value="company" />
-        <entry key="createdAddressBookEntry.assistantName" value="secretary" />
-        <entry key="createdAddressBookEntry.cellPhoneNumber" value="mobile" />
-        <entry key="createdAddressBookEntry.homePhoneNumber" value="homePhone" />
-        <entry key="createdAddressBookEntry.assistantPhoneNumber" value="telephoneAssistant" />
-        <entry key="createdAddressBookEntry.faxNumber" value="facsimileTelephoneNumber" />
-        <entry key="createdAddressBookEntry.officeAddress.street" value="streetAddress" />
-        <entry key="createdAddressBookEntry.officeAddress.city" value="l" />
-        <entry key="createdAddressBookEntry.officeAddress.state" value="st" />
-        <entry key="createdAddressBookEntry.officeAddress.country" value="co" />
-        <entry key="createdAddressBookEntry.officeAddress.zip" value="postalCode" />
+        <entry key="userProfile.jobTitle" value="title" />
+        <entry key="userProfile.jobDept" value="department" />
+        <entry key="userProfile.companyName" value="company" />
+        <entry key="userProfile.assistantName" value="secretary" />
+        <entry key="userProfile.cellPhoneNumber" value="mobile" />
+        <entry key="userProfile.homePhoneNumber" value="homePhone" />
+        <entry key="userProfile.assistantPhoneNumber" value="telephoneAssistant" />
+        <entry key="userProfile.faxNumber" value="facsimileTelephoneNumber" />
+        <entry key="userProfile.officeAddress.street" value="streetAddress" />
+        <entry key="userProfile.officeAddress.city" value="l" />
+        <entry key="userProfile.officeAddress.state" value="st" />
+        <entry key="userProfile.officeAddress.country" value="co" />
+        <entry key="userProfile.officeAddress.zip" value="postalCode" />
       </map>
     </property>
     <property name="defaultGroupName" value="ldap_imports" />

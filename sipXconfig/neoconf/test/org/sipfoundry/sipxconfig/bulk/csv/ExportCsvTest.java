@@ -15,13 +15,13 @@ import java.util.Collection;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.commons.userdb.profile.Address;
+import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.TestPhone;
 import org.sipfoundry.sipxconfig.phone.TestPhoneModel;
-import org.sipfoundry.sipxconfig.phonebook.Address;
-import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public class ExportCsvTest extends TestCase {
@@ -172,18 +172,18 @@ public class ExportCsvTest extends TestCase {
         user.setUserName("jlennon");
         user.setVoicemailPintoken("f09e0cfc1dc0f8852ad731e79230225b");
 
-        AddressBookEntry addressBookEntry = new AddressBookEntry();
-        addressBookEntry.setJobTitle("job title");
-        addressBookEntry.setJobDept("job dept");
-        addressBookEntry.setCompanyName("company name");
-        addressBookEntry.setAssistantName("assistant name");
-        addressBookEntry.setCellPhoneNumber("001122");
-        addressBookEntry.setHomePhoneNumber("112233");
-        addressBookEntry.setAssistantPhoneNumber("223344");
-        addressBookEntry.setFaxNumber("33445566");
-        addressBookEntry.setAlternateEmailAddress("alternate@gmail.com");
-        addressBookEntry.setAlternateImId("alternateImId");
-        addressBookEntry.setLocation("location");
+        UserProfile profile = new UserProfile();
+        profile.setJobTitle("job title");
+        profile.setJobDept("job dept");
+        profile.setCompanyName("company name");
+        profile.setAssistantName("assistant name");
+        profile.setCellPhoneNumber("001122");
+        profile.setHomePhoneNumber("112233");
+        profile.setAssistantPhoneNumber("223344");
+        profile.setFaxNumber("33445566");
+        profile.setAlternateEmailAddress("alternate@gmail.com");
+        profile.setAlternateImId("alternateImId");
+        profile.setLocation("location");
 
         Address homeAddress = new Address();
         homeAddress.setStreet("home street");
@@ -191,7 +191,7 @@ public class ExportCsvTest extends TestCase {
         homeAddress.setState("home state");
         homeAddress.setCountry("home country");
         homeAddress.setZip("34001");
-        addressBookEntry.setHomeAddress(homeAddress);
+        profile.setHomeAddress(homeAddress);
 
         Address officeAddress = new Address();
         officeAddress.setStreet("office street");
@@ -199,9 +199,9 @@ public class ExportCsvTest extends TestCase {
         officeAddress.setState("office state");
         officeAddress.setCountry("office country");
         officeAddress.setZip("34342");
-        addressBookEntry.setOfficeAddress(officeAddress);
+        profile.setOfficeAddress(officeAddress);
 
-        user.setAddressBookEntry(addressBookEntry);
+        user.setUserProfile(profile);
 
         exportCsv.exportUser(csv, row, user);
         assertEquals(

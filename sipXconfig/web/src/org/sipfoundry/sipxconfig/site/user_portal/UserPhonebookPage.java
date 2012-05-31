@@ -10,7 +10,9 @@
 package org.sipfoundry.sipxconfig.site.user_portal;
 
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager.PhonebookFormat;
@@ -26,6 +28,18 @@ public abstract class UserPhonebookPage extends UserBasePage {
 
     @InjectObject("spring:phonebookManager")
     public abstract PhonebookManager getPhonebookManager();
+
+    public abstract User getLoadedUser();
+    public abstract void setLoadedUser(User user);
+
+    @Override
+    public void pageBeginRender(PageEvent event) {
+        super.pageBeginRender(event);
+
+        if (getLoadedUser() == null) {
+            setLoadedUser(getUser());
+        }
+    }
 
     public PhonebookFormat getVcardFormat() {
         return PhonebookFormat.VCARD;

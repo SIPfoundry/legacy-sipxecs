@@ -46,9 +46,9 @@ public class UserMapperTest extends TestCase {
         attrMap.setAttribute("firstName","firstName");
         attrMap.setAttribute("aliasesString", "telephoneNumber");
         attrMap.setAttribute("imId", "imId");
-        attrMap.setAttribute("createdAddressBookEntry.jobTitle","job");
-        attrMap.setAttribute("createdAddressBookEntry.homeAddress.street", "homeStreet");
-        attrMap.setAttribute("createdAddressBookEntry.officeAddress.city", "officeCity");
+        attrMap.setAttribute("userProfile.jobTitle","job");
+        attrMap.setAttribute("userProfile.homeAddress.street", "homeStreet");
+        attrMap.setAttribute("userProfile.officeAddress.city", "officeCity");
         m_userMapper.setAttrMap(attrMap);
     }
 
@@ -116,9 +116,9 @@ public class UserMapperTest extends TestCase {
             assertEquals("tester", m_user.getFirstName());
             assertEquals("555123456", m_user.getAliasesString());
             assertEquals("200_tester", m_user.getImId());
-            assertEquals("engineer", m_user.getAddressBookEntry().getJobTitle());
-            assertEquals("Route66", m_user.getAddressBookEntry().getHomeAddress().getStreet());
-            assertEquals("Boston", m_user.getAddressBookEntry().getOfficeAddress().getCity());
+            assertEquals("engineer", m_user.getUserProfile().getJobTitle());
+            assertEquals("Route66", m_user.getUserProfile().getHomeAddress().getStreet());
+            assertEquals("Boston", m_user.getUserProfile().getOfficeAddress().getCity());
         } catch(NamingException ex) {
             fail();
         }

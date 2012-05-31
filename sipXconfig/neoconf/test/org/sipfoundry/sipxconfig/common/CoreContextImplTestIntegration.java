@@ -17,13 +17,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sipfoundry.commons.userdb.profile.Address;
+import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
-import org.sipfoundry.sipxconfig.phonebook.Address;
-import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
@@ -70,8 +70,16 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
 
     public void testLoadUserByConfiguredImId() throws Exception {
         sql("common/UserSearchSeed.sql");
-        User user = m_coreContext.loadUserByConfiguredImId("jagr");
-        assertEquals("userseed1", user.getUserName());
+        User user = m_coreContext.loadUserByUserName("userseed1");
+        UserProfile profile = new UserProfile();
+        profile.setUserId("1");
+        profile.setImId("jagr");
+        user.setUserProfile(profile);
+        m_coreContext.saveUser(user);
+        commit();
+
+        User userIm = m_coreContext.loadUserByConfiguredImId("jagr");
+        assertEquals("userseed1", userIm.getUserName());
 
         User user1 = m_coreContext.loadUserByConfiguredImId("test");
         assertNull(user1);
@@ -295,12 +303,10 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         User admin = m_coreContext.loadUserByUserName(User.SUPERADMIN);
         Group adminGroup = admin.getGroups().iterator().next();
         
-        assertEquals(1, countRowsInTable("address_book_entry"));
+        assertEquals(0, countRowsInTable("address_book_entry"));
         assertEquals(1, countRowsInTable("users"));
         assertEquals(1, countRowsInTable("group_storage"));
         assertEquals(2, countRowsInTable("setting_value"));
-        Map<String, Object> ab = db().queryForMap("select * from address_book_entry");
-        assertEquals(admin.getAddressBookEntry().getId(), ab.get("address_book_entry_id"));
         Map<String, Object> u = db().queryForMap("select * from users");
         assertEquals("superadmin", u.get("user_name"));
         assertEquals("ENABLE", db().queryForObject("select value from setting_value where path = 'permission/application/superadmin'", String.class));
@@ -525,7 +531,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         User user = m_coreContext.loadUser(1001);
         assertNotNull(user);
 
-        AddressBookEntry addressBook = user.getAddressBookEntry();
+        UserProfile addressBook = user.getUserProfile();
         assertNotNull(addressBook);
         addressBook.setJobTitle("Data Entry Assistant");
         addressBook.setJobDept("Data Management Services");
@@ -542,22 +548,24 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         address.setState("MA");
         addressBook.setOfficeAddress(address);
 
-        user.setAddressBookEntry(addressBook);
+        user.setUserProfile(addressBook);
         m_coreContext.saveUser(user);
 
         user = m_coreContext.loadUser(1001);
         assertNotNull(user);
-        assertEquals("Museum of Science", user.getAddressBookEntry().getCompanyName());
-        assertEquals("(617) 723-2500", user.getAddressBookEntry().getCellPhoneNumber());
-        assertEquals("Data Entry Assistant", user.getAddressBookEntry().getJobTitle());
-        assertEquals("Boston", user.getAddressBookEntry().getOfficeAddress().getCity());
-        assertEquals("1 Science Park", user.getAddressBookEntry().getOfficeAddress().getStreet());
+        assertEquals("Museum of Science", user.getUserProfile().getCompanyName());
+        assertEquals("(617) 723-2500", user.getUserProfile().getCellPhoneNumber());
+        assertEquals("Data Entry Assistant", user.getUserProfile().getJobTitle());
+        assertEquals("Boston", user.getUserProfile().getOfficeAddress().getCity());
+        assertEquals("1 Science Park", user.getUserProfile().getOfficeAddress().getStreet());
     }
 
     public void testIsImIdUnique() throws Exception {
         loadDataSet("common/users-im-ids.db.xml");
         // check im id uniqueness for a new user
+        initUsersImIdsSeed();
         User user = new User();
+        user.setUserName("testUser");
         user.setUniqueId();
         assertTrue("ImId unique when no IM ID configured", m_coreContext.isImIdUnique(user));
         user.setImId("openfire1");
@@ -575,8 +583,23 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         assertTrue(m_coreContext.isImIdUnique(existingUser));
     }
 
+    private void initUsersImIdsSeed() {
+     // prepare user profiles
+        User userseed1 = m_coreContext.loadUserByUserName("userseed1");
+        userseed1.setImId("openfire1");
+        getUserProfileService().saveUserProfile(userseed1.getUserProfile());
+        User userseed2 = m_coreContext.loadUserByUserName("userseed2");
+        userseed2.setImId("openfire2");
+        getUserProfileService().saveUserProfile(userseed2.getUserProfile());
+        User userseed3 = m_coreContext.loadUserByUserName("userseed3");
+        getUserProfileService().saveUserProfile(userseed3.getUserProfile());
+        User user201 = m_coreContext.loadUserByUserName("201");
+        getUserProfileService().saveUserProfile(user201.getUserProfile());
+    }
+
     public void testImIdAsAlias() throws Exception {
         loadDataSet("common/users-im-ids.db.xml");
+        initUsersImIdsSeed();
         // test if ImId as alias in use
         assertTrue(m_coreContext.isAliasInUse("openfire2"));
 

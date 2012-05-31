@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.site.user_portal;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.Parameter;
-import org.sipfoundry.sipxconfig.phonebook.Address;
+import org.sipfoundry.commons.userdb.profile.Address;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class AddressPanel extends BaseComponent {

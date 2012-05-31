@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface ImBot {
     public static final LocationFeature FEATURE = new LocationFeature("imbot");
-    public static final AddressType XML_RPC = new AddressType("imbotXmlRpc", "http://%s:%d/IM");
+    public static final AddressType REST_API = new AddressType("imbotRestApi", "http://%s:%d/IM");
 
     public ImBotSettings getSettings();
 

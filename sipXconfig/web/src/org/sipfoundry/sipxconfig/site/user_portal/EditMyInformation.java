@@ -97,6 +97,9 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     public abstract Setting getParentSetting();
     public abstract void setParentSetting(Setting setting);
 
+    public abstract User getLoadedUser();
+    public abstract void setLoadedUser(User user);
+
     public void save() {
         if (!TapestryUtils.isValid(this)) {
             return;
@@ -117,17 +120,19 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
 
+        User user = getUserForEditing();
+        if (user == null) {
+            user = getUser();
+            setLoadedUser(user);
+        }
+
         if (getAvailableTabNames() == null) {
             initAvailableTabs();
         }
 
-        User user = getUserForEditing();
-        if (user == null) {
-            user = getUser();
-            Setting personalAttendantSetting = user.getSettings().getSetting("personal-attendant");
-            setParentSetting(personalAttendantSetting);
-            setUserForEditing(user);
-        }
+        Setting personalAttendantSetting = user.getSettings().getSetting("personal-attendant");
+        setParentSetting(personalAttendantSetting);
+        setUserForEditing(user);
 
         UserForm.initializePin(getComponent("pin"), this, user);
         UserForm.initializeVoicemailPin(getComponent("voicemail_pin"), this, user);
@@ -138,7 +143,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         }
 
         if (getImNotificationSettings() == null) {
-            setImNotificationSettings(getUser().getSettings().getSetting("im_notification"));
+            setImNotificationSettings(user.getSettings().getSetting("im_notification"));
         }
 
         PersonalAttendant personalAttendant = getPersonalAttendant();
@@ -173,12 +178,12 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         tabNames.add(TAB_CONFERENCES);
         tabNames.add("openfire");
 
-        String mohPermissionValue = getUser().getSettingValue("permission/application/music-on-hold");
+        String mohPermissionValue = getLoadedUser().getSettingValue("permission/application/music-on-hold");
         if (isVoicemailEnabled() && Permission.isEnabled(mohPermissionValue)) {
             tabNames.add("moh");
         }
 
-        String paPermissionValue = getUser().getSettingValue("permission/application/personal-auto-attendant");
+        String paPermissionValue = getLoadedUser().getSettingValue("permission/application/personal-auto-attendant");
         if (isVoicemailEnabled() && Permission.isEnabled(paPermissionValue)) {
             tabNames.add("menu");
         }

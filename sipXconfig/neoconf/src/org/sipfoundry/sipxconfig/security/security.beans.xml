@@ -16,6 +16,7 @@
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
         /initial-config/.*=lazyHttpSessionContextIntegrationFilter,basicProcessingFilter,basicExceptionTranslationFilter,filterInvocationInterceptor
         /rest/private/[^/]{32}/.*=lazyHttpSessionContextIntegrationFilter,privateUserKeyProcessingFilter,digestExceptionTranslationFilter,filterInvocationInterceptor
+        /rest/avatar/.*=lazyHttpSessionContextIntegrationFilter,basicProcessingFilter,digestProcessingFilter,digestExceptionTranslationFilter,anonymousProcessingFilter,filterInvocationInterceptor
         /(services|rest)/.*=lazyHttpSessionContextIntegrationFilter,basicProcessingFilter,digestProcessingFilter,digestExceptionTranslationFilter,filterInvocationInterceptor
         /(TestPage|FirstUser).html=httpSessionContextIntegrationFilter
         /.*=httpSessionContextIntegrationFilter,authenticationProcessingFilter,digestExceptionTranslationFilter
@@ -34,6 +35,7 @@
         <ref local="userAuthenticationProvider" />
         <ref local="sharedSecretUserAuthenticationProvider" />
         <ref local="locationAuthenticationProvider" />
+        <ref local="anonymousAuthenticationProvider"/>
       </list>
     </property>
   </bean>
@@ -182,6 +184,7 @@
         /rest/auto-attendant=ROLE_ADMIN,ROLE_ATTENDANT_ADMIN
         /rest/call/.*=ROLE_USER
         /rest/my/.*=ROLE_USER
+        /rest/avatar/.*=ROLE_ANONYMOUS,ROLE_ADMIN,ROLE_USER
         /rest/private/.*=ROLE_USER
         /(services|rest)/.*=ROLE_ADMIN
         /initial-config/.*=ROLE_LOCATION
@@ -192,6 +195,15 @@
   <bean id="ldapAuthProvider" class="org.sipfoundry.sipxconfig.security.ConfigurableLdapAuthenticationProvider">
     <property name="userDetailsService" ref="sharedSecretUserDetailsService" />
     <property name="ldapManager" ref="ldapManager"/>   
+  </bean>
+
+  <bean id="anonymousAuthenticationProvider" class="org.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider">
+    <property name="key" value="foobar" />
+  </bean>
+
+  <bean id="anonymousProcessingFilter" class="org.acegisecurity.providers.anonymous.AnonymousProcessingFilter">
+    <property name="key" value="foobar"/>
+    <property name="userAttribute" value="anonymousUser,ROLE_ANONYMOUS" />
   </bean>
 
 </beans>

@@ -70,19 +70,19 @@ public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, Proce
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        return Collections.singleton(new DefaultFirewallRule(XML_RPC));
+        return Collections.singleton(new DefaultFirewallRule(REST_API));
     }
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
-        if (!type.equals(XML_RPC)) {
+        if (!type.equals(REST_API)) {
             return null;
         }
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
         List<Address> addresses = new ArrayList<Address>(locations.size());
         ImBotSettings settings = getSettings();
         for (Location location : locations) {
-            Address address = new Address(XML_RPC, location.getAddress(), settings.getHttpPort());
+            Address address = new Address(REST_API, location.getAddress(), settings.getHttpPort());
             addresses.add(address);
         }
         return addresses;

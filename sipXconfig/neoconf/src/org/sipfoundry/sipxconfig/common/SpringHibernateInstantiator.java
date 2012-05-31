@@ -55,6 +55,12 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
 
         BeanWithId bean = (BeanWithId) m_beanFactory.getBean(beanName, BeanWithId.class);
         bean.setId((Integer) id);
+
+        String decoratorName = clazz.getSimpleName().toLowerCase() + "Decorator";
+        if (m_beanFactory.containsBean(decoratorName)) {
+            EntityDecorator decorator = (EntityDecorator) m_beanFactory.getBean(decoratorName);
+            decorator.decorateEntity(bean, id);
+        }
         return bean;
     }
 

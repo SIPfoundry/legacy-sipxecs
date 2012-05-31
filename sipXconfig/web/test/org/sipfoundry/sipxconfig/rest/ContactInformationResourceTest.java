@@ -23,13 +23,12 @@ import org.restlet.data.Request;
 import org.restlet.resource.InputRepresentation;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Variant;
+import org.sipfoundry.commons.userdb.profile.Address;
+import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
-import org.sipfoundry.sipxconfig.phonebook.Address;
-import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
-import org.sipfoundry.sipxconfig.phonebook.Gravatar;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
@@ -87,7 +86,7 @@ public class ContactInformationResourceTest extends TestCase {
     }
 
     public void testRepresentXml() throws Exception {
-        initAddressBookEntry();
+        initUserProfile();
         ContactInformationResource resource = new ContactInformationResource();
         resource.setCoreContext(m_coreContext);
 
@@ -105,7 +104,7 @@ public class ContactInformationResourceTest extends TestCase {
     }
 
     public void testRepresentJson() throws Exception {
-        initAddressBookEntry();
+        initUserProfile();
         ContactInformationResource resource = new ContactInformationResource();
         resource.setCoreContext(m_coreContext);
 
@@ -123,9 +122,9 @@ public class ContactInformationResourceTest extends TestCase {
     }
 
     public void testStoreXml() throws Exception {
-        AddressBookEntry abe = new AddressBookEntry();
-        abe.setImId("someId");
-        m_user.setAddressBookEntry(abe);
+        UserProfile profile = new UserProfile();
+        profile.setImId("someId");
+        m_user.setUserProfile(profile);
         ContactInformationResource resource = new ContactInformationResource();
         resource.setCoreContext(m_coreContext);
         ChallengeResponse challengeResponse = new ChallengeResponse(null, "200", new char[0]);
@@ -137,24 +136,24 @@ public class ContactInformationResourceTest extends TestCase {
         Representation entity = new InputRepresentation(xmlStream, MediaType.TEXT_XML);
         resource.storeRepresentation(entity);
 
-        assertEquals("Data Entry Assistant", m_user.getAddressBookEntry().getJobTitle());
-        assertEquals("Data Management Services", m_user.getAddressBookEntry().getJobDept());
-        assertEquals("Museum of Science", m_user.getAddressBookEntry().getCompanyName());
-        assertEquals("NY", m_user.getAddressBookEntry().getHomeAddress().getCity());
-        assertEquals("1 Science Park", m_user.getAddressBookEntry().getOfficeAddress().getStreet());
-        assertEquals("Boston", m_user.getAddressBookEntry().getOfficeAddress().getCity());
-        assertEquals("US", m_user.getAddressBookEntry().getOfficeAddress().getCountry());
-        assertEquals("MA", m_user.getAddressBookEntry().getOfficeAddress().getState());
-        assertEquals("02114", m_user.getAddressBookEntry().getOfficeAddress().getZip());
-        assertEquals("someId", m_user.getAddressBookEntry().getImId());
+        assertEquals("Data Entry Assistant", m_user.getUserProfile().getJobTitle());
+        assertEquals("Data Management Services", m_user.getUserProfile().getJobDept());
+        assertEquals("Museum of Science", m_user.getUserProfile().getCompanyName());
+        assertEquals("NY", m_user.getUserProfile().getHomeAddress().getCity());
+        assertEquals("1 Science Park", m_user.getUserProfile().getOfficeAddress().getStreet());
+        assertEquals("Boston", m_user.getUserProfile().getOfficeAddress().getCity());
+        assertEquals("US", m_user.getUserProfile().getOfficeAddress().getCountry());
+        assertEquals("MA", m_user.getUserProfile().getOfficeAddress().getState());
+        assertEquals("02114", m_user.getUserProfile().getOfficeAddress().getZip());
+        assertEquals("someId", m_user.getUserProfile().getImId());
     }
 
     public void _testRepresentXmlUserWithBranch() throws Exception {
-        initAddressBookEntry();
+        initUserProfile();
         Branch branch = new Branch();
         branch.getAddress().setStreet("Branch Street");
         m_user.setBranch(branch);
-        m_user.getAddressBookEntry().setUseBranchAddress(true);
+        m_user.getUserProfile().setUseBranchAddress(true);
 
         ContactInformationResource resource = new ContactInformationResource();
         resource.setCoreContext(m_coreContext);
@@ -174,7 +173,7 @@ public class ContactInformationResourceTest extends TestCase {
     }
 
     public void testStoreJson() throws Exception {
-        m_user.setAddressBookEntry(new AddressBookEntry());
+        m_user.setUserProfile(new UserProfile());
         ContactInformationResource resource = new ContactInformationResource();
         resource.setCoreContext(m_coreContext);
         ChallengeResponse challengeResponse = new ChallengeResponse(null, "200", new char[0]);
@@ -186,23 +185,20 @@ public class ContactInformationResourceTest extends TestCase {
         Representation entity = new InputRepresentation(xmlStream, MediaType.APPLICATION_JSON);
         resource.storeRepresentation(entity);
 
-        assertEquals("Data Entry Assistant", m_user.getAddressBookEntry().getJobTitle());
-        assertEquals("Data Management Services", m_user.getAddressBookEntry().getJobDept());
-        assertEquals("Museum of Science", m_user.getAddressBookEntry().getCompanyName());
-        assertEquals("NY", m_user.getAddressBookEntry().getHomeAddress().getCity());
-        assertEquals("1 Science Park", m_user.getAddressBookEntry().getOfficeAddress().getStreet());
-        assertEquals("Boston", m_user.getAddressBookEntry().getOfficeAddress().getCity());
-        assertEquals("US", m_user.getAddressBookEntry().getOfficeAddress().getCountry());
-        assertEquals("MA", m_user.getAddressBookEntry().getOfficeAddress().getState());
-        assertEquals("02114", m_user.getAddressBookEntry().getOfficeAddress().getZip());
+        assertEquals("Data Entry Assistant", m_user.getUserProfile().getJobTitle());
+        assertEquals("Data Management Services", m_user.getUserProfile().getJobDept());
+        assertEquals("Museum of Science", m_user.getUserProfile().getCompanyName());
+        assertEquals("NY", m_user.getUserProfile().getHomeAddress().getCity());
+        assertEquals("1 Science Park", m_user.getUserProfile().getOfficeAddress().getStreet());
+        assertEquals("Boston", m_user.getUserProfile().getOfficeAddress().getCity());
+        assertEquals("US", m_user.getUserProfile().getOfficeAddress().getCountry());
+        assertEquals("MA", m_user.getUserProfile().getOfficeAddress().getState());
+        assertEquals("02114", m_user.getUserProfile().getOfficeAddress().getZip());
         assertEquals("John", m_user.getFirstName());
         assertEquals("Doe", m_user.getLastName());
-        assertEquals("https://secure.gravatar.com/avatar/8eb1b522f60d11fa897de1dc6351b7e8?s=80&d=G", new Gravatar(
-                m_user).getUrl());
     }
 
     public void testStoreJsonEmptyUser() throws Exception {
-        m_user.setAddressBookEntry(null);
         ContactInformationResource resource = new ContactInformationResource();
         resource.setCoreContext(m_coreContext);
         ChallengeResponse challengeResponse = new ChallengeResponse(null, "200", new char[0]);
@@ -214,19 +210,17 @@ public class ContactInformationResourceTest extends TestCase {
         Representation entity = new InputRepresentation(xmlStream, MediaType.APPLICATION_JSON);
         resource.storeRepresentation(entity);
 
-        assertEquals("Data Entry Assistant", m_user.getAddressBookEntry().getJobTitle());
-        assertEquals("Data Management Services", m_user.getAddressBookEntry().getJobDept());
-        assertEquals("Museum of Science", m_user.getAddressBookEntry().getCompanyName());
-        assertEquals("NY", m_user.getAddressBookEntry().getHomeAddress().getCity());
-        assertEquals("1 Science Park", m_user.getAddressBookEntry().getOfficeAddress().getStreet());
-        assertEquals("Boston", m_user.getAddressBookEntry().getOfficeAddress().getCity());
-        assertEquals("US", m_user.getAddressBookEntry().getOfficeAddress().getCountry());
-        assertEquals("MA", m_user.getAddressBookEntry().getOfficeAddress().getState());
-        assertEquals("02114", m_user.getAddressBookEntry().getOfficeAddress().getZip());
+        assertEquals("Data Entry Assistant", m_user.getUserProfile().getJobTitle());
+        assertEquals("Data Management Services", m_user.getUserProfile().getJobDept());
+        assertEquals("Museum of Science", m_user.getUserProfile().getCompanyName());
+        assertEquals("NY", m_user.getUserProfile().getHomeAddress().getCity());
+        assertEquals("1 Science Park", m_user.getUserProfile().getOfficeAddress().getStreet());
+        assertEquals("Boston", m_user.getUserProfile().getOfficeAddress().getCity());
+        assertEquals("US", m_user.getUserProfile().getOfficeAddress().getCountry());
+        assertEquals("MA", m_user.getUserProfile().getOfficeAddress().getState());
+        assertEquals("02114", m_user.getUserProfile().getOfficeAddress().getZip());
         assertEquals("John", m_user.getFirstName());
         assertEquals("Doe", m_user.getLastName());
-        assertEquals("https://secure.gravatar.com/avatar/8eb1b522f60d11fa897de1dc6351b7e8?s=80&d=G", new Gravatar(
-                m_user).getUrl());
     }
 
     public void testRepresentXmlWithNullAddressBook() throws Exception {
@@ -265,8 +259,8 @@ public class ContactInformationResourceTest extends TestCase {
         assertEquals(expected, generated);
     }
 
-    private void initAddressBookEntry() {
-        AddressBookEntry addressBook = new AddressBookEntry();
+    private void initUserProfile() {
+        UserProfile addressBook = new UserProfile();
         addressBook.setJobTitle("Data Entry Assistant");
         addressBook.setJobDept("Data Management Services");
         addressBook.setCompanyName("Museum of Science");
@@ -282,6 +276,6 @@ public class ContactInformationResourceTest extends TestCase {
         addressBook.setOfficeAddress(officeAddress);
         addressBook.setEmailAddress("john.doe@example.com");
         addressBook.setImId("myId");
-        m_user.setAddressBookEntry(addressBook);
+        m_user.setUserProfile(addressBook);
     }
 }

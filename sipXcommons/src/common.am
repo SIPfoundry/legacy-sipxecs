@@ -14,6 +14,7 @@ commons_PKGS = \
 	not-yet-commons \
 	jain-sip-sdp \
 	dnsjava \
+	commons-beanutils \
 	commons-io \
 	commons-codec \
 	commons-digester \
@@ -24,7 +25,9 @@ commons_PKGS = \
 	org.springframework.core \
 	org.springframework.transaction \
 	spring-data-mongodb \
+	spring-data-commons-core \
 	mongo \
+	thumbnailator \
 	jetty \
 	jetty-client \
 	jetty-continuation \

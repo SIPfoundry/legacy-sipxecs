@@ -35,7 +35,6 @@ public class UserContactInformation implements EntryPoint {
     private static ContactInformationConstants s_constants = GWT.create(ContactInformationConstants.class);
 
     private ValuesManager m_valuesManager;
-    private Avatar m_avatar;
     private ContactInformationForm m_officeAddressForm;
     private final ContactInformationDataSource m_dataSource = new ContactInformationDataSource("contactData");
 
@@ -62,10 +61,8 @@ public class UserContactInformation implements EntryPoint {
         m_officeAddressForm.setValuesManager(m_valuesManager);
 
         BranchAddressForm useBranchAddressForm = new BranchAddressForm(m_officeAddressForm, m_valuesManager);
-        m_avatar = new Avatar();
 
         VLayout generalLayout = new VLayout();
-        generalLayout.addMember(m_avatar);
         generalLayout.addMember(generalForm);
 
         VLayout addressLayout = new VLayout();
@@ -130,7 +127,6 @@ public class UserContactInformation implements EntryPoint {
         Timer refreshTimer = new Timer() {
             @Override
             public void run() {
-                m_avatar.update();
                 Boolean useBranchAddress = Boolean.valueOf(m_valuesManager.getValueAsString(
                         ContactInformationDataSource.USE_BRANCH_ADDRESS));
                 if (useBranchAddress) {
@@ -165,20 +161,6 @@ public class UserContactInformation implements EntryPoint {
                 }
             });
             setItems(useBranchAddress);
-        }
-    }
-
-    private class Avatar extends Img {
-
-        public Avatar() {
-            setStyleName("gwtAvatarImg");
-            setWidth(140);
-            setHeight(140);
-            setLayoutAlign(Alignment.CENTER);
-        }
-
-        public void update() {
-            setSrc(m_valuesManager.getValueAsString(ContactInformationDataSource.AVATAR));
         }
     }
 }

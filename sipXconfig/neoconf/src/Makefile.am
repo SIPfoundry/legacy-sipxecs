@@ -19,6 +19,7 @@ neoconf_RESOURCES = \
 	  -o -name '*.properties' \
 	  -o -name '*.crt' \
 	  -o -name '*.xml' \
+	  -o -name '*.jpg' \
 	  -o -name '*.xsd' \
 	\))
 

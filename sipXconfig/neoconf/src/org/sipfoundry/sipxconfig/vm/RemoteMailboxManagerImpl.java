@@ -20,12 +20,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.net.HttpURLConnection;
 import java.util.List;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSession;
 import javax.xml.transform.Source;
 
 import org.apache.commons.io.FileUtils;
@@ -41,7 +37,6 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.xml.xpath.NodeMapper;
@@ -213,9 +208,6 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
     }
 
     public void setRestTemplate(RestTemplate restTemplate) {
-        HostnameVerifier verifier = new NullHostnameVerifier();
-        VmSimpleClientHttpRequestFactory factory = new VmSimpleClientHttpRequestFactory(verifier);
-        restTemplate.setRequestFactory(factory);
         m_restTemplate = restTemplate;
     }
 
@@ -231,29 +223,4 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
         Address ivrAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
         return new UserException("&error.ivr.server", ivrAddress.getAddress(), message);
     }
-
-    private static class NullHostnameVerifier implements HostnameVerifier {
-        public boolean verify(String hostname, SSLSession session) {
-            return true;
-        }
-    }
-
-    private static class VmSimpleClientHttpRequestFactory extends SimpleClientHttpRequestFactory {
-
-        private final HostnameVerifier m_verifier;
-
-        public VmSimpleClientHttpRequestFactory(HostnameVerifier verifier) {
-            m_verifier = verifier;
-        }
-
-        @Override
-        protected void prepareConnection(HttpURLConnection connection, String httpMethod) throws IOException {
-            if (connection instanceof HttpsURLConnection) {
-                ((HttpsURLConnection) connection).setHostnameVerifier(m_verifier);
-            }
-            super.prepareConnection(connection, httpMethod);
-        }
-
-    }
-
 }

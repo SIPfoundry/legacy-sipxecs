@@ -8,8 +8,6 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import static org.springframework.dao.support.DataAccessUtils.intResult;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -25,13 +23,14 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
+import org.sipfoundry.commons.userdb.profile.Address;
+import org.sipfoundry.commons.userdb.profile.UserProfileService;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
-import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
@@ -52,23 +51,20 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private static final String VALUE = "value";
     /** nothing special about this name */
     private static final String QUERY_USER_BY_NAME_OR_ALIAS = "userByNameOrAlias";
-    private static final String SQL_QUERY_USER_IDS_BY_NAME_OR_ALIAS_OR_IM_ID = "select distinct u.user_id from users u "
-        + "left outer join user_alias alias  "
-        + "on u.user_id=alias.user_id  "
-        + "left outer join address_book_entry abe on u.address_book_entry_id=abe.address_book_entry_id  "
-        + "left outer join value_storage vs on vs.value_storage_id=u.value_storage_id  "
-        + "left outer join setting_value sv on sv.value_storage_id=vs.value_storage_id  "
-        + "where u.user_name= :alias or alias.alias= :alias or abe.im_id= :alias  "
-        + "or (sv.path='voicemail/fax/did' and sv.value= :alias)  "
-        + "or (sv.path='voicemail/fax/extension' and sv.value= :alias) ";
-    private static final String SQL_QUERY_USER_IDS_BY_NAME_OR_ALIAS_OR_IM_ID_EXCEPT_THIS =
+    private static final String SQL_QUERY_USER_IDS_BY_NAME_OR_ALIAS = "select distinct u.user_id from users u "
+            + "left outer join user_alias alias  " + "on u.user_id=alias.user_id  "
+            + "left outer join value_storage vs on vs.value_storage_id=u.value_storage_id  "
+            + "left outer join setting_value sv on sv.value_storage_id=vs.value_storage_id  "
+            + "where u.user_name= :alias or alias.alias= :alias  "
+            + "or (sv.path='voicemail/fax/did' and sv.value= :alias)  "
+            + "or (sv.path='voicemail/fax/extension' and sv.value= :alias) ";
+    private static final String SQL_QUERY_USER_IDS_BY_NAME_OR_ALIAS_EXCEPT_THIS =
         "select distinct u.user_id from users "
         + "u left outer join user_alias alias  "
         + "on u.user_id=alias.user_id left "
-        + "outer join address_book_entry abe on u.address_book_entry_id=abe.address_book_entry_id left "
         + "outer join value_storage vs on vs.value_storage_id=u.value_storage_id left "
         + "outer join setting_value sv on sv.value_storage_id=vs.value_storage_id  "
-        + "where (u.user_name= :alias or alias.alias= :alias or abe.im_id = :alias  "
+        + "where (u.user_name= :alias or alias.alias= :alias  "
         + "or (sv.path='voicemail/fax/did' and sv.value = :alias)  "
         + "or (sv.path='voicemail/fax/extension' and sv.value = :alias)) and u.user_name != :username";
     private static final String ALIAS = "alias";
@@ -109,6 +105,8 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
      */
     @Override
     public abstract InternalUser newInternalUser();
+
+    public abstract UserProfileService getUserProfileService();
 
     @Override
     public boolean getDebug() {
@@ -167,19 +165,21 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                 }
             }
         } else {
-            if (user.getAddressBookEntry() == null) {
-                user.setAddressBookEntry(new AddressBookEntry());
-            }
-            user.getAddressBookEntry().setUseBranchAddress(true);
+            user.getUserProfile().setUseBranchAddress(true);
         }
 
-        if (null != user.getAddressBookEntry() && user.getAddressBookEntry().getUseBranchAddress()
-                && user.getSite() != null) {
-            user.getAddressBookEntry().setBranchAddress(user.getSite().getAddress());
+        if (user.getUserProfile().getUseBranchAddress() && user.getSite() != null) {
+            Address branch = user.getUserProfile().getBranchAddress();
+            branch.setCity(user.getSite().getAddress().getCity());
+            branch.setCountry(user.getSite().getAddress().getCountry());
+            branch.setOfficeDesignation(user.getSite().getAddress().getOfficeDesignation());
+            branch.setState(user.getSite().getAddress().getState());
+            branch.setStreet(user.getSite().getAddress().getStreet());
+            branch.setZip(user.getSite().getAddress().getZip());
         }
-        if (!user.isNew() && user.getSite() == null && user.getAddressBookEntry() != null) {
-            user.getAddressBookEntry().setUseBranchAddress(false);
-            user.getAddressBookEntry().setBranchAddress(null);
+        if (!user.isNew() && user.getSite() == null) {
+            user.getUserProfile().setUseBranchAddress(false);
+            user.getUserProfile().setBranchAddress(null);
         }
         if (user.isNew()) {
             getHibernateTemplate().save(user);
@@ -309,7 +309,11 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
     @Override
     public User loadUserByConfiguredImId(String imId) {
-        return loadUserByNamedQueryAndNamedParam("userByConfiguredImId", VALUE, imId);
+        Integer userId = getUserProfileService().getUserIdByImId(imId);
+        if (userId != null) {
+            return loadUser(userId);
+        }
+        return null;
     }
 
     @Override
@@ -736,12 +740,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     public boolean isImIdUnique(User user) {
         ImAccount accountToSave = new ImAccount(user);
         // check ImId to save against persisted ImIds
-        List count = getHibernateTemplate().findByNamedQueryAndNamedParam("userImIds", new String[] {
-            QUERY_IM_ID, QUERY_USER_ID
-        }, new Object[] {
-            accountToSave.getImId(), user.getId()
-        });
-        if (intResult(count) != 0) {
+        if (getUserProfileService().isImIdInUse(accountToSave.getImId(), user.getUserName())) {
             return false;
         }
 
@@ -765,28 +764,44 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     @Override
     public boolean isAliasInUse(String alias) {
         Query q = getHibernateTemplate().getSessionFactory().getCurrentSession()
-        .createSQLQuery(SQL_QUERY_USER_IDS_BY_NAME_OR_ALIAS_OR_IM_ID).addScalar(USER_ID, Hibernate.INTEGER);
+        .createSQLQuery(SQL_QUERY_USER_IDS_BY_NAME_OR_ALIAS).addScalar(USER_ID, Hibernate.INTEGER);
         q.setString(ALIAS, alias);
         List<Integer> userIds = q.list();
-        return SipxCollectionUtils.safeSize(userIds) > 0;
+        if (SipxCollectionUtils.safeSize(userIds) > 0) {
+            return true;
+        }
+        // check im id in user profile db
+        return getUserProfileService().isImIdInUse(alias);
     }
 
     @Override
     public boolean isAliasInUseForOthers(String alias, String username) {
         Query q = getHibernateTemplate().getSessionFactory().getCurrentSession()
-        .createSQLQuery(SQL_QUERY_USER_IDS_BY_NAME_OR_ALIAS_OR_IM_ID_EXCEPT_THIS).addScalar(USER_ID, Hibernate.INTEGER);
+        .createSQLQuery(SQL_QUERY_USER_IDS_BY_NAME_OR_ALIAS_EXCEPT_THIS).addScalar(USER_ID, Hibernate.INTEGER);
         q.setString(ALIAS, alias);
         q.setString("username", username);
         List<Integer> userIds = q.list();
-        return SipxCollectionUtils.safeSize(userIds) > 0;
+        if (SipxCollectionUtils.safeSize(userIds) > 0) {
+            return true;
+        }
+        // check im id in user profile db
+        return getUserProfileService().isImIdInUse(alias, username);
     }
 
     @Override
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
         Query q = getHibernateTemplate().getSessionFactory().getCurrentSession()
-        .createSQLQuery(SQL_QUERY_USER_IDS_BY_NAME_OR_ALIAS_OR_IM_ID).addScalar(USER_ID, Hibernate.INTEGER);
+        .createSQLQuery(SQL_QUERY_USER_IDS_BY_NAME_OR_ALIAS).addScalar(USER_ID, Hibernate.INTEGER);
         q.setString(ALIAS, alias);
         List<Integer> ids = q.list();
+        String username = getUserProfileService().getUsernameByImId(alias);
+        if (username != null) {
+            User user = loadUserByUserName(username);
+            Integer userId = user.getId();
+            if (!ids.contains(userId)) {
+                ids.add(userId);
+            }
+        }
         Collection bids = BeanId.createBeanIdCollection(ids, User.class);
         return bids;
     }

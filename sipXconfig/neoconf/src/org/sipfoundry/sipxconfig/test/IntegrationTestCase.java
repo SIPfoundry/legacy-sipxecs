@@ -31,10 +31,12 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.hibernate.SessionFactory;
+import org.sipfoundry.commons.userdb.profile.UserProfileService;
 import org.sipfoundry.sipxconfig.common.SpringHibernateInstantiator;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisherImpl;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.HibernateTransactionManager;
@@ -51,6 +53,7 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
     private Map<Object, Map<String, Object>> m_modifiedContextObjectMap;
     private DaoEventPublisherImpl m_daoEventPublisher;
     private SpringHibernateInstantiator m_entityInterceptor;
+    private UserProfileService m_userProfileService;
 
     public IntegrationTestCase() {
         setAutowireMode(AUTOWIRE_BY_NAME);
@@ -96,6 +99,7 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
         if (m_modifiedContextObjectMap != null) {
             resetContext();
         }
+        ((MongoTemplate) m_userProfileService).dropCollection("userProfile");
     }
 
     @Override
@@ -279,5 +283,13 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
 
     public HibernateTemplate getHibernateTemplate() {
         return m_hibernateTemplate;
+    }
+
+    public UserProfileService getUserProfileService() {
+        return m_userProfileService;
+    }
+
+    public void setUserProfileService(UserProfileService service) {
+        m_userProfileService = service;
     }
 }

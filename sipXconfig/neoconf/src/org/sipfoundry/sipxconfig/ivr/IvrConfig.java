@@ -59,7 +59,7 @@ public class IvrConfig implements ConfigProvider {
         Address apacheApi = manager.getAddressManager().getSingleAddress(ApacheManager.HTTPS_ADDRESS);
         Address restApi = manager.getAddressManager().getSingleAddress(RestServer.HTTP_API);
         Address imApi = manager.getAddressManager().getSingleAddress(ImManager.XMLRPC_ADDRESS);
-        Address imbotApi = manager.getAddressManager().getSingleAddress(ImBot.XML_RPC);
+        Address imbotApi = manager.getAddressManager().getSingleAddress(ImBot.REST_API);
         Address fsEvent = manager.getAddressManager().getSingleAddress(FreeswitchFeature.EVENT_ADDRESS);
         IvrSettings settings = m_ivr.getSettings();
         Domain domain = manager.getDomainManager().getDomain();

@@ -130,12 +130,12 @@
   <alias name="contactInformationResource" alias="/my/contact-information" />
 
   <bean id="avatarResource" class="org.sipfoundry.sipxconfig.rest.UserAvatarResource" scope="prototype">
-	<property name="coreContext" ref="coreContext" />
 	<property name="available" value="true" />
 	<property name="modifiable" value="false" />
 	<property name="readable" value="true" />
+	<property name="userAvatarService" ref="userProfileService" />
   </bean>
-  <alias name="gravatarResource" alias="/my/avatar" />
+  <alias name="avatarResource" alias="/avatar/{user}" />
 
   <bean id="autoAttendantsResource" class="org.sipfoundry.sipxconfig.rest.AutoAttendantsResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
