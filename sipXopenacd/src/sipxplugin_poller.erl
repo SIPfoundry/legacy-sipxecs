@@ -57,8 +57,7 @@ get_last_poll_time() ->
 %% Description: Initiates the server
 %%--------------------------------------------------------------------
 init([]) ->
-	mongodb:singleServer(def),
-	mongodb:connect(def),
+	spx_db:connect(),	
 	{ok, Timer} = timer:send_interval(10000, tick),
 	State = #state{timer = Timer},
 

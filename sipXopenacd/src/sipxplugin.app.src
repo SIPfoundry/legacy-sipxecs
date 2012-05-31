@@ -6,6 +6,7 @@
 	sipxplugin_app,
 	sipxplugin_sup,
 	sipxplugin_poller,
+	spx_db,
 	spx_autoloader,
 	spx_freeswitchmedia_loader,
 	spx_agentconfig_loader,

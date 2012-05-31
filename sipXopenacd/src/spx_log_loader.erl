@@ -123,9 +123,8 @@ get_db_config_test_() ->
     {foreach,
     fun() ->
         mongodb:start(),
-        mongodb:singleServer(spx),
-        mongodb:connect(spx),
-        M = mongoapi:new(spx, ?DB),
+        spx_db:connect(),
+		M = mongoapi:new(spx, ?DB),
         M:dropDatabase(),
         M
     end,
