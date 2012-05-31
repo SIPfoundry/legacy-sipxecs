@@ -80,16 +80,16 @@ auth_agent(Username, Password) ->
 	case db_find_one(agent, [{<<"name">>, Username}]) of
 		{ok, []} -> pass;
 		{ok, P} ->
-			UsernameBin = list_to_binary(Username),
+			%UsernameBin = list_to_binary(Username),
 			PasswordBin = list_to_binary(Password),
-			Realm = proplists:get_value(<<"rlm">>, P, <<>>),
+			%Realm = proplists:get_value(<<"rlm">>, P, <<>>),
 
-			DigestBin = crypto:md5(<<UsernameBin/binary, $:, Realm/binary, $:, PasswordBin/binary>>),
-			DigestHexBin = iolist_to_binary([io_lib:format("~2.16.0b", [C]) || <<C>> <= DigestBin]),
+			%DigestBin = crypto:md5(<<UsernameBin/binary, $:, Realm/binary, $:, PasswordBin/binary>>),
+			%DigestHexBin = iolist_to_binary([io_lib:format("~2.16.0b", [C]) || <<C>> <= DigestBin]),
 
 			PntkHexBin = proplists:get_value(<<"pntk">>, P, <<>>),
 			case PntkHexBin of
-				DigestHexBin ->
+				PasswordBin ->
 					{ok, Auth} = spx_util:build_agent(P),
 					{ok, {allow, Auth#agent_auth.id,
 						Auth#agent_auth.skills,

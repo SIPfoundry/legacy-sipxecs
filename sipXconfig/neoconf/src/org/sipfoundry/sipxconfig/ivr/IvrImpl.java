@@ -188,8 +188,8 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
-        validator.requiresAtLeastOne(FEATURE, FreeswitchFeature.FEATURE);
-        validator.requiresAtLeastOne(FEATURE, Mwi.FEATURE);
+        validator.requiredOnSameHost(FEATURE, FreeswitchFeature.FEATURE);
+        validator.requiredOnSameHost(FEATURE, Mwi.FEATURE);
         if (!m_highAvailabilitySupport) {
             validator.singleLocationOnly(FEATURE);
         }
