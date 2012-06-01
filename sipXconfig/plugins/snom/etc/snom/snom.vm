@@ -53,6 +53,7 @@ perm="R"#end
 	<!-- Function Keys -->
 	<functionKeys e="2">
 #foreach ($key in $phone.Settings.getSetting('fkeys').Values)
+#set ($number = "")
 #set ($context = $key.getSetting('context').Value)
 #set ($type = $key.getSetting('type').Value)
 #set ($number = $key.getSetting('number').Value)
