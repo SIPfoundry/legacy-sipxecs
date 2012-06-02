@@ -59,7 +59,7 @@ public class ProvisionConfiguration implements ConfigProvider {
 
     void write(Writer wtr, ProvisionSettings settings) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
-        config.write(settings.getSettings().getSetting("provision-config"));
+        config.writeSettings(settings.getSettings().getSetting("provision-config"));
     }
 
     public void setProvision(Provision provision) {

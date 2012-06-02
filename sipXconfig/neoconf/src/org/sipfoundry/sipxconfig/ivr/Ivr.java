@@ -17,6 +17,7 @@
 package org.sipfoundry.sipxconfig.ivr;
 
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.backup.ArchiveDefinition;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
@@ -25,6 +26,9 @@ public interface Ivr {
     public static final GlobalFeature CALLPILOT = new GlobalFeature("callpilot");
     public static final AddressType SIP_ADDRESS = AddressType.sipTcp("ivr-sip");
     public static final AddressType REST_API = new AddressType("ivrRestApi", "http://%s:%d");
+    public static final ArchiveDefinition ARCHIVE = new ArchiveDefinition("voicemail.tgz",
+            "$(sipx.SIPX_BINDIR)/sipxivr-archive --archive %s",
+            "$(sipx.SIPX_BINDIR)/sipxivr-archive --restore %s");
 
     public IvrSettings getSettings();
 

@@ -9,8 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.backup;
 
+
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.admin.AdminContext;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class BackupPlanTestIntegration extends IntegrationTestCase {
@@ -22,15 +27,17 @@ public class BackupPlanTestIntegration extends IntegrationTestCase {
     }
 
     public void testStoreJob() throws Exception {
-        BackupPlan plan = new LocalBackupPlan();
+        BackupPlan plan = new BackupPlan(BackupType.local);
+        Collection<String> defs = Arrays.asList(AdminContext.ARCHIVE.getId(), Ivr.ARCHIVE.getId());
+        plan.setDefinitions(defs);
         m_backupManager.storeBackupPlan(plan);
         commit();
         
         Map<String, Object> actual = db().queryForMap("select * from backup_plan");
         assertEquals(plan.getId(), actual.get("backup_plan_id"));
-        assertEquals(50, actual.get("limited_count"));
-        assertEquals(true, actual.get("configs"));
-        assertEquals(true, actual.get("voicemail"));
+        assertEquals(50, actual.get("limited_count"));        
+        assertEquals("admin.tgz,vm.tgz", actual.get("def"));
+        assertEquals("local", actual.get("backup_type"));
     }
 
     public void setBackupManager(BackupManager backupManager) {

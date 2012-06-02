@@ -67,7 +67,7 @@ public class AcdHistoryConfig implements ConfigProvider {
         throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.setValueFormat("\"%s\"");
-        config.write(settings.getSettings());
+        config.writeSettings(settings.getSettings());
         String statsUrls = StringUtils.join(statsApis, ';');
         config.write("CONFIG_SERVER_AGENT_URL", statsUrls);
     }

@@ -141,7 +141,7 @@ public class TunnelConfiguration implements ConfigProvider, FeatureListener, Fir
             c.nextElement();
         }
         c.endArray();
-        c.write(settings.getSettings());
+        c.writeSettings(settings.getSettings());
     }
 
     public void setConfigManager(ConfigManager configManager) {

@@ -12,20 +12,13 @@
         <param name="sequence">backup_plan_seq</param>
       </generator>
     </id>
-    <discriminator column="backup_type" type="character" />
-    <property name="limitedCount" />
-    <property name="configs" />
-    <property name="voicemail" />
-    <property name="emailAddress" />
+    <property column="backup_type" name="encodedType" not-null="true"/>
+    <property column="def" name="encodedDefinitionString" not-null="true"/> 
+    <property name="limitedCount" />    
     <bag name="schedules" inverse="true" table="daily_backup_schedule" cascade="all">
       <key column="backup_plan_id" />
       <one-to-many class="DailyBackupSchedule" />
     </bag>
-    <subclass name="LocalBackupPlan" discriminator-value="L"></subclass>
-    <subclass name="FtpBackupPlan" discriminator-value="F">
-      <many-to-one name="ftpConfiguration" column="ftp_configuration_id" cascade="all"
-        foreign-key="fk_backup_plan_ftp_configuration" />
-    </subclass>
   </class>
   <!--
     - Daily Backup Schedule

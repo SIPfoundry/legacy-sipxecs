@@ -59,7 +59,7 @@ public class WebSocketConfig implements ConfigProvider {
 
     void write(Writer wtr, WebSocketSettings settings) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
-        config.write(settings.getSettings());
+        config.writeSettings(settings.getSettings());
     }
 
     @Required

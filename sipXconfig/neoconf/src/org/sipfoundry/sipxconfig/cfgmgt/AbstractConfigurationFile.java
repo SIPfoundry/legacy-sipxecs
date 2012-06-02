@@ -48,14 +48,14 @@ public abstract class AbstractConfigurationFile {
         write(m_globalPrefix, settings);
     }
 
-    public void write(Setting settings) throws IOException {
+    public void writeSettings(Setting settings) throws IOException {
         settings.acceptVisitor(new SettingsWriter(m_globalPrefix));
         if (m_error != null) {
             throw m_error;
         }
     }
 
-    public void write(String prefix, Setting settings) throws IOException {
+    public void writeSettings(String prefix, Setting settings) throws IOException {
         settings.acceptVisitor(new SettingsWriter(prefix));
         if (m_error != null) {
             throw m_error;

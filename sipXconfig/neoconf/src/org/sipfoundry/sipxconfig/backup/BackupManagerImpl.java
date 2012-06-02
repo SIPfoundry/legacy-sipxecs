@@ -16,106 +16,109 @@
  */
 package org.sipfoundry.sipxconfig.backup;
 
-import static org.springframework.dao.support.DataAccessUtils.singleResult;
-
 import java.io.File;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
-import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
-import org.sipfoundry.sipxconfig.ftp.FtpExternalServerConfig;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.dao.support.DataAccessUtils;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public abstract class BackupManagerImpl extends HibernateDaoSupport implements ApplicationListener, BackupManager {
-    private String m_binDirectory;
-    private String m_libExecDirectory;
+public class BackupManagerImpl extends HibernateDaoSupport implements BackupManager,
+        BeanFactoryAware {
+    private FeatureManager m_featureManager;
+    private Collection<ArchiveProvider> m_providers;
+    private ListableBeanFactory m_beanFactory;
+    private BeanWithSettingsDao<BackupSettings> m_settingsDao;
 
     @Override
-    public abstract FtpBackupPlan createFtpBackupPlan();
+    public void saveSettings(BackupSettings settings) {
+        m_settingsDao.upsert(settings);
+    }
 
     @Override
-    public abstract LocalBackupPlan createLocalBackupPlan();
+    public BackupSettings getSettings() {
+        return m_settingsDao.findOrCreateOne();
+    }
 
-    /* (non-Javadoc)
-     * @see org.sipfoundry.sipxconfig.backup.BackupManager#getBackupPlan(java.lang.String)
-     */
     @Override
-    public BackupPlan getBackupPlan(String type) {
-        boolean isFtp = FtpBackupPlan.TYPE.equals(type);
-        Class klass = isFtp ? FtpBackupPlan.class : LocalBackupPlan.class;
-        List plans = getHibernateTemplate().loadAll(klass);
-        BackupPlan plan = (BackupPlan) DataAccessUtils.singleResult(plans);
-        if (plan == null) {
-            plan = isFtp ? createFtpBackupPlan() : createLocalBackupPlan();
-            if (isFtp) {
-                initFtpConfig(plan);
+    public BackupPlan findOrCreateBackupPlan(BackupType type) {
+        for (BackupPlan plan : getBackupPlans()) {
+            if (plan.getType() == type) {
+                return plan;
             }
-            getHibernateTemplate().save(plan);
         }
+        BackupPlan plan = new BackupPlan();
+        plan.setType(type);
         return plan;
     }
 
-    private void initFtpConfig(BackupPlan plan) {
-        FtpBackupPlan ftpBackupPlan = (FtpBackupPlan) plan;
-        if (ftpBackupPlan.getFtpConfiguration() != null) {
-            return;
-        }
-        List ftpConfigs = getHibernateTemplate().loadAll(FtpExternalServerConfig.class);
-        FtpExternalServerConfig ftpConfig = (FtpExternalServerConfig) singleResult(ftpConfigs);
-        if (ftpConfig == null) {
-            ftpConfig = new FtpExternalServerConfig();
-        }
-        ftpBackupPlan.setFtpConfiguration(ftpConfig);
-    }
-
-    /* (non-Javadoc)
-     * @see org.sipfoundry.sipxconfig.backup.BackupManager#storeBackupPlan(org.sipfoundry.sipxconfig.backup.BackupPlan)
-     */
     @Override
     public void storeBackupPlan(BackupPlan plan) {
         getHibernateTemplate().saveOrUpdate(plan);
-        plan.resetTimer(m_binDirectory);
     }
 
-    /* (non-Javadoc)
-     * @see org.sipfoundry.sipxconfig.backup.BackupManager#performBackup(org.sipfoundry.sipxconfig.backup.BackupPlan)
-     */
     @Override
-    public File[] performBackup(BackupPlan plan) {
-        return plan.perform(m_binDirectory);
+    public Collection<ArchiveDefinition> getArchiveDefinitions(BackupPlan plan, Location location) {
+        return getArchiveDefinitions(plan.getDefinitionIds(), location);
     }
 
-    /**
-     * start backup timers after app is initialized
-     */
-    public void onApplicationEvent(ApplicationEvent event) {
-        // No need to register listener, all beans that implement listener
-        // interface are
-        // automatically registered
-        if (event instanceof ApplicationInitializedEvent || event instanceof DSTChangeEvent) {
-            List<BackupPlan> plans = getHibernateTemplate().loadAll(BackupPlan.class);
-            for (BackupPlan plan : plans) {
-                plan.resetTimer(m_binDirectory);
+    @Override
+    public Collection<ArchiveDefinition> getArchiveDefinitions(Collection<String> definitionIds, Location location) {
+        Set<ArchiveDefinition> defs = new HashSet<ArchiveDefinition>();
+        for (ArchiveProvider provider : getArchiveProviders()) {
+            Collection<ArchiveDefinition> locationDefs = provider.getArchiveDefinitions(this, location);
+            if (locationDefs != null) {
+                for (ArchiveDefinition def : locationDefs) {
+                    if (definitionIds.contains(def.getId())) {
+                        defs.add(def);
+                    }
+                }
             }
         }
+
+        return defs;
     }
 
-    public String getBinDirectory() {
-        return m_binDirectory;
+    @Override
+    public FeatureManager getFeatureManager() {
+        return m_featureManager;
     }
 
-    public void setBinDirectory(String binDirectory) {
-        m_binDirectory = binDirectory;
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = (ListableBeanFactory) beanFactory;
     }
 
-    public String getLibExecDirectory() {
-        return m_libExecDirectory;
+    public Collection<ArchiveProvider> getArchiveProviders() {
+        if (m_providers == null) {
+            Map<String, ArchiveProvider> beanMap = m_beanFactory.getBeansOfType(ArchiveProvider.class, false, false);
+            m_providers = new ArrayList<ArchiveProvider>(beanMap.values());
+        }
+
+        return m_providers;
     }
 
-    public void setLibExecDirectory(String libExecDirectory) {
-        m_libExecDirectory = libExecDirectory;
+    public void restore(ArchiveDefinition def, Location location, File f) {
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
+    public void setSettingsDao(BeanWithSettingsDao<BackupSettings> settingsDao) {
+        m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public Collection<BackupPlan> getBackupPlans() {
+        return getHibernateTemplate().loadAll(BackupPlan.class);
     }
 }

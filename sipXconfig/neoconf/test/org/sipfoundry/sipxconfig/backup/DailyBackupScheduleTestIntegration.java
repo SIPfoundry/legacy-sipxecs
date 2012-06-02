@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.backup;
 
 import static org.junit.Assert.assertArrayEquals;
 
+import java.util.Collections;
+
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.ResultDataGrid;
 
@@ -24,8 +26,11 @@ public class DailyBackupScheduleTestIntegration extends IntegrationTestCase {
     }
 
     public void testStoreJob() throws Exception {
-        BackupPlan plan = m_backupManager.getBackupPlan(LocalBackupPlan.TYPE);
-        BackupPlan ftpPlan = m_backupManager.getBackupPlan(FtpBackupPlan.TYPE);
+        //ArchiveDefinition d = new ArchiveDefinition("test.tgz", "backup", "restore");
+        BackupPlan plan = m_backupManager.findOrCreateBackupPlan(BackupType.local);
+        plan.setDefinitions(Collections.singleton("test.tgz"));
+        BackupPlan ftpPlan = m_backupManager.findOrCreateBackupPlan(BackupType.ftp);
+        ftpPlan.setDefinitions(Collections.singleton("test.tgz"));
         DailyBackupSchedule dailySchedule = new DailyBackupSchedule();
         DailyBackupSchedule ftpDailySchedule = new DailyBackupSchedule();
 
@@ -40,6 +45,7 @@ public class DailyBackupScheduleTestIntegration extends IntegrationTestCase {
                 {dailySchedule.getId(), false, "Every day"},      
                 {ftpDailySchedule.getId(), false, "Every day"}      
         };
+        flush();
         db().query("select daily_backup_schedule_id, enabled, scheduled_day from daily_backup_schedule", actual);
         assertArrayEquals(expected, actual.toArray());
     }

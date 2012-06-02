@@ -67,6 +67,10 @@ public class DailyBackupSchedule extends BeanWithId {
         m_backupPlan = backupPlan;
     }
 
+    public String toCronString() {
+        return "TODO";
+    }
+
     public boolean isEnabled() {
         return m_enabled;
     }

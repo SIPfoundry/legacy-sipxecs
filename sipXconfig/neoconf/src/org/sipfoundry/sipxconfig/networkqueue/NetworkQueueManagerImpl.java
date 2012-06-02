@@ -89,7 +89,7 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
 
     void writeServerConfig(Writer w, NetworkQueueSettings settings) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
-        config.write(settings.getSettings().getSetting("sqa-config"));
+        config.writeSettings(settings.getSettings().getSetting("sqa-config"));
     }
 
     void writeClientConfig(Writer w, Address queue) throws IOException {

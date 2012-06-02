@@ -1,0 +1,204 @@
+#!/bin/env ruby
+
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+#
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+#
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# Archive and Restore sipXconfig's postgres database. Can be used as standalone
+# script or within the larger sipx-backup context.
+#
+
+require 'yaml'
+require 'fileutils'
+require 'net/ftp'
+
+# Common code for backup and restore operations
+class ArchiveClusterBase
+  attr_writer :verbose
+  attr_writer :out
+
+  def initialize(config)
+    @local_plan_config = '@SIPX_CONFDIR@/backup-local.yaml'
+    @bin_dir = '@SIPX_BINDIR@'
+    @backup_dir = '@SIPX_VARDIR@/backup'
+    @data = YAML::load_file(config)
+    @out = $stdout
+  end
+
+  def cmd(cmd)
+    puts cmd if @verbose
+    system(cmd)
+  end
+
+  def file_manager
+    if @data.has_key?('ftp')
+      # ftp extends off local backup copies, for after running an ftp
+      # backup honor the number of allowed local backup copies. Ideally
+      # this backups are store in entirely separate places.
+      local_data = YAML::load_file(@local_plan_config)
+      return FtpFileManager.new(@backup_dir, @data['ftp'], @local_data['max'])
+    end
+    LocalFileManager.new(@backup_dir)
+  end
+end
+
+# Orchestrate backing up of cluster including uploading if ftp is configured and purging old backups
+class BackupCluster < ArchiveClusterBase
+
+  def run(params)
+    hosts = @data['hosts'].join(' -H ')
+    cmd(@bindir + "/sipxagent -H #{hosts} -b backup -d #{@data['plan']}_backup")
+    cmd(@bindir + "/sipxagent -b collect_backup")
+    fs = file_manager
+    fs.save(@data['max'])
+  end
+end
+
+# List current backups to STDOUT in chronological order based on directory name following 
+# YearMonthDayHourMin pattern not based on file timestamp
+class ListBackups < ArchiveClusterBase
+  def run(parmas)
+    @out.print file_manager.list
+  end
+end
+
+# Common code for managing backup lists
+class FileManagerBase
+
+  def select_backups(list)
+    filtered = list.select { |f|
+      # ignore dirs that don't appear to be backups
+      f =~ /^\d{12}$/
+    }
+    filtered.sort!.reverse!
+  end
+
+  # Call given block on oldest backups that exceed max backup count
+  def purgable(max)
+    all = list
+    if all.length > max
+      for i in 0..((all.length - max) - 1)
+        yield all[i]
+      end
+    end
+  end
+end
+
+# Listing, uploading and purging backups on FTP server
+class FtpFileManager < FileManagerBase
+
+  def initialize(local_backup_dir, params, max_local_copies)
+    @local_backup_dir
+    @local = FileManagerBase.new(@local_backup_dir)
+    @max_local_copies = max_local_copies
+    @ftp = Net::FTP.new
+    @ftp.connect(params['url'], 21)
+    @ftp.login(params['user'], params['password'])
+    unless params['dir'].empty?
+      @ftp.chdir(params['dir'])
+    end
+  end
+
+  def save(max)
+    upload(@local.list.last)
+    purgable(max) { |b|
+      purge(b)
+    }
+    @local.save(@max_local_copies)
+  end
+
+  def purge(b)
+    @ftp.list(b) {|f|
+      @ftp.delete "#{b}/#{f}"
+    }
+    @ftp.delete b
+  end
+
+  def upload(b)
+    @ftp.mkdir(b)
+    Dir["#{@local_backup_dir}/#{b}/*"].each {|f|
+      @ftp.putbinaryfile(f, "#{b}/#{f}")
+    }
+  end
+
+  def list
+    select_backups(@ftp.list)
+  end
+end
+
+# Listing and purging backups on FTP server
+class LocalFileManager < FileManagerBase
+
+  def initialize(backup_dir)
+    @backup_dir = backup_dir
+  end
+
+  def save(max)
+    purgable(max) { |b|
+      FileUtils.rm_r("#{@backup_dir}/#{b}")
+    }
+  end
+
+  def list
+    select_backups(Dir["#{@backup_dir}/*"])
+  end
+end
+
+if __FILE__ == $0
+
+require 'optparse'
+params = {}
+operation = nil
+
+verbose = false
+args = OptionParser.new { |opts|
+  opts.banner = <<EOF
+Create or restore backups and archives.
+EOF
+
+  opts.on("--backup config.yaml",
+      "Restore the specified Configuration archive."){ |v|
+    operation = Backup.new(v)
+  }
+
+  opts.on("--restore config.yaml",
+      "Restore the specified Configuration archive."){ |v|
+    operation = Restore.new(v)
+  }
+
+  opts.on("--list config.yaml", "List the current backups."){ |v|
+    operation = ListBackups.new(v)
+  }
+
+  $output = $stdout
+  opts.on("--out file", "Send data to stdout"){ |v|
+    $output = v
+  }
+
+  opts.on("--verbose",
+      "Restore the specified Configuration archive."){
+    verbose = true
+  }
+}
+args.parse!
+
+if operation.nil?
+  raise "Must specify either restore or archive options."
+end
+
+operation.verbose = verbose
+operation.run(params)
+operation.out = $output
+exit 0
+
+end

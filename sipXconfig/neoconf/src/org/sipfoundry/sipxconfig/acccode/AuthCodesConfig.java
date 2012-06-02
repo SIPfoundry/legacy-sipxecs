@@ -69,7 +69,7 @@ public class AuthCodesConfig implements ConfigProvider, PostConfigListener {
 
     void writeConfig(Writer wtr, AuthCodeSettings settings, Domain domain, int freeswithPort) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
-        config.write(settings.getSettings().getSetting("acccode-config"));
+        config.writeSettings(settings.getSettings().getSetting("acccode-config"));
         config.write("freeswitch.eventSocketPort", freeswithPort);
     }
 

@@ -86,8 +86,8 @@ public class RegistrarConfiguration implements ConfigProvider {
         file.write("SIP_REGISTRAR_PROXY_PORT", proxy.getPort());
         file.write("SIP_REGISTRAR_NAME", location.getFqdn());
         file.write("SIP_REGISTRAR_SYNC_WITH", "obsolete");
-        file.write(root.getSetting("userparam"));
-        file.write(root.getSetting("call-pick-up"));
+        file.writeSettings(root.getSetting("userparam"));
+        file.writeSettings(root.getSetting("call-pick-up"));
 
         if (park != null) {
             String parkUri = format("%s;transport=tcp?Route=sip:%s:%d", domain.getName(), park.getAddress(),
@@ -96,8 +96,8 @@ public class RegistrarConfiguration implements ConfigProvider {
         }
 
         file.write("SIP_REDIRECT.130-MAPPING.", root.getSetting("mapping"));
-        file.write(root.getSetting("isn"));
-        file.write(root.getSetting("enum"));
+        file.writeSettings(root.getSetting("isn"));
+        file.writeSettings(root.getSetting("enum"));
 
         if (imApi != null) {
             String openfireUrl = format("http://%s:%d/plugins/sipx-openfire-presence/status", imApi.getAddress(),

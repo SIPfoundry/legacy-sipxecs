@@ -38,6 +38,7 @@ dist_cfplugins_DATA = \
 	dhcpd.cf \
 	ntpd.cf \
 	sendmail.cf \
+	archive.cf \
 	zz_sipxlogwatcher.cf
 
 fwconfdir = $(SIPX_CONFDIR)/firewall
@@ -56,7 +57,7 @@ cflibdir =  $(SIPX_CFINPUTS)/plugin.d/lib
 cflib_DATA = \
 	commands.cf \
 	upload_snapshot.cf \
-	vmbackup.cf \
+	backup.cf \
 	restore_vmbackup.cf \
 	change_timezone.cf \
 	upload_vmbackup.cf \

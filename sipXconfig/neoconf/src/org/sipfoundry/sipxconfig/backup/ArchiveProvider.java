@@ -1,6 +1,4 @@
 /**
- *
- *
  * Copyright (c) 2012 eZuce, Inc. All rights reserved.
  * Contributed to SIPfoundry under a Contributor Agreement
  *
@@ -19,26 +17,8 @@ package org.sipfoundry.sipxconfig.backup;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
-import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 
-public interface BackupManager {
-    public static final String CONTEXT_BEAN_NAME = "backupManager";
-    public static final GlobalFeature FEATURE = new GlobalFeature("backup");
+public interface ArchiveProvider {
 
-    BackupSettings getSettings();
-
-    void saveSettings(BackupSettings settings);
-
-    BackupPlan findOrCreateBackupPlan(BackupType type);
-
-    Collection<BackupPlan> getBackupPlans();
-
-    void storeBackupPlan(BackupPlan plan);
-
-    FeatureManager getFeatureManager();
-
-    Collection<ArchiveDefinition> getArchiveDefinitions(Collection<String> definitionIds, Location location);
-
-    Collection<ArchiveDefinition> getArchiveDefinitions(BackupPlan plan, Location location);
+    public Collection<ArchiveDefinition> getArchiveDefinitions(BackupManager manager, Location location);
 }

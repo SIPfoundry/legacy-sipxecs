@@ -87,7 +87,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
 
     void writeSysctl(Writer w, FirewallSettings settings) throws IOException {
         KeyValueConfiguration c = KeyValueConfiguration.equalsSeparated(w);
-        c.write(settings.getSettings().getSetting("sysctl"));
+        c.writeSettings(settings.getSettings().getSetting("sysctl"));
     }
 
     void writeIptables(Writer w, List<FirewallRule> rules, List<CustomFirewallRule> custom,
