@@ -390,8 +390,9 @@
   	<antcall target="voicemail-pin" />
   	<antcall target="remove-im-password" />
   	<antcall target="change-on-restore" />
-  	<antcall target="convert-init-task-to-setup" />  	
-  	<antcall target="backup-types" />  	
+  	<antcall target="convert-init-task-to-setup" />
+  	<antcall target="backup-types" />
+  	<antcall target="notified" />
   </target>
 
   <target name="plugin-patches">
@@ -1289,6 +1290,9 @@
   </target>
   <target name="convert-init-task-to-setup" unless="convert-init-task-to-setup">
 	<db-patch patch="convert-init-task-to-setup"/>
+  </target>
+  <target name="notified" unless="notified">
+	<db-patch patch="notified"/>
   </target>	
   <target name="backup-types" unless="backup-types">
 	<db-patch patch="backup-types"/>

@@ -42,5 +42,20 @@
       <tr jwcid="aliasesPanel" for="user:aliases">
 		<input jwcid="aliases" id="user:aliases" type="text"/>
       </tr>
+      <tr jwcid="@common/FieldPanel" for="emailUserAddress"
+        field="component:emailUserAddress"
+        label="message:label.emailAddress">
+       <span jwcid="emailUserAddress@TextField" id="emailUserAddress" maxlength="255"
+         value="ognl:user.userProfile.emailAddress"
+         type="text" autocomplete="off"/>
+      </tr>
+      <tr jwcid="@common/FieldPanel" for="user:notified"
+        field="component:notified"
+        label="message:notified"
+        description="message:notified.desc">
+        <checkbox jwcid="notified@Checkbox"
+          id="user:notified"
+          value="ognl:user.notified" />
+      </tr>            
     </table>
   </fieldset>
