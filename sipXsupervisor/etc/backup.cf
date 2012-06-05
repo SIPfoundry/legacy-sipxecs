@@ -26,7 +26,7 @@ bundle agent backup {
     "plan" slist => { "ftp", "local" };
 
   files:
-    any::
+    backup::
       "$(sipx.SIPX_CONFDIR)/backup-$(plan).yaml"
         comment => "Backup config $(this.promiser)",
         create => "true",
@@ -62,8 +62,9 @@ bundle agent backup_node {
     any::
       "any" usebundle => sipx_module;
       "any" usebundle => sipx_init;
-      "any" usebundle => backup_vars;
-      "any" usebundle => backup_node_run;
+    backup::
+      "backup" usebundle => backup_vars;
+      "backup" usebundle => backup_node_run;
 }
 
 bundle agent backup_node_run {
@@ -72,7 +73,7 @@ bundle agent backup_node_run {
     "config" string => "$(sipx.SIPX_CONFDIR)/backup-$(backup_vars.plan).yaml";
 
   files:
-    any::
+    backup::
       "$(config)"
         comment => "Backup config $(this.promiser)",
         create => "true",
@@ -80,16 +81,13 @@ bundle agent backup_node_run {
         edit_line => expand_template("$(template)");
 
   commands:
-    any::
+    backup::
       "$(sipx.SIPX_BINDIR)/sipx-archive"
         comment => "Backup config $(this.promiser)",
         args => "--backup $(config)",
         classes => on_failed_command("1", "failed_backup");
 
   reports:
-    linux::
-      "bin dir $(sipx.SIPX_BINDIR)";
-
     failed_backup::
       "!!! Failed to complete $(backup_vars.plan) backup. See sipxagent.log for more details.";
 }
@@ -109,22 +107,21 @@ bundle agent backup_collect {
     any::
       "any" usebundle => sipx_module;
       "any" usebundle => sipx_init;
-      "any" usebundle => backup_vars;
-      "any" usebundle => backup_collect_run;
+    backup::
+      "backup" usebundle => backup_vars;
+      "backup" usebundle => backup_collect_run;
 }
 
 bundle agent backup_collect_run {
   vars:
-    any::
+    backup::
       "fqdn" slist => readstringlist("$(sipx.SIPX_CFDATA)/servers", "=(.*?)end", "\n", 100, 4000);
       "dim_servers" int => readstringarray("server", "$(sipx.SIPX_CFDATA)/servers", "#[^\n]*", "[\s=]", 100, 4000);
       "backup_id" string => execresult("/bin/date +%Y%m%d%H%M", "noshell");
 
   methods:
-    any::
-      "any" usebundle => "sipx_init";
-      "any" usebundle => "sipx_module";
-      "any" usebundle => backup_collect_run_for_node("$(backup_id)", "$(server[$(fqdn)][2])");
+    backup::
+      "backup" usebundle => backup_collect_run_for_node("$(backup_id)", "$(server[$(fqdn)][2])");
 }
 
 bundle agent backup_collect_run_for_node(backup_id, node_fqdn) {
@@ -139,11 +136,8 @@ bundle agent backup_collect_run_for_node(backup_id, node_fqdn) {
         perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)");
 
       "$(sipx.SIPX_VARDIR)/backup/$(backup_vars.plan)/$(backup_id)"
+        comment => "Collecting backups $(node_fqdn)",
         perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
         copy_from => master_files("$(node_fqdn)", "$(sipx.SIPX_TMPDIR)/backup"),
         depth_search => recurse("1");
-
-  reports:
-    linux::
-      "Downloading backups from $(node_fqdn)";
 }

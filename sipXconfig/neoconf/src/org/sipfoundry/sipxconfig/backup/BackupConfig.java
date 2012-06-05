@@ -31,10 +31,12 @@ import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 
 public class BackupConfig implements ConfigProvider {
+    private static final String BACKUP = "backup"; //check-style
     private BackupManager m_backupManager;
 
     @Override
@@ -42,6 +44,10 @@ public class BackupConfig implements ConfigProvider {
         if (!request.applies(BackupManager.FEATURE)) {
             return;
         }
+
+        // no reason to disable backups, just don't configure any schedules
+        File gdir = manager.getGlobalDataDirectory();
+        ConfigUtils.enableCfengineClass(gdir, "backup.cfdat", true, BACKUP);
 
         BackupSettings settings = m_backupManager.getSettings();
         Collection<BackupPlan> plans = m_backupManager.getBackupPlans();
@@ -113,7 +119,7 @@ public class BackupConfig implements ConfigProvider {
 
     public void writeBackupConfig(Writer w, Collection<ArchiveDefinition> defs) throws IOException {
         YamlConfiguration config = new YamlConfiguration(w);
-        config.startStruct("backup");
+        config.startStruct(BACKUP);
         for (ArchiveDefinition def : defs) {
             writeCommand(config, def, def.getBackupCommand());
         }
