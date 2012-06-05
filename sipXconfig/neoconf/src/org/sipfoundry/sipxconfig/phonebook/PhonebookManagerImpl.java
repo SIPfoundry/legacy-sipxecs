@@ -30,10 +30,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -82,6 +80,7 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
@@ -895,20 +894,11 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     @SuppressWarnings("deprecation")
     public void removeTableColumns() {
         try {
-            String[] queries = {
-                "alter table phonebook drop column members_csv_filename",
-                "alter table phonebook drop column members_vcard_filename"
-            };
-            Session currentSession = getHibernateTemplate().getSessionFactory().getCurrentSession();
-            Connection connection = currentSession.connection();
-            Statement statement = connection.createStatement();
-            statement.addBatch(queries[0]);
-            statement.addBatch(queries[1]);
-            statement.executeBatch();
-            statement.close();
+            m_jdbcTemplate.execute("alter table phonebook drop column members_csv_filename");
+            m_jdbcTemplate.execute("alter table phonebook drop column members_vcard_filename");
             LOG.info("Columns members_csv_filename and members_vcard_filename were removed from phonebook table.");
-        } catch (SQLException e) {
-            LOG.warn(e.getMessage());
+        } catch (DataAccessException e) {
+            LOG.error("failed to remove columns members_csv_filename and members_vcard_filename" + e.getMessage());
         }
 
     }
