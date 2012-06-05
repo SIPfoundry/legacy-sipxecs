@@ -7,7 +7,7 @@
     <property name="dbname" value="profiles${sysdir.mongo_ns}"/> 
   </bean>
 
-  <bean id="userProfileContext" class="org.sipfoundry.sipxconfig.common.profile.UserProfileContext" init-method="uploadDefaultAvatar">
+  <bean id="userProfileContext" class="org.sipfoundry.sipxconfig.common.profile.UserProfileContext">
     <property name="userProfileService" ref="userProfileService"/>
     <property name="addressManager" ref="addressManager" />
   </bean>
