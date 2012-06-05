@@ -48,10 +48,9 @@ public class BackupConfigTest {
         BackupConfig config = new BackupConfig();
         BackupSettings settings = new BackupSettings();
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
+        settings.setSettingTypedValue("ftp/url", "ftp://ftp.example.org");
         settings.setSettingTypedValue("ftp/user", "joe");
-        settings.setSettingTypedValue("ftp/host", "ftp.example.org");
         settings.setSettingTypedValue("ftp/password", "xxx");
-        settings.setSettingTypedValue("ftp/dir", "yyy");
         Collection<Location> hosts = Collections.singleton(new Location("one", "1.1.1.1"));
         BackupPlan ftpPlan = new BackupPlan(BackupType.ftp);
         ftpPlan.setLimitedCount(20);

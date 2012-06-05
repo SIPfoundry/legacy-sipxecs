@@ -3,8 +3,8 @@ update backup_plan set backup_type = 'ftp' where backup_type = 'F';
 update backup_plan set backup_type = 'local' where backup_type != 'ftp';
 
 alter table backup_plan add column def varchar(256);
+update backup_plan set def = ',vm.tgz' where voicemail = TRUE;
 -- postgres v9 has concat function, but this works in v8 and above
-update backup_plan set ',vm.tgz' where voicemail = TRUE;
 update backup_plan set def = coalesce(def,'') || ',admin.tgz' where configs = TRUE or def is NULL;
 -- remove preceeding comma
 update backup_plan set def = substr(def, 2);

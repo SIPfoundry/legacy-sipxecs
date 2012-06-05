@@ -80,7 +80,7 @@ public class RegistrarConfiguration implements ConfigProvider {
             Address imApi, Address presenceApi, Address park) throws IOException {
         KeyValueConfiguration file = KeyValueConfiguration.colonSeparated(wtr);
         Setting root = settings.getSettings();
-        file.write(SettingUtil.filter(NO_UNDERSCORE, root.getSetting("registrar-config")));
+        file.writeSettings(SettingUtil.filter(NO_UNDERSCORE, root.getSetting("registrar-config")));
         file.write("SIP_REGISTRAR_AUTHENTICATE_REALM", domain.getSipRealm());
         file.write("SIP_REGISTRAR_DOMAIN_NAME", domain.getName());
         file.write("SIP_REGISTRAR_PROXY_PORT", proxy.getPort());
@@ -95,7 +95,7 @@ public class RegistrarConfiguration implements ConfigProvider {
             file.write("SIP_REDIRECT.100-PICKUP.PARK_SERVER", parkUri);
         }
 
-        file.write("SIP_REDIRECT.130-MAPPING.", root.getSetting("mapping"));
+        file.writeSettings("SIP_REDIRECT.130-MAPPING.", root.getSetting("mapping"));
         file.writeSettings(root.getSetting("isn"));
         file.writeSettings(root.getSetting("enum"));
 

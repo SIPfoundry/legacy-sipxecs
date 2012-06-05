@@ -3,7 +3,6 @@ hosts:
 plan: ftp
 max: 20
 ftp:
-   host: ftp.example.org
+   url: ftp://ftp.example.org
    user: joe
    password: xxx
-   dir: yyy

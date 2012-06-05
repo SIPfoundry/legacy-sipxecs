@@ -85,10 +85,10 @@ public class ProxyConfiguration implements ConfigProvider {
         KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(wtr);
         Setting root = settings.getSettings();
         config.writeSettings(root.getSetting("proxy-configuration"));
-        config.write("SIPX_PROXY.205_subscriptionauth.", root.getSetting("subscriptionauth"));
-        config.write("SIPX_PROXY.350_calleralertinfo.", root.getSetting("alert-info"));
-        config.write("SIPX_PROXY.400_authrules.", root.getSetting("authrules"));
-        config.write("SIPX_PROXY.210_msftxchghack.", root.getSetting("msftxchghack"));
+        config.writeSettings("SIPX_PROXY.205_subscriptionauth.", root.getSetting("subscriptionauth"));
+        config.writeSettings("SIPX_PROXY.350_calleralertinfo.", root.getSetting("alert-info"));
+        config.writeSettings("SIPX_PROXY.400_authrules.", root.getSetting("authrules"));
+        config.writeSettings("SIPX_PROXY.210_msftxchghack.", root.getSetting("msftxchghack"));
         config.writeSettings(root.getSetting("call-rate-limit"));
         config.write("SIPX_PROXY_HOST_NAME", location.getFqdn());
         int port = settings.getSipTcpPort();
