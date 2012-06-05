@@ -67,7 +67,6 @@ public abstract class DistributionListComponent extends BaseComponent implements
     public void save() {
         if (TapestryUtils.isValid(this)) {
             getMailboxManager().saveDistributionLists(getUser().getId(), getDistributionLists());
-            setDistributionLists(null);
         }
     }
 

@@ -1,5 +1,5 @@
 <div jwcid="@common/Border" borderTitle="ognl:borderTitle">
-  <span jwcid="@user/UserNavigation" bean="ognl:user" renderCondition="ognl:userSession.admin" />
+  <span jwcid="@user/UserNavigation" bean="ognl:loadedUser" renderCondition="ognl:userSession.admin" />
   <span jwcid="@common/ErrorMsg"/>
   <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
     <div jwcid="@common/QuickLinks">

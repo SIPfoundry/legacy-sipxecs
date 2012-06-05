@@ -14,13 +14,13 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
+import org.sipfoundry.commons.userdb.profile.Address;
+import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.im.ImAccount;
-import org.sipfoundry.sipxconfig.phonebook.Address;
-import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.site.UserSession;
 
 @ComponentClass(allowBody = false, allowInformalParameters = true)
@@ -38,27 +38,27 @@ public abstract class ExtendedUserInfoComponent extends BaseComponent {
     @Parameter(required = true)
     public abstract UserSession getUserSession();
 
-    public abstract AddressBookEntry getAddressBookEntry();
+    public abstract UserProfile getUserProfile();
 
-    public abstract void setAddressBookEntry(AddressBookEntry abe);
+    public abstract void setUserProfile(UserProfile abe);
 
     public abstract ImAccount getImAccount();
 
     public abstract void setImAccount(ImAccount imAccount);
 
     public void prepareForRender(IRequestCycle cycle) {
-        if (null == getAddressBookEntry()) {
-            AddressBookEntry abe = getUser().getAddressBookEntry();
-            if (abe == null) {
-                abe = new AddressBookEntry();
+        if (null == getUserProfile()) {
+            UserProfile profile = getUser().getUserProfile();
+            if (profile == null) {
+                profile = new UserProfile();
             }
-            if (abe.getHomeAddress() == null) {
-                abe.setHomeAddress(new Address());
+            if (profile.getHomeAddress() == null) {
+                profile.setHomeAddress(new Address());
             }
-            if (abe.getOfficeAddress() == null) {
-                abe.setOfficeAddress(new Address());
+            if (profile.getOfficeAddress() == null) {
+                profile.setOfficeAddress(new Address());
             }
-            setAddressBookEntry(abe);
+            setUserProfile(profile);
         }
 
         if (getImAccount() == null) {
@@ -72,7 +72,7 @@ public abstract class ExtendedUserInfoComponent extends BaseComponent {
         }
 
         User user = getUser();
-        user.setAddressBookEntry(getAddressBookEntry());
+        user.setUserProfile(getUserProfile());
 
         getCoreContext().saveUser(user);
     }

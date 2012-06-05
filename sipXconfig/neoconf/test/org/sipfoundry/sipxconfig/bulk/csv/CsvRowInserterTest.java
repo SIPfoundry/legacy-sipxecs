@@ -101,29 +101,29 @@ public class CsvRowInserterTest extends TestCase {
 
         User user1 = impl.userFromRow(userRow1);
 
-        assertEquals("job title", user1.getAddressBookEntry().getJobTitle());
-        assertEquals("job dept", user1.getAddressBookEntry().getJobDept());
-        assertEquals("company name", user1.getAddressBookEntry().getCompanyName());
-        assertEquals("assistant name", user1.getAddressBookEntry().getAssistantName());
-        assertEquals("001122", user1.getAddressBookEntry().getCellPhoneNumber());
-        assertEquals("112233", user1.getAddressBookEntry().getHomePhoneNumber());
-        assertEquals("223344", user1.getAddressBookEntry().getAssistantPhoneNumber());
-        assertEquals("33445566", user1.getAddressBookEntry().getFaxNumber());
-        assertEquals("alternate@gmail.com", user1.getAddressBookEntry().getAlternateEmailAddress());
-        assertEquals("alternateImId", user1.getAddressBookEntry().getAlternateImId());
-        assertEquals("location", user1.getAddressBookEntry().getLocation());
+        assertEquals("job title", user1.getUserProfile().getJobTitle());
+        assertEquals("job dept", user1.getUserProfile().getJobDept());
+        assertEquals("company name", user1.getUserProfile().getCompanyName());
+        assertEquals("assistant name", user1.getUserProfile().getAssistantName());
+        assertEquals("001122", user1.getUserProfile().getCellPhoneNumber());
+        assertEquals("112233", user1.getUserProfile().getHomePhoneNumber());
+        assertEquals("223344", user1.getUserProfile().getAssistantPhoneNumber());
+        assertEquals("33445566", user1.getUserProfile().getFaxNumber());
+        assertEquals("alternate@gmail.com", user1.getUserProfile().getAlternateEmailAddress());
+        assertEquals("alternateImId", user1.getUserProfile().getAlternateImId());
+        assertEquals("location", user1.getUserProfile().getLocation());
 
-        assertEquals("home street", user1.getAddressBookEntry().getHomeAddress().getStreet());
-        assertEquals("home city", user1.getAddressBookEntry().getHomeAddress().getCity());
-        assertEquals("home state", user1.getAddressBookEntry().getHomeAddress().getState());
-        assertEquals("home country", user1.getAddressBookEntry().getHomeAddress().getCountry());
-        assertEquals("34001", user1.getAddressBookEntry().getHomeAddress().getZip());
+        assertEquals("home street", user1.getUserProfile().getHomeAddress().getStreet());
+        assertEquals("home city", user1.getUserProfile().getHomeAddress().getCity());
+        assertEquals("home state", user1.getUserProfile().getHomeAddress().getState());
+        assertEquals("home country", user1.getUserProfile().getHomeAddress().getCountry());
+        assertEquals("34001", user1.getUserProfile().getHomeAddress().getZip());
 
-        assertEquals("office street", user1.getAddressBookEntry().getOfficeAddress().getStreet());
-        assertEquals("office city", user1.getAddressBookEntry().getOfficeAddress().getCity());
-        assertEquals("office state", user1.getAddressBookEntry().getOfficeAddress().getState());
-        assertEquals("office country", user1.getAddressBookEntry().getOfficeAddress().getCountry());
-        assertEquals("34342", user1.getAddressBookEntry().getOfficeAddress().getZip());
+        assertEquals("office street", user1.getUserProfile().getOfficeAddress().getStreet());
+        assertEquals("office city", user1.getUserProfile().getOfficeAddress().getCity());
+        assertEquals("office state", user1.getUserProfile().getOfficeAddress().getState());
+        assertEquals("office country", user1.getUserProfile().getOfficeAddress().getCountry());
+        assertEquals("34342", user1.getUserProfile().getOfficeAddress().getZip());
 
         verify(coreContext);
     }

@@ -81,39 +81,27 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
                 Index.USER_GROUP.set(row, groupNamesString);
                 Index.IM_ID.set(row, preview.getUser().getImId());
 
-                Index.JOB_TITLE.set(row, preview.getUser().getCreatedAddressBookEntry().getJobTitle());
-                Index.JOB_DEPT.set(row, preview.getUser().getCreatedAddressBookEntry().getJobDept());
-                Index.COMPANY_NAME.set(row, preview.getUser().getCreatedAddressBookEntry().getCompanyName());
-                Index.ASSISTANT_NAME.set(row, preview.getUser().getCreatedAddressBookEntry().getAssistantName());
-                Index.CELL_PHONE_NUMBER
-                        .set(row, preview.getUser().getCreatedAddressBookEntry().getCellPhoneNumber());
-                Index.HOME_PHONE_NUMBER
-                        .set(row, preview.getUser().getCreatedAddressBookEntry().getHomePhoneNumber());
-                Index.ASSISTANT_PHONE_NUMBER.set(row, preview.getUser().getCreatedAddressBookEntry()
-                        .getAssistantPhoneNumber());
-                Index.FAX_NUMBER.set(row, preview.getUser().getCreatedAddressBookEntry().getFaxNumber());
-                Index.ALTERNATE_EMAIL.set(row, preview.getUser().getCreatedAddressBookEntry()
-                        .getAlternateEmailAddress());
-                Index.ALTERNATE_IM_ID.set(row, preview.getUser().getCreatedAddressBookEntry().getAlternateImId());
-                Index.LOCATION.set(row, preview.getUser().getCreatedAddressBookEntry().getLocation());
-                Index.HOME_STREET.set(row, preview.getUser().getCreatedAddressBookEntry().getHomeAddress()
-                        .getStreet());
-                Index.HOME_CITY.set(row, preview.getUser().getCreatedAddressBookEntry().getHomeAddress().getCity());
-                Index.HOME_STATE
-                        .set(row, preview.getUser().getCreatedAddressBookEntry().getHomeAddress().getState());
-                Index.HOME_COUNTRY.set(row, preview.getUser().getCreatedAddressBookEntry().getHomeAddress()
-                        .getCountry());
-                Index.HOME_ZIP.set(row, preview.getUser().getCreatedAddressBookEntry().getHomeAddress().getZip());
-                Index.OFFICE_STREET.set(row, preview.getUser().getCreatedAddressBookEntry().getOfficeAddress()
-                        .getStreet());
-                Index.OFFICE_CITY.set(row, preview.getUser().getCreatedAddressBookEntry().getOfficeAddress()
-                        .getCity());
-                Index.OFFICE_STATE.set(row, preview.getUser().getCreatedAddressBookEntry().getOfficeAddress()
-                        .getState());
-                Index.OFFICE_COUNTRY.set(row, preview.getUser().getCreatedAddressBookEntry().getOfficeAddress()
-                        .getCountry());
-                Index.OFFICE_ZIP
-                        .set(row, preview.getUser().getCreatedAddressBookEntry().getOfficeAddress().getZip());
+                Index.JOB_TITLE.set(row, preview.getUser().getUserProfile().getJobTitle());
+                Index.JOB_DEPT.set(row, preview.getUser().getUserProfile().getJobDept());
+                Index.COMPANY_NAME.set(row, preview.getUser().getUserProfile().getCompanyName());
+                Index.ASSISTANT_NAME.set(row, preview.getUser().getUserProfile().getAssistantName());
+                Index.CELL_PHONE_NUMBER.set(row, preview.getUser().getUserProfile().getCellPhoneNumber());
+                Index.HOME_PHONE_NUMBER.set(row, preview.getUser().getUserProfile().getHomePhoneNumber());
+                Index.ASSISTANT_PHONE_NUMBER.set(row, preview.getUser().getUserProfile().getAssistantPhoneNumber());
+                Index.FAX_NUMBER.set(row, preview.getUser().getUserProfile().getFaxNumber());
+                Index.ALTERNATE_EMAIL.set(row, preview.getUser().getUserProfile().getAlternateEmailAddress());
+                Index.ALTERNATE_IM_ID.set(row, preview.getUser().getUserProfile().getAlternateImId());
+                Index.LOCATION.set(row, preview.getUser().getUserProfile().getLocation());
+                Index.HOME_STREET.set(row, preview.getUser().getUserProfile().getHomeAddress().getStreet());
+                Index.HOME_CITY.set(row, preview.getUser().getUserProfile().getHomeAddress().getCity());
+                Index.HOME_STATE.set(row, preview.getUser().getUserProfile().getHomeAddress().getState());
+                Index.HOME_COUNTRY.set(row, preview.getUser().getUserProfile().getHomeAddress().getCountry());
+                Index.HOME_ZIP.set(row, preview.getUser().getUserProfile().getHomeAddress().getZip());
+                Index.OFFICE_STREET.set(row, preview.getUser().getUserProfile().getOfficeAddress().getStreet());
+                Index.OFFICE_CITY.set(row, preview.getUser().getUserProfile().getOfficeAddress().getCity());
+                Index.OFFICE_STATE.set(row, preview.getUser().getUserProfile().getOfficeAddress().getState());
+                Index.OFFICE_COUNTRY.set(row, preview.getUser().getUserProfile().getOfficeAddress().getCountry());
+                Index.OFFICE_ZIP.set(row, preview.getUser().getUserProfile().getOfficeAddress().getZip());
                 writer.write(row);
             }
         } catch (IOException e) {

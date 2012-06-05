@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.phonebook.GeneralPhonebookSettings;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
@@ -26,6 +28,7 @@ public class PhoneContextTestIntegration extends IntegrationTestCase {
     private PhoneContext m_context;
     private PhonebookManager m_phonebookManager;
     private SettingDao m_settingContext;
+    private CoreContext m_coreContext;
     
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
@@ -191,6 +194,7 @@ public class PhoneContextTestIntegration extends IntegrationTestCase {
 
     public void testGetPhonebookEntries() throws Exception {
         loadDataSet("phone/PhoneWithPhonebookSeed.xml");
+        initPhonebookSeed();
         GeneralPhonebookSettings settings = m_phonebookManager.getGeneralPhonebookSettings();
         m_phonebookManager.saveGeneralPhonebookSettings(settings);  
 
@@ -214,8 +218,19 @@ public class PhoneContextTestIntegration extends IntegrationTestCase {
         settings.setEveryoneEnabled(true);
     }
 
+    private void initPhonebookSeed() {
+        User user1001 = m_coreContext.loadUser(1001);
+        getUserProfileService().saveUserProfile(user1001.getUserProfile());
+        User user2001 = m_coreContext.loadUser(2001);
+        getUserProfileService().saveUserProfile(user2001.getUserProfile());
+    }
+
     public void setPhoneContext(PhoneContext context) {
         m_context = context;
+    }
+
+    public void setCoreContext(CoreContext context) {
+        m_coreContext = context;
     }
 
     public void setPhonebookManager(PhonebookManager phonebookManager) {

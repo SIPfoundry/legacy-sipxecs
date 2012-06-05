@@ -1,6 +1,8 @@
 {"contact-information": {
+  "homeAddress": {},
+  "officeAddress": {},
+  "branchAddress": {},
   "useBranchAddress": false,
-  "avatar": "https://secure.gravatar.com/avatar",
   "firstName": "John",
   "lastName": "Doe"
 }}

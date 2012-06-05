@@ -10,6 +10,8 @@
 package org.sipfoundry.sipxconfig.site.user_portal;
 
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 public abstract class UserSchedules extends UserBasePage {
@@ -18,4 +20,16 @@ public abstract class UserSchedules extends UserBasePage {
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
+
+    public abstract User getLoadedUser();
+    public abstract void setLoadedUser(User user);
+
+    @Override
+    public void pageBeginRender(PageEvent event) {
+        super.pageBeginRender(event);
+
+        if (getLoadedUser() == null) {
+            setLoadedUser(getUser());
+        }
+    }
 }

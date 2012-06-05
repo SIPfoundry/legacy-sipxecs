@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
@@ -66,6 +67,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
     public void testPhoneBooksByUser() throws Exception {
         // yellowthroat should not see any sparrows, but see other warblers and ducks
         sql("phonebook/PhonebookMembersAndConsumersSeed.sql");
+        initPhonebookMembersAndConsumersSeed();
         //test everyone enabled
         User yellowthroat = m_coreContext.loadUser(1001);
         Collection<Phonebook> books = m_phonebookManager.getPublicPhonebooksByUser(yellowthroat);
@@ -89,6 +91,48 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertEquals("pintail", entries.next().getNumber());
         assertEquals("yellowthroat", entries.next().getNumber());
         assertFalse(entries.hasNext());
+    }
+
+    private void initPhonebookMembersAndConsumersSeed() {
+        User yellowthroat = m_coreContext.loadUser(1001);
+        UserProfile profile = yellowthroat.getUserProfile();
+        profile.getOfficeAddress().setCity("London");
+        getUserProfileService().saveUserProfile(profile);
+        User canadian = m_coreContext.loadUser(1002);
+        UserProfile profile1 = canadian.getUserProfile();
+        profile1.getOfficeAddress().setCity("Bucharest");
+        getUserProfileService().saveUserProfile(profile1);
+        User chirping = m_coreContext.loadUser(1003);
+        UserProfile profile2 = chirping.getUserProfile();
+        getUserProfileService().saveUserProfile(profile2);
+        User song = m_coreContext.loadUser(1004);
+        getUserProfileService().saveUserProfile(song.getUserProfile());
+        User mallard = m_coreContext.loadUser(1005);
+        getUserProfileService().saveUserProfile(mallard.getUserProfile());
+        User pintail = m_coreContext.loadUser(1006);
+        getUserProfileService().saveUserProfile(pintail.getUserProfile());
+    }
+
+    private void initPhonebookSeed() {
+        User user1000 = m_coreContext.loadUser(1000);
+        getUserProfileService().saveUserProfile(user1000.getUserProfile());
+        User yellowthroat = m_coreContext.loadUser(1001);
+        getUserProfileService().saveUserProfile(yellowthroat.getUserProfile());
+        User portaluser = m_coreContext.loadUser(1002);
+        getUserProfileService().saveUserProfile(portaluser.getUserProfile());
+        User anotheruser = m_coreContext.loadUser(1003);
+        getUserProfileService().saveUserProfile(anotheruser.getUserProfile());
+    }
+
+    private void initNoPhonebookSeed() {
+        User test1001 = m_coreContext.loadUser(1001);
+        getUserProfileService().saveUserProfile(test1001.getUserProfile());
+        User test1002 = m_coreContext.loadUser(1002);
+        getUserProfileService().saveUserProfile(test1002.getUserProfile());
+        User test1003 = m_coreContext.loadUser(1003);
+        getUserProfileService().saveUserProfile(test1003.getUserProfile());
+        User test1004 = m_coreContext.loadUser(1004);
+        getUserProfileService().saveUserProfile(test1004.getUserProfile());
     }
     
     private void setEveryoneEnabled(boolean enabled) {
@@ -120,6 +164,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
     public void testUpdateOnGroupDelete() throws Exception {
         sql("phonebook/PhonebookMembersAndConsumersSeed.sql");
         sql("domain/DomainSeed.sql");
+        initPhonebookMembersAndConsumersSeed();
         User user1002 = m_coreContext.loadUser(1002);
         user1002.setPermissionManager(m_permissionManager);
         User yellowthroat = m_coreContext.loadUser(1001);
@@ -208,6 +253,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
 
     public void testGetPrivatePhonebook() throws Exception {
         sql("phonebook/PhonebookSeed.sql");
+        initPhonebookSeed();
         User portaluser = m_coreContext.loadUser(1002);
 
         Phonebook privatePhonebook = m_phonebookManager.getPrivatePhonebook(portaluser);
@@ -226,6 +272,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
     public void testGetPrivatePhonebookMore() throws Exception {
         sql("phonebook/PhonebookSeed.sql");
 
+        initPhonebookSeed();
         //test everyone enabled
         User anotheruser = m_coreContext.loadUser(1003);
         Collection<Phonebook> phonebooks = m_phonebookManager.getPublicPhonebooksByUser(anotheruser);
@@ -266,6 +313,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
 
     public void testGetPagedPhonebookEveryone() throws Exception {
         sql("phonebook/PhonebookMembersAndConsumersSeed.sql");
+        initPhonebookMembersAndConsumersSeed();
         User yellowthroat = m_coreContext.loadUser(1001);
         yellowthroat.setPermissionManager(m_permissionManager);
         User user1002 = m_coreContext.loadUser(1002);
@@ -313,6 +361,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         setEveryoneEnabled(false);
         commit();
 
+        initPhonebookMembersAndConsumersSeed();
         User user1002 = m_coreContext.loadUser(1002);
         user1002.setPermissionManager(m_permissionManager);
         User yellowthroat = m_coreContext.loadUser(1001);
@@ -365,6 +414,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
 
     public void testGetPrivatePagedPhonebook() throws Exception {
         sql("phonebook/PhonebookMembersAndConsumersSeed.sql");
+        initPhonebookMembersAndConsumersSeed();
         User user1001 = m_coreContext.loadUser(1001);
         user1001.setPermissionManager(m_permissionManager);
         User canadian = m_coreContext.loadUser(1002);
@@ -458,6 +508,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
 
     public void testNoPhonebooks() throws Exception {
         sql("phonebook/NoPhonebookSeed.sql");
+        initNoPhonebookSeed();
         User user = m_coreContext.loadUser(1001);
         Collection<PhonebookEntry> entries = m_phonebookManager.getEntries(new ArrayList<Phonebook>(), user);
         assertEquals(3, entries.size());
@@ -465,6 +516,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
 
     public void testGetDuplicatePhonebookEntry() throws Exception {
         sql("phonebook/PhonebookMembersAndConsumersSeed.sql");
+        initPhonebookMembersAndConsumersSeed();
         PhonebookEntry newEntry = new PhonebookEntry();
         newEntry.setFirstName("John");
         newEntry.setNumber("10020");
@@ -476,6 +528,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
 
     public void testGetAllEntries() throws Exception {
         sql("phonebook/PhonebookMembersAndConsumersSeed.sql");
+        initPhonebookMembersAndConsumersSeed();
         setEveryoneEnabled(false);
         assertTrue(m_phonebookManager.getAllEntries(1002).isEmpty());
         setEveryoneEnabled(true);

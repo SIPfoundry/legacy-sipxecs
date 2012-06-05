@@ -1,6 +1,6 @@
 <div jwcid="@common/Border" restricted="false" borderTitle="ognl:borderTitle">
   <span jwcid="@common/ErrorMsg"/>
-  <form jwcid="@common/ClickToCallPanel" delegate="bean:validator" user="ognl:user"/>
+  <form jwcid="@common/ClickToCallPanel" delegate="bean:validator" user="ognl:loadedUser"/>
   <form jwcid="@Form" delegate="bean:validator">
     <fieldset>
      <span jwcid="query@Hidden" value="ognl:query" encode="false"/>

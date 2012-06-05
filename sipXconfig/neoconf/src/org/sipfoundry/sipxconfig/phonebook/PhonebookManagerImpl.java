@@ -68,6 +68,8 @@ import org.apache.lucene.util.Version;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.classic.Session;
+import org.sipfoundry.commons.userdb.profile.UserProfile;
+import org.sipfoundry.commons.userdb.profile.UserProfileService;
 import org.sipfoundry.sipxconfig.bulk.BulkParser;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.bulk.vcard.VCardParserException;
@@ -97,34 +99,8 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     private static final String PARAM_USER_ID = "userId";
     private static final String AT_SIGN = "@";
 
-    private static final String QUERY = "SELECT u.user_id, u.user_name, u.first_name, u.last_name, "
-        + "abe.email_address, abe.alternate_email_address, "
-        + "abe.im_id, abe.im_display_name, abe.alternate_im_id, abe.job_title, abe.job_dept, "
-        + "abe.company_name, abe.assistant_name, abe.assistant_phone_number, "
-        + "abe.fax_number, abe.location, abe.home_phone_number, abe.cell_phone_number, "
-        + "ha.street as home_street, ha.city as home_city, ha.country as home_country, "
-        + "ha.state as home_state, ha.zip as home_zip, ha.office_designation as home_office_designation, "
-        + "ja.street as job_street, ja.zip as job_zip, "
-        + "ja.city as job_city, ja.country as job_country, ja.state as job_state, "
-        + "ja.office_designation as job_office_designation from Users u "
-        + "left join address_book_entry abe on abe.address_book_entry_id = u.address_book_entry_id "
-        + "left join address ha on ha.address_id = abe.home_address_id "
-        + "left join address ja on ja.address_id = abe.office_address_id "
-        + "WHERE u.user_type='C' ORDER BY u.user_id;";
-    private static final String QUERY_GROUP = "SELECT u.user_id, u.user_name, u.first_name, "
-        + "u.last_name, abe.email_address, abe.alternate_email_address, "
-        + "abe.im_id, abe.im_display_name, abe.alternate_im_id, abe.job_title, "
-        + "abe.job_dept, abe.company_name, abe.assistant_name, abe.assistant_phone_number, "
-        + "abe.fax_number, abe.location, abe.home_phone_number, "
-        + "abe.cell_phone_number, ha.street as home_street, ha.city as home_city, ha.country as home_country, "
-        + "ha.state as home_state, ha.zip as home_zip, "
-        + "ha.office_designation as home_office_designation, ja.street as job_street, ja.zip as job_zip, "
-        + "ja.city as job_city, ja.country as job_country, "
-        + "ja.state as job_state, ja.office_designation as job_office_designation from Users u "
-        + "left join address_book_entry abe "
-        + "on abe.address_book_entry_id = u.address_book_entry_id "
-        + "left join address ha on ha.address_id = abe.home_address_id left join address ja on "
-        + "ja.address_id = abe.office_address_id inner join user_group ug on u.user_id = ug.user_id "
+    private static final String QUERY_GROUP = "SELECT u.user_id from Users u "
+        + "inner join user_group ug on u.user_id = ug.user_id "
         + "WHERE u.user_type='C' AND ug.group_id=%d ORDER BY u.user_id;";
 
     private boolean m_phonebookManagementEnabled;
@@ -136,6 +112,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     private BulkParser m_vcardParser;
     private String m_vcardEncoding;
     private BeanWithSettingsDao<GeneralPhonebookSettings> m_settingsDao;
+    private UserProfileService m_userProfileService;
 
     public Collection<Phonebook> getPhonebooks() {
         Collection<Phonebook> books = getHibernateTemplate().loadAll(Phonebook.class);
@@ -339,53 +316,51 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     private void addEveryoneEntries(final User user, final Map<String, PhonebookEntry> entries) {
-        m_jdbcTemplate.query(QUERY, new RowCallbackHandler() {
-            @Override
-            public void processRow(ResultSet rs) throws SQLException {
-                int userId = rs.getInt("user_id");
-                if (userId != user.getId()) {
-                    PhonebookEntry entry = extractPhonebookEntry(rs);
-                    entries.put(getEntryKey(entry), entry);
-                }
+        List<UserProfile> allProfiles = m_userProfileService.getAllUserProfiles();
+        for (UserProfile profile : allProfiles) {
+            if (!user.getUserName().equals(profile.getUserName())) {
+                PhonebookEntry entry = extractPhonebookEntry(profile);
+                entries.put(getEntryKey(entry), entry);
             }
-        });
+        }
     }
 
-    private UserPhonebookEntry extractPhonebookEntry(ResultSet rs) throws SQLException {
-        String firstName = rs.getString("first_name");
-        String lastName = rs.getString("last_name");
-        String userName = rs.getString("user_name");
+    private UserPhonebookEntry extractPhonebookEntry(UserProfile userProfile) {
+        String firstName = userProfile.getFirstName();
+        String lastName = userProfile.getLastName();
+        String userName = userProfile.getUserName();
         AddressBookEntry abe = new AddressBookEntry();
-        abe.setEmailAddress(rs.getString("email_address"));
-        abe.setAlternateEmailAddress(rs.getString("alternate_email_address"));
-        abe.setImId(rs.getString("im_id"));
-        abe.setImDisplayName(rs.getString("im_display_name"));
-        abe.setAlternateImId(rs.getString("alternate_im_id"));
-        abe.setJobTitle(rs.getString("job_title"));
-        abe.setJobDept(rs.getString("job_dept"));
-        abe.setCompanyName(rs.getString("company_name"));
-        abe.setAssistantName(rs.getString("assistant_name"));
-        abe.setAssistantPhoneNumber(rs.getString("assistant_phone_number"));
-        abe.setFaxNumber(rs.getString("fax_number"));
-        abe.setLocation(rs.getString("location"));
-        abe.setHomePhoneNumber(rs.getString("home_phone_number"));
-        abe.setCellPhoneNumber(rs.getString("cell_phone_number"));
+        abe.setEmailAddress(userProfile.getEmailAddress());
+        abe.setAlternateEmailAddress(userProfile.getAlternateEmailAddress());
+        abe.setImId(userProfile.getImId());
+        abe.setImDisplayName(userProfile.getImDisplayName());
+        abe.setAlternateImId(userProfile.getAlternateImId());
+        abe.setJobTitle(userProfile.getJobTitle());
+        abe.setJobDept(userProfile.getJobDept());
+        abe.setCompanyName(userProfile.getCompanyName());
+        abe.setAssistantName(userProfile.getAssistantName());
+        abe.setAssistantPhoneNumber(userProfile.getAssistantPhoneNumber());
+        abe.setFaxNumber(userProfile.getFaxNumber());
+        abe.setLocation(userProfile.getLocation());
+        abe.setHomePhoneNumber(userProfile.getHomePhoneNumber());
+        abe.setCellPhoneNumber(userProfile.getCellPhoneNumber());
         Address homeAddress = new Address();
-        homeAddress.setStreet(rs.getString("home_street"));
-        homeAddress.setCity(rs.getString("home_city"));
-        homeAddress.setCountry(rs.getString("home_country"));
-        homeAddress.setState(rs.getString("home_state"));
-        homeAddress.setZip(rs.getString("home_zip"));
-        homeAddress.setOfficeDesignation(rs.getString("home_office_designation"));
+        homeAddress.setStreet(userProfile.getHomeAddress().getStreet());
+        homeAddress.setCity(userProfile.getHomeAddress().getCity());
+        homeAddress.setCountry(userProfile.getHomeAddress().getCountry());
+        homeAddress.setState(userProfile.getHomeAddress().getState());
+        homeAddress.setZip(userProfile.getHomeAddress().getZip());
+        homeAddress.setOfficeDesignation(userProfile.getHomeAddress().getOfficeDesignation());
         abe.setHomeAddress(homeAddress);
         Address jobAddress = new Address();
-        jobAddress.setStreet(rs.getString("job_street"));
-        jobAddress.setCity(rs.getString("job_city"));
-        jobAddress.setCountry(rs.getString("job_country"));
-        jobAddress.setState(rs.getString("job_state"));
-        jobAddress.setZip(rs.getString("job_zip"));
-        jobAddress.setOfficeDesignation(rs.getString("job_office_designation"));
+        jobAddress.setStreet(userProfile.getOfficeAddress().getStreet());
+        jobAddress.setCity(userProfile.getOfficeAddress().getCity());
+        jobAddress.setCountry(userProfile.getOfficeAddress().getCountry());
+        jobAddress.setState(userProfile.getOfficeAddress().getState());
+        jobAddress.setZip(userProfile.getOfficeAddress().getZip());
+        jobAddress.setOfficeDesignation(userProfile.getOfficeAddress().getOfficeDesignation());
         abe.setOfficeAddress(jobAddress);
+        abe.setAvatar(userProfile.getAvatar());
         return new UserPhonebookEntry(firstName, lastName, userName, abe);
     }
 
@@ -428,8 +403,12 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
                 m_jdbcTemplate.query(String.format(QUERY_GROUP, group.getId()), new RowCallbackHandler() {
                     @Override
                     public void processRow(ResultSet rs) throws SQLException {
-                        PhonebookEntry entry = extractPhonebookEntry(rs);
-                        entries.put(getEntryKey(entry), entry);
+                        int userId = rs.getInt("user_id");
+                        UserProfile profile = m_userProfileService.getUserProfile(String.valueOf(userId));
+                        if (profile != null) {
+                            PhonebookEntry entry = extractPhonebookEntry(profile);
+                            entries.put(getEntryKey(entry), entry);
+                        }
                     }
                 });
             }
@@ -463,18 +442,11 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     private void addEveryoneEntries(final Map<String, PhonebookEntry> entries) {
-        m_jdbcTemplate.query(QUERY, new RowCallbackHandler() {
-            @Override
-            public void processRow(ResultSet rs) throws SQLException {
-                Map<String, PhonebookEntry> entry = new TreeMap<String, PhonebookEntry>();
-                UserPhonebookEntry userEntry = extractPhonebookEntry(rs);
-                String entryKey = getEntryKey(userEntry);
-                entry.put(entryKey, userEntry);
-                if (!entries.containsKey(entryKey)) {
-                    entries.put(entryKey, userEntry);
-                }
-            }
-        });
+        List<UserProfile> allProfiles = m_userProfileService.getAllUserProfiles();
+        for (UserProfile profile : allProfiles) {
+            PhonebookEntry entry = extractPhonebookEntry(profile);
+            entries.put(getEntryKey(entry), entry);
+        }
     }
 
     private void addEntriesFromFile(Map<String, PhonebookEntry> entries, InputStream in, String encoding,
@@ -1076,5 +1048,9 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     @Required
     public void setSettingsDao(BeanWithSettingsDao<GeneralPhonebookSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    public void setUserProfileService(UserProfileService profileService) {
+        m_userProfileService = profileService;
     }
 }

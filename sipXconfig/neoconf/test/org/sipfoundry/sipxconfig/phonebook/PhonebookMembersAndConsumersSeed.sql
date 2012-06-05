@@ -1,15 +1,8 @@
-insert into address (address_id, city) values
- (1, 'London'),
- (2, 'Bucharest');
-
-insert into address_book_entry (address_book_entry_id, office_address_id) values
- (1, 1),
- (2, 2);
 
 insert into users (user_name, user_id, pintoken, address_book_entry_id, user_type) values
 -- warblers
- ('yellowthroat',	1001, '1234', 1, 'C'),
- ('canadian', 		1002, '1234', 2, 'C'),
+ ('yellowthroat',	1001, '1234', null, 'C'),
+ ('canadian', 		1002, '1234', null, 'C'),
 -- sparrows 
  ('chirping', 		1003, '1234', null, 'C'),
  ('song', 			1004, '1234', null, 'C'),

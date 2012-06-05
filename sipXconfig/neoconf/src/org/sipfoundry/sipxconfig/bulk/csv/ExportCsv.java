@@ -18,13 +18,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.sipfoundry.commons.userdb.profile.Address;
+import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phonebook.Address;
-import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 
 public class ExportCsv {
     private static final int DEFAULT_PAGE_SIZE = 250;
@@ -120,31 +120,31 @@ public class ExportCsv {
         // XMPP
         Index.IM_ID.set(row, user.getImId());
 
-        if (user.getAddressBookEntry() != null) {
-            AddressBookEntry addressBookEntry = user.getAddressBookEntry();
+        if (user.getUserProfile() != null) {
+            UserProfile profile = user.getUserProfile();
 
-            Index.JOB_TITLE.set(row, addressBookEntry.getJobTitle());
-            Index.JOB_DEPT.set(row, addressBookEntry.getJobDept());
-            Index.COMPANY_NAME.set(row, addressBookEntry.getCompanyName());
-            Index.ASSISTANT_NAME.set(row, addressBookEntry.getAssistantName());
-            Index.CELL_PHONE_NUMBER.set(row, addressBookEntry.getCellPhoneNumber());
-            Index.HOME_PHONE_NUMBER.set(row, addressBookEntry.getHomePhoneNumber());
-            Index.ASSISTANT_PHONE_NUMBER.set(row, addressBookEntry.getAssistantPhoneNumber());
-            Index.FAX_NUMBER.set(row, addressBookEntry.getFaxNumber());
-            Index.ALTERNATE_EMAIL.set(row, addressBookEntry.getAlternateEmailAddress());
-            Index.ALTERNATE_IM_ID.set(row, addressBookEntry.getAlternateImId());
-            Index.LOCATION.set(row, addressBookEntry.getLocation());
+            Index.JOB_TITLE.set(row, profile.getJobTitle());
+            Index.JOB_DEPT.set(row, profile.getJobDept());
+            Index.COMPANY_NAME.set(row, profile.getCompanyName());
+            Index.ASSISTANT_NAME.set(row, profile.getAssistantName());
+            Index.CELL_PHONE_NUMBER.set(row, profile.getCellPhoneNumber());
+            Index.HOME_PHONE_NUMBER.set(row, profile.getHomePhoneNumber());
+            Index.ASSISTANT_PHONE_NUMBER.set(row, profile.getAssistantPhoneNumber());
+            Index.FAX_NUMBER.set(row, profile.getFaxNumber());
+            Index.ALTERNATE_EMAIL.set(row, profile.getAlternateEmailAddress());
+            Index.ALTERNATE_IM_ID.set(row, profile.getAlternateImId());
+            Index.LOCATION.set(row, profile.getLocation());
 
-            if (addressBookEntry.getHomeAddress() != null) {
-                Address homeAddress = addressBookEntry.getHomeAddress();
+            if (profile.getHomeAddress() != null) {
+                Address homeAddress = profile.getHomeAddress();
                 Index.HOME_STREET.set(row, homeAddress.getStreet());
                 Index.HOME_CITY.set(row, homeAddress.getCity());
                 Index.HOME_STATE.set(row, homeAddress.getState());
                 Index.HOME_COUNTRY.set(row, homeAddress.getCountry());
                 Index.HOME_ZIP.set(row, homeAddress.getZip());
             }
-            if (addressBookEntry.getOfficeAddress() != null) {
-                Address officeAddress = addressBookEntry.getOfficeAddress();
+            if (profile.getOfficeAddress() != null) {
+                Address officeAddress = profile.getOfficeAddress();
                 Index.OFFICE_STREET.set(row, officeAddress.getStreet());
                 Index.OFFICE_CITY.set(row, officeAddress.getCity());
                 Index.OFFICE_STATE.set(row, officeAddress.getState());

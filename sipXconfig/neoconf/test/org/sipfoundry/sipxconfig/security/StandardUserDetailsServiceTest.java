@@ -15,13 +15,11 @@ import junit.framework.TestCase;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
-import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingSet;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 import static org.apache.commons.lang.ArrayUtils.contains;
@@ -99,9 +97,9 @@ public class StandardUserDetailsServiceTest extends TestCase {
         };
         u.setUserName(USER_NAME);
         u.setUniqueId();
-        AddressBookEntry abe = new AddressBookEntry();
+        UserProfile abe = new UserProfile();
         abe.setImId(USER_IM_ID);
-        u.setAddressBookEntry(abe);
+        u.setUserProfile(abe);
         u.setSettings(TestHelper.loadSettings("commserver/user-settings.xml"));
         u.setSettingTypedValue("im/im-account", imEnabled);
 

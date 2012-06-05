@@ -1,3 +1,28 @@
-<a jwcid="@Any" href="ognl:avatarLinkUrl">
+<form jwcid="upload@Form">
   <img jwcid="@Image" image="ognl:avatarAsset" />
-</a>
+  <span jwcid="uploadAvatar@Upload" file="ognl:uploadFile" /><input jwcid="uploadbutton@Submit" value="message:button.upload" listener="listener:uploadAvatar"/>
+</form>
+<br/>
+<form jwcid="ext@Form">
+  <fieldset>
+    <span jwcid="@common/FieldPanel" for="useExtAvatar" field="component:useExtAvatar"
+      label="message:label.useExtAvatar">
+      <span jwcid="useExtAvatar@Checkbox" id="useExtAvatar" value="ognl:user.userProfile.useExtAvatar"/>
+    </span>
+  </fieldset>
+  <fieldset>
+    <span jwcid="@common/FieldPanel" for="extAvatar" field="component:extAvatar"
+      label="message:label.extAvatar">
+      <input jwcid="extAvatar@TextField"
+        id="extAvatar"
+        value="ognl:user.userProfile.extAvatar"
+        displayName="message:label.extAvatar"
+         size="50"/>
+    </span>
+  </fieldset>
+  <ul class="component-submit">
+    <li>
+      <input jwcid="extButton@Submit" value="message:button.extUse" listener="listener:extAvatar"/>
+    </li>
+  </ul>
+</form>

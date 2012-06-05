@@ -21,9 +21,9 @@ import org.restlet.data.Response;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
+import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -39,33 +39,33 @@ public class ContactInformationResource extends UserResource {
     @Override
     public Representation represent(Variant variant) throws ResourceException {
         User user = getUser();
-        AddressBookEntry addressBook = user.getAddressBookEntry();
+        UserProfile userProfile = user.getUserProfile();
 
         boolean imEnabled = (Boolean) user.getSettingTypedValue("im/im-account");
-        Representable representable = new Representable(user.getFirstName(), user.getLastName(), addressBook,
+        Representable representable = new Representable(user.getFirstName(), user.getLastName(), userProfile,
                 imEnabled);
 
-        return new AddressBookRepresentation(variant.getMediaType(), representable);
+        return new UserProfileRepresentation(variant.getMediaType(), representable);
     }
 
     @Override
     public void storeRepresentation(Representation entity) throws ResourceException {
-        AddressBookRepresentation representation = new AddressBookRepresentation(entity);
+        UserProfileRepresentation representation = new UserProfileRepresentation(entity);
         Representable representable = representation.getObject();
 
-        AddressBookEntry reprAddressBook = new AddressBookEntry();
-        reprAddressBook.update(representable);
+        UserProfile reprUserProfile = new UserProfile();
+        reprUserProfile.update(representable);
 
         User user = getUser();
-        AddressBookEntry addressBook = user.getAddressBookEntry();
+        UserProfile userProfile = user.getUserProfile();
 
-        if (addressBook == null) {
-            user.setAddressBookEntry(reprAddressBook);
+        if (userProfile == null) {
+            user.setUserProfile(reprUserProfile);
         } else {
             //the IM id needs to be uneditable via rest.(XX-8022)
-            reprAddressBook.setImId(addressBook.getImId());
-            addressBook.update(reprAddressBook);
-            user.setAddressBookEntry(addressBook);
+            reprUserProfile.setImId(userProfile.getImId());
+            userProfile.update(reprUserProfile);
+            user.setUserProfile(userProfile);
         }
         user.setFirstName(representable.getFirstName());
         user.setLastName(representable.getLastName());
@@ -73,15 +73,15 @@ public class ContactInformationResource extends UserResource {
         getCoreContext().saveUser(user);
     }
 
-    static class Representable extends AddressBookEntry implements Serializable {
+    static class Representable extends UserProfile implements Serializable {
         private final String m_firstName;
         private final String m_lastName;
 
-        public Representable(String firstName, String lastName, AddressBookEntry addressBook, boolean imEnabled) {
+        public Representable(String firstName, String lastName, UserProfile userProfile, boolean imEnabled) {
             m_firstName = firstName;
             m_lastName = lastName;
-            if (addressBook != null) {
-                this.update(addressBook);
+            if (userProfile != null) {
+                this.update(userProfile);
                 if (!imEnabled) {
                     setImId(StringUtils.EMPTY);
                 }
@@ -98,18 +98,24 @@ public class ContactInformationResource extends UserResource {
         }
     }
 
-    static class AddressBookRepresentation extends XStreamRepresentation<Representable> {
-        public AddressBookRepresentation(MediaType mediaType, Representable object) {
+    static class UserProfileRepresentation extends XStreamRepresentation<Representable> {
+        public UserProfileRepresentation(MediaType mediaType, Representable object) {
             super(mediaType, object);
         }
 
-        public AddressBookRepresentation(Representation representation) {
+        public UserProfileRepresentation(Representation representation) {
             super(representation);
         }
 
         @Override
         protected void configureXStream(XStream xstream) {
             xstream.omitField(BeanWithId.class, "m_id");
+            xstream.omitField(UserProfile.class, "m_userName");
+            xstream.omitField(UserProfile.class, "m_userid");
+            xstream.omitField(UserProfile.class, "m_firstName");
+            xstream.omitField(UserProfile.class, "m_lastName");
+            xstream.omitField(UserProfile.class, "m_useExtAvatar");
+            xstream.omitField(UserProfile.class, "m_extAvatar");
             xstream.alias("contact-information", Representable.class);
             xstream.aliasField("avatar", Representable.class, "m_avatar");
         }

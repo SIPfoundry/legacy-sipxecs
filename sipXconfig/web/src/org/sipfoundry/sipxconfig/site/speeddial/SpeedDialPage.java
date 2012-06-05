@@ -18,6 +18,7 @@ import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -64,9 +65,15 @@ public abstract class SpeedDialPage extends UserBasePage {
 
     public abstract void setSubscribeToPresenceDisabled(boolean subscribeToPresenceDisabled);
 
+    public abstract User getLoadedUser();
+    public abstract void setLoadedUser(User user);
+
     @Override
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
+        if (getLoadedUser() == null) {
+            setLoadedUser(getUser());
+        }
 
         Integer userId = getUserId();
         if (userId.equals(getSavedUserId()) && getSpeedDial() != null) {
@@ -80,7 +87,7 @@ public abstract class SpeedDialPage extends UserBasePage {
         setGroupSynced(!getSpeedDialManager().isSpeedDialDefinedForUserId(userId));
         UserSession user = getUserSession();
         if (!user.isAdmin()) {
-            setSubscribeToPresenceDisabled(!getUser().hasPermission(PermissionName.SUBSCRIBE_TO_PRESENCE));
+            setSubscribeToPresenceDisabled(!getLoadedUser().hasPermission(PermissionName.SUBSCRIBE_TO_PRESENCE));
         }
     }
 

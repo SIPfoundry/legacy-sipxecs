@@ -1,6 +1,8 @@
 <contact-information>
+  <homeAddress/>
+  <officeAddress/>
+  <branchAddress/>
   <useBranchAddress>false</useBranchAddress>
-  <avatar>https://secure.gravatar.com/avatar</avatar>
   <firstName>John</firstName>
   <lastName>Doe</lastName>
 </contact-information>

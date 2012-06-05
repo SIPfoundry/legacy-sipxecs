@@ -25,6 +25,7 @@ import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.web.WebRequest;
 import org.easymock.EasyMock;
+import org.sipfoundry.commons.userdb.profile.UserProfileService;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.common.InternalUser;
@@ -249,6 +250,11 @@ public class BorderTest extends TestCase {
                 public InternalUser newInternalUser() {
                     return null;
                 }
+
+                @Override
+                public UserProfileService getUserProfileService() {
+                    return null;
+                }                
 
             };
         }

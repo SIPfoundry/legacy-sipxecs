@@ -54,7 +54,7 @@ public class IvrConfigTest {
         m_adminApi = new Address(AdminContext.HTTP_ADDRESS, "admin.example.org", 102);
         m_apacheApi = new Address(ApacheManager.HTTPS_ADDRESS, "admin.example.org");
         m_imApi = new Address(ImManager.XMLRPC_ADDRESS, "im.example.org", 103);
-        m_imbotApi = new Address(ImBot.XML_RPC, "imbot.example.org", 104);
+        m_imbotApi = new Address(ImBot.REST_API, "imbot.example.org", 104);
         m_fsEvent = new Address(FreeswitchFeature.EVENT_ADDRESS, "fsevent.example.org", 105);
     }
 

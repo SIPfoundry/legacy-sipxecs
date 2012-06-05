@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.imbot.ImBotManager;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -37,6 +38,9 @@ public abstract class MyAssistantComponent extends BaseComponent {
 
     @InjectObject(value = "spring:featureManager")
     public abstract FeatureManager getFeatureManager();
+
+    @InjectObject(value = "spring:imBotManager")
+    public abstract ImBotManager getImBotManager();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -53,7 +57,7 @@ public abstract class MyAssistantComponent extends BaseComponent {
     }
 
     public void onEnablePA() {
-        if (getUser().requestToAddMyAssistantToRoster()) {
+        if (getImBotManager().requestToAddMyAssistantToRoster(getUser().getName())) {
             recordSuccess("message.requestSuccess");
         } else {
             recordFailure("message.label.requestFailure");

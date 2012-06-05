@@ -27,24 +27,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
-import org.restlet.Client;
-import org.restlet.data.Method;
-import org.restlet.data.Protocol;
-import org.restlet.data.Request;
-import org.restlet.data.Response;
-import org.restlet.data.Status;
 import org.sipfoundry.commons.security.Md5Encoder;
+import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
-import org.sipfoundry.sipxconfig.phonebook.Address;
-import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -118,13 +110,11 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     private Set m_supervisorForGroups;
 
-    private AddressBookEntry m_addressBookEntry;
+    private UserProfile m_userProfile = new UserProfile();
 
     private boolean m_isShared;
 
     private Branch m_branch;
-
-    private final Client m_restClient = new Client(Protocol.HTTP);
 
     /**
      * Return the pintoken, which is the hash of the user's PIN. The PIN itself is private to the
@@ -541,35 +531,19 @@ public abstract class AbstractUser extends BeanWithGroups {
     }
 
     public String getImId() {
-        if (m_addressBookEntry == null) {
-            return null;
-        }
-        return m_addressBookEntry.getImId();
+        return m_userProfile.getImId();
     }
 
     public void setImId(String id) {
-        useAddressBookEntry().setImId(trim(id));
+        m_userProfile.setImId(trim(id));
     }
 
     public String getImDisplayName() {
-        if (m_addressBookEntry == null) {
-            return null;
-        }
-        return m_addressBookEntry.getImDisplayName();
+        return m_userProfile.getImDisplayName();
     }
 
     public void setImDisplayName(String imDisplayName) {
-        useAddressBookEntry().setImDisplayName(trim(imDisplayName));
-    }
-
-    /**
-     * Creates address book entry if it does not exist
-     */
-    private AddressBookEntry useAddressBookEntry() {
-        if (m_addressBookEntry == null) {
-            m_addressBookEntry = new AddressBookEntry();
-        }
-        return m_addressBookEntry;
+        m_userProfile.setImDisplayName(trim(imDisplayName));
     }
 
     public String getOperator() {
@@ -586,31 +560,6 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     public void setPermissionManager(PermissionManager permissionManager) {
         m_permissionManager = permissionManager;
-    }
-
-    public AddressBookEntry getAddressBookEntry() {
-        return m_addressBookEntry;
-    }
-
-    /**
-     * Need a getter method to return created address book entry in order to dinamically pass
-     * address book entry attributes
-     *
-     * @return
-     */
-    public AddressBookEntry getCreatedAddressBookEntry() {
-        useAddressBookEntry();
-        if (m_addressBookEntry.getHomeAddress() == null) {
-            m_addressBookEntry.setHomeAddress(new Address());
-        }
-        if (m_addressBookEntry.getOfficeAddress() == null) {
-            m_addressBookEntry.setOfficeAddress(new Address());
-        }
-        return m_addressBookEntry;
-    }
-
-    public void setAddressBookEntry(AddressBookEntry addressBook) {
-        m_addressBookEntry = addressBook;
     }
 
     public boolean getIsShared() {
@@ -649,44 +598,31 @@ public abstract class AbstractUser extends BeanWithGroups {
     }
 
     public void setEmailAddress(String emailAddress) {
-        useAddressBookEntry().setEmailAddress(emailAddress);
+        m_userProfile.setEmailAddress(emailAddress);
     }
 
     public String getEmailAddress() {
-        if (m_addressBookEntry == null) {
-            return null;
-        }
-        return m_addressBookEntry.getEmailAddress();
+        return m_userProfile.getEmailAddress();
     }
 
     public void setAlternateEmailAddress(String emailAddress) {
-        useAddressBookEntry().setAlternateEmailAddress(emailAddress);
+        m_userProfile.setAlternateEmailAddress(emailAddress);
     }
 
     public String getAlternateEmailAddress() {
-        if (m_addressBookEntry == null) {
-            return null;
-        }
-        return m_addressBookEntry.getAlternateEmailAddress();
+        return m_userProfile.getAlternateEmailAddress();
     }
 
-    public boolean requestToAddMyAssistantToRoster() {
-        boolean result;
-        org.sipfoundry.sipxconfig.address.Address imAddress = m_addressManager
-                .getSingleAddress(ImManager.XMLRPC_ADDRESS);
-        String uri = String.format("%s/IM/%s/addToRoster", imAddress.toString(), m_userName);
+    public UserProfile getUserProfile() {
+        m_userProfile.setUserId(getId().toString());
+        m_userProfile.setUserName(getUserName());
+        m_userProfile.setFirstName(getFirstName());
+        m_userProfile.setLastName(getLastName());
+        return m_userProfile;
+    }
 
-        Request request = new Request(Method.PUT, uri);
-
-        Response response = m_restClient.handle(request);
-
-        if (!response.getStatus().equals(Status.SUCCESS_OK)) {
-            result = false;
-        } else {
-            result = true;
-        }
-
-        return result;
+    public void setUserProfile(UserProfile profile) {
+        m_userProfile = profile;
     }
 
     /**
