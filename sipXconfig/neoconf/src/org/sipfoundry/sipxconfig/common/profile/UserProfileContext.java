@@ -16,11 +16,8 @@
  */
 package org.sipfoundry.sipxconfig.common.profile;
 
-import java.io.IOException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.commons.userdb.profile.AvatarUploadException;
 import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.commons.userdb.profile.UserProfileService;
 import org.sipfoundry.sipxconfig.address.Address;
@@ -29,24 +26,28 @@ import org.sipfoundry.sipxconfig.apache.ApacheManager;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-public class UserProfileContext implements DaoEventListener {
+public class UserProfileContext implements DaoEventListener, SetupListener {
     private static final Log LOG = LogFactory.getLog(UserProfileContext.class);
     private static final String AVATAR_FORMAT = "%s/sipxconfig/rest/avatar/%s";
+    private static final String PROFILE_SETUP = "profile";
     private UserProfileService m_userProfileService;
     private AddressManager m_addressManager;
 
-    public void uploadDefaultAvatar() {
+    public void setup(SetupManager manager) {
         try {
-            Resource defaultAvatar = new ClassPathResource(
-                    "org/sipfoundry/sipxconfig/common/profile/default_avatar.jpg");
-            m_userProfileService.saveAvatar("default", defaultAvatar.getInputStream(), false);
-        } catch (AvatarUploadException e) {
-            LOG.error("failed to upload default avatar " + e.getMessage());
-        } catch (IOException e) {
-            LOG.error("failed to retrieve default avatar " + e.getMessage());
+            if (manager.isFalse(PROFILE_SETUP)) {
+                Resource defaultAvatar = new ClassPathResource(
+                        "org/sipfoundry/sipxconfig/common/profile/default_avatar.jpg");
+                m_userProfileService.saveAvatar("default", defaultAvatar.getInputStream(), false);
+                manager.setTrue(PROFILE_SETUP);
+            }
+        } catch (Exception ex) {
+            LOG.error("failed to upload default avatar " + ex.getMessage());
         }
     }
 

@@ -82,7 +82,7 @@ public class UserSearchManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testAliases() {
-        ((MongoTemplate) getUserProfileService()).dropCollection("userProfile");
+        getProfilesDb().dropCollection("userProfile");
         User user = m_coreContext.newUser();;
         user.setFirstName("First");
         user.setLastName("Last");

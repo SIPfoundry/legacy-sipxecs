@@ -2,9 +2,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="userProfileService" class="org.sipfoundry.commons.userdb.profile.UserProfileServiceImpl">
+  <bean id="profilesDb" class="org.sipfoundry.commons.mongo.MongoSpringTemplate">
     <constructor-arg ref="mongoDbFactory"/>
     <property name="dbname" value="profiles${sysdir.mongo_ns}"/> 
+  </bean>
+
+  <bean id="userProfileService" class="org.sipfoundry.commons.userdb.profile.UserProfileServiceImpl">
+    <property name="profilesDb" ref="profilesDb"/> 
   </bean>
 
   <bean id="userProfileContext" class="org.sipfoundry.sipxconfig.common.profile.UserProfileContext">

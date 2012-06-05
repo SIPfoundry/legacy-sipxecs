@@ -27,8 +27,7 @@ import javax.imageio.ImageIO;
 import net.coobird.thumbnailator.Thumbnails;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.commons.mongo.MongoSpringTemplate;
-import org.springframework.data.mongodb.MongoDbFactory;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
@@ -36,37 +35,34 @@ import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
-public class UserProfileServiceImpl extends MongoSpringTemplate implements UserProfileService {
+public class UserProfileServiceImpl implements UserProfileService {
     private static final String USER_PROFILE_COLLECTION = "userProfile";
     private static final String USER_ID = "m_userid";
     private static final String IM_ID = "m_imId";
     private static final String USERNAME = "m_userName";
     private static final String AVATAR_NAME = "avatar_%s.png";
-
-    public UserProfileServiceImpl(MongoDbFactory factory) {
-        super(factory);
-    }
+    private MongoTemplate m_template;
 
     @Override
     public UserProfile getUserProfile(String userId) {
-        return findOne(new Query(Criteria.where(USER_ID).is(userId.toString())), UserProfile.class,
+        return m_template.findOne(new Query(Criteria.where(USER_ID).is(userId.toString())), UserProfile.class,
                 USER_PROFILE_COLLECTION);
     }
 
     @Override
     public void saveUserProfile(UserProfile profile) {
-        save(profile);
+        m_template.save(profile);
     }
 
     @Override
     public void deleteUserProfile(UserProfile profile) {
-        remove(profile);
+        m_template.remove(profile);
         deleteAvatar(profile.getUserName());
     }
 
     @Override
     public void deleteUserProfile(String userName) {
-        findAndRemove(new Query(Criteria.where(USERNAME).is(userName)), UserProfile.class);
+        m_template.findAndRemove(new Query(Criteria.where(USERNAME).is(userName)), UserProfile.class);
         deleteAvatar(userName);
     }
 
@@ -109,19 +105,19 @@ public class UserProfileServiceImpl extends MongoSpringTemplate implements UserP
     @Override
     public UserProfile getUserProfileByImId(String imId) {
         if (imId != null) {
-            return findOne(new Query(Criteria.where(IM_ID).is(imId.toLowerCase())), UserProfile.class, USER_PROFILE_COLLECTION);
+            return m_template.findOne(new Query(Criteria.where(IM_ID).is(imId.toLowerCase())), UserProfile.class, USER_PROFILE_COLLECTION);
         }
         return null;
     }
 
     @Override
     public List<UserProfile> getAllUserProfiles() {
-        return findAll(UserProfile.class);
+        return m_template.findAll(UserProfile.class);
     }
 
     @Override
     public InputStream getAvatar(String userName) {
-        GridFS avatarFS = new GridFS(getDb());
+        GridFS avatarFS = new GridFS(m_template.getDb());
         GridFSDBFile imageForOutput = avatarFS.findOne(String.format(AVATAR_NAME, userName));
         if (imageForOutput != null) {
             return imageForOutput.getInputStream();
@@ -136,7 +132,7 @@ public class UserProfileServiceImpl extends MongoSpringTemplate implements UserP
 
     @Override
     public void deleteAvatar(String userName) {
-        GridFS avatarFS = new GridFS(getDb());
+        GridFS avatarFS = new GridFS(m_template.getDb());
         avatarFS.remove(String.format(AVATAR_NAME, userName));
     }
 
@@ -151,7 +147,7 @@ public class UserProfileServiceImpl extends MongoSpringTemplate implements UserP
             ImageIO.write(thumbnail, "png", os);
             is = new ByteArrayInputStream(os.toByteArray());
             String fileName = String.format(AVATAR_NAME, userName);
-            GridFS avatarFS = new GridFS(getDb());
+            GridFS avatarFS = new GridFS(m_template.getDb());
             avatarFS.remove(fileName);
             GridFSInputFile gfsFile = avatarFS.createFile(is);
             gfsFile.setFilename(fileName);
@@ -167,10 +163,18 @@ public class UserProfileServiceImpl extends MongoSpringTemplate implements UserP
 
     @Override
     public void saveAvatar(String userName, InputStream originalIs, boolean overwriteIfExists) throws AvatarUploadException {
-        GridFS avatarFS = new GridFS(getDb());
+        GridFS avatarFS = new GridFS(m_template.getDb());
         GridFSDBFile imageForOutput = avatarFS.findOne(String.format(AVATAR_NAME, userName));
         if (imageForOutput == null || (imageForOutput != null && overwriteIfExists)) {
             saveAvatar(userName, originalIs);
         }
+    }
+
+    public void setProfilesDb(MongoTemplate template) {
+        m_template = template;
+    }
+
+    public MongoTemplate getProfilesDb() {
+        return m_template;
     }
 }
