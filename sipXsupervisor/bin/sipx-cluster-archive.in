@@ -20,7 +20,10 @@
 
 require 'yaml'
 require 'fileutils'
+require 'uri'
 require 'net/ftp'
+require 'rubygems'
+require 'net/sftp'
 
 # Common code for backup and restore operations
 class ArchiveClusterBase
@@ -28,7 +31,6 @@ class ArchiveClusterBase
   attr_writer :out
 
   def initialize(config)
-    @local_plan_config = '@SIPX_CONFDIR@/backup-local.yaml'
     @bin_dir = '@SIPX_BINDIR@'
     @backup_dir = '@SIPX_VARDIR@/backup'
     @data = YAML::load_file(config)
@@ -42,13 +44,14 @@ class ArchiveClusterBase
 
   def file_manager
     if @data.has_key?('ftp')
-      # ftp extends off local backup copies, for after running an ftp
-      # backup honor the number of allowed local backup copies. Ideally
-      # this backups are store in entirely separate places.
-      local_data = YAML::load_file(@local_plan_config)
-      return FtpFileManager.new(@backup_dir, @data['ftp'], @local_data['max'])
+      remote = nil
+      params = @data['ftp']
+      uri = URI.parse(params['url'])
+      remote = FtpFileManager.new("#{@backup_dir}/ftp")
+      remote.connect(uri, params)
+      return remote
     end
-    LocalFileManager.new(@backup_dir)
+    LocalFileManager.new("#{@backup_dir}/#{@data['plan']}")
   end
 end
 
@@ -57,8 +60,8 @@ class BackupCluster < ArchiveClusterBase
 
   def run(params)
     hosts = @data['hosts'].join(' -H ')
-    cmd(@bindir + "/sipxagent -H #{hosts} -b backup -d #{@data['plan']}_backup")
-    cmd(@bindir + "/sipxagent -b collect_backup")
+    cmd(@bin_dir + "/sipxagent -h #{hosts} -b backup_node -d #{@data['plan']}_backup")
+    cmd(@bin_dir + "/sipxagent -b backup_collect -d #{@data['plan']}_backup")
     fs = file_manager
     fs.save(@data['max'])
   end
@@ -67,8 +70,8 @@ end
 # List current backups to STDOUT in chronological order based on directory name following 
 # YearMonthDayHourMin pattern not based on file timestamp
 class ListBackups < ArchiveClusterBase
-  def run(parmas)
-    @out.print file_manager.list
+  def run(params)
+    @out.puts file_manager.list.join("\n")
   end
 end
 
@@ -97,42 +100,53 @@ end
 # Listing, uploading and purging backups on FTP server
 class FtpFileManager < FileManagerBase
 
-  def initialize(local_backup_dir, params, max_local_copies)
-    @local_backup_dir
-    @local = FileManagerBase.new(@local_backup_dir)
-    @max_local_copies = max_local_copies
-    @ftp = Net::FTP.new
-    @ftp.connect(params['url'], 21)
-    @ftp.login(params['user'], params['password'])
-    unless params['dir'].empty?
-      @ftp.chdir(params['dir'])
-    end
+  def initialize(local_backup_dir)
+    @local_backup_dir = local_backup_dir
+  end
+
+  def connect(uri, params)    
+    @ftp = Net::SFTP.start(uri.host, params['user'], :password => params['password'])
+    @path = sanitize_path(uri.path)
   end
 
   def save(max)
-    upload(@local.list.last)
+    # handy - reuse local backup file handler to manage temp ftp directory
+    local = LocalFileManager.new(@local_backup_dir)
+
+    upload(local.list.last)
+
     purgable(max) { |b|
       purge(b)
     }
-    @local.save(@max_local_copies)
+
+    local.save(0)
+  end
+
+  def sanitize_path(path)
+    path.gsub(%r[^/],'').gsub(%r[/$],'')
   end
 
   def purge(b)
-    @ftp.list(b) {|f|
-      @ftp.delete "#{b}/#{f}"
+    @ftp.dir.glob("#{@path}/#{b}", "*") {|entry|
+      @ftp.remove! "#{@path}/#{b}/#{entry.name}"
     }
-    @ftp.delete b
+    @ftp.rmdir!("#{@path}/#{b}")
   end
 
   def upload(b)
-    @ftp.mkdir(b)
+    begin
+      @ftp.mkdir!("#{@path}/#{b}")
+    rescue Net::SFTP::StatusException
+      # must already exist, i couldn't find a better way to test in API --Douglas
+    end
     Dir["#{@local_backup_dir}/#{b}/*"].each {|f|
-      @ftp.putbinaryfile(f, "#{b}/#{f}")
+      @ftp.upload!(f, "#{@path}/#{b}/#{File.basename(f)}")
     }
   end
 
   def list
-    select_backups(@ftp.list)
+    candidates = @ftp.dir.glob(@path, '*').collect { |f| f.name }
+    select_backups(candidates)
   end
 end
 
@@ -150,7 +164,9 @@ class LocalFileManager < FileManagerBase
   end
 
   def list
-    select_backups(Dir["#{@backup_dir}/*"])
+    Dir.chdir(@backup_dir) {
+      select_backups(Dir["*"])
+    }
   end
 end
 
@@ -168,12 +184,12 @@ EOF
 
   opts.on("--backup config.yaml",
       "Restore the specified Configuration archive."){ |v|
-    operation = Backup.new(v)
+    operation = BackupCluster.new(v)
   }
 
   opts.on("--restore config.yaml",
       "Restore the specified Configuration archive."){ |v|
-    operation = Restore.new(v)
+    operation = RestoreCluster.new(v)
   }
 
   opts.on("--list config.yaml", "List the current backups."){ |v|
@@ -182,7 +198,7 @@ EOF
 
   $output = $stdout
   opts.on("--out file", "Send data to stdout"){ |v|
-    $output = v
+    $output = File.open(v, "w")
   }
 
   opts.on("--verbose",
@@ -197,8 +213,9 @@ if operation.nil?
 end
 
 operation.verbose = verbose
-operation.run(params)
 operation.out = $output
+
+operation.run(params)
 exit 0
 
 end

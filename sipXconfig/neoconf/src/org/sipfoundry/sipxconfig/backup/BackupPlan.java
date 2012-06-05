@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
@@ -24,7 +26,7 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
     private Integer m_limitedCount = 50;
     private BackupType m_type = BackupType.local;
     private Collection<DailyBackupSchedule> m_schedules = new ArrayList<DailyBackupSchedule>(0);
-    private String m_encodedDefinitionString;
+    private Set<String> m_definitionIds = new HashSet<String>();
 
     public BackupPlan() {
     }
@@ -62,12 +64,8 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
         m_type = type;
     }
 
-    public Collection<String> getDefinitionIds() {
-        return new ArrayList<String>(Arrays.asList(StringUtils.split(m_encodedDefinitionString, ',')));
-    }
-
-    public void setDefinitions(Collection<String> definitionIds) {
-        m_encodedDefinitionString = StringUtils.join(definitionIds, ',');
+    public Set<String> getDefinitionIds() {
+        return m_definitionIds;
     }
 
     @Override
@@ -93,13 +91,18 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
      * Only used for hibernate storage
      */
     public String getEncodedDefinitionString() {
-        return m_encodedDefinitionString;
+        return m_definitionIds.isEmpty() ? null : StringUtils.join(m_definitionIds, ',');
     }
 
     /**
      * Only used for hibernate storage
      */
     public void setEncodedDefinitionString(String encodedDefinitionString) {
-        m_encodedDefinitionString = encodedDefinitionString;
+        m_definitionIds = new HashSet<String>();
+        if (StringUtils.isBlank(encodedDefinitionString)) {
+            return;
+        }
+        String[] split = StringUtils.split(encodedDefinitionString, ',');
+        m_definitionIds.addAll(Arrays.asList(split));
     }
 }

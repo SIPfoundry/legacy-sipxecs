@@ -68,8 +68,7 @@ bundle common sipx {
       "nologin" string => "/bin/false";
 
     debian|ubuntu::
-      "crontabs" string => "/var/spool/crontabs";
-      
+      "crontabs" string => "/var/spool/crontabs";      
 
   classes:
     any::
@@ -428,7 +427,7 @@ bundle agent verify_system_user(user,password,home) {
 #
 # Useful to do something on a failed command only. For example report and error
 #
-body classes on_failed_command(codes, define_on_fail) {
+body classes on_failed_command(fail_codes, define_on_fail) {
   failed_returncodes => { "$(fail_codes)" };
   repair_failed => { "$(define_on_fail)" };
 }

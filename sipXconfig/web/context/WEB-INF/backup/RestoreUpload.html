@@ -1,0 +1,20 @@
+<span jwcid="@common/QuickHelp" value="message:upload.quick.help"/>
+  <form jwcid="upload@Form">
+    <fieldset>
+      <table>
+        <span jwcid="@For" source="ognl:definitionIds" value="ognl:definitionId">
+          <tr jwcid="@common/FieldPanel"
+            field="component:uploadFile"
+                label="ognl.messages.getMessage('archive.' + definitionId + '.label')">
+                <td jwcid="uploadFile@Upload"
+                  file="ognl:uploadConfigurationFile" />
+          </tr>
+        </span>
+      </table>
+    </fieldset>
+    <ul class="component-submit">
+      <li>
+        <input jwcid="uploadbutton@Submit" id="backups:uploadbutton" value="message:button.restore" listener="listener:uploadAndRestoreFiles"/>
+      </li>
+    </ul>
+</form>

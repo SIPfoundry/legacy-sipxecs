@@ -28,17 +28,17 @@ public class DailyBackupScheduleTestIntegration extends IntegrationTestCase {
     public void testStoreJob() throws Exception {
         //ArchiveDefinition d = new ArchiveDefinition("test.tgz", "backup", "restore");
         BackupPlan plan = m_backupManager.findOrCreateBackupPlan(BackupType.local);
-        plan.setDefinitions(Collections.singleton("test.tgz"));
+        plan.getDefinitionIds().add("test.tgz");
         BackupPlan ftpPlan = m_backupManager.findOrCreateBackupPlan(BackupType.ftp);
-        ftpPlan.setDefinitions(Collections.singleton("test.tgz"));
+        ftpPlan.getDefinitionIds().add("test.tgz");
         DailyBackupSchedule dailySchedule = new DailyBackupSchedule();
         DailyBackupSchedule ftpDailySchedule = new DailyBackupSchedule();
 
         plan.addSchedule(dailySchedule);
         ftpPlan.addSchedule(ftpDailySchedule);
 
-        m_backupManager.storeBackupPlan(plan);
-        m_backupManager.storeBackupPlan(ftpPlan);
+        m_backupManager.saveBackupPlan(plan);
+        m_backupManager.saveBackupPlan(ftpPlan);
 
         ResultDataGrid actual = new ResultDataGrid();
         Object[][] expected = new Object[][] {

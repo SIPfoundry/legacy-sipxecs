@@ -16,6 +16,8 @@
  */
 package org.sipfoundry.sipxconfig.backup;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,7 +25,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.springframework.beans.factory.BeanFactory;
@@ -37,6 +41,9 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
     private Collection<ArchiveProvider> m_providers;
     private ListableBeanFactory m_beanFactory;
     private BeanWithSettingsDao<BackupSettings> m_settingsDao;
+    private LocationsManager m_locationsManager;
+    private ConfigManager m_configManager;
+    private String m_backupScript;
 
     @Override
     public void saveSettings(BackupSettings settings) {
@@ -61,7 +68,7 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
     }
 
     @Override
-    public void storeBackupPlan(BackupPlan plan) {
+    public void saveBackupPlan(BackupPlan plan) {
         getHibernateTemplate().saveOrUpdate(plan);
     }
 
@@ -120,5 +127,44 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
     @Override
     public Collection<BackupPlan> getBackupPlans() {
         return getHibernateTemplate().loadAll(BackupPlan.class);
+    }
+
+    @Override
+    public Collection<String> getArchiveDefinitionIds() {
+        Set<String> ids = new HashSet<String>();
+        for (Location location : m_locationsManager.getLocationsList()) {
+            for (ArchiveProvider provider : getArchiveProviders()) {
+                Collection<ArchiveDefinition> defs = provider.getArchiveDefinitions(this, location);
+                if (defs != null) {
+                    for (ArchiveDefinition def : defs) {
+                        ids.add(def.getId());
+                    }
+                }
+            }
+        }
+
+        return ids;
+    }
+
+
+    public File getPlanFile(BackupPlan plan) {
+        String fname = format("1/backup-cluster-%s.yaml", plan.getType());
+        return new File(m_configManager.getGlobalDataDirectory(), fname);
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
+
+    public String getBackupScript() {
+        return m_backupScript;
+    }
+
+    public void setBackupScript(String backupScript) {
+        m_backupScript = backupScript;
+    }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
     }
 }

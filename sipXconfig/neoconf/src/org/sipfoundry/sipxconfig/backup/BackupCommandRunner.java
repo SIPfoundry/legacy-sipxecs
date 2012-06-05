@@ -14,8 +14,6 @@
  */
 package org.sipfoundry.sipxconfig.backup;
 
-import static java.lang.String.format;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -23,21 +21,18 @@ import java.io.Reader;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Wraps functionality of cluster backup script and makes it available.
  */
 public class BackupCommandRunner {
     private String m_backupScript;
-    private String m_planConfigId;
+    private File m_plan;
 
-    public BackupCommandRunner(BackupType type, String backupScript) {
-        this(type.toString(), backupScript);
-    }
-
-    public BackupCommandRunner(String planConfigId, String backupScript) {
+    public BackupCommandRunner(File plan, String backupScript) {
         m_backupScript = backupScript;
-        m_planConfigId = planConfigId;
+        m_plan = plan;
     }
 
     public String lastBackup() {
@@ -46,23 +41,25 @@ public class BackupCommandRunner {
     }
 
     public void backup() {
-        runCommand(format("%s --backup --plan %s", m_backupScript, m_planConfigId));
+        runCommand(m_backupScript, "--backup", m_plan.getAbsolutePath());
     }
 
-    void runCommand(String command) {
+    void runCommand(String... command) {
+        String commandLine = StringUtils.EMPTY;
         try {
             ProcessBuilder pb = new ProcessBuilder(command);
+            commandLine = StringUtils.join(pb.command(), ' ');
             Process process = pb.start();
             int code = process.waitFor();
             if (code != 0) {
-                String errorMsg = String.format("Backup command %s failed. Exit code: %d", command, code);
+                String errorMsg = String.format("Backup command %s failed. Exit code: %d", commandLine, code);
                 throw new RuntimeException(errorMsg);
             }
         } catch (IOException e) {
-            String errorMsg = String.format("Error running backup command %s.", command);
+            String errorMsg = String.format("Error running backup command %s.", commandLine);
             throw new RuntimeException(errorMsg);
         } catch (InterruptedException e) {
-            String errorMsg = String.format("Backup listing command timed out running command %s.", command);
+            String errorMsg = String.format("Backup listing command timed out running command %s.", commandLine);
             throw new RuntimeException(errorMsg);
         }
     }
@@ -71,11 +68,10 @@ public class BackupCommandRunner {
     public List<String> list() {
         File listFile = null;
         Reader rdr = null;
-        String cmd = "";
+        String cmd = StringUtils.EMPTY;
         try {
             listFile = File.createTempFile("backup-list", ".tmp");
-            cmd = format("%s --list --plan %s --out %s", m_backupScript, m_planConfigId, listFile.getAbsolutePath());
-            runCommand(cmd);
+            runCommand(m_backupScript, "--list", m_plan.getAbsolutePath(), "--out",  listFile.getAbsolutePath());
             rdr = new FileReader(listFile);
             return (List<String>) IOUtils.readLines(rdr);
         } catch (IOException e) {

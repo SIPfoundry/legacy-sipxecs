@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.backup;
 
+import java.io.File;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -34,11 +35,17 @@ public interface BackupManager {
 
     Collection<BackupPlan> getBackupPlans();
 
-    void storeBackupPlan(BackupPlan plan);
+    void saveBackupPlan(BackupPlan plan);
 
     FeatureManager getFeatureManager();
+
+    Collection<String> getArchiveDefinitionIds();
 
     Collection<ArchiveDefinition> getArchiveDefinitions(Collection<String> definitionIds, Location location);
 
     Collection<ArchiveDefinition> getArchiveDefinitions(BackupPlan plan, Location location);
+
+    String getBackupScript();
+
+    File getPlanFile(BackupPlan plan);
 }

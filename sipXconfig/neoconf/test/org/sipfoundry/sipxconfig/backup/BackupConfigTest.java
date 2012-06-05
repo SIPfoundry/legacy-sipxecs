@@ -25,6 +25,8 @@ import java.util.Collections;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.sipfoundry.sipxconfig.common.ScheduledDay;
+import org.sipfoundry.sipxconfig.common.TimeOfDay;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
@@ -49,6 +51,7 @@ public class BackupConfigTest {
         settings.setSettingTypedValue("ftp/user", "joe");
         settings.setSettingTypedValue("ftp/host", "ftp.example.org");
         settings.setSettingTypedValue("ftp/password", "xxx");
+        settings.setSettingTypedValue("ftp/dir", "yyy");
         Collection<Location> hosts = Collections.singleton(new Location("one", "1.1.1.1"));
         BackupPlan ftpPlan = new BackupPlan(BackupType.ftp);
         ftpPlan.setLimitedCount(20);
@@ -62,6 +65,8 @@ public class BackupConfigTest {
     public void schedules() throws IOException {
         BackupConfig config = new BackupConfig();
         DailyBackupSchedule s1 = new DailyBackupSchedule();
+        s1.setTimeOfDay(new TimeOfDay(22, 30));
+        s1.setScheduledDay(ScheduledDay.FRIDAY);
         DailyBackupSchedule s2 = new DailyBackupSchedule();
         BackupPlan localPlan = new BackupPlan(BackupType.local);
         localPlan.addSchedule(s1);
@@ -70,7 +75,7 @@ public class BackupConfigTest {
         ftpPlan.addSchedule(s1);
         StringWriter actual = new StringWriter();
         config.writeBackupSchedules(actual, Arrays.asList(localPlan, ftpPlan));
-        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-cluster-backup.yaml"));        
+        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-schedules.cfdat"));        
         assertEquals(expected, actual.toString());        
     }
 }

@@ -391,6 +391,7 @@
   	<antcall target="remove-im-password" />
   	<antcall target="change-on-restore" />
   	<antcall target="convert-init-task-to-setup" />  	
+  	<antcall target="backup-types" />  	
   </target>
 
   <target name="plugin-patches">
@@ -1289,6 +1290,10 @@
   <target name="convert-init-task-to-setup" unless="convert-init-task-to-setup">
 	<db-patch patch="convert-init-task-to-setup"/>
   </target>	
+  <target name="backup-types" unless="backup-types">
+	<db-patch patch="backup-types"/>
+  </target>	
+  
   <!--
     - SUPPORT UTILITIES
   -->

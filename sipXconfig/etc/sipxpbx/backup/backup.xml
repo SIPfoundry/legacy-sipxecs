@@ -3,11 +3,11 @@
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
   <group name="ftp">  
-    <setting name="host" >
-      <type><string/></type>
+    <setting name="url">
+      <type><string required="yes"/></type>
     </setting>
-    <setting name="user" >
-      <type><string/></type>
+    <setting name="user">
+      <type><string required="yes"/></type>
     </setting>
     <setting name="password" >
       <type><password/></type>

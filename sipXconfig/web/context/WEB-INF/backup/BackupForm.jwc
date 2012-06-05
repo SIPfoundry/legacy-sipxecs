@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
-<page-specification class="org.sipfoundry.sipxconfig.site.admin.BackupPage">
-  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification>
   <bean name="scheduledDaysPropertyModel_en" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel">
     <set name="options" value="@org.sipfoundry.sipxconfig.common.ScheduledDay@DAYS_OF_WEEK_PLUS_EVERYDAY" />
   </bean>
@@ -11,4 +11,4 @@
     <set name="resourcePrefix" value="literal:scheduleDay." />
     <set name="messages" value="messages" />
   </bean>
-</page-specification>
+</component-specification>

@@ -61,8 +61,7 @@ public class BackupConfig implements ConfigProvider {
 
             if (location.isPrimary()) {
                 for (BackupPlan plan : plans) {
-                    String fname = format("backup-cluster-%.yaml", plan.getType());
-                    Writer cluster = new FileWriter(new File(dir, fname));
+                    Writer cluster = new FileWriter(m_backupManager.getPlanFile(plan));
                     try {
                         List<Location> hosts = manager.getLocationManager().getLocationsList();
                         writeClusterBackupConfig(cluster, plan, hosts, settings);
@@ -94,11 +93,6 @@ public class BackupConfig implements ConfigProvider {
 
     public void writeClusterBackupConfig(Writer w, BackupPlan plan, Collection<Location> hosts,
             BackupSettings settings) throws IOException {
-        writeClusterBackupConfig(w, plan, plan.getType().toString(), hosts, settings);
-    }
-
-    public void writeClusterBackupConfig(Writer w, BackupPlan plan, String planId, Collection<Location> hosts,
-            BackupSettings settings) throws IOException {
         YamlConfiguration config = new YamlConfiguration(w);
 
         List<String> ips = new ArrayList<String>(hosts.size());
@@ -107,7 +101,7 @@ public class BackupConfig implements ConfigProvider {
         }
         config.writeArray("hosts", ips);
 
-        config.write("plan", planId);
+        config.write("plan", plan.getType());
         config.write("max", plan.getLimitedCount());
         if (plan.getType() == BackupType.ftp) {
             String ftp = "ftp";

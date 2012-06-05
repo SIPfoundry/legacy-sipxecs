@@ -6,6 +6,9 @@
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.backup.BackupManager"/>
     <property name="target" ref="backupManagerImpl" />
   </bean>
+  
+  <bean id="backupSettings" class="org.sipfoundry.sipxconfig.backup.BackupSettings" parent="settingsBean">    
+  </bean>
 
   <bean id="backupManagerImpl" class="org.sipfoundry.sipxconfig.backup.BackupManagerImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
@@ -19,6 +22,9 @@
       </bean>
     </property>
     <property name="featureManager" ref="featureManager"/>
+    <property name="locationsManager" ref="locationsManager"/>
+    <property name="backupScript" value="${sysdir.bin}/sipx-cluster-archive"/>
+    <property name="configManager" ref="configManager"/>
   </bean>
 
   <bean id="snapshot" class="org.sipfoundry.sipxconfig.backup.Snapshot">
@@ -27,21 +33,15 @@
     <property name="configCommands" ref="configCommands" />
   </bean>
 
-  <bean id="backupMessages" class="org.springframework.context.support.ResourceBundleMessageSource">
-    <property name="basename">
-      <value>org.sipfoundry.sipxconfig.backup.mail</value>
-    </property>
-  </bean>
-
   <bean id="backupConfig" class="org.sipfoundry.sipxconfig.backup.BackupConfig">
     <property name="backupManager" ref="backupManager"/>
   </bean>
   
   <bean id="manualBackup" class="org.sipfoundry.sipxconfig.backup.ManualBackup">
     <property name="backupManager" ref="backupManager"/>
-    <property name="backupScript" value="${sysdir.bin}/sipx-cluster-archive"/>
     <property name="locationsManager" ref="locationsManager"/>
     <property name="configManager" ref="configManager"/>
+    <property name="backupConfig" ref="backupConfig"/>
   </bean>
   
 </beans>

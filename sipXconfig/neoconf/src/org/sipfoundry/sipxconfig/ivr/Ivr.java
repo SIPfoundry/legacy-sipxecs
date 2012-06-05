@@ -26,7 +26,7 @@ public interface Ivr {
     public static final GlobalFeature CALLPILOT = new GlobalFeature("callpilot");
     public static final AddressType SIP_ADDRESS = AddressType.sipTcp("ivr-sip");
     public static final AddressType REST_API = new AddressType("ivrRestApi", "http://%s:%d");
-    public static final ArchiveDefinition ARCHIVE = new ArchiveDefinition("voicemail.tgz",
+    public static final ArchiveDefinition ARCHIVE = new ArchiveDefinition("voicemail.tar.gz",
             "$(sipx.SIPX_BINDIR)/sipxivr-archive --archive %s",
             "$(sipx.SIPX_BINDIR)/sipxivr-archive --restore %s");
 

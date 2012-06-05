@@ -6,3 +6,4 @@ ftp:
    host: ftp.example.org
    user: joe
    password: xxx
+   dir: yyy

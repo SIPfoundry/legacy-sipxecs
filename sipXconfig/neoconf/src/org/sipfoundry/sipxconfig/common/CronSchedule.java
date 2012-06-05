@@ -99,6 +99,9 @@ public class CronSchedule extends BeanWithId {
     }
 
     public void setScheduledDay(ScheduledDay scheduledDay) {
+        if (scheduledDay != ScheduledDay.EVERYDAY) {
+            setType(Type.WEEKLY);
+        }
         m_dayOfWeek = scheduledDay.getDayOfWeek();
     }
 
@@ -111,13 +114,18 @@ public class CronSchedule extends BeanWithId {
     }
 
     public String getCronString() {
+        return getCronString(true);
+    }
+
+    public String getCronString(boolean showSeconds) {
+        String secs = showSeconds ? "0 " : "";
         switch (m_type) {
         case WEEKLY:
-            return String.format("0 %d %d ? * %d", m_min, m_hrs, m_dayOfWeek);
+            return String.format("%s%d %d ? * %d", secs, m_min, m_hrs, m_dayOfWeek);
         case DAILY:
-            return String.format("0 %d %d ? * *", m_min, m_hrs);
+            return String.format("%s%d %d ? * *", secs, m_min, m_hrs);
         case HOURLY:
-            return String.format("0 %d * ? * *", m_min);
+            return String.format("%s%d * ? * *", secs, m_min);
         default:
             throw new IllegalStateException("CronSchedule not initialized correctly.");
         }

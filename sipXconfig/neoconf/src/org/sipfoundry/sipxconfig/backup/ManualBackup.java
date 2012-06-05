@@ -30,11 +30,15 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 
 public class ManualBackup {
-    private String m_backupScript;
     private BackupManager m_backupManager;
     private BackupConfig m_backupConfig;
     private LocationsManager m_locationsManager;
     private ConfigManager m_configManager;
+
+    public void backup(BackupPlan plan) {
+        BackupSettings settings = m_backupManager.getSettings();
+        backup(plan, settings);
+    }
 
     /**
      * Summary of steps to perform a backup:
@@ -43,18 +47,18 @@ public class ManualBackup {
      * 3.) call cluster backup script for plan
      * 4.) check for new backup, otherwise there was a failure
      */
-    public void backup(BackupPlan plan, Collection<String> definitionIds) {
+    public void backup(BackupPlan plan, BackupSettings settings) {
         String planId = "manual";
-        BackupCommandRunner runner = new BackupCommandRunner(planId, m_backupScript);
-        String beforeBackup = runner.lastBackup(); // null is ok
+
         List<Location> locations = m_locationsManager.getLocationsList();
         boolean atLeastOneBackupToDo = false;
         for (Location location : locations) {
-            Collection<ArchiveDefinition> defs = m_backupManager.getArchiveDefinitions(definitionIds, location);
+            Collection<ArchiveDefinition> defs = m_backupManager.getArchiveDefinitions(plan.getDefinitionIds(),
+                    location);
             File dir = m_configManager.getLocationDataDirectory(location);
             Writer w = null;
             try {
-                w = new FileWriter(new File(dir, "backup-" + planId + ".yaml"));
+                w = new FileWriter(new File(dir, format("backup-%s.yaml", planId)));
                 m_backupConfig.writeBackupConfig(w, defs);
             } catch (IOException e) {
                 throw new UserException("Failed to create backup plan", e);
@@ -68,19 +72,21 @@ public class ManualBackup {
             throw new UserException("No backups to perform");
         }
 
-        BackupSettings settings = m_backupManager.getSettings();
         Location primary = m_locationsManager.getPrimaryLocation();
+        File dir = m_configManager.getLocationDataDirectory(primary);
+        File planFile = new File(dir, "backup-cluster-" + planId + ".yaml");
         Writer w = null;
         try {
-            File dir = m_configManager.getLocationDataDirectory(primary);
-            w = new FileWriter(new File(dir, format("backup-cluster-%s.yaml", planId)));
-            m_backupConfig.writeClusterBackupConfig(w, plan, planId, locations, settings);
+            w = new FileWriter(planFile);
+            m_backupConfig.writeClusterBackupConfig(w, plan, locations, settings);
         } catch (IOException e) {
             throw new UserException("Failed to create cluster backup plan", e);
         } finally {
             IOUtils.closeQuietly(w);
         }
 
+        BackupCommandRunner runner = new BackupCommandRunner(planFile, m_backupManager.getBackupScript());
+        String beforeBackup = runner.lastBackup(); // null is ok
         runner.backup();
 
         String afterBackup = runner.lastBackup();
@@ -102,9 +108,5 @@ public class ManualBackup {
 
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
-    }
-
-    public void setBackupScript(String backupScript) {
-        m_backupScript = backupScript;
     }
 }

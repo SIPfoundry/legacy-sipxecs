@@ -1,0 +1,2 @@
+@backupSchedulelocal={"30 22 ? * 6", "0 0 ? * *"}
+@backupScheduleftp={"30 22 ? * 6"}

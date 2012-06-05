@@ -11,16 +11,14 @@ package org.sipfoundry.sipxconfig.backup;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.CronSchedule;
 import org.sipfoundry.sipxconfig.common.ScheduledDay;
 import org.sipfoundry.sipxconfig.common.TimeOfDay;
 
@@ -68,7 +66,10 @@ public class DailyBackupSchedule extends BeanWithId {
     }
 
     public String toCronString() {
-        return "TODO";
+        CronSchedule cron = new CronSchedule();
+        cron.setScheduledDay(getScheduledDay());
+        cron.setTimeOfDay(getTimeOfDay());
+        return cron.getCronString(false);
     }
 
     public boolean isEnabled() {
@@ -112,53 +113,7 @@ public class DailyBackupSchedule extends BeanWithId {
         m_allowStaleDate = allowStaleDate;
     }
 
-    Date getTimerDate() {
-
-        // convert thru string because setting timezone just shift time and
-        // we want effectively the same time.
-        String gmtTimeOfDay = GMT_TIME_OF_DAY_FORMAT.format(getTime());
-        try {
-            Date localTimeOfDay = LOCAL_TIME_OF_DAY_FORMAT.parse(gmtTimeOfDay);
-            Calendar localCal = Calendar.getInstance();
-            localCal.setTime(localTimeOfDay);
-
-            Calendar when = Calendar.getInstance();
-            when.set(Calendar.HOUR_OF_DAY, localCal.get(Calendar.HOUR_OF_DAY));
-            when.set(Calendar.MINUTE, localCal.get(Calendar.MINUTE));
-            when.set(Calendar.SECOND, 0);
-            when.set(Calendar.MILLISECOND, 0);
-
-            if (m_day != ScheduledDay.EVERYDAY) {
-                when.set(Calendar.DAY_OF_WEEK, getScheduledDay().getDayOfWeek());
-            }
-
-            // Ensure that the scheduled time is in the future, not the past.
-            // Otherwise the timer will fire immediately, not at the desired time.
-            // (The allowStaleDate flag suppresses this behavior, only for testing purposes.)
-            Date timerDate = when.getTime();
-            if (timerDate.getTime() < System.currentTimeMillis() && !m_allowStaleDate) {
-                // The scheduled time is in the past.  Add one timer period to push it into the future.
-                timerDate.setTime(timerDate.getTime() + getTimerPeriod());
-            }
-
-            return timerDate;
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     long getTimerPeriod() {
         return (m_day == ScheduledDay.EVERYDAY ? ONCE_A_DAY : ONCE_A_WEEK);
-    }
-
-    public void schedule(Timer timer, TimerTask task) {
-        if (!isEnabled()) {
-            return;
-        }
-
-        Date date = getTimerDate();
-        long period = getTimerPeriod();
-        LOG.info("Setting timer for " + LOCAL_TIME_OF_DAY_FORMAT.format(date));
-        timer.schedule(task, date, period);
     }
 }
