@@ -31,6 +31,8 @@ Requires: sec
 Requires: sendmail
 Requires: sendmail-cf
 Requires: ntp
+# backup to sftp
+Requires: rubygem-net-sftp
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
