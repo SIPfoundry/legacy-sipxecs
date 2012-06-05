@@ -54,6 +54,7 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
     private DaoEventPublisherImpl m_daoEventPublisher;
     private SpringHibernateInstantiator m_entityInterceptor;
     private UserProfileService m_userProfileService;
+    private MongoTemplate m_profilesDb;
 
     public IntegrationTestCase() {
         setAutowireMode(AUTOWIRE_BY_NAME);
@@ -99,7 +100,7 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
         if (m_modifiedContextObjectMap != null) {
             resetContext();
         }
-        ((MongoTemplate) m_userProfileService).dropCollection("userProfile");
+        m_profilesDb.dropCollection("userProfile");
     }
 
     @Override
@@ -291,5 +292,13 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
 
     public void setUserProfileService(UserProfileService service) {
         m_userProfileService = service;
+    }
+
+    public MongoTemplate getProfilesDb() {
+        return m_profilesDb;
+    }
+
+    public void setProfilesDb(MongoTemplate template) {
+        m_profilesDb = template;
     }
 }

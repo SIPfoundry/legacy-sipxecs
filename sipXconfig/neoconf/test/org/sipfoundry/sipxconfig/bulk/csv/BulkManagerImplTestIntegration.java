@@ -50,7 +50,7 @@ public class BulkManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testInsertFromCsvAliasDuplication() throws Exception {
-        ((MongoTemplate) getUserProfileService()).dropCollection("userProfile");
+        getProfilesDb().dropCollection("userProfile");
         // second user has a duplicated alias - it should be ignored, but remaining users have to
         // be imported
         InputStream cutsheet = getClass().getResourceAsStream("errors.csv");
