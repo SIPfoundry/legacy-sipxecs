@@ -116,6 +116,8 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     private Branch m_branch;
 
+    private boolean m_notified;
+
     /**
      * Return the pintoken, which is the hash of the user's PIN. The PIN itself is private to the
      * user. To keep the PIN secure, we don't store it.
@@ -665,5 +667,13 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     public void clearPasswords() {
         m_clearVoicemailPin = null;
+    }
+
+    public boolean isNotified() {
+        return m_notified;
+    }
+
+    public void setNotified(boolean notified) {
+        m_notified = notified;
     }
 }

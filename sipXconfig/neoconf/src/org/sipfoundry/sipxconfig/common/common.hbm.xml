@@ -23,6 +23,7 @@
     <property name="lastName" />
     <property name="userName" />
     <property name="isShared" />
+    <property name="notified" />
     <set name="aliases" table="user_alias">
       <key column="user_id" />
       <element type="string" column="alias" not-null="true" unique="true" />

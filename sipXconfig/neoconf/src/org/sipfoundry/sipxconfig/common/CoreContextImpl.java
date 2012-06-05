@@ -186,7 +186,6 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         } else {
             getHibernateTemplate().merge(user);
         }
-        user.clearPasswords();
         return newUserName;
     }
 

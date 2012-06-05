@@ -108,6 +108,7 @@
       <props>
         <prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>
         <prop key="hibernate.query.substitutions">true 't', false 'f'</prop>
+        <prop key="hibernate.connection.release_mode">after_transaction</prop>
         <!-- prop key="hibernate.show_sql">true</prop -->
       </props>
     </property>
