@@ -70,6 +70,9 @@ def analyze(input)
     # We reverse expected process count to detect running process
     /Process count for '.*' was out of promised range/,
 
+    # Part of process detection
+    /Matched:/,
+
     # just detection cfengine needs to pull a file from master
     /Image file .* has a wrong digest\/checksum/
   ]
