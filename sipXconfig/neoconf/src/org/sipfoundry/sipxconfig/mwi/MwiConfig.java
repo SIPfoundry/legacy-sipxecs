@@ -80,7 +80,7 @@ public class MwiConfig implements ConfigProvider {
     void write(Writer wtr, MwiSettings settings, Location location, List<Location> allLocations, Domain domain)
         throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(wtr);
-        config.write(settings.getSettings().getSetting("status-config"));
+        config.writeSettings(settings.getSettings().getSetting("status-config"));
         config.write("SIP_STATUS_AUTHENTICATE_REALM", domain.getSipRealm());
         config.write("SIP_STATUS_DOMAIN_NAME", domain.getName());
 

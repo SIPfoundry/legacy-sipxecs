@@ -44,7 +44,7 @@ public class LogWatcherConfig implements ConfigProvider {
         try {
             CfengineModuleConfiguration cfg = new CfengineModuleConfiguration(w);
             cfg.writeClass(LogWatcher.FEATURE.getId(), enabled);
-            cfg.write("logwatcher_", settings.getSettings().getSetting("config"));
+            cfg.writeSettings("logwatcher_", settings.getSettings().getSetting("config"));
         } finally {
             IOUtils.closeQuietly(w);
         }

@@ -3,43 +3,28 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <bean id="backupManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.backup.BackupManager</value>
-    </property>
-    <property name="target">
-      <ref local="backupManagerImpl" />
-    </property>
-  </bean>
-
-  <bean id="backupManagerImpl" class="org.sipfoundry.sipxconfig.backup.BackupManagerImpl" autowire="byType">
-    <property name="sessionFactory" ref="sessionFactory"/>
-    <property name="binDirectory" value="${sysdir.bin}" />
-    <property name="libExecDirectory" value="${sysdir.libexec}" />
-    <lookup-method name="createLocalBackupPlan" bean="localBackupPlan" />
-    <lookup-method name="createFtpBackupPlan" bean="ftpBackupPlan" />
-  </bean>
-
-  <bean id="backupPlan" class="org.sipfoundry.sipxconfig.backup.BackupPlan" abstract="true">
-    <property name="mailSenderContext" ref="mailSenderContext" />
-    <property name="mailboxManager" ref="mailboxManager" />
-    <property name="emailFromAddress" value="backup" />
-    <property name="messageSource" ref="globalMessageSource" />
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.backup.BackupManager"/>
+    <property name="target" ref="backupManagerImpl" />
   </bean>
   
-  <bean id="localBackupPlan" class="org.sipfoundry.sipxconfig.backup.LocalBackupPlan" parent="backupPlan"></bean>
-
-  <bean id="ftpBackupPlan" class="org.sipfoundry.sipxconfig.backup.FtpBackupPlan" parent="backupPlan"></bean>
-
-  <bean id="restore" class="org.sipfoundry.sipxconfig.backup.Restore">
-	<property name="mailboxManager" ref="mailboxManager" />
-    <property name="logDirectory" value="${sysdir.log}" />
-    <property name="binDirectory" value="${sysdir.bin}" />
-    <property name="locationsManager" ref="locationsManager" />
-    <property name="configCommands" ref="configCommands" />
-    <property name="featureManager" ref="featureManager" />
+  <bean id="backupSettings" class="org.sipfoundry.sipxconfig.backup.BackupSettings" parent="settingsBean">    
   </bean>
 
-  <bean id="ftpRestore" class="org.sipfoundry.sipxconfig.backup.FtpRestore" parent="restore">
+  <bean id="backupManagerImpl" class="org.sipfoundry.sipxconfig.backup.BackupManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.backup.BackupSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+    <property name="featureManager" ref="featureManager"/>
+    <property name="locationsManager" ref="locationsManager"/>
+    <property name="backupScript" value="${sysdir.bin}/sipx-cluster-archive"/>
+    <property name="configManager" ref="configManager"/>
   </bean>
 
   <bean id="snapshot" class="org.sipfoundry.sipxconfig.backup.Snapshot">
@@ -48,9 +33,15 @@
     <property name="configCommands" ref="configCommands" />
   </bean>
 
-  <bean id="backupMessages" class="org.springframework.context.support.ResourceBundleMessageSource">
-    <property name="basename">
-      <value>org.sipfoundry.sipxconfig.backup.mail</value>
-    </property>
+  <bean id="backupConfig" class="org.sipfoundry.sipxconfig.backup.BackupConfig">
+    <property name="backupManager" ref="backupManager"/>
   </bean>
+  
+  <bean id="manualBackup" class="org.sipfoundry.sipxconfig.backup.ManualBackup">
+    <property name="backupManager" ref="backupManager"/>
+    <property name="locationsManager" ref="locationsManager"/>
+    <property name="configManager" ref="configManager"/>
+    <property name="backupConfig" ref="backupConfig"/>
+  </bean>
+  
 </beans>

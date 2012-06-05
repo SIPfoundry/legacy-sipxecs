@@ -8,6 +8,7 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +20,9 @@ import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
 import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
+import org.sipfoundry.sipxconfig.backup.ArchiveDefinition;
+import org.sipfoundry.sipxconfig.backup.ArchiveProvider;
+import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
@@ -34,7 +38,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * Backup provides Java interface to backup scripts
  */
 public class AdminContextImpl extends HibernateDaoSupport implements AdminContext, AddressProvider, ProcessProvider,
-    AlarmProvider, FirewallProvider {
+    AlarmProvider, FirewallProvider, ArchiveProvider {
     private LocationsManager m_locationsManager;
     private int m_internalPort;
 
@@ -95,5 +99,13 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     @Override
     public void avoidCheckstyleError() {
+    }
+
+    @Override
+    public Collection<ArchiveDefinition> getArchiveDefinitions(BackupManager manager, Location location) {
+        if (!location.isPrimary()) {
+            return null;
+        }
+        return Collections.singleton(ARCHIVE);
     }
 }

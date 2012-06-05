@@ -16,8 +16,6 @@
   <bean id="remoteMailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.RemoteMailboxManagerImpl"  parent="abstractMailboxManager">
     <property name="xpathTemplate" ref="xpathTemplate"/>
     <property name="restTemplate" ref="restTemplate"/>
-    <property name="backupDirectory" value="${sysdir.var}/backup" />
-    <property name="configCommands" ref="configCommands" />
   </bean>
 
   <bean id="mailboxManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

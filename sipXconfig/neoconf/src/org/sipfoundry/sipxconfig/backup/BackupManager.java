@@ -17,18 +17,35 @@
 package org.sipfoundry.sipxconfig.backup;
 
 import java.io.File;
+import java.util.Collection;
+
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 
 public interface BackupManager {
     public static final String CONTEXT_BEAN_NAME = "backupManager";
+    public static final GlobalFeature FEATURE = new GlobalFeature("backup");
 
-    FtpBackupPlan createFtpBackupPlan();
+    BackupSettings getSettings();
 
-    LocalBackupPlan createLocalBackupPlan();
+    void saveSettings(BackupSettings settings);
 
-    BackupPlan getBackupPlan(String type);
+    BackupPlan findOrCreateBackupPlan(BackupType type);
 
-    void storeBackupPlan(BackupPlan plan);
+    Collection<BackupPlan> getBackupPlans();
 
-    File[] performBackup(BackupPlan plan);
+    void saveBackupPlan(BackupPlan plan);
 
+    FeatureManager getFeatureManager();
+
+    Collection<String> getArchiveDefinitionIds();
+
+    Collection<ArchiveDefinition> getArchiveDefinitions(Collection<String> definitionIds, Location location);
+
+    Collection<ArchiveDefinition> getArchiveDefinitions(BackupPlan plan, Location location);
+
+    String getBackupScript();
+
+    File getPlanFile(BackupPlan plan);
 }

@@ -52,7 +52,7 @@ public class AcdStatsConfig implements ConfigProvider {
             FileWriter wtr = new FileWriter(file);
             try {
                 CfengineModuleConfiguration config = new CfengineModuleConfiguration(wtr);
-                config.write(settings.getSettings());
+                config.writeSettings(settings.getSettings());
             } finally {
                 IOUtils.closeQuietly(wtr);
             }

@@ -16,27 +16,13 @@
  */
 package org.sipfoundry.sipxconfig.vm;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 
 import javax.xml.transform.Source;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.Address;
-import org.sipfoundry.sipxconfig.backup.BackupBean;
-import org.sipfoundry.sipxconfig.backup.BackupPlan;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigCommands;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.xml.xpath.NodeMapper;
@@ -54,12 +40,8 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
             + "message/{messageId}/move/{destination}";
     private static final String DEL_MSG_URL = "/mailbox/{userId}/message/{messageId}/delete";
     private static final String SAVE_SUBJECT = "/mailbox/{userId}/message/{messageId}/subject";
-    private static final String RESTORE_LOG_URL = "/manage/restore/log";
-    private static final Log LOG = LogFactory.getLog(RemoteMailboxManagerImpl.class);
     private XPathOperations m_xPathTemplate;
     private RestTemplate m_restTemplate;
-    private ConfigCommands m_configCommands;
-    private String m_backupDirectory;
 
     @Override
     public boolean isEnabled() {
@@ -136,75 +118,8 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
                 voicemail.getUserId(), voicemail.getMessageId());
     }
 
-    @Override
-    public boolean performBackup(File workingDir) {
-        List<Location> locations = getFeatureManager().getLocationsForEnabledFeature(Ivr.FEATURE);
-        if (locations != null && locations.size() > 0) {
-            Location ivrLocation = locations.get(0);
-            try {
-                m_configCommands.collectVmBackup(ivrLocation);
-                File destfile = new File(workingDir, BackupPlan.VOICEMAIL_ARCHIVE);
-                if (destfile.exists()) {
-                    FileUtils.deleteQuietly(destfile);
-                }
-                if (!ivrLocation.isPrimary()) {
-                    m_configCommands.uploadVmBackup(getLocationsManager().getPrimaryLocation());
-                    FileUtils.moveFile(
-                            new File(m_backupDirectory, "voicemail-" + ivrLocation.getFqdn() + ".tar.gz"), destfile);
-                } else {
-                    FileUtils.moveFile(new File(m_backupDirectory, BackupPlan.VOICEMAIL_ARCHIVE), destfile);
-                }
-            } catch (IOException ex) {
-                LOG.error(String.format("Failed to retrieve backup from voicemail server %s", ex.getMessage()));
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public void performRestore(BackupBean archive, boolean noRestart) {
-        // upload archive and restore on ivr side
-        List<Location> locations = getFeatureManager().getLocationsForEnabledFeature(Ivr.FEATURE);
-        if (locations != null && locations.size() > 0) {
-            Location ivrLocation = locations.get(0);
-            Writer wtr = null;
-            try {
-                File f = new File(((ConfigManager) m_configCommands).getGlobalDataDirectory(), "backup.ini");
-                wtr = new FileWriter(f);
-                wtr.write(archive.getPath());
-                wtr.flush();
-                m_configCommands.restoreVmBackup(ivrLocation);
-            } catch (IOException ex) {
-                LOG.error(String.format("Failed to restore backup on voicemail server %s", ex.getMessage()));
-                throw new UserException("&error.ivrrestore.failed");
-            } finally {
-                IOUtils.closeQuietly(wtr);
-            }
-        }
-    }
-
-    @Override
-    public String getMailboxRestoreLog() {
-        Address ivrRestAddress = getAddressManager().getSingleAddress(Ivr.REST_API);
-        StringBuilder log = new StringBuilder();
-        log.append(String.format("\n\n:::: Voicemail restore log on remote server %s ::::\n\n",
-                ivrRestAddress.getAddress()));
-        log.append(m_restTemplate.getForObject(ivrRestAddress + RESTORE_LOG_URL, String.class));
-        return log.toString();
-    }
-
     public void setXpathTemplate(XPathOperations xpathTemplate) {
         m_xPathTemplate = xpathTemplate;
-    }
-
-    public void setBackupDirectory(String dir) {
-        m_backupDirectory = dir;
-    }
-
-    @Required
-    public void setConfigCommands(ConfigCommands configCommands) {
-        m_configCommands = configCommands;
     }
 
     public void setRestTemplate(RestTemplate restTemplate) {

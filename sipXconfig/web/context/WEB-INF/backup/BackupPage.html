@@ -1,0 +1,14 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/TabNavigation"
+    tabNames="ognl:{'localBackup', 'ftpBackup'}"
+    selectedTab="ognl:tab"/>
+  <div id="settings-content">
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')"/>
+  </div>
+  <div jwcid="localBackupTab@Block">
+    <span jwcid="local@backup/BackupForm" backupPlan="ognl:localPlan"/>
+  </div>
+  <div jwcid="ftpBackupTab@Block">
+    <span jwcid="ftp@backup/BackupForm" backupPlan="ognl:ftpPlan" settingsPath="ftp"/>
+  </div>
+</div>

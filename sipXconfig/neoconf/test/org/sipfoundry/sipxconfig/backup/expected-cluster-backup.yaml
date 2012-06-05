@@ -1,0 +1,8 @@
+hosts:
+ - 1.1.1.1
+plan: ftp
+max: 20
+ftp:
+   url: ftp://ftp.example.org
+   user: joe
+   password: xxx

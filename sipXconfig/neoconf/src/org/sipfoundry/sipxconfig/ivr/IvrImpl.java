@@ -27,6 +27,9 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.backup.ArchiveDefinition;
+import org.sipfoundry.sipxconfig.backup.ArchiveProvider;
+import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
@@ -52,7 +55,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessProvider, DnsProvider,
-    FirewallProvider {
+    FirewallProvider, ArchiveProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
         REST_API, SIP_ADDRESS
     });
@@ -215,5 +218,14 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
      */
     public void setHighAvailabilitySupport(boolean highAvailabilitySupport) {
         m_highAvailabilitySupport = highAvailabilitySupport;
+    }
+
+    @Override
+    public Collection<ArchiveDefinition> getArchiveDefinitions(BackupManager manager, Location location) {
+        if (!manager.getFeatureManager().isFeatureEnabled(FEATURE, location)) {
+            return null;
+        }
+
+        return Collections.singleton(ARCHIVE);
     }
 }

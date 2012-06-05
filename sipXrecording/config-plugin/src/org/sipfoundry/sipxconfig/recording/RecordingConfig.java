@@ -64,7 +64,7 @@ public class RecordingConfig implements ConfigProvider {
 
     void write(Writer wtr, RecordingSettings settings) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
-        config.write(settings.getSettings());
+        config.writeSettings(settings.getSettings());
     }
 
     @Required

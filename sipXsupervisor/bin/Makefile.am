@@ -14,7 +14,9 @@ libexec_SCRIPTS = \
 bin_SCRIPTS = \
 	sipxagent \
 	sipxagent-log-reader \
-	sipxecs-setup
+	sipxecs-setup \
+	sipx-archive \
+	sipx-cluster-archive
 
 cfmoddir = @SIPX_CFMODULES@
 cfmod_SCRIPTS = \

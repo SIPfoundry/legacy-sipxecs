@@ -7,251 +7,32 @@
  */
 package org.sipfoundry.sipxconfig.backup;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.backup.BackupBean.Type;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
-import org.sipfoundry.sipxconfig.mail.MailSenderContext;
-import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.springframework.beans.factory.annotation.Required;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.MessageSource;
+import org.sipfoundry.sipxconfig.feature.Feature;
 
 /**
- * Backup various parts of the system to a fixed backup directory.
+ * Capture a plan to backup various parts of the system to a backup destination
  */
-public abstract class BackupPlan extends BeanWithId implements ApplicationContextAware {
-    public static final String VOICEMAIL_ARCHIVE = "voicemail.tar.gz";
-    public static final String CONFIGURATION_ARCHIVE = "configuration.tar.gz";
-    public static final String CDR_ARCHIVE = "cdr.tar.gz";
-    public static final String DEVICE_CONFIG = "device_config.tar.gz";
-    public static final FilenameFilter BACKUP_FILE_FILTER = new FilenameFilter() {
-        @Override
-        public boolean accept(File dir, String name) {
-            return StringUtils.equals(name, VOICEMAIL_ARCHIVE) || StringUtils.equals(name, CONFIGURATION_ARCHIVE)
-                || StringUtils.equals(name, CDR_ARCHIVE) || StringUtils.equals(name, DEVICE_CONFIG);
-        }
-    };
-    private static final SimpleDateFormat FILE_NAME_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
-
-    private static final Log LOG = LogFactory.getLog(BackupPlan.class);
-
-    private String m_backupScript = "sipx-backup";
-
-    private boolean m_voicemail = true;
-    private boolean m_configs = true;
-    private boolean m_cdr = true;
-    private boolean m_deviceConfig = true;
+public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
     private Integer m_limitedCount = 50;
-    private Date m_backupTime;
-    private String m_emailAddress;
-
-    private ApplicationContext m_applicationContext;
-    private String m_emailFromAddress;
-
-    private MailSenderContext m_mailSenderContext;
-
-    private MailboxManager m_mailboxManager;
-
+    private BackupType m_type = BackupType.local;
     private Collection<DailyBackupSchedule> m_schedules = new ArrayList<DailyBackupSchedule>(0);
+    private Set<String> m_definitionIds = new HashSet<String>();
 
-    private Timer m_timer;
-
-    private String m_backupDirectory;
-
-    private Locale m_locale;
-
-    private MessageSource m_messageSource;
-
-    public abstract List<Map<Type, BackupBean>> getBackups();
-
-    public abstract File[] doPerform(String binPath) throws IOException, InterruptedException;
-
-    protected abstract void doPurge(int limitCount);
-
-    /**
-     * Purge old files and perform backup.
-     *
-     * We are purging old backup twice here: the first round is in most cases no-op: it only
-     * matters if administrator decreased the number of saved backups to free up some disk space.
-     * The second round, after successful completion of the current backup will remove a single
-     * oldest backup.
-     *
-     * @param binPath path to the script that performs the backup
-     * @return array of files that were saved/created by this backup plan
-     */
-    public final File[] perform(String binPath) {
-        String errorMsg = "Errors when creating backup.";
-        try {
-            purgeOld();
-            File[] files = doPerform(binPath);
-            purgeOld();
-            return files;
-        } catch (IOException e) {
-            LOG.error(errorMsg, e);
-        } catch (InterruptedException e) {
-            LOG.error(errorMsg, e);
-        }
-        return null;
+    public BackupPlan() {
     }
 
-    protected final File createBackupDirectory(File rootBackupDir) {
-        File backupDir = getNextBackupDir(rootBackupDir);
-        if (!backupDir.isDirectory()) {
-            backupDir.mkdirs();
-        }
-        return backupDir;
-    }
-
-    protected final File[] executeBackup(File backupDir, File binDir) throws IOException, InterruptedException {
-        if (perform(backupDir, binDir)) {
-            File[] backupFiles = getBackupFiles(backupDir);
-            sendEmail(backupFiles);
-            return backupFiles;
-        }
-        return null;
-    }
-
-    protected final void purgeOld() {
-        if (m_limitedCount == null) {
-            return;
-        }
-        if (m_limitedCount < 1) {
-            // have to leave at least on
-            m_limitedCount = 1;
-        }
-        doPurge(m_limitedCount);
-    }
-
-    /**
-     * Sends e-mail with a copy of a configuration backup attached. Email is only sent if
-     * configuration backup was selected and if e-mail adress is configured.
-     *
-     * @param backupFiles array of backup files
-     */
-    private void sendEmail(File[] backupFiles) {
-        if (StringUtils.isBlank(m_emailAddress)) {
-            return;
-        }
-        File confFile = null;
-        for (File f : backupFiles) {
-            if (f.getName().equals(BackupPlan.CONFIGURATION_ARCHIVE)) {
-                confFile = f;
-                break;
-            }
-        }
-        if (confFile == null) {
-            return;
-        }
-        String subject = m_messageSource.getMessage("backup.subject", new Object[]{}, m_locale);
-        String body = m_messageSource.getMessage("backup.body", new Object[]{}, m_locale);
-        m_mailSenderContext.sendMail(m_emailAddress, m_emailFromAddress, subject, body, confFile);
-    }
-
-    File getNextBackupDir(File rootBackupDir) {
-        // FIXME: only works if no more than one backup a minute
-        m_backupTime = new Date();
-        return new File(rootBackupDir, FILE_NAME_FORMAT.format(m_backupTime));
-    }
-
-    void setScript(String script) {
-        m_backupScript = script;
-    }
-
-    private boolean perform(File workingDir, File binDir) throws IOException, InterruptedException {
-        boolean success = true;
-        if (isConfigs()) {
-            // configuration backup
-            success = perform(workingDir, binDir, "-c");
-        }
-
-        if (isVoicemail() && success) {
-            success = m_mailboxManager.performBackup(workingDir);
-        }
-
-        if (isCdr() && success) {
-            // call detail records backup
-            success = perform(workingDir, binDir, "-cdr");
-        }
-
-        if (isDeviceConfig() && success) {
-            // call detail records backup
-            success = perform(workingDir, binDir, "-dc");
-        }
-
-        return success;
-    }
-
-    private boolean perform(File workingDir, File binDir, String type) throws IOException, InterruptedException {
-        ProcessBuilder pb = new ProcessBuilder(binDir.getPath() + File.separator + m_backupScript, "-n", type);
-        Process process = pb.directory(workingDir).start();
-        int code = process.waitFor();
-        if (code != 0) {
-            String errorMsg = String.format("Config backup operation failed. Exit code: %d", code);
-            LOG.error(errorMsg);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * create and add BackupBeans
-     *
-     * @param repositoryBean
-     * @param backupFiles
-     */
-    protected void addBackupBeans(List<Map<Type, BackupBean>> repositoryBean, File[] backupFiles) {
-        Map<Type, BackupBean> backups = new HashMap<Type, BackupBean>(2);
-        for (File file : backupFiles) {
-            BackupBean backupBean = new BackupBean(file);
-            backups.put(backupBean.getType(), backupBean);
-
-        }
-        if (!backups.isEmpty()) {
-            repositoryBean.add(backups);
-        }
-    }
-
-    File[] getBackupFiles(File backupDir) {
-        List files = new ArrayList();
-        if (isConfigs()) {
-            File configuration = new File(backupDir, CONFIGURATION_ARCHIVE);
-            files.add(configuration);
-        }
-        if (isVoicemail()) {
-            File voicemail = new File(backupDir, VOICEMAIL_ARCHIVE);
-            files.add(voicemail);
-        }
-        if (isCdr()) {
-            File cdr = new File(backupDir, CDR_ARCHIVE);
-            files.add(cdr);
-        }
-        if (isDeviceConfig()) {
-            File deviceConfig = new File(backupDir, DEVICE_CONFIG);
-            files.add(deviceConfig);
-        }
-        return (File[]) files.toArray(new File[files.size()]);
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        m_applicationContext = applicationContext;
+    public BackupPlan(BackupType type) {
+        m_type = type;
     }
 
     public void addSchedule(DailyBackupSchedule dailySchedule) {
@@ -275,133 +56,53 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
         m_limitedCount = limitedCount;
     }
 
-    public boolean isConfigs() {
-        return m_configs;
+    public BackupType getType() {
+        return m_type;
     }
 
-    public void setConfigs(boolean configs) {
-        m_configs = configs;
+    public void setType(BackupType type) {
+        m_type = type;
     }
 
-    public boolean isVoicemail() {
-        return m_voicemail;
+    public Set<String> getDefinitionIds() {
+        return m_definitionIds;
     }
 
-    public void setVoicemail(boolean voicemail) {
-        m_voicemail = voicemail;
-    }
-
-    public boolean isCdr() {
-        return m_cdr;
-    }
-
-    public void setCdr(boolean cdr) {
-        m_cdr = cdr;
-    }
-
-    public boolean isDeviceConfig() {
-        return m_deviceConfig;
-    }
-
-    public void setDeviceConfig(boolean deviceConfig) {
-        m_deviceConfig = deviceConfig;
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) BackupManager.FEATURE);
     }
 
     /**
-     * For backup to make sense at least one of the parameters (i.e. voicemail or configuration)
-     * have to be set.
+     * Only used for hibernate storage. EnumType comes in hibernate 3.7, we're using 3.5 atm
      */
-    public boolean isEmpty() {
-        return !(m_voicemail || m_configs || m_cdr || m_deviceConfig);
+    public String getEncodedType() {
+        return m_type.toString();
     }
 
-    public void schedule(Timer timer, String binPath) {
-        schedule(timer, getTask(binPath));
+    /**
+     * Only used for hibernate storage
+     */
+    public void setEncodedType(String s) {
+        m_type = BackupType.valueOf(s);
     }
 
-    void schedule(Timer timer, TimerTask task) {
-        for (DailyBackupSchedule schedule : getSchedules()) {
-            schedule.schedule(timer, task);
+    /**
+     * Only used for hibernate storage
+     */
+    public String getEncodedDefinitionString() {
+        return m_definitionIds.isEmpty() ? null : StringUtils.join(m_definitionIds, ',');
+    }
+
+    /**
+     * Only used for hibernate storage
+     */
+    public void setEncodedDefinitionString(String encodedDefinitionString) {
+        m_definitionIds = new HashSet<String>();
+        if (StringUtils.isBlank(encodedDefinitionString)) {
+            return;
         }
-    }
-
-    TimerTask getTask(String binPath) {
-        return new BackupTask(binPath);
-    }
-
-    class BackupTask extends TimerTask {
-        private final String m_binPath;
-
-        BackupTask(String binPath) {
-            m_binPath = binPath;
-        }
-
-        @Override
-        public void run() {
-            BackupPlan.this.perform(m_binPath);
-        }
-    }
-
-    public String getEmailAddress() {
-        return m_emailAddress;
-    }
-
-    public void setEmailAddress(String emailAddress) {
-        m_emailAddress = emailAddress;
-    }
-
-    public MailSenderContext getMailSenderContext() {
-        return m_mailSenderContext;
-    }
-
-    public void setMailSenderContext(MailSenderContext mailSenderContext) {
-        m_mailSenderContext = mailSenderContext;
-    }
-
-    public void setMailboxManager(MailboxManager mailboxManager) {
-        m_mailboxManager = mailboxManager;
-    }
-
-    public void setEmailFromAddress(String emailFromAddress) {
-        m_emailFromAddress = emailFromAddress;
-    }
-
-    public Timer getTimer() {
-        return m_timer;
-    }
-
-    public void setTimer(Timer timer) {
-        m_timer = timer;
-    }
-
-    @Required
-    public void setBackupDirectory(String backupDirectory) {
-        m_backupDirectory = backupDirectory;
-    }
-
-    protected String getBackupDirectory() {
-        return m_backupDirectory;
-    }
-
-    public void resetTimer(String binDirectory) {
-        Timer timer = getTimer();
-        if (timer != null) {
-            timer.cancel();
-        }
-        timer = new Timer(false); // daemon, dies with main thread
-        setTimer(timer);
-        schedule(timer, binDirectory);
-    }
-
-    public void setLocale(Locale locale) {
-        this.m_locale = locale;
-    }
-
-    public Locale getLocale() {
-        return m_locale;
-    }
-
-    public void setMessageSource(MessageSource messageSource) {
-        m_messageSource = messageSource;
+        String[] split = StringUtils.split(encodedDefinitionString, ',');
+        m_definitionIds.addAll(Arrays.asList(split));
     }
 }

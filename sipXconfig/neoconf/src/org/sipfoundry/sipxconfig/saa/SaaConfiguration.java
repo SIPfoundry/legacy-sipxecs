@@ -80,7 +80,7 @@ public class SaaConfiguration implements ConfigProvider {
     void writeSaaConfig(Writer wtr, SaaSettings settings, String address, String domainName, String realm)
         throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(wtr);
-        config.write(settings.getSettings().getSetting("saa-config"));
+        config.writeSettings(settings.getSettings().getSetting("saa-config"));
         config.write("SIP_SAA_BIND_IP", address);
         config.write("SIP_SAA_DOMAIN_NAME", domainName);
         config.write("SIP_SAA_AUTHENTICATE_REALM", realm);

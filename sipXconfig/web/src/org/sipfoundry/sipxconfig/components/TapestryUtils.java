@@ -41,7 +41,12 @@ import org.apache.tapestry.valid.ValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.apache.tapestry.web.WebResponse;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
+import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingVisitor;
+import org.sipfoundry.sipxconfig.setting.SettingsValidator;
 
 /**
  * Utility method for tapestry pages and components
@@ -81,6 +86,25 @@ public final class TapestryUtils {
         }
 
         return params[index];
+    }
+
+    public static SettingsValidator requiredSettingsValidator() {
+        final SettingVisitor validator = new AbstractSettingVisitor() {
+            @Override
+            public void visitSetting(Setting setting) {
+                if (setting.getType().isRequired()) {
+                    if (setting.getValue() == null) {
+                        throw new UserException("&msg.missingRequiredSetting", setting.getName());
+                    }
+                }
+            }
+        };
+        return new SettingsValidator() {
+            @Override
+            public void validate(Setting settings) {
+                settings.acceptVisitor(validator);
+            }
+        };
     }
 
     /**

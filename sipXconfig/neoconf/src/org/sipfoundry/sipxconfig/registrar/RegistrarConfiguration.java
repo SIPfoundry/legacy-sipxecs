@@ -80,14 +80,14 @@ public class RegistrarConfiguration implements ConfigProvider {
             Address imApi, Address presenceApi, Address park) throws IOException {
         KeyValueConfiguration file = KeyValueConfiguration.colonSeparated(wtr);
         Setting root = settings.getSettings();
-        file.write(SettingUtil.filter(NO_UNDERSCORE, root.getSetting("registrar-config")));
+        file.writeSettings(SettingUtil.filter(NO_UNDERSCORE, root.getSetting("registrar-config")));
         file.write("SIP_REGISTRAR_AUTHENTICATE_REALM", domain.getSipRealm());
         file.write("SIP_REGISTRAR_DOMAIN_NAME", domain.getName());
         file.write("SIP_REGISTRAR_PROXY_PORT", proxy.getPort());
         file.write("SIP_REGISTRAR_NAME", location.getFqdn());
         file.write("SIP_REGISTRAR_SYNC_WITH", "obsolete");
-        file.write(root.getSetting("userparam"));
-        file.write(root.getSetting("call-pick-up"));
+        file.writeSettings(root.getSetting("userparam"));
+        file.writeSettings(root.getSetting("call-pick-up"));
 
         if (park != null) {
             String parkUri = format("%s;transport=tcp?Route=sip:%s:%d", domain.getName(), park.getAddress(),
@@ -95,9 +95,9 @@ public class RegistrarConfiguration implements ConfigProvider {
             file.write("SIP_REDIRECT.100-PICKUP.PARK_SERVER", parkUri);
         }
 
-        file.write("SIP_REDIRECT.130-MAPPING.", root.getSetting("mapping"));
-        file.write(root.getSetting("isn"));
-        file.write(root.getSetting("enum"));
+        file.writeSettings("SIP_REDIRECT.130-MAPPING.", root.getSetting("mapping"));
+        file.writeSettings(root.getSetting("isn"));
+        file.writeSettings(root.getSetting("enum"));
 
         if (imApi != null) {
             String openfireUrl = format("http://%s:%d/plugins/sipx-openfire-presence/status", imApi.getAddress(),

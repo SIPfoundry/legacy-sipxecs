@@ -11,20 +11,33 @@
 # FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
 # details.
 
-bundle agent run_restore {
-  methods:
-    any::
-      "any" usebundle => "sipx_module";
-      "invoke_script" usebundle => invoke_restore_script("@SIPX_CFDATA@/$(sipx.location_id)/restore.ini");
-}
 
-bundle agent invoke_restore_script(ini) {
+#
+# Restore select configs from select archives.
+#
+bundle agent restore_node {
   vars:
-    "restore_args" string => readfile("$(ini)", "1500");
+    any::
+      "restore_dir" string => "$(sipx.SIPX_TMPDIR)/restore/$(restore_id)";
+      "config" string => "$(sipx.SIPX_CONFDIR)/sipx-select-restore.yaml";
+      "template" string => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipx-select-restore.yaml";
+
+  files:
+    any::
+      "$(config)"
+        comment => "Generate restore copnfig $(this.promiser) from $(template)",
+        create => "true",
+        edit_defaults => empty,
+        edit_line => expand_template("$(template)");
 
   commands:
     any::
-      "@SIPX_BINDIR@/sipx-restore"
-        args => $(restore_args);
-}
+      "$(sipx.SIPX_BINDIR)/sipx-archive"
+        comment => "Restore from $(restore_id)",
+        args => "--restore $(config) --id $(restore_id)",
+        classes => on_failed_command("1", "failed_restore");
 
+  reports:
+    failed_restore::
+      "!!! Failed to complete restore. See logs for more details.";
+}

@@ -1,0 +1,134 @@
+#!/bin/env ruby
+
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+#
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+#
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# Archive and Restore sipXconfig's postgres database. Can be used as standalone
+# script or within the larger sipx-backup context.
+#
+
+require 'yaml'
+require 'fileutils'
+
+class ArchiveBase
+  attr_writer :verbose
+
+  def initialize(config)
+    @backup_dir = '@SIPX_TMPDIR@/backup'
+    @restore_dir = '@SIPX_TMPDIR@/restore'
+    @data = YAML::load_file(config)
+  end
+
+  def cmd(cmd)
+    puts cmd if @verbose
+    rc = system(cmd)
+    return rc
+  end
+end
+
+class Backup < ArchiveBase
+  def run(params)    
+    if @data.has_key?('backup')
+      FileUtils.mkdir_p @backup_dir
+      # programming safeguard : ensure we do not delete '/'
+      raise "Internal error" if @backup_dir.strip.empty?
+      FileUtils.rm Dir.glob(@backup_dir + '/*')
+      @data['backup'].each_pair { |k,v|
+        line = "#{v}" % "#{@backup_dir}/#{k}"
+        cmd(line) or
+          raise "Failed to backup #{k} using command #{line}"
+      }
+    else
+      puts "Warning, no backup definitions found"
+    end
+  end
+end
+
+class Restore < ArchiveBase
+  def run(params)
+    if @data.has_key?('restore')
+      @data['restore'].each_pair { |k,v| 
+        line = "#{v}" % "#{@restore_dir}/#{k}"
+        cmd(line) or
+          raise "Failed to restore #{k} using command #{line}"
+      }
+    else
+      puts "Warning, no restore definitions found"
+    end
+  end
+end
+
+
+class BackupCluster < ArchiveBase
+end
+
+class RestoreCluster < ArchiveBase
+end
+
+class ManageLocal
+end
+
+class ManageFtp
+
+end
+
+if __FILE__ == $0
+
+require 'optparse'
+params = {}
+operation = nil
+
+verbose = false
+args = OptionParser.new { |opts|
+  opts.banner = <<EOF
+Create or restore backups and archives.
+EOF
+
+  opts.on("--backup config.yaml",
+      "Restore the specified Configuration archive."){ |v|
+    operation = Backup.new(v)
+  }
+
+  opts.on("--restore config.yaml",
+      "Restore the specified Configuration archive."){ |v|
+    operation = Restore.new(v)
+  }
+
+  opts.on("--cluster-backup config.yaml",
+      "Backup all nodes and manage the local or remote directory structure."){ |v|
+    operation = ClusterBackup.new(v)
+  }
+
+  opts.on("--cluster-restore config.yaml",
+      "Restore all nodes from local or remote directory."){ |v|
+    operation = ClusterRestore.new(v)
+  }
+
+  opts.on("--verbose",
+      "Restore the specified Configuration archive."){
+    verbose = true
+  }
+}
+args.parse!
+
+if operation.nil?
+  raise "Must specify either restore or archive options."
+end
+
+operation.verbose = verbose
+operation.run(params)
+exit 0
+
+end
+

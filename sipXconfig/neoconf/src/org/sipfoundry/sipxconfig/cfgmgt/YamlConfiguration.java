@@ -49,6 +49,7 @@ public class YamlConfiguration extends AbstractConfigurationFile {
     @Override
     public void write(String prefix, String key, Object value) throws IOException {
         m_out.write(indent());
+        m_out.write(prefix == null ? EMPTY : prefix.toString());
         m_out.write(key);
         m_out.write(": ");
         m_out.write(value == null ? EMPTY : value.toString());

@@ -37,25 +37,25 @@ public abstract class AbstractConfigurationFile {
         m_globalPrefix = prefix;
     }
 
-    public void write(String prefix, Collection<Setting> settings) throws IOException {
+    public void writeSettings(String prefix, Collection<Setting> settings) throws IOException {
         Iterator<Setting> i = settings.iterator();
         while (i.hasNext()) {
-            write(prefix, i.next());
+            writeSettings(prefix, i.next());
         }
     }
 
-    public void write(Collection<Setting> settings) throws IOException {
-        write(m_globalPrefix, settings);
+    public void writeSettings(Collection<Setting> settings) throws IOException {
+        writeSettings(m_globalPrefix, settings);
     }
 
-    public void write(Setting settings) throws IOException {
+    public void writeSettings(Setting settings) throws IOException {
         settings.acceptVisitor(new SettingsWriter(m_globalPrefix));
         if (m_error != null) {
             throw m_error;
         }
     }
 
-    public void write(String prefix, Setting settings) throws IOException {
+    public void writeSettings(String prefix, Setting settings) throws IOException {
         settings.acceptVisitor(new SettingsWriter(prefix));
         if (m_error != null) {
             throw m_error;

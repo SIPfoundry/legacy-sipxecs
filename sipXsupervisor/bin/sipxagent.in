@@ -35,7 +35,7 @@ def run(verbose, is_remote, is_raw, hosts, defines, undefines, bundles)
 
   else
     dstr = (defines.empty? ? '' : "-D " + defines.join(' -D '))
-    nstr = (defines.empty? ? '' : "-N " + undefines.join(' -N '))
+    nstr = (undefines.empty? ? '' : "-N " + undefines.join(' -N '))
     bstr = (bundles.empty? ? '' : "-b " + bundles.join(' -b '))
     agentstr = "-v #{dstr} #{nstr} #{bstr}"
     hstr = (hosts.empty? ? '' : "-H " + hosts.join(' -H '))

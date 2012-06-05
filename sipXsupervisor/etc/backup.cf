@@ -1,0 +1,149 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# Initiate node backup  on this server or a full cluster backup from the primary
+#
+# NOTE:
+# Required CF define is backup_id unique to each backup request. The reason it's 
+# required and not generated here is that it is critical backups not be mixed 
+# together.  If a backup from 2 days ago was grabbed instead of the current backup
+# and a restore was done using this backup, results would be horribly incorrect.
+# 
+
+bundle agent backup {
+  vars:
+    "plan" slist => { "ftp", "local" };
+
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/backup-$(plan).yaml"
+        comment => "Backup config $(this.promiser)",
+        create => "true",
+        edit_defaults => empty,
+        edit_line => expand_template("$(sipx.SIPX_CFDATA)/$(sipx.location_id)/backup-$(plan).yaml");
+
+  # crontabs
+}
+
+# Variables for following backup plans
+bundle agent backup_vars {
+  vars:
+    local_backup::
+      "plan" string => "local";
+
+    ftp_backup::
+      "plan" string => "ftp";
+
+    manual_backup::
+      "plan" string => "manual";
+}
+
+#
+# Entry point for running a backup on a node replacing any previous backups
+# on that node. Typically this is followed by a call to backup_collect to
+# download and backup files
+#
+# Example:
+#   sipxagent [-h host] -b backup_node -d local_backup
+#
+bundle agent backup_node {
+  methods:
+    any::
+      "any" usebundle => sipx_module;
+      "any" usebundle => sipx_init;
+      "any" usebundle => backup_vars;
+      "any" usebundle => backup_node_run;
+}
+
+bundle agent backup_node_run {
+  vars:
+    "template" string => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/backup-$(backup_vars.plan).yaml";
+    "config" string => "$(sipx.SIPX_CONFDIR)/backup-$(backup_vars.plan).yaml";
+
+  files:
+    any::
+      "$(config)"
+        comment => "Backup config $(this.promiser)",
+        create => "true",
+        edit_defaults => empty,
+        edit_line => expand_template("$(template)");
+
+  commands:
+    any::
+      "$(sipx.SIPX_BINDIR)/sipx-archive"
+        comment => "Backup config $(this.promiser)",
+        args => "--backup $(config)",
+        classes => on_failed_command("1", "failed_backup");
+
+  reports:
+    linux::
+      "bin dir $(sipx.SIPX_BINDIR)";
+
+    failed_backup::
+      "!!! Failed to complete $(backup_vars.plan) backup. See sipxagent.log for more details.";
+}
+
+#
+# Entry point for collecting all backups on the primary machine from all nodes
+# on the network including itself.
+#
+# Example:
+#   sipxagent -b backup_collect -d local_backup
+#
+# NOTE: This does assume that backup ran successfully on *all* machines or at least cleared
+# the old backups before failing. If that is not the case, we unknowingly collect old backups
+# here.
+bundle agent backup_collect {
+  methods:
+    any::
+      "any" usebundle => sipx_module;
+      "any" usebundle => sipx_init;
+      "any" usebundle => backup_vars;
+      "any" usebundle => backup_collect_run;
+}
+
+bundle agent backup_collect_run {
+  vars:
+    any::
+      "fqdn" slist => readstringlist("$(sipx.SIPX_CFDATA)/servers", "=(.*?)end", "\n", 100, 4000);
+      "dim_servers" int => readstringarray("server", "$(sipx.SIPX_CFDATA)/servers", "#[^\n]*", "[\s=]", 100, 4000);
+      "backup_id" string => execresult("/bin/date +%Y%m%d%H%M", "noshell");
+
+  methods:
+    any::
+      "any" usebundle => "sipx_init";
+      "any" usebundle => "sipx_module";
+      "any" usebundle => backup_collect_run_for_node("$(backup_id)", "$(server[$(fqdn)][2])");
+}
+
+bundle agent backup_collect_run_for_node(backup_id, node_fqdn) {
+  files:
+    any::
+      "$(sipx.SIPX_VARDIR)/backup/$(backup_vars.plan)/."
+        create => "true",
+        perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)");
+
+      "$(sipx.SIPX_VARDIR)/backup/$(backup_vars.plan)/$(backup_id)/."
+        create => "true",
+        perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)");
+
+      "$(sipx.SIPX_VARDIR)/backup/$(backup_vars.plan)/$(backup_id)"
+        perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
+        copy_from => master_files("$(node_fqdn)", "$(sipx.SIPX_TMPDIR)/backup"),
+        depth_search => recurse("1");
+
+  reports:
+    linux::
+      "Downloading backups from $(node_fqdn)";
+}

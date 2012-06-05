@@ -62,7 +62,7 @@ public class FtpConfig implements ConfigProvider, DaoEventListener {
 
     void writeConfig(Writer w, FtpSettings settings) throws IOException {
         KeyValueConfiguration c = KeyValueConfiguration.equalsSeparated(w);
-        c.write(settings.getSettings().getSetting("vsftp-config"));
+        c.writeSettings(settings.getSettings().getSetting("vsftp-config"));
     }
 
     public void setFtpManager(FtpManager ftpManager) {
