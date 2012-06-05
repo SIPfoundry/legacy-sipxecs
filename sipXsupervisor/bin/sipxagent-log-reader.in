@@ -27,23 +27,24 @@ end
 def digest(input)
   err = false
   warn = false
+  info_msg = ''
   msg = ''
   handle = ''
   parse(input) {|tok, value|
     puts "Digester - #{tok}:#{value}" if $verbose
     case tok
     when :info
-      msg << '. ' << value
+      info_msg << '. ' << value
     when :warning
       warn = true
       msg << '. ' << value
     when :comment
-     msg << ' attempting \'' << value  << '\''
+     info_msg << ' attempting \'' << value  << '\''
     when :error
       err = true
       msg << '. ' << value
     when :handle, :finished
-      # clear any outstanding errors/warning
+      msg = info_msg if msg.empty?
       if err
         msg = (handle.empty? ? "Error" : "Error in #{handle}") << msg
         yield :error, msg
@@ -51,6 +52,7 @@ def digest(input)
         msg = (handle.empty? ? "Warning" : "Warning in #{handle}") << msg
         yield :warning, msg
       end
+      # clear any outstanding errors/warning
       err = warn = false
       msg = ''
       handle = value
