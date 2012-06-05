@@ -300,11 +300,13 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
      */
     public void call(String from) {
         String domain = getDomainManager().getDomain().getName();
-        String userAddrSpec = getLoadedUser().getAddrSpec(domain);
+        //We need to read the user from DB once
+        User user = getUser();
+        String userAddrSpec = user.getAddrSpec(domain);
         String destAddrSpec = SipUri.format(from, domain, false);
         if (destAddrSpec != null) {
             String displayName = "ClickToCall";
-            getSipService().sendRefer(getUser(), userAddrSpec, displayName, destAddrSpec);
+            getSipService().sendRefer(user, userAddrSpec, displayName, destAddrSpec);
         } else {
             LOG.error("Failed to get URI to call: " + from);
         }
