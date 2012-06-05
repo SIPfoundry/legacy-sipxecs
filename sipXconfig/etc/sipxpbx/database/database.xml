@@ -108,9 +108,6 @@
     <exec executable="dropdb" outputproperty="eatme">
       <arg line="-U ${sipxconfig.db.user} ${sipxconfig.db.name}" />
     </exec>
-    <exec executable="dropdb" outputproperty="eatme">
-      <arg line="-U ${sipxconfig.db.user} ${sipxconfig.db.name}" />
-    </exec>
   </target>
 
   <!-- creates database void of schema -->

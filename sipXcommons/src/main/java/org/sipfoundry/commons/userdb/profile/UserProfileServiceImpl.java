@@ -173,8 +173,4 @@ public class UserProfileServiceImpl implements UserProfileService {
     public void setProfilesDb(MongoTemplate template) {
         m_template = template;
     }
-
-    public MongoTemplate getProfilesDb() {
-        return m_template;
-    }
 }
