@@ -15,8 +15,6 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
-import org.springframework.context.ApplicationContext;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
 public class UserSearchManagerImplTestIntegration extends IntegrationTestCase {
     private CoreContext m_coreContext;
@@ -28,6 +26,7 @@ public class UserSearchManagerImplTestIntegration extends IntegrationTestCase {
         super.onSetUpBeforeTransaction();
         clear();
         sql("commserver/SeedLocations.sql");
+        getProfilesDb().dropCollection("userProfile");
         m_identityToBean = new IdentityToBean(m_coreContext);
         m_indexManager.indexAll();
     }
