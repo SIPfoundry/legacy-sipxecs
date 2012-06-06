@@ -97,7 +97,8 @@ public class CsvRowInserterTest extends TestCase {
             "job title", "job dept", "company name", "assistant name",
             "001122", "112233", "223344", "33445566", "alternate@gmail.com","alternateImId", "location",
             "home street", "home city", "home state", "home country", "34001",
-            "office street", "office city", "office state", "office country", "34342"
+            "office street", "office city", "office state", "office country", "34342",
+            "44556677", "office mail stop"
         };
 
         CsvRowInserter impl = new CsvRowInserter();
@@ -117,6 +118,7 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals("alternate@gmail.com", user1.getAddressBookEntry().getAlternateEmailAddress());
         assertEquals("alternateImId", user1.getAddressBookEntry().getAlternateImId());
         assertEquals("location", user1.getAddressBookEntry().getLocation());
+        assertEquals("44556677", user1.getAddressBookEntry().getDidNumber());
 
         assertEquals("home street", user1.getAddressBookEntry().getHomeAddress().getStreet());
         assertEquals("home city", user1.getAddressBookEntry().getHomeAddress().getCity());
@@ -129,6 +131,7 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals("office state", user1.getAddressBookEntry().getOfficeAddress().getState());
         assertEquals("office country", user1.getAddressBookEntry().getOfficeAddress().getCountry());
         assertEquals("34342", user1.getAddressBookEntry().getOfficeAddress().getZip());
+        assertEquals("office mail stop", user1.getAddressBookEntry().getOfficeAddress().getOfficeDesignation());
 
         verify(coreContext, domainManager);
     }

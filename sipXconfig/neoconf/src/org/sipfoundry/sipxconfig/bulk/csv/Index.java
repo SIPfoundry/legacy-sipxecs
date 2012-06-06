@@ -52,7 +52,9 @@ public enum Index {
     OFFICE_CITY("createdAddressBookEntry.officeAddress.city", 30),
     OFFICE_STATE("createdAddressBookEntry.officeAddress.state", 31),
     OFFICE_COUNTRY("createdAddressBookEntry.officeAddress.country", 32),
-    OFFICE_ZIP("createdAddressBookEntry.officeAddress.zip", 33);
+    OFFICE_ZIP("createdAddressBookEntry.officeAddress.zip", 33),
+    DID_NUMBER("createdAddressBookEntry.didNumber", 34),
+    OFFICE_MAIL_STOP("createdAddressBookEntry.officeAddress.officeDesignation", 35);
 
     private final String m_name;
     private final int m_value;
@@ -127,7 +129,8 @@ public enum Index {
             "Company name", "Assistant name", "Cell phone number", "Home phone number",
             "Assistant phone number", "Fax number", "Alternate email", "Alternate im",
             "Location", "Home street", "Home city", "Home state", "Home country", "Home zip",
-            "Office street", "Office city", "Office state", "Office country", "Office zip"
+            "Office street", "Office city", "Office state", "Office country", "Office zip",
+            "Did number", "Office mail stop"
         };
     }
 }

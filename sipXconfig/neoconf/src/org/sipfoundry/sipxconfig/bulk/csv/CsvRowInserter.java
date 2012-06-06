@@ -228,6 +228,8 @@ public class CsvRowInserter extends RowInserter<String[]> {
         Index.OFFICE_STATE.setProperty(user, row);
         Index.OFFICE_COUNTRY.setProperty(user, row);
         Index.OFFICE_ZIP.setProperty(user, row);
+        Index.DID_NUMBER.setProperty(user, row);
+        Index.OFFICE_MAIL_STOP.setProperty(user, row);
         return user;
     }
 

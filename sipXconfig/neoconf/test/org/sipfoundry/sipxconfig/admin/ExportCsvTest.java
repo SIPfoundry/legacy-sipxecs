@@ -46,7 +46,7 @@ public class ExportCsvTest extends TestCase {
         assertEquals(0, userIds.size());
         assertEquals(
                 "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\"," +
-                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -103,7 +103,7 @@ public class ExportCsvTest extends TestCase {
         assertTrue(userIds.contains("jlennon"));
         assertEquals(
                 "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"jlennon@gmail.com\",\"ug1 ug2 ug3\",\"665544332211\",\"testPhoneModel\",\"phonegroup1 phonegroup2 phonegroup3, phonegroup4\",\"phone description\",\"imId\"," +
-                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -131,7 +131,7 @@ public class ExportCsvTest extends TestCase {
         assertEquals(0, userIds.size());
         assertEquals(
                 "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\",\"\"" +
-                ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
+                ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -152,7 +152,7 @@ public class ExportCsvTest extends TestCase {
         exportCsv.exportUser(csv, row, user, "example.org");
         assertEquals(
                 "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
-                ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
+                ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -182,6 +182,7 @@ public class ExportCsvTest extends TestCase {
         addressBookEntry.setAlternateEmailAddress("alternate@gmail.com");
         addressBookEntry.setAlternateImId("alternateImId");
         addressBookEntry.setLocation("location");
+        addressBookEntry.setDidNumber("44556677");
 
         Address homeAddress = new Address();
         homeAddress.setStreet("home street");
@@ -197,6 +198,7 @@ public class ExportCsvTest extends TestCase {
         officeAddress.setState("office state");
         officeAddress.setCountry("office country");
         officeAddress.setZip("34342");
+        officeAddress.setOfficeDesignation("office designation");
         addressBookEntry.setOfficeAddress(officeAddress);
 
         user.setAddressBookEntry(addressBookEntry);
@@ -207,7 +209,7 @@ public class ExportCsvTest extends TestCase {
                 ",\"job title\",\"job dept\",\"company name\",\"assistant name\"," +
                 "\"001122\",\"112233\",\"223344\",\"33445566\",\"alternate@gmail.com\",\"alternateImId\",\"location\"," +
                 "\"home street\",\"home city\",\"home state\",\"home country\",\"34001\"," +
-                "\"office street\",\"office city\",\"office state\",\"office country\",\"34342\"\n",
+                "\"office street\",\"office city\",\"office state\",\"office country\",\"34342\",\"44556677\",\"office designation\"\n",
                 writer.toString());
     }
 }

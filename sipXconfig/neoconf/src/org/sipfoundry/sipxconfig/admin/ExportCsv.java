@@ -136,6 +136,7 @@ public class ExportCsv {
             Index.ALTERNATE_EMAIL.set(row, addressBookEntry.getAlternateEmailAddress());
             Index.ALTERNATE_IM_ID.set(row, addressBookEntry.getAlternateImId());
             Index.LOCATION.set(row, addressBookEntry.getLocation());
+            Index.DID_NUMBER.set(row, addressBookEntry.getDidNumber());
 
             if (addressBookEntry.getHomeAddress() != null) {
                 Address homeAddress = addressBookEntry.getHomeAddress();
@@ -152,6 +153,7 @@ public class ExportCsv {
                 Index.OFFICE_STATE.set(row, officeAddress.getState());
                 Index.OFFICE_COUNTRY.set(row, officeAddress.getCountry());
                 Index.OFFICE_ZIP.set(row, officeAddress.getZip());
+                Index.OFFICE_MAIL_STOP.set(row, officeAddress.getOfficeDesignation());
             }
         }
         csv.write(row, true);
