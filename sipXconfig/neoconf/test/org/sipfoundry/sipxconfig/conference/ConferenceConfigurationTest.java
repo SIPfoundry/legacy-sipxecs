@@ -91,6 +91,7 @@ public class ConferenceConfigurationTest extends TestCase {
         conf.setAutorecorded(true);
         conf.setSettingTypedValue(Conference.QUICKSTART, false);
         conf.setSettingValue(Conference.MODERATOR_CODE, "3456");
+        conf.setSettingValue(Conference.MOH, "NONE");
         bridge.addConference(conf);
 
         ConferenceBridgeContext confContext = EasyMock.createMock(ConferenceBridgeContext.class);
