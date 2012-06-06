@@ -44,6 +44,7 @@ public class Conference extends BeanWithSettings implements NamedObject {
     public static final String MAX_LEGS = "fs-conf-conference/MAX_LEGS";
     public static final String MOH = "fs-conf-conference/MOH";
     public static final String MOH_SOUNDCARD_SOURCE = "SOUNDCARD_SRC";
+    public static final String MOH_FILES_SOURCE = "FILES_SRC";
 
     private static final String ALIAS_RELATION = "conference";
 
@@ -164,6 +165,10 @@ public class Conference extends BeanWithSettings implements NamedObject {
 
     public boolean isMohPortAudioEnabled() {
         return getSettingValue(MOH).equals(MOH_SOUNDCARD_SOURCE);
+    }
+
+    public boolean isMohFilesSrcEnabled() {
+        return getSettingValue(MOH).equals(MOH_FILES_SOURCE);
     }
 
     public String getUri() {

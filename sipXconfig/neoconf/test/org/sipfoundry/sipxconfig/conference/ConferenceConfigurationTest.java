@@ -86,6 +86,7 @@ public class ConferenceConfigurationTest extends TestCase {
         conf.setSettingValue(Conference.MAX_LEGS, "4");
         conf.setUniqueId();
         conf.setAutorecorded(true);
+        conf.setSettingValue(Conference.MOH, "NONE");
         bridge.addConference(conf);
 
         ConferenceBridgeContext confContext = EasyMock.createMock(ConferenceBridgeContext.class);

@@ -99,7 +99,6 @@
       <param name="caller-id-number" value="$${outbound_caller_id}"/>
       <param name="comfort-noise" value="0"/>
       <param name="max-members" value="4"/>
-      <param name="moh-sound" value="local_stream://moh"/>
     </profile>
   </profiles>
 </configuration>

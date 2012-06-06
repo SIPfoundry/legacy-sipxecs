@@ -77,7 +77,8 @@
 #end
 #if(${conference.mohPortAudioEnabled})
       <param name="moh-sound" value="$portAudioUrl"/>
-#else
+#end
+#if(${conference.mohFilesSrcEnabled})
       <param name="moh-sound" value="$mohLocalStreamUrl"/>
 #end
     </profile>
