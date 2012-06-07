@@ -66,6 +66,7 @@ lib_centos_6 = \
   sec \
   nsis \
   nsis-data \
+  rubygem-net-ssh \
   rubygem-net-sftp
 
 lib = $(lib_$(DISTRO_OS)_$(DISTRO_VER))
