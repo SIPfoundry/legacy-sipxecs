@@ -174,11 +174,12 @@ public class GroupAutoAssign {
             }
             userConference.setDescription("Automatically created conference for " + displayName);
             userConference.setSettingValue(Conference.PARTICIPANT_CODE, StringUtils.EMPTY);
+            userConference.setBridge(bridge);
 
             LOG.debug(String.format("Creating conference \"%s\", extension %s, for user %s", userConference
                     .getName(), userConference.getExtension(), user.getDisplayName()));
 
-            m_bridgeContext.validate(userConference);
+            m_bridgeContext.saveConference(userConference);
             bridge.addConference(userConference);
             m_bridgeContext.store(bridge);
         }
