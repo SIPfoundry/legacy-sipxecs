@@ -68,12 +68,18 @@ get_queue(Name) ->
 		{ok, []} ->
 			noexists;
 		{ok, Props} ->
-			spx_util:build_queue(Props)
+			spx_util:build_queue(Props);
+		_ ->
+			noexists
 	end.
 
 get_queues() ->
-	{ok, Props} = db_find(queue, []),
-	{ok, [X || P <- Props, {ok, X} <- [spx_util:build_queue(P)]]}.
+	case db_find(queue, []) of
+		{ok, Props} ->
+			{ok, [X || P <- Props, {ok, X} <- [spx_util:build_queue(P)]]};
+		_ ->
+			{ok, []}
+	end.
 
 load_queues() ->
 	{ok, Qs} = get_queues(),
@@ -84,24 +90,36 @@ get_queue_group(Name) ->
 		{ok, []} ->
 			noexists;
 		{ok, Props} ->
-			spx_util:build_queue_group(Props)
+			spx_util:build_queue_group(Props);
+		_ ->
+			noexists
 	end.
 
 get_queue_groups() ->
-	{ok, Props} = db_find(queuegroup, []),
-	{ok, [X || P <- Props, {ok, X} <- [spx_util:build_queue_group(P)]]}.
+	case db_find(queuegroup, []) of
+		{ok, Props} ->
+			{ok, [X || P <- Props, {ok, X} <- [spx_util:build_queue_group(P)]]};
+		_ ->
+			{ok, []}
+	end.
 
 get_skill(Atom) when is_atom(Atom) ->
 	case db_find_one(skill, [{<<"atom">>, atom_to_binary(Atom, utf8)}]) of
 		{ok, []} ->
 			noexists;
 		{ok, Props} ->
-			spx_util:build_skill(Props)
+			spx_util:build_skill(Props);
+		_ ->
+			noexists
 	end.
 
 get_skills() ->
-	{ok, Props} = db_find(skill, []),
-	{ok, [X || P <- Props, {ok, X} <- [spx_util:build_skill(P)]]}.
+	case db_find(skill, []) of
+		{ok, Props} ->
+			{ok, [X || P <- Props, {ok, X} <- [spx_util:build_skill(P)]]};
+		_ ->
+			{ok, []}
+	end.
 
 get_client(Key, Val) when is_atom(Key)->
 	Cond = case Key of
@@ -113,13 +131,19 @@ get_client(Key, Val) when is_atom(Key)->
 		{ok, []} ->
 			noexists;
 		{ok, Props} ->
-			spx_util:build_client(Props)
+			spx_util:build_client(Props);
+		_ ->
+			noexists
 	end.
 
 
 get_clients() ->
-	{ok, Props} = db_find(client, []),
-	{ok, [X || P <- Props, {ok, X} <- [spx_util:build_client(P)]]}.
+	case db_find(client, []) of
+		{ok, Props} ->
+			{ok, [X || P <- Props, {ok, X} <- [spx_util:build_client(P)]]};
+		_ ->
+			{ok, []}
+	end.
 
 
 db_find(Type, Props) when is_atom(Type) ->
@@ -163,6 +187,24 @@ start_test_() ->
 		?_assert(has_hook(spx_get_skills, get_skills)),
 		?_assert(has_hook(spx_get_client, get_client)),
 		?_assert(has_hook(spx_get_clients, get_clients))
+	]}.
+
+defaults_test_() ->
+	{setup, fun() ->
+		meck:new(mongoapi),
+		meck:expect(mongoapi, new, 2, {mongoapi, spx, <<"imdb_test">>}),
+		meck:expect(mongoapi, findOne, 3, not_connected),
+		meck:expect(mongoapi, find, 6, not_connected)
+	end,
+	fun(_) -> meck:unload(mongoapi) end,
+	[?_assertEqual(noexists, spx_call_queue_config:get_queue("name")),
+	?_assertEqual({ok, []}, spx_call_queue_config:get_queues()),
+	?_assertEqual(noexists, spx_call_queue_config:get_queue_group("qg")),
+	?_assertEqual({ok, []}, spx_call_queue_config:get_queue_groups()),
+	?_assertEqual(noexists, spx_call_queue_config:get_skill(sk)),
+	?_assertEqual({ok, []}, spx_call_queue_config:get_skills()),
+	?_assertEqual(noexists, spx_call_queue_config:get_client(id, "id")),
+	?_assertEqual({ok, []}, spx_call_queue_config:get_clients())
 	]}.
 
 integ_get_queue_test_() ->
@@ -264,7 +306,7 @@ has_hook(Name, Hook) ->
 reset_test_db() ->
 	PrivDir = case code:priv_dir(sipxplugin) of
 		{error, _} ->
-			filename:join([filename:dirname(code:which(spx_agent_auth)),
+			filename:join([filename:dirname(code:which(spx_call_queue_config)),
 				"..", "priv"]);
 		Dir -> Dir
 	end,
