@@ -8,7 +8,7 @@
 	"skl" : [ "stop" ],
 	"clns" : [ "Demo Client" ],
 	"qs" : [ "default_queue" ],
-	"pntk" : "4dadc3a8d96939640eef8aeedf28525d",
+	"pntk" : "foosecret",
 	"rlm": "ezuce.com",
 	"scrty" : "ADMIN",
 	"aggrp" : "foobaz",
