@@ -18,16 +18,25 @@ package org.sipfoundry.sipxconfig.imbot;
 
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang.StringUtils.replace;
+import static org.sipfoundry.commons.mongo.MongoConstants.IM_ENABLED;
+import static org.sipfoundry.commons.mongo.MongoConstants.IM_ID;
+import static org.sipfoundry.commons.mongo.MongoConstants.PINTOKEN;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class ImBotSettings extends PersistableSettings implements DeployConfigOnEdit {
+public class ImBotSettings extends PersistableSettings implements DeployConfigOnEdit, Replicable {
     private static final String PA_USER_NAME_SETTING = "imbot/_imbot.paUserName";
     private static final String PA_PASSWORD_SETTING = "imbot/imbot.paPassword";
     private static final String HTTP_PORT = "imbot/imbot.httpport";
@@ -79,5 +88,43 @@ public class ImBotSettings extends PersistableSettings implements DeployConfigOn
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) ImBot.FEATURE);
+    }
+
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
+    public void setName(String name) {
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        return null;
+    }
+
+    @Override
+    public String getIdentity(String domainName) {
+        return null;
+    }
+
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
+        return null;
+    }
+
+    @Override
+    public boolean isValidUser() {
+        return true;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put(IM_ID, getPersonalAssistantImId());
+        props.put(PINTOKEN, getPersonalAssistantImPassword());
+        props.put(IM_ENABLED, true);
+        return props;
     }
 }
