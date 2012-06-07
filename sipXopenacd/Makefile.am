@@ -10,19 +10,18 @@ SUBDIRS = \
 	bin
 
 @PACKAGE@_EXTRA_DIST = \
+	$(SRC_FILES) \
 	deps \
-	$(wildcard src/*.erl) \
-	$(wildcard src/*.src) \
+	src/sipxplugin.app.src \
 	rebar \
 	rebar.config \
 	README \
 	LICENSE
 
-deps :
+deps/.downloaded :
 	./rebar get-deps update-deps
 	rm -f deps/erlmongo/erlmongo.spec
-
-dist-hook : deps
+	touch $@
 
 # C O M P I L E   S R C
 # Normally there's a makefile in src to compile but we leverage
@@ -40,7 +39,7 @@ LINK_TARGETS = $(addprefix $(abspath $(builddir))/, src rebar rebar.config)
 # srcdir != bindir then we symlink them from srcdir. Don't copy as
 # that can only introduce stale files. Also, this target is safely 
 # ignored when srcdir == bindir.
-$(SRC_FILES) : $(LINK_TARGETS) deps;
+$(SRC_FILES) : $(LINK_TARGETS) deps/.downloaded;
 $(LINK_TARGETS) :
 	ln -s $(abspath $(srcdir))/$(notdir $@) $@
 
