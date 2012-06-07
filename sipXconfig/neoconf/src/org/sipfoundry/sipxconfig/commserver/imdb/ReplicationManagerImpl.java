@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.commserver.imdb;
 
 
-
 import static org.sipfoundry.commons.mongo.MongoConstants.ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.IDENTITY;
 import static org.sipfoundry.commons.mongo.MongoConstants.VALID_USER;
@@ -45,6 +44,7 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.VersionInfo;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.forwarding.CallSequence;
@@ -52,6 +52,8 @@ import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -70,7 +72,8 @@ import com.mongodb.DBObject;
  * care of all the work load needed to replicate {@link Replicable}s in Mongo and
  * {@link ConfigurationFile}s on different locations.
  */
-public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements ReplicationManager, BeanFactoryAware {
+public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements ReplicationManager, BeanFactoryAware,
+    SetupListener {
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
     private static final String REPLICATION_FAILED = "Replication: insert/update failed - ";
     private static final String REPLICATION_FAILED_REMOVE = "Replication: delete failed - ";
@@ -87,10 +90,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         DataSet.CALLER_ALIAS, DataSet.SPEED_DIAL,
         DataSet.USER_FORWARD, DataSet.USER_LOCATION, DataSet.USER_STATIC};
     private static final DataSet[] BRANCH_DATASETS = {DataSet.USER_LOCATION};
-
-    private boolean m_enabled = true;
-    private boolean m_setup;
-
     private MongoTemplate m_imdb;
     private ValidUsers m_validUsers;
     private LocationsManager m_locationsManager;
@@ -656,10 +655,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         return m_imdb.getDb().getCollection(MongoConstants.ENTITY_COLLECTION);
     }
 
-    public void setEnabled(boolean enabled) {
-        m_enabled = enabled;
-    }
-
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = (ListableBeanFactory) beanFactory;
@@ -703,5 +698,14 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
 
     public void setImdb(MongoTemplate imdb) {
         m_imdb = imdb;
+    }
+
+    @Override
+    public void setup(SetupManager manager) {
+        String id = "replication-" + new VersionInfo().getVersion();
+        if (manager.isFalse(id)) {
+            replicateAllData();
+            manager.setTrue(id);
+        }
     }
 }

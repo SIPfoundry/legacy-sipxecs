@@ -1,4 +1,17 @@
-<span jwcid="@For" source="ognl:backups" value="backup">
-  <li><span jwcid="@Insert" value="ognl:backup"/></li>
+<span jwcid="@If" condition="ognl:backups.empty">
+  <p><span key="message.noBackups">There is no backup files saved in the backup folder.</span></p>
 </span>
-  
+<span jwcid="@Else">
+  <ul>
+    <li jwcid="@For" source="ognl:backups" value="ognl:backup">
+      <span jwcid="@Insert" value="ognl:backupId" /><br/>
+      <span jwcid="@For" source="ognl:backupFiles" value="ognl:backupFile">
+        <span jwcid="@If" condition="ognl:selections != null">
+          <span jwcid="selected@Checkbox" value="ognl:selections.selected[#this.backupPath]"/> 
+        </span>
+        <a jwcid="link@Any"
+          href="ognl:downloadLink"><span jwcid="linkName@Insert" value="ognl:backupFile" /></a>
+      </span>
+    </li>
+  </ul>
+</span>

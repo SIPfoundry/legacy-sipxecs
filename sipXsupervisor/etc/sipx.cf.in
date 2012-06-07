@@ -145,7 +145,15 @@ body copy_from master_files(server,dir) {
 bundle agent sipx_init {
   methods:
     !primary::
+      "update" usebundle => "master_vars";
       "update" usebundle => "update_from_master";
+}
+
+bundle agent master_vars {
+  vars:
+    !primary::
+      "dim_master" int => readstringarray("master", "@SIPX_CFDATA@/defaults/master", "#[^\n]*", "=", 10, 4000);
+      "server" string => "$(master[address][1])";
 }
 
 bundle agent update_from_master {

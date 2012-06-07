@@ -18,6 +18,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -40,42 +42,51 @@ public class BackupCommandRunner {
         return backups.isEmpty() ? null : (String) backups.get(backups.size() - 1);
     }
 
-    public void backup() {
-        runCommand(m_backupScript, "--backup", m_plan.getAbsolutePath());
+    public void restoreFromStage() {
+        runCommand(m_backupScript, "--restore-from-stage", m_plan.getAbsolutePath());
     }
 
-    void runCommand(String... command) {
+    public void restore(String backupPath) {
+        // Stages then restores
+        runCommand("--restore", m_plan.getAbsolutePath(), "--path", backupPath);
+    }
+
+    public void backup() {
+        runCommand("--backup", m_plan.getAbsolutePath());
+    }
+
+    public String getBackupLink() {
+        return StringUtils.chomp(runCommand("--link", m_plan.getAbsolutePath()));
+    }
+
+    String runCommand(String... command) {
+        File listFile = null;
+        Reader rdr = null;
         String commandLine = StringUtils.EMPTY;
         try {
-            ProcessBuilder pb = new ProcessBuilder(command);
+            listFile = File.createTempFile("archive-command", ".tmp");
+            String[] commandOut = new String[command.length + 5];
+            System.arraycopy(command, 0, commandOut, 1, command.length);
+            commandOut[0] = m_backupScript;
+            commandOut[command.length + 1] = "--out";
+            commandOut[command.length + 2] = listFile.getAbsolutePath();
+            commandOut[command.length + 3] = "--mode"; // Relevant to few cmds, but harmless otherwise
+            commandOut[command.length + 4] = "manual";
+            ProcessBuilder pb = new ProcessBuilder(commandOut);
             commandLine = StringUtils.join(pb.command(), ' ');
             Process process = pb.start();
             int code = process.waitFor();
             if (code != 0) {
-                String errorMsg = String.format("Backup command %s failed. Exit code: %d", commandLine, code);
+                String errorMsg = String.format("Archive command %s failed. Exit code: %d", commandLine, code);
                 throw new RuntimeException(errorMsg);
             }
+            rdr = new FileReader(listFile);
+            return IOUtils.toString(rdr);
         } catch (IOException e) {
-            String errorMsg = String.format("Error running backup command %s.", commandLine);
+            String errorMsg = String.format("Error running archive command %s.", commandLine);
             throw new RuntimeException(errorMsg);
         } catch (InterruptedException e) {
-            String errorMsg = String.format("Backup listing command timed out running command %s.", commandLine);
-            throw new RuntimeException(errorMsg);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<String> list() {
-        File listFile = null;
-        Reader rdr = null;
-        String cmd = StringUtils.EMPTY;
-        try {
-            listFile = File.createTempFile("backup-list", ".tmp");
-            runCommand(m_backupScript, "--list", m_plan.getAbsolutePath(), "--out",  listFile.getAbsolutePath());
-            rdr = new FileReader(listFile);
-            return (List<String>) IOUtils.readLines(rdr);
-        } catch (IOException e) {
-            String errorMsg = String.format("Error during backup. %s", cmd);
+            String errorMsg = String.format("Timed out running archive command %s.", commandLine);
             throw new RuntimeException(errorMsg);
         } finally {
             IOUtils.closeQuietly(rdr);
@@ -83,5 +94,13 @@ public class BackupCommandRunner {
                 listFile.delete();
             }
         }
+    }
+
+    public List<String> list() {
+        if (!m_plan.exists()) {
+            return Collections.emptyList();
+        }
+        String lines = StringUtils.chomp(runCommand("--list", m_plan.getAbsolutePath()));
+        return Arrays.asList(StringUtils.splitByWholeSeparator(lines, "\n"));
     }
 }

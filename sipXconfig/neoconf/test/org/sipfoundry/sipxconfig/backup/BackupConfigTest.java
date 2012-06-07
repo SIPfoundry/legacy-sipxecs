@@ -37,8 +37,10 @@ public class BackupConfigTest {
         BackupConfig config = new BackupConfig();
         ArchiveDefinition d1 = new ArchiveDefinition("d1", "b1", "r1");
         ArchiveDefinition d2 = new ArchiveDefinition("d2", "b2", "r2");
+        ArchiveDefinition d3 = new ArchiveDefinition("d3", "b3", "r3");
         StringWriter actual = new StringWriter();
-        config.writeBackupConfig(actual, Arrays.asList(d1, d2));
+        config.writeBackupDefinitions(actual, Arrays.asList(d1, d2, d3), Arrays.asList("d1", "d2"),
+                Arrays.asList("d2", "d3"));
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-backup.yaml"));
         assertEquals(expected, actual.toString());
     }
@@ -55,7 +57,7 @@ public class BackupConfigTest {
         BackupPlan ftpPlan = new BackupPlan(BackupType.ftp);
         ftpPlan.setLimitedCount(20);
         StringWriter actual = new StringWriter();
-        config.writeClusterBackupConfig(actual, ftpPlan, hosts, settings);
+        config.writePrimaryBackupConfig(actual, ftpPlan, hosts, settings);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-cluster-backup.yaml"));        
         assertEquals(expected, actual.toString());        
     }
@@ -67,14 +69,20 @@ public class BackupConfigTest {
         s1.setTimeOfDay(new TimeOfDay(22, 30));
         s1.setScheduledDay(ScheduledDay.FRIDAY);
         DailyBackupSchedule s2 = new DailyBackupSchedule();
-        BackupPlan localPlan = new BackupPlan(BackupType.local);
-        localPlan.addSchedule(s1);
-        localPlan.addSchedule(s2);
-        BackupPlan ftpPlan = new BackupPlan(BackupType.ftp);
-        ftpPlan.addSchedule(s1);
         StringWriter actual = new StringWriter();
-        config.writeBackupSchedules(actual, Arrays.asList(localPlan, ftpPlan));
+        config.writeBackupSchedules(actual, BackupType.local, Arrays.asList(s1, s2));
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-schedules.cfdat"));        
+        assertEquals(expected, actual.toString());        
+    }
+    
+    @Test
+    public void cfengine() throws IOException {
+        BackupConfig config = new BackupConfig();
+        Collection<String> auto = Arrays.asList("a", "b");
+        Collection<String> manual = Arrays.asList("x", "y");
+        StringWriter actual = new StringWriter();
+        config.writeCfengineConfig(actual, BackupType.local, auto, manual);        
+        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-cfengine.cfdat"));        
         assertEquals(expected, actual.toString());        
     }
 }

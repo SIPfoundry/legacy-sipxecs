@@ -907,6 +907,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             if (specialUser == null) {
                 SpecialUser newSpecialUser = new SpecialUser(type);
                 getHibernateTemplate().saveOrUpdate(newSpecialUser);
+                getDaoEventPublisher().publishSave(newSpecialUser);
             }
         }
     }

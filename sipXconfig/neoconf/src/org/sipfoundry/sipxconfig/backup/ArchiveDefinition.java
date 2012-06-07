@@ -14,7 +14,14 @@
  */
 package org.sipfoundry.sipxconfig.backup;
 
+import org.apache.commons.collections.Transformer;
+
 public class ArchiveDefinition {
+    public static final Transformer GET_IDS = new Transformer() {
+        public Object transform(Object arg0) {
+            return ((ArchiveDefinition) arg0).getId();
+        }
+    };
     private String m_id;
     private String m_backupCommand;
     private String m_restoreCommand;

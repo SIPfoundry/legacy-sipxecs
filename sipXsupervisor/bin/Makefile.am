@@ -15,14 +15,14 @@ bin_SCRIPTS = \
 	sipxagent \
 	sipxagent-log-reader \
 	sipxecs-setup \
-	sipx-archive \
-	sipx-cluster-archive
+	sipx-archive
 
 cfmoddir = @SIPX_CFMODULES@
 cfmod_SCRIPTS = \
 	sipx \
 	readfile-if-exists \
-	run-later
+	run-later \
+	wait-on-log
 
 initddir = @SIPX_SERVICEDIR@
 initd_SCRIPTS = \

@@ -1,0 +1,3 @@
++archive
+@local_auto_backup_definitions={"a", "b"}
+@local_manual_backup_definitions={"x", "y"}

@@ -23,7 +23,8 @@
     </property>
     <property name="featureManager" ref="featureManager"/>
     <property name="locationsManager" ref="locationsManager"/>
-    <property name="backupScript" value="${sysdir.bin}/sipx-cluster-archive"/>
+    <property name="backupScript" value="${sysdir.bin}/sipx-archive"/>
+    <property name="restoreStagingDirectoryPath" value="${sysdir.tmp}/restore"/>
     <property name="configManager" ref="configManager"/>
   </bean>
 
@@ -35,13 +36,18 @@
 
   <bean id="backupConfig" class="org.sipfoundry.sipxconfig.backup.BackupConfig">
     <property name="backupManager" ref="backupManager"/>
+    <property name="locationsManager" ref="locationsManager"/>
+    <property name="configManager" ref="configManager"/>
   </bean>
   
   <bean id="manualBackup" class="org.sipfoundry.sipxconfig.backup.ManualBackup">
     <property name="backupManager" ref="backupManager"/>
-    <property name="locationsManager" ref="locationsManager"/>
-    <property name="configManager" ref="configManager"/>
     <property name="backupConfig" ref="backupConfig"/>
   </bean>
   
+  <bean id="manualRestore" class="org.sipfoundry.sipxconfig.backup.ManualRestore">
+    <property name="backupManager" ref="backupManager"/>
+    <property name="backupConfig" ref="backupConfig"/>
+  </bean>
+
 </beans>

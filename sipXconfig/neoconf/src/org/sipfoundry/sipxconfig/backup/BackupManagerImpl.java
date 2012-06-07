@@ -19,12 +19,14 @@ package org.sipfoundry.sipxconfig.backup;
 import static java.lang.String.format;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
@@ -44,6 +46,7 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
     private LocationsManager m_locationsManager;
     private ConfigManager m_configManager;
     private String m_backupScript;
+    private File m_restoreStagingDir;
 
     @Override
     public void saveSettings(BackupSettings settings) {
@@ -73,21 +76,12 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
     }
 
     @Override
-    public Collection<ArchiveDefinition> getArchiveDefinitions(BackupPlan plan, Location location) {
-        return getArchiveDefinitions(plan.getDefinitionIds(), location);
-    }
-
-    @Override
-    public Collection<ArchiveDefinition> getArchiveDefinitions(Collection<String> definitionIds, Location location) {
+    public Collection<ArchiveDefinition> getArchiveDefinitions(Location location) {
         Set<ArchiveDefinition> defs = new HashSet<ArchiveDefinition>();
         for (ArchiveProvider provider : getArchiveProviders()) {
             Collection<ArchiveDefinition> locationDefs = provider.getArchiveDefinitions(this, location);
             if (locationDefs != null) {
-                for (ArchiveDefinition def : locationDefs) {
-                    if (definitionIds.contains(def.getId())) {
-                        defs.add(def);
-                    }
-                }
+                defs.addAll(locationDefs);
             }
         }
 
@@ -146,9 +140,14 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
         return ids;
     }
 
+    @Override
+    public String getBackupLink(BackupPlan plan) {
+        BackupCommandRunner runner = new BackupCommandRunner(getPlanFile(plan), getBackupScript());
+        return runner.getBackupLink();
+    }
 
     public File getPlanFile(BackupPlan plan) {
-        String fname = format("1/backup-cluster-%s.yaml", plan.getType());
+        String fname = format("1/archive-%s.yaml", plan.getType());
         return new File(m_configManager.getGlobalDataDirectory(), fname);
     }
 
@@ -167,4 +166,26 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
     }
+
+    public void setRestoreStagingDirectoryPath(String dir) {
+        m_restoreStagingDir = new File(dir);
+    }
+
+    @Override
+    public File getRestoreStagingDirectory() {
+        return m_restoreStagingDir;
+    }
+
+    @Override
+    public File getCleanRestoreStagingDirectory() {
+        File dir = getRestoreStagingDirectory();
+        try {
+            FileUtils.deleteDirectory(dir);
+        } catch (IOException e) {
+            throw new RuntimeException("Failure to get fresh restore directory", e);
+        }
+        dir.mkdirs();
+        return dir;
+    }
+
 }

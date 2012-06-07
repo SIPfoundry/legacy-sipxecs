@@ -29,7 +29,7 @@ public class BackupPlanTestIntegration extends IntegrationTestCase {
     public void testStoreJob() throws Exception {
         BackupPlan plan = new BackupPlan(BackupType.local);
         Collection<String> defs = Arrays.asList(AdminContext.ARCHIVE.getId(), Ivr.ARCHIVE.getId());
-        plan.getDefinitionIds().addAll(defs);
+        plan.getAutoModeDefinitionIds().addAll(defs);
         m_backupManager.saveBackupPlan(plan);
         commit();
         

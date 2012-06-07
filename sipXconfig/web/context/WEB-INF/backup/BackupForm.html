@@ -45,8 +45,12 @@
       </li>
     </ul>
   </fieldset>
+  <span jwcid="@If" condition="ognl:validSettings">
+    <fieldset>
+      <legend>
+        <span key="label.lastBackup">Last Backup</span>
+      </legend>
+    </fieldset>
+    <span jwcid="@backup/BackupTable" backupPlan="ognl:backupPlan" tableSize="1"/>
+  </span>
 </form>
-<span jwcid="@If" condition="ognl:validSettings">
-  Last Backup
-  <span jwcid="@backup/BackupTable" backupPlan="ognl:backupPlan" tableSize="1"/>
-</span>

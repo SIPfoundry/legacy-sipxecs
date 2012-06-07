@@ -4,16 +4,13 @@
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
   <span jwcid="restoreLocalTab@Block">
-  restore local
-    <!--  restore form -->
+    <span jwcid="@backup/RestoreForm" backupPlan="ognl:localPlan"/>
   </span>
   <span jwcid="restoreFtpTab@Block">
-  restore ftp
-    <!--  restore form -->
+    <span jwcid="@backup/RestoreForm" backupPlan="ognl:ftpPlan"/>
   </span>
   <span jwcid="uploadTab@Block">
-  upload
-    <!--  upload form -->
+    <span jwcid="@backup/RestoreUpload"/>
   </span>
   <span jwcid="logTab@Block">
     <span jwcid="@common/QuickHelp" value="message:log.quick.help"/>
