@@ -124,8 +124,7 @@ load() ->
 %% Function: init(Args) -> {ok, State} |
 %%--------------------------------------------------------------------
 init(_Options) ->
-	mongodb:singleServer(spx),
-	ok = mongodb:connect(spx),
+	spx_db:connect(),
 
 	%% work-arounds since plug-in is not yet loaded
 	spx_agent_auth:start(),
@@ -839,8 +838,8 @@ test_setup_mongo() ->
 	mnesia:clear_table(skill_rec),
 
 	application:start(erlmongo),
-	mongodb:singleServer(spx),
-	mongodb:connect(spx),
+
+	spx_db:connect(),
 
 	DB = mongoapi:new(spx, ?DB),
 	DB:dropDatabase(),

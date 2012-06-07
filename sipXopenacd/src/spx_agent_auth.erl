@@ -54,30 +54,40 @@ start() ->
 
 -spec(get_agents/0 :: () -> {ok, [#agent_auth{}]}).
 get_agents() ->
-	{ok, AgentProps} = db_find(agent, []),
-	{ok, [X || P <- AgentProps, {ok, X} <- [spx_util:build_agent(P)]]}.
+	case catch db_find(agent, []) of
+		{ok, AgentProps} ->
+			{ok, [X || P <- AgentProps, {ok, X} <- [spx_util:build_agent(P)]]};
+		_ ->
+			{ok, []}
+	end.
 
 -spec(get_agents_by_profile/1 :: (Profile :: string()) -> {ok, [#agent_auth{}]}).
 get_agents_by_profile(Profile) ->
-	{ok, AgentProps} = db_find(agent, [{<<"aggrp">>, iolist_to_binary(Profile)}]),
-	{ok, [X || P <- AgentProps, {ok, X} <- [spx_util:build_agent(P)]]}.
+	case catch db_find(agent, [{<<"aggrp">>, iolist_to_binary(Profile)}]) of
+		{ok, AgentProps} ->
+			{ok, [X || P <- AgentProps, {ok, X} <- [spx_util:build_agent(P)]]};
+		_ ->
+			{ok, []}
+	end.
 
 -spec(get_agent/2 :: (Key :: 'id' | 'login', Value :: string()) -> {ok, #agent_auth{}} | none).
 get_agent(login, Login) ->
-	case db_find_one(agent, [{<<"name">>, Login}]) of
+	case catch db_find_one(agent, [{<<"name">>, Login}]) of
 		{ok, []} -> none;
-		{ok, P} -> spx_util:build_agent(P)
+		{ok, P} -> spx_util:build_agent(P);
+		_ -> none
 	end;
 get_agent(id, ID) ->
-	case db_find_one(agent, [{<<"_id">>, ID}]) of
+	case catch db_find_one(agent, [{<<"_id">>, ID}]) of
 		{ok, []} -> none;
-		{ok, P} -> spx_util:build_agent(P)
+		{ok, P} -> spx_util:build_agent(P);
+		_ -> none
 	end.
 
 -type(profile_name() :: string()).
 -spec(auth_agent/2 :: (Username :: string(), Password :: string()) -> {ok, 'deny'} | {ok, {'allow', string(), skill_list(), security_level(), profile_name()}} | pass).
 auth_agent(Username, Password) ->
-	case db_find_one(agent, [{<<"name">>, Username}]) of
+	case catch db_find_one(agent, [{<<"name">>, Username}]) of
 		{ok, []} -> pass;
 		{ok, P} ->
 			%UsernameBin = list_to_binary(Username),
@@ -96,26 +106,36 @@ auth_agent(Username, Password) ->
 						Auth#agent_auth.securitylevel,
 						Auth#agent_auth.profile}};
 				_ -> {ok, deny}
-			end
+			end;
+		_ -> pass
 	end.
 
 -spec(get_profiles/0 :: () -> {ok, [#agent_profile{}]}).
 get_profiles() ->
-	{ok, Props} = db_find(profile, []),
-	{ok, [X || P <- Props, {ok, X} <- [spx_util:build_profile(P)]]}.
+	case db_find(profile, []) of
+		{ok, Props} ->
+			{ok, [X || P <- Props, {ok, X} <- [spx_util:build_profile(P)]]};
+		_ ->
+			{ok, []}
+	end.
 
 -spec(get_profile/1 :: (Name :: string() | {id, string()} | {name, string()}) -> {ok, #agent_profile{}} | 'undefined').
 get_profile(Profile) ->
-	case db_find_one(profile, [{<<"name">>, Profile}]) of
+	case catch db_find_one(profile, [{<<"name">>, Profile}]) of
 		{ok, []} -> undefined;
 		{ok, P} ->
-			spx_util:build_profile(P)
+			spx_util:build_profile(P);
+		_ -> undefined
 	end.
 
 -spec(get_releases/0 :: () -> {ok, [#release_opt{}]}).
 get_releases() ->
-	{ok, Props} = db_find(release_opt, []),
-	{ok, [R || P <- Props, {ok, R} <- [spx_util:build_release_opt(P)]]}.
+	case catch db_find(release_opt, []) of
+		{ok, Props} ->
+			{ok, [R || P <- Props, {ok, R} <- [spx_util:build_release_opt(P)]]};
+		_ ->
+			{ok, []}
+	end.
 
 %% Internal functions
 db_find(agent, Props) ->
@@ -159,6 +179,24 @@ start_test_() ->
 		?_assert(has_hook(spx_auth_agent, auth_agent)),
 		?_assert(has_hook(spx_get_profiles, get_profiles)),
 		?_assert(has_hook(spx_get_profile, get_profile))
+	]}.
+
+defaults_test_() ->
+	{setup, fun() ->
+		meck:new(mongoapi),
+		meck:expect(mongoapi, new, 2, {mongoapi, spx, <<"imdb_test">>}),
+		meck:expect(mongoapi, findOne, 3, not_connected),
+		meck:expect(mongoapi, find, 6, not_connected)
+	end,
+	fun(_) -> meck:unload(mongoapi) end,
+	[?_assertEqual({ok, []}, spx_agent_auth:get_agents()),
+	?_assertEqual({ok, []}, spx_agent_auth:get_agents_by_profile("prof")),
+	?_assertEqual(none, spx_agent_auth:get_agent(login, "login")),
+	?_assertEqual(none, spx_agent_auth:get_agent(id, "id")),
+	?_assertEqual(pass, spx_agent_auth:auth_agent("u", "p")),
+	?_assertEqual({ok, []}, spx_agent_auth:get_profiles()),
+	?_assertEqual(undefined, spx_agent_auth:get_profile("prof")),
+	?_assertEqual({ok, []}, spx_agent_auth:get_releases())
 	]}.
 
 integ_get_agents_test_() ->

@@ -108,6 +108,13 @@
     <exec executable="dropdb" outputproperty="eatme">
       <arg line="-U ${sipxconfig.db.user} ${sipxconfig.db.name}" />
     </exec>
+    <!-- clear mongo db -->
+    <exec executable="mongo" outputproperty="eatme">
+      <arg line="profiles --eval 'db.dropDatabase();'" />
+    </exec>
+    <exec executable="mongo" outputproperty="eatme">
+      <arg line="imdb --eval 'db.dropDatabase();'" />
+    </exec>
   </target>
 
   <!-- creates database void of schema -->

@@ -65,6 +65,7 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
     public static final String MAX_LEGS = "fs-conf-conference/MAX_LEGS";
     public static final String MOH = "fs-conf-conference/MOH";
     public static final String MOH_SOUNDCARD_SOURCE = "SOUNDCARD_SRC";
+    public static final String MOH_FILES_SOURCE = "FILES_SRC";
     public static final String MODERATOR_CODE = "fs-conf-conference/moderator-code";
     public static final String TERMINATE_ON_MODERATOR_EXIT = "fs-conf-conference/terminate-on-moderator-exit";
     public static final String QUICKSTART = "fs-conf-conference/quickstart";
@@ -171,6 +172,10 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
 
     public boolean isMohPortAudioEnabled() {
         return getSettingValue(MOH).equals(MOH_SOUNDCARD_SOURCE);
+    }
+
+    public boolean isMohFilesSrcEnabled() {
+        return getSettingValue(MOH).equals(MOH_FILES_SOURCE);
     }
 
     public String getUri() {
