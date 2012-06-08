@@ -31,6 +31,8 @@ class ArchiveBase
   def initialize(config)
     @bin_dir = '@SIPX_BINDIR@'
     @backup_dir = '@SIPX_VARDIR@/backup'
+    @backup_tmp_dir = '@SIPX_TMPDIR@/backup'
+    @restore_dir = '@SIPX_TMPDIR@/restore'
     @data = YAML::load_file(config)
     @out = $stdout
   end
@@ -40,12 +42,19 @@ class ArchiveBase
     system(cmd)
   end
 
+  def fresh_dir(dir)
+    # programming safeguard : ensure we do not delete '/'
+    raise "Internal error" if dir.strip.empty?
+    FileUtils.rm_rf dir 
+    FileUtils.mkdir_p dir
+  end
+
   def file_manager
     if @data.has_key?('ftp')
       remote = nil
       params = @data['ftp']
       uri = URI.parse(params['url'])
-      remote = FtpFileManager.new("#{@backup_dir}/ftp")
+      remote = FtpFileManager.new("#{@backup_dir}/#{@data['plan']}")
       remote.connect(uri, params)
       return remote
     end
@@ -55,7 +64,7 @@ end
 
 # Orchestrate backing up of cluster including uploading if ftp is configured and purging old backups
 class Backup < ArchiveBase  
-  def run(params)
+  def run(params, args)
     defines = define_param(params)
     cmd(@bin_dir + "/sipxagent -h #{hosts_param} -b backup #{defines}")
     cmd(@bin_dir + "/sipxagent -b backup_collect #{defines}")
@@ -72,9 +81,18 @@ class Backup < ArchiveBase
   end
 end
 
-# Orchestrate backing up of cluster including uploading if ftp is configured and purging old backups
+# Orchestrate restore a cluster including staging file from local or ftp plan.
 class Restore < Backup
-  def run(params)
+  def run(params, args)
+    mgr = file_manager
+    # nothing specified, assume files are already staged.
+    unless args.empty?
+      fresh_dir @restore_dir
+      args.each {|path|
+        dir, fname = path.split('/')
+        mgr.stage(dir, fname, @restore_dir)
+      }
+    end
     defines = define_param(params)
     cmd(@bin_dir + "/sipxagent -h #{hosts_param} -b restore #{defines}")
   end
@@ -83,7 +101,7 @@ end
 # List current backups in chronological order based on directory name following
 # YearMonthDayHourMin pattern not based on file timestamp
 class ListBackups < ArchiveBase
-  def run(params)
+  def run(params, args)
     mgr = file_manager
     mgr.list.each {|backup|
       items = mgr.list_items(backup)
@@ -91,28 +109,21 @@ class ListBackups < ArchiveBase
     }
   end 
 end
-
-class ListBackups < ArchiveBase
-  def run(params)
-    mgr = file_manager
-    mgr.list.each {|backup|
-      items = mgr.list_items(backup)
-      @out.puts "#{backup} #{items.join(' ')}"
-    }
-  end 
-end
-
 
 # List current backups to STDOUT in chronological order based on directory name following 
 # YearMonthDayHourMin pattern not based on file timestamp
 class LinkBackups < ArchiveBase
-  def run(params)
+  def run(params, args)
     @out.puts file_manager.link
   end
 end
 
 # Common code for managing backup lists
 class FileManagerBase
+
+  def initialize(backup_dir)
+    @backup_dir = backup_dir
+  end
 
   def select_backups(list)
     filtered = list.select { |f|
@@ -136,8 +147,8 @@ end
 # Listing, uploading and purging backups on FTP server
 class FtpFileManager < FileManagerBase
 
-  def initialize(local_backup_dir)
-    @local_backup_dir = local_backup_dir
+  def initialize(backup_dir)
+    @backup_dir = backup_dir
   end
 
   def connect(uri, params)
@@ -148,7 +159,7 @@ class FtpFileManager < FileManagerBase
 
   def save(max)
     # handy - reuse local backup file handler to manage temp ftp directory
-    local = LocalFileManager.new(@local_backup_dir)
+    local = LocalFileManager.new(@backup_dir)
 
     upload(local.list.last)
 
@@ -176,7 +187,7 @@ class FtpFileManager < FileManagerBase
     rescue Net::SFTP::StatusException
       # must already exist, i couldn't find a better way to test in API --Douglas
     end
-    Dir["#{@local_backup_dir}/#{b}/*"].each {|f|
+    Dir["#{@backup_dir}/#{b}/*"].each {|f|
       @ftp.upload!(f, "#{@path}/#{b}/#{File.basename(f)}")
     }
   end
@@ -192,6 +203,10 @@ class FtpFileManager < FileManagerBase
 
   def link
     @uri.to_s
+  end
+
+  def stage(dir, file, dst)
+    @ftp.download("#{@path}/#{dir}/#{file}", "#{dst}/#{file}")
   end
 end
 
@@ -223,6 +238,10 @@ class LocalFileManager < FileManagerBase
   def link
     "/sipxconfig/backup"
   end
+
+  def stage(dir, file, dst)
+    FileUtils.cp("#{@backup_dir}/#{dir}/#{file}", "#{dst}/#{file}")
+  end
 end
 
 class CfengineBase < ArchiveBase
@@ -230,21 +249,14 @@ class CfengineBase < ArchiveBase
 
   def initialize(config)
     super(config)
-    @backup_tmp_dir = '@SIPX_TMPDIR@/backup'
-    @restore_dir = '@SIPX_TMPDIR@/restore'
   end
 
 end
 
 class CfengineBackup < CfengineBase
-  def run(params)
-puts "backup dir #{@backup_tmp_dir}"
-    if @data.has_key?('backup')
-      FileUtils.mkdir_p @backup_tmp_dir
-      # programming safeguard : ensure we do not delete '/'
-      raise "Internal error" if @backup_tmp_dir.strip.empty?
-puts Dir.glob(@backup_tmp_dir + '/*')
-      FileUtils.rm Dir.glob(@backup_tmp_dir + '/*')
+  def run(params, args)
+    if @data.has_key?('backup')      
+      fresh_dir @backup_tmp_dir
       @data['backup'].each_pair { |k,v|
         line = "#{v}" % "#{@backup_tmp_dir}/#{k}"
         cmd(line) or
@@ -257,7 +269,7 @@ puts Dir.glob(@backup_tmp_dir + '/*')
 end
 
 class CfengineRestore < CfengineBase
-  def run(params)
+  def run(params, args)
     if @data.has_key?('restore')
       @data['restore'].each_pair { |k,v| 
         line = "#{v}" % "#{@restore_dir}/#{k}"
@@ -334,7 +346,7 @@ end
 
 operation.verbose = verbose
 operation.out = $output
-operation.run(params)
+operation.run(params, ARGV)
 exit 0
 
 end

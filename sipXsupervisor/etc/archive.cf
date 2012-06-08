@@ -11,7 +11,7 @@
 # FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
 # details.
 
-# Three entry points in this one file
+# There are many "entry points" in this one file
 # 
 # 1.) backup
 # The default entry point, does the following:
@@ -24,17 +24,18 @@
 # 3.) backup_collect
 # Collect backups from nodes to promary
 #
+# 4.) download restore from primary and use plan to restore it
+#
 
 # Entry point #1 - configure backups
 bundle agent archive {
   vars:
     "plan" slist => { "ftp", "local" };
-
   methods:
     archive::
       "archive" usebundle => archive_config("$(plan)");
-    primary::
-      "archive" usebundle => backup_schedules;
+    archive.primary::
+      "archive" usebundle => backup_schedules("$(plan)");
 }
 
 bundle agent archive_config(plan) {
@@ -43,6 +44,7 @@ bundle agent archive_config(plan) {
       "$(sipx.SIPX_CONFDIR)/archive-$(plan).yaml"
         comment => "Backup config $(this.promiser)",
         create => "true",
+        perms => mog("644", "$(sipx.SIPXPBXUSER)", "$(sipx.SIPXPBXGROUP)"),
         edit_defaults => empty,
         edit_line => expand_template("$(sipx.SIPX_CFDATA)/$(sipx.location_id)/archive-$(plan).yaml");
 }
@@ -67,11 +69,20 @@ bundle agent archive_vars {
       "defs" slist => { "$(sipx.$(plan)_$(mode)_backup_definitions)" };
 }
 
-bundle agent backup_schedules {
-  reports:
-    backup.primary::
-      "TODO: Configure crontabs";
-      
+# Install cron schedules
+bundle agent backup_schedules(plan) {
+  vars:
+    archive.primary::
+      "schedule" slist => { "$(sipx.$(plan)_backup_schedule)" };
+      "cron" slist => { "$(schedule) $(sipx.SIPXPBXUSER) $(sipx.SIPX_BINDIR)/sipx-archive --backup $(sipx.SIPX_CONFDIR)/archive-$(plan).yaml > /dev/null" };
+      "cron_id" string => ".*/sipx-srchive .*"; #regex                                                                   
+
+  methods:
+    archive.primary::
+      "any" usebundle => add_crontab("$(cron)", "$(cron_id)");
+
+    !archive.primary::
+      "any" usebundle => remove_crontab("$(cron_id)");
 }
 
 #

@@ -19,6 +19,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,12 +44,22 @@ public class BackupCommandRunner {
     }
 
     public void restoreFromStage() {
-        runCommand(m_backupScript, "--restore-from-stage", m_plan.getAbsolutePath());
+        restore(null);
     }
 
-    public void restore(String backupPath) {
-        // Stages then restores
-        runCommand("--restore", m_plan.getAbsolutePath(), "--path", backupPath);
+    public void restore(Collection<String> paths) {
+        String[] args;
+        if (paths == null || paths.isEmpty()) {
+            // Already staged
+            args = new String[2];
+        } else {
+            // Stages then restores
+            args = new String[paths.size() + 2];
+            System.arraycopy(paths.toArray(), 0, args, 2, paths.size());
+        }
+        args[0] = "--restore";
+        args[1] = m_plan.getAbsolutePath();
+        runCommand(args);
     }
 
     public void backup() {

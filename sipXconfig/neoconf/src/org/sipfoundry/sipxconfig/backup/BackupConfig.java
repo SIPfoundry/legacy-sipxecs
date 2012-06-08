@@ -121,7 +121,7 @@ public class BackupConfig implements ConfigProvider {
         for (DailyBackupSchedule schedule : schedules) {
             crons.add(schedule.toCronString());
         }
-        config.writeList(type.toString() + "BackupSchedule", crons);
+        config.writeList(type.toString() + "_backup_schedule", crons);
     }
 
     public void writePrimaryBackupConfig(Writer w, BackupPlan plan, Collection<Location> hosts, BackupSettings settings)
@@ -130,7 +130,7 @@ public class BackupConfig implements ConfigProvider {
 
         List<String> ips = new ArrayList<String>(hosts.size());
         for (Location host : hosts) {
-            ips.add(host.getAddress());
+            ips.add(host.isPrimary() ? "127.0.0.1" : host.getAddress());
         }
         config.writeArray("hosts", ips);
 
