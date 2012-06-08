@@ -71,7 +71,7 @@ bundle agent mongodb_wait_until_accepting_connections {
   vars:
     "timeout" string => "300";
     "log" string => "/var/log/mongo/mongod.log";
-    "match" string => "[rsMgr] replSet PRIMARY";
+    "match" string => "replSet PRIMARY";
 
   commands:
     mongod::
