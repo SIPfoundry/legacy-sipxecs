@@ -69,7 +69,7 @@ bundle agent mongodb {
 # log file is cleared, this wouldn't work
 bundle agent mongodb_wait_until_accepting_connections {
   vars:
-    "timeout" string => "120";
+    "timeout" string => "300";
     "log" string => "/var/log/mongo/mongod.log";
     "match" string => "[rsMgr] replSet PRIMARY";
 
@@ -78,8 +78,8 @@ bundle agent mongodb_wait_until_accepting_connections {
       "$(sipx.SIPX_CFMODULES)/wait-on-log"
         comment => "Wait for mongo to accept connections",
         # continuously looks for line in log file and bail on first match or timeout
-        # whichever comes first
-        contain => timeout("130"),
+        # whichever comes first. Give CF a bit longer timeout
+        contain => timeout("360"),
         args => "120 '$(match)' $(log)";
 }
 
