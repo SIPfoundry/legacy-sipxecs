@@ -16,7 +16,6 @@ package org.sipfoundry.sipxconfig.backup;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * There's no other type other than manual restore, but I wanted name to match ManualBackup
@@ -39,7 +38,7 @@ public class ManualRestore  {
         plan.getManualModeDefinitionIds().addAll(defIds);
         File planFile = getBackupConfig().writeConfigs(plan, getBackupManager().getSettings());
         BackupCommandRunner runner = new BackupCommandRunner(planFile, getBackupManager().getBackupScript());
-        runner.restore(Collections.emptySet());
+        runner.restoreFromStage();
     }
 
     public void setBackupManager(BackupManager backupManager) {
