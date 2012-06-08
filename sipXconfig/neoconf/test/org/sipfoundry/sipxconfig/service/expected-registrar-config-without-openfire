@@ -17,6 +17,7 @@ SIP_REGISTRAR_UDP_PORT : 5070
 SIP_REGISTRAR_REG_EVENT_PORT : 5075
 
 SIPX_SEND_TRYING_FOR_NIST : true
+SIPX_SEND_ALL_CONTACTS : false
 
 # Configure the redirectors.
 SIP_REDIRECT_HOOK_LIBRARY.090-USERPARAM : @sipxpbx.lib.dir@/libRedirectorUserParam.so

@@ -107,6 +107,7 @@ SipRegistrarServer::SipRegistrarServer(SipRegistrar& registrar) :
     mIsStarted(FALSE),
     mSipUserAgent(NULL),
     mSendExpiresInResponse(TRUE),
+    mSendAllContactsInResponse(FALSE),
     mNonceExpiration(5*60)
 {
 }
@@ -257,6 +258,11 @@ SipRegistrarServer::initialize(
     OsSysLog::add(FAC_SIP, PRI_INFO,
                   "SipRegistrarServer::initialize SIP_REGISTRAR_EXP_HDR_RSP is %s",
                   mSendExpiresInResponse ? "Enabled" : "Disabled");
+
+    mSendAllContactsInResponse = pOsConfigDb->getBoolean("SIPX_SEND_ALL_CONTACTS", FALSE);
+    OsSysLog::add(FAC_SIP, PRI_INFO,
+                  "SipRegistrarServer::initialize SIPX_SEND_ALL_CONTACTS is %s",
+                  mSendAllContactsInResponse ? "Enabled" : "Disabled");
 
     /*
      * Unused Authentication Directives
@@ -1215,7 +1221,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                           //     someone else - not good.
                           UtlString* contactCallId
                              = dynamic_cast<UtlString*>(record.findValue(&gCallidKey));
-                          if (   REGISTER_QUERY == applyStatus
+                          if ( mSendAllContactsInResponse || REGISTER_QUERY == applyStatus
                               || (   contactCallId
                                   && registerCallId.isEqual(contactCallId)
                                   )

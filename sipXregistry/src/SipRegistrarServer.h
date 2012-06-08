@@ -134,6 +134,7 @@ protected:
     bool mUseCredentialDB;
     UtlString mRealm;
     UtlBoolean mSendExpiresInResponse;
+    UtlBoolean mSendAllContactsInResponse;
 
     SipNonceDb mNonceDb;
     long mNonceExpiration;

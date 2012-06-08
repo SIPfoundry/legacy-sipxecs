@@ -130,5 +130,18 @@
       </type>
       <value>true</value>
     </setting>
+    <setting name="SIPX_SEND_ALL_CONTACTS" advanced="yes">
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>false</value>
+    </setting>
   </group>
 </model>
