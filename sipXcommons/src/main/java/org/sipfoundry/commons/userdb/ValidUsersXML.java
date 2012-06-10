@@ -129,6 +129,8 @@ public class ValidUsersXML {
                             u.setUserName(text);
                         } else if (name.contentEquals("displayName")) {
                             u.setDisplayName(text);
+                        } else if (name.contentEquals("moh")) {
+                            u.setMoh(text);
                         } else if (name.contentEquals("contact")) {
                             u.setUri(text);
                         } else if ( name.contentEquals("passtoken")) {

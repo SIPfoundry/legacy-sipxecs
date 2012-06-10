@@ -18,6 +18,7 @@
     <voicemailTui>stdui</voicemailTui>
     <canRecordPrompts>false</canRecordPrompts>
     <canTuiChangePin>true</canTuiChangePin>
+    <moh>d</moh>
     <email>
       <address>301@sipx.org</address>
       <imap synchronize="false">
@@ -43,6 +44,7 @@
     <voicemailTui>stdui</voicemailTui>
     <canRecordPrompts>true</canRecordPrompts>
     <canTuiChangePin>true</canTuiChangePin>
+    <moh>d</moh>
     <email>
       <address>302@sipx.org</address>
       <notification attachAudio="false">FULL</notification>

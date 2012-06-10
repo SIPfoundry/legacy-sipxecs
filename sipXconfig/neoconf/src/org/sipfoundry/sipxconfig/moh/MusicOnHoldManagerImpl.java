@@ -43,6 +43,12 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
     public static final String USER_FILES_SOURCE_SUFFIX = "u";
     public static final String NONE_SUFFIX = "n";
 
+    public static final String SYSTEM_DEFAULT = "SYSTEM_DEFAULT";
+    public static final String FILES_SRC = "FILES_SRC";
+    public static final String SOUNDCARD_SRC = "SOUNDCARD_SRC";
+    public static final String PERSONAL_FILES_SRC = "PERSONAL_FILES_SRC";
+    public static final String NONE = "NONE";
+
     public static final Log LOG = LogFactory.getLog(MusicOnHoldManagerImpl.class);
 
     private static final String MOH = "moh";

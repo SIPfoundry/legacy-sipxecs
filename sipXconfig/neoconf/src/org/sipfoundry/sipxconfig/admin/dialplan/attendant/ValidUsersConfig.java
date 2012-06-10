@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.moh.MusicOnHoldManagerImpl;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -73,6 +74,7 @@ public class ValidUsersConfig extends XmlFile {
     private static final String ELEMENT_NAME_TLS = "useTLS";
     private static final String ELEMENT_NAME_ACCOUNT = "account";
     private static final String ELEMENT_NAME_PASSWD = "password";
+    private static final String ELEMENT_NAME_MOH = "moh";
     private static final String QUERY = "SELECT u.user_id, u.user_name, u.first_name, u.last_name, "
             + "u.pintoken, u.sip_password, v.value as in_directory, vs.value as has_voicemail, "
             + "vb.value as user_busy_prompt, vt.value as voicemail_tui, sr.value as record_prompts, "
@@ -81,7 +83,8 @@ public class ValidUsersConfig extends XmlFile {
             + "pe.value as primary_email_notif, pf.value as email_format, af.value as alt_email_format, "
             + "an.value as alt_email_notif, ih.value as imap_host, ip.value as imap_port, it.value as imap_tls, "
             + "ips.value as imap_password, iac.value as imap_account, pea.value as primary_email_attach, "
-            + "aea.value as alt_email_attach, (SELECT count(*) from user_group where user_id = u.user_id) as groups, "
+            + "aea.value as alt_email_attach, mh.value as user_moh, "
+            + "(SELECT count(*) from user_group where user_id = u.user_id) as groups, "
             + "(SELECT count(*) from user_alias where user_id = u.user_id) as alias_count "
             + "from Users u left join setting_value v on u.value_storage_id = v.value_storage_id "
             + "AND v.path='permission/call-handling/AutoAttendant' "
@@ -121,6 +124,8 @@ public class ValidUsersConfig extends XmlFile {
             + "AND pea.path='voicemail/mailbox/primary-email-attach-audio' "
             + "left join setting_value aea on u.value_storage_id = aea.value_storage_id "
             + "AND aea.path='voicemail/mailbox/alternate-email-attach-audio' "
+            + "left join setting_value mh on u.value_storage_id = mh.value_storage_id "
+            + "AND mh.path='moh/audio-source' "
             + "left join address_book_entry abe on abe.address_book_entry_id = u.address_book_entry_id "
             + "WHERE u.user_type='C' ORDER BY u.user_id;";
     private JdbcTemplate m_jdbcTemplate;
@@ -235,6 +240,7 @@ public class ValidUsersConfig extends XmlFile {
                         PermissionName.TUI_CHANGE_PIN));
                 userEl.addElement(ELEMENT_NAME_CANTUICHANGEPIN).setText(
                         Boolean.toString(tuiChangePin.equals(Permission.ENABLE)));
+                userEl.addElement(ELEMENT_NAME_MOH).setText(getMohValue(rs.getString("user_moh")));
 
                 MailboxPreferences prefs = new MailboxPreferences();
                 prefs.setEmailAddress(rs.getString("email_address"));
@@ -347,6 +353,23 @@ public class ValidUsersConfig extends XmlFile {
         userEl.addElement(ELEMENT_NAME_USERNAME).setText(identity.substring(0, identity.indexOf('@')));
         userEl.addElement(ELEMENT_NAME_CONTACT).setText(contact);
         userEl.addElement(ELEMENT_NAME_INDIRECTORY).setText("false");
+    }
+
+    public static String getMohValue(String mohValue) {
+        String shortMoh = StringUtils.defaultString(mohValue, MusicOnHoldManagerImpl.SYSTEM_DEFAULT);
+        if (shortMoh.equals(MusicOnHoldManagerImpl.FILES_SRC)) {
+            return "f";
+        }
+        if (shortMoh.equals(MusicOnHoldManagerImpl.SOUNDCARD_SRC)) {
+            return "c";
+        }
+        if (shortMoh.equals(MusicOnHoldManagerImpl.PERSONAL_FILES_SRC)) {
+            return "p";
+        }
+        if (shortMoh.equals(MusicOnHoldManagerImpl.NONE)) {
+            return "n";
+        }
+        return "d";
     }
 
     @Required

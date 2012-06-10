@@ -114,7 +114,7 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         String expectedMohUri = "~~mh@example.org";
         IMocksControl mohManagerControl = EasyMock.createNiceControl();
         MusicOnHoldManager mohManager = mohManagerControl.createMock(MusicOnHoldManager.class);
-        mohManager.getDefaultMohUri();
+        mohManager.getPersonalMohFilesUri(SpecialUserType.PHONE_PROVISION.getUserName());
         expectLastCall().andReturn("sip:" + expectedMohUri).anyTimes();
         mohManagerControl.replay();
 
