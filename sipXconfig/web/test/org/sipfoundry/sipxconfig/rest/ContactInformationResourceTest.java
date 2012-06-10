@@ -261,6 +261,7 @@ public class ContactInformationResourceTest extends TestCase {
 
     private void initUserProfile() {
         UserProfile addressBook = new UserProfile();
+        addressBook.setSalutation("Prof");
         addressBook.setJobTitle("Data Entry Assistant");
         addressBook.setJobDept("Data Management Services");
         addressBook.setCompanyName("Museum of Science");
@@ -276,6 +277,10 @@ public class ContactInformationResourceTest extends TestCase {
         addressBook.setOfficeAddress(officeAddress);
         addressBook.setEmailAddress("john.doe@example.com");
         addressBook.setImId("myId");
+        addressBook.setTwiterName("Twitter");
+        addressBook.setLinkedinName("Linkedin");
+        addressBook.setFacebookName("Facebook");
+        addressBook.setXingName("Xing");
         m_user.setUserProfile(addressBook);
     }
 }

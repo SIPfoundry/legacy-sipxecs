@@ -32,27 +32,34 @@ public enum Index {
             "description", 12),
     // XMPP
     IM_ID("imId", 13),
-    JOB_TITLE("userProfile.jobTitle", 14),
-    JOB_DEPT("userProfile.jobDept", 15),
-    COMPANY_NAME("userProfile.companyName", 16),
-    ASSISTANT_NAME("userProfile.assistantName", 17),
-    CELL_PHONE_NUMBER("userProfile.cellPhoneNumber", 18),
-    HOME_PHONE_NUMBER("userProfile.homePhoneNumber", 19),
-    ASSISTANT_PHONE_NUMBER("userProfile.assistantPhoneNumber", 20),
-    FAX_NUMBER("userProfile.faxNumber", 21),
-    ALTERNATE_EMAIL("userProfile.alternateEmailAddress", 22),
-    ALTERNATE_IM_ID("userProfile.alternateImId", 23),
-    LOCATION("userProfile.location", 24),
-    HOME_STREET("userProfile.homeAddress.street", 25),
-    HOME_CITY("userProfile.homeAddress.city", 26),
-    HOME_STATE("userProfile.homeAddress.state", 27),
-    HOME_COUNTRY("userProfile.homeAddress.country", 28),
-    HOME_ZIP("userProfile.homeAddress.zip", 29),
-    OFFICE_STREET("userProfile.officeAddress.street", 30),
-    OFFICE_CITY("userProfile.officeAddress.city", 31),
-    OFFICE_STATE("userProfile.officeAddress.state", 32),
-    OFFICE_COUNTRY("userProfile.officeAddress.country", 33),
-    OFFICE_ZIP("userProfile.officeAddress.zip", 34);
+    SALUTATION("userProfile.salutation", 14),
+    MANAGER("userProfile.manager", 15),
+    EMPLOYEE_ID("userProfile.employeeId", 16),
+    JOB_TITLE("userProfile.jobTitle", 17),
+    JOB_DEPT("userProfile.jobDept", 18),
+    COMPANY_NAME("userProfile.companyName", 19),
+    ASSISTANT_NAME("userProfile.assistantName", 20),
+    CELL_PHONE_NUMBER("userProfile.cellPhoneNumber", 21),
+    HOME_PHONE_NUMBER("userProfile.homePhoneNumber", 22),
+    ASSISTANT_PHONE_NUMBER("userProfile.assistantPhoneNumber", 23),
+    FAX_NUMBER("userProfile.faxNumber", 24),
+    ALTERNATE_EMAIL("userProfile.alternateEmailAddress", 25),
+    ALTERNATE_IM_ID("userProfile.alternateImId", 26),
+    LOCATION("userProfile.location", 27),
+    HOME_STREET("userProfile.homeAddress.street", 28),
+    HOME_CITY("userProfile.homeAddress.city", 29),
+    HOME_STATE("userProfile.homeAddress.state", 30),
+    HOME_COUNTRY("userProfile.homeAddress.country", 31),
+    HOME_ZIP("userProfile.homeAddress.zip", 32),
+    OFFICE_STREET("userProfile.officeAddress.street", 33),
+    OFFICE_CITY("userProfile.officeAddress.city", 34),
+    OFFICE_STATE("userProfile.officeAddress.state", 35),
+    OFFICE_COUNTRY("userProfile.officeAddress.country", 36),
+    OFFICE_ZIP("userProfile.officeAddress.zip", 37),
+    TWITTER_NAME("userProfile.twiterName", 38),
+    LINKEDIN_NAME("userProfile.linkedinName", 39),
+    FACEBOOK_NAME("userProfile.facebookName", 40),
+    XING_NAME("userProfile.xingName", 41);
 
     private final String m_name;
     private final int m_value;
@@ -123,11 +130,13 @@ public enum Index {
         return new String[] {
             "User name", "PIN", "Voicemail PIN", "SIP password", "First name", "Last name",
             "User alias", "EMail address", "User group", "Phone serial number", "Phone model",
-            "Phone group", "Phone description", "Im Id", "Job Title", "Job department",
+            "Phone group", "Phone description", "Im Id", "Salutation", "Manager", "EmployeeId",
+            "Job Title", "Job department",
             "Company name", "Assistant name", "Cell phone number", "Home phone number",
             "Assistant phone number", "Fax number", "Alternate email", "Alternate im",
             "Location", "Home street", "Home city", "Home state", "Home country", "Home zip",
-            "Office street", "Office city", "Office state", "Office country", "Office zip"
+            "Office street", "Office city", "Office state", "Office country", "Office zip",
+            "Twitter", "Linkedin", "Facebook", "Xing"
         };
     }
 }

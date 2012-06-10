@@ -120,6 +120,43 @@ onchange="javascript:this.form.submit(); "/>
       panelLabel="message:label.officeAddress"
       office="true"/>
 </div>
+<tr>
+  <td>
+    <b><span jwcid="@Insert" value="ognl:messages.getMessage('label.socialMedia')"/>
+  </td>
+</tr>
+<tr jwcid="@common/FieldPanel" for="twitter"
+  field="component:twitter"
+  label="message:label.twitter">
+  <span jwcid="twitter@TextField" id="twitter" maxlength="255"
+    value="ognl:user.userProfile.twiterName"
+    type="text"
+    autocomplete="off"/>
+</tr>
+<tr jwcid="@common/FieldPanel" for="linkedin"
+  field="component:linkedin"
+  label="message:label.linkedin">
+  <span jwcid="linkedin@TextField" id="linkedin" maxlength="255"
+    value="ognl:user.userProfile.linkedinName"
+    type="text"
+    autocomplete="off"/>
+</tr>
+<tr jwcid="@common/FieldPanel" for="facebook"
+  field="component:facebook"
+  label="message:label.facebook">
+  <span jwcid="facebook@TextField" id="facebook" maxlength="255"
+    value="ognl:user.userProfile.facebookName"
+    type="text"
+    autocomplete="off"/>
+</tr>
+<tr jwcid="@common/FieldPanel" for="xing"
+  field="component:xing"
+  label="message:label.xing">
+  <span jwcid="xing@TextField" id="xing" maxlength="255"
+    value="ognl:user.userProfile.xingName"
+    type="text"
+    autocomplete="off"/>
+</tr>
   </table>
 </fieldset>
 <ul jwcid="@common/FormActions"

@@ -16,6 +16,11 @@
   "imId": "myId",
   "emailAddress": "john.doe@example.com",
   "useBranchAddress": false,
+  "salutation": "Prof",
+  "twiterName": "Twitter",
+  "linkedinName": "Linkedin",
+  "facebookName": "Facebook",
+  "xingName": "Xing",
   "firstName": "John",
   "lastName": "Doe"
 }}

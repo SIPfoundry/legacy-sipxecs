@@ -16,6 +16,7 @@ import java.util.Collection;
 import junit.framework.TestCase;
 
 import org.sipfoundry.commons.userdb.profile.Address;
+import org.sipfoundry.commons.userdb.profile.Salutation;
 import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -45,7 +46,8 @@ public class ExportCsvTest extends TestCase {
         assertEquals(0, userIds.size());
         assertEquals(
                 "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\"," +
-                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"," +
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -103,7 +105,7 @@ public class ExportCsvTest extends TestCase {
         assertTrue(userIds.contains("jlennon"));
         assertEquals(
                 "\"jlennon\",\"1234\",\"f09e0cfc1dc0f8852ad731e79230225b\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"jlennon@gmail.com\",\"ug1 ug2 ug3\",\"665544332211\",\"testPhoneModel\",\"phonegroup1 phonegroup2 phonegroup3, phonegroup4\",\"phone description\",\"imId\"," +
-                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -131,7 +133,8 @@ public class ExportCsvTest extends TestCase {
         assertEquals(0, userIds.size());
         assertEquals(
                 "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\",\"\"" +
-                ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
+                ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"," +
+                "\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -153,7 +156,7 @@ public class ExportCsvTest extends TestCase {
         exportCsv.exportUser(csv, row, user);
         assertEquals(
                 "\"jlennon\",\"1234\",\"f09e0cfc1dc0f8852ad731e79230225b\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
-                ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
+                ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -173,6 +176,9 @@ public class ExportCsvTest extends TestCase {
         user.setVoicemailPintoken("f09e0cfc1dc0f8852ad731e79230225b");
 
         UserProfile profile = new UserProfile();
+        profile.setSalutationId(Salutation.Prof);
+        profile.setManager("Manager");
+        profile.setEmployeeId("user112233");
         profile.setJobTitle("job title");
         profile.setJobDept("job dept");
         profile.setCompanyName("company name");
@@ -201,15 +207,20 @@ public class ExportCsvTest extends TestCase {
         officeAddress.setZip("34342");
         profile.setOfficeAddress(officeAddress);
 
+        profile.setTwiterName("Twitter Name");
+        profile.setLinkedinName("Linkedin Name");
+        profile.setFacebookName("Facebook Name");
+        profile.setXingName("Xing Name");
+
         user.setUserProfile(profile);
 
         exportCsv.exportUser(csv, row, user);
         assertEquals(
                 "\"jlennon\",\"1234\",\"f09e0cfc1dc0f8852ad731e79230225b\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
-                ",\"job title\",\"job dept\",\"company name\",\"assistant name\"," +
+                ",\"Prof\",\"Manager\",\"user112233\",\"job title\",\"job dept\",\"company name\",\"assistant name\"," +
                 "\"001122\",\"112233\",\"223344\",\"33445566\",\"alternate@gmail.com\",\"alternateImId\",\"location\"," +
                 "\"home street\",\"home city\",\"home state\",\"home country\",\"34001\"," +
-                "\"office street\",\"office city\",\"office state\",\"office country\",\"34342\"\n",
+                "\"office street\",\"office city\",\"office state\",\"office country\",\"34342\",\"Twitter Name\",\"Linkedin Name\",\"Facebook Name\",\"Xing Name\"\n",
                 writer.toString());
     }
 }

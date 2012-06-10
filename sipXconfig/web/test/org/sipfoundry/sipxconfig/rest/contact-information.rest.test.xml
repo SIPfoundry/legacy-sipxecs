@@ -16,6 +16,11 @@
   <imId>myId</imId>
   <emailAddress>john.doe@example.com</emailAddress>
   <useBranchAddress>false</useBranchAddress>
+  <salutation>Prof</salutation>
+  <twiterName>Twitter</twiterName>
+  <linkedinName>Linkedin</linkedinName>
+  <facebookName>Facebook</facebookName>
+  <xingName>Xing</xingName>
   <firstName>John</firstName>
   <lastName>Doe</lastName>
 </contact-information>

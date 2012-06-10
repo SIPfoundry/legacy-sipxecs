@@ -158,6 +158,9 @@ public class CsvRowInserter extends RowInserter<String[]> {
         Index.LAST_NAME.setProperty(user, row);
         Index.ALIAS.setProperty(user, row);
         Index.SIP_PASSWORD.setProperty(user, row);
+        Index.SALUTATION.setProperty(user, row);
+        Index.MANAGER.setProperty(user, row);
+        Index.EMPLOYEE_ID.setProperty(user, row);
         Index.IM_ID.setProperty(user, row);
         Index.EMAIL.setProperty(user, row);
         Index.JOB_TITLE.setProperty(user, row);
@@ -181,6 +184,10 @@ public class CsvRowInserter extends RowInserter<String[]> {
         Index.OFFICE_STATE.setProperty(user, row);
         Index.OFFICE_COUNTRY.setProperty(user, row);
         Index.OFFICE_ZIP.setProperty(user, row);
+        Index.TWITTER_NAME.setProperty(user, row);
+        Index.LINKEDIN_NAME.setProperty(user, row);
+        Index.FACEBOOK_NAME.setProperty(user, row);
+        Index.XING_NAME.setProperty(user, row);
         return user;
     }
 

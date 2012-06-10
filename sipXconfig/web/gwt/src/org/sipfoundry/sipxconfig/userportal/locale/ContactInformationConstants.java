@@ -79,4 +79,14 @@ public interface ContactInformationConstants extends ConstantsWithLookup {
     String firstName();
 
     String lastName();
+
+    String socialForm();
+
+    String twiterName();
+
+    String facebookName();
+
+    String linkedinName();
+
+    String xingName();
 }
