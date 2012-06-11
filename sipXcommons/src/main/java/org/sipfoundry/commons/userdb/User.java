@@ -74,6 +74,7 @@ public class User {
     private String m_avatar;
     private PersonalAttendant m_personalAttendant;
     private Distributions m_distributions;
+    private String m_moh;
 
     public enum EmailFormats {
         FORMAT_NONE("NONE"), FORMAT_FULL("FULL"), FORMAT_MEDIUM("MEDIUM"), FORMAT_BRIEF("BRIEF"), FORMAT_IMAP("IMAP");
@@ -610,6 +611,14 @@ public class User {
 
     public void setPlayDefaultVmOption(boolean playDefaultOption) {
         m_playDefaultVmOption = playDefaultOption;
+    }
+
+    public String getMoh() {
+        return m_moh;
+    }
+
+    public void setMoh(String moh) {
+        m_moh = moh;
     }
 
     public String getFirstName() {

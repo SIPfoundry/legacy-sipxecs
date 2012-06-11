@@ -22,6 +22,12 @@ import org.sipfoundry.sipxivr.SipxIvrApp;
 public class Moh extends SipxIvrApp {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
 
+    private static final String FILES_SRC = "FILES_SRC";
+    private static final String SOUNDCARD_SRC = "SOUNDCARD_SRC";
+    private static final String PERSONAL_FILES_SRC = "PERSONAL_FILES_SRC";
+    private static final String NONE = "NONE";
+    private static final String SYSTEM_DEFAULT = "SYSTEM_DEFAULT";
+
     private String m_dataDirectory;
     private String m_promptsDir;
     private ValidUsers m_validUsers;
@@ -78,7 +84,19 @@ public class Moh extends SipxIvrApp {
             String userName = id.substring(1);
             User user = m_validUsers.getUser(userName);
             if (user != null) {
-                musicPath = m_dataDirectory + "/moh/" + user.getUserName();
+                String moh = StringUtils.defaultIfEmpty(user.getMoh(), SYSTEM_DEFAULT);
+                LOG.info("Moh::moh Using user's MOH URL setting: " + moh);
+                if (moh.equalsIgnoreCase(NONE)) {
+                    return;
+                } else if (moh.equalsIgnoreCase(FILES_SRC)) {
+                    musicPath = "local_stream://moh";
+                } else if (moh.equalsIgnoreCase(SOUNDCARD_SRC)) {
+                    musicPath = "portaudio_stream://";
+                } else if (moh.equalsIgnoreCase(PERSONAL_FILES_SRC)) {
+                    musicPath = m_dataDirectory+"/moh/"+user.getUserName();
+                } else {
+                    musicPath = m_promptsDir+"/../../../parkserver/music/";
+                }
             } else {
                 // Use default FreeSWITCH MOH
                 musicPath = "local_stream://moh";
