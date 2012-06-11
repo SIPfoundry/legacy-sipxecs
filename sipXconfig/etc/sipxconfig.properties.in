@@ -74,6 +74,7 @@ sysdir.webtest.srcdir=@top_srcdir@/web/test
 sysdir.mongo_ns=
 sysdir.mongo_client_ini=@SIPX_CONFDIR@/mongo-client.ini
 sysdir.port=12001
+sysdir.port.auth=12000
 openfire.home=@OPENFIRE_HOME@
 
 # ACD server defaults - can be changed in UI
