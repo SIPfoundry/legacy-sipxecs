@@ -86,9 +86,9 @@ bundle common sipx {
 }
 
 # add a crontab. Will automaticall reload crontab service
-bundle agent add_crontab(regex,line) {
+bundle agent add_crontab(regex,user,line) {
   files:
-    "$(sipx.cron)"
+    "$(sipx.crontabs)/$(user)"
       handle => "add_cron",
       comment => "add cron $(this.promiser) - $(line)",
       edit_line => add_crontab_line("$(regex)","$(line)"),
@@ -103,9 +103,9 @@ bundle agent add_crontab(regex,line) {
 }
 
 # remove a crontab. Will automaticall reload crontab service
-bundle agent remove_crontab(regex) {
+bundle agent remove_crontab(regex,user) {
   files:
-    "$(sipx.cron)"
+    "$(sipx.crontabs)/$(user)"
       edit_line => remove_crontab_line("$(regex)"),
       classes => if_repaired("reload_crontab");
       

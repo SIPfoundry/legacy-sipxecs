@@ -119,7 +119,9 @@ public class BackupConfig implements ConfigProvider {
         CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
         List<String> crons = new ArrayList<String>();
         for (DailyBackupSchedule schedule : schedules) {
-            crons.add(schedule.toCronString());
+            if (schedule.isEnabled()) {
+                crons.add(schedule.toCronString());
+            }
         }
         config.writeList(type.toString() + "_backup_schedule", crons);
     }

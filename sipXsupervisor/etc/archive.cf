@@ -73,16 +73,18 @@ bundle agent archive_vars {
 bundle agent backup_schedules(plan) {
   vars:
     archive.primary::
-      "schedule" slist => { "$(sipx.$(plan)_backup_schedule)" };
-      "cron" slist => { "$(schedule) $(sipx.SIPXPBXUSER) $(sipx.SIPX_BINDIR)/sipx-archive --backup $(sipx.SIPX_CONFDIR)/archive-$(plan).yaml > /dev/null" };
-      "cron_id" string => ".*/sipx-srchive .*"; #regex                                                                   
+      "cron" slist => { "@(sipx.$(plan)_backup_schedule)" };
+      "cron_id" string => ".*/sipx-archive --backup .*/archive-$(plan).yaml.*"; #regex
+
+  classes:
+    "has_cron" expression => isvariable("sipx.$(plan)_backup_schedule");
 
   methods:
-    archive.primary::
-      "any" usebundle => add_crontab("$(cron)", "$(cron_id)");
+    primary.archive.has_cron::
+      "any" usebundle => add_crontab("$(cron_id)", "$(sipx.SIPXPBXUSER)", "$(cron) $(sipx.SIPX_BINDIR)/sipx-archive --backup $(sipx.SIPX_CONFDIR)/archive-$(plan).yaml > /dev/null");
 
-    !archive.primary::
-      "any" usebundle => remove_crontab("$(cron_id)");
+    primary.(!archive|!has_cron)::
+      "any" usebundle => remove_crontab("$(cron_id)", "$(sipx.SIPXPBXUSER)");
 }
 
 #

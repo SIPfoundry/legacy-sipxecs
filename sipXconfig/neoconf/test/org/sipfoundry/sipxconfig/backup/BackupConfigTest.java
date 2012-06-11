@@ -69,8 +69,11 @@ public class BackupConfigTest {
         s1.setTimeOfDay(new TimeOfDay(22, 30));
         s1.setScheduledDay(ScheduledDay.FRIDAY);
         DailyBackupSchedule s2 = new DailyBackupSchedule();
+        DailyBackupSchedule s3 = new DailyBackupSchedule();
+        s1.setEnabled(true);
+        s2.setEnabled(true);
         StringWriter actual = new StringWriter();
-        config.writeBackupSchedules(actual, BackupType.local, Arrays.asList(s1, s2));
+        config.writeBackupSchedules(actual, BackupType.local, Arrays.asList(s1, s2, s3));
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-schedules.cfdat"));        
         assertEquals(expected, actual.toString());        
     }
