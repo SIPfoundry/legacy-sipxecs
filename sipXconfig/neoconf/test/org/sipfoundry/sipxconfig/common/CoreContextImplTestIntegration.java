@@ -22,16 +22,14 @@ import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
+import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
+import org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
-/**
- * Contains Integration tests. All tests from CoreContextImplTestDb should be moved here and
- * CoreContextImplTestDb should be deleted
- */
 public class CoreContextImplTestIntegration extends IntegrationTestCase {
     private static final int NUM_USERS = 10;
     private PermissionManager m_permissionManager;
@@ -760,7 +758,21 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         assertTrue(m_coreContext.isAliasInUse("400"));
         assertTrue(m_coreContext.isAliasInUse("500"));
     }
-    
+
+    public void testGetReplicables() {
+        //note that users are not returned into this List, they are
+        //replicated usgin a different mechanism
+        //only groups and special users are in the list
+        Group g1 = new Group();
+        g1.setResource("user");
+        g1.setName("group1");
+        m_settingDao.saveGroup(g1);
+        m_coreContext.createAdminGroupAndInitialUser("1234");
+        List<Replicable> replicables = m_coreContext.getReplicables();
+        assertTrue(replicables.contains(g1));
+        assertTrue(replicables.size() == 11); //9 special users, 2 groups
+    }
+
     public void setBranchManager(BranchManager branchManager) {
         m_branchManager = branchManager;
     }

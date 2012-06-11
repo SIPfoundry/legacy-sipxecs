@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.setup.SetupManager;
 /**
  * CoreContext
  */
-public interface CoreContext extends DataObjectSource<User>, AliasOwner {
+public interface CoreContext extends DataObjectSource<User>, AliasOwner, ReplicableProvider {
 
     static final String USER_GROUP_RESOURCE_ID = "user";
     static final String CONTEXT_BEAN_NAME = "coreContext";
