@@ -18,9 +18,12 @@ package org.sipfoundry.sipxconfig.imbot;
 
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang.StringUtils.replace;
+import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ENABLED;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.PINTOKEN;
+import static org.sipfoundry.commons.mongo.MongoConstants.TIMESTAMP;
+import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -122,9 +125,12 @@ public class ImBotSettings extends PersistableSettings implements DeployConfigOn
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
         Map<String, Object> props = new HashMap<String, Object>();
+        props.put(UID, getPersonalAssistantImId());
         props.put(IM_ID, getPersonalAssistantImId());
         props.put(PINTOKEN, getPersonalAssistantImPassword());
         props.put(IM_ENABLED, true);
+        props.put(GROUPS, new String[]{""});
+        props.put(TIMESTAMP, System.currentTimeMillis());
         return props;
     }
 }

@@ -6,11 +6,32 @@
       <tr jwcid="userIdPanel" for="user:userId">
         <input jwcid="userId" id="user:userId" type="text" autocomplete="off"/>
       </tr>
+      <tr jwcid="@common/FieldPanel" for="salutation"
+        field="component:salutation"
+        label="message:label.salutation">
+          <span jwcid="salutation@PropertySelection" id="salutation"
+            model="ognl:salutationModel"
+            value="ognl:user.userProfile.salutationId"/>
+      </tr>
       <tr jwcid="lastNamePanel" for="user:lastName">
         <input jwcid="lastName" id="user:lastName" type="text" autocomplete="off"/>
       </tr>
       <tr jwcid="firstNamePanel" for="user:firstName">
         <input jwcid="firstName" id="user:firstName" type="text" autocomplete="off"/>
+      </tr>
+      <tr jwcid="@common/FieldPanel" for="manager"
+        field="component:manager"
+        label="message:label.manager">
+          <span jwcid="manager@TextField" id="manager" maxlength="255"
+            value="ognl:user.userProfile.manager"
+            type="text" autocomplete="off"/>
+      </tr>
+      <tr jwcid="@common/FieldPanel" for="employeeId"
+         field="component:employeeId"
+         label="message:label.employeeId">
+           <span jwcid="employeeId@TextField" id="employeeId" maxlength="255"
+             value="ognl:user.userProfile.employeeId"
+             type="text" autocomplete="off"/>
       </tr>
       <tr jwcid="pin"/>
 	  <tr jwcid="voicemail_pin@user/ConfirmPassword"

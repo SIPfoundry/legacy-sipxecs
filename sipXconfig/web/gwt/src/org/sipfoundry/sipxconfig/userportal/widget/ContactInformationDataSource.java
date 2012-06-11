@@ -52,6 +52,10 @@ public class ContactInformationDataSource extends DataSource {
     public static final String OFFICE_DESIGNATION = "officeDesignation";
     public static final String AVATAR = "avatar";
     public static final String USE_BRANCH_ADDRESS = "useBranchAddress";
+    public static final String TWITTER_NAME = "twiterName";
+    public static final String LINKEDIN_NAME = "linkedinName";
+    public static final String FACEBOOK_NAME = "facebookName";
+    public static final String XING_NAME = "xingName";
 
     public static final String EMAIL_ADDRESS = "emailAddress";
     public static final String ALTERNATE_EMAIL_ADDRESS = "alternateEmailAddress";
@@ -68,6 +72,10 @@ public class ContactInformationDataSource extends DataSource {
     public static final String[] FIELDS_OFFICE = {
         OFFICE_DESIGNATION, OFFICE_STREET, OFFICE_COUNTRY, ASSISTANT_NAME, OFFICE_CITY, OFFICE_ZIP,
         ASSISTANT_PHONE_NUMBER, OFFICE_STATE
+    };
+
+    public static final String[] FIELDS_SOCIAL = {
+        TWITTER_NAME, LINKEDIN_NAME, FACEBOOK_NAME, XING_NAME
     };
 
     private static final String REST_URL = "/sipxconfig/rest/my/contact-information/";
@@ -148,10 +156,20 @@ public class ContactInformationDataSource extends DataSource {
         DataSourceField avatar = new DataSourceTextField(AVATAR);
         avatar.setValueXPath(AVATAR);
 
+        DataSourceField twiterName = new DataSourceTextField(TWITTER_NAME);
+        twiterName.setValueXPath("twiterName");
+        DataSourceField facebookName = new DataSourceTextField(FACEBOOK_NAME);
+        facebookName.setValueXPath("facebookName");
+        DataSourceField linkedinName = new DataSourceTextField(LINKEDIN_NAME);
+        linkedinName.setValueXPath("linkedinName");
+        DataSourceField xingName = new DataSourceTextField(XING_NAME);
+        xingName.setValueXPath("xingName");
+
         setFields(firstName, lastName, emailAddress, jobTitle, jobDept, companyName, assistantName, location,
                 cellPhoneNumber, homePhoneNumber, assistantPhoneNumber, faxNumber, didNumber, imId, alternateImId,
                 alternateEmailAddress, homeStreet, homeCity, homeCountry, homeState, homeZip, officeStreet,
-                officeCity, officeCountry, officeState, officeZip, officeDesignation, avatar, useBranchAddress);
+                officeCity, officeCountry, officeState, officeZip, officeDesignation, avatar, useBranchAddress,
+                twiterName, facebookName, linkedinName, xingName);
         setRecordXPath("/contact-information");
         setDataURL(REST_URL);
         setShowPrompt(false);
@@ -193,6 +211,10 @@ public class ContactInformationDataSource extends DataSource {
         addToJsonObject(contactInfo, EMAIL_ADDRESS, form.getValueAsString(EMAIL_ADDRESS));
         addToJsonObject(contactInfo, ALTERNATE_EMAIL_ADDRESS, form.getValueAsString(ALTERNATE_EMAIL_ADDRESS));
         addToJsonObject(contactInfo, USE_BRANCH_ADDRESS, form.getValueAsString(USE_BRANCH_ADDRESS));
+        addToJsonObject(contactInfo, TWITTER_NAME, form.getValueAsString(TWITTER_NAME));
+        addToJsonObject(contactInfo, FACEBOOK_NAME, form.getValueAsString(FACEBOOK_NAME));
+        addToJsonObject(contactInfo, LINKEDIN_NAME, form.getValueAsString(LINKEDIN_NAME));
+        addToJsonObject(contactInfo, XING_NAME, form.getValueAsString(XING_NAME));
 
         JSONObject homeAddress = new JSONObject();
         addToJsonObject(homeAddress, ADDRESS_STREET, form.getValueAsString(HOME_STREET));

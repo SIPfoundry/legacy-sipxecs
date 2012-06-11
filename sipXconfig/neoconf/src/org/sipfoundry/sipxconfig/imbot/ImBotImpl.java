@@ -27,6 +27,8 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
@@ -44,10 +46,14 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
+import org.springframework.beans.factory.annotation.Required;
 
-public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, ProcessProvider, FirewallProvider {
+public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, ProcessProvider,
+    FirewallProvider, ReplicableProvider {
+
     private static final int PASS_LENGTH = 8;
     private BeanWithSettingsDao<ImBotSettings> m_settingsDao;
+    private FeatureManager m_featureManager;
 
     public ImBotSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
@@ -126,5 +132,20 @@ public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, Proce
         if (request.getAllNewlyEnabledFeatures().contains(ImBot.FEATURE)) {
             initializeSettings();
         }
+    }
+
+    @Override
+    public List<Replicable> getReplicables() {
+        if (m_featureManager.isFeatureEnabled(ImBot.FEATURE)) {
+            List<Replicable> replicables = new ArrayList<Replicable>();
+            replicables.add(getSettings());
+            return replicables;
+        }
+        return Collections.emptyList();
+    }
+
+    @Required
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
     }
 }

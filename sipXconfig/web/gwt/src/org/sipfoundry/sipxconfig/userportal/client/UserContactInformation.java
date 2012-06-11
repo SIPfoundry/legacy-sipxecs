@@ -47,6 +47,8 @@ public class UserContactInformation implements EntryPoint {
                 "homeForm", 2, s_constants);
         m_officeAddressForm = new ContactInformationForm(ContactInformationDataSource.FIELDS_OFFICE,
                 "officeForm", 2, s_constants);
+        ContactInformationForm socialForm = new ContactInformationForm(ContactInformationDataSource.FIELDS_SOCIAL,
+                "socialForm", 2, s_constants);
 
         generalForm.addEmailValidator(ContactInformationDataSource.EMAIL_ADDRESS);
         generalForm.addEmailValidator(ContactInformationDataSource.ALTERNATE_EMAIL_ADDRESS);
@@ -58,6 +60,7 @@ public class UserContactInformation implements EntryPoint {
 
         generalForm.setValuesManager(m_valuesManager);
         homeForm.setValuesManager(m_valuesManager);
+        socialForm.setValuesManager(m_valuesManager);
         m_officeAddressForm.setValuesManager(m_valuesManager);
 
         BranchAddressForm useBranchAddressForm = new BranchAddressForm(m_officeAddressForm, m_valuesManager);
@@ -70,6 +73,9 @@ public class UserContactInformation implements EntryPoint {
         addressLayout.addMember(m_officeAddressForm);
         addressLayout.addMember(useBranchAddressForm);
 
+        VLayout socialLayout = new VLayout();
+        socialLayout.addMember(socialForm);
+
         TabSet contactTabSet = new TabSet();
         Tab generalTab = new Tab();
         generalTab.setPane(generalLayout);
@@ -77,7 +83,10 @@ public class UserContactInformation implements EntryPoint {
         Tab addressTab = new Tab();
         addressTab.setTitle(s_constants.address());
         addressTab.setPane(addressLayout);
-        contactTabSet.setTabs(generalTab, addressTab);
+        Tab socialTab = new Tab();
+        socialTab.setPane(socialLayout);
+        socialTab.setTitle(s_constants.socialForm());
+        contactTabSet.setTabs(generalTab, addressTab, socialTab);
         contactTabSet.setHeight100();
         contactTabSet.setWidth100();
 

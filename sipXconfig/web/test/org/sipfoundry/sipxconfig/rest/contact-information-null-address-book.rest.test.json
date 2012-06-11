@@ -3,6 +3,7 @@
   "officeAddress": {},
   "branchAddress": {},
   "useBranchAddress": false,
+  "salutation": "None",
   "firstName": "John",
   "lastName": "Doe"
 }}

@@ -21,12 +21,15 @@ import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.Parameter;
+import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
+import org.sipfoundry.commons.userdb.profile.Salutation;
 import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.ExtensionPoolContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.components.NewEnumPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -61,11 +64,20 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
 
     public abstract void setGroupsString(String groups);
 
+    public abstract void setSalutationModel(IPropertySelectionModel model);
+
+    public abstract IPropertySelectionModel getSalutationModel();
+
     public void prepareForRender(IRequestCycle cycle) {
         UserProfile userProfile = getUser().getUserProfile();
         if (userProfile == null) {
             userProfile = new UserProfile();
             getUser().setUserProfile(userProfile);
+        }
+        if (getSalutationModel() == null) {
+            NewEnumPropertySelectionModel model = new NewEnumPropertySelectionModel();
+            model.setEnumType(Salutation.class);
+            setSalutationModel(model);
         }
     }
 

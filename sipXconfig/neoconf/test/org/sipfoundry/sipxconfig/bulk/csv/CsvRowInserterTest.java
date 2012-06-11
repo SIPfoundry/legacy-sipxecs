@@ -89,11 +89,12 @@ public class CsvRowInserterTest extends TestCase {
         replay(coreContext);
 
         String[] userRow1 = new String[] {
-            "bongo", "1234","123", "abcdef", "", "Star", "","","","","","",""," im_id",
+            "bongo", "1234","123", "abcdef", "", "Star", "","","","","","",""," im_id","Prof","Manager","user1122",
             "job title", "job dept", "company name", "assistant name",
             "001122", "112233", "223344", "33445566", "alternate@gmail.com","alternateImId", "location",
             "home street", "home city", "home state", "home country", "34001",
-            "office street", "office city", "office state", "office country", "34342"
+            "office street", "office city", "office state", "office country", "34342",
+            "Twitter", "Linkedin", "Facebook", "Xing"
         };
 
         CsvRowInserter impl = new CsvRowInserter();
@@ -101,6 +102,10 @@ public class CsvRowInserterTest extends TestCase {
 
         User user1 = impl.userFromRow(userRow1);
 
+        assertEquals("Prof", user1.getUserProfile().getSalutation());
+        assertEquals("Manager", user1.getUserProfile().getManager());
+        assertEquals("user1122", user1.getUserProfile().getEmployeeId());
+        assertEquals("company name", user1.getUserProfile().getCompanyName());
         assertEquals("job title", user1.getUserProfile().getJobTitle());
         assertEquals("job dept", user1.getUserProfile().getJobDept());
         assertEquals("company name", user1.getUserProfile().getCompanyName());
@@ -124,6 +129,11 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals("office state", user1.getUserProfile().getOfficeAddress().getState());
         assertEquals("office country", user1.getUserProfile().getOfficeAddress().getCountry());
         assertEquals("34342", user1.getUserProfile().getOfficeAddress().getZip());
+
+        assertEquals("Twitter", user1.getUserProfile().getTwiterName());
+        assertEquals("Linkedin", user1.getUserProfile().getLinkedinName());
+        assertEquals("Facebook", user1.getUserProfile().getFacebookName());
+        assertEquals("Xing", user1.getUserProfile().getXingName());
 
         verify(coreContext);
     }

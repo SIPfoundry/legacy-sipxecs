@@ -52,6 +52,13 @@ public class UserProfile {
     private String m_emailAddress;
     private String m_alternateEmailAddress;
     private boolean m_useBranchAddress;
+    private String m_manager;
+    private String m_salutation;
+    private String m_employeeId;
+    private String m_twiterName;
+    private String m_linkedinName;
+    private String m_facebookName;
+    private String m_xingName;
 
     private String m_avatar;
     private String m_extAvatar;
@@ -60,7 +67,7 @@ public class UserProfile {
     public String getUserId() {
         return m_userid;
     }
- 
+
     public void setUserId(final String userid) {
         m_userid = userid;
     }
@@ -266,6 +273,70 @@ public class UserProfile {
 
     public void setDidNumber(String didNumber) {
         m_didNumber = didNumber;
+    }
+
+    public String getManager() {
+        return m_manager;
+    }
+
+    public void setManager(String manager) {
+        m_manager = manager;
+    }
+
+    public String getSalutation() {
+        return m_salutation;
+    }
+
+    public void setSalutation(String salutation) {
+        m_salutation = salutation;
+    }
+
+    public Salutation getSalutationId() {
+        return Salutation.getSalutation(m_salutation);
+    }
+
+    public void setSalutationId(Salutation salutation) {
+        m_salutation = salutation.toString();
+    }
+
+    public String getEmployeeId() {
+        return m_employeeId;
+    }
+
+    public void setEmployeeId(String employeeId) {
+        m_employeeId = employeeId;
+    }
+
+    public String getTwiterName() {
+        return m_twiterName;
+    }
+
+    public void setTwiterName(String twiterName) {
+        m_twiterName = twiterName;
+    }
+
+    public String getLinkedinName() {
+        return m_linkedinName;
+    }
+
+    public void setLinkedinName(String linkedinName) {
+        m_linkedinName = linkedinName;
+    }
+
+    public String getFacebookName() {
+        return m_facebookName;
+    }
+
+    public void setFacebookName(String facebookName) {
+        m_facebookName = facebookName;
+    }
+
+    public String getXingName() {
+        return m_xingName;
+    }
+
+    public void setXingName(String xingName) {
+        m_xingName = xingName;
     }
 
     public void update(UserProfile object) {
