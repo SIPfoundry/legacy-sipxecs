@@ -41,6 +41,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.ITEM;
 import static org.sipfoundry.commons.mongo.MongoConstants.LANGUAGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_BEGIN_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_END_IM;
+import static org.sipfoundry.commons.mongo.MongoConstants.MOH;
 import static org.sipfoundry.commons.mongo.MongoConstants.NOTIFICATION;
 import static org.sipfoundry.commons.mongo.MongoConstants.OPERATOR;
 import static org.sipfoundry.commons.mongo.MongoConstants.PASSWD;
@@ -87,6 +88,7 @@ public class Mailstore extends AbstractDataSetGenerator {
         }
         User user = (User) entity;
         // The following settings used to be in validusers.xml
+        top.put(MOH, user.getSettingValue("moh/audio-source"));
         top.put(USERBUSYPROMPT, user.getSettingValue("voicemail/mailbox/user-busy-prompt")); // can
                                                                                              // be
                                                                                              // null
@@ -177,9 +179,7 @@ public class Mailstore extends AbstractDataSetGenerator {
                 dLists.add(dlist);
             }
         }
-        if (!dLists.isEmpty()) {
-            top.put(DISTRIB_LISTS, dLists);
-        }
+        top.put(DISTRIB_LISTS, dLists);
         return true;
     }
 

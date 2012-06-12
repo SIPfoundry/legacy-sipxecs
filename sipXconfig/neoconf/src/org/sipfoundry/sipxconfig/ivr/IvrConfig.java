@@ -55,7 +55,7 @@ public class IvrConfig implements ConfigProvider {
         Set<Location> locations = request.locations(manager);
         FeatureManager featureManager = manager.getFeatureManager();
         Address mwiApi = manager.getAddressManager().getSingleAddress(Mwi.HTTP_API);
-        Address adminApi = manager.getAddressManager().getSingleAddress(AdminContext.HTTP_ADDRESS);
+        Address adminApi = manager.getAddressManager().getSingleAddress(AdminContext.HTTP_ADDRESS_AUTH);
         Address apacheApi = manager.getAddressManager().getSingleAddress(ApacheManager.HTTPS_ADDRESS);
         Address restApi = manager.getAddressManager().getSingleAddress(RestServer.HTTP_API);
         Address imApi = manager.getAddressManager().getSingleAddress(ImManager.XMLRPC_ADDRESS);

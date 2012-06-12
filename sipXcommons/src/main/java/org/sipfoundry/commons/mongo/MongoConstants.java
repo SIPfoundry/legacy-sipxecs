@@ -29,6 +29,7 @@ public interface MongoConstants {
     static final String CONTACT = "cnt";
     static final String RELATION = "rln";
     static final String USERBUSYPROMPT = "bsyprmpt";
+    static final String MOH = "moh";
     static final String VOICEMAILTUI = "vcmltui";
     static final String EMAIL = "email";
     static final String NOTIFICATION = "notif";

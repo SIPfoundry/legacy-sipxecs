@@ -577,26 +577,7 @@ public abstract class AbstractUser extends BeanWithGroups {
     }
 
     public String getMusicOnHoldUri() {
-        return getMusicOnHoldUri(m_mohAddresses);
-    }
-
-    String getMusicOnHoldUri(MohAddressFactory addresses) {
-        String mohAudioSource = getSettings().getSetting(MOH_AUDIO_SOURCE_SETTING).getValue();
-
-        switch (MohAudioSource.parseSetting(mohAudioSource)) {
-        case FILES_SRC:
-            return addresses.getLocalFilesMohUri();
-        case PERSONAL_FILES_SRC:
-            return addresses.getPersonalMohFilesUri(getName());
-        case SOUNDCARD_SRC:
-            return addresses.getPortAudioMohUri();
-        case SYSTEM_DEFAULT:
-            return addresses.getDefaultMohUri();
-        case NONE:
-            return addresses.getNoneMohUri();
-        default:
-            return addresses.getDefaultMohUri();
-        }
+        return m_mohAddresses.getPersonalMohFilesUri(getName());
     }
 
     public void setEmailAddress(String emailAddress) {

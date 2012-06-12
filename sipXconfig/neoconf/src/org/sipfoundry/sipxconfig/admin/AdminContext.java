@@ -14,8 +14,10 @@ import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface AdminContext {
+    public static final String URL_FORMAT = "http://%s:%d";
     public static final LocationFeature FEATURE = new LocationFeature("admin");
-    public static final AddressType HTTP_ADDRESS = new AddressType("adminApi", "http://%s:%d", 12000);
+    public static final AddressType HTTP_ADDRESS = new AddressType("adminApi", URL_FORMAT);
+    public static final AddressType HTTP_ADDRESS_AUTH = new AddressType("adminApiAuth", URL_FORMAT);
     public static final AlarmDefinition ALARM_LOGIN_FAILED = new AlarmDefinition("LOGIN_FAILED", 3);
     public static final String ARCHIVE = "configuration.tar.gz";
     final String CONTEXT_BEAN_NAME = "adminContext";

@@ -101,7 +101,7 @@ init_regexp_proc(void)
      * Define the OID pointer to the top of the mib tree that we're
      * registering underneath 
      */
-    oid             proc_variables_oid[] = { 1, 3, 6, 1, 4, 1, 7142, 100, 1, 10 };
+    oid             proc_variables_oid[] = { 1, 3, 6, 1, 4, 1, 37781, 100, 1, 10 };
 
     /*
      * register ourselves with the agent to handle our mib tree 

@@ -69,7 +69,7 @@ public abstract class UserPhones extends UserBasePage {
 
     public IPage addExistingPhones() {
         AddExistingPhone page = getAddExistingPhonePage();
-        page.setUserId(getLoadedUser().getId());
+        page.setUserId(getUser().getId());
         page.setReturnPage(this);
         return page;
     }
@@ -90,6 +90,9 @@ public abstract class UserPhones extends UserBasePage {
     }
 
     public void saveSharedLine() {
+        if (getLoadedUser() == null) {
+            setLoadedUser(getUser());
+        }
         User user = getLoadedUser();
         user.setIsShared(getIsShared());
         getCoreContext().saveUser(user);

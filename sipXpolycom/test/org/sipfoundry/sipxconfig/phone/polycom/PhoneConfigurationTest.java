@@ -109,7 +109,7 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
 
         String expectedMohUri = "~~mh@example.org";
         MohAddressFactory moh = EasyMock.createNiceMock(MohAddressFactory.class);
-        moh.getDefaultMohUri();
+        moh.getPersonalMohFilesUri(SpecialUserType.PHONE_PROVISION.getUserName());
         expectLastCall().andReturn("sip:" + expectedMohUri).anyTimes();
         replay(moh);
 

@@ -108,10 +108,8 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
         getCoreContext().checkForValidExtensions(aliases, PermissionName.VOICEMAIL);
         User user = getCoreContext().getUser(userId);
         for (int i = 1; i < lists.length; i++) {
-            if (lists[i].getExtensions() != null) {
-                user.setSettingValue(new StringBuilder(DistributionList.SETTING_PATH_DISTRIBUTION_LIST).
+            user.setSettingValue(new StringBuilder(DistributionList.SETTING_PATH_DISTRIBUTION_LIST).
                         append(i).toString(), joinBySpace(lists[i].getExtensions()));
-            }
         }
         getCoreContext().saveUser(user);
     }

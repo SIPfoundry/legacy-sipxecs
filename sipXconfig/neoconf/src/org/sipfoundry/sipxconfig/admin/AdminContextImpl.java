@@ -9,6 +9,7 @@
 package org.sipfoundry.sipxconfig.admin;
 
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -40,17 +41,24 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public class AdminContextImpl extends HibernateDaoSupport implements AdminContext, AddressProvider, ProcessProvider,
     AlarmProvider, FirewallProvider, ArchiveProvider {
+    private static final Collection<AddressType> ADDRESSES =
+        Arrays.asList(new AddressType[] {HTTP_ADDRESS, HTTP_ADDRESS_AUTH});
     private LocationsManager m_locationsManager;
     private int m_internalPort;
+    private int m_internalPortAuth;
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
-        if (!type.equals(HTTP_ADDRESS)) {
+        if (!ADDRESSES.contains(type)) {
             return null;
         }
-
         Location location = m_locationsManager.getPrimaryLocation();
-        Address address = new Address(HTTP_ADDRESS, location.getAddress(), m_internalPort);
+        Address address = null;
+        if (type.equals(HTTP_ADDRESS)) {
+            address = new Address(HTTP_ADDRESS, location.getAddress(), m_internalPort);
+        } else if (type.equals(HTTP_ADDRESS_AUTH)) {
+            address = new Address(HTTP_ADDRESS, location.getAddress(), m_internalPortAuth);
+        }
         return Collections.singleton(address);
     }
 
@@ -72,6 +80,11 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     @Required
     public void setInternalPort(int internalPort) {
         m_internalPort = internalPort;
+    }
+
+    @Required
+    public void setInternalPortAuth(int internalPortAuth) {
+        m_internalPortAuth = internalPortAuth;
     }
 
     @Override
