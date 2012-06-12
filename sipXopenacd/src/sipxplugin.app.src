@@ -15,7 +15,8 @@
 	spx_util,
     spx_agent_auth,
 	spx_call_queue_config,
-	spx_webmgt_loader
+	spx_webmgt_loader,
+	spx_agentweb_loader
 ]},
 {registered, [
 	sipxplugin_sup,

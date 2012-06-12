@@ -223,7 +223,8 @@ add_autoloads() ->
 	spx_log_loader:start(),
 	spx_freeswitchmedia_loader:start(),
 	spx_webmgt_loader:start(),
-	%% TODO read from config
+	spx_agentweb_loader:start(),
+
 	ok.
 
 -ifdef(TEST).
