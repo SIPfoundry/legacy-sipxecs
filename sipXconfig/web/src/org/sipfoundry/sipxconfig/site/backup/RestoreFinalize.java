@@ -71,12 +71,13 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
         Collection<String> restoreFrom = getBackupPaths();
         boolean isAdminRestore = isSelected(restoreFrom, AdminContext.ARCHIVE);
         ManualRestore restore = getManualRestore();
-        restore.restore(restoreFrom, getBackupSettings());
         if (isAdminRestore) {
+            restore.restore(restoreFrom, getBackupSettings(), true);
             WaitingPage waitingPage = getWaitingPage();
             waitingPage.setWaitingListener(restore);
             return waitingPage;
         } else {
+            restore.restore(restoreFrom, getBackupSettings());
             getValidator().recordSuccess("Need to implement");
         }
 

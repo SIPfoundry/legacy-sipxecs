@@ -375,7 +375,6 @@ end
 
 operation.verbose = verbose
 operation.out = $output
-ARGV.shift
 operation.run(params, ARGV)
 exit 0
 

@@ -44,7 +44,18 @@ public class ManualRestore implements WaitingListener {
      * if defIds are null or empty, then files are already staged and we can skip right to node restore
      */
     public void restore(Collection<String> defIds, BackupSettings settings) {
-        writePlan(defIds, settings).restore(defIds);
+        BackupCommandRunner runner = writePlan(defIds, settings);
+        runner.setBackground(true);
+        runner.restore(defIds);
+    }
+
+    /**
+     * optionally restore in background, useful when sipxconfig is restoring sipxconfig
+     */
+    public void restore(Collection<String> defIds, BackupSettings settings, boolean backgroundProcess) {
+        BackupCommandRunner runner = writePlan(defIds, settings);
+        runner.setBackground(backgroundProcess);
+        runner.restore(defIds);
     }
 
     public void setBackupManager(BackupManager backupManager) {

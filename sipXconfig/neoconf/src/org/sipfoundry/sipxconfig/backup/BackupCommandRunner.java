@@ -35,6 +35,7 @@ public class BackupCommandRunner {
     private static final Log LOG = LogFactory.getLog(BackupCommandRunner.class);
     private String m_backupScript;
     private File m_plan;
+    private boolean m_background;
 
     public BackupCommandRunner(File plan, String backupScript) {
         m_backupScript = backupScript;
@@ -44,10 +45,6 @@ public class BackupCommandRunner {
     public String lastBackup() {
         List<String> backups = list();
         return backups.isEmpty() ? null : (String) backups.get(backups.size() - 1);
-    }
-
-    public void restoreFromStage() {
-        restore(null);
     }
 
     public void restore(Collection<String> paths) {
@@ -90,6 +87,9 @@ public class BackupCommandRunner {
             commandLine = StringUtils.join(pb.command(), ' ');
             LOG.info(commandLine);
             Process process = pb.start();
+            if (m_background) {
+                return StringUtils.EMPTY;
+            }
             int code = process.waitFor();
             if (code != 0) {
                 String errorMsg = String.format("Archive command %s failed. Exit code: %d", commandLine, code);
@@ -117,5 +117,13 @@ public class BackupCommandRunner {
         }
         String lines = StringUtils.chomp(runCommand("--list", m_plan.getAbsolutePath()));
         return Arrays.asList(StringUtils.splitByWholeSeparator(lines, "\n"));
+    }
+
+    public boolean isBackground() {
+        return m_background;
+    }
+
+    public void setBackground(boolean background) {
+        m_background = background;
     }
 }
