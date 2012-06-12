@@ -42,8 +42,11 @@ public abstract class UserConferencesPanel extends BaseComponent {
 
     @Override
     protected void prepareForRender(IRequestCycle cycle) {
+        if (getLoadedUser() == null) {
+            setLoadedUser(getUser());
+        }
         if (getImNotificationSettings() == null) {
-            setImNotificationSettings(getUser().getSettings().getSetting("im_notification"));
+            setImNotificationSettings(getLoadedUser().getSettings().getSetting("im_notification"));
         }
     }
 
@@ -66,6 +69,9 @@ public abstract class UserConferencesPanel extends BaseComponent {
     public abstract Setting getImNotificationSettings();
     public abstract void setImNotificationSettings(Setting paSetting);
 
+    public abstract void setLoadedUser(User user);
+    public abstract User getLoadedUser();
+
     public IPage selectConference(Integer conferenceId) {
         return activateEditConferencePage(conferenceId, EditConference.TAB_CONFIG);
     }
@@ -76,7 +82,7 @@ public abstract class UserConferencesPanel extends BaseComponent {
 
     public void save() {
         if (TapestryUtils.isValid(this)) {
-            getCoreContext().saveUser(getUser());
+            getCoreContext().saveUser(getLoadedUser());
         }
     }
 
