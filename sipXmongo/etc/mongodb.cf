@@ -80,7 +80,7 @@ bundle agent mongodb_wait_until_accepting_connections {
         # continuously looks for line in log file and bail on first match or timeout
         # whichever comes first. Give CF a bit longer timeout
         contain => timeout("360"),
-        args => "120 '$(match)' $(log)";
+        args => "$(timeout) '$(match)' $(log)";
 }
 
 body contain timeout(sec) {
