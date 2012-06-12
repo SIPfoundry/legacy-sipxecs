@@ -222,6 +222,7 @@ add_autoloads() ->
 	spx_agentconfig_loader:start(),
 	spx_log_loader:start(),
 	spx_freeswitchmedia_loader:start(),
+	spx_webmgt_loader:start(),
 	%% TODO read from config
 	ok.
 
