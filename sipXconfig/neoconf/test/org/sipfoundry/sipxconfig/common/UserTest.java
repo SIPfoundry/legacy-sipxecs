@@ -403,16 +403,8 @@ public class UserTest extends TestCase {
 
     public void testGetMusicOnHoldUri() {
         MohAddressFactory moh = org.easymock.classextension.EasyMock.createMock(MohAddressFactory.class);
-        moh.getDefaultMohUri();
-        expectLastCall().andReturn("sip:~~mh@example.org").anyTimes();
-        moh.getLocalFilesMohUri();
-        expectLastCall().andReturn("sip:~~mh~l@example.org").anyTimes();
         moh.getPersonalMohFilesUri("1234");
-        expectLastCall().andReturn("sip:~~mh~1234@example.org").anyTimes();
-        moh.getPortAudioMohUri();
-        expectLastCall().andReturn("sip:~~mh~p@example.org").anyTimes();
-        moh.getNoneMohUri();
-        expectLastCall().andReturn("sip:~~mh~n@example.org").anyTimes();
+        expectLastCall().andReturn("sip:~~mh~u1234@example.org").anyTimes();
         org.easymock.classextension.EasyMock.replay(moh);
 
         PermissionManagerImpl pm = new PermissionManagerImpl();
@@ -421,20 +413,21 @@ public class UserTest extends TestCase {
         User user = new User();
         user.setName("1234");
         user.setPermissionManager(pm);
+        user.setMohAddresses(moh);
 
-        assertEquals("sip:~~mh@example.org", user.getMusicOnHoldUri(moh));
+        assertEquals("sip:~~mh~u1234@example.org", user.getMusicOnHoldUri());
 
         user.setSettingValue(User.MOH_AUDIO_SOURCE_SETTING, User.MohAudioSource.FILES_SRC.toString());
-        assertEquals("sip:~~mh~l@example.org", user.getMusicOnHoldUri(moh));
+        assertEquals("sip:~~mh~u1234@example.org", user.getMusicOnHoldUri());
 
         user.setSettingValue(User.MOH_AUDIO_SOURCE_SETTING, User.MohAudioSource.PERSONAL_FILES_SRC.toString());
-        assertEquals("sip:~~mh~1234@example.org", user.getMusicOnHoldUri(moh));
+        assertEquals("sip:~~mh~u1234@example.org", user.getMusicOnHoldUri());
 
         user.setSettingValue(User.MOH_AUDIO_SOURCE_SETTING, User.MohAudioSource.SOUNDCARD_SRC.toString());
-        assertEquals("sip:~~mh~p@example.org", user.getMusicOnHoldUri(moh));
+        assertEquals("sip:~~mh~u1234@example.org", user.getMusicOnHoldUri());
 
         user.setSettingValue(User.MOH_AUDIO_SOURCE_SETTING, User.MohAudioSource.NONE.toString());
-        assertEquals("sip:~~mh~n@example.org", user.getMusicOnHoldUri(moh));
+        assertEquals("sip:~~mh~u1234@example.org", user.getMusicOnHoldUri());
 
     }
 

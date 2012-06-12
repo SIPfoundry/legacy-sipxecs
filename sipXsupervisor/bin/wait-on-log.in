@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# block until a log file has a specific entry starting with the first
+# line of the file
+#
+# Required arguments:
+timeout=$1   # time in secs
+match=$2     # regex to look for
+log=$3       # log file to search
+
+# Unfortunately this command doesn't work in cfengine, tail -f seems to be causing
+# issues for cfengine's tty. Too bad, it would have been good
+#
+#   /usr/bin/timeout $timeout tail -n +0 -f $log | grep -q -m 1 "$match"
+#
+# Brute force look thru file start from begining, cannot tell where i left off
+# and i wouldn't want to miss anything.
+#
+for t in `seq 0 $timeout` ; do
+  grep -q -m 1 "$match" $log && exit
+  sleep 1
+done
+
+exit 1

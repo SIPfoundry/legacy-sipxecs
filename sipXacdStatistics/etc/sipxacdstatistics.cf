@@ -60,17 +60,17 @@ bundle agent sipxacdstatistics_setup {
     # time should be less than one-half the time window sipxconfig-agent keeps
     # around with is currently 90 minutes (although for the first 1000 events, it doesn't
     # matter and sipxconfig-agent will keep at least that many)
-    "cron" string => "*/30 * * * * $(sipx.SIPXPBXUSER) $(sipx.SIPX_BINDIR)/sipxconfig-report > /dev/null";
+    "cron" string => "*/30 * * * * $(sipx.SIPX_BINDIR)/sipxconfig-report > /dev/null";
     "cron_id" string => ".*/sipxconfig-report .*"; #regex
 
   methods:
     !src.sipxacdstatistics::
       "any" usebundle => rh_chkconfig_status("sipxacdstatistics on");
-      "any" usebundle => add_crontab("$(cron_id)","$(cron)");
+      "any" usebundle => add_crontab("$(cron_id)", "$(sipx.SIPXPBXUSER)", "$(cron)");
 
     !src.!sipxacdstatistics::
       "any" usebundle => rh_chkconfig_status("sipxacdstatistics off");
-      "any" usebundle => remove_crontab("$(cron_id)");
+      "any" usebundle => remove_crontab("$(cron_id)", "$(sipx.SIPXPBXUSER)");
 }
 
 bundle agent sipxacdstatistics_running {

@@ -1,0 +1,123 @@
+/**
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ */
+package org.sipfoundry.sipxconfig.site.backup;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IPage;
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.request.IUploadFile;
+import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.backup.BackupManager;
+import org.sipfoundry.sipxconfig.backup.ManualRestore;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.site.common.AssetSelector;
+
+public abstract class RestoreUpload extends BaseComponent implements PageBeginRenderListener {
+
+    @InjectObject(value = "spring:backupManager")
+    public abstract BackupManager getBackupManager();
+
+    @InjectObject(value = "spring:manualRestore")
+    public abstract ManualRestore getManualRestore();
+
+    public abstract String getDefinitionId();
+
+    public abstract Map<String, IUploadFile> getUploads();
+
+    public abstract void setUploads(Map<String, IUploadFile> uploads);
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
+
+    @Override
+    public void pageBeginRender(PageEvent event) {
+        if (getUploads() == null) {
+            setUploads(new HashMap<String, IUploadFile>());
+        }
+    }
+
+    public IPage uploadAndRestoreFiles() {
+        IValidationDelegate validator = TapestryUtils.getValidator(this);
+        try {
+            String[] ids = getBackupManager().getArchiveDefinitionIds().toArray(new String[0]);
+            File dir = getBackupManager().getCleanRestoreStagingDirectory();
+            Set<String> defs = new HashSet<String>();
+            for (int i = 0; i < ids.length; i++) {
+                IUploadFile upload = getUploads().get(ids[i]);
+                if (upload != null) {
+                    upload(dir, ids[i], upload);
+                    defs.add(ids[i]);
+                }
+            }
+
+            if (defs.isEmpty()) {
+                throw new ValidatorException(getMessages().getMessage("message.noFileToRestore"));
+            }
+
+            // Q: Should this catch exception and delete files then rethrow exception?
+
+            getManualRestore().restoreFromStage(defs);
+            // Restore restore = prepareRestore(selectedBackups, LocalBackupPlan.TYPE);
+            // return setupWaitingPage(restore, restoreConfig, restoreVoicemail, restoreCdr,
+            // restoreDeviceConfig);
+            return null;
+        } catch (ValidatorException e) {
+            validator.record(e);
+            return null;
+        }
+    }
+
+    private File upload(File restoreDir, String defId, IUploadFile uploadFile) throws ValidatorException {
+        String ext = ".tar.gz";
+        if (uploadFile == null) {
+            return null;
+        }
+        String fileName = AssetSelector.getSystemIndependentFileName(uploadFile.getFilePath());
+        if (!fileName.endsWith(ext)) {
+            String error = getMessages().getMessage("message.wrongFileToRestore");
+            throw new ValidatorException(error);
+        }
+
+        OutputStream os = null;
+        try {
+            String prefix = StringUtils.substringBefore(fileName, ".");
+            File archive = new File(restoreDir, defId);
+            os = new FileOutputStream(archive);
+            IOUtils.copy(uploadFile.getStream(), os);
+            return archive;
+        } catch (IOException ex) {
+            String error = getMessages().getMessage("message.failed.uploadConfiguration");
+            throw new ValidatorException(error);
+        } finally {
+            IOUtils.closeQuietly(os);
+        }
+    }
+}

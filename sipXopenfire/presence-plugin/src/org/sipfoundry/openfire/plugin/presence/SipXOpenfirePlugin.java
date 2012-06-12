@@ -6,7 +6,6 @@ package org.sipfoundry.openfire.plugin.presence;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,16 +34,17 @@ import org.jivesoftware.openfire.container.Plugin;
 import org.jivesoftware.openfire.container.PluginClassLoader;
 import org.jivesoftware.openfire.container.PluginManager;
 import org.jivesoftware.openfire.group.Group;
-import org.jivesoftware.openfire.group.GroupAlreadyExistsException;
 import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.group.GroupNotFoundException;
 import org.jivesoftware.openfire.interceptor.InterceptorManager;
+import org.jivesoftware.openfire.muc.HistoryStrategy;
 import org.jivesoftware.openfire.muc.MUCRole;
+import org.jivesoftware.openfire.muc.MUCRole.Affiliation;
 import org.jivesoftware.openfire.muc.MUCRoom;
 import org.jivesoftware.openfire.muc.MultiUserChatManager;
 import org.jivesoftware.openfire.muc.MultiUserChatService;
 import org.jivesoftware.openfire.muc.NotAllowedException;
-import org.jivesoftware.openfire.muc.MUCRole.Affiliation;
+import org.jivesoftware.openfire.muc.cluster.UpdateHistoryStrategy;
 import org.jivesoftware.openfire.spi.PresenceManagerImpl;
 import org.jivesoftware.openfire.user.User;
 import org.jivesoftware.openfire.user.UserAlreadyExistsException;
@@ -56,12 +56,12 @@ import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.openfire.config.AccountsParser;
 import org.sipfoundry.openfire.config.ConfigurationParser;
+import org.sipfoundry.openfire.config.WatcherConfig;
 import org.sipfoundry.openfire.config.XmppAccountInfo;
 import org.sipfoundry.openfire.config.XmppChatRoom;
 import org.sipfoundry.openfire.config.XmppGroup;
 import org.sipfoundry.openfire.config.XmppGroupMember;
 import org.sipfoundry.openfire.config.XmppS2sInfo;
-import org.sipfoundry.openfire.config.WatcherConfig;
 import org.sipfoundry.openfire.config.XmppUserAccount;
 import org.sipfoundry.sipcallwatcher.CallWatcher;
 import org.sipfoundry.sipcallwatcher.ResourceStateChangeListener;
@@ -71,8 +71,6 @@ import org.xmpp.component.ComponentManagerFactory;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.Packet;
 import org.xmpp.packet.Presence;
-import org.jivesoftware.openfire.muc.HistoryStrategy;
-import org.jivesoftware.openfire.muc.cluster.UpdateHistoryStrategy;
 
 
 public class SipXOpenfirePlugin implements Plugin, Component {
@@ -652,7 +650,11 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             // user already exists - update its properties
             //Openfire API automatically launches EventType.user_modified events
             //and saves information in Openfire DB
-            user.setPassword(userAccount.getPassword());
+            try {
+                user.setPassword(userAccount.getPassword());
+            } catch (Exception ex) {
+                log.debug("cannot set password for user " + user.getUsername(), ex);
+            }
             user.setName(userAccount.getDisplayName());
             user.setEmail(userAccount.getEmail());
         } catch (UserNotFoundException e) {

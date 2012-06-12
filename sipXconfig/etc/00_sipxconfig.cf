@@ -18,9 +18,11 @@
 bundle agent 00_sipxconfig {
   methods:
     primary::
-      "any" usebundle => "mongodb";
-      "any" usebundle => "postgres";
-      "any" usebundle => "sipxcommserverlib";
+      "any" usebundle => mongodb;
+      "any" usebundle => postgres;
+      "any" usebundle => sipxcommserverlib;
+    primary.setup::
+      "any" usebundle => mongodb_wait_until_accepting_connections;
 
   commands:
     primary.setup::

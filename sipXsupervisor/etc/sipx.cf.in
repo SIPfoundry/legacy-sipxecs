@@ -86,9 +86,9 @@ bundle common sipx {
 }
 
 # add a crontab. Will automaticall reload crontab service
-bundle agent add_crontab(regex,line) {
+bundle agent add_crontab(regex,user,line) {
   files:
-    "$(sipx.cron)"
+    "$(sipx.crontabs)/$(user)"
       handle => "add_cron",
       comment => "add cron $(this.promiser) - $(line)",
       edit_line => add_crontab_line("$(regex)","$(line)"),
@@ -103,9 +103,9 @@ bundle agent add_crontab(regex,line) {
 }
 
 # remove a crontab. Will automaticall reload crontab service
-bundle agent remove_crontab(regex) {
+bundle agent remove_crontab(regex,user) {
   files:
-    "$(sipx.cron)"
+    "$(sipx.crontabs)/$(user)"
       edit_line => remove_crontab_line("$(regex)"),
       classes => if_repaired("reload_crontab");
       
@@ -145,7 +145,15 @@ body copy_from master_files(server,dir) {
 bundle agent sipx_init {
   methods:
     !primary::
+      "update" usebundle => "master_vars";
       "update" usebundle => "update_from_master";
+}
+
+bundle agent master_vars {
+  vars:
+    !primary::
+      "dim_master" int => readstringarray("master", "@SIPX_CFDATA@/defaults/master", "#[^\n]*", "=", 10, 4000);
+      "server" string => "$(master[address][1])";
 }
 
 bundle agent update_from_master {

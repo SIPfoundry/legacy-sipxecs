@@ -57,11 +57,11 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
     public abstract BackupPlan getBackupPlan();
 
     public boolean getSelectedDefinition() {
-        return getBackupPlan().getDefinitionIds().contains(getDefinitionId());
+        return getBackupPlan().getAutoModeDefinitionIds().contains(getDefinitionId());
     }
 
     public void setSelectedDefinition(boolean selected) {
-        getBackupPlan().getDefinitionIds().add(getDefinitionId());
+        getBackupPlan().getAutoModeDefinitionIds().add(getDefinitionId());
     }
 
     @Parameter(required = true)
@@ -104,9 +104,6 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
                 setSettings(getBackupManager().getSettings());
             }
         }
-
-        boolean valid = isValidSettings();
-        System.out.print(valid);
     }
 
     public Setting getPlanSettings() {
@@ -148,7 +145,7 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
         validateSettings();
 
         BackupPlan plan = getBackupPlan();
-        if (plan.getDefinitionIds().isEmpty()) {
+        if (plan.getAutoModeDefinitionIds().isEmpty()) {
             throw new EmptySelectionException();
         }
         return true;

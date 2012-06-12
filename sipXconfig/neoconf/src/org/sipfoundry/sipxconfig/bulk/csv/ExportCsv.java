@@ -123,6 +123,9 @@ public class ExportCsv {
         if (user.getUserProfile() != null) {
             UserProfile profile = user.getUserProfile();
 
+            Index.SALUTATION.set(row, profile.getSalutation());
+            Index.MANAGER.set(row, profile.getManager());
+            Index.EMPLOYEE_ID.set(row, profile.getEmployeeId());
             Index.JOB_TITLE.set(row, profile.getJobTitle());
             Index.JOB_DEPT.set(row, profile.getJobDept());
             Index.COMPANY_NAME.set(row, profile.getCompanyName());
@@ -151,6 +154,10 @@ public class ExportCsv {
                 Index.OFFICE_COUNTRY.set(row, officeAddress.getCountry());
                 Index.OFFICE_ZIP.set(row, officeAddress.getZip());
             }
+            Index.TWITTER_NAME.set(row, profile.getTwiterName());
+            Index.LINKEDIN_NAME.set(row, profile.getLinkedinName());
+            Index.FACEBOOK_NAME.set(row, profile.getFacebookName());
+            Index.XING_NAME.set(row, profile.getXingName());
         }
         csv.write(row);
     }

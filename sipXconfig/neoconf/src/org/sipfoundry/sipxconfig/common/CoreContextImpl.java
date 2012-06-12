@@ -42,7 +42,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> implements CoreContext,
-       ApplicationContextAware, ReplicableProvider, SetupListener {
+       ApplicationContextAware, SetupListener {
 
     public static final String ADMIN_GROUP_NAME = "administrators";
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
@@ -907,6 +907,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             if (specialUser == null) {
                 SpecialUser newSpecialUser = new SpecialUser(type);
                 getHibernateTemplate().saveOrUpdate(newSpecialUser);
+                getDaoEventPublisher().publishSave(newSpecialUser);
             }
         }
     }
@@ -924,6 +925,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             SpecialUser user = getSpecialUserAsSpecialUser(specialUserType);
             replicables.add(user);
         }
+        replicables.addAll(getGroups());
         return replicables;
     }
 

@@ -42,8 +42,18 @@ end
 
 class Archive < ArchiveBase
   def run(params)
-    cmd "pg_dump -U #{@pguser} -F t #{@db} | gzip > #{params[:file]}" or 
-      raise "Could not backup database"
+    cmd "pg_dump -U #{@pguser} -F t #{@db} > db.tar" or 
+      raise "Could not backup postgres database"
+    cmd "mongodump --db profiles --collection userProfile" or 
+      raise "Could not backup user profiles database"
+    cmd "mongodump --db profiles --collection fs.files" or 
+      raise "Could not backup avatar database"
+    cmd "mongodump --db profiles --collection fs.chunks" or 
+      raise "Could not backup avatar database"
+    cmd "echo @PACKAGE_VERSION@ > version" or 
+      raise "Could not generate version file"
+    cmd "tar --remove-files -czf #{params[:file]} db.tar version dump/" or 
+      raise "Could not archive backup"
   end
 end
 
@@ -54,32 +64,40 @@ class Restore < ArchiveBase
   end
 
   def run(params)
-    legacy_format = false
-    unless cmd "tar -tzf #{params[:file]} toc.dat 2>/dev/null"
-      cmd "tar -tzf #{params[:file]} db.tar" or
-        raise "Verification failed. Could not determine format of #{params[:file]}"
-      legacy_format = true
+    pre_mongo = false
+    if cmd "tar -zxvf #{params[:file]} -C #{@tmpdir} version"
+      v = File.read("#{@tmpdir}/version").split(".")
+      dev = (v[0] == '0' and v[1] == '0')
+      pre_mongo = !dev and ((v[0] == '4' and v[1] <= '4') or (v[0] < '4'))
+    else
+      raise "Not a known archive, version file is missing."
     end
 
     cmd "dropdb -U #{@pguser} #{@restoredb} 2>/dev/null";
     cmd "createdb -U #{@pguser} #{@restoredb}" or
       raise "Restore database failed."
  
-    if legacy_format
-      cmd "tar -xzOf #{params[:file]} db.tar > #{@tmpdir}/db.tar" or
-        raise "Failed to extract database from archive."
-      cmd "pg_restore -U #{@pguser} -d #{@restoredb} #{@tmpdir}/db.tar" or
-        raise "Failed to restore database from archive."
-    else
-      cmd "gzip -d -c #{params[:file]} | pg_restore -U #{@pguser} -F t -d #{@restoredb}" or
-        raise "Failed to restore database from archive."
-    end
+    cmd "tar -xzOf #{params[:file]} db.tar > #{@tmpdir}/db.tar" or
+      raise "Failed to extract database from archive."
+    cmd "pg_restore -U #{@pguser} -d #{@restoredb} #{@tmpdir}/db.tar" or
+      raise "Failed to restore database from archive." 
 
     cmd "SIPXCONFIG_ANT_OPTS=\"-Dsipxconfig.db.name=#{@restoredb}\" #{@initd}/sipxconfig db upgrade" or
       raise "Failed to migrate database."
 
+    if !pre_mongo
+      cmd "tar -zxvf #{params[:file]} -C #{@tmpdir} dump" or 
+        raise "Failed to extract user profiles database from archive"
+      cmd "mongorestore --db profiles --collection userProfile #{@tmpdir}/dump/profiles/userProfile.bson" or 
+        raise "Failed to restore user profiles database"
+      cmd "mongorestore --db profiles --collection fs.files #{@tmpdir}/dump/profiles/fs.files.bson" or 
+        raise "Failed to restore avatar database"
+      cmd "mongorestore --db profiles --collection fs.chunks #{@tmpdir}/dump/profiles/fs.chunks.bson" or 
+        raise "Failed to restore avatar database"
+    end
+
     if params.has_key?(:domain)
-      if legacy_format && params.has_key?(:crack_pin)
+      if pre_mongo && params.has_key?(:crack_pin)
         sql_exec(@restoredb, "select uncover_pin_on_restore('#{params[:crack_pin]}', #{params[:crack_pin_len]});") or
           raise "Failed to change domain."
       end
@@ -95,7 +113,7 @@ class Restore < ArchiveBase
 
     sql_exec(@restoredb, "select change_primary_ip_on_restore('#{params[:ipaddress]}');") or
       raise "Failed to update ip address."
-    
+
     unless params[:dryrun]
       cmd "#{@initd}/sipxconfig stop" if params[:restart]
       cmd "dropdb -U #{@pguser} #{@db}"

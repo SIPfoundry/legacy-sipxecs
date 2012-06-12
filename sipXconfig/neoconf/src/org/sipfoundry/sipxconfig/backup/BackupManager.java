@@ -35,15 +35,19 @@ public interface BackupManager {
 
     Collection<BackupPlan> getBackupPlans();
 
+    String getBackupLink(BackupPlan plan);
+
     void saveBackupPlan(BackupPlan plan);
+
+    File getRestoreStagingDirectory();
+
+    File getCleanRestoreStagingDirectory();
 
     FeatureManager getFeatureManager();
 
     Collection<String> getArchiveDefinitionIds();
 
-    Collection<ArchiveDefinition> getArchiveDefinitions(Collection<String> definitionIds, Location location);
-
-    Collection<ArchiveDefinition> getArchiveDefinitions(BackupPlan plan, Location location);
+    Collection<ArchiveDefinition> getArchiveDefinitions(Location location);
 
     String getBackupScript();
 

@@ -347,9 +347,9 @@ public class MailboxServlet extends HttpServlet {
             MessageDescriptor descriptor = message.getDescriptor();
             author = SipUriUtil.extractUserName(descriptor.getFromUri().replace('+', ' '));
             pw.format(
-                    "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" author=\"%s\"/>\n",
+                    "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" author=\"%s\" username=\"%s\"/>\n",
                     message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder,
-                    descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), author);
+                    descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), author, message.getUserName());
         }
     }
 

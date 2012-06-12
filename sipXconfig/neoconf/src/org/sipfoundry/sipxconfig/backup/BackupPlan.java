@@ -26,7 +26,8 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
     private Integer m_limitedCount = 50;
     private BackupType m_type = BackupType.local;
     private Collection<DailyBackupSchedule> m_schedules = new ArrayList<DailyBackupSchedule>(0);
-    private Set<String> m_definitionIds = new HashSet<String>();
+    private Set<String> m_autoModeDefinitionIds = new HashSet<String>();
+    private Set<String> m_manualModeDefinitionIds = new HashSet<String>();
 
     public BackupPlan() {
     }
@@ -64,8 +65,8 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
         m_type = type;
     }
 
-    public Set<String> getDefinitionIds() {
-        return m_definitionIds;
+    public Set<String> getAutoModeDefinitionIds() {
+        return m_autoModeDefinitionIds;
     }
 
     @Override
@@ -91,18 +92,26 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
      * Only used for hibernate storage
      */
     public String getEncodedDefinitionString() {
-        return m_definitionIds.isEmpty() ? null : StringUtils.join(m_definitionIds, ',');
+        return m_autoModeDefinitionIds.isEmpty() ? null : StringUtils.join(m_autoModeDefinitionIds, ',');
     }
 
     /**
      * Only used for hibernate storage
      */
     public void setEncodedDefinitionString(String encodedDefinitionString) {
-        m_definitionIds = new HashSet<String>();
+        m_autoModeDefinitionIds = new HashSet<String>();
         if (StringUtils.isBlank(encodedDefinitionString)) {
             return;
         }
         String[] split = StringUtils.split(encodedDefinitionString, ',');
-        m_definitionIds.addAll(Arrays.asList(split));
+        m_autoModeDefinitionIds.addAll(Arrays.asList(split));
+    }
+
+    public Set<String> getManualModeDefinitionIds() {
+        return m_manualModeDefinitionIds;
+    }
+
+    public void setManualModeDefinitionIds(Set<String> manualModeDefinitionIds) {
+        m_manualModeDefinitionIds = manualModeDefinitionIds;
     }
 }

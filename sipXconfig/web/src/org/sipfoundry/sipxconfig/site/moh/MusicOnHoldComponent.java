@@ -70,16 +70,7 @@ public abstract class MusicOnHoldComponent extends BaseComponent {
             return;
         }
         getCoreContext().saveUser(getUser());
-        getLazyProfileManager().generateProfiles(getPhoneIdsForUser(getUser()), false, null);
         getConfigManager().configureEverywhere(MusicOnHoldManager.FEATURE);
-    }
-
-    public void onUpdatePhones() {
-        if (!TapestryUtils.isValid(this)) {
-            return;
-        }
-        getCoreContext().saveUser(getUser());
-        getEagerProfileManager().generateProfiles(getPhoneIdsForUser(getUser()), true, null);
     }
 
     private Collection<Integer> getPhoneIdsForUser(User user) {
