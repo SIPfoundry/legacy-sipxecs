@@ -34,7 +34,9 @@ public class ManualRestore implements WaitingListener {
     BackupCommandRunner writePlan(Collection<String> defIds, BackupSettings settings) {
         // doesn't matter which plan, we already staged the files
         BackupPlan plan = getBackupManager().findOrCreateBackupPlan(BackupType.local);
-        plan.getManualModeDefinitionIds().addAll(defIds);
+        if (defIds != null) {
+            plan.getManualModeDefinitionIds().addAll(defIds);
+        }
         File planFile = getBackupConfig().writeManualBackupConfigs(plan, settings);
         BackupCommandRunner runner = new BackupCommandRunner(planFile, getBackupManager().getBackupScript());
         return runner;

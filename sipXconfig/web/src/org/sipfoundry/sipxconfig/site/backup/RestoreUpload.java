@@ -36,6 +36,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.ManualRestore;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
@@ -90,6 +91,7 @@ public abstract class RestoreUpload extends BaseComponent implements PageBeginRe
             // Q: Should this catch exception and delete files then rethrow exception?
 
             RestoreFinalize page = getFinalizePage();
+            page.setUploadedDefinitionIds(defs);
             page.setCallback(new PageCallback(getPage()));
             return page;
         } catch (ValidatorException e) {
