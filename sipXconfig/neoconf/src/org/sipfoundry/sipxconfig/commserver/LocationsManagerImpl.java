@@ -51,7 +51,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     private static final String DUPLICATE_FQDN_OR_IP = "&error.duplicateFqdnOrIp";
     private AuditLogContext m_auditLogContext;
     private DomainManager m_domainManager;
-    private String m_defaultStunServer = "ezuce.stun.com";
+    private String m_defaultStunServer = "stun.ezuce.com";
 
     /** Return the replication URLs, retrieving them on demand */
     @Override
