@@ -35,10 +35,27 @@ import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 public abstract class RestoreFinalize extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "backup/RestoreFinalize";
 
-    @Persist
-    public abstract Collection<String> getBackupPaths();
+    public void setBackupPaths(Collection<String> selected) {
+        // wrap internal methods to avoid Persist/Session issue
+        setBackupPathsInternal(selected);
+        setUploadedDefinitionIdsInternal(null);
+    }
 
-    public abstract void setBackupPaths(Collection<String> paths);
+    public void setUploadedDefinitionIds(Collection<String> uploaded) {
+        // wrap internal methods to avoid Persist/Session issue
+        setUploadedDefinitionIdsInternal(uploaded);
+        setBackupPathsInternal(null);
+    }
+
+    @Persist
+    public abstract Collection<String> getBackupPathsInternal();
+
+    public abstract void setBackupPathsInternal(Collection<String> paths);
+
+    @Persist
+    public abstract void setUploadedDefinitionIdsInternal(Collection<String> ids);
+
+    public abstract Collection<String> getUploadedDefinitionIdsInternal();
 
     @InjectObject("spring:manualRestore")
     public abstract ManualRestore getManualRestore();
@@ -68,8 +85,8 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
     }
 
     public IPage restore() {
-        Collection<String> restoreFrom = getBackupPaths();
-        boolean isAdminRestore = isSelected(restoreFrom, AdminContext.ARCHIVE);
+        Collection<String> restoreFrom = getBackupPathsInternal();
+        boolean isAdminRestore = isSelected(AdminContext.ARCHIVE);
         ManualRestore restore = getManualRestore();
         if (isAdminRestore) {
             restore.restore(restoreFrom, getBackupSettings(), true);
@@ -84,13 +101,24 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
         return null;
     }
 
-    boolean isSelected(Collection<String> selected, String id) {
-        String find = '/' + id;
-        for (String s : selected) {
-            if (s.endsWith(find)) {
+    boolean isSelected(String id) {
+        Collection<String> selected = getBackupPathsInternal();
+        if (selected != null) {
+            String find = '/' + id;
+            for (String s : selected) {
+                if (s.endsWith(find)) {
+                    return true;
+                }
+            }
+        }
+
+        Collection<String> uploaded = getUploadedDefinitionIdsInternal();
+        if (uploaded != null) {
+            if (uploaded.contains(id)) {
                 return true;
             }
         }
+
         return false;
     }
 }

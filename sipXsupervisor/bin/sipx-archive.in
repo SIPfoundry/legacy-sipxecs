@@ -239,6 +239,7 @@ class LocalFileManager < FileManagerBase
   end
 
   def list
+    return [] unless File.exists? @backup_dir
     Dir.chdir(@backup_dir) {
       select_backups(Dir["*"])
     }
