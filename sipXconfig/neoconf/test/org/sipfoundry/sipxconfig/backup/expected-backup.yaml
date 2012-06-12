@@ -6,9 +6,10 @@ restore:
    d1: r1
    d2: r2
    d3: r3
-auto:
- - d1
- - d2
-manual:
- - d2
- - d3
+selected_backups:
+   auto:
+    - d1
+    - d2
+   manual:
+    - d2
+    - d3

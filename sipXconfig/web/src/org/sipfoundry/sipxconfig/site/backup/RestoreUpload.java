@@ -29,6 +29,8 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.InjectPage;
+import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.request.IUploadFile;
@@ -57,6 +59,9 @@ public abstract class RestoreUpload extends BaseComponent implements PageBeginRe
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
+    @InjectPage(value = RestoreFinalize.PAGE)
+    public abstract RestoreFinalize getFinalizePage();
+
     @Override
     public void pageBeginRender(PageEvent event) {
         if (getUploads() == null) {
@@ -84,11 +89,9 @@ public abstract class RestoreUpload extends BaseComponent implements PageBeginRe
 
             // Q: Should this catch exception and delete files then rethrow exception?
 
-            getManualRestore().restoreFromStage(defs);
-            // Restore restore = prepareRestore(selectedBackups, LocalBackupPlan.TYPE);
-            // return setupWaitingPage(restore, restoreConfig, restoreVoicemail, restoreCdr,
-            // restoreDeviceConfig);
-            return null;
+            RestoreFinalize page = getFinalizePage();
+            page.setCallback(new PageCallback(getPage()));
+            return page;
         } catch (ValidatorException e) {
             validator.record(e);
             return null;

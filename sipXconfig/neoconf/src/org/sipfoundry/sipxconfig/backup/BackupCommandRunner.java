@@ -25,11 +25,14 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Wraps functionality of cluster backup script and makes it available.
  */
 public class BackupCommandRunner {
+    private static final Log LOG = LogFactory.getLog(BackupCommandRunner.class);
     private String m_backupScript;
     private File m_plan;
 
@@ -85,6 +88,7 @@ public class BackupCommandRunner {
             commandOut[command.length + 4] = "manual";
             ProcessBuilder pb = new ProcessBuilder(commandOut);
             commandLine = StringUtils.join(pb.command(), ' ');
+            LOG.info(commandLine);
             Process process = pb.start();
             int code = process.waitFor();
             if (code != 0) {

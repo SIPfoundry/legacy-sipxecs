@@ -31,24 +31,20 @@ public class ManualRestore implements WaitingListener {
     private BackupManager m_backupManager;
     private BackupConfig m_backupConfig;
 
-    /**
-     * Files are already staged and we can skip right to node restore
-     */
-    public void restoreFromStage(Collection<String> defIds) {
-        writePlan(defIds).restoreFromStage();
-    }
-
-    BackupCommandRunner writePlan(Collection<String> defIds) {
+    BackupCommandRunner writePlan(Collection<String> defIds, BackupSettings settings) {
         // doesn't matter which plan, we already staged the files
         BackupPlan plan = getBackupManager().findOrCreateBackupPlan(BackupType.local);
         plan.getManualModeDefinitionIds().addAll(defIds);
-        File planFile = getBackupConfig().writeConfigs(plan, getBackupManager().getSettings());
+        File planFile = getBackupConfig().writeManualBackupConfigs(plan, settings);
         BackupCommandRunner runner = new BackupCommandRunner(planFile, getBackupManager().getBackupScript());
         return runner;
     }
 
-    public void restore(Collection<String> defIds) {
-        writePlan(defIds).restore(defIds);
+    /**
+     * if defIds are null or empty, then files are already staged and we can skip right to node restore
+     */
+    public void restore(Collection<String> defIds, BackupSettings settings) {
+        writePlan(defIds, settings).restore(defIds);
     }
 
     public void setBackupManager(BackupManager backupManager) {

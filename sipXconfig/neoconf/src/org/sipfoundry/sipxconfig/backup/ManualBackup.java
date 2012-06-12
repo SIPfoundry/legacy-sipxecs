@@ -35,7 +35,7 @@ public class ManualBackup {
     }
 
     public void backup(BackupPlan plan, BackupSettings settings) {
-        File planFile = getBackupConfig().writeConfigs(plan, settings);
+        File planFile = getBackupConfig().writeManualBackupConfigs(plan, settings);
         BackupCommandRunner runner = new BackupCommandRunner(planFile, getBackupManager().getBackupScript());
         String beforeBackup = runner.lastBackup(); // null is ok
         runner.backup();

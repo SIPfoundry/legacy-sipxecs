@@ -40,7 +40,7 @@ class ArchiveBase
   end
 end
 
-class Archive < ArchiveBase
+class Backup < ArchiveBase
   def run(params)
     cmd "pg_dump -U #{@pguser} -F t #{@db} > db.tar" or 
       raise "Could not backup postgres database"
@@ -96,12 +96,16 @@ class Restore < ArchiveBase
         raise "Failed to restore avatar database"
     end
 
-    if params.has_key?(:domain)
-      if pre_mongo && params.has_key?(:crack_pin)
+    if params.has_key?(:reset_pin)
+      pin = params[:reset_pin]
+      sql_exec(@restoredb, "update users set (pintoken,voicemail_pintoken) values ('#{pin}', md5(user_name || ':#{pin}');") or
+          raise "Failed to reset pins."
+    elsif (params.has_key?(:domain) and pre_mongo and params.has_key?(:crack_pin))
         sql_exec(@restoredb, "select uncover_pin_on_restore('#{params[:crack_pin]}', #{params[:crack_pin_len]});") or
           raise "Failed to change domain."
-      end
+    end
 
+    if params.has_key?(:domain)
       sql_exec(@restoredb, "select change_domain_on_restore('#{params[:domain]}');") or
         raise "Failed to change domain."
     end
@@ -141,9 +145,9 @@ args = OptionParser.new { |opts|
 Create or restore configuration to/from an archive file.
 EOF
 
-  opts.on("--archive <archive>",
+  opts.on("--backup <archive>",
       "Restore the specified Configuration archive."){ |v|
-    operation = Archive.new
+    operation = Backup.new
     params[:file] = v
   }
 
@@ -179,6 +183,11 @@ EOF
   opts.on_tail("--dryrun",
       "Don't actually restore db, but test the db migration process."){
     params[:dryrun] = true
+  }
+
+  opts.on_tail("--reset-pin default-pin",
+      "Blindly reset all pins to given pin. Ignored if using crack-pin option."){|v|
+    params[:reset_pin] = v
   }
 
   opts.on_tail("--crack-pin default-pin",

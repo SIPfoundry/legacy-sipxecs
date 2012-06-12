@@ -10,6 +10,10 @@ settings:
          user: joe
          password: xxx
    manual:
+      ftp:
+         url: sftp://sftp.example.org
+         user: mary
+         password: yyy
 correlate_restore:
-   1: [ d1 ]
-   2: [ d2 ]
+   1: [ d1, d2 ]
+   2: [  ]

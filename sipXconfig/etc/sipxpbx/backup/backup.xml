@@ -2,6 +2,14 @@
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
+  <type id="pinLen">
+    <enum>
+      <option><value>3</value></option>
+      <option><value>4</value></option>
+      <option><value>5</value></option>
+      <option><value>6</value></option>
+    </enum>
+  </type>
   <group name="ftp">  
     <setting name="url">
       <type><string required="yes"/></type>
@@ -11,6 +19,27 @@
     </setting>
     <setting name="password" >
       <type><password/></type>
+    </setting>
+  </group>
+  <group name="restore">
+    <setting name="keepDomain">
+      <type><boolean/></type>
+      <value>true</value>
+    </setting>
+    <setting name="keepFqdn">
+      <type><boolean/></type>
+      <value>true</value>
+    </setting>
+    <setting name="decodePins">
+      <type><boolean/></type>
+      <value>true</value>
+    </setting>
+    <setting name="decodePinMaxLen">
+      <type refid="pinLen"/>
+      <value>4</value>
+    </setting>
+    <setting name="resetPin">
+      <type><string/></type>
     </setting>
   </group>
 </model>

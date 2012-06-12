@@ -28,7 +28,7 @@ public class BackupPlanTestIntegration extends IntegrationTestCase {
 
     public void testStoreJob() throws Exception {
         BackupPlan plan = new BackupPlan(BackupType.local);
-        Collection<String> defs = Arrays.asList(AdminContext.ARCHIVE.getId(), Ivr.ARCHIVE.getId());
+        Collection<String> defs = Arrays.asList(AdminContext.ARCHIVE, Ivr.ARCHIVE);
         plan.getAutoModeDefinitionIds().addAll(defs);
         m_backupManager.saveBackupPlan(plan);
         commit();
