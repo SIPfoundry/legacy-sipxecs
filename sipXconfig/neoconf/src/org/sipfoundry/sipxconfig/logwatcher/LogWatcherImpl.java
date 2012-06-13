@@ -38,11 +38,12 @@ public class LogWatcherImpl implements LogWatcher, SetupListener, ProcessProvide
     private BeanWithSettingsDao<LogWatcherSettings> m_settingsDao;
 
     @Override
-    public void setup(SetupManager manager) {
+    public boolean setup(SetupManager manager) {
         if (manager.isFalse(FEATURE.getId())) {
             manager.getFeatureManager().enableGlobalFeature(FEATURE, true);
             manager.setTrue(FEATURE.getId());
         }
+        return true;
     }
 
     @Override

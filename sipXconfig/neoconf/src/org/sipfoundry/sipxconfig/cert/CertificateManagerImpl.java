@@ -257,8 +257,9 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
     }
 
     @Override
-    public void setup(SetupManager manager) {
+    public boolean setup(SetupManager manager) {
         checkSetup();
+        return true;
     }
 
     public void setJdbc(JdbcTemplate jdbc) {

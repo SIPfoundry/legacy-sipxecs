@@ -51,7 +51,7 @@ public class FtpManagerImpl extends SipxHibernateDaoSupport<Object> implements F
     }
 
     @Override
-    public void setup(SetupManager manager) {
+    public boolean setup(SetupManager manager) {
         for (LocationFeature f : FEATURES) {
             if (manager.isFalse(f.getId())) {
                 Location primary = manager.getConfigManager().getLocationManager().getPrimaryLocation();
@@ -59,6 +59,7 @@ public class FtpManagerImpl extends SipxHibernateDaoSupport<Object> implements F
                 manager.setTrue(f.getId());
             }
         }
+        return true;
     }
 
     @Override

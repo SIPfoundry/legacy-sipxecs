@@ -202,7 +202,8 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     }
 
     @Override
-    public void setup(SetupManager manager) {
+    public boolean setup(SetupManager manager) {
         getDomain();
+        return true;
     }
 }

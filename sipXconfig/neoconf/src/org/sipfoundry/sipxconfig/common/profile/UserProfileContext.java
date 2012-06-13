@@ -38,7 +38,7 @@ public class UserProfileContext implements DaoEventListener, SetupListener {
     private UserProfileService m_userProfileService;
     private AddressManager m_addressManager;
 
-    public void setup(SetupManager manager) {
+    public boolean setup(SetupManager manager) {
         try {
             if (manager.isFalse(PROFILE_SETUP)) {
                 Resource defaultAvatar = new ClassPathResource(
@@ -49,6 +49,7 @@ public class UserProfileContext implements DaoEventListener, SetupListener {
         } catch (Exception ex) {
             LOG.error("failed to upload default avatar " + ex.getMessage());
         }
+        return true;
     }
 
     @Override

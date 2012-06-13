@@ -44,5 +44,5 @@ public interface DomainManager extends DialingRuleProvider {
      */
     public void setNullDomain();
 
-    public void setup(SetupManager manager);
+    public boolean setup(SetupManager manager);
 }

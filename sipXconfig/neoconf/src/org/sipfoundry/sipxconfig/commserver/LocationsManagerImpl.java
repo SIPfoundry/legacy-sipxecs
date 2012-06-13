@@ -224,15 +224,15 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     }
 
     @Override
-    public void setup(SetupManager manager) {
+    public boolean setup(SetupManager manager) {
         String id = "init-locations";
         if (manager.isTrue(id)) {
-            return;
+            return true;
         }
         Location[] locations = getLocations();
         if (locations.length > 0) {
             manager.setTrue(id);
-            return;
+            return true;
         }
 
         try {
@@ -248,6 +248,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         } catch (UnknownHostException e) {
             throw new RuntimeException("Could not determine host name and/or ip address, check /etc/hosts file", e);
         }
+        return true;
     }
 
     @Required

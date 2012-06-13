@@ -711,11 +711,12 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     }
 
     @Override
-    public void setup(SetupManager manager) {
+    public boolean setup(SetupManager manager) {
         String id = "replication-" + new VersionInfo().getVersion();
         if (manager.isFalse(id)) {
             replicateAllData();
             manager.setTrue(id);
         }
+        return true;
     }
 }

@@ -39,5 +39,5 @@ public interface LocationsManager {
 
     void deleteLocation(Location location);
 
-    void setup(SetupManager manager);
+    boolean setup(SetupManager manager);
 }

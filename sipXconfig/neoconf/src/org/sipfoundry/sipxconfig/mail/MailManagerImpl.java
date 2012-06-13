@@ -50,11 +50,12 @@ public class MailManagerImpl implements MailManager, SetupListener, FeatureProvi
     private LocationsManager m_locationsManager;
 
     @Override
-    public void setup(SetupManager manager) {
+    public boolean setup(SetupManager manager) {
         if (!manager.isTrue(FEATURE.getId())) {
             manager.getFeatureManager().enableGlobalFeature(FEATURE, true);
             manager.setTrue(FEATURE.getId());
         }
+        return true;
     }
 
     @Override

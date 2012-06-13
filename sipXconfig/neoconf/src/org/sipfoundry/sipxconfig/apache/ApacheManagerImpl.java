@@ -55,12 +55,13 @@ public class ApacheManagerImpl extends SipxHibernateDaoSupport<Object> implement
     }
 
     @Override
-    public void setup(SetupManager manager) {
+    public boolean setup(SetupManager manager) {
         if (manager.isFalse(FEATURE.getId())) {
             Location primary = m_locationsManager.getPrimaryLocation();
             manager.getFeatureManager().enableLocationFeature(FEATURE, primary, true);
             manager.setTrue(FEATURE.getId());
         }
+        return true;
     }
 
     @Override
