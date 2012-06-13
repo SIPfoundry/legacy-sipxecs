@@ -28,6 +28,7 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
     @Override
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
+        clear();
         LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
         Location primaryLocation = TestHelper.createDefaultLocation();
         locationsManager.getPrimaryLocation();
@@ -35,8 +36,15 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
         locationsManager.getLocations();
         EasyMock.expectLastCall().andReturn(new Location[]{primaryLocation}).anyTimes();
         EasyMock.replay(locationsManager);
-
         modifyContext(m_domainManagerImpl, "locationsManager", m_originalLocationsManager, locationsManager);
+        m_out.setNullDomain();  // forces domain to reload from db on next call to getDomain
+    }
+    
+    @Override
+    protected void onTearDownAfterTransaction() throws Exception {
+        // TODO Auto-generated method stub
+        super.onTearDownAfterTransaction();
+        m_out.setNullDomain();  // forces domain to reload from db on next call to getDomain
     }
 
     public void testGetDomain() throws Exception {
@@ -46,29 +54,36 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testSaveNewDomain() throws Exception {
-        m_out.setNullDomain();
         Domain d = new Domain();
+        try {
+            m_out.saveDomain(d);
+            fail("Should not be able to edit domain");
+        } catch (IllegalStateException e) {
+            assertTrue(true);
+        }
+        
+        d = m_out.getDomain();
+        try {
+            m_out.saveDomain(d);
+            fail("Should not be able to edit domain");
+        } catch (IllegalStateException e) {
+            assertTrue(true);
+        }       
+        
+        d = m_out.getEditableDomain();
         d.setName("robin");
         d.setSipRealm("realm");
         d.setSharedSecret("secret");
+        flush();
+        d.setName("robin");
+        d.setSipRealm("realm");
+        d.setSharedSecret("secret");        
         m_out.saveDomain(d);
+        d = m_out.getDomain();
+        flush();
+        
         ReplacementDataSet ds = loadReplaceableDataSetFlat("domain/DomainUpdateExpected.xml");
         ds.addReplacementObject("[domain_id]", d.getId());
-        ITable actual = ds.getTable("domain");
-        ITable expected = getConnection().createDataSet().getTable("domain");
-        Assertion.assertEquals(expected, actual);
-    }
-
-    public void testUpdateDomain() throws Exception {
-        loadDataSetXml("domain/DomainSeed.xml");
-        Domain domain = m_out.getDomain();
-        domain.setName("robin");
-        domain.setSipRealm("realm");
-        domain.setSharedSecret("secret");
-        m_out.saveDomain(domain);
-
-        ReplacementDataSet ds = loadReplaceableDataSetFlat("domain/DomainUpdateExpected.xml");
-        ds.addReplacementObject("[domain_id]", domain.getId());
         ITable actual = ds.getTable("domain");
         ITable expected = getConnection().createDataSet().getTable("domain");
         Assertion.assertEquals(expected, actual);

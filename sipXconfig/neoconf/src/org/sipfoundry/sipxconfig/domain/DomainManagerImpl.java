@@ -50,12 +50,26 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         return s_instance.getDomain();
     }
 
+    public Domain getEditableDomain() {
+        try {
+            Domain d = getDomain().clone();
+            getHibernateTemplate().evict(d);
+            return d;
+        } catch (CloneNotSupportedException impossible) {
+            throw new IllegalStateException(impossible);
+        }
+    }
+
+
     /**
      * @return non-null unless test environment
      */
     public Domain getDomain() {
         Domain d = m_domain;
         if (d == null) {
+            // double-check lock with local references as proper guard and additional
+            // local references to comply w/checkstyle. See
+            //   http://en.wikipedia.org/wiki/Double-checked_locking
             synchronized (this) {
                 Domain d2 = m_domain;
                 if (d2 == null) {
@@ -91,10 +105,17 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     }
 
     public void saveDomain(Domain domain) {
+        if (domain == m_domain) {
+            throw new IllegalStateException("Cannnot edit global domain, call DomainManager.getEditableDomain");
+        }
         if (domain.isNew()) {
             throw new IllegalStateException("Cannnot save more than one domain");
         }
-        getHibernateTemplate().saveOrUpdate(domain);
+        if (!domain.getId().equals(m_domain.getId())) {
+            throw new IllegalStateException("Cannnot change domain id");
+        }
+        Domain d = getHibernateTemplate().merge(domain);
+        getHibernateTemplate().update(d);
         getHibernateTemplate().flush();
         m_domain = null;
     }

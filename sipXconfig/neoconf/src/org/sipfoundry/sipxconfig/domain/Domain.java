@@ -69,14 +69,6 @@ public class Domain extends BeanWithId implements DeployConfigOnEdit, Cloneable 
         return m_aliases != null && m_aliases.size() > 0;
     }
 
-    public Domain getEditableCopy() {
-        try {
-            return clone();
-        } catch (CloneNotSupportedException impossible) {
-            throw new IllegalStateException(impossible);
-        }
-    }
-
     /**
      * Editable clone object because domain object is shared everywhere and should be immutable
      */

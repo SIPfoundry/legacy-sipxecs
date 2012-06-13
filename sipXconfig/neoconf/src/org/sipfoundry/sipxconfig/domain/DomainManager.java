@@ -19,6 +19,8 @@ public interface DomainManager extends DialingRuleProvider {
 
     static final String CONTEXT_BEAN_NAME = "domainManager";
 
+    Domain getEditableDomain();
+
     Domain getDomain();
 
     String getAuthorizationRealm();
