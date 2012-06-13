@@ -10,11 +10,13 @@
 package org.sipfoundry.sipxconfig.site.admin.ldap;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
@@ -31,9 +33,9 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class LdapServer extends BaseComponent implements PageBeginRenderListener {
-    private static final String CONNECTION_STAGE = "connection";
-    private static final String OBJECT_CLASSES_STAGE = "objectClasses";
-    private static final String ATTRS_STAGE = "attrs";
+    public static final String CONNECTION_STAGE = "connection";
+    public static final String OBJECT_CLASSES_STAGE = "objectClasses";
+    public static final String ATTRS_STAGE = "attrs";
 
     public abstract LdapConnectionParams getConnectionParams();
 
@@ -59,25 +61,49 @@ public abstract class LdapServer extends BaseComponent implements PageBeginRende
 
     public abstract void setSelectedAttributes(String[] selectedAttributes);
 
-    public abstract LdapSystemSettings getSettings();
+    @Parameter(required = true)
+    public abstract int getCurrentConnectionId();
+    public abstract void setCurrentConnectionId(int currentConnectionId);
 
-    public abstract void setSettings(LdapSystemSettings settings);
+    @Parameter(required = true)
+    public abstract boolean isAddMode();
+    public abstract void setAddMode(boolean addMode);
 
     public void pageBeginRender(PageEvent event_) {
         LdapManager ldapManager = getLdapManager();
-        setSettings(getLdapManager().getSystemSettings());
 
-        if (getConnectionParams() == null) {
-            setConnectionParams(ldapManager.getConnectionParams());
+        if (getConnectionParams() == null || getConnectionParams().getId() != getCurrentConnectionId()) {
+            setConnectionParams(ldapManager.getConnectionParams(getCurrentConnectionId()));
         }
 
-        if (getAttrMap() == null) {
-            setAttrMap(ldapManager.getAttrMap());
+        if (getAttrMap() == null || getAttrMap().getId() != getCurrentConnectionId()) {
+            setAttrMap(ldapManager.getAttrMap(getCurrentConnectionId()));
         }
 
         if (getStage() == null) {
             setStage(CONNECTION_STAGE);
         }
+    }
+
+    public void addLdapConnection() {
+        setAddMode(true);
+        setCurrentConnectionId(-1);
+    }
+
+    public void removeLdapConnection() {
+        setAddMode(false);
+        getLdapManager().removeConnectionParams(getCurrentConnectionId());
+        List<LdapConnectionParams> allParams = getLdapManager().getAllConnectionParams();
+        if (allParams == null || allParams.isEmpty()) {
+            setCurrentConnectionId(-1);
+            LdapSystemSettings settings = getLdapManager().getSystemSettings();
+            settings.setConfigured(false);
+            settings.setEnableOpenfireConfiguration(false);
+            getLdapManager().saveSystemSettings(settings);
+        } else {
+            setCurrentConnectionId(allParams.get(0).getId());
+        }
+
     }
 
     public void applyConnectionParams() {
@@ -99,19 +125,19 @@ public abstract class LdapServer extends BaseComponent implements PageBeginRende
         // check if we can connect to LDAP - throws user exception if there are any problems
         // Cannot avoid try/catch here - the exception is displayed on a parent page for this tab
         try {
-            // save system settings even if no valid connection - e.g. if uncheck LDAP configured
-            ldapManager.saveSystemSettings(getSettings());
+            ldapManager.verify(connectionParams, attrMap);
             // save new connection params
             ldapManager.setConnectionParams(connectionParams);
+            attrMap.setUniqueId(connectionParams.getId());
             ldapManager.setAttrMap(attrMap);
-            ldapManager.verify(connectionParams, attrMap);
-            Schema schema = ldapManager.getSchema(attrMap.getSubschemaSubentry());
+            Schema schema = ldapManager.getSchema(attrMap.getSubschemaSubentry(), connectionParams);
             setSchema(schema);
-
             setStage(stage);
+            setCurrentConnectionId(connectionParams.getId());
         } catch (UserException e) {
             validator.record(e, getMessages());
         }
+        setAddMode(false);
     }
 
     public void cancel() {
@@ -137,6 +163,7 @@ public abstract class LdapServer extends BaseComponent implements PageBeginRende
         ldapManager.replicateOpenfireConfig();
         // send us to import preview
         LdapImportPreview ldapImportPreview = (LdapImportPreview) cycle.getPage(LdapImportPreview.PAGE);
+        ldapImportPreview.setCurrentConnectionId(getCurrentConnectionId());
         ldapImportPreview.setExample(null);
         return ldapImportPreview;
     }

@@ -19,6 +19,7 @@ public class UserDetailsImpl implements UserDetails {
     private final String m_userNameOrAlias;
     private final String m_pintoken;  // MD5-encoded password
     private final GrantedAuthority[] m_authorities;
+    private final String m_userDomain;
 
     /**
      * UserDetails constructor
@@ -33,6 +34,7 @@ public class UserDetailsImpl implements UserDetails {
         m_userNameOrAlias = userNameOrAlias;
         m_pintoken = user.getPintoken();
         m_authorities = authorities;
+        m_userDomain = user.getUserDomain();
     }
 
     public boolean isAccountNonExpired() {
@@ -78,5 +80,9 @@ public class UserDetailsImpl implements UserDetails {
      */
     public String getCanonicalUserName() {
         return m_canonicalUserName;
+    }
+
+    public String getUserDomain() {
+        return m_userDomain;
     }
 }

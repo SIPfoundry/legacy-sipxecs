@@ -553,7 +553,7 @@ public abstract class TestPage extends SipxBasePage {
     }
 
     public void importLdap() {
-        getLdapImportManager().insert();
+        getLdapImportManager().insert(1);
     }
 
     public void indexAll() {

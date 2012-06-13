@@ -16,7 +16,7 @@ public class LdapManagerTestIntegration extends IntegrationTestCase {
         params.setSecret("secret");
 
         m_ldapManager.setConnectionParams(params);
-        LdapConnectionParams connParams = m_ldapManager.getConnectionParams();
+        LdapConnectionParams connParams = m_ldapManager.getConnectionParams(params.getId());
 
         assertEquals("secret", connParams.getSecret());
         assertNull(connParams.getPort());

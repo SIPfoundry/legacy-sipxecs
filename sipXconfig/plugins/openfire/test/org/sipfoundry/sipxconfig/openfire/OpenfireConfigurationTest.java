@@ -61,12 +61,13 @@ public class OpenfireConfigurationTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         m_ldapSystemSettings.setEnableOpenfireConfiguration(false);
-
+        m_ldapConnectionParams.setUniqueId(1);
         m_ldapConnectionParams.setHost("localhost");
         // no port specified: defaults to 389
         m_ldapConnectionParams.setPrincipal("cn=Directory Manager");
         m_ldapConnectionParams.setSecret("secret");
 
+        m_ldapAttrMap.setUniqueId(1);
         m_ldapAttrMap.setSearchBase("dc=example,dc=com");
         m_ldapAttrMap.setObjectClass("person");
         m_ldapAttrMap.setAttribute("imId", "uid");
@@ -75,9 +76,13 @@ public class OpenfireConfigurationTest extends TestCase {
         m_ldapManager = coreContextControl.createMock(LdapManager.class);
         m_ldapManager.getSystemSettings();
         expectLastCall().andReturn(m_ldapSystemSettings);
-        m_ldapManager.getConnectionParams();
+        m_ldapManager.getConnectionParams(1);
         expectLastCall().andReturn(m_ldapConnectionParams);
-        m_ldapManager.getAttrMap();
+        m_ldapManager.getAllConnectionParams();
+        List<LdapConnectionParams> list = new ArrayList<LdapConnectionParams>();
+        list.add(m_ldapConnectionParams);
+        expectLastCall().andReturn(list);
+        m_ldapManager.getAttrMap(1);
         expectLastCall().andReturn(m_ldapAttrMap);
 
         m_locationsManager = createMock(LocationsManager.class);

@@ -16,7 +16,11 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.acegisecurity.Authentication;
+import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.AuthenticationServiceException;
 import org.acegisecurity.ldap.DefaultInitialDirContextFactory;
 import org.acegisecurity.ldap.InitialDirContextFactory;
@@ -38,6 +42,9 @@ import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.springframework.dao.DataAccessException;
 
+import static org.sipfoundry.commons.security.Util.retrieveDomain;
+import static org.sipfoundry.commons.security.Util.retrieveUsername;
+
 /**
  * Creates a rebuildable reference to Acegi's real LdapAuthenticationProvider as settings change.
  * We cannot use LdapAuthenticationProvider directly because ldap settings are immutable and
@@ -46,7 +53,7 @@ import org.springframework.dao.DataAccessException;
 public class ConfigurableLdapAuthenticationProvider implements AuthenticationProvider, DaoEventListener {
 
     private LdapManager m_ldapManager;
-    private LdapAuthenticationProvider m_provider;
+    private List<SipxLdapAuthenticationProvider> m_providers = new ArrayList<SipxLdapAuthenticationProvider>();
     private LdapAuthoritiesPopulator m_authoritiesPopulator;
     private UserDetailsService m_userDetailsService;
     private boolean m_initialized;
@@ -75,8 +82,8 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         m_authoritiesPopulator = authoritiesPopulator;
     }
 
-    public void setProvider(LdapAuthenticationProvider provider) {
-        m_provider = provider;
+    public void addProvider(SipxLdapAuthenticationProvider provider) {
+        m_providers.add(provider);
     }
 
     @Override
@@ -85,7 +92,30 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
             return null;
         }
         initialize();
-        return (isEnabled() ? m_provider.authenticate(authentication) : null);
+        if (!isEnabled()) {
+            return null;
+        } else {
+            Authentication result = null;
+            String username = authentication.getName();
+            String userDomain = retrieveDomain(username);
+
+            for (SipxLdapAuthenticationProvider provider : m_providers) {
+                if (userDomain != null && !userDomain.equals(provider.getDomain())) {
+                    continue;
+                }
+                try {
+                    result = provider.authenticate(authentication);
+                } catch (AuthenticationException ex) {
+                    result = null;
+                }
+                if (result == null) {
+                    continue;
+                } else {
+                    return result;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -93,36 +123,54 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         if (!m_ldapManager.getSystemSettings().isConfigured()) {
             return false;
         }
-        if (!m_ldapManager.verifyLdapConnection()) {
+        if (!m_ldapManager.verifyAllLdapConnections()) {
             return false;
         }
         initialize();
-        return (isEnabled() ? m_provider.supports(authentication) : false);
+        if (!isEnabled()) {
+            return false;
+        } else {
+            boolean result = false;
+            for (LdapAuthenticationProvider provider : m_providers) {
+                result = provider.supports(authentication);
+                if (!result) {
+                    continue;
+                } else {
+                    return result;
+                }
+            }
+        }
+        return false;
+
     }
 
     private boolean isEnabled() {
-        return m_provider != null && m_ldapManager.getSystemSettings().isLdapEnabled();
+        return !m_providers.isEmpty() && m_ldapManager.getSystemSettings().isLdapEnabled();
     }
 
     private void initialize() {
         if (!m_initialized) {
             synchronized (this) {
-                m_provider = createProvider();
+                m_providers.clear();
+                List<LdapConnectionParams> params = m_ldapManager.getAllConnectionParams();
+                for (LdapConnectionParams param : params) {
+                    addProvider(createProvider(param.getId()));
+                }
                 m_initialized = true;
             }
         }
     }
 
-    LdapAuthenticationProvider createProvider() {
-        LdapConnectionParams params = m_ldapManager.getConnectionParams();
+    SipxLdapAuthenticationProvider createProvider(int connectionId) {
+        LdapConnectionParams params = m_ldapManager.getConnectionParams(connectionId);
         if (params == null) {
             return null;
         }
         InitialDirContextFactory dirFactory = getDirFactory(params);
         BindAuthenticator authenticator = new BindAuthenticator(dirFactory);
-        authenticator.setUserSearch(getSearch(dirFactory)); // used for user login
-        LdapAuthenticationProvider provider = new SipxLdapAuthenticationProvider(authenticator);
-
+        authenticator.setUserSearch(getSearch(dirFactory, connectionId)); // used for user login
+        SipxLdapAuthenticationProvider provider = new SipxLdapAuthenticationProvider(authenticator);
+        provider.setDomain(params.getDomain());
         return provider;
     }
 
@@ -137,8 +185,8 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         return dirContextFactory;
     }
 
-    LdapUserSearch getSearch(InitialDirContextFactory dirFactory) {
-        AttrMap attrMap = m_ldapManager.getAttrMap();
+    LdapUserSearch getSearch(InitialDirContextFactory dirFactory, int connectionId) {
+        AttrMap attrMap = m_ldapManager.getAttrMap(connectionId);
 
         String sbase = StringUtils.defaultString(attrMap.getSearchBase());
         //Any additional LDAP filters (RFC 2254) are removed from authentication search because
@@ -156,11 +204,20 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
      * otherwise we wouldn't have have to extend LdapAuthenticationProvider
      */
     class SipxLdapAuthenticationProvider extends LdapAuthenticationProvider {
+        private String m_domain;
 
         public SipxLdapAuthenticationProvider(LdapAuthenticator authenticator) {
             // 2nd, arg - no authority provider nec, the userdetailservice adds
             // those
             super(authenticator);
+        }
+
+        public String getDomain() {
+            return m_domain;
+        }
+
+        public void setDomain(String domain) {
+            m_domain = domain;
         }
 
         /**
@@ -170,11 +227,18 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         @Override
         protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) {
             UserDetailsImpl user = null;
+            String userLoginName = retrieveUsername(username);
+            String domain = retrieveDomain(username);
             try {
-                user = (UserDetailsImpl) m_userDetailsService.loadUserByUsername(username);
+                user = (UserDetailsImpl) m_userDetailsService.loadUserByUsername(userLoginName);
                 if (user == null) {
                     throw new AuthenticationServiceException("UserDetailsService returned null, which "
                         + "is an interface contract violation");
+                }
+                if (domain != null && !StringUtils.equals(user.getUserDomain(), domain)) {
+                    throw new AuthenticationServiceException(
+                            "The following domain does not belong to the actual user: " + domain
+                            + " in the system - is an interface contract violation");
                 }
                 UsernamePasswordAuthenticationToken myAuthentication = new UsernamePasswordAuthenticationToken(
                         user.getCanonicalUserName(), authentication.getCredentials());

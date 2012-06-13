@@ -22,12 +22,24 @@ import org.springframework.context.ApplicationContext;
 public class LdapManagerTestDb extends TestCaseDb {
 
     private LdapManager m_context;
+    LdapConnectionParams m_params = null;
+    AttrMap m_attrMap = null;
 
     @Override
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_context = (LdapManager) appContext.getBean(LdapManager.CONTEXT_BEAN_NAME);
+        m_params = m_context.createConnectionParams();
+        m_attrMap = m_context.createAttrMap();
         TestHelper.cleanInsert("ClearDb.xml");
+        m_params.setHost("abc");
+        m_params.setPort(1234);
+        m_params.setPrincipal("principal");
+        m_params.setSecret("secret");
+
+        m_context.setConnectionParams(m_params);
+        m_attrMap.setUniqueId(m_params.getId());
+        m_context.setAttrMap(m_attrMap);
     }
 
     public void testLdapSystemSettings() throws Exception {
@@ -63,7 +75,7 @@ public class LdapManagerTestDb extends TestCaseDb {
     }
 
     public void testGetConnectionParams() throws Exception {
-        LdapConnectionParams connectionParams = m_context.getConnectionParams();
+        LdapConnectionParams connectionParams = m_context.getConnectionParams(m_params.getId());
         assertNotNull(connectionParams);
         assertNotNull(connectionParams.getSchedule());
 
@@ -76,13 +88,6 @@ public class LdapManagerTestDb extends TestCaseDb {
     }
 
     public void testSetConnectionParams() throws Exception {
-        LdapConnectionParams params = new LdapConnectionParams();
-        params.setHost("abc");
-        params.setPort(1234);
-        params.setPrincipal("principal");
-        params.setSecret("secret");
-
-        m_context.setConnectionParams(params);
         ITable ldapConnectionTable = TestHelper.getConnection().createDataSet().getTable("ldap_connection");
         assertEquals(1, ldapConnectionTable.getRowCount());
 
@@ -93,7 +98,7 @@ public class LdapManagerTestDb extends TestCaseDb {
     }
 
     public void testGetAttrMap() throws Exception {
-        AttrMap attrMap = m_context.getAttrMap();
+        AttrMap attrMap = m_context.getAttrMap(m_params.getId());
         assertNotNull(attrMap);
 
         ITable attrMapTable = TestHelper.getConnection().createDataSet().getTable("ldap_attr_map");
@@ -104,7 +109,7 @@ public class LdapManagerTestDb extends TestCaseDb {
         assertTrue(1 < userToLdapTable.getRowCount());
 
         TestHelper.cleanInsertFlat("bulk/ldap/ldap_attr_map.db.xml");
-        attrMap = m_context.getAttrMap();
+        attrMap = m_context.getAttrMap(1000);
         Map<String, String> userToLdap = attrMap.getUserToLdap();
         assertEquals(2, userToLdap.size());
 
@@ -120,7 +125,7 @@ public class LdapManagerTestDb extends TestCaseDb {
     }
 
     public void testSetAttrMap() throws Exception {
-        AttrMap attrMap = m_context.getAttrMap();
+        AttrMap attrMap = m_context.getAttrMap(m_params.getId());
         attrMap.setFilter("ou=marketing");
         assertNotNull(attrMap);
 
@@ -143,7 +148,7 @@ public class LdapManagerTestDb extends TestCaseDb {
         schedule.setType(CronSchedule.Type.HOURLY);
         schedule.setMin(15);
 
-        m_context.setSchedule(schedule);
+        m_context.setSchedule(schedule, m_params.getId());
 
         assertEquals(1, TestHelper.getConnection().getRowCount("cron_schedule",
                 "where cron_string = '0 15 * ? * *'"));
@@ -156,14 +161,14 @@ public class LdapManagerTestDb extends TestCaseDb {
         schedule.setMin(15);
         schedule.setEnabled(true);
 
-        m_context.setSchedule(schedule);
+        m_context.setSchedule(schedule, m_params.getId());
 
         assertEquals(1, TestHelper.getConnection().getRowCount("cron_schedule",
                 "where cron_string = '0 15 0 ? * 4' and enabled = 'true'"));
     }
 
     public void testGetSetSchedule() throws Exception {
-        CronSchedule schedule = m_context.getSchedule();
-        m_context.setSchedule(schedule);
+        CronSchedule schedule = m_context.getSchedule(m_params.getId());
+        m_context.setSchedule(schedule, m_params.getId());
     }
 }

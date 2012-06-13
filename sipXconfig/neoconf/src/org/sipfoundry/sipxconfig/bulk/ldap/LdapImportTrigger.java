@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -23,7 +26,7 @@ public class LdapImportTrigger implements ApplicationListener {
 
     private LdapImportManager m_ldapImportManager;
 
-    private Timer m_timer;
+    private Map<Integer, Timer> m_timerHash = new HashMap<Integer, Timer>();
 
     public void setLdapManager(LdapManager ldapManager) {
         m_ldapManager = ldapManager;
@@ -38,45 +41,81 @@ public class LdapImportTrigger implements ApplicationListener {
      */
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof ApplicationInitializedEvent || event instanceof DSTChangeEvent) {
-            CronSchedule schedule = m_ldapManager.getConnectionParams().getSchedule();
-            onScheduleChanged(schedule);
+            List<LdapConnectionParams> params = m_ldapManager.getAllConnectionParams();
+            for (LdapConnectionParams conParams : params) {
+                CronSchedule schedule = conParams.getSchedule();
+                onScheduleChanged(schedule, conParams.getId());
+            }
         } else if (event instanceof ScheduleChangedEvent) {
             ScheduleChangedEvent sce = (ScheduleChangedEvent) event;
-            onScheduleChanged(sce.getSchedule());
+            onScheduleChanged(sce.getSchedule(), sce.getConnectionId());
+        } else if (event instanceof ScheduleDeletedEvent) {
+            ScheduleDeletedEvent sde = (ScheduleDeletedEvent) event;
+            onScheduleDeleted(sde.getConnectionId());
         }
     }
 
-    private synchronized void onScheduleChanged(CronSchedule schedule) {
-        if (m_timer != null) {
-            m_timer.cancel();
+    private synchronized void onScheduleChanged(CronSchedule schedule, int connectionId) {
+        Timer timer = m_timerHash.get(connectionId);
+        if (timer != null) {
+            timer.cancel();
         }
-        TimerTask ldapImportTask = new LdapImportTask(m_ldapImportManager);
-        m_timer = schedule.schedule(ldapImportTask);
+        TimerTask ldapImportTask = new LdapImportTask(m_ldapImportManager, connectionId);
+        timer = schedule.schedule(ldapImportTask);
+        m_timerHash.put(connectionId, timer);
+    }
+
+    private synchronized void onScheduleDeleted(int connectionId) {
+        Timer timer = m_timerHash.get(connectionId);
+        if (timer != null) {
+            timer.cancel();
+        }
+        m_timerHash.remove(connectionId);
     }
 
     public static final class ScheduleChangedEvent extends ApplicationEvent {
         private CronSchedule m_schedule;
+        private int m_connectionId;
 
-        public ScheduleChangedEvent(CronSchedule schedule, Object eventSource) {
+        public ScheduleChangedEvent(CronSchedule schedule, Object eventSource, int connectionId) {
             super(eventSource);
             m_schedule = schedule;
+            m_connectionId = connectionId;
         }
 
         public CronSchedule getSchedule() {
             return m_schedule;
         }
+
+        public int getConnectionId() {
+            return m_connectionId;
+        }
     }
 
     private static final class LdapImportTask extends TimerTask {
         private LdapImportManager m_ldapImportManager;
+        private int m_connectionId;
 
-        public LdapImportTask(LdapImportManager ldapImportManager) {
+        public LdapImportTask(LdapImportManager ldapImportManager, int connectionId) {
             m_ldapImportManager = ldapImportManager;
-
+            m_connectionId = connectionId;
         }
 
         public void run() {
-            m_ldapImportManager.insert();
+            m_ldapImportManager.insert(m_connectionId);
+        }
+    }
+
+    public static final class ScheduleDeletedEvent extends ApplicationEvent {
+        private int m_connectionId;
+
+        public ScheduleDeletedEvent(Object eventSource, int connectionId) {
+            super(eventSource);
+            m_connectionId = connectionId;
+        }
+
+        public int getConnectionId() {
+            return m_connectionId;
         }
     }
 

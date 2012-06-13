@@ -15,7 +15,7 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.bulk.UserPreview;
 
 public interface LdapImportManager {
-    void insert();
+    void insert(int connectionId);
 
     /**
      * Retrieve an example of the user and its groups from currently configured LDAP
@@ -23,7 +23,7 @@ public interface LdapImportManager {
      * @param user object to be filled with imported data
      * @param groupNames collection of group names created for this user
      */
-    List<UserPreview> getExample();
+    List<UserPreview> getExample(int connectionId);
 
-    void dumpExample(Writer output);
+    void dumpExample(Writer output, int connectionId);
 }

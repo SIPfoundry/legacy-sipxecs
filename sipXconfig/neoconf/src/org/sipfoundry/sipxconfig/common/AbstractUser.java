@@ -67,6 +67,7 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
     public static final String EMPTY_STRING = "";
     public static final String FAX_EXTENSION_SETTING = "voicemail/fax/extension";
     public static final String DID_SETTING = "voicemail/fax/did";
+    public static final String DOMAIN_SETTING = "user-domain/domain";
     public static final String CALLFWD_TIMER = "callfwd/timer";
 
 
@@ -478,6 +479,12 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
 
     public String getFaxDid() {
         Setting setting = null == getSettings() ? null : getSettings().getSetting(DID_SETTING);
+        return null == setting ? EMPTY_STRING : (setting.getTypedValue() == null ? EMPTY_STRING : (String) setting
+                .getTypedValue());
+    }
+
+    public String getUserDomain() {
+        Setting setting = null == getSettings() ? null : getSettings().getSetting(DOMAIN_SETTING);
         return null == setting ? EMPTY_STRING : (setting.getTypedValue() == null ? EMPTY_STRING : (String) setting
                 .getTypedValue());
     }

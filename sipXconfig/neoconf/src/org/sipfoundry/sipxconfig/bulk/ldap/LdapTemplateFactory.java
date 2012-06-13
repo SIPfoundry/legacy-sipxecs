@@ -19,23 +19,14 @@ public class LdapTemplateFactory implements ApplicationContextAware {
     private ApplicationContext m_applicationContext;
 
     /**
-     * access to spring's enhanced API into LDAP
-     * @return new instance every call
-     */
-    public LdapTemplate getLdapTemplate() {
-        return (LdapTemplate) m_applicationContext.getBean(LDAP_TEMPLATE_BEAN_ID);
-    }
-
-    /**
      * useful for testing a connection by getting access to API  before saving
      * connection params
      *
      * @return new instance every call
      */
     public LdapTemplate getLdapTemplate(LdapConnectionParams params) {
-        LdapTemplate template = getLdapTemplate();
-        ContextSourceFromConnectionParams source = (ContextSourceFromConnectionParams)
-            m_applicationContext.getBean(LDAP_CONTEXT_SOURCE_BEAN_ID);
+        LdapTemplate template = new LdapTemplate();
+        ContextSourceFromConnectionParams source = new ContextSourceFromConnectionParams();
         params.applyToContext(source);
         source.applyParameters(params);
         template.setContextSource(source);

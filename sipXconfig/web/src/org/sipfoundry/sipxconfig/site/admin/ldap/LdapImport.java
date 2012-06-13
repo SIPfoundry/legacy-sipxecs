@@ -13,6 +13,7 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.CronSchedule;
@@ -32,9 +33,12 @@ public abstract class LdapImport extends BaseComponent implements PageBeginRende
 
     public abstract void setSchedule(CronSchedule schedule);
 
+    @Parameter(required = true)
+    public abstract int getCurrentConnectionId();
+
     public void pageBeginRender(PageEvent event) {
         if (getSchedule() == null) {
-            setSchedule(getLdapManager().getSchedule());
+            setSchedule(getLdapManager().getSchedule(getCurrentConnectionId()));
         }
     }
 
@@ -42,7 +46,7 @@ public abstract class LdapImport extends BaseComponent implements PageBeginRende
         if (!TapestryUtils.isValid(this)) {
             return;
         }
-        getLdapImportManager().insert();
+        getLdapImportManager().insert(getCurrentConnectionId());
         SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils
                 .getValidator(this);
         validator.recordSuccess(getMessages().getMessage("msg.success"));
@@ -51,10 +55,11 @@ public abstract class LdapImport extends BaseComponent implements PageBeginRende
     public IPage verifyLdap(IRequestCycle cycle) {
         LdapImportPreview ldapImportPreview = (LdapImportPreview) cycle.getPage(LdapImportPreview.PAGE);
         ldapImportPreview.setExample(null);
+        ldapImportPreview.setCurrentConnectionId(getCurrentConnectionId());
         return ldapImportPreview;
     }
 
     public void applySchedule() {
-        getLdapManager().setSchedule(getSchedule());
+        getLdapManager().setSchedule(getSchedule(), getCurrentConnectionId());
     }
 }

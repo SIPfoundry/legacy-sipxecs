@@ -170,6 +170,13 @@
       </type>
     </setting>
   </group>
+  <group name="user-domain">    
+    <setting name="domain">
+      <type>
+       <string/>
+      </type>
+    </setting>
+  </group>  
   <group name="voicemail">
     <group name="fax" hidden="yes">
       <setting name="extension">

@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import java.util.List;
+
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 
@@ -33,19 +35,19 @@ public interface LdapManager {
      *
      * @throws UserException if connection is not possible for some reason
      */
-    Schema getSchema(String subschemaSubentry);
+    Schema getSchema(String subschemaSubentry, LdapConnectionParams params);
 
-    LdapConnectionParams getConnectionParams();
+    LdapConnectionParams getConnectionParams(int connectionId);
 
     void setConnectionParams(LdapConnectionParams params);
 
-    AttrMap getAttrMap();
+    AttrMap getAttrMap(int connectionId);
 
     void setAttrMap(AttrMap attrMap);
 
-    CronSchedule getSchedule();
+    CronSchedule getSchedule(int connectionId);
 
-    void setSchedule(CronSchedule schedule);
+    void setSchedule(CronSchedule schedule, int connectionId);
 
     /**
      * Check LDAP connection for the provided connection params
@@ -54,11 +56,21 @@ public interface LdapManager {
      */
     void verify(LdapConnectionParams params, AttrMap attrMap);
 
-    boolean verifyLdapConnection();
+    boolean verifyLdapConnection(LdapConnectionParams params);
 
     void saveSystemSettings(LdapSystemSettings settings);
 
     LdapSystemSettings getSystemSettings();
 
     void replicateOpenfireConfig();
+
+    public List<LdapConnectionParams> getAllConnectionParams();
+
+    public boolean verifyAllLdapConnections();
+
+    public LdapConnectionParams createConnectionParams();
+
+    public void removeConnectionParams(int connectionId);
+
+    public AttrMap createAttrMap();
 }
