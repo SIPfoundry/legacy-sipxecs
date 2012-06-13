@@ -21,6 +21,7 @@ bundle agent 00_sipxconfig {
       "any" usebundle => mongodb;
       "any" usebundle => postgres;
       "any" usebundle => sipxcommserverlib;
+      "any" usebundle => sipxsupervisor;
 
   commands:
     primary.setup::
