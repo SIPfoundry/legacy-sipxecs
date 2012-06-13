@@ -203,8 +203,6 @@ public class IMUser {
             String atUri = null;
             Date now = new Date();
 
-            atUri = extensionToUrl(m_user.getUserName());
-
             boolean expired = false;
             if(m_atUntilTime != null) {
                 if(now.after(m_atUntilTime)) {
@@ -215,13 +213,11 @@ public class IMUser {
             if(!expired) {
                 if(fromPlace == Place.CELL) {
                     atUri = extensionToUrl(m_user.getCellNum());
-                }
-
-                if(fromPlace == Place.HOME) {
+                } else if(fromPlace == Place.HOME) {
                     atUri = extensionToUrl(m_user.getHomeNum());
-                }
-
-                if(fromPlace == Place.UNKNOWN && fromNumber != null && fromNumber.length() > 0) {
+                } else if(fromPlace == Place.WORK) {
+                    atUri = extensionToUrl(m_user.getUserName());
+                } else if(fromPlace == Place.UNKNOWN && fromNumber != null && fromNumber.length() > 0) {
                     atUri = extensionToUrl(fromNumber);
                 }
 
@@ -269,7 +265,10 @@ public class IMUser {
         private void Call(Place fromPlace, String fromNumber, String uriToCall, String nameToCall) {
 
             String fromURI = currentlyAtUri(fromPlace, fromNumber);
-
+            if (fromURI == null) {
+                sendIM(localize("forbidden.from"));
+                return;
+            }
             String atName = atName(fromPlace, fromNumber);
             if(atName != null) {
                 atName = localize("from") + " " + atName;
@@ -859,9 +858,11 @@ public class IMUser {
                         break;
                     }
                 }
-
                 if( fromPlace == Place.UNKNOWN) {
-                    fromNumber = m_context.getFromPhoneNumber();
+                    String number = m_context.getFromPhoneNumber();
+                    if (number != null && (number.equals(m_user.getUserName()) || number.equals(m_user.getHomeNum())
+                            || number.equals(m_user.getCellNum()) || number.equals(m_user.getUserName())))
+                    fromNumber = number;
                 }
 
                 if(numToCall == null) {
@@ -879,7 +880,6 @@ public class IMUser {
                         nameToCall = numToCall;
                     }
                 }
-
                 if(numToCall != null) {
                     Call(fromPlace, fromNumber, extensionToUrl(numToCall) + queryString, nameToCall);
                 }
