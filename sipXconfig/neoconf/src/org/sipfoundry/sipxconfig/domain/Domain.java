@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.feature.Feature;
 /**
  * Single holder of domain name
  */
-public class Domain extends BeanWithId implements DeployConfigOnEdit {
+public class Domain extends BeanWithId implements DeployConfigOnEdit, Cloneable {
     private static final int SECRET_SIZE = 18;
 
     private String m_name;
@@ -67,6 +67,23 @@ public class Domain extends BeanWithId implements DeployConfigOnEdit {
 
     public boolean hasAliases() {
         return m_aliases != null && m_aliases.size() > 0;
+    }
+
+    public Domain getEditableCopy() {
+        try {
+            return clone();
+        } catch (CloneNotSupportedException impossible) {
+            throw new IllegalStateException(impossible);
+        }
+    }
+
+    /**
+     * Editable clone object because domain object is shared everywhere and should be immutable
+     */
+    public Domain clone() throws CloneNotSupportedException {
+        Domain copy = (Domain) super.clone();
+        copy.m_aliases = new HashSet<String>(copy.m_aliases);
+        return copy;
     }
 
     /**

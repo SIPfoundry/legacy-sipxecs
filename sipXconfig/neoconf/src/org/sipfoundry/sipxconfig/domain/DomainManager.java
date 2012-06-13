@@ -23,8 +23,6 @@ public interface DomainManager extends DialingRuleProvider {
 
     String getAuthorizationRealm();
 
-    void initializeDomain();
-
     void saveDomain(Domain domain);
 
     Localization getExistingLocalization();
