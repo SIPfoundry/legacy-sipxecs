@@ -21,8 +21,8 @@ bundle agent 00_sipxconfig {
       "any" usebundle => mongodb;
       "any" usebundle => postgres;
       "any" usebundle => sipxcommserverlib;
-    primary.setup::
-      "any" usebundle => mongodb_wait_until_accepting_connections;
+#    primary.setup::
+#      "any" usebundle => mongodb_wait_until_accepting_connections;
 
   commands:
     primary.setup::

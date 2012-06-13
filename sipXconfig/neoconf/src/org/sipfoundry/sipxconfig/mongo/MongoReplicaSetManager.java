@@ -30,6 +30,7 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.bson.BSONObject;
 import org.bson.BasicBSONObject;
 import org.sipfoundry.commons.mongo.MongoUtil;
 import org.sipfoundry.commons.mongo.MongoUtil.MongoCommandException;
@@ -63,6 +64,7 @@ public class MongoReplicaSetManager {
     private static final String ADD_ARBITER_COMMAND = "rs.addArb(\"%s\")";
     private static final String REMOVE_ARBITER_COMMAND = REMOVE_SERVER_COMMAND;
     private MongoTemplate m_localDb;
+    private MongoTemplate m_testDb;
     private JdbcTemplate m_jdbcTemplate;
 
     public void checkState() {
@@ -79,8 +81,21 @@ public class MongoReplicaSetManager {
             LOG.info("initializing mongo replicaset to host " + fqdn);
             String cmd = format(INIT_COMMAND, fqdn, MongoSettings.SERVER_PORT);
             MongoUtil.runCommand(m_localDb.getDb(), cmd);
+            for (int i = 0; i < 60; i++) {
+                LOG.info("Testing mongo connection");
+                BSONObject test = new BasicDBObject("writeTest", "ok");
+                try {
+                    m_testDb.insert(test);
+                    LOG.info("Primary status achieved");
+                    break;
+                } catch (Exception e) {
+                    Thread.sleep(1000);
+                }
+            }
         } catch (UnknownHostException e) {
             throw new IllegalStateException("Cannot get FQDN to initialize mongo.");
+        } catch (InterruptedException e) {
+            LOG.error("Interrupted waiting for mongo primary connection test");
         }
     }
 
@@ -192,5 +207,9 @@ public class MongoReplicaSetManager {
 
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         m_jdbcTemplate = jdbcTemplate;
+    }
+
+    public void setTestDb(MongoTemplate testDb) {
+        m_testDb = testDb;
     }
 }
