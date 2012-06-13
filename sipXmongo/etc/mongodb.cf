@@ -61,28 +61,6 @@ bundle agent mongodb {
       "any" usebundle => "mongodb_client";
 }
 
-#
-# Mongo takes a while (15s) after starting but before it will accept connections
-# This promise will block until mongo claims it's ready for connections
-#
-# NOTE: This starts in the begining of the log file so if db is dropped and 
-# log file is cleared, this wouldn't work
-bundle agent mongodb_wait_until_accepting_connections {
-  vars:
-    "timeout" string => "300";
-    "log" string => "/var/log/mongo/mongod.log";
-    "match" string => "replSet PRIMARY";
-
-  commands:
-    mongod::
-      "$(sipx.SIPX_CFMODULES)/wait-on-log"
-        comment => "Wait for mongo to accept connections",
-        # continuously looks for line in log file and bail on first match or timeout
-        # whichever comes first. Give CF a bit longer timeout
-        contain => timeout("360"),
-        args => "$(timeout) '$(match)' $(log)";
-}
-
 body contain timeout(sec) {
   exec_timeout => "$(sec)";
 }

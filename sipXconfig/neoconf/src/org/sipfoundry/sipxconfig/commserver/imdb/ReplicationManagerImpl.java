@@ -65,6 +65,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.MongoException;
 
 /**
  * This class manages all effective replications.The replication is triggered by
@@ -641,6 +642,15 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             id = alias.getName();
         }
         return id;
+    }
+
+    public boolean testDatabaseReady() {
+        try {
+            getDbCollection();
+            return true;
+        } catch (MongoException e) {
+            return false;
+        }
     }
 
     public DBCollection getDbCollection() {
