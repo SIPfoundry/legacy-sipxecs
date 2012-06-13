@@ -3,7 +3,7 @@
 <conferencebridge xmlns="http://www.sipfoundry.org/sipX/schema/xml/conferencebridge-00-00">
   <item>
     <bridgename>Conf1</bridgename>
-    <bridgecontact>sip:Conf1@fs.example.com:2222</bridgecontact>
+    <bridgecontact>sip:Conf1@test.example.com:2222</bridgecontact>
     <extensionname>123</extensionname>
     <ownername>221</ownername>
     <ownerid>sip:221@example.com</ownerid>

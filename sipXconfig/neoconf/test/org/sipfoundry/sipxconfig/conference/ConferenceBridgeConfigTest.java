@@ -36,6 +36,7 @@ public class ConferenceBridgeConfigTest extends TestCase {
         location1.setFqdn("test.example.com");
 
         Bridge bridge = new Bridge();
+        bridge.setLocation(location1);
         bridge.setModelFilesContext(TestHelper.getModelFilesContext());
         bridge.getSettings();
 
