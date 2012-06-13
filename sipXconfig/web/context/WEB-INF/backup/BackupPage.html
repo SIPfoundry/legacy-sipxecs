@@ -5,10 +5,18 @@
   <div id="settings-content">
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')"/>
   </div>
-  <div jwcid="localBackupTab@Block">
-    <span jwcid="local@backup/BackupForm" backupPlan="ognl:localPlan"/>
+  <div jwcid="localBackupTab@Block">    
+    <!-- 
+     - Wrapping  forms in block because pageBeginRender is called even on inactive
+     - tabs otherwise
+     -->
+    <span jwcid="@If" condition="ognl:tab == 'localBackup'">
+      <span jwcid="local@backup/BackupForm" backupPlan="ognl:localPlan"/>
+    </span>
   </div>
   <div jwcid="ftpBackupTab@Block">
-    <span jwcid="ftp@backup/BackupForm" backupPlan="ognl:ftpPlan" settingsPath="ftp"/>
+    <span jwcid="@If" condition="ognl:tab == 'ftpBackup'">
+      <span jwcid="ftp@backup/BackupForm" backupPlan="ognl:ftpPlan" settingsPath="ftp"/>
+    </span>
   </div>
 </div>

@@ -74,7 +74,7 @@ class Backup < ArchiveBase
   end
 
   def hosts_param
-    @data['hosts'].values.join(' -H ')
+    @data['hosts'].values.join(' -h ')
   end
 
   def define_param(params)
@@ -271,19 +271,19 @@ end
 
 class CfengineBackup < CfengineBase
   def run(params, args)
-    if @data['selected_backups'].has_key?(params[:mode])
-      fresh_dir @backup_tmp_dir
-      @data['selected_backups'][params[:mode]].each {|defId|
-        if @data['backup'].has_key?(defId)
-          template = @data['backup'][defId]
-          file = "#{@backup_tmp_dir}/#{defId}"
-          line = template % file
-          cmd(line) or
-           raise "Failed to backup #{defId} using command #{line}"
-        end
-      }
-    else
-      puts "Warning, no backup definitions found"
+    fresh_dir @backup_tmp_dir
+    if @data.has_key?('backup') and @data.has_key?('selected_backups')
+      if @data['select_backups'].has_key?(params[:mode])
+        @data['selected_backups'][params[:mode]].each {|defId|
+          if @data['backup'].has_key?(defId)
+            template = @data['backup'][defId]
+            file = "#{@backup_tmp_dir}/#{defId}"
+            line = template % file
+            cmd(line) or
+             raise "Failed to backup #{defId} using command #{line}"
+          end
+        }
+      end
     end
   end
 end
@@ -299,8 +299,6 @@ class CfengineRestore < CfengineBase
             raise "Failed to restore #{defId} using command #{line}"
         end
       }
-    else
-      puts "Warning, no restore definitions found"
     end
   end
 end
