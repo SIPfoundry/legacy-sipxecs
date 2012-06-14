@@ -4,7 +4,7 @@
       <span jwcid="@RenderBody"/>
       <div jwcid="@common/Tab" isActive="ognl:tab == 'locations'">
         <a jwcid="@DirectLink" listener="listener:editLocations" id="ognl:'link:locations'"><span
-          key="locations">Locations</span> </a>
+          key="locations">Servers</span> </a>
       </div> <span jwcid="@For" source="ognl:bundles" value="ognl:currentBundle" volatile="ognl:true"
       renderTag="ognl:false">
         <div jwcid="@common/Tab" isActive="ognl:tab == currentBundle.id">
