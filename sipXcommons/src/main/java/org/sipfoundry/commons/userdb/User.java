@@ -51,6 +51,8 @@ public class User {
     private boolean m_sendConfExitIM;
     private boolean m_sendVMEntryIM;
     private boolean m_sendVMExitIM;
+    private boolean m_callIM;
+    private boolean m_callFromAnyIM;
     private String m_onthePhoneMessage;
     private boolean m_advertiseOnCallStatus;
     private boolean m_showOnCallDetails;
@@ -406,6 +408,26 @@ public class User {
 
     public boolean getVMExitIM() {
         return m_sendVMExitIM;
+    }
+
+    public boolean isCallIM() {
+        return m_callIM;
+    }
+
+    public void setCallIM(String value) {
+        if (value != null) {
+            m_callIM = value.equals("1") || value.equals("true");
+        }
+    }
+
+    public boolean isCallFromAnyIM() {
+        return m_callFromAnyIM;
+    }
+
+    public void setCallFromAnyIM(String value) {
+        if (value != null) {
+            m_callFromAnyIM = value.equals("1") || value.equals("true");
+        }
     }
 
     public String getOnthePhoneMessage() {

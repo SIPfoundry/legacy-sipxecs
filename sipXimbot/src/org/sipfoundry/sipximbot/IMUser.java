@@ -801,7 +801,11 @@ public class IMUser {
                 break;
 
             case CALL_FROM:
-
+                if (! m_user.isCallIM()) {
+                    sendIM(localize("forbidden.call"));
+                    cmdResult = "";
+                    break;
+                }
                 String queryString = "";
                 String numToCall = null;
                 String nameToCall = "";
@@ -860,9 +864,15 @@ public class IMUser {
                 }
                 if( fromPlace == Place.UNKNOWN) {
                     String number = m_context.getFromPhoneNumber();
-                    if (number != null && (number.equals(m_user.getUserName()) || number.equals(m_user.getHomeNum())
-                            || number.equals(m_user.getCellNum()) || number.equals(m_user.getUserName())))
-                    fromNumber = number;
+                    //verify if you are allowed to call from any number
+                    if (!m_user.isCallFromAnyIM()) {
+                        if (number != null && (number.equals(m_user.getUserName()) || number.equals(m_user.getHomeNum())
+                                || number.equals(m_user.getCellNum()) || number.equals(m_user.getUserName()))) {
+                            fromNumber = number;
+                        }
+                    } else {
+                        fromNumber = number;
+                    }
                 }
 
                 if(numToCall == null) {

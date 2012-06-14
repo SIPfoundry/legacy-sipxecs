@@ -9,6 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
@@ -16,9 +20,7 @@ import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.valid.ValidatorException;
-
 import org.sipfoundry.sipxconfig.common.CoreContext;
-
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -83,11 +85,15 @@ public abstract class MyAssistantComponent extends BaseComponent {
     }
 
     public String getSettingsToHide() {
+        List<String> names = new LinkedList<String>();
+        names.add("call");
+        names.add("callFromAnyNumber");
         if (!isVoicemailEnabled()) {
-            return "leaveMsgBeginIM, leaveMsgEndIM";
+            names.add("leaveMsgBeginIM");
+            names.add("leaveMsgEndIM");
         }
 
-        return "";
+        return StringUtils.join(names, ",");
     }
 
     private boolean isVoicemailEnabled() {
