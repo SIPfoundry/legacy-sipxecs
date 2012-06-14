@@ -90,6 +90,7 @@ bundle agent add_crontab(regex,user,line) {
   files:
     "$(sipx.crontabs)/$(user)"
       handle => "add_cron",
+      create => "true",
       comment => "add cron $(this.promiser) - $(line)",
       edit_line => add_crontab_line("$(regex)","$(line)"),
       classes => if_repaired("reload_crontab");
