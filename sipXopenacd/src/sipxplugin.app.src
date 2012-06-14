@@ -10,7 +10,7 @@
 	spx_autoloader,
 	spx_freeswitchmedia_loader,
 	spx_agentconfig_loader,
-	spx_integration,
+	spx_queue_loader,
 	spx_log_loader,
 	spx_util,
     spx_agent_auth,

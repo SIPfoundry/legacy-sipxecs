@@ -208,22 +208,23 @@ autoload(State) ->
 	State#state{mods = NewMods}.
 
 try_do(Name, Action, Fun, Conf, NConf) ->
+	?DEBUG("~p doing ~p with ~p", [Name, Action, NConf]),
 	case catch Fun(NConf) of
 		{'EXIT', Err} ->
 			?WARNING("Error occured while ~p ~p: ~p", [Name, Action, Err]),
 			Conf;
 		_ ->
-			?INFO("~p doing ~p", [Name, Action]),
+			?INFO("~p did ~p", [Name, Action]),
 			NConf
 	end.
 
 add_autoloads() ->
-	%spx_integration:register_autoload(),
 	spx_agentconfig_loader:start(),
 	spx_log_loader:start(),
 	spx_freeswitchmedia_loader:start(),
 	spx_webmgt_loader:start(),
 	spx_agentweb_loader:start(),
+	spx_queue_loader:start(),
 
 	ok.
 

@@ -29,11 +29,5 @@ init([]) ->
 		permanent,
 		1000,
 		worker,
-		[spx_autoloader]},
-	{spx_integration,
-		{spx_integration, start_link, []},
-		permanent,
-		1000,
-		worker,
-		[spx_integration]}
-    ]} }.
+		[spx_autoloader]}]
+	}}.
