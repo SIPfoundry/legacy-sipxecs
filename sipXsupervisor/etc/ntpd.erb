@@ -21,6 +21,6 @@ end%>
 driftfile <%= drift_file %>
 # Synchronize with selected time servers
 <%  ntp_servers.each { |server| 
-%><%= server[:address] %> iburst
+%>server <%= server[:address] %> iburst
 <%}
 %>
