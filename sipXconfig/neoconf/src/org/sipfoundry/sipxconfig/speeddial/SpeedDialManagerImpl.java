@@ -113,21 +113,22 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     @Override
     public void saveSpeedDial(SpeedDial speedDial) {
         getHibernateTemplate().saveOrUpdate(speedDial);
-        getHibernateTemplate().flush();
+        getDaoEventPublisher().publishSave(speedDial.getUser());
     }
 
     /**
      * This method starts with "save" because we want to trigger speed dial replication (see ReplicationTrigger.java)
      */
     @Override
-    public void saveSpeedDialSynchToGroup(SpeedDial speedDial) {
+    public void speedDialSynchToGroup(SpeedDial speedDial) {
         deleteSpeedDialsForUser(speedDial.getUser().getId());
+        getDaoEventPublisher().publishSave(speedDial.getUser());
     }
 
     @Override
     public void saveSpeedDialGroup(SpeedDialGroup speedDialGroup) {
         getHibernateTemplate().saveOrUpdate(speedDialGroup);
-        getHibernateTemplate().flush();
+        getDaoEventPublisher().publishSave(speedDialGroup.getUserGroup());
     }
 
     @Override
@@ -143,7 +144,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         if (!speedDials.isEmpty()) {
             getDaoEventPublisher().publishDeleteCollection(speedDials);
             getHibernateTemplate().deleteAll(speedDials);
-            getHibernateTemplate().flush();
+            getDaoEventPublisher().publishSave(m_coreContext.getUser(userId));
         }
     }
 

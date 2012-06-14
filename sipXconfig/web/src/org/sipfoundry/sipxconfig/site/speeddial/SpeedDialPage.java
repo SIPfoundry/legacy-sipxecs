@@ -115,7 +115,7 @@ public abstract class SpeedDialPage extends UserBasePage {
         }
 
         if (isGroupSynced()) {
-            getSpeedDialManager().saveSpeedDialSynchToGroup(getSpeedDial());
+            getSpeedDialManager().speedDialSynchToGroup(getSpeedDial());
             // force reload
             setSpeedDial(null);
         } else {
