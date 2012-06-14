@@ -193,7 +193,7 @@ bundle agent restore_pull_files {
   files:
     archive.!primary::
       "$(sipx.SIPX_TMPDIR)/restore/$(sipx.location_id)/."
-        create => true;
+        create => "true";
 
       "$(sipx.SIPX_TMPDIR)/restore/$(sipx.location_id)"
         comment => "Download archive to restore $(this.promiser)",
