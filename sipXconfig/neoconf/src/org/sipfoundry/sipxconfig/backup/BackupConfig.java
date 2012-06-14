@@ -14,6 +14,7 @@
  */
 package org.sipfoundry.sipxconfig.backup;
 
+
 import static java.lang.String.format;
 
 import java.io.File;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -92,7 +94,12 @@ public class BackupConfig implements ConfigProvider {
         File dir = m_configManager.getLocationDataDirectory(location);
         Collection<ArchiveDefinition> defs = m_backupManager.getArchiveDefinitions(location, manualSettings);
         Collection<String> auto = autoPlan.getAutoModeDefinitionIds();
-        Collection<String> manual = manualPlan.getAutoModeDefinitionIds();
+        Collection<String> manual;
+        if (manualPlan == null) {
+            manual = Collections.emptyList();
+        } else {
+            manual = manualPlan.getAutoModeDefinitionIds();
+        }
 
         File planFile = new File(dir, fname);
         Writer config = new FileWriter(planFile);
