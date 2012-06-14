@@ -49,6 +49,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
+import org.sipfoundry.sipxconfig.feature.BundleConstraint;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
@@ -568,7 +569,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
         if (b == Bundle.CORE_TELEPHONY) {
-            b.addFeature(FEATURE);
+            b.addFeature(FEATURE, BundleConstraint.PRIMARY_ONLY);
         }
     }
 
