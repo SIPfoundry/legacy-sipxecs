@@ -97,13 +97,19 @@ load(Conf) ->
         _ -> undefined
     end,
 
+    %% since passing {ssl, false leads to an error}
+    Args0 = [{port, Prt},
+        {ssl_port, Conf#conf.https_port}],
+    Args = case Conf#conf.https_enabled of
+        true -> [{ssl, true} |Args0];
+        _ -> Args0
+    end,
+
     cpx_supervisor:update_conf(agent_web_listener,
         #cpx_conf{id = agent_web_listener,
             module_name = agent_web_listener,
             start_function = start_link,
-            start_args = [[{port, Prt},
-                {ssl, Conf#conf.https_enabled},
-                {ssl_port, Conf#conf.https_port}]],
+            start_args = [Args],
             supervisor = management_sup}).
 
 -spec unload(any()) -> ok.
