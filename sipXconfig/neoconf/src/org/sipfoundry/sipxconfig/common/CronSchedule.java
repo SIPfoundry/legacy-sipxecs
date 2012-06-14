@@ -113,19 +113,30 @@ public class CronSchedule extends BeanWithId {
         return m_enabled;
     }
 
+    /**
+     * Quartz format is format used by the "quartz" library integrated w/spring.
+     */
     public String getCronString() {
         return getCronString(true);
     }
 
-    public String getCronString(boolean showSeconds) {
-        String secs = showSeconds ? "0 " : "";
+    /**
+     * Format appropriate for first column of /var/spool/cron/sipx file for example.
+     */
+    public String getUnixCronString() {
+        return getCronString(false);
+    }
+
+    String getCronString(boolean quartzFormat) {
+        String secs = quartzFormat ? "0 " : "";
+        String dayOfMonth = quartzFormat ? "?" : ANY;
         switch (m_type) {
         case WEEKLY:
-            return String.format("%s%d %d ? * %d", secs, m_min, m_hrs, m_dayOfWeek);
+            return String.format("%s%d %d %s * %d", secs, m_min, m_hrs, dayOfMonth, m_dayOfWeek);
         case DAILY:
-            return String.format("%s%d %d ? * *", secs, m_min, m_hrs);
+            return String.format("%s%d %d %s * *", secs, m_min, m_hrs, dayOfMonth);
         case HOURLY:
-            return String.format("%s%d * ? * *", secs, m_min);
+            return String.format("%s%d * %s * *", secs, m_min, dayOfMonth);
         default:
             throw new IllegalStateException("CronSchedule not initialized correctly.");
         }

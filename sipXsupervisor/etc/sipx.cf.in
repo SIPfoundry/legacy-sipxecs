@@ -97,7 +97,7 @@ bundle agent add_crontab(regex,user,line) {
       
   processes:
     reload_crontab::
-      "cron" 
+      "crond" 
         comment => "reload cron",
         signals => { "hup" };
   

@@ -69,7 +69,7 @@ public class DailyBackupSchedule extends BeanWithId {
         CronSchedule cron = new CronSchedule();
         cron.setScheduledDay(getScheduledDay());
         cron.setTimeOfDay(getTimeOfDay());
-        return cron.getCronString(false);
+        return cron.getUnixCronString();
     }
 
     public boolean isEnabled() {
