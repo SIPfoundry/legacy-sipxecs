@@ -38,7 +38,7 @@ def run(verbose, is_remote, is_raw, hosts, defines, undefines, bundles)
     nstr = (undefines.empty? ? '' : "-N " + undefines.join(' -N '))
     bstr = (bundles.empty? ? '' : "-b " + bundles.join(' -b '))
     agentstr = "-v #{dstr} #{nstr} #{bstr}"
-    hstr = (hosts.empty? ? '' : "-H " + hosts.join(' -H '))
+    hstr = (hosts.empty? ? '-H 127.0.0.1' : "-H " + hosts.join(' -H '))
     vstr = (verbose ? '-v' : '')
     analyzer = (is_raw ? '' : "| #{$bindir}/sipxagent-log-reader #{vstr}")
     if (is_remote || Process.uid != 0)
@@ -56,7 +56,7 @@ end
 
 
 verbose = false
-hosts = [ '127.0.0.1' ]
+hosts = []
 defines = []
 undefines = []
 bundles = []
