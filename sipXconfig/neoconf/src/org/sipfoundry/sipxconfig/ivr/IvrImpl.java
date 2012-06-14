@@ -229,7 +229,7 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
         }
 
         ArchiveDefinition def = new ArchiveDefinition(ARCHIVE,
-                "$(sipx.SIPX_BINDIR)/sipxivr-archive --archive %s",
+                "$(sipx.SIPX_BINDIR)/sipxivr-archive --backup %s",
                 "$(sipx.SIPX_BINDIR)/sipxivr-archive --restore %s");
         return Collections.singleton(def);
     }

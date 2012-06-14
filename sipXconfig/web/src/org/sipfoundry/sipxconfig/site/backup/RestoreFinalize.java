@@ -26,6 +26,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupSettings;
+import org.sipfoundry.sipxconfig.backup.BackupType;
 import org.sipfoundry.sipxconfig.backup.ManualRestore;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
@@ -35,27 +36,20 @@ import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 public abstract class RestoreFinalize extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "backup/RestoreFinalize";
 
-    public void setBackupPaths(Collection<String> selected) {
-        // wrap internal methods to avoid Persist/Session issue
-        setBackupPathsInternal(selected);
-        setUploadedDefinitionIdsInternal(null);
-    }
+    @Persist
+    public abstract void setBackupType(BackupType type);
 
-    public void setUploadedDefinitionIds(Collection<String> uploaded) {
-        // wrap internal methods to avoid Persist/Session issue
-        setUploadedDefinitionIdsInternal(uploaded);
-        setBackupPathsInternal(null);
-    }
+    public abstract BackupType getBackupType();
 
     @Persist
-    public abstract Collection<String> getBackupPathsInternal();
+    public abstract Collection<String> getSelections();
 
-    public abstract void setBackupPathsInternal(Collection<String> paths);
+    public abstract void setSelections(Collection<String> paths);
 
     @Persist
-    public abstract void setUploadedDefinitionIdsInternal(Collection<String> ids);
+    public abstract Collection<String> getUploadedIds();
 
-    public abstract Collection<String> getUploadedDefinitionIdsInternal();
+    public abstract void setUploadedIds(Collection<String> ids);
 
     @InjectObject("spring:manualRestore")
     public abstract ManualRestore getManualRestore();
@@ -65,10 +59,6 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
 
     @InjectObject(value = "spring:backupManager")
     public abstract BackupManager getBackupManager();
-
-    public Setting getRestoreSettings() {
-        return getBackupSettings().getSettings().getSetting("restore");
-    }
 
     public abstract BackupSettings getBackupSettings();
 
@@ -84,25 +74,29 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
         }
     }
 
+    public Setting getRestoreSettings() {
+        return getBackupSettings().getSettings().getSetting("restore");
+    }
+
     public IPage restore() {
-        Collection<String> restoreFrom = getBackupPathsInternal();
+        Collection<String> restoreFrom = getSelections();
         boolean isAdminRestore = isSelected(AdminContext.ARCHIVE);
         ManualRestore restore = getManualRestore();
         if (isAdminRestore) {
-            restore.restore(restoreFrom, getBackupSettings(), true);
+            restore.restore(getBackupType(), getBackupSettings(), restoreFrom, true);
             WaitingPage waitingPage = getWaitingPage();
             waitingPage.setWaitingListener(restore);
             return waitingPage;
         } else {
-            restore.restore(restoreFrom, getBackupSettings());
-            getValidator().recordSuccess("Need to implement");
+            restore.restore(getBackupType(), getBackupSettings(), restoreFrom);
+            getValidator().recordSuccess(getMessages().getMessage("restore.success"));
         }
 
         return null;
     }
 
     boolean isSelected(String id) {
-        Collection<String> selected = getBackupPathsInternal();
+        Collection<String> selected = getSelections();
         if (selected != null) {
             String find = '/' + id;
             for (String s : selected) {
@@ -112,7 +106,7 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
             }
         }
 
-        Collection<String> uploaded = getUploadedDefinitionIdsInternal();
+        Collection<String> uploaded = getUploadedIds();
         if (uploaded != null) {
             if (uploaded.contains(id)) {
                 return true;

@@ -15,6 +15,8 @@
 package org.sipfoundry.sipxconfig.site.backup;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
@@ -25,6 +27,7 @@ import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.backup.BackupPlan;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
@@ -53,11 +56,18 @@ public abstract class RestoreForm extends BaseComponent implements PageBeginRend
     }
 
     public IPage restore() {
-        // TODO: validate selection
         @SuppressWarnings("unchecked")
         Collection<String> restoreFrom = getSelections().getAllSelected();
+        if (restoreFrom.isEmpty()) {
+            getValidator().record(new UserException("Missing selection"), getMessages());
+            return null;
+        }
+
         RestoreFinalize page = getFinalizePage();
-        page.setBackupPaths(restoreFrom);
+        page.setBackupType(getBackupPlan().getType());
+        page.setSelections(restoreFrom);
+        List<String> none = Collections.emptyList();
+        page.setUploadedIds(none);
         page.setCallback(new PageCallback(getPage()));
         return page;
     }

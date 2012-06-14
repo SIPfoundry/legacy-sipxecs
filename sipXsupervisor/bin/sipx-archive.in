@@ -272,9 +272,10 @@ end
 class CfengineBackup < CfengineBase
   def run(params, args)
     fresh_dir @backup_tmp_dir
-    if @data.has_key?('backup') and @data.has_key?('selected_backups')
-      if @data['select_backups'].has_key?(params[:mode])
-        @data['selected_backups'][params[:mode]].each {|defId|
+    if !@data['backup'].nil? and ! @data['selected_backups'].nil?
+      selected = @data['selected_backups'][params[:mode]]
+      unless selected.nil? 
+        selected.each {|defId|
           if @data['backup'].has_key?(defId)
             template = @data['backup'][defId]
             file = "#{@backup_tmp_dir}/#{defId}"

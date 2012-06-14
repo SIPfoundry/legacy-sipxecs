@@ -242,6 +242,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
             primary.setPrimary(true);
             primary.setName("Primary");
             primary.setStunAddress(m_defaultStunServer);
+            primary.setState(State.CONFIGURED);
             saveLocation(primary);
 
             manager.setTrue(id);

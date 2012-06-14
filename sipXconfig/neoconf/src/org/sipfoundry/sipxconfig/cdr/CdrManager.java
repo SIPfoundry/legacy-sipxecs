@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 public interface CdrManager {
     public static final LocationFeature FEATURE = new LocationFeature("sipxcdr");
     public static final AddressType CDR_API = new AddressType("cdrApi");
+    public static final String ARCHIVE = "cdr.tar.gz";
 
     final String CONTEXT_BEAN_NAME = "cdrManager";
 

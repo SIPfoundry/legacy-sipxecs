@@ -27,7 +27,6 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
     private BackupType m_type = BackupType.local;
     private Collection<DailyBackupSchedule> m_schedules = new ArrayList<DailyBackupSchedule>(0);
     private Set<String> m_autoModeDefinitionIds = new HashSet<String>();
-    private Set<String> m_manualModeDefinitionIds = new HashSet<String>();
 
     public BackupPlan() {
     }
@@ -105,13 +104,5 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
         }
         String[] split = StringUtils.split(encodedDefinitionString, ',');
         m_autoModeDefinitionIds.addAll(Arrays.asList(split));
-    }
-
-    public Set<String> getManualModeDefinitionIds() {
-        return m_manualModeDefinitionIds;
-    }
-
-    public void setManualModeDefinitionIds(Set<String> manualModeDefinitionIds) {
-        m_manualModeDefinitionIds = manualModeDefinitionIds;
     }
 }

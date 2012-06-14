@@ -110,7 +110,7 @@ bundle agent backup_run {
     archive::
       "$(sipx.SIPX_BINDIR)/sipx-archive"
         comment => "Backup config $(this.promiser)",
-        args => "--backup-called-by-cfengine $(archive_vars.config)",
+        args => "--backup-called-by-cfengine $(archive_vars.config) --mode $(archive_vars.mode)",
         classes => on_failed_command("1", "failed_backup");
 
   reports:
@@ -207,7 +207,8 @@ bundle agent restore_run {
       "$(sipx.SIPX_BINDIR)/sipx-archive"
         comment => "Restore from $(restore_id)",
         args => "--restore-called-by-cfengine $(archive_vars.config) \
-                --restore-called-by-cfengine-location-id $(sipx.location_id)",
+                --restore-called-by-cfengine-location-id $(sipx.location_id) \
+                --mode $(archive_vars.mode)",
         classes => on_failed_command("1", "failed_restore");
 
   reports:

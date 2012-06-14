@@ -44,7 +44,7 @@ public class BackupCommandRunner {
 
     public String lastBackup() {
         List<String> backups = list();
-        return backups.isEmpty() ? null : (String) backups.get(backups.size() - 1);
+        return backups.isEmpty() ? null : (String) backups.get(0);
     }
 
     public void restore(Collection<String> paths) {
