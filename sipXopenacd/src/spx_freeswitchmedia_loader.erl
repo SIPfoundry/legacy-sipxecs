@@ -32,6 +32,9 @@
 -record(spx_fwconfig, {cnode, dialstring=""}).
 
 start() ->
+    unload(none),
+    spx_db:connect(),
+
     ActionFun = fun get_action/1,
     LoadFun = ReloadFun = fun load/1,
     UnloadFun = fun unload/1,

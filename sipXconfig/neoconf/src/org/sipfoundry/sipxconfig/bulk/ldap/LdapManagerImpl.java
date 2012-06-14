@@ -262,6 +262,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
 
     public void setAttrMap(AttrMap attrMap) {
         getHibernateTemplate().merge(attrMap);
+        getDaoEventPublisher().publishSave(attrMap);
     }
 
     public void saveSystemSettings(LdapSystemSettings settings) {

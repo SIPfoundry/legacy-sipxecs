@@ -10,11 +10,13 @@
 	spx_autoloader,
 	spx_freeswitchmedia_loader,
 	spx_agentconfig_loader,
-	spx_integration,
+	spx_queue_loader,
 	spx_log_loader,
 	spx_util,
     spx_agent_auth,
-	spx_call_queue_config
+	spx_call_queue_config,
+	spx_webmgt_loader,
+	spx_agentweb_loader
 ]},
 {registered, [
 	sipxplugin_sup,

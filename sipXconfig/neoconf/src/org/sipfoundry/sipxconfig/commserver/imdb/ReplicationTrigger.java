@@ -44,13 +44,14 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements DaoEv
     @Override
     public void onSave(Object entity) {
         if (entity instanceof Replicable) {
+            if (entity instanceof Group) {
+                //flush is necessary here in order to get consistent data
+                getHibernateTemplate().flush();
+                //It is important to replicate asynch since large groups might take a while to replicate
+                //and we want to return control to the page immediately.
+                replicateEntityGroup(new GroupWorker(entity));
+            }
             m_replicationManager.replicateEntity((Replicable) entity);
-        } else if (entity instanceof Group) {
-            //flush is necessary here in order to get consistent data
-            getHibernateTemplate().flush();
-            //It is important to replicate asynch since large groups might take a while to replicate
-            //and we want to return control to the page immediately.
-            replicateEntityGroup(new GroupWorker(entity));
         } else if (entity instanceof Branch) {
             getHibernateTemplate().flush();
             //there is no file replication needed so we can trigger the branch replication directly
@@ -61,11 +62,12 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements DaoEv
     @Override
     public void onDelete(Object entity) {
         if (entity instanceof Replicable) {
+            if (entity instanceof Group) {
+                //It is important to replicate asynch since large groups might take a while to replicate
+                //and we want to return control to the page immadiately.
+                replicateEntityGroup(new GroupDeleteWorker(entity));
+            }
             m_replicationManager.removeEntity((Replicable) entity);
-        } else if (entity instanceof Group) {
-            //It is important to replicate asynch since large groups might take a while to replicate
-            //and we want to return control to the page immadiately.
-            replicateEntityGroup(new GroupDeleteWorker(entity));
         } else if (entity instanceof Branch) {
             replicateEntityGroup(new BranchDeleteWorker(entity));
         }

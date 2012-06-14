@@ -49,6 +49,8 @@
 %%====================================================================
 
 start() ->
+	spx_db:connect(),
+
 	cpx_hooks:set_hook(spx_get_queue, get_queue, ?MODULE, get_queue, [], 200),
 	cpx_hooks:set_hook(spx_get_queues, get_queues, ?MODULE, get_queues, [], 200),
 

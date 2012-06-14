@@ -32,6 +32,8 @@
 -type conf() :: {Level :: pos_integer(), Dir :: string()}.
 
 start() ->
+    unload(none),
+
     ActionFun = fun get_action/1,
     LoadFun = ReloadFun = fun load/1,
     UnloadFun = fun unload/1,

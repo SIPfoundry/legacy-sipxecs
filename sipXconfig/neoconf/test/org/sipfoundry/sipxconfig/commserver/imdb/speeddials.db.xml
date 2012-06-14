@@ -1,24 +1,14 @@
 <!DOCTYPE dataset SYSTEM "../../../sipxconfig-db.dtd">
 <dataset>
   <users user_name="user_a" user_id="9991" pintoken="1234" user_type="C"/>
-  <users user_name="user_c" user_id="9992" pintoken="1234" user_type="C"/>
-  <users user_name="user_name_0" user_id="9993" pintoken="1234" user_type="C"/>
-  <users user_name="user_name_1" user_id="9994" pintoken="1234" user_type="C"/>
+  <users user_name="user_b" user_id="9992" pintoken="1234" user_type="C"/>
+  <users user_name="user_c" user_id="9993" pintoken="1234" user_type="C"/>
 
   <speeddial speeddial_id="2000" user_id="9991"/>
-  <speeddial speeddial_id="2001" user_id="9992"/>
-  <speeddial speeddial_id="2002" user_id="9993"/>
-  <speeddial speeddial_id="2003" user_id="9994"/>
 
   <speeddial_button position="0" speeddial_id="2000" label="alpha" number="101" blf="false"/>
   <speeddial_button position="1" speeddial_id="2000" label="beta" number="102" blf="true"/>
   <speeddial_button position="2" speeddial_id="2000" label="gamma" number="104@sipfoundry.org" blf="true"/>
 
-  <speeddial_button position="0" speeddial_id="2001" label="delta" number="100" blf="true"/>
-  <speeddial_button position="1" speeddial_id="2001" label="beta" number="102" blf="false"/>
-  <speeddial_button position="2" speeddial_id="2001" label="gamma" number="104@sipfoundry.org" blf="false"/>
-
-  <speeddial_button position="0" speeddial_id="2002" label="delta" number="100" blf="false"/>
-
-  <speeddial_button position="0" speeddial_id="2003" label="delta" number="100" blf="false"/>
 </dataset>
+  
