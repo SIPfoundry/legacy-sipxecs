@@ -72,6 +72,8 @@ get_action(OldConf) ->
 get_db_config() ->
     M = mongoapi:new(spx, ?DB),
     case M:findOne(<<"entity">>, [{<<"type">>, ?WEBMGT_CONFIG_TYPE}]) of
+        {ok, []} ->
+            {ok, #conf{http_enabled = true}};
         {ok, Props} ->
             jprop_to_config(Props, #conf{})
     end.
