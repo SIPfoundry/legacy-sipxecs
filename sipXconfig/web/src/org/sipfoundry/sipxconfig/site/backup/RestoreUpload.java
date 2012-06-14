@@ -14,12 +14,15 @@
  */
 package org.sipfoundry.sipxconfig.site.backup;
 
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,12 +32,15 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.InjectPage;
+import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
+import org.sipfoundry.sipxconfig.backup.BackupType;
 import org.sipfoundry.sipxconfig.backup.ManualRestore;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -56,6 +62,9 @@ public abstract class RestoreUpload extends BaseComponent implements PageBeginRe
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
+
+    @InjectPage(value = RestoreFinalize.PAGE)
+    public abstract RestoreFinalize getFinalizePage();
 
     @Override
     public void pageBeginRender(PageEvent event) {
@@ -84,11 +93,13 @@ public abstract class RestoreUpload extends BaseComponent implements PageBeginRe
 
             // Q: Should this catch exception and delete files then rethrow exception?
 
-            getManualRestore().restoreFromStage(defs);
-            // Restore restore = prepareRestore(selectedBackups, LocalBackupPlan.TYPE);
-            // return setupWaitingPage(restore, restoreConfig, restoreVoicemail, restoreCdr,
-            // restoreDeviceConfig);
-            return null;
+            RestoreFinalize page = getFinalizePage();
+            page.setBackupType(BackupType.local); // files are already retrieved so this is meaningless
+            List<String> none = Collections.emptyList();
+            page.setUploadedIds(defs);
+            page.setSelections(none);
+            page.setCallback(new PageCallback(getPage()));
+            return page;
         } catch (ValidatorException e) {
             validator.record(e);
             return null;

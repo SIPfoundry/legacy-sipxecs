@@ -51,7 +51,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     private static final String DUPLICATE_FQDN_OR_IP = "&error.duplicateFqdnOrIp";
     private AuditLogContext m_auditLogContext;
     private DomainManager m_domainManager;
-    private String m_defaultStunServer = "ezuce.stun.com";
+    private String m_defaultStunServer = "stun.ezuce.com";
 
     /** Return the replication URLs, retrieving them on demand */
     @Override
@@ -224,15 +224,15 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     }
 
     @Override
-    public void setup(SetupManager manager) {
+    public boolean setup(SetupManager manager) {
         String id = "init-locations";
         if (manager.isTrue(id)) {
-            return;
+            return true;
         }
         Location[] locations = getLocations();
         if (locations.length > 0) {
             manager.setTrue(id);
-            return;
+            return true;
         }
 
         try {
@@ -242,12 +242,14 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
             primary.setPrimary(true);
             primary.setName("Primary");
             primary.setStunAddress(m_defaultStunServer);
+            primary.setState(State.CONFIGURED);
             saveLocation(primary);
 
             manager.setTrue(id);
         } catch (UnknownHostException e) {
             throw new RuntimeException("Could not determine host name and/or ip address, check /etc/hosts file", e);
         }
+        return true;
     }
 
     @Required

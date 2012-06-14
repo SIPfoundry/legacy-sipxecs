@@ -16,11 +16,16 @@
  */
 package org.sipfoundry.sipxconfig.setup;
 
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -33,6 +38,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 public class SetupManagerImpl implements SetupManager, ApplicationListener<ApplicationEvent>, BeanFactoryAware {
+    private static final Log LOG = LogFactory.getLog(SetupManagerImpl.class);
     private ListableBeanFactory m_beanFactory;
     private Set<String> m_setupIds;
     private ConfigManager m_configManager;
@@ -133,8 +139,22 @@ public class SetupManagerImpl implements SetupManager, ApplicationListener<Appli
             m_configManager.getDomainManager().setup(this);
             m_configManager.getLocationManager().setup(this);
             m_coreContext.setup(this);
-            for (SetupListener l : getSetupListeners()) {
-                l.setup(this);
+            List<SetupListener> again = new ArrayList<SetupListener>();
+            Collection<SetupListener> todo = getSetupListeners();
+            int lastCount = 0; // guard again infinite loop where setup listener never returns done
+            while (!todo.isEmpty() && todo.size() != lastCount) {
+                for (SetupListener l : todo) {
+                    if (!l.setup(this)) {
+                        again.add(l);
+                    }
+                }
+                lastCount = todo.size();
+                todo = again;
+                LOG.info(todo.size() + " setup listeners will be called again");
+                again = new ArrayList<SetupListener>();
+            }
+            if (todo.size() > 0) {
+                LOG.error(todo.size() + " setup listeners never return 'true' signifying they were done");
             }
         }
         m_setup = true;

@@ -17,6 +17,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.LANGUAGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.OPERATOR;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
@@ -126,7 +127,7 @@ public class MailstoreTestIntegration extends ImdbTestCase {
 
         u202.setPermission(PermissionName.VOICEMAIL, true);
         getCoreContext().saveUser(u202);
-        m_mailboxManager.saveDistributionLists(m_user.getId(), dls);
+        m_mailboxManager.saveDistributionLists(u202.getId(), dls);
         List<DBObject> dLists = new ArrayList<DBObject>();
 
         DBObject dlist1 = new BasicDBObject();
@@ -138,7 +139,12 @@ public class MailstoreTestIntegration extends ImdbTestCase {
         dlist2.put(DIALPAD, 3);
         dlist2.put(ITEM, "203 204");
         dLists.add(dlist2);
-        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), new BasicDBObject(DISTRIB_LISTS, dLists));
+        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), new BasicDBObject(DISTRIB_LISTS, dLists).append("uid", "202"));
+        
+        DistributionList[] emptyDls = DistributionList.createBlankList();
+        m_mailboxManager.saveDistributionLists(u202.getId(), emptyDls);
+        List<DBObject> emptyDlists = new ArrayList<DBObject>();
+        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), new BasicDBObject(DISTRIB_LISTS, emptyDlists).append("uid", "202"));
         //TODO: test for other stuff in Mailstore dataset, like email, etc
 
     }

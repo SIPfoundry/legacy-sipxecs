@@ -223,7 +223,13 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
     @SettingEntry(path = AOR_RECORD)
     public String getAorRecord() {
         Address fs = m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
-        return SipUri.format(StringUtils.defaultString(m_name), fs.getAddress(), fs.getPort());
+        String host;
+        if (m_bridge != null) {
+            host = m_bridge.getHost();
+        } else {
+            host = fs.getAddress();
+        }
+        return SipUri.format(StringUtils.defaultString(m_name), host, fs.getPort());
     }
 
     @SettingEntry(path = PARTICIPANT_CODE)

@@ -179,9 +179,7 @@ public class Mailstore extends AbstractDataSetGenerator {
                 dLists.add(dlist);
             }
         }
-        if (!dLists.isEmpty()) {
-            top.put(DISTRIB_LISTS, dLists);
-        }
+        top.put(DISTRIB_LISTS, dLists);
         return true;
     }
 

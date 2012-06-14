@@ -38,4 +38,24 @@ public class BackupSettings extends PersistableSettings implements DeployConfigO
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) BackupManager.FEATURE);
     }
+
+    public boolean isKeepDomain() {
+        return (Boolean) getSettingTypedValue("restore/keepDomain");
+    }
+
+    public boolean isKeepFqdn() {
+        return (Boolean) getSettingTypedValue("restore/keepFqdn");
+    }
+
+    public boolean isDecodePins() {
+        return (Boolean) getSettingTypedValue("restore/decodePins");
+    }
+
+    public int getDecodePinLen() {
+        return (Integer) getSettingTypedValue("restore/decodePinMaxLen");
+    }
+
+    public String getResetPin() {
+        return (String) getSettingTypedValue("restore/resetPin");
+    }
 }

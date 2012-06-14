@@ -49,10 +49,11 @@ class ArchiveBase
     FileUtils.mkdir_p dir
   end
 
-  def file_manager
-    if @data.has_key?('ftp')
+  def file_manager(params)
+    settings = @data['settings'][params[:mode]]
+    if !settings.nil? && settings.has_key?('ftp')
       remote = nil
-      params = @data['ftp']
+      params = settings['ftp']
       uri = URI.parse(params['url'])
       remote = FtpFileManager.new("#{@backup_dir}/#{@data['plan']}")
       remote.connect(uri, params)
@@ -68,12 +69,12 @@ class Backup < ArchiveBase
     defines = define_param(params)
     cmd(@bin_dir + "/sipxagent -h #{hosts_param} -b backup #{defines}")
     cmd(@bin_dir + "/sipxagent -b backup_collect #{defines}")
-    fs = file_manager
+    fs = file_manager(params)
     fs.save(@data['max'])
   end
 
   def hosts_param
-    @data['hosts'].join(' -H ')
+    @data['hosts'].values.join(' -h ')
   end
 
   def define_param(params)
@@ -84,7 +85,7 @@ end
 # Orchestrate restore a cluster including staging file from local or ftp plan.
 class Restore < Backup
   def run(params, args)
-    mgr = file_manager
+    mgr = file_manager(params)
     # nothing specified, assume files are already staged.
     unless args.empty?
       fresh_dir @restore_dir
@@ -93,8 +94,21 @@ class Restore < Backup
         mgr.stage(dir, fname, @restore_dir)
       }
     end
+    correlate_by_location
     defines = define_param(params)
     cmd(@bin_dir + "/sipxagent -h #{hosts_param} -b restore #{defines}")
+  end
+
+  # organize files by which location has capability to restore them
+  def correlate_by_location
+    @data['correlate_restore'].each_pair {|locationId, defIds|      
+      fresh_dir "#{@restore_dir}/#{locationId}"
+      defIds.each {|defId|
+        if File.exists?("#{@restore_dir}/#{defId}")          
+          FileUtils.mv("#{@restore_dir}/#{defId}", "#{@restore_dir}/#{locationId}/#{defId}")
+        end
+      }
+    }
   end
 end
 
@@ -102,7 +116,7 @@ end
 # YearMonthDayHourMin pattern not based on file timestamp
 class ListBackups < ArchiveBase
   def run(params, args)
-    mgr = file_manager
+    mgr = file_manager(params)
     mgr.list.each {|backup|
       items = mgr.list_items(backup)
       @out.puts "#{backup} #{items.join(' ')}"
@@ -114,7 +128,7 @@ end
 # YearMonthDayHourMin pattern not based on file timestamp
 class LinkBackups < ArchiveBase
   def run(params, args)
-    @out.puts file_manager.link
+    @out.puts file_manager(params).link
   end
 end
 
@@ -135,7 +149,7 @@ class FileManagerBase
 
   # Call given block on oldest backups that exceed max backup count
   def purgable(max)
-    all = list
+    all = list.reverse
     if all.length > max
       for i in 0..((all.length - max) - 1)
         yield all[i]
@@ -185,7 +199,8 @@ class FtpFileManager < FileManagerBase
     begin
       @ftp.mkdir!("#{@path}/#{b}")
     rescue Net::SFTP::StatusException
-      # must already exist, i couldn't find a better way to test in API --Douglas
+      # failed? then must already exist, i couldn't find a better way to test
+      # directory existance in SFTP's API --Douglas
     end
     Dir["#{@backup_dir}/#{b}/*"].each {|f|
       @ftp.upload!(f, "#{@path}/#{b}/#{File.basename(f)}")
@@ -224,6 +239,7 @@ class LocalFileManager < FileManagerBase
   end
 
   def list
+    return [] unless File.exists? @backup_dir
     Dir.chdir(@backup_dir) {
       select_backups(Dir["*"])
     }
@@ -255,15 +271,20 @@ end
 
 class CfengineBackup < CfengineBase
   def run(params, args)
-    if @data.has_key?('backup')      
-      fresh_dir @backup_tmp_dir
-      @data['backup'].each_pair { |k,v|
-        line = "#{v}" % "#{@backup_tmp_dir}/#{k}"
-        cmd(line) or
-          raise "Failed to backup #{k} using command #{line}"
-      }
-    else
-      puts "Warning, no backup definitions found"
+    fresh_dir @backup_tmp_dir
+    if !@data['backup'].nil? and ! @data['selected_backups'].nil?
+      selected = @data['selected_backups'][params[:mode]]
+      unless selected.nil? 
+        selected.each {|defId|
+          if @data['backup'].has_key?(defId)
+            template = @data['backup'][defId]
+            file = "#{@backup_tmp_dir}/#{defId}"
+            line = template % file
+            cmd(line) or
+             raise "Failed to backup #{defId} using command #{line}"
+          end
+        }
+      end
     end
   end
 end
@@ -271,13 +292,14 @@ end
 class CfengineRestore < CfengineBase
   def run(params, args)
     if @data.has_key?('restore')
-      @data['restore'].each_pair { |k,v| 
-        line = "#{v}" % "#{@restore_dir}/#{k}"
-        cmd(line) or
-          raise "Failed to restore #{k} using command #{line}"
+      @data['restore'].each_pair { |defId,template|
+        file = "#{@restore_dir}/#{params[:location_id]}/#{defId}"
+        if File.exists?(file)
+          line = template % file
+          cmd(line) or
+            raise "Failed to restore #{defId} using command #{line}"
+        end
       }
-    else
-      puts "Warning, no restore definitions found"
     end
   end
 end
@@ -303,6 +325,8 @@ EOF
   opts.on("--restore config.yaml",
       "Restore the specified Configuration archive."){ |v|
     operation = Restore.new(v)
+    # because there there is no auto restore
+    params[:mode] = 'manual'
   }
 
   opts.on("--list config.yaml", "List the current backups."){ |v|
@@ -326,6 +350,11 @@ EOF
   opts.on("--restore-called-by-cfengine config.yaml",
       "Only to be called by CFEngine script."){ |v|
     operation = CfengineRestore.new(v)
+  }
+
+  opts.on("--restore-called-by-cfengine-location-id location_id",
+      "Only to be called by CFEngine script."){ |v|
+    params[:location_id] = v
   }
 
   $output = $stdout

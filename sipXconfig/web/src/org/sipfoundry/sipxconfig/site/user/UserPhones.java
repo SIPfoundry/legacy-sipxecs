@@ -69,7 +69,7 @@ public abstract class UserPhones extends UserBasePage {
 
     public IPage addExistingPhones() {
         AddExistingPhone page = getAddExistingPhonePage();
-        page.setUserId(getUserId());
+        page.setUserId(getUser().getId());
         page.setReturnPage(this);
         return page;
     }

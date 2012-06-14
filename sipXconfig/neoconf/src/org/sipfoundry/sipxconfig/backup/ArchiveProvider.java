@@ -20,5 +20,6 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 
 public interface ArchiveProvider {
 
-    public Collection<ArchiveDefinition> getArchiveDefinitions(BackupManager manager, Location location);
+    public Collection<ArchiveDefinition> getArchiveDefinitions(BackupManager manager, Location location,
+            BackupSettings manualSettings);
 }

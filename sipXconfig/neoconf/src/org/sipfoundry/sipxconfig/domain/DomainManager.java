@@ -19,11 +19,11 @@ public interface DomainManager extends DialingRuleProvider {
 
     static final String CONTEXT_BEAN_NAME = "domainManager";
 
+    Domain getEditableDomain();
+
     Domain getDomain();
 
     String getAuthorizationRealm();
-
-    void initializeDomain();
 
     void saveDomain(Domain domain);
 
@@ -44,5 +44,5 @@ public interface DomainManager extends DialingRuleProvider {
      */
     public void setNullDomain();
 
-    public void setup(SetupManager manager);
+    public boolean setup(SetupManager manager);
 }

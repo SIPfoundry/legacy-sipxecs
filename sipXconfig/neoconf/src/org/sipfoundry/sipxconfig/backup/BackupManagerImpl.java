@@ -76,10 +76,10 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
     }
 
     @Override
-    public Collection<ArchiveDefinition> getArchiveDefinitions(Location location) {
+    public Collection<ArchiveDefinition> getArchiveDefinitions(Location location, BackupSettings manual) {
         Set<ArchiveDefinition> defs = new HashSet<ArchiveDefinition>();
         for (ArchiveProvider provider : getArchiveProviders()) {
-            Collection<ArchiveDefinition> locationDefs = provider.getArchiveDefinitions(this, location);
+            Collection<ArchiveDefinition> locationDefs = provider.getArchiveDefinitions(this, location, manual);
             if (locationDefs != null) {
                 defs.addAll(locationDefs);
             }
@@ -128,7 +128,7 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
         Set<String> ids = new HashSet<String>();
         for (Location location : m_locationsManager.getLocationsList()) {
             for (ArchiveProvider provider : getArchiveProviders()) {
-                Collection<ArchiveDefinition> defs = provider.getArchiveDefinitions(this, location);
+                Collection<ArchiveDefinition> defs = provider.getArchiveDefinitions(this, location, null);
                 if (defs != null) {
                     for (ArchiveDefinition def : defs) {
                         ids.add(def.getId());

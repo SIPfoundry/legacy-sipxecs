@@ -25,17 +25,22 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 
 public class BackupConfig implements ConfigProvider {
+    private static final String RESTORE = "restore";
+    private static final String AUTO = "auto";
+    private static final String MANUAL = "manual";
     private BackupManager m_backupManager;
     private ConfigManager m_configManager;
     private LocationsManager m_locationsManager;
@@ -50,19 +55,27 @@ public class BackupConfig implements ConfigProvider {
         Collection<BackupPlan> plans = m_backupManager.getBackupPlans();
         List<Location> hosts = manager.getLocationManager().getLocationsList();
         Set<Location> locations = request.locations(manager);
+        ConfigUtils.enableCfengineClass(manager.getGlobalDataDirectory(), "archive.cfdat", true, "archive");
         for (Location location : locations) {
             for (BackupPlan plan : plans) {
-                writeConfigs(plan, location, hosts, settings);
+                writeConfigs(plan, null, location, hosts, settings, null);
             }
         }
     }
 
-    public File writeConfigs(BackupPlan plan, BackupSettings settings) {
+    public File writeManualBackupConfigs(BackupType type, BackupSettings manualSettings) {
+        BackupPlan plan = m_backupManager.findOrCreateBackupPlan(type);
+        return writeManualBackupConfigs(plan, manualSettings);
+    }
+
+    public File writeManualBackupConfigs(BackupPlan manualPlan, BackupSettings manualSettings) {
         try {
+            BackupPlan autoPlan = m_backupManager.findOrCreateBackupPlan(manualPlan.getType());
+            BackupSettings autoSettings = m_backupManager.getSettings();
             File planFile = null;
             List<Location> hosts = m_locationsManager.getLocationsList();
             for (Location location : hosts) {
-                File f = writeConfigs(plan, location, hosts, settings);
+                File f = writeConfigs(autoPlan, manualPlan, location, hosts, autoSettings, manualSettings);
                 if (location.isPrimary()) {
                     planFile = f;
                 }
@@ -73,46 +86,36 @@ public class BackupConfig implements ConfigProvider {
         }
     }
 
-    public File writeConfigs(BackupPlan plan, Location location, Collection<Location> hosts, BackupSettings settings)
-        throws IOException {
-        String fname = format("archive-%s.yaml", plan.getType());
+    File writeConfigs(BackupPlan autoPlan, BackupPlan manualPlan, Location location, Collection<Location> hosts,
+            BackupSettings autoSettings, BackupSettings manualSettings) throws IOException {
+        String fname = format("archive-%s.yaml", autoPlan.getType());
         File dir = m_configManager.getLocationDataDirectory(location);
-        Collection<ArchiveDefinition> defs = m_backupManager.getArchiveDefinitions(location);
-        Collection<String> auto = plan.getAutoModeDefinitionIds();
-        Collection<String> manual = plan.getManualModeDefinitionIds();
+        Collection<ArchiveDefinition> defs = m_backupManager.getArchiveDefinitions(location, manualSettings);
+        Collection<String> auto = autoPlan.getAutoModeDefinitionIds();
+        Collection<String> manual = manualPlan.getAutoModeDefinitionIds();
 
         File planFile = new File(dir, fname);
         Writer config = new FileWriter(planFile);
         try {
             writeBackupDefinitions(config, defs, auto, manual);
             if (location.isPrimary()) {
-                writePrimaryBackupConfig(config, plan, hosts, settings);
+                writePrimaryBackupConfig(config, autoPlan, manualPlan, hosts, autoSettings, manualSettings);
             }
         } finally {
             IOUtils.closeQuietly(config);
         }
 
-        String datname = format("archive-%s.cfdat", plan.getType());
-        Writer cfdat = new FileWriter(new File(dir, datname));
-        try {
-            writeCfengineConfig(cfdat, plan.getType(), auto, manual);
-            if (location.isPrimary() && plan.getSchedules() != null) {
-                writeBackupSchedules(cfdat, plan.getType(), plan.getSchedules());
+        if (location.isPrimary() && autoPlan.getSchedules() != null) {
+            String datname = format("archive-%s.cfdat", autoPlan.getType());
+            Writer cfdat = new FileWriter(new File(dir, datname));
+            try {
+                writeBackupSchedules(cfdat, autoPlan.getType(), autoPlan.getSchedules());
+            } finally {
+                IOUtils.closeQuietly(cfdat);
             }
-        } finally {
-            IOUtils.closeQuietly(cfdat);
         }
 
         return planFile;
-    }
-
-    void writeCfengineConfig(Writer w, BackupType type, Collection<String> autoMode,
-            Collection<String> manualMode) throws IOException {
-        CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
-        // no reason to disable backups, just don't configure any schedules
-        config.writeClass("archive", true);
-        config.writeList(type.toString() + "_auto_backup_definitions", autoMode);
-        config.writeList(type.toString() + "_manual_backup_definitions", manualMode);
     }
 
     void writeBackupSchedules(Writer w, BackupType type, Collection<DailyBackupSchedule> schedules) throws IOException {
@@ -126,18 +129,43 @@ public class BackupConfig implements ConfigProvider {
         config.writeList(type.toString() + "_backup_schedule", crons);
     }
 
-    public void writePrimaryBackupConfig(Writer w, BackupPlan plan, Collection<Location> hosts, BackupSettings settings)
-        throws IOException {
+    void writePrimaryBackupConfig(Writer w, BackupPlan autoPlan, BackupPlan backupPlan, Collection<Location> hosts,
+            BackupSettings auto, BackupSettings manual) throws IOException {
         YamlConfiguration config = new YamlConfiguration(w);
 
-        List<String> ips = new ArrayList<String>(hosts.size());
+        config.startStruct("hosts");
         for (Location host : hosts) {
-            ips.add(host.isPrimary() ? "127.0.0.1" : host.getAddress());
+            config.write(host.getId().toString(), host.isPrimary() ? "127.0.0.1" : host.getAddress());
         }
-        config.writeArray("hosts", ips);
+        config.endStruct();
 
-        config.write("plan", plan.getType());
-        config.write("max", plan.getLimitedCount());
+        config.write("plan", autoPlan.getType());
+        config.write("max", autoPlan.getLimitedCount());
+        config.startStruct("settings");
+        config.startStruct(AUTO);
+        writeSettings(config, autoPlan, auto);
+        config.endStruct();
+        config.startStruct(MANUAL);
+        writeSettings(config, backupPlan, manual);
+        config.endStruct();
+        config.endStruct();
+
+        config.startStruct("correlate_restore");
+        for (Location host : hosts) {
+            Collection<ArchiveDefinition> defs = m_backupManager.getArchiveDefinitions(host, null);
+            @SuppressWarnings("unchecked")
+            Collection<String> defIds = CollectionUtils.collect(defs, ArchiveDefinition.GET_IDS);
+            config.writeInlineArray(host.getId().toString(), defIds);
+        }
+        config.endStruct();
+    }
+
+    void writeSettings(YamlConfiguration config, BackupPlan plan, BackupSettings settings)
+        throws IOException {
+        if (settings == null || plan == null) {
+            return;
+        }
+
         if (plan.getType() == BackupType.ftp) {
             String ftp = "ftp";
             config.startStruct(ftp);
@@ -155,14 +183,16 @@ public class BackupConfig implements ConfigProvider {
         }
         config.endStruct();
 
-        config.startStruct("restore");
+        config.startStruct(RESTORE);
         for (ArchiveDefinition def : defs) {
             writeCommand(config, def, def.getRestoreCommand());
         }
         config.endStruct();
 
-        config.writeArray("auto", auto);
-        config.writeArray("manual", manual);
+        config.startStruct("selected_backups");
+        config.writeArray(AUTO, auto);
+        config.writeArray(MANUAL, manual);
+        config.endStruct();
     }
 
     void writeCommand(YamlConfiguration config, ArchiveDefinition def, String command) throws IOException {

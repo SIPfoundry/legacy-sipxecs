@@ -39,9 +39,10 @@ public class DialPlanSetup implements SetupListener, MigrationListener {
     }
 
     @Override
-    public void setup(SetupManager manager) {
+    public boolean setup(SetupManager manager) {
         setupRegion(manager);
         setupAttendant(manager);
+        return true;
     }
 
     void setupRegion(SetupManager manager) {

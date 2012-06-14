@@ -92,4 +92,10 @@ public interface ReplicationManager {
      * so no members would be retrieved.
      */
     void deleteGroup(Group group);
+
+    /**
+     * Test that replication manager can replicate to database
+     * @return
+     */
+    public boolean testDatabaseReady();
 }

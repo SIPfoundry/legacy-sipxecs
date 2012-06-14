@@ -39,7 +39,7 @@ class ArchiveBase
   end
 end
 
-class Archive < ArchiveBase
+class Backup < ArchiveBase
   def run(params)
     cmd "pg_dump -U #{@pguser} -F t #{@db} | gzip > #{params[:file]}" or 
       raise "Could not backup database"
@@ -99,9 +99,9 @@ args = OptionParser.new { |opts|
 Create or restore configuration to/from an archive file.
 EOF
 
-  opts.on("--archive <archive>",
+  opts.on("--backup <archive>",
       "Restore the specified Configuration archive."){ |v|
-    operation = Archive.new
+    operation = Backup.new
     params[:file] = v
   }
 

@@ -20,11 +20,12 @@ public class TimeZoneInit implements SetupListener {
     }
 
     @Override
-    public void setup(SetupManager manager) {
+    public boolean setup(SetupManager manager) {
         String id = "default-time-zone";
         if (manager.isFalse(id)) {
             m_timeZoneManager.saveDefault();
             manager.setTrue(id);
         }
+        return true;
     }
 }

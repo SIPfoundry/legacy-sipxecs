@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.admin;
 
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
-import org.sipfoundry.sipxconfig.backup.ArchiveDefinition;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface AdminContext {
@@ -20,9 +19,7 @@ public interface AdminContext {
     public static final AddressType HTTP_ADDRESS = new AddressType("adminApi", URL_FORMAT);
     public static final AddressType HTTP_ADDRESS_AUTH = new AddressType("adminApiAuth", URL_FORMAT);
     public static final AlarmDefinition ALARM_LOGIN_FAILED = new AlarmDefinition("LOGIN_FAILED", 3);
-    public static final ArchiveDefinition ARCHIVE = new ArchiveDefinition("configuration.tar.gz",
-            "$(sipx.SIPX_BINDIR)/sipxconfig-archive --archive %s",
-            "$(sipx.SIPX_BINDIR)/sipxconfig-archive --restore %s");
+    public static final String ARCHIVE = "configuration.tar.gz";
     final String CONTEXT_BEAN_NAME = "adminContext";
 
     public void avoidCheckstyleError();

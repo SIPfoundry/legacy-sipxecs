@@ -8,10 +8,10 @@
   settingsToHide="leaveMsgBeginIM,leaveMsgEndIM"/>
 <span jwcid="@common/FormActions" listener="listener:save" callback="ognl:container.callback" />
 <div>
-	<h3><span jwcid="@Insert" value="ognl:messages.format('title',user.label)"/></h3>
+	<h3><span jwcid="@Insert" value="ognl:messages.format('title',loadedUser.label)"/></h3>
 
     <fieldset jwcid="conferencesPanel@conference/ConferencesPanel"
-              conferences="ognl:conferenceBridgeContext.findConferencesByOwner(user)"
+              conferences="ognl:conferenceBridgeContext.findConferencesByOwner(loadedUser)"
               showOwner="false" enableDelete="ognl:userSession.isAdmin()" enableAdd="ognl:userSession.isAdmin()"
               addListener="listener:addConference"
               selectListener="listener:selectConference"

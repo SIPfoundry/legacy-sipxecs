@@ -17,6 +17,7 @@ package org.sipfoundry.sipxconfig.site.backup;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.Bean;
@@ -56,12 +57,17 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
 
     public abstract BackupPlan getBackupPlan();
 
-    public boolean getSelectedDefinition() {
-        return getBackupPlan().getAutoModeDefinitionIds().contains(getDefinitionId());
+    public boolean isSelectedDefinition() {
+        return getBackupPlan() != null && getBackupPlan().getAutoModeDefinitionIds().contains(getDefinitionId());
     }
 
     public void setSelectedDefinition(boolean selected) {
-        getBackupPlan().getAutoModeDefinitionIds().add(getDefinitionId());
+        Set<String> ids = getBackupPlan().getAutoModeDefinitionIds();
+        if (selected) {
+            ids.add(getDefinitionId());
+        } else {
+            ids.remove(getDefinitionId());
+        }
     }
 
     @Parameter(required = true)
@@ -134,6 +140,8 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
         }
 
         getManualBackup().backup(getBackupPlan(), getSettings());
+        BackupTable table = (BackupTable) getComponent("backups");
+        table.setBackups(null);
         getValidator().recordSuccess("Backup successful");
     }
 

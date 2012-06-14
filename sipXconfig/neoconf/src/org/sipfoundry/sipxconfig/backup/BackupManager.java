@@ -47,7 +47,7 @@ public interface BackupManager {
 
     Collection<String> getArchiveDefinitionIds();
 
-    Collection<ArchiveDefinition> getArchiveDefinitions(Location location);
+    Collection<ArchiveDefinition> getArchiveDefinitions(Location location, BackupSettings manual);
 
     String getBackupScript();
 

@@ -93,12 +93,13 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
     }
 
     @Override
-    public void setup(SetupManager manager) {
+    public boolean setup(SetupManager manager) {
         // do not enable until all working -- Douglas
         //if (!manager.isSetup(FEATURE.getId())) {
         //     manager.getFeatureManager().enableGlobalFeature(FEATURE, true);
         //    manager.setSetup(FEATURE.getId());
         //}
+        return true;
     }
 
     public List<ServerGroup> getServerGroups() {

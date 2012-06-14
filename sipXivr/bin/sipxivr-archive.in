@@ -36,7 +36,7 @@ class ArchiveBase
   end
 end
 
-class Archive < ArchiveBase
+class Backup < ArchiveBase
   def run(params)
     File.open('version','w') { |f|
       f.puts @ver
@@ -80,9 +80,9 @@ args = OptionParser.new { |opts|
 Create or restore configuration to/from an archive file.
 EOF
 
-  opts.on("--archive <archive>",
+  opts.on("--backup <archive>",
       "Backup to the specified file.") { |v|
-    operation = Archive.new
+    operation = Backup.new
     params[:file] = v
   }
 

@@ -15,6 +15,10 @@
 package org.sipfoundry.sipxconfig.backup;
 
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
@@ -48,17 +52,57 @@ public class BackupConfigTest {
     @Test
     public void cluster() throws IOException {
         BackupConfig config = new BackupConfig();
+        
         BackupSettings settings = new BackupSettings();
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
         settings.setSettingTypedValue("ftp/url", "ftp://ftp.example.org");
         settings.setSettingTypedValue("ftp/user", "joe");
         settings.setSettingTypedValue("ftp/password", "xxx");
-        Collection<Location> hosts = Collections.singleton(new Location("one", "1.1.1.1"));
+        
+        Location l1 = new Location("one", "1.1.1.1");
+        l1.setUniqueId(1);
+        Location l2 = new Location("one", "2.2.2.2");
+        l2.setUniqueId(2);
+        Collection<Location> hosts = Arrays.asList(l1, l2);
+        
+        ArchiveDefinition d1 = new ArchiveDefinition("d1", "backup", "restore");
+        ArchiveDefinition d2 = new ArchiveDefinition("d2", "backup", "restore");
+        
+        BackupManager mgr = createMock(BackupManager.class);
+        mgr.getArchiveDefinitions(l1, null);
+        expectLastCall().andReturn(Collections.singleton(d1)).anyTimes();
+        mgr.getArchiveDefinitions(l2, null);
+        expectLastCall().andReturn(Collections.singleton(d2)).anyTimes();        
+        replay(mgr);
+        config.setBackupManager(mgr);
+        
         BackupPlan ftpPlan = new BackupPlan(BackupType.ftp);
         ftpPlan.setLimitedCount(20);
+        
         StringWriter actual = new StringWriter();
-        config.writePrimaryBackupConfig(actual, ftpPlan, hosts, settings);
-        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-cluster-backup.yaml"));        
+        config.writePrimaryBackupConfig(actual, ftpPlan, null, hosts, settings, null);        
+        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-auto-backup.yaml"));        
+        verify(mgr);
+        assertEquals(expected, actual.toString());
+        
+        mgr = createMock(BackupManager.class);
+        mgr.getArchiveDefinitions(l1, null);
+        expectLastCall().andReturn(Arrays.asList(d1, d2));
+        mgr.getArchiveDefinitions(l2, null);
+        expectLastCall().andReturn(Collections.emptyList());        
+        replay(mgr);
+        config.setBackupManager(mgr);
+
+        BackupSettings manual = new BackupSettings();
+        manual.setModelFilesContext(TestHelper.getModelFilesContext());
+        manual.setSettingTypedValue("ftp/url", "sftp://sftp.example.org");
+        manual.setSettingTypedValue("ftp/user", "mary");
+        manual.setSettingTypedValue("ftp/password", "yyy");       
+        manual.setSettingTypedValue("restore/resetPin", "555");
+        
+        actual = new StringWriter();
+        config.writePrimaryBackupConfig(actual, ftpPlan, ftpPlan, hosts, settings, manual);
+        expected = IOUtils.toString(getClass().getResourceAsStream("expected-manual-backup.yaml"));
         assertEquals(expected, actual.toString());        
     }
     
@@ -75,17 +119,6 @@ public class BackupConfigTest {
         StringWriter actual = new StringWriter();
         config.writeBackupSchedules(actual, BackupType.local, Arrays.asList(s1, s2, s3));
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-schedules.cfdat"));        
-        assertEquals(expected, actual.toString());        
-    }
-    
-    @Test
-    public void cfengine() throws IOException {
-        BackupConfig config = new BackupConfig();
-        Collection<String> auto = Arrays.asList("a", "b");
-        Collection<String> manual = Arrays.asList("x", "y");
-        StringWriter actual = new StringWriter();
-        config.writeCfengineConfig(actual, BackupType.local, auto, manual);        
-        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-cfengine.cfdat"));        
         assertEquals(expected, actual.toString());        
     }
 }

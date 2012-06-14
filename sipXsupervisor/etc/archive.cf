@@ -66,7 +66,6 @@ bundle agent archive_vars {
 
     any::
       "config" string => "$(sipx.SIPX_CONFDIR)/archive-$(plan).yaml";
-      "defs" slist => { "$(sipx.$(plan)_$(mode)_backup_definitions)" };
 }
 
 # Install cron schedules
@@ -111,7 +110,7 @@ bundle agent backup_run {
     archive::
       "$(sipx.SIPX_BINDIR)/sipx-archive"
         comment => "Backup config $(this.promiser)",
-        args => "--backup-called-by-cfengine $(archive_vars.config)",
+        args => "--backup-called-by-cfengine $(archive_vars.config) --mode $(archive_vars.mode)",
         classes => on_failed_command("1", "failed_backup");
 
   reports:
@@ -191,13 +190,15 @@ bundle agent restore {
 }
 
 bundle agent restore_pull_files {
-
   files:
     archive.!primary::
-      "$(sipx.SIPX_TMPDIR)/restore/$(archive_vars.defs)"
+      "$(sipx.SIPX_TMPDIR)/restore/$(sipx.location_id)/."
+        create => "true";
+
+      "$(sipx.SIPX_TMPDIR)/restore/$(sipx.location_id)"
         comment => "Download archive to restore $(this.promiser)",
         perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
-        copy_from => master_files("$(sipx.master_address)", "$(master_vars.[SIPX_TMPDIR][1])/restore/$(def)");
+        copy_from => master_files("$(sipx.master_address)", "$(master_vars.[SIPX_TMPDIR][1])/restore/$(sipx.location_id)");
 }
 
 bundle agent restore_run {
@@ -205,7 +206,9 @@ bundle agent restore_run {
     archive::
       "$(sipx.SIPX_BINDIR)/sipx-archive"
         comment => "Restore from $(restore_id)",
-        args => "--restore-called-by-cfengine $(archive_vars.config)",
+        args => "--restore-called-by-cfengine $(archive_vars.config) \
+                --restore-called-by-cfengine-location-id $(sipx.location_id) \
+                --mode $(archive_vars.mode)",
         classes => on_failed_command("1", "failed_restore");
 
   reports:

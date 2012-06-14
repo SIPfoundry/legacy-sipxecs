@@ -934,13 +934,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     @Override
-    public void setup(SetupManager manager) {
-        if (m_setup) {
-            return;
+    public boolean setup(SetupManager manager) {
+        if (!m_setup) {
+            // this checks special users on every start-up as there seems to be no harm.
+            initializeSpecialUsers();
+            m_setup = true;
         }
-
-        // this checks special users on every start-up as there seems to be no harm.
-        initializeSpecialUsers();
-        m_setup = true;
+        return true;
     }
 }

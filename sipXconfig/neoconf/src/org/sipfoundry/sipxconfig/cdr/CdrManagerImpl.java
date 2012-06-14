@@ -40,6 +40,10 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.backup.ArchiveDefinition;
+import org.sipfoundry.sipxconfig.backup.ArchiveProvider;
+import org.sipfoundry.sipxconfig.backup.BackupManager;
+import org.sipfoundry.sipxconfig.backup.BackupSettings;
 import org.sipfoundry.sipxconfig.cdr.Cdr.Termination;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -70,7 +74,7 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import com.thoughtworks.xstream.XStream;
 
 public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, FeatureProvider, AddressProvider,
-        ProcessProvider, FirewallProvider {
+        ProcessProvider, FirewallProvider, ArchiveProvider {
     static final String CALL_ID = "call_id";
     static final String CALLEE_AOR = "callee_aor";
     static final String TERMINATION = "termination";
@@ -580,5 +584,18 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+    }
+
+    @Override
+    public Collection<ArchiveDefinition> getArchiveDefinitions(BackupManager manager, Location location,
+            BackupSettings manualSettings) {
+        if (!manager.getFeatureManager().isFeatureEnabled(FEATURE, location)) {
+            return null;
+        }
+
+        ArchiveDefinition def = new ArchiveDefinition(ARCHIVE,
+                "$(sipx.SIPX_BINDIR)/sipxcdr-archive --backup %s",
+                "$(sipx.SIPX_BINDIR)/sipxcdr-archive --restore %s");
+        return Collections.singleton(def);
     }
 }

@@ -28,5 +28,5 @@ package org.sipfoundry.sipxconfig.setup;
  *  Use as many flags as you want, but be sure to pick unique ids.
  */
 public interface SetupListener {
-    public void setup(SetupManager manager);
+    public boolean setup(SetupManager manager);
 }

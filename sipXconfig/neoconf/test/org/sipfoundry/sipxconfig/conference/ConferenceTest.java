@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsTestCase;
@@ -25,21 +26,23 @@ import org.sipfoundry.sipxconfig.test.TestHelper;
 public class ConferenceTest extends BeanWithSettingsTestCase {
     private Conference m_conf;
     private Bridge m_bridge;
+    private Bridge m_bridge2;
     private AddressManager m_addressManager;
 
     protected void setUp() throws Exception {
         super.setUp();
 
-//        Location location = new Location();
-//        SipxFreeswitchService sipxService = new SipxFreeswitchService();
-//        sipxService.setSettings(TestHelper.loadSettings("freeswitch/freeswitch.xml"));
-//        LocationSpecificService service = new LocationSpecificService(sipxService);
-//        service.setLocation(location);
         m_addressManager = createMock(AddressManager.class);
 
         m_bridge = new Bridge();
+        m_bridge.setLocation(new Location("bridge1.example.org"));
         m_bridge.setModelFilesContext(TestHelper.getModelFilesContext());
         initializeBeanWithSettings(m_bridge);
+
+        m_bridge2 = new Bridge();
+        m_bridge2.setLocation(new Location("abc.example.com"));
+        m_bridge2.setModelFilesContext(TestHelper.getModelFilesContext());
+        initializeBeanWithSettings(m_bridge2);
 
         m_conf = new Conference();
         initializeBeanWithSettings(m_conf);
@@ -64,6 +67,7 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
         m_conf.setName("weekly.marketing");
         assertEquals("sip:weekly.marketing@bridge1.example.org:1111", m_conf.getUri());
 
+        m_conf.setBridge(m_bridge2);
         assertEquals("sip:weekly.marketing@abc.example.com:2222", m_conf.getUri());
     }
 
@@ -93,7 +97,7 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
         
         // 1 alias for conference without extension
         m_conf.setEnabled(true);
-        aliasMappings = (List<AliasMapping>) m_conf.getAliasMappings("sipfoundry.org");
+        aliasMappings = (List<AliasMapping>) m_conf.getAliasMappings("bridge1.sipfoundry.org");
         assertEquals(1, aliasMappings.size());
 
         AliasMapping am = (AliasMapping) aliasMappings.get(0);
@@ -116,5 +120,24 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
         m_conf.setExtension("1111");
         aliasMappings = (List<AliasMapping>) m_conf.getAliasMappings("sipfoundry.org");
         assertEquals(1, aliasMappings.size());
+    }
+
+    public void testGetAorRecord() {
+        Conference conf1 = new Conference();
+        initializeBeanWithSettings(conf1);
+        conf1.getSettings();
+        conf1.setAddressManager(m_addressManager);
+        m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "bridge1.sipfoundry.org", 2222)).anyTimes();
+        replay(m_addressManager);
+        Bridge bridge1 = new Bridge();
+        bridge1.setLocation(new Location("bridge1.sipfoundry.org"));
+        bridge1.setModelFilesContext(TestHelper.getModelFilesContext());
+        initializeBeanWithSettings(bridge1);
+        bridge1.setLocation(new Location("bridge1.sipfoundry.org"));
+        conf1.setBridge(bridge1);
+        // empty for disabled conference
+        conf1.setName("conf1");
+        assertEquals("sip:conf1@bridge1.sipfoundry.org:2222", conf1.getAorRecord());
     }
 }

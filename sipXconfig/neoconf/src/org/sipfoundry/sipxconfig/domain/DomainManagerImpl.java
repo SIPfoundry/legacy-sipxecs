@@ -39,7 +39,7 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     private static final String DOMAIN_CONFIG_ERROR = "Unable to load initial domain-config file.";
     private static final Log LOG = LogFactory.getLog(DomainManagerImpl.class);
     private static final String SIP_DOMAIN_NAME = "SIP_DOMAIN_NAME";
-    private Domain m_domain;
+    private volatile Domain m_domain;
     private String m_domainConfigFilename;
 
     public DomainManagerImpl() {
@@ -50,20 +50,50 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         return s_instance.getDomain();
     }
 
+    public Domain getEditableDomain() {
+        try {
+            Domain d = getDomain().clone();
+            getHibernateTemplate().evict(d);
+            return d;
+        } catch (CloneNotSupportedException impossible) {
+            throw new IllegalStateException(impossible);
+        }
+    }
+
+
     /**
      * @return non-null unless test environment
      */
     public Domain getDomain() {
-        Domain domain = getExistingDomain();
-        if (domain == null) {
-            initializeDomain();
-            domain = getExistingDomain();
-            if (domain == null) {
-                throw new DomainNotInitializedException();
+        Domain d = m_domain;
+        if (d == null) {
+            // double-check lock with local references as proper guard and additional
+            // local references to comply w/checkstyle. See
+            //   http://en.wikipedia.org/wiki/Double-checked_locking
+            synchronized (this) {
+                Domain d2 = m_domain;
+                if (d2 == null) {
+                    d2 = loadDomainFromDb();
+                    if (d2 == null) {
+                        d2 = loadDomainFromConfig();
+                        getHibernateTemplate().saveOrUpdate(d2);
+                        getHibernateTemplate().flush();
+                        d2 = loadDomainFromDb();
+                        if (d2 == null) {
+                            throw new DomainNotInitializedException();
+                        }
+                    }
+                    m_domain = d2;
+                }
             }
         }
 
-        return domain;
+        return m_domain;
+    }
+
+    private Domain loadDomainFromDb() {
+        Collection<Domain> domains = getHibernateTemplate().findByNamedQuery("domain");
+        return (Domain) DataAccessUtils.singleResult(domains);
     }
 
     /**
@@ -75,27 +105,19 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     }
 
     public void saveDomain(Domain domain) {
+        if (domain == m_domain) {
+            throw new IllegalStateException("Cannnot edit global domain, call DomainManager.getEditableDomain");
+        }
         if (domain.isNew()) {
-            Domain existing = getExistingDomain();
-            if (existing != null) {
-                getHibernateTemplate().delete(getDomain());
-            }
+            throw new IllegalStateException("Cannnot save more than one domain");
         }
-        getHibernateTemplate().saveOrUpdate(domain);
+        if (!domain.getId().equals(m_domain.getId())) {
+            throw new IllegalStateException("Cannnot change domain id");
+        }
+        Domain d = getHibernateTemplate().merge(domain);
+        getHibernateTemplate().update(d);
         getHibernateTemplate().flush();
-
-        // hmmm, should each feature that uses the domain name be watching for
-        // DomainManger.FEATURE?
-        // m_configManager.allFeaturesAffected();
         m_domain = null;
-    }
-
-    protected Domain getExistingDomain() {
-        if (m_domain == null) {
-            Collection<Domain> domains = getHibernateTemplate().findByNamedQuery("domain");
-            m_domain = (Domain) DataAccessUtils.singleResult(domains);
-        }
-        return m_domain;
     }
 
     public Localization getExistingLocalization() {
@@ -124,24 +146,21 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
      * If this is called multiple times, the data in the domain table in the database will be
      * overwritten by what is currently contained in the domain-config file
      */
-    public void initializeDomain() {
+    public Domain loadDomainFromConfig() {
+        Domain domain = new Domain();
         try {
             Properties domainConfig = new Properties();
             File domainConfigFile = new File(m_domainConfigFilename);
-            LOG.info("Attempting to load initial domain-config from " + domainConfigFile.getParentFile().getPath()
-                    + "):");
+            LOG.info("Attempting to load initial domain-config from " + domainConfigFile.getParentFile().getPath());
             InputStream domainConfigInputStream = new FileInputStream(domainConfigFile);
             domainConfig.load(domainConfigInputStream);
-            Domain domain = new Domain();
             parseDomainConfig(domain, domainConfig);
-            saveDomain(domain);
-            // Do not publish as there should not be a change
-            // getDaoEventPublisher().publishSave(domain);
         } catch (FileNotFoundException fnfe) {
             LOG.fatal(DOMAIN_CONFIG_ERROR, fnfe);
         } catch (IOException ioe) {
             LOG.fatal(DOMAIN_CONFIG_ERROR, ioe);
         }
+        return domain;
     }
 
     private void parseDomainConfig(Domain domain, Properties domainConfig) {
@@ -183,9 +202,8 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     }
 
     @Override
-    public void setup(SetupManager manager) {
-        if (getDomain() == null) {
-            initializeDomain();
-        }
+    public boolean setup(SetupManager manager) {
+        getDomain();
+        return true;
     }
 }

@@ -24,31 +24,36 @@ import org.sipfoundry.sipxconfig.common.WaitingListener;
  * because they are similar.
  *
  * Summary of steps to perform a backup: 1.) write custom restore plan in each CFDATA/$location
- * for each location 2.) write custom cluster restore plan in CFDATA/primary location 3.) stage
- * cluster restore files 4.) call restore on all nodes
+ * for each location 2.) call sipx-archive to stage files 3.) call restore on all nodes
  */
 public class ManualRestore implements WaitingListener {
     private BackupManager m_backupManager;
     private BackupConfig m_backupConfig;
 
-    /**
-     * Files are already staged and we can skip right to node restore
-     */
-    public void restoreFromStage(Collection<String> defIds) {
-        writePlan(defIds).restoreFromStage();
-    }
-
-    BackupCommandRunner writePlan(Collection<String> defIds) {
+    BackupCommandRunner writePlan(BackupType type, BackupSettings settings) {
         // doesn't matter which plan, we already staged the files
-        BackupPlan plan = getBackupManager().findOrCreateBackupPlan(BackupType.local);
-        plan.getManualModeDefinitionIds().addAll(defIds);
-        File planFile = getBackupConfig().writeConfigs(plan, getBackupManager().getSettings());
+        File planFile = getBackupConfig().writeManualBackupConfigs(type, settings);
         BackupCommandRunner runner = new BackupCommandRunner(planFile, getBackupManager().getBackupScript());
         return runner;
     }
 
-    public void restore(Collection<String> defIds) {
-        writePlan(defIds).restore(defIds);
+    /**
+     * if defIds are null or empty, then files are already staged and we can skip right to node restore
+     */
+    public void restore(BackupType type, BackupSettings settings, Collection<String> selection) {
+        BackupCommandRunner runner = writePlan(type, settings);
+        runner.setBackground(true);
+        runner.restore(selection);
+    }
+
+    /**
+     * optionally restore in background, useful when sipxconfig is restoring sipxconfig
+     */
+    public void restore(BackupType type, BackupSettings settings, Collection<String> selection,
+            boolean backgroundProcess) {
+        BackupCommandRunner runner = writePlan(type, settings);
+        runner.setBackground(backgroundProcess);
+        runner.restore(selection);
     }
 
     public void setBackupManager(BackupManager backupManager) {
@@ -69,6 +74,6 @@ public class ManualRestore implements WaitingListener {
 
     @Override
     public void afterResponseSent() {
-        // TODO Auto-generated method stub
+        // not needed as process is kick off in background
     }
 }

@@ -1,0 +1,11 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg" validator="bean:validator" />
+  <form jwcid="form@Form" delegate="bean:validator">
+    <fieldset jwcid="@setting/SettingsFieldset" settings="ognl:restoreSettings" renderGroupTitle="false"/>
+    <ul class="component-submit">
+      <li><input jwcid="restore@Submit" id="backups:restore" listener="listener:restore"
+        value="message:button.restore" /><span jwcid="@common/Confirm" component="component:restore"
+        prompt="message:confirm.restore" /></li>
+    </ul>
+  </form>
+</div>
