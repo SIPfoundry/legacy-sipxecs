@@ -25,6 +25,7 @@
 #include <net/SipUdpServer.h>
 #include <os/OsQueuedEvent.h>
 #include <net/SipOutputProcessor.h>
+#include <net/SipInputProcessor.h>
 
 // DEFINES
 #define SIP_DEFAULT_RTT     100 // Default T1 value (RFC 3261), in msec.
@@ -400,6 +401,27 @@ public:
                                                 const char* address,
                                                 int port );
 
+        //! Adds a new SipInputProcessor to the list of processors
+    //! that will get notified when an outgoing SIP message is about
+    //! to be sent.  Upon successful addtion of a processor, it will
+    //! start receiving notifications from the SIP stack via its
+    //! SipInputProcessor::handleOutputMessge() method when SIP
+    //! messages are sent out.
+    //! Please refer to comments in SipInputProcessor.h for information
+    //! about threading and blocking considerations.
+
+    void addSipInputProcessor( SipInputProcessor *pProcessor );
+
+    //! Removes a previously added SipInputProcessor from the list of
+    //! processors that will get notified when an outgoing SIP message is
+    //! about to be sent.
+    UtlBoolean removeSipInputProcessor( SipInputProcessor *pProcessor );
+
+    // See comments in SipUserAgentBase.h
+    virtual void executeAllSipInputProcessors( SipMessage& message,
+                                                const char* address,
+                                                int port );
+    
     //! Send a SIP message over the net
 
     /*! This method sends the SIP message as dictated by policy and
@@ -755,6 +777,8 @@ private:
     OsRWMutex mMessageLogRMutex;
     OsRWMutex mMessageLogWMutex;
     OsRWMutex mOutputProcessorMutex;
+    UtlSortedList mSipInputProcessors;
+    OsRWMutex mSipInputProcessorMutex;
     // The local address and port.
     UtlString mLocalHostAddress;
     int mLocalUdpHostPort;

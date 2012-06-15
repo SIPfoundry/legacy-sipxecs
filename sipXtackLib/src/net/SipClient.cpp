@@ -605,6 +605,7 @@ int SipClient::run(void* runArg)
             // inserted into the pipe for each message.
             assert(read(mPipeReadingFd, &buffer, 1) == 1);
 
+
             if (!handleMessage(*pMsg))            // process the message (from queue)
             {
                OsServerTask::handleMessage(*pMsg);
@@ -671,11 +672,19 @@ int SipClient::run(void* runArg)
          // Note that input was processed at this time.
          touch();
 
-         if ((res == 2 &&
-              readBuffer(0) == '\r' && readBuffer(1) == '\n') ||
-             (res == 4 &&
-              readBuffer(0) == '\r' && readBuffer(1) == '\n' &&
-              readBuffer(2) == '\r' && readBuffer(3) == '\n'))
+         //
+         // Count the CRLF sequence and see if the entire buffer is composed of it
+         //
+         int crlfCount = 0;
+         for (int i = 0; i < res; i+=2)
+         {
+           if (readBuffer(i) == '\r' && readBuffer(i) == '\n') 
+             crlfCount+=2;
+           else
+             break;
+         }
+
+         if (crlfCount == res)
          {
              repeatedEOFs = 0;
              // The 'message' was a keepalive (CR-LF or CR-LF-CR-LF).
@@ -996,6 +1005,8 @@ void SipClient::preprocessMessage(SipMessage& msg,
             portIsValid(lastPort) ? lastPort : defaultPort();
       }
    }
+
+   mpSipUserAgent->executeAllSipInputProcessors(msg, fromIpAddress.data(), fromPort);
 }
 
 // Test whether the socket is ready to read. (Does not block.)

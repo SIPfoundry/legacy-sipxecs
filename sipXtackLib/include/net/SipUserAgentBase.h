@@ -92,6 +92,10 @@ public:
                                                 const char* address,
                                                 int port ) = 0;
 
+    virtual void executeAllSipInputProcessors( SipMessage& message,
+                                                const char* address,
+                                                int port ) = 0;
+
     void addConfigChangeConsumer(OsMsgQ& messageQueue);
     //: Register to find out when UA config changes (i.e. contact address)
 
