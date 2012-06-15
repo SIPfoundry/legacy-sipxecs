@@ -43,8 +43,8 @@
 // CONSTANTS
 const char* AuthPlugin::Factory = "getAuthPlugin";
 const char* AuthPlugin::Prefix  = "SIPX_PROXY";
-const char* TransactionPlugin::Factory = "getTransactionPlugin";
-const char* TransactionPlugin::Prefix  = "SIPX_TRAN";
+const char* SipBidirectionalProcessorPlugin::Factory = "getTransactionPlugin";
+const char* SipBidirectionalProcessorPlugin::Prefix  = "SIPX_TRAN";
 // The period of time in seconds that nonces are valid, in seconds.
 #define NONCE_EXPIRATION_PERIOD             (60 * 5)     // five minutes
 
@@ -71,7 +71,7 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    ,mNonceExpiration(NONCE_EXPIRATION_PERIOD) // the period in seconds that nonces are valid
    ,mpForwardingRules(&forwardingRules)
    ,mAuthPlugins(AuthPlugin::Factory, AuthPlugin::Prefix)
-   ,mTransactionPlugins(TransactionPlugin::Factory, TransactionPlugin::Prefix)
+   ,mTransactionPlugins(SipBidirectionalProcessorPlugin::Factory, SipBidirectionalProcessorPlugin::Prefix)
 {
    // Get Via info to use as defaults for route & realm
    UtlString dnsName;
@@ -296,11 +296,12 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
 
    // Announce the associated SIP Router to all newly instantiated authorization plugins
    PluginIterator transactionPlugins(mTransactionPlugins);
-   TransactionPlugin* transactionPlugin;
+   SipBidirectionalProcessorPlugin* transactionPlugin;
    UtlString transactionPluginName;
-   while ((transactionPlugin = dynamic_cast<TransactionPlugin*>(transactionPlugins.next(&transactionPluginName))))
+   while ((transactionPlugin = dynamic_cast<SipBidirectionalProcessorPlugin*>(transactionPlugins.next(&transactionPluginName))))
    {
-      transactionPlugin->announceAssociatedSipRouter( this );
+      transactionPlugin->announceAssociatedSipUserAgent( this->mpSipUserAgent );
+      transactionPlugin->initialize();
    }
 }
 
@@ -966,6 +967,14 @@ void SipRouter::addSipOutputProcessor( SipOutputProcessor *pProcessor )
    if( mpSipUserAgent )
    {
       mpSipUserAgent->addSipOutputProcessor( pProcessor );
+   }
+}
+
+void SipRouter::addSipInputProcessor( SipInputProcessor *pProcessor )
+{
+   if( mpSipUserAgent )
+   {
+      mpSipUserAgent->addSipInputProcessor( pProcessor );
    }
 }
 

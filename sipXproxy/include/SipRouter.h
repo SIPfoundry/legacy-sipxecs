@@ -18,7 +18,7 @@
 #include <sipXecsService/SipNonceDb.h>
 #include <utl/PluginHooks.h>
 #include "AuthPlugin.h"
-#include "TransactionPlugin.h"
+#include "net/SipBidirectionalProcessorPlugin.h"
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -33,6 +33,7 @@ class SipMessage;
 class RouteState;
 class ForwardRules;
 class SipOutputProcessor;
+class SipInputProcessor;
 
 /// SipRouter implements the main message handling responsible for the forking
 /// authorization and forwarding of SIP messages.
@@ -111,6 +112,8 @@ class SipRouter : public OsServerTask
    void addHostAlias( const UtlString& hostAliasToAdd );
    
    void addSipOutputProcessor( SipOutputProcessor *pProcessor );
+
+   void addSipInputProcessor( SipInputProcessor *pProcessor );
 
    UtlBoolean removeSipOutputProcessor( SipOutputProcessor *pProcessor );
    

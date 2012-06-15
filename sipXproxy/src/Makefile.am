@@ -19,7 +19,9 @@ sipXproxy_LDFLAGS = \
 
 sipXproxy_LDADD = \
 	libsipXproxy.la \
-	@SIPXCOMMSERVER_LIBS@
+	@SIPXCOMMSERVER_LIBS@ \
+	-lboost_system-mt \
+	-lboost_thread-mt
 
 sipXproxy_SOURCES =  \
 	sipXproxymain.cpp
