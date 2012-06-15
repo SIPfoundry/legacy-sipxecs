@@ -1,0 +1,85 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# sipXsaa configuration and process management
+#
+bundle agent sipxsaa {
+  methods:
+    sipxsaa::
+      "any" usebundle => "sipxsaa_config";
+    any::
+      "any" usebundle => "sipxsaa_running";
+}
+
+bundle agent sipxsaa_config {
+  files:
+    sipxsaa::
+      "$(sipx.SIPX_CONFDIR)/appearance-groups.xml"
+        comment => "install $(this.promiser)",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/appearance-groups.xml"),
+        classes => if_repaired("restart_sipxsaa");
+
+      "$(sipx.SIPX_CONFDIR)/sipxsaa-config"
+        comment => "install $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_defaults => empty,
+        edit_line => sipXsaa_config_contents(),
+        classes => if_repaired("restart_sipxsaa");
+}
+
+bundle edit_line sipXsaa_config_contents() {
+  insert_lines:
+    sipxsaa::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxsaa-config.part"
+        insert_type => "file";
+"SIP_SAA_LOG_DIR : $(sipx.SIPX_LOGDIR)
+SIP_SAA_LOG_CONSOLE :
+SIP_SAA_BIND_IP : $(sipx.bind_ip)
+SIP_SAA_FILE_NAME : $(sipx.SIPX_CONFDIR)/appearance-groups.xml
+SIP_SAA_DOMAIN_NAME : $(sipx.domain)
+SIP_SAA_AUTHENTICATE_REALM : $(sipx.realm)
+";
+}
+
+bundle agent sipxsaa_running {
+  vars:
+    any::
+      "service_command" string => "$(sipx.SIPX_BINDIR)/sipXsaa";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxsaa_running");
+    !src.sipxsaa::
+      "any" usebundle => rh_chkconfig_status("sipxsaa on");
+    !src.!sipxsaa::
+      "any" usebundle => rh_chkconfig_status("sipxsaa off");
+
+  commands:
+    (!sipxsaa|stop_sipxecs).sipxsaa_running::
+      "$(sipx.SIPX_SERVICEDIR)/sipxsaa"
+        comment => "stop sipxsaa",
+        args => "stop";
+
+    sipxsaa.!sipxsaa_running.!stop_sipxecs::
+      "$(sipx.SIPX_SERVICEDIR)/sipxsaa"
+        comment => "start sipxsaa",
+        args => "start";
+
+    sipxsaa.sipxsaa_running.(restart_sipxsaa|restart_sipxecs)::
+      "$(sipx.SIPX_SERVICEDIR)/sipxsaa"
+        comment => "restart sipxsaa",
+        args => "restart";
+}

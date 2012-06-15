@@ -1,15 +1,8 @@
 include $(top_srcdir)/config/utility.am
 
 EXTRA_DIST = \
-        $(proc_DATA:.xml=.xml.in)
+	sample-appearance-groups.xml
 
-procdir = \
-        $(SIPX_DATADIR)/process.d
-
-proc_DATA = \
-        sipxsaa-process.xml
-
-$(proc_DATA) : % : %.in Makefile
-	@$(call SearchAndReplace, $<, $@)
-
-CLEANFILES = $(proc_DATA)
+cfinputsdir = $(SIPX_CFINPUTS)/plugin.d
+dist_cfinputs_DATA = \
+	sipxsaa.cf

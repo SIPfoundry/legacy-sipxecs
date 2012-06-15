@@ -8,7 +8,9 @@ SUBDIRS = .
 EXTRA_DIST =
 
 sipxsaa_LDADD = \
-	@SIPXCOMMSERVER_LIBS@
+	@SIPXCOMMSERVER_LIBS@ \
+        -lmongoclient \
+        -lboost_system-mt	
 
 sipxsaa_CXXFLAGS = \
         -I$(top_builddir)/config \

@@ -28,6 +28,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -50,7 +51,13 @@ public class SaaConfiguration implements ConfigProvider {
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(SaaManager.FEATURE);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            Writer saa = new FileWriter(new File(dir, "sipxsaa.properties.cfdat"));
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(SaaManager.FEATURE, location);
+            ConfigUtils.enableCfengineClass(dir, "sipxsaa.cfdat", enabled, "sipxsaa");
+            if (!enabled) {
+                continue;
+            }
+
+            Writer saa = new FileWriter(new File(dir, "sipxsaa-config.part"));
             try {
                 writeSaaConfig(saa, settings, location.getAddress(), domainName, realm);
             } finally {
@@ -81,9 +88,6 @@ public class SaaConfiguration implements ConfigProvider {
         throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(wtr);
         config.writeSettings(settings.getSettings().getSetting("saa-config"));
-        config.write("SIP_SAA_BIND_IP", address);
-        config.write("SIP_SAA_DOMAIN_NAME", domainName);
-        config.write("SIP_SAA_AUTHENTICATE_REALM", realm);
     }
 
     public void setVelocityEngine(VelocityEngine velocityEngine) {
