@@ -1,1 +1,1 @@
-@local_backup_schedule={"30 22 ? * 6", "0 0 ? * *"}
+@local_backup_schedule={"30 22 * * 6", "0 0 * * *"}
