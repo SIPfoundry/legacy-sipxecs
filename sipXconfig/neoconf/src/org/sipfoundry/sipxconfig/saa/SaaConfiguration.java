@@ -47,7 +47,6 @@ public class SaaConfiguration implements ConfigProvider {
 
         SaaSettings settings = m_saaManager.getSettings();
         String domainName = manager.getDomainManager().getDomainName();
-        String realm = manager.getDomainManager().getAuthorizationRealm();
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(SaaManager.FEATURE);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
@@ -59,7 +58,7 @@ public class SaaConfiguration implements ConfigProvider {
 
             Writer saa = new FileWriter(new File(dir, "sipxsaa-config.part"));
             try {
-                writeSaaConfig(saa, settings, location.getAddress(), domainName, realm);
+                writeSaaConfig(saa, settings, location.getAddress());
             } finally {
                 IOUtils.closeQuietly(saa);
             }
@@ -84,10 +83,11 @@ public class SaaConfiguration implements ConfigProvider {
         }
     }
 
-    void writeSaaConfig(Writer wtr, SaaSettings settings, String address, String domainName, String realm)
+    void writeSaaConfig(Writer wtr, SaaSettings settings, String address)
         throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(wtr);
         config.writeSettings(settings.getSettings().getSetting("saa-config"));
+        config.write("SIP_SAA_BIND_IP", address);
     }
 
     public void setVelocityEngine(VelocityEngine velocityEngine) {

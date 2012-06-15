@@ -47,7 +47,6 @@ bundle edit_line sipXsaa_config_contents() {
         insert_type => "file";
 "SIP_SAA_LOG_DIR : $(sipx.SIPX_LOGDIR)
 SIP_SAA_LOG_CONSOLE :
-SIP_SAA_BIND_IP : $(sipx.bind_ip)
 SIP_SAA_FILE_NAME : $(sipx.SIPX_CONFDIR)/appearance-groups.xml
 SIP_SAA_DOMAIN_NAME : $(sipx.domain)
 SIP_SAA_AUTHENTICATE_REALM : $(sipx.realm)
