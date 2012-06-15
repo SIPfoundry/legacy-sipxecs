@@ -1,13 +1,13 @@
 <fieldset>
-  <table>
-   <tr jwcid="configuredPanel@common/FieldPanel" for="ldap:configured"
-        	field="ognl:components.configured" label="message:label.configured"
-        	description="message:description.configured">
-      <input jwcid="configured@Checkbox" id="ldap:configured" value="ognl:settings.configured"/>  
-    </tr>  
+  <table>  
     <tr jwcid="hostPanel">
       <input jwcid="host" />
     </tr>
+    <tr jwcid="@common/FieldPanel" for="domain" field="component:domain"
+        label="message:label.domain"
+        description="message:description.domain">
+      <span jwcid="domain@TextField" id="domain" value="ognl:lcp.domain"/>
+    </tr>    
     <tr jwcid="@common/FieldPanel" for="useTls" field="component:useTls"
         label="message:label.tls"
         description="message:description.tls">

@@ -15,7 +15,15 @@
   </span>
 
   <form jwcid="configurationForm@Form">
-    <div jwcid="connectionBlock@Block">           
+    <div jwcid="connectionBlock@Block">
+      <ul class="component-links">
+       <li><a jwcid="@DirectLink" id="addLdapConnection" listener="listener:addLdapConnection"><span
+           key="addLdapConnection" /> </a>
+       </li>
+       <li><a jwcid="@DirectLink" id="removeLdapConnection" listener="listener:removeLdapConnection"><span
+           key="removeLdapConnection" /> </a>
+       </li>       
+      </ul>               
       <fieldset jwcid="ldapConnectionPanel" />
       <ul class="form-actions">
         <li><input jwcid="apply@Submit" action="listener:applyConnectionParamsOnFirstStep"

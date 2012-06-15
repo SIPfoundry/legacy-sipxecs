@@ -17,11 +17,10 @@
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
 import java.util.Collection;
+import java.util.Set;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchResult;
 
@@ -64,6 +63,8 @@ public class UserMapperTest extends TestCase {
         attrs.put("officeCity", "Boston");
         try {
             m_userMapper.setUserProperties(m_user, attrs);
+            Set<String> aliasesSet = m_userMapper.getAliasesSet(attrs);
+            m_userMapper.setAliasesSet(aliasesSet, m_user);
             assertEquals("200", m_user.getUserName());
             assertEquals("tester", m_user.getFirstName());
             assertEquals("555123456", m_user.getAliasesString());

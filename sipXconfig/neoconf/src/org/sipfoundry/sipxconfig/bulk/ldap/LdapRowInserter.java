@@ -44,15 +44,17 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
     private Set<String> m_existingUserNames;
     private UserMapper m_userMapper;
     private AttrMap m_attrMap;
+    private String m_domain;
+    private Set<String> m_aliases;
 
     private boolean m_preserveMissingUsers;
 
     public void beforeInserting() {
         // Make sure m_userMapper's AttrMap is set up.
-        m_userMapper.setAttrMap(m_ldapManager.getAttrMap());
+        m_userMapper.setAttrMap(m_attrMap);
         // get all the users from LDAP group
         m_existingUserNames = new HashSet<String>();
-        Group defaultGroup = m_coreContext.getGroupByName(getAttrMap().getDefaultGroupName(),
+        Group defaultGroup = m_coreContext.getGroupByName(m_attrMap.getDefaultGroupName(),
                 false);
         if (defaultGroup != null) {
             Collection<String> userNames = m_coreContext.getGroupMembersNames(defaultGroup);
@@ -87,6 +89,8 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
             m_existingUserNames.remove(userName);
 
             m_userMapper.setUserProperties(user, attrs);
+            m_userMapper.setAliasesSet(m_aliases, user);
+
             String pin = m_userMapper.getPin(attrs, newUser);
             if (pin != null) {
                 user.setPin(pin, m_coreContext.getAuthorizationRealm());
@@ -115,7 +119,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
                 user.addGroup(userGroup);
             }
             m_coreContext.saveUser(user);
-
+            user.setSettingValue(User.DOMAIN_SETTING, m_domain);
             if (newUser) {
                 // Execute the automatic assignments for the user.
                 GroupAutoAssign groupAutoAssign = new GroupAutoAssign(m_conferenceBridgeContext, m_coreContext,
@@ -140,16 +144,27 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         if (attrs.get(idAttrName) == null) {
             return RowStatus.FAILURE;
         }
-        // check username
+        RowStatus status = RowStatus.SUCCESS;
         try {
             String userName = m_userMapper.getUserName(attrs);
+            // check username
             if (!UserValidationUtils.isValidUserName(userName)) {
                 return RowStatus.FAILURE;
             }
+            Set<String> aliases = m_userMapper.getAliasesSet(attrs);
+            if (aliases != null) {
+                for (String alias : aliases) {
+                    if (m_coreContext.isAliasInUseForOthers(alias, userName)) {
+                        aliases.remove(alias);
+                        status = RowStatus.WARNING_ALIAS_COLLISION;
+                    }
+                }
+            }
+            m_aliases = aliases;
         } catch (NamingException e) {
             return RowStatus.FAILURE;
         }
-        return RowStatus.SUCCESS;
+        return status;
     }
 
     public void setAttrMap(AttrMap attrMap) {
@@ -185,11 +200,10 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
     }
 
     private AttrMap getAttrMap() {
-        if (m_attrMap != null) {
-            return m_attrMap;
-        }
-
-        m_attrMap = m_ldapManager.getAttrMap();
         return m_attrMap;
+    }
+
+    public void setDomain(String domain) {
+        m_domain = domain;
     }
 }

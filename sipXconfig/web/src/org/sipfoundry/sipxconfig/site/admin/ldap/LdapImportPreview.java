@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.ValidatorException;
@@ -51,6 +52,11 @@ public abstract class LdapImportPreview extends SipxBasePage implements PageBegi
 
     public abstract File getFile();
 
+    public abstract void setCurrentConnectionId(int connectionId);
+
+    @Persist
+    public abstract int getCurrentConnectionId();
+
     public void pageBeginRender(PageEvent event) {
         if (getUser() == null) {
             setUser(new User());
@@ -60,7 +66,7 @@ public abstract class LdapImportPreview extends SipxBasePage implements PageBegi
                 .getValidator(getPage());
         try {
             if (getExample() == null) {
-                List<UserPreview> example = getLdapImportManager().getExample();
+                List<UserPreview> example = getLdapImportManager().getExample(getCurrentConnectionId());
                 setExample(example);
                 File file = loadPreviewToFile();
                 setFile(file);
@@ -84,7 +90,7 @@ public abstract class LdapImportPreview extends SipxBasePage implements PageBegi
             // FIXME: it really should be deleted by the time session terminates
             file.deleteOnExit();
             FileWriter writer = new FileWriter(file);
-            getLdapImportManager().dumpExample(writer);
+            getLdapImportManager().dumpExample(writer, getCurrentConnectionId());
             writer.close();
             return file;
         } catch (IOException e) {

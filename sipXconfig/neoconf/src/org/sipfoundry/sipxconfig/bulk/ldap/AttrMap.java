@@ -41,6 +41,8 @@ public class AttrMap extends BeanWithId {
      */
     private String m_searchBase;
 
+    private String m_searchBaseDefault;
+
     /**
      * Additional filter expression
      */
@@ -183,5 +185,13 @@ public class AttrMap extends BeanWithId {
 
     public boolean verified() {
         return StringUtils.isNotEmpty(m_searchBase);
+    }
+
+    public String getSearchBaseDefault() {
+        return m_searchBaseDefault;
+    }
+
+    public void setSearchBaseDefault(String searchBaseDefault) {
+        m_searchBaseDefault = searchBaseDefault;
     }
 }

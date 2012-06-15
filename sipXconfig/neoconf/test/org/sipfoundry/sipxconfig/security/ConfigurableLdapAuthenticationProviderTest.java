@@ -39,13 +39,13 @@ public class ConfigurableLdapAuthenticationProviderTest extends TestCase {
         params.setSecret("b1rdg33k");
         params.setUseTls(false);
         AttrMap attr = new AttrMap();
-        lm.getAttrMap();
+        lm.getAttrMap(1);
         expectLastCall().andReturn(attr);
-        lm.getConnectionParams();
+        lm.getConnectionParams(1);
         expectLastCall().andReturn(params);
 
         replay(lm);
-        p.createProvider();
+        p.createProvider(1);
         verify(lm);
     }
 
@@ -59,13 +59,13 @@ public class ConfigurableLdapAuthenticationProviderTest extends TestCase {
         params.setPrincipal(null);
         params.setUseTls(false);
         AttrMap attr = new AttrMap();
-        lm.getAttrMap();
+        lm.getAttrMap(1);
         expectLastCall().andReturn(attr);
-        lm.getConnectionParams();
+        lm.getConnectionParams(1);
         expectLastCall().andReturn(params);
 
         replay(lm);
-        p.createProvider();
+        p.createProvider(1);
         verify(lm);
     }
 

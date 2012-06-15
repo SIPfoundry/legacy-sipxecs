@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.CronSchedule;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -48,6 +49,8 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     private ApplicationContext m_applicationContext;
     private SipxServiceManager m_sipxServiceManager;
     private ServiceConfigurator m_serviceConfigurator;
+    private DaoEventPublisher m_daoEventPublisher;
+
 
     public void verify(LdapConnectionParams params, AttrMap attrMap) {
         try {
@@ -61,6 +64,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             if (StringUtils.isBlank(attrMap.getSearchBase()) && StringUtils.isNotEmpty(searchBase)) {
                 attrMap.setSearchBase(searchBase);
             }
+            attrMap.setSearchBaseDefault(searchBase);
             String subschemaSubentry = results.get(attrNames[1]);
             attrMap.setSubschemaSubentry(subschemaSubentry);
         } catch (NamingException e) {
@@ -70,18 +74,30 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         }
     }
 
-    public boolean verifyLdapConnection() {
+    public boolean verifyLdapConnection(LdapConnectionParams params) {
         try {
             String[] attrNames = new String[] {
                 NAMING_CONTEXTS, SUBSCHEMA_SUBENTRY
             };
-            retrieveDefaultSearchBase(getConnectionParams(), attrNames);
+            retrieveDefaultSearchBase(params, attrNames);
             return true;
         } catch (NamingException e) {
             return false;
         } catch (DataAccessException e) {
             return false;
         }
+    }
+
+    public boolean verifyAllLdapConnections() {
+        List<LdapConnectionParams> connParams = getAllConnectionParams();
+        for (LdapConnectionParams params : connParams) {
+            if (!verifyLdapConnection(params)) {
+                continue;
+            } else {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void verifyException(String message, Exception e) {
@@ -97,7 +113,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         throw new UserException(message, parsedMessage);
     }
 
-    public Schema getSchema(String subschemaSubentry) {
+    public Schema getSchema(String subschemaSubentry, LdapConnectionParams params) {
         try {
             SearchControls cons = new SearchControls();
             // only interested in the first result
@@ -109,7 +125,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             cons.setReturningAttributes(mapper.getReturningAttributes());
             cons.setSearchScope(SearchControls.OBJECT_SCOPE);
 
-            Schema schema = (Schema) m_templateFactory.getLdapTemplate().search(subschemaSubentry,
+            Schema schema = (Schema) m_templateFactory.getLdapTemplate(params).search(subschemaSubentry,
                                             LdapManager.FILTER_ALL_CLASSES, cons, new SchemaMapper(),
                                             LdapManager.NULL_PROCESSOR).get(0);
 
@@ -199,11 +215,11 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         }
     }
 
-    public CronSchedule getSchedule() {
-        return getConnectionParams().getSchedule();
+    public CronSchedule getSchedule(int connectionId) {
+        return getConnectionParams(connectionId).getSchedule();
     }
 
-    public void setSchedule(CronSchedule schedule) {
+    public void setSchedule(CronSchedule schedule, int connectionId) {
         if (!schedule.isNew()) {
             // XCF-1168 incoming schedule is probably an update to this schedule
             // so add this schedule to cache preempt hibernate error about
@@ -214,47 +230,68 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             getHibernateTemplate().update(schedule);
         }
 
-        LdapConnectionParams connectionParams = getConnectionParams();
+        LdapConnectionParams connectionParams = getConnectionParams(connectionId);
         connectionParams.setSchedule(schedule);
         getHibernateTemplate().update(connectionParams);
-
-        m_applicationContext.publishEvent(new LdapImportTrigger.ScheduleChangedEvent(schedule, this));
+        m_daoEventPublisher.publishSave(connectionParams);
+        m_applicationContext.publishEvent(new LdapImportTrigger.ScheduleChangedEvent(schedule, this, connectionId));
     }
 
-    public AttrMap getAttrMap() {
-        List<AttrMap> connections = getHibernateTemplate().loadAll(AttrMap.class);
+    public AttrMap getAttrMap(int connectionId) {
+        List<AttrMap> connectionsAttrMap = getHibernateTemplate().findByNamedQueryAndNamedParam(
+               "ldapConnectionAttrMap", "attrMapId", connectionId);
+        if (!connectionsAttrMap.isEmpty()) {
+            return connectionsAttrMap.get(0);
+        }
+        return createAttrMap();
+    }
+
+    public LdapConnectionParams getConnectionParams(int connectionId) {
+        List<LdapConnectionParams> connections = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "ldapConnection", "connectionId", connectionId);
         if (!connections.isEmpty()) {
             return connections.get(0);
         }
-        AttrMap attrMap = (AttrMap) m_applicationContext.getBean("attrMap", AttrMap.class);
-        getHibernateTemplate().save(attrMap);
-        return attrMap;
+        return createConnectionParams();
     }
 
-    public LdapConnectionParams getConnectionParams() {
-        List<LdapConnectionParams> connections = getHibernateTemplate().loadAll(LdapConnectionParams.class);
-        if (!connections.isEmpty()) {
-            return connections.get(0);
-        }
-        LdapConnectionParams params = (LdapConnectionParams) m_applicationContext.getBean(
+    public LdapConnectionParams createConnectionParams() {
+        LdapConnectionParams params = m_applicationContext.getBean(
                                         "ldapConnectionParams", LdapConnectionParams.class);
-        getHibernateTemplate().save(params);
         return params;
     }
 
+    public AttrMap createAttrMap() {
+        return m_applicationContext.getBean("attrMap", AttrMap.class);
+    }
+
+    public List<LdapConnectionParams> getAllConnectionParams() {
+        return getHibernateTemplate().loadAll(LdapConnectionParams.class);
+    }
+
+    public void removeConnectionParams(int connectionId) {
+        LdapConnectionParams params = getConnectionParams(connectionId);
+        getHibernateTemplate().delete(params);
+        getHibernateTemplate().delete(getAttrMap(connectionId));
+        m_daoEventPublisher.publishDelete(params);
+        m_applicationContext.publishEvent(new LdapImportTrigger.ScheduleDeletedEvent(this, connectionId));
+    }
+
     public void setAttrMap(AttrMap attrMap) {
-        getHibernateTemplate().saveOrUpdate(attrMap);
+        m_daoEventPublisher.publishSave(attrMap);
+        getHibernateTemplate().merge(attrMap);
     }
 
     public void saveSystemSettings(LdapSystemSettings settings) {
         getHibernateTemplate().saveOrUpdate(settings);
+        m_daoEventPublisher.publishSave(settings);
     }
 
     public LdapSystemSettings getSystemSettings() {
         List settingses = getHibernateTemplate().loadAll(LdapSystemSettings.class);
         LdapSystemSettings settings = (LdapSystemSettings) singleResult(settingses);
         if (settings == null) {
-            settings = (LdapSystemSettings) m_applicationContext.getBean("ldapSystemSettings",
+            settings = m_applicationContext.getBean("ldapSystemSettings",
                                             LdapSystemSettings.class);
         }
         return settings;
@@ -262,6 +299,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
 
     public void setConnectionParams(LdapConnectionParams params) {
         getHibernateTemplate().saveOrUpdate(params);
+        m_daoEventPublisher.publishSave(params);
     }
 
     public void replicateOpenfireConfig() {
@@ -286,4 +324,10 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
         m_serviceConfigurator = serviceConfigurator;
     }
+
+    @Required
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
+    }
+
 }

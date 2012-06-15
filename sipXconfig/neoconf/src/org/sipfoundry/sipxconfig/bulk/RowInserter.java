@@ -26,7 +26,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 public abstract class RowInserter<T> extends HibernateDaoSupport implements Closure {
     public enum RowStatus {
-        FAILURE, SUCCESS, WARNING_PIN_RESET;
+        FAILURE, SUCCESS, WARNING_PIN_RESET, WARNING_ALIAS_COLLISION;
     }
 
     public static final Log LOG = LogFactory.getLog(CsvRowInserter.class);
@@ -130,6 +130,13 @@ public abstract class RowInserter<T> extends HibernateDaoSupport implements Clos
                 String warnMessage = "Unable to import Voicemail PIN: PIN has been reset.";
                 LOG.warn(warnMessage);
                 m_jobContext.warning(m_id, warnMessage);
+                break;
+            case WARNING_ALIAS_COLLISION:
+                insertRow(m_input);
+                warnMessage = "Alias collision - skip alias for: " + dataToString(m_input);
+                LOG.warn(warnMessage);
+                m_jobContext.warning(m_id, warnMessage);
+                afterInsert();
                 break;
             default:
                 throw new IllegalArgumentException("Need to handle all status cases.");

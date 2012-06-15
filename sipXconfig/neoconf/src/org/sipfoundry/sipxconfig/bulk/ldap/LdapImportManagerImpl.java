@@ -46,26 +46,27 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         m_userMapper = userMapper;
     }
 
-    public void insert() {
-        m_rowInserter.setAttrMap(m_ldapManager.getAttrMap());
+    public void insert(int connectionId) {
+        m_rowInserter.setAttrMap(m_ldapManager.getAttrMap(connectionId));
+        m_rowInserter.setDomain(m_ldapManager.getConnectionParams(connectionId).getDomain());
         m_rowInserter.beforeInserting();
         NameClassPairCallbackHandler handler = new NameClassPairMapperClosureAdapter(
                 m_rowInserter);
-        runSearch(handler, 0);
+        runSearch(handler, 0, connectionId);
         m_rowInserter.afterInserting();
     }
 
-    public List<UserPreview> getExample() {
-        return search(m_previewSize);
+    public List<UserPreview> getExample(int connectionId) {
+        return search(m_previewSize, connectionId);
     }
 
-    public void dumpExample(Writer out) {
+    public void dumpExample(Writer out, int connectionId) {
         try {
             CsvWriter writer = new CsvWriter(out);
             String[] allNames = Index.getAllNames();
             writer.write(allNames, false);
 
-            Iterator<UserPreview> result = search(0).iterator();
+            Iterator<UserPreview> result = search(0, connectionId).iterator();
             while (result.hasNext()) {
                 UserPreview preview = result.next();
                 String groupNamesString = StringUtils.join(preview.getGroupNames().iterator(),
@@ -133,24 +134,24 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         m_previewSize = previewSize;
     }
 
-    private List<UserPreview> search(long limit) {
-        LdapTemplate template = m_templateFactory.getLdapTemplate();
-        m_userMapper.setAttrMap(m_ldapManager.getAttrMap());
+    private List<UserPreview> search(long limit, int connectionId) {
+        LdapTemplate template = m_templateFactory.getLdapTemplate(m_ldapManager.getConnectionParams(connectionId));
+        m_userMapper.setAttrMap(m_ldapManager.getAttrMap(connectionId));
         CollectingNameClassPairCallbackHandler handler = new NameClassPairMapperCollector(
                 template, m_userMapper);
-        runSearch(handler, limit);
+        runSearch(handler, limit, connectionId);
         List<UserPreview> result = handler.getList();
         return result;
     }
 
-    private void runSearch(NameClassPairCallbackHandler handler, long limit) {
+    private void runSearch(NameClassPairCallbackHandler handler, long limit, int connectionId) {
         SearchControls sc = new SearchControls();
         sc.setCountLimit(limit);
         sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-        AttrMap attrMap = m_ldapManager.getAttrMap();
+        AttrMap attrMap = m_ldapManager.getAttrMap(connectionId);
         if (!attrMap.verified()) {
-            m_ldapManager.verify(m_ldapManager.getConnectionParams(), attrMap);
+            m_ldapManager.verify(m_ldapManager.getConnectionParams(connectionId), attrMap);
         }
 
         sc.setReturningAttributes(attrMap.getLdapAttributesArray());
@@ -158,7 +159,7 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         String base = attrMap.getSearchBase();
         String filter = attrMap.getSearchFilter();
 
-        LdapTemplate template = m_templateFactory.getLdapTemplate();
+        LdapTemplate template = m_templateFactory.getLdapTemplate(m_ldapManager.getConnectionParams(connectionId));
         try {
             template.search(base, filter, sc, handler, LdapManager.NULL_PROCESSOR);
         } catch (SearchLimitExceededException normal) {
