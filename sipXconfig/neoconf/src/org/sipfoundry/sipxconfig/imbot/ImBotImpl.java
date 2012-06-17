@@ -119,6 +119,7 @@ public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, Proce
         if (settings.isNew()) {
             settings.setPaPassword(randomAlphanumeric(PASS_LENGTH));
             saveSettings(settings);
+            m_replicationManager.replicateEntity(getSettings());
         }
     }
 
@@ -133,7 +134,6 @@ public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, Proce
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
         if (request.getAllNewlyEnabledFeatures().contains(ImBot.FEATURE)) {
             initializeSettings();
-            m_replicationManager.replicateEntity(getSettings());
         }
     }
 
