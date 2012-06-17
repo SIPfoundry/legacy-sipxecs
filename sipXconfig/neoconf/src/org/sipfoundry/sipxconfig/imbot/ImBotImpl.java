@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
@@ -54,6 +55,7 @@ public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, Proce
     private static final int PASS_LENGTH = 8;
     private BeanWithSettingsDao<ImBotSettings> m_settingsDao;
     private FeatureManager m_featureManager;
+    private ReplicationManager m_replicationManager;
 
     public ImBotSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
@@ -131,6 +133,7 @@ public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, Proce
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
         if (request.getAllNewlyEnabledFeatures().contains(ImBot.FEATURE)) {
             initializeSettings();
+            m_replicationManager.replicateEntity(getSettings());
         }
     }
 
@@ -147,5 +150,10 @@ public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, Proce
     @Required
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
+    }
+
+    @Required
+    public void setReplicationManager(ReplicationManager replicationManager) {
+        m_replicationManager = replicationManager;
     }
 }
