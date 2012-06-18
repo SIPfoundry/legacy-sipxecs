@@ -739,6 +739,9 @@ public class Retrieve {
             for (User destUser : choice.getUsers()) {
                 if (destUser.hasVoicemail()) {
                     Mailbox destMailbox = new Mailbox(destUser);
+                    if(destUser.getLocale() == null) {
+                        destUser.setLocale(m_loc.getLocale());
+                    }
                     vmMessage.forward(destMailbox, comments);
                     dontDeleteTempFile(commentsFile);
                 }
