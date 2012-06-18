@@ -17,8 +17,12 @@ AC_ARG_ENABLE(centos-iso, [--enable-centos-iso Build sipXecs or custom CD],
     AC_MSG_ERROR(Directory $ISO_DIR is missing)
   fi
 
-  if [ test -z "$CENTOS_BASE_URL" ]; then
-    AC_MSG_ERROR([You must set a value for CENTOS_BASE_URL. Example: CENTOS_BASE_URL=http://centos.aol.com])
+  AC_ARG_VAR(CENTOS_RSYNC_URL, [rsync URL to centos and epel repositories. Example: CENTOS_RSYNC_URL=rsync://mirrors.rit.edu])
+  if [ test -z "$CENTOS_RSYNC_URL" ]; then
+    if [ test -z "$MIRROR_SITE" ]; then
+      AC_MSG_ERROR([You must set a value for CENTOS_RSYNC_URL. Example: CENTOS_RSYNC_URL=rsync://mirrors.rit.edu])
+    fi
+    CENTOS_RSYNC_URL=`echo $MIRROR_SITE | sed 's/^.*:/rsync:/g'`
   fi
   
   if [ ! test -d $RPM_DIST_DIR ]; then

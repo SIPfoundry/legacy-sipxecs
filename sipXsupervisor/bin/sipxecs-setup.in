@@ -154,9 +154,10 @@ def set_domain
   host = prompt_default("Enter system \e[0;31mhost name without the domain\e[m name", current_host)
   domain = prompt_default("Enter \e[0;31mdomain\e[m name", current_domain)
   puts <<EOF
-\e[0;31mTip:\e[m Use '\e[0;31m#{host}.#{domain}\e[m' as your SIP domain if you are setting up for the first
-time or if you know you are only going to setup one server. This can make configuration
-easier.  You can always change the value later.
+\e[0;31mTip:\e[m Use '\e[0;31m#{host}.#{domain}\e[m' as your SIP domain if you are 
+setting up for the first time or if you know you are only going to setup one
+server. This can make configuration easier.  You can always change the value
+later.
 EOF
   sip_domain = prompt_default("Enter \e[0;31mSIP domain\e[m name", domain)
   realm = prompt_default("Enter \e[0;31mSIP realm\e[m", sip_domain)

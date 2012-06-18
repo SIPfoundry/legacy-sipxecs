@@ -11,8 +11,10 @@ VOLUME_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
 APPLICATION_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
 PUBLISHER_ID ?= sipx-dev@list.sipfoundry.org
 PREPARERER_ID ?= sipx-dev@list.sipfoundry.org
-ISO_RPM_DOWNLOAD_URL ?= @CENTOS_BASE_URL@/5
+ISO_RPM_DOWNLOAD_URL ?= @CENTOS_BASE_URL@/6
 ISO_M4_OPTS = $(CUSTOM_ISO_M4_OPTS) -D PACKAGE_VERSION=$(PACKAGE_VERSION)
+ISO_PACKAGES_OS=$(ARCH)-os-Packages
+ISO_PACKAGES_EPEL=$(ARCH)-epel-Packages
 
 %-32 : BITS = 32
 %-32 : ARCH = i386
@@ -42,65 +44,44 @@ iso-clean-all: iso-clean-32 iso-clean-download-32 iso-clean-64 iso-clean-downloa
 
 $(foreach B,32 64,$(eval help.iso-$(B) = Build sipXecs $(B)-bit only ISO from base CentOS ISO found in @ISO_DIR@))
 iso-% : iso-disc-% \
-	iso-rm-rpms-% \
-	iso-cp-download-rpms-% \
-	iso-cp-sipx-rpms-% \
+	iso-packages-% \
 	iso-update-repo-% \
 	iso-update-files-% \
 	iso-assemble-% \
 	iso-md5-%;
 
 iso-clean-download-% :
-	! test -d iso-download-$* || rm -rf iso-download-$*
+	! test -d $(ISO_PACKAGES_OS) || rm -rf $(ISO_PACKAGES_OS)
+	! test -d $(ISO_PACKAGES_EPEL) || rm -rf $(ISO_PACKAGES_EPEL)
 
 # force a rebuild of entire cd
 iso-clean-% :
 	! test -d $(ISO_DISC) || rm -rf $(ISO_DISC)
-
-# remove all rpms off disc that are not needed for operation
-iso-rm-rpms-% :
-	-rm $(foreach P,$(ISO_REMOVE_LIST),$(ISO_DISC)/CentOS/$(P)) 2>/dev/null || true
+	! test -f iso-download-os-$* || rm iso-download-os-$*
+	! test -f iso-download-epel-$* || rm iso-download-epel-$*
 
 # need to make a copy of entire disc so we can modify
 iso-disc-% :
 	test -d cd || mkdir cd
 	! test -d cd.tmp || rm -rf cd.tmp
-	sudo mount -o loop $(wildcard @ISO_DIR@/CentOS-*-$(ARCH)-bin-1of*.iso) cd
+	sudo mount -o loop $(wildcard @ISO_DIR@/CentOS-6.*-$(ARCH)-minimal.iso) cd
 	@echo "copying contents of disc..."
 	cp -ar cd cd.tmp
 	sudo umount cd
 	mv cd.tmp $@
 
-# add in downloaded rpms
-iso-cp-download-rpms-% : iso-download-%
-	cp iso-download-$*/*.rpm $(ISO_DISC)/CentOS
-
-# add sipx and custom dependencies needed for sipx operation, not sipx devel
-# don't put in language packs as they tend to be very large
-iso-cp-sipx-rpms-% : iso-disc-%
-	find $(realpath @RPM_DIST_DIR@)/CentOS_5/$(ARCH) \
-	\( -name '*.rpm' \) \
-	-and -not \( \
-	  -name '*debug*' \
-	  -o -name '*devel*' \
-	  -o -name '*xerces-c-doc*' \
-	  -o -name '*cppunit*' \
-	  -o -name '*nsis*' \
-	  -o -name '*rrdtool-doc*' \
-	  -o -name '*rubygem-rake*' \
-	  -o -name '*scons*' \
-	  -o -name '*sipxlang*' \
-        \) \
-	-exec cp {}  $(ISO_DISC)/CentOS \;
+# copy sipxecs yum group defs into iso yum group defs
+comps-iso.xml : $(SRC)/mak/comps.xml $(SRC)/mak/centos-iso/comps.xsl
+	xsltproc $(SRC)/mak/centos-iso/comps.xsl $(SRC)/mak/comps.xml > $@
 
 # rebuild yum repo after all rpms have been added and removed
-iso-update-repo-% : iso-disc-%
+iso-update-repo-% : iso-disc-% iso-check-% comps-iso.xml
 	MEDIA_ID=$(shell head -1 $(ISO_DISC)/.discinfo); \
 	  cd $(ISO_DISC); \
 	  @CREATEREPO@ \
 	    @BACKWARD_COMPATIBLE_CREATEREPO_OPTS_FOR_CENTOS@ \
 	    --baseurl="media://$$MEDIA_ID" \
-	    -g ./repodata/comps.xml .
+	    -g $(abspath comps-iso.xml) .
 
 # add modifications to disc to make it operate
 iso-update-files-% :
@@ -127,243 +108,459 @@ iso-assemble-% :
 iso-md5-% :
 	md5sum @DIST_DIR@/$(ISO) > @DIST_DIR@/$(ISO:%.iso=%.md5)
 
+iso-check-% :
+	! test -d $@.test || rm -rf $@.test
+	mkdir $@.test
+	rpm --initdb --dbpath $(abspath $@.test)
+	rpm --test --dbpath $(abspath $@.test) -Uvh $(ISO_DISC)/Packages/*.{noarch,$(ARCH)}.rpm
+
 # Down rpms that are not on disc 1
-iso-download-% :
-	! test -d $@.tmp || rm -rf $@.tmp
-	mkdir $@.tmp
-	## have to do devel and debug packages on CD in separate wget call
-	## because glob pattern cannot remove both removbe and include devel packages
-	cd $@.tmp; \
-	  for site in extras/$(ARCH)/RPMS/ os/$(ARCH)/CentOS; do \
-	    @WGET_PROXY_OPTS@ wget -r -nc -nv -nH -nd -l1 --no-parent \
-	      -A "$(foreach P,$(ISO_ADD_LIST),$(P),) bogus" \
-	      -R "*-devel-*, *-debug-*" \
-	      $(ISO_RPM_DOWNLOAD_URL)/$$site; \
-	    @WGET_PROXY_OPTS@ wget -r -nc -nv -nH -nd -l1 --no-parent \
-	      -A "$(foreach P,$(filter %-devel* %-debug*,$(ISO_ADD_LIST)),$(P),) bogus" \
-	      $(ISO_RPM_DOWNLOAD_URL)/$$site; \
-	  done
-	mv $@.tmp $@
+.SECONDARY: iso-download-os-32 iso-download-os-64 iso-download-epel-32 iso-download-epel-64
+iso-download-os-% : Makefile
+	test -f $@ || rsync -av --delete \
+	  $(addprefix @CENTOS_RSYNC_URL@/centos/6/os/$(ARCH)/Packages/, $(ISO_ADD_OS)) \
+	  $(ISO_PACKAGES_OS)/
+	touch $@
 
-# Remove these pacakges to make room for sipx rpms. The list grows as sipx does
-# each addition has to be tested to ensure it's not critical to system operation
-ISO_REMOVE_LIST = \
-  GConf2-* \
-  NetworkManager-* \
-  ORBit2-* \
-  PyQt-* \
-  PyXML-* \
-  SDL-* \
-  aspell-* \
-  atk-* \
-  audiofile-* \
-  avahi-* \
-  bluez-* \
-  brlapi-* \
-  cadaver-* \
-  cdda2wav-* \
-  cdparanoia-* \
-  cdrdao-* \
-  cdrecord-* \
-  centos-release-notes* \
-  comps-extras-* \
-  coolkey-* \
-  cpp-* \
-  cyrus-sasl-md5-* \
-  dbus-x11-* \
-  dcraw-* \
-  desktop-backgrounds-basic-* \
-  desktop-file-utils-* \
-  dmraid-events-* \
-  dnsmasq-* \
-  dvd+rw-tools-* \
-  ecryptfs-utils-* \
-  elinks-* \
-  enscript-* \
-  esound-* \
-  festival-* \
-  fetchmail-* \
-  flac-* \
-  glx-utils-* \
-  gnome-* \
-  gnupg-* \
-  gphoto2-* \
-  gstreamer-* \
-  gtk2-* \
-  hicolor-icon-theme-* \
-  hmaccalc-* \
-  hpijs-* \
-  htmlview-* \
-  hwdata-* \
-  ibmasm-* \
-  ifd-egate-* \
-  iscsi-initiator-utils-* \
-  iso-codes-* \
-  jwhois-* \
-  kernel-PAE-* \
-  kernel-debug-* \
-  kernel-devel-* \
-  kernel-doc-* \
-  kernel-headers-* \
-  kernel-xen-* \
-  lftp-* \
-  libIDL-* \
-  libXScrnSaver-* \
-  libXTrap-* \
-  libXaw-* \
-  libXcursor-* \
-  libXdamage-* \
-  libXevie-* \
-  libXfixes-* \
-  libXfontcache-* \
-  libXinerama-* \
-  libXmu-* \
-  libXrandr-* \
-  libXres-* \
-  libXtst-* \
-  libXv-* \
-  libXxf86dga-* \
-  libXxf86misc-* \
-  libao-* \
-  libavc1394-* \
-  libbonobo-* \
-  libcroco-* \
-  libdaemon-* \
-  libdmx-* \
-  libdv-* \
-  libexif-* \
-  libgtop2-* \
-  libiec61883-* \
-  libieee1284-* \
-  libmng-* \
-  libmusicbrainz-* \
-  libnotify-* \
-  liboil-* \
-  libraw1394-* \
-  libsilc-* \
-  libsoup-* \
-  libwnck-* \
-  libxkbfile-* \
-  libxklavier-* \
-  lockdev-* \
-  meanwhile-* \
-  mesa-libGLU-* \
-  mkisofs-* \
-  mlocate-* \
-  module-init-tools-* \
-  mutt-* \
-  neon-* \
-  netpbm-* \
-  notification-daemon-* \
-  nscd-* \
-  nss-tools-* \
-  nss_ldap-* \
-  opal-* \
-  pam_pkcs11-* \
-  pcsc-lite-libs-* \
-  perl-String-CRC32-* \
-  pilot-link-* \
-  pinfo-* \
-  psutils-* \
-  pwlib-* \
-  pycairo-* \
-  pyorbit-* \
-  python-ldap-* \
-  python-numeric-* \
-  pyxf86config-* \
-  qt-* \
-  quota-* \
-  redhat-menus-6* \
-  rsh-* \
-  samba-common-* \
-  pkinit-nss-* \
-  sgpio-* \
-  shadow-utils-* \
-  shared-mime-info-* \
-  sip-* \
-  slrn-* \
-  smartmontools-* \
-  sox-* \
-  specspo-* \
-  speex-* \
-  startup-notification-* \
-  tk-* \
-  trousers-* \
-  udftools-* \
-  vim-enhanced-* \
-  vim-common-* \
-  vorbis-tools-* \
-  words-* \
-  wpa_supplicant-* \
-  xkeyboard-config-* \
-  xorg-x11-server-utils-* \
-  xorg-x11-twm-* \
-  xorg-x11-utils-* \
-  xorg-x11-xauth-* \
-  xorg-x11-xinit-* \
-  xorg-x11-xkb-utils-* \
-  scons-* \
-  nsis-* \
-  lcms-* \
-  ksh-* \
-  cups-* \
-  stunnel-* \
-  rsyslog-*
+iso-download-epel-% :
+	test -f $@ || rsync -av --delete \
+	  $(addprefix @CENTOS_RSYNC_URL@/epel/6/$(ARCH)/, $(ISO_ADD_EPEL)) \
+	  $(ISO_PACKAGES_EPEL)/
+	touch $@
 
-# rpms that are not on disc 1 of 32 or 64 bit cds
-#
+iso-packages-% : iso-download-os-% iso-download-epel-%
+	rsync -av $(ARCH)-os-Packages/  $(ISO_DISC)/Packages/
+	rsync -av $(ARCH)-epel-Packages/  $(ISO_DISC)/Packages/
+	rsync -av $(realpath @RPM_DIST_DIR@)/CentOS_6/$(ARCH)/ $(ISO_DISC)/Packages/
+	find $(ISO_DISC)/Packages -not -name 'java-1.6.0-openjdk-devel-*.rpm' | grep $(foreach REGEX,$(ISO_RM_LIST),-e '.*/$(REGEX)') | xargs rm
+
+ISO_RM_LIST = \
+  freeswitch-[^1].* \
+  net-snmp-gui-.* \
+  .*-static-.* \
+  .*-doc-.* \
+  .*-debuginfo-.* \
+  .*-devel-.* \
+  sipxlang.*
+
+ISO_ADD_SIPX = \
+  sipx-* \
+  netsnmp-5* \
+  net-snmp-libs-* \
+  net-snmp-agent-* \
+  net-snmp-sysvinit-* \
+  net-snmp-utils-* \
+  freeswitch-1.* \
+  mongodb-* \
+  js-* \
+  cfengine-* \
+  epel-release-* \
+  openacd-* \
+  ruby-* \
+  sec-*
+
 # Note, this list controls 32 and 64 bit lists so if 32 bit does not need
 # to download but 64 bit does, it will be in this list and 32 bit download will simply
 # be redundant.
-ISO_ADD_LIST = \
-  alsa-utils-* \
-  apr-util-* \
-  beecrypt-4* \
+ISO_ADD_EPEL = \
+  erlang-R14B-* \
+  erlang-appmon-* \
+  erlang-asn1-* \
+  erlang-common_test-* \
+  erlang-compiler-* \
+  erlang-cosEventDomain-* \
+  erlang-cosEvent-* \
+  erlang-cosFileTransfer-* \
+  erlang-cosNotification-* \
+  erlang-cosProperty-* \
+  erlang-cosTime-* \
+  erlang-cosTransactions-* \
+  erlang-crypto-* \
+  erlang-debugger-* \
+  erlang-dialyzer-* \
+  erlang-diameter-* \
+  erlang-docbuilder-* \
+  erlang-edoc-* \
+  erlang-erl_docgen-* \
+  erlang-erl_interface-* \
+  erlang-erts-* \
+  erlang-et-* \
+  erlang-eunit-* \
+  erlang-examples-* \
+  erlang-gs-* \
+  erlang-hipe-* \
+  erlang-ic-* \
+  erlang-inets-* \
+  erlang-inviso-* \
+  erlang-jinterface-* \
+  erlang-kernel-* \
+  erlang-megaco-* \
+  erlang-mnesia-* \
+  erlang-observer-* \
+  erlang-odbc-* \
+  erlang-orber-* \
+  erlang-os_mon-* \
+  erlang-otp_mibs-* \
+  erlang-parsetools-* \
+  erlang-percept-* \
+  erlang-pman-* \
+  erlang-public_key-* \
+  erlang-reltool-* \
+  erlang-runtime_tools-* \
+  erlang-sasl-* \
+  erlang-snmp-* \
+  erlang-ssh-* \
+  erlang-ssl-* \
+  erlang-stdlib-* \
+  erlang-syntax_tools-* \
+  erlang-test_server-* \
+  erlang-toolbar-* \
+  erlang-tools-* \
+  erlang-tv-* \
+  erlang-typer-* \
+  erlang-webtool-* \
+  erlang-wx-* \
+  erlang-xmerl-* \
+  rubygem-daemons-* \
+  wxBase-* \
+  wxGTK-2.* \
+  wxGTK-gl-* \
+  zeromq-*
+
+ISO_ADD_OS = \
+  acl-* \
+  aic94xx-firmware-* \
+  alsa-lib-* \
+  apr-1.* \
+  apr-util-1.* \
+  apr-util-ldap-* \
+  atk-* \
+  atmel-firmware-* \
+  attr-* \
+  audit-2.* \
+  audit-libs-2.* \
+  authconfig-6.* \
+  avahi-libs-* \
+  b43-openfwwf-* \
+  basesystem-* \
+  bash-4.* \
+  bfa-firmware-* \
+  bind-9.* \
+  bind-libs-* \
+  bind-utils-* \
   binutils-* \
-  bind-9* \
-  caching-nameserver-* \
-  chkfontpath-* \
+  boost-1.* \
+  boost-date-time-* \
+  boost-filesystem-* \
+  boost-graph-1.* \
+  boost-iostreams-* \
+  boost-program-options-* \
+  boost-python-* \
+  boost-regex-* \
+  boost-serialization-* \
+  boost-signals-* \
+  boost-system-* \
+  boost-test-* \
+  boost-thread-* \
+  boost-wave-* \
+  bzip2-libs-* \
+  ca-certificates-* \
+  cairo-1.* \
+  centos-release-* \
+  checkpolicy-* \
+  chkconfig-* \
+  ConsoleKit-0.* \
+  ConsoleKit-libs-0.* \
+  coreutils-* \
+  coreutils-libs-* \
+  compat-readline5-* \
+  cpio-* \
+  cracklib-2.* \
+  cracklib-dicts-* \
+  cronie-1.* \
+  cronie-anacron-* \
+  crontabs-* \
+  cups-libs-* \
+  curl-* \
+  cyrus-sasl-2.* \
+  cyrus-sasl-lib-* \
+  dash-* \
+  db4-utils-* \
+  dbus-1.* \
+  dbus-glib-* \
+  dbus-libs-* \
+  dejavu-fonts-common-* \
+  dejavu-serif-fonts-* \
+  device-mapper-1.* \
+  device-mapper-event-* \
+  device-mapper-event-libs-* \
+  device-mapper-libs-* \
+  dhclient-* \
   dhcp-* \
-  distcache-* \
-  fontconfig* \
-  freetype* \
-  gdb-* \
-  httpd-2* \
+  dhcp-common-* \
+  diffutils-* \
+  e2fsprogs-* \
+  e2fsprogs-libs-* \
+  efibootmgr-* \
+  eggdbus-* \
+  elfutils-libelf-* \
+  ethtool-* \
+  expat-* \
+  file-libs-* \
+  filesystem-* \
+  findutils-* \
+  fipscheck-* \
+  fipscheck-lib-* \
+  flac-* \
+  fontconfig-* \
+  fontpackages-filesystem-* \
+  freetype-2.* \
+  gamin-0.* \
+  gawk-* \
+  gdb-7.* \
+  gdbm-* \
+  giflib-* \
+  glibc-2.* \
+  glibc-common-* \
+  gmp-* \
+  gnutls-2.* \
+  gpgme-* \
+  grep-* \
+  groff-1.* \
+  grub-* \
+  grubby-* \
+  gtk2-2.* \
+  gzip-* \
+  hesiod-* \
+  hicolor-icon-theme-* \
+  httpd-2.* \
+  httpd-tools-* \
   hwdata-* \
+  info-4.13a-* \
+  initscripts-* \
+  iproute-* \
+  iptables-* \
+  iputils-* \
+  ipw2100-firmware-* \
+  ipw2200-firmware-* \
+  ivtv-firmware-* \
+  iwl1000-firmware-* \
+  iwl100-firmware-* \
+  iwl3945-firmware-* \
+  iwl4965-firmware-* \
+  iwl5000-firmware-* \
+  iwl5150-firmware-* \
+  iwl6000-firmware-* \
+  iwl6000g2a-firmware-* \
+  iwl6000g2b-firmware-* \
+  iwl6050-firmware-* \
+  jasper-libs-* \
+  java-1.6.0-openjdk-1.* \
+  java-1.6.0-openjdk-devel-* \
+  jline-* \
   jpackage-utils-* \
-  lm_sensors-* \
-  mlocate-* \
+  kbd-1.* \
+  kbd-misc-* \
+  kernel-2.* \
+  kernel-firmware-* \
+  keyutils-libs-* \
+  krb5-libs-* \
+  less-* \
+  libacl-* \
+  libasyncns-* \
+  libattr-* \
+  libblkid-* \
+  libcap-2.* \
+  libcap-ng-0.* \
+  libcom_err-* \
+  libcurl-* \
+  libdrm-* \
+  libedit-* \
+  libertas-usb8388-firmware-* \
+  libffi-* \
+  libgcc-* \
+  libgcrypt-* \
+  libgpg-error-* \
+  libICE-* \
+  libicu-* \
+  libidn-* \
+  libjpeg-6b-* \
+  libnih-* \
+  libogg-* \
+  libpng-* \
+  libselinux-2.* \
+  libselinux-utils-* \
+  libsemanage-2.* \
+  libsepol-2.* \
+  libSM-* \
+  libsndfile-* \
+  libss-* \
+  libstdc++-* \
+  libtasn1-2.* \
+  libthai-* \
+  libtheora-* \
+  libtiff-3.* \
+  libtool-ltdl-* \
+  libudev-* \
+  libusb-0.* \
+  libuser-0.* \
+  libutempter-* \
+  libuuid-* \
+  libvorbis-* \
+  libX11-1.* \
+  libX11-common-* \
+  libXau-* \
+  libxcb-1.* \
+  libXcomposite-* \
+  libXcursor-* \
+  libXdamage-* \
+  libXext-* \
+  libXfixes-* \
+  libXft-* \
+  libXi-* \
+  libXinerama-* \
+  libXrandr-* \
+  libXrender-* \
+  libXtst-* \
+  libXxf86vm-* \
+  lm_sensors-libs-* \
+  logrotate-* \
+  lua-5.* \
+  lvm2-libs-* \
+  mailcap-* \
+  MAKEDEV-* \
+  matahari-0.* \
+  matahari-agent-lib-* \
+  matahari-broker-* \
+  matahari-host-* \
+  matahari-lib-* \
+  matahari-network-* \
+  matahari-service-* \
+  matahari-sysconfig-* \
+  mesa-dri-drivers-7.* \
+  mesa-libGL-* \
+  mesa-libGLU-* \
+  mingetty-* \
   mod_ssl-* \
   module-init-tools-* \
-  mrtg-* \
-  net-snmp-5* \
-  net-snmp-libs* \
-  net-snmp-utils* \
-  ntp-* \
-  perl-IO-Socket-INET6-* \
-  perl-Socket6-* \
-  postgresql-8* \
-  postgresql-odbc-* \
+  mysql-libs-* \
+  ncurses-5.* \
+  ncurses-base-* \
+  ncurses-libs-* \
+  net-tools-* \
+  newt-0.* \
+  newt-python-* \
+  nspr-* \
+  nss-3.* \
+  nss-softokn-* \
+  nss-softokn-freebl-* \
+  nss-sysinit-* \
+  nss-util-* \
+  ntp-4.* \
+  ntpdate-* \
+  openldap-2.* \
+  openssh-5.* \
+  openssh-server-* \
+  openssl-1.* \
+  pam-* \
+  pango-* \
+  passwd-* \
+  patch-* \
+  pciutils-libs-* \
+  pcre-7.* \
+  perl-5.* \
+  perl-libs-5.* \
+  perl-Module-Pluggable-* \
+  perl-Pod-Escapes-* \
+  perl-Pod-Simple-* \
+  perl-version-* \
+  pinentry-0.* \
+  pixman-0.* \
+  plymouth-0.* \
+  plymouth-core-libs-* \
+  plymouth-scripts-* \
+  policycoreutils-2.* \
+  polkit-0.* \
+  popt-1.* \
+  postfix-2.* \
+  postgresql-8.* \
   postgresql-libs-* \
+  postgresql-odbc-* \
   postgresql-server-* \
-  quota-* \
-  rcs-* \
-  rsh-0* \
-  ruby-1.8.5-* \
+  procmail-* \
+  procps-* \
+  psmisc-* \
+  pth-* \
+  pulseaudio-libs-0.* \
+  pygpgme-* \
+  python-2.6* \
+  python-iniparse-* \
+  python-libs-* \
+  python-pycurl-* \
+  python-urlgrabber-* \
+  ql2100-firmware-* \
+  ql2200-firmware-* \
+  ql23xx-firmware-* \
+  ql2400-firmware-* \
+  ql2500-firmware-* \
+  qpid-cpp-client-0.* \
+  qpid-cpp-client-ssl-* \
+  qpid-cpp-server-0.* \
+  qpid-cpp-server-ssl-0.* \
+  qpid-qmf-* \
+  readline-6.* \
+  redhat-logos-* \
+  rhino-1.* \
+  rootfiles-* \
+  rpm-4.* \
+  rpm-libs-* \
+  rpm-python-* \
+  rsyslog-4.* \
+  rt61pci-firmware-* \
+  rt73usb-firmware-* \
+  ruby-1.8.7* \
   ruby-irb-* \
   ruby-libs-* \
   ruby-rdoc-* \
+  rubygems-* \
+  SDL-* \
+  sed-* \
+  selinux-policy-3.* \
+  selinux-policy-targeted-* \
+  sendmail-8.* \
+  sendmail-cf-* \
+  setup-* \
   shadow-utils-* \
+  sigar-* \
+  slang-2.* \
+  sqlite-3.* \
   strace-* \
-  sysstat-* \
+  stunnel-* \
+  sudo-* \
+  system-config-firewall-base-* \
+  sysvinit-tools-* \
+  tar-* \
+  tcl-8.* \
+  tcp_wrappers-libs-* \
   tftp-server-* \
-  unixODBC-2* \
+  tk-* \
+  tokyocabinet-* \
+  tzdata-2011l-* \
+  tzdata-java-2011l-* \
+  udev-* \
+  unixODBC-2.* \
+  upstart-* \
+  ustr-1.* \
+  util-linux-ng-* \
+  vim-minimal-* \
   vsftpd-* \
-  w3c-libwww-* \
+  which-* \
+  xerces-c-3.* \
   xinetd-* \
-  xorg-x11-xfs-1* \
-  yum-basearchonly-* \
-  yum-downloadonly-* \
-  java-1.6.0-openjdk-1.6* \
-  java-1.6.0-openjdk-devel* \
-  alsa-lib*
+  xorg-x11-drv-ati-firmware-* \
+  xz-libs-* \
+  yum-plugin-downloadonly-* \
+  yum-metadata-parser-* \
+  yum-plugin-fastestmirror-* \
+  zd1211-firmware-* \
+  zlib-1.*
