@@ -437,6 +437,18 @@
       </type>
       <value>0</value>
     </setting>
+    <setting name="call">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="callFromAnyNumber">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
   </group>
   <group name="callfwd">
     <setting name="timer">

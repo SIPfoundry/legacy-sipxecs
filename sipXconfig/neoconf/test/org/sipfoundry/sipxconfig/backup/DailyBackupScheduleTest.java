@@ -57,7 +57,7 @@ public class DailyBackupScheduleTest extends TestCase {
     }
 
     public void testCronString() {
-        assertEquals("0 0 ? * *", schedule.toCronString());
+        assertEquals("0 0 * * *", schedule.toCronString());
     }
 
     

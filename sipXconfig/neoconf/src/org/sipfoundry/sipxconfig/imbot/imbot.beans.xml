@@ -18,6 +18,7 @@
       </bean>
     </property>
     <property name="featureManager" ref="featureManager" />
+    <property name="replicationManager" ref="replicationManagerImpl" />
   </bean>
 
   <bean id="imBotSettings" class="org.sipfoundry.sipxconfig.imbot.ImBotSettings" parent="settingsBean">

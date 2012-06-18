@@ -41,6 +41,7 @@ import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class UserConferenceResourceTest extends TestCase {
     private Conference m_conference;
@@ -69,11 +70,14 @@ public class UserConferenceResourceTest extends TestCase {
         m_bridge.setLocation(location);
 
         m_conference = new Conference();
+        m_conference.setModelFilesContext(TestHelper.getModelFilesContext());
+        m_conference.getSettings();
         m_conference.setEnabled(true);
         m_conference.setName("myConf");
         m_conference.setDescription("description");
         m_conference.setExtension("22123");
         m_conference.setBridge(m_bridge);
+        m_conference.setSettingValue(Conference.PARTICIPANT_CODE, "555");
         m_conference.setOwner(m_user);
         List<Conference> conferences = new ArrayList<Conference>();
         conferences.add(m_conference);

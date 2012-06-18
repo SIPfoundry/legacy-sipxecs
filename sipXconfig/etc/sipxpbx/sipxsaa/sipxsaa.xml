@@ -33,7 +33,7 @@
   <type id="nonRootPort">
     <integer min="1025" max="65535"/>
   </type>
-  <group name="saa-config" hidden="yes">
+  <group name="saa-config">
     <setting name="SIP_SAA_UDP_PORT">
       <type refid="nonRootPort"/>
       <value>5170</value>

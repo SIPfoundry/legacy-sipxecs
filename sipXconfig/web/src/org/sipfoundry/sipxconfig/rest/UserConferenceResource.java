@@ -73,12 +73,15 @@ public class UserConferenceResource extends UserResource {
         private String m_description;
         @SuppressWarnings("unused")
         private String m_extension;
+        @SuppressWarnings("unused")
+        private String m_accessCode;
 
         public Representable(Conference conference) {
             m_enabled = conference.isEnabled();
             m_name = conference.getName();
             m_description = conference.getDescription();
             m_extension = conference.getExtension();
+            m_accessCode = conference.getParticipantAccessCode();
         }
     }
 
@@ -106,6 +109,7 @@ public class UserConferenceResource extends UserResource {
             xstream.aliasField(NAME, Representable.class, NAME);
             xstream.aliasField(DESCRIPTION, Representable.class, DESCRIPTION);
             xstream.aliasField(EXTENSION, Representable.class, EXTENSION);
+            xstream.aliasField("accessCode", Representable.class, "participantAccessCode");
             xstream.omitField(Representable.class, ID);
         }
     }

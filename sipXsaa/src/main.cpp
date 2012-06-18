@@ -25,6 +25,7 @@
 #include "xmlparser/tinystr.h"
 #include "AppearanceAgent.h"
 #include "main.h"
+#include <sipXecsService/daemon.h>
 
 // DEFINES
 #include "config.h"
@@ -275,23 +276,17 @@ int main(int argc, char* argv[])
    // Configuration Database (used for OsSysLog)
    OsConfigDb configDb;
 
-   UtlString argString;
-   for (int argIndex = 1; argIndex < argc; argIndex++)
-   {
-      osPrintf("arg[%d]: %s\n", argIndex, argv[argIndex]);
-      argString = argv[argIndex];
-      NameValueTokenizer::frontBackTrim(&argString, "\t ");
-      if (argString.compareTo("-v") == 0)
-      {
-         osPrintf("Version: %s (%s)\n", VERSION, PACKAGE_REVISION);
-         return 1;
-      }
-      else
-      {
-         osPrintf("usage: %s [-v]\nwhere:\n -v provides the software version\n",
-                  argv[0]);
-         return 1;
-      }
+   char* pidFile = NULL;
+   for(int i = 1; i < argc; i++) {
+       if(strncmp("-v", argv[i], 2) == 0) {
+         std::cout << "Version: " << PACKAGE_VERSION << PACKAGE_REVISION << std::endl;
+         exit(0);
+       } else {
+         pidFile = argv[i];
+       }
+   }
+   if (pidFile) {
+     daemonize(pidFile);
    }
 
    // Load configuration file.

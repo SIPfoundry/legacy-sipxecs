@@ -4,5 +4,6 @@
     <name>myConf</name>
     <description>description</description>
     <extension>22123</extension>
+    <accessCode>555</accessCode>
   </conference>
 </conferences>

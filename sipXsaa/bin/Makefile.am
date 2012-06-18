@@ -1,13 +1,17 @@
 include $(top_srcdir)/config/utility.am
 
-bin_SCRIPTS = \
-    sipxsaa.sh \
-    sipx-snapshot-saa
-
 EXTRA_DIST = \
-    $(bin_SCRIPTS:=.in)
+	$(bin_SCRIPTS:=.in) \
+	$(initd_SCRIPTS:=.in)
 
-$(bin_SCRIPTS) : % : %.in Makefile
+bin_SCRIPTS = \
+	sipx-snapshot-saa
+
+initddir = @SIPX_SERVICEDIR@
+initd_SCRIPTS = \
+    sipxsaa
+
+$(initd_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)
 
-CLEANFILES = $(bin_SCRIPTS)
+CLEANFILES = $(initd_SCRIPTS)

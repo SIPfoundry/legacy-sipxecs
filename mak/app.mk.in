@@ -9,8 +9,6 @@ sf_broken = \
   sipXacd \
   sipXtunnel \
   sipXpreflight \
-  sipXrls \
-  sipXsaa \
   sipXtools \
   sipXpark \
   sipXpresence \

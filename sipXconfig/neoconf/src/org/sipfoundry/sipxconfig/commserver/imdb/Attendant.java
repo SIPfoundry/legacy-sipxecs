@@ -21,6 +21,8 @@ import static org.sipfoundry.commons.mongo.MongoConstants.ALT_ATTACH_AUDIO;
 import static org.sipfoundry.commons.mongo.MongoConstants.ALT_EMAIL;
 import static org.sipfoundry.commons.mongo.MongoConstants.ALT_NOTIFICATION;
 import static org.sipfoundry.commons.mongo.MongoConstants.ATTACH_AUDIO;
+import static org.sipfoundry.commons.mongo.MongoConstants.CALL_FROM_ANY_IM;
+import static org.sipfoundry.commons.mongo.MongoConstants.CALL_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_ENTRY_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_EXIT_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.DISPLAY_NAME;
@@ -109,6 +111,8 @@ public class Attendant extends AbstractDataSetGenerator {
         top.put(CONF_EXIT_IM, user.getSettingValue("im_notification/conferenceExitIM").toString());
         top.put(LEAVE_MESSAGE_BEGIN_IM, user.getSettingValue("im_notification/leaveMsgBeginIM").toString());
         top.put(LEAVE_MESSAGE_END_IM, user.getSettingValue("im_notification/leaveMsgEndIM").toString());
+        top.put(CALL_IM, user.getSettingValue("im_notification/call").toString());
+        top.put(CALL_FROM_ANY_IM, user.getSettingValue("im_notification/callFromAnyNumber").toString());
         //and this one in presencerouting-prefs.xml
         top.put(VMONDND, imAccount.isForwardOnDnd());
         //settings from xmpp-account-info.xml

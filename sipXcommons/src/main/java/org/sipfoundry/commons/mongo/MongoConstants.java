@@ -78,6 +78,8 @@ public interface MongoConstants {
     static final String CONF_EXIT_IM = "cnfexit";
     static final String LEAVE_MESSAGE_BEGIN_IM = "lvmsgbeg";
     static final String LEAVE_MESSAGE_END_IM = "lvmsgend";
+    static final String CALL_IM = "call";
+    static final String CALL_FROM_ANY_IM = "callfrAny";
     static final String CALLERALIAS = "clrid";
     static final String IGNORE_USER_CID = "ignorecid";
     static final String CID_PREFIX = "pfix";

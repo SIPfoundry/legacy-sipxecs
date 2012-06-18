@@ -33,7 +33,7 @@
 
 -record(conf, {
     enabled = false :: boolean(),
-    port = 9090 :: pos_integer(),
+    port = 9999 :: pos_integer(),
     ssl = false :: boolean()}).
 
 start() ->

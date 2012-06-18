@@ -21,6 +21,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
@@ -28,6 +29,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -46,13 +48,18 @@ public class SaaConfiguration implements ConfigProvider {
 
         SaaSettings settings = m_saaManager.getSettings();
         String domainName = manager.getDomainManager().getDomainName();
-        String realm = manager.getDomainManager().getAuthorizationRealm();
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(SaaManager.FEATURE);
+        Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            Writer saa = new FileWriter(new File(dir, "sipxsaa.properties.cfdat"));
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(SaaManager.FEATURE, location);
+            ConfigUtils.enableCfengineClass(dir, "sipxsaa.cfdat", enabled, "sipxsaa");
+            if (!enabled) {
+                continue;
+            }
+
+            Writer saa = new FileWriter(new File(dir, "sipxsaa-config.part"));
             try {
-                writeSaaConfig(saa, settings, location.getAddress(), domainName, realm);
+                writeSaaConfig(saa, settings, location.getAddress());
             } finally {
                 IOUtils.closeQuietly(saa);
             }
@@ -77,13 +84,11 @@ public class SaaConfiguration implements ConfigProvider {
         }
     }
 
-    void writeSaaConfig(Writer wtr, SaaSettings settings, String address, String domainName, String realm)
+    void writeSaaConfig(Writer wtr, SaaSettings settings, String address)
         throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(wtr);
         config.writeSettings(settings.getSettings().getSetting("saa-config"));
         config.write("SIP_SAA_BIND_IP", address);
-        config.write("SIP_SAA_DOMAIN_NAME", domainName);
-        config.write("SIP_SAA_AUTHENTICATE_REALM", realm);
     }
 
     public void setVelocityEngine(VelocityEngine velocityEngine) {

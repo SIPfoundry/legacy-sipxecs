@@ -564,6 +564,8 @@ public class ValidUsers {
         user.setConfExitIM(getStringValue(obj, CONF_EXIT_IM));
         user.setVMEntryIM(getStringValue(obj, LEAVE_MESSAGE_BEGIN_IM));
         user.setVMExitIM(getStringValue(obj, LEAVE_MESSAGE_END_IM));
+        user.setCallIM(getStringValue(obj, CALL_IM));
+        user.setCallFromAnyIM(getStringValue(obj, CALL_FROM_ANY_IM));
         user.setImEnabled(Boolean.valueOf(getStringValue(obj, IM_ENABLED)));
         user.setJid(getStringValue(obj, IM_ID));
         user.setAltJid(getStringValue(obj, ALT_IM_ID));

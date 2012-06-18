@@ -23,20 +23,21 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class SaaConfigurationTest {
-    
-    @Test 
+
+    @Test
     public void testSaaConfig() throws Exception {
         SaaConfiguration out = new SaaConfiguration();
         StringWriter actual = new StringWriter();
         SaaSettings settings = new SaaSettings();
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
-        out.writeSaaConfig(actual, settings, "1.1.1.1", "example.org", "grapefruit");
+        out.writeSaaConfig(actual, settings, "1.1.1.1");
+        //this tests only data that is generated through sipxconfig, and not data generated through cfengine
         InputStream expected = getClass().getResourceAsStream("expected-sipxsaa-config");
-        assertEquals(IOUtils.toString(expected), actual.toString());        
+        assertEquals(IOUtils.toString(expected), actual.toString());
     }
-    
+
     @Test
-    public void testXml() throws Exception {       
+    public void testXml() throws Exception {
         SaaConfiguration out = new SaaConfiguration();
         out.setVelocityEngine(TestHelper.getVelocityEngine());
 
@@ -45,7 +46,7 @@ public class SaaConfigurationTest {
         User secondSharedUser = new User();
         secondSharedUser.setUserName("321");
         List<User> users = Arrays.asList(firstSharedUser, secondSharedUser);
-        
+
         StringWriter actual = new StringWriter();
         out.writeAppearance(actual, users, "example.org");
         InputStream expected = getClass().getResourceAsStream("expected-appearance-groups.xml");
