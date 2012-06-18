@@ -65,6 +65,9 @@ OsStatus AppearanceGroupFileReader::initialize()
    // No work to be done if file name is not set.
    if (!mFileName.isNull())
    {
+	  Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
+	          "AppearanceGroupFileReader::initialize Appearance group file set is set: %s "
+	          "Start reading data ", mFileName.data());
       // Initialize Tiny XML document object.
       TiXmlDocument document;
       TiXmlNode* lists_node;
@@ -161,7 +164,8 @@ OsStatus AppearanceGroupFileReader::initialize()
    {
       // Report that there is no file.
       Os::Logger::instance().log(FAC_SAA, PRI_WARNING,
-                    "AppearanceGroupFileReader::initialize No Appearance group file set.");
+                    "AppearanceGroupFileReader::initialize No Appearance group file set yet. "
+                    "The file will be set after starting all the subscription client server tasks");
    }
 
    return ret;
