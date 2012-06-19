@@ -16,6 +16,9 @@
  */
 package org.sipfoundry.sipxconfig.common.profile;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.commons.userdb.profile.UserProfile;
@@ -30,13 +33,17 @@ import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 
 public class UserProfileContext implements DaoEventListener, SetupListener {
     private static final Log LOG = LogFactory.getLog(UserProfileContext.class);
     private static final String AVATAR_FORMAT = "%s/sipxconfig/rest/avatar/%s";
     private static final String PROFILE_SETUP = "profile";
+    private static final String PROFILE_MIGRATION = "migrate_profiles";
     private UserProfileService m_userProfileService;
     private AddressManager m_addressManager;
+    private JdbcTemplate m_jdbc;
 
     public boolean setup(SetupManager manager) {
         try {
@@ -46,8 +53,13 @@ public class UserProfileContext implements DaoEventListener, SetupListener {
                 m_userProfileService.saveAvatar("default", defaultAvatar.getInputStream(), false);
                 manager.setTrue(PROFILE_SETUP);
             }
+
+            if (manager.isTrue(PROFILE_MIGRATION)) {
+                migrateProfiles();
+                manager.setFalse(PROFILE_MIGRATION);
+            }
         } catch (Exception ex) {
-            LOG.error("failed to upload default avatar " + ex.getMessage());
+            LOG.error("failed to upload default avatar / migrate profiles" + ex.getMessage());
         }
         return true;
     }
@@ -83,12 +95,91 @@ public class UserProfileContext implements DaoEventListener, SetupListener {
         }
     }
 
+    protected void migrateProfiles() {
+        final Address apacheAddr = m_addressManager.getSingleAddress(ApacheManager.HTTPS_ADDRESS);
+        RowCallbackHandler handler = new RowCallbackHandler() {
+
+            @Override
+            public void processRow(ResultSet rs) throws SQLException {
+                UserProfile profile = new UserProfile();
+                profile.setUserId(rs.getString("user_id"));
+                profile.setUserName(rs.getString("user_name"));
+                profile.setFirstName(rs.getString("first_name"));
+                profile.setLastName(rs.getString("last_name"));
+                profile.setJobTitle(rs.getString("job_title"));
+                profile.setJobDept(rs.getString("job_dept"));
+                profile.setCompanyName(rs.getString("company_name"));
+                profile.setAssistantName(rs.getString("assistant_name"));
+                profile.setAssistantPhoneNumber(rs.getString("assistant_phone_number"));
+                profile.setHomePhoneNumber(rs.getString("home_phone_number"));
+                profile.setCellPhoneNumber(rs.getString("cell_phone_number"));
+                profile.setFaxNumber(rs.getString("fax_number"));
+                profile.setImId(rs.getString("im_id"));
+                profile.setImDisplayName(rs.getString("im_display_name"));
+                profile.setAlternateImId(rs.getString("alternate_im_id"));
+                profile.setLocation(rs.getString("location"));
+                profile.setUseBranchAddress(Boolean.valueOf(rs.getString("use_branch_address")));
+                profile.setEmailAddress(rs.getString("email_address"));
+                profile.setAlternateEmailAddress(rs.getString("alternate_email_address"));
+                profile.setDidNumber(rs.getString("did_number"));
+
+                profile.getHomeAddress().setStreet(rs.getString("home_street"));
+                profile.getHomeAddress().setZip(rs.getString("home_zip"));
+                profile.getHomeAddress().setCountry(rs.getString("home_country"));
+                profile.getHomeAddress().setState(rs.getString("home_state"));
+                profile.getHomeAddress().setCity(rs.getString("home_city"));
+                profile.getHomeAddress().setOfficeDesignation(rs.getString("home_post"));
+
+                profile.getOfficeAddress().setStreet(rs.getString("office_street"));
+                profile.getOfficeAddress().setZip(rs.getString("office_zip"));
+                profile.getOfficeAddress().setCountry(rs.getString("office_country"));
+                profile.getOfficeAddress().setState(rs.getString("office_state"));
+                profile.getOfficeAddress().setCity(rs.getString("office_city"));
+                profile.getOfficeAddress().setOfficeDesignation(rs.getString("office_post"));
+
+                profile.getBranchAddress().setStreet(rs.getString("branch_street"));
+                profile.getBranchAddress().setZip(rs.getString("branch_zip"));
+                profile.getBranchAddress().setCountry(rs.getString("branch_country"));
+                profile.getBranchAddress().setState(rs.getString("branch_state"));
+                profile.getBranchAddress().setCity(rs.getString("branch_city"));
+                profile.getBranchAddress().setOfficeDesignation(rs.getString("branch_post"));
+
+                if (apacheAddr != null) {
+                    profile.setAvatar(String.format(AVATAR_FORMAT, apacheAddr.toString(), profile.getUserName()));
+                }
+
+                m_userProfileService.saveUserProfile(profile);
+            }
+        };
+        m_jdbc.query(
+                "SELECT u.user_id, u.user_name, u.first_name, u.last_name,"
+                        + " abe.job_title, abe.job_dept, abe.company_name, abe.assistant_name,"
+                        + " abe.assistant_phone_number, abe.home_phone_number, abe.cell_phone_number, abe.fax_number,"
+                        + " abe.im_id, abe.im_display_name, abe.alternate_im_id, abe.location,"
+                        + " abe.use_branch_address, abe.email_address, abe.alternate_email_address, abe.did_number,"
+                        + " h.street as home_street, h.zip as home_zip, h.country as home_country,"
+                        + " h.state as home_state, h.city as home_city, h.office_designation as home_post,"
+                        + " o.street as office_street, o.zip as office_zip, o.country as office_country,"
+                        + " o.state as office_state, o.city as office_city, o.office_designation as office_post,"
+                        + " b.street as branch_street, b.zip as branch_zip, b.country as branch_country,"
+                        + " b.state as branch_state, b.city as branch_city, b.office_designation as branch_post"
+                        + " from users u inner join address_book_entry abe"
+                        + " on u.address_book_entry_id = abe.address_book_entry_id"
+                        + " left join address h on abe.office_address_id = h.address_id"
+                        + " left join address o on abe.office_address_id = o.address_id"
+                        + " left join address b on abe.office_address_id = b.address_id", handler);
+    }
+
     public void setUserProfileService(UserProfileService profileService) {
         m_userProfileService = profileService;
     }
 
     public void setAddressManager(AddressManager manager) {
         m_addressManager = manager;
+    }
+
+    public void setJdbc(JdbcTemplate jdbc) {
+        m_jdbc = jdbc;
     }
 
 }
