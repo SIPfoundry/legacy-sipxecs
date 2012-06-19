@@ -146,7 +146,7 @@ public class Mailstore extends AbstractDataSetGenerator {
         top.put(IM_SHOW_ON_CALL_DETAILS, imAccount.includeCallInfo());
         //personal attendant
         top.put(PLAY_DEFAULT_VM, user.getPlayVmDefaultOptions());
-        PersonalAttendant pa = m_mailboxManager.getPersonalAttendantForUser(user);
+        PersonalAttendant pa = m_mailboxManager.loadPersonalAttendantForUser(user);
         if (pa != null) {
             DBObject pao = new BasicDBObject();
             if (StringUtils.isNotEmpty(user.getOperator())) {
