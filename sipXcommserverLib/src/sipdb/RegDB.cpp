@@ -72,6 +72,7 @@ void RegDB::updateBinding(RegBinding& binding)
 
 	mongo::ScopedDbConnection conn(_info.getConnectionString());
 	conn->update(_info.getNS(), query, update, true, false);
+	conn->ensureIndex("node.registrar", BSON( "identity" << 1 ));
 	conn.done();
 }
 
@@ -92,6 +93,7 @@ void RegDB::expireOldBindings(const string& identity, const string& callId, unsi
 
 	mongo::ScopedDbConnection conn(_info.getConnectionString());
 	conn->update(_info.getNS(), query, update);
+	conn->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
 	conn.done();
 }
 
@@ -110,6 +112,7 @@ void RegDB::expireAllBindings(const string& identity, const string& callId, unsi
 
 	mongo::ScopedDbConnection conn(_info.getConnectionString());
 	conn->update(_info.getNS(), query, update, false, true);
+	conn->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
 	conn.done();
 }
 
@@ -124,6 +127,7 @@ void RegDB::expireAllBindings(unsigned int timeNow)
 
 	mongo::ScopedDbConnection conn(_info.getConnectionString());
 	conn->update(_info.getNS(), query, update, false, true);
+	conn->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
 	conn.done();
 }
 

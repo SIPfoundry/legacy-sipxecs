@@ -75,6 +75,8 @@ void SubscribeDB::upsert (
 
     mongo::ScopedDbConnection conn(_info.getConnectionString());
     conn->update(_info.getNS(), query, update, true, false);
+    conn->ensureIndex("node.subscription",  BSON( "expires" << 1 ));
+    conn->ensureIndex("node.subscription",  BSON( "key" << 1 ));
     conn.done();
 }
 
@@ -222,6 +224,8 @@ void SubscribeDB::updateNotifyUnexpiredSubscription(
 
     mongo::ScopedDbConnection conn(_info.getConnectionString());
     conn->update(_info.getNS(), query, update);
+    conn->ensureIndex("node.subscription",  BSON( "expires" << 1 ));
+    conn->ensureIndex("node.subscription",  BSON( "key" << 1 ));
     conn.done();
 }
 
