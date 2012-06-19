@@ -99,6 +99,14 @@
          </documentation>
       </annotation>
    </element>
+
+   <element name="moh" type="normalizedString">
+      <annotation>
+         <documentation>
+            holds user preference for MoH
+         </documentation>
+      </annotation>
+   </element>
         
    <element name="contact" type="normalizedString">
       <annotation>
@@ -235,6 +243,7 @@
             <element ref="tns:voicemailTui" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:canRecordPrompts" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:canTuiChangePin" maxOccurs="1" minOccurs="0"/>
+            <element ref="tns:moh" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:distributions" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:email" maxOccurs="2" minOccurs="0"/>
          </sequence>
