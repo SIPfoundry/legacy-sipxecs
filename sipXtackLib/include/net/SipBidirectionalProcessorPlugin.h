@@ -144,6 +144,8 @@ inline SipBidirectionalProcessorPlugin::SipBidirectionalProcessorPlugin(const Ut
   _input(priority),
   _output(priority)
 {
+  _input._handler = boost::bind(&SipBidirectionalProcessorPlugin::handleIncoming, this, _1, _2, _3);
+  _output._handler = boost::bind(&SipBidirectionalProcessorPlugin::handleOutgoing, this, _1, _2, _3);
 }
 
 inline SipBidirectionalProcessorPlugin::~SipBidirectionalProcessorPlugin()
