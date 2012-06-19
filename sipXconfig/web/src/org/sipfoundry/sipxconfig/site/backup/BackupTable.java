@@ -22,16 +22,15 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
-import org.apache.tapestry.event.PageBeginRenderListener;
-import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.backup.BackupCommandRunner;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupPlan;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 
-public abstract class BackupTable extends BaseComponent implements PageBeginRenderListener {
+public abstract class BackupTable extends BaseComponent {
     private static final String SPACE = " ";
 
     @Parameter(required = true)
@@ -89,7 +88,10 @@ public abstract class BackupTable extends BaseComponent implements PageBeginRend
         return getBackupId() + '/' + getBackupFile();
     }
 
-    public void pageBeginRender(PageEvent event) {
+    @Override
+    protected void prepareForRender(IRequestCycle cycle) {
+        super.prepareForRender(cycle);
+
         List<String> backups = getBackups();
         if (backups == null) {
             File planFile = getBackupManager().getPlanFile(getBackupPlan());

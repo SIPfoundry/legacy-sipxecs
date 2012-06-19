@@ -20,11 +20,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
-import org.apache.tapestry.event.PageBeginRenderListener;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupPlan;
@@ -39,7 +38,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingsValidator;
 
-public abstract class BackupForm extends BaseComponent implements PageBeginRenderListener {
+public abstract class BackupForm extends BaseComponent {
     /**
      * Conceivable, available backup limits. Otherwise arbitrary. NOTE : Spring 1.1 couldn't
      * define Integers in lists see DefaultXmlBeanDefinitionParser.java:parsePropertySubelement()
@@ -93,7 +92,7 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
     public abstract DailyBackupSchedule getSchedule();
 
     @Override
-    public void pageBeginRender(PageEvent event) {
+    protected void prepareForRender(IRequestCycle cycle) {
         if (getDefinitionIds() == null) {
             setDefinitionIds(getBackupManager().getArchiveDefinitionIds());
         }
