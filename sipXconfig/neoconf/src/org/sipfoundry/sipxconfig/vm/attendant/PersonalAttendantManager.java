@@ -25,12 +25,12 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public abstract class PersonalAttendantManager extends HibernateDaoSupport {
 
-    public final PersonalAttendant loadPersonalAttendantForUser(User user) {
+    public PersonalAttendant loadPersonalAttendantForUser(User user) {
         PersonalAttendant pa = findPersonalAttendant(user);
         if (pa == null) {
             pa = new PersonalAttendant();
             pa.setUser(user);
-            getHibernateTemplate().save(pa);
+            getHibernateTemplate().merge(pa);
         }
         return pa;
     }

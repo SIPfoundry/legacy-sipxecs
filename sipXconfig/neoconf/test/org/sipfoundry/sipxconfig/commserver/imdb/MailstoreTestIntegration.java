@@ -15,13 +15,15 @@ import static org.sipfoundry.commons.mongo.MongoConstants.DISTRIB_LISTS;
 import static org.sipfoundry.commons.mongo.MongoConstants.ITEM;
 import static org.sipfoundry.commons.mongo.MongoConstants.LANGUAGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.OPERATOR;
+import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -29,6 +31,8 @@ import org.sipfoundry.sipxconfig.dialplan.AttendantMenu;
 import org.sipfoundry.sipxconfig.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
+import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.sipfoundry.sipxconfig.vm.DistributionList;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
@@ -44,6 +48,7 @@ public class MailstoreTestIntegration extends ImdbTestCase {
     private AddressManager m_addressManager;
     private ProxyManager m_proxyManager;
     private User m_user;
+    private SettingDao m_settingDao;
 
     @Override
     protected void onSetUpBeforeTransaction() {
@@ -146,7 +151,29 @@ public class MailstoreTestIntegration extends ImdbTestCase {
         List<DBObject> emptyDlists = new ArrayList<DBObject>();
         MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), new BasicDBObject(DISTRIB_LISTS, emptyDlists).append("uid", "202"));
         //TODO: test for other stuff in Mailstore dataset, like email, etc
+    }
+    
+    public void testPAforGroup() throws IOException {
+        
+        Group group = new Group();
+        group.setSettingValue("personal-attendant/operator", "123");
+        group.setResource(CoreContext.USER_GROUP_RESOURCE_ID);
+        group.setName("group");
+        m_settingDao.saveGroup(group);
+        
+        
+        User user = getCoreContext().newUser();
+        user.setUserName("200");
+        user.addGroup(m_settingDao.getGroupByName(CoreContext.USER_GROUP_RESOURCE_ID, "group"));
+        getCoreContext().saveUser(user);
 
+        DBObject user200 = new BasicDBObject().append(UID, "200");
+        DBObject search = new BasicDBObject()
+            .append(OPERATOR, "sip:123@" + getDomainManager().getDomainName())
+            .append("lng", "en");
+        user200.put(MongoConstants.PERSONAL_ATT, search);
+        
+        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user200);
     }
 
     public void setMailboxManager(MailboxManager localMailboxManager) {
@@ -159,5 +186,8 @@ public class MailstoreTestIntegration extends ImdbTestCase {
 
     public void setProxyManager(ProxyManager proxyManager) {
         m_proxyManager = proxyManager;
+    }
+    public void setSettingDao(SettingDao settingDao) {
+        m_settingDao = settingDao;
     }
 }

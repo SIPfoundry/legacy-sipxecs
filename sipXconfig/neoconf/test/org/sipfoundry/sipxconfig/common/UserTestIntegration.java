@@ -68,8 +68,7 @@ public class UserTestIntegration extends ImdbTestCase {
     public void testUpdateUserName() throws Exception {
         sql("common/TestUserSeed.sql");
         commit();
-        Integer id = new Integer(1000);
-        User user = m_coreContext.loadUser(id);
+        User user = m_coreContext.loadUser(1000);
         user.setUserName("foo");
         try {
             // commit because core context loads a different hibernate template to load old value from db
