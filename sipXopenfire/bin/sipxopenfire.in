@@ -215,7 +215,7 @@ configure() {
    done   
    
    #Deploy sipxcommons needed jars in openfire classpath (lib directory)
-   for f in sipxcommons ws-commons-util xmlrpc-client xmlrpc-server xmlrpc-common log4j mongo commons-logging commons-digester commons-collections commons-beanutils-core jain-sip-sdp dnsjava dom4j commons-io not-yet-commons-ssl; do
+   for f in sipxcommons ws-commons-util xmlrpc-client xmlrpc-server xmlrpc-common log4j mongo spring-data-mongodb commons-logging commons-digester commons-collections commons-beanutils-core jain-sip-sdp dnsjava dom4j commons-io not-yet-commons-ssl org.springframework.context- spring-data-commons-core org.springframework.transaction org.springframework.core org.springframework.beans org.springframework.expression org.springframework.asm; do
        ln -snf ${SIPX_COMMONS}/$f*.jar ${OPENFIRE_LIB}/$f.jar
    done
    
