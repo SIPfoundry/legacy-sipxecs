@@ -38,6 +38,7 @@ iso: iso-32 iso-64;
 help.iso-clean = Delete intermediate files, but do not re-download RPMs from $(ISO_RPM_DOWNLOAD_URL)
 iso-clean: iso-clean-32 iso-clean-64
 	find @DIST_DIR@ -maxdepth 1 \( -name '*.iso' -o -name '*.md5' \) -exec rm {} \;
+	! test -f comps.xml || rm comps.xml
 
 help.iso-clean-all = Delete intermediate files, including files from downloaded from $(ISO_RPM_DOWNLOAD_URL) that will be downloaded again
 iso-clean-all: iso-clean-32 iso-clean-download-32 iso-clean-64 iso-clean-download-64;
@@ -71,17 +72,18 @@ iso-disc-% :
 	mv cd.tmp $@
 
 # copy sipxecs yum group defs into iso yum group defs
-comps-iso.xml : $(SRC)/mak/comps.xml $(SRC)/mak/centos-iso/comps.xsl
-	xsltproc $(SRC)/mak/centos-iso/comps.xsl $(SRC)/mak/comps.xml > $@
+comps.xml : $(SRC)/mak/comps.xml $(SRC)/mak/centos-iso/comps.xsl
+	xsltproc $(SRC)/mak/centos-iso/comps.xsl $(SRC)/mak/comps.xml > $@.tmp
+	mv $@.tmp $@
 
 # rebuild yum repo after all rpms have been added and removed
-iso-update-repo-% : iso-disc-% iso-check-% comps-iso.xml
+iso-update-repo-% : iso-disc-% comps.xml
 	MEDIA_ID=$(shell head -1 $(ISO_DISC)/.discinfo); \
 	  cd $(ISO_DISC); \
 	  @CREATEREPO@ \
 	    @BACKWARD_COMPATIBLE_CREATEREPO_OPTS_FOR_CENTOS@ \
 	    --baseurl="media://$$MEDIA_ID" \
-	    -g $(abspath comps-iso.xml) .
+	    -g $(abspath comps.xml) .
 
 # add modifications to disc to make it operate
 iso-update-files-% :
@@ -108,6 +110,7 @@ iso-assemble-% :
 iso-md5-% :
 	md5sum @DIST_DIR@/$(ISO) > @DIST_DIR@/$(ISO:%.iso=%.md5)
 
+iso-check-32 : ARCH=i686
 iso-check-% :
 	! test -d $@.test || rm -rf $@.test
 	mkdir $@.test
