@@ -68,6 +68,9 @@
   <li jwcid="@If" condition="ognl:isOn('registrar')">
 	  <a jwcid="@PageLink" page="registrar/EditRegistrar"><span key="menu.registrar.featureMenu"/></a>
   </li>
+  <li jwcid="@If" condition="ognl:isOn('freeSwitch')">
+	  <a jwcid="@PageLink" page="freeswitch/EditFreeswitch"><span key="menu.freeswitch.featureMenu"/></a>
+  </li>
   <li jwcid="@If" condition="ognl:isOn('rls')">
     <a jwcid="@PageLink" page="rls/EditRls"><span key="menu.rls.featureMenu"/></a>
   </li>

@@ -17,13 +17,17 @@
 package org.sipfoundry.sipxconfig.freeswitch;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.commserver.SettingsWithLocation;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
-public class FreeswitchSettings extends SettingsWithLocation {
+public class FreeswitchSettings extends SettingsWithLocation implements DeployConfigOnEdit {
     public static final int RTP_START_PORT = 11000;
     public static final int RTP_END_PORT = 12999;
     private static final String FREESWITCH_XMLRPC_PORT = "freeswitch-config/FREESWITCH_XMLRPC_PORT";
@@ -67,5 +71,10 @@ public class FreeswitchSettings extends SettingsWithLocation {
     @Override
     public String getBeanId() {
         return "freeswithSettings";
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) FreeswitchFeature.FEATURE);
     }
 }

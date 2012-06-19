@@ -62,6 +62,10 @@ public class FreeswitchFeature implements FeatureProvider, AddressProvider, Proc
         return m_settingsDao.findOrCreate(location);
     }
 
+    public void saveSettings(FreeswitchSettings settings) {
+        m_settingsDao.upsert(settings);
+    }
+
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
         return null;

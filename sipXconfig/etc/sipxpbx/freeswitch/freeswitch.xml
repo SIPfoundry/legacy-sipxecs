@@ -29,19 +29,19 @@
       <type refid="preferred-codecs-type"/>
       <value>G722|PCMU@20i|PCMA@20i|speex|L16</value>
     </setting>
-    <setting name="FREESWITCH_SIP_PORT" advanced="yes">
+    <setting name="FREESWITCH_SIP_PORT">
       <type>
         <integer />
       </type>
       <value>15060</value>
     </setting>
-    <setting name="FREESWITCH_XMLRPC_PORT" advanced="yes">
+    <setting name="FREESWITCH_XMLRPC_PORT">
       <type>
         <integer />
       </type>
       <value>8080</value>
     </setting>
-    <setting name="FREESWITCH_SIP_DEBUG" hidden="yes">
+    <setting name="FREESWITCH_SIP_DEBUG">
       <type>
         <boolean>
           <true>
@@ -53,22 +53,6 @@
         </boolean>
       </type>
       <value>0</value>
-    </setting>
-    <setting name="MOH_SOURCE">
-       <type>
-        <enum>
-          <option>
-            <value>FILES_SRC</value>
-          </option>
-          <option>
-            <value>SOUNDCARD_SRC</value>
-          </option>
-          <option>
-            <value>NONE</value>
-          </option>
-        </enum>
-      </type>
-      <value>FILES_SRC</value>
     </setting>
   </group>
 </model>

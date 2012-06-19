@@ -56,7 +56,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessProvider, DnsProvider,
-    FirewallProvider, ArchiveProvider {
+        FirewallProvider, ArchiveProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
         REST_API, SIP_ADDRESS
     });
@@ -66,6 +66,7 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
     private ConfigManager m_configManager;
     private FeatureManager m_featureManager;
     private DomainManager m_domainManager;
+    private FreeswitchFeature m_fsFeature;
     private boolean m_highAvailabilitySupport;
 
     public IvrSettings getSettings() {
@@ -118,8 +119,8 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
         for (Location location : locations) {
             Address address = null;
             if (type.equals(SIP_ADDRESS)) {
-                // TODO take port from FS
-                address = new Address(SIP_ADDRESS, location.getAddress(), 15060);
+                address = new Address(SIP_ADDRESS, location.getAddress(), m_fsFeature.getSettings(location)
+                        .getFreeswitchSipPort());
             } else if (type.equals(REST_API)) {
                 address = new Address(REST_API, location.getFqdn(), settings.getHttpPort());
             }
@@ -176,6 +177,10 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
         m_featureManager = featureManager;
     }
 
+    public void setFreeswitchFeature(FreeswitchFeature fsFeature) {
+        m_fsFeature = fsFeature;
+    }
+
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
@@ -228,8 +233,7 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
             return null;
         }
 
-        ArchiveDefinition def = new ArchiveDefinition(ARCHIVE,
-                "$(sipx.SIPX_BINDIR)/sipxivr-archive --backup %s",
+        ArchiveDefinition def = new ArchiveDefinition(ARCHIVE, "$(sipx.SIPX_BINDIR)/sipxivr-archive --backup %s",
                 "$(sipx.SIPX_BINDIR)/sipxivr-archive --restore %s");
         return Collections.singleton(def);
     }

@@ -1,0 +1,17 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickHelp" value="message:quick.help">help text here...</div>
+    <form jwcid="@Form">
+      <table jwcid="tableView@common/Table" id="fs:locations"
+		  columns="* name, address"
+		  source="ognl:locations"
+		  row="ognl:currentRow">
+	     <span jwcid="nameColumnValue@Block">
+	        <span jwcid="editRowLink@DirectLink"
+		    listener="listener:editFreeswitch"
+		    parameters="ognl:currentRow.id">
+		    <span jwcid="nameText@Insert" value="ognl:currentRow.fqdn"/>
+	        </span>
+	      </span>
+      </table>
+    </form>
+</div>
