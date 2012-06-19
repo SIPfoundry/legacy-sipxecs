@@ -21,7 +21,7 @@ sipXproxy_LDADD = \
 	libsipXproxy.la \
 	@SIPXCOMMSERVER_LIBS@ \
 	-lboost_system \
-	-lboost_thread
+	@BOOST_LDADD@
 
 sipXproxy_SOURCES =  \
 	sipXproxymain.cpp
