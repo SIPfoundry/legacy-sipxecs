@@ -23,6 +23,7 @@
         </property>
       </bean>
     </property>
+    <property name="jdbc" ref="configJdbcTemplate"/> 
   </bean>
 
   <bean id="pagingContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

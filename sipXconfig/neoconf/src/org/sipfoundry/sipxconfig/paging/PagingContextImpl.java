@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
@@ -49,9 +50,10 @@ import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 public class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext, FeatureProvider,
-        AddressProvider, ProcessProvider, FirewallProvider {
+        AddressProvider, ProcessProvider, FirewallProvider, DaoEventListener {
 
     /** Default ALERT-INFO - hardcoded in Polycom phone configuration */
     private static final String ALERT_INFO = "sipXpage";
@@ -63,6 +65,7 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
     private BeanWithSettingsDao<PagingSettings> m_settingsDao;
     private ConfigManager m_configManager;
     private FeatureManager m_featureManager;
+    private JdbcTemplate m_jdbc;
 
     public PagingSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
@@ -226,6 +229,10 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
         m_featureManager = featureManager;
     }
 
+    public void setJdbc(JdbcTemplate jdbc) {
+        m_jdbc = jdbc;
+    }
+
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
         return null;
@@ -307,5 +314,24 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
         if (request.hasChanged(FEATURE)) {
             m_configManager.configureEverywhere(DialPlanContext.FEATURE);
         }
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        if (entity instanceof User) {
+            User user = (User) entity;
+            // check if users in any paging group
+            int check = m_jdbc.queryForInt("SELECT count(*) FROM user_paging_group where user_id = ?", user.getId());
+            if (check >= 1) {
+                // cleanup paging group
+                m_jdbc.update("delete from user_paging_group where user_id = ?", user.getId());
+                // reconfigure paging group
+                m_configManager.configureEverywhere(PagingContext.FEATURE);
+            }
+        }
+    }
+
+    @Override
+    public void onSave(Object entity) {
     }
 }
