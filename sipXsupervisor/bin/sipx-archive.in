@@ -240,15 +240,15 @@ class LocalFileManager < FileManagerBase
 
   def list
     return [] unless File.exists? @backup_dir
-    Dir.chdir(@backup_dir) {
-      select_backups(Dir["*"])
-    }
+    # NOTE: Dir.chdir(d) { } will throw Permission Denied when run from java env.
+    Dir.chdir(@backup_dir)
+    select_backups(Dir["*"])
   end
 
   def list_items(b)
-    Dir.chdir("#{@backup_dir}/#{b}") {
-      return Dir["*"]
-    }
+    # NOTE: Dir.chdir(d) { } will throw Permission Denied when run from java env.
+    Dir.chdir("#{@backup_dir}/#{b}")
+    return Dir["*"]
   end
 
   def link
