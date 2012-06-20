@@ -36,7 +36,7 @@ public abstract class ManageDomain extends PageWithCallback implements PageBegin
     @InjectObject (value = "spring:domainManager")
     public abstract DomainManager getDomainManager();
 
-    @InitialValue (value = "ognl:domainManager.domain.editableCopy")
+    @InitialValue (value = "ognl:domainManager.editableDomain")
     public abstract Domain getDomain();
 
     public abstract int getIndex();
