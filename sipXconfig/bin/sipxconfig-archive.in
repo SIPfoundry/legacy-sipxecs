@@ -94,6 +94,9 @@ class Restore < ArchiveBase
         raise "Failed to restore avatar database"
       cmd "mongorestore --db profiles --collection fs.chunks #{@tmpdir}/dump/profiles/fs.chunks.bson" or 
         raise "Failed to restore avatar database"
+    else
+      sql_exec(@restoredb, "insert into setup(setup_id) values ('migrate_profiles');") or
+          raise "Failed to trigger user profile migration."
     end
 
     if params.has_key?(:reset_pin)

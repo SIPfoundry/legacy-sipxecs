@@ -61,7 +61,6 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -654,15 +653,17 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     }
 
     public DBCollection getDbCollection() {
-        DB db = m_imdb.getDb();
-        if (!db.collectionExists(MongoConstants.ENTITY_COLLECTION)) {
-            DBCollection entity = db.createCollection(MongoConstants.ENTITY_COLLECTION, null);
-            DBObject indexes = new BasicDBObject();
-            indexes.put(MongoConstants.TIMESTAMP, 1);
-            entity.createIndex(indexes);
-            return entity;
-        }
-        return m_imdb.getDb().getCollection(MongoConstants.ENTITY_COLLECTION);
+        DBCollection entity = m_imdb.getDb().getCollection(MongoConstants.ENTITY_COLLECTION);
+        DBObject index1 = new BasicDBObject();
+        index1.put(MongoConstants.ALIAS + "." + MongoConstants.ID, 1);
+        DBObject index2 = new BasicDBObject();
+        index2.put(MongoConstants.UID, 1);
+        DBObject index3 = new BasicDBObject();
+        index3.put(MongoConstants.IDENTITY, 1);
+        entity.ensureIndex(index1);
+        entity.ensureIndex(index2);
+        entity.ensureIndex(index3);
+        return entity;
     }
 
     @Override

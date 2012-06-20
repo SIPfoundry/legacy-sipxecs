@@ -14,6 +14,7 @@
   <bean id="userProfileContext" class="org.sipfoundry.sipxconfig.common.profile.UserProfileContext">
     <property name="userProfileService" ref="userProfileService"/>
     <property name="addressManager" ref="addressManager" />
+    <property name="jdbc" ref="configJdbcTemplate"/> 
   </bean>
 
   <bean id="userDecorator" class="org.sipfoundry.sipxconfig.common.profile.UserProfileDecorator">
