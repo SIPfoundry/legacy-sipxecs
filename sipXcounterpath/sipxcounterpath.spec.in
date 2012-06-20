@@ -47,6 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/sipxpbx/counterpath/*
 %{_datadir}/java/sipXecs/sipXconfig/cmcprov.war
 %{_datadir}/java/sipXecs/sipXconfig/plugins/sipXcounterpath.jar
+%dir %attr(755,sipx,sipx) %{_datadir}/www/webdav
+%dir %attr(755,sipx,sipx) %{_datadir}/www/var
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxcounterpath.cf
 
 
 
