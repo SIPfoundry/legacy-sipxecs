@@ -71,6 +71,10 @@ public class ProvisioningContextImpl implements ProvisioningContext {
         return m_sipxUpload;
     }
 
+    public String getConfDir() {
+        return m_sipxPhoneContext.getSystemDirectory();
+    }
+
     private boolean checkLogin(User user, String password) {
         if (user.getPintoken().equals(getEncodedPassword(user.getUserName(), password))) {
             return true;
