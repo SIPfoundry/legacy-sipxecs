@@ -21,4 +21,6 @@ public interface ProvisioningContext {
     public String getDomainName();
 
     public Phone getPhoneForUser(User user);
+
+    String getConfDir();
 }

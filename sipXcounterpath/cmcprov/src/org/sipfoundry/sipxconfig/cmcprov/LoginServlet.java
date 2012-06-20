@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.cmcprov;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.util.Hashtable;
@@ -37,7 +36,6 @@ public class LoginServlet extends ProvisioningServlet {
     private static final String WWW_DIR_PROPERTY = "www.dir";
     private static final String PHONE_DIR_PROPERTY = "sipxconfig.phone.dir";
     private static final String CONF_DIR_PROPERTY = "conf.dir";
-    private static final String PROPERTY_RESOURCE = "/config.properties";
     private static final String CONF_RESOURCE = "/counterpath/cmcprov.properties";
     private static final String CONTACTS_LIST_FILE_SUBFIX = "-directory.xml";
     private static final String WEBDAV_DIR = "/webdav/";
@@ -55,22 +53,8 @@ public class LoginServlet extends ProvisioningServlet {
                 throw new FailureDataException(INVALID_CREDIDENTIALS);
             }
             Profile[] profileFilenames = phone.getProfileTypes();
-            // Map<String, String> settings = new Hashtable<String, String>();
-            // String queryString = "?username=$username$&password=$password$";
-            // String configServerURL = req.getRequestURL().substring(0,
-            // req.getRequestURL().indexOf(req.getServletPath()))
-            // + UPDATE_SERVLET + queryString;
-            // settings.put("system:auto_update:config_server_url", configServerURL);
-            // settings.put("feature:auto_update:config_server_url", configServerURL);
-            // createWebDAVContactListFile(user.getUserName(), phone);
-            InputStream in = getClass().getResourceAsStream(PROPERTY_RESOURCE);
-            Properties confProperties = new Properties();
-            try {
-                confProperties.load(in);
-            } catch (IOException ex) {
-                LOG.error("loading error :" + PROPERTY_RESOURCE + ex.getMessage());
-            }
-            FileInputStream fin = new FileInputStream(confProperties.getProperty(CONF_DIR_PROPERTY) + CONF_RESOURCE);
+
+            FileInputStream fin = new FileInputStream(getProvisioningContext().getConfDir() + CONF_RESOURCE);
             Properties properties = new Properties();
 
             try {
@@ -84,9 +68,6 @@ public class LoginServlet extends ProvisioningServlet {
             updateContactList(user, phone, properties.getProperty(WWW_DIR_PROPERTY), properties
                     .getProperty(PHONE_DIR_PROPERTY));
             uploadPhoneProfile(profileFilenames[0].getName(), out);
-            // for (Map.Entry<String, String> e : settings.entrySet()) {
-            // out.println(e.getKey() + EQUAL_SIGN + QUOTE_CHAR + e.getValue() + QUOTE_CHAR);
-            // }
         } catch (FailureDataException e) {
             LOG.error("Login error: " + e.getMessage());
             buildFailureResponse(out, e.getMessage());
