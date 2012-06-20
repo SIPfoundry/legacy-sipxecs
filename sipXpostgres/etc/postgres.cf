@@ -63,12 +63,6 @@ bundle agent postgres_init {
         args => "initdb";
 }
 
-bundle agent define_class(to_be_defined) {
-  vars:
-    any::
-      "unused_var_name" string => canonify("$(to_be_defined)");
-}
-
 bundle agent postgres_config {
   files:
     postgres::
