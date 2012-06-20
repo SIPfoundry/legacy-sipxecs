@@ -19,10 +19,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
@@ -70,6 +73,12 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
         }
     }
 
+    @Persist(value = "client")
+    @InitialValue("literal:auto")
+    public abstract void setMode(String mode);
+
+    public abstract String getMode();
+
     @Parameter(required = true)
     public abstract void setBackupPlan(BackupPlan plan);
 
@@ -106,6 +115,14 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
             plan.addSchedule(schedule);
         }
 
+        // NOTE: it's possible to have old IDs in there as features were disabled. one could argue
+        // these ids should be cleared up on feature enable/disable but it's rather convenient to keep ids
+        // in there as features are re-enabled, they are automatically part of backup plan. Unless they
+        // come to the backup page and save before they re-enabled features, we clear them here. However,
+        // WYSIWYG overrules this convenience.
+        Collection<?> invalidOrOff = CollectionUtils.disjunction(getDefinitionIds(), plan.getAutoModeDefinitionIds());
+        plan.getAutoModeDefinitionIds().removeAll(invalidOrOff);
+
         if (getSettingsPath() != null) {
             if (getSettings() == null) {
                 setSettings(getBackupManager().getSettings());
@@ -139,23 +156,22 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
         if (!validatePlan()) {
             return;
         }
-
+        setMode("backup");
         getManualBackup().backup(getBackupPlan(), getSettings());
         BackupTable table = (BackupTable) getComponent("backups");
         table.setBackups(null);
-        getValidator().recordSuccess("Backup successful");
+        getValidator().recordSuccess(getMessages().getMessage("message.backupCompleted"));
     }
 
     private boolean validatePlan() {
         if (!TapestryUtils.isValid(this)) {
             return false;
         }
-
         validateSettings();
-
         BackupPlan plan = getBackupPlan();
         if (plan.getAutoModeDefinitionIds().isEmpty()) {
-            throw new EmptySelectionException();
+            getValidator().record(new UserException("&message.emptySelection"), getMessages());
+            return false;
         }
         return true;
     }
@@ -164,16 +180,10 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
         if (!validatePlan()) {
             return;
         }
+        setMode("auto");
         getBackupManager().saveBackupPlan(getBackupPlan());
         if (getPlanSettings() != null) {
             getBackupManager().saveSettings(getSettings());
-        }
-    }
-
-    @SuppressWarnings("serial")
-    private static class EmptySelectionException extends UserException {
-        public EmptySelectionException() {
-            super("&message.emptySelection");
         }
     }
 

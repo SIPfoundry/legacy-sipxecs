@@ -38,18 +38,23 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
+import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 
-public class BackupConfig implements ConfigProvider {
+public class BackupConfig implements ConfigProvider, FeatureListener {
     private static final String RESTORE = "restore";
     private static final String AUTO = "auto";
     private static final String MANUAL = "manual";
     private BackupManager m_backupManager;
     private ConfigManager m_configManager;
     private LocationsManager m_locationsManager;
+    private boolean m_dirty;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(BackupManager.FEATURE)) {
+        if (!request.applies(BackupManager.FEATURE) && !m_dirty) {
             return;
         }
 
@@ -63,6 +68,7 @@ public class BackupConfig implements ConfigProvider {
                 writeConfigs(plan, null, location, hosts, settings, null);
             }
         }
+        m_dirty = false;
     }
 
     public File writeManualBackupConfigs(BackupType type, BackupSettings manualSettings) {
@@ -218,5 +224,15 @@ public class BackupConfig implements ConfigProvider {
 
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
+    }
+
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        // enabling/disabling features can impact backup metadata
+        m_dirty = true;
     }
 }

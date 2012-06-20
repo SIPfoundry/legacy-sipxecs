@@ -6,7 +6,7 @@
       <span key="label.backups">Backups</span>
     </legend>
   </fieldset>
-  <span jwcid="@backup/BackupTable" backupPlan="ognl:backupPlan" selections="ognl:selections"/>    
+  <span jwcid="@backup/BackupTable" backupPlan="ognl:backupPlan" selections="ognl:selections" mode="auto"/>    
   <ul class="component-submit">
     <li>
       <input jwcid="restore@Submit" id="backups:restore" listener="listener:restore" tag="selections.allSelected" value="message:button.restore"/>

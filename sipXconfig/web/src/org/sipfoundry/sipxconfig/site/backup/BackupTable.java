@@ -57,6 +57,11 @@ public abstract class BackupTable extends BaseComponent {
     @Parameter(required = false)
     public abstract void setSelections(SelectMap selections);
 
+    @Parameter(required = false)
+    public abstract void setMode(String mode);
+
+    public abstract String getMode();
+
     public abstract SelectMap getSelections();
 
     public abstract void setBackupFile(String backup);
@@ -96,6 +101,7 @@ public abstract class BackupTable extends BaseComponent {
         if (backups == null) {
             File planFile = getBackupManager().getPlanFile(getBackupPlan());
             BackupCommandRunner runner = new BackupCommandRunner(planFile, getBackupManager().getBackupScript());
+            runner.setMode(getMode());
             backups = runner.list();
             if (backups.size() > getTableSize()) {
                 backups = backups.subList(0, getTableSize());

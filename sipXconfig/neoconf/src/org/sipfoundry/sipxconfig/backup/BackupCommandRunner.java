@@ -36,6 +36,7 @@ public class BackupCommandRunner {
     private String m_backupScript;
     private File m_plan;
     private boolean m_background;
+    private String m_mode = "manual";
 
     public BackupCommandRunner(File plan, String backupScript) {
         m_backupScript = backupScript;
@@ -82,7 +83,7 @@ public class BackupCommandRunner {
             commandOut[command.length + 1] = "--out";
             commandOut[command.length + 2] = listFile.getAbsolutePath();
             commandOut[command.length + 3] = "--mode"; // Relevant to few cmds, but harmless otherwise
-            commandOut[command.length + 4] = "manual";
+            commandOut[command.length + 4] = m_mode;
             ProcessBuilder pb = new ProcessBuilder(commandOut);
             commandLine = StringUtils.join(pb.command(), ' ');
             LOG.info(commandLine);
@@ -125,5 +126,13 @@ public class BackupCommandRunner {
 
     public void setBackground(boolean background) {
         m_background = background;
+    }
+
+    public String getMode() {
+        return m_mode;
+    }
+
+    public void setMode(String mode) {
+        m_mode = mode;
     }
 }
