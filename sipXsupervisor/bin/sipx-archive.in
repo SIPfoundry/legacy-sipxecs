@@ -195,21 +195,34 @@ class FtpFileManager < FileManagerBase
     @ftp.rmdir!("#{@path}/#{b}")
   end
 
+  def mkdir_p(dir)
+    p = ''
+    dir.split('/').each {|d|
+      p = p + d + '/'
+      begin
+        @ftp.file.directory? p
+      rescue Net::SFTP::StatusException        
+        # failed? according to SFTP lib then it's not a directory.
+        @ftp.mkdir!(p)
+      end
+    }
+  end
+
   def upload(b)
-    begin
-      @ftp.mkdir!("#{@path}/#{b}")
-    rescue Net::SFTP::StatusException
-      # failed? then must already exist, i couldn't find a better way to test
-      # directory existance in SFTP's API --Douglas
-    end
+    mkdir_p "#{@path}/#{b}"
     Dir["#{@backup_dir}/#{b}/*"].each {|f|
       @ftp.upload!(f, "#{@path}/#{b}/#{File.basename(f)}")
     }
   end
 
   def list
-    candidates = @ftp.dir.glob(@path, '*').collect { |f| f.name }
-    select_backups(candidates)
+    begin
+      candidates = @ftp.dir.glob(@path, '*').collect { |f| f.name }
+      select_backups(candidates)
+    rescue Net::SFTP::StatusException
+      # you can get failure if dir doesn't exist yet. cowardly fail
+      return []
+    end
   end
 
   def list_items(b)
@@ -252,7 +265,7 @@ class LocalFileManager < FileManagerBase
   end
 
   def link
-    "/sipxconfig/backup"
+    @backup_dir
   end
 
   def stage(dir, file, dst)

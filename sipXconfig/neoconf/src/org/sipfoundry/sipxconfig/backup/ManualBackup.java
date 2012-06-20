@@ -16,8 +16,6 @@ package org.sipfoundry.sipxconfig.backup;
 
 import java.io.File;
 
-import org.sipfoundry.sipxconfig.common.UserException;
-
 /**
  * Summary of steps to perform a backup:
  * 1.) write custom backup plan in each CFDATA/$location for each location
@@ -37,17 +35,13 @@ public class ManualBackup {
     public void backup(BackupPlan plan, BackupSettings settings) {
         File planFile = getBackupConfig().writeManualBackupConfigs(plan, settings);
         BackupCommandRunner runner = new BackupCommandRunner(planFile, getBackupManager().getBackupScript());
-        String beforeBackup = runner.lastBackup(); // null is ok
         runner.backup();
-        String afterBackup = runner.lastBackup();
-        if (afterBackup.equals(beforeBackup)) {
-            throw new UserException("Failed to perform backup");
-        }
     }
 
     public void setBackupManager(BackupManager backupManager) {
         m_backupManager = backupManager;
     }
+
     public void setBackupConfig(BackupConfig backupConfig) {
         m_backupConfig = backupConfig;
     }

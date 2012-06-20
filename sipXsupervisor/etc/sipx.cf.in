@@ -150,6 +150,7 @@ body copy_from master_files(server,dir) {
   source => "$(dir)";
   trustkey => "true";
   compare => "digest";
+  copy_backup => "false";
 }
 
 bundle agent sipx_init {

@@ -28,6 +28,7 @@ import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.backup.BackupCommandRunner;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupPlan;
+import org.sipfoundry.sipxconfig.backup.BackupType;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 
 public abstract class BackupTable extends BaseComponent {
@@ -85,12 +86,20 @@ public abstract class BackupTable extends BaseComponent {
         return Arrays.asList(Arrays.copyOfRange(row, 1, row.length));
     }
 
-    public String getDownloadLink() {
+    public String getBackupPath() {
+        return getBackupId() + '/' + getBackupFile();
+    }
+
+    public String getRemoteDownloadLink() {
         return getDownloadLinkBase() + '/' + getBackupPath();
     }
 
-    public String getBackupPath() {
-        return getBackupId() + '/' + getBackupFile();
+    public String getLocalDownloadDir() {
+        return getDownloadLinkBase() + '/' + getBackupId();
+    }
+
+    public boolean isLocalLink() {
+        return getBackupPlan().getType() == BackupType.local;
     }
 
     @Override
@@ -107,10 +116,10 @@ public abstract class BackupTable extends BaseComponent {
                 backups = backups.subList(0, getTableSize());
             }
             setBackups(backups);
-        }
 
-        if (getDownloadLinkBase() == null && !backups.isEmpty()) {
-            setDownloadLinkBase(getBackupManager().getBackupLink(getBackupPlan()));
+            if (!backups.isEmpty()) {
+                setDownloadLinkBase(runner.getBackupLink());
+            }
         }
     }
 }

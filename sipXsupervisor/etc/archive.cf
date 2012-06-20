@@ -169,6 +169,7 @@ bundle agent backup_collect_files(backup_id, node_fqdn) {
         depth_search => recurse("1");
 }
 
+
 # Run restore
 # This assumes following on primary node
 # 1.) files have already been staged into $(sipx.SIPX_TMPDIR)/restore

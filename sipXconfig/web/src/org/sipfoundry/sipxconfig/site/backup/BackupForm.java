@@ -25,7 +25,6 @@ import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
-import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
@@ -73,7 +72,6 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
         }
     }
 
-    @Persist(value = "client")
     @InitialValue("literal:auto")
     public abstract void setMode(String mode);
 

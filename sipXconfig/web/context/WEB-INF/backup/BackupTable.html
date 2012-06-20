@@ -9,8 +9,17 @@
         <span jwcid="@If" condition="ognl:selections != null">
           <span jwcid="selected@Checkbox" value="ognl:selections.selected[#this.backupPath]"/> 
         </span>
-        <a jwcid="link@Any"
-          href="ognl:downloadLink"><span jwcid="linkName@Insert" value="ognl:backupFile" /></a>
+        <!--  file:// -->
+        <span jwcid="@If" condition="ognl:localLink">
+          <span jwcid="@common/DownloadLink"
+            dirName="ognl:localDownloadDir" fileName="ognl:backupFile" contentType="literal:tar/x-gzip">
+            <span jwcid="@Insert" value="ognl:backupFile" /></span>
+        </span>
+        <!--  xyz:// -->
+        <span jwcid="@Else">
+          <a jwcid="@Any"
+            href="ognl:downloadLink"><span jwcid="@Insert" value="ognl:backupFile" /></a>
+        </span>
       </span>
     </li>
   </ul>
