@@ -87,19 +87,11 @@ jprop_to_config([_ | T], Conf) ->
 
 -spec load(#conf{}) -> ok.
 load(Conf) ->
-
-    %% since passing in {ssl, false} leads to an error
-    Args0 = [{port, Conf#conf.port}],
-    Args = case Conf#conf.ssl of
-        true -> [{ssl, true}|Args0];
-        _ -> Args0
-    end,
-
     cpx_supervisor:update_conf(cpx_web_management,
         #cpx_conf{id = cpx_web_management,
             module_name = cpx_web_management,
             start_function = start_link,
-            start_args = [Args],
+            start_args = [[{ssl, Conf#conf.ssl}, {port, Conf#conf.port}]],
             supervisor = management_sup}).
 
 -spec unload(any()) -> ok.
