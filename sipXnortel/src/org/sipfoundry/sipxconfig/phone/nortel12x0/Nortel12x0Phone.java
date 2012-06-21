@@ -31,7 +31,7 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
-import org.sipfoundry.sipxconfig.service.UnmanagedService;
+import org.sipfoundry.sipxconfig.phonelog.PhoneLog;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
@@ -172,7 +172,7 @@ public class Nortel12x0Phone extends Phone {
 
         @SettingEntry(path = SYSLOG_SERVER)
         public String getSyslogServer() {
-            Address sys = m_defaults.getAddressManager().getSingleAddress(UnmanagedService.SYSLOG);
+            Address sys = m_defaults.getAddressManager().getSingleAddress(PhoneLog.PHONELOG);
             return sys != null ? sys.getAddress() : null;
         }
 

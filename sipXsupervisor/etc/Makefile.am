@@ -37,6 +37,7 @@ dist_cfplugins_DATA = \
 	firewall.cf \
 	dhcpd.cf \
 	ntpd.cf \
+	phonelog.cf \
 	sendmail.cf \
 	archive.cf \
 	zz_sipxlogwatcher.cf

@@ -18,7 +18,6 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.site.service.EditPresenceService;
 
 public abstract class ListAcdServers extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "acd/ListAcdServers";
@@ -43,9 +42,7 @@ public abstract class ListAcdServers extends SipxBasePage implements PageBeginRe
     }
 
     public IPage activatePresenceServerPage(IRequestCycle cycle) {
-        EditPresenceService page = (EditPresenceService) cycle.getPage(EditPresenceService.PAGE);
-        page.setReturnPage(ListAcdServers.PAGE);
-        return page;
+        return null;
     }
 
     public void formSubmit() {
