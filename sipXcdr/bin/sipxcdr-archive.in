@@ -76,11 +76,13 @@ class Restore < ArchiveBase
     
     unless params[:dryrun]
       cmd "#{@initd}/sipxcdr stop" if params[:restart]
+      cmd "#{@initd}/sipxproxy stop" if params[:restart]
       cmd "dropdb -U #{@pguser} #{@db}"
       # alter database command need double quotes if db name is capitalized. Also, first set of double
       # quotes is lost passing thru ruby
       sql_exec('postgres', "alter database \\\"#{@restoredb}\\\" rename to \\\"#{@db}\\\";") or
         raise "Could not rename database. Please run '#{@initd}/sipxcdr db create' to reset your system."
+      cmd "#{@initd}/sipxproxy start" if params[:restart]
       cmd "#{@initd}/sipxcdr start" if params[:restart]
     end    
   end
