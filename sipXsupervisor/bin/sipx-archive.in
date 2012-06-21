@@ -234,7 +234,7 @@ class FtpFileManager < FileManagerBase
   end
 
   def stage(dir, file, dst)
-    @ftp.download("#{@path}/#{dir}/#{file}", "#{dst}/#{file}")
+    @ftp.download!("#{@path}/#{dir}/#{file}", "#{dst}/#{file}")
   end
 end
 
