@@ -50,7 +50,7 @@ public class CounterpathProfileContext extends ProfileContext<Phone> {
             LeafSettings ls = new LeafSettings();
             line.getSettings().acceptVisitor(ls);
             lineSipSettings.add(ls.getSip());
-            if (isImEnabled(line)) {
+            if (isImEnabled(line) && (Boolean)line.getSettingTypedValue("xmpp-config/configured")) {
                 lineXmppSettings.add(ls.getXmpp());
             }
 
