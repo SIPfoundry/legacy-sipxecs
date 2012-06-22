@@ -15,6 +15,7 @@
      <packagereq type="mandatory">sipxbridge</packagereq>
      <packagereq type="mandatory">sipxivr</packagereq>
      <packagereq type="mandatory">sipxopenfire</packagereq>
+     <packagereq type="mandatory">sipxopenacd</packagereq>
      <packagereq type="mandatory">sipximbot</packagereq>
      <packagereq type="mandatory">sipxfreeswitch</packagereq>
      <packagereq type="mandatory">sipxdns</packagereq>
