@@ -4,3 +4,6 @@
 [submodule "OpenACD"]
 	path = OpenACD
 	url = git://github.com/dhubler/OpenACD.git
+[submodule "homer"]
+	path = homer
+	url = http://code.google.com/p/homer/
