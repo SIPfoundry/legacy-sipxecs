@@ -117,7 +117,7 @@ iso-check-% :
 	rpm --initdb --dbpath $(abspath $@.test)
 	rpm --test --dbpath $(abspath $@.test) -Uvh $(ISO_DISC)/Packages/*.{noarch,$(ARCH)}.rpm
 
-# Down rpms that are not on disc 1
+# be nice to mirror servers, don't hit them unless clean is called
 .SECONDARY: iso-download-os-32 iso-download-os-64 iso-download-epel-32 iso-download-epel-64
 iso-download-os-% : Makefile
 	test -f $@ || rsync -av --delete \
@@ -135,7 +135,9 @@ iso-packages-% : iso-download-os-% iso-download-epel-%
 	rsync -av $(ARCH)-os-Packages/  $(ISO_DISC)/Packages/
 	rsync -av $(ARCH)-epel-Packages/  $(ISO_DISC)/Packages/
 	rsync -av $(realpath @RPM_DIST_DIR@)/CentOS_6/$(ARCH)/ $(ISO_DISC)/Packages/
-	find $(ISO_DISC)/Packages -not -name 'java-1.6.0-openjdk-devel-*.rpm' | grep $(foreach REGEX,$(ISO_RM_LIST),-e '.*/$(REGEX)') | xargs rm
+	find $(ISO_DISC)/Packages -not -name 'java-1.6.0-openjdk-devel-*.rpm' \
+	   | grep $(foreach REGEX,$(ISO_RM_LIST),-e '.*/$(REGEX)') \
+	   | xargs rm
 
 ISO_RM_LIST = \
   freeswitch-[^1].* \
@@ -144,7 +146,7 @@ ISO_RM_LIST = \
   .*-doc-.* \
   .*-debuginfo-.* \
   .*-devel-.* \
-  sipxlang.*
+  sipxlang.*  # language packs too big to put on cd
 
 ISO_ADD_SIPX = \
   sipx-* \
@@ -165,8 +167,17 @@ ISO_ADD_SIPX = \
 # Note, this list controls 32 and 64 bit lists so if 32 bit does not need
 # to download but 64 bit does, it will be in this list and 32 bit download will simply
 # be redundant.
+
+# Lists were built by installed sipxecs and then listing rpms that were installed by
+# yum. Then to double-check you got all deps, run "make iso-check-64" for example
+# which will process rpms to ensure all deps are there.
+#
+# glob tip: If you want package "foo" but not "foo-bar" then include more of glob expression
+# which is unanimously the first number of the version.  e.g. foo-3*
+#
+
 ISO_ADD_EPEL = \
-  erlang-R14B-* \
+  erlang-R14B-* \   # JV believes erlang list can be dramatically reduced but we haven't investigated
   erlang-appmon-* \
   erlang-asn1-* \
   erlang-common_test-* \
