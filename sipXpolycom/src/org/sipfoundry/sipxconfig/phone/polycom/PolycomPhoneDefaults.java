@@ -13,7 +13,7 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
-import org.sipfoundry.sipxconfig.service.UnmanagedService;
+import org.sipfoundry.sipxconfig.phonelog.PhoneLog;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
@@ -139,7 +139,7 @@ public class PolycomPhoneDefaults {
 
     @SettingEntry(path = "log/device.syslog/serverName")
     public String getSyslogServer() {
-        Address syslog = m_defaults.getAddressManager().getSingleAddress(UnmanagedService.SYSLOG);
+        Address syslog = m_defaults.getAddressManager().getSingleAddress(PhoneLog.PHONELOG);
         return (syslog != null ? syslog.getAddress() : "");
     }
 }

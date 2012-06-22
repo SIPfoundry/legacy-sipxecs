@@ -1,0 +1,107 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# This is phonelog / rsyslogd configuration. Uses either /etc/init.d./rsyslog (centos 6) or 
+# /bin/systemctl (fedora 16) scripts whichever are available.
+#
+
+bundle agent phonelog {
+  methods:
+    "any" usebundle => "rsyslog_config";
+    fedora16_or_greater::
+      "any" usebundle => "rsyslogd_systemctl_running";
+    !fedora16_or_greater::
+      "any" usebundle => "rsyslogd_sysv_running";
+}
+
+bundle agent rsyslog_config {
+  files:
+    phonelog::
+      "/etc/rsyslog.conf"
+        comment => "add phonelog config to rsyslog.conf",
+        edit_line => append_if_no_line('$IncludeConfig /etc/rsyslog.d/phonelog.conf'),
+        classes => if_repaired("restart_rsyslogd");
+
+      "/etc/rsyslog.d/phonelog.conf"
+        comment => "create phonelog config",
+        create => "true",
+        perms => m("644"),
+        edit_line => phonelog_config,
+        classes => if_repaired("restart_rsyslogd");
+
+    !phonelog::
+      "/etc/rsyslog.conf"
+        comment => "remove phonelog config from rsyslog.conf",
+        edit_line => delete_lines_matching('$IncludeConfig /etc/rsyslog.d/phonelog.conf'),
+        classes => if_repaired("restart_rsyslogd");
+      
+      "/etc/rsyslog.d/phonelog.conf"
+        comment => "remove phonelog config",
+        delete => tidy,
+        classes => if_repaired("restart_rsyslogd");
+}
+
+bundle edit_line phonelog_config {
+  insert_lines:
+any::
+"$ModLoad imudp
+$UDPServerRun 514
+$template DynaFile,\"$(sipx.SIPX_LOGDIR)/phonelog/%fromhost-ip%/phonelog.log\"
+*.* -?DynaFile";
+  delete_lines:
+    ".*";
+}
+
+bundle agent rsyslogd_systemctl_running {
+  vars:
+    "service" string => "rsyslogd.service";
+
+  classes:
+    # wrap w/fedora16_or_greater to avoid 
+    fedora16_or_greater::
+      "rsyslog_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+
+  commands:
+    # NOTE: Start/stop commands will complain about not being able to open a TTY, but commands
+    # to complete their task
+    rsyslog_running.restart_rsyslogd.phonelog::
+       "$(sipx.systemctl)"
+        comment => "stop rsyslog",
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "start rsyslog",
+        args => "start $(service)";
+
+}
+
+
+bundle agent rsyslogd_sysv_running {
+  vars:
+   "service" string => "/etc/init.d/rsyslog";
+   "service_command" string => "/sbin/rsyslogd";
+
+  methods:
+    "any" usebundle => find_service_by_command("$(service_command)", "rsyslog_running", "root");
+
+  commands:
+    phonelog.rsyslog_running.restart_rsyslogd::
+      "$(service)"
+        comment => "restart rsyslog",
+        args => "restart";
+
+}
+
+
+

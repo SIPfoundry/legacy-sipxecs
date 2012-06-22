@@ -357,10 +357,13 @@
     </setting>
   </group>
   <group name="xmpp-config">
-    <setting name="enabled" hidden="yes">
-      <type>
-        <boolean />
-      </type>
+    <setting name="configured">
+      <type refid="true-false" />
+      <value>false</value>
+    </setting>  
+    <setting name="enabled">
+      <type refid="true-false" />
+      <value>false</value>
     </setting>
     <setting name="domain" hidden="yes" />
     <setting name="username" hidden="yes" />

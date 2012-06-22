@@ -18,7 +18,7 @@ import static org.sipfoundry.sipxconfig.phone.snom.SnomConstants.TIMEZONE_SETTIN
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
-import org.sipfoundry.sipxconfig.service.UnmanagedService;
+import org.sipfoundry.sipxconfig.phonelog.PhoneLog;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class SnomDefaults {
@@ -54,7 +54,7 @@ public class SnomDefaults {
 
     @SettingEntry(path = SYSLOG_SERVER)
     public String getSyslogServer() {
-        Address sys = m_defaults.getAddressManager().getSingleAddress(UnmanagedService.SYSLOG);
+        Address sys = m_defaults.getAddressManager().getSingleAddress(PhoneLog.PHONELOG);
         return sys != null ? sys.getAddress() : null;
     }
 

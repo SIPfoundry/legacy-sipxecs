@@ -17,7 +17,7 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.dns.DnsManager;
-import org.sipfoundry.sipxconfig.service.UnmanagedService;
+import org.sipfoundry.sipxconfig.phonelog.PhoneLog;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 /**
@@ -131,13 +131,13 @@ public class AudioCodesGatewayDefaults {
 
     @SettingEntry(path = "Network/EnableSyslog")
     public boolean getEnableSyslog() {
-        Address syslog = m_defaults.getAddressManager().getSingleAddress(UnmanagedService.SYSLOG);
+        Address syslog = m_defaults.getAddressManager().getSingleAddress(PhoneLog.PHONELOG);
         return null != syslog;
     }
 
     @SettingEntry(paths = { "Network/SyslogServerIP", "advanced_general/CDR/CDRSyslogServerIP" })
     public String getSyslogServerIP() {
-        Address syslog = m_defaults.getAddressManager().getSingleAddress(UnmanagedService.SYSLOG);
+        Address syslog = m_defaults.getAddressManager().getSingleAddress(PhoneLog.PHONELOG);
         return syslog != null ? syslog.getAddress() : null;
     }
 
