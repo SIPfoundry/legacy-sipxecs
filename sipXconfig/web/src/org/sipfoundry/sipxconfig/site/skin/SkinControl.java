@@ -142,12 +142,6 @@ public class SkinControl implements BeanFactoryAware {
             if (m_messageSourceBeanId != null) {
                 m_messageSources.add((MessageSource) m_beanFactory.getBean(m_messageSourceBeanId));
             }
-
-            Map<String, MessageSourceProvider> beanMap = m_beanFactory.getBeansOfType(MessageSourceProvider.class,
-                    false, false);
-            for (MessageSourceProvider p : beanMap.values()) {
-                m_messageSources.add(p.getMessageSource());
-            }
         }
 
         int nop = 0;
