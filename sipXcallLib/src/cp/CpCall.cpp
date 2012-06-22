@@ -524,7 +524,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
             addHistoryEvent(msgSubType, multiStringMessage);
             {
                 OsWriteLock lock(mDtmfQMutex);
-                int ev = ((CpMultiStringMessage&)eventMessage).getInt1Data();
+                intptr_t ev = ((CpMultiStringMessage&)eventMessage).getInt1Data();
 
                 assert(mDtmfQLen < MAX_NUM_TONE_LISTENERS);
 
