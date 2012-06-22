@@ -176,8 +176,9 @@ ISO_ADD_SIPX = \
 # which is unanimously the first number of the version.  e.g. foo-3*
 #
 
+# JV believes erlang list can be dramatically reduced but we haven't investigated
 ISO_ADD_EPEL = \
-  erlang-R14B-* \   # JV believes erlang list can be dramatically reduced but we haven't investigated
+  erlang-R14B-* \
   erlang-appmon-* \
   erlang-asn1-* \
   erlang-common_test-* \
