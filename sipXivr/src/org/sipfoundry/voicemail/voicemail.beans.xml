@@ -18,6 +18,7 @@
     <property name="validUsers" ref="validUsers" />
     <property name="alarmClient" ref="alarmClient" />
     <property name="voicemailConfiguration" ref="voicemailConfiguration" />
+    <property name="recordRate" value="${record.rate}" />
   </bean>
 
   <bean id="depositAction" class="org.sipfoundry.voicemail.Deposit" scope="eslRequest">

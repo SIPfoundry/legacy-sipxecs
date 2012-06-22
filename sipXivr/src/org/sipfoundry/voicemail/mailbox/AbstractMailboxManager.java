@@ -43,6 +43,8 @@ public abstract class AbstractMailboxManager implements MailboxManager {
     private String m_secret;
     private Emailer m_emailer;
     private String m_identity;
+    private String m_audioFormat;
+    private String m_altAudioFormat;
 
     protected abstract VmMessage saveTempMessageInStorage(User destUser, TempMessage message,
             MessageDescriptor descriptor, String messageId);
@@ -59,8 +61,8 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         try {
             String audioPath = null;
             if (audio) {
-                File wavFile = File.createTempFile("temp_recording_", ".wav", getTempFolder(username));
-                audioPath = wavFile.getPath();
+                File audioFile = File.createTempFile("temp_recording_", "." + m_audioFormat, getTempFolder(username));
+                audioPath = audioFile.getPath();
             }
             return new TempMessage(username, audioPath, fromUri, Priority.NORMAL, null);
         } catch (IOException e) {
@@ -70,14 +72,14 @@ public abstract class AbstractMailboxManager implements MailboxManager {
 
     @Override
     public final void deleteTempMessage(TempMessage message) {
-        FileUtils.deleteQuietly(new File(message.getTempWavPath()));
+        FileUtils.deleteQuietly(new File(message.getTempPath()));
     }
 
     @Override
     public final void storeInInbox(User destUser, TempMessage message) {
         // Not this one, just delete any temp file
         if (!message.isToBeStored()) {
-            FileUtils.deleteQuietly(new File(message.getTempWavPath()));
+            FileUtils.deleteQuietly(new File(message.getTempPath()));
             return;
         }
 
@@ -252,11 +254,11 @@ public abstract class AbstractMailboxManager implements MailboxManager {
     protected String getGreetingTypeName(GreetingType type) {
         switch (type) {
         case STANDARD:
-            return "standard.wav";
+            return String.format("standard.%s", m_audioFormat);
         case OUT_OF_OFFICE:
-            return "outofoffice.wav";
+            return String.format("outofoffice.%s", m_audioFormat);
         case EXTENDED_ABSENCE:
-            return "extendedabs.wav";
+            return String.format("extendedabs.%s", m_audioFormat);
         default:
             return null;
         }
@@ -290,6 +292,14 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         }
     }
 
+    public String getNameFile() {
+        return String.format("name.%s", m_audioFormat);
+    }
+
+    public String getPromptFile() {
+        return String.format("customautoattendant-%d.%s", System.currentTimeMillis() / 1000, m_audioFormat);
+    }
+
     public void setMailstoreDirectory(String dir) {
         m_mailstoreDirectory = dir;
     }
@@ -320,6 +330,23 @@ public abstract class AbstractMailboxManager implements MailboxManager {
 
     public void setIvrIdentity(String identity) {
         m_identity = identity;
+    }
+
+    public void setAudioFormat(String format) {
+        m_audioFormat = format;
+        if (m_audioFormat.equals("mp3")) {
+            m_altAudioFormat = "wav";
+        } else {
+            m_altAudioFormat = "mp3";
+        }
+    }
+
+    public String getAudioFormat() {
+        return m_audioFormat;
+    }
+
+    public String getAltAudioFormat() {
+        return m_altAudioFormat;
     }
 
 }

@@ -20,6 +20,7 @@ public class Record extends CallCommand {
     private Break m_breaker;
     private String m_recordFile;
     private int m_recordTime; // in seconds
+    private int m_recordRate = 8000;
 
     public Record(FreeSwitchEventSocketInterface fses) {
         super(fses);
@@ -65,6 +66,10 @@ public class Record extends CallCommand {
     	return m_recordTime;
     }
 
+    public void setRecordRate(int recordRate) {
+        this.m_recordRate = recordRate;
+    }
+
     @Override
     public boolean start() {
         m_finished = false;
@@ -100,7 +105,7 @@ public class Record extends CallCommand {
     }
 
     void startRecord() {
-        new Set(m_fses, "record_rate","8000").go();
+        new Set(m_fses, "record_rate",String.valueOf(m_recordRate)).go();
         new Set(m_fses, "playback_terminators", m_digitMask).go();
     	m_stopped = true;
     	m_command = String.format("record\nexecute-app-arg: %s %d 200 10", m_recordFile, m_recordTime);

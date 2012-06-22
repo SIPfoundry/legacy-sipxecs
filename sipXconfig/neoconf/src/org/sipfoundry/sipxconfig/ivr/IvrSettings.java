@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class IvrSettings extends PersistableSettings implements DeployConfigOnEdit {
     private static final String HTTP_PORT = "ivr/ivr.httpPort";
+    private static final String AUDIO_FORMAT = "ivr/audio.format";
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
@@ -39,6 +40,10 @@ public class IvrSettings extends PersistableSettings implements DeployConfigOnEd
 
     public int getHttpPort() {
         return (Integer) getSettingTypedValue(HTTP_PORT);
+    }
+
+    public String getAudioFormat() {
+        return getSettingValue(AUDIO_FORMAT);
     }
 
     @Override

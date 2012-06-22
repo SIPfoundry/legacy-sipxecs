@@ -31,6 +31,26 @@
       </option>
     </enum>
   </type>
+  <type id="audioformat">
+    <enum>
+      <option>
+        <value>wav</value>
+      </option>
+      <option>
+        <value>mp3</value>
+      </option>
+    </enum>
+  </type>
+  <type id="recordrate">
+    <enum>
+      <option>
+        <value>8000</value>
+      </option>
+      <option>
+        <value>16000</value>
+      </option>
+    </enum>
+  </type>
   <type id="faxformat">
     <enum>
       <option>
@@ -45,6 +65,14 @@
     <setting name="log.level">
       <type refid="loglevel" />
       <value>NOTICE</value>
+    </setting>
+    <setting name="audio.format">
+      <type refid="audioformat" />
+      <value>wav</value>
+    </setting>
+    <setting name="record.rate">
+      <type refid="recordrate" />
+      <value>8000</value>
     </setting>
     <setting name="fax.format">
       <type refid="faxformat" />

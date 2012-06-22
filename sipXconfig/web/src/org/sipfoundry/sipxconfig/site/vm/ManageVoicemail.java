@@ -49,6 +49,7 @@ import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.externaltools.ToolbarDownloadContext;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.login.PrivateUserKeyManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.sip.SipService;
@@ -82,6 +83,9 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
 
     @InjectObject("spring:sip")
     public abstract SipService getSipService();
+
+    @InjectObject("spring:ivr")
+    public abstract Ivr getIvr();
 
     @InjectObject("spring:privateUserKeyManager")
     public abstract PrivateUserKeyManager getPrivateUserKeyManager();
@@ -328,5 +332,9 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
 
     public String getDownloadToolbarLabel() {
         return getMessages().format("prompt.installtoolbar", getMessages().getMessage("product.name.short"));
+    }
+
+    public boolean showOnlyExternalPlayer() {
+        return getIvr().getSettings().getAudioFormat().equals("mp3");
     }
 }

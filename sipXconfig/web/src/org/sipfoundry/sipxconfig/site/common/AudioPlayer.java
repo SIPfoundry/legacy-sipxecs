@@ -26,6 +26,9 @@ public abstract class AudioPlayer extends BaseComponent {
     @Parameter(defaultValue = "false")
     public abstract boolean getAutoplay();
 
+    @Parameter(defaultValue = "false")
+    public abstract boolean getShowOnlyExternalPlayer();
+
     public abstract String getActivePlayerId();
     public abstract void setActivePlayerId(String activePlayerId);
 

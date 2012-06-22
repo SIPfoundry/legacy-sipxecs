@@ -162,5 +162,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-net-3.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/thumbnailator-0.4.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mysql-connector-java-5.1.20-bin.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jaudiotagger-2.0.4-20111207.115108-15.jar"/>
 	<classpathentry kind="output" path="bin.eclipse/classes"/>
 </classpath>

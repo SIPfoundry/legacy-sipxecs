@@ -43,6 +43,7 @@ public class Emailer implements ApplicationContextAware {
     private ExecutorService m_es;
     private Session m_session;
     private ApplicationContext m_context;
+    private String m_audioFormat;
 
     public void init() {
         m_es = Executors.newCachedThreadPool();
@@ -134,7 +135,7 @@ public class Emailer implements ApplicationContextAware {
 
                     DataSource dataSource = new FileDataSource(file) {
                         public String getContentType() {
-                            return "audio/x-wav";
+                            return getMimeType();
                         }
                     };
 
@@ -173,6 +174,13 @@ public class Emailer implements ApplicationContextAware {
                 message.setHeader("X-Priority", "1");
             }
             return message;
+        }
+
+        private String getMimeType() {
+            if (m_audioFormat.equals("mp3")) {
+                return "audio/x-mp3";
+            }
+            return "audio/x-wav";
         }
 
         /**
@@ -266,5 +274,9 @@ public class Emailer implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext context) {
         m_context = context;
+    }
+
+    public void setAudioFormat(String format) {
+        m_audioFormat = format;
     }
 }

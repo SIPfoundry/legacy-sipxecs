@@ -13,6 +13,7 @@
     <property name="messageDescriptorReader" ref="messageDescriptorReader" />
     <property name="emailer" ref="emailer" />
     <property name="mwiManager" ref="mwiManager" />
+    <property name="audioFormat" value="${audio.format}" />
   </bean>
 
   <bean id="messageDescriptorWriter" class="org.sipfoundry.voicemail.mailbox.MessageDescriptorWriter" />

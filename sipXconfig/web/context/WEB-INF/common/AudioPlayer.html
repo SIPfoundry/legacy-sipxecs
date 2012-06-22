@@ -1,18 +1,23 @@
-<span jwcid="@If" condition="ognl:showPlayer">
-  <span jwcid="@If" condition="ognl:autoplay">
-	<audio jwcid="@Any" src="ognl:url" autoplay="true" controls="true" tabindex="0">
-		<span jwcid="@RenderBlock" block="ognl:components.get('audioBlock')"/>
-	</audio>
-  </span>
-  <span jwcid="@Else">
-	<audio jwcid="@Any" src="ognl:url" controls="true" tabindex="0">
-		<span jwcid="@RenderBlock" block="ognl:components.get('audioBlock')"/>
-	</audio>
-  </span>
+<span jwcid="@If" condition="ognl:showOnlyExternalPlayer">
+  <span jwcid="@RenderBlock" block="ognl:components.get('audioBlock')"/>
 </span>
 <span jwcid="@Else">
+  <span jwcid="@If" condition="ognl:showPlayer">
+    <span jwcid="@If" condition="ognl:autoplay">
+	  <audio jwcid="@Any" src="ognl:url" autoplay="true" controls="true" tabindex="0">
+		  <span jwcid="@RenderBlock" block="ognl:components.get('audioBlock')"/>
+	  </audio>
+    </span>
+    <span jwcid="@Else">
+	  <audio jwcid="@Any" src="ognl:url" controls="true" tabindex="0">
+		  <span jwcid="@RenderBlock" block="ognl:components.get('audioBlock')"/>
+	  </audio>
+    </span>
+  </span>
+  <span jwcid="@Else">
 	<input type="image" jwcid="@ImageSubmit" image="asset:playVoicemailAsset"
 		   listener="listener:notifyPlay" alt="play"/>
+  </span>
 </span>
 
 <span jwcid="audioBlock@Block">

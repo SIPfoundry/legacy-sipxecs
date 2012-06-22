@@ -24,6 +24,8 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
 import org.apache.log4j.Logger;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.voicemail.mailbox.MessageDescriptor.Priority;
 
@@ -32,7 +34,7 @@ public class TempMessage {
     private String m_fromUri;
     private Priority m_priority;
     private List<User> m_otherRecipients;
-    private String m_tempWavPath;
+    private String m_tempPath;
     private boolean m_isToBeStored = true;
     private long m_duration = 0L;
     private long m_timestamp;
@@ -40,8 +42,8 @@ public class TempMessage {
     private String m_currentUser;
     private String m_savedMessageId;
 
-    public TempMessage(String username, String wavTempPath, String fromUri, Priority priority, List<User> otherRecipients) {
-        m_tempWavPath = wavTempPath;
+    public TempMessage(String username, String tempPath, String fromUri, Priority priority, List<User> otherRecipients) {
+        m_tempPath = tempPath;
         m_fromUri = fromUri;
         m_priority = priority;
         m_otherRecipients = otherRecipients;
@@ -79,31 +81,50 @@ public class TempMessage {
 
     public long getDuration() {
         // Calculate the duration (in seconds) from the Wav file
-        if (m_tempWavPath != null) {
-            File wavFile = new File(m_tempWavPath);
-            if (wavFile != null) {
-                try {
-                    AudioInputStream ais = AudioSystem.getAudioInputStream(wavFile);
-                    float secs = ais.getFrameLength() / ais.getFormat().getFrameRate();
-                    m_duration = Math.round(secs); // Round up.
-                } catch (EOFException e) {
-                    m_duration = 0;
-                } catch (Exception e) {
-                    String trouble = "Message::getDuration Problem determining duration of " + m_tempWavPath;
-                    LOG.error(trouble, e);
-                    throw new RuntimeException(trouble, e);
+        if (m_tempPath != null) {
+            File audioFile = new File(m_tempPath);
+            if (audioFile != null) {
+                if (audioFile.getName().endsWith("mp3")) {
+                    extractMp3Duration(audioFile);
+                } else {
+                    extractWavDuration(audioFile);
                 }
             }
         }
         return m_duration;
     }
 
+    private void extractWavDuration(File audioFile) {
+        try {
+            AudioInputStream ais = AudioSystem.getAudioInputStream(audioFile);
+            float secs = ais.getFrameLength() / ais.getFormat().getFrameRate();
+            m_duration = Math.round(secs); // Round up.
+        } catch (EOFException e) {
+            m_duration = 0;
+        } catch (Exception e) {
+            String trouble = "Message::getDuration Problem determining duration of " + m_tempPath;
+            LOG.error(trouble, e);
+            throw new RuntimeException(trouble, e);
+        }
+    }
+
+    private void extractMp3Duration(File audioFile) {
+        try {
+            AudioFile mp3File = AudioFileIO.read(audioFile);
+            m_duration = mp3File.getAudioHeader().getTrackLength();
+        } catch (Exception e) {
+            String trouble = "Message::getDuration Problem determining duration of " + m_tempPath;
+            LOG.error(trouble, e);
+            throw new RuntimeException(trouble, e);
+        }
+    }
+
     public long getTimestamp() {
         return m_timestamp;
     }
 
-    public String getTempWavPath() {
-        return m_tempWavPath;
+    public String getTempPath() {
+        return m_tempPath;
     }
 
     public String getCurrentUser() {

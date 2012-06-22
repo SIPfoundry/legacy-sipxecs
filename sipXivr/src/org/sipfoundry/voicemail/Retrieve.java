@@ -570,7 +570,7 @@ public class Retrieve extends AbstractVmAction {
                     // To cancel, press *"
                     comments = recordForwardComment("msg_record_comments", "msg_confirm_comments");
 
-                    if (comments.getTempWavPath() == null) {
+                    if (comments.getTempPath() == null) {
                         continue;
                     }
                 } else if (digit.equals("2")) {
@@ -1071,30 +1071,30 @@ public class Retrieve extends AbstractVmAction {
     }
 
     /**
-     * Record a wav file with confirmation dialog.
+     * Record a wav / mp3 file with confirmation dialog.
      *
      * @param recordFragment To play before the recording
      * @param confirmMenuFragment To play after the recording
-     * @return the temporary wav file. null if recording is to be tossed
+     * @return the temporary wav / mp3 file. null if recording is to be tossed
      */
     TempMessage recordDialog(String recordFragment, String confirmMenuFragment) {
         TempMessage tempMessage = m_mailboxManager.createTempMessage(getCurrentUser().getUserName(),
                 getCurrentUser().getUri(), true);
-        String wavPath = tempMessage.getTempWavPath();
-        m_tempRecordings.add(wavPath);
+        String audioPath = tempMessage.getTempPath();
+        m_tempRecordings.add(audioPath);
 
-        boolean recordWav = true;
-        boolean playWav = false;
+        boolean recordAudio = true;
+        boolean playAudio = false;
         for (;;) {
 
-            if (recordWav) {
+            if (recordAudio) {
                 // Record your {thingy} then press #
                 play(recordFragment, "*");
                 // Give the user 1 second to press "*" to cancel, then start recording
                 String digit = collectDigits(1, 1000, 0, 0, "*");
                 LOG.debug("Retrieve::recordDialog collected (" + digit + ")");
                 if (digit.length() == 0 || !"*0".contains(digit)) {
-                    recordMessage(wavPath);
+                    recordMessage(audioPath);
                     digit = getDtmfDigit();
                     if (digit == null) {
                         digit = "";
@@ -1112,7 +1112,7 @@ public class Retrieve extends AbstractVmAction {
                     play("canceled", "");
                     return null;
                 }
-                recordWav = false;
+                recordAudio = false;
             }
 
             // Confirm caller's intent for this {thingy}
@@ -1124,9 +1124,9 @@ public class Retrieve extends AbstractVmAction {
             // "To delete this {thingy} and try again, press 3."
             // "To cancel, press *"
             VmDialog vmd = createVmDialog(confirmMenuFragment);
-            if (playWav) {
+            if (playAudio) {
                 PromptList messagePl = getPromptList();
-                messagePl.addPrompts(wavPath);
+                messagePl.addPrompts(audioPath);
                 vmd.setPrePromptList(messagePl);
             }
 
@@ -1142,21 +1142,21 @@ public class Retrieve extends AbstractVmAction {
             // "1" means play the recording
             if (digit.equals("1")) {
                 LOG.info(String.format("Retrieve::recordDialog " + getCurrentUser().getUserName()
-                        + " Playing back recording (%s)", wavPath));
-                playWav = true;
+                        + " Playing back recording (%s)", audioPath));
+                playAudio = true;
                 continue;
             }
 
             // "2" means accept the recording
             if (digit.equals("2")) {
                 LOG.info(String.format("Retrieve::recordDialog " + getCurrentUser().getUserName()
-                        + " accepted recording (%s)", wavPath));
+                        + " accepted recording (%s)", audioPath));
                 return tempMessage;
             }
 
             // "3" means "erase" and re-record
             if (digit.equals("3")) {
-                recordWav = true;
+                recordAudio = true;
                 continue;
             }
         }

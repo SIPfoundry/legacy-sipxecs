@@ -139,7 +139,7 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
                     if (playMessage) {
                         // (pre-menu: message)
                         PromptList messagePl = getPromptList();
-                        messagePl.addPrompts(tempMessage.getTempWavPath());
+                        messagePl.addPrompts(tempMessage.getTempPath());
                         menu.setPrePromptPl(messagePl);
                         playMessage = false; // Only play it once
                     }

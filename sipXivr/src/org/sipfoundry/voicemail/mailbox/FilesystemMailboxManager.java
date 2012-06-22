@@ -33,7 +33,7 @@ import org.sipfoundry.voicemail.mailbox.MessageDescriptor.Priority;
 
 public class FilesystemMailboxManager extends AbstractMailboxManager {
     private static final Comparator<File> FILE_DATE_COMPARATOR = new FileDateComparator();
-    private static final String AUDIO_IDENTIFIER = "-00.wav";
+    private static final String AUDIO_IDENTIFIER = "-00.%s";
     private static final String MESSAGE_IDENTIFIER = "-00.xml";
     private static final String ORIGINAL_MESSAGE_IDENTIFIER = "-01.xml";
     private static final String STATUS_IDENTIFIER = "-00.sta";
@@ -41,8 +41,8 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
     private static final String MESSAGE_REGEX = "^(\\d+)-00\\.xml$";
     private static final String STATUS_REGEX = "^(\\d+)-00\\.sta$";
     private static final String MESSAGEID_FILE_REGEX = "^%s-00.*";
-    private static final String ORIGINAL_AUDIO_IDENTIFIER = "-01.wav";
-    private static final String FW_AUDIO_IDENTIFIER = "-FW.wav";
+    private static final String ORIGINAL_AUDIO_IDENTIFIER = "-01.%s";
+    private static final String FW_AUDIO_IDENTIFIER = "-FW.%s";
     private MessageDescriptorWriter m_descriptorWriter;
     private MessageDescriptorReader m_descriptorReader;
 
@@ -71,7 +71,7 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
     protected VmMessage saveTempMessageInStorage(User destUser, TempMessage message, MessageDescriptor descriptor,
             String messageId) {
         File inboxDir = getFolder(destUser.getUserName(), Folder.INBOX);
-        File audioFile = new File(inboxDir, messageId + AUDIO_IDENTIFIER);
+        File audioFile = new File(inboxDir, messageId + String.format(AUDIO_IDENTIFIER, getAudioFormat()));
         File descriptorFile = new File(inboxDir, messageId + MESSAGE_IDENTIFIER);
         File statusFile = new File(inboxDir, messageId + STATUS_IDENTIFIER);
         File urgentFile = new File(inboxDir, messageId + URGENT_IDENTIFIER);
@@ -88,9 +88,9 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
                 FileUtils.touch(urgentFile);
             }
 
-            operation = "copying recording .wav file to " + audioFile.getPath();
+            operation = "copying recording file to " + audioFile.getPath();
             LOG.debug("VmMessage::newMessage " + operation);
-            FileUtils.copyFile(new File(message.getTempWavPath()), audioFile, true);
+            FileUtils.copyFile(new File(message.getTempPath()), audioFile, true);
 
             operation = "creating messageDescriptor " + descriptorFile.getPath();
             LOG.debug("VmMessage::newMessage " + operation);
@@ -110,10 +110,12 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
         File destinationInbox = getFolder(destUser.getUserName(), Folder.INBOX);
         File destStatus = new File(destinationInbox, newMessageId + STATUS_IDENTIFIER);
         File destUrg = new File(destinationInbox, newMessageId + URGENT_IDENTIFIER);
-        File destAudio = new File(destinationInbox, newMessageId + AUDIO_IDENTIFIER);
+        File destAudio = new File(destinationInbox, newMessageId + String.format(AUDIO_IDENTIFIER, getAudioFormat()));
         File destDescriptor = new File(destinationInbox, newMessageId + MESSAGE_IDENTIFIER);
-        File originalDestAudio = new File(destinationInbox, newMessageId + ORIGINAL_AUDIO_IDENTIFIER);
-        File destCombined = new File(destinationInbox, newMessageId + FW_AUDIO_IDENTIFIER);
+        File originalDestAudio = new File(destinationInbox, newMessageId
+                + String.format(ORIGINAL_AUDIO_IDENTIFIER, getAudioFormat()));
+        File destCombined = new File(destinationInbox, newMessageId
+                + String.format(FW_AUDIO_IDENTIFIER, getAudioFormat()));
 
         // original files
         File originalInbox = getFolder(message.getCurrentUser(), Folder.INBOX);
@@ -131,7 +133,7 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
                     operation = "creating urgent file " + destUrg.getPath();
                     FileUtils.touch(destUrg);
                     urgent = true;
-                } else if (originalFile.getName().endsWith(AUDIO_IDENTIFIER)) {
+                } else if (originalFile.getName().endsWith(String.format(AUDIO_IDENTIFIER, getAudioFormat()))) {
                     operation = "copying audio file " + destAudio.getPath();
                     FileUtils.copyFile(originalFile, destAudio);
                 } else if (originalFile.getName().endsWith(MESSAGE_IDENTIFIER)) {
@@ -144,10 +146,11 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
                     descriptor.setId(destUser.getIdentity());
                     descriptor.setSubject("Voice Message " + newMessageId);
                     m_descriptorWriter.writeObject(descriptor, destDescriptor);
-                } else if (originalFile.getName().endsWith(ORIGINAL_AUDIO_IDENTIFIER)) {
+                } else if (originalFile.getName().endsWith(
+                        String.format(ORIGINAL_AUDIO_IDENTIFIER, getAudioFormat()))) {
                     operation = "copying original audio file " + originalDestAudio.getPath();
                     FileUtils.copyFile(originalFile, originalDestAudio);
-                } else if (originalFile.getName().endsWith(FW_AUDIO_IDENTIFIER)) {
+                } else if (originalFile.getName().endsWith(String.format(FW_AUDIO_IDENTIFIER, getAudioFormat()))) {
                     operation = "copying combined audio file " + destCombined.getPath();
                     FileUtils.copyFile(originalFile, destCombined);
                 }
@@ -183,11 +186,14 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
         boolean urgent = false;
         for (File file : audioFiles) {
             String fileName = file.getName();
-            if (fileName.endsWith(AUDIO_IDENTIFIER)) {
+            if (fileName.endsWith(String.format(AUDIO_IDENTIFIER, getAudioFormat()))
+                    || fileName.endsWith(String.format(AUDIO_IDENTIFIER, getAltAudioFormat()))) {
                 audioFile = file;
-            } else if (fileName.endsWith(ORIGINAL_AUDIO_IDENTIFIER)) {
+            } else if (fileName.endsWith(String.format(ORIGINAL_AUDIO_IDENTIFIER, getAudioFormat()))
+                    || fileName.endsWith(String.format(ORIGINAL_AUDIO_IDENTIFIER, getAltAudioFormat()))) {
                 originalFile = file;
-            } else if (fileName.endsWith(FW_AUDIO_IDENTIFIER)) {
+            } else if (fileName.endsWith(String.format(FW_AUDIO_IDENTIFIER, getAudioFormat()))
+                    || fileName.endsWith(String.format(FW_AUDIO_IDENTIFIER, getAltAudioFormat()))) {
                 combinedFile = file;
             } else if (fileName.endsWith(STATUS_IDENTIFIER)) {
                 unheard = true;
@@ -322,15 +328,18 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
             // destination files
             File destinationInbox = getFolder(destUser.getUserName(), Folder.INBOX);
             File destStatus = new File(destinationInbox, newMessageId + STATUS_IDENTIFIER);
-            File destAudio = new File(destinationInbox, newMessageId + AUDIO_IDENTIFIER);
+            File destAudio = new File(destinationInbox, newMessageId
+                    + String.format(AUDIO_IDENTIFIER, getAudioFormat()));
             File destUrg = new File(destinationInbox, newMessageId + URGENT_IDENTIFIER);
-            File originalDestAudio = new File(destinationInbox, newMessageId + ORIGINAL_AUDIO_IDENTIFIER);
-            destCombined = new File(destinationInbox, newMessageId + FW_AUDIO_IDENTIFIER);
+            File originalDestAudio = new File(destinationInbox, newMessageId
+                    + String.format(ORIGINAL_AUDIO_IDENTIFIER, getAudioFormat()));
+            destCombined = new File(destinationInbox, newMessageId
+                    + String.format(FW_AUDIO_IDENTIFIER, getAudioFormat()));
             File originalDestDescriptor = new File(destinationInbox, newMessageId + ORIGINAL_MESSAGE_IDENTIFIER);
             File destDescriptor = new File(destinationInbox, newMessageId + MESSAGE_IDENTIFIER);
             FileUtils.touch(destStatus);
-            if (comments.getTempWavPath() != null) {
-                FileUtils.copyFile(new File(comments.getTempWavPath()), destAudio, true);
+            if (comments.getTempPath() != null) {
+                FileUtils.copyFile(new File(comments.getTempPath()), destAudio, true);
             } else {
                 FileUtils.touch(destAudio);
             }
@@ -344,9 +353,9 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
                 if (fileToForward.getName().endsWith(URGENT_IDENTIFIER)) {
                     FileUtils.touch(destUrg);
                     urgent = true;
-                } else if (fileToForward.getName().endsWith(AUDIO_IDENTIFIER)) {
+                } else if (fileToForward.getName().endsWith(String.format(AUDIO_IDENTIFIER, getAudioFormat()))) {
                     FileUtils.copyFile(fileToForward, originalDestAudio, true);
-                    if (comments.getTempWavPath() != null) {
+                    if (comments.getTempPath() != null) {
                         concatAudio(destCombined, destAudio, fileToForward);
                     } else {
                         FileUtils.copyFile(fileToForward, destCombined, true);
@@ -367,13 +376,13 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
 
     @Override
     public File getRecordedName(String username) {
-        return new File(getUserDirectory(username), "name.wav");
+        return new File(getUserDirectory(username), getNameFile());
     }
 
     @Override
     public void saveRecordedName(TempMessage message) {
         try {
-            FileUtils.copyFile(new File(message.getTempWavPath()), getRecordedName(message.getCurrentUser()));
+            FileUtils.copyFile(new File(message.getTempPath()), getRecordedName(message.getCurrentUser()));
         } catch (IOException ex) {
             LOG.error("Failed to save recorded name", ex);
         }
@@ -382,9 +391,9 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
     @Override
     public void saveCustomAutoattendantPrompt(TempMessage message) {
         try {
-            String aaName = String.format("customautoattendant-%d.wav", System.currentTimeMillis() / 1000);
+            String aaName = getPromptFile();
             File aaFile = new File(m_promptsDirectory, aaName);
-            FileUtils.copyFile(new File(message.getTempWavPath()), aaFile);
+            FileUtils.copyFile(new File(message.getTempPath()), aaFile);
         } catch (IOException ex) {
             LOG.error("Failed to save recorded name", ex);
         }
@@ -394,7 +403,7 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
     public void saveGreetingFile(GreetingType type, TempMessage recording) {
         try {
             File greetingFile = new File(getUserDirectory(recording.getCurrentUser()), getGreetingTypeName(type));
-            FileUtils.copyFile(new File(recording.getTempWavPath()), greetingFile);
+            FileUtils.copyFile(new File(recording.getTempPath()), greetingFile);
             // ExtMailStore.SaveGreetingInFolder(m_controller.getMailbox(), type, greetingFile);
         } catch (IOException ex) {
             LOG.error("Failed to save recorded name", ex);
@@ -440,11 +449,14 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
         boolean unheard = false;
         boolean urgent = false;
         for (File file : files) {
-            if (file.getName().endsWith(AUDIO_IDENTIFIER)) {
+            if (file.getName().endsWith(String.format(AUDIO_IDENTIFIER, getAudioFormat()))
+                    || file.getName().endsWith(String.format(AUDIO_IDENTIFIER, getAltAudioFormat()))) {
                 audioFile = file;
-            } else if (file.getName().endsWith(ORIGINAL_AUDIO_IDENTIFIER)) {
+            } else if (file.getName().endsWith(String.format(ORIGINAL_AUDIO_IDENTIFIER, getAudioFormat()))
+                    || file.getName().endsWith(String.format(ORIGINAL_AUDIO_IDENTIFIER, getAltAudioFormat()))) {
                 originalFile = file;
-            } else if (file.getName().endsWith(FW_AUDIO_IDENTIFIER)) {
+            } else if (file.getName().endsWith(String.format(FW_AUDIO_IDENTIFIER, getAudioFormat()))
+                    || file.getName().endsWith(String.format(FW_AUDIO_IDENTIFIER, getAltAudioFormat()))) {
                 combinedFile = file;
             } else if (file.getName().endsWith(MESSAGE_IDENTIFIER)) {
                 descriptor = m_descriptorReader.readObject(file);
@@ -578,7 +590,6 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
             LOG.error(String.format("failed to delete mailbox for user %s", user.getUserName()), ex);
         }
     }
-
 
     private File getFolder(String username, Folder folder) {
         File file = new File(getUserDirectory(username), folder.toString());

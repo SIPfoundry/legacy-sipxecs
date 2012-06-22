@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.voicemail;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,7 +31,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
-import org.sipfoundry.commons.util.DomainConfiguration;
 import org.sipfoundry.sipxivr.SipxIvrConfiguration;
 import org.sipfoundry.sipxivr.rest.SipxIvrServletHandler;
 import org.sipfoundry.voicemail.mailbox.MailboxManager;
@@ -91,16 +91,17 @@ public class MediaServlet extends HttpServlet {
         if (user != null) {
             if (method.equals(METHOD_GET)) {
                 VmMessage message = mailboxManager.getVmMessage(user.getUserName(), messageId, true);
+                File audioFile = message.getAudioFile();
                 response.setHeader("Expires", "0");
                 response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
                 response.setHeader("Pragma", "public");
-                response.setHeader("Content-Disposition", "attachment; filename=\"" + message.getAudioFile().getName() + "\"");
+                response.setHeader("Content-Disposition", "attachment; filename=\"" + audioFile.getName() + "\"");
 
                 OutputStream responseOutputStream = null;
                 InputStream stream = null;
                 try {
                     responseOutputStream = response.getOutputStream();
-                    stream = new FileInputStream(message.getAudioFile());
+                    stream = new FileInputStream(audioFile);
                     IOUtils.copy(stream, responseOutputStream);
                 } finally {
                     IOUtils.closeQuietly(stream);

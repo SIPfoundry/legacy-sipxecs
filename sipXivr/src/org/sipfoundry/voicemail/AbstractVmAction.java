@@ -85,7 +85,7 @@ public abstract class AbstractVmAction implements VmAction {
     }
 
     public void recordMessage(TempMessage message) {
-        m_controller.recordMessage(message.getTempWavPath());
+        m_controller.recordMessage(message.getTempPath());
     }
 
     public String collectDigits(int maxDigits, int firstDigitTimer, int interDigitTimer, int extraDigitTimer,
@@ -269,8 +269,8 @@ public abstract class AbstractVmAction implements VmAction {
         return m_controller.getFsConfig().getRealm();
     }
 
-    public void recordMessage(String wavName) {
-        m_controller.recordMessage(wavName);
+    public void recordMessage(String fileName) {
+        m_controller.recordMessage(fileName);
     }
 
     public void transferToOperator() {
