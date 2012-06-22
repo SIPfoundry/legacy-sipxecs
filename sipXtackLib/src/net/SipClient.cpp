@@ -1032,6 +1032,11 @@ void SipClient::preprocessMessage(SipMessage& msg,
             portIsValid(lastPort) ? lastPort : defaultPort();
       }
    }
+
+   //
+   // Call all sip input processors
+   //
+   mpSipUserAgent->executeAllSipInputProcessors(msg, fromIpAddress.data(), fromPort);
 }
 
 // Test whether the socket is ready to read. (Does not block.)

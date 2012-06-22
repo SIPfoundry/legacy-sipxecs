@@ -128,6 +128,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         , mMessageLogRMutex(OsRWMutex::Q_FIFO)
         , mMessageLogWMutex(OsRWMutex::Q_FIFO)
         , mOutputProcessorMutex(OsRWMutex::Q_FIFO)
+        , mSipInputProcessorMutex(OsRWMutex::Q_FIFO)
         , mpLineMgr(NULL)
         , mIsUaTransactionByDefault(defaultToUaTransactions)
         , mbUseRport(FALSE)
@@ -688,6 +689,41 @@ void SipUserAgent::executeAllSipOutputProcessors( SipMessage& message,
    // Traverse all of the processors and call their handleOutputMessage() method
    UtlSortedListIterator iterator(mOutputProcessors);
    while ((pProcessor = (SipOutputProcessor*) iterator()))
+   {
+      pProcessor->handleOutputMessage( message, address, port );
+   }
+}
+
+void SipUserAgent::addSipInputProcessor( SipInputProcessor *pProcessor )
+{
+   if( pProcessor )
+   {
+      OsWriteLock lock( mSipInputProcessorMutex );
+      mSipInputProcessors.insert( pProcessor );
+   }
+}
+
+UtlBoolean SipUserAgent::removeSipInputProcessor( SipInputProcessor *pProcessorToRemove )
+{
+   UtlBoolean bRemovedProcessor = FALSE;
+   if( pProcessorToRemove )
+   {
+      OsWriteLock lock( mSipInputProcessorMutex );
+      bRemovedProcessor = ( mSipInputProcessors.removeReference( pProcessorToRemove ) != NULL );
+   }
+   return bRemovedProcessor;
+}
+
+void SipUserAgent::executeAllSipInputProcessors( SipMessage& message,
+                                                  const char* address,
+                                                  int port )
+{
+   OsWriteLock lock(mSipInputProcessorMutex);
+   SipInputProcessor* pProcessor = NULL ;
+
+   // Traverse all of the processors and call their handleOutputMessage() method
+   UtlSortedListIterator iterator(mSipInputProcessors);
+   while ((pProcessor = (SipInputProcessor*) iterator()))
    {
       pProcessor->handleOutputMessage( message, address, port );
    }

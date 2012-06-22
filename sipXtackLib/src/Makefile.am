@@ -96,6 +96,7 @@ libsipXtack_la_SOURCES =  \
     net/SipNotifyStateTask.cpp \
     net/SipObserverCriteria.cpp \
     net/SipOutputProcessor.cpp \
+    net/SipInputProcessor.cpp \
     net/SipPimClient.cpp \
     net/SipPresenceEvent.cpp \
     net/SipProtocolServerBase.cpp \
