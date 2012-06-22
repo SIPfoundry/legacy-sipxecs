@@ -49,6 +49,7 @@ lib_common = \
   js \
   mongo \
   net-snmp \
+  homer \
   OpenACD \
   erlmongo \
   sipx-openfire \
