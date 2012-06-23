@@ -56,6 +56,7 @@ neoconf_PKGS = \
 	lucene-core \
 	mime-dir-j-vcard4j \
 	mongo \
+	mysql-connector-java \
 	org.restlet \
 	org.restlet.ext.spring \
 	org.restlet.ext.spring \

@@ -161,5 +161,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/bcprov-jdk15on-147.jar" sourcepath="/home/dhubler/libsrc/bouncycastle-src.zip/src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-net-3.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/thumbnailator-0.4.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mysql-connector-java-5.1.20-bin.jar"/>
 	<classpathentry kind="output" path="bin.eclipse/classes"/>
 </classpath>

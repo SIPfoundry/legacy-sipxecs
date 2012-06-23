@@ -17,7 +17,6 @@
 		<config>src/org/sipfoundry/sipxconfig/login/login.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/device/device.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml</config>
-		<config>src/org/sipfoundry/sipxconfig/service/service.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/phone/acme/acme-models.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/permission/permission.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/system.beans.xml</config>
@@ -70,7 +69,6 @@
 				<config>src/org/sipfoundry/sipxconfig/speeddial/speeddial.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/vm/vm.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/gateway/acme/acme-models.beans.xml</config>
-				<config>src/org/sipfoundry/sipxconfig/service/service.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/phone/acme/acme-models.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/acd/stats/acdstats.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/paging/paging.beans.xml</config>
