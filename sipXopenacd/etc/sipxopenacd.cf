@@ -129,12 +129,16 @@ bundle agent sipxopenacd_running {
     any::
       "service_command" string => ".*\s/bin/openacd\s.*";
 
+  classes:
+    any::
+      "has_service_script" expression => fileexists("$(sipx.SIPX_SERVICEDIR)/openacd");
+
   methods:
     any::
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxopenacd_running");
-    !src.sipxopenacd::
+    !src.sipxopenacd.has_service_script::
       "any" usebundle => rh_chkconfig_status("openacd on");
-    !src.!sipxopenacd::
+    !src.!sipxopenacd.has_service_script::
       "any" usebundle => rh_chkconfig_status("openacd off");
 
   commands:
