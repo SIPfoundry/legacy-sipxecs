@@ -110,6 +110,7 @@ iso-assemble-% :
 iso-md5-% :
 	md5sum @DIST_DIR@/$(ISO) > @DIST_DIR@/$(ISO:%.iso=%.md5)
 
+$(foreach B,32 64,$(eval help.iso-check-$(B) = Verify all the rpms on $(B) bit ISO have all nec. rpm according to their specs))
 iso-check-32 : ARCH=i686
 iso-check-% :
 	! test -d $@.test || rm -rf $@.test
@@ -119,17 +120,15 @@ iso-check-% :
 
 # be nice to mirror servers, don't hit them unless clean is called
 .SECONDARY: iso-download-os-32 iso-download-os-64 iso-download-epel-32 iso-download-epel-64
-iso-download-os-% : Makefile
-	test -f $@ || rsync -av --delete \
+iso-download-os-% : mak/*-centos-iso.mk
+	rsync -av --delete \
 	  $(addprefix @CENTOS_RSYNC_URL@/centos/6/os/$(ARCH)/Packages/, $(ISO_ADD_OS)) \
 	  $(ISO_PACKAGES_OS)/
-	touch $@
 
-iso-download-epel-% :
-	test -f $@ || rsync -av --delete \
+iso-download-epel-% : mak/*-centos-iso.mk
+	rsync -av --delete \
 	  $(addprefix @CENTOS_RSYNC_URL@/epel/6/$(ARCH)/, $(ISO_ADD_EPEL)) \
 	  $(ISO_PACKAGES_EPEL)/
-	touch $@
 
 iso-packages-% : iso-download-os-% iso-download-epel-%
 	rsync -av $(ARCH)-os-Packages/  $(ISO_DISC)/Packages/
@@ -156,6 +155,7 @@ ISO_ADD_SIPX = \
   net-snmp-sysvinit-* \
   net-snmp-utils-* \
   freeswitch-1.* \
+  homer-* \
   mongodb-* \
   js-* \
   cfengine-* \
@@ -236,6 +236,7 @@ ISO_ADD_EPEL = \
   erlang-webtool-* \
   erlang-wx-* \
   erlang-xmerl-* \
+  php-pecl-mongo-* \
   rubygem-daemons-* \
   wxBase-* \
   wxGTK-2.* \
@@ -243,6 +244,10 @@ ISO_ADD_EPEL = \
   zeromq-*
 
 ISO_ADD_OS = \
+  ConsoleKit-0.* \
+  ConsoleKit-libs-0.* \
+  MAKEDEV-* \
+  SDL-* \
   acl-* \
   aic94xx-firmware-* \
   alsa-lib-* \
@@ -284,11 +289,9 @@ ISO_ADD_OS = \
   centos-release-* \
   checkpolicy-* \
   chkconfig-* \
-  ConsoleKit-0.* \
-  ConsoleKit-libs-0.* \
+  compat-readline5-* \
   coreutils-* \
   coreutils-libs-* \
-  compat-readline5-* \
   cpio-* \
   cracklib-2.* \
   cracklib-dicts-* \
@@ -359,8 +362,8 @@ ISO_ADD_OS = \
   ipw2100-firmware-* \
   ipw2200-firmware-* \
   ivtv-firmware-* \
-  iwl1000-firmware-* \
   iwl100-firmware-* \
+  iwl1000-firmware-* \
   iwl3945-firmware-* \
   iwl4965-firmware-* \
   iwl5000-firmware-* \
@@ -381,6 +384,24 @@ ISO_ADD_OS = \
   keyutils-libs-* \
   krb5-libs-* \
   less-* \
+  libICE-* \
+  libSM-* \
+  libX11-1.* \
+  libX11-common-* \
+  libXau-* \
+  libXcomposite-* \
+  libXcursor-* \
+  libXdamage-* \
+  libXext-* \
+  libXfixes-* \
+  libXft-* \
+  libXi-* \
+  libXinerama-* \
+  libXpm-* \
+  libXrandr-* \
+  libXrender-* \
+  libXtst-* \
+  libXxf86vm-* \
   libacl-* \
   libasyncns-* \
   libattr-* \
@@ -396,18 +417,17 @@ ISO_ADD_OS = \
   libgcc-* \
   libgcrypt-* \
   libgpg-error-* \
-  libICE-* \
   libicu-* \
   libidn-* \
   libjpeg-6b-* \
   libnih-* \
   libogg-* \
+  libpcap-* \
   libpng-* \
   libselinux-2.* \
   libselinux-utils-* \
   libsemanage-2.* \
   libsepol-2.* \
-  libSM-* \
   libsndfile-* \
   libss-* \
   libstdc++-* \
@@ -422,28 +442,12 @@ ISO_ADD_OS = \
   libutempter-* \
   libuuid-* \
   libvorbis-* \
-  libX11-1.* \
-  libX11-common-* \
-  libXau-* \
   libxcb-1.* \
-  libXcomposite-* \
-  libXcursor-* \
-  libXdamage-* \
-  libXext-* \
-  libXfixes-* \
-  libXft-* \
-  libXi-* \
-  libXinerama-* \
-  libXrandr-* \
-  libXrender-* \
-  libXtst-* \
-  libXxf86vm-* \
   lm_sensors-libs-* \
   logrotate-* \
   lua-5.* \
   lvm2-libs-* \
   mailcap-* \
-  MAKEDEV-* \
   matahari-0.* \
   matahari-agent-lib-* \
   matahari-broker-* \
@@ -458,7 +462,10 @@ ISO_ADD_OS = \
   mingetty-* \
   mod_ssl-* \
   module-init-tools-* \
+  mysql-5.*\
+  mysql-connector-odbc-* \
   mysql-libs-* \
+  mysql-server-* \
   ncurses-5.* \
   ncurses-base-* \
   ncurses-libs-* \
@@ -484,11 +491,20 @@ ISO_ADD_OS = \
   pciutils-libs-* \
   pcre-7.* \
   perl-5.* \
-  perl-libs-5.* \
+  perl-DBD-MySQL-* \
+  perl-DBI-1.* \
   perl-Module-Pluggable-* \
   perl-Pod-Escapes-* \
   perl-Pod-Simple-* \
+  perl-libs-5.* \
   perl-version-* \
+  php-5.* \
+  php-cli-* \
+  php-common-* \
+  php-gd-* \
+  php-mysql-* \
+  php-pdo-* \
+  php-pear-* \
   pinentry-0.* \
   pixman-0.* \
   plymouth-0.* \
@@ -538,7 +554,6 @@ ISO_ADD_OS = \
   ruby-libs-* \
   ruby-rdoc-* \
   rubygems-* \
-  SDL-* \
   sed-* \
   selinux-policy-3.* \
   selinux-policy-targeted-* \
@@ -574,8 +589,9 @@ ISO_ADD_OS = \
   xinetd-* \
   xorg-x11-drv-ati-firmware-* \
   xz-libs-* \
-  yum-plugin-downloadonly-* \
   yum-metadata-parser-* \
+  yum-plugin-downloadonly-* \
   yum-plugin-fastestmirror-* \
   zd1211-firmware-* \
   zlib-1.*
+
