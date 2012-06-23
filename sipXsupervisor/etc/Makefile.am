@@ -35,6 +35,7 @@ dist_cfplugins_DATA = \
 	sipxsupervisor.cf \
 	selinux.cf \
 	firewall.cf \
+	redis.cf \
 	dhcpd.cf \
 	ntpd.cf \
 	phonelog.cf \

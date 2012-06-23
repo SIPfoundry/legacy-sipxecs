@@ -43,6 +43,7 @@ Summary: Internal documentation for %name
 Requires: %name
 Requires: sipxcommserverlib >= %version
 Requires: sipxsupervisor >= %version
+Requires: redis
 
 %description server
 SQA Network Queue server

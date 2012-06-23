@@ -237,6 +237,7 @@ ISO_ADD_EPEL = \
   erlang-wx-* \
   erlang-xmerl-* \
   php-pecl-mongo-* \
+  redis-* \
   rubygem-daemons-* \
   wxBase-* \
   wxGTK-2.* \

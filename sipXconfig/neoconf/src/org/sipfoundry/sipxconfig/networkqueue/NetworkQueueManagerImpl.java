@@ -47,10 +47,14 @@ import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
+import org.sipfoundry.sipxconfig.redis.Redis;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
+import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements NetworkQueueManager, ConfigProvider,
-    AddressProvider, FeatureProvider, FirewallProvider {
+    AddressProvider, FeatureProvider, FirewallProvider, ProcessProvider {
     private BeanWithSettingsDao<NetworkQueueSettings> m_settingsDao;
 
     @Override
@@ -75,7 +79,7 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
 
             // SERVER
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "sipxsqa.cfdat", enabled, "sipxsqa");
+            ConfigUtils.enableCfengineClass(dir, "sipxsqa.cfdat", enabled, FEATURE.getId());
             if (enabled) {
                 Writer server = new FileWriter(new File(dir, "sipxsqa-config.part"));
                 try {
@@ -126,7 +130,9 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         validator.singleLocationOnly(FEATURE);
-        // redis?
+
+        // ATM sipxsqa assumes redis is on localhost, otherwise no restrictions
+        validator.requiredOnSameHost(FEATURE, Redis.FEATURE);
     }
 
     @Override
@@ -157,5 +163,16 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
 
     public void setSettingsDao(BeanWithSettingsDao<NetworkQueueSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
+        FeatureManager featureManager = manager.getFeatureManager();
+        if (!featureManager.isFeatureEnabled(FEATURE, location)) {
+            return null;
+        }
+
+        ProcessDefinition def = ProcessDefinition.sipxDefault(FEATURE.getId());
+        return Collections.singleton(def);
     }
 }
