@@ -7,3 +7,6 @@
 [submodule "homer"]
 	path = homer
 	url = http://code.google.com/p/homer/
+[submodule "sipXhomer"]
+	path = sipXhomer
+	url = git://github.com/dhubler/sipXhomer.git
