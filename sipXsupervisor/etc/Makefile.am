@@ -36,6 +36,7 @@ dist_cfplugins_DATA = \
 	selinux.cf \
 	firewall.cf \
 	redis.cf \
+	mysql.cf \
 	dhcpd.cf \
 	ntpd.cf \
 	phonelog.cf \

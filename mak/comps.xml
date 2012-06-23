@@ -25,6 +25,8 @@
      <packagereq type="mandatory">sipxrls</packagereq>
      <packagereq type="mandatory">sipxsaa</packagereq>
      <packagereq type="mandatory">sipxsqa-server</packagereq>
+     <packagereq type="mandatory">sipxhomer-config</packagereq>
+     <packagereq type="mandatory">sipxhomer</packagereq>
      <!-- polycom arguable the defacto, but not strictly required -->
      <packagereq type="mandatory">sipxpolycom</packagereq>
      <!-- good to have one gateway option installed -->

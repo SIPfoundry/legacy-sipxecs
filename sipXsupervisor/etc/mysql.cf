@@ -1,0 +1,71 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+#
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+#
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+bundle agent mysql {
+  methods:
+    any::
+      "any" usebundle => "mysql_sysv_running";
+}
+
+bundle agent mysql_ensure_db(name, schema_sql) {
+  classes:
+    mysql::
+      "db_exists" expression => fileexists("/var/lib/mysql/$(name)");
+
+  commands:
+   !db_exists.mysql::
+     "/usr/bin/mysql"
+       comment => "create mysql db $(name)",
+       args => "--user=root -e 'create database $(name)'";
+
+     "/usr/bin/mysql"
+       comment => "adding schema $(schema_sql) to db $(name)",
+       contain => useshell,
+       args => "--user=root $(name) -f < $(schema_sql)";
+}
+
+body contain useshell {
+  useshell => "true";
+}
+
+bundle agent mysql_sysv_running {
+  vars:
+    any::
+      "service_command" string => "/usr/libexec/mysqld";
+      "daemon" string => "/etc/init.d/mysqld";
+      "service_user" string => "mysql";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "mysqld_running", "$(service_user)");
+    mysql::
+      "any" usebundle => rh_chkconfig_status("mysqld on");
+    !mysql::
+      "any" usebundle => rh_chkconfig_status("mysqld off");
+
+  commands:
+    !mysql.mysql_running::
+      "$(daemon)"
+        comment => "stop mysqld",
+        args => "stop";
+
+    mysql.!mysql_running::
+      "$(daemon)"
+        comment => "start mysqld",
+        args => "start";
+
+    mysql.mysql_running.restart_mysql::
+      "$(daemon)"
+        comment => "restart mysqld",
+        args => "restart";
+}

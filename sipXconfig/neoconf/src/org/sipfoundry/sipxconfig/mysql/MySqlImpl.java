@@ -12,7 +12,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.redis;
+package org.sipfoundry.sipxconfig.mysql;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,11 +46,11 @@ import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class RedisImpl implements Redis, ConfigProvider, ProcessProvider, FirewallProvider, AddressProvider,
+public class MySqlImpl implements MySql, ConfigProvider, ProcessProvider, FirewallProvider, AddressProvider,
         FeatureProvider {
 
     @Override
-    public void avoidChecksytleError() {
+    public void avoidCheckstyleError() {
     }
 
     @Override
@@ -66,7 +66,7 @@ public class RedisImpl implements Redis, ConfigProvider, ProcessProvider, Firewa
             return null;
         }
 
-        ProcessDefinition def = ProcessDefinition.sysvDefault("redis-server");
+        ProcessDefinition def = ProcessDefinition.sysvDefault("mysqld");
         return Collections.singleton(def);
     }
 
@@ -80,7 +80,7 @@ public class RedisImpl implements Redis, ConfigProvider, ProcessProvider, Firewa
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean on = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "redis.cfdat", on, FEATURE.getId());
+            ConfigUtils.enableCfengineClass(dir, "mysql.cfdat", on, FEATURE.getId());
         }
     }
 
