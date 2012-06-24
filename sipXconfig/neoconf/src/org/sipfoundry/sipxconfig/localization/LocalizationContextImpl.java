@@ -121,8 +121,9 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
 
         localization.setRegion(regionBeanId);
         m_dialplanSetup.setup(regionBeanId);
-        getDaoEventPublisher().publishSave(localization);
         getHibernateTemplate().saveOrUpdate(localization);
+        getHibernateTemplate().flush();
+        getDaoEventPublisher().publishSave(localization);
     }
 
     /**
@@ -145,6 +146,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         // to AutoAttendant prompts directory.
         m_autoAttendantManager.updatePrompts(new File(m_promptsDir, getCurrentLanguageDir()));
         getHibernateTemplate().saveOrUpdate(localization);
+        getHibernateTemplate().flush();
         getDaoEventPublisher().publishSave(localization);
         m_replicationManager.replicateAllData(DataSet.MAILSTORE);
         return 1;
