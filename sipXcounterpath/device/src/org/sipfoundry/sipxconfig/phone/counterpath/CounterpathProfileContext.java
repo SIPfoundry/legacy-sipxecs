@@ -17,12 +17,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.address.Address;
-import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.im.ImAccount;
-import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -61,10 +58,6 @@ public class CounterpathProfileContext extends ProfileContext<Phone> {
         context.put("line_sip_settings", lineSipSettings);
         context.put("line_xmpp_settings", lineXmppSettings);
         context.put("max_lines", getDevice().getModel().getMaxLineCount());
-
-        AddressManager addressManager = ((CounterpathPhone) getDevice()).getAddressManager();
-        Address im = addressManager.getSingleAddress(ImManager.XMPP_ADDRESS);
-        context.put("im_role_box_fqdn", im != null ? im.getAddress() : null);
 
         context.put("priorityCalculator", new PriorityCalculator());
 

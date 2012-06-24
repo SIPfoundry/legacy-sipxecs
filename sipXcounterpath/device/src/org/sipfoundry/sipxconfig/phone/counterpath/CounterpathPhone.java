@@ -251,10 +251,19 @@ public class CounterpathPhone extends Phone {
             return m_user.getPintoken();
         }
 
-        @SettingEntry(paths = { REG_DOMAIN, "xmpp-config/domain" })
+        @SettingEntry(path = REG_DOMAIN)
         public String getDomain() {
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
             return defaults.getDomainName();
+        }
+
+        @SettingEntry(path = "xmpp-config/domain")
+        public String getXmppDomain() {
+            //returning the system domain, assuming this is the xmpp domain. The setting is editable
+            //and can be modified if xmpp server is installed in a different domain than the proposed
+            //one. If we find a way to automatically retrieve the xmpp domain, we can change the body of
+            //this method
+            return getDomain();
         }
 
         @SettingEntry(path = VOICEMAIL_URL)

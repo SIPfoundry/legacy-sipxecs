@@ -365,7 +365,7 @@
       <type refid="true-false" />
       <value>false</value>
     </setting>
-    <setting name="domain" hidden="yes" />
+    <setting name="domain"/>
     <setting name="username" hidden="yes" />
     <setting name="password" hidden="yes" />
     <setting name="account_name" hidden="yes" />
