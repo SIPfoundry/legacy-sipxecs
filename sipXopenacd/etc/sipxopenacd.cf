@@ -127,7 +127,7 @@ bundle edit_line sipxopenacd_app_config() {
 bundle agent sipxopenacd_running {
   vars:
     any::
-      "service_command" string => ".*\s/bin/openacd\s.*";
+      "service_command" string => ".*\s(/?)/bin/openacd\s.*";
 
   classes:
     any::
@@ -135,7 +135,7 @@ bundle agent sipxopenacd_running {
 
   methods:
     any::
-      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxopenacd_running");
+      "any" usebundle => find_service_by_command("$(service_command)","sipxopenacd_running","root");
     !src.sipxopenacd.has_service_script::
       "any" usebundle => rh_chkconfig_status("openacd on");
     !src.!sipxopenacd.has_service_script::
