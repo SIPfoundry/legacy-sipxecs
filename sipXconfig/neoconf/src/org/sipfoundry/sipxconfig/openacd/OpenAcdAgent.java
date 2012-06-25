@@ -100,7 +100,10 @@ public class OpenAcdAgent extends OpenAcdAgentWithSkills implements Replicable {
     }
 
     public String getAgentGroup() {
-        return m_group.getName();
+        if (m_group != null) {
+            return m_group.getName();
+        }
+        return null;
     }
 
     public String getOldName() {

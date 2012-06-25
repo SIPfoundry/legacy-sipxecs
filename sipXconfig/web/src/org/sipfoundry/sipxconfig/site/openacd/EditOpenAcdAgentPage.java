@@ -95,12 +95,8 @@ public abstract class EditOpenAcdAgentPage extends PageWithCallback implements P
             return;
         }
 
-        OpenAcdAgentGroup agentGroup = getSelectedAgentGroup();
-        if (agentGroup == null) {
-            throw new UserException(getMessages().getMessage("error.agentGroup.error"));
-        }
         OpenAcdAgent agent = getAgent();
-        agent.setGroup(agentGroup);
+        agent.setGroup(getSelectedAgentGroup());
         getOpenAcdContext().saveAgent(agent);
     }
 
