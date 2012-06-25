@@ -27,7 +27,6 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
-import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -95,12 +94,8 @@ public abstract class EditOpenAcdAgentPage extends PageWithCallback implements P
             return;
         }
 
-        OpenAcdAgentGroup agentGroup = getSelectedAgentGroup();
-        if (agentGroup == null) {
-            throw new UserException(getMessages().getMessage("error.agentGroup.error"));
-        }
         OpenAcdAgent agent = getAgent();
-        agent.setGroup(agentGroup);
+        agent.setGroup(getSelectedAgentGroup());
         getOpenAcdContext().saveAgent(agent);
     }
 

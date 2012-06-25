@@ -47,7 +47,7 @@ public class ExportCsvTest extends TestCase {
         assertEquals(
                 "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\"," +
                 "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"," +
-                "\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -105,7 +105,7 @@ public class ExportCsvTest extends TestCase {
         assertTrue(userIds.contains("jlennon"));
         assertEquals(
                 "\"jlennon\",\"1234\",\"f09e0cfc1dc0f8852ad731e79230225b\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"jlennon@gmail.com\",\"ug1 ug2 ug3\",\"665544332211\",\"testPhoneModel\",\"phonegroup1 phonegroup2 phonegroup3, phonegroup4\",\"phone description\",\"imId\"," +
-                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -134,7 +134,7 @@ public class ExportCsvTest extends TestCase {
         assertEquals(
                 "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\",\"\"" +
                 ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"," +
-                "\"\",\"\",\"\",\"\",\"\"\n",
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -155,7 +155,7 @@ public class ExportCsvTest extends TestCase {
 
         exportCsv.exportUser(csv, row, user);
         assertEquals(
-                "\"jlennon\",\"1234\",\"f09e0cfc1dc0f8852ad731e79230225b\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
+                "\"jlennon\",\"1234\",\"f09e0cfc1dc0f8852ad731e79230225b\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
                 ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
@@ -187,6 +187,7 @@ public class ExportCsvTest extends TestCase {
         profile.setHomePhoneNumber("112233");
         profile.setAssistantPhoneNumber("223344");
         profile.setFaxNumber("33445566");
+        profile.setDidNumber("44556677");
         profile.setAlternateEmailAddress("alternate@gmail.com");
         profile.setAlternateImId("alternateImId");
         profile.setLocation("location");
@@ -205,6 +206,7 @@ public class ExportCsvTest extends TestCase {
         officeAddress.setState("office state");
         officeAddress.setCountry("office country");
         officeAddress.setZip("34342");
+        officeAddress.setOfficeDesignation("office designation");
         profile.setOfficeAddress(officeAddress);
 
         profile.setTwiterName("Twitter Name");
@@ -218,9 +220,9 @@ public class ExportCsvTest extends TestCase {
         assertEquals(
                 "\"jlennon\",\"1234\",\"f09e0cfc1dc0f8852ad731e79230225b\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
                 ",\"Prof\",\"Manager\",\"user112233\",\"job title\",\"job dept\",\"company name\",\"assistant name\"," +
-                "\"001122\",\"112233\",\"223344\",\"33445566\",\"alternate@gmail.com\",\"alternateImId\",\"location\"," +
+                "\"001122\",\"112233\",\"223344\",\"33445566\",\"44556677\",\"alternate@gmail.com\",\"alternateImId\",\"location\"," +
                 "\"home street\",\"home city\",\"home state\",\"home country\",\"34001\"," +
-                "\"office street\",\"office city\",\"office state\",\"office country\",\"34342\",\"Twitter Name\",\"Linkedin Name\",\"Facebook Name\",\"Xing Name\"\n",
+                "\"office street\",\"office city\",\"office state\",\"office country\",\"34342\",\"office designation\",\"Twitter Name\",\"Linkedin Name\",\"Facebook Name\",\"Xing Name\"\n",
                 writer.toString());
     }
 }

@@ -10,6 +10,10 @@ STDPROMPTS_LANG_ID = $(call lowercase,$(subst _,-,@LANG_ID@))
 
 promptsdir = $(datadir)/www/doc/stdprompts_$(STDPROMPTS_LANG_ID)
 confplugindir = @SIPX_JAVADIR@/sipXconfig/plugins
+ivrplugindir = @SIPX_JAVADIR@/sipXivr
 
 sipxlang-%.jar :
 	jar -cf $@ -C $(srcdir)/sipxpbx .
+
+sipxlangivr-%.jar :
+	jar -cf $@ -C $(srcdir)/sipxivr .

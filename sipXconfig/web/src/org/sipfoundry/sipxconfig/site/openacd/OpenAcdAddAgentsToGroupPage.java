@@ -187,14 +187,8 @@ public abstract class OpenAcdAddAgentsToGroupPage extends PageWithCallback imple
             return;
         }
 
-        OpenAcdAgentGroup group = getAgentGroup();
-        if (group == null) {
-            throw new UserException(getMessages().getMessage("error.requiredAgentGroup"));
-        }
-
         List<User> users = getUsers();
         if (users != null && users.size() > 0) {
-            List<OpenAcdAgent> agents = new ArrayList<OpenAcdAgent>();
             for (User user : users) {
                 OpenAcdAgent agent = new OpenAcdAgent();
                 agent.setGroup(getAgentGroup());

@@ -134,6 +134,7 @@ public class ExportCsv {
             Index.HOME_PHONE_NUMBER.set(row, profile.getHomePhoneNumber());
             Index.ASSISTANT_PHONE_NUMBER.set(row, profile.getAssistantPhoneNumber());
             Index.FAX_NUMBER.set(row, profile.getFaxNumber());
+            Index.DID_NUMBER.set(row, profile.getDidNumber());
             Index.ALTERNATE_EMAIL.set(row, profile.getAlternateEmailAddress());
             Index.ALTERNATE_IM_ID.set(row, profile.getAlternateImId());
             Index.LOCATION.set(row, profile.getLocation());
@@ -153,6 +154,7 @@ public class ExportCsv {
                 Index.OFFICE_STATE.set(row, officeAddress.getState());
                 Index.OFFICE_COUNTRY.set(row, officeAddress.getCountry());
                 Index.OFFICE_ZIP.set(row, officeAddress.getZip());
+                Index.OFFICE_MAIL_STOP.set(row, officeAddress.getOfficeDesignation());
             }
             Index.TWITTER_NAME.set(row, profile.getTwiterName());
             Index.LINKEDIN_NAME.set(row, profile.getLinkedinName());
