@@ -23,7 +23,7 @@ define(`welcome_message',
 ==========================
 Welcome to SIPfoundry sipXecs.
 
-After logging in as root, you'll automatically be taken through a setup procedure
+After logging in as root, you will automatically be taken through a setup procedure.
 
 )
 sinclude(`oem.m4')
