@@ -4,17 +4,17 @@
 <model>
   <group name="dhcpd-config">
     <setting name="subnet" >
-      <type><ipaddress/></type>
+      <type><ipaddr/></type>
     </setting>
     <setting name="netmask" >
-      <type><ipaddress/></type>
+      <type><ipaddr/></type>
       <value>255.255.255.0</value>
     </setting>
     <setting name="range_begin" >
-      <type><ipaddress/></type>
+      <type><ipaddr/></type>
     </setting>
    <setting name="range_end" >
-      <type><ipaddress/></type>
+      <type><ipaddr/></type>
     </setting>  
     <setting name="routers" >
       <type><string/></type>
@@ -36,7 +36,7 @@
       <value>0</value>
     </setting>
     <setting name="dhcpd-server" >
-      <type><ipaddress/></type>
+      <type><ipaddr/></type>
     </setting>
  </group>
 </model>
