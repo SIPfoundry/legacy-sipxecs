@@ -14,3 +14,6 @@ ivrplugindir = @SIPX_JAVADIR@/sipXivr
 
 sipxlang-%.jar :
 	jar -cf $@ -C $(srcdir)/sipxpbx .
+
+sipxlangivr-%.jar :
+	jar -cf $@ -C $(srcdir)/sipxivr .
