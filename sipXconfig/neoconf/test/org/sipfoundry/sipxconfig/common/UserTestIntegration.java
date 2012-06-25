@@ -84,6 +84,7 @@ public class UserTestIntegration extends ImdbTestCase {
     }
 
     public void testUpdateAliases() throws Exception {
+        getProfilesDb().dropCollection("userProfile");
         sql("common/TestUserSeed.sql");
         assertEquals(1, getConnection().getRowCount("user_alias", "where user_id = 1000"));
 
