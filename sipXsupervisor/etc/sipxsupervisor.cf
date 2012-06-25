@@ -53,9 +53,12 @@ bundle edit_line sipxsupervisor_allowed_addrs {
     "part_exists" expression => fileexists("$(part_file)");
 
   insert_lines:
-    part_exists::
+    part_exists.primary::
       "$(part_file)"
         insert_type => "file";
+
+    !primary::  
+      "$(sipx.master_address)";
 
     any::  
       "127.0.0.1";
