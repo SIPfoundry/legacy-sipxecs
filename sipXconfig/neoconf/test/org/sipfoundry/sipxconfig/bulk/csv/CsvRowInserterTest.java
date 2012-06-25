@@ -91,9 +91,9 @@ public class CsvRowInserterTest extends TestCase {
         String[] userRow1 = new String[] {
             "bongo", "1234","123", "abcdef", "", "Star", "","","","","","",""," im_id","Prof","Manager","user1122",
             "job title", "job dept", "company name", "assistant name",
-            "001122", "112233", "223344", "33445566", "alternate@gmail.com","alternateImId", "location",
+            "001122", "112233", "223344", "33445566", "44556677", "alternate@gmail.com","alternateImId", "location",
             "home street", "home city", "home state", "home country", "34001",
-            "office street", "office city", "office state", "office country", "34342",
+            "office street", "office city", "office state", "office country", "34342", "office designation",
             "Twitter", "Linkedin", "Facebook", "Xing"
         };
 
@@ -114,6 +114,7 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals("112233", user1.getUserProfile().getHomePhoneNumber());
         assertEquals("223344", user1.getUserProfile().getAssistantPhoneNumber());
         assertEquals("33445566", user1.getUserProfile().getFaxNumber());
+        assertEquals("44556677", user1.getUserProfile().getDidNumber());
         assertEquals("alternate@gmail.com", user1.getUserProfile().getAlternateEmailAddress());
         assertEquals("alternateImId", user1.getUserProfile().getAlternateImId());
         assertEquals("location", user1.getUserProfile().getLocation());
@@ -129,6 +130,7 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals("office state", user1.getUserProfile().getOfficeAddress().getState());
         assertEquals("office country", user1.getUserProfile().getOfficeAddress().getCountry());
         assertEquals("34342", user1.getUserProfile().getOfficeAddress().getZip());
+        assertEquals("office designation", user1.getUserProfile().getOfficeAddress().getOfficeDesignation());
 
         assertEquals("Twitter", user1.getUserProfile().getTwiterName());
         assertEquals("Linkedin", user1.getUserProfile().getLinkedinName());
