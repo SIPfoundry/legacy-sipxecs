@@ -13,11 +13,13 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.freeswitch.TextToPrompts;
+import org.sipfoundry.commons.userdb.PersonalAttendant;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.common.DialByNameChoice;
@@ -591,6 +593,11 @@ public class Retrieve extends AbstractVmAction {
             // Forward the message to each destination that has a mailbox
             for (User destUser : choice.getUsers()) {
                 if (destUser.hasVoicemail()) {
+                    PersonalAttendant pa = destUser.getPersonalAttendant();
+                    String localeString = pa.getLanguage();
+                    if (localeString != null) {
+                        destUser.setLocale(new Locale(localeString));
+                    }
                     m_mailboxManager.forwardMessage(destUser, vmMessage, comments);
                 }
             }

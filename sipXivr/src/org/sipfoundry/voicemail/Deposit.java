@@ -9,6 +9,7 @@
 package org.sipfoundry.voicemail;
 
 import java.net.URL;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -46,6 +47,7 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
         if (localeString != null) {
             LOG.debug("Changing locale for this call to " + localeString);
             changeLocale(localeString);
+            user.setLocale(new Locale(localeString));
         }
         TempMessage tempMessage = null;
 
