@@ -25,7 +25,6 @@
   <group name="sys">
     <setting name="unmanaged">
       <type refid="true-false"/>
-      <value>0</value>
     </setting>
   </group>
 </model>

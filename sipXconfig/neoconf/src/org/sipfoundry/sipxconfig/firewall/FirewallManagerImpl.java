@@ -94,7 +94,7 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
 
     @Override
     public boolean setup(SetupManager manager) {
-        if (!manager.isFalse(FEATURE.getId())) {
+        if (manager.isFalse(FEATURE.getId())) {
             manager.getFeatureManager().enableGlobalFeature(FEATURE, true);
             manager.setTrue(FEATURE.getId());
         }

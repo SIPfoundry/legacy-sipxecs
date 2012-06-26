@@ -21,7 +21,7 @@
       </setting>
     </group>
   </group>
-  <group name="sys">       
+  <group name="sys" advanced="true">       
     <setting name="unmanaged">
       <type>
         <boolean/>
