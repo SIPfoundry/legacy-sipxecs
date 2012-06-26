@@ -42,6 +42,8 @@
 // CONSTANTS
 const char* AuthPlugin::Factory = "getAuthPlugin";
 const char* AuthPlugin::Prefix  = "SIPX_PROXY";
+const char* SipBidirectionalProcessorPlugin::Factory = "getTransactionPlugin";
+const char* SipBidirectionalProcessorPlugin::Prefix  = "SIPX_TRAN";
 // The period of time in seconds that nonces are valid, in seconds.
 #define NONCE_EXPIRATION_PERIOD             (60 * 5)     // five minutes
 
@@ -66,8 +68,9 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    ,mAuthenticationEnabled(true)    
    ,mNonceExpiration(NONCE_EXPIRATION_PERIOD) // the period in seconds that nonces are valid
    ,mpForwardingRules(&forwardingRules)
-   ,mAuthPlugins(AuthPlugin::Factory, AuthPlugin::Prefix),
-   mpEntityDb(0)
+   ,mAuthPlugins(AuthPlugin::Factory, AuthPlugin::Prefix)
+   ,mTransactionPlugins(SipBidirectionalProcessorPlugin::Factory, SipBidirectionalProcessorPlugin::Prefix)
+   ,mpEntityDb(0)
 {
    // Get Via info to use as defaults for route & realm
    UtlString dnsName;
@@ -289,6 +292,19 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
    while ((authPlugin = dynamic_cast<AuthPlugin*>(authPlugins.next(&authPluginName))))
    {
       authPlugin->announceAssociatedSipRouter( this );
+   }
+
+   // Load, instantiate and configure all authorization plugins
+   mTransactionPlugins.readConfig(configDb);
+
+   // Announce the associated SIP Router to all newly instantiated authorization plugins
+   PluginIterator transactionPlugins(mTransactionPlugins);
+   SipBidirectionalProcessorPlugin* transactionPlugin;
+   UtlString transactionPluginName;
+   while ((transactionPlugin = dynamic_cast<SipBidirectionalProcessorPlugin*>(transactionPlugins.next(&transactionPluginName))))
+   {
+      transactionPlugin->announceAssociatedSipUserAgent( this->mpSipUserAgent );
+      transactionPlugin->initialize();
    }
 }
 
