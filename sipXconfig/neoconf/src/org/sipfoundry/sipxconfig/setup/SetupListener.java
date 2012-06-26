@@ -26,6 +26,10 @@ package org.sipfoundry.sipxconfig.setup;
  *  exist do something.
  *
  *  Use as many flags as you want, but be sure to pick unique ids.
+ *
+ *  @return false if you were unable to complete your operation and need to be called again.  return true if
+ *    no more setup is required.  You can return false as many times as you need to, setup manager is smart
+ *    enough not to enter into an infinite loop.
  */
 public interface SetupListener {
     public boolean setup(SetupManager manager);

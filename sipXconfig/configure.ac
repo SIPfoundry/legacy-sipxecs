@@ -26,10 +26,10 @@ AC_PATH_PROG([WSDL2RUBY], wsd2lruby.rb, $abs_srcdir/meta/wsdl2ruby.rb)
 AC_PATH_PROG([XSLTPROC], xsltproc)
 CHECK_POSTGRES
 CHECK_SERVICEDIR
-AC_ARG_WITH(mrtg-binary-location,[  --with-mrtg-binary-location=PFX   Location where mrtg is installed (optional)],
-            mrtg_binary_location="$withval/mrtg", mrtg_binary_location="/usr/bin/mrtg")
-AC_SUBST(MRTG_BINARY, $mrtg_binary_location)
-
+AC_SUBST(SIPX_IS_SRC, [true])
+if test "${enable_rpmbuild}" == "yes" ; then
+  SIPX_IS_SRC=false
+fi
 AC_ARG_ENABLE([testmode], 
   AC_HELP_STRING([--enable-testmode], [Build project with unit test data in place. !!!NOTE: This is not secure. Default is off]))
 AM_CONDITIONAL([TEST_MODE],[test "x$enable_testmode" = "xyes"])

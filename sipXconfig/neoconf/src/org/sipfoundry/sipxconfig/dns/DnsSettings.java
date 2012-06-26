@@ -28,14 +28,27 @@ import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
 public class DnsSettings extends PersistableSettings implements DeployConfigOnEdit {
-    private static final String UNMANAGED_SETTING = "named-unmanaged/unmanaged";
-    private static final String DNS_UNMANAGED_SERVER_0 = "named-unmanaged/0";
-    private static final String DNS_UNMANAGED_SERVER_1 = "named-unmanaged/1";
-    private static final String DNS_UNMANAGED_SERVER_2 = "named-unmanaged/2";
-    private static final String DNS_UNMANAGED_SERVER_3 = "named-unmanaged/3";
+    private static final String UNMANAGED_SETTING = "sys/unmanaged";
+    private static final String DNS_UNMANAGED_SERVER_0 = "sys/unmanaged_servers/unmanaged_0";
+    private static final String DNS_UNMANAGED_SERVER_1 = "sys/unmanaged_servers/unmanaged_1";
+    private static final String DNS_UNMANAGED_SERVER_2 = "sys/unmanaged_servers/unmanaged_2";
+    private static final String DNS_UNMANAGED_SERVER_3 = "sys/unmanaged_servers/unmanaged_3";
+    private boolean m_unmanagedDefault;
+
+    public DnsSettings() {
+        addDefaultBeanSettingHandler(new Defaults());
+    }
+
+    public class Defaults {
+        @SettingEntry(path = "sys/unmanaged")
+        public boolean unmanaged() {
+            return m_unmanagedDefault;
+        }
+    }
 
     @Override
     public String getBeanId() {
@@ -48,7 +61,7 @@ public class DnsSettings extends PersistableSettings implements DeployConfigOnEd
     }
 
     public List<Address> getDnsForwarders() {
-        return SettingUtil.getAddresses(DnsManager.DNS_ADDRESS, getSettings(), "named-config/dnsForwarders");
+        return SettingUtil.getAddresses(DnsManager.DNS_ADDRESS, getSettings(), "named-config/forwarders");
     }
 
     public boolean isServiceUnmanaged() {
@@ -76,5 +89,9 @@ public class DnsSettings extends PersistableSettings implements DeployConfigOnEd
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) DnsManager.FEATURE);
+    }
+
+    public void setUnmanagedDefault(boolean unmanagedDefault) {
+        m_unmanagedDefault = unmanagedDefault;
     }
 }

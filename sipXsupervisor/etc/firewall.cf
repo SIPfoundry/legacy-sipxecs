@@ -21,9 +21,9 @@ bundle agent firewall {
     # running, so reverse normal order: 
     #  1. check running status first 
     #  2. configure service.
-    fedora16_or_greater.!unmanaged_firewall::
+    fedora16_or_greater.!firewall_unmanaged::
       "any" usebundle => "firewall_systemctl_running";
-    !fedora16_or_greater.!unmanaged_firewall::
+    !fedora16_or_greater.!firewall_unmanaged::
       "any" usebundle => "firewall_sysv_running";
     firewall::
       "any" usebundle => "firewall_kernel_config";
@@ -98,7 +98,7 @@ bundle agent firewall_iptables_config {
         classes => if_repaired("apply_iptables");
 
   commands:
-    apply_iptables.!unmanaged_firewall::
+    apply_iptables.!firewall_unmanaged::
       # outstanding rules either from this run or previous failed run need
       # to be applied.  Apply them and on success unmark rules as outstanding
       # by deleting trigger file

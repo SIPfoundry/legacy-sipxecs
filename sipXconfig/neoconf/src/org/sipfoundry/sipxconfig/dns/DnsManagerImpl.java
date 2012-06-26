@@ -41,6 +41,8 @@ import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
@@ -49,7 +51,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvider, BeanFactoryAware,
-    ProcessProvider, FirewallProvider {
+    ProcessProvider, FirewallProvider, SetupListener {
     private BeanWithSettingsDao<DnsSettings> m_settingsDao;
     private List<DnsProvider> m_providers;
     private ListableBeanFactory m_beanFactory;
@@ -193,5 +195,19 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+    }
+
+    @Override
+    public boolean setup(SetupManager manager) {
+        if (manager.isFalse(FEATURE.getId())) {
+            Location primary = manager.getConfigManager().getLocationManager().getPrimaryLocation();
+            if (primary == null) {
+                return false;
+            }
+            manager.getFeatureManager().enableLocationFeature(FEATURE, primary, true);
+            manager.setTrue(FEATURE.getId());
+        }
+
+        return true;
     }
 }

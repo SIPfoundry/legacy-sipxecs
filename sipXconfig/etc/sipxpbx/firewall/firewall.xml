@@ -22,7 +22,7 @@
       <value>1</value>
     </setting>
    </group>
-  <group name="firewall-unmanaged">
+  <group name="sys">
     <setting name="unmanaged">
       <type refid="true-false"/>
       <value>0</value>

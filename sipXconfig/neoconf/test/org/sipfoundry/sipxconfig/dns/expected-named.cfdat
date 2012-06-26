@@ -1,0 +1,13 @@
++resolv
++sipxdns
+=sipxdns_forwarders=
+=sipxdns_forwarder_0=
+=sipxdns_forwarder_1=
+=sipxdns_forwarder_2=
+=sipxdns_forwarder_3=
+=sipxdns_forwarder_4=
+-sipxdns_unmanaged
+=sipxdns_unmanaged_0=
+=sipxdns_unmanaged_1=
+=sipxdns_unmanaged_2=
+=sipxdns_unmanaged_3=

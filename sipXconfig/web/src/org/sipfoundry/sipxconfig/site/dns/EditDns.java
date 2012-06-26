@@ -17,9 +17,7 @@
 package org.sipfoundry.sipxconfig.site.dns;
 
 import org.apache.tapestry.annotations.Bean;
-import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -39,10 +37,6 @@ public abstract class EditDns extends PageWithCallback implements PageBeginRende
     public abstract DnsSettings getSettings();
 
     public abstract void setSettings(DnsSettings settings);
-
-    @Persist
-    @InitialValue(value = "literal:dns")
-    public abstract String getTab();
 
     @Override
     public void pageBeginRender(PageEvent arg0) {

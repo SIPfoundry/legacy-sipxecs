@@ -22,17 +22,29 @@ import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class FirewallSettings extends PersistableSettings implements DeployConfigOnEdit {
-    private static final String UNMANAGED_SETTING = "firewall-unmanaged/unmanaged";
+    private boolean m_unmanagedDefault;
+
+    public FirewallSettings() {
+        addDefaultBeanSettingHandler(new Defaults());
+    }
+
+    public class Defaults {
+        @SettingEntry(path = "sys/unmanaged")
+        public boolean unmanaged() {
+            return m_unmanagedDefault;
+        }
+    }
 
     @Override
     public String getBeanId() {
         return "firewallSettings";
     }
 
-    public boolean isServiceUnmanaged() {
-        return (Boolean) getSettingTypedValue(UNMANAGED_SETTING);
+    public Setting getSystemSettings() {
+        return getSettings().getSetting("sys");
     }
 
     @Override
@@ -43,5 +55,9 @@ public class FirewallSettings extends PersistableSettings implements DeployConfi
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) FirewallManager.FEATURE);
+    }
+
+    public void setUnmanagedDefault(boolean unmanagedDefault) {
+        m_unmanagedDefault = unmanagedDefault;
     }
 }

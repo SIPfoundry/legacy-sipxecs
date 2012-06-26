@@ -3,6 +3,7 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <bean id="dnsSettings" class="org.sipfoundry.sipxconfig.dns.DnsSettings" scope="prototype" parent="settingsBean">
+    <property name="unmanagedDefault" value="${sysdir.src}"/>
   </bean>
   
   <bean id="dnsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

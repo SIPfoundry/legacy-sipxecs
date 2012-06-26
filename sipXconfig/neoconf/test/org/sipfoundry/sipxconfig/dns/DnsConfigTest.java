@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class DnsConfigTest {
     private DnsConfig m_config;
@@ -51,6 +52,16 @@ public class DnsConfigTest {
         m_a1 = new Address(DnsManager.DNS_ADDRESS, "1.1.1.1");
         m_a2 = new Address(DnsManager.DNS_ADDRESS, "2.2.2.2");
         m_a3 = new Address(DnsManager.DNS_ADDRESS, "3.3.3.3");
+    }
+    
+    @Test
+    public void cfdat() throws IOException {
+        DnsSettings settings = new DnsSettings();
+        settings.setModelFilesContext(TestHelper.getModelFilesContext());
+        StringWriter actual = new StringWriter();
+        m_config.writeSettings(actual, true, true, settings);
+        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-named.cfdat"));
+        assertEquals(expected, actual.toString());        
     }
     
     @Test

@@ -33,7 +33,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
@@ -51,12 +50,7 @@ public class DnsConfig implements ConfigProvider {
             return;
         }
 
-        File gdir = manager.getGlobalDataDirectory();
         DnsSettings settings = m_dnsManager.getSettings();
-        // check if marked as unmanaged service
-        boolean unmanaged = settings.isServiceUnmanaged();
-        ConfigUtils.enableCfengineClass(gdir, "dns_unmanaged.cfdat", unmanaged, "unmanaged_dns");
-
         AddressManager am = manager.getAddressManager();
         String domain = manager.getDomainManager().getDomainName();
         List<Location> all = manager.getLocationManager().getLocationsList();
@@ -67,8 +61,7 @@ public class DnsConfig implements ConfigProvider {
             List<Address> dns = am.getAddresses(DnsManager.DNS_ADDRESS, location);
 
             // If there are no dns servers define, there is no reason to touch resolv.conf
-            boolean resolvOn = dns.size() > 0 && !unmanaged;
-            ConfigUtils.enableCfengineClass(dir, "resolv.cfdat", resolvOn, "resolv");
+            boolean resolvOn = dns.size() > 0;
             if (resolvOn) {
                 Writer resolv = new FileWriter(new File(dir, "resolv.conf.part"));
                 try {
@@ -78,17 +71,16 @@ public class DnsConfig implements ConfigProvider {
                 }
             }
 
-            boolean namedOn = manager.getFeatureManager().isFeatureEnabled(DnsManager.FEATURE, location) && !unmanaged;
-            ConfigUtils.enableCfengineClass(dir, "sipxdns.cfdat", namedOn, "sipxdns");
-            if (!namedOn) {
-                continue;
-            }
-
+            boolean namedOn = manager.getFeatureManager().isFeatureEnabled(DnsManager.FEATURE, location);
             Writer dat = new FileWriter(new File(dir, "named.cfdat"));
             try {
-                writeSettings(dat, settings);
+                writeSettings(dat, namedOn, resolvOn, settings);
             } finally {
                 IOUtils.closeQuietly(dat);
+            }
+
+            if (!namedOn) {
+                continue;
             }
 
             List<Address> proxy = am.getAddresses(ProxyManager.TCP_ADDRESS, location);
@@ -122,14 +114,17 @@ public class DnsConfig implements ConfigProvider {
         w.write(nm.toString());
     }
 
-    void writeSettings(Writer w, DnsSettings settings) throws IOException {
+    void writeSettings(Writer w, boolean namedOn, boolean resolvOn, DnsSettings settings) throws IOException {
         CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
+        config.writeClass("resolv", resolvOn);
+        config.writeClass("sipxdns", namedOn);
         String fwders = "";
         List<Address> fwd = settings.getDnsForwarders();
         if (fwd != null && fwd.size() > 0) {
-            fwders = StringUtils.join(settings.getDnsForwarders(), ';') + ';';
+            fwders = StringUtils.join(fwd, ';') + ';';
         }
-        config.write("dnsForwarders", fwders);
+        config.write("sipxdns_forwarders", fwders);
+        config.writeSettings("sipxdns_", settings.getSettings());
     }
 
     void writeZoneConfig(Writer w, String domain, List<Location> all, List<Address> proxy,

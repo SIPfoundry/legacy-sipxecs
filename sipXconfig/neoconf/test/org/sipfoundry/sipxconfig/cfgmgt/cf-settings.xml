@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model>
+  <group name="group">
+    <setting name="str">
+      <type/>
+      <value>s</value>
+    </setting>
+    <setting name="bool">
+      <type><boolean/></type>
+      <value>1</value>
+    </setting>
+    <setting name="bool">
+      <type><boolean/></type>
+      <value>1</value>
+    </setting>
+    <setting name="multi_enum">
+      <type>
+        <multi-enum>
+          <option>
+            <value>VALUE_0</value>
+          </option>
+          <option>
+            <value>VALUE_1</value>
+          </option>
+          <option>
+            <value>VALUE_2</value>
+          </option>
+        </multi-enum>
+      </type>
+      <value>VALUE_0|VALUE_2</value>
+    </setting>
+  </group>  
+</model>

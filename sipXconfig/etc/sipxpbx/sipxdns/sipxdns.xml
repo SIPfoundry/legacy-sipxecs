@@ -3,42 +3,51 @@
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
   <group name="named-config">
-    <group name="dnsForwarders">
-      <setting name="0">
+    <group name="forwarders">
+      <setting name="forwarder_0">
         <type><ipaddr/></type>
       </setting>
-      <setting name="1">
+      <setting name="forwarder_1">
         <type><ipaddr/></type>
       </setting>
-      <setting name="2">
+      <setting name="forwarder_2">
         <type><ipaddr/></type>
       </setting>
-      <setting name="3">
+      <setting name="forwarder_3">
         <type><ipaddr/></type>
       </setting>
-      <setting name="4">
+      <setting name="forwarder_4">
         <type><ipaddr/></type>
       </setting>
     </group>
   </group>
-   <group name="named-unmanaged">
-       <setting name="unmanaged">
+  <group name="sys">       
+    <setting name="unmanaged">
+      <type>
+        <boolean/>
+      </type>
+    </setting>
+    <group name="unmanaged_servers">
+      <setting name="unmanaged_0">
         <type>
-          <boolean />
+          <hostname />
         </type>
-        <value>0</value>
       </setting>
-      <setting name="0">
-        <type><hostname/></type>
+      <setting name="unmanaged_1">
+        <type>
+          <hostname />
+        </type>
       </setting>
-      <setting name="1">
-        <type><hostname/></type>
+      <setting name="unmanaged_2">
+        <type>
+          <hostname />
+        </type>
       </setting>
-      <setting name="2">
-        <type><hostname/></type>
+      <setting name="unmanaged_3">
+        <type>
+          <hostname />
+        </type>
       </setting>
-      <setting name="3">
-        <type><hostname/></type>
-      </setting>
-    </group>
+     </group>
+  </group>
 </model>

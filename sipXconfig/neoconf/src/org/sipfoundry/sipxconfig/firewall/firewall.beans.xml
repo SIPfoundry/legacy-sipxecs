@@ -26,6 +26,7 @@
   </bean>
   
   <bean id="firewallSettings" class="org.sipfoundry.sipxconfig.firewall.FirewallSettings" parent="settingsBean">
+    <property name="unmanagedDefault" value="${sysdir.src}"/>
   </bean>
   
   <bean id="firewallConfig" class="org.sipfoundry.sipxconfig.firewall.FirewallConfig">

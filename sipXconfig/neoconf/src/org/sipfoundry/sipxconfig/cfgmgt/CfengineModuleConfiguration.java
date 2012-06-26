@@ -20,6 +20,11 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
+import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
 
 public class CfengineModuleConfiguration extends AbstractConfigurationFile {
     private static final String EOL = System.getProperty("line.separator");
@@ -33,6 +38,26 @@ public class CfengineModuleConfiguration extends AbstractConfigurationFile {
         m_out.write(enabled ? '+' : '-');
         m_out.write(property);
         m_out.write(EOL);
+    }
+
+    public void writeSetting(String prefix, Setting setting) throws IOException {
+        if (setting.getType() instanceof BooleanSetting) {
+            m_out.write(Boolean.TRUE.equals(setting.getTypedValue()) ? '+' : '-');
+            if (prefix != null) {
+                m_out.write(prefix);
+            }
+            m_out.write(setting.getName());
+            m_out.write(EOL);
+        } else if (setting.getType() instanceof MultiEnumSetting) {
+            List<?> values = (List<?>) setting.getTypedValue();
+            String key = setting.getName();
+            if (prefix != null) {
+                key = prefix + key;
+            }
+            writeList(key, values);
+        } else {
+            write(prefix, setting.getName(), setting.getValue());
+        }
     }
 
     @Override

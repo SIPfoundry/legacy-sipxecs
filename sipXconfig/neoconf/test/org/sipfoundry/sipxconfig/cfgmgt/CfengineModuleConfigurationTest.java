@@ -24,18 +24,22 @@ import java.util.Arrays;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 
 public class CfengineModuleConfigurationTest {
     
     @Test
     public void config() throws IOException {
+        Setting settings = TestHelper.loadSettings(TestHelper.getResourceAsFile(getClass(), "cf-settings.xml"));
         StringWriter actual = new StringWriter();
         CfengineModuleConfiguration config = new CfengineModuleConfiguration(actual);
         config.writeClass("goose", true);
         config.writeClass("gander", false);
         config.write("eggs", "white");
         config.writeList("transport", Arrays.asList("water", "land", "air"));
+        config.writeSettings(settings);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected.cfdat"));
         assertEquals(expected, actual.toString());
     }

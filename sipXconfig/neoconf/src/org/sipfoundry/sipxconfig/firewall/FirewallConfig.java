@@ -27,10 +27,10 @@ import org.apache.log4j.Logger;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -54,11 +54,16 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
 
         File gdir = manager.getGlobalDataDirectory();
         FirewallSettings settings = m_firewallManager.getSettings();
-        boolean unmanaged = settings.isServiceUnmanaged();
-        ConfigUtils.enableCfengineClass(gdir, "firewall_unmanaged.cfdat", unmanaged, "unmanaged_firewall");
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FirewallManager.FEATURE);
+        Writer sysconf = new FileWriter(new File(gdir, "firewall.cfdat"));
+        try {
+            CfengineModuleConfiguration cfg = new CfengineModuleConfiguration(sysconf);
+            cfg.writeClass("firewall", enabled);
+            cfg.writeSettings("firewall_", settings.getSystemSettings());
+        } finally {
+            IOUtils.closeQuietly(sysconf);
+        }
 
-        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FirewallManager.FEATURE) && !unmanaged;
-        ConfigUtils.enableCfengineClass(gdir, "firewall.cfdat", enabled, "firewall");
         if (!enabled) {
             return;
         }

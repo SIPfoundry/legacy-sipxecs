@@ -66,6 +66,10 @@ public abstract class AbstractConfigurationFile {
         write(m_globalPrefix, key, value);
     }
 
+    public void writeSetting(String prefix, Setting setting) throws IOException {
+        write(prefix, setting.getName(), setting.getValue());
+    }
+
     public abstract void write(String prefix, String key, Object value) throws IOException;
 
     class SettingsWriter extends AbstractSettingVisitor {
@@ -81,7 +85,7 @@ public abstract class AbstractConfigurationFile {
         @Override
         public void visitSetting(Setting setting) {
             try {
-                write(m_prefix, setting.getName(), setting.getValue());
+                writeSetting(m_prefix, setting);
             } catch (IOException e) {
                 m_error = e;
             }
