@@ -56,3 +56,5 @@ SIPX_PROXY_THRESHOLD_VIOLATION_RATE : $!{proxyService.thresholdViolationRate}
 SIPX_PROXY_BAN_LIFETIME : $!{proxyService.banLifetime}
 SIPX_PROXY_WHITE_LIST : $!{proxyService.whiteList}
 SIPX_PROXY_BLACK_LIST : $!{proxyService.blackList}
+
+SIPX_TRAN_HOOK_LIBRARY.100_sipxhomer : @sipxpbx.lib.dir@/transactionplugins/libsipXhomerProxyPlugin.so
