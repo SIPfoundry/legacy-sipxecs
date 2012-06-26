@@ -77,6 +77,7 @@ void SubscribeDB::upsert (
     conn->update(_info.getNS(), query, update, true, false);
     conn->ensureIndex("node.subscription",  BSON( "expires" << 1 ));
     conn->ensureIndex("node.subscription",  BSON( "key" << 1 ));
+    conn->ensureIndex("node.subscription",  BSON( "toUri" << 1 ));
     conn.done();
 }
 
@@ -226,6 +227,7 @@ void SubscribeDB::updateNotifyUnexpiredSubscription(
     conn->update(_info.getNS(), query, update);
     conn->ensureIndex("node.subscription",  BSON( "expires" << 1 ));
     conn->ensureIndex("node.subscription",  BSON( "key" << 1 ));
+    conn->ensureIndex("node.subscription",  BSON( "toUri" << 1 ));
     conn.done();
 }
 
@@ -314,6 +316,7 @@ void SubscribeDB::updateToTag(
                         conn->update(_info.getNS(), query, update);
                         conn->ensureIndex("node.subscription",  BSON( "expires" << 1 ));
                         conn->ensureIndex("node.subscription",  BSON( "key" << 1 ));
+			conn->ensureIndex("node.subscription",  BSON( "toUri" << 1 ));
                     }
                 }
             }
