@@ -655,7 +655,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     public DBCollection getDbCollection() {
         DBCollection entity = m_imdb.getDb().getCollection(MongoConstants.ENTITY_COLLECTION);
         DBObject index1 = new BasicDBObject();
-        index1.put(MongoConstants.ALIAS + "." + MongoConstants.ID, 1);
+        index1.put(MongoConstants.ALIASES + "." + MongoConstants.ALIAS_ID, 1);
         DBObject index2 = new BasicDBObject();
         index2.put(MongoConstants.UID, 1);
         DBObject index3 = new BasicDBObject();

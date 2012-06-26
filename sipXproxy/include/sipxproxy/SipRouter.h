@@ -18,6 +18,7 @@
 #include <sipXecsService/SipNonceDb.h>
 #include <utl/PluginHooks.h>
 #include <sipxproxy/AuthPlugin.h>
+#include <net/SipBidirectionalProcessorPlugin.h>
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -32,6 +33,7 @@ class SipMessage;
 class RouteState;
 class ForwardRules;
 class SipOutputProcessor;
+
 
 /// SipRouter implements the main message handling responsible for the forking
 /// authorization and forwarding of SIP messages.
@@ -194,7 +196,8 @@ class SipRouter : public OsServerTask
    UtlString     mRouteHostSecurePort;
    SharedSecret* mSharedSecret;          ///< secret value to include in authentication hashes
    ForwardRules* mpForwardingRules;      ///< Holds to forwarding rules instructions
-   PluginHooks   mAuthPlugins;           ///< decision making modules from configuration 
+   PluginHooks   mAuthPlugins;           ///< decision making modules from configuration
+   PluginHooks   mTransactionPlugins; 
 
    /// P-Asserted-Identity header is only applicable for INVITE, REFER, BYE,
    /// OPTIONS, NOTIFY, and SUBSCRIBE
