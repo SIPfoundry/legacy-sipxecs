@@ -312,6 +312,8 @@ void SubscribeDB::updateToTag(
                         mongo::BSONObj query = BSON(Subscription::oid_fld() << oid);
                         mongo::BSONObj update = BSON("$set" << BSON(Subscription::toUri_fld() << dummy.data()));
                         conn->update(_info.getNS(), query, update);
+                        conn->ensureIndex("node.subscription",  BSON( "expires" << 1 ));
+                        conn->ensureIndex("node.subscription",  BSON( "key" << 1 ));
                     }
                 }
             }
