@@ -10,14 +10,14 @@
   </type>
   <group name="vsftp-config">
     <setting name="pasv_address">
-      <type><ipaddress/></type>
+      <type><ipaddr/></type>
     </setting>
     <setting name="xferlog_enable">
-      <type ref="true-false"><boolean/></type>
+      <type refid="true-false"/>
       <value>NO</value>
     </setting>
     <setting name="syslog_enable">
-      <type ref="true-false"><boolean/></type>
+      <type refid="true-false"/>
       <value>NO</value>
     </setting>
  </group>

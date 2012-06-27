@@ -11,11 +11,14 @@ package org.sipfoundry.sipxconfig.site.admin.commserver;
 
 import static org.sipfoundry.sipxconfig.components.LocalizationUtils.getMessage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
@@ -25,6 +28,7 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.commserver.ServiceStatus;
@@ -36,6 +40,7 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public abstract class ServicesTable extends BaseComponent {
     public static final Map<String, String> SERVICE_MAP = new HashMap<String, String>();
+    public static final Log LOG = LogFactory.getLog(ServicesTable.class);
 
     @InjectObject("service:tapestry.ognl.ExpressionEvaluator")
     public abstract ExpressionEvaluator getExpressionEvaluator();
@@ -105,7 +110,12 @@ public abstract class ServicesTable extends BaseComponent {
         if (location == null) {
             return ArrayUtils.EMPTY_OBJECT_ARRAY;
         }
-        List<ServiceStatus> statuses = getSnmpManager().getServicesStatuses(location);
+        List<ServiceStatus> statuses = new ArrayList<ServiceStatus>();
+        try {
+            statuses = getSnmpManager().getServicesStatuses(location);
+        } catch (UserException ex) {
+            LOG.error(ex.getMessage());
+        }
         if (statuses == null || statuses.size() == 0) {
             return ArrayUtils.EMPTY_OBJECT_ARRAY;
         }
