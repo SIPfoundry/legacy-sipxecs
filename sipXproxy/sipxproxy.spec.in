@@ -12,6 +12,7 @@ Url:      http://www.pingtel.com
 BuildRequires: automake
 BuildRequires: gcc-c++
 BuildRequires: cppunit-devel
+BuildRequires: zeromq-devel
 BuildRequires: pcre-devel >= 4.5
 BuildRequires: unixODBC-devel
 BuildRequires: zip
