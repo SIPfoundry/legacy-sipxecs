@@ -5,6 +5,7 @@
  */
 package org.sipfoundry.sipxconfig.site.common;
 
+
 import java.io.File;
 import java.net.URL;
 import java.util.Locale;
@@ -22,7 +23,7 @@ import org.apache.tapestry.services.impl.ComponentMessages;
 import org.apache.tapestry.spec.ComponentSpecification;
 import org.apache.tapestry.test.Creator;
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.site.admin.configdiag.ConfigurationDiagnosticPage;
+import org.sipfoundry.sipxconfig.site.admin.DnsTestPage;
 
 public class JarMessagesSourceServiceAdapterTest extends TestCase {
 
@@ -55,7 +56,7 @@ public class JarMessagesSourceServiceAdapterTest extends TestCase {
         });
 
         Creator creator = new Creator();
-        m_component = (ConfigurationDiagnosticPage)creator.newInstance(ConfigurationDiagnosticPage.class);
+        m_component = (DnsTestPage)creator.newInstance(DnsTestPage.class);
         m_mockPage = EasyMock.createNiceMock(IPage.class);
         m_component.setPage(m_mockPage);
 
