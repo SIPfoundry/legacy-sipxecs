@@ -19,11 +19,10 @@ import org.apache.hivemind.util.FileResource;
 import org.apache.hivemind.util.PropertyUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
-import org.apache.tapestry.services.impl.ComponentMessages;
 import org.apache.tapestry.spec.ComponentSpecification;
 import org.apache.tapestry.test.Creator;
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.site.admin.configdiag.ConfigurationDiagnosticPage;
+import org.sipfoundry.sipxconfig.site.admin.DnsTestPage;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class JarMessagesSourceTest extends TestCase {
@@ -42,7 +41,7 @@ public class JarMessagesSourceTest extends TestCase {
         m_out.setContext(m_context);
 
         Creator creator = new Creator();
-        m_component = (ConfigurationDiagnosticPage)creator.newInstance(ConfigurationDiagnosticPage.class);
+        m_component = (DnsTestPage)creator.newInstance(DnsTestPage.class);
         m_mockPage = EasyMock.createNiceMock(IPage.class);
         m_component.setPage(m_mockPage);
 
