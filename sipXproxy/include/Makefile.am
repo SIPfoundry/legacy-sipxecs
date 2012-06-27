@@ -3,4 +3,5 @@
 noinst_HEADERS = \
 	SipRouter.h \
 	RouteState.h \
-	AuthPlugin.h
+	AuthPlugin.h \
+	TransactionPlugin.h
