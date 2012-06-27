@@ -86,6 +86,9 @@ public class RedisImpl implements Redis, ConfigProvider, ProcessProvider, Firewa
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
+        if (!type.equals(Redis.SERVER)) {
+            return null;
+        }
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
         List<Address> addresses = Location.toAddresses(SERVER, locations);
         return addresses;
