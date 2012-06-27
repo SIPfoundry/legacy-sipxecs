@@ -55,6 +55,7 @@ public:
 
   char* id;
   char* data;
+  int data_len;
 };
 
 class SQAWatcher
@@ -137,6 +138,8 @@ public:
   bool isConnected();
 
   bool publish(const char* id, const char* data);
+
+  bool publish(const char* id, const char* data, int len);
 
   bool publishAndPersist(int workspace, const char* id, const char* data, int expires);
 
@@ -302,7 +305,8 @@ private:
 //
 inline SQAEvent::SQAEvent() :
   id(0),
-  data(0)
+  data(0),
+  data_len(0)
 {
 }
 
@@ -378,12 +382,14 @@ inline SQAEvent* SQAWatcher::watch()
     return 0;
 
   SQAEvent* pEvent = new SQAEvent();
-  pEvent->id = (char*)malloc(id.size() + 1);
-  ::memset(pEvent->id, 0x00, id.size() + 1);
-  ::memcpy(pEvent->id, id.c_str(), id.size() + 1);
-  pEvent->data = (char*)malloc(data.size() + 1);
-  ::memset(pEvent->data, 0x00, data.size() + 1);
-  ::memcpy(pEvent->data, data.c_str(), data.size() + 1);
+
+  pEvent->id = (char*)malloc(id.size());
+  ::memcpy(pEvent->id, id.data(), id.size());
+
+  pEvent->data = (char*)malloc(data.size());
+  ::memcpy(pEvent->data, data.data(), data.size());
+
+  pEvent->data_len = data.size();
   return pEvent;
 }
 
@@ -495,6 +501,11 @@ inline bool SQAPublisher::isConnected()
 inline bool SQAPublisher::publish(const char* id, const char* data)
 {
   return reinterpret_cast<StateQueueClient*>(_connection)->publish(id, data);
+}
+
+inline bool SQAPublisher::publish(const char* id, const char* data, int len)
+{
+  return reinterpret_cast<StateQueueClient*>(_connection)->publish(id, data, len);
 }
 
 inline bool SQAPublisher::publishAndPersist(int workspace, const char* id, const char* data, int expires)
@@ -727,12 +738,14 @@ inline SQAEvent* SQAWorker::fetchTask()
     return 0;
 
   SQAEvent* pEvent = new SQAEvent();
-  pEvent->id = (char*)malloc(id.size() + 1);
-  ::memset(pEvent->id, 0x00, id.size() + 1);
-  ::memcpy(pEvent->id, id.c_str(), id.size() + 1);
-  pEvent->data = (char*)malloc(data.size() + 1);
-  ::memset(pEvent->data, 0x00, data.size() + 1);
-  ::memcpy(pEvent->data, data.c_str(), data.size() + 1);
+
+  pEvent->id = (char*)malloc(id.size());
+  ::memcpy(pEvent->id, id.data(), id.size());
+
+  pEvent->data = (char*)malloc(data.size());
+  ::memcpy(pEvent->data, data.data(), data.size());
+
+  pEvent->data_len = data.size();
   return pEvent;
 }
 

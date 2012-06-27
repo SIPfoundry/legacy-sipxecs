@@ -918,6 +918,12 @@ public:
     return internal_publish(ss.str(), data);
   }
 
+  bool publish(const std::string& eventId, const char* data, int dataLength)
+  {
+    std::string buff = std::string(data, dataLength);
+    return publish(eventId, data, dataLength);
+  }
+
   bool publishAndPersist(int workspace, const std::string& eventId, const std::string& data, int expires)
   {
     if (_type != Publisher)
