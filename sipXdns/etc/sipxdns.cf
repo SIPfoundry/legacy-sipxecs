@@ -17,7 +17,8 @@
 
 bundle agent sipxdns {
   vars:
-    "managed_ext" string => ""
+    "managed_ext" 
+      string => "",
       policy => "overridable";
     sipxdns_unmanaged::
       "managed_ext" string => ".unmanaged";
