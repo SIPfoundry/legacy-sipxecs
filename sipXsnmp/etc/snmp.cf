@@ -78,9 +78,10 @@ iquerySecName _internal
 monitor -S -r 10 -e prFixIt \"procTable\" prErrorFlag != 0
 ";
 
-   "$(part)"
-     insert_type => "file",
-     expand_scalars => "true";
+    any::
+     "$(part)"
+       insert_type => "file",
+       expand_scalars => "true";
 }
 
 
