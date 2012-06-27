@@ -18,7 +18,9 @@
       <type><string required="yes"/></type>
     </setting>
     <setting name="password" >
-      <type><password/></type>
+      <type>
+        <string password="yes"></string>
+      </type>
     </setting>
   </group>
   <group name="restore">
