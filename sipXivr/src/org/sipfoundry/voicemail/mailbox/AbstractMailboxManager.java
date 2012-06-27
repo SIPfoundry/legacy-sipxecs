@@ -58,10 +58,15 @@ public abstract class AbstractMailboxManager implements MailboxManager {
 
     @Override
     public final TempMessage createTempMessage(String username, String fromUri, boolean audio) {
+        return createTempMessage(username, fromUri, m_audioFormat, audio);
+    }
+
+    @Override
+    public final TempMessage createTempMessage(String username, String fromUri, String extension, boolean audio) {
         try {
             String audioPath = null;
             if (audio) {
-                File audioFile = File.createTempFile("temp_recording_", "." + m_audioFormat, getTempFolder(username));
+                File audioFile = File.createTempFile("temp_recording_", "." + extension, getTempFolder(username));
                 audioPath = audioFile.getPath();
             }
             return new TempMessage(username, audioPath, fromUri, Priority.NORMAL, null);
