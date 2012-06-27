@@ -29,6 +29,8 @@ public interface MailboxManager {
 
     TempMessage createTempMessage(String username, String fromUri, boolean addAudio);
 
+    TempMessage createTempMessage(String username, String fromUri, String extension, boolean addAudio);
+
     void deleteTempMessage(TempMessage message);
 
     void storeInInbox(User destUser, TempMessage message);
