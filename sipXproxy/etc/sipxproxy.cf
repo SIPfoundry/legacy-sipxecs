@@ -86,7 +86,9 @@ bundle edit_line sipXproxy_config_contents() {
       "SIPX_PROXY_HOOK_LIBRARY.700_fromalias : $(sipx.SIPX_LIBDIR)/authplugins/libCallerAlias.so";
       "SIPX_PROXY_HOOK_LIBRARY.900_ntap : $(sipx.SIPX_LIBDIR)/authplugins/libNatTraversalAgent.so";
       "SIPX_PROXY_HOOK_LIBRARY.990_emergnotif: $(sipx.SIPX_LIBDIR)/authplugins/libEmergencyNotify.so";
-      "SIPX_PROXY_HOOK_LIBRARY.995_requestlinter: $(sipx.SIPX_LIBDIR)/authplugins/libRequestLinter.so";
+      "SIPX_PROXY_HOOK_LIBRARY.995_requestlinter: /authplugins/libRequestLinter.so";
+    homer::
+      "SIPX_TRAN_HOOK_LIBRARY.100_sipxhomer : $(sipx.SIPX_LIBDIR)/transactionplugins/libsipXhomerProxyPlugin.so";
 
   delete_lines:
     any::
