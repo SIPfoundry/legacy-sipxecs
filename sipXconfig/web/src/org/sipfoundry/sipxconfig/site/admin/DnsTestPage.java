@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
@@ -27,11 +28,8 @@ public abstract class DnsTestPage extends SipxBasePage {
     public abstract boolean getProvideDns();
 
     @Persist
-    public abstract boolean getShowTestResults();
-    public abstract void setShowTestResults(boolean showTestResults);
-
-    @Persist
-    public abstract boolean isShowDetailedHelp();
+    public abstract String getResults();
+    public abstract void setResults(String results);
 
     @Asset("/images/bullet_error.png")
     public abstract IAsset getDnsErrorImage();
@@ -42,8 +40,11 @@ public abstract class DnsTestPage extends SipxBasePage {
     @InjectObject(value = "spring:dnsTestContext")
     public abstract DnsTestContext getDnsTestContext();
 
+    public boolean isResultsNotBlank() {
+        return StringUtils.isNotBlank(getResults());
+    }
 
     public void execute() {
-        getDnsTestContext().execute(getProvideDns());
+        setResults(getDnsTestContext().execute(getProvideDns()));
     }
 }

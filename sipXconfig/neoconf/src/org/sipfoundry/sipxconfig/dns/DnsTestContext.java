@@ -10,11 +10,9 @@
 package org.sipfoundry.sipxconfig.dns;
 
 public interface DnsTestContext {
-    String getResult();
-
-    boolean isValid();
-
-    void execute(boolean provideDns);
-
-    boolean isRunTestNeeded();
+    /**
+     * throws UserException if invalid
+     * @return
+     */
+    String execute(boolean provideDns);
 }
