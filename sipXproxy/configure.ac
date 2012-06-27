@@ -8,12 +8,6 @@ SFAC_AUTOMAKE_VERSION([1.6])
 AC_CONFIG_SRCDIR([src/sipXproxymain.cpp])
 AM_CONFIG_HEADER([src/config.h])
 AC_PROG_LIBTOOL
-AC_CHECK_LIB(boost_thread, main, [BOOST_LDADD="-lboost_thread"],
-			    [AC_CHECK_LIB(boost_thread-mt, main,
-			    				   [BOOST_LDADD="-lboost_thread-mt"],
-							   [AC_MSG_ERROR("no boost thread found")]
-					)])
-
 AC_PATH_PROG([BASH], [bash])
 AC_PROG_CXX
 AX_COMPILER_VENDOR
@@ -29,7 +23,6 @@ CHECK_RUBY([1.8.2])
 CHECK_RAKE([0.5.3])
 CHECK_GEM([0.8.11])
 CHECK_ODBC
-AC_SUBST(BOOST_LDADD)
 AC_ARG_ENABLE(cse-tests,
   AC_HELP_STRING([--enable-cse-tests], [Run unit tests that test saving CSE data to postgres db setup]),
   enable_cse_tests=yes)
