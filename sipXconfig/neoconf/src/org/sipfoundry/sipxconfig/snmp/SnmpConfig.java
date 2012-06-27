@@ -27,10 +27,10 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
@@ -61,7 +61,17 @@ public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListene
         Set<Location> locations = request.locations(manager);
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(SnmpManager.FEATURE);
         File gdir = manager.getGlobalDataDirectory();
-        ConfigUtils.enableCfengineClass(gdir, "snmpd.cfdat", enabled, SnmpManager.FEATURE.getId());
+        SnmpSettings settings = m_snmp.getSettings();
+
+        Writer cfdat = new FileWriter(new File(gdir, "snmpd.cfdat"));
+        try {
+            CfengineModuleConfiguration config = new CfengineModuleConfiguration(cfdat);
+            config.writeClass(SnmpManager.FEATURE.getId(), enabled);
+            config.writeSettings("snmp_", settings.getSettings().getSetting("cfdat"));
+        } finally {
+            IOUtils.closeQuietly(cfdat);
+        }
+
         if (enabled) {
             for (Location location : locations) {
                 File dir = manager.getLocationDataDirectory(location);

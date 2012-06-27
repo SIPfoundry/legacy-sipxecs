@@ -26,6 +26,10 @@ import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 public interface SnmpManager {
     public static final GlobalFeature FEATURE = new GlobalFeature("snmp");
 
+    public SnmpSettings getSettings();
+
+    public void saveSettings(SnmpSettings settings);
+
     public FeatureManager getFeatureManager();
 
     public List<ProcessDefinition> getProcessDefinitions(Location location);

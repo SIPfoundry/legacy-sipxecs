@@ -33,6 +33,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -41,6 +42,7 @@ public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeaturePr
     private ListableBeanFactory m_beanFactory;
     private FeatureManager m_featureManager;
     private Collection<ProcessProvider> m_processProviders;
+    private BeanWithSettingsDao<SnmpSettings> m_settingsDao;
 
     @Override
     public List<ProcessDefinition> getProcessDefinitions(Location location) {
@@ -115,5 +117,19 @@ public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeaturePr
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+    }
+
+    @Override
+    public SnmpSettings getSettings() {
+        return m_settingsDao.findOrCreateOne();
+    }
+
+    @Override
+    public void saveSettings(SnmpSettings settings) {
+        m_settingsDao.upsert(settings);
+    }
+
+    public void setSettingsDao(BeanWithSettingsDao<SnmpSettings> settingsDao) {
+        m_settingsDao = settingsDao;
     }
 }

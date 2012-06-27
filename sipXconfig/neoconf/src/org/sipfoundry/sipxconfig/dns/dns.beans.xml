@@ -29,10 +29,6 @@
   </bean>
 
   <bean id="dnsTestContextImpl" class="org.sipfoundry.sipxconfig.dns.DnsTestContextImpl">
-    <constructor-arg ref="commandContext" />
-    <constructor-arg value="sipx-dns" />
-    <property name="addressManager" ref="addressManager" />
-    <property name="coreContext" ref="coreContext" />
   </bean>
 
   <bean id="dnsTestContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

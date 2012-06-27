@@ -9,15 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
-import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
-import org.springframework.beans.factory.annotation.Required;
 
 public class DnsTestContextImpl implements DnsTestContext {
-    private CoreContext m_coreContext;
-    private AddressManager m_addressManager;
-    private FeatureManager m_featureManager;
 
 //
 //    ExternalCommand prepareCommand(boolean provideDns) {
@@ -84,20 +77,6 @@ public class DnsTestContextImpl implements DnsTestContext {
 //        }
 //        m_runTestNeeded = false;
 //    }
-
-    @Required
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
-    }
-
-    @Required
-    public void setAddressManager(AddressManager addressManager) {
-        m_addressManager = addressManager;
-    }
-
-    public void setFeatureManager(FeatureManager featureManager) {
-        m_featureManager = featureManager;
-    }
 
     @Override
     public String execute(boolean provideDns) {

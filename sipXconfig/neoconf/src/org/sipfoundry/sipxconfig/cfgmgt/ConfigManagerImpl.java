@@ -369,34 +369,6 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     }
 
     @Override
-    public void collectVmBackup(Location location) {
-        RunRequest collect = new RunRequest("collect voicemail backup", Collections.singleton(location));
-        collect.setBundles("vmbackup");
-        run(collect);
-    }
-
-    @Override
-    public void uploadVmBackup(Location location) {
-        RunRequest collect = new RunRequest("upload voicemail backup", Collections.singleton(location));
-        collect.setBundles("upload_vmbackup");
-        run(collect);
-    }
-
-    @Override
-    public void restoreVmBackup(Location location) {
-        RunRequest collect = new RunRequest("restore voicemail backup", Collections.singleton(location));
-        collect.setBundles("restore_vmbackup");
-        run(collect);
-    }
-
-    @Override
-    public void runRestoreScript(Location location) {
-        RunRequest collect = new RunRequest("restore config backup", Collections.singleton(location));
-        collect.setBundles("run_restore");
-        run(collect);
-    }
-
-    @Override
     public ConfigCommands getConfigCommands() {
         return this;
     }

@@ -9,6 +9,19 @@
   
   <bean id="snmpManagerImpl" class="org.sipfoundry.sipxconfig.snmp.SnmpManagerImpl">
     <property name="featureManager" ref="featureManager"/>
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.snmp.SnmpSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+  </bean>
+  
+  <bean id="snmpSettings" class="org.sipfoundry.sipxconfig.snmp.SnmpSettings" parent="settingsBean">
+    <property name="noRestartDefault" value="${sysdir.src}"/>
   </bean>
 
   <bean id="snmpConfig" class="org.sipfoundry.sipxconfig.snmp.SnmpConfig">

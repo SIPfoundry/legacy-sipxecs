@@ -230,6 +230,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxsqa/*
 %config(noreplace) %{sipxpbxconf}/sipxvxml/*
 %config(noreplace) %{sipxpbxconf}/sipxwebsocket/*
+%config(noreplace) %{sipxpbxconf}/snmp/*
 %config(noreplace) %{sipxpbxconf}/test.d/*
 %config(noreplace) %{sipxpbxconf}/tunnel/*
 %config(noreplace) %{sipxpbxconf}/unmanaged/*

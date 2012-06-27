@@ -36,12 +36,4 @@ public interface ConfigCommands {
     void collectSnapshot(Location location);
 
     void uploadSnapshot(Location location);
-
-    void collectVmBackup(Location location);
-
-    void uploadVmBackup(Location location);
-
-    void restoreVmBackup(Location location);
-
-    void runRestoreScript(Location location);
 }
