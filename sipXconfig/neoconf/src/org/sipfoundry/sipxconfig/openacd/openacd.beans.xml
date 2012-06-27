@@ -17,6 +17,7 @@
     <property name="aliasManager" ref="aliasManager" />
     <property name="featureManager" ref="featureManager" />
     <property name="replicationManager" ref="replicationManagerImpl" />
+    <property name="locationsManager" ref="locationsManager" />
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">

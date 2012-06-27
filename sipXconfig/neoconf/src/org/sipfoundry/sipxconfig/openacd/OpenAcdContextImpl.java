@@ -42,6 +42,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
@@ -60,6 +61,8 @@ import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
@@ -69,7 +72,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext, BeanFactoryAware,
-        FeatureProvider, AddressProvider, ProcessProvider, DaoEventListener, FirewallProvider {
+        FeatureProvider, AddressProvider, ProcessProvider, DaoEventListener, FirewallProvider, SetupListener {
 
     private static final String VALUE = "value";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
@@ -89,6 +92,16 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private static final String OPEN_ACD_RELEASE_CODE_WITH_LABEL = "openAcdClientReleaseCodeWithLabel";
     private static final String OPEN_ACD_PROCESS_NAME = "openacd";
     private static final String AGENT_GROUP_NAME = "Contact-center-agents";
+    //commands
+    private static final String DESTINATION_NUMBER = "destination_number";
+    private static final String ANSWER = "answer";
+    private static final String ERLANG_SENDMSG = "erlang_sendmsg";
+    private static final String SLEEP = "sleep";
+    private static final String SLEEP_MS = "2000";
+    private static final String HANGUP = "hangup";
+    private static final String NORMAL_CLEARING = "NORMAL CLEARING";
+    private static final String AGENT_DP_LISTENER = "agent_dialplan_listener openacd@";
+
 
     private AliasManager m_aliasManager;
     private FeatureManager m_featureManager;
@@ -97,6 +110,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private CoreContext m_coreContext;
     private ReplicationManager m_replicationManager;
     private SettingDao m_settingDao;
+    private LocationsManager m_locationsManager;
 
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
@@ -1025,6 +1039,119 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         }
     }
 
+    @Override
+    public boolean setup(SetupManager manager) {
+        String id = "init-openacd-commands";
+        if (manager.isTrue(id)) {
+            return true;
+        }
+        OpenAcdCommand login = newOpenAcdCommand();
+        FreeswitchCondition loginCondition = new FreeswitchCondition();
+        loginCondition.setField(DESTINATION_NUMBER);
+        loginCondition.setExpression("^*87$");
+        login.setName("login");
+        login.setDescription("Default login dial string");
+        FreeswitchAction loginActionAnswer = new FreeswitchAction();
+        loginActionAnswer.setApplication(ANSWER);
+        FreeswitchAction loginActionErlang = new FreeswitchAction();
+        loginActionErlang.setApplication(ERLANG_SENDMSG);
+        loginActionErlang.setData(new StringBuilder(AGENT_DP_LISTENER)
+            .append(m_locationsManager.getPrimaryLocation().getFqdn())
+            .append(" agent_login ${sip_from_user} pstn ${sip_from_uri}").toString());
+        FreeswitchAction loginActionSleep = new FreeswitchAction();
+        loginActionSleep.setApplication(SLEEP);
+        loginActionSleep.setData(SLEEP_MS);
+        FreeswitchAction loginActionHangup = new FreeswitchAction();
+        loginActionHangup.setApplication(HANGUP);
+        loginActionHangup.setData(NORMAL_CLEARING);
+        loginCondition.addAction(loginActionAnswer);
+        loginCondition.addAction(loginActionErlang);
+        loginCondition.addAction(loginActionSleep);
+        loginCondition.addAction(loginActionHangup);
+        login.addCondition(loginCondition);
+        saveExtension(login);
+
+        OpenAcdCommand available = newOpenAcdCommand();
+        FreeswitchCondition availableCondition = new FreeswitchCondition();
+        availableCondition.setField(DESTINATION_NUMBER);
+        availableCondition.setExpression("^*90$");
+        available.setName("available");
+        available.setDescription("Default available dial string");
+        FreeswitchAction availableActionAnswer = new FreeswitchAction();
+        availableActionAnswer.setApplication(ANSWER);
+        FreeswitchAction availableActionErlang = new FreeswitchAction();
+        availableActionErlang.setApplication(ERLANG_SENDMSG);
+        availableActionErlang.setData(new StringBuilder(AGENT_DP_LISTENER)
+            .append(m_locationsManager.getPrimaryLocation().getFqdn())
+            .append(" agent_available ${sip_from_user}").toString());
+        FreeswitchAction availableActionSleep = new FreeswitchAction();
+        availableActionSleep.setApplication(SLEEP);
+        availableActionSleep.setData(SLEEP_MS);
+        FreeswitchAction availableActionHangup = new FreeswitchAction();
+        availableActionHangup.setApplication(HANGUP);
+        availableActionHangup.setData(NORMAL_CLEARING);
+        availableCondition.addAction(availableActionAnswer);
+        availableCondition.addAction(availableActionErlang);
+        availableCondition.addAction(availableActionSleep);
+        availableCondition.addAction(availableActionHangup);
+        available.addCondition(availableCondition);
+        saveExtension(available);
+
+        OpenAcdCommand release = newOpenAcdCommand();
+        FreeswitchCondition releaseCondition = new FreeswitchCondition();
+        releaseCondition.setField(DESTINATION_NUMBER);
+        releaseCondition.setExpression("^*89$");
+        release.setName("release");
+        release.setDescription("Default release dial string");
+        FreeswitchAction releaseActionAnswer = new FreeswitchAction();
+        releaseActionAnswer.setApplication(ANSWER);
+        FreeswitchAction releaseActionErlang = new FreeswitchAction();
+        releaseActionErlang.setApplication(ERLANG_SENDMSG);
+        releaseActionErlang.setData(new StringBuilder(AGENT_DP_LISTENER)
+            .append(m_locationsManager.getPrimaryLocation().getFqdn())
+            .append(" agent_release ${sip_from_user}").toString());
+        FreeswitchAction releaseActionSleep = new FreeswitchAction();
+        releaseActionSleep.setApplication(SLEEP);
+        releaseActionSleep.setData(SLEEP_MS);
+        FreeswitchAction releaseActionHangup = new FreeswitchAction();
+        releaseActionHangup.setApplication(HANGUP);
+        releaseActionHangup.setData(NORMAL_CLEARING);
+        releaseCondition.addAction(releaseActionAnswer);
+        releaseCondition.addAction(releaseActionErlang);
+        releaseCondition.addAction(releaseActionSleep);
+        releaseCondition.addAction(releaseActionHangup);
+        release.addCondition(releaseCondition);
+        saveExtension(release);
+
+        OpenAcdCommand logoff = newOpenAcdCommand();
+        FreeswitchCondition logoffCondition = new FreeswitchCondition();
+        logoffCondition.setField(DESTINATION_NUMBER);
+        logoffCondition.setExpression("^*91$");
+        logoff.setName("logoff");
+        logoff.setDescription("Default logoff dial string");
+        FreeswitchAction logoffActionAnswer = new FreeswitchAction();
+        logoffActionAnswer.setApplication(ANSWER);
+        FreeswitchAction logoffActionErlang = new FreeswitchAction();
+        logoffActionErlang.setApplication(ERLANG_SENDMSG);
+        logoffActionErlang.setData(new StringBuilder(AGENT_DP_LISTENER)
+            .append(m_locationsManager.getPrimaryLocation().getFqdn())
+            .append(" agent_logoff ${sip_from_user}").toString());
+        FreeswitchAction logoffActionSleep = new FreeswitchAction();
+        logoffActionSleep.setApplication(SLEEP);
+        logoffActionSleep.setData(SLEEP_MS);
+        FreeswitchAction logoffActionHangup = new FreeswitchAction();
+        logoffActionHangup.setApplication(HANGUP);
+        logoffActionHangup.setData(NORMAL_CLEARING);
+        logoffCondition.addAction(logoffActionAnswer);
+        logoffCondition.addAction(logoffActionErlang);
+        logoffCondition.addAction(logoffActionSleep);
+        logoffCondition.addAction(logoffActionHangup);
+        logoff.addCondition(logoffCondition);
+        saveExtension(logoff);
+        manager.setTrue(id);
+        return true;
+    }
+
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
     }
@@ -1084,4 +1211,9 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
     }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
+
 }

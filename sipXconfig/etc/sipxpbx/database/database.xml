@@ -400,6 +400,7 @@
   	<antcall target="convert-init-task-to-setup" />
   	<antcall target="backup-types" />
   	<antcall target="notified" />
+  	<antcall target="openacd-remove-commands" />
   </target>
 
   <target name="plugin-patches">
@@ -1300,11 +1301,14 @@
   </target>
   <target name="notified" unless="notified">
 	<db-patch patch="notified"/>
-  </target>	
+  </target>
   <target name="backup-types" unless="backup-types">
 	<db-patch patch="backup-types"/>
-  </target>	
-  
+  </target>
+  <target name="openacd-remove-commands" unless="openacd-remove-commands">
+    <db-patch patch="openacd-remove-commands"/>
+  </target>
+
   <!--
     - SUPPORT UTILITIES
   -->
