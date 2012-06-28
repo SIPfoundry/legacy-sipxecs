@@ -6,7 +6,7 @@
 ISO_SRC ?= $(SRC)/mak/centos-iso
 ISO_LABEL ?= sipxecs
 ISO_REV ?= $(PACKAGE_REVISION)
-SPLASH_FILE ?= $(ISO_SRC)/splash.lss
+SPLASH_FILE ?= $(ISO_SRC)/splash.jpg
 VOLUME_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
 APPLICATION_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
 PUBLISHER_ID ?= sipx-dev@list.sipfoundry.org
@@ -26,10 +26,7 @@ ISO_PACKAGES_EPEL=$(ARCH)-epel-Packages
 # very initial boot menu and graphics
 ISOLINUX_FILES = \
 	$(SPLASH_FILE) \
-	$(ISO_SRC)/isolinux.cfg \
-	$(ISO_SRC)/param.msg \
-	$(ISO_SRC)/options.msg \
-	$(ISO_SRC)/boot.msg
+	$(ISO_SRC)/isolinux.cfg
 
 # default target, build both 32 and 64 bit cds
 help.iso = Build 32 and 64 versions of ISO from base CentOS ISO found in @ISO_DIR@
