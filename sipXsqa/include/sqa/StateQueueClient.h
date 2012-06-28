@@ -25,7 +25,7 @@
 #include <boost/thread.hpp>
 #include "StateQueueMessage.h"
 #include "BlockingQueue.h"
-#include "os/OsLogger.h"
+#include <os/OsLogger.h>
 #include <boost/lexical_cast.hpp>
 #include "ServiceOptions.h"
 
@@ -331,6 +331,8 @@ public:
 
       _zmqEventId += zmqEventId;
 
+      OS_LOG_INFO(FAC_NET, "StateQueueClient-" << applicationId <<  " for event " <<  _zmqEventId << " CREATED");
+
       if (_type != Publisher)
       {
         std::ostringstream controlAddress;
@@ -387,6 +389,8 @@ public:
         _zmqEventId = "sqa.";
 
       _zmqEventId += zmqEventId;
+
+      OS_LOG_INFO(FAC_NET, "StateQueueClient-" << applicationId <<  " for event " <<  _zmqEventId << " CREATED");
 
       if (_type != Publisher)
       {
@@ -835,7 +839,7 @@ private:
     enqueueRequest.set("message-app-id", _applicationId.c_str());
     enqueueRequest.set("message-data", data);
 
-    OS_LOG_INFO(FAC_NET, "StateQueueClient::internal_publish "<< "publishing data ID=" << id);
+    OS_LOG_INFO(FAC_NET, "StateQueueClient::internal_publish " << "publishing data ID=" << id);
 
     StateQueueMessage enqueueResponse;
     if (!sendAndReceive(enqueueRequest, enqueueResponse))
@@ -907,6 +911,7 @@ public:
 
   bool watch(std::string& id, std::string& data)
   {
+    OS_LOG_INFO(FAC_NET, "StateQueueClient::watch(" << id << ") INVOKED" );
     StateQueueMessage message;
     if (!pop(message))
       return false;
