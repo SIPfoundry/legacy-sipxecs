@@ -29,6 +29,7 @@
 #include "utl/Plugin.h"
 #include "net/SipMessage.h"
 #include "net/SipUserAgent.h"
+#include "os/OsLogger.h"
 
 class SipBidirectionalProcessorPlugin : public Plugin, boost::noncopyable
 {
@@ -132,6 +133,7 @@ protected:
   SipUserAgent* _pUserAgent;
   InputProcessor _input;
   OutputProcessor _output;
+  std::string _instanceName;
   PropertyMap _properties;
 };
 
@@ -142,8 +144,12 @@ inline SipBidirectionalProcessorPlugin::SipBidirectionalProcessorPlugin(const Ut
   Plugin(instanceName),
   _pUserAgent(0),
   _input(priority),
-  _output(priority)
+  _output(priority),
+  _instanceName(instanceName.data())
 {
+  OS_LOG_NOTICE(FAC_SIP, "SipBidirectionalProcessorPlugin::" << _instanceName << " CREATED");
+  _input._handler = boost::bind(&SipBidirectionalProcessorPlugin::handleIncoming, this, _1, _2, _3);
+  _output._handler = boost::bind(&SipBidirectionalProcessorPlugin::handleOutgoing, this, _1, _2, _3);
 }
 
 inline SipBidirectionalProcessorPlugin::~SipBidirectionalProcessorPlugin()
@@ -155,6 +161,10 @@ inline void SipBidirectionalProcessorPlugin::announceAssociatedSipUserAgent(SipU
   _pUserAgent = userAgent;
   _pUserAgent->addSipInputProcessor(&_input);
   _pUserAgent->addSipOutputProcessor(&_output);
+  UtlString addr;
+  int port;
+  userAgent->getLocalAddress(&addr, &port);
+  OS_LOG_NOTICE(FAC_SIP, "SipBidirectionalProcessorPlugin::announceAssociatedSipUserAgent Name=" << _instanceName << " Address=" << addr.data() << ":" << port << " ASSIGNED");
 }
 
 inline void SipBidirectionalProcessorPlugin::setProperty(const std::string& name, const boost::any& value)
