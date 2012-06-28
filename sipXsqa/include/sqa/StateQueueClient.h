@@ -506,12 +506,25 @@ private:
     request.set("subscription-expires", _subscriptionExpires);
     request.set("subscription-event", _zmqEventId.c_str());
 
+    std::string clientType;
     if (_type == Publisher)
+    {
       request.set("service-type", "publisher");
+      clientType = "publisher";
+    }
     else if (_type == Worker)
+    {
       request.set("service-type", "worker");
+      clientType = "worker";
+    }
     else if (_type == Watcher)
+    {
       request.set("service-type", "watcher");
+      clientType = "watcher";
+    }
+
+    OS_LOG_NOTICE(FAC_NET, "StateQueueClient::signin Type=" << clientType << " SIGNIN");
+
 
     StateQueueMessage response;
     if (!sendAndReceive(request, response))
@@ -523,6 +536,7 @@ private:
     {
       _refreshSignin = true;
       _currentSigninTick = _subscriptionExpires * .75;
+      OS_LOG_NOTICE(FAC_NET, "StateQueueClient::signin Type=" << clientType << " SQA=" << publisherAddress << "SUCCEEDED");
     }
 
     return ok;
@@ -787,7 +801,10 @@ private:
 
     StateQueueMessage enqueueResponse;
     if (!sendAndReceive(enqueueRequest, enqueueResponse))
+    {
+      OS_LOG_ERROR(FAC_NET, "StateQueueClient::sendAndReceive FAILED");
       return false;
+    }
 
     //
     // Check if Queue is successful
@@ -817,6 +834,8 @@ private:
     enqueueRequest.set("message-id", id.c_str());
     enqueueRequest.set("message-app-id", _applicationId.c_str());
     enqueueRequest.set("message-data", data);
+
+    OS_LOG_INFO(FAC_NET, "StateQueueClient::internal_publish "<< "publishing data ID=" << id);
 
     StateQueueMessage enqueueResponse;
     if (!sendAndReceive(enqueueRequest, enqueueResponse))
@@ -850,6 +869,8 @@ private:
     enqueueRequest.set("message-data", data);
     enqueueRequest.set("message-expires", expires);
     enqueueRequest.set("workspace", workspace);
+
+    OS_LOG_INFO(FAC_NET, "StateQueueClient::internal_publish_and_persist "<< "publishing data ID=" << id);
 
     StateQueueMessage enqueueResponse;
     if (!sendAndReceive(enqueueRequest, enqueueResponse))
