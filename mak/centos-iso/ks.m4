@@ -19,13 +19,13 @@ gpgcheck=0
 
 dnl NOTE: You should start message with '====... if you want message to be removed after
 dnl successul setup. See shell code in /root/.bashrc for details
-define(`welcome_message',[
+define(`welcome_message',`
 ==========================
 Welcome to SIPfoundry sipXecs.
 
-After logging in as root, you will automatically be taken through a setup procedure.
-
-])
+After logging in as root you will automatically be taken through a setup
+procedure.
+')
 sinclude(`oem.m4')
 ##################################################
 ###
