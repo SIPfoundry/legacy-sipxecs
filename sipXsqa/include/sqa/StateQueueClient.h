@@ -536,7 +536,7 @@ private:
     {
       _refreshSignin = true;
       _currentSigninTick = _subscriptionExpires * .75;
-      OS_LOG_NOTICE(FAC_NET, "StateQueueClient::signin Type=" << clientType << " SQA=" << publisherAddress << "SUCCEEDED");
+      OS_LOG_NOTICE(FAC_NET, "StateQueueClient::signin Type=" << clientType << " SQA=" << publisherAddress << " SUCCEEDED");
     }
 
     return ok;
