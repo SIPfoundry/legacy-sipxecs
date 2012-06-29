@@ -45,9 +45,9 @@ public class RecordingConfig implements ConfigProvider {
         if (locations.isEmpty()) {
             return;
         }
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(Recording.FEATURE);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            boolean enabled = manager.getFeatureManager().isFeatureEnabled(Recording.FEATURE);
             ConfigUtils.enableCfengineClass(dir, "sipxrecording.cfdat", enabled, "sipxrecording");
             if (!enabled) {
                 continue;

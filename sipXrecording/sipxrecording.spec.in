@@ -54,8 +54,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxrecording
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxrecording.cf
 %dir %attr(775,sipx,sipx) %{_sysconfdir}/sipxpbx/sipxrecording
-%config(noreplace) %{_sysconfdir}/sipxpbx/sipxrecording/sipxrecording.properties
-%config(noreplace) %{_sysconfdir}/sipxpbx/sipxrecording/sipxrecording.xml
+%config(noreplace) %{_sysconfdir}/sipxpbx/sipxrecording/*
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXrecording
 %{_datadir}/java/sipXecs/sipXrecording/sipXrecording.jar
 %{_datadir}/java/sipXecs/sipXconfig/plugins/recording-cfg-service.jar

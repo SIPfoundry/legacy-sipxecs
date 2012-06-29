@@ -7,7 +7,8 @@ dist_cfinputs_DATA = \
 cfgdir = @SIPX_CONFDIR@/sipxrecording
 dist_cfg_DATA = \
 	sipxrecording.xml \
-	sipxrecording.properties
+	sipxrecording.properties \
+	sipxrecording-apache.conf
 
 schemadir = @SIPX_DATADIR@/schema
 dist_schema_DATA = \
