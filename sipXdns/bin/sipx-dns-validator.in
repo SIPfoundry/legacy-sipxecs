@@ -52,7 +52,9 @@ def parse_zone(filter, zone)
 end
 
 def validate_naptr(metadata, expected, actual)
-  # Example: hubler.us. 1800 IN NAPTR 2 0 "s" "SIP+D2U" "" _sip._udp.hubler.us.
+  #  Actual   : hubler.us. 1800 IN NAPTR 2 0 "s" "SIP+D2U" "" _sip._udp.hubler.us.
+  #  Zone     : hubler.us.      IN NAPTR 2 0 "s" "SIP+D2U" "" _sip._udp.hubler.us.
+  #  Test     : hubler.us.    ? IN NAPTR 2 0 "s" "SIP+D2U" "" _sip._udp.hubler.us.
   validate_by_regexp(expected, actual) {|f|
     # response include ttl, allow any number
     %r[#{f[0]} \d+ #{f[1..-1].join(' ')}]
@@ -64,8 +66,7 @@ def validate_proxy(metadata, expected, actual)
   #  Zone     : _sip._tcp.hubler.us.      IN SRV 10 10 5060 swift.hubler.us.
   #  Test     : _sip._tcp.hubler.us.    ? IN SRV  ?  ? 5060 swift.hubler.us.
   validate_by_regexp(expected, actual) {|f|
-    # response include ttl, allow any number
-    regex = %r[#{f[0]} \d+ #{f[1]} #{f[2]} \d+ \d+ #{f[5..-1].join(' ')}]
+    srv_regex(f)
   }
 end
 
@@ -74,25 +75,33 @@ def validate_rr(metadata, expected, actual)
   #  Zone     : _sip._tcp.rr.hubler.us.      IN SRV 10 10 5060 swift.hubler.us.
   #  Test     : _sip._tcp.rr.hubler.us.    ? IN SRV  ?  ? 5060 swift.hubler.us.
   validate_by_regexp(expected, actual) {|f|
-    # response include ttl, allow any number
-    regex = %r[#{f[0]} \d+ #{f[1]} #{f[2]} \d+ \d+ #{f[5..-1].join(' ')}]
+    srv_regex(f)
   }
 end
 
 def validate_im(metadata, expected, actual)
   # Example : 
+  # Actual :  _xmpp-server._tcp.hubler.us. 1800 IN   SRV   10  10  5269  swift.hubler.us.
+  # Zone :    _xmpp-server._tcp.hubler.us.      IN   SRV   10  10  5269  swift.hubler.us.
+  # Test :    _xmpp-server._tcp.hubler.us.    ? IN   SRV    ?   ?  5269  swift.hubler.us.
   validate_by_regexp(expected, actual) {|f|
-    # response include ttl, allow any number
-    regex = %r[#{f[0]} \d+ #{f[1..-1].join(' ')}]
+    srv_regex(f)
   }
 end
 
 def validate_a(metadata, expected, actual)
-  # Example : 
+  #  Actual   : A 1800 swift.hubler.us
+  #  Zone     : A      swift.hubler.us
+  #  Test     : A    ? swift.hubler.us
   validate_by_regexp(expected, actual) {|f|
     # response include ttl, allow any number
-    regex = %r[#{f[0]} \d+ #{f[1..-1].join(' ')}]
+    %r[#{f[0]} \d+ #{f[1..-1].join(' ')}]
   }
+end
+
+def srv_regex(f)
+  # response include ttl, allow any number
+  %r[#{f[0]} \d+ #{f[1]} #{f[2]} \d+ \d+ #{f[5..-1].join(' ')}]
 end
 
 # report back records that do not do not match any of 

@@ -16,9 +16,11 @@ import java.io.Reader;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class DnsTestContextImpl implements DnsTestContext {
+    private static final Log LOG = LogFactory.getLog(DnsTestContextImpl.class);
     private String m_validatorScript;
 
     @Override
@@ -35,6 +37,7 @@ public class DnsTestContextImpl implements DnsTestContext {
                 "--out",
                 missingRecords.getAbsolutePath()
             };
+            LOG.info(StringUtils.join(cmd, ' '));
             ProcessBuilder pb = new ProcessBuilder(cmd);
             Process process = pb.start();
             int code = process.waitFor();
