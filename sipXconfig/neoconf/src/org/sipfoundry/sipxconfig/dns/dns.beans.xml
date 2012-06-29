@@ -29,6 +29,7 @@
   </bean>
 
   <bean id="dnsTestContextImpl" class="org.sipfoundry.sipxconfig.dns.DnsTestContextImpl">
+    <property name="validatorScript" value="${sysdir.libexec}/sipx-dns-validator"/>
   </bean>
 
   <bean id="dnsTestContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

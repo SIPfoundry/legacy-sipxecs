@@ -1,9 +1,18 @@
 <div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
-  <span jwcid="@common/ErrorMsg"/>
-  <form jwcid="form@Form" delegate="bean:validator">
-    <fieldset jwcid="@setting/SettingsFieldset"
-        settings="ognl:settings.getSettings()" />
-    <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
-        listener="listener:apply"/>
-  </form>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'settings', 'test'}" selectedTab="ognl:tab" />
+  <div id="settings-content">
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div>
+  <div jwcid="settingsTab@Block">
+    <span jwcid="@common/ErrorMsg" />
+    <form jwcid="form@Form" delegate="bean:validator">
+      <fieldset jwcid="@setting/SettingsFieldset"
+          settings="ognl:settings.getSettings()" />
+      <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
+          listener="listener:apply"/>
+    </form>
+  </div>
+  <div jwcid="testTab@Block">
+    <span jwcid="@dns/DnsTest"/>    
+  </div>
 </div>

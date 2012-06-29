@@ -12,7 +12,6 @@ util_SCRIPTS = \
 
 bin_SCRIPTS = \
 	sipx-validate-xml \
-	sipx-dns \
 	sipx-backup \
 	sipx-restore \
 	sipx-snapshot

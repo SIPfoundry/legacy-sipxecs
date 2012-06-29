@@ -7,25 +7,25 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.site.admin;
+package org.sipfoundry.sipxconfig.site.dns;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
-import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.dns.DnsTestContext;
 
-public abstract class DnsTestPage extends SipxBasePage {
-
-    @Bean
-    public abstract SipxValidationDelegate getValidator();
+public abstract class DnsTest extends BaseComponent {
 
     @Persist
-    public abstract boolean getProvideDns();
+    @InitialValue(value = "literal:localhost")
+    public abstract String getDnsServer();
 
     @Persist
     public abstract String getResults();
@@ -40,11 +40,20 @@ public abstract class DnsTestPage extends SipxBasePage {
     @InjectObject(value = "spring:dnsTestContext")
     public abstract DnsTestContext getDnsTestContext();
 
+    public abstract void setShowDetailedHelp(boolean toggle);
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
+
     public boolean isResultsNotBlank() {
         return StringUtils.isNotBlank(getResults());
     }
 
     public void execute() {
-        setResults(getDnsTestContext().execute(getProvideDns()));
+        String missingRecords = getDnsTestContext().missingRecords(getDnsServer());
+        setResults(missingRecords);
+        if (StringUtils.isBlank(missingRecords)) {
+            TapestryUtils.recordSuccess(this, getMessages().getMessage("validationDns.labelSuccess"));
+        }
     }
 }

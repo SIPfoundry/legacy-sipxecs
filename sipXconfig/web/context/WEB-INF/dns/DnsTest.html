@@ -1,0 +1,30 @@
+<span jwcid="@common/QuickHelp" value="message:quick.help" />
+<span jwcid="@common/ErrorMsg" validator="bean:validator"/>
+<form jwcid="dnsTestForm@Form" delegate="bean:validator">
+  <fieldset>
+    <span jwcid="@common/FieldPanel" for="dnsServer" field="component:dnsServer"
+      label="message:label.dnsServer"
+      description="message:description.dnsServer">
+      <span jwcid="dnsServer@TextField" id="dnsServer" value="ognl:dnsServer"/>
+    </span>
+    <p>
+      <input jwcid="runTest@Submit" listener="listener:execute" value="message:button.runtest"/>
+    </p>
+  </fieldset>
+  <span jwcid="@If" condition="ognl:resultsNotBlank" renderTag="false">
+    <textarea jwcid="resultsReadOnly@TextArea" disabled="true" rows="30" class="textBox" value="ognl:results"/>
+  </span>
+</form>
+<form jwcid="detailedHelpForm@Form">
+  <fieldset style="list-style-type:none">
+    <span jwcid="detailedHelpLink@common/ToggleLink" toggle="ognl:showDetailedHelp"
+      labelOn="message:toggle.hideDetailedHelp"
+      labelOff="message:toggle.showDetailedHelp"/>
+  </fieldset>
+  <span jwcid="@If" condition="ognl:showDetailedHelp" renderTag="false">
+    <span key="title.detailedHelp" renderTag="false"/><br/>
+    <textarea id="detailedHelp"rows="30" readonly="readonly" style="margin-left:9px" class="textBox">
+      <span jwcid="@Insert" value="message:detailedHelp" />
+    </textarea>
+  </span>
+</form>
