@@ -44,8 +44,8 @@ public class CertificateSettings extends PersistableSettings {
         info.setCountry(getSettingValue("csr/country"));
         info.setState(getSettingValue("csr/state"));
         info.setLocality(getSettingValue("csr/locality"));
-        info.setLocality(getSettingValue("csr/organization"));
-        info.setLocality(getSettingValue("csr/organizationUnit"));
-        info.setLocality(getSettingValue("csr/email"));
+        info.setOrganization(getSettingValue("csr/organization"));
+        info.setOrganizationUnit(getSettingValue("csr/organizationUnit"));
+        info.setEmail(getSettingValue("csr/email"));
     }
 }
