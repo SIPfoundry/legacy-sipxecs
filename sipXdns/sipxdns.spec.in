@@ -36,6 +36,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libexecdir}/sipXecs/sipx-dns-zone-maker
-%{_sysconfdir}/sipxpbx/sipxdns/zone.erb
-%{_datadir}/sipxecs/cfinputs/plugin.d/sipxdns.cf
+%attr(755,root,root) %{_libexecdir}/sipXecs/*
+%{_sysconfdir}/sipxpbx/sipxdns/*.erb
+%{_datadir}/sipxecs/cfinputs/plugin.d/*.cf
