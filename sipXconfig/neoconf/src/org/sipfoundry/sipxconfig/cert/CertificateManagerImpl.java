@@ -200,34 +200,22 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
             }
         }
 
+        String hostname = m_locationsManager.getPrimaryLocation().getHostname();
+        String issuer = getIssuer(authority);
+        String authKey = getAuthorityKey(authority);
         if (!hasCertificate(COMM_CERT, authority)) {
-            createCommunicationsCert(authority);
+            CertificateGenerator gen = CertificateGenerator.sip(domain, hostname, issuer, authKey);
+            updateCertificate(COMM_CERT, gen.getCertificateText(), gen.getPrivateKeyText(), authority);
         }
         if (!hasCertificate(WEB_CERT, authority)) {
-            String hostname = m_locationsManager.getPrimaryLocation().getHostname();
-            createWebCert(authority, hostname);
+            CertificateGenerator gen = CertificateGenerator.web(domain, hostname, issuer, authKey);
+            updateCertificate(WEB_CERT, gen.getCertificateText(), gen.getPrivateKeyText(), authority);
         }
     }
 
     boolean hasCertificate(String id, String authority) {
         int check = m_jdbc.queryForInt("select count(*) from cert where name = ? and authority = ?", id, authority);
         return (check >= 1);
-    }
-
-    void createCommunicationsCert(String authority) {
-        String authKey = getAuthorityKey(authority);
-        String issuer = getIssuer(authority);
-        String domain = Domain.getDomain().getName();
-        CertificateGenerator gen = CertificateGenerator.sip(domain, issuer, authKey);
-        updateCertificate(COMM_CERT, gen.getCertificateText(), gen.getPrivateKeyText(), authority);
-    }
-
-    void createWebCert(String authority, String host) {
-        String authKey = getAuthorityKey(authority);
-        String issuer = getIssuer(authority);
-        String domain = Domain.getDomain().getName();
-        CertificateGenerator gen = CertificateGenerator.web(domain, host, issuer, authKey);
-        updateCertificate(WEB_CERT, gen.getCertificateText(), gen.getPrivateKeyText(), authority);
     }
 
     String getIssuer(String authority) {

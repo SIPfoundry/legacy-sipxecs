@@ -38,8 +38,8 @@ public class CertificateGenerator extends AbstractCertificateGenerator {
         return new CertificateGenerator(domain, hostname, issuer, authorityKey);
     }
 
-    public static CertificateGenerator sip(String sipDomain, String issuer, String authorityKey) {
-        CertificateGenerator gen = new CertificateGenerator(sipDomain, "", issuer, authorityKey);
+    public static CertificateGenerator sip(String sipDomain, String hostname, String issuer, String authorityKey) {
+        CertificateGenerator gen = new CertificateGenerator(sipDomain, hostname, issuer, authorityKey);
         gen.m_sipDomain = sipDomain;
         return gen;
     }
@@ -59,7 +59,7 @@ public class CertificateGenerator extends AbstractCertificateGenerator {
             X509v3CertificateBuilder gen = createCertificateGenerator(m_issuer, pair.getPublic());
             gen.addExtension(X509Extension.subjectKeyIdentifier, false,
                     new SubjectKeyIdentifierStructure(pair.getPublic()));
-            String alt = format("DNS:%s.%s", getHost(), getDnsDomain());
+            String alt = format("DNS:%s", getCommonName());
             if (StringUtils.isNotBlank(m_sipDomain)) {
                 alt = format("URI:sip:%s,%s", m_sipDomain, alt);
             }

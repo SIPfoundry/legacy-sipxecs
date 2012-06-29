@@ -9,11 +9,11 @@
     </setting>
     <setting name="state">
       <type><string/></type>
-      <value>Anywhere</value>
+      <value>AnyState</value>
     </setting>
     <setting name="locality">
       <type><string/></type>
-      <value>Anywhere</value>
+      <value>AnyTown</value>
     </setting>
     <setting name="organization">
       <type><string/></type>
@@ -21,7 +21,7 @@
     </setting>
     <setting name="organizationUnit">
       <type><string/></type>
-      <value>IT</value>
+      <value>sipXecs</value>
     </setting>
     <setting name="email">
       <type><string/></type>

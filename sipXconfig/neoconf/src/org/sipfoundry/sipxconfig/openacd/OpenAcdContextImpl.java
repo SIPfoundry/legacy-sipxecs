@@ -251,8 +251,8 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         }
         for (FreeswitchCondition condition : extension.getConditions()) {
             for (FreeswitchAction action : condition.getActions()) {
-                if (action != null && action.getApplication() != null) {
-                    condition.addAction(action);
+                if (action != null && action.getApplication() == null) {
+                    condition.removeAction(action);
                 }
             }
         }

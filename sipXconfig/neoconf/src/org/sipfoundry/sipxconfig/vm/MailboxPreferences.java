@@ -13,7 +13,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class MailboxPreferences {
@@ -60,7 +59,7 @@ public class MailboxPreferences {
     }
 
     public enum AttachType {
-        NO("0"), YES("1"), IMAP("2");
+        NO("0"), YES("1")/* , IMAP("2") */;
 
         private String m_value;
 
@@ -247,7 +246,8 @@ public class MailboxPreferences {
     }
 
     public boolean isSynchronizeWithImapServer() {
-        return m_attachVoicemailToEmail == AttachType.IMAP;
+        // return m_attachVoicemailToEmail == AttachType.IMAP;
+        return false;
     }
 
     public boolean isEmailNotificationEnabled() {
@@ -323,7 +323,8 @@ public class MailboxPreferences {
     }
 
     public boolean isImapServerConfigured() {
-        return StringUtils.isNotEmpty(getImapHost()) && getImapPort() != null;
+        // return StringUtils.isNotEmpty(getImapHost()) && getImapPort() != null;
+        return false;
     }
 
     public ActiveGreeting[] getOptionsForActiveGreeting(boolean isStandardTui) {
