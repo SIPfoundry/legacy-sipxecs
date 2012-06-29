@@ -5,7 +5,8 @@ EXTRA_DIST = \
 
 libexecdir = $(SIPX_LIBEXECDIR)
 libexec_SCRIPTS = \
-	sipx-dns-zone-maker
+	sipx-dns-zone-maker \
+	sipx-dns-validator
 
 $(libexec_SCRIPTS) : % : %.in
 	@$(call SearchAndReplace,$<,$@)

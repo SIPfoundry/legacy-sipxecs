@@ -1,0 +1,194 @@
+#!/usr/bin/ruby
+
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+#
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+#
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# Check that DNS from a given system is valid
+#
+
+require 'tempfile'
+require 'yaml'
+
+$cfdata = '@SIPX_CFDATA@'
+$libexec = '@SIPX_LIBEXECDIR@'
+$confdir = '@SIPX_CONFDIR@'
+load "#{$libexec}/sipx-dns-zone-maker"
+
+$verbose = false
+
+def parse_zone(filter, zone)
+  dat = {}
+  id = nil
+  while line = zone.gets
+    line.lstrip!
+    line.rstrip!
+    next if line.empty?
+    case line
+    when /^;; ([A-Z]+):(.*)$/
+      if $1 == filter
+        id = $2.lstrip.rstrip
+        dat[id] = []
+      end
+    when /^;;.*$/
+      # ignore comment
+    else
+      unless id.nil?       
+        dat[id] << line.gsub(/\s+/,' ')
+      end
+    end
+  end
+  return dat
+end
+
+def validate_naptr(metadata, expected, actual)
+  #  Actual   : hubler.us. 1800 IN NAPTR 2 0 "s" "SIP+D2U" "" _sip._udp.hubler.us.
+  #  Zone     : hubler.us.      IN NAPTR 2 0 "s" "SIP+D2U" "" _sip._udp.hubler.us.
+  #  Test     : hubler.us.    ? IN NAPTR 2 0 "s" "SIP+D2U" "" _sip._udp.hubler.us.
+  validate_by_regexp(expected, actual) {|f|
+    # response include ttl, allow any number
+    %r[#{f[0]} \d+ #{f[1..-1].join(' ')}]
+  }
+end
+
+def validate_proxy(metadata, expected, actual)
+  #  Actual   : _sip._tcp.hubler.us. 1800 IN SRV 10 10 5060 swift.hubler.us.
+  #  Zone     : _sip._tcp.hubler.us.      IN SRV 10 10 5060 swift.hubler.us.
+  #  Test     : _sip._tcp.hubler.us.    ? IN SRV  ?  ? 5060 swift.hubler.us.
+  validate_by_regexp(expected, actual) {|f|
+    srv_regex(f)
+  }
+end
+
+def validate_rr(metadata, expected, actual)
+  #  Actual   : _sip._tcp.rr.hubler.us. 1800 IN SRV 10 10 5060 swift.hubler.us.
+  #  Zone     : _sip._tcp.rr.hubler.us.      IN SRV 10 10 5060 swift.hubler.us.
+  #  Test     : _sip._tcp.rr.hubler.us.    ? IN SRV  ?  ? 5060 swift.hubler.us.
+  validate_by_regexp(expected, actual) {|f|
+    srv_regex(f)
+  }
+end
+
+def validate_im(metadata, expected, actual)
+  # Example : 
+  # Actual :  _xmpp-server._tcp.hubler.us. 1800 IN   SRV   10  10  5269  swift.hubler.us.
+  # Zone :    _xmpp-server._tcp.hubler.us.      IN   SRV   10  10  5269  swift.hubler.us.
+  # Test :    _xmpp-server._tcp.hubler.us.    ? IN   SRV    ?   ?  5269  swift.hubler.us.
+  validate_by_regexp(expected, actual) {|f|
+    srv_regex(f)
+  }
+end
+
+def validate_a(metadata, expected, actual)
+  #  Actual   : A 1800 swift.hubler.us
+  #  Zone     : A      swift.hubler.us
+  #  Test     : A    ? swift.hubler.us
+  validate_by_regexp(expected, actual) {|f|
+    # response include ttl, allow any number
+    %r[#{f[0]} \d+ #{f[1..-1].join(' ')}]
+  }
+end
+
+def srv_regex(f)
+  # response include ttl, allow any number
+  %r[#{f[0]} \d+ #{f[1]} #{f[2]} \d+ \d+ #{f[5..-1].join(' ')}]
+end
+
+# report back records that do not do not match any of 
+# the actual records.
+def validate_by_regexp(expected, actual)
+  missing = []
+  expected.each {|e|
+    f = e.gsub(/\+/, '\\\+').split
+    regex = yield f
+    puts regex if $verbose
+    found_record = false
+    actual.each{|a|
+      if (a =~ regex)
+        found_record = true
+        break
+      end
+    }
+    missing << e unless found_record
+  }
+  missing
+end
+
+def validate(dns_server)
+  separator = '================================='
+  location_id = File.read($cfdata + '/defaults/location_id').chomp
+  yaml_file = "#{$cfdata}/#{location_id}/zone.yaml"
+  metadata = YAML::load_file(yaml_file)
+
+  zone_contents = make_zone(metadata, $default_zone_template, :print_record_ids => true)
+  puts separator if $verbose
+  puts zone_contents if $verbose
+  records_by_record_id = parse_zone('RECORDS', StringIO.new(zone_contents))
+
+  dig_template = "#{$confdir}/sipxdns/digger.erb"
+  dig_query_contents = make_zone(metadata, dig_template)
+  puts separator if $verbose
+  puts dig_query_contents if $verbose
+  dig_queries_by_records_id = parse_zone('RECORDS', StringIO.new(dig_query_contents))
+
+  puts separator if $verbose
+  dig_queries_by_records_id.each_pair {|record_id, queries|
+    actual = []
+    next if queries.empty?
+    queries.each {|query|
+      dig_cmd = "/usr/bin/dig @#{dns_server} +noall +answer #{query}"
+      puts ("test: " + dig_cmd) if $verbose
+      dig_response = `#{dig_cmd}`
+      puts ("found:\n" + dig_response) if $verbose
+      actual += dig_response.gsub(/[ \t]+/,' ').split("\n")
+    }
+    expected = records_by_record_id[record_id]
+    puts "validating #{record_id} records" if $verbose
+    missing = send("validate_" + record_id, metadata, expected, actual)
+    unless missing.empty?
+      $out.puts "\n;; Missing #{record_id} records"
+      $out.puts missing
+    end
+  }
+end
+
+if __FILE__ == $0
+  require 'optparse'
+  args = OptionParser.new { |opts|
+    opts.banner = "Usage : sipx-dns-validator [options]"
+
+    opts.separator ""
+    opts.separator "Options:"
+
+    opts.on("--help", "Print this help message.") {
+      puts opts
+      exit
+    }
+
+    opts.on("--verbose", "Print this help message.") {
+      $verbose = true
+    }
+
+    $server = 'localhost'
+    opts.on("--server server", "Name of DNS server to test.") {|v|
+      $server = v
+    }
+
+    $out = STDOUT
+    opts.on("--out FILE", "Write to file, otherwise output is sent to stdout") {|f|
+      $out = File.open(f, 'w')
+    }
+  }
+  args.parse!
+  validate($server)
+end

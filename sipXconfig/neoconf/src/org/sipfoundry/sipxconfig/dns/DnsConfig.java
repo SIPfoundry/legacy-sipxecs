@@ -27,6 +27,8 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
@@ -41,6 +43,7 @@ import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
 
 public class DnsConfig implements ConfigProvider {
+    private static final Log LOG = LogFactory.getLog(DnsConfig.class);
     private DnsManager m_dnsManager;
 
     @Override
@@ -164,9 +167,12 @@ public class DnsConfig implements ConfigProvider {
     }
 
     void writeAddress(YamlConfiguration c, List<Location> all, String address, int port) throws IOException {
-        c.write(":name", getHostname(all, address));
-        c.write(":ipv4", address);
-        c.write(":port", port);
+        String host = getHostname(all, address);
+        if (host != null) {
+            c.write(":name", host);
+            c.write(":ipv4", address);
+            c.write(":port", port);
+        }
     }
 
     void writeResourceRecords(YamlConfiguration c, List<Location> all, ResourceRecords rr) throws IOException {
@@ -186,7 +192,8 @@ public class DnsConfig implements ConfigProvider {
                 return l.getFqdn();
             }
         }
-        throw new IllegalArgumentException("Cannot find hostname for IP address " + ip);
+        LOG.warn("No hostname found for " + ip + ", could be unmanged service");
+        return null;
     }
 
     public void setDnsManager(DnsManager dnsManager) {

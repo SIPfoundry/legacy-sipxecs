@@ -22,7 +22,7 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.spec.ComponentSpecification;
 import org.apache.tapestry.test.Creator;
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.site.admin.DnsTestPage;
+import org.sipfoundry.sipxconfig.components.AdminNavigation;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class JarMessagesSourceTest extends TestCase {
@@ -41,7 +41,7 @@ public class JarMessagesSourceTest extends TestCase {
         m_out.setContext(m_context);
 
         Creator creator = new Creator();
-        m_component = (DnsTestPage)creator.newInstance(DnsTestPage.class);
+        m_component = (AdminNavigation)creator.newInstance(AdminNavigation.class);
         m_mockPage = EasyMock.createNiceMock(IPage.class);
         m_component.setPage(m_mockPage);
 

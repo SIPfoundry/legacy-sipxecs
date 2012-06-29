@@ -10,9 +10,10 @@
 package org.sipfoundry.sipxconfig.dns;
 
 public interface DnsTestContext {
+
     /**
-     * throws UserException if invalid
+     * return missing records if invalid
      * @return
      */
-    String execute(boolean provideDns);
+    public String missingRecords(String server);
 }

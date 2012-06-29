@@ -117,16 +117,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc  README   ChangeLog %name.configlog
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxcommserverlib.cf
-%attr(755,root,root) %{_bindir}/pkg-upgrade
-%attr(755,root,root) %{_bindir}/configmerge
-%attr(755,root,root) %{_bindir}/configquery
-%attr(755,root,root) %{_bindir}/xsdvalid
-%attr(755,root,root) %{_bindir}/sipx-validate-xml
-%attr(755,root,root) %{_bindir}/sipx-dns
-%attr(755,root,root) %{_bindir}/sipx-backup
-%attr(755,root,root) %{_bindir}/sipx-restore
-%attr(755,root,root) %{_bindir}/sipx-snapshot
-%attr(755,root,root) %{_bindir}/sipx-log-cut
+%attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_libdir}/libsipXcommserver.la
 %attr(755,root,root) %{_libdir}/libsipXcommserver.so*
 %attr(755,root,root) %{_libexecdir}/sipXecs/sipx-utils.sh

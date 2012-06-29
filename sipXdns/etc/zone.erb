@@ -1,4 +1,10 @@
-$TTL 1800
+<%
+  def record_id(id)
+    if defined? :print_record_ids
+      ";; RECORDS: #{id}\n"
+    end
+  end
+%>$TTL 1800
 @       IN     SOA    ns1.<%= domain %>. root.<%= domain %>. (
                        <%= serialno %> ; serial#
                        1800            ; refresh, seconds
@@ -6,14 +12,21 @@ $TTL 1800
                        1800            ; expire, seconds
                        1800 )          ; minimum TTL, seconds
 <% 
-  dns_servers.each { |server| 
+  unless dns_servers.nil?
+    dns_servers.each { |server| 
 %><%= domain %>.            IN     NS     <%= server[:name] %>.
-<%}
+<%
+    }
+  end
+
+%><%= record_id('naptr') %><%
 
   naptr_protocols.each { |proto| 
   protoCode = 'SIP+D2' + proto[0,1].upcase  # SIP+D2T
 %><%= domain %>.               IN      NAPTR   2 0 "s" "<%= protoCode %>" "" _sip._<%= proto %>.<%= domain %>.
 <%} 
+
+%><%= record_id('proxy') %><%
 
   # distribute traffic equally for now to each proxy
   sip_protocols.each { |proto|
@@ -31,6 +44,8 @@ _sip._tls.<%= domain %>.     IN      SRV     10 10 5061 <%= server[:name] %>.
     end
   }
 
+%><%= record_id('rr') %><%
+
   if resource_records
     resource_records.each { |rr|
       if rr[:records]
@@ -47,6 +62,7 @@ _sip._tls.<%= domain %>.     IN      SRV     10 10 5061 <%= server[:name] %>.
     } 
   end
 
+%><%= record_id('im') %><%
 
   if im_servers
     im_servers.each { |server| 
@@ -56,6 +72,8 @@ _xmpp-server._tcp.conference.<%= domain %>.     IN   SRV   10  10  5222  <%= ser
 _xmpp-client._tcp.conference.<%= domain %>.     IN   SRV   10  10  5222  <%= server[:name] %>.
 <%  } 
   end
+
+%><%= record_id('a') %><%
 
   all_servers.each { |server| 
 %><%= server[:name] %>.           IN      A       <%= server[:ipv4] %>

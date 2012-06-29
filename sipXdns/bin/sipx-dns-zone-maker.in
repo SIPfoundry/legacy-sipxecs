@@ -1,12 +1,52 @@
 #!/usr/bin/ruby
 
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+#
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+#
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+
 #
 # Generated a zone file from data file with know server name and addresses
 #
 
-require 'optparse'
 require 'erb'
 require 'yaml'
+
+$default_zone_template = '@SIPX_CONFDIR@/sipxdns/zone.erb'
+
+# you can put defaults to optional data here so if yaml doesn't define them you get reasonable defaults
+def make_zone(data, template, model = {})
+  serialno = Time.now.to_i
+
+  var = binding
+
+  data.each_key { |x|
+    eval "#{x} = data['#{x}']", var
+  }
+
+  model.each_key { |x|
+    eval "#{x} = model['#{x}']", var
+  }
+
+  erb = ERB.new(File.read(template))
+  erb.filename = template
+  erb.result(var)
+end
+
+if __FILE__ == $0
+
+require 'optparse'
+
+zone_template = $default_zone_template
 
 args = OptionParser.new { |opts|
   opts.banner = "Usage : sipx-dns-zone-maker [options]"
@@ -19,29 +59,9 @@ args = OptionParser.new { |opts|
     exit
   }
 
-  opts.on("--example", "Print an example servers file") {
-puts <<EOF
-sip_protocols : [ udp, tcp, tls ]
-naptr_protocols: [ udp, tcp ]
-domain: x
-proxy_servers : [ { :name: one, :ipv4: 1.1.1.1 } ]
-registrar_servers: [ { :name: one, :ipv4: 1.1.1.1 } ]
-dns_servers : [
- { :name: one, :ipv4: 1.1.1.1 },
- { :name: two, :ipv4: 2.2.2.2 } ]
-im_servers : [ { :name: one, :ipv4: 1.1.1.1 } ]
-all_servers : [
- { :name: one, :ipv4: 1.1.1.1 },
- { :name: two, :ipv4: 2.2.2.2 },
- { :name: three, :ipv4: 3.3.3.3 } ]
-EOF
-  exit
-  }
-
-  $template = '@SIPX_CONFDIR@/sipxdns/zone.erb'
   opts.on("--template FILE", "ERB formated template. Default is #{$template}") {|f|
     $template = f
-  }
+7  }
 
   $yaml = '@SIPX_CFDATA@/zone.yaml'
   opts.on("--in FILE", "YAML formated file for servers. Default is #{$yaml}") {|f|
@@ -55,16 +75,6 @@ EOF
 }
 args.parse!
 
-# you can put defaults to optional data here so if yaml doesn't define them you get reasonable defaults
-serialno = Time.now.to_i
-
 data = YAML::load_file($yaml)
-
-var = binding
-data.each_key { |x|
-  eval "#{x} = data['#{x}']", var
-}
-
-erb = ERB.new(File.read($template))
-erb.filename = $template
-$out.puts erb.result(var)
+$out.puts make_zone(data, zone_template)
+end
