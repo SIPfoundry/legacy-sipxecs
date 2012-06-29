@@ -14,7 +14,7 @@ public class AbstractCertificateCommon {
     private String m_state = "AnyState";
     private String m_locality = "AnyTown";
     private String m_organization;
-    private String m_organizationUnit = "IT";
+    private String m_organizationUnit = "sipXecs";
     private String m_commonName;
     private String m_email;
     private String m_dnsDomain;
@@ -95,8 +95,8 @@ public class AbstractCertificateCommon {
     }
 
     public String getSubject() {
-        return format("C=%s, ST=%s, L=%s, O=%s, OU=%s, CN=%s/emailAddress=%s", m_country, m_state, m_locality,
-                m_organization, m_organizationUnit, m_commonName, m_email);
+        return format("C=%s, ST=%s, L=%s, O=%s, OU=%s, CN=%s, EMAILADDRESS=%s", m_country, m_state, m_locality,
+                m_dnsDomain, m_organizationUnit, m_commonName, m_email);
     }
 
     public String getAlgorithm() {

@@ -61,6 +61,12 @@ public class FreeswitchCondition extends BeanWithId {
         }
     }
 
+    public void removeAction(FreeswitchAction action) {
+        if (action != null) {
+            m_actions.remove(action);
+        }
+    }
+
     public String getExtension() {
         return StringUtils.removeEnd(StringUtils.removeStart(m_expression, "^"), "$");
     }
