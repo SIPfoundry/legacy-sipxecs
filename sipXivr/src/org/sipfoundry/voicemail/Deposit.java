@@ -1,14 +1,13 @@
 /*
- * 
- * 
- * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 package org.sipfoundry.voicemail;
 
-import java.net.URL;
 import java.util.Locale;
 import java.util.Map;
 
@@ -17,10 +16,11 @@ import org.sipfoundry.commons.freeswitch.DisconnectException;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.PersonalAttendant;
 import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.util.IMSender;
+import org.sipfoundry.commons.util.IMSender.HttpResult;
 import org.sipfoundry.sipxivr.common.DialByNameChoice;
 import org.sipfoundry.sipxivr.common.IvrChoice;
 import org.sipfoundry.sipxivr.common.IvrChoice.IvrChoiceReason;
-import org.sipfoundry.sipxivr.rest.RemoteRequest;
 import org.sipfoundry.voicemail.mailbox.MailboxManager;
 import org.sipfoundry.voicemail.mailbox.TempMessage;
 import org.springframework.context.ApplicationContext;
@@ -35,7 +35,7 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
 
     /**
      * The depositVoicemail dialog
-     * 
+     *
      * @return
      */
     @Override
@@ -228,41 +228,22 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
         return null;
     }
 
-    private void sendIM(User user, boolean vmEntry, String instantMsg) {
-        URL sendIMUrl;
-
-        if (m_sendIMUrl == null) {
-            return;
-        }
-
-        try {
-            if (vmEntry) {
-                sendIMUrl = new URL(m_sendIMUrl + "/" + user.getUserName() + "/SendVMEntryIM");
-
-            } else {
-                sendIMUrl = new URL(m_sendIMUrl + "/" + user.getUserName() + "/SendVMExitIM");
-            }
-
-            RemoteRequest rr = new RemoteRequest(sendIMUrl, "text/plain", instantMsg);
-            if (!rr.http()) {
-                LOG.error("Deposit::sendIM Trouble with RemoteRequest " + rr.getResponse());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     private void putChannelUUID(User user, String uuid) {
         m_depositMap.put(user.getUserName(), uuid);
+        String instantMsg = getChannelCallerIdName() + " (" + getChannelCallerIdName() + ") "
+            + m_appContext.getMessage("leaving_msg", null, "is leaving a voice message.", user.getLocale());
+        try {
+            if (user.getVMEntryIM()) {
+                HttpResult result = IMSender.sendVmEntryIM(user, instantMsg, m_sendIMUrl);
+                if (!result.isSuccess()) {
+                    LOG.error("Deposit::sendIM Trouble with RemoteRequest: "
+                        + result.getResponse(), result.getException());
+                }
+            }
+        } catch (Exception ex) {
+            LOG.error("Deposit::sendIM failed", ex);
+        }
 
-        sendIM(user,
-                true,
-                getChannelCallerIdName()
-                        + " ("
-                        + getChannelCallerIdName()
-                        + ") "
-                        + m_appContext.getMessage("leaving_msg", null, "is leaving a voice message.",
-                                user.getLocale()));
     }
 
     private void clearChannelUUID(User user, TempMessage tempMessage) {
@@ -277,14 +258,24 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
                             user.getLocale());
                 }
             }
-
-            sendIM(user, false, getChannelCallerIdName() + " (" + getChannelCallerIdNumber() + ") " + description);
+            String instantMsg = getChannelCallerIdName() + " (" + getChannelCallerIdNumber() + ") " + description;
+            try {
+                if (user.getVMExitIM()) {
+                    HttpResult result = IMSender.sendVmExitIM(user, instantMsg, m_sendIMUrl);
+                    if (!result.isSuccess()) {
+                        LOG.error("Deposit::sendIM Trouble with RemoteRequest: "
+                            + result.getResponse(), result.getException());
+                    }
+                }
+            } catch (Exception ex) {
+                LOG.error("Deposit::sendIM failed", ex);
+            }
         }
     }
 
     /**
      * See if the caller wants to send this message to other mailboxes
-     * 
+     *
      * @param existingMessage the message they want to send
      */
     private void moreOptions(TempMessage message) {

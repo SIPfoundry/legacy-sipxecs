@@ -83,17 +83,7 @@ public class ImbotServlet extends HttpServlet {
                         line = buffer.readLine();
                     }
 
-                    if(context.equals("sendvmentryim")) {
-                        if(user.getVMEntryIM()) {
-                            IMBot.sendIM(user, instantMsg);
-                        }
-                    } else if(context.equals("sendvmexitim")) {
-                        if(user.getVMExitIM()) {
-                            IMBot.sendIM(user, instantMsg);
-                        }
-                    } else {
-                        IMBot.sendIM(user, instantMsg);
-                    }
+                    IMBot.sendIM(user, instantMsg);
                 }
 
             } else if(context.compareToIgnoreCase("addToRoster") == 0) {

@@ -10,13 +10,19 @@ package org.sipfoundry.conference;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.ConfBasicThread;
+import org.sipfoundry.commons.freeswitch.ConferenceMember;
 import org.sipfoundry.commons.freeswitch.ConferenceTask;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEvent;
+import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.util.IMSender;
+import org.sipfoundry.commons.util.IMSender.HttpResult;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxrecording.RecordCommand;
 import org.sipfoundry.sipxrecording.RecordingConfiguration;
 
@@ -26,6 +32,11 @@ public class ConfRecordThread extends ConfBasicThread {
 
     static String sourceName = "/tmp/freeswitch/recordings";
     static String destName = System.getProperty("var.dir") + "/mediaserver/data/recordings";
+    private String m_sendIMUrl;
+
+    //TODO add localization support - port this project to spring maybe
+    private static final String PARTICIPANT_ENTERED = "entered your conference as participant";
+    private static final String PARTICIPANT_LEFT = "left your conference at";
 
     public ConfRecordThread(RecordingConfiguration recordingConfig) {
         // Check that the freeswitch initial recording directory exists
@@ -47,6 +58,7 @@ public class ConfRecordThread extends ConfBasicThread {
                 LOG.error("ConfRecordThread::InterruptedException error ", e);
             }
         }
+        m_sendIMUrl = recordingConfig.getSendImUrl();
         setConfConfiguration(recordingConfig);
     }
 
@@ -69,6 +81,12 @@ public class ConfRecordThread extends ConfBasicThread {
 
     @Override
     public void ProcessConfStart(FreeSwitchEvent event, ConferenceTask conf) {
+        User owner = UnfortunateLackOfSpringSupportFactory.getValidUsers().
+            getUserByConferenceName(event.getEventValue("conference-name"));
+
+        if(owner != null) {
+            conf.setOwner(owner);
+        }
         String confName = event.getEventValue("conference-name");
         ConferenceBridgeItem item = ConferenceBridgeXML.getConferenceBridgeItem(confName);
         if (item != null) {
@@ -81,6 +99,56 @@ public class ConfRecordThread extends ConfBasicThread {
             recordcmd.go();
             // Store the file name
             conf.setWavName(wavName);
+        }
+    }
+
+    @Override
+    public void ProcessConfUserAdd(ConferenceTask conf, ConferenceMember member) {
+        User owner = conf.getOwner();
+        if(owner == null) {
+            return;
+        }
+
+        if(owner != null && owner.getConfEntryIM()) {
+            Date date = new Date();
+            String instantMsg = member.memberName() + " (" + member.memberNumber() + ") " +
+                PARTICIPANT_ENTERED + " [" + member.memberIndex() + "] at " + date.toString();
+            try {
+                if (owner.getConfEntryIM()) {
+                    HttpResult result = IMSender.sendConfEntryIM(owner, instantMsg, m_sendIMUrl);
+                    if (!result.isSuccess()) {
+                        LOG.error("User conference enter::sendIM Trouble with RemoteRequest: "
+                            + result.getResponse(), result.getException());
+                    }
+                }
+            } catch (Exception ex) {
+                LOG.error("User conference enter::sendIM failed", ex);
+            }
+        }
+    }
+
+    public void ProcessConfUserDel(ConferenceTask conf, ConferenceMember member) {
+
+        User owner = conf.getOwner();
+        if(owner == null) {
+            return;
+        }
+
+        if(owner != null && owner.getConfExitIM()) {
+            Date date = new Date();
+            String instantMsg = member.memberName() + " (" + member.memberNumber() + ") " +
+                PARTICIPANT_LEFT + " " + date.toString();
+            try {
+                if (owner.getConfExitIM()) {
+                    HttpResult result = IMSender.sendConfExitIM(owner, instantMsg, m_sendIMUrl);
+                    if (!result.isSuccess()) {
+                        LOG.error("User conference exit::sendIM Trouble with RemoteRequest: "
+                            + result.getResponse(), result.getException());
+                    }
+                }
+            } catch (Exception ex) {
+                LOG.error("User conference exit::sendIM failed", ex);
+            }
         }
     }
 
