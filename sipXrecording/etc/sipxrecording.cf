@@ -8,10 +8,12 @@
 bundle agent sipxrecording {
   methods:
     sipxrecording::
-      "any" usebundle => "sipxrecording_config";
+      "any" usebundle => sipxrecording_config;
+    apache.sipxconference.!primary::
+      "any" usebundle => sipxrecording_apache;
     any::
-      "any" usebundle => "sipxrecording_setup";
-      "any" usebundle => "sipxrecording_running";
+      "any" usebundle => sipxrecording_setup;
+      "any" usebundle => sipxrecording_running;
 }
 
 bundle agent sipxrecording_config {
@@ -49,6 +51,16 @@ bundle edit_line sipxrecording_properties_contents {
   delete_lines:
     any::
       ".*";
+}
+
+bundle agent sipxrecording_apache {
+  files:
+    "$(sipx.APACHE2_CONFDIR)/sipxrecording.conf"
+      create => "true",
+      comment => "apache config for serving conderence recordings",
+      edit_defaults => empty,
+      edit_line => expand_template("$(sipx.SIPX_CONFDIR)/sipxrecording/sipxrecording-apache.conf"),
+      classes => if_repaired("restart_apache");
 }
 
 bundle agent sipxrecording_setup {

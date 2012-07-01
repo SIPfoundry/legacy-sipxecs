@@ -19,6 +19,7 @@ package org.sipfoundry.sipxconfig.recording;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.sipfoundry.sipxconfig.apache.ApacheManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.feature.Bundle;
@@ -82,7 +83,9 @@ public class RecordingImpl implements FeatureProvider, Recording, ProcessProvide
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
-        validator.requiredOnSameHost(FEATURE, ConferenceBridgeContext.FEATURE);
+        if (validator.isEnabledSomewhere(FEATURE)) {
+            validator.requiredOnSameHost(ConferenceBridgeContext.FEATURE, ApacheManager.FEATURE);
+        }
         validator.singleLocationOnly(FEATURE);
     }
 

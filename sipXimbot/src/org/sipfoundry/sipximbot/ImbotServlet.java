@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 package org.sipfoundry.sipximbot;
 
@@ -23,10 +23,10 @@ import org.sipfoundry.commons.userdb.User;
 
 /**
  * A RESTful interface for sending IMs
- * 
+ *
  * ones service at the moment:
  *    Send IM
- *    
+ *
  * Prefix is /IM/*
  * Path is
  * /{username}/
@@ -40,20 +40,13 @@ public class ImbotServlet extends HttpServlet {
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doIt(request, response);
     }
-    
+
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doIt(request, response);
     }
 
     public void doIt(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String method = request.getMethod().toUpperCase();
-        
-        // For (minimal) security, check the request is arriving from THIS machine
-        // TODO (change this once using https and authentication of remote party)
-        if (!request.getLocalAddr().equals(request.getRemoteAddr())) {
-            response.sendError(403); // Send 403 Forbidden
-            return;
-        }
 
         String pathInfo = request.getPathInfo();
         String[] subDirs = pathInfo.split("/");
@@ -61,16 +54,16 @@ public class ImbotServlet extends HttpServlet {
             response.sendError(404);    // path not found
             return;
         }
-        
+
         // The first element is empty (the leading slash)
         // The second element is the username
         String userString = subDirs[1];
         // The third element is the "context" (ie. "sendIM")
         String context = subDirs[2];
         context = context.toLowerCase();
-        
-        // Load the list of valid users 
-        // (it is static, so don't worry about sucking it in each time, it'll only 
+
+        // Load the list of valid users
+        // (it is static, so don't worry about sucking it in each time, it'll only
         // be re-read if it has changed on disk)
         User user = FullUsers.INSTANCE.isValidUser(userString);
         if (user != null) {
@@ -80,16 +73,16 @@ public class ImbotServlet extends HttpServlet {
             if (context.startsWith("send")) {
                 if (method.equals(METHOD_POST)) {
                     InputStreamReader input = new InputStreamReader(request.getInputStream());
-                    BufferedReader buffer = new BufferedReader(input);                  
-                    
+                    BufferedReader buffer = new BufferedReader(input);
+
                     String instantMsg = "";
-                    
+
                     String line = buffer.readLine();
                     while(line != null) {
                         instantMsg += line;
                         line = buffer.readLine();
                     }
-                    
+
                     if(context.equals("sendvmentryim")) {
                         if(user.getVMEntryIM()) {
                             IMBot.sendIM(user, instantMsg);
@@ -105,7 +98,7 @@ public class ImbotServlet extends HttpServlet {
 
             } else if(context.compareToIgnoreCase("addToRoster") == 0) {
                 IMBot.AddToRoster(user);
-            } else {    
+            } else {
                 response.sendError(400, "context not understood");
             }
 
