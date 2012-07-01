@@ -230,7 +230,7 @@ public abstract class Border extends BaseComponent implements PageValidateListen
 
     public ILink logout(IRequestCycle cycle) {
         getApplicationLifecycle().logout();
-        return new StaticLink(cycle.getAbsoluteURL("/"));
+        throw new PageRedirectException(LoginPage.PAGE);
     }
 
     protected void redirectToLogin(IPage page, IRequestCycle cycle) {
