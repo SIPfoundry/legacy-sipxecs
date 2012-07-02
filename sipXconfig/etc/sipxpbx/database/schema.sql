@@ -24,19 +24,22 @@ create table version_history(
  * For sipXconfig v4.0.2, the database version is 10.
  * For sipXconfig v4.1.8, the database version is 11.
  * For sipXconfig v4.4.0, the database version is 12.
+ * For sipXconfig v4.6.0, the database version is 13.
  */
-insert into version_history (version, applied) values (1, now());
-insert into version_history (version, applied) values (2, now());
-insert into version_history (version, applied) values (3, now());
-insert into version_history (version, applied) values (4, now());
-insert into version_history (version, applied) values (5, now());
-insert into version_history (version, applied) values (6, now());
-insert into version_history (version, applied) values (7, now());
-insert into version_history (version, applied) values (8, now());
-insert into version_history (version, applied) values (9, now());
-insert into version_history (version, applied) values (10, now());
-insert into version_history (version, applied) values (11, now());
-insert into version_history (version, applied) values (12, now());
+insert into version_history (version, applied) values 
+  (1, now()),
+  (2, now()),
+  (3, now()),
+  (4, now()),
+  (5, now()),
+  (6, now()),
+  (7, now()),
+  (8, now()),
+  (9, now()),
+  (10, now()),
+  (11, now()),
+  (12, now()),
+  (13, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -69,7 +72,7 @@ create table international_dialing_rule (
 );
 create table setting_value (
    value_storage_id int4 not null,
-   value varchar(255) not null,
+   value varchar(1000) not null,
    path varchar(255) not null,
    primary key (value_storage_id, path)
 );
@@ -154,8 +157,6 @@ create table gateway (
    address_port int4 not null default 0,
    address_transport varchar(8) not null default 'none',
    sbc_device_id int4,
-   enable_caller_id boolean not null default false,
-   caller_id varchar(255),
    display_name varchar(255),
    url_parameters varchar(255),
    shared boolean not null,
@@ -253,11 +254,8 @@ create table emergency_dialing_rule (
 create table backup_plan (
    backup_plan_id int4 not null,
    limited_count int4,
-   configs bool,
-   voicemail bool,
-   email_address varchar(255),
-   backup_type char not null,
-   ftp_configuration_id int4,
+   backup_type varchar(16) not null,
+   def varchar(256) not null,
    primary key (backup_plan_id)
 );
 create table dial_plan (
@@ -288,6 +286,8 @@ create table users (
    is_shared boolean not null default false,
    branch_id int4,
    user_type char(1),
+   voicemail_pintoken varchar(255),
+   notified boolean not null default false,
    primary key (user_id)
 );
 create table custom_dialing_rule_permission (
@@ -317,9 +317,7 @@ create table long_distance_dialing_rule (
    long_distance_prefix_optional bool,
    primary key (international_dialing_rule_id)
 );
-create table initialization_task (
-  name varchar(255) not null primary key
-);
+
 create table user_group(
    user_id int4 not null,
    group_id int4 not null,
@@ -353,7 +351,7 @@ create table meetme_conference (
 create table meetme_bridge (
     meetme_bridge_id int4 not null,
     value_storage_id int4,
-    location_specific_service_id integer,
+	location_id integer not null,
     primary key (meetme_bridge_id)
 );
 
@@ -706,7 +704,6 @@ create table schedule_hours
 create table personal_attendant (
    personal_attendant_id int4 not null,
    user_id int4 not null,
-   operator varchar(255),
    language varchar(255),
    override_language boolean not null default false,
    primary key (personal_attendant_id)
@@ -795,34 +792,11 @@ create table location (
   stop_rtp_port integer not null default 31000,
   branch_id int4,
   public_tls_port integer not null default 5061,
+  state varchar(32) not null default 'UNCONFIGURED',
+  last_attempt timestamp,
+  call_traffic boolean not null default true,
+  replicate_config boolean not null default true,
   primary key (location_id)
-);
-
-create table sipx_service(
-  sipx_service_id int4 not null primary key,
-  bean_id varchar(32) not null,
-  value_storage_id int4
-);
-
-create table location_specific_service(
-  location_specific_service_id int4 not null primary key,
-  location_id int4 not null,
-  sipx_service_id int4 not null,
-  enable_on_next_upgrade boolean not null default false
-);
-
-create table location_bundle (
-  location_id int4 not null,
-  bundle_bean varchar(255) not null,
-  primary key (location_id, bundle_bean)
-);
-
-create table ftp_configuration (
-  id int4 not null,
-  host varchar(255),
-  user_id varchar(255),
-  "password" varchar(255),
-  constraint ftp_configuration_pkey primary key(id)
 );
 
 create table alarm_server (
@@ -880,7 +854,6 @@ create table address_book_entry
   alternate_im_id character varying(255),
   im_display_name character varying(255),
   use_branch_address boolean DEFAULT false NOT NULL,
-  im_password varchar(255),
   email_address character varying(255),
   alternate_email_address character varying(255),
   home_address_id integer,
@@ -957,11 +930,10 @@ create table user_alarm_group
 );
 
 create table alarm_code (
-  alarm_seq_id integer not null,
   alarm_code_id varchar(255) not null,
   email_group varchar(255) not null,
   min_threshold integer not null,
-  constraint alarm_code_pkey primary key (alarm_seq_id)
+  constraint alarm_code_pkey primary key (alarm_code_id)
 );
 
 create table tls_peer
@@ -976,21 +948,6 @@ create table google_domain (
   google_domain_id integer not null,
   domain_name character varying(255),
   constraint google_domain_pkey primary key (google_domain_id)
-);
-
-create table general_phonebook_settings (
-   general_phonebook_settings_id int4 not null,
-   value_storage_id int4,
-   primary key (general_phonebook_settings_id)
-);
-
-create table alarm_group_snmpcontacts (
-  alarm_group_id integer not null,
-  address varchar(255) not null,
-  port int4,
-  community_string varchar(255),
-  index integer,
-  constraint group_snmpcontacts_pkey primary key (alarm_group_id, index)
 );
 
 create table address
@@ -1023,10 +980,10 @@ create table freeswitch_extension
   name character varying(255) not null,
   description character varying(255),
   freeswitch_ext_type char(1) not null,
-  location_id integer not null,
+  did character varying(255),
+  alias character varying(255),
   primary key (freeswitch_ext_id),
-  constraint fk_location foreign key (location_id)
-      references location (location_id) match full
+  enabled boolean not null default true
 );
 
 create table freeswitch_condition
@@ -1035,6 +992,7 @@ create table freeswitch_condition
   field character varying(255) not null,
   expression character varying(255) not null,
   freeswitch_ext_id integer not null,
+  regex boolean default false,
   primary key (freeswitch_condition_id),
   constraint fk_freeswitch_ext foreign key (freeswitch_ext_id)
       references freeswitch_extension (freeswitch_ext_id) match simple
@@ -1062,7 +1020,6 @@ create table openacd_agent (
 	openacd_agent_id integer not null,
 	openacd_agent_group_id integer not null,
 	user_id integer NOT NULL,
-	pin character varying(255) not null,
 	security character varying(255) not null,
 	primary key (openacd_agent_id),
 	constraint fk_openacd_agent_group foreign key (openacd_agent_group_id)
@@ -1073,14 +1030,312 @@ create table openacd_agent (
       on update no action on delete no action
 );
 
+create table openacd_skill_group (
+	openacd_skill_group_id integer not null,
+	name character varying(255) not null unique,
+	description character varying(255),
+	primary key (openacd_skill_group_id)
+);
+
 create table openacd_skill (
 	openacd_skill_id integer not null,
 	name character varying(255) not null unique,
 	atom character varying(255) not null unique,
-	group_name character varying(255) not null,
 	description character varying(255),
 	default_skill boolean not null default false,
-	primary key (openacd_skill_id)
+    openacd_skill_group_id integer,
+	primary key (openacd_skill_id),
+    constraint fk_openacd_skill_group foreign key (openacd_skill_group_id)
+      references openacd_skill_group (openacd_skill_group_id) match full
+);
+
+create table openacd_skill_agent_group (
+  openacd_agent_group_id integer not null,
+  openacd_skill_id integer not null,
+  constraint openacd_skill_agent_group_pkey primary key (openacd_agent_group_id, openacd_skill_id),
+  constraint skill_agent_group_fk1 foreign key (openacd_agent_group_id)
+      references openacd_agent_group (openacd_agent_group_id) match simple
+      on update no action on delete no action,
+  constraint skill_agent_group_fk2 foreign key (openacd_skill_id)
+      references openacd_skill (openacd_skill_id) match simple
+      on update no action on delete no action
+);
+
+create table openacd_skill_agent (
+  openacd_agent_id integer not null,
+  openacd_skill_id integer not null,
+  constraint openacd_skill_agent_pkey primary key (openacd_agent_id, openacd_skill_id),
+  constraint skill_agent_fk1 foreign key (openacd_agent_id)
+      references openacd_agent (openacd_agent_id) match simple
+      on update no action on delete no action,
+  constraint skill_agent_fk2 foreign key (openacd_skill_id)
+      references openacd_skill (openacd_skill_id) match simple
+      on update no action on delete no action
+);
+
+create table openacd_client (
+	openacd_client_id integer not null,
+	name character varying(255) not null unique,
+	identity character varying(255) not null unique,
+	description character varying(255),
+	primary key (openacd_client_id)
+);
+
+create table openacd_queue_group (
+	openacd_queue_group_id integer not null,
+	name character varying(255) not null unique,
+	description character varying(255),
+	primary key (openacd_queue_group_id)
+);
+
+create table openacd_skill_queue_group (
+  openacd_queue_group_id integer not null,
+  openacd_skill_id integer not null,
+  constraint openacd_skill_queue_group_pkey primary key (openacd_queue_group_id, openacd_skill_id),
+  constraint skill_queue_group_fk1 foreign key (openacd_queue_group_id)
+      references openacd_queue_group (openacd_queue_group_id) match simple
+      on update no action on delete no action,
+  constraint skill_queue_group_fk2 foreign key (openacd_skill_id)
+      references openacd_skill (openacd_skill_id) match simple
+      on update no action on delete no action
+);
+
+create table openacd_queue (
+	openacd_queue_id integer not null,
+	name character varying(255) not null unique,
+	description character varying(255),
+	openacd_queue_group_id integer not null,
+	weight integer not null,
+	primary key (openacd_queue_id),
+	constraint fk_openacd_queue_group foreign key (openacd_queue_group_id)
+      references openacd_queue_group (openacd_queue_group_id) match simple
+      on update no action on delete no action
+);
+
+create table openacd_skill_queue (
+  openacd_queue_id integer not null,
+  openacd_skill_id integer not null,
+  constraint openacd_skill_queue_pkey primary key (openacd_queue_id, openacd_skill_id),
+  constraint skill_queue_fk1 foreign key (openacd_queue_id)
+      references openacd_queue (openacd_queue_id) match simple
+      on update no action on delete no action,
+  constraint skill_queue_fk2 foreign key (openacd_skill_id)
+      references openacd_skill (openacd_skill_id) match simple
+      on update no action on delete no action
+);
+
+create table openacd_queue_agent_group (
+  openacd_agent_group_id integer not null,
+  openacd_queue_id integer not null,
+  constraint openacd_queue_agent_group_pkey primary key (openacd_agent_group_id, openacd_queue_id),
+  constraint queue_agent_group_fk1 foreign key (openacd_agent_group_id)
+      references openacd_agent_group (openacd_agent_group_id) match simple
+      on update no action on delete no action,
+  constraint queue_agent_group_fk2 foreign key (openacd_queue_id)
+      references openacd_queue (openacd_queue_id) match simple
+      on update no action on delete cascade
+);
+
+create table openacd_queue_agent (
+  openacd_agent_id integer not null,
+  openacd_queue_id integer not null,
+  constraint openacd_queue_agent_pkey primary key (openacd_agent_id, openacd_queue_id),
+  constraint queue_agent_fk1 foreign key (openacd_agent_id)
+      references openacd_agent (openacd_agent_id) match simple
+      on update no action on delete cascade,
+  constraint queue_agent_fk2 foreign key (openacd_queue_id)
+      references openacd_queue (openacd_queue_id) match simple
+      on update no action on delete cascade
+);
+
+create table openacd_client_agent_group (
+  openacd_agent_group_id integer not null,
+  openacd_client_id integer not null,
+  constraint openacd_client_agent_group_pkey primary key (openacd_agent_group_id, openacd_client_id),
+  constraint client_agent_group_fk1 foreign key (openacd_agent_group_id)
+      references openacd_agent_group (openacd_agent_group_id) match simple
+      on update no action on delete cascade,
+  constraint client_agent_group_fk2 foreign key (openacd_client_id)
+      references openacd_client (openacd_client_id) match simple
+      on update no action on delete cascade
+);
+
+create table openacd_client_agent (
+  openacd_agent_id integer not null,
+  openacd_client_id integer not null,
+  constraint openacd_client_agent_pkey primary key (openacd_agent_id, openacd_client_id),
+  constraint client_agent_fk1 foreign key (openacd_agent_id)
+      references openacd_agent (openacd_agent_id) match simple
+      on update no action on delete cascade,
+  constraint client_agent_fk2 foreign key (openacd_client_id)
+      references openacd_client (openacd_client_id) match simple
+      on update no action on delete cascade
+);
+
+create table openacd_agent_group_queue_group (
+  openacd_queue_group_id integer not null,
+  openacd_agent_group_id integer not null,
+  constraint openacd_agent_group_queue_group_pkey primary key (openacd_queue_group_id, openacd_agent_group_id),
+  constraint agent_group_queue_group_fk1 foreign key (openacd_queue_group_id)
+      references openacd_queue_group (openacd_queue_group_id) match simple
+      on update no action on delete cascade,
+  constraint agent_group_queue_group_fk2 foreign key (openacd_agent_group_id)
+      references openacd_agent_group (openacd_agent_group_id) match simple
+      on update no action on delete cascade
+);
+
+create table openacd_agent_group_queue (
+  openacd_queue_id integer not null,
+  openacd_agent_group_id integer not null,
+  constraint openacd_agent_group_queue_pkey primary key (openacd_queue_id, openacd_agent_group_id),
+  constraint agent_group_queue_fk1 foreign key (openacd_queue_id)
+      references openacd_queue (openacd_queue_id) match simple
+      on update no action on delete cascade,
+  constraint agent_group_queue_fk2 foreign key (openacd_agent_group_id)
+      references openacd_agent_group (openacd_agent_group_id) match simple
+      on update no action on delete cascade
+);
+
+create table location_failed_replications (
+  location_id int4 not null,
+  entity_name varchar(255) not null,
+  primary key (location_id, entity_name),
+  constraint location_failed_replications_fk
+    foreign key (location_id) references location
+);
+
+create table openacd_recipe_step (
+	openacd_recipe_step_id integer not null,
+	name character varying(255),
+	description character varying(255),
+	openacd_recipe_action_id integer unique,
+	frequency character varying(255) not null,
+	openacd_queue_id integer,
+    openacd_queue_group_id int,
+	primary key (openacd_recipe_step_id),
+	constraint fk_openacd_queue foreign key (openacd_queue_id)
+	  references openacd_queue (openacd_queue_id) match simple,
+    constraint fk_openacd_queue_group foreign key (openacd_queue_group_id)
+      references openacd_queue_group (openacd_queue_group_id) match simple
+);
+
+create table openacd_recipe_action (
+	openacd_recipe_action_id integer not null,
+	action character varying(255) not null,
+	action_value character varying(255),
+	primary key (openacd_recipe_action_id)
+);
+
+create table openacd_skill_recipe_action (
+	openacd_recipe_action_id integer not null,
+	openacd_skill_id integer not null,
+	constraint openacd_skill_recipe_action_pkey primary key (openacd_recipe_action_id, openacd_skill_id),
+	constraint skill_recipe_action_fk1 foreign key (openacd_recipe_action_id)
+	  references openacd_recipe_action (openacd_recipe_action_id) match simple
+	  on update no action on delete no action,
+	constraint skill_recipe_action_fk2 foreign key (openacd_skill_id)
+	  references openacd_skill (openacd_skill_id) match simple
+	  on update no action on delete no action
+);
+
+create table openacd_recipe_condition (
+	openacd_recipe_step_id integer not null,
+	condition character varying(255) not null,
+	relation character varying(255) not null,
+	value_condition character varying(255) not null,
+	index integer,
+	constraint recipe_condition_pkey primary key (openacd_recipe_step_id, index)
+);
+
+create table feature_local (
+   feature_id varchar(255) not null,
+   location_id int4 not null,
+   primary key (location_id, feature_id)
+);
+
+create table feature_global (
+   feature_id varchar(255) unique not null
+);
+
+create table bean_with_settings (
+  bean_with_settings_id integer not null primary key,
+  bean_id varchar(255) not null,
+  value_storage_id integer,
+  constraint bean_with_settings_value_storage_id
+    foreign key (value_storage_id) references value_storage
+);
+
+create table settings_with_location (
+  settings_with_location_id integer not null primary key,
+  bean_id varchar(255) not null,
+  location_id integer not null,
+  value_storage_id integer,
+  constraint settings_with_location_location_id 
+    foreign key (location_id) references location,
+  constraint settings_with_location_value_storage_id
+    foreign key (value_storage_id) references value_storage
+);
+
+create table settings_location_group (
+  settings_with_location_id integer not null,
+  group_id integer not null,
+  primary key(settings_with_location_id, group_id),
+  constraint settings_location_group_group_id
+    foreign key (group_id) references group_storage,
+  constraint settings_location_group_settings_with_location_id
+    foreign key (settings_with_location_id) references settings_with_location
+);
+
+create table setup (
+  setup_id varchar(255) unique not null
+);
+
+create table openacd_release_codes (
+	openacd_code_id integer not null,
+	label character varying(255) not null unique,
+	bias character varying(255) not null,
+	description character varying(255),
+	primary key (openacd_code_id)
+);
+
+create table authority (
+   name varchar(255) not null unique,
+   data text not null,
+   private_key text,
+   primary key (name)
+);
+
+create table cert (
+   name varchar(255) not null unique,      
+   data text not null,
+   private_key text,
+   authority varchar(255),
+   primary key (name)
+);
+
+create table firewall_server_group (
+   firewall_server_group_id int4 not null,      
+   name varchar(255) not null unique,
+   servers varchar(255) not null,
+   primary key (firewall_server_group_id)
+);
+
+create table firewall_rule (
+   firewall_rule_id int4 not null,
+   prioritize boolean default false,
+   address_type varchar(32) not null,   
+-- either firewall_server_group_id or system_id is set, not both
+   firewall_server_group_id int4,
+   system_id varchar(16),
+   primary key (firewall_rule_id)
+);
+
+create table alarm_receiver
+(
+  alarm_receiver_id integer primary key,
+  address varchar(255) not null,
+  port int4,
+  community_string varchar(255)
 );
 
 /*
@@ -1191,11 +1446,6 @@ alter table meetme_participant
     add constraint fk_meetme_participant_user
     foreign key (user_id)
     references users;
-
-alter table meetme_bridge
-    add constraint fk_location_specific_service_id
-    foreign key(location_specific_service_id)
-    references location_specific_service;
 
 alter table attendant_dialing_rule 
   add constraint fk_attendant_dialing_rule_dialing_rule 
@@ -1349,26 +1599,6 @@ alter table sbc
     foreign key (sbc_device_id)
 	references sbc_device(sbc_device_id) match full;
 
-alter table backup_plan
-    add constraint fk_backup_plan_ftp_configuration
-    foreign key (ftp_configuration_id)
-    references ftp_configuration (id);
-
-alter table location_specific_service
-  add constraint fk_location_id
-  foreign key (location_id)
-  references location;
-
-alter table location_specific_service
-  add constraint fk_sipx_service
-  foreign key (sipx_service_id)
-  references sipx_service;
-
-alter table location_bundle
-  add constraint location_bundle_fk
-  foreign key (location_id)
-  references location;
-
 alter table speeddial_group
   add constraint fk_speeddial_group
   foreign key (group_id)
@@ -1480,10 +1710,7 @@ create sequence personal_attendant_seq;
 create sequence localization_seq;
 create sequence paging_group_seq;
 create sequence location_seq;
-create sequence sipx_service_seq;
-create sequence ftp_configuration_seq;
 create sequence alarm_server_seq;
-create sequence location_specific_service_seq;
 create sequence timezone_seq;
 create sequence speeddial_group_seq;
 create sequence abe_seq;
@@ -1494,7 +1721,6 @@ create sequence alarm_group_seq;
 create sequence alarm_code_seq;
 create sequence tls_peer_seq;
 create sequence google_domain_seq;
-create sequence general_phonebook_settings_seq;
 create sequence addr_seq;
 create sequence ldap_settings_seq;
 create sequence auth_code_seq;
@@ -1504,6 +1730,18 @@ create sequence freeswitch_action_seq;
 create sequence openacd_agent_group_seq;
 create sequence openacd_agent_seq;
 create sequence openacd_skill_seq;
+create sequence openacd_client_seq;
+create sequence openacd_queue_group_seq;
+create sequence openacd_queue_seq;
+create sequence openacd_skill_group_seq;
+create sequence openacd_recipe_step_seq;
+create sequence openacd_recipe_action_seq;
+create sequence bean_with_settings_seq;
+create sequence settings_with_location_seq;
+create sequence openacd_release_codes_seq;
+create sequence firewall_rule_seq;
+create sequence firewall_server_group_seq;
+create sequence alarm_receiver_seq;
 
 -- used for native hibernate ids  
 create sequence hibernate_sequence;
@@ -1511,72 +1749,166 @@ create sequence hibernate_sequence;
 -- index
 create index index_acd_agent_user_server on acd_agent(acd_agent_id, user_id, acd_server_id);
 
--- insert standard set of services
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxProxyService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxRegistrarService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxSupervisorService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxParkService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxPresenceService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxIvrService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxRlsService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxStatusService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxCallResolverService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxPageService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxConfigService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxConfigAgentService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxAcdService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxBridgeService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxFreeswitchService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxRelayService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxMrtgService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxSaaService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxAccCodeService');
-
 -- insert default values
 insert into attendant_special_mode values (1, false, null);
 insert into alarm_group (alarm_group_id, name, description, enabled) values (nextval('alarm_group_seq'), 'default', 'Default alarm group', true);
 insert into google_domain values (nextval('google_domain_seq'), 'gmail.com');
 
-insert into openacd_agent_group (openacd_agent_group_id, name, description)
-	values (nextval('openacd_agent_group_seq'), 'Default', 'Default agent group');
 
-insert into openacd_skill (openacd_skill_id, name, atom, group_name, description, default_skill)
-	values (nextval('openacd_skill_seq'), 'English', 'english', 'Language', 'English', false);
-insert into openacd_skill (openacd_skill_id, name, atom, group_name, description, default_skill)
-	values (nextval('openacd_skill_seq'), 'German', 'german', 'Language', 'German', false);
-insert into openacd_skill (openacd_skill_id, name, atom, group_name, description, default_skill)
-	values (nextval('openacd_skill_seq'), 'Brand', '_brand', 'Magic',
-			'Magic skill to expand to a client label (brand)', true);
-insert into openacd_skill (openacd_skill_id, name, atom, group_name, description, default_skill)
-	values (nextval('openacd_skill_seq'), 'Agent Name', '_agent', 'Magic',
-			'Magic skill that is replaced by the agent name', true);
-insert into openacd_skill (openacd_skill_id, name, atom, group_name, description, default_skill)
-	values (nextval('openacd_skill_seq'), 'Agent Profile', '_profile', 'Magic',
-			'Magic skill that is replaced by the agent profile name', true);
-insert into openacd_skill (openacd_skill_id, name, atom, group_name, description, default_skill)
-	values (nextval('openacd_skill_seq'), 'Node', '_node', 'Magic',
-			'Magic skill that is replaced by the node identifier', true);
-insert into openacd_skill (openacd_skill_id, name, atom, group_name, description, default_skill)
-	values (nextval('openacd_skill_seq'), 'Queue', '_queue', 'Magic',
-			'Magic skill replaced by a queue name', true);
-insert into openacd_skill (openacd_skill_id, name, atom, group_name, description, default_skill)
-	values (nextval('openacd_skill_seq'), 'All', '_all', 'Magic',
-			'Magic skill to denote an agent that can answer any call regardless of the other skills', true);
+-- openacd Language skills
+insert into openacd_skill_group (openacd_skill_group_id, name)
+	values (nextval('openacd_skill_group_seq'), 'Language');
 
-/* will trigger app event to execute java code before next startup to insert default data */
-insert into initialization_task (name) values ('dial-plans');
-insert into initialization_task (name) values ('default-phone-group');
-insert into initialization_task (name) values ('add_default_user_group');
-insert into initialization_task (name) values ('operator');
-insert into initialization_task (name) values ('afterhour');
-insert into initialization_task (name) values ('first-run');
-insert into initialization_task (name) values ('callgroup-password-init');
-insert into initialization_task (name) values ('sbc_address_migrate_sbc_device');
-insert into initialization_task (name) values ('sip_trunk_address_migrate_sbc_device');
-insert into initialization_task (name) values ('initialize-location-service-mapping');
-insert into initialization_task (name) values ('acd_server_migrate_acd_service');
-insert into initialization_task (name) values ('default-time-zone');
-insert into initialization_task (name) values ('migrate-conference-bridges');
-insert into initialization_task (name) values ('phonebook_file_entry_task');
-insert into initialization_task (name) values ('legacy_park_server_migration');
-insert into initialization_task (name) values ('phonebook_entries_update_task');
+insert into openacd_skill (openacd_skill_id, name, atom, description, default_skill, openacd_skill_group_id)
+	values (nextval('openacd_skill_seq'), 'English', 'english', 'English', false, currval('openacd_skill_group_seq'));
+
+insert into openacd_skill (openacd_skill_id, name, atom, description, default_skill, openacd_skill_group_id)
+	values (nextval('openacd_skill_seq'), 'German', 'german', 'German', false, currval('openacd_skill_group_seq'));
+
+
+-- openacd Magic skills
+insert into openacd_skill_group (openacd_skill_group_id, name)
+	values (nextval('openacd_skill_group_seq'), 'Magic');
+
+insert into openacd_skill (openacd_skill_id, name, atom, description, default_skill, openacd_skill_group_id)
+	values (nextval('openacd_skill_seq'), 'Brand', '_brand',
+			'Magic skill to expand to a client label (brand)', true, currval('openacd_skill_group_seq'));
+
+insert into openacd_skill (openacd_skill_id, name, atom, description, default_skill, openacd_skill_group_id)
+	values (nextval('openacd_skill_seq'), 'Agent Name', '_agent',
+			'Magic skill that is replaced by the agent name', true, currval('openacd_skill_group_seq'));
+
+insert into openacd_skill (openacd_skill_id, name, atom, description, default_skill, openacd_skill_group_id)
+	values (nextval('openacd_skill_seq'), 'Agent Profile', '_profile',
+			'Magic skill that is replaced by the agent profile name', true, currval('openacd_skill_group_seq'));
+
+insert into openacd_skill (openacd_skill_id, name, atom, description, default_skill, openacd_skill_group_id)
+	values (nextval('openacd_skill_seq'), 'Node', '_node',
+			'Magic skill that is replaced by the node identifier', true, currval('openacd_skill_group_seq'));
+
+insert into openacd_skill (openacd_skill_id, name, atom, description, default_skill, openacd_skill_group_id)
+	values (nextval('openacd_skill_seq'), 'Queue', '_queue',
+			'Magic skill replaced by a queue name', true, currval('openacd_skill_group_seq'));
+
+insert into openacd_skill (openacd_skill_id, name, atom, description, default_skill, openacd_skill_group_id)
+	values (nextval('openacd_skill_seq'), 'All', '_all',
+			'Magic skill to denote an agent that can answer any call regardless of the other skills', 
+            true, currval('openacd_skill_group_seq'));
+
+insert into openacd_queue_group (openacd_queue_group_id, name, description)
+	values (nextval('openacd_queue_group_seq'), 'Default', 'Default queue group');
+
+insert into openacd_queue (openacd_queue_id, name, description, openacd_queue_group_id, weight)
+	values (nextval('openacd_queue_seq'), 'default_queue', 'Default queue',
+		(select openacd_queue_group_id from openacd_queue_group where name = 'Default'), 1);
+
+insert into openacd_skill_queue (openacd_queue_id, openacd_skill_id)
+	values ((select openacd_queue_id from openacd_queue where name = 'default_queue'),
+			(select openacd_skill_id from openacd_skill where name = 'English'));
+
+insert into openacd_skill_queue (openacd_queue_id, openacd_skill_id)
+	values ((select openacd_queue_id from openacd_queue where name = 'default_queue'),
+			(select openacd_skill_id from openacd_skill where name = 'Node'));
+
+-- will trigger app event to execute java code before next startup to insert default data
+insert into setup (setup_id) values
+  ('callgroup-password-init'),
+  ('sip_trunk_address_migrate_sbc_device'),
+  ('phonebook_file_entry_task'),
+  ('phonebook_entries_update_task'),
+  ('sbc_address_migrate_sbc_device');
+
+CREATE OR REPLACE FUNCTION make_plpgsql()
+RETURNS VOID
+LANGUAGE SQL
+AS $$
+CREATE LANGUAGE plpgsql;
+$$;
+ 
+SELECT
+    CASE
+    WHEN EXISTS(
+        SELECT 1
+        FROM pg_catalog.pg_language
+        WHERE lanname='plpgsql'
+    )
+    THEN NULL
+    ELSE make_plpgsql() END;
+
+create or replace function change_domain_on_restore(new_domain text) returns void as $$
+declare
+    old_domain text;
+begin
+    SELECT name into old_domain from domain;
+    update location set fqdn = replace(fqdn, old_domain, new_domain);
+    update domain_alias set alias = replace(alias, old_domain, new_domain);
+    update domain set name = new_domain, sip_realm = new_domain;
+end;
+$$ language plpgsql;
+
+
+create or replace function change_primary_fqdn_on_restore(new_fqdn text) returns void as $$
+declare
+    old_fqdn text;
+begin
+    SELECT fqdn from location into old_fqdn where primary_location = TRUE;
+    update domain_alias set alias = new_fqdn where alias = old_fqdn;
+    update location set fqdn = new_fqdn where primary_location = TRUE;
+end;
+$$ language plpgsql;
+
+create or replace function change_primary_ip_on_restore(new_ip text) returns void as $$
+declare
+    old_ip text;
+begin
+    SELECT ip_address from location into old_ip where primary_location = TRUE;
+    update domain_alias set alias = new_ip where alias = old_ip;
+    update location set ip_address = new_ip where primary_location = TRUE;
+end;
+$$ language plpgsql;
+
+-- use brute force to test all PIN combinations from "0" to "9999" where the
+-- upper bounds is set by max_len.  If PIN cannot be "cracked" because the user
+-- had more digits than max_len or the PIN actually contained letters, then set
+-- all of the "uncracked" PINs to a specfic value.    
+--
+--  Very crude report of pins that were restore /var/lib/pgsql/data/pg_log
+create or replace function uncover_pin_on_restore(reset_pin text, max_len integer) returns void as $$
+declare
+    realm text;
+    max_pin integer;
+    pin integer;
+    candidate text;
+    hash text;
+    new_pin text;
+    my_user record;
+begin
+    SELECT sip_realm from domain into realm;   
+    raise NOTICE 'realm is %', realm;
+	for my_user in select user_name, pintoken from users loop
+	    new_pin := NULL;
+	    <<cracked>>
+		for pin_len in 1..max_len loop
+			max_pin := (10 ^ pin_len) - 1;			
+			for pin in 0..max_pin loop
+				candidate := lpad('' || pin, pin_len, '0');
+				hash := md5(my_user.user_name || ':' || realm || ':' || candidate);
+				if hash = my_user.pintoken then
+				    new_pin := candidate;
+					exit cracked;
+				end if;
+			end loop;
+		end loop;
+		
+		if new_pin is NULL then
+  		  new_pin := reset_pin;
+  		  raise NOTICE 'resetting pin for %', my_user.user_name;
+		end if;
+		
+		update users
+          set pintoken = new_pin,
+              voicemail_pintoken = md5(my_user.user_name || ':' || new_pin)
+        where user_name = my_user.user_name;
+	end loop;
+end;	
+$$ language plpgsql;
