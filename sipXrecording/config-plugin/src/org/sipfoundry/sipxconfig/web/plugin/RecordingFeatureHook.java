@@ -16,12 +16,18 @@
  */
 package org.sipfoundry.sipxconfig.web.plugin;
 
+import org.sipfoundry.sipxconfig.recording.Recording;
 import org.sipfoundry.sipxconfig.site.PluginHook;
 
 public class RecordingFeatureHook implements PluginHook {
 
     @Override
     public String getHookId() {
-        return "RecordingFeature";
+        return RecordingFeature.PAGE_ID;
+    }
+
+    @Override
+    public String getFeatureId() {
+        return Recording.FEATURE_ID;
     }
 }

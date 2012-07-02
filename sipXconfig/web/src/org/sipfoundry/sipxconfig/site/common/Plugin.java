@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.ComponentClass;
@@ -29,6 +28,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.components.AdminNavigation;
 import org.sipfoundry.sipxconfig.site.PluginHook;
 import org.sipfoundry.sipxconfig.site.PluginHookManager;
 
@@ -37,7 +37,7 @@ import org.sipfoundry.sipxconfig.site.PluginHookManager;
  * rendering given a block id.
  */
 @ComponentClass(allowBody = false, allowInformalParameters = false)
-public abstract class Plugin extends BaseComponent implements PageBeginRenderListener {
+public abstract class Plugin extends AdminNavigation implements PageBeginRenderListener {
 
     public abstract void setHookBlocks(Collection<IComponent> hookBlock);
 
@@ -54,12 +54,16 @@ public abstract class Plugin extends BaseComponent implements PageBeginRenderLis
         List<IComponent> hookBlocks = new ArrayList<IComponent>();
         Collection<PluginHook> hooks = getPluginHookManager().getHooks();
         for (PluginHook hook : hooks) {
-            IPage hookPage = getPage().getRequestCycle().getPage("plugin/" + hook.getHookId());
-            String id = hook.getHookId() + getBlockId();
-            Map components = hookPage.getComponents();
-            IComponent c = (IComponent) components.get(id);
-            if (c != null) {
-                hookBlocks.add(c);
+            String featureId = hook.getFeatureId();
+            if (featureId == null || isOn(featureId)) {
+                String hookId = hook.getHookId();
+                IPage hookPage = getPage().getRequestCycle().getPage("plugin/" + hookId);
+                String id = hookId + getBlockId();
+                Map components = hookPage.getComponents();
+                IComponent c = (IComponent) components.get(id);
+                if (c != null) {
+                    hookBlocks.add(c);
+                }
             }
         }
         setHookBlocks(hookBlocks);

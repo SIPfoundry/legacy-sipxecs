@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.web.plugin;
 
+import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.site.PluginHook;
 
 /**
@@ -26,5 +27,10 @@ public class IMFeatureHook implements PluginHook {
     @Override
     public String getHookId() {
         return "IMFeature";
+    }
+
+    @Override
+    public String getFeatureId() {
+        return ImManager.FEATURE_ID;
     }
 }

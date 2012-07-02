@@ -41,9 +41,9 @@ public class ProvisionConfiguration implements ConfigProvider {
 
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(Provision.FEATURE);
         ProvisionSettings settings = m_provision.getSettings();
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(Provision.FEATURE);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            boolean enabled = manager.getFeatureManager().isFeatureEnabled(Provision.FEATURE);
             ConfigUtils.enableCfengineClass(dir, "sipxprovision.cfdat", enabled, "sipxprovision");
             if (!enabled) {
                 continue;
