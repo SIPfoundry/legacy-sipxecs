@@ -26,5 +26,6 @@ public interface PluginHook {
      * Example: "EditWidgetPage".  Do not include prefix "/plugin" or suffix ".page"
      */
     public String getHookId();
+    public String getFeatureId();
 
 }

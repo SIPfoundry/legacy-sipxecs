@@ -23,4 +23,9 @@ public class InternalPluginsHook implements PluginHook {
     public String getHookId() {
         return "InternalPlugins";
     }
+
+    @Override
+    public String getFeatureId() {
+        return null;
+    }
 }
