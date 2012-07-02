@@ -64,6 +64,9 @@ public class ContactInformationResource extends UserResource {
         } else {
             //the IM id needs to be uneditable via rest.(XX-8022)
             reprUserProfile.setImId(userProfile.getImId());
+            reprUserProfile.setSalutation(userProfile.getSalutation());
+            reprUserProfile.setManager(userProfile.getManager());
+            reprUserProfile.setEmployeeId(userProfile.getEmployeeId());
             userProfile.update(reprUserProfile);
             user.setUserProfile(userProfile);
         }
