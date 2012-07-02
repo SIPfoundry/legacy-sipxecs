@@ -75,15 +75,10 @@ bundle agent rsyslogd_systemctl_running {
   commands:
     # NOTE: Start/stop commands will complain about not being able to open a TTY, but commands
     # to complete their task
-    rsyslog_running.restart_rsyslogd.phonelog::
+    rsyslog_running.restart_rsyslogd::
        "$(sipx.systemctl)"
-        comment => "stop rsyslog",
-        args => "stop $(service)";
-
-      "$(sipx.systemctl)"
-        comment => "start rsyslog",
-        args => "start $(service)";
-
+        comment => "restart rsyslog",
+        args => "restart $(service)";
 }
 
 
@@ -96,7 +91,7 @@ bundle agent rsyslogd_sysv_running {
     "any" usebundle => find_service_by_command("$(service_command)", "rsyslog_running", "root");
 
   commands:
-    phonelog.rsyslog_running.restart_rsyslogd::
+    rsyslog_running.restart_rsyslogd::
       "$(service)"
         comment => "restart rsyslog",
         args => "restart";

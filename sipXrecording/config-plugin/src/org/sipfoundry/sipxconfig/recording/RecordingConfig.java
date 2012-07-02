@@ -23,6 +23,7 @@ import java.io.Writer;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -30,6 +31,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.springframework.beans.factory.annotation.Required;
 
 public class RecordingConfig implements ConfigProvider {
@@ -46,6 +48,7 @@ public class RecordingConfig implements ConfigProvider {
             return;
         }
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(Recording.FEATURE);
+        Address imbotApi = manager.getAddressManager().getSingleAddress(ImBot.REST_API);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             ConfigUtils.enableCfengineClass(dir, "sipxrecording.cfdat", enabled, "sipxrecording");
@@ -55,16 +58,19 @@ public class RecordingConfig implements ConfigProvider {
             File f = new File(dir, "sipxrecording.properties.part");
             Writer wtr = new FileWriter(f);
             try {
-                write(wtr, m_recording.getSettings());
+                write(wtr, m_recording.getSettings(), imbotApi);
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
         }
     }
 
-    void write(Writer wtr, RecordingSettings settings) throws IOException {
+    void write(Writer wtr, RecordingSettings settings, Address imbotApi) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.writeSettings(settings.getSettings());
+        if (imbotApi != null) {
+            config.write("config.sendIMUrl", imbotApi.toString());
+        }
     }
 
     @Required

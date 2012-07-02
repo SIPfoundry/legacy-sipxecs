@@ -45,7 +45,7 @@ import javax.mail.internet.MimeMultipart;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.User.EmailFormats;
-import org.sipfoundry.sipxivr.rest.RemoteRequest;
+import org.sipfoundry.commons.util.RemoteRequest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -77,7 +77,7 @@ public class FaxProcessor implements ApplicationContextAware {
 
     /**
      * Queue up sending the VmMessage as an e-mail to the addresses specified in the mailbox
-     * 
+     *
      * @param mailbox
      * @param vmessage
      */

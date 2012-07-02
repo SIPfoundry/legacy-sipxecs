@@ -8,11 +8,9 @@
  */
 package org.sipfoundry.sipximbot;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -22,7 +20,7 @@ import org.sipfoundry.commons.util.DomainConfiguration;
 
 /**
  * Holds the configuration data needed for sipXimbot.
- * 
+ *
  */
 public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
 
@@ -34,7 +32,7 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
     private String m_sipxchangeDomainName; // The domain name of this system
     private String m_realm;
     private String m_3pccSecureUrl; // The url of the third party call controller via HTTPS
-    private String m_configUrl; 
+    private String m_configUrl;
     private String m_cdrSecureURL;
     private String m_openfireHost; // The host name where the Openfire service runs
     private int    m_openfireXmlRpcPort; // The port number to use for XML-RPC Openfire requests
@@ -42,28 +40,28 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
     private String m_myAsstAcct;
     private String m_myAsstPswd;
     private String m_voicemailRootUrl;
-    
+
     private static ImbotConfiguration s_current;
     private static File s_propertiesFile;
     private static long s_lastModified;
-    
+
     private static String s_sharedSecret = null;
-    
+
     private ImbotConfiguration() {
     }
-    
+
     public static ImbotConfiguration get() {
         return update(true);
     }
-    
+
     public static ImbotConfiguration getTest() {
         return update(false);
     }
-    
+
     /**
      * Load new Configuration object if the underlying properties files have changed since the last
      * time
-     * 
+     *
      * @return
      */
     private static ImbotConfiguration update(boolean load) {
@@ -75,14 +73,14 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
         }
         return s_current;
     }
-    
+
     void properties() {
         m_configDirectory = System.getProperty("conf.dir");
         if (m_configDirectory == null) {
             System.err.println("Cannot get System Property conf.dir!  Check jvm argument -Dconf.dir=") ;
             System.exit(1);
         }
-        
+
         // Setup SSL properties so we can talk to HTTPS servers
         String keyStore = System.getProperty("javax.net.ssl.keyStore");
         if (keyStore == null) {
@@ -101,7 +99,7 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
             System.setProperty("javax.net.ssl.trustStoreType", "JKS");
             System.setProperty("javax.net.ssl.trustStorePassword", "changeit"); // Real security!
         }
-        
+
         String name = "sipximbot.properties";
         FileInputStream inStream;
         Properties props = null;
@@ -128,14 +126,14 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
             m_docDirectory = props.getProperty(prop = "imbot.docDirectory") ;
             m_sipxchangeDomainName = props.getProperty(prop = "imbot.sipxchangeDomainName");
             m_realm = props.getProperty(prop ="imbot.realm");
-            
+
             m_3pccSecureUrl = props.getProperty(prop = "imbot.3pccSecureUrl") + "/callcontroller/";
             m_cdrSecureURL  = props.getProperty(prop = "imbot.callHistoryUrl");
 
             m_openfireHost = props.getProperty(prop = "imbot.openfireHost");
             m_openfireXmlRpcPort = Integer.parseInt(props.getProperty(prop = "imbot.openfireXmlRpcPort"));
             m_httpPort = Integer.parseInt(props.getProperty(prop = "imbot.httpport"));
-            
+
             m_myAsstAcct =  props.getProperty(prop = "imbot.paUserName");
             m_myAsstPswd =  props.getProperty(prop = "imbot.paPassword");
             m_configUrl = props.getProperty(prop = "imbot.configUrl");
@@ -156,7 +154,7 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
         return s_sharedSecret;
     }
 
-    
+
     public String getLogLevel() {
         return m_logLevel;
     }
@@ -169,7 +167,7 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
     public int getHttpPort() {
         return m_httpPort;
     }
-    
+
     public String getDocDirectory() {
         return m_docDirectory;
     }
@@ -189,11 +187,11 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
     public String get3pccSecureUrl() {
         return m_3pccSecureUrl;
     }
-   
+
     public String getcdrSecureUrl() {
         return m_cdrSecureURL;
     }
-   
+
     public void set3pccSecureUrl(String url) {
         m_3pccSecureUrl = url;
     }
@@ -201,20 +199,20 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
     public String getOpenfireHost() {
         return m_openfireHost;
     }
-   
+
     public String getMyAsstAcct() {
         return m_myAsstAcct;
     }
-   
+
     public String getMyAsstPswd() {
         return m_myAsstPswd;
     }
-    
+
     public String getConfigUrl() {
         return m_configUrl;
     }
 
-   
+
     public void setOpenfireHost(String host) {
         m_openfireHost = host;
     }
@@ -226,11 +224,11 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
     public void setOpenfireXmlRpcPort(int port) {
         m_openfireXmlRpcPort = port;
     }
-    
+
     public String getVoicemailRootUrl() {
         return m_voicemailRootUrl;
     }
-    
+
 	@Override
 	public Logger getLogger() {
 		return LOG;
@@ -238,7 +236,7 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
 
     @Override
     public int getEventSocketPort() {
-        return 0;
+        return -1;
     }
 
     public String getConfigDirectory() {

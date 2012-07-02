@@ -1,12 +1,12 @@
 /*
- * 
- * 
- * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
-package org.sipfoundry.sipxivr.rest;
+package org.sipfoundry.commons.util;
 
 import java.io.DataOutputStream;
 import java.net.HttpURLConnection;
@@ -19,24 +19,24 @@ public class RemoteRequest {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     boolean m_justTesting;
     String m_testingResult;
-    
+
     URL m_url;
     String m_contentType;
     String m_content;
-    
+
     String m_result;
     String m_response;
     Exception m_exception;
-    
+
     public RemoteRequest(URL url, String contentType, String content) {
         m_url = url;
         m_contentType = contentType;
         m_content = content;
     }
-    
+
     /**
      * Connect via http/https, POST content
-     * @throws Exception 
+     * @throws Exception
      */
     public boolean http() throws Exception {
         if (m_justTesting) {
@@ -71,21 +71,21 @@ public class RemoteRequest {
             printout.writeBytes(m_content);
             printout.flush();
             printout.close();
-            
+
             m_response = urlConn.getResponseMessage();
- 
+
 /*
             DataInputStream input;
             input = new DataInputStream(urlConn.getInputStream());
             m_result = input.readUTF();
             input.close();
-*/            
+*/
             return true;
         }
 
         catch (Exception ex) {
             m_exception = ex;
-            LOG.error(String.format("RemoteRequest::httpRequest to '%s' trouble '%s'", 
+            LOG.error(String.format("RemoteRequest::httpRequest to '%s' trouble '%s'",
                     m_url.toExternalForm(), m_response), ex);
         }
         return false;
@@ -94,15 +94,15 @@ public class RemoteRequest {
     public String getResponse() {
         return m_response;
     }
-    
+
     public String getResult() {
         return m_result;
     }
-    
+
     public Exception getException() {
         return m_exception;
     }
-    
+
     public boolean isJustTesting() {
         return m_justTesting;
     }
@@ -110,7 +110,7 @@ public class RemoteRequest {
     public void setJustTesting(boolean justTesting) {
         m_justTesting = justTesting;
     }
-    
+
     public void setTestingResult(String result) {
         m_testingResult = result;
     }
