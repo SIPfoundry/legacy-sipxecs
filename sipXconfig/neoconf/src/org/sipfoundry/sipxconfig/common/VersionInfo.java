@@ -51,7 +51,7 @@ public class VersionInfo {
     }
 
     /**
-     * @return more specific build information
+     * @return more specific build information Version Build-Date Build-Host
      */
     public String[] getVersionDetails() {
         String[] implVer = StringUtils.defaultString(getBuildStamp()).split(" ");

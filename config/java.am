@@ -318,7 +318,7 @@ Specification-Title: $(PACKAGE_NAME)
 Specification-Version: $(PACKAGE_VERSION)
 Specification-Vendor:  $(PACKAGE_VENDOR)
 Implementation-Title: $(IMPLEMENTATION_TITLE)
-Implementation-Version: $(PACKAGE_VERSION).$(PACKAGE_REVISION)
+Implementation-Version: $(PACKAGE_VERSION).$(PACKAGE_REVISION) $(shell date +%Y-%m-%d%Z%H:%m:%S) $(shell hostname -f)
 Implementation-Vendor: $(PACKAGE_VENDOR)
 endef
 export manifest_body
