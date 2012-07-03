@@ -199,7 +199,7 @@ public class Group extends ValueStorage implements Comparable, NamedObject, Repl
 
     @Override
     public Set<DataSet> getDataSets() {
-        return null;
+        return Collections.EMPTY_SET;
     }
 
     @Override

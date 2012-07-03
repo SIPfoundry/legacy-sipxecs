@@ -28,6 +28,8 @@ import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.SettingsWithLocationDao;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
@@ -43,6 +45,7 @@ import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
+import org.springframework.beans.factory.annotation.Required;
 
 public class FreeswitchFeature implements FeatureProvider, AddressProvider, ProcessProvider, FirewallProvider {
     public static final LocationFeature FEATURE = new LocationFeature("freeSwitch");
@@ -56,6 +59,7 @@ public class FreeswitchFeature implements FeatureProvider, AddressProvider, Proc
             EVENT_ADDRESS, ACC_EVENT_ADDRESS);
 
     private SettingsWithLocationDao<FreeswitchSettings> m_settingsDao;
+    private ReplicationManager m_replicationManager;
     private String m_name = "freeswitch";
 
     public FreeswitchSettings getSettings(Location location) {
@@ -64,6 +68,7 @@ public class FreeswitchFeature implements FeatureProvider, AddressProvider, Proc
 
     public void saveSettings(FreeswitchSettings settings) {
         m_settingsDao.upsert(settings);
+        m_replicationManager.replicateAllData(DataSet.ALIAS);
     }
 
     @Override
@@ -147,5 +152,10 @@ public class FreeswitchFeature implements FeatureProvider, AddressProvider, Proc
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+    }
+
+    @Required
+    public void setReplicationManager(ReplicationManager replicationManager) {
+        m_replicationManager = replicationManager;
     }
 }
