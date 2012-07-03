@@ -94,10 +94,25 @@ do_start() {
 }
 
 do_stop() {
-        $DAEMON $DAEMON_STOP_ARGS
+	fspid=$(pidof $NAME)
+	status=$?
+	$DAEMON $DAEMON_STOP_ARGS
         RETVAL=$?
         [ $RETVAL = 0 ] && success $"$base shutdown" || failure $"$base shutdown"
-        rm -f $LOCKFILE
+	echo "Waiting for daemon to exit..."
+	i=0
+	while [[ $status -lt 1 && $i -lt 10 ]]
+	do
+		sleep 1
+		fspid=$(pidof $NAME)
+		status=$?
+		i=$(expr $i + 1)
+	done
+	if [ $status -lt 1 ]; then
+		echo "Process did not exit cleanly. Aborting..."
+		killproc $NAME	
+        fi
+	rm -f $LOCKFILE
         echo
         return $RETVAL
 }
@@ -122,8 +137,6 @@ case "$1" in
         ;;
   restart)
         do_stop
-        echo "Waiting for daemon to exit..."
-        sleep 5
         do_start
         ;;
   *)
