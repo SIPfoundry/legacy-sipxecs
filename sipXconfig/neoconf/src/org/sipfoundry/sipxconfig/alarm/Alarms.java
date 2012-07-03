@@ -38,11 +38,13 @@ import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.logwatcher.LogWatcher;
 import org.sipfoundry.sipxconfig.mail.MailManager;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class Alarms implements FeatureProvider, ProcessProvider, FirewallProvider, AddressProvider {
+public class Alarms implements FeatureProvider, ProcessProvider, FirewallProvider, AddressProvider, SetupListener {
     public static final GlobalFeature FEATURE = new GlobalFeature("alarms");
     public static final AddressType TRAP_ADDRESS = new AddressType("snmptrap", 162, AddressType.Protocol.udp);
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
@@ -102,5 +104,15 @@ public class Alarms implements FeatureProvider, ProcessProvider, FirewallProvide
 
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
+    }
+
+    @Override
+    public boolean setup(SetupManager manager) {
+        if (manager.isFalse(FEATURE.getId())) {
+            manager.getFeatureManager().enableGlobalFeature(FEATURE, true);
+            manager.setTrue(FEATURE.getId());
+        }
+
+        return true;
     }
 }

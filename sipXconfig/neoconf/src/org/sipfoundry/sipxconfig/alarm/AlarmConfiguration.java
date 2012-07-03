@@ -89,7 +89,7 @@ public class AlarmConfiguration implements ConfigProvider {
 
     void writeCfdat(Writer w, boolean enabled, List<AlarmTrapReceiver> fwd) throws IOException {
         CfengineModuleConfiguration cfdat = new CfengineModuleConfiguration(w);
-        cfdat.writeClass("snmptrap", true);
+        cfdat.writeClass("snmptrap", enabled);
         cfdat.writeList("snmptrapdForward", fwd);
     }
 
