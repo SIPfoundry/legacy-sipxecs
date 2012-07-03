@@ -31,4 +31,7 @@
     <![CDATA[from Upload u where u.name = :name]]>
   </query>
 
+  <query name="uploadNameAndId">
+    <![CDATA[from Upload u where u.name = :name and u.id != :id]]>
+  </query>
 </hibernate-mapping>
