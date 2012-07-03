@@ -66,10 +66,12 @@ public class AlarmLogParser {
                 if (after == null || when.after(after)) {
                     i++;
                     if (i > first) {
-                        alarms.add(parseEvent(when, line));
+                        AlarmEvent e = parseEvent(when, line);
+                        if (e != null) {
+                            alarms.add(e);
+                        }
                     }
                 }
-                when = null;
                 continue;
             }
 
@@ -86,6 +88,9 @@ public class AlarmLogParser {
 
     AlarmEvent parseEvent(Date when, String line) {
         Map<String, String> fields = parseFields("SIPXECS-ALARM-NOTIFICATION-MIB", line);
+        if (fields.isEmpty()) {
+            return null;
+        }
         AlarmDefinition def = new AlarmDefinition(fields.get("sipxecsAlarmId"));
         String msg = fields.get("sipxecsAlarmDescr");
         AlarmEvent e = new AlarmEvent(when, def, msg);

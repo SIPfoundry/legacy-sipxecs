@@ -109,4 +109,7 @@
     <li jwcid="@If" condition="ognl:isOn('sipxlogwatcher')">
       <a jwcid="@PageLink" page="logwatcher/EditLogWatcher"><span key="menu.logwatcher.featureMenu"/></a>
     </li>
+    <li jwcid="@If" condition="ognl:isOn('snmp')">
+      <a jwcid="@PageLink" id="menu.snmp" page="snmp/Snmp"><span key="menu.snmp">SNMP</span></a>
+    </li>         
 </span>
