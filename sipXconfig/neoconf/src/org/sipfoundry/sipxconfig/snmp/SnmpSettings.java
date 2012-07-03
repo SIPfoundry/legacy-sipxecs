@@ -32,7 +32,7 @@ public class SnmpSettings extends PersistableSettings implements DeployConfigOnE
     }
 
     public class Defaults {
-        @SettingEntry(path = "cfdat/restart")
+        @SettingEntry(path = "cfdat/fix_dead_processes")
         public boolean getRestart() {
             return m_restartDefault;
         }
