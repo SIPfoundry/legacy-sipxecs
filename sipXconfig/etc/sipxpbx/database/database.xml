@@ -136,7 +136,7 @@
   -->
   <target name="create" depends="createdb,schema" description="create database with schema" />
 
-  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9,version10,version11,version12" />
+  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9,version10,version11,version12,version13" />
 
   <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks" depends="upgrade-no-init,plugin-patches" />
 
@@ -358,8 +358,6 @@
   </target>
 
   <target name="version12" description="upgrade from version 11" unless="version13">
-    <!-- When freezing schema uncomment this line -->
-    <!-- sipx-version version="13" -->
 	<antcall target="openacd-add-skills-agent" />
 	<antcall target="openacd-add-clients" />
 	<antcall target="openacd-queues" />
@@ -401,6 +399,12 @@
   	<antcall target="backup-types" />
   	<antcall target="notified" />
   	<antcall target="openacd-remove-commands" />
+    <sipx-version version="13"/>
+  </target>
+
+  <target name="version13" description="upgrade from version 12" unless="version14">
+    <!-- When freezing schema uncomment this line -->
+    <!-- sipx-version version="14" -->
   </target>
 
   <target name="plugin-patches">
@@ -572,9 +576,7 @@
   </target>
 
   <target name="schema" unless="schema">
-    <sipx-sql>
-      <transaction src="${sql.dir}/schema.sql" />
-    </sipx-sql>
+    <psql src="${sql.dir}/schema.sql" />
   </target>
 
   <target name="migrate-2.8" depends="migrate-2.8-run" description="migrate existing 2.8 PDS database, note clears all existing 3.0 data" />
@@ -1349,6 +1351,15 @@
         <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/@{patch}.sql" />
       </exec>
       <mark-patch-applied patch="@{patch}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="psql">
+    <attribute name="src" />
+    <sequential>
+      <exec executable="psql" failonerror="true">
+        <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f @{src}" />
+      </exec>
     </sequential>
   </macrodef>
   

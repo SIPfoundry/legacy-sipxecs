@@ -19,5 +19,5 @@ package org.sipfoundry.sipxconfig.web.plugin;
 import org.apache.tapestry.html.BasePage;
 
 public abstract class ProvisionFeature extends BasePage {
-
+    public static final String PAGE_ID = "ProvisionFeature";
 }

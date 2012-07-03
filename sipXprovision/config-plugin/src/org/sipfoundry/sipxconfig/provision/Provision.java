@@ -21,7 +21,8 @@ import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface Provision {
-    public static final LocationFeature FEATURE = new LocationFeature("provision");
+    public static final String FEATURE_ID = "provision";
+    public static final LocationFeature FEATURE = new LocationFeature(FEATURE_ID);
     public static final AddressType PROVISION_SERVICE = new AddressType("provisionService", "http://%s:%d/");
 
     public ProvisionSettings getSettings();

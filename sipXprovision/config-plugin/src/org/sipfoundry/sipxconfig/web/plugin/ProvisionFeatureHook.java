@@ -16,14 +16,19 @@
  */
 package org.sipfoundry.sipxconfig.web.plugin;
 
+import org.sipfoundry.sipxconfig.provision.Provision;
 import org.sipfoundry.sipxconfig.site.PluginHook;
 
 public class ProvisionFeatureHook implements PluginHook {
 
     @Override
     public String getHookId() {
-        // TODO Auto-generated method stub
-        return "ProvisionFeature";
+        return ProvisionFeature.PAGE_ID;
+    }
+
+    @Override
+    public String getFeatureId() {
+        return Provision.FEATURE_ID;
     }
 
 }

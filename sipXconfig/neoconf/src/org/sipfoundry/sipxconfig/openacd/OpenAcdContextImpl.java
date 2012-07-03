@@ -996,6 +996,10 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
             OpenAcdSettings settings = (OpenAcdSettings) entity;
             m_replicationManager.replicateEntity(new OpenAcdLogConfigCommand(settings.getLogLevel(), settings
                     .getLogDir() + OpenAcdContext.OPENACD_LOG));
+            m_replicationManager.replicateEntity(new OpenAcdAgentWebConfigCommand(settings.isAgentWebUiEnabled(),
+                    settings.getAgentWebUiPort(), settings.isAgentWebUiSSlEnabled(), settings.getAgentWebUiSSlPort()));
+            m_replicationManager.replicateEntity(new OpenAcdWebMgmtConfigCommand(settings.isWebMgmtEnabled(),
+                    settings.getWebMgmtPort(),  settings.isWebMgmtSslEnabled()));
         }
         if (entity instanceof User) {
             User u = (User) entity;

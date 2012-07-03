@@ -68,7 +68,7 @@ public class RecordingImpl implements FeatureProvider, Recording, ProcessProvide
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean conf = manager.getFeatureManager().isFeatureEnabled(ConferenceBridgeContext.FEATURE, location);
-        boolean rec = manager.getFeatureManager().isFeatureEnabled(Recording.FEATURE);
+        boolean rec = manager.getFeatureManager().isFeatureEnabled(Recording.FEATURE, location);
         if (!rec || !conf) {
             return null;
         }
@@ -83,10 +83,8 @@ public class RecordingImpl implements FeatureProvider, Recording, ProcessProvide
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
-        if (validator.isEnabledSomewhere(FEATURE)) {
-            validator.requiredOnSameHost(ConferenceBridgeContext.FEATURE, ApacheManager.FEATURE);
-        }
-        validator.singleLocationOnly(FEATURE);
+        validator.requiredOnSameHost(ConferenceBridgeContext.FEATURE, ApacheManager.FEATURE);
+        validator.requiredOnSameHost(FEATURE, ConferenceBridgeContext.FEATURE);
     }
 
     @Override

@@ -24,7 +24,8 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
  */
 public abstract class ImManager  {
     public static final String URL_FORMAT = "http://%s:%d/xmlrpc";
-    public static final LocationFeature FEATURE = new LocationFeature("instantMessage");
+    public static final String FEATURE_ID = "instantMessage";
+    public static final LocationFeature FEATURE = new LocationFeature(FEATURE_ID);
     public static final AddressType XMPP_ADDRESS = new AddressType("instantMessageXmpp");
     public static final AddressType XMLRPC_ADDRESS = new AddressType("instantMessageXmlrpc",
         URL_FORMAT);

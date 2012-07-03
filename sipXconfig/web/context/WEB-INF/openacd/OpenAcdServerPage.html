@@ -55,7 +55,7 @@
   <span jwcid="settingsTab@Block">
 	<form jwcid="@Form" delegate="bean:validator">
 	  <fieldset jwcid="@setting/SettingsFieldset" settings="ognl:settings.settings"
-	    groupToDisplay="log_level" renderGroupTitle="false"
+	    groupToDisplay="openacd-config" renderGroupTitle="false"
 	    settingsToHide="log_dir,freeswitch_media_manager,C_NODE,DIAL_STRING,agent_configuration,DIALPLAN_LISTENER" />
 	  <ul jwcid="@common/FormActions" callback="ognl:callback" listener="listener:apply"/>
 	</form>

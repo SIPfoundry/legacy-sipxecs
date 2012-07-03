@@ -22,6 +22,8 @@ import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 
@@ -33,7 +35,8 @@ public class RecordingConfigurationTest {
         RecordingSettings settings = new RecordingSettings();
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
         StringWriter actual = new StringWriter();
-        config.write(actual, settings);
+        Address imbotAddress = new Address(ImBot.REST_API, "host.example.org", 8076);
+        config.write(actual, settings, imbotAddress);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-sipxrecording.properties"));
         assertEquals(expected, actual.toString());
     }

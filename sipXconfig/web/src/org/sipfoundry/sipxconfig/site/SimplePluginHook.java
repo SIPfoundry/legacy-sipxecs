@@ -26,11 +26,18 @@ package org.sipfoundry.sipxconfig.site;
 public class SimplePluginHook implements PluginHook {
 
     private String m_hookId;
+    private String m_featureId;
 
     @Override
     public String getHookId() {
         return m_hookId;
     }
+
+    @Override
+    public String getFeatureId() {
+        return m_featureId;
+    }
+
 
     /**
      * Pick a name that would be globally unique.  Bad: myHook  Good: fluxCapacitor

@@ -38,7 +38,6 @@ import org.apache.tapestry.engine.ILink;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageValidateListener;
-import org.apache.tapestry.link.StaticLink;
 import org.apache.tapestry.web.WebRequest;
 import org.apache.tapestry.web.WebSession;
 import org.sipfoundry.sipxconfig.common.CoreContext;

@@ -19,7 +19,9 @@ package org.sipfoundry.sipxconfig.recording;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface Recording extends RecordingManager {
-    public static final LocationFeature FEATURE = new LocationFeature("recording");
+    public static final String FEATURE_ID = "recording";
+
+    public static final LocationFeature FEATURE = new LocationFeature(FEATURE_ID);
 
     public RecordingSettings getSettings();
 
