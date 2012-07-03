@@ -91,6 +91,10 @@ public class Bridge extends BeanWithSettings implements DeployConfigOnEdit {
         return getLocation().getFqdn();
     }
 
+    public String getHangupCode() {
+        return getSettingValue(CALL_CONTROL_HANGUP);
+    }
+
     public Set<Conference> getConferences() {
         return m_conferences;
     }
