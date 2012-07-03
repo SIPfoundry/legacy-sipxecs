@@ -50,6 +50,9 @@ public abstract class OpenAcdServerPage extends PageWithCallback implements Page
 
     public abstract void setSettings(OpenAcdSettings settings);
 
+    public abstract boolean isAdvanced();
+    public abstract void setAdvanced(boolean advanced);
+
     @Persist
     @InitialValue("literal:clients")
     public abstract String getTab();

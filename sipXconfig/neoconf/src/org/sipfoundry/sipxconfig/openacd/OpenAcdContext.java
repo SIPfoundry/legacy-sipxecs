@@ -33,6 +33,7 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner 
     public static final String MAGIC_SKILL_GROUP_NAME = "Magic";
     public static final String GROUP_NAME_DEFAULT = "Default";
     public static final String OPENACD_LOG = "/full.log";
+    //Mongo constants
     static final String QUEUE_GROUP = "qgrp";
     static final String SKILLS = "skl";
     static final String PROFILES = "prfl";
@@ -67,6 +68,10 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner 
     static final String TYPE = "type";
     static final String LABEL = "lbl";
     static final String BIAS = "bias";
+    static final String SSL_ENABLED = "sslenbl";
+    static final String SSL = "ssl";
+    static final String SSL_PORT = "sslprt";
+
     OpenAcdSettings getSettings();
 
     void saveSettings(OpenAcdSettings settings);

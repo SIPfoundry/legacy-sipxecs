@@ -53,6 +53,10 @@ public class OpenAcdReplicationProviderImpl implements OpenAcdReplicationProvide
         replicables.add(new OpenAcdAgentConfigCommand(settings.getDialPlanListener()));
         replicables.add(new OpenAcdLogConfigCommand(settings.getLogLevel(), settings.getLogDir()
                 + OpenAcdContext.OPENACD_LOG));
+        replicables.add(new OpenAcdAgentWebConfigCommand(settings.isAgentWebUiEnabled(), settings.getAgentWebUiPort(),
+                settings.isAgentWebUiSSlEnabled(), settings.getAgentWebUiSSlPort()));
+        replicables.add(new OpenAcdWebMgmtConfigCommand(settings.isWebMgmtEnabled(), settings.getWebMgmtPort(),
+                settings.isWebMgmtSslEnabled()));
         return replicables;
     }
 

@@ -39,6 +39,34 @@
       <type><string/></type>
       <value>/var/log/openacd</value>
     </setting>
+    <setting name="agent-webui-enabled" advanced="yes">
+      <type><boolean/></type>
+      <value>1</value>
+    </setting>
+    <setting name="agent-webui-port" advanced="yes">
+      <type><string/></type>
+      <value>5050</value>
+    </setting>
+    <setting name="agent-webui-sslenabled" advanced="yes">
+      <type><boolean/></type>
+      <value>1</value>
+    </setting>
+    <setting name="agent-webui-sslport" advanced="yes">
+      <type><string/></type>
+      <value>5151</value>
+    </setting>
+    <setting name="webmgmt-enabled" advanced="yes">
+      <type><boolean/></type>
+      <value>1</value>
+    </setting>
+    <setting name="webmgmt-port" advanced="yes">
+      <type><string/></type>
+      <value>9999</value>
+    </setting>
+    <setting name="webmgmt-sslenabled" advanced="yes">
+      <type><boolean/></type>
+      <value>0</value>
+    </setting>
   </group>
   <group name="freeswitch_media_manager">
     <setting name="FREESWITCH_ENABLED" hidden="yes">
