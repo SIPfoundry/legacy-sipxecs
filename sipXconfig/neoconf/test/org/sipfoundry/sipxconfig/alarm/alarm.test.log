@@ -1,5 +1,7 @@
 NET-SNMP version 5.7.1
 2012-05-14 10:12:27 localhost [UDP: [127.0.0.1]:34547->[127.0.0.1]:162]:
+DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (7018307) 19:29:43.07	SNMPv2-MIB::snmpTrapOID.0 = OID: NET-SNMP-AGENT-MIB::nsNotifyShutdown	SNMPv2-MIB::snmpTrapEnterprise.0 = OID: NET-SNMP-MIB::netSnmpNotificationPrefix
+DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (87) 0:00:00.87	SNMPv2-MIB::snmpTrapOID.0 = OID: SNMPv2-MIB::coldStart	SNMPv2-MIB::snmpTrapEnterprise.0 = OID: NET-SNMP-MIB::netSnmpAgentOIDs.10
 DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (303447688) 35 days, 2:54:36.88	SNMPv2-MIB::snmpTrapOID.0 = OID: SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications	SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmId = STRING: hello	SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmSource = STRING: swift.hubler.us	SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmTime = Hex-STRING: 00 00 00 00 	SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmSeverity = Hex-STRING: 00 00 00 00 
 2012-05-14 10:25:52 localhost [UDP: [127.0.0.1]:48155->[127.0.0.1]:162]:
 DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (303528166) 35 days, 3:08:01.66	SNMPv2-MIB::snmpTrapOID.0 = OID: SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications	SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmId = STRING: goodbye	SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmSource = STRING: swift.hubler.us	SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmTime = Hex-STRING: 00 00 00 00 	SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmSeverity = Hex-STRING: 00 00 00 00 

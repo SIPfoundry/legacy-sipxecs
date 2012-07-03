@@ -5,7 +5,6 @@
   -->
 <dataset>  
   <!-- admin -->
-  <table name="ftp_configuration"/>
   <table name="backup_plan"/>
   <table name="daily_backup_schedule"/>
   <table name="patch"/>

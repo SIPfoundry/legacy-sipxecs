@@ -101,6 +101,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private int m_pageSize;
     private int m_nThreads;
     private boolean m_useDynamicPageSize;
+    private DataSet m_dataSet;
 
     private final Closure<User> m_userClosure = new Closure<User>() {
         @Override
@@ -110,6 +111,15 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
                 CallSequence cs = m_forwardingContext.getCallSequenceForUser(user);
                 replicateEntity(cs);
             }
+            getHibernateTemplate().clear(); // clear the H session (see XX-9741)
+        }
+    };
+
+    private final Closure<User> m_userClosureDataSet = new Closure<User>() {
+
+        @Override
+        public void execute(User user) {
+            replicateEntity(user, m_dataSet);
             getHibernateTemplate().clear(); // clear the H session (see XX-9741)
         }
     };
@@ -166,7 +176,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private class ReplicationWorker implements Callable<Void> {
         private final int m_startIndex;
         private final int m_page;
-        private final Closure<User> m_closure = m_userClosure;
+        private Closure<User> m_closure = m_userClosure;
 
         public ReplicationWorker(int index, int pageSize, Object arg) {
             m_startIndex = index;
@@ -185,6 +195,19 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
 
         public int getPage() {
             return m_page;
+        }
+    }
+
+    private class ReplicationWorkerDataSet extends ReplicationWorker {
+
+        public ReplicationWorkerDataSet(int index, int pageSize, Object arg) {
+            super(index, pageSize, arg);
+        }
+
+        @Override
+        public Void call() {
+            DaoUtils.forAllUsersDo(m_coreContext, m_userClosureDataSet, getStartIndex(), getPage());
+            return null;
         }
     }
 
@@ -367,16 +390,9 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
                     }
                 }
             }
-            Closure<User> closure = new Closure<User>() {
-                @Override
-                public void execute(User user) {
-                    DBObject top = findOrCreate(user);
-                    if (replicateEntity(user, ds, top)) {
-                        getDbCollection().save(top);
-                    }
-                }
-            };
-            DaoUtils.forAllUsersDo(m_coreContext, closure);
+            int membersCount = m_coreContext.getAllUsersCount();
+            m_dataSet = ds;
+            doParallelAsyncReplication(membersCount, ReplicationWorkerDataSet.class, null);
             Long end = System.currentTimeMillis();
             LOG.info(REGENERATION_OF + ds.getName() + " completed in " + (end - start) / 1000 + SECONDS
                     + (end - start) / 1000 / 60 + MINUTES);

@@ -20,6 +20,7 @@
         </property>
       </bean>
     </property>
+    <property name="replicationManager" ref="replicationManager" />
   </bean>
   
   <bean id="freeswitchSettings" class="org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings" parent="settingsWithLocation">
