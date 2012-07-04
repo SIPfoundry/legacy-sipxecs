@@ -96,7 +96,7 @@ public class AbstractCertificateCommon {
 
     public String getSubject() {
         return format("C=%s, ST=%s, L=%s, O=%s, OU=%s, CN=%s, EMAILADDRESS=%s", m_country, m_state, m_locality,
-                m_dnsDomain, m_organizationUnit, m_commonName, m_email);
+                m_dnsDomain, m_organizationUnit, m_dnsDomain, m_email);
     }
 
     public String getAlgorithm() {
