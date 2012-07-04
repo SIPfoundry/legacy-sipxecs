@@ -12,3 +12,6 @@ find @SIPX_CFDATA@/defaults @SIPX_CFDATA@/${ConfigId} -maxdepth 1 -name '*.cfdat
 if [ -n "$1" ]; then
   find @SIPX_CFDATA@/$1 -maxdepth 1 -name '*.cfdat' -exec cat {} \;
 fi
+
+# system details
+echo "=gateway="`route -n | grep '^0.0.0.0' | awk '{print $2}'`

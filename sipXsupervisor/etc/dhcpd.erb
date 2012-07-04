@@ -6,7 +6,7 @@ subnet <%= subnet %> netmask <%= netmask %> {
   range <%= range_begin %> <%= range_end %>;
   default-lease-time <%= default_lease_time %>;
   max-lease-time <%= max_lease_time %>;
-  option routers <%= routers %>;
+  option routers <%= routers.nil? ? '$(sipx.gateway)' : routers %>;
   option subnet-mask <%= netmask %>;
   option domain-name "$(sipx.net_domain)";
   option tftp-server-name "<%= tftp %>";

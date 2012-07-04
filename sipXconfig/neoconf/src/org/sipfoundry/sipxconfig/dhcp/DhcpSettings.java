@@ -42,10 +42,6 @@ public class DhcpSettings extends PersistableSettings implements DeployConfigOnE
         public String getSubnet() {
             return getPrimary().getAddress().replaceFirst(LAST_IPV4_SEGMENT, ".0");
         }
-        @SettingEntry(path = "dhcpd-config/routers")
-        public String getRouters() {
-            return getPrimary().getAddress().replaceFirst(LAST_IPV4_SEGMENT, ".1");
-        }
         @SettingEntry(path = "dhcpd-config/range_begin")
         public String getBeginRange() {
             return getPrimary().getAddress().replaceFirst(LAST_IPV4_SEGMENT, ".50");

@@ -78,7 +78,7 @@ public class DhcpConfig implements ConfigProvider {
         Collection<Address> dns, Collection<Address> ntp) throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
         c.writeSettings(settings.getSettings().getSetting("dhcpd-config"));
-        c.write("tftp", tftp.getAddress());
+        c.write("tftp", tftp != null ? tftp.getAddress() : "");
         c.write("config", admin.stripProtocol());
         c.writeInlineArray("ntp", CollectionUtils.collect(ntp, Address.GET_IP));
         c.writeInlineArray("dns", CollectionUtils.collect(dns, Address.GET_IP));

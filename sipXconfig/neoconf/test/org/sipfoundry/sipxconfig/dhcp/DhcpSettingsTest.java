@@ -39,7 +39,6 @@ public class DhcpSettingsTest {
         DhcpSettings settings = new DhcpSettings();
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
         settings.setLocationsManager(lmgr);
-        assertEquals("1.2.3.1", settings.getSettingTypedValue("dhcpd-config/routers"));
         assertEquals("1.2.3.50", settings.getSettingTypedValue("dhcpd-config/range_begin"));
         assertEquals("1.2.3.250", settings.getSettingTypedValue("dhcpd-config/range_end"));
         assertEquals("1.2.3.0", settings.getSettingTypedValue("dhcpd-config/subnet"));
