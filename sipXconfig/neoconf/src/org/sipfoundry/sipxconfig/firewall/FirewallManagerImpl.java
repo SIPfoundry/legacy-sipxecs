@@ -22,8 +22,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -313,5 +315,21 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+    }
+
+    @Override
+    public Set<String> getRequiredModules(Location location, Map<Object, Object> requestData) {
+        Set<String> mods = new HashSet<String>();
+        for (FirewallProvider provider : getProviders()) {
+            if (provider instanceof FirewallCustomRuleProvider) {
+                FirewallCustomRuleProvider customProvider = (FirewallCustomRuleProvider) provider;
+                Collection<String> customMods = customProvider.getRequiredModules(this, location, requestData);
+                if (customMods != null && !customMods.isEmpty()) {
+                    mods.addAll(customMods);
+                }
+            }
+        }
+
+        return mods;
     }
 }

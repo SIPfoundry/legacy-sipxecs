@@ -20,9 +20,12 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
@@ -39,6 +42,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class FirewallConfig implements ConfigProvider, FeatureListener {
     private static final Logger LOG = Logger.getLogger(FirewallConfig.class);
@@ -52,35 +56,35 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
             return;
         }
 
-        File gdir = manager.getGlobalDataDirectory();
         FirewallSettings settings = m_firewallManager.getSettings();
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FirewallManager.FEATURE);
-        Writer sysconf = new FileWriter(new File(gdir, "firewall.cfdat"));
-        try {
-            CfengineModuleConfiguration cfg = new CfengineModuleConfiguration(sysconf);
-            cfg.writeClass("firewall", enabled);
-            cfg.writeSettings("firewall_", settings.getSystemSettings());
-        } finally {
-            IOUtils.closeQuietly(sysconf);
-        }
-
-        if (!enabled) {
-            return;
-        }
-
-        Writer sysctl = new FileWriter(new File(gdir, "sysctl.part"));
-        try {
-            writeSysctl(sysctl, settings);
-        } finally {
-            IOUtils.closeQuietly(sysctl);
-        }
-
         List<FirewallRule> rules = m_firewallManager.getFirewallRules();
         List<ServerGroup> groups = m_firewallManager.getServerGroups();
         List<Location> locations = manager.getLocationManager().getLocationsList();
         for (Location location : request.locations(manager)) {
-            List<CustomFirewallRule> custom = m_firewallManager.getCustomRules(location, request.getRequestData());
             File dir = manager.getLocationDataDirectory(location);
+            Map<Object, Object> configRequest = request.getRequestData();
+
+            Writer sysconf = new FileWriter(new File(dir, "firewall.cfdat"));
+            try {
+                Set<String> mods = m_firewallManager.getRequiredModules(location, configRequest);
+                writeCfdat(sysconf, enabled, settings.getSystemSettings(), mods);
+            } finally {
+                IOUtils.closeQuietly(sysconf);
+            }
+
+            if (!enabled) {
+                return;
+            }
+
+            Writer sysctl = new FileWriter(new File(dir, "sysctl.part"));
+            try {
+                writeSysctl(sysctl, settings);
+            } finally {
+                IOUtils.closeQuietly(sysctl);
+            }
+
+            List<CustomFirewallRule> custom = m_firewallManager.getCustomRules(location, configRequest);
             Writer config = new FileWriter(new File(dir, "firewall.yaml"));
             try {
                 writeIptables(config, rules, custom, groups, locations, location);
@@ -88,6 +92,13 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
                 IOUtils.closeQuietly(config);
             }
         }
+    }
+
+    void writeCfdat(Writer w, boolean enabled, Setting sysSettings, Collection<String> mods) throws IOException {
+        CfengineModuleConfiguration cfg = new CfengineModuleConfiguration(w);
+        cfg.writeClass("firewall", enabled);
+        cfg.writeSettings("firewall_", sysSettings);
+        cfg.write("firewall_modules", StringUtils.join(mods, ' '));
     }
 
     void writeSysctl(Writer w, FirewallSettings settings) throws IOException {

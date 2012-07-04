@@ -49,6 +49,14 @@ public class FirewallConfigTest {
     }
     
     @Test
+    public void cfdat() throws IOException {
+        List<String> mods = Arrays.asList("mod1", "mod2");
+        m_config.writeCfdat(m_actual, true, m_settings.getSystemSettings(), mods);
+        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-cfdat"));
+        assertEquals(expected, m_actual.toString());
+    }
+
+    @Test
     public void sysctl() throws IOException {
         m_config.writeSysctl(m_actual, m_settings);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-sysctl.part"));

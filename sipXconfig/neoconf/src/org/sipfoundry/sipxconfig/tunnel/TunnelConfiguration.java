@@ -184,6 +184,13 @@ public class TunnelConfiguration implements ConfigProvider, FeatureListener, Fir
         return rules;
     }
 
+    @Override
+    public Collection<String> getRequiredModules(FirewallManager manager, Location location,
+            Map<Object, Object> requestData) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
     }

@@ -16,29 +16,57 @@
 # /bin/systemctl (fedora 16) scripts whichever are available.
 #
 bundle agent firewall {
+  vars:
+    "managed_ext" 
+      string => "",
+      policy => "overridable";
+    firewall_unmanaged::
+      "managed_ext" string => ".unmanaged";
+
   methods:
+    firewall::
+      "any" usebundle => firewall_kernel_config;
+      "any" usebundle => firewall_module_config;
     # Interesting note: commands to configure iptables fail if iptables not
     # running, so reverse normal order: 
     #  1. check running status first 
     #  2. configure service.
     fedora16_or_greater.!firewall_unmanaged::
-      "any" usebundle => "firewall_systemctl_running";
+      "any" usebundle => firewall_systemctl_running;
     !fedora16_or_greater.!firewall_unmanaged::
-      "any" usebundle => "firewall_sysv_running";
+      "any" usebundle => firewall_sysv_running;
     firewall::
-      "any" usebundle => "firewall_kernel_config";
-      "any" usebundle => "firewall_iptables_config";
+      "any" usebundle => firewall_iptables_config;
+}
+
+bundle agent firewall_module_config {
+  files:
+    firewall::
+      "/etc/sysconfig/iptables-config$(firewall.managed_ext)"
+        comment => "Firewall modules $(this.promiser)",
+        perms => mog("0600","root","root"),
+        create => "true",
+        edit_line => firewall_module_contents,
+        classes => if_repaired("restart_iptables");
+}
+
+bundle edit_line firewall_module_contents {
+  insert_lines:
+    "IPTABLES_MODULES=\"$(sipx.firewall_modules)\"";
+
+  delete_lines:
+    "^\s*IPTABLES_MODULES\s*=.*";
 }
 
 bundle agent firewall_kernel_config {
   vars:
-    "dim_sysctl" int => readstringarray("sysctl", "$(sipx.SIPX_CFDATA)/sysctl.part", 
+    "dim_sysctl" int => readstringarray("sysctl", "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sysctl.part", 
         "\s*#[^\n]*", "=", 10, 4000);
     "sysctl_tunables" slist => getindices("firewall_kernel.sysctl");
 
   files:
-    any::
-      "/etc/sysctl.conf"
+    firewall::
+      "/etc/sysctl.conf$(firewall.managed_ext)"
         comment => "Kernel network parameters $(this.promoiser)",
         perms => mog("0644","root","root"),
         create => "true",
@@ -46,7 +74,7 @@ bundle agent firewall_kernel_config {
         classes => if_repaired("update_sysctl");
 
   commands:
-    update_sysctl::
+    update_sysctl.!firewall_unmanaged::
       "/sbin/sysctl"
         comment => "Apply kernel network parameters",
         args => "-p";
@@ -73,7 +101,7 @@ bundle agent firewall_iptables_config {
     "apply_iptables" expression => fileexists("$(unapplied)");
 
   files:
-    any::
+    firewall::
       # feed YAML to template to build iptable config
       "$(post_erb)"
         comment => "Preprocess fireall template $(this.promiser)",

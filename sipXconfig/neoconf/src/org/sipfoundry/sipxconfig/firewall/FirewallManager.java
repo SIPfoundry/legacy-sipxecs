@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -68,4 +69,5 @@ public interface FirewallManager {
 
     public List<CustomFirewallRule> getCustomRules(Location location, Map<Object, Object> requestData);
 
+    public Set<String> getRequiredModules(Location location, Map<Object, Object> requestData);
 }

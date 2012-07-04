@@ -23,4 +23,7 @@ public interface FirewallCustomRuleProvider extends FirewallProvider {
 
     public Collection<CustomFirewallRule> getCustomRules(FirewallManager manager, Location location,
             Map<Object, Object> requestData);
+
+    public Collection<String> getRequiredModules(FirewallManager manager, Location location,
+            Map<Object, Object> requestData);
 }

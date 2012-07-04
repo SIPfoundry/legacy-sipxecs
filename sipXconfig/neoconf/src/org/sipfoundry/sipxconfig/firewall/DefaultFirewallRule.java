@@ -24,6 +24,7 @@ public class DefaultFirewallRule implements FirewallRule {
     private boolean m_priority;
     private SystemId m_systemId;
     private AddressType m_addressType;
+    private String m_module;
 
     public DefaultFirewallRule(AddressType type) {
         this(type, SystemId.CLUSTER);
@@ -72,5 +73,16 @@ public class DefaultFirewallRule implements FirewallRule {
     @Override
     public ServerGroup getServerGroup() {
         return null;
+    }
+
+    /**
+     * gets written to file /etc/sysconfig/iptables-config in field IPTABLES_MODULES
+     */
+    public String getModule() {
+        return m_module;
+    }
+
+    public void setModule(String module) {
+        m_module = module;
     }
 }

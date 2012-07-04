@@ -9,10 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.ftp;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
@@ -28,9 +30,10 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.CustomFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallCustomRuleProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
-import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
@@ -40,10 +43,11 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class FtpManagerImpl extends SipxHibernateDaoSupport<Object> implements FtpManager, ProcessProvider,
-    SetupListener, FeatureProvider, FirewallProvider, AddressProvider {
+    SetupListener, FeatureProvider, FirewallCustomRuleProvider, AddressProvider {
     private static final List<AddressType> ADDRESSES = Arrays.asList(TFTP_ADDRESS, FTP_ADDRESS, FTP_DATA_ADDRESS);
     private static final List<LocationFeature> FEATURES = Arrays.asList(TFTP_FEATURE, FTP_FEATURE);
     private BeanWithSettingsDao<FtpSettings> m_settingsDao;
+    private FeatureManager m_featureManager;
 
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
@@ -119,5 +123,28 @@ public class FtpManagerImpl extends SipxHibernateDaoSupport<Object> implements F
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+    }
+
+    @Override
+    public Collection<CustomFirewallRule> getCustomRules(FirewallManager manager, Location location,
+            Map<Object, Object> requestData) {
+        return null;
+    }
+
+    @Override
+    public Collection<String> getRequiredModules(FirewallManager manager, Location location,
+            Map<Object, Object> requestData) {
+        List<String> mods = new ArrayList<String>();
+        if (m_featureManager.isFeatureEnabled(FTP_FEATURE, location)) {
+            mods.add("ip_conntrack_ftp");
+        }
+        if (m_featureManager.isFeatureEnabled(TFTP_FEATURE, location)) {
+            mods.add("ip_conntrack_tftp");
+        }
+        return mods;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
     }
 }
