@@ -61,11 +61,12 @@ lang = \
   sipXlang-pt_BR \
   sipXlang-zh
 
-telecats = \
-  sipXcustomCallerId
+# broken
+#telecats = 
+#  sipXcustomCallerId
 
 # broken
-#karel = \
+#karel = 
 #  sipXkarel
 
 # Repositories

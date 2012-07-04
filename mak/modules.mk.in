@@ -11,12 +11,12 @@ sipx = \
   sipXmediaAdapterLib \
   sipXcallLib \
   sipXsupervisor \
+  sipXmongo \
   sipXcommserverLib \
   sipXsqa \
   sipXsnmp \
   sipXpostgres \
   sipXtunnel \
-  sipXmongo \
   sipXdns \
   sipXhttpd \
   sipXcommons \
