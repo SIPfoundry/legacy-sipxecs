@@ -56,8 +56,8 @@ public class NatConfiguration implements ConfigProvider {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean proxyEnabled = manager.getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE, location);
-            boolean configEnabled = (relayEnabled || proxyEnabled);
-            if (configEnabled) {
+            boolean enabled = (relayEnabled && proxyEnabled);
+            if (enabled) {
                 Writer writer = new FileWriter(new File(dir, "nattraversalrules.xml"));
                 try {
                     write(writer, settings, location, routes, proxyTcp.getPort(), proxyTls.getPort());
@@ -66,8 +66,7 @@ public class NatConfiguration implements ConfigProvider {
                 }
             }
 
-            boolean serviceEnabled = (relayEnabled && proxyEnabled);
-            ConfigUtils.enableCfengineClass(dir, "sipxrelay.cfdat", serviceEnabled, "sipxrelay");
+            ConfigUtils.enableCfengineClass(dir, "sipxrelay.cfdat", enabled, "sipxrelay");
         }
     }
 

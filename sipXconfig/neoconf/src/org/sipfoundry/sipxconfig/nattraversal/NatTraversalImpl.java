@@ -80,10 +80,11 @@ public class NatTraversalImpl implements NatTraversal, FeatureProvider, ProcessP
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.CORE_TELEPHONY) {
-            // NAT traveral as basic bundle is debatable but proxy requires it ATM AFAIU
-            b.addFeature(FEATURE);
-        }
+        // No sense showing this, feature is controlled by proxy on/off status
+        //        if (b == Bundle.CORE_TELEPHONY) {
+        //            // NAT traversal as basic bundle is debatable but proxy requires it ATM AFAIU
+        //            b.addFeature(FEATURE);
+        //        }
     }
 
     @Override
@@ -115,7 +116,7 @@ public class NatTraversalImpl implements NatTraversal, FeatureProvider, ProcessP
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
-        validator.requiresAtLeastOne(FEATURE, ProxyManager.FEATURE);
+        // See ProxyManagerImpl for details
     }
 
     @Override

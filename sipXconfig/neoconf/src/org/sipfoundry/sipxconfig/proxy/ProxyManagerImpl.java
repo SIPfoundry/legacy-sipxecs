@@ -145,8 +145,11 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
-        // ideal case, this is not nec. but it is now
-        validator.requiresGlobalFeature(FEATURE, NatTraversal.FEATURE);
+        // make sure nat and proxy are on/off together
+        boolean proxyOn = validator.isEnabledSomewhere(FEATURE);
+        if (validator.isEnabledSomewhere(NatTraversal.FEATURE) != proxyOn) {
+            validator.getRequest().enableFeature(NatTraversal.FEATURE, proxyOn);
+        }
     }
 
     @Override
