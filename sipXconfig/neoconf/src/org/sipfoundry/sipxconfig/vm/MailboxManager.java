@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.vm;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
@@ -42,7 +43,9 @@ public interface MailboxManager {
 
     void save(Voicemail voicemail);
 
-    String getMediaFileURL(String userId, String folder, String messageId);
+    List<String> getMediaFileURLs(String userId, String folder, String messageId);
+
+    String getMediaFileURL(Address address, String userId, String folder, String messageId);
 
     /**
      * Load a PA for a user, create it if it does not exist
@@ -64,4 +67,8 @@ public interface MailboxManager {
     void clearPersonalAttendants();
 
     List<String> getFolderIds();
+
+    public Address getLastGoodIvrNode();
+
+    public void setLastGoodIvrNode(Address lastGoodIvrNode);
 }

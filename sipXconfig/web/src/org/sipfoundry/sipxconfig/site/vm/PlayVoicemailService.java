@@ -14,9 +14,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.asset.AssetService;
 import org.apache.tapestry.engine.ILink;
@@ -24,6 +27,7 @@ import org.apache.tapestry.engine.state.ApplicationStateManager;
 import org.apache.tapestry.services.LinkFactory;
 import org.apache.tapestry.util.ContentType;
 import org.apache.tapestry.web.WebResponse;
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.site.UserSession;
@@ -33,7 +37,10 @@ import org.sipfoundry.sipxconfig.vm.MailboxManager;
  * Send voicemail file to user and mark it as read
  */
 public class PlayVoicemailService extends AssetService {
+
     public static final String SERVICE_NAME = "playvoicemail";
+
+    private static final Log LOG = LogFactory.getLog(PlayVoicemailService.class);
 
     private static final String MESSAGE_ID = "message_id";
 
@@ -57,16 +64,46 @@ public class PlayVoicemailService extends AssetService {
      * The only parameter is the service parameters[dirName, fileName]
      */
     public void service(IRequestCycle cycle) throws IOException {
-        URL voicemailUrl = new URL(m_mailboxManager.getMediaFileURL(getUserName(), cycle.getParameter(FOLDER),
-                cycle.getParameter(MESSAGE_ID)));
+        Address addressCache = m_mailboxManager.getLastGoodIvrNode();
+        OutputStream responseOutputStream = m_response.getOutputStream(new ContentType("audio/x-wav"));
+        if (addressCache != null) {
+            try {
+                copyVoicemail(responseOutputStream,
+                        m_mailboxManager.getMediaFileURL(
+                                addressCache,
+                                getUserName(),
+                                cycle.getParameter(FOLDER),
+                                cycle.getParameter(MESSAGE_ID)), cycle);
+                IOUtils.closeQuietly(responseOutputStream);
+                return;
+            } catch (Exception ex) {
+                //do not throw exception as we have to iterate again through all urls
+                LOG.warn("Cannot play voicemail on: "
+                        + addressCache + " for reason: " + ex.getMessage());
+            }
+        }
+        List<String> strUrls = m_mailboxManager.getMediaFileURLs(getUserName(), cycle.getParameter(FOLDER),
+                cycle.getParameter(MESSAGE_ID));
+        for (String url : strUrls) {
+            try {
+                copyVoicemail(responseOutputStream, url, cycle);
+                break;
+            } catch (Exception ex) {
+                //if exception is thrown, continue to iterate...
+                LOG.warn("Cannot play voicemail on node: "
+                        + url + " for following reason: " + ex.getMessage());
+            }
+        }
+        IOUtils.closeQuietly(responseOutputStream);
+    }
+
+    private void copyVoicemail(OutputStream responseOutputStream, String url, IRequestCycle cycle) throws Exception {
         InputStream stream = null;
-        OutputStream responseOutputStream = null;
         try {
-            responseOutputStream = m_response.getOutputStream(new ContentType("audio/x-wav"));
+            URL voicemailUrl = new URL(url);
             stream = voicemailUrl.openStream();
             IOUtils.copy(stream, responseOutputStream);
         } finally {
-            IOUtils.closeQuietly(responseOutputStream);
             IOUtils.closeQuietly(stream);
         }
         m_mailboxManager.markRead(getUserName(), cycle.getParameter(MESSAGE_ID));

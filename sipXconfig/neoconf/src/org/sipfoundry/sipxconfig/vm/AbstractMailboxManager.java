@@ -17,6 +17,7 @@
 package org.sipfoundry.sipxconfig.vm;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -36,6 +37,7 @@ import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantManager;
 public abstract class AbstractMailboxManager extends PersonalAttendantManager implements DaoEventListener {
     protected static final String PATH_MAILBOX = "/mailbox/";
     protected static final String PATH_MESSAGE = "/message/";
+    private static final String URL_FORMAT = "http://%s:%s/media/%s/%s/%s";
     private File m_stdpromptDirectory;
     private CoreContext m_coreContext;
     private LocationsManager m_locationsManager;
@@ -53,13 +55,21 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
         return null;
     }
 
-    public String getMediaFileURL(String userId, String folder, String messageId) {
-        String url = "http://%s:%s/media/%s/%s/%s";
-        Address ivrAddress = m_addressManager.getSingleAddress(Ivr.REST_API);
-        if (ivrAddress != null) {
-            return String.format(url, ivrAddress.getAddress(), ivrAddress.getPort(), userId, folder, messageId);
+    public List<String> getMediaFileURLs(String userId, String folder, String messageId) {
+        String url = URL_FORMAT;
+        List<Address> ivrAddresses = m_addressManager.getAddresses(Ivr.REST_API);
+        List<String> strUrls = new ArrayList<String>();
+        for (Address address : ivrAddresses) {
+            if (address != null) {
+                strUrls.add(String.format(url, address.getAddress(), address.getPort(), userId, folder, messageId));
+            }
         }
-        return null;
+        return strUrls;
+    }
+
+    public String getMediaFileURL(Address address, String userId, String folder, String messageId) {
+        String url = URL_FORMAT;
+        return String.format(url, address.getAddress(), address.getPort(), userId, folder, messageId);
     }
 
     public List<String> getFolderIds() {

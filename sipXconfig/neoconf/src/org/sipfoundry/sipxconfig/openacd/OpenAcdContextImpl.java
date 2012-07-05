@@ -397,12 +397,10 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     @Override
     public void saveAgent(OpenAcdAgent agent) {
-        if (!isOpenAcdAgent(agent.getUser())) {
-            checkAgent(agent);
-            getHibernateTemplate().saveOrUpdate(agent);
-            agent.getUser().getGroups().add(createAgentsGroup());
-            m_coreContext.saveUser(agent.getUser());
-        }
+        checkAgent(agent);
+        getHibernateTemplate().saveOrUpdate(agent);
+        agent.getUser().getGroups().add(createAgentsGroup());
+        m_coreContext.saveUser(agent.getUser());
     }
 
     private void checkAgent(OpenAcdAgent agent) {

@@ -20,8 +20,6 @@ BuildRequires: libxml2
 Requires: mongodb >= 2.0
 Requires: sipxsupervisor >= %version
 
-#Requires: sipxsupervisor-lite >= %version
-
 Source: %name-%version.tar.gz
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
