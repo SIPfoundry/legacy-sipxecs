@@ -478,12 +478,18 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
 
         // test get agent by id
         Integer id = savedAgent.getId();
-        OpenAcdAgent agentGroupById = m_openAcdContext.getAgentById(id);
-        assertNotNull(agentGroupById);
-        assertEquals(group, agentGroupById.getGroup());
-        assertEquals(charlie, agentGroupById.getUser());
-        assertEquals("AGENT", agentGroupById.getSecurity());
+        OpenAcdAgent agentById = m_openAcdContext.getAgentById(id);
+        assertNotNull(agentById);
+        assertEquals(group, agentById.getGroup());
+        assertEquals(charlie, agentById.getUser());
+        assertEquals("AGENT", agentById.getSecurity());
 
+        //test update agent
+        agentById.setSecurity(OpenAcdAgent.Security.ADMIN.toString());
+        m_openAcdContext.saveAgent(agentById);
+        //FIXME: this test will always pass because agent will be retrieved from the session and not from DB.
+        assertEquals(OpenAcdAgent.Security.ADMIN.toString(), m_openAcdContext.getAgentById(id).getSecurity());
+        
         // test add agents to group
         User delta = m_coreContext.loadUser(1004);
         User elephant = m_coreContext.loadUser(1005);

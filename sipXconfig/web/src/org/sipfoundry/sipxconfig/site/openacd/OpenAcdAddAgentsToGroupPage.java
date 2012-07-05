@@ -190,9 +190,12 @@ public abstract class OpenAcdAddAgentsToGroupPage extends PageWithCallback imple
         List<User> users = getUsers();
         if (users != null && users.size() > 0) {
             for (User user : users) {
-                OpenAcdAgent agent = new OpenAcdAgent();
+                OpenAcdAgent agent = getOpenAcdContext().getAgentByUser(user);
+                if (agent == null) {
+                    agent = new OpenAcdAgent();
+                    agent.setUser(user);
+                }
                 agent.setGroup(getAgentGroup());
-                agent.setUser(user);
                 agent.setSecurity(getSecurity());
                 agent.setSkills(getDummyAgent().getSkills());
                 agent.setQueues(getDummyAgent().getQueues());
