@@ -21,6 +21,12 @@ package org.sipfoundry.sipxconfig.site;
  *
  * &lt;bean id="myHook" class="org.sipfoundry.sipxconfig.site.SimplePluginHook"&gt;
  *   &lt;property name="hookId" value="myHook"/&gt;
+ *
+ *   Optionally add this to automatically show/hide your plugin when feature is on/off
+ *   If you're logic to show/hide is more complex then feature on/off then do not specify
+ *   this property.
+ *
+ *     &lt;property name="featureId" value="homer_web"/&gt;
  * &lt;/bean&gt;
  */
 public class SimplePluginHook implements PluginHook {
@@ -45,5 +51,9 @@ public class SimplePluginHook implements PluginHook {
      */
     public void setHookId(String hookId) {
         m_hookId = hookId;
+    }
+
+    public void setFeatureId(String featureId) {
+        m_featureId = featureId;
     }
 }
