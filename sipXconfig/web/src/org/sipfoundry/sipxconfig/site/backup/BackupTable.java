@@ -108,18 +108,22 @@ public abstract class BackupTable extends BaseComponent {
 
         List<String> backups = getBackups();
         if (backups == null) {
-            File planFile = getBackupManager().getPlanFile(getBackupPlan());
-            BackupCommandRunner runner = new BackupCommandRunner(planFile, getBackupManager().getBackupScript());
-            runner.setMode(getMode());
-            backups = runner.list();
-            if (backups.size() > getTableSize()) {
-                backups = backups.subList(0, getTableSize());
-            }
-            setBackups(backups);
+            loadBackups();
+        }
+    }
 
-            if (!backups.isEmpty()) {
-                setDownloadLinkBase(runner.getBackupLink());
-            }
+    public void loadBackups() {
+        File planFile = getBackupManager().getPlanFile(getBackupPlan());
+        BackupCommandRunner runner = new BackupCommandRunner(planFile, getBackupManager().getBackupScript());
+        runner.setMode(getMode());
+        List<String> backups = runner.list();
+        if (backups.size() > getTableSize()) {
+            backups = backups.subList(0, getTableSize());
+        }
+        setBackups(backups);
+
+        if (!backups.isEmpty()) {
+            setDownloadLinkBase(runner.getBackupLink());
         }
     }
 }

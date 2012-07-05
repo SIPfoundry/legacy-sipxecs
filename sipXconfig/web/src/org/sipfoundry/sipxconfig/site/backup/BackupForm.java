@@ -154,10 +154,11 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
         if (!validatePlan()) {
             return;
         }
-        setMode("backup");
+        setMode("manual");
         getManualBackup().backup(getBackupPlan(), getSettings());
         BackupTable table = (BackupTable) getComponent("backups");
-        table.setBackups(null);
+        table.setMode(getMode());
+        table.loadBackups();
         getValidator().recordSuccess(getMessages().getMessage("message.backupCompleted"));
     }
 
