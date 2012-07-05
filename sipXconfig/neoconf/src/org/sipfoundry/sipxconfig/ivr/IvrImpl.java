@@ -122,7 +122,7 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
                 address = new Address(SIP_ADDRESS, location.getAddress(), m_fsFeature.getSettings(location)
                         .getFreeswitchSipPort());
             } else if (type.equals(REST_API)) {
-                address = new Address(REST_API, location.getFqdn(), settings.getHttpPort());
+                address = new Address(REST_API, location.getAddress(), settings.getHttpPort());
             }
             addresses.add(address);
         }
