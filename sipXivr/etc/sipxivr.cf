@@ -21,6 +21,7 @@ bundle agent sipxivr {
     (moh|sipxconference)::
       "any" usebundle => "sync_moh_prompts";
     any::
+      "any" usebundle => "sipxivr_logwatcher";
       "any" usebundle => "sipxivr_running";
 }
 
@@ -56,6 +57,16 @@ bundle agent sipxivr_config {
         copy_from => copy_prompts("$(sipx.master_address)","$(sipx.SIPX_IVRDATADIR)/prompts"),
         file_select => wav_prompt,
         depth_search => recurse("1");
+}
+
+bundle agent sipxivr_logwatcher {
+  files:
+    "$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/sipxivr.sec"
+      comment => "sipxivr log watcher",
+      create => "true",
+      perms => m(644),
+      transformer => "$(sipx.SIPX_LIBEXECDIR)/sipxlogwatcher-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/alarms.yaml --template $(sipx.SIPX_CONFDIR)/sipxivr/sipxivr.sec.erb --out $(this.promiser)",
+      classes => if_repaired("reload_sipxlogwatcher");
 }
 
 bundle agent sync_moh_prompts {

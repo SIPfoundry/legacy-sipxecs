@@ -19,8 +19,6 @@ package org.sipfoundry.voicemail;
 import java.util.Hashtable;
 
 import org.apache.log4j.Logger;
-import org.apache.xmlrpc.XmlRpcException;
-import org.sipfoundry.commons.alarm.SipXAlarmClient;
 import org.sipfoundry.commons.freeswitch.Play;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.freeswitch.Record;
@@ -34,7 +32,7 @@ import org.sipfoundry.voicemail.mailbox.TempMessage;
 
 public class VmEslRequestController extends AbstractEslRequestController {
     private static final String RESOURCE_NAME = "org.sipfoundry.voicemail.VoiceMail";
-    private static final String FAILED_LOGIN_ALARM_ID = "VM_LOGIN_FAILED";
+    private static final String ALARM_SIPXIVR_FAILED_LOGIN = "ALARM_SIPXIVR_FAILED_LOGIN for user %s";
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     private String m_action;
     private String m_mailboxString;
@@ -42,7 +40,6 @@ public class VmEslRequestController extends AbstractEslRequestController {
     private User m_currentUser;
     private String m_operatorAddr;
     private ApplicationConfiguraton m_config;
-    private SipXAlarmClient m_alarmClient;
     private int m_recordRate = 8000;
 
     @Override
@@ -95,11 +92,7 @@ public class VmEslRequestController extends AbstractEslRequestController {
         PromptList welcomePl = getPromptList("welcome");
         for (;;) {
             if (errorCount > m_config.getInvalidResponseCount() && m_currentUser != null) {
-                try {
-                    m_alarmClient.raiseAlarm(FAILED_LOGIN_ALARM_ID, m_currentUser.getUserName());
-                } catch (XmlRpcException ex) {
-                    LOG.error("Problem sending alarm failed login alarm", ex);
-                }
+                LOG.error(String.format(ALARM_SIPXIVR_FAILED_LOGIN, m_currentUser.getUserName()));
                 failure();
                 m_currentUser = null;
                 break;
@@ -346,10 +339,6 @@ public class VmEslRequestController extends AbstractEslRequestController {
             }
         }
         return null;
-    }
-
-    public void setAlarmClient(SipXAlarmClient client) {
-        m_alarmClient = client;
     }
 
 }

@@ -20,11 +20,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
+import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
+import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.apache.ApacheManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigException;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
@@ -43,7 +47,7 @@ import org.sipfoundry.sipxconfig.mwi.Mwi;
 import org.sipfoundry.sipxconfig.restserver.RestServer;
 import org.springframework.beans.factory.annotation.Required;
 
-public class IvrConfig implements ConfigProvider {
+public class IvrConfig implements ConfigProvider, AlarmProvider {
     private Ivr m_ivr;
 
     @Override
@@ -116,6 +120,18 @@ public class IvrConfig implements ConfigProvider {
         if (imbotApi != null) {
             config.write("ivr.sendIMUrl", imbotApi.toString());
         }
+    }
+
+    @Override
+    public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
+        if (!manager.getFeatureManager().isFeatureEnabled(Ivr.FEATURE)) {
+            return null;
+        }
+        String[] ids = new String[] {
+            "ALARM_SIPXIVR_FAILED_LOGIN"
+        };
+
+        return AlarmDefinition.asArray(ids);
     }
 
     @Required

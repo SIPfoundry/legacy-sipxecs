@@ -39,9 +39,6 @@
     </property>
   </bean>
 
-  <bean id="alarmClient" class="org.sipfoundry.commons.alarm.SipXAlarmClient">
-  </bean>
-
   <bean id="sipxIvr" class="org.sipfoundry.sipxivr.SipXivr" scope="prototype">
     <lookup-method bean="bridge" name="getBridgeApp"/>
     <lookup-method bean="fsEventSocket" name="getFsEventSocket"/>
