@@ -51,7 +51,11 @@ public class FtpManagerImpl extends SipxHibernateDaoSupport<Object> implements F
 
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-        return (location.isPrimary() ? Collections.singleton(ProcessDefinition.sysvDefault("vsftpd")) : null);
+        // tftp service is managed thru xinetd
+        if (!m_featureManager.isFeatureEnabled(FTP_FEATURE, location)) {
+            return null;
+        }
+        return Collections.singleton(ProcessDefinition.sysvDefault("vsftpd"));
     }
 
     @Override
