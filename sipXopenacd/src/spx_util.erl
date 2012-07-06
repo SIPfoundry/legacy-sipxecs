@@ -139,10 +139,14 @@ build_agent([{<<"lnm">>, LastName}|T], Acc) ->
 
 %% Endpoint
 build_agent([{<<"cnt">>, SipURI}|T], Acc) ->
-	FwEndpoint = {freeswitch_media,
-		[{type, pstn}, {data, binary_to_list(SipURI)}]},
+	SipURIStr = binary_to_list(SipURI),
+	EndpointOpts = [{type, pstn}, {data, SipURIStr}],
+
+	FwEndpoint = {freeswitch_media, EndpointOpts},
+	VmEndpoint = {freeswitch_voicemail, EndpointOpts},
+
 	OldEndpoints = Acc#agent_auth.endpoints,
-	build_agent(T, Acc#agent_auth{endpoints = [FwEndpoint|OldEndpoints]});
+	build_agent(T, Acc#agent_auth{endpoints = [FwEndpoint, VmEndpoint|OldEndpoints]});
 
 %% Unknown
 build_agent([_Prop|T], Acc) ->
@@ -526,6 +530,8 @@ build_agent_test_() ->
 			Build([])),
 		?_assertMatch({ok, #agent_auth{endpoints=[
 				{freeswitch_media, [{type, pstn},
+					{data, "201@sipfoundry.org"}]},
+				{freeswitch_voicemail, [{type, pstn},
 					{data, "201@sipfoundry.org"}]}
 				]}},
 			Build([{<<"cnt">>, <<"201@sipfoundry.org">>}])),		

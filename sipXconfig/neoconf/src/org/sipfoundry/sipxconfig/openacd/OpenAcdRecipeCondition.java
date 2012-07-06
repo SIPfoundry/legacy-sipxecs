@@ -175,11 +175,16 @@ public class OpenAcdRecipeCondition implements Serializable {
         condition.put(MongoConstants.RELATION, relation);
         //try to cast value to a number; if fails, insert a string
         //note that in most cases this is a number
-        try {
-            Integer value = new Integer(m_valueCondition);
-            condition.put(OpenAcdContext.VALUE, value);
-        } catch (NumberFormatException e) {
+        if (m_condition.equals(CONDITION.CALLER_ID.toString())
+                || m_condition.equals(CONDITION.CALLER_NAME.toString())) {
             condition.put(OpenAcdContext.VALUE, m_valueCondition);
+        } else {
+            try {
+                Integer value = new Integer(m_valueCondition);
+                condition.put(OpenAcdContext.VALUE, value);
+            } catch (NumberFormatException e) {
+                condition.put(OpenAcdContext.VALUE, m_valueCondition);
+            }
         }
         return condition;
     }
