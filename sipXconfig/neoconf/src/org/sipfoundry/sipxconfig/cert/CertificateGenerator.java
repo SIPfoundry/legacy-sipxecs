@@ -59,7 +59,7 @@ public class CertificateGenerator extends AbstractCertificateGenerator {
             X509v3CertificateBuilder gen = createCertificateGenerator(m_issuer, pair.getPublic());
             gen.addExtension(X509Extension.subjectKeyIdentifier, false,
                     new SubjectKeyIdentifierStructure(pair.getPublic()));
-            String alt = format("DNS:%s", getDnsDomain());
+            String alt = format("DNS:%s", getCommonName());
             if (StringUtils.isNotBlank(m_sipDomain)) {
                 alt = format("URI:sip:%s,%s", m_sipDomain, alt);
             }
