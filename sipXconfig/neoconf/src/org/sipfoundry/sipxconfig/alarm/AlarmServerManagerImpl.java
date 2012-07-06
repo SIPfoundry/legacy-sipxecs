@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -57,6 +58,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     private String m_alarmsStringsDirectory;
     private String m_mibsDirectory;
     private LocationsManager m_locationsManager;
+    private FeatureManager m_featureManager;
     private Set<AlarmProvider> m_providers;
     private Map<String, AlarmDefinition> m_definitions;
     private JdbcTemplate m_jdbcTemplate;
@@ -390,5 +392,13 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     @Override
     public void saveAlarmTrapReceivers(List<AlarmTrapReceiver> receivers) {
         getHibernateTemplate().saveOrUpdateAll(receivers);
+    }
+
+    public FeatureManager getFeatureManager() {
+        return m_featureManager;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
     }
 }

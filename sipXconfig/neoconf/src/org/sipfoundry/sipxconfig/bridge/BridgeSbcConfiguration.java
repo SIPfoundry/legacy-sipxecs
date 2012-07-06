@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
+import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
+import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -46,7 +49,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.sipfoundry.sipxconfig.tls.TlsPeerManager;
 
-public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, FeatureProvider {
+public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, FeatureProvider, AlarmProvider {
     // uses of this definition are not related, just defined in one place to avoid checkstyle err
     private static final String SIPXBRIDGE = "sipxbridge";
     private SbcDeviceManager m_sbcDeviceManager;
@@ -128,5 +131,20 @@ public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, 
         if (b == Bundle.CORE_TELEPHONY) {
             b.addFeature(BridgeSbcContext.FEATURE);
         }
+    }
+
+    @Override
+    public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
+        if (!manager.getFeatureManager().isFeatureEnabled(BridgeSbcContext.FEATURE)) {
+            return null;
+        }
+        String[] ids = new String[] {
+            "BRIDGE_STUN_FAILURE", "BRIDGE_STUN_RECOVERY", "BRIDGE_STUN_PUBLIC_ADDRESS_CHANGED",
+            "BRIDGE_ACCOUNT_NOT_FOUND", "BRIDGE_ACCOUNT_CONFIGURATION_ERROR", "BRIDGE_OPERATION_TIMED_OUT",
+            "BRIDGE_ITSP_SERVER_FAILURE", "BRIDGE_AUTHENTICATION_FAILED", "BRIDGE_ITSP_ACCOUNT_CONFIGURATION_ERROR",
+            "BRIDGE_TLS_CERTIFICATE_MISMATCH", "BRIDGE_ACCOUNT_OK"
+        };
+
+        return AlarmDefinition.asArray(ids);
     }
 }

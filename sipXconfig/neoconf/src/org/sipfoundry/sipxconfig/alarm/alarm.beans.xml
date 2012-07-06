@@ -19,6 +19,7 @@
 
   <bean id="alarmServerManagerImpl" class="org.sipfoundry.sipxconfig.alarm.AlarmServerManagerImpl" parent="abstractDaoImpl">
     <property name="locationsManager" ref="locationsManager" />    
+    <property name="featureManager" ref="featureManager" />    
     <property name="sipxUser" value="${sysdir.user}" />
     <property name="logDirectory" value="${sysdir.log}" />
     <property name="configDirectory" value="${sysdir.etc}" />

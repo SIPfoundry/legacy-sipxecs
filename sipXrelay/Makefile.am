@@ -8,17 +8,22 @@ SUBDIRS = \
 
 @PACKAGE@_EXTRA_DIST = \
 	CONTRIBUTORS \
-	$(initd_SCRIPTS:=.in)
+	$(initd_SCRIPTS:=.in) \
+	$(conf_DATA:=.in)
+	
+confdir = @SIPX_CONFDIR@/sipxrelay
+conf_DATA = \
+	sipxrelay.sec.erb	
 
 initddir = @SIPX_SERVICEDIR@
 initd_SCRIPTS = \
 	sipxrelay
 
-$(initd_SCRIPTS) : % : %.in Makefile
+$(conf_DATA) $(initd_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@,relay_PKGS)
 
 cfinputsdir = $(SIPX_CFINPUTS)/plugin.d
 dist_cfinputs_DATA = \
 	sipxrelay.cf
 
-DISTCLEANFILES = $(initd_SCRIPTS)
+DISTCLEANFILES = $(initd_SCRIPTS) $(conf_DATA)

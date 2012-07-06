@@ -17,10 +17,10 @@
 bundle agent sipxbridge {
   methods:
     sipxbridge::
-      "any" usebundle => "sipxbridge_config";
+      "any" usebundle => sipxbridge_config;
     any::
-      "any" usebundle => "sipxbridge_setup";
-      "any" usebundle => "sipxbridge_running";
+      "any" usebundle => sipxbridge_logwatcher;
+      "any" usebundle => sipxbridge_running;
 }
 
 bundle agent sipxbridge_config {
@@ -41,12 +41,14 @@ bundle agent sipxbridge_config {
         classes => if_repaired("restart_sipxbridge");
 }
 
-bundle agent sipxbridge_setup {
-  methods:
-    !src.sipxbridge::
-      "any" usebundle => rh_chkconfig_status("sipxbridge on");
-    !src.!sipxbridge::
-      "any" usebundle => rh_chkconfig_status("sipxbridge off");
+bundle agent sipxbridge_logwatcher {
+  files:
+    "$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/sipxbridge.sec"
+      comment => "sipxbridge log watcher",
+      create => "true",
+      perms => m(644),
+      transformer => "$(sipx.SIPX_LIBEXECDIR)/sipxlogwatcher-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/alarms.yaml --template $(sipx.SIPX_CONFDIR)/sipxbridge/sipxbridge.sec.erb --out $(this.promiser)",
+      classes => if_repaired("reload_sipxlogwatcher");
 }
 
 bundle agent sipxbridge_running {
@@ -57,6 +59,10 @@ bundle agent sipxbridge_running {
   methods:
     any::
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxbridge_running");
+    !src.sipxbridge::
+      "any" usebundle => rh_chkconfig_status("sipxbridge on");
+    !src.!sipxbridge::
+      "any" usebundle => rh_chkconfig_status("sipxbridge off");
 
   commands:
     (!sipxbridge|stop_sipxecs).sipxbridge_running::

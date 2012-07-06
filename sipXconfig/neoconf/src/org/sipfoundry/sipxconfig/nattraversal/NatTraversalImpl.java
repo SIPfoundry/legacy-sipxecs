@@ -26,6 +26,9 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
+import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
+import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
@@ -45,7 +48,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class NatTraversalImpl implements NatTraversal, FeatureProvider, ProcessProvider, FirewallProvider,
-    AddressProvider {
+    AddressProvider, AlarmProvider {
     private BeanWithSettingsDao<NatSettings> m_settingsDao;
 
     public NatSettings getSettings() {
@@ -129,5 +132,17 @@ public class NatTraversalImpl implements NatTraversal, FeatureProvider, ProcessP
                 saveSettings(settings);
             }
         }
+    }
+
+    @Override
+    public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
+        if (!manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
+            return null;
+        }
+        String[] ids = new String[] {
+            "MEDIA_RELAY_STUN_FAILURE", "MEDIA_RELAY_STUN_RECOVERY",
+            "MEDIA_RELAY_STUN_ADDRESS_ERROR", "MEDIA_RELAY_STRAY_PACKET"
+        };
+        return AlarmDefinition.asArray(ids);
     }
 }

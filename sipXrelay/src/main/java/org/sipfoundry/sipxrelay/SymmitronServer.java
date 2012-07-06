@@ -6,15 +6,13 @@
  */
 package org.sipfoundry.sipxrelay;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -49,7 +47,6 @@ import org.mortbay.http.SslListener;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.util.InetAddrPort;
 import org.mortbay.util.ThreadedServer;
-import org.sipfoundry.commons.alarm.SipXAlarmClient;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 
@@ -141,22 +138,19 @@ public class SymmitronServer implements Symmitron {
     private static final int STUN_PORT = 3478;
 
     /*
-     * Pointer to sipx alarm client.
-     */
-    static SipXAlarmClient alarmClient;
-
-    /*
      * Dir where config file is stored.
      */
     private static String configDir;
+    
+    // NOTE: Update sipXconfig:NatTraversal.java with any changes including new alarms types.
+    
+    private static final String STUN_FAILURE_ALARM_ID = "STUN_FAILURE  Stun connection error to %s";
 
-    private static final String STUN_FAILURE_ALARM_ID = "STUN_ADDRESS_DISCOVERY_FAILED";
+    private static final String STUN_RECOVERY_ALARM_ID = "STUN_RECOVERY Recovered connection to stun server %s (not an error)";
 
-    private static final String STUN_RECOVERY_ALARM_ID = "STUN_ADDRESS_DISCOVERY_RECOVERED";
+    private static final String STUN_ADDRESS_ERROR_ALARM_ID = "STUN_ADDRESS_ERROR Bad stun address %s";
 
-    private static final String STUN_ADDRESS_ERROR_ALARM_ID = "STUN_ADDRESS_ERROR";
-
-    static final String SIPX_RELAY_STRAY_PACKET_ALARM_ID = "MEDIA_RELAY_STRAY_PACKETS_DETECTED";
+    static final String STRAY_PACKET_ALARM_ID = "STRAY_PACKET Stray packets from host %s";
 
     static final int TIMEOUT = 1000;
     
@@ -1693,17 +1687,12 @@ public class SymmitronServer implements Symmitron {
                  * Cannot resolve address or bad address entered. Carry on
                  * bravely - maybe we will recover.
                  */
-                try {
-                    if (!addressResolutionAlarmSent) {
-                        SymmitronServer.alarmClient.raiseAlarm(
-                                SymmitronServer.STUN_ADDRESS_ERROR_ALARM_ID,
-                                SymmitronServer.symmitronConfig
-                                        .getStunServerAddress());
-                        addressResolutionAlarmSent = true;
-                        return;
-                    }
-                } catch (XmlRpcException e) {
-                    logger.error("Problem sending Alarm", ex);
+                if (!addressResolutionAlarmSent) {
+                    SymmitronServer.raiseAlarm(
+                            SymmitronServer.STUN_ADDRESS_ERROR_ALARM_ID,
+                            SymmitronServer.symmitronConfig
+                                    .getStunServerAddress());
+                    addressResolutionAlarmSent = true;
                     return;
                 }
             }
@@ -1714,30 +1703,30 @@ public class SymmitronServer implements Symmitron {
 
             discoverAddress();
             if (SymmitronServer.getPublicInetAddress() == null && !alarmSent) {
-                SymmitronServer.alarmClient.raiseAlarm(STUN_FAILURE_ALARM_ID,
+                raiseAlarm(STUN_FAILURE_ALARM_ID,
                         SymmitronServer.symmitronConfig.getStunServerAddress());
                 alarmSent = true;
 
             } else if (SymmitronServer.getPublicInetAddress() != null
                     && alarmSent) {
-                SymmitronServer.alarmClient.raiseAlarm(STUN_RECOVERY_ALARM_ID,
+                SymmitronServer.raiseAlarm(STUN_RECOVERY_ALARM_ID,
                         SymmitronServer.symmitronConfig.getStunServerAddress());
                 alarmSent = false;
             }
         } catch (Exception ex) {
-            try {
-                if (!alarmSent) {
-                    SymmitronServer.alarmClient.raiseAlarm(
-                            STUN_FAILURE_ALARM_ID,
-                            SymmitronServer.symmitronConfig
-                                    .getStunServerAddress());
-                    alarmSent = true;
-                }
-            } catch (XmlRpcException e) {
-                logger.error("Problem sending Alarm", ex);
+            if (!alarmSent) {
+                SymmitronServer.raiseAlarm(
+                        STUN_FAILURE_ALARM_ID,
+                        SymmitronServer.symmitronConfig
+                                .getStunServerAddress());
+                alarmSent = true;
             }
             logger.error("Error discovering address - stun server down?");
         }
+    }
+    
+    public static void raiseAlarm(String id, Object... args) {
+        logger.error("ALARM_MEDIA_RELAY_" + format(id, args));
     }
 
     public static void start() throws Exception {
@@ -1752,9 +1741,6 @@ public class SymmitronServer implements Symmitron {
 
         SymmitronConfig config = new SymmitronConfigParser().parse("file:"
                 + configurationFile);
-
-        SymmitronServer.alarmClient = new SipXAlarmClient(config
-                .getSipXSupervisorHost(), config.getSipXSupervisorXmlRpcPort());
 
         InetAddress localAddr = findIpAddress(config.getLocalAddress());
 

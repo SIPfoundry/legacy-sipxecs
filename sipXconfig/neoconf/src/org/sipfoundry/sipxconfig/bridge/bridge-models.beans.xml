@@ -13,6 +13,12 @@
     <property name="internalSbc" value="true" />
   </bean>
 
+  <bean id="sipXbridgeMessages" class="org.springframework.context.support.ResourceBundleMessageSource">
+    <property name="basename">
+      <value>org.sipfoundry.sipxconfig.bridge.bridge</value>
+    </property>
+  </bean>
+
   <bean id="sbcSipXbridge" class="org.sipfoundry.sipxconfig.bridge.BridgeSbc" scope="prototype"
     parent="sbcGeneric">
     <property name="gatewayContext" ref="gatewayContext" />

@@ -14,6 +14,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+
 public interface AlarmServerManager {
     AlarmServer getAlarmServer();
 
@@ -56,4 +58,6 @@ public interface AlarmServerManager {
      * @return
      */
     Map<String, AlarmDefinition> getAlarmDefinitions();
+
+    FeatureManager getFeatureManager();
 }

@@ -6,6 +6,8 @@
  */
 package org.sipfoundry.sipxrelay;
 
+import static java.lang.String.format;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -278,21 +280,13 @@ final class Sym implements SymInterface, Serializable {
             int current = this.strayPacketCounters.get(hostAddress).intValue();
             this.strayPacketCounters.put(hostAddress, current + 1);
             if (current + 1 == 10 * 1024) {
-                try {
-                    SymmitronServer.alarmClient.raiseAlarm(
-                            SymmitronServer.SIPX_RELAY_STRAY_PACKET_ALARM_ID,
-                            hostAddress);
-                    strayPacketAlarmTable.add(hostAddress);
-                    this.strayPacketCounters.remove(hostAddress);
-                } catch (XmlRpcException e) {
-                    logger.error("Problem sending Alarm", e);
-                    return;
-                }
+                SymmitronServer.raiseAlarm(
+                        SymmitronServer.STRAY_PACKET_ALARM_ID,
+                        hostAddress);
+                strayPacketAlarmTable.add(hostAddress);
+                this.strayPacketCounters.remove(hostAddress);
             }
         }
 
     }
-    
-    
-
 }

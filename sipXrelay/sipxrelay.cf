@@ -17,10 +17,10 @@
 bundle agent sipxrelay {
   methods:
     sipxrelay::
-      "any" usebundle => "sipxrelay_config";
+      "any" usebundle => sipxrelay_config;
     any::
-      "any" usebundle => "sipxrelay_setup";
-      "any" usebundle => "sipxrelay_running";
+      "any" usebundle => sipxrelay_logwatcher;
+      "any" usebundle => sipxrelay_running;
 }
 
 bundle agent sipxrelay_config {
@@ -34,12 +34,14 @@ bundle agent sipxrelay_config {
         classes => if_repaired("restart_sipxrelay");
 }
 
-bundle agent sipxrelay_setup {
-  methods:
-    !src.sipxrelay::
-      "any" usebundle => rh_chkconfig_status("sipxrelay on");
-    !src.!sipxrelay::
-      "any" usebundle => rh_chkconfig_status("sipxrelay off");
+bundle agent sipxrelay_logwatcher {
+  files:
+    "$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/sipxrelay.sec"
+      comment => "sipxrelay log watcher",
+      create => "true",
+      perms => m(644),
+      transformer => "$(sipx.SIPX_LIBEXECDIR)/sipxlogwatcher-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/alarms.yaml --template $(sipx.SIPX_CONFDIR)/sipxrelay/sipxrelay.sec.erb --out $(this.promiser)",
+      classes => if_repaired("reload_sipxlogwatcher");
 }
 
 bundle agent sipxrelay_running {
@@ -50,6 +52,10 @@ bundle agent sipxrelay_running {
   methods:
     any::
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxrelay_running");
+    !src.sipxrelay::
+      "any" usebundle => rh_chkconfig_status("sipxrelay on");
+    !src.!sipxrelay::
+      "any" usebundle => rh_chkconfig_status("sipxrelay off");
 
   commands:
     sipxrelay.!sipxrelay_running.!stop_sipxecs::

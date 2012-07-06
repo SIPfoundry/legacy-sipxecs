@@ -11,7 +11,6 @@
 // APPLICATION INCLUDES
 #include "MediaRelay.h"
 #include "NatTraversalRules.h"
-#include "alarm/Alarm.h"
 #include "net/XmlRpcRequest.h"
 #include "net/XmlRpcResponse.h"
 #include "os/OsLock.h"
@@ -549,18 +548,18 @@ void MediaRelay::notifySymmitronResetDetected( const UtlString& newSymmitronInst
 
       if( preAllocateSymmitronResources() == false )
       {
-         Alarm::raiseAlarm( "NAT_TRAVERSAL_MEDIA_RELAY_RESET_DETECTED_RECONNECTING" );
+         Os::Logger::instance().log( FAC_NAT, PRI_CRIT, "ALARM_PROXY_MEDIA_RELAY_RESET_DETECTED_RECONNECTING Symmitron reset detected.  New handle is '%s'", newSymmitronInstanceHandle.data());        
          mbPollForSymmitronRecovery = true;
       }
       else
       {
-         Alarm::raiseAlarm( "NAT_TRAVERSAL_MEDIA_RELAY_RESET_DETECTED_RECONNECTED" );
+         Os::Logger::instance().log( FAC_NAT, PRI_CRIT, "ALARM_PROXY_MEDIA_RELAY_RESET_DETECTED_RECONNECTED Symmitron reset detected.  New handle is '%s'", newSymmitronInstanceHandle.data());
       }
    }
    else
    {
       // The Symmitron is not up yet.  Set up a flag that will poll for Symmitron's recovery
-      Alarm::raiseAlarm( "NAT_TRAVERSAL_LOST_CONTACT_WITH_MEDIA_RELAY" );
+      Os::Logger::instance().log( FAC_NAT, PRI_CRIT, "ALARM_PROXY_LOST_CONTACT_WITH_MEDIA_RELAY No more attempts will be made without restart");
       mbPollForSymmitronRecovery = true;
    }
 }
@@ -652,9 +651,8 @@ bool MediaRelay::allocateSession( tMediaRelayHandle& relayHandle, int& endpoint1
    }
    else
    {
-      Os::Logger::instance().log( FAC_NAT, PRI_CRIT, "MediaRelay::allocateSession() failed to allocate a new session - "
+      Os::Logger::instance().log(FAC_NAT, PRI_CRIT, "ALARM_PROXY_RAN_OUT_OF_MEDIA_RELAY_SESSIONS failed to allocate a new session - "
                                         "ran out of bridges (max = %zu)", mMaxMediaRelaySessions );
-      Alarm::raiseAlarm("NAT_TRAVERSAL_RAN_OUT_OF_MEDIA_RELAY_SESSIONS");
    }
    return result;
 }
@@ -1131,7 +1129,7 @@ OsStatus MediaRelay::signal( intptr_t eventData )
       {
          // we managed to reconnect, clear the recovery flag
          mbPollForSymmitronRecovery = false;
-         Alarm::raiseAlarm( "NAT_TRAVERSAL_MEDIA_RELAY_RECONNECTED" );
+         Os::Logger::instance().log( FAC_NAT, PRI_CRIT, "ALARM_PROXY_MEDIA_RELAY_RECONNECTED");
       }
    }
 

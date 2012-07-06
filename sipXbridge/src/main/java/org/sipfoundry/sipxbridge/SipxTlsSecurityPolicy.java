@@ -91,18 +91,11 @@ public class SipxTlsSecurityPolicy implements TlsSecurityPolicy {
             if (!foundPeerIdentity) {
                 logger.error("TLS certificate for connection to " + peerDomain + "(" + expectedIpAddress + ") " +
                         " does not match: " + certIdentities);
-                try {
-                    String[] alarmParams = new String[certIdentities.size()+1];
-                    alarmParams[0] = peerDomain;
-                    int k=1;
-                    for (String identity : certIdentities) {
-                        alarmParams[k++] = identity;
-                    }
-                    Gateway.getAlarmClient().raiseAlarm("TLS_CERTIFICATE_MISMATCH", alarmParams);
-                } catch (XmlRpcException e) {
-                    logger.warn("XmlRpcException during raiseAlarm");
-                    e.printStackTrace();
+                StringBuilder err = new StringBuilder(peerDomain);
+                for (String identity : certIdentities) {
+                    err.append(' ').append(identity);
                 }
+                Gateway.raiseAlarm(Gateway.TLS_CERTIFICATE_MISMATCH_ALARM_ID, err);
                 throw new SecurityException("Certificate identity does not match requested domain");
             }
         }

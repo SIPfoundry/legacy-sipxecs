@@ -14,7 +14,6 @@
 #include "sipXecsService/SipXecsService.h"
 
 // APPLICATION INCLUDES
-#include "alarm/Alarm.h"
 #include "EmergencyNotify.h"
 
 // DEFINES
@@ -136,18 +135,11 @@ EmergencyNotify::authorizeAndModify(const UtlString& id, /**< The authenticated 
          request.getFromUri(&fromField);
          request.getFromLabel(&fromLabel);
          request.getContactUri(0, &contactField);
-         UtlSList alarmParams;
-         alarmParams.append(&nameStr);
-         alarmParams.append(&descriptionStr);
-         alarmParams.append(&fromLabel);
-         alarmParams.append(&fromField);
-         alarmParams.append(&contactField);
 
          Os::Logger::instance().log(FAC_ALARM, PRI_EMERG,
-               "Emergency dial rule '%s (%s)' was invoked by '%s<%s>' Contact: %s",
+               "ALARM_PROXY_EMERG_NUMBER_DIALED Emergency dial rule '%s (%s)' was invoked by '%s<%s>' Contact: %s",
                nameStr.data(), descriptionStr.data(), fromLabel.data(), fromField.data(),
                contactField.data());
-         Alarm::raiseAlarm("EMERG_NUMBER_DIALED", alarmParams);
       }
    }
 

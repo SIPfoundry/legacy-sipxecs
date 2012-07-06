@@ -21,7 +21,6 @@
 
 // APPLICATION INCLUDES
 #include <sipxproxy/SipRouter.h>
-#include "alarm/Alarm.h"
 #include "net/SipMessage.h"
 #include "os/OsReadLock.h"
 #include "os/OsWriteLock.h"
@@ -153,9 +152,8 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
       if( attemptCounter >= MAX_MEDIA_RELAY_INIT_ATTEMPTS )
       {
          mbNatTraversalFeatureEnabled = false;
-         Os::Logger::instance().log(FAC_NAT, PRI_CRIT, "NatTraversalAgent[%s]::readConfig failed to initialize media relay - NAT traversal feature will be disabled",
+         Os::Logger::instance().log(FAC_NAT, PRI_CRIT, "ALARM_PROXY_FAILED_TO_INITIALIZE_MEDIA_RELAY %s failed, NAT traversal feature will be disabled",
                        mInstanceName.data() );
-         Alarm::raiseAlarm( "NAT_TRAVERSAL_FAILED_TO_INITIALIZE_MEDIA_RELAY" );
       }
       else
       {

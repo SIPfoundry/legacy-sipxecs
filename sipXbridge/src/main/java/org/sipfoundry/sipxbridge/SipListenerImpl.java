@@ -173,7 +173,7 @@ public class SipListenerImpl implements SipListenerExt {
                 }
             }
             if (!accountInfo.isAlarmSent()) {
-                Gateway.getAlarmClient().raiseAlarm(
+                Gateway.raiseAlarm(
                         "SIPX_BRIDGE_AUTHENTICATION_FAILED",
                         accountInfo.getSipDomain());
                 accountInfo.setAlarmSent(true);

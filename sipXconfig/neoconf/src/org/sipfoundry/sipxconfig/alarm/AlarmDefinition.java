@@ -16,6 +16,9 @@
  */
 package org.sipfoundry.sipxconfig.alarm;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 public class AlarmDefinition {
     private String m_id;
     private int m_defaultMinimumThreshold;
@@ -35,5 +38,13 @@ public class AlarmDefinition {
 
     public int getDefaultMinimumThreshold() {
         return m_defaultMinimumThreshold;
+    }
+
+    public static Collection<AlarmDefinition> asArray(String[] ids) {
+        AlarmDefinition[] defs = new AlarmDefinition[ids.length];
+        for (int i = 0; i < defs.length; i++) {
+            defs[i] = new AlarmDefinition(ids[i]);
+        }
+        return Arrays.asList(defs);
     }
 }

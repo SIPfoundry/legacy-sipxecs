@@ -133,7 +133,16 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
 
     @Override
     public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
-        return Collections.singleton(EMERG_NUMBER_DIALED);
+        if (!manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
+            return null;
+        }
+        String[] ids = new String[] {
+            "PROXY_FAILED_TO_INITIALIZE_MEDIA_RELAY", "PROXY_EMERG_NUMBER_DIALED",
+            "PROXY_RAN_OUT_OF_MEDIA_RELAY_SESSIONS", "PROXY_MEDIA_RELAY_RECONNECTED",
+            "PROXY_MEDIA_RELAY_RESET_DETECTED_RECONNECTING", "PROXY_MEDIA_RELAY_RESET_DETECTED_RECONNECTED",
+            "PROXY_LOST_CONTACT_WITH_MEDIA_RELAY"
+        };
+        return AlarmDefinition.asArray(ids);
     }
 
     @Override

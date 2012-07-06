@@ -184,7 +184,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/acd/*
 %config(noreplace) %{sipxpbxconf}/acme/*
 %config(noreplace) %{sipxpbxconf}/acmePhone/*
-%config(noreplace) %{sipxpbxconf}/alarms/*
 %config(noreplace) %{sipxpbxconf}/backup/*
 %config(noreplace) %{sipxpbxconf}/certificate/*
 %config(noreplace) %{sipxpbxconf}/commserver/*

@@ -42,6 +42,7 @@ start() {
 
     # procname is there so cfengine can find it
     Command="$JavaCmd \
+      ${SIPXBRIDGE_OPTS} \
       -Dprocname=sipxbridge \
       -Dconf.dir=@SIPX_CONFDIR@ \
 	  -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \

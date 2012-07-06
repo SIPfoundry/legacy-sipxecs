@@ -40,15 +40,11 @@ public class RegistrationTimerTask extends TimerTask {
         } catch (Exception ex) {
             RegistrationTimerTask ttask = new RegistrationTimerTask(itspAccount, null, 1L);
             Gateway.getTimer().schedule(ttask, 60 * 1000);
-            try {
-                if (!itspAccount.isAlarmSent()) {
-                    Gateway.getAlarmClient().raiseAlarm(
-                            Gateway.SIPXBRIDGE_ACCOUNT_CONFIGURATION_ERROR_ALARM_ID,
-                            itspAccount.getSipDomain());
-                    itspAccount.setAlarmSent(true);
-                }
-            } catch (Exception e) {
-                logger.error("Could not send alarm.", e);
+            if (!itspAccount.isAlarmSent()) {
+                Gateway.raiseAlarm(
+                        Gateway.ACCOUNT_CONFIGURATION_ERROR_ALARM_ID,
+                        itspAccount.getSipDomain());
+                itspAccount.setAlarmSent(true);
             }
             /*
              * Dont throw runtime exception here! It will kill the Timer.

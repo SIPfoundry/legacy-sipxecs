@@ -19,6 +19,12 @@
     </property>
   </bean>
 
+  <bean id="natMessages" class="org.springframework.context.support.ResourceBundleMessageSource">
+    <property name="basename">
+      <value>org.sipfoundry.sipxconfig.nattraversal.nattraversal</value>
+    </property>
+  </bean>
+
   <bean id="natSettings" class="org.sipfoundry.sipxconfig.nattraversal.NatSettings" parent="settingsBean">
   </bean>
 

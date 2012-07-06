@@ -197,14 +197,10 @@ public class RegistrationManager {
 
 
             if (itspAccount.isAlarmSent() && time > 0) {
-                try {
-                    Gateway.getAlarmClient().raiseAlarm(
-                            Gateway.SIPX_BRIDGE_ACCOUNT_OK,
-                            itspAccount.getProxyDomain());
-                    itspAccount.setAlarmSent(false);
-                } catch (Exception ex) {
-                    logger.error("Could not send alarm ", ex);
-                }
+                Gateway.raiseAlarm(
+                        Gateway.ACCOUNT_OK_ALARM_ID,
+                        itspAccount.getProxyDomain());
+                itspAccount.setAlarmSent(false);
             }
 
             itspAccount.setState(AccountState.AUTHENTICATED);
@@ -225,14 +221,10 @@ public class RegistrationManager {
       } else {
             if (response.getStatusCode() == Response.FORBIDDEN) {
                 if (!itspAccount.isAlarmSent()) {
-                    try {
-                        Gateway.getAlarmClient().raiseAlarm(
-                                Gateway.SIPX_BRIDGE_AUTHENTICATION_FAILED,
-                                itspAccount.getSipDomain());
-                        itspAccount.setAlarmSent(true);
-                    } catch (Exception ex) {
-                        if ( logger.isDebugEnabled() ) logger.debug("Could not send alarm", ex);
-                    }
+                    Gateway.raiseAlarm(
+                            Gateway.AUTHENTICATION_FAILED_ALARM_ID,
+                            itspAccount.getSipDomain());
+                    itspAccount.setAlarmSent(true);
                 }
                 /*
                  * Retry the server again after 60 seconds.
@@ -245,15 +237,11 @@ public class RegistrationManager {
                 if (itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
                     itspAccount.stopCrLfTimerTask();
                 }
-                try {
-                    if (!itspAccount.isAlarmSent()) {
-                        Gateway.getAlarmClient().raiseAlarm(
-                                Gateway.SIPX_BRIDGE_OPERATION_TIMED_OUT,
-                                itspAccount.getSipDomain());
-                        itspAccount.setAlarmSent(true);
-                    }
-                } catch (Exception ex) {
-                    logger.error("Could not send alarm.", ex);
+                if (!itspAccount.isAlarmSent()) {
+                    Gateway.raiseAlarm(
+                            Gateway.OPERATION_TIMED_OUT_ALARM_ID,
+                            itspAccount.getSipDomain());
+                    itspAccount.setAlarmSent(true);
                 }
                 /*
                  * Retry the server again after 60 seconds.
@@ -271,14 +259,10 @@ public class RegistrationManager {
                     itspAccount.stopCrLfTimerTask();
                 }
                 if (!itspAccount.isAlarmSent()) {
-                    try {
-                        Gateway.getAlarmClient().raiseAlarm(
-                                Gateway.SIPX_BRIDGE_ITSP_SERVER_FAILURE,
-                                itspAccount.getSipDomain());
-                        itspAccount.setAlarmSent(true);
-                    } catch (Exception ex) {
-                        if ( logger.isDebugEnabled() ) logger.debug("Could not send alarm", ex);
-                    }
+                    Gateway.raiseAlarm(
+                            Gateway.ITSP_SERVER_FAILURE_ALARM_ID,
+                            itspAccount.getSipDomain());
+                    itspAccount.setAlarmSent(true);
                 }
                 /*
                  * Retry the server again after 60 seconds.
@@ -318,17 +302,12 @@ public class RegistrationManager {
         }
         ttask = new RegistrationTimerTask(itspAccount,null,1L);
         Gateway.getTimer().schedule(ttask, 60 * 1000);
-         try {
-            if (!itspAccount.isAlarmSent()) {
-                Gateway.getAlarmClient().raiseAlarm(
-                        Gateway.SIPX_BRIDGE_OPERATION_TIMED_OUT,
-                        itspAccount.getSipDomain());
-                itspAccount.setAlarmSent(true);
-            }
-        } catch (Exception ex) {
-            logger.error("Could not send alarm.", ex);
+        if (!itspAccount.isAlarmSent()) {
+            Gateway.raiseAlarm(
+                    Gateway.OPERATION_TIMED_OUT_ALARM_ID,
+                    itspAccount.getSipDomain());
+            itspAccount.setAlarmSent(true);
         }
-
     }
 
     public void proxyRegisterRequest(RequestEvent requestEvent, ItspAccountInfo itspAccount) throws

@@ -7,6 +7,7 @@
 
 package org.sipfoundry.sipxbridge;
 
+import static java.lang.String.format;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
@@ -38,7 +39,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
 import org.apache.xmlrpc.XmlRpcException;
-import org.sipfoundry.commons.alarm.SipXAlarmClient;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.siprouter.FindSipServer;
@@ -175,31 +175,31 @@ public class Gateway {
 
     static NetworkConfigurationDiscoveryProcess addressDiscovery = null;
 
-    private static SipXAlarmClient alarmClient;
-
     private static SipURI proxyURI;
 
-    private static final String STUN_FAILED_ALARM_ID = "STUN_ADDRESS_DISCOVERY_FAILED";
+    private static final String STUN_FAILURE_ALARM_ID = "STUN_FAILURE %s";
 
-    private static final String STUN_OK = "STUN_ADDRESS_DISCOVERY_RECOVERED";
+    private static final String STUN_RECOVERY_ALARM_ID = "STUN_RECOVERY %s (recovery from eariler error)";
 
-    private static final String STUN_PUBLIC_ADDRESS_CHANGED_ALARM_ID = "STUN_PUBLIC_ADDRESS_CHANGED";
+    private static final String STUN_PUBLIC_ADDRESS_CHANGED_ALARM_ID = "STUN_PUBLIC_ADDRESS_CHANGED %s";
 
-    static final String ACCOUNT_NOT_FOUND_ALARM_ID = "SIPX_BRIDGE_ITSP_ACCOUNT_NOT_FOUND";
+    static final String ACCOUNT_NOT_FOUND_ALARM_ID = "ACCOUNT_NOT_FOUND %s ";
 
-    static final String SIPXBRIDGE_ACCOUNT_CONFIGURATION_ERROR_ALARM_ID = "SIPX_BRIDGE_ACCOUNT_CONFIGURATION_ERROR";
+    static final String ACCOUNT_CONFIGURATION_ERROR_ALARM_ID = "ACCOUNT_CONFIGURATION_ERROR %s ";
 
-    static final String SIPX_BRIDGE_OPERATION_TIMED_OUT = "SIPX_BRIDGE_OPERATION_TIMED_OUT";
+    static final String OPERATION_TIMED_OUT_ALARM_ID = "OPERATION_TIMED_OUT %s ";
 
-    static final String SIPX_BRIDGE_ITSP_SERVER_FAILURE = "SIPX_BRIDGE_ITSP_SERVER_FAILURE";
+    static final String ITSP_SERVER_FAILURE_ALARM_ID = "ITSP_SERVER_FAILURE %s ";
 
-    static final String SIPX_BRIDGE_AUTHENTICATION_FAILED = "SIPX_BRIDGE_AUTHENTICATION_FAILED";
+    static final String AUTHENTICATION_FAILED_ALARM_ID = "AUTHENTICATION_FAILED %s ";
 
-    static final String SIPX_BRIDGE_ITSP_ACCOUNT_CONFIGURATION_ERROR = "SIPX_BRIDGE_ITSP_ACCOUNT_CONFIGURATION_ERROR";
+    static final String ITSP_ACCOUNT_CONFIGURATION_ERROR_ALARM_ID = "ITSP_ACCOUNT_CONFIGURATION_ERROR";
+    
+    static final String TLS_CERTIFICATE_MISMATCH_ALARM_ID = "TLS_CERTIFICATE_MISMATCH";
+
+    public static final String ACCOUNT_OK_ALARM_ID = "ACCOUNT_OK : %s (recovery from eariler error)";
 
     static final int REGISTER_DELTA = 5;
-
-    public static final String SIPX_BRIDGE_ACCOUNT_OK = "SIPX_BRIDGE_ACCOUNT_OK";
 
     public static final int DEFAULT_SESSION_TIMER_INTERVAL = 1800;
     public static final boolean XX_7362 = true;
@@ -389,8 +389,7 @@ public class Gateway {
 
                 if ( oldPublicAddress != null && !oldPublicAddress.equals(globalAddress) ||
                     ( oldStunPort != -1 && oldStunPort != report.getPublicAddress().getPort() ) ) {
-                    Gateway.getAlarmClient()
-                    .raiseAlarm(
+                    Gateway.raiseAlarm(
                             Gateway.STUN_PUBLIC_ADDRESS_CHANGED_ALARM_ID,
                             globalAddress);
                 }
@@ -422,6 +421,10 @@ public class Gateway {
         }
     }
 
+    public static void raiseAlarm(String id, Object... args) {
+        logger.error("ALARM_BRIDGE_" + format(id, args));
+    }
+    
     /**
      * Start timer to rediscover our address.
      *
@@ -434,41 +437,21 @@ public class Gateway {
 
             @Override
             public void run() {
-                try {
-                    Gateway.discoverAddress();
-                    if (Gateway.getGlobalAddress() == null && !alarmSent) {
-                        Gateway.getAlarmClient()
-                                .raiseAlarm(
-                                        Gateway.STUN_FAILED_ALARM_ID,
-                                        getBridgeConfiguration()
-                                                .getStunServerAddress());
-                        alarmSent = true;
-                    } else if (Gateway.getGlobalAddress() != null && alarmSent) {
-                        Gateway.getAlarmClient()
-                                .raiseAlarm(
-                                        Gateway.STUN_OK,
-                                        getBridgeConfiguration()
-                                                .getStunServerAddress());
-                        alarmSent = false;
-                    }
-                } catch (Exception ex) {
-                    try {
-                        if (!alarmSent) {
-                            Gateway.getAlarmClient().raiseAlarm(
-                                    Gateway.STUN_FAILED_ALARM_ID,
+                Gateway.discoverAddress();
+                if (Gateway.getGlobalAddress() == null && !alarmSent) {
+                    Gateway.raiseAlarm(
+                                    Gateway.STUN_FAILURE_ALARM_ID,
                                     getBridgeConfiguration()
                                             .getStunServerAddress());
-
-                            alarmSent = true;
-                        }
-                    } catch (XmlRpcException e) {
-                        logger.error("Could not send alarm", e);
-                    }
-                    logger.error("Error re-discovering  address", ex);
+                    alarmSent = true;
+                } else if (Gateway.getGlobalAddress() != null && alarmSent) {
+                    Gateway.raiseAlarm(
+                                    Gateway.STUN_RECOVERY_ALARM_ID,
+                                    getBridgeConfiguration()
+                                            .getStunServerAddress());
+                    alarmSent = false;
                 }
-
             }
-
         };
 
         Gateway.discoverAddress();
@@ -625,18 +608,6 @@ public class Gateway {
         return registrationManager;
     }
 
-    static SipXAlarmClient getAlarmClient() {
-        if (alarmClient == null) {
-            String supervisorHost = getBridgeConfiguration()
-                    .getSipXSupervisorHost();
-            if ( logger.isDebugEnabled() ) logger.debug("supervisorHost = " + supervisorHost);
-            alarmClient = new SipXAlarmClient(supervisorHost,
-                    getBridgeConfiguration().getSipXSupervisorXmlRpcPort());
-        }
-
-        return alarmClient;
-    }
-
     static AuthenticationHelper getAuthenticationHelper() {
         return authenticationHelper;
     }
@@ -791,12 +762,8 @@ public class Gateway {
                 invalidItspAccounts.add(accountInfo);
             }
         }
-        try {
-            if ( invalidAccountDetected ) {
-                Gateway.getAlarmClient().raiseAlarm(Gateway.SIPX_BRIDGE_ITSP_ACCOUNT_CONFIGURATION_ERROR);
-            }
-        } catch ( XmlRpcException ex) {
-            logger.error("Problem sending alarm",ex);
+        if ( invalidAccountDetected ) {
+            Gateway.raiseAlarm(Gateway.ITSP_ACCOUNT_CONFIGURATION_ERROR_ALARM_ID);
         }
 
         /*
@@ -829,9 +796,7 @@ logger.info("FOUND BAD ACCOUNT");
                         // Retry after 60 seconds.
                         timer.schedule(ttask, 60 * 1000);
                         if (!itspAccount.isAlarmSent()) {
-                            Gateway.getAlarmClient()
-                                    .raiseAlarm(
-                                            Gateway.SIPXBRIDGE_ACCOUNT_CONFIGURATION_ERROR_ALARM_ID,
+                            Gateway.raiseAlarm(Gateway.ACCOUNT_CONFIGURATION_ERROR_ALARM_ID,
                                             itspAccount.getProxyDomain());
                             itspAccount.setAlarmSent(true);
                         }

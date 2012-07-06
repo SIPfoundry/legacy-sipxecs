@@ -1,6 +1,6 @@
 <% 
   data.each {|a, v|
-    next unless a =~ /^PROXY_/
+    next unless a =~ /^MEDIA_RELAY_/
     next unless v[:groupName] != 'disabled'
 %>
 type=Single

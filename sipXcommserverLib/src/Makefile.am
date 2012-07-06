@@ -51,8 +51,6 @@ libsipXcommserver_la_LIBADD = \
 	-lboost_program_options-mt
 
 libsipXcommserver_la_SOURCES = \
-    alarm/Alarm.cpp \
-    alarm/AlarmRequestTask.cpp \
     digitmaps/UrlMapping.cpp \
     digitmaps/FallbackRulesUrlMapping.cpp \
     digitmaps/AuthRulesUrlMapping.cpp \
