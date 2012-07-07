@@ -198,7 +198,8 @@ Notifier::sendNotifyForeachSubscription (
             UtlString uri        = record.uri().c_str();
             UtlString callid     = record.callId().c_str();
             UtlString contact    = record.contact().c_str();
-            int expires = record.expires();
+            int timeNow = (int)OsDateTime::getSecsSinceEpoch();
+            int expires          = record.expires() - timeNow;
             UtlString eventtype  = record.eventType().c_str();
             UtlString id         =  record.id().c_str();
             UtlString to         = record.toUri().c_str();
