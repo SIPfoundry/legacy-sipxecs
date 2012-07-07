@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -44,7 +42,6 @@ import org.springframework.util.CollectionUtils;
 
 public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> implements AlarmServerManager,
         DaoEventListener, BeanFactoryAware {
-    private static final Log LOG = LogFactory.getLog(AlarmServerManagerImpl.class);
     private static final String DEFAULT_HOST = "@localhost";
     private static final String PARAM_ALARM_GROUP_ID = "alarmGroupId";
     private static final String PARAM_ALARM_GROUP_NAME = "alarmGroupName";
@@ -59,7 +56,6 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     private FeatureManager m_featureManager;
     private Set<AlarmProvider> m_providers;
     private JdbcTemplate m_jdbcTemplate;
-    private String m_alarmNotificationMibFileName;
 
     public Map<String, AlarmDefinition> getAlarmDefinitions() {
         Map<String, AlarmDefinition> defs = new HashMap<String, AlarmDefinition>();
