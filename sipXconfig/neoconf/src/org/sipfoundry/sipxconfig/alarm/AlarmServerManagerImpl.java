@@ -50,18 +50,16 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     private static final String PARAM_ALARM_GROUP_NAME = "alarmGroupName";
     private static final String GROUP_NAME_DISABLED = "disabled";
     private static final String GROUP_NAME_DEFAULT = "default";
-    private static final String MIB_FILE_NAME = "SIPXECS-ALARM-NOTIFICATION-MIB.mib";
+    private static final String MIB_FILE_NAME = "SIPXECS-ALARM-NOTIFICATION-MIB.txt";
     private ListableBeanFactory m_beanFactory;
     private String m_sipxUser;
     private String m_logDirectory;
-    private String m_configDirectory;
-    private String m_alarmsStringsDirectory;
     private String m_mibsDirectory;
     private LocationsManager m_locationsManager;
     private FeatureManager m_featureManager;
     private Set<AlarmProvider> m_providers;
-    private Map<String, AlarmDefinition> m_definitions;
     private JdbcTemplate m_jdbcTemplate;
+    private String m_alarmNotificationMibFileName;
 
     public Map<String, AlarmDefinition> getAlarmDefinitions() {
         Map<String, AlarmDefinition> defs = new HashMap<String, AlarmDefinition>();
@@ -131,16 +129,6 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
 
     public String getLogDirectory() {
         return m_logDirectory;
-    }
-
-    @Required
-    public void setConfigDirectory(String configDirectory) {
-        m_configDirectory = configDirectory;
-    }
-
-    @Required
-    public void setAlarmsStringsDirectory(String alarmsStringsDirectory) {
-        m_alarmsStringsDirectory = alarmsStringsDirectory;
     }
 
     @Required

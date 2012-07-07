@@ -22,9 +22,7 @@
     <property name="featureManager" ref="featureManager" />    
     <property name="sipxUser" value="${sysdir.user}" />
     <property name="logDirectory" value="${sysdir.log}" />
-    <property name="configDirectory" value="${sysdir.etc}" />
-    <property name="alarmsStringsDirectory" value="${sysdir.alarmsStrings}" />
-    <property name="mibsDirectory" value="${sipxpbx.mibs.dir}" />
+    <property name="mibsDirectory" value="${sysdir.share.root}/snmp/mibs" />
     <property name="jdbcTemplate" ref="configJdbcTemplate"/>    
   </bean>
   
