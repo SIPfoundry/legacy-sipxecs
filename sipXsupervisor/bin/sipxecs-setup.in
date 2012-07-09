@@ -31,7 +31,7 @@ $exit_status = 0
 def run_command(cmd)
   puts cmd if $verbose
   ok = system("#{cmd} #{' >/dev/null' unless $verbose}")
-  if (!ok) 
+  if (!ok)
     puts
     puts  "Failure to run command #{cmd}. See #{$log} for details. After you"
     puts  "have addressed the issue, you may rerun this script."
@@ -194,8 +194,14 @@ end
 def rm_files(d)
   puts "clearing files in directory #{d}" if $verbose
   Dir.foreach(d) { |f|
+    next if f == '.' or f == '..'
     fname = "#{d}/#{f}"
-    rm_file(fname) if File.file?(fname)
+    if File.file?(fname)
+      rm_file(fname) 
+    elsif File.directory?(fname)
+      rm_files(fname)
+      Dir.rmdir(fname)
+    end
   }
 end
 
@@ -217,9 +223,43 @@ def reset
 end
 
 def reset_all
+  return false unless prompt_confirm("This will \e[0;31mwipe all\e[m configuration data from this server. Are you sure?")
+
+  # may not work, but try to shut down whatever is running
+  s = `#{$bindir}/sipxagent -d stop_sipxecs 2>&1`
+  puts s if $verbose
+
+  # cannot rely stop_sipxecs worked all the way
+  s = `killall -9 java 2>&1`
+  puts s if $verbose
+
+  Dir.foreach($cfdatadir) { |f|
+    next if f == '.' or f == '..'
+    fname = "#{$cfdatadir}/#{f}"
+    if File.directory?(fname)
+      next if f == 'defaults'
+      rm_files fname
+    else
+      rm_file fname
+    end
+  }
   reset
   rm_files($root_keydir)
   rm_files($user_keydir)
+
+  # references to project specific data, but we cannot rely that system is
+  # in a state that cfengine can run reliably so we must delete straight away
+  drop_db_if_exists('SIPXCONFIG')
+  drop_db_if_exists('SIPXCDR')
+  drop_db_if_exists('openfire')
+  s = `#{$bindir}/mongodb-repair --obliterate 2>&1`
+  puts s if $verbose
+end
+
+def drop_db_if_exists(db)
+  # backtick eats errors by default
+  s = `dropdb -U postgres #{db} 2>&1`
+  puts s if $verbose
 end
 
 args = OptionParser.new { |opts|
@@ -238,6 +278,7 @@ args = OptionParser.new { |opts|
 
   opts.on("--reset-all", "Force reset of all possible settings including ssl keys.") {
     reset_all
+    exit
   }
 
   opts.on("--advanced", "Ask advanced questions.") {
