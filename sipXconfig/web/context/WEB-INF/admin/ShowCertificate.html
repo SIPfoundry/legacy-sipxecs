@@ -1,0 +1,11 @@
+<span jwcid="@LinkSubmit" listener="listener:showCertificate">
+  <span jwcid="@If" condition="ognl:!showCertificate">
+    <span jwcid="@Insert" value="message:showDescription" renderTag="false"/>
+  </span>
+  <span jwcid="@Else">
+    <span jwcid="@Insert" value="message:hideDescription" renderTag="false"/>
+  </span>
+</span>
+<span jwcid="@If" condition="ognl:showCertificate">
+  <pre><span jwcid="@Insert" value="ognl:certificateText" renderTag="false"/></pre>
+</span>

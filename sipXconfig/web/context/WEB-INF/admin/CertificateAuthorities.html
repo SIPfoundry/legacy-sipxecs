@@ -3,6 +3,27 @@
    <fieldset>
      <table>
       <tbody>
+      <tr>
+        <label jwcid="selfSignLabel@common/FieldPanel"
+            label="message:label.selfSigningAuthority"
+            description="message:description.selfSigningAuthority">
+            <span jwcid="@Insert" value="ognl:certificateManager.selfSigningAuthority"/>
+            <ul class="settingDescription">
+              <span jwcid="@admin/ShowCertificate" certificateText="ognl:certificateManager.selfSigningAuthorityText"/>
+            </ul>
+        </label>      
+      </tr>
+      
+      <tr>
+        <label jwcid="rebuildLabel@common/FieldPanel"
+            for="id:rebuild"
+            field="component:rebuild"
+            label="message:label.rebuild"
+            description="message:description.rebuild">
+            <input jwcid="rebuild@Submit" listener="listener:rebuild" value="message:button.rebuild" />            
+        </label>      
+      </tr>
+      
 	  <tr>
 		<label jwcid="certificateFileLabel@common/FieldPanel"
 		    for="id:upload"
@@ -12,14 +33,15 @@
 		    <input jwcid="certificateFile@Upload"
                    file="ognl:uploadFile"
                    displayName="message:label.certificateFile"/>
+                   
+             <span jwcid="import@Submit"
+                   id="import"
+                   action="listener:importCA"
+                   value="message:button.import"/>
         </label>
 	  </tr>
 	  </tbody>
 	 </table>
-     <span jwcid="import@Submit"
-           id="import"
-           action="listener:importCA"
-           value="message:button.import"/>
 	</fieldset>
 	<span jwcid="@If" condition="ognl:showCertificate">
 	  <fieldset>
@@ -36,25 +58,15 @@
 	</span>
     <table jwcid="@common/Table" id="certificates:list"
       columns="* fileName, certDescription"
-      source="ognl:certificateManager.authorities"
+      source="ognl:certificateManager.thirdPartyAuthorities"
       row="ognl:authority"
       selections="bean:selections">
       <span jwcid="fileNameColumnValue@Block">
         <span jwcid="@Insert" value="ognl:authority"/>
       </span>
-      <span jwcid="certDescriptionColumnValue@Block">
+      <span jwcid="certDescriptionColumnValue@Block">      
         <ul class="settingDescription">
-	    <span jwcid="@LinkSubmit" listener="listener:clickRow">
-	      <span jwcid="@If" condition="ognl:!showDescription">
-		    <span jwcid="@Insert" value="message:ca.showDescription" renderTag="false"/>
-		  </span>
-		  <span jwcid="@Else">
-		    <span jwcid="@Insert" value="message:ca.hideDescription" renderTag="false"/>
-		  </span>
-	    </span>
-	    <span jwcid="@If" condition="ognl:showDescription">
-		  <pre><span jwcid="@Insert" value="ognl:savedCertificateText" renderTag="false"/></pre>
-        </span>
+          <span jwcid="@admin/ShowCertificate" certificateText="ognl:authorityText"/>
 	    </ul>
       </span>
     </table>

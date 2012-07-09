@@ -1,7 +1,31 @@
 <div jwcid="@common/QuickHelp" value="message:quick.help.import"></div>
 <span jwcid="@common/ErrorMsg" validator="bean:validator"/>
-<form jwcid="importForm@Form" delegate="bean:validator">
+<form jwcid="importForm@Form" delegate="bean:validator">  
   <fieldset>
+  
+   <table>
+    <tbody>
+       <tr>
+        <label jwcid="certificateLabel@common/FieldPanel"
+            label="message:label.certicate"
+            description="message:description.certificate">
+            <ul class="settingDescription">
+              <span jwcid="@admin/ShowCertificate" certificateText="ognl:certificateText"/>
+            </ul>
+        </label>             
+       </tr>
+      <tr>
+        <label jwcid="rebuildLabel@common/FieldPanel"
+            for="id:rebuild"
+            field="component:rebuild"
+            label="message:label.rebuild"
+            description="message:description.rebuild">
+            <input jwcid="rebuild@Submit" listener="listener:rebuild" value="message:button.rebuild" />            
+        </label>      
+      </tr>     
+    </tbody>
+   </table>
+   
     <span jwcid="importMethod@RadioGroup" selected="ognl:importMethodSelected">
       <table>
         <tr>

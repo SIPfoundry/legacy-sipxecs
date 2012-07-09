@@ -49,6 +49,8 @@ public interface CertificateManager {
 
     public String getCommunicationsPrivateKey();
 
+    public List<String> getThirdPartyAuthorities();
+
     public List<String> getAuthorities();
 
     public String getAuthorityCertificate(String authority);
@@ -64,4 +66,14 @@ public interface CertificateManager {
     public String getNamedPrivateKey(String name);
 
     public String getNamedCertificate(String name);
+
+    public String getSelfSigningAuthority();
+
+    public String getSelfSigningAuthorityText();
+
+    public void rebuildSelfSignedData();
+
+    public void rebuildCommunicationsCert();
+
+    public void rebuildWebCert();
 }

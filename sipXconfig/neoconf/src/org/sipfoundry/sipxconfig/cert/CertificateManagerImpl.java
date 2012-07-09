@@ -139,6 +139,13 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
     }
 
     @Override
+    public List<String> getThirdPartyAuthorities() {
+        List<String> authorities = m_jdbc.queryForList("select name from authority where name != ? order by name",
+                String.class, getSelfSigningAuthority());
+        return authorities;
+    }
+
+    @Override
     public List<String> getAuthorities() {
         List<String> authorities = m_jdbc.queryForList("select name from authority order by name", String.class);
         return authorities;
@@ -154,9 +161,15 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
         return getSecurityData(AUTHORITY_TABLE, KEY_COLUMN, authority);
     }
 
+    @Override
     public String getSelfSigningAuthority() {
         String domain = Domain.getDomain().getName();
         return SELF_SIGN_AUTHORITY_PREFIX + domain;
+    }
+
+    @Override
+    public String getSelfSigningAuthorityText() {
+        return getAuthorityCertificate(getSelfSigningAuthority());
     }
 
     @Override
@@ -166,11 +179,46 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
     }
 
     @Override
+    public void rebuildSelfSignedData() {
+        forceDeleteTrustedAuthority(getSelfSigningAuthority());
+        checkSetup();
+    }
+
+    @Override
+    public void rebuildCommunicationsCert() {
+        rebuildCert(COMM_CERT);
+    }
+
+    @Override
+    public void rebuildWebCert() {
+        rebuildCert(WEB_CERT);
+    }
+
+    void rebuildCert(String type) {
+        String domain = Domain.getDomain().getName();
+        String hostname = m_locationsManager.getPrimaryLocation().getHostname();
+        String authority = getSelfSigningAuthority();
+        String issuer = getIssuer(authority);
+        String authKey = getAuthorityKey(authority);
+        CertificateGenerator gen;
+        if (type.equals(COMM_CERT)) {
+            gen = CertificateGenerator.sip(domain, hostname, issuer, authKey);
+        } else {
+            gen = CertificateGenerator.web(domain, hostname, issuer, authKey);
+        }
+        updateCertificate(type, gen.getCertificateText(), gen.getPrivateKeyText(), authority);
+    }
+
+    @Override
     public void deleteTrustedAuthority(String authority) {
         if (authority.equals(getSelfSigningAuthority())) {
             throw new UserException("Cannot delete self signing certificate authority");
         }
 
+        forceDeleteTrustedAuthority(authority);
+    }
+
+    void forceDeleteTrustedAuthority(String authority) {
         m_jdbc.update("delete from authority where name = ?", authority);
         m_jdbc.update("delete from cert where authority = ?", authority);
         m_configManager.configureEverywhere(FEATURE);

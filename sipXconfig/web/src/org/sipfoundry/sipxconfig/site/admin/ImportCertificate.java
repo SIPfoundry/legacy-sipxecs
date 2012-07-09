@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 public abstract class ImportCertificate extends BaseComponent {
     public static final Integer UPLOAD = new Integer(1);
     public static final Integer TEXT = new Integer(2);
+    private static final String WEB = "web";
 
     public abstract IUploadFile getUploadCrtFile();
 
@@ -45,6 +46,22 @@ public abstract class ImportCertificate extends BaseComponent {
 
     @Parameter(required = true)
     public abstract String getCertificateType();
+
+    public void rebuild() {
+        if (getCertificateType().equals(WEB)) {
+            getCertificateManager().rebuildWebCert();
+        } else {
+            getCertificateManager().rebuildCommunicationsCert();
+        }
+        getValidator().recordSuccess(getMessages().getMessage("msg.rebuild.success"));
+    }
+
+    public String getCertificateText() {
+        if (getCertificateType().equals(WEB)) {
+            return getCertificateManager().getWebCertificate();
+        }
+        return getCertificateManager().getCommunicationsCertificate();
+    }
 
     public void importCertificate() {
         if (!TapestryUtils.isValid(this)) {
@@ -75,7 +92,7 @@ public abstract class ImportCertificate extends BaseComponent {
                 key = IOUtils.toString(uploadKeyFile.getStream());
             }
             CertificateManager mgr = getCertificateManager();
-            if (getCertificateType().equals("web")) {
+            if (getCertificateType().equals(WEB)) {
                 if (StringUtils.isEmpty(key)) {
                     mgr.setWebCertificate(certificate);
                 } else {
