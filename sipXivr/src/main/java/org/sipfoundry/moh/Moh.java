@@ -144,19 +144,7 @@ public class Moh {
             String userName = id.substring(1);
             User user = m_validUsers.getUser(userName);
             if (user != null) {
-                String moh = user.getMoh();
-                LOG.info("Moh::moh Using user's MOH URL setting: " + moh);
-                if (moh.equalsIgnoreCase("n")) {
-                    return;
-                } else if (moh.equalsIgnoreCase("f")) {
-                    musicPath = "local_stream://moh";
-                } else if (moh.equalsIgnoreCase("c")) {
-                    musicPath = "portaudio_stream://";
-                } else if (moh.equalsIgnoreCase("p")) {
-                    musicPath = m_ivrConfig.getDataDirectory()+"/moh/"+user.getUserName();
-                } else {
-                    musicPath = m_ivrConfig.getPromptsDirectory()+"/../../../parkserver/music/";
-                }
+                musicPath = m_ivrConfig.getDataDirectory()+"/moh/"+user.getUserName();
             } else {
                 // Use default FreeSWITCH MOH
                 musicPath = "local_stream://moh";

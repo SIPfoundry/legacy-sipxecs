@@ -48,7 +48,6 @@ public class ValidUsersXMLTest extends TestCase {
             "   <inDirectory>false</inDirectory>" +
             "   <hasVoicemail>true</hasVoicemail>" +
             "   <canRecordPrompts>false</canRecordPrompts>" +
-            "   <moh>n</moh>" +
             "   <email>" +
             "      <address>woofdogg@us.nortel.com</address>" +
             "      <notification attachAudio=\"true\">BRIEF</notification>" +
@@ -114,7 +113,6 @@ public class ValidUsersXMLTest extends TestCase {
         assertEquals("woofdogg@elsewhere", u.getAltEmailAddress());
         assertEquals(EmailFormats.FORMAT_NONE, u.getAltEmailFormat());
         assertFalse("isAltAttachAudioToEmail", u.isAltAttachAudioToEmail());
-        assertEquals("n", u.getMoh());
 		u = vu.getUser("lab");  // primary user name
 		assertNotNull(u);
 		assertEquals("lab", u.getUserName());
@@ -126,7 +124,6 @@ public class ValidUsersXMLTest extends TestCase {
 		u = vu.getUser("24"); // Another alias for lab
 		assertNotNull(u);
 		assertEquals("lab", u.getUserName());
-        assertEquals("d", u.getMoh());
 		assertTrue("hasVoicemail", u.hasVoicemail());
 		ImapInfo i = u.getImapInfo();
 		assertNotNull(i);

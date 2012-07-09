@@ -636,7 +636,22 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
     }
 
     public String getMusicOnHoldUri() {
-        return m_musicOnHoldManager.getPersonalMohFilesUri(getName());
+        String mohAudioSource = getSettings().getSetting(MOH_AUDIO_SOURCE_SETTING).getValue();
+
+        switch (MohAudioSource.parseSetting(mohAudioSource)) {
+        case FILES_SRC:
+            return m_musicOnHoldManager.getLocalFilesMohUri();
+        case PERSONAL_FILES_SRC:
+            return m_musicOnHoldManager.getPersonalMohFilesUri(getName());
+        case SOUNDCARD_SRC:
+            return m_musicOnHoldManager.getPortAudioMohUri();
+        case SYSTEM_DEFAULT:
+            return m_musicOnHoldManager.getDefaultMohUri();
+        case NONE:
+            return m_musicOnHoldManager.getNoneMohUri();
+        default:
+            return m_musicOnHoldManager.getDefaultMohUri();
+        }
     }
 
     public void setEmailAddress(String emailAddress) {

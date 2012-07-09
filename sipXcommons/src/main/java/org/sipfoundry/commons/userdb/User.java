@@ -36,7 +36,6 @@ public class User {
     private boolean m_attachAudioToEmail;
     private boolean m_altAttachAudioToEmail;
     private ImapInfo m_imapInfo;
-    private String m_moh = "d";
     
     public enum EmailFormats {
         FORMAT_NONE("NONE"), FORMAT_FULL("FULL"), FORMAT_MEDIUM("MEDIUM"), FORMAT_BRIEF("BRIEF"), FORMAT_IMAP("IMAP");
@@ -266,13 +265,6 @@ public class User {
         m_imapInfo = imapInfo;
     }
 
-    public String getMoh() {
-        return m_moh;
-    }
-
-    public void setMoh(String moh) {
-        m_moh = moh;
-    }
 
     /*
     public void addDistributionList(String digits, DistributionList dl) {
