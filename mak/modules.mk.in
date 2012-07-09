@@ -66,6 +66,7 @@ lib_centos_6 = \
   epel-release \
   $(lib_common) \
   sec \
+  hiredis \
   nsis \
   nsis-data \
   rubygem-net-ssh \
