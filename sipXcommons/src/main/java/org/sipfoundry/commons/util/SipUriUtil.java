@@ -23,6 +23,7 @@ public class SipUriUtil {
     private static final Pattern EXTRACT_USER_RE = Pattern.compile("\\s*<?(?:sip:)?(.+?)[@;].+");
     private static final Pattern EXTRACT_FULL_USER_RE = Pattern
             .compile("\\s*(?:\"?\\s*([^\"<]+?)\\s*\"?)?\\s*<(?:sip:)?(.+?)[@;].+");
+    public static final int OMIT_SIP_PORT = 0;
 
     /**
      * Extracts user name if available. Otherwise it returns the user id
@@ -46,5 +47,27 @@ public class SipUriUtil {
             return userId;
         }
         return fullName;
+    }
+
+    /**
+     * Format a SIP URI from userpart, host and port
+     *
+     * @param userName
+     * @param domainName
+     * @param port - port value of 0 means omit the port from the URI
+     * @return
+     */
+    public static String format(String userName, String domainName, int port) {
+        String uri = String.format((port != OMIT_SIP_PORT) ? "sip:%s@%s:%d" : "sip:%s@%s", userName, domainName,
+                port);
+        return uri;
+    }
+
+    public static String format(String userName, String domain, boolean quote) {
+        if (!quote) {
+            return format(userName, domain, OMIT_SIP_PORT);
+        }
+        String format = "<sip:%s@%s>";
+        return String.format(format, userName, domain);
     }
 }

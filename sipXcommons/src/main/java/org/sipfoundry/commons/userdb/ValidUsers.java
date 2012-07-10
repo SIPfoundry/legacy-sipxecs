@@ -437,28 +437,6 @@ public class ValidUsers {
         return userNames;
     }
 
-    public List<XmppConference> getConference(String imUser) {
-        Pattern confPattern = Pattern.compile("Conference.*");
-        DBObject query = QueryBuilder.start(ID).is(confPattern).and(CONF_OWNER).is(imUser).and(CONF_ENABLED)
-                .is(true).get();
-        List<XmppConference> conferences = new ArrayList<XmppConference>();
-        DBCursor cursor = getEntityCollection().find(query);
-        Iterator<DBObject> objects = cursor.iterator();
-        while (objects.hasNext()) {
-            DBObject obj = objects.next();
-            XmppConference conf = new XmppConference();
-            conf.setConfName(getStringValue(obj, CONF_NAME));
-            conf.setConfDescription(getStringValue(obj, CONF_DESCRIPTION));
-            conf.setModerated(Boolean.valueOf(getStringValue(obj, CONF_MODERATED)));
-            conf.setPublic(Boolean.valueOf(getStringValue(obj, CONF_PUBLIC)));
-            conf.setMembersOnly(Boolean.valueOf(getStringValue(obj, CONF_MEMBERS_ONLY)));
-            conf.setExtension(getStringValue(obj, CONF_EXT));
-            conf.setPin(getStringValue(obj, CONF_PIN));
-            conferences.add(conf);
-        }
-        return conferences;
-    }
-
     private DBCollection getEntityCollection() {
         return getImdb().getCollection("entity");
     }

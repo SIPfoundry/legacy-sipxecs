@@ -37,33 +37,24 @@ public class RecordConferenceServlet extends ConferenceServlet {
         PrintWriter pw = response.getWriter();
         String parmAction = request.getParameter("action");
         String parmConf = request.getParameter("conf");
-        String ownerName = request.getParameter("ownerName");
-        String ownerId = request.getParameter("ownerId");
-        String bridgeContact = request.getParameter("bridgeContact");
-        String mboxServer = request.getParameter("mboxServer");
 
         boolean stringsOK = parmAction != null && !parmAction.isEmpty() &&
-                            parmConf != null && !parmConf.isEmpty() &&
-                            ownerName != null && !ownerName.isEmpty() &&
-                            ownerId != null && !ownerId.isEmpty() &&
-                            bridgeContact != null && !bridgeContact.isEmpty() &&
-                            mboxServer != null && !mboxServer.isEmpty();
+                            parmConf != null && !parmConf.isEmpty();
 
         if (stringsOK) {
-            String wavPath = ConferenceUtil.getWavPath(parmConf);
+            String wavPath = ConferenceContextImpl.getInstance().getWavPath(parmConf);
             if (parmAction.equals("start")) {
-                if (!ConferenceUtil.isRecordingInProgress(parmConf)) {
-                    ConferenceUtil.createSourceDir();
+                if (!ConferenceContextImpl.getInstance().isRecordingInProgress(parmConf)) {
+                    ConferenceContextImpl.getInstance().createSourceDir();
                     executeCommand("conference "+parmConf+" record " + wavPath, pw);
-                    ConferenceUtil.saveConfProperties(parmConf, ownerName, ownerId, bridgeContact, mboxServer);
                 } else {
                     pw.format("<command-response>%s</command-response>\n", IN_PROGRESS);
                 }
             } else if (parmAction.equals("stop")) {
                 executeCommand("conference "+parmConf+" norecord " + wavPath, pw);
-                ConferenceUtil.saveInMailboxSynch(parmConf);
+                ConferenceContextImpl.getInstance().saveInMailboxSynch(parmConf);
             } else if (parmAction.equals("status")) {
-                if (ConferenceUtil.isRecordingInProgress(parmConf)) {
+                if (ConferenceContextImpl.getInstance().isRecordingInProgress(parmConf)) {
                     pw.format("<command-response>%s</command-response>\n", IN_PROGRESS);
                 } else {
                     pw.format("<command-response>%s</command-response>\n", NO_RECORDING);

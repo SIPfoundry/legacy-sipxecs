@@ -19,11 +19,14 @@ package org.sipfoundry.sipxconfig.recording;
 import static org.junit.Assert.assertEquals;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 
@@ -36,7 +39,12 @@ public class RecordingConfigurationTest {
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
         StringWriter actual = new StringWriter();
         Address imbotAddress = new Address(ImBot.REST_API, "host.example.org", 8076);
-        config.write(actual, settings, imbotAddress);
+        Address ivrAddress1 = new Address(Ivr.REST_API, "host.example.org", 8086);
+        Address ivrAddress2 = new Address(Ivr.REST_API, "host2.example.org", 8086);
+        List<Address> ivrAddresses = new ArrayList<Address>();
+        ivrAddresses.add(ivrAddress1);
+        ivrAddresses.add(ivrAddress2);
+        config.write(actual, settings, imbotAddress, ivrAddresses);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-sipxrecording.properties"));
         assertEquals(expected, actual.toString());
     }
