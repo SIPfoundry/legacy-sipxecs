@@ -99,12 +99,14 @@ public interface MongoConstants {
     static final String CONF_ENABLED = "cnfenbl";
     static final String CONF_EXT = "cnfext";
     static final String CONF_NAME = "cnfnm";
+    static final String CONF_AUTORECORD = "autorec";
     static final String CONF_DESCRIPTION = "cnfdescr";
     static final String CONF_OWNER = "cnfown";
     static final String CONF_PIN = "cnfpin";
     static final String CONF_MODERATED = "cnfmod";
     static final String CONF_PUBLIC = "cnfpbl";
     static final String CONF_MEMBERS_ONLY = "cnfmonly";
+    static final String CONF_URI = "cnfuri";
     static final String PERMISSIONS = "prm";
     static final String CFWDTIME = "cfwdtm";
     static final String USER_LOCATION = "loc";

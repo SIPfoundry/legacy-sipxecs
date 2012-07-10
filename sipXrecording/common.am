@@ -24,4 +24,13 @@ recording_PKGS = \
 	commons-logging \
 	javax.servlet \
 	mongo \
+	spring-data-mongodb \
+	spring-data-commons-core \
+	org.springframework.core \
+	org.springframework.asm \
+	org.springframework.beans \	
+	org.springframework.context \
+	org.springframework.transaction \
+	org.springframework.expression \	
+	commons-lang \
 	jetty

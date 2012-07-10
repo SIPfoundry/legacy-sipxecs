@@ -8,6 +8,8 @@
  */
 package org.sipfoundry.sipxrecording;
 
+import static org.apache.commons.lang.StringUtils.split;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -30,6 +32,8 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
     private String m_sipxchangeDomainName; // The domain name of this system
     private String m_realm;
     private String m_sendImUrl;
+    private String m_mongoConfigFile;
+    private String[] m_ivrNodes;
     private int m_jettyPort;
     private static final int PORT_NONE = -1;
 
@@ -70,7 +74,7 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
             System.err.println("Cannot get System Property conf.dir!  Check jvm argument -Dconf.dir=") ;
             System.exit(1);
         }
-
+        m_mongoConfigFile = path + "/mongo-client.ini";
         // Setup SSL properties so we can talk to HTTPS servers
         String keyStore = System.getProperty("javax.net.ssl.keyStore");
         if (keyStore == null) {
@@ -117,6 +121,7 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
             m_realm = props.getProperty(prop ="recording.realm");
             m_jettyPort = Integer.parseInt(props.getProperty(prop = "jetty.port"));
             m_sendImUrl = props.getProperty(prop = "config.sendIMUrl");
+            m_ivrNodes = split(props.getProperty(prop = "config.ivrNodes"));
         } catch (Exception e) {
             System.err.println("Problem understanding property " + prop);
             e.printStackTrace(System.err);
@@ -162,6 +167,14 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
 
     public String getSendImUrl() {
         return m_sendImUrl;
+    }
+
+    public String getMongoConfigFile() {
+        return m_mongoConfigFile;
+    }
+
+    public String[] getIvrNodes() {
+        return m_ivrNodes;
     }
 
     @Override

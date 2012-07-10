@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.springframework.beans.factory.annotation.Required;
 
 public class RecordingConfig implements ConfigProvider {
@@ -48,6 +49,7 @@ public class RecordingConfig implements ConfigProvider {
             return;
         }
         Address imbotApi = manager.getAddressManager().getSingleAddress(ImBot.REST_API);
+        List<Address> ivrAddresses = manager.getAddressManager().getAddresses(Ivr.REST_API);
         for (Location location : locations) {
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(Recording.FEATURE, location);
             File dir = manager.getLocationDataDirectory(location);
@@ -58,18 +60,27 @@ public class RecordingConfig implements ConfigProvider {
             File f = new File(dir, "sipxrecording.properties.part");
             Writer wtr = new FileWriter(f);
             try {
-                write(wtr, m_recording.getSettings(), imbotApi);
+                write(wtr, m_recording.getSettings(), imbotApi, ivrAddresses);
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
         }
     }
 
-    void write(Writer wtr, RecordingSettings settings, Address imbotApi) throws IOException {
+    void write(Writer wtr, RecordingSettings settings, Address imbotApi, List<Address> ivrAddresses) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.writeSettings(settings.getSettings());
         if (imbotApi != null) {
             config.write("config.sendIMUrl", imbotApi.toString());
+        }
+        StringBuilder ivrAddressesStr = new StringBuilder();
+        for (Address address : ivrAddresses) {
+            ivrAddressesStr.
+                append(address).
+                append(" ");
+        }
+        if (ivrAddressesStr.length() > 0) {
+            config.write("config.ivrNodes", ivrAddressesStr.toString());
         }
     }
 

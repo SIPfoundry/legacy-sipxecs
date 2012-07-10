@@ -12,9 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.confdb.Conference;
 import org.sipfoundry.commons.freeswitch.ConfBasicThread;
 import org.sipfoundry.commons.freeswitch.ConferenceMember;
 import org.sipfoundry.commons.freeswitch.ConferenceTask;
@@ -32,11 +31,12 @@ public class ConfRecordThread extends ConfBasicThread {
 
     static String sourceName = "/tmp/freeswitch/recordings";
     static String destName = System.getProperty("var.dir") + "/mediaserver/data/recordings";
-    private String m_sendIMUrl;
 
     //TODO add localization support - port this project to spring maybe
     private static final String PARTICIPANT_ENTERED = "entered your conference as participant";
     private static final String PARTICIPANT_LEFT = "left your conference at";
+
+    private ConferenceContextImpl m_conferenceContext;
 
     public ConfRecordThread(RecordingConfiguration recordingConfig) {
         // Check that the freeswitch initial recording directory exists
@@ -58,7 +58,6 @@ public class ConfRecordThread extends ConfBasicThread {
                 LOG.error("ConfRecordThread::InterruptedException error ", e);
             }
         }
-        m_sendIMUrl = recordingConfig.getSendImUrl();
         setConfConfiguration(recordingConfig);
     }
 
@@ -88,8 +87,8 @@ public class ConfRecordThread extends ConfBasicThread {
             conf.setOwner(owner);
         }
         String confName = event.getEventValue("conference-name");
-        ConferenceBridgeItem item = ConferenceBridgeXML.getConferenceBridgeItem(confName);
-        if (item != null) {
+        Conference conference = m_conferenceContext.getConference(confName);
+        if (conference != null && conference.isAutoRecord()) {
             String uniqueId = event.getEventValue("Unique-ID");
             String wavName = new String(confName + "_" + uniqueId + ".wav");
             LOG.debug("ConfRecordThread::Creating conference recording " + wavName);
@@ -105,9 +104,7 @@ public class ConfRecordThread extends ConfBasicThread {
     @Override
     public void ProcessConfUserAdd(ConferenceTask conf, ConferenceMember member) {
         User owner = conf.getOwner();
-        if(owner == null) {
-            return;
-        }
+        String sendIMUrl = m_conferenceContext.getSendIMUrl();
 
         if(owner != null && owner.getConfEntryIM()) {
             Date date = new Date();
@@ -115,7 +112,7 @@ public class ConfRecordThread extends ConfBasicThread {
                 PARTICIPANT_ENTERED + " [" + member.memberIndex() + "] at " + date.toString();
             try {
                 if (owner.getConfEntryIM()) {
-                    HttpResult result = IMSender.sendConfEntryIM(owner, instantMsg, m_sendIMUrl);
+                    HttpResult result = IMSender.sendConfEntryIM(owner, instantMsg, sendIMUrl);
                     if (!result.isSuccess()) {
                         LOG.error("User conference enter::sendIM Trouble with RemoteRequest: "
                             + result.getResponse(), result.getException());
@@ -130,9 +127,7 @@ public class ConfRecordThread extends ConfBasicThread {
     public void ProcessConfUserDel(ConferenceTask conf, ConferenceMember member) {
 
         User owner = conf.getOwner();
-        if(owner == null) {
-            return;
-        }
+        String sendIMUrl = m_conferenceContext.getSendIMUrl();
 
         if(owner != null && owner.getConfExitIM()) {
             Date date = new Date();
@@ -140,7 +135,7 @@ public class ConfRecordThread extends ConfBasicThread {
                 PARTICIPANT_LEFT + " " + date.toString();
             try {
                 if (owner.getConfExitIM()) {
-                    HttpResult result = IMSender.sendConfExitIM(owner, instantMsg, m_sendIMUrl);
+                    HttpResult result = IMSender.sendConfExitIM(owner, instantMsg, sendIMUrl);
                     if (!result.isSuccess()) {
                         LOG.error("User conference exit::sendIM Trouble with RemoteRequest: "
                             + result.getResponse(), result.getException());
@@ -155,8 +150,10 @@ public class ConfRecordThread extends ConfBasicThread {
     @Override
     public void ProcessConfEnd(FreeSwitchEvent event, ConferenceTask conf) {
         final String confName = event.getEventValue("conference-name");
-        ConferenceBridgeItem item = ConferenceBridgeXML.getConferenceBridgeItem(confName);
-        if (item != null) {
+        Conference conference = m_conferenceContext.getConference(confName);
+        String [] ivrUris =m_conferenceContext.getIvrUris();
+        String domainName = m_conferenceContext.getDomainName();
+        if (conference != null && conference.isAutoRecord()) {
             String wavName = conf.getWavName();
             LOG.debug("ConfRecordThread::Finished conference recording of " + wavName);
 
@@ -167,26 +164,7 @@ public class ConfRecordThread extends ConfBasicThread {
             }
 
             AuditWavFiles(new File(destName));
-
-            // Use the conference name to find the conference mailbox server.
-            String mboxServerAndPort = item.getMailboxServer();
-
-            // Trigger the servlet on the voicemail server to read the WAV file
-            // E.g. "http://s1.example.com:8086/recording/conference?test1_6737347.wav"
-            try {
-                HttpClient httpClient = new HttpClient();
-                String urlString = "http://" + mboxServerAndPort +
-                                   "/recording/conference" +
-                                   "?wn=" + wavName +
-                                   "&on=" + item.getOwnerName() +
-                                   "&oi=" + item.getOwnerId() +
-                                   "&bc=" + item.getBridgeContact();
-                LOG.debug("Notify IVR to pick the recorded file and copy it into user mailbox: "+urlString);
-                GetMethod triggerRecording = new GetMethod(urlString);
-                httpClient.executeMethod(triggerRecording);
-            } catch (IOException e) {
-                LOG.error("ConfRecordThread::Trigger error ", e);
-            }
+            m_conferenceContext.notifyIvr(ivrUris, wavName, conference, domainName);
         }
         //verify if there is a temporary wav file recording given user action
         //the wav file, if any, has the same name as the conference
@@ -195,12 +173,16 @@ public class ConfRecordThread extends ConfBasicThread {
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                if (ConferenceUtil.isRecordingInProgress(confName)) {
-                    ConferenceUtil.saveInMailboxSynch(confName);
+                if (m_conferenceContext.isRecordingInProgress(confName)) {
+                    m_conferenceContext.saveInMailboxSynch(confName);
                 }
             }
         };
         Thread t = new Thread(r);
         t.start();
+    }
+
+    public void setConferenceContext(ConferenceContextImpl conferenceContext) {
+        m_conferenceContext = conferenceContext;
     }
 }
