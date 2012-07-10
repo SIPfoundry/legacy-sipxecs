@@ -1,6 +1,6 @@
 Summary: A systems administration tool for networks
 Name: cfengine
-Version: 3.3.0
+Version: 3.3.4
 Release: 1%{?dist}
 License: GPLv3
 Group: Applications/System
