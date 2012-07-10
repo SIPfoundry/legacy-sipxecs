@@ -196,15 +196,15 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
 
     void rebuildCert(String type) {
         String domain = Domain.getDomain().getName();
-        String hostname = m_locationsManager.getPrimaryLocation().getHostname();
+        String fqdn = m_locationsManager.getPrimaryLocation().getFqdn();
         String authority = getSelfSigningAuthority();
         String issuer = getIssuer(authority);
         String authKey = getAuthorityKey(authority);
         CertificateGenerator gen;
         if (type.equals(COMM_CERT)) {
-            gen = CertificateGenerator.sip(domain, hostname, issuer, authKey);
+            gen = CertificateGenerator.sip(domain, fqdn, issuer, authKey);
         } else {
-            gen = CertificateGenerator.web(domain, hostname, issuer, authKey);
+            gen = CertificateGenerator.web(domain, fqdn, issuer, authKey);
         }
         updateCertificate(type, gen.getCertificateText(), gen.getPrivateKeyText(), authority);
     }
@@ -248,15 +248,15 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
             }
         }
 
-        String hostname = m_locationsManager.getPrimaryLocation().getHostname();
+        String fqdn = m_locationsManager.getPrimaryLocation().getFqdn();
         String issuer = getIssuer(authority);
         String authKey = getAuthorityKey(authority);
         if (!hasCertificate(COMM_CERT, authority)) {
-            CertificateGenerator gen = CertificateGenerator.sip(domain, hostname, issuer, authKey);
+            CertificateGenerator gen = CertificateGenerator.sip(domain, fqdn, issuer, authKey);
             updateCertificate(COMM_CERT, gen.getCertificateText(), gen.getPrivateKeyText(), authority);
         }
         if (!hasCertificate(WEB_CERT, authority)) {
-            CertificateGenerator gen = CertificateGenerator.web(domain, hostname, issuer, authKey);
+            CertificateGenerator gen = CertificateGenerator.web(domain, fqdn, issuer, authKey);
             updateCertificate(WEB_CERT, gen.getCertificateText(), gen.getPrivateKeyText(), authority);
         }
     }

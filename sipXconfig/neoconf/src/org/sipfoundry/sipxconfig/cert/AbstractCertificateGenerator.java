@@ -31,8 +31,8 @@ public abstract class AbstractCertificateGenerator extends AbstractCertificateCo
     private KeyPair m_keys;
     private X509Certificate m_certificate;
 
-    protected AbstractCertificateGenerator(String domain, String hostname) {
-        super(domain, hostname);
+    protected AbstractCertificateGenerator(String domain, String fqdn) {
+        super(domain, fqdn);
     }
 
     public abstract X509Certificate createCertificate() throws GeneralSecurityException;

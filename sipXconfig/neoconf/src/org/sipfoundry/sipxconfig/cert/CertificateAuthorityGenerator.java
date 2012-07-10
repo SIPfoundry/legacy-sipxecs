@@ -17,8 +17,8 @@ import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 
 public class CertificateAuthorityGenerator extends AbstractCertificateGenerator {
-    public CertificateAuthorityGenerator(String domain, String host) {
-        super(domain, host);
+    public CertificateAuthorityGenerator(String domain, String fqdn) {
+        super(domain, fqdn);
 
         // historical defaults, otherwise insignificant AFAIK
         setValidYears(10);
@@ -26,7 +26,7 @@ public class CertificateAuthorityGenerator extends AbstractCertificateGenerator 
     }
 
     public CertificateAuthorityGenerator(String domain) {
-        this(domain, "ca");
+        this(domain, "ca." + domain);
     }
 
     @Override

@@ -80,13 +80,12 @@ public class ConfRecordThread extends ConfBasicThread {
 
     @Override
     public void ProcessConfStart(FreeSwitchEvent event, ConferenceTask conf) {
+        String confName = event.getEventValue("conference-name");
         User owner = UnfortunateLackOfSpringSupportFactory.getValidUsers().
-            getUserByConferenceName(event.getEventValue("conference-name"));
-
+            getUserByConferenceName(confName);
         if(owner != null) {
             conf.setOwner(owner);
         }
-        String confName = event.getEventValue("conference-name");
         Conference conference = m_conferenceContext.getConference(confName);
         if (conference != null && conference.isAutoRecord()) {
             String uniqueId = event.getEventValue("Unique-ID");

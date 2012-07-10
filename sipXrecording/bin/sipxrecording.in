@@ -15,7 +15,6 @@
 prog=sipxrecording
 pidfile="@SIPX_RUNDIR@/sipxrecording.pid"
 config_props="@SIPX_CONFDIR@/sipxrecording.properties"
-config_bridge="@SIPX_CONFDIR@/conferencebridge.xml"
 
 [ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
 
@@ -30,8 +29,6 @@ checkRunningInstance() {
 }
 
 configtest() {  
-  # check validity of conference bridge xml file
-  @bindir@/sipx-validate-xml ${config_bridge}
   Status=$((${Status} + $?))
 
   # Check that the log file is writable.
