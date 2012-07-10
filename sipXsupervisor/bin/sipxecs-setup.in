@@ -16,7 +16,7 @@ $group = "@SIPXPBXGROUP@"
 $domain_dat = "#{$cfdatadir}/domain.cfdat"
 $domain_part = "#{$cfdatadir}/domain-config.part"
 $root_keydir = "/var/cfengine/ppkeys"
-home_dir = `awk -F : '/#{$user}/ { print $6 }' /etc/passwd`.chomp
+home_dir = `awk -F : '/^#{$user}:/ { print $6 }' /etc/passwd`.chomp
 $user_keydir = "#{home_dir}/.cfagent/ppkeys"
 $primary_dat = "#{$cfdatadir}/defaults/primary.cfdat"
 $secondary_dat = "#{$cfdatadir}/defaults/secondary.cfdat"
@@ -295,8 +295,8 @@ args.parse!
 
 raise 'Must run as root' unless Process.uid == 0
 set_root_keys()
-set_nonroot_keys()
 if set_primary()
+  set_nonroot_keys()
   set_domain()
 else
   set_secondary
