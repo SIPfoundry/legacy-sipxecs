@@ -26,7 +26,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
@@ -38,7 +37,6 @@ public class ConferenceConfiguration implements ConfigProvider {
     private DomainManager m_domainManager;
     private String m_mohLocalStreamUrl;
     private String m_portAudioUrl;
-    private ConferenceBridgeConfig m_bridgeConfig;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -63,14 +61,6 @@ public class ConferenceConfiguration implements ConfigProvider {
                 throw new IOException(e);
             } finally {
                 IOUtils.closeQuietly(wtr);
-            }
-
-            Writer xml = new FileWriter(new File(dir, "conferencebridge.xml"));
-            try {
-                XmlFile config = new XmlFile(xml);
-                config.write(m_bridgeConfig.getDocument(location));
-            } finally {
-                IOUtils.closeQuietly(xml);
             }
         }
     }
@@ -119,9 +109,5 @@ public class ConferenceConfiguration implements ConfigProvider {
 
     public void setVelocityEngine(VelocityEngine velocityEngine) {
         m_velocityEngine = velocityEngine;
-    }
-
-    public void setBridgeConfig(ConferenceBridgeConfig bridgeConfig) {
-        m_bridgeConfig = bridgeConfig;
     }
 }

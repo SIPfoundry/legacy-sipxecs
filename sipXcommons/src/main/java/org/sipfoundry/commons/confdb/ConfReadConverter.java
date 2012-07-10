@@ -27,14 +27,12 @@ import static org.sipfoundry.commons.mongo.MongoConstants.CONF_PIN;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_PUBLIC;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_URI;
 
-import org.apache.log4j.Logger;
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.springframework.core.convert.converter.Converter;
 
 import com.mongodb.DBObject;
 
 public class ConfReadConverter implements Converter<DBObject, Conference> {
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxrecording");
     @Override
     public Conference convert(DBObject source) {
         Conference conf = new Conference();

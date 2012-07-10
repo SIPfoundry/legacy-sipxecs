@@ -9,7 +9,3 @@ dist_cfg_DATA = \
 	sipxrecording.xml \
 	sipxrecording.properties \
 	sipxrecording-apache.conf
-
-schemadir = @SIPX_DATADIR@/schema
-dist_schema_DATA = \
-	conferencebridge.xsd

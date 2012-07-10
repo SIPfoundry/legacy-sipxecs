@@ -66,13 +66,6 @@
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
     <property name="mohLocalStreamUrl" value="local_stream://moh" />
     <property name="portAudioUrl" value="portaudio_stream://" />
-    <property name="bridgeConfig" ref="conferenceBridgeConfig"/>
-  </bean>
-
-  <bean id="conferenceBridgeConfig" class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeConfig">
-    <property name="domainManager" ref="domainManager" />
-    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
-    <property name="addressManager" ref="addressManager" />
   </bean>
 
   <bean id="identity" class="org.sipfoundry.sipxconfig.conference.BridgeConferenceIdentityImpl">

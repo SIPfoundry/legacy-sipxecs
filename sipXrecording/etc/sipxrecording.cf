@@ -17,19 +17,7 @@ bundle agent sipxrecording {
 }
 
 bundle agent sipxrecording_config {
-  vars:
-    any::
-      "xml_file" slist => {
-        "conferencebridge.xml"
-      };
-  files:
-   any::
-      "$(sipx.SIPX_CONFDIR)/$(xml_file)"
-        comment => "install sipxrest config $(this.promiser)",
-        create => "true",
-        perms => m("644"),
-        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
-        classes => if_repaired("restart_sipxrecording");	  
+  files:   	  
     any::
       "$(sipx.SIPX_CONFDIR)/sipxrecording.properties"
         comment => "install sipxrecording config $(this.promiser)",
