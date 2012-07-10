@@ -130,12 +130,15 @@ setupCheck() {
 buildCommand() {
     procNameId=$1
 
+    setJavaSslOpts
+
     # -Dprocname needs to be early in the command so cfengine can detect it
     Command="$JavaCmd \
        -Dprocname=${procNameId} \
        -XX:MaxPermSize=128M \
        -Xmx1024m \
        ${SIPXCONFIG_OPTS} \
+       ${TrustStoreOpts} \
        -Djava.io.tmpdir=${TmpDir} \
        -Djetty.lib.dir=@SIPX_JAVADIR@/sipXconfig \
        -Djetty.conf.dir=@SIPX_CONFDIR@ \
