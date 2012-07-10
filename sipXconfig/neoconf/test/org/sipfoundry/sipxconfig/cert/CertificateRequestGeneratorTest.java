@@ -20,7 +20,7 @@ public class CertificateRequestGeneratorTest {
     
     @Test
     public void generate() throws IOException {
-        CertificateRequestGenerator csr = new CertificateRequestGenerator("example.org", "www");
+        CertificateRequestGenerator csr = new CertificateRequestGenerator("example.org", "www.example.org");
         String cert = IOUtils.toString(getClass().getResourceAsStream("test.crt"));
         String key = IOUtils.toString(getClass().getResourceAsStream("test.key"));
         String csrTxt = csr.getCertificateRequestText(cert, key);

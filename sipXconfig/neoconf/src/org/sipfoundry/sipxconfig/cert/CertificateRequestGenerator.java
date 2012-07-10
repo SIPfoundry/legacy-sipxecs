@@ -27,8 +27,8 @@ import org.bouncycastle.jce.X509Principal;
 public class CertificateRequestGenerator extends AbstractCertificateCommon {
     private String m_algorithm = "SHA1WithRSAEncryption";
 
-    public CertificateRequestGenerator(String domain, String hostname) {
-        super(domain, hostname);
+    public CertificateRequestGenerator(String domain, String fqdn) {
+        super(domain, fqdn);
     }
 
     /**

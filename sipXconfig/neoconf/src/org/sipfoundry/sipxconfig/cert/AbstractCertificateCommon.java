@@ -22,10 +22,10 @@ public class AbstractCertificateCommon {
     private int m_bitCount = 1024;
     private String m_algorithm = "SHA1WithRSAEncryption";
 
-    protected AbstractCertificateCommon(String domain, String hostname) {
+    protected AbstractCertificateCommon(String domain, String fqdn) {
         setDnsDomain(domain);
         setEmail("root@" + domain);
-        setCommonName(hostname + '.' + domain);
+        setCommonName(fqdn);
     }
     public String getCountry() {
         return m_country;

@@ -86,7 +86,7 @@ public abstract class ManageCertificates extends SipxBasePage implements PageBeg
         String key = mgr.getWebPrivateKey();
         Location primary = getLocationsManager().getPrimaryLocation();
         String domain = Domain.getDomain().getName();
-        CertificateRequestGenerator csr = new CertificateRequestGenerator(domain, primary.getHostname());
+        CertificateRequestGenerator csr = new CertificateRequestGenerator(domain, primary.getFqdn());
         settings.updateCertificateDetails(csr);
         setCsr(csr.getCertificateRequestText(web, key));
 
