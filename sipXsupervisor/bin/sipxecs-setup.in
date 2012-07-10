@@ -15,9 +15,9 @@ $group = "@SIPXPBXGROUP@"
 
 $domain_dat = "#{$cfdatadir}/domain.cfdat"
 $domain_part = "#{$cfdatadir}/domain-config.part"
-$root_keydir = "/var/cfengine/ppkeys"
-home_dir = `awk -F : '/^#{$user}:/ { print $6 }' /etc/passwd`.chomp
-$user_keydir = "#{home_dir}/.cfagent/ppkeys"
+$root_cfenginedir = "/var/cfengine"
+$home_dir = `awk -F : '/^#{$user}:/ { print $6 }' /etc/passwd`.chomp
+$user_keydir = "#{$home_dir}/.cfagent/ppkeys"
 $primary_dat = "#{$cfdatadir}/defaults/primary.cfdat"
 $secondary_dat = "#{$cfdatadir}/defaults/secondary.cfdat"
 $master_dat= "#{$cfdatadir}/defaults/master"
@@ -226,12 +226,11 @@ def reset_all
   return false unless prompt_confirm("This will \e[0;31mwipe all\e[m configuration data from this server. Are you sure?")
 
   # may not work, but try to shut down whatever is running
-  s = `#{$bindir}/sipxagent -d stop_sipxecs 2>&1`
-  puts s if $verbose
+  cmd_no_die("#{$bindir}/sipxagent -d stop_sipxecs")
+  cmd_no_die("#{$serviceder}/sipxsupervisor stop")
 
   # cannot rely stop_sipxecs worked all the way
-  s = `killall -9 java 2>&1`
-  puts s if $verbose
+  cmd_no_die("killall -9 java")
 
   Dir.foreach($cfdatadir) { |f|
     next if f == '.' or f == '..'
@@ -244,21 +243,27 @@ def reset_all
     end
   }
   reset
-  rm_files($root_keydir)
-  rm_files($user_keydir)
+  cfe = ["#{$root_cfenginedir}/ppkeys/*", "#{$root_cfenginedir}/state/*", "#{$root_cfenginedir}/*.tcdb" ]
+  Dir.glob(cfe).each {|f|
+    rm_file(f)
+  }
+  rm_files("#{$home_dir}/.cfagent")
 
   # references to project specific data, but we cannot rely that system is
   # in a state that cfengine can run reliably so we must delete straight away
   drop_db_if_exists('SIPXCONFIG')
   drop_db_if_exists('SIPXCDR')
   drop_db_if_exists('openfire')
-  s = `#{$bindir}/mongodb-repair --obliterate 2>&1`
-  puts s if $verbose
+  cmd_no_die("#{$bindir}/mongodb-repair --obliterate")
 end
 
 def drop_db_if_exists(db)
   # backtick eats errors by default
-  s = `dropdb -U postgres #{db} 2>&1`
+  cmd_no_die "dropdb -U postgres #{db}"
+end
+
+def cmd_no_die(cmd)
+  s = `#{cmd} 2>&1`
   puts s if $verbose
 end
 
@@ -278,7 +283,6 @@ args = OptionParser.new { |opts|
 
   opts.on("--reset-all", "Force reset of all possible settings including ssl keys.") {
     reset_all
-    exit
   }
 
   opts.on("--advanced", "Ask advanced questions.") {
