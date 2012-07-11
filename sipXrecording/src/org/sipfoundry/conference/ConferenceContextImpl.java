@@ -120,16 +120,12 @@ public class ConferenceContextImpl {
         return sourceName + File.separator + getWavName(confName);
     }
 
-    public boolean existsProps(String confName) {
-        return new File(sourceName, confName+".properties").exists();
-    }
-
     public boolean existsWav(String confName) {
         return new File(sourceName, getWavName(confName)).exists();
     }
 
     public boolean isRecordingInProgress(String confName) {
-        return existsWav(confName) && existsProps(confName);
+        return existsWav(confName);
     }
 
     public void setConferenceService(ConferenceService conferenceService) {
