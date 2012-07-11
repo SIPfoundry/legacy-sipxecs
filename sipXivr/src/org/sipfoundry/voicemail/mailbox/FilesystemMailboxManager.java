@@ -69,12 +69,12 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
 
     @Override
     protected VmMessage saveTempMessageInStorage(User destUser, TempMessage message, MessageDescriptor descriptor,
-            String messageId) {
-        File inboxDir = getFolder(destUser.getUserName(), Folder.INBOX);
-        File audioFile = new File(inboxDir, messageId + String.format(AUDIO_IDENTIFIER, getAudioFormat()));
-        File descriptorFile = new File(inboxDir, messageId + MESSAGE_IDENTIFIER);
-        File statusFile = new File(inboxDir, messageId + STATUS_IDENTIFIER);
-        File urgentFile = new File(inboxDir, messageId + URGENT_IDENTIFIER);
+            Folder storageFolder, String messageId) {
+        File folderDir = getFolder(destUser.getUserName(), storageFolder);
+        File audioFile = new File(folderDir, messageId + String.format(AUDIO_IDENTIFIER, getAudioFormat()));
+        File descriptorFile = new File(folderDir, messageId + MESSAGE_IDENTIFIER);
+        File statusFile = new File(folderDir, messageId + STATUS_IDENTIFIER);
+        File urgentFile = new File(folderDir, messageId + URGENT_IDENTIFIER);
         String operation = "storing stuff";
         boolean urgent = message.getPriority() == Priority.URGENT;
         try {
@@ -102,6 +102,13 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
         m_mwi.sendMWI(destUser, getMailboxDetails(destUser.getUserName()));
         LOG.info("VmMessage::newMessage created message " + descriptorFile.getPath());
         return new VmMessage(messageId, audioFile, descriptor, urgent);
+    }
+
+    //Automatically saves in INBOX
+    @Override
+    protected VmMessage saveTempMessageInStorage(User destUser, TempMessage message, MessageDescriptor descriptor,
+            String messageId) {
+        return saveTempMessageInStorage(destUser, message, descriptor, Folder.INBOX, messageId);
     }
 
     @Override

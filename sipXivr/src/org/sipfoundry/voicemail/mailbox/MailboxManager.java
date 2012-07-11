@@ -23,6 +23,9 @@ import org.sipfoundry.commons.userdb.User;
 
 public interface MailboxManager {
 
+    public static final String VOICEMAIL_SUBJECT = "Voice Message ";
+    public static final String CONFERENCE_CALL = "Conference Call ";
+
     MailboxDetails getMailboxDetails(String username);
 
     List<VmMessage> getMessages(String username, Folder folder);
@@ -32,6 +35,8 @@ public interface MailboxManager {
     TempMessage createTempMessage(String username, String fromUri, String extension, boolean addAudio);
 
     void deleteTempMessage(TempMessage message);
+
+    void store(User destUser, Folder folder, TempMessage message, String subject);
 
     void storeInInbox(User destUser, TempMessage message);
 

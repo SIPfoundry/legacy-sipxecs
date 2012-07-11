@@ -28,7 +28,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.confdb.Conference;
 import org.sipfoundry.commons.confdb.ConferenceService;
-import org.sipfoundry.commons.util.SipUriUtil;
 import org.sipfoundry.sipxrecording.RecordingConfiguration;
 
 public class ConferenceContextImpl {
@@ -54,7 +53,7 @@ public class ConferenceContextImpl {
     }
     public void saveInMailboxSynch(String confName) {
         Conference conf = m_conferenceService.getConference(confName);
-        notifyIvr(getIvrUris(), getWavName(confName), conf, getDomainName());
+        notifyIvr(getIvrUris(), getWavName(confName), conf, true);
         FileUtils.deleteQuietly(new File(getWavPath(confName)));
     }
 
@@ -69,15 +68,15 @@ public class ConferenceContextImpl {
      * Trigger the servlet on the voicemail server to read the WAV file E.g.
      * "http://s1.example.com:8086/recording/conference?test1_6737347.wav"
      */
-    private void notifyIvr(String ivrUri, String wavName, Conference conf, String domainName)
+    private void notifyIvr(String ivrUri, String wavName, Conference conf, boolean synchronous)
             throws IOException {
         String username = conf.getConfOwner();
         HttpClient httpClient = new HttpClient();
         String urlString = ivrUri + "/recording/conference"
             + "?wn=" + wavName
             + "&on=" + conf.getConfOwner()
-            + "&oi=" + SipUriUtil.format(username, domainName, false)
-            + "&bc=" + conf.getUri();
+            + "&bc=" + conf.getUri()
+            + "&synchronous=" + synchronous;
         LOG.debug("Notify IVR to pick the recorded file and copy it into user mailbox: " + urlString);
         GetMethod triggerRecording = new GetMethod(urlString);
         try {
@@ -94,10 +93,10 @@ public class ConferenceContextImpl {
         }
     }
 
-    public void notifyIvr(String[] ivrUris, String wavName, Conference conf, String domainName) {
+    public void notifyIvr(String[] ivrUris, String wavName, Conference conf, boolean synchronous) {
         if (lastGoodIvr != null) {
             try {
-                notifyIvr(lastGoodIvr, wavName, conf, domainName);
+                notifyIvr(lastGoodIvr, wavName, conf, synchronous);
                 return;
             } catch (IOException ex) {
                 //do not throw exception as we have to iterate through all nodes
@@ -105,7 +104,7 @@ public class ConferenceContextImpl {
         }
         for (String ivrUri : ivrUris) {
             try {
-                notifyIvr(ivrUri, wavName, conf, domainName);
+                notifyIvr(ivrUri, wavName, conf, synchronous);
                 break;
             } catch (IOException ex) {
                 LOG.error("ConfRecordThread::Trigger error on node:" + ivrUri);
@@ -149,7 +148,4 @@ public class ConferenceContextImpl {
         return m_recordingConfig.getIvrNodes();
     }
 
-    public String getDomainName() {
-        return m_recordingConfig.getSipxchangeDomainName();
-    }
 }
