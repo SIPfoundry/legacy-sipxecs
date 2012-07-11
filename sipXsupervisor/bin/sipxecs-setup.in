@@ -193,6 +193,7 @@ end
 
 def rm_files(d)
   puts "clearing files in directory #{d}" if $verbose
+  return unless File.directory? d
   Dir.foreach(d) { |f|
     next if f == '.' or f == '..'
     fname = "#{d}/#{f}"
