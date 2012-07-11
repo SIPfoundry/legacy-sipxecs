@@ -18,6 +18,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -115,36 +116,40 @@ public class Timezone {
 
     private String initalizeTimezoneFromClockFile() {
         String returnStr = EMPTY_STRING;
+        Reader readerForClockFile = getReaderForClockFile();
+        boolean found = false;
         try {
-            BufferedReader in = new BufferedReader(getReaderForClockFile());
-            boolean found = false;
-            String str;
-            while ((str = in.readLine()) != null) {
-                //
-                // Only interested in line that starts with ZONE=
-                //
-                if (str.startsWith(ZONE_EQUALS_TOKEN)) {
-                    // timezone might have double quotes around it. If so remove them.
-                    String str1;
-                    str1 = str.substring(ZONE_EQUALS_TOKEN.length(), str.length());
-                    if (str1.charAt(0) == '"') {
-                        if ((str1.charAt(str1.length() - 1) != '"')) {
-                            break;
+            if (readerForClockFile != null) {
+                BufferedReader in = new BufferedReader(readerForClockFile);
+                String str;
+                while ((str = in.readLine()) != null) {
+                    //
+                    // Only interested in line that starts with ZONE=
+                    //
+                    if (str.startsWith(ZONE_EQUALS_TOKEN)) {
+                        // timezone might have double quotes around it. If so remove them.
+                        String str1;
+                        str1 = str.substring(ZONE_EQUALS_TOKEN.length(), str.length());
+                        if (str1.charAt(0) == '"') {
+                            if ((str1.charAt(str1.length() - 1) != '"')) {
+                                break;
+                            }
+                            returnStr = str1.substring(1, str1.length() - 1);
+                        } else {
+                            returnStr = str1;
                         }
-                        returnStr = str1.substring(1, str1.length() - 1);
-                    } else {
-                        returnStr = str1;
+                        found = true;
+                        break;
                     }
-                    found = true;
-                    break;
                 }
-            }
-            in.close();
-            if (!found) {
-                LOG.error(ERROR_MSG);
             }
         } catch (IOException e) {
             LOG.error(ERROR_MSG, e);
+        } finally {
+            IOUtils.closeQuietly(readerForClockFile);
+        }
+        if (!found) {
+            LOG.error(ERROR_MSG);
         }
         return returnStr;
     }
