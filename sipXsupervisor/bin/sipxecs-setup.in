@@ -299,7 +299,8 @@ args.parse!
 
 raise 'Must run as root' unless Process.uid == 0
 set_root_keys()
-if set_primary()
+is_primary = set_primary()
+if is_primary
   set_nonroot_keys()
   set_domain()
 else
@@ -319,5 +320,16 @@ if !ok
   exit 1
 else
   puts "done."
+  fqdn = `hostname -f`
+  if is_primary
+    puts <<EOL
+\n
+In a few more minutes you will be able to access the administration
+interface from your web browser at the following URL:
+
+  https://#{fqdn}
+
+EOL
+  end
   exit 0
 end
