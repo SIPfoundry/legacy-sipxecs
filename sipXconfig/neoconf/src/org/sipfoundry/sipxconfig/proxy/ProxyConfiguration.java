@@ -94,7 +94,10 @@ public class ProxyConfiguration implements ConfigProvider {
         config.writeSettings("SIPX_PROXY.205_subscriptionauth.", root.getSetting("subscriptionauth"));
         config.writeSettings("SIPX_PROXY.350_calleralertinfo.", root.getSetting("alert-info"));
         config.writeSettings("SIPX_PROXY.400_authrules.", root.getSetting("authrules"));
-        config.writeSettings("SIPX_PROXY.210_msftxchghack.", root.getSetting("msftxchghack"));
+        String xferPlugin = "SIPX_PROXY.200_xfer.";
+        config.writeSetting(xferPlugin, root.getSetting("msftxchghack/EXCHANGE_SERVER_FQDN"));
+        config.writeSetting(xferPlugin, root.getSetting("msftxchghack/ADDITIONAL_EXCHANGE_SERVER_FQDN"));
+        config.writeSetting("SIPX_PROXY.210_msftxchghack.", root.getSetting("msftxchghack/USERAGENT"));
         config.writeSettings(root.getSetting("call-rate-limit"));
         config.write("SIPX_PROXY_HOST_NAME", location.getFqdn());
         int port = settings.getSipTcpPort();
