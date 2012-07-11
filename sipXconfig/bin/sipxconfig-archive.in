@@ -18,6 +18,8 @@
 # script or within the larger sipx-backup context.
 #
 
+require 'fileutils'
+
 class ArchiveBase
   attr_writer :verbose
 
@@ -27,6 +29,12 @@ class ArchiveBase
     @tmpdir = "/tmp"
     @libexec = "@SIPX_LIBEXECDIR@"
     @initd = "@SIPX_SERVICEDIR@"
+    @attachments = [
+       '@localstatedir@/sipxdata/parkserver/music',
+       '@localstatedir@/sipxdata/upload',
+       '@localstatedir@/sipxdata/mediaserver/data/moh',
+       '@localstatedir@/sipxdata/sipxpage/music'
+    ];
   end
 
   def sql_exec(db, sql)
@@ -52,8 +60,15 @@ class Backup < ArchiveBase
       raise "Could not backup avatar database"
     cmd "echo @PACKAGE_VERSION@ > version" or 
       raise "Could not generate version file"
-    cmd "tar --remove-files -czf #{params[:file]} db.tar version dump/" or 
-      raise "Could not archive backup"
+    attachments = @attachments.find_all{|d|
+      File.directory? d
+    }
+
+    # by stripping @localstatedir@ we can backup/restore from/to source/production machines
+    localstatedir = '@localstatedir@'[1..-1]
+    cmd "tar --transform='s,^#{localstatedir}/,var/,' -cvzf #{params[:file]} db.tar version dump/ #{attachments.join('/ ')}" or 
+      raise "Could not archive databases"
+    FileUtils.rm_rf(['db.tar', 'version', 'dump'])
   end
 end
 
@@ -68,7 +83,7 @@ class Restore < ArchiveBase
     if cmd "tar -zxvf #{params[:file]} -C #{@tmpdir} version"
       v = File.read("#{@tmpdir}/version").split(".")
       dev = (v[0] == '0' and v[1] == '0')
-      pre_mongo = !dev and ((v[0] == '4' and v[1] <= '4') or (v[0] < '4'))
+      pre_mongo = !(dev or (v[0] == '4' and v[1] > '4') or v[0] > '4')
     else
       raise "Not a known archive, version file is missing."
     end
@@ -121,15 +136,17 @@ class Restore < ArchiveBase
     sql_exec(@restoredb, "select change_primary_ip_on_restore('#{params[:ipaddress]}');") or
       raise "Failed to update ip address."
 
-    unless params[:dryrun]
-      cmd "#{@initd}/sipxconfig stop" if params[:restart]
-      cmd "dropdb -U #{@pguser} #{@db}"
-      # alter database command need double quotes if db name is capitalized. Also, first set of double
-      # quotes is lost passing thru ruby
-      sql_exec('postgres', "alter database \\\"#{@restoredb}\\\" rename to \\\"#{@db}\\\";") or
-        raise "Could not rename database. Please run '#{@initd}/sipxconfig db create' to reset your system."
-      cmd "#{@initd}/sipxconfig start" if params[:restart]
-    end    
+    cmd "#{@initd}/sipxconfig stop" if params[:restart]
+    cmd "dropdb -U #{@pguser} #{@db}"
+    # alter database command need double quotes if db name is capitalized. Also, first set of double
+    # quotes is lost passing thru ruby
+    sql_exec('postgres', "alter database \\\"#{@restoredb}\\\" rename to \\\"#{@db}\\\";") or
+      raise "Could not rename database. Please run '#{@initd}/sipxconfig db create' to reset your system."
+    cmd "#{@initd}/sipxconfig start" if params[:restart]
+
+    # exclude certdb because we don't need it but it's in <= 4.4.0 backups
+    cmd "tar --exclude certdb -zxvf #{params[:file]} -C @localstatedir@/.. var/sipxdata" or
+      raise "Could not restore file uploads"
   end
 end
 
