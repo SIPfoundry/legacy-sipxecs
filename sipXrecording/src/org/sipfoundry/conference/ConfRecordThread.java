@@ -151,7 +151,6 @@ public class ConfRecordThread extends ConfBasicThread {
         final String confName = event.getEventValue("conference-name");
         Conference conference = m_conferenceContext.getConference(confName);
         String [] ivrUris =m_conferenceContext.getIvrUris();
-        String domainName = m_conferenceContext.getDomainName();
         if (conference != null && conference.isAutoRecord()) {
             String wavName = conf.getWavName();
             LOG.debug("ConfRecordThread::Finished conference recording of " + wavName);
@@ -163,7 +162,7 @@ public class ConfRecordThread extends ConfBasicThread {
             }
 
             AuditWavFiles(new File(destName));
-            m_conferenceContext.notifyIvr(ivrUris, wavName, conference, domainName);
+            m_conferenceContext.notifyIvr(ivrUris, wavName, conference, false);
         }
         //verify if there is a temporary wav file recording given user action
         //the wav file, if any, has the same name as the conference

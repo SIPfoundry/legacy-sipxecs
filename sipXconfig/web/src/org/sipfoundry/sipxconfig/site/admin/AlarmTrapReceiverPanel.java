@@ -109,7 +109,7 @@ public abstract class AlarmTrapReceiverPanel extends BaseComponent {
     }
 
     public void save() {
-        if (TapestryUtils.isValid(this)) {
+        if (TapestryUtils.isValid(this) && getAlarmTrapReceivers() != null) {
             getAlarmServerManager().saveAlarmTrapReceivers(getAlarmTrapReceivers());
         }
     }

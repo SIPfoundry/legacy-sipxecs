@@ -47,6 +47,9 @@ public abstract class AbstractMailboxManager implements MailboxManager {
     private String m_altAudioFormat;
 
     protected abstract VmMessage saveTempMessageInStorage(User destUser, TempMessage message,
+            MessageDescriptor descriptor, Folder storageFolder, String messageId);
+
+    protected abstract VmMessage saveTempMessageInStorage(User destUser, TempMessage message,
             MessageDescriptor descriptor, String messageId);
 
     protected abstract File getTempFolder(String username);
@@ -82,6 +85,11 @@ public abstract class AbstractMailboxManager implements MailboxManager {
 
     @Override
     public final void storeInInbox(User destUser, TempMessage message) {
+        store(destUser, Folder.INBOX, message, VOICEMAIL_SUBJECT);
+    }
+
+    @Override
+    public final void store(User destUser, Folder folder, TempMessage message, String subject) {
         // Not this one, just delete any temp file
         if (!message.isToBeStored()) {
             FileUtils.deleteQuietly(new File(message.getTempPath()));
@@ -91,8 +99,8 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         if (!message.isStored()) {
             String messageId = nextMessageId(m_mailstoreDirectory + "/..");
             VmMessage savedMessage = saveTempMessageInStorage(destUser, message,
-                    createMessageDescriptor(destUser.getUserName(), message, messageId, destUser.getIdentity()),
-                    messageId);
+                    createMessageDescriptor(destUser.getUserName(), message, messageId, subject, destUser.getIdentity()),
+                    folder, messageId);
             message.setSavedMessageId(messageId);
             message.setStored(true);
             if (savedMessage != null) {
@@ -178,13 +186,13 @@ public abstract class AbstractMailboxManager implements MailboxManager {
     }
 
     private MessageDescriptor createMessageDescriptor(String destUser, TempMessage message, String messageId,
-            String identity) {
+            String subject, String identity) {
         MessageDescriptor descriptor = new MessageDescriptor();
         descriptor.setId(identity);
         descriptor.setFromUri(message.getFromUri());
         descriptor.setDurationSecs(message.getDuration());
         descriptor.setTimestamp(message.getTimestamp());
-        descriptor.setSubject("Voice Message " + messageId);
+        descriptor.setSubject(subject + messageId);
         descriptor.setPriority(message.getPriority());
         if (message.getOtherRecipients() != null) {
             for (User recipient : message.getOtherRecipients()) {
@@ -196,9 +204,15 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         return descriptor;
     }
 
+    //Creates VOICEMAIL message descriptors only
+    private MessageDescriptor createMessageDescriptor(String destUser, TempMessage message, String messageId,
+            String identity) {
+        return createMessageDescriptor(destUser, message, messageId, VOICEMAIL_SUBJECT, identity);
+    }
+
     /**
      * Generate the next message Id static synchronized as it's machine wide
-     * 
+     *
      * @param directory which holds the messageid.txt file
      */
     private synchronized String nextMessageId(String directory) {
