@@ -49,6 +49,7 @@ bundle agent perform_change(ini) {
 
       "/etc/sysconfig/clock"
             comment => "Change sysconfig clock",
+            create => "true",
             perms => m("644"),
             edit_line => timezone_contents('"$(timezone)"');
 }
