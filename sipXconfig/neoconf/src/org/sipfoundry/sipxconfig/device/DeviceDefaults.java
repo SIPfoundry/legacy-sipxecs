@@ -71,8 +71,14 @@ public class DeviceDefaults {
         return m_domainManager.getDomain().getName();
     }
 
+    /**
+     * @return null if not set
+     */
     public String getNtpServer() {
-        return m_addressManager.getSingleAddress(NtpManager.NTP_SERVER).getAddress();
+        if (m_addressManager.getSingleAddress(NtpManager.NTP_SERVER) != null) {
+            return m_addressManager.getSingleAddress(NtpManager.NTP_SERVER).getAddress();
+        }
+        return null;
     }
 
     /**
