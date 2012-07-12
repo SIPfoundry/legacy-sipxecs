@@ -337,6 +337,10 @@ public class MailboxServlet extends HttpServlet {
 
             return authenticatedUserName != null && (!authenticatedUserName.equals(userName) && !authenticatedUserName.equals("superadmin"));
         } else {
+            String trustedUserName = request.getHeader("sipx-user");
+            if (trustedUserName != null && !trustedUserName.equals(userName)) {
+                return true;
+            }
             return false;
         }
     }

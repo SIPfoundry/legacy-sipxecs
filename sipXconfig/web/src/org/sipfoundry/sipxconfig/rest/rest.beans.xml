@@ -213,6 +213,7 @@
   
   <bean id="restRedirectorResource" class="org.sipfoundry.sipxconfig.rest.RestRedirectorResource" scope="prototype">
     <property name="addressManager" ref="addressManager"/>
+    <property name="mailboxManager" ref="mailboxManager"/>
     <property name="coreContext" ref="coreContext" />
   </bean>
   <alias name="restRedirectorResource" alias="/my/redirect" />

@@ -5,6 +5,8 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.classextension.EasyMock.createMock;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -25,11 +27,13 @@ import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.rest.RestRedirectorResource.HttpInvoker;
 import org.sipfoundry.sipxconfig.restserver.RestServer;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 public class RestRedirectorResourceTest extends TestCase {
     private User m_user;
     private CoreContext m_coreContext;
     private AddressManager m_addressManager;
+    private MailboxManager m_mailboxManager;
 
     @Override
     protected void setUp() throws Exception {
@@ -50,9 +54,19 @@ public class RestRedirectorResourceTest extends TestCase {
         m_addressManager = createMock(AddressManager.class);
         m_addressManager.getSingleAddress(RestServer.HTTP_API);
         expectLastCall().andReturn(new Address(RestServer.HTTP_API, "host.example.com", 6667));
-        m_addressManager.getSingleAddress(Ivr.REST_API);
-        expectLastCall().andReturn(new Address(Ivr.REST_API, "host.example.com", 8085));
+        m_addressManager.getAddresses(Ivr.REST_API);
+        Address ivrAddress = new Address(Ivr.REST_API, "host.example.com", 8085);
+        List<Address> addresses = new ArrayList<Address>();
+        addresses.add(ivrAddress);
+        expectLastCall().andReturn(addresses);
         replay(m_addressManager);
+
+        m_mailboxManager = createMock(MailboxManager.class);
+        m_mailboxManager.getLastGoodIvrNode();
+        expectLastCall().andReturn(null);
+        m_mailboxManager.setLastGoodIvrNode(ivrAddress);
+        expectLastCall().anyTimes();
+        replay(m_mailboxManager);
     }
 
     public void testRepresentIvr() throws Exception {
@@ -131,6 +145,7 @@ public class RestRedirectorResourceTest extends TestCase {
         RestRedirectorResource resource = new RestRedirectorResource();
         resource.setCoreContext(m_coreContext);
         resource.setAddressManager(m_addressManager);
+        resource.setMailboxManager(m_mailboxManager);
         resource.setHttpInvoker(invoker);
 
         ChallengeResponse challengeResponse = new ChallengeResponse(null, "200", new char[0]);

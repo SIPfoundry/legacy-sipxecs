@@ -18,6 +18,7 @@ package org.sipfoundry.sipxconfig.rest;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethodBase;
@@ -27,6 +28,8 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -36,17 +39,27 @@ import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.StringRepresentation;
 import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.restserver.RestServer;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
+import org.springframework.beans.factory.annotation.Required;
 
 public class RestRedirectorResource extends UserResource {
     public static final String CALLCONTROLLER = "/callcontroller";
     public static final String CDR = "/cdr";
     public static final String MAILBOX = "/mailbox";
+    private static final String GET = "GET";
+    private static final String PUT = "PUT";
+    private static final String POST = "POST";
+    private static final String DELETE = "DELETE";
+
+    private static final Log LOG = LogFactory.getLog(RestRedirectorResource.class);
 
     private HttpInvoker m_httpInvoker;
     private AddressManager m_addressManager;
+    private MailboxManager m_mailboxManager;
 
     @Override
     public void init(Context context, Request request, Response response) {
@@ -92,8 +105,7 @@ public class RestRedirectorResource extends UserResource {
         String mailboxRelativeUrl = StringUtils.substringAfter(url, MAILBOX);
 
         if (!StringUtils.isEmpty(mailboxRelativeUrl)) {
-            m_httpInvoker.invokePut(m_addressManager.getSingleAddress(Ivr.REST_API).toString()
-                    + MAILBOX + mailboxRelativeUrl);
+            invokeIvrFallback(PUT, MAILBOX + mailboxRelativeUrl);
         }
     }
 
@@ -108,13 +120,57 @@ public class RestRedirectorResource extends UserResource {
             result = m_httpInvoker.invokeGet(m_addressManager.getSingleAddress(RestServer.HTTP_API)
                     + CDR + cdrRelativeUrl);
         } else if (!StringUtils.isEmpty(mailboxRelativeUrl)) {
-            result = m_httpInvoker.invokeGet(m_addressManager.getSingleAddress(Ivr.REST_API).toString()
-                    + MAILBOX + mailboxRelativeUrl);
+            result = invokeIvrFallback(GET, MAILBOX + mailboxRelativeUrl);
         } else if (!StringUtils.isEmpty(callcontrollerRelativeUrl)) {
             result = m_httpInvoker.invokeGet(m_addressManager.getSingleAddress(RestServer.HTTP_API)
                     + CALLCONTROLLER + callcontrollerRelativeUrl);
         }
         return new StringRepresentation(result);
+    }
+
+    private String invokeIvrFallback(String methodType, String relativeUri) throws ResourceException {
+        String result = null;
+        Address ivrGoodAddress = m_mailboxManager.getLastGoodIvrNode();
+        if (ivrGoodAddress != null) {
+            try {
+                result = invokeMethod(ivrGoodAddress, methodType, relativeUri);
+                return result;
+            } catch (ResourceException ex) {
+                // do not throw exception as we want to iterate through all ivr nodes
+                LOG.warn("Cannot call last good ivr address: " + ivrGoodAddress);
+            }
+        }
+        List<Address> ivrAddresses = m_addressManager.getAddresses(Ivr.REST_API);
+        for (Address address : ivrAddresses) {
+            try {
+                if (ivrGoodAddress != null && address.equals(ivrGoodAddress)) {
+                    continue;
+                }
+                result = invokeMethod(address, methodType, relativeUri);
+                m_mailboxManager.setLastGoodIvrNode(address);
+                return result;
+            } catch (ResourceException ex) {
+                LOG.warn("Cannot call ivr address: " + address);
+            }
+        }
+
+        throw new ResourceException(Status.CONNECTOR_ERROR_COMMUNICATION, "No IVR node is running");
+    }
+
+    private String invokeMethod(Address address, String methodType, String relativeUri) throws ResourceException {
+        if (StringUtils.equals(methodType, GET)) {
+            return m_httpInvoker.invokeGet(address.toString() + relativeUri);
+        } else if (StringUtils.equals(methodType, POST)) {
+            m_httpInvoker.invokePost(address.toString() + relativeUri);
+            return null;
+        } else if (StringUtils.equals(methodType, PUT)) {
+            m_httpInvoker.invokePut(address.toString() + relativeUri);
+            return null;
+        } else if (StringUtils.equals(methodType, DELETE)) {
+            m_httpInvoker.invokeDelete(address.toString() + relativeUri);
+            return null;
+        }
+        return null;
     }
 
     @Override
@@ -123,8 +179,7 @@ public class RestRedirectorResource extends UserResource {
         String mailboxRelativeUrl = StringUtils.substringAfter(url, MAILBOX);
 
         if (!StringUtils.isEmpty(mailboxRelativeUrl)) {
-            m_httpInvoker.invokeDelete(m_addressManager.getSingleAddress(Ivr.REST_API).toString()
-                    + MAILBOX + mailboxRelativeUrl);
+            invokeIvrFallback(DELETE, MAILBOX + mailboxRelativeUrl);
         }
     }
 
@@ -190,5 +245,10 @@ public class RestRedirectorResource extends UserResource {
 
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
+    }
+
+    @Required
+    public void setMailboxManager(MailboxManager mailboxManager) {
+        m_mailboxManager = mailboxManager;
     }
 }
