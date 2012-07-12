@@ -21,9 +21,13 @@
     </property>
     <property name="configManager" ref="configManager"/>
     <property name="locationsManager" ref="locationsManager"/>
+    <property name="timezone" ref="timezone"/>
   </bean>
 
   <bean id="ntpConfig" class="org.sipfoundry.sipxconfig.time.NtpConfig">
     <property name="ntpManager" ref="ntpManager"/>
   </bean>
+
+  <bean id="timezone" class="org.sipfoundry.sipxconfig.time.Timezone" />
+
 </beans>

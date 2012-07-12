@@ -22,7 +22,6 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.time.NtpManager;
-import org.sipfoundry.sipxconfig.time.Timezone;
 
 import com.davekoelle.AlphanumComparator;
 
@@ -43,8 +42,7 @@ public abstract class EditTimeZoneSettings extends BaseComponent implements Page
 
     public void pageBeginRender(PageEvent event_) {
         // Init. the timezone dropdown menu.
-        Timezone timezone = new Timezone();
-        List<String> timezoneList = timezone.getAllTimezones();
+        List<String> timezoneList = getTimeManager().getAvailableTimezones();
 
         // Sort list alphanumerically.
         Collections.sort(timezoneList, new AlphanumComparator());
@@ -55,9 +53,13 @@ public abstract class EditTimeZoneSettings extends BaseComponent implements Page
         // Set the dropdown list to display the current time zone.
         // Note: getAllTimezones will have added the current timezone to
         // the dropdown list, if it wasn't in it.
-        setTimezoneType(timezone.getTimezone());
+        String tz = getTimeManager().getSystemTimezone();
+        setTimezoneType(tz);
 
-        TimeZone.setDefault(TimeZone.getTimeZone(timezone.getTimezone()));
+        if (tz != null) {
+            TimeZone.setDefault(TimeZone.getTimeZone(tz));
+        }
+
     }
 
     public void setSysTimezone() {

@@ -50,6 +50,7 @@ import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
@@ -60,9 +61,11 @@ public class NtpManagerImpl implements NtpManager, ProcessProvider, FeatureProvi
         FirewallProvider, AddressProvider {
     private static final List<AddressType> ADDRESSES = Arrays.asList(NTP_SERVER);
     private static final Log LOG = LogFactory.getLog(NtpManagerImpl.class);
+    private static final String CLOCK = "clock";
     private BeanWithSettingsDao<NtpSettings> m_settingsDao;
     private ConfigManager m_configManager;
     private LocationsManager m_locationsManager;
+    private Timezone m_timezone;
 
     @Override
     public NtpSettings getSettings() {
@@ -76,6 +79,8 @@ public class NtpManagerImpl implements NtpManager, ProcessProvider, FeatureProvi
 
     @Override
     public void setSystemTimezone(String timezone) {
+        saveTimezoneSetting(timezone);
+
         Writer wtr = null;
         try {
             File f = new File(m_configManager.getGlobalDataDirectory(), "timezone.ini");
@@ -91,6 +96,20 @@ public class NtpManagerImpl implements NtpManager, ProcessProvider, FeatureProvi
         } finally {
             IOUtils.closeQuietly(wtr);
         }
+    }
+
+    @Override
+    public String getSystemTimezone() {
+        return getSettings().getTimezone();
+    }
+
+    @Override
+    public List<String> getAvailableTimezones() {
+        return m_timezone.getAllTimezones(getSystemTimezone());
+    }
+
+    public List<String> getAvailableTimezones(String timezone) {
+        return m_timezone.getAllTimezones(timezone);
     }
 
     @Override
@@ -130,7 +149,18 @@ public class NtpManagerImpl implements NtpManager, ProcessProvider, FeatureProvi
             manager.getFeatureManager().enableGlobalFeature(FEATURE, true);
             manager.setTrue(FEATURE.getId());
         }
+        if (!manager.isTrue(CLOCK)) {
+            saveTimezoneSetting(m_timezone.getInitialTimezoneFromClockFile());
+            manager.setTrue(CLOCK);
+        }
         return true;
+    }
+
+    private void saveTimezoneSetting(String timezone) {
+        NtpSettings settings = getSettings();
+        Setting tz = settings.getSettings().getSetting(NtpSettings.TIMEZONE_SETTING);
+        tz.setTypedValue(timezone);
+        saveSettings(settings);
     }
 
     @Override
@@ -148,6 +178,10 @@ public class NtpManagerImpl implements NtpManager, ProcessProvider, FeatureProvi
 
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
+    }
+
+    public void setTimezone(Timezone timezone) {
+        m_timezone = timezone;
     }
 
     @Override

@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class NtpSettings extends PersistableSettings implements DeployConfigOnEdit {
+    public static final String TIMEZONE_SETTING = "ntp-sysconfig/timezone";
     private static final String NTP_SERVER_0 = "ntp-config/server-0";
     private static final String NTP_SERVER_1 = "ntp-config/server-1";
     private static final String NTP_SERVER_2 = "ntp-config/server-2";
@@ -79,6 +80,10 @@ public class NtpSettings extends PersistableSettings implements DeployConfigOnEd
 
     public String getDriftFile() {
         return (String) getSettingTypedValue(DRIFT_FILE_SETTING);
+    }
+
+    public String getTimezone() {
+        return (String) getSettingValue(TIMEZONE_SETTING);
     }
 
     public List<SubnetInfo> getAlowedSubnetInfo() {

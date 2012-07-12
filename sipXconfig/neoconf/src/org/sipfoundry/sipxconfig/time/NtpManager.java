@@ -16,6 +16,8 @@
  */
 package org.sipfoundry.sipxconfig.time;
 
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 
@@ -26,6 +28,10 @@ public interface NtpManager {
     static final String CONTEXT_BEAN_NAME = "timeManager";
 
     void setSystemTimezone(String timezone);
+
+    String getSystemTimezone();
+
+    List<String> getAvailableTimezones();
 
     NtpSettings getSettings();
 

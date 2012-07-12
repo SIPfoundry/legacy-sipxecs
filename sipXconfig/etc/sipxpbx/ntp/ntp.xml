@@ -72,4 +72,10 @@
       <type><hostname/></type>
     </setting>
   </group>
+  <group name="ntp-sysconfig" hidden="yes">
+    <setting name="timezone">
+      <type><string/></type>
+      <value></value>
+    </setting>
+  </group>
 </model>

@@ -45,49 +45,7 @@ public class Timezone {
         "Pacific"
     };
 
-    private String m_timezone;
-
-    public Timezone() {
-        m_timezone = initalizeTimezoneFromClockFile();
-    }
-
-    // Process all files and directories under dir
-    private static void buildListOfTimezones(File dir, String name, List<String> timezoneList) {
-        if (dir == null) {
-            return;
-        }
-
-        String fullname = null;
-        if (name == EMPTY_STRING) {
-            // Called for the top directory.
-            // so fullname is this directory's name.
-            fullname = dir.getName();
-        } else {
-            // for all children of directory other than top dir.
-            // name is prevname + / + current dirName.
-            fullname = name + FORWARD_SLASH + dir.getName();
-        }
-
-        if (dir.isFile()) {
-            // This is a file, then add the full name to the timezonelist
-            // Note: Filter out any names with a space as these will cause
-            // problems setting timezone.
-            // First convert the name to Display name.
-
-            if (!fullname.contains(" ")) {
-                timezoneList.add(fullname);
-            }
-        } else if (dir.isDirectory()) {
-            // This is another sub-directory, recursively call this method
-            // for all children.
-            String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                buildListOfTimezones(new File(dir, children[i]), fullname, timezoneList);
-            }
-        }
-    }
-
-    public List<String> getAllTimezones() {
+    public List<String> getAllTimezones(String currentTimezone) {
         List<String> timezoneList = new ArrayList<String>();
         for (int i = 0; i < TIMEZONE_DIRECTORIES.length; i++) {
             File topDir = new File(TIMEZONE_LIST_DIR + FORWARD_SLASH + TIMEZONE_DIRECTORIES[i]);
@@ -97,24 +55,14 @@ public class Timezone {
         //
         // If the current timezone isn't in the timezonesList then add it.
         //
-        if (!timezoneList.contains(m_timezone)) {
-            timezoneList.add(m_timezone);
+        if (!timezoneList.contains(currentTimezone)) {
+            timezoneList.add(currentTimezone);
         }
 
         return timezoneList;
     }
 
-    protected Reader getReaderForClockFile() {
-        FileReader fileReader = null;
-        try {
-            fileReader = new FileReader(CLOCK_FILE);
-        } catch (FileNotFoundException e) {
-            LOG.error(ERROR_MSG);
-        }
-        return fileReader;
-    }
-
-    private String initalizeTimezoneFromClockFile() {
+    public String getInitialTimezoneFromClockFile() {
         String returnStr = EMPTY_STRING;
         Reader readerForClockFile = getReaderForClockFile();
         boolean found = false;
@@ -154,7 +102,49 @@ public class Timezone {
         return returnStr;
     }
 
-    public String getTimezone() {
-        return m_timezone;
+    // Process all files and directories under dir
+    private static void buildListOfTimezones(File dir, String name, List<String> timezoneList) {
+        if (dir == null) {
+            return;
+        }
+
+        String fullname = null;
+        if (name == EMPTY_STRING) {
+            // Called for the top directory.
+            // so fullname is this directory's name.
+            fullname = dir.getName();
+        } else {
+            // for all children of directory other than top dir.
+            // name is prevname + / + current dirName.
+            fullname = name + FORWARD_SLASH + dir.getName();
+        }
+
+        if (dir.isFile()) {
+            // This is a file, then add the full name to the timezonelist
+            // Note: Filter out any names with a space as these will cause
+            // problems setting timezone.
+            // First convert the name to Display name.
+
+            if (!fullname.contains(" ")) {
+                timezoneList.add(fullname);
+            }
+        } else if (dir.isDirectory()) {
+            // This is another sub-directory, recursively call this method
+            // for all children.
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                buildListOfTimezones(new File(dir, children[i]), fullname, timezoneList);
+            }
+        }
+    }
+
+    protected Reader getReaderForClockFile() {
+        FileReader fileReader = null;
+        try {
+            fileReader = new FileReader(CLOCK_FILE);
+        } catch (FileNotFoundException e) {
+            LOG.error(ERROR_MSG);
+        }
+        return fileReader;
     }
 }
