@@ -9,14 +9,18 @@
  */
 package org.sipfoundry.sipxconfig.site.cdr;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.cdr.Cdr;
 import org.sipfoundry.sipxconfig.cdr.CdrManager;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
@@ -45,9 +49,16 @@ public abstract class CdrPage extends UserBasePage {
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
+    @InjectObject("spring:cdrManager")
+    public abstract CdrManager getCdrManager();
+
     public abstract boolean isCallResolverInstalled();
 
     public abstract void setCallResolverInstalled(boolean callResolverInstalled);
+
+    public abstract int getTotalActiveCalls();
+
+    public abstract void setTotalActiveCalls(int total);
 
     public Collection<String> getTabNames() {
         if (isCallResolverInstalled()) {
@@ -63,5 +74,13 @@ public abstract class CdrPage extends UserBasePage {
         if (!isCallResolverInstalled() && getTab().equals(ACTIVE_TAB)) {
             setTab(HISTORIC_TAB);
         }
+
+        List<Cdr> activeCalls = new ArrayList<Cdr>();
+        try {
+            activeCalls = getCdrManager().getActiveCalls();
+        } catch (Exception e) {
+            activeCalls = Collections.emptyList();
+        }
+        setTotalActiveCalls(activeCalls.size());
     }
 }

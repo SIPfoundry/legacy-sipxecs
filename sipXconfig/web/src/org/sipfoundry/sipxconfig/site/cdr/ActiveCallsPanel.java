@@ -39,16 +39,13 @@ public abstract class ActiveCallsPanel extends BaseComponent {
 
     public abstract void setActiveCalls(List<Cdr> cdrs);
 
-    public abstract List<Cdr> getSource();
-    public abstract void setSource(List<Cdr> cdrs);
-
     @Message
     public abstract String getError();
 
     // FIXME: it would be much better if we can set activeCalls property in prepare for render,
     // but for some reason (Tapestry bug?) prepareForRender gets called to late during Ajax
     // triggered page interactions
-    public int getTotalActiveCalls() {
+    public List<Cdr> getSource() {
         List<Cdr> activeCalls = getActiveCalls();
         if (activeCalls == null) {
             try {
@@ -62,8 +59,7 @@ public abstract class ActiveCallsPanel extends BaseComponent {
             }
             setActiveCalls(activeCalls);
         }
-        setSource(activeCalls);
-        return activeCalls.size();
+        return activeCalls;
     }
 
 }
