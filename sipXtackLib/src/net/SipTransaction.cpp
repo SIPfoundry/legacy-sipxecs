@@ -2665,6 +2665,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
               //
               // if DNS/SRV lookup of a sips uri failed, default scheme to sip
               //
+              scheme = sip;
               mpDnsDestinations = SipSrvLookup::servers(mSendToAddress.data(),
                                                       scheme.data(),
                                                       mSendToProtocol,
