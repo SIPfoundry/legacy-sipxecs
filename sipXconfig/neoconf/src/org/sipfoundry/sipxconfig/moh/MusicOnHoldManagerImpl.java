@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.feature.Bundle;
@@ -178,6 +179,7 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, ReplicablePro
     public void saveSettings(MohSettings settings) {
         m_settingsDao.upsert(settings);
         m_replicationManager.replicateEntity(settings);
+        m_replicationManager.replicateAllData(DataSet.MAILSTORE);
     }
 
     public void setSettingsDao(BeanWithSettingsDao<MohSettings> settingsDao) {

@@ -69,6 +69,7 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.vm.DistributionList;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
@@ -82,6 +83,7 @@ import com.mongodb.DBObject;
 public class Mailstore extends AbstractDataSetGenerator {
     private MailboxManager m_mailboxManager;
     private LocalizationContext m_localizationContext;
+    private MusicOnHoldManager m_mohManager;
 
     @Override
     public boolean generate(Replicable entity, DBObject top) {
@@ -90,7 +92,7 @@ public class Mailstore extends AbstractDataSetGenerator {
         }
         User user = (User) entity;
         // The following settings used to be in validusers.xml
-        top.put(MOH, user.getSettingValue("moh/audio-source"));
+        top.put(MOH, getMohSetting(user));
         top.put(USERBUSYPROMPT, user.getSettingValue("voicemail/mailbox/user-busy-prompt")); // can
                                                                                              // be
                                                                                              // null
@@ -192,8 +194,20 @@ public class Mailstore extends AbstractDataSetGenerator {
         return DataSet.MAILSTORE;
     }
 
+    private String getMohSetting(User user) {
+        String userMoh = user.getSettingValue("moh/audio-source");
+        if (StringUtils.equals("SYSTEM_DEFAULT", userMoh)) {
+            return m_mohManager.getSettings().getMusicOnHoldSource();
+        }
+        return userMoh;
+    }
+
     public void setMailboxManager(MailboxManager mailboxManager) {
         m_mailboxManager = mailboxManager;
+    }
+
+    public void setMusicOnHoldManager(MusicOnHoldManager mohManager) {
+        m_mohManager = mohManager;
     }
 
     public void setLocalizationContext(LocalizationContext localizationContext) {
