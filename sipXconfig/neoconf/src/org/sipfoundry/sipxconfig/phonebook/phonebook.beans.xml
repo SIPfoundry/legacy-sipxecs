@@ -36,6 +36,7 @@
     </property>
 	<property name="configJdbcTemplate" ref="configJdbcTemplate" />
 	<property name="userProfileService" ref="userProfileService"/>
+    <property name="externalUsersDirectory" value="${sysdir.var}/phonebook"/>
   </bean>
 
   <bean id="filePhonebookEntryUpgradeTask" class="org.sipfoundry.sipxconfig.phonebook.PhonebookSetup">

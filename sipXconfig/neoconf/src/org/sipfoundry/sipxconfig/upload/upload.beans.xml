@@ -30,6 +30,8 @@
   <bean id="upload" class="org.sipfoundry.sipxconfig.upload.Upload"
     scope="prototype" parent="beanWithSettings">
     <property name="uploadSpecificationSource" ref="uploadSpecificationSource"/>
+    <property name="uploadRootDirectory" value="${sysdir.var}/upload"/>
+    <property name="destinationDirectory" value="${sysdir.var}/configserver/phone/profile/tftproot"/>
   </bean>
 
   <bean id="uploadUtil" class="org.sipfoundry.sipxconfig.upload.UploadUtil">

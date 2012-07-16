@@ -46,6 +46,13 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
         super.onTearDownAfterTransaction();
         m_out.setNullDomain();  // forces domain to reload from db on next call to getDomain
     }
+    
+    public void testChangeName() throws Exception {
+        loadDataSetXml("domain/DomainSeed.xml");
+        m_domainManagerImpl.changeDomainName("changeme.example.org");
+        Domain d = m_out.getDomain();
+        assertEquals("changeme.example.org", d.getName());
+    }
 
     public void testGetDomain() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");

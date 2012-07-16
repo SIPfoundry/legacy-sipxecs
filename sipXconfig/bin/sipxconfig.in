@@ -304,7 +304,7 @@ case "$1" in
     ;;
   setup)
     shift
-    runTask setup
+    runTask setup ${@}
     ;;
   *)
     echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart|db|setup|reset-admin}"

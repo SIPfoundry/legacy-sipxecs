@@ -44,18 +44,15 @@ test_SRC = $(shell cd $(srcdir); find org \( \
 	 -name '*.java' \
 	\) )
 
-TEST_CONFIG_FILES = test.properties sipxconfig.properties domain-config
+TEST_CONFIG_FILES = test.properties sipxconfig.properties
 javac-test : $(TEST_CONFIG_FILES)
 CLEANFILES = $(TEST_CONFIG_FILES)
 
 test.properties sipxconfig.properties : SIPX_CONFDIR=$(top_srcdir)/etc/sipxpbx
-sipxconfig.properties : $(top_srcdir)/etc/sipxconfig.properties.in Makefile
+sipxconfig.properties : $(top_srcdir)/etc/sipxpbx/sipxconfig/sipxconfig.properties.install Makefile
 	@$(call SearchAndReplace,$<,$@.tmp,$(EXTRA_REPLACE))
 	@echo "$$sipxconfig_properties" | tr -d '\011' >> $@.tmp
 	mv $@.tmp $@
-
-domain-config : Makefile
-	@echo "$$domain_config" | tr -d '\011' >> $@
 
 # send autoconf variables to prop file available to test env.
 local.etc.dir = $(top_srcdir)/etc/sipxpbx
@@ -104,18 +101,8 @@ reset-acd :
 	$(PG_SQL) SIPXACD_HISTORY_TEST -f @SIPX_CONFDIR@/report/location_fqdn.sql
 	$(PG_SQL) SIPXACD_HISTORY_TEST -f $(srcdir)/org/sipfoundry/sipxconfig/acd/stats/historical/history-seed.sql
 
-define domain_config
-	SIP_DOMAIN_NAME : example.org
-	SIP_DOMAIN_ALIASES : 127.0.0.1 myhost.example.org
-	SIP_REALM : example.org
-	SHARED_SECRET : pHJhejhCcSy5nc+UfcMF2wMN
-	DEFAULT_LANGUAGE : en
-	SUPERVISOR_PORT : 8092
-	CONFIG_HOSTS : myhost.example.org
-endef	
-export domain_config
-
-# customize spring beans for unit test environment, must include tab as first char
+# customize spring beans for unit test environment, must include tab as first char otherwise
+# automake treats it differently
 define sipxconfig_properties
 	domainManagerImpl.domainConfigFilename=$(abspath .)/domain-config
 	dataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXCONFIG_TEST
@@ -124,5 +111,13 @@ define sipxconfig_properties
 	mongoDbFactory.connectionUrl=mongodb://127.0.0.1:27017
 	sysdir.mongo_ns=_TEST
 	setupManagerImpl.enabled=false
+	domainManagerImpl.configuredDomain=example.org
+	domainManagerImpl.configuredRealm=example.org
+	domainManagerImpl.configuredSecret=pHJhejhCcSy5nc+UfcMF2wMN
+	domainManagerImpl.configuredFqdn=$(shell hostname)
+	domainManagerImpl.configuredIp=127.0.0.1
+	locationsManagerImpl.primaryFqdn=$(shell hostname)
+	locationsManagerImpl.primaryIp=127.0.0.1
+	mongoReplicaSetManager.primaryFqdn=$(shell hostname)
 endef
 export sipxconfig_properties

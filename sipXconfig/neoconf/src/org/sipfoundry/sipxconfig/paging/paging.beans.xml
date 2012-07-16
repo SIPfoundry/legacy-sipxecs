@@ -4,6 +4,7 @@
 
   <bean id="pagingConfiguration" class="org.sipfoundry.sipxconfig.paging.PagingConfiguration">
     <property name="pagingContext" ref="pagingContext" />
+    <property name="audioDirectory" value="$(sysdir.var)/sipxpage/music"/>
   </bean>
 
   <bean id="pagingSettings" class="org.sipfoundry.sipxconfig.paging.PagingSettings" parent="settingsBean">

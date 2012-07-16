@@ -22,5 +22,7 @@ public interface AdminContext {
     public static final String ARCHIVE = "configuration.tar.gz";
     final String CONTEXT_BEAN_NAME = "adminContext";
 
-    public void avoidCheckstyleError();
+    public AdminSettings getSettings();
+
+    public void saveSettings(AdminSettings settings);
 }

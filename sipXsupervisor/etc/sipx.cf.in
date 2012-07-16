@@ -43,10 +43,7 @@ bundle common sipx {
   vars:
     any::
       "location_id" string => readfile("@SIPX_CFDATA@/defaults/location_id", "100");
-      "iface"
-        string => "$(sys.interface)",
-        policy => "overridable";
-      "bind_ip" 
+      "bind_ip"
         string => "$(sys.ipv4)",
         policy => "overridable";
       "systemctl" 

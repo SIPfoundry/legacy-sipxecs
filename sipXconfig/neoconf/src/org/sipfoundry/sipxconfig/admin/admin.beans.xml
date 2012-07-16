@@ -8,10 +8,25 @@
   </bean>
 
   <bean id="adminContextImpl" class="org.sipfoundry.sipxconfig.admin.AdminContextImpl" autowire="byType">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.admin.AdminSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="locationsManager" ref="locationsManager"/>
     <property name="internalPort" value="${sysdir.port}"/>
     <property name="internalPortAuth" value="${sysdir.port.auth}"/>
   </bean>
+  
+  <bean id="adminSettings" class="org.sipfoundry.sipxconfig.admin.AdminSettings" parent="settingsBean">
+  </bean>
 
+  <bean id="adminConfig" class="org.sipfoundry.sipxconfig.admin.AdminConfig">
+    <property name="adminContext" ref="adminContext"/>
+  </bean>
 </beans>

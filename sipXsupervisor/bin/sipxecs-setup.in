@@ -83,8 +83,6 @@ end
 
 # Return true or false IF machine is primary, not is anything was done or not
 def set_primary
-  return false if File.exists?($secondary_dat)
-  return true if File.exists?($primary_dat)
   return false unless prompt_confirm("Is this the \e[0;31mfirst server\e[m in your cluster?")
   puts "Configuring as the first server..."
   File.open($location_dat, 'w') {|f|
@@ -140,26 +138,16 @@ def prompt_required(msg)
   }
 end
 
-#def prompt(msg, default)
-#  print msg
-#  value = readline.chomp
-#  return value.empty? ? default : value
-#end
-
 # PRIMARY ONLY
 def set_domain
-  return if File.exists?($domain_dat)
-  current_host = `hostname -s 2>/dev/null`.chomp
-  current_domain = `hostname -d 2>/dev/null`.chomp
-  host = prompt_default("Enter system \e[0;31mhost name without the domain\e[m name", current_host)
-  domain = prompt_default("Enter \e[0;31mdomain\e[m name", current_domain)
+  net = get_network
   puts <<EOF
-\e[0;31mTip:\e[m Use '\e[0;31m#{host}.#{domain}\e[m' as your SIP domain if you are 
+\e[0;31mTip:\e[m Use '\e[0;31m#{net.host}.#{net.domain}\e[m' as your SIP domain if you are 
 setting up for the first time or if you know you are only going to setup one
 server. This can make configuration easier.  You can always change the value
 later.
 EOF
-  sip_domain = prompt_default("Enter \e[0;31mSIP domain\e[m name", domain)
+  sip_domain = prompt_default("Enter \e[0;31mSIP domain\e[m name", net.domain)
   realm = prompt_default("Enter \e[0;31mSIP realm\e[m", sip_domain)
   # shared secret is not really used anymore, but some servers still read it
   shared_secret = `head -c 18 /dev/urandom | base64`.chomp
@@ -173,22 +161,6 @@ EOF
   }
   puts "Created #{$domain_dat}" if $verbose
   FileUtils.chown($user, $group, $domain_dat)
-
-  File.open("#{$cfdatadir}/network.cfdat", 'w') { |f|
-    f.puts <<EOF
-=net_domain=#{domain}
-EOF
-  }
-
-  location_dir = "#{$cfdatadir}/1"
-  Dir.mkdir(location_dir) unless File.directory?(location_dir)
-  host_dat = "#{location_dir}/host.cfdat"
-  File.open(host_dat, 'w') { |f|
-    f.puts <<EOF
-=host=#{host}
-EOF
-  }  
-  FileUtils.chown_R($user, $group, location_dir)
 end
 
 def rm_files(d)
@@ -250,11 +222,20 @@ def reset_all
   }
   rm_files("#{$home_dir}/.cfagent")
 
+  # Flush out any existing connections, otherwise we cannot drop databases
+  # test if postgres is supposed to be running on the machine
+  has_postgres_data = File.directory? "/var/lib/pgsql/data/base"
+  if has_postgres_data
+    cmd_no_die("/etc/init.d/postgresql restart")
+  end
+
   # references to project specific data, but we cannot rely that system is
   # in a state that cfengine can run reliably so we must delete straight away
-  drop_db_if_exists('SIPXCONFIG')
-  drop_db_if_exists('SIPXCDR')
-  drop_db_if_exists('openfire')
+  if has_postgres_data
+    drop_db_if_exists('SIPXCONFIG')
+    drop_db_if_exists('SIPXCDR')
+    drop_db_if_exists('openfire')
+  end
   cmd_no_die("#{$bindir}/mongodb-repair --obliterate")
 end
 
@@ -266,6 +247,139 @@ end
 def cmd_no_die(cmd)
   s = `#{cmd} 2>&1`
   puts s if $verbose
+end
+
+def network_settings
+  net = get_network
+  if net.valid?
+    puts "\e[0;31mNetwork settings:\e[m"
+    puts "IP address   : #{net.ip}"
+  end
+  change = prompt_confirm("Would you like to \e[0;31mconfigure\e[m your system\'s network settings?")
+  if change
+    system("/usr/sbin/system-config-network-tui")
+  end
+
+  net = get_network(true)
+  net.host = prompt_default("Enter just the \e[0;31mhost name\e[m of this computer?. Example: myhost.", net.host);
+  net.domain = prompt_default("Enter just the \e[0;31mdomain name\e[m of your network? Example: mydomain.com", net.domain)
+
+  File.open("#{$cfdatadir}/network.cfdat", 'w') { |f|
+    f.puts <<EOF
+=net_domain=#{net.domain}
+EOF
+  }
+
+  location_dir = "#{$cfdatadir}/1"
+  Dir.mkdir(location_dir) unless File.directory?(location_dir)
+  host_dat = "#{location_dir}/host.cfdat"
+  File.open(host_dat, 'w') { |f|
+    f.puts <<EOF
+=host=#{net.host}
+EOF
+  }  
+  FileUtils.chown_R($user, $group, location_dir)
+end
+
+def is_primary?
+  return File.exists?($primary_dat)
+end
+
+def is_secondary?
+  return File.exists?($secondary_dat)
+end
+
+def get_location_id
+  return nil unless File.exists?($location_dat)
+  File.open($location_dat, 'r') {|f|
+    return f.gets.chomp
+  }
+end
+
+def get_network(force = false)
+  return $network if (!force and defined? $network)
+  $network = Network.new
+end
+
+class Network
+  attr_accessor :ip, :host, :domain
+
+  def initialize
+    @host = `hostname -s 2>/dev/null`.chomp
+    @domain = `hostname -d 2>/dev/null`.chomp
+    @ip = `hostname -i 2>/dev/null`.chomp
+    return unless @ip.empty?
+
+    # hostname call is not reliable, check hosts file for more accurate answer
+    # the network config tool system-config-network-tui  does not create a clean
+    # /etc/hosts file but we can
+    # glean the results in such a way that if someone did change the host name using
+    # that tool, we can tell what they entered.  The hostname.cf file will clean up the 
+    # /etc/hosts file later.
+    ipregex = Regexp.new("^#{ip.gsub(/\./, '\\\.')}.*")
+    File.open('/etc/hosts', 'r') {|fhnd|
+      while (line = fhnd.gets)
+        f = line.split(' ')
+        if ipregex =~ f[0]
+          fqdn, @host = f[-2], f[-1]
+          @domain = fqdn.gsub(@host + '.','')
+          break
+        end
+      end
+    }
+  end
+
+  def valid?
+    !(@ip.empty? or @host.empty? or @domain.empty?)
+  end
+
+  def fqdn
+    @host + '.' + @domain
+  end
+end
+
+def print_application_settings
+  is_primary = is_primary?
+  puts "Primary server : " + (is_primary ? 'yes' : 'no')
+  location = get_location_id
+  return false if location.empty?
+  [$domain_dat, "#{$cfdatadir}/#{location}/host.cfdat"].each {|fname|
+    return false unless File.exists?(fname)
+    File.open(fname, "r") {|fstream|
+      while (line = fstream.gets)
+        f = line.split('=')
+        case f[1]
+        when /domain/
+          puts "SIP Domain     : " + f[2]
+        when /master_fqdn/
+          puts("Master         : " + f[2]) unless is_primary
+        when /master_address/
+          puts("Master IP      : " + f[2]) unless is_primary
+        else
+        end  
+      end
+    }
+  }
+  return true
+end
+
+def application_settings
+  already_setup = (is_primary? or is_secondary?)
+  if already_setup
+    puts "\e[0;31mApplication settings:\e[m"
+    if print_application_settings
+      if !prompt_confirm("Would you like to \e[0;31mchange\e[m your application settings?")
+        return
+      end
+    end
+  end
+  is_primary = set_primary()
+  if is_primary
+    set_nonroot_keys()
+    set_domain
+  else
+    set_secondary
+  end
 end
 
 args = OptionParser.new { |opts|
@@ -300,18 +414,17 @@ args.parse!
 
 raise 'Must run as root' unless Process.uid == 0
 set_root_keys()
-is_primary = set_primary()
-if is_primary
-  set_nonroot_keys()
-  set_domain()
-else
-  set_secondary
-end
-
-puts "Configuring system, this may take a few minutes..."
+network_settings
+application_settings
 
 # First pass generated cfdata info
-exit 1 unless run_command("#{$bindir}/sipxagent #{'-v ' if $verbose} -d setup")
+if is_primary?
+  puts "Initial setup, this may take a few minutes..."
+  exit 1 unless run_command("#{$bindir}/sipxagent #{'-v ' if $verbose} -d setup")
+  puts "Finishing system configuration, almost done..."
+else
+  puts "Configuring system, this may take a few minutes..."
+end
 
 # 2nd pass operates on cfdata info
 ok = run_command("#{$bindir}/sipxagent #{'-v ' if $verbose}")
@@ -321,14 +434,14 @@ if !ok
   exit 1
 else
   puts "done."
-  fqdn = `hostname -f`
-  if is_primary
+  net = get_network
+  if is_primary?
     puts <<EOL
 \n
 In a few more minutes you will be able to access the administration
 interface from your web browser at the following URL:
 
-  https://#{fqdn}
+  https://#{net.fqdn}
 
 EOL
   end

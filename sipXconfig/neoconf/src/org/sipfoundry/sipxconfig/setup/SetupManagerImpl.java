@@ -122,6 +122,7 @@ public class SetupManagerImpl implements SetupManager, ApplicationListener<Appli
         }
     }
 
+    @Override
     public void setup() {
         if (m_setup) {
             return;

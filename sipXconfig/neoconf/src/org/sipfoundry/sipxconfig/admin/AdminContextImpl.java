@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
@@ -46,6 +47,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     private LocationsManager m_locationsManager;
     private int m_internalPort;
     private int m_internalPortAuth;
+    private BeanWithSettingsDao<AdminSettings> m_settingsDao;
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
@@ -93,10 +95,6 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     }
 
     @Override
-    public void avoidCheckstyleError() {
-    }
-
-    @Override
     public Collection<ArchiveDefinition> getArchiveDefinitions(BackupManager manager, Location location,
             BackupSettings settings) {
         if (!location.isPrimary()) {
@@ -122,5 +120,19 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         ArchiveDefinition def = new ArchiveDefinition(ARCHIVE,
                 "$(sipx.SIPX_BINDIR)/sipxconfig-archive --backup %s", restore.toString());
         return Collections.singleton(def);
+    }
+
+    @Override
+    public AdminSettings getSettings() {
+        return m_settingsDao.findOrCreateOne();
+    }
+
+    @Override
+    public void saveSettings(AdminSettings settings) {
+        m_settingsDao.upsert(settings);
+    }
+
+    public void setSettingsDao(BeanWithSettingsDao<AdminSettings> settingsDao) {
+        m_settingsDao = settingsDao;
     }
 }

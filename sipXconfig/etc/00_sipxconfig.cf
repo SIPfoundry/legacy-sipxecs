@@ -23,10 +23,54 @@ bundle agent 00_sipxconfig {
       "any" usebundle => sipxcommserverlib;
       "any" usebundle => sipxsupervisor;
 
+  files:
+    primary::
+      "$(sipx.SIPX_CONFDIR)/sipxconfig.properties"
+        comment => "sipXconfig configuration $(this.promiser)",
+        perms => mog("644", "root", "root"),
+        edit_defaults => empty,
+        edit_line => sipxconfig_config;
+
   commands:
     primary.setup::
       "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
         comment => "generate ssl info $(this.promiser)",
-        args => "setup",
+        args => "setup $(sipx.bind_ip) $(sipx.fqhost)",
         classes => if_notkept("fatal_error");
+}
+
+bundle edit_line sipxconfig_config {
+  vars:
+    "install_config" string => "$(sipx.SIPX_CONFDIR)/sipxconfig/sipxconfig.properties.install";
+    "ui_config" string => "$(sipx.SIPX_CFDATA)/1/sipxconfig.properties.ui";
+
+  classes:
+    "has_ui_config" expression => fileexists("$(ui_config)");
+
+  insert_lines:
+    primary::
+      "# Part 1 - from $(install_config)";
+      "$(install_config)"
+        expand_scalars => "true",
+        insert_type => "file";
+
+    # part 3
+    primary::
+"# Part 2 - from $(sipx.SIPX_CFINPUTS)/plugin.d/00_sipxconfig.cf
+sysdir.mongo_ns=
+domainManagerImpl.configuredDomain=$(sipx.domain)
+domainManagerImpl.configuredRealm=$(sipx.realm)
+domainManagerImpl.configuredSecret=$(sipx.secret)
+domainManagerImpl.configuredFqdn=$(sipx.host).$(sipx.net_domain)
+domainManagerImpl.configuredIp=$(sipx.bind_ip)
+locationsManagerImpl.primaryIp=$(sipx.bind_ip)
+locationsManagerImpl.primaryFqdn=$(sipx.host).$(sipx.net_domain)
+mongoReplicaSetManager.primaryFqdn=$(sipx.host).$(sipx.net_domain)
+";
+
+    primary.has_config::
+    "# Part 3 - from $(ui_config)";
+    "$(ui_config)"
+      expand_scalars => "true",
+      insert_type => "file";
 }

@@ -18,13 +18,16 @@
     scope="prototype">
     <property name="location" ref="location"/>
     <property name="port" value="8110"/>
+    <property name="agentPort" value="8120"/>
     <property name="acdContext" ref="acdContextImpl"/>
     <property name="addressManager" ref="addressManager"/>
   </bean>
 
   <bean id="acdAgent" class="org.sipfoundry.sipxconfig.acd.AcdAgent" parent="acdComponent" scope="prototype" />
   <bean id="acdLine" class="org.sipfoundry.sipxconfig.acd.AcdLine" parent="acdComponent" scope="prototype" />
-  <bean id="acdQueue" class="org.sipfoundry.sipxconfig.acd.AcdQueue" parent="acdComponent" scope="prototype" />
+  <bean id="acdQueue" class="org.sipfoundry.sipxconfig.acd.AcdQueue" parent="acdComponent" scope="prototype">
+    <property name="audioDirectory" value="${sysdir.var}/configserver/phone/acd/audio"/>
+  </bean>
   <bean id="acdAudio" class="org.sipfoundry.sipxconfig.acd.AcdAudio" parent="acdComponent" scope="prototype" />
 
   <bean id="acdContextImpl" class="org.sipfoundry.sipxconfig.acd.AcdContextImpl" parent="abstractDaoImpl">

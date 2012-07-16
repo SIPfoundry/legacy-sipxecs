@@ -98,8 +98,8 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private CoreContext m_coreContext;
     private ForwardingContext m_forwardingContext;
     private ExternalAliases m_externalAliases;
-    private int m_pageSize;
-    private int m_nThreads;
+    private int m_pageSize = 1000;
+    private int m_nThreads = 2;
     private boolean m_useDynamicPageSize;
     private DataSet m_dataSet;
 

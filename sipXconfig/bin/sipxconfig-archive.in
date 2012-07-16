@@ -50,13 +50,13 @@ end
 
 class Backup < ArchiveBase
   def run(params)
-    cmd "pg_dump -U #{@pguser} -F t #{@db} > db.tar" or 
+    cmd "pg_dump -U #{@pguser} -F t #{@db} > db.tar" or
       raise "Could not backup postgres database"
-    cmd "mongodump --db profiles --collection userProfile" or 
+    cmd "mongodump --db profiles --collection userProfile" or
       raise "Could not backup user profiles database"
-    cmd "mongodump --db profiles --collection fs.files" or 
+    cmd "mongodump --db profiles --collection fs.files" or
       raise "Could not backup avatar database"
-    cmd "mongodump --db profiles --collection fs.chunks" or 
+    cmd "mongodump --db profiles --collection fs.chunks" or
       raise "Could not backup avatar database"
     cmd "echo @PACKAGE_VERSION@ > version" or 
       raise "Could not generate version file"

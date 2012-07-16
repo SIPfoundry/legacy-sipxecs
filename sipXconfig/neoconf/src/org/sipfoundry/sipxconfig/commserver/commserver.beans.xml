@@ -9,7 +9,7 @@
 
   <bean id="locationsManagerImpl" class="org.sipfoundry.sipxconfig.commserver.LocationsManagerImpl" parent="abstractDaoImpl">
     <property name="auditLogContext" ref="auditLogContext" />
-    <property name="domainManager" ref="domainManager" />
+    <property name="jdbc" ref="configJdbcTemplate"/>    
   </bean>
 
   <bean id="locationsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

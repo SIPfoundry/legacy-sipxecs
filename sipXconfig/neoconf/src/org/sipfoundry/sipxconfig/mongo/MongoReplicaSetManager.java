@@ -18,8 +18,6 @@ package org.sipfoundry.sipxconfig.mongo;
 
 import static java.lang.String.format;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -66,6 +64,7 @@ public class MongoReplicaSetManager {
     private MongoTemplate m_localDb;
     private ReplicationManager m_replicationManager;
     private JdbcTemplate m_jdbcTemplate;
+    private String m_primaryFqdn;
 
     public void checkState() {
         BasicBSONObject ret = MongoUtil.runCommand(m_localDb.getDb(), CHECK_COMMAND);
@@ -77,9 +76,8 @@ public class MongoReplicaSetManager {
     public void initialize() {
         // cannot use business object because they are not initialized yet
         try {
-            String fqdn = InetAddress.getLocalHost().getHostName();
-            LOG.info("initializing mongo replicaset to host " + fqdn);
-            String cmd = format(INIT_COMMAND, fqdn, MongoSettings.SERVER_PORT);
+            LOG.info("initializing mongo replicaset to host " + m_primaryFqdn);
+            String cmd = format(INIT_COMMAND, m_primaryFqdn, MongoSettings.SERVER_PORT);
             MongoUtil.runCommand(m_localDb.getDb(), cmd);
             for (int i = 0; i < 12; i++) {
                 LOG.info("Testing mongo connection");
@@ -88,8 +86,6 @@ public class MongoReplicaSetManager {
                 }
                 Thread.sleep(5000);
             }
-        } catch (UnknownHostException e) {
-            throw new IllegalStateException("Cannot get FQDN to initialize mongo.");
         } catch (InterruptedException e) {
             LOG.error("Interrupted waiting for mongo primary connection test");
         }
@@ -207,5 +203,9 @@ public class MongoReplicaSetManager {
 
     public void setReplicationManager(ReplicationManager replicationManager) {
         m_replicationManager = replicationManager;
+    }
+
+    public void setPrimaryFqdn(String primaryFqdn) {
+        m_primaryFqdn = primaryFqdn;
     }
 }

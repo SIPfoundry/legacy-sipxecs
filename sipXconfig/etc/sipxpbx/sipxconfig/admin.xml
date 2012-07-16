@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="configserver-config">
+    <setting name="externalAliases.aliasAddins">
+      <type>
+        <string/>
+      </type>      
+    </setting>
+    <setting name="mappingRules.externalRulesFileName">
+      <type>
+        <string/>
+      </type>      
+    </setting>
+    <setting name="fallbackRules.externalRulesFileName">
+      <type>
+        <string/>
+      </type>      
+    </setting>
+  </group>
+</model>

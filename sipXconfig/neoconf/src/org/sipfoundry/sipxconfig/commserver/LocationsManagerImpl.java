@@ -9,11 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.commserver;
 
+import static java.lang.String.format;
 import static org.springframework.dao.support.DataAccessUtils.intResult;
 import static org.springframework.dao.support.DataAccessUtils.singleResult;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Collections;
@@ -32,13 +31,13 @@ import org.sipfoundry.sipxconfig.common.ReplicationsFinishedEvent;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location.State;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager,
@@ -50,8 +49,10 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     private static final String LOCATION_PROP_ID = "locationId";
     private static final String DUPLICATE_FQDN_OR_IP = "&error.duplicateFqdnOrIp";
     private AuditLogContext m_auditLogContext;
-    private DomainManager m_domainManager;
     private String m_defaultStunServer = "stun.ezuce.com";
+    private String m_primaryFqdn;
+    private String m_primaryIp;
+    private JdbcTemplate m_jdbc;
 
     /** Return the replication URLs, retrieving them on demand */
     @Override
@@ -165,14 +166,8 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         if (location.isPrimary()) {
             throw new UserException("&error.delete.primary", location.getFqdn());
         }
-        // ARGH!! Kept getting duplicate object in session and usual tricks of merge and evict
-        // didn't work so i resorted to SQL. --Douglas
         Location merge = getHibernateTemplate().merge(location);
         getHibernateTemplate().delete(merge);
-//        // ARGH!! Kept getting duplicate object in session and usual tricks of merge and evict
-//        // didn't work so i resorted to SQL. --Douglas
-//        m_jdbcTemplate.execute("delete from location where location_id = " + location.getId());
-//        getHibernateTemplate().flush();
     }
 
     @Override
@@ -225,31 +220,40 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
 
     @Override
     public boolean setup(SetupManager manager) {
-        String id = "init-locations";
-        if (manager.isTrue(id)) {
-            return true;
-        }
         Location[] locations = getLocations();
         if (locations.length > 0) {
-            manager.setTrue(id);
-            return true;
-        }
-
-        try {
-            String fqdn = InetAddress.getLocalHost().getHostName();
-            String ip = InetAddress.getLocalHost().getHostAddress();
-            Location primary = new Location(fqdn, ip);
+            for (Location l : locations) {
+                if (l.isPrimary()) {
+                    if (!l.getAddress().equals(m_primaryIp)) {
+                        changePrimaryIp(m_primaryIp);
+                    }
+                    if (!l.getFqdn().equals(m_primaryFqdn)) {
+                        changePrimaryFqdn(m_primaryFqdn);
+                    }
+                    break;
+                }
+            }
+        } else {
+            Location primary = new Location(m_primaryFqdn, m_primaryIp);
             primary.setPrimary(true);
             primary.setName("Primary");
             primary.setStunAddress(m_defaultStunServer);
             primary.setState(State.CONFIGURED);
             saveLocation(primary);
-
-            manager.setTrue(id);
-        } catch (UnknownHostException e) {
-            throw new RuntimeException("Could not determine host name and/or ip address, check /etc/hosts file", e);
         }
         return true;
+    }
+
+    private void changePrimaryIp(String ip) {
+        // Ran into problems exec-ing a stored proc, this gave error about
+        // response when none was expected
+        //    m_jdbc.update(...
+        //
+        m_jdbc.execute(format("select change_primary_ip_on_restore('%s')", ip));
+    }
+
+    private void changePrimaryFqdn(String fqdn) {
+        m_jdbc.execute(format("select change_primary_fqdn_on_restore('%s')", fqdn));
     }
 
     @Required
@@ -257,11 +261,19 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         m_auditLogContext = auditLogContext;
     }
 
-    public void setDomainManager(DomainManager domainManager) {
-        m_domainManager = domainManager;
-    }
-
     public void setDefaultStunServer(String defaultStunServer) {
         m_defaultStunServer = defaultStunServer;
+    }
+
+    public void setPrimaryFqdn(String primaryFqdn) {
+        m_primaryFqdn = primaryFqdn;
+    }
+
+    public void setPrimaryIp(String primaryIp) {
+        m_primaryIp = primaryIp;
+    }
+
+    public void setJdbc(JdbcTemplate jdbc) {
+        m_jdbc = jdbc;
     }
 }

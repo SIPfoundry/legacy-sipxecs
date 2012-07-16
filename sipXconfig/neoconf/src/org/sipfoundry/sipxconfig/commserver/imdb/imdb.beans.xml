@@ -26,6 +26,7 @@
   <!-- list of files and directory in which they are located can be changed in sipxconfig.properties -->
   <bean id="externalAliases"
     class="org.sipfoundry.sipxconfig.commserver.imdb.ExternalAliases">
+    <property name="addinsDirectory" value="${sysdir.java}"/>
   </bean>
 
   <bean id="aliasDataSet" parent="dataSetGenerator"

@@ -10,11 +10,6 @@
 package org.sipfoundry.sipxconfig.domain;
 
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,8 +19,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
@@ -33,14 +26,17 @@ import org.sipfoundry.sipxconfig.localization.Localization;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager, SetupListener {
     private static DomainManagerImpl s_instance;
-    private static final String DOMAIN_CONFIG_ERROR = "Unable to load initial domain-config file.";
-    private static final Log LOG = LogFactory.getLog(DomainManagerImpl.class);
-    private static final String SIP_DOMAIN_NAME = "SIP_DOMAIN_NAME";
+    private JdbcTemplate m_jdbc;
     private volatile Domain m_domain;
-    private String m_domainConfigFilename;
+    private String m_configuredDomain;
+    private String m_configuredRealm;
+    private String m_configuredSecret;
+    private String m_configuredFqdn;
+    private String m_configuredIp;
 
     public DomainManagerImpl() {
         s_instance = this;
@@ -60,7 +56,6 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         }
     }
 
-
     /**
      * @return non-null unless test environment
      */
@@ -75,20 +70,40 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
                 if (d2 == null) {
                     d2 = loadDomainFromDb();
                     if (d2 == null) {
-                        d2 = loadDomainFromConfig();
-                        getHibernateTemplate().saveOrUpdate(d2);
-                        getHibernateTemplate().flush();
-                        d2 = loadDomainFromDb();
-                        if (d2 == null) {
-                            throw new DomainNotInitializedException();
-                        }
+                        Domain config = new Domain();
+                        config.setName(m_configuredDomain);
+                        config.setSharedSecret(m_configuredSecret);
+                        config.setSipRealm(m_configuredRealm);
+                        config.addAlias(m_configuredIp);
+                        config.addAlias(m_configuredFqdn);
+                        getHibernateTemplate().saveOrUpdate(config);
+                        d2 = reloadDomainFromDb();
                     }
+
                     m_domain = d2;
                 }
             }
         }
 
         return m_domain;
+    }
+
+    void changeDomainName(String domain) {
+        // Ran into problems exec-ing a stored proc, this gave error about
+        // response when none was expected
+        //    m_jdbc.update("select change_domain_on_restore(?)", domain);
+        //
+        m_jdbc.execute("select change_domain_on_restore('" + domain + "')");
+        m_domain = null;
+    }
+
+    private Domain reloadDomainFromDb() {
+        getHibernateTemplate().flush();
+        Domain reload = loadDomainFromDb();
+        if (reload == null) {
+            throw new DomainNotInitializedException();
+        }
+        return reload;
     }
 
     private Domain loadDomainFromDb() {
@@ -137,39 +152,6 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         return rules;
     }
 
-    /**
-     * Initialize the first and single domain supported by sipX at the moment. When this method is
-     * called, a new domain is created and it is populated with the data from the domain-config
-     * file which is written by sipxecs-setup during system installation. If there is an error
-     * accessing this file, sipxconfig will not operate correctly.
-     *
-     * If this is called multiple times, the data in the domain table in the database will be
-     * overwritten by what is currently contained in the domain-config file
-     */
-    public Domain loadDomainFromConfig() {
-        Domain domain = new Domain();
-        try {
-            Properties domainConfig = new Properties();
-            File domainConfigFile = new File(m_domainConfigFilename);
-            LOG.info("Attempting to load initial domain-config from " + domainConfigFile.getParentFile().getPath());
-            InputStream domainConfigInputStream = new FileInputStream(domainConfigFile);
-            domainConfig.load(domainConfigInputStream);
-            parseDomainConfig(domain, domainConfig);
-        } catch (FileNotFoundException fnfe) {
-            LOG.fatal(DOMAIN_CONFIG_ERROR, fnfe);
-        } catch (IOException ioe) {
-            LOG.fatal(DOMAIN_CONFIG_ERROR, ioe);
-        }
-        return domain;
-    }
-
-    private void parseDomainConfig(Domain domain, Properties domainConfig) {
-        domain.setSipRealm(domainConfig.getProperty("SIP_REALM"));
-        domain.setName(domainConfig.getProperty(SIP_DOMAIN_NAME));
-        domain.setSharedSecret(domainConfig.getProperty("SHARED_SECRET"));
-        domain.setAliases(getAlliasesFromDomainConfig(domainConfig));
-    }
-
     public String getAuthorizationRealm() {
         return getDomain().getSipRealm();
     }
@@ -197,13 +179,37 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         m_domain = null;
     }
 
-    public void setDomainConfigFilename(String domainConfigFilename) {
-        m_domainConfigFilename = domainConfigFilename;
-    }
-
     @Override
     public boolean setup(SetupManager manager) {
-        getDomain();
+        Domain d = getDomain();
+        if (!d.getName().equals(m_configuredDomain)) {
+            changeDomainName(m_configuredDomain);
+        }
+
         return true;
+    }
+
+    public void setConfiguredDomain(String configuredDomain) {
+        m_configuredDomain = configuredDomain;
+    }
+
+    public void setConfiguredRealm(String configuredRealm) {
+        m_configuredRealm = configuredRealm;
+    }
+
+    public void setConfiguredSecret(String configuredSecret) {
+        m_configuredSecret = configuredSecret;
+    }
+
+    public void setConfiguredIp(String configuredIp) {
+        m_configuredIp = configuredIp;
+    }
+
+    public void setConfiguredFqdn(String configuredFqdn) {
+        m_configuredFqdn = configuredFqdn;
+    }
+
+    public void setJdbc(JdbcTemplate jdbc) {
+        m_jdbc = jdbc;
     }
 }

@@ -3,7 +3,7 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <bean id="domainManagerImpl" class="org.sipfoundry.sipxconfig.domain.DomainManagerImpl" parent="abstractDaoImpl">
-    <property name="domainConfigFilename" value="${sysdir.etc}/domain-config"/>
+    <property name="jdbc" ref="configJdbcTemplate"/>
   </bean>
 
   <bean id="domainManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
