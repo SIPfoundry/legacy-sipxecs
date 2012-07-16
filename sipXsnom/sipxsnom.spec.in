@@ -45,6 +45,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %{_sysconfdir}/sipxpbx/snom/*
+%{_sysconfdir}/sipxpbx/snom-m3/*
 %{_datadir}/java/sipXecs/sipXconfig/plugins/sipXsnom.jar
 
 

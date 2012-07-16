@@ -25,6 +25,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.confdb.Conference;
 import org.sipfoundry.commons.confdb.ConferenceService;
@@ -100,12 +101,17 @@ public class ConferenceContextImpl {
                 return;
             } catch (IOException ex) {
                 //do not throw exception as we have to iterate through all nodes
+                LOG.error("ConfRecordThread::Trigger error on last good ivr node:" + lastGoodIvr);
             }
         }
         for (String ivrUri : ivrUris) {
+            //do not contact last Ivr uri again
+            if (StringUtils.equals(lastGoodIvr, ivrUri)) {
+                continue;
+            }
             try {
                 notifyIvr(ivrUri, wavName, conf, synchronous);
-                break;
+                return;
             } catch (IOException ex) {
                 LOG.error("ConfRecordThread::Trigger error on node:" + ivrUri);
             }

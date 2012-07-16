@@ -2655,10 +2655,23 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
 
             
             mpDnsDestinations = SipSrvLookup::servers(mSendToAddress.data(),
-                                                      scheme.data(), // TODO - scheme should be from the request URI
+                                                      scheme.data(), 
                                                       mSendToProtocol,
                                                       mSendToPort,
                                                       msgSizeProtocol);
+            
+            if(scheme == "sips" && (!mpDnsDestinations || mpDnsDestinations[0].isValidServerT()))
+            {
+              //
+              // if DNS/SRV lookup of a sips uri failed, default scheme to sip
+              //
+              scheme = "sip";
+              mpDnsDestinations = SipSrvLookup::servers(mSendToAddress.data(),
+                                                      scheme.data(),
+                                                      mSendToProtocol,
+                                                      mSendToPort,
+                                                      msgSizeProtocol);
+            }
 
             // HACK:
             // Add a via to this request so when we set a timer it is

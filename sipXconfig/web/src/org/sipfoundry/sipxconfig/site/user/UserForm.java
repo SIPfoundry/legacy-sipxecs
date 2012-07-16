@@ -164,7 +164,13 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
     // user IDs or aliases. Report an error if there is a collision.
     private boolean checkForUserIdOrAliasCollision() {
         boolean result = false;
-        String dup = getCoreContext().checkForDuplicateNameOrAlias(getUser());
+        String dup = null;
+        try {
+            dup = getCoreContext().checkForDuplicateNameOrAlias(getUser());
+        } catch (Exception ex) {
+            recordError("err.msg.checkUserIdAliasFailed", ex.getMessage());
+            return result;
+        }
         if (dup != null) {
             result = true;
             boolean internalCollision = false;

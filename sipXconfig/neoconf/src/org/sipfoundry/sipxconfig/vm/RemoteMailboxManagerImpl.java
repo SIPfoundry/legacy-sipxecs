@@ -72,24 +72,29 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
     private List<Voicemail> retrieveVoicemails(String url, final Object... urlVariables) {
         Address lastGoodIvrNode = getLastGoodIvrNode();
         List<Address> ivrRestAddresses = null;
+        StringBuilder failedAddresses = new StringBuilder();
+        StringBuilder messages = new StringBuilder();
         if (lastGoodIvrNode != null) {
             ivrRestAddresses = new ArrayList<Address>();
             ivrRestAddresses.add(lastGoodIvrNode);
             try {
-                return retrieveVoicemails(ivrRestAddresses, url, urlVariables);
+                return retrieveVoicemails(ivrRestAddresses, url, failedAddresses, messages, urlVariables);
             } catch (UserException ex) {
+                LOG.debug("IVR cache address call failed");
                 //do not throw exception because we have to iterate again through all nodes
-                LOG.warn("Cannot connect to " + lastGoodIvrNode + " for reason: " + ex.getMessage());
             }
         }
         ivrRestAddresses = getAddressManager().getAddresses((Ivr.REST_API));
-        return retrieveVoicemails(ivrRestAddresses, url, urlVariables);
+        //Remove the node that is already checked
+        if (lastGoodIvrNode != null) {
+            ivrRestAddresses.remove(lastGoodIvrNode);
+        }
+        return retrieveVoicemails(ivrRestAddresses, url, failedAddresses, messages, urlVariables);
     }
 
     private List<Voicemail> retrieveVoicemails(List<Address> ivrRestAddresses,
-            String url, final Object... urlVariables) {
-        StringBuilder failedAddresses = new StringBuilder();
-        StringBuilder messages = new StringBuilder();
+            String url, StringBuilder failedAddresses, StringBuilder messages, final Object... urlVariables) {
+
         for (Address address : ivrRestAddresses) {
             try {
                 Source voicemails = m_restTemplate.getForObject(address + url, Source.class, urlVariables);
@@ -104,6 +109,8 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
                 setLastGoodIvrNode(address);
                 return voicemailList;
             } catch (RestClientException ex) {
+                LOG.debug("Cannot connect to last good node" + address
+                        + " for following reason: " + ex.getMessage());
                 failedAddresses.append(address).append(LINE_BREAK);
                 messages.append(ex.getMessage()).append(LINE_BREAK);
             }
@@ -154,25 +161,31 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
     private void putWithFallback(String relativeUri, Object request, Object... params) {
         Address lastGoodIvrNode = getLastGoodIvrNode();
         List<Address> ivrRestAddresses = null;
+        StringBuilder failedAddresses = new StringBuilder();
+        StringBuilder messages = new StringBuilder();
         if (lastGoodIvrNode != null) {
             ivrRestAddresses = new ArrayList<Address>();
             ivrRestAddresses.add(lastGoodIvrNode);
             try {
-                putWithFallback(ivrRestAddresses, relativeUri, request, params);
+                putWithFallback(ivrRestAddresses, relativeUri, request, failedAddresses, messages, params);
                 return;
             } catch (UserException ex) {
+                LOG.debug("IVR cache node call failed");
                 //do no throw exception because we have to iterate again through all nodes
-                LOG.warn("Cannot connect to node " + lastGoodIvrNode + " for following reason: " + ex.getMessage());
             }
         }
         ivrRestAddresses = getAddressManager().getAddresses((Ivr.REST_API));
-        putWithFallback(ivrRestAddresses, relativeUri, request, params);
+        //Remove the address that is already checked
+        if (lastGoodIvrNode != null) {
+            ivrRestAddresses.remove(lastGoodIvrNode);
+        }
+        putWithFallback(ivrRestAddresses, relativeUri, request, failedAddresses, messages, params);
     }
 
-    private void putWithFallback(List<Address> addresses, String relativeUri, Object request, Object... params) {
+    private void putWithFallback(List<Address> addresses, String relativeUri, Object request,
+            StringBuilder failedAddresses, StringBuilder messages, Object... params) {
         boolean success = false;
-        StringBuilder failedAddresses = new StringBuilder();
-        StringBuilder messages = new StringBuilder();
+
         for (Address address : addresses) {
             try {
                 m_restTemplate.put(address + relativeUri, request, params);
@@ -180,6 +193,8 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
                 setLastGoodIvrNode(address);
                 break;
             } catch (RestClientException ex) {
+                LOG.debug("Cannot connect to node " + address
+                        + " for reason: " + ex.getMessage());
                 failedAddresses.append(address).append(LINE_BREAK);
                 messages.append(ex.getMessage()).append(LINE_BREAK);
             }

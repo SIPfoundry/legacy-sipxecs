@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IRequestCycle;
@@ -65,26 +66,31 @@ public class PlayVoicemailService extends AssetService {
      */
     public void service(IRequestCycle cycle) throws IOException {
         Address addressCache = m_mailboxManager.getLastGoodIvrNode();
+        String urlCache = null;
         OutputStream responseOutputStream = m_response.getOutputStream(new ContentType("audio/x-wav"));
         if (addressCache != null) {
+            urlCache = m_mailboxManager.getMediaFileURL(
+                    addressCache,
+                    getUserName(),
+                    cycle.getParameter(FOLDER),
+                    cycle.getParameter(MESSAGE_ID));
             try {
-                copyVoicemail(responseOutputStream,
-                        m_mailboxManager.getMediaFileURL(
-                                addressCache,
-                                getUserName(),
-                                cycle.getParameter(FOLDER),
-                                cycle.getParameter(MESSAGE_ID)), cycle);
+                copyVoicemail(responseOutputStream, urlCache, cycle);
                 IOUtils.closeQuietly(responseOutputStream);
                 return;
             } catch (Exception ex) {
                 //do not throw exception as we have to iterate again through all urls
-                LOG.warn("Cannot play voicemail on: "
+                LOG.warn("Cannot play voicemail on last good node: "
                         + addressCache + " for reason: " + ex.getMessage());
             }
         }
         List<String> strUrls = m_mailboxManager.getMediaFileURLs(getUserName(), cycle.getParameter(FOLDER),
                 cycle.getParameter(MESSAGE_ID));
         for (String url : strUrls) {
+            //do not try to play on a url already checked
+            if (StringUtils.equals(urlCache, url)) {
+                continue;
+            }
             try {
                 copyVoicemail(responseOutputStream, url, cycle);
                 break;

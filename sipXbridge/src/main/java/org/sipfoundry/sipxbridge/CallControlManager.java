@@ -622,6 +622,17 @@ class CallControlManager implements SymmitronResetHandler {
                 btobua.sendInviteToItsp(requestEvent, serverTransaction, toDomain);
             } else {
                 if ( logger.isDebugEnabled() ) logger.debug("request received from Wan side");
+
+                //
+                // Another side effect of max-forwards is that some ITSP is sending max-forwards
+                // that are very low in value not enough to compensate for the proxy internal spirals.
+                // We statically set it here. see XX-9954
+                //
+                
+                MaxForwardsHeader maxForwardsHeader = ProtocolObjects.headerFactory.createMaxForwardsHeader(20);
+                request.setHeader(maxForwardsHeader);
+
+
                 btobua.sendInviteToSipxProxy(requestEvent, serverTransaction);
 
             }

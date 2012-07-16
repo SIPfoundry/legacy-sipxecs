@@ -68,6 +68,7 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
     private DomainManager m_domainManager;
     private FreeswitchFeature m_fsFeature;
     private boolean m_highAvailabilitySupport;
+    private String m_archiveScript = "sipxivr-archive";
 
     public IvrSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
@@ -226,6 +227,10 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
         m_highAvailabilitySupport = highAvailabilitySupport;
     }
 
+    public void setArchiveScript(String script) {
+        m_archiveScript = script;
+    }
+
     @Override
     public Collection<ArchiveDefinition> getArchiveDefinitions(BackupManager manager, Location location,
             BackupSettings settings) {
@@ -233,8 +238,8 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
             return null;
         }
 
-        ArchiveDefinition def = new ArchiveDefinition(ARCHIVE, "$(sipx.SIPX_BINDIR)/sipxivr-archive --backup %s",
-                "$(sipx.SIPX_BINDIR)/sipxivr-archive --restore %s");
+        String script = "$(sipx.SIPX_BINDIR)/" + m_archiveScript;
+        ArchiveDefinition def = new ArchiveDefinition(ARCHIVE, script + " --backup %s", script + " --restore %s");
         return Collections.singleton(def);
     }
 }
