@@ -258,6 +258,7 @@ ISO_ADD_OS = \
   attr-* \
   audit-2.* \
   audit-libs-2.* \
+  augeas-* \
   authconfig-6.* \
   avahi-libs-* \
   b43-openfwwf-* \
@@ -453,9 +454,13 @@ ISO_ADD_OS = \
   matahari-0.* \
   matahari-agent-lib-* \
   matahari-broker-* \
+  matahari-consoles-* \
+  matahari-core-* \
   matahari-host-* \
   matahari-lib-* \
   matahari-network-* \
+  matahari-python-* \
+  matahari-rpc-* \
   matahari-service-* \
   matahari-sysconfig-* \
   mesa-dri-drivers-7.* \
@@ -521,6 +526,7 @@ ISO_ADD_OS = \
   postgresql-libs-* \
   postgresql-odbc-* \
   postgresql-server-* \
+  portreserve-* \
   procmail-* \
   procps-* \
   psmisc-* \
@@ -533,6 +539,8 @@ ISO_ADD_OS = \
   python-iwlib-* \
   python-libs-* \
   python-pycurl-* \
+  python-qpid-* \
+  python-saslwrapper-* \
   python-urlgrabber-* \
   ql2100-firmware-* \
   ql2200-firmware-* \
@@ -544,6 +552,7 @@ ISO_ADD_OS = \
   qpid-cpp-server-0.* \
   qpid-cpp-server-ssl-0.* \
   qpid-qmf-* \
+  qpid-tools-* \
   readline-6.* \
   redhat-logos-* \
   rhino-1.* \
@@ -559,6 +568,7 @@ ISO_ADD_OS = \
   ruby-libs-* \
   ruby-rdoc-* \
   rubygems-* \
+  saslwrapper-* \
   sed-* \
   selinux-policy-3.* \
   selinux-policy-targeted-* \
@@ -581,6 +591,7 @@ ISO_ADD_OS = \
   tftp-server-* \
   tk-* \
   tokyocabinet-* \
+  tuned-0.* \
   tzdata-* \
   udev-* \
   unixODBC-2.* \
