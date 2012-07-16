@@ -544,7 +544,7 @@ ISO_ADD_OS = \
   rpm-4.* \
   rpm-libs-* \
   rpm-python-* \
-  rsyslog-4.* \
+  rsyslog-5.* \
   rt61pci-firmware-* \
   rt73usb-firmware-* \
   ruby-1.8.7* \
@@ -573,8 +573,7 @@ ISO_ADD_OS = \
   tftp-server-* \
   tk-* \
   tokyocabinet-* \
-  tzdata-2011l-* \
-  tzdata-java-2011l-* \
+  tzdata-* \
   udev-* \
   unixODBC-2.* \
   upstart-* \
