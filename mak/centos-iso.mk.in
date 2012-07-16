@@ -244,6 +244,7 @@ ISO_ADD_EPEL = \
 ISO_ADD_OS = \
   ConsoleKit-0.* \
   ConsoleKit-libs-0.* \
+  crda-* \
   MAKEDEV-* \
   SDL-* \
   acl-* \
@@ -305,6 +306,7 @@ ISO_ADD_OS = \
   dbus-1.* \
   dbus-glib-* \
   dbus-libs-* \
+  dbus-python-* \
   dejavu-fonts-common-* \
   dejavu-serif-fonts-* \
   device-mapper-1.* \
@@ -360,6 +362,7 @@ ISO_ADD_OS = \
   ipw2100-firmware-* \
   ipw2200-firmware-* \
   ivtv-firmware-* \
+  iw-* \
   iwl100-firmware-* \
   iwl1000-firmware-* \
   iwl3945-firmware-* \
@@ -419,6 +422,7 @@ ISO_ADD_OS = \
   libidn-* \
   libjpeg-6b-* \
   libnih-* \
+  libnl-* \
   libogg-* \
   libpcap-* \
   libpng-* \
@@ -486,6 +490,7 @@ ISO_ADD_OS = \
   pango-* \
   passwd-* \
   patch-* \
+  pciutils-3.* \
   pciutils-libs-* \
   pcre-7.* \
   perl-5.* \
@@ -523,7 +528,9 @@ ISO_ADD_OS = \
   pulseaudio-libs-0.* \
   pygpgme-* \
   python-2.6* \
+  python-ethtool-* \
   python-iniparse-* \
+  python-iwlib-* \
   python-libs-* \
   python-pycurl-* \
   python-urlgrabber-* \
@@ -566,6 +573,7 @@ ISO_ADD_OS = \
   stunnel-* \
   sudo-* \
   system-config-firewall-base-* \
+  system-config-network-tui-* \
   sysvinit-tools-* \
   tar-* \
   tcl-8.* \
@@ -578,11 +586,13 @@ ISO_ADD_OS = \
   udev-* \
   unixODBC-2.* \
   upstart-* \
+  usermode-1.* \
   ustr-1.* \
   util-linux-ng-* \
   vim-minimal-* \
   vsftpd-* \
   which-* \
+  wireless-tools-* \
   xerces-c-3.* \
   xinetd-* \
   xorg-x11-drv-ati-firmware-* \
