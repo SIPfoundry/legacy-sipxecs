@@ -26,6 +26,7 @@ BuildRequires: net-snmp-devel >= 5.3.1
 BuildRequires: net-snmp-devel >= 5.3.1
 Requires: net-snmp-libs >= 5.3.1
 %endif
+Requires: system-config-network-tui
 # log watcher
 Requires: sec
 Requires: sendmail
