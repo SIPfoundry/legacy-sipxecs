@@ -12,7 +12,8 @@ RPM_DIST = @RPM_DIST@
 
 # trick lets you create centos compatible repos from any other distro
 CREATEREPO_OPTS_centos = @BACKWARD_COMPATIBLE_CREATEREPO_OPTS_FOR_CENTOS@
-CREATEREPO_OPTS = -g $(SRC)/mak/comps.xml $(CREATEREPO_OPTS_$(DISTRO_OS))
+CREATEREPO_COMPS = $(SRC)/mak/comps.xml
+CREATEREPO_OPTS = -g $(abspath $(CREATEREPO_COMPS)) $(CREATEREPO_OPTS_$(DISTRO_OS))
 MOCK_RESULTS_DIR = @RPM_DIST_DIR@/$(DISTRO_RESULTS_DIR)/$(DISTRO_ARCH)
 MOCK_SRPM_DIR = @RPM_DIST_DIR@/$(DISTRO_RESULTS_DIR)/source
 MOCK_OPTS = \
@@ -85,8 +86,10 @@ help.{1|2}.rpm-by-mock = Called automatically as part of rpm process after srpm 
 # generate repo AFTER build because then it's usable as a repo to feed to next build or other systems.
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS) .
 
+repo-comps : $(SRC)/mak/comps.xml
+
 help.repo-chroot-init = Clear mock chroot for $(DISTRO). Requied before first build and useful when you suspect caching is the result of a build error.
-repo-chroot-init : repo-create repo-webserver
+repo-chroot-init : repo-create repo-webserver repo-comps repo-comps
 	mock $(MOCK_OPTS) --scrub=all
 	test -d $(MOCK_RESULTS_DIR) || mkdir -p $(MOCK_RESULTS_DIR)
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS) .
@@ -115,7 +118,7 @@ repo-webserver :
 	/usr/sbin/thttpd -d @RPM_DIST_DIR@ -p 40100 -M 0
 
 help.repo-src = Assemble source rpms into @RPM_DIST_DIR@/$(DISTRO_RESULTS_DIR)/source
-repo-src :
+repo-src : repo-comps
 	for f in $(shell $(SRC)/mak/list-obsolete-rpms $(MOCK_SRPM_DIR)); do rm $$f; done
 	cd $(MOCK_SRPM_DIR); createrepo $(CREATEREPO_OPTS) .
 
@@ -128,7 +131,7 @@ repo-remove-dups:
 	for f in $(shell $(SRC)/mak/list-obsolete-rpms $(MOCK_RESULTS_DIR)); do rm $$f; done
 
 help.repo-create = run createrepo in $(MOCK_RESULTS_DIR)
-repo-create:
+repo-create: repo-comps
 	test -d $(MOCK_RESULTS_DIR) || mkdir -p $(MOCK_RESULTS_DIR)
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS) .
 

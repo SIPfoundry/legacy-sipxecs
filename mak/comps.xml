@@ -4,7 +4,7 @@
   <group>
    <id>sipxecs</id>
    <uservisible>true</uservisible>
-   <name>sipXecs UCnified Communications System</name>
+   <name>sipXecs Unified Communications System</name>
    <description>Primary or main sipXecs install, Install more than you
    may use, but not everything is enabled by default</description>
    <packagelist>
