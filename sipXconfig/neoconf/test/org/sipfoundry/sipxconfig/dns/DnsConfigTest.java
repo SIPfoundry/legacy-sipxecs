@@ -40,7 +40,7 @@ public class DnsConfigTest {
     private List<Location> m_locations;
     private Address m_a1; 
     private Address m_a2;
-    private Address m_a3;
+    private Address m_a3;      
     
     @Before
     public void setUp() {
@@ -52,6 +52,14 @@ public class DnsConfigTest {
         m_a1 = new Address(DnsManager.DNS_ADDRESS, "1.1.1.1");
         m_a2 = new Address(DnsManager.DNS_ADDRESS, "2.2.2.2");
         m_a3 = new Address(DnsManager.DNS_ADDRESS, "3.3.3.3");
+    }
+    
+    @Test
+    public void externalDns() {
+        List<?> nameservers = sun.net.dns.ResolverConfiguration.open().nameservers(); 
+        for( Object dns : nameservers ) { 
+            System.out.print( dns + " " ); 
+        } 
     }
     
     @Test

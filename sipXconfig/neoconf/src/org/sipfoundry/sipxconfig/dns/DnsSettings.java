@@ -32,6 +32,8 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
 public class DnsSettings extends PersistableSettings implements DeployConfigOnEdit {
+    private static final String FORWARDERS = "named-config/forwarders";
+    private static final String FORWARDER_N = FORWARDERS + "/forwarder_";
     private static final String UNMANAGED_SETTING = "sys/unmanaged";
     private static final String DNS_UNMANAGED_SERVER_0 = "sys/unmanaged_servers/unmanaged_0";
     private static final String DNS_UNMANAGED_SERVER_1 = "sys/unmanaged_servers/unmanaged_1";
@@ -61,7 +63,11 @@ public class DnsSettings extends PersistableSettings implements DeployConfigOnEd
     }
 
     public List<Address> getDnsForwarders() {
-        return SettingUtil.getAddresses(DnsManager.DNS_ADDRESS, getSettings(), "named-config/forwarders");
+        return SettingUtil.getAddresses(DnsManager.DNS_ADDRESS, getSettings(), FORWARDERS);
+    }
+
+    public void setDnsForwarder(String ip, int index) {
+        getSettings().getSetting(FORWARDER_N + index).setValue(ip);
     }
 
     public boolean isServiceUnmanaged() {
