@@ -26,9 +26,6 @@ $default_zone_template = '@SIPX_CONFDIR@/sipxdns/zone.erb'
 # you can put defaults to optional data here so if yaml doesn't define them you get reasonable defaults
 def make_zone(data, template, model = {})
 
-  # 32 bit unsigned runs out in year 2148 which is 136 yrs past july 16, 2012
-  serialno = Time.now.to_i - 1342487870
-
   var = binding
 
   data.each_key { |x|

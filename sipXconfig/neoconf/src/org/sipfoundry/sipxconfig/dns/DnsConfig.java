@@ -58,7 +58,10 @@ public class DnsConfig implements ConfigProvider {
         String domain = manager.getDomainManager().getDomainName();
         List<Location> all = manager.getLocationManager().getLocationsList();
         Set<Location> locations = request.locations(manager);
-        long serNo = System.currentTimeMillis();
+
+        // 32 bit unsigned runs out in year 2148 which is 136 yrs past july 16, 2012
+        long serNo = System.currentTimeMillis() - 1342487870;
+
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             List<Address> dns = am.getAddresses(DnsManager.DNS_ADDRESS, location);
