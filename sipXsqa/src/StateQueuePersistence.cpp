@@ -17,46 +17,64 @@
 #include "sqa/StateQueuePersistence.h"
 #include "os/OsLogger.h"
 
-StateQueuePersistence::StateQueuePersistence(unsigned workspaceCount) :
-  _terminated(false)
+StateQueuePersistence::StateQueuePersistence(unsigned workspaceCount, bool useRedis) :
+  _terminated(false),
+  _useRedis(useRedis)
 {
   _pHousekeeper = new boost::asio::deadline_timer(_ioService, boost::posix_time::milliseconds(3600 * 1000));
   _pHousekeeper->expires_from_now(boost::posix_time::milliseconds(3600 * 1000));
   _pHousekeeper->async_wait(boost::bind(&StateQueuePersistence::onHousekeeping, this, boost::asio::placeholders::error));
   _pIothread = new boost::thread(boost::bind(&boost::asio::io_service::run, &_ioService));
+
+
+  //
+  // Check if we can use redis by trying to connect to
+  //
+
+
   for (unsigned i = 0; i < workspaceCount; i++)
     _workspaces[i] = new TimedQueue(&_ioService);
 
   for (unsigned i = 0; i < workspaceCount; i++)
     _mapWorkspaces[i] = new TimedMap(&_ioService);
+
 }
 
 StateQueuePersistence::~StateQueuePersistence()
 {
   stop();
-  for (unsigned i = 0; i < _workspaces.size(); i++)
-  {
-    TimedQueue* workspace = _workspaces[i];
-    delete workspace;
-    workspace = 0;
-  }
 
-  for (unsigned i = 0; i < _mapWorkspaces.size(); i++)
+  if (!_useRedis)
   {
-    TimedMap* workspace = _mapWorkspaces[i];
-    delete workspace;
-    workspace = 0;
+    for (unsigned i = 0; i < _workspaces.size(); i++)
+    {
+      TimedQueue* workspace = _workspaces[i];
+      delete workspace;
+      workspace = 0;
+    }
+
+    for (unsigned i = 0; i < _mapWorkspaces.size(); i++)
+    {
+      TimedMap* workspace = _mapWorkspaces[i];
+      delete workspace;
+      workspace = 0;
+    }
   }
 }
 
 void StateQueuePersistence::stop()
 {
   _terminated = true;
-  for (unsigned i = 0; i < _workspaces.size(); i++)
+
+  if (!_useRedis)
   {
-    TimedQueue* workspace = _workspaces[i];
-    workspace->stop();
+    for (unsigned i = 0; i < _workspaces.size(); i++)
+    {
+      TimedQueue* workspace = _workspaces[i];
+      workspace->stop();
+    }
   }
+
   _ioService.stop();
   if (_pIothread)
   {
