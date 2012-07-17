@@ -1,10 +1,4 @@
-define(`sipx_packages', 
-e2fsprogs
-grub
-kernel
-gdb
-strace
-yum-downloadonly
+define(`sipx_packages',
 @sipxecs
 )
 
@@ -48,6 +42,12 @@ reboot
 
 #--- Package selection
 %packages
+e2fsprogs
+grub
+kernel
+gdb
+strace
+yum-downloadonly
 sipx_packages()
 
 #--- Pre-installation script

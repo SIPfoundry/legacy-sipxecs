@@ -15,7 +15,7 @@ ISO_RPM_DOWNLOAD_URL ?= @CENTOS_BASE_URL@/6
 ISO_M4_OPTS = $(CUSTOM_ISO_M4_OPTS) -D PACKAGE_VERSION=$(PACKAGE_VERSION)
 ISO_PACKAGES_OS=$(ARCH)-os-Packages
 ISO_PACKAGES_EPEL=$(ARCH)-epel-Packages
-ISO_COMPS = comps-iso.xml
+ISO_COMPS ?= comps-iso.xml
 
 %-32 : BITS = 32
 %-32 : ARCH = i386
@@ -67,6 +67,7 @@ iso-disc-% :
 	@echo "copying contents of disc..."
 	cp -ar cd cd.tmp
 	sudo umount cd
+	chmod a+rw -R cd.tmp
 	mv cd.tmp $@
 
 # copy sipxecs yum group defs into iso yum group defs
@@ -81,7 +82,7 @@ iso-update-repo-% : iso-disc-% $(ISO_COMPS)
 	  @CREATEREPO@ \
 	    @BACKWARD_COMPATIBLE_CREATEREPO_OPTS_FOR_CENTOS@ \
 	    --baseurl="media://$$MEDIA_ID" \
-	    -g $(abspath ISO_COMPS) .
+	    -g $(abspath $(ISO_COMPS)) .
 
 # add modifications to disc to make it operate
 iso-update-files-% :
