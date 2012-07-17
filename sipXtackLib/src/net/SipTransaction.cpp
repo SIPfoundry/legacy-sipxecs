@@ -2660,8 +2660,12 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                                                       mSendToPort,
                                                       msgSizeProtocol);
             
-            if(scheme == "sips" && (!mpDnsDestinations || mpDnsDestinations[0].isValidServerT()))
+            if(scheme == "sips" && (!mpDnsDestinations || !mpDnsDestinations[0].isValidServerT()))
             {
+              Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                          "SipTransaction::recurseDnsSrvChildren"
+                          " TLS is not set for host %", mSendToAddress.data());
+
               //
               // if DNS/SRV lookup of a sips uri failed, default scheme to sip
               //
