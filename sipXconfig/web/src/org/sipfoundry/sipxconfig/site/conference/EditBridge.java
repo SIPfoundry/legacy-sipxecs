@@ -76,7 +76,7 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
 
     private void saveValid() {
         Bridge bridge = getBridge();
-        getConferenceBridgeContext().store(bridge);
+        getConferenceBridgeContext().saveBridge(bridge);
     }
 
     public void formSubmit() {

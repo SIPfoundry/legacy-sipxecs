@@ -143,7 +143,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     @Override
     public boolean saveUser(User user) {
         boolean newUserName = user.isNew();
-        String dup = checkForDuplicateNameOrAlias(user);
+        String dup = null;
+        try {
+            dup = checkForDuplicateNameOrAlias(user);
+        } catch (Exception ex) {
+            throw new UserException("&err.msg.checkUserIdAliasFailed", ex);
+        }
         if (dup != null) {
             throw new NameInUseException(dup);
         }

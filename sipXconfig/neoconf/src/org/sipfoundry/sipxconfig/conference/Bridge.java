@@ -11,11 +11,14 @@ package org.sipfoundry.sipxconfig.conference;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
@@ -23,7 +26,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
-public class Bridge extends BeanWithSettings {
+public class Bridge extends BeanWithSettings implements DeployConfigOnEdit {
     public static final String BEAN_NAME = "conferenceBridge";
     public static final String PROMPTS_DEFAULT = "stdprompts";
     public static final String CONFERENCE = "conf";
@@ -127,6 +130,11 @@ public class Bridge extends BeanWithSettings {
                 fileType.setDirectory(m_audioDirectory);
             }
         }
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) ConferenceBridgeContext.FEATURE);
     }
 
     public Location getLocation() {

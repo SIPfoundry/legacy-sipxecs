@@ -65,9 +65,8 @@ public class ConferenceFeature implements FeatureProvider {
             if (bridge == null) {
                 bridge = m_conferenceBridgeContext.newBridge();
                 bridge.setLocation(location);
-                m_conferenceBridgeContext.store(bridge);
+                m_conferenceBridgeContext.saveBridge(bridge);
             }
-            m_conferenceBridgeContext.deploy(bridge);
         }
     }
 }
