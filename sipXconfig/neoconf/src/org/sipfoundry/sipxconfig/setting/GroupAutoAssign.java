@@ -181,7 +181,7 @@ public class GroupAutoAssign {
 
             m_bridgeContext.saveConference(userConference);
             bridge.addConference(userConference);
-            m_bridgeContext.store(bridge);
+            m_bridgeContext.saveBridge(bridge);
         }
     }
 

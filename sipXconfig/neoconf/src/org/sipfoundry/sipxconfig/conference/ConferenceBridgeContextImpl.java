@@ -58,13 +58,12 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
         return getHibernateTemplate().loadAll(Bridge.class);
     }
 
-    public void store(Bridge bridge) {
+    public void saveBridge(Bridge bridge) {
         getHibernateTemplate().saveOrUpdate(bridge);
         if (bridge.isNew()) {
             // need to make sure that ID is set
             getHibernateTemplate().flush();
         }
-        deploy(bridge);
     }
 
     public void saveConference(Conference conference) {
@@ -74,7 +73,6 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
         } else {
             getHibernateTemplate().merge(conference);
         }
-        deploy(conference.getBridge());
     }
 
     public void validate(Conference conference) {
@@ -137,44 +135,6 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
         }
         getHibernateTemplate().saveOrUpdateAll(bridges);
         getHibernateTemplate().flush();
-        for (Bridge bridgeToDeploy : bridges) {
-            deploy(bridgeToDeploy);
-        }
-    }
-
-    public void deploy(Bridge bridge) {
-        //
-        // // bridge to deploy should always have service associated
-        // if (bridge.getService() == null) {
-        // return;
-        // }
-        // // need to replicate all conferences that are on the bridge
-        // for (Conference conf : bridge.getConferences()) {
-        // m_replicationContext.generate(conf);
-        // }
-        //
-        // // only need to replicate files that do not require restart
-        // Location location = bridge.getLocation();
-        // SipxFreeswitchService freeswitchService = bridge.getFreeswitchService();
-        // // we need to flush here. sipX_context.xml replication needs up-to-date info in sql
-        // tables
-        // getHibernateTemplate().flush();
-        // m_serviceConfigurator.replicateServiceConfig(location, freeswitchService, true, false);
-        // m_processContext.markServicesForReload(singleton(freeswitchService));
-        // if (m_serviceManager.isServiceInstalled(SipxIvrService.BEAN_ID)) {
-        // SipxService ivrService = m_serviceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
-        // m_serviceConfigurator.replicateServiceConfig(ivrService, true);
-        // }
-        // if (m_serviceManager.isServiceInstalled(SipxRecordingService.BEAN_ID)) {
-        // SipxService ivrService =
-        // m_serviceManager.getServiceByBeanId(SipxRecordingService.BEAN_ID);
-        // m_serviceConfigurator.replicateServiceConfig(location, ivrService, true);
-        // }
-        // if (m_serviceManager.isServiceInstalled(SipxImbotService.BEAN_ID)) {
-        // SipxService imbotService =
-        // m_serviceManager.getServiceByBeanId(SipxImbotService.BEAN_ID);
-        // m_serviceConfigurator.replicateServiceConfig(location, imbotService, true);
-        // }
     }
 
     public Bridge loadBridge(Serializable id) {

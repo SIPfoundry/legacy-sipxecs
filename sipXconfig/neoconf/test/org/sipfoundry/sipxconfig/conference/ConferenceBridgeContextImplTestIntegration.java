@@ -74,7 +74,7 @@ public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestC
         bridge.setLocation(location);
         bridge.addConference(conference);
 
-        m_context.store(bridge);
+        m_context.saveBridge(bridge);
         flush();
 
         assertEquals(1, countRowsInTable("meetme_bridge"));
