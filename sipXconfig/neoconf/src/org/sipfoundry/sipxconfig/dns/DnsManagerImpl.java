@@ -16,6 +16,8 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,6 +26,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
@@ -52,10 +58,12 @@ import org.springframework.beans.factory.ListableBeanFactory;
 
 public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvider, BeanFactoryAware,
     ProcessProvider, FirewallProvider, SetupListener {
+    private static final Log LOG = LogFactory.getLog(DnsManagerImpl.class);
     private BeanWithSettingsDao<DnsSettings> m_settingsDao;
     private List<DnsProvider> m_providers;
     private ListableBeanFactory m_beanFactory;
     private AddressManager m_addressManager;
+    private File m_externalDnsStash;
 
     @Override
     public Address getSingleAddress(AddressType t, Collection<Address> addresses, Location whoIsAsking) {
@@ -197,6 +205,33 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
     }
 
+    void setInitialExternalDnsServer(File stashFile) {
+        String externalDns = null;
+        if (stashFile.exists()) {
+            try {
+                externalDns = FileUtils.readFileToString(stashFile);
+            } catch (IOException e) {
+                LOG.warn("Could not read from DNS forwarder stash file.", e);
+            }
+        } else {
+            // only works on Sun/Open JDK >= 1.5
+            List< ? > nameservers = sun.net.dns.ResolverConfiguration.open().nameservers();
+            if (!nameservers.isEmpty()) {
+                externalDns = nameservers.get(0).toString();
+            }
+        }
+        if (StringUtils.isNotBlank(externalDns)) {
+            try {
+                FileUtils.writeStringToFile(stashFile, externalDns);
+            } catch (IOException e) {
+                LOG.warn("Could not write to DNS forwarder stash file.", e);
+            }
+            DnsSettings settings = getSettings();
+            settings.setDnsForwarder(externalDns, 0);
+            saveSettings(settings);
+        }
+    }
+
     @Override
     public boolean setup(SetupManager manager) {
         if (manager.isFalse(FEATURE.getId())) {
@@ -204,10 +239,16 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
             if (primary == null) {
                 return false;
             }
+
+            setInitialExternalDnsServer(m_externalDnsStash);
             manager.getFeatureManager().enableLocationFeature(FEATURE, primary, true);
             manager.setTrue(FEATURE.getId());
         }
 
         return true;
+    }
+
+    public void setExternalDnsStash(String externalDnsStash) {
+        m_externalDnsStash = new File(externalDnsStash);
     }
 }

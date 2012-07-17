@@ -258,6 +258,7 @@ def network_settings
   change = prompt_confirm("Would you like to \e[0;31mconfigure\e[m your system\'s network settings?")
   if change
     system("/usr/sbin/system-config-network-tui")
+    system("/etc/init.d/network reload")
   end
 
   net = get_network(true)
@@ -316,14 +317,13 @@ class Network
     # glean the results in such a way that if someone did change the host name using
     # that tool, we can tell what they entered.  The hostname.cf file will clean up the 
     # /etc/hosts file later.
-    ipregex = Regexp.new("^#{ip.gsub(/\./, '\\\.')}.*")
-    File.open('/etc/hosts', 'r') {|fhnd|
-      while (line = fhnd.gets)
-        f = line.split(' ')
-        if ipregex =~ f[0]
-          fqdn, @host = f[-2], f[-1]
-          @domain = fqdn.gsub(@host + '.','')
-          break
+    File.open('/etc/sysconfig/network', 'r') {|f|
+      while (line = f.gets)
+        case line
+        when /^HOSTNAME=([^.]*)\.(.*)$/
+          @host = $1
+          @domain = $2
+        else
         end
       end
     }

@@ -16,9 +16,11 @@
 #ifndef STATEQUEUEPERSISTENCE_H
 #define	STATEQUEUEPERSISTENCE_H
 
-#include "TimedQueue.h"
-#include "TimedMap.h"
-#include "StateQueueRecord.h"
+#include "sqa/TimedQueue.h"
+#include "sqa/TimedMap.h"
+#include "sqa/StateQueueRecord.h"
+#include "sqa/RedisClient.h"
+
 
 
 class StateQueuePersistence
@@ -27,7 +29,8 @@ public:
   typedef std::map<int, TimedQueue*> WorkSpaces ;
   typedef std::map<int, TimedMap*> MapWorkSpaces ;
   typedef std::vector<StateQueueRecord> RecordVector;
-  StateQueuePersistence(unsigned workspaceCount = 16);
+  typedef std::map<int, RedisClient*> RedisWorkSpaces;
+  StateQueuePersistence(unsigned workspaceCount = 16, bool useRedis = true);
   ~StateQueuePersistence();
   void set(unsigned workspace, const StateQueueRecord& record, int expires);
   bool get(unsigned workspace, const std::string& id, StateQueueRecord& record);
@@ -46,12 +49,15 @@ protected:
   void onDataExpired(const std::string&, const boost::any&, TimedQueue* pQueue);
   WorkSpaces _workspaces;
   MapWorkSpaces _mapWorkspaces;
+  RedisWorkSpaces _redisWorkspaces;
   bool _terminated;
 private:
   boost::asio::io_service _ioService;
   boost::thread* _pIothread;
   boost::asio::deadline_timer* _pHousekeeper;
   void onHousekeeping(const boost::system::error_code&);
+  RedisClient _redis;
+  bool _useRedis;
 };
 
 #endif	/* STATEQUEUEPERSISTENCE_H */

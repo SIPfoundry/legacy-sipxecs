@@ -32,6 +32,7 @@
 #include "zmq.hpp"
 #include "sipdb/MongoOpLog.h"
 
+
 class StateQueueAgent : boost::noncopyable
 {
 public:

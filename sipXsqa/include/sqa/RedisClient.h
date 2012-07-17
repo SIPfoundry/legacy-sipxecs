@@ -127,7 +127,7 @@ public:
     if (db != 0)
     {
       reply = (redisReply*)redisCommand(_context,"SELECT %d", db);
-      bool selected;
+      bool selected = false;
       if (reply)
       {
         selected = reply->type == REDIS_REPLY_STATUS && strcasecmp(reply->str,"ok") == 0;

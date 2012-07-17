@@ -27,6 +27,7 @@ bundle agent 00_sipxconfig {
     primary::
       "$(sipx.SIPX_CONFDIR)/sipxconfig.properties"
         comment => "sipXconfig configuration $(this.promiser)",
+        create => "true",
         perms => mog("644", "root", "root"),
         edit_defaults => empty,
         edit_line => sipxconfig_config;

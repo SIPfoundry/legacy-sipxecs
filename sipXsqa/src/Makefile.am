@@ -33,7 +33,8 @@ sipxsqa_LDADD = \
 	  -lboost_program_options-mt \
 	  -lpthread \
 	  -lzmq \
-	  -lmongoclient
+	  -lmongoclient \
+	  -lhiredis
 
 sipxsqa_SOURCES =   main.cpp
 

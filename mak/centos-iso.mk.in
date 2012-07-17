@@ -474,6 +474,7 @@ ISO_ADD_OS = \
   mysql-connector-odbc-* \
   mysql-libs-* \
   mysql-server-* \
+  nano-* \
   ncurses-5.* \
   ncurses-base-* \
   ncurses-libs-* \
@@ -602,6 +603,7 @@ ISO_ADD_OS = \
   util-linux-ng-* \
   vim-minimal-* \
   vsftpd-* \
+  wget-* \
   which-* \
   wireless-tools-* \
   xerces-c-3.* \
