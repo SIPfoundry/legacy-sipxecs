@@ -10,8 +10,8 @@
 package org.sipfoundry.sipxconfig.conference;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -134,7 +134,7 @@ public class Bridge extends BeanWithSettings implements DeployConfigOnEdit {
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Arrays.asList((Feature) ConferenceBridgeContext.FEATURE);
+        return Collections.singleton((Feature) ConferenceBridgeContext.FEATURE);
     }
 
     public Location getLocation() {
