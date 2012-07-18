@@ -60,7 +60,7 @@ public class DnsConfig implements ConfigProvider {
         Set<Location> locations = request.locations(manager);
 
         // 32 bit unsigned runs out in year 2148 which is 136 yrs past july 16, 2012
-        long serNo = System.currentTimeMillis() - 1342487870;
+        long serNo = (System.currentTimeMillis() / 1000) - 1342487870;
 
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
