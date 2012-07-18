@@ -32,7 +32,9 @@ sinclude(`oem.m4')
 install
 cdrom
 
-network --activate
+# According to anaconda docs, if you do not include a "network..." line, user is supposed
+# to be prompted. I could not get this to work. so I append "asknetwork" to kernel boot
+# line. UI is not as good, but it does get the job done
 
 #--- Debugging (uncomment next line to debug in the interactive mode)
 # interactive
@@ -48,6 +50,8 @@ kernel
 gdb
 strace
 yum-downloadonly
+nano
+wget
 sipx_packages()
 
 #--- Pre-installation script
