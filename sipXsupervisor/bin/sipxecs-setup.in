@@ -255,7 +255,7 @@ def network_settings
     puts "\e[0;31mNetwork settings:\e[m"
     puts "IP address   : #{net.ip}"
   end
-  change = prompt_confirm("Would you like to \e[0;31mconfigure\e[m your system\'s network settings?")
+  change = prompt_confirm("Would you like to configure your system\'s \e[0;31m network settings\e[m?")
   if change
     system("/usr/sbin/system-config-network-tui")
     system("/etc/init.d/network reload")
