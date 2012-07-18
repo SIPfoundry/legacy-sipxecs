@@ -92,12 +92,16 @@ bundle edit_line sendmail_mc {
 bundle agent sendmail_sysv_running {
   methods:
     any::
-      "any" usebundle => find_service_by_command("sendmail", "sendmail_running", "smmsp");
+      # use full path to search for postfix - this has been tested on centos and fedora systems
+      "any" usebundle => find_service_by_command("/usr/libexec/postfix/master", "postfix_running", "root");
+      "any" usebundle => find_service_by_command("sendmail", "sendmail_running", "smmsp");      
 
     !src.sendmail::
       "any" usebundle => rh_chkconfig_status("sendmail on");
+      "any" usebundle => rh_chkconfig_status("postfix off");
     !src.!sendmail::
       "any" usebundle => rh_chkconfig_status("sendmail off");
+      "any" usebundle => rh_chkconfig_status("postfix on");
 
   commands:
     !sendmail.sendmail_running::
@@ -105,10 +109,15 @@ bundle agent sendmail_sysv_running {
         comment => "stop sendmail",
         args => "sendmail stop";
 
+    sendmail.postfix_running::
+      "/sbin/service"
+        comment => "stop postfix",
+        args => "postfix stop";         
+
     sendmail.!sendmail_running::
       "/sbin/service"
         comment => "start sendmail",
-        args => "sendmail start";
+        args => "sendmail start";               
 
     sendmail.sendmail_running.restart_sendmail::
       "/sbin/service"
