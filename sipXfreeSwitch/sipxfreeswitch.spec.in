@@ -53,7 +53,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/sipxpbx/freeswitch/conf
 
 %post
-freeswitch.sh --config
 if test -e %{_sysconfdir}/logrotate.d/freeswitch; then rm -f %{_sysconfdir}/logrotate.d/freeswitch; fi
 
 %triggerin -- freeswitch
