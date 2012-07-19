@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
@@ -16,6 +17,7 @@ import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -33,7 +35,10 @@ public abstract class GroupTable extends BaseComponent {
 
     public void deleteGroup() {
         SettingDao context = getSettingContext();
-        if (context.deleteGroups(getSelections().getAllSelected())) {
+        Collection selected = getSelections().getAllSelected();
+        if (selected.isEmpty()) {
+            throw new EmptySelectionException();
+        } else if (context.deleteGroups(selected)) {
             IValidationDelegate validator = TapestryUtils.getValidator(getPage());
             validator.record(new ValidatorException(getMessages().getMessage("msg.error.removeAdminGroup")));
         }
@@ -50,5 +55,11 @@ public abstract class GroupTable extends BaseComponent {
     void moveGroups(int step) {
         SettingDao context = getSettingContext();
         context.moveGroups(getGroups(), getSelections().getAllSelected(), step);
+    }
+
+    private static class EmptySelectionException extends UserException {
+        public EmptySelectionException() {
+            super("&msg.error.emptySelection");
+        }
     }
 }

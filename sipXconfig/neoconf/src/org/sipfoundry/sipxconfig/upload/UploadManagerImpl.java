@@ -21,6 +21,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implements BeanFactoryAware, UploadManager {
+    private static final String NAME = "name";
     private ListableBeanFactory m_beanFactory;
     private ModelSource<UploadSpecification> m_specificationSource;
 
@@ -38,7 +39,10 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
     public void saveUpload(Upload upload) {
         String uploadName = upload.getName();
         if (upload.isNew() && isUploadNameUsed(uploadName)) {
-            throw new UserException("&error.duplicatedUploadName", uploadName);
+            throw new AlreadyDeployedException(uploadName);
+        }
+        if (!upload.isNew() && isExistingUploadNameUsed(upload.getName(), upload.getId())) {
+            throw new AlreadyDeployedException(uploadName);
         }
         saveBeanWithSettings(upload);
     }
@@ -68,6 +72,10 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
         return (getUploadName(name).size() > 0);
     }
 
+    public boolean isExistingUploadNameUsed(String name, int id) {
+        return (getUploadNameAndId(name, id).size() > 0);
+    }
+
     public void setSpecificationSource(ModelSource<UploadSpecification> specificationSource) {
         m_specificationSource = specificationSource;
     }
@@ -83,7 +91,13 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
     }
 
     private List<Upload> getUploadName(String name) {
-        List<Upload> existing = getHibernateTemplate().findByNamedQueryAndNamedParam("uploadName", "name", name);
+        List<Upload> existing = getHibernateTemplate().findByNamedQueryAndNamedParam("uploadName", NAME, name);
+        return existing;
+    }
+
+    private List<Upload> getUploadNameAndId(String name, int id) {
+        List<Upload> existing = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "uploadNameAndId", new String[]{NAME, "id"}, new Object[]{name, id});
         return existing;
     }
 
@@ -147,15 +161,20 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
     }
 
     static class AlreadyDeployedException extends UserException {
-        private static final String ERROR = "You can only have one set of files of type \"{1}\" deployed at a time.";
+        private static final String ERROR_ALREADY_DEPLOYED_NAME = "&error.alreadyDeployedName";
+        private static final String ERROR_ALREADY_DEPLOYED_SIZE = "&error.alreadyDeployedSize";
+        private static final String ERROR_ALREADY_DEPLOYED_UPLOAD_NAME = "&error.duplicatedUploadName";
 
-        // FIXME: localize
         AlreadyDeployedException(String name, String label) {
-            super("You must undeploy \"{0}\" before you can deploy these files. " + ERROR, name, label);
+            super(ERROR_ALREADY_DEPLOYED_NAME, name, label);
         }
 
         AlreadyDeployedException(int size, String label) {
-            super("There are already {0} files sets of type \"{1}\" deployed. " + ERROR, size, label);
+            super(ERROR_ALREADY_DEPLOYED_SIZE, size, label);
+        }
+
+        AlreadyDeployedException(String name) {
+            super(ERROR_ALREADY_DEPLOYED_UPLOAD_NAME, name);
         }
     }
 }

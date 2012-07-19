@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.site.conference;
 
+import java.util.List;
+
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
@@ -48,6 +50,12 @@ public abstract class UserConferencesPanel extends BaseComponent {
         if (getImNotificationSettings() == null) {
             setImNotificationSettings(getLoadedUser().getSettings().getSetting("im_notification"));
         }
+        if (getConferenceHangupCode() == null) {
+            List<Conference> confList = getConferenceBridgeContext().getAllConferences();
+            if (!confList.isEmpty()) {
+                setConferenceHangupCode(confList.get(0).getBridge().getHangupCode());
+            }
+        }
     }
 
     public IPage addConference() {
@@ -68,6 +76,9 @@ public abstract class UserConferencesPanel extends BaseComponent {
 
     public abstract Setting getImNotificationSettings();
     public abstract void setImNotificationSettings(Setting paSetting);
+
+    public abstract String getConferenceHangupCode();
+    public abstract void setConferenceHangupCode(String confHangupCode);
 
     public abstract void setLoadedUser(User user);
     public abstract User getLoadedUser();
