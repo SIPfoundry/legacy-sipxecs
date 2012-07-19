@@ -43,7 +43,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class AdminContextImpl extends HibernateDaoSupport implements AdminContext, AddressProvider, ProcessProvider,
     AlarmProvider, FirewallProvider, ArchiveProvider {
     private static final Collection<AddressType> ADDRESSES =
-        Arrays.asList(new AddressType[] {HTTP_ADDRESS, HTTP_ADDRESS_AUTH});
+        Arrays.asList(new AddressType[] {HTTP_ADDRESS, HTTP_ADDRESS_AUTH, SIPXCDR_DB_ADDRESS});
     private LocationsManager m_locationsManager;
     private int m_internalPort;
     private int m_internalPortAuth;
@@ -60,6 +60,8 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
             address = new Address(HTTP_ADDRESS, location.getAddress(), m_internalPort);
         } else if (type.equals(HTTP_ADDRESS_AUTH)) {
             address = new Address(HTTP_ADDRESS, location.getAddress(), m_internalPortAuth);
+        } else if (type.equals(SIPXCDR_DB_ADDRESS)) {
+            address = new Address(SIPXCDR_DB_ADDRESS, location.getAddress());
         }
         return Collections.singleton(address);
     }

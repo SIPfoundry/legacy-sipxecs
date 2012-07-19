@@ -25,6 +25,8 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -44,6 +46,7 @@ public class RestConfiguration implements ConfigProvider {
         }
 
         RestServerSettings settings = m_restServer.getSettings();
+        Address sipxcdrApi = manager.getAddressManager().getSingleAddress(AdminContext.SIPXCDR_DB_ADDRESS);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(RestServer.FEATURE);
@@ -53,18 +56,20 @@ public class RestConfiguration implements ConfigProvider {
             }
             Writer wtr = new FileWriter(new File(dir, "sipxrest-config.xml"));
             try {
-                write(wtr, settings, location, manager.getDomainManager().getDomain());
+                write(wtr, settings, location, manager.getDomainManager().getDomain(), sipxcdrApi);
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
         }
     }
 
-    void write(Writer wtr, RestServerSettings settings, Location location, Domain domain) throws IOException {
+    void write(Writer wtr, RestServerSettings settings, Location location,
+            Domain domain, Address sipxcdrApi) throws IOException {
         VelocityContext context = new VelocityContext();
         context.put("settings", settings.getSettings().getSetting("rest-config"));
         context.put("location", location);
         context.put("domainName", domain.getName());
+        context.put("sipxcdrDbAddress", sipxcdrApi.toString());
         try {
             m_velocityEngine.mergeTemplate("sipxrest/sipxrest-config.vm", context, wtr);
         } catch (Exception e) {
