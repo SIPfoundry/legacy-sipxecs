@@ -22,6 +22,8 @@ import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.test.TestHelper;
@@ -38,7 +40,8 @@ public class RestServerConfigurationTest {
         Domain domain = new Domain("example.org");
         Location location = TestHelper.createDefaultLocation();
         StringWriter actual = new StringWriter();
-        config.write(actual, settings, location, domain);
+        Address cdrAddress = new Address(AdminContext.SIPXCDR_DB_ADDRESS, "master.example.com");
+        config.write(actual, settings, location, domain, cdrAddress);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-sipxrest-config"));
         assertEquals(expected, actual.toString());
     }

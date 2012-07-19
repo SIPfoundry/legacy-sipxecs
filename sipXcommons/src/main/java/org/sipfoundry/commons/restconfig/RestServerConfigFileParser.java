@@ -29,6 +29,8 @@ public class RestServerConfigFileParser {
         digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"sipx-proxy-domain"), "setSipxProxyDomain",0);
         digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"log-directory"), "setLogDirectory",0);
         digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"log-level"), "setLogLevel",0);
+        digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"sipxcdr-address"), "setSipxcdrAddress", 0);
+        digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"db-user"), "setDbUser", 0);
     }
 
     public RestServerConfig parse(String url) {

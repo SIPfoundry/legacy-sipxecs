@@ -17,6 +17,8 @@ public class RestServerConfig {
 	private String loggingLevel = Level.INFO.toString();
 	private String logDirectory = "/var/log/sipxpbx/";
 	private String sipxProxyDomain;
+	private String sipxcdrAddress;
+	private String dbUser;
 
 	public void setIpAddress(String ipAddress) {
 		this.ipAddress = ipAddress;
@@ -73,6 +75,22 @@ public class RestServerConfig {
 	public String getSipxProxyDomain() {
 		return sipxProxyDomain;
 	}
+
+    public String getSipxcdrAddress() {
+        return sipxcdrAddress;
+    }
+
+    public void setSipxcdrAddress(String sipxcdrAddress) {
+        this.sipxcdrAddress = sipxcdrAddress;
+    }
+
+    public String getDbUser() {
+        return dbUser;
+    }
+
+    public void setDbUser(String dbUser) {
+        this.dbUser = dbUser;
+    }
 
     public int getCacheTimeout() {
         return 30;
