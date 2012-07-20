@@ -21,11 +21,11 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.OptGroupPropertySelectionRenderer;
 import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
-import org.sipfoundry.sipxconfig.site.user.ManageUsers;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class GroupActions extends BaseComponent {
@@ -46,6 +46,9 @@ public abstract class GroupActions extends BaseComponent {
 
     public abstract void setSelectedAction(IActionListener action);
 
+    @Parameter
+    public abstract SipxValidationDelegate getValidator();
+
     @Override
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         setSelectedAction(null);
@@ -54,10 +57,18 @@ public abstract class GroupActions extends BaseComponent {
             try {
                 triggerAction(cycle);
             } catch (UserException e) {
-                // TODO this cast shouldn't be here, group actions is used from several pages
-                ((ManageUsers) this.getPage()).getValidator().record(
-                        new UserException("&branch.validity.error", e.getRawParams()[0], e.getRawParams()[1],
-                                e.getRawParams()[2]), getMessages());
+                SipxValidationDelegate validator = getValidator();
+                if (validator != null) {
+                    if (e.getRawParams().length >= 3) {
+                        validator.record(
+                                new UserException("&branch.validity.error", e.getRawParams()[0], e.getRawParams()[1],
+                                        e.getRawParams()[2]), getMessages());
+                    } else {
+                        validator.record(e, getMessages());
+                    }
+                } else {
+                    throw e;
+                }
             }
         }
     }
