@@ -2,6 +2,7 @@
 
 require 'optparse'
 require 'fileutils'
+require 'socket'
 
 # using only @VAR@ style vars in this section only helps make this maintainable when integrating
 # patches.
@@ -306,10 +307,11 @@ class Network
   attr_accessor :ip, :host, :domain
 
   def initialize
-    @host = `hostname -s 2>/dev/null`.chomp
-    @domain = `hostname -d 2>/dev/null`.chomp
-    @ip = `hostname -i 2>/dev/null`.chomp
-    return unless @ip.empty?
+    orig, Socket.do_not_reverse_lookup = Socket.do_not_reverse_lookup, true
+    UDPSocket.open { |s|
+      s.connect '8.8.8.8', 1
+      @ip = s.addr.last
+    }
 
     # hostname call is not reliable, check hosts file for more accurate answer
     # the network config tool system-config-network-tui  does not create a clean
