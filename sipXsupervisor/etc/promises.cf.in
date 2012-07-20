@@ -63,7 +63,8 @@ body common control {
     "sipx_init",
     "sipx_module",
     "hostname",
-    @(g.bundles)
+    @(g.bundles),
+    "sipx_done"
   };
 
   inputs => { 

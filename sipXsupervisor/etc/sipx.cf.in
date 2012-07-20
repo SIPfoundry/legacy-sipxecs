@@ -61,6 +61,7 @@ bundle common sipx {
       "nologin"
         string => "/sbin/nologin",
         policy => "overridable";
+      "lock" string => "@SIPX_RUNDIR@/sipxagent.lock";
 
     SuSE::
       "crontabs" string => "/var/spool/cron/tabs";
@@ -154,10 +155,33 @@ body copy_from master_files(server,dir) {
 }
 
 bundle agent sipx_init {
+  vars:
+
   methods:
     !primary::
       "update" usebundle => "master_vars";
       "update" usebundle => "update_from_master";
+
+  files:
+    "$(sipx.lock)"
+       delete => nodir,
+       pathtype => "literal";
+
+  commands:
+    "/usr/bin/lockfile"
+      args => "$(sipx.lock)";
+}
+
+bundle agent sipx_done {
+  # cannot use normal "files: delete => ..." because cfengine will not
+  # execute the same promise twice
+  commands:
+    "/bin/rm"
+       args => "$(sipx.lock)";
+}
+
+body delete nodir {
+  rmdirs => "false";
 }
 
 bundle agent master_vars {

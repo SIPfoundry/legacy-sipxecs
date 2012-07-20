@@ -14,9 +14,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public interface AlarmServerManager {
+    public static final AlarmDefinition CPU_THRESHOLD_EXCEEDED = new AlarmDefinition("CPU_THRESHOLD_EXCEEDED", 90);
+    public static final AlarmDefinition CPU_THRESHOLD_RECOVERED = new AlarmDefinition("CPU_THRESHOLD_RECOVERED", 40);
+    public static final AlarmDefinition DISK_USAGE_THRESHOLD_EXCEEDED = new AlarmDefinition(
+            "DISK_USAGE_THRESHOLD_EXCEEDED", 95);
+    public static final AlarmDefinition DISK_USAGE_THRESHOLD_RECOVERED = new AlarmDefinition(
+            "DISK_USAGE_THRESHOLD_RECOVERED", 80);
+
     AlarmServer getAlarmServer();
 
     List<AlarmGroup> getAlarmGroups();
@@ -52,6 +61,9 @@ public interface AlarmServerManager {
     String getMibsDirectory();
 
     String getAlarmNotificationMibFileName();
+
+    Collection<String> getActiveMonitorConfiguration(SnmpManager snmpManager, Collection<Alarm> alarms,
+            Location location);
 
     /**
      * key is alarm definition id

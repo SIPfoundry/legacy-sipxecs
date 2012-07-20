@@ -27,6 +27,7 @@
   <bean id="snmpConfig" class="org.sipfoundry.sipxconfig.snmp.SnmpConfig">
     <property name="snmpManager" ref="snmpManager"/>
     <property name="configManager" ref="configManager"/>
+    <property name="alarmServerManager" ref="alarmServerManager"/>    
   </bean>
   
 </beans>

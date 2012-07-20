@@ -51,6 +51,11 @@ bundle agent snmptrap_config {
 }
 
 bundle edit_line snmptrapd_conf {
+  vars:    
+    "alarm_types" slist => {
+      "SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications",
+      "DISMAN-EVENT-MIB::mteTriggerFired"
+    };
   classes:
     # with array size zero, cfengine still creates line but just doesn't resolve
     # variable. i couldn't find array size, but tests show this trick work
@@ -59,8 +64,7 @@ bundle edit_line snmptrapd_conf {
   insert_lines:
     any::
       "authCommunity   log,execute,net public";
-      "traphandle SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications \
-$(sipx.SIPX_LIBEXECDIR)/snmptrap-email-handler --send \
+      "traphandle $(alarm_types) $(sipx.SIPX_LIBEXECDIR)/snmptrap-email-handler --send \
 --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/snmptrap-emails.yaml";
 
     has_forwarders::

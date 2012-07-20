@@ -66,35 +66,59 @@ def get_email(data, alarm, template, recipients)
 end
 
 # Example:
-# =========================
+#
 # localhost
 # UDP: [127.0.0.1]:41347->[127.0.0.1]:162
 # DISMAN-EVENT-MIB::sysUpTimeInstance 2:5:14:40.53
+#
+# Then, following content can vary as follows:
+#
+# ============ sipxecs alarm =================
 # SNMPv2-MIB::snmpTrapOID.0 SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications
 # SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmId LOGIN_FAILED
 # SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmSource swift.hubler.us
 # SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmTime "00 00 00 00 "
 # SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmSeverity "00 00 00 00 "
+# SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmDescr = STRING: "logwatcher is not running and is being restarted."
+#
+# ============= Builtin net-snmp alarm =======
+# DISMAN-EVENT-MIB::mteTriggerFired
+# DISMAN-EVENT-MIB::mteHotTrigger.0 = STRING: machineTooBusy
+# DISMAN-EVENT-MIB::mteHotTargetName.0 = STRING: 
+# DISMAN-EVENT-MIB::mteHotContextName.0 = STRING: 
+# DISMAN-EVENT-MIB::mteHotOID.0 = OID: HOST-RESOURCES-MIB::hrProcessorLoad.768
+# DISMAN-EVENT-MIB::mteHotValue.0 = INTEGER: 95
+####################################
 def parse_alarm(data, input_stream)
   alarm = {}
   input_stream.each {|line|
     case line
-    when /^SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmId/
-      id = line.split[1]
-      meta = data['alarms'][id]
-      unless meta.nil?
-        $log.info 'found alarm definition'
-        alarm = meta.dup
-      else
-        $log.info 'no alarm definition found, using limited data'
-      end
-      alarm['id'] = id
+    when /^SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmId \(.*)$/
+      alarm = get_alarm(data, $1)
     when /^SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmSource/
       alarm['source'] = line.split[1]
+    when /^DISMAN-EVENT-MIB::mteHotTrigger.0 = STRING: (.*)$/
+      alarm = get_alarm(data, $1)
+    when /^DISMAN-EVENT-MIB::mteHotValue.0 = INTEGER: (.*)$/
+      alarm['message'] = "Threshold #{$1}"
     end
   }
   return alarm
 end
+
+def get_alarm(data, id)
+  meta = data['alarms'][id]
+  unless meta.nil?
+    $log.info 'found alarm definition'
+    alarm = meta.dup
+  else
+    $log.info 'no alarm definition found, using limited data'
+    alarm = {}
+  end
+  alarm['id'] = id
+  return alarm
+end
+
 
 if __FILE__ == $0
 $log.info "Called with parameters #{ARGV.join(' ')}"

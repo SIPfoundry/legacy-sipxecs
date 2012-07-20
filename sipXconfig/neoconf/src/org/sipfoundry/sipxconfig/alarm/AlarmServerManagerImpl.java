@@ -9,13 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.alarm;
 
-
-
 import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,12 +22,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -41,7 +43,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.util.CollectionUtils;
 
 public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> implements AlarmServerManager,
-        DaoEventListener, BeanFactoryAware {
+        DaoEventListener, BeanFactoryAware, AlarmProvider, ActiveMonitorAlarmProvider {
     private static final String DEFAULT_HOST = "@localhost";
     private static final String PARAM_ALARM_GROUP_ID = "alarmGroupId";
     private static final String PARAM_ALARM_GROUP_NAME = "alarmGroupName";
@@ -55,6 +57,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     private LocationsManager m_locationsManager;
     private FeatureManager m_featureManager;
     private Set<AlarmProvider> m_providers;
+    private Set<ActiveMonitorAlarmProvider> m_activeAlarmProviders;
     private JdbcTemplate m_jdbcTemplate;
 
     public Map<String, AlarmDefinition> getAlarmDefinitions() {
@@ -354,6 +357,30 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         return m_providers;
     }
 
+    Set<ActiveMonitorAlarmProvider> getActiveMonitorAlarmProvider() {
+        if (m_activeAlarmProviders == null) {
+            Map<String, ActiveMonitorAlarmProvider> beanMap = m_beanFactory.getBeansOfType(
+                    ActiveMonitorAlarmProvider.class, false, false);
+            m_activeAlarmProviders = new HashSet<ActiveMonitorAlarmProvider>(beanMap.values());
+        }
+
+        return m_activeAlarmProviders;
+    }
+
+    public Collection<String> getActiveMonitorConfiguration(SnmpManager snmpManager, Collection<Alarm> alarms,
+            Location location) {
+        List<String> config = new ArrayList<String>();
+        for (ActiveMonitorAlarmProvider provider : getActiveMonitorAlarmProvider()) {
+            for (Alarm alarm : alarms) {
+                String c = provider.getActiveMonitorSnmpConfiguration(snmpManager, this, alarm, location);
+                if (StringUtils.isNotBlank(c)) {
+                    config.add(c);
+                }
+            }
+        }
+        return config;
+    }
+
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         m_jdbcTemplate = jdbcTemplate;
     }
@@ -384,5 +411,39 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
 
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
+    }
+
+    @Override
+    public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
+        Collection<AlarmDefinition> defs = Arrays.asList(new AlarmDefinition[] {
+            CPU_THRESHOLD_EXCEEDED, CPU_THRESHOLD_RECOVERED, DISK_USAGE_THRESHOLD_EXCEEDED,
+            DISK_USAGE_THRESHOLD_RECOVERED
+        });
+        return defs;
+    }
+
+    @Override
+    public String getActiveMonitorSnmpConfiguration(SnmpManager snmpManager, AlarmServerManager alarmManager,
+            Alarm alarm, Location location) {
+        if (!alarm.isEnabled()) {
+            return null;
+        }
+        AlarmDefinition def = alarm.getAlarmDefinition();
+
+        // Add configurable time to check with " -r N " where N is seconds. default is 10 minutes
+        if (def == CPU_THRESHOLD_EXCEEDED) {
+            return "monitor CPU_THRESHOLD_EXCEEDED hrProcessorLoad > " + alarm.getMinThreshold();
+        }
+        if (def == CPU_THRESHOLD_RECOVERED) {
+            return "monitor CPU_THRESHOLD_RECOVERED hrProcessorLoad < " + alarm.getMinThreshold();
+        }
+        if (def == DISK_USAGE_THRESHOLD_EXCEEDED) {
+            return "monitor DISK_USAGE_THRESHOLD_EXCEEDED hrDiskStorageCapacity > " + alarm.getMinThreshold();
+        }
+        if (def == DISK_USAGE_THRESHOLD_RECOVERED) {
+            return "monitor DISK_USAGE_THRESHOLD_RECOVERED hrDiskStorageCapacity < " + alarm.getMinThreshold();
+        }
+
+        return null;
     }
 }

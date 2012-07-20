@@ -1,8 +1,12 @@
 #!/bin/sh
 
+# Do not do anything if cfengine is running because cfengine already ensures services are running
+# AND we avoid race condition where cfengine is shutting services down because they are supposed
+# to be off and snmp just didn't get configured yet.
+! test -f @SIPX_RUNDIR@/sipxagent.lock || exit 0
+
 # Send trap to local server
 # pass along command to be execute by shell
-
 @SIPX_BINDIR@/sipxtrap PROCESS_RESTARTED "$1 is not running and is being restarted."
 shift
 $*

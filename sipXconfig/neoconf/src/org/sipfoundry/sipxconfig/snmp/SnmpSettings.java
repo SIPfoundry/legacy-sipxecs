@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class SnmpSettings extends PersistableSettings implements DeployConfigOnEdit {
+    private static final String FIX_DEAD_PROCESSES = "cfdat/fix_dead_processes";
     private boolean m_restartDefault;
 
     public SnmpSettings() {
@@ -32,7 +33,7 @@ public class SnmpSettings extends PersistableSettings implements DeployConfigOnE
     }
 
     public class Defaults {
-        @SettingEntry(path = "cfdat/fix_dead_processes")
+        @SettingEntry(path = FIX_DEAD_PROCESSES)
         public boolean getRestart() {
             return m_restartDefault;
         }
@@ -58,5 +59,9 @@ public class SnmpSettings extends PersistableSettings implements DeployConfigOnE
      */
     public void setNoRestartDefault(boolean noRestartDefault) {
         m_restartDefault = !noRestartDefault;
+    }
+
+    public boolean isFixDeadProcesses() {
+        return (Boolean) getSettingTypedValue(FIX_DEAD_PROCESSES);
     }
 }

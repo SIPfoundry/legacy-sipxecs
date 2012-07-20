@@ -22,11 +22,16 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.sipfoundry.sipxconfig.alarm.Alarm;
+import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
+import org.sipfoundry.sipxconfig.alarm.Alarms;
 import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
@@ -43,6 +48,7 @@ import org.sipfoundry.sipxconfig.setup.SetupManager;
 public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListener {
     private SnmpManager m_snmp;
     private ConfigManager m_configManager;
+    private AlarmServerManager m_alarmServerManager;
 
     public boolean setup(SetupManager manager) {
         if (!manager.isTrue(SnmpManager.FEATURE.getId())) {
@@ -60,8 +66,13 @@ public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListene
         }
         Set<Location> locations = request.locations(manager);
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(SnmpManager.FEATURE);
+        boolean alarmsEnabled = manager.getFeatureManager().isFeatureEnabled(Alarms.FEATURE);
         File gdir = manager.getGlobalDataDirectory();
         SnmpSettings settings = m_snmp.getSettings();
+        List<Alarm> alarms = null;
+        if (alarmsEnabled) {
+            alarms = m_alarmServerManager.getAlarms();
+        }
 
         Writer cfdat = new FileWriter(new File(gdir, "snmpd.cfdat"));
         try {
@@ -78,6 +89,9 @@ public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListene
                 List<ProcessDefinition> defs = m_snmp.getProcessDefinitions(location);
                 Writer wtr = new FileWriter(new File(dir, "snmpd.conf.part"));
                 try {
+                    if (alarmsEnabled) {
+                        writeActiveAlarms(wtr, alarms, location);
+                    }
                     writeProcesses(wtr, defs);
                 } finally {
                     IOUtils.closeQuietly(wtr);
@@ -86,8 +100,15 @@ public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListene
         }
     }
 
+    void writeActiveAlarms(Writer w, Collection<Alarm> alarms, Location location) throws IOException {
+        for (String config : m_alarmServerManager.getActiveMonitorConfiguration(m_snmp, alarms, location)) {
+            w.write(config);
+            w.write(SystemUtils.LINE_SEPARATOR);
+        }
+    }
+
     void writeProcesses(Writer w, List<ProcessDefinition> defs) throws IOException {
-        String eol = "\n";
+        String eol = SystemUtils.LINE_SEPARATOR;
         for (ProcessDefinition def : defs) {
             w.write("proc ");
             w.write(def.getProcess());
@@ -122,5 +143,9 @@ public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListene
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
         // cannot tell what processes will become alive/dead
         m_configManager.configureEverywhere(SnmpManager.FEATURE);
+    }
+
+    public void setAlarmServerManager(AlarmServerManager alarmServerManager) {
+        m_alarmServerManager = alarmServerManager;
     }
 }

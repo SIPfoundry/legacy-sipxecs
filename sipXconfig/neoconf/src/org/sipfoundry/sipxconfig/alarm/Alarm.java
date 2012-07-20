@@ -17,13 +17,15 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.feature.Feature;
 
 public class Alarm extends BeanWithId implements DeployConfigOnEdit {
-    static final Collection<Feature> AFFECTED_FEATURES_ON_CHANGE = Collections.singleton((Feature) Alarms.FEATURE);
+    private static final Collection<Feature> AFFECTED_FEATURES_ON_CHANGE = Collections
+            .singleton((Feature) Alarms.FEATURE);
+    private static final String DISABLED_GROUP_NAME = "disabled";
 
     private AlarmDefinition m_definition;
 
     private boolean m_logEnabled = true;
 
-    private String m_groupName = "disabled";
+    private String m_groupName = DISABLED_GROUP_NAME;
 
     private int m_minThreshold;
 
@@ -58,6 +60,10 @@ public class Alarm extends BeanWithId implements DeployConfigOnEdit {
 
     public void setMinThreshold(int minThreshold) {
         m_minThreshold = minThreshold;
+    }
+
+    public boolean isEnabled() {
+        return !DISABLED_GROUP_NAME.equals(m_groupName);
     }
 
     @Override
