@@ -7,4 +7,6 @@
   <log-directory>@SIPX_LOGDIR@</log-directory>
   <log-level>NOTICE</log-level>
   <sip-port>6050</sip-port>
+  <sipxcdr-address>jdbc:postgresql://master.example.com/SIPXCDR</sipxcdr-address>
+  <db-user>@POSTGRESQL_USER@</db-user>
 </rest-config>

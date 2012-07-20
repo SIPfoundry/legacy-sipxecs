@@ -7,4 +7,6 @@
   <log-directory>@SIPX_LOGDIR@</log-directory>
   <log-level>$settings.getSetting('log.level').Value</log-level>
   <sip-port>$settings.getSetting('sipPort').Value</sip-port>
+  <sipxcdr-address>${sipxcdrDbAddress}</sipxcdr-address>
+  <db-user>@POSTGRESQL_USER@</db-user>
 </rest-config>

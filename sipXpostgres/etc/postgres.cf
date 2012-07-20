@@ -92,6 +92,8 @@ bundle agent postgres_config {
 bundle edit_line postgresql_conf {
   insert_lines:
     any::
+      # make sure any node can connect to posgresql
+      "listen_addresses='*'";
       # makes a difference when row counts get higher both
       # in users table and cdrs.  A database that has not
       # been vacuumed will take 20-30 minutes before it will
@@ -123,6 +125,8 @@ bundle edit_line pg_hba_conf {
     "local all all trust";
     "host all all 127.0.0.1/32 trust";
     "host all all ::1/128 trust";
+    # any node in the cluster can connect to postgresql
+    "host all all 0.0.0.0/0 trust";
   delete_lines:
     "host.*";
     "local.*";

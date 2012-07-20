@@ -5,47 +5,34 @@
  */
 package org.sipfoundry.sipxrest.cdrlog;
 
-import java.sql.Driver;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.*;
-import javax.xml.transform.stream.*;
-import javax.xml.transform.dom.*;
 
 import org.apache.log4j.Logger;
-import org.restlet.Context;
 import org.restlet.Restlet;
-import org.restlet.Route;
-import org.restlet.Router;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.resource.DomRepresentation;
-
-import org.sipfoundry.sipxrest.*;
-
+import org.sipfoundry.commons.restconfig.RestServerConfig;
+import org.sipfoundry.sipxrest.RestServer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 public class CdrLogRestlet extends Restlet {
 
     private static Logger logger = Logger.getLogger(CdrLogRestlet.class);
-    private static String serviceName = "cdr";
-    private String cdrDBUrl = "jdbc:postgresql:SIPXCDR";
     private String sqlStmt = "SELECT caller_aor, callee_aor, callee_contact, start_time, (end_time - connect_time) AS duration, termination, callee_route from cdrs";
     private String sqlUserWhereStmt = "WHERE (caller_aor LIKE ? OR callee_aor LIKE ? ) ";
     private String sqlFromDateStmt = "AND start_time > ? ";
@@ -61,6 +48,11 @@ public class CdrLogRestlet extends Restlet {
         Connection cdrConnection = null;
         ResultSet qResults = null;
         PreparedStatement qStatement = null;
+
+        RestServerConfig config = RestServer.getRestServerConfig();
+        String cdrDBUrl = config.getSipxcdrAddress();
+        String dbUser = config.getDbUser();
+
         try {
             Method httpMethod = request.getMethod();
             if (!httpMethod.equals(Method.GET)) {
@@ -113,7 +105,7 @@ public class CdrLogRestlet extends Restlet {
 
             System.setProperty("jdbc.drivers", "org.postgresql.Driver");
             // Establish a connection to the CDR database.
-            cdrConnection = DriverManager.getConnection(cdrDBUrl, "postgres", "");
+            cdrConnection = DriverManager.getConnection(cdrDBUrl, dbUser, "");
 
             String sqlPrepareString;
             String userLike = "%:" + userId + "@%";

@@ -7,6 +7,8 @@ package org.sipfoundry.callcontroller;
 
 import gov.nist.javax.sip.clientauthutils.UserCredentialHash;
 
+import java.net.UnknownHostException;
+
 import javax.sip.Dialog;
 
 import org.apache.log4j.Logger;
@@ -18,8 +20,8 @@ import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxrest.RestServer;
-import org.sipfoundry.sipxrest.SipHelper;
 
 public class CallControllerRestlet extends Restlet {
 
@@ -41,6 +43,14 @@ public class CallControllerRestlet extends Restlet {
 
     @Override
     public void handle(Request request, Response response) {
+
+        String configDir = System.getProperties().getProperty("conf.dir",  "/etc/sipxpbx");
+        try{
+            UnfortunateLackOfSpringSupportFactory.initialize(configDir + "/mongo-client.ini");
+        } catch (UnknownHostException e) {
+            logger.error("Cannot init mongo", e);
+        }
+
         try {
             Method httpMethod = request.getMethod();
             if (!httpMethod.equals(Method.POST) && !httpMethod.equals(Method.GET)) {
@@ -54,7 +64,7 @@ public class CallControllerRestlet extends Restlet {
             String agentName = (String) request.getAttributes().get(CallControllerParams.AGENT);
 
             String method = (String) request.getAttributes().get(CallControllerParams.METHOD);
-            
+
             logger.debug("sipMethod = " + method);
 
             String callingParty = (String) request.getAttributes().get(
@@ -149,13 +159,13 @@ public class CallControllerRestlet extends Restlet {
                     response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
                     return;
                 }
-                
+
                 String action = (String) request.getAttributes().get(CallControllerParams.ACTION);
-                
+
                 if ( action == null ) {
                     action = CallControllerParams.CALL;
                 }
-                
+
                 if ( action.equals(CallControllerParams.CALL)) {
                     if (method.equalsIgnoreCase(CallControllerParams.REFER)) {
                         DialogContext dialogContext = SipUtils.createDialogContext(key, timeout,
@@ -196,7 +206,7 @@ public class CallControllerRestlet extends Restlet {
                                 Status.CLIENT_ERROR_BAD_REQUEST.getCode(), "Need a transfer target parameter");
                         response.setEntity(result, MediaType.TEXT_XML);
                         response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-                        return; 
+                        return;
                     }
                     if ( target.indexOf("@") == -1) {
                         target = target + "@" + RestServer.getRestServerConfig().getSipxProxyDomain();
