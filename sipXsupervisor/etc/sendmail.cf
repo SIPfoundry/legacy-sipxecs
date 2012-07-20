@@ -50,8 +50,7 @@ bundle edit_line sendmail_sysconfig {
     # Process queued messages quickly (usually within 15 seconds).
     "QUEUE=p15s";
   delete_lines:
-    "QUEUE=.*";
-    "SENDMAIL_OPTARG=.*";
+    "(QUEUE|SENDMAIL_OPTARG)=.*";
 }
 
 bundle edit_line sendmail_mc {
