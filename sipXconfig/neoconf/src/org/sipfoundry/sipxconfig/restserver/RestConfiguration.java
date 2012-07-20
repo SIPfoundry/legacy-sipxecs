@@ -49,7 +49,7 @@ public class RestConfiguration implements ConfigProvider {
         Address sipxcdrApi = manager.getAddressManager().getSingleAddress(AdminContext.SIPXCDR_DB_ADDRESS);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            boolean enabled = manager.getFeatureManager().isFeatureEnabled(RestServer.FEATURE);
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(RestServer.FEATURE, location);
             ConfigUtils.enableCfengineClass(dir, "sipxrest.cfdat", enabled, "sipxrest");
             if (!enabled) {
                 continue;

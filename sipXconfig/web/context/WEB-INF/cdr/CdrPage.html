@@ -12,9 +12,11 @@
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
   <span jwcid="activeTab@Block">
-	<b><span jwcid="header@Insert" value="message:label.activeCalls"/>:&nbsp;</b>
-    <span jwcid="activeCalls@Insert" value="ognl:totalActiveCalls"/>
-    <span jwcid="@cdr/ActiveCallsPanel" />
+	<form jwcid="@common/AutoRefreshForm">
+	  <b><span jwcid="header@Insert" value="message:label.activeCalls"/>:&nbsp;</b>
+      <span jwcid="activeCalls@Insert" value="ognl:totalActiveCalls"/>
+      <span jwcid="@cdr/ActiveCallsPanel" />
+	</form>
   </span>
   <span jwcid="historicTab@Block">
     <span jwcid="@cdr/CdrHistory"/>

@@ -36,7 +36,7 @@ bundle agent 00_sipxconfig {
     primary.setup::
       "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
         comment => "generate ssl info $(this.promiser)",
-        args => "setup $(sipx.bind_ip) $(sipx.fqhost)",
+        args => "setup",
         classes => if_notkept("fatal_error");
 }
 
