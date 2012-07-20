@@ -191,6 +191,7 @@ build_release_opt(P) ->
 	RelOpt = build_release_opt(P, #release_opt{}),
 	case {RelOpt#release_opt.id, RelOpt#release_opt.label} of
 		{undefined, _} -> {error, noid};
+		{invalid, _} -> {error, invalidid};
 		{_, undefined} -> {error, nolabel};
 		{_, _} -> {ok, RelOpt}
 	end.
@@ -198,7 +199,12 @@ build_release_opt(P) ->
 build_release_opt([], Acc) ->
 	Acc;
 build_release_opt([{<<"_id">>, Id}|T], Acc) ->
-	build_release_opt(T, Acc#release_opt{id=binary_to_list(Id)});
+	case catch list_to_integer(re:replace(Id, "\\D*", "", [{return, list}])) of
+		Num when is_integer(Num) ->
+			build_release_opt(T, Acc#release_opt{id=Num});
+		_ ->
+			Acc#release_opt{id=invalid}
+	end;
 build_release_opt([{<<"lbl">>, Label}|T], Acc) ->
 	build_release_opt(T, Acc#release_opt{label=binary_to_list(Label)});
 build_release_opt([{<<"bias">>, Bias}|T], Acc) when is_integer(Bias) ->
@@ -567,12 +573,13 @@ build_profile_test_() ->
 	].
 
 build_release_opt_test_() ->
-	Build = fun(P) -> spx_util:build_release_opt([{<<"_id">>, <<"relid">>}, {<<"lbl">>, <<"in a meeting">>}|P]) end,
+	Build = fun(P) -> spx_util:build_release_opt([{<<"_id">>, <<"relid1">>}, {<<"lbl">>, <<"in a meeting">>}|P]) end,
 
 	[?_assertEqual({error, noid}, spx_util:build_release_opt([])),
-	?_assertEqual({error, nolabel}, spx_util:build_release_opt([{<<"_id">>, <<"relid">>}])),
+	?_assertEqual({error, invalidid}, spx_util:build_release_opt([{<<"_id">>, <<"nonumid">>}])),
+	?_assertEqual({error, nolabel}, spx_util:build_release_opt([{<<"_id">>, <<"relid1">>}])),
 
-	?_assertMatch({ok, #release_opt{id="relid", label="in a meeting"}},
+	?_assertMatch({ok, #release_opt{id=1, label="in a meeting"}},
 		Build([])),
 
 	?_assertMatch({ok, #release_opt{bias = 0}}, Build([])),
