@@ -64,10 +64,10 @@
     <property name="openAcdReplicationProvider" ref="openAcdReplicationProvider" />
     <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
   </bean>
-  
+
   <bean id="openAcdSettings" class="org.sipfoundry.sipxconfig.openacd.OpenAcdSettings" parent="settingsBean">
     <property name="domainManager" ref="domainManager"/>
-    <property name="audioDirectory" value="$(sysdir.var)/configserver/phone/acd/audio"/>
+    <property name="audioDirectory" value="${sysdir.var}/configserver/phone/acd/audio"/>
   </bean>
-  
+
 </beans>
