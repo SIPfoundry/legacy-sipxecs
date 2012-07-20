@@ -19,8 +19,6 @@
     </property>
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="locationsManager" ref="locationsManager"/>
-    <property name="internalPort" value="${sysdir.port}"/>
-    <property name="internalPortAuth" value="${sysdir.port.auth}"/>
   </bean>
   
   <bean id="adminSettings" class="org.sipfoundry.sipxconfig.admin.AdminSettings" parent="settingsBean">
