@@ -14,7 +14,10 @@
 bundle agent mysql {
   methods:
     any::
-      "any" usebundle => "mysql_sysv_running";
+    fedora16_or_greater::
+      "any" usebundle => mysql_sysctl_running;
+    !fedora16_or_greater::
+      "any" usebundle => mysql_sysv_running;
 }
 
 bundle agent mysql_ensure_db(name, schema_sql) {
@@ -68,4 +71,38 @@ bundle agent mysql_sysv_running {
       "$(daemon)"
         comment => "restart mysqld",
         args => "restart";
+}
+
+bundle agent mysql_sysctl_running {
+  vars:
+    any::
+      "service" string => "mysqld.service";
+
+  classes:
+    fedora16_or_greater::
+      "mysql_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+
+  commands:
+    !mysql.mysql_running::
+      "$(sipx.systemctl)"
+        comment => "stop $(service)",
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable $(service)",
+        args => "disable $(service)";
+
+    mysql.!mysql_running::
+      "$(sipx.systemctl)"
+        comment => "start $(service)",
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable $(service)",
+        args => "enable $(service)";
+
+    mysql.mysql_running.restart_mysql::
+      "$(sipx.systemctl)"
+        comment => "restart $(service)",
+        args => "restart $(service)";
 }

@@ -60,9 +60,10 @@ bundle edit_line firewall_module_contents {
 
 bundle agent firewall_kernel_config {
   vars:
-    "dim_sysctl" int => readstringarray("sysctl", "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sysctl.part", 
+    firewall::
+      "dim_sysctl" int => readstringarray("sysctl", "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sysctl.part", 
         "\s*#[^\n]*", "=", 10, 4000);
-    "sysctl_tunables" slist => getindices("firewall_kernel.sysctl");
+      "sysctl_tunables" slist => getindices("firewall_kernel.sysctl");
 
   files:
     firewall::

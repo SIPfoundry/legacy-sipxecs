@@ -18,28 +18,30 @@
 bundle agent upload {
   methods:
     any::
-      "any" usebundle => "sipx_module";
-      "any" usebundle => "upload_logs";
+      "any" usebundle => sipx_module;
+      "any" usebundle => upload_logs;
 }
 
 bundle agent upload_logs {
-  vars:
-    "fqdn" slist => readstringlist("@SIPX_CFDATA@/servers", "=(.*?)end", "\n", 100, 4000);
-    "dim_servers" int => readstringarray("server", "@SIPX_CFDATA@/servers", "#[^\n]*", "[\s=]", 100, 4000);
+  vars:    
+    any::
+      "fqdn" slist => readstringlist("@SIPX_CFDATA@/servers", "=(.*?)end", "\n", 100, 4000);
+      "dim_servers" int => readstringarray("server", "@SIPX_CFDATA@/servers", "#[^\n]*", "[\s=]", 100, 4000);
 
   files:
-    "@SIPX_LOGDIR@/sipxagent/$(server[$(fqdn)][1])/."
-      handle => "upload_dir",
-      create => "true",
-      perms => mog("644","@SIPXPBXUSER@","@SIPXPBXGROUP@");
+    any::
+      "@SIPX_LOGDIR@/sipxagent/$(server[$(fqdn)][1])/."
+        handle => "upload_dir",
+        create => "true",
+        perms => mog("644","@SIPXPBXUSER@","@SIPXPBXGROUP@");
 
-    "@SIPX_LOGDIR@/sipxagent/$(server[$(fqdn)][1])"
-      handle => "upload",
-      create => "true",
-      perms => mog("644","@SIPXPBXUSER@","@SIPXPBXGROUP@"),
-      copy_from => master_files("$(server[$(fqdn)][2])", "@SIPX_LOGDIR@"),
-      file_select => sipxagent_logs,
-      depth_search => recurse("1");
+      "@SIPX_LOGDIR@/sipxagent/$(server[$(fqdn)][1])"
+        handle => "upload",
+        create => "true",
+        perms => mog("644","@SIPXPBXUSER@","@SIPXPBXGROUP@"),
+        copy_from => master_files("$(server[$(fqdn)][2])", "@SIPX_LOGDIR@"),
+        file_select => sipxagent_logs,
+        depth_search => recurse("1");
 
   reports:
     linux::
