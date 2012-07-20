@@ -89,17 +89,26 @@ bundle edit_line sendmail_mc {
 }
 
 bundle agent sendmail_sysv_running {
+  vars:
+    "postfix_service" string => "/usr/libexec/postfix/master";
+
+  classes:
+    "postfix_installed" expression => fileexists("$(postfix_service)");
+
   methods:
-    any::
+    postfix_installed::
       # use full path to search for postfix - this has been tested on centos and fedora systems
-      "any" usebundle => find_service_by_command("/usr/libexec/postfix/master", "postfix_running", "root");
+      "any" usebundle => find_service_by_command("$(postfix_service)", "postfix_running", "root");
+    any::
       "any" usebundle => find_service_by_command("sendmail", "sendmail_running", "smmsp");      
 
     !src.sendmail::
       "any" usebundle => rh_chkconfig_status("sendmail on");
+    !src.postfix_installed::
       "any" usebundle => rh_chkconfig_status("postfix off");
     !src.!sendmail::
       "any" usebundle => rh_chkconfig_status("sendmail off");
+    !src.postfix_installed::
       "any" usebundle => rh_chkconfig_status("postfix on");
 
   commands:
