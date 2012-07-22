@@ -16,8 +16,8 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 public interface AdminContext {
     public static final String URL_FORMAT = "http://%s:%d";
     public static final LocationFeature FEATURE = new LocationFeature("admin");
-    public static final AddressType HTTP_ADDRESS = new AddressType("adminApi", URL_FORMAT);
-    public static final AddressType HTTP_ADDRESS_AUTH = new AddressType("adminApiAuth", URL_FORMAT);
+    public static final AddressType HTTP_ADDRESS = new AddressType("adminApi", URL_FORMAT, 12001);
+    public static final AddressType HTTP_ADDRESS_AUTH = new AddressType("adminApiAuth", URL_FORMAT, 12000);
     public static final AddressType SIPXCDR_DB_ADDRESS = new AddressType(
             "sipxcdr", "jdbc:postgresql://%s/SIPXCDR", 5432);
     public static final AlarmDefinition ALARM_LOGIN_FAILED = new AlarmDefinition("LOGIN_FAILED", 3);
