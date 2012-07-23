@@ -47,6 +47,8 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
  * Can be user that logs in, can be superadmin, can be user for phone line
  */
 public abstract class AbstractUser extends BeanWithGroups {
+    public static final int VOICEMAIL_PIN_LEN = 4;
+    public static final int PASSWORD_LEN = 8;
     public static final String GROUP_RESOURCE_ID = "user";
 
     // property names
