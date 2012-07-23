@@ -29,6 +29,7 @@ import org.acegisecurity.util.FilterChainProxy;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.common.AbstractUser;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.beans.factory.annotation.Required;
@@ -36,7 +37,6 @@ import org.springframework.beans.factory.annotation.Required;
 public class SipxFilterChainProxy extends FilterChainProxy {
     private static final Log LOG = LogFactory.getLog(SipxFilterChainProxy.class);
     private DomainManager m_domainManager;
-    private int m_internalPort;
     /**
      * If internal port is used, automatically authenticate using shared secret
      * If other sipxecs components need to call rest services in sipxconfig, no authentication
@@ -46,17 +46,13 @@ public class SipxFilterChainProxy extends FilterChainProxy {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
         throws IOException, ServletException {
         ServletRequest requestToFilter = request;
-        if (request.getLocalPort() == m_internalPort && request instanceof HttpServletRequest) {
+        int port = AdminContext.HTTP_ADDRESS.getCanonicalPort();
+        if (request.getLocalPort() == port && request instanceof HttpServletRequest) {
             HttpServletRequest httpRequest = (HttpServletRequest) request;
             requestToFilter = new AuthorizedServletRequest(httpRequest);
-            LOG.debug("Internal request port: " + m_internalPort);
+            LOG.debug("Internal request port: " + port);
         }
         super.doFilter(requestToFilter, response, chain);
-    }
-
-    @Required
-    public void setInternalPort(int internalPort) {
-        m_internalPort = internalPort;
     }
 
     @Required

@@ -23,7 +23,6 @@
       </value>
     </property>
     <property name="domainManager" ref="domainManager" />
-    <property name="internalPort" value="${sysdir.port}"/>
   </bean>
 
   <!-- ======================== AUTHENTICATION ======================= -->
