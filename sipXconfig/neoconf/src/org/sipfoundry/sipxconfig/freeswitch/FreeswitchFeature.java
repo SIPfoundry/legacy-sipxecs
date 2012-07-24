@@ -28,8 +28,8 @@ import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.SettingsWithLocationDao;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
@@ -59,7 +59,7 @@ public class FreeswitchFeature implements FeatureProvider, AddressProvider, Proc
             EVENT_ADDRESS, ACC_EVENT_ADDRESS);
 
     private SettingsWithLocationDao<FreeswitchSettings> m_settingsDao;
-    private ReplicationManager m_replicationManager;
+    private SipxReplicationContext m_sipxReplicationContext;
     private String m_name = "freeswitch";
 
     public FreeswitchSettings getSettings(Location location) {
@@ -68,7 +68,8 @@ public class FreeswitchFeature implements FeatureProvider, AddressProvider, Proc
 
     public void saveSettings(FreeswitchSettings settings) {
         m_settingsDao.upsert(settings);
-        m_replicationManager.replicateAllData(DataSet.ALIAS);
+        //m_replicationManager.replicateAllData(DataSet.ALIAS);
+        m_sipxReplicationContext.generateAll(DataSet.ALIAS);
     }
 
     @Override
@@ -155,7 +156,7 @@ public class FreeswitchFeature implements FeatureProvider, AddressProvider, Proc
     }
 
     @Required
-    public void setReplicationManager(ReplicationManager replicationManager) {
-        m_replicationManager = replicationManager;
+    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_sipxReplicationContext = sipxReplicationContext;
     }
 }
