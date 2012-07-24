@@ -176,7 +176,7 @@ void catch_global()
   bt << msg << std::endl; \
   void* trace_elems[20]; \
   int trace_elem_count(backtrace( trace_elems, 20 )); \
-  char** stack_syms(backtrace_symbols(trace_elems, trace_elem_count)); \ 
+  char** stack_syms(backtrace_symbols(trace_elems, trace_elem_count)); \
   for (int i = 0 ; i < trace_elem_count ; ++i ) \
     bt << stack_syms[i] << std::endl; \
   Os::Logger::instance().log(FAC_LOG, PRI_CRIT, bt.str().c_str()); \
