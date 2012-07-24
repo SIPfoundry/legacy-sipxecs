@@ -16,8 +16,8 @@ import java.util.List;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanSetup;
 import org.springframework.beans.factory.annotation.Required;
@@ -30,7 +30,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     private String m_defaultLanguage;
     private DialPlanSetup m_dialplanSetup;
     private AutoAttendantManager m_autoAttendantManager;
-    private ReplicationManager m_replicationManager;
+    private SipxReplicationContext m_sipxReplicationContext;
 
     public void setPromptsDir(String promptsDir) {
         m_promptsDir = promptsDir;
@@ -148,12 +148,12 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         getHibernateTemplate().saveOrUpdate(localization);
         getHibernateTemplate().flush();
         getDaoEventPublisher().publishSave(localization);
-        m_replicationManager.replicateAllData(DataSet.MAILSTORE);
+        m_sipxReplicationContext.generateAll(DataSet.MAILSTORE);
         return 1;
     }
 
     @Required
-    public void setReplicationManager(ReplicationManager replManager) {
-        m_replicationManager = replManager;
+    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_sipxReplicationContext = sipxReplicationContext;
     }
 }
