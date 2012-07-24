@@ -76,7 +76,7 @@
        </table>
       <ul class="component-submit">
         <li>
-          <span jwcid="@phone/GroupActions" actionModel="ognl:actionModel" selectedIds="ognl:selections.allSelected"/>
+          <span jwcid="@phone/GroupActions" actionModel="ognl:actionModel" selectedIds="ognl:selections.allSelected" validator="ognl:validator"/>
         </li>
         <li jwcid="@If" condition="ognl:folderId.equals('deleted')">
           <input id="delete:voicemail" jwcid="deleteVoicemail@Submit" listener="listener:delete"

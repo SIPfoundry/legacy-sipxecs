@@ -54,6 +54,8 @@ public abstract class UserConferencesPanel extends BaseComponent {
             List<Conference> confList = getConferenceBridgeContext().getAllConferences();
             if (!confList.isEmpty()) {
                 setConferenceHangupCode(confList.get(0).getBridge().getHangupCode());
+            } else {
+                setConferenceHangupCode(getMessages().getMessage("no.conference"));
             }
         }
     }

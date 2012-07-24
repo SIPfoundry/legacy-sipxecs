@@ -8,6 +8,7 @@ require 'erb'
 require 'yaml'
 require 'net/smtp'
 require 'logger'
+require "socket"
 
 $log = Logger.new('@SIPX_LOGDIR@/snmptrap-email-handler.log') unless defined?($log)
 
@@ -83,7 +84,7 @@ end
 #
 # ============= Builtin net-snmp alarm =======
 # DISMAN-EVENT-MIB::mteTriggerFired
-# DISMAN-EVENT-MIB::mteHotTrigger.0 = STRING: machineTooBusy
+# DISMAN-EVENT-MIB::mteHotTrigger.0 = STRING: CPU_THRESHOLD_EXCEEDED
 # DISMAN-EVENT-MIB::mteHotTargetName.0 = STRING: 
 # DISMAN-EVENT-MIB::mteHotContextName.0 = STRING: 
 # DISMAN-EVENT-MIB::mteHotOID.0 = OID: HOST-RESOURCES-MIB::hrProcessorLoad.768
@@ -93,14 +94,16 @@ def parse_alarm(data, input_stream)
   alarm = {}
   input_stream.each {|line|
     case line
-    when /^SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmId \(.*)$/
+    when /^SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmId (.*)$/
       alarm = get_alarm(data, $1)
     when /^SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmSource/
       alarm['source'] = line.split[1]
     when /^DISMAN-EVENT-MIB::mteHotTrigger.0 = STRING: (.*)$/
       alarm = get_alarm(data, $1)
     when /^DISMAN-EVENT-MIB::mteHotValue.0 = INTEGER: (.*)$/
-      alarm['message'] = "Threshold #{$1}"
+      alarm['message'] = "threshold is #{$1}"
+    when /^SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmDescr = STRING: "(.*)"$/
+      alarm['message'] = $1
     end
   }
   return alarm
@@ -116,6 +119,7 @@ def get_alarm(data, id)
     alarm = {}
   end
   alarm['id'] = id
+  alarm['source'] = Socket.gethostname
   return alarm
 end
 

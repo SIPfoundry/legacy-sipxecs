@@ -48,14 +48,10 @@ bundle edit_line hosts_contents {
 "127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4";
 "::1         localhost localhost.localdomain localhost6 localhost6.localdomain6";
 
-  delete_lines:
-    # safest to delete all in case ip or hostname changes.
-    !src::
-      ".*";
+  # complex regex because multi-line in delete_lines does not do what you think it should
+  delete_lines:  
+"(^|.*\s)($(sipx.host)|$(sys.ipv4)|$(sipx.host).$(sipx.net_domain)|127\.0\.0\.1|::1)(\s.*|$)";
 
-    src::
-     "$(sys.ipv4)\s(.*)";
-     "127\.0\.0\.1\s(.*)";
-     "::1\s(.*)";
+  reports:
       
 }

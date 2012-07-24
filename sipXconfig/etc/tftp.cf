@@ -49,9 +49,7 @@ bundle edit_line tftp_xinet_config {
 }";
 
   delete_lines:
-    "\s*disable\s*=.*";
-    "\s*server_args\s*=.*";
-    "\s*}.*";
+    "\s*(disable\s*=|server_args\s*=|}).*";
 }
 
 # There is no shutdown of xinetd because we cannot be sure other services

@@ -15,12 +15,13 @@
 package org.sipfoundry.sipxconfig.ftp;
 
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.address.AddressType.Protocol;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface FtpManager {
     public static final LocationFeature FTP_FEATURE = new LocationFeature("ftp");
     public static final LocationFeature TFTP_FEATURE = new LocationFeature("tftp");
-    public static final AddressType TFTP_ADDRESS = new AddressType(TFTP_FEATURE.getId(), 69);
+    public static final AddressType TFTP_ADDRESS = new AddressType(TFTP_FEATURE.getId(), 69, Protocol.udp);
     public static final AddressType FTP_ADDRESS = new AddressType(FTP_FEATURE.getId(), 21);
     // FTP needs 2 ports - control and data
     public static final AddressType FTP_DATA_ADDRESS = new AddressType("ftpData", 20);

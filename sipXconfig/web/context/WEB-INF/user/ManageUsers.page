@@ -40,6 +40,7 @@
   </component>
   <component id="groupActions" type="phone/GroupActions">
     <binding name="actionModel" value="actionModel"/>
+    <binding name="validator" value="validator"/>
     <binding name="selectedIds" value="components.userTable.selections.allSelected"/>
   </component>
 </page-specification>

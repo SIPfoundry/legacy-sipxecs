@@ -116,8 +116,7 @@ bundle edit_line postgresql_conf {
 
   delete_lines:
     any::
-      "autovacuum_.*";
-      "fsync.*";
+      "(autovacuum_|fsync).*";
 }
 
 bundle edit_line pg_hba_conf {
@@ -128,8 +127,7 @@ bundle edit_line pg_hba_conf {
     # any node in the cluster can connect to postgresql
     "host all all 0.0.0.0/0 trust";
   delete_lines:
-    "host.*";
-    "local.*";
+    "(host|local).*";
 }
 
 bundle agent postgres_sysv_running {

@@ -34,7 +34,6 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
@@ -45,8 +44,6 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     private static final Collection<AddressType> ADDRESSES =
         Arrays.asList(new AddressType[] {HTTP_ADDRESS, HTTP_ADDRESS_AUTH, SIPXCDR_DB_ADDRESS});
     private LocationsManager m_locationsManager;
-    private int m_internalPort;
-    private int m_internalPortAuth;
     private BeanWithSettingsDao<AdminSettings> m_settingsDao;
 
     @Override
@@ -57,9 +54,9 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         Location location = m_locationsManager.getPrimaryLocation();
         Address address = null;
         if (type.equals(HTTP_ADDRESS)) {
-            address = new Address(HTTP_ADDRESS, location.getAddress(), m_internalPort);
+            address = new Address(HTTP_ADDRESS, location.getAddress(), HTTP_ADDRESS.getCanonicalPort());
         } else if (type.equals(HTTP_ADDRESS_AUTH)) {
-            address = new Address(HTTP_ADDRESS, location.getAddress(), m_internalPortAuth);
+            address = new Address(HTTP_ADDRESS_AUTH, location.getAddress(), HTTP_ADDRESS_AUTH.getCanonicalPort());
         } else if (type.equals(SIPXCDR_DB_ADDRESS)) {
             address = new Address(SIPXCDR_DB_ADDRESS, location.getAddress());
         }
@@ -81,19 +78,9 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         return Collections.singleton(ALARM_LOGIN_FAILED);
     }
 
-    @Required
-    public void setInternalPort(int internalPort) {
-        m_internalPort = internalPort;
-    }
-
-    @Required
-    public void setInternalPortAuth(int internalPortAuth) {
-        m_internalPortAuth = internalPortAuth;
-    }
-
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        return Collections.singleton(new DefaultFirewallRule(HTTP_ADDRESS));
+        return Arrays.asList(new DefaultFirewallRule(HTTP_ADDRESS), new DefaultFirewallRule(SIPXCDR_DB_ADDRESS));
     }
 
     @Override

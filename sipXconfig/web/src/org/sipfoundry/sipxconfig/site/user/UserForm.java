@@ -13,6 +13,7 @@ import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.util.PropertyUtils;
 import org.apache.tapestry.BaseComponent;
@@ -20,6 +21,7 @@ import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.EventListener;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.valid.IValidationDelegate;
@@ -38,6 +40,12 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 public abstract class UserForm extends BaseComponent implements EditPinComponent {
 
     private static final String CONFIRM_PASSWORD = "confirmPassword";
+    private static final String EMPTY = "empty";
+    private static final String EMPTY_PIN = "";
+    private static final String GENERATE = "generate";
+    private static final String PIN = "pin";
+    private static final String VOICEMAIL_PIN = "voicemail_pin";
+    private static final String RENDER = "render";
 
     public abstract CoreContext getCoreContext();
 
@@ -81,6 +89,28 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
         }
     }
 
+    @EventListener(events = "onclick", targets = GENERATE)
+    public void generatePasswords(IRequestCycle cycle) {
+        User user = getUser();
+        user.setVoicemailPin(RandomStringUtils.random(User.VOICEMAIL_PIN_LEN, false, true));
+        user.setPin(RandomStringUtils.randomAlphabetic(User.PASSWORD_LEN));
+        setPin(user.getPintoken());
+        setVoicemailPin(user.getClearVoicemailPin());
+        PropertyUtils.write(getComponent(PIN), CONFIRM_PASSWORD, user.getPintoken());
+        PropertyUtils.write(getComponent(VOICEMAIL_PIN), CONFIRM_PASSWORD, user.getClearVoicemailPin());
+        cycle.getResponseBuilder().updateComponent(RENDER);
+    }
+
+    @EventListener(events = "onclick", targets = EMPTY)
+    public void emptyPasswords(IRequestCycle cycle) {
+        setPin(EMPTY_PIN);
+        setVoicemailPin(EMPTY_PIN);
+        PropertyUtils.write(getComponent(PIN), CONFIRM_PASSWORD, EMPTY_PIN);
+        PropertyUtils.write(getComponent(VOICEMAIL_PIN), CONFIRM_PASSWORD, EMPTY_PIN);
+        cycle.getResponseBuilder().updateComponent(RENDER);
+    }
+
+
     // Update the User object if input data is valid
     @Override
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
@@ -95,8 +125,8 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
                 setAliasesString(user.getAliasesString());
             }
 
-            initializePin(getComponent("pin"), this, getUser());
-            initializeVoicemailPin(getComponent("voicemail_pin"), this, getUser());
+            initializePin(getComponent(PIN), this, getUser());
+            initializeVoicemailPin(getComponent(VOICEMAIL_PIN), this, getUser());
 
             if (getGroupsString() == null) {
                 setGroupsString(user.getGroupsNames());

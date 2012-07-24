@@ -52,7 +52,7 @@
     <binding name="passwordDescription" value="message:description.pin"/>
     <binding name="confirmPasswordDisplayName" value="message:label.pin2"/>
     <binding name="passwordMismatchMessage" value="message:error.pinMismatch"/>
-    <binding name="passwordValidator" value="spring-validators:validPin,required"/>
+    <binding name="passwordValidator" value="spring-validators:validPin,minLength=8,required"/>
   </component>
   <component id="sipPasswordPanel" type="common/FieldPanel">
     <binding name="field" value="components.sipPassword"/>

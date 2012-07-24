@@ -24,6 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
@@ -37,6 +38,7 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
 public class Upload extends BeanWithSettings {
     private static final Log LOG = LogFactory.getLog(Upload.class);
     private static final String ZIP_TYPE = "application/zip";
+    private static final String ERROR_WRONG_TYPE_FILE = "&error.wrongTypeFile";
     private String m_name;
     private String m_description;
     private UploadSpecification m_specification;
@@ -270,6 +272,10 @@ public class Upload extends BeanWithSettings {
      * Uses zip file list and list of files to be deleted
      */
     static void undeployZipFile(File expandedDirectory, File zipFile, FileSetting fs) {
+        if (!checkZipFile(zipFile)) {
+            throw new UserException(ERROR_WRONG_TYPE_FILE, zipFile.getName());
+        }
+
         if (!zipFile.canRead()) {
             LOG.warn("Undeploying missing or unreadable file: " + zipFile.getPath());
             return;
@@ -300,6 +306,10 @@ public class Upload extends BeanWithSettings {
      * Expand zip file into destination directory
      */
     static void deployZipFile(File expandDirectory, File zipFile, FileSetting fs) {
+        if (!checkZipFile(zipFile)) {
+            throw new UserException(ERROR_WRONG_TYPE_FILE, zipFile.getName());
+        }
+
         try {
             ZipFile zip = new ZipFile(zipFile);
             Enumeration< ? extends ZipEntry> entries = zip.entries();
@@ -331,5 +341,13 @@ public class Upload extends BeanWithSettings {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static boolean checkZipFile(File file) {
+        String fileExt = ".zip";
+        if (file != null && !file.getName().endsWith(fileExt)) {
+            return false;
+        }
+        return true;
     }
 }
