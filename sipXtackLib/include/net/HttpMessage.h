@@ -596,6 +596,8 @@ public:
      */
     char* getBytes() const;
     //! Print the message to stdout (for debugging).
+    
+    std::string getString(bool includeBody = true) const;
     void debugPrint(void) const;
 
    //! @name Authentication access methods
