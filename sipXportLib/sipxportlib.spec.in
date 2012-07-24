@@ -129,8 +129,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/xmlparser/*
 %dir %attr(755,root,root) %{_includedir}/sipxunit
 %{_includedir}/sipxunit/*
-%dir %attr(755,root,root) %{_includedir}/json
-%{_includedir}/json/*
 
 %post
 # Correct the group of any sipX file that has group 4294967295.

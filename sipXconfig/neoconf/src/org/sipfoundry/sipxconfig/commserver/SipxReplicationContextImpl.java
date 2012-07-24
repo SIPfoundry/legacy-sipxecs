@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.commserver;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,6 +26,14 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 
+/*
+ * (non-Javadoc)
+ * @see org.sipfoundry.sipxconfig.commserver.SipxReplicationContext#generateAll()
+ * all heavy replication operations need to be asynchronous, in order for the ontrol to be returned to the
+ * calling page immediately. Otherwise a timeout will be, and an error page will be shown.
+ * By heavy replication operations we mean operations that take a lot of time when are performed, usually
+ * on a large number of users. (generate all data, generate 1 dataset)
+ */
 public class SipxReplicationContextImpl implements ApplicationEventPublisherAware, SipxReplicationContext {
     private static final Log LOG = LogFactory.getLog(SipxReplicationContextImpl.class);
     private ApplicationEventPublisher m_applicationEventPublisher;
@@ -36,21 +46,45 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
         m_replicationManager.replicateEntity(entity);
     }
 
+
     @Override
     public void generateAll() {
-        ReplicateWork work = new ReplicateWork() {
-            @Override
-            public void replicate() {
-                m_replicationManager.replicateAllData();
-            }
+        ExecutorService service = Executors.newSingleThreadExecutor();
+        service.submit(new ReplicationWorker());
+        service.shutdown();
+    }
 
-        };
-        doWithJob(IMDB_REGENERATION, m_locationsManager.getPrimaryLocation(), work);
+    private class ReplicationWorker implements Runnable {
+        @Override
+        public void run() {
+            ReplicateWork work = new ReplicateWork() {
+                @Override
+                public void replicate() {
+                    m_replicationManager.replicateAllData();
+                }
+
+            };
+            doWithJob(IMDB_REGENERATION, m_locationsManager.getPrimaryLocation(), work);
+        }
+    }
+
+    private class DatasetReplicationWorker implements Runnable {
+        private DataSet m_ds;
+        public DatasetReplicationWorker(DataSet ds) {
+            m_ds = ds;
+        }
+
+        @Override
+        public void run() {
+            m_replicationManager.replicateAllData(m_ds);
+        }
     }
 
     @Override
-    public void generateAll(DataSet ds) {
-        m_replicationManager.replicateAllData(ds);
+    public void generateAll(final DataSet ds) {
+        ExecutorService service = Executors.newSingleThreadExecutor();
+        service.submit(new DatasetReplicationWorker(ds));
+        service.shutdown();
     }
 
     @Override

@@ -2159,6 +2159,7 @@ const char* HttpMessage::getHeaderValue(int index, const char* name) const
 
 void HttpMessage::setHeaderValue(const char* name, const char* newValue, int index)
 {
+ 
     mHeaderCacheClean = FALSE;
         NameValuePair* headerField = getHeaderField(index, name);
 
@@ -2394,6 +2395,102 @@ void HttpMessage::setLocationField(const char* locationField)
 {
    setHeaderValue(HTTP_LOCATION_FIELD, locationField);
 }
+
+
+std::string HttpMessage::getString(bool includeBody) const
+{
+  std::string bytes;
+  bytes.reserve(1500);
+  bytes += mFirstHeaderLine.data();
+  bytes += END_OF_LINE_DELIMITER;
+
+
+  UtlDListIterator iterator((UtlDList&)mNameValues);
+  NameValuePair* headerField;
+  UtlBoolean foundContentLengthHeader = FALSE;
+  ssize_t bodyLen = 0;
+  UtlString bodyBytes;
+  if(includeBody && body)
+  {
+     body->getBytes(&bodyBytes, &bodyLen);
+  }
+
+  ssize_t oldLen = 0 ;
+  if(mHeaderCacheClean &&
+      bodyLen == (oldLen = getContentLength()))
+  {
+      oldLen = 0;
+  }
+  else
+  {
+      ((HttpMessage*)this)->mHeaderCacheClean = TRUE;
+      oldLen = 0;
+  }
+
+  UtlString name;
+  const char* value;
+  // For each name value:
+  while((headerField = (NameValuePair*) iterator()))
+  {
+    // Do not free up name and data as this are contained
+    // in the NameValuePair
+    name = *headerField;
+    cannonizeToken(name);
+    value = headerField->getValue();
+
+    // Keep track while we are looping through if we see a
+    // content-length header or not
+    if(name.compareTo(HTTP_CONTENT_LENGTH_FIELD, UtlString::ignoreCase) == 0)
+    {
+      foundContentLengthHeader = TRUE;
+      ssize_t fieldBodyLengthValue = atoi(value ? value : "");
+      if(fieldBodyLengthValue != bodyLen)
+      {
+        char bodyLengthString[40];
+        sprintf(bodyLengthString, "%zu", bodyLen);
+        headerField->setValue(bodyLengthString);
+        value = headerField->getValue();
+      }
+    }
+
+    if ((name.compareTo("RECORD-ROUTE", UtlString::ignoreCase) != 0) && (name.compareTo("ROUTE", UtlString::ignoreCase) != 0))
+    {
+      bytes += name.data();
+      bytes += HTTP_NAME_VALUE_DELIMITER;
+      bytes += " ";
+      if(value)
+      {
+        bytes += value;
+      }
+
+      bytes += END_OF_LINE_DELIMITER;
+    }
+ }
+
+  // Make sure the content length is set
+  if(!foundContentLengthHeader && !mUseChunkedEncoding)
+  {
+
+    bytes += HTTP_CONTENT_LENGTH_FIELD;
+    bytes += HTTP_NAME_VALUE_DELIMITER;
+    char bodyLengthString[40];
+    sprintf(bodyLengthString, " %zu", bodyLen);
+    bytes += bodyLengthString;
+    bytes += END_OF_LINE_DELIMITER;
+  }
+
+  bytes += END_OF_LINE_DELIMITER;
+
+  if(body)
+  {
+      bytes += std::string(bodyBytes.data(), bodyLen);
+  }
+
+  return bytes;
+}
+
+
+
 
 void HttpMessage::getBytes(UtlString* bufferString, ssize_t* length, bool includeBody) const
 {

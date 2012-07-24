@@ -371,7 +371,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     /**
      * Replicate only a specified DataSet for all entities.
      */
-    // TODO: figure out if we need to use parallel processing.
     @Override
     public void replicateAllData(final DataSet ds) {
         try {

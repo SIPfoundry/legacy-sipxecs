@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
@@ -52,6 +53,7 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, ReplicablePro
     private FeatureManager m_featureManager;
     private BeanWithSettingsDao<MohSettings> m_settingsDao;
     private ReplicationManager m_replicationManager;
+    private SipxReplicationContext m_sipxReplicationContext;
 
     /**
      * Music on hold implementation requires that ~~mh~u calls are forwarded to Media Server. We
@@ -179,7 +181,7 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, ReplicablePro
     public void saveSettings(MohSettings settings) {
         m_settingsDao.upsert(settings);
         m_replicationManager.replicateEntity(settings);
-        m_replicationManager.replicateAllData(DataSet.MAILSTORE);
+        m_sipxReplicationContext.generateAll(DataSet.MAILSTORE);
     }
 
     public void setSettingsDao(BeanWithSettingsDao<MohSettings> settingsDao) {
@@ -211,5 +213,9 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, ReplicablePro
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+    }
+
+    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_sipxReplicationContext = sipxReplicationContext;
     }
 }

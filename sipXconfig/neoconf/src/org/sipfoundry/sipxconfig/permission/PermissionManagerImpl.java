@@ -21,6 +21,7 @@ import java.util.TreeSet;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
@@ -34,6 +35,7 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
     private Set<Permission> m_permissions;
     private Collection<Permission> m_customPermissions;
     private ReplicationManager m_replicationManager;
+    private SipxReplicationContext m_sipxReplicationContext;
 
     public void saveCallPermission(Permission permission) {
         if (isLabelInUse(permission)) {
@@ -321,7 +323,7 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
         if ((Boolean) originalDefaultValue == permission.getDefaultValue()) {
             return;
         }
-        m_replicationManager.replicateAllData(DataSet.PERMISSION);
+        m_sipxReplicationContext.generateAll(DataSet.PERMISSION);
     }
 
     private void removePermission(Permission permission) {
@@ -333,5 +335,9 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
 
     public void setReplicationManager(ReplicationManager replicationManager) {
         m_replicationManager = replicationManager;
+    }
+
+    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_sipxReplicationContext = sipxReplicationContext;
     }
 }

@@ -35,6 +35,7 @@
     <property name="mohUser" value="~~mh~" />
     <property name="featureManager" ref="featureManager" />
     <property name="replicationManager" ref="replicationManagerImpl" />
+    <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
   </bean>
 
   <bean id="mohConfig" class="org.sipfoundry.sipxconfig.moh.MohConfig" />
