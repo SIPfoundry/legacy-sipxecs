@@ -92,8 +92,6 @@ public class UserMapper implements NameClassPairMapper {
     public void setAliasesSet(Set<String> aliases, User user) {
         if (aliases != null) {
             user.copyAliases(deleteWhitespace(aliases));
-        } else {
-            user.setAliasesString(null);
         }
     }
 
@@ -163,7 +161,9 @@ public class UserMapper implements NameClassPairMapper {
     private void setProperty(User user, Attributes attrs, Index index) throws NamingException {
         try {
             String value = getValue(attrs, index);
-            BeanUtils.setProperty(user, index.getName(), value);
+            if (value != null) {
+                BeanUtils.setProperty(user, index.getName(), value);
+            }
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
