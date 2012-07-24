@@ -70,6 +70,7 @@ libsipXport_la_SOURCES =  \
     utl/XmlContent.cpp \
     utl/UtlRandom.cpp \
     utl/PluginHooks.cpp \
+    utl/cJSON.c \
     os/OsAssert.c \
     os/OsCallback.cpp \
     os/OsConfigDb.cpp \
@@ -149,10 +150,7 @@ libsipXport_la_SOURCES =  \
     xmlparser/tinyxml.cpp \
     xmlparser/tinyxmlerror.cpp \
     xmlparser/tinyxmlparser.cpp \
-    xmlparser/TiXmlIterator.cpp \
-	json/json_spirit_reader.cpp \
-	json/json_spirit_value.cpp \
-	json/json_spirit_writer.cpp
+    xmlparser/TiXmlIterator.cpp
 
 
 EXTRA_DIST= \
