@@ -142,6 +142,7 @@ void StateQueueAgent::onIncomingConnection(StateQueueConnection::Ptr conn)
 
 void StateQueueAgent::onIncomingRequest(StateQueueConnection& conn, const char* bytes, std::size_t bytes_transferred)
 {
+  OS_LOG_DEBUG(FAC_NET, "StateQueueAgent::onIncomingRequest processing " << bytes_transferred << " bytes.");
   std::string packet(bytes, bytes_transferred);
   StateQueueMessage message(packet);
   StateQueueMessage::Type type;

@@ -18,31 +18,32 @@
 #include "os/OsLogger.h"
 #include "sqa/StateQueueAgent.h"
 
+
+void s_free (void *data, void *hint)
+{
+    free (data);
+}
 //  Convert string to 0MQ string and send to socket
 static bool
-s_send (zmq::socket_t & socket, const std::string & string) {
-
-    zmq::message_t message(string.size());
-    memcpy(message.data(), string.data(), string.size());
-
+s_send (zmq::socket_t & socket, const std::string & string)
+{
+    zmq::message_t message((void*)string.data(), string.size(), 0, 0);
     bool rc = socket.send(message);
     return (rc);
 }
 
 //  Sends string as 0MQ string, as multipart non-terminal
 static bool
-s_sendmore (zmq::socket_t & socket, const std::string & string) {
-
-    zmq::message_t message(string.size());
-    memcpy(message.data(), string.data(), string.size());
-
+s_sendmore (zmq::socket_t & socket, const std::string & string)
+{
+    zmq::message_t message((void *)string.data(), string.size(), 0, 0);
     bool rc = socket.send(message, ZMQ_SNDMORE);
     return (rc);
 }
 
 StateQueuePublisher::StateQueuePublisher(StateQueueAgent * pAgent) :
   _pAgent(pAgent),
-  _queue(50),
+  _queue(1000),
   _pThread(0),
   _terminate(false)
 {
@@ -167,6 +168,16 @@ void StateQueuePublisher::internal_run()
         s_send(socket, strcount);
 
 
+        //
+        // This would make sure that we catch data that are too big to process
+        // earlier and to not let it propagate 
+        //
+        if(data.size() > 65536)
+        {
+          OS_LOG_ERROR(FAC_NET, "Data is too large! - " << data);
+          std::abort();
+        }
+
         OS_LOG_DEBUG(FAC_NET, "StateQueuePublisher::publish ZeroMQ send: " << eventId << ":" << data);
 
         if (!record.watcherData && !count)
@@ -180,6 +191,10 @@ void StateQueuePublisher::internal_run()
         OS_LOG_WARNING(FAC_NET, "StateQueuePublisher::publish "
                 << "ZMQ Error sending publish " << eventId << " Error: " << error_.what());
       }
+    }
+    else
+    {
+      OS_LOG_ERROR(FAC_NET, "FAILED TO DEQUEUE!");
     }
   }
   OS_LOG_INFO(FAC_NET, "StateQueuePublisher::internal_run() TERMINATED.");

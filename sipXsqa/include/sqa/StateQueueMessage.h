@@ -20,9 +20,11 @@
 #include "sqa/json/reader.h"
 #include "sqa/json/writer.h"
 #include "sqa/json/elements.h"
+#include "utl/cJSON.h"
 #include <cassert>
+#include <boost/noncopyable.hpp>
 
-class StateQueueMessage
+class StateQueueMessage : boost::noncopyable
 {
 public:
   enum Type
@@ -55,26 +57,27 @@ public:
 
   StateQueueMessage();
   StateQueueMessage(const std::string& rawData);
-  StateQueueMessage(const StateQueueMessage& obj);
-
-  StateQueueMessage& operator=(const StateQueueMessage& obj);
+  ~StateQueueMessage();
 
 
   Type getType() const;
   void setType(Type type);
-  json::Object& object();
+  cJSON* object();
 
   bool get(const char* name, std::string& value) const;
   bool get(const char* name, int& value) const;
+  bool get(const char* name, double& value) const;
   void set(const char* name, const std::string& value);
-  void set(const char* name, int& value);
+  void set(const char* name, int value);
+  void set(const char* name, double value);
+
 
   std::string data() const;
   bool parseData(const std::string& rawData);
   bool getMap(std::map<std::string, std::string>& smap);
 protected:
   mutable Type _type;
-  json::Object _object;
+  cJSON* _pObject;
 };
 
 //
@@ -82,68 +85,68 @@ protected:
 //
 
 inline StateQueueMessage::StateQueueMessage() :
-  _type(Unknown)
+  _type(Unknown),
+  _pObject(0)
 {
+  _pObject = cJSON_CreateObject();
 }
 
 inline StateQueueMessage::StateQueueMessage(const std::string& rawData) :
-  _type(Unknown)
+  _type(Unknown),
+  _pObject(0)
 {
   parseData(rawData);
 }
 
-inline StateQueueMessage::StateQueueMessage(const StateQueueMessage& obj)
+inline StateQueueMessage::~StateQueueMessage()
 {
-  _type = obj._type;
-  _object = obj._object;
-}
-
-inline StateQueueMessage& StateQueueMessage::operator=(const StateQueueMessage& obj)
-{
-  _type = obj._type;
-  _object = obj._object;
-  return *this;
+  if (_pObject)
+    cJSON_Delete(_pObject);
 }
 
 inline bool StateQueueMessage::parseData(const std::string& rawData)
 {
-  try
-  {
-    std::stringstream strm;
-    strm << rawData;
-    json::Reader::Read(_object, strm);
-  }
-  catch(std::exception& error)
-  {
+  if (_pObject)
+    cJSON_Delete(_pObject);
+	_pObject = cJSON_Parse(rawData.c_str());
+  if (!_pObject)
     return false;
-  }
   return getType() != Unknown;
 }
 
 inline std::string StateQueueMessage::data() const
 {
-  try
+  std::string ret;
+  if (!_pObject)
+    return ret;
+  char* out=cJSON_Print(_pObject);
+  if (out)
   {
-    std::ostringstream strm;
-    json::Writer::Write(_object, strm);
-    return strm.str();
+    ret = out;
+    ::free(out);
   }
-  catch(std::exception& error)
-  {
-  }
-  return std::string();
+  return ret;
 }
 
 
 inline StateQueueMessage::Type StateQueueMessage::getType() const
 {
+  if (!_pObject)
+    return Unknown;
+
   if (_type != Unknown && _type < NumType)
     return _type;
 
   try
   {
-    json::String stype = _object["message-type"];
-    std::string messageType = stype.Value();
+    cJSON *stype = cJSON_GetObjectItem(_pObject,"message-type");
+    std::string messageType;
+    
+    if (!stype || stype->type != cJSON_String || !stype->valuestring)
+      messageType = "unknown";
+    else
+      messageType = stype->valuestring;
+
     if (messageType.empty() || messageType == "unknown")
     {
       _type = Unknown;
@@ -251,131 +254,156 @@ inline void StateQueueMessage::setType(Type type)
 {
   assert(type < NumType);
   _type = type;
+  
+  assert(_pObject);
+  std::string newType;
   switch(type)
   {
     case NumType:
       break;
     case Signin:
-      _object["message-type"] = json::String("signin");
+      newType = "signin";
       break;
     case Logout:
-      _object["message-type"] = json::String("logout");
+      newType = "logout";
       break;
     case Publish:
-      _object["message-type"] = json::String("publish");
+      newType = "publish";
       break;
     case PublishAndPersist:
-      _object["message-type"] = json::String("pap");
+      newType = "pap";
       break;
     case Enqueue:
-      _object["message-type"] = json::String("enqueue");
+      newType = "enqueue";
       break;
     case EnqueueAndPublish:
-      _object["message-type"] = json::String("eap");
+      newType = "eap";
       break;
     case Pop:
-      _object["message-type"] = json::String("pop");
+      newType = "pop";
       break;
     case Erase:
-      _object["message-type"] = json::String("erase");
+      newType = "erase";
       break;
     case Remove:
-      _object["message-type"] = json::String("remove");
+      newType = "remove";
       break;
     case Persist:
-      _object["message-type"] = json::String("persist");
+      newType = "persist";
       break;
     case Get:
-      _object["message-type"] = json::String("get");
+      newType = "get";
       break;
     case Set:
-      _object["message-type"] = json::String("set");
+      newType = "set";
       break;
     case MapGet:
-      _object["message-type"] = json::String("mget");
+      newType = "mget";
       break;
     case MapGetInc:
-      _object["message-type"] = json::String("mgeti");
+      newType = "mgeti";
       break;
     case MapSet:
-      _object["message-type"] = json::String("mset");
+      newType = "mset";
       break;
     case MapGetMultiple:
-      _object["message-type"] = json::String("mgetm");
+      newType = "mgetm";
       break;
     case MapSetMultiple:
-      _object["message-type"] = json::String("msetm");
+      newType = "msetm";
       break;
     case MapRemove:
-      _object["message-type"] = json::String("mrem");
+      newType = "mrem";
       break;
     case MapClear:
-      _object["message-type"] = json::String("mclr");
+     newType = "mclr";
       break;
     case Ping:
-      _object["message-type"] = json::String("ping");
+      newType = "ping";
       break;
     case Pong:
-      _object["message-type"] = json::String("pong");
+      newType = "pong";
       break;
      case Data:
-      _object["message-type"] = json::String("data");
+      newType = "data";
       break;
     case Unknown:
-      _object["message-type"] = json::String("unknown");
+      newType = "unknown";
       break;
   }
+  cJSON_DeleteItemFromObject(_pObject, "message-type");
+  cJSON_AddItemToObject(_pObject,"message-type", cJSON_CreateString(newType.c_str()));
 }
 
 inline bool StateQueueMessage::get(const char* name, std::string& value) const
 {
-  if (_object.Find(name) == _object.End())
-    return false;
-  json::String v = _object[name];
-  value = v.Value();
-  return true;
+  assert(_pObject);
+  cJSON *stype = cJSON_GetObjectItem(_pObject,name);
+
+  if (stype && stype->type == cJSON_String && stype->valuestring)
+  {
+    value = stype->valuestring;
+    return true;
+  }
+  return false;
+}
+
+inline bool StateQueueMessage::get(const char* name, double& value) const
+{
+  assert(_pObject);
+  cJSON *itype = cJSON_GetObjectItem(_pObject,name);
+
+  if (itype && itype->type == cJSON_Number)
+  {
+    value = itype->valueint;
+    return true;
+  }
+  return false;
 }
 
 inline bool StateQueueMessage::get(const char* name, int& value) const
 {
-  if (_object.Find(name) == _object.End())
-    return false;
-  json::Number v = _object[name];
-  value = v.Value();
-  return true;
+  assert(_pObject);
+  cJSON *itype = cJSON_GetObjectItem(_pObject,name);
+
+  if (itype && itype->type == cJSON_Number)
+  {
+    value = itype->valueint;
+    return true;
+  }
+  return false;
 }
 
 inline void StateQueueMessage::set(const char* name, const std::string& value)
 {
-  _object[name] = json::String(value.c_str());
+  assert(_pObject);
+  cJSON_DeleteItemFromObject(_pObject, name);
+  cJSON_AddItemToObject(_pObject, name, cJSON_CreateString(value.c_str()));
 }
 
-inline void StateQueueMessage::set(const char* name, int& value)
+inline void StateQueueMessage::set(const char* name, int value)
 {
-  _object[name] = json::Number(value);
+  assert(_pObject);
+  cJSON_DeleteItemFromObject(_pObject, name);
+  cJSON_AddNumberToObject(_pObject, name, value);
 }
 
-inline json::Object& StateQueueMessage::object()
+inline void StateQueueMessage::set(const char* name, double value)
 {
-  return _object;
+  assert(_pObject);
+  cJSON_DeleteItemFromObject(_pObject, name);
+  cJSON_AddNumberToObject(_pObject, name, value);
+}
+
+inline cJSON* StateQueueMessage::object()
+{
+  return _pObject;
 }
 
 inline bool StateQueueMessage::getMap(std::map<std::string, std::string>& smap)
 {
-  for (json::Object::const_iterator iter = _object.Begin(); iter != _object.End(); iter++)
-  {
-    try
-    {
-      std::string n = iter->name;
-      json::String v = iter->element;
-      smap[n] = v.Value();
-    }
-    catch(...)
-    {
-      return false;
-    }
-  }
-  return !smap.empty();
+  assert(false);
+  return false;
 }
 
 #endif	/* STATEQUEUEMESSAGE_H */

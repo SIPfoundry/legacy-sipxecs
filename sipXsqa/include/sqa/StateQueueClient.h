@@ -277,7 +277,7 @@ protected:
   boost::thread* _pEventThread;
   std::string _zmqEventId;
   std::string _applicationId;
-  typedef BlockingQueue<StateQueueMessage> EventQueue;
+  typedef BlockingQueue<std::string> EventQueue;
   EventQueue _eventQueue;
   std::vector<BlockingTcpClient*> _clientPointers;
   int _expires;
@@ -579,7 +579,7 @@ private:
       {
         OS_LOG_ERROR(FAC_NET, "StateQueueClient::eventLoop "
                   << "Is unable to SIGN IN to SQA service");
-        boost::this_thread::sleep(boost::posix_time::microseconds(1000));
+        boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
       }
     }
 
@@ -693,7 +693,7 @@ private:
 
       OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop "
               << "Popped event " << id);
-      _eventQueue.enqueue(popResponse);
+      _eventQueue.enqueue(pop.data());
       _backoffCount = 0;
     }
   }
@@ -704,7 +704,7 @@ private:
     StateQueueMessage watcherData;
     watcherData.set("message-id", id);
     watcherData.set("message-data", data);
-    _eventQueue.enqueue(watcherData);
+    _eventQueue.enqueue(watcherData.data());
   }
 
   bool readEvent(std::string& id, std::string& exclude, int& count)
@@ -743,18 +743,14 @@ private:
 
   bool zmq_send (zmq::socket_t & socket, const std::string & string) {
 
-      zmq::message_t message(string.size());
-      memcpy(message.data(), string.data(), string.size());
-
+      zmq::message_t message((void*)message.data(), string.size(), 0, 0);
       bool rc = socket.send(message);
       return (rc);
   }
 
   bool zmq_sendmore (zmq::socket_t & socket, const std::string & string) {
 
-      zmq::message_t message(string.size());
-      memcpy(message.data(), string.data(), string.size());
-
+      zmq::message_t message((void*)message.data(), string.size(), 0, 0);
       bool rc = socket.send(message, ZMQ_SNDMORE);
       return (rc);
   }
@@ -776,7 +772,13 @@ private:
       return false;
 
     if (!conn->isConnected() && !conn->connect(_serviceAddress, _servicePort))
+    {
+      //
+      // Put it back to the queue.  The server is down.
+      //
+      _clientPool.enqueue(conn);
       return false;
+    }
 
     bool sent = conn->sendAndReceive(request, response);
     _clientPool.enqueue(conn);
@@ -785,7 +787,13 @@ private:
 
   bool pop(StateQueueMessage& ev)
   {
-    return _eventQueue.dequeue(ev);
+    std::string data;
+    if (_eventQueue.dequeue(data))
+    {
+      ev.parseData(data);
+      return true;
+    }
+    return false;
   }
 
   bool enqueue(const std::string& id, const std::string& data, int expires = 30, bool publish= false)

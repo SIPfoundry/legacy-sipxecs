@@ -25,6 +25,7 @@ sipxsqa_LDFLAGS = \
 
 sipxsqa_LDADD = \
 	libsipXsqa.la \
+	@SIPXPORT_LIBS@ \
 	@SIPXCOMMSERVER_LIBS@ \
 	  -lboost_date_time-mt \
 	  -lboost_filesystem-mt \
@@ -64,3 +65,6 @@ libsipXsqa_la_SOURCES =  \
 
 libsipXsqa_la_CXXFLAGS = \
 	$(SIPXSQA_COMMON_CXX_FLAGS)
+	
+libsipXsqa_la_CFLAGS = \
+	-I$(top_srcdir)/include/sqa

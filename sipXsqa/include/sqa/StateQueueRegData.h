@@ -36,11 +36,6 @@ public:
   StateQueueRegData();
   StateQueueRegData(const std::string& rawString);
   StateQueueRegData(const StateQueueRegDataRecord& record);
-  StateQueueRegData(const StateQueueRegData& data);
-
-  void swap(StateQueueRegData& data);
-
-  StateQueueRegData& operator=(StateQueueRegData& data);
 
   StateQueueRegData& operator=(const StateQueueRegDataRecord& record);
 
@@ -63,23 +58,15 @@ public:
 // Inlines
 //
 
-inline void StateQueueRegData::swap(StateQueueRegData& data)
-{
-  std::swap(_type, data._type);
-  std::swap(_object, data._object);
-}
-
-inline StateQueueRegData& StateQueueRegData::operator=(StateQueueRegData& data)
-{
-  StateQueueRegData clonable(data);
-  swap(clonable);
-  return *this;
-}
 
 inline StateQueueRegData& StateQueueRegData::operator=(const StateQueueRegDataRecord& record)
 {
-  StateQueueRegData clonable(record);
-  swap(clonable);
+  setType(StateQueueMessage::Data);
+  setAor(record.aor);
+  setSupported(record.supported);
+  setContact(record.contact);
+  setCallId(record.callId);
+  setExpires(record.expires);
   return *this;
 }
 
@@ -110,11 +97,6 @@ inline void StateQueueRegData::getRegRecord(StateQueueRegDataRecord& record)
   getContact(record.contact);
   getCallId(record.callId);
   getExpires(record.expires);
-}
-
-inline StateQueueRegData::StateQueueRegData(const StateQueueRegData& data) :
-  StateQueueMessage(data)
-{
 }
 
 

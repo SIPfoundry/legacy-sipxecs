@@ -68,10 +68,6 @@ public:
     setRemoteRouteSet(record.remoteRouteSet);
   }
 
-  StateQueueDialogData(const StateQueueDialogData& data) :
-    StateQueueMessage(data)
-  {
-  }
 
   void getDialogRecord(StateQueueDialogDataRecord& record)
   {
@@ -90,23 +86,24 @@ public:
     getRemoteRouteSet(record.remoteRouteSet);
   }
   
-  void swap(StateQueueDialogData& data)
-  {
-    std::swap(_type, data._type);
-    std::swap(_object, data._object);
-  }
   
-  StateQueueDialogData& operator=(StateQueueDialogData& data)
-  {
-    StateQueueDialogData clonable(data);
-    swap(clonable);
-    return *this;
-  }
 
   StateQueueDialogData& operator=(const StateQueueDialogDataRecord& record)
   {
-    StateQueueDialogData clonable(record);
-    swap(clonable);
+    setType(StateQueueMessage::Data);
+    setExpires(record.expires);
+    setCallId(record.callId);
+    setLocalAor(record.localAor);
+    setLocalBranch(record.localBranch);
+    setLocalCSeq(record.localCSeq);
+    setLocalContact(record.localContact);
+    setLocalRouteSet(record.localRouteSet);
+
+    setRemoteAor(record.remoteAor);
+    setRemoteBranch(record.remoteBranch);
+    setRemoteCSeq(record.remoteCSeq);
+    setRemoteContact(record.remoteContact);
+    setRemoteRouteSet(record.remoteRouteSet);
     return *this;
   }
 
