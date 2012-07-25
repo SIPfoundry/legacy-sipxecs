@@ -950,6 +950,9 @@ namespace Os
     //
     void log(int facility, int level, const char* format, ...)
     {
+      if (!willLog(level))
+        return;
+      
       char* buff;
       size_t needed = 1024;
 
@@ -1149,9 +1152,11 @@ namespace Os
   //
   #define OS_LOG_PUSH(priority, facility,  data) \
   { \
-    std::ostringstream strm; \
-    strm << data; \
-    Os::Logger::instance().log(facility, priority, strm.str().c_str()); \
+    if (Os::Logger::instance().willLog(priority)) { \
+      std::ostringstream strm; \
+      strm << data; \
+      Os::Logger::instance().log(facility, priority, "%s", strm.str().c_str()); \
+    }\
   }
 
   #define OS_LOG_DEBUG(facility, data) OS_LOG_PUSH(Os::LogFilter::debug, facility, data)
