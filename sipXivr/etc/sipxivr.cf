@@ -26,12 +26,6 @@ bundle agent sipxivr {
 }
 
 bundle agent sipxivr_config {
-  vars:
-    any::
-      "xml_file" slist => { 
-        "autoattendants.xml",
-      };
-
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/sipxivr.properties"
@@ -41,12 +35,11 @@ bundle agent sipxivr_config {
         edit_line => sipxivr_properties_contents,
         classes => if_repaired("restart_sipxivr");
 
-    any::
-      "$(sipx.SIPX_CONFDIR)/$(xml_file)"
+      "$(sipx.SIPX_CONFDIR)/autoattendants.xml"
         comment => "install sipxivr config $(this.promiser)",
         create => "true",
         perms => m("644"),
-        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/autoattendants.xml"),
         classes => if_repaired("restart_sipxivr");
 
     !primary::

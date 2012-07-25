@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.dialplan.attendant.AutoAttendants;
 import org.sipfoundry.sipxconfig.dialplan.attendant.Holiday;
 import org.sipfoundry.sipxconfig.dialplan.attendant.ScheduledAttendant;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
@@ -172,6 +171,6 @@ public class AttendantRule extends DialingRule {
     }
 
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Arrays.asList((Feature) DialPlanContext.FEATURE, (Feature) AutoAttendants.FEATURE);
+        return Arrays.asList((Feature) DialPlanContext.FEATURE, (Feature) AutoAttendantManager.FEATURE);
     }
 }

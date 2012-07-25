@@ -14,9 +14,11 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public interface AutoAttendantManager extends AliasOwner {
+    public static final GlobalFeature FEATURE = new GlobalFeature("autoAttendant");
     String ATTENDANT_GROUP_ID = "auto_attendant";
 
     void clear();
