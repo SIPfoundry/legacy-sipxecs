@@ -40,6 +40,9 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 public abstract class UserForm extends BaseComponent implements EditPinComponent {
 
     private static final String CONFIRM_PASSWORD = "confirmPassword";
+    private static final String DEFAULT = "default";
+    private static final String DEFAULT_VOICEMAIL_PIN = "1234";
+    private static final String DEFAULT_PASSWORD = "1234abcd";
     private static final String EMPTY = "empty";
     private static final String EMPTY_PIN = "";
     private static final String GENERATE = "generate";
@@ -90,10 +93,22 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
     }
 
     @EventListener(events = "onclick", targets = GENERATE)
-    public void generatePasswords(IRequestCycle cycle) {
+    public void generateRandomPasswords(IRequestCycle cycle) {
         User user = getUser();
         user.setVoicemailPin(RandomStringUtils.random(User.VOICEMAIL_PIN_LEN, false, true));
         user.setPin(RandomStringUtils.randomAlphabetic(User.PASSWORD_LEN));
+        setPin(user.getPintoken());
+        setVoicemailPin(user.getClearVoicemailPin());
+        PropertyUtils.write(getComponent(PIN), CONFIRM_PASSWORD, user.getPintoken());
+        PropertyUtils.write(getComponent(VOICEMAIL_PIN), CONFIRM_PASSWORD, user.getClearVoicemailPin());
+        cycle.getResponseBuilder().updateComponent(RENDER);
+    }
+
+    @EventListener(events = "onclick", targets = DEFAULT)
+    public void generateDefaultPasswords(IRequestCycle cycle) {
+        User user = getUser();
+        user.setVoicemailPin(DEFAULT_VOICEMAIL_PIN);
+        user.setPin(DEFAULT_PASSWORD);
         setPin(user.getPintoken());
         setVoicemailPin(user.getClearVoicemailPin());
         PropertyUtils.write(getComponent(PIN), CONFIRM_PASSWORD, user.getPintoken());

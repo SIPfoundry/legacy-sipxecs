@@ -259,11 +259,9 @@ class CallResolverConfigure
   # proxies and the call resolver, which share the SIPXCDR database.
   def get_cse_database_urls_config(cse_hosts)
     return [ @cdr_database_url ] if cse_hosts.empty?
-    # Build the list of CSE DB URLs.  From Call Resolver's point of view,
-    # each URL is 'localhost:<port>'.
-    # Stunnel takes care of forwarding the local port to the database on a remote host.
+    # Build the list of CSE DB URLs.
     cse_hosts.collect do |cse_host|
-      DatabaseUrl.new(:port => cse_host.port, :username => @db_user)
+      DatabaseUrl.new(:host =>cse_host.host, :port => cse_host.port, :username => @db_user)
     end
   end
 
@@ -293,7 +291,7 @@ class CallResolverConfigure
       end
       host_port = port.to_i
       raise ConfigException, "Port for #{host} is invalid." if host_port == 0
-      cse_hosts << CseHost.new(host, host_port, host == LOCALHOST)
+      cse_hosts << CseHost.new(host, host_port)
       log.debug("cse_hosts: host name #{host}, host port: #{port}")
       # If at least one of the hosts != 'localhost' we are HA enabled
     end

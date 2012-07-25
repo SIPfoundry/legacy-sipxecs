@@ -2453,18 +2453,14 @@ std::string HttpMessage::getString(bool includeBody) const
       }
     }
 
-    if ((name.compareTo("RECORD-ROUTE", UtlString::ignoreCase) != 0) && (name.compareTo("ROUTE", UtlString::ignoreCase) != 0))
+    bytes += name.data();
+    bytes += HTTP_NAME_VALUE_DELIMITER;
+    bytes += " ";
+    if(value)
     {
-      bytes += name.data();
-      bytes += HTTP_NAME_VALUE_DELIMITER;
-      bytes += " ";
-      if(value)
-      {
-        bytes += value;
-      }
-
-      bytes += END_OF_LINE_DELIMITER;
+      bytes += value;
     }
+    bytes += END_OF_LINE_DELIMITER;
  }
 
   // Make sure the content length is set
