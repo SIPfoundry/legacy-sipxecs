@@ -51,10 +51,7 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressProvider, ProcessProvider,
     AlarmProvider, FirewallProvider {
-    public static final LocationFeature FEATURE = new LocationFeature("proxy");
-    public static final AddressType TCP_ADDRESS = AddressType.sipTcp("proxyTcp");
-    public static final AddressType UDP_ADDRESS = AddressType.sipUdp("procyUdp");
-    public static final AddressType TLS_ADDRESS = AddressType.sipTls("proxyTls");
+
     private static final Collection<AddressType> ADDRESS_TYPES = Arrays.asList(new AddressType[] {
         TCP_ADDRESS, UDP_ADDRESS, TLS_ADDRESS
     });

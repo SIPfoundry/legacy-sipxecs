@@ -118,6 +118,11 @@ bundle agent sipxproxy_running {
         comment => "stop sipxproxy",
         args => "stop";
 
+    !sipxcdr.sipxproxy.!sipxproxy_running.!stop_sipxecs::
+      "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
+        comment => "Setup SIPXCDR database used by sipXproxy to insert call_state_events",
+        args => "setup";        
+
     sipxproxy.!sipxproxy_running.!stop_sipxecs::
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
         comment => "start sipxproxy",

@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.cdr;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -43,13 +45,12 @@ public class CdrConfiguration implements ConfigProvider {
         }
 
         Set<Location> locations = request.locations(manager);
-        List<Location> proxyLocations = manager.getFeatureManager().getLocationsForEnabledFeature(ProxyManager.FEATURE);
         CdrSettings settings = m_cdrManager.getSettings();
+        List<Location> proxyLocations = manager.getFeatureManager().getLocationsForEnabledFeature(ProxyManager.FEATURE);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            boolean enabled = proxyLocations.contains(location);
             String datfile = "sipxcdr.cfdat";
-            if (!enabled) {
+            if (!location.isPrimary()) {
                 ConfigUtils.enableCfengineClass(dir, datfile, false, CdrManager.FEATURE.getId());
                 continue;
             }
@@ -64,10 +65,16 @@ public class CdrConfiguration implements ConfigProvider {
     }
 
     static String cseHosts(List<Location> locations, int port) {
-        StringBuilder cseHosts = new StringBuilder("localhost");
-        for (int i = 0; i < locations.size(); i++) {
+        StringBuilder cseHosts = new StringBuilder();
+        boolean first = true;
+        for (Location location : locations) {
+            if (first) {
+                cseHosts.append(location.getFqdn()).append(':').append(port);
+                first = false;
+                continue;
+            }
             cseHosts.append(", ");
-            cseHosts.append(locations.get(i).getFqdn()).append(':').append(port);
+            cseHosts.append(location.getFqdn()).append(':').append(port);
         }
         return cseHosts.toString();
     }
@@ -77,8 +84,10 @@ public class CdrConfiguration implements ConfigProvider {
         config.writeSettings(settings.getSettings());
         // legacy, not sure if it should be just ip or home interface
         config.write("SIP_CALLRESOLVER_AGENT_ADDR", "0.0.0.0");
-        String cseHosts = cseHosts(proxyLocations, settings.getPostresPort());
-        config.write("SIP_CALLRESOLVER_CSE_HOSTS", cseHosts);
+        String cseHosts = cseHosts(proxyLocations, AdminContext.SIPXCDR_DB_ADDRESS.getCanonicalPort());
+        if (!isEmpty(cseHosts)) {
+            config.write("SIP_CALLRESOLVER_CSE_HOSTS", cseHosts);
+        }
     }
 
     public void setCdrManager(CdrManager cdrManager) {

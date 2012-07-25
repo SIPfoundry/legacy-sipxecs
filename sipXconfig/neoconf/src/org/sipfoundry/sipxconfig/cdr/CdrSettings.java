@@ -25,10 +25,6 @@ public class CdrSettings extends PersistableSettings {
         return (Integer) getSettingTypedValue("callresolver/SIP_CALLRESOLVER_AGENT_PORT");
     }
 
-    public int getPostresPort() {
-        return 5432; // not configurable
-    }
-
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("sipxcallresolver/sipxcallresolver.xml");

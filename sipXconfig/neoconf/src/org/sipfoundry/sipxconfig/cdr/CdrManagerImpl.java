@@ -580,7 +580,8 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
-        validator.requiredOnSameHost(FEATURE, ProxyManager.FEATURE);
+        validator.requiresAtLeastOne(FEATURE, ProxyManager.FEATURE);
+        validator.primaryLocationOnly(FEATURE);
     }
 
     @Override

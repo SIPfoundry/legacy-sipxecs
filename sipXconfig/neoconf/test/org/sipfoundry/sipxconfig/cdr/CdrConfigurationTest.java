@@ -23,13 +23,13 @@ public class CdrConfigurationTest {
     private Location m_two;
     private CdrSettings m_settings;
     private CdrConfiguration m_config;
-    
+
     @Before
     public void setUp() {
         m_one = new Location();
         m_one.setFqdn("one.example.org");
         m_two = new Location();
-        m_two.setFqdn("two.example.org");        
+        m_two.setFqdn("two.example.org");
         m_settings = new CdrSettings();
         m_settings.setModelFilesContext(TestHelper.getModelFilesContext());
         m_config = new CdrConfiguration();
@@ -38,15 +38,15 @@ public class CdrConfigurationTest {
     @Test
     public void cseHosts() {
         String actual = CdrConfiguration.cseHosts(Arrays.asList(m_one, m_two), 100);
-        assertEquals("localhost, one.example.org:100, two.example.org:100", actual);
+        assertEquals("one.example.org:100, two.example.org:100", actual);
     }
-    
+
     @Test
     public void testConfig() throws Exception {
         StringWriter actual = new StringWriter();
         m_config.write(actual, Collections.singletonList(m_one), m_settings);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-callresolver-config-no-ha"));
-        assertEquals(expected, actual.toString());        
+        assertEquals(expected, actual.toString());
     }
 
     @Test
@@ -55,6 +55,6 @@ public class CdrConfigurationTest {
         StringWriter actual = new StringWriter();
         m_config.write(actual, locations, m_settings);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-callresolver-config"));
-        assertEquals(expected, actual.toString());        
-    }   
+        assertEquals(expected, actual.toString());
+    }
 }

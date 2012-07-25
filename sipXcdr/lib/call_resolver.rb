@@ -30,6 +30,7 @@ class CallResolver
     purge_age_cse =  @config.purge_age_cse
     # readers put events in CSE queue
     @readers = urls.collect do | url |
+      log.debug("Proxy URL to agregate CSE events from: #{url}")
       CseReader.new(url, purge_age_cse, config.cse_polling_interval, log)
     end
     install_signal_handler(@readers)
