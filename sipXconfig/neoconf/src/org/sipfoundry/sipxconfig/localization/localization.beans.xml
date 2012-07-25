@@ -10,7 +10,7 @@
     <property name="defaultLanguage" value="en" />
     <property name="dialPlanSetup" ref="dialPlanSetup" />
     <property name="autoAttendantManager" ref="autoAttendantManager" />
-    <property name="replicationManager" ref="replicationManagerImpl" />
+    <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
   </bean>
 
   <bean id="localizationContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

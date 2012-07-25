@@ -67,6 +67,10 @@ domainManagerImpl.configuredIp=$(sipx.bind_ip)
 locationsManagerImpl.primaryIp=$(sipx.bind_ip)
 locationsManagerImpl.primaryFqdn=$(sipx.host).$(sipx.net_domain)
 mongoReplicaSetManager.primaryFqdn=$(sipx.host).$(sipx.net_domain)
+#mongo replication multi-threading
+replicationManagerImpl.nThreads=2
+replicationManagerImpl.pageSize=1000
+replicationManagerImpl.useDynamicPageSize=false
 ";
 
     primary.has_config::

@@ -54,11 +54,14 @@ import com.mongodb.MongoException;
 public class MongoReplicaSetManager {
     private static final Log LOG = LogFactory.getLog(MongoReplicaSetManager.class);
     private static final String REPLSET = "sipxecs";
+    private static final String MEMBERS = "members";
+    private static final String HOST = "host";
     private static final String CHECK_COMMAND = "rs.config()";
     private static final String INIT_COMMAND = "rs.initiate({\"_id\" : \"sipxecs\", \"version\" : 1, \"members\" : "
             + "[ { \"_id\" : 0, \"host\" : \"%s:%d\", priority : 2 } ] })";
     private static final String ADD_SERVER_COMMAND = "rs.add(\"%s\")";
     private static final String REMOVE_SERVER_COMMAND = "rs.remove(\"%s\")";
+    private static final String RENAME_PRIMARY_COMMAND = "c = rs.config(); c.members[0].host = '%s'; rs.reconfig(c)";
     private static final String ADD_ARBITER_COMMAND = "rs.addArb(\"%s\")";
     private static final String REMOVE_ARBITER_COMMAND = REMOVE_SERVER_COMMAND;
     private MongoTemplate m_localDb;
@@ -68,7 +71,24 @@ public class MongoReplicaSetManager {
 
     public void checkState() {
         BasicBSONObject ret = MongoUtil.runCommand(m_localDb.getDb(), CHECK_COMMAND);
-        if (ret == null) {
+        boolean initialized = false;
+        if (ret != null) {
+            BasicDBList members = (BasicDBList) ret.get(MEMBERS);
+            if (members != null) {
+                BasicDBObject primary = (BasicDBObject) members.get(0);
+                if (primary != null) {
+                    initialized = true;
+                    String host = primary.getString(HOST);
+                    String expected = format(m_primaryFqdn + ':' + MongoSettings.SERVER_PORT);
+                    if (!expected.equals(host)) {
+                        String rename = format(RENAME_PRIMARY_COMMAND, expected);
+                        MongoUtil.runCommand(m_localDb.getDb(), rename);
+                    }
+                }
+            }
+        }
+
+        if (!initialized) {
             initialize();
         }
     }
@@ -176,10 +196,10 @@ public class MongoReplicaSetManager {
         DBCollection registrarCollection = ds.getCollection("system.replset");
         try {
             DBObject repl = registrarCollection.findOne(new BasicDBObject("_id", REPLSET));
-            BasicDBList membersObj = (BasicDBList) repl.get("members");
+            BasicDBList membersObj = (BasicDBList) repl.get(MEMBERS);
             for (Object o : membersObj) {
                 BasicDBObject dbo = ((BasicDBObject) o);
-                String host = dbo.getString("host");
+                String host = dbo.getString(HOST);
                 if (dbo.getBoolean("arbiterOnly")) { // FYI: older versions of mongo this was spelled arbitorOnly
                     arbiters.add(host);
                 } else {

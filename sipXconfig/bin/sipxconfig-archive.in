@@ -116,7 +116,7 @@ class Restore < ArchiveBase
 
     if params.has_key?(:reset_pin)
       pin = params[:reset_pin]
-      sql_exec(@restoredb, "update users set (pintoken,voicemail_pintoken) values ('#{pin}', md5(user_name || ':#{pin}');") or
+      sql_exec(@restoredb, "update users set pintoken = '#{pin}',voicemail_pintoken = md5(user_name || ':#{pin}');") or
           raise "Failed to reset pins."
     elsif (params.has_key?(:domain) and pre_mongo and params.has_key?(:crack_pin))
         sql_exec(@restoredb, "select uncover_pin_on_restore('#{params[:crack_pin]}', #{params[:crack_pin_len]});") or
