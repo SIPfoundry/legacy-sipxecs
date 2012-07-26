@@ -16,10 +16,15 @@
  */
 package org.sipfoundry.sipxconfig.cdr;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class CdrSettings extends PersistableSettings {
+public class CdrSettings extends PersistableSettings implements DeployConfigOnEdit {
 
     public int getAgentPort() {
         return (Integer) getSettingTypedValue("callresolver/SIP_CALLRESOLVER_AGENT_PORT");
@@ -33,5 +38,10 @@ public class CdrSettings extends PersistableSettings {
     @Override
     public String getBeanId() {
         return "cdrSettings";
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) CdrManager.FEATURE);
     }
 }

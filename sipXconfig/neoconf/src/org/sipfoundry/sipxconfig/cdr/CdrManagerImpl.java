@@ -108,6 +108,11 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         return m_settingsDao.findOrCreateOne();
     }
 
+    @Override
+    public void saveSettings(CdrSettings settings) {
+        m_settingsDao.upsert(settings);
+    }
+
     public List<Cdr> getCdrs(Date from, Date to, User user) {
         return getCdrs(from, to, new CdrSearch(), user);
     }

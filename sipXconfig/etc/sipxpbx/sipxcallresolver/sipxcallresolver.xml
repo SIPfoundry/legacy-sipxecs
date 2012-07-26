@@ -46,7 +46,7 @@
   </type>
   
   <group name="callresolver">
-    <setting name="SIP_CALLRESOLVER_LOG_LEVEL" hidden="yes">
+    <setting name="SIP_CALLRESOLVER_LOG_LEVEL">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>    

@@ -26,6 +26,7 @@ public interface CdrManager {
     final String CONTEXT_BEAN_NAME = "cdrManager";
 
     CdrSettings getSettings();
+    void saveSettings(CdrSettings settings);
 
     /**
      * Retrieve CDRS between from and to dates
