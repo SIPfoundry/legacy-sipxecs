@@ -21,9 +21,9 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface ProxyManager {
     public static final LocationFeature FEATURE = new LocationFeature("proxy");
-    public static final AddressType TCP_ADDRESS = new AddressType("proxyTcp");
-    public static final AddressType UDP_ADDRESS = new AddressType("proxyUdp");
-    public static final AddressType TLS_ADDRESS = new AddressType("proxyTls");
+    public static final AddressType TCP_ADDRESS = AddressType.sipTcp("proxyTcp");
+    public static final AddressType UDP_ADDRESS = AddressType.sipUdp("proxyUdp");
+    public static final AddressType TLS_ADDRESS = AddressType.sipTls("proxyTls");
 
     public ProxySettings getSettings();
 

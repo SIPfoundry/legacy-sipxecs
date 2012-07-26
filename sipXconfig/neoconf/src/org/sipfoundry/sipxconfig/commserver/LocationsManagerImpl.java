@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.common.ReplicationsFinishedEvent;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location.State;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
@@ -53,6 +54,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     private String m_primaryFqdn;
     private String m_primaryIp;
     private JdbcTemplate m_jdbc;
+    private DomainManager m_domainManager;
 
     /** Return the replication URLs, retrieving them on demand */
     @Override
@@ -254,6 +256,8 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
 
     private void changePrimaryFqdn(String fqdn) {
         m_jdbc.execute(format("select change_primary_fqdn_on_restore('%s')", fqdn));
+        // XX-10243 - clear domain aliases
+        m_domainManager.setNullDomain();
     }
 
     @Required
@@ -275,5 +279,13 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
 
     public void setJdbc(JdbcTemplate jdbc) {
         m_jdbc = jdbc;
+    }
+
+    public String getPrimaryFqdn() {
+        return m_primaryFqdn;
+    }
+
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
     }
 }

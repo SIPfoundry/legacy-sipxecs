@@ -1,24 +1,19 @@
-Name:     resiprocate
-Version:  1.7
-Release:  9367
-
-Summary:  Resiprocate SIP Stack
-License:  Vovida Software License http://opensource.org/licenses/vovidapl.php
-Group:    Productivity/Telephony/SIP/Servers
-Vendor:   resiprocate.org
-Packager: Alfred E. Heggestad <aeh@db.org>
-Url:      http://www.resiprocate.org
-
-Source:   %name-%{version}r%{release}.tar.gz
-
+Name: resiprocate
+Version: 1.8.4
+Release: 1
+Summary: Resiprocate SIP Stack
+License: Vovida Software License http://opensource.org/licenses/vovidapl.php
+Group: Productivity/Telephony/SIP/Servers
+Vendor: resiprocate.org
+Packager: Daniel Pocock <daniel@pocock.com.au>
+Url: http://www.resiprocate.org
+Source: %name-%version.tar.gz
 BuildRequires: openssl-devel >= 0.9.7
 BuildRequires: popt
 BuildRequires: boost-devel
-
 Requires: openssl >= 0.9.7
 Requires: chkconfig
-
-Prefix:    %_prefix
+Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
 %description
@@ -28,9 +23,9 @@ a complete, correct, and commercially usable implementation of SIP and a few
 related protocols.
 
 %package devel
-Summary:        Resiprocate development files
-Group:          Development/Libraries
-Requires:       %{name} = %{version}
+Summary: Resiprocate development files
+Group: Development/Libraries
+Requires: %{name} = %{version}
 
 %description devel
 Resiprocate SIP Stack development files.
@@ -39,44 +34,37 @@ Resiprocate SIP Stack development files.
 %setup -q
 
 %build
-./configure -y --with-compile-type=opt --enable-shared-libs --enable-ssl --disable-ipv6 --prefix=/usr --ares-prefix=/usr
-make resiprocate
+%configure
+make
 
 %install
-# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
-# libdir, bindir, etc just for make install. This not copesetic w/how
-# our makefiles are built, they'd rather preserve libdir, and use
-# DESTDIR when copying/moving/creating files.  The approach we're taking
-# is quite standard, so it's surprising RPM's makeinstall macro is
-# the way it is.
-rm -rf $RPM_BUILD_ROOT
-make DESTDIR=$RPM_BUILD_ROOT INSTALL_PREFIX=/usr install-rutil install-resip
-make DESTDIR=$RPM_BUILD_ROOT ARES_PREFIX=/usr install-ares
+make DESTDIR=%buildroot install
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+[ ${RPM_BUILD_ROOT} != "/" ] && rm -rf ${RPM_BUILD_ROOT}
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
 %files
 %defattr(644,root,root,755)
-/usr/lib/librutil.so
-/usr/lib/libresip.so
+%{_sysconfdir}/repro.conf
+%{_libdir}/*.so
+%{_sbindir}/*
 
 %files devel
 %defattr(644,root,root,755)
-%{_includedir}/rutil/*.hxx
-%{_includedir}/rutil/dns/*.hxx
-%{_includedir}/rutil/stun/*.hxx
-%{_includedir}/rutil/ssl/*.hxx
-%{_includedir}/resip/stack/*.hxx
-%{_includedir}/resip/stack/ssl/*.hxx
-/usr/lib/libares.a
-#%{_mandir}/man3/ares*gz
-/usr/man/man3/ares*.gz
+%{_includedir}/rutil/*
+%{_includedir}/repro/*
+%{_includedir}/resip/*
+%{_libdir}/*.a
+%{_libdir}/*.la
+%{_mandir}/man3/*.gz
+%{_mandir}/man8/*.gz
 
 %changelog
-* Thu May 24 2007 Alfred E. Heggestad <aeh@db.org> -
-- Initial build.
+* Wed Jul  25 2012 Douglas Hubler <douglas@hubler.us> -
+- Update for new files in 1.8.4 release
+* Sun Aug  7 2011 Daniel Pocock <daniel@pocock.com.au> -
+- Initial build based on autotools
 

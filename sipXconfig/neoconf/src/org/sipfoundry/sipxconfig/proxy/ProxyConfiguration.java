@@ -38,6 +38,8 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class ProxyConfiguration implements ConfigProvider {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/peeridentities-00-00";
+    private static final String PROXY = "sipxproxy";
+    private static final String PROXY_CFDAT = "sipxproxy.cfdat";
     private TlsPeerManager m_tlsPeerManager;
     private ProxyManager m_proxyManager;
 
@@ -56,7 +58,11 @@ public class ProxyConfiguration implements ConfigProvider {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = fm.isFeatureEnabled(ProxyManager.FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "sipxproxy.cfdat", enabled, "sipxproxy");
+            if (!enabled) {
+                ConfigUtils.enableCfengineClass(dir, PROXY_CFDAT, enabled, PROXY);
+            } else {
+                ConfigUtils.enableCfengineClass(dir, PROXY_CFDAT, enabled, "postgres", PROXY);
+            }
 
             // always generate only because sipxbridge needs file and harmless to generate
             // even if not every machine needs it.

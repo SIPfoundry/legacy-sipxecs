@@ -2,9 +2,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="autoAttendants" class="org.sipfoundry.sipxconfig.dialplan.attendant.AutoAttendants">
-  </bean>  
-  
   <bean id="autoAttendantsConfig" class="org.sipfoundry.sipxconfig.dialplan.attendant.AutoAttendantsConfig">
     <property name="configManager" ref="configManager" />
     <property name="xml" ref="autoAttendantsXml" />            
