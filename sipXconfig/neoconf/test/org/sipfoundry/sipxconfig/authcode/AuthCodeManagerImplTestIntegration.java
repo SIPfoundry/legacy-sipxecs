@@ -14,15 +14,22 @@ import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.acccode.AuthCode;
 import org.sipfoundry.sipxconfig.acccode.AuthCodeManager;
+import org.sipfoundry.sipxconfig.acccode.AuthCodeSettings;
+import org.sipfoundry.sipxconfig.acccode.AuthCodes;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.SameExtensionException;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
+/*
+ * AuthCodesSettings tests are also here
+ */
 public class AuthCodeManagerImplTestIntegration extends IntegrationTestCase {
 
     private AuthCodeManager m_authCodeManager;
+    private AuthCodes m_authCodes;
     private CoreContext m_coreContext;
 
     public void testDeleteAuthCode() throws Exception {
@@ -99,12 +106,29 @@ public class AuthCodeManagerImplTestIntegration extends IntegrationTestCase {
 
     }
 
+    public void testAuthCodesSettings() {
+        AuthCodeSettings settings = m_authCodes.getSettings();
+        settings.setAuthCodeAliases("*81");
+        settings.setAuthCodePrefix("*81");
+        try {
+            m_authCodes.saveSettings(settings);
+            fail();
+        } catch (SameExtensionException e) {
+        }
+        settings.setAuthCodePrefix("*812");
+        m_authCodes.saveSettings(settings);
+    }
+    
     public void setAuthCodeManager(AuthCodeManager authCodeManager) {
         m_authCodeManager = authCodeManager;
     }
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public void setAuthCodes(AuthCodes authCodes) {
+        m_authCodes = authCodes;
     }
 
 }

@@ -33,6 +33,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.SameExtensionException;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
@@ -239,6 +240,27 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
             assertEquals("freeswitch_media_manager:! testme@192.168.1.1", actions.get(7).getData());
         }
 
+        extension.setAlias("alias");
+        extension.setDid("alias");
+        try {
+            m_openAcdContext.saveExtension(extension);
+            fail();
+        } catch (SameExtensionException e) {
+        }
+
+        extension.setAlias("300");
+        try {
+            m_openAcdContext.saveExtension(extension);
+            fail();
+        } catch (SameExtensionException e) {
+        }
+        
+        extension.setDid("300");
+        try {
+            m_openAcdContext.saveExtension(extension);
+            fail();
+        } catch (SameExtensionException e) {
+        }        
         // test remove extension
         assertEquals(1, m_openAcdContext.getLines().size());
         m_openAcdContext.deleteExtension(extensionById);

@@ -37,6 +37,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
+import org.sipfoundry.sipxconfig.common.SameExtensionException;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -92,6 +93,9 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private static final String OPEN_ACD_RELEASE_CODE_WITH_LABEL = "openAcdClientReleaseCodeWithLabel";
     private static final String OPEN_ACD_PROCESS_NAME = "openacd";
     private static final String AGENT_GROUP_NAME = "Contact-center-agents";
+    private static final String ALIAS = "alias";
+    private static final String EXTENSION = "extension";
+    private static final String DID = "did";
     //commands
     private static final String DESTINATION_NUMBER = "destination_number";
     private static final String ANSWER = "answer";
@@ -101,7 +105,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private static final String HANGUP = "hangup";
     private static final String NORMAL_CLEARING = "NORMAL CLEARING";
     private static final String AGENT_DP_LISTENER = "agent_dialplan_listener openacd@";
-
 
     private AliasManager m_aliasManager;
     private FeatureManager m_featureManager;
@@ -230,13 +233,18 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
             throw new NameInUseException(LINE_NAME, extension.getName());
         } else if (!m_aliasManager.canObjectUseAlias(extension, capturedExt)) {
             throw new ExtensionInUseException(LINE_NAME, capturedExt);
-        } else if (extension.getAlias() != null
-                && !m_aliasManager.canObjectUseAlias(extension, extension.getAlias())) {
+        } else if (extension.getAlias() != null && !m_aliasManager.canObjectUseAlias(extension, extension.getAlias())) {
             throw new ExtensionInUseException(LINE_NAME, extension.getAlias());
+        } else if (extension.getAlias() != null && extension.getAlias().equals(extension.getExtension())) {
+            throw new SameExtensionException(ALIAS, EXTENSION);
         } else if (extension.getDid() != null && !m_aliasManager.canObjectUseAlias(extension, extension.getDid())) {
             throw new ExtensionInUseException(LINE_NAME, extension.getDid());
+        } else if (extension.getDid() != null && extension.getDid().equals(extension.getExtension())) {
+            throw new SameExtensionException(DID, EXTENSION);
+        } else if (extension.getDid() != null && extension.getAlias() != null
+                && extension.getDid().equals(extension.getAlias())) {
+            throw new SameExtensionException(ALIAS, DID);
         }
-
         removeNullActions(extension);
         if (extension.isNew()) {
             getHibernateTemplate().saveOrUpdate(extension);

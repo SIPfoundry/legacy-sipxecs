@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
+import org.sipfoundry.sipxconfig.common.SameExtensionException;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.AuthorizationCodeRule;
@@ -87,6 +88,8 @@ public class AuthCodesImpl implements ReplicableProvider, DialingRuleProvider, F
         for (String alias : settings.getAliasesAsSet()) {
             if (!m_aliasManager.canObjectUseAlias(settings, alias)) {
                 throw new UserException(ALIAS_IN_USE, alias);
+            } else if (alias.equals(settings.getAuthCodePrefix())) {
+                throw new SameExtensionException("prefix", "alias");
             }
         }
 

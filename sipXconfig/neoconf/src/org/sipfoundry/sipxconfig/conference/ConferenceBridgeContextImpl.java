@@ -25,9 +25,9 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
-import org.sipfoundry.sipxconfig.common.DidInUseException;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
+import org.sipfoundry.sipxconfig.common.SameExtensionException;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
@@ -109,7 +109,7 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
             throw new ExtensionInUseException(CONFERENCE, did);
         }
         if (StringUtils.isNotBlank(did) && did.equals(extension)) {
-            throw new DidInUseException(CONFERENCE, did);
+            throw new SameExtensionException("did", "extension");
         }
     }
 
