@@ -108,7 +108,8 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         loadDataSetXml("domain/DomainSeed.xml");
         sql("openacd/openacd.sql");
         getEntityCollection().drop();
-        m_featureManager.enableLocationFeature(OpenAcdContext.FEATURE, m_locationsManager.getPrimaryLocation(), true);
+        m_featureManager
+                .enableLocationFeature(OpenAcdContext.FEATURE, m_locationsManager.getPrimaryLocation(), true);
     }
 
     public static OpenAcdLine createOpenAcdLine(String extensionName) {
@@ -254,13 +255,13 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
             fail();
         } catch (SameExtensionException e) {
         }
-        
+
         extension.setDid("300");
         try {
             m_openAcdContext.saveExtension(extension);
             fail();
         } catch (SameExtensionException e) {
-        }        
+        }
         // test remove extension
         assertEquals(1, m_openAcdContext.getLines().size());
         m_openAcdContext.deleteExtension(extensionById);
@@ -506,12 +507,13 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         assertEquals(charlie, agentById.getUser());
         assertEquals("AGENT", agentById.getSecurity());
 
-        //test update agent
+        // test update agent
         agentById.setSecurity(OpenAcdAgent.Security.ADMIN.toString());
         m_openAcdContext.saveAgent(agentById);
-        //FIXME: this test will always pass because agent will be retrieved from the session and not from DB.
+        // FIXME: this test will always pass because agent will be retrieved from the session and
+        // not from DB.
         assertEquals(OpenAcdAgent.Security.ADMIN.toString(), m_openAcdContext.getAgentById(id).getSecurity());
-        
+
         // test add agents to group
         User delta = m_coreContext.loadUser(1004);
         User elephant = m_coreContext.loadUser(1005);
@@ -1273,7 +1275,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         assertEquals(0, m_openAcdContext.getReleaseCodes().size());
 
     }
-    
+
     public void testGetReplicables() {
         List<Replicable> replicables = m_openAcdReplicationProvider.getReplicables();
         assertEquals(16, replicables.size());

@@ -118,7 +118,7 @@ public class AuthCodeManagerImplTestIntegration extends IntegrationTestCase {
         settings.setAuthCodePrefix("*812");
         m_authCodes.saveSettings(settings);
     }
-    
+
     public void setAuthCodeManager(AuthCodeManager authCodeManager) {
         m_authCodeManager = authCodeManager;
     }

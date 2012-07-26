@@ -30,29 +30,29 @@ public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestC
     private CoreContext m_core;
     private LocationsManager m_locations;
     private DomainManager m_domainManager;
-    
+
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
         clear();
     }
-    
+
     public void setCoreContext(CoreContext core) {
         m_core = core;
     }
-    
+
     public void setLocationsManager(LocationsManager lm) {
         m_locations = lm;
     }
-    
+
     public void setConferenceBridgeContext(ConferenceBridgeContext conference) {
         m_context = conference;
     }
-    
+
     protected void onSetUpInTransaction() throws Exception {
         sql("conference/seed-participants.sql");
         sql("domain/DomainSeed.sql");
-    }    
+    }
 
     public void testGetBridges() throws Exception {
         assertEquals(2, m_context.getBridges().size());
@@ -62,10 +62,10 @@ public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestC
         assertNull(m_context.getBridgeByServer("uknown"));
         assertEquals("host.example.com", m_context.getBridgeByServer("host.example.com").getName());
     }
-    
+
     public void testStore() throws Exception {
         Location location = m_locations.getLocation(1000);
-        
+
         db().execute("delete from meetme_conference");
         db().execute("delete from meetme_bridge");
 
@@ -81,7 +81,6 @@ public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestC
         assertEquals(1, countRowsInTable("meetme_bridge"));
         assertEquals(1, countRowsInTable("meetme_conference"));
     }
-    
 
     public void testRemoveConferences() throws Exception {
         m_context.removeConferences(Collections.singleton(new Integer(3002)));
@@ -94,7 +93,7 @@ public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestC
         Bridge bridge = m_context.loadBridge(new Integer(2006));
         assertEquals(3, bridge.getConferences().size());
     }
-    
+
     public void testLoadConference() throws Exception {
         Conference conference = m_context.loadConference(new Integer(3001));
         assertEquals("conf_name_3001", conference.getName());
@@ -170,7 +169,7 @@ public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestC
         conf.setName("Appalachian");
         conf.setExtension("1699");
         try {
-            //disableDaoEventPublishing();
+            // disableDaoEventPublishing();
             m_context.validate(conf);
             fail("conference has duplicate extension but was validated anyway");
         } catch (UserException e) {
@@ -228,14 +227,14 @@ public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestC
         conf.setSettingValue(Conference.PARTICIPANT_CODE, "1235");
         conf.setSettingTypedValue(Conference.QUICKSTART, false);
         m_context.validate(conf);
-        
+
         conf.setExtension("2000");
         conf.setDid("2000");
         try {
             m_context.validate(conf);
             fail();
         } catch (SameExtensionException e) {
-            
+
         }
     }
 
@@ -243,14 +242,20 @@ public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestC
         assertEquals(m_message, 1, getConferencesCount("1699"));// ext
         assertEquals(m_message, 3, getConferencesCount("test1002"));// owner username
         assertEquals(m_message, 1, getConferencesCount("test1003"));// owner username
-        assertEquals(m_message, 0, getConferencesCount("100"));// owner username - no partial match
+        assertEquals(m_message, 0, getConferencesCount("100"));// owner username - no partial
+                                                               // match
         assertEquals(m_message, 0, getConferencesCount("17"));// extension - no partial match
-        assertEquals(m_message, 3, getConferencesCount("cOnF_nAmE"));// conf name - partial and case
-                                                          // insensitive match
-        assertEquals(m_message, 3, getConferencesCount("MaX"));// owner first name - partial and c.i. match
-        assertEquals(m_message, 3, getConferencesCount("AfInO"));// owner last name - partial and c.i. match
-        assertEquals(m_message, 3, getConferencesCount("Maxim Afinogenov"));// owner first+last name
-        assertEquals(m_message, 3, getConferencesCount("AfInOgenov maxim"));// owner last+first name
+        assertEquals(m_message, 3, getConferencesCount("cOnF_nAmE"));// conf name - partial and
+                                                                     // case
+        // insensitive match
+        assertEquals(m_message, 3, getConferencesCount("MaX"));// owner first name - partial and
+                                                               // c.i. match
+        assertEquals(m_message, 3, getConferencesCount("AfInO"));// owner last name - partial and
+                                                                 // c.i. match
+        assertEquals(m_message, 3, getConferencesCount("Maxim Afinogenov"));// owner first+last
+                                                                            // name
+        assertEquals(m_message, 3, getConferencesCount("AfInOgenov maxim"));// owner last+first
+                                                                            // name
         assertEquals(m_message, 1, getConferencesCount("Ilya"));
         assertEquals(m_message, 1, getConferencesCount("conference_no_owner"));
     }
@@ -258,9 +263,9 @@ public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestC
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }
-    
+
     private String m_message;
-    
+
     private int getConferencesCount(String searchTerm) {
         List<Conference> confList = m_context.searchConferences(searchTerm);
         m_message = DataCollectionUtil.toString(confList);
