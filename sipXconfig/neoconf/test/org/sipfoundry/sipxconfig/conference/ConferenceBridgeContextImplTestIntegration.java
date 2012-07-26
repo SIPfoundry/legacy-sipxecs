@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.common.SameExtensionException;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -227,6 +228,15 @@ public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestC
         conf.setSettingValue(Conference.PARTICIPANT_CODE, "1235");
         conf.setSettingTypedValue(Conference.QUICKSTART, false);
         m_context.validate(conf);
+        
+        conf.setExtension("2000");
+        conf.setDid("2000");
+        try {
+            m_context.validate(conf);
+            fail();
+        } catch (SameExtensionException e) {
+            
+        }
     }
 
     public void testSearchConferences() throws Exception {
