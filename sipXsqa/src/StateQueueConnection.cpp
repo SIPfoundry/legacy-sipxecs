@@ -160,7 +160,7 @@ void StateQueueConnection::handleRead(const boost::system::error_code& e, std::s
   }
   else if (e)
   {
-    OS_LOG_INFO(FAC_NET, "StateQueueConnection::handleRead "
+    OS_LOG_WARNING(FAC_NET, "StateQueueConnection::handleRead "
                 << "TERMINATED - " << e.message() 
                 << " Most likely remote closed the connection.");
     boost::system::error_code ignored_ec;
