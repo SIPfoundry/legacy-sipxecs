@@ -569,6 +569,7 @@ private:
   void eventLoop()
   {
     std::string publisherAddress;
+    const int retryTime = 1000;
     while(!_terminate)
     {
       if (signin(publisherAddress))
@@ -577,9 +578,9 @@ private:
       }
       else
       {
-        OS_LOG_ERROR(FAC_NET, "StateQueueClient::eventLoop "
-                  << "Is unable to SIGN IN to SQA service");
-        boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+        OS_LOG_WARNING(FAC_NET, "StateQueueClient::eventLoop "
+                  << "Network Queue did no respond.  Retrying SIGN IN after " << retryTime << " ms.");
+        boost::this_thread::sleep(boost::posix_time::milliseconds(retryTime));
       }
     }
 

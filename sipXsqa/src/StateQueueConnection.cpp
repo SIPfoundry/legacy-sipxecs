@@ -160,9 +160,9 @@ void StateQueueConnection::handleRead(const boost::system::error_code& e, std::s
   }
   else if (e)
   {
-    OS_LOG_WARNING(FAC_NET, "StateQueueConnection::handleRead "
-                << "Exception caught while calling read.  "
-                << "ERROR: " << e.message());
+    OS_LOG_INFO(FAC_NET, "StateQueueConnection::handleRead "
+                << "TERMINATED - " << e.message() 
+                << " Most likely remote closed the connection.");
     boost::system::error_code ignored_ec;
     _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
     _agent.listener().destroyConnection(shared_from_this());
