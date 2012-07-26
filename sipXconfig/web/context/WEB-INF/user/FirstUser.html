@@ -14,7 +14,7 @@
             passwordDisplayName="message:label.newPin"
             confirmPasswordDisplayName="message:label.confirmNewPin"
             passwordMismatchMessage="message:message.newPinMismatch"
-            passwordValidator="spring-validators:validPin,required"/>
+            passwordValidator="spring-validators:validPin,required,minLength=8"/>
           <div jwcid="@If" condition="ognl:!renderLicense">   
           <tr>
 			<td align="left" jwcid="@Any">

@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
@@ -85,6 +86,7 @@ public class RecordingImpl implements FeatureProvider, Recording, ProcessProvide
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         validator.requiredOnSameHost(ConferenceBridgeContext.FEATURE, ApacheManager.FEATURE);
         validator.requiredOnSameHost(FEATURE, ConferenceBridgeContext.FEATURE);
+        validator.requiresAtLeastOne(FEATURE, Ivr.FEATURE);
     }
 
     @Override
