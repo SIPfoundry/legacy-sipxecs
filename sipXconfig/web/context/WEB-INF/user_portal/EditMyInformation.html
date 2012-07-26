@@ -24,7 +24,9 @@
 	          password="ognl:pin"
 	          passwordDisplayName="message:label.pin"
 	          confirmPasswordDisplayName="message:label.pin2"
-	          passwordMismatchMessage="message:error.pinMismatch">
+	          passwordMismatchMessage="message:error.pinMismatch"
+	          passwordDescription="message:description.pin"
+	          passwordValidator="spring-validators:validPin,minLength=8,required">
 	      </tr>
 	      <tr jwcid="voicemail_pin@user/ConfirmPassword"
 	          password="ognl:voicemailPin"
@@ -32,7 +34,7 @@
 	          confirmPasswordDisplayName="message:label.voicemail.pin2"
 	          passwordMismatchMessage="message:error.voicemail.pinMismatch"
 	          passwordDescription="message:description.voicemail.pin"
-	          passwordValidator="spring-validators:validPin,required">
+	          passwordValidator="spring-validators:validPin,minLength=4,required">
 	      </tr>	      
 	      <span jwcid="@If" condition="ognl:voicemailEnabled">
 			<tr jwcid="@vm/MailboxPreferencesForm" preferences="ognl:mailboxPreferences"/>
