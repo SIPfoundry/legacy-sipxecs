@@ -19,5 +19,23 @@
         <string/>
       </type>      
     </setting>
+    <setting name="replicationManagerImpl.nThreads">
+      <type>
+        <integer />
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name="replicationManagerImpl.pageSize">
+      <type>
+        <integer />
+      </type>
+      <value>1000</value>
+    </setting>
+    <setting name="replicationManagerImpl.useDynamicPageSize">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>    
   </group>
 </model>

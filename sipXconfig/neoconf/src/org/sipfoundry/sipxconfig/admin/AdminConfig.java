@@ -42,7 +42,7 @@ public class AdminConfig implements ConfigProvider {
                 continue;
             }
             File dir = manager.getLocationDataDirectory(l);
-            Writer w = new FileWriter(new File(dir, "sipconfig.properties.ui"));
+            Writer w = new FileWriter(new File(dir, "sipxconfig.properties.ui"));
             try {
                 AdminSettings settings = m_adminContext.getSettings();
                 writeConfig(w, settings);

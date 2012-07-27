@@ -55,9 +55,15 @@ bundle edit_line sipxconfig_config {
         expand_scalars => "true",
         insert_type => "file";
 
+    primary::
+      "# Part 2 - from $(ui_config)";
+      "$(ui_config)"
+        expand_scalars => "true",
+        insert_type => "file";
+
     # part 3
     primary::
-"# Part 2 - from $(sipx.SIPX_CFINPUTS)/plugin.d/00_sipxconfig.cf
+"# Part 3 - from $(sipx.SIPX_CFINPUTS)/plugin.d/00_sipxconfig.cf
 sysdir.mongo_ns=
 domainManagerImpl.configuredDomain=$(sipx.domain)
 domainManagerImpl.configuredRealm=$(sipx.realm)
@@ -67,10 +73,6 @@ domainManagerImpl.configuredIp=$(sipx.bind_ip)
 locationsManagerImpl.primaryIp=$(sipx.bind_ip)
 locationsManagerImpl.primaryFqdn=$(sipx.host).$(sipx.net_domain)
 mongoReplicaSetManager.primaryFqdn=$(sipx.host).$(sipx.net_domain)
-#mongo replication multi-threading
-replicationManagerImpl.nThreads=2
-replicationManagerImpl.pageSize=1000
-replicationManagerImpl.useDynamicPageSize=false
 ";
 
     primary.has_config::

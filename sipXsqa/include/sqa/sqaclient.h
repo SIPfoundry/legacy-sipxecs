@@ -83,6 +83,11 @@ public:
   bool isConnected();
 
   //
+  // Terminate the event loop
+  //
+  void terminate();
+
+  //
   // Returns the next event published by SQA.  This Function
   // will block if there is no event in queue
   //
@@ -372,6 +377,11 @@ inline SQAWatcher::~SQAWatcher()
 inline bool SQAWatcher::isConnected()
 {
   return reinterpret_cast<StateQueueClient*>(_connection)->isConnected();
+}
+
+inline void SQAWatcher::terminate()
+{
+  reinterpret_cast<StateQueueClient*>(_connection)->terminate();
 }
 
 inline SQAEvent* SQAWatcher::watch()

@@ -1,6 +1,7 @@
 <form jwcid="upload@Form">
   <img jwcid="@Image" image="ognl:avatarAsset" />
-  <span jwcid="uploadAvatar@Upload" file="ognl:uploadFile" /><input jwcid="uploadbutton@Submit" value="message:button.upload" listener="listener:uploadAvatar"/>
+  <input jwcid="deleteAvatar@Submit" value="message:button.delete" listener="listener:deleteAvatar"/>
+  <span jwcid="uploadAvatar@Upload" file="ognl:uploadFile" /><input jwcid="uploadbutton@Submit" value="message:button.upload" listener="listener:uploadAvatar"/>  
 </form>
 <br/>
 <form jwcid="ext@Form">

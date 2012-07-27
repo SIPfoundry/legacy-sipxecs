@@ -83,7 +83,7 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider, Firew
         for (BridgeSbc bridge : bridges) {
             Location location = bridge.getLocation();
             if (locations.contains(location)) {
-                Address a = new Address(type, bridge.getLocation().getFqdn());
+                Address a = new Address(type, bridge.getLocation().getAddress());
                 if (type.equals(XMLRPC_ADDRESS)) {
                     a.setPort(bridge.getXmlRpcPort());
                 } else if (type.equals(SIP_ADDRESS)) {

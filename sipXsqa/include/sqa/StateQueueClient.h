@@ -30,10 +30,15 @@
 #include "ServiceOptions.h"
 
 
+#define SQA_LINGER_TIME_MILLIS 5000
+#define SQA_TERMINATE_STRING "__TERMINATE__"
+
 class StateQueueClient : public boost::enable_shared_from_this<StateQueueClient>, private boost::noncopyable
 {
 public:
 
+  
+  
   enum Type
   {
     Publisher,
@@ -271,9 +276,8 @@ protected:
   ClientPool _clientPool;
   bool _terminate;
   boost::thread _keepAliveThread;
-  zmq::context_t _zmqContext;
+  zmq::context_t* _zmqContext;
   zmq::socket_t _zmqSocket;
-  zmq::socket_t _zmqControlSocket;
   boost::thread* _pEventThread;
   std::string _zmqEventId;
   std::string _applicationId;
@@ -303,9 +307,8 @@ public:
     _clientPool(_poolSize),
     _terminate(false),
     _keepAliveThread(boost::bind(&StateQueueClient::keepAliveLoop, this)),
-    _zmqContext(1),
-    _zmqSocket(_zmqContext,ZMQ_SUB),
-    _zmqControlSocket(_zmqContext, ZMQ_PUB),
+    _zmqContext(new zmq::context_t(1)),
+    _zmqSocket(*_zmqContext,ZMQ_SUB),
     _pEventThread(0),
     _applicationId(applicationId),
     _eventQueue(1000),
@@ -315,6 +318,8 @@ public:
     _refreshSignin(false),
     _currentSigninTick(-1)
   {
+      int linger = SQA_LINGER_TIME_MILLIS; // milliseconds
+      _zmqSocket.setsockopt(ZMQ_LINGER, &linger, sizeof(int));
       for (std::size_t i = 0; i < _poolSize; i++)
       {
         BlockingTcpClient* pClient = new BlockingTcpClient(_ioService);
@@ -335,10 +340,6 @@ public:
 
       if (_type != Publisher)
       {
-        std::ostringstream controlAddress;
-        controlAddress << "inproc://" << this;
-        _zmqControlSocket.bind(controlAddress.str().c_str());
-        subscribe("_TERMINATE", controlAddress.str());
         _pEventThread = new boost::thread(boost::bind(&StateQueueClient::eventLoop, this));
       }
       else
@@ -360,9 +361,8 @@ public:
     _clientPool(_poolSize),
     _terminate(false),
     _keepAliveThread(boost::bind(&StateQueueClient::keepAliveLoop, this)),
-    _zmqContext(1),
-    _zmqSocket(_zmqContext,ZMQ_SUB),
-    _zmqControlSocket(_zmqContext, ZMQ_PUB),
+    _zmqContext(new zmq::context_t(1)),
+    _zmqSocket(*_zmqContext,ZMQ_SUB),
     _pEventThread(0),
     _applicationId(applicationId),
     _eventQueue(1000),
@@ -372,6 +372,9 @@ public:
     _refreshSignin(false),
     _currentSigninTick(-1)
   {
+      int linger = SQA_LINGER_TIME_MILLIS; // milliseconds
+      _zmqSocket.setsockopt(ZMQ_LINGER, &linger, sizeof(int));
+
       for (std::size_t i = 0; i < _poolSize; i++)
       {
         BlockingTcpClient* pClient = new BlockingTcpClient(_ioService);
@@ -394,10 +397,6 @@ public:
 
       if (_type != Publisher)
       {
-        std::ostringstream controlAddress;
-        controlAddress << "inproc://" << this;
-        _zmqControlSocket.bind(controlAddress.str().c_str());
-        subscribe("_TERMINATE", controlAddress.str());
         _pEventThread = new boost::thread(boost::bind(&StateQueueClient::eventLoop, this));
       }
       else
@@ -409,22 +408,30 @@ public:
 
   ~StateQueueClient()
   {
-    _terminate = true;
+    terminate();
+  }
+
+  void terminate()
+  {
+    if (_terminate || !_zmqContext)
+      return;
+
+    logout();
+
+     _terminate = true;
     _keepAliveThread.join();
 
-    if (_type != Publisher)
-    {
-      zmq_sendmore(_zmqControlSocket, "_TERMINATE_");
-      zmq_sendmore(_zmqControlSocket, "local");
-      zmq_sendmore(_zmqControlSocket, "_TERMINATE_");
-      zmq_send(_zmqControlSocket, "0");
-    }
+    delete _zmqContext;
+    _zmqContext = 0;
 
+    OS_LOG_INFO(FAC_NET, "StateQueueClient::terminate() waiting for event thread to exit.");
     if (_pEventThread)
     {
       _pEventThread->join();
       delete _pEventThread;
+      _pEventThread = 0;
     }
+    OS_LOG_INFO(FAC_NET, "StateQueueClient::terminate() Ok");
   }
 
   void setExpires(int expires) { _expires = expires; }
@@ -481,13 +488,15 @@ private:
   bool subscribe(const std::string& eventId, const std::string& sqaAddress)
   {
     assert(_type != Publisher);
-
+    OS_LOG_INFO(FAC_NET, "StateQueueClient::subscribe eventId=" << eventId << " address=" << sqaAddress);
     try
     {
-    _zmqSocket.connect(sqaAddress.c_str());
-    _zmqSocket.setsockopt(ZMQ_SUBSCRIBE, eventId.c_str(), eventId.size());
-    }catch(...)
+      _zmqSocket.connect(sqaAddress.c_str());
+      _zmqSocket.setsockopt(ZMQ_SUBSCRIBE, eventId.c_str(), eventId.size());
+
+    }catch(std::exception e)
     {
+      OS_LOG_INFO(FAC_NET, "StateQueueClient::subscribe eventId=" << eventId << " address=" << sqaAddress << " FAILED!  Error: " << e.what());
       return false;
     }
     return true;
@@ -619,10 +628,26 @@ private:
           do_watch(firstHit, count, id, data);
         }
       }
+      else
+      {
+        if (_terminate)
+        {
+          break;
+        }
+      }
       firstHit = false;
     }
 
-    logout();
+    if (_type == Watcher)
+    {
+      do_watch(firstHit, 0, SQA_TERMINATE_STRING, SQA_TERMINATE_STRING);
+    }
+    else if (_type == Worker)
+    {
+      do_pop(firstHit, 0, SQA_TERMINATE_STRING, SQA_TERMINATE_STRING);
+    }
+
+    _zmqSocket.close();
 
     OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop TERMINATED.");
   }
@@ -711,29 +736,31 @@ private:
   bool readEvent(std::string& id, std::string& exclude, int& count)
   {
     assert(_type != Publisher);
-    if (!zmq_receive(_zmqSocket, id))
-      return false;
 
-    std::string address;
-    if (!zmq_receive(_zmqSocket, address))
-      return false;
-
-    //
-    // Read the exclude vector
-    //
-    if (!zmq_receive(_zmqSocket, exclude))
-      return false;
-
-    //
-    // Read number of subscribers active
-    //
-    std::string strcount;
-    if (!zmq_receive(_zmqSocket, strcount))
-      return false;
 
     try
     {
-      count = boost::lexical_cast<int>(strcount);
+      if (!zmq_receive(_zmqSocket, id))
+        return false;
+
+      std::string address;
+      if (!zmq_receive(_zmqSocket, address))
+        return false;
+
+      //
+      // Read the exclude vector
+      //
+      if (!zmq_receive(_zmqSocket, exclude))
+        return false;
+
+      //
+      // Read number of subscribers active
+      //
+      std::string strcount;
+      if (!zmq_receive(_zmqSocket, strcount))
+        return false;
+
+        count = boost::lexical_cast<int>(strcount);
     }
     catch(...)
     {
@@ -742,16 +769,16 @@ private:
     return true;
   }
 
-  bool zmq_send (zmq::socket_t & socket, const std::string & string) {
-
-      zmq::message_t message((void*)message.data(), string.size(), 0, 0);
+  bool zmq_send (zmq::socket_t & socket, const std::string & string)
+  {
+      zmq::message_t message((void*)string.data(), string.size(), 0, 0);
       bool rc = socket.send(message);
       return (rc);
   }
 
-  bool zmq_sendmore (zmq::socket_t & socket, const std::string & string) {
-
-      zmq::message_t message((void*)message.data(), string.size(), 0, 0);
+  bool zmq_sendmore (zmq::socket_t & socket, const std::string & string)
+  {
+      zmq::message_t message((void*)string.data(), string.size(), 0, 0);
       bool rc = socket.send(message, ZMQ_SNDMORE);
       return (rc);
   }
