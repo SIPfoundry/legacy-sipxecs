@@ -55,9 +55,15 @@ bundle edit_line sipxconfig_config {
         expand_scalars => "true",
         insert_type => "file";
 
+    primary::
+      "# Part 2 - from $(ui_config)";
+      "$(ui_config)"
+        expand_scalars => "true",
+        insert_type => "file";
+
     # part 3
     primary::
-"# Part 2 - from $(sipx.SIPX_CFINPUTS)/plugin.d/00_sipxconfig.cf
+"# Part 3 - from $(sipx.SIPX_CFINPUTS)/plugin.d/00_sipxconfig.cf
 sysdir.mongo_ns=
 domainManagerImpl.configuredDomain=$(sipx.domain)
 domainManagerImpl.configuredRealm=$(sipx.realm)
