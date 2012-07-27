@@ -395,6 +395,7 @@
   	<antcall target="voicemail-pin" />
   	<antcall target="remove-im-password" />
   	<antcall target="change-on-restore" />
+  	<antcall target="crack-pin" />
   	<antcall target="convert-init-task-to-setup" />
   	<antcall target="backup-types" />
   	<antcall target="notified" />
@@ -1292,12 +1293,17 @@
   <target name="voicemail-pin" unless="voicemail-pin">
 	<plsql-patch patch="voicemail-pin"/>
   </target>
-  <target name="remove-im-password" unless="remove-im-password">
-	<plsql-patch patch="remove-im-password"/>
-  </target>	
   <target name="change-on-restore" unless="change-on-restore">
     <plsql-patch patch="change-on-restore" />
   </target>
+  <target name="crack-pin" if="migrate44.crack_pin">
+    <sipx-sql>
+      select uncover_pin_on_restore('${migrate44.crack_pin}', ${migrate44.crack_pin_len});
+    </sipx-sql>  
+  </target>
+  <target name="remove-im-password" unless="remove-im-password">
+	<plsql-patch patch="remove-im-password"/>
+  </target>	
   <target name="convert-init-task-to-setup" unless="convert-init-task-to-setup">
 	<db-patch patch="convert-init-task-to-setup"/>
   </target>

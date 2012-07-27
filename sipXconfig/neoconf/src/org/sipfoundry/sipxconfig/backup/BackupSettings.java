@@ -58,4 +58,8 @@ public class BackupSettings extends PersistableSettings implements DeployConfigO
     public String getResetPin() {
         return (String) getSettingTypedValue("restore/resetPin");
     }
+
+    public String getResetPassword() {
+        return (String) getSettingTypedValue("restore/resetPassword");
+    }
 }

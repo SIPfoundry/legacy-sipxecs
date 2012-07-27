@@ -42,6 +42,11 @@
     </setting>
     <setting name="resetPin">
       <type><string/></type>
+      <value>4</value>
+    </setting>
+    <setting name="resetPassword">
+      <type><string/></type>
+      <value>8</value>
     </setting>
   </group>
 </model>

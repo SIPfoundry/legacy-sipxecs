@@ -102,8 +102,14 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
             if (settings.isDecodePins()) {
                 restore.append(" --crack-pin ").append(resetPin);
                 restore.append(" --crack-pin-len ").append(settings.getDecodePinLen());
-            } else if (StringUtils.isNotBlank(resetPin)) {
-                restore.append(" --reset-pin ").append(resetPin);
+            } else {
+                if (StringUtils.isNotBlank(resetPin)) {
+                    restore.append(" --reset-pin ").append(resetPin);
+                }
+                String resetPassword = settings.getResetPassword();
+                if (StringUtils.isNotBlank(resetPassword)) {
+                    restore.append(" --reset-password ").append(resetPassword);
+                }
             }
         }
         ArchiveDefinition def = new ArchiveDefinition(ARCHIVE,

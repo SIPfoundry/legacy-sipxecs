@@ -97,7 +97,13 @@ class Restore < ArchiveBase
     cmd "pg_restore -U #{@pguser} -d #{@restoredb} #{@tmpdir}/db.tar" or
       raise "Failed to restore database from archive." 
 
-    cmd "SIPXCONFIG_ANT_OPTS=\"-Dsipxconfig.db.name=#{@restoredb}\" #{@initd}/sipxconfig db upgrade" or
+    ant = "-Dsipxconfig.db.name=#{@restoredb}"
+    if params.has_key?(:crack_pin)
+      ant += " -Dmigrate44.crack_pin=#{params[:crack_pin]}"
+      ant += " -Dmigrate44.crack_pin_len=#{params[:crack_pin_len]}"
+    end
+
+    cmd "SIPXCONFIG_ANT_OPTS=\"#{ant}\" #{@initd}/sipxconfig db upgrade" or
       raise "Failed to migrate database."
 
     if !pre_mongo
@@ -114,13 +120,14 @@ class Restore < ArchiveBase
           raise "Failed to trigger user profile migration."
     end
 
+    if params.has_key?(:reset_password)
+      sql_exec(@restoredb, "update users set pintoken = '#{params[:reset_password]}'") or
+          raise "Failed to reset password."
+    end
+
     if params.has_key?(:reset_pin)
-      pin = params[:reset_pin]
-      sql_exec(@restoredb, "update users set pintoken = '#{pin}',voicemail_pintoken = md5(user_name || ':#{pin}');") or
+      sql_exec(@restoredb, "update users set voicemail_pintoken = md5(user_name || ':#{params[:reset_pin]}')") or
           raise "Failed to reset pins."
-    elsif (params.has_key?(:domain) and pre_mongo and params.has_key?(:crack_pin))
-        sql_exec(@restoredb, "select uncover_pin_on_restore('#{params[:crack_pin]}', #{params[:crack_pin_len]});") or
-          raise "Failed to change domain."
     end
 
     if params.has_key?(:domain)
@@ -206,13 +213,19 @@ EOF
   }
 
   opts.on_tail("--reset-pin default-pin",
-      "Blindly reset all pins to given pin. Ignored if using crack-pin option."){|v|
+      "Blindly reset all pins to given pin."){|v|
     params[:reset_pin] = v
+  }
+
+  opts.on_tail("--reset-password default-password",
+      "Blindly reset all user portal passwords. Password is also used for IM and call center."){|v|
+    params[:reset_password] = v
   }
 
   opts.on_tail("--crack-pin default-pin",
       "When changing the domain and when restoring from backups for versions 4.4.0, attempt to \
-recover original PIN by brute force. If unsuccessful, reset users password to given value."){|v|
+recover original PIN by brute force. If unsuccessful, reset users pin. Also, if user \
+does not have an IM password, this pin will be usedfor that as well."){|v|
     params[:crack_pin] = v
   }
 
