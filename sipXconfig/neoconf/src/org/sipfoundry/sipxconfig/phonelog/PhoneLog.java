@@ -78,7 +78,7 @@ public class PhoneLog implements ProcessProvider, FeatureProvider, FirewallProvi
 
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
         for (Location location : locations) {
-            return Collections.singleton(new Address(PHONELOG, location.getFqdn()));
+            return Collections.singleton(new Address(PHONELOG, location.getAddress()));
         }
         return null;
     }
