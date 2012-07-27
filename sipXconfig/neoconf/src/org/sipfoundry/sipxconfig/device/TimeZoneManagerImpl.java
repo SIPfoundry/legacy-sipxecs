@@ -26,12 +26,15 @@ public class TimeZoneManagerImpl extends SipxHibernateDaoSupport implements Time
 
     public DeviceTimeZone getDeviceTimeZone() {
         Collection<DeviceTimeZone> timeZones = getHibernateTemplate().loadAll(DeviceTimeZone.class);
-        return (DeviceTimeZone) DataAccessUtils.requiredSingleResult(timeZones);
-    }
+        DeviceTimeZone dtz  = DataAccessUtils.singleResult(timeZones);
+        if (dtz != null) {
+            return dtz;
+        }
 
-    public void saveDefault() {
         TimeZone tz = TimeZone.getDefault();
-        DeviceTimeZone dtz = new DeviceTimeZone(tz);
+        dtz = new DeviceTimeZone();
+        dtz.setTimeZone(tz);
         setDeviceTimeZone(dtz);
+        return dtz;
     }
 }

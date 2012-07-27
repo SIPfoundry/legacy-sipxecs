@@ -16,15 +16,20 @@ import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class TimeZoneManagerImplTestIntegration extends IntegrationTestCase {
     private TimeZoneManager m_timeZoneManager;
-    private TimeZone defaultTimeZone = TimeZone.getDefault();
+    private static TimeZone s_defaultTimeZone = TimeZone.getDefault();
 
     public void setTimeZoneManager(TimeZoneManager tzm) {
         m_timeZoneManager = tzm;
     }
+    
+    @Override
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        clear();
+    }
 
     public void testInitializationEurope() throws Exception {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Helsinki"));
-        m_timeZoneManager.saveDefault();
         DeviceTimeZone dtz = m_timeZoneManager.getDeviceTimeZone();
 
         assertEquals(true, dtz.getUseDaylight());
@@ -47,7 +52,6 @@ public class TimeZoneManagerImplTestIntegration extends IntegrationTestCase {
 
     public void testInitializationUS() throws Exception {
         TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
-        m_timeZoneManager.saveDefault();
         DeviceTimeZone dtz = m_timeZoneManager.getDeviceTimeZone();
 
         assertEquals(60, dtz.getDstSavings());
@@ -68,7 +72,6 @@ public class TimeZoneManagerImplTestIntegration extends IntegrationTestCase {
 
     public void testSaveTimeZone() throws Exception {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Helsinki"));
-        m_timeZoneManager.saveDefault();
         DeviceTimeZone dtz = m_timeZoneManager.getDeviceTimeZone();
 
         dtz.setUseDaylight(false);
@@ -98,6 +101,6 @@ public class TimeZoneManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void cleanUp() {
-        TimeZone.setDefault(defaultTimeZone);
+        TimeZone.setDefault(s_defaultTimeZone);
     }
 }

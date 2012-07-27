@@ -45,10 +45,7 @@ public class DeviceTimeZone extends BeanWithId {
     private int m_stopWeek;
     private int m_stopTime;
 
-    public DeviceTimeZone() {
-    }
-
-    public DeviceTimeZone(TimeZone tz) {
+    public void setTimeZone(TimeZone tz) {
         String tzn = tz.getID();
         m_useDaylight = tz.useDaylightTime();
         m_offset = tz.getRawOffset() / (int) DateUtils.MILLIS_PER_MINUTE;

@@ -17,7 +17,8 @@ public class DeviceTimeZoneTest extends TestCase {
 
     public void testGetOffset() {
         TimeZone tz = TimeZone.getTimeZone("Europe/Helsinki");
-        DeviceTimeZone mytz = new DeviceTimeZone(tz);
+        DeviceTimeZone mytz = new DeviceTimeZone();
+        mytz.setTimeZone(tz);
 
         int ofs = mytz.getOffset();
         assertEquals(120, ofs);
@@ -28,7 +29,8 @@ public class DeviceTimeZoneTest extends TestCase {
 
     public void testDST() {
         TimeZone tz = TimeZone.getTimeZone("Europe/Helsinki");
-        DeviceTimeZone mytz = new DeviceTimeZone(tz);
+        DeviceTimeZone mytz = new DeviceTimeZone();
+        mytz.setTimeZone(tz);
 
         int value = mytz.getStartDayOfWeek();
         assertEquals(1, value);
@@ -48,7 +50,8 @@ public class DeviceTimeZoneTest extends TestCase {
 
     public void testNorthAmericaDST() {
         TimeZone tz = TimeZone.getTimeZone("America/New_York");
-        DeviceTimeZone mytz = new DeviceTimeZone(tz);
+        DeviceTimeZone mytz = new DeviceTimeZone();
+        mytz.setTimeZone(tz);
 
         // Starting in 2007, most of the United States and Canada observe DST from the second
         // Sunday in March to the first Sunday in November

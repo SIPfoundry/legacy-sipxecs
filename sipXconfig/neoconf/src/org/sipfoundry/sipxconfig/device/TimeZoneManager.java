@@ -14,7 +14,5 @@ public interface TimeZoneManager {
 
     DeviceTimeZone getDeviceTimeZone();
 
-    void saveDefault();
-
     void setDeviceTimeZone(DeviceTimeZone deviceTimeZone);
 }

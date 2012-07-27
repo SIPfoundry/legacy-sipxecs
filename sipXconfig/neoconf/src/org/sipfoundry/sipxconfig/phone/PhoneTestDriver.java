@@ -212,7 +212,9 @@ public final class PhoneTestDriver {
         defaults.setLocationsManager(locationsManager);
 
         TimeZone tz = TimeZone.getTimeZone("Etc/GMT+5");
-        defaults.setTimeZoneManager(TestHelper.getTimeZoneManager(new DeviceTimeZone(tz))); // no
+        DeviceTimeZone dtz = new DeviceTimeZone();
+        dtz.setTimeZone(tz);
+        defaults.setTimeZoneManager(TestHelper.getTimeZoneManager(dtz)); // no
         // DST
         // for
         // consistent

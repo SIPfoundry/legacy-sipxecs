@@ -23,7 +23,7 @@ public class TimeZoneInit implements SetupListener {
     public boolean setup(SetupManager manager) {
         String id = "default-time-zone";
         if (manager.isFalse(id)) {
-            m_timeZoneManager.saveDefault();
+            m_timeZoneManager.getDeviceTimeZone();
             manager.setTrue(id);
         }
         return true;
