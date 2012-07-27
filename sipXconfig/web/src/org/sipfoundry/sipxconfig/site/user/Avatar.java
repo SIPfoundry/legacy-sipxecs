@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.site.user;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.defaultString;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.ComponentClass;
@@ -28,6 +30,9 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class Avatar extends BaseComponent {
+
+    private static final Log LOG = LogFactory.getLog(Avatar.class);
+
     @Parameter
     public abstract User getUser();
 
@@ -52,10 +57,15 @@ public abstract class Avatar extends BaseComponent {
             try {
                 getUserAvatarService().saveAvatar(getUser().getUserName(), getUploadFile().getStream());
             } catch (AvatarUploadException e) {
+                LOG.error("Cannot upload avatar ", e);
                 TapestryUtils.getValidator(getPage()).record(
                         new ValidatorException(getMessages().getMessage("err.avatar.upload")));
             }
         }
+    }
+
+    public void deleteAvatar() {
+        getUserAvatarService().deleteAvatar(getUser().getUserName());
     }
 
     public void extAvatar() {
