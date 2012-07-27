@@ -41,7 +41,9 @@
       <value>4</value>
     </setting>
     <setting name="resetPin">
-      <type><string/></type>
+      <type>
+        <string minLen="4" password="yes"></string>
+      </type>
     </setting>
   </group>
 </model>

@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.backup.BackupType;
 import org.sipfoundry.sipxconfig.backup.ManualRestore;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 
@@ -79,6 +80,10 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
     }
 
     public IPage restore() {
+        if (!TapestryUtils.isValid(this)) {
+            return null;
+        }
+
         Collection<String> restoreFrom = getSelections();
         boolean isAdminRestore = isSelected(AdminContext.ARCHIVE);
         ManualRestore restore = getManualRestore();
