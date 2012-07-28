@@ -27,7 +27,9 @@ public class PolycomPhoneDefaultsTest extends TestCase {
 
     protected void setUpWithSpecifiedTimeZone(String timezone) {
         // Create a fresh new DeviceTimeZone for each test case.
-        setUpWithDeviceTimeZone(new DeviceTimeZone(TimeZone.getTimeZone(timezone)));
+	DeviceTimeZone dtz = new DeviceTimeZone();
+	dtz.setTimeZone(TimeZone.getTimeZone(timezone));
+        setUpWithDeviceTimeZone(dtz);
     }
 
     protected void setUpWithDeviceTimeZone(DeviceTimeZone deviceTimeZone) {

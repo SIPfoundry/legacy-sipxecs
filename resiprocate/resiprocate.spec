@@ -11,6 +11,7 @@ Source: %name-%version.tar.gz
 BuildRequires: openssl-devel >= 0.9.7
 BuildRequires: popt
 BuildRequires: boost-devel
+BuildRequires: db4-devel
 Requires: openssl >= 0.9.7
 Requires: chkconfig
 Prefix: %_prefix
