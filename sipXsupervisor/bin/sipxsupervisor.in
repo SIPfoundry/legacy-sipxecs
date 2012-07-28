@@ -21,8 +21,17 @@ configid=/var/run/sipxsupervisor-configid
 [ -e /etc/sysconfig/sipxsupervisor ] && . /etc/sysconfig/sipxsupervisor
 
 lockfile=/var/lock/subsys/$prog
+sipxagentlockfile="@SIPX_RUNDIR@/sipxagent.lock"
 
 start() {
+	#if sipxagent is not running make sure the host is pulling the last configuration on startup.
+    #this applies in cases when secondary host starts after master, and master changed configuration
+    #while the secondary is down. sipxagent has to be run as root because we don't want to go through
+    #supervisor again
+	if [ ! -f $sipxagentlockfile ]
+	then
+		runuser - root -s @SIPX_BINDIR@/sipxagent
+	fi		
 	echo -n $config > $configid
 	echo -n $"Starting $prog: "
 	daemon $exec -f $config
