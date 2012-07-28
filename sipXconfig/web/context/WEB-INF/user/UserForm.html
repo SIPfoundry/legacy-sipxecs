@@ -32,20 +32,6 @@
            <span jwcid="employeeId@TextField" id="employeeId" maxlength="255"
              value="ognl:user.userProfile.employeeId"
              type="text" autocomplete="off"/>
-      </tr>
-      <tr class="form-actions" jwcid="@common/FieldPanel" for="user:generate"
-        field="component:generate"
-        label="message:generate.label"      
-        description="message:generate.desc">
-		<input jwcid="generate@Button" 
-			label="message:generateText"
-			id="user:generate"/>
-		<input jwcid="default@Button" 
-			label="message:defaultText"
-			id="user:default"/>			
-		<input jwcid="empty@Button" 
-			label="message:emptyText" 
-			id="user:empty"/>			
       </tr>	  
       <tr jwcid="pin"/>
 	  <tr jwcid="voicemail_pin@user/ConfirmPassword"
@@ -56,6 +42,14 @@
 	      passwordDescription="message:description.voicemail.pin"
 	      passwordValidator="spring-validators:validPin,minLength=4,required">
 	  </tr>
+      <tr class="form-actions" jwcid="@common/FieldPanel" for="user:empty"
+        field="component:empty"
+        label="message:empty.label"      
+        description="message:empty.desc">		
+		<input jwcid="empty@Button" 
+			label="message:emptyText" 
+			id="user:empty"/>			
+      </tr>	  
       <tr jwcid="ifRenderSipPassword">
         <span jwcid="sipPasswordPanel" for="user:sipPassword">
           <input jwcid="sipPassword" id="user:sipPassword" type="text"/>

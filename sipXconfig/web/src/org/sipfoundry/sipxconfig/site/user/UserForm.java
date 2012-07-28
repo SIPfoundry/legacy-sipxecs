@@ -13,7 +13,6 @@ import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.util.PropertyUtils;
 import org.apache.tapestry.BaseComponent;
@@ -40,12 +39,8 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 public abstract class UserForm extends BaseComponent implements EditPinComponent {
 
     private static final String CONFIRM_PASSWORD = "confirmPassword";
-    private static final String DEFAULT = "default";
-    private static final String DEFAULT_VOICEMAIL_PIN = "1234";
-    private static final String DEFAULT_PASSWORD = "1234abcd";
     private static final String EMPTY = "empty";
     private static final String EMPTY_PIN = "";
-    private static final String GENERATE = "generate";
     private static final String PIN = "pin";
     private static final String VOICEMAIL_PIN = "voicemail_pin";
     private static final String RENDER = "render";
@@ -92,30 +87,6 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
         }
     }
 
-    @EventListener(events = "onclick", targets = GENERATE)
-    public void generateRandomPasswords(IRequestCycle cycle) {
-        User user = getUser();
-        user.setVoicemailPin(RandomStringUtils.random(User.VOICEMAIL_PIN_LEN, false, true));
-        user.setPin(RandomStringUtils.randomAlphabetic(User.PASSWORD_LEN));
-        setPin(user.getPintoken());
-        setVoicemailPin(user.getClearVoicemailPin());
-        PropertyUtils.write(getComponent(PIN), CONFIRM_PASSWORD, user.getPintoken());
-        PropertyUtils.write(getComponent(VOICEMAIL_PIN), CONFIRM_PASSWORD, user.getClearVoicemailPin());
-        cycle.getResponseBuilder().updateComponent(RENDER);
-    }
-
-    @EventListener(events = "onclick", targets = DEFAULT)
-    public void generateDefaultPasswords(IRequestCycle cycle) {
-        User user = getUser();
-        user.setVoicemailPin(DEFAULT_VOICEMAIL_PIN);
-        user.setPin(DEFAULT_PASSWORD);
-        setPin(user.getPintoken());
-        setVoicemailPin(user.getClearVoicemailPin());
-        PropertyUtils.write(getComponent(PIN), CONFIRM_PASSWORD, user.getPintoken());
-        PropertyUtils.write(getComponent(VOICEMAIL_PIN), CONFIRM_PASSWORD, user.getClearVoicemailPin());
-        cycle.getResponseBuilder().updateComponent(RENDER);
-    }
-
     @EventListener(events = "onclick", targets = EMPTY)
     public void emptyPasswords(IRequestCycle cycle) {
         setPin(EMPTY_PIN);
@@ -124,7 +95,6 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
         PropertyUtils.write(getComponent(VOICEMAIL_PIN), CONFIRM_PASSWORD, EMPTY_PIN);
         cycle.getResponseBuilder().updateComponent(RENDER);
     }
-
 
     // Update the User object if input data is valid
     @Override
