@@ -48,10 +48,10 @@ import org.springframework.beans.factory.annotation.Required;
 public class OpenfireImpl extends ImManager implements FeatureProvider, AddressProvider, ProcessProvider, Openfire,
     FirewallProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
-        XMPP_ADDRESS, XMLRPC_ADDRESS, XMLRPC_VCARD_ADDRESS, WATCHER_ADDRESS
+        XMPP_ADDRESS, XMPP_SECURE_ADDRESS, XMPP_FEDERATION_ADDRESS, XMLRPC_ADDRESS, XMLRPC_VCARD_ADDRESS,
+        WATCHER_ADDRESS
     });
     private BeanWithSettingsDao<OpenfireSettings> m_settingsDao;
-    private String m_openfireHome;
 
     @Override
     public OpenfireSettings getSettings() {
@@ -89,8 +89,10 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
         List<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location location : locations) {
             Address address = null;
-            if (type.equals(XMPP_ADDRESS)) {
-                address = new Address(XMPP_ADDRESS, location.getAddress(), settings.getXmppPort());
+            if (type.equals(XMPP_ADDRESS) || type.equals(XMPP_SECURE_ADDRESS)) {
+                address = new Address(type, location.getAddress());
+            } else if (type.equals(XMPP_FEDERATION_ADDRESS)) {
+                address = new Address(XMPP_FEDERATION_ADDRESS, location.getAddress(), settings.getXmppFederationPort());
             } else if (type.equals(XMLRPC_ADDRESS)) {
                 address = new Address(XMLRPC_ADDRESS, location.getAddress(), settings.getXmlRpcPort());
             } else if (type.equals(XMLRPC_VCARD_ADDRESS)) {
@@ -124,15 +126,14 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
                 ".*\\s-Dexe4j.moduleName=$(sipx.OPENFIRE_HOME)/bin/openfire\\s.*"));
     }
 
-    @Required
-    public void setOpenfireHome(String openfireHome) {
-        m_openfireHome = openfireHome;
-    }
-
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        // cluster-only by default
         List<DefaultFirewallRule> rules = DefaultFirewallRule.rules(Arrays.asList(XMLRPC_ADDRESS, WATCHER_ADDRESS));
+        // public by default
         rules.add(new DefaultFirewallRule(XMPP_ADDRESS, FirewallRule.SystemId.PUBLIC));
+        rules.add(new DefaultFirewallRule(XMPP_SECURE_ADDRESS, FirewallRule.SystemId.PUBLIC));
+        rules.add(new DefaultFirewallRule(XMPP_FEDERATION_ADDRESS, FirewallRule.SystemId.PUBLIC));
         return rules;
     }
 

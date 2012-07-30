@@ -42,9 +42,9 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
     private static final String DISCONNECT_ON_IDLE = "openfire-server-to-server/disconnect-on-idle";
     private static final String IDLE_TIMEOUT = "openfire-server-to-server/idle-timeout";
     private static final String ANY_CAN_CONNECT = "openfire-server-to-server/any-can-connect";
+    private static final String FEDERATION_PORT = "openfire-server-to-server/port";
     private static final String DISALLOWED_SERVERS =
         "openfire-server-to-server/disallowed-servers";
-    private static final int XMPP_PORT = 5269; // not configurable
     private static final String MESSAGE_LOG_ENABLED = "message-logging/enabled";
     private static final AddressType GENERIC_ADDRESS = new AddressType("generic");
     private LocalizationContext m_localizationContext;
@@ -67,19 +67,19 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
         return (Integer) getSettingTypedValue(XML_RPC_VCARD_PORT);
     }    
 
-    public int getXmppPort() {
-        return XMPP_PORT;
+    public int getXmppFederationPort() {
+        return (Integer) getSettingTypedValue(FEDERATION_PORT);
     }
 
     public List<Address> getAllowedServers() {
         String value = getSettingValue(ALLOWED_SERVERS);
-        return parseServerArray(value);
+        return parseServerArray(value, getXmppFederationPort());
     }
 
     public List<Address> getDisallowedServers() {
         String value = getSettingValue(DISALLOWED_SERVERS);
         // not sure why disallowed includes ports, but keeping it as is was when i found it --Douglas
-        return parseServerArray(value);
+        return parseServerArray(value, getXmppFederationPort());
     }
 
     public String getLocale() {
@@ -121,7 +121,7 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
      * Return
      *   { Address("foo", 5096), Address("bar", 1235), Address("goose", 5096) }
      */
-    List<Address> parseServerArray(String value) {
+    List<Address> parseServerArray(String value, int defaultPort) {
         if (StringUtils.isBlank(value)){
             return Collections.emptyList();
         }
@@ -131,12 +131,12 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
             String[] hostPort = StringUtils.split(strServer, ':');
             Address address = new Address(GENERIC_ADDRESS, hostPort[0]);
             if (hostPort.length < 2) {
-                address.setPort(getXmppPort());
+                address.setPort(defaultPort);
             } else {
                 try {
                     address.setPort(Integer.parseInt(hostPort[1]));
                 } catch (NumberFormatException e) {
-                    address.setPort(getXmppPort());
+                    address.setPort(defaultPort);
                 }
             }
             servers.add(address);

@@ -27,7 +27,7 @@
 	<sipxrest-http-port>$!{restAddress.port}</sipxrest-http-port>
 	<server-to-server>
 		<enabled>${settings.serverToServer}</enabled>
-		<port>${settings.xmppPort}</port>
+		<port>${settings.xmppFederationPort}</port>
 		<disconnect-on-idle>${settings.disconnectOnIdle}</disconnect-on-idle>
 		<idle-timeout>${settings.idleTimeout}</idle-timeout>
 		<any-can-connect>${settings.anyCanConnect}</any-can-connect>

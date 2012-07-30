@@ -17,6 +17,7 @@
 package org.sipfoundry.sipxconfig.im;
 
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.address.AddressType.Protocol;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 /**
@@ -26,7 +27,11 @@ public abstract class ImManager  {
     public static final String URL_FORMAT = "http://%s:%d/xmlrpc";
     public static final String FEATURE_ID = "instantMessage";
     public static final LocationFeature FEATURE = new LocationFeature(FEATURE_ID);
-    public static final AddressType XMPP_ADDRESS = new AddressType("instantMessageXmpp");
+    public static final AddressType XMPP_ADDRESS = new AddressType("instantMessageXmpp", 5222, Protocol.tcp);
+    public static final AddressType XMPP_SECURE_ADDRESS = new AddressType("instantMessageSecureXmpp", 5223,
+            Protocol.tcp);
+    public static final AddressType XMPP_FEDERATION_ADDRESS = new AddressType("instantMessageFederation", 5269,
+            Protocol.tcp);
     public static final AddressType XMLRPC_ADDRESS = new AddressType("instantMessageXmlrpc",
         URL_FORMAT);
     public static final AddressType XMLRPC_VCARD_ADDRESS = new AddressType("instantMessageVcardXmlrpc",
