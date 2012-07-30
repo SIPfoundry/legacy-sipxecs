@@ -305,6 +305,7 @@ ISO_ADD_OS = \
   cyrus-sasl-2.* \
   cyrus-sasl-lib-* \
   dash-* \
+  db4-cxx-* \
   db4-utils-* \
   dbus-1.* \
   dbus-glib-* \
