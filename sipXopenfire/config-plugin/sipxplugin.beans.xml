@@ -16,7 +16,6 @@
         </property>
       </bean>
     </property>
-    <property name="openfireHome" value="${openfire.home}"/>
   </bean>
 
   <bean id="openfire" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

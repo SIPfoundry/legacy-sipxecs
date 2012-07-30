@@ -7,7 +7,7 @@
     <property name="profileTemplate" value="audiocodes/gateway-%s.ini.vm" />
     <property name="modelDir" value="audiocodes" />
 	<property name="vendor" value="AudioCodes"/>
-    <property name="configDirectory" value="${sysdir.var)"/> 
+    <property name="configDirectory" value="${sysdir.var}"/>
   </bean>
 
   <!-- Audiocodes digital gateways -->

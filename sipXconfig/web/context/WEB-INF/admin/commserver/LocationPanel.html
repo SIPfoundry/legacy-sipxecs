@@ -14,7 +14,8 @@
           id="location:fqdn"
           value="ognl:locationBean.fqdn"
           validators="spring-validators:required"
-          displayName="message:label.fqdn"/>
+          displayName="message:label.fqdn"/
+          disabled="ognl:locationBean.isPrimary" >
       </tr>
       <tr jwcid="@common/FieldPanel"
         for="location:address"
@@ -25,7 +26,8 @@
           id="location:address"
           value="ognl:locationBean.address"
           validators="spring-validators:required,validIPv4"
-          displayName="message:label.address"/>
+          displayName="message:label.address"
+          disabled="ognl:locationBean.isPrimary" />
       </tr>
       <tr jwcid="@common/FieldPanel"
         for="location:description"
