@@ -92,6 +92,10 @@ public:
                                                 const char* address,
                                                 int port ) = 0;
 
+    virtual void executeAllBufferedSipOutputProcessors( SipMessage& message,
+                                                const char* address,
+                                                int port );
+
     virtual void executeAllSipInputProcessors( SipMessage& message,
                                                 const char* address,
                                                 int port ) = 0;
@@ -139,6 +143,16 @@ private:
 
 };
 
+
+//
+// Inlines
+//
+
+inline void SipUserAgentBase::executeAllBufferedSipOutputProcessors( SipMessage&,
+                                                const char*,
+                                                int )
+{
+}
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _SipUserAgentBase_h_

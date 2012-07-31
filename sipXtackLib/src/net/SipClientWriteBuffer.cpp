@@ -133,6 +133,22 @@ void SipClientWriteBuffer::insertMessage(SipMessage* message)
 {
    UtlBoolean wasEmpty = mWriteBuffer.isEmpty();
 
+    //
+    // Let all outbound processors know about this message
+    //
+    if (message && mpSipUserAgent && mClientSocket && mClientSocket->isOk())
+    {
+      UtlString remoteHostAddress;
+      int remotePort;
+      mClientSocket->getRemoteHostIp(&remoteHostAddress, &remotePort);
+      // We are about to post a message that will cause the
+      // SIP message to be sent.  Notify the user agent so
+      // that it can offer the message to all its registered
+      // output processors.
+      mpSipUserAgent->executeAllBufferedSipOutputProcessors(*message, remoteHostAddress.data(),
+               remotePort == PORT_NONE ? defaultPort() : remotePort);
+    }
+
    // Add the message to the queue.
    mWriteBuffer.insert(message);
 

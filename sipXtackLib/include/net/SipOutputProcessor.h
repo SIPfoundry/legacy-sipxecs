@@ -106,6 +106,10 @@ public:
    virtual void handleOutputMessage( SipMessage& message,
                                      const char* address,
                                      int port ) = 0;
+
+   virtual void handleBufferedOutputMessage( SipMessage& message,
+                                     const char* address,
+                                     int port );
    
    uint getPriority( void ) const;
 	
@@ -128,5 +132,16 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+//
+// Inlines
+//
+
+inline void SipOutputProcessor::handleBufferedOutputMessage(
+  SipMessage&,
+  const char*,
+  int )
+{
+}
 
 #endif  // _SipOutputProcessor_h_

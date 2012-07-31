@@ -694,6 +694,21 @@ void SipUserAgent::executeAllSipOutputProcessors( SipMessage& message,
    }
 }
 
+void SipUserAgent::executeAllBufferedSipOutputProcessors( SipMessage& message,
+                                                const char* address,
+                                                int port )
+{
+  OsWriteLock lock(mOutputProcessorMutex);
+   SipOutputProcessor* pProcessor = NULL ;
+
+   // Traverse all of the processors and call their handleOutputMessage() method
+   UtlSortedListIterator iterator(mOutputProcessors);
+   while ((pProcessor = (SipOutputProcessor*) iterator()))
+   {
+      pProcessor->handleBufferedOutputMessage( message, address, port );
+   }
+}
+
 void SipUserAgent::addSipInputProcessor( SipInputProcessor *pProcessor )
 {
    if( pProcessor )

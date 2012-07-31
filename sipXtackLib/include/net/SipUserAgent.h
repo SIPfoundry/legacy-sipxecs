@@ -401,6 +401,10 @@ public:
                                                 const char* address,
                                                 int port );
 
+    virtual void executeAllBufferedSipOutputProcessors( SipMessage& message,
+                                                const char* address,
+                                                int port );
+
     //! Adds a new SipInputProcessor to the list of processors
     //! that will get notified when an outgoing SIP message is about
     //! to be sent. Upon successful addtion of a processor, it will
