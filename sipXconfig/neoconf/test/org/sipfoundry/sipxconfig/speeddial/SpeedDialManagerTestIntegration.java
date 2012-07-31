@@ -9,14 +9,22 @@
  */
 package org.sipfoundry.sipxconfig.speeddial;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
+import org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
-public class SpeedDialManagerTestIntegration extends IntegrationTestCase {
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+
+public class SpeedDialManagerTestIntegration extends ImdbTestCase {
     private SpeedDialManager m_speedDialManager;
     private CoreContext m_coreContext;
     private SettingDao m_settingDao;
@@ -70,8 +78,19 @@ public class SpeedDialManagerTestIntegration extends IntegrationTestCase {
         }
 
         m_speedDialManager.saveSpeedDial(speedDial);
-        assertEquals(buttonCount, db().queryForLong("select count(*) from speeddial_button " +
-                " WHERE label = 'testSave'"));
+        assertEquals(buttonCount, db().queryForLong(
+                "select count(*) from speeddial_button " + " WHERE label = 'testSave'"));
+
+        DBObject user = new BasicDBObject().append(ID, "User1002");
+        BasicDBObject speeddial = new BasicDBObject("usr", "~~rl~F~user2").append("usrcns", "~~rl~C~user2");
+        List<DBObject> btns = new ArrayList<DBObject>();
+        btns.add(new BasicDBObject("uri", "sip:0@example.org").append("name", "testSave"));
+        btns.add(new BasicDBObject("uri", "sip:2@example.org").append("name", "testSave"));
+        btns.add(new BasicDBObject("uri", "sip:4@example.org").append("name", "testSave"));
+        speeddial.append("btn", btns);
+        user.put("spdl", speeddial);
+
+        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user);
     }
 
     public void testSaveSpeedDialForGroup() throws Exception {
@@ -88,7 +107,54 @@ public class SpeedDialManagerTestIntegration extends IntegrationTestCase {
         }
 
         m_speedDialManager.saveSpeedDialGroup(speedDialgroup);
-        assertEquals(buttonCount, db().queryForLong("select count(*) from speeddial_group_button WHERE label = 'testSave'"));
+        assertEquals(buttonCount,
+                db().queryForLong("select count(*) from speeddial_group_button WHERE label = 'testSave'"));
+        /*
+         * here, we should see all users in group updated, but we don't - due to operations
+         * happening in different transactions group get members do not return what it should.
+         * DBObject user = new BasicDBObject().append(ID, "User4002"); BasicDBObject speeddial =
+         * new BasicDBObject("usr", "~~rl~F~user2") .append("usrcns", "~~rl~C~user2");
+         * List<DBObject> btns = new ArrayList<DBObject>(); btns.add(new BasicDBObject("uri",
+         * "sip:0@example.org").append("name", "testSave")); btns.add(new BasicDBObject("uri",
+         * "sip:2@example.org").append("name", "testSave")); btns.add(new BasicDBObject("uri",
+         * "sip:4@example.org").append("name", "testSave")); speeddial.append("btn", btns);
+         * user.put("spdl", speeddial);
+         *
+         * MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user);
+         */
+    }
+
+    public void testSpeedDialSynchToGroup() throws Exception {
+        loadDataSet("speeddial/speeddial.db.xml");
+        SpeedDial speedDial = m_speedDialManager.getSpeedDialForUserId(1003, true);
+        assertEquals(3, speedDial.getButtons().size());
+        m_speedDialManager.saveSpeedDial(speedDial);
+        assertEquals(3, m_speedDialManager.getSpeedDialForUserId(1003, true).getButtons().size());
+
+        final int buttonCount = 5;
+        for (int i = 0; i < buttonCount; i++) {
+            Button b = new Button();
+            b.setLabel("testSave");
+            b.setNumber(String.valueOf(i));
+            b.setBlf(i % 2 == 0);
+            speedDial.getButtons().add(b);
+        }
+
+        m_speedDialManager.saveSpeedDial(speedDial);
+        assertEquals(8, m_speedDialManager.getSpeedDialForUserId(1003, true).getButtons().size());
+
+        m_speedDialManager.speedDialSynchToGroup(speedDial);
+        assertEquals(3, m_speedDialManager.getSpeedDialForUserId(1003, true).getButtons().size());
+
+        DBObject user = new BasicDBObject().append(ID, "User1003");
+        BasicDBObject speeddial = new BasicDBObject("usr", "~~rl~F~user3").append("usrcns", "~~rl~C~user3");
+        List<DBObject> btns = new ArrayList<DBObject>();
+        btns.add(new BasicDBObject("uri", "sip:111@example.org").append("name", "B"));// only one
+                                                                                      // subscribe
+        speeddial.append("btn", btns);
+        user.put("spdl", speeddial);
+
+        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user);
     }
 
     public void testOnDeleteUser() throws Exception {

@@ -113,6 +113,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     @Override
     public void saveSpeedDial(SpeedDial speedDial) {
         getHibernateTemplate().saveOrUpdate(speedDial);
+        getHibernateTemplate().flush();
         getDaoEventPublisher().publishSave(speedDial.getUser());
     }
 
@@ -122,6 +123,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     @Override
     public void speedDialSynchToGroup(SpeedDial speedDial) {
         deleteSpeedDialsForUser(speedDial.getUser().getId());
+        getHibernateTemplate().flush();
         getDaoEventPublisher().publishSave(speedDial.getUser());
     }
 
