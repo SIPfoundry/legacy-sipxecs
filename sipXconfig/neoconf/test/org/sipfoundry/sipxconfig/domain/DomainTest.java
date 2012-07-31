@@ -24,6 +24,8 @@ public class DomainTest extends TestCase {
         assertNotNull(m_domain.getAliases());
         assertSame("grackle", m_domain.getAliases().iterator().next());
         assertEquals(1, m_domain.getAliases().size());
+        m_domain.addAlias("example.org");
+        assertEquals(1, m_domain.getAliases().size());
     }
 
     public void testRemoveAlias() {

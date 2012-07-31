@@ -94,7 +94,9 @@ public class Domain extends BeanWithId implements DeployConfigOnEdit, Cloneable 
         if (m_aliases == null) {
             m_aliases = new HashSet();
         }
-        m_aliases.add(alias);
+        if (!StringUtils.equalsIgnoreCase(alias, m_name)) {
+            m_aliases.add(alias);
+        }
     }
 
     public void removeAlias(String alias) {
