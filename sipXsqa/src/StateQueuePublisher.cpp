@@ -25,20 +25,24 @@ void s_free (void *data, void *hint)
 }
 //  Convert string to 0MQ string and send to socket
 static bool
-s_send (zmq::socket_t & socket, const std::string & string)
+s_send (zmq::socket_t & socket, const std::string & data)
 {
-    zmq::message_t message((void*)string.data(), string.size(), 0, 0);
-    bool rc = socket.send(message);
-    return (rc);
+  char * buff = (char*)malloc(data.size());
+  memcpy(buff, data.c_str(), data.size());
+  zmq::message_t message((void*)buff, data.size(), s_free, 0);
+  bool rc = socket.send(message);
+  return (rc);
 }
 
 //  Sends string as 0MQ string, as multipart non-terminal
 static bool
-s_sendmore (zmq::socket_t & socket, const std::string & string)
+s_sendmore (zmq::socket_t & socket, const std::string & data)
 {
-    zmq::message_t message((void *)string.data(), string.size(), 0, 0);
-    bool rc = socket.send(message, ZMQ_SNDMORE);
-    return (rc);
+  char * buff = (char*)malloc(data.size());
+  memcpy(buff, data.c_str(), data.size());
+  zmq::message_t message((void*)buff, data.size(), s_free, 0);
+  bool rc = socket.send(message, ZMQ_SNDMORE);
+  return (rc);
 }
 
 StateQueuePublisher::StateQueuePublisher(StateQueueAgent * pAgent) :
@@ -98,7 +102,7 @@ void StateQueuePublisher::internal_run()
     return;
   }
 
-  OS_LOG_INFO(FAC_NET, "StateQueuePublisher::internal_run() "
+  OS_LOG_NOTICE(FAC_NET, "StateQueuePublisher::internal_run() "
           << "Started accepting subscriptions at " << _zmqBindAddress);
   
   while(!_terminate)
@@ -197,7 +201,7 @@ void StateQueuePublisher::internal_run()
       OS_LOG_ERROR(FAC_NET, "FAILED TO DEQUEUE!");
     }
   }
-  OS_LOG_INFO(FAC_NET, "StateQueuePublisher::internal_run() TERMINATED.");
+  OS_LOG_NOTICE(FAC_NET, "StateQueuePublisher::internal_run() TERMINATED.");
 }
 
 void StateQueuePublisher::addSubscriber(const std::string& ev, const std::string& applicationId, int expires)

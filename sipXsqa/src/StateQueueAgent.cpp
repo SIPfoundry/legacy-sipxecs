@@ -49,7 +49,10 @@ void StateQueueAgent::run()
   assert(!_pIoServiceThread);
   assert(!_publisherAddress.empty());
   _pIoServiceThread = new boost::thread(boost::bind(&StateQueueAgent::internal_run_io_service, this));
+}
 
+void StateQueueAgent::internal_run_io_service()
+{
   if (!_publisherAddress.empty())
   {
     _publisher.setBindAddress(_publisherAddress);
@@ -77,10 +80,7 @@ void StateQueueAgent::run()
     {
     }
   }
-}
-
-void StateQueueAgent::internal_run_io_service()
-{
+  
   _listener.run();
   _ioService.run();
 }

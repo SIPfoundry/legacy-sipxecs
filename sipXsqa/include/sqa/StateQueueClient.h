@@ -733,7 +733,7 @@ private:
     _eventQueue.enqueue(watcherData.data());
   }
 
-  bool readEvent(std::string& id, std::string& exclude, int& count)
+  bool readEvent(std::string& id, std::string& data, int& count)
   {
     assert(_type != Publisher);
 
@@ -741,49 +741,72 @@ private:
     try
     {
       if (!zmq_receive(_zmqSocket, id))
+      {
+        OS_LOG_ERROR(FAC_NET, "0mq failed failed to receive ID segment.");
         return false;
+      }
 
       std::string address;
       if (!zmq_receive(_zmqSocket, address))
+      {
+        OS_LOG_ERROR(FAC_NET, "0mq failed failed to receive ADDR segment.");
         return false;
+      }
 
       //
-      // Read the exclude vector
+      // Read the data vector
       //
-      if (!zmq_receive(_zmqSocket, exclude))
+      if (!zmq_receive(_zmqSocket, data))
+      {
+        OS_LOG_ERROR(FAC_NET, "0mq failed failed to receive DATA segment.");
         return false;
+      }
 
       //
       // Read number of subscribers active
       //
       std::string strcount;
       if (!zmq_receive(_zmqSocket, strcount))
+      {
+        OS_LOG_ERROR(FAC_NET, "0mq failed failed to receive COUNT segment.");
         return false;
+      }
 
         count = boost::lexical_cast<int>(strcount);
     }
-    catch(...)
+    catch(std::exception e)
     {
+      OS_LOG_ERROR(FAC_NET, "Unknow exception: " << e.what());
       return false;
     }
     return true;
   }
 
-  bool zmq_send (zmq::socket_t & socket, const std::string & string)
+  static void zmq_free (void *data, void *hint)
   {
-      zmq::message_t message((void*)string.data(), string.size(), 0, 0);
-      bool rc = socket.send(message);
-      return (rc);
+      free (data);
+  }
+  //  Convert string to 0MQ string and send to socket
+  static bool zmq_send (zmq::socket_t & socket, const std::string & data)
+  {
+    char * buff = (char*)malloc(data.size());
+    memcpy(buff, data.c_str(), data.size());
+    zmq::message_t message((void*)buff, data.size(), zmq_free, 0);
+    bool rc = socket.send(message);
+    return (rc);
   }
 
-  bool zmq_sendmore (zmq::socket_t & socket, const std::string & string)
+  //  Sends string as 0MQ string, as multipart non-terminal
+  static bool zmq_sendmore (zmq::socket_t & socket, const std::string & data)
   {
-      zmq::message_t message((void*)string.data(), string.size(), 0, 0);
-      bool rc = socket.send(message, ZMQ_SNDMORE);
-      return (rc);
+    char * buff = (char*)malloc(data.size());
+    memcpy(buff, data.c_str(), data.size());
+    zmq::message_t message((void*)buff, data.size(), zmq_free, 0);
+    bool rc = socket.send(message, ZMQ_SNDMORE);
+    return (rc);
   }
 
-  bool zmq_receive (zmq::socket_t & socket, std::string& value)
+  static bool zmq_receive (zmq::socket_t & socket, std::string& value)
   {
       zmq::message_t message;
       socket.recv(&message);
