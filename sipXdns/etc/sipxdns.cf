@@ -127,17 +127,17 @@ bundle agent sipxdns_running {
     # NOTE : Not shutting off  explicit stop function because we cannot tell if
     # admin is configuring and managing DNS on their own (which is the 
     # case for a lot of ezuce developers anyway)
-    (!sipxdns|stop_sipxecs).!src.sipxdns_running::
+    !sipxdns.!src.sipxdns_running::
       "$(service)"
         comment => "stop named",
         args => "stop";
 
-    sipxdns.!sipxdns_running.!stop_sipxecs::
+    sipxdns.!sipxdns_running::
       "$(service)"
         comment => "start named",
         args => "start";
 
-    sipxdns.sipxdns_running.(restart_sipxdns|restart_sipxecs)::
+    sipxdns.sipxdns_running.restart_sipxdns::
       "$(service)"
         comment => "restart named",
         args => "restart";
