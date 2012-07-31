@@ -2767,7 +2767,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                      // Somehow the transaction got deleted perhaps it timed
                      // out and there was a log jam that prevented the handling
                      // of the timeout ????? This should not happen.
-                     Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipUserAgent::handleMessage "
+                     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipUserAgent::handleMessage "
                                    "SIP message timeout expired with no matching transaction");
                   }
                }
