@@ -322,9 +322,10 @@ class Network
     File.open('/etc/sysconfig/network', 'r') {|f|
       while (line = f.gets)
         case line
-        when /^HOSTNAME=([^.]*)\.(.*)$/
-          @host = $1
-          @domain = $2
+        when /^HOSTNAME=["']?(.*?)["']?$/
+          segments = $1.split('.')
+          @host = segments[0]
+          @domain = segments[1..-1].join('.')
         else
         end
       end
