@@ -184,6 +184,7 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
         if (getPlanSettings() != null) {
             getBackupManager().saveSettings(getSettings());
         }
+        getValidator().recordSuccess(getMessages().getMessage("message.success"));
     }
 
     private void validateSettings() {
