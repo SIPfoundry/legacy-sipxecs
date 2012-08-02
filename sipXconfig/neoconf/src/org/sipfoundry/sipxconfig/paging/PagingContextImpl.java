@@ -187,8 +187,10 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
         }
 
         String prefix = getSettings().getPrefix();
-        for (PagingGroup pg : getPagingGroups()) {
-            String code = new StringBuilder(prefix).append(pg.getPageGroupNumber()).toString();
+        List<Integer> pagingGroups = m_jdbc.queryForList("SELECT page_group_number FROM paging_group", Integer.class);
+
+        for (int pg : pagingGroups) {
+            String code = new StringBuilder(prefix).append(pg).toString();
             if (StringUtils.equals(alias, code)) {
                 return true;
             }

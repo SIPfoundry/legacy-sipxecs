@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import java.text.MessageFormat;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -128,12 +127,6 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
             // XCF-1243 clean alias string on the screen
             setAliasesString(null);
 
-            // Make sure that the user ID and aliases don't collide with any other
-            // user IDs or aliases. Report an error if there is a collision.
-            if (checkForUserIdOrAliasCollision()) {
-                return;
-            }
-
             // Update the user's PIN and aliases
             updatePin(this, getUser(), getCoreContext().getAuthorizationRealm());
             updateVoicemailPin(this, getUser());
@@ -173,42 +166,6 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
             String extStr = extension.toString();
             getUser().setUserName(extStr);
         }
-    }
-
-    // Make sure that the user ID and aliases don't collide with any other
-    // user IDs or aliases. Report an error if there is a collision.
-    private boolean checkForUserIdOrAliasCollision() {
-        boolean result = false;
-        String dup = null;
-        try {
-            dup = getCoreContext().checkForDuplicateNameOrAlias(getUser());
-        } catch (Exception ex) {
-            recordError("err.msg.checkUserIdAliasFailed", ex.getMessage());
-            return result;
-        }
-        if (dup != null) {
-            result = true;
-            boolean internalCollision = false;
-
-            // Check for a collision within the user itself, of the user ID with an alias,
-            // so we can give more specific error feedback. Since the aliases are filtered
-            // for duplicates when assigned to the user, we don't have to worry about that
-            // case. Duplicate aliases are simply discarded.
-            for (Iterator iter = getUser().getAliases().iterator(); iter.hasNext();) {
-                String alias = (String) iter.next();
-                if (getUser().getUserName().equals(alias)) {
-                    recordError("message.userIdEqualsAlias", alias);
-                    internalCollision = true;
-                    break;
-                }
-            }
-            // If it wasn't an internal collision, then the collision is with a different
-            // user. Record an appropriate error.
-            if (!internalCollision) {
-                recordError("message.duplicateUserIdOrAlias", dup);
-            }
-        }
-        return result;
     }
 
     /**
