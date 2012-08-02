@@ -59,6 +59,7 @@ import org.sipfoundry.sipxconfig.rest.RestUtilities.MetadataRestInfo;
 import org.sipfoundry.sipxconfig.rest.RestUtilities.PaginationInfo;
 import org.sipfoundry.sipxconfig.rest.RestUtilities.SettingPermissionRestInfo;
 import org.sipfoundry.sipxconfig.rest.RestUtilities.SortInfo;
+import org.sipfoundry.sipxconfig.rest.RestUtilities.UserPermissionRestInfoFull;
 import org.sipfoundry.sipxconfig.rest.RestUtilities.ValidationInfo;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -454,44 +455,6 @@ public class UsersPermissionsResource extends Resource {
 
         public List<UserPermissionRestInfoFull> getUsers() {
             return m_users;
-        }
-    }
-
-    static class UserRestInfo {
-        private final int m_id;
-        private final String m_lastName;
-        private final String m_firstName;
-
-        public UserRestInfo(User user) {
-            m_id = user.getId();
-            m_lastName = user.getLastName();
-            m_firstName = user.getFirstName();
-        }
-
-        public int getId() {
-            return m_id;
-        }
-
-        public String getLastName() {
-            return m_lastName;
-        }
-
-        public String getFirstName() {
-            return m_firstName;
-        }
-    }
-
-    static class UserPermissionRestInfoFull extends UserRestInfo {
-        private final List<SettingPermissionRestInfo> m_permissions;
-
-        public UserPermissionRestInfoFull(User user, List<SettingPermissionRestInfo> settingsRestInfo) {
-            super(user);
-
-            m_permissions = settingsRestInfo;
-        }
-
-        public List<SettingPermissionRestInfo> getPermissions() {
-            return m_permissions;
         }
     }
 
