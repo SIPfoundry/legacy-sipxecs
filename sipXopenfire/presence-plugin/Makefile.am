@@ -52,5 +52,3 @@ test_DEPS = \
 	$(JAVAROOT) \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(test_PKGS)) \
 	@OPENFIRE_HOME@/lib/openfire.jar
-
-	

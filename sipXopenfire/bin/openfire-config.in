@@ -1,0 +1,76 @@
+#
+# Dynamic part of sipx/openfire integration
+#
+Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @plugin_PKGS@`
+LOCALCLASSPATH=`echo ${Dependencies} | sed -e 's/ /:/g'`
+
+JAVACMD=`@bindir@/sipx-config --java`
+
+refreshPlugins() {
+   # Remove all softlinks under @OPENFIRE_HOME@/plugins
+   find @OPENFIRE_HOME@/plugins -maxdepth 1 -type l -print0 2> /dev/null | xargs -0 rm -f
+   
+   # Deploy sipxecs plugins (plugins directory)
+   find @SIPX_JAVADIR@/sipXopenfire/plugins -name "*.jar" | while read PLUGIN_PATH; do
+   	   PLUGIN=$(basename ${PLUGIN_PATH} .jar)
+   	   rm -rf @OPENFIRE_HOME@/plugins/${PLUGIN}
+       ln -s ${PLUGIN_PATH} @OPENFIRE_HOME@/plugins
+   done 
+}
+
+refreshProviders() {
+   find @OPENFIRE_HOME@/lib -maxdepth 1 -type l -print0 2> /dev/null | xargs -0 rm -f
+   lib_deps=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @provider_PKGS_RT@`
+   for PROVIDER in ${lib_deps} @SIPX_JAVADIR@/sipXopenfire/lib/sipx-openfire-vcard-provider.jar; do
+       ln -s ${PROVIDER} @OPENFIRE_HOME@/lib
+   done
+}
+
+databaseCommand() {
+  databaseCheck
+  $JAVACMD \
+      -cp ${LOCALCLASSPATH} \
+      -Dant.library.dir=${TMP_DIR} \
+      -Dsipxopenfire.db.user=postgres \
+      org.apache.tools.ant.launch.Launcher \
+      -f @SIPX_CONFDIR@/sipxopenfire-database.xml \
+      $@
+}
+
+# Return false if postgres is
+#  1. not running
+#  2. running but not setup to communicate w/java or psql command
+#  3. Database is not created
+databaseCheck() {
+    psql --list --field-separator , --no-align --username @POSTGRESQL_USER@ \
+    | cut -d , -f 1 \
+    | grep "openfire"$ > /dev/null 2>&1
+}
+
+setupCheck() {
+  if ! databaseCheck
+  then
+    echo "Initializing openfire database..."
+      setupDatabase
+    # more to do here, see sipxopenacd setup
+  fi
+}
+
+setupDatabase() {
+  # Check if we have created the database. If not create it.
+  rm  @SIPX_TMPDIR@/sipxopenfire.version 2> /dev/null
+  databaseCommand check
+  if [ ! -f @SIPX_TMPDIR@/sipxopenfire.version ]  
+  then
+    databaseCommand create
+    databaseCommand create-tables
+    databaseCommand setup -Ddomain=${SIP_DOMAIN_NAME} -Dfqdn=${FQDN}
+  else
+    databaseCommand setdomain -Ddomain=${SIP_DOMAIN_NAME}
+    databaseCommand setfqdn -Dfqdn=${FQDN}
+  fi
+}
+
+setupCheck
+refreshPlugins
+refreshProviders

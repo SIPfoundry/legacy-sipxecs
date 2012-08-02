@@ -31,7 +31,8 @@ plugin_JAR_PKGS = \
 	not-yet-commons-ssl \
 	ws-commons-util \
 	xmlrpc-client \
-	xmlrpc-server		
+	xmlrpc-server \
+	postgresql
 
 plugin_JAR_RT_PKGS = \
 	com.noelios.restlet \
@@ -40,9 +41,22 @@ plugin_JAR_RT_PKGS = \
 # NOTE: this list of dependencies affects compile and runtime becasue it 
 # is copied into startup script so just be aware what you're affecting.
 plugin_PKGS = \
+	$(plugin_JAR_PKGS) \
 	ant \
 	ant-launcher \
-	$(plugin_JAR_PKGS)
+    thumbnailator \
+	xmlrpc-common \
+	spring-data-mongodb \
+	commons-digester \
+	commons-logging \
+	commons-beanutils-core \
+	org.springframework.context- \
+	spring-data-commons-core \
+	org.springframework.transaction \
+	org.springframework.core \
+	org.springframework.beans \
+	org.springframework.expression \
+	org.springframework.asm
 
 provider_PKGS = \
 	sipxcommons \
@@ -51,5 +65,14 @@ provider_PKGS = \
 	xmlrpc-server \
 	log4j \
 	commons-digester
+
+provider_PKGS_RT = \
+	$(provider_PKGS) \
+	xmlrpc-server \
+    commons-collections \
+    commons-beanutils-core \
+	commons-io \
+    mongo \
+    xmlrpc-common
 
 sipxvcard_JAVAROOT = $(abspath $(top_builddir)/vcard-provider/classes)

@@ -18,7 +18,7 @@
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/jtds.jar"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/mail.jar"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/mysql.jar"/>
-	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/openfire.jar"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/openfire.jar" sourcepath="/SIPX_SRCDIR/openfire/src"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/postgres.jar"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/servlet.jar"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/startup.jar"/>

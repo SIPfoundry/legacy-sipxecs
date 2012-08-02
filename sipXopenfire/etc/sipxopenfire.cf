@@ -14,21 +14,18 @@
 #
 # sipxopenfire configuration and process management
 #
+
 bundle agent sipxopenfire {
   methods:
     sipxopenfire::
-      "any" usebundle => "sipxopenfire_config";
+      "any" usebundle => sipxopenfire_config;
     any::
-      "any" usebundle => "sipxopenfire_setup";
-      "any" usebundle => "sipxopenfire_running";
+      "any" usebundle => sipxopenfire_setup;
+      "any" usebundle => sipxopenfire_running;
 }
 
 bundle agent sipxopenfire_config {
   vars:
-    !ofconsole::
-      "web_file" string => "$(sipx.SIPX_JAVADIR)/sipXopenfire/conf/web.xml.disable_openfire_admin_console";
-    ofconsole::
-      "web_file" string => "$(sipx.SIPX_JAVADIR)/sipXopenfire/conf/web.xml.enable_openfire_admin_console";
     any::
       "xml_file_restart" slist => { 
         "sipxopenfire.xml",
@@ -41,32 +38,23 @@ bundle agent sipxopenfire_config {
       };
 
   files:
-    any::
-      "$(sipx.SIPX_JAVADIR)/sipXopenfire/conf/openfire.xml"
-        comment => "install openfire config $(this.promiser)",
-        create => "true",
-        perms => m("644"),
-        copy_from => copy_from_cfdata("$(sipx.location_id)/openfire.xml"),
-        classes => if_repaired("restart_sipxopenfire");              
-
-     any::
+    sipxopenfire::
       "$(sipx.OPENFIRE_HOME)/plugins/admin/webapp/WEB-INF/web.xml"
         comment => "modify openfire console props",
-        create => "true",
+        create => "false",
         perms => m("644"),
-        copy_from => copy_from_ofdir("$(web_file)"),
+        edit_line => admin_portal_web_xml,
         classes => if_repaired("restart_sipxopenfire");
 
-    any::
       # Write out the config information so the plugin can read it.
       "/tmp/sipx.properties"
         comment => "install openfire config $(this.promiser)",
         create => "true",
         perms => m("644"),
+        edit_defaults => empty,
         edit_line => sipxopenfire_sipx_properties,
         classes => if_repaired("restart_sipxopenfire");
 
-    any::
       "$(sipx.SIPX_CONFDIR)/$(xml_file_restart)"
         comment => "install openfire config $(this.promiser)",
         create => "true",
@@ -74,26 +62,91 @@ bundle agent sipxopenfire_config {
         copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_restart)"),
         classes => if_repaired("restart_sipxopenfire");
 
-    any::
       "$(sipx.SIPX_CONFDIR)/$(xml_file_norestart)"
         comment => "install openfire config $(this.promiser)",
         create => "true",
         perms => m("644"),
         copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_norestart)");
+
+      "$(sipx.OPENFIRE_HOME)/resources/security/truststore"
+        comment => "openfire authorities",
+        create => "false",
+        perms => mog(600, "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
+        copy_from => copy_from_cfdata("authorities.jks"),
+        classes => if_repaired("restart_sipxopenfire");
+
+      "$(sipx.OPENFIRE_HOME)/resources/security/keystore"
+        comment => "openfire certificates",
+        create => "false",
+        perms => mog(600, "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
+        copy_from => copy_from_cfdata("ssl.keystore"),
+        classes => if_repaired("restart_sipxopenfire");
+
+      "/etc/sysconfig/openfire"
+        comment => "openfire vars $(this.promiser)",
+        perms => m("644"),
+        edit_defaults => empty,
+        edit_line => openfire_config_contents;
+
+      # We have to copy file in 2 phases because we use one phase to tell when there's a
+      # config change and another update openfire. This is because openfire oddly
+      # writes changes back to the conf/openfire.xml
+      # Phase 1.
+      "$(sipx.OPENFIRE_HOME)/conf/openfire.xml.sipx"
+        comment => "install openfire config $(this.promiser)",
+        perms => mog("644", "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/openfire.xml"),
+        classes => if_repaired("update_openfire_xml");
+
+    update_openfire_xml::
+      # Phase 2.
+      "$(sipx.OPENFIRE_HOME)/conf/openfire.xml"
+        comment => "install openfire config $(this.promiser)",
+        perms => mog("644", "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
+        copy_from => local_cp_by_digest("$(sipx.OPENFIRE_HOME)/conf/openfire.xml.sipx"),
+        classes => if_repaired("restart_sipxopenfire");
+}
+
+# TRICKY ALERT : This attempts to edit the admin plugins web.xml. This uses a bit of cf trickery
+# around selectinng the xml element with "select_region" then uses "replace_patterns"
+# around that to change one value for another.
+bundle edit_line admin_portal_web_xml {
+  vars:
+    ofconsole::
+      "console_value" string => "login.jsp,index.jsp?logout=true,setup/index.jsp,setup/setup-*,.gif,.png,error-serverdown.jsp,setup/clearspace-integration-prelogin.jsp";
+    !ofconsole::
+      # TRICKY ALERT: we make all require authentication which would mean you cannot 
+      # get to login page to autenticate. there's no such file console_disabled but 
+      # doesn't matter. we just use it as a placeholder to swap out if console goes on
+      "console_value" string => "console_disabled";
+
+  replace_patterns:
+    "^\s*(console_disabled|login\.jsp).*$"
+      select_region => select_filter("AuthCheck"),
+      replace_with => value("$(console_value)");
+}
+
+body select_region select_filter(name) {
+  select_start => "^\s*<filter-name>$(name)<\/filter-name>\s*$";
+  select_end => "^\s*<\/filter>\s*$";
+}
+
+
+bundle edit_line openfire_config_contents {
+  insert_lines:
+    "SIP_DOMAIN_NAME=$(sipx.domain)";
+    "FQDN=$(sipx.host).$(sipx.net_domain)";
+    "source $(sipx.SIPX_LIBEXECDIR)/openfire-config";
 }
 
 bundle edit_line sipxopenfire_sipx_properties {
   insert_lines:	
-  any::
     "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipx.properties.part"
       insert_type => "file";	
     "conf.dir=$(sipx.SIPX_CONFDIR)";
     "lib.dir=$(sipx.SIPX_LIBDIR)";
     "localization.file=$(sipx.SIPX_CONFDIR)/openfire/sipxopenfire-prompts.properties";
     "openfire.home=$(sipx.OPENFIRE_HOME)";
-
-  delete_lines:
-    ".*";
 }
 
 bundle agent sipxopenfire_setup {
@@ -107,30 +160,31 @@ bundle agent sipxopenfire_setup {
 bundle agent sipxopenfire_running {
   vars:
     any::
-      "service_command" string => ".*\s-Dexe4j.moduleName=$(sipx.OPENFIRE_HOME)/bin/openfire\s.*";
+      "service" string => "/etc/init.d/openfire";
+      "service_command" string => ".*\s-DopenfireHome=$(sipx.OPENFIRE_HOME)\s.*";
 
   methods:
     any::
-      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxopenfire_running");
+      "any" usebundle => find_service_by_command("$(service_command)","sipxopenfire_running","$(sipx.OPENFIRE_USER)");
 
   commands:
     (!sipxopenfire|stop_sipxecs).sipxopenfire_running::
-      "$(sipx.SIPX_SERVICEDIR)/sipxopenfire"
+      "$(service)"
         comment => "stop sipxopenfire",
         args => "stop";
 
     sipxopenfire.!sipxopenfire_running.!stop_sipxecs::
-      "$(sipx.SIPX_SERVICEDIR)/sipxopenfire"
+      "$(service)"
         comment => "start sipxopenfire",
         args => "start";
 
     sipxopenfire.sipxopenfire_running.(restart_sipxecs|restart_sipxopenfire)::
-      "$(sipx.SIPX_SERVICEDIR)/sipxopenfire"
+      "$(service)"
         comment => "restart sipxopenfire",
         args => "restart";
 }
 
-body copy_from copy_from_ofdir(filename) {
+body copy_from local_cp_by_digest(filename) {
   source => "$(filename)";
   compare => "digest";
   purge => "true";

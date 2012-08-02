@@ -51,8 +51,8 @@ lib_common = \
   net-snmp \
   homer \
   OpenACD \
+  openfire \
   erlmongo \
-  sipx-openfire \
   ruby-dbi \
   ruby-postgres \
   cfengine \

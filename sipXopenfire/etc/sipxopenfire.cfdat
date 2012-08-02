@@ -1,1 +1,3 @@
 =OPENFIRE_HOME=/opt/openfire
+=OPENFIRE_USER=daemon
+=OPENFIRE_GROUP=daemon

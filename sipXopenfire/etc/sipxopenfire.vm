@@ -16,7 +16,7 @@
 	<resource-list>$resource-list</resource-list>
 	<watcher-address>${location.address}</watcher-address>
 	<watcher-port>${settings.watcherPort}</watcher-port>
-	<log-directory>${settings.logDir}</log-directory>
+	<log-directory>/opt/openfire/logs</log-directory>
 	<log-level>${settings.logLevel}</log-level>
 	<openfire-xml-rpc-port>$settings.xmlRpcPort</openfire-xml-rpc-port>
 	<openfire-xml-rpc-vcard-port>$settings.xmlRpcVcardPort</openfire-xml-rpc-vcard-port>
