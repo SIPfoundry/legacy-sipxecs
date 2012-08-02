@@ -21,6 +21,8 @@
 
 int main(int argc, char** argv)
 {
+  ServiceOptions::daemonize(argc, argv);
+
   ServiceOptions service(argc, argv, "StateQueueAgent", "1.0.0", "Copyright Ezuce Inc. (All Rights Reserved)");
   service.addDaemonOptions();
   service.addOptionString("zmq-subscription-address", ": Address where to subscribe for events.");

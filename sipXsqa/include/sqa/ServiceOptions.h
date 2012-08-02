@@ -201,6 +201,7 @@ public:
   // Standard daemon options
   //
   void addDaemonOptions();
+  static void  daemonize(int argc, char** argv);
 
   bool parseOptions();
   void displayUsage(std::ostream& strm) const;
@@ -218,7 +219,6 @@ public:
   void waitForTerminationRequest();
 
 protected:
-  void daemonize(const std::string& pidfile);
   void initlogger();
   int _argc;
   char** _argv;
@@ -305,10 +305,10 @@ inline bool ServiceOptions::parseOptions()
     return true;
   }
 
+  displayVersion(std::cout);
+  
   try
   {
-
-
     addOptionFlag('h', "help", ": Display help information.", CommandLineOption);
     addOptionFlag('v', "version", ": Display version information.", CommandLineOption);
     addOptionString('C', "config-file", ": Optional daemon config file.", CommandLineOption);
@@ -340,7 +340,11 @@ inline bool ServiceOptions::parseOptions()
     }
 
     if (hasOption("pid-file", false))
+    {
       getOption("pid-file", _pidFile);
+      std::ofstream pidFile(_pidFile.c_str());
+      pidFile << getpid() << std::endl;
+    }
 
     if (hasOption("daemonize", false))
     {
@@ -384,10 +388,6 @@ inline bool ServiceOptions::parseOptions()
       return false;
     }
   }
-
-  displayVersion(std::cout);
-  if (_isDaemon)
-    daemonize(_pidFile);
 
   initlogger();
   return true;
@@ -759,9 +759,22 @@ inline ServiceOptions::~ServiceOptions()
 {
 }
 
-inline void ServiceOptions::daemonize(const std::string& pidfile)
+inline void  ServiceOptions::daemonize(int argc, char** argv)
 {
-   int pid = 0;
+  bool isDaemon = false;
+  for (int i = 0; i < argc; i++)
+  {
+    std::string arg = argv[i];
+    if (arg == "-D" || arg == "--daemonize")
+    {
+      isDaemon = true;
+      break;
+    }
+  }
+
+  if (isDaemon)
+  {
+     int pid = 0;
    if(getppid() == 1)
      return;
    pid=fork();
@@ -778,10 +791,10 @@ inline void ServiceOptions::daemonize(const std::string& pidfile)
    int h = open("/dev/null",O_RDWR); dup(h); dup(h); /* handle standard I/O */
 
    ::close(STDIN_FILENO);
+  }
 
-   std::ofstream pidFile(pidfile.c_str());
-   pidFile << getpid() << std::endl;
 }
+
 
 inline void ServiceOptions::waitForTerminationRequest()
 {
