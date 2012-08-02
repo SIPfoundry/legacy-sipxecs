@@ -7,20 +7,21 @@ package org.sipfoundry.openfire.config;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
+import org.jivesoftware.openfire.group.GroupAlreadyExistsException;
+import org.jivesoftware.openfire.group.GroupNotFoundException;
+import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePlugin;
 
 public class XmppGroup extends XmppConfigurationElement {
     private static Logger logger = Logger.getLogger(XmppGroup.class);
 
     private String groupName = "";
-    
+
     private String description = "";
-    
+
     private String administrator = "";
-    
+
     private HashMap<String,XmppGroupMember> members = new HashMap<String,XmppGroupMember>();
     // NOTE: extend the equals() method if new instance variables get added
 
@@ -52,22 +53,22 @@ public class XmppGroup extends XmppConfigurationElement {
     public String getDescription() {
         return description;
     }
-    
+
     public Collection<XmppGroupMember> getMembers() {
         return this.members.values();
     }
-    
-    public void addMember(XmppGroupMember member) {        
+
+    public void addMember(XmppGroupMember member) {
         this.members.put(member.getJid(),member);
     }
 
-    
+
     /**
      * @param administrator the administrator to set
      */
     public void setAdministrator(String administrator) {
         this.administrator = XmppAccountInfo.appendDomain(administrator);
-       
+
     }
 
     /**
@@ -80,13 +81,22 @@ public class XmppGroup extends XmppConfigurationElement {
     public boolean hasMember(String jid) {
         return this.members.containsKey(jid);
     }
-    
-    @Override 
+
+    @Override
+    public void update() throws GroupAlreadyExistsException, GroupNotFoundException {
+        SipXOpenfirePlugin.getInstance().update(this);
+    }
+
+    @Override
     public boolean equals(Object other) {
         //check for self-comparison
-        if ( this == other ) return true;
+        if ( this == other ) {
+            return true;
+        }
 
-        if ( !(other instanceof XmppGroup) ) return false;
+        if ( !(other instanceof XmppGroup) ) {
+            return false;
+        }
 
         //cast to native object is now safe
         XmppGroup otherGroup = (XmppGroup)other;
@@ -94,16 +104,16 @@ public class XmppGroup extends XmppConfigurationElement {
         //now a proper field-by-field evaluation can be made
         try{
             return groupName.equals( otherGroup.groupName ) &&
-                   description.equals( otherGroup.description ) &&
-                   administrator.equals( otherGroup.administrator ) &&
-                   members.size() == otherGroup.members.size() &&
-                   members.values().containsAll(otherGroup.members.values());
+                    description.equals( otherGroup.description ) &&
+                    administrator.equals( otherGroup.administrator ) &&
+                    members.size() == otherGroup.members.size() &&
+                    members.values().containsAll(otherGroup.members.values());
         } catch( Exception e ){
             logger.error("Caught: ", e);
             return false;
         }
     }
-    
+
     @Override
     public int hashCode()
     {
@@ -123,6 +133,6 @@ public class XmppGroup extends XmppConfigurationElement {
         .append(this.getDescription())
         .append("'\n    members='")
         .append(this.getMembers())
-        .append("'\n===============\n").toString();     
+        .append("'\n===============\n").toString();
     }
 }

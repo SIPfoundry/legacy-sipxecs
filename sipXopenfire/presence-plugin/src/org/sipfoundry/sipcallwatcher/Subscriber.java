@@ -5,33 +5,23 @@
  */
 package org.sipfoundry.sipcallwatcher;
 
-import gov.nist.javax.sip.SipStackExt;
-import gov.nist.javax.sip.clientauthutils.AccountManager;
-import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
-import gov.nist.javax.sip.clientauthutils.SecureAccountManager;
-import gov.nist.javax.sip.clientauthutils.UserCredentials;
-import gov.nist.javax.sip.stack.SIPTransactionStack;
-
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.ArrayList;
 
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogTerminatedEvent;
 import javax.sip.IOExceptionEvent;
 import javax.sip.InvalidArgumentException;
-import javax.sip.ListeningPoint;
 import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
-import javax.sip.SipFactory;
 import javax.sip.SipListener;
 import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
@@ -49,7 +39,6 @@ import javax.sip.header.ExpiresHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.HeaderFactory;
 import javax.sip.header.MaxForwardsHeader;
-import javax.sip.header.SubscriptionStateHeader;
 import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
@@ -59,8 +48,8 @@ import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.openfire.config.WatcherConfig;
-import org.sipfoundry.sipcallwatcher.SubscribeDialog.SubscribeDialog;
 import org.sipfoundry.sipcallwatcher.DialogInfoMessagePart.EndpointInfo;
+import org.sipfoundry.sipcallwatcher.SubscribeDialog.SubscribeDialog;
 
 
 /**
@@ -88,6 +77,8 @@ public class Subscriber implements SipListener {
     private ResourceStateChangeListener resourceStateChangeListener;
     private SipStackBean stackBean;
     private SipProvider sipProvider;
+    private final Timer subscribeDialogCreator = new Timer();
+
 
     /**
      * Object responsible for initiating and maintaining a resource list registration with a
@@ -132,23 +123,28 @@ public class Subscriber implements SipListener {
     public void stop() {
         // no need to explicitly stop activeSubscribeDialog - no real resources consumed
         activeSubscribeDialog = null;
+        subscribeDialogCreator.cancel();
     }
 
-    public void processRequest(RequestEvent requestReceivedEvent) {
+    @Override
+	public void processRequest(RequestEvent requestReceivedEvent) {
         if (requestReceivedEvent.getRequest().getMethod().equals(Request.NOTIFY)) {
             activeSubscribeDialog.processNotifyRequest(requestReceivedEvent);
         }
     }
                 
-    public void processResponse(ResponseEvent responseReceivedEvent) { 
+    @Override
+	public void processResponse(ResponseEvent responseReceivedEvent) { 
         activeSubscribeDialog.processResponse(responseReceivedEvent);
     }
     
-    public void processDialogTerminated(DialogTerminatedEvent dialogTerminatedEvent) {
+    @Override
+	public void processDialogTerminated(DialogTerminatedEvent dialogTerminatedEvent) {
         activeSubscribeDialog.processDialogTerminated(dialogTerminatedEvent);
     }
 
-    public void processTransactionTerminated( TransactionTerminatedEvent transactionTerminatedEvent ){
+    @Override
+	public void processTransactionTerminated(TransactionTerminatedEvent transactionTerminatedEvent ){
         activeSubscribeDialog.processTransactionTerminated(transactionTerminatedEvent);
     }
 
@@ -250,7 +246,7 @@ public class Subscriber implements SipListener {
 
             // Create ViaHeaders
             // TODO: do this right
-            ArrayList viaHeaders = new ArrayList();
+            List<ViaHeader> viaHeaders = new ArrayList<ViaHeader>();
             ViaHeader viaHeader = headerFactory.createViaHeader(
                     watcherConfig.getWatcherAddress(), watcherConfig.getWatcherPort(), transport,
                     null);
@@ -393,20 +389,22 @@ public class Subscriber implements SipListener {
 
     private void scheduleNewSubscribeDialogCreation()
     {
-        Timer subscribeDialogCreator = new Timer();
         TimerTask task = new TimerTask() {
-            public void run() {
+            @Override
+			public void run() {
                 logger.info("subscribeDialogCreator timer fired");
                 activeSubscribeDialog = new SubscribeDialog(Subscriber.this);
-                activeSubscribeDialog.start();
+            	activeSubscribeDialog.start();
             }
         };
         logger.info("arming subscribeDialogCreator");
         subscribeDialogCreator.schedule(task, 10000);
     }
 
-    public void processIOException( IOExceptionEvent arg0 ){}
+    @Override
+	public void processIOException( IOExceptionEvent arg0 ){}
 
-    public void processTimeout( TimeoutEvent arg0 ){}
+    @Override
+	public void processTimeout( TimeoutEvent arg0 ){}
 
 }

@@ -5,20 +5,23 @@
  */
 package org.sipfoundry.openfire.config;
 
+import org.jivesoftware.openfire.user.UserNotFoundException;
+import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePlugin;
+
 public class XmppUserAccount extends XmppConfigurationElement {
 
     private String userName = "";
-    
+
     private String sipUserName = "";
-    
+
     private String displayName = "";
-    
+
     private String password = "";
 
     private String email = "";
 
     private String onThePhoneMessage = "";
-    
+
     private boolean bAdvertiseOnCallStatus = false;
 
     private boolean bShowOnCallDetails = false;
@@ -57,10 +60,10 @@ public class XmppUserAccount extends XmppConfigurationElement {
      * @param userName the userName to set
      */
     public void setUserName(String userName) {
-        this.userName = userName.toLowerCase();  // Necessary because openfire stores usernames in lowercase.  
-                                                 // We force username to lowercase to ensure that compares
-                                                 // between this username and ones taken from the openfire DB
-                                                 // work as expected.
+        this.userName = userName.toLowerCase();  // Necessary because openfire stores usernames in lowercase.
+        // We force username to lowercase to ensure that compares
+        // between this username and ones taken from the openfire DB
+        // work as expected.
     }
     /**
      * @return the userName
@@ -101,8 +104,8 @@ public class XmppUserAccount extends XmppConfigurationElement {
 
     public void setAdvertiseOnCallPreference(String flag){
         this.bAdvertiseOnCallStatus = Boolean.parseBoolean(flag);
-    }        
-    
+    }
+
     public boolean getAdvertiseOnCallPreference(){
         return this.bAdvertiseOnCallStatus;
     }
@@ -114,27 +117,36 @@ public class XmppUserAccount extends XmppConfigurationElement {
     public boolean getShowOnCallDetailsPreference(){
         return this.bShowOnCallDetails;
     }
-    
-    @Override 
+
+    @Override
+    public void update() throws UserNotFoundException {
+        SipXOpenfirePlugin.getInstance().update(this);
+    }
+
+    @Override
     public boolean equals(Object other) {
         //check for self-comparison
-        if ( this == other ) return true;
+        if ( this == other ) {
+            return true;
+        }
 
-        if ( !(other instanceof XmppUserAccount) ) return false;
+        if ( !(other instanceof XmppUserAccount) ) {
+            return false;
+        }
 
         //cast to native object is now safe
         XmppUserAccount otherAccount = (XmppUserAccount)other;
 
         //now a proper field-by-field evaluation can be made
         return
-            userName.equals(otherAccount.userName)                        &&
-            sipUserName.equals(otherAccount.sipUserName)                  &&
-            displayName.equals(otherAccount.displayName)                  &&
-            password.equals(otherAccount.password)                        &&
-            email.equals(otherAccount.getEmail())                         &&
-            onThePhoneMessage.equals(otherAccount.onThePhoneMessage)      &&
-            bAdvertiseOnCallStatus == otherAccount.bAdvertiseOnCallStatus &&
-            bShowOnCallDetails == otherAccount.bShowOnCallDetails;
+                userName.equals(otherAccount.userName)                        &&
+                sipUserName.equals(otherAccount.sipUserName)                  &&
+                displayName.equals(otherAccount.displayName)                  &&
+                password.equals(otherAccount.password)                        &&
+                email.equals(otherAccount.getEmail())                         &&
+                onThePhoneMessage.equals(otherAccount.onThePhoneMessage)      &&
+                bAdvertiseOnCallStatus == otherAccount.bAdvertiseOnCallStatus &&
+                bShowOnCallDetails == otherAccount.bShowOnCallDetails;
     }
 
     @Override
@@ -142,7 +154,7 @@ public class XmppUserAccount extends XmppConfigurationElement {
     {
         return userName.hashCode();
     }
-    
+
     @Override
     public String toString()
     {
@@ -165,7 +177,6 @@ public class XmppUserAccount extends XmppConfigurationElement {
         .append(this.getShowOnCallDetailsPreference())
         .append("'\n    SIP user name='")
         .append(this.getSipUserName())
-        .append("'\n===============\n").toString();     
+        .append("'\n===============\n").toString();
     }
-    
 }

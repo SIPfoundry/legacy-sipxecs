@@ -65,10 +65,6 @@ lang = \
 #telecats = 
 #  sipXcustomCallerId
 
-# broken
-#karel = 
-#  sipXkarel
-
 # Repositories
 $(foreach R,$(lang) $(sf_git),$(eval $(R)_REPO = git://github.com/dhubler/$(R).git))
 $(foreach R,$(telecats),$(eval $(R)_REPO = git://github.com/Telecats/$(R).git))

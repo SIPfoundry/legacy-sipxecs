@@ -201,6 +201,8 @@ public:
   // Standard daemon options
   //
   void addDaemonOptions();
+  static void  daemonize(int argc, char** argv);
+  static void catch_global();
 
   bool parseOptions();
   void displayUsage(std::ostream& strm) const;
@@ -218,7 +220,6 @@ public:
   void waitForTerminationRequest();
 
 protected:
-  void daemonize(const std::string& pidfile);
   void initlogger();
   int _argc;
   char** _argv;
@@ -305,10 +306,10 @@ inline bool ServiceOptions::parseOptions()
     return true;
   }
 
+  displayVersion(std::cout);
+  
   try
   {
-
-
     addOptionFlag('h', "help", ": Display help information.", CommandLineOption);
     addOptionFlag('v', "version", ": Display version information.", CommandLineOption);
     addOptionString('C', "config-file", ": Optional daemon config file.", CommandLineOption);
@@ -340,7 +341,11 @@ inline bool ServiceOptions::parseOptions()
     }
 
     if (hasOption("pid-file", false))
+    {
       getOption("pid-file", _pidFile);
+      std::ofstream pidFile(_pidFile.c_str());
+      pidFile << getpid() << std::endl;
+    }
 
     if (hasOption("daemonize", false))
     {
@@ -384,10 +389,6 @@ inline bool ServiceOptions::parseOptions()
       return false;
     }
   }
-
-  displayVersion(std::cout);
-  if (_isDaemon)
-    daemonize(_pidFile);
 
   initlogger();
   return true;
@@ -759,9 +760,22 @@ inline ServiceOptions::~ServiceOptions()
 {
 }
 
-inline void ServiceOptions::daemonize(const std::string& pidfile)
+inline void  ServiceOptions::daemonize(int argc, char** argv)
 {
-   int pid = 0;
+  bool isDaemon = false;
+  for (int i = 0; i < argc; i++)
+  {
+    std::string arg = argv[i];
+    if (arg == "-D" || arg == "--daemonize")
+    {
+      isDaemon = true;
+      break;
+    }
+  }
+
+  if (isDaemon)
+  {
+     int pid = 0;
    if(getppid() == 1)
      return;
    pid=fork();
@@ -778,13 +792,58 @@ inline void ServiceOptions::daemonize(const std::string& pidfile)
    int h = open("/dev/null",O_RDWR); dup(h); dup(h); /* handle standard I/O */
 
    ::close(STDIN_FILENO);
-
-   std::ofstream pidFile(pidfile.c_str());
-   pidFile << getpid() << std::endl;
+  }
 }
+
+// copy error information to log. registered only after logger has been configured.
+inline void ServiceOptions::catch_global()
+{
+#define catch_global_print(msg)  \
+  std::ostringstream bt; \
+  bt << msg << std::endl; \
+  void* trace_elems[20]; \
+  int trace_elem_count(backtrace( trace_elems, 20 )); \
+  char** stack_syms(backtrace_symbols(trace_elems, trace_elem_count)); \
+  for (int i = 0 ; i < trace_elem_count ; ++i ) \
+    bt << stack_syms[i] << std::endl; \
+  Os::Logger::instance().log(FAC_LOG, PRI_CRIT, bt.str().c_str()); \
+  std::cerr << bt.str().c_str(); \
+  free(stack_syms);
+
+  try
+  {
+      throw;
+  }
+  catch (std::string& e)
+  {
+    catch_global_print(e.c_str());
+  }
+#ifdef MONGO_assert
+  catch (mongo::DBException& e)
+  {
+    catch_global_print(e.toString().c_str());
+  }
+#endif
+  catch (boost::exception& e)
+  {
+    catch_global_print(diagnostic_information(e).c_str());
+  }
+  catch (std::exception& e)
+  {
+    catch_global_print(e.what());
+  }
+  catch (...)
+  {
+    catch_global_print("Error occurred. Unknown exception type.");
+  }
+
+  std::abort();
+}
+
 
 inline void ServiceOptions::waitForTerminationRequest()
 {
+  std::set_terminate(&ServiceOptions::catch_global);
 	sigset_t sset;
 	sigemptyset(&sset);
 	sigaddset(&sset, SIGINT);
