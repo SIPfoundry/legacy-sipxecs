@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.backup.ArchiveDefinition;
 import org.sipfoundry.sipxconfig.backup.ArchiveProvider;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupSettings;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
@@ -89,9 +90,15 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         if (!location.isPrimary()) {
             return null;
         }
+        StringBuilder backup = new StringBuilder(
+                "$(sipx.SIPX_BINDIR)/sipxconfig-archive --backup %s");
         StringBuilder restore = new StringBuilder(
                 "$(sipx.SIPX_BINDIR)/sipxconfig-archive --restore %s --ipaddress $(sipx.bind_ip)");
+
         if (settings != null) {
+            if (!settings.isKeepDeviceFiles()) {
+                backup.append(" --no-device-files");
+            }
             if (settings.isKeepDomain()) {
                 restore.append(" --domain $(sipx.domain)");
             }
@@ -99,21 +106,24 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
                 restore.append(" --fqdn $(sipx.host).$(sipx.net_domain)");
             }
             String resetPin = settings.getResetPin();
+            String resetPassword = settings.getResetPassword();
             if (settings.isDecodePins()) {
+                if (StringUtils.isBlank(resetPin) || StringUtils.isBlank(resetPassword)) {
+                    throw new UserException("&error.passwordsRequired");
+                }
                 restore.append(" --crack-pin ").append(resetPin);
+                restore.append(" --crack-passwd ").append(resetPassword);
                 restore.append(" --crack-pin-len ").append(settings.getDecodePinLen());
             } else {
                 if (StringUtils.isNotBlank(resetPin)) {
                     restore.append(" --reset-pin ").append(resetPin);
                 }
-                String resetPassword = settings.getResetPassword();
                 if (StringUtils.isNotBlank(resetPassword)) {
                     restore.append(" --reset-password ").append(resetPassword);
                 }
             }
         }
-        ArchiveDefinition def = new ArchiveDefinition(ARCHIVE,
-                "$(sipx.SIPX_BINDIR)/sipxconfig-archive --backup %s", restore.toString());
+        ArchiveDefinition def = new ArchiveDefinition(ARCHIVE, backup.toString(), restore.toString());
         return Collections.singleton(def);
     }
 

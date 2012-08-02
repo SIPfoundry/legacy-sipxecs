@@ -39,6 +39,10 @@ public class BackupSettings extends PersistableSettings implements DeployConfigO
         return Collections.singleton((Feature) BackupManager.FEATURE);
     }
 
+    public boolean isKeepDeviceFiles() {
+        return (Boolean) getSettingTypedValue("backup/device");
+    }
+
     public boolean isKeepDomain() {
         return (Boolean) getSettingTypedValue("restore/keepDomain");
     }

@@ -21,14 +21,20 @@ class CdrWriter < Dao
       sql = CdrWriter.insert_sql
       dbh.prepare(sql) do | sth |
         while cdr = queue.shift
+          if CdrWriter.getRetryCount() > 5
+            cdr = queue.shift
+            log.warn("Database error occurred for 5 times successively, skipping to the next CDR")
+          end
           row = CdrWriter.row_from_cdr(cdr)
           sth.execute(*row)
           check_purge(dbh)
+          CdrWriter.cleanRetries()
         end
       end
     end
   rescue DBI::DatabaseError => e
     log.error("#{e.err}, #{e.errstr}")
+    CdrWriter.countRetries()
     retry        
   end
   
@@ -66,5 +72,20 @@ class CdrWriter < Dao
     def last_cdr_sql
       "SELECT start_time FROM cdrs ORDER BY start_time DESC LIMIT 1"
     end
+
+    @@retryCount = 0
+
+    def countRetries
+      @@retryCount = @@retryCount + 1
+    end
+
+    def cleanRetries
+      @@retryCount = 0
+    end
+
+    def getRetryCount
+      return @@retryCount
+    end
+
   end  
 end

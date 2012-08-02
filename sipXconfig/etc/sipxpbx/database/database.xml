@@ -1298,7 +1298,7 @@
   </target>
   <target name="crack-pin" if="migrate44.crack_pin">
     <sipx-sql>
-      select uncover_pin_on_restore('${migrate44.crack_pin}', ${migrate44.crack_pin_len});
+      select uncover_pin_on_restore('${migrate44.crack_pin}', '${migrate44.crack_passwd}', ${migrate44.crack_pin_len});
     </sipx-sql>  
   </target>
   <target name="remove-im-password" unless="remove-im-password">

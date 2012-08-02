@@ -21,6 +21,8 @@ public interface BranchManager extends DataObjectSource<Branch> {
 
     Branch getBranch(Integer branchId);
 
+    Branch retrieveBranch(Integer branchId);
+
     void saveBranch(Branch branch);
 
     void deleteBranches(Collection<Integer> allSelected);

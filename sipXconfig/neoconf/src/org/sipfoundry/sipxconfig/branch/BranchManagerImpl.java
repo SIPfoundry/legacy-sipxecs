@@ -33,6 +33,11 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
         return load(Branch.class, branchId);
     }
 
+    @Override
+    public Branch retrieveBranch(Integer branchId) {
+        return getHibernateTemplate().get(Branch.class, branchId);
+    }
+
     public Branch getBranch(String branchName) {
         return loadBranchByUniqueProperty(NAME_PROP_NAME, branchName);
     }
