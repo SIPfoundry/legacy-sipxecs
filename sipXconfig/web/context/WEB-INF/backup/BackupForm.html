@@ -1,6 +1,8 @@
 <span jwcid="@common/ErrorMsg" validator="bean:validator" />
 <form jwcid="form@Form" delegate="bean:validator">
   <input jwcid="mode@Hidden" value="ognl:mode"/>
+  <fieldset jwcid="@setting/SettingsFieldset"
+      settings="ognl:genericSettings" />
   <span jwcid="@If" condition="ognl:planSettings != null">
     <fieldset jwcid="@setting/SettingsFieldset"
         settings="ognl:planSettings" />

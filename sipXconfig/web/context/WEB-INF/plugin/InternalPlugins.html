@@ -22,7 +22,7 @@
    <li jwcid="@If" condition="ognl:isOn('conference')">
 	 <a jwcid="@PageLink" id="menu.conferenceBridge" page="conference/ListBridges"><span key="menu.conferenceBridge">Conference Bridge</span></a>
    </li>
-   <li jwcid="@If" condition="ognl:isOn('autoAttendant')">
+   <li jwcid="@If" condition="ognl:isOn('ivr')">
      <a jwcid="@PageLink" id="menu.attendants" page="dialplan/ManageAttendants"><span key="menu.attendants">Auto Attendants</span></a>
    </li>
    <li jwcid="@If" condition="ognl:isOn('intercom')">     
