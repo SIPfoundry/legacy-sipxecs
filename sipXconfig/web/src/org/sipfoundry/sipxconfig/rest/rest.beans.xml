@@ -373,14 +373,14 @@
     <property name="modifiable" value="true" />
   </bean>
   <alias name="openAcdDialStringResource" alias="/openacd-dial-string/{id}" />
-  
+
   <bean id="permissionsResource" class="org.sipfoundry.sipxconfig.rest.PermissionsResource" scope="prototype">
     <property name="permissionManager" ref="permissionManager" />
     <property name="readable" value="true" />
     <property name="modifiable" value="true" />
   </bean>
   <alias name="permissionsResource" alias="/permission" />
-  
+
   <bean id="permissionResource" class="org.sipfoundry.sipxconfig.rest.PermissionsResource" scope="prototype">
     <property name="permissionManager" ref="permissionManager" />
     <property name="readable" value="true" />
@@ -394,7 +394,7 @@
     <property name="modifiable" value="true" />
   </bean>
   <alias name="branchesResource" alias="/branch" />
-  
+
   <bean id="branchResource" class="org.sipfoundry.sipxconfig.rest.BranchesResource" scope="prototype">
     <property name="branchManager" ref="branchManager" />
     <property name="readable" value="true" />
@@ -410,7 +410,7 @@
     <property name="modifiable" value="true" />
   </bean>
   <alias name="userGroupsResource" alias="/user-group" />
-  
+
   <bean id="userGroupResource" class="org.sipfoundry.sipxconfig.rest.UserGroupsResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="settingDao" ref="settingDao" />
@@ -428,7 +428,7 @@
     <property name="modifiable" value="true" />
   </bean>
   <alias name="userGroupsPermissionsResource" alias="/user-group-permission" />
-  
+
   <bean id="userGroupsPermissionResource" class="org.sipfoundry.sipxconfig.rest.UserGroupsPermissionsResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="settingDao" ref="settingDao" />
@@ -445,7 +445,7 @@
     <property name="modifiable" value="true" />
   </bean>
   <alias name="usersResource" alias="/user" />
-  
+
   <bean id="userResource" class="org.sipfoundry.sipxconfig.rest.UsersResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="branchManager" ref="branchManager" />
@@ -461,7 +461,7 @@
     <property name="modifiable" value="true" />
   </bean>
   <alias name="usersPermissionsResource" alias="/user-permission" />
-  
+
   <bean id="usersPermissionResource" class="org.sipfoundry.sipxconfig.rest.UsersPermissionsResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="permissionManager" ref="permissionManager" />

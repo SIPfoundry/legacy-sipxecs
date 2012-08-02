@@ -46,8 +46,9 @@ public class AdminContextTest {
         settings.setSettingTypedValue("restore/decodePins", Boolean.TRUE);
         settings.setSettingTypedValue("restore/decodePinMaxLen", (Integer)5);
         settings.setSettingTypedValue("restore/resetPin", "zzz");
+        settings.setSettingTypedValue("restore/resetPassword", "yyy");
         def = impl.getArchiveDefinitions(mgr, primary, settings).iterator().next();        
-        String options = " --domain $(sipx.domain) --fqdn $(sipx.host).$(sipx.net_domain) --crack-pin zzz --crack-pin-len 5";
+        String options = " --domain $(sipx.domain) --fqdn $(sipx.host).$(sipx.net_domain) --crack-pin zzz --crack-passwd yyy --crack-pin-len 5";
         assertEquals(base + options, def.getRestoreCommand());        
         verify(mgr);        
     }

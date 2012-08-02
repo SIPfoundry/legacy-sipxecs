@@ -38,7 +38,7 @@ $$ language plpgsql;
 -- all of the "uncracked" PINs to a specfic value.    
 --
 --  Very crude report of pins that were restore /var/lib/pgsql/data/pg_log
-create or replace function uncover_pin_on_restore(reset_pin text, max_len integer) returns void as $$
+create or replace function uncover_pin_on_restore(reset_pin text, reset_passwd text, max_len integer) returns void as $$
 declare
     realm text;
     max_pin integer;
@@ -46,12 +46,14 @@ declare
     candidate text;
     hash text;
     new_pin text;
+    new_passwd text;
     my_user record;
 begin
     SELECT sip_realm from domain into realm;   
     raise NOTICE 'realm is %', realm;
 	for my_user in select user_name, pintoken from users loop
 	    new_pin := NULL;
+	    new_passwd := NULL;
 	    <<cracked>>
 		for pin_len in 1..max_len loop
 			max_pin := (10 ^ pin_len) - 1;			
@@ -60,6 +62,7 @@ begin
 				hash := md5(my_user.user_name || ':' || realm || ':' || candidate);
 				if hash = my_user.pintoken then
 				    new_pin := candidate;
+				    new_passwd := candidate;
 					exit cracked;
 				end if;
 			end loop;
@@ -67,11 +70,12 @@ begin
 		
 		if new_pin is NULL then
   		  new_pin := reset_pin;
+		  new_passwd := reset_passwd;
   		  raise NOTICE 'resetting pin for %', my_user.user_name;
 		end if;
 		
 		update users
-          set pintoken = new_pin,
+          set pintoken = new_passwd,
               voicemail_pintoken = md5(my_user.user_name || ':' || new_pin)
         where user_name = my_user.user_name;
 	end loop;

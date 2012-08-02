@@ -100,6 +100,7 @@ class Restore < ArchiveBase
     ant = "-Dsipxconfig.db.name=#{@restoredb}"
     if params.has_key?(:crack_pin)
       ant += " -Dmigrate44.crack_pin=#{params[:crack_pin]}"
+      ant += " -Dmigrate44.crack_passwd=#{params[:crack_passwd]}"
       ant += " -Dmigrate44.crack_pin_len=#{params[:crack_pin_len]}"
     end
 
@@ -224,9 +225,16 @@ EOF
 
   opts.on_tail("--crack-pin default-pin",
       "When changing the domain and when restoring from backups for versions 4.4.0, attempt to \
-recover original PIN by brute force. If unsuccessful, reset users pin. Also, if user \
-does not have an IM password, this pin will be usedfor that as well."){|v|
+recover original Voicemail PIN by brute force. If unsuccessful, reset users pin. Also, if user \
+does not have an IM password, this pin will be used for that as well."){|v|
     params[:crack_pin] = v
+  }
+
+  opts.on_tail("--crack-passwd default-passwd",
+      "When changing the domain and when restoring from backups for versions 4.4.0, attempt to \
+recover original user PIN by brute force. If unsuccessful, reset users pintoken. Also, if user \
+does not have an IM password, this pin will be usedfor that as well."){|v|
+    params[:crack_passwd] = v
   }
 
   opts.on_tail("--crack-pin-len length",
@@ -245,6 +253,14 @@ args.parse!
 
 if operation.nil?
   raise "Must specify either restore or archive options."
+end
+
+if params.has_key?(:crack_pin) and !params.has_key?(:crack_passwd)
+  raise "Use 'crack-pin' option togheter with 'crack-passwd' option"
+end
+
+if params.has_key?(:crack_passwd) and !params.has_key?(:crack_pin)
+  raise "Use 'crack_passwd' option togheter with 'crack_pin' option"
 end
 
 operation.verbose = verbose
