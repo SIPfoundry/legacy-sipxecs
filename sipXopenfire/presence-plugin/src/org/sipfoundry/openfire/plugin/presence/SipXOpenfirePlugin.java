@@ -34,9 +34,12 @@ import org.jivesoftware.openfire.container.Plugin;
 import org.jivesoftware.openfire.container.PluginClassLoader;
 import org.jivesoftware.openfire.container.PluginManager;
 import org.jivesoftware.openfire.group.Group;
+import org.jivesoftware.openfire.group.GroupAlreadyExistsException;
 import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.group.GroupNotFoundException;
 import org.jivesoftware.openfire.interceptor.InterceptorManager;
+import org.jivesoftware.openfire.muc.ConflictException;
+import org.jivesoftware.openfire.muc.ForbiddenException;
 import org.jivesoftware.openfire.muc.HistoryStrategy;
 import org.jivesoftware.openfire.muc.MUCRole;
 import org.jivesoftware.openfire.muc.MUCRole.Affiliation;
@@ -67,7 +70,6 @@ import org.sipfoundry.sipcallwatcher.CallWatcher;
 import org.sipfoundry.sipcallwatcher.ResourceStateChangeListener;
 import org.xmpp.component.Component;
 import org.xmpp.component.ComponentManager;
-import org.xmpp.component.ComponentManagerFactory;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.Packet;
 import org.xmpp.packet.Presence;
@@ -217,8 +219,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             // Library libhostname.so does not get automatically added to the classpath
             // probably because the file extension does not match the *.jar pattern
             StringBuilder sb = new StringBuilder(javaClassPaths).append(":" + openfireHome
-                + "/plugins/" + SipXOpenfirePlugin.PLUGIN_PATH
-                + "/lib/libhostname.so");
+                    + "/plugins/" + SipXOpenfirePlugin.PLUGIN_PATH
+                    + "/lib/libhostname.so");
             System.setProperty("java.class.path", sb.toString());
 
             // Configure log4j
@@ -247,26 +249,26 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
     }
 
+    @Override
     public void initializePlugin(PluginManager manager, File pluginDirectory) {
         SipXOpenfirePlugin.instance = this;
 
         InputStream in = getClass().getResourceAsStream("/config.properties");
         Properties properties = new Properties();
-        componentManager = ComponentManagerFactory.getComponentManager();
 
         try {
             properties.load(in);
         } catch (IOException ex) {
-            componentManager.getLog().error(ex);
+            log.error(ex);
         }
 
         try {
             if (new File("/tmp/sipx.properties").exists()) {
                 System.getProperties()
-                        .load(new FileInputStream(new File("/tmp/sipx.properties")));
+                .load(new FileInputStream(new File("/tmp/sipx.properties")));
             }
         } catch (Exception ex) {
-            componentManager.getLog().error(ex);
+            log.error(ex);
             throw new SipXOpenfirePluginException("Error reading config file ", ex);
         }
         configurationPath = System.getProperty("conf.dir", "/etc/sipxpbx");
@@ -367,7 +369,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         PresenceUnifier.setPlugin(this);
         PresenceUnifier.getInstance();
 
-	addInterceptor( new DefaultMessagePacketInterceptor());
+        addInterceptor( new DefaultMessagePacketInterceptor());
 
         // add packet interceptors found in extras directory.
         if( this.getClass().getClassLoader() instanceof PluginClassLoader ){
@@ -420,22 +422,23 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     void addInterceptor(AbstractMessagePacketInterceptor interceptor) {
         interceptor.start(this);
         abstractMessagePacketInterceptors.add(interceptor);
-	InterceptorManager.getInstance().addInterceptor(interceptor);
+        InterceptorManager.getInstance().addInterceptor(interceptor);
     }
 
     void loadExtras(ClassLoader classLoader, File extrasDir){
         // inspect all jars in the extras dir
         File[] jars = extrasDir.listFiles(new FilenameFilter() {
+            @Override
             public boolean accept(File dir, String name) {
                 return name.endsWith(".jar");
             }
         });
         if (jars != null) {
-            for (int i = 0; i < jars.length; i++) {
+            for (File jar : jars) {
                 // find all classes that are packet interceptors
                 try{
-                    log.info("loadExtras considering jar: " + jars[i].getName() );
-                    JarFile jarFile = new JarFile(jars[i]);
+                    log.info("loadExtras considering jar: " + jar.getName() );
+                    JarFile jarFile = new JarFile(jar);
                     // Get the manifest and its attributes
                     Manifest manifest = jarFile.getManifest();
                     Attributes attribs = manifest.getMainAttributes();
@@ -462,6 +465,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         return isInitialized;
     }
 
+    @Override
     public void destroyPlugin() {
         log.debug("DestroyPlugin");
         isInitialized = false;
@@ -471,7 +475,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         for(AbstractMessagePacketInterceptor abstractMessagePacketInterceptor : abstractMessagePacketInterceptors){
             InterceptorManager.getInstance().removeInterceptor(abstractMessagePacketInterceptor);
         }
-	abstractMessagePacketInterceptors.clear();
+        abstractMessagePacketInterceptors.clear();
         CallWatcher.destroy();
 
         multiUserChatManager = null;
@@ -489,23 +493,29 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         accountsParser = null;
     }
 
+    @Override
     public String getName() {
         return pluginManager.getName(this);
     }
 
+    @Override
     public String getDescription() {
         return pluginManager.getDescription(this);
     }
 
+    @Override
     public void initialize(JID jid, ComponentManager componentManager) {
     }
 
+    @Override
     public void start() {
     }
 
+    @Override
     public void shutdown() {
     }
 
+    @Override
     public void processPacket(Packet packet) {
         // Check that we are getting an answer to a presence probe
         if (packet instanceof Presence) {
@@ -642,7 +652,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
     }
 
-    public void update( XmppUserAccount userAccount ) throws Exception {
+    public void update( XmppUserAccount userAccount ) throws UserNotFoundException {
         log.debug("update UserAccount " + userAccount.getUserName());
 
         try {
@@ -661,9 +671,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             try {
                 // user does not exist create it.
                 userManager.createUser(userAccount.getUserName(),
-                                       userAccount.getPassword(),
-                                       userAccount.getDisplayName(),
-                                       userAccount.getEmail());
+                        userAccount.getPassword(),
+                        userAccount.getDisplayName(),
+                        userAccount.getEmail());
             } catch (UserAlreadyExistsException ex) {
                 throw new SipXOpenfirePluginException(ex);
             }
@@ -672,17 +682,15 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
         this.xmppUserPreferencesMap.put(userAccount.getUserName(),
                 new XmppUserPreferences(userAccount.getAdvertiseOnCallPreference(),
-                                        userAccount.getShowOnCallDetailsPreference()));
+                        userAccount.getShowOnCallDetailsPreference()));
 
         String jid = XmppAccountInfo.appendDomain(userAccount.getUserName());
         String sipUserName = userAccount.getSipUserName();
-        log.debug("setSipId " + jid + " sipUserName " + sipUserName);
         setSipId(jid, sipUserName);
         setOnThePhoneMessage(sipUserName, userAccount.getOnThePhoneMessage());
-        setAllowedUserForChatServices(jid); // Make sure that user can create multi-user chatrooms
     }
 
-    public void destroyUser(String jid) throws UserNotFoundException {
+    public void destroyUser(String jid) {
         try {
             log.info("destroyUser " + jid);
 
@@ -748,7 +756,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         user.getProperties().put(SIP_PWD, sipPassword);
     }
 
-    public void update( XmppGroup group ) throws Exception {
+    public void update( XmppGroup group ) throws GroupAlreadyExistsException, GroupNotFoundException  {
         log.debug("update Group " + group.getGroupName());
 
         boolean isAllAdminGroup = false;
@@ -988,19 +996,19 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     private void updateBookmark(MUCRoom mucRoom, JID jid) {
         if (SipXBookmarkManager.isInitialized()) {
             SipXBookmarkManager bookmarkManager = SipXBookmarkManager.getInstance();
-		    if (bookmarkManager.getMUCBookmarkID(mucRoom.getName()) == null) {
-				bookmarkManager.createMUCBookmark(mucRoom.getName(), mucRoom.getJID().toBareJID());
-				bookmarkManager.setMUCBookmarkOwner(mucRoom.getName(), jid.getNode());
-		    } else {
-				bookmarkManager.setMUCBookmarkOwner(mucRoom.getName(), jid.getNode());
-		    }
+            if (bookmarkManager.getMUCBookmarkID(mucRoom.getName()) == null) {
+                bookmarkManager.createMUCBookmark(mucRoom.getName(), mucRoom.getJID().toBareJID());
+                bookmarkManager.setMUCBookmarkOwner(mucRoom.getName(), jid.getNode());
+            } else {
+                bookmarkManager.setMUCBookmarkOwner(mucRoom.getName(), jid.getNode());
+            }
         }
     }
 
-    public void update( XmppChatRoom xmppChatRoom ) throws Exception {
+    public void update( XmppChatRoom xmppChatRoom ) throws NotAllowedException, ForbiddenException, ConflictException  {
         log.info(String.format("update ChatRoom %s\n %s\n %s\n %s",
                 xmppChatRoom.getSubdomain(), xmppChatRoom.getRoomName(), xmppChatRoom
-                        .getDescription(), xmppChatRoom.getConferenceExtension()));
+                .getDescription(), xmppChatRoom.getConferenceExtension()));
         if ( xmppChatRoom.getSubdomain() == null || xmppChatRoom.getRoomName() == null ) {
             log.error("Null Subdomain or RoomName specified.");
             return;
@@ -1231,7 +1239,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         if (mucRoom == null) {
             throw new NotFoundException("Room not found " + domain + " roomName " + roomName);
         }
-        Map<String, String> attribs = (Map<String, String>) newAttributes;
+        Map<String, String> attribs = newAttributes;
         boolean isModerated = Boolean.parseBoolean(attribs.get("isModerated"));
         mucRoom.setModerated(isModerated);
         boolean isLogEnabled = Boolean.parseBoolean(attribs.get("isLogEnabled"));
@@ -1266,7 +1274,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
         ConferenceInformation confInfo = this.roomNameToConferenceInfoMap.get(domain + "."
                 + roomName);
-        ;
+
         if (confInfo == null) {
             throw new NotFoundException("Room not found " + domain + " roomName " + roomName);
         }
@@ -1282,7 +1290,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
         ConferenceInformation confInfo = this.roomNameToConferenceInfoMap.get(domain + "."
                 + roomName);
-        ;
+
         if (confInfo == null) {
             throw new NotFoundException("Room not found " + domain + " roomName " + roomName);
         }
@@ -1291,7 +1299,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
     public boolean shouldDisplayUserOnThePhoneStatus(String xmppUserName) throws NotFoundException {
         XmppUserPreferences prefs = this.xmppUserPreferencesMap.get(xmppUserName);
-        ;
+
         if (prefs == null) {
             throw new NotFoundException("User not found " + xmppUserName);
         }
@@ -1315,15 +1323,15 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
         ConferenceInformation confInfo = this.roomNameToConferenceInfoMap.get(domain + "."
                 + roomName);
-        ;
+
         if (confInfo == null) {
             throw new NotFoundException("Room not found " + domain + " roomName " + roomName);
         }
         return confInfo.pin;
     }
 
-    public HashSet<UserAccount> getUserAccounts() {
-        HashSet<UserAccount> userAccounts = new HashSet<UserAccount>();
+    public Set<UserAccount> getUserAccounts() {
+        Set<UserAccount> userAccounts = new HashSet<UserAccount>();
         for (User user : this.userManager.getUsers()) {
             UserAccount userAccount = new UserAccount();
             String sipUserId = user.getProperties().get(SIP_UID);
@@ -1364,7 +1372,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         for (MultiUserChatService service : pruneSet) {
             String subdomain = service.getServiceDomain().split("\\.")[0];
             if (!subdomains.contains(subdomain) &&
-                !subdomain.equals(DEFAULT_MUC_SERVICE)) {
+                    !subdomain.equals(DEFAULT_MUC_SERVICE)) {
                 log.info("Pruning Unwanted Xmpp chatroom service " + subdomain );
                 this.multiUserChatManager.removeMultiUserChatService(subdomain);
             }
@@ -1372,26 +1380,26 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     }
 
     public void setAllowedUsersForChatServices(Collection<UserAccount> accounts){
-        HashSet<MultiUserChatService> chatServices = new HashSet<MultiUserChatService>();
+        Set<MultiUserChatService> chatServices = new HashSet<MultiUserChatService>();
         chatServices.addAll(this.multiUserChatManager.getMultiUserChatServices());
 
         for (MultiUserChatService service : chatServices) {
+            Set<String> userJIDs = new HashSet<String>();
             // start from scratch - clear out set of users allowed to create
             Collection<String> usersCurrentlyAllowedToCreate = service.getUsersAllowedToCreate();
-            for( String user : usersCurrentlyAllowedToCreate){
-                service.removeUserAllowedToCreate(user);
-            }
+            service.removeUsersAllowedToCreate(usersCurrentlyAllowedToCreate);
 
             // add in all the users who have accounts on the system
-            for( UserAccount user : accounts){
+            for(UserAccount user : accounts) {
                 String userJID =  user.getXmppUserName() + "@" + getXmppDomain();
-                service.addUserAllowedToCreate(userJID);
+                userJIDs.add(userJID);
             }
+            service.addUsersAllowedToCreate(userJIDs);
         }
     }
 
     public void setAllowedUserForChatServices(String jid){
-        HashSet<MultiUserChatService> chatServices = new HashSet<MultiUserChatService>();
+        Set<MultiUserChatService> chatServices = new HashSet<MultiUserChatService>();
         chatServices.addAll(this.multiUserChatManager.getMultiUserChatServices());
 
         for (MultiUserChatService service : chatServices) {
@@ -1480,8 +1488,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         /*
          * A valid user in another domain - return OK for this.
          */
-        if (!userJid.getDomain().equals(this.getXmppDomain()))
+        if (!userJid.getDomain().equals(this.getXmppDomain())) {
             return true;
+        }
         try {
             String username = userJid.getNode();
             this.userManager.getUser(username);
@@ -1494,6 +1503,5 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     public Localizer getLocalizer(){
         return this.localizer;
     }
-
 }
 

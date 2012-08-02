@@ -5,6 +5,7 @@
  */
 package org.sipfoundry.openfire.plugin.presence.servlets;
 
+
 import java.io.IOException;
 
 import javax.servlet.ServletConfig;
@@ -18,16 +19,15 @@ import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.XmlRpcServletServer;
 import org.jivesoftware.admin.AuthCheckFilter;
-import org.jivesoftware.openfire.XMPPServer;
-import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePlugin;
-import org.sipfoundry.openfire.plugin.presence.XmlRpcPresenceProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xmpp.component.ComponentManager;
 import org.xmpp.component.ComponentManagerFactory;
 
 public class SipXOpenfireServlet extends HttpServlet {
     private XmlRpcServletServer server;
 
-    org.xmpp.component.Log log ;
+    private static final Logger log = LoggerFactory.getLogger(SipXOpenfireServlet.class);
 
     private String path;
 
@@ -38,7 +38,6 @@ public class SipXOpenfireServlet extends HttpServlet {
         // Register new component
         ComponentManager componentManager = ComponentManagerFactory.getComponentManager();
 
-        log = componentManager.getLog();
         log.info(String.format("initializing Servlet for service name %s and provider %s", serviceName, provider.getCanonicalName()));
 
 

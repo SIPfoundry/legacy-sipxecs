@@ -78,36 +78,39 @@ public class AccountsParser {
 
     public void parseAccounts() {
         String fileUrl = "file://" + accountDbFileName;
-        XmppAccountInfo newAccountInfo = AccountsParser.this.parse(fileUrl);
+        XmppAccountInfo newAccountInfo = AccountsParser.parse(fileUrl);
+        logger.debug("Pruning unwanted users");
         pruneUnwantedXmppUsers( newAccountInfo.getXmppUserAccountNames() );
+        logger.debug("Done pruning unwanted users");
+        logger.debug("Pruning unwanted groups");
         pruneUnwantedXmppGroups( newAccountInfo.getXmppGroupNames() ); // prune groups before applying deltas - see XX-7886
-        enforceConfigurationDeltas( newAccountInfo, previousXmppAccountInfo );
+        logger.debug("Done pruning unwanted groups");
+        logger.debug("Enforcing config deltas");
+        // unfortunately, previous account info is always null on startup; this will trigger a
+        // synchronization on each startup
+        enforceConfigurationDeltas(newAccountInfo, previousXmppAccountInfo);
+        logger.debug("Done enforcing config deltas");
+        logger.debug("Pruning unwanted chatrooms");
         pruneUnwantedXmppChatrooms( newAccountInfo );
+        logger.debug("Dome pruning unwanted chatrooms");
+        logger.debug("Pruning unwanted chatroom services");
         pruneUnwantedXmppChatRoomServices( newAccountInfo.getXmppChatRooms() );
+        logger.debug("Done pruning unwanted chatroom services");
         // Make sure that all user accounts can create multi-user chatrooms
         SipXOpenfirePlugin plugin = SipXOpenfirePlugin.getInstance();
+        logger.debug("Setting allowed for chat services");
         plugin.setAllowedUsersForChatServices(plugin.getUserAccounts());
+        logger.debug("Done setting allowed for chat services");
         previousXmppAccountInfo = newAccountInfo;
     }
 
-    private void enforceConfigurationDeltas(XmppAccountInfo newAccountInfo, XmppAccountInfo previousXmppAccountInfo) {
+    private static void enforceConfigurationDeltas(XmppAccountInfo newAccountInfo,
+            XmppAccountInfo previousXmppAccountInfo) {
         setElementsChangeStatusBasedOnPreviousConfiguration(newAccountInfo, previousXmppAccountInfo);
         for (XmppConfigurationElement element : newAccountInfo.getAllElements()) {
             if (element.getStatus() != XmppAccountStatus.UNCHANGED) {
                 try {
-                    if (element instanceof XmppUserAccount) {
-                        SipXOpenfirePlugin.getInstance().update((XmppUserAccount) element);
-                    } else if (element instanceof XmppGroup) {
-                        SipXOpenfirePlugin.getInstance().update((XmppGroup) element);
-                    } else if (element instanceof XmppChatRoom) {
-                        try {
-                            SipXOpenfirePlugin.getInstance().update((XmppChatRoom) element);
-                        } catch (Exception e) {
-                            logger.error("enforceConfigurationDeltas caught " + e);
-                        }
-                    } else {
-                        logger.error("Dealing with unexpected class type " + element.getClass());
-                    }
+                    element.update();
                 } catch (Exception e) {
                     logger.error("setElementsChangeStatusBasedOnPreviousConfiguration caught ", e);
                 }
@@ -115,7 +118,7 @@ public class AccountsParser {
         }
     }
 
-    private void setElementsChangeStatusBasedOnPreviousConfiguration(XmppAccountInfo newXmppAccountInfo,
+    private static void setElementsChangeStatusBasedOnPreviousConfiguration(XmppAccountInfo newXmppAccountInfo,
             XmppAccountInfo previousXmppAccountInfo) {
         if (previousXmppAccountInfo == null) {
             // no previous config, everything looks new to us.
@@ -141,7 +144,7 @@ public class AccountsParser {
         }
     }
 
-    private void setElementsChangeStatusBasedOnPreviousConfiguration(
+    private static void setElementsChangeStatusBasedOnPreviousConfiguration(
             Map<String, ? extends XmppConfigurationElement> newXmppAccountMap,
             Map<String, ? extends XmppConfigurationElement> previousXmppAccountMap) {
         for (String elementName : newXmppAccountMap.keySet()) {
@@ -163,7 +166,7 @@ public class AccountsParser {
         }
     }
 
-    private void pruneUnwantedXmppUsers(Set<String> xmppUserAccountNamesMasterList) {
+    private static void pruneUnwantedXmppUsers(Set<String> xmppUserAccountNamesMasterList) {
         SipXOpenfirePlugin plugin = SipXOpenfirePlugin.getInstance();
         // recall user accounts currently configured in openfire
         Collection<UserAccount> userAccountsInOpenfire = plugin.getUserAccounts();
@@ -194,7 +197,7 @@ public class AccountsParser {
         }
     }
 
-    private void pruneUnwantedXmppGroups(Set<String> xmppGroupNamesMasterList) {
+    private static void pruneUnwantedXmppGroups(Set<String> xmppGroupNamesMasterList) {
         SipXOpenfirePlugin plugin = SipXOpenfirePlugin.getInstance();
         // recall groups currently configured in openfire
         Collection<Group> groupsInOpenfire = plugin.getGroups();
@@ -213,7 +216,7 @@ public class AccountsParser {
         }
     }
 
-    private void pruneUnwantedXmppChatrooms(XmppAccountInfo newAccountInfo) {
+    private static void pruneUnwantedXmppChatrooms(XmppAccountInfo newAccountInfo) {
         SipXOpenfirePlugin plugin = SipXOpenfirePlugin.getInstance();
         // recall chatrooms currently configured in openfire
         Collection<MUCRoom> chatRoomsInOpenfire = plugin.getMUCRooms();
@@ -247,7 +250,7 @@ public class AccountsParser {
         }
     }
 
-    private void pruneUnwantedXmppChatRoomServices(Collection<XmppChatRoom> configuredXmppChatRooms) {
+    private static void pruneUnwantedXmppChatRoomServices(Collection<XmppChatRoom> configuredXmppChatRooms) {
         /*
          * Restrict the chat services to those contained configured chatrooms
          */
@@ -284,7 +287,7 @@ public class AccountsParser {
         timer.schedule(scanner, 0, 10000);
     }
 
-    public void stopScanner() {
+    public static void stopScanner() {
         timer.cancel();
     }
 
@@ -346,7 +349,7 @@ public class AccountsParser {
 
     }
 
-    public XmppAccountInfo parse(String url) {
+    public static XmppAccountInfo parse(String url) {
         // Create a Digester instance
         try {
             InputSource inputSource = new InputSource(url);
@@ -363,7 +366,7 @@ public class AccountsParser {
 
     }
 
-    private void parseMongoUsers(XmppAccountInfo accountInfo) {
+    private static void parseMongoUsers(XmppAccountInfo accountInfo) {
         List<User> users = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUsersWithImEnabled();
         for (User user : users) {
             XmppUserAccount account = new XmppUserAccount();
