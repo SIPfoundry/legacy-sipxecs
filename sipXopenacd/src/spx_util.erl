@@ -479,6 +479,10 @@ build_client([{<<"ident">>, Id}|T], Acc) ->
 	build_client(T, Acc#client{id = binary_to_list(Id)});
 build_client([{<<"name">>, Label}|T], Acc) ->
 	build_client(T, Acc#client{label = binary_to_list(Label)});
+build_client([{<<"autoendwrp">>, Secs}|T], Acc)
+		when is_integer(Secs) andalso Secs > 0 ->
+	Opts = Acc#client.options,
+	build_client(T, Acc#client{options = [{autoend_wrapup, Secs}|Opts]});
 build_client([_|T], Acc) ->
 	build_client(T, Acc).
 
@@ -761,7 +765,11 @@ build_client_test_() ->
 		?_assertEqual({error, nolabel}, spx_util:build_client([{<<"ident">>, <<"client1">>}])),
 		?_assertMatch({ok, #client{label="MyClient"}}, Build([])),
 
-		?_assertMatch({ok, #client{}}, Build([{<<"unknown">>, <<"prop">>}]))	
+		?_assertMatch({ok, #client{options=[]}}, Build([])),
+		?_assertMatch({ok, #client{options=[]}}, Build([{<<"autoendwrp">>, null}])),
+		?_assertMatch({ok, #client{options=[{autoend_wrapup, 10}]}}, Build([{<<"autoendwrp">>, 10}])),
+
+		?_assertMatch({ok, #client{}}, Build([{<<"unknown">>, <<"prop">>}]))
 	].
 
 
