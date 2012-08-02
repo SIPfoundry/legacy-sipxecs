@@ -20,21 +20,27 @@
     <setting name="password" >
       <type>
         <string password="yes"></string>
-      </type>
+      </type>      
+    </setting>   
+  </group>
+  <group name="backup">
+    <setting name="device">
+      <type><boolean/></type>
+      <value>1</value>
     </setting>
   </group>
   <group name="restore">
     <setting name="keepDomain">
       <type><boolean/></type>
-      <value>true</value>
+      <value>0</value>
     </setting>
     <setting name="keepFqdn">
       <type><boolean/></type>
-      <value>true</value>
+      <value>0</value>
     </setting>
     <setting name="decodePins">
       <type><boolean/></type>
-      <value>true</value>
+      <value>0</value>
     </setting>
     <setting name="decodePinMaxLen">
       <type refid="pinLen"/>

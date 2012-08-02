@@ -28,7 +28,7 @@ import org.sipfoundry.sipxconfig.test.TestHelper;
 
 
 public class AdminContextTest {
-    
+
     @Test
     public void archiveDefinition() {
         AdminContextImpl impl = new AdminContextImpl();
@@ -38,18 +38,23 @@ public class AdminContextTest {
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
         Location primary = new Location("one.example.org", "1.1.1.1");
         primary.setPrimary(true);
-        ArchiveDefinition def = impl.getArchiveDefinitions(mgr, primary, settings).iterator().next();        
+        ArchiveDefinition def = impl.getArchiveDefinitions(mgr, primary, settings).iterator().next();
         String base = "$(sipx.SIPX_BINDIR)/sipxconfig-archive --restore %s --ipaddress $(sipx.bind_ip)";
+        String baseBackup = "$(sipx.SIPX_BINDIR)/sipxconfig-archive --backup %s";
         assertEquals(base, def.getRestoreCommand());
+        assertEquals(baseBackup, def.getBackupCommand());
+        settings.setSettingTypedValue("backup/device", Boolean.FALSE);
         settings.setSettingTypedValue("restore/keepDomain", Boolean.TRUE);
         settings.setSettingTypedValue("restore/keepFqdn", Boolean.TRUE);
         settings.setSettingTypedValue("restore/decodePins", Boolean.TRUE);
         settings.setSettingTypedValue("restore/decodePinMaxLen", (Integer)5);
         settings.setSettingTypedValue("restore/resetPin", "zzz");
         settings.setSettingTypedValue("restore/resetPassword", "yyy");
-        def = impl.getArchiveDefinitions(mgr, primary, settings).iterator().next();        
+        def = impl.getArchiveDefinitions(mgr, primary, settings).iterator().next();
         String options = " --domain $(sipx.domain) --fqdn $(sipx.host).$(sipx.net_domain) --crack-pin zzz --crack-passwd yyy --crack-pin-len 5";
-        assertEquals(base + options, def.getRestoreCommand());        
-        verify(mgr);        
+        String backupOptions = " --no-device-files";
+        assertEquals(base + options, def.getRestoreCommand());
+        assertEquals(baseBackup + backupOptions, def.getBackupCommand());
+        verify(mgr);
     }
 }

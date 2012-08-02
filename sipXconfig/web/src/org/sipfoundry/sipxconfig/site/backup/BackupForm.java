@@ -121,15 +121,17 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
         Collection<?> invalidOrOff = CollectionUtils.disjunction(getDefinitionIds(), plan.getAutoModeDefinitionIds());
         plan.getAutoModeDefinitionIds().removeAll(invalidOrOff);
 
-        if (getSettingsPath() != null) {
-            if (getSettings() == null) {
-                setSettings(getBackupManager().getSettings());
-            }
+        if (getSettings() == null) {
+            setSettings(getBackupManager().getSettings());
         }
     }
 
     public Setting getPlanSettings() {
-        return getSettings() != null ? getSettings().getSettings().getSetting(getSettingsPath()) : null;
+        return getSettingsPath() != null ? getSettings().getSettings().getSetting(getSettingsPath()) : null;
+    }
+
+    public Setting getGenericSettings() {
+        return getSettings() != null ? getSettings().getSettings().getSetting("backup") : null;
     }
 
     public IPropertySelectionModel getBackupLimitSelectionModel() {
@@ -181,9 +183,7 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
         }
         setMode("auto");
         getBackupManager().saveBackupPlan(getBackupPlan());
-        if (getPlanSettings() != null) {
-            getBackupManager().saveSettings(getSettings());
-        }
+        getBackupManager().saveSettings(getSettings());
         getValidator().recordSuccess(getMessages().getMessage("message.success"));
     }
 

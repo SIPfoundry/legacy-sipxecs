@@ -60,6 +60,13 @@ class Backup < ArchiveBase
       raise "Could not backup avatar database"
     cmd "echo @PACKAGE_VERSION@ > version" or 
       raise "Could not generate version file"
+    if params.has_key?(:no_device_files)
+      @attachments = [
+         '@localstatedir@/sipxdata/parkserver/music',
+         '@localstatedir@/sipxdata/mediaserver/data/moh',
+         '@localstatedir@/sipxdata/sipxpage/music'
+      ];  
+    end      
     attachments = @attachments.find_all{|d|
       File.directory? d
     }
@@ -177,6 +184,14 @@ EOF
       "Restore the specified Configuration archive."){ |v|
     operation = Backup.new
     params[:file] = v
+  }
+  
+  opts.separator ""
+  opts.separator "Backup options:"
+    
+  opts.on_tail("--no-device-files",
+      "Do not include device uploaded files in backup."){
+      params[:no_device_files] = true
   }
 
   opts.on("--restore <archive>",

@@ -90,9 +90,15 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         if (!location.isPrimary()) {
             return null;
         }
+        StringBuilder backup = new StringBuilder(
+                "$(sipx.SIPX_BINDIR)/sipxconfig-archive --backup %s");
         StringBuilder restore = new StringBuilder(
                 "$(sipx.SIPX_BINDIR)/sipxconfig-archive --restore %s --ipaddress $(sipx.bind_ip)");
+
         if (settings != null) {
+            if (!settings.isKeepDeviceFiles()) {
+                backup.append(" --no-device-files");
+            }
             if (settings.isKeepDomain()) {
                 restore.append(" --domain $(sipx.domain)");
             }
@@ -117,8 +123,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
                 }
             }
         }
-        ArchiveDefinition def = new ArchiveDefinition(ARCHIVE,
-                "$(sipx.SIPX_BINDIR)/sipxconfig-archive --backup %s", restore.toString());
+        ArchiveDefinition def = new ArchiveDefinition(ARCHIVE, backup.toString(), restore.toString());
         return Collections.singleton(def);
     }
 
