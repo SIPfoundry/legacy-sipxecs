@@ -9,18 +9,25 @@
  */
 package org.sipfoundry.sipxconfig.upload;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implements BeanFactoryAware, UploadManager {
+    private static final Log LOG = LogFactory.getLog(UploadManagerImpl.class);
+
     private static final String NAME = "name";
     private ListableBeanFactory m_beanFactory;
     private ModelSource<UploadSpecification> m_specificationSource;
@@ -62,6 +69,38 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
 
     public Collection<Upload> getUpload() {
         return getHibernateTemplate().findByNamedQuery("upload");
+    }
+
+    public void clearMissingUploads(Collection<Upload> uploads) {
+        Collection<Setting> settings = null;
+        String fileName = null;
+        File uploadedFile = null;
+        for (Upload upload : uploads) {
+            boolean fileDbSynch = true;
+            Setting set = upload.getSettings();
+            for (Setting set2 : set.getValues()) {
+                settings = set2.getValues();
+                for (Setting settingObj : settings) {
+                    if (settingObj.getType() instanceof FileSetting) {
+                        fileName = settingObj.getValue();
+                        if (fileName != null) {
+                            uploadedFile = new File(
+                                    upload.getUploadDirectory() + File.separatorChar + settingObj.getValue());
+                            if (!uploadedFile.exists()) {
+                                LOG.info("Uploaded file missing: "
+                                        + uploadedFile.getAbsolutePath() + " remove associated setting");
+                                settingObj.setValue(null);
+                                fileDbSynch = false;
+                            }
+                        }
+                    }
+                }
+            }
+            if (!fileDbSynch) {
+                saveUpload(upload);
+            }
+        }
+
     }
 
     public boolean isActiveUploadById(UploadSpecification spec) {

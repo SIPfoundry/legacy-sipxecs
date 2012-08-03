@@ -54,4 +54,11 @@ public interface UploadManager extends DataObjectSource<Upload> {
      * testing only
      */
     void clear();
+
+    /**
+     * Checks if the database entries for uploaded files (setting_value entries)
+     * corresponds to the actual uploaded files
+     * This applies when restore is performed based on a backup that do not contains device files
+     */
+    void clearMissingUploads(Collection<Upload> uploads);
 }
