@@ -20,5 +20,9 @@
       <type refid="true-false"/>
       <value>NO</value>
     </setting>
+    <setting name="reverse_lookup_enable">
+      <type refid="true-false"/>
+      <value>NO</value>
+    </setting>
  </group>
 </model>
