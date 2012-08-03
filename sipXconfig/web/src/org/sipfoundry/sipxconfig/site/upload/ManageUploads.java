@@ -152,6 +152,7 @@ public abstract class ManageUploads extends SipxBasePage implements PageBeginRen
     public void pageBeginRender(PageEvent event_) {
         if (getUpload() == null) {
             setUpload(getUploadManager().getUpload());
+            getUploadManager().clearMissingUploads(getUpload());
         }
         if (getSettings() == null) {
             setSettings(getFtpManager().getSettings());

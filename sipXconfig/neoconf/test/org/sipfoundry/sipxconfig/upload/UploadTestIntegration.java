@@ -9,13 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.upload;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITable;
-import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
@@ -23,6 +22,12 @@ import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureExcepti
 
 public class UploadTestIntegration extends IntegrationTestCase {
     private UploadManager m_uploadManager;
+
+    final static UploadSpecification UNMANAGED = new UploadSpecification("upload",
+    "unmanagedUpload");
+    static {
+        UNMANAGED.setModelFilePath("unmanagedPhone/upload.xml");
+    }
 
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
@@ -40,7 +45,7 @@ public class UploadTestIntegration extends IntegrationTestCase {
         f.setName("bezerk");
         m_uploadManager.saveUpload(f);
         commit();
-        
+
         Map<String, Object> actual = db().queryForMap("select * from upload");
         assertEquals("bezerk", actual.get("name"));
         assertEquals(false, actual.get("deployed"));
@@ -148,5 +153,68 @@ public class UploadTestIntegration extends IntegrationTestCase {
 
     public void setUploadManager(UploadManager uploadManager) {
         m_uploadManager = uploadManager;
+    }
+
+    private String mkdirs(String dir) {
+        new File(dir).mkdirs();
+        return dir;
+    }
+
+    public void testMissingUploads() throws Exception {
+        Upload upload1 = new Upload(UNMANAGED);
+        Upload upload2 = new Upload(UNMANAGED);
+
+        upload1.setDirectoryId(String.valueOf(System.currentTimeMillis()));
+        upload1.setModelFilesContext(TestHelper.getModelFilesContext());
+        upload1.setUploadRootDirectory(TestHelper.getTestDirectory() + "/upload1");
+        upload1.setName("Upload1");
+        upload2.setName("Upload2");
+        upload2.setDirectoryId(String.valueOf(System.currentTimeMillis()));
+        upload2.setModelFilesContext(TestHelper.getModelFilesContext());
+        upload2.setUploadRootDirectory(TestHelper.getTestDirectory() + "/upload2");
+
+        File dir1 = new File(mkdirs(upload1.getUploadDirectory()));
+        File file11 = File.createTempFile("upload-test", ".dat", dir1);
+        File file12 = File.createTempFile("upload-test2", ".dat", dir1);
+        File file13 = File.createTempFile("upload-test3", ".dat", dir1);
+        upload1.setSettingValue("files/file1", file11.getName());
+        upload1.setSettingValue("files/file2", file12.getName());
+        upload1.setSettingValue("files/file3", file13.getName());
+
+        File dir2 = new File(mkdirs(upload1.getUploadDirectory()));
+        File file21 = File.createTempFile("upload-2test2", ".dat", dir2);
+        File file22 = File.createTempFile("upload-2test22", ".dat", dir2);
+        upload2.setSettingValue("files/file1", file21.getName());
+        upload2.setSettingValue("files/file2", file22.getName());
+
+        assertTrue(file11.exists());
+        assertTrue(file12.exists());
+        assertTrue(file13.exists());
+        assertTrue(file21.exists());
+        assertTrue(file22.exists());
+
+        file11.delete();
+        file13.delete();
+        file21.delete();
+        file22.delete();
+        assertFalse(file11.exists());
+        assertTrue(file12.exists());
+        assertFalse(file13.exists());
+        assertFalse(file21.exists());
+        assertFalse(file21.exists());
+
+        assertEquals(upload1.getSettingValue("files/file1"), file11.getName());
+        assertEquals(upload1.getSettingValue("files/file2"), file12.getName());
+        assertEquals(upload1.getSettingValue("files/file3"), file13.getName());
+        assertEquals(upload2.getSettingValue("files/file1"), file21.getName());
+        assertEquals(upload2.getSettingValue("files/file2"), file22.getName());
+
+        m_uploadManager.clearMissingUploads(Arrays.asList(upload1, upload2));
+
+        assertNull(upload1.getSettingValue("files/file1"));
+        assertEquals(upload1.getSettingValue("files/file2"), file12.getName());
+        assertNull(upload1.getSettingValue("files/file3"));
+        assertNull(upload2.getSettingValue("files/file1"));
+        assertNull(upload2.getSettingValue("files/file2"));
     }
 }
