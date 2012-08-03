@@ -23,6 +23,10 @@ Requires: sipxcommserverlib >= %version
 Requires: sipxcommons >= %version
 Requires: openfire >= 3.7.1
 
+# old openfire package in 4.4, this allows 4.6 systems
+# to unininstall it and openfire to install instead
+Obsoletes: sipx-openfire
+
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
