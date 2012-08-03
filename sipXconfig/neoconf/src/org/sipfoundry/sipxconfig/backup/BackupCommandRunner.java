@@ -27,6 +27,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.common.UserException;
 
 /**
  * Wraps functionality of cluster backup script and makes it available.
@@ -93,17 +94,14 @@ public class BackupCommandRunner {
             }
             int code = process.waitFor();
             if (code != 0) {
-                String errorMsg = String.format("Archive command %s failed. Exit code: %d", commandLine, code);
-                throw new RuntimeException(errorMsg);
+                throw new UserException("&archive.command.failed", commandLine, code);
             }
             rdr = new FileReader(listFile);
             return IOUtils.toString(rdr);
         } catch (IOException e) {
-            String errorMsg = String.format("Error running archive command %s.", commandLine);
-            throw new RuntimeException(errorMsg);
+            throw new UserException("&error.running.archive.command", commandLine);
         } catch (InterruptedException e) {
-            String errorMsg = String.format("Timed out running archive command %s.", commandLine);
-            throw new RuntimeException(errorMsg);
+            throw new UserException("&timed.out.archive.command", commandLine);
         } finally {
             IOUtils.closeQuietly(rdr);
             if (listFile != null) {
