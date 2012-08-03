@@ -15,13 +15,13 @@ BuildRequires: zip
 BuildRequires: sipxcommserverlib >= %version
 BuildRequires: sipxcommons >= %version
 BuildRequires: sipxconfig >= %version
-BuildRequires: openfire
+BuildRequires: openfire >= 3.7.1
 
 Source: %name-%version.tar.gz
 
 Requires: sipxcommserverlib >= %version
 Requires: sipxcommons >= %version
-Requires: openfire
+Requires: openfire >= 3.7.1
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -46,7 +46,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,sipx,sipx,755)
-%attr(755,root,root) %{_sysconfdir}/init.d/sipxopenfire
+%attr(755,root,root) %{_libexecdir}/sipXecs/openfire-config
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxopenfire.cf
 %{_sysconfdir}/sipxpbx/database/sipxopenfire-initdb.sql
 %dir %attr(775,sipx,sipx) %{_sysconfdir}/sipxpbx/openfire

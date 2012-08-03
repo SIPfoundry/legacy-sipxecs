@@ -2,7 +2,7 @@ include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
-	$(config_DATA:=.in)
+	$(conf_DATA:=.in)
 
 confdir = @SIPX_LIBEXECDIR@
 conf_DATA = \
