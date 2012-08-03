@@ -18,9 +18,8 @@
 
 #include <vector>
 #include <string>
-#include "sqa/json/reader.h"
-#include "sqa/json/writer.h"
-#include "sqa/json/elements.h"
+#include <cstdlib>
+#include <sqa/StateQueueMessage.h>
 
 
 struct StateQueueRecord
@@ -33,67 +32,31 @@ struct StateQueueRecord
   int expires;
   bool watcherData;
 
-  bool toJson(std::string& jsonString);
+  bool toJson(std::string& jsonString) const;
   bool fromJson(const std::string& jsonString);
 };
 
-inline bool StateQueueRecord::toJson(std::string& jsonString)
+inline bool StateQueueRecord::toJson(std::string& jsonString) const
 {
-  json::Object object;
-  object["id"] = json::String(id);
-  object["data"] = json::String(data);
-  object["retry"] = json::Number(retry);
-  object["expires"] = json::Number(expires);
-  object["watcherData"] = json::Boolean(watcherData);
-
-  if (!exclude.empty())
-  {
-    json::Array excludeVec;
-    for (std::size_t i = 0; i < exclude.size(); i++)
-      excludeVec[i] = json::String(exclude[i]);
-    object["exclude"] = excludeVec;
-  }
-
-  try
-  {
-    std::ostringstream strm;
-    json::Writer::Write(object, strm);
-    jsonString = strm.str();
-  }
-  catch(std::exception& error)
-  {
-    return false;
-  }
-  return true;
+  StateQueueMessage obj(StateQueueMessage::Data);
+  obj.set("id", id);
+  obj.set("data", data);
+  obj.set("retry", retry);
+  obj.set("expires", expires);
+  obj.set("watcherData", watcherData);
+  jsonString = obj.data();
+  return !jsonString.empty();
 }
 
 inline bool StateQueueRecord::fromJson(const std::string& jsonString)
 {
-  json::Object object;
-  try
-  {
-    std::stringstream strm;
-    strm << jsonString;
-    json::Reader::Read(object, strm);
-    id = ((json::String&)object["id"]).Value();
-    data = ((json::String&)object["data"]).Value();
-    retry = ((json::Number&)object["retry"]).Value();
-    expires = ((json::Number&)object["expires"]).Value();
-    watcherData = ((json::Boolean)object["watcherData"]).Value();
-    exclude.clear();
-    if (object.Find("exclude") != object.End())
-    {
-      json::Array& excludeVec = object["exclude()"];
-      for (std::size_t i = 0; i < excludeVec.Size(); i++)
-        exclude.push_back(((json::String&)excludeVec[i]).Value());
-    }
-
-  }
-  catch(std::exception& error)
-  {
-    return false;
-  }
-
+  StateQueueMessage obj;
+  obj.parseData(jsonString, true);
+  obj.get("id", id);
+  obj.get("data", data);
+  obj.get("retry", retry);
+  obj.get("expires", expires);
+  obj.get("watcherData", watcherData);
   return true;
 }
 

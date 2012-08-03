@@ -1164,11 +1164,32 @@ public final class RestUtilities {
         }
     }
 
-    static class UserRestInfoFull {
+    static class UserRestInfo {
         private final int m_id;
-        private final String m_userName; // also called "User ID" in gui
         private final String m_lastName;
         private final String m_firstName;
+
+        public UserRestInfo(User user) {
+            m_id = user.getId();
+            m_lastName = user.getLastName();
+            m_firstName = user.getFirstName();
+        }
+
+        public int getId() {
+            return m_id;
+        }
+
+        public String getLastName() {
+            return m_lastName;
+        }
+
+        public String getFirstName() {
+            return m_firstName;
+        }
+    }
+
+    static class UserRestInfoFull extends UserRestInfo {
+        private final String m_userName; // also called "User ID" in gui
         private final String m_pin;
         private final String m_sipPassword;
         private final String m_emailAddress;
@@ -1178,10 +1199,8 @@ public final class RestUtilities {
 
         public UserRestInfoFull(User user, List<UserGroupRestInfo> userGroupsRestInfo,
                 BranchRestInfo branchRestInfo, List<AliasRestInfo> aliasesRestInfo) {
-            m_id = user.getId();
+            super(user);
             m_userName = user.getUserName();
-            m_lastName = user.getLastName();
-            m_firstName = user.getFirstName();
             // pin is hardcoded to never display but must still be submitted
             m_pin = EMPTY_STRING;
             // sip password is hardcoded to never display but must still be submitted
@@ -1192,20 +1211,8 @@ public final class RestUtilities {
             m_aliases = aliasesRestInfo;
         }
 
-        public int getId() {
-            return m_id;
-        }
-
         public String getUserName() {
             return m_userName;
-        }
-
-        public String getLastName() {
-            return m_lastName;
-        }
-
-        public String getFirstName() {
-            return m_firstName;
         }
 
         public String getPin() {
@@ -1230,6 +1237,20 @@ public final class RestUtilities {
 
         public List<AliasRestInfo> getAliases() {
             return m_aliases;
+        }
+    }
+
+    static class UserPermissionRestInfoFull extends UserRestInfo {
+        private final List<SettingPermissionRestInfo> m_permissions;
+
+        public UserPermissionRestInfoFull(User user, List<SettingPermissionRestInfo> settingsRestInfo) {
+            super(user);
+
+            m_permissions = settingsRestInfo;
+        }
+
+        public List<SettingPermissionRestInfo> getPermissions() {
+            return m_permissions;
         }
     }
 

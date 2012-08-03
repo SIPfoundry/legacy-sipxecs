@@ -23,13 +23,6 @@ nobase_include_HEADERS = \
 	sqa/TimedMap.h \
 	sqa/TimedQueue.h \
 	sqa/UnitTest.h \
-	sqa/json/elements.h \
-	sqa/json/elements.inl \
-	sqa/json/reader.h \
-	sqa/json/reader.inl \
-	sqa/json/visitor.h \
-	sqa/json/writer.h \
-	sqa/json/writer.inl \
 	sqa/sqaclient.h \
 	sqa/sqaclient_plugin.h
 

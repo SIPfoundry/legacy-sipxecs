@@ -149,17 +149,22 @@ void StateQueueAgent::onIncomingRequest(StateQueueConnection& conn, const char* 
   type = message.getType();
 
   std::string id;
-  if (!message.get("message-id", id) || id.empty())
-  {
-    sendErrorResponse(message.getType(), conn, "unknown-id", "Missing required argument message-id.");
-    return;
-  }
-
   std::string appId;
-  if (!message.get("message-app-id", appId) || appId.empty())
+
+  if (type != StateQueueMessage::Ping)
   {
-    sendErrorResponse(type, conn, id, "Missing required argument message-app-id.");
-    return;
+    if (!message.get("message-id", id) || id.empty())
+    {
+      OS_LOG_INFO(FAC_NET, packet);
+      sendErrorResponse(message.getType(), conn, "unknown-id", "Missing required argument message-id.");
+      return;
+    }
+
+    if (!message.get("message-app-id", appId) || appId.empty())
+    {
+      sendErrorResponse(type, conn, id, "Missing required argument message-app-id.");
+      return;
+    }
   }
 
   switch (type)
@@ -226,6 +231,7 @@ void StateQueueAgent::sendErrorResponse(
   const std::string& messageId,
   const std::string& error)
 {
+  OS_LOG_WARNING(FAC_SIP, "Message-id: " << messageId << " Error: " << error);
   StateQueueMessage response;
   response.setType(type);
   response.set("message-id", messageId);
@@ -242,6 +248,7 @@ void StateQueueAgent::sendOkResponse(StateQueueMessage::Type type, StateQueueCon
   response.set("message-id", messageId);
   if (!messageData.empty())
     response.set("message-data", messageData);
+  OS_LOG_INFO(FAC_SIP, "Message-id: " << messageId << " Ok: " << messageData);
   conn.write(response.data());
 }
 

@@ -19,10 +19,9 @@
 #include "hiredis/hiredis.h"
 #include <boost/noncopyable.hpp>
 #include <boost/thread.hpp>
-#include "json/reader.h"
-#include "json/writer.h"
-#include "json/elements.h"
+#include <boost/shared_ptr.hpp>
 #include <map>
+#include "sqa/ServiceOptions.h"
 
 
 
@@ -31,7 +30,8 @@ class RedisClient : boost::noncopyable
 public:
   typedef boost::recursive_mutex mutex;
   typedef boost::lock_guard<mutex> mutex_lock;
-
+  typedef boost::shared_ptr<RedisClient> Ptr;
+  
   enum Type
   {
     TCP,
@@ -66,10 +66,184 @@ public:
   {
   }
 
-  virtual ~RedisClient()
+  ~RedisClient()
   {
     disconnect();
   }
+
+protected:
+  redisReply* execute(const std::vector<std::string>& args)
+  {
+    char** argv = (char**)std::malloc((args.size() + 1) * sizeof(char*));
+    std::size_t i=0;
+    for(std::vector<std::string>::const_iterator iter = args.begin();
+        iter != args.end();
+        iter++, ++i)
+    {
+      std::string arg = *iter;
+      argv[i] = (char*)std::malloc((arg.length()+1) * sizeof(char));
+      std::strcpy(argv[i], arg.c_str());
+    }
+    argv[args.size()] = NULL; // argv must be NULL terminated
+
+    redisReply* reply = execute(args.size(), argv);
+
+    for (i = 0; i < args.size(); i++)
+      free((argv)[i]);
+    free(argv);
+
+    return reply;
+  }
+
+  redisReply* execute(int argc, char** argv)
+  {
+    mutex_lock lock(_mutex);
+
+    if (!_context)
+      if (!connect())
+        return 0;
+    if (!_context)
+      return 0;
+
+    redisReply* reply = 0;
+    reply = (redisReply*)redisCommandArgv(_context, argc, (const char**)argv, 0);
+
+    if (_context->err)
+    {
+      _lastError = _context->errstr;
+       if (_lastError.empty())
+        _lastError = "Unknown exception";
+      freeReply(reply);
+      reply = 0;
+      if (_context->err == REDIS_ERR_EOF || _context->err == REDIS_ERR_IO)
+      {
+        //
+        // Try to reconnect
+        //
+        if (connect())
+          reply = (redisReply*)redisCommandArgv(_context, argc, (const char**)argv, 0);
+      }
+    }
+
+    return reply;
+  }
+
+  std::string getReplyString(const std::vector<std::string>& args) const
+  {
+    redisReply* reply = const_cast<RedisClient*>(this)->execute(args);
+    std::string value;
+    if (reply && (reply->type == REDIS_REPLY_STRING || reply->type == REDIS_REPLY_ERROR) && reply->len > 0)
+    {
+      value = std::string(reply->str, reply->len);
+    }
+    else if (reply && reply->type == REDIS_REPLY_INTEGER)
+    {
+      try
+      {
+        value = boost::lexical_cast<std::string>(reply->integer);
+      }
+      catch(...)
+      {
+      }
+    }
+
+    if (reply)
+      const_cast<RedisClient*>(this)->freeReply(reply);
+
+    return value;
+  }
+
+  bool getReplyInt(const std::vector<std::string>& args, long long& result) const
+  {
+    redisReply* reply = const_cast<RedisClient*>(this)->execute(args);
+    if (reply && reply->type == REDIS_REPLY_INTEGER)
+    {
+      try
+      {
+        result = reply->integer;
+        const_cast<RedisClient*>(this)->freeReply(reply);
+        return true;
+      }
+      catch(...)
+      {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  std::vector<std::string> getReplyStringArray(const std::vector<std::string>& args) const
+  {
+    redisReply* reply = const_cast<RedisClient*>(this)->execute(args);
+    std::vector<std::string> array;
+
+    if (reply && reply->type == REDIS_REPLY_ARRAY && reply->elements > 0)
+    {
+      for (size_t i = 0; i < reply->elements; i++)
+      {
+        redisReply* item = reply->element[i];
+        if (item && item->type == REDIS_REPLY_STRING && item->len > 0)
+        {
+          array.push_back(std::string(item->str, item->len));
+        }
+        else if (item && item->type == REDIS_REPLY_INTEGER)
+        {
+          try
+          {
+            array.push_back(boost::lexical_cast<std::string>(item->integer));
+          }
+          catch(...)
+          {
+          }
+        }
+
+      }
+      const_cast<RedisClient*>(this)->freeReply(reply);
+    }
+    return array;
+  }
+
+  std::string getStatusString(const std::vector<std::string>& args) const
+  {
+    redisReply* reply = const_cast<RedisClient*>(this)->execute(args);
+    std::string value;
+    if (reply && (reply->type == REDIS_REPLY_STATUS || reply->type == REDIS_REPLY_ERROR) && reply->len > 0)
+    {
+      value = std::string(reply->str, reply->len);
+    }
+
+    if (reply)
+      const_cast<RedisClient*>(this)->freeReply(reply);
+
+    return value;
+  }
+public:
+
+  bool connect(int db)
+  {
+    try
+    {
+      std::ostringstream sqaconfig;
+      sqaconfig << SIPX_CONFDIR << "/" << "redis-client.ini";
+      ServiceOptions configOptions(sqaconfig.str());
+      if (configOptions.parseOptions())
+      {
+        bool enabled = false;
+        if (configOptions.getOption("enabled", enabled, enabled) && enabled)
+        {
+          configOptions.getOption("tcp-address", _tcpHost);
+          configOptions.getOption("tcp-port", _tcpPort);
+        }
+      }
+    }
+    catch(...)
+    {
+    }
+
+    _type = TCP;
+    return connect("", db);
+  }
+  
 
   bool connect(const std::string& password_ = "", int db = 0)
   {
@@ -114,7 +288,7 @@ public:
       if (reply)
       {
         authenticated = reply->type == REDIS_REPLY_STATUS && strcasecmp(reply->str,"ok") == 0;
-        freeReplyObject(reply);
+        freeReply(reply);
         reply = 0;
       }
       if (!authenticated)
@@ -131,7 +305,7 @@ public:
       if (reply)
       {
         selected = reply->type == REDIS_REPLY_STATUS && strcasecmp(reply->str,"ok") == 0;
-        freeReplyObject(reply);
+        freeReply(reply);
         reply = 0;
       }
       if (!selected)
@@ -154,288 +328,155 @@ public:
     }
   }
 
-  virtual bool set(const std::string& key, const json::Object& value, int expires = -1)
+  bool set(const std::string& key, const StateQueueMessage& value, int expires = -1)
+  {
+    return set(key, value.data(), expires);
+  }
+
+  bool set(const std::string& key, const std::string& value, int expires = -1)
+  {
+    std::vector<std::string> args;
+    if (expires == -1)
+    {
+      args.push_back("SET");
+      args.push_back(key);
+      args.push_back(value);
+    }
+    else
+    {
+      try
+      {
+        args.push_back("SETEX");
+        args.push_back(key);
+        args.push_back(boost::lexical_cast<std::string>(expires));
+        args.push_back(value);
+      }
+      catch(...){}
+
+    }
+    std::string status = getStatusString(args);
+    return status == "ok";
+  }
+  
+  bool hset(const std::string& key, const std::string& name, const std::string& value)
+  {
+    std::vector<std::string> args;
+    args.push_back("HSET");
+    args.push_back(key);
+    args.push_back(value);
+    std::string status = getStatusString(args);
+    return status == "0" || status == "1";
+  }
+
+  bool hincrby(const std::string& key, const std::string& name, int increment, long long& result)
   {
     try
     {
-      std::ostringstream strm;
-      json::Writer::Write(value, strm);
-      std::string buff = strm.str();
-      return set(key, buff, expires);
+      std::vector<std::string> args;
+      args.push_back("HINCRBY");
+      args.push_back(key);
+      args.push_back(name);
+      args.push_back(boost::lexical_cast<std::string>(increment));
+      return getReplyInt(args, result);
     }
-    catch(std::exception& error)
+    catch(...)
     {
       return false;
     }
   }
 
-  virtual bool set(const std::string& key, const std::string& value, int expires = -1)
+  bool hmset(const std::string& key, const std::map<std::string, std::string>& hmap)
   {
-    mutex_lock lock(_mutex);
+    std::vector<std::string> args;
+    args.push_back("HMSET");
 
-    if (!_context)
-      if (!connect())
-        return false;
-    if (!_context)
-      return false;
-
-    redisReply *reply;
-    if (expires == -1)
-      reply = (redisReply*)redisCommand(_context,"SET %s %s",key.c_str(),value.c_str());
-    else
-      reply = (redisReply*)redisCommand(_context,"SETEX %s %d %s",key.c_str(), expires, value.c_str());
-
-    if (_context->err)
+    for (std::map<std::string, std::string>::const_iterator iter = hmap.begin(); iter != hmap.end(); iter++)
     {
-      _lastError = _context->errstr;
-      freeReplyObject(reply);
-
-      if (_context->err == REDIS_ERR_EOF || _context->err == REDIS_ERR_IO)
-      {
-        //
-        // Try to reconnect
-        //
-        if (connect())
-        {
-          if (expires == -1)
-            reply = (redisReply*)redisCommand(_context,"SET %s %s",key.c_str(),value.c_str());
-          else
-            reply = (redisReply*)redisCommand(_context,"SETEX %s %d %s",key.c_str(), expires, value.c_str());
-          bool ok = reply->type == REDIS_REPLY_STATUS && strcasecmp(reply->str,"ok") == 0;
-          freeReplyObject(reply);
-          return ok;
-        }
-      }
-      else
-      {
-        //
-        // This is not an io error.  bail out
-        //
-        return false;
-      }
+      args.push_back(iter->first);
+      args.push_back(iter->second);
     }
-
-    bool ok = false;
-    if (reply)
-    {
-      ok = reply->type == REDIS_REPLY_STATUS && strcasecmp(reply->str,"ok") == 0;
-      freeReplyObject(reply);
-    }
-    return ok;
+    std::string status = getStatusString(args);
+    return status == "0" || status == "1";
   }
 
-  virtual bool get(const std::string& key, json::Object& value) const
+  bool get(const std::string& key, StateQueueMessage& value) const
   {
     std::string buff;
     if (!get(key, buff))
       return false;
-    try
-    {
-      std::stringstream strm;
-      strm << buff;
-      json::Reader::Read(value, strm);
-    }
-    catch(std::exception& error)
-    {
-      return false;
-    }
-    return true;
+    return value.parseData(buff, true);
   }
 
-  virtual bool get(const std::string& key, std::string& value) const
+  bool get(const std::string& key, std::string& value) const
   {
-    mutex_lock lock(_mutex);
-
-    if (!_context)
-      if (!const_cast<RedisClient*>(this)->connect())
-        return false;
-    if (!_context)
-      return false;
-
-    bool ok = false;
-    redisReply* reply = (redisReply*)redisCommand(_context,"GET %s", key.c_str());
-
-    if (_context->err)
-    {
-      _lastError = _context->errstr;
-      const_cast<RedisClient*>(this)->freeReplyObject(reply);
-      if (_context->err == REDIS_ERR_EOF || _context->err == REDIS_ERR_IO)
-      {
-        //
-        // Try to reconnect
-        //
-        if (const_cast<RedisClient*>(this)->connect())
-        {
-          reply = (redisReply*)redisCommand(_context,"GET %s", key.c_str());
-
-          if (reply && reply->type == REDIS_REPLY_STRING && reply->len > 0)
-          {
-            value = std::string(reply->str, reply->len);
-            ok = true;
-          }
-          const_cast<RedisClient*>(this)->freeReplyObject(reply);
-          return ok;
-        }
-      }
-      else
-      {
-        //
-        // This is not an io error.  bail out
-        //
-        return false;
-      }
-    }
-
-    if (reply && reply->type == REDIS_REPLY_STRING && reply->len > 0)
-    {
-      value = std::string(reply->str, reply->len);
-      ok = true;
-    }
-    const_cast<RedisClient*>(this)->freeReplyObject(reply);
-
-    if (_context->err)
-    {
-      _lastError = _context->errstr;
-      if (_lastError.empty())
-        _lastError = "Unknown exception";
-      //throw std::runtime_error(_lastError);
-      ok = false;
-    }
-
-    return ok;
+    std::vector<std::string> args;
+    args.push_back("GET");
+    args.push_back(key);
+    value = getReplyString(args);
+    return !value.empty();
   }
 
-  virtual bool getKeys(const std::string& pattern, std::vector<std::string>& keys)
+  bool hget(const std::string& key, const std::string& name, std::string& value) const
   {
-    mutex_lock lock(_mutex);
-
-    if (!_context)
-      if (!connect())
-        return false;
-    if (!_context)
-      return false;
-
-    bool ok = false;
-    redisReply* reply = (redisReply*)redisCommand(_context,"KEYS %s", pattern.c_str());
-
-    if (_context->err)
-    {
-      _lastError = _context->errstr;
-      freeReplyObject(reply);
-      if (_context->err == REDIS_ERR_EOF || _context->err == REDIS_ERR_IO)
-      {
-        //
-        // Try to reconnect
-        //
-        if (connect())
-        {
-          reply = (redisReply*)redisCommand(_context,"KEYS %s", pattern.c_str());
-
-          if (reply && reply->type == REDIS_REPLY_ARRAY && reply->elements > 0)
-          {
-            for (size_t i = 0; i < reply->elements; i++)
-            {
-              redisReply* item = reply->element[i];
-              if (item && item->type == REDIS_REPLY_STRING && item->len > 0)
-              {
-                keys.push_back(std::string(reply->str, reply->len));
-                ok = true;
-              }
-            }
-
-          }
-          freeReplyObject(reply);
-          return ok;
-        }
-      }
-      else
-      {
-        //
-        // This is not an io error.  bail out
-        //
-        return false;
-      }
-    }
-
-    if (reply && reply->type == REDIS_REPLY_ARRAY && reply->elements > 0)
-    {
-      for (size_t i = 0; i < reply->elements; i++)
-      {
-        redisReply* item = reply->element[i];
-        if (item && item->type == REDIS_REPLY_STRING && item->len > 0)
-        {
-          keys.push_back(std::string(item->str, item->len));
-          ok = true;
-        }
-      }
-    }
-
-    freeReplyObject(reply);
-
-    if (_context->err)
-    {
-      _lastError = _context->errstr;
-      if (_lastError.empty())
-        _lastError = "Unknown exception";
-      //throw std::runtime_error(_lastError);
-      ok = false;
-    }
-
-    return ok;
+    std::vector<std::string> args;
+    args.push_back("HGET");
+    args.push_back(key);
+    value = getReplyString(args);
+    return !value.empty();
   }
 
-  virtual bool erase(const std::string& key)
+  bool hgetall(const std::string& key, std::vector<std::string>& value) const
   {
-    mutex_lock lock(_mutex);
-
-    if (!_context)
-      if (!connect())
-        return false;
-    if (!_context)
-      return false;
-
-    redisReply* reply = (redisReply*)redisCommand(_context,"DEL %s", key.c_str());
-
-    if (_context->err)
-    {
-      _lastError = _context->errstr;
-      freeReplyObject(reply);
-      if (_context->err == REDIS_ERR_EOF || _context->err == REDIS_ERR_IO)
-      {
-        //
-        // Try to reconnect
-        //
-        if (connect())
-        {
-          reply = (redisReply*)redisCommand(_context,"DEL %s", key.c_str());
-
-           bool ok = reply->type == REDIS_REPLY_STATUS && strcasecmp(reply->str,"ok") == 0;
-          freeReplyObject(reply);
-          return ok;
-        }
-      }
-      else
-      {
-        //
-        // This is not an io error.  bail out
-        //
-        return false;
-      }
-    }
-
-    bool ok = false;
-    if (reply)
-    {
-      ok = reply->type == REDIS_REPLY_STATUS && strcasecmp(reply->str,"ok") == 0;
-      freeReplyObject(reply);
-    }
-    return ok;
+    std::vector<std::string> args;
+    args.push_back("HGETALL");
+    args.push_back(key);
+    value = getReplyStringArray(args);
+    return !value.empty();
   }
 
-  void freeReplyObject(redisReply* reply)
+  bool hmget(const std::string& key, const std::vector<std::string>& fields, std::vector<std::string>& value) const
+  {
+    std::vector<std::string> args;
+    args.push_back("HMGET");
+    args.push_back(key);
+    for (std::vector<std::string>::const_iterator iter = fields.begin(); iter != fields.end(); iter++)
+      args.push_back(*iter);
+    value = getReplyStringArray(args);
+    return !value.empty();
+  }
+
+  bool getKeys(const std::string& pattern, std::vector<std::string>& keys)
+  {
+   std::vector<std::string> args;
+    args.push_back("KEYS");
+    args.push_back(pattern);
+    keys = getReplyStringArray(args);
+    return !keys.empty();
+  }
+
+  bool del(const std::string& key)
+  {
+    std::vector<std::string> args;
+    args.push_back("DEL");
+    args.push_back(key);
+    long long result = 0;
+    return getReplyInt(args, result) && result > 0;
+  }
+
+  bool hdel(const std::string& key, const std::string& field)
+  {
+    std::vector<std::string> args;
+    args.push_back("HDEL");
+    args.push_back(key);
+    args.push_back(field);
+    long long result = 0;
+    return getReplyInt(args, result) && result > 0;
+  }
+
+  void freeReply(redisReply* reply)
   {
     if (reply)
-      ::freeReplyObject(reply);
+      freeReplyObject(reply);
   }
 
 protected:

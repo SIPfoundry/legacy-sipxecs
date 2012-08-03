@@ -72,14 +72,13 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
             return null;
         }
         // Save the user
-        CoreContext core = getCoreContext();
         User user = getUser();
         user.setImId(user.getUserName());
         EditUser.saveGroups(getSettingDao(), user.getGroups());
 
         // Execute the automatic assignments for the user.
         GroupAutoAssign groupAutoAssign = new GroupAutoAssign(getConferenceBridgeContext(), getCoreContext(),
-                                                              getForwardingContext(), getMailboxManager());
+                                                             getForwardingContext(), getMailboxManager());
         groupAutoAssign.assignUserData(user);
 
         // On saving the user, transfer control to edituser page.

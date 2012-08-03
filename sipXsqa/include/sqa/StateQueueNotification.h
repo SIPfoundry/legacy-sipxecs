@@ -23,9 +23,6 @@
 #include <cassert>
 #include <boost/thread.hpp>
 #include <zmq.hpp>
-#include "json/reader.h"
-#include "json/writer.h"
-#include "json/elements.h"
 #include "ServiceOptions.h"
 #include "sqaclient.h"
 

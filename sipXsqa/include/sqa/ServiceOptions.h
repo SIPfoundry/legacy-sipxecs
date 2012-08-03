@@ -391,6 +391,7 @@ inline bool ServiceOptions::parseOptions()
   }
 
   initlogger();
+  std::set_terminate(&ServiceOptions::catch_global);
   return true;
 }
 
@@ -843,7 +844,6 @@ inline void ServiceOptions::catch_global()
 
 inline void ServiceOptions::waitForTerminationRequest()
 {
-  std::set_terminate(&ServiceOptions::catch_global);
 	sigset_t sset;
 	sigemptyset(&sset);
 	sigaddset(&sset, SIGINT);
