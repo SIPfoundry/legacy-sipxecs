@@ -20,7 +20,6 @@ bundle agent sipxopenfire {
     sipxopenfire::
       "any" usebundle => sipxopenfire_config;
     any::
-      "any" usebundle => sipxopenfire_setup;
       "any" usebundle => sipxopenfire_running;
 }
 
@@ -149,14 +148,6 @@ bundle edit_line sipxopenfire_sipx_properties {
     "openfire.home=$(sipx.OPENFIRE_HOME)";
 }
 
-bundle agent sipxopenfire_setup {
-  methods:
-    !src.sipxopenfire::
-      "any" usebundle => rh_chkconfig_status("sipxopenfire on");
-    !src.!sipxopenfire::
-      "any" usebundle => rh_chkconfig_status("sipxopenfire off");
-}
-
 bundle agent sipxopenfire_running {
   vars:
     any::
@@ -166,6 +157,10 @@ bundle agent sipxopenfire_running {
   methods:
     any::
       "any" usebundle => find_service_by_command("$(service_command)","sipxopenfire_running","$(sipx.OPENFIRE_USER)");
+    !src.sipxopenfire::
+      "any" usebundle => rh_chkconfig_status("openfire on");
+    !src.!sipxopenfire::
+      "any" usebundle => rh_chkconfig_status("openfire off");
 
   commands:
     (!sipxopenfire|stop_sipxecs).sipxopenfire_running::

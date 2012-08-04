@@ -44,7 +44,7 @@ plugin_PKGS = \
 	$(plugin_JAR_PKGS) \
 	ant \
 	ant-launcher \
-    thumbnailator \
+	thumbnailator \
 	xmlrpc-common \
 	spring-data-mongodb \
 	commons-digester \
@@ -69,10 +69,11 @@ provider_PKGS = \
 provider_PKGS_RT = \
 	$(provider_PKGS) \
 	xmlrpc-server \
-    commons-collections \
-    commons-beanutils-core \
+	commons-collections \
+	commons-beanutils-core \
 	commons-io \
-    mongo \
-    xmlrpc-common
+	mongo \
+	xmlrpc-common \
+	jain-sip-sdp
 
 sipxvcard_JAVAROOT = $(abspath $(top_builddir)/vcard-provider/classes)

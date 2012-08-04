@@ -15,6 +15,7 @@
 package org.sipfoundry.sipxconfig.site.backup;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,7 +30,9 @@ import org.sipfoundry.sipxconfig.backup.BackupCommandRunner;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupPlan;
 import org.sipfoundry.sipxconfig.backup.BackupType;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 public abstract class BackupTable extends BaseComponent {
     private static final String SPACE = " ";
@@ -73,6 +76,9 @@ public abstract class BackupTable extends BaseComponent {
 
     public abstract void setDownloadLinkBase(String base);
 
+    @Parameter(required = false)
+    public abstract SipxValidationDelegate getValidator();
+
     public String getBackupId() {
         return StringUtils.split(getBackup(), SPACE)[0];
     }
@@ -108,7 +114,12 @@ public abstract class BackupTable extends BaseComponent {
 
         List<String> backups = getBackups();
         if (backups == null) {
-            loadBackups();
+            try {
+                loadBackups();
+            } catch (UserException ex) {
+                setBackups(new ArrayList<String>());
+                getValidator().record(ex, getMessages());
+            }
         }
     }
 
