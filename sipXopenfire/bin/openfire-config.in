@@ -21,7 +21,7 @@ refreshPlugins() {
 refreshProviders() {
    find @OPENFIRE_HOME@/lib -maxdepth 1 -type l -print0 2> /dev/null | xargs -0 rm -f
    lib_deps=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @provider_PKGS_RT@`
-   for PROVIDER in ${lib_deps} @SIPX_JAVADIR@/sipXopenfire/lib/sipx-openfire-vcard-provider.jar; do
+   for PROVIDER in ${lib_deps} @SIPX_JAVADIR@/sipXopenfire/lib/*.jar; do
        ln -s ${PROVIDER} @OPENFIRE_HOME@/lib
    done
 }
