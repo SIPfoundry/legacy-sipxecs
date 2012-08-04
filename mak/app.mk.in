@@ -2,18 +2,7 @@ app = \
   $(sf) \
   $(sf_git) \
   $(lang) \
-  $(telecats) \
-  $(karel)
-
-# to be ported to new supervisor model
-sf_broken = \
-  sipXacd \
-  sipXtunnel \
-  sipXpreflight \
-  sipXtools \
-  sipXpark \
-  sipXpresence \
-  sipXphonelog
+  $(telecats)
 
 sf = \
   sipXacccode \
