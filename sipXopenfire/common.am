@@ -74,6 +74,20 @@ provider_PKGS_RT = \
 	commons-io \
 	mongo \
 	xmlrpc-common \
+    dnsjava \
+    dom4j \
+    not-yet-commons-ssl \
+    org.springframework.context- \
+    org.springframework.context.support \
+    spring-data-commons-core \
+    org.springframework.transaction \
+    org.springframework.core \
+    org.springframework.beans \
+    org.springframework.expression \
+    org.springframework.asm \
+    spring-data-commons-core \
+    spring-data-mongodb \
+    thumbnailator \
 	jain-sip-sdp
 
 sipxvcard_JAVAROOT = $(abspath $(top_builddir)/vcard-provider/classes)
