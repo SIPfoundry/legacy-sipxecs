@@ -17,9 +17,9 @@
         <tbody>
         <span jwcid="@For" source="ognl:bundle.features" value="ognl:feature" converter="ognl:featureConverter">
           <tr jwcid="@Any" class="ognl:rowClass.next">
-              <td><span jwcid="@Any"
-                title="ognl:messages.getMessage('feature.' + feature.id + '.description')"><span
-                jwcid="@Insert" value="ognl:messages.getMessage('feature.' + feature.id)" /></span></td>
+              <td><span jwcid="exampleNode@Any"
+                title="ognl:messages.getMessage('feature.' + feature.id + '.description')"  class="tooltip"><span
+                jwcid="@Insert" value="ognl:messages.getMessage('feature.' + feature.id)"/></span></td>
             <span jwcid="@RenderBlock" block="ognl:components.get(constraintBlockId)"/>
             <span jwcid="global@Block">
                <td style="text-align:center" class="ognl:cellClass" jwcid="@Any">

@@ -2,15 +2,49 @@
   "-//Apache Software Foundation//Tapestry Script Specification 3.0//EN"
   "http://jakarta.apache.org/tapestry/dtd/Script_3_0.dtd">
   <script>
+  <include-script resource-path="/org/sipfoundry/sipxconfig/js/jquery-1.4.2.min.js"/>
   <body>
     <![CDATA[
 	    function validateBundle() {
 	    	tapestry.form.refresh("configureBundler", "validate");
 	    }
+	    
+	    this.screenshotPreview = function(){
+
+
+this.tooltip = function(){
+/* CONFIG */
+xOffset = 10;
+yOffset = 20;
+// these 2 variable determine popup's distance from the cursor
+// you might want to adjust to get the right result
+/* END CONFIG */
+$("a.tooltip").hover(function(e){
+this.t = this.title;
+this.title = "";
+$("body").append("<p id='tooltip'>"+ this.t +"</p>");
+$("#tooltip")
+.css("top",(e.pageY - xOffset) + "px")
+.css("left",(e.pageX + yOffset) + "px")
+.fadeIn("fast");
+},
+function(){
+this.title = this.t;
+$("#tooltip").remove();
+});
+$("a.tooltip").mousemove(function(e){
+$("#tooltip")
+.css("top",(e.pageY - xOffset) + "px")
+.css("left",(e.pageX + yOffset) + "px");
+});
+}; 
     ]]>
   </body>
   <initialization>
     dojo.require("tapestry.form");
     tapestry.form.registerForm("configureBundler");
+    jQuery(document).ready(function() {
+    	tooltip();
+	});
   </initialization>
 </script>
