@@ -140,7 +140,7 @@
       <value>300</value>
     </setting>
   </group>
-  <group name="msftxchghack">
+  <group name="msftxchghack"  advanced="yes">
     <setting name="USERAGENT" advanced="yes">
       <type><string/></type>
       <value>^RTCC/</value>
