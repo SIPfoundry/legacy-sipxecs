@@ -473,6 +473,34 @@ public:
     return getReplyInt(args, result) && result > 0;
   }
 
+  bool subscribe(const std::string& channel, std::string& data)
+  {
+    std::vector<std::string> args;
+    args.push_back("SUBSCRIBE");
+    args.push_back(channel);
+    data = getReplyString(args);
+    return !data.empty();
+  }
+
+  long long publish(const std::string& channel, const std::string& data)
+  {
+    std::vector<std::string> args;
+    args.push_back("PUBLISH");
+    args.push_back(channel);
+    args.push_back(data);
+    long long result = 0;
+    getReplyInt(args, result);
+    return result;
+  }
+
+  void unsubscribe(const std::string& channel)
+  {
+    std::vector<std::string> args;
+    args.push_back("UNSUBSCRIBE");
+    args.push_back(channel);
+    getStatusString(args);
+  }
+
   void freeReply(redisReply* reply)
   {
     if (reply)
