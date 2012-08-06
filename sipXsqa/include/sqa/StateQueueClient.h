@@ -593,49 +593,51 @@ private:
       }
     }
 
-    if (_terminate)
-      return;
-
-    if (!subscribe(_zmqEventId, publisherAddress))
-    {
-      OS_LOG_ERROR(FAC_NET, "StateQueueClient::eventLoop "
-                  << "Is unable to SUBSCRIBE to SQA service @ " << publisherAddress);
-      return;
-    }
-
-    assert(_type != Publisher);
     bool firstHit = true;
-    while (!_terminate)
+    if (!_terminate)
     {
-      std::string id;
-      std::string data;
-      int count = 0;
-      if (readEvent(id, data, count))
+      if (subscribe(_zmqEventId, publisherAddress))
       {
-        if (_terminate)
-          break;
+        assert(_type != Publisher);
 
-        OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop received event: " << id);
-        OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop received data: " << data);
+        while (!_terminate)
+        {
+          std::string id;
+          std::string data;
+          int count = 0;
+          if (readEvent(id, data, count))
+          {
+            if (_terminate)
+              break;
 
-        if (_type == Worker)
-        {
-          OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop popping data: " << id);
-          do_pop(firstHit, count, id, data);
-        }else if (_type == Watcher)
-        {
-          OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop watching data: " << id);
-          do_watch(firstHit, count, id, data);
+            OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop received event: " << id);
+            OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop received data: " << data);
+
+            if (_type == Worker)
+            {
+              OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop popping data: " << id);
+              do_pop(firstHit, count, id, data);
+            }else if (_type == Watcher)
+            {
+              OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop watching data: " << id);
+              do_watch(firstHit, count, id, data);
+            }
+          }
+          else
+          {
+            if (_terminate)
+            {
+              break;
+            }
+          }
+          firstHit = false;
         }
       }
       else
       {
-        if (_terminate)
-        {
-          break;
-        }
+        OS_LOG_ERROR(FAC_NET, "StateQueueClient::eventLoop "
+            << "Is unable to SUBSCRIBE to SQA service @ " << publisherAddress);
       }
-      firstHit = false;
     }
 
     if (_type == Watcher)
