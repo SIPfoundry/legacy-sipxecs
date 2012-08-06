@@ -26,6 +26,7 @@
     <property name="saaManager" ref="saaManager" />
     <property name="coreContext" ref="coreContext" />
     <property name="velocityEngine" ref="velocityEngine" />
+    <property name="configManager" ref="configManager" />
   </bean>
 
 </beans>

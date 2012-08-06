@@ -33,12 +33,15 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.springframework.beans.factory.annotation.Required;
 
-public class SaaConfiguration implements ConfigProvider {
+public class SaaConfiguration implements ConfigProvider, DaoEventListener {
     private VelocityEngine m_velocityEngine;
     private SaaManager m_saaManager;
     private CoreContext m_coreContext;
+    private ConfigManager m_configManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -102,4 +105,27 @@ public class SaaConfiguration implements ConfigProvider {
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
+
+    @Required
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        onChange(entity);
+    }
+
+    @Override
+    public void onSave(Object entity) {
+        onChange(entity);
+    }
+
+    public void onChange(Object entity) {
+        if (m_configManager.getFeatureManager().isFeatureEnabled(SaaManager.FEATURE) && entity instanceof User) {
+            m_configManager.configureEverywhere(SaaManager.FEATURE);
+        }
+    }
+
+
 }
