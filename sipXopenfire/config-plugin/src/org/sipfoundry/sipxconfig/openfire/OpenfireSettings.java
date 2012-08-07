@@ -62,13 +62,17 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
     public int getXmlRpcPort() {
         return (Integer) getSettingTypedValue(XML_RPC_PORT);
     }
-    
+
     public int getXmlRpcVcardPort() {
         return (Integer) getSettingTypedValue(XML_RPC_VCARD_PORT);
-    }    
+    }
 
     public int getXmppFederationPort() {
         return (Integer) getSettingTypedValue(FEDERATION_PORT);
+    }
+
+    public Setting getOfProperty() {
+        return getSettings().getSetting("ofproperty");
     }
 
     public List<Address> getAllowedServers() {
