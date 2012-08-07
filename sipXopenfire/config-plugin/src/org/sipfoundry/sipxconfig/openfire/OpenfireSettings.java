@@ -75,6 +75,10 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
         return getSettings().getSetting("ofproperty");
     }
 
+    public int getFileTransferProxyPort() {
+        return (Integer) getSettingTypedValue("ofproperty/xmpp.proxy.port");
+    }
+
     public List<Address> getAllowedServers() {
         String value = getSettingValue(ALLOWED_SERVERS);
         return parseServerArray(value, getXmppFederationPort());

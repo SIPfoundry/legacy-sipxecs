@@ -32,6 +32,10 @@ public abstract class ImManager  {
             Protocol.tcp);
     public static final AddressType XMPP_FEDERATION_ADDRESS = new AddressType("instantMessageFederation", 5269,
             Protocol.tcp);
+    public static final AddressType XMPP_FILE_TRANSFER_PROXY_ADDRESS =
+        new AddressType("instantMessageFileTransferProxy", Protocol.tcp);
+    public static final AddressType XMPP_ADMIN_CONSOLE_ADDRESS = new AddressType("instantMessageAdminConsole", 9095,
+            Protocol.tcp);
     public static final AddressType XMLRPC_ADDRESS = new AddressType("instantMessageXmlrpc",
         URL_FORMAT);
     public static final AddressType XMLRPC_VCARD_ADDRESS = new AddressType("instantMessageVcardXmlrpc",

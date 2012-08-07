@@ -43,13 +43,12 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
-import org.springframework.beans.factory.annotation.Required;
 
 public class OpenfireImpl extends ImManager implements FeatureProvider, AddressProvider, ProcessProvider, Openfire,
     FirewallProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
         XMPP_ADDRESS, XMPP_SECURE_ADDRESS, XMPP_FEDERATION_ADDRESS, XMLRPC_ADDRESS, XMLRPC_VCARD_ADDRESS,
-        WATCHER_ADDRESS
+        WATCHER_ADDRESS, XMPP_FILE_TRANSFER_PROXY_ADDRESS, XMPP_ADMIN_CONSOLE_ADDRESS
     });
     private BeanWithSettingsDao<OpenfireSettings> m_settingsDao;
 
@@ -99,6 +98,10 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
                 address = new Address(XMLRPC_VCARD_ADDRESS, location.getAddress(), settings.getXmlRpcVcardPort());
             } else if (type.equals(WATCHER_ADDRESS)) {
                 address = new Address(WATCHER_ADDRESS, location.getAddress(), settings.getWatcherPort());
+            } else if (type.equals(XMPP_FILE_TRANSFER_PROXY_ADDRESS)) {
+                address = new Address(XMPP_FILE_TRANSFER_PROXY_ADDRESS, location.getAddress(), settings.getFileTransferProxyPort());
+            } else if (type.equals(XMPP_ADMIN_CONSOLE_ADDRESS)) {
+                address = new Address(XMPP_ADMIN_CONSOLE_ADDRESS, location.getAddress(), XMPP_ADMIN_CONSOLE_ADDRESS.getCanonicalPort());
             }
             addresses.add(address);
         }
@@ -129,7 +132,7 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
         // cluster-only by default
-        List<DefaultFirewallRule> rules = DefaultFirewallRule.rules(Arrays.asList(XMLRPC_ADDRESS, WATCHER_ADDRESS));
+        List<DefaultFirewallRule> rules = DefaultFirewallRule.rules(Arrays.asList(XMLRPC_ADDRESS, WATCHER_ADDRESS, XMPP_FILE_TRANSFER_PROXY_ADDRESS, XMPP_ADMIN_CONSOLE_ADDRESS));
         // public by default
         rules.add(new DefaultFirewallRule(XMPP_ADDRESS, FirewallRule.SystemId.PUBLIC));
         rules.add(new DefaultFirewallRule(XMPP_SECURE_ADDRESS, FirewallRule.SystemId.PUBLIC));
@@ -138,7 +141,7 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
     }
 
     @Override
-    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {        
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         // require postgres ? that's about all i can think of but we do not have a role for that -- Douglas
         validator.singleLocationOnly(FEATURE);
     }
