@@ -20,6 +20,7 @@ public class UserGroup {
     private String m_sysId;
     private String m_groupName;
     private String m_description;
+    private boolean m_isImbotEnabled = false;
 
     public String getSysId() {
         return m_sysId;
@@ -43,6 +44,14 @@ public class UserGroup {
 
     public void setDescription(String description) {
         m_description = description;
+    }
+
+    public boolean isImbotEnabled() {
+        return m_isImbotEnabled;
+    }
+
+    public void setImBotEnabled(boolean enabled) {
+        m_isImbotEnabled = enabled;
     }
 
 }

@@ -361,7 +361,21 @@ public class ValidUsers {
             group.setGroupName(getStringValue(groupResult, UID));
             group.setDescription(getStringValue(groupResult, DESCR));
             group.setSysId(getStringValue(groupResult, ID));
+            String imBotEnabled = getStringValue(groupResult, MY_BUDDY_GROUP);
+            if (StringUtils.equals(imBotEnabled, "1")) {
+                group.setImBotEnabled(true);
+            }
             return group;
+        }
+        return null;
+    }
+
+    public String getImBotName() {
+        Pattern imbotPattern = Pattern.compile("ImBotSettings.*");
+        DBObject queryImbot = QueryBuilder.start(ID).is(imbotPattern).and(IM_ENABLED).is(true).get();
+        DBObject imbotResult = getEntityCollection().findOne(queryImbot);
+        if (imbotResult != null) {
+            return getStringValue(imbotResult, IM_ID);
         }
         return null;
     }

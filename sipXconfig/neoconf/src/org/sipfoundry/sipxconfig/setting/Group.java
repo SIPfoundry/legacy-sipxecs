@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.setting;
 import static org.sipfoundry.commons.mongo.MongoConstants.DESCR;
 import static org.sipfoundry.commons.mongo.MongoConstants.GROUP_RESOURCE;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_GROUP;
+import static org.sipfoundry.commons.mongo.MongoConstants.MY_BUDDY_GROUP;
 import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
 import java.util.ArrayList;
@@ -224,6 +225,7 @@ public class Group extends ValueStorage implements Comparable, NamedObject, Repl
         props.put(GROUP_RESOURCE, getResource());
         props.put(DESCR, getDescription());
         props.put(IM_GROUP, getSettingValue("im/im-group"));
+        props.put(MY_BUDDY_GROUP, getSettingValue("im/add-pa-to-group"));
         return props;
     }
 }
