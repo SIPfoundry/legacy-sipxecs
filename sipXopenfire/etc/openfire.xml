@@ -77,22 +77,6 @@
       <value>en</value>
     </setting>
   </group>
-  <group name="ofproperty">
-    <setting name="xmpp.proxy.port">
-      <type refid="requiredNonRootPort"/>
-      <value>7777</value>
-    </setting>
-    <setting name="xmpp.proxy.enabled">
-      <type refid="switch" />
-      <value>false</value>
-    </setting>
-    <setting name="xmpp.proxy.externalip">
-      <type>
-        <string/>
-      </type>
-      <value></value>
-    </setting>       
-  </group>
   <group name="openfire-server-to-server">
     <setting name="enabled">
       <type refid="switch" />

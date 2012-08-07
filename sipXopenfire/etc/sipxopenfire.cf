@@ -60,13 +60,6 @@ bundle agent sipxopenfire_config {
         perms => m("644"),
         copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_restart)"),
         classes => if_repaired("restart_sipxopenfire");
-        
-       "$(sipx.SIPX_CONFDIR)/ofproperty.yaml"
-        comment => "install openfire config $(this.promiser)",
-        create => "true",
-        perms => m("644"),
-        copy_from => copy_from_cfdata("$(sipx.location_id)/ofproperty.yaml"),
-        classes => if_repaired("restart_sipxopenfire");        
 
       "$(sipx.SIPX_CONFDIR)/$(xml_file_norestart)"
         comment => "install openfire config $(this.promiser)",

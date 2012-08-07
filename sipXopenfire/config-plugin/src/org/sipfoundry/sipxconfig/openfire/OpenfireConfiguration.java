@@ -31,7 +31,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
-import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -119,13 +118,6 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
             } finally {
                 IOUtils.closeQuietly(account);
             }
-
-            Writer ofproperty = new FileWriter(new File(dir, "ofproperty.yaml"));
-            try {
-                writeOfPropertyConfig(ofproperty, m_openfire.getSettings());
-            } finally {
-                IOUtils.closeQuietly(ofproperty);
-            }
         }
     }
 
@@ -134,19 +126,6 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
         config.write("websocket.address", wsAddress);
         config.write("websocket.port", wsPort);
         config.write("admin.rest.url", adminRestUrl);
-    }
-
-    void writeOfPropertyConfig(Writer w, OpenfireSettings settings) throws IOException {
-        YamlConfiguration config = new YamlConfiguration(w);
-        writeSettings(config, settings);
-    }
-
-    void writeSettings(YamlConfiguration config, OpenfireSettings settings) throws IOException {
-        if (settings == null) {
-            return;
-        }
-
-        config.writeSettings(settings.getOfProperty());
     }
 
     public void setConfig(OpenfireConfigurationFile config) {

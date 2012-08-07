@@ -64,15 +64,6 @@
           <sipx-sql src="/tmp/of-setfqdn.sql" />
           <delete file="/tmp/of-setfqdn.sql" />
         </target>
-        
-        <target name="setprop">
-          <echo  file="/tmp/of-setprop.sql" >
-             DELETE FROM ofProperty where name='${key}';
-             INSERT INTO ofProperty (name, propValue) VALUES ('${key}','${value}');
-          </echo>
-          <sipx-sql src="/tmp/of-setprop.sql" />
-          <delete file="/tmp/of-setprop.sql" />
-        </target>        
 
         <target name="setup" depends="setdomain,setfqdn" >
           <echo  file="/tmp/of-init.sql" >
