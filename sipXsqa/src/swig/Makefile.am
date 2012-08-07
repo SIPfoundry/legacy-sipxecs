@@ -35,7 +35,8 @@ libsqaclient_la_LIBADD = \
 	-lboost_thread-mt \
 	-lboost_program_options-mt \
 	-lpthread \
-	-lzmq
+	-lzmq \
+	@SIPXPORT_LIBS@
 
 sqaclient_wrap.cxx : sipxsqaclient-src
 
