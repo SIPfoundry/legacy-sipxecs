@@ -25,6 +25,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.geometry.Positions;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -142,7 +143,7 @@ public class UserProfileServiceImpl implements UserProfileService {
         InputStream is = null;
         try {
             BufferedImage originalImage = ImageIO.read(originalIs);
-            BufferedImage thumbnail = Thumbnails.of(originalImage).size(128, 128).asBufferedImage();
+            BufferedImage thumbnail = Thumbnails.of(originalImage).crop(Positions.CENTER).size(128, 128).asBufferedImage();
             os = new ByteArrayOutputStream();
             ImageIO.write(thumbnail, "png", os);
             is = new ByteArrayInputStream(os.toByteArray());
