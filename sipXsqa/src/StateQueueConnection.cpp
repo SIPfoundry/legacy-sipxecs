@@ -93,9 +93,16 @@ void StateQueueConnection::handleRead(const boost::system::error_code& e, std::s
             << " SRC: " << _localAddress << ":" << _localPort
             << " DST: " << _remoteAddress << ":" << _remotePort );
 
+    //
+    // The first read will always have _moreReadRequired as 0
+    //
     if (_moreReadRequired == 0)
     {
       std::stringstream strm;
+
+      //
+      // The first read will always have _spillOverBuffer as empty
+      //
       if (!_spillOverBuffer.empty())
         strm << _spillOverBuffer;
 
@@ -104,6 +111,11 @@ void StateQueueConnection::handleRead(const boost::system::error_code& e, std::s
 
       if (!_spillOverBuffer.empty())
       {
+        //
+        // if spill over bytes is not empty, it means previous attempts has
+        // some extra bytes that belongs to the next read frame.  We add the size
+        // of the spill over byte to the total bytes read
+        //
         bytes_transferred += _spillOverBuffer.size();
         OS_LOG_DEBUG(FAC_NET,"StateQueueConnection::handleRead "
                 << "Spillover buffer is not empty.  "
@@ -118,16 +130,27 @@ void StateQueueConnection::handleRead(const boost::system::error_code& e, std::s
       {
         short len;
         strm.read((char*)(&len), sizeof(len));
-        
+
+        //
+        // Preserve the expected packet size
+        //
         _lastExpectedPacketSize = len + sizeof(version) + sizeof(key) + (sizeof(len));
-        _moreReadRequired =  bytes_transferred - _lastExpectedPacketSize;
-        
+
+        if (_lastExpectedPacketSize > bytes_transferred)
+          _moreReadRequired =  _lastExpectedPacketSize - bytes_transferred;
+        else
+          _moreReadRequired = 0;
+
+        //
+        // we dont need to read more.  there are enough in the buffer
+        //
         if (!_moreReadRequired)
         {
           char buf[8192];
           strm.read(buf, len);
           _agent.onIncomingRequest(*this, buf, len);
           _spillOverBuffer = std::string();
+          
           if (_lastExpectedPacketSize < bytes_transferred)
           {
             //
@@ -145,7 +168,7 @@ void StateQueueConnection::handleRead(const boost::system::error_code& e, std::s
         else
         {
           _messageBuffer += _spillOverBuffer;
-          _messageBuffer += std::string(_buffer.data(), bytes_transferred);
+          _messageBuffer += std::string(_buffer.data(), bytes_transferred - _spillOverBuffer.size());
           _spillOverBuffer = std::string();
           OS_LOG_DEBUG(FAC_NET,"StateQueueConnection::handleRead "
                 << "More bytes required to complete message.  "
@@ -174,6 +197,9 @@ void StateQueueConnection::handleRead(const boost::system::error_code& e, std::s
 
 void StateQueueConnection::readMore(std::size_t bytes_transferred)
 {
+  if (!bytes_transferred)
+    return;
+
   _messageBuffer += std::string(_buffer.data(), bytes_transferred);
 
   std::stringstream strm;

@@ -31,6 +31,7 @@
 #include "StateQueueListener.h"
 #include "zmq.hpp"
 #include "sipdb/MongoOpLog.h"
+#include "RedisClientAsync.h"
 
 
 class StateQueueAgent : boost::noncopyable
@@ -122,6 +123,11 @@ protected:
   void onOpLogInsert(const std::string& opLog);
   void onOpLogDelete(const std::string& opLog);
 
+
+  void onRedisWatcherEvent(const std::vector<std::string>& event);
+  void onRedisWatcherConnect(int status);
+  void onRedisWatcherDisconnect(int status);
+
   ServiceOptions& _options;
   boost::thread* _pIoServiceThread;
   boost::asio::io_service _ioService;
@@ -134,6 +140,9 @@ protected:
   std::string _publisherAddress;
   MongoOpLog* _pEntityDb;
   MongoDB::ConnectionInfo* _pEntityDbConnectionInfo;
+  boost::thread* _pRedisWatcherThread;
+  RedisClientAsync _redisWatcher;
+  bool _terminated;
   friend class StateQueueListener;
   friend class StateQueueConnection;
 };

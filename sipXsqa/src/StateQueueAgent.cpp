@@ -16,6 +16,8 @@
 #include "sqa/StateQueueAgent.h"
 #include "os/OsLogger.h"
 
+static const char* REDIS_CHANNEL = "REDIS";
+
 StateQueueAgent::StateQueueAgent(ServiceOptions& options) :
   _options(options),
   _pIoServiceThread(0),
@@ -25,7 +27,8 @@ StateQueueAgent::StateQueueAgent(ServiceOptions& options) :
   _listener(this),
   _inactivityThreshold(60),
   _pEntityDb(0),
-  _pEntityDbConnectionInfo(0)
+  _pEntityDbConnectionInfo(0),
+  _terminated(false)
 {
     std::string port;
     std::string address;
@@ -49,6 +52,35 @@ void StateQueueAgent::run()
   assert(!_pIoServiceThread);
   assert(!_publisherAddress.empty());
   _pIoServiceThread = new boost::thread(boost::bind(&StateQueueAgent::internal_run_io_service, this));
+}
+
+void StateQueueAgent::onRedisWatcherEvent(const std::vector<std::string>& event)
+{
+  if (event.size() == 3)
+  {
+    OS_LOG_INFO(FAC_NET, "StateQueueAgent::onRedisWatcherEvent: "
+            << event[0] << " | "
+            << event[1] << " | "
+            << event[2]);
+    
+    if (event[0] == "message" && event[1] == REDIS_CHANNEL)
+    {
+      StateQueueRecord rec;
+      rec.id = REDIS_CHANNEL;
+      rec.data = event[2];
+      publish(rec);
+    }
+  }
+}
+
+void StateQueueAgent::onRedisWatcherConnect(int status)
+{
+  OS_LOG_NOTICE(FAC_NET, "StateQueueAgent::onRedisWatcherConnect status=" << status);
+}
+
+void StateQueueAgent::onRedisWatcherDisconnect(int status)
+{
+  OS_LOG_NOTICE(FAC_NET, "StateQueueAgent::onRedisWatcherDisconnect status=" << status);
 }
 
 void StateQueueAgent::internal_run_io_service()
@@ -80,20 +112,34 @@ void StateQueueAgent::internal_run_io_service()
     {
     }
   }
+
+  //
+  // Connect the redis client
+  //
+  _redisWatcher.connect(
+    boost::bind(&StateQueueAgent::onRedisWatcherConnect, this, _1),
+    boost::bind(&StateQueueAgent::onRedisWatcherConnect, this, _1),
+    boost::bind(&StateQueueAgent::onRedisWatcherEvent, this, _1)
+  );
+  
+  std::vector<std::string> watch;
+  watch.push_back("SUBSCRIBE");
+  watch.push_back(REDIS_CHANNEL);
+  _redisWatcher.asyncCommand(watch);
+
+  _redisWatcher.run();
   
   _listener.run();
   _ioService.run();
 }
 
+
 void StateQueueAgent::stop()
 {
-  _dataStore.stop();
-  _ioService.stop();
-  if (_pIoServiceThread && _pIoServiceThread->joinable())
-    _pIoServiceThread->join();
-  delete _pIoServiceThread;
-  _pIoServiceThread = 0;
-  _publisher.stop();
+  if (_terminated)
+    return;
+
+  _terminated = true;
 
   if (_pEntityDb)
   {
@@ -101,6 +147,23 @@ void StateQueueAgent::stop()
     delete _pEntityDb;
     _pEntityDb = 0;
   }
+
+  //
+  // Unsubscribe from redis channel
+  //
+  std::vector<std::string> unsubscribe;
+  unsubscribe.push_back("UNSUBSCRIBE");
+  unsubscribe.push_back(REDIS_CHANNEL);
+  _redisWatcher.stop();
+
+
+  _dataStore.stop();
+  _ioService.stop();
+  if (_pIoServiceThread && _pIoServiceThread->joinable())
+    _pIoServiceThread->join();
+  delete _pIoServiceThread;
+  _pIoServiceThread = 0;
+  _publisher.stop();
 }
 
 void StateQueueAgent::onOpLogUpdate(const std::string& opLog)
@@ -949,5 +1012,7 @@ void StateQueueAgent::handleLogout(StateQueueConnection& conn, StateQueueMessage
 
   sendOkResponse(message.getType(), conn, id, "bfn!");
 }
+
+
 
 

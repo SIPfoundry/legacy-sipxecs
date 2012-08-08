@@ -18,6 +18,7 @@ BuildRequires: automake
 BuildRequires: gcc-c++
 BuildRequires: zeromq-devel
 BuildRequires: hiredis-devel
+BuildRequires: libev-devel
 BuildRequires: swig
 BuildRequires: sipxcommserverlib-devel  >= %version
 BuildRequires: sipxportlib-devel        >= %version

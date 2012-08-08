@@ -16,13 +16,16 @@
 #ifndef SQA_REDISCLIENT_H_INCLUDED
 #define	SQA_REDISCLIENT_H_INCLUDED
 
-#include "hiredis/hiredis.h"
+extern "C"
+{
+  #include <hiredis/hiredis.h>
+}
+
 #include <boost/noncopyable.hpp>
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 #include <map>
 #include "sqa/ServiceOptions.h"
-
 
 
 class RedisClient : boost::noncopyable
@@ -72,6 +75,7 @@ public:
   }
 
 protected:
+
   redisReply* execute(const std::vector<std::string>& args)
   {
     char** argv = (char**)std::malloc((args.size() + 1) * sizeof(char*));
@@ -473,15 +477,6 @@ public:
     return getReplyInt(args, result) && result > 0;
   }
 
-  bool subscribe(const std::string& channel, std::string& data)
-  {
-    std::vector<std::string> args;
-    args.push_back("SUBSCRIBE");
-    args.push_back(channel);
-    data = getReplyString(args);
-    return !data.empty();
-  }
-
   long long publish(const std::string& channel, const std::string& data)
   {
     std::vector<std::string> args;
@@ -491,14 +486,6 @@ public:
     long long result = 0;
     getReplyInt(args, result);
     return result;
-  }
-
-  void unsubscribe(const std::string& channel)
-  {
-    std::vector<std::string> args;
-    args.push_back("UNSUBSCRIBE");
-    args.push_back(channel);
-    getStatusString(args);
   }
 
   void freeReply(redisReply* reply)

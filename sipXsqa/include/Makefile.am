@@ -5,6 +5,7 @@ nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 nobase_include_HEADERS = \
 	sqa/BlockingQueue.h \
 	sqa/RedisClient.h \
+	sqa/RedisClientAsync.h \
 	sqa/Semaphore.h \
 	sqa/ServiceOptions.h \
 	sqa/StateQueueAgent.h \
