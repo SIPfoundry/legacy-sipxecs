@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
@@ -42,10 +43,13 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
-public class RegistrarConfiguration implements ConfigProvider {
+public class RegistrarConfiguration implements ConfigProvider, ApplicationContextAware {
     private static final SettingFilter NO_UNDERSCORE = new PatternSettingFilter(".*/_.*");
     private Registrar m_registrar;
+    private ApplicationContext m_context;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -108,10 +112,25 @@ public class RegistrarConfiguration implements ConfigProvider {
             file.write("SIP_REDIRECT.900-PRESENCE.SIP_DOMAIN", domain.getName());
         }
         file.write("SIP_REDIRECT.999-AUTHROUTER.SIPX_PROXY", domain.getName() + ";transport=tcp");
+
+        // add entries configurable in registrar plugins
+        Map<String, RegistrarConfigurationPlugin> beans = m_context.getBeansOfType(RegistrarConfigurationPlugin.class);
+        if (beans != null) {
+            for (RegistrarConfigurationPlugin bean : beans.values()) {
+                for (Map.Entry<String, String> plugin : bean.getRegistrarPlugins().entrySet()) {
+                    file.write(plugin.getKey(), plugin.getValue());
+                }
+            }
+        }
     }
 
     @Required
     public void setRegistrar(Registrar registrar) {
         m_registrar = registrar;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext context) {
+        m_context = context;
     }
 }
