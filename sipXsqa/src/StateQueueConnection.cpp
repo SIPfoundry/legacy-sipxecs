@@ -148,7 +148,13 @@ void StateQueueConnection::handleRead(const boost::system::error_code& e, std::s
         {
           char buf[8192];
           strm.read(buf, len);
-          _agent.onIncomingRequest(*this, buf, len);
+          
+          //
+          // Check terminating character to avoid corrupted/truncated/overran messages
+          //
+          if (buf[len-1] == '_')
+            _agent.onIncomingRequest(*this, buf, len -1);
+
           _spillOverBuffer = std::string();
           
           if (_lastExpectedPacketSize < bytes_transferred)
@@ -234,7 +240,13 @@ void StateQueueConnection::readMore(std::size_t bytes_transferred)
     {
       char buf[8192];
       strm.read(buf, len);
-      _agent.onIncomingRequest(*this, buf, len);
+
+      //
+      // Check terminating character to avoid corrupted/truncated/overran messages
+      //
+      if (buf[len-1] == '_')
+        _agent.onIncomingRequest(*this, buf, len -1);
+
       _spillOverBuffer = std::string();
       if (_lastExpectedPacketSize < _messageBuffer.size())
       {
