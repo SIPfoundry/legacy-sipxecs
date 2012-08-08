@@ -17,6 +17,7 @@
 #include "sqa/StateQueueAgent.h"
 #include "os/OsLogger.h"
 
+
 StateQueueConnection::StateQueueConnection(
   boost::asio::io_service& ioService,
   StateQueueAgent& agent) :
@@ -146,29 +147,42 @@ void StateQueueConnection::handleRead(const boost::system::error_code& e, std::s
         //
         if (!_moreReadRequired)
         {
-          char buf[8192];
-          strm.read(buf, len);
-          
-          //
-          // Check terminating character to avoid corrupted/truncated/overran messages
-          //
-          if (buf[len-1] == '_')
-            _agent.onIncomingRequest(*this, buf, len -1);
+          if (len < SQA_CONN_MAX_READ_BUFF_SIZE)
+          {
+            char buf[SQA_CONN_MAX_READ_BUFF_SIZE];
+            strm.read(buf, len);
 
-          _spillOverBuffer = std::string();
-          
-          if (_lastExpectedPacketSize < bytes_transferred)
+            //
+            // Check terminating character to avoid corrupted/truncated/overran messages
+            //
+            if (buf[len-1] == '_')
+              _agent.onIncomingRequest(*this, buf, len -1);
+
+            _spillOverBuffer = std::string();
+
+            if (_lastExpectedPacketSize < bytes_transferred)
+            {
+              //
+              // We have spill over bytes
+              //
+              std::size_t extraBytes = bytes_transferred - _lastExpectedPacketSize;
+              char spillbuf[extraBytes];
+              strm.read(spillbuf, extraBytes);
+              _spillOverBuffer = std::string(spillbuf, extraBytes);
+              OS_LOG_DEBUG(FAC_NET,"StateQueueConnection::handleRead "
+                  << "Spillover bytes from last read detected.  "
+                  << "BYTES: " << extraBytes);
+            }
+          }
+          else
           {
             //
-            // We have spill over bytes
+            // This is a corrupted message.  Simply reset the buffers
             //
-            std::size_t extraBytes = bytes_transferred - _lastExpectedPacketSize;
-            char spillbuf[extraBytes];
-            strm.read(spillbuf, extraBytes);
-            _spillOverBuffer = std::string(spillbuf, extraBytes);
-            OS_LOG_DEBUG(FAC_NET,"StateQueueConnection::handleRead "
-                << "Spillover bytes from last read detected.  "
-                << "BYTES: " << extraBytes);
+            _messageBuffer = std::string();
+            _spillOverBuffer = std::string();
+            _lastExpectedPacketSize = 0;
+            _moreReadRequired = 0;
           }
         }
         else
@@ -238,28 +252,42 @@ void StateQueueConnection::readMore(std::size_t bytes_transferred)
 
     if (!_moreReadRequired)
     {
-      char buf[8192];
-      strm.read(buf, len);
+      if (len < SQA_CONN_MAX_READ_BUFF_SIZE)
+      {
+        char buf[SQA_CONN_MAX_READ_BUFF_SIZE];
+        strm.read(buf, len);
 
-      //
-      // Check terminating character to avoid corrupted/truncated/overran messages
-      //
-      if (buf[len-1] == '_')
-        _agent.onIncomingRequest(*this, buf, len -1);
+        //
+        // Check terminating character to avoid corrupted/truncated/overran messages
+        //
+        if (buf[len-1] == '_')
+          _agent.onIncomingRequest(*this, buf, len -1);
 
-      _spillOverBuffer = std::string();
-      if (_lastExpectedPacketSize < _messageBuffer.size())
+        _spillOverBuffer = std::string();
+        if (_lastExpectedPacketSize < _messageBuffer.size())
+        {
+          //
+          // We have spill over bytes
+          //
+          std::size_t extraBytes = _messageBuffer.size() - _lastExpectedPacketSize;
+          char spillbuf[extraBytes];
+          strm.read(spillbuf, extraBytes);
+          _spillOverBuffer = std::string(spillbuf, extraBytes);
+          OS_LOG_DEBUG(FAC_NET, "StateQueueConnection::readMore "
+                  << "Spillover bytes from last read detected.  "
+                  << "BYTES: " << extraBytes);
+        }
+      }
+      else
       {
         //
-        // We have spill over bytes
+        // We got an extreme large len.
+        // This is a corrupted message.  Simply reset the buffers
         //
-        std::size_t extraBytes = _messageBuffer.size() - _lastExpectedPacketSize;
-        char spillbuf[extraBytes];
-        strm.read(spillbuf, extraBytes);
-        _spillOverBuffer = std::string(spillbuf, extraBytes);
-        OS_LOG_DEBUG(FAC_NET, "StateQueueConnection::readMore "
-                << "Spillover bytes from last read detected.  "
-                << "BYTES: " << extraBytes);
+        _messageBuffer = std::string();
+        _spillOverBuffer = std::string();
+        _lastExpectedPacketSize = 0;
+        _moreReadRequired = 0;
       }
     }
     else
