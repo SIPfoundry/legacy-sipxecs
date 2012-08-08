@@ -1,4 +1,15 @@
 <span jwcid="$content$">
+<style>
+#tooltip{
+position:absolute;
+width:300px;
+border:1px solid #333;
+background:#e5e500;
+padding:2px 5px;
+color:#333;
+display:none;
+} 
+</style>
   <span jwcid="@common/QuickHelp" value="ognl:messages.getMessage('bundle.' + bundleId + '.description')" />
   <span jwcid="@common/QuickHelp" value="message:quick.help" />
   <form jwcid="configureBundler@Form" id="configureBundler" delegate="bean:validator" refresh="listener:validate">
@@ -17,7 +28,7 @@
         <tbody>
         <span jwcid="@For" source="ognl:bundle.features" value="ognl:feature" converter="ognl:featureConverter">
           <tr jwcid="@Any" class="ognl:rowClass.next">
-              <td><span jwcid="exampleNode@Any"
+              <td><span jwcid="@Any"
                 title="ognl:messages.getMessage('feature.' + feature.id + '.description')"  class="tooltip"><span
                 jwcid="@Insert" value="ognl:messages.getMessage('feature.' + feature.id)"/></span></td>
             <span jwcid="@RenderBlock" block="ognl:components.get(constraintBlockId)"/>
