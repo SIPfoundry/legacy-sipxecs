@@ -175,6 +175,16 @@ void StateQueueConnection::handleRead(const boost::system::error_code& e, std::s
                 << "Required BYTES: " << _moreReadRequired);
         }
       }
+      else
+      {
+        //
+        // This is a corrupted message.  Simply reset the buffers
+        //
+        _messageBuffer = std::string();
+        _spillOverBuffer = std::string();
+        _lastExpectedPacketSize = 0;
+        _moreReadRequired = 0;
+      }
     }
     else
     {
@@ -246,6 +256,16 @@ void StateQueueConnection::readMore(std::size_t bytes_transferred)
                 << "More bytes required to complete message.  "
                 << "Required BYTES: " << _moreReadRequired);
     }
+  }
+  else
+  {
+    //
+    // This is a corrupted message.  Simply reset the buffers
+    //
+    _messageBuffer = std::string();
+    _spillOverBuffer = std::string();
+    _lastExpectedPacketSize = 0;
+    _moreReadRequired = 0;
   }
 }
 
