@@ -22,6 +22,7 @@ public interface MongoConstants {
     static final String STUNNEL_COLLECTION = "registrarnode";
     static final String ENTITY_COLLECTION = "entity";
 
+    static final String ENTITY_NAME = "ent";
     static final String ALIASES = "als";
     static final String ALIAS = "alias";
     static final String ID = "_id";

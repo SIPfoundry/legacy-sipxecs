@@ -58,6 +58,9 @@ public class ValidUsers {
     private static final String IMDB_PERM_VOICEMAIL = "Voicemail";
     private static final String IMDB_PERM_RECPROMPTS = "RecordSystemPrompts";
     private static final String IMDB_PERM_TUICHANGEPIN = "tui-change-pin";
+    private static final String ENTITY_NAME_USER = "user";
+    private static final String ENTITY_NAME_GROUP = "group";
+    private static final String ENTITY_NAME_IMBOTSETTINGS = "imbotsettings";
 
     private DB m_imdb;
 
@@ -99,8 +102,7 @@ public class ValidUsers {
      * @return
      */
     public DBCursor getUsers() {
-        Pattern userPattern = Pattern.compile("User.*");
-        BasicDBObject query = new BasicDBObject(ID, userPattern);
+        BasicDBObject query = new BasicDBObject(ENTITY_NAME, ENTITY_NAME_USER);
         DBCursor cursor = getEntityCollection().find(query);
         return cursor;
     }
@@ -196,8 +198,7 @@ public class ValidUsers {
     }
 
     public User getUserByInsensitiveJid(String jid) {
-        Pattern insensitiveJid = Pattern.compile(jid, Pattern.CASE_INSENSITIVE);
-        return getUserByJidObject(insensitiveJid);
+        return getUserByJidObject(jid);
     }
 
     private User getUserByJidObject(Object jid) {
@@ -220,8 +221,7 @@ public class ValidUsers {
 
     public List<User> getUsersUpdatedAfter(Long ms) {
         List<User> users = new ArrayList<User>();
-        Pattern userPattern = Pattern.compile("User.*");
-        DBObject query = QueryBuilder.start(ID).is(userPattern).and(MongoConstants.TIMESTAMP).greaterThan(ms).get();
+        DBObject query = QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_USER).and(MongoConstants.TIMESTAMP).greaterThan(ms).get();
         DBCursor cursor = getEntityCollection().find(query);
         Iterator<DBObject> objects = cursor.iterator();
         while (objects.hasNext()) {
@@ -303,23 +303,22 @@ public class ValidUsers {
     }
 
     public List<User> getImUsersByFilter(Set<String> fields, String query, int startIndex, int numResults) {
-        Pattern insensitiveQuery = Pattern.compile(query, Pattern.CASE_INSENSITIVE);
         QueryBuilder mongoQuery = QueryBuilder.start();
         if (fields.contains(IM_USERNAME_FILTER)) {
             BasicDBObject q = new BasicDBObject();
-            q.put(IM_ID, insensitiveQuery);
+            q.put(IM_ID, query);
             BasicDBObject altQ = new BasicDBObject();
-            altQ.put(ALT_IM_ID, insensitiveQuery);
+            altQ.put(ALT_IM_ID, query);
             mongoQuery.or(q, altQ);
         }
         if (fields.contains(IM_NAME_FILTER)) {
             BasicDBObject q = new BasicDBObject();
-            q.put(IM_DISPLAY_NAME, insensitiveQuery);
+            q.put(IM_DISPLAY_NAME, query);
             mongoQuery.or(q);
         }
         if (fields.contains(IM_EMAIL_FILTER)) {
             BasicDBObject q = new BasicDBObject();
-            q.put(EMAIL, insensitiveQuery);
+            q.put(EMAIL, query);
             mongoQuery.or(q);
         }
         DBCursor cursor = getEntityCollection().find(mongoQuery.get()).skip(startIndex).limit(numResults);
@@ -353,8 +352,8 @@ public class ValidUsers {
     }
 
     public UserGroup getImGroup(String name) {
-        Pattern groupPattern = Pattern.compile("Group.*");
-        DBObject queryGroup = QueryBuilder.start(ID).is(groupPattern).and(IM_GROUP).is("1").and(UID).is(name).get();
+
+        DBObject queryGroup = QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_GROUP).and(IM_GROUP).is("1").and(UID).is(name).get();
         DBObject groupResult = getEntityCollection().findOne(queryGroup);
         if (groupResult != null) {
             UserGroup group = new UserGroup();
@@ -371,8 +370,7 @@ public class ValidUsers {
     }
 
     public String getImBotName() {
-        Pattern imbotPattern = Pattern.compile("ImBotSettings.*");
-        DBObject queryImbot = QueryBuilder.start(ID).is(imbotPattern).and(IM_ENABLED).is(true).get();
+        DBObject queryImbot = QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_IMBOTSETTINGS).and(IM_ENABLED).is(true).get();
         DBObject imbotResult = getEntityCollection().findOne(queryImbot);
         if (imbotResult != null) {
             return getStringValue(imbotResult, IM_ID);
@@ -381,8 +379,7 @@ public class ValidUsers {
     }
 
     public long getImGroupCount() {
-        Pattern groupPattern = Pattern.compile("Group.*");
-        return getEntityCollection().count(QueryBuilder.start(ID).is(groupPattern).and(IM_GROUP).is("1").get());
+        return getEntityCollection().count(QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_GROUP).and(IM_GROUP).is("1").get());
     }
 
     public Collection<String> getImGroupNames(int startIndex, int numResults) {
@@ -403,9 +400,8 @@ public class ValidUsers {
     }
 
     public List<String> getImGroupNameByQuery(String query, int startIndex, int numResults) {
-        Pattern groupPattern = Pattern.compile("Group.*");
         Pattern insensitiveQuery = Pattern.compile(query, Pattern.CASE_INSENSITIVE);
-        QueryBuilder mongoQuery = QueryBuilder.start(ID).is(groupPattern).and(UID).is(insensitiveQuery);
+        QueryBuilder mongoQuery = QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_GROUP).and(UID).is(insensitiveQuery);
         DBCursor cursor = getEntityCollection().find(mongoQuery.get()).skip(startIndex).limit(numResults);
         List<String> groups = new ArrayList<String>();
         Iterator<DBObject> objects = cursor.iterator();

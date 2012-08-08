@@ -132,7 +132,7 @@ public class Mailstore extends AbstractDataSetGenerator {
         ImAccount imAccount = new ImAccount(user);
         top.put(IM_ENABLED, imAccount.isEnabled());
         // The following settings used to be in contact-information.xml
-        top.put(IM_ID, imAccount.getImId());
+        top.put(IM_ID, imAccount.getImId().toLowerCase());
         top.put(IM_DISPLAY_NAME, imAccount.getImDisplayName());
         top.put(CONF_ENTRY_IM, user.getSettingValue("im_notification/conferenceEntryIM").toString());
         top.put(CONF_EXIT_IM, user.getSettingValue("im_notification/conferenceExitIM").toString());
