@@ -140,12 +140,12 @@ public:
       std::string data = request.data();
       short version = 1;
       short key = 22172;
-      short len = (short)data.size();
+      short len = (short)data.size() + 1; /// Acount for the terminating char "_"
       std::stringstream strm;
       strm.write((char*)(&version), sizeof(version));
       strm.write((char*)(&key), sizeof(key));
       strm.write((char*)(&len), sizeof(len));
-      strm << data;
+      strm << data << "_";
       std::string packet = strm.str();
       boost::system::error_code ec;
       bool ok = _pSocket->write_some(boost::asio::buffer(packet.c_str(), packet.size()), ec) > 0;

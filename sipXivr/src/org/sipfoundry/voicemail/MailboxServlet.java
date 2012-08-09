@@ -10,7 +10,6 @@ package org.sipfoundry.voicemail;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -97,7 +96,7 @@ public class MailboxServlet extends HttpServlet {
         // only superadmin and mailbox owner can access this service
         // TODO allow all admin user to access it
 
-        if (user != null && isForbidden(request, user.getUserName(), request.getLocalPort(), ivrConfig.getHttpPort())) {
+        if (user != null && ServletUtil.isForbidden(request, user.getUserName(), request.getLocalPort(), ivrConfig.getHttpPort())) {
             response.sendError(403); // Send 403 Forbidden
             return;
         }
@@ -330,30 +329,15 @@ public class MailboxServlet extends HttpServlet {
 
     }
 
-    private boolean isForbidden(HttpServletRequest request, String userName, int requestPort, int port) {
-        if (requestPort != port) {
-            Principal principal = request.getUserPrincipal();
-            String authenticatedUserName = (principal == null) ? null : principal.getName();
-
-            return authenticatedUserName != null && (!authenticatedUserName.equals(userName) && !authenticatedUserName.equals("superadmin"));
-        } else {
-            String trustedUserName = request.getHeader("sipx-user");
-            if (trustedUserName != null && !trustedUserName.equals(userName)) {
-                return true;
-            }
-            return false;
-        }
-    }
-
     private void listMessages(List<VmMessage> messages, String folder, PrintWriter pw) {
         String author = null;
         for (VmMessage message : messages) {
             MessageDescriptor descriptor = message.getDescriptor();
             author = SipUriUtil.extractUserName(descriptor.getFromUri().replace('+', ' '));
             pw.format(
-                    "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" author=\"%s\" username=\"%s\"/>\n",
+                    "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" author=\"%s\" username=\"%s\" format=\"%s\"/>\n",
                     message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder,
-                    descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), author, message.getUserName());
+                    descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), author, message.getUserName(), descriptor.getAudioFormat());
         }
     }
 
@@ -367,10 +351,10 @@ public class MailboxServlet extends HttpServlet {
         MessageDescriptor descriptor = message.getDescriptor();
         String author = SipUriUtil.extractUserName(descriptor.getFromUri().replace('+', ' '));
         pw.format(
-                "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" author=\"%s\" subject=\"%s\"/>\n",
+                "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" author=\"%s\" subject=\"%s\" username=\"%s\" format=\"%s\"/>\n",
                 message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder,
                 descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), author,
-                descriptor.getSubject());
+                descriptor.getSubject(), message.getUserName(), descriptor.getAudioFormat());
     }
 
 }

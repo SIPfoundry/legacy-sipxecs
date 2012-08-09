@@ -201,6 +201,7 @@ public abstract class AbstractMailboxManager implements MailboxManager {
                 }
             }
         }
+        descriptor.setAudioFormat(getAudioFormat());
         return descriptor;
     }
 

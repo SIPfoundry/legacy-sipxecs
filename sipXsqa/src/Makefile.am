@@ -35,7 +35,8 @@ sipxsqa_LDADD = \
 	  -lpthread \
 	  -lzmq \
 	  -lmongoclient \
-	  -lhiredis
+	  -lhiredis \
+	  -lev
 
 sipxsqa_SOURCES =   main.cpp
 

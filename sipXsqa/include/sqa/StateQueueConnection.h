@@ -25,6 +25,8 @@
 
 class StateQueueAgent;
 
+#define SQA_CONN_MAX_READ_BUFF_SIZE 65536
+
 class StateQueueConnection : public boost::enable_shared_from_this<StateQueueConnection>, boost::noncopyable
 {
 public:
@@ -65,7 +67,7 @@ protected:
   StateQueueAgent& _agent;
   boost::asio::ip::tcp::socket _socket;
   boost::asio::ip::tcp::resolver _resolver;
-  boost::array<char, 8192> _buffer;
+  boost::array<char, SQA_CONN_MAX_READ_BUFF_SIZE> _buffer;
 
   std::string _messageBuffer;
   std::string _spillOverBuffer;

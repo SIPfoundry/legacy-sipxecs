@@ -1,23 +1,24 @@
 /*
- * 
- * 
- * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 package org.sipfoundry.voicemail.mailbox;
 
 import java.util.List;
+
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.sipfoundry.voicemail.mailbox.MessageDescriptor.Priority;
 
 public class MessageDescriptorReader extends XmlReaderImpl<MessageDescriptor> {
-    
+
     private Node m_root;
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public MessageDescriptor readObject(Document doc) {
@@ -29,17 +30,17 @@ public class MessageDescriptorReader extends XmlReaderImpl<MessageDescriptor> {
         md.setTimestamp(valueOf("timestamp"));
         md.setSubject(valueOf("subject"));
         md.setPriority((Priority.valueOfById(valueOf("priority"))));
-        
+
         List<Element> recipients = m_root.selectNodes("otherrecipient");
         for (Element recipient : recipients) {
             md.addOtherRecipient(recipient.getTextTrim());
         }
-        
+        md.setAudioFormat(valueOf("format"));
         return md;
     }
 
     /**
-     * Lookup name at root level. 
+     * Lookup name at root level.
      * @param name
      * @return value of name (null if missing or empty)
      */

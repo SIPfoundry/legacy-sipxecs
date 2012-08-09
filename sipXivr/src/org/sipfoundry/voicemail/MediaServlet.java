@@ -78,14 +78,9 @@ public class MediaServlet extends HttpServlet {
         User user = validUsers.getUser(mailboxString);
         // only superadmin and mailbox owner can access this service
         // TODO allow all admin user to access it
-        if (ivrConfig.getHttpPort() != request.getLocalPort()) {
-            String authenticatedUserName = request.getUserPrincipal().getName();
-            if (!authenticatedUserName.equals(user.getUserName())) {
-                if (!authenticatedUserName.equals("superadmin")) {
-                    response.sendError(403); // Send 403 Forbidden
-                    return;
-                }
-            }
+        if (user != null && ServletUtil.isForbidden(request, user.getUserName(), request.getLocalPort(), ivrConfig.getHttpPort())) {
+            response.sendError(403); // Send 403 Forbidden
+            return;
         }
 
         if (user != null) {

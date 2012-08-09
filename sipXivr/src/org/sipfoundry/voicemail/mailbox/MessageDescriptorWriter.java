@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.voicemail.mailbox;
@@ -25,7 +25,7 @@ public class MessageDescriptorWriter extends XmlWriterImpl<MessageDescriptor> {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     static final DocumentFactory FACTORY = DocumentFactory.getInstance();
     private MessageDescriptor m_messageDescriptor;
-    
+
     @Override
     public void writeObject(MessageDescriptor messageDescriptor, Writer output) {
         m_messageDescriptor = messageDescriptor ;
@@ -53,12 +53,13 @@ public class MessageDescriptorWriter extends XmlWriterImpl<MessageDescriptor> {
         addAndSet(prefsEl, "priority", m_messageDescriptor.getPriority().getId());
         if(m_messageDescriptor.getOtherRecipients() != null) {
             for(String otherRecipient : m_messageDescriptor.getOtherRecipients()) {
-                addAndSet(prefsEl, "otherrecipient", otherRecipient); 
+                addAndSet(prefsEl, "otherrecipient", otherRecipient);
             }
         }
+        addAndSet(prefsEl, "format", m_messageDescriptor.getAudioFormat());
         return document;
     }
-    
+
     private void addAndSet(Element el, String name, String text) {
         Element subel = el.addElement(name);
         if (text != null) {
