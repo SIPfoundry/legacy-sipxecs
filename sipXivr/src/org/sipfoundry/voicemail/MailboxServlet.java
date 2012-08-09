@@ -335,9 +335,9 @@ public class MailboxServlet extends HttpServlet {
             MessageDescriptor descriptor = message.getDescriptor();
             author = SipUriUtil.extractUserName(descriptor.getFromUri().replace('+', ' '));
             pw.format(
-                    "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" author=\"%s\" username=\"%s\"/>\n",
+                    "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" author=\"%s\" username=\"%s\" format=\"%s\"/>\n",
                     message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder,
-                    descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), author, message.getUserName());
+                    descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), author, message.getUserName(), descriptor.getAudioFormat());
         }
     }
 
@@ -351,10 +351,10 @@ public class MailboxServlet extends HttpServlet {
         MessageDescriptor descriptor = message.getDescriptor();
         String author = SipUriUtil.extractUserName(descriptor.getFromUri().replace('+', ' '));
         pw.format(
-                "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" author=\"%s\" subject=\"%s\"/>\n",
+                "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" author=\"%s\" subject=\"%s\" username=\"%s\" format=\"%s\"/>\n",
                 message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder,
                 descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), author,
-                descriptor.getSubject());
+                descriptor.getSubject(), message.getUserName(), descriptor.getAudioFormat());
     }
 
 }
