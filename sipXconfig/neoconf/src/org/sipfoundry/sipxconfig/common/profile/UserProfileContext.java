@@ -23,14 +23,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.commons.userdb.profile.UserProfileService;
-import org.sipfoundry.sipxconfig.address.Address;
-import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.apache.ApacheManager;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -38,11 +37,11 @@ import org.springframework.jdbc.core.RowCallbackHandler;
 
 public class UserProfileContext implements DaoEventListener, SetupListener {
     private static final Log LOG = LogFactory.getLog(UserProfileContext.class);
-    private static final String AVATAR_FORMAT = "%s/sipxconfig/rest/avatar/%s";
+    private static final String AVATAR_FORMAT = "https://%s/sipxconfig/rest/avatar/%s";
     private static final String PROFILE_SETUP = "profile";
     private static final String PROFILE_MIGRATION = "migrate_profiles";
     private UserProfileService m_userProfileService;
-    private AddressManager m_addressManager;
+    private DomainManager m_domainManager;
     private JdbcTemplate m_jdbc;
 
     public boolean setup(SetupManager manager) {
@@ -83,10 +82,7 @@ public class UserProfileContext implements DaoEventListener, SetupListener {
             try {
                 User user = (User) entity;
                 UserProfile profile = user.getUserProfile();
-                Address apacheAddr = m_addressManager.getSingleAddress(ApacheManager.HTTPS_ADDRESS);
-                if (apacheAddr != null) {
-                    profile.setAvatar(String.format(AVATAR_FORMAT, apacheAddr.toString(), user.getUserName()));
-                }
+                profile.setAvatar(String.format(AVATAR_FORMAT, m_domainManager.getDomainName(), user.getUserName()));
                 m_userProfileService.saveUserProfile(profile);
             } catch (Exception ex) {
                 LOG.error("failed to save profile in mongo" + ex.getMessage());
@@ -96,7 +92,6 @@ public class UserProfileContext implements DaoEventListener, SetupListener {
     }
 
     protected void migrateProfiles() {
-        final Address apacheAddr = m_addressManager.getSingleAddress(ApacheManager.HTTPS_ADDRESS);
         RowCallbackHandler handler = new RowCallbackHandler() {
 
             @Override
@@ -144,9 +139,7 @@ public class UserProfileContext implements DaoEventListener, SetupListener {
                 profile.getBranchAddress().setCity(rs.getString("branch_city"));
                 profile.getBranchAddress().setOfficeDesignation(rs.getString("branch_post"));
 
-                if (apacheAddr != null) {
-                    profile.setAvatar(String.format(AVATAR_FORMAT, apacheAddr.toString(), profile.getUserName()));
-                }
+                profile.setAvatar(String.format(AVATAR_FORMAT, m_domainManager.getDomainName(), profile.getUserName()));
 
                 m_userProfileService.saveUserProfile(profile);
             }
@@ -174,8 +167,9 @@ public class UserProfileContext implements DaoEventListener, SetupListener {
         m_userProfileService = profileService;
     }
 
-    public void setAddressManager(AddressManager manager) {
-        m_addressManager = manager;
+    @Required
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
     }
 
     public void setJdbc(JdbcTemplate jdbc) {

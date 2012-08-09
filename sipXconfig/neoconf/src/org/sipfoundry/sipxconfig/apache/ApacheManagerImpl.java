@@ -89,7 +89,7 @@ public class ApacheManagerImpl extends SipxHibernateDaoSupport<Object> implement
             return null;
         }
 
-        return new Address(t, m_locationsManager.getPrimaryLocation().getAddress());
+        return new Address(t, m_locationsManager.getPrimaryLocation().getFqdn());
     }
 
     @Override
