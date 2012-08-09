@@ -183,6 +183,14 @@ void StateQueueConnection::handleRead(const boost::system::error_code& e, std::s
             _spillOverBuffer = std::string();
             _lastExpectedPacketSize = 0;
             _moreReadRequired = 0;
+            OS_LOG_WARNING(FAC_NET, "StateQueueConnection::handleRead "
+                << "TERMINATED - "
+                    << " Message exceeds maximum buffer size. Lenth=" << len );
+            boost::system::error_code ignored_ec;
+            _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+            _socket.close();
+            _agent.listener().destroyConnection(shared_from_this());
+            return;
           }
         }
         else
@@ -204,6 +212,14 @@ void StateQueueConnection::handleRead(const boost::system::error_code& e, std::s
         _spillOverBuffer = std::string();
         _lastExpectedPacketSize = 0;
         _moreReadRequired = 0;
+        OS_LOG_WARNING(FAC_NET, "StateQueueConnection::handleRead "
+                << "TERMINATED - "
+                    << " Invalid protocol headers.");
+        boost::system::error_code ignored_ec;
+        _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+        _socket.close();
+        _agent.listener().destroyConnection(shared_from_this());
+        return;
       }
     }
     else
@@ -288,6 +304,14 @@ void StateQueueConnection::readMore(std::size_t bytes_transferred)
         _spillOverBuffer = std::string();
         _lastExpectedPacketSize = 0;
         _moreReadRequired = 0;
+        OS_LOG_WARNING(FAC_NET, "StateQueueConnection::handleRead "
+                << "TERMINATED - "
+                << " Message exceeds maximum buffer size. Lenth=" << len );
+        boost::system::error_code ignored_ec;
+        _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+        _socket.close();
+        _agent.listener().destroyConnection(shared_from_this());
+        return;
       }
     }
     else
@@ -306,6 +330,14 @@ void StateQueueConnection::readMore(std::size_t bytes_transferred)
     _spillOverBuffer = std::string();
     _lastExpectedPacketSize = 0;
     _moreReadRequired = 0;
+    OS_LOG_WARNING(FAC_NET, "StateQueueConnection::readMore "
+                << "TERMINATED - "
+                << " Invalid protocol headers." );
+    boost::system::error_code ignored_ec;
+    _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+    _socket.close();
+    _agent.listener().destroyConnection(shared_from_this());
+    return;
   }
 }
 
@@ -313,11 +345,13 @@ void StateQueueConnection::start()
 {
   OS_LOG_DEBUG(FAC_NET, "StateQueueConnection::start() INVOKED");
 
-
-  _socket.async_read_some(boost::asio::buffer(_buffer),
-            boost::bind(&StateQueueConnection::handleRead, shared_from_this(),
-              boost::asio::placeholders::error,
-              boost::asio::placeholders::bytes_transferred));
+  if (_socket.is_open())
+  {
+    _socket.async_read_some(boost::asio::buffer(_buffer),
+              boost::bind(&StateQueueConnection::handleRead, shared_from_this(),
+                boost::asio::placeholders::error,
+                boost::asio::placeholders::bytes_transferred));
+  }
 }
 
 void StateQueueConnection::stop()
@@ -335,6 +369,7 @@ void StateQueueConnection::onInactivityTimeout(const boost::system::error_code& 
     boost::system::error_code ignored_ec;
     _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
     _socket.close();
+    _agent.listener().destroyConnection(shared_from_this());
   }
 }
 
