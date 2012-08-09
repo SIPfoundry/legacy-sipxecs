@@ -26,7 +26,6 @@ import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,9 +34,9 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
+import org.restlet.resource.InputRepresentation;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
-import org.restlet.resource.StringRepresentation;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
@@ -50,6 +49,7 @@ public class RestRedirectorResource extends UserResource {
     public static final String CALLCONTROLLER = "/callcontroller";
     public static final String CDR = "/cdr";
     public static final String MAILBOX = "/mailbox";
+    public static final String MEDIA = "/media";
     private static final String GET = "GET";
     private static final String PUT = "PUT";
     private static final String POST = "POST";
@@ -115,26 +115,27 @@ public class RestRedirectorResource extends UserResource {
         String cdrRelativeUrl = StringUtils.substringAfter(url, CDR);
         String mailboxRelativeUrl = StringUtils.substringAfter(url, MAILBOX);
         String callcontrollerRelativeUrl = StringUtils.substringAfter(url, CALLCONTROLLER);
-        String result = null;
+        String mediaRelativeUrl = StringUtils.substringAfter(url, MEDIA);
         if (!StringUtils.isEmpty(cdrRelativeUrl)) {
-            result = m_httpInvoker.invokeGet(m_addressManager.getSingleAddress(RestServer.HTTP_API)
+            m_httpInvoker.invokeGet(m_addressManager.getSingleAddress(RestServer.HTTP_API)
                     + CDR + cdrRelativeUrl);
         } else if (!StringUtils.isEmpty(mailboxRelativeUrl)) {
-            result = invokeIvrFallback(GET, MAILBOX + mailboxRelativeUrl);
+            invokeIvrFallback(GET, MAILBOX + mailboxRelativeUrl);
         } else if (!StringUtils.isEmpty(callcontrollerRelativeUrl)) {
-            result = m_httpInvoker.invokeGet(m_addressManager.getSingleAddress(RestServer.HTTP_API)
+            m_httpInvoker.invokeGet(m_addressManager.getSingleAddress(RestServer.HTTP_API)
                     + CALLCONTROLLER + callcontrollerRelativeUrl);
+        } else if (!StringUtils.isEmpty(mediaRelativeUrl)) {
+            invokeIvrFallback(GET, MEDIA + mediaRelativeUrl);
         }
-        return new StringRepresentation(result);
+        return getResponse().getEntity();
     }
 
-    private String invokeIvrFallback(String methodType, String relativeUri) throws ResourceException {
-        String result = null;
+    private void invokeIvrFallback(String methodType, String relativeUri) throws ResourceException {
         Address ivrGoodAddress = m_mailboxManager.getLastGoodIvrNode();
         if (ivrGoodAddress != null) {
             try {
-                result = invokeMethod(ivrGoodAddress, methodType, relativeUri);
-                return result;
+                invokeMethod(ivrGoodAddress, methodType, relativeUri);
+                return;
             } catch (ResourceException ex) {
                 // do not throw exception as we want to iterate through all ivr nodes
                 LOG.warn("Cannot call last good ivr address: " + ivrGoodAddress);
@@ -146,9 +147,9 @@ public class RestRedirectorResource extends UserResource {
                 if (ivrGoodAddress != null && address.equals(ivrGoodAddress)) {
                     continue;
                 }
-                result = invokeMethod(address, methodType, relativeUri);
+                invokeMethod(address, methodType, relativeUri);
                 m_mailboxManager.setLastGoodIvrNode(address);
-                return result;
+                return;
             } catch (ResourceException ex) {
                 LOG.warn("Cannot call ivr address: " + address);
             }
@@ -157,20 +158,16 @@ public class RestRedirectorResource extends UserResource {
         throw new ResourceException(Status.CONNECTOR_ERROR_COMMUNICATION, "No IVR node is running");
     }
 
-    private String invokeMethod(Address address, String methodType, String relativeUri) throws ResourceException {
+    private void invokeMethod(Address address, String methodType, String relativeUri) throws ResourceException {
         if (StringUtils.equals(methodType, GET)) {
-            return m_httpInvoker.invokeGet(address.toString() + relativeUri);
+            m_httpInvoker.invokeGet(address.toString() + relativeUri);
         } else if (StringUtils.equals(methodType, POST)) {
             m_httpInvoker.invokePost(address.toString() + relativeUri);
-            return null;
         } else if (StringUtils.equals(methodType, PUT)) {
             m_httpInvoker.invokePut(address.toString() + relativeUri);
-            return null;
         } else if (StringUtils.equals(methodType, DELETE)) {
             m_httpInvoker.invokeDelete(address.toString() + relativeUri);
-            return null;
         }
-        return null;
     }
 
     @Override
@@ -184,7 +181,7 @@ public class RestRedirectorResource extends UserResource {
     }
 
     public interface HttpInvoker {
-        public String invokeGet(String address) throws ResourceException;
+        public void invokeGet(String address) throws ResourceException;
         public void invokePut(String address) throws ResourceException;
         public void invokePost(String address) throws ResourceException;
         public void invokeDelete(String address) throws ResourceException;
@@ -193,9 +190,9 @@ public class RestRedirectorResource extends UserResource {
     public class HttpInvokerImpl implements HttpInvoker {
 
         @Override
-        public String invokeGet(String address) throws ResourceException {
+        public void invokeGet(String address) throws ResourceException {
             HttpMethodBase method = new GetMethod(address.toString());
-            return invokeRestService(method);
+            invokeRestService(method);
         }
 
         @Override
@@ -216,26 +213,36 @@ public class RestRedirectorResource extends UserResource {
             invokeRestService(method);
         }
 
-        private String invokeRestService(HttpMethodBase method) throws ResourceException {
-            String response = null;
+        private void invokeRestService(HttpMethodBase method) throws ResourceException {
             InputStream stream = null;
             try {
                 HttpClient client = new HttpClient();
                 method.setRequestHeader("sipx-user", getUser().getUserName());
                 int status = client.executeMethod(method);
                 stream = method.getResponseBodyAsStream();
-                response = IOUtils.toString(stream);
                 getResponse().setStatus(new Status(status));
-                getResponse().setEntity(response, MediaType.TEXT_PLAIN);
+                getResponse().setEntity(new HttpInputRepresentation(stream, MediaType.ALL, method));
             } catch (IOException e) {
                 throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
-            } finally {
-                if (method != null) {
-                    method.releaseConnection();
-                }
-                IOUtils.closeQuietly(stream);
             }
-            return response;
+        }
+    }
+
+    public class HttpInputRepresentation extends InputRepresentation {
+        private HttpMethodBase m_method;
+
+        public HttpInputRepresentation(InputStream stream, MediaType type, HttpMethodBase method) {
+            super(stream, type);
+            m_method = method;
+        }
+
+        @Override
+        public void release() {
+            super.release();
+            if (m_method != null) {
+                m_method.releaseConnection();
+            }
+            LOG.info("HTTP connection released " + m_method);
         }
     }
 
