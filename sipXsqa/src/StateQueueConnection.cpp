@@ -89,7 +89,7 @@ void StateQueueConnection::handleRead(const boost::system::error_code& e, std::s
     //
     startInactivityTimer();
 
-    OS_LOG_DEBUG(FAC_NET, "StateQueueConnection::handleRead"
+    OS_LOG_INFO(FAC_NET, "StateQueueConnection::handleRead"
             << " BYTES: " << bytes_transferred
             << " SRC: " << _localAddress << ":" << _localPort
             << " DST: " << _remoteAddress << ":" << _remotePort );
@@ -198,9 +198,11 @@ void StateQueueConnection::handleRead(const boost::system::error_code& e, std::s
           _messageBuffer += _spillOverBuffer;
           _messageBuffer += std::string(_buffer.data(), bytes_transferred - _spillOverBuffer.size());
           _spillOverBuffer = std::string();
-          OS_LOG_DEBUG(FAC_NET,"StateQueueConnection::handleRead "
+          OS_LOG_INFO(FAC_NET,"StateQueueConnection::handleRead "
                 << "More bytes required to complete message.  "
-                << "Required BYTES: " << _moreReadRequired);
+                << "Read: " << bytes_transferred
+                << "Required: " << _moreReadRequired
+                << "Expected: " << _lastExpectedPacketSize);
         }
       }
       else
@@ -316,9 +318,11 @@ void StateQueueConnection::readMore(std::size_t bytes_transferred)
     }
     else
     {
-      OS_LOG_DEBUG(FAC_NET, "StateQueueConnection::readMore "
+      OS_LOG_DEBUG(FAC_NET,"StateQueueConnection::handleRead "
                 << "More bytes required to complete message.  "
-                << "Required BYTES: " << _moreReadRequired);
+                << "Read: " << bytes_transferred
+                << "Required: " << _moreReadRequired
+                << "Expected: " << _lastExpectedPacketSize);
     }
   }
   else
