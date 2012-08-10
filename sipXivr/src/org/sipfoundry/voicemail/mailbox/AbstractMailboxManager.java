@@ -104,6 +104,8 @@ public abstract class AbstractMailboxManager implements MailboxManager {
             message.setSavedMessageId(messageId);
             message.setStored(true);
             if (savedMessage != null) {
+                //Make sure to set folder after the message was correctly saved
+                savedMessage.setParentFolder(folder);
                 m_emailer.queueVm2Email(destUser, savedMessage);
             }
         }
