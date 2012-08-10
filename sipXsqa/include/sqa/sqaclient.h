@@ -67,16 +67,16 @@ public:
     const char* servicePort, // The port where SQA is listening for connections
     const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
     int poolSize, // Number of active connections to SQA
-    int readTimeout = SQA_CONN_READ_TIMEOUT, // read timeout for the control socket
-    int writeTimeout = SQA_CONN_WRITE_TIMEOUT // write timeout for the control socket
+    int readTimeout, // read timeout for the control socket
+    int writeTimeout // write timeout for the control socket
   );
 
   SQAWatcher(
     const char* applicationId, // Unique application ID that will identify this watcher to SQA
     const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
     int poolSize, // Number of active connections to SQA
-    int readTimeout = SQA_CONN_READ_TIMEOUT, // read timeout for the control socket
-    int writeTimeout = SQA_CONN_WRITE_TIMEOUT // write timeout for the control socket
+    int readTimeout, // read timeout for the control socket
+    int writeTimeout // write timeout for the control socket
   );
 
   ~SQAWatcher();
@@ -135,15 +135,15 @@ public:
     const char* serviceAddress, // The IP address of the SQA
     const char* servicePort, // The port where SQA is listening for connections
     int poolSize, // Number of active connections to SQA
-    int readTimeout = SQA_CONN_READ_TIMEOUT, // read timeout for the control socket
-    int writeTimeout = SQA_CONN_WRITE_TIMEOUT // write timeout for the control socket
+    int readTimeout, // read timeout for the control socket
+    int writeTimeout // write timeout for the control socket
   );
 
   SQAPublisher(
     const char* applicationId, // Unique application ID that will identify this watcher to SQA
     int poolSize, // Number of active connections to SQA
-    int readTimeout = SQA_CONN_READ_TIMEOUT, // read timeout for the control socket
-    int writeTimeout = SQA_CONN_WRITE_TIMEOUT // write timeout for the control socket
+    int readTimeout, // read timeout for the control socket
+    int writeTimeout // write timeout for the control socket
   );
 
   ~SQAPublisher();
@@ -195,16 +195,16 @@ public:
     const char* servicePort, // The port where SQA is listening for connections
     const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
     int poolSize, // Number of active connections to SQA
-    int readTimeout = SQA_CONN_READ_TIMEOUT, // read timeout for the control socket
-    int writeTimeout = SQA_CONN_WRITE_TIMEOUT // write timeout for the control socket
+    int readTimeout, // read timeout for the control socket
+    int writeTimeout // write timeout for the control socket
   );
 
   SQAWorker(
     const char* applicationId, // Unique application ID that will identify this watcher to SQA
     const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
     int poolSize, // Number of active connections to SQA
-    int readTimeout = SQA_CONN_READ_TIMEOUT, // read timeout for the control socket
-    int writeTimeout = SQA_CONN_WRITE_TIMEOUT // write timeout for the control socket
+    int readTimeout, // read timeout for the control socket
+    int writeTimeout // write timeout for the control socket
   );
 
   ~SQAWorker();
@@ -259,16 +259,16 @@ public:
     const char* servicePort, // The port where SQA is listening for connections
     const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
     int poolSize, // Number of active connections to SQA
-    int readTimeout = SQA_CONN_READ_TIMEOUT, // read timeout for the control socket
-    int writeTimeout = SQA_CONN_WRITE_TIMEOUT // write timeout for the control socket
+    int readTimeout, // read timeout for the control socket
+    int writeTimeout // write timeout for the control socket
   );
 
   SQADealer(
     const char* applicationId, // Unique application ID that will identify this watcher to SQA
     const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
     int poolSize, // Number of active connections to SQA
-    int readTimeout = SQA_CONN_READ_TIMEOUT, // read timeout for the control socket
-    int writeTimeout = SQA_CONN_WRITE_TIMEOUT // write timeout for the control socket
+    int readTimeout, // read timeout for the control socket
+    int writeTimeout // write timeout for the control socket
   );
 
   ~SQADealer();

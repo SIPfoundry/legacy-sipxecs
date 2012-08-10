@@ -28,7 +28,7 @@ SQAWatcher* plugin_createWatcher(
   int poolSize // Number of active connections to SQA
 )
 {
-  return new SQAWatcher(applicationId, serviceAddress, servicePort, eventId, poolSize);
+  return new SQAWatcher(applicationId, serviceAddress, servicePort, eventId, poolSize, SQA_CONN_READ_TIMEOUT, SQA_CONN_WRITE_TIMEOUT);
 }
 
 void plugin_destroyWatcher(SQAWatcher* obj)
@@ -43,7 +43,7 @@ SQAPublisher* plugin_createPublisher(
   int poolSize // Number of active connections to SQA
 )
 {
-  return new SQAPublisher(applicationId, serviceAddress, servicePort, poolSize);
+  return new SQAPublisher(applicationId, serviceAddress, servicePort, poolSize, SQA_CONN_READ_TIMEOUT, SQA_CONN_WRITE_TIMEOUT);
 }
 
 void plugin_destroyPublisher(SQAPublisher* obj)
@@ -65,7 +65,7 @@ SQAWorker* plugin_createWorker(
   int poolSize // Number of active connections to SQA
 )
 {
-  return new SQAWorker(applicationId, serviceAddress, servicePort, eventId, poolSize);
+  return new SQAWorker(applicationId, serviceAddress, servicePort, eventId, poolSize, SQA_CONN_READ_TIMEOUT, SQA_CONN_WRITE_TIMEOUT);
 }
 
 void plugin_destroyWorker(SQAWorker* obj)
@@ -81,7 +81,7 @@ SQADealer* plugin_createDealer(
   int poolSize // Number of active connections to SQA
 )
 {
-  return new SQADealer(applicationId, serviceAddress, servicePort, eventId, poolSize);
+  return new SQADealer(applicationId, serviceAddress, servicePort, eventId, poolSize, SQA_CONN_READ_TIMEOUT, SQA_CONN_WRITE_TIMEOUT);
 }
 
 void plugin_destroyDealer(SQADealer* obj)

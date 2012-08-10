@@ -147,8 +147,8 @@ DEFINE_TEST(TestDriver, TestPublishAndPersist)
   _pAgent->options().getOption("sqa-control-address", address);
   _pAgent->options().getOption("sqa-control-port", port);
 
-  SQAPublisher publisher("TestPublishAndPersist", address.c_str(), port.c_str(), 1);
-  SQAWatcher watcher("TestPublishAndPersist", address.c_str(), port.c_str(), "pub&persist", 1);
+  SQAPublisher publisher("TestPublishAndPersist", address.c_str(), port.c_str(), 1, 100, 100);
+  SQAWatcher watcher("TestPublishAndPersist", address.c_str(), port.c_str(), "pub&persist", 1, 100, 100);
   boost::this_thread::sleep(boost::posix_time::milliseconds(100));
   ASSERT_COND(publisher.publishAndPersist(5, "pub&persist", "test-data", 10));
   SQAEvent* pEvent = watcher.watch();
@@ -178,9 +178,9 @@ DEFINE_TEST(TestDriver, TestDealAndPublish)
   int poolSize // Number of active connections to SQA
 )
    */
-  SQADealer dealer("TestDealAndPublish", address.c_str(), port.c_str(), "not", 1);
-  SQAWatcher watcher("TestDealAndPublish", address.c_str(), port.c_str(), "not", 1);
-  SQAWorker worker("TestDealAndPublish", address.c_str(), port.c_str(), "not", 1);
+  SQADealer dealer("TestDealAndPublish", address.c_str(), port.c_str(), "not", 1, 100, 100);
+  SQAWatcher watcher("TestDealAndPublish", address.c_str(), port.c_str(), "not", 1, 100, 100);
+  SQAWorker worker("TestDealAndPublish", address.c_str(), port.c_str(), "not", 1, 100, 100);
   boost::this_thread::sleep(boost::posix_time::milliseconds(100));
   ASSERT_COND(dealer.dealAndPublish("test-data", 20));
   SQAEvent* pEvent = worker.fetchTask();
@@ -243,7 +243,7 @@ DEFINE_TEST(TestDriver, TestMapGetSetPlugin)
   std::string port;
   _pAgent->options().getOption("sqa-control-address", address);
   _pAgent->options().getOption("sqa-control-port", port);
-  SQAWatcher watcher("TestMapGetSetPlugin", address.c_str(), port.c_str(), "dummy", 1);
+  SQAWatcher watcher("TestMapGetSetPlugin", address.c_str(), port.c_str(), "dummy", 1, 100, 100);
   watcher.mset(10, "TestMapGetSetPlugin", "cseq", "0", 10);
   char* cseq = watcher.mget(10, "TestMapGetSetPlugin", "cseq");
   ASSERT_STR_EQ(cseq, "0");

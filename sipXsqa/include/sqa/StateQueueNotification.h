@@ -133,7 +133,7 @@ inline void StateQueueNotification::internal_run()
   ss << "ssw-" << std::hex << std::uppercase
      << std::setw(4) << std::setfill('0') << (int) ((float) (0x10000) * random () / (RAND_MAX + 1.0));
 
-  _pPublisher = new SQAPublisher(ss.str().c_str(), _sqaControlAddress.c_str(), _sqaControlPort.c_str(), 1);
+  _pPublisher = new SQAPublisher(ss.str().c_str(), _sqaControlAddress.c_str(), _sqaControlPort.c_str(), 1, 100, 100);
 
 
   std::string key;

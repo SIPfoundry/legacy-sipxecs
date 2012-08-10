@@ -14,6 +14,7 @@
  */
 
 #include "sqa/StateQueueAgent.h"
+#include "sqa/StateQueueNotification.h"
 #include "os/OsLogger.h"
 
 static const char* REDIS_CHANNEL = "REDIS";
