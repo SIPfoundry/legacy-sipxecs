@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.backup;
 import java.io.File;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Date;
 
 import junit.framework.TestCase;
 
@@ -24,34 +23,33 @@ public class SnapshotTest extends TestCase {
     public void testGetCmdLine() throws Exception {
         Snapshot snapshot = new Snapshot();
         snapshot.setDestDirectory("tmp");
-        Date startDate = new Date(1215779686450l);// Fri Jul 11 12:34:46 UTC 2008
-        Date endDate = new Date(1215779810971l); // Fri Jul 11 12:36:50 UTC 2008
+        int numberOfLines = 100;
 
-        snapshot.setFilterTime(false);
+        snapshot.setLogFilter(false);
         Writer writer = new StringWriter();
-        snapshot.composeCmdLine(writer, startDate, endDate, "my.test.org");
+        snapshot.composeCmdLine(writer, "my.test.org", numberOfLines);
         assertEquals("--logs current tmp/sipx-snapshot-my.test.org.tar.gz", writer.toString());
 
-        snapshot.setFilterTime(true);
+        snapshot.setLogFilter(true);
         writer = new StringWriter();
-        snapshot.composeCmdLine(writer, startDate, endDate, "my.test.org");
+        snapshot.composeCmdLine(writer, "my.test.org", numberOfLines);
         assertEquals(
-                "--logs current --log-start '2008-07-11 12:34:46' --log-stop '2008-07-11 12:36:50' tmp/sipx-snapshot-my.test.org.tar.gz",
+                "--logs current --lines 100 tmp/sipx-snapshot-my.test.org.tar.gz",
                 writer.toString());
 
         snapshot.setCredentials(true);
         snapshot.setWww(false);
         writer = new StringWriter();
-        snapshot.composeCmdLine(writer, startDate, endDate, "my.test.org");
+        snapshot.composeCmdLine(writer, "my.test.org", numberOfLines);
         assertEquals(
-                "--logs current --log-start '2008-07-11 12:34:46' --log-stop '2008-07-11 12:36:50' --credentials --no-www tmp/sipx-snapshot-my.test.org.tar.gz",
+                "--logs current --lines 100 --credentials --no-www tmp/sipx-snapshot-my.test.org.tar.gz",
                 writer.toString());
 
         snapshot.setLogs(false);
         snapshot.setCdr(true);
         snapshot.setProfiles(true);
         writer = new StringWriter();
-        snapshot.composeCmdLine(writer, startDate, endDate, "my.test.org");
+        snapshot.composeCmdLine(writer, "my.test.org", numberOfLines);
         assertEquals("--logs none --credentials --cdr --profiles --no-www tmp/sipx-snapshot-my.test.org.tar.gz",
                 writer.toString());
     }
