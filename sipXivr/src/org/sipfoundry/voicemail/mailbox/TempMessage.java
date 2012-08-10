@@ -16,16 +16,13 @@
  */
 package org.sipfoundry.voicemail.mailbox;
 
-import java.io.EOFException;
+import static org.sipfoundry.commons.util.AudioUtil.extractMp3Duration;
+import static org.sipfoundry.commons.util.AudioUtil.extractWavDuration;
+
 import java.io.File;
 import java.util.List;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-
 import org.apache.log4j.Logger;
-import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioFileIO;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.voicemail.mailbox.MessageDescriptor.Priority;
 
@@ -85,38 +82,13 @@ public class TempMessage {
             File audioFile = new File(m_tempPath);
             if (audioFile != null) {
                 if (audioFile.getName().endsWith("mp3")) {
-                    extractMp3Duration(audioFile);
+                    m_duration = extractMp3Duration(audioFile);
                 } else {
-                    extractWavDuration(audioFile);
+                    m_duration = extractWavDuration(audioFile);
                 }
             }
         }
         return m_duration;
-    }
-
-    private void extractWavDuration(File audioFile) {
-        try {
-            AudioInputStream ais = AudioSystem.getAudioInputStream(audioFile);
-            float secs = ais.getFrameLength() / ais.getFormat().getFrameRate();
-            m_duration = Math.round(secs); // Round up.
-        } catch (EOFException e) {
-            m_duration = 0;
-        } catch (Exception e) {
-            String trouble = "Message::getDuration Problem determining duration of " + m_tempPath;
-            LOG.error(trouble, e);
-            throw new RuntimeException(trouble, e);
-        }
-    }
-
-    private void extractMp3Duration(File audioFile) {
-        try {
-            AudioFile mp3File = AudioFileIO.read(audioFile);
-            m_duration = mp3File.getAudioHeader().getTrackLength();
-        } catch (Exception e) {
-            String trouble = "Message::getDuration Problem determining duration of " + m_tempPath;
-            LOG.error(trouble, e);
-            throw new RuntimeException(trouble, e);
-        }
     }
 
     public long getTimestamp() {

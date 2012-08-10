@@ -16,6 +16,9 @@
  */
 package org.sipfoundry.conference;
 
+import static org.sipfoundry.commons.util.AudioUtil.extractMp3Duration;
+import static org.sipfoundry.commons.util.AudioUtil.extractWavDuration;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,11 +27,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
-
 public class RecordConferenceServlet extends ConferenceServlet {
-    private static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxrecording");
-
     private static String IN_PROGRESS = "IN_PROGRESS";
     private static String NO_RECORDING = "NO_RECORDING";
 
@@ -42,16 +41,16 @@ public class RecordConferenceServlet extends ConferenceServlet {
                             parmConf != null && !parmConf.isEmpty();
 
         if (stringsOK) {
-            String wavPath = ConferenceContextImpl.getInstance().getWavPath(parmConf);
+            String filePath = ConferenceContextImpl.getInstance().getFilePath(parmConf);
             if (parmAction.equals("start")) {
                 if (!ConferenceContextImpl.getInstance().isRecordingInProgress(parmConf)) {
                     ConferenceContextImpl.getInstance().createSourceDir();
-                    executeCommand("conference "+parmConf+" record " + wavPath, pw);
+                    executeCommand("conference "+parmConf+" record " + filePath, pw);
                 } else {
                     pw.format("<command-response>%s</command-response>\n", IN_PROGRESS);
                 }
             } else if (parmAction.equals("stop")) {
-                executeCommand("conference "+parmConf+" norecord " + wavPath, pw);
+                executeCommand("conference "+parmConf+" norecord " + filePath, pw);
                 ConferenceContextImpl.getInstance().saveInMailboxSynch(parmConf);
             } else if (parmAction.equals("status")) {
                 if (ConferenceContextImpl.getInstance().isRecordingInProgress(parmConf)) {
@@ -60,7 +59,7 @@ public class RecordConferenceServlet extends ConferenceServlet {
                     pw.format("<command-response>%s</command-response>\n", NO_RECORDING);
                 }
             } else if (parmAction.equals("duration")) {
-                pw.format("<command-response>%s</command-response>\n", getRecordingDuration(wavPath));
+                pw.format("<command-response>%s</command-response>\n", getRecordingDuration(filePath));
             } else {
                 pw.format("<command-response>%s</command-response>\n", "ERROR: Incorect \"action\" parameter");
             }
@@ -72,12 +71,12 @@ public class RecordConferenceServlet extends ConferenceServlet {
         pw.close();
     }
 
-    private boolean isRecordingInProgress(File wav) {
-        return wav.exists();
-    }
-
-    private long getRecordingDuration(String wavPath) {
-        File wav = new File(wavPath);
-        return isRecordingInProgress(wav) ? wav.length()/(8000*2) : 0;
+    private long getRecordingDuration(String filePath) {
+        File file = new File(filePath);
+        if (file.getName().endsWith("mp3")) {
+            return extractMp3Duration(file);
+        } else {
+            return extractWavDuration(file);
+        }
     }
 }

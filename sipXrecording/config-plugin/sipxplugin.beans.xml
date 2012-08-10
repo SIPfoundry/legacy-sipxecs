@@ -25,6 +25,7 @@
   
   <bean id="recordingConfig" class="org.sipfoundry.sipxconfig.recording.RecordingConfig">
   	<property name="recording" ref="recording" />
+  	<property name="ivr" ref="ivr" />
   </bean>
   
   <bean id="recordingFeatureHook" class="org.sipfoundry.sipxconfig.web.plugin.RecordingFeatureHook" />

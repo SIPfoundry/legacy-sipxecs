@@ -35,6 +35,7 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
     private String m_mongoConfigFile;
     private String[] m_ivrNodes;
     private int m_jettyPort;
+    private String m_audioFormat;
     private static final int PORT_NONE = -1;
 
     private static RecordingConfiguration s_current;
@@ -122,6 +123,7 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
             m_jettyPort = Integer.parseInt(props.getProperty(prop = "jetty.port"));
             m_sendImUrl = props.getProperty(prop = "config.sendIMUrl");
             m_ivrNodes = split(props.getProperty(prop = "config.ivrNodes"));
+            m_audioFormat = props.getProperty(prop = "audio.format");
         } catch (Exception e) {
             System.err.println("Problem understanding property " + prop);
             e.printStackTrace(System.err);
@@ -175,6 +177,10 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
 
     public String[] getIvrNodes() {
         return m_ivrNodes;
+    }
+
+    public String getAudioFormat() {
+        return m_audioFormat;
     }
 
     @Override
