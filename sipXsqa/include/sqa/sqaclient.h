@@ -17,7 +17,7 @@
 #define	SQACLIENT_H
 
 #ifndef EXCLUDE_SQA_INLINES
-#include "StateQueueClient.h"
+#include "sqa/StateQueueClient.h"
 #include <boost/lexical_cast.hpp>
 #endif
 
@@ -66,13 +66,17 @@ public:
     const char* serviceAddress, // The IP address of the SQA
     const char* servicePort, // The port where SQA is listening for connections
     const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
-    int poolSize // Number of active connections to SQA
+    int poolSize, // Number of active connections to SQA
+    int readTimeout = SQA_CONN_READ_TIMEOUT, // read timeout for the control socket
+    int writeTimeout = SQA_CONN_WRITE_TIMEOUT // write timeout for the control socket
   );
 
   SQAWatcher(
     const char* applicationId, // Unique application ID that will identify this watcher to SQA
     const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
-    int poolSize // Number of active connections to SQA
+    int poolSize, // Number of active connections to SQA
+    int readTimeout = SQA_CONN_READ_TIMEOUT, // read timeout for the control socket
+    int writeTimeout = SQA_CONN_WRITE_TIMEOUT // write timeout for the control socket
   );
 
   ~SQAWatcher();
@@ -130,21 +134,25 @@ public:
     const char* applicationId, // Unique application ID that will identify this watcher to SQA
     const char* serviceAddress, // The IP address of the SQA
     const char* servicePort, // The port where SQA is listening for connections
-    int poolSize // Number of active connections to SQA
+    int poolSize, // Number of active connections to SQA
+    int readTimeout = SQA_CONN_READ_TIMEOUT, // read timeout for the control socket
+    int writeTimeout = SQA_CONN_WRITE_TIMEOUT // write timeout for the control socket
   );
 
   SQAPublisher(
     const char* applicationId, // Unique application ID that will identify this watcher to SQA
-    int poolSize // Number of active connections to SQA
+    int poolSize, // Number of active connections to SQA
+    int readTimeout = SQA_CONN_READ_TIMEOUT, // read timeout for the control socket
+    int writeTimeout = SQA_CONN_WRITE_TIMEOUT // write timeout for the control socket
   );
 
   ~SQAPublisher();
 
   bool isConnected();
 
-  bool publish(const char* id, const char* data);
+  bool publish(const char* id, const char* data, bool noresponse);
 
-  bool publish(const char* id, const char* data, int len);
+  bool publish(const char* id, const char* data, int len, bool noresponse);
 
   bool publishAndPersist(int workspace, const char* id, const char* data, int expires);
 
@@ -186,13 +194,17 @@ public:
     const char* serviceAddress, // The IP address of the SQA
     const char* servicePort, // The port where SQA is listening for connections
     const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
-    int poolSize // Number of active connections to SQA
+    int poolSize, // Number of active connections to SQA
+    int readTimeout = SQA_CONN_READ_TIMEOUT, // read timeout for the control socket
+    int writeTimeout = SQA_CONN_WRITE_TIMEOUT // write timeout for the control socket
   );
 
   SQAWorker(
     const char* applicationId, // Unique application ID that will identify this watcher to SQA
     const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
-    int poolSize // Number of active connections to SQA
+    int poolSize, // Number of active connections to SQA
+    int readTimeout = SQA_CONN_READ_TIMEOUT, // read timeout for the control socket
+    int writeTimeout = SQA_CONN_WRITE_TIMEOUT // write timeout for the control socket
   );
 
   ~SQAWorker();
@@ -246,13 +258,17 @@ public:
     const char* serviceAddress, // The IP address of the SQA
     const char* servicePort, // The port where SQA is listening for connections
     const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
-    int poolSize // Number of active connections to SQA
+    int poolSize, // Number of active connections to SQA
+    int readTimeout = SQA_CONN_READ_TIMEOUT, // read timeout for the control socket
+    int writeTimeout = SQA_CONN_WRITE_TIMEOUT // write timeout for the control socket
   );
 
   SQADealer(
     const char* applicationId, // Unique application ID that will identify this watcher to SQA
     const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
-    int poolSize // Number of active connections to SQA
+    int poolSize, // Number of active connections to SQA
+    int readTimeout = SQA_CONN_READ_TIMEOUT, // read timeout for the control socket
+    int writeTimeout = SQA_CONN_WRITE_TIMEOUT // write timeout for the control socket
   );
 
   ~SQADealer();
@@ -340,7 +356,9 @@ inline SQAWatcher::SQAWatcher(
   const char* serviceAddress, // The IP address of the SQA
   const char* servicePort, // The port where SQA is listening for connections
   const char* eventId, // Event ID of the event being watched. Example: "reg"
-  int poolSize // Number of active connections to SQA
+  int poolSize, // Number of active connections to SQA
+  int readTimeout, // read timeout for the control socket
+  int writeTimeout // write timeout for the control socket
 )
 {
   _connection = (uintptr_t)(new StateQueueClient(
@@ -349,20 +367,26 @@ inline SQAWatcher::SQAWatcher(
           serviceAddress,
           servicePort,
           eventId,
-          poolSize));
+          poolSize,
+          readTimeout,
+          writeTimeout));
 }
 
 inline SQAWatcher::SQAWatcher(
   const char* applicationId, // Unique application ID that will identify this watcher to SQA
   const char* eventId, // Event ID of the event being watched. Example: "reg"
-  int poolSize // Number of active connections to SQA
+  int poolSize, // Number of active connections to SQA
+  int readTimeout, // read timeout for the control socket
+  int writeTimeout // write timeout for the control socket
 )
 {
   _connection = (uintptr_t)(new StateQueueClient(
           StateQueueClient::Watcher,
           applicationId,
           eventId,
-          poolSize));
+          poolSize,
+          readTimeout,
+          writeTimeout));
 }
 
 inline SQAWatcher::SQAWatcher(const SQAWatcher& copy)
@@ -470,7 +494,9 @@ inline SQAPublisher::SQAPublisher(
   const char* applicationId, // Unique application ID that will identify this watcher to SQA
   const char* serviceAddress, // The IP address of the SQA
   const char* servicePort, // The port where SQA is listening for connections
-  int poolSize // Number of active connections to SQA
+  int poolSize, // Number of active connections to SQA
+  int readTimeout, // read timeout for the control socket
+  int writeTimeout // write timeout for the control socket
 )
 {
   _connection = (uintptr_t)(new StateQueueClient(
@@ -479,19 +505,25 @@ inline SQAPublisher::SQAPublisher(
           serviceAddress,
           servicePort,
           "publisher",
-          poolSize));
+          poolSize,
+          readTimeout,
+          writeTimeout));
 }
 
 inline SQAPublisher::SQAPublisher(
   const char* applicationId, // Unique application ID that will identify this watcher to SQA
-  int poolSize // Number of active connections to SQA
+  int poolSize, // Number of active connections to SQA
+  int readTimeout, // read timeout for the control socket
+  int writeTimeout // write timeout for the control socket
 )
 {
   _connection = (uintptr_t)(new StateQueueClient(
           StateQueueClient::Publisher,
           applicationId,
           "publisher",
-          poolSize));
+          poolSize,
+          readTimeout,
+          writeTimeout));
 }
 
 inline SQAPublisher::SQAPublisher(const SQAPublisher& copy)
@@ -508,14 +540,14 @@ inline bool SQAPublisher::isConnected()
   return reinterpret_cast<StateQueueClient*>(_connection)->isConnected();
 }
 
-inline bool SQAPublisher::publish(const char* id, const char* data)
+inline bool SQAPublisher::publish(const char* id, const char* data, bool noresponse)
 {
-  return reinterpret_cast<StateQueueClient*>(_connection)->publish(id, data);
+  return reinterpret_cast<StateQueueClient*>(_connection)->publish(id, data, noresponse);
 }
 
-inline bool SQAPublisher::publish(const char* id, const char* data, int len)
+inline bool SQAPublisher::publish(const char* id, const char* data, int len, bool noresponse)
 {
-  return reinterpret_cast<StateQueueClient*>(_connection)->publish(id, data, len);
+  return reinterpret_cast<StateQueueClient*>(_connection)->publish(id, data, len, noresponse);
 }
 
 inline bool SQAPublisher::publishAndPersist(int workspace, const char* id, const char* data, int expires)
@@ -587,7 +619,9 @@ inline SQADealer::SQADealer(
   const char* serviceAddress, // The IP address of the SQA
   const char* servicePort, // The port where SQA is listening for connections
   const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
-  int poolSize // Number of active connections to SQA
+  int poolSize, // Number of active connections to SQA
+  int readTimeout, // read timeout for the control socket
+  int writeTimeout // write timeout for the control socket
 )
 {
   _connection = (uintptr_t)(new StateQueueClient(
@@ -596,20 +630,26 @@ inline SQADealer::SQADealer(
           serviceAddress,
           servicePort,
           eventId,
-          poolSize));
+          poolSize,
+          readTimeout,
+          writeTimeout));
 }
 
 inline SQADealer::SQADealer(
   const char* applicationId, // Unique application ID that will identify this watcher to SQA
   const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
-  int poolSize // Number of active connections to SQA
+  int poolSize, // Number of active connections to SQA
+  int readTimeout, // read timeout for the control socket
+  int writeTimeout // write timeout for the control socket
 )
 {
   _connection = (uintptr_t)(new StateQueueClient(
           StateQueueClient::Publisher,
           applicationId,
           eventId,
-          poolSize));
+          poolSize,
+          readTimeout,
+          writeTimeout));
 }
 
 inline SQADealer::SQADealer(const SQADealer& copy)
@@ -701,7 +741,9 @@ inline SQAWorker::SQAWorker(
   const char* serviceAddress, // The IP address of the SQA
   const char* servicePort, // The port where SQA is listening for connections
   const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
-  int poolSize // Number of active connections to SQA
+  int poolSize, // Number of active connections to SQA
+  int readTimeout, // read timeout for the control socket
+  int writeTimeout // write timeout for the control socket
 )
 {
   _connection = (uintptr_t)(new StateQueueClient(
@@ -710,20 +752,26 @@ inline SQAWorker::SQAWorker(
           serviceAddress,
           servicePort,
           eventId,
-          poolSize));
+          poolSize,
+          readTimeout,
+          writeTimeout));
 }
 
 inline SQAWorker::SQAWorker(
   const char* applicationId, // Unique application ID that will identify this watcher to SQA
   const char* eventId, // Event ID of the event being watched. Example: "sqa.not"
-  int poolSize // Number of active connections to SQA
+  int poolSize, // Number of active connections to SQA
+  int readTimeout, // read timeout for the control socket
+  int writeTimeout // write timeout for the control socket
 )
 {
   _connection = (uintptr_t)(new StateQueueClient(
           StateQueueClient::Worker,
           applicationId,
           eventId,
-          poolSize));
+          poolSize,
+          readTimeout,
+          writeTimeout));
 }
 
 inline SQAWorker::SQAWorker(const SQAWorker& copy)

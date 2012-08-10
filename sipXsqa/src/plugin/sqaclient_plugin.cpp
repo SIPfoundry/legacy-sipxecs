@@ -54,7 +54,7 @@ void plugin_destroyPublisher(SQAPublisher* obj)
 bool plugin_doPublish(SQAPublisher* obj, const char* id, const char* data)
 {
   assert(obj);
-  return obj->publish(id, data);
+  return obj->publish(id, data, false);
 }
 
 SQAWorker* plugin_createWorker(

@@ -132,7 +132,7 @@ DEFINE_TEST(TestDriver, TestWatcher)
   StateQueueClient* pPublisher = GET_RESOURCE(TestDriver, StateQueueClient*, "simple_publisher");
   StateQueueClient watcher(StateQueueClient::Watcher, "StateQueueDriverTest", address, port, "watcher-data",  1);
   boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-  ASSERT_COND(pPublisher->publish("watcher-data-sample", "Hello SQA!"));
+  ASSERT_COND(pPublisher->publish("watcher-data-sample", "Hello SQA!", false));
   std::string watcherData;
   std::string eventId;
   ASSERT_COND(watcher.watch(eventId, watcherData));

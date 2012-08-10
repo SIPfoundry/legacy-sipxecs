@@ -110,7 +110,8 @@ inline void StateQueueNotification::deal(NotifyData& notification)
 {
   std::ostringstream ss;
   ss << "sswdata." << notification.aor;
-   _pPublisher->publish(ss.str().c_str(), notification.content.c_str());
+  bool noresponse = true;
+   _pPublisher->publish(ss.str().c_str(), notification.content.c_str(), noresponse);
 }
 
 inline void StateQueueNotification::run()

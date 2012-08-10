@@ -22,10 +22,10 @@
 #include <boost/noncopyable.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
+#include "sqa/StateQueueClient.h"
 
 class StateQueueAgent;
 
-#define SQA_CONN_MAX_READ_BUFF_SIZE 65536
 
 class StateQueueConnection : public boost::enable_shared_from_this<StateQueueConnection>, boost::noncopyable
 {

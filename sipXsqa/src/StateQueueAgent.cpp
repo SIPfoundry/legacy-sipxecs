@@ -398,6 +398,11 @@ void StateQueueAgent::handlePublish(StateQueueConnection& conn, StateQueueMessag
   record.id = id;
   message.get("message-data", record.data);
 
+  bool noresponse = false;
+  if (message.get("noresponse", noresponse) && noresponse)
+    noresponse = true;
+  else
+    noresponse = false;
 
   OS_LOG_INFO(FAC_NET, "StateQueueAgent::handlePublish "
           << "Received new command PUBLISH. "
@@ -410,10 +415,13 @@ void StateQueueAgent::handlePublish(StateQueueConnection& conn, StateQueueMessag
 
   publish(record);
 
-  StateQueueMessage response;
-  response.setType(message.getType());
-  response.set("message-response", "ok");
-  conn.write(response.data());
+  if (!noresponse)
+  {
+    StateQueueMessage response;
+    response.setType(message.getType());
+    response.set("message-response", "ok");
+    conn.write(response.data());
+  }
 }
 
 void StateQueueAgent::handlePublishAndPersist(StateQueueConnection& conn, StateQueueMessage& message,
@@ -987,6 +995,8 @@ void StateQueueAgent::handleSignin(StateQueueConnection& conn, StateQueueMessage
   if (serviceType == "worker")
     _publisher.addSubscriber(subscriptionEvent, appId, subscriptionExpires);
 
+  OS_LOG_NOTICE(FAC_NET, "StateQueueAgent::handleSignin " << appId << "/" << subscriptionEvent << " RECEIVED");
+
   sendOkResponse(message.getType(), conn, id, _publisherAddress);
 }
 
@@ -1009,6 +1019,8 @@ void StateQueueAgent::handleLogout(StateQueueConnection& conn, StateQueueMessage
 
   if (serviceType == "worker")
     _publisher.removeSubscriber(subscriptionEvent, appId);
+
+  OS_LOG_NOTICE(FAC_NET, "StateQueueAgent::handleLogout " << appId << "/" << subscriptionEvent << " RECEIVED");
 
   sendOkResponse(message.getType(), conn, id, "bfn!");
 }

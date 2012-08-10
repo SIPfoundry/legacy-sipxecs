@@ -32,6 +32,9 @@
 
 #define SQA_LINGER_TIME_MILLIS 5000
 #define SQA_TERMINATE_STRING "__TERMINATE__"
+#define SQA_CONN_MAX_READ_BUFF_SIZE 65536
+#define SQA_CONN_READ_TIMEOUT 1000
+#define SQA_CONN_WRITE_TIMEOUT 1000
 
 class StateQueueClient : public boost::enable_shared_from_this<StateQueueClient>, private boost::noncopyable
 {
@@ -50,11 +53,16 @@ public:
   {
   public:
     typedef boost::shared_ptr<BlockingTcpClient> Ptr;
-    BlockingTcpClient(boost::asio::io_service& ioService) :
+    BlockingTcpClient(
+      boost::asio::io_service& ioService,
+      int readTimeout = SQA_CONN_READ_TIMEOUT,
+      int writeTimeout = SQA_CONN_WRITE_TIMEOUT) :
       _ioService(ioService),
       _resolver(_ioService),
       _pSocket(0),
-      _isConnected(false)
+      _isConnected(false),
+      _readTimeout(readTimeout),
+      _writeTimeout(writeTimeout)
     {
     }
 
@@ -63,19 +71,34 @@ public:
       delete _pSocket;
     }
 
+    void setReadTimeout(boost::asio::ip::tcp::socket& socket, int milliseconds)
+    {
+      struct timeval tv;
+      tv.tv_sec  = 0;
+      tv.tv_usec = milliseconds * 1000;
+      setsockopt(socket.native(), SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+    }
+
+    void setWriteTimeout(boost::asio::ip::tcp::socket& socket, int milliseconds)
+    {
+      struct timeval tv;
+      tv.tv_sec  = 0;
+      tv.tv_usec = milliseconds * 1000;
+      setsockopt(socket.native(), SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+    }
+
     bool connect(const std::string& serviceAddress, const std::string& servicePort)
     {
-      if (_pSocket && _isConnected)
-      {
-        return true;
-      }
-      else if (_pSocket && !_isConnected)
+      if (_pSocket)
       {
         boost::system::error_code ignored_ec;
        _pSocket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+       _pSocket->close(ignored_ec);
+       delete _pSocket;
+       _pSocket = 0;
       }
 
-      delete _pSocket;
+      
       _pSocket = new boost::asio::ip::tcp::socket(_ioService);
 
       _serviceAddress = serviceAddress;
@@ -89,9 +112,11 @@ public:
         //////////////////////////////////////////////////////////////////////////
         // Only works in 1.47 version of asio.  1.46 doesnt have this utility func
         // boost::asio::connect(*_pSocket, hosts);
-           _pSocket->connect(hosts->endpoint()); // so we use the connect member
+        _pSocket->connect(hosts->endpoint()); // so we use the connect member
         //////////////////////////////////////////////////////////////////////////
 
+        setReadTimeout(*_pSocket, _readTimeout);
+        setWriteTimeout(*_pSocket, _writeTimeout);
         _isConnected = true;
       }
       catch(...)
@@ -102,6 +127,7 @@ public:
       return _isConnected;
     }
 
+    
     bool connect()
     {
       //
@@ -134,13 +160,17 @@ public:
       return connect(_serviceAddress, _servicePort);
     }
 
-    bool sendAndReceive(const StateQueueMessage& request, StateQueueMessage& response)
+    bool send(const StateQueueMessage& request)
     {
       assert(_pSocket);
       std::string data = request.data();
+
+      if (data.size() > SQA_CONN_MAX_READ_BUFF_SIZE - 1) /// Account for the terminating char "_"
+        return false;
+
       short version = 1;
       short key = 22172;
-      short len = (short)data.size() + 1; /// Acount for the terminating char "_"
+      unsigned long len = (unsigned long)data.size() + 1; /// Account for the terminating char "_"
       std::stringstream strm;
       strm.write((char*)(&version), sizeof(version));
       strm.write((char*)(&key), sizeof(key));
@@ -149,35 +179,47 @@ public:
       std::string packet = strm.str();
       boost::system::error_code ec;
       bool ok = _pSocket->write_some(boost::asio::buffer(packet.c_str(), packet.size()), ec) > 0;
-      if (!ok)
+      if (!ok || ec)
       {
         _isConnected = false;
         return false;
       }
+      return true;
+    }
 
-      len = getNextReadSize();
+    bool receive(StateQueueMessage& response)
+    {
+      assert(_pSocket);
+      unsigned long len = getNextReadSize();
       if (!len)
         return false;
 
       char responseBuff[len];
+      boost::system::error_code ec;
       _pSocket->read_some(boost::asio::buffer((char*)responseBuff, len), ec);
       if (ec)
       {
         _isConnected = false;
         return false;
       }
-
       std::string responseData(responseBuff, len);
       return response.parseData(responseData);
     }
 
-    short getNextReadSize()
+    bool sendAndReceive(const StateQueueMessage& request, StateQueueMessage& response)
+    {
+      if (send(request))
+        return receive(response);
+      return false;
+    }
+
+    unsigned long getNextReadSize()
     {
       short version = 1;
       short key = 22172;
       bool hasVersion = false;
       bool hasKey = false;
-      short remoteLen = 0;
+      unsigned long remoteLen = 0;
       while (!hasVersion || !hasKey)
       {
         short remoteVersion;
@@ -261,6 +303,8 @@ public:
     std::string _serviceAddress;
     std::string _servicePort;
     bool _isConnected;
+    int _readTimeout;
+    int _writeTimeout;
     friend class StateQueueClient;
   };
 
@@ -297,7 +341,9 @@ public:
         const std::string& serviceAddress,
         const std::string& servicePort,
         const std::string& zmqEventId,
-        std::size_t poolSize
+        std::size_t poolSize,
+        int readTimeout = SQA_CONN_READ_TIMEOUT,
+        int writeTimeout = SQA_CONN_WRITE_TIMEOUT
         ) :
     _type(type),
     _ioService(),
@@ -322,7 +368,7 @@ public:
       _zmqSocket.setsockopt(ZMQ_LINGER, &linger, sizeof(int));
       for (std::size_t i = 0; i < _poolSize; i++)
       {
-        BlockingTcpClient* pClient = new BlockingTcpClient(_ioService);
+        BlockingTcpClient* pClient = new BlockingTcpClient(_ioService, readTimeout, writeTimeout);
         pClient->connect(_serviceAddress, _servicePort);
         _clientPointers.push_back(pClient);
         BlockingTcpClient::Ptr client(pClient);
@@ -353,7 +399,9 @@ public:
         Type type,
         const std::string& applicationId,
         const std::string& zmqEventId,
-        std::size_t poolSize
+        std::size_t poolSize,
+        int readTimeout = SQA_CONN_READ_TIMEOUT,
+        int writeTimeout = SQA_CONN_WRITE_TIMEOUT
         ) :
     _type(type),
     _ioService(),
@@ -377,7 +425,7 @@ public:
 
       for (std::size_t i = 0; i < _poolSize; i++)
       {
-        BlockingTcpClient* pClient = new BlockingTcpClient(_ioService);
+        BlockingTcpClient* pClient = new BlockingTcpClient(_ioService, readTimeout, writeTimeout);
         pClient->connect();
         _serviceAddress = pClient->_serviceAddress;
         _servicePort = pClient->_servicePort;
@@ -431,6 +479,17 @@ public:
       delete _pEventThread;
       _pEventThread = 0;
     }
+
+    //
+    // Delete the client pointers
+    //
+    for (std::vector<BlockingTcpClient*>::const_iterator iter = _clientPointers.begin();
+            iter != _clientPointers.end(); iter++)
+    {
+      BlockingTcpClient* pClient = *iter;
+      delete pClient;
+    }
+
     OS_LOG_INFO(FAC_NET, "StateQueueClient::terminate() Ok");
   }
 
@@ -571,6 +630,23 @@ private:
     request.set("message-app-id", _applicationId.c_str());
     request.set("subscription-event", _zmqEventId.c_str());
 
+    std::string clientType;
+    if (_type == Publisher)
+    {
+      request.set("service-type", "publisher");
+      clientType = "publisher";
+    }
+    else if (_type == Worker)
+    {
+      request.set("service-type", "worker");
+      clientType = "worker";
+    }
+    else if (_type == Watcher)
+    {
+      request.set("service-type", "watcher");
+      clientType = "watcher";
+    }
+    
     StateQueueMessage response;
     return sendAndReceive(request, response);
   }
@@ -818,6 +894,26 @@ private:
       return true;
   }
 
+  bool sendNoResponse(const StateQueueMessage& request)
+  {
+    BlockingTcpClient::Ptr conn;
+    if (!_clientPool.dequeue(conn))
+      return false;
+
+    if (!conn->isConnected() && !conn->connect(_serviceAddress, _servicePort))
+    {
+      //
+      // Put it back to the queue.  The server is down.
+      //
+      _clientPool.enqueue(conn);
+      return false;
+    }
+
+    bool sent = conn->send(request);
+    _clientPool.enqueue(conn);
+    return sent;
+  }
+
   bool sendAndReceive(const StateQueueMessage& request, StateQueueMessage& response)
   {
     BlockingTcpClient::Ptr conn;
@@ -889,7 +985,7 @@ private:
     return true;
   }
 
-  bool internal_publish(const std::string& id, const std::string& data)
+  bool internal_publish(const std::string& id, const std::string& data, bool noresponse = false)
   {
     //
     // Enqueue it
@@ -900,28 +996,37 @@ private:
     enqueueRequest.set("message-app-id", _applicationId.c_str());
     enqueueRequest.set("message-data", data);
 
+
     OS_LOG_INFO(FAC_NET, "StateQueueClient::internal_publish " << "publishing data ID=" << id);
 
-    StateQueueMessage enqueueResponse;
-    if (!sendAndReceive(enqueueRequest, enqueueResponse))
-      return false;
-
-    //
-    // Check if Queue is successful
-    //
-    std::string messageResponse;
-    enqueueResponse.get("message-response", messageResponse);
-    if (messageResponse != "ok")
+    if (noresponse)
     {
-      std::string messageResponseError;
-      enqueueResponse.get("message-error", messageResponseError);
-      OS_LOG_ERROR(FAC_NET, "StateQueueClient::internal_publish "
-                  << "Failed to publish " << id
-                  << " Error: " << messageResponseError);
-      return false;
+      enqueueRequest.set("noresponse", noresponse);
+      return sendNoResponse(enqueueRequest);
     }
+    else
+    {
+      StateQueueMessage enqueueResponse;
+      if (!sendAndReceive(enqueueRequest, enqueueResponse))
+        return false;
 
-    return true;
+      //
+      // Check if Queue is successful
+      //
+      std::string messageResponse;
+      enqueueResponse.get("message-response", messageResponse);
+      if (messageResponse != "ok")
+      {
+        std::string messageResponseError;
+        enqueueResponse.get("message-error", messageResponseError);
+        OS_LOG_ERROR(FAC_NET, "StateQueueClient::internal_publish "
+                    << "Failed to publish " << id
+                    << " Error: " << messageResponseError);
+        return false;
+      }
+
+      return true;
+    }
   }
 
   bool internal_publish_and_persist(int workspace, const std::string& id, const std::string& data, int expires)
@@ -992,7 +1097,8 @@ public:
     return enqueue(ss.str(), data, expires, publish);
   }
 
-  bool publish(const std::string& eventId, const std::string& data)
+
+  bool publish(const std::string& eventId, const std::string& data, bool noresponse)
   {
     if (_type != Publisher)
       return false;
@@ -1002,10 +1108,10 @@ public:
        << std::hex << std::uppercase
        << std::setw(4) << std::setfill('0') << (int) ((float) (0x10000) * random () / (RAND_MAX + 1.0)) << "-"
        << std::setw(4) << std::setfill('0') << (int) ((float) (0x10000) * random () / (RAND_MAX + 1.0));
-    return internal_publish(ss.str(), data);
+    return internal_publish(ss.str(), data, noresponse);
   }
 
-  bool publish(const std::string& eventId, const char* data, int dataLength)
+  bool publish(const std::string& eventId, const char* data, int dataLength, bool noresponse)
   {
     std::string buff = std::string(data, dataLength);
     return publish(eventId, data, dataLength);

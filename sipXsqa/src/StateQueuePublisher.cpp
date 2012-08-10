@@ -172,16 +172,6 @@ void StateQueuePublisher::internal_run()
         s_send(socket, strcount);
 
 
-        //
-        // This would make sure that we catch data that are too big to process
-        // earlier and to not let it propagate 
-        //
-        if(data.size() > 65536)
-        {
-          OS_LOG_ERROR(FAC_NET, "Data is too large! - " << data);
-          std::abort();
-        }
-
         OS_LOG_DEBUG(FAC_NET, "StateQueuePublisher::publish ZeroMQ send: " << eventId << ":" << data);
 
         if (!record.watcherData && !count)
