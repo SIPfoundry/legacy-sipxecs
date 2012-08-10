@@ -16,7 +16,7 @@ ACCESSING WEB GUI
 With sipXconfig running, you can access the web interface by opening this URL
 in your web browser:
 
-    https://localhost:8443/sipxconfig
+    https://localhost:12000/sipxconfig
 
 SUPERADMIN
 
