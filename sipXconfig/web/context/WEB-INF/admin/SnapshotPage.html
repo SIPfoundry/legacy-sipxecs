@@ -66,21 +66,26 @@
             description="message:description.logs">
             <span jwcid="logsCheck@Checkbox" id="snapshot:logs" value="ognl:snapshot.logs"/>
           </tr>
-          <tr jwcid="@common/FieldPanel" field="component:filterTime"
-            for="snapshot:filterTime"
-            label="message:label.filterTime"
-            description="message:description.filterTime">
-              <span jwcid="filterTime@Checkbox"
-                id="snapshot:filterTime"
-                value="ognl:snapshot.filterTime"
-                displayName="message:label.filterTime" />
+          <tr jwcid="@common/FieldPanel" field="component:logFilter"
+            for="snapshot:logFilter"
+            label="message:label.logFilter"
+            description="message:description.logFilter">
+              <span jwcid="logFilter@Checkbox"
+                id="snapshot:logFilter"
+                value="ognl:snapshot.logFilter"
+                displayName="message:label.logFilter" />
           </tr>
-          <tr jwcid="startDate@common/DateTimeEditor"
-            datetime="ognl:startDate"
-            label="message:label.startDate" />
-          <tr jwcid="endDate@common/DateTimeEditor"
-            datetime="ognl:endDate"
-            label="message:label.endDate" />
+          <tr jwcid="lastLines@common/FieldPanel" for="snapshot:lines"
+            field="component:lines"
+            label="message:label.lines"
+            description="message:description.lines">
+            <span jwcid="lines@TextField"
+              id="snapshot:lines"
+              value="ognl:snapshot.lines"
+              translator="translator:integer"
+              validators="spring-validators:min=1000"
+              displayName="message:label.lines"/>
+          </tr>
         </tbody>
       </table>
     </fieldset>

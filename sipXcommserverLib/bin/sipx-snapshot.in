@@ -20,8 +20,7 @@ CommentFiles=
 Tar=YES
 ToFile=
 Logs=current
-LogStart=
-LogStop=
+NumberOfLines=
 IncludeCallRecords="FALSE"
 IncludeProfiles="FALSE"
 GenerateCoreFiles=NO
@@ -113,36 +112,25 @@ do
             Logs=none
             ;;
 
-        --log-start)
+	-ll|--lines)
             if [ -z "${2}" ]
             then
-                echo "No argument supplied for ${1}" 1>&2
+                echo "No argument supplied for '${1}'" 1>&2
+                Action=USAGE
+                break
+            elif `echo $2 | grep -q [^[:digit:]]`;
+	    then
+                echo "The argument supplied for '${1}' must be a number" 1>&2
                 Action=USAGE
                 break
             elif test "${Logs}" != "current"
             then
-                echo "Log start/stop times may only be specified with '--logs current'" 1>&2
+                echo "'${1}' may only be used with '--logs current'" 1>&2
                 Action=USAGE
             else
-                LogStart=${2}
-                Logs=cut
-            fi
-            shift
-            ;;
-
-        --log-stop)
-            if [ -z "${2}" ]
-            then
-                echo "No argument supplied for ${1}" 1>&2
-                Action=USAGE
-                break
-            elif test "${Logs}" != "cut"
-            then
-                echo "A --log-start time must be specified to use '${2}'" 1>&2
-                Action=USAGE
-            else
-                LogStop=${2}
-            fi
+                NumberOfLines=${2}
+                Logs=tail
+	    fi
             shift
             ;;
 
@@ -258,7 +246,7 @@ Usage:
                   [ --profiles ]
                   [ --cdr ]
                   [ -l  | --logs {current|all|nnn|none} ]
-                  [ --log-start <date-time> [ --log-stop <date-time> ]]
+                  [ -ll | --lines <number> ]
                   [ --core <core-file> ] ...
                   [ --file <file-name> ] ...
                   [ --comment <file-name> ] ...
@@ -302,14 +290,9 @@ Usage:
                nnn     - saves all logs from the specified set of past logs
                none    - does not include any logs (not recommended)
 
-    The --log-start and --log-stop switches allow you to limit the log file
-    size that is included in the snapshot to the times between the start and
-    stop times.  Times MUST be specified in UCT (aka GMT) as used in the log
-    files.  Only times in the 'current' log may be specified (not in archived
-    logs).  If the --log-stop switch is not specified, the extract is from the
-    start time to the end of the log file.
-
-      --log-start '2004-12-08 17:45:30' --log-stop '2004-12-08 18:12:52'
+    The --lines allow you to limit the log files size. Only the specified number
+    of lines will be included in snapshot from tail logs. It may only be used with
+    the 'current' logs (not with archived logs).
 
     The --no-logs switch causes the sipX and Apache logs to be omitted
     from the snapshot; the default is to include them.  (deprecated but
@@ -401,70 +384,13 @@ function marshal_configuration_information () {
    CallStateDb=${Work}/SIPXCSE
    CallDetailDb=${Work}/SIPXCDR
 
-   function hasTimestamps () {
-      # looks for a timestamp like "2008-01-17T09:02:09.451460Z": on the first line
-      local log=$1
-      local sawTime
-      if [ -e ${log} ]
-      then
-	  sawTime=`head -n 1 "${log}" \
-		   | perl -ne 'm/^"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.\d{6}Z":/ && print "YES"'` 2>&1
-      fi
-      test "${sawTime}" = "YES"
-   }
-
-   # If ${log} has timestamps then the 'sipx-log-cut' script will be called, and its exit
-   # code will be used as the return value of this function.  (It will be 0, 1, or 2.
-   # See the 'sipx-log-cut' script's documentation for details.)
-   # If ${log} is empty, then this function will return 0.
-   # If ${log} is non-empty but does not have timestamps, then this function will return 1.
-   function cutIfTimestamps() {
-      local log="$1"
-
-      outFile="${cutDir}/`basename "${log}"`"
-      if hasTimestamps "${log}"
-      then
-	 # The file has timestamps, so cut it.
-	 echo "cutting '${log}'" >> ${cutDir}/extract.log
-	 echo "${outFile}" >> $Work.copy-files
-
-	 # Append new cut contents to the end of whatever contents is already in the cut file.
-	 # We use '${LogStop:+-e}' to provide '-e' if ${LogStop} is non-empty,
-	 # and '${LogStop:+"${LogStop}"}' to provide the ${LogStop} value
-	 # (with its spaces, ugh!) if it is non-empty.
-	 # These are supported by 'sh' (per Appendix B of the Bash Reference Manual).
-	 @SIPX_BINDIR@/sipx-log-cut -i "${log}" -t \
-	    -s "${LogStart}" ${LogStop:+-e} ${LogStop:+"${LogStop}"} \
-	    >> "${outFile}" \
-	    2>> ${cutDir}/extract.log
-	 result=$?
-	 return $result
-      else
-	 # Why weren't any timestamps found in the file?
-	 if [ ! -f "${log}" ]
-	 then
-	    # It isn't a regular file.
-	    echo "Not a regular file: '${log}'; omitting" >> ${cutDir}/extract.log
-	    return 1
-	 elif [ ! -s "${log}" ]
-	 then
-	    # It's empty.  Keep cutting, since there might be a next file that isn't empty.
-	    echo "Empty file: '${log}'; including" >> ${cutDir}/extract.log
-	    touch "${outFile}"
-	    echo "${outFile}" >> $Work.copy-files
-	    return 0
-	 else
-	    # It has contents, but not recognizable timestamps.  Keep the whole file,
-	    # but don't continue cutting.
-	    echo "No timestamps found in file: '${log}'; including full log" >> ${cutDir}/extract.log
-	    echo $log >> $Work.copy-files
-	    return 1
-	 fi
-      fi
+   function tailLogs() {
+     mkdir -p ${cutDir}/${2}
+     tail -${NumberOfLines} "${1}" > ${cutDir}/$2`basename "${1}"`
+     echo ${cutDir}/$2`basename ${1}` >> $Work.copy-files
    }
 
    # Assemble the list of files to record.
-
    # These files and directories are always recorded.
    cat > $Work.copy-files <<EOF
    @SIPX_CONFDIR@
@@ -493,64 +419,51 @@ EOF
        ( ls -1 @SIPX_LOGDIR@/openfire/*.log | grep -v _ ) 2> /dev/null
    }
 
+  #recurse into directories;
+  function tailLogs() {
+    mkdir -p ${cutDir}/${2}
+    filename=`basename "${1}"`
+    foldername=${2}
+    if [ -d ${1} ]; then
+      for log in ${1}/*
+      do
+	foldername=`basename ${1}`${2}
+	tailLogs $log ${2}/`basename ${1}`/
+      done
+    else
+      tail -${NumberOfLines} "${1}" > ${cutDir}/${2}`basename "${1}"`
+      echo ${cutDir}/${2}`basename ${1}` >> $Work.copy-files
+    fi
+
+  }
+
    # Add the requested log files
    case ${Logs} in
        none)
 	   :
 	   ;;
-       cut)
+       tail)
 	   # The extract files we create in ${cutDir} will be copied into
 	   # the working tree.  In later processing, the files will be moved into
 	   # ${Work}/@SIPX_LOGDIR@ itslef, and ${Work}/${cutDir} will be deleted.
 	   cutDir=`mktemp -d @SIPX_LOGDIR@/cut.XXXXXX`
 	   trap "rm -rf ${cutDir} 2>/dev/null" 0
-	   extractDir=`mktemp -t -d extract.XXXXXX`
-	   trap "rm -rf ${extractDir} 2>/dev/null" 0
-	   echo "Attempting to cut logs from '${LogStart}' to '${LogStop}'" > ${cutDir}/extract.log
 
-	   # Place extract.log at the top level of the tar file.
-	   CommentFiles="${CommentFiles} ${cutDir}/extract.log"
 	   for base_log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log $(openfireLogs) @SIPX_LOGDIR@/trace/*.pcap*
 	   do
-	       # Start cutting at the base log.
-	       if cutIfTimestamps "${base_log}"
-	       then
-		   # Continue cutting into the rollover log files.  It is important to sort these numerically
-		   # and not alphabetically.  (Otherwise entries from file.log.10.gz may appear before entries
-		   # from file.log.2.gz.)
-		   extractFile="${extractDir}/`basename "${base_log}"`"
-		   base_log_length=`echo ${base_log}_ | wc -c`
-		   SORTED_EXTENSIONS=`ls "${base_log}"* | cut -b${base_log_length}- | sort --general-numeric-sort`
-		   for extension in ${SORTED_EXTENSIONS}
-		   do
-		       # Copy the contents the rollover file into the extract file, unzipping if required.
-		       if [ `echo ${extension} | grep "[0-9]*[\".gz\"]$"` ]
-		       then
-			   # Unzip the rollover files contents.
-			   if [ -e ${base_log}.${extension} ]
-			   then
-			       gzip --to-stdout -d "${base_log}.${extension}" > "${extractFile}"
-			   fi
-		       else
-			   # Use a soft link to the rollover file, since its contents isn't zipped.
-			   ln -s "${base_log}.${extension}" "${extractFile}"
-		       fi
-
-		       # Cut from the extract file.
-		       if ! cutIfTimestamps "${extractFile}"
-		       then
-			   # Stop searching because the ${LogStart} time was just passed, so we
-			   # aren't going to find any more entries that fit the time filter.
-			   break
-		       fi
-
-		       # Always delete the extract file, since it might actually be a link to the original
-		       # rollover file, which we don't want to overwrite on the next iteration.
-		       rm -rf "${extractFile}"
-		   done
-
-
-	       fi
+	     tailLogs $base_log
+	   done
+	   for base_log in @SIPX_LOGDIR@/phone/*.log
+	   do
+	     tailLogs $base_log phone/
+	   done
+	   for base_log in $(openfireLogs)
+	   do
+	     tailLogs $base_log openfire/
+	   done
+	   for base_log in @SIPX_LOGDIR@/trace/*.pcap*
+	   do
+	     tailLogs $base_log trace/
 	   done
 	   ;;
        current)
@@ -634,12 +547,9 @@ EOF
    echo -n "           "
    date
    echo ""
-   if [ -n "${LogStart}" ]
+   if [ -n "${NumberOfLines}" ]
    then
-     echo -n "Cut start: "
-     date -d "${LogStart} Z"
-     echo -n "Cut stop:  "
-     date -d "${LogStop} Z"
+     echo "Tail ${NumberOfLines} lines from logs"
      echo ""
    fi
    echo -n "SysVersion: "
@@ -1075,10 +985,10 @@ EOF
        perl -pi @SIPX_LIBEXECDIR@/sipx-strip-db-secrets.pl ${ConfigDb}
      fi
 
-     # If we cut out a timeslice of the logs,
+     # If we tail the logs,
      #   relocate them as though they were full logs in the working copy to be tarred
      #   delete the cut copy under the original log directory
-     if [ "${Logs}" = "cut" ]
+     if [ "${Logs}" = "tail" ]
      then
 	 mv ${Work}${cutDir}/* ${Work}@SIPX_LOGDIR@
 	 rmdir ${Work}${cutDir}

@@ -65,6 +65,10 @@ public class VmMessage {
         return m_folder;
     }
 
+    public void setParentFolder(Folder folder) {
+        m_folder = folder;
+    }
+
     public boolean isUnHeard() {
         return m_unheard;
     }
@@ -74,7 +78,7 @@ public class VmMessage {
     }
 
     public void cleanup() {
-        
+
     }
 
 }
