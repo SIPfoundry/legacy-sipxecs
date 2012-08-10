@@ -67,7 +67,8 @@ public class UserLocation extends AbstractDataSetGenerator {
             }
             UserProfile profile = user.getUserProfile();
             if (profile != null) {
-                top.put(ALT_IM_ID, profile.getAlternateImId());
+                top.put(ALT_IM_ID, (profile.getAlternateImId() != null)
+                        ? (profile.getAlternateImId().toLowerCase()) : (null));
                 top.put(JOB_TITLE, profile.getJobTitle());
                 top.put(JOB_DEPT, profile.getJobDept());
                 top.put(COMPANY_NAME, profile.getCompanyName());
