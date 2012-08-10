@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.site.admin;
 import static java.text.DateFormat.SHORT;
 
 import java.text.DateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -36,14 +35,6 @@ public abstract class SnapshotPage extends SipxBasePage implements PageBeginRend
     @Asset("/images/loading.gif")
     public abstract IAsset getLoadingImage();
 
-    public abstract Date getStartDate();
-
-    public abstract void setStartDate(Date date);
-
-    public abstract Date getEndDate();
-
-    public abstract void setEndDate(Date date);
-
     public abstract void setGenerationDate(String date);
 
     public abstract String getGenerationDate();
@@ -62,18 +53,6 @@ public abstract class SnapshotPage extends SipxBasePage implements PageBeginRend
     public void pageBeginRender(PageEvent event_) {
         if (!TapestryUtils.isValid(this)) {
             return;
-        }
-
-        Calendar now = Calendar.getInstance();
-        if (getEndDate() == null) {
-            // End date: When the page is rendered.
-            setEndDate(now.getTime());
-        }
-
-        if (getStartDate() == null) {
-            // Start date: 3 hours before the End date.
-            now.add(Calendar.HOUR, -3);
-            setStartDate(now.getTime());
         }
 
         if (!getSnapshot().isRefreshing()) {
@@ -95,17 +74,21 @@ public abstract class SnapshotPage extends SipxBasePage implements PageBeginRend
     }
 
     public void createSnapshot() {
-        if (!getSnapshot().isLogs() && getSnapshot().isFilterTime()) {
-            // 'Time filter' may only be specified with 'Log files'
+        if (!TapestryUtils.isValid(this)) {
+            return;
+        }
+
+        if (!getSnapshot().isLogs() && getSnapshot().isLogFilter()) {
+            // 'Log filter' may only be specified with 'Logs'
             throw new UserException("&message.invalidSelection");
         }
 
-        if (getStartDate().compareTo(getEndDate()) > 0) {
-            // 'Start date' should not be higher that 'End date'
-            throw new UserException("&message.invalidDates");
+        int numberOfLines = getSnapshot().getLines();
+        if (getSnapshot().isLogFilter() && numberOfLines == 0) {
+            throw new UserException("&message.invalidNumberOfLines");
         }
 
-        getSnapshot().perform(getStartDate(), getEndDate(), getLocationsManager().getLocations());
+        getSnapshot().perform(getLocationsManager().getLocations(), numberOfLines);
     }
 
     public String getGenerationSuccessMsg() {
