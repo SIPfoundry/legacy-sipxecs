@@ -235,6 +235,7 @@ ISO_ADD_EPEL = \
   erlang-webtool-* \
   erlang-wx-* \
   erlang-xmerl-* \
+  libev-4.* \
   php-pecl-mongo-* \
   redis-* \
   rubygem-daemons-* \
