@@ -253,7 +253,6 @@ public class Emailer implements ApplicationContextAware {
                     LOG.error("Emailer::run problem sending alternate email.", e);
                 }
             }
-            m_vmessage.cleanup();
             LOG.debug("Emailer::run finished");
         }
     }
