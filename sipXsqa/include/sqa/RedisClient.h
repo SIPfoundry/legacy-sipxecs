@@ -458,6 +458,60 @@ public:
     return !keys.empty();
   }
 
+  bool smembers(const std::string& key, std::vector<std::string>& members)
+  {
+    std::vector<std::string> args;
+    args.push_back("SMEMBERS");
+    args.push_back(key);
+    members = getReplyStringArray(args);
+    return !members.empty();
+  }
+
+  long long sadd(const std::string& key, const std::vector<std::string>& members)
+  {
+    std::vector<std::string> args;
+    args.push_back("SADD");
+    args.push_back(key);
+
+    for (std::vector<std::string>::const_iterator iter = members.begin(); iter != members.end(); iter++)
+      args.push_back(*iter);
+    long long result = 0;
+    getReplyInt(args, result);
+    return result;
+  }
+
+  long long scard(const std::string& key)
+  {
+    std::vector<std::string> args;
+    args.push_back("SCARD");
+    args.push_back(key);
+    long long result = 0;
+    getReplyInt(args, result);
+    return result;
+  }
+
+  long long srem(const std::string& key, const std::vector<std::string>& members)
+  {
+    std::vector<std::string> args;
+    args.push_back("SREM");
+    args.push_back(key);
+
+    for (std::vector<std::string>::const_iterator iter = members.begin(); iter != members.end(); iter++)
+      args.push_back(*iter);
+    long long result = 0;
+    getReplyInt(args, result);
+    return result;
+  }
+
+  std::string spop(const std::string& key)
+  {
+    std::vector<std::string> args;
+    args.push_back("SPOP");
+    args.push_back(key);
+    return getReplyString(args);
+  }
+
+
   bool del(const std::string& key)
   {
     std::vector<std::string> args;

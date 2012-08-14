@@ -48,6 +48,8 @@ Requires: %name
 Requires: sipxcommserverlib >= %version
 Requires: sipxsupervisor >= %version
 Requires: redis
+Requires: libev
+
 
 %description server
 SQA Network Queue server
