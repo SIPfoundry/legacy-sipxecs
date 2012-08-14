@@ -33,8 +33,23 @@ bundle agent mysql_ensure_db(name, schema_sql) {
 
      "/usr/bin/mysql"
        comment => "adding schema $(schema_sql) to db $(name)",
-       contain => useshell,
-       args => "--user=root $(name) -f < $(schema_sql)";
+       args => "--user=root $(name) -e 'source $(schema_sql)'";
+}
+
+bundle agent mysql_ensure_table(dbname, table, schema_sql) {
+  vars:
+    mysql::
+      "rc" string => execresult("/usr/bin/mysql -u root $(dbname) -e 'select count(*) from $(table)'", "noshell");
+      
+  classes:
+    mysql::
+      "table_exists" expression => strcmp("0", "$(rc)");
+
+  commands:
+   !table_exists.mysql::
+     "/usr/bin/mysql"
+       comment => "create mysql table $(table) in $(dbname)",
+       args => "--user=root $(dbname) -e 'source $(schema_sql)'";
 }
 
 body contain useshell {
