@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.commserver.imdb;
 
 
+import static org.sipfoundry.commons.mongo.MongoConstants.ENTITY_NAME;
 import static org.sipfoundry.commons.mongo.MongoConstants.ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.IDENTITY;
 import static org.sipfoundry.commons.mongo.MongoConstants.VALID_USER;
@@ -636,6 +637,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         if (entity.isValidUser()) {
             top.put(VALID_USER, true);
         }
+        top.put(ENTITY_NAME,  entity.getClass().getSimpleName().toLowerCase());
         return top;
     }
 
@@ -669,15 +671,17 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
 
     public DBCollection getDbCollection() {
         DBCollection entity = m_imdb.getDb().getCollection(MongoConstants.ENTITY_COLLECTION);
-        DBObject index1 = new BasicDBObject();
-        index1.put(MongoConstants.ALIASES + "." + MongoConstants.ALIAS_ID, 1);
-        DBObject index2 = new BasicDBObject();
-        index2.put(MongoConstants.UID, 1);
-        DBObject index3 = new BasicDBObject();
-        index3.put(MongoConstants.IDENTITY, 1);
-        entity.ensureIndex(index1);
-        entity.ensureIndex(index2);
-        entity.ensureIndex(index3);
+        DBObject indices = new BasicDBObject();
+        indices.put(MongoConstants.ALIASES + "." + MongoConstants.ALIAS_ID, 1);
+        indices.put(MongoConstants.UID, 1);
+        indices.put(MongoConstants.IDENTITY, 1);
+        indices.put(MongoConstants.GROUPS, 1);
+        indices.put(MongoConstants.CONF_OWNER, 1);
+        indices.put(MongoConstants.IM_ID, 1);
+        indices.put(MongoConstants.ALT_IM_ID, 1);
+        indices.put(MongoConstants.IM_GROUP, 1);
+
+        entity.ensureIndex(indices);
         return entity;
     }
 

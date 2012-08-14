@@ -23,6 +23,8 @@ BuildRequires: swig
 BuildRequires: sipxcommserverlib-devel  >= %version
 BuildRequires: sipxportlib-devel        >= %version
 
+Requires: libev
+
 Source:   %name-%version.tar.gz
 
 Prefix:    %_prefix

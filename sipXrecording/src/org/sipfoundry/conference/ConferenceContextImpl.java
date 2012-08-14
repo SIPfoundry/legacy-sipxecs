@@ -54,8 +54,8 @@ public class ConferenceContextImpl {
     }
     public void saveInMailboxSynch(String confName) {
         Conference conf = m_conferenceService.getConference(confName);
-        notifyIvr(getIvrUris(), getWavName(confName), conf, true);
-        FileUtils.deleteQuietly(new File(getWavPath(confName)));
+        notifyIvr(getIvrUris(), getFileName(confName), conf, true);
+        FileUtils.deleteQuietly(new File(getFilePath(confName)));
     }
 
     public void createSourceDir() {
@@ -66,15 +66,16 @@ public class ConferenceContextImpl {
     }
 
     /**
-     * Trigger the servlet on the voicemail server to read the WAV file E.g.
-     * "http://s1.example.com:8086/recording/conference?test1_6737347.wav"
+     * Trigger the servlet on the voicemail server to read the recorded file E.g.
+     * "http://s1.example.com:8086/recording/conference?test1_6737347.wav or
+     * http://s1.example.com:8086/recording/conference?test1_6737347.mp3"
      */
-    private void notifyIvr(String ivrUri, String wavName, Conference conf, boolean synchronous)
+    private void notifyIvr(String ivrUri, String fileName, Conference conf, boolean synchronous)
             throws IOException {
         String username = conf.getConfOwner();
         HttpClient httpClient = new HttpClient();
         String urlString = ivrUri + "/recording/conference"
-            + "?wn=" + wavName
+            + "?wn=" + fileName
             + "&on=" + conf.getConfOwner()
             + "&bc=" + conf.getUri()
             + "&synchronous=" + synchronous;
@@ -94,10 +95,10 @@ public class ConferenceContextImpl {
         }
     }
 
-    public void notifyIvr(String[] ivrUris, String wavName, Conference conf, boolean synchronous) {
+    public void notifyIvr(String[] ivrUris, String fileName, Conference conf, boolean synchronous) {
         if (lastGoodIvr != null) {
             try {
-                notifyIvr(lastGoodIvr, wavName, conf, synchronous);
+                notifyIvr(lastGoodIvr, fileName, conf, synchronous);
                 return;
             } catch (IOException ex) {
                 //do not throw exception as we have to iterate through all nodes
@@ -110,7 +111,7 @@ public class ConferenceContextImpl {
                 continue;
             }
             try {
-                notifyIvr(ivrUri, wavName, conf, synchronous);
+                notifyIvr(ivrUri, fileName, conf, synchronous);
                 return;
             } catch (IOException ex) {
                 LOG.error("ConfRecordThread::Trigger error on node:" + ivrUri);
@@ -118,20 +119,20 @@ public class ConferenceContextImpl {
         }
     }
 
-    public String getWavName(String confName) {
-        return confName + ".wav";
+    public String getFileName(String confName) {
+        return confName + "." + m_recordingConfig.getAudioFormat();
     }
 
-    public String getWavPath(String confName) {
-        return sourceName + File.separator + getWavName(confName);
+    public String getFilePath(String confName) {
+        return sourceName + File.separator + getFileName(confName);
     }
 
-    public boolean existsWav(String confName) {
-        return new File(sourceName, getWavName(confName)).exists();
+    public boolean existsFile(String confName) {
+        return new File(sourceName, getFileName(confName)).exists();
     }
 
     public boolean isRecordingInProgress(String confName) {
-        return existsWav(confName);
+        return existsFile(confName);
     }
 
     public void setConferenceService(ConferenceService conferenceService) {
@@ -148,6 +149,10 @@ public class ConferenceContextImpl {
 
     public String[] getIvrUris() {
         return m_recordingConfig.getIvrNodes();
+    }
+
+    public String getAudioFormat() {
+        return m_recordingConfig.getAudioFormat();
     }
 
 }

@@ -74,6 +74,10 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
         return m_settingsDao.findOrCreateOne();
     }
 
+    public String getAudioFormat() {
+        return getSettings().getAudioFormat();
+    }
+
     public CallPilotSettings getCallPilotSettings() {
         return m_pilotSettingsDao.findOrCreateOne();
     }

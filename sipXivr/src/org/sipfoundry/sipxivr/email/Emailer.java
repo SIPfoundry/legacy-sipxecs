@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 
 package org.sipfoundry.sipxivr.email;
@@ -34,6 +34,7 @@ import javax.mail.util.ByteArrayDataSource;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.User.EmailFormats;
+import org.sipfoundry.voicemail.mailbox.Folder;
 import org.sipfoundry.voicemail.mailbox.VmMessage;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -56,13 +57,17 @@ public class Emailer implements ApplicationContextAware {
 
     /**
      * Queue up sending the VmMessage as an e-mail to the addresses specified in the mailbox
-     * 
+     *
      * @param mailbox
      * @param vmessage
      */
     public void queueVm2Email(User destUser, VmMessage vmessage) {
         if (destUser.getEmailFormat() != EmailFormats.FORMAT_NONE
                 || destUser.getAltEmailFormat() != EmailFormats.FORMAT_NONE) {
+            if (vmessage.getParentFolder().equals(Folder.CONFERENCE)) {
+                LOG.info("Emailer::do not queue email for conferences");
+                return;
+            }
             LOG.info("Emailer::queueVm2Email queuing e-mail for " + destUser.getIdentity());
             BackgroundMailer bm = new BackgroundMailer(destUser, vmessage);
             submit(bm);
@@ -83,7 +88,7 @@ public class Emailer implements ApplicationContextAware {
 
         /**
          * Build up the MIME multipart formatted e-mail
-         * 
+         *
          * @param attachAudio Attach the audio file as part of the message
          * @return
          * @throws AddressException
@@ -184,7 +189,7 @@ public class Emailer implements ApplicationContextAware {
         }
 
         /**
-         * 
+         *
          * @param mpalt - multipart instance previously created that contains all HTML text
          *        including image keys sample: <img src="cid:[imageKey]">
          * @param imageSource - image source file name embedded in *this* class jar file
@@ -248,7 +253,6 @@ public class Emailer implements ApplicationContextAware {
                     LOG.error("Emailer::run problem sending alternate email.", e);
                 }
             }
-            m_vmessage.cleanup();
             LOG.debug("Emailer::run finished");
         }
     }
@@ -263,7 +267,7 @@ public class Emailer implements ApplicationContextAware {
      */
     private EmailFormatter getEmailFormatter(EmailFormats emailFormat, User user, VmMessage vmessage) {
         EmailFormatter formatter = m_context.getBean(emailFormat.getId(), EmailFormatter.class);
-        formatter.init(user, vmessage);        
+        formatter.init(user, vmessage);
         return formatter;
     }
 

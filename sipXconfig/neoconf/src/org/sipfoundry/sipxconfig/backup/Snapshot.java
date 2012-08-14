@@ -14,11 +14,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -51,7 +49,9 @@ public class Snapshot {
 
     private boolean m_www = true;
 
-    private boolean m_filterTime = true;
+    private boolean m_logFilter = true;
+
+    private int m_lines = 1000;
 
     private LocationsManager m_locationsManager;
 
@@ -101,7 +101,7 @@ public class Snapshot {
         }
     }
 
-    public synchronized void perform(Date startDate, Date endDate, Location[] locations) {
+    public synchronized void perform(Location[] locations, int lines) {
         m_executorService = Executors.newFixedThreadPool(locations.length);
 
         m_futures = new ArrayList<Future<SnapshotResult>>(locations.length);
@@ -111,7 +111,7 @@ public class Snapshot {
                 File f = new File(((ConfigManager) m_configCommands).getLocationDataDirectory(location),
                         "snapshot.ini");
                 wtr = new FileWriter(f);
-                composeCmdLine(wtr, startDate, endDate, location.getFqdn());
+                composeCmdLine(wtr, location.getFqdn(), lines);
             } catch (IOException ex) {
                 throw new UserException("&err.snapshot.failed");
             } finally {
@@ -123,22 +123,17 @@ public class Snapshot {
         m_executorService.shutdown();
     }
 
-    void composeCmdLine(Writer wtr, Date startDate, Date endDate, String fqdn) throws IOException {
+    void composeCmdLine(Writer wtr, String fqdn, int lines) throws IOException {
         wtr.write("--logs");
         if (m_logs) {
             wtr.write(SEPARATOR);
             wtr.write("current");
-            // Log start/stop times may only be specified with '--logs current'
-            if (m_filterTime) {
-                // Times must be specified in UCT
+            // 'Log filter' may only be specified with '--logs current'
+            if (m_logFilter) {
                 wtr.write(SEPARATOR);
-                wtr.write("--log-start");
+                wtr.write("--lines");
                 wtr.write(SEPARATOR);
-                wtr.write(formatDate(startDate));
-                wtr.write(SEPARATOR);
-                wtr.write("--log-stop");
-                wtr.write(SEPARATOR);
-                wtr.write(formatDate(endDate));
+                wtr.write(Integer.toString(lines));
             }
         } else {
             wtr.write(SEPARATOR);
@@ -171,12 +166,6 @@ public class Snapshot {
 
     private String getArchiveName(String fqdn) {
         return String.format("sipx-snapshot-%s.tar.gz", fqdn);
-    }
-
-    private String formatDate(Date date) {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calendar.setTime(date);
-        return (String.format("'%1$tF %1$tT'", calendar));
     }
 
     public boolean isCredentials() {
@@ -219,12 +208,20 @@ public class Snapshot {
         m_www = www;
     }
 
-    public boolean isFilterTime() {
-        return m_filterTime;
+    public boolean isLogFilter() {
+        return m_logFilter;
     }
 
-    public void setFilterTime(boolean filterTime) {
-        m_filterTime = filterTime;
+    public void setLogFilter(boolean logFilter) {
+        m_logFilter = logFilter;
+    }
+
+    public int getLines() {
+        return m_lines;
+    }
+
+    public void setLines(int lines) {
+        m_lines = lines;
     }
 
     public void setDestDirectory(String destDirectory) {

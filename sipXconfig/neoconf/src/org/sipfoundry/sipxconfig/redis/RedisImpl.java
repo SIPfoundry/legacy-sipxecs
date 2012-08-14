@@ -15,13 +15,16 @@
 package org.sipfoundry.sipxconfig.redis;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
@@ -30,6 +33,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
@@ -81,7 +85,22 @@ public class RedisImpl implements Redis, ConfigProvider, ProcessProvider, Firewa
             File dir = manager.getLocationDataDirectory(location);
             boolean on = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
             ConfigUtils.enableCfengineClass(dir, "redis.cfdat", on, FEATURE.getId());
+
+            Address redisApi = new Address(SERVER, location.getAddress());
+            Writer w = new FileWriter(new File(dir, "redis-client.ini"));
+            try {
+                writeClient(w, on, redisApi);
+            } finally {
+                IOUtils.closeQuietly(w);
+            }
         }
+    }
+
+    void writeClient(Writer w, boolean on, Address redis) throws IOException {
+        KeyValueConfiguration c = KeyValueConfiguration.equalsSeparated(w);
+        c.write("enabled", on);
+        c.write("tcp-port", redis.getCanonicalPort());
+        c.write("tcp-address", redis.getAddress());
     }
 
     @Override

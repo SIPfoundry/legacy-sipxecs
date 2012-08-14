@@ -44,7 +44,7 @@ public class RecordingConfigurationTest {
         List<Address> ivrAddresses = new ArrayList<Address>();
         ivrAddresses.add(ivrAddress1);
         ivrAddresses.add(ivrAddress2);
-        config.write(actual, settings, imbotAddress, ivrAddresses);
+        config.write(actual, settings, imbotAddress, ivrAddresses, "mp3");
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-sipxrecording.properties"));
         assertEquals(expected, actual.toString());
     }

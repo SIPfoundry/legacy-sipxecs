@@ -19,7 +19,6 @@ bin_SCRIPTS = \
 dist_bin_SCRIPTS = \
 	pkg-upgrade \
 	configmerge \
-	sipx-log-cut \
 	configquery
 
 setupdir = @SIPX_LIBEXECDIR@/setup.d

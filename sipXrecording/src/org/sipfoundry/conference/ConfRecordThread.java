@@ -61,14 +61,14 @@ public class ConfRecordThread extends ConfBasicThread {
         setConfConfiguration(recordingConfig);
     }
 
-    private void AuditWavFiles(File dir) {
-        // If any WAV file on the directory is more than 5 minutes old then delete it.
+    private void AuditWavMp3Files(File dir) {
+        // If any WAV/mp3 file on the directory is more than 5 minutes old then delete it.
         File[] children = dir.listFiles();
         if (children != null) {
             for (int i=0; i<children.length; i++) {
                 File child = children[i];
                 String filename = child.getName();
-                if (filename.endsWith(".wav")) {
+                if (filename.endsWith(".wav") || filename.endsWith(".mp3")) {
                    if ((System.currentTimeMillis() - child.lastModified())/1000 > 5*60) {
                        child.delete();
                        LOG.debug("ConfRecordThread::Audit deleting " + filename);
@@ -89,14 +89,14 @@ public class ConfRecordThread extends ConfBasicThread {
         Conference conference = m_conferenceContext.getConference(confName);
         if (conference != null && conference.isAutoRecord()) {
             String uniqueId = event.getEventValue("Unique-ID");
-            String wavName = new String(confName + "_" + uniqueId + ".wav");
-            LOG.debug("ConfRecordThread::Creating conference recording " + wavName);
-            String confCmd = "record " + sourceName + "/" + wavName;
+            String fileName = new String(confName + "_" + uniqueId + "." + m_conferenceContext.getAudioFormat());
+            LOG.debug("ConfRecordThread::Creating conference recording " + fileName);
+            String confCmd = "record " + sourceName + "/" + fileName;
             // Send the start recording command to Freeswitch
             RecordCommand recordcmd = new RecordCommand(getCmdSocket(), confName, confCmd);
             recordcmd.go();
             // Store the file name
-            conf.setWavName(wavName);
+            conf.setFileName(fileName);
         }
     }
 
@@ -152,8 +152,8 @@ public class ConfRecordThread extends ConfBasicThread {
         Conference conference = m_conferenceContext.getConference(confName);
         String [] ivrUris =m_conferenceContext.getIvrUris();
         if (conference != null && conference.isAutoRecord()) {
-            String wavName = conf.getWavName();
-            LOG.debug("ConfRecordThread::Finished conference recording of " + wavName);
+            String fileName = conf.getFileName();
+            LOG.debug("ConfRecordThread::Finished conference recording of " + fileName);
 
             try {
                 // Let FS finish any recording it may be doing
@@ -161,13 +161,13 @@ public class ConfRecordThread extends ConfBasicThread {
             } catch (InterruptedException e) {
             }
 
-            AuditWavFiles(new File(destName));
-            m_conferenceContext.notifyIvr(ivrUris, wavName, conference, false);
+            AuditWavMp3Files(new File(destName));
+            m_conferenceContext.notifyIvr(ivrUris, fileName, conference, false);
         }
-        //verify if there is a temporary wav file recording given user action
-        //the wav file, if any, has the same name as the conference
+        //verify if there is a temporary file recording given user action
+        //the file, if any, has the same name as the conference
         //This is achieved on a separated thread to encourage current recording thread to die immediately
-        //once the recording stopped. This shouldn't wait for the .wav to be copied in user mailbox
+        //once the recording stopped. This shouldn't wait for the file to be copied in user mailbox
         Runnable r = new Runnable() {
             @Override
             public void run() {

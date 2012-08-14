@@ -37,10 +37,11 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class RecordingConfig implements ConfigProvider {
     private Recording m_recording;
+    private Ivr m_ivr;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(Recording.FEATURE)) {
+        if (!request.applies(Recording.FEATURE, Ivr.FEATURE)) {
             return;
         }
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
@@ -60,14 +61,14 @@ public class RecordingConfig implements ConfigProvider {
             File f = new File(dir, "sipxrecording.properties.part");
             Writer wtr = new FileWriter(f);
             try {
-                write(wtr, m_recording.getSettings(), imbotApi, ivrAddresses);
+                write(wtr, m_recording.getSettings(), imbotApi, ivrAddresses, m_ivr.getAudioFormat());
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
         }
     }
 
-    void write(Writer wtr, RecordingSettings settings, Address imbotApi, List<Address> ivrAddresses) throws IOException {
+    void write(Writer wtr, RecordingSettings settings, Address imbotApi, List<Address> ivrAddresses, String audioFormat) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.writeSettings(settings.getSettings());
         if (imbotApi != null) {
@@ -82,10 +83,16 @@ public class RecordingConfig implements ConfigProvider {
         if (ivrAddressesStr.length() > 0) {
             config.write("config.ivrNodes", ivrAddressesStr.toString());
         }
+        config.write("audio.format", audioFormat);
     }
 
     @Required
     public void setRecording(Recording recording) {
         m_recording = recording;
+    }
+
+    @Required
+    public void setIvr(Ivr ivr) {
+        m_ivr = ivr;
     }
 }

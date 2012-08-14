@@ -34,6 +34,14 @@ bundle agent redis_running {
     redis::
       "any" usebundle => rh_chkconfig_status("redis on");
 
+  files:
+    redis::
+      "$(sipx.SIPX_CONFDIR)/redis-client.ini"
+        comment => "Redis client config for SQA $(this.promiser)",
+        perms => mog("655", "root", "root"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/redis-client.ini"),
+        classes => if_repaired("restart_redis_clients");
+
   commands:
     !redis.redis_running::
       "$(service)"
