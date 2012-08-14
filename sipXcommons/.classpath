@@ -163,5 +163,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/mysql-connector-java-5.1.20-bin.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaudiotagger-2.0.4-20111207.115108-15.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlrpc-2.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jedis-2.1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-data-redis-1.0.1.RELEASE.jar"/>
 	<classpathentry kind="output" path="bin.eclipse/classes"/>
 </classpath>

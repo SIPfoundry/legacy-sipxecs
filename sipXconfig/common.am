@@ -81,6 +81,8 @@ neoconf_PKGS = \
 	spring-data-commons-core \
 	spring-data-mongodb \
 	spring-ldap \
+        spring-data-redis \
+        jedis \
 	thumbnailator \
 	velocity \
 	velocity-tools-generic \

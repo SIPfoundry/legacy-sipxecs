@@ -27,6 +27,8 @@ commons_PKGS = \
 	spring-data-mongodb \
 	spring-data-commons-core \
 	mongo \
+	spring-data-redis \
+	jedis \
 	thumbnailator \
 	jaudiotagger \
 	jetty \
