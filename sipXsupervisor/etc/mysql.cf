@@ -13,11 +13,37 @@
 
 bundle agent mysql {
   methods:
-    any::
+    mysql::
+      "any" usebundle => mysql_conf;
+
     fedora16_or_greater::
       "any" usebundle => mysql_sysctl_running;
     !fedora16_or_greater::
       "any" usebundle => mysql_sysv_running;
+}
+
+bundle agent mysql_conf {
+  files:
+    mysql::
+      "/etc/my.cnf"
+        comment => "MySQL server config $(this.promiser)",
+        create => "false",
+        perms => mog("644", "root", "root"),
+        edit_line => my_cnf,
+        classes => if_repaired("restart_mysql");
+}
+
+bundle edit_line my_cnf {
+  vars:
+    "v[default-time-zone]" string => "'+00:00'";
+    "k" slist => getindices("v");
+
+  insert_lines:
+    "$(k)=$(v[$(k)])"
+      select_region => INI_section("mysqld");
+
+  delete_lines:
+    "^$(k)\s*=.*$";
 }
 
 bundle agent mysql_ensure_db(name, schema_sql) {
