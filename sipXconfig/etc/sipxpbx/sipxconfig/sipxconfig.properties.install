@@ -26,5 +26,6 @@ sysdir.vxml.moh=@SIPX_IVRDATADIR@/moh
 sysdir.webtest.srcdir=@top_srcdir@/web/test
 sysdir.mongo_client_ini=@SIPX_CONFDIR@/mongo-client.ini
 sysdir.src=@SIPX_IS_SRC@
+sysdir.libdir=@SIPX_LIBDIR@
 openfire.home=@OPENFIRE_HOME@
 packageUpdateManager.yumCapable=@YUM_EXISTS@
