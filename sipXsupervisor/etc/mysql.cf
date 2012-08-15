@@ -35,12 +35,11 @@ bundle agent mysql_conf {
 
 bundle edit_line my_cnf {
   vars:
-    "v[default-time-zone]" string => "'+00:00'";
-    "k" slist => getindices("v");
-
-  insert_lines:
-    "$(k)=$(v[$(k)])"
-      select_region => INI_section("mysqld");
+    # in 4.6, around 08/14/12 timezone was explicitly set, here we remove it
+    # so it defaults to using system timezone
+    "k" slist => { 
+      "default-time-zone" 
+    };
 
   delete_lines:
     "^$(k)\s*=.*$";
