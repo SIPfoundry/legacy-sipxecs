@@ -41,6 +41,7 @@ dist_cfplugins_DATA = \
 	ntpd.cf \
 	phonelog.cf \
 	sendmail.cf \
+	logrotate.cf \
 	archive.cf \
 	zz_sipxlogwatcher.cf
 

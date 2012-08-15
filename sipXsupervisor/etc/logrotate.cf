@@ -1,0 +1,71 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# This is iptables configuration. Uses either /etc/init.d./iptables (centos 6) or 
+# /bin/systemctl (fedora 16) scripts whichever are available.
+#
+bundle agent logrotate {
+  files:
+    "/etc/logrotate.d/sipx"
+      comment => "Log rotation config $(this.promiser)",
+      perms => mog("644", "root", "root"),
+      create => "true",
+      edit_defaults => empty,
+      edit_line => logrotate_sipx;
+}
+
+bundle edit_line logrotate_sipx {
+  insert_lines:
+"compress
+delaycompress
+daily
+rotate 14
+missingok
+
+# Normal C/C++ procs and non-daemon related log files. Uses default which is to rotate w/o copytruncate
+$(sipx.SIPX_LOGDIR)/sipregistrar.log $(sipx.SIPX_LOGDIR)/sipstatus.log $(sipx.SIPX_LOGDIR)/sipxagent.log $(sipx.SIPX_LOGDIR)/sipxhomer.log $(sipx.SIPX_LOGDIR)/sipxlogwatcher.log $(sipx.SIPX_LOGDIR)/sipxpage.log $(sipx.SIPX_LOGDIR)/sipxpark.log $(sipx.SIPX_LOGDIR)/sipXproxy.log $(sipx.SIPX_LOGDIR)/sipxrls.log $(sipx.SIPX_LOGDIR)/sipxsaa.log $(sipx.SIPX_LOGDIR)/sipxsqa.log $(sipx.SIPX_LOGDIR)/snmpd.log $(sipx.SIPX_LOGDIR)/snmptrap-email-handler.log {
+}
+
+# Java does not reopen log file periodically, make a copy and truncate current log file. May lose some data, but this will be addressed in future release.
+$(sipx.SIPX_LOGDIR)/sipxacccode.log $(sipx.SIPX_LOGDIR)/sipxprovision.log $(sipx.SIPX_LOGDIR)/sipxbridge.log $(sipx.SIPX_LOGDIR)/sipxcallresolver.log $(sipx.SIPX_LOGDIR)/sipximbot.log $(sipx.SIPX_LOGDIR)/sipxivr.log $(sipx.SIPX_LOGDIR)/sipxopenfire.log  $(sipx.SIPX_LOGDIR)/sipxrecording.log $(sipx.SIPX_LOGDIR)/sipxrelay.log $(sipx.SIPX_LOGDIR)/sipxrest.log $(sipx.SIPX_LOGDIR)/sipxconfig.log  $(sipx.SIPX_LOGDIR)/sipxconfig-audit.log {
+   copytruncate
+}
+
+# sipxconfig-logins and sipXalarms should only be rotated monthly.  Data
+# in these log files provide a history of information needed by sipXconfig.
+$(sipx.SIPX_LOGDIR)/sipxconfig-logins.log $(sipx.SIPX_LOGDIR)/snmptrapd.log {
+   monthly
+   copytruncate
+}
+
+$(sipx.SIPX_LOGDIR)/phone/*.log {
+    sharedscripts
+    postrotate
+       test -f $(sipx.SIPX_LOGDIR)/phone/var/run/syslog.pid || kill -HUP $(cat $(sipx.SIPX_LOGDIR)/phone/var/run/syslog.pid) 2> /dev/null || true
+    endscript
+}
+
+$(sipx.SIPX_LOGDIR)/freeswitch*.log {
+    notifempty
+    postrotate
+        # Tell freeswitch to reopen the log file
+        /opt/freeswitch/bin/fs_cli -x \"fsctl send_sighup\" >/dev/null 2>&1
+    endscript
+}
+
+/opt/openfire/logs/*.log {
+    copytruncate
+}
+";
+}
