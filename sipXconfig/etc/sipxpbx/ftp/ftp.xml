@@ -12,6 +12,18 @@
     <setting name="pasv_address">
       <type><ipaddr/></type>
     </setting>
+    <setting name="pasv_addr_resolve">
+      <type refid="true-false"/>
+      <value>NO</value>
+    </setting>
+    <setting name="pasv_min_port">
+      <type><integer /></type>
+      <value>50000</value>
+    </setting>
+    <setting name="pasv_max_port">
+      <type><integer /></type>
+      <value>50050</value>
+    </setting>
     <setting name="xferlog_enable">
       <type refid="true-false"/>
       <value>NO</value>

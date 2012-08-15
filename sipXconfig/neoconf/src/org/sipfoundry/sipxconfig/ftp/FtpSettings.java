@@ -46,6 +46,14 @@ public class FtpSettings extends PersistableSettings implements DeployConfigOnEd
         return Collections.singleton((Feature) FtpManager.FTP_FEATURE);
     }
 
+    public int getMinPasvPort() {
+        return (Integer) getSettingTypedValue("vsftp-config/pasv_min_port");
+    }
+
+    public int getMaxPasvPort() {
+        return (Integer) getSettingTypedValue("vsftp-config/pasv_max_port");
+    }
+
     @Override
     public String getBeanId() {
         return "ftpSettings";

@@ -25,6 +25,7 @@ public interface FtpManager {
     public static final AddressType FTP_ADDRESS = new AddressType(FTP_FEATURE.getId(), 21);
     // FTP needs 2 ports - control and data
     public static final AddressType FTP_DATA_ADDRESS = new AddressType("ftpData", 20);
+    public static final AddressType FTP_PASV_ADDRESS = new AddressType("ftpPasv");
 
     public FtpSettings getSettings();
 

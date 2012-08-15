@@ -43,8 +43,9 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class FtpManagerImpl extends SipxHibernateDaoSupport<Object> implements FtpManager, ProcessProvider,
-    SetupListener, FeatureProvider, FirewallCustomRuleProvider, AddressProvider {
-    private static final List<AddressType> ADDRESSES = Arrays.asList(TFTP_ADDRESS, FTP_ADDRESS, FTP_DATA_ADDRESS);
+        SetupListener, FeatureProvider, FirewallCustomRuleProvider, AddressProvider {
+    private static final List<AddressType> ADDRESSES = Arrays.asList(TFTP_ADDRESS, FTP_ADDRESS, FTP_DATA_ADDRESS,
+            FTP_PASV_ADDRESS);
     private static final List<LocationFeature> FEATURES = Arrays.asList(TFTP_FEATURE, FTP_FEATURE);
     private BeanWithSettingsDao<FtpSettings> m_settingsDao;
     private FeatureManager m_featureManager;
@@ -92,7 +93,8 @@ public class FtpManagerImpl extends SipxHibernateDaoSupport<Object> implements F
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        return DefaultFirewallRule.rules(Arrays.asList(FTP_ADDRESS, FTP_DATA_ADDRESS, TFTP_ADDRESS),
+        return DefaultFirewallRule.rules(
+                Arrays.asList(FTP_ADDRESS, FTP_DATA_ADDRESS, TFTP_ADDRESS, FTP_PASV_ADDRESS),
                 FirewallRule.SystemId.PUBLIC);
     }
 
@@ -102,8 +104,23 @@ public class FtpManagerImpl extends SipxHibernateDaoSupport<Object> implements F
             return null;
         }
 
-        LocationFeature f = (type.equals(FTP_ADDRESS) ? FTP_FEATURE : TFTP_FEATURE);
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(f);
+        // TFTP addresses
+        if (type.equals(TFTP_ADDRESS)) {
+            List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(TFTP_FEATURE);
+            return Location.toAddresses(type, locations);
+        }
+
+        // FTP addresses (ftp, data, pasv)
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FTP_FEATURE);
+        if (type.equals(FTP_PASV_ADDRESS)) {
+            List<Address> addresses = new ArrayList<Address>(locations.size());
+            for (Location location : locations) {
+                Address a = new Address(type, location.getAddress(), getSettings().getMinPasvPort());
+                a.setEndPort(getSettings().getMaxPasvPort());
+                addresses.add(a);
+            }
+            return addresses;
+        }
         return Location.toAddresses(type, locations);
     }
 
