@@ -90,7 +90,7 @@ public class SearchManagerImpl implements SearchManager {
                 searcher.search(query, collector);
                 docs = collector.topDocs();
             }
-            List found = hits2beans(docs, transformer, firstItem, pageSize);
+            List found = hits2beans(docs, transformer, searcher, firstItem, pageSize);
             return found;
         } catch (IOException e) {
             LOG.error("search by user query error", e);
@@ -100,7 +100,7 @@ public class SearchManagerImpl implements SearchManager {
         return Collections.EMPTY_LIST;
     }
 
-    private List hits2beans(TopDocs docs, Transformer transformer, int firstItem, int pageSize)
+    private List hits2beans(TopDocs docs, Transformer transformer, IndexSearcher searcher, int firstItem, int pageSize)
         throws IOException {
         final int hitCount = docs.scoreDocs.length;
         List results = new ArrayList(hitCount);
@@ -112,7 +112,7 @@ public class SearchManagerImpl implements SearchManager {
         int from = firstItem < 0 ? 0 : firstItem;
         int to = pageSize < 0 ? hitCount : Math.min(hitCount, firstItem + pageSize);
         for (int i = from; i < to; i++) {
-            Document document = m_indexSource.getSearcher().doc(docs.scoreDocs[i].doc);
+            Document document = searcher.doc(docs.scoreDocs[i].doc);
             Identity identity = m_beanAdaptor.getBeanIdentity(document);
             if (identity == null) {
                 continue;
