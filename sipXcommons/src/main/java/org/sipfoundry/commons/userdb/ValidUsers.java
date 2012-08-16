@@ -201,14 +201,19 @@ public class ValidUsers {
         return getUserByJidObject(jid);
     }
 
+    //We might rarely need to search through alternate id. "or" query proved to be pretty heavy
+    //especially on systems with many users, so we might want to limit those if possible
     private User getUserByJidObject(Object jid) {
         BasicDBObject jidQuery = new BasicDBObject();
         jidQuery.put(IM_ID, jid);
-        BasicDBObject altJidQuery = new BasicDBObject();
-        altJidQuery.put(ALT_IM_ID, jid);
-        DBObject queryJid = QueryBuilder.start().or(jidQuery, altJidQuery).get();
-        DBObject jidResult = getEntityCollection().findOne(queryJid);
+        DBObject jidResult = getEntityCollection().findOne(jidQuery);
         User user = extractValidUser(jidResult);
+        if (user == null) {
+            BasicDBObject altJidQuery = new BasicDBObject();
+            altJidQuery.put(ALT_IM_ID, jid);
+            jidResult = getEntityCollection().findOne(altJidQuery);
+            user = extractValidUser(jidResult);
+        }
         if (user != null) {
             DBObject queryConference = QueryBuilder.start(CONF_OWNER).is(user.getUserName()).get();
             DBObject conferenceResult = getEntityCollection().findOne(queryConference);
