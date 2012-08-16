@@ -3,35 +3,60 @@
     PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
     "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
+  <type id="policy-type">
+    <enum>
+      <option>
+        <label>Empty Password/VM Pin Fields</label>
+        <value>blank</value>        
+      </option>
+      <option>
+        <label>Default Password/VM Pin Values</label>
+        <value>defaultValue</value>
+      </option>
+    </enum>
+  </type>
   <group name="configserver-config">
-    <setting name="externalAliases.aliasAddins">
+    <setting name="password-policy">
+      <type refid="policy-type" />
+    </setting>
+    <setting name="password-default">
+      <type>
+        <string minLen="8" password="yes"/>
+      </type>
+    </setting>
+    <setting name="vmpin-default">
+      <type>
+        <string minLen="4" password="yes"/>
+      </type>
+    </setting>  
+    <setting name="externalAliases.aliasAddins" advanced="yes">
       <type>
         <string/>
       </type>      
     </setting>
-    <setting name="mappingRules.externalRulesFileName">
+    <setting name="mappingRules.externalRulesFileName" advanced="yes">
       <type>
         <string/>
       </type>      
     </setting>
-    <setting name="fallbackRules.externalRulesFileName">
+    <setting name="fallbackRules.externalRulesFileName" advanced="yes">
       <type>
         <string/>
       </type>      
     </setting>
-    <setting name="replicationManagerImpl.nThreads">
+    <setting name="replicationManagerImpl.nThreads" advanced="yes">
       <type>
         <integer />
       </type>
       <value>2</value>
     </setting>
-    <setting name="replicationManagerImpl.pageSize">
+    <setting name="replicationManagerImpl.pageSize" advanced="yes">
       <type>
         <integer />
       </type>
       <value>1000</value>
     </setting>
-    <setting name="replicationManagerImpl.useDynamicPageSize">
+    <setting name="replicationManagerImpl.useDynamicPageSize" advanced="yes">
       <type>
         <boolean />
       </type>

@@ -27,4 +27,10 @@ public interface AdminContext {
     public AdminSettings getSettings();
 
     public void saveSettings(AdminSettings settings);
+
+    String getPasswordPolicy();
+
+    String getDefaultPassword();
+
+    String getDefaultVmPin();
 }
