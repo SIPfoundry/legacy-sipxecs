@@ -172,7 +172,7 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
             return null;
         }
 
-        ProcessDefinition def = ProcessDefinition.sipxDefault(FEATURE.getId());
+        ProcessDefinition def = ProcessDefinition.sipx(FEATURE.getId());
         return Collections.singleton(def);
     }
 }

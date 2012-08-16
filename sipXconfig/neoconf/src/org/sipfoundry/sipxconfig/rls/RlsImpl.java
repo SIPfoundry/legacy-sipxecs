@@ -102,7 +102,7 @@ public class RlsImpl implements AddressProvider, FeatureProvider, Rls, ProcessPr
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(ProcessDefinition.sipxDefault("sipxrls")) : null);
+        return (enabled ? Collections.singleton(ProcessDefinition.sipx("sipxrls")) : null);
     }
 
     @Override

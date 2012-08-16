@@ -56,7 +56,7 @@ public class FtpManagerImpl extends SipxHibernateDaoSupport<Object> implements F
         if (!m_featureManager.isFeatureEnabled(FTP_FEATURE, location)) {
             return null;
         }
-        return Collections.singleton(ProcessDefinition.sysvDefault("vsftpd"));
+        return Collections.singleton(ProcessDefinition.sysv("vsftpd"));
     }
 
     @Override

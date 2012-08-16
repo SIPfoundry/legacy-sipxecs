@@ -34,7 +34,7 @@ bundle agent sipxdns {
       "any" usebundle => sipxdns_setup;
 
     !sipxdns_unmanaged::
-      "any" usebundle => sipxdns_running;
+      "any" usebundle => named_running;
 }
 
 bundle agent sipxdns_resolv {
@@ -63,7 +63,7 @@ bundle agent sipxdns_config {
         perms => mog(600, "named", "root"),
         edit_line => named_conf,
         edit_defaults => empty,
-        classes => if_repaired("reload_sipxdns");
+        classes => if_repaired("reload_named");
         
     update_zone::
       "/var/named/$(sipx.domain).zone$(sipxdns.managed_ext)"
@@ -71,7 +71,7 @@ bundle agent sipxdns_config {
         create => "true",
         perms => mog(600, "named", "named"),
         transformer => "$(sipx.SIPX_LIBEXECDIR)/sipx-dns-zone-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/zone.yaml --out /var/named/$(sipx.domain).zone$(sipxdns.managed_ext)",
-        classes => if_repaired("reload_sipxdns");
+        classes => if_repaired("reload_named");
 }
 
 bundle edit_line named_conf {
@@ -113,7 +113,7 @@ bundle agent sipxdns_setup {
       "any" usebundle => rh_chkconfig_status("named off");
 }
 
-bundle agent sipxdns_running {
+bundle agent named_running {
   vars:
     any::
       "service" string => "/etc/init.d/named";
@@ -121,28 +121,28 @@ bundle agent sipxdns_running {
 
   methods:
     any::
-      "any" usebundle => find_service_by_command("$(service_command)", "sipxdns_running", "named");
+      "any" usebundle => find_service_by_command("$(service_command)", "named_running", "named");
 
   commands:
     # NOTE : Not shutting off  explicit stop function because we cannot tell if
     # admin is configuring and managing DNS on their own (which is the 
     # case for a lot of ezuce developers anyway)
-    !sipxdns.!src.sipxdns_running::
+    !sipxdns.!src.named_running::
       "$(service)"
         comment => "stop named",
         args => "stop";
 
-    sipxdns.!sipxdns_running::
+    sipxdns.!named_running::
       "$(service)"
         comment => "start named",
         args => "start";
 
-    sipxdns.sipxdns_running.restart_sipxdns::
+    sipxdns.named_running.restart_named::
       "$(service)"
         comment => "restart named",
         args => "restart";
 
-    sipxdns.sipxdns_running.reload_sipxdns::
+    sipxdns.named_running.reload_named::
       "$(service)"
         comment => "reload named",
         args => "reload";

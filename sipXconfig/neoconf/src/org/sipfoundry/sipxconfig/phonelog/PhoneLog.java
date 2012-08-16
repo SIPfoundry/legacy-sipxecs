@@ -91,6 +91,6 @@ public class PhoneLog implements ProcessProvider, FeatureProvider, FirewallProvi
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE);
-        return (enabled ? Collections.singleton(ProcessDefinition.sysvDefault("rsyslogd")) : null);
+        return (enabled ? Collections.singleton(ProcessDefinition.sysv("rsyslogd")) : null);
     }
 }

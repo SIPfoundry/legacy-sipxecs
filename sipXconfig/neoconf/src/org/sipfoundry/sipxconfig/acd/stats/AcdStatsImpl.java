@@ -91,7 +91,7 @@ public class AcdStatsImpl implements AcdStats, FeatureProvider, AddressProvider,
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(new ProcessDefinition("sipxacd-stats")) : null);
+        return (enabled ? Collections.singleton(ProcessDefinition.sipx("sipxacd-stats")) : null);
     }
 
     @Override

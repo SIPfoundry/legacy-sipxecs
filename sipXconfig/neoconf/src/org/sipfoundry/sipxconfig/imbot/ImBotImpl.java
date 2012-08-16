@@ -103,7 +103,7 @@ public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, Proce
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(ProcessDefinition.sipxDefault("sipximbot",
+        return (enabled ? Collections.singleton(ProcessDefinition.sipxByRegex("sipximbot",
                 ".*\\s-Dprocname=sipximbot\\s.*")) : null);
     }
 

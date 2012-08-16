@@ -70,7 +70,7 @@ public class RedisImpl implements Redis, ConfigProvider, ProcessProvider, Firewa
             return null;
         }
 
-        ProcessDefinition def = ProcessDefinition.sysvDefault("redis-server");
+        ProcessDefinition def = ProcessDefinition.sysv("redis-server");
         return Collections.singleton(def);
     }
 

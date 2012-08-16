@@ -94,28 +94,28 @@ bundle agent snmp_sysv_running {
 
   methods:
     any::
-      "any" usebundle => find_service_by_command("$(service_command)", "snmp_running","root");
+      "any" usebundle => find_service_by_command("$(service_command)", "snmpd_running","root");
     !snmp::
       "any" usebundle => rh_chkconfig_status("snmpd off");
     snmp::
       "any" usebundle => rh_chkconfig_status("snmpd on");
 
   commands:
-    (!snmp|stop_sipxecs).snmp_running::
+    (!snmp|stop_sipxecs).snmpd_running::
       "$(service)"
         comment => "stop snmp",
         args => "stop";
 
-    snmp.!snmp_running::
+    snmp.!snmpd_running::
       "$(service)"
         comment => "start snmp",
         args => "start";
 
     # reload (-HUP) seems to kill snmpd process and not
     # start it back up again. 
-    snmp.snmp_running.reload_snmp::
+    snmp.snmpd_running.reload_snmpd::
       "$(service)"
-        comment => "restart snmp",
+        comment => "restart snmpd",
         args => "restart";
 }
 
@@ -126,10 +126,10 @@ bundle agent snmp_systemctl_running {
 
   classes:
     fedora16_or_greater::
-      "snmp_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+      "snmpd_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:
-    (!snmp|stop_sipxecs).snmp_running::
+    (!snmp|stop_sipxecs).snmpd_running::
       "$(sipx.systemctl)"
         comment => "stop snmpd",
         args => "stop $(service)";
@@ -138,7 +138,7 @@ bundle agent snmp_systemctl_running {
         comment => "disable snmpd",
         args => "disable $(service)";
 
-    snmp.!snmp_running::
+    snmp.!snmpd_running::
       "$(sipx.systemctl)"
         comment => "start snmpd",
         args => "start $(service)";
@@ -149,7 +149,7 @@ bundle agent snmp_systemctl_running {
 
     # reload (-HUP) seems to kill snmpd process and not
     # start it back up again. 
-    snmp.snmp_running.reload_snmp::
+    snmp.snmpd_running.(reload_snmpd|restart_snmpd)::
       "$(sipx.systemctl)"
         comment => "restart snmpd",
         args => "restart $(service)";

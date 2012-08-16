@@ -287,7 +287,7 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(ProcessDefinition.sipxDefault("sipxpage",
+        return (enabled ? Collections.singleton(ProcessDefinition.sipxByRegex("sipxpage",
                 ".*\\s-Dprocname=sipxpage\\s.*")) : null);
     }
 

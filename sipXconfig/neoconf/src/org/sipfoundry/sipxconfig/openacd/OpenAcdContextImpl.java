@@ -1205,7 +1205,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
             return null;
         }
-        ProcessDefinition def = ProcessDefinition.sysvDefault(OPEN_ACD_PROCESS_NAME, "/bin/"
+        ProcessDefinition def = ProcessDefinition.sysvByRegex(OPEN_ACD_PROCESS_NAME, "/bin/"
                 + OPEN_ACD_PROCESS_NAME);
         return Collections.singleton(def);
     }

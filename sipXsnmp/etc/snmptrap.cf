@@ -79,27 +79,32 @@ bundle agent snmptrap_sysv_running {
 
   methods:
     any::
-      "any" usebundle => find_service_by_command("$(service_command)", "snmptrap_running","root");
+      "any" usebundle => find_service_by_command("$(service_command)", "snmptrapd_running","root");
     !snmptrap::
       "any" usebundle => rh_chkconfig_status("snmptrapd off");
     snmptrap::
       "any" usebundle => rh_chkconfig_status("snmptrapd on");
 
   commands:
-    !snmptrap.snmptrap_running::
+    !snmptrap.snmptrapd_running::
       "$(service)"
         comment => "stop snmptrap",
         args => "stop";
 
-    snmptrap.!snmptrap_running::
+    snmptrap.!snmptrapd_running::
       "$(service)"
         comment => "start snmptrap",
         args => "start";
 
-    snmptrap.snmptrap_running.reload_snmptrap::
+    snmptrap.snmptrapd_running.reload_snmptrapd::
       "$(service)"
         comment => "reload snmptrap",
         args => "reload";
+
+    snmptrap.snmptrapd_running.restart_snmptrapd::
+      "$(service)"
+        comment => "restart snmptrapd",
+        args => "restart";
 }
 
 bundle agent snmptrap_systemctl_running {
@@ -109,10 +114,10 @@ bundle agent snmptrap_systemctl_running {
 
   classes:
     fedora16_or_greater::
-      "snmptrap_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+      "snmptrapd_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:
-    !snmptrap.snmptrap_running::
+    !snmptrap.snmptrapd_running::
       "$(sipx.systemctl)"
         comment => "stop snmptrapd",
         args => "stop $(service)";
@@ -121,7 +126,7 @@ bundle agent snmptrap_systemctl_running {
         comment => "disable snmptrapd",
         args => "disable $(service)";
 
-    snmptrap.!snmptrap_running::
+    snmptrap.!snmptrapd_running::
       "$(sipx.systemctl)"
         comment => "start snmptrapd",
         args => "start $(service)";
@@ -130,8 +135,13 @@ bundle agent snmptrap_systemctl_running {
         comment => "enable snmptrapd",
         args => "enable $(service)";
 
-    snmptrap.snmptrap_running.reload_snmptrap::
+    snmptrap.snmptrapd_running.reload_snmptrapd::
       "$(sipx.systemctl)"
         comment => "reload snmptrapd",
         args => "reload $(service)";
+
+    snmptrap.snmptrapd_running.restart_snmptrapd::
+      "$(sipx.systemctl)"
+        comment => "restart snmptrapd",
+        args => "restart $(service)";
 }

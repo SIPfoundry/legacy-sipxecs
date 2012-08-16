@@ -225,7 +225,7 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(ProcessDefinition.sipxDefault("sipxpark")) : null);
+        return (enabled ? Collections.singleton(ProcessDefinition.sipx("sipxpark")) : null);
     }
 
     @Override

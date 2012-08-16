@@ -557,6 +557,6 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(Acd.FEATURE, location);
-        return (enabled ? Collections.singleton(new ProcessDefinition("sipxacd")) : null);
+        return (enabled ? Collections.singleton(ProcessDefinition.sipx("sipxacd")) : null);
     }
 }

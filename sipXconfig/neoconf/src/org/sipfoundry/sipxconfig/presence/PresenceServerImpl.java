@@ -232,7 +232,7 @@ public class PresenceServerImpl implements FeatureProvider, AddressProvider, Bea
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(ProcessDefinition.sipxDefault("sipxpresence")) : null);
+        return (enabled ? Collections.singleton(ProcessDefinition.sipx("sipxpresence")) : null);
     }
 
     @Override

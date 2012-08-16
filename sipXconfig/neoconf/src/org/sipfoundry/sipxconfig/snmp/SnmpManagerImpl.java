@@ -16,14 +16,19 @@
  */
 package org.sipfoundry.sipxconfig.snmp;
 
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.cfgmgt.RunRequest;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.ServiceStatus;
@@ -44,6 +49,7 @@ public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeaturePr
     private FeatureManager m_featureManager;
     private Collection<ProcessProvider> m_processProviders;
     private BeanWithSettingsDao<SnmpSettings> m_settingsDao;
+    private ConfigManager m_configManager;
 
     @Override
     public List<ProcessDefinition> getProcessDefinitions(Location location) {
@@ -102,7 +108,7 @@ public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeaturePr
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE);
-        return (enabled ? Collections.singleton(ProcessDefinition.sysvDefault("snmpd")) : null);
+        return (enabled ? Collections.singleton(ProcessDefinition.sysv("snmpd")) : null);
     }
 
     @Override
@@ -132,5 +138,40 @@ public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeaturePr
 
     public void setSettingsDao(BeanWithSettingsDao<SnmpSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    @Override
+    public List<ProcessDefinition> getProcessDefinitions(Location location, Collection<String> processIds) {
+        List<ProcessDefinition> defs = getProcessDefinitions(location);
+        List<ProcessDefinition> selected = new ArrayList<ProcessDefinition>(processIds.size());
+        Set<String> ids = new HashSet<String>(processIds);
+        for (ProcessDefinition def : defs) {
+            if (ids.contains(def.getProcess())) {
+                ids.remove(def.getProcess());
+                selected.add(def);
+            }
+        }
+        if (ids.size() > 0) {
+            throw new UserException("Could not find process definitions for " + StringUtils.join(ids, ' '));
+        }
+
+        return selected;
+    }
+
+    @Override
+    public void restartProcesses(Location location, Collection<ProcessDefinition> processes) {
+        RunRequest restart = new RunRequest("restart services", Collections.singleton(location));
+        String[] restarts = new String[processes.size()];
+        Iterator<ProcessDefinition> iProcesses = processes.iterator();
+        for (int i = 0; iProcesses.hasNext(); i++) {
+            restarts[i] = iProcesses.next().getRestartClass();
+        }
+        restart.setDefines(restarts);
+        m_configManager.run(restart);
+
+    }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
     }
 }

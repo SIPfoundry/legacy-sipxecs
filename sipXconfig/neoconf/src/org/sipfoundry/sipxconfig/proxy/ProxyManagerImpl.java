@@ -119,8 +119,7 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
         if (!m_featureManager.isFeatureEnabled(FEATURE, location)) {
             return null;
         }
-        ProcessDefinition def = new ProcessDefinition("sipXproxy");
-        def.setSipxServiceName("sipxproxy");
+        ProcessDefinition def = ProcessDefinition.sipx("sipXproxy", "sipxproxy");
         return Collections.singleton(def);
     }
 

@@ -1,0 +1,2 @@
+proc robin 0 1 .*whatever.*
+procfix robin $(sipx.SIPX_LIBEXECDIR)/snmp-fix-process robin $(sipx.SIPX_SERVICEDIR)/restart start

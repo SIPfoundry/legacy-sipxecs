@@ -50,7 +50,7 @@ bundle agent ftp_config {
       perms => m("600"),
       edit_defaults => empty,
       edit_line => vsftp_config,
-      classes => if_repaired("restart_ftp");
+      classes => if_repaired("restart_vsftpd");
 }
 
 bundle edit_line vsftp_config {
@@ -82,24 +82,24 @@ bundle agent ftp_sysv_running {
 
   methods:
     any::
-      "any" usebundle => find_service_by_command("$(service_command)", "ftp_running", "root");
+      "any" usebundle => find_service_by_command("$(service_command)", "vsftpd_running", "root");
     ftp::
       "any" usebundle => rh_chkconfig_status("vsftpd on");
     !ftp.!unmanaged_ftp::
       "any" usebundle => rh_chkconfig_status("vsftpd off");
 
   commands:
-    !ftp.!unmanaged_ftp.ftp_running::
+    !ftp.!unmanaged_ftp.vsftpd_running::
       "$(service)"
         comment => "stop ftp",
         args => "stop";
 
-    ftp.!ftp_running::
+    ftp.!vsftpd_running::
       "$(service)"
         comment => "start ftp",
         args => "start";
 
-    ftp.ftp_running.!unmanaged_ftp.restart_ftp::
+    ftp.vsftpd_running.!unmanaged_ftp.restart_vsftpd::
       "$(service)"
         comment => "restart ftp",
         args => "restart";
@@ -112,10 +112,10 @@ bundle agent ftp_sysctl_running {
 
   classes:
     fedora16_or_greater::
-      "ftp_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+      "vsftpd_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:
-    !ftp.ftp_running::
+    !ftp.vsftpd_running::
       "$(sipx.systemctl)"
         comment => "stop $(service)",
         args => "stop $(service)";
@@ -124,7 +124,7 @@ bundle agent ftp_sysctl_running {
         comment => "disable $(service)",
         args => "disable $(service)";
 
-    ftp.!ftp_running::
+    ftp.!vsftpd_running::
       "$(sipx.systemctl)"
         comment => "start $(service)",
         args => "start $(service)";
@@ -133,7 +133,7 @@ bundle agent ftp_sysctl_running {
         comment => "enable $(service)",
         args => "enable $(service)";
 
-    ftp.ftp_running.restart_ftp::
+    ftp.vsftpd_running.restart_vsftpd::
       "$(sipx.systemctl)"
         comment => "restart $(service)",
         args => "restart $(service)";
