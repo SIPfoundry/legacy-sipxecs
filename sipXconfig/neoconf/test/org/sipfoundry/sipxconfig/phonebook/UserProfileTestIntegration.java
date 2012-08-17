@@ -54,7 +54,7 @@ public class UserProfileTestIntegration extends IntegrationTestCase {
         assertEquals("alttest@test.org", profile.getAlternateEmailAddress());
         assertEquals("First ImId", profile.getImDisplayName());
         assertTrue(getUserProfileService().isImIdInUse("imid"));
-        assertFalse(getUserProfileService().isImIdInUse("imid", "2001"));
+        assertFalse(getUserProfileService().isImIdInUse("imid", userId));
     }
 
     public void testDeleteUser() throws Exception {

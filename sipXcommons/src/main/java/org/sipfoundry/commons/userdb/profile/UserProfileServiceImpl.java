@@ -77,9 +77,18 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public boolean isImIdInUse(String imId, String username) {
-        UserProfile userProfile = getUserProfileByImId(imId);
+    public boolean isAliasInUse(String alias, String username) {
+        UserProfile userProfile = getUserProfileByImId(alias);
         if (userProfile != null && !userProfile.getUserName().equals(username)) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isImIdInUse(String imId, Integer userId) {
+        UserProfile userProfile = getUserProfileByImId(imId);
+        if (userProfile != null && !userProfile.getUserId().equals(userId.toString())) {
             return true;
         }
         return false;

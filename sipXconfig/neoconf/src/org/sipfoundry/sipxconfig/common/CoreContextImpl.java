@@ -744,7 +744,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     public boolean isImIdUnique(User user) {
         ImAccount accountToSave = new ImAccount(user);
         // check ImId to save against persisted ImIds
-        if (getUserProfileService().isImIdInUse(accountToSave.getImId(), user.getUserName())) {
+        if (getUserProfileService().isImIdInUse(accountToSave.getImId(), user.getId())) {
             return false;
         }
 
@@ -789,7 +789,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             return true;
         }
         // check im id in user profile db
-        return getUserProfileService().isImIdInUse(alias, username);
+        return getUserProfileService().isAliasInUse(alias, username);
     }
 
     @Override
