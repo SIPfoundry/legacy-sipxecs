@@ -30,7 +30,9 @@ public interface UserProfileService {
 
     Integer getUserIdByImId(String imId);
 
-    boolean isImIdInUse(String imId, String username);
+    boolean isAliasInUse(String alias, String username);
+
+    boolean isImIdInUse(String imId, Integer userId);
 
     boolean isImIdInUse(String imId);
 

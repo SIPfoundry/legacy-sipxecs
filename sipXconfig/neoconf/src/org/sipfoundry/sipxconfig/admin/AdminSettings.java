@@ -16,12 +16,15 @@ package org.sipfoundry.sipxconfig.admin;
 
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Does not implement DeployOnEdit because we don't need to replicate to other servers
  * and we don't want to restart config server
  */
 public class AdminSettings extends PersistableSettings {
+    private PasswordPolicy m_passwordPolicy;
 
     @Override
     public String getBeanId() {
@@ -29,7 +32,38 @@ public class AdminSettings extends PersistableSettings {
     }
 
     @Override
+    public void initialize() {
+        addDefaultBeanSettingHandler(new AdminSettingsDefaults());
+    }
+
+    @Override
     protected Setting loadSettings() {
-        return getModelFilesContext().loadModelFile("sipxconfig/admin.xml");
+        Setting adminSetting = getModelFilesContext().loadModelFile("sipxconfig/admin.xml");
+        adminSetting.acceptVisitor(m_passwordPolicy);
+        return adminSetting;
+    }
+
+    public String getSelectedPolicy() {
+        return getSettingValue("configserver-config/password-policy");
+    }
+
+    public String getDefaultPassword() {
+        return getSettingValue("configserver-config/password-default");
+    }
+
+    public String getDefaultVmPin() {
+        return getSettingValue("configserver-config/vmpin-default");
+    }
+
+    @Required
+    public void setPasswordPolicy(PasswordPolicy passwordPolicy) {
+        m_passwordPolicy = passwordPolicy;
+    }
+
+    public class AdminSettingsDefaults {
+        @SettingEntry(path = "configserver-config/password-policy")
+        public String getDefaultPolicy() {
+            return m_passwordPolicy.getDefaultPolicy();
+        }
     }
 }

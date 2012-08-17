@@ -140,4 +140,16 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     public void setSettingsDao(BeanWithSettingsDao<AdminSettings> settingsDao) {
         m_settingsDao = settingsDao;
     }
+
+    public String getPasswordPolicy() {
+        return getSettings().getSelectedPolicy();
+    }
+
+    public String getDefaultPassword() {
+        return getSettings().getDefaultPassword();
+    }
+
+    public String getDefaultVmPin() {
+        return getSettings().getDefaultVmPin();
+    }
 }

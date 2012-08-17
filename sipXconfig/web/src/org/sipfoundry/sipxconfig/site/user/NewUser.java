@@ -19,6 +19,8 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.admin.AdminContext;
+import org.sipfoundry.sipxconfig.admin.PasswordPolicy;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.FormActions;
@@ -67,6 +69,12 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
 
     public abstract String getButtonPressed();
 
+    @InjectObject(value = "spring:adminContext")
+    public abstract AdminContext getAdminContext();
+
+    @InjectObject(value = "spring:passwordPolicyImpl")
+    public abstract PasswordPolicy getPasswordPolicy();
+
     public IPage commit(IRequestCycle cycle) {
         if (!TapestryUtils.isValid(this)) {
             return null;
@@ -89,6 +97,18 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         }
 
         return null;
+    }
+
+    public void generateCustomPasswords() {
+        User user = getUser();
+        user.setVoicemailPin(getPasswordPolicy().getVoicemailPin());
+        user.setPin(getPasswordPolicy().getPassword());
+    }
+
+    public void generateDefaultPasswords() {
+        User user = getUser();
+        user.setVoicemailPin(getAdminContext().getDefaultVmPin());
+        user.setPin(getAdminContext().getDefaultPassword());
     }
 
     public IPage extensionPools(IRequestCycle cycle) {
@@ -129,6 +149,12 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
             user = getCoreContext().newUser();
             user.setSipPassword(RandomStringUtils.randomAlphanumeric(SIP_PASSWORD_LEN));
             setUser(user);
+            //apply selected password policy
+            if (getAdminContext().getPasswordPolicy().equals(AdminContext.PasswordPolicyType.defaultValue.name())) {
+                generateDefaultPasswords();
+            } else if (getAdminContext().getPasswordPolicy().equals(AdminContext.PasswordPolicyType.custom.name())) {
+                generateCustomPasswords();
+            }
         }
     }
 }
