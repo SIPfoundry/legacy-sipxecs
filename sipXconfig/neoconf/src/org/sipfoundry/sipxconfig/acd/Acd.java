@@ -61,7 +61,7 @@ public class Acd implements FeatureProvider, AddressProvider, FirewallProvider {
     }
 
     public boolean isEnabled() {
-        return m_featureManager.isFeatureEnabled(FEATURE);
+        return m_acdContext.isEnabled() && m_featureManager.isFeatureEnabled(FEATURE);
     }
 
     @Override
@@ -101,13 +101,17 @@ public class Acd implements FeatureProvider, AddressProvider, FirewallProvider {
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.EXPERIMENTAL) {
+        //  Disabled for 4.6, could not port in time for release
+        if (m_acdContext.isEnabled() && b == Bundle.EXPERIMENTAL) {
             b.addFeature(FEATURE);
         }
     }
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        if (!m_acdContext.isEnabled()) {
+            return null;
+        }
         return DefaultFirewallRule.rules(ADRESSES);
     }
 

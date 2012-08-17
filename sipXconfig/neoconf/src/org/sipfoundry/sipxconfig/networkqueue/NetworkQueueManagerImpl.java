@@ -151,7 +151,7 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.CORE) {
+        if (b == Bundle.CORE_TELEPHONY) {
             b.addFeature(FEATURE);
         }
     }

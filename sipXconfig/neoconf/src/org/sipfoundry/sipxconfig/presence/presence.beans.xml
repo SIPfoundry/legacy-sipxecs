@@ -9,6 +9,7 @@
 
   <bean id="presenceServerImpl" class="org.sipfoundry.sipxconfig.presence.PresenceServerImpl">
     <property name="coreContext" ref="coreContext"/>
+    <property name="acdContext" ref="acdContext"/>
     <property name="featureManager" ref="featureManager" />
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">

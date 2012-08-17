@@ -133,7 +133,7 @@ public class RedisImpl implements Redis, ConfigProvider, ProcessProvider, Firewa
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.EXPERIMENTAL) {
+        if (b == Bundle.CORE_TELEPHONY) {
             b.addFeature(FEATURE);
         }
     }

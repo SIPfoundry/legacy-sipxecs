@@ -93,4 +93,6 @@ public interface AcdContext extends AliasOwner {
     AcdServer getAcdServerForLocationId(Integer locationId);
 
     boolean isUserAnAgentOnThisServer(AcdServer server, User user);
+
+    boolean isEnabled();
 }
