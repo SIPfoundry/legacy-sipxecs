@@ -17,7 +17,10 @@ package org.sipfoundry.sipxconfig.admin;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingArray;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
-
+/**
+ * By default, the blank policy is used and *custom* policy is not activated
+ * @see PasswordPolicy interface on how to implement *custom* policy
+ */
 public class PasswordPolicyImpl implements PasswordPolicy {
 
     @Override
@@ -36,7 +39,17 @@ public class PasswordPolicyImpl implements PasswordPolicy {
 
     @Override
     public String getDefaultPolicy() {
-        return PolicyType.blank.name();
+        return AdminContext.PasswordPolicyType.blank.name();
+    }
+
+    @Override
+    public String getPassword() {
+        return null;
+    }
+
+    @Override
+    public String getVoicemailPin() {
+        return null;
     }
 
 }

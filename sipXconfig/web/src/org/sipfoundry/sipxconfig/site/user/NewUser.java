@@ -72,6 +72,9 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
     @InjectObject(value = "spring:adminContext")
     public abstract AdminContext getAdminContext();
 
+    @InjectObject(value = "spring:passwordPolicyImpl")
+    public abstract PasswordPolicy getPasswordPolicy();
+
     public IPage commit(IRequestCycle cycle) {
         if (!TapestryUtils.isValid(this)) {
             return null;
@@ -96,10 +99,10 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         return null;
     }
 
-    public void generateRandomPasswords() {
+    public void generateCustomPasswords() {
         User user = getUser();
-        user.setVoicemailPin(RandomStringUtils.random(User.VOICEMAIL_PIN_LEN, false, true));
-        user.setPin(RandomStringUtils.randomAlphanumeric(User.PASSWORD_LEN));
+        user.setVoicemailPin(getPasswordPolicy().getVoicemailPin());
+        user.setPin(getPasswordPolicy().getPassword());
     }
 
     public void generateDefaultPasswords() {
@@ -147,10 +150,10 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
             user.setSipPassword(RandomStringUtils.randomAlphanumeric(SIP_PASSWORD_LEN));
             setUser(user);
             //apply selected password policy
-            if (getAdminContext().getPasswordPolicy().equals(PasswordPolicy.PolicyType.defaultValue.name())) {
+            if (getAdminContext().getPasswordPolicy().equals(AdminContext.PasswordPolicyType.defaultValue.name())) {
                 generateDefaultPasswords();
-            } else if (getAdminContext().getPasswordPolicy().equals(PasswordPolicy.PolicyType.random.name())) {
-                generateRandomPasswords();
+            } else if (getAdminContext().getPasswordPolicy().equals(AdminContext.PasswordPolicyType.custom.name())) {
+                generateCustomPasswords();
             }
         }
     }
