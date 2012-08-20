@@ -49,9 +49,11 @@ public class SpeedDialsTestIntegration extends ImdbTestCase {
         User userA = getCoreContext().loadUserByUserName("user_a");
         User userB = getCoreContext().loadUserByUserName("user_b");
         User userC = getCoreContext().loadUserByUserName("user_c");
+        User userD = getCoreContext().loadUserByUserName("user_d");
         getCoreContext().saveUser(userA);
         getCoreContext().saveUser(userB);
         getCoreContext().saveUser(userC);
+        getCoreContext().saveUser(userD);
         
         DBObject user1 = new BasicDBObject().append(ID, "User9991").append(UID, "user_a");
         BasicDBObject speeddial1 = new BasicDBObject("usr", "~~rl~F~user_a")
@@ -74,10 +76,23 @@ public class SpeedDialsTestIntegration extends ImdbTestCase {
         DBObject user3 = new BasicDBObject().append(ID, "User9993").append(UID, "user_c");
         BasicDBObject speeddial3 = new BasicDBObject();
         user3.put("spdl", speeddial3);
+
+        DBObject user4 = new BasicDBObject().append(ID, "User9994").append(UID, "user_d");
+        BasicDBObject speeddial4 = new BasicDBObject("usr", "~~rl~F~user_d")
+            .append("usrcns", "~~rl~C~user_d");
+        List<DBObject> btns4 = new ArrayList<DBObject>();
+        btns4.add(new BasicDBObject("uri", "sip:101@example.org").append("name", "alpha"));
+        speeddial4.append("btn", btns4);
+        user4.put("spdl", speeddial4);
         
         MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user1);
         MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user2);
-        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user3);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent(getEntityCollection(), "User9993", "spdl", null);
+        
+        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user4);
+        m_speedDialManager.deleteSpeedDialsForUser(9994);
+        getCoreContext().saveUser(userD);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent(getEntityCollection(), "User9994", "spdl", null);
     }
 
     public void testSpeedDials() {

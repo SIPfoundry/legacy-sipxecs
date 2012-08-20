@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.commserver.imdb;
 
 import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectPresent;
 import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValueNotPresent;
 import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdPresent;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
@@ -74,7 +75,7 @@ public class CallerAliasesTestIntegration extends ImdbTestCase {
         userWithoutClrid.setPermissionManager(getPermissionManager());
         
         getReplicationManager().replicateEntity(userWithoutClrid, DataSet.CALLER_ALIAS);
-        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.CALLERALIAS, "");       
+        assertObjectWithIdFieldValueNotPresent(getEntityCollection(), "User1", MongoConstants.CALLERALIAS, "");       
     }
 
 }

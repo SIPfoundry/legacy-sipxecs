@@ -69,8 +69,10 @@ public class SpeedDials extends AbstractDataSetGenerator {
             if (!buttonsList.isEmpty()) {
                 speedDialDBO.put(BUTTONS, buttonsList);
             }
+            top.put(SPEEDDIAL, speedDialDBO);
+        } else {
+            top.removeField(SPEEDDIAL);
         }
-        top.put(SPEEDDIAL, speedDialDBO);
         return true;
     }
 

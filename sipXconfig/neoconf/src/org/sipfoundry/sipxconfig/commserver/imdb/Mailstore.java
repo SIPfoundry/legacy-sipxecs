@@ -92,13 +92,13 @@ public class Mailstore extends AbstractDataSetGenerator {
         }
         User user = (User) entity;
         // The following settings used to be in validusers.xml
-        top.put(MOH, getMohSetting(user));
-        top.put(USERBUSYPROMPT, user.getSettingValue("voicemail/mailbox/user-busy-prompt")); // can
+        putOnlyIfNotNull(top, MOH, getMohSetting(user));
+        putOnlyIfNotNull(top, USERBUSYPROMPT, user.getSettingValue("voicemail/mailbox/user-busy-prompt")); // can
                                                                                              // be
                                                                                              // null
-        top.put(VOICEMAILTUI, user.getSettingValue("voicemail/mailbox/voicemail-tui")); // can be
+        putOnlyIfNotNull(top, VOICEMAILTUI, user.getSettingValue("voicemail/mailbox/voicemail-tui")); // can be
                                                                                         // null
-        top.put(DISPLAY_NAME, user.getDisplayName());
+        putOnlyIfNotNull(top, DISPLAY_NAME, user.getDisplayName());
         top.put(HASHED_PASSTOKEN, user.getSipPasswordHash(getCoreContext().getAuthorizationRealm()));
         top.put(PINTOKEN, user.getPintoken());
         MailboxPreferences mp = new MailboxPreferences(user);
@@ -132,22 +132,23 @@ public class Mailstore extends AbstractDataSetGenerator {
         ImAccount imAccount = new ImAccount(user);
         top.put(IM_ENABLED, imAccount.isEnabled());
         // The following settings used to be in contact-information.xml
-        top.put(IM_ID, imAccount.getImId().toLowerCase());
-        top.put(IM_DISPLAY_NAME, imAccount.getImDisplayName());
-        top.put(CONF_ENTRY_IM, user.getSettingValue("im_notification/conferenceEntryIM").toString());
-        top.put(CONF_EXIT_IM, user.getSettingValue("im_notification/conferenceExitIM").toString());
-        top.put(LEAVE_MESSAGE_BEGIN_IM, user.getSettingValue("im_notification/leaveMsgBeginIM").toString());
-        top.put(LEAVE_MESSAGE_END_IM, user.getSettingValue("im_notification/leaveMsgEndIM").toString());
-        top.put(CALL_IM, user.getSettingValue("im_notification/call").toString());
-        top.put(CALL_FROM_ANY_IM, user.getSettingValue("im_notification/callFromAnyNumber").toString());
+        putOnlyIfNotNull(top, IM_ID, imAccount.getImId().toLowerCase());
+        putOnlyIfNotNull(top, IM_DISPLAY_NAME, imAccount.getImDisplayName());
+        putOnlyIfNotNull(top, CONF_ENTRY_IM, user.getSettingValue("im_notification/conferenceEntryIM").toString());
+        putOnlyIfNotNull(top, CONF_EXIT_IM, user.getSettingValue("im_notification/conferenceExitIM").toString());
+        putOnlyIfNotNull(top, LEAVE_MESSAGE_BEGIN_IM,
+                user.getSettingValue("im_notification/leaveMsgBeginIM").toString());
+        putOnlyIfNotNull(top, LEAVE_MESSAGE_END_IM, user.getSettingValue("im_notification/leaveMsgEndIM").toString());
+        putOnlyIfNotNull(top, CALL_IM, user.getSettingValue("im_notification/call").toString());
+        putOnlyIfNotNull(top, CALL_FROM_ANY_IM, user.getSettingValue("im_notification/callFromAnyNumber").toString());
         //and this one in presencerouting-prefs.xml
-        top.put(VMONDND, imAccount.isForwardOnDnd());
+        putOnlyIfNotNull(top, VMONDND, imAccount.isForwardOnDnd());
         //settings from xmpp-account-info.xml
-        top.put(IM_ON_THE_PHONE_MESSAGE, imAccount.getOnThePhoneMessage());
-        top.put(IM_ADVERTISE_ON_CALL_STATUS, imAccount.advertiseSipPresence());
-        top.put(IM_SHOW_ON_CALL_DETAILS, imAccount.includeCallInfo());
+        putOnlyIfNotNull(top, IM_ON_THE_PHONE_MESSAGE, imAccount.getOnThePhoneMessage());
+        putOnlyIfNotNull(top, IM_ADVERTISE_ON_CALL_STATUS, imAccount.advertiseSipPresence());
+        putOnlyIfNotNull(top, IM_SHOW_ON_CALL_DETAILS, imAccount.includeCallInfo());
         //personal attendant
-        top.put(PLAY_DEFAULT_VM, user.getPlayVmDefaultOptions());
+        putOnlyIfNotNull(top, PLAY_DEFAULT_VM, user.getPlayVmDefaultOptions());
         PersonalAttendant pa = m_mailboxManager.loadPersonalAttendantForUser(user);
         if (pa != null) {
             DBObject pao = new BasicDBObject();
@@ -172,7 +173,7 @@ public class Mailstore extends AbstractDataSetGenerator {
             }
             top.put(PERSONAL_ATT, pao);
         }
-        top.put(ACTIVEGREETING, user.getSettingValue(MailboxPreferences.ACTIVE_GREETING));
+        putOnlyIfNotNull(top, ACTIVEGREETING, user.getSettingValue(MailboxPreferences.ACTIVE_GREETING));
         //DL
         List<DBObject> dLists = new ArrayList<DBObject>();
         for (int i = 1; i < DistributionList.MAX_SIZE; i++) {
@@ -185,7 +186,9 @@ public class Mailstore extends AbstractDataSetGenerator {
                 dLists.add(dlist);
             }
         }
-        top.put(DISTRIB_LISTS, dLists);
+        if (dLists.size() > 0) {
+            top.put(DISTRIB_LISTS, dLists);
+        }
         return true;
     }
 

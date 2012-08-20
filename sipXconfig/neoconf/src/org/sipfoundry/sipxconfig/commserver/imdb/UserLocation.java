@@ -63,22 +63,23 @@ public class UserLocation extends AbstractDataSetGenerator {
             if (site != null) {
                 top.put(USER_LOCATION, site.getName());
             } else {
-                top.put(USER_LOCATION, null);
+                top.removeField(USER_LOCATION);
             }
+
             UserProfile profile = user.getUserProfile();
             if (profile != null) {
-                top.put(ALT_IM_ID, (profile.getAlternateImId() != null)
+                putOnlyIfNotNull(top, ALT_IM_ID, (profile.getAlternateImId() != null)
                         ? (profile.getAlternateImId().toLowerCase()) : (null));
-                top.put(JOB_TITLE, profile.getJobTitle());
-                top.put(JOB_DEPT, profile.getJobDept());
-                top.put(COMPANY_NAME, profile.getCompanyName());
-                top.put(ASSISTANT_NAME, profile.getAssistantName());
-                top.put(ASSISTANT_PHONE, profile.getAssistantPhoneNumber());
-                top.put(FAX_NUMBER, profile.getFaxNumber());
-                top.put(HOME_PHONE_NUMBER, profile.getHomePhoneNumber());
-                top.put(CELL_PHONE_NUMBER, profile.getCellPhoneNumber());
-                top.put(AVATAR, profile.getAvatar());
-                top.put(LOCATION, profile.getLocation());
+                putOnlyIfNotNull(top, JOB_TITLE, profile.getJobTitle());
+                putOnlyIfNotNull(top, JOB_DEPT, profile.getJobDept());
+                putOnlyIfNotNull(top, COMPANY_NAME, profile.getCompanyName());
+                putOnlyIfNotNull(top, ASSISTANT_NAME, profile.getAssistantName());
+                putOnlyIfNotNull(top, ASSISTANT_PHONE, profile.getAssistantPhoneNumber());
+                putOnlyIfNotNull(top, FAX_NUMBER, profile.getFaxNumber());
+                putOnlyIfNotNull(top, HOME_PHONE_NUMBER, profile.getHomePhoneNumber());
+                putOnlyIfNotNull(top, CELL_PHONE_NUMBER, profile.getCellPhoneNumber());
+                putOnlyIfNotNull(top, AVATAR, profile.getAvatar());
+                putOnlyIfNotNull(top, LOCATION, profile.getLocation());
                 // FIXME abe.getOfficeAddress should be accurate enough to get real office address
                 // complete fix should be when XX-8002 gets solved
                 Address officeAddress = null;
@@ -95,19 +96,19 @@ public class UserLocation extends AbstractDataSetGenerator {
                 }
                 Address home = profile.getHomeAddress();
                 if (home != null) {
-                    top.put(HOME_STREET, home.getStreet());
-                    top.put(HOME_CITY, home.getCity());
-                    top.put(HOME_COUNTRY, home.getCountry());
-                    top.put(HOME_STATE, home.getState());
-                    top.put(HOME_ZIP, home.getZip());
+                    putOnlyIfNotNull(top, HOME_STREET, home.getStreet());
+                    putOnlyIfNotNull(top, HOME_CITY, home.getCity());
+                    putOnlyIfNotNull(top, HOME_COUNTRY, home.getCountry());
+                    putOnlyIfNotNull(top, HOME_STATE, home.getState());
+                    putOnlyIfNotNull(top, HOME_ZIP, home.getZip());
                 }
                 if (officeAddress != null) {
-                    top.put(OFFICE_STREET, officeAddress.getStreet());
-                    top.put(OFFICE_CITY, officeAddress.getCity());
-                    top.put(OFFICE_COUNTRY, officeAddress.getCountry());
-                    top.put(OFFICE_STATE, officeAddress.getState());
-                    top.put(OFFICE_ZIP, officeAddress.getZip());
-                    top.put(OFFICE_DESIGNATION, officeAddress.getOfficeDesignation());
+                    putOnlyIfNotNull(top, OFFICE_STREET, officeAddress.getStreet());
+                    putOnlyIfNotNull(top, OFFICE_CITY, officeAddress.getCity());
+                    putOnlyIfNotNull(top, OFFICE_COUNTRY, officeAddress.getCountry());
+                    putOnlyIfNotNull(top, OFFICE_STATE, officeAddress.getState());
+                    putOnlyIfNotNull(top, OFFICE_ZIP, officeAddress.getZip());
+                    putOnlyIfNotNull(top, OFFICE_DESIGNATION, officeAddress.getOfficeDesignation());
                 }
             }
             return true;

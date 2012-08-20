@@ -358,7 +358,7 @@ public class ValidUsers {
 
     public UserGroup getImGroup(String name) {
 
-        DBObject queryGroup = QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_GROUP).and(IM_GROUP).is("1").and(UID).is(name).get();
+        DBObject queryGroup = QueryBuilder.start(IM_GROUP).is("1").and(UID).is(name).get();
         DBObject groupResult = getEntityCollection().findOne(queryGroup);
         if (groupResult != null) {
             UserGroup group = new UserGroup();

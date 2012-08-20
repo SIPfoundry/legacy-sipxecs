@@ -41,8 +41,6 @@ public class CallerAliases extends AbstractDataSetGenerator {
             if (StringUtils.isNotBlank(user.getSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER))) {
                 top.put(CALLERALIAS, SipUri.format(user.getDisplayName(),
                         user.getSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER), getSipDomain()));
-            } else {
-                top.put(CALLERALIAS, StringUtils.EMPTY);
             }
             return true;
         } else if (entity instanceof Gateway) {
