@@ -34,14 +34,14 @@ bundle agent snmp_config {
         perms => m("644"),
         edit_defaults => empty,
         edit_line => snmpd_conf,
-        classes => if_repaired("reload_snmp");
+        classes => if_repaired("reload_snmpd");
 
       "/etc/sysconfig/snmpd"
         comment => "SNMP service settings, $(this.promiser)",
         perms => m("644"),
         edit_defaults => empty,
         edit_line => insert_lines("OPTIONS=\"-A -Lf $(sipx.SIPX_LOGDIR)/snmpd.log -p /var/run/snmpd.pid\""),
-        classes => if_repaired("reload_snmp");
+        classes => if_repaired("reload_snmpd");
 }
 
 bundle edit_line snmpd_conf {
