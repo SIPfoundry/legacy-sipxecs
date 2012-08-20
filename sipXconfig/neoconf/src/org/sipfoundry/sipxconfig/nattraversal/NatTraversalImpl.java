@@ -114,7 +114,7 @@ public class NatTraversalImpl implements NatTraversal, FeatureProvider, ProcessP
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        return Arrays.asList(new DefaultFirewallRule(RELAY_RTP, FirewallRule.SystemId.PUBLIC));
+        return Arrays.asList(new DefaultFirewallRule(RELAY_RTP, FirewallRule.SystemId.PUBLIC, true));
     }
 
     @Override
