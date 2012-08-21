@@ -310,7 +310,7 @@ LocationCode EndpointDescriptor::computeLocationFromRegDbData( const Url& url,
                                                                const NatTraversalRules& natRules)
 {
     LocationCode computedLocation = UNKNOWN;
-    if (mpRegDb != NULL) {
+    if (mpRegDb == NULL) {
         return computedLocation;
     }
 
