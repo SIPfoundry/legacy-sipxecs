@@ -75,7 +75,9 @@ setupDatabase() {
   fi
 }
 
-setupCheck
-refreshPlugins
-refreshProviders
-refreshProperties
+if [ "$1" = "start" ]; then
+  setupCheck
+  refreshPlugins
+  refreshProviders
+  refreshProperties
+fi
