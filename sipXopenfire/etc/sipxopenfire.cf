@@ -142,7 +142,7 @@ bundle edit_line openfire_config_contents {
   insert_lines:
     "SIP_DOMAIN_NAME=$(sipx.domain)";
     "FQDN=$(sipx.host).$(sipx.net_domain)";
-    "source $(sipx.SIPX_LIBEXECDIR)/openfire-config";
+    "source $(sipx.SIPX_LIBEXECDIR)/openfire-config $1";
 }
 
 bundle edit_line sipxopenfire_sipx_properties {
