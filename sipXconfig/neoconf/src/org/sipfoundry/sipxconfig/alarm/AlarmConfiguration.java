@@ -109,29 +109,33 @@ public class AlarmConfiguration implements ConfigProvider {
         c.startStruct("emails");
 
         c.startStruct("sms.erb");
-        for (AlarmGroup g : groups) {
-            c.writeArray(g.getName(), g.getContactSmsAddresses());
+        if (server.isAlarmNotificationEnabled()) {
+            for (AlarmGroup g : groups) {
+                c.writeArray(g.getName(), g.getContactSmsAddresses());
+            }
         }
         c.endStruct();
 
         c.startStruct("email.erb");
-        for (AlarmGroup g : groups) {
-            Set<String> emails = new HashSet<String>();
-            emails.addAll(g.getContactEmailAddresses());
-            Set<User> users = g.getUsers();
-            if (users != null) {
-                for (User user : users) {
-                    String email = user.getEmailAddress();
-                    if (StringUtils.isNotBlank(email)) {
-                        emails.add(email);
-                    }
-                    String altEmailAddress = user.getAlternateEmailAddress();
-                    if (altEmailAddress != null) {
-                        emails.add(altEmailAddress);
+        if (server.isAlarmNotificationEnabled()) {
+            for (AlarmGroup g : groups) {
+                Set<String> emails = new HashSet<String>();
+                emails.addAll(g.getContactEmailAddresses());
+                Set<User> users = g.getUsers();
+                if (users != null) {
+                    for (User user : users) {
+                        String email = user.getEmailAddress();
+                        if (StringUtils.isNotBlank(email)) {
+                            emails.add(email);
+                        }
+                        String altEmailAddress = user.getAlternateEmailAddress();
+                        if (altEmailAddress != null) {
+                            emails.add(altEmailAddress);
+                        }
                     }
                 }
+                c.writeArray(g.getName(), emails);
             }
-            c.writeArray(g.getName(), emails);
         }
         c.endStruct();
         c.endStruct();
