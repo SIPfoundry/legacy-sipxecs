@@ -94,6 +94,8 @@ bundle agent add_crontab(regex,user,line) {
         handle => "add_cron",
         create => "true",
         comment => "add cron $(this.promiser) - $(line)",
+        # backup gets processed by crond
+        edit_defaults => no_backup,
         edit_line => add_crontab_line("$(regex)","$(line)"),
         classes => if_repaired("reload_crontab");
       
@@ -118,6 +120,8 @@ bundle agent remove_crontab(regex,user) {
     has_crontab::
       "$(cronfile)"
         edit_line => remove_crontab_line("$(regex)"),
+        # backup gets processed by crond
+        edit_defaults => no_backup,
         classes => if_repaired("reload_crontab");
       
   processes:
@@ -178,6 +182,10 @@ bundle agent sipx_done {
   commands:
     "/bin/rm"
        args => "$(sipx.lock)";
+}
+
+body edit_defaults no_backup {
+  edit_backup => "false";
 }
 
 body delete nodir {
