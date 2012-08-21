@@ -125,7 +125,7 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
         if (!manager.getFeatureManager().isFeatureEnabled(FEATURE, location)) {
             return null;
         }
-        return Collections.singleton(ProcessDefinition.sysvDefault("openfire",
+        return Collections.singleton(ProcessDefinition.sysvByRegex("openfire",
                 ".*\\s-DopenfireHome=$(sipx.OPENFIRE_HOME)\\s.*"));
     }
 

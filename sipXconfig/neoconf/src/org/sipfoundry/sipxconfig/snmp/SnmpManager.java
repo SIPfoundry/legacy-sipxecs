@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.snmp;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -35,4 +36,8 @@ public interface SnmpManager {
     public List<ProcessDefinition> getProcessDefinitions(Location location);
 
     public List<ServiceStatus> getServicesStatuses(Location location);
+
+    public List<ProcessDefinition> getProcessDefinitions(Location location, Collection<String> processId);
+
+    public void restartProcesses(Location location, Collection<ProcessDefinition> processes);
 }

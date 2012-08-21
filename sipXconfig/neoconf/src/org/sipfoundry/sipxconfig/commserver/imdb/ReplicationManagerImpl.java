@@ -687,6 +687,8 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         index7.put(MongoConstants.ALT_IM_ID, 1);
         DBObject index8 = new BasicDBObject();
         index8.put(MongoConstants.IM_GROUP, 1);
+        DBObject index9 = new BasicDBObject();
+        index9.put(MongoConstants.ENTITY_NAME, 1);
 
         entity.ensureIndex(index1);
         entity.ensureIndex(index2);
@@ -696,6 +698,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         entity.ensureIndex(index6);
         entity.ensureIndex(index7);
         entity.ensureIndex(index8);
+        entity.ensureIndex(index9);
 
         return entity;
     }

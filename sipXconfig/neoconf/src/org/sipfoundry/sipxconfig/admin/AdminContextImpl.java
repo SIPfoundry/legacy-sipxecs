@@ -70,7 +70,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-        return (location.isPrimary() ? Collections.singleton(ProcessDefinition.sipxDefault("sipxconfig",
+        return (location.isPrimary() ? Collections.singleton(ProcessDefinition.sipxByRegex("sipxconfig",
                 ".*-Dprocname=sipxconfig.*")) : null);
     }
 
@@ -139,5 +139,17 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     public void setSettingsDao(BeanWithSettingsDao<AdminSettings> settingsDao) {
         m_settingsDao = settingsDao;
+    }
+
+    public String getPasswordPolicy() {
+        return getSettings().getSelectedPolicy();
+    }
+
+    public String getDefaultPassword() {
+        return getSettings().getDefaultPassword();
+    }
+
+    public String getDefaultVmPin() {
+        return getSettings().getDefaultVmPin();
     }
 }

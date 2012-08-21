@@ -14,7 +14,9 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
@@ -54,7 +56,15 @@ public abstract class LocationsPage extends PageWithCallback implements PageBegi
     @Override
     public void pageBeginRender(PageEvent event) {
         if (getBundles() == null) {
-            setBundles(getFeatureManager().getBundles());
+            List<Bundle> bundles = new ArrayList<Bundle>(getFeatureManager().getBundles());
+            // start at end because we're removing items while iterating
+            for (int i = bundles.size() - 1; i >= 0; i--) {
+                if (bundles.get(i).getFeatures().size() == 0) {
+                    bundles.remove(i);
+                }
+            }
+
+            setBundles(bundles);
         }
     }
 }

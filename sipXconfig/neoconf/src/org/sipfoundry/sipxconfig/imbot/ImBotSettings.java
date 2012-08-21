@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
@@ -125,8 +126,8 @@ public class ImBotSettings extends PersistableSettings implements DeployConfigOn
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
         Map<String, Object> props = new HashMap<String, Object>();
-        props.put(UID, getPersonalAssistantImId());
-        props.put(IM_ID, getPersonalAssistantImId());
+        props.put(UID, StringUtils.lowerCase(getPersonalAssistantImId()));
+        props.put(IM_ID, StringUtils.lowerCase(getPersonalAssistantImId()));
         props.put(PINTOKEN, getPersonalAssistantImPassword());
         props.put(IM_ENABLED, true);
         props.put(GROUPS, new String[]{""});

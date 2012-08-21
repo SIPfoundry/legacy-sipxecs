@@ -43,7 +43,7 @@ bundle agent sipxopenfire_config {
         create => "false",
         perms => m("644"),
         edit_line => admin_portal_web_xml,
-        classes => if_repaired("restart_sipxopenfire");
+        classes => if_repaired("restart_openfire");
 
       # Write out the config information so the plugin can read it.
       "/tmp/sipx.properties"
@@ -52,21 +52,21 @@ bundle agent sipxopenfire_config {
         perms => m("644"),
         edit_defaults => empty,
         edit_line => sipxopenfire_sipx_properties,
-        classes => if_repaired("restart_sipxopenfire");
+        classes => if_repaired("restart_openfire");
 
       "$(sipx.SIPX_CONFDIR)/$(xml_file_restart)"
         comment => "install openfire config $(this.promiser)",
         create => "true",
         perms => m("644"),
         copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_restart)"),
-        classes => if_repaired("restart_sipxopenfire");
+        classes => if_repaired("restart_openfire");
         
        "$(sipx.SIPX_CONFDIR)/ofproperty.yaml"
         comment => "install openfire config $(this.promiser)",
         create => "true",
         perms => m("644"),
         copy_from => copy_from_cfdata("$(sipx.location_id)/ofproperty.yaml"),
-        classes => if_repaired("restart_sipxopenfire");        
+        classes => if_repaired("restart_openfire");        
 
       "$(sipx.SIPX_CONFDIR)/$(xml_file_norestart)"
         comment => "install openfire config $(this.promiser)",
@@ -79,14 +79,14 @@ bundle agent sipxopenfire_config {
         create => "false",
         perms => mog(600, "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
         copy_from => copy_from_cfdata("authorities.jks"),
-        classes => if_repaired("restart_sipxopenfire");
+        classes => if_repaired("restart_openfire");
 
       "$(sipx.OPENFIRE_HOME)/resources/security/keystore"
         comment => "openfire certificates",
         create => "false",
         perms => mog(600, "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
         copy_from => copy_from_cfdata("ssl.keystore"),
-        classes => if_repaired("restart_sipxopenfire");
+        classes => if_repaired("restart_openfire");
 
       "/etc/sysconfig/openfire"
         comment => "openfire vars $(this.promiser)",
@@ -110,7 +110,7 @@ bundle agent sipxopenfire_config {
         comment => "install openfire config $(this.promiser)",
         perms => mog("644", "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
         copy_from => local_cp_by_digest("$(sipx.OPENFIRE_HOME)/conf/openfire.xml.sipx"),
-        classes => if_repaired("restart_sipxopenfire");
+        classes => if_repaired("restart_openfire");
 }
 
 # TRICKY ALERT : This attempts to edit the admin plugins web.xml. This uses a bit of cf trickery
@@ -163,24 +163,24 @@ bundle agent sipxopenfire_running {
 
   methods:
     any::
-      "any" usebundle => find_service_by_command("$(service_command)","sipxopenfire_running","$(sipx.OPENFIRE_USER)");
+      "any" usebundle => find_service_by_command("$(service_command)","openfire_running","$(sipx.OPENFIRE_USER)");
     !src.sipxopenfire::
       "any" usebundle => rh_chkconfig_status("openfire on");
     !src.!sipxopenfire::
       "any" usebundle => rh_chkconfig_status("openfire off");
 
   commands:
-    (!sipxopenfire|stop_sipxecs).sipxopenfire_running::
+    (!sipxopenfire|stop_sipxecs).openfire_running::
       "$(service)"
         comment => "stop sipxopenfire",
         args => "stop";
 
-    sipxopenfire.!sipxopenfire_running.!stop_sipxecs::
+    sipxopenfire.!openfire_running.!stop_sipxecs::
       "$(service)"
         comment => "start sipxopenfire",
         args => "start";
 
-    sipxopenfire.sipxopenfire_running.(restart_sipxecs|restart_sipxopenfire)::
+    sipxopenfire.openfire_running.(restart_sipxecs|restart_openfire)::
       "$(service)"
         comment => "restart sipxopenfire",
         args => "restart";

@@ -66,7 +66,7 @@ public class WebSocketImpl implements FeatureProvider, WebSocket, ProcessProvide
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(ProcessDefinition.sipxDefault("sipxevent",
+        return (enabled ? Collections.singleton(ProcessDefinition.sipxByRegex("sipxevent",
                 ".*\\s-Dprocname=sipxevent\\s.*")) : null);
     }
 

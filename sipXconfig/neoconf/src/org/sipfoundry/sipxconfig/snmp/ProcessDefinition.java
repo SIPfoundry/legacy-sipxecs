@@ -18,46 +18,66 @@ package org.sipfoundry.sipxconfig.snmp;
 
 import static java.lang.String.format;
 
-public class ProcessDefinition {
+public final class ProcessDefinition {
     private String m_process;
     private String m_restartCommand;
     private String m_regexp;
+    private String m_restartClass;
 
-    public ProcessDefinition(String process) {
+    private ProcessDefinition(String process) {
         m_process = process;
     }
 
-    public ProcessDefinition(String process, String regexp) {
+    private ProcessDefinition(String process, String regexp) {
         this(process);
         m_regexp = regexp;
     }
 
-    public ProcessDefinition(String process, String regexp, String restartCommand) {
-        this(process, regexp);
-        m_restartCommand = restartCommand;
-    }
-
-    public static ProcessDefinition sipxDefault(String process) {
+    public static ProcessDefinition sipx(String process) {
         ProcessDefinition pd = new ProcessDefinition(process);
         pd.setSipxServiceName(process);
         return pd;
     }
 
-    public static ProcessDefinition sipxDefault(String process, String regexp) {
+    public static ProcessDefinition sipx(String process, String service) {
+        ProcessDefinition pd = new ProcessDefinition(process);
+        pd.setSipxServiceName(service);
+        return pd;
+    }
+
+    public static ProcessDefinition sipxByRegex(String process, String regexp) {
         ProcessDefinition pd = new ProcessDefinition(process, regexp);
         pd.setSipxServiceName(process);
         return pd;
     }
 
-    public static ProcessDefinition sysvDefault(String process) {
+    public static ProcessDefinition sipxByRegex(String process, String regexp, String service) {
+        ProcessDefinition pd = new ProcessDefinition(process, regexp);
+        pd.setSipxServiceName(service);
+        return pd;
+    }
+
+    public static ProcessDefinition sysv(String process) {
         ProcessDefinition pd = new ProcessDefinition(process);
         pd.setSysVServiceName(process);
         return pd;
     }
 
-    public static ProcessDefinition sysvDefault(String process, String regexp) {
+    public static ProcessDefinition sysv(String process, String service) {
+        ProcessDefinition pd = new ProcessDefinition(process);
+        pd.setSysVServiceName(service);
+        return pd;
+    }
+
+    public static ProcessDefinition sysvByRegex(String process, String regexp) {
         ProcessDefinition pd = new ProcessDefinition(process, regexp);
         pd.setSysVServiceName(process);
+        return pd;
+    }
+
+    public static ProcessDefinition sysvByRegex(String process, String regexp, String service) {
+        ProcessDefinition pd = new ProcessDefinition(process, regexp);
+        pd.setSysVServiceName(service);
         return pd;
     }
 
@@ -70,11 +90,16 @@ public class ProcessDefinition {
     }
 
     public void setSipxServiceName(String service) {
-        setServiceStartCommand(format("$(sipx.SIPX_SERVICEDIR)/%s start", service));
+        setServiceStartCommand(format("$(sipx.SIPX_SERVICEDIR)/%s start", service), service);
     }
 
     public void setSysVServiceName(String service) {
-        setServiceStartCommand(format("/etc/init.d/%s start", service));
+        setServiceStartCommand(format("/etc/init.d/%s start", service), service);
+    }
+
+    private void setServiceStartCommand(String restartCommand, String service) {
+        setServiceStartCommand(restartCommand);
+        m_restartClass = "restart_" + service;
     }
 
     public void setServiceStartCommand(String restartCommand) {
@@ -83,5 +108,13 @@ public class ProcessDefinition {
 
     public String getRestartCommand() {
         return m_restartCommand;
+    }
+
+    public String getRestartClass() {
+        return m_restartClass;
+    }
+
+    public void setRestartClass(String restartClass) {
+        m_restartClass = restartClass;
     }
 }

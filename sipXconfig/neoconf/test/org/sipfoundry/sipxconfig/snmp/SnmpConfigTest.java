@@ -23,6 +23,8 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 public class SnmpConfigTest {
@@ -30,18 +32,20 @@ public class SnmpConfigTest {
     @Test
     public void config() throws IOException {
         SnmpConfig config = new SnmpConfig();
-        List<ProcessDefinition> defs = Arrays.asList(new ProcessDefinition("jay"), new ProcessDefinition("robin", ".*whatever.*"));
+        List<ProcessDefinition> defs = Arrays.asList(ProcessDefinition.sipx("jay"), ProcessDefinition.sysvByRegex("robin", ".*whatever.*"));
         StringWriter actual = new StringWriter();
         config.writeProcesses(actual, defs);
-        assertEquals("proc jay\nproc robin 0 1 .*whatever.*\n", actual.toString());
+        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-config"));
+        assertEquals(expected, actual.toString());
     }
 
     @Test
     public void configWithRestart() throws IOException {
         SnmpConfig config = new SnmpConfig();
-        List<ProcessDefinition> defs = Arrays.asList(new ProcessDefinition("robin", ".*whatever.*", "restart"));
+        List<ProcessDefinition> defs = Arrays.asList(ProcessDefinition.sipxByRegex("robin", ".*whatever.*", "restart"));
         StringWriter actual = new StringWriter();
         config.writeProcesses(actual, defs);
-        assertEquals("proc robin 0 1 .*whatever.*\nprocfix robin $(sipx.SIPX_LIBEXECDIR)/snmp-fix-process robin restart\n", actual.toString());
+        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-config-restart"));
+        assertEquals(expected, actual.toString());
     }
 }

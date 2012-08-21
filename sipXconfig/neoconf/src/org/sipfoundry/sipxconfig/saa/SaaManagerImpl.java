@@ -63,7 +63,7 @@ public class SaaManagerImpl implements FeatureProvider, SaaManager, ProcessProvi
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(ProcessDefinition.sipxDefault("sipxsaa")) : null);
+        return (enabled ? Collections.singleton(ProcessDefinition.sipx("sipxsaa")) : null);
     }
 
     @Override

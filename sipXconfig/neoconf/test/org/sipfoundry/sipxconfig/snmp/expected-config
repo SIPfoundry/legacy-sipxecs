@@ -1,0 +1,4 @@
+proc jay
+procfix jay $(sipx.SIPX_LIBEXECDIR)/snmp-fix-process jay $(sipx.SIPX_SERVICEDIR)/jay start
+proc robin 0 1 .*whatever.*
+procfix robin $(sipx.SIPX_LIBEXECDIR)/snmp-fix-process robin /etc/init.d/robin start

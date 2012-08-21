@@ -66,7 +66,7 @@ public class MySqlImpl implements MySql, ConfigProvider, ProcessProvider, Firewa
             return null;
         }
 
-        ProcessDefinition def = ProcessDefinition.sysvDefault("mysqld");
+        ProcessDefinition def = ProcessDefinition.sysv("mysqld");
         return Collections.singleton(def);
     }
 
@@ -114,7 +114,7 @@ public class MySqlImpl implements MySql, ConfigProvider, ProcessProvider, Firewa
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.EXPERIMENTAL) {
+        if (b == Bundle.CORE_TELEPHONY) {
             b.addFeature(FEATURE);
         }
     }

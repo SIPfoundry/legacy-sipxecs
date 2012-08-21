@@ -173,7 +173,7 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
         List<DefaultFirewallRule> rules = DefaultFirewallRule.rules(Arrays.asList(SIP_TCP_PORT, SIP_UDP_PORT));
-        rules.add(new DefaultFirewallRule(SIP_RTP_PORT, FirewallRule.SystemId.PUBLIC));
+        rules.add(new DefaultFirewallRule(SIP_RTP_PORT, FirewallRule.SystemId.PUBLIC, true));
         return rules;
     }
 
@@ -225,7 +225,7 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(ProcessDefinition.sipxDefault("sipxpark")) : null);
+        return (enabled ? Collections.singleton(ProcessDefinition.sipx("sipxpark")) : null);
     }
 
     @Override

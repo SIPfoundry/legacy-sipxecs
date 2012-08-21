@@ -146,10 +146,6 @@ public class MailstoreTestIntegration extends ImdbTestCase {
         dLists.add(dlist2);
         MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), new BasicDBObject(DISTRIB_LISTS, dLists).append("uid", "202"));
         
-        DistributionList[] emptyDls = DistributionList.createBlankList();
-        m_mailboxManager.saveDistributionLists(u202.getId(), emptyDls);
-        List<DBObject> emptyDlists = new ArrayList<DBObject>();
-        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), new BasicDBObject(DISTRIB_LISTS, emptyDlists).append("uid", "202"));
         //TODO: test for other stuff in Mailstore dataset, like email, etc
     }
     

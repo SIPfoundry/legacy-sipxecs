@@ -46,7 +46,7 @@
       <type>
         <string required="yes" />
       </type>
-      <value>MyBuddy</value>
+      <value>mybuddy</value>
     </setting>
     <setting name="imbot.paPassword" advanced="yes">
       <type>

@@ -61,7 +61,6 @@ public class FreeswitchFeature implements FeatureProvider, AddressProvider, Proc
 
     private SettingsWithLocationDao<FreeswitchSettings> m_settingsDao;
     private SipxReplicationContext m_sipxReplicationContext;
-    private String m_name = "freeswitch";
     private ConfigManager m_configManager;
 
     public FreeswitchSettings getSettings(Location location) {
@@ -136,8 +135,7 @@ public class FreeswitchFeature implements FeatureProvider, AddressProvider, Proc
         if (!manager.getFeatureManager().isFeatureEnabled(FEATURE, location)) {
             return null;
         }
-        ProcessDefinition def = new ProcessDefinition(m_name);
-        def.setSipxServiceName("sipxfreeswitch");
+        ProcessDefinition def = ProcessDefinition.sipx("freeswitch", "sipxfreeswitch");
         return Collections.singleton(def);
     }
 

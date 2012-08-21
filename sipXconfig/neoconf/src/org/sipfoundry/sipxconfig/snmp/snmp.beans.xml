@@ -9,6 +9,7 @@
   
   <bean id="snmpManagerImpl" class="org.sipfoundry.sipxconfig.snmp.SnmpManagerImpl">
     <property name="featureManager" ref="featureManager"/>
+    <property name="configManager" ref="configManager"/>
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">

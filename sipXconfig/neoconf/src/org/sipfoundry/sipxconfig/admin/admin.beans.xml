@@ -21,7 +21,10 @@
     <property name="locationsManager" ref="locationsManager"/>
   </bean>
   
+  <bean id="passwordPolicyImpl" class="org.sipfoundry.sipxconfig.admin.PasswordPolicyImpl">
+  </bean>
   <bean id="adminSettings" class="org.sipfoundry.sipxconfig.admin.AdminSettings" parent="settingsBean">
+  	<property name="passwordPolicy" ref="passwordPolicyImpl"/>
   </bean>
 
   <bean id="adminConfig" class="org.sipfoundry.sipxconfig.admin.AdminConfig">

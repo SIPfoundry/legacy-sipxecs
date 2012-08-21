@@ -249,7 +249,7 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
         List<AddressType> cluster = Arrays.asList(SIP_TCP, SIP_TLS, SIP_UDP);
         List<DefaultFirewallRule> rules = DefaultFirewallRule.rules(cluster);
-        rules.add(new DefaultFirewallRule(RTP_PORT, FirewallRule.SystemId.PUBLIC));
+        rules.add(new DefaultFirewallRule(RTP_PORT, FirewallRule.SystemId.PUBLIC, true));
         return rules;
     }
 
@@ -287,7 +287,7 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(ProcessDefinition.sipxDefault("sipxpage",
+        return (enabled ? Collections.singleton(ProcessDefinition.sipxByRegex("sipxpage",
                 ".*\\s-Dprocname=sipxpage\\s.*")) : null);
     }
 

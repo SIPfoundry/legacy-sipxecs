@@ -9,9 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
+
 import static org.sipfoundry.sipxconfig.components.LocalizationUtils.getMessage;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.services.ExpressionEvaluator;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -34,8 +37,11 @@ import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 import org.sipfoundry.sipxconfig.site.common.BreadCrumb;
+import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public abstract class ServicesTable extends BaseComponent {
@@ -50,6 +56,9 @@ public abstract class ServicesTable extends BaseComponent {
 
     @InjectObject("spring:snmpManager")
     public abstract SnmpManager getSnmpManager();
+
+    @InjectObject("spring:configManager")
+    public abstract ConfigManager getConfigManager();
 
     @InjectObject("spring:coreContext")
     public abstract CoreContext getCoreContext();
@@ -127,5 +136,16 @@ public abstract class ServicesTable extends BaseComponent {
      */
     public void refresh() {
         setServiceStatusCached(null);
+    }
+
+    public void restart() {
+        @SuppressWarnings("unchecked")
+        Collection<String> selected = getSelections().getAllSelected();
+        if (selected.size() > 0) {
+            List<ProcessDefinition> defs = getSnmpManager().getProcessDefinitions(getServiceLocation(), selected);
+            getSnmpManager().restartProcesses(getServiceLocation(), defs);
+            String msg = getMessages().getMessage("statusMessage.servicesRestarted");
+            ((SipxValidationDelegate) TapestryUtils.getValidator(getPage())).recordSuccess(msg);
+        }
     }
 }

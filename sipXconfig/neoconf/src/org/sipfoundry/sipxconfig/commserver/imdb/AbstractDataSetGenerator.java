@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.commserver.imdb;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Replicable;
 
@@ -41,6 +42,18 @@ public abstract class AbstractDataSetGenerator {
      */
     protected String getSipDomain() {
         return m_coreContext.getDomainName();
+    }
+
+    protected void putOnlyIfNotNull(DBObject obj, String propName, Object prop) {
+        if (prop instanceof String) {
+            if (StringUtils.isNotBlank((String) prop)) {
+                obj.put(propName, prop);
+            }
+        } else if (prop != null) {
+            obj.put(propName, prop);
+        } else {
+            obj.removeField(propName);
+        }
     }
 
 }

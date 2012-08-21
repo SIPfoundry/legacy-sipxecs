@@ -67,6 +67,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     private LocationsManager m_locationsManager;
     private CoreContext m_coreContext;
     private FeatureManager m_featureManager;
+    private boolean m_enabled;
 
     private AcdServer getAcdServer(Integer id) {
         return (AcdServer) getHibernateTemplate().load(AcdServer.class, id);
@@ -557,6 +558,15 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(Acd.FEATURE, location);
-        return (enabled ? Collections.singleton(new ProcessDefinition("sipxacd")) : null);
+        return (enabled ? Collections.singleton(ProcessDefinition.sipx("sipxacd")) : null);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return m_enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        m_enabled = enabled;
     }
 }

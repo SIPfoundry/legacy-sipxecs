@@ -86,7 +86,7 @@ bundle agent mongodb_arbiter_config {
         perms => m("644"),
         edit_defaults => empty,
         edit_line => mongodb_arbiter_config_contents,
-        classes => if_repaired("restart_mongodb_arbiter");
+        classes => if_repaired("restart_mongo_arbiter");
 }
 
 bundle edit_line mongodb_arbiter_config_contents {
@@ -117,7 +117,7 @@ bundle agent mongodb_config {
         create => "false",
         perms => m("644"),
         edit_line => set_variable_values("mongodb_config.server"),
-        classes => if_repaired("restart_mongodb");
+        classes => if_repaired("restart_mongod");
 }
 
 bundle edit_line mongo_client_config {
@@ -161,20 +161,20 @@ bundle agent mongodb_arbiter_running {
 
   methods:
     any::
-      "any" usebundle => find_service_by_command("$(service_command)", "mongodb_arbiter_running", "$(mongodb.user)");
+      "any" usebundle => find_service_by_command("$(service_command)", "mongo_arbiter_running", "$(mongodb.user)");
 
   commands:
-    !mongod_arbiter.mongodb_arbiter_running::
+    !mongod_arbiter.mongo_arbiter_running::
       "$(service)"
         comment => "stop mongo arbiter",
         args => "stop";
 
-    mongod_arbiter.!mongodb_arbiter_running::
+    mongod_arbiter.!mongo_arbiter_running::
       "$(service)"
         comment => "start mongo arbiter",
         args => "start";
 
-    mongod_arbiter.mongodb_arbiter_running.restart_mongodb_arbiter::
+    mongod_arbiter.mongo_arbiter_running.restart_mongo_arbiter::
       "$(service)"
         comment => "restart mongo arbiter",
         args => "restart";
@@ -201,7 +201,7 @@ bundle agent mongodb_sysv_running {
         comment => "start mongo",
         args => "start";
 
-    mongod.mongodb_running.restart_mongodb::
+    mongod.mongodb_running.restart_mongod::
       "$(service)"
         comment => "restart mongo",
         args => "restart";
@@ -235,7 +235,7 @@ bundle agent mongodb_systemctl_running {
         comment => "enable iptables",
         args => "enable $(service)";
 
-    mongod.mongodb_running.restart_mongodb::
+    mongod.mongodb_running.restart_mongod::
       "$(sipx.systemctl)"
         comment => "restart mongo",
         args => "restart $(service)";

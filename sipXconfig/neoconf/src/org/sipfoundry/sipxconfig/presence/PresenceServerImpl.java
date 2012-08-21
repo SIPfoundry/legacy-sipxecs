@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.acd.Acd;
+import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
@@ -72,6 +73,7 @@ public class PresenceServerImpl implements FeatureProvider, AddressProvider, Bea
     private BeanWithSettingsDao<PresenceSettings> m_settingsDao;
     private ListableBeanFactory m_beanFactory;
     private AddressManager m_addressManager;
+    private AcdContext m_acdContext;
 
     @Override
     public PresenceSettings getSettings() {
@@ -232,18 +234,21 @@ public class PresenceServerImpl implements FeatureProvider, AddressProvider, Bea
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(ProcessDefinition.sipxDefault("sipxpresence")) : null);
+        return (enabled ? Collections.singleton(ProcessDefinition.sipx("sipxpresence")) : null);
     }
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.EXPERIMENTAL) {
+        if (m_acdContext.isEnabled() && b == Bundle.EXPERIMENTAL) {
             b.addFeature(FEATURE);
         }
     }
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        if (!m_acdContext.isEnabled()) {
+            return null;
+        }
         return DefaultFirewallRule.rules(Arrays.asList(HTTP_ADDRESS, SIP_TCP_ADDRESS, SIP_UDP_ADDRESS));
     }
 
@@ -257,5 +262,9 @@ public class PresenceServerImpl implements FeatureProvider, AddressProvider, Bea
         if (request.getAllNewlyEnabledFeatures().contains(PresenceServer.FEATURE)) {
             initialize();
         }
+    }
+
+    public void setAcdContext(AcdContext acdContext) {
+        m_acdContext = acdContext;
     }
 }

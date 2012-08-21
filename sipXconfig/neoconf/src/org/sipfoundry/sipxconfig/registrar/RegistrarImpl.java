@@ -162,8 +162,7 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
         if (!manager.getFeatureManager().isFeatureEnabled(FEATURE, location)) {
             return null;
         }
-        ProcessDefinition def = new ProcessDefinition("sipregistrar");
-        def.setSipxServiceName("sipxregistrar");
+        ProcessDefinition def = ProcessDefinition.sipx("sipregistrar", "sipxregistrar");
         return Collections.singleton(def);
     }
 

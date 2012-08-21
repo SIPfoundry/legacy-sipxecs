@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.acd.Acd;
+import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
@@ -45,6 +46,7 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class AcdStatsImpl implements AcdStats, FeatureProvider, AddressProvider, ProcessProvider, FirewallProvider {
     private BeanWithSettingsDao<AcdStatsSettings> m_settingsDao;
+    private AcdContext m_acdContext;
 
     public AcdStatsSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
@@ -91,18 +93,21 @@ public class AcdStatsImpl implements AcdStats, FeatureProvider, AddressProvider,
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(new ProcessDefinition("sipxacd-stats")) : null);
+        return (enabled ? Collections.singleton(ProcessDefinition.sipx("sipxacd-stats")) : null);
     }
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.EXPERIMENTAL) {
+        if (m_acdContext.isEnabled() && b == Bundle.EXPERIMENTAL) {
             b.addFeature(FEATURE);
         }
     }
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        if (!m_acdContext.isEnabled()) {
+            return null;
+        }
         return Collections.singleton(new DefaultFirewallRule(API_ADDRESS));
     }
 
@@ -113,5 +118,9 @@ public class AcdStatsImpl implements AcdStats, FeatureProvider, AddressProvider,
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+    }
+
+    public void setAcdContext(AcdContext acdContext) {
+        m_acdContext = acdContext;
     }
 }

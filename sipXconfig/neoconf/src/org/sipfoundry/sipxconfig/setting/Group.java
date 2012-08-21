@@ -223,9 +223,17 @@ public class Group extends ValueStorage implements Comparable, NamedObject, Repl
         Map<String, Object> props = new HashMap<String, Object>();
         props.put(UID, getName());
         props.put(GROUP_RESOURCE, getResource());
-        props.put(DESCR, getDescription());
-        props.put(IM_GROUP, getSettingValue("im/im-group"));
-        props.put(MY_BUDDY_GROUP, getSettingValue("im/add-pa-to-group"));
+        if (getDescription() != null) {
+            props.put(DESCR, getDescription());
+        }
+        String imgroup = getSettingValue("im/im-group");
+        if (imgroup != null) {
+            props.put(IM_GROUP, imgroup);
+        }
+        String mybudygrp = getSettingValue("im/add-pa-to-group");
+        if (mybudygrp != null) {
+            props.put(MY_BUDDY_GROUP, mybudygrp);
+        }
         return props;
     }
 }
