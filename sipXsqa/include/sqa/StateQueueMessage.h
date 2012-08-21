@@ -106,8 +106,8 @@ inline StateQueueMessage::StateQueueMessage(Type type) :
   _type(type),
   _pObject(0)
 {
-  setType(type);
   _pObject = cJSON_CreateObject();
+  setType(type);
 }
 
 inline StateQueueMessage::StateQueueMessage(const std::string& rawData) :
