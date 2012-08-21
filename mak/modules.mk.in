@@ -57,6 +57,8 @@ lib_common = \
   ruby-dbi \
   ruby-postgres \
   cfengine \
+  v8 \
+  oss_core \
   php-seclib
 
 $(foreach V,11 12 13 14 15 16,$(eval lib_fedora_$(V) = $(lib_common) sec))
@@ -75,3 +77,5 @@ lib_centos_6 = \
 lib = $(lib_$(DISTRO_OS)_$(DISTRO_VER))
 
 all =  $(lib) $(sipx) $(app)
+
+oss_core_REPO = git://github.com/joegen/oss_core.git
