@@ -71,10 +71,13 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(OpenfireImpl.FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "sipxopenfire.cfdat", enabled, "sipxopenfire");
+            String datfile = "sipxopenfire.cfdat";
+            String sipxopenfireClass = "sipxopenfire";
             if (!enabled) {
+                ConfigUtils.enableCfengineClass(dir, datfile, false, sipxopenfireClass);
                 continue;
             }
+            ConfigUtils.enableCfengineClass(dir, datfile, true, sipxopenfireClass, "postgres");
             boolean consoleEnabled = (Boolean) m_openfire.getSettings().getSettingTypedValue("settings/console");
             ConfigUtils.enableCfengineClass(dir, "ofconsole.cfdat", consoleEnabled, "ofconsole");
             File f = new File(dir, "sipx.properties.part");
