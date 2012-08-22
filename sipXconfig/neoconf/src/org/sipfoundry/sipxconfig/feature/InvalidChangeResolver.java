@@ -30,6 +30,9 @@ public class InvalidChangeResolver {
         FeatureChangeRequest request = validator.getRequest();
         boolean singleLocation = request.getEnableByLocation().size() == 1;
         for (InvalidChange change : validator.getInvalidChanges()) {
+            if (!change.isAllowAutoResolve()) {
+                continue;
+            }
             if (change.getFeature() instanceof GlobalFeature) {
                 request.enableFeature((GlobalFeature) change.getFeature(), true);
             } else if (singleLocation) {

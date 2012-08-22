@@ -22,6 +22,7 @@ public class InvalidChange {
     private Feature m_feature;
     private Location m_location;
     private InvalidChangeException m_message;
+    private boolean m_allowAutoResolve = true;
 
     public InvalidChange(Feature f, InvalidChangeException msg) {
         m_feature = f;
@@ -55,5 +56,13 @@ public class InvalidChange {
 
     public UserException getMessage() {
         return m_message;
+    }
+
+    public boolean isAllowAutoResolve() {
+        return m_allowAutoResolve;
+    }
+
+    public void setAllowAutoResolve(boolean allowAutoResolve) {
+        m_allowAutoResolve = allowAutoResolve;
     }
 }

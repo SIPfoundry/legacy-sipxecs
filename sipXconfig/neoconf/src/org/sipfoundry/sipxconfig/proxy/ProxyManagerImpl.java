@@ -38,12 +38,14 @@ import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.feature.InvalidChange;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
+import org.sipfoundry.sipxconfig.registrar.Registrar;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
@@ -154,6 +156,13 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
         boolean proxyOn = validator.isEnabledSomewhere(FEATURE);
         if (validator.isEnabledSomewhere(NatTraversal.FEATURE) != proxyOn) {
             validator.getRequest().enableFeature(NatTraversal.FEATURE, proxyOn);
+        }
+
+        // Do not auto resolve to avoid circular dependency
+        if (validator.isEnabledSomewhere(FEATURE) && !validator.isEnabledSomewhere(Registrar.FEATURE)) {
+            InvalidChange requires = InvalidChange.requires(FEATURE, Registrar.FEATURE);
+            requires.setAllowAutoResolve(false);
+            validator.getInvalidChanges().add(requires);
         }
     }
 

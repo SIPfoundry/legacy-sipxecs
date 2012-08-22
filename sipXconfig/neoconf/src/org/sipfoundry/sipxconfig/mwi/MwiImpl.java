@@ -40,6 +40,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.feature.InvalidChange;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
@@ -145,7 +146,12 @@ public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvid
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
-        validator.requiresAtLeastOne(FEATURE, Ivr.FEATURE);
+        // Do not auto resolve to avoid circular dependency
+        if (validator.isEnabledSomewhere(FEATURE) && !validator.isEnabledSomewhere(Ivr.FEATURE)) {
+            InvalidChange requires = InvalidChange.requires(FEATURE, Ivr.FEATURE);
+            requires.setAllowAutoResolve(false);
+            validator.getInvalidChanges().add(requires);
+        }
     }
 
     @Override

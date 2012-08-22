@@ -120,6 +120,9 @@ public class FeatureChangeValidator {
         if (m_request.getAllNewlyEnabledFeatures().contains(f)) {
             return true;
         }
+        if (m_request.getAllNewlyDisabledFeatures().contains(f)) {
+            return false;
+        }
         if (f instanceof LocationFeature) {
             return m_currentEnabledByLocation.contains((LocationFeature) f);
         }
