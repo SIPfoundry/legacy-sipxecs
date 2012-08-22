@@ -38,6 +38,7 @@
     <property name="featureManager" ref="featureManager"/>
     <property name="websocket" ref="websocket"/>
     <property name="openfire" ref="openfire"/>
+    <property name="updateFile" value="${sysdir.etc}/xmpp-update.xml"/>
   </bean>
 
   <bean id="openfireSipxXml" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireConfiguration">

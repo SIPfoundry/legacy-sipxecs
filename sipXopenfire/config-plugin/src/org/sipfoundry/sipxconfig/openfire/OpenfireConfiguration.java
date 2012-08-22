@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
@@ -52,6 +53,7 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     private FeatureManager m_featureManager;
     private WebSocket m_websocket;
     private Openfire m_openfire;
+    private String m_updateFile;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -167,6 +169,12 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     private void checkReplicate(Object entity) {
         if (entity instanceof User || entity instanceof Conference) {
             m_configManager.configureEverywhere(OpenfireImpl.FEATURE);
+            try {
+                FileUtils.touch(new File(m_updateFile));
+            } catch (IOException ex) {
+                // do nothing, will replicate next time
+            }
+
         }
     }
 
@@ -201,5 +209,10 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     @Required
     public void setOpenfire(Openfire openfire) {
         m_openfire = openfire;
+    }
+
+    @Required
+    public void setUpdateFile(String file) {
+        m_updateFile = file;
     }
 }
