@@ -48,6 +48,10 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
         return m_featureManager.isFeatureEnabled(Ivr.CALLPILOT);
     }
 
+    public boolean isIvrEnabled() {
+        return m_featureManager.isFeatureEnabled(Ivr.FEATURE);
+    }
+
     public String getStdpromptDirectory() {
         if (m_stdpromptDirectory != null) {
             return m_stdpromptDirectory.getPath();

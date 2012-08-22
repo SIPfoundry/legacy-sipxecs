@@ -184,8 +184,12 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
 
     private void putWithFallback(List<Address> addresses, String relativeUri, Object request,
             StringBuilder failedAddresses, StringBuilder messages, Object... params) {
-        boolean success = false;
 
+        if (!isIvrEnabled()) {
+            return;
+        }
+
+        boolean success = false;
         for (Address address : addresses) {
             try {
                 m_restTemplate.put(address + relativeUri, request, params);
@@ -193,8 +197,7 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
                 setLastGoodIvrNode(address);
                 break;
             } catch (RestClientException ex) {
-                LOG.debug("Cannot connect to node " + address
-                        + " for reason: " + ex.getMessage());
+                LOG.debug("Cannot connect to node " + address + " for reason: " + ex.getMessage());
                 failedAddresses.append(address).append(LINE_BREAK);
                 messages.append(ex.getMessage()).append(LINE_BREAK);
             }
