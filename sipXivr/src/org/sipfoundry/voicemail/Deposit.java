@@ -8,12 +8,8 @@
  */
 package org.sipfoundry.voicemail;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.DisconnectException;
@@ -36,7 +32,6 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
     private Map<String, String> m_depositMap;
     private ApplicationContext m_appContext;
     private String m_operatorAddr;
-    private List<Future<?>> m_tasks = new ArrayList<Future<?>> ();
 
     /**
      * The depositVoicemail dialog
@@ -116,7 +111,7 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
                         String digit = getDtmfDigit();
                         if (digit != null && digit.equals("0")) {
                             if (tempMessage.getDuration() > 2) {
-                                m_tasks.add(m_mailboxManager.storeInInbox(user, tempMessage));
+                                m_mailboxManager.storeInInbox(user, tempMessage);
                                 play("msg_sent", "");
                             } else {
                                 tempMessage.setIsToBeStored(false);
@@ -177,7 +172,7 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
                     // "2" means send the message.
                     if (digit.equals("2")) {
                         if (tempMessage.getDuration() > 2) {
-                            m_tasks.add(m_mailboxManager.storeInInbox(user, tempMessage));
+                            m_mailboxManager.storeInInbox(user, tempMessage);
                             break;
                         }
                         // Message was too short. Don't save the message.
@@ -222,43 +217,14 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
             if (tempMessage != null && tempMessage.isToBeStored() && !tempMessage.isStored()) {
                 // Deliver message that is pending; don't store "click" messages
                 if (tempMessage.getDuration() > 1) {
-                    m_tasks.add(m_mailboxManager.storeInInbox(user, tempMessage));
+                    m_mailboxManager.storeInInbox(user, tempMessage);
                 }
             }
             clearChannelUUID(user, tempMessage);
             //make sure to delete temp message after all operations are finished
-            cleanupTempMessage(tempMessage);
+            m_mailboxManager.deleteTempMessage(tempMessage);
         }
         return null;
-    }
-
-    /**
-     * This method makes sure that the temp message gets deleted after all tasks execution
-     *
-     * Example: We need to cleanup temporary recorded file after the mail notification gets sent
-     * When other vm storage is used (not files), like database, we need to attach the temporary recorded file
-     * when we send the vm notification
-     * @param f
-     * @param message
-     */
-    private void cleanupTempMessage(final TempMessage message) {
-        Thread deleteTempMessageTask = new Thread() {
-            public void run() {
-                for (Future< ? > f : m_tasks) {
-                    if (f != null) {
-                        try {
-                            f.get();
-                        } catch (InterruptedException e) {
-                            LOG.error("Cannot execute task", e);
-                        } catch (ExecutionException e) {
-                            LOG.error("Cannot execute task", e);
-                        }
-                    }
-                }
-                m_mailboxManager.deleteTempMessage(message);
-            }
-        };
-        deleteTempMessageTask.start();
     }
 
     private void putChannelUUID(User user, String uuid) {
@@ -341,7 +307,7 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
         // Store the message with each user in the list that has a mailbox
         for (User user : choice.getUsers()) {
             if (user.hasVoicemail()) {
-                m_tasks.add(m_mailboxManager.copyMessage(user, message));
+                m_mailboxManager.copyMessage(user, message);
             }
         }
         // "Your message has been copied."
