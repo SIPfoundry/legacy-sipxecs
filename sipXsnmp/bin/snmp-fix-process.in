@@ -5,8 +5,19 @@
 # to be off and snmp just didn't get configured yet.
 ! test -f @SIPX_RUNDIR@/sipxagent.lock || exit 0
 
+! test -f @SIPX_CFDATA@/snmp_fix_dead_processes
+RESTART=$?
+MSG="$1 is not running"
+if [ "$RESTART" == "1" ]; then
+  MSG="$MSG and is being restarted."
+fi
+
 # Send trap to local server
 # pass along command to be execute by shell
-@SIPX_BINDIR@/sipxtrap PROCESS_RESTARTED "$1 is not running and is being restarted."
+@SIPX_BINDIR@/sipxtrap PROCESS_RESTARTED "$MSG"
 shift
+
+# Still want to send trap
+if [ "$RESTART" == "1" ]; then
 $*
+fi

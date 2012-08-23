@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
@@ -83,6 +84,13 @@ public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListene
             IOUtils.closeQuietly(cfdat);
         }
 
+        File fixDeadProcs = new File(gdir, "snmp_fix_dead_processes");
+        if (enabled && settings.isFixDeadProcesses()) {
+            FileUtils.touch(fixDeadProcs);
+        } else if (fixDeadProcs.exists()) {
+            fixDeadProcs.delete();
+        }
+
         if (enabled) {
             for (Location location : locations) {
                 File dir = manager.getLocationDataDirectory(location);
@@ -114,7 +122,7 @@ public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListene
             w.write(def.getProcess());
             String regexp = def.getRegexp();
             if (StringUtils.isNotBlank(regexp)) {
-                // max min  (max of 0 means unlimited)
+                // max min (max of 0 means unlimited)
                 w.write(" 0 1 ");
                 w.write(regexp);
             }

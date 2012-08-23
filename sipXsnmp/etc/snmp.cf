@@ -72,10 +72,7 @@ dontLogTCPWrappersConnects yes
 createUser _internal
 rwuser _internal
 iquerySecName _internal
-";
-
-    snmp_fix_dead_processes::
-"setEvent prFixIt prErrFix = 1
+setEvent prFixIt prErrFix = 1
 monitor -S -r 10 -e prFixIt \"procTable\" prErrorFlag != 0
 ";
 
