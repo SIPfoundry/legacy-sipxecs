@@ -50,6 +50,8 @@ import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.SkillInUseException;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeAction.ACTION;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeCondition.CONDITION;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeStep.FREQUENCY;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
+import org.sipfoundry.sipxconfig.registrar.Registrar;
 import org.springframework.dao.support.DataAccessUtils;
 
 import com.mongodb.DBCollection;
@@ -108,6 +110,8 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
         loadDataSetXml("domain/DomainSeed.xml");
         sql("openacd/openacd.sql");
         getEntityCollection().drop();
+        m_featureManager.enableLocationFeature(Registrar.FEATURE, m_locationsManager.getPrimaryLocation(), true);
+        m_featureManager.enableLocationFeature(ProxyManager.FEATURE, m_locationsManager.getPrimaryLocation(), true);
         m_featureManager
                 .enableLocationFeature(OpenAcdContext.FEATURE, m_locationsManager.getPrimaryLocation(), true);
     }

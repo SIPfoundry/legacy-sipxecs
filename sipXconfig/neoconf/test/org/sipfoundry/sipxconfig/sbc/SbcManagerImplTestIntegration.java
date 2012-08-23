@@ -16,6 +16,7 @@ import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
+import org.sipfoundry.sipxconfig.registrar.Registrar;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class SbcManagerImplTestIntegration extends IntegrationTestCase {
@@ -33,6 +34,7 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
         clear();
         loadDataSetXml("commserver/seedLocations.xml");
         loadDataSetXml("domain/DomainSeed.xml");
+        m_featureManager.enableLocationFeature(Registrar.FEATURE, m_locationsManager.getPrimaryLocation(), true);
         m_featureManager.enableLocationFeature(ProxyManager.FEATURE, m_locationsManager.getPrimaryLocation(), true);
     }
 
