@@ -357,11 +357,12 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         log.info("hostname " + hostname);
 
         String accountConfigurationFile = configurationPath + "/xmpp-account-info.xml";
+        String watchFile = configurationPath + "/xmpp-update.xml";
         if (!new File(accountConfigurationFile).exists()) {
             System.err.println("User account file not found");
             throw new SipXOpenfirePluginException("Cannot find user accounts file");
         } else {
-            this.accountsParser = new AccountsParser(accountConfigurationFile);
+            this.accountsParser = new AccountsParser(accountConfigurationFile, watchFile);
             this.accountsParser.startScanner();
         }
 

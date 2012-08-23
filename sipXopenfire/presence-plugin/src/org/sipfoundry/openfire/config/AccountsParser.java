@@ -50,6 +50,7 @@ public class AccountsParser {
     private final String accountDbFileName;
     private long lastModified;
     private final File accountDbFile;
+    private final File watchFile;
     private static Logger logger = Logger.getLogger(AccountsParser.class);
     private XmppAccountInfo previousXmppAccountInfo = null;
 
@@ -68,9 +69,9 @@ public class AccountsParser {
 
         @Override
         public void run() {
-            if (accountDbFile.lastModified() != AccountsParser.this.lastModified) {
+            if (watchFile.lastModified() != AccountsParser.this.lastModified) {
                 logger.info("XMPP account configuration changes detected - reparsing file");
-                AccountsParser.this.lastModified = accountDbFile.lastModified();
+                AccountsParser.this.lastModified = watchFile.lastModified();
                 parseAccounts();
             }
         }
@@ -266,7 +267,7 @@ public class AccountsParser {
         }
     }
 
-    public AccountsParser(String accountDbFileName) {
+    public AccountsParser(String accountDbFileName, String watchFileName) {
         try {
             digester = new Digester();
             addRules(digester);
@@ -274,6 +275,8 @@ public class AccountsParser {
             throw new SipXOpenfirePluginException(ex);
         }
 
+        this.watchFile = new File(watchFileName);
+        
         this.accountDbFileName = accountDbFileName;
         this.accountDbFile = new File(accountDbFileName);
         if (!accountDbFile.exists()) {

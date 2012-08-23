@@ -76,6 +76,10 @@ public class TempMessage {
         m_isToBeStored = isToBeStored;
     }
 
+    public void setTempPath(String tempPath) {
+        m_tempPath = tempPath;
+    }
+
     public long getDuration() {
         // Calculate the duration (in seconds) from the Wav file
         if (m_tempPath != null) {
@@ -107,7 +111,7 @@ public class TempMessage {
         m_stored = false;
     }
 
-    protected boolean isStored() {
+    public boolean isStored() {
         return m_stored;
     }
 
