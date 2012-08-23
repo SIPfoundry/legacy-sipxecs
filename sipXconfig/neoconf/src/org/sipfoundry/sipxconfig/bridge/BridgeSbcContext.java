@@ -16,9 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.bridge;
 
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -46,8 +44,10 @@ import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
 public class BridgeSbcContext implements FeatureProvider, AddressProvider, FirewallProvider {
     public static final LocationFeature FEATURE = new LocationFeature("sbcBridge");
     public static final AddressType XMLRPC_ADDRESS = new AddressType("sbcBridgeXmlRpc", "http://%s:%d");
-    public static final AddressType SIP_ADDRESS = AddressType.sipTcp("sbcBridgeSip");
-    public static final AddressType TLS_ADDRESS = AddressType.sipTcp("sbcBridgeTls");
+    public static final AddressType INTERNAL_SIP_ADDRESS = AddressType.sipTcp("sbcBridgeSip");
+    public static final AddressType INTERNAL_TLS_ADDRESS = AddressType.sipTcp("sbcBridgeTls");
+    public static final AddressType EXTERNAL_SIP_ADDRESS = AddressType.sipTcp("sbcBridgeSipExternal");
+    public static final AddressType EXTERNAL_TLS_ADDRESS = AddressType.sipTcp("sbcBridgeTlsExternal");
     private SbcDeviceManager m_sbcDeviceManager;
 
     @Override
@@ -69,7 +69,8 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider, Firew
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
-        if (!type.equalsAnyOf(XMLRPC_ADDRESS, SIP_ADDRESS, TLS_ADDRESS)) {
+        if (!type.equalsAnyOf(XMLRPC_ADDRESS, INTERNAL_SIP_ADDRESS, INTERNAL_TLS_ADDRESS, EXTERNAL_SIP_ADDRESS,
+                EXTERNAL_TLS_ADDRESS)) {
             return null;
         }
 
@@ -86,11 +87,16 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider, Firew
                 Address a = new Address(type, bridge.getLocation().getAddress());
                 if (type.equals(XMLRPC_ADDRESS)) {
                     a.setPort(bridge.getXmlRpcPort());
-                } else if (type.equals(SIP_ADDRESS)) {
+                } else if (type.equals(INTERNAL_SIP_ADDRESS)) {
                     a.setPort(bridge.getPort());
-                } else {
+                } else if (type.equals(INTERNAL_TLS_ADDRESS)) {
                     // no TLS port setting available?
                     a.setPort(bridge.getPort() + 1);
+                } else if (type.equals(EXTERNAL_SIP_ADDRESS)) {
+                    a.setPort(bridge.getExternalSipPort());
+                } else if (type.equals(EXTERNAL_TLS_ADDRESS)) {
+                    // no TLS port setting available?
+                    a.setPort(bridge.getExternalSipPort() + 1);
                 }
                 addresses.add(a);
             }
@@ -111,8 +117,13 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider, Firew
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        return Arrays.asList(new DefaultFirewallRule(XMLRPC_ADDRESS), new DefaultFirewallRule(SIP_ADDRESS,
-                FirewallRule.SystemId.PUBLIC), new DefaultFirewallRule(TLS_ADDRESS, FirewallRule.SystemId.PUBLIC));
+        List<DefaultFirewallRule> rules = new ArrayList<DefaultFirewallRule>();
+        rules.add(new DefaultFirewallRule(XMLRPC_ADDRESS));
+        rules.add(new DefaultFirewallRule(INTERNAL_SIP_ADDRESS));
+        rules.add(new DefaultFirewallRule(INTERNAL_TLS_ADDRESS));
+        rules.add(new DefaultFirewallRule(EXTERNAL_SIP_ADDRESS, FirewallRule.SystemId.PUBLIC));
+        rules.add(new DefaultFirewallRule(EXTERNAL_TLS_ADDRESS, FirewallRule.SystemId.PUBLIC));
+        return rules;
     }
 
     @Override

@@ -80,7 +80,7 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
 
     @Override
     public void initialize() {
-        addDefaultBeanSettingHandler(new Defaults(getDefaults(), this, getLocation()));
+        addDefaultBeanSettingHandler(new Defaults(getDefaults(), getLocation()));
     }
 
     @Override
@@ -197,12 +197,10 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
 
     public class Defaults {
         private final DeviceDefaults m_defaults;
-        private final SbcDevice m_device;
         private final Location m_location;
 
-        Defaults(DeviceDefaults defaults, SbcDevice device, Location location) {
+        Defaults(DeviceDefaults defaults, Location location) {
             m_defaults = defaults;
-            m_device = device;
             m_location = location;
         }
 
@@ -215,11 +213,6 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
         @SettingEntry(path = "bridge-configuration/global-address")
         public String getGlobalAddress() {
             return m_location.getPublicAddress();
-        }
-
-        @SettingEntry(path = "bridge-configuration/local-port")
-        public int getLocalPort() {
-            return m_device.getPort();
         }
 
         @SettingEntry(path = "bridge-configuration/sipx-proxy-domain")
@@ -246,6 +239,10 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
         public int getSipxSupervisorXmlRpcPort() {
             return Location.PROCESS_MONITOR_PORT;
         }
+    }
+
+    public int getExternalSipPort() {
+        return (Integer) getSettingTypedValue("bridge-configuration/external-port");
     }
 
     public int getXmlRpcPort() {

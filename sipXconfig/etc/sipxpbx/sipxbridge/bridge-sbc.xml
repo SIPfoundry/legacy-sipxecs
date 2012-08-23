@@ -52,6 +52,7 @@
       </type>
       <description>The sipXecs proxy facing address. The sipXecs proxy will send signaling here.</description>
     </setting>
+    <!--  hidden only because value is maintained in sbc_device table -->
     <setting name="local-port" hidden="yes">
       <type>
         <integer required="yes" />
