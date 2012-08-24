@@ -83,7 +83,7 @@
         </setting>
         <setting name="reset">
           <type refid="feature-code" />
-          <value>#</value>
+          <value>8</value>
         </setting>
         <setting name="down">
           <type refid="feature-code" />
@@ -119,7 +119,7 @@
       <group name="hung-up">
         <setting name="hungup">
           <type refid="feature-code" />
-          <value>8</value>
+          <value>#</value>
         </setting>
       </group>
     </group>
