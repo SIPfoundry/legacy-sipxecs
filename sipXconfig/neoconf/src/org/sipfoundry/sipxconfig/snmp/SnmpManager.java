@@ -19,6 +19,7 @@ package org.sipfoundry.sipxconfig.snmp;
 import java.util.Collection;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
@@ -26,6 +27,10 @@ import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 
 public interface SnmpManager {
     public static final GlobalFeature FEATURE = new GlobalFeature("snmp");
+    public static final AddressType SNMP_ADDRESS = new AddressType("snmpmsg", 161, AddressType.Protocol.udp);
+    public static final AddressType TRAP_ADDRESS = new AddressType("snmptrap", 162, AddressType.Protocol.udp);
+    public static final AddressType TLS_SNMP_ADDRESS = new AddressType("snmptls", 10161, AddressType.Protocol.udp);
+    public static final AddressType DTLS_SNMP_ADDRESS = new AddressType("snmpdtls", 10162, AddressType.Protocol.udp);
 
     public SnmpSettings getSettings();
 

@@ -2,9 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="alarms" class="org.sipfoundry.sipxconfig.alarm.Alarms">
-    <property name="locationsManager" ref="locationsManager" />
-  </bean>
+  <bean id="alarms" class="org.sipfoundry.sipxconfig.alarm.Alarms" />
 
   <bean id="alarmConfiguration" class="org.sipfoundry.sipxconfig.alarm.AlarmConfiguration">
     <property name="alarmServerManager" ref="alarmServerManager" />

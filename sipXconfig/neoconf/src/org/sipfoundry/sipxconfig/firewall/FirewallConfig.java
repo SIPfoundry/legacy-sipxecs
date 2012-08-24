@@ -18,6 +18,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -120,7 +122,12 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         for (ServerGroup group : groups) {
             c.nextElement();
             c.write(":name", group.getName());
-            c.write(":ipv4s", group.getServerList().replaceAll("\\s", ", "));
+            List<String> sourceIPs = new ArrayList<String>();
+            String servers = group.getServerList();
+            if (StringUtils.isNotBlank(servers)) {
+                sourceIPs = Arrays.asList(StringUtils.split(servers, " "));
+            }
+            c.writeArray(":ipv4s", sourceIPs);
         }
         c.endArray();
 
@@ -146,7 +153,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
                     }
 
                     // blindly allowed
-                    if (FirewallRule.SystemId.CLUSTER == rule.getSystemId()) {
+                    if (FirewallRule.SystemId.CLUSTER == rule.getSystemId() && rule.getServerGroup() == null) {
                         continue;
                     }
 

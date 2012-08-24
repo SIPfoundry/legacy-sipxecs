@@ -21,6 +21,7 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.ServerGroup;
 
@@ -57,6 +58,9 @@ public abstract class EditFirewallServerGroup extends PageWithCallback implement
     }
 
     public void save() {
+        if (!TapestryUtils.isValid(this)) {
+            return;
+        }
         getFirewallManager().saveServerGroup(getServerGroup());
     }
 }

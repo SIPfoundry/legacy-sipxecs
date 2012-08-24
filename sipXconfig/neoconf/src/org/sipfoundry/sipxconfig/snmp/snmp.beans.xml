@@ -19,6 +19,7 @@
         </property>
       </bean>
     </property>
+    <property name="locationsManager" ref="locationsManager" />
   </bean>
   
   <bean id="snmpSettings" class="org.sipfoundry.sipxconfig.snmp.SnmpSettings" parent="settingsBean">

@@ -18,6 +18,7 @@ package org.sipfoundry.sipxconfig.snmp;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -27,10 +28,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressProvider;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.RunRequest;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
@@ -39,17 +45,25 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
-public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeatureProvider, ProcessProvider {
+public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeatureProvider, ProcessProvider,
+        FirewallProvider, AddressProvider {
+    private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
+        SNMP_ADDRESS, TRAP_ADDRESS, TLS_SNMP_ADDRESS, DTLS_SNMP_ADDRESS
+    });
     private ListableBeanFactory m_beanFactory;
     private FeatureManager m_featureManager;
     private Collection<ProcessProvider> m_processProviders;
     private BeanWithSettingsDao<SnmpSettings> m_settingsDao;
     private ConfigManager m_configManager;
+    private LocationsManager m_locationsManager;
 
     @Override
     public List<ProcessDefinition> getProcessDefinitions(Location location) {
@@ -93,6 +107,22 @@ public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeaturePr
         } catch (IOException e) {
             throw new UserException("Could not get SNMP data", e);
         }
+    }
+
+    @Override
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
+        if (!ADDRESSES.contains(type)) {
+            return null;
+        }
+        if (!manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
+            Collections.emptyList();
+        }
+        return Location.toAddresses(type, m_locationsManager.getLocationsList());
+    }
+
+    @Override
+    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
+        return DefaultFirewallRule.rules(ADDRESSES);
     }
 
     @Override
@@ -173,5 +203,9 @@ public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeaturePr
 
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 }

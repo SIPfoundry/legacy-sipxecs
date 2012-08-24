@@ -54,6 +54,7 @@ public class EditableFirewallRule extends BeanWithId implements DeployConfigOnEd
 
     public void setServerGroup(ServerGroup serverGroup) {
         m_serverGroup = serverGroup;
+        m_systemId = null;
     }
 
     @Override
@@ -77,5 +78,6 @@ public class EditableFirewallRule extends BeanWithId implements DeployConfigOnEd
 
     public void setSystemId(SystemId systemId) {
         m_systemId = systemId;
+        m_serverGroup = null;
     }
 }
