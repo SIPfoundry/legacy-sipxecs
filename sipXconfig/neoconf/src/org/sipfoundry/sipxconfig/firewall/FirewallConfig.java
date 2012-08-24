@@ -42,6 +42,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.ftp.FtpManager;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -53,7 +54,8 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(FirewallManager.FEATURE, LocationsManager.FEATURE, ImManager.FEATURE)) {
+        if (!request.applies(FirewallManager.FEATURE, LocationsManager.FEATURE, ImManager.FEATURE,
+                FtpManager.FTP_FEATURE)) {
             return;
         }
 
