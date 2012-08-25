@@ -5,6 +5,9 @@
 	<remote-authentication-method>HTTP-DIGEST</remote-authentication-method>
 	<uri-prefix>/callcontroller</uri-prefix>
 	<sip-listener-class>org.sipfoundry.callcontroller.SipListenerImpl</sip-listener-class>
+	<![CDATA[ sip-convergence-name value is used to create the SIP contact header, added in the request.
+	sipXproxy reads the header and when the value 'callcontroller' is found, X-Sipx-Authidentity is not added, determining the phone to be challenged
+	for authentication. This value is not meant to be changed ]]>
 	<sip-convergence-name>callcontroller</sip-convergence-name>
 	<service-description>
 	<![CDATA[ The call controller plugin. 

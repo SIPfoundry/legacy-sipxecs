@@ -151,25 +151,32 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
                }
                else
                {
-                  // Authenticated REFER 
+                   UtlString  contactString;
+                   request.getContactEntry(0, &contactString);
+                   Url contactUri( contactString );
+                   UtlString userId;
+                   contactUri.getUserId(contactString);
 
-                  // annotate the refer-to with the authenticated controller identity
-                  SipXauthIdentity controllerIdentity;
-                  controllerIdentity.setIdentity(id);
-                  controllerIdentity.encodeUri(target);
+            	   Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "TransferControl::authorizeAndModify - Contact field is: %s ", contactString.data());
 
-                  // add the References to the refer-to.
-                  UtlString refcallId(callId);
-                  refcallId.append(";rel=refer");
-                  target.setHeaderParameter(SIP_REFERENCES_FIELD, refcallId.data());
+                   if (contactString != "callcontroller") {
+                	   // Authenticated REFER
+                	   // annotate the refer-to with the authenticated controller identity
+                	   SipXauthIdentity controllerIdentity;
+                	   controllerIdentity.setIdentity(id);
+                	   controllerIdentity.encodeUri(target);
+
+                	   // add the References to the refer-to.
+                	   UtlString refcallId(callId);
+                	   refcallId.append(";rel=refer");
+                	   target.setHeaderParameter(SIP_REFERENCES_FIELD, refcallId.data());
                   
-                  Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
+                	   Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
                                 "adding Reference field [%s] to refer-to",
                                 mInstanceName.data(), callId.data()
                                );
-                  request.setReferToField(target.toString().data());
-
-
+                	   request.setReferToField(target.toString().data());
+                   }
                }
             }
             else
