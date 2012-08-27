@@ -763,11 +763,11 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         boolean isAllAdminGroup = false;
         String adminJid = null;
         JID adminJID = null;
-        if (group.getAdministrator() == null) {
-            isAllAdminGroup = true;
-        } else {
+        if (group.getAdministrator() != null && !group.getAdministrator().isEmpty()) {
             adminJid = XmppAccountInfo.appendDomain(group.getAdministrator());
             adminJID = new JID(adminJid);
+        } else {
+            isAllAdminGroup = true;            
 
         }
 

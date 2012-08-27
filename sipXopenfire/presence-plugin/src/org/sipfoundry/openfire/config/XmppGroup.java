@@ -67,8 +67,9 @@ public class XmppGroup extends XmppConfigurationElement {
      * @param administrator the administrator to set
      */
     public void setAdministrator(String administrator) {
-        this.administrator = XmppAccountInfo.appendDomain(administrator);
-
+        if (administrator != null && !administrator.isEmpty()) {
+            this.administrator = XmppAccountInfo.appendDomain(administrator);
+        }
     }
 
     /**

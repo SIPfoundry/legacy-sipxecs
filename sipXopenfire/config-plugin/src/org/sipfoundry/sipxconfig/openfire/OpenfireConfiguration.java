@@ -42,6 +42,7 @@ import org.sipfoundry.sipxconfig.event.WebSocket;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
 public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
@@ -167,7 +168,7 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     }
 
     private void checkReplicate(Object entity) {
-        if (entity instanceof User || entity instanceof Conference) {
+        if (entity instanceof User || entity instanceof Conference || entity instanceof Group) {
             m_configManager.configureEverywhere(OpenfireImpl.FEATURE);
             try {
                 FileUtils.touch(new File(m_updateFile));
