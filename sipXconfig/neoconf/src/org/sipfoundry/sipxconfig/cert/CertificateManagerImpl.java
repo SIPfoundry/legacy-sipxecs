@@ -38,8 +38,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
  */
 public class CertificateManagerImpl extends SipxHibernateDaoSupport implements CertificateManager, SetupListener {
     private static final Log LOG = LogFactory.getLog(CertificateManager.class);
-    private static final String WEB_CERT = "ssl-web";
-    private static final String COMM_CERT = "ssl";
     private static final String AUTHORITY_TABLE = "authority";
     private static final String CERT_TABLE = "cert";
     private static final String CERT_COLUMN = "data";
@@ -88,6 +86,28 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
     public void setCommunicationsCertificate(String cert, String key) {
         validateCert(cert, key);
         updateCertificate(COMM_CERT, cert, key, getSelfSigningAuthority());
+    }
+
+    @Override
+    public String getChainCertificate() {
+        return getSecurityData(CERT_TABLE, CERT_COLUMN, CHAIN_CERT);
+    }
+
+    @Override
+    public void setChainCertificate(String cert) {
+        validateCert(cert, null);
+        updateCertificate(CHAIN_CERT, cert, null, null);
+    }
+
+    @Override
+    public String getCACertificate() {
+        return getSecurityData(CERT_TABLE, CERT_COLUMN, CA_CERT);
+    }
+
+    @Override
+    public void setCACertificate(String cert) {
+        validateCert(cert, null);
+        updateCertificate(CA_CERT, cert, null, null);
     }
 
     void updateCertificate(String name, String cert, String key, String authority) {

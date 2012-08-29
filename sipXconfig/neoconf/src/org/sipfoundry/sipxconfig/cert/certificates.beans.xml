@@ -23,19 +23,20 @@
       </bean>
     </property>
     <property name="configManager" ref="configManager"/>
-    <property name="jdbc" ref="configJdbcTemplate"/>    
+    <property name="jdbc" ref="configJdbcTemplate"/>
     <property name="locationsManager" ref="locationsManager"/>
     <property name="thirdPartyAuthorites">
       <list>
         <value>verisignclass3ca.crt</value>
       </list>
-    </property>    
+    </property>
   </bean>
-  
+
   <bean id="certificateSettings" class="org.sipfoundry.sipxconfig.cert.CertificateSettings" parent="settingsBean">
   </bean>
-  
+
   <bean id="certificateConfig" class="org.sipfoundry.sipxconfig.cert.CertificateConfig">
     <property name="certificateManager" ref="certificateManager"/>
+    <property name="velocityEngine" ref="velocityEngine" />
   </bean>
 </beans>

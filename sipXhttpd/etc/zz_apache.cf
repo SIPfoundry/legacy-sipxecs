@@ -21,7 +21,9 @@ bundle agent apache_config {
     any::
       "ssl_web" slist => {
         "ssl-web.key",
-        "ssl-web.crt"
+        "ssl-web.crt",
+        "server-chain.crt",
+        "ca-bundle.crt"
       };
 
   files:
@@ -35,7 +37,7 @@ bundle agent apache_config {
         comment => "add apache ssl conf $(this.promiser)",
         create => "true",
         edit_defaults => empty,
-        edit_line => expand_template("$(sipx.SIPX_CONFDIR)/apache/ssl.conf"),
+        edit_line => expand_template("$(sipx.SIPX_CFDATA)/ssl.conf"),
         classes => if_repaired("restart_apache");
 
       "$(sipx.APACHE2_CONFDIR)/ssl/."

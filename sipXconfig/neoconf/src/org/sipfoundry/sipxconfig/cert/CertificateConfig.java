@@ -1,25 +1,40 @@
-/*
- * Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the AGPL license.
+/**
  *
- * $
+ *
+ * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.cert;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.domain.Domain;
+import org.springframework.beans.factory.annotation.Required;
 
 public class CertificateConfig implements ConfigProvider {
     private CertificateManager m_certificateManager;
+    private VelocityEngine m_velocityEngine;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -27,6 +42,8 @@ public class CertificateConfig implements ConfigProvider {
             return;
         }
 
+        boolean chainCertificate = false;
+        boolean caCertificate = false;
         File dir = manager.getGlobalDataDirectory();
         String sipCert = m_certificateManager.getCommunicationsCertificate();
         FileUtils.writeStringToFile(new File(dir, "ssl.crt"), sipCert);
@@ -36,6 +53,23 @@ public class CertificateConfig implements ConfigProvider {
         FileUtils.writeStringToFile(new File(dir, "ssl-web.crt"), webCert);
         String webKey = m_certificateManager.getWebPrivateKey();
         FileUtils.writeStringToFile(new File(dir, "ssl-web.key"), webKey);
+
+        String chainCert = m_certificateManager.getChainCertificate();
+        if (chainCert != null) {
+            FileUtils.writeStringToFile(new File(dir, "server-chain.crt"), chainCert);
+            chainCertificate = true;
+        }
+        String caCert = m_certificateManager.getCACertificate();
+        if (caCert != null) {
+            FileUtils.writeStringToFile(new File(dir, "ca-bundle.crt"), caCert);
+            caCertificate = true;
+        }
+        Writer writer = new FileWriter(new File(dir, "ssl.conf"));
+        try {
+            write(writer, chainCertificate, caCertificate);
+        } finally {
+            IOUtils.closeQuietly(writer);
+        }
 
         String domain = Domain.getDomain().getName();
 
@@ -63,7 +97,28 @@ public class CertificateConfig implements ConfigProvider {
         }
     }
 
+    public void write(Writer writer, boolean chainCertificate, boolean caCertificate) throws IOException {
+        VelocityContext context = new VelocityContext();
+        if (chainCertificate) {
+            context.put("chainCertificate", true);
+        }
+        if (caCertificate) {
+            context.put("caCertificate", true);
+        }
+        try {
+            m_velocityEngine.mergeTemplate("apache/ssl.conf.vm", context, writer);
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Required
     public void setCertificateManager(CertificateManager certificateManager) {
         m_certificateManager = certificateManager;
+    }
+
+    @Required
+    public void setVelocityEngine(VelocityEngine velocityEngine) {
+        m_velocityEngine = velocityEngine;
     }
 }

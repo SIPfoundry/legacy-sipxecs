@@ -17,8 +17,12 @@ SSLProtocol all -SSLv2
 SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:+MEDIUM:+LOW
 SSLCertificateFile $(sipx.APACHE2_CONFDIR)/ssl/ssl-web.crt
 SSLCertificateKeyFile $(sipx.APACHE2_CONFDIR)/ssl/ssl-web.key
-#SSLCertificateChainFile /etc/pki/tls/certs/server-chain.crt
-#SSLCACertificateFile /etc/pki/tls/certs/ca-bundle.crt
+#if ($chainCertificate)
+SSLCertificateChainFile $(sipx.APACHE2_CONFDIR)/ssl/server-chain.crt
+#end
+#if ($caCertificate)
+SSLCACertificateFile $(sipx.APACHE2_CONFDIR)/ssl/ca-bundle.crt
+#end
 <Files ~ "\.(cgi|shtml|phtml|php3?)$">
   SSLOptions +StdEnvVars
 </Files>
@@ -30,5 +34,4 @@ SetEnvIf User-Agent ".*MSIE.*" \
        downgrade-1.0 force-response-1.0
 CustomLog logs/ssl_request_log \
         "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
-</VirtualHost>                                  
-
+</VirtualHost>

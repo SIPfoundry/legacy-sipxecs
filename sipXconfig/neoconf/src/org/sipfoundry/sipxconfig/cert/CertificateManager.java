@@ -18,6 +18,11 @@ import org.sipfoundry.sipxconfig.feature.GlobalFeature;
  */
 public interface CertificateManager {
     public static final GlobalFeature FEATURE = new GlobalFeature("certificates");
+    public static final String COMM_CERT = "ssl";
+    public static final String WEB_CERT = "ssl-web";
+    public static final String CHAIN_CERT = "server-chain";
+    public static final String CA_CERT = "ca-bundle";
+    public static final String CRT = ".crt";
 
     public CertificateSettings getSettings();
 
@@ -76,4 +81,12 @@ public interface CertificateManager {
     public void rebuildCommunicationsCert();
 
     public void rebuildWebCert();
+
+    public String getChainCertificate();
+
+    public void setChainCertificate(String cert);
+
+    public String getCACertificate();
+
+    public void setCACertificate(String cert);
 }

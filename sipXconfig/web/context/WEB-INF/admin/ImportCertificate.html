@@ -2,30 +2,51 @@
 <span jwcid="@common/ErrorMsg" validator="bean:validator"/>
 <form jwcid="importForm@Form" delegate="bean:validator">  
   <fieldset>
-  
    <table>
     <tbody>
        <tr>
         <label jwcid="certificateLabel@common/FieldPanel"
-            label="message:label.certicate"
+            label="message:label.crtFile"
             description="message:description.certificate">
+            <span jwcid="@Insert" value="ognl:certificateName"/>
             <ul class="settingDescription">
               <span jwcid="@admin/ShowCertificate" certificateText="ognl:certificateText"/>
             </ul>
-        </label>             
+        </label>
        </tr>
+	   <span jwcid="@If" condition="ognl:certificateType == 'web' && chainCertificateText != null">
+        <tr>
+          <label jwcid="chainCertificateLabel@common/FieldPanel"
+            label="message:label.chainCertificateFile">
+            <span jwcid="@Insert" value="ognl:chainCertificateName"/>
+            <ul class="settingDescription">
+              <span jwcid="@admin/ShowCertificate" certificateText="ognl:chainCertificateText"/>
+            </ul>
+          </label>
+        </tr>
+      </span>
+	   <span jwcid="@If" condition="ognl:certificateType == 'web' && cACertificateText != null">
+        <tr>
+          <label jwcid="caCertificateLabel@common/FieldPanel"
+            label="message:label.caCertificateFile">
+            <span jwcid="@Insert" value="ognl:cACertificateName"/>
+            <ul class="settingDescription">
+              <span jwcid="@admin/ShowCertificate" certificateText="ognl:cACertificateText"/>
+            </ul>
+          </label>
+        </tr>
+      </span>
       <tr>
         <label jwcid="rebuildLabel@common/FieldPanel"
             for="id:rebuild"
             field="component:rebuild"
             label="message:label.rebuild"
             description="message:description.rebuild">
-            <input jwcid="rebuild@Submit" listener="listener:rebuild" value="message:button.rebuild" />            
-        </label>      
-      </tr>     
+            <input jwcid="rebuild@Submit" listener="listener:rebuild" value="message:button.rebuild" />
+        </label>
+      </tr>
     </tbody>
    </table>
-   
     <span jwcid="importMethod@RadioGroup" selected="ognl:importMethodSelected">
       <table>
         <tr>
@@ -52,8 +73,21 @@
             <td><span jwcid="keyFileLabel@FieldLabel" field="component:keyFile" /></td>
             <td><span jwcid="keyFile@Upload" file="ognl:uploadKeyFile"
               displayName="message:label.keyFile" disabled="ognl:uploadDisabled" /></td>
-          </tr> </span>
-        <span jwcid="@If" condition="ognl:uploadDisabled">
+          </tr>
+		  <span jwcid="@If" condition="ognl:certificateType == 'web'">
+			<tr>
+			  <td><span jwcid="chainCertificateFileLabel@FieldLabel" field="component:chainCertificateFile" /></td>
+			  <td><span jwcid="chainCertificateFile@Upload" file="ognl:uploadChainCertificateFile"
+				displayName="message:label.chainCertificateFile" /></td>
+			</tr>
+			<tr>
+			  <td><span jwcid="caCertificateFileLabel@FieldLabel" field="component:caCertificateFile" /></td>
+			  <td><span jwcid="caCertificateFile@Upload" file="ognl:uploadCACertificateFile"
+				displayName="message:label.caCertificateFile" /></td>
+			</tr>
+		  </span>
+        </span>
+		<span jwcid="@If" condition="ognl:uploadDisabled">
           <tr>
             <td><span jwcid="crtLabel@FieldLabel" field="component:crt" /></td>
           </tr>
@@ -67,8 +101,26 @@
           <tr>
             <td><span jwcid="key@TextArea" value="ognl:key" displayName="message:label.key" rows="8"
               cols="65" disabled="ognl:textDisabled" /></td>
-          </tr> </span>
+		  </tr>
+		  <span jwcid="@If" condition="ognl:certificateType == 'web'">
+			<tr>
+			  <td><span jwcid="chainCertificateTextLabel@FieldLabel" field="component:chainCertificateText" /></td>
+			</tr>
+			<tr>
+			  <td><span jwcid="chainCertificateText@TextArea" value="ognl:chainCertificate" displayName="message:label.chainCertificate"
+				rows="8" cols="65" disabled="ognl:textDisabled" /></td>
+			</tr>
+			<tr>
+			  <td><span jwcid="caCertificateTextLabel@FieldLabel" field="component:caCertificateText" /></td>
+			</tr>
+			<tr>
+			  <td><span jwcid="caCertificateText@TextArea" value="ognl:caCertificate" displayName="message:label.caCertificate"
+				rows="8" cols="65" disabled="ognl:textDisabled" /></td>
+			</tr>
+		  </span>
+		</span>
       </table> <span jwcid="import@Submit" id="import" action="listener:importCertificate"
-      value="message:button.import" /> </span>
+      value="message:button.import" />
+    </span>
   </fieldset>
 </form>
