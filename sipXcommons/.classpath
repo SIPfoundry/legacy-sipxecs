@@ -46,10 +46,9 @@
 	<classpathentry exported="true" kind="lib" path="lib/gdata-core-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/guessencoding-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gwt-user-2.1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/hibernate-3.2.7.jar" sourcepath="/home/dhubler/libsrc/hibernate-3.2.7/src"/>
+	<classpathentry exported="true" kind="lib" path="lib/hibernate-3.2.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/htmlunit-2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/htmlunit-core-js-2.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/index"/>
 	<classpathentry exported="true" kind="lib" path="lib/iText-2.1.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/j2ee_connector-1_0-fr-class.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/jain-sip-sdp-1.2.148.jar"/>
@@ -89,16 +88,16 @@
 	<classpathentry exported="true" kind="lib" path="lib/ognl-2.7.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.restlet-1.1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.restlet.ext.spring-2.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/org.springframework.aop-3.0.5.RELEASE.jar" sourcepath="/home/dhubler/libsrc/spring-framework-3.0.5.RELEASE.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.springframework.aop-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.springframework.asm-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.springframework.beans-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.springframework.context-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.springframework.context.support-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/org.springframework.core-3.0.5.RELEASE.jar" sourcepath="/home/dhubler/libsrc/spring-3.0.5.jar.src"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.springframework.core-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.springframework.expression-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.springframework.jdbc-3.0.5.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/org.springframework.orm-3.0.5.RELEASE.jar" sourcepath="/home/dhubler/libsrc/spring-framework-3.0.5.RELEASE.zip"/>
-	<classpathentry exported="true" kind="lib" path="lib/org.springframework.transaction-3.0.5.RELEASE.jar" sourcepath="/home/dhubler/libsrc/spring-framework-3.0.5.RELEASE.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.springframework.orm-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.springframework.transaction-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.springframework.web-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.springframework.web.servlet-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-ws-2.0.3.RELEASE-all.jar"/>
@@ -116,7 +115,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/smack-3.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/smackx-3.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-ldap-1.1.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-mock-2.0.4.jar" sourcepath="/home/dhubler/libsrc/spring-framework-3.0.5.RELEASE.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-mock-2.0.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/Stun4J.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/velocity-1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/velocity-tools-generic-1.4.jar"/>
@@ -139,7 +138,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/mongo-2.7.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-data-mongodb-1.0.0.M5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-data-commons-core-1.2.0.M2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/snmp4j-2.0.3.jar" sourcepath="/home/dhubler/Downloads/temp/snmp4j-2.0.3/src"/>
+	<classpathentry exported="true" kind="lib" path="lib/snmp4j-2.0.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-security-config-3.1.0.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-security-core-3.1.0.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-security-web-3.1.0.RELEASE.jar"/>
@@ -157,7 +156,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/jetty-xml-8.1.0.v20120127.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/servlet-api-3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/bcpkix-jdk15on-147.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/bcprov-jdk15on-147.jar" sourcepath="/home/dhubler/libsrc/bouncycastle-src.zip/src.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/bcprov-jdk15on-147.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-net-3.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/thumbnailator-0.4.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mysql-connector-java-5.1.20-bin.jar"/>

@@ -30,6 +30,7 @@
   
   <bean id="registrationContextImpl" class="org.sipfoundry.sipxconfig.registrar.RegistrationContextImpl">
     <property name="nodedb" ref="nodeDb"/>
+    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <alias alias="registrationContext" name="registrationContextImpl"/>
