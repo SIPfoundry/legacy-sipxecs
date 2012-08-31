@@ -40,7 +40,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%{_sysconfdir}/sipxpbx/apache/*
 %{_datadir}/sipxecs/cfinputs/plugin.d/zz_apache.cf
 %dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/cfdata
 %{_localstatedir}/sipxdata/cfdata/defaults/apache.cfdat
