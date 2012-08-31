@@ -29,6 +29,7 @@ public class RegistrationContextImpl implements RegistrationContext {
     public static final Log LOG = LogFactory.getLog(RegistrationContextImpl.class);
     private static final String DB_COLLECTION_NAME = "registrar";
     private static final String EXPIRED = "expired";
+    private static final String IDENTITY = "identity";
     private static final String URI = "uri";
     private MongoTemplate m_nodedb;
     private DomainManager m_domainManager;
@@ -46,7 +47,7 @@ public class RegistrationContextImpl implements RegistrationContext {
     public List<RegistrationItem> getRegistrationsByUser(User user) {
         DB datasetDb = m_nodedb.getDb();
         DBCollection registrarCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
-        DBCursor cursor = registrarCollection.find(QueryBuilder.start("identity")
+        DBCursor cursor = registrarCollection.find(QueryBuilder.start(IDENTITY)
                 .is(user.getIdentity(m_domainManager.getDomainName())).and(EXPIRED).is(Boolean.FALSE).get());
         return getItems(cursor);
     }
@@ -62,7 +63,7 @@ public class RegistrationContextImpl implements RegistrationContext {
             item.setUri((String) registration.get(URI));
             item.setInstrument((String) registration.get("instrument"));
             item.setRegCallId((String) registration.get("callId"));
-            item.setIdentity((String) registration.get("identity"));
+            item.setIdentity((String) registration.get(IDENTITY));
             items.add(item);
         }
         return items;
