@@ -236,6 +236,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         List<Integer> usersToDelete = new ArrayList<Integer>();
         usersToDelete.add(1001);
         usersToDelete.add(1002);
+        getDaoEventPublisher().resetListeners();
         m_coreContext.deleteUsers(usersToDelete);
         commit();
 
@@ -253,6 +254,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         List<String> usersToDelete = new ArrayList<String>();
         usersToDelete.add("userseed1");
         usersToDelete.add("userseed2");
+        getDaoEventPublisher().resetListeners();
         m_coreContext.deleteUsersByUserName(usersToDelete);
         commit();
 

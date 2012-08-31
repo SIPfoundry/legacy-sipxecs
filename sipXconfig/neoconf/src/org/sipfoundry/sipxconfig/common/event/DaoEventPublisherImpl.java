@@ -50,6 +50,10 @@ public class DaoEventPublisherImpl  implements DaoEventPublisher, BeanFactoryAwa
         return m_listeners;
     }
 
+    public void resetListeners() {
+        m_listeners = null;
+    }
+
     public void publishDeleteCollection(Collection<?> entities) {
         for (Object entity : entities) {
             publishDelete(entity);

@@ -365,6 +365,7 @@ public class AcdContextImplTestIntegration extends IntegrationTestCase {
         sql("acd/agents.sql");
         assertEquals(4, countRowsInTable("acd_agent"));
         commit();
+        getDaoEventPublisher().resetListeners();
         m_coreContext.deleteUsers(Collections.singleton(new Integer(1000)));
         assertEquals(0, countRowsInTable("acd_agent"));
     }

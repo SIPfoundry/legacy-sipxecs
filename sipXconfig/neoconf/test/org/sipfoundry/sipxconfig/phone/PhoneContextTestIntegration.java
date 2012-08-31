@@ -111,11 +111,8 @@ public class PhoneContextTestIntegration extends IntegrationTestCase {
         loadDataSet("phone/SamplePhoneSeed.xml");
 
         List<Phone> page1 = m_context.loadPhones();
+        // check if phones loadded from db, oadAll doesn't make any ordering
         assertEquals(4, page1.size());
-        assertEquals("00001", page1.get(0).getSerialNumber());
-        assertEquals("00002", page1.get(1).getSerialNumber());
-        assertEquals("00003", page1.get(2).getSerialNumber());
-        assertEquals("aa00004", page1.get(3).getSerialNumber());
     }
 
     public void testGetAllPhoneIds() throws Exception {

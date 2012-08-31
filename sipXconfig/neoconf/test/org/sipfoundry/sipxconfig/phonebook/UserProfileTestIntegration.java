@@ -58,6 +58,7 @@ public class UserProfileTestIntegration extends IntegrationTestCase {
     }
 
     public void testDeleteUser() throws Exception {
+        getDaoEventPublisher().resetListeners();
         m_coreContext.deleteUsersByUserName(Collections.singleton("2001"));
         assertNull(getUserProfileService().getUsernameByImId("imid"));
         assertNull(getUserProfileService().getUserProfileByImId("imid"));

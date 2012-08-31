@@ -294,6 +294,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         User portaluser = m_coreContext.loadUser(1002);
         Phonebook privatePhonebook = m_phonebookManager.getPrivatePhonebook(portaluser);
         assertEquals("privatePhonebook_1002", privatePhonebook.getName());
+        getDaoEventPublisher().resetListeners();
         m_coreContext.deleteUser(portaluser);
 
         assertNull(m_phonebookManager.getPrivatePhonebook(portaluser));

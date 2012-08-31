@@ -50,6 +50,7 @@ public class MailboxManagerTestIntegration extends IntegrationTestCase {
         assertEquals(1, db().queryForLong("select count(*) from personal_attendant"));
 
         Set<Integer> ids = Collections.singleton(newUser.getId());
+        getDaoEventPublisher().resetListeners();
         m_coreContext.deleteUsers(ids);
 
         commit();

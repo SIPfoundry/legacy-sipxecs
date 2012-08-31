@@ -26,9 +26,11 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.ScheduledDay;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisherImpl;
 import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.ResultDataGrid;
 import org.springframework.dao.DataAccessException;
@@ -42,6 +44,7 @@ public class ForwardingContextImplTestIntegration extends ImdbTestCase {
     protected void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
         clear();
+        getDaoEventPublisher().resetListeners();
     }
     
     protected void onSetUpInTransaction() throws Exception {
@@ -319,4 +322,6 @@ public class ForwardingContextImplTestIntegration extends ImdbTestCase {
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
+
+
 }

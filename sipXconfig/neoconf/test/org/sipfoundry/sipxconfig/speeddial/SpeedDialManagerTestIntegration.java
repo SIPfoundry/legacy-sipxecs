@@ -161,6 +161,7 @@ public class SpeedDialManagerTestIntegration extends ImdbTestCase {
         loadDataSet("speeddial/speeddial.db.xml");
         assertEquals(3, countRowsInTable("speeddial_button"));
         assertEquals(1, countRowsInTable("speeddial"));
+        getDaoEventPublisher().resetListeners();
         m_coreContext.deleteUsers(Collections.singleton(1001));
         assertEquals(0, countRowsInTable("speeddial_button"));
         assertEquals(0, countRowsInTable("speeddial"));
