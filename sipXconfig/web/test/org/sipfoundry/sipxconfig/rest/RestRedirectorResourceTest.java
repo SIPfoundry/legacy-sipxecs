@@ -17,9 +17,7 @@ import org.restlet.data.ChallengeResponse;
 import org.restlet.data.MediaType;
 import org.restlet.data.Reference;
 import org.restlet.data.Request;
-import org.restlet.data.Response;
 import org.restlet.resource.Representation;
-import org.restlet.resource.StringRepresentation;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
@@ -95,10 +93,10 @@ public class RestRedirectorResourceTest extends TestCase {
         HttpInvoker invoker = createMock(HttpInvoker.class);
         String uri = StringUtils.substringAfter(resIdentifier, resourceType);
         invoker.invokeGet(address + resourceType + uri);
-        expectLastCall().once();
+        expectLastCall().andReturn(result).once();
         replay(invoker);
 
-        RestRedirectorResource resource = createResource(invoker, resIdentifier, result);
+        RestRedirectorResource resource = createResource(invoker, resIdentifier);
 
         Representation representation = resource.represent(new Variant(MediaType.TEXT_XML));
         StringWriter writer = new StringWriter();
@@ -114,7 +112,7 @@ public class RestRedirectorResourceTest extends TestCase {
         expectLastCall().once();
         replay(invoker);
 
-        RestRedirectorResource resource = createResource(invoker, resIdentifier, "");
+        RestRedirectorResource resource = createResource(invoker, resIdentifier);
 
         resource.acceptRepresentation(null);
     }
@@ -126,7 +124,7 @@ public class RestRedirectorResourceTest extends TestCase {
         expectLastCall().once();
         replay(invoker);
 
-        RestRedirectorResource resource = createResource(invoker, resIdentifier, "");
+        RestRedirectorResource resource = createResource(invoker, resIdentifier);
 
         resource.storeRepresentation(null);
     }
@@ -138,12 +136,12 @@ public class RestRedirectorResourceTest extends TestCase {
         expectLastCall().once();
         replay(invoker);
 
-        RestRedirectorResource resource = createResource(invoker, resIdentifier, "");
+        RestRedirectorResource resource = createResource(invoker, resIdentifier);
 
         resource.removeRepresentations();
     }
 
-    private RestRedirectorResource createResource(HttpInvoker invoker, String resIdentifier, String entityData) {
+    private RestRedirectorResource createResource(HttpInvoker invoker, String resIdentifier) {
         RestRedirectorResource resource = new RestRedirectorResource();
         resource.setCoreContext(m_coreContext);
         resource.setAddressManager(m_addressManager);
@@ -156,9 +154,7 @@ public class RestRedirectorResourceTest extends TestCase {
         resourceRef.setIdentifier(resIdentifier);
         request.setResourceRef(resourceRef);
         request.setChallengeResponse(challengeResponse);
-        Response response = new Response(request);
-        response.setEntity(new StringRepresentation(entityData));
-        resource.init(null, request, response);
+        resource.init(null, request, null);
 
         return resource;
     }
