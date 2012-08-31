@@ -16,7 +16,7 @@ public class RegistrationStatusTest extends TestCase {
 	public void setUp() {
 		System.out.println("Please set up two ITSP accounts with registration before running this test");
 		System.out.println("Please turn of secure xml rpc on sipxbridge");
-		client = new SipXbridgeXmlRpcClient("192.168.5.75", 8088, false);
+		client = new SipXbridgeXmlRpcClient("192.168.5.75", 8088);
 	}
 	
 	public void testRegistrationStatus() {

@@ -40,8 +40,7 @@ public class InvalidAccountTest extends TestCase {
         System.out.println("Web server started");
         client = new SipXbridgeXmlRpcClient
             (Gateway.getAccountManager().getBridgeConfiguration().getExternalAddress(),
-                    Gateway.getAccountManager().getBridgeConfiguration().getXmlRpcPort(),
-                    Gateway.getBridgeConfiguration().isSecure());
+                    Gateway.getAccountManager().getBridgeConfiguration().getXmlRpcPort());
         
         
        
