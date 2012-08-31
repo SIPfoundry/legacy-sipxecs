@@ -14,7 +14,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.imdb.RegistrationItem;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -47,9 +46,8 @@ public class RegistrationContextImpl implements RegistrationContext {
     public List<RegistrationItem> getRegistrationsByUser(User user) {
         DB datasetDb = m_nodedb.getDb();
         DBCollection registrarCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
-        DBCursor cursor = registrarCollection.find(QueryBuilder.start(URI)
-                .is(SipUri.format(user.getUserName(), m_domainManager.getDomainName(), false)).and(EXPIRED)
-                .is(Boolean.FALSE).get());
+        DBCursor cursor = registrarCollection.find(QueryBuilder.start("identity")
+                .is(user.getIdentity(m_domainManager.getDomainName())).and(EXPIRED).is(Boolean.FALSE).get());
         return getItems(cursor);
     }
 
@@ -64,6 +62,7 @@ public class RegistrationContextImpl implements RegistrationContext {
             item.setUri((String) registration.get(URI));
             item.setInstrument((String) registration.get("instrument"));
             item.setRegCallId((String) registration.get("callId"));
+            item.setIdentity((String) registration.get("identity"));
             items.add(item);
         }
         return items;

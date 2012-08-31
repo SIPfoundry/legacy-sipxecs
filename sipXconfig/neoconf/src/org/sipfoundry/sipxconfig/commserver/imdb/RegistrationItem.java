@@ -17,7 +17,8 @@ public class RegistrationItem implements Comparable {
     private long m_expires;
     private String m_primary;
     private String m_instrument;
-    private String m_regCallId;;
+    private String m_regCallId;
+    private String m_identity;
 
     public String getContact() {
         return m_contact;
@@ -65,6 +66,14 @@ public class RegistrationItem implements Comparable {
 
     public void setRegCallId(String callId) {
         m_regCallId = callId;
+    }
+
+    public String getIdentity() {
+        return m_identity;
+    }
+
+    public void setIdentity(String identity) {
+        m_identity = identity;
     }
 
     public int compareTo(Object other) {
