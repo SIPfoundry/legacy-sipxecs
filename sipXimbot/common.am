@@ -12,4 +12,5 @@ imbot_PKGS = \
 	javax.servlet \
 	mongo \
 	xmlrpc-client \
-	sipx-openfire-presence-plugin
+	sipx-openfire-presence-plugin \
+	ws-commons-util
