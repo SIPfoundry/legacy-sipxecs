@@ -56,13 +56,13 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
     @Override
     public MailboxDetails getMailboxDetails(String username) {
         FilenameFilter filter = new RegexFileFilter(MESSAGE_REGEX);
-        List<String> inboxMessages = extractMessages(getFolder(username, Folder.INBOX).list(filter));
-        List<String> savedMessages = extractMessages(getFolder(username, Folder.SAVED).list(filter));
-        List<String> deletedMessages = extractMessages(getFolder(username, Folder.DELETED).list(filter));
-        List<String> conferenceMessages = extractMessages(getFolder(username, Folder.CONFERENCE).list(filter));
+        List<String> inboxMessages = extractMessages(getFolder(username, Folder.INBOX).listFiles(filter));
+        List<String> savedMessages = extractMessages(getFolder(username, Folder.SAVED).listFiles(filter));
+        List<String> deletedMessages = extractMessages(getFolder(username, Folder.DELETED).listFiles(filter));
+        List<String> conferenceMessages = extractMessages(getFolder(username, Folder.CONFERENCE).listFiles(filter));
 
         FilenameFilter unheardFilter = new RegexFileFilter(STATUS_REGEX);
-        List<String> unheardMessages = extractMessages(getFolder(username, Folder.INBOX).list(unheardFilter));
+        List<String> unheardMessages = extractMessages(getFolder(username, Folder.INBOX).listFiles(unheardFilter));
         return new MailboxDetails(username, inboxMessages, savedMessages, deletedMessages, conferenceMessages,
                 unheardMessages);
     }
@@ -610,10 +610,15 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
         return new File(m_mailstoreDirectory + File.separator + username);
     }
 
-    private List<String> extractMessages(String[] messages) {
+    private List<String> extractMessages(File[] files) {
+        Arrays.sort(files, new Comparator<File>() { 
+            public int compare(File f1, File f2) {
+                return Long.valueOf(f2.lastModified()).compareTo(f1.lastModified());
+            }
+        });
         List<String> messageList = new LinkedList<String>();
-        for (String message : messages) {
-            messageList.add(StringUtils.removeEnd(message, MESSAGE_IDENTIFIER));
+        for (File file : files) {
+            messageList.add(StringUtils.removeEnd(file.getName(), MESSAGE_IDENTIFIER));
         }
         return messageList;
     }
