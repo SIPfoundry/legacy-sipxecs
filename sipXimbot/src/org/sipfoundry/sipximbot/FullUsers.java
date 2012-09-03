@@ -40,7 +40,7 @@ public enum FullUsers {
     }
 
     public User findByjid(String jid) {
-        String id = StringUtils.substringBefore(jid, "@");
+        String id = StringUtils.remove(jid, "@" + ImbotConfiguration.get().getSipxchangeDomainName());
         User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUserByInsensitiveJid(id);
         if (user != null) {
             user.setJid(jid);
