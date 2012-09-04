@@ -742,3 +742,32 @@ AC_DEFUN([CHECK_SERVICEDIR],
     [SERVICEDIR=${withval}],[SERVICEDIR='$(sysconfdir)/init.d'])
   AC_SUBST([SERVICEDIR])
 ])
+
+AC_DEFUN([OSSCORE_LIB],
+[
+  AC_ARG_WITH(osscore, [--with-osscore={yes,no,osscore-location} Default is yes and will search 
+                        for osscore in standard locations], 
+osscore_prefix="$withval",  
+osscore_prefix="yes")
+
+  if test "$osscore_prefix" == "yes" ; then
+    osscore_prefix="${PREFIX}/lib /usr/lib /usr/lib64"
+  fi
+
+  if test "$osscore_prefix" != "no"; then
+    AC_MSG_CHECKING([for OssCore])
+    for d in $osscore_prefix ; do
+      if test -d $d/liboss_core.la ; then
+        AC_MSG_RESULT([yes - $d])
+        osscore_found=yes
+        break;
+      fi
+    done
+  fi
+
+  if test -z "$osscore_found" ; then
+    AC_MSG_RESULT([no])
+  fi
+
+  AC_SUBST(OSSCORE_LIBS, "$d/liboss_core.la")
+])
