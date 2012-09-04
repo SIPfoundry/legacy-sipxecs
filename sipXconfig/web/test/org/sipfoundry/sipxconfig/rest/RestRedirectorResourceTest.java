@@ -4,7 +4,6 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.classextension.EasyMock.createMock;
 
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +11,7 @@ import junit.framework.TestCase;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.context.SecurityContextHolder;
+import org.apache.axis.utils.ByteArrayOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.MediaType;
@@ -70,11 +70,11 @@ public class RestRedirectorResourceTest extends TestCase {
     }
 
     public void testRepresentIvr() throws Exception {
-        represent("http://host.example.com:8085", "http://host.example.com:8085/mailbox/200/messages", RestRedirectorResource.MAILBOX, "<messages></messages>");
+        represent("http://host.example.com:8085", "http://host.example.com:8085/mailbox/200/messages", RestRedirectorResource.MAILBOX, "<messages></messages>".getBytes());
     }
 
     public void testRepresentCdr() throws Exception {
-        represent("http://host.example.com:6667", "http://host.example.com:6666/cdr/200", RestRedirectorResource.CDR, "<cdr></cdr>");
+        represent("http://host.example.com:6667", "http://host.example.com:6666/cdr/200", RestRedirectorResource.CDR, "<cdr></cdr>".getBytes());
     }
 
     public void testPost() throws Exception {
@@ -89,7 +89,7 @@ public class RestRedirectorResourceTest extends TestCase {
         delete("http://host.example.com:8085", "http://host.example.com:8085/mailbox/200/message/0000001/heard", RestRedirectorResource.MAILBOX);
     }
 
-    private void represent(String address, String resIdentifier, String resourceType, String result) throws Exception{
+    private void represent(String address, String resIdentifier, String resourceType, byte[] result) throws Exception{
         HttpInvoker invoker = createMock(HttpInvoker.class);
         String uri = StringUtils.substringAfter(resIdentifier, resourceType);
         invoker.invokeGet(address + resourceType + uri);
@@ -98,11 +98,11 @@ public class RestRedirectorResourceTest extends TestCase {
 
         RestRedirectorResource resource = createResource(invoker, resIdentifier);
 
-        Representation representation = resource.represent(new Variant(MediaType.TEXT_XML));
-        StringWriter writer = new StringWriter();
+        Representation representation = resource.represent(new Variant(MediaType.ALL));
+        ByteArrayOutputStream writer = new ByteArrayOutputStream();
         representation.write(writer);
-        String generated = writer.toString();
-        assertEquals(result, generated);
+        byte[] generated = writer.toByteArray();
+        assertEquals(new String(result), new String(generated));
     }
 
     private void post(String address, String resIdentifier, String resourceType) throws Exception{
