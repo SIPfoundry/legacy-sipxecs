@@ -23,6 +23,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <execinfo.h>
 #include <fcntl.h>
 #include <sstream>
 #include <fstream>
@@ -35,8 +36,9 @@
 #include <boost/property_tree/detail/ptree_utils.hpp>
 #include <stdexcept>
 #include <locale>
-#include "os/OsLogger.h"
 
+#ifndef SERVICE_NO_LOGGER
+#include "os/OsLogger.h"
 
 namespace Os
 {
@@ -171,6 +173,7 @@ struct ServiceLogger
   std::string processName;
 };
 }
+#endif
 
 class ServiceOptions
 {
@@ -220,7 +223,6 @@ public:
   void waitForTerminationRequest();
 
 protected:
-  void initlogger();
   int _argc;
   char** _argv;
   std::string _daemonName;
@@ -241,7 +243,11 @@ protected:
   boost::property_tree::ptree _ptree;
   bool _hasConfig;
   bool _isConfigOnly;
+
+#ifndef SERVICE_NO_LOGGER
+  void initlogger();
   Os::ServiceLogger _logger;
+#endif
 };
 
 inline ServiceOptions::ServiceOptions(int argc, char** argv,
@@ -313,13 +319,15 @@ inline bool ServiceOptions::parseOptions()
     addOptionFlag('h', "help", ": Display help information.", CommandLineOption);
     addOptionFlag('v', "version", ": Display version information.", CommandLineOption);
     addOptionString('C', "config-file", ": Optional daemon config file.", CommandLineOption);
+
+#ifndef SERVICE_NO_LOGGER
     addOptionString('L', "log-file", ": Specify the application log file.", CommandLineOption);
     addOptionInt('l', "log-level",
       ": Specify the application log priority level."
       "Valid level is between 0-7.  "
       "0 (EMERG) 1 (ALERT) 2 (CRIT) 3 (ERR) 4 (WARNING) 5 (NOTICE) 6 (INFO) 7 (DEBUG)"
             , CommandLineOption);
-
+#endif
     _optionItems.add(_commandLineOptions);
     _optionItems.add(_daemonOptions);
     _optionItems.add(_configOptions);
@@ -390,11 +398,16 @@ inline bool ServiceOptions::parseOptions()
     }
   }
 
+#ifndef SERVICE_NO_LOGGER
   initlogger();
   std::set_terminate(&ServiceOptions::catch_global);
+#endif
+  
+  
   return true;
 }
 
+#ifndef SERVICE_NO_LOGGER
 inline void ServiceOptions::initlogger()
 {
   std::string logFile;
@@ -429,7 +442,7 @@ inline void ServiceOptions::initlogger()
     _exit(-1);
   }
 }
-
+#endif
 
 inline void ServiceOptions::addOptionFlag(char shortForm, const std::string& optionName, const std::string description, OptionType type)
 {
@@ -799,6 +812,7 @@ inline void  ServiceOptions::daemonize(int argc, char** argv)
 // copy error information to log. registered only after logger has been configured.
 inline void ServiceOptions::catch_global()
 {
+#ifndef SERVICE_NO_LOGGER
 #define catch_global_print(msg)  \
   std::ostringstream bt; \
   bt << msg << std::endl; \
@@ -839,6 +853,7 @@ inline void ServiceOptions::catch_global()
   }
 
   std::abort();
+#endif
 }
 
 
