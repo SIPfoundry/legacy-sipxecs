@@ -143,6 +143,10 @@
       <type><integer required="yes"/></type>
       <value>100</value>
     </setting>
+    <setting name="SIP_REDIRECT.140-FALLBACK.ALLOW_UNBOUND" advanced="yes">
+      <type refid="yesNo"/>
+      <value>N</value>
+    </setting>    
   </group>
   <group name="userparam" advanced="yes">
     <setting name="SIP_REDIRECT.090-USERPARAM.STRIP_ALL" advanced="yes">
@@ -179,7 +183,7 @@
     </setting>
     <setting name="SIP_REDIRECT.100-PICKUP.GLOBAL_CALL_PICKUP_CODE" advanced="yes">
       <type><string/></type>
-    </setting>
+    </setting>    
   </group>
   <group name="mapping">
     <setting name="MEDIA_SERVER" hidden="yes">

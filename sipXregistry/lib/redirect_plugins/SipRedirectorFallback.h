@@ -105,6 +105,10 @@ class SipRedirectorFallback : public RedirectPlugin
     * Full name of file containing the mapping rules.
     */
    UtlString mFileName;
+   /**
+    * Allow unbound flag value
+    */
+   UtlBoolean mAllowUnbound;
   
   private:
      /**

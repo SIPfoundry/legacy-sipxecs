@@ -45,7 +45,7 @@ SipRedirectorFallback::SipRedirectorFallback(const UtlString& instanceName) :
    mLogName.append("[");
    mLogName.append(instanceName);
    mLogName.append("] SipRedirectorFallback");
-
+   mAllowUnbound = FALSE;
 }
 
 // Destructor
@@ -57,6 +57,7 @@ SipRedirectorFallback::~SipRedirectorFallback()
 void SipRedirectorFallback::readConfig(OsConfigDb& configDb)
 {
    configDb.get("MAPPING_RULES_FILENAME", mFileName);
+   mAllowUnbound = configDb.getBoolean("ALLOW_UNBOUND", false);
 }
 
 // Initialize
@@ -210,7 +211,13 @@ SipRedirectorFallback::determineCallerLocationFromProvisionedUserLocation(
   // If the request contains a P-Asserted-Identity header and is not signed,
   // we will not trust it the returned location will be blank.
   UtlString matchedIdentityHeader;
-  SipXauthIdentity sipxIdentity( message, matchedIdentityHeader, false );
+  SipXauthIdentity sipxIdentity;
+  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRedirectorFallback:: unbound entities allowing: %s", mAllowUnbound ? "TRUE" : "FALSE");
+  if (!mAllowUnbound) {
+	  SipXauthIdentity sipxIdentity( message, matchedIdentityHeader, false );
+  } else {
+	  SipXauthIdentity sipxIdentity( message, matchedIdentityHeader, false, SipXauthIdentity::allowUnbound);
+  }
 
   if( !matchedIdentityHeader.isNull() )
   {
