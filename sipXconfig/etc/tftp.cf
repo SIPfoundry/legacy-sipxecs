@@ -18,8 +18,10 @@ bundle agent tftp {
   methods:
     primary::
       "any" usebundle => tftp_config;
-    primary::
-      "any" usebundle => tftp_running;
+    primary.tftp.!fedora16_or_greater::
+      "any" usebundle => xinetd_sysv_running;
+    primary.tftp.fedora16_or_greater::
+      "any" usebundle => xinetd_sysctl_running;
 }
 
 bundle agent tftp_config {
@@ -52,9 +54,34 @@ bundle edit_line tftp_xinet_config {
     "\s*(disable\s*=|server_args\s*=|}).*";
 }
 
+bundle agent xinetd_sysctl_running {
+  vars:
+    any::
+      "service" string => "xinetd.service";
+
+  classes:
+    fedora16_or_greater::
+      "xinetd_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+
+  commands:
+    !xinetd_running::
+      "$(sipx.systemctl)"
+        comment => "start xinetd",
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable xinetd",
+        args => "enable $(service)";
+
+    xinetd_running.restart_xinetd::
+      "$(sipx.systemctl)"
+        comment => "restart xinetd",
+        args => "restart $(service)";
+}
+
 # There is no shutdown of xinetd because we cannot be sure other services
 # are not also using it.
-bundle agent tftp_running {
+bundle agent xinetd_sysv_running {
   vars:
     any::
       "service" string => "/etc/init.d/xinetd";
@@ -63,21 +90,20 @@ bundle agent tftp_running {
   methods:
     any::
       "any" usebundle => find_service_by_command("$(service_command)", "xinetd_running", "root");
-    tftp::
       "any" usebundle => rh_chkconfig_status("xinetd on");
 
   commands:
-    tftp.!xinetd_running::
+    !xinetd_running::
       "$(service)"
         comment => "start xinetd",
         args => "start";
 
-    tftp.xinetd_running.reload_xinetd::
+    xinetd_running.reload_xinetd::
       "$(service)"
         comment => "reload xinetd",
         args => "reload";
 
-    tftp.xinetd_running.restart_xinetd::
+    xinetd_running.restart_xinetd::
       "$(service)"
         comment => "restart xinetd",
         args => "restart";
