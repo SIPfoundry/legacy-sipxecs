@@ -10,14 +10,12 @@ $cfdatadir = "@SIPX_CFDATA@"
 $confdir = "@SIPX_CONFDIR@"
 $logdir = "@SIPX_LOGDIR@"
 $bindir = "@SIPX_BINDIR@"
-$ofhome = "@OPENFIRE_HOME@"
 $servicedir = "@SIPX_SERVICEDIR@"
 $user = "@SIPXPBXUSER@"
 $group = "@SIPXPBXGROUP@"
 
 $domain_dat = "#{$cfdatadir}/domain.cfdat"
 $domain_part = "#{$cfdatadir}/domain-config.part"
-$ofconfigfile = "#{$ofhome}/conf/openfire.xml.sipx"
 $root_cfenginedir = "/var/cfengine"
 $home_dir = `awk -F : '/^#{$user}:/ { print $6 }' /etc/passwd`.chomp
 $user_keydir = "#{$home_dir}/.cfagent/ppkeys"
@@ -196,7 +194,6 @@ def reset
   rm_file($master_dat)
   rm_file($location_dat)
   rm_file($mongo_client_ini)
-  rm_file($ofconfigfile)
 end
 
 def reset_all
