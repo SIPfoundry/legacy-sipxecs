@@ -56,7 +56,8 @@ public class SelectSpecialAttendantResource extends UserResource {
             return;
         }
 
-        m_autoAttendantManager.selectSpecial(aa);
+        boolean specialMode = m_autoAttendantManager.getSpecialMode();
+        m_autoAttendantManager.setAttendantSpecialMode(specialMode, aa);
         getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
     }
 

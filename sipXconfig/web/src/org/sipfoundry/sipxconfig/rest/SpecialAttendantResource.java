@@ -62,13 +62,13 @@ public class SpecialAttendantResource extends UserResource {
 
     @Override
     public void storeRepresentation(Representation entity) throws ResourceException {
-        m_autoAttendantManager.setSpecialMode(true);
+        m_autoAttendantManager.setAttendantSpecialMode(true, null);
         getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
     }
 
     @Override
     public void removeRepresentations() throws ResourceException {
-        m_autoAttendantManager.setSpecialMode(false);
+        m_autoAttendantManager.setAttendantSpecialMode(false, null);
         getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
     }
 

@@ -16,6 +16,8 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -35,9 +37,9 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
+import org.restlet.resource.InputRepresentation;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
-import org.restlet.resource.StringRepresentation;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
@@ -50,6 +52,7 @@ public class RestRedirectorResource extends UserResource {
     public static final String CALLCONTROLLER = "/callcontroller";
     public static final String CDR = "/cdr";
     public static final String MAILBOX = "/mailbox";
+    public static final String MEDIA = "/media";
     private static final String GET = "GET";
     private static final String PUT = "PUT";
     private static final String POST = "POST";
@@ -65,7 +68,7 @@ public class RestRedirectorResource extends UserResource {
     public void init(Context context, Request request, Response response) {
         super.init(context, request, response);
         m_httpInvoker = m_httpInvoker == null ? new HttpInvokerImpl() : m_httpInvoker;
-        getVariants().add(new Variant(MediaType.TEXT_ALL));
+        getVariants().add(new Variant(MediaType.ALL));
     }
 
     @Override
@@ -115,7 +118,8 @@ public class RestRedirectorResource extends UserResource {
         String cdrRelativeUrl = StringUtils.substringAfter(url, CDR);
         String mailboxRelativeUrl = StringUtils.substringAfter(url, MAILBOX);
         String callcontrollerRelativeUrl = StringUtils.substringAfter(url, CALLCONTROLLER);
-        String result = null;
+        String mediaRelativeUrl = StringUtils.substringAfter(url, MEDIA);
+        byte[] result = null;
         if (!StringUtils.isEmpty(cdrRelativeUrl)) {
             result = m_httpInvoker.invokeGet(m_addressManager.getSingleAddress(RestServer.HTTP_API)
                     + CDR + cdrRelativeUrl);
@@ -124,12 +128,14 @@ public class RestRedirectorResource extends UserResource {
         } else if (!StringUtils.isEmpty(callcontrollerRelativeUrl)) {
             result = m_httpInvoker.invokeGet(m_addressManager.getSingleAddress(RestServer.HTTP_API)
                     + CALLCONTROLLER + callcontrollerRelativeUrl);
+        } else if (!StringUtils.isEmpty(mediaRelativeUrl)) {
+            result = invokeIvrFallback(GET, MEDIA + mediaRelativeUrl);
         }
-        return new StringRepresentation(result);
+        return new InputRepresentation(new ByteArrayInputStream(result), MediaType.ALL);
     }
 
-    private String invokeIvrFallback(String methodType, String relativeUri) throws ResourceException {
-        String result = null;
+    private byte [] invokeIvrFallback(String methodType, String relativeUri) throws ResourceException {
+        byte[] result = null;
         Address ivrGoodAddress = m_mailboxManager.getLastGoodIvrNode();
         if (ivrGoodAddress != null) {
             try {
@@ -157,7 +163,7 @@ public class RestRedirectorResource extends UserResource {
         throw new ResourceException(Status.CONNECTOR_ERROR_COMMUNICATION, "No IVR node is running");
     }
 
-    private String invokeMethod(Address address, String methodType, String relativeUri) throws ResourceException {
+    private byte[] invokeMethod(Address address, String methodType, String relativeUri) throws ResourceException {
         if (StringUtils.equals(methodType, GET)) {
             return m_httpInvoker.invokeGet(address.toString() + relativeUri);
         } else if (StringUtils.equals(methodType, POST)) {
@@ -184,7 +190,7 @@ public class RestRedirectorResource extends UserResource {
     }
 
     public interface HttpInvoker {
-        public String invokeGet(String address) throws ResourceException;
+        public byte[] invokeGet(String address) throws ResourceException;
         public void invokePut(String address) throws ResourceException;
         public void invokePost(String address) throws ResourceException;
         public void invokeDelete(String address) throws ResourceException;
@@ -193,7 +199,7 @@ public class RestRedirectorResource extends UserResource {
     public class HttpInvokerImpl implements HttpInvoker {
 
         @Override
-        public String invokeGet(String address) throws ResourceException {
+        public byte[] invokeGet(String address) throws ResourceException {
             HttpMethodBase method = new GetMethod(address.toString());
             return invokeRestService(method);
         }
@@ -216,17 +222,23 @@ public class RestRedirectorResource extends UserResource {
             invokeRestService(method);
         }
 
-        private String invokeRestService(HttpMethodBase method) throws ResourceException {
-            String response = null;
+        private byte[] invokeRestService(HttpMethodBase method) throws ResourceException {
+            byte[] response = null;
             InputStream stream = null;
+            ByteArrayOutputStream outputStream = null;
             try {
                 HttpClient client = new HttpClient();
                 method.setRequestHeader("sipx-user", getUser().getUserName());
                 int status = client.executeMethod(method);
                 stream = method.getResponseBodyAsStream();
-                response = IOUtils.toString(stream);
+                outputStream = new ByteArrayOutputStream();
+                int n;
+                byte[] buffer = new byte[1024];
+                while ((n = stream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, n);
+                }
                 getResponse().setStatus(new Status(status));
-                getResponse().setEntity(response, MediaType.TEXT_PLAIN);
+                response = outputStream.toByteArray();
             } catch (IOException e) {
                 throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
             } finally {
@@ -234,6 +246,7 @@ public class RestRedirectorResource extends UserResource {
                     method.releaseConnection();
                 }
                 IOUtils.closeQuietly(stream);
+                IOUtils.closeQuietly(outputStream);
             }
             return response;
         }

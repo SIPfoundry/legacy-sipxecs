@@ -18,7 +18,7 @@ import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public interface AutoAttendantManager extends AliasOwner {
-    public static final GlobalFeature FEATURE = new GlobalFeature("autoAttendant");
+    final GlobalFeature FEATURE = new GlobalFeature("autoAttendant");
     String ATTENDANT_GROUP_ID = "auto_attendant";
 
     void clear();
@@ -52,11 +52,9 @@ public interface AutoAttendantManager extends AliasOwner {
      */
     void updatePrompts(File sourceDir);
 
-    void selectSpecial(AutoAttendant attendant);
-
     void deselectSpecial(AutoAttendant attendant);
 
-    void setSpecialMode(boolean enabled);
+    void setAttendantSpecialMode(boolean enabled, AutoAttendant attendant);
 
     boolean getSpecialMode();
 
