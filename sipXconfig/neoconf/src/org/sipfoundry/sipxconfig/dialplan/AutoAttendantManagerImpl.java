@@ -205,16 +205,6 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         }
     }
 
-    public void selectSpecial(AutoAttendant aa) {
-        AttendantSpecialMode specialMode = loadAttendantSpecialMode();
-        if (specialMode == null) {
-            specialMode = new AttendantSpecialMode();
-        }
-        specialMode.setAttendant(aa);
-        getHibernateTemplate().saveOrUpdate(specialMode);
-        getDaoEventPublisher().publishSave(specialMode);
-    }
-
     public void deselectSpecial(AutoAttendant aa) {
         AttendantSpecialMode specialMode = loadAttendantSpecialMode();
         if (specialMode.isEnabled()) {
@@ -237,13 +227,20 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         return specialMode.isEnabled();
     }
 
-    public void setSpecialMode(boolean enabled) {
+    @Override
+    public void setAttendantSpecialMode(boolean enabled, AutoAttendant aa) {
         AttendantSpecialMode specialMode = loadAttendantSpecialMode();
-        if (enabled && specialMode.getAttendant() == null) {
-            specialMode.setAttendant(getAfterhour());
+        if (specialMode == null) {
+            specialMode = new AttendantSpecialMode();
         }
         specialMode.setEnabled(enabled);
+        if (enabled && specialMode.getAttendant() == null) {
+            specialMode.setAttendant(getAfterhour());
+        } else {
+            specialMode.setAttendant(aa);
+        }
         getHibernateTemplate().saveOrUpdate(specialMode);
+        getDaoEventPublisher().publishSave(specialMode);
     }
 
     private AttendantSpecialMode loadAttendantSpecialMode() {

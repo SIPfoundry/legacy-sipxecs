@@ -15,6 +15,7 @@ import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
@@ -42,8 +43,11 @@ public abstract class SpecialAttendantPanel extends BaseComponent {
 
     public void onApply() {
         boolean enable = Mode.SPECIAL.equals(getMode());
-        getAutoAttendantManager().selectSpecial(getAutoAttendant());
-        getAutoAttendantManager().setSpecialMode(enable);
+        AutoAttendant aa = getAutoAttendant();
+        if (enable && aa == null) {
+            throw new UserException(getMessages().getMessage("error.requiredAutoAttendant"));
+        }
+        getAutoAttendantManager().setAttendantSpecialMode(enable, aa);
     }
 
     public IPropertySelectionModel getModeModel() {

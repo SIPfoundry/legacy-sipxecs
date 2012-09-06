@@ -150,7 +150,8 @@ public class AutoAttendantTestIntegration extends IntegrationTestCase {
     public void testSelectSpecial() throws Exception {
         loadDataSet("dialplan/seedOperator.xml");
         AutoAttendant operator = m_autoAttendantManager.getOperator();
-        m_autoAttendantManager.selectSpecial(operator);
+        boolean specialMode = m_autoAttendantManager.getSpecialMode();
+        m_autoAttendantManager.setAttendantSpecialMode(specialMode, operator);
         commit();
         assertEquals(1, countRowsInTable("attendant_special_mode"));
         Map<String, Object> actual = db().queryForMap("select * from attendant_special_mode");
@@ -168,7 +169,7 @@ public class AutoAttendantTestIntegration extends IntegrationTestCase {
     }
 
     public void testGetSetSpecialModeFalse() throws Exception {
-        m_autoAttendantManager.setSpecialMode(false);
+        m_autoAttendantManager.setAttendantSpecialMode(false, null);
         commit();        
         assertEquals(1, countRowsInTable("attendant_special_mode"));
         Map<String, Object> actualBefore = db().queryForMap("select * from attendant_special_mode");
@@ -176,7 +177,7 @@ public class AutoAttendantTestIntegration extends IntegrationTestCase {
     }
     
     public void testGetSetSpecialModeTrue() throws Exception {
-        m_autoAttendantManager.setSpecialMode(true);
+        m_autoAttendantManager.setAttendantSpecialMode(true, null);
         commit();        
         assertEquals(1, countRowsInTable("attendant_special_mode"));
         Map<String, Object> actualAfter = db().queryForMap("select * from attendant_special_mode");
