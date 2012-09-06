@@ -3,7 +3,7 @@
 %>
 type=SingleWithThreshold
 ptype=RegExp
-pattern=Authentication event AuthenticationFailureBadCredentialsEvent: (\S+);
+pattern=Authentication event AuthenticationFailureBadCredentialsEvent: (\S+); .* RemoteIpAddress: (\S+);
 desc=<%= LOGIN_FAILED[:minThreshold] %> failed login attempts for user $1 within a 60 second interval.
 action=shellcmd @SIPX_BINDIR@/sipxtrap LOGIN_FAILED '%s'
 window=60

@@ -102,7 +102,7 @@ def parse_alarm(data, input_stream)
       alarm = get_alarm(data, $1)
     when /^DISMAN-EVENT-MIB::mteHotValue.0 = INTEGER: (.*)$/
       alarm['message'] = "threshold is #{$1}"
-    when /^SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmDescr = STRING: "(.*)"$/
+    when /^SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmDescr "(.*)"$/
       alarm['message'] = $1
     end
   }
