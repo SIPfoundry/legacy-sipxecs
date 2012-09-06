@@ -7,6 +7,7 @@ ISO_SRC ?= $(SRC)/mak/centos-iso
 ISO_LABEL ?= sipxecs
 ISO_REV ?= $(PACKAGE_REVISION)
 SPLASH_FILE ?= $(ISO_SRC)/splash.jpg
+SPLASH_MENU ?= $(ISO_SRC)/isolinux.cfg
 VOLUME_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
 APPLICATION_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
 PUBLISHER_ID ?= sipx-dev@list.sipfoundry.org
@@ -27,7 +28,7 @@ ISO_COMPS ?= comps-iso.xml
 # very initial boot menu and graphics
 ISOLINUX_FILES = \
 	$(SPLASH_FILE) \
-	$(ISO_SRC)/isolinux.cfg
+	$(SPLASH_MENU)
 
 # default target, build both 32 and 64 bit cds
 help.iso = Build 32 and 64 versions of ISO from base CentOS ISO found in @ISO_DIR@
@@ -137,31 +138,17 @@ iso-packages-% : iso-download-os-% iso-download-epel-%
 	   | grep $(foreach REGEX,$(ISO_RM_LIST),-e '.*/$(REGEX)') \
 	   | xargs rm
 
+# Define only packages you want excluded. This means new rpms that should not be on ISO
+# get on and can often cause iso-check failures, but this catches legit dep issues
 ISO_RM_LIST = \
   freeswitch-[^1].* \
   net-snmp-gui-.* \
+  oss_core-.* \
   .*-static-.* \
   .*-doc-.* \
   .*-debuginfo-.* \
   .*-devel-.* \
   sipxlang.*  # language packs too big to put on cd
-
-ISO_ADD_SIPX = \
-  sipx-* \
-  netsnmp-5* \
-  net-snmp-libs-* \
-  net-snmp-agent-* \
-  net-snmp-sysvinit-* \
-  net-snmp-utils-* \
-  freeswitch-1.* \
-  homer-* \
-  mongodb-* \
-  js-* \
-  cfengine-* \
-  epel-release-* \
-  openacd-* \
-  ruby-* \
-  sec-*
 
 # Note, this list controls 32 and 64 bit lists so if 32 bit does not need
 # to download but 64 bit does, it will be in this list and 32 bit download will simply
