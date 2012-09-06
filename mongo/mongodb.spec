@@ -1,13 +1,12 @@
 Name: mongodb
 Version: 2.0.2
-Release: 99%{?dist}
+Release: 100%{?dist}
 Summary: mongo client shell and tools
 License: AGPL 3.0
 URL: http://www.mongodb.org
 Group: Applications/Databases
 
 Source0: %{name}-src-r%{version}.tar.gz
-Patch: boost-fsv2-compiler-err.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: js-devel, readline-devel, boost-devel, pcre-devel
 BuildRequires: gcc-c++, scons
@@ -36,8 +35,6 @@ softwware, default configuration files, and init.d scripts.
 Summary: Headers and libraries for mongo development. 
 Group: Applications/Databases
 
-Provides: mongodb-devel-fsv2-patch
-
 %description devel
 Mongo (from "huMONGOus") is a schema-free document-oriented database.
 
@@ -46,7 +43,6 @@ to develop mongo client software.
 
 %prep
 %setup -n mongodb-src-r%{version}
-%patch -p2
 
 %build
 scons --prefix=$RPM_BUILD_ROOT/usr --sharedclient --full all

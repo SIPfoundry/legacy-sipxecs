@@ -48,7 +48,6 @@ lib_common = \
   freeswitch \
   hiredis \
   js \
-  mongo \
   net-snmp \
   homer \
   OpenACD \
@@ -58,16 +57,20 @@ lib_common = \
   ruby-postgres \
   cfengine \
   v8 \
-  oss_core \
-  php-seclib
+  oss_core
 
-$(foreach V,11 12 13 14 15 16,$(eval lib_fedora_$(V) = $(lib_common) sec))
+$(foreach V,11 12 13 14 15,$(eval lib_fedora_$(V) = $(lib_common) mongo sec))
 
-$(foreach V,17 18 19 20,$(eval lib_fedora_$(V) = $(lib_common)))
+lib_fedora_16 = \
+  $(lib_common) \
+  sec
+
+$(foreach V,17 18 19 20,$(eval lib_fedora_$(V) = $(lib_common))
 
 lib_centos_6 = \
   epel-release \
   $(lib_common) \
+  mongo \
   sec \
   nsis \
   nsis-data \
