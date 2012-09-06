@@ -119,7 +119,7 @@
           <autoAnswerEnabled>2</autoAnswerEnabled>
         </autoAnswer>
         <callWaiting>3</callWaiting>
-        <authName>200</authName>
+        <authName>200/0004f200e06b</authName>
         <authPassword>200</authPassword>
         <sharedLine>false</sharedLine>
         <messageWaitingLampPolicy>1</messageWaitingLampPolicy>
@@ -146,7 +146,7 @@
           <autoAnswerEnabled>2</autoAnswerEnabled>
         </autoAnswer>
         <callWaiting>3</callWaiting>
-        <authName>201</authName>
+        <authName>201/0004f200e06b</authName>
         <authPassword>201</authPassword>
         <sharedLine>false</sharedLine>
         <messageWaitingLampPolicy>1</messageWaitingLampPolicy>

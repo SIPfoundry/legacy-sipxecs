@@ -40,7 +40,7 @@ public class CiscoplusPhone extends Ciscoplus {
 
     @Override
     public void initializeLine(Line line) {
-        line.addDefaultBeanSettingHandler(new CiscoplusLineDefaults(line));
+        line.addDefaultBeanSettingHandler(new CiscoplusLineDefaults(line, getSerialNumber()));
     }
 
     @Override
@@ -75,17 +75,29 @@ public class CiscoplusPhone extends Ciscoplus {
 
     public static class CiscoplusLineDefaults {
         private final Line m_line;
+        private final String m_mac;
 
-        CiscoplusLineDefaults(Line line) {
+        CiscoplusLineDefaults(Line line, String mac) {
             m_line = line;
+            m_mac = mac;
         }
 
-        @SettingEntry(paths = { USER_ID_SETTING, AUTH_NAME_SETTING })
+        @SettingEntry(paths = USER_ID_SETTING)
         public String getUserName() {
             String userName = null;
             User user = m_line.getUser();
             if (user != null) {
                 userName = user.getUserName();
+            }
+            return userName;
+        }
+
+        @SettingEntry(paths = AUTH_NAME_SETTING)
+        public String getUserAuthName() {
+            String userName = null;
+            User user = m_line.getUser();
+            if (user != null) {
+                userName = user.getUserName() + "/" + m_mac;
             }
             return userName;
         }

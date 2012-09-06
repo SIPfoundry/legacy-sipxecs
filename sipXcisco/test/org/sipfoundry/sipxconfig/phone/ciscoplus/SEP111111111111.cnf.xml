@@ -119,7 +119,7 @@
           <autoAnswerEnabled>2</autoAnswerEnabled>
         </autoAnswer>
         <callWaiting>3</callWaiting>
-        <authName>juser</authName>
+        <authName>juser/0004f200e06b</authName>
         <authPassword>1234</authPassword>
         <sharedLine>false</sharedLine>
         <messageWaitingLampPolicy>1</messageWaitingLampPolicy>
