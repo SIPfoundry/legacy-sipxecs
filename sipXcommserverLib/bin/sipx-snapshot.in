@@ -407,6 +407,11 @@ function marshal_configuration_information () {
    @SIPX_VARDIR@/process-state
    @SIPX_VARDIR@/process-cfgver
    @SIPX_DATADIR@/process.d
+   @OPENFIRE_HOME@/logs/debug.log
+   @OPENFIRE_HOME@/logs/info.log
+   @OPENFIRE_HOME@/logs/error.log
+   @OPENFIRE_HOME@/logs/warn.log
+   @OPENFIRE_HOME@/logs/sipxopenfire.log
    /var/log/yum.log
    /var/log/messages
    /var/log/mongo/mongod.log
@@ -414,10 +419,6 @@ function marshal_configuration_information () {
    /etc/yum
    /etc/yum.repos.d
 EOF
-
-   openfireLogs () {
-       ( ls -1 @SIPX_LOGDIR@/openfire/*.log | grep -v _ ) 2> /dev/null
-   }
 
   #recurse into directories;
   function tailLogs() {
@@ -449,7 +450,7 @@ EOF
 	   cutDir=`mktemp -d @SIPX_LOGDIR@/cut.XXXXXX`
 	   trap "rm -rf ${cutDir} 2>/dev/null" 0
 
-	   for base_log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log $(openfireLogs) @SIPX_LOGDIR@/trace/*.pcap*
+	   for base_log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log @SIPX_LOGDIR@/trace/*.pcap*
 	   do
 	     tailLogs $base_log
 	   done
@@ -457,17 +458,13 @@ EOF
 	   do
 	     tailLogs $base_log phone/
 	   done
-	   for base_log in $(openfireLogs)
-	   do
-	     tailLogs $base_log openfire/
-	   done
 	   for base_log in @SIPX_LOGDIR@/trace/*.pcap*
 	   do
 	     tailLogs $base_log trace/
 	   done
 	   ;;
        current)
-	   for log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log  $(openfireLogs) @SIPX_LOGDIR@/trace/*.pcap*
+	   for log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log @SIPX_LOGDIR@/trace/*.pcap*
 	   do
 	     echo $log >> $Work.copy-files
 	   done
@@ -476,7 +473,6 @@ EOF
 	   if ! ls -1 \
 		@SIPX_LOGDIR@/*log.${Logs}{,.gz} \
 		@SIPX_LOGDIR@/phone/*.log.${Logs}{,.gz} \
-		$(openfireLogs) \
 		2>/dev/null \
 		| grep '.' \
 		>> $Work.copy-files
@@ -486,7 +482,7 @@ EOF
 	   fi
 	   ;;
        all)
-	   for log in @SIPX_LOGDIR@/*log  @SIPX_LOGDIR@/*log.* @SIPX_LOGDIR@/phone/*.log.* @SIPX_LOGDIR@/openfire/*.log @SIPX_LOGDIR@/trace/*.pcap*
+	   for log in @SIPX_LOGDIR@/*log  @SIPX_LOGDIR@/*log.* @SIPX_LOGDIR@/phone/*.log.* @SIPX_LOGDIR@/trace/*.pcap*
 	   do
 	     echo $log >> $Work.copy-files
 	   done
