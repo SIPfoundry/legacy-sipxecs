@@ -36,7 +36,6 @@ import org.apache.tapestry.engine.ILink;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.services.ExpressionEvaluator;
-import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.RowInfo;
@@ -302,17 +301,16 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
      *
      * @param number number to call - refer is sent to current user
      */
-    public void call(String from) {
+    public void call(String fromUri) {
         String domain = getDomainManager().getDomain().getName();
         //We need to read the user from DB once
         User user = getUser();
         String userAddrSpec = user.getAddrSpec(domain);
-        String destAddrSpec = SipUri.format(from, domain, false);
-        if (destAddrSpec != null) {
+        if (fromUri != null) {
             String displayName = "ClickToCall";
-            getSipService().sendRefer(user, userAddrSpec, displayName, destAddrSpec);
+            getSipService().sendRefer(user, userAddrSpec, displayName, fromUri);
         } else {
-            LOG.error("Failed to get URI to call: " + from);
+            LOG.error("Failed to get URI to call: " + fromUri);
         }
     }
 

@@ -37,7 +37,7 @@ import org.springframework.context.ApplicationContext;
 
 
 public class RegistrarConfigurationTest {
-    
+
     @Test
     public void testConfigWithNoPlugins() throws Exception {
         RegistrarConfiguration config = new RegistrarConfiguration();
@@ -49,8 +49,10 @@ public class RegistrarConfigurationTest {
         StringWriter actual = new StringWriter();
         RegistrarSettings settings = new RegistrarSettings();
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
+        //test allow unbound config value replication
+        settings.setSettingTypedValue("registrar-config/SIP_REDIRECT.140-FALLBACK.ALLOW_UNBOUND", true);
         Domain domain = new Domain("example.org");
-        domain.setSipRealm("grapefruit");        
+        domain.setSipRealm("grapefruit");
         Address imApi = new Address(ImManager.XMLRPC_ADDRESS, "im.example.org", 100);
         Address presenceApi = new Address(PresenceServer.HTTP_ADDRESS, "presence.example.org", 101);
         Address park = new Address(ParkOrbitContext.SIP_TCP_PORT, "park.example.org", 102);
@@ -80,7 +82,7 @@ public class RegistrarConfigurationTest {
         RegistrarSettings settings = new RegistrarSettings();
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
         Domain domain = new Domain("example.org");
-        domain.setSipRealm("grapefruit");        
+        domain.setSipRealm("grapefruit");
         Address imApi = new Address(ImManager.XMLRPC_ADDRESS, "im.example.org", 100);
         Address presenceApi = new Address(PresenceServer.HTTP_ADDRESS, "presence.example.org", 101);
         Address park = new Address(ParkOrbitContext.SIP_TCP_PORT, "park.example.org", 102);
