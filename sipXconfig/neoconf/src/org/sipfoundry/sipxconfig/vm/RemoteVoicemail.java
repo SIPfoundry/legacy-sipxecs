@@ -18,7 +18,6 @@ package org.sipfoundry.sipxconfig.vm;
 
 import java.util.Date;
 
-import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 
 public class RemoteVoicemail implements Voicemail, Comparable {
@@ -27,6 +26,7 @@ public class RemoteVoicemail implements Voicemail, Comparable {
     private String m_messageId;
     private boolean m_heard;
     private String m_subject;
+    private String m_from;
     private String m_fromBrief;
     private String m_forwardedFromBrief;
     private Date m_timestamp;
@@ -42,6 +42,7 @@ public class RemoteVoicemail implements Voicemail, Comparable {
         m_heard = Boolean.valueOf(node.getAttribute("heard"));
         m_durationSecs = Integer.valueOf(node.getAttribute("duration"));
         m_timestamp = new Date(new Long(node.getAttribute("received")));
+        m_from = node.getAttribute("fromUri");
         m_fromBrief = node.getAttribute("author");
         m_subject = node.getAttribute("subject");
     }
@@ -119,7 +120,7 @@ public class RemoteVoicemail implements Voicemail, Comparable {
 
     @Override
     public String getFrom() {
-        return StringUtils.EMPTY;
+        return m_from;
     }
 
     @Override

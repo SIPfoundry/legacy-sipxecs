@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
@@ -331,9 +332,12 @@ public class MailboxServlet extends HttpServlet {
 
     private void listMessages(List<VmMessage> messages, String folder, PrintWriter pw) {
         String author = null;
+        String fromUri = null;
         for (VmMessage message : messages) {
             MessageDescriptor descriptor = message.getDescriptor();
-            author = SipUriUtil.extractUserName(descriptor.getFromUri().replace('+', ' '));
+            String uri = descriptor.getFromUri();
+            author = SipUriUtil.extractUserName(uri.replace('+', ' '));
+            fromUri = StringUtils.substringBetween(uri, "<", ">");
             pw.format(
                     "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" author=\"%s\" username=\"%s\" format=\"%s\"/>\n",
                     message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder,
@@ -349,11 +353,13 @@ public class MailboxServlet extends HttpServlet {
 
     private void listFullMessage(VmMessage message, String folder, PrintWriter pw) {
         MessageDescriptor descriptor = message.getDescriptor();
-        String author = SipUriUtil.extractUserName(descriptor.getFromUri().replace('+', ' '));
+        String uri = descriptor.getFromUri();
+        String author = SipUriUtil.extractUserName(uri.replace('+', ' '));
+        String fromUri = StringUtils.substringBetween(uri, "<", ">");
         pw.format(
-                "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" author=\"%s\" subject=\"%s\" username=\"%s\" format=\"%s\"/>\n",
+                "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" fromUri=\"%s\" author=\"%s\" subject=\"%s\" username=\"%s\" format=\"%s\"/>\n",
                 message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder,
-                descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), author,
+                descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), fromUri, author,
                 descriptor.getSubject(), message.getUserName(), descriptor.getAudioFormat());
     }
 
