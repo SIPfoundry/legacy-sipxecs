@@ -44,12 +44,17 @@ public class DefaultFirewallRule implements FirewallRule {
         return rules(types, SystemId.CLUSTER);
     }
 
-    public static List<DefaultFirewallRule> rules(Collection<AddressType> types, SystemId systemId) {
+    public static List<DefaultFirewallRule> rules(Collection<AddressType> types, SystemId systemId,
+            boolean prioritize) {
         List<DefaultFirewallRule> rules = new ArrayList<DefaultFirewallRule>(types.size());
         for (AddressType t : types) {
-            rules.add(new DefaultFirewallRule(t, systemId));
+            rules.add(new DefaultFirewallRule(t, systemId, prioritize));
         }
         return rules;
+    }
+
+    public static List<DefaultFirewallRule> rules(Collection<AddressType> types, SystemId systemId) {
+        return rules(types, systemId, false);
     }
 
     @Override
