@@ -91,7 +91,11 @@
         <string/>
       </type>
       <value></value>
-    </setting>       
+    </setting>
+    <setting name="xmpp.pep.enabled">
+      <type refid="switch" />
+      <value>false</value>
+    </setting>  
   </group>
   <group name="openfire-server-to-server">
     <setting name="enabled">
