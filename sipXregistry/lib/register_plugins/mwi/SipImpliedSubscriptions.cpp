@@ -442,7 +442,6 @@ void SipImpliedSubscriptions::addAuthorization( const SipMessage& registerMessag
          if (qopValue == HttpMessage::AUTH_QOP_HAS_AUTH)
          {
              // Use a random number, anything more adds no value
-             UtlString cnonce;
              CallId::getNewTag( cnonce );
 
              // We always generate a new nonce, so it's ok to have fixed nonce count
