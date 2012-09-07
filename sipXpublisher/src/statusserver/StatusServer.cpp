@@ -658,10 +658,12 @@ StatusServer::parseList (
     const UtlString& separatedList,
     OsConfigDb& list )
 {
+
     if (!separatedList.isNull())
     {
-        int index = 1;
+        int index = 0;
         UtlString value;
+
         while( NameValueTokenizer::getSubField( separatedList.data(), index, ", \t", &value) )
         {
             char temp[10];

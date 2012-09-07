@@ -109,12 +109,16 @@ public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvid
 
     @Override
     public Address getAddress(DnsManager manager, AddressType t, Collection<Address> addresses, Location whoIsAsking) {
-        if (!t.equals(SIP_TCP)) {
-            return null;
+        if (t.equals(SIP_TCP)) {
+            // NOTE: drop port, it's in DNS resource records
+            return new Address(t, format("mwi.%s", whoIsAsking.getFqdn()));
         }
 
-        // NOTE: drop port, it's in DNS resource records
-        return new Address(t, format("mwi.%s", whoIsAsking.getFqdn()));
+        if (t.equals(HTTP_API)) {
+            return new Address(HTTP_API, whoIsAsking.getAddress(), getSettings().getHttpApiPort());
+        }
+
+        return null;
     }
 
     @Override
