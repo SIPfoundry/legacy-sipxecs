@@ -39,8 +39,6 @@ extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
    return new SipRedirectorAliasDB(instanceName);
 }
 
-static UtlString _localDomain;
-
 // Constructor
 SipRedirectorAliasDB::SipRedirectorAliasDB(const UtlString& instanceName) :
    RedirectPlugin(instanceName)
@@ -61,7 +59,6 @@ SipRedirectorAliasDB::initialize(OsConfigDb& configDb,
                                  int redirectorNo,
                                  const UtlString& localDomainHost)
 {
-   _localDomain = localDomainHost;
    return OS_SUCCESS;
 }
 
@@ -117,14 +114,8 @@ SipRedirectorAliasDB::lookUp(
                     mLogName.data());
    }
 
-   Url identityUrl = requestUri;
-   UtlString domain;
-   identityUrl.getHostAddress(domain);
-   if (mpSipUserAgent && domain != _localDomain && mpSipUserAgent->isMyHostAlias(identityUrl))
-     identityUrl.setHostAddress(_localDomain);
-
    UtlString requestIdentity;
-   identityUrl.getIdentity(requestIdentity);
+   requestUri.getIdentity(requestIdentity);
 
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "%s::lookUp identity '%s'",
                  mLogName.data(), requestIdentity.data());
@@ -136,7 +127,7 @@ SipRedirectorAliasDB::lookUp(
    EntityDB::Aliases aliases;
    bool isUserIdentity = false;
    EntityDB* entityDb = SipRegistrar::getInstance(NULL)->getEntityDB();
-   entityDb->getAliasContacts(identityUrl, aliases, isUserIdentity);
+   entityDb->getAliasContacts(requestUri, aliases, isUserIdentity);
    int numAliasContacts = aliases.size();
 
    if (numAliasContacts > 0)
