@@ -70,7 +70,7 @@ public class AuthCodesImpl implements ReplicableProvider, DialingRuleProvider, F
         if (StringUtils.isEmpty(prefix)) {
             return Collections.emptyList();
         }
-        String fsAddressPort = fsAddress.getAddress() + ':' + fsAddress.getPort();
+        String fsAddressPort = locations.get(0).getAddress() + ':' + fsAddress.getPort();
         AuthorizationCodeRule rule = new AuthorizationCodeRule(prefix, fsAddressPort, "auth");
         rule.appendToGenerationRules(dialingRules);
         return dialingRules;

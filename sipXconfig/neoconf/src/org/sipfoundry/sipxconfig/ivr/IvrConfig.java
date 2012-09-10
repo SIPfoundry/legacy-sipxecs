@@ -58,7 +58,6 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
         }
         Set<Location> locations = request.locations(manager);
         FeatureManager featureManager = manager.getFeatureManager();
-        Address mwiApi = manager.getAddressManager().getSingleAddress(Mwi.HTTP_API);
         Address adminApi = manager.getAddressManager().getSingleAddress(AdminContext.HTTP_ADDRESS_AUTH);
         Address apacheApi = manager.getAddressManager().getSingleAddress(ApacheManager.HTTPS_ADDRESS);
         Address restApi = manager.getAddressManager().getSingleAddress(RestServer.HTTP_API);
@@ -76,6 +75,7 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
                 continue;
             }
             File f = new File(dir, "sipxivr.properties.part");
+            Address mwiApi = manager.getAddressManager().getSingleAddress(Mwi.HTTP_API, location);
             Writer wtr = new FileWriter(f);
             try {
                 write(wtr, settings, domain, location, mwiApi, restApi, adminApi, apacheApi, imApi, imbotApi, fsEvent);

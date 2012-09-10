@@ -111,7 +111,7 @@ void HttpServer::loadValidIpAddrList()
    //maybe there should be no reference to OsConfig DB here and the hashTable should be passed
    // as paramenter to HtppServer. If time permits I will make the change. - SDUA
    UtlString strKey;
-   int i = 1;
+   int i = 0;
    while(true)
    {
       char szTempBuf[32] ;
