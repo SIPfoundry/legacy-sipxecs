@@ -292,17 +292,10 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                                suspendObject->mRedirectors[i].privateStorage :
                                NULL);
 
-            Url identityUrl = requestUri;
-            UtlString domain;
-            identityUrl.getHostAddress(domain);
-            if (mpSipUserAgent && domain != mDefaultDomain && mpSipUserAgent->isMyHostAlias(identityUrl))
-              identityUrl.setHostAddress(mDefaultDomain);
-
-
             // Call the redirector to process the request.
             contactList.resetWasModifiedFlag();
             RedirectPlugin::LookUpStatus status =
-               redirector->lookUp(*pMessage, stringUri, identityUrl, method,
+               redirector->lookUp(*pMessage, stringUri, requestUri, method,
                                   contactList, seqNo, i, privateStorageP, errorDescriptor);
 
             // Create the suspend object if it does not already exist and we need it.
