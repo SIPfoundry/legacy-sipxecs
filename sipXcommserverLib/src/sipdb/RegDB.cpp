@@ -43,32 +43,23 @@ void RegDB::updateBinding(RegBinding& binding)
 			"identity" << binding.getIdentity() <<
 			"contact" << binding.getContact());
 
+  bool isExpired = binding.getExpirationTime() <= 0;
 	mongo::BSONObj update;
-	if (binding.getExpirationTime() > 0)
-	{
-		update = BSON("$set" << BSON(
-						"timestamp" << binding.getTimestamp() <<
-						"localAddress" << binding.getLocalAddress() <<
-						"identity" << binding.getIdentity() <<
-						"uri" << binding.getUri() <<
-						"callId" << binding.getCallId() <<
-						"contact" << binding.getContact() <<
-						"qvalue" << binding.getQvalue() <<
-						"instanceId" << binding.getInstanceId() <<
-						"gruu" << binding.getGruu() <<
-						"path" << binding.getPath() <<
-						"cseq" << binding.getCseq() <<
-						"expirationTime" << binding.getExpirationTime() <<
-						"instrument" << binding.getInstrument() <<
-						"expired" << binding.getExpired() ));
-	}
-	else
-	{
-		// This is an unregister.  mark it as inactive
-		update = BSON("$set" << BSON(
-						"cseq" << binding.getCseq() <<
-						"expired" << true));
-	}
+  update = BSON("$set" << BSON(
+          "timestamp" << binding.getTimestamp() <<
+          "localAddress" << binding.getLocalAddress() <<
+          "identity" << binding.getIdentity() <<
+          "uri" << binding.getUri() <<
+          "callId" << binding.getCallId() <<
+          "contact" << binding.getContact() <<
+          "qvalue" << binding.getQvalue() <<
+          "instanceId" << binding.getInstanceId() <<
+          "gruu" << binding.getGruu() <<
+          "path" << binding.getPath() <<
+          "cseq" << binding.getCseq() <<
+          "expirationTime" << binding.getExpirationTime() <<
+          "instrument" << binding.getInstrument() <<
+          "expired" << isExpired ));
 
 	mongo::ScopedDbConnection conn(_info.getConnectionString());
 	conn->update(_info.getNS(), query, update, true, false);
@@ -87,13 +78,8 @@ void RegDB::expireOldBindings(const string& identity, const string& callId, unsi
 			"cseq" << BSON_LESS_THAN(cseq) <<
 			"expirationTime" << BSON_GREATER_THAN_EQUAL(expirationTime));
 
-	mongo::BSONObj update = BSON("$set" << BSON(
-					"timestamp" << timeNow <<
-					"expired" << true <<
-					"cseq" << cseq));
-
 	mongo::ScopedDbConnection conn(_info.getConnectionString());
-	conn->update(_info.getNS(), query, update);
+	conn->remove(_info.getNS(), query);
 	conn->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
 	conn->ensureIndex("node.registrar", BSON( "expirationTime" << 1 ));
 	conn.done();
@@ -107,13 +93,8 @@ void RegDB::expireAllBindings(const string& identity, const string& callId, unsi
 			"identity" << identity <<
 			"expirationTime" << BSON_GREATER_THAN_EQUAL(expirationTime));
 
-	mongo::BSONObj update = BSON("$set" << BSON(
-					"timestamp" << timeNow <<
-					"expired" << true <<
-					"cseq" << cseq));
-
 	mongo::ScopedDbConnection conn(_info.getConnectionString());
-	conn->update(_info.getNS(), query, update, false, true);
+	conn->remove(_info.getNS(), query);
 	conn->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
 	conn->ensureIndex("node.registrar", BSON( "expirationTime" << 1 ));
 	conn.done();
@@ -124,12 +105,8 @@ void RegDB::expireAllBindings(unsigned int timeNow)
 	mongo::BSONObj query = BSON("expirationTime" << BSON_GREATER_THAN_EQUAL(0) <<
 			"localAddress" << _localAddress);
 
-	mongo::BSONObj update = BSON("$set" << BSON(
-					"timestamp" << timeNow <<
-					"expired" << true));
-
 	mongo::ScopedDbConnection conn(_info.getConnectionString());
-	conn->update(_info.getNS(), query, update, false, true);
+	conn->remove(_info.getNS(), query);
 	conn->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
 	conn->ensureIndex("node.registrar", BSON( "expirationTime" << 1 ));
 	conn.done();
