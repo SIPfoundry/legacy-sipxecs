@@ -386,9 +386,14 @@ def application_settings
 end
 
 def custom_settings
-  custom_script = "/etc/sysconfig/sipxecs-setuprc"
+  custom_script = "#{$confdir}/sipxecs-setuprc"
   if File.exists?(custom_script)
-    system "/bin/sh #{custom_script}"
+    if system "/bin/sh #{custom_script}"
+      puts "Continue with application setup ..."
+    else
+      puts "Error executing script"
+      exit 1
+    end
   end
 end
 
