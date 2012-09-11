@@ -19,6 +19,7 @@ BuildRequires: libxml2
 
 Requires: mongodb >= 2.0
 Requires: sipxsupervisor >= %version
+Requires: js
 
 Source: %name-%version.tar.gz
 Prefix: %_prefix
@@ -33,7 +34,6 @@ respectively.
 %package server
 Requires: %name >= %version
 Requires: mongodb-server >= 2.0.0
-Requires: js
 Group: Telcommunications
 Vendor: SIPfoundry
 Summary: Utilities for running mongo server for sipXecs
