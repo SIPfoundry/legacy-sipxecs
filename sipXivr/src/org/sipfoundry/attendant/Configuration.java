@@ -107,6 +107,7 @@ public class Configuration {
         String prop = null;
         try {
             prop = "unknown";
+            m_specialId = null;
             m_attendants = new Vector<AttendantConfig>();
 
             // Walk autoattendant elements, building up m_attendants as we go
