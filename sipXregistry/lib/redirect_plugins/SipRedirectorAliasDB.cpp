@@ -120,7 +120,8 @@ SipRedirectorAliasDB::lookUp(
    bool isDomainAlias = false;
    UtlString domain;
    requestUri.getHostAddress(domain);
-   if (mpSipUserAgent && domain != _localDomain && mpSipUserAgent->isMyHostAlias(requestUri))
+   UtlBoolean isMyHostAlias = mpSipUserAgent->isMyHostAlias(requestUri);
+   if (mpSipUserAgent && domain != _localDomain && isMyHostAlias)
    {
      isDomainAlias = true;
      requestUri.setHostAddress(_localDomain);
@@ -129,9 +130,12 @@ SipRedirectorAliasDB::lookUp(
    UtlString requestIdentity;
    requestUri.getIdentity(requestIdentity);
 
-   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "%s::lookUp identity '%s'",
-                 mLogName.data(), requestIdentity.data());
+   OS_LOG_DEBUG(FAC_SIP, mLogName.data() << "::lookUp identity: " << requestIdentity.data()
+           << " domain: " << domain.data()
+           << " local-domain:" << _localDomain.data()
+           << " isHostAlias: " << isMyHostAlias);
 
+   
    //ResultSet aliases;
    //AliasDB::getInstance()->getContacts(requestUri, aliases);
    //int numAliasContacts = aliases.getSize();
