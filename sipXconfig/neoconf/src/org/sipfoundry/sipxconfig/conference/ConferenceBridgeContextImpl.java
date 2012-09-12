@@ -54,7 +54,7 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
     private BeanFactory m_beanFactory;
     private DomainManager m_domainManager;
 
-    public List getBridges() {
+    public List<Bridge> getBridges() {
         return getHibernateTemplate().loadAll(Bridge.class);
     }
 
@@ -297,6 +297,11 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
     @Required
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
+    }
+
+    @Override
+    public void removeBridge(Bridge bridge) {
+        getHibernateTemplate().delete(bridge);
     }
 
 }

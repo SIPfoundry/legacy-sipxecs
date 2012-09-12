@@ -39,8 +39,7 @@ bundle agent sipxivr_config {
         comment => "install sipxivr config $(this.promiser)",
         create => "true",
         perms => m("644"),
-        copy_from => copy_from_cfdata("$(sipx.location_id)/autoattendants.xml"),
-        classes => if_repaired("restart_sipxivr");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/autoattendants.xml");
 
     !primary::
       "$(sipx.SIPX_IVRDATADIR)/prompts"

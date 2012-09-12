@@ -385,6 +385,18 @@ def application_settings
   end
 end
 
+def custom_settings
+  custom_script = "#{$confdir}/sipxecs-setuprc"
+  if File.exists?(custom_script)
+    if system "/bin/sh #{custom_script}"
+      puts "Continue with application setup ..."
+    else
+      puts "Error executing script"
+      exit 1
+    end
+  end
+end
+
 args = OptionParser.new { |opts|
   opts.banner = "Usage : sipxecs-setup [options]"
 
@@ -418,6 +430,7 @@ args.parse!
 raise 'Must run as root' unless Process.uid == 0
 set_root_keys()
 network_settings
+custom_settings
 application_settings
 
 # First pass generated cfdata info

@@ -19,6 +19,7 @@ BuildRequires: libxml2
 
 Requires: mongodb >= 2.0
 Requires: sipxsupervisor >= %version
+Requires: js
 
 Source: %name-%version.tar.gz
 Prefix: %_prefix

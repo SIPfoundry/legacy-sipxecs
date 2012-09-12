@@ -21,7 +21,7 @@ public interface ConferenceBridgeContext extends AliasOwner {
     static final LocationFeature FEATURE = new LocationFeature("conference");
     String CONTEXT_BEAN_NAME = "conferenceBridgeContext";
 
-    List getBridges();
+    List<Bridge> getBridges();
 
     void saveBridge(Bridge bridge);
 
@@ -34,6 +34,8 @@ public interface ConferenceBridgeContext extends AliasOwner {
     void validate(Conference conference);
 
     Bridge newBridge();
+
+    void removeBridge(Bridge bridge);
 
     Conference newConference();
 

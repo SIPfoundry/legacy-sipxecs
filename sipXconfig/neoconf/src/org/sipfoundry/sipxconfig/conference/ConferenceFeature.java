@@ -60,12 +60,26 @@ public class ConferenceFeature implements FeatureProvider {
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
-        for (Location location : request.getLocationsForEnabledFeature(ConferenceBridgeContext.FEATURE)) {
-            Bridge bridge = m_conferenceBridgeContext.getBridgeByServer(location.getFqdn());
-            if (bridge == null) {
-                bridge = m_conferenceBridgeContext.newBridge();
-                bridge.setLocation(location);
-                m_conferenceBridgeContext.saveBridge(bridge);
+        Collection<Location> locations = request.getLocationsForEnabledFeature(ConferenceBridgeContext.FEATURE);
+
+        // create new bridges if needed
+        if (request.getAllNewlyEnabledFeatures().contains(ConferenceBridgeContext.FEATURE)) {
+            for (Location location : locations) {
+                Bridge bridge = m_conferenceBridgeContext.getBridgeByServer(location.getFqdn());
+                if (bridge == null) {
+                    bridge = m_conferenceBridgeContext.newBridge();
+                    bridge.setLocation(location);
+                    m_conferenceBridgeContext.saveBridge(bridge);
+                }
+            }
+        }
+
+        // remove old bridges
+        if (request.getAllNewlyDisabledFeatures().contains(ConferenceBridgeContext.FEATURE)) {
+            for (Bridge bridge : m_conferenceBridgeContext.getBridges()) {
+                if (!locations.contains(bridge.getLocation())) {
+                    m_conferenceBridgeContext.removeBridge(bridge);
+                }
             }
         }
     }

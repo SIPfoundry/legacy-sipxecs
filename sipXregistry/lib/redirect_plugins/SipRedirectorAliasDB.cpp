@@ -39,6 +39,8 @@ extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
    return new SipRedirectorAliasDB(instanceName);
 }
 
+static UtlString _localDomain;
+
 // Constructor
 SipRedirectorAliasDB::SipRedirectorAliasDB(const UtlString& instanceName) :
    RedirectPlugin(instanceName)
@@ -59,6 +61,7 @@ SipRedirectorAliasDB::initialize(OsConfigDb& configDb,
                                  int redirectorNo,
                                  const UtlString& localDomainHost)
 {
+   _localDomain = localDomainHost;
    return OS_SUCCESS;
 }
 
@@ -93,8 +96,8 @@ void SipRedirectorAliasDB::readConfig(OsConfigDb& configDb)
 RedirectPlugin::LookUpStatus
 SipRedirectorAliasDB::lookUp(
    const SipMessage& message,
-   const UtlString& requestString,
-   const Url& requestUri,
+   UtlString& requestString,
+   Url& requestUri,
    const UtlString& method,
    ContactList& contactList,
    RequestSeqNo requestSeqNo,
@@ -114,12 +117,25 @@ SipRedirectorAliasDB::lookUp(
                     mLogName.data());
    }
 
+   bool isDomainAlias = false;
+   UtlString domain;
+   requestUri.getHostAddress(domain);
+   UtlBoolean isMyHostAlias = mpSipUserAgent->isMyHostAlias(requestUri);
+   if (mpSipUserAgent && domain != _localDomain && isMyHostAlias)
+   {
+     isDomainAlias = true;
+     requestUri.setHostAddress(_localDomain);
+   }
+
    UtlString requestIdentity;
    requestUri.getIdentity(requestIdentity);
 
-   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "%s::lookUp identity '%s'",
-                 mLogName.data(), requestIdentity.data());
+   OS_LOG_DEBUG(FAC_SIP, mLogName.data() << "::lookUp identity: " << requestIdentity.data()
+           << " domain: " << domain.data()
+           << " local-domain:" << _localDomain.data()
+           << " isHostAlias: " << isMyHostAlias);
 
+   
    //ResultSet aliases;
    //AliasDB::getInstance()->getContacts(requestUri, aliases);
    //int numAliasContacts = aliases.getSize();
@@ -164,6 +180,14 @@ SipRedirectorAliasDB::lookUp(
                contactUri.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, "AL");
                // Add the contact.
                contactList.add( contactUri, *this );
+
+               if (numAliasContacts == 1 && isDomainAlias)
+               {
+                 UtlString userId;
+                 contactUri.getUserId(userId);
+                 requestUri.setUserId(userId.data());
+                 requestUri.getUri(requestString);
+               }
             }
       }
    }
