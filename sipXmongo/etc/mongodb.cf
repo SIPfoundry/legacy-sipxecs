@@ -20,8 +20,6 @@ bundle common mongo {
     any::
       "mongodb_10gen" expression => fileexists("/etc/mongod.conf");
       "mongodb_redhat" not => "mongodb_10gen";
-      "mongodb_sysv" expression => "mongodb_10gen";
-      "mongodb_sysctl" expression => "mongodb_redhat";
 }
 
 bundle agent mongodb {
@@ -30,11 +28,13 @@ bundle agent mongodb {
       "config_arbiter" string => "/etc/mongod-arbiter.conf";
 
     mongodb_redhat::
+      "id" string => "mongodb";
       "config" string => "/etc/mongodb.conf";
       "user" string => "mongodb";
       "group" string => "mongodb";
 
     mongodb_10gen::
+      "id" string => "mongo";
       "config" string => "/etc/mongod.conf";
       "user" string => "mongod";
       "group" string => "mongod";
@@ -46,10 +46,11 @@ bundle agent mongodb {
     mongod_arbiter::
       "any" usebundle => mongodb_arbiter_config;
 
-    mongodb_sysctl::
+    fedora16_or_greater.mongodb_redhat::
       "any" usebundle => mongodb_systemctl_running;
 
-    mongodb_sysv::
+    # assumes 10gen on fedora would never drop sysv scripts
+    !fedora16_or_greater|mongodb_10gen::
       "any" usebundle => mongodb_sysv_running;
 
     any::
@@ -70,7 +71,7 @@ bundle agent mongodb_arbiter_config {
     mongod_arbiter::
       "dirs" slist => {
         "/var/lib/mongodb-arbiter",
-        "/var/run/mongo"
+        "/var/run/$(mongodb.id)"
       };
 
   files:
@@ -94,9 +95,9 @@ bundle edit_line mongodb_arbiter_config_contents {
 "replSet=sipxecs
 bind_ip=0.0.0.0
 port=27018
-logpath=/var/log/mongo/mongod-arbiter.log
+logpath=/var/log/$(mongodb.id)/mongod-arbiter.log
 fork=true
-pidfilepath=/var/run/mongo/mongodb-arbiter.pid
+pidfilepath=/var/run/$(mongodb.id)/mongodb-arbiter.pid
 journal=true
 nohttpinterface=true
 dbpath=/var/lib/mongodb-arbiter

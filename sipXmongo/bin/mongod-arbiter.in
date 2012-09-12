@@ -21,15 +21,6 @@ CONFIGFILE="/etc/mongod-arbiter.conf"
 OPTIONS=" -f $CONFIGFILE"
 SYSCONFIG="/etc/sysconfig/mongod-arbiter"
 LOCKFILE=/var/lock/subsys/mongod-arbiter
-PIDFILE=/var/run/mongo/mongodb-arbiter.pid
-
-test -f $CONFIGFILE || exit 5
-
-# FIXME: 1.9.x has a --shutdown flag that parses the config file and
-# shuts down the correct running pid, but that's unavailable in 1.8
-# for now.  This can go away when this script stops supporting 1.8.
-DBPATH=`awk -F= '/^dbpath ?= ?/{print $2}' "$CONFIGFILE"`
-mongod=${MONGOD-/usr/bin/mongod}
 
 # 10gen v.s. fedora
 if `id mongodb 1>/dev/null 2>&1` ; then
@@ -41,6 +32,15 @@ else
   MONGO_USER=mongod
   MONGO_GROUP=mongod
 fi
+
+test -f $CONFIGFILE || exit 5
+
+# FIXME: 1.9.x has a --shutdown flag that parses the config file and
+# shuts down the correct running pid, but that's unavailable in 1.8
+# for now.  This can go away when this script stops supporting 1.8.
+DBPATH=`awk -F= '/^dbpath ?= ?/{print $2}' "$CONFIGFILE"`
+PIDFILE=`awk -F= '/^pidfilepath ?= ?/{print $2}' "$CONFIGFILE"`
+mongod=${MONGOD-/usr/bin/mongod}
 
 ! test -d $DBPATH || mkdir -p $DBPATH
 chown $MONGO_USER:$MONGO_GROUP $DBPATH
