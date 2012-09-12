@@ -38,7 +38,6 @@ REWRITE_DEPS_fedora = \
 	-e '/termcap/d' \
 	-e '/jpeg-devel/d' \
 	-e 's/libopenjpeg-devel/openjpeg-devel/g' \
-	-e 's/mongodb-devel/mongodb-devel-fsv2-patch/g' \
 	-e 's/curl-devel/libcurl-devel/g' \
 	-e 's/jakarta-commons-beanutils/apache-commons-beanutils/g'
 
