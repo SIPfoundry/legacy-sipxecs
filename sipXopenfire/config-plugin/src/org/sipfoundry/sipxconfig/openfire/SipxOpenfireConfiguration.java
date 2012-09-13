@@ -32,6 +32,7 @@ public class SipxOpenfireConfiguration {
     private Openfire m_openfire;
     private DomainManager m_domainManager;
     private VelocityEngine m_velocityEngine;
+    private boolean m_enableCallWatcher = true;
 
     public void write(Writer writer, Location location) throws IOException {
         VelocityContext context = new VelocityContext();
@@ -46,6 +47,7 @@ public class SipxOpenfireConfiguration {
         context.put("username", username);
         context.put("location", location);
         context.put("password", user.getSipPassword());
+        context.put("enableCallWatcher", m_enableCallWatcher);
         context.put("resource-list", SpeedDial.getResourceListId(username, true));
         context.put("domainName", m_domainManager.getDomainName());
         if (proxyAddress != null) {
@@ -80,4 +82,8 @@ public class SipxOpenfireConfiguration {
     public void setVelocityEngine(VelocityEngine velocityEngine) {
         m_velocityEngine = velocityEngine;
     }
+
+    public void setEnableCallWatcher(boolean enableCallWatcher) {
+        m_enableCallWatcher = enableCallWatcher;
+    }        
 }

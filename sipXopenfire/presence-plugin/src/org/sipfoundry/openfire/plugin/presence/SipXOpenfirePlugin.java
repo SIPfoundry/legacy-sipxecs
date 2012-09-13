@@ -400,21 +400,19 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         log.info("plugin initializaton completed");
         log.info("DONE");
 
-        CallWatcher.setWatcherConfig(watcherConfig);
-
-        /*
-         * Everything else is ready.  Let the SIP side of the show begin...
-         */
-        try {
-            CallWatcher.init();
-            log.info("completed init");
-            ResourceStateChangeListener resourceStateChangeListener = new ResourceStateChangeListenerImpl(
-                    this);
-            CallWatcher.getSubscriber().setResourceStateChangeListener(
-                    resourceStateChangeListener);
-        } catch (Exception e) {
-            log.error("Error initializing CallWatcher", e);
-            throw new SipXOpenfirePluginException("Init error", e);
+        if (watcherConfig.isEnableCallWatcher()) {
+            CallWatcher.setWatcherConfig(watcherConfig);
+            try {
+                CallWatcher.init();
+                log.info("completed init");
+                ResourceStateChangeListener resourceStateChangeListener = new ResourceStateChangeListenerImpl(
+                        this);
+                CallWatcher.getSubscriber().setResourceStateChangeListener(
+                        resourceStateChangeListener);
+            } catch (Exception e) {
+                log.error("Error initializing CallWatcher", e);
+                throw new SipXOpenfirePluginException("Init error", e);
+            }
         }
 
         isInitialized = true;

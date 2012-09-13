@@ -44,6 +44,11 @@ public class ConfigurationParser {
 		digester.addCallMethod(String.format("%s/%s", currentTag, elementName),
 				methodName, 0, new Class[] { Integer.class });
 	}
+	
+    private static void addCallMethodBoolean(String elementName, String methodName) {
+        digester.addCallMethod(String.format("%s/%s", currentTag, elementName),
+                methodName, 0, new Class[] { Boolean.class });
+    }	
 
     /*
     * Add the digester rules.
@@ -83,6 +88,7 @@ public class ConfigurationParser {
        addCallMethodString("IM-message-logging", "setImMessageLogging");
        addCallMethodString("IM-message-logging-directory", "setImMessageLoggingDirectory");
        addCallMethodString("locale", "setLocale");
+       addCallMethodBoolean("watcher-enabled", "setEnableCallWatcher");
 
        currentTag = s2sTag;
        addCallMethodString("enabled", "setS2sServerActive");

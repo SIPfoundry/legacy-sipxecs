@@ -10,6 +10,7 @@ public class WatcherConfig {
     private int sipxProxyPort = 5060;
     private String userName;
     private String password;
+    private boolean enableCallWatcher;
     private String sipxProxyTransport;
     private String logLevel = "INFO";
     private String watcherAddress;
@@ -238,4 +239,11 @@ public class WatcherConfig {
     	return this.xmppS2sInfo;
     }
 
+    public boolean isEnableCallWatcher() {
+        return enableCallWatcher;
+    }
+
+    public void setEnableCallWatcher(boolean enableCallWatcher) {
+        this.enableCallWatcher = enableCallWatcher;
+    }
 }
