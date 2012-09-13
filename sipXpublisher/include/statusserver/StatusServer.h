@@ -20,6 +20,7 @@
 #include "statusserver/PluginXmlParser.h"
 #include "sipdb/EntityDB.h"
 #include "sipdb/SubscribeDB.h"
+#include "sipdb/SubscribeExpireThread.h"
 
 // DEFINES
 // MACROS
@@ -129,6 +130,7 @@ private:
     HttpServer* mHttpServer;
     SubscribeDB* mSubscribeDb;
     EntityDB* mEntityDb;
+    SubscribeExpireThread _expireThread;
 
     // Private constructor for singleton implementation
     StatusServer (

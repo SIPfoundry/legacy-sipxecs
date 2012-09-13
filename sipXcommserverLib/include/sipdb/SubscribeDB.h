@@ -155,6 +155,8 @@ public:
 
     int getMaxVersion(const UtlString& uri) const;
 
+    void removeAllExpired();
+
 };
 
 #endif	/* SUBSCRIBEDB_H */

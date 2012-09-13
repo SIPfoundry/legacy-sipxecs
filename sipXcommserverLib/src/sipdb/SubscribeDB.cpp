@@ -17,6 +17,8 @@
 #include <vector>
 #include <mongo/client/connpool.h>
 #include "sipdb/SubscribeDB.h"
+#include "sipdb/SubscribeExpireThread.h"
+#include "os/OsDateTime.h"
 
 using namespace std;
 
@@ -383,4 +385,12 @@ int SubscribeDB::getMaxVersion(const UtlString& uri) const
     return value;
 }
 
+void SubscribeDB::removeAllExpired()
+{
+  int timeNow = (int) OsDateTime::getSecsSinceEpoch();
+	mongo::BSONObj query = BSON(Subscription::expires_fld() << BSON_LESS_THAN_EQUAL(timeNow));
+	mongo::ScopedDbConnection conn(_info.getConnectionString());
+	conn->remove(_info.getNS(), query);
+	conn.done();
+}
 

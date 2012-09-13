@@ -127,6 +127,11 @@ StatusServer::StatusServer(
     mSubscribeDb = new SubscribeDB(MongoDB::ConnectionInfo(mongo, SubscribeDB::NS));
     mEntityDb = new EntityDB(MongoDB::ConnectionInfo(mongo, EntityDB::NS));
 
+    //
+    // Run the subscription garbage collector
+    //
+    _expireThread.run(mSubscribeDb);
+
     mIsCredentialDB = useCredentialDB;
 
     UtlString fileName = mConfigDirectory +

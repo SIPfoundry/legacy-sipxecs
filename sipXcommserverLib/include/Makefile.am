@@ -17,6 +17,7 @@ nobase_include_HEADERS =  \
     sipdb/EntityRecord.h \
     sipdb/RegBinding.h \
     sipdb/RegDB.h \
+    sipdb/SubscribeExpireThread.h \
     sipdb/SubscribeDB.h \
     sipdb/Subscription.h \
     sipdb/ResultSet.h \
