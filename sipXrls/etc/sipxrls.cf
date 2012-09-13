@@ -57,7 +57,7 @@ SIP_RLS_AUTHENTICATE_REALM : $(sipx.realm)
 bundle agent sipxrls_running {
   vars:
     any::
-      "service_command" string => "$(sipx.SIPX_BINDIR)/sipXrls";
+      "service_command" string => "$(sipx.SIPX_BINDIR)/sipxrls";
 
   methods:
     any::

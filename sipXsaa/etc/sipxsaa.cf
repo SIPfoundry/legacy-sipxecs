@@ -56,7 +56,7 @@ SIP_SAA_AUTHENTICATE_REALM : $(sipx.realm)
 bundle agent sipxsaa_running {
   vars:
     any::
-      "service_command" string => "$(sipx.SIPX_BINDIR)/sipXsaa";
+      "service_command" string => "$(sipx.SIPX_BINDIR)/sipxsaa";
 
   methods:
     any::
