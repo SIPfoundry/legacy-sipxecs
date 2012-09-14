@@ -40,7 +40,6 @@ class XmlRpcDispatch;
 class RegistrarPeer;
 class RegistrarTest;
 class RegistrarSync;
-class RegistrarPersist;
 class RegistrarInitialSync;
 class RegisterEventServer;
 class SipRedirectServer;
@@ -95,20 +94,6 @@ public:
      *
      * Returns false on fatal error, otherwise true
      */
-
-    /// Create and start the RegistrarPersist thread.
-    void createAndStartPersist();
-    /**<
-     * Create the RegistrarPersist sub-task and start it.
-     * (This is a separate method so that it can be called by testing
-     * code.)
-     */
-
-
-
-
-    /// Get the RegistrarPersist thread object
-    RegistrarPersist* getRegistrarPersist();
 
 
     /// Get the RegisterEventServer thread object
@@ -177,7 +162,6 @@ private:
 
 
    RegisterEventServer* mRegisterEventServer;
-   RegistrarPersist* mRegistrarPersist;
 
    UtlString mDefaultDomain;
    int mDefaultDomainPort;

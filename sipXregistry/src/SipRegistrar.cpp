@@ -30,7 +30,6 @@
 #include "registry/SipRedirectServer.h"
 #include "sipXecsService/SipXecsService.h"
 #include "RegisterEventServer.h"
-#include "RegistrarPersist.h"
 #include "SipRegistrarServer.h"
 #include <assert.h>
 
@@ -71,7 +70,6 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    mRegistrarServer(new SipRegistrarServer(*this)),
    mRegistrarMsgQ(NULL),
    mRegisterEventServer(NULL),
-   mRegistrarPersist(NULL),
    mpRegDb(NULL),
    mpSubscribeDb(NULL),
    mpEntityDb(NULL)
@@ -191,18 +189,11 @@ void SipRegistrar::startupPhase()
 
    // Create and start the persist thread, before making any changes
    // to the registration DB.
-   createAndStartPersist();
 
    // Step (6) is not performed explicitly.  Instead, we allow the normal
    // operation of the RegistrarTest thread to do that processing.
 }
 
-/// Create and start the RegistrarPersist thread.
-void SipRegistrar::createAndStartPersist()
-{
-   mRegistrarPersist = new RegistrarPersist(*this);
-   mRegistrarPersist->start();
-}
 
 /// Launch all Operational Phase threads.
 UtlBoolean SipRegistrar::operationalPhase()
@@ -290,11 +281,6 @@ UtlBoolean SipRegistrar::operationalPhase()
    return mSipUserAgent->isOk();
 }
 
-/// Get the RegistrarPersist thread object
-RegistrarPersist* SipRegistrar::getRegistrarPersist()
-{
-   return mRegistrarPersist;
-}
 
 
 
@@ -508,15 +494,6 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
           mSipUserAgent = NULL ;
        }
 
-
-       if ( mRegistrarPersist )
-       {
-          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                        "SipRegistrar::handleMessage shutting down RegistrarPersist");
-          mRegistrarPersist->requestShutdown();
-          delete mRegistrarPersist;
-          mRegistrarPersist = NULL;
-       }
 
        if ( mRedirectServer )
        {

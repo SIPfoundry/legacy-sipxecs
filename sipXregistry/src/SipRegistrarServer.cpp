@@ -26,7 +26,6 @@
 #include "net/NetMd5Codec.h"
 #include "net/NameValueTokenizer.h"
 #include "sipdb/ResultSet.h"
-#include "RegistrarPersist.h"
 #include "registry/SipRegistrar.h"
 #include "SipRegistrarServer.h"
 #include "RegisterEventServer.h"
@@ -275,6 +274,8 @@ SipRegistrarServer::initialize(
                                            ,RegisterPlugin::Prefix
                                            );
     mpSipRegisterPlugins->readConfig(*pOsConfigDb);
+
+    _expireThread.run(SipRegistrar::getInstance(NULL)->getRegDB());
 }
 
 
@@ -754,9 +755,6 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                        toUrl.getUri(aorString);
                        s->generateAndPublishContent(aorString, toUrl, instrument);
                     }
-
-                    // something changed - garbage collect and persist the database
-                    scheduleCleanAndPersist();
 
                     // give each RegisterPlugin a chance to do its thing
                     PluginIterator plugins(*mpSipRegisterPlugins);
@@ -1370,57 +1368,6 @@ SipRegistrarServer::isAuthorized(const Url& toUri,
 
 
 
-
-
-
-/// Schedule garbage collection and persistence of the registration database
-void SipRegistrarServer::scheduleCleanAndPersist()
-{
-   RegistrarPersist* persistThread = mRegistrar.getRegistrarPersist();
-   assert(persistThread);
-   persistThread->scheduleCleanAndPersist();
-}
-
-/// Garbage-collect and persist the registration database
-void SipRegistrarServer::cleanAndPersist()
-{
-   int timeNow = (int)OsDateTime::getSecsSinceEpoch();
-   int oldestTimeToKeep = timeNow - (  mNormalExpiryIntervals.mMaxExpiresTime < MAX_RETENTION_TIME
-                                     ? mNormalExpiryIntervals.mMaxExpiresTime : MAX_RETENTION_TIME );
-
-//  We've concluded this is not strictly nec. and that RLS will timeout when re-subscribing to
-//  expired phone. It was also determined this function is harmful when a system restarts after
-//  being down of an extended period of time as EACH registrar will blast expired events for
-//  EACH registration in the database (whether there are subscriptions or not).  Thereby causing a
-//  downed system to thrash and never be able to come back up as it's probably in the middle
-//  of a blast of new registrations   --Douglas
-//
-//   // Send reg event notices for any expired rows, including the rows we
-//   // are about to delete.  It's possible that there hasn't been a
-//   // notify telling that they're terminated yet, and we have to make
-//   // sure to generate one before the row is deleted.
-//   RegisterEventServer* s = mRegistrar.getRegisterEventServer();
-//   RegDB* regDb = SipRegistrar::getInstance(NULL)->getRegDB();
-//   if (s)
-//   {
-//       RegDB::Bindings bindings;
-//       regDb->getAllOldBindings(timeNow, bindings);
-//
-//      for (RegDB::Bindings::const_iterator iter = bindings.begin(); iter != bindings.end(); iter++)
-//      {
-//          std::string uri = iter->getUri();
-//          std::string instrument = iter->getInstrument();
-//
-//          Url aor_uri(uri.c_str(), FALSE); // Parse name-addr format.
-//          UtlString aor_addr;
-//           aor_uri.getUri(aor_addr); // Generate addr-spec (URI) format.
-//          s->generateAndPublishContent(aor_addr, aor_uri, instrument.c_str());
-//      }
-//
-//   }
-
-    SipRegistrar::getInstance(NULL)->getRegDB()->cleanAndPersist(oldestTimeToKeep);
-}
 
 
 

@@ -18,6 +18,7 @@
 #include <os/OsDateTime.h>
 #include <os/OsLogger.h>
 #include "sipdb/RegDB.h"
+#include "sipdb/RegExpireThread.h"
 
 using namespace std;
 
@@ -71,12 +72,10 @@ void RegDB::updateBinding(RegBinding& binding)
 void RegDB::expireOldBindings(const string& identity, const string& callId, unsigned int cseq,
 		unsigned int timeNow)
 {
-	unsigned int expirationTime = timeNow - 1;
 	mongo::BSONObj query = BSON(
 			"identity" << identity <<
 			"callId"<< callId <<
-			"cseq" << BSON_LESS_THAN(cseq) <<
-			"expirationTime" << BSON_GREATER_THAN_EQUAL(expirationTime));
+			"cseq" << BSON_LESS_THAN(cseq));
 
 	mongo::ScopedDbConnection conn(_info.getConnectionString());
 	conn->remove(_info.getNS(), query);
@@ -88,10 +87,8 @@ void RegDB::expireOldBindings(const string& identity, const string& callId, unsi
 void RegDB::expireAllBindings(const string& identity, const string& callId, unsigned int cseq,
 		unsigned int timeNow)
 {
-	unsigned int expirationTime = timeNow - 1;
 	mongo::BSONObj query = BSON(
-			"identity" << identity <<
-			"expirationTime" << BSON_GREATER_THAN_EQUAL(expirationTime));
+			"identity" << identity);
 
 	mongo::ScopedDbConnection conn(_info.getConnectionString());
 	conn->remove(_info.getNS(), query);
@@ -100,14 +97,13 @@ void RegDB::expireAllBindings(const string& identity, const string& callId, unsi
 	conn.done();
 }
 
-void RegDB::expireAllBindings(unsigned int timeNow)
+void RegDB::removeAllExpired()
 {
-	mongo::BSONObj query = BSON("expirationTime" << BSON_GREATER_THAN_EQUAL(0) <<
-			"localAddress" << _localAddress);
-
+  int timeNow = (int) OsDateTime::getSecsSinceEpoch();
+	mongo::BSONObj query = BSON("expirationTime" << BSON_LESS_THAN_EQUAL(timeNow));
 	mongo::ScopedDbConnection conn(_info.getConnectionString());
 	conn->remove(_info.getNS(), query);
-	conn->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
+  conn->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
 	conn->ensureIndex("node.registrar", BSON( "expirationTime" << 1 ));
 	conn.done();
 }
@@ -150,15 +146,13 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, int timeNow, Bindin
 		searchString += SIP_GRUU_URI_PARAM;
 		query = BSON(
 				"gruu" << searchString <<
-				"expirationTime" << BSON_GREATER_THAN(timeNow) <<
-				"expired" << false);
+				"expirationTime" << BSON_GREATER_THAN(timeNow));
 	}
 	else
 	{
 		query = BSON(
 				"identity" << identity <<
-				"expirationTime" << BSON_GREATER_THAN(timeNow) <<
-				"expired" << false);
+				"expirationTime" << BSON_GREATER_THAN(timeNow));
 	}
 
 	mongo::ScopedDbConnection conn(_info.getConnectionString());
@@ -179,8 +173,7 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, int timeNow, Bindin
 
 bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, int timeNow, Bindings& bindings) const
 {
-	mongo::BSONObj query = BSON("expirationTime" << BSON_GREATER_THAN(timeNow) <<
-			"expired" << false);
+	mongo::BSONObj query = BSON("expirationTime" << BSON_GREATER_THAN(timeNow));
 
 	mongo::ScopedDbConnection conn(_info.getConnectionString());
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
@@ -206,8 +199,7 @@ bool RegDB::getUnexpiredContactsUserInstrument(const string& identity, const str
 	mongo::BSONObj query = BSON(
 			"identity" << identity <<
 			"instrument" << instrument <<
-			"expirationTime" << BSON_GREATER_THAN(timeNow) <<
-			"expired" << false);
+			"expirationTime" << BSON_GREATER_THAN(timeNow));
 
 	mongo::ScopedDbConnection conn(_info.getConnectionString());
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
@@ -230,8 +222,7 @@ bool RegDB::getUnexpiredContactsInstrument(const string& instrument, int timeNow
 {
 	mongo::BSONObj query = BSON(
 			"instrument" << instrument <<
-			"expirationTime" << BSON_GREATER_THAN(timeNow) <<
-			"expired" << false);
+			"expirationTime" << BSON_GREATER_THAN(timeNow));
 
 	mongo::ScopedDbConnection conn(_info.getConnectionString());
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
