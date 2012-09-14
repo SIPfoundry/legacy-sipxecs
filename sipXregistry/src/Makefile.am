@@ -40,8 +40,6 @@ libsipXregistry_la_SOURCES = \
     RedirectSuspend.cpp \
     RegisterEventServer.cpp \
     RegisterEventServer.h \
-    RegistrarPersist.cpp \
-    RegistrarPersist.h \
     SipRedirectServer.cpp \
     SipRegistrar.cpp \
     SipRegistrarServer.cpp \

@@ -58,13 +58,13 @@ public:
         unsigned int cseq,
         unsigned int timeNow);
 
-    void expireAllBindings(unsigned int timeNow);
-
     void expireAllBindings(
         const std::string& identity,
         const std::string& callId,
         unsigned int cseq,
         unsigned int timeNow);
+
+    void removeAllExpired();
 
     bool isOutOfSequence(
         const std::string& identity,

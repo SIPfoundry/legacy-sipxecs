@@ -18,6 +18,7 @@
 #include "os/OsServerTask.h"
 #include "sipXecsService/SipNonceDb.h"
 #include "utl/PluginHooks.h"
+#include "sipdb/RegExpireThread.h"
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -70,19 +71,6 @@ public:
         REGISTER_QUERY                  ///< request is a valid query for current contacts
     };
 
-    
-
-    /// Schedule garbage collection and persistence of the registration database
-    void scheduleCleanAndPersist();
-
-    /// Garbage-collect and persist the registration database
-    void cleanAndPersist();
-    /**<
-     * Don't call cleanAndPersist directly.  Instead call scheduleCleanAndPersist so that
-     * persistence is periodic instead of immediate, for efficiency.
-     */
-
-
 protected:
     struct RegistrationExpiryIntervals
     {
@@ -98,6 +86,7 @@ protected:
     bool mUseCredentialDB;
     UtlString mRealm;
     UtlBoolean mSendExpiresInResponse;
+    RegExpireThread _expireThread;
 
     SipNonceDb mNonceDb;
     long mNonceExpiration;
