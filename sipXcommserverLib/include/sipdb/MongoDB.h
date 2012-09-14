@@ -17,7 +17,7 @@
 #define	MONGODB_H
 
 #ifndef BOOST_FILESYSTEM_VERSION
-#define BOOST_FILESYSTEM_VERSION 2
+#define BOOST_FILESYSTEM_VERSION 3
 #endif
 
 // This is correct header, but causes compiler issue because mongo's pch.h
