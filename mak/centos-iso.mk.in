@@ -223,6 +223,9 @@ ISO_ADD_EPEL = \
   erlang-wx-* \
   erlang-xmerl-* \
   libev-4.* \
+  libmongodb-* \
+  mongodb-2.* \
+  mongodb-server-* \
   php-pecl-mongo-* \
   redis-* \
   rubygem-daemons-* \
