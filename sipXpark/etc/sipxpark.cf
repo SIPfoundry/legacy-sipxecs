@@ -18,6 +18,8 @@ bundle agent sipxpark {
   methods:
     sipxpark::
       "any" usebundle => "sipxpark_config";
+    !sipxpark.sipxregistrar::
+      "any" usebundle => "orbit_config";
     any::
       "any" usebundle => "sipxpark_setup";
       "any" usebundle => "sipxpark_running";
@@ -48,6 +50,16 @@ bundle agent sipxpark_config {
         copy_from => copy_prompts("$(sipx.master_address)","$(sipx.SIPX_VARDIR)/parkserver/music"),
         file_select => wav_prompt,
         depth_search => recurse("1");
+}
+
+bundle agent orbit_config {
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/orbits.xml"
+        comment => "install sipxpark orbits config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/orbits.xml");
 }
 
 bundle edit_line sipxpark_config_contents {

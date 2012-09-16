@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.registrar.Registrar;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -46,20 +47,23 @@ public class ParkOrbitConfiguration implements ConfigProvider, DaoEventListener 
 
         Set<Location> locations = request.locations(manager);
         ParkSettings settings = m_parkOrbitContext.getSettings();
+        boolean parkEnabledInCluser = manager.getFeatureManager().isFeatureEnabled(ParkOrbitContext.FEATURE);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(ParkOrbitContext.FEATURE, location);
+            boolean registrarEnabledOnLocation = manager.getFeatureManager().isFeatureEnabled(Registrar.FEATURE,
+                    location);
+            boolean writeOrbit = true;
+            if (parkEnabledInCluser && registrarEnabledOnLocation) {
+                writeOrbitConfig(dir);
+                writeOrbit = false;
+            }
             ConfigUtils.enableCfengineClass(dir, "sipxpark.cfdat", enabled, "sipxpark");
             if (!enabled) {
                 continue;
             }
-            Writer xml = new FileWriter(new File(dir, "orbits.xml"));
-            try {
-                XmlFile config = new XmlFile(xml);
-                config.write(getDocument());
-                IOUtils.closeQuietly(xml);
-            } finally {
-                IOUtils.closeQuietly(xml);
+            if (writeOrbit) {
+                writeOrbitConfig(dir);
             }
 
             Writer config = new FileWriter(new File(dir, "sipxpark-config.part"));
@@ -68,6 +72,17 @@ public class ParkOrbitConfiguration implements ConfigProvider, DaoEventListener 
             } finally {
                 IOUtils.closeQuietly(config);
             }
+        }
+    }
+
+    private void writeOrbitConfig(File dir) throws IOException {
+        Writer xml = new FileWriter(new File(dir, "orbits.xml"));
+        try {
+            XmlFile config = new XmlFile(xml);
+            config.write(getDocument());
+            IOUtils.closeQuietly(xml);
+        } finally {
+            IOUtils.closeQuietly(xml);
         }
     }
 
