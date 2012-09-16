@@ -59,8 +59,6 @@ lib_common = \
   v8 \
   oss_core
 
-$(foreach V,11 12 13 14 15,$(eval lib_fedora_$(V) = $(lib_common) mongo sec))
-
 lib_fedora_16 = \
   $(lib_common) \
   sec
