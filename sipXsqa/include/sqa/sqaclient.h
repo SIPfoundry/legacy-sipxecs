@@ -46,6 +46,20 @@ namespace std
 
 #endif
 
+class SQALogger
+{
+public:
+  SQALogger();
+  void initialize(const char* file, int level);
+  const std::string& getHostName();
+  const std::string& getCurrentTask();
+  const std::string& getProcessName();
+protected:
+  std::string hostName;
+  std::string taskName;
+  std::string processName;
+};
+
 class SQAEvent
 {
 public:
@@ -863,6 +877,35 @@ inline std::map<std::string, std::string> SQAWorker::mgetAll(int workspace, cons
   if (!reinterpret_cast<StateQueueClient*>(_connection)->mgetm(workspace, name, smap));
   return smap;
 }
+
+inline SQALogger::SQALogger()
+{
+  hostName = "sqa";
+  taskName = "sqa-task";
+  processName = "sqaclient";
+}
+
+inline void SQALogger::initialize(const char* file, int level)
+{
+  Os::Logger::instance().initialize<SQALogger>(level, file, *this);
+}
+
+inline const std::string& SQALogger::getHostName()
+{
+  return hostName;
+}
+
+inline const std::string& SQALogger::getCurrentTask()
+{
+  return taskName;
+}
+
+inline const std::string& SQALogger::getProcessName()
+{
+  return processName;
+}
+
+
 
 #endif //EXCLUDE_SQA_INLINES
 
