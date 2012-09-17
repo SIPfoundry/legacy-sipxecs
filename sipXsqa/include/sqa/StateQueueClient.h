@@ -672,47 +672,53 @@ private:
     bool firstHit = true;
     if (!_terminate)
     {
-      if (subscribe(_zmqEventId, publisherAddress))
+      while (!_terminate)
       {
-        assert(_type != Publisher);
-
-        while (!_terminate)
+        if (subscribe(_zmqEventId, publisherAddress))
         {
-          std::string id;
-          std::string data;
-          int count = 0;
-          if (readEvent(id, data, count))
-          {
-            if (_terminate)
-              break;
-
-            OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop received event: " << id);
-            OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop received data: " << data);
-
-            if (_type == Worker)
-            {
-              OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop popping data: " << id);
-              do_pop(firstHit, count, id, data);
-            }else if (_type == Watcher)
-            {
-              OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop watching data: " << id);
-              do_watch(firstHit, count, id, data);
-            }
-          }
-          else
-          {
-            if (_terminate)
-            {
-              break;
-            }
-          }
-          firstHit = false;
+          break;
+        }
+        else
+        {
+          OS_LOG_ERROR(FAC_NET, "StateQueueClient::eventLoop "
+              << "Is unable to SUBSCRIBE to SQA service @ " << publisherAddress);
+          boost::this_thread::sleep(boost::posix_time::milliseconds(retryTime));
         }
       }
-      else
+
+      assert(_type != Publisher);
+
+      while (!_terminate)
       {
-        OS_LOG_ERROR(FAC_NET, "StateQueueClient::eventLoop "
-            << "Is unable to SUBSCRIBE to SQA service @ " << publisherAddress);
+        std::string id;
+        std::string data;
+        int count = 0;
+        if (readEvent(id, data, count))
+        {
+          if (_terminate)
+            break;
+
+          OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop received event: " << id);
+          OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop received data: " << data);
+
+          if (_type == Worker)
+          {
+            OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop popping data: " << id);
+            do_pop(firstHit, count, id, data);
+          }else if (_type == Watcher)
+          {
+            OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop watching data: " << id);
+            do_watch(firstHit, count, id, data);
+          }
+        }
+        else
+        {
+          if (_terminate)
+          {
+            break;
+          }
+        }
+        firstHit = false;
       }
     }
 
