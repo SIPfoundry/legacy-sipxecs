@@ -61,7 +61,8 @@ bundle agent sipxopenacd_config {
         comment => "install openacd config $(this.promiser)",
         create => "true",
         perms => m("644"),
-        edit_line => sipxopenacd_app_config;
+        edit_line => sipxopenacd_app_config,
+        classes => if_repaired("restart_sipxopenacd");
 
     # Here we simply inform openacd startup to include our code when it starts up. (view above comment)
       "$(sipx.OPENACD_CONFDIR)/sysopenacd"
@@ -112,7 +113,7 @@ bundle edit_line sipxopenacd_app_config() {
 [{'OpenACD', [
 	{console_loglevel, $(sipx.OPENACD_LOG_LEVEL)},
 	{logfiles, [{\"$(sipx.OPENACD_LOGDIR)/full.log\", $(sipx.OPENACD_LOG_LEVEL)}]},
-	{plugin_dir, \"$(sipx.SIPX_LIBDIR)/openacd/plugin.d\"}, {plugins, [erlmongo, sipxplugin]}, {agent_auth_storage, spx_agent_auth}, {call_queue_config_storage, spx_call_queue_config}
+	{plugin_dir, \"$(sipx.SIPX_LIBDIR)/openacd/plugin.d\"}, {plugins, [erlmongo, sipxplugin]}, {agent_auth_storage, spx_agent_auth}, {call_queue_config_storage, spx_call_queue_config}, {rsakey, \"$(sipx.OPENACD_CONFDIR)/key\"}
 ]},
 {sasl, [
 	{errlog_type, error} % disable SASL progress reports
