@@ -123,9 +123,6 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         if (!m_ldapManager.getSystemSettings().isConfigured()) {
             return false;
         }
-        if (!m_ldapManager.verifyAllLdapConnections()) {
-            return false;
-        }
         initialize();
         if (!isEnabled()) {
             return false;

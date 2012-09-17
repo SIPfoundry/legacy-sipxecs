@@ -26,6 +26,8 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
@@ -46,27 +48,59 @@ public abstract class LdapPage extends SipxBasePage implements PageBeginRenderLi
     @InitialValue("literal:" + CONFIGURATION_TAB)
     @Persist
     public abstract String getTab();
+
     public abstract void setTab(String tab);
 
     public abstract LdapSelectionModel getLdapSelectionModel();
+
     public abstract void setLdapSelectionModel(LdapSelectionModel ldapSelectionModel);
 
     @Persist
     public abstract int getCurrentConnectionId();
+
     public abstract void setCurrentConnectionId(int connectionId);
 
+    @Persist
+    public abstract Integer getVerifiedConnectionId();
+
+    public abstract void setVerifiedConnectionId(Integer connectionId);
+
     public abstract LdapSystemSettings getSettings();
+
     public abstract void setSettings(LdapSystemSettings settings);
+
+    @Persist
+    public abstract boolean isLdapConnectionValid();
+
+    public abstract void setLdapConnectionValid(boolean valid);
 
     @Persist
     public abstract boolean isAddMode();
 
     public void pageBeginRender(PageEvent event) {
-        setSettings(getLdapManager().getSystemSettings());
-        setLdapSelectionModel(new LdapSelectionModel(getLdapManager()));
-        if (getLdapSelectionModel().getOptionCount() > 0 && getCurrentConnectionId() <= 0) {
+        LdapManager manager = getLdapManager();
+        setSettings(manager.getSystemSettings());
+        setLdapSelectionModel(new LdapSelectionModel(manager));
+        //no connection verified yet
+        if (getVerifiedConnectionId() == null) {
+            setVerifiedConnectionId(-1);
+        }
+        int noConnections = getLdapSelectionModel().getOptionCount();
+        if (noConnections <= 0) {
+            setLdapConnectionValid(false);
+        }
+        if (noConnections > 0 && getCurrentConnectionId() <= 0) {
             if (!isAddMode()) {
                 setCurrentConnectionId((Integer) getLdapSelectionModel().getOption(0));
+            }
+        }
+        if (getVerifiedConnectionId() != getCurrentConnectionId() && noConnections > 0 && !isAddMode()) {
+            LdapConnectionParams connection = manager.getConnectionParams(getCurrentConnectionId());
+            setLdapConnectionValid(manager.verifyLdapConnection(connection));
+            setVerifiedConnectionId(getCurrentConnectionId());
+            if (!isLdapConnectionValid()) {
+                getValidator().record(new ValidatorException(getMessages().
+                    format("msg.ldapconnection.failed", connection.getFullHost())));
             }
         }
     }
@@ -91,4 +125,5 @@ public abstract class LdapPage extends SipxBasePage implements PageBeginRenderLi
     public boolean isLdapConfigured() {
         return !getLdapManager().getAllConnectionParams().isEmpty() && isConnectionStage() && !isAddMode();
     }
+
 }
