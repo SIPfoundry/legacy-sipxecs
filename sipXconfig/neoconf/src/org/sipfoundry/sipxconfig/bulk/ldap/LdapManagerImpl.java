@@ -75,6 +75,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     }
 
     public boolean verifyLdapConnection(LdapConnectionParams params) {
+        LOG.debug("verifying LDAP connection: " + params.getFullHost());
         try {
             String[] attrNames = new String[] {
                 NAMING_CONTEXTS, SUBSCHEMA_SUBENTRY
@@ -89,6 +90,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     }
 
     public boolean verifyAllLdapConnections() {
+        LOG.debug("verifying all LDAP connections");
         List<LdapConnectionParams> connParams = getAllConnectionParams();
         for (LdapConnectionParams params : connParams) {
             if (!verifyLdapConnection(params)) {
@@ -187,6 +189,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
 
         cons.setReturningAttributes(attrNames);
         cons.setSearchScope(SearchControls.OBJECT_SCOPE);
+        cons.setTimeLimit(30000);
 
         List<Map<String, String>> results = m_templateFactory.getLdapTemplate(params).search("",
                 FILTER_ALL_CLASSES, cons, new AttributesToValues(attrNames), NULL_PROCESSOR);
