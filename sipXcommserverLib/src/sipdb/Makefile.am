@@ -19,7 +19,14 @@ libsipdb_la_LDFLAGS = \
 	-shared \
 	@ODBC_LDFLAGS@
 
+# Fedora 17 port - Permissive compiler to get around 
+#   MongoDB.cpp:68:1:   required from here
+#   /usr/include/boost/program_options/detail/config_file.hpp:163:13: error: 'to_internal' was not
+#   declared in this scope, and no declarations were found by argument-dependent lookup at the
+#   point of instantiation [-fpermissive]
+#
 libsipdb_la_CXXFLAGS = \
+	-fpermissive \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \

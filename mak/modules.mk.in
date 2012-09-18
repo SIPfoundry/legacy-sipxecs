@@ -59,11 +59,26 @@ lib_common = \
   v8 \
   oss_core
 
+# broken :  ruby-postgres, v8, oss_core only because of v8
+lib_fedora_17 = \
+  resiprocate \
+  rubygem-file-tail \
+  freeswitch \
+  hiredis \
+  js \
+  net-snmp \
+  homer \
+  OpenACD \
+  openfire \
+  erlmongo \
+  ruby-dbi \
+  cfengine
+
 lib_fedora_16 = \
   $(lib_common) \
   sec
 
-$(foreach V,17 18 19 20,$(eval lib_fedora_$(V) = $(lib_common)))
+$(foreach V,17 18 19 20,$(eval lib_fedora_$(V) = $(lib_fedora_17)))
 
 lib_centos_6 = \
   epel-release \

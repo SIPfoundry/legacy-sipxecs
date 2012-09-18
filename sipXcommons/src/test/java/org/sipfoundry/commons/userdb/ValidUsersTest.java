@@ -18,7 +18,7 @@ public class ValidUsersTest extends TestCase {
         assertEquals("WOOF", ValidUsers.compress("Woof!"));
         assertEquals("WOOFWASHERE", ValidUsers.compress("Woof! was here."));
         assertEquals("SPYDERTROBINSONRD", ValidUsers.compress("Spyder T. Robinson 3rd"));
-        assertEquals("FRAUBRUCHER", ValidUsers.compress("Fräu BrÜcher"));
+        assertEquals("FRAUBRUCHER", ValidUsers.compress("Fr\u00E4u Br\u00DCcher"));
     }
 
     public void testMapDTMF() {

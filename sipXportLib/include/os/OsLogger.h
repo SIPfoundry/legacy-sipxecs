@@ -19,6 +19,7 @@
 #include <sstream>
 #include <map>
 #include <vector>
+#include <boost/version.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
@@ -323,7 +324,13 @@ namespace Os
 
     bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
     {
+#if (BOOST_VERSION < 104800)
+      // CentOS 6
       headers << boost::interprocess::detail::atomic_inc32(&_counter) + 1 << ":";
+#else
+      //Fedora 17 or greater
+      headers << boost::interprocess::ipcdetail::atomic_inc32(&_counter) + 1 << ":";
+#endif
       return true;
     }
 

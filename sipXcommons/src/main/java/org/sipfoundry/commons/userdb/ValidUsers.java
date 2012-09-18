@@ -660,13 +660,13 @@ public class ValidUsers {
         String normal = orig.toUpperCase();
 
         // Brute force conversion of diacriticals
-        normal = normal.replaceAll("[ÂÀÄÁÃ]", "A");
-        normal = normal.replaceAll("[ÊÈËÉ]", "E");
-        normal = normal.replaceAll("[ÎÌÏÍ]", "I");
-        normal = normal.replaceAll("[ÔÒÖÓÕ]", "O");
-        normal = normal.replaceAll("[ÛÙÜÚ]", "U");
-        normal = normal.replaceAll("Ç", "C");
-        normal = normal.replaceAll("Ñ", "N");
+        normal = normal.replaceAll("[\u00C0\u00C1\u00C2\u00C3\u00C4]", "A");
+        normal = normal.replaceAll("[\u00C8\u00C9\u00CA\u00CB]", "E");
+        normal = normal.replaceAll("[\u00CC\u00CD\u00CE\u00CF]", "I");
+        normal = normal.replaceAll("[\u00D2\u00D3\u00D4\u00D5\u00D6]", "O");
+        normal = normal.replaceAll("[\u00D9\u00DA\u00DB\u00DC]", "U");
+        normal = normal.replaceAll("\u00C7", "C");
+        normal = normal.replaceAll("\u00D1", "N");
 
         // Remove non letters
         normal = normal.replaceAll("[^A-Z]", "");
