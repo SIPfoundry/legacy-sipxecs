@@ -51,9 +51,9 @@ class SQALogger
 public:
   SQALogger();
   void initialize(const char* file, int level);
-  const std::string& getHostName();
+  std::string getHostName();
   std::string getCurrentTask();
-  const std::string& getProcessName();
+  std::string getProcessName();
 protected:
   std::string hostName;
   std::string taskName;
@@ -890,7 +890,7 @@ inline void SQALogger::initialize(const char* file, int level)
   Os::Logger::instance().initialize<SQALogger>(level, file, *this);
 }
 
-inline const std::string& SQALogger::getHostName()
+inline std::string SQALogger::getHostName()
 {
   return hostName;
 }
@@ -900,7 +900,7 @@ inline std::string SQALogger::getCurrentTask()
   return taskName;
 }
 
-inline const std::string& SQALogger::getProcessName()
+inline std::string SQALogger::getProcessName()
 {
   return processName;
 }

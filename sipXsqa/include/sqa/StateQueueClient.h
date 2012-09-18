@@ -96,10 +96,13 @@ public:
        _pSocket->close(ignored_ec);
        delete _pSocket;
        _pSocket = 0;
+       OS_LOG_DEBUG(FAC_NET, "BlockingTcpClient::connect() deleting previous socket.");
       }
 
       
       _pSocket = new boost::asio::ip::tcp::socket(_ioService);
+
+      OS_LOG_INFO(FAC_NET, "BlockingTcpClient::connect() creating new connection to " << serviceAddress << ":" << servicePort);
 
       _serviceAddress = serviceAddress;
       _servicePort = servicePort;
@@ -118,9 +121,11 @@ public:
         setReadTimeout(*_pSocket, _readTimeout);
         setWriteTimeout(*_pSocket, _writeTimeout);
         _isConnected = true;
+        OS_LOG_INFO(FAC_NET, "BlockingTcpClient::connect() creating new connection to " << serviceAddress << ":" << servicePort << " SUCESSFUL.");
       }
-      catch(...)
+      catch(std::exception e)
       {
+        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::connect() failed with error " << e.what());
         _isConnected = false;
       }
 
@@ -133,29 +138,36 @@ public:
       //
       // Initialize State Queue Agent Publisher if an address is provided
       //
-      std::string sqaControlAddress;
-      std::string sqaControlPort;
-      std::ostringstream sqaconfig;
-      sqaconfig << SIPX_CONFDIR << "/" << "sipxsqa-client.ini";
-      ServiceOptions configOptions(sqaconfig.str());
-      std::string controlAddress;
-      std::string controlPort;
-      if (configOptions.parseOptions())
+      if (_serviceAddress.empty() || _servicePort.empty())
       {
-        bool enabled = false;
-        if (configOptions.getOption("enabled", enabled, enabled) && enabled)
+        std::string sqaControlAddress;
+        std::string sqaControlPort;
+        std::ostringstream sqaconfig;
+        sqaconfig << SIPX_CONFDIR << "/" << "sipxsqa-client.ini";
+        ServiceOptions configOptions(sqaconfig.str());
+        std::string controlAddress;
+        std::string controlPort;
+        if (configOptions.parseOptions())
         {
-          configOptions.getOption("sqa-control-address", _serviceAddress);
-          configOptions.getOption("sqa-control-port", _servicePort);
-        }
-        else
-        {
-          return false;
+          bool enabled = false;
+          if (configOptions.getOption("enabled", enabled, enabled) && enabled)
+          {
+            configOptions.getOption("sqa-control-address", _serviceAddress);
+            configOptions.getOption("sqa-control-port", _servicePort);
+          }
+          else
+          {
+            OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::connect() Unable to read connection information from " << sqaconfig.str());
+            return false;
+          }
         }
       }
 
       if(_serviceAddress.empty() || _servicePort.empty())
+      {
+        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::connect() remote address is not set");
         return false;
+      }
       
       return connect(_serviceAddress, _servicePort);
     }
@@ -166,7 +178,10 @@ public:
       std::string data = request.data();
 
       if (data.size() > SQA_CONN_MAX_READ_BUFF_SIZE - 1) /// Account for the terminating char "_"
+      {
+        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::send() data size: " << data.size() << " maximum buffer length of " << SQA_CONN_MAX_READ_BUFF_SIZE - 1);
         return false;
+      }
 
       short version = 1;
       short key = 22172;
@@ -181,6 +196,7 @@ public:
       bool ok = _pSocket->write_some(boost::asio::buffer(packet.c_str(), packet.size()), ec) > 0;
       if (!ok || ec)
       {
+        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::send() write_some error: " << ec.message());
         _isConnected = false;
         return false;
       }
@@ -192,13 +208,17 @@ public:
       assert(_pSocket);
       unsigned long len = getNextReadSize();
       if (!len)
+      {
+        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::receive() next read size is empty.");
         return false;
+      }
 
       char responseBuff[len];
       boost::system::error_code ec;
       _pSocket->read_some(boost::asio::buffer((char*)responseBuff, len), ec);
       if (ec)
       {
+        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::receive() read_some error: " << ec.message());
         _isConnected = false;
         return false;
       }
@@ -924,7 +944,10 @@ private:
   {
     BlockingTcpClient::Ptr conn;
     if (!_clientPool.dequeue(conn))
+    {
+      OS_LOG_ERROR(FAC_NET, "Unable to retrieve a TCP connection for pool.");
       return false;
+    }
 
     if (!conn->isConnected() && !conn->connect(_serviceAddress, _servicePort))
     {
