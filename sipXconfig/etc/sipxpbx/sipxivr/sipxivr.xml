@@ -96,13 +96,13 @@
       </type>
       <value>7</value>
     </setting>
-    <setting name="ivr.nameDialPrefix" advanced="yes">
+    <setting name="ivr.nameDialPrefix" hidden="yes">
       <type>
         <string required="yes"/>
       </type>
       <value>11</value>
     </setting>
-    <setting name="ivr.defaultTui" advanced="yes">
+    <setting name="ivr.defaultTui" hidden="yes">
       <type>
         <string required="yes"/>
       </type>
