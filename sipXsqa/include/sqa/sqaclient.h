@@ -52,7 +52,7 @@ public:
   SQALogger();
   void initialize(const char* file, int level);
   const std::string& getHostName();
-  const std::string& getCurrentTask();
+  std::string getCurrentTask();
   const std::string& getProcessName();
 protected:
   std::string hostName;
@@ -895,7 +895,7 @@ inline const std::string& SQALogger::getHostName()
   return hostName;
 }
 
-inline const std::string& SQALogger::getCurrentTask()
+inline std::string SQALogger::getCurrentTask()
 {
   return taskName;
 }
