@@ -16,10 +16,15 @@
  */
 package org.sipfoundry.sipxconfig.parkorbit;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class ParkSettings extends PersistableSettings {
+public class ParkSettings extends PersistableSettings implements DeployConfigOnEdit {
 
     @Override
     protected Setting loadSettings() {
@@ -45,5 +50,10 @@ public class ParkSettings extends PersistableSettings {
     @Override
     public String getBeanId() {
         return "parkSettings";
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) ParkOrbitContext.FEATURE);
     }
 }
