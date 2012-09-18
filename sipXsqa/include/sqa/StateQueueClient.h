@@ -949,7 +949,7 @@ private:
       return false;
     }
 
-    if (!conn->isConnected() && !conn->connect(_serviceAddress, _servicePort))
+    if (!conn->isConnected() && !conn->connect())
     {
       //
       // Put it back to the queue.  The server is down.
