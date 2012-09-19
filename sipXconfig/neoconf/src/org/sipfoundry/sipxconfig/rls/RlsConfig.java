@@ -28,14 +28,17 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.springframework.beans.factory.annotation.Required;
 
-public class RlsConfig implements ConfigProvider {
+public class RlsConfig implements ConfigProvider, DaoEventListener {
     private Rls m_rls;
     private ResourceLists m_lists;
+    private ConfigManager m_configManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -82,7 +85,28 @@ public class RlsConfig implements ConfigProvider {
     }
 
     @Required
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
+    }
+
+    @Required
     public void setRlsLists(ResourceLists lists) {
         m_lists = lists;
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        onChange(entity);
+    }
+
+    @Override
+    public void onSave(Object entity) {
+        onChange(entity);
+    }
+
+    public void onChange(Object entity) {
+        if (m_configManager.getFeatureManager().isFeatureEnabled(Rls.FEATURE) && entity instanceof User) {
+            m_configManager.configureEverywhere(Rls.FEATURE);
+        }
     }
 }

@@ -30,6 +30,7 @@
   <bean id="rlsConfig" class="org.sipfoundry.sipxconfig.rls.RlsConfig">
     <property name="rls" ref="rls" />
     <property name="rlsLists" ref="rlsLists" />
+    <property name="configManager" ref="configManager" />
   </bean>
 
 </beans>
