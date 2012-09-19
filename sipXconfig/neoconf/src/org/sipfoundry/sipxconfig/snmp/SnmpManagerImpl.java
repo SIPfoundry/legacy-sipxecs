@@ -138,7 +138,7 @@ public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeaturePr
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE);
-        return (enabled ? Collections.singleton(ProcessDefinition.sysv("snmpd")) : null);
+        return (enabled ? Collections.singleton(ProcessDefinition.sysv("snmpd", true)) : null);
     }
 
     @Override

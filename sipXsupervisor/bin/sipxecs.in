@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# sipxecs - sipXecs services control
+# description: sipxecs is a script used for control and query of the services required by sipXecs
+# processname: sipxecs
+
+# Copyright (C) 2012 eZuce Inc., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the AGPL license.
+
+# Location of the file containing the required SVCs to be modified
+SVCSLIST="@SIPX_CONFDIR@/sipxecs-services.ini"
+
+case "$1" in
+start)
+  for SVC in `cat $SVCSLIST`; do
+    @SIPX_SERVICEDIR@/$SVC start
+done
+;;
+
+status)
+  for SVC in `cat $SVCSLIST`; do
+    @SIPX_SERVICEDIR@/$SVC status
+done
+;;
+
+stop)
+  for SVC in `cat $SVCSLIST`; do
+    @SIPX_SERVICEDIR@/$SVC stop
+done
+;;
+
+restart)
+	$0 stop
+	$0 start
+;;
+
+*)
+	echo "Usage: $0 {status|start|stop|restart}"
+	exit 1
+esac

@@ -35,7 +35,7 @@ start() {
       runuser - @SIPXPBXUSER@ -c $exec
       Status=$?
     else
-      echo -n $"Starting $prog: "
+      echo -n $"Starting sipxpublisher: "
       daemon --user @SIPXPBXUSER@ --pidfile $pidfile $exec $pidfile
       Status=$?
       echo_success
@@ -88,7 +88,7 @@ case "$1" in
     [ -f ${pidfile} ] && restart || :
     ;;
   status)
-    status -p ${pidfile} ${exec}
+    status -p ${pidfile} sipxpublisher
     Status=$?
     ;;
   configtest)

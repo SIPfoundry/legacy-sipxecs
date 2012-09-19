@@ -25,7 +25,7 @@ sipxagentlockfile="@SIPX_RUNDIR@/sipxagent.lock"
 
 start() {
 	echo -n $config > $configid
-	echo -n $"Starting $prog: "
+	echo -n $"Starting sipxsupervisor: "
 	daemon $exec -f $config
 	RETVAL=$?
 	echo
@@ -48,7 +48,7 @@ nofork() {
 }
 
 stop() {
-	echo -n $"Stopping $prog: "
+	echo -n $"Stopping sipxsupervisor: "
 	killproc $prog
 	RETVAL=$?
 	echo

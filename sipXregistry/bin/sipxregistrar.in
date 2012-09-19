@@ -127,7 +127,7 @@ case "$1" in
     [ -f ${pidfile} ] && restart || :
     ;;
   status)
-    status -p "${pidfile}" "${prog}"
+    status -p "${pidfile}" sipxregistrar
     Status=$?
     ;;
   configtest)

@@ -76,4 +76,8 @@
   <bean id="locationsConfig" class="org.sipfoundry.sipxconfig.commserver.LocationsConfig">  
   </bean>
 
+  <bean id="sipxServices" class="org.sipfoundry.sipxconfig.commserver.SipxServices">
+	<property name="configManager" ref="configManager"/>
+	<property name="snmpManager" ref="snmpManager" />
+  </bean>
 </beans>

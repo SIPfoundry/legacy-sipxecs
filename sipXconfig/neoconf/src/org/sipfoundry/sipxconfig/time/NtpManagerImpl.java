@@ -115,7 +115,7 @@ public class NtpManagerImpl implements NtpManager, ProcessProvider, FeatureProvi
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE);
-        return (enabled ? Collections.singleton(ProcessDefinition.sysv("ntpd")) : null);
+        return (enabled ? Collections.singleton(ProcessDefinition.sysv("ntpd", true)) : null);
     }
 
     @Override

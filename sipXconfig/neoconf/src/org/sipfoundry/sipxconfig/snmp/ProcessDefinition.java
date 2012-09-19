@@ -23,6 +23,7 @@ public final class ProcessDefinition {
     private String m_restartCommand;
     private String m_regexp;
     private String m_restartClass;
+    private boolean m_hideFromGlobalServiceScript;
 
     private ProcessDefinition(String process) {
         m_process = process;
@@ -63,6 +64,13 @@ public final class ProcessDefinition {
         return pd;
     }
 
+    public static ProcessDefinition sysv(String process, boolean hideFromGlobalServiceScript) {
+        ProcessDefinition pd = new ProcessDefinition(process);
+        pd.setSysVServiceName(process);
+        pd.setHideFromGlobalServiceScript(true);
+        return pd;
+    }
+
     public static ProcessDefinition sysv(String process, String service) {
         ProcessDefinition pd = new ProcessDefinition(process);
         pd.setSysVServiceName(service);
@@ -72,6 +80,13 @@ public final class ProcessDefinition {
     public static ProcessDefinition sysvByRegex(String process, String regexp) {
         ProcessDefinition pd = new ProcessDefinition(process, regexp);
         pd.setSysVServiceName(process);
+        return pd;
+    }
+
+    public static ProcessDefinition sysvByRegex(String process, String regexp, boolean hideFromGlobalServiceScript) {
+        ProcessDefinition pd = new ProcessDefinition(process, regexp);
+        pd.setSysVServiceName(process);
+        pd.setHideFromGlobalServiceScript(true);
         return pd;
     }
 
@@ -116,5 +131,13 @@ public final class ProcessDefinition {
 
     public void setRestartClass(String restartClass) {
         m_restartClass = restartClass;
+    }
+
+    public boolean isHideFromGlobalServiceScript() {
+        return m_hideFromGlobalServiceScript;
+    }
+
+    public void setHideFromGlobalServiceScript(boolean hideFromGlobalServiceScript) {
+        m_hideFromGlobalServiceScript = hideFromGlobalServiceScript;
     }
 }

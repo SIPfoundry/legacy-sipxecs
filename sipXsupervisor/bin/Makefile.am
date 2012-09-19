@@ -27,7 +27,8 @@ cfmod_SCRIPTS = \
 initddir = @SIPX_SERVICEDIR@
 initd_SCRIPTS = \
 	sipxsupervisor \
-	sipxlogwatcher
+	sipxlogwatcher \
+	sipxecs
 
 $(libexec_SCRIPTS) $(cfmod_SCRIPTS) $(initd_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)

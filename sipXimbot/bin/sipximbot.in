@@ -102,7 +102,7 @@ case "$1" in
     [ -f ${pidfile} ] && restart || :
     ;;
   status)
-    status -p ${pidfile} java
+    status -p ${pidfile} sipximbot
     ;;
   configtest)
     configtest

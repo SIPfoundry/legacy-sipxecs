@@ -10,6 +10,7 @@
 prog="sec"
 exec="/usr/bin/sec"
 lockfile="/var/lock/subsys/sec"
+PidFile=@SIPX_RUNDIR@/sipxlogwatcher.pid
 rc=@SIPX_CONFDIR@/sipxlogwatcher-rc
 
 [ -e $rc ] && . $rc
@@ -29,7 +30,7 @@ start() {
 
 stop() {
 	echo -n $"Stopping sipxlogwatcher: "
-	killproc $prog
+	killproc -p "${PidFile}" $prog
 	RETVAL=$?
 	echo
 	[ $RETVAL -eq 0 ] && rm -f $lockfile
@@ -54,7 +55,7 @@ force_reload() {
 }
 
 rh_status() {
-	status $prog
+	status -p ${PidFile} sipxlogwatcher
 }
 
 rh_status_q() {

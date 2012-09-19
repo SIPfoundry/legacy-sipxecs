@@ -69,7 +69,7 @@ public class Alarms implements FeatureProvider, ProcessProvider, SetupListener {
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE);
-        return (enabled ? Collections.singleton(ProcessDefinition.sysv("snmptrapd")) : null);
+        return (enabled ? Collections.singleton(ProcessDefinition.sysv("snmptrapd", true)) : null);
     }
 
     @Override

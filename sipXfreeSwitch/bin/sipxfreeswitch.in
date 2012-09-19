@@ -28,7 +28,7 @@ DAEMON_START_ARGS="-nc -nonat \
    $DAEMON_ARGS"
 DAEMON_STOP_ARGS="-stop \
    $DAEMON_ARGS"
-PIDFILE=@SIPX_RUNDIR@/freeswitch.pid
+PIDFILE=@SIPX_LOGDIR@/freeswitch.pid
 
 do_setlimits() {
         ulimit -c unlimited
@@ -139,8 +139,11 @@ case "$1" in
         do_stop
         do_start
         ;;
+  status)
+        status -p ${PIDFILE} sipxfreeswitch
+    ;;
   *)
-        echo $"Usage: $0 {start|stop}"
+        echo $"Usage: $0 {start|stop|status}"
         exit 2
         ;;
 esac

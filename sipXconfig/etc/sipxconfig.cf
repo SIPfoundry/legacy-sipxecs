@@ -22,6 +22,8 @@ bundle agent sipxconfig {
       "any" usebundle => "sipxconfig_apache";
     sipxlogwatcher::
       "any" usebundle => "sipxconfig_logwatcher";
+    any::
+      "any" usebundle => "sipxconfig_services";
 }
 
 bundle agent sipxconfig_logwatcher {
@@ -73,4 +75,13 @@ bundle agent sipxconfig_apache {
       edit_defaults => empty,
       edit_line => expand_template("$(sipx.SIPX_CONFDIR)/sipxconfig/sipxconfig-apache.conf"),
       classes => if_repaired("restart_apache");
+}
+
+bundle agent sipxconfig_services {
+  files:
+    "$(sipx.SIPX_CONFDIR)/sipxecs-services.ini"
+      comment => "list of sipxecs services",
+      create => "true",
+      perms => m("644"),
+      copy_from => copy_from_cfdata("$(sipx.location_id)/sipxecs-services.ini");
 }

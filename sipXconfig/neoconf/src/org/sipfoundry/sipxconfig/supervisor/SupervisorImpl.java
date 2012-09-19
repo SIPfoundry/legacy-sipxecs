@@ -26,9 +26,11 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class SupervisorImpl implements Supervisor, ProcessProvider {
 
+    private static final String PROCESS = "sipxsupervisor";
+
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-        ProcessDefinition def = ProcessDefinition.sipx("cf-serverd", "sipxsupervisor");
+        ProcessDefinition def = ProcessDefinition.sipx(PROCESS, PROCESS);
         return Collections.singleton(def);
     }
 }

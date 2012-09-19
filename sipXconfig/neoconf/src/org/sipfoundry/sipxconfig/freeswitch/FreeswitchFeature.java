@@ -58,6 +58,7 @@ public class FreeswitchFeature implements FeatureProvider, AddressProvider, Proc
     public static final AddressType ACC_EVENT_ADDRESS = new AddressType("acc-freeswitch-event");
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(SIP_ADDRESS, XMLRPC_ADDRESS,
             EVENT_ADDRESS, ACC_EVENT_ADDRESS);
+    private static final String PROCESS = "sipxfreeswitch";
 
     private SettingsWithLocationDao<FreeswitchSettings> m_settingsDao;
     private SipxReplicationContext m_sipxReplicationContext;
@@ -135,7 +136,7 @@ public class FreeswitchFeature implements FeatureProvider, AddressProvider, Proc
         if (!manager.getFeatureManager().isFeatureEnabled(FEATURE, location)) {
             return null;
         }
-        ProcessDefinition def = ProcessDefinition.sipx("freeswitch", "sipxfreeswitch");
+        ProcessDefinition def = ProcessDefinition.sipx(PROCESS, PROCESS);
         return Collections.singleton(def);
     }
 

@@ -35,6 +35,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class LogWatcherImpl implements LogWatcher, SetupListener, ProcessProvider, FeatureProvider {
+    private static final String PROCESS = "sipxlogwatcher";
     private BeanWithSettingsDao<LogWatcherSettings> m_settingsDao;
 
     @Override
@@ -48,8 +49,8 @@ public class LogWatcherImpl implements LogWatcher, SetupListener, ProcessProvide
 
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-        ProcessDefinition def = ProcessDefinition.sipxByRegex("logwatcher",
-            "/usr/bin/perl\\s+-w\\s+/usr/bin/sec.*", "sipxlogwatcher");
+        ProcessDefinition def = ProcessDefinition.sipxByRegex(PROCESS, "/usr/bin/perl\\s+-w\\s+/usr/bin/sec.*",
+                PROCESS);
         return Collections.singleton(def);
     }
 

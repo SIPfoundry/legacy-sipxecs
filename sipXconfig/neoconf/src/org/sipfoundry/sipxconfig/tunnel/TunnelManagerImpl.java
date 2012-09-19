@@ -48,6 +48,8 @@ import org.springframework.beans.factory.ListableBeanFactory;
  * don't have authentication mechanisms or are to cumbersome to configure such as the mongo database service.
  */
 public class TunnelManagerImpl implements TunnelManager, BeanFactoryAware, FeatureProvider, ProcessProvider {
+    private static final String CLIENT = "tunnel-client";
+    private static final String SERVER = "tunnel-server";
     private ListableBeanFactory m_beanFactory;
     private volatile Collection<TunnelProvider> m_providers;
     private BeanWithSettingsDao<TunnelSettings> m_settingsDao;
@@ -114,11 +116,9 @@ public class TunnelManagerImpl implements TunnelManager, BeanFactoryAware, Featu
         if (!manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
             return null;
         }
-        ProcessDefinition c = ProcessDefinition.sipxByRegex("encryption-outbound",
-                ".*/stunnel\\s.*/tunnel-client.ini", "tunnel-client");
+        ProcessDefinition c = ProcessDefinition.sipxByRegex(CLIENT, ".*/stunnel\\s.*/tunnel-client.ini", CLIENT);
         c.setRestartClass("restart_tunnel_client");
-        ProcessDefinition s = ProcessDefinition.sipxByRegex("encryption-inbound",
-                ".*/stunnel\\s.*/tunnel-server.ini", "tunnel-server");
+        ProcessDefinition s = ProcessDefinition.sipxByRegex(SERVER, ".*/stunnel\\s.*/tunnel-server.ini", SERVER);
         s.setRestartClass("restart_tunnel_server");
         return Arrays.asList(c, s);
     }

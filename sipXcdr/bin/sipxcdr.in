@@ -470,7 +470,7 @@ case "$1" in
     [ -f ${pidfile} ] && restart || :
     ;;
   status)
-    status -p ${PidFile} java
+    status -p ${PidFile} sipxcdr
     ;;
   configtest)
     configCheck
