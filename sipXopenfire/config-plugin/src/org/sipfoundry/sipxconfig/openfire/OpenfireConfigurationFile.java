@@ -144,6 +144,10 @@ public class OpenfireConfigurationFile {
         m_providerAuthClassName = providerAuthClassName;
     }
 
+    public String getProviderAuthClassName() {
+        return m_providerAuthClassName;
+    }
+
     @Required
     public void setProviderUserClassName(String providerUserClassName) {
         m_providerUserClassName = providerUserClassName;
@@ -162,6 +166,10 @@ public class OpenfireConfigurationFile {
     @Required
     public void setProviderLdapAuthClassName(String providerLdapAuthClassName) {
         m_providerLdapAuthClassName = providerLdapAuthClassName;
+    }
+
+    public String getProviderLdapAuthClassName() {
+        return m_providerLdapAuthClassName;
     }
 
     @Required

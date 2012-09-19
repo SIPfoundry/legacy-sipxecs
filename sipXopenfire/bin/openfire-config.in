@@ -26,10 +26,6 @@ refreshProviders() {
    done
 }
 
-refreshProperties() {
-	runuser - root -c "@SIPX_BINDIR@/openfire-config-prop"
-}
-
 databaseCommand() {
   databaseCheck
   $JAVACMD \
@@ -75,9 +71,8 @@ setupDatabase() {
   fi
 }
 
-if [ "$1" = "start" ]; then
+if [ "$1" = "start" ] || [ "$1" = "restart" ]; then
   setupCheck
   refreshPlugins
   refreshProviders
-  refreshProperties
 fi

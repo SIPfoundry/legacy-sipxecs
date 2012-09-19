@@ -27,6 +27,7 @@ import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
+import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -55,20 +56,13 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     private WebSocket m_websocket;
     private Openfire m_openfire;
     private String m_updateFile;
+    private static final String AUTH_CLASSNAME_KEY = "provider.auth.className";
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
         if (!request.applies(OpenfireImpl.FEATURE, LdapManager.FEATURE, LocalizationContext.FEATURE, ImBot.FEATURE)) {
             return;
         }
-
-        /*if (request.applies(LdapManager.FEATURE)) {
-            LdapSystemSettings settings = m_ldapManager.getSystemSettings();
-            boolean isEnableOpenfireConfiguration = settings.isEnableOpenfireConfiguration() && settings.isConfigured();
-            if (!isEnableOpenfireConfiguration) {
-                return;
-            }
-        }*/
 
         Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
@@ -153,6 +147,13 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
         }
 
         config.writeSettings(settings.getOfProperty());
+        LdapSystemSettings systemSettings = m_ldapManager.getSystemSettings();
+        boolean isEnableOpenfireConfiguration = systemSettings.isEnableOpenfireConfiguration() && systemSettings.isConfigured();
+        if (isEnableOpenfireConfiguration) {
+            config.write(AUTH_CLASSNAME_KEY, m_config.getProviderLdapAuthClassName());
+        } else {
+            config.write(AUTH_CLASSNAME_KEY, m_config.getProviderAuthClassName());
+        }
     }
 
     public void setConfig(OpenfireConfigurationFile config) {

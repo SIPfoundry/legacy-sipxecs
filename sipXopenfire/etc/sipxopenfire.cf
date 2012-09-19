@@ -71,7 +71,7 @@ bundle agent sipxopenfire_config {
         create => "true",
         perms => m("644"),
         copy_from => copy_from_cfdata("$(sipx.location_id)/ofproperty.yaml"),
-        classes => if_repaired("restart_openfire");        
+        classes => if_repaired("update_ofproperty");        
 
       "$(sipx.SIPX_CONFDIR)/$(xml_file_norestart)"
         comment => "install openfire config $(this.promiser)",
@@ -108,7 +108,7 @@ bundle agent sipxopenfire_config {
         perms => mog("644", "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
         copy_from => copy_from_cfdata("$(sipx.location_id)/openfire.xml"),
         classes => if_repaired("update_openfire_xml");
-
+   
     update_openfire_xml::
       # Phase 2.
       "$(sipx.OPENFIRE_HOME)/conf/openfire.xml"
@@ -116,6 +116,12 @@ bundle agent sipxopenfire_config {
         perms => mog("644", "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
         copy_from => local_cp_by_digest("$(sipx.OPENFIRE_HOME)/conf/openfire.xml.sipx"),
         classes => if_repaired("restart_openfire");
+  
+  commands:
+    update_ofproperty::
+      "$(sipx.SIPX_BINDIR)/openfire-config-prop"
+        comment => "update or insert openfire properties configured in sipx into ofproperty tabe";
+      
 }
 
 # TRICKY ALERT : This attempts to edit the admin plugins web.xml. This uses a bit of cf trickery
@@ -180,12 +186,12 @@ bundle agent sipxopenfire_running {
         comment => "stop sipxopenfire",
         args => "stop";
 
-    sipxopenfire.!openfire_running.!stop_sipxecs::
+    sipxopenfire.!openfire_running.(!stop_sipxecs|update_ofproperty)::
       "$(service)"
         comment => "start sipxopenfire",
         args => "start";
 
-    sipxopenfire.openfire_running.(restart_sipxecs|restart_openfire)::
+    sipxopenfire.openfire_running.(restart_sipxecs|restart_openfire|update_ofproperty)::
       "$(service)"
         comment => "restart sipxopenfire",
         args => "restart";
