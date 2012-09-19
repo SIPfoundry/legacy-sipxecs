@@ -158,7 +158,7 @@ bundle agent mongodb_arbiter_running {
   vars:
     any::
       "service" string => "$(sipx.SIPX_SERVICEDIR)/mongod-arbiter";
-      "service_command" string => "/usr/bin/mongod -f $(mongodb.config_arbiter)";
+      "service_command" string => "/usr/bin/mongod.*-f\s+$(mongodb.config_arbiter)";
 
   methods:
     any::
@@ -185,11 +185,11 @@ bundle agent mongodb_sysv_running {
   vars:
     any::
       "service" string => "/etc/init.d/mongod";
-      "service_command" string => "/usr/bin/mongod -f $(mongodb.config)";
+      "service_command" string => "/usr/bin/mongod.*-f\s+$(mongodb.config)";
 
   methods:
     any::
-      "any" usebundle => find_service_by_command("$(service_command)", "mongodb_running","mongod");
+      "any" usebundle => find_service_by_command("$(service_command)", "mongodb_running","$(mongodb.user)");
 
   commands:
     !mongod.mongodb_running::

@@ -1,4 +1,4 @@
-#@BASH@
+#
 
 # did mongod stop abruptly? then there's a good change database is
 # needs to be repaired. Repairing is normal, however, by definition
@@ -8,11 +8,18 @@
 # the application layer, or recreate itself eventually like phone
 # registrations.
 
-CONFIG_FILE="/etc/mongod.conf"
-DB_PATH=`awk -F= '/^dbpath=/{print $2}' "$CONFIG_FILE"`
+if `id mongodb 1>/dev/null 2>&1` ; then
+  CONFIG_FILE="/etc/mongodb.conf"
+  MONGO_USER=mongodb
+  MONGO_GROUP=mongodb
+else
+  CONFIG_FILE="/etc/mongod.conf"
+  MONGO_USER=mongod
+  MONGO_GROUP=mongod
+fi
+DBPATH=`awk -F= '/^dbpath *= */{print $2}' "$CONFIG_FILE"`
 # NOTE: mongod conveniently stores pid in lock file
-LOCK_FILE="$DB_PATH/mongod.lock"
-MONGO_USER=mongod
+LOCK_FILE="$DBPATH/mongod.lock"
 Action=FORCE_REPAIR
 
 while [ $# -ne 0 ]
@@ -62,8 +69,8 @@ obliterate_db() {
   echo "obliterating database"
   /etc/init.d/mongod stop 2>/dev/null
    ! test -f $LOCK_FILE || rm -f $LOCK_FILE
-  ! test /var/lib/mongo || rm -rf /var/lib/mongo/*
-  chown mongod:mongod /var/lib/mongo
+  ! test $DBPATH || rm -rf $DBPATH/*
+  chown "${MONGO_USER}:${MONGO_GROUP}" $DBPATH
   /etc/init.d/mongod start
 }
 

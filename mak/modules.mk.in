@@ -38,7 +38,8 @@ sipx = \
   sipXpage \
   sipXpolycom \
   sipXrls \
-  sipXsaa
+  sipXsaa \
+  sipXrelease
 
 # re: ruby-postgres, there's a new one we should be using ruby-pgsql i 
 # think it's called as ruby-postgres is obsoleted.
