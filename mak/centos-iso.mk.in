@@ -229,6 +229,7 @@ ISO_ADD_EPEL = \
   php-pecl-mongo-* \
   redis-* \
   rubygem-daemons-* \
+  snappy-* \
   wxBase-* \
   wxGTK-2.* \
   wxGTK-gl-* \
