@@ -1,0 +1,15 @@
+#!/bin/sh
+
+if [ $# -ne 3 ]; then
+  echo "Usage $0 update-number rpm-repo-dir destination-dir"
+  exit 1
+fi
+
+update=$1
+repo=$2
+dst=$3
+
+echo "SIPX_UPDATE=$1" > $dst/release.ini
+for arch in x86_64 i386; do
+  rpm -qp --queryformat '"%{NAME}","%{VERSION}","%{RELEASE}"\n' $repo/$arch/*.rpm > $dst/release-package-manifest-$arch.csv
+done

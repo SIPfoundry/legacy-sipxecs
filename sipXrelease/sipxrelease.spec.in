@@ -1,0 +1,43 @@
+#!BuildIgnore: post-build-checks
+%define debug_package %{nil}
+
+Name: @PACKAGE@
+Version: @VERSION@
+Release: @PACKAGE_REVISION@
+
+Summary: sipXecs release information
+License: AGPL
+Group: Telcommunications
+Vendor: SIPfoundry
+Packager: Douglas Hubler <dhubler@ezuce.com>
+Url: http://www.sipfoundry.org
+
+BuildRequires: automake
+
+Source: %name-%version.tar.gz
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+Just contains release information so sipXecs can check what update
+number is installed.
+
+%prep
+%setup -q
+
+%build
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
+make
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%{_datadir}/sipxecs/release.ini
+%{_datadir}/sipxecs/release-package-manifest-i386.csv
+%{_datadir}/sipxecs/release-package-manifest-x86_64.csv
