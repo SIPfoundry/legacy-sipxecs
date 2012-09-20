@@ -12,6 +12,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -25,22 +26,23 @@ import org.jivesoftware.openfire.user.User;
 import org.jivesoftware.openfire.user.UserManager;
 import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.jivesoftware.openfire.vcard.VCardManager;
-import org.jivesoftware.util.Log;
 import org.xmpp.packet.Message;
 import org.xmpp.packet.Presence;
 import org.xmpp.packet.Message.Type;
 
 public class ContactInfoHandlerImp implements ContactInfoHandler {
+    private static Logger logger = Logger.getLogger(ContactInfoHandlerImp.class);
+
     public void notifyContactChange(String userName) {
         if (VCardManager.getProvider() instanceof SipXVCardProvider) {
-            Log.info("Contact Change Notification received for user " + userName);
+            logger.info("Contact Change Notification received for user " + userName);
             SipXVCardProvider prov = (SipXVCardProvider) VCardManager.getProvider();
             Element vCard = prov.cacheVCard(userName);
             try {
                 VCardManager.getInstance().reset();
                 updateAvatar(userName, vCard, true);
             } catch (Exception e) {
-                Log.error("In ContactInfoHandlerImp set/update VCard failed! " + e.getMessage());
+                logger.error("In ContactInfoHandlerImp set/update VCard failed! " + e.getMessage());
             }
         }
     }
@@ -74,7 +76,7 @@ public class ContactInfoHandlerImp implements ContactInfoHandler {
             }
 
         } catch (Exception ex) {
-            Log.error(ex.getMessage());
+            logger.error(ex.getMessage());
         }
     }
 
@@ -96,12 +98,12 @@ public class ContactInfoHandlerImp implements ContactInfoHandler {
         }
 
         catch (NoSuchAlgorithmException ex) {
-            Log.error("no such algorithm of SHA-1 " + ex.getMessage());
+            logger.error("no such algorithm of SHA-1 " + ex.getMessage());
             return "thisisafakeitemid";
         }
 
         catch (Exception ex) {
-            Log.error(ex.getMessage());
+            logger.error(ex.getMessage());
             return "thisisafakeitemid";
         }
     }
@@ -149,10 +151,10 @@ public class ContactInfoHandlerImp implements ContactInfoHandler {
 
             return avatar;
         } catch (DocumentException e) {
-            Log.error("In createPresenceAvatar, DocumentException " + e.getMessage());
+            logger.error("In createPresenceAvatar, DocumentException " + e.getMessage());
             return null;
         } catch (UserNotFoundException e) {
-            Log.error("In createPresenceAvatar, UserNotFoundException for aor " + aor);
+            logger.error("In createPresenceAvatar, UserNotFoundException for aor " + aor);
             return null;
         }
 

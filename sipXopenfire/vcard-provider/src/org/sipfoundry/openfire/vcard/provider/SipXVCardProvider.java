@@ -15,12 +15,12 @@ import java.io.InputStream;
 import java.net.ConnectException;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.dom4j.Element;
 import org.jivesoftware.openfire.vcard.DefaultVCardProvider;
 import org.jivesoftware.openfire.vcard.VCardManager;
 import org.jivesoftware.openfire.vcard.VCardProvider;
 import org.jivesoftware.util.AlreadyExistsException;
-import org.jivesoftware.util.Log;
 import org.jivesoftware.util.NotFoundException;
 import org.jivesoftware.util.cache.Cache;
 import org.jivesoftware.util.cache.CacheFactory;
@@ -51,7 +51,8 @@ public class SipXVCardProvider implements VCardProvider {
     static final String AVATAR_ELEMENT = "PHOTO";
     static final int MAX_ATTEMPTS = 12; // Try 12 times at most when connects to sipXconfig
     static final int ATTEMPT_INTERVAL = 5000; // 5 seconds
-    static long ID_index = 0;    
+    static long ID_index = 0;
+    private static Logger logger = Logger.getLogger(SipXVCardProvider.class);
 
     private Cache<String, Element> vcardCache;
     private DefaultVCardProvider defaultProvider;
@@ -70,19 +71,19 @@ public class SipXVCardProvider implements VCardProvider {
             }
             
         } catch (Exception e) {
-            Log.error(e);
+            logger.error(e);
         }        
 
         String cacheName = "SipXVCardCache";
         vcardCache = CacheFactory.createCache(cacheName);
 
-        Log.info(this.getClass().getName() + " starting XML RPC server ...");
+        logger.info(this.getClass().getName() + " starting XML RPC server ...");
         try {
             VCardRpcServer vcardRpcServer = new VCardRpcServer(getRpcPort());
             vcardRpcServer.start();
-            Log.info(this.getClass().getName() + " initialized");
+            logger.info(this.getClass().getName() + " initialized");
         } catch (Exception ex) {
-            Log.error(ex);
+            logger.error(ex);
         }
 
     }
@@ -116,7 +117,7 @@ public class SipXVCardProvider implements VCardProvider {
             vcard = defaultProvider.createVCard(username, element);
         } catch (AlreadyExistsException e) {
             e.printStackTrace();
-            Log.error("AlreadyExistsException even afer delete is called!");
+            logger.error("AlreadyExistsException even afer delete is called!");
             if (username.compareToIgnoreCase(PA_USER) == 0) {
                 return defaultProvider.loadVCard(username);
             }
@@ -140,10 +141,10 @@ public class SipXVCardProvider implements VCardProvider {
                 vcardCache.remove(username);
                 vcardCache.put(username, vCardElement);
             } else {
-                Log.error("In cacheVCard buildVCardFromXMLContactInfo failed! ");
+                logger.error("In cacheVCard buildVCardFromXMLContactInfo failed! ");
             }
         } else {
-            Log.error("In cacheVCard Failed to find peer SIP user account for XMPP user " + username);
+            logger.error("In cacheVCard Failed to find peer SIP user account for XMPP user " + username);
         }
 
         return vCardElement;
@@ -172,7 +173,7 @@ public class SipXVCardProvider implements VCardProvider {
                 return defaultProvider.updateVCard(username, vCardElement);
             } catch (NotFoundException e) {
                 e.printStackTrace();
-                Log.error("update " + PA_USER + "'s vcard failed!");
+                logger.error("update " + PA_USER + "'s vcard failed!");
                 return null;
             }
         }
@@ -183,7 +184,7 @@ public class SipXVCardProvider implements VCardProvider {
             try {
                 defaultProvider.createVCard(username, vCardElement);
             } catch (AlreadyExistsException e1) {
-                Log.error("Failed to create vcard due to existing vcard found");
+                logger.error("Failed to create vcard due to existing vcard found");
                 e1.printStackTrace();
             }
             e.printStackTrace();
@@ -211,7 +212,7 @@ public class SipXVCardProvider implements VCardProvider {
                 } while (attempts < MAX_ATTEMPTS && tryAgain);
 
                 if (attempts >= MAX_ATTEMPTS)
-                    Log.error("Failed to update contact info for user " + username + ", sipXconfig might be down");
+                    logger.error("Failed to update contact info for user " + username + ", sipXconfig might be down");
 
                 Element vcardAfterUpdate = cacheVCard(username);
 
@@ -224,13 +225,13 @@ public class SipXVCardProvider implements VCardProvider {
                 return vcardAfterUpdate;
 
             } else {
-                Log.error("Failed to find a valid SIP account for user " + username);
+                logger.error("Failed to find a valid SIP account for user " + username);
                 return vCardElement;
             }
         }
 
         catch (Exception ex) {
-            Log.error("updateVCard failed! " + ex.getMessage());
+            logger.error("updateVCard failed! " + ex.getMessage());
             return vCardElement;
         }
     }
@@ -255,11 +256,11 @@ public class SipXVCardProvider implements VCardProvider {
         try {
             properties.load(in);
         } catch (IOException ex) {
-            Log.error(ex);
+            logger.error(ex);
         }
 
         String file_path = properties.getProperty(PROP_SIPX_CONF_DIR) + path_under_conf_dir;
-        Log.info("Domain config file path is  " + file_path);
+        logger.info("Domain config file path is  " + file_path);
 
         try {
             FileInputStream fis = new FileInputStream(file_path);
@@ -267,7 +268,7 @@ public class SipXVCardProvider implements VCardProvider {
             result.load(fis);
 
         } catch (Exception e) {
-            Log.error("Failed to read '" + file_path + "':");
+            logger.error("Failed to read '" + file_path + "':");
             System.err.println("Failed to read '" + file_path + "':");
             e.printStackTrace(System.err);
         }
@@ -282,7 +283,7 @@ public class SipXVCardProvider implements VCardProvider {
         try {
             properties.load(in);
         } catch (IOException ex) {
-            Log.error(ex);
+            logger.error(ex);
         }
 
         return properties.getProperty("sipxpbx.conf.dir");
@@ -297,7 +298,7 @@ public class SipXVCardProvider implements VCardProvider {
 
             return null;
         } catch (Exception ex) {
-            Log.error("getAORFROMJABBERID exception " + ex.getMessage());
+            logger.error("getAORFROMJABBERID exception " + ex.getMessage());
             return null;
         }
     }
@@ -341,7 +342,7 @@ public class SipXVCardProvider implements VCardProvider {
      */
     synchronized Element mergeAvatar(String username, Element vcardFromSipX, Element vcardFromDB) {
 
-        Log.info("merge avatar for user '" + username + "' ...");
+        logger.info("merge avatar for user '" + username + "' ...");
 
         // get the vcard from ldap
         // Element vCardElement = super.loadVCard(username);
@@ -355,9 +356,9 @@ public class SipXVCardProvider implements VCardProvider {
                     vcardFromSipX.remove(getAvatar(vcardFromSipX));
                 }
                 vcardFromSipX.add(avatarElement);
-                Log.info("Avatar merged from DB into sipX vCard");
+                logger.info("Avatar merged from DB into sipX vCard");
             } else {
-                Log.info("No vCard found in database");
+                logger.info("No vCard found in database");
             }
         }
 

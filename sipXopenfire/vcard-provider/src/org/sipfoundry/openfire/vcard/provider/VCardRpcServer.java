@@ -7,16 +7,17 @@ package org.sipfoundry.openfire.vcard.provider;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
-import org.jivesoftware.util.Log;
 
 public class VCardRpcServer {
     int m_serverPort;
     final static String NAME_RPC_HANDLER = "ContactInfoHandler";
+    private static Logger logger = Logger.getLogger(VCardRpcServer.class);
 
     public VCardRpcServer(int serverPort) {
         m_serverPort = serverPort;
@@ -36,11 +37,11 @@ public class VCardRpcServer {
             serverConfig.setEnabledForExtensions(true);
             webServer.start();
         } catch (XmlRpcException e) {
-            Log.info("In VcardRpcServer, XmlRpcException " + e.getMessage());
+            logger.info("In VcardRpcServer, XmlRpcException " + e.getMessage());
         } catch (IOException e) {
-            Log.info("In VcardRpcServer, IOException " + e.getMessage());
+            logger.info("In VcardRpcServer, IOException " + e.getMessage());
         } catch (Exception e) {
-            Log.info("In VcardRpcServer, Exception " + e.getMessage());
+            logger.info("In VcardRpcServer, Exception " + e.getMessage());
         }
 
     }
