@@ -236,7 +236,7 @@ public class UserTest extends TestCase {
         assertNotNull(alias.getContact());
 
         AliasMapping imIdAlias = (AliasMapping) aliasMappings.get(2);
-        assertEquals("imId", imIdAlias.getIdentity());
+        assertEquals("imid", imIdAlias.getIdentity());
 
         AliasMapping faxAlias = (AliasMapping) aliasMappings.get(3);
         assertEquals("321", faxAlias.getIdentity());

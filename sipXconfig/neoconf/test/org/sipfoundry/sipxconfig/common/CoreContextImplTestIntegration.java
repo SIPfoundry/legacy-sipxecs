@@ -604,7 +604,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         // check im id uniqueness for a new user
         User user = new User();
         user.setImId("Alias1");
-        assertEquals("Alias1", m_coreContext.checkForDuplicateNameOrAlias(user));
+        assertEquals("alias1", m_coreContext.checkForDuplicateNameOrAlias(user));
         assertEquals(1, m_coreContext.getBeanIdsOfObjectsWithAlias("openfire1").size());
     }
 
@@ -687,7 +687,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         assertEquals("First", user.getFirstName());
         assertEquals("Last", user.getLastName());
         assertEquals("username", user.getUserName());
-        assertEquals("imID", user.getImId());
+        assertEquals("imid", user.getImId());
         assertEquals("displayName", user.getImDisplayName());
         assertEquals("Alias1 Alias2", user.getAliasesString());
     }

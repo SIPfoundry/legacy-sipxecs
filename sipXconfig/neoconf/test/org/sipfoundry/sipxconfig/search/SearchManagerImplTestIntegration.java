@@ -47,7 +47,7 @@ public class SearchManagerImplTestIntegration extends IntegrationTestCase {
         User user = m_coreContext.newUser();
         user.setFirstName("fIrst");
         user.setLastName("last");
-        user.setUserName("boNGo");
+        user.setUserName("boNGor");
         user.setPintoken("e3e367205de83ab477cdf3449f000000");
         user.setSipPassword("54321");
 
@@ -120,7 +120,7 @@ public class SearchManagerImplTestIntegration extends IntegrationTestCase {
         User user =  m_coreContext.newUser();
         user.setFirstName("first");
         user.setLastName("last");
-        user.setUserName("bongo");
+        user.setUserName("bongo3");
 
         m_coreContext.saveUser(user);
 
@@ -143,14 +143,18 @@ public class SearchManagerImplTestIntegration extends IntegrationTestCase {
         User user =  m_coreContext.newUser();
         user.setFirstName("first");
         user.setLastName("last");
-        user.setUserName("bongo");
+        //username "boNGo" might already created and it has "bongo" as default im id
+        //if we pick "bongo" as userName will fail, because will try to save im id "bongo"
+        //and this collides with "bongo" in case is already saved
+        
+        user.setUserName("bongo12");
 
         m_coreContext.saveUser(user);
 
         Collection collection = m_searchManager.search("bon*", null);
         assertEquals(1, collection.size());
         Identity ident = (Identity) collection.iterator().next();
-        assertEquals("last, first, bongo", ident.getName());
+        assertEquals("last, first, bongo12", ident.getName());
     }
 
     public void testSorting() throws Exception {

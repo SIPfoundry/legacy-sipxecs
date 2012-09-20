@@ -15,6 +15,7 @@ import static org.apache.commons.lang.StringUtils.join;
 import static org.apache.commons.lang.StringUtils.split;
 import static org.apache.commons.lang.StringUtils.trim;
 import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang.StringUtils.lowerCase;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -539,7 +540,7 @@ public abstract class AbstractUser extends BeanWithGroups {
     }
 
     public void setImId(String id) {
-        m_userProfile.setImId(trim(id));
+        m_userProfile.setImId(lowerCase(trim(id)));
     }
 
     public String getImDisplayName() {

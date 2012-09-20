@@ -1,5 +1,5 @@
 <login-details>
   <userName>200</userName>
-  <imId>JohnIM</imId>
+  <imId>johnim</imId>
   <ldapImAuth>false</ldapImAuth>
 </login-details>
