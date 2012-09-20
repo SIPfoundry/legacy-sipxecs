@@ -205,7 +205,11 @@ public class OpenfireConfigurationFile {
 
         public String getImAttribute() {
             String imAttribute = m_attrMap.getImAttributeName();
-            return  imAttribute == null ? StringUtils.EMPTY : imAttribute;
+            String usernameAttribute = m_attrMap.getIdentityAttributeName();
+            //if im id is not mapped, default it to username - 
+            //because this is a rule, when a user gets created the im id has to automatically be defaulted to username
+            return  imAttribute == null ? 
+                    usernameAttribute == null ? StringUtils.EMPTY : usernameAttribute : imAttribute;
         }
 
         public String getDomain() {
