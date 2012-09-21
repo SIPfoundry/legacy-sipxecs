@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Check installed packages and their versions against the last known list of packages
+# their system probably got on their last yum update. Find any packages that may have
+# deviated and report them and the descrepancy. Missing rpms are not listed.
+
+PACKAGE_FILE=${1:-/usr/share/sipxecs/packages}
+status=0
+cat $PACKAGE_FILE | while read -a package; do
+    check=(`rpm -q --queryformat '%{NAME} %{VERSION} %{RELEASE}' ${package[0]}`)
+    if [ $? == '0' ]; then
+	if [ "${check[1]}|${check[2]}" != "${package[1]}|${package[2]}" ]; then
+            echo "installed ${package[0]}-${check[1]}.${check[2]} expected ${package[1]}.${package[2]}" >2
+	    status=1
+	fi
+    fi
+done
+exit $status

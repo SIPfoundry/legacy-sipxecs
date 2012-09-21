@@ -1,15 +1,27 @@
-#!/bin/sh
+#!/bin/bash
+
+# Take all the rpms for all distributions and generate version lists
+# that can be used to check if an installation has rpms that come with
+# a particular release update number.  Output is a tarfile that would
+# normally go into sipXrelease rpm and get installed into a system
 
 if [ $# -ne 3 ]; then
-  echo "Usage $0 update-number rpm-repo-dir destination-dir"
+  echo "Usage: $0 update-number repository-directory tarfile"
+  echo "Example: $0 19 repo ../sipXrelease/sipx-release-info.tgz"
   exit 1
 fi
 
-update=$1
-repo=$2
-dst=$3
-
-echo "SIPX_UPDATE=$1" > $dst/release.ini
-for arch in x86_64 i386; do
-  rpm -qp --queryformat '"%{NAME}","%{VERSION}","%{RELEASE}"\n' $repo/$arch/*.rpm > $dst/release-package-manifest-$arch.csv
+! test sipx-release-info || rm -rf sipx-release-info
+mkdir sipx-release-info
+echo "SIPX_UPDATE=$1" > sipx-release-info/release
+for d in $2/*/*; do
+    rel_id=(${d//\// })
+    len="${#rel_id[@]}"
+    arch="${rel_id[${len} - 1]}"
+    distro="${rel_id[${len} - 2]}"
+    test "${arch}" == "source" && continue
+    echo "${distro} ${arch}"
+    rpm -qp --queryformat '%{NAME} %{VERSION} %{RELEASE}\n' $d/*.rpm > sipx-release-info/packages-${distro}-${arch}
 done
+
+tar -cvzf $3 sipx-release-info

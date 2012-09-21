@@ -11,12 +11,16 @@ Group: Telcommunications
 Vendor: SIPfoundry
 Packager: Douglas Hubler <dhubler@ezuce.com>
 Url: http://www.sipfoundry.org
-
 BuildRequires: automake
 
 Source: %name-%version.tar.gz
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
+
+# determines which package list to put into rpm
+%if %{!?rel_id:1}
+%define rel_id %{?fedora:Fedora_%{fedora}}%{?rhel:CentOS_%{rhel}}-%{_arch}
+%endif
 
 %description
 Just contains release information so sipXecs can check what update
@@ -32,12 +36,15 @@ make
 %install
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
+install -m 755 -d $RPM_BUILD_ROOT/%{_datadir}/sipxecs
+tar -O -xzf sipx-release-info.tgz sipx-release-info/packages-%{rel_id} > $RPM_BUILD_ROOT/%{_datadir}/sipxecs/packages
+tar -O -xzf sipx-release-info.tgz sipx-release-info/release > $RPM_BUILD_ROOT/%{_datadir}/sipxecs/release
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%{_datadir}/sipxecs/release.ini
-%{_datadir}/sipxecs/release-package-manifest-i386.csv
-%{_datadir}/sipxecs/release-package-manifest-x86_64.csv
+%{_libexecdir}/sipx-release-info
+%{_datadir}/sipxecs/release
+%{_datadir}/sipxecs/packages
