@@ -475,7 +475,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             InterceptorManager.getInstance().removeInterceptor(abstractMessagePacketInterceptor);
         }
         abstractMessagePacketInterceptors.clear();
-        CallWatcher.destroy();
+        if (watcherConfig.isEnableCallWatcher()) {
+            CallWatcher.destroy();
+        }
 
         multiUserChatManager = null;
         groupManager = null;
