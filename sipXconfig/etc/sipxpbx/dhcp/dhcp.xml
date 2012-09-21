@@ -27,6 +27,18 @@
       <type><integer/></type>
       <value>43200</value>
     </setting>
+    <setting name="plcm_https_provisioning">
+      <type>
+        <boolean />
+       </type>
+       <value>0</value>
+    </setting>
+    <setting name="bria_https_provisioning">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
  </group>
   <group name="dhcpd-unmanaged">
     <setting name="unmanaged">

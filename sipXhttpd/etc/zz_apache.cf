@@ -26,6 +26,14 @@ bundle agent apache_config {
         "ca-bundle.crt"
       };
 
+  methods:
+    any::
+      # default user account polycom phones use
+      "polycom_http_user" usebundle => verify_httpd_user("PlcmSpIp", "PlcmSpIp");
+
+       # default user account Nortel 1535 phones use
+      "nortel_httpd_user" usebundle => verify_httpd_user("lvp2890", "28904all");
+
   files:
     any::
       "$(sipx.APACHE2_CONFDIR)/welcome.conf"
@@ -50,6 +58,10 @@ bundle agent apache_config {
         copy_from => copy_from_cfdata("$(ssl_web)"),
         perms => mog("600","root","root"),
         classes => if_repaired("restart_apache");
+
+      "$(sipx.APACHE2_CONFDIR)/provusers"
+        comment => "create provusers file",
+        copy_from => local_cp("$(sipx.APACHE2_CONFDIR)/provusers.tmp");
 }
 
 bundle agent apache_sysv_running {
@@ -114,4 +126,18 @@ bundle agent apache_sysctl_running {
       "$(sipx.systemctl)"
         comment => "restart apache",
         args => "restart";
+}
+
+bundle agent verify_httpd_user(user,password) {
+
+  files:
+    "$(sipx.APACHE2_CONFDIR)/provusers.tmp"
+      comment => "create provusers temp file",
+      perms => mog("644","root","root"),
+      create => "true";
+
+  commands:
+    "/usr/bin/htpasswd",
+      comment => "Creating apache user $(user)",
+      args => "-b $(sipx.APACHE2_CONFDIR)/provusers.tmp $(user) $(password)";
 }

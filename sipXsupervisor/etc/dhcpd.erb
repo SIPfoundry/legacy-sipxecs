@@ -1,6 +1,7 @@
 authoritative;
 ddns-update-style none;
 option sip-servers-name code 120 = text;
+option option-160 code 160 = string ;
 option option-128 code 128 = string ;
 subnet <%= subnet %> netmask <%= netmask %> {
   range <%= range_begin %> <%= range_end %>;
@@ -10,7 +11,8 @@ subnet <%= subnet %> netmask <%= netmask %> {
   option subnet-mask <%= netmask %>;
   option domain-name "$(sipx.net_domain)";
   option tftp-server-name "<%= tftp %>";
-  option sip-servers-name "<%= config %>/cmcprov/login";
+  <% if plcm_https_provisioning == 1 %>option option-160 "https://$(sipx.master_fqdn)/phoneprov";<% end %>
+  option sip-servers-name <% if bria_https_provisioning == 1 %>"https://$(sipx.master_fqdn)/cmcprov/login"<% else %>"http://$(sipx.master_fqdn)/cmcprov/login"<% end %>;
   option domain-name-servers <%= dns.join(', ') %>;
   option ntp-servers <%= ntp.join(', ') %>;
 }
