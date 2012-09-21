@@ -81,24 +81,28 @@ public abstract class LdapPage extends SipxBasePage implements PageBeginRenderLi
         LdapManager manager = getLdapManager();
         setSettings(manager.getSystemSettings());
         setLdapSelectionModel(new LdapSelectionModel(manager));
-        //no connection verified yet
-        if (getVerifiedConnectionId() == null) {
+
+        //the selected ldap server might be down -
+        //the page should trigger new connection verification when displaying
+        if (!event.getRequestCycle().isRewinding()) {
             setVerifiedConnectionId(-1);
         }
         int noConnections = getLdapSelectionModel().getOptionCount();
-        if (noConnections <= 0) {
+        if (noConnections <= 0 || isAddMode()) {
             setLdapConnectionValid(false);
         }
-        if (noConnections > 0 && getCurrentConnectionId() <= 0) {
-            if (!isAddMode()) {
-                setCurrentConnectionId((Integer) getLdapSelectionModel().getOption(0));
-            }
+        if (noConnections > 0 && getCurrentConnectionId() <= 0 && !isAddMode()) {
+            setCurrentConnectionId((Integer) getLdapSelectionModel().getOption(0));
         }
         if (getVerifiedConnectionId() != getCurrentConnectionId() && noConnections > 0 && !isAddMode()) {
             LdapConnectionParams connection = manager.getConnectionParams(getCurrentConnectionId());
             setLdapConnectionValid(manager.verifyLdapConnection(connection));
             setVerifiedConnectionId(getCurrentConnectionId());
             if (!isLdapConnectionValid()) {
+                //current selected connection is not valid, move to configuration tab if case
+                if (!StringUtils.equals(getTab(), CONFIGURATION_TAB)) {
+                    setTab(CONFIGURATION_TAB);
+                }
                 getValidator().record(new ValidatorException(getMessages().
                     format("msg.ldapconnection.failed", connection.getFullHost())));
             }
