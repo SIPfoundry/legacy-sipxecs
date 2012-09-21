@@ -61,6 +61,7 @@ bundle agent apache_config {
 
       "$(sipx.APACHE2_CONFDIR)/provusers"
         comment => "create provusers file",
+        perms => mog("644","root","root"),
         copy_from => local_cp("$(sipx.APACHE2_CONFDIR)/provusers.tmp");
 }
 
