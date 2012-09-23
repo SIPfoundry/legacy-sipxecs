@@ -26,6 +26,8 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.cfgmgt.RunRequest;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
@@ -43,6 +45,7 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
+import org.springframework.beans.factory.annotation.Required;
 
 public class OpenfireImpl extends ImManager implements FeatureProvider, AddressProvider, ProcessProvider, Openfire,
     FirewallProvider {
@@ -51,6 +54,7 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
         WATCHER_ADDRESS, XMPP_FILE_TRANSFER_PROXY_ADDRESS, XMPP_ADMIN_CONSOLE_ADDRESS
     });
     private BeanWithSettingsDao<OpenfireSettings> m_settingsDao;
+    private ConfigManager m_configManager;
 
     @Override
     public OpenfireSettings getSettings() {
@@ -112,6 +116,12 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
     public void setSettingsDao(BeanWithSettingsDao<OpenfireSettings> settingsDao) {
         m_settingsDao = settingsDao;
     }
+    
+    public void touchXmppUpdate(Collection<Location> locations) {
+        RunRequest touchXmppUpdate = new RunRequest("touch xmpp update", locations);
+        touchXmppUpdate.setBundles("touch_xmpp_update");
+        m_configManager.run(touchXmppUpdate);
+    }
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
@@ -149,4 +159,9 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
     }
+
+    @Required
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
+    }       
 }

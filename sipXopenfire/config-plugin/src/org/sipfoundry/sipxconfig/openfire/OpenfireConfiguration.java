@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Calendar;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -41,8 +42,10 @@ import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.event.WebSocket;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.saa.SaaManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -55,7 +58,6 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     private FeatureManager m_featureManager;
     private WebSocket m_websocket;
     private Openfire m_openfire;
-    private String m_updateFile;
     private static final String AUTH_CLASSNAME_KEY = "provider.auth.className";
 
     @Override
@@ -127,6 +129,8 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
                 IOUtils.closeQuietly(ofproperty);
             }
         }
+        //touch xmpp_update.xml on every location where openfire runs
+        m_openfire.touchXmppUpdate(m_featureManager.getLocationsForEnabledFeature(OpenfireImpl.FEATURE));
     }
 
     void write(Writer wtr, String wsAddress, int wsPort, String adminRestUrl) throws IOException {
@@ -170,13 +174,9 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
 
     private void checkReplicate(Object entity) {
         if (entity instanceof User || entity instanceof Conference || entity instanceof Group) {
-            m_configManager.configureEverywhere(OpenfireImpl.FEATURE);
-            try {
-                FileUtils.touch(new File(m_updateFile));
-            } catch (IOException ex) {
-                // do nothing, will replicate next time
+            if (m_configManager.getFeatureManager().isFeatureEnabled(OpenfireImpl.FEATURE)) {
+                m_configManager.configureEverywhere(OpenfireImpl.FEATURE);
             }
-
         }
     }
 
@@ -211,10 +211,5 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     @Required
     public void setOpenfire(Openfire openfire) {
         m_openfire = openfire;
-    }
-
-    @Required
-    public void setUpdateFile(String file) {
-        m_updateFile = file;
     }
 }

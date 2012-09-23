@@ -3,7 +3,8 @@ include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
 	$(proc_DATA:=.in) \
-	$(etc_DATA:=.in)
+	$(etc_DATA:=.in) \
+	$(cflib_DATA:=.in)
 
 ofcdir = @SIPX_JAVADIR@/sipXopenfire/conf
 dist_ofc_DATA = \
@@ -27,6 +28,9 @@ dist_cfdefaults_DATA = \
 cfinputsdir = $(SIPX_CFINPUTS)/plugin.d
 dist_cfinputs_DATA = \
 	sipxopenfire.cf
+	
+cflibdir = $(SIPX_CFINPUTS)/plugin.d/lib
+cflib_DATA = touch_xmpp_update.cf
 
 cfgdir = @SIPX_CONFDIR@/openfire
 dist_cfg_DATA = \
@@ -40,7 +44,7 @@ etcdir = @SIPX_CONFDIR@
 etc_DATA = \
 	sipxopenfire-database.xml
 
-$(etc_DATA) $(proc_DATA) : % : %.in Makefile
+$(etc_DATA) $(proc_DATA) $(cflib_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@, OPENFIRE_HOME)
 
 CLEANFILES = $(proc_DATA) $(etc_DATA)
