@@ -119,7 +119,7 @@ void StateQueueAgent::internal_run_io_service()
   //
   _redisWatcher.connect(
     boost::bind(&StateQueueAgent::onRedisWatcherConnect, this, _1),
-    boost::bind(&StateQueueAgent::onRedisWatcherConnect, this, _1),
+    boost::bind(&StateQueueAgent::onRedisWatcherDisconnect, this, _1),
     boost::bind(&StateQueueAgent::onRedisWatcherEvent, this, _1)
   );
   
