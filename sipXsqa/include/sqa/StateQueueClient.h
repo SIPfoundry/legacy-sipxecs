@@ -765,7 +765,10 @@ private:
     //
 
     if (id.substr(0, 3) == "sqw")
+    {
+      OS_LOG_WARNING(FAC_NET, "do_pop dropping event " << id);
       return;
+    }
 
     if (!firstHit && count >= 2 && _backoffCount < count - 1 )
     {
@@ -781,6 +784,7 @@ private:
       // We are still considered the last popper so don't toggle?
       //
       _backoffCount++;
+      OS_LOG_DEBUG(FAC_NET, "do_pop is not allowed to pop " << id);
       return;
     }
     //
@@ -798,6 +802,7 @@ private:
     StateQueueMessage popResponse;
     if (!sendAndReceive(pop, popResponse))
     {
+      OS_LOG_ERROR(FAC_NET, "do_pop unable to send pop command for event " << id);
       _backoffCount++;
       return;
     }
@@ -824,7 +829,7 @@ private:
       popResponse.get("message-data", messageData);
       OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop "
               << "Popped event " << messageId << " -- " << messageData);
-      _eventQueue.enqueue(popResponse.data());
+      _eventQueue.enqueue(messageData);
       _backoffCount = 0;
     }
   }
