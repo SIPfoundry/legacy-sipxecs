@@ -806,10 +806,9 @@ inline SQAEvent* SQAWorker::fetchTask()
 {
   std::string id;
   std::string data;
-  if (!reinterpret_cast<StateQueueClient*>(_connection)->pop(id, data))
-    return 0;
-
   SQAEvent* pEvent = new SQAEvent();
+  if (!reinterpret_cast<StateQueueClient*>(_connection)->pop(id, data))
+    return pEvent;
 
   pEvent->id = (char*)malloc(id.size());
   ::memcpy(pEvent->id, id.data(), id.size());

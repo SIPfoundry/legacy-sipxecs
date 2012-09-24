@@ -829,7 +829,7 @@ private:
       popResponse.get("message-data", messageData);
       OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop "
               << "Popped event " << messageId << " -- " << messageData);
-      _eventQueue.enqueue(messageData);
+      _eventQueue.enqueue(popResponse.data());
       _backoffCount = 0;
     }
   }
