@@ -820,10 +820,11 @@ private:
     {
       std::string messageId;
       popResponse.get("message-id", messageId);
-
+      std::string messageData;
+      popResponse.get("message-data", messageData);
       OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop "
-              << "Popped event " << id);
-      _eventQueue.enqueue(pop.data());
+              << "Popped event " << messageId << " -- " << messageData);
+      _eventQueue.enqueue(popResponse.data());
       _backoffCount = 0;
     }
   }
