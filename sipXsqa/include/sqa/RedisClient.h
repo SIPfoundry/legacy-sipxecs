@@ -26,6 +26,7 @@ extern "C"
 #include <boost/shared_ptr.hpp>
 #include <map>
 #include "sqa/ServiceOptions.h"
+#include "sqa/StateQueueMessage.h"
 
 
 class RedisClient : boost::noncopyable
