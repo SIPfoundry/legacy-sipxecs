@@ -8,7 +8,6 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,9 +40,10 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * Backup provides Java interface to backup scripts
  */
 public class AdminContextImpl extends HibernateDaoSupport implements AdminContext, AddressProvider, ProcessProvider,
-    AlarmProvider, FirewallProvider, ArchiveProvider {
-    private static final Collection<AddressType> ADDRESSES =
-        Arrays.asList(new AddressType[] {HTTP_ADDRESS, HTTP_ADDRESS_AUTH, SIPXCDR_DB_ADDRESS});
+        AlarmProvider, FirewallProvider, ArchiveProvider {
+    private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
+        HTTP_ADDRESS, HTTP_ADDRESS_AUTH, SIPXCDR_DB_ADDRESS
+    });
     private LocationsManager m_locationsManager;
     private BeanWithSettingsDao<AdminSettings> m_settingsDao;
 
@@ -81,7 +81,8 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        return Arrays.asList(new DefaultFirewallRule(HTTP_ADDRESS), new DefaultFirewallRule(SIPXCDR_DB_ADDRESS));
+        return Arrays.asList(new DefaultFirewallRule(HTTP_ADDRESS), new DefaultFirewallRule(HTTP_ADDRESS_AUTH),
+                new DefaultFirewallRule(SIPXCDR_DB_ADDRESS));
     }
 
     @Override
@@ -90,8 +91,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         if (!location.isPrimary()) {
             return null;
         }
-        StringBuilder backup = new StringBuilder(
-                "$(sipx.SIPX_BINDIR)/sipxconfig-archive --backup %s");
+        StringBuilder backup = new StringBuilder("$(sipx.SIPX_BINDIR)/sipxconfig-archive --backup %s");
         StringBuilder restore = new StringBuilder(
                 "$(sipx.SIPX_BINDIR)/sipxconfig-archive --restore %s --ipaddress $(sipx.bind_ip)");
 
