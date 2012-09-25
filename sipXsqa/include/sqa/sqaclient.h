@@ -70,6 +70,7 @@ public:
   char* id;
   char* data;
   int data_len;
+  int id_len;
 };
 
 class SQAWatcher
@@ -233,6 +234,13 @@ public:
   // will block if there is no event in queue
   //
   SQAEvent* fetchTask();
+
+  //
+  // Delete the task from the cache.  This must be called after fetchTask()
+  // work is done
+  //
+  void deleteTask(const char* id);
+
   //
   // Set a value in the event queue workspace
   //
@@ -341,7 +349,8 @@ private:
 inline SQAEvent::SQAEvent() :
   id(0),
   data(0),
-  data_len(0)
+  data_len(0),
+  id_len(0)
 {
 }
 
@@ -356,10 +365,13 @@ inline SQAEvent::SQAEvent(const SQAEvent& ev)
   id = (char*)malloc(strlen(ev.id) + 1);
   ::memset(id, 0x00, strlen(ev.id) + 1);
   ::memcpy(id, ev.id, strlen(ev.id) + 1);
+  id_len = ev.id_len;
 
   data = (char*)malloc(strlen(ev.data) + 1);
   ::memset(data, 0x00, strlen(ev.data) + 1);
   ::memcpy(data, ev.data, strlen(ev.data) + 1);
+  data_len = ev.data_len;
+
 }
 
 //
@@ -817,7 +829,14 @@ inline SQAEvent* SQAWorker::fetchTask()
   ::memcpy(pEvent->data, data.data(), data.size());
 
   pEvent->data_len = data.size();
+  pEvent->id_len = id.size();
   return pEvent;
+}
+
+
+inline void SQAWorker::deleteTask(const char* id)
+{
+  reinterpret_cast<StateQueueClient*>(_connection)->erase(id);
 }
 
 inline void SQAWorker::set(int workspace, const char* name, const char* data, int expires)
