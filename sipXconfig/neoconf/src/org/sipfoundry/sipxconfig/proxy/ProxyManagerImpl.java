@@ -100,7 +100,7 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
             } else if (type.equals(UDP_ADDRESS)) {
                 address = new Address(UDP_ADDRESS, location.getAddress(), 5060);
             } else if (type.equals(TLS_ADDRESS)) {
-                address = new Address(UDP_ADDRESS, location.getAddress(), 5061);
+                address = new Address(TLS_ADDRESS, location.getAddress(), 5061);
             }
             addresses.add(address);
         }
