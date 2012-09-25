@@ -18,6 +18,11 @@ bundle agent sipxproxy {
   methods:
     sipxproxy::
       "any" usebundle => "sipxcommserverlib";
+
+      # if relay is supposed to start, it needs to start up first
+      # so reference it here.
+      "any" usebundle => "sipxrelay";
+
       "any" usebundle => "sipxproxy_config";
     any::
       "any" usebundle => "sipxproxy_setup";
