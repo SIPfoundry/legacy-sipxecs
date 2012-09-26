@@ -903,7 +903,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
             {
               Url internalRoute(mRouteHostPort.data());
               internalRoute.setUrlParameter("lr",NULL);
-              route.toString(recordRoute);
+              internalRoute.toString(recordRoute);
               sipRequest.addRecordRouteUri(recordRoute);
             }
          }
