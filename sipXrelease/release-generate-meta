@@ -6,14 +6,13 @@
 # normally go into sipXrelease rpm and get installed into a system
 
 if [ $# -ne 3 ]; then
-  echo "Usage: $0 update-number repository-directory tarfile"
-  echo "Example: $0 19 repo ../sipXrelease/sipx-release-info.tgz"
+  echo "Usage: $0 update-number repository-directory destination-directory"
+  echo "Example: $0 19 repo ../sipXrelease"
   exit 1
 fi
 
-! test sipx-release-info || rm -rf sipx-release-info
-mkdir sipx-release-info
-echo "SIPX_UPDATE=$1" > sipx-release-info/release
+echo "$1" > $3/release
+find $3 -name 'packages-*' -exec rm {} \;
 for d in $2/*/*; do
     rel_id=(${d//\// })
     len="${#rel_id[@]}"
@@ -21,7 +20,5 @@ for d in $2/*/*; do
     distro="${rel_id[${len} - 2]}"
     test "${arch}" == "source" && continue
     echo "${distro} ${arch}"
-    rpm -qp --queryformat '%{NAME} %{VERSION} %{RELEASE}\n' $d/*.rpm > sipx-release-info/packages-${distro}-${arch}
+    rpm -qp --queryformat '%{NAME} %{VERSION} %{RELEASE}\n' $d/*.rpm > $3/packages-${distro}-${arch}
 done
-
-tar -cvzf $3 sipx-release-info

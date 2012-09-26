@@ -84,4 +84,13 @@
     </property>
   </bean>
   
+  <bean id="releaseInfoImpl" class="org.sipfoundry.sipxconfig.common.ReleaseInfo">
+    <property name="releaseInfoFile" value="${sysdir.etc}/release"/>
+    <property name="packageInfoExec" value="${sysdir.libexec}/sipx-package-info"/>
+  </bean>
+
+  <bean id="releaseInfo" class="org.sipfoundry.sipxconfig.common.CachedReleaseInfo">    
+    <property name="delegate" ref="releaseInfoImpl"/>
+  </bean>
+
 </beans>

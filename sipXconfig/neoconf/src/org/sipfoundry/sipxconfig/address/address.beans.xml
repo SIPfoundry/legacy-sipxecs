@@ -4,7 +4,8 @@
 
   <bean id="addressManager" class="org.sipfoundry.sipxconfig.address.AddressManagerImpl">
     <property name="featureManager" ref="featureManager" />
-    <property name="dnsManager" ref="dnsManager" />
+    <!-- circular reference, see code -->
+    <!-- property name="dnsManager" ref="dnsManager" /-->
   </bean>
 
 </beans>

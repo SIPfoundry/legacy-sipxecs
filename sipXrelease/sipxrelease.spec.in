@@ -36,15 +36,12 @@ make
 %install
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
-install -m 755 -d $RPM_BUILD_ROOT/%{_datadir}/sipxecs
-tar -O -xzf sipx-release-info.tgz sipx-release-info/packages-%{rel_id} > $RPM_BUILD_ROOT/%{_datadir}/sipxecs/packages
-tar -O -xzf sipx-release-info.tgz sipx-release-info/release > $RPM_BUILD_ROOT/%{_datadir}/sipxecs/release
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%{_libexecdir}/sipx-release-info
-%{_datadir}/sipxecs/release
-%{_datadir}/sipxecs/packages
+%attr(755,root,root) %{_libexecdir}/sipXecs/sipx-package-info
+%{_sysconfdir}/sipxpbx/release
+%{_sysconfdir}/sipxpbx/packages

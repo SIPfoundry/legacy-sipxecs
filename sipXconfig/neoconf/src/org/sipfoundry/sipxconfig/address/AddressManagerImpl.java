@@ -46,7 +46,7 @@ public class AddressManagerImpl implements AddressManager, BeanFactoryAware {
             if (addresses != null && addresses.size() > 0) {
                 // Consult DNS provider to return SRV addresses when appropriate to return
                 // a single address that is really a combination of addresses
-                return m_dnsManager.getSingleAddress(type, addresses, requester);
+                return getDnsManager().getSingleAddress(type, addresses, requester);
             }
         }
 
@@ -82,6 +82,14 @@ public class AddressManagerImpl implements AddressManager, BeanFactoryAware {
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = (ListableBeanFactory) beanFactory;
     }
+    
+    DnsManager getDnsManager() {
+        // lazy get to avoid circular reference
+        if (m_dnsManager == null) {
+            m_dnsManager = (DnsManager) m_beanFactory.getBean("dnsManager");
+        }
+        return m_dnsManager;
+    }
 
     public FeatureManager getFeatureManager() {
         return m_featureManager;
@@ -95,19 +103,6 @@ public class AddressManagerImpl implements AddressManager, BeanFactoryAware {
     public void setDnsManager(DnsManager dnsManager) {
         m_dnsManager = dnsManager;
     }
-
-//    @Override
-//    public List<AddressType> getAddressTypes() {
-//        List<AddressType> types = new ArrayList<AddressType>();
-//        for (AddressProvider provider : getProviders()) {
-//            Collection<AddressType> providerTypes = provider.getSupportedAddressTypes(this);
-//            if (providerTypes != null && providerTypes.size() > 0) {
-//                types.addAll(providerTypes);
-//            }
-//        }
-//
-//        return types;
-//    }
 
     @Override
     public Address getSingleAddress(AddressType type, AddressType backupType) {

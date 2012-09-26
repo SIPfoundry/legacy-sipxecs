@@ -4,7 +4,7 @@
 # their system probably got on their last yum update. Find any packages that may have
 # deviated and report them and the descrepancy. Missing rpms are not listed.
 
-PACKAGE_FILE=${1:-/usr/share/sipxecs/packages}
+PACKAGE_FILE=${1:-@SIPX_CONFDIR@/packages}
 status=0
 cat $PACKAGE_FILE | while read -a package; do
     check=(`rpm -q --queryformat '%{NAME} %{VERSION} %{RELEASE}' ${package[0]}`)

@@ -3,6 +3,14 @@
     <span key="product.name"/>
     <span jwcid="@Insert"
       value="ognl:messages.format('product.details', beans.version.versionDetails)"/>
+    <span key="label.update"/> <span jwcid="@Insert"
+        value="ognl:releaseInfo.releaseUpdate"/>
+    <span jwcid="@If" condition="ognl:modified">    
+	    <span class="tooltip" jwcid="@Any"
+	      title="ognl:releaseInfo.packageInfo">
+	      <span key="label.modified"/>
+		</span>      
+	</span>
   </p>
   <p>
     <span key="product.copyright"/>
