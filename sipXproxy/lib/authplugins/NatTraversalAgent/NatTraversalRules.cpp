@@ -43,7 +43,7 @@ NatTraversalRules::NatTraversalRules()
    mPublicTransport.setAddress( hostIpAddress );
    mPublicTransport.setPort( DEFAULT_PUBLIC_PORT );
    mSecurePublicTransport.setAddress( hostIpAddress );
-   mSecurePublicTransport.setPort( DEFAULT_PUBLIC_PORT );
+   mSecurePublicTransport.setPort( DEFAULT_SECURE_PUBLIC_PORT );
 }
 
 // Destructor

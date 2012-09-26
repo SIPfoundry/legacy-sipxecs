@@ -676,7 +676,12 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
          {
                // the top route points to us, change it for the replacment IP:Port
                tmpRecordRouteUrl.setHostAddress( replacementAddress );
-               tmpRecordRouteUrl.setHostPort( replacementPort );
+
+               //
+               // No need to reset the port.  This assures that if a record route is using TLS, that it does
+               // not revert back to 5060.  Record route is absed on inbound transport, not outbound
+               //
+               //tmpRecordRouteUrl.setHostPort( replacementPort );
 
                UtlString newtmpRecordRouteValue;
                tmpRecordRouteUrl.toString( newtmpRecordRouteValue );
@@ -690,7 +695,11 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
          {
              // the top route points to us, change it for the replacment IP:Port
              tmpRecordRouteUrl.setHostAddress( replacementAddress );
-             tmpRecordRouteUrl.setHostPort( replacementPort );
+             //
+             // No need to reset the port.  This assures that if a record route is using TLS, that it does
+             // not revert back to 5060.  Record route is absed on inbound transport, not outbound
+             //
+             //tmpRecordRouteUrl.setHostPort( replacementPort );
              UtlString newtmpRecordRouteValue;
              tmpRecordRouteUrl.toString( newtmpRecordRouteValue );
              message.setRecordRouteField(newtmpRecordRouteValue.data(), 0 );
