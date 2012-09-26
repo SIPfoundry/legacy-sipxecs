@@ -44,7 +44,7 @@ start() {
       $JavaSslOpts \
       ${SIPXIVR_OPTS} \
       org.sipfoundry.sipxivr.SipXivrServer \
-      $Args"
+      ${@}"
     if [ -n "${NoFork}" ] ; then
       runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"
     else
@@ -91,7 +91,7 @@ case "$1" in
     start
     ;;
   start)
-    start
+    start ${@}
     ;;
   stop)
     stop

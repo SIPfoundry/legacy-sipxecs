@@ -89,4 +89,6 @@ public interface MailboxManager {
 
     void renameMailbox(User user, String oldUser);
 
+    void migrate(String path);
+
 }

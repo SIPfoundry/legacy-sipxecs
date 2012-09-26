@@ -196,6 +196,11 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         return false;
     }
 
+    @Override
+    public void migrate(String path) {
+        // do nothing, classes that extends this should provide a mean for migrating voicemails
+    }
+
     private MessageDescriptor createMessageDescriptor(String destUser, TempMessage message, String messageId,
             String subject, String identity) {
         MessageDescriptor descriptor = new MessageDescriptor();

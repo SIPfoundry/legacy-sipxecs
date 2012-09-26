@@ -21,13 +21,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.voicemail.mailbox.MailboxManager;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public abstract class SipXivrServer {
+    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     private int m_eventSocketPort;
     private String m_logLevel;
     private String m_logFile;
@@ -100,6 +103,14 @@ public abstract class SipXivrServer {
                 "classpath*:/sipxivrplugin.beans.xml"
             });
             SipXivrServer socket = (SipXivrServer) context.getBean("sipxIvrServer");
+            for (int i = 0; i < args.length; i++) {
+                if (args[i].equalsIgnoreCase("--migrate")) {
+                    String pathToMailbox = args[i+1];
+                    LOG.info(String.format("Starting sipXivr with --migrate from %s", pathToMailbox));
+                    MailboxManager manager = (MailboxManager) context.getBean("mailboxManager");
+                    manager.migrate(pathToMailbox);
+                }
+            }
             socket.runServer();
         } catch (BeansException ex) {
             System.out.println("FAILED TO CREATE SPRING CONTAINER" + ex);
