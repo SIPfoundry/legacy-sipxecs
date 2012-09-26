@@ -75,7 +75,7 @@ public class LgNortelPhoneTest extends TestCase {
         Phone phone = new LgNortelPhone();
         phone.setModel(lgNortelModel);
 
-        PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone,true,false,false,true);
+        PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone,true,false,false,false);
         phone.restart();
 
         testDriver.getSipControl().verify();

@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileFilter;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
+import org.sipfoundry.sipxconfig.device.RestartException;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -194,7 +195,11 @@ public class LgNortelPhone extends Phone {
 
     @Override
     public void restart() {
-        sendCheckSyncToMac();
+        try {
+            sendCheckSyncToFirstLine();
+        } catch (RestartException ex) {
+            sendCheckSyncToMac();
+        }
     }
 
     public void setPhonebookFilename(String phonebookFilename) {
