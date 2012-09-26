@@ -59,14 +59,27 @@ public class PolycomPhone extends Phone {
     static final String CALL_BACK_MODE_PATH = "msg.mwi/callBackMode";
     static final String SUBSCRIBE_PATH = "msg.mwi/subscribe";
     static final String TEMPLATE_DIR = "polycom/mac-address.d";
-
-    public PolycomPhone() {
-        setDeviceVersion(PolycomModel.VER_2_0);
-    }
+    static final String TEMPLATE_DIR40 = "polycom/mac-address.d.40";
 
     public String getDefaultVersionId() {
         DeviceVersion version = getDeviceVersion();
         return version != null ? version.getVersionId() : null;
+    }
+
+    public String getTemplateDir() {
+        if (getDeviceVersion() == PolycomModel.VER_4_0) {
+            return TEMPLATE_DIR40;
+        }
+        return TEMPLATE_DIR;
+    }
+
+    /* make use of getApplicationFilename?
+     */
+    public String getAppFile() {
+        if (getDeviceVersion() == PolycomModel.VER_4_0) {
+            return "/mac-address-40.cfg.vm";
+        }
+        return "/mac-address.cfg.vm";
     }
 
     /**
@@ -76,6 +89,25 @@ public class PolycomPhone extends Phone {
      */
     public void setDefaultVersionId(String defaultVersionId) {
         setDeviceVersion(DeviceVersion.getDeviceVersion(PolycomPhone.BEAN_ID + defaultVersionId));
+    }
+
+    @Override
+    public void setDeviceVersion(DeviceVersion version) {
+        super.setDeviceVersion(version);
+        DeviceVersion myVersion = getDeviceVersion();
+        if (myVersion == PolycomModel.VER_4_0) {
+            getModel().setSettingsFile("phone-40.xml");
+            getModel().setLineSettingsFile("line-40.xml");
+            getModel().setStaticProfileFilenames(new String[]{
+                "reg-advanced.cfg", "sip-basic.cfg", "sip-interop.cfg", "site.cfg"});
+        } else {
+            //we need to explicitly define these here otherwise changing versions will not work
+            getModel().setSettingsFile("phone.xml");
+            getModel().setLineSettingsFile("line.xml");
+            getModel().setStaticProfileFilenames(new String[]{
+                "polycom_phone1_2.1.X.cfg", "polycom_sip_2.1.X.cfg", "polycom_phone1_3.1.X.cfg",
+                "polycom_sip_3.1.X.cfg", "polycom_phone1.cfg", "polycom_sip.cfg"});
+        }
     }
 
     @Override

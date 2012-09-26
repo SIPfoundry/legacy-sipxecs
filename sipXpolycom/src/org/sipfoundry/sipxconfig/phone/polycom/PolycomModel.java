@@ -19,6 +19,7 @@ public final class PolycomModel extends PhoneModel {
 
     /** Firmware 2.0 or beyond */
     public static final DeviceVersion VER_2_0 = new DeviceVersion(PolycomPhone.BEAN_ID, "2.0");
+    public static final DeviceVersion VER_4_0 = new DeviceVersion(PolycomPhone.BEAN_ID, "4.0");
 
     public PolycomModel() {
         super(PolycomPhone.BEAN_ID);

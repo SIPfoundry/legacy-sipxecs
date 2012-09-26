@@ -26,7 +26,7 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
     private final String m_profileDir;
 
     public ApplicationConfiguration(PolycomPhone phone) {
-        super(phone, "polycom/mac-address.cfg.vm");
+        super(phone, phone.getModel().getModelDir() + phone.getAppFile());
         m_profileDir = phone.getProfileDir();
     }
 
