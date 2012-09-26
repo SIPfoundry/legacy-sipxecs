@@ -884,9 +884,10 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
             {
             	route = Url(mRouteHostSecurePort);
             }
-
             else
+            {
             	route = Url(mRouteHostPort.data());
+            }
             route.setUrlParameter("lr",NULL);
 
             if( sipRequest.getSendProtocol() == OsSocket::SSL_SOCKET )
@@ -894,6 +895,17 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
 
             route.toString(recordRoute);
             sipRequest.addRecordRouteUri(recordRoute);
+
+            //
+            // If the inbound transacton is TLS, insert a new record route on top to retain TCP internally
+            //
+            if( sipRequest.getSendProtocol() == OsSocket::SSL_SOCKET )
+            {
+              Url internalRoute(mRouteHostPort.data());
+              internalRoute.setUrlParameter("lr",NULL);
+              route.toString(recordRoute);
+              sipRequest.addRecordRouteUri(recordRoute);
+            }
          }
       }
    }        // end all extensions are supported
