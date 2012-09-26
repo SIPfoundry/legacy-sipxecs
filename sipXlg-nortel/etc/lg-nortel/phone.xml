@@ -423,6 +423,25 @@
       </type>
       <value>6</value>
     </setting>
+    <setting name='dialplan'>
+	  <type>
+        <enum>
+          <option>
+            <value>routing</value>
+          </option>
+          <option>
+            <value>digitmap</value>
+          </option>
+        </enum>
+      </type>
+      <value>routing</value>
+    </setting>
+    <setting name='digitmap'>
+      <value>x.T|x+#</value>
+    </setting>
+    <setting name='digitmap_tone'>
+      <value></value>
+    </setting>	
     <setting name='emergency_number'>
       <profileName>$ignore$</profileName>
     </setting>
