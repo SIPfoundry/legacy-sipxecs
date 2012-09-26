@@ -53,10 +53,6 @@ public class XmppAccountInfo {
             createXmmpGroup(group, accountInfos, imbotSettings);
         }
 
-        List<Conference> conferences = m_conferenceContext.getAllConferences();
-        for (Conference conf : conferences) {
-            createXmppChatRoom(conf, accountInfos);
-        }
         return document;
     }
 
@@ -89,35 +85,6 @@ public class XmppAccountInfo {
         userAccounts.addElement("advertise-on-call-status").setText(
                 Boolean.toString(imAccount.advertiseSipPresence()));
         userAccounts.addElement("show-on-call-details").setText(Boolean.toString(imAccount.includeCallInfo()));
-    }
-
-    private void createXmppChatRoom(Conference conference, Element accountInfos) {
-        if (!conference.isEnabled()) {
-            return;
-        }
-        User owner = conference.getOwner();
-        if (owner == null) {
-            return;
-        }
-        ImAccount imAccount = new ImAccount(owner);
-        if (!imAccount.isEnabled()) {
-            return;
-        }
-
-        Element chatRoom = accountInfos.addElement("chat-room");
-
-        String displayName = conference.getName();
-
-        chatRoom.addElement("subdomain").setText(MUC_SUBDOMAIN);
-        chatRoom.addElement("room-owner").setText(imAccount.getImId());
-        chatRoom.addElement("room-name").setText(displayName);
-        chatRoom.addElement(DESCRIPTION).setText(defaultString(conference.getDescription()));
-        chatRoom.addElement(PASSWORD).setText(defaultString(conference.getParticipantAccessCode()));
-        addBooleanSetting(chatRoom, conference, "moderated", "chat-meeting/moderated");
-        addBooleanSetting(chatRoom, conference, "is-public-room", "chat-meeting/public");
-        addBooleanSetting(chatRoom, conference, "is-members-only", "chat-meeting/members-only");
-        chatRoom.addElement("is-persistent").setText(Boolean.TRUE.toString());
-        chatRoom.addElement("conference-extension").setText(conference.getExtension());
     }
 
     private void addBooleanSetting(Element chatRoom, Conference conference, String elementName, String settingName) {

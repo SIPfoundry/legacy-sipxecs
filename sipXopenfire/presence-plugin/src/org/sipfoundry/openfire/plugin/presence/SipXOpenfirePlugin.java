@@ -4,6 +4,8 @@
  */
 package org.sipfoundry.openfire.plugin.presence;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
@@ -54,8 +56,13 @@ import org.jivesoftware.openfire.user.UserAlreadyExistsException;
 import org.jivesoftware.openfire.user.UserManager;
 import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.jivesoftware.util.NotFoundException;
+import org.sipfoundry.commons.confdb.ConfReadConverter;
+import org.sipfoundry.commons.confdb.Conference;
+import org.sipfoundry.commons.confdb.ConferenceService;
+import org.sipfoundry.commons.confdb.ConferenceServiceImpl;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.commons.mongo.MongoFactory;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.openfire.config.AccountsParser;
 import org.sipfoundry.openfire.config.ConfigurationParser;
@@ -68,11 +75,18 @@ import org.sipfoundry.openfire.config.XmppS2sInfo;
 import org.sipfoundry.openfire.config.XmppUserAccount;
 import org.sipfoundry.sipcallwatcher.CallWatcher;
 import org.sipfoundry.sipcallwatcher.ResourceStateChangeListener;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.convert.CustomConversions;
+import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.xmpp.component.Component;
 import org.xmpp.component.ComponentManager;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.Packet;
 import org.xmpp.packet.Presence;
+
+import com.mongodb.DBObject;
+import com.mongodb.Mongo;
 
 
 public class SipXOpenfirePlugin implements Plugin, Component {
@@ -122,6 +136,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     private final Map<String, XmppUserPreferences> xmppUserPreferencesMap = new HashMap<String, XmppUserPreferences>(); // key is username part of JID
 
     private AccountsParser accountsParser;
+    
+    private ConferenceService m_conferenceService;
 
     public class ConferenceInformation {
         private String extension;
@@ -248,6 +264,26 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             throw new SipXOpenfirePluginException(ex);
         }
     }
+    
+    private void initConferenceService() throws Exception {
+        String configurationPath = System.getProperty("conf.dir");
+        if (isBlank(configurationPath)) {
+            System.getProperties().load(new FileInputStream(new File("/tmp/sipx.properties")));
+            configurationPath = System.getProperty("conf.dir", "/etc/sipxpbx");
+        }
+        String config = configurationPath + "/mongo-client.ini";
+        Mongo mongo = MongoFactory.fromConnectionFile(config);
+        List<Converter<DBObject, Conference>> converters = new ArrayList<Converter<DBObject, Conference>>();
+        ConfReadConverter confReadConverter = new ConfReadConverter();
+        converters.add(confReadConverter);
+        CustomConversions cc = new CustomConversions(converters);
+        MongoTemplate entityDb = new MongoTemplate(mongo, "imdb");
+        MappingMongoConverter mappingConverter = (MappingMongoConverter)entityDb.getConverter();
+        mappingConverter.setCustomConversions(cc);
+        mappingConverter.afterPropertiesSet();
+        m_conferenceService = new ConferenceServiceImpl();
+        ((ConferenceServiceImpl) m_conferenceService).setTemplate(entityDb);
+    }
 
     @Override
     public void initializePlugin(PluginManager manager, File pluginDirectory) {
@@ -276,10 +312,11 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         String clientConfig = configurationPath + "/mongo-client.ini";
         try {
             UnfortunateLackOfSpringSupportFactory.initialize(clientConfig);
+            initConferenceService();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        
         parseConfigurationFile();
 
         initializeLogging();
@@ -362,7 +399,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             System.err.println("User account file not found");
             throw new SipXOpenfirePluginException("Cannot find user accounts file");
         } else {
-            this.accountsParser = new AccountsParser(accountConfigurationFile, watchFile);
+            this.accountsParser = new AccountsParser(accountConfigurationFile, watchFile, m_conferenceService);
             this.accountsParser.startScanner();
         }
 
@@ -675,6 +712,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                         userAccount.getPassword(),
                         userAccount.getDisplayName(),
                         userAccount.getEmail());
+                setAllowedUserForChatServices(
+                        XmppAccountInfo.appendDomain(userAccount.getUserName()));
+                log.debug("User added in list of users that are allowed to create chat rooms");                
             } catch (UserAlreadyExistsException ex) {
                 throw new SipXOpenfirePluginException(ex);
             }
@@ -1089,14 +1129,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             mucRoom.setCanOccupantsInvite(allowOccupantsToInviteOthers);
 
         }
-
-        if (mucRoom.getDescription() != null && description == null
-                || mucRoom.getDescription() == null && description != null
-                || mucRoom.getDescription() != description
-                || !mucRoom.getDescription().equals(description)) {
-            mucRoom.setDescription(description);
-
-        }
+        
+        mucRoom.setDescription(description != null ? description : "");
+        
 
         /*
          * Check if password changed and set password if changed.
@@ -1404,10 +1439,18 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         chatServices.addAll(this.multiUserChatManager.getMultiUserChatServices());
 
         for (MultiUserChatService service : chatServices) {
-            // start from scratch - clear out set of users allowed to create
             service.addUserAllowedToCreate(jid);
         }
     }
+    
+    public void removeAllowedUserForChatServices(String jid){
+        Set<MultiUserChatService> chatServices = new HashSet<MultiUserChatService>();
+        chatServices.addAll(this.multiUserChatManager.getMultiUserChatServices());
+
+        for (MultiUserChatService service : chatServices) {
+            service.removeUserAllowedToCreate(jid);
+        }
+    }    
 
     public void kickOccupant(String subdomain, String roomName, String password,
             String memberJid, String reason) throws NotAllowedException {

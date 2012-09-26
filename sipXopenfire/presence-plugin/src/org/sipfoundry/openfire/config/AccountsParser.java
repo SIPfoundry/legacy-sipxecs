@@ -25,7 +25,10 @@ import org.jivesoftware.openfire.group.Group;
 import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.muc.MUCRoom;
 import org.jivesoftware.openfire.muc.spi.MUCPersistenceManager;
+import org.sipfoundry.commons.confdb.Conference;
+import org.sipfoundry.commons.confdb.ConferenceService;
 import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.openfire.plugin.presence.SipXBookmarkManager;
 import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePlugin;
@@ -53,6 +56,7 @@ public class AccountsParser {
     private final File watchFile;
     private static Logger logger = Logger.getLogger(AccountsParser.class);
     private XmppAccountInfo previousXmppAccountInfo = null;
+    private final ConferenceService m_conferenceService;
 
     private static Timer timer = new Timer();
 
@@ -72,14 +76,14 @@ public class AccountsParser {
             if (watchFile.lastModified() != AccountsParser.this.lastModified) {
                 logger.info("XMPP account configuration changes detected - reparsing file");
                 AccountsParser.this.lastModified = watchFile.lastModified();
-                parseAccounts();
+                parseAccounts(m_conferenceService);
             }
         }
     }
 
-    public void parseAccounts() {
+    public void parseAccounts(ConferenceService conferenceService) {
         String fileUrl = "file://" + accountDbFileName;
-        XmppAccountInfo newAccountInfo = AccountsParser.parse(fileUrl);
+        XmppAccountInfo newAccountInfo = AccountsParser.parse(fileUrl, conferenceService);
         logger.debug("Pruning unwanted users");
         pruneUnwantedXmppUsers( newAccountInfo.getXmppUserAccountNames() );
         logger.debug("Done pruning unwanted users");
@@ -97,11 +101,6 @@ public class AccountsParser {
         logger.debug("Pruning unwanted chatroom services");
         pruneUnwantedXmppChatRoomServices( newAccountInfo.getXmppChatRooms() );
         logger.debug("Done pruning unwanted chatroom services");
-        // Make sure that all user accounts can create multi-user chatrooms
-        SipXOpenfirePlugin plugin = SipXOpenfirePlugin.getInstance();
-        logger.debug("Setting allowed for chat services");
-        plugin.setAllowedUsersForChatServices(plugin.getUserAccounts());
-        logger.debug("Done setting allowed for chat services");
         previousXmppAccountInfo = newAccountInfo;
     }
 
@@ -190,6 +189,10 @@ public class AccountsParser {
                         }
                         logger.info("Pruning Unwanted Xmpp User " + userAccountInOpenfire.getXmppUserName());
                         plugin.destroyUser(XmppAccountInfo.appendDomain(userAccountInOpenfire.getXmppUserName()));
+                        // Make sure to remove this user from user's that are allowed to create chat rooms list                                                
+                        plugin.removeAllowedUserForChatServices(
+                                XmppAccountInfo.appendDomain(userAccountInOpenfire.getXmppUserName()));
+                        logger.debug("User removed from allowed to create chat rooms users list");
                     } catch (Exception e) {
                         logger.error("pruneUnwantedXmppUsers caught ", e);
                     }
@@ -267,7 +270,7 @@ public class AccountsParser {
         }
     }
 
-    public AccountsParser(String accountDbFileName, String watchFileName) {
+    public AccountsParser(String accountDbFileName, String watchFileName, ConferenceService conferenceService) {
         try {
             digester = new Digester();
             addRules(digester);
@@ -282,7 +285,7 @@ public class AccountsParser {
         if (!accountDbFile.exists()) {
             throw new SipXOpenfirePluginException("Account db file not found : " + accountDbFileName);
         }
-
+        m_conferenceService = conferenceService;
     }
 
     public void startScanner() {
@@ -352,7 +355,7 @@ public class AccountsParser {
 
     }
 
-    public static XmppAccountInfo parse(String url) {
+    public static XmppAccountInfo parse(String url, ConferenceService conferenceService) {
         // Create a Digester instance
         try {
             InputSource inputSource = new InputSource(url);
@@ -360,6 +363,7 @@ public class AccountsParser {
             XmppAccountInfo accountInfo = (XmppAccountInfo) digester.getRoot();
 
             parseMongoUsers(accountInfo);
+            parseMongoConferences(accountInfo, conferenceService);
 
             return accountInfo;
         } catch (Exception ex) {
@@ -382,6 +386,32 @@ public class AccountsParser {
             account.setOnThePhoneMessage(StringUtils.defaultIfEmpty(user.getOnthePhoneMessage(), StringUtils.EMPTY));
 
             accountInfo.addAccount(account);
+        }
+    }
+    
+    private static void parseMongoConferences(XmppAccountInfo accountInfo, ConferenceService conferenceService) throws Exception {
+        List<Conference> conferences = conferenceService.getAllConferences();
+        ValidUsers users = UnfortunateLackOfSpringSupportFactory.getValidUsers();
+        User user;
+        for (Conference conference : conferences) {
+            user = users.getUser(conference.getConfOwner());
+            if (user == null || !user.isImEnabled()) {
+                continue;
+            }
+            XmppChatRoom chatRoom = new XmppChatRoom();
+            chatRoom.setConferenceName(conference.getConfName());
+            chatRoom.setRoomName(conference.getConfName());
+            chatRoom.setSubdomain("conference");
+            chatRoom.setOwner(user.getJid());
+            chatRoom.setDescription(conference.getConfDescription());
+            chatRoom.setPassword(conference.getPin());
+            chatRoom.setModerated(new Boolean(conference.isModerated()).toString());
+            chatRoom.setIsPublicRoom(new Boolean(conference.isPublic()).toString());
+            chatRoom.setMembersOnly(new Boolean(conference.isMembersOnly()).toString());
+            chatRoom.setPersistent(Boolean.TRUE.toString());
+            chatRoom.setConferenceExtension(conference.getExtension());
+            
+            accountInfo.addChatRoom(chatRoom);
         }
     }
 }
