@@ -82,7 +82,7 @@ public class AddressManagerImpl implements AddressManager, BeanFactoryAware {
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = (ListableBeanFactory) beanFactory;
     }
-    
+
     DnsManager getDnsManager() {
         // lazy get to avoid circular reference
         if (m_dnsManager == null) {

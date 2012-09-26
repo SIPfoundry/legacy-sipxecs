@@ -25,9 +25,8 @@ public abstract class Footer extends BaseComponent {
 
     @Bean(lifecycle = Lifecycle.PAGE)
     public abstract VersionInfo getVersion();
-    
-    public boolean isModified() {
-    	return StringUtils.isNotBlank(getReleaseInfo().getPackageInfo());
-    }
 
+    public boolean isModified() {
+        return StringUtils.isNotBlank(getReleaseInfo().getPackageInfo());
+    }
 }

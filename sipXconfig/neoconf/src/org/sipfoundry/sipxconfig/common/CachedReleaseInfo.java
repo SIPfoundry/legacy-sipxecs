@@ -16,6 +16,8 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.io.File;
+
 /**
  * Cache release info so if can be shown in footer of html page
  */
@@ -40,7 +42,7 @@ public class CachedReleaseInfo extends ReleaseInfo {
     }
 
     void checkUpdate() {
-        if (m_date == 0 || m_delegate.getReleaseInfoFile().lastModified() != m_date) {
+        if (m_date == 0 || new File(m_delegate.getReleaseInfoFile().getAbsolutePath()).lastModified() != m_date) {
             m_releaseUpdate = m_delegate.getReleaseUpdate();
             m_packageInfo = m_delegate.getPackageInfo();
             m_date = m_delegate.getReleaseInfoFile().lastModified();
