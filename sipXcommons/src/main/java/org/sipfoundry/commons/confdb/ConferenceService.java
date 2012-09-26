@@ -20,5 +20,10 @@ import java.util.List;
 
 public interface ConferenceService {
     Conference getConference(String name);
+    
     List<Conference> getOwnedConferences(String username);
+    
+    List<Conference> getAllEnabledConferences();
+    
+    List<Conference> getAllConferences();
 }

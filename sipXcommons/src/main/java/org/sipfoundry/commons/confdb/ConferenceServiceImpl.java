@@ -22,7 +22,6 @@ import static org.sipfoundry.commons.mongo.MongoConstants.CONF_OWNER;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -30,19 +29,32 @@ import org.springframework.data.mongodb.core.query.Query;
 public class ConferenceServiceImpl implements ConferenceService {
     private MongoTemplate m_template;
     private static final String CONF_COLLECTION = "entity";
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxrecording");
+    
     @Override
     public Conference getConference(String name) {
         return m_template.findOne(new Query(
                 Criteria.where(CONF_NAME).is(name)), Conference.class, CONF_COLLECTION);
     }
 
+    @Override
     public List<Conference> getOwnedConferences(String username) {
         return m_template.find(new Query(Criteria.
                 where(CONF_OWNER).is(username).
                 and(CONF_ENABLED).is(true)), Conference.class, CONF_COLLECTION);
     }
-
+    
+    @Override
+    public List<Conference> getAllEnabledConferences() {
+        return m_template.find(new Query(Criteria.                
+                where(CONF_ENABLED).is(true)), Conference.class, CONF_COLLECTION);
+    }
+    
+    @Override
+    public List<Conference> getAllConferences() {
+        return m_template.find(new Query(Criteria.                
+                where(CONF_ENABLED).exists(true)), Conference.class, CONF_COLLECTION);
+    }
+    
     public void setTemplate(MongoTemplate template) {
         m_template = template;
     }

@@ -174,41 +174,89 @@ public class XmppChatRoom extends XmppConfigurationElement{
         SipXOpenfirePlugin.getInstance().update(this);
     }
 
+
+
+
     @Override
-    public boolean equals(Object other) {
-        //check for self-comparison
-        if ( this == other ) {
-            return true;
-        }
-
-        if ( !(other instanceof XmppChatRoom) ) {
-            return false;
-        }
-
-        //cast to native object is now safe
-        XmppChatRoom otherChatRoom = (XmppChatRoom)other;
-
-        //now a proper field-by-field evaluation can be made
-        return
-                subdomain.equals(otherChatRoom.subdomain) &&
-                roomName.equals(otherChatRoom.roomName) &&
-                description.equals(otherChatRoom.description) &&
-                password.equals(otherChatRoom.password) &&
-                conferenceExtension.equals(otherChatRoom.conferenceExtension) &&
-                conferenceName.equals(otherChatRoom.conferenceName) &&
-                conferenceReachabilityInfo.equals(otherChatRoom.conferenceReachabilityInfo) &&
-                owner.equals(otherChatRoom.owner) &&
-                logRoomConversations == otherChatRoom.logRoomConversations &&
-                isPublicRoom == otherChatRoom.isPublicRoom &&
-                membersOnly == otherChatRoom.membersOnly &&
-                isPersistent == otherChatRoom.isPersistent &&
-                isModerated == otherChatRoom.isModerated;
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((conferenceExtension == null) ? 0 : conferenceExtension.hashCode());
+        result = prime * result + ((conferenceName == null) ? 0 : conferenceName.hashCode());
+        result = prime * result + ((conferenceReachabilityInfo == null) ? 0 : conferenceReachabilityInfo.hashCode());
+        result = prime * result + ((description == null) ? 0 : description.hashCode());
+        result = prime * result + (isModerated ? 1231 : 1237);
+        result = prime * result + (isPersistent ? 1231 : 1237);
+        result = prime * result + (isPublicRoom ? 1231 : 1237);
+        result = prime * result + (logRoomConversations ? 1231 : 1237);
+        result = prime * result + (membersOnly ? 1231 : 1237);
+        result = prime * result + ((owner == null) ? 0 : owner.hashCode());
+        result = prime * result + ((password == null) ? 0 : password.hashCode());
+        result = prime * result + ((roomName == null) ? 0 : roomName.hashCode());
+        result = prime * result + ((subdomain == null) ? 0 : subdomain.hashCode());
+        return result;
     }
 
     @Override
-    public int hashCode()
-    {
-        return subdomain.hashCode() * roomName.hashCode();
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        XmppChatRoom other = (XmppChatRoom) obj;
+        if (conferenceExtension == null) {
+            if (other.conferenceExtension != null)
+                return false;
+        } else if (!conferenceExtension.equals(other.conferenceExtension))
+            return false;
+        if (conferenceName == null) {
+            if (other.conferenceName != null)
+                return false;
+        } else if (!conferenceName.equals(other.conferenceName))
+            return false;
+        if (conferenceReachabilityInfo == null) {
+            if (other.conferenceReachabilityInfo != null)
+                return false;
+        } else if (!conferenceReachabilityInfo.equals(other.conferenceReachabilityInfo))
+            return false;
+        if (description == null) {
+            if (other.description != null)
+                return false;
+        } else if (!description.equals(other.description))
+            return false;
+        if (isModerated != other.isModerated)
+            return false;
+        if (isPersistent != other.isPersistent)
+            return false;
+        if (isPublicRoom != other.isPublicRoom)
+            return false;
+        if (logRoomConversations != other.logRoomConversations)
+            return false;
+        if (membersOnly != other.membersOnly)
+            return false;
+        if (owner == null) {
+            if (other.owner != null)
+                return false;
+        } else if (!owner.equals(other.owner))
+            return false;
+        if (password == null) {
+            if (other.password != null)
+                return false;
+        } else if (!password.equals(other.password))
+            return false;
+        if (roomName == null) {
+            if (other.roomName != null)
+                return false;
+        } else if (!roomName.equals(other.roomName))
+            return false;
+        if (subdomain == null) {
+            if (other.subdomain != null)
+                return false;
+        } else if (!subdomain.equals(other.subdomain))
+            return false;
+        return true;
     }
 
     @Override
