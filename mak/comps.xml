@@ -8,6 +8,7 @@
    <description>Primary or main sipXecs install, Install more than you
    may use, but not everything is enabled by default</description>
    <packagelist>
+     <packagereq type="mandatory">sipxrelease</packagereq>
      <packagereq type="mandatory">sipxproxy</packagereq>
      <packagereq type="mandatory">sipxpublisher</packagereq>
      <packagereq type="mandatory">sipxregistry</packagereq>
