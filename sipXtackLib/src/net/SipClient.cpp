@@ -449,12 +449,12 @@ UtlBoolean SipClient::isAcceptableForDestination( const UtlString& hostName, int
          {
              isAcceptable = TRUE;
          }
-         else if (( 
+         else if ( mSocketType == OsSocket::SSL_SOCKET && ( 
              hostName.compareTo(mRemoteHostName, UtlString::ignoreCase) == 0 ||
              hostName.compareTo(mRemoteSocketAddress, UtlString::ignoreCase) == 0 || 
              hostName.compareTo(mReceivedAddress, UtlString::ignoreCase) == 0 || 
-             hostName.compareTo(mRemoteViaAddress, UtlString::ignoreCase) == 0 ) && 
-             mSocketType == OsSocket::SSL_SOCKET)
+             hostName.compareTo(mRemoteViaAddress, UtlString::ignoreCase) == 0 ) 
+             )
          {
             isAcceptable = TRUE;
          }
