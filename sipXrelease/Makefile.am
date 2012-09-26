@@ -6,7 +6,7 @@ include config/project.am
 	$(libexec_SCRIPTS:=.in)
 
 PACKAGE_META = \
-	$(cd $(srcdir); find -name 'packages-*')
+	$(shell cd $(srcdir); find . -name 'packages-*')
 
 PACKAGE_ID = \
 	$(shell rpm --eval '%{?fedora:Fedora_%{fedora}}%{?rhel:CentOS_%{rhel}}-%{_arch}')
