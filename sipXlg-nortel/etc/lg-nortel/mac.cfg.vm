@@ -34,7 +34,11 @@ blf_url $speeddial.getResourceListId(true)
 #set($line_id = $velocityCount)
 #foreach ($group in $line.Settings.Values)
 #foreach ($setting in $group.Values)
+#if(${setting.ProfileName} == 'displayname')
+line${line_id}_${setting.ProfileName} "$!{setting.Value}"
+#else
 line${line_id}_${setting.ProfileName} $!{setting.Value}
+#end
 #end
 
 #end
