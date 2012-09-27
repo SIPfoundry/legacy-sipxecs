@@ -10,7 +10,7 @@ cat $PACKAGE_FILE | while read -a package; do
     check=(`rpm -q --queryformat '%{NAME} %{VERSION} %{RELEASE}' ${package[0]}`)
     if [ $? == '0' ]; then
 	if [ "${check[1]}|${check[2]}" != "${package[1]}|${package[2]}" ]; then
-            echo "installed ${package[0]}-${check[1]}.${check[2]} expected ${package[1]}.${package[2]}" >2
+            echo "${package[0]}-${check[1]}.${check[2]}"
 	    status=1
 	fi
     fi
