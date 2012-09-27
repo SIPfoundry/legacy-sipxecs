@@ -70,7 +70,10 @@ public:
   {
     _mutex.lock();
     if (_maxQueueSize && _queue.size() > _maxQueueSize)
+    {
+      _mutex.unlock();
       return;
+    }
     _queue.push(data);
     _mutex.unlock();
     _semaphore.signal();
