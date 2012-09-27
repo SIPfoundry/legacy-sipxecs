@@ -6,6 +6,7 @@
 package org.sipfoundry.openfire.config;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -57,6 +58,7 @@ public class AccountsParser {
     private static Logger logger = Logger.getLogger(AccountsParser.class);
     private XmppAccountInfo previousXmppAccountInfo = null;
     private final ConferenceService m_conferenceService;
+    private boolean m_parsingEnabled;
 
     private static Timer timer = new Timer();
 
@@ -76,38 +78,55 @@ public class AccountsParser {
             if (watchFile.lastModified() != AccountsParser.this.lastModified) {
                 logger.info("XMPP account configuration changes detected - reparsing file");
                 AccountsParser.this.lastModified = watchFile.lastModified();
-                parseAccounts(m_conferenceService);
+                parseAccounts(m_conferenceService, m_parsingEnabled);
             }
         }
     }
 
-    public void parseAccounts(ConferenceService conferenceService) {
+    public void parseAccounts(ConferenceService conferenceService, boolean parseEnabled) {
         String fileUrl = "file://" + accountDbFileName;
-        XmppAccountInfo newAccountInfo = AccountsParser.parse(fileUrl, conferenceService);
-        logger.debug("Pruning unwanted users");
-        pruneUnwantedXmppUsers( newAccountInfo.getXmppUserAccountNames() );
-        logger.debug("Done pruning unwanted users");
-        logger.debug("Pruning unwanted groups");
-        pruneUnwantedXmppGroups( newAccountInfo.getXmppGroupNames() ); // prune groups before applying deltas - see XX-7886
-        logger.debug("Done pruning unwanted groups");
-        logger.debug("Enforcing config deltas");
-        // unfortunately, previous account info is always null on startup; this will trigger a
-        // synchronization on each startup
-        enforceConfigurationDeltas(newAccountInfo, previousXmppAccountInfo);
-        logger.debug("Done enforcing config deltas");
-        logger.debug("Pruning unwanted chatrooms");
-        pruneUnwantedXmppChatrooms( newAccountInfo );
-        logger.debug("Dome pruning unwanted chatrooms");
-        logger.debug("Pruning unwanted chatroom services");
-        pruneUnwantedXmppChatRoomServices( newAccountInfo.getXmppChatRooms() );
-        logger.debug("Done pruning unwanted chatroom services");
+        XmppAccountInfo newAccountInfo = AccountsParser.parse(fileUrl, conferenceService, parseEnabled);
+        if (m_parsingEnabled) {
+            logger.debug("Pruning unwanted users");
+            pruneUnwantedXmppUsers( newAccountInfo.getXmppUserAccountNames() );
+            logger.debug("Done pruning unwanted users");
+            logger.debug("Pruning unwanted groups");
+            pruneUnwantedXmppGroups( newAccountInfo.getXmppGroupNames() ); // prune groups before applying deltas - see XX-7886
+            logger.debug("Done pruning unwanted groups");
+            logger.debug("Enforcing config deltas");
+            // unfortunately, previous account info is always null on startup; this will trigger a
+            // synchronization on each startup
+            enforceConfigurationDeltas(newAccountInfo, previousXmppAccountInfo);
+            logger.debug("Done enforcing config deltas");
+            logger.debug("Pruning unwanted chatrooms");
+            pruneUnwantedXmppChatrooms( newAccountInfo );
+            logger.debug("Dome pruning unwanted chatrooms");
+            logger.debug("Pruning unwanted chatroom services");
+            pruneUnwantedXmppChatRoomServices( newAccountInfo.getXmppChatRooms() );
+            logger.debug("Done pruning unwanted chatroom services");
+        } else {
+            Collection<XmppConfigurationElement> confElements = new ArrayList<XmppConfigurationElement>();
+            confElements.addAll(newAccountInfo.getXmppChatRooms());
+            enforceConfigurationDeltas(newAccountInfo, previousXmppAccountInfo, confElements);
+            logger.debug("Pruning unwanted chatrooms");
+            pruneUnwantedXmppChatrooms( newAccountInfo );
+            logger.debug("Dome pruning unwanted chatrooms");
+            logger.debug("Pruning unwanted chatroom services");
+            pruneUnwantedXmppChatRoomServices( newAccountInfo.getXmppChatRooms() );
+            logger.debug("Done pruning unwanted chatroom services");
+        }
         previousXmppAccountInfo = newAccountInfo;
     }
 
     private static void enforceConfigurationDeltas(XmppAccountInfo newAccountInfo,
             XmppAccountInfo previousXmppAccountInfo) {
+        enforceConfigurationDeltas(newAccountInfo, previousXmppAccountInfo, newAccountInfo.getAllElements());
+    }
+
+    private static void enforceConfigurationDeltas(XmppAccountInfo newAccountInfo,
+            XmppAccountInfo previousXmppAccountInfo, Collection<XmppConfigurationElement> elements) {
         setElementsChangeStatusBasedOnPreviousConfiguration(newAccountInfo, previousXmppAccountInfo);
-        for (XmppConfigurationElement element : newAccountInfo.getAllElements()) {
+        for (XmppConfigurationElement element : elements) {
             if (element.getStatus() != XmppAccountStatus.UNCHANGED) {
                 try {
                     element.update();
@@ -189,7 +208,7 @@ public class AccountsParser {
                         }
                         logger.info("Pruning Unwanted Xmpp User " + userAccountInOpenfire.getXmppUserName());
                         plugin.destroyUser(XmppAccountInfo.appendDomain(userAccountInOpenfire.getXmppUserName()));
-                        // Make sure to remove this user from user's that are allowed to create chat rooms list                                                
+                        // Make sure to remove this user from user's that are allowed to create chat rooms list
                         plugin.removeAllowedUserForChatServices(
                                 XmppAccountInfo.appendDomain(userAccountInOpenfire.getXmppUserName()));
                         logger.debug("User removed from allowed to create chat rooms users list");
@@ -270,7 +289,7 @@ public class AccountsParser {
         }
     }
 
-    public AccountsParser(String accountDbFileName, String watchFileName, ConferenceService conferenceService) {
+    public AccountsParser(String accountDbFileName, String watchFileName, ConferenceService conferenceService, boolean parsingEnabled) {
         try {
             digester = new Digester();
             addRules(digester);
@@ -279,13 +298,15 @@ public class AccountsParser {
         }
 
         this.watchFile = new File(watchFileName);
-        
+        m_parsingEnabled = parsingEnabled;
+
         this.accountDbFileName = accountDbFileName;
         this.accountDbFile = new File(accountDbFileName);
         if (!accountDbFile.exists()) {
             throw new SipXOpenfirePluginException("Account db file not found : " + accountDbFileName);
         }
         m_conferenceService = conferenceService;
+        logger.error("MIRCEA parsingEnabled "+m_parsingEnabled);
     }
 
     public void startScanner() {
@@ -355,14 +376,16 @@ public class AccountsParser {
 
     }
 
-    public static XmppAccountInfo parse(String url, ConferenceService conferenceService) {
+    public static XmppAccountInfo parse(String url, ConferenceService conferenceService, boolean parseEnabled) {
         // Create a Digester instance
         try {
             InputSource inputSource = new InputSource(url);
             digester.parse(inputSource);
             XmppAccountInfo accountInfo = (XmppAccountInfo) digester.getRoot();
 
-            parseMongoUsers(accountInfo);
+            if (parseEnabled) {
+                parseMongoUsers(accountInfo);
+            }
             parseMongoConferences(accountInfo, conferenceService);
 
             return accountInfo;
@@ -388,7 +411,7 @@ public class AccountsParser {
             accountInfo.addAccount(account);
         }
     }
-    
+
     private static void parseMongoConferences(XmppAccountInfo accountInfo, ConferenceService conferenceService) throws Exception {
         List<Conference> conferences = conferenceService.getAllConferences();
         ValidUsers users = UnfortunateLackOfSpringSupportFactory.getValidUsers();
@@ -410,7 +433,7 @@ public class AccountsParser {
             chatRoom.setMembersOnly(new Boolean(conference.isMembersOnly()).toString());
             chatRoom.setPersistent(Boolean.TRUE.toString());
             chatRoom.setConferenceExtension(conference.getExtension());
-            
+
             accountInfo.addChatRoom(chatRoom);
         }
     }

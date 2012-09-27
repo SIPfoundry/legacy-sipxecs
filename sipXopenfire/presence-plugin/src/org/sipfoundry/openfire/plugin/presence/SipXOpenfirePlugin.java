@@ -136,7 +136,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     private final Map<String, XmppUserPreferences> xmppUserPreferencesMap = new HashMap<String, XmppUserPreferences>(); // key is username part of JID
 
     private AccountsParser accountsParser;
-    
+
     private ConferenceService m_conferenceService;
 
     public class ConferenceInformation {
@@ -264,7 +264,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             throw new SipXOpenfirePluginException(ex);
         }
     }
-    
+
     private void initConferenceService() throws Exception {
         String configurationPath = System.getProperty("conf.dir");
         if (isBlank(configurationPath)) {
@@ -316,7 +316,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         parseConfigurationFile();
 
         initializeLogging();
@@ -399,7 +399,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             System.err.println("User account file not found");
             throw new SipXOpenfirePluginException("Cannot find user accounts file");
         } else {
-            this.accountsParser = new AccountsParser(accountConfigurationFile, watchFile, m_conferenceService);
+            this.accountsParser = new AccountsParser(accountConfigurationFile, watchFile, m_conferenceService, watcherConfig.isEnableParsing());
             this.accountsParser.startScanner();
         }
 
@@ -714,7 +714,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                         userAccount.getEmail());
                 setAllowedUserForChatServices(
                         XmppAccountInfo.appendDomain(userAccount.getUserName()));
-                log.debug("User added in list of users that are allowed to create chat rooms");                
+                log.debug("User added in list of users that are allowed to create chat rooms");
             } catch (UserAlreadyExistsException ex) {
                 throw new SipXOpenfirePluginException(ex);
             }
@@ -807,7 +807,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             adminJid = XmppAccountInfo.appendDomain(group.getAdministrator());
             adminJID = new JID(adminJid);
         } else {
-            isAllAdminGroup = true;            
+            isAllAdminGroup = true;
 
         }
 
@@ -1129,9 +1129,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             mucRoom.setCanOccupantsInvite(allowOccupantsToInviteOthers);
 
         }
-        
+
         mucRoom.setDescription(description != null ? description : "");
-        
+
 
         /*
          * Check if password changed and set password if changed.
@@ -1442,7 +1442,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             service.addUserAllowedToCreate(jid);
         }
     }
-    
+
     public void removeAllowedUserForChatServices(String jid){
         Set<MultiUserChatService> chatServices = new HashSet<MultiUserChatService>();
         chatServices.addAll(this.multiUserChatManager.getMultiUserChatServices());
@@ -1450,7 +1450,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         for (MultiUserChatService service : chatServices) {
             service.removeUserAllowedToCreate(jid);
         }
-    }    
+    }
 
     public void kickOccupant(String subdomain, String roomName, String password,
             String memberJid, String reason) throws NotAllowedException {

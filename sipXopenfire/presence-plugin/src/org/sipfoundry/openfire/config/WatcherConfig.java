@@ -11,6 +11,7 @@ public class WatcherConfig {
     private String userName;
     private String password;
     private boolean enableCallWatcher;
+    private boolean enableParsing;
     private String sipxProxyTransport;
     private String logLevel = "INFO";
     private String watcherAddress;
@@ -246,4 +247,12 @@ public class WatcherConfig {
     public void setEnableCallWatcher(boolean enableCallWatcher) {
         this.enableCallWatcher = enableCallWatcher;
     }
+
+    public boolean isEnableParsing() {
+        return enableParsing;
+    }
+
+    public void setEnableParsing(boolean enableParsing) {
+        this.enableParsing = enableParsing;
+    }        
 }

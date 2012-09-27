@@ -89,6 +89,7 @@ public class ConfigurationParser {
        addCallMethodString("IM-message-logging-directory", "setImMessageLoggingDirectory");
        addCallMethodString("locale", "setLocale");
        addCallMethodBoolean("watcher-enabled", "setEnableCallWatcher");
+       addCallMethodBoolean("parsing-enabled", "setEnableParsing");
 
        currentTag = s2sTag;
        addCallMethodString("enabled", "setS2sServerActive");
