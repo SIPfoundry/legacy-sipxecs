@@ -22,6 +22,7 @@ import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
+import org.dom4j.Element;
 import org.jivesoftware.openfire.group.Group;
 import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.muc.MUCRoom;
@@ -29,6 +30,7 @@ import org.jivesoftware.openfire.muc.spi.MUCPersistenceManager;
 import org.sipfoundry.commons.confdb.Conference;
 import org.sipfoundry.commons.confdb.ConferenceService;
 import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.UserGroup;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.openfire.plugin.presence.SipXBookmarkManager;
@@ -306,7 +308,6 @@ public class AccountsParser {
             throw new SipXOpenfirePluginException("Account db file not found : " + accountDbFileName);
         }
         m_conferenceService = conferenceService;
-        logger.error("MIRCEA parsingEnabled "+m_parsingEnabled);
     }
 
     public void startScanner() {
@@ -385,6 +386,7 @@ public class AccountsParser {
 
             if (parseEnabled) {
                 parseMongoUsers(accountInfo);
+                parseMongoGroups(accountInfo);
             }
             parseMongoConferences(accountInfo, conferenceService);
 
@@ -435,6 +437,31 @@ public class AccountsParser {
             chatRoom.setConferenceExtension(conference.getExtension());
 
             accountInfo.addChatRoom(chatRoom);
+        }
+    }
+
+    private static void parseMongoGroups(XmppAccountInfo accountInfo) throws Exception {
+        ValidUsers validUsers = UnfortunateLackOfSpringSupportFactory.getValidUsers();
+        Collection<UserGroup> groups = validUsers.getImGroups();
+        XmppGroupMember member = null;
+        for (UserGroup group : groups) {
+            XmppGroup xmppGroup = new XmppGroup();
+            String groupName = group.getGroupName();
+            xmppGroup.setGroupName(groupName);
+            xmppGroup.setDescription(StringUtils.defaultIfEmpty(group.getDescription(), StringUtils.EMPTY));
+            List<String> imIds = validUsers.getAllImIdsInGroup(groupName);
+            for (String imId : imIds) {
+                member = new XmppGroupMember();
+                member.setUserName(imId);
+                xmppGroup.addMember(member);
+            }
+            if (group.isImbotEnabled()) {
+                member = new XmppGroupMember();
+                member.setUserName(validUsers.getImBotName());
+                xmppGroup.addMember(member);
+            }
+
+            accountInfo.addGroup(xmppGroup);
         }
     }
 }

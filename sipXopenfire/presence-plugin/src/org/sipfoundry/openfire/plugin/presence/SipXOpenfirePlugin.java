@@ -892,8 +892,11 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                     if (jid.getDomain().equals(this.getXmppDomain())) {
                         group.getAdmins().add(jid);
                     }
+                }else {
+                    if (jid.getDomain().equals(this.getXmppDomain())) {
+                        group.getMembers().add(jid);
+                    }
                 }
-                group.getMembers().add(jid);
             }
         }
         else{

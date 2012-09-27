@@ -70,7 +70,6 @@
 
   <bean id="openfireAccountXml" class="org.sipfoundry.sipxconfig.openfire.XmppAccountInfo">
     <property name="coreContext" ref="coreContext" />
-    <property name="conferenceContext" ref="conferenceBridgeContext" />
     <property name="validUsers" ref="validUsers" />
     <property name="imbot" ref="imBot" />
   </bean>

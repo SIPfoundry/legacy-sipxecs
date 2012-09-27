@@ -357,21 +357,38 @@ public class ValidUsers {
     }
 
     public UserGroup getImGroup(String name) {
-
         DBObject queryGroup = QueryBuilder.start(IM_GROUP).is("1").and(UID).is(name).get();
         DBObject groupResult = getEntityCollection().findOne(queryGroup);
         if (groupResult != null) {
-            UserGroup group = new UserGroup();
-            group.setGroupName(getStringValue(groupResult, UID));
-            group.setDescription(getStringValue(groupResult, DESCR));
-            group.setSysId(getStringValue(groupResult, ID));
-            String imBotEnabled = getStringValue(groupResult, MY_BUDDY_GROUP);
-            if (StringUtils.equals(imBotEnabled, "1")) {
-                group.setImBotEnabled(true);
-            }
-            return group;
+            return convertUserGroup(groupResult);
         }
         return null;
+    }
+
+    public Collection<UserGroup> getImGroups() {
+        Collection<UserGroup> groups = new ArrayList<UserGroup> ();
+        DBObject queryGroup = QueryBuilder.start(IM_GROUP).is("1").get();
+        DBCursor cursor = getEntityCollection().find(queryGroup);
+        DBObject groupResult = null;
+        while (cursor.hasNext()) {
+            groupResult = cursor.next();
+            if (groupResult != null) {
+                groups.add(convertUserGroup(groupResult));
+            }
+        }
+        return groups;
+    }
+
+    private UserGroup convertUserGroup(DBObject groupResult) {
+        UserGroup group = new UserGroup();
+        group.setGroupName(getStringValue(groupResult, UID));
+        group.setDescription(getStringValue(groupResult, DESCR));
+        group.setSysId(getStringValue(groupResult, ID));
+        String imBotEnabled = getStringValue(groupResult, MY_BUDDY_GROUP);
+        if (StringUtils.equals(imBotEnabled, "1")) {
+            group.setImBotEnabled(true);
+        }
+        return group;
     }
 
     public String getImBotName() {
