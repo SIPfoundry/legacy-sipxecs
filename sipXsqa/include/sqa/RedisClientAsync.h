@@ -31,6 +31,11 @@ extern "C"
 #include "RedisClient.h"
 #include "Semaphore.h"
 
+
+#ifndef REDIS_EVENT_CHANNEL
+#define REDIS_EVENT_CHANNEL "REDIS"
+#endif
+
 class RedisClientAsync : protected RedisClient
 {
 public: // Members
