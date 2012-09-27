@@ -17,14 +17,14 @@
 #include "sqa/StateQueueNotification.h"
 #include "os/OsLogger.h"
 
-static const char* REDIS_CHANNEL = "REDIS";
+static const char* REDIS_CHANNEL = REDIS_EVENT_CHANNEL;
 
 StateQueueAgent::StateQueueAgent(ServiceOptions& options) :
   _options(options),
   _pIoServiceThread(0),
   _ioService(),
   _publisher(this),
-  _queueWorkSpaceIndex(0),
+  _queueWorkSpaceIndex(REDIS_STATEQUEUE_WORKSPACE),
   _listener(this),
   _inactivityThreshold(60),
   _pEntityDb(0),
