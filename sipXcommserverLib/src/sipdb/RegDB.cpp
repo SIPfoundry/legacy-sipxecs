@@ -143,6 +143,7 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, int timeNow, Bindin
 	if (isGruu)
 	{
 		string searchString(identity);
+		searchString += ";";
 		searchString += SIP_GRUU_URI_PARAM;
 		query = BSON(
 				"gruu" << searchString <<
