@@ -29,6 +29,22 @@ extern "C"
 #include "sqa/StateQueueMessage.h"
 
 
+//
+// Alloted workspaces
+//
+#define REDIS_STATEQUEUE_WORKSPACE 0
+#define REDIS_RLSWATCHLIST_WORKSPACE 9
+#define REDIS_RLSREGEVENT_WORKSPACE 10
+#define REDIS_SBCDIALOG_WORKSPACE 11
+#define REDIS_SBCREGISTRY_WORKSPACE 12
+#define REDIS_RLSDIALOG_WORKSPACE 13
+#define REDIS_RESOURCELIST_WORKSPACE 14
+#define REDIS_RESOURCESTATE_WORKSPACE 15
+
+#ifndef REDIS_EVENT_CHANNEL
+#define REDIS_EVENT_CHANNEL "REDIS"
+#endif
+
 class RedisClient : boost::noncopyable
 {
 public:
