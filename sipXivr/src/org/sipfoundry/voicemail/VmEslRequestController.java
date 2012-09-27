@@ -41,6 +41,7 @@ public class VmEslRequestController extends AbstractEslRequestController {
     private String m_operatorAddr;
     private ApplicationConfiguraton m_config;
     private int m_recordRate = 8000;
+    private int m_recordTime = 300;
 
     @Override
     public void extractParameters(Hashtable<String, String> parameters) {
@@ -200,7 +201,7 @@ public class VmEslRequestController extends AbstractEslRequestController {
         getFsEventSocket().trimDtmfQueue("");
         Record rec = new Record(getFsEventSocket(), getLocalization().getPromptList("beep"));
         rec.setRecordFile(audioName);
-        rec.setRecordTime(300);
+        rec.setRecordTime(m_recordTime);
         rec.setRecordRate(m_recordRate);
         rec.setDigitMask("0123456789*#i"); // Any digit can stop the recording
         rec.go();
@@ -261,6 +262,10 @@ public class VmEslRequestController extends AbstractEslRequestController {
 
     public void setRecordRate(int recordRate) {
         m_recordRate = recordRate;
+    }
+
+    public void setRecordTime(int recordTime) {
+        m_recordTime = recordTime;
     }
 
     private void extractCurrentUser(Hashtable<String, String> parameters) {

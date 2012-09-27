@@ -74,6 +74,10 @@
       <type refid="recordrate" />
       <value>8000</value>
     </setting>
+    <setting name="record.time">
+      <integer />
+      <value>300</value>
+    </setting>
     <setting name="fax.format">
       <type refid="faxformat" />
       <value>pdf</value>
