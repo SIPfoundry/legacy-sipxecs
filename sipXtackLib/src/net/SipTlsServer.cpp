@@ -169,10 +169,22 @@ OsSocket* SipTlsServer::buildClientSocket(int hostPort,
                                           const char* localIp,
                                           bool& existingSocketReused)
 {
-   OsSocket* socket;
-   socket = new OsSSLConnectionSocket(hostPort, hostAddress);
+   OsSocket* socket = NULL;
 
-   socket->makeBlocking();
+   // Disable TLS connection directed to an external device,
+   // because Yealink phones have problem with server-side SSL handshaking.
+   // So let phone re-register and make connection to us and become client-side on TLS.
+   // Transaction layer will decide what to do with this SIP message, re-send or not.
+   // Normally, phone has always an active TLS connection to us, but for a very narrow time window, while phone re-registers,
+   // if we need to send a SIP message, we create a TLS connection to that phone.
+   // Since phone does not start "Server Hello" SSL transaction, this function can not return, causing
+   // SipRouter thread to stuck.
+   // See SipClient::isAcceptableForDestination also. --LS
+
+   if (!strcmp(localIp,hostAddress)) {
+      socket = new OsSSLConnectionSocket(hostPort, hostAddress);
+      socket->makeBlocking();
+   }
    existingSocketReused = false;
    return(socket);
 }
