@@ -770,6 +770,16 @@ private:
       return;
     }
 
+    if (id == "__TERMINATE__")
+    {
+      StateQueueMessage terminate;
+      terminate.setType(StateQueueMessage::Pop);
+      terminate.set("message-id", "__TERMINATE__");
+      terminate.set("message-data", "__TERMINATE__");
+      _eventQueue.enqueue(terminate.data());
+      return;
+    }
+
     if (!firstHit && count >= 2 && _backoffCount < count - 1 )
     {
       _backoffCount++; //  this will ensure that we participate next time
