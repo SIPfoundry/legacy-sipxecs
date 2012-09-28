@@ -22,7 +22,6 @@ import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
-import org.dom4j.Element;
 import org.jivesoftware.openfire.group.Group;
 import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.muc.MUCRoom;
@@ -37,25 +36,10 @@ import org.sipfoundry.openfire.plugin.presence.SipXBookmarkManager;
 import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePlugin;
 import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePluginException;
 import org.sipfoundry.openfire.plugin.presence.UserAccount;
-import org.xml.sax.InputSource;
 import org.xmpp.packet.JID;
 
 public class AccountsParser {
-
-    public static final String XMPP_INFO = "xmpp-account-info";
-    public static final String USER = "user";
-    public static final String GROUP = "group";
-    public static final String CHAT_ROOM = "chat-room";
-    public static String userTag = String.format("%s/%s", XMPP_INFO, USER);
-    public static String groupTag = String.format("%s/%s", XMPP_INFO, GROUP);
-    public static String chatRoomTag = String.format("%s/%s", XMPP_INFO, CHAT_ROOM);
-    public static String groupMemberTag = String.format("%s/%s", groupTag, USER);
-
-    private static String currentTag = null;
-    private static Digester digester;
-    private final String accountDbFileName;
     private long lastModified;
-    private final File accountDbFile;
     private final File watchFile;
     private static Logger logger = Logger.getLogger(AccountsParser.class);
     private XmppAccountInfo previousXmppAccountInfo = null;
@@ -86,8 +70,7 @@ public class AccountsParser {
     }
 
     public void parseAccounts(ConferenceService conferenceService, boolean parseEnabled) {
-        String fileUrl = "file://" + accountDbFileName;
-        XmppAccountInfo newAccountInfo = AccountsParser.parse(fileUrl, conferenceService, parseEnabled);
+        XmppAccountInfo newAccountInfo = AccountsParser.parse(conferenceService, parseEnabled);
         if (m_parsingEnabled) {
             logger.debug("Pruning unwanted users");
             pruneUnwantedXmppUsers( newAccountInfo.getXmppUserAccountNames() );
@@ -291,22 +274,9 @@ public class AccountsParser {
         }
     }
 
-    public AccountsParser(String accountDbFileName, String watchFileName, ConferenceService conferenceService, boolean parsingEnabled) {
-        try {
-            digester = new Digester();
-            addRules(digester);
-        } catch (Exception ex) {
-            throw new SipXOpenfirePluginException(ex);
-        }
-
+    public AccountsParser(String watchFileName, ConferenceService conferenceService, boolean parsingEnabled) {
         this.watchFile = new File(watchFileName);
         m_parsingEnabled = parsingEnabled;
-
-        this.accountDbFileName = accountDbFileName;
-        this.accountDbFile = new File(accountDbFileName);
-        if (!accountDbFile.exists()) {
-            throw new SipXOpenfirePluginException("Account db file not found : " + accountDbFileName);
-        }
         m_conferenceService = conferenceService;
     }
 
@@ -319,71 +289,9 @@ public class AccountsParser {
         timer.cancel();
     }
 
-    private static void addCallMethod(String elementName, String methodName) {
-        digester.addCallMethod(String.format("%s/%s", currentTag, elementName), methodName, 0);
-    }
-
-    /*
-     * Add the digester rules.
-     *
-     * @param digester
-     */
-    private static void addRules(Digester digester) throws Exception {
-        AccountsParser.digester = digester;
-        digester.setUseContextClassLoader(true);
-        digester.addObjectCreate(XMPP_INFO, XmppAccountInfo.class.getName());
-
-        digester.addObjectCreate(userTag, XmppUserAccount.class.getName());
-        digester.addSetNext(userTag, "addAccount");
-
-        digester.addObjectCreate(groupTag, XmppGroup.class.getName());
-        digester.addSetNext(groupTag, "addGroup");
-
-        digester.addObjectCreate(groupMemberTag, XmppGroupMember.class.getName());
-        digester.addSetNext(groupMemberTag, "addMember");
-
-        digester.addObjectCreate(chatRoomTag, XmppChatRoom.class.getName());
-        digester.addSetNext(chatRoomTag, "addChatRoom");
-
-        currentTag = userTag;
-        addCallMethod("password", "setPassword");
-        addCallMethod("user-name", "setUserName");
-        addCallMethod("sip-user-name", "setSipUserName");
-        addCallMethod("email", "setEmail");
-        addCallMethod("display-name", "setDisplayName");
-        addCallMethod("on-the-phone-message", "setOnThePhoneMessage");
-        addCallMethod("conference-extension", "setConferenceExtension");
-        addCallMethod("advertise-on-call-status", "setAdvertiseOnCallPreference");
-        addCallMethod("show-on-call-details", "setShowOnCallDetailsPreference");
-        currentTag = groupTag;
-        addCallMethod("group-name", "setGroupName");
-        addCallMethod("description", "setDescription");
-        addCallMethod("administrator", "setAdministrator");
-        currentTag = groupMemberTag;
-        addCallMethod("user-name", "setUserName");
-        currentTag = chatRoomTag;
-        addCallMethod("subdomain", "setSubdomain");
-        addCallMethod("conference-extension", "setConferenceExtension");
-        addCallMethod("conference-reach-info", "setConferenceReachabilityInfo");
-        addCallMethod("room-name", "setRoomName");
-        addCallMethod("description", "setDescription");
-        addCallMethod("password", "setPassword");
-        addCallMethod("room-owner", "setOwner");
-        addCallMethod("moderated", "setModerated");
-        addCallMethod("log-room-conversations", "setLogRoomConversations");
-        addCallMethod("is-public-room", "setIsPublicRoom");
-        addCallMethod("is-members-only", "setMembersOnly");
-        addCallMethod("is-persistent", "setPersistent");
-
-    }
-
-    public static XmppAccountInfo parse(String url, ConferenceService conferenceService, boolean parseEnabled) {
-        // Create a Digester instance
+    public static XmppAccountInfo parse(ConferenceService conferenceService, boolean parseEnabled) {
         try {
-            InputSource inputSource = new InputSource(url);
-            digester.parse(inputSource);
-            XmppAccountInfo accountInfo = (XmppAccountInfo) digester.getRoot();
-
+            XmppAccountInfo accountInfo = new XmppAccountInfo();
             if (parseEnabled) {
                 parseMongoUsers(accountInfo);
                 parseMongoGroups(accountInfo);
@@ -399,9 +307,11 @@ public class AccountsParser {
     }
 
     private static void parseMongoUsers(XmppAccountInfo accountInfo) {
-        List<User> users = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUsersWithImEnabled();
+        ValidUsers validUsers = UnfortunateLackOfSpringSupportFactory.getValidUsers();
+        List<User> users = validUsers.getUsersWithImEnabled();
+        XmppUserAccount account = null;
         for (User user : users) {
-            XmppUserAccount account = new XmppUserAccount();
+            account = new XmppUserAccount();
             account.setPassword(user.getPintoken());
             account.setUserName(user.getJid());
             account.setSipUserName(user.getUserName());
@@ -412,6 +322,11 @@ public class AccountsParser {
 
             accountInfo.addAccount(account);
         }
+        User imbotUser = validUsers.getImbotUser();
+        account = new XmppUserAccount();
+        account.setPassword(imbotUser.getPintoken());
+        account.setUserName(imbotUser.getUserName());
+        accountInfo.addAccount(account);
     }
 
     private static void parseMongoConferences(XmppAccountInfo accountInfo, ConferenceService conferenceService) throws Exception {

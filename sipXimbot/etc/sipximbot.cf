@@ -23,13 +23,7 @@ bundle agent sipximbot {
       "any" usebundle => "sipximbot_running";
 }
 
-bundle agent sipximbot_config {
-  vars:    
-    any::
-      "xml_file_norestart" slist => { 
-        "xmpp-account-info.xml"
-      };
-
+bundle agent sipximbot_config {  
   files:
     any::
       "$(sipx.SIPX_CONFDIR)/sipximbot.properties"
@@ -38,14 +32,6 @@ bundle agent sipximbot_config {
         perms => m("644"),
         edit_line => sipximbot_properties_contents,
         classes => if_repaired("restart_sipximbot");
-
-    any::
-      "$(sipx.SIPX_CONFDIR)/$(xml_file_norestart)"
-        comment => "install imbot config $(this.promiser)",
-        create => "true",
-        perms => m("644"),
-        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_norestart)");
-
 }
 
 bundle edit_line sipximbot_properties_contents {

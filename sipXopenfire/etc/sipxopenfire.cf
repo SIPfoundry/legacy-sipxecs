@@ -35,12 +35,6 @@ bundle agent sipxopenfire_config {
         "sipxopenfire.xml",
         "multipleldap-openfire.xml"
       };
-
-    any::
-      "xml_file_norestart" slist => { 
-        "xmpp-account-info.xml",
-      };
-
   files:
     sipxopenfire::
       "$(sipx.OPENFIRE_HOME)/plugins/admin/webapp/WEB-INF/web.xml"
@@ -71,13 +65,7 @@ bundle agent sipxopenfire_config {
         create => "true",
         perms => m("644"),
         copy_from => copy_from_cfdata("$(sipx.location_id)/ofproperty.yaml"),
-        classes => if_repaired("update_ofproperty");        
-
-      "$(sipx.SIPX_CONFDIR)/$(xml_file_norestart)"
-        comment => "install openfire config $(this.promiser)",
-        create => "true",
-        perms => m("644"),
-        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_norestart)");
+        classes => if_repaired("update_ofproperty");
 
       "$(sipx.OPENFIRE_HOME)/resources/security/truststore"
         comment => "openfire authorities",

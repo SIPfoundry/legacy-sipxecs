@@ -48,7 +48,6 @@ import org.springframework.beans.factory.annotation.Required;
 public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     private OpenfireConfigurationFile m_config;
     private SipxOpenfireConfiguration m_sipxConfig;
-    private XmppAccountInfo m_accountConfig;
     private LdapManager m_ldapManager;
     private ConfigManager m_configManager;
     private FeatureManager m_featureManager;
@@ -108,14 +107,6 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
                 m_sipxConfig.write(openfire, location);
             } finally {
                 IOUtils.closeQuietly(openfire);
-            }
-
-            Writer account = new FileWriter(new File(dir, "xmpp-account-info.xml"));
-            try {
-                XmlFile config = new XmlFile(account);
-                config.write(m_accountConfig.getDocument());
-            } finally {
-                IOUtils.closeQuietly(account);
             }
 
             Writer ofproperty = new FileWriter(new File(dir, "ofproperty.yaml"));
@@ -184,10 +175,6 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     @Override
     public void onSave(Object entity) {
         checkReplicate(entity);
-    }
-
-    public void setAccountConfig(XmppAccountInfo accountConfig) {
-        m_accountConfig = accountConfig;
     }
 
     public void setConfigManager(ConfigManager configManager) {
