@@ -58,7 +58,7 @@ public class SipxServices implements SetupListener, FeatureListener {
                 services = new FileWriter(new File(dir, "sipxecs-services.ini"));
                 for (ProcessDefinition process : m_snmpManager.getProcessDefinitions(location)) {
                     if (!process.isHideFromGlobalServiceScript()) {
-                        String processName = process.getProcess();
+                        String processName = process.getProcessMask();
                         services.write(processName);
                         services.write("\n");
                     }
