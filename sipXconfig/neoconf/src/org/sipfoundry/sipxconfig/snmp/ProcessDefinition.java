@@ -20,6 +20,7 @@ import static java.lang.String.format;
 
 public final class ProcessDefinition {
     private String m_process;
+    private String m_mask;
     private String m_restartCommand;
     private String m_regexp;
     private String m_restartClass;
@@ -43,6 +44,13 @@ public final class ProcessDefinition {
     public static ProcessDefinition sipx(String process, String service) {
         ProcessDefinition pd = new ProcessDefinition(process);
         pd.setSipxServiceName(service);
+        return pd;
+    }
+
+    public static ProcessDefinition sipx(String process, String service, String mask) {
+        ProcessDefinition pd = new ProcessDefinition(process);
+        pd.setSipxServiceName(service);
+        pd.setProcessMask(mask);
         return pd;
     }
 
@@ -108,6 +116,10 @@ public final class ProcessDefinition {
         setServiceStartCommand(format("$(sipx.SIPX_SERVICEDIR)/%s start", service), service);
     }
 
+    public void setProcessMask(String mask) {
+        m_mask = mask;
+    }
+
     public void setSysVServiceName(String service) {
         setServiceStartCommand(format("/etc/init.d/%s start", service), service);
     }
@@ -127,6 +139,13 @@ public final class ProcessDefinition {
 
     public String getRestartClass() {
         return m_restartClass;
+    }
+
+    public String getProcessMask() {
+        if (m_mask != null) {
+            return m_mask;
+        }
+        return m_process;
     }
 
     public void setRestartClass(String restartClass) {

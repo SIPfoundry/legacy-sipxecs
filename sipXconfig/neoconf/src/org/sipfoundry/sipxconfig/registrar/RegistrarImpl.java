@@ -163,7 +163,7 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
         if (!manager.getFeatureManager().isFeatureEnabled(FEATURE, location)) {
             return null;
         }
-        ProcessDefinition def = ProcessDefinition.sipx(PROCESS, PROCESS);
+        ProcessDefinition def = ProcessDefinition.sipx("sipregistrar", PROCESS, PROCESS);
         return Collections.singleton(def);
     }
 
