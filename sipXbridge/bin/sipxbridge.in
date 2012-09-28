@@ -45,7 +45,9 @@ start() {
       ${SIPXBRIDGE_OPTS} \
       -Dprocname=sipxbridge \
       -Dconf.dir=@SIPX_CONFDIR@ \
-	  -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+      -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+      -Djavax.net.ssl.keyStore=@SIPX_CONFDIR@/ssl/ssl.keystore \
+      -Djavax.net.ssl.keyStorePassword=changeit \
       -Dsipxbridge.command=start \
       org.sipfoundry.sipxbridge.Gateway \
 	 $Args"
