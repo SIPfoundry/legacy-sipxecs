@@ -400,7 +400,7 @@ bool CallerAlias::getCallerAlias (
     }
     else
     {
-      if (hasUserEntity && !userEntity.callerId().id.empty())
+      if (hasGatewayEntity && hasUserEntity && !userEntity.callerId().id.empty())
           callerAlias = userEntity.callerId().id;
       else if (hasGatewayEntity)
           gatewayEntity.callerId().ignoreUserCalleId = true;
