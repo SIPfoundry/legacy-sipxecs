@@ -392,16 +392,10 @@ public class SipXOpenfirePlugin implements Plugin, Component {
          * Load up the database.
          */
         log.info("hostname " + hostname);
-
-        String accountConfigurationFile = configurationPath + "/xmpp-account-info.xml";
         String watchFile = configurationPath + "/xmpp-update.xml";
-        if (!new File(accountConfigurationFile).exists()) {
-            System.err.println("User account file not found");
-            throw new SipXOpenfirePluginException("Cannot find user accounts file");
-        } else {
-            this.accountsParser = new AccountsParser(accountConfigurationFile, watchFile, m_conferenceService, watcherConfig.isEnableParsing());
-            this.accountsParser.startScanner();
-        }
+        this.accountsParser = new AccountsParser(watchFile, m_conferenceService, watcherConfig.isEnableParsing());
+         this.accountsParser.startScanner();
+
 
         // config and instantiate and the presence unifier used to gather all presence info
         PresenceUnifier.setPlugin(this);
@@ -884,10 +878,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         if (isValidUser(jid)) {
             log.debug("addUserToGroup " + jid + " GroupName " + groupName);
             Group group = groupManager.getGroup(groupName, true);
-            if (group.getAdmins().contains(jid)) {
-                log.debug("Admins already has " + jid);
-                group.getMembers().add(jid);
-            } else {
+            if (!group.getAdmins().contains(jid)) {
                 if (isAdmin) {
                     if (jid.getDomain().equals(this.getXmppDomain())) {
                         group.getAdmins().add(jid);

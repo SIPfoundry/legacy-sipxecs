@@ -392,11 +392,23 @@ public class ValidUsers {
     }
 
     public String getImBotName() {
+        User imbotUser = getImbotUser();
+        if (imbotUser != null) {
+            return imbotUser.getUserName();
+        }
+        return null;
+    }
+
+    public User getImbotUser() {
         DBObject queryImbot = QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_IMBOTSETTINGS).and(IM_ENABLED).is(true).get();
         DBObject imbotResult = getEntityCollection().findOne(queryImbot);
         if (imbotResult != null) {
-            return getStringValue(imbotResult, IM_ID);
+            User imbotUser = new User();
+            imbotUser.setUserName(getStringValue(imbotResult, IM_ID));
+            imbotUser.setPintoken(getStringValue(imbotResult, PINTOKEN));
+            return imbotUser;
         }
+
         return null;
     }
 

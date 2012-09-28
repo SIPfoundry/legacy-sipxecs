@@ -33,7 +33,6 @@
   <bean id="openfireConfiguration" class="org.sipfoundry.sipxconfig.openfire.OpenfireConfiguration">
     <property name="config" ref="openfireXml"/>
     <property name="sipxConfig" ref="openfireSipxXml"/>
-    <property name="accountConfig" ref="openfireAccountXml"/>
     <property name="ldapManager" ref="ldapManager"/>
     <property name="configManager" ref="configManager"/>
     <property name="featureManager" ref="featureManager"/>
@@ -66,12 +65,6 @@
     <property name="methodNamePrefix" value="userAccountServer." />
     <property name="secure" value="false" />
     <property name="serviceInterface" value="org.sipfoundry.sipxconfig.openfire.OpenfireApi" />
-  </bean>
-
-  <bean id="openfireAccountXml" class="org.sipfoundry.sipxconfig.openfire.XmppAccountInfo">
-    <property name="coreContext" ref="coreContext" />
-    <property name="validUsers" ref="validUsers" />
-    <property name="imbot" ref="imBot" />
   </bean>
 
   <bean id="imFeatureHook" class="org.sipfoundry.sipxconfig.web.plugin.IMFeatureHook" />
