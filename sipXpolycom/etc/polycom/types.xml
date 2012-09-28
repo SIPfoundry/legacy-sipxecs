@@ -30,6 +30,16 @@
     </option>
   </enum>
 </type>
+<type id="transportLDAP">
+  <enum>
+    <option>
+      <value>TCP</value>
+    </option>
+    <option>
+      <value>TLS</value>
+    </option>
+  </enum>
+</type>
 <type id="tone-pattern">
   <enum>
     <option>

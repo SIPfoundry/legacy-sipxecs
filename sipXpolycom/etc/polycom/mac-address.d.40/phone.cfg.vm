@@ -192,4 +192,10 @@
   <user_preferences
     up.analogHeadsetOption="$!group.getSetting('analogHeadsetOption').value"
   />
+<dir.corp
+#set ($group = $cfg.EndpointSettings.getSetting('dir.corp'))
+#foreach ($setting in $cfg.getSettings($group))
+    dir.corp.${setting.ProfileName}="$!{setting.Value}"
+#end
+  />
 </phone1>

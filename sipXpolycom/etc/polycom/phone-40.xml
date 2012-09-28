@@ -3042,4 +3042,236 @@
       </setting>
     </group>
   </group>
+  <group name="dir.corp">
+      <setting name="address">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="port">
+        <type>
+          <integer/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="autoQuerySubmitTimeout">
+        <type>
+          <integer/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="backGroundSync">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="backGroundSync.period">
+        <type>
+          <integer/>
+        </type>
+        <value>86400</value>
+      </setting>
+      <setting name="baseDN">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+      <setting name="bindOnInit">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="cacheSize">
+        <type>
+          <integer/>
+        </type>
+        <value>128</value>
+      </setting>
+      <setting name="domain">
+        <type>
+          <string/>
+        </type>
+        <value></value>
+      </setting>
+      <setting name="filterPrefix">
+        <type>
+          <string/>
+        </type>
+        <value>(objectclass=person)</value>
+      </setting>
+      <setting name="pageSize">
+        <type>
+          <integer/>
+        </type>
+        <value>32</value>
+      </setting>
+      <setting name="user">
+        <type>
+          <string/>
+        </type>
+        <value></value>
+      </setting>
+      <setting name="password">
+        <type>
+          <string/>
+        </type>
+        <value></value>
+      </setting>
+      <setting name="scope">
+        <type>
+          <string/>
+        </type>
+        <value>sub</value>
+      </setting>
+      <setting name="transport">
+        <type>
+          <transportLDAP/>
+        </type>
+        <value>TCP</value>
+      </setting>
+      <setting name="viewPersistence">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <group name="attribute">
+        <setting name="1.filter">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="1.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="1.name">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="1.searchable">
+          <type>
+          <boolean />
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="1.sticky">
+          <type>
+          <boolean />
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="1.type">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+
+        <setting name="2.filter">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="2.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="2.name">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="2.searchable">
+          <type>
+          <boolean />
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="2.sticky">
+          <type>
+          <boolean />
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="2.type">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+
+        <setting name="3.filter">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="3.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="3.name">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="3.searchable">
+          <type>
+          <boolean />
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="3.sticky">
+          <type>
+          <boolean />
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="3.type">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+      </group>
+      <group name="vlv">
+        <setting name="allow">
+          <type>
+          <boolean />
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="sortOrder">
+          <type>
+          <string />
+          </type>
+          <value></value>
+        </setting>
+      </group>
+      <group name="auth">
+        <setting name="useLoginCredentials">
+          <type>
+          <boolean />
+          </type>
+          <value>0</value>
+        </setting>
+      </group>
+  </group>
 </model>
