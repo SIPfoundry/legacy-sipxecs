@@ -106,6 +106,8 @@ public:
        STATUS_REMOVED           // successfully removed
     } SubscribeStatus;
 
+    UtlBoolean handleMessage( OsMsg& eventMessage );
+    
 protected:
     StatusServer& mStatusServer;
     SipUserAgent* mpSipUserAgent;
@@ -126,7 +128,6 @@ protected:
     OsBSem mLock;
 
     //int addUserToDirectory(const int timeNow, const SipMessage* registerMessage);
-    UtlBoolean handleMessage( OsMsg& eventMessage );
 
     UtlBoolean isAuthenticated(
         const SipMessage* message,

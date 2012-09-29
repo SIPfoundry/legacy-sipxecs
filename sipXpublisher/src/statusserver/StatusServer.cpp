@@ -653,7 +653,15 @@ StatusServer::sendToSubscribeServerThread(OsMsg& eventMessage)
 {
     if ( mSubscribeThreadInitialized )
     {
+#if 0
         mSubscribeServerThreadQ->send(eventMessage);
+#else
+        //
+        // This will no longer block so just call
+        // the handleMessage directly instead of using the queue
+        //
+        mSubscribeServerThread->handleMessage(eventMessage);
+#endif
     }
 }
 
