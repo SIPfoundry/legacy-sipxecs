@@ -7,7 +7,10 @@ INCLUDES = \
 bin_PROGRAMS = sipstatus
 
 sipstatus_LDADD = \
-	@SIPXCOMMSERVER_LIBS@
+	@SIPXCOMMSERVER_LIBS@ \
+	-lboost_system-mt \
+	-lboost_thread-mt \
+	-lpthread
 
 sipstatus_CXXFLAGS = \
 	@SSL_CXXFLAGS@ \

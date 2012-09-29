@@ -15,7 +15,7 @@
 
 // APPLICATION INCLUDES
 #include <statusserver/SubscribeServerPluginBase.h>
-
+#include <statusserver/MwiPluginQueue.h>
 // DEFINES
 #define XML_TAG_VOICEMAILCGI "voicemail-cgi-url"
 
@@ -96,8 +96,11 @@ public:
     void terminatePlugin();
 
 protected:
+    void handleMwiData(MwiPluginQueue::MwiData& mwiData);
+    
     Notifier*           mNotifier;
     UtlString            mVoicemailCGIUrl;
+    MwiPluginQueue _subscriptionQueue;
 
 };
 #endif // MWIPLUGIN_H

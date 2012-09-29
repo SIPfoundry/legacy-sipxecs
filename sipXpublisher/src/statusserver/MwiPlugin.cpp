@@ -54,6 +54,7 @@ MwiPlugin::MwiPlugin (
             }
         }
     }
+    _subscriptionQueue.run(boost::bind(&MwiPlugin::handleMwiData, this, _1));
 }
 
 void
@@ -62,11 +63,11 @@ MwiPlugin::terminatePlugin()
 
 MwiPlugin::~MwiPlugin()
 {
+    _subscriptionQueue.stop();
     if( mNotifier )
     {
         mNotifier = NULL;
     }
-
 }
 
 OsStatus
@@ -78,15 +79,77 @@ MwiPlugin::handleNotifyResponse (
     return OS_SUCCESS;
 }
 
-OsStatus
-MwiPlugin::handleSubscribeRequest (
-    const SipMessage& message,
-    SipMessage& response,
-    const char* authenticatedUser,
-    const char* authenticatedRealm,
-    const char* domain )
+void MwiPlugin::handleMwiData(MwiPluginQueue::MwiData& mwiData)
 {
-    OsStatus result = OS_FAILED;
+
+    if (!mwiData.subscribe)
+    {
+      if (mwiData.mailBoxData.empty())
+        return;
+
+      //
+      // This is an event from the HTTP service
+      //
+      UtlString buffer(mwiData.mailBoxData.c_str());
+      int contentLength = mwiData.mailBoxData.length();
+      UtlString mailboxIdentity(mwiData.mailBox.c_str());
+
+      // create a simple message summary body for
+      // each subscription and send it via the user
+      // agent to the device
+      HttpBody* body = new HttpBody (buffer,
+                                    contentLength,
+                                    CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY );
+
+      SipMessage notifyRequest;
+      notifyRequest.setBody( body );
+
+      // Add the content type for the body
+      notifyRequest.setContentType( CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY );
+      notifyRequest.setContentLength( contentLength );
+
+      // Send a MWI state change to all subscribed to this
+      // mailbox
+      mNotifier->sendNotifyForeachSubscription(mailboxIdentity.data(),
+                                              SIP_EVENT_MESSAGE_SUMMARY,
+                                              notifyRequest);
+      return;
+    }
+    else if (!mwiData.mailBoxData.empty())
+    {
+      const SipMessage& message = *mwiData.subscribe;
+      //
+      // mailbox data is cached.  no need to bother the IVR
+      //
+      UtlString buffer(mwiData.mailBoxData.c_str());
+      int contentLength = mwiData.mailBoxData.length();
+      UtlString mailboxIdentity(mwiData.mailBox.c_str());
+
+      // create a simple message summary body for
+      // each subscription and send it via the user
+      // agent to the device
+      HttpBody* body = new HttpBody (buffer,
+                                    contentLength,
+                                    CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY );
+
+      SipMessage notifyRequest;
+      notifyRequest.setBody( body );
+
+      // Add the content type for the body
+      notifyRequest.setContentType( CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY );
+      notifyRequest.setContentLength( contentLength );
+
+      // Send a MWI state change to just this subscriber
+      mNotifier->sendNotifyForSubscription(mailboxIdentity.data(),
+                                              SIP_EVENT_MESSAGE_SUMMARY,
+                                              message,
+                                              notifyRequest);
+      return;
+    }
+    
+    const SipMessage& message= *mwiData.subscribe;
+    const char* authenticatedUser = mwiData.mailBox.c_str();
+    const char* domain = mwiData.domain.c_str();
     // send the CGI request to the Voicemail Server which will
     // send a synchronous response to us in the body of the return
     UtlString userOrExtensionAtOptionalDomain = authenticatedUser;
@@ -189,13 +252,14 @@ MwiPlugin::handleSubscribeRequest (
                     notifyRequest.setContentType( CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY );
                     notifyRequest.setContentLength( buffer.length() );
 
+                    mwiData.mailBox = std::string(mailboxIdentity.data(), mailboxIdentity.length());
+                    mwiData.mailBoxData = std::string(buffer.data(), buffer.length());
                     // Send a MWI state change to just this subscriber
                     mNotifier->sendNotifyForSubscription( mailboxIdentity.data()
                                                          ,SIP_EVENT_MESSAGE_SUMMARY
                                                          ,message
                                                          ,notifyRequest
                                                          );
-                    result = OS_SUCCESS;
                   }
                 else
                   {
@@ -226,8 +290,22 @@ MwiPlugin::handleSubscribeRequest (
                       ,httpStatus
                       );
       }
+}
 
-    return result;
+OsStatus
+MwiPlugin::handleSubscribeRequest (
+    const SipMessage& message,
+    SipMessage& response,
+    const char* authenticatedUser,
+    const char* authenticatedRealm,
+    const char* domain )
+{
+  MwiPluginQueue::MwiData data;
+  data.subscribe = new SipMessage(message);
+  data.mailBox = authenticatedUser;
+  data.domain = domain;
+  _subscriptionQueue.enqueue(data);
+  return OS_SUCCESS;
 }
 
 OsStatus
@@ -275,27 +353,11 @@ MwiPlugin::handleEvent (
                  // Remove anything before the start
                  buffer.remove(0, start);
                  int contentLength = buffer.length();
-                
-
-                 // create a simple message summary body for
-                 // each subscription and send it via the user
-                 // agent to the device
-                 HttpBody* body = new HttpBody (buffer,
-                                                contentLength,
-                                                CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY );
-
-                 SipMessage notifyRequest;
-                 notifyRequest.setBody( body );
-
-                 // Add the content type for the body
-                 notifyRequest.setContentType( CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY );
-                 notifyRequest.setContentLength( contentLength );
-
-                 // Send a MWI state change to all subscribed to this
-                 // mailbox
-                 mNotifier->sendNotifyForeachSubscription(mailboxIdentity.data(),
-                                                          SIP_EVENT_MESSAGE_SUMMARY,
-                                                          notifyRequest);
+                 MwiPluginQueue::MwiData data;
+                 data.subscribe = 0;
+                 data.mailBox = mailboxIdentity.data();
+                 data.mailBoxData = std::string(buffer.data(), contentLength);
+                 _subscriptionQueue.enqueue(data);
               }
               else
               {
