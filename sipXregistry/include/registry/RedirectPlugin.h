@@ -233,10 +233,10 @@ class RedirectPlugin : public Plugin
     */
    virtual LookUpStatus lookUp(
       const SipMessage& message,      ///< the incoming SIP message
-      UtlString& requestString, /**< the request URI from the SIP message as a UtlString
+      const UtlString& requestString, /**< the request URI from the SIP message as a UtlString
                                        *   ONLY for use in debugging messages; all comparisons
                                        *   should be with requestUri */
-      Url& requestUri,          ///< the request URI from the SIP message as a Uri,
+      const Url& requestUri,          ///< the request URI from the SIP message as a Uri,
       const UtlString& method,        ///< Method of the request to redirect
       ContactList& contactList,       ///< Modifiable list containing the contact(s) that the request
                                       ///< should be redirected to.
@@ -293,13 +293,11 @@ class RedirectPlugin : public Plugin
     */
    virtual void cancel(RequestSeqNo request);
 
-   void setUserAgent(SipUserAgent* pUserAgent);
   protected:
 
    /// Constructor is protected so that it is only callable from subclasses.
    explicit RedirectPlugin(const UtlString& instanceName) :
-      Plugin(instanceName),
-      mpSipUserAgent(0)
+      Plugin(instanceName)
       {
       };
 
@@ -318,9 +316,6 @@ class RedirectPlugin : public Plugin
     */
    static void resumeRedirection(RequestSeqNo request,
                                  int redirector);
-  protected:
-   SipUserAgent* mpSipUserAgent;
-
   private:
 
    /// There is no copy constructor.
@@ -332,14 +327,6 @@ class RedirectPlugin : public Plugin
    friend class ContactListTest;
 
 };
-
-//
-// Inline
-//
-inline void RedirectPlugin::setUserAgent(SipUserAgent* pUserAgent)
-{
-  mpSipUserAgent = pUserAgent;
-}
 
 /**
  *  The ContactList is a class that is intented to be used by redirector plugins

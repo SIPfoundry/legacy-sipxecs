@@ -39,8 +39,6 @@ extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
    return new SipRedirectorAliasDB(instanceName);
 }
 
-static UtlString _localDomain;
-
 // Constructor
 SipRedirectorAliasDB::SipRedirectorAliasDB(const UtlString& instanceName) :
    RedirectPlugin(instanceName)
@@ -61,7 +59,6 @@ SipRedirectorAliasDB::initialize(OsConfigDb& configDb,
                                  int redirectorNo,
                                  const UtlString& localDomainHost)
 {
-   _localDomain = localDomainHost;
    return OS_SUCCESS;
 }
 
@@ -96,8 +93,8 @@ void SipRedirectorAliasDB::readConfig(OsConfigDb& configDb)
 RedirectPlugin::LookUpStatus
 SipRedirectorAliasDB::lookUp(
    const SipMessage& message,
-   UtlString& requestString,
-   Url& requestUri,
+   const UtlString& requestString,
+   const Url& requestUri,
    const UtlString& method,
    ContactList& contactList,
    RequestSeqNo requestSeqNo,
@@ -117,21 +114,11 @@ SipRedirectorAliasDB::lookUp(
                     mLogName.data());
    }
 
-   bool isDomainAlias = false;
-   UtlString domain;
-   requestUri.getHostAddress(domain);
-   UtlBoolean isMyHostAlias = mpSipUserAgent->isMyHostAlias(requestUri);
-   if (mpSipUserAgent && domain != _localDomain && isMyHostAlias)
-   {
-     isDomainAlias = true;
-     requestUri.setHostAddress(_localDomain);
-   }
-
    UtlString requestIdentity;
    requestUri.getIdentity(requestIdentity);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp identity '%s' hostAlias=%d",
-                 mLogName.data(), requestIdentity.data(), isDomainAlias);
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp identity '%s'",
+                 mLogName.data(), requestIdentity.data());
 
    ResultSet aliases;
    AliasDB::getInstance()->getContacts(requestUri, aliases);
@@ -177,16 +164,6 @@ SipRedirectorAliasDB::lookUp(
                contactUri.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, "AL");
                // Add the contact.
                contactList.add( contactUri, *this );
-
-               if (numAliasContacts == 1 && isDomainAlias)
-               {
-                 UtlString userId;
-                 contactUri.getUserId(userId);
-                 requestUri.setUserId(userId.data());
-                 requestUri.getUri(requestString);
-                 OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp changing aliased identity '%s'",
-                 mLogName.data(), requestString.data());
-               }
             }
          }
       }

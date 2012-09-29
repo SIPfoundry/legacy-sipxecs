@@ -380,8 +380,8 @@ SipRedirectorPickUp::finalize()
 RedirectPlugin::LookUpStatus
 SipRedirectorPickUp::lookUp(
    const SipMessage& message,
-   UtlString& requestString,
-   Url& requestUri,
+   const UtlString& requestString,
+   const Url& requestUri,
    const UtlString& method,
    ContactList& contactList,
    RedirectPlugin::RequestSeqNo requestSeqNo,

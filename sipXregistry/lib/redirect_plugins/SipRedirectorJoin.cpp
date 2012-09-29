@@ -273,8 +273,8 @@ SipRedirectorJoin::finalize()
 RedirectPlugin::LookUpStatus
 SipRedirectorJoin::lookUp(
    const SipMessage& message,
-   UtlString& requestString,
-   Url& requestUri,
+   const UtlString& requestString,
+   const Url& requestUri,
    const UtlString& method,
    ContactList& contactList,
    RedirectPlugin::RequestSeqNo requestSeqNo,
