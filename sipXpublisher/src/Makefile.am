@@ -8,8 +8,7 @@ bin_PROGRAMS = sipstatus
 
 sipstatus_LDADD = \
 	@SIPXCOMMSERVER_LIBS@ \
-	-lboost_system-mt \
-	-lboost_thread-mt \
+        @BOOST_LDADD@ \
 	-lpthread
 
 sipstatus_CXXFLAGS = \

@@ -8,12 +8,17 @@ SFAC_AUTOMAKE_VERSION([1.6])
 AC_CONFIG_SRCDIR([src/statusserver/main.cpp])
 AM_CONFIG_HEADER([src/statusserver/config.h])
 AC_PROG_LIBTOOL
+AC_CHECK_LIB(boost_thread, main, [BOOST_LDADD="-lboost_thread"],
+    [AC_CHECK_LIB(boost_thread-mt, main,
+    [BOOST_LDADD="-lboost_thread-mt"],
+    [AC_MSG_ERROR("no boost thread found")])])
 AC_PATH_PROG([BASH], [bash])
 AC_PROG_CXX
 AX_COMPILER_VENDOR
 AC_PROG_CC
 CHECK_XARGS_REPLACE
 CHECK_SSL
+AC_SUBST(BOOST_LDADD)
 SFAC_LIB_COMMSERVER
 SFAC_FEATURE_SIP_TLS
 AC_CONFIG_FILES([
