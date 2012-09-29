@@ -48,7 +48,7 @@ public:
       mwi << "Message-Waiting: no\r\n";
 
     mwi << "Message-Account: sip:" << _user << "@" << domain << "\r\n";
-    mwi << "Voice-Message: " << _new << "/" << _old << " (" << _urgentNew << "/" << _urgentOld << ")";
+    mwi << "Voice-Message: " << _new << "/" << _old << " (" << _urgentNew << "/" << _urgentOld << ")" << "\r\n\r\n";
     return mwi.str();
   }
 
