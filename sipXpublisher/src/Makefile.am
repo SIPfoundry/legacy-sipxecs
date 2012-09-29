@@ -14,6 +14,7 @@ sipstatus_LDADD = \
 sipstatus_CXXFLAGS = \
 	@SSL_CXXFLAGS@ \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
+	-DSIPX_VARDIR=\"@SIPX_VARDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 sipstatus_SOURCES =  \

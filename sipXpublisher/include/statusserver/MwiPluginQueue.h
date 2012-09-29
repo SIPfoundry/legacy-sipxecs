@@ -9,6 +9,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
 #include <net/SipMessage.h>
+#include <statusserver/MwiMessageCounter.h>
 
 #define MWI_PLUGIN_QUEUE_MAX_SIZE 1000
 
@@ -201,12 +202,18 @@ private:
           //
           std::string identity = data.mailBox;
           identity += "@";
-          identity += "domain";
+          identity += data.domain;
           std::map<std::string, std::string>::const_iterator iter = _notifyData.find(identity);
           if ( iter != _notifyData.end())
           {
             data.mailBox = identity;
             data.mailBoxData = iter->second;
+          }
+          else
+          {
+            MwiMessageCounter counter(data.mailBox);
+            data.mailBox = identity;
+            data.mailBoxData = counter.getMailBoxData(data.domain);
           }
         }
 

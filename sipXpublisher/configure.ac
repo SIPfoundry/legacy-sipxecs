@@ -8,9 +8,9 @@ SFAC_AUTOMAKE_VERSION([1.6])
 AC_CONFIG_SRCDIR([src/statusserver/main.cpp])
 AM_CONFIG_HEADER([src/statusserver/config.h])
 AC_PROG_LIBTOOL
-AC_CHECK_LIB(boost_thread, main, [BOOST_LDADD="-lboost_thread"],
+AC_CHECK_LIB(boost_thread, main, [BOOST_LDADD="-lboost_thread -lboost_filesystem -lboost_system"],
     [AC_CHECK_LIB(boost_thread-mt, main,
-    [BOOST_LDADD="-lboost_thread-mt"],
+    [BOOST_LDADD="-lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt"],
     [AC_MSG_ERROR("no boost thread found")])])
 AC_PATH_PROG([BASH], [bash])
 AC_PROG_CXX
