@@ -53,14 +53,6 @@ public:
 
     virtual ~SubscribeServerThread();
 
-    /// Schedule persisting the subscription DB
-    void schedulePersist();
-
-    //========== Methods that modify subscription DB: requires holding a lock ==========
-
-    /// Persist the subscription DB
-    void persist();
-
     /// Insert a row in the subscription DB
     UtlBoolean insertRow (
         const UtlString& uri,

@@ -28,7 +28,6 @@
 #include "statusserver/Notifier.h"
 #include "statusserver/WebServer.h"
 #include "statusserver/StatusServer.h"
-#include "statusserver/SubscribePersistThread.h"
 #include "statusserver/SubscribeServerThread.h"
 #include "config.h"
 #include "assert.h"
@@ -64,7 +63,6 @@ StatusServer::StatusServer(
     mSubscribeServerThread(NULL),
     mSubscribeServerThreadQ(NULL),
     mSubscribeThreadInitialized(FALSE),
-    mSubscribePersistThread(NULL),
     mpServerSocket(serverSocket),
     mHttpServer(httpServer),
     mSubscribeDb( NULL ),
@@ -144,7 +142,6 @@ StatusServer::StatusServer(
 
     mHttpServer->start();
 
-    startSubscribePersistThread();
     startSubscribeServerThread();
 }
 
@@ -161,11 +158,6 @@ StatusServer::~StatusServer()
       delete mSubscribeServerThread;
       mSubscribeServerThread = NULL;
       mSubscribeServerThreadQ = NULL;
-   }
-   if ( mSubscribePersistThread)
-   {
-      delete mSubscribePersistThread;
-      mSubscribePersistThread = NULL;
    }
    // HTTP server shutdown
    if (mHttpServer)
@@ -602,11 +594,6 @@ OsConfigDb& StatusServer::getConfigDb()
 }
 
 
-SubscribePersistThread* StatusServer::getSubscribePersistThread()
-{
-   return mSubscribePersistThread;
-}
-
 
 SubscribeServerThread* StatusServer::getSubscribeServerThread()
 {
@@ -616,15 +603,6 @@ SubscribeServerThread* StatusServer::getSubscribeServerThread()
 
 /* ============================ ACCESSORS ================================= */
 /////////////////////////////////////////////////////////////////////////////
-
-
-/// Start the thread that periodically persists the subscription DB
-void
-StatusServer::startSubscribePersistThread()
-{
-   mSubscribePersistThread = new SubscribePersistThread(*this);
-   mSubscribePersistThread->start();
-}
 
 
 void
