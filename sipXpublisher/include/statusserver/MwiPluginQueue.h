@@ -201,7 +201,7 @@ private:
           //
           std::string identity = data.mailBox;
           identity += "@";
-          identity += "domain";
+          identity += data.domain;
           std::map<std::string, std::string>::const_iterator iter = _notifyData.find(identity);
           if ( iter != _notifyData.end())
           {
