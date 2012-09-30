@@ -49,7 +49,6 @@
 // FORWARD DECLARATIONS
 class OsConfigDb;
 class SubscribeServerThread;
-class SubscribePersistThread;
 class StatusServer;
 class HttpServer;
 class Notifier;
@@ -84,7 +83,6 @@ public:
     // assumes singleton is getStatusServer
 
     static OsConfigDb& getConfigDb();
-    SubscribePersistThread* getSubscribePersistThread();
     SubscribeServerThread* getSubscribeServerThread();
 
     virtual UtlBoolean handleMessage(OsMsg& eventMessage);
@@ -111,7 +109,6 @@ private:
     SubscribeServerThread* mSubscribeServerThread;
     OsMsgQ* mSubscribeServerThreadQ;
     UtlBoolean mSubscribeThreadInitialized;
-    SubscribePersistThread* mSubscribePersistThread;
     UtlBoolean mIsCredentialDB;
     int mDefaultRegistryPeriod;
     int mDefaultQvalue;
@@ -145,9 +142,6 @@ private:
         const UtlString& configDir,
         OsServerSocket* serverSocket,
         HttpServer* httpServer );
-
-    /// Start the thread that periodically persists the subscription DB
-    void startSubscribePersistThread();
 
     /* ============================ SUBSCRIBE =================================== */
     void startSubscribeServerThread();

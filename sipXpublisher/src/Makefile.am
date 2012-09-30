@@ -25,7 +25,6 @@ sipstatus_SOURCES =  \
     statusserver/PluginXmlParser.cpp \
     statusserver/StatusPluginReference.cpp \
     statusserver/StatusServer.cpp \
-    statusserver/SubscribePersistThread.cpp \
     statusserver/SubscribeServerPluginBase.cpp \
     statusserver/SubscribeServerThread.cpp \
     statusserver/WebServer.cpp
