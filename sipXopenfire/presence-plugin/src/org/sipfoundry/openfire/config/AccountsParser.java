@@ -62,7 +62,7 @@ public class AccountsParser {
         @Override
         public void run() {
             if (watchFile.lastModified() != AccountsParser.this.lastModified) {
-                logger.info("XMPP account configuration changes detected - reparsing file");
+                logger.info("XMPP account configuration changes detected - synchronize data");
                 AccountsParser.this.lastModified = watchFile.lastModified();
                 parseAccounts(m_conferenceService, m_parsingEnabled);
             }
