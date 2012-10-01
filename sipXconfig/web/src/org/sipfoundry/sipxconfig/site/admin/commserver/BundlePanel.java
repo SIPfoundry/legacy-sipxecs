@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -55,6 +56,8 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public abstract class BundlePanel extends BaseComponent implements PageBeginRenderListener {
     private static final String ERR_CLASS = " hilite-user-error";
+
+    private static final String FEATURE = "feature.";
 
     public abstract void setBundleId(String bundleId);
 
@@ -113,6 +116,16 @@ public abstract class BundlePanel extends BaseComponent implements PageBeginRend
         }
 
         return cls;
+    }
+
+    public Collection<Feature> getSortedFeatures() {
+        Map<String, Feature> sortedMap = new TreeMap<String, Feature>();
+        for (Feature feature : getBundle().getFeatures()) {
+            String label = getMessages().getMessage(FEATURE + feature.getId());
+            sortedMap.put(label.toLowerCase(), feature);
+        }
+
+        return sortedMap.values();
     }
 
     @Bean
@@ -177,7 +190,7 @@ public abstract class BundlePanel extends BaseComponent implements PageBeginRend
         if (params != null && params.length > 0) {
             for (int i = 0; i < params.length; i++) {
                 if (params[i] instanceof Feature) {
-                    params[i] = getMessages().getMessage("feature." + params[i]);
+                    params[i] = getMessages().getMessage(FEATURE + params[i]);
                 }
             }
         }

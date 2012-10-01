@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
@@ -47,6 +48,8 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 public abstract class ServicesTable extends BaseComponent {
     public static final Map<String, String> SERVICE_MAP = new HashMap<String, String>();
     public static final Log LOG = LogFactory.getLog(ServicesTable.class);
+
+    private static final String LABEL = "label.";
 
     @InjectObject("service:tapestry.ognl.ExpressionEvaluator")
     public abstract ExpressionEvaluator getExpressionEvaluator();
@@ -102,7 +105,7 @@ public abstract class ServicesTable extends BaseComponent {
 
     public String getServiceLabel() {
         String serviceBeanId = getCurrentRow().getServiceBeanId();
-        String key = "label." + serviceBeanId;
+        String key = LABEL + serviceBeanId;
         return getMessage(getMessages(), key, serviceBeanId);
     }
 
@@ -112,7 +115,14 @@ public abstract class ServicesTable extends BaseComponent {
             serviceStatus = retrieveServiceStatus(getServiceLocation());
             setServiceStatusCached(serviceStatus);
         }
-        return serviceStatus;
+
+        Map<String, Object> sortedMap = new TreeMap<String, Object>();
+        for (Object obj : serviceStatus) {
+            String label = getMessages().getMessage(LABEL + ((ServiceStatus) obj).getServiceBeanId());
+            sortedMap.put(label.toLowerCase(), obj);
+        }
+
+        return sortedMap.values().toArray();
     }
 
     public Object[] retrieveServiceStatus(Location location) {
