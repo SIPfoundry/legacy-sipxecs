@@ -169,12 +169,7 @@ void SubscribeServerThread::schedulePersist()
 
 // Persist the subscription DB.
 // This is actually invoked from the thread SubscribePersistThread, which does the scheduling.
-void SubscribeServerThread::persist()
-{
-  // Critical Section here
-  OsLock mutex(mLock);
-  PublisherDB::getInstance()->store();
-}
+
 
 /// Insert a row in the subscription DB and schedule persisting the DB
 UtlBoolean SubscribeServerThread::insertRow(
