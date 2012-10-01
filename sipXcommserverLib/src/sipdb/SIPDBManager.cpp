@@ -31,6 +31,7 @@
 #include "sipdb/UserLocationDB.h"
 #include "sipdb/UserForwardDB.h"
 #include "sipdb/UserStaticDB.h"
+#include "sipdb/PublisherDB.h"
 
 // DEFINES
 
@@ -44,6 +45,7 @@
 #define  USERFORWARD    "userforward"
 #define  USERSTATIC     "userstatic"
 #define  SUBSCRIPTION   "subscription"
+#define  PUBLISHER      "publisher"
 
 REGISTER( TableInfo );
 
@@ -814,6 +816,7 @@ SIPDBManager::preloadAllDatabase() const
 
     CredentialDB*   pCredentialDB   = CredentialDB::getInstance();
     SubscriptionDB* pSubscriptionDB = SubscriptionDB::getInstance();
+    PublisherDB*    pPublisherDB    = PublisherDB::getInstance();
     RegistrationDB* pRegistrationDB = RegistrationDB::getInstance();
     PermissionDB*   pPermissionDB   = PermissionDB::getInstance();
     ExtensionDB*    pExtensionDB    = ExtensionDB::getInstance();
@@ -823,6 +826,7 @@ SIPDBManager::preloadAllDatabase() const
 
     if (pCredentialDB &&
     pSubscriptionDB &&
+    pPublisherDB &&
     pRegistrationDB &&
     pPermissionDB &&
     pExtensionDB &&
@@ -836,6 +840,7 @@ SIPDBManager::releaseAllDatabase() const
 {
     CredentialDB::releaseInstance();
     SubscriptionDB::releaseInstance();
+    PublisherDB::releaseInstance();
     RegistrationDB::releaseInstance();
     PermissionDB::releaseInstance();
     ExtensionDB::releaseInstance();
@@ -915,6 +920,13 @@ SIPDBManager::preloadDatabaseTable(const UtlString &tableName) const
    else if (tableName == SUBSCRIPTION)
    {
       if (SubscriptionDB::getInstance()->isLoaded())
+      {
+          res = OS_SUCCESS;
+      }
+   }
+   else if (tableName == PUBLISHER)
+   {
+      if (PublisherDB::getInstance()->isLoaded())
       {
           res = OS_SUCCESS;
       }
