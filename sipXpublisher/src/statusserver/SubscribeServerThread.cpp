@@ -25,6 +25,7 @@
 #include "statusserver/Notifier.h"
 #include "statusserver/PluginXmlParser.h"
 #include "statusserver/StatusServer.h"
+#include "statusserver/SubscribePersistThread.h"
 #include "statusserver/SubscribeServerThread.h"
 #include "statusserver/SubscribeServerPluginBase.h"
 #include "statusserver/StatusPluginReference.h"
@@ -157,6 +158,15 @@ SubscribeServerThread::initialize (
 }
 
 
+/// Schedule persisting the subscription DB
+void SubscribeServerThread::schedulePersist()
+{
+   SubscribePersistThread* persistThread = mStatusServer.getSubscribePersistThread();
+   assert(persistThread);
+   persistThread->schedulePersist();
+}
+
+
 // Persist the subscription DB.
 // This is actually invoked from the thread SubscribePersistThread, which does the scheduling.
 void SubscribeServerThread::persist()
@@ -197,6 +207,7 @@ UtlBoolean SubscribeServerThread::insertRow(
          CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY, 0);
    }
 
+   schedulePersist();
    return status;
 }
 
@@ -214,6 +225,7 @@ void SubscribeServerThread::removeRow(
       SubscriptionDB::getInstance()->removeRow(SUBSCRIPTION_COMPONENT_STATUS, to, from, callid, subscribeCseq);
    }
 
+   schedulePersist();
 }
 
 
@@ -228,6 +240,8 @@ void SubscribeServerThread::removeErrorRow (
       OsLock mutex(mLock);
       SubscriptionDB::getInstance()->removeErrorRow(SUBSCRIPTION_COMPONENT_STATUS, to, from, callid);
    }
+
+   schedulePersist();
 }
 
 

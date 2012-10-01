@@ -13,6 +13,7 @@ nobase_include_HEADERS = \
     statusserver/PluginXmlParser.h \
     statusserver/StatusPluginReference.h \
     statusserver/StatusServer.h \
+    statusserver/SubscribePersistThread.h \
     statusserver/SubscribeServerPluginBase.h \
     statusserver/SubscribeServerThread.h \
     statusserver/WebServer.h

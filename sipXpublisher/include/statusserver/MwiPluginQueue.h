@@ -10,7 +10,6 @@
 #include <boost/function.hpp>
 #include <net/SipMessage.h>
 #include <statusserver/MwiMessageCounter.h>
-#include <sipdb/SubscriptionDB.h>
 
 #define MWI_PLUGIN_QUEUE_MAX_SIZE 1000
 
@@ -228,8 +227,6 @@ private:
 
         if (data.subscribe)
           delete data.subscribe;
-
-        SubscriptionDB::getInstance()->store();
       }
     }
   }
