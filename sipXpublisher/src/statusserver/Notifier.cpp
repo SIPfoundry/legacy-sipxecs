@@ -16,7 +16,7 @@
 #include "net/SipUserAgent.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
-#include "sipdb/PublisherDB.h"
+#include "sipdb/SubscriptionDB.h"
 #include "sipdb/UserStaticDB.h"
 #include "statusserver/Notifier.h"
 
@@ -51,7 +51,7 @@ UtlString Notifier::sNotifycseqKey ("notifycseq");
 Notifier::Notifier(SipUserAgent* sipUserAgent)
 {
     mpSipUserAgent = sipUserAgent;
-    mpSubscriptionDB = PublisherDB::getInstance();
+    mpSubscriptionDB = SubscriptionDB::getInstance();
     mpStaticSeq = 0;
 }
 
@@ -137,7 +137,7 @@ Notifier::sendNotifyForeachSubscription (
     // Get all subscriptions associated with this identity
     mpSubscriptionDB->
         getUnexpiredSubscriptions(
-           PUBLISHER_COMPONENT_STATUS, key, event, timeNow, subscriptions );
+           SUBSCRIPTION_COMPONENT_STATUS, key, event, timeNow, subscriptions );
 
 
     // Add the static configured contacts.
@@ -242,7 +242,7 @@ Notifier::sendNotifyForeachSubscription (
             // Update the Notify sequence number (CSeq) in the IMDB
             // (We must supply a dummy XML version number.)
             mpSubscriptionDB->updateNotifyUnexpiredSubscription (
-               PUBLISHER_COMPONENT_STATUS, to, from, callid,
+               SUBSCRIPTION_COMPONENT_STATUS, to, from, callid,
                eventtype, id, timeNow, notifycseq, 0 );
         }
     }

@@ -21,7 +21,7 @@
 #include "sipdb/ResultSet.h"
 #include "sipdb/CredentialDB.h"
 #include "sipdb/PermissionDB.h"
-#include "sipdb/PublisherDB.h"
+#include "sipdb/SubscriptionDB.h"
 #include "statusserver/Notifier.h"
 #include "statusserver/PluginXmlParser.h"
 #include "statusserver/StatusServer.h"
@@ -159,6 +159,13 @@ SubscribeServerThread::initialize (
 
 // Persist the subscription DB.
 // This is actually invoked from the thread SubscribePersistThread, which does the scheduling.
+void SubscribeServerThread::persist()
+{
+   // Critical Section here
+   OsLock mutex(mLock);
+
+   SubscriptionDB::getInstance()->store();
+}
 
 
 /// Insert a row in the subscription DB and schedule persisting the DB
@@ -182,9 +189,9 @@ UtlBoolean SubscribeServerThread::insertRow(
       // Critical Section here
       OsLock mutex(mLock);
       // (We must supply a dummy XML version number.)
-      OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::insertRow() calling PublisherDB::getInstance()->InsertRow()\n") ;
-      status = PublisherDB::getInstance()->insertRow(
-         PUBLISHER_COMPONENT_STATUS,
+      OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::insertRow() calling SubscriptionDB::getInstance()->InsertRow()\n") ;
+      status = SubscriptionDB::getInstance()->insertRow(
+         SUBSCRIPTION_COMPONENT_STATUS,
          uri, callid, contact, expires, subscribeCseq, eventTypeKey, eventType,
          id, to, from, key, recordRoute, notifyCseq,
          CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY, 0);
@@ -204,7 +211,7 @@ void SubscribeServerThread::removeRow(
    {
       // Critical Section here
       OsLock mutex(mLock);
-      PublisherDB::getInstance()->removeRow(PUBLISHER_COMPONENT_STATUS, to, from, callid, subscribeCseq);
+      SubscriptionDB::getInstance()->removeRow(SUBSCRIPTION_COMPONENT_STATUS, to, from, callid, subscribeCseq);
    }
 
 }
@@ -219,7 +226,7 @@ void SubscribeServerThread::removeErrorRow (
    {
       // Critical Section here
       OsLock mutex(mLock);
-      PublisherDB::getInstance()->removeErrorRow(PUBLISHER_COMPONENT_STATUS, to, from, callid);
+      SubscriptionDB::getInstance()->removeErrorRow(SUBSCRIPTION_COMPONENT_STATUS, to, from, callid);
    }
 }
 
@@ -485,7 +492,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
     else // response
     {
        // The server may send us back a "481" response, if it does we need
-       // to remove the subscription from the PublisherDB as the callid
+       // to remove the subscription from the SubscriptionDB as the callid
        // that it corresponds to is stale (probably the phone was rebooted)
        // In the above case, RFC 3265 says we MUST remove the subscription.
        // It also says (essentially) that any error that does not imply a retry
@@ -967,8 +974,8 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
        // Critical Section here
        OsLock mutex(mLock);
 
-       bool exists = PublisherDB::getInstance()->subscriptionExists(
-          PUBLISHER_COMPONENT_STATUS,
+       bool exists = SubscriptionDB::getInstance()->subscriptionExists(
+          SUBSCRIPTION_COMPONENT_STATUS,
           to, from, callId, OsDateTime::getSecsSinceEpoch());
 
        OsSysLog::add(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription subscriptionExists(..., '%s', '%s', '%s', %d) = %d",
@@ -1007,7 +1014,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
 
     // Insert or update the information for this subscription.
     // (Note that the "notify CSeq" parameter is ignored if there is
-    // an existing PublisherDB row for this subscription.)
+    // an existing SubscriptionDB row for this subscription.)
     if (insertRow(requestUri, // identity,
                   callId,
                   contactEntry,

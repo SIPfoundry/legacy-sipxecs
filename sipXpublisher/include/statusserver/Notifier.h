@@ -27,7 +27,7 @@
 // FORWARD DECLARATIONS
 class OsServerTask;
 class SipUserAgent;
-class PublisherDB;
+class SubscriptionDB;
 
 class Notifier
 {
@@ -56,7 +56,7 @@ public:
 
 private:
     SipUserAgent*   mpSipUserAgent;
-    PublisherDB* mpSubscriptionDB;
+    SubscriptionDB* mpSubscriptionDB;
     int             mpStaticSeq;
 
     static UtlString sComponentKey;

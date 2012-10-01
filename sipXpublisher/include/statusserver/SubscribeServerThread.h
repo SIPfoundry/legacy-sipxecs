@@ -55,6 +55,8 @@ public:
 
     //========== Methods that modify subscription DB: requires holding a lock ==========
 
+    /// Persist the subscription DB
+    void persist();
 
     /// Insert a row in the subscription DB
     UtlBoolean insertRow (
