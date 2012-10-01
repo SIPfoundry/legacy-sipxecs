@@ -79,13 +79,13 @@
       <type>
         <integer min="1" max="24" />
       </type>
-      <value />
+      <value>1</value>
     </setting>
     <setting name="callsPerLineKey">
       <type>
         <integer min="1" max="24" />
       </type>
-      <value />
+      <value>24</value>
     </setting>
     <setting name="lcs">
       <type>
@@ -102,7 +102,7 @@
       <type>
         <integer min="0" max="65535" />
       </type>
-      <value />
+      <value>0</value>
     </setting>
     <setting name="outboundProxy.transport">
       <type refid="transport" />
@@ -138,7 +138,7 @@
           <type >
           <integer min="0" max="65535" />
           </type>
-          <value />
+          <value>0</value>
         </setting>
         <setting name="transport">
           <profileName>server.1.transport</profileName>
@@ -150,7 +150,7 @@
           <type>
              <integer min="1" />
          </type>
-         <value />
+         <value>3600</value>
         </setting>
         <setting name="expires.overlap">
           <profileName>server.1.expires.overlap</profileName>
@@ -169,21 +169,21 @@
           <type>
             <integer min="0"/>
           </type>
-          <value />
+          <value>0</value>
         </setting>
         <setting name="retryMaxCount">
           <profileName>server.1.retryMaxCount</profileName>
           <type>
             <integer min="0"/>
           </type>
-          <value />
+          <value>3</value>
         </setting>
         <setting name="expires.lineSeize">
           <profileName>server.1.expires.lineSeize</profileName>
           <type>
             <integer min="1" />
           </type>
-          <value />
+          <value>30</value>
         </setting>
         <setting name="lcs" hidden="yes">
           <profileName>server.1.lcs</profileName>
@@ -202,7 +202,7 @@
           <type>
             <integer min="0" max="65535" />
           </type>
-          <value />
+          <value>0</value>
         </setting>
         <setting name="transport">
           <profileName>server.2.transport</profileName>
@@ -214,7 +214,7 @@
           <type>
             <integer min="1" />
           </type>
-          <value />
+          <value>3600</value>
         </setting>
         <setting name="expires.overlap">
           <profileName>server.2.expires.overlap</profileName>
@@ -233,21 +233,21 @@
           <type>
            <integer min="0"/>
           </type>
-          <value />
+          <value>0</value>
         </setting>
         <setting name="retryMaxCount">
           <profileName>server.2.retryMaxCount</profileName>
           <type >
           <integer min="0"/>
           </type>
-          <value />
+          <value>3</value>
         </setting>
         <setting name="expires.lineSeize">
           <profileName>server.2.expires.lineSeize</profileName>
           <type >
           <integer min="1" />
           </type>
-          <value />
+          <value>30</value>
         </setting>
         <setting name="lcs" hidden="yes">
           <profileName>server.2.lcs</profileName>

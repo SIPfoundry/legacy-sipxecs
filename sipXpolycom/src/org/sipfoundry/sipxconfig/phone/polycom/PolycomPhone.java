@@ -98,8 +98,9 @@ public class PolycomPhone extends Phone {
         if (myVersion == PolycomModel.VER_4_0) {
             getModel().setSettingsFile("phone-40.xml");
             getModel().setLineSettingsFile("line-40.xml");
-            getModel().setStaticProfileFilenames(new String[]{
-                "reg-advanced.cfg", "sip-basic.cfg", "sip-interop.cfg", "site.cfg"});
+            //getModel().setStaticProfileFilenames(new String[]{
+            //    "reg-advanced.cfg", "sip-basic.cfg", "sip-interop.cfg", "site.cfg"});
+            getModel().setStaticProfileFilenames(new String[]{});
         } else {
             //we need to explicitly define these here otherwise changing versions will not work
             getModel().setSettingsFile("phone.xml");

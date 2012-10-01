@@ -95,7 +95,7 @@
       <type>
         <integer min="0" max="65536" />
       </type>
-      <value />
+      <value>40</value>
     </setting>
     <group name="pictureFrame" if="video">
       <setting name="folder">
@@ -146,12 +146,6 @@
       <value>50</value>
     </setting>
     <setting name="chassis.masking">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
-    </setting>
-    <setting name="stim.pac.offHookOnly">
       <type>
         <boolean />
       </type>
@@ -420,13 +414,13 @@
       <setting name="VVX_500" if="VVX_500_CodecPref">
         <type>
           <multi-enum labelKeyPrefix="codec">
-            <option><value>G711Mu</value></option>
-            <option><value>G711A</value></option>
-            <option><value>G729AB</value></option>
+            <option><value>G711_Mu</value></option>
+            <option><value>G711_A</value></option>
+            <option><value>G729_AB</value></option>
             <option><value>G722</value></option>
           </multi-enum>
         </type>
-        <value>G711Mu</value>
+        <value>G711_Mu</value>
       </setting>      
     </group>
     <group name="audioProfile">
@@ -523,7 +517,7 @@
           <value>160</value>
         </setting>
       </group>
-      <group name="G722" if="IP_650_CodecPref||IP_5000_CodecPref||IP_6000_CodecPref||IP_7000_CodecPref||VVX_1500_CodecPref">
+      <group name="G722" if="IP_650_CodecPref||IP_5000_CodecPref||IP_6000_CodecPref||IP_7000_CodecPref||VVX_1500_CodecPref||VVX_500_CodecPref">
         <setting name="payloadSize">
           <type>
             <!-- 10, 20, 30, ...80 -->
@@ -1125,21 +1119,25 @@
           <type>
             <integer min="15" max="40" />
           </type>
+          <value>0</value>
         </setting>
         <setting name="moslq.threshold.critical">
           <type>
             <integer min="15" max="40" />
           </type>
+          <value>0</value>
         </setting>
         <setting name="delay.threshold.warning">
           <type>
             <integer min="10" max="2000" />
           </type>
+          <value>0</value>
         </setting>
         <setting name="delay.threshold.critical">
           <type>
             <integer min="10" max="2000" />
           </type>
+          <value>0</value>
         </setting>
       </group>
       <group name="server">
@@ -1401,14 +1399,14 @@
       <type>
         <integer min="1024" max="65534" />
       </type>
-      <value />
+      <value>0</value>
     </setting>
     <setting name="mediaPortRangeStart">
       <!-- even values only -->
       <type>
         <integer min="1024" max="65534" />
       </type>
-      <value />
+      <value>2222</value>
     </setting>
   </group>
   <group name="tcpIpApp.keepalive.tcp">
@@ -1417,12 +1415,6 @@
         <integer min="10" max="7200" />
       </type>
       <value>30</value>
-    </setting>
-    <setting name="noResponseTrasmitInterval">
-      <type>
-        <integer min="5" max="120" />
-      </type>
-      <value>20</value>
     </setting>
     <setting name="sip.tls.enable">
       <type>
@@ -1612,48 +1604,6 @@
       </type>
       <value />
     </setting>
-    <group name="2mb">
-      <setting name="dir.local.volatile.2meg">
-        <type>
-          <boolean />
-        </type>
-        <value>0</value>
-      </setting>
-      <setting name="dir.local.nonVolatile.maxSize.2meg">
-        <type>
-          <integer min="0" />
-        </type>
-        <value>20</value>
-      </setting>
-    </group>
-    <group name="4mb">
-      <setting name="dir.local.volatile.4meg">
-        <type>
-          <boolean />
-        </type>
-        <value>0</value>
-      </setting>
-      <setting name="dir.local.nonVolatile.maxSize.4meg">
-        <type>
-          <integer min="0" />
-        </type>
-        <value>50</value>
-      </setting>
-    </group>
-    <group name="8mb">
-      <setting name="dir.local.volatile.8meg">
-        <type>
-          <boolean />
-        </type>
-        <value>0</value>
-      </setting>
-      <setting name="dir.local.nonVolatile.maxSize.8meg">
-        <type>
-          <integer min="0" />
-        </type>
-        <value>100</value>
-      </setting>
-    </group>
     <group name="volatile">
       <setting name="dir.local.volatile.maxSize">
         <type>
@@ -1668,7 +1618,7 @@
       <type>
         <string />
       </type>
-      <value />
+      <value>1</value>
     </setting>
     <setting name="pres.idleSoftKeys">
       <type>
@@ -1714,7 +1664,6 @@
       </setting>
       <setting name="app1" copy-of="so" />
       <setting name="sip" copy-of="so" />
-      <setting name="sspsc" copy-of="so" />
       <setting name="ssps" copy-of="so" />
       <setting name="pps" copy-of="so" />
       <setting name="net" copy-of="so" />
@@ -1722,10 +1671,8 @@
       <setting name="cdp" copy-of="so" />
       <setting name="lldp" copy-of="so" unless="pre_3.2.0_model"/>
       <setting name="pmt" copy-of="so" />
-      <setting name="ftp" copy-of="so" />
       <setting name="ares" copy-of="so" />
       <setting name="dns" copy-of="so" />
-      <setting name="cxss" copy-of="so" />
       <setting name="httpd" copy-of="so" />
       <setting name="rdisk" copy-of="so" />
       <setting name="copy" copy-of="so" />
@@ -1737,7 +1684,6 @@
       <setting name="rtos" copy-of="so" />
       <setting name="mb" copy-of="so" />
       <setting name="ib" copy-of="so" />
-      <setting name="sotet" copy-of="so" />
       <setting name="ttrs" copy-of="so" />
       <setting name="usb" copy-of="so" />
       <setting name="srtp" copy-of="so" />
@@ -2133,26 +2079,8 @@
       </type>
       <value>1</value>
     </setting>
-    <setting name="ring-download.enabled">
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
-    <setting name="calllist-received.enabled" if="disableCallList">
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
     <setting name="calllist-received_hidden" hidden="yes" unless="disableCallList">
       <profileName>calllist-received</profileName>
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
-    <setting name="calllist-placed.enabled" if="disableCallList">
       <type>
         <boolean />
       </type>
@@ -2165,62 +2093,8 @@
       </type>
       <value>1</value>
     </setting>
-    <setting name="calllist-missed.enabled" if="disableCallList">
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
     <setting name="calllist-missed_hidden" hidden="yes" unless="disableCallList">
       <profileName>calllist-missed</profileName>
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
-    <setting name="url-dialing.enabled">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
-    </setting>
-    <setting name="call-park.enabled">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
-    </setting>
-    <setting name="group-call-pickup.enabled">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
-    </setting>
-    <setting name="directed-call-pickup.enabled">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
-    </setting>
-    <setting name="last-call-return.enabled">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
-    </setting>
-    <setting name="acd-login-logout.enabled">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
-    </setting>
-    <setting name="acd-agent-availability.enabled">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
-    </setting>
-    <setting name="nway-conference.enabled" if="nway-conference" unless="polycom7000">
       <type>
         <boolean />
       </type>
@@ -2239,18 +2113,6 @@
         <boolean />
       </type>
       <value>1</value>
-    </setting>
-    <setting name="call-recording.enabled" advanced="yes">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
-    </setting>
-    <setting name="enhanced-feature-keys.enabled">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
     </setting>
   </group>
   <group name="custom">
@@ -2349,20 +2211,6 @@
       </setting>
     </group>
     </group>
-    <group name="limits">
-      <setting name="nodes">
-        <type>
-          <integer />
-        </type>
-        <value />
-      </setting>
-      <setting name="cache">
-        <type>
-          <integer />
-        </type>
-        <value />
-      </setting>
-    </group>
   </group>
   <group name="pnet" if="polycom7000">
      <setting name="role">
@@ -2436,14 +2284,6 @@
           <boolean />
         </type>
         <value>0</value>
-      </setting>
-    </group>
-    <group name="local">
-      <setting name="port">
-        <type>
-          <integer min="0" max="65535" />
-        </type>
-        <value />
       </setting>
     </group>
     <group name="protocol">
@@ -2649,7 +2489,7 @@
       <type>
         <integer min="128" max="255" />
       </type>
-      <value />
+      <value>128</value>
     </setting>
     <setting name="type">
       <type>

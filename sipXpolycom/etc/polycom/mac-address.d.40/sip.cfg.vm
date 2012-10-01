@@ -30,11 +30,6 @@
 
 <sip>
   <voIpProt>
-    <local
-## XX-6959: Generate with voIpProt.local.port for compatibility with pre-3.2.2 firmware.
-#set ($sip_local_port = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('local').getSetting('port'))
-      voIpProt.local.port="$!{sip_local_port.Value}"
-    />
     <server
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.server.dhcp'))
 #foreach ($setting in $cfg.getSettings($group))
@@ -49,10 +44,6 @@
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('protocol'))
 #foreach ($setting in $cfg.getSettings($group))
       voIpProt.SIP.${setting.ProfileName}="$!{setting.Value}"
-#end
-#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('local'))
-#foreach ($setting in $cfg.getSettings($group))
-      voIpProt.SIP.local.${setting.ProfileName}="$!{setting.Value}"
 #end
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('serverFeatureControl'))
 #foreach ($setting in $cfg.getSettings($group))
@@ -214,9 +205,9 @@
 #set ($setting_type = $cfg.EndpointSettings.getSetting('se/CALL_WAITING/type'))
 #set ($setting_value = $cfg.EndpointSettings.getSetting('se/CALL_WAITING/value'))
         <CALLWAITING
-          se.pat.callProg.6.name="call waiting"
-          se.pat.callProg.6.inst.1.type="$!{setting_type.Value}"
-          se.pat.callProg.6.inst.1.value="$!{setting_value.Value}"
+          se.pat.callProg.callWaiting.name="call waiting"
+          se.pat.callProg.callWaiting.inst.1.type="$!{setting_type.Value}"
+          se.pat.callProg.callWaiting.inst.1.value="$!{setting_value.Value}"
         />
 #set ($setting_type1 = $cfg.EndpointSettings.getSetting('se/LONG_CALL_WAITING/1-type'))
 #set ($setting_value1 = $cfg.EndpointSettings.getSetting('se/LONG_CALL_WAITING/1-value'))
@@ -253,12 +244,12 @@
 ##    <!-- Ring classes 3 and 4 are used by the Intercom feature -->
 #set ($ringAnswer = $cfg.EndpointSettings.getSetting('se/ringType/RING_ANSWER'))
       <RING_ANSWER
-        se.rt.4.name="Ring Answer"
-        se.rt.4.type="ring-answer"
-        se.rt.4.timeout="$!{ringAnswer.getSetting('timeout').Value}"
-        se.rt.4.ringer="$!{ringAnswer.getSetting('ringer').Value}"
-        se.rt.4.callWait="$!{ringAnswer.getSetting('callWait').Value}"
-        se.rt.4.mod="$!{ringAnswer.getSetting('mod').Value}"
+        se.rt.ringAutoAnswer.name="Ring Answer"
+        se.rt.ringAutoAnswer.type="ring-answer"
+        se.rt.ringAutoAnswer.timeout="$!{ringAnswer.getSetting('timeout').Value}"
+        se.rt.ringAutoAnswer.ringer="$!{ringAnswer.getSetting('ringer').Value}"
+        se.rt.ringAutoAnswer.callWait="$!{ringAnswer.getSetting('callWait').Value}"
+        se.rt.ringAutoAnswer.mod="$!{ringAnswer.getSetting('mod').Value}"
       />
     </ringType>
   </sound_effects>
@@ -273,11 +264,7 @@
 #set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('codecPref'))
 ## This is a loop, but there will only ever be one codec group per Polycom model.
 #foreach ($setting in $cfg.getSettings($group))
-   #if ($setting.ProfileName == "OTHERS")
       #set ($prefix = "voice.codecPref")
-   #else
-      #set ($prefix = "voice.codecPref.${setting.ProfileName}")
-   #end
    #computeCodecSettings($setting $prefix)
 #end
       />

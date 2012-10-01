@@ -57,7 +57,8 @@ public class PhoneConfiguration extends ProfileContext {
             lines.add(line);
         }
 
-        int lineCount = Math.max(lines.size(), TEMPLATE_DEFAULT_LINE_COUNT);
+        //int lineCount = Math.max(lines.size(), TEMPLATE_DEFAULT_LINE_COUNT);
+        int lineCount = lines.size();
         ArrayList linesSettings = new ArrayList(lineCount);
 
         for (Line line : lines) {
