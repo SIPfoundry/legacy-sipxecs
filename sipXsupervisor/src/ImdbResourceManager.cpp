@@ -14,6 +14,7 @@
 
 #include "ImdbResource.h"
 #include "ImdbResourceManager.h"
+#include "sipdb/PublisherDB.h"
 
 // DEFINES
 // CONSTANTS
@@ -28,7 +29,12 @@ ImdbResourceManager* ImdbResourceManager::spSingleton;
 ImdbResourceManager::ImdbResourceManager() :
    mImdbResourceTableLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
-
+  //
+  // Instantiate publisher db so shared memory remains when sipstatus is restarted.
+  // Since supervisor and sipstatus are always in the same node, there is no need
+  // to persist the publisher db to the file system
+  //
+  PublisherDB::getInstance();
 }
 
 ImdbResourceManager* ImdbResourceManager::getInstance()
