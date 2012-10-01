@@ -56,6 +56,9 @@ public:
     /// Schedule persisting the subscription DB
     void schedulePersist();
 
+    /// Persist the subscription DB
+    void persist();
+
     //========== Methods that modify subscription DB: requires holding a lock ==========
 
 

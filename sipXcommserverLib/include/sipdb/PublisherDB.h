@@ -48,6 +48,9 @@ public:
     /// releaseInstance - cleans up the singleton (for use at exit)
     static void releaseInstance();
 
+    //serialize methods
+    OsStatus store();
+
     /// Count rows in table
     int getRowCount () const;
 
@@ -203,6 +206,9 @@ protected:
     // Singleton Constructor is private
     PublisherDB( const UtlString& name );
 
+    // this is implicit now
+    OsStatus load();
+
     // Added this to make load and store code identical
     // in all database implementations, One step closer
     // to a template version of the code
@@ -228,6 +234,7 @@ protected:
     // the persistent filename for loading/saving
     UtlString mDatabaseName;
 
+    bool mTableLoaded;
 private:
     virtual ~PublisherDB();
 
@@ -237,7 +244,7 @@ private:
 // INLINES
 //
 
-inline bool PublisherDB::isLoaded(){ return true; }
+inline bool PublisherDB::isLoaded(){ return mTableLoaded; }
 
 #endif	/* PUBLISHERDB_H */
 

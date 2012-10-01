@@ -75,11 +75,26 @@ const UtlString PublisherDB::sXmlNamespace("http://www.sipfoundry.org/sipX/schem
 
 PublisherDB::PublisherDB( const UtlString& name )
 : mDatabaseName( name )
+, mTableLoaded ( true )
 {
     // Access the shared table databse
     SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();
     m_pFastDB = pSIPDBManager->getDatabase(name);
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
+    if ( users == 1 || ( users > 1 && mTableLoaded == false ) )
+    {
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "PublisherDB::_ about to load");
+        mTableLoaded = false;
+        // Load the file implicitly
+        if (this->load() == OS_SUCCESS)
+        {
+           OsSysLog::add(FAC_DB, PRI_DEBUG, "PublisherDB::_ table successfully loaded");
+        }
+        // the PublisherDB is not replicated from sipXconfig, as
+        // a result, make this table appear as being loaded regardless
+        // of the load() result.
+        mTableLoaded = true;
+    }
     OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
                   "PublisherDB::_ users = %d ows in table = %d",
                   users, getRowCount());
@@ -1183,4 +1198,200 @@ PublisherDB::getInstance( const UtlString& name )
         spInstance = new PublisherDB ( name );
     }
     return spInstance;
+}
+
+
+OsStatus
+PublisherDB::store()
+{
+    // Critical Section here
+    OsLock lock( sLockMutex );
+    OsStatus result = OS_SUCCESS;
+
+    if ( m_pFastDB != NULL )
+    {
+        UtlString fileName = mDatabaseName + ".xml";
+        UtlString pathName = SipXecsService::Path(SipXecsService::DatabaseDirType,
+                                                  fileName.data());
+
+        // Create an empty document
+        TiXmlDocument document;
+
+        // Create a hard coded standalone declaration section
+        document.Parse ("<?xml version=\"1.0\" standalone=\"yes\"?>");
+
+        // Create the root node container
+        TiXmlElement itemsElement ( "items" );
+        itemsElement.SetAttribute( "type", sType.data() );
+        itemsElement.SetAttribute( "xmlns", sXmlNamespace.data() );
+
+        int timeNow = (int)OsDateTime::getSecsSinceEpoch();
+        itemsElement.SetAttribute( "timestamp", timeNow );
+
+        // Thread Local Storage
+        m_pFastDB->attach();
+
+        // Search our memory for rows
+        dbCursor< SubscriptionRow > cursor;
+
+        // Select everything in the IMDB and add as item elements if present
+        int rows = cursor.select();
+        if ( rows > 0 )
+        {
+            OsSysLog::add( FAC_SIP, PRI_DEBUG
+                          ,"PublisherDB::store writing %d rows"
+                          ,rows
+                          );
+
+            // metadata contains column names
+            dbTableDescriptor* pTableMetaData = &SubscriptionRow::dbDescriptor;
+
+            do {
+                // Create an item container
+                TiXmlElement itemElement ("item");
+
+                byte* base = (byte*)cursor.get();
+
+                // Add the column name value pairs
+                for ( dbFieldDescriptor* fd = pTableMetaData->getFirstField();
+                      fd != NULL; fd = fd->nextField )
+                {
+                    // If the column name does not contain the
+                    // "np_" prefix, we must persist it.
+                    if ( strstr( fd->name, "np_" ) == NULL )
+                    {
+                        // Create the a column element named after the IMDB column name
+                        TiXmlElement element (fd->name);
+
+                        // See if the IMDB has the predefined SPECIAL_NULL_VALUE
+                        UtlString textValue;
+                        SIPDBManager::getFieldValue(base, fd, textValue);
+
+                        // If the value is not null append a text child element
+                        if ( textValue != SPECIAL_IMDB_NULL_VALUE )
+                        {
+                            // Text type assumed here... @todo change this
+                            TiXmlText value ( textValue.data() );
+                            // Store the column value in the element making this
+                            // <colname>coltextvalue</colname>
+                            element.InsertEndChild  ( value );
+                        }
+
+                        // Store this in the item tag as follows
+                        // <item>
+                        // .. <col1name>col1textvalue</col1name>
+                        // .. <col2name>col2textvalue</col2name>
+                        // .... etc
+                        itemElement.InsertEndChild  ( element );
+                    }
+                }
+                // add the line to the element
+                itemsElement.InsertEndChild ( itemElement );
+            } while ( cursor.next() );
+        }
+        // Attach the root node to the document
+        document.InsertEndChild ( itemsElement );
+        document.SaveFile ( pathName );
+        // Commit rows to memory - multiprocess workaround
+        m_pFastDB->detach(0);
+        mTableLoaded = true;
+    } else
+    {
+        result = OS_FAILED;
+    }
+    return result;
+}
+
+OsStatus
+PublisherDB::load()
+{
+    // Critical Section here
+    OsLock lock( sLockMutex );
+    OsStatus result = OS_SUCCESS;
+
+    if ( m_pFastDB != NULL )
+    {
+        // Clean out the existing DB rows before loading
+        // a new set from persistent storage
+        removeAllRows ();
+
+        UtlString fileName = mDatabaseName + ".xml";
+        UtlString pathName = SipXecsService::Path(SipXecsService::DatabaseDirType,
+                                                  fileName.data());
+
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "PublisherDB::load loading \"%s\"",
+                      pathName.data());
+
+        TiXmlDocument doc ( pathName );
+
+        // Verify that we can load the file (i.e it must exist)
+        if( doc.LoadFile() )
+        {
+            TiXmlNode * rootNode = doc.FirstChild ( "items" );
+            if (rootNode != NULL)
+            {
+                // the folder node contains at least the name/displayname/
+                // and autodelete elements, it may contain others
+                for( TiXmlNode *itemNode = rootNode->FirstChild( "item" );
+                     itemNode;
+                     itemNode = itemNode->NextSibling( "item" ) )
+                {
+                    // Create a hash dictionary for element attributes
+                    UtlHashMap nvPairs;
+
+                    for( TiXmlNode *elementNode = itemNode->FirstChild();
+                         elementNode;
+                         elementNode = elementNode->NextSibling() )
+                    {
+                        // Bypass comments and other element types only interested
+                        // in parsing element attributes
+                        if ( elementNode->Type() == TiXmlNode::ELEMENT )
+                        {
+                            UtlString elementName = elementNode->Value();
+                            UtlString elementValue;
+
+                            result = SIPDBManager::getAttributeValue (
+                                *itemNode, elementName, elementValue);
+
+                            if (result == OS_SUCCESS)
+                            {
+                                UtlString* collectableKey =
+                                    new UtlString( elementName );
+                                UtlString* collectableValue =
+                                    new UtlString( elementValue );
+                                nvPairs.insertKeyAndValue (
+                                    collectableKey, collectableValue );
+                            } else if ( elementNode->FirstChild() == NULL )
+                            {
+                                // Null Element value creaete a special
+                                // char string we have key and value so insert
+                                UtlString* collectableKey =
+                                    new UtlString( elementName );
+                                UtlString* collectableValue =
+                                    new UtlString( SPECIAL_IMDB_NULL_VALUE );
+                                nvPairs.insertKeyAndValue (
+                                    collectableKey, collectableValue );
+                            }
+                        }
+                    }
+                    // Insert the item row into the IMDB
+                    insertRow ( nvPairs );
+                }
+            }
+        } else
+        {
+            // non-existence of the file is not an error for this DB
+            if (OsFileSystem::exists(pathName))
+            {
+                OsSysLog::add(FAC_SIP, PRI_WARNING, "PublisherDB::load failed to load \"%s\"",
+                              pathName.data());
+                result = OS_FAILED;
+            }
+        }
+    } else
+    {
+        OsSysLog::add(FAC_DB, PRI_ERR, "PublisherDB::load failed - no DB");
+        result = OS_FAILED;
+    }
+    return result;
 }
