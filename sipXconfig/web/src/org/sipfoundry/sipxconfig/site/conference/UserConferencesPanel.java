@@ -108,4 +108,11 @@ public abstract class UserConferencesPanel extends BaseComponent {
         return editConferencePage;
     }
 
+    public String getHangupCodeValue() {
+        if (getConferenceHangupCode() == null) {
+            return getMessages().getMessage("err.noHangupCode");
+        }
+        return getMessages().format("hangupCode", getConferenceHangupCode());
+    }
+
 }
