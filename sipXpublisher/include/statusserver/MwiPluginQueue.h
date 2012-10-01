@@ -197,12 +197,33 @@ private:
 
         if (data.subscribe)
         {
+          
+          
+          std::string identity;
+          if (data.mailBox.empty())
+          {
+            //
+            // Disabling authentication can leave the authenticated user empty
+            // so get it from the to-uri
+            //
+            Url to;
+            data.subscribe->getToUrl(to);
+            UtlString userId;
+            to.getUserId(userId);
+            if (userId.isNull())
+              identity = userId.data();
+          }
+          else
+          {
+            identity = data.mailBox;
+          }
+
+          identity += "@";
+          identity += data.domain;
+
           //
           // Check if we have cached it previously
           //
-          std::string identity = data.mailBox;
-          identity += "@";
-          identity += data.domain;
           std::map<std::string, std::string>::const_iterator iter = _notifyData.find(identity);
           if ( iter != _notifyData.end())
           {
