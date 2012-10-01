@@ -1,6 +1,6 @@
 <form jwcid="@Form" id="editRules" delegate="bean:validator">
   <table jwcid="rules@common/Table" id="rules:list"
-      columns="* service,!group,!priority"
+      columns="* !service,!group,!priority"
       source="ognl:rules"
       row="ognl:rule"
       converter="ognl:ruleConverter">
