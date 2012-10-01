@@ -53,9 +53,6 @@ public:
 
     virtual ~SubscribeServerThread();
 
-    /// Schedule persisting the subscription DB
-    void schedulePersist();
-
     //========== Methods that modify subscription DB: requires holding a lock ==========
 
 
