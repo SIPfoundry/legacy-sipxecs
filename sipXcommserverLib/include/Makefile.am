@@ -31,7 +31,6 @@ nobase_include_HEADERS =  \
     sipdb/SIPDBManager.h \
     sipdb/SIPXAuthHelper.h \
     sipdb/SubscriptionDB.h \
-    sipdb/PublisherDB.h \
     sipdb/SubscriptionRow.h \
     sipdb/UserLocationDB.h \
     sipdb/UserLocationRow.h \

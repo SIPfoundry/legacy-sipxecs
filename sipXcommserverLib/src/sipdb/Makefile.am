@@ -44,5 +44,4 @@ libsipdb_la_SOURCES =  \
    ResultSet.cpp \
    SIPDBManager.cpp \
    SIPXAuthHelper.cpp \
-   SubscriptionDB.cpp \
-   PublisherDB.cpp
+   SubscriptionDB.cpp
