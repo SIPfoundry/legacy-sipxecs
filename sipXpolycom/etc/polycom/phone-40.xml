@@ -2286,6 +2286,14 @@
         <value>0</value>
       </setting>
     </group>
+    <group name="local">
+      <setting name="port">
+        <type>
+          <integer min="0" max="65535" />
+        </type>
+        <value>0</value>
+      </setting>
+    </group>    
     <group name="protocol">
       <setting name="csta">
         <type><boolean/></type>

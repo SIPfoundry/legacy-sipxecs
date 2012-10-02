@@ -30,6 +30,11 @@
 
 <sip>
   <voIpProt>
+   <local
+## XX-6959: Generate with voIpProt.local.port for compatibility with pre-3.2.2 firmware.
+#set ($sip_local_port = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('local').getSetting('port'))
+      voIpProt.SIP.local.port="$!{sip_local_port.Value}"
+    />
     <server
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.server.dhcp'))
 #foreach ($setting in $cfg.getSettings($group))
