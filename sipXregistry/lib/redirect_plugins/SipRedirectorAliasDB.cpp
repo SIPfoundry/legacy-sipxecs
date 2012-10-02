@@ -132,7 +132,7 @@ SipRedirectorAliasDB::lookUp(
 
    OS_LOG_DEBUG(FAC_SIP, mLogName.data() << "::lookUp identity: " << requestIdentity.data()
            << " domain: " << domain.data()
-           << " local-domain: " << _localDomain.data()
+           << " local-domain:" << _localDomain.data()
            << " isHostAlias: " << isMyHostAlias);
 
    
