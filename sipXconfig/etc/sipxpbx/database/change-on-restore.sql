@@ -1,3 +1,4 @@
+-- NOTE: New SSL certs will automatically generate on startup
 create or replace function change_domain_on_restore(new_domain text) returns void as $$
 declare
     old_domain text;
@@ -8,7 +9,6 @@ begin
     update domain set name = new_domain, sip_realm = new_domain;
 end;
 $$ language plpgsql;
-
 
 create or replace function change_primary_fqdn_on_restore(new_fqdn text) returns void as $$
 declare
@@ -21,6 +21,7 @@ end;
 $$ language plpgsql;
 
 
+-- sbc_device is for sipxbridge
 create or replace function change_primary_ip_on_restore(new_ip text) returns void as $$
 declare
     old_ip text;
@@ -28,6 +29,7 @@ begin
     SELECT ip_address from location into old_ip where primary_location = TRUE;
     update domain_alias set alias = new_ip where alias = old_ip;
     update location set ip_address = new_ip where primary_location = TRUE;
+    update sbc_device set address = new_ip where address = old_ip;
 end;
 $$ language plpgsql;
 
