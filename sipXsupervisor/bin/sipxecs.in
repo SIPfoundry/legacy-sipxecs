@@ -13,26 +13,21 @@ SVCSLIST="@SIPX_CONFDIR@/sipxecs-services.ini"
 
 case "$1" in
 start)
-  for SVC in `cat $SVCSLIST`; do
-    @SIPX_SERVICEDIR@/$SVC start
-done
+  @SIPX_BINDIR@/sipxagent -d start_sipxecs
 ;;
 
 status)
   for SVC in `cat $SVCSLIST`; do
     @SIPX_SERVICEDIR@/$SVC status
-done
+  done
 ;;
 
 stop)
-  for SVC in `cat $SVCSLIST`; do
-    @SIPX_SERVICEDIR@/$SVC stop
-done
+  @SIPX_BINDIR@/sipxagent -d stop_sipxecs
 ;;
 
 restart)
-	$0 stop
-	$0 start
+  @SIPX_BINDIR@/sipxagent -d restart_sipxecs
 ;;
 
 *)
