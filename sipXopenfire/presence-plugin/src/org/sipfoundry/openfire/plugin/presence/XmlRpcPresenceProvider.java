@@ -174,7 +174,8 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
            }
            log.debug("xmppUser = " + xmppUser);
            Map retval = createSuccessMap();
-           JID jid = new JID(xmppUser);
+           JID jid = XMPPServer.getInstance().createJID(xmppUser, null);
+           log.debug("xmppUser jid = " + jid);
            UnifiedPresence unifiedPresence
                    = PresenceUnifier.getInstance().getUnifiedPresence( jid.getNode());
            String xmppPresence = unifiedPresence.getXmppPresence().toString();
