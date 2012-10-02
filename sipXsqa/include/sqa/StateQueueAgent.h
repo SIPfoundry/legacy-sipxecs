@@ -114,6 +114,8 @@ public:
   ServiceOptions& options();
   StateQueueListener& listener();
   int& inactivityThreshold();
+  
+  void onDestroyConnection(StateQueueConnection::Ptr conn);
 protected:
   void internal_run_io_service();
   void sendErrorResponse(StateQueueMessage::Type type, StateQueueConnection& conn, const std::string& messageId, const std::string& error);
@@ -127,6 +129,8 @@ protected:
   void onRedisWatcherEvent(const std::vector<std::string>& event);
   void onRedisWatcherConnect(int status);
   void onRedisWatcherDisconnect(int status);
+
+  
 
   ServiceOptions& _options;
   boost::thread* _pIoServiceThread;

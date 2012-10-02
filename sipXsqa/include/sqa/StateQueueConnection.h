@@ -59,6 +59,9 @@ public:
   unsigned short getRemotePort() const;
   const std::string& getApplicationId() const;
   void setApplicationId(const std::string& id);
+  bool isAlphaConnection() const;
+  void setCreationPublished();
+  bool isCreationPublished() const;
 protected:
   void readMore(std::size_t bytes_transferred);
   void startInactivityTimer();
@@ -79,6 +82,8 @@ protected:
   unsigned short _remotePort;
   boost::asio::deadline_timer* _pInactivityTimer;
   std::string _applicationId;
+  bool _isAlphaConnection;
+  bool _isCreationPublished;
 };
 
 
@@ -119,6 +124,21 @@ inline const std::string& StateQueueConnection::getApplicationId() const
 inline void StateQueueConnection::setApplicationId(const std::string& id)
 {
   _applicationId = id;
+}
+
+inline bool StateQueueConnection::isAlphaConnection() const
+{
+  return _isAlphaConnection;
+}
+
+inline void StateQueueConnection::setCreationPublished()
+{
+  _isCreationPublished = true;
+}
+
+inline  bool StateQueueConnection::isCreationPublished() const
+{
+  return _isCreationPublished;
 }
 
 #endif	/* STATEQUEUECONNECTION_H */

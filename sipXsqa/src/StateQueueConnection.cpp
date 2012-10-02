@@ -15,6 +15,7 @@
 
 #include "sqa/StateQueueConnection.h"
 #include "sqa/StateQueueAgent.h"
+#include "sqa/StateQueueClient.h"
 #include "os/OsLogger.h"
 
 
@@ -29,7 +30,9 @@ StateQueueConnection::StateQueueConnection(
   _lastExpectedPacketSize(0),
   _localPort(0),
   _remotePort(0),
-  _pInactivityTimer(0)
+  _pInactivityTimer(0),
+  _isAlphaConnection(false),
+  _isCreationPublished(false)
 {
   int expires = _agent.inactivityThreshold() * 1000;
   _pInactivityTimer = new boost::asio::deadline_timer(_ioService, boost::posix_time::milliseconds(expires));
@@ -46,7 +49,7 @@ StateQueueConnection::~StateQueueConnection()
 bool StateQueueConnection::write(const std::string& data)
 {
   short version = 1;
-  short key = 22172;
+  short key = SQA_KEY_DEFAULT;
   unsigned long len = (short)data.size();
   std::stringstream strm;
   strm.write((char*)(&version), sizeof(version));
@@ -109,11 +112,11 @@ void StateQueueConnection::handleRead(const boost::system::error_code& e, std::s
       strm.read((char*)(&version), sizeof(version));
       short key;
       strm.read((char*)(&key), sizeof(key));
-      if (version == 1 && key == 22172)
+      if (version == 1 && key >= SQA_KEY_MIN && key <= SQA_KEY_MAX)
       {
+        _isAlphaConnection = (key == SQA_KEY_ALPHA);
         unsigned long len;
         strm.read((char*)(&len), sizeof(len));
-
         //
         // Preserve the expected packet size
         //
@@ -239,7 +242,7 @@ void StateQueueConnection::handleRead(const boost::system::error_code& e, std::s
                 << " Most likely remote closed the connection.");
     boost::system::error_code ignored_ec;
     _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
-    _agent.listener().destroyConnection(shared_from_this());
+    _agent.onDestroyConnection(shared_from_this());
     return;
   }
 
@@ -260,7 +263,7 @@ void StateQueueConnection::readMore(std::size_t bytes_transferred)
   strm.read((char*)(&version), sizeof(version));
   short key;
   strm.read((char*)(&key), sizeof(key));
-  if (version == 1 && key == 22172)
+  if (version == 1 && key >= SQA_KEY_MIN && key <= SQA_KEY_MAX)
   {
     unsigned long len;
     strm.read((char*)(&len), sizeof(len));

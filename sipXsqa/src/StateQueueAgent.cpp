@@ -204,6 +204,24 @@ void StateQueueAgent::onIncomingConnection(StateQueueConnection::Ptr conn)
 {
 }
 
+void StateQueueAgent::onDestroyConnection(StateQueueConnection::Ptr conn)
+{
+  //
+  // Publish connection destruction to who ever wants to know
+  //
+  if (conn->isAlphaConnection() && !conn->getApplicationId().empty())
+  {
+    StateQueueRecord record;
+    record.id = "sqw.connection.terminated";
+    record.data = conn->getApplicationId();
+    record.data += "|";
+    record.data += conn->getRemoteAddress();
+    publish(record);
+  }
+
+  _listener.destroyConnection(conn);
+}
+
 void StateQueueAgent::onIncomingRequest(StateQueueConnection& conn, const char* bytes, std::size_t bytes_transferred)
 {
   OS_LOG_DEBUG(FAC_NET, "StateQueueAgent::onIncomingRequest processing " << bytes_transferred << " bytes.");
@@ -228,6 +246,22 @@ void StateQueueAgent::onIncomingRequest(StateQueueConnection& conn, const char* 
     {
       sendErrorResponse(type, conn, id, "Missing required argument message-app-id.");
       return;
+    }
+    
+    conn.setApplicationId(appId);
+
+    if (conn.isAlphaConnection() && !conn.isCreationPublished())
+    {
+      StateQueueRecord record;
+      record.id = "sqw.connection.established";
+      record.data = conn.getApplicationId();
+      record.data += "|";
+      record.data += conn.getRemoteAddress();
+      publish(record);
+      //
+      // Mark it as published
+      //
+      conn.setCreationPublished();
     }
   }
 
