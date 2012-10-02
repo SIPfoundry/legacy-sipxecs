@@ -182,8 +182,8 @@ SipRedirectorGateway::finalize()
 RedirectPlugin::LookUpStatus
 SipRedirectorGateway::lookUp(
    const SipMessage& message,
-   UtlString& requestString,
-   Url& requestUri,
+   const UtlString& requestString,
+   const Url& requestUri,
    const UtlString& method,
    ContactList& contactList,
    RequestSeqNo requestSeqNo,
