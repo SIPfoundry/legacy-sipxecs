@@ -16,6 +16,8 @@ package org.sipfoundry.sipxconfig.site.firewall;
 
 import static java.lang.String.format;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +34,8 @@ import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.ServerGroup;
 
 public abstract class EditFirewallRules extends BaseComponent implements PageBeginRenderListener {
+
+    private static final String ADDRESS = "address.";
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -58,7 +62,7 @@ public abstract class EditFirewallRules extends BaseComponent implements PageBeg
     }
 
     public String getAddressLabel() {
-        String key = "address." + getRule().getAddressType().getId();
+        String key = ADDRESS + getRule().getAddressType().getId();
         return TapestryUtils.getDefaultMessage(getMessages(), key, key);
     }
 
@@ -92,7 +96,14 @@ public abstract class EditFirewallRules extends BaseComponent implements PageBeg
         }
 
         if (getRules() == null) {
-            setRules(getFirewallManager().getEditableFirewallRules());
+            List<EditableFirewallRule> rules = getFirewallManager().getEditableFirewallRules();
+            Collections.sort(rules, new Comparator<EditableFirewallRule>() {
+                public int compare(EditableFirewallRule o1, EditableFirewallRule o2) {
+                    return (getMessages().getMessage(ADDRESS + o1.getAddressType().getId())).compareTo(getMessages()
+                            .getMessage(ADDRESS + o2.getAddressType().getId()));
+                }
+            });
+            setRules(rules);
         }
     }
 

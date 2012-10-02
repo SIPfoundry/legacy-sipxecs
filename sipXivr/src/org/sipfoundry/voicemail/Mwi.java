@@ -55,8 +55,8 @@ public class Mwi {
         try {
             mwiUrl = new URL(m_mwiUrl);
             String accountUrl = "sip:" + idUri;
-            String content = "eventType=message-summary&" + "identity=" +
-                URLEncoder.encode(idUri, "UTF-8") + "\r\n" +
+            String content = "identity=" +
+                URLEncoder.encode(idUri, "UTF-8") + "&eventType=message-summary&event-data=" + "\r\n" +
                 formatRFC3842(mailbox, accountUrl);
             RemoteRequest rr = new RemoteRequest(mwiUrl, MessageSummaryContentType, content);
             if (!rr.http()) {
