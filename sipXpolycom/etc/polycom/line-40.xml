@@ -395,7 +395,7 @@
           <type>
             <integer min="1" max="65535" />
           </type>
-          <value />
+          <value>5060</value>
         </setting>
         <setting name="emergency.1.value">
           <type>

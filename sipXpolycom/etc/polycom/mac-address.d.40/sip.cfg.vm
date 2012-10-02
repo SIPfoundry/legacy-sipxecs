@@ -560,12 +560,6 @@
       mb.idleDisplay.${setting.ProfileName}="$!{setting.Value}"
 #end
     />
-    <limits
-#set ($group = $cfg.EndpointSettings.getSetting('mb').getSetting('limits'))
-#foreach ($setting in $cfg.getSettings($group))
-      mb.limits.${setting.ProfileName}="$!{setting.Value}"
-#end
-    />
   </microbrowser>
 #if ($phone.model.modelId == "polycom7000")
   <pnet

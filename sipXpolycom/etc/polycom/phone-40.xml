@@ -2675,18 +2675,19 @@
       <type>
         <integer min="1024" max="65536" />
       </type>
-      <value />
+      <value>0</value>
     </setting>
     <setting name="mediaPortStart">
       <type>
         <integer min="1024" max="65536" />
       </type>
-      <value />
+      <value>0</value>
     </setting>
     <setting name="keepalive.interval" advanced="yes">
       <type>
         <integer min="0" max="3600" />
       </type>
+      <value>0</value>
     </setting>
   </group>
   <group name="attendant">
@@ -2698,7 +2699,7 @@
     </setting>
     <setting name="reg">
       <type refid="reg-server-index" />
-      <value />
+      <value>1</value>
     </setting>
     <setting name="behaviors.display.spontaneousCallAppearances.normal" advanced="yes" unless="pre_3.2.0_model">
       <type>
@@ -2709,14 +2710,14 @@
   </group>
   <group name="roaming_buddies">
     <setting name="reg">
-      <type refid="reg-server-index" />
-      <value />
+      <type refid="reg-server-index-33" />
+      <value>0</value>
     </setting>
   </group>
   <group name="roaming_privacy">
     <setting name="reg">
-      <type refid="reg-server-index" />
-      <value />
+      <type refid="reg-server-index-33" />
+      <value>0</value>
     </setting>
   </group>
   <group name="network">
