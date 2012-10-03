@@ -35,7 +35,7 @@ bundle edit_line sipxevent_properties_contents {
       "keystore.password=changeit";
       "log.file=$(sipx.SIPX_LOGDIR)/sipxevent.log";
       "java.dir=$(sipx.SIPX_JAVADIR)/sipXevent";
-      "conf.dir=$(sipx.SIPX_CONFDIR)";      
+      "conf.dir=$(sipx.SIPX_CONFDIR)";
   delete_lines:
     any::
       ".*";
@@ -58,7 +58,7 @@ bundle agent sipxevent_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxevent_running");
 
   commands:
-    !sipxevent.sipxevent_running::
+    (!sipxevent|stop_sipxecs).sipxevent_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxevent"
         comment => "stop sipxevent",
         args => "stop";

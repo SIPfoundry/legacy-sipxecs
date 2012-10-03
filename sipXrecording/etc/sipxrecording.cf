@@ -68,7 +68,7 @@ bundle agent sipxrecording_running {
       "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxrecording_running");
 
   commands:
-    !sipxrecording.sipxrecording_running::
+	(!sipxrecording|stop_sipxecs).sipxrecording_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxrecording"
         comment => "stop sipxrecording",
         args => "stop";
