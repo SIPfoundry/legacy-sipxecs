@@ -705,9 +705,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                         userAccount.getPassword(),
                         userAccount.getDisplayName(),
                         userAccount.getEmail());
-                setAllowedUserForChatServices(
-                        XmppAccountInfo.appendDomain(userAccount.getUserName()));
-                log.debug("User added in list of users that are allowed to create chat rooms");
             } catch (UserAlreadyExistsException ex) {
                 throw new SipXOpenfirePluginException(ex);
             }
@@ -1177,7 +1174,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                 mucService.addSysadmin(admin.toBareJID());
                 mucService.setLogConversationsTimeout(60);
                 mucService.setLogConversationBatchSize(100);
-                mucService.setRoomCreationRestricted(true);
                 HistoryStrategy historyStrategy = new HistoryStrategy(null);
                 historyStrategy.setType(HistoryStrategy.Type.none);
                 new UpdateHistoryStrategy(subdomain, historyStrategy).run();
@@ -1187,6 +1183,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                 log.error("createChatRoomService caught " + ex );
             }
         }
+        mucService.setRoomCreationRestricted(false);
         return mucService;
     }
 
@@ -1429,24 +1426,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                 userJIDs.add(userJID);
             }
             service.addUsersAllowedToCreate(userJIDs);
-        }
-    }
-
-    public void setAllowedUserForChatServices(String jid){
-        Set<MultiUserChatService> chatServices = new HashSet<MultiUserChatService>();
-        chatServices.addAll(this.multiUserChatManager.getMultiUserChatServices());
-
-        for (MultiUserChatService service : chatServices) {
-            service.addUserAllowedToCreate(jid);
-        }
-    }
-
-    public void removeAllowedUserForChatServices(String jid){
-        Set<MultiUserChatService> chatServices = new HashSet<MultiUserChatService>();
-        chatServices.addAll(this.multiUserChatManager.getMultiUserChatServices());
-
-        for (MultiUserChatService service : chatServices) {
-            service.removeUserAllowedToCreate(jid);
         }
     }
 
