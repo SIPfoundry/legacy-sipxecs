@@ -67,7 +67,7 @@ public class PolycomPhone extends Phone {
     }
 
     public String getTemplateDir() {
-        if (getDeviceVersion() == PolycomModel.VER_4_0) {
+        if (getDeviceVersion() == PolycomModel.VER_4_0_X) {
             return TEMPLATE_DIR40;
         }
         return TEMPLATE_DIR;
@@ -76,7 +76,7 @@ public class PolycomPhone extends Phone {
     /* make use of getApplicationFilename?
      */
     public String getAppFile() {
-        if (getDeviceVersion() == PolycomModel.VER_4_0) {
+        if (getDeviceVersion() == PolycomModel.VER_4_0_X) {
             return "/mac-address-40.cfg.vm";
         }
         return "/mac-address.cfg.vm";
@@ -95,11 +95,9 @@ public class PolycomPhone extends Phone {
     public void setDeviceVersion(DeviceVersion version) {
         super.setDeviceVersion(version);
         DeviceVersion myVersion = getDeviceVersion();
-        if (myVersion == PolycomModel.VER_4_0) {
+        if (myVersion == PolycomModel.VER_4_0_X) {
             getModel().setSettingsFile("phone-40.xml");
             getModel().setLineSettingsFile("line-40.xml");
-            //getModel().setStaticProfileFilenames(new String[]{
-            //    "reg-advanced.cfg", "sip-basic.cfg", "sip-interop.cfg", "site.cfg"});
             getModel().setStaticProfileFilenames(new String[]{});
         } else {
             //we need to explicitly define these here otherwise changing versions will not work
