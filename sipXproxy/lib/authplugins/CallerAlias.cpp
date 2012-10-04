@@ -421,7 +421,7 @@ bool CallerAlias::getCallerAlias (
     if (!callerAlias.empty())
         callerAlias_ = callerAlias.c_str();
     else
-        OS_LOG_WARNING(FAC_SIP, "CallerAlias::getCallerAlias - No caller alias configured for identity=" << identity.str() << " domain=" << domain.str());
+        OS_LOG_DEBUG(FAC_SIP, "CallerAlias::getCallerAlias - No caller alias configured for identity=" << identity.str() << " domain=" << domain.str());
     
     return !callerAlias.empty();
 }
