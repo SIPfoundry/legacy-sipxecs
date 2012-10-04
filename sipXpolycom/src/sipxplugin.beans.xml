@@ -285,7 +285,6 @@
     </property>
     <property name="versions">
       <list>
-        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
     </property> 
