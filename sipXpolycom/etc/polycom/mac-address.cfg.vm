@@ -32,9 +32,11 @@
    #set( $optional_root_url_path = "" )
 #end
 
+#set( $folder = "${cfg.FirmwareFolder}" )
+
 #macro( ModelSpecificAttributes $model $fw )
-   APP_FILE_PATH${model}="sip${fw}.ld"
-   CONFIG_FILES${model}="${custom_configs}${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-phone.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-device.cfg, polycom_phone1${fw}.cfg, polycom_sip${fw}.cfg"
+   APP_FILE_PATH${model}="${folder}/sip${fw}.ld"
+   CONFIG_FILES${model}="${folder}/${custom_configs}${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip.cfg, ${folder}/${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-phone.cfg, ${folder}/${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-device.cfg, ${folder}/polycom_phone1${fw}.cfg, ${folder}/polycom_sip${fw}.cfg"
 #end
 
 #macro( ModelSpecificNode $model $fw )

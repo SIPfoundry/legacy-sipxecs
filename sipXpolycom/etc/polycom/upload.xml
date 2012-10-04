@@ -26,6 +26,16 @@
         </file>
       </type>
     </setting>
+	<setting name="version">
+      <type>
+        <enum>
+    	  <option><value>3.1.X</value></option>
+    	  <!-- option><value>3_2_X</value></option-->
+    	  <option><value>4.0.X</value></option>
+        </enum>
+    </type>
+    <value>3.1.X</value>
+    </setting>  
     <setting name="bootrom">
       <label>Bootrom (zip)</label>
       <type refid="zip"/>
