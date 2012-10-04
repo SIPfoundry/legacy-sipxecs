@@ -555,6 +555,7 @@ private:
           StateQueueMessage ping;
           StateQueueMessage pong;
           ping.setType(StateQueueMessage::Ping);
+          ping.set("message-app-id", _applicationId.c_str());
           sendAndReceive(ping, pong);
           if (pong.getType() == StateQueueMessage::Pong)
             OS_LOG_DEBUG(FAC_NET, "Keep-alive response received from " << _serviceAddress << ":" << _servicePort);
