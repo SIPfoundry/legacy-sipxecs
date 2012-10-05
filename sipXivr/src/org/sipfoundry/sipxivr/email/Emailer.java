@@ -251,12 +251,10 @@ public class Emailer implements ApplicationContextAware {
 
                     message.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(alt));
                     Transport.send(message);
-
                 } catch (Exception e) {
                     LOG.error("Emailer::run problem sending alternate email.", e);
                 }
             }
-            m_vmessage.cleanup();
             LOG.debug("Emailer::run finished");
         }
     }
