@@ -103,9 +103,11 @@ bool EntityDB::findByAliasUserId(const string& alias, EntityRecord& entity) cons
 bool EntityDB::getCredential(const Url& uri, const UtlString& realm, UtlString& userid, UtlString& passtoken,
 		UtlString& authType) const
 {
+	UtlString identity;
+	uri.getIdentity(identity);
 
 	EntityRecord entity;
-	if (!findByIdentityOrAlias(uri, entity))
+	if (!findByIdentity(identity.str(), entity))
 		return false;
 
 	if (entity.realm() != realm.str())
