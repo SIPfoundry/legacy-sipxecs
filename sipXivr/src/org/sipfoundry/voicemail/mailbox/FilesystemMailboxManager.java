@@ -99,7 +99,9 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
             LOG.error("VmMessage::newMessage error while " + operation, e);
             return null;
         }
-        m_mwi.sendMWI(destUser, getMailboxDetails(destUser.getUserName()));
+        if (storageFolder == Folder.INBOX) {
+            m_mwi.sendMWI(destUser, getMailboxDetails(destUser.getUserName()));
+        }
         LOG.info("VmMessage::newMessage created message " + descriptorFile.getPath());
         return new VmMessage(messageId, audioFile, descriptor, urgent);
     }
@@ -611,7 +613,8 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
     }
 
     private List<String> extractMessages(File[] files) {
-        Arrays.sort(files, new Comparator<File>() { 
+        Arrays.sort(files, new Comparator<File>() {
+            @Override
             public int compare(File f1, File f2) {
                 return Long.valueOf(f2.lastModified()).compareTo(f1.lastModified());
             }
@@ -630,18 +633,21 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
             m_messageIdPrefix = messageId + "-";
         }
 
+        @Override
         public boolean accept(File dir, String name) {
             return name.startsWith(m_messageIdPrefix);
         }
     }
 
     private static class MessageCountFilter implements FilenameFilter {
+        @Override
         public boolean accept(File dir, String name) {
             return name.endsWith(MESSAGE_IDENTIFIER);
         }
     }
 
     private static class FileDateComparator implements Comparator<File> {
+        @Override
         public int compare(File file1, File file2) {
             long result = file2.lastModified() - file1.lastModified();
             if (result < 0) {
