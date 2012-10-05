@@ -73,6 +73,10 @@ public class VmEslRequestController extends AbstractEslRequestController {
         return true;
     }
 
+    public void resetUser() {
+        m_currentUser = null;
+    }
+
     public void login() {
         setRedactDTMF(true);
         trimDtmfQueue("");
