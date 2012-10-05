@@ -116,6 +116,8 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         String newMessageId = nextMessageId(m_mailstoreDirectory + "/..");
         VmMessage savedMessage = copyMessage(newMessageId, destUser, message);
         if (savedMessage != null) {
+            //the method applies only to voicemails - so the folder where the message is saved is always INBOX
+            savedMessage.setParentFolder(Folder.INBOX);
             m_emailer.queueVm2Email(destUser, savedMessage);
         }
     }
@@ -132,6 +134,8 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         if (savedMessage != null) {
             m_emailer.queueVm2Email(destUser, savedMessage);
         }
+        //the method applies only to voicemails - so the folder where the message is saved is always INBOX
+        savedMessage.setParentFolder(Folder.INBOX);
         comments.setSavedMessageId(newMessageId);
         comments.setStored(true);
     }

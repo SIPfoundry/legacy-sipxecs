@@ -139,6 +139,7 @@ public class Emailer implements ApplicationContextAware {
                     File file = m_vmessage.getAudioFile();
 
                     DataSource dataSource = new FileDataSource(file) {
+                        @Override
                         public String getContentType() {
                             return getMimeType();
                         }
@@ -212,6 +213,7 @@ public class Emailer implements ApplicationContextAware {
         /**
          * Build and send the message as e-mails to the recipients
          */
+        @Override
         public void run() {
             String to = m_user.getEmailAddress();
             String alt = m_user.getAltEmailAddress();
@@ -253,6 +255,7 @@ public class Emailer implements ApplicationContextAware {
                     LOG.error("Emailer::run problem sending alternate email.", e);
                 }
             }
+            m_vmessage.cleanup();
             LOG.debug("Emailer::run finished");
         }
     }
