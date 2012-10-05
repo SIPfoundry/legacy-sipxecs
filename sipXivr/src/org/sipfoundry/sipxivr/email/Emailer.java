@@ -15,7 +15,6 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -62,18 +61,17 @@ public class Emailer implements ApplicationContextAware {
      * @param mailbox
      * @param vmessage
      */
-    public Future<?> queueVm2Email(User destUser, VmMessage vmessage) {
+    public void queueVm2Email(User destUser, VmMessage vmessage) {
         if (destUser.getEmailFormat() != EmailFormats.FORMAT_NONE
                 || destUser.getAltEmailFormat() != EmailFormats.FORMAT_NONE) {
             if (vmessage.getParentFolder().equals(Folder.CONFERENCE)) {
                 LOG.info("Emailer::do not queue email for conferences");
-                return null;
+                return;
             }
             LOG.info("Emailer::queueVm2Email queuing e-mail for " + destUser.getIdentity());
             BackgroundMailer bm = new BackgroundMailer(destUser, vmessage);
-            return submit(bm);
+            submit(bm);
         }
-        return null;
     }
 
     /**
@@ -273,8 +271,8 @@ public class Emailer implements ApplicationContextAware {
         return formatter;
     }
 
-    public Future<?> submit(BackgroundMailer bm) {
-        return m_es.submit(bm);
+    public void submit(BackgroundMailer bm) {
+        m_es.submit(bm);
     }
 
     @Override

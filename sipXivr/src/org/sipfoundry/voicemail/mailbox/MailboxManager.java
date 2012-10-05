@@ -18,7 +18,6 @@ package org.sipfoundry.voicemail.mailbox;
 
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.Future;
 
 import org.sipfoundry.commons.userdb.User;
 
@@ -37,11 +36,11 @@ public interface MailboxManager {
 
     void deleteTempMessage(TempMessage message);
 
-    Future<?> store(User destUser, Folder folder, TempMessage message, String subject);
+    void store(User destUser, Folder folder, TempMessage message, String subject);
 
-    Future<?> storeInInbox(User destUser, TempMessage message);
+    void storeInInbox(User destUser, TempMessage message);
 
-    Future<?> copyMessage(User destUser, TempMessage message);
+    void copyMessage(User destUser, TempMessage message);
 
     VmMessage getVmMessage(String username, String messageId, boolean loadAudio);
 
@@ -55,7 +54,7 @@ public interface MailboxManager {
 
     void removeDeletedMessages(String username);
 
-    Future<?> forwardMessage(User destUser, VmMessage message, TempMessage comments);
+    void forwardMessage(User destUser, VmMessage message, TempMessage comments);
 
     File getRecordedName(String username);
 
