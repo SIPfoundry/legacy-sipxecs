@@ -374,9 +374,9 @@ int main(int argc, char* argv[])
     }
     /*
      * If a value <=0 was given to MaxSessions then the default value will be used because
-     * it make no sense to have "0" active sessions.
+     * it make no sense to have "0" or negative sessions.
      */
-    if (0 <= MaxSessions)
+    if (0 >= MaxSessions)
     {
         MaxSessions = DEFAULT_MAX_SESSIONS;
     }
