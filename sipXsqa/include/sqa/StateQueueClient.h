@@ -315,6 +315,20 @@ public:
     {
       return _isConnected;
     }
+
+    std::string getLocalAddress()
+    {
+      try
+      {
+        if (!_pSocket)
+          return "";
+        return _pSocket->local_endpoint().address().to_string();
+      }
+      catch(...)
+      {
+        return "";
+      }
+    }
   private:
     boost::asio::io_service& _ioService;
     boost::asio::ip::tcp::resolver _resolver;
@@ -353,6 +367,7 @@ protected:
   int _backoffCount;
   bool _refreshSignin;
   int _currentSigninTick;
+  std::string _localAddress;
 
 public:
   StateQueueClient(
@@ -390,6 +405,10 @@ public:
       {
         BlockingTcpClient* pClient = new BlockingTcpClient(_ioService, readTimeout, writeTimeout, i == 0 ? SQA_KEY_ALPHA : SQA_KEY_DEFAULT );
         pClient->connect(_serviceAddress, _servicePort);
+
+        if (_localAddress.empty())
+          _localAddress = pClient->getLocalAddress();
+
         _clientPointers.push_back(pClient);
         BlockingTcpClient::Ptr client(pClient);
         _clientPool.enqueue(client);
@@ -447,6 +466,10 @@ public:
       {
         BlockingTcpClient* pClient = new BlockingTcpClient(_ioService, readTimeout, writeTimeout, i == 0 ? SQA_KEY_ALPHA : SQA_KEY_DEFAULT);
         pClient->connect();
+
+        if (_localAddress.empty())
+          _localAddress = pClient->getLocalAddress();
+        
         _serviceAddress = pClient->_serviceAddress;
         _servicePort = pClient->_servicePort;
         _clientPointers.push_back(pClient);
@@ -477,6 +500,11 @@ public:
   ~StateQueueClient()
   {
     terminate();
+  }
+
+  const std::string& getLocalAddress()
+  {
+    return _localAddress;
   }
 
   void terminate()

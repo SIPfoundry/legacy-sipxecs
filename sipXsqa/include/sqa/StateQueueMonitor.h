@@ -41,6 +41,7 @@ public:
   void setTerminateHandler(Handler handler);
   void setKeepAliveHandler(Handler handler);
 
+  const char* getLocalAddress();
 private:
   void internal_run();
   void handleConnect(const std::string& appId, const std::string& address);
@@ -76,6 +77,11 @@ inline StateQueueMonitor::~StateQueueMonitor()
   {
     stop();
   }
+}
+
+inline const char* StateQueueMonitor::getLocalAddress()
+{
+  return _instanceWatcher.getLocalAddress();
 }
 
 inline void StateQueueMonitor::run()
