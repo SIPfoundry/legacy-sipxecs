@@ -46,8 +46,8 @@ bundle edit_line registrar_config_contents() {
       "SIP_REDIRECT.140-FALLBACK.MAPPING_RULES_FILENAME : $(sipx.SIPX_CONFDIR)/fallbackrules.xml";
       "SIP_REDIRECT_HOOK_LIBRARY.090-USERPARAM : $(sipx.SIPX_LIBDIR)/libRedirectorUserParam.so";
       "SIP_REDIRECT_HOOK_LIBRARY.100-PICKUP : $(sipx.SIPX_LIBDIR)/libRedirectorPickUp.so";
-      "SIP_REDIRECT_HOOK_LIBRARY.110-REG : $(sipx.SIPX_LIBDIR)/libRedirectorRegDB.so";
-      "SIP_REDIRECT_HOOK_LIBRARY.120-ALIAS : $(sipx.SIPX_LIBDIR)/libRedirectorAliasDB.so";
+      "SIP_REDIRECT_HOOK_LIBRARY.110-ALIAS : $(sipx.SIPX_LIBDIR)/libRedirectorAliasDB.so";
+      "SIP_REDIRECT_HOOK_LIBRARY.120-REG : $(sipx.SIPX_LIBDIR)/libRedirectorRegDB.so";
       "SIP_REDIRECT_HOOK_LIBRARY.130-MAPPING : $(sipx.SIPX_LIBDIR)/libRedirectorMapping.so";
       "SIP_REDIRECT_HOOK_LIBRARY.140-FALLBACK : $(sipx.SIPX_LIBDIR)/libRedirectorFallback.so";
       "SIP_REDIRECT_HOOK_LIBRARY.150-ISN : $(sipx.SIPX_LIBDIR)/libRedirectorISN.so";

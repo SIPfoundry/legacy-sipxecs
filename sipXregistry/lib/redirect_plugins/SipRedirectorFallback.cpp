@@ -103,8 +103,8 @@ SipRedirectorFallback::finalize()
 RedirectPlugin::LookUpStatus
 SipRedirectorFallback::lookUp(
    const SipMessage& message,
-   const UtlString& requestString,
-   const Url& requestUri,
+   UtlString& requestString,
+   Url& requestUri,
    const UtlString& method,
    ContactList& contactList,
    RequestSeqNo requestSeqNo,
