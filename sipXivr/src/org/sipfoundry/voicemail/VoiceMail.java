@@ -54,6 +54,10 @@ public class VoiceMail extends SipxIvrApp {
             if (result == null) {
                 return null ;
             }
+
+            if (result.equals("retrieve")) {
+                controller.resetUser();
+            }
             action = result;
         }
         
