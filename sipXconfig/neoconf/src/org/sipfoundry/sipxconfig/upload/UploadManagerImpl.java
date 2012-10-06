@@ -157,12 +157,14 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
         // check if this is a managed device type
         if (spec.getManaged()) {
             // should never happen
-            if (existing.size() > 1) {
+            boolean allowMultipleUploads = (upload.getSettings().getSetting("firmware/allowMultipleUploads") != null) 
+                    ? (Boolean) upload.getSettingTypedValue("firmware/allowMultipleUploads") : false;
+            if (!allowMultipleUploads && existing.size() > 1) {
                 throw new AlreadyDeployedException(existing.size(), spec.getLabel());
             }
             if (existing.size() == 1) {
                 Upload existingUpload = existing.get(0);
-                if (!existingUpload.getId().equals(upload.getId())) {
+                if (!allowMultipleUploads && !existingUpload.getId().equals(upload.getId())) {
                     throw new AlreadyDeployedException(existingUpload.getName(), spec.getLabel());
                 }
             }

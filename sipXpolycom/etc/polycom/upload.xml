@@ -54,5 +54,11 @@
         </file>
       </type>
     </setting>
+    <setting name="allowMultipleUploads" hidden="yes">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>1</value>
+    </setting>
   </group>
 </model>
