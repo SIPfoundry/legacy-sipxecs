@@ -6,8 +6,6 @@
 	<property name="vendor" value="Polycom"/>
     <property name="staticProfileFilenames">
       <list>
-        <value>polycom_phone1_2.1.X.cfg</value>
-        <value>polycom_sip_2.1.X.cfg</value>
         <value>polycom_phone1_3.1.X.cfg</value>
         <value>polycom_sip_3.1.X.cfg</value>
         <value>polycom_phone1.cfg</value>
@@ -16,24 +14,14 @@
     </property>
     <property name="restartSupported" value="true" />
   </bean>
+
   <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"
     class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
   <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"
     class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />    
   <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"
     class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
-  <bean id="polycom300" parent="polycomModel">
-    <property name="label" value="Polycom SoundPoint IP 300/301" />
-    <property name="maxLineCount" value="2" />
-    <property name="supportedFeatures">
-      <set>
-        <value>disableCallList</value>
-        <value>intercom</value>
-        <value>IP_300_CodecPref</value>
-        <value>pre_3.2.0_model</value>
-      </set>
-    </property>
-  </bean>
+
   <bean id="polycom321" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 321" />
     <property name="maxLineCount" value="2" />
@@ -129,19 +117,6 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
     </property>    
-  </bean>
-  <bean id="polycom500" parent="polycomModel">
-    <property name="label" value="Polycom SoundPoint IP 500/501" />
-    <property name="maxLineCount" value="3" />
-    <property name="supportedFeatures">
-      <set>
-        <value>disableCallList</value>
-        <value>intercom</value>
-        <value>voiceQualityMonitoring</value>
-        <value>pre_3.2.0_model</value>
-        <value>OTHERS_CodecPref</value>
-      </set>
-    </property>
   </bean>
   <bean id="polycom550" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 550/560" />

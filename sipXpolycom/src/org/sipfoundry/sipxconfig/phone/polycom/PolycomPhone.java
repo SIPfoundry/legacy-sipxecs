@@ -60,6 +60,7 @@ public class PolycomPhone extends Phone {
     static final String SUBSCRIBE_PATH = "msg.mwi/subscribe";
     static final String TEMPLATE_DIR = "polycom/mac-address.d";
     static final String TEMPLATE_DIR40 = "polycom/mac-address.d.40";
+    static final String TEMPLATE_DIR32 = "polycom/mac-address.d.32";
 
     public String getDefaultVersionId() {
         DeviceVersion version = getDeviceVersion();
@@ -69,6 +70,8 @@ public class PolycomPhone extends Phone {
     public String getTemplateDir() {
         if (getDeviceVersion() == PolycomModel.VER_4_0_X) {
             return TEMPLATE_DIR40;
+        } else if (getDeviceVersion() == PolycomModel.VER_3_2_X) {
+            return TEMPLATE_DIR32;
         }
         return TEMPLATE_DIR;
     }
@@ -78,6 +81,8 @@ public class PolycomPhone extends Phone {
     public String getAppFile() {
         if (getDeviceVersion() == PolycomModel.VER_4_0_X) {
             return "/mac-address-40.cfg.vm";
+        } else if (getDeviceVersion() == PolycomModel.VER_3_2_X) {
+            return "/mac-address-32.cfg.vm";
         }
         return "/mac-address.cfg.vm";
     }

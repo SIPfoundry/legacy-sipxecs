@@ -63,8 +63,6 @@
    CONTACTS_DIRECTORY="${optional_root_url_path}"
    LOG_FILE_DIRECTORY="">
 
-#ModelSpecificNode( "SPIP300", "2.1.X" )
-#ModelSpecificNode( "SPIP500", "2.1.X" )
 #ModelSpecificNode( "SPIP301", "3.1.X" )
 #ModelSpecificNode( "SPIP501", "3.1.X" )
 #ModelSpecificNode( "SPIP600", "3.1.X" )
