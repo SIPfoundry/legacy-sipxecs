@@ -76,8 +76,8 @@ void SipRedirectorUserParam::readConfig(OsConfigDb& configDb)
 RedirectPlugin::LookUpStatus
 SipRedirectorUserParam::lookUp(
    const SipMessage& message,
-   const UtlString& requestString,
-   const Url& requestUri,
+   UtlString& requestString,
+   Url& requestUri,
    const UtlString& method,
    ContactList& contactList,
    RequestSeqNo requestSeqNo,
