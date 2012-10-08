@@ -3062,7 +3062,6 @@
           </type>
           <value></value>
         </setting>
-
         <setting name="3.filter">
           <type>
             <string/>
@@ -3123,4 +3122,52 @@
         </setting>
       </group>
   </group>
+    <group name="apps" if="desktopIntegration">
+      <setting name="ucdesktop.adminEnabled">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="ucdesktop.desktopUserName">
+        <type>
+		  <string />
+		</type>
+        <value></value>
+      </setting>
+      <setting name="ucdesktop.enabled">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="ucdesktop.orientation">
+        <type>
+          <enum>
+            <option>
+              <value>Unspecified</value>
+            </option>
+            <option>
+              <value>Left</value>
+            </option>
+            <option>
+              <value>Right</value>
+            </option>
+          </enum>
+        </type>
+        <value>Unspecified</value>
+      </setting>
+      <setting name="ucdesktop.ServerAddress">
+        <type>
+		  <string />
+		</type>
+        <value></value>
+      </setting>
+      <setting name="ucdesktop.ServerPort">
+        <type>
+          <integer min="1" max="65535"/>
+        </type>
+        <value>24800</value>
+      </setting>
+    </group>
 </model>

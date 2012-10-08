@@ -275,6 +275,7 @@
         <value>localConferenceCallHold</value>
         <value>singleKeyPressConference</value>
         <value>VVX_500_CodecPref</value>
+        <value>desktopIntegration</value>
       </set>
     </property>
     <property name="versions">

@@ -198,4 +198,12 @@
     dir.corp.${setting.ProfileName}="$!{setting.Value}"
 #end
   />
+<apps>
+  <apps.ucdesktop
+#set ($group = $cfg.EndpointSettings.getSetting('apps'))
+#foreach ($setting in $cfg.getSettings($group))
+    apps.${setting.ProfileName}="$!{setting.Value}"
+#end
+  />
+</apps>
 </phone1>
