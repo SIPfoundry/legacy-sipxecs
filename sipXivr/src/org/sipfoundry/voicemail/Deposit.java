@@ -83,10 +83,7 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
                 // See if the digit they pressed was defined in the Personal Attendant
                 String transferUrl = null;
                 if (digits.equals("0")) {
-                    transferUrl = pa.getOperator();
-                    if (transferUrl == null) {
-                        transferUrl = m_operatorAddr;
-                    }
+                    transferUrl = getOperatorUrl(pa);
                 } else {
                     // See if the Personal Attendant defined that digit to mean anything
                     transferUrl = pa.getMenuValue(digits);
@@ -118,7 +115,7 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
                                 tempMessage.setIsToBeStored(false);
                             }
 
-                            transfer(pa.getOperator(), true, true);
+                            transfer(getOperatorUrl(pa), true, true);
                             return null;
                         }
 
@@ -226,6 +223,14 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
             }
         }
         return null;
+    }
+
+    private String getOperatorUrl(PersonalAttendant pa) {
+        String transferUrl = pa.getOperator();
+        if (transferUrl == null) {
+            transferUrl = m_operatorAddr;
+        }
+        return transferUrl;
     }
 
     private void putChannelUUID(User user, String uuid) {
