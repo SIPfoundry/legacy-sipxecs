@@ -463,12 +463,20 @@
       />
     </hold>
   </call>
-  <directory
-#set ($group = $cfg.EndpointSettings.getSetting('directory'))
+  <dir>
+  <dir.local
+#set ($group = $cfg.EndpointSettings.getSetting('dir.local'))
 #foreach ($setting in $cfg.getRecursiveSettings($group))
-    ${setting.ProfileName}="$!{setting.Value}"
+    dir.local.${setting.ProfileName}="$!{setting.Value}"
 #end
   />
+  <dir.corp
+#set ($group = $cfg.EndpointSettings.getSetting('dir.corp'))
+#foreach ($setting in $cfg.getRecursiveSettings($group))
+    dir.corp.${setting.ProfileName}="$!{setting.Value}"
+#end
+  />
+  </dir>
   <presence
 #set ($group = $cfg.EndpointSettings.getSetting('presence'))
 #foreach ($setting in $cfg.getRecursiveSettings($group))

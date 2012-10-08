@@ -1597,7 +1597,7 @@
       <value>90</value>
     </setting>
   </group>
-  <group name="directory">
+  <group name="dir">
     <setting name="dir.local.readonly">
       <type>
         <boolean />
