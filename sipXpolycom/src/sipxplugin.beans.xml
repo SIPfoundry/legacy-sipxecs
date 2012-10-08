@@ -265,7 +265,7 @@
   </bean>
   <bean id="polycomVVX500" parent="polycomModel">
     <property name="label" value="Polycom VVX 500" />
-    <property name="maxLineCount" value="6" />
+    <property name="maxLineCount" value="12" />
     <property name="supportedFeatures">
       <set>
         <value>disableCallList</value>
