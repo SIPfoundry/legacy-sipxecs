@@ -130,7 +130,7 @@ SipRedirectorMapping::lookUp(
       EntityRecord entity;
      std::set<std::string> permissions;
      EntityDB* entityDb = SipRegistrar::getInstance(NULL)->getEntityDB();
-     if (entityDb->findByIdentity(requestUri, entity))
+     if (entityDb->findByIdentityOrAlias(requestUri, entity))
         permissions = entity.permissions();
      size_t numDBPermissions = permissions.size();
 
