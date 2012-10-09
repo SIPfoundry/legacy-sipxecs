@@ -179,7 +179,7 @@ SipRedirectorAliasDB::lookUp(
                contactUri.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, "AL");
                
                
-               if (numAliasContacts == 1 && isDomainAlias)
+               if (numAliasContacts == 1 && isDomainAlias && isUserIdentity)
                {
 
                  UtlString userId;
