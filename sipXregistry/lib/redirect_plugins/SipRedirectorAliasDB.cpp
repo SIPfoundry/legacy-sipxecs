@@ -124,6 +124,7 @@ SipRedirectorAliasDB::lookUp(
    if (mpSipUserAgent && domain != _localDomain && isMyHostAlias)
    {
      isDomainAlias = true;
+     requestUri.setHostAddress(_localDomain);
    }
 
    UtlString requestIdentity;
@@ -177,22 +178,15 @@ SipRedirectorAliasDB::lookUp(
                }
 
                contactUri.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, "AL");
-               
-               
+               // Add the contact.
+               contactList.add( contactUri, *this );
+
                if (numAliasContacts == 1 && isDomainAlias)
                {
-
                  UtlString userId;
                  contactUri.getUserId(userId);
                  requestUri.setUserId(userId.data());
-                 requestUri.setHostAddress(_localDomain);
                  requestUri.getUri(requestString);
-                 OS_LOG_NOTICE(FAC_SIP, "SipRedirectorAliasDB::lookUp normalized request-uri to " << requestString.data());
-               }
-               else
-               {
-                 // Add the contact.
-                 contactList.add( contactUri, *this );
                }
             }
       }
