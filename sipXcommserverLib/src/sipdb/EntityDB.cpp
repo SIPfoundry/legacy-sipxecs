@@ -16,8 +16,6 @@
 #include <mongo/client/connpool.h>
 #include "os/OsLogger.h"
 #include "sipdb/EntityDB.h"
-#include <boost/algorithm/string.hpp>
-#include <vector>
 
 using namespace std;
 
@@ -101,20 +99,6 @@ bool EntityDB::findByAliasUserId(const string& alias, EntityRecord& entity) cons
 	return false;
 }
 
-bool EntityDB::findByAliasIdentity(const std::string& identity, EntityRecord& entity) const
-{
-  std::vector<std::string> tokens;
-  boost::split(tokens, alias, boost::is_any_of("@"), boost::token_compress_on);
-  if (tokens.size() != 2)
-    return false;
-  std::string userId = tokens[0];
-  std::string host = tokens[1];
-  if (!findByAliasUserId(userId, entity))
-    return false;
-  size_t i = str.rfind(host);
-  return (i != std::string::npos) && (i == (entity.identity().length() - ::strlen(host)));
-}
-
 /// Retrieve the SIP credential check values for a given identity and realm
 bool EntityDB::getCredential(const Url& uri, const UtlString& realm, UtlString& userid, UtlString& passtoken,
 		UtlString& authType) const
@@ -161,13 +145,8 @@ void EntityDB::getAliasContacts(const Url& aliasIdentity, Aliases& aliases, bool
 	if (alias.isNull())
 		return;
 
-  UtlString identity;
-	uri.getIdentity(identity);
-  if (identity.isNull())
-		return;
-
 	EntityRecord entity;
-	if (findByAliasIdentity(identity.str(), entity))
+	if (findByAliasUserId(alias.str(), entity))
 	{
 		Aliases result = entity.aliases();
 		for (Aliases::iterator iter = result.begin(); iter != result.end(); iter++)
