@@ -38,7 +38,12 @@
     </setting>  
     <setting name="bootrom">
       <label>Bootrom (zip)</label>
-      <type refid="zip"/>
+      <type>
+        <file>
+          <contentType>application/zip</contentType>
+          <moveTo>../../</moveTo>
+        </file>
+      </type>
     </setting>
     <setting name="licenses.zip">
       <type refid="zip"/>
@@ -50,7 +55,7 @@
       <type>
         <file>
           <contentType>application/binary</contentType>
-          <rename>sip_3.1.X.ld</rename>
+          <rename>sip.ld</rename>
         </file>
       </type>
     </setting>

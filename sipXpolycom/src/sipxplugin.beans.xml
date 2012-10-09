@@ -4,14 +4,6 @@
   <bean id="polycomModel" parent="abstractPhoneModel" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel"
     abstract="true" >
 	<property name="vendor" value="Polycom"/>
-    <property name="staticProfileFilenames">
-      <list>
-        <value>polycom_phone1_3.1.X.cfg</value>
-        <value>polycom_sip_3.1.X.cfg</value>
-        <value>polycom_phone1.cfg</value>
-        <value>polycom_sip.cfg</value>
-      </list>
-    </property>
     <property name="restartSupported" value="true" />
   </bean>
 
