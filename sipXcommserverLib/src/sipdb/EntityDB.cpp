@@ -104,15 +104,15 @@ bool EntityDB::findByAliasUserId(const string& alias, EntityRecord& entity) cons
 bool EntityDB::findByAliasIdentity(const std::string& identity, EntityRecord& entity) const
 {
   std::vector<std::string> tokens;
-  boost::split(tokens, alias, boost::is_any_of("@"), boost::token_compress_on);
+  boost::split(tokens, identity, boost::is_any_of("@"), boost::token_compress_on);
   if (tokens.size() != 2)
     return false;
   std::string userId = tokens[0];
   std::string host = tokens[1];
   if (!findByAliasUserId(userId, entity))
     return false;
-  size_t i = str.rfind(host);
-  return (i != std::string::npos) && (i == (entity.identity().length() - ::strlen(host)));
+  size_t i = entity.identity().rfind(host);
+  return (i != std::string::npos) && (i == (entity.identity().length() - host.length()));
 }
 
 /// Retrieve the SIP credential check values for a given identity and realm
@@ -162,7 +162,7 @@ void EntityDB::getAliasContacts(const Url& aliasIdentity, Aliases& aliases, bool
 		return;
 
   UtlString identity;
-	uri.getIdentity(identity);
+	aliasIdentity.getIdentity(identity);
   if (identity.isNull())
 		return;
 
