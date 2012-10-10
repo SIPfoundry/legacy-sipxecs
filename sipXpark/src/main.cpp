@@ -100,6 +100,11 @@ const char* PARK_SERVER_ID_TOKEN = "~~id~park"; // see sipXregistry/doc/service-
                                                  // This is not configurable via
                                                  // sipxpark-config, as a cons. xfer.
                                                  // should succeed or fail immediately.
+/*
+ * @brief The min accepted value for msStartup function's parameter numAudioBuffers.
+ * @sa computeNumAudioBuffers
+ */
+#define MIN_NUM_AUDIO_BUFFERS         42
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -118,6 +123,42 @@ UtlBoolean    gShutdownFlag = FALSE;
 
 
 /* ============================ FUNCTIONS ================================= */
+
+/**
+ * @brief Computes numAudioBuffers as 6 * MaxSessions. Takes case of minimum
+ * required value.
+ *
+ * 6 is a magic undocumented value and MaxSessions is the park server's
+ * configuration option "Max Sessions".
+ * Function mpStartup requires numAudioBuffers to be at least 37,
+ * otherwise the following assert will fail:
+ *         assert(
+ *            (MIC_BUFFER_Q_LEN+SPK_BUFFER_Q_LEN+MIC_BUFFER_Q_LEN) <
+ *                             (MpBufPool_getNumBufs(MpMisc.UcbPool)-3));
+ *
+ * For a successful mpStartup call MaxSessions should be at least 7, leading
+ * to minimum numAudioBuffers to be 42.
+ * @sa MIN_NUM_AUDIO_BUFFERS
+ * @return The computed numAudioBuffer or MIN_NUM_AUDIO_BUFFERS
+ */
+static int computeNumAudioBuffers(int maxSessions)
+{
+	// TODO: Find out the meaning of the "6" value!
+	int numAudioBuffers = 6 * maxSessions;
+
+	if (numAudioBuffers < MIN_NUM_AUDIO_BUFFERS)
+	{
+		numAudioBuffers = MIN_NUM_AUDIO_BUFFERS;
+
+		Os::Logger::instance().log(FAC_PARK, PRI_DEBUG,
+				"Given Max Sessions value %d is too low for a successful msStartup call, "
+				"numAudioBuffers will use the minimum value %d.",
+				maxSessions, numAudioBuffers);
+	}
+
+	return numAudioBuffers;
+}
+
 
 // Initialize the OsSysLog
 void initSysLog(OsConfigDb* pConfig)
@@ -326,8 +367,16 @@ int main(int argc, char* argv[])
             !OsSocket::isIp4Address(bindIp))
         bindIp = PARK_DEFAULT_BIND_IP;
 
-    int MaxSessions;
+    int MaxSessions = 0;
     if (configDb.get(CONFIG_SETTING_MAX_SESSIONS, MaxSessions) != OS_SUCCESS)
+    {
+        MaxSessions = DEFAULT_MAX_SESSIONS;
+    }
+    /*
+     * If a value <=0 was given to MaxSessions then the default value will be used because
+     * it make no sense to have "0" or negative sessions.
+     */
+    if (0 >= MaxSessions)
     {
         MaxSessions = DEFAULT_MAX_SESSIONS;
     }
@@ -499,8 +548,10 @@ int main(int argc, char* argv[])
     SdpCodecFactory codecFactory;
     initCodecs(&codecFactory, &configDb);
 
+    int numAudioBuffers = computeNumAudioBuffers(MaxSessions);
+
     // Initialize and start up the media subsystem
-    mpStartUp(MP_SAMPLE_RATE, MP_SAMPLES_PER_FRAME, 6 * MaxSessions, &configDb);
+    mpStartUp(MP_SAMPLE_RATE, MP_SAMPLES_PER_FRAME, numAudioBuffers, &configDb);
     MpMediaTask::getMediaTask(MaxSessions);
 
 #ifdef INCLUDE_RTCP

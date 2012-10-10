@@ -25,6 +25,7 @@ nobase_include_HEADERS = \
 	sqa/TimedQueue.h \
 	sqa/UnitTest.h \
 	sqa/sqaclient.h \
-	sqa/sqaclient_plugin.h
+	sqa/sqaclient_plugin.h \
+	sqa/StateQueueMonitor.h
 
 

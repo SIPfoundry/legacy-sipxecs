@@ -68,8 +68,7 @@ pam_service_name=vsftpd
 listen=YES
 chroot_local_user=YES
 port_enable=YES
-log_ftp_protocol=YES
-";
+log_ftp_protocol=YES";
     "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/vsftp.config.part"
       insert_type => "file";
 }

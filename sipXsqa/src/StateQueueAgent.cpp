@@ -204,6 +204,24 @@ void StateQueueAgent::onIncomingConnection(StateQueueConnection::Ptr conn)
 {
 }
 
+void StateQueueAgent::onDestroyConnection(StateQueueConnection::Ptr conn)
+{
+  //
+  // Publish connection destruction to who ever wants to know
+  //
+  if (conn->isAlphaConnection() && !conn->getApplicationId().empty())
+  {
+    StateQueueRecord record;
+    record.id = "sqw.connection.terminated";
+    record.data = conn->getApplicationId();
+    record.data += "|";
+    record.data += conn->getRemoteAddress();
+    publish(record);
+  }
+
+  _listener.destroyConnection(conn);
+}
+
 void StateQueueAgent::onIncomingRequest(StateQueueConnection& conn, const char* bytes, std::size_t bytes_transferred)
 {
   OS_LOG_DEBUG(FAC_NET, "StateQueueAgent::onIncomingRequest processing " << bytes_transferred << " bytes.");
@@ -228,6 +246,43 @@ void StateQueueAgent::onIncomingRequest(StateQueueConnection& conn, const char* 
     {
       sendErrorResponse(type, conn, id, "Missing required argument message-app-id.");
       return;
+    }
+    
+    conn.setApplicationId(appId);
+
+    if (conn.isAlphaConnection() && !conn.isCreationPublished())
+    {
+      StateQueueRecord record;
+      record.id = "sqw.connection.established";
+      record.data = conn.getApplicationId();
+      record.data += "|";
+      record.data += conn.getRemoteAddress();
+      publish(record);
+      //
+      // Mark it as published
+      //
+      conn.setCreationPublished();
+    }
+  }
+  else
+  {
+    //
+    // This is a PING request
+    //
+    if (!message.get("message-app-id", appId) || appId.empty())
+    {
+      sendErrorResponse(type, conn, id, "Missing required argument message-app-id.");
+      return;
+    }
+
+    if (conn.isAlphaConnection())
+    {
+      StateQueueRecord record;
+      record.id = "sqw.connection.keepalive";
+      record.data = conn.getApplicationId();
+      record.data += "|";
+      record.data += conn.getRemoteAddress();
+      publish(record);
     }
   }
 
@@ -999,6 +1054,17 @@ void StateQueueAgent::handleSignin(StateQueueConnection& conn, StateQueueMessage
   OS_LOG_NOTICE(FAC_NET, "StateQueueAgent::handleSignin " << appId << "/" << subscriptionEvent << " RECEIVED");
 
   sendOkResponse(message.getType(), conn, id, _publisherAddress);
+
+  conn.setApplicationId(appId);
+
+
+  StateQueueRecord record;
+  record.id = "sqw.connection.signin";
+  record.data = conn.getApplicationId();
+  record.data += "|";
+  record.data += conn.getRemoteAddress();
+  publish(record);
+
 }
 
 void StateQueueAgent::handleLogout(StateQueueConnection& conn, StateQueueMessage& message,
@@ -1024,6 +1090,13 @@ void StateQueueAgent::handleLogout(StateQueueConnection& conn, StateQueueMessage
   OS_LOG_NOTICE(FAC_NET, "StateQueueAgent::handleLogout " << appId << "/" << subscriptionEvent << " RECEIVED");
 
   sendOkResponse(message.getType(), conn, id, "bfn!");
+
+  StateQueueRecord record;
+  record.id = "sqw.connection.logout";
+  record.data = conn.getApplicationId();
+  record.data += "|";
+  record.data += conn.getRemoteAddress();
+  publish(record);
 }
 
 

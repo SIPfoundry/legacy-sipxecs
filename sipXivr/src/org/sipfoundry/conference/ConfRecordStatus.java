@@ -133,6 +133,10 @@ public class ConfRecordStatus extends HttpServlet {
                 IOUtils.closeQuietly(streamOut);
 
                 mailboxManager.store(validUsers.getUser(parmOwnerName), Folder.CONFERENCE, tempMessage, MailboxManager.CONFERENCE_CALL);
+                //cleanup temporary message
+                if (tempMessage != null) {
+                    mailboxManager.deleteTempMessage(tempMessage);
+                }
             } catch (IOException e) {
                 LOG.error("ConfRecordStatus::Copy IO error ", e);
             } finally {

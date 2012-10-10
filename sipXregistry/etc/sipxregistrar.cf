@@ -56,7 +56,7 @@ bundle edit_line registrar_config_contents() {
       "SIP_REDIRECT_HOOK_LIBRARY.997-SUBSCRIBE : $(sipx.SIPX_LIBDIR)/libRedirectorSubscribe.so";
       "SIP_REDIRECT_HOOK_LIBRARY.998-TIMEOFDAY : $(sipx.SIPX_LIBDIR)/libRedirectorTimeOfDay.so";
       "SIP_REDIRECT_HOOK_LIBRARY.999-AUTHROUTER : $(sipx.SIPX_LIBDIR)/libRedirectorAuthRouter.so";
-      "SIP_REGISTRAR_BIND_IP : $(sys.ipv4)";
+      "SIP_REGISTRAR_BIND_IP : $(sipx.bind_ip)";
       "SIP_REGISTRAR_HOOK_LIBRARY.MWI : $(sipx.SIPX_LIBDIR)/libRegistrarImpliedMWI.so";
 
   delete_lines:

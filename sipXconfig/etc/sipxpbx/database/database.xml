@@ -155,6 +155,44 @@
     <delete dir="${tmp.dir}/index" failonerror="false" />
   </target>
 
+  <target name="schema" unless="schema">
+    <psql src="${sql.dir}/schema.sql" />
+    <psql src="${sql.dir}/change-on-restore.sql" />
+  </target>
+
+  <target name="migrate-2.8" depends="migrate-2.8-run" description="migrate existing 2.8 PDS database, note clears all existing 3.0 data" />
+
+  <target name="import-2.8" depends="import-2.8-run,migrate-2.8" description="import 2.8 PDS database from backup file, note clears all existing 3.0 data" />
+
+  <target name="reset-superadmin" depends="upgrade" description="initialize superadmin user, administation group and resets password to blank">
+    <sipx-task beanId="resetAdministrator" />
+  </target>
+
+  <target name="setup" depends="upgrade" description="Run setup which in turn may run cfengine work if there is work to do">
+    <sipx-task beanId="setup" />
+  </target>
+
+  <target name="first-run" depends="upgrade" description="Make sipXconfig behave as it was just installed or upgraded.">
+    <sipx-sql>
+      insert into initialization_task (name) values ('first-run');
+    </sipx-sql>
+  </target>
+
+  <target name="polycom-2.0" description="Migrate all polycom phones to generate 2.0 profiles">
+    <property name="polycom-from-id" value="1.6" />
+    <property name="polycom-to-id" value="2.0" />
+    <antcall target="migrate-polycom" />
+  </target>
+  <target name="migrate-polycom">
+    <sipx-sql>
+      update phone set device_version_id = 'polycom${polycom-to-id}'
+      where bean_id = 'polycom';
+    </sipx-sql>
+    <replace file="${sipxpbx.conf.dir}/sipxconfig.properties">
+      <replacefilter token="polycom.defaultVersionId=${polycom-from-id}" value="polycom.defaultVersionId=${polycom-to-id}" />
+    </replace>
+  </target>
+
   <!-- List each dependency on a separate line below to make source control merging easier -->
   <target name="version1" description="upgrade from version 0" unless="version2">
     <fail message="${message.oldversion}"/>
@@ -406,6 +444,7 @@
   <target name="version13" description="upgrade from version 12" unless="version14">
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="14" -->
+    <antcall target="change-on-restore-update1" />
   </target>
 
   <target name="plugin-patches">
@@ -428,6 +467,11 @@
       </sipx-sql>
       <mark-patch-applied patch="${patch}" />
     </sequential>
+  </target>
+
+  <!-- there was an update to psql, so we can just treat it as a new patch -->
+  <target name="change-on-restore-update1" unless="change-on-restore-update1">
+    <plsql-patch-2 patch="change-on-restore" mark-as="change-on-restore-update1"/>
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -574,43 +618,6 @@
 
   <target name="caller-alias-2" unless="caller-alias-2">
     <db-patch patch="caller-alias-2" />
-  </target>
-
-  <target name="schema" unless="schema">
-    <psql src="${sql.dir}/schema.sql" />
-  </target>
-
-  <target name="migrate-2.8" depends="migrate-2.8-run" description="migrate existing 2.8 PDS database, note clears all existing 3.0 data" />
-
-  <target name="import-2.8" depends="import-2.8-run,migrate-2.8" description="import 2.8 PDS database from backup file, note clears all existing 3.0 data" />
-
-  <target name="reset-superadmin" depends="upgrade" description="initialize superadmin user, administation group and resets password to blank">
-    <sipx-task beanId="resetAdministrator" />
-  </target>
-
-  <target name="setup" depends="upgrade" description="Run setup which in turn may run cfengine work if there is work to do">
-    <sipx-task beanId="setup" />
-  </target>
-
-  <target name="first-run" depends="upgrade" description="Make sipXconfig behave as it was just installed or upgraded.">
-    <sipx-sql>
-      insert into initialization_task (name) values ('first-run');
-    </sipx-sql>
-  </target>
-
-  <target name="polycom-2.0" description="Migrate all polycom phones to generate 2.0 profiles">
-    <property name="polycom-from-id" value="1.6" />
-    <property name="polycom-to-id" value="2.0" />
-    <antcall target="migrate-polycom" />
-  </target>
-  <target name="migrate-polycom">
-    <sipx-sql>
-      update phone set device_version_id = 'polycom${polycom-to-id}'
-      where bean_id = 'polycom';
-    </sipx-sql>
-    <replace file="${sipxpbx.conf.dir}/sipxconfig.properties">
-      <replacefilter token="polycom.defaultVersionId=${polycom-from-id}" value="polycom.defaultVersionId=${polycom-to-id}" />
-    </replace>
   </target>
 
   <target name="forwardrulemode" unless="forwardrulemode">
@@ -1357,6 +1364,18 @@
         <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/@{patch}.sql" />
       </exec>
       <mark-patch-applied patch="@{patch}" />
+    </sequential>
+  </macrodef>
+
+  <!-- apply a patch but mark as different patch -->
+  <macrodef name="plsql-patch-2">
+    <attribute name="patch" />
+    <attribute name="mark-as" />
+    <sequential>
+      <exec executable="psql" failonerror="true">
+        <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/@{patch}.sql" />
+      </exec>
+      <mark-patch-applied patch="@{mark-as}" />
     </sequential>
   </macrodef>
 

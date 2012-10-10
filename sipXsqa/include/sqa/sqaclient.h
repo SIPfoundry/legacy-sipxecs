@@ -97,6 +97,11 @@ public:
   ~SQAWatcher();
 
   //
+  // Returns the local IP address of the client
+  //
+  const char* getLocalAddress();
+
+  //
   // Returns true if the client is connected to SQA
   //
   bool isConnected();
@@ -172,6 +177,11 @@ public:
   bool publishAndPersist(int workspace, const char* id, const char* data, int expires);
 
   //
+  // Returns the local IP address of the client
+  //
+  const char* getLocalAddress();
+
+  //
   // Set a value in the event queue workspace
   //
   void set(int workspace, const char* name, const char* data, int expires);
@@ -223,6 +233,11 @@ public:
   );
 
   ~SQAWorker();
+
+  //
+  // Returns the local IP address of the client
+  //
+  const char* getLocalAddress();
 
   //
   // Returns true if the client is connected to SQA
@@ -294,6 +309,11 @@ public:
   );
 
   ~SQADealer();
+
+  //
+  // Returns the local IP address of the client
+  //
+  const char* getLocalAddress();
 
   //
   // Returns true if the client is connected to SQA
@@ -422,6 +442,11 @@ inline SQAWatcher::SQAWatcher(const SQAWatcher& copy)
 inline SQAWatcher::~SQAWatcher()
 {
   delete reinterpret_cast<StateQueueClient*>(_connection);
+}
+
+inline const char* SQAWatcher::getLocalAddress()
+{
+  return reinterpret_cast<StateQueueClient*>(_connection)->getLocalAddress().c_str();
 }
 
 inline bool SQAWatcher::isConnected()
@@ -561,6 +586,11 @@ inline SQAPublisher::~SQAPublisher()
   delete reinterpret_cast<StateQueueClient*>(_connection);
 }
 
+inline const char* SQAPublisher::getLocalAddress()
+{
+  return reinterpret_cast<StateQueueClient*>(_connection)->getLocalAddress().c_str();
+}
+
 inline bool SQAPublisher::isConnected()
 {
   return reinterpret_cast<StateQueueClient*>(_connection)->isConnected();
@@ -687,6 +717,11 @@ inline SQADealer::~SQADealer()
   delete reinterpret_cast<StateQueueClient*>(_connection);
 }
 
+inline const char* SQADealer::getLocalAddress()
+{
+  return reinterpret_cast<StateQueueClient*>(_connection)->getLocalAddress().c_str();
+}
+
 inline bool SQADealer::isConnected()
 {
   return reinterpret_cast<StateQueueClient*>(_connection)->isConnected();
@@ -807,6 +842,11 @@ inline SQAWorker::SQAWorker(const SQAWorker& copy)
 inline SQAWorker::~SQAWorker()
 {
   delete reinterpret_cast<StateQueueClient*>(_connection);
+}
+
+inline const char* SQAWorker::getLocalAddress()
+{
+  return reinterpret_cast<StateQueueClient*>(_connection)->getLocalAddress().c_str();
 }
 
 inline bool SQAWorker::isConnected()

@@ -19,7 +19,6 @@ package org.sipfoundry.voicemail.mailbox;
 import java.io.File;
 import java.io.IOException;
 import java.io.SequenceInputStream;
-import java.util.concurrent.Future;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -85,16 +84,16 @@ public abstract class AbstractMailboxManager implements MailboxManager {
     }
 
     @Override
-    public final Future<?> storeInInbox(User destUser, TempMessage message) {
-        return store(destUser, Folder.INBOX, message, VOICEMAIL_SUBJECT);
+    public final void storeInInbox(User destUser, TempMessage message) {
+        store(destUser, Folder.INBOX, message, VOICEMAIL_SUBJECT);
     }
 
     @Override
-    public final Future<?> store(User destUser, Folder folder, TempMessage message, String subject) {
+    public final void store(User destUser, Folder folder, TempMessage message, String subject) {
         // Not this one, just delete any temp file
         if (!message.isToBeStored()) {
             FileUtils.deleteQuietly(new File(message.getTempPath()));
-            return null;
+            return;
         }
 
         if (!message.isStored()) {
@@ -107,27 +106,24 @@ public abstract class AbstractMailboxManager implements MailboxManager {
             if (savedMessage != null) {
                 //Make sure to set folder after the message was correctly saved
                 savedMessage.setParentFolder(folder);
-                return m_emailer.queueVm2Email(destUser, savedMessage);
+                m_emailer.queueVm2Email(destUser, savedMessage);
             }
         }
-
-        return null;
     }
 
     @Override
-    public final Future<?> copyMessage(User destUser, TempMessage message) {
+    public final void copyMessage(User destUser, TempMessage message) {
         String newMessageId = nextMessageId(m_mailstoreDirectory + "/..");
         VmMessage savedMessage = copyMessage(newMessageId, destUser, message);
         if (savedMessage != null) {
             //the method applies only to voicemails - so the folder where the message is saved is always INBOX
             savedMessage.setParentFolder(Folder.INBOX);
-            return m_emailer.queueVm2Email(destUser, savedMessage);
+            m_emailer.queueVm2Email(destUser, savedMessage);
         }
-        return null;
     }
 
     @Override
-    public Future<?> forwardMessage(User destUser, VmMessage message, TempMessage comments) {
+    public void forwardMessage(User destUser, VmMessage message, TempMessage comments) {
         String newMessageId = nextMessageId(m_mailstoreDirectory + "/..");
         MessageDescriptor descriptor = createMessageDescriptor(destUser.getUserName(), comments, newMessageId,
                 destUser.getIdentity());
@@ -136,13 +132,12 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         descriptor.setSubject("Fwd:Voice Message " + newMessageId);
         VmMessage savedMessage = forwardMessage(message, comments, descriptor, destUser, newMessageId);
         if (savedMessage != null) {
-            //the method applies only to voicemails - so the folder where the message is saved is always INBOX
-            savedMessage.setParentFolder(Folder.INBOX);
-            comments.setSavedMessageId(newMessageId);
-            comments.setStored(true);
-            return m_emailer.queueVm2Email(destUser, savedMessage);
+            m_emailer.queueVm2Email(destUser, savedMessage);
         }
-        return null;
+        //the method applies only to voicemails - so the folder where the message is saved is always INBOX
+        savedMessage.setParentFolder(Folder.INBOX);
+        comments.setSavedMessageId(newMessageId);
+        comments.setStored(true);
     }
 
     @Override

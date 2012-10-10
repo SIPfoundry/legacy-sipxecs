@@ -76,6 +76,7 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
     private boolean m_enabled;
     private String m_name;
     private String m_description;
+    private String m_identity;
     private String m_extension;
     private String m_did;
     private Bridge m_bridge;
@@ -330,8 +331,7 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
 
     @Override
     public String getIdentity(String domain) {
-        // TODO Auto-generated method stub
-        return null;
+        return SipUri.stripSipPrefix(SipUri.format(null, getExtension(), domain));
     }
 
     @Override

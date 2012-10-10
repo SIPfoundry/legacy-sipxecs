@@ -24,6 +24,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
@@ -34,10 +36,19 @@ import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.annotation.Required;
 
-public class SipxServices implements SetupListener, FeatureListener {
+public class SipxServices implements SetupListener, FeatureListener, ConfigProvider {
     private static final Log LOG = LogFactory.getLog(SipxServices.class);
     private ConfigManager m_configManager;
     private SnmpManager m_snmpManager;
+
+    @Override
+    public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
+        if (!request.applies()) {
+            return;
+        }
+
+        writerServicesList();
+    }
 
     @Override
     public boolean setup(SetupManager manager) {

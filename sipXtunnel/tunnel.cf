@@ -27,13 +27,13 @@ bundle agent tunnel {
 bundle agent tunnel_config {
   vars:
     any::
-      "mode" slist => { 
-        "client", 
-        "server" 
+      "mode" slist => {
+        "client",
+        "server"
       };
-      "ssl" slist => { 
-        "tunnel.crt", 
-        "tunnel.key" 
+      "ssl" slist => {
+        "tunnel.crt",
+        "tunnel.key"
       };
 
   files:
@@ -76,7 +76,7 @@ bundle agent tunnel_running(mode) {
       "any" usebundle => rh_chkconfig_status("tunnel-$(mode) off");
 
   commands:
-    !tunnel.tunnel_running::
+    (!tunnel|stop_sipxecs).tunnel_running::
       "$(service)"
         comment => "stop tunnel $(mode)",
         args => "stop";

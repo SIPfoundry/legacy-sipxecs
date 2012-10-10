@@ -56,8 +56,9 @@
       <value>pcmu pcma telephone-event</value>
     </setting>
     <setting name="SIP_PARK_MAX_SESSIONS" advanced="yes">
-      <type><integer required="yes"/></type>
+      <type><integer required="yes" min="1" max="1000"/></type>
       <value>50</value>
+      <description>Maximum sessions that can be established with park server</description>
     </setting>
   </group>
 </model>

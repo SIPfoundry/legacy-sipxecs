@@ -35,13 +35,15 @@
 #define SQA_CONN_MAX_READ_BUFF_SIZE 65536
 #define SQA_CONN_READ_TIMEOUT 1000
 #define SQA_CONN_WRITE_TIMEOUT 1000
+#define SQA_KEY_MIN 22172
+#define SQA_KEY_ALPHA 22180
+#define SQA_KEY_DEFAULT SQA_KEY_MIN
+#define SQA_KEY_MAX 22200
 
 class StateQueueClient : public boost::enable_shared_from_this<StateQueueClient>, private boost::noncopyable
 {
 public:
 
-  
-  
   enum Type
   {
     Publisher,
@@ -56,13 +58,15 @@ public:
     BlockingTcpClient(
       boost::asio::io_service& ioService,
       int readTimeout = SQA_CONN_READ_TIMEOUT,
-      int writeTimeout = SQA_CONN_WRITE_TIMEOUT) :
+      int writeTimeout = SQA_CONN_WRITE_TIMEOUT,
+      short key = SQA_KEY_DEFAULT) :
       _ioService(ioService),
       _resolver(_ioService),
       _pSocket(0),
       _isConnected(false),
       _readTimeout(readTimeout),
-      _writeTimeout(writeTimeout)
+      _writeTimeout(writeTimeout),
+      _key(key)
     {
     }
 
@@ -184,11 +188,10 @@ public:
       }
 
       short version = 1;
-      short key = 22172;
       unsigned long len = (unsigned long)data.size() + 1; /// Account for the terminating char "_"
       std::stringstream strm;
       strm.write((char*)(&version), sizeof(version));
-      strm.write((char*)(&key), sizeof(key));
+      strm.write((char*)(&_key), sizeof(_key));
       strm.write((char*)(&len), sizeof(len));
       strm << data << "_";
       std::string packet = strm.str();
@@ -236,7 +239,6 @@ public:
     unsigned long getNextReadSize()
     {
       short version = 1;
-      short key = 22172;
       bool hasVersion = false;
       bool hasKey = false;
       unsigned long remoteLen = 0;
@@ -271,9 +273,6 @@ public:
           }
         }
 
-        //
-        // Read the key (must be 22172)
-        //
         while (true)
         {
 
@@ -289,7 +288,7 @@ public:
           }
           else
           {
-            if (remoteKey == key)
+            if (remoteKey >= SQA_KEY_MIN && remoteKey <= SQA_KEY_MAX)
             {
               hasKey = true;
               break;
@@ -316,6 +315,20 @@ public:
     {
       return _isConnected;
     }
+
+    std::string getLocalAddress()
+    {
+      try
+      {
+        if (!_pSocket)
+          return "";
+        return _pSocket->local_endpoint().address().to_string();
+      }
+      catch(...)
+      {
+        return "";
+      }
+    }
   private:
     boost::asio::io_service& _ioService;
     boost::asio::ip::tcp::resolver _resolver;
@@ -325,6 +338,7 @@ public:
     bool _isConnected;
     int _readTimeout;
     int _writeTimeout;
+    short _key;
     friend class StateQueueClient;
   };
 
@@ -353,6 +367,7 @@ protected:
   int _backoffCount;
   bool _refreshSignin;
   int _currentSigninTick;
+  std::string _localAddress;
 
 public:
   StateQueueClient(
@@ -388,8 +403,12 @@ public:
       _zmqSocket.setsockopt(ZMQ_LINGER, &linger, sizeof(int));
       for (std::size_t i = 0; i < _poolSize; i++)
       {
-        BlockingTcpClient* pClient = new BlockingTcpClient(_ioService, readTimeout, writeTimeout);
+        BlockingTcpClient* pClient = new BlockingTcpClient(_ioService, readTimeout, writeTimeout, i == 0 ? SQA_KEY_ALPHA : SQA_KEY_DEFAULT );
         pClient->connect(_serviceAddress, _servicePort);
+
+        if (_localAddress.empty())
+          _localAddress = pClient->getLocalAddress();
+
         _clientPointers.push_back(pClient);
         BlockingTcpClient::Ptr client(pClient);
         _clientPool.enqueue(client);
@@ -445,8 +464,12 @@ public:
 
       for (std::size_t i = 0; i < _poolSize; i++)
       {
-        BlockingTcpClient* pClient = new BlockingTcpClient(_ioService, readTimeout, writeTimeout);
+        BlockingTcpClient* pClient = new BlockingTcpClient(_ioService, readTimeout, writeTimeout, i == 0 ? SQA_KEY_ALPHA : SQA_KEY_DEFAULT);
         pClient->connect();
+
+        if (_localAddress.empty())
+          _localAddress = pClient->getLocalAddress();
+        
         _serviceAddress = pClient->_serviceAddress;
         _servicePort = pClient->_servicePort;
         _clientPointers.push_back(pClient);
@@ -477,6 +500,11 @@ public:
   ~StateQueueClient()
   {
     terminate();
+  }
+
+  const std::string& getLocalAddress()
+  {
+    return _localAddress;
   }
 
   void terminate()
@@ -555,6 +583,7 @@ private:
           StateQueueMessage ping;
           StateQueueMessage pong;
           ping.setType(StateQueueMessage::Ping);
+          ping.set("message-app-id", _applicationId.c_str());
           sendAndReceive(ping, pong);
           if (pong.getType() == StateQueueMessage::Pong)
             OS_LOG_DEBUG(FAC_NET, "Keep-alive response received from " << _serviceAddress << ":" << _servicePort);

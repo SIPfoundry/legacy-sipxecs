@@ -193,9 +193,6 @@ public class AccountsParser {
                         }
                         logger.info("Pruning Unwanted Xmpp User " + userAccountInOpenfire.getXmppUserName());
                         plugin.destroyUser(XmppAccountInfo.appendDomain(userAccountInOpenfire.getXmppUserName()));
-                        // Make sure to remove this user from user's that are allowed to create chat rooms list
-                        plugin.removeAllowedUserForChatServices(
-                                XmppAccountInfo.appendDomain(userAccountInOpenfire.getXmppUserName()));
                         logger.debug("User removed from allowed to create chat rooms users list");
                     } catch (Exception e) {
                         logger.error("pruneUnwantedXmppUsers caught ", e);
