@@ -34,7 +34,7 @@
     	  <option><value>4.0.X</value></option>
         </enum>
     </type>
-    <value>3.1.X</value>
+    <value>3.2.X</value>
     </setting>  
     <setting name="bootrom">
       <label>Bootrom (zip)</label>
