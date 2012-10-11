@@ -98,6 +98,9 @@ public class PolycomPhone extends Phone {
 
     @Override
     public void setDeviceVersion(DeviceVersion version) {
+        //if (getDeviceVersion() == null && getSettingValue("group.version/firmware.version") != null) {
+        //    version = DeviceVersion.getDeviceVersion(BEAN_ID+getSettingValue("group.version/firmware.version")); 
+       // }
         super.setDeviceVersion(version);
         DeviceVersion myVersion = getDeviceVersion();
         if (myVersion == PolycomModel.VER_4_0_X) {

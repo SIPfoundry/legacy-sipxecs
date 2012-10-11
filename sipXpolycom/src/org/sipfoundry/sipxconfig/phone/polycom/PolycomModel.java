@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
 public final class PolycomModel extends PhoneModel {
 
     /** Firmware 2.0 or beyond */
+    public static final DeviceVersion VER_2_0 = new DeviceVersion(PolycomPhone.BEAN_ID, "2.0");
     public static final DeviceVersion VER_3_1_X = new DeviceVersion(PolycomPhone.BEAN_ID, "3.1.X");
     public static final DeviceVersion VER_3_2_X = new DeviceVersion(PolycomPhone.BEAN_ID, "3.2.X");
     public static final DeviceVersion VER_4_0_X = new DeviceVersion(PolycomPhone.BEAN_ID, "4.0.X");

@@ -30,7 +30,7 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
-    </property>    
+    </property>
   </bean>
   <bean id="polycom330" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 320/330" />
@@ -41,6 +41,12 @@
         <value>intercom</value>
         <value>OTHERS_CodecPref</value>
       </set>
+    </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
     </property>
   </bean>
   <bean id="polycom335" parent="polycomModel">
@@ -89,6 +95,12 @@
         <value>voiceQualityMonitoring</value>
         <value>OTHERS_CodecPref</value>
       </set>
+    </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
     </property>
   </bean>
   <bean id="polycom450" parent="polycomModel">
@@ -142,6 +154,11 @@
         <value>OTHERS_CodecPref</value>
         <value>pre_3.2.0_model</value>
       </set>
+    </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
+      </list>
     </property>
   </bean>
   <bean id="polycom650" parent="polycomModel">
@@ -232,6 +249,7 @@
     </property>
     <property name="versions">
       <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
     </property>    
@@ -289,5 +307,8 @@
     <property name="profileDir">
       <value>${sysdir.phone}/profile/tftproot</value>
     </property>
+  </bean>
+  <bean id="fwUpdateListener" class="org.sipfoundry.sipxconfig.phone.polycom.FirmwareUpdateListener">
+    <property name="phoneContext" ref="phoneContext" />
   </bean>
 </beans>
