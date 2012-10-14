@@ -28,6 +28,7 @@ public class AliasesTestIntegration extends ImdbTestCase {
         m_user.setDomainManager(getDomainManager());
         m_user.setPermissionManager(getPermissionManager());
         m_user.setAddressManager(getAddressManager());
+        m_user.setForwardingContext(getForwardingContext());
     }
 
     public void testGenerate() throws Exception {

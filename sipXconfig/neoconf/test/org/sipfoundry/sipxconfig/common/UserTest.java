@@ -13,6 +13,7 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.classextension.EasyMock.createMock;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -26,11 +27,15 @@ import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.callgroup.AbstractRing.Type;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.forwarding.CallSequence;
+import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
+import org.sipfoundry.sipxconfig.forwarding.Ring;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
@@ -216,6 +221,20 @@ public class UserTest extends TestCase {
         replay(am);
         user.setAddressManager(am);
 
+        ForwardingContext fc = EasyMock.createNiceMock(ForwardingContext.class);
+        CallSequence seq = new CallSequence();
+        seq.setUser(user);
+        List<Ring> rings = new ArrayList<Ring>();
+        Ring ring1 = new Ring("343434", 30, Type.IMMEDIATE, true);
+        Ring ring2 = new Ring("454545", 30, Type.DELAYED, true);
+        rings.add(ring1);
+        rings.add(ring2);
+        seq.insertRings(rings);
+        fc.getCallSequenceForUserId(user.getId());
+        expectLastCall().andReturn(seq);
+        replay(fc);
+        user.setForwardingContext(fc);
+
         Location l = new Location();
         l.setAddress("blabla.com");
 
@@ -225,7 +244,7 @@ public class UserTest extends TestCase {
         replay(lm);
 
         List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org");
-        assertEquals(6, aliasMappings.size());
+        assertEquals(8, aliasMappings.size());
 
         AliasMapping alias = (AliasMapping) aliasMappings.get(0);
         assertEquals("mambo", alias.getIdentity());
@@ -241,6 +260,18 @@ public class UserTest extends TestCase {
         AliasMapping faxAlias = (AliasMapping) aliasMappings.get(3);
         assertEquals("321", faxAlias.getIdentity());
         assertEquals("sip:~~ff~" + user.getUserName() + "@sipfoundry.org", faxAlias.getContact());
+
+        AliasMapping faxAliasDid = (AliasMapping) aliasMappings.get(4);
+        assertEquals("+1234", faxAliasDid.getIdentity());
+        assertEquals("sip:~~ff~" + user.getUserName() + "@sipfoundry.org", faxAliasDid.getContact());
+
+        AliasMapping callFwdAliasImmediate = (AliasMapping) aliasMappings.get(5);
+        assertEquals("username", callFwdAliasImmediate.getIdentity());
+        assertEquals("<sip:343434@sipfoundry.org;sipx-noroute=Voicemail?expires=30>;q=1.0", callFwdAliasImmediate.getContact());
+
+        AliasMapping callFwdAliasDelayed = (AliasMapping) aliasMappings.get(6);
+        assertEquals("username", callFwdAliasDelayed.getIdentity());
+        assertEquals("<sip:454545@sipfoundry.org;sipx-noroute=Voicemail?expires=30>;q=0.933", callFwdAliasDelayed.getContact());
 
         // Set the additional alias, imId, to user's userName, it should not be
         // added as an alias.
@@ -296,6 +327,14 @@ public class UserTest extends TestCase {
         lm.getPrimaryLocation();
         expectLastCall().andReturn(l).anyTimes();
         replay(lm);
+
+        ForwardingContext fc = EasyMock.createNiceMock(ForwardingContext.class);
+        CallSequence seq = new CallSequence();
+        seq.setUser(user);
+        fc.getCallSequenceForUserId(user.getId());
+        expectLastCall().andReturn(seq);
+        replay(fc);
+        user.setForwardingContext(fc);
 
         List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org");
         // actually there is 1 alias that is the ~~vm~

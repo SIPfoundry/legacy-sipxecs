@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.im.ImAccount;
@@ -103,6 +104,12 @@ public class User extends AbstractUser implements Replicable {
                 mapping = new AliasMapping(faxDid, faxContactUri, ALIAS_RELATION_FAX);
                 mappings.add(mapping);
             }
+        }
+
+        // add call sequence
+        CallSequence sequence = getForwardingContext().getCallSequenceForUserId(getId());
+        if (sequence != null) {
+            mappings.addAll(sequence.getAliasMappings(domainName));
         }
 
         if (this.hasPermission(PermissionName.EXCHANGE_VOICEMAIL)

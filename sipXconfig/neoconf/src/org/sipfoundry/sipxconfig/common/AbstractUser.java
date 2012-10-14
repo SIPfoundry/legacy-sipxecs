@@ -33,6 +33,7 @@ import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.permission.Permission;
@@ -92,6 +93,7 @@ public abstract class AbstractUser extends BeanWithGroups {
     private PermissionManager m_permissionManager;
     private DomainManager m_domainManager;
     private ProxyManager m_proxyManager;
+    private ForwardingContext m_fwdContext;
     private AddressManager m_addressManager;
     private MohAddressFactory m_mohAddresses;
 
@@ -635,6 +637,14 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     public void setProxyManager(ProxyManager proxyManager) {
         m_proxyManager = proxyManager;
+    }
+
+    public void setForwardingContext(ForwardingContext fwdContext) {
+        m_fwdContext = fwdContext;
+    }
+
+    protected ForwardingContext getForwardingContext() {
+        return m_fwdContext;
     }
 
     public void setAddressManager(AddressManager addressManager) {

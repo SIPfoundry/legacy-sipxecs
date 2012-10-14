@@ -10,23 +10,17 @@
 package org.sipfoundry.sipxconfig.forwarding;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.sipfoundry.sipxconfig.callgroup.AbstractCallSequence;
-import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 
 /**
  * CallSequence
  */
-public class CallSequence extends AbstractCallSequence implements Replicable {
+public class CallSequence extends AbstractCallSequence {
     public static final String CALL_FWD_TIMER_SETTING = "callfwd/timer";
 
     private User m_user;
@@ -87,19 +81,6 @@ public class CallSequence extends AbstractCallSequence implements Replicable {
         }
     }
 
-    @Override
-    public String getName() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void setName(String name) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public Collection<AliasMapping> getAliasMappings(String domain) {
         String identity = m_user.getUserName();
         // pass true to never route this to voicemail
@@ -107,26 +88,4 @@ public class CallSequence extends AbstractCallSequence implements Replicable {
         return mappings;
     }
 
-    @Override
-    public Set<DataSet> getDataSets() {
-        Set<DataSet> ds = new HashSet<DataSet>();
-        ds.add(DataSet.ALIAS);
-        ds.add(DataSet.USER_FORWARD);
-        return ds;
-    }
-
-    @Override
-    public String getIdentity(String domain) {
-        return null;
-    }
-
-    @Override
-    public boolean isValidUser() {
-        return false;
-    }
-
-    @Override
-    public Map<String, Object> getMongoProperties(String domain) {
-        return Collections.EMPTY_MAP;
-    }
 }

@@ -58,6 +58,7 @@ public class MailstoreTestIntegration extends ImdbTestCase {
         m_user.setPermissionManager(getPermissionManager());
         m_user.setAddressManager(m_addressManager);
         m_user.setProxyManager(m_proxyManager);
+        m_user.setForwardingContext(getForwardingContext());
     }
 
     public void testGenerate() throws Exception {

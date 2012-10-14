@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.commserver;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,7 +19,6 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.springframework.context.ApplicationEvent;
@@ -190,11 +188,6 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
 
     @Override
     public void replicateWork(Replicable entity) {
-    }
-
-    @Override
-    public void regenerateCallSequences(Collection<CallSequence> cs) {
-        m_target.regenerateCallSequences(cs);
     }
 
 }
