@@ -13,7 +13,7 @@
 
   <bean id="userProfileContext" class="org.sipfoundry.sipxconfig.common.profile.UserProfileContext">
     <property name="userProfileService" ref="userProfileService"/>
-    <property name="domainManager" ref="domainManager" />
+    <property name="locationManager" ref="locationsManager" />
     <property name="jdbc" ref="configJdbcTemplate"/> 
   </bean>
 

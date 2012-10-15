@@ -26,7 +26,7 @@ import org.sipfoundry.commons.userdb.profile.UserProfileService;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.springframework.beans.factory.annotation.Required;
@@ -41,9 +41,10 @@ public class UserProfileContext implements DaoEventListener, SetupListener {
     private static final String PROFILE_SETUP = "profile";
     private static final String PROFILE_MIGRATION = "migrate_profiles";
     private UserProfileService m_userProfileService;
-    private DomainManager m_domainManager;
+    private LocationsManager m_locationManager;
     private JdbcTemplate m_jdbc;
 
+    @Override
     public boolean setup(SetupManager manager) {
         try {
             if (manager.isFalse(PROFILE_SETUP)) {
@@ -82,7 +83,8 @@ public class UserProfileContext implements DaoEventListener, SetupListener {
             try {
                 User user = (User) entity;
                 UserProfile profile = user.getUserProfile();
-                profile.setAvatar(String.format(AVATAR_FORMAT, m_domainManager.getDomainName(), user.getUserName()));
+                profile.setAvatar(String.format(AVATAR_FORMAT,
+                        m_locationManager.getPrimaryLocation().getFqdn(), user.getUserName()));
                 m_userProfileService.saveUserProfile(profile);
             } catch (Exception ex) {
                 LOG.error("failed to save profile in mongo" + ex.getMessage());
@@ -139,7 +141,8 @@ public class UserProfileContext implements DaoEventListener, SetupListener {
                 profile.getBranchAddress().setCity(rs.getString("branch_city"));
                 profile.getBranchAddress().setOfficeDesignation(rs.getString("branch_post"));
 
-                profile.setAvatar(String.format(AVATAR_FORMAT, m_domainManager.getDomainName(), profile.getUserName()));
+                profile.setAvatar(String.format(AVATAR_FORMAT, m_locationManager.
+                        getPrimaryLocation().getFqdn(), profile.getUserName()));
 
                 m_userProfileService.saveUserProfile(profile);
             }
@@ -168,12 +171,11 @@ public class UserProfileContext implements DaoEventListener, SetupListener {
     }
 
     @Required
-    public void setDomainManager(DomainManager domainManager) {
-        m_domainManager = domainManager;
+    public void setLocationManager(LocationsManager locationManager) {
+        m_locationManager = locationManager;
     }
 
     public void setJdbc(JdbcTemplate jdbc) {
         m_jdbc = jdbc;
     }
-
 }
