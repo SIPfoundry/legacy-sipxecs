@@ -36,7 +36,7 @@
 
 #macro( ModelSpecificAttributes $model $fw )
    APP_FILE_PATH${model}="${folder}/sip.ld"
-   CONFIG_FILES${model}="${custom_configs}${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-phone.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-device.cfg, ${optional_root_url_path}polycom-phone1.cfg, ${optional_root_url_path}polycom_sip.cfg"
+   CONFIG_FILES${model}="${custom_configs}${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-phone.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-device.cfg, ${optional_root_url_path}polycom_phone1.cfg, ${optional_root_url_path}polycom_sip.cfg"
 #end
 
 #macro( ModelSpecificNode $model $fw )
