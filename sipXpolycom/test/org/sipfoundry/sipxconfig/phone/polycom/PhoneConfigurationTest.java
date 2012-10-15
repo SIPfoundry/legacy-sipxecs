@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
-import static org.easymock.EasyMock.createMock;
 import static org.easymock.classextension.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.replay;
 
@@ -27,7 +26,6 @@ import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
@@ -35,7 +33,6 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.test.TestHelper;
@@ -53,15 +50,6 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
     @Override
     protected void setUp() throws Exception {
         phone = new PolycomPhone();
-        phone.setModelId("335");
-        PhoneModel model = new PolycomModel();
-        ModelSource<PhoneModel> phoneModelSource = createMock(ModelSource.class);
-        phone.setPhoneModelSource(phoneModelSource);
-        model.setMaxLineCount(6);
-        phone.setModel(model);
-        phone.setDeviceVersion(PolycomModel.VER_3_1_X);
-        PhoneTestDriver.supplyTestData(phone);
-        
         m_location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
         m_pg = phone.getProfileGenerator();
     }

@@ -107,18 +107,18 @@ public class PolycomPhone extends Phone {
             getModel().setSettingsFile("phone-40.xml");
             getModel().setLineSettingsFile("line-40.xml");
             getModel().setStaticProfileFilenames(new String[]{});
-        } else if (myVersion == PolycomModel.VER_3_2_X){
-            getModel().setSettingsFile("phone-32.xml");
-            getModel().setLineSettingsFile("line-32.xml");
-            getModel().setStaticProfileFilenames(new String[]{
-                    "polycom_phone1.cfg", "polycom_sip.cfg"});
-        } else {
-            //we need to explicitly define these here otherwise changing versions will not work
+        } else if (myVersion == PolycomModel.VER_3_1_X){
             getModel().setSettingsFile("phone.xml");
             getModel().setLineSettingsFile("line.xml");
             getModel().setStaticProfileFilenames(new String[]{
                 "polycom_phone1_3.1.X.cfg",
                 "polycom_sip_3.1.X.cfg"});
+        } else {
+            //we need to explicitly define these here otherwise changing versions will not work
+            getModel().setSettingsFile("phone-32.xml");
+            getModel().setLineSettingsFile("line-32.xml");
+            getModel().setStaticProfileFilenames(new String[]{
+                    "polycom_phone1.cfg", "polycom_sip.cfg"});
         }
     }
 
