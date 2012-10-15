@@ -152,9 +152,8 @@ public class UserProfileServiceImpl implements UserProfileService {
         InputStream is = null;
         try {
             BufferedImage originalImage = ImageIO.read(originalIs);
-            BufferedImage thumbnail = Thumbnails.of(originalImage).crop(Positions.CENTER).size(128, 128).asBufferedImage();
             os = new ByteArrayOutputStream();
-            ImageIO.write(thumbnail, "png", os);
+            Thumbnails.of(originalImage).crop(Positions.CENTER).size(128, 128).toOutputStream(os);
             is = new ByteArrayInputStream(os.toByteArray());
             String fileName = String.format(AVATAR_NAME, userName);
             GridFS avatarFS = new GridFS(m_template.getDb());
