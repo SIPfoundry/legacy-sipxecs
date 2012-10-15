@@ -292,18 +292,18 @@ void ResourceListTask::handleNotifyRequest(const SipMessage& msg)
   UtlString dialogHandle;
   msg.getDialogHandle(dialogHandle);
 
-//  if (!aor.isNull() && !bodyStr.isNull() && !dialogHandle.isNull())
-//  {
-//    StateQueueNotification::NotifyData notifyData;
-//    notifyData.aor = aor.data();
-//    notifyData.content = bodyStr.data();
-//    notifyData.key = dialogHandle.data();
-//
-//    if (!contactStr.isNull())
-//      notifyData.contact = contactStr.data();
-//
-//   _pSqaNotifier->enqueue(notifyData);
-//  }
+  if (!aor.isNull() && !bodyStr.isNull() && !dialogHandle.isNull())
+  {
+    StateQueueNotification::NotifyData notifyData;
+    notifyData.aor = aor.data();
+    notifyData.content = bodyStr.data();
+    notifyData.key = dialogHandle.data();
+
+    if (!contactStr.isNull())
+      notifyData.contact = contactStr.data();
+
+    _pSqaNotifier->enqueue(notifyData);
+  }
 }
 
 // Dump the state of the RLS into the log.
