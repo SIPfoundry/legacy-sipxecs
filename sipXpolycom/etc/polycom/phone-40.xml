@@ -414,13 +414,13 @@
       <setting name="VVX_500" if="VVX_500_CodecPref">
         <type>
           <multi-enum labelKeyPrefix="codec">
-            <option><value>G711_Mu</value></option>
-            <option><value>G711_A</value></option>
-            <option><value>G729_AB</value></option>
+            <option><value>G711Mu</value></option>
+            <option><value>G711A</value></option>
+            <option><value>G729AB</value></option>
             <option><value>G722</value></option>
           </multi-enum>
         </type>
-        <value>G711_Mu</value>
+        <value>G711Mu</value>
       </setting>      
     </group>
     <group name="audioProfile">

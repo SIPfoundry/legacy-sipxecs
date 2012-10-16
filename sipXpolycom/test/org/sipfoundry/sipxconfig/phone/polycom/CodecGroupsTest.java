@@ -55,6 +55,7 @@ public class CodecGroupsTest extends TestCase {
         model.setSupportedFeatures(features);
         PolycomPhone phone = new PolycomPhone();
         phone.setModel(model);
+        phone.setDeviceVersion(PolycomModel.VER_4_0_X);
         PhoneTestDriver.supplyTestData(phone, new LinkedList<User>());
 
         // The adaptor setting for the multi-enum setting.
@@ -113,7 +114,8 @@ public class CodecGroupsTest extends TestCase {
         IP_5000("IP_5000"),
         IP_6000("IP_6000"),
         IP_7000("IP_7000"),
-        VVX_1500("VVX_1500");
+        VVX_1500("VVX_1500"),
+        VVX_500("VVX_500");
 
         @SuppressWarnings("unused")
         private String m_name;
@@ -184,6 +186,11 @@ public class CodecGroupsTest extends TestCase {
         VVX_1500_SET.add("Lin16.44ksps");
         VVX_1500_SET.add("Lin16.48ksps");
         CODECGROUP_OPTION_MAP.put(CodecGroupType.VVX_1500, VVX_1500_SET);
+
+        HashSet<String> VVX_500_SET = new HashSet<String>(OTHERS_SET);
+        VVX_500_SET.add("G722");
+        CODECGROUP_OPTION_MAP.put(CodecGroupType.VVX_500, VVX_500_SET);
+    
     }
 
     /**
@@ -253,6 +260,10 @@ public class CodecGroupsTest extends TestCase {
         VVX_1500_LIST.add("G711A");
         VVX_1500_LIST.add("G729AB");
         CODECGROUP_SELECTED_MAP.put(CodecGroupType.VVX_1500, VVX_1500_LIST);
+        
+        ArrayList<String> VVX_500_LIST = new ArrayList<String>();
+        VVX_500_LIST.add("G711Mu");
+        CODECGROUP_SELECTED_MAP.put(CodecGroupType.VVX_500, VVX_500_LIST);
     }
 
     /**
