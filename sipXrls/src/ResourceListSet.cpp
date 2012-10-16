@@ -464,6 +464,9 @@ void ResourceListSet::subscriptionEventCallbackSync(
    // Serialize access to the ResourceListSet.
    OsLock lock(mSemaphore);
 
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::subscriptionEventCallbackSync after OsLock on semaphore");
+
    // Look up the ResourceSubscriptionReceiver to notify based on the
    // earlyDialogHandle.
    /* To call the handler, we dynamic_cast the object to
@@ -480,10 +483,14 @@ void ResourceListSet::subscriptionEventCallbackSync(
 
    if (receiver)
    {
+        Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::subscriptionEventCallbackSync calling receiver->subscriptionEventCallback");
       receiver->subscriptionEventCallback(earlyDialogHandle,
                                           dialogHandle,
                                           newState,
                                           subscriptionState);
+        Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::subscriptionEventCallbackSync exiting receiver->subscriptionEventCallback");
    }
    else
    {
@@ -491,6 +498,9 @@ void ResourceListSet::subscriptionEventCallbackSync(
                     "ResourceListSet::subscriptionEventCallbackSync this = %p, no ResourceSubscriptionReceiver found for earlyDialogHandle '%s'",
                     this, earlyDialogHandle->data());
    }
+   
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::subscriptionEventCallbackSync exit function");
 }
 
 // Callback routine for NOTIFY events.
