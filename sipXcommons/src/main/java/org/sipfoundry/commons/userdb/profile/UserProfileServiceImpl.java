@@ -163,7 +163,7 @@ public class UserProfileServiceImpl implements UserProfileService {
             gfsFile.setFilename(fileName);
             gfsFile.save();
         } catch (Exception ex) {
-            throw new AvatarUploadException(ex.getCause());
+            throw new AvatarUploadException(ex);
         } finally {
             IOUtils.closeQuietly(originalIs);
             IOUtils.closeQuietly(is);

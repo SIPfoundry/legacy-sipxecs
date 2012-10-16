@@ -65,6 +65,14 @@ provider_PKGS = \
 	xmlrpc-server \
 	log4j \
 	commons-digester
+	
+synchserver_PKGS = \
+	sipxcommons \
+	ws-commons-util \
+	xmlrpc-client \
+	xmlrpc-server \
+	log4j \
+	commons-digester	
 
 provider_PKGS_RT = \
 	$(provider_PKGS) \
@@ -91,3 +99,4 @@ provider_PKGS_RT = \
 	jain-sip-sdp
 
 sipxvcard_JAVAROOT = $(abspath $(top_builddir)/vcard-provider/classes)
+vcardsynchserver_JAVAROOT = $(abspath $(top_builddir)/vcard-synchserver/classes)

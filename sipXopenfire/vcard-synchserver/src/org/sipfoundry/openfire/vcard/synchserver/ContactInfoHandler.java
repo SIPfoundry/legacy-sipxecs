@@ -4,7 +4,7 @@
  * Licensed to the User under the LGPL license.
  */
 
-package org.sipfoundry.openfire.vcard.provider;
+package org.sipfoundry.openfire.vcard.synchserver;
 
 public interface ContactInfoHandler {
     public void notifyContactChange(String jabberID);
