@@ -57,7 +57,6 @@ const OsTime ResourceListSet::sGapTimeout(1, 0);
 // Constructor
 ResourceListSet::ResourceListSet(ResourceListServer* resourceListServer) :
    mResourceListServer(resourceListServer),
-   mSemaphore(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mResourceCache(this),
    mNextSeqNo(0),
    mSuspendPublishingCount(0),
@@ -130,7 +129,7 @@ bool ResourceListSet::addResourceList(const char* user,
                  this, user, userCons, nameXml);
 
    // Serialize access to the ResourceListSet.
-   OsLock lock(mSemaphore);
+   mutex_write_lock lock(_listMutex);
 
    // Check to see if there is already a list with this name.
    bool ret = !findResourceList(user);
@@ -175,7 +174,7 @@ void ResourceListSet::getResourceInfoAt(const char* user,
                                         UtlString& display_name)
 {
    // Serialize access to the ResourceListSet.
-   OsLock lock(mSemaphore);
+   mutex_read_lock lock(_listMutex);
 
    ResourceList* resourceList = findResourceList(user);
    if (resourceList)
@@ -207,7 +206,7 @@ void ResourceListSet::deleteAllResourceLists(bool abortOnShutdown)
 
       {
          // Serialize access to the ResourceListSet.
-         OsLock lock(mSemaphore);
+         mutex_write_lock lock(_listMutex);
 
          // Get pointer to the first ResourceList.
          rl = dynamic_cast <ResourceList*> (mResourceLists.first());
@@ -248,7 +247,7 @@ void ResourceListSet::deleteResourceList(const char* user)
 
       {
          // Serialize access to the ResourceListSet.
-         OsLock lock(mSemaphore);
+         mutex_write_lock lock(_listMutex);
 
          // Get pointer to the ResourceList.
          rl = findResourceList(user);
@@ -283,7 +282,7 @@ void ResourceListSet::deleteResourceAt(const char* user,
                  this, user, (int) at);
 
    // Serialize access to the ResourceListSet.
-   OsLock lock(mSemaphore);
+   mutex_write_lock lock(_listMutex);
 
    ResourceList* resourceList = findResourceList(user);
    if (resourceList)
@@ -315,7 +314,7 @@ void ResourceListSet::getAllResourceLists(UtlSList& list)
                  this);
 
    // Serialize access to the ResourceListSet.
-   OsLock lock(mSemaphore);
+   mutex_read_lock lock(_listMutex);
 
    // Iterate through the resource lists.
    UtlSListIterator resourceListItor(mResourceLists);
@@ -340,7 +339,7 @@ bool ResourceListSet::addResource(const char* user,
                  (int) no_check_start, (int) no_check_end);
 
    // Serialize access to the ResourceListSet.
-   OsLock lock(mSemaphore);
+   mutex_write_lock lock(_listMutex);
 
    bool resource_added = false;
    ResourceList* resourceList = findResourceList(user);
@@ -379,7 +378,7 @@ bool ResourceListSet::addResource(const char* user,
 size_t ResourceListSet::getResourceListEntries(const char* user)
 {
    // Serialize access to the ResourceListSet.
-   OsLock lock(mSemaphore);
+   mutex_read_lock lock(_listMutex);
 
    size_t ret = 0;
 
@@ -467,7 +466,10 @@ void ResourceListSet::subscriptionEventCallbackSync(
                  subscriptionState->data());
 
    // Serialize access to the ResourceListSet.
-   OsLock lock(mSemaphore);
+   mutex_read_lock lock(_listMutex);
+
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::subscriptionEventCallbackSync after mutex_read_lock on semaphore");
 
    // Look up the ResourceSubscriptionReceiver to notify based on the
    // earlyDialogHandle.
@@ -543,7 +545,7 @@ void ResourceListSet::notifyEventCallbackSync(const UtlString* dialogHandle,
                  dialogHandle->data());
 
    // Serialize access to the ResourceListSet.
-   OsLock lock(mSemaphore);
+   mutex_read_lock lock(_listMutex);
 
    // Look up the ResourceNotifyReceiver to notify based on the dialogHandle.
    /* To call the handler, we dynamic_cast the object to
@@ -695,7 +697,7 @@ UtlBoolean ResourceListSet::publishingSuspended()
 void ResourceListSet::suspendPublishing()
 {
    // Serialize access to the ResourceListSet.
-   OsLock lock(mSemaphore);
+   mutex_read_lock lock(_listMutex);
 
    // Increment mSuspendPublishingCount.
    mSuspendPublishingCount++;
@@ -718,7 +720,7 @@ void ResourceListSet::suspendPublishing()
 void ResourceListSet::resumePublishing()
 {
    // Serialize access to the ResourceListSet.
-   OsLock lock(mSemaphore);
+   mutex_read_lock lock(_listMutex);
 
    // Decrement mSuspendPublishingCount if > 0.
    if (mSuspendPublishingCount > 0)
@@ -803,7 +805,7 @@ void ResourceListSet::publish()
                  this);
 
    // Serialize access to the ResourceListSet.
-   OsLock lock(mSemaphore);
+   mutex_read_lock lock(_listMutex);
 
    // If publishing has been suspended, do nothing --
    // publish() will be called again after publishing is resumed.
@@ -852,7 +854,7 @@ void ResourceListSet::splitUserData(int userData,
 UtlContainable* ResourceListSet::retrieveObjectBySeqNoAndDeleteMapping(int seqNo)
 {
    // Serialize access to the ResourceListSet.
-   OsLock lock(mSemaphore);
+   mutex_write_lock lock(_listMutex);
 
    // Search for and possibly delete seqNo.
    UtlInt search_key(seqNo);
@@ -919,7 +921,7 @@ void ResourceListSet::deleteResourceSeqNoMapping(int seqNo)
 void ResourceListSet::dumpState()
 {
    // Serialize access to the ResourceListSet.
-   OsLock lock(mSemaphore);
+   mutex_read_lock lock(_listMutex);
 
    // indented 2
 

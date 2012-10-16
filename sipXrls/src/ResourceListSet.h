@@ -13,6 +13,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
+#include <boost/thread.hpp>
 #include "ResourceCache.h"
 #include <utl/UtlContainableAtomic.h>
 #include <utl/UtlString.h>
@@ -57,6 +58,10 @@ class ResourceInstance;
 class ResourceListSet : public UtlContainableAtomic
 {
   public:
+
+   typedef boost::shared_mutex mutex_read_write;
+   typedef boost::shared_lock<boost::shared_mutex> mutex_read_lock;
+   typedef boost::lock_guard<boost::shared_mutex> mutex_write_lock;
 
    // Enum to differentiate NOTIFY messages.
    // Max value must be less than sSeqNoIncrement.
@@ -461,7 +466,7 @@ class ResourceListSet : public UtlContainableAtomic
    /** Reader/writer lock for synchronization of the ResourceList and its
     *  contained Resources.
     */
-   mutable OsBSem mSemaphore;
+   mutable mutex_read_write _listMutex;
 
    /** The ResourceCache for holding the ResourceCached objects
     *  representing the resources of all member ResourceList's.
