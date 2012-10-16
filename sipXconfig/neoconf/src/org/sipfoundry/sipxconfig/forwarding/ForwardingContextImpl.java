@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.context.ApplicationEvent;
@@ -250,7 +251,7 @@ public class ForwardingContextImpl extends SipxHibernateDaoSupport implements Fo
 
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof DSTChangeEvent) {
-            m_sipxReplicationContext.regenerateCallSequences(loadAllCallSequences());
+            m_sipxReplicationContext.generateAll(DataSet.ALIAS);
         }
     }
 

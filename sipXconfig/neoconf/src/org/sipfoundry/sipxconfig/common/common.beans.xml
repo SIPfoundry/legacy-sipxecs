@@ -58,7 +58,8 @@
     <property name="domainManager" ref="domainManager"/>
     <property name="addressManager" ref="addressManager"/>    
     <property name="proxyManager" ref="proxyManager"/>
-    <property name="mohAddresses" ref="mohAddressFactory"/>    
+    <property name="mohAddresses" ref="mohAddressFactory"/>
+    <property name="forwardingContext" ref="forwardingContext" />
   </bean>
 
   <bean id="org.sipfoundry.sipxconfig.common.InternalUser" class="org.sipfoundry.sipxconfig.common.InternalUser"

@@ -17,6 +17,7 @@ AC_CONFIG_FILES([
   bin/Makefile  
   presence-plugin/src/Makefile
   presence-plugin/Makefile
+  vcard-synchserver/Makefile  
   vcard-provider/Makefile
   config-plugin/Makefile
   ws-plugin/Makefile

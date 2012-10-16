@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.commserver;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -19,7 +18,6 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
-import org.sipfoundry.sipxconfig.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
@@ -90,19 +88,6 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     @Override
     public void remove(final Replicable entity) {
         m_replicationManager.removeEntity(entity);
-    }
-
-    public void regenerateCallSequences(final Collection<CallSequence> callSequences) {
-        ReplicateWork work = new ReplicateWork() {
-            @Override
-            public void replicate() {
-                for (CallSequence callSequence : callSequences) {
-                    m_replicationManager.replicateEntity(callSequence);
-                }
-            }
-        };
-        doWithJob("DST change: regeneration of call sequences.",
-                m_locationsManager.getPrimaryLocation(), work);
     }
 
     private void doWithJob(final String jobName, final Location location, final ReplicateWork work) {

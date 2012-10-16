@@ -26,7 +26,7 @@ import org.jivesoftware.util.cache.Cache;
 import org.jivesoftware.util.cache.CacheFactory;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
-import org.xml.sax.SAXException;
+import org.sipfoundry.openfire.vcard.synchserver.VCardRpcServer;
 
 /**
  * <p>
@@ -61,7 +61,7 @@ public class SipXVCardProvider implements VCardProvider {
         super();
 
         defaultProvider = new DefaultVCardProvider();
-        
+
         String clientConfig = getConfDir() + MONGO_CLIENT_CONFIG;
         try {
             UnfortunateLackOfSpringSupportFactory.initialize(clientConfig);
@@ -69,17 +69,17 @@ public class SipXVCardProvider implements VCardProvider {
                 System.getProperties()
                         .load(new FileInputStream(new File("/tmp/sipx.properties")));
             }
-            
+
         } catch (Exception e) {
             logger.error(e);
-        }        
+        }
 
         String cacheName = "SipXVCardCache";
         vcardCache = CacheFactory.createCache(cacheName);
 
         logger.info(this.getClass().getName() + " starting XML RPC server ...");
         try {
-            VCardRpcServer vcardRpcServer = new VCardRpcServer(getRpcPort());
+            VCardRpcServer vcardRpcServer = new VCardRpcServer(ContactInfoHandlerImp.class);
             vcardRpcServer.start();
             logger.info(this.getClass().getName() + " initialized");
         } catch (Exception ex) {
@@ -101,6 +101,7 @@ public class SipXVCardProvider implements VCardProvider {
      * is removed.
      */
 
+    @Override
     synchronized public void deleteVCard(String username) {
         vcardCache.remove(username);
         defaultProvider.deleteVCard(username);
@@ -110,6 +111,7 @@ public class SipXVCardProvider implements VCardProvider {
         ContactInfoHandlerImp.updateAvatar(username, vCard, false);
     }
 
+    @Override
     public Element createVCard(String username, Element element) {
         Element vcard = null;
         try {
@@ -153,8 +155,9 @@ public class SipXVCardProvider implements VCardProvider {
     /**
      * Loads the vCard using the SipX vCard Provider first On failure, attempt to load it from
      * database.
-     * 
+     *
      */
+    @Override
     public Element loadVCard(String username) {
         synchronized (username.intern()) {
             if (username.compareToIgnoreCase(PA_USER) == 0)
@@ -167,6 +170,7 @@ public class SipXVCardProvider implements VCardProvider {
     /**
      * Updates the vCard both in SipX and in the database.
      */
+    @Override
     public Element updateVCard(String username, Element vCardElement) {
         if (username.compareToIgnoreCase(PA_USER) == 0) {
             try {
@@ -239,9 +243,10 @@ public class SipXVCardProvider implements VCardProvider {
     /**
      * Returns <tt>false</tt> to allow users to save vCards, even if only the avatar will be
      * saved.
-     * 
+     *
      * @return <tt>false</tt>
      */
+    @Override
     public boolean isReadOnly() {
         return false;
     }
@@ -336,7 +341,7 @@ public class SipXVCardProvider implements VCardProvider {
 
     /**
      * Loads the vCard using the LDAP vCard Provider and re-adds the avatar from the database.
-     * 
+     *
      * @param username
      * @return LDAP vCard re-added avatar element
      */
@@ -384,11 +389,6 @@ public class SipXVCardProvider implements VCardProvider {
         return avatarElement;
     }
 
-    int getRpcPort() throws SAXException, IOException {
-        String configurationFile = System.getProperty("conf.dir", "/etc/sipxpbx") + "/sipxopenfire.xml";
-        VcardConfigurationParser parser = new VcardConfigurationParser();
-        VcardConfig vcardConfig  = parser.parse( "file://" + configurationFile );
-        return vcardConfig.getOpenfireXmlRpcVcardPort();
-    }
+
 
 }

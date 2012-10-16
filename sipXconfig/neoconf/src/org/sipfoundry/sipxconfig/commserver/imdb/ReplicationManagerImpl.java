@@ -48,7 +48,6 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.VersionInfo;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.permission.Permission;
@@ -108,10 +107,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         @Override
         public void execute(User user) {
             replicateEntity(user);
-            if (m_forwardingContext.isCallSequenceReplicable(user)) {
-                CallSequence cs = m_forwardingContext.getCallSequenceForUser(user);
-                replicateEntity(cs);
-            }
             getHibernateTemplate().clear(); // clear the H session (see XX-9741)
         }
     };

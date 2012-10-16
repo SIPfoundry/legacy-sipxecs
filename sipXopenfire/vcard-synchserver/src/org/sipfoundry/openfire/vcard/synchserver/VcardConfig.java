@@ -14,7 +14,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.openfire.vcard.provider;
+package org.sipfoundry.openfire.vcard.synchserver;
 
 public class VcardConfig {
     private int openfireXmlRpcVcardPort = 9099;

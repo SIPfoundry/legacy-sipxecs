@@ -3,7 +3,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package org.sipfoundry.openfire.vcard.provider;
+package org.sipfoundry.openfire.vcard.synchserver;
 
 import java.io.IOException;
 
@@ -13,24 +13,26 @@ import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
+import org.sipfoundry.openfire.vcard.synchserver.ContactInfoHandler;
+import org.xml.sax.SAXException;
 
 public class VCardRpcServer {
-    int m_serverPort;
+    Class<? extends ContactInfoHandler> m_contactInfoHandler;
     final static String NAME_RPC_HANDLER = "ContactInfoHandler";
     private static Logger logger = Logger.getLogger(VCardRpcServer.class);
 
-    public VCardRpcServer(int serverPort) {
-        m_serverPort = serverPort;
+    public VCardRpcServer(Class<? extends ContactInfoHandler> contactInfoHandler) {
+        m_contactInfoHandler = contactInfoHandler;
     }
 
     public void start() {
         try {
-            WebServer webServer = new WebServer(m_serverPort);
+            WebServer webServer = new WebServer(getRpcPort());
             XmlRpcServer xmlRpcServer = webServer.getXmlRpcServer();
             PropertyHandlerMapping phm = new PropertyHandlerMapping();
             phm.setVoidMethodEnabled(true);
 
-            phm.addHandler(NAME_RPC_HANDLER, ContactInfoHandlerImp.class);
+            phm.addHandler(NAME_RPC_HANDLER, m_contactInfoHandler);
             xmlRpcServer.setHandlerMapping(phm);
 
             XmlRpcServerConfigImpl serverConfig = (XmlRpcServerConfigImpl) xmlRpcServer.getConfig();
@@ -44,6 +46,13 @@ public class VCardRpcServer {
             logger.info("In VcardRpcServer, Exception " + e.getMessage());
         }
 
+    }
+
+    private int getRpcPort() throws SAXException, IOException {
+        String configurationFile = System.getProperty("conf.dir", "/etc/sipxpbx") + "/sipxopenfire.xml";
+        VcardConfigurationParser parser = new VcardConfigurationParser();
+        VcardConfig vcardConfig  = parser.parse( "file://" + configurationFile );
+        return vcardConfig.getOpenfireXmlRpcVcardPort();
     }
 
 }

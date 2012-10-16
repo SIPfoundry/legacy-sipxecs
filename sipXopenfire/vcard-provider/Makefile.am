@@ -30,7 +30,8 @@ provider_SRC = $(shell cd $(srcdir); find src -name '*.java')
 provider_DEPS = \
 	$(JAVAROOT) \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(provider_PKGS)) \
-	@OPENFIRE_HOME@/lib/openfire.jar
+	@OPENFIRE_HOME@/lib/openfire.jar \
+	../vcard-synchserver/sipx-openfire-vcard-synchserver.jar
 
 $(provider_JAR) : javac-provider Manifest.txt Makefile
 	jar cfm $@ Manifest.txt \

@@ -27,12 +27,6 @@ public class UserForward extends AbstractDataSetGenerator {
 
     @Override
     public boolean generate(Replicable entity, DBObject top) {
-        if (entity instanceof CallSequence) {
-            CallSequence cs = (CallSequence) entity;
-            User user = cs.getUser();
-            generateUser(user, top);
-            return true;
-        }
         if (entity instanceof User) {
             generateUser((User) entity, top);
             return true;
