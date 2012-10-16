@@ -11,6 +11,7 @@ sipxrls_LDADD = \
 	@SIPXMEDIAADAPTER_LIBS@ \
 	@SIPXCOMMSERVER_LIBS@ \
 	@GIPS_NEQ_OBJS@ \
+	-lboost_thread-mt \
 	-lmongoclient \
 	-lzmq
 
