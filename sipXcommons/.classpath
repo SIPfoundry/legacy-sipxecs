@@ -135,7 +135,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils-core-1.8.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/google-collections-1.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mongo-2.7.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-data-mongodb-1.0.0.M5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-data-commons-core-1.2.0.M2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/snmp4j-2.0.3.jar"/>
@@ -164,5 +163,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/xmlrpc-2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jedis-2.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-data-redis-1.0.1.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mongo-2.9.0.jar"/>
 	<classpathentry kind="output" path="bin.eclipse/classes"/>
 </classpath>
