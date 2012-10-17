@@ -140,25 +140,26 @@ public class MailstoreTestIntegration extends ImdbTestCase {
         dlist1.put(DIALPAD, 1);
         dlist1.put(ITEM, "202");
         dLists.add(dlist1);
-        
+
         DBObject dlist2 = new BasicDBObject();
         dlist2.put(DIALPAD, 3);
         dlist2.put(ITEM, "203 204");
         dLists.add(dlist2);
         MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), new BasicDBObject(DISTRIB_LISTS, dLists).append("uid", "202"));
-        
+
         //TODO: test for other stuff in Mailstore dataset, like email, etc
     }
-    
-    public void testPAforGroup() throws IOException {
-        
+
+    public void testPAforGroup() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
         Group group = new Group();
         group.setSettingValue("personal-attendant/operator", "123");
         group.setResource(CoreContext.USER_GROUP_RESOURCE_ID);
         group.setName("group");
         m_settingDao.saveGroup(group);
-        
-        
+
+
         User user = getCoreContext().newUser();
         user.setUserName("200");
         user.addGroup(m_settingDao.getGroupByName(CoreContext.USER_GROUP_RESOURCE_ID, "group"));
@@ -169,7 +170,7 @@ public class MailstoreTestIntegration extends ImdbTestCase {
             .append(OPERATOR, "sip:123@" + getDomainManager().getDomainName())
             .append("lng", "en");
         user200.put(MongoConstants.PERSONAL_ATT, search);
-        
+
         MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user200);
     }
 
@@ -177,6 +178,7 @@ public class MailstoreTestIntegration extends ImdbTestCase {
         m_mailboxManager = localMailboxManager;
     }
 
+    @Override
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
     }

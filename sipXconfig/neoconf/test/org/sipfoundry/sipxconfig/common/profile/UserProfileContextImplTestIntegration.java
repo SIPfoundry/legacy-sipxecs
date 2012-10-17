@@ -19,6 +19,7 @@ package org.sipfoundry.sipxconfig.common.profile;
 import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.commons.userdb.profile.UserProfileService;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class UserProfileContextImplTestIntegration extends IntegrationTestCase {
     private UserProfileContext m_profileContext;
@@ -29,7 +30,7 @@ public class UserProfileContextImplTestIntegration extends IntegrationTestCase {
         super.onSetUpBeforeTransaction();
         clear();
     }
-    
+
     @Override
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
@@ -43,6 +44,8 @@ public class UserProfileContextImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testMigrateProfiles() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
         m_profileContext.migrateProfiles();
         UserProfile profile = m_profileService.getUserProfile("10");
         assertEquals("FirstName", profile.getFirstName());
@@ -68,6 +71,7 @@ public class UserProfileContextImplTestIntegration extends IntegrationTestCase {
         m_profileContext = profileContext;
     }
 
+    @Override
     public void setUserProfileService(UserProfileService profileService) {
         m_profileService = profileService;
     }
