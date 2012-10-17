@@ -157,7 +157,10 @@ public class Upload extends BeanWithSettings {
             if (contentType.equalsIgnoreCase(ZIP_TYPE)) {
                 String moveTo = (((FileSetting) type).getMoveTo() != null) ? (PATH_SEPARATOR + ((FileSetting) type)
                         .getMoveTo()) : StringUtils.EMPTY;
-                deployZipFile(new File(getDestinationDirectory() + moveTo),
+                //since moveTo might be a relative path, we need to make sure destination directory exists
+                File file = new File(getDestinationDirectory());
+                file.mkdirs();
+                deployZipFile(new File(file, moveTo),
                         new File(getUploadDirectory(), filename), (FileSetting) type);
             } else {
                 deployFile(filename, ((FileSetting) type).getRename());
@@ -328,6 +331,7 @@ public class Upload extends BeanWithSettings {
                         continue;
                     }
                     File file = new File(expandDirectory, entry.getName());
+                    expandDirectory.mkdirs();
                     if (entry.isDirectory()) {
                         file.mkdirs();
                     } else {

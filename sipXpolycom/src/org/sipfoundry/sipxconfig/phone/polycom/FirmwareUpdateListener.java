@@ -1,5 +1,6 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
@@ -25,7 +26,7 @@ public class FirmwareUpdateListener implements DaoEventListener {
         if (entity instanceof Group) {
             Group g = (Group) entity;
             if (Phone.GROUP_RESOURCE_ID.equals(g.getResource())) {
-                if (g.getSettingValue("group.version/firmware.version") != null) {
+                if (g.getSettingValue("group.version/firmware.version") != null && StringUtils.isNotEmpty(g.getSettingValue("group.version/firmware.version"))) {
                     for (Phone phone : m_phoneContext.getPhonesByGroupId(g.getId())) {
                         if (phone instanceof PolycomPhone) {
                             phone.setDeviceVersion(DeviceVersion.getDeviceVersion(PolycomPhone.BEAN_ID
