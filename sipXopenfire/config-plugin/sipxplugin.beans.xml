@@ -68,4 +68,13 @@
   </bean>
 
   <bean id="imFeatureHook" class="org.sipfoundry.sipxconfig.web.plugin.IMFeatureHook" />
+  
+  <bean id="sipxOfRegistrarPlugin" class="org.sipfoundry.sipxconfig.registrar.RegistrarConfigurationPlugin">
+    <property name="registrarPlugins">
+      <map>
+        <entry key="SIP_REDIRECT_HOOK_LIBRARY.900-PRESENCE" value="${sysdir.libdir}/libRedirectorPresenceRouting.so" />
+      </map>
+    </property>
+    <property name="featureId" value="instantMessage"/>
+  </bean>  
 </beans>
