@@ -1282,7 +1282,7 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
 
     public void testGetReplicables() {
         List<Replicable> replicables = m_openAcdReplicationProvider.getReplicables();
-        assertEquals(16, replicables.size());
+        assertEquals(15, replicables.size());
     }
 
     public void setOpenAcdContext(OpenAcdContext openAcdContext) {

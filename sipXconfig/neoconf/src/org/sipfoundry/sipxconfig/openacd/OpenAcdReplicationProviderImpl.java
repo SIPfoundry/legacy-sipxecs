@@ -55,8 +55,6 @@ public class OpenAcdReplicationProviderImpl implements OpenAcdReplicationProvide
                 + OpenAcdContext.OPENACD_LOG));
         replicables.add(new OpenAcdAgentWebConfigCommand(settings.isAgentWebUiEnabled(), settings.getAgentWebUiPort(),
                 settings.isAgentWebUiSSlEnabled(), settings.getAgentWebUiSSlPort()));
-        replicables.add(new OpenAcdWebMgmtConfigCommand(settings.isWebMgmtEnabled(), settings.getWebMgmtPort(),
-                settings.isWebMgmtSslEnabled()));
         return replicables;
     }
 
