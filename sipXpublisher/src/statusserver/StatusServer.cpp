@@ -25,6 +25,7 @@
 #include "net/SipMessage.h"
 #include "net/SipMessageEvent.h"
 #include "net/NameValueTokenizer.h"
+#include "net/SipTransaction.h"
 #include "statusserver/Notifier.h"
 #include "statusserver/WebServer.h"
 #include "statusserver/StatusServer.h"
@@ -487,6 +488,8 @@ StatusServer::startStatusServer (
                                       pValidIpAddressDB );
        }
     }
+
+    SipTransaction::SendTryingForNist = sConfigDb.getBoolean("SIPX_SEND_TRYING_FOR_NIST", TRUE);
 
     // Start the SIP stack
     SipUserAgent* sipUserAgent =
