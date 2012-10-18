@@ -13,3 +13,4 @@ SIP_STATUS_MIN_EXPIRES :
 SIP_STATUS_TCP_PORT : $settings.getSetting('SIP_STATUS_SIP_PORT').Value
 SIP_STATUS_UDP_PORT : $settings.getSetting('SIP_STATUS_SIP_PORT').Value
 SIP_STATUS_BIND_IP : $!{location.address}
+SIPX_SEND_TRYING_FOR_NIST : $settings.getSetting('SIPX_SEND_TRYING_FOR_NIST').Value
