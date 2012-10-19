@@ -43,9 +43,9 @@ public:
   {
     std::ostringstream mwi;
     if (_new)
-      mwi << "Message-Waiting: yes\r\n";
+      mwi << "Messages-Waiting: yes\r\n";
     else
-      mwi << "Message-Waiting: no\r\n";
+      mwi << "Messages-Waiting: no\r\n";
 
     mwi << "Message-Account: sip:" << _user << "@" << domain << "\r\n";
     mwi << "Voice-Message: " << _new << "/" << _old << " (" << _urgentNew << "/" << _urgentOld << ")" << "\r\n\r\n";
