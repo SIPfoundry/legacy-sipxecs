@@ -383,6 +383,7 @@
     <property name="processName" value="SIPStatus" />
     <property name="modelName" value="sipxstatus.xml" />
     <property name="modelDir" value="sipxstatus" />
+    <property name="editable" value="true" />
     <property name="configurations">
       <list>
         <ref bean="sipxStatusConfiguration" />
