@@ -16,8 +16,6 @@
  */
 package org.sipfoundry.sipxconfig.mwi;
 
-import static java.lang.String.format;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,6 +32,7 @@ import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dns.DnsManager;
 import org.sipfoundry.sipxconfig.dns.DnsProvider;
 import org.sipfoundry.sipxconfig.dns.ResourceRecords;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
@@ -52,11 +51,13 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvider, ProcessProvider,
-    FirewallProvider {
+        FirewallProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(SIP_UDP, SIP_TCP, HTTP_API);
     private static final String PROCESS = "sipxpublisher";
     private BeanWithSettingsDao<MwiSettings> m_settingsDao;
     private ConfigManager m_configManager;
+    private FeatureManager m_featureManager;
+    private DomainManager m_domainManager;
 
     public MwiSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
@@ -110,16 +111,24 @@ public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvid
 
     @Override
     public Address getAddress(DnsManager manager, AddressType t, Collection<Address> addresses, Location whoIsAsking) {
-        if (t.equals(SIP_TCP)) {
-            // NOTE: drop port, it's in DNS resource records
-            return new Address(t, format("mwi.%s", whoIsAsking.getFqdn()));
-        }
-
         if (t.equals(HTTP_API)) {
             return new Address(HTTP_API, whoIsAsking.getAddress(), getSettings().getHttpApiPort());
         }
 
+        if (t.equals(SIP_TCP)) {
+            // NOTE: drop port, it's in DNS resource records
+            if (m_featureManager.isFeatureEnabled(Mwi.FEATURE, whoIsAsking)) {
+                return new Address(t, getAddress(whoIsAsking.getFqdn()));
+            } else {
+                return new Address(t, getAddress(m_domainManager.getDomainName()));
+            }
+        }
+
         return null;
+    }
+
+    private String getAddress(String host) {
+        return String.format("mwi.%s", host);
     }
 
     @Override
@@ -163,5 +172,13 @@ public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvid
         if (request.hasChanged(FEATURE)) {
             m_configManager.configureEverywhere(DnsManager.FEATURE, DialPlanContext.FEATURE);
         }
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
     }
 }

@@ -145,6 +145,14 @@
       <type><string/></type>
       <value>^RTCC/</value>
     </setting>
+    <setting name="EXCHANGE_SERVER_FQDN" advanced="yes">
+      <type><hostname/></type>
+      <value></value>
+    </setting>
+    <setting name="ADDITIONAL_EXCHANGE_SERVER_FQDN" advanced="yes">
+      <type><hostname/></type>
+      <value></value>
+    </setting>
   </group>
   <group name="call-rate-limit">
     <setting name="SIPX_PROXY_AUTOBAN_THRESHOLD_VIOLATORS">

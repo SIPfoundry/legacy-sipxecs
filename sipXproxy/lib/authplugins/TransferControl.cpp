@@ -8,6 +8,7 @@
 // SYSTEM INCLUDES
 #include <sipxproxy/SipRouter.h>
 #include "os/OsLogger.h"
+#include "os/OsConfigDb.h"
 
 // APPLICATION INCLUDES
 #include "net/Url.h"
@@ -17,12 +18,16 @@
 
 // DEFINES
 // CONSTANTS
+const char* TransferControl::RecognizerConfigKey1 = "EXCHANGE_SERVER_FQDN";
+const char* TransferControl::RecognizerConfigKey2 = "ADDITIONAL_EXCHANGE_SERVER_FQDN";
 
 const char* SIP_METHOD_URI_PARAMETER = "method";
 
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
+UtlString server1;
+UtlString server2;
 /// Factory used by PluginHooks to dynamically link the plugin instance
 extern "C" AuthPlugin* getAuthPlugin(const UtlString& pluginName)
 {
@@ -63,6 +68,24 @@ TransferControl::readConfig( OsConfigDb& configDb /**< a subhash of the individu
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "TransferControl[%s]::readConfig",
                  mInstanceName.data()
                  );
+   if (configDb.get(RecognizerConfigKey1, server1) && !server1.isNull())
+   {
+      Os::Logger::instance().log(FAC_SIP,PRI_INFO
+                    ,"TransferControl[%s]::readConfig "
+                    " server %s : '%s'"
+                    ,mInstanceName.data(), RecognizerConfigKey1
+                    ,server1.data()
+                    );
+   }
+   if (configDb.get(RecognizerConfigKey2, server2) && !server2.isNull())
+   {
+      Os::Logger::instance().log(FAC_SIP,PRI_INFO
+                    ,"TransferControl[%s]::readConfig "
+                    " server %s : '%s'"
+                    ,mInstanceName.data(), RecognizerConfigKey2
+                    ,server2.data()
+                    );
+   }
 }
 
 AuthPlugin::AuthResult
@@ -89,6 +112,12 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
    UtlString callId;
    request.getCallIdField(&callId);
 
+   UtlString hostAddress;
+   int hostPort;
+   UtlString hostProtocols;
+   //requestUri.getHostAddress(hostAddress);
+   //request.getContactUri(0, &hostAddress);;
+   request.getContactAddress(0, &hostAddress,&hostPort,&hostProtocols);
    if (DENY != priorResult)
    {
       if (method.compareTo(SIP_REFER_METHOD) == 0)
@@ -116,11 +145,21 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
                   // when user-based gateway section is used.  See tracker for the details
                   if (mpSipRouter->isLocalDomain(target))
                   {
-                     Os::Logger::instance().log(FAC_AUTH, PRI_INFO, "TransferControl[%s]::authorizeAndModify "
-                                   "challenging transfer in call '%s'",
-                                   mInstanceName.data(), callId.data()
-                                   );
-                     result = DENY; // we need an identity to attach to the Refer-To URI
+			//White list of two servets to let Exchange REFER to sipXecs endpoints
+			if (hostAddress.compareTo(server1, UtlString::ignoreCase) == 0 || hostAddress.compareTo(server2, UtlString::ignoreCase) == 0)
+			{
+			     Os::Logger::instance().log(FAC_AUTH, PRI_INFO, "TransferControl[%s]::authorizeAndModify "
+					   "Whitelist host '%s' in call '%s'",
+					   mInstanceName.data(),hostAddress.data(),callId.data()
+					   );
+			     result = ALLOW; //Whitelist matched so allow the transfer
+			}else{
+			     Os::Logger::instance().log(FAC_AUTH, PRI_INFO, "TransferControl[%s]::authorizeAndModify "
+					   "challenging transfer in call '%s' from host '%s'",
+					   mInstanceName.data(), callId.data(),hostAddress.data()
+					   );
+			     result = DENY; // we need an identity to attach to the Refer-To URI
+			}
                   }
                   else
                   {

@@ -33,6 +33,7 @@ import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.ResultDataGrid;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.dao.DataAccessException;
 
 public class ForwardingContextImplTestIntegration extends ImdbTestCase {
@@ -46,7 +47,8 @@ public class ForwardingContextImplTestIntegration extends ImdbTestCase {
         clear();
         getDaoEventPublisher().resetListeners();
     }
-    
+
+    @Override
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
         sql("common/TestUserSeed.sql");
@@ -58,7 +60,7 @@ public class ForwardingContextImplTestIntegration extends ImdbTestCase {
         getUserProfileService().saveUserProfile(user1000.getUserProfile());
         User user1001 = m_coreContext.loadUser(1001);
         getUserProfileService().saveUserProfile(user1001.getUserProfile());
-        
+
     }
 
     public void testGetCallSequenceForUser() throws Exception {
@@ -88,13 +90,15 @@ public class ForwardingContextImplTestIntegration extends ImdbTestCase {
 
         m_coreContext.deleteUser(user);
         commit();
-        
+
         assertEquals(2, countRowsInTable("ring"));
         assertEquals(3, countRowsInTable("schedule"));
         assertEquals(2, countRowsInTable("schedule_hours"));
     }
 
     public void testSave() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
         User user = m_coreContext.loadUser(m_testUserId);
         CallSequence callSequence = m_forwardingContext.getCallSequenceForUser(user);
         List calls = callSequence.getRings();
@@ -124,7 +128,7 @@ public class ForwardingContextImplTestIntegration extends ImdbTestCase {
                 {1005, 1001, "231005", 405, true, "If no response", 1, null},
         };
         ResultDataGrid actual = new ResultDataGrid();
-        db().query("select ring_id, user_id, number, expiration, enabled, ring_type, position, " + 
+        db().query("select ring_id, user_id, number, expiration, enabled, ring_type, position, " +
                 "schedule_id from ring order by ring_id", actual);
         assertArrayEquals(expected, actual.toArray());
 
@@ -133,6 +137,8 @@ public class ForwardingContextImplTestIntegration extends ImdbTestCase {
     }
 
     public void testMove() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
         User user = m_coreContext.loadUser(m_testUserId);
         CallSequence callSequence = m_forwardingContext.getCallSequenceForUser(user);
         List calls = callSequence.getRings();
@@ -158,12 +164,14 @@ public class ForwardingContextImplTestIntegration extends ImdbTestCase {
                 {1005, 1001, "231005", 405, true, "If no response", 1, null}
         };
         ResultDataGrid actual = new ResultDataGrid();
-        db().query("select ring_id, user_id, number, expiration, enabled, ring_type, position, " + 
+        db().query("select ring_id, user_id, number, expiration, enabled, ring_type, position, " +
                 "schedule_id from ring order by ring_id", actual);
         assertArrayEquals(expected, actual.toArray());
     }
 
     public void testAddRing() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
         User user = m_coreContext.loadUser(m_testUserId);
         CallSequence callSequence = m_forwardingContext.getCallSequenceForUser(user);
 
@@ -315,10 +323,12 @@ public class ForwardingContextImplTestIntegration extends ImdbTestCase {
         assertEquals("Schedule for dialing rule", generalSchedule.getDescription());
     }
 
+    @Override
     public void setForwardingContext(ForwardingContext forwardingContext) {
         m_forwardingContext = forwardingContext;
     }
 
+    @Override
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }

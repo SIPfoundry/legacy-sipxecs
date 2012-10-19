@@ -17,6 +17,7 @@
 package org.sipfoundry.sipxconfig.openacd;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+
+import static java.lang.Integer.parseInt;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.address.Address;
@@ -75,6 +78,9 @@ import org.springframework.dao.support.DataAccessUtils;
 public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext, BeanFactoryAware,
         FeatureProvider, AddressProvider, ProcessProvider, DaoEventListener, FirewallProvider, SetupListener {
 
+    private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
+        REST_API, OPENACD_WEB, OPENACD_SECURE_WEB
+    });
     private static final String VALUE = "value";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
     private static final String OPEN_ACD_AGENT_GROUP_WITH_NAME = "openAcdAgentGroupWithName";
@@ -127,18 +133,43 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        return Collections.singleton(new DefaultFirewallRule(REST_API));
+        if (m_featureManager.isFeatureEnabled(FEATURE)) {
+            List<DefaultFirewallRule> rules = new ArrayList<DefaultFirewallRule>();
+            OpenAcdSettings settings = getSettings();
+            rules.add(new DefaultFirewallRule(REST_API));
+            if (settings.isAgentWebUiEnabled()) {
+                rules.add(new DefaultFirewallRule(OPENACD_WEB));
+            }
+            if (settings.isAgentWebUiSSlEnabled()) {
+                rules.add(new DefaultFirewallRule(OPENACD_SECURE_WEB));
+            }
+            return rules;
+        }
+
+        return Collections.EMPTY_LIST;
     }
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
-        if (!type.equals(REST_API)) {
+        if (!ADDRESSES.contains(type) || !manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
             return null;
         }
+
+        OpenAcdSettings settings = getSettings();
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
         List<Address> addresses = new ArrayList<Address>(locations.size());
+        Address address = null;
         for (Location location : locations) {
-            addresses.add(new Address(REST_API, location.getAddress(), 5050));
+            if (type.equals(REST_API)) {
+                address = new Address(REST_API, location.getAddress(), parseInt(settings.getAgentWebUiPort()));
+            } else if (type.equals(OPENACD_WEB) && settings.isAgentWebUiEnabled()) {
+                address = new Address(OPENACD_WEB, location.getAddress(), parseInt(settings.getAgentWebUiPort()));
+            } else if (type.equals(OPENACD_SECURE_WEB) && settings.isAgentWebUiSSlEnabled()) {
+                address = new Address(OPENACD_SECURE_WEB, location.getAddress(),
+                        parseInt(settings.getAgentWebUiSSlPort()));
+            }
+
+            addresses.add(address);
         }
         return addresses;
     }
@@ -1004,8 +1035,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
                     .getLogDir() + OpenAcdContext.OPENACD_LOG));
             m_replicationManager.replicateEntity(new OpenAcdAgentWebConfigCommand(settings.isAgentWebUiEnabled(),
                     settings.getAgentWebUiPort(), settings.isAgentWebUiSSlEnabled(), settings.getAgentWebUiSSlPort()));
-            m_replicationManager.replicateEntity(new OpenAcdWebMgmtConfigCommand(settings.isWebMgmtEnabled(),
-                    settings.getWebMgmtPort(),  settings.isWebMgmtSslEnabled()));
         }
         if (entity instanceof User) {
             User u = (User) entity;

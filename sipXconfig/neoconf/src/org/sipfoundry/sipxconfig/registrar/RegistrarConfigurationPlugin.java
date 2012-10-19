@@ -20,6 +20,8 @@ import java.util.Map;
 
 public class RegistrarConfigurationPlugin {
     private Map<String, String> m_registrarPlugins;
+    //if m_featureId is not null, then the plugins will be applied only if the feature is enabled
+    private String m_featureId;
 
     public void setRegistrarPlugins(Map<String, String> plugins) {
         m_registrarPlugins = plugins;
@@ -27,5 +29,13 @@ public class RegistrarConfigurationPlugin {
 
     public Map<String, String> getRegistrarPlugins() {
         return m_registrarPlugins;
+    }
+
+    public void setFeatureId(String featureId) {
+        m_featureId = featureId;
+    }
+
+    public String getFeatureId() {
+        return m_featureId;
     }
 }

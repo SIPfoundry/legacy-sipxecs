@@ -36,9 +36,6 @@ public class OpenAcdSettings extends PersistableSettings implements DeployConfig
     private static final String AGENT_WEBUI_PORT = "openacd-config/agent-webui-port";
     private static final String AGENT_WEBUI_SSLENABLED = "openacd-config/agent-webui-sslenabled";
     private static final String AGENT_WEBUI_SSLPORT = "openacd-config/agent-webui-sslport";
-    private static final String WEBMGMT_ENABLED = "openacd-config/webmgmt-enabled";
-    private static final String WEBMGMT_PORT = "openacd-config/webmgmt-port";
-    private static final String WEBMGMT_SSLENABLED = "openacd-config/webmgmt-sslenabled";
     private DomainManager m_domainManager;
     private String m_audioDirectory;
 
@@ -105,18 +102,6 @@ public class OpenAcdSettings extends PersistableSettings implements DeployConfig
 
     public String getAgentWebUiSSlPort() {
         return getSettingValue(AGENT_WEBUI_SSLPORT);
-    }
-
-    public boolean isWebMgmtEnabled() {
-        return (Boolean) getSettingTypedValue(WEBMGMT_ENABLED);
-    }
-
-    public boolean isWebMgmtSslEnabled() {
-        return (Boolean) getSettingTypedValue(WEBMGMT_SSLENABLED);
-    }
-
-    public String getWebMgmtPort() {
-        return getSettingValue(WEBMGMT_PORT);
     }
 
     @Override

@@ -35,6 +35,8 @@ import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.GlobalFeature;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
@@ -72,7 +74,7 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
             if (enabled) {
                 Writer w = new FileWriter(new File(dir, "registrar-config.part"));
                 try {
-                    write(w, settings, domain, location, proxy, imApi, presenceApi, park);
+                    write(w, settings, domain, location, proxy, imApi, presenceApi, park, fm);
                 } finally {
                     IOUtils.closeQuietly(w);
                 }
@@ -81,7 +83,7 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
     }
 
     void write(Writer wtr, RegistrarSettings settings, Domain domain, Location location, Address proxy,
-            Address imApi, Address presenceApi, Address park) throws IOException {
+            Address imApi, Address presenceApi, Address park, FeatureManager fm) throws IOException {
         KeyValueConfiguration file = KeyValueConfiguration.colonSeparated(wtr);
         Setting root = settings.getSettings();
         file.writeSettings(SettingUtil.filter(NO_UNDERSCORE, root.getSetting("registrar-config")));
@@ -117,8 +119,12 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
         Map<String, RegistrarConfigurationPlugin> beans = m_context.getBeansOfType(RegistrarConfigurationPlugin.class);
         if (beans != null) {
             for (RegistrarConfigurationPlugin bean : beans.values()) {
-                for (Map.Entry<String, String> plugin : bean.getRegistrarPlugins().entrySet()) {
-                    file.write(plugin.getKey(), plugin.getValue());
+                String featureId = bean.getFeatureId();
+                if (featureId == null  || (fm.isFeatureEnabled(new LocationFeature(featureId))
+                        || fm.isFeatureEnabled(new GlobalFeature(featureId)))) {
+                    for (Map.Entry<String, String> plugin : bean.getRegistrarPlugins().entrySet()) {
+                        file.write(plugin.getKey(), plugin.getValue());
+                    }
                 }
             }
         }

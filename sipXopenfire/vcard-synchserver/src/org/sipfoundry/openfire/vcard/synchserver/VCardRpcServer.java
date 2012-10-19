@@ -13,7 +13,6 @@ import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
-import org.sipfoundry.openfire.vcard.synchserver.ContactInfoHandler;
 import org.xml.sax.SAXException;
 
 public class VCardRpcServer {

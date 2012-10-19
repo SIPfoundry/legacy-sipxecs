@@ -18,6 +18,8 @@
       </bean>
     </property>
     <property name="configManager" ref="configManager" />
+    <property name="featureManager" ref="featureManager" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
   
   <bean id="mwiConfig" class="org.sipfoundry.sipxconfig.mwi.MwiConfig">

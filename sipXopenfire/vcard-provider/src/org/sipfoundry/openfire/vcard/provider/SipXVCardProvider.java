@@ -26,6 +26,7 @@ import org.jivesoftware.util.cache.Cache;
 import org.jivesoftware.util.cache.CacheFactory;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
+import org.sipfoundry.openfire.vcard.synchserver.Util;
 import org.sipfoundry.openfire.vcard.synchserver.VCardRpcServer;
 
 /**
@@ -108,7 +109,11 @@ public class SipXVCardProvider implements VCardProvider {
 
         // Refill the cache
         Element vCard = cacheVCard(username);
-        ContactInfoHandlerImp.updateAvatar(username, vCard, false);
+        try {
+            Util.updateAvatar(username, vCard);
+        } catch (Exception e) {
+           logger.error("Cannot send update Avatar notification", e);
+        }
     }
 
     @Override
@@ -223,7 +228,7 @@ public class SipXVCardProvider implements VCardProvider {
                 //If client doesn't set local avatar, use the avatar from sipx/gravatar.
                 if (getAvatar(vCardElement) == null) {
                     VCardManager.getInstance().reset();
-                    ContactInfoHandlerImp.updateAvatar(username, vcardAfterUpdate, false);
+                    Util.updateAvatar(username, vcardAfterUpdate);
                 }
 
                 return vcardAfterUpdate;

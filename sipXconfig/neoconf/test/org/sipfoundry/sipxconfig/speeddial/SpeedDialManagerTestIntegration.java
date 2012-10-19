@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -65,6 +66,8 @@ public class SpeedDialManagerTestIntegration extends ImdbTestCase {
     }
 
     public void testSaveSpeedDialForUser() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
         loadDataSet("speeddial/speeddial.db.xml");
         SpeedDial speedDial = m_speedDialManager.getSpeedDialForUserId(1002, true);
 
@@ -125,6 +128,8 @@ public class SpeedDialManagerTestIntegration extends ImdbTestCase {
     }
 
     public void testSpeedDialSynchToGroup() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
         loadDataSet("speeddial/speeddial.db.xml");
         SpeedDial speedDial = m_speedDialManager.getSpeedDialForUserId(1003, true);
         assertEquals(3, speedDial.getButtons().size());
@@ -158,6 +163,8 @@ public class SpeedDialManagerTestIntegration extends ImdbTestCase {
     }
 
     public void testOnDeleteUser() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
         loadDataSet("speeddial/speeddial.db.xml");
         assertEquals(3, countRowsInTable("speeddial_button"));
         assertEquals(1, countRowsInTable("speeddial"));
@@ -180,6 +187,7 @@ public class SpeedDialManagerTestIntegration extends ImdbTestCase {
         m_speedDialManager = speedDialManager;
     }
 
+    @Override
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
