@@ -119,11 +119,14 @@ SipRedirectorAliasDB::lookUp(
 
    bool isDomainAlias = false;
    UtlString domain;
+   UtlString hostAlias;
    requestUri.getHostAddress(domain);
    UtlBoolean isMyHostAlias = mpSipUserAgent->isMyHostAlias(requestUri);
    if (mpSipUserAgent && domain != _localDomain && isMyHostAlias)
    {
      isDomainAlias = true;
+     requestUri.setHostAddress(_localDomain);
+     hostAlias = domain;
    }
 
    UtlString requestIdentity;
@@ -182,7 +185,6 @@ SipRedirectorAliasDB::lookUp(
                  UtlString userId;
                  contactUri.getUserId(userId);
                  requestUri.setUserId(userId.data());
-                 requestUri.setHostAddress(_localDomain);
                  requestUri.getUri(requestString);
                  OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp normalized request-uri to '%s'",
                  mLogName.data(), requestString.data());
@@ -195,6 +197,15 @@ SipRedirectorAliasDB::lookUp(
             }
          }
       }
+   }
+   else if (isDomainAlias)
+   {
+     //
+     // No alias found.  If this is was towards a domain alias, make sure to reset it back to
+     // the old value prior to feeding it to the rest of the redirectors.
+     //
+     requestUri.setHostAddress(hostAlias);
+     requestUri.getUri(requestString);
    }
 
    return RedirectPlugin::SUCCESS;
