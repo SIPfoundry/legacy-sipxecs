@@ -7,6 +7,7 @@ include config/project.am
 
 SUBDIRS = \
 	presence-plugin \
+	sqa-plugin \
 	vcard-synchserver \
 	vcard-provider \
 	config-plugin \

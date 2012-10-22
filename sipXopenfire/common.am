@@ -32,7 +32,8 @@ plugin_JAR_PKGS = \
 	ws-commons-util \
 	xmlrpc-client \
 	xmlrpc-server \
-	postgresql
+	postgresql \
+	sipxsqaclient
 
 plugin_JAR_RT_PKGS = \
 	com.noelios.restlet \

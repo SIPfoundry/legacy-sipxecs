@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="lib" path="/sipxcommons/lib/xmlrpc-common-3.1.jar"/>
 	<classpathentry kind="src" path="config-plugin/src"/>
+	<classpathentry kind="src" path="sqa-plugin/src"/>
 	<classpathentry kind="src" path="vcard-provider/src"/>
 	<classpathentry kind="src" path="presence-plugin/test"/>
 	<classpathentry kind="src" path="presence-plugin/src"/>
@@ -28,5 +29,6 @@
 	<classpathentry kind="var" path="OPENFIRE_ROOT"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-web"/>
 	<classpathentry kind="var" path="SIPX_JAVADIR/sipXecs/sipXopenfire/lib/sipx-openfire-vcard-synchserver.jar"/>
+	<classpathentry kind="var" path="SIPX_JAVADIR/sipXecs/sipXcommons/sipxsqaclient.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
