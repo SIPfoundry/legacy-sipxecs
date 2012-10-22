@@ -27,6 +27,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.jivesoftware.openfire.PacketRouter;
@@ -1132,9 +1133,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
          * Check if password changed and set password if changed.
          */
 
-        if (mucRoom.getPassword() != null && password == null || mucRoom.getPassword() == null
-                && password != null || mucRoom.getPassword() != password
-                || !mucRoom.getPassword().equals(password)) {
+        if (!StringUtils.equals(mucRoom.getPassword(), password)) {
             mucRoom.setPassword(password);
         }
 
