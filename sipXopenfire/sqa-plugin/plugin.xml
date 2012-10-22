@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+    <!-- Main plugin class -->
+    <class>org.sipfoundry.openfire.sqa.SqaPlugin</class>
+
+    <!-- Plugin meta-data -->
+    <name>SQA client</name>
+    <description>Subscribes to SQA events</description>
+    <author>eZuce Inc</author>
+
+    <version>1.0</version>
+    <date>02/02/2012</date>
+    <url>http://www.sipfoundry.org</url>
+    <minServerVersion>3.6.4</minServerVersion>
+    <licenseType>agpl</licenseType>
+
+    <adminconsole>
+    </adminconsole>
+</plugin>
