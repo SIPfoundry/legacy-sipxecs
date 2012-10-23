@@ -103,11 +103,11 @@
       <type><integer required="yes"/></type>
       <value>50</value>
     </setting>
-    <setting name="SIP_REDIRECT_AUTHORITY_LEVEL.110-REG" hidden="yes">
+    <setting name="SIP_REDIRECT_AUTHORITY_LEVEL.110-ALIAS" hidden="yes">
       <type><integer required="yes"/></type>
       <value>40</value>
     </setting>
-    <setting name="SIP_REDIRECT_AUTHORITY_LEVEL.120-ALIAS" hidden="yes">
+    <setting name="SIP_REDIRECT_AUTHORITY_LEVEL.120-REG" hidden="yes">
       <type><integer required="yes"/></type>
       <value>40</value>
     </setting>
