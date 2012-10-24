@@ -716,11 +716,22 @@ int SipClient::run(void* runArg)
          // Note that input was processed at this time.
          touch();
 
-         if ((res == 2 &&
-              readBuffer(0) == '\r' && readBuffer(1) == '\n') ||
-             (res == 4 &&
-              readBuffer(0) == '\r' && readBuffer(1) == '\n' &&
-              readBuffer(2) == '\r' && readBuffer(3) == '\n'))
+         //
+         // Count the CR/LF to see if this is a keep-alive
+         //
+         int crlfCount = 0;
+         for (int i = 0; i < res; i++)
+         {
+           if (readBuffer(i) == '\r' || readBuffer(i) == '\n')
+           {
+             crlfCount++;
+           } else
+           {
+             break;
+           }
+         }
+
+         if (res == crlfCount)
          {
              repeatedEOFs = 0;
              // The 'message' was a keepalive (CR-LF or CR-LF-CR-LF).
