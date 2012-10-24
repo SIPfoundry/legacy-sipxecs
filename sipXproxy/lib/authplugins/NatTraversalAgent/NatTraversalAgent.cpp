@@ -426,6 +426,14 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
    return result;
 }
 
+void NatTraversalAgent::handleBufferedOutputMessage( SipMessage& message,
+                                     const char* address,
+                                     int port )
+{
+  Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "handleBufferedOutputMessage >>> handleOutputMessage from %s:%u", address, port );
+  NatTraversalAgent::handleOutputMessage(message, address, port);
+}
+
 void NatTraversalAgent::handleOutputMessage( SipMessage& message,
                                              const char* address,
                                              int port )
