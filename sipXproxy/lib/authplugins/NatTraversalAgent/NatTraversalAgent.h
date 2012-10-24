@@ -82,6 +82,10 @@ class NatTraversalAgent : public AuthPlugin, SipOutputProcessor, OsNotification
                                      const char* address,
                                      int port );
 
+   virtual void handleBufferedOutputMessage( SipMessage& message,
+                                     const char* address,
+                                     int port );
+
    /// Read (or re-read) the authorization rules.
    virtual void readConfig( OsConfigDb& configDb /**< a subhash of the individual configuration
                                                   * parameters for this instance of this plugin. */
