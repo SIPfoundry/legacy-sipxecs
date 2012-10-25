@@ -15,7 +15,7 @@
 
 #include <os/OsServerTask.h>
 #include <os/OsMsg.h>
-#include <sqa/StateQueueNotification.h>
+
 
 // DEFINES
 // MACROS
@@ -91,8 +91,6 @@ private:
 
    ResourceListTask& operator=(const ResourceListTask& rResourceListTask);
    //:Assignment operator
-
-   StateQueueNotification* _pSqaNotifier;
 };
 
 /* ============================ INLINE METHODS ============================ */
