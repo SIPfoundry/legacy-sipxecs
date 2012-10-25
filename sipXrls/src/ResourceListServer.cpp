@@ -210,9 +210,6 @@ void ResourceListServer::start()
    mRefreshMgr.start();
    mSubscribeClient.start();
 
-   // Start the ResourceListTask.
-   mResourceListTask.start();
-
    // Start the ResourceListFileReader by giving it the file name.
    // Do this after starting all the subscription client server tasks,
    // as otherwise it will fill their queues.
@@ -238,6 +235,9 @@ void ResourceListServer::start()
          TRUE, // incoming,
          FALSE // outgoing
    );
+
+   // Start the ResourceListTask.
+   mResourceListTask.start();
 
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG, "ResourceListServer::_ Initialization done.");
 }
