@@ -337,34 +337,44 @@ bool ResourceListSet::addResource(const char* user,
                  this, user, uri, nameXml, display_name,
                  (int) no_check_start, (int) no_check_end);
 
-   // Serialize access to the ResourceListSet.
-   mutex_write_lock lock(_listMutex);
-
+   bool resource_cached_created = false;
    bool resource_added = false;
-   ResourceList* resourceList = findResourceList(user);
-   if (resourceList)
-   {
-      bool resource_cached_created;
-      resourceList->addResource(uri, nameXml, display_name,
-                                resource_added, resource_cached_created,
-                                no_check_start, no_check_end);
 
-      if (resource_cached_created)
-      {
-         // Delay to allow the consequent processing to catch up.
-         OsTask::delay(getResourceListServer()->getChangeDelay());
-      }
-
-      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
-                    "ResourceListSet::addResource resource added");
-   }
-   else
    {
-      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
-                    "ResourceListSet::addResource ResourceList '%s' not found",
-                    user);
+     // Serialize access to the ResourceListSet.
+     mutex_write_lock lock(_listMutex);
+
+
+     ResourceList* resourceList = findResourceList(user);
+
+     if (resourceList)
+     {
+        resourceList->addResource(uri, nameXml, display_name,
+                                  resource_added, resource_cached_created,
+                                  no_check_start, no_check_end);
+     }
+     else
+     {
+        Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+                      "ResourceListSet::addResource ResourceList '%s' not found",
+                      user);
+     }
    }
 
+   if (resource_cached_created)
+   {
+     Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+                      "ResourceListSet::addResource delaying by %d", getResourceListServer()->getChangeDelay());
+     // Delay to allow the consequent processing to catch up.
+     OsTask::delay(getResourceListServer()->getChangeDelay());
+   }
+
+   if (resource_added)
+   {
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+                      "ResourceListSet::addResource resource added %s ", uri);
+   }
+   
    return resource_added;
 }
 
