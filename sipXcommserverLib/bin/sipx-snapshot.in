@@ -404,9 +404,8 @@ function marshal_configuration_information () {
    /etc/crontab
    /etc/sendmail.cf
    @SIPX_RUNDIR@
-   @SIPX_VARDIR@/process-state
-   @SIPX_VARDIR@/process-cfgver
-   @SIPX_DATADIR@/process.d
+   @SIPX_VARDIR@/cfdata
+   @SIPX_CFINPUTS@
    @OPENFIRE_HOME@/logs/debug.log
    @OPENFIRE_HOME@/logs/info.log
    @OPENFIRE_HOME@/logs/error.log
@@ -1006,6 +1005,13 @@ EOF
      mongoexport -d node -c registrar -o ${Work}/mongo.node.registrar.json
      mongoexport -d node -c subscription -o ${Work}/mongo.node.subscription.json
    fi
+
+   echo "======== CFEngine keys"
+   echo "USER: root"
+   cf-key -s
+
+   echo "USER: @SIPXPBXUSER@"
+   su - @SIPXPBXUSER@ -c "cf-key -s"
 }
 
 # Now execute the code in the function that we have just defined.
