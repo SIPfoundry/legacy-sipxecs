@@ -460,7 +460,7 @@ void ResourceListSet::subscriptionEventCallbackSync(
                  subscriptionState->data());
 
    // Serialize access to the ResourceListSet.
-   //mutex_read_lock lock(_listMutex);
+   mutex_read_lock lock(_listMutex);
 
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::subscriptionEventCallbackSync after mutex_read_lock on semaphore");
