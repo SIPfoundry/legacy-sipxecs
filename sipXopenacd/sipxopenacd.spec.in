@@ -45,6 +45,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/openacd/plugin.d/sipxplugin/ebin/*
 %{_libdir}/openacd/lib/erlmongo/ebin/*
 %{_libdir}/openacd/lib/meck/ebin/*
-%{_bindir}/snapshot/openacd-snapshot.sh
+%attr(755,root,root) %{_bindir}/snapshot/openacd-snapshot.sh
 %dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/cfdata
 %{_localstatedir}/sipxdata/cfdata/defaults/sipxopenacd.cfdat
