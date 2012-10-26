@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.feature.Feature;
@@ -83,7 +84,7 @@ public class MohSettings extends PersistableSettings implements Replicable, Bean
 
     @Override
     public String getIdentity(String domainName) {
-        return null;
+        return SipUri.stripSipPrefix(SipUri.format(null, "~~mh~", domainName));
     }
 
     @Override

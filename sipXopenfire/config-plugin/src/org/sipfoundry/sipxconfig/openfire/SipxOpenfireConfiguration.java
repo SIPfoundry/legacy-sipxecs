@@ -32,7 +32,7 @@ public class SipxOpenfireConfiguration {
     private Openfire m_openfire;
     private DomainManager m_domainManager;
     private VelocityEngine m_velocityEngine;
-    private boolean m_enableCallWatcher = true;
+    private boolean m_enableCallWatcher = false;
     private boolean m_enableParsing = true;
 
     public void write(Writer writer, Location location) throws IOException {
@@ -91,5 +91,5 @@ public class SipxOpenfireConfiguration {
 
     public void setEnableParsing(boolean enableParsing) {
         m_enableParsing = enableParsing;
-    }        
+    }
 }
