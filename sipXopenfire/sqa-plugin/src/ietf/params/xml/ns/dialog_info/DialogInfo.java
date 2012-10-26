@@ -207,7 +207,7 @@ public class DialogInfo {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Dialogs size: ").append(dialog.size()).append(" Entity: ").append(StringUtils.defaultIfEmpty(entity, StringUtils.EMPTY));
+        builder.append("Dialogs size: ").append(getDialog().size()).append(" Entity: ").append(StringUtils.defaultIfEmpty(entity, StringUtils.EMPTY));
         return builder.toString();
     }
 

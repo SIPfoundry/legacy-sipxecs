@@ -60,7 +60,7 @@ public class SqaPlugin implements Plugin {
             UnfortunateLackOfSpringSupportFactory.initialize(clientConfig);
 
             System.load(libPath + "/libsqaclient.so");
-            SQAWatcher watcher = new SQAWatcher("test", "sswdata", 1, 100, 100);
+            SQAWatcher watcher = new SQAWatcher("openfire", "sswdata", 1, 100, 100);
             logger.info("Connected: " + watcher.isConnected());
 
             JAXBContext context = JAXBContext.newInstance(DialogInfo.class);
