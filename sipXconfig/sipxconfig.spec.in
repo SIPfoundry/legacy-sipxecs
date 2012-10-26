@@ -201,7 +201,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/nattraversal/*
 %config(noreplace) %{sipxpbxconf}/ntp/*
 %config(noreplace) %{sipxpbxconf}/openacd/*
-%config(noreplace) %{sipxpbxconf}/scsimbot/*
 %config(noreplace) %{sipxpbxconf}/setting.dtd
 %config(noreplace) %{sipxpbxconf}/setting.xsl
 %config(noreplace) %{sipxpbxconf}/sipxacccode/*
