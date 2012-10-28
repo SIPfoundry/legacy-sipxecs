@@ -14,6 +14,7 @@
   </bean>
 
   <bean id="openAcdContextImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl" parent="abstractDaoImpl">
+	<lookup-method name="newOpenAcdClient" bean="openAcdClient"/>
     <property name="aliasManager" ref="aliasManager" />
     <property name="featureManager" ref="featureManager" />
     <property name="replicationManager" ref="replicationManagerImpl" />
@@ -70,4 +71,5 @@
     <property name="audioDirectory" value="${sysdir.var}/configserver/phone/acd/audio"/>
   </bean>
 
+  <bean id="openAcdClient" class="org.sipfoundry.sipxconfig.openacd.OpenAcdClient" parent="settingsBean" />
 </beans>

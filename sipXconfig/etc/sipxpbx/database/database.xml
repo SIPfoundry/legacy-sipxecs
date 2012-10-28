@@ -445,6 +445,7 @@
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="14" -->
     <antcall target="change-on-restore-update1" />
+	<antcall target="openacd-client-settings" />
   </target>
 
   <target name="plugin-patches">
@@ -1322,6 +1323,9 @@
   </target>
   <target name="openacd-remove-commands" unless="openacd-remove-commands">
     <db-patch patch="openacd-remove-commands"/>
+  </target>
+  <target name="openacd-client-settings" unless="openacd-client-settings">
+	<db-patch patch="openacd-client-settings"/>
   </target>
 
   <!--
