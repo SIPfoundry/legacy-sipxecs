@@ -139,9 +139,7 @@ public class SqaEventHandler implements Runnable {
                     }
                 }
             }
-        } catch (JAXBException e) {
-            logger.error("Cannot parse packet: data ", e);
-        } catch (UserNotFoundException e) {
+        } catch (Exception e) {
             logger.error("Cannot parse packet: data ", e);
         } finally {
             IOUtils.closeQuietly(reader);
