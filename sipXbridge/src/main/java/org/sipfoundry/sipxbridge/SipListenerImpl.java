@@ -428,6 +428,22 @@ public class SipListenerImpl implements SipListenerExt {
 				itspAccount = Gateway.getAccountManager().getItspAccount(inboundVias);
             }
             
+            /**
+             * Do not allow processing request without a valid itsp account
+             */
+            if (null == itspAccount)
+            {
+                ServerTransaction st = requestEvent.getServerTransaction();
+                if ( st == null ) {
+                    st = provider.getNewServerTransaction(requestEvent.getRequest());
+                }
+
+                Response response = SipUtilities.createResponse(st, Response.LOOP_DETECTED);
+                st.sendResponse(response);
+
+                return;
+            }
+
             if ( !request.getMethod().equals(Request.ACK) && itspAccount != null && ! itspAccount.isEnabled() ) {
                 ServerTransaction st = requestEvent.getServerTransaction();
                 if ( st == null ) {
@@ -438,7 +454,7 @@ public class SipListenerImpl implements SipListenerExt {
                 st.sendResponse(response);
                 return;               
             }
-            
+
             if (method.equals(Request.INVITE)
                     || method.equals(Request.ACK)
                     || method.equals(Request.CANCEL)

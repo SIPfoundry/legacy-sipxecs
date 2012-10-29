@@ -102,6 +102,22 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         return false;
     }
 
+    //Check if the SIP Uri points back to sipxbridge address:port.
+    boolean uriContainsBridgeAddress(SipURI sipUri)
+    {
+        int uriPort = sipUri.getPort();
+        String uriHost = sipUri.getHost();
+
+        //compare with both bridge addresses: local and external
+        boolean isBridgeAddress = bridgeConfiguration.getLocalAddress().equals(uriHost) ||
+            bridgeConfiguration.getExternalAddress().equals(uriHost);
+        //compare with both bridge ports: local and external
+        boolean isBridgePort = ((bridgeConfiguration.getLocalPort() == uriPort) ||
+                (bridgeConfiguration.getExternalPort() == uriPort));
+
+        return (isBridgeAddress && isBridgePort);
+    }
+
     /**
      * Get the outbound ITSP account for a specific outbund SipURI.
      */
@@ -177,25 +193,35 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                 }
             }
 
-            String userName = ((SipURI) ((FromHeader) request.getHeader(FromHeader.NAME)).getAddress().getURI())
-                    .getUser();
-
             /*
-             * If an account is not found return an account record with the domain set to the
-             * outbound request domain. The INVITE will be forwarded. If the other side does not
-             * like the INVITE it an complain about it. See issue XX-5623
+             * Check if the outbound request domain:ipaddress:port points back to sipxbridge
+             * address:port. This should not be allowed as it will lead to an INVITE looping
+             * in sipxbridge and overloading cpu.
              */
-            accountFound = new ItspAccountInfo();
-            accountFound.setProxyDomain(sipUri.getHost());
-            accountFound.setUserName(userName);
-            accountFound.setOutboundProxyPort(sipUri.getPort());
-            accountFound.setOutboundTransport(sipUri.getTransportParam() == null ? "udp" : sipUri
-                    .getTransportParam());
-            accountFound.setGlobalAddressingUsed(true);
-            accountFound.setDummyAccount(true);
-            accountFound.setRegisterOnInitialization(false);
-            this.addItspAccount(accountFound);
-            return accountFound;
+            if (uriContainsBridgeAddress(sipUri)) {
+                return null;
+            }
+            else {
+	            String userName = ((SipURI) ((FromHeader) request.getHeader(FromHeader.NAME)).getAddress().getURI())
+	                    .getUser();
+
+	            /*
+	             * If an account is not found return an account record with the domain set to the
+	             * outbound request domain. The INVITE will be forwarded. If the other side does not
+	             * like the INVITE it an complain about it. See issue XX-5623
+	             */
+	            accountFound = new ItspAccountInfo();
+	            accountFound.setProxyDomain(sipUri.getHost());
+	            accountFound.setUserName(userName);
+	            accountFound.setOutboundProxyPort(sipUri.getPort());
+	            accountFound.setOutboundTransport(sipUri.getTransportParam() == null ? "udp" : sipUri
+	                    .getTransportParam());
+	            accountFound.setGlobalAddressingUsed(true);
+	            accountFound.setDummyAccount(true);
+	            accountFound.setRegisterOnInitialization(false);
+	            this.addItspAccount(accountFound);
+	            return accountFound;
+            }
         } finally {
             if ( logger.isDebugEnabled() ) logger.debug("getItspAccount: returning " + accountFound);
         }
