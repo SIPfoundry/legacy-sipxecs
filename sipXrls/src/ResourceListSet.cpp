@@ -466,7 +466,7 @@ void ResourceListSet::subscriptionEventCallbackSync(
                  subscriptionState->data());
 
    // Serialize access to the ResourceListSet.
-   mutex_read_lock lock(_listMutex);
+   mutex_read_lock lock(_subscriptionMutex);
 
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::subscriptionEventCallbackSync after mutex_read_lock on semaphore");
@@ -545,7 +545,7 @@ void ResourceListSet::notifyEventCallbackSync(const UtlString* dialogHandle,
                  dialogHandle->data());
 
    // Serialize access to the ResourceListSet.
-   mutex_read_lock lock(_listMutex);
+   mutex_read_lock lock(_notifyMutex);
 
    // Look up the ResourceNotifyReceiver to notify based on the dialogHandle.
    /* To call the handler, we dynamic_cast the object to
@@ -578,6 +578,7 @@ void ResourceListSet::notifyEventCallbackSync(const UtlString* dialogHandle,
 void ResourceListSet::addSubscribeMapping(UtlString* earlyDialogHandle,
                                           UtlContainable* handler)
 {
+   mutex_write_lock lock(_subscriptionMutex);
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::addSubscribeMapping this = %p, earlyDialogHandle = '%s', handler = %p",
                  this, earlyDialogHandle->data(), handler);
@@ -589,6 +590,7 @@ void ResourceListSet::addSubscribeMapping(UtlString* earlyDialogHandle,
  */
 void ResourceListSet::deleteSubscribeMapping(UtlString* earlyDialogHandle)
 {
+   mutex_write_lock lock(_subscriptionMutex);
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::deleteSubscribeMapping this = %p, earlyDialogHandle = '%s'",
                  this, earlyDialogHandle->data());
@@ -613,6 +615,7 @@ void ResourceListSet::addNotifyMapping(const UtlString& dialogHandle,
     * SipDialog::isSameDialog.)
     */
 
+   mutex_write_lock lock(_notifyMutex);
    // If we already have a different mapping, report an error, as this
    // addNotifyMapping() should be a duplicate of the mapping we
    // already have.
