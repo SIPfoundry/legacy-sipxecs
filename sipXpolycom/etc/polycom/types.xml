@@ -11,20 +11,6 @@
     </option>
   </enum>
 </type>
-<!-- in 3.3.x+ "" is a wrong default -->
-<type id="reg-server-index-33">
-  <enum>
-    <option>
-      <value>0</value>
-    </option>
-    <option>
-      <value>1</value>
-    </option>
-    <option>
-      <value>2</value>
-    </option>
-  </enum>
-</type>
 <type id="transport">
   <enum>
     <option>
@@ -38,16 +24,6 @@
     </option>
     <option>
       <value>DNSnaptr</value>
-    </option>
-    <option>
-      <value>TLS</value>
-    </option>
-  </enum>
-</type>
-<type id="transportLDAP">
-  <enum>
-    <option>
-      <value>TCP</value>
     </option>
     <option>
       <value>TLS</value>
@@ -575,3 +551,4 @@
     </option>
   </enum>
 </type>
+

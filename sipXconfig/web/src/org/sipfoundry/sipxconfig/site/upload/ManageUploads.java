@@ -36,7 +36,6 @@ import org.sipfoundry.sipxconfig.upload.UploadSpecification;
 public abstract class ManageUploads extends SipxBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "upload/ManageUploads";
-    private static final String ALLOW_MULTI_UPLOAD = "firmware/allowMultipleUploads";
 
     @InjectObject(value = "spring:tapestry")
     public abstract TapestryContext getTapestry();
@@ -135,9 +134,8 @@ public abstract class ManageUploads extends SipxBasePage implements PageBeginRen
                 if (uploadSpec.getManaged()) {
                     alreadyActive = getUploadManager().isActiveUploadById(uploadSpec);
                 }
-                boolean allowMultipleUploads = (upload.getSettings().getSetting(ALLOW_MULTI_UPLOAD) != null)
-                        ? (Boolean) upload.getSettingTypedValue(ALLOW_MULTI_UPLOAD) : false;
-                if (alreadyActive && !allowMultipleUploads) {
+
+                if (alreadyActive) {
                     getValidator().record(getAlreadyActivatedError(), null);
                 } else {
                     getUploadManager().deploy(upload);

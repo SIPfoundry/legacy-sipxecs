@@ -59,32 +59,14 @@ public class PolycomPhone extends Phone {
     static final String CALL_BACK_MODE_PATH = "msg.mwi/callBackMode";
     static final String SUBSCRIBE_PATH = "msg.mwi/subscribe";
     static final String TEMPLATE_DIR = "polycom/mac-address.d";
-    static final String TEMPLATE_DIR40 = "polycom/mac-address.d.40";
-    static final String TEMPLATE_DIR32 = "polycom/mac-address.d.32";
+
+    public PolycomPhone() {
+        setDeviceVersion(PolycomModel.VER_2_0);
+    }
 
     public String getDefaultVersionId() {
         DeviceVersion version = getDeviceVersion();
         return version != null ? version.getVersionId() : null;
-    }
-
-    public String getTemplateDir() {
-        if (getDeviceVersion() == PolycomModel.VER_4_0_X) {
-            return TEMPLATE_DIR40;
-        } else if (getDeviceVersion() == PolycomModel.VER_3_2_X) {
-            return TEMPLATE_DIR32;
-        }
-        return TEMPLATE_DIR;
-    }
-
-    /* make use of getApplicationFilename?
-     */
-    public String getAppFile() {
-        if (getDeviceVersion() == PolycomModel.VER_4_0_X) {
-            return "/mac-address-40.cfg.vm";
-        } else if (getDeviceVersion() == PolycomModel.VER_3_2_X) {
-            return "/mac-address-32.cfg.vm";
-        }
-        return "/mac-address.cfg.vm";
     }
 
     /**
@@ -94,32 +76,6 @@ public class PolycomPhone extends Phone {
      */
     public void setDefaultVersionId(String defaultVersionId) {
         setDeviceVersion(DeviceVersion.getDeviceVersion(PolycomPhone.BEAN_ID + defaultVersionId));
-    }
-
-    @Override
-    public void setDeviceVersion(DeviceVersion version) {
-        //if (getDeviceVersion() == null && getSettingValue("group.version/firmware.version") != null) {
-        //    version = DeviceVersion.getDeviceVersion(BEAN_ID+getSettingValue("group.version/firmware.version")); 
-       // }
-        super.setDeviceVersion(version);
-        DeviceVersion myVersion = getDeviceVersion();
-        if (myVersion == PolycomModel.VER_4_0_X) {
-            getModel().setSettingsFile("phone-40.xml");
-            getModel().setLineSettingsFile("line-40.xml");
-            getModel().setStaticProfileFilenames(new String[]{});
-        } else if (myVersion == PolycomModel.VER_3_1_X){
-            getModel().setSettingsFile("phone.xml");
-            getModel().setLineSettingsFile("line.xml");
-            getModel().setStaticProfileFilenames(new String[]{
-                "polycom_phone1_3.1.X.cfg",
-                "polycom_sip_3.1.X.cfg"});
-        } else {
-            //we need to explicitly define these here otherwise changing versions will not work
-            getModel().setSettingsFile("phone-32.xml");
-            getModel().setLineSettingsFile("line-32.xml");
-            getModel().setStaticProfileFilenames(new String[]{
-                    "polycom_phone1.cfg", "polycom_sip.cfg"});
-        }
     }
 
     @Override

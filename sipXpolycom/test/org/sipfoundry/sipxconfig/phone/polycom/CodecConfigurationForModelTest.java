@@ -26,7 +26,6 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.polycom.CodecGroupsTest.CodecGroupType;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -63,11 +62,13 @@ public class CodecConfigurationForModelTest extends TestCase {
      */
     public void testCodecConfigurationForAllModels() throws Exception {
 
+        assertCodecConfigurationForModel(CodecGroupType.IP_300, "polycom300");
         assertCodecConfigurationForModel(CodecGroupType.OTHERS, "polycom321");
         assertCodecConfigurationForModel(CodecGroupType.OTHERS, "polycom330");
         assertCodecConfigurationForModel(CodecGroupType.OTHERS, "polycom331");
         assertCodecConfigurationForModel(CodecGroupType.OTHERS, "polycom430");
         assertCodecConfigurationForModel(CodecGroupType.IP_650, "polycom450");
+        assertCodecConfigurationForModel(CodecGroupType.OTHERS, "polycom500");
         assertCodecConfigurationForModel(CodecGroupType.IP_650, "polycom550");
         assertCodecConfigurationForModel(CodecGroupType.OTHERS, "polycom600");
         assertCodecConfigurationForModel(CodecGroupType.IP_650, "polycom650");
@@ -77,20 +78,15 @@ public class CodecConfigurationForModelTest extends TestCase {
         assertCodecConfigurationForModel(CodecGroupType.IP_7000, "polycom7000");
         assertCodecConfigurationForModel(CodecGroupType.VVX_1500, "polycomVVX1500");
         assertCodecConfigurationForModel(CodecGroupType.IP_650, "polycom335");
-        
     }
 
-    public void testCodecConfigurationFor40Models() throws Exception {
-        assertCodecConfigurationForModel(CodecGroupType.VVX_500, "polycomVVX500", PolycomModel.VER_4_0_X);
-    }
-    
-    private void assertCodecConfigurationForModel(CodecGroupType codecGroup, String phoneModelId, DeviceVersion version) throws Exception {
+    private void assertCodecConfigurationForModel(CodecGroupType codecGroup, String phoneModelId) throws Exception {
+
         // Initialize the phone.
         m_phone = new PolycomPhone();
         m_phone.setModel(phoneModelBuilder(phoneModelId, getClass()));
-        m_phone.setDeviceVersion(version);
-        
         PhoneTestDriver.supplyTestData(m_phone, new LinkedList<User>());
+
         // Each model belongs to exactly one codec group.
         Collection<Setting> codecPref = m_phone.getSettings().getSetting("voice/codecPref").getValues();
         assertTrue(String.format("The '%s' model does not have a codec group.", phoneModelId), 0 != codecPref.size());
@@ -126,11 +122,7 @@ public class CodecConfigurationForModelTest extends TestCase {
         }
         assertEquals(String.format("The '%s' model is missing an audioProfile for the following supported code type(s): %s.",
                 phoneModelId, major_supported_codecs),
-                0, major_supported_codecs.size());        
-    }
-    
-    private void assertCodecConfigurationForModel(CodecGroupType codecGroup, String phoneModelId) throws Exception {
-        assertCodecConfigurationForModel(codecGroup, phoneModelId, PolycomModel.VER_3_1_X);
+                0, major_supported_codecs.size());
     }
 
     /**

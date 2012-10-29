@@ -9,15 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
-import static org.easymock.EasyMock.createMock;
-
 import java.io.InputStream;
 
 import org.custommonkey.xmlunit.XMLUnit;
-import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.test.TestHelper;
@@ -32,13 +28,9 @@ public class ApplicationConfigurationTest extends PolycomXmlTestCase {
     protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
         phone = new PolycomPhone();
-        phone.setModelId("335");
-        PhoneModel model = new PolycomModel();
-        ModelSource<PhoneModel> phoneModelSource = createMock(ModelSource.class);
-        phone.setPhoneModelSource(phoneModelSource);
+        PolycomModel model = new PolycomModel();
         model.setMaxLineCount(6);
         phone.setModel(model);
-        phone.setDeviceVersion(PolycomModel.VER_3_2_X);
         PhoneTestDriver.supplyTestData(phone);
 
         m_location = new MemoryProfileLocation();
