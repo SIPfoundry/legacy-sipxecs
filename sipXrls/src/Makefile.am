@@ -11,7 +11,7 @@ sipxrls_LDADD = \
 	@SIPXMEDIAADAPTER_LIBS@ \
 	@SIPXCOMMSERVER_LIBS@ \
 	@GIPS_NEQ_OBJS@ \
-	-lboost_thread-mt
+	@BOOST_LDADD@
 
 sipxrls_CXXFLAGS = \
         -DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \

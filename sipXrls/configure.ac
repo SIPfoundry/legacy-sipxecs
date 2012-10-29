@@ -7,6 +7,10 @@ AM_INIT_AUTOMAKE(foreign tar-ustar)
 SFAC_AUTOMAKE_VERSION([1.6])
 AM_CONFIG_HEADER([src/config.h])
 AC_PROG_LIBTOOL
+AC_CHECK_LIB(boost_thread, main, [BOOST_LDADD="-lboost_thread"],
+    [AC_CHECK_LIB(boost_thread-mt, main,
+    [BOOST_LDADD="-lboost_thread-mt"],
+    [AC_MSG_ERROR("no boost thread found")])])
 AC_PATH_PROG([BASH], [bash])
 AC_PATH_PROG([PERL], [perl])
 AC_PROG_CXX
@@ -26,6 +30,7 @@ AC_ARG_WITH([dailydir],
   [DAILYDIR=${withval}],[DAILYDIR='$(sysconfdir)/cron.daily'])
 AC_SUBST([DAILYDIR])
 CHECK_POSTGRES
+AC_SUBST(BOOST_LDADD)
 CHECK_SERVICEDIR
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])
