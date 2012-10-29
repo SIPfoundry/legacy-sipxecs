@@ -52,6 +52,8 @@ import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeCondition.CONDITION;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeStep.FREQUENCY;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.dao.support.DataAccessUtils;
 
 import com.mongodb.DBCollection;
@@ -935,6 +937,14 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
 
         List<Replicable> replicables = m_openAcdReplicationProvider.getReplicables();
         assertTrue(replicables.contains(client));
+
+        // test save client with settings
+        Setting setting = TestHelper.loadSettings(TestHelper
+                .getResourceAsFile(getClass(), "openacd-client-test.xml"));
+        client.setSettings(setting);
+        m_openAcdContext.saveClient(client);
+        assertNotNull(client.getSettingValue("openacd-client/ciuc"));
+        assertEquals("baby", client.getSettingValue("openacd-client/ciuc"));
 
         // test save client with the same name
         OpenAcdClient anotherClient = new OpenAcdClient();

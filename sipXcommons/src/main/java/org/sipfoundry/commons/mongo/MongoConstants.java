@@ -56,8 +56,14 @@ public interface MongoConstants {
     static final String JOB_TITLE = "jbttl";
     static final String JOB_DEPT = "jbdpt";
     static final String COMPANY_NAME = "cmpnm";
+    static final String CONTACT_NAME = "ctcnm";
+    static final String CONTACT_JOB = "ctcjb";
+    static final String CONTACT_WORK_PHONE_NUMBER = "ctcwph";
+    static final String CONTACT_CELL_PHONE_NUMBER = "ctccell";
+    static final String CONTACT_EMAIL = "ctcemail";
     static final String ASSISTANT_NAME = "astnm";
     static final String ASSISTANT_PHONE = "astph";
+    static final String ASSISTANT_EMAIL = "astemail";
     static final String FAX_NUMBER = "fax";
     static final String LOCATION = "loctn"; // this is different than loc field in user
                                                     // location db
@@ -75,6 +81,8 @@ public interface MongoConstants {
     static final String OFFICE_STATE = "ostate";
     static final String OFFICE_ZIP = "ozip";
     static final String OFFICE_DESIGNATION = "odsgn";
+    static final String OFFICE_PHONE_NUMBER = "cmpph";
+    static final String OFFICE_FAX_NUMBER = "cmpfax";
     static final String CONF_ENTRY_IM = "cnfentry";
     static final String CONF_EXIT_IM = "cnfexit";
     static final String LEAVE_MESSAGE_BEGIN_IM = "lvmsgbeg";
@@ -146,4 +154,6 @@ public interface MongoConstants {
     static final String GROUP_RESOURCE = "grprsc";
     static final String PLAY_DEFAULT_VM = "defvmopt";
     static final String MY_BUDDY_GROUP = "imbot";
+    // OpenAcd
+    static final String URL_POPUP = "urlpop";
 }

@@ -70,6 +70,7 @@ public abstract class EditOpenAcdClientPage extends PageWithCallback implements 
             setDisabled(true);
         } else {
             setOpenAcdClient(new OpenAcdClient());
+            setOpenAcdClient(getOpenAcdContext().newOpenAcdClient());
         }
     }
 

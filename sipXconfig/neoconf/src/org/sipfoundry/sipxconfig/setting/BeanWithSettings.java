@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 public abstract class BeanWithSettings extends BeanWithId {
@@ -65,6 +68,39 @@ public abstract class BeanWithSettings extends BeanWithId {
     }
 
     protected abstract Setting loadSettings();
+
+    /**
+     * Allows loading a settings file model
+     * @param path path to settings file; relative to /etc/sipxpbx
+     * @return
+     */
+    public Setting overloadSettings(String path) {
+        Setting settings = getSettings();
+        if (settings == null) {
+            setSettings(m_modelFilesContext.loadModelFile(path));
+        } else {
+            /*
+             * we need to make sure same set of settings is not added twice;
+             * this method is mostly called from a plugin and due to the mechanism
+             * it is called multiple times;
+             */
+            Setting settingsFromFile = m_modelFilesContext.loadModelFile(path);
+            Collection<Setting> settings1 = m_settings.getValues();
+            Collection<Setting> settings2 = settingsFromFile.getValues();
+            Collection<String> setting1names = new ArrayList<String>();
+            Collection<String> setting2names = new ArrayList<String>();
+            for (Setting setting : settings1) {
+                setting1names.add(setting.getName());
+            }
+            for (Setting setting : settings2) {
+                setting2names.add(setting.getName());
+            }
+            if (!setting1names.containsAll(setting2names)) {
+                m_settings.addSetting(m_modelFilesContext.loadModelFile(path));
+            }
+        }
+        return m_settings;
+    }
 
     public void setSettings(Setting settings) {
         m_settings = settings;

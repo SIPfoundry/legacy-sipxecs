@@ -25,12 +25,13 @@ import java.util.Set;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class OpenAcdClient extends BeanWithId implements Replicable {
+public class OpenAcdClient extends BeanWithSettings implements Replicable {
 
     private String m_name;
     private String m_identity;
@@ -100,5 +101,10 @@ public class OpenAcdClient extends BeanWithId implements Replicable {
     @Override
     public boolean isValidUser() {
         return false;
+    }
+
+    @Override
+    protected Setting loadSettings() {
+        return null;
     }
 }
