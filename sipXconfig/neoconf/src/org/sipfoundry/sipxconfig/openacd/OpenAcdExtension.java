@@ -173,7 +173,7 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable,
 
     @Override
     public String getIdentity(String domain) {
-        return null;
+        return SipUri.stripSipPrefix(SipUri.format(null, getExtension(), domain));
     }
 
     @Override
