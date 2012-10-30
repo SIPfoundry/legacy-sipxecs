@@ -74,7 +74,9 @@ public class PresenceUnifier implements PresenceEventListener
             unifiedPresenceMap.put( xmppUsername,  unifiedPresence );
             User ofUser = XMPPServer.getInstance().getUserManager().getUser(xmppUsername);
             Presence presence = XMPPServer.getInstance().getPresenceManager().getPresence(ofUser);
-            unifiedPresence.setXmppPresence(presence);
+            if (presence != null) {
+                unifiedPresence.setXmppPresence(presence);
+            }
         }
         return unifiedPresence;
     }
