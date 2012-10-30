@@ -175,16 +175,21 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
         if (user.getUserProfile().getUseBranchAddress() && user.getSite() != null) {
             Address branch = user.getUserProfile().getBranchAddress();
+            if (branch == null) {
+                branch = new Address();
+                user.getUserProfile().setBranchAddress(branch);
+            }
             branch.setCity(user.getSite().getAddress().getCity());
             branch.setCountry(user.getSite().getAddress().getCountry());
             branch.setOfficeDesignation(user.getSite().getAddress().getOfficeDesignation());
             branch.setState(user.getSite().getAddress().getState());
             branch.setStreet(user.getSite().getAddress().getStreet());
             branch.setZip(user.getSite().getAddress().getZip());
+            user.getUserProfile().setBranchName(user.getSite().getName());
         }
         if (!user.isNew() && user.getSite() == null) {
             user.getUserProfile().setUseBranchAddress(false);
-            user.getUserProfile().setBranchAddress(null);
+            user.getUserProfile().setBranchAddress(new Address());
         }
         if (user.isNew()) {
             getHibernateTemplate().save(user);

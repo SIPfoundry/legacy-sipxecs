@@ -19,10 +19,14 @@ package org.sipfoundry.sipxconfig.common.profile;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import static org.apache.commons.lang.StringUtils.EMPTY;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.commons.userdb.profile.Address;
 import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.commons.userdb.profile.UserProfileService;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
@@ -85,12 +89,29 @@ public class UserProfileContext implements DaoEventListener, SetupListener {
                 UserProfile profile = user.getUserProfile();
                 profile.setAvatar(String.format(AVATAR_FORMAT,
                         m_locationManager.getPrimaryLocation().getFqdn(), user.getUserName()));
+                profile.setBranchName(user.getSite() != null ? user.getSite().getName() : EMPTY);
+                profile.setBranchAddress(user.getSite() != null ? createBranchAddress(user.getSite()) : new Address());
                 m_userProfileService.saveUserProfile(profile);
             } catch (Exception ex) {
                 LOG.error("failed to save profile in mongo" + ex.getMessage());
                 throw new UserException("&err.msg.saveProfile", ex.getMessage());
             }
+        } else if (entity instanceof Branch) {
+            Branch branch = (Branch) entity;
+            Address branchAddress = createBranchAddress(branch);
+            m_userProfileService.updateBranchAddress(branch.getName(), branchAddress);
         }
+    }
+
+    private Address createBranchAddress(Branch branch) {
+        Address branchAddress = new Address();
+        branchAddress.setCity(branch.getAddress().getCity());
+        branchAddress.setCountry(branch.getAddress().getCountry());
+        branchAddress.setOfficeDesignation(branch.getAddress().getOfficeDesignation());
+        branchAddress.setState(branch.getAddress().getState());
+        branchAddress.setStreet(branch.getAddress().getStreet());
+        branchAddress.setZip(branch.getAddress().getZip());
+        return branchAddress;
     }
 
     protected void migrateProfiles() {
