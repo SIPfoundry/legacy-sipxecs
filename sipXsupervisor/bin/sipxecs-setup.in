@@ -51,7 +51,7 @@ def set_nonroot_keys
   exit 1 unless run_command "su - #{$user} sh -c '/usr/sbin/cf-key'"
 end
 
-def set_secondary
+def set_secondary_role
   return true if File.exists?($secondary_dat)
   puts "Configuring as an additional server..."
 
@@ -83,8 +83,8 @@ def set_secondary
 end
 
 # Return true or false IF machine is primary, not is anything was done or not
-def set_primary
-  return false unless prompt_confirm("Is this the \e[0;31mfirst server\e[m in your cluster?")
+def choose_primary_role?
+  return unless prompt_confirm("Is this the \e[0;31mfirst server\e[m in your cluster?")
   puts "Configuring as the first server..."
   File.open($location_dat, 'w') {|f|
     f.puts('1')
@@ -100,7 +100,6 @@ def set_primary
 EOF
   }
   puts "Created #{$primary_dat}" if $verbose
-  return true
 end
 
 def prompt_confirm(msg)
@@ -261,7 +260,10 @@ def network_settings
     system("/usr/sbin/system-config-network-tui")
     system("/etc/init.d/network reload")
   end
+  return change
+end
 
+def set_primary_hostname
   net = get_network(true)
   net.host = prompt_default("Enter just the \e[0;31mhost name\e[m of this computer?. Example: myhost.", net.host);
   net.domain = prompt_default("Enter just the \e[0;31mdomain name\e[m of your network? Example: mydomain.com", net.domain)
@@ -341,8 +343,9 @@ class Network
   end
 end
 
-def print_application_settings
+def print_role_settings
   is_primary = is_primary?
+  puts "\e[0;31mApplication settings:\e[m"
   puts "Primary server : " + (is_primary ? 'yes' : 'no')
   location = get_location_id
   return false if location.empty?
@@ -366,26 +369,33 @@ def print_application_settings
   return true
 end
 
-def application_settings
-  already_setup = (is_primary? or is_secondary?)
-  if already_setup
-    puts "\e[0;31mApplication settings:\e[m"
-    if print_application_settings
-      if !prompt_confirm("Would you like to \e[0;31mchange\e[m your application settings?")
-        return
-      end
-    end
+
+def has_role?
+  is_primary? or is_secondary?
+end
+
+def change_role?
+  change = prompt_confirm("Would you like to \e[0;31mchange\e[m your application settings?")
+  if change
+    rm_file($primary_dat)
+    rm_file($secondary_dat)
   end
-  is_primary = set_primary()
-  if is_primary
+  change
+end
+
+def choose_role
+  choose_primary_role?
+  if is_primary?
     set_nonroot_keys()
     set_domain
+    set_primary_hostname
   else
-    set_secondary
+    set_secondary_role
   end
 end
 
-def custom_settings
+# Call OEM setup hook function
+def custom_hook
   custom_script = "#{$confdir}/sipxecs-setuprc"
   if File.exists?(custom_script)
     if system "/bin/sh #{custom_script}"
@@ -430,8 +440,15 @@ args.parse!
 raise 'Must run as root' unless Process.uid == 0
 set_root_keys()
 network_settings
-custom_settings
-application_settings
+custom_hook
+if !has_role?
+  choose_role
+else
+  print_role_settings
+  if change_role?
+    choose_role
+  end
+end
 
 # First pass generated cfdata info
 if is_primary?
