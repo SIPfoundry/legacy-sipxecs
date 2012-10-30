@@ -17,9 +17,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.sipfoundry.openfire.client.OpenfireXmlRcpUnifiedPresenceNotificationClient;
 import org.sipfoundry.sipcallwatcher.SipResourceState;
 import org.apache.log4j.Logger;
+import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.session.ClientSession;
 import org.jivesoftware.openfire.user.PresenceEventDispatcher;
 import org.jivesoftware.openfire.user.PresenceEventListener;
+import org.jivesoftware.openfire.user.User;
 import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.Presence;
@@ -68,7 +70,11 @@ public class PresenceUnifier implements PresenceEventListener
         UnifiedPresence unifiedPresence = unifiedPresenceMap.get( xmppUsername );
         if( unifiedPresence == null )
         {
-            throw new UserNotFoundException("No presence information for XMPP user");
+            unifiedPresence = new UnifiedPresence( xmppUsername );
+            unifiedPresenceMap.put( xmppUsername,  unifiedPresence );
+            User ofUser = XMPPServer.getInstance().getUserManager().getUser(xmppUsername);
+            Presence presence = XMPPServer.getInstance().getPresenceManager().getPresence(ofUser);
+            unifiedPresence.setXmppPresence(presence);
         }
         return unifiedPresence;
     }

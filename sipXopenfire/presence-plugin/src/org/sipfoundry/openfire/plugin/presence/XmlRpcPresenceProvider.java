@@ -59,7 +59,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
     public Map getPresenceState( String xmppUsername ) {
         try {
             String jid = appendDomain(xmppUsername);
-            log.info("GetPresenceState " + jid);
+            log.debug("GetPresenceState " + jid);
             assertPlugInReady();
             Map retval = createSuccessMap();
             UnifiedPresence unifiedPresence =
@@ -83,7 +83,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
     public Map setPresenceState (String xmppUsername , String xmppPresenceAsString ) {
         try {
             String jid = appendDomain(xmppUsername);
-            log.info("setPresenceState" + jid + " XMPP presence " + xmppPresenceAsString);
+            log.debug("setPresenceState" + jid + " XMPP presence " + xmppPresenceAsString);
             assertPlugInReady();
             Map retval = createSuccessMap();
             UnifiedPresence.XmppPresence xmppPresence = UnifiedPresence.XmppPresence.valueOf( xmppPresenceAsString );
@@ -104,7 +104,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
     public Map setPresenceStatus(String id, String status) {
         try {
             String jid = appendDomain(id);
-            log.info("setPresenceStatus " + jid + " status = " + status);
+            log.debug("setPresenceStatus " + jid + " status = " + status);
             assertPlugInReady();
             Map retval = createSuccessMap();
             getPlugin().setPresenceStatus(jid,  status);
@@ -123,7 +123,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
     public Map getPresenceStatus(String id) {
         try {
             String jid = appendDomain(id);
-            log.info("getPresenceStatus " + jid) ;
+            log.debug("getPresenceStatus " + jid) ;
             assertPlugInReady();
             Map retval = createSuccessMap();
             String presenceStatus = getPlugin().getPresenceStatus(jid);
@@ -165,7 +165,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
      */
     public Map getUnifiedPresenceInfo( String sipId ) {
         try {
-           log.info("getUnifiedPresenceInfo " + sipId);
+           log.debug("getUnifiedPresenceInfo " + sipId);
            assertPlugInReady();
            String xmppUser = getPlugin().getXmppId(sipId);
            if ( xmppUser == null ) {
@@ -202,7 +202,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
     public Map registerPresenceMonitor(String protocol, String serverUrl )
     {
         try {
-            log.info("registerPresenceMonitor " + protocol + " " + serverUrl );
+            log.debug("registerPresenceMonitor " + protocol + " " + serverUrl );
             assertPlugInReady();
             PresenceUnifier.getInstance().addUnifiedPresenceChangeListener( protocol, serverUrl );
             Map retval = createSuccessMap();
@@ -219,7 +219,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
     {
         try
         {
-            log.info("ping received from " + originatorName );
+            log.debug("ping received from " + originatorName );
             assertPlugInReady();
             Map retval = createSuccessMap();
             retval.put(INSTANCE_HANDLE, myHandle);
