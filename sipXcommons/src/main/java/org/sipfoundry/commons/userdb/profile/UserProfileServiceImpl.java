@@ -31,6 +31,7 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
@@ -41,6 +42,8 @@ public class UserProfileServiceImpl implements UserProfileService {
     private static final String USER_ID = "m_userid";
     private static final String IM_ID = "m_imId";
     private static final String USERNAME = "m_userName";
+    private static final String BRANCH_NAME = "m_branchName";
+    private static final String BRANCH_ADDRESS = "m_branchAddress";
     private static final String AVATAR_NAME = "avatar_%s.png";
     private MongoTemplate m_template;
 
@@ -178,6 +181,12 @@ public class UserProfileServiceImpl implements UserProfileService {
         if (imageForOutput == null || (imageForOutput != null && overwriteIfExists)) {
             saveAvatar(userName, originalIs);
         }
+    }
+
+    @Override
+    public void updateBranchAddress(String branchName, Address address) {
+        m_template.updateMulti(new Query(Criteria.where(BRANCH_NAME).is(branchName)),
+                new Update().set(BRANCH_ADDRESS, address), USER_PROFILE_COLLECTION);
     }
 
     public void setProfilesDb(MongoTemplate template) {

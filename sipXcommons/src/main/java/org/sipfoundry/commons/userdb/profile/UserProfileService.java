@@ -50,4 +50,6 @@ public interface UserProfileService {
 
     List<UserProfile> getAllUserProfiles();
 
+    void updateBranchAddress(String branch, Address address);
+
 }
