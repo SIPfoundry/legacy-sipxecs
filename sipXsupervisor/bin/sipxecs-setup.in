@@ -348,19 +348,20 @@ def print_role_settings
   puts "\e[0;31mApplication settings:\e[m"
   puts "Primary server : " + (is_primary ? 'yes' : 'no')
   location = get_location_id
+  puts "Location ID    : #{location}" unless is_primary
   return false if location.empty?
-  [$domain_dat, "#{$cfdatadir}/#{location}/host.cfdat"].each {|fname|
+  [$domain_dat, $master_dat, "#{$cfdatadir}/#{location}/host.cfdat"].each {|fname|
     return false unless File.exists?(fname)
     File.open(fname, "r") {|fstream|
       while (line = fstream.gets)
         f = line.split('=')
         case f[1]
-        when /domain/
-          puts "SIP Domain     : " + f[2]
-        when /master_fqdn/
+        when 'domain'
+          puts "SIP Domain     : " + f[2]  if is_primary?
+        when 'host'          
+          puts "Host           : " + f[2]  if is_primary?
+        when 'address'
           puts("Master         : " + f[2]) unless is_primary
-        when /master_address/
-          puts("Master IP      : " + f[2]) unless is_primary
         else
         end  
       end
@@ -371,7 +372,11 @@ end
 
 
 def has_role?
-  is_primary? or is_secondary?
+  if is_primary?
+  end
+  end is_seconday?
+  end
+  return false
 end
 
 def change_role?
