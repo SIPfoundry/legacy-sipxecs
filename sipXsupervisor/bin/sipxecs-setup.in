@@ -3,6 +3,7 @@
 require 'optparse'
 require 'fileutils'
 require 'socket'
+require 'tempfile'
 
 # using only @VAR@ style vars in this section only helps make this maintainable when integrating
 # patches.
@@ -434,6 +435,11 @@ args = OptionParser.new { |opts|
     $advanced = true
   }
 
+  $sync_time = true
+  opts.on("--no-sync-time", "Do not attempt to sync local date/time with primary server. Specify this if master server is not running an NTP server") {
+    $sync_time = false
+  }
+
   opts.on_tail("--help", "Print options") {
     puts opts
     exit
@@ -461,6 +467,18 @@ if is_primary?
   exit 1 unless run_command("#{$bindir}/sipxagent #{'-v ' if $verbose} -d setup")
   puts "Finishing system configuration, almost done..."
 else
+  if $sync_time
+    tmp_ntp
+    puts "Synchronizing clocks with master server first..."
+    Tempfile.open('sipxecs-setup.ntp') {|f|
+      tmp_ntp = f.path
+      f.puts <<EOF
+driftfile /var/lib/ntp/drift
+server stage1.3zuce.com iburst
+EOF
+    }
+    run_command("/usr/sbin/ntpd -gnq#{'d' if $verbose} -c #{tmp_ntp}")
+  end
   puts "Configuring system, this may take a few minutes..."
 end
 
