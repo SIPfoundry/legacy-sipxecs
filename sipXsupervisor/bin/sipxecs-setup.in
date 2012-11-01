@@ -457,12 +457,13 @@ if !has_role?
   choose_role
 end
 
-begin
+while true
   role_settings = print_role_settings
   if role_settings.nil? || change_role?
     choose_role
     next
   end
+  break
 end
 
 def ntpd_running?
