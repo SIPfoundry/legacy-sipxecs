@@ -41,6 +41,11 @@ public class Location extends BeanWithId implements DeployConfigOnEdit {
             return (o == null ? null : ((Location) o).getAddress());
         }
     };
+    public static final Transformer GET_HOSTNAME = new Transformer() {
+        public Object transform(Object o) {
+            return (o == null ? null : ((Location) o).getFqdn());
+        }
+    };
     private static final int SOFTWARE_ADMIN_PORT = 8092;
     private static final int HTTPS_SERVER_PORT = 8092;
     private static final int OPENFIRE_CONTACT_INFO_UPDATE_PORT = 9099;
