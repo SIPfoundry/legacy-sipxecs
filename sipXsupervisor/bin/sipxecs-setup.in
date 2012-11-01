@@ -345,39 +345,39 @@ class Network
 end
 
 def print_role_settings
+  settings = {}
   is_primary = is_primary?
   puts "\e[0;31mApplication settings:\e[m"
   puts "Primary server : " + (is_primary ? 'yes' : 'no')
-  location = get_location_id
-  puts "Location ID    : #{location}" unless is_primary
-  return false if location.empty?
-  [$domain_dat, $master_dat, "#{$cfdatadir}/#{location}/host.cfdat"].each {|fname|
+  settings[:location] = get_location_id
+  return nil if settings[:location].empty?
+  puts "Location ID    : #{settings[:location]}" unless is_primary
+  [$domain_dat, $master_dat, "#{$cfdatadir}/#{settings[:location]}/host.cfdat"].each {|fname|
     return false unless File.exists?(fname)
     File.open(fname, "r") {|fstream|
       while (line = fstream.gets)
-        f = line.split('=')
-        case f[1]
+        f = line.chomp.gsub(/^=/,'').split('=')
+        case f[0]
         when 'domain'
-          puts "SIP Domain     : " + f[2]  if is_primary?
+          settings[:domain] = f[1]
+          puts "SIP Domain     : " + settings[:domain]  if is_primary?
         when 'host'          
-          puts "Host           : " + f[2]  if is_primary?
+          settings[:host] = f[1]
+          puts "Host           : " + settings[:host]  if is_primary?
         when 'address'
-          puts("Master         : " + f[2]) unless is_primary
+          settings[:master_address] = f[1]
+          puts("Master         : " + settings[:master_address]) unless is_primary
         else
         end  
       end
     }
   }
-  return true
+  return settings
 end
 
 
 def has_role?
-  if is_primary?
-  end
-  end is_seconday?
-  end
-  return false
+  return (is_primary? || is_secondary?)
 end
 
 def change_role?
@@ -452,13 +452,21 @@ raise 'Must run as root' unless Process.uid == 0
 set_root_keys()
 network_settings
 custom_hook
+role_settings = nil
 if !has_role?
   choose_role
-else
-  print_role_settings
-  if change_role?
+end
+
+begin
+  role_settings = print_role_settings
+  if role_settings.nil? || change_role?
     choose_role
+    next
   end
+end
+
+def ntpd_running?
+ system("/sbin/service ntpd status")
 end
 
 # First pass generated cfdata info
@@ -466,18 +474,20 @@ if is_primary?
   puts "Initial setup, this may take a few minutes..."
   exit 1 unless run_command("#{$bindir}/sipxagent #{'-v ' if $verbose} -d setup")
   puts "Finishing system configuration, almost done..."
-else
+else  
   if $sync_time
-    tmp_ntp
-    puts "Synchronizing clocks with master server first..."
-    Tempfile.open('sipxecs-setup.ntp') {|f|
-      tmp_ntp = f.path
-      f.puts <<EOF
+    unless ntpd_running?
+      tmp_ntp = nil
+      puts "Synchronizing clocks with master server first..."
+      Tempfile.open('sipxecs-setup.ntp') {|f|
+        tmp_ntp = f.path
+        f.puts <<EOF
 driftfile /var/lib/ntp/drift
-server stage1.3zuce.com iburst
+server #{role_settings[:master_address]} iburst
 EOF
-    }
-    run_command("/usr/sbin/ntpd -gnq#{'d' if $verbose} -c #{tmp_ntp}")
+      }
+      run_command("/usr/sbin/ntpd -gnq#{'d' if $verbose} -c #{tmp_ntp}")
+    end
   end
   puts "Configuring system, this may take a few minutes..."
 end
