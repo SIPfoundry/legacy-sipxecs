@@ -41,7 +41,8 @@
   <bean id="voicemailConfiguration" class="org.sipfoundry.sipxivr.ApplicationConfiguraton" />
 
   <bean id="mwiManager" class="org.sipfoundry.voicemail.Mwi">
-    <property name="mwiUrl" value="${ivr.mwiUrl}" />
+    <property name="mwiAddresses" value="${ivr.mwiAddresses}" />
+    <property name="mwiPort" value="${ivr.mwiPort}" />
   </bean>
 
 </beans>

@@ -21,9 +21,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
@@ -49,6 +52,7 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class IvrConfig implements ConfigProvider, AlarmProvider {
     private Ivr m_ivr;
+    private Mwi m_mwi;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -66,6 +70,8 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
         Address fsEvent = manager.getAddressManager().getSingleAddress(FreeswitchFeature.EVENT_ADDRESS);
         IvrSettings settings = m_ivr.getSettings();
         Domain domain = manager.getDomainManager().getDomain();
+        List<Location> mwiLocations = manager.getFeatureManager().getLocationsForEnabledFeature(Mwi.FEATURE);
+        int mwiPort = m_mwi.getSettings().getHttpApiPort();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = featureManager.isFeatureEnabled(Ivr.FEATURE, location);
@@ -75,18 +81,24 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
                 continue;
             }
             File f = new File(dir, "sipxivr.properties.part");
-            Address mwiApi = manager.getAddressManager().getSingleAddress(Mwi.HTTP_API, location);
             Writer wtr = new FileWriter(f);
+            Set<String> mwiAddresses = new LinkedHashSet<String>();
+            mwiAddresses.add(location.getAddress());
+            for (Location mwiLocation : mwiLocations) {
+                mwiAddresses.add(mwiLocation.getAddress());
+            }
             try {
-                write(wtr, settings, domain, location, mwiApi, restApi, adminApi, apacheApi, imApi, imbotApi, fsEvent);
+                write(wtr, settings, domain, location, StringUtils.join(mwiAddresses, ","), mwiPort, restApi,
+                        adminApi, apacheApi, imApi, imbotApi, fsEvent);
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
         }
     }
 
-    void write(Writer wtr, IvrSettings settings, Domain domain, Location location, Address mwiApi, Address restApi,
-            Address adminApi, Address apacheApi, Address imApi, Address imbotApi, Address fsEvent) throws IOException {
+    void write(Writer wtr, IvrSettings settings, Domain domain, Location location, String mwiAddresses, int mwiPort,
+            Address restApi, Address adminApi, Address apacheApi, Address imApi, Address imbotApi, Address fsEvent)
+        throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.writeSettings(settings.getSettings());
         config.write("freeswitch.eventSocketPort", fsEvent.getPort());
@@ -96,10 +108,11 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
         config.write("ivr.operatorAddr", "sip:operator@" + domain.getName());
 
         // required services
-        if (mwiApi == null) {
+        if (mwiAddresses == null) {
             throw new ConfigException("MWI feature needs to be enabled. No addresses found.");
         }
-        config.write("ivr.mwiUrl", mwiApi.toString());
+        config.write("ivr.mwiAddresses", mwiAddresses);
+        config.write("ivr.mwiPort", mwiPort);
         if (adminApi == null) {
             throw new ConfigException("Admin feature needs to be enabled. No addresses found.");
         }
@@ -137,5 +150,10 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
     @Required
     public void setIvr(Ivr ivr) {
         m_ivr = ivr;
+    }
+
+    @Required
+    public void setMwi(Mwi mwi) {
+        m_mwi = mwi;
     }
 }
