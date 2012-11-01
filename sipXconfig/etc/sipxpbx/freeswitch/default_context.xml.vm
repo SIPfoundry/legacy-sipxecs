@@ -13,7 +13,7 @@
     <condition field="destination_number" expression="^IVR${dollar}">
       <action application="socket" data="${location.address}:8084 async full"/>
 #foreach($other in $locations)
-      <action application="socket" data="${other.address}:8084 async full"/>
+      <action application="redirect" data="sip:IVR@${other.address}:15060;${sip_req_params}"/>
 #end
     </condition>
   </extension>
