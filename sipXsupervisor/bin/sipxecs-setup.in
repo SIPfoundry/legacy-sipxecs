@@ -346,14 +346,13 @@ end
 
 def print_role_settings
   settings = {}
-  is_primary = is_primary?
   puts "\e[0;31mApplication settings:\e[m"
-  puts "Primary server : " + (is_primary ? 'yes' : 'no')
+  puts "Primary server : " + (is_primary? ? 'yes' : 'no')
   settings[:location] = get_location_id
   return nil if settings[:location].empty?
-  puts "Location ID    : #{settings[:location]}" unless is_primary
+  puts "Location ID    : #{settings[:location]}" if is_secondary?
   [$domain_dat, $master_dat, "#{$cfdatadir}/#{settings[:location]}/host.cfdat"].each {|fname|
-    return false unless File.exists?(fname)
+    next unless File.exists?(fname)
     File.open(fname, "r") {|fstream|
       while (line = fstream.gets)
         f = line.chomp.gsub(/^=/,'').split('=')
@@ -366,7 +365,7 @@ def print_role_settings
           puts "Host           : " + settings[:host]  if is_primary?
         when 'address'
           settings[:master_address] = f[1]
-          puts("Master         : " + settings[:master_address]) unless is_primary
+          puts("Master         : " + settings[:master_address]) if is_secondary?
         else
         end  
       end
