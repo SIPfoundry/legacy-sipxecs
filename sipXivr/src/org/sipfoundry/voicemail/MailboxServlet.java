@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
@@ -359,7 +360,7 @@ public class MailboxServlet extends HttpServlet {
         pw.format(
                 "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" fromUri=\"%s\" author=\"%s\" subject=\"%s\" username=\"%s\" format=\"%s\"/>\n",
                 message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder,
-                descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), fromUri, author,
+                descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), fromUri, StringEscapeUtils.escapeHtml(author),
                 descriptor.getSubject(), message.getUserName(), descriptor.getAudioFormat());
     }
 
