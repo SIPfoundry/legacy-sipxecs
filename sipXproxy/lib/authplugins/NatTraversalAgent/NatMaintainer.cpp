@@ -76,46 +76,55 @@ NatMaintainer::~NatMaintainer()
 
 int NatMaintainer::run( void* runArg )
 {
-   OsStatus rc;
-   while( !isShuttingDown() )
-   {
-//TODO: Optimization.  Do not maintain db entries for which we are not the primary since
-// no pinhole is open for us at the remote NAT if we are the secondary.  Note:  once this
-// optimization gets implemented, we will need to start refreshing callers of every active
-// CallTracker if not registered with the system handling the call to ensure that its
-// pinhole remains open throughout the call.
-      rc = mTimerMutex.acquire( NAT_REFRESH_INTERVAL_IN_MILLISECS );
-      if( rc == OS_WAIT_TIMEOUT )
-      {
-         if( mpSipRouter )
-         {
-            mRefreshRoundNumber++;           
-            // Increment CSeq so that the OPTIONS sent in this 
-            // wave have incrementing Cseq as per spec
-            mpKeepAliveMessage->setCSeqField( mNextSeqValue, "OPTIONS" );
-            mNextSeqValue++;
+  try
+  {
+     OsStatus rc;
+     while( !isShuttingDown() )
+     {
+  //TODO: Optimization.  Do not maintain db entries for which we are not the primary since
+  // no pinhole is open for us at the remote NAT if we are the secondary.  Note:  once this
+  // optimization gets implemented, we will need to start refreshing callers of every active
+  // CallTracker if not registered with the system handling the call to ensure that its
+  // pinhole remains open throughout the call.
+        rc = mTimerMutex.acquire( NAT_REFRESH_INTERVAL_IN_MILLISECS );
+        if( rc == OS_WAIT_TIMEOUT )
+        {
+           if( mpSipRouter )
+           {
+              mRefreshRoundNumber++;
+              // Increment CSeq so that the OPTIONS sent in this
+              // wave have incrementing Cseq as per spec
+              mpKeepAliveMessage->setCSeqField( mNextSeqValue, "OPTIONS" );
+              mNextSeqValue++;
 
-            // timer has expired - refresh timeout
-            UtlSList resultList;
-            UtlString stringToMatch( SIPX_PRIVATE_CONTACT_URI_PARAM );
+              // timer has expired - refresh timeout
+              UtlSList resultList;
+              UtlString stringToMatch( SIPX_PRIVATE_CONTACT_URI_PARAM );
 
-            // start by sending keep-alives to non-expired contacts for far-end NATed phones
-            // found in the subscription database
-            sendKeepAliveToContactList( resultList );
-            resultList.destroyAll();
-            sendKeepAliveToSubscribeContactList(stringToMatch);
+              // start by sending keep-alives to non-expired contacts for far-end NATed phones
+              // found in the subscription database
+              sendKeepAliveToContactList( resultList );
+              resultList.destroyAll();
+              sendKeepAliveToSubscribeContactList(stringToMatch);
 
-            // next, send keep-alives to non-expired contacts for far-end NATed phones
-            // found in the registration database
-            sendKeepAliveToRegContactList(stringToMatch);
+              // next, send keep-alives to non-expired contacts for far-end NATed phones
+              // found in the registration database
+              sendKeepAliveToRegContactList(stringToMatch);
 
-            // finally, send keep-alives to the endpoints that were inserted into our
-            // external keep alive list by other components of the NAT traversal feature.
-            sendKeepAliveToExternalKeepAliveList();
-         }
-      }
-   }
-   return 0;
+              // finally, send keep-alives to the endpoints that were inserted into our
+              // external keep alive list by other components of the NAT traversal feature.
+              sendKeepAliveToExternalKeepAliveList();
+           }
+        }
+     }
+  }
+  catch(...)
+  {
+    //
+    // Treat all exceptions as benign
+    //
+  }
+  return 0;
 }
 
 void NatMaintainer::addEndpointToKeepAlive( const TransportData& endpointToKeepAlive )
