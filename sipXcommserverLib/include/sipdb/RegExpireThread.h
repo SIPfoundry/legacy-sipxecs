@@ -64,18 +64,27 @@ private:
 
   void onTimerTick(const boost::system::error_code& e)
   {
-    if (!e && _pDb)
+    try
     {
-      _pDb->removeAllExpired();
-      delete _pOldTimer;
-      _pOldTimer = _pTimer;
-      if (_pTimer)
+      if (!e && _pDb)
       {
-        boost::system::error_code ec;
-        _pTimer->cancel(ec);
+        _pDb->removeAllExpired();
+        delete _pOldTimer;
+        _pOldTimer = _pTimer;
+        if (_pTimer)
+        {
+          boost::system::error_code ec;
+          _pTimer->cancel(ec);
+        }
+        _pTimer = new boost::asio::deadline_timer(_timerService, boost::posix_time::seconds(_seconds));
+        _pTimer->async_wait(boost::bind(&RegExpireThread::onTimerTick, this, boost::asio::placeholders::error));
       }
-      _pTimer = new boost::asio::deadline_timer(_timerService, boost::posix_time::seconds(_seconds));
-      _pTimer->async_wait(boost::bind(&RegExpireThread::onTimerTick, this, boost::asio::placeholders::error));
+    }
+    catch(...)
+    {
+      //
+      // We will drop any mongo exception so it doesn't cause a crash when mongo is down
+      //
     }
   }
 
