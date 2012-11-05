@@ -330,112 +330,156 @@ UtlBoolean
 SipRouter::handleMessage( OsMsg& eventMessage )
 {
    int msgType = eventMessage.getMsgType();
-
-   // Timer event
-   if ( msgType == OsMsg::PHONE_APP )
+   std::string errorString;
+   try
    {
-      SipMessageEvent* sipMsgEvent = dynamic_cast<SipMessageEvent*>(&eventMessage);
+     // Timer event
+     if ( msgType == OsMsg::PHONE_APP )
+     {
+        SipMessageEvent* sipMsgEvent = dynamic_cast<SipMessageEvent*>(&eventMessage);
 
-      int messageType = sipMsgEvent->getMessageStatus();
-      if ( messageType == SipMessageEvent::TRANSPORT_ERROR )
-      {
-         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
-                       "SipRouter::handleMessage received transport error message") ;
-      }
-      else
-      {
-         SipMessage* sipRequest = const_cast<SipMessage*>(sipMsgEvent->getMessage());
-         if(sipRequest)
-         {
-             if ( sipRequest->isResponse() )
-             {
-                Os::Logger::instance().log(FAC_AUTH, PRI_CRIT, "SipRouter::handleMessage received response");
-                /*
-                 * Responses have already been proxied by the stack,
-                 * so we don't need to do anything with them.
-                 */
-             }
-             else
-             {
-								bool isBridgeRelay = false;
-#if SIPX_PROXY_ENABLE_BRIDGE_ROUTER
-								if (_pBridgeRouter && _pBridgeRouter->isEnabled())
-								{
-									SipMessage bridgeResponse;
-									switch (_pBridgeRouter->proxyMessage(*sipRequest, bridgeResponse))
-									{
-										case SipBridgeRouter::DoneSending:
-											//
-											// The bridge router relayed the message internally.
-											// One use case is the relay of stateless acks
-											//
-											isBridgeRelay = true;
-											break;
-										case SipBridgeRouter::SendRequest:
-											// sipRequest may have been rewritten entirely by proxyMessage().
-											// clear timestamps, protocol, and port information
-											// so send will recalculate it
-											isBridgeRelay = true;
-											sipRequest->resetTransport();
-											mpSipUserAgent->send(*sipRequest);
-											break;
+        int messageType = sipMsgEvent->getMessageStatus();
+        if ( messageType == SipMessageEvent::TRANSPORT_ERROR )
+        {
+           Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                         "SipRouter::handleMessage received transport error message") ;
+        }
+        else
+        {
+           SipMessage* sipRequest = const_cast<SipMessage*>(sipMsgEvent->getMessage());
+           if(sipRequest)
+           {
+               if ( sipRequest->isResponse() )
+               {
+                  Os::Logger::instance().log(FAC_AUTH, PRI_CRIT, "SipRouter::handleMessage received response");
+                  /*
+                   * Responses have already been proxied by the stack,
+                   * so we don't need to do anything with them.
+                   */
+               }
+               else
+               {
+                  bool isBridgeRelay = false;
+  #if SIPX_PROXY_ENABLE_BRIDGE_ROUTER
+                  if (_pBridgeRouter && _pBridgeRouter->isEnabled())
+                  {
+                    SipMessage bridgeResponse;
+                    switch (_pBridgeRouter->proxyMessage(*sipRequest, bridgeResponse))
+                    {
+                      case SipBridgeRouter::DoneSending:
+                        //
+                        // The bridge router relayed the message internally.
+                        // One use case is the relay of stateless acks
+                        //
+                        isBridgeRelay = true;
+                        break;
+                      case SipBridgeRouter::SendRequest:
+                        // sipRequest may have been rewritten entirely by proxyMessage().
+                        // clear timestamps, protocol, and port information
+                        // so send will recalculate it
+                        isBridgeRelay = true;
+                        sipRequest->resetTransport();
+                        mpSipUserAgent->send(*sipRequest);
+                        break;
 
-										case SipBridgeRouter::SendResponse:
-											isBridgeRelay = true;
-											bridgeResponse.resetTransport();
-											mpSipUserAgent->send(bridgeResponse);
-											break;
+                      case SipBridgeRouter::SendResponse:
+                        isBridgeRelay = true;
+                        bridgeResponse.resetTransport();
+                        mpSipUserAgent->send(bridgeResponse);
+                        break;
 
-										case SipBridgeRouter::DoNothing:
-											// this message is just ignored
-											break;
+                      case SipBridgeRouter::DoNothing:
+                        // this message is just ignored
+                        break;
 
-										default:
-											Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
-												"SipBridgeRouter::proxyMessage returned invalid action");
-											assert(false);
-									}
-								}
+                      default:
+                        Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
+                          "SipBridgeRouter::proxyMessage returned invalid action");
+                        assert(false);
+                    }
+                  }
+  #endif
+                  if (!isBridgeRelay)
+                  {
+                    SipMessage sipResponse;
+                    switch (proxyMessage(*sipRequest, sipResponse))
+                    {
+                    case SendRequest:
+                       // sipRequest may have been rewritten entirely by proxyMessage().
+                       // clear timestamps, protocol, and port information
+                       // so send will recalculate it
+                       sipRequest->resetTransport();
+                       mpSipUserAgent->send(*sipRequest);
+                       break;
+
+                    case SendResponse:
+                       sipResponse.resetTransport();
+                       mpSipUserAgent->send(sipResponse);
+                       break;
+
+                    case DoNothing:
+                       // this message is just ignored
+                       break;
+
+                    default:
+                       Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
+                                     "SipRouter::proxyMessage returned invalid action");
+                       assert(false);
+                    }
+                  }
+               }
+           }
+           else
+           {
+              // not a SIP message - should never happen
+              Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
+                            "SipRouter::handleMessage is not a sip message");
+           }
+        }
+     }    // end PHONE_APP
+     return(TRUE);
+   }
+   #ifdef MONGO_assert
+  catch (mongo::DBException& e)
+  {
+    errorString = "Proxy - Mongo DB Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRouter::handleMessage() Exception: "
+             << e.what() );
+  }
 #endif
-								if (!isBridgeRelay)
-								{
-		              SipMessage sipResponse;
-		              switch (proxyMessage(*sipRequest, sipResponse))
-		              {
-		              case SendRequest:
-		                 // sipRequest may have been rewritten entirely by proxyMessage().
-		                 // clear timestamps, protocol, and port information
-		                 // so send will recalculate it
-		                 sipRequest->resetTransport();
-		                 mpSipUserAgent->send(*sipRequest);
-		                 break;
+  catch (boost::exception& e)
+  {
+    errorString = "Proxy - Boost Library Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRouter::handleMessage() Exception: "
+             << boost::diagnostic_information(e));
+  }
+  catch (std::exception& e)
+  {
+    errorString = "Proxy - Standard Library Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRouter::handleMessage() Exception: "
+             << e.what() );
+  }
+  catch (...)
+  {
+    errorString = "Proxy - Unknown Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRouter::handleMessage() Exception: Unknown Exception");
+  }
 
-		              case SendResponse:
-		                 sipResponse.resetTransport();
-		                 mpSipUserAgent->send(sipResponse);
-		                 break;
+  //
+  // If it ever get here, that means we caught an exception
+  //
+  if (msgType == OsMsg::PHONE_APP)
+  {
+    const SipMessage& message = *((SipMessageEvent&)eventMessage).getMessage();
+    if (!message.isResponse())
+    {
+      SipMessage finalResponse;
+      finalResponse.setResponseData(&message, SIP_5XX_CLASS_CODE, errorString.c_str());
+      mpSipUserAgent->send(finalResponse);
+    }
+  }
 
-		              case DoNothing:
-		                 // this message is just ignored
-		                 break;
-
-		              default:
-		                 Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
-		                               "SipRouter::proxyMessage returned invalid action");
-		                 assert(false);
-		              }
-								}
-             }
-         }
-         else 
-         {
-            // not a SIP message - should never happen
-            Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
-                          "SipRouter::handleMessage is not a sip message");
-         }
-      }
-   }    // end PHONE_APP
-   return(TRUE);
+  return(TRUE);
 }
 
 SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessage& sipResponse)
