@@ -8,9 +8,11 @@
  */
 package org.sipfoundry.voicemail;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.util.RemoteRequest;
@@ -20,7 +22,9 @@ import org.sipfoundry.voicemail.mailbox.MailboxDetails;
 public class Mwi {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     public static final String MessageSummaryContentType = "application/simple-message-summary";
-    private String m_mwiUrl;
+    private static final String MWI_URL = "http://%s:%s/cgi/StatusEvent.cgi";
+    private String[] m_mwiAddresses;
+    private String m_mwiPort;
 
     /**
      * Format the status ala RFC-3842
@@ -48,26 +52,43 @@ public class Mwi {
     public void sendMWI(User user, MailboxDetails mailbox) {
         String idUri = user.getIdentity();
 
-        LOG.info(String.format("Mwi::SendMWI %s", idUri));
-
-        // URL of Status Server
-        URL mwiUrl;
+        String accountUrl = "sip:" + idUri;
         try {
-            mwiUrl = new URL(m_mwiUrl);
-            String accountUrl = "sip:" + idUri;
             String content = "identity=" +
-                URLEncoder.encode(idUri, "UTF-8") + "&eventType=message-summary&event-data=" + "\r\n" +
-                formatRFC3842(mailbox, accountUrl);
-            RemoteRequest rr = new RemoteRequest(mwiUrl, MessageSummaryContentType, content);
-            if (!rr.http()) {
-                LOG.error("Mwi::sendMWI Trouble with RemoteRequest "+rr.getResponse());
+                    URLEncoder.encode(idUri, "UTF-8") + "&eventType=message-summary&event-data=" + "\r\n" +
+                    formatRFC3842(mailbox, accountUrl);
+            for (String mwiAddress : m_mwiAddresses) {
+                LOG.info(String.format("Mwi::SendMWI %s to MWI address %s", idUri, mwiAddress));
+                if (sendMwi(mwiAddress, content)) {
+                    break;
+                }
             }
-        } catch (Exception e) {
-            LOG.error("Mwi::sendMWI Trouble with mwiUrl", e);
+        } catch (UnsupportedEncodingException ex) {
+            LOG.error("Mwi::sendMWI Trouble with encoding idUri", ex);
         }
     }
 
-    public void setMwiUrl(String url) {
-        m_mwiUrl = url;
+    private boolean sendMwi(String mwiAddress, String content) {
+        try {
+            String mwiApiUrl = String.format(MWI_URL, mwiAddress, m_mwiPort);
+            URL mwiUrl = new URL(mwiApiUrl);
+            RemoteRequest rr = new RemoteRequest(mwiUrl, MessageSummaryContentType, content);
+            boolean result = rr.http();
+            if (!result) {
+                LOG.error("Mwi::sendMWI Trouble with RemoteRequest on address "+rr.getResponse());
+            }
+            return result;
+        } catch (Exception e) {
+            LOG.error("Mwi::sendMWI Trouble with mwiUrl", e);
+            return false;
+        }
+    }
+
+    public void setMwiAddresses(String addresses) {
+        m_mwiAddresses = StringUtils.split(addresses, ",");
+    }
+
+    public void setMwiPort(String port) {
+        m_mwiPort = port;
     }
 }

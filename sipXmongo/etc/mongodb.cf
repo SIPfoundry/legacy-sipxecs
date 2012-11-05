@@ -55,7 +55,6 @@ bundle agent mongodb {
 
     any::
       "any" usebundle => mongodb_arbiter_running;
-      "any" usebundle => mongodb_setup;
 
     any::
       # at this moment, all setups get mongo client config
@@ -142,18 +141,6 @@ bundle edit_line mongo_client_config {
     ".*";
 }
 
-bundle agent mongodb_setup {
-  methods:
-    mongod.mongodb_sysv::
-      "any" usebundle => rh_chkconfig_status("mongod on");
-    !mongod.mongodb_sysv::
-      "any" usebundle => rh_chkconfig_status("mongod off");
-    mongod_arbiter.!src::
-      "any" usebundle => rh_chkconfig_status("mongod-arbiter on");
-    !mongod_arbiter.!src::
-      "any" usebundle => rh_chkconfig_status("mongod-arbiter off");
-}
-
 bundle agent mongodb_arbiter_running {
   vars:
     any::
@@ -163,6 +150,12 @@ bundle agent mongodb_arbiter_running {
   methods:
     any::
       "any" usebundle => find_service_by_command("$(service_command)", "mongo_arbiter_running", "$(mongodb.user)");
+
+    mongod_arbiter.!src::
+      "any" usebundle => rh_chkconfig_status("mongod-arbiter on");
+
+    !mongod_arbiter.!src::
+      "any" usebundle => rh_chkconfig_status("mongod-arbiter off");
 
   commands:
     !mongod_arbiter.mongo_arbiter_running::
@@ -190,6 +183,12 @@ bundle agent mongodb_sysv_running {
   methods:
     any::
       "any" usebundle => find_service_by_command("$(service_command)", "mongodb_running","$(mongodb.user)");
+
+    mongod::
+      "any" usebundle => rh_chkconfig_status("mongod on");
+
+    !mongod::
+      "any" usebundle => rh_chkconfig_status("mongod off");
 
   commands:
     !mongod.mongodb_running::

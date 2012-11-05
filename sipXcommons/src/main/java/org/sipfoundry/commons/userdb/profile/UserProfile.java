@@ -52,6 +52,7 @@ public class UserProfile {
     private String m_emailAddress;
     private String m_alternateEmailAddress;
     private boolean m_useBranchAddress;
+    private String m_branchName;
     private String m_manager;
     private String m_salutation;
     private String m_employeeId;
@@ -137,6 +138,9 @@ public class UserProfile {
     }
 
     public Address getOfficeAddress() {
+        if (getUseBranchAddress()) {
+            return m_branchAddress;
+        }
         return m_officeAddress;
     }
 
@@ -218,6 +222,14 @@ public class UserProfile {
 
     public boolean getUseBranchAddress() {
         return m_useBranchAddress;
+    }
+
+    public String getBranchName() {
+        return m_branchName;
+    }
+
+    public void setBranchName(String branchName) {
+        m_branchName = branchName;
     }
 
     public void setUseBranchAddress(boolean useBranchAddress) {

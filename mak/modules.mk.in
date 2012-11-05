@@ -74,6 +74,7 @@ lib_centos_6 = \
   sec \
   js \
   v8 \
+  rrdtool \
   $(lib_common) \
   nsis \
   nsis-data \

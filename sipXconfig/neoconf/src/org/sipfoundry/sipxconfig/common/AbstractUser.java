@@ -606,6 +606,9 @@ public abstract class AbstractUser extends BeanWithGroups {
         m_userProfile.setUserName(getUserName());
         m_userProfile.setFirstName(getFirstName());
         m_userProfile.setLastName(getLastName());
+        if (getBranch() != null) {
+            m_userProfile.setBranchName(getBranch().getName());
+        }
         return m_userProfile;
     }
 

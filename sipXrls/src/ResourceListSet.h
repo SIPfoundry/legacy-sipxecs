@@ -468,6 +468,16 @@ class ResourceListSet : public UtlContainableAtomic
     */
    mutable mutex_read_write _listMutex;
 
+   /** Reader/writer lock for synchronization of the Subscritions and its
+    *  contained Resources.
+    */
+   mutable mutex_read_write _subscriptionMutex;
+
+   /** Reader/writer lock for synchronization of the Notifies and its
+    *  contained Resources.
+    */
+   mutable mutex_read_write _notifyMutex;
+
    /** The ResourceCache for holding the ResourceCached objects
     *  representing the resources of all member ResourceList's.
     */
