@@ -86,6 +86,11 @@ ResourceListTask::~ResourceListTask()
 
 UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
 {
+
+  std::string errorString;
+
+  try
+  {
    UtlBoolean handled = FALSE;
 
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
@@ -211,6 +216,48 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
    }
 
    return handled;
+  }
+#ifdef MONGO_assert
+  catch (mongo::DBException& e)
+  {
+    errorString = "RLS - Mongo DB Exception";
+    OS_LOG_ERROR( FAC_SIP, "ResourceListTask::handleMessage() Exception: "
+             << e.what() );
+  }
+#endif
+  catch (boost::exception& e)
+  {
+    errorString = "RLS - Boost Library Exception";
+    OS_LOG_ERROR( FAC_SIP, "ResourceListTask::handleMessage() Exception: "
+             << boost::diagnostic_information(e));
+  }
+  catch (std::exception& e)
+  {
+    errorString = "RLS - Standard Library Exception";
+    OS_LOG_ERROR( FAC_SIP, "ResourceListTask::handleMessage() Exception: "
+             << e.what() );
+  }
+  catch (...)
+  {
+    errorString = "RLS - Unknown Exception";
+    OS_LOG_ERROR( FAC_SIP, "ResourceListTask::handleMessage() Exception: Unknown Exception");
+  }
+
+  //
+  // If it ever get here, that means we caught an exception
+  //
+  if (rMsg.getMsgType()  == OsMsg::PHONE_APP)
+  {
+    const SipMessage& message = *((SipMessageEvent&)rMsg).getMessage();
+    if (!message.isResponse())
+    {
+      SipMessage finalResponse;
+      finalResponse.setResponseData(&message, SIP_5XX_CLASS_CODE, errorString.c_str());
+      getResourceListServer()->getServerUserAgent().send(finalResponse);
+    }
+  }
+
+  return(TRUE);
 }
 
 // Process a MESSAGE request, which is used to trigger debugging actions.
