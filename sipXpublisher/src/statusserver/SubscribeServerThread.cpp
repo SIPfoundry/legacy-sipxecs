@@ -218,7 +218,10 @@ void SubscribeServerThread::removeErrorRow (
 UtlBoolean
 SubscribeServerThread::handleMessage(OsMsg& eventMessage)
 {
-
+  std::string errorString;
+  
+  try
+  {
     // Only handle SIP messages
     if (eventMessage.getMsgType() != OsMsg::PHONE_APP ||
         eventMessage.getMsgSubType() != SipMessage::NET_SIP_MESSAGE)
@@ -490,6 +493,48 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
        }
     }
     return TRUE;
+  }
+#ifdef MONGO_assert
+  catch (mongo::DBException& e)
+  {
+    errorString = "MWI - Mongo DB Exception";
+    OS_LOG_ERROR( FAC_SIP, "SubscribeServerThread::handleMessage() Exception: "
+             << e.what() );
+  }
+#endif
+  catch (boost::exception& e)
+  {
+    errorString = "MWI - Boost Library Exception";
+    OS_LOG_ERROR( FAC_SIP, "SubscribeServerThread::handleMessage() Exception: "
+             << boost::diagnostic_information(e));
+  }
+  catch (std::exception& e)
+  {
+    errorString = "MWI - Standard Library Exception";
+    OS_LOG_ERROR( FAC_SIP, "SubscribeServerThread::handleMessage() Exception: "
+             << e.what() );
+  }
+  catch (...)
+  {
+    errorString = "MWI - Unknown Exception";
+    OS_LOG_ERROR( FAC_SIP, "SubscribeServerThread::handleMessage() Exception: Unknown Exception");
+  }
+
+  //
+  // If it ever get here, that means we caught an exception
+  //
+  if (eventMessage.getMsgType()  == OsMsg::PHONE_APP)
+  {
+    const SipMessage& message = *((SipMessageEvent&)eventMessage).getMessage();
+    if (!message.isResponse())
+    {
+      SipMessage finalResponse;
+      finalResponse.setResponseData(&message, SIP_5XX_CLASS_CODE, errorString.c_str());
+      mpSipUserAgent->send(finalResponse);
+    }
+  }
+
+  return(TRUE);
 }
 
 UtlBoolean
