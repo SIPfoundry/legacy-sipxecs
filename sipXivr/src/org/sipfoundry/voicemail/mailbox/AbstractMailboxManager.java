@@ -25,6 +25,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.sipxivr.email.Emailer;
@@ -317,9 +318,9 @@ public abstract class AbstractMailboxManager implements MailboxManager {
             String trouble = "VmMessage::concatAudio Problem while " + operation;
             throw new Exception(trouble, e);
         } finally {
-            clip1.close();
-            clip2.close();
-            concatStream.close();
+            IOUtils.closeQuietly(clip1);
+            IOUtils.closeQuietly(clip2);
+            IOUtils.closeQuietly(concatStream);
         }
     }
 
