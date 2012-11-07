@@ -155,10 +155,10 @@ inline void StateQueueNotification::stop()
     NotifyData exitSignal;
     exitSignal.key = _exitString;
     enqueue(exitSignal);
+    _isRunning = false;
+    _queueThread->join();
     delete _pPublisher;
     _pPublisher = 0;
-    _queueThread->join();
-    _isRunning = false;
   }
 }
 
