@@ -41,6 +41,18 @@
       </type>
       <value>8080</value>
     </setting>
+    <setting name="FREESWITCH_MAX_SESSIONS">
+      <type>
+        <integer />
+      </type>
+      <value>1000</value>
+    </setting>
+    <setting name="FREESWITCH_SESSION_PER_SECOND">
+      <type>
+        <integer />
+      </type>
+      <value>30</value>
+    </setting>
     <setting name="FREESWITCH_SIP_DEBUG">
       <type>
         <boolean>
