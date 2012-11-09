@@ -25,9 +25,9 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.forwarding.CallSequence;
-import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.im.ImAccount;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
@@ -115,9 +115,9 @@ public class User extends AbstractUser implements Replicable {
         if (this.hasPermission(PermissionName.EXCHANGE_VOICEMAIL)
                 || this.hasPermission(PermissionName.FREESWITH_VOICEMAIL)) {
             // NOTE: Missing explaination why exchange needs direction connection to FS
-            Address address = getAddressManager().getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+            Address address = getAddressManager().getSingleAddress(Ivr.SIP_ADDRESS);
             if (address != null) {
-                String sipUri = SipUri.formatDepositVm(getUserName(), address.getAddress(), address.getPort());
+                String sipUri = SipUri.formatDepositVm(getUserName(), address.getAddress());
                 AliasMapping mapping = new AliasMapping("~~vm~" + getUserName(), sipUri, "vmprm");
                 mappings.add(mapping);
             }
