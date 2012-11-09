@@ -37,6 +37,7 @@ import org.sipfoundry.sipxconfig.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.forwarding.Ring;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
@@ -216,7 +217,7 @@ public class UserTest extends TestCase {
         user.setSettingTypedValue("im/im-account", true);
 
         AddressManager am = EasyMock.createNiceMock(AddressManager.class);
-        am.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        am.getSingleAddress(Ivr.SIP_ADDRESS);
         expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "1111111", 22)).anyTimes();
         replay(am);
         user.setAddressManager(am);
@@ -315,7 +316,7 @@ public class UserTest extends TestCase {
         user.setPermissionManager(pManager);
 
         AddressManager am = EasyMock.createNiceMock(AddressManager.class);
-        am.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+        am.getSingleAddress(Ivr.SIP_ADDRESS);
         expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "1111111", 22)).anyTimes();
         replay(am);
         user.setAddressManager(am);
