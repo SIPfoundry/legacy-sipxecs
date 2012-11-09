@@ -54,8 +54,10 @@ void SubscribeDB::upsert (
     unsigned int version)
 {
     mongo::BSONObj query = BSON(
-        "key" << key.str() <<
-        "contact" << contact.str());
+        "toUri" << toUri.str() <<
+        "fromUri" << fromUri.str() <<
+        "callId" << callId.str() <<
+        "eventTypeKey" << eventTypeKey.str());
 
     mongo::BSONObj update = BSON("$set" << BSON(
         Subscription::component_fld() << component.str() <<
@@ -187,7 +189,7 @@ void SubscribeDB::getUnexpiredContactsFieldsContaining(
     const int& timeNow,
     std::vector<string>& matchingContactFields ) const
 {
-    mongo::BSONObj query = BSON(Subscription::expires_fld() << BSON_LESS_THAN(timeNow));
+    mongo::BSONObj query = BSON(Subscription::expires_fld() << BSON_GREATER_THAN(timeNow));
 
     mongo::ScopedDbConnection conn(_info.getConnectionString());
     auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);

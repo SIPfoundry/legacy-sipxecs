@@ -30,7 +30,7 @@ public class SwitchConfiguration extends AbstractFreeswitchConfiguration {
     public void write(Writer writer, Location location, FreeswitchSettings settings) throws IOException {
         VelocityContext context = new VelocityContext();
         context.put("location", location);
-        context.put("settings", settings);
+        context.put("settings", settings.getSettings().getSetting("freeswitch-config"));
         write(writer, context);
     }
 }
