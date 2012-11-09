@@ -51,7 +51,7 @@ public class Snapshot {
 
     private boolean m_logFilter = true;
 
-    private int m_lines = 1000;
+    private int m_lines = 10;
 
     private LocationsManager m_locationsManager;
 
