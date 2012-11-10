@@ -28,8 +28,7 @@ bundle agent sipxrls_config {
       "$(sipx.SIPX_CONFDIR)/resource-lists.xml"
         comment => "install $(this.promiser)",
         perms => m("644"),
-        copy_from => copy_from_cfdata("$(sipx.location_id)/resource-lists.xml"),
-        classes => if_repaired("restart_sipxrls");
+        copy_from => copy_from_cfdata("$(sipx.location_id)/resource-lists.xml");
 
       "$(sipx.SIPX_CONFDIR)/sipxrls-config"
         comment => "install $(this.promiser)",
