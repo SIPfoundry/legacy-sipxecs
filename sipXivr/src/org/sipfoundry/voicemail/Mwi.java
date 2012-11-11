@@ -18,7 +18,6 @@ import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.util.RemoteRequest;
 import org.sipfoundry.voicemail.mailbox.MailboxDetails;
 
-
 public class Mwi {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     public static final String MessageSummaryContentType = "application/simple-message-summary";
@@ -28,7 +27,7 @@ public class Mwi {
 
     /**
      * Format the status ala RFC-3842
-     *
+     * 
      * @param numNew
      * @param numOld
      * @param numNewUrgent
@@ -37,7 +36,7 @@ public class Mwi {
      */
     public static String formatRFC3842(int numNew, int numOld, int numNewUrgent, int numOldUrgent, String accountUrl) {
         return String.format("Messages-Waiting: %s\r\nMessage-Account: %s\r\nVoice-Message: %d/%d (%d/%d)\r\n\r\n",
-                numNew > 0 ? "yes":"no", accountUrl, numNew, numOld, numNewUrgent, numOldUrgent);
+                numNew > 0 ? "yes" : "no", accountUrl, numNew, numOld, numNewUrgent, numOldUrgent);
     }
 
     public static String formatRFC3842(MailboxDetails messages, String accountUrl) {
@@ -45,7 +44,9 @@ public class Mwi {
     }
 
     /**
-     * Send MWI info to the Status Server (which in turn sends it to interested parties via SIP NOTIFY)
+     * Send MWI info to the Status Server (which in turn sends it to interested parties via SIP
+     * NOTIFY)
+     * 
      * @param mailbox
      * @param messages
      */
@@ -54,11 +55,11 @@ public class Mwi {
 
         String accountUrl = "sip:" + idUri;
         try {
-            String content = "identity=" +
-                    URLEncoder.encode(idUri, "UTF-8") + "&eventType=message-summary&event-data=" + "\r\n" +
-                    formatRFC3842(mailbox, accountUrl);
+            String content = "identity=" + URLEncoder.encode(idUri, "UTF-8")
+                    + "&eventType=message-summary&event-data=" + "\r\n" + formatRFC3842(mailbox, accountUrl);
             for (String mwiAddress : m_mwiAddresses) {
-                LOG.info(String.format("Mwi::SendMWI %s to MWI address %s", idUri, mwiAddress));
+                LOG.info(String.format("Mwi::SendMWI %s %d/%d to MWI address %s", idUri, mailbox.getHeardCount(),
+                        mailbox.getUnheardCount(), mwiAddress));
                 if (sendMwi(mwiAddress, content)) {
                     break;
                 }
@@ -75,7 +76,7 @@ public class Mwi {
             RemoteRequest rr = new RemoteRequest(mwiUrl, MessageSummaryContentType, content);
             boolean result = rr.http();
             if (!result) {
-                LOG.error("Mwi::sendMWI Trouble with RemoteRequest on address "+rr.getResponse());
+                LOG.error("Mwi::sendMWI Trouble with RemoteRequest on address " + rr.getResponse());
             }
             return result;
         } catch (Exception e) {

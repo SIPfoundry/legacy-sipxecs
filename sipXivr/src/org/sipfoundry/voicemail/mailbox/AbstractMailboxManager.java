@@ -26,6 +26,7 @@ import javax.sound.sampled.AudioSystem;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.sipxivr.email.Emailer;
@@ -250,7 +251,7 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         try {
             // The messageid in the file is the NEXT one
             messageId = FileUtils.readFileToString(midFile);
-            numericMessageId = Long.parseLong(messageId);
+            numericMessageId = Long.parseLong(StringUtils.deleteWhitespace(messageId));
         } catch (IOException e) {
             LOG.error("Message::nextMessageId cannot read " + messageIdFilePath, e);
             throw new RuntimeException(e);
