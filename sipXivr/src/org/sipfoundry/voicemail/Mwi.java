@@ -58,8 +58,8 @@ public class Mwi {
             String content = "identity=" + URLEncoder.encode(idUri, "UTF-8")
                     + "&eventType=message-summary&event-data=" + "\r\n" + formatRFC3842(mailbox, accountUrl);
             for (String mwiAddress : m_mwiAddresses) {
-                LOG.info(String.format("Mwi::SendMWI %s %d/%d to MWI address %s", idUri, mailbox.getHeardCount(),
-                        mailbox.getUnheardCount(), mwiAddress));
+                LOG.info(String.format("Mwi::SendMWI %s %d/%d to MWI address %s", idUri, mailbox.getUnheardCount(),
+                        mailbox.getHeardCount(), mwiAddress));
                 if (sendMwi(mwiAddress, content)) {
                     break;
                 }
