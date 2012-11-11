@@ -17,19 +17,16 @@
 package org.sipfoundry.openfire.sqa;
 
 import static org.apache.commons.lang.StringUtils.substringBefore;
-
 import ietf.params.xml.ns.dialog_info.DialogInfo;
 
 import java.io.StringReader;
 import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jivesoftware.openfire.XMPPServer;
-import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
@@ -67,13 +64,17 @@ public class SqaEventHandler implements Runnable {
             logger.debug("dialog-info: "+dialogInfo.toString());
 
             SipEventBean bean = new SipEventBean(dialogInfo);
+            String observerId = bean.getObserverId();
+            User observerUser = m_users.getUser(observerId);
+            if (observerUser == null || !observerUser.isImEnabled()) {
+                logger.debug("Observer user is null or is not im enabled - presence is not routed");
+                return;
+            }
             String sipId = bean.getCallerId();
             String targetSipId = bean.getCalleeId();
             logger.debug("Target SIP Id (callee) "+targetSipId);
-            String observerId = bean.getObserverId();
             User user = m_users.getUser(sipId);
             User targetUser = targetSipId != null ? m_users.getUser(targetSipId) : null;
-            User observerUser = m_users.getUser(observerId);
             String targetJid = targetUser != null ? targetUser.getJid() : null;
             String userJid = user != null ? user.getJid() : null;
             User observerPartyUser = targetUser;
@@ -83,60 +84,56 @@ public class SqaEventHandler implements Runnable {
                 observerPartyUser = user;
                 observerPartyId = sipId;
             }
-
-            if (observerUser != null) {
-                boolean trying = bean.isTrying();
-                boolean ringing = bean.isRinging();
-                boolean confirmed = bean.isConfirmed();
-                boolean terminated = bean.isTerminated();
-                JID observerJID = m_server.createJID(observerUser.getJid(), null);
-
-                logger.debug("Initiator: " + userJid);
-                logger.debug("Recipient: " + targetJid);
-                logger.debug("Observer status: trying: " + trying + " confirmed: " + confirmed + " terminated: " + terminated + " ringing: " + ringing);
-
-                if (observerJID != null) {
-                    logger.debug("Observer JID (IM Entity that sent the message): " + observerJID.getNode());
-                    org.jivesoftware.openfire.user.User ofObserverUser = m_server.getUserManager().getUser(observerJID.getNode());
-                    Presence presence = m_server.getPresenceManager().getPresence(ofObserverUser);
-
-                    String body = null;
-                    if (ringing) {
-                        if (StringUtils.equals(observerId, targetSipId)) {
-                            body = Utils.getDisplayName(user, sipId) + " calls you: your phone is ringing";
-                        }
-                    } else if (confirmed) {
-                        if (StringUtils.equals(observerId, targetSipId)) {
-                            body = "Call established with: " + Utils.getDisplayName(user, sipId);
-                        }
-                        SipPresenceBean previousPresenceBean = m_presenceCache.get(observerJID.getNode());
-                        //if cache is not cleared, than this is a new incomming call, do not broadcast on the call status again
-                        if (previousPresenceBean == null && presence != null) {
-                            logger.debug("ObserverPartyUser " + observerPartyUser + " observer party id " + observerPartyId);
-                            String presenceMessage = Utils.generateXmppStatusMessageWithSipState(observerUser, observerPartyUser, presence, observerPartyId);
-                            //presence status is about to be changed - save current presence
-                            if (presenceMessage != null) {
-                                m_presenceCache.put(observerJID.getNode(), new SipPresenceBean(presence.getStatus(), observerPartyId));
-                                Utils.setPresenceStatus(ofObserverUser, presence, presenceMessage);
-                            }
-                        }
-                    } else if (terminated) {
-                        if (StringUtils.equals(observerId, targetSipId)) {
-                            body = "Call with: " + Utils.getDisplayName(user, sipId) + " is terminated";
-                        }
-                        SipPresenceBean previousPresenceBean = m_presenceCache.get(observerJID.getNode());
-                        if(previousPresenceBean != null) {
-                            Utils.setPresenceStatus(ofObserverUser, presence, previousPresenceBean.getStatusMessage());
-                            m_presenceCache.remove(observerJID.getNode());
-                        }
+            boolean trying = bean.isTrying();
+            boolean ringing = bean.isRinging();
+            boolean confirmed = bean.isConfirmed();
+            boolean terminated = bean.isTerminated();
+            JID observerJID = m_server.createJID(observerUser.getJid(), null);
+            if (observerJID == null) {
+                logger.debug("Observer JID is null - presence is not routed");
+                return;
+            }
+            logger.debug("Initiator: " + userJid);
+            logger.debug("Recipient: " + targetJid);
+            logger.debug("Observer status: trying: " + trying + " confirmed: " + confirmed + " terminated: " + terminated + " ringing: " + ringing);
+            logger.debug("Observer JID (IM Entity that sent the message): " + observerJID.getNode());
+            org.jivesoftware.openfire.user.User ofObserverUser = m_server.getUserManager().getUser(observerJID.getNode());
+            Presence presence = m_server.getPresenceManager().getPresence(ofObserverUser);
+            String body = null;
+            if (ringing) {
+                if (StringUtils.equals(observerId, targetSipId)) {
+                    body = Utils.getDisplayName(user, sipId) + " calls you: your phone is ringing";
+                }
+            } else if (confirmed) {
+                if (StringUtils.equals(observerId, targetSipId)) {
+                    body = "Call established with: " + Utils.getDisplayName(user, sipId);
+                }
+                SipPresenceBean previousPresenceBean = m_presenceCache.get(observerJID.getNode());
+                //if cache is not cleared, than this is a new incomming call, do not broadcast on the call status again
+                if (previousPresenceBean == null && presence != null) {
+                    logger.debug("ObserverPartyUser " + observerPartyUser + " observer party id " + observerPartyId);
+                    String presenceMessage = Utils.generateXmppStatusMessageWithSipState(observerUser, observerPartyUser, presence, observerPartyId);
+                    //presence status is about to be changed - save current presence
+                    if (presenceMessage != null) {
+                        m_presenceCache.put(observerJID.getNode(), new SipPresenceBean(presence.getStatus(), observerPartyId));
+                        Utils.setPresenceStatus(ofObserverUser, presence, presenceMessage);
                     }
-                    if (body != null && targetJid != null) {
-                        JID targetJID = m_server.createJID(targetJid, null);
-                        if (targetJID != null) {
-                            JID mybuddyJID = m_server.createJID(m_users.getImBotName(), null);
-                            sendMessage(mybuddyJID, targetJID, body);
-                        }
-                    }
+                }
+            } else if (terminated) {
+                if (StringUtils.equals(observerId, targetSipId)) {
+                    body = "Call with: " + Utils.getDisplayName(user, sipId) + " is terminated";
+                }
+                SipPresenceBean previousPresenceBean = m_presenceCache.get(observerJID.getNode());
+                if(previousPresenceBean != null) {
+                    Utils.setPresenceStatus(ofObserverUser, presence, previousPresenceBean.getStatusMessage());
+                    m_presenceCache.remove(observerJID.getNode());
+                }
+            }
+            if (body != null && targetJid != null) {
+                JID targetJID = m_server.createJID(targetJid, null);
+                if (targetJID != null) {
+                    JID mybuddyJID = m_server.createJID(m_users.getImBotName(), null);
+                    sendMessage(mybuddyJID, targetJID, body);
                 }
             }
         } catch (Exception e) {
