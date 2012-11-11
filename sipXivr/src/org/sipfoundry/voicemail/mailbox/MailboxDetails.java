@@ -26,6 +26,8 @@ public class MailboxDetails {
     private List<String> m_deleted;
     private List<String> m_conferences;
     private List<String> m_unheard;
+    private Integer m_heardCount;
+    private Integer m_unheardCount;
 
     public MailboxDetails(String username, List<String> inbox, List<String> saved, List<String> deleted, List<String> conference,
             List<String> unheard) {
@@ -35,6 +37,14 @@ public class MailboxDetails {
         m_deleted = deleted;
         m_conferences = conference;
         m_unheard = unheard;
+        m_heardCount = m_inbox.size() - m_unheard.size();
+        m_unheardCount = m_unheard.size();
+    }
+
+    public MailboxDetails(String username, int heard, int unheard) {
+        m_userName = username;
+        m_heardCount = heard;
+        m_unheardCount = unheard;
     }
 
     public List<String> getInbox() {
@@ -70,11 +80,11 @@ public class MailboxDetails {
     }
 
     public int getUnheardCount() {
-        return m_unheard.size();
+        return m_unheardCount;
     }
 
     public int getHeardCount() {
-        return m_inbox.size() - m_unheard.size();
+        return m_heardCount;
     }
 
     public int getDeletedCount() {
