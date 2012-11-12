@@ -73,24 +73,41 @@ public class Attendant extends AbstractDataSetGenerator {
         top.put(DISPLAY_NAME, user.getDisplayName());
         top.put(PINTOKEN, user.getPintoken());
         top.put(HASHED_PASSTOKEN, user.getSipPasswordHash(getCoreContext().getAuthorizationRealm()));
-        MailboxPreferences mp = new MailboxPreferences(user);
-        String emailAddress = mp.getEmailAddress();
 
+        // not sure why this here too as it is already added from Mailstore.java
+        MailboxPreferences mp = new MailboxPreferences(user);
+
+        String emailAddress = mp.getEmailAddress();
+        boolean enableNotification = StringUtils.isNotBlank(emailAddress) && mp.isEmailNotificationEnabled();
         if (StringUtils.isNotBlank(emailAddress)) {
             top.put(EMAIL, emailAddress);
-            if (mp.isEmailNotificationEnabled()) {
-                top.put(NOTIFICATION, mp.getEmailFormat().name());
-                top.put(ATTACH_AUDIO, Boolean.toString(mp.isIncludeAudioAttachment()));
-            }
+        } else {
+            removeField(top, EMAIL);
         }
+
+        if (enableNotification) {
+            top.put(NOTIFICATION, mp.getEmailFormat().name());
+            top.put(ATTACH_AUDIO, Boolean.toString(mp.isIncludeAudioAttachment()));
+        } else {
+            removeField(top, NOTIFICATION);
+            removeField(top, ATTACH_AUDIO);
+        }
+
         String alternateEmailAddress = mp.getAlternateEmailAddress();
+        boolean enableAltNotification = StringUtils.isNotBlank(alternateEmailAddress)
+                && mp.isEmailNotificationAlternateEnabled();
         if (StringUtils.isNotBlank(alternateEmailAddress)) {
             top.put(ALT_EMAIL, alternateEmailAddress);
-            if (mp.isEmailNotificationAlternateEnabled()) {
-                top.put(ALT_NOTIFICATION, mp.getAlternateEmailFormat().name());
-                top.put(ALT_ATTACH_AUDIO, Boolean.toString(mp.isIncludeAudioAttachmentAlternateEmail()));
-            }
         }
+
+        if (enableAltNotification) {
+            top.put(ALT_NOTIFICATION, mp.getAlternateEmailFormat().name());
+            top.put(ALT_ATTACH_AUDIO, Boolean.toString(mp.isIncludeAudioAttachmentAlternateEmail()));
+        } else {
+            removeField(top, ALT_NOTIFICATION);
+            removeField(top, ALT_ATTACH_AUDIO);
+        }
+
         boolean imapServerConfigured = mp.isImapServerConfigured();
         if (imapServerConfigured) {
             top.put(SYNC, mp.isSynchronizeWithImapServer());
@@ -101,7 +118,15 @@ public class Attendant extends AbstractDataSetGenerator {
             String pwd = StringUtils.defaultString(mp.getImapPassword());
             String encodedPwd = new String(Base64.encodeBase64(pwd.getBytes()));
             top.put(PASSWD, encodedPwd);
+        } else {
+            removeField(top, SYNC);
+            removeField(top, HOST);
+            removeField(top, PORT);
+            removeField(top, TLS);
+            removeField(top, ACCOUNT);
+            removeField(top, PASSWD);
         }
+
         ImAccount imAccount = new ImAccount(user);
         top.put(IM_ENABLED, imAccount.isEnabled());
         // The following settings used to be in contact-information.xml
@@ -113,9 +138,9 @@ public class Attendant extends AbstractDataSetGenerator {
         top.put(LEAVE_MESSAGE_END_IM, user.getSettingValue("im_notification/leaveMsgEndIM").toString());
         top.put(CALL_IM, user.getSettingValue("im_notification/call").toString());
         top.put(CALL_FROM_ANY_IM, user.getSettingValue("im_notification/callFromAnyNumber").toString());
-        //and this one in presencerouting-prefs.xml
+        // and this one in presencerouting-prefs.xml
         top.put(VMONDND, imAccount.isForwardOnDnd());
-        //settings from xmpp-account-info.xml
+        // settings from xmpp-account-info.xml
         top.put(IM_ON_THE_PHONE_MESSAGE, imAccount.getOnThePhoneMessage());
         top.put(IM_ADVERTISE_ON_CALL_STATUS, imAccount.advertiseSipPresence());
         top.put(IM_SHOW_ON_CALL_DETAILS, imAccount.includeCallInfo());

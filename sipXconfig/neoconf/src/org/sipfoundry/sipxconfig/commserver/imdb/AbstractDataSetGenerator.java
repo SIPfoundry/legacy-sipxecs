@@ -56,4 +56,10 @@ public abstract class AbstractDataSetGenerator {
         }
     }
 
+    protected void removeField(DBObject top, String field) {
+        if (top.containsField(field)) {
+            top.removeField(field);
+        }
+    }
+
 }

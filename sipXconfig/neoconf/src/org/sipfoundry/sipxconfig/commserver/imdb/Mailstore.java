@@ -94,30 +94,47 @@ public class Mailstore extends AbstractDataSetGenerator {
         // The following settings used to be in validusers.xml
         putOnlyIfNotNull(top, MOH, getMohSetting(user));
         putOnlyIfNotNull(top, USERBUSYPROMPT, user.getSettingValue("voicemail/mailbox/user-busy-prompt")); // can
-                                                                                             // be
-                                                                                             // null
-        putOnlyIfNotNull(top, VOICEMAILTUI, user.getSettingValue("voicemail/mailbox/voicemail-tui")); // can be
-                                                                                        // null
+        // be
+        // null
+        putOnlyIfNotNull(top, VOICEMAILTUI, user.getSettingValue("voicemail/mailbox/voicemail-tui")); // can
+                                                                                                      // be
+        // null
         putOnlyIfNotNull(top, DISPLAY_NAME, user.getDisplayName());
         top.put(HASHED_PASSTOKEN, user.getSipPasswordHash(getCoreContext().getAuthorizationRealm()));
         top.put(PINTOKEN, user.getPintoken());
         MailboxPreferences mp = new MailboxPreferences(user);
+
         String emailAddress = mp.getEmailAddress();
+        boolean enableNotification = StringUtils.isNotBlank(emailAddress) && mp.isEmailNotificationEnabled();
         if (StringUtils.isNotBlank(emailAddress)) {
             top.put(EMAIL, emailAddress);
-            if (mp.isEmailNotificationEnabled()) {
-                top.put(NOTIFICATION, mp.getEmailFormat().name());
-                top.put(ATTACH_AUDIO, Boolean.toString(mp.isIncludeAudioAttachment()));
-            }
+        } else {
+            removeField(top, EMAIL);
         }
+
+        if (enableNotification) {
+            top.put(NOTIFICATION, mp.getEmailFormat().name());
+            top.put(ATTACH_AUDIO, Boolean.toString(mp.isIncludeAudioAttachment()));
+        } else {
+            removeField(top, NOTIFICATION);
+            removeField(top, ATTACH_AUDIO);
+        }
+
         String alternateEmailAddress = mp.getAlternateEmailAddress();
+        boolean enableAltNotification = StringUtils.isNotBlank(alternateEmailAddress)
+                && mp.isEmailNotificationAlternateEnabled();
         if (StringUtils.isNotBlank(alternateEmailAddress)) {
             top.put(ALT_EMAIL, alternateEmailAddress);
-            if (mp.isEmailNotificationAlternateEnabled()) {
-                top.put(ALT_NOTIFICATION, mp.getAlternateEmailFormat().name());
-                top.put(ALT_ATTACH_AUDIO, Boolean.toString(mp.isIncludeAudioAttachmentAlternateEmail()));
-            }
         }
+
+        if (enableAltNotification) {
+            top.put(ALT_NOTIFICATION, mp.getAlternateEmailFormat().name());
+            top.put(ALT_ATTACH_AUDIO, Boolean.toString(mp.isIncludeAudioAttachmentAlternateEmail()));
+        } else {
+            removeField(top, ALT_NOTIFICATION);
+            removeField(top, ALT_ATTACH_AUDIO);
+        }
+
         boolean imapServerConfigured = mp.isImapServerConfigured();
         if (imapServerConfigured) {
             top.put(SYNC, mp.isSynchronizeWithImapServer());
@@ -128,7 +145,15 @@ public class Mailstore extends AbstractDataSetGenerator {
             String pwd = StringUtils.defaultString(mp.getImapPassword());
             String encodedPwd = new String(Base64.encodeBase64(pwd.getBytes()));
             top.put(PASSWD, encodedPwd);
+        } else {
+            removeField(top, SYNC);
+            removeField(top, HOST);
+            removeField(top, PORT);
+            removeField(top, TLS);
+            removeField(top, ACCOUNT);
+            removeField(top, PASSWD);
         }
+
         ImAccount imAccount = new ImAccount(user);
         top.put(IM_ENABLED, imAccount.isEnabled());
         // The following settings used to be in contact-information.xml
@@ -136,18 +161,18 @@ public class Mailstore extends AbstractDataSetGenerator {
         putOnlyIfNotNull(top, IM_DISPLAY_NAME, imAccount.getImDisplayName());
         putOnlyIfNotNull(top, CONF_ENTRY_IM, user.getSettingValue("im_notification/conferenceEntryIM").toString());
         putOnlyIfNotNull(top, CONF_EXIT_IM, user.getSettingValue("im_notification/conferenceExitIM").toString());
-        putOnlyIfNotNull(top, LEAVE_MESSAGE_BEGIN_IM,
-                user.getSettingValue("im_notification/leaveMsgBeginIM").toString());
+        putOnlyIfNotNull(top, LEAVE_MESSAGE_BEGIN_IM, user.getSettingValue("im_notification/leaveMsgBeginIM")
+                .toString());
         putOnlyIfNotNull(top, LEAVE_MESSAGE_END_IM, user.getSettingValue("im_notification/leaveMsgEndIM").toString());
         putOnlyIfNotNull(top, CALL_IM, user.getSettingValue("im_notification/call").toString());
         putOnlyIfNotNull(top, CALL_FROM_ANY_IM, user.getSettingValue("im_notification/callFromAnyNumber").toString());
-        //and this one in presencerouting-prefs.xml
+        // and this one in presencerouting-prefs.xml
         putOnlyIfNotNull(top, VMONDND, imAccount.isForwardOnDnd());
-        //settings from xmpp-account-info.xml
+        // settings from xmpp-account-info.xml
         putOnlyIfNotNull(top, IM_ON_THE_PHONE_MESSAGE, imAccount.getOnThePhoneMessage());
         putOnlyIfNotNull(top, IM_ADVERTISE_ON_CALL_STATUS, imAccount.advertiseSipPresence());
         putOnlyIfNotNull(top, IM_SHOW_ON_CALL_DETAILS, imAccount.includeCallInfo());
-        //personal attendant
+        // personal attendant
         putOnlyIfNotNull(top, PLAY_DEFAULT_VM, user.getPlayVmDefaultOptions());
         PersonalAttendant pa = m_mailboxManager.loadPersonalAttendantForUser(user);
         if (pa != null) {
@@ -165,8 +190,8 @@ public class Mailstore extends AbstractDataSetGenerator {
                 for (DialPad dialPad : pa.getMenu().getMenuItems().keySet()) {
                     DBObject menuItem = new BasicDBObject();
                     menuItem.put(DIALPAD, dialPad.getName());
-                    menuItem.put(ITEM, SipUri.fix(
-                            pa.getMenu().getMenuItems().get(dialPad).getParameter(), getSipDomain()));
+                    menuItem.put(ITEM,
+                            SipUri.fix(pa.getMenu().getMenuItems().get(dialPad).getParameter(), getSipDomain()));
                     buttonsList.add(menuItem);
                 }
                 pao.put(BUTTONS, buttonsList);
@@ -174,11 +199,11 @@ public class Mailstore extends AbstractDataSetGenerator {
             top.put(PERSONAL_ATT, pao);
         }
         putOnlyIfNotNull(top, ACTIVEGREETING, user.getSettingValue(MailboxPreferences.ACTIVE_GREETING));
-        //DL
+        // DL
         List<DBObject> dLists = new ArrayList<DBObject>();
         for (int i = 1; i < DistributionList.MAX_SIZE; i++) {
-            String extensions = user.getSettingValue(
-                    new StringBuilder(SETTING_PATH_DISTRIBUTION_LIST).append(i).toString());
+            String extensions = user.getSettingValue(new StringBuilder(SETTING_PATH_DISTRIBUTION_LIST).append(i)
+                    .toString());
             if (extensions != null) {
                 DBObject dlist = new BasicDBObject();
                 dlist.put(DIALPAD, i);
