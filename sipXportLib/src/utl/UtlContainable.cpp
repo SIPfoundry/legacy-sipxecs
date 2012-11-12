@@ -13,7 +13,8 @@
 
 // APPLICATION INCLUDES
 #include "utl/UtlContainable.h"
-
+#include "utl/Instrumentation.h"
+#include <typeinfo>
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -28,11 +29,15 @@ const UtlContainableType UtlContainable::TYPE = "UtlContainable" ;
 
 
 // Copy constructor
-
+UtlContainable::UtlContainable()
+{
+  system_tap_object_created((intptr_t)this, typeid(*this).name());
+}
 
 // Destructor
 UtlContainable::~UtlContainable()
 {
+  system_tap_object_destroyed((intptr_t)this, typeid(*this).name());
 }
 
 /* ============================ MANIPULATORS ============================== */

@@ -50,6 +50,8 @@
 
 /* ============================ CREATORS ================================== */
 
+#include "utl/Instrumentation.h"
+
 // Constructor
 // If the name is specified but is already in use, throw an exception
 OsMsgQShared::OsMsgQShared(const char* name,
@@ -393,6 +395,8 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
 #endif
    }
 
+   system_tap_queue_enqueue(mName.data(), pMsg->getMsgType(), mDlist.entries());
+
 #ifdef MSGQ_IS_VALID_CHECK /* [ */
    OsStatus rc = mGuard.acquire();         // start critical section
    assert(rc == OS_SUCCESS);
@@ -480,6 +484,7 @@ OsStatus OsMsgQShared::doReceive(OsMsg*& rpMsg, const OsTime& rTimeout)
    assert(rc == OS_SUCCESS);
 #endif /* MSGQ_IS_VALID_CHECK ] */
 
+   system_tap_queue_dequeue(mName.data(), rpMsg->getMsgSubType(), mDlist.entries());
 
    return ret;
 }

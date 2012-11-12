@@ -71,6 +71,7 @@ libsipXport_la_SOURCES =  \
     utl/UtlRandom.cpp \
     utl/PluginHooks.cpp \
     utl/cJSON.c \
+    utl/Instrumentation.cpp \
     os/OsAssert.c \
     os/OsCallback.cpp \
     os/OsConfigDb.cpp \

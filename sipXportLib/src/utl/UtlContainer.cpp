@@ -14,7 +14,8 @@
 #include "utl/UtlLink.h"
 #include "utl/UtlIterator.h"
 #include "os/OsLock.h"
-
+#include "utl/Instrumentation.h"
+#include <typeinfo>
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -40,12 +41,14 @@ OsBSem* UtlContainer::spIteratorConnectionLock = new OsBSem(OsBSem::Q_PRIORITY, 
 UtlContainer::UtlContainer()
    : mContainerLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
+  system_tap_object_created((intptr_t)this, typeid(*this).name());
 }
 
 
 // Destructor
 UtlContainer::~UtlContainer()
 {
+  system_tap_object_destroyed((intptr_t)this, typeid(*this).name());
 }
 
 // invalidateIterators() isn't called by the UtlContainer destructor
