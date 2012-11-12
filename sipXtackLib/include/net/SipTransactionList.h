@@ -94,6 +94,10 @@ public:
                                SipMessage& message,
                                UtlBoolean isOutGoing);
 
+    std::size_t size() const;
+    //
+    // Returns the number of transactions in the hash bag
+    //
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -118,5 +122,10 @@ protected:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+inline  std::size_t SipTransactionList::size() const
+{
+  return mTransactions.entries();
+}
 
 #endif

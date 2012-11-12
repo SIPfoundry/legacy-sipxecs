@@ -29,6 +29,7 @@ libsipXtack_la_LDFLAGS = \
 	@SSL_LDFLAGS@
 
 libsipXtack_la_CXXFLAGS = \
+	-g -O0 \
 	@PCRE_CXXFLAGS@ \
 	@SSL_CXXFLAGS@ \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
@@ -58,6 +59,7 @@ libsipXtack_la_SOURCES =  \
     net/HttpRequestContext.cpp \
     net/HttpServer.cpp \
     net/HttpService.cpp \
+    net/Instrumentation.cpp \
     net/MailAttachment.cpp \
     net/MailMessage.cpp \
     net/MimeBodyPart.cpp \

@@ -42,8 +42,9 @@
 #include <net/NetBase64Codec.h>
 #include <net/NetMd5Codec.h>
 #include <net/HttpConnectionMap.h>
-
 #include <net/Url.h>
+#include <net/Instrumentation.h>
+
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -86,6 +87,7 @@ HttpMessage::HttpMessage(const char* messageBytes, ssize_t byteCount)
    , mpResponseListenerQueue(NULL)
    , mResponseListenerData(NULL)
 {
+  system_tap_sip_msg_created((intptr_t)this);
    smHttpMessageCount++;
 
 #ifdef HTTP_TIMELOG
@@ -108,6 +110,8 @@ HttpMessage::HttpMessage(OsSocket* inSocket, ssize_t bufferSize)
    , mpResponseListenerQueue(NULL)
    , mResponseListenerData(NULL)
 {
+  system_tap_sip_msg_created((intptr_t)this);
+
    smHttpMessageCount++;
 
 #ifdef HTTP_TIMELOG
@@ -121,6 +125,8 @@ HttpMessage::HttpMessage(OsSocket* inSocket, ssize_t bufferSize)
 // Copy constructor
 HttpMessage::HttpMessage(const HttpMessage& rHttpMessage)
 {
+  system_tap_sip_msg_created((intptr_t)this);
+
    smHttpMessageCount++;
 
     mHeaderCacheClean = rHttpMessage.mHeaderCacheClean;
@@ -153,6 +159,7 @@ HttpMessage::HttpMessage(const HttpMessage& rHttpMessage)
 // Destructor
 HttpMessage::~HttpMessage()
 {
+  system_tap_sip_msg_destroyed((intptr_t)this);
     smHttpMessageCount--;
     NameValuePair* headerField = NULL;
 
