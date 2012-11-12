@@ -26,6 +26,7 @@ import javax.sound.sampled.AudioSystem;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.sipxivr.email.Emailer;
@@ -133,9 +134,9 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         descriptor.setSubject("Fwd:Voice Message " + newMessageId);
         VmMessage savedMessage = forwardMessage(message, comments, descriptor, destUser, newMessageId);
         if (savedMessage != null) {
-            m_emailer.queueVm2Email(destUser, savedMessage);
             //the method applies only to voicemails - so the folder where the message is saved is always INBOX
             savedMessage.setParentFolder(Folder.INBOX);
+            m_emailer.queueVm2Email(destUser, savedMessage);
         }
         comments.setSavedMessageId(newMessageId);
         comments.setStored(true);
@@ -250,7 +251,7 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         try {
             // The messageid in the file is the NEXT one
             messageId = FileUtils.readFileToString(midFile);
-            numericMessageId = Long.parseLong(messageId);
+            numericMessageId = Long.parseLong(StringUtils.deleteWhitespace(messageId));
         } catch (IOException e) {
             LOG.error("Message::nextMessageId cannot read " + messageIdFilePath, e);
             throw new RuntimeException(e);

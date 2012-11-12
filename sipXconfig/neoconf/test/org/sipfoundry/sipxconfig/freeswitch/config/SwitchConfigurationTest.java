@@ -35,6 +35,8 @@ public class SwitchConfigurationTest {
         StringWriter actual = new StringWriter();
         FreeswitchSettings settings = new FreeswitchSettings();
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
+        settings.setSettingTypedValue("freeswitch-config/FREESWITCH_MAX_SESSIONS", 4000);
+        settings.setSettingTypedValue("freeswitch-config/FREESWITCH_SESSION_PER_SECOND", 40);
         Location location = TestHelper.createDefaultLocation();
         m_configuration.write(actual, location, settings);
         String expected = IOUtils.toString(getClass().getResourceAsStream("switch.conf.test.xml"));
