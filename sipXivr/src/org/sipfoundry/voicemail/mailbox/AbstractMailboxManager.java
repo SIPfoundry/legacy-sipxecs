@@ -134,9 +134,9 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         descriptor.setSubject("Fwd:Voice Message " + newMessageId);
         VmMessage savedMessage = forwardMessage(message, comments, descriptor, destUser, newMessageId);
         if (savedMessage != null) {
-            m_emailer.queueVm2Email(destUser, savedMessage);
             //the method applies only to voicemails - so the folder where the message is saved is always INBOX
             savedMessage.setParentFolder(Folder.INBOX);
+            m_emailer.queueVm2Email(destUser, savedMessage);
         }
         comments.setSavedMessageId(newMessageId);
         comments.setStored(true);
