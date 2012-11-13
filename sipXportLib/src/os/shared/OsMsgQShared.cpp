@@ -395,7 +395,7 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
 #endif
    }
 
-   system_tap_queue_enqueue(mName.data(), pMsg->getMsgType(), mDlist.entries());
+   system_tap_queue_enqueue(mName.data(), 0, mDlist.entries());
 
 #ifdef MSGQ_IS_VALID_CHECK /* [ */
    OsStatus rc = mGuard.acquire();         // start critical section
@@ -484,7 +484,7 @@ OsStatus OsMsgQShared::doReceive(OsMsg*& rpMsg, const OsTime& rTimeout)
    assert(rc == OS_SUCCESS);
 #endif /* MSGQ_IS_VALID_CHECK ] */
 
-   system_tap_queue_dequeue(mName.data(), rpMsg->getMsgSubType(), mDlist.entries());
+   system_tap_queue_dequeue(mName.data(), 0, mDlist.entries());
 
    return ret;
 }
