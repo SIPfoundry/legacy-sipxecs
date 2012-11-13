@@ -99,41 +99,31 @@ public class SqaEventHandler implements Runnable {
             logger.debug("Observer JID (IM Entity that sent the message): " + observerJID.getNode());
             org.jivesoftware.openfire.user.User ofObserverUser = m_server.getUserManager().getUser(observerJID.getNode());
             Presence presence = m_server.getPresenceManager().getPresence(ofObserverUser);
-            String body = null;
-            if (ringing) {
-                if (StringUtils.equals(observerId, targetSipId)) {
-                    body = Utils.getDisplayName(user, sipId) + " calls you: your phone is ringing";
-                }
-            } else if (confirmed) {
-                if (StringUtils.equals(observerId, targetSipId)) {
-                    body = "Call established with: " + Utils.getDisplayName(user, sipId);
-                }
+            if (presence == null) {
+                logger.debug("User is OFFLINE  -- cannot set presence state");
+                return;
+            }
+            if (confirmed) {
                 SipPresenceBean previousPresenceBean = m_presenceCache.get(observerJID.getNode());
                 //if cache is not cleared, than this is a new incomming call, do not broadcast on the call status again
-                if (previousPresenceBean == null && presence != null) {
+                if (previousPresenceBean == null) {
                     logger.debug("ObserverPartyUser " + observerPartyUser + " observer party id " + observerPartyId);
                     String presenceMessage = Utils.generateXmppStatusMessageWithSipState(observerUser, observerPartyUser, presence, observerPartyId);
                     //presence status is about to be changed - save current presence
                     if (presenceMessage != null) {
+                        //save current presence and broadcast -on the phone- to roster
                         m_presenceCache.put(observerJID.getNode(), new SipPresenceBean(presence.getStatus(), observerPartyId));
-                        Utils.setPresenceStatus(ofObserverUser, presence, presenceMessage);
+                        presence.setStatus(presenceMessage);
+                        ofObserverUser.getRoster().broadcastPresence(presence);
                     }
                 }
             } else if (terminated) {
-                if (StringUtils.equals(observerId, targetSipId)) {
-                    body = "Call with: " + Utils.getDisplayName(user, sipId) + " is terminated";
-                }
                 SipPresenceBean previousPresenceBean = m_presenceCache.get(observerJID.getNode());
                 if(previousPresenceBean != null) {
-                    Utils.setPresenceStatus(ofObserverUser, presence, previousPresenceBean.getStatusMessage());
+                    //if on the phone and call terminated, broadcast previous presence, clear cache
+                    presence.setStatus(previousPresenceBean.getStatusMessage());
+                    ofObserverUser.getRoster().broadcastPresence(presence);
                     m_presenceCache.remove(observerJID.getNode());
-                }
-            }
-            if (body != null && targetJid != null) {
-                JID targetJID = m_server.createJID(targetJid, null);
-                if (targetJID != null) {
-                    JID mybuddyJID = m_server.createJID(m_users.getImBotName(), null);
-                    sendMessage(mybuddyJID, targetJID, body);
                 }
             }
         } catch (Exception e) {
@@ -141,15 +131,6 @@ public class SqaEventHandler implements Runnable {
         } finally {
             IOUtils.closeQuietly(reader);
         }
-    }
-
-    private void sendMessage(JID from, JID to, String body) {
-        Message message = new Message();
-        message.setFrom(from);
-        message.setTo(to);
-        message.setBody(body);
-        message.setType(Message.Type.chat);
-        m_server.getMessageRouter().route(message);
     }
 }
 
