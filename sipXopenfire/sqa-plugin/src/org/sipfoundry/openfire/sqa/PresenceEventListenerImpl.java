@@ -53,11 +53,14 @@ public class PresenceEventListenerImpl implements PresenceEventListener {
             User user = m_users.getUserByJid(userJid);
             String callingPartyId = previousPresenceBean.getCallingPartiId();
             User callingParty = m_users.getUser(callingPartyId);
+            //Presence changed - save new presence and broadcast -on the phone- to roster
+            m_presenceCache.put(userJid, new SipPresenceBean(presence.getStatus(), callingPartyId));
             String presenceMessage = Utils.generateXmppStatusMessageWithSipState(user, callingParty, presence, callingPartyId);
             org.jivesoftware.openfire.user.User ofObserverUser = null;
             try {
                 ofObserverUser = XMPPServer.getInstance().getUserManager().getUser(userJid);
-                Utils.setPresenceStatus(ofObserverUser, presence, presenceMessage);
+                presence.setStatus(presenceMessage);
+                ofObserverUser.getRoster().broadcastPresence(presence);
             } catch (UserNotFoundException e) {
                 logger.debug("Cannot update user presence ", e);
             }
