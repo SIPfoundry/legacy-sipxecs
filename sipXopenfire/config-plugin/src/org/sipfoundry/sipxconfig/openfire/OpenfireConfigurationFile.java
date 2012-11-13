@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -52,6 +53,9 @@ public class OpenfireConfigurationFile {
     private String m_providerLdapUserClassName;
     private String m_providerLdapVCardClassName;
     private String m_multipleLdapConfFile;
+    private boolean m_clusteringState;
+
+    private Map<String, String> m_additionalProperties;
 
     private LdapManager m_ldapManager;
     private CoreContext m_coreContext;
@@ -71,7 +75,7 @@ public class OpenfireConfigurationFile {
             context.put("lockoutProvider", PROVIDER_LOCKOUT_CLASSNAME);
             context.put("securityAuditProvider", PROVIDER_SECURITY_AUDIT_CLASSNAME);
             context.put("sipxVcardProvider", m_providerVCardClassName);
-        } else if (allParams != null && !allParams.isEmpty()) {
+        } else if (!allParams.isEmpty()) {
             LdapConnectionParams ldapConnectionParams = allParams.get(0);
             boolean isLdapAnonymousAccess = (StringUtils.isBlank(ldapConnectionParams.getPrincipal())) ? true
                     : false;
@@ -84,6 +88,7 @@ public class OpenfireConfigurationFile {
         }
 
         context.put("authorizedUsernames", getAuthorizedUsernames());
+        context.put("clusteringState", m_clusteringState);
 
         try {
             m_velocityEngine.mergeTemplate("openfire/openfire.vm", context, writer);
@@ -186,10 +191,22 @@ public class OpenfireConfigurationFile {
         m_multipleLdapConfFile = multipleLdapConfFile;
     }
 
+    public void setAdditionalProperties(Map<String, String> properties) {
+        m_additionalProperties = properties;
+    }
+
+    public Map<String, String> getAdditionalProperties() {
+        return m_additionalProperties;
+    }
+
+    public void setClusteringState(boolean state) {
+        m_clusteringState = state;
+    }
+
     public static class LdapData {
-        private LdapConnectionParams m_ldapParams;
-        private AttrMap m_attrMap;
-        private boolean m_ldapAnonymousAccess;
+        private final LdapConnectionParams m_ldapParams;
+        private final AttrMap m_attrMap;
+        private final boolean m_ldapAnonymousAccess;
         public LdapData(LdapConnectionParams ldapParams, AttrMap attrMap) {
             m_ldapParams = ldapParams;
             m_attrMap = attrMap;
@@ -206,9 +223,9 @@ public class OpenfireConfigurationFile {
         public String getImAttribute() {
             String imAttribute = m_attrMap.getImAttributeName();
             String usernameAttribute = m_attrMap.getIdentityAttributeName();
-            //if im id is not mapped, default it to username - 
+            //if im id is not mapped, default it to username -
             //because this is a rule, when a user gets created the im id has to automatically be defaulted to username
-            return  imAttribute == null ? 
+            return  imAttribute == null ?
                     usernameAttribute == null ? StringUtils.EMPTY : usernameAttribute : imAttribute;
         }
 

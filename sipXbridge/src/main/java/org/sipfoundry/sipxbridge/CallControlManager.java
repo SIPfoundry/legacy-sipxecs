@@ -519,6 +519,18 @@ class CallControlManager implements SymmitronResetHandler {
 				itspAccount = Gateway.getAccountManager().getItspAccount(inboundVias);
             }
 
+            /**
+             * Do not allow processing request without a valid itsp account
+             */
+            if (null == itspAccount)
+            {
+                Response response = SipUtilities.createResponse(serverTransaction,
+                        Response.LOOP_DETECTED);
+                serverTransaction.sendResponse(response);
+
+                return;
+            }
+
             /*
              * Look at the Dialog context. The B2BUA structure tracks the call and is pointed to
              * by the dialog application data.

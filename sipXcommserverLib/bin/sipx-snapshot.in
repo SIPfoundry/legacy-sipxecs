@@ -430,9 +430,10 @@ function marshal_configuration_information () {
    @OPENFIRE_HOME@/logs/error.log
    @OPENFIRE_HOME@/logs/warn.log
    @OPENFIRE_HOME@/logs/sipxopenfire.log
+   /var/named
    /var/log/yum.log
    /var/log/messages
-   /var/log/mongo/mongod.log
+   /var/log/mongodb
    /etc/yum.conf
    /etc/yum
    /etc/yum.repos.d
@@ -857,6 +858,15 @@ EOF
 	
        done
    done
+
+   echo ""
+   echo "==== MWI SRV for $sipDomain"
+   dig -t srv +noidentify +nocmd +nocomments +noquestion +nostats +noauthority _sip._tcp.mwi.$d \
+
+   echo ""
+   echo "==== VM SRV for $sipDomain"
+   dig -t srv +noidentify +nocmd +nocomments +noquestion +nostats +noauthority _sip._udp.vm.$d \
+
    echo ======== END DNS LOOKUPS
 
    # Get version info for key prerequisite packages
