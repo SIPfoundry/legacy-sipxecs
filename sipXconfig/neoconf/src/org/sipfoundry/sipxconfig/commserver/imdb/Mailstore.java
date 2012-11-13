@@ -213,6 +213,8 @@ public class Mailstore extends AbstractDataSetGenerator {
         }
         if (dLists.size() > 0) {
             top.put(DISTRIB_LISTS, dLists);
+        } else {
+            removeField(top, DISTRIB_LISTS);
         }
         return true;
     }
