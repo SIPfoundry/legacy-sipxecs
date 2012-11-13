@@ -17,7 +17,6 @@
 package org.sipfoundry.openfire.sqa;
 
 import org.apache.commons.lang.StringUtils;
-import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.sipfoundry.commons.userdb.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,19 +54,5 @@ public class Utils {
             logger.error("SqaEventHandler: " + getDisplayName(user, callingPartyId) + ":", e);
         }
         return xmppStatusMessageWithSipState;
-    }
-
-    public static void setPresenceStatus(org.jivesoftware.openfire.user.User ofUser, Presence presence, String presenceMessage)
-            throws UserNotFoundException {
-
-        logger.debug("setPresenceStatus jid = " + ofUser.getUsername() + " presenceMessage = " + presenceMessage);
-
-        if (presence == null) {
-            logger.debug("User is OFFLINE  -- cannot set presence state");
-            return;
-        }
-        presence.setStatus(presenceMessage);
-
-        ofUser.getRoster().broadcastPresence(presence);
     }
 }
