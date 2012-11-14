@@ -94,7 +94,6 @@
       <callTag>VM</callTag>
       <userPattern>~~vm~.</userPattern>
       <permissionMatch>
-        <permission>ExchangeUMVoicemailServer</permission>
         <transform>
           <url>&lt;sip:102@exchange.example.com;transport=tcp?Diversion=%3Csip:{vdigits}%40{host}%3E%3Breason%3Dno-answer%3Bscreen%3Dno%3Bprivacy%3Doff&gt;;q=0.1</url>
         </transform>

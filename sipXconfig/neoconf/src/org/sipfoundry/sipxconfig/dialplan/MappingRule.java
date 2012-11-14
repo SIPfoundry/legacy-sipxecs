@@ -17,6 +17,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.dialplan.config.UrlTransform;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.common.AbstractUser;
 
 /**
@@ -170,7 +171,11 @@ public class MappingRule extends DialingRule {
 
         @Override
         public List<String> getPermissionNames() {
-            return Collections.singletonList(m_mediaServer.getPermissionName().getName());
+            PermissionName name = m_mediaServer.getPermissionName();
+            if (name != null) {
+                return Collections.singletonList(name.getName());
+            }
+            return Collections.EMPTY_LIST;
         }
 
         @Override
