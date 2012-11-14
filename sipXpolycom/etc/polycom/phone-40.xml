@@ -7,9 +7,9 @@
   &types;
   <type id="basic-three-codecs-type">
     <multi-enum labelKeyPrefix="codec">
-      <option><value>G711Mu</value></option>
-      <option><value>G711A</value></option>
-      <option><value>G729AB</value></option>
+      <option><value>G711_Mu</value></option>
+      <option><value>G711_A</value></option>
+      <option><value>G729_AB</value></option>
     </multi-enum>
   </type>
   <group name="lcl">
@@ -308,71 +308,71 @@
     <group name="codecPref">
       <setting name="IP_300" if="IP_300_CodecPref">
         <type refid="basic-three-codecs-type"/>
-        <value>G711Mu|G711A|G729AB</value>
+        <value>G711_Mu|G711_A|G729_AB</value>
       </setting>
       <setting name="OTHERS" if="OTHERS_CodecPref">
         <type refid="basic-three-codecs-type"/>
-        <value>G711Mu|G711A|G729AB</value>
+        <value>G711_Mu|G711_A|G729_AB</value>
       </setting>
       <setting name="IP_4000" if="IP_4000_CodecPref">
         <type refid="basic-three-codecs-type"/>
-        <value>G711Mu|G711A</value>
+        <value>G711_Mu|G711_A</value>
       </setting>
       <setting name="IP_650" if="IP_650_CodecPref">
 		  <type>
 		    <multi-enum labelKeyPrefix="codec">
             <option><value>G722</value></option>
-		      <option><value>G711Mu</value></option>
-		      <option><value>G711A</value></option>
-		      <option><value>G729AB</value></option>
+		      <option><value>G711_Mu</value></option>
+		      <option><value>G711_A</value></option>
+		      <option><value>G729_AB</value></option>
 		    </multi-enum>
 		  </type>
-        <value>G722|G711Mu|G711A|G729AB</value>
+        <value>G722|G711_Mu|G711_A|G729_AB</value>
       </setting>
       <setting name="IP_5000" if="IP_5000_CodecPref">
         <type>
           <multi-enum labelKeyPrefix="codec">
-            <option><value>G711Mu</value></option>
-            <option><value>G711A</value></option>
-            <option><value>G729AB</value></option>
+            <option><value>G711_Mu</value></option>
+            <option><value>G711_A</value></option>
+            <option><value>G729_AB</value></option>
             <option><value>G722</value></option>
           </multi-enum>
         </type>
-        <value>G722|G711Mu|G711A|G729AB</value>
+        <value>G722|G711_Mu|G711_A|G729_AB</value>
       </setting>
       <setting name="IP_6000" if="IP_6000_CodecPref">
         <type>
           <multi-enum labelKeyPrefix="codec">
-            <option><value>G711Mu</value></option>
-            <option><value>G711A</value></option>
-            <option><value>G729AB</value></option>
+            <option><value>G711_Mu</value></option>
+            <option><value>G711_A</value></option>
+            <option><value>G729_AB</value></option>
             <option><value>G722</value></option>
             <option><value>G7221.16kbps</value></option>
             <option><value>G7221.24kbps</value></option>
             <option><value>G7221.32kbps</value></option>
-            <option><value>G7221C.24kbps</value></option>
-            <option><value>G7221C.32kbps</value></option>
-            <option><value>G7221C.48kbps</value></option>
+            <option><value>G7221_C.24kbps</value></option>
+            <option><value>G7221_C.32kbps</value></option>
+            <option><value>G7221_C.48kbps</value></option>
             <option><value>Siren14.24kbps</value></option>
             <option><value>Siren14.32kbps</value></option>
             <option><value>Siren14.48kbps</value></option>
           </multi-enum>
         </type>
-        <value>G7221C.48kbps|Siren14.48kbps|G722|G7221.32kbps|G711Mu|G711A|G729AB</value>
+        <value>G7221_C.48kbps|Siren14.48kbps|G722|G7221.32kbps|G711_Mu|G711_A|G729_AB</value>
       </setting>
       <setting name="IP_7000" if="IP_7000_CodecPref">
         <type>
           <multi-enum labelKeyPrefix="codec">
-            <option><value>G711Mu</value></option>
-            <option><value>G711A</value></option>
-            <option><value>G729AB</value></option>
+            <option><value>G711_Mu</value></option>
+            <option><value>G711_A</value></option>
+            <option><value>G729_AB</value></option>
             <option><value>G722</value></option>
             <option><value>G7221.16kbps</value></option>
             <option><value>G7221.24kbps</value></option>
             <option><value>G7221.32kbps</value></option>
-            <option><value>G7221C.24kbps</value></option>
-            <option><value>G7221C.32kbps</value></option>
-            <option><value>G7221C.48kbps</value></option>
+            <option><value>G7221_C.24kbps</value></option>
+            <option><value>G7221_C.32kbps</value></option>
+            <option><value>G7221_C.48kbps</value></option>
             <option><value>Lin16.16ksps</value></option>
             <option><value>Lin16.32ksps</value></option>
             <option><value>Lin16.48ksps</value></option>
@@ -384,21 +384,21 @@
             <option><value>Siren22.64kbps</value></option>
           </multi-enum>
         </type>
-        <value>Siren22.64kbps|G7221C.48kbps|Siren14.48kbps|G722|G7221.32kbps|G711Mu|G711A|G729AB</value>
+        <value>Siren22.64kbps|G7221_C.48kbps|Siren14.48kbps|G722|G7221.32kbps|G711_Mu|G711_A|G729_AB</value>
       </setting>
       <setting name="VVX_1500" if="VVX_1500_CodecPref">
         <type>
           <multi-enum labelKeyPrefix="codec">
-            <option><value>G711Mu</value></option>
-            <option><value>G711A</value></option>
-            <option><value>G729AB</value></option>
+            <option><value>G711_Mu</value></option>
+            <option><value>G711_A</value></option>
+            <option><value>G729_AB</value></option>
             <option><value>G722</value></option>
             <option><value>G7221.16kbps</value></option>
             <option><value>G7221.24kbps</value></option>
             <option><value>G7221.32kbps</value></option>
-            <option><value>G7221C.24kbps</value></option>
-            <option><value>G7221C.32kbps</value></option>
-            <option><value>G7221C.48kbps</value></option>
+            <option><value>G7221_C.24kbps</value></option>
+            <option><value>G7221_C.32kbps</value></option>
+            <option><value>G7221_C.48kbps</value></option>
             <option><value>Lin16.8ksps</value></option>
             <option><value>Lin16.16ksps</value></option>
             <option><value>Lin16.32ksps</value></option>
@@ -409,18 +409,18 @@
             <option><value>Siren14.48kbps</value></option>
           </multi-enum>
         </type>
-        <value>G7221C.48kbps|G7221.32kbps|G722|G711Mu|G711A|G729AB</value>
+        <value>G7221_C.48kbps|G7221.32kbps|G722|G711_Mu|G711_A|G729_AB</value>
       </setting>
       <setting name="VVX_500" if="VVX_500_CodecPref">
         <type>
           <multi-enum labelKeyPrefix="codec">
-            <option><value>G711Mu</value></option>
-            <option><value>G711A</value></option>
-            <option><value>G729AB</value></option>
+            <option><value>G711_Mu</value></option>
+            <option><value>G711_A</value></option>
+            <option><value>G729_AB</value></option>
             <option><value>G722</value></option>
           </multi-enum>
         </type>
-        <value>G711Mu</value>
+        <value>G711_Mu</value>
       </setting>      
     </group>
     <group name="audioProfile">
@@ -579,7 +579,7 @@
           <value>200</value>
         </setting>
       </group>
-      <group name="G7221C" if="IP_6000_CodecPref||IP_7000_CodecPref||VVX_1500_CodecPref">
+      <group name="G7221_C" if="IP_6000_CodecPref||IP_7000_CodecPref||VVX_1500_CodecPref">
         <setting name="payloadSize">
           <type>
             <!-- 10, 20, 30, ...80 -->
@@ -3020,12 +3020,39 @@
           <value>0</value>
         </setting>
         <setting name="1.type">
-          <type>
-            <string/>
-          </type>
-          <value></value>
+	      <type>
+	        <enum>
+	          <option>
+	            <value>first_name</value>
+	          </option>
+	          <option>
+	            <value>last_name</value>
+	          </option>
+	          <option>
+	            <value>phone_number</value>
+	          </option>
+	          <option>
+	            <value>SIP_address</value>
+	          </option>
+	          <option>
+	            <value>H323_address</value>
+	          </option>
+	          <option>
+	            <value>URL</value>
+	          </option>
+	          <option>
+	            <value>OCS_address</value>
+	          </option>
+	          <option>
+	            <value>commURI</value>
+	          </option>
+	          <option>
+	            <value>other</value>
+	          </option>
+	        </enum>
+	      </type>
+          <value>first_name</value>
         </setting>
-
         <setting name="2.filter">
           <type>
             <string/>
@@ -3057,10 +3084,38 @@
           <value>0</value>
         </setting>
         <setting name="2.type">
-          <type>
-            <string/>
-          </type>
-          <value></value>
+	      <type>
+	        <enum>
+	          <option>
+	            <value>first_name</value>
+	          </option>
+	          <option>
+	            <value>last_name</value>
+	          </option>
+	          <option>
+	            <value>phone_number</value>
+	          </option>
+	          <option>
+	            <value>SIP_address</value>
+	          </option>
+	          <option>
+	            <value>H323_address</value>
+	          </option>
+	          <option>
+	            <value>URL</value>
+	          </option>
+	          <option>
+	            <value>OCS_address</value>
+	          </option>
+	          <option>
+	            <value>commURI</value>
+	          </option>
+	          <option>
+	            <value>other</value>
+	          </option>
+	        </enum>
+	      </type>
+          <value>last_name</value>
         </setting>
         <setting name="3.filter">
           <type>
@@ -3093,10 +3148,38 @@
           <value>0</value>
         </setting>
         <setting name="3.type">
-          <type>
-            <string/>
-          </type>
-          <value></value>
+	      <type>
+	        <enum>
+	          <option>
+	            <value>first_name</value>
+	          </option>
+	          <option>
+	            <value>last_name</value>
+	          </option>
+	          <option>
+	            <value>phone_number</value>
+	          </option>
+	          <option>
+	            <value>SIP_address</value>
+	          </option>
+	          <option>
+	            <value>H323_address</value>
+	          </option>
+	          <option>
+	            <value>URL</value>
+	          </option>
+	          <option>
+	            <value>OCS_address</value>
+	          </option>
+	          <option>
+	            <value>commURI</value>
+	          </option>
+	          <option>
+	            <value>other</value>
+	          </option>
+	        </enum>
+	      </type>
+          <value>phone_number</value>
         </setting>
       </group>
       <group name="vlv">

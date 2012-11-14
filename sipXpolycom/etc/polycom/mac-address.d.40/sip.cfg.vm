@@ -465,15 +465,19 @@
   </call>
   <dir>
   <dir.local
-#set ($group = $cfg.EndpointSettings.getSetting('dir.local'))
+#set ($group = $cfg.EndpointSettings.getSetting('dir'))
 #foreach ($setting in $cfg.getRecursiveSettings($group))
-    dir.local.${setting.ProfileName}="$!{setting.Value}"
+    ${setting.ProfileName}="$!{setting.Value}"
 #end
   />
   <dir.corp
 #set ($group = $cfg.EndpointSettings.getSetting('dir.corp'))
-#foreach ($setting in $cfg.getRecursiveSettings($group))
+#foreach ($setting in $cfg.getSettings($group))
     dir.corp.${setting.ProfileName}="$!{setting.Value}"
+#end
+#set ($group = $cfg.EndpointSettings.getSetting('dir.corp').getSetting('attribute'))
+#foreach ($setting in $cfg.getSettings($group))
+    dir.corp.attribute.${setting.ProfileName}="$!{setting.Value}"
 #end
   />
   </dir>
