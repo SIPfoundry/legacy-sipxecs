@@ -46,5 +46,6 @@ bundle agent invoke_snapshot_script(ini) {
   commands:
     any::
       "@SIPX_BINDIR@/sipx-snapshot"
-        args => $(snapshot_args);
+        args => $(snapshot_args),
+        contain => timeout(120);
 }

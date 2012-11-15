@@ -483,3 +483,14 @@ body classes on_failed_command(fail_codes, define_on_fail) {
   repair_failed => { "$(define_on_fail)" };
 }
 
+# Long performing commands should specify longest possible timeout
+# before cfengine can assume command is hung
+# Example:
+#   commands:
+#     "/bin/very-long-command-that-could-take-two-minutes"
+#       contain => timeout(120);
+#
+body contain timeout(sec) {
+  exec_timeout => "$(sec)";
+}
+

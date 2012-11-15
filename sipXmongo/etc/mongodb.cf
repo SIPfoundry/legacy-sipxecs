@@ -61,10 +61,6 @@ bundle agent mongodb {
       "any" usebundle => "mongodb_client";
 }
 
-body contain timeout(sec) {
-  exec_timeout => "$(sec)";
-}
-
 bundle agent mongodb_arbiter_config {
   vars:
     mongod_arbiter::
