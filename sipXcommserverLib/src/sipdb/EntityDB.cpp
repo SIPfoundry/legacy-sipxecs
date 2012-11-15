@@ -60,11 +60,15 @@ bool EntityDB::findByGatewayIdentity(const std::string& identity, EntityRecord& 
   }
 
   if (matches.empty())
+  {
+    OS_LOG_DEBUG(FAC_ODBC, "EntityDB::findByGatewayIdentity - Unable to find gateway record for " << identity << " from namespace " << _info.getNS());
     return false;
+  }
 
   if (matches.size() == 1)
   {
     entity = *(matches.begin());
+    OS_LOG_INFO(FAC_ODBC, "EntityDB::findByGatewayIdentity found gateway match " << entity.identity());
     return true;
   }
   //
@@ -76,8 +80,15 @@ bool EntityDB::findByGatewayIdentity(const std::string& identity, EntityRecord& 
     Url b(iter->identity().c_str());
 
     if (a.getHostPort() == b.getHostPort())
+    {
+      entity = *iter;
+      OS_LOG_INFO(FAC_ODBC, "EntityDB::findByGatewayIdentity found gateway match " << entity.identity());
       return true;
+    }
   }
+
+  OS_LOG_WARNING(FAC_ODBC, "EntityDB::findByGatewayIdentity - Unable to find gateway record for " << identity << ".  Multiple records yielded no exact host:port match!" );
+
   return false;
 }
 
