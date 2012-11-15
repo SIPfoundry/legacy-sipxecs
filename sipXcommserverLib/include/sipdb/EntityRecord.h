@@ -110,6 +110,12 @@ public:
     static const char* identity_fld();
 
     //
+    // Entity identifier
+    //
+    std::string& entity();
+    static const char* entity_fld();
+
+    //
     // Realm used for authenticating users
     //
     std::string& realm();
@@ -205,6 +211,7 @@ private:
     std::vector<Alias> _aliases;
     std::vector<StaticUserLoc> _staticUserLoc;
     bool _vmOnDnd;
+    std::string _entity;
 };
 
 //
@@ -224,6 +231,11 @@ inline std::string& EntityRecord::userId()
 inline std::string& EntityRecord::identity()
 {
     return _identity;
+}
+
+inline std::string& EntityRecord::entity()
+{
+    return _entity;
 }
 
 inline std::string& EntityRecord::realm()

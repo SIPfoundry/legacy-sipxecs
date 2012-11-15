@@ -16,6 +16,7 @@
 #include <mongo/client/connpool.h>
 #include "os/OsLogger.h"
 #include "sipdb/EntityDB.h"
+#include "net/Url.h"
 #include <boost/algorithm/string.hpp>
 #include <vector>
 
@@ -41,6 +42,43 @@ bool EntityDB::findByIdentity(const string& identity, EntityRecord& entity) cons
 	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Unable to find entity record for " << identity << " from namespace " << _info.getNS());
         conn.done();
 	return false;
+}
+
+bool EntityDB::findByGatewayIdentity(const std::string& identity, EntityRecord& entity) const
+{
+  mongo::BSONObj query = BSON(EntityRecord::identity_fld() << "gateway");
+  mongo::ScopedDbConnection conn(_info.getConnectionString());
+  auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
+
+  std::vector<EntityRecord> matches;
+  while (pCursor.get() && pCursor->more())
+  {
+    EntityRecord ent;
+    ent = pCursor->next();
+    if (ent.identity().find(identity) == 0)
+      matches.push_back(ent);
+  }
+
+  if (matches.empty())
+    return false;
+
+  if (matches.size() == 1)
+  {
+    entity = *(matches.begin());
+    return true;
+  }
+  //
+  // We got multiple.  Find the best match
+  //
+  for (std::vector<EntityRecord>::iterator iter = matches.begin(); iter != matches.end(); iter++)
+  {
+    Url a(identity.c_str());
+    Url b(iter->identity().c_str());
+
+    if (a.getHostPort() == b.getHostPort())
+      return true;
+  }
+  return false;
 }
 
 bool EntityDB::findByUserId(const string& userId, EntityRecord& entity) const
