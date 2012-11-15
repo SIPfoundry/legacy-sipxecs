@@ -46,7 +46,7 @@ bool EntityDB::findByIdentity(const string& identity, EntityRecord& entity) cons
 
 bool EntityDB::findByGatewayIdentity(const std::string& identity, EntityRecord& entity) const
 {
-  mongo::BSONObj query = BSON(EntityRecord::identity_fld() << "gateway");
+  mongo::BSONObj query = BSON(EntityRecord::entity_fld() << "gateway");
   mongo::ScopedDbConnection conn(_info.getConnectionString());
   auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
 
