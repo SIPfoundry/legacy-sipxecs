@@ -1,82 +1,27 @@
-%{
-	#include <linux/slab.h>
-	#define HeapObjectsMax 1024*1024
-	typedef struct object_info
-	{
-		long pointer;
-		char* name;
-		char* trace;
-		void* prev;
-		void* next;
-	} ObjectInfo;
-	ObjectInfo* HeapObjects = 0;
-%}
-
-
-function addObjectInfo(pointer:long, name:string, nameLen:long, trace:string, traceLen:long)
-%{
-  if (!HeapObjects)
-  {
-    HeapObjects = kmalloc(sizeof(ObjectInfo), GFP_KERNEL);
-    HeapObjects->prev = 0;
-    HeapObjects->next = 0;
-    HeapObjects->pointer = (long)THIS->l_pointer;
-    HeapObjects->name = (char *)kmalloc(sizeof(char)*((long)THIS->l_nameLen)+1, GFP_KERNEL);
-    HeapObjects->trace = (char *)kmalloc(sizeof(char)*((long)THIS->l_traceLen)+1, GFP_KERNEL);
-    strcpy(HeapObjects->name, (char*)THIS->l_name);
-    strcpy(HeapObjects->trace, (char*)THIS->l_trace);
-  }
-  else
-  {
-    ObjectInfo* currentObject = 0;
-    ObjectInfo* newObject = kmalloc(sizeof(ObjectInfo), GFP_KERNEL);
-    newObject->pointer = (long)THIS->l_pointer;
-    newObject->name = (char *)kmalloc(sizeof(char)*((long)THIS->l_nameLen)+1, GFP_KERNEL);
-    newObject->trace = (char *)kmalloc(sizeof(char)*((long)THIS->l_traceLen)+1, GFP_KERNEL);
-    strcpy(newObject->name, (char*)THIS->l_name);
-    strcpy(newObject->trace, (char*)THIS->l_trace);
-
-    for (currentObject = HeapObjects; currentObject->next != 0; currentObject++)
-    {
-    }
-
-    newObject->prev = currentObject;
-    newObject->next = 0;
-    currentObject->next = newObject;
-  }
-%}
-
-function removeObjectInfo(pointer:long)
-%{
-  ObjectInfo* currentObject = 0;
-  for (currentObject = HeapObjects; currentObject->pointer != (long)THIS->l_pointer; currentObject = (ObjectInfo*)currentObject->next)
-  {
-  }
-  
-  if (currentObject)
-  {
-    ObjectInfo* prev = (ObjectInfo*)currentObject->prev;
-    if (prev)
-    	prev->next = currentObject->next;
-
-    kfree(currentObject->name);
-    kfree(currentObject->trace);
-    kfree(currentObject);
-  }
-%}
+#! /usr/bin/env stap -DMAXSTRINGLEN=10240
 
 
 probe begin
 {
-	name = "className";
-	trace = "sample trace";
-	pointer = 12345;
-	addObjectInfo(pointer, name, strlen(name), trace, strlen(trace));
+  printf ("Probing %s for memory leaks\n", @1);
 }
 
-probe end
+
+probe process(@1).library(@2).function("*system_tap_report_object_count*").call
 {
-	removeObjectInfo(12345);
+  if (@defined($created) && @defined($deleted))
+  {
+    printf ("Created: <%d> Deleted: <%d> Persistent: <%d>\n", $created, $deleted, $created - $deleted);
+  }
+}
+
+probe process(@1).library(@2).function("*system_tap_report_object_trace*").call
+{
+  if (@defined($pointerAddress) && @defined($trace))
+  {
+    printf ("\n\n----- OBJECT -----\n\n");
+    printf ("Excutable: <%s> Address: <0x%x> \n%s\n", execname(), $pointerAddress, user_string($trace));
+  }
 }
 
 

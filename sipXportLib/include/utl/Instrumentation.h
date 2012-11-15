@@ -20,6 +20,9 @@
 
 #include <stdint.h>
 
+bool system_tap_start_portlib_instrumentation(bool enableTrace);
+bool system_tap_stop_portlib_instrumentation();
+
 void system_tap_queue_enqueue(const char* queue, int eventType, int queueSize);
 void system_tap_queue_dequeue(const char* queue, int eventType, int queueSize);
 void system_tap_timer_create(int expireTime);
@@ -27,6 +30,8 @@ void system_tap_timer_destroy();
 void system_tap_timer_fire(int expireTime, int precision, int overheadUseq);
 void system_tap_object_created(intptr_t pointerAddress, const char* className);
 void system_tap_object_destroyed(intptr_t pointerAddress, const char* className);
+void system_tap_report_object_count(long created, long deleted);
+void system_tap_report_object_trace(intptr_t pointerAddress, const char* trace);
 
 #endif	/* INSTRUMENTATION_H_SIPXPORTLIB */
 
