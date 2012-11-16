@@ -73,7 +73,6 @@ EntityRecord::EntityRecord(const EntityRecord& entity)
     _callForwardTime = entity._callForwardTime;
     _staticUserLoc = entity._staticUserLoc;
     _vmOnDnd = entity._vmOnDnd;
-    _entity = entity._entity;
 }
 
 EntityRecord::~EntityRecord()
@@ -102,7 +101,6 @@ void EntityRecord::swap(EntityRecord& entity)
     std::swap(_callForwardTime, entity._callForwardTime);
     std::swap(_staticUserLoc, entity._staticUserLoc);
     std::swap(_vmOnDnd, entity._vmOnDnd);
-    std::swap(_entity, entity._entity);
 }
 
 EntityRecord& EntityRecord::operator = (const mongo::BSONObj& bsonObj)
@@ -152,11 +150,6 @@ EntityRecord& EntityRecord::operator = (const mongo::BSONObj& bsonObj)
 	if (bsonObj.hasField(EntityRecord::vmOnDnd_fld()))
 	{
 		_vmOnDnd = bsonObj.getBoolField(EntityRecord::vmOnDnd_fld());
-	}
-
-  if (bsonObj.hasField(EntityRecord::identity_fld()))
-	{
-		_entity = bsonObj.getStringField(EntityRecord::entity_fld());
 	}
 
 	if (bsonObj.hasField(EntityRecord::callerId_fld()))
