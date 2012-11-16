@@ -369,7 +369,7 @@ bool CallerAlias::getCallerAlias (
     OS_LOG_INFO(FAC_SIP, "CallerID::getCallerAlias - EntityDB::findByIdentity for identity=" << identity.str() << " domain=" << domain.str());
 
     hasUserEntity = mpEntityDb->findByIdentity(identity.str(), userEntity);
-    hasGatewayEntity = mpEntityDb->findByGatewayIdentity(domain.str(), gatewayEntity);
+    hasGatewayEntity = mpEntityDb->findByIdentity(domain.str(), gatewayEntity);
 
     // if call is not routed through gw then nothing to do, return empty
     if (!hasGatewayEntity) {
