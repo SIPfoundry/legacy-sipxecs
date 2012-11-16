@@ -60,6 +60,7 @@
     <property name="proxyManager" ref="proxyManager"/>
     <property name="mohAddresses" ref="mohAddressFactory"/>
     <property name="forwardingContext" ref="forwardingContext" />
+    <property name="mediaServerFactory" ref="mediaServerFactory" />
   </bean>
 
   <bean id="org.sipfoundry.sipxconfig.common.InternalUser" class="org.sipfoundry.sipxconfig.common.InternalUser"

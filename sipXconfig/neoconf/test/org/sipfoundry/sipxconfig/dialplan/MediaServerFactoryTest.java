@@ -35,7 +35,7 @@ public class MediaServerFactoryTest extends TestCase {
      */
     @Override
     public void setUp() {
-        m_out = new MediaServerFactory();
+        m_out = new MockMediaServerFactory();
         m_mockBeanFactory = createNiceMock(BeanFactory.class);
         m_out.setBeanFactory(m_mockBeanFactory);
     }
@@ -65,5 +65,11 @@ public class MediaServerFactoryTest extends TestCase {
         Collection<String> beanListFromFactory = m_out.getBeanIds();
         assertTrue(SIPX_MEDIA_SERVER + " not in list.", beanListFromFactory.contains(SIPX_MEDIA_SERVER));
         assertTrue(EXCHANGE_MEDIA_SERVER + " not in list.", beanListFromFactory.contains(EXCHANGE_MEDIA_SERVER));
+    }
+
+    static class MockMediaServerFactory extends MediaServerFactory {
+        protected void populateExchangeServer(MediaServer server) {
+            
+        }
     }
 }
