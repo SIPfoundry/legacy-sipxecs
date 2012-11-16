@@ -74,15 +74,12 @@ bool EntityDB::findByGatewayIdentity(const std::string& identity, EntityRecord& 
   //
   // We got multiple.  Find the best match
   //
-  Url a(identity.c_str());
-  UtlString ahp;
-  a.getHostWithPort(ahp);
   for (std::vector<EntityRecord>::iterator iter = matches.begin(); iter != matches.end(); iter++)
   {
+    Url a(identity.c_str());
     Url b(iter->identity().c_str());
-    UtlString bhp;
-    b.getHostWithPort(bhp);
-    if (ahp == bhp)
+
+    if (a.getHostPort() == b.getHostPort())
     {
       entity = *iter;
       OS_LOG_INFO(FAC_ODBC, "EntityDB::findByGatewayIdentity found gateway match " << entity.identity());
