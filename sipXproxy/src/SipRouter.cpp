@@ -994,6 +994,14 @@ void SipRouter::getDomain(UtlString& canonicalDomain) const
    canonicalDomain = mDomainName;
 }
 
+void SipRouter::ensureCanonicalDomain(Url& fromUrl) const
+{
+    if (mpSipUserAgent->isMyHostAlias(fromUrl))
+    {
+        fromUrl.setHostAddress(mDomainName);
+    }
+}
+
 // @returns true iff the authority in url is a valid form of the domain name for this proxy.
 bool SipRouter::isLocalDomain(const Url& url, ///< a url to be tested
                               bool bIncludeDomainAliases ///< also test for domain alias matches

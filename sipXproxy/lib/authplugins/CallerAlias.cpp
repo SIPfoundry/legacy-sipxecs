@@ -139,6 +139,7 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
              * Start with the From header field (someday we should use the Identity if present)
              */
             Url fromUrl(originalFromUrl);
+            mpSipRouter->ensureCanonicalDomain(fromUrl);
             fromUrl.removeParameters(); // parameters are not relevant for this 
          
             Url::Scheme fromUrlScheme = fromUrl.getScheme();
