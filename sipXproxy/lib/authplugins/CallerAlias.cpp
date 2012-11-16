@@ -415,7 +415,7 @@ bool CallerAlias::getCallerAlias (
           }
           else if (!userEntity.callerId().id.empty())
           {
-              callerAlias = gatewayEntity.callerId().id;
+              callerAlias = userEntity.callerId().id;
           }
       } 
 
