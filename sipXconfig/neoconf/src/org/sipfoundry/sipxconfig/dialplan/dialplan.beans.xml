@@ -18,7 +18,6 @@
         <value>freeswitchMediaServer</value>
       </list>
     </property>
-    <property name="jdbcTemplate" ref="configJdbcTemplate"/>
   </bean>
 
   <bean id="defaultInternalRule" class="org.sipfoundry.sipxconfig.dialplan.InternalRule" abstract="true">

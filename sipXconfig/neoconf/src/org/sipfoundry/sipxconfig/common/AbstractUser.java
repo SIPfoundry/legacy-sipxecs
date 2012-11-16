@@ -32,7 +32,6 @@ import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
-import org.sipfoundry.sipxconfig.dialplan.MediaServerFactory;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
@@ -97,7 +96,6 @@ public abstract class AbstractUser extends BeanWithGroups {
     private ForwardingContext m_fwdContext;
     private AddressManager m_addressManager;
     private MohAddressFactory m_mohAddresses;
-    private MediaServerFactory m_mediaFactory;
 
     private String m_firstName;
 
@@ -250,10 +248,6 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     public void setMohAddresses(MohAddressFactory mohAddresses) {
         m_mohAddresses = mohAddresses;
-    }
-
-    public void setMediaServerFactory(MediaServerFactory factory) {
-        m_mediaFactory = factory;
     }
 
     private List<String> getNumericAliases() {
@@ -662,10 +656,6 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     protected AddressManager getAddressManager() {
         return m_addressManager;
-    }
-
-    protected MediaServerFactory getMediaServerFactory() {
-        return m_mediaFactory;
     }
 
     public String getClearVoicemailPin() {

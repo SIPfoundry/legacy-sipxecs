@@ -24,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.dialplan.MediaServer;
 import org.sipfoundry.sipxconfig.forwarding.CallSequence;
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.im.ImAccount;
@@ -113,23 +112,18 @@ public class User extends AbstractUser implements Replicable {
             mappings.addAll(sequence.getAliasMappings(domainName));
         }
 
-        if (this.hasPermission(PermissionName.FREESWITH_VOICEMAIL)) {
+        if (this.hasPermission(PermissionName.EXCHANGE_VOICEMAIL)
+                || this.hasPermission(PermissionName.FREESWITH_VOICEMAIL)) {
+            // NOTE: Missing explaination why exchange needs direction connection to FS
             Address address = getAddressManager().getSingleAddress(Ivr.SIP_ADDRESS);
             if (address != null) {
-                mappings.add(getMediaMapping(SipUri.formatDepositVm(getUserName(), address.getAddress())));
-            }
-        } else if (this.hasPermission(PermissionName.EXCHANGE_VOICEMAIL)) {
-            MediaServer server = getMediaServerFactory().createExchangeServer();
-            if (server != null) {
-                mappings.add(getMediaMapping(server.buildVoicemailRetrieveUrl()));
+                String sipUri = SipUri.formatDepositVm(getUserName(), address.getAddress());
+                AliasMapping mapping = new AliasMapping("~~vm~" + getUserName(), sipUri, "vmprm");
+                mappings.add(mapping);
             }
         }
 
         return mappings;
-    }
-
-    public AliasMapping getMediaMapping(String sipUri) {
-        return new AliasMapping("~~vm~" + getUserName(), sipUri, "vmprm");
     }
 
     public void setValidUser(boolean vld) {
