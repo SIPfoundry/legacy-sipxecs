@@ -525,6 +525,11 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                                     "Failed to retrieve contact index %zu", index );
                    }
                 }
+
+                if (!contactList.getDiversionHeader().empty())
+                {
+                  response.addHeaderField(SIP_DIVERSION_FIELD, contactList.getDiversionHeader().c_str());
+                }
              }
              else
              {

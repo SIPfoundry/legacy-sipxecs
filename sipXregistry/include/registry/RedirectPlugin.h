@@ -12,6 +12,7 @@
 
 // SYSTEM INCLUDES
 #include <vector>
+#include <string>
 // APPLICATION INCLUDES
 #include "utl/Plugin.h"
 #include "os/OsStatus.h"
@@ -499,6 +500,8 @@ public:
    size_t entries( void ) const;
    ///@}
 
+   const std::string getDiversionHeader() const;
+   void setDiversionHeader(const std::string& diversion);
 private:
    ContactList( const UtlString& requestString /* for logging purposes */ );
 
@@ -508,12 +511,23 @@ private:
    UtlString               mRequestString;
    bool                    mbListWasModified;
    std::vector<UtlString>  mContactList;
+   std::string _diversion;
 
    friend class SipRedirectServer;
    friend class ContactListTest;
    friend class SipRedirectorTimeOfDayTest;
    friend class SipRedirectorPresenceRoutingTest;
 };
+
+inline const std::string ContactList::getDiversionHeader() const
+{
+  return _diversion;
+}
+
+inline void ContactList::setDiversionHeader(const std::string& diversion)
+{
+  _diversion = diversion;
+}
 
 /**
  * SipRedirectorPrivateStorage is a virtual class.  Instances of its

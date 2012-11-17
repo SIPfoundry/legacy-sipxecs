@@ -148,7 +148,19 @@ SipRedirectorFallback::lookUp(
          urlMappingRegistrations, 
          dummyMappingPermissions );
 #endif      
-      
+
+      if (method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase)==0)
+      {
+        //
+        // There is no reason for a fallback rule to process subscriptions.
+        // Since there is no provision in dialplans to specify a methodMatch
+        // rule, we can safely assume that dialplans refer to calls and thefore
+        // INVITES and not subscriptions.  Subscriptions are best routed in mapping rules.
+        //
+        return RedirectPlugin::SUCCESS;
+      }
+
+
       int numUrlMappingRegistrations = urlMappingRegistrations.getSize();
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "%s::lookUp got %d UrlMapping Contacts for %s @ location '%s'",

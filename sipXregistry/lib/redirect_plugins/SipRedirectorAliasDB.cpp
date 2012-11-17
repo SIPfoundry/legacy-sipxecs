@@ -11,6 +11,7 @@
 
 
 // APPLICATION INCLUDES
+#include <sstream>
 #include <utl/UtlRegex.h>
 #include "os/OsDateTime.h"
 #include "os/OsSysLog.h"
@@ -151,7 +152,7 @@ SipRedirectorAliasDB::lookUp(
          CredentialDB::getInstance()->isUriDefined(requestUri, realm, authType);
       SipXauthIdentity authIdentity;
       authIdentity.setIdentity(requestIdentity);
-
+      bool isSubscribe = method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase)==0;
       for (int i = 0; i < numAliasContacts; i++)
       {
          static UtlString contactKey("contact");
@@ -160,11 +161,12 @@ SipRedirectorAliasDB::lookUp(
          UtlHashMap record;
          if (aliases.getIndex(i, record))
          {
+            UtlString* relation = (UtlString*) record.findValue(&relationKey);
+            bool isUserForward = relation && relation->compareTo(ALIASDB_RELATION_USERFORWARD) == 0;
+
             // If disableForwarding and the relation value is "userforward",
             // do not record this contact.
-            if (!(disableForwarding &&
-                  ((UtlString*) record.findValue(&relationKey))->
-                     compareTo(ALIASDB_RELATION_USERFORWARD) == 0))
+            if (!(disableForwarding && isUserForward) && !(isSubscribe && isUserForward) )
             {
                UtlString contact = *((UtlString*) record.findValue(&contactKey));
                Url contactUri(contact);
@@ -194,6 +196,36 @@ SipRedirectorAliasDB::lookUp(
                  // Add the contact.
                  contactList.add( contactUri, *this );
                }
+
+                //
+                // Add a Diversion header for all deflections
+                //
+                UtlString stringUri;
+                message.getRequestUri(&stringUri);
+                // The requestUri is an addr-spec, not a name-addr.
+                Url diversionUri(stringUri, TRUE);
+                UtlString userId;
+                diversionUri.getUserId(userId);
+                UtlString host;
+                diversionUri.getHostWithPort(host);
+
+
+                if (contactList.getDiversionHeader().empty())
+                {
+                  std::ostringstream strm;
+                  strm << "<sip:";
+                  if (!userId.isNull())
+                    strm << userId.data() << "@";
+                  strm << host.data();
+                  strm << ">;reason=unconditional;relation=";
+                  if (relation)
+                    strm << relation->data();
+                  else
+                    strm << "unknown";
+                  UtlString diversion = strm.str().c_str();
+                  OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorAliasDB::lookUp inserting diversion from %s", diversion.data());
+                  contactList.setDiversionHeader(diversion.data());
+                }
             }
          }
       }

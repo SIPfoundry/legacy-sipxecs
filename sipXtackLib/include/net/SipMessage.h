@@ -73,6 +73,7 @@ class SipUserAgent;
 #define SIP_CONTENT_ENCODING_FIELD "CONTENT-ENCODING"
 #define SIP_SHORT_CONTENT_ENCODING_FIELD "E"
 #define SIP_CSEQ_FIELD "CSEQ"
+#define SIP_DIVERSION_FIELD "DIVERSION"
 #define SIP_EVENT_FIELD "EVENT"
 #define SIP_SHORT_EVENT_FIELD "O"
 #define SIP_EXPIRES_FIELD "EXPIRES"
@@ -1116,6 +1117,8 @@ public:
     void setRecordRouteField(const char* recordRouteField, int index);
 
     void addRecordRouteUri(const char* recordRouteUri);
+
+    void addDiversionUri(const char* diversion);
 
     // isClientMsgStrictRouted returns whether or not a message
     //    is set up such that it requires strict routing.

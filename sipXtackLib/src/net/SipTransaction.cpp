@@ -3053,6 +3053,9 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
                // no loop - go over the list of child addresses and create the new transactions
                UtlSListIterator nextChild(children);
                UtlString* contact;
+               bool hasInsertedDiversion = false;
+               const char* diversionHeader = mpLastFinalResponse->getHeaderValue(0, SIP_DIVERSION_FIELD);
+
                while ((contact = dynamic_cast<UtlString*>(nextChild())))
                {
                   Url contactUrl(*contact);
@@ -3061,6 +3064,15 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
                   // we have not already pursued this contact
                   if(!isUriRecursed(contactUrl))
                   {
+                    //
+                    // RFC 5806: Insert the diversion header if it is specified in the 3xx response
+                    //
+                    if (!hasInsertedDiversion && diversionHeader)
+                    {
+                      hasInsertedDiversion = true;
+                      mpRequest->addDiversionUri(diversionHeader);
+                    }
+
                      // will not be a server transaction
                      // will not be a ua transaction
                      childTransaction = new SipTransaction(mpRequest,

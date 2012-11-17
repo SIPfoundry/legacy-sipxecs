@@ -3816,6 +3816,15 @@ void SipMessage::addRecordRouteUri(const char* recordRouteUri)
     mNameValues.insertAt(UTL_NOT_FOUND == firstRR ? 0 : firstRR, rrHeader);
 }
 
+void SipMessage::addDiversionUri(const char* diversion)
+{
+    // Diversion is always added on the top
+    NameValuePair* dHeader = new NameValuePair(SIP_DIVERSION_FIELD, diversion);
+    mHeaderCacheClean = FALSE;
+    ssize_t first = mNameValues.index(dHeader);
+    mNameValues.insertAt(UTL_NOT_FOUND == first ? 0 : first, dHeader);
+}
+
 // isClientMsgStrictRouted returns whether or not a message
 //    is set up such that it requires strict routing.
 //    This is appropriate only when acting as a UAC
