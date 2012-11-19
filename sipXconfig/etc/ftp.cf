@@ -44,14 +44,35 @@ bundle agent ftp_config {
       "nortel_user" usebundle => verify_system_user("lvp2890", "28904all", "$(rootdir)");
 
   files:
-    "$(config)"
-      comment => "Update VSFTP config $(this.promiser)",
-      create => "true",
-      perms => m("600"),
-      edit_defaults => empty,
-      edit_line => vsftp_config,
-      classes => if_repaired("restart_vsftpd");
+    ftp::
+      "$(config)"
+        comment => "Update VSFTP config $(this.promiser)",
+        create => "true",
+        perms => m("600"),
+        edit_defaults => empty,
+        edit_line => vsftp_config,
+        classes => if_repaired("restart_vsftpd");
+
+      "/etc/ssh/sshd_config"
+        comment => "Restrict FTP users from ssh access",
+        create => "false",
+	perms => m("600"),
+	edit_line => ftp_sshd_config,
+	classes => if_repaired("reload_sshd");
+
+  commands:
+    reload_sshd::
+      # should work on all redhat distros and work if sshd is running or not
+      "/sbin/service"
+        comment => "Restart sshd for ftp settings",
+        args => "sshd reload";
 }
+
+bundle edit_line ftp_sshd_config {
+  insert_lines:
+    "DenyUsers PlcmSpIp lvp2890";
+}
+
 
 bundle edit_line vsftp_config {
   insert_lines:
