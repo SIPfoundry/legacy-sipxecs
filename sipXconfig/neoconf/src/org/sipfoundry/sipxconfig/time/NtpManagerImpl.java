@@ -16,12 +16,12 @@
  */
 package org.sipfoundry.sipxconfig.time;
 
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -59,7 +59,6 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class NtpManagerImpl implements NtpManager, ProcessProvider, FeatureProvider, SetupListener,
         FirewallProvider, AddressProvider {
-    private static final List<AddressType> ADDRESSES = Arrays.asList(NTP_SERVER);
     private static final Log LOG = LogFactory.getLog(NtpManagerImpl.class);
     private static final String CLOCK = "clock";
     private BeanWithSettingsDao<NtpSettings> m_settingsDao;
@@ -186,9 +185,6 @@ public class NtpManagerImpl implements NtpManager, ProcessProvider, FeatureProvi
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
-        if (!ADDRESSES.contains(type)) {
-            return null;
-        }
         if (type.equals(NTP_SERVER)) {
             List<String> ntpServers = getSettings().getNtpServers();
             List<Address> addresses = new ArrayList<Address>();
@@ -197,6 +193,10 @@ public class NtpManagerImpl implements NtpManager, ProcessProvider, FeatureProvi
                 addresses.add(address);
             }
             return addresses;
+        } else if (type.equals(NTP_ADDRESS)) {
+            if (manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
+                return Collections.singleton(new Address(NTP_ADDRESS, requester.getAddress()));
+            }
         }
         return null;
     }
