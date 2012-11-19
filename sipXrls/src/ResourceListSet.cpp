@@ -460,7 +460,7 @@ void ResourceListSet::subscriptionEventCallbackSync(
                  subscriptionState->data());
 
    // Serialize access to the ResourceListSet.
-   mutex_read_lock lock(_subscriptionMutex);
+   recursive_mutex_read_lock lock(_subscriptionMutex);
 
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::subscriptionEventCallbackSync after mutex_read_lock on semaphore");
@@ -581,7 +581,8 @@ void ResourceListSet::notifyEventCallbackSync(const UtlString* dialogHandle,
 void ResourceListSet::addSubscribeMapping(UtlString* earlyDialogHandle,
                                           UtlContainable* handler)
 {
-   mutex_write_lock lock(_subscriptionMutex);
+   recursive_mutex_write_lock lock(_subscriptionMutex);
+
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::addSubscribeMapping this = %p, earlyDialogHandle = '%s', handler = %p",
                  this, earlyDialogHandle->data(), handler);
@@ -593,7 +594,8 @@ void ResourceListSet::addSubscribeMapping(UtlString* earlyDialogHandle,
  */
 void ResourceListSet::deleteSubscribeMapping(UtlString* earlyDialogHandle)
 {
-   mutex_write_lock lock(_subscriptionMutex);
+   recursive_mutex_write_lock lock(_subscriptionMutex);
+
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::deleteSubscribeMapping this = %p, earlyDialogHandle = '%s'",
                  this, earlyDialogHandle->data());

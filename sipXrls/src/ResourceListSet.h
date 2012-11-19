@@ -63,6 +63,10 @@ class ResourceListSet : public UtlContainableAtomic
    typedef boost::shared_lock<boost::shared_mutex> mutex_read_lock;
    typedef boost::lock_guard<boost::shared_mutex> mutex_write_lock;
 
+   typedef boost::recursive_mutex recursive_mutex_read_write;
+   typedef boost::lock_guard<boost::recursive_mutex> recursive_mutex_read_lock;
+   typedef boost::lock_guard<boost::recursive_mutex> recursive_mutex_write_lock;
+
    // Enum to differentiate NOTIFY messages.
    // Max value must be less than sSeqNoIncrement.
    enum notifyCodes
@@ -471,7 +475,7 @@ class ResourceListSet : public UtlContainableAtomic
    /** Reader/writer lock for synchronization of the Subscritions and its
     *  contained Resources.
     */
-   mutable mutex_read_write _subscriptionMutex;
+   mutable recursive_mutex_read_write _subscriptionMutex;
 
    /** Reader/writer lock for synchronization of the Notifies and its
     *  contained Resources.
