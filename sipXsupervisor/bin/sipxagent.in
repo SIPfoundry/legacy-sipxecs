@@ -13,6 +13,13 @@ $logfile = '@SIPX_LOGDIR@/sipxagent.log'
 # global vars
 $args = Array.new(ARGV)
 
+# maximum time for *remote* cf-runagent run before giving up. Longer operations
+# tend to be initializing mongo for first time and snapshot management.
+# This is not relevant to local calls to cf-agent which does not appear to require
+# a overall command timeout. (not to be confused with timeouts define in individual
+# cfengine promises, this has nothing to do with that)
+$timeout = 300
+
 def cmd(verbose, cmd)
   puts cmd if verbose
   return system(cmd)
@@ -42,7 +49,7 @@ def run(verbose, is_remote, is_raw, hosts, defines, undefines, bundles)
     vstr = (verbose ? '-v' : '')
     analyzer = (is_raw ? '' : "| #{$bindir}/sipxagent-log-reader #{vstr}")
     if (is_remote || Process.uid != 0)
-      ok = cmd(verbose, "/usr/sbin/cf-runagent -v #{hstr} -f #{$cfinputs}/sipxagent.cf -o \"#{agentstr} -K\" | tee -a #{$logfile} #{analyzer}")
+      ok = cmd(verbose, "/usr/sbin/cf-runagent -t #{$timeout} -v #{hstr} -f #{$cfinputs}/sipxagent.cf -o \"#{agentstr} -K\" | tee -a #{$logfile} #{analyzer}")
     else 
       # Short-cut - If you're root and you're not remote, do not bother going thru 
       # sipxsupervisor.  This is handy if supervisor is dead or in the very initial
