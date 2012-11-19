@@ -141,6 +141,9 @@ class SipRouter : public OsServerTask
        UtlString& passtoken,
        UtlString& authType
                               ) const;
+
+   /// If the fromUrl uses domain alias, change to original domain as identities are stored in credential database using mDomainName.
+   void ensureCanonicalDomain(Url& url) const;
    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
