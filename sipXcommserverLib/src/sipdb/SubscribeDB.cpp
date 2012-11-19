@@ -83,6 +83,8 @@ void SubscribeDB::upsert (
     conn->ensureIndex("node.subscription",  BSON( "key" << 1 ));
     conn->ensureIndex("node.subscription",  BSON( "toUri" << 1 ));
     conn.done();
+
+    removeAllExpired();
 }
 
 //delete methods - delete a subscription session
@@ -169,7 +171,7 @@ void SubscribeDB::getUnexpiredSubscriptions (
     const int& timeNow,
     Subscriptions& subscriptions)
 {
-    removeExpired(component, timeNow);
+    removeAllExpired();
     //query="key=",key,"and eventtypekey=",eventTypeKey;
      mongo::BSONObj query = BSON(
         Subscription::key_fld() << key.str() <<
@@ -189,6 +191,8 @@ void SubscribeDB::getUnexpiredContactsFieldsContaining(
     const int& timeNow,
     std::vector<string>& matchingContactFields ) const
 {
+    removeAllExpired();
+
     mongo::BSONObj query = BSON(Subscription::expires_fld() << BSON_GREATER_THAN(timeNow));
 
     mongo::ScopedDbConnection conn(_info.getConnectionString());

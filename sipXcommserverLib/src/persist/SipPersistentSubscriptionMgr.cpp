@@ -355,7 +355,7 @@ void SipPersistentSubscriptionMgr::removeOldSubscriptions(long oldEpochTimeSecon
    SipSubscriptionMgr::removeOldSubscriptions(oldEpochTimeSeconds);
 
    // Update the IMDB.
-   mDB.removeExpired(mComponent, oldEpochTimeSeconds);
+   mDB.removeAllExpired();
 }
 
 // Set stored value for the next NOTIFY CSeq.
