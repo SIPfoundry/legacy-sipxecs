@@ -196,6 +196,34 @@ SipRedirectorAliasDB::lookUp(
                  // Add the contact.
                  contactList.add( contactUri, *this );
                }
+
+
+                if (contactList.getDiversionHeader().empty())
+                {
+                  //
+                  // Add a Diversion header for all deflections
+                  //
+                  UtlString stringUri;
+                  message.getRequestUri(&stringUri);
+                  // The requestUri is an addr-spec, not a name-addr.
+                  Url diversionUri(stringUri, TRUE);
+                  UtlString userId;
+                  diversionUri.getUserId(userId);
+                  UtlString host;
+                  diversionUri.getHostWithPort(host);
+
+
+                  std::ostringstream strm;
+                  strm << "<sip:";
+                  if (!userId.isNull())
+                    strm << userId.data() << "@";
+                  strm << host.data();
+                  strm << ">;reason=unconditional;relation=" << iter->relation;
+                  UtlString diversion = strm.str().c_str();
+                  OS_LOG_INFO(FAC_SIP, "SipRedirectorAliasDB::lookUp inserting diversion from " << diversion.data());
+                  contactList.setDiversionHeader(diversion.data());
+                }
+
             }
       }
    }

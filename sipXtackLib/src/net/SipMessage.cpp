@@ -5598,3 +5598,12 @@ void SipMessage::setReasonField(const char* reasonString)
 {
     setHeaderValue(SIP_REASON_FIELD, reasonString);
 }
+
+void SipMessage::addDiversionUri(const char* diversion)
+{
+    // Diversion is always added on the top
+    NameValuePair* dHeader = new NameValuePair(SIP_DIVERSION_FIELD, diversion);
+    mHeaderCacheClean = FALSE;
+    ssize_t first = mNameValues.index(dHeader);
+    mNameValues.insertAt(UTL_NOT_FOUND == first ? 0 : first, dHeader);
+}

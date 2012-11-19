@@ -509,7 +509,6 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                 // add contacts collected in the contactList to the response
                 size_t index;
                 size_t numEntries = contactList.entries();
-
                 for( index = 0; index < numEntries; index++ )
                 {
                    UtlString contactString;
@@ -524,6 +523,12 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                                     "Failed to retrieve contact index %zu", index );
                    }
                 }
+
+                if (!contactList.getDiversionHeader().empty())
+                {
+                  response.addHeaderField(SIP_DIVERSION_FIELD, contactList.getDiversionHeader().c_str());
+                }
+
              }
              else
              {
