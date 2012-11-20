@@ -61,7 +61,19 @@ public enum Index {
     TWITTER_NAME("userProfile.twiterName", 40),
     LINKEDIN_NAME("userProfile.linkedinName", 41),
     FACEBOOK_NAME("userProfile.facebookName", 42),
-    XING_NAME("userProfile.xingName", 43);
+    XING_NAME("userProfile.xingName", 43),
+    // voice mail settings
+    ACTIVE_GREETING("activeGreeting", 44),
+    PRIMARY_EMAIL_NOTIFICATION("primaryEmailNotification", 45),
+    PRIMARY_EMAIL_FORMAT("primaryEmailFormat", 46),
+    PRIMARY_EMAIL_ATTACH_AUDIO("primaryEmailAttachAudio", 47),
+    ALT_EMAIL_NOTIFICATION("alternateEmailNotification", 48),
+    ALT_EMAIL_FORMAT("alternateEmailFormat", 49),
+    ALT_EMAIL_ATTACH_AUDIO("alternateEmailAttachAudio", 50),
+    VOICEMAIL_SERVER("voicemailServer", 51),
+    // user caller alias
+    EXTERNAL_NUMBER("externalNumber", 52),
+    ANONYMOUS_CALLER_ALIAS("anonymousCallerAlias", 53);
 
     private final String m_name;
     private final int m_value;
@@ -130,15 +142,16 @@ public enum Index {
 
     public static String[] labels() {
         return new String[] {
-            "User name", "PIN", "Voicemail PIN", "SIP password", "First name", "Last name",
-            "User alias", "EMail address", "User group", "Phone serial number", "Phone model",
-            "Phone group", "Phone description", "Im Id", "Salutation", "Manager", "EmployeeId",
-            "Job Title", "Job department",
-            "Company name", "Assistant name", "Cell phone number", "Home phone number",
-            "Assistant phone number", "Fax number", "Did number", "Alternate email", "Alternate im",
-            "Location", "Home street", "Home city", "Home state", "Home country", "Home zip",
-            "Office street", "Office city", "Office state", "Office country", "Office zip", "Office mail stop",
-            "Twitter", "Linkedin", "Facebook", "Xing"
+            "User name", "PIN", "Voicemail PIN", "SIP password", "First name", "Last name", "User alias",
+            "EMail address", "User group", "Phone serial number", "Phone model", "Phone group", "Phone description",
+            "Im Id", "Salutation", "Manager", "EmployeeId", "Job Title", "Job department", "Company name",
+            "Assistant name", "Cell phone number", "Home phone number", "Assistant phone number", "Fax number",
+            "Did number", "Alternate email", "Alternate im", "Location", "Home street", "Home city", "Home state",
+            "Home country", "Home zip", "Office street", "Office city", "Office state", "Office country",
+            "Office zip", "Office mail stop", "Twitter", "Linkedin", "Facebook", "Xing", "Active greeting",
+            "Email voicemail notification", "Email format", "Email attach audio",
+            "Alternate email voicemail notification", "Alternate email format", "Alternate email attach audio",
+            "Internal Voicemail Server", "Caller ID", "Block Caller ID"
         };
     }
 }

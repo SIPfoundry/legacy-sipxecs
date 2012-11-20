@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.GroupAutoAssign;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
+import org.springframework.beans.factory.annotation.Required;
 
 public class CsvRowInserter extends RowInserter<String[]> {
 
@@ -51,26 +52,32 @@ public class CsvRowInserter extends RowInserter<String[]> {
 
     private MailboxManager m_mailboxManager;
 
+    @Required
     public void setMailboxManager(MailboxManager mailboxManager) {
         m_mailboxManager = mailboxManager;
     }
 
+    @Required
     public void setPhoneModelSource(ModelSource<PhoneModel> modelSource) {
         m_modelSource = modelSource;
     }
 
+    @Required
     public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
         m_conferenceBridgeContext = conferenceBridgeContext;
     }
 
+    @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
 
+    @Required
     public void setForwardingContext(ForwardingContext forwardingContext) {
         m_forwardingContext = forwardingContext;
     }
 
+    @Required
     public void setPhoneContext(PhoneContext phoneContext) {
         m_phoneContext = phoneContext;
     }
@@ -190,6 +197,17 @@ public class CsvRowInserter extends RowInserter<String[]> {
         Index.LINKEDIN_NAME.setProperty(user, row);
         Index.FACEBOOK_NAME.setProperty(user, row);
         Index.XING_NAME.setProperty(user, row);
+        Index.ACTIVE_GREETING.setProperty(user, row);
+        Index.PRIMARY_EMAIL_NOTIFICATION.setProperty(user, row);
+        Index.PRIMARY_EMAIL_FORMAT.setProperty(user, row);
+        Index.PRIMARY_EMAIL_ATTACH_AUDIO.setProperty(user, row);
+        Index.ALT_EMAIL_NOTIFICATION.setProperty(user, row);
+        Index.ALT_EMAIL_FORMAT.setProperty(user, row);
+        Index.ALT_EMAIL_ATTACH_AUDIO.setProperty(user, row);
+        Index.VOICEMAIL_SERVER.setProperty(user, row);
+        Index.EXTERNAL_NUMBER.setProperty(user, row);
+        Index.ANONYMOUS_CALLER_ALIAS.setProperty(user, row);
+
         return user;
     }
 
@@ -253,7 +271,6 @@ public class CsvRowInserter extends RowInserter<String[]> {
             addLine(phone, user);
             m_phoneContext.storePhone(phone);
         }
-
     }
 
     void updateMailbox(User user, boolean newMailbox) {
@@ -264,7 +281,6 @@ public class CsvRowInserter extends RowInserter<String[]> {
         if (newMailbox) {
             m_mailboxManager.deleteMailbox(userName);
         }
-
     }
 
     Line addLine(Phone phone, User user) {
@@ -302,5 +318,4 @@ public class CsvRowInserter extends RowInserter<String[]> {
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
     }
-
 }

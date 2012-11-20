@@ -22,9 +22,12 @@ import org.sipfoundry.commons.userdb.profile.Address;
 import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserCallerAliasInfo;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
+import org.springframework.beans.factory.annotation.Required;
 
 public class ExportCsv {
     private static final int DEFAULT_PAGE_SIZE = 250;
@@ -33,10 +36,12 @@ public class ExportCsv {
 
     private PhoneContext m_phoneContext;
 
+    @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
 
+    @Required
     public void setPhoneContext(PhoneContext phoneContext) {
         m_phoneContext = phoneContext;
     }
@@ -161,6 +166,25 @@ public class ExportCsv {
             Index.FACEBOOK_NAME.set(row, profile.getFacebookName());
             Index.XING_NAME.set(row, profile.getXingName());
         }
+
+        // voice mail settings
+        MailboxPreferences mailboxPreferences = new MailboxPreferences(user);
+        Index.ACTIVE_GREETING.set(row, mailboxPreferences.getActiveGreeting().getId());
+        Index.PRIMARY_EMAIL_NOTIFICATION.set(row, mailboxPreferences.getAttachVoicemailToEmail().getValue());
+        Index.PRIMARY_EMAIL_FORMAT.set(row, mailboxPreferences.getEmailFormat().name());
+        Index.PRIMARY_EMAIL_ATTACH_AUDIO.set(row, String.valueOf(mailboxPreferences.isIncludeAudioAttachment()));
+        Index.ALT_EMAIL_NOTIFICATION.set(row, mailboxPreferences.getVoicemailToAlternateEmailNotification()
+                .getValue());
+        Index.ALT_EMAIL_FORMAT.set(row, mailboxPreferences.getAlternateEmailFormat().name());
+        Index.ALT_EMAIL_ATTACH_AUDIO.set(row,
+                String.valueOf(mailboxPreferences.isIncludeAudioAttachmentAlternateEmail()));
+        Index.VOICEMAIL_SERVER.set(row, String.valueOf(user.getVoicemailServer()));
+
+        // user caller alias
+        UserCallerAliasInfo callerAlias = new UserCallerAliasInfo(user);
+        Index.EXTERNAL_NUMBER.set(row, callerAlias.getExternalNumber());
+        Index.ANONYMOUS_CALLER_ALIAS.set(row, String.valueOf(callerAlias.isAnonymous()));
+
         csv.write(row);
     }
 
