@@ -65,7 +65,7 @@ void SipPersistentSubscriptionMgr::initialize(OsMsgQ* pMsgQ)
    {
       Subscription& row = *iter;
 
-      if (row.key() == mComponent.str() && row.expires() - now >= 0)
+      if (row.component() == mComponent.str() && row.expires() - now >= 0)
       {
          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipPersistentSubscriptionMgr:: "
