@@ -12,10 +12,21 @@ import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang.StringUtils.lowerCase;
 import static org.apache.commons.lang.StringUtils.split;
 import static org.apache.commons.lang.StringUtils.trim;
 import static org.apache.commons.lang.StringUtils.trimToNull;
-import static org.apache.commons.lang.StringUtils.lowerCase;
+import static org.sipfoundry.sipxconfig.common.UserCallerAliasInfo.ANONYMOUS_CALLER_ALIAS;
+import static org.sipfoundry.sipxconfig.common.UserCallerAliasInfo.EXTERNAL_NUMBER;
+import static org.sipfoundry.sipxconfig.permission.PermissionName.EXCHANGE_VOICEMAIL;
+import static org.sipfoundry.sipxconfig.permission.PermissionName.FREESWITH_VOICEMAIL;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.ACTIVE_GREETING;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.ALT_EMAIL_ATTACH_AUDIO;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.ALT_EMAIL_FORMAT;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.ALT_EMAIL_NOTIFICATION;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.PRIMARY_EMAIL_ATTACH_AUDIO;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.PRIMARY_EMAIL_FORMAT;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.PRIMARY_EMAIL_NOTIFICATION;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -69,7 +80,6 @@ public abstract class AbstractUser extends BeanWithGroups {
     public static final String CALLFWD_TIMER = "callfwd/timer";
     public static final String OPERATOR_SETTING = "personal-attendant/operator";
     public static final String DEFAULT_VM_OPTION = "personal-attendant/default-vm-option";
-
 
     public static enum MohAudioSource {
         FILES_SRC, PERSONAL_FILES_SRC, SOUNDCARD_SRC, SYSTEM_DEFAULT, NONE;
@@ -455,6 +465,107 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     private Setting retrieveSettingForPermission(Permission permission) {
         return retrieveSettingForSettingPath(permission.getSettingPath(), permission.getName());
+    }
+
+    public String getActiveGreeting() {
+        Setting setting = null == getSettings() ? null : getSettings().getSetting(ACTIVE_GREETING);
+        return null == setting ? EMPTY_STRING : (setting.getTypedValue() == null ? EMPTY_STRING : setting
+                .getTypedValue().toString());
+    }
+
+    public void setActiveGreeting(String activeGreeting) {
+        setSettingValue(ACTIVE_GREETING, activeGreeting);
+    }
+
+    public String getPrimaryEmailNotification() {
+        Setting setting = null == getSettings() ? null : getSettings().getSetting(PRIMARY_EMAIL_NOTIFICATION);
+        return null == setting ? EMPTY_STRING : (setting.getTypedValue() == null ? EMPTY_STRING : setting
+                .getTypedValue().toString());
+    }
+
+    public void setPrimaryEmailNotification(String emailNotification) {
+        setSettingValue(PRIMARY_EMAIL_NOTIFICATION, emailNotification);
+    }
+
+    public String getPrimaryEmailFormat() {
+        Setting setting = null == getSettings() ? null : getSettings().getSetting(PRIMARY_EMAIL_FORMAT);
+        return null == setting ? EMPTY_STRING : (setting.getTypedValue() == null ? EMPTY_STRING : (String) setting
+                .getTypedValue());
+    }
+
+    public void setPrimaryEmailFormat(String emailFormat) {
+        setSettingValue(PRIMARY_EMAIL_FORMAT, emailFormat);
+    }
+
+    public Boolean isPrimaryEmailAttachAudio() {
+        Setting setting = null == getSettings() ? null : getSettings().getSetting(PRIMARY_EMAIL_ATTACH_AUDIO);
+        return null == setting ? Boolean.valueOf(EMPTY_STRING) : (setting.getTypedValue() == null ? Boolean
+                .valueOf(EMPTY_STRING) : (Boolean) setting.getTypedValue());
+    }
+
+    public void setPrimaryEmailAttachAudio(Boolean emailAttachAudio) {
+        setSettingTypedValue(PRIMARY_EMAIL_ATTACH_AUDIO, emailAttachAudio);
+    }
+
+    public String getAlternateEmailNotification() {
+        Setting setting = null == getSettings() ? null : getSettings().getSetting(ALT_EMAIL_NOTIFICATION);
+        return null == setting ? EMPTY_STRING : (setting.getTypedValue() == null ? EMPTY_STRING : setting
+                .getTypedValue().toString());
+    }
+
+    public void setAlternateEmailNotification(String alternateEmailNotification) {
+        setSettingValue(ALT_EMAIL_NOTIFICATION, alternateEmailNotification);
+    }
+
+    public String getAlternateEmailFormat() {
+        Setting setting = null == getSettings() ? null : getSettings().getSetting(ALT_EMAIL_FORMAT);
+        return null == setting ? EMPTY_STRING : (setting.getTypedValue() == null ? EMPTY_STRING : (String) setting
+                .getTypedValue());
+    }
+
+    public void setAlternateEmailFormat(String alternateEmailFormat) {
+        setSettingValue(ALT_EMAIL_FORMAT, alternateEmailFormat);
+    }
+
+    public Boolean isAlternateEmailAttachAudio() {
+        Setting setting = null == getSettings() ? null : getSettings().getSetting(ALT_EMAIL_ATTACH_AUDIO);
+        return null == setting ? Boolean.valueOf(EMPTY_STRING) : (setting.getTypedValue() == null ? Boolean
+                .valueOf(EMPTY_STRING) : (Boolean) setting.getTypedValue());
+    }
+
+    public void setAlternateEmailAttachAudio(Boolean alternateEmailAttachAudio) {
+        setSettingTypedValue(ALT_EMAIL_ATTACH_AUDIO, alternateEmailAttachAudio);
+    }
+
+    public Boolean getVoicemailServer() {
+        Setting setting = null == getSettings() ? null : getSettings().getSetting(FREESWITH_VOICEMAIL.getPath());
+        return null == setting ? Boolean.valueOf(EMPTY_STRING) : (setting.getTypedValue() == null ? Boolean
+                .valueOf(EMPTY_STRING) : (Boolean) setting.getTypedValue());
+    }
+
+    public void setVoicemailServer(Boolean voicemailServer) {
+        setSettingTypedValue(FREESWITH_VOICEMAIL.getPath(), voicemailServer);
+        setSettingTypedValue(EXCHANGE_VOICEMAIL.getPath(), !voicemailServer);
+    }
+
+    public String getExternalNumber() {
+        Setting setting = null == getSettings() ? null : getSettings().getSetting(EXTERNAL_NUMBER);
+        return null == setting ? EMPTY_STRING : (setting.getTypedValue() == null ? EMPTY_STRING : (String) setting
+                .getTypedValue());
+    }
+
+    public void setExternalNumber(String externalNumber) {
+        setSettingValue(EXTERNAL_NUMBER, externalNumber);
+    }
+
+    public Boolean isAnonymousCallerAlias() {
+        Setting setting = null == getSettings() ? null : getSettings().getSetting(ANONYMOUS_CALLER_ALIAS);
+        return null == setting ? Boolean.valueOf(EMPTY_STRING) : (setting.getTypedValue() == null ? Boolean
+                .valueOf(EMPTY_STRING) : (Boolean) setting.getTypedValue());
+    }
+
+    public void setAnonymousCallerAlias(Boolean anonymous) {
+        setSettingTypedValue(ANONYMOUS_CALLER_ALIAS, anonymous);
     }
 
     public String getFaxExtension() {
