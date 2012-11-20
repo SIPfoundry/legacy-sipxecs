@@ -3570,4 +3570,108 @@
         <value></value>
       </setting>
     </group>
+    <group name="bg" hidden="yes" if="polycomVVX500||polycom550||polycom560||polycom650||polycom670||polycom450||polycomVVX1500">
+      <setting name="bg.color.selection" if="polycomVVX500">
+        <type>
+		  <string />
+		</type>
+        <value>2,1</value>        
+      </setting>
+      <setting name="bg.color.bm.1.em.name" if="polycomVVX500">
+        <type>
+		  <string />
+		</type>
+        <value>ezLogo320x240.jpg</value>        
+      </setting>
+      <setting name="bg.color.bm.1.name" if="polycomVVX500">
+        <type>
+		  <string />
+		</type>
+        <value>ezLogo320x240.jpg</value>        
+      </setting>
+      <setting name="bg.hiRes.gray.selection" if="polycom550||polycom560||polycom650">
+        <type>
+		  <string />
+		</type>
+        <value>3,1</value>
+      </setting>
+      <setting name="bg.hiRes.gray.bm.1.em.name" if="polycom550||polycom560||polycom650">
+        <type>
+		  <string />
+		</type>
+        <value>ezLogo320x160.jpg</value>        
+      </setting>
+      <setting name="bg.hiRes.gray.bm.1.name" if="polycom550||polycom560||polycom650">
+        <type>
+		  <string />
+		</type>
+        <value>ezLogo320x160.jpg</value>        
+      </setting>
+      <setting name="bg.hiRes.gray.bm.1.adj" if="polycom550||polycom560||polycom650">
+        <type>
+		  <string />
+		</type>
+        <value>-6</value>        
+      </setting>
+      <setting name="bg.hiRes.color.selection" if="polycom670">
+        <type>
+		  <string />
+		</type>
+        <value>3,1</value>
+      </setting>
+      <setting name="bg.hiRes.color.bm.1.em.name" if="polycom670">
+        <type>
+		  <string />
+		</type>
+        <value>ezLogo320x160.jpg</value>        
+      </setting>
+      <setting name="bg.hiRes.color.bm.1.name" if="polycom670">
+        <type>
+		  <string />
+		</type>
+        <value>ezLogo320x160.jpg</value>        
+      </setting>
+      <setting name="bg.medRes.gray.selection" if="polycom450">
+        <type>
+		  <string />
+		</type>
+        <value>3,1</value>
+      </setting>
+      <setting name="bg.medRes.gray.bm.1.em.name" if="polycom450">
+        <type>
+		  <string />
+		</type>
+        <value>ezLogo250x116.jpg</value>        
+      </setting>
+      <setting name="bg.medRes.gray.bm.1.name" if="polycom450">
+        <type>
+		  <string />
+		</type>
+        <value>ezLogo250x116.jpg</value>        
+      </setting>
+      <setting name="bg.medRes.gray.bm.1.adj" if="polycom450">
+        <type>
+		  <string />
+		</type>
+        <value>-6</value>        
+      </setting>
+      <setting name="bg.hiRes.color.selection" if="polycomVVX1500">
+        <type>
+		  <string />
+		</type>
+        <value>3,1</value>
+      </setting>
+      <setting name="bg.hiRes.color.bm.1.em.name" if="polycomVVX1500">
+        <type>
+		  <string />
+		</type>
+        <value>ezLogo800x480.jpg</value>        
+      </setting>
+      <setting name="bg.hiRes.color.bm.1.name" if="polycomVVX1500">
+        <type>
+		  <string />
+		</type>
+        <value>ezLogo800x480.jpg</value>        
+      </setting>
+    </group>
 </model>
