@@ -16,13 +16,7 @@ import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_HOST;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_PASSWORD;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_PORT;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_TLS;
-import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.PRIMARY_EMAIL_NOTIFICATION;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.VOICEMAIL_TUI;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.io.StringWriter;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.sipfoundry.sipxconfig.common.User;
@@ -48,28 +42,44 @@ public class MailboxPreferencesTest extends XMLTestCase {
         user.setAlternateEmailAddress("second@example.com");
         user.setSettingValue(IMAP_HOST, "imap.host.exampl.com");
         user.setSettingValue(IMAP_PASSWORD, "4321");
+        user.setPrimaryEmailNotification(MailboxPreferences.AttachType.YES.getValue());
+        user.setPrimaryEmailFormat(MailboxPreferences.MailFormat.MEDIUM.name());
+        user.setPrimaryEmailAttachAudio(true);
+        user.setAlternateEmailNotification(MailboxPreferences.AttachType.NO.getValue());
+        user.setAlternateEmailFormat(MailboxPreferences.MailFormat.FULL.name());
+        user.setAlternateEmailAttachAudio(false);
 
         MailboxPreferences mailboxPrefs = new MailboxPreferences(user);
 
         assertEquals("first@example.com", mailboxPrefs.getEmailAddress());
         assertEquals("second@example.com", mailboxPrefs.getAlternateEmailAddress());
-        assertEquals(MailboxPreferences.AttachType.NO, mailboxPrefs.getAttachVoicemailToEmail());
         assertEquals("imap.host.exampl.com", mailboxPrefs.getImapHost());
         assertEquals("143", mailboxPrefs.getImapPort());
         assertFalse(mailboxPrefs.getImapTLS());
         assertEquals("4321", mailboxPrefs.getImapPassword());
+        assertEquals(MailboxPreferences.AttachType.YES, mailboxPrefs.getAttachVoicemailToEmail());
+        assertEquals(MailboxPreferences.MailFormat.MEDIUM, mailboxPrefs.getEmailFormat());
+        assertEquals(true, mailboxPrefs.isIncludeAudioAttachment());
+        assertEquals(MailboxPreferences.AttachType.NO, mailboxPrefs.getVoicemailToAlternateEmailNotification());
+        assertEquals(MailboxPreferences.MailFormat.FULL, mailboxPrefs.getAlternateEmailFormat());
+        assertEquals(false, mailboxPrefs.isIncludeAudioAttachmentAlternateEmail());
     }
 
     public void testUpdateUser() {
         MailboxPreferences mailboxPrefs = new MailboxPreferences();
         mailboxPrefs.setEmailAddress("first@example.com");
         mailboxPrefs.setAlternateEmailAddress("second@example.com");
-        mailboxPrefs.setAttachVoicemailToEmail(MailboxPreferences.AttachType.NO);
         mailboxPrefs.setImapHost("imap.host.exampl.com");
         mailboxPrefs.setImapPort("143");
         mailboxPrefs.setImapTLS(true);
         mailboxPrefs.setImapPassword("4321");
         mailboxPrefs.setActiveGreeting(ActiveGreeting.EXTENDED_ABSENCE);
+        mailboxPrefs.setAttachVoicemailToEmail(MailboxPreferences.AttachType.YES);
+        mailboxPrefs.setEmailFormat(MailboxPreferences.MailFormat.MEDIUM);
+        mailboxPrefs.setIncludeAudioAttachment(true);
+        mailboxPrefs.setVoicemailToAlternateEmailNotification(MailboxPreferences.AttachType.NO);
+        mailboxPrefs.setAlternateEmailFormat(MailboxPreferences.MailFormat.FULL);
+        mailboxPrefs.setIncludeAudioAttachmentAlternateEmail(false);
 
         PermissionManagerImpl pm = new PermissionManagerImpl();
         pm.setModelFilesContext(TestHelper.getModelFilesContext());
@@ -79,12 +89,17 @@ public class MailboxPreferencesTest extends XMLTestCase {
 
         assertEquals("first@example.com", user.getEmailAddress());
         assertEquals("second@example.com", user.getAlternateEmailAddress());
-        assertEquals(MailboxPreferences.AttachType.NO.getValue(), user.getSettingValue(PRIMARY_EMAIL_NOTIFICATION));
         assertEquals("imap.host.exampl.com", user.getSettingValue(IMAP_HOST));
         assertEquals("143", user.getSettingValue(IMAP_PORT));
         assertTrue((Boolean) user.getSettingTypedValue(IMAP_TLS));
         assertEquals("4321", user.getSettingValue(IMAP_PASSWORD));
         assertEquals(ActiveGreeting.EXTENDED_ABSENCE.getId(), user.getSettingValue(ACTIVE_GREETING));
+        assertEquals(MailboxPreferences.AttachType.YES.getValue(), user.getPrimaryEmailNotification());
+        assertEquals(MailboxPreferences.MailFormat.MEDIUM.name(), user.getPrimaryEmailFormat());
+        assertEquals(new Boolean(true), user.isPrimaryEmailAttachAudio());
+        assertEquals(MailboxPreferences.AttachType.NO.getValue(), user.getAlternateEmailNotification());
+        assertEquals(MailboxPreferences.MailFormat.FULL.name(), user.getAlternateEmailFormat());
+        assertEquals(new Boolean(false), user.isAlternateEmailAttachAudio());
     }
 
     public void testUserTui() {
