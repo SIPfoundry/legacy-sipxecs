@@ -51,7 +51,7 @@ public:
     Subscription& operator=(const Subscription& subscription);
     Subscription& operator=(const mongo::BSONObj& bson);
     void swap(Subscription& subscription);
-    std::string& oid();
+    mongo::OID&  oid();
     std::string& component();
     std::string& uri();
     std::string& callId();
@@ -92,7 +92,7 @@ public:
     static const char* expires_fld();
 
 private:
-    std::string _oid;
+    mongo::OID  _oid;
     std::string _component;
     std::string _uri;
     std::string _callId;
@@ -110,13 +110,15 @@ private:
     unsigned int _subscribeCseq;
     unsigned int _version;              // Version no inside generated XML.
     unsigned int _expires; // Absolute expiration time secs since 1/1/1970
+
+    void swap_mongo_oid(mongo::OID& oid_src, mongo::OID& oid_dest);
 };
 
 //
 // Inlines
 //
 
-inline std::string& Subscription::oid()
+inline mongo::OID& Subscription::oid()
 {
     return _oid;
 }

@@ -15,6 +15,7 @@
 
 #include "sipdb/Subscription.h"
 
+using namespace std;
 
 const char* Subscription::oid_fld(){ static std::string fld = "_id"; return fld.c_str(); }
 const char* Subscription::component_fld(){ static std::string fld = "component"; return fld.c_str(); }
@@ -118,7 +119,12 @@ Subscription& Subscription::operator=(const Subscription& subscription)
 
 Subscription& Subscription::operator=(const mongo::BSONObj& bsonObj)
 {
-	_oid = bsonObj.getStringField(Subscription::oid_fld());
+    //For Subscription DB object id is of type mongo::OID and not a std::string
+    mongo::BSONElement _id_field;
+    if (true == bsonObj.getObjectID(_id_field))
+    {
+		_id_field.Val(_oid);
+    }
 
 	if (bsonObj.hasField(Subscription::component_fld()))
 		_component = bsonObj.getStringField(Subscription::component_fld());
@@ -174,9 +180,18 @@ Subscription& Subscription::operator=(const mongo::BSONObj& bsonObj)
     return *this;
 }
 
+void Subscription::swap_mongo_oid(mongo::OID& oid_src, mongo::OID& oid_dest)
+{
+    string oid_src_str = oid_src.str();
+    string oid_dest_str = oid_dest.str();
+
+    oid_src.init(oid_dest_str);
+    oid_dest.init(oid_src_str);
+}
+
 void Subscription::swap(Subscription& subscription)
 {
-    std::swap(_oid, subscription._oid);
+    swap_mongo_oid(_oid, subscription._oid);
     std::swap(_component, subscription._component);
     std::swap(_uri, subscription._uri);
     std::swap(_callId, subscription._callId);
