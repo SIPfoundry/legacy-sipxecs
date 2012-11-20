@@ -161,13 +161,14 @@ SipRedirectorAliasDB::lookUp(
 
       SipXauthIdentity authIdentity;
       authIdentity.setIdentity(requestIdentity);
-
+      bool isSubscribe = method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase)==0;
       for (EntityDB::Aliases::iterator iter = aliases.begin(); iter != aliases.end(); iter++)
       {
 
+            bool isUserForward = iter->relation == ALIASDB_RELATION_USERFORWARD;
             // If disableForwarding and the relation value is "userforward",
             // do not record this contact.
-            if (!(disableForwarding && iter->relation == ALIASDB_RELATION_USERFORWARD))
+            if (!(disableForwarding && isUserForward) && !(isSubscribe && isUserForward))
             {
                UtlString contact = iter->contact.c_str();
                Url contactUri(contact);
