@@ -148,7 +148,7 @@ void SipClientWriteBuffer::insertMessage(SipMessage* message)
       // output processors.
 
 
-      long int msgLength = 0;
+      ssize_t msgLength = 0;
       UtlString msgText;
       message->getBytes(&msgText, &msgLength, true);
       if (msgLength)

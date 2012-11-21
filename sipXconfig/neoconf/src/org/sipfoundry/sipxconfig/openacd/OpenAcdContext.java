@@ -29,7 +29,6 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionProvider;
 
 public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner {
     public static final LocationFeature FEATURE = new LocationFeature("openacd");
-    public static final AddressType REST_API = new AddressType("openacdRestApi", "http://%s:%d/");
     public static final AddressType OPENACD_WEB = new AddressType("openacdWebUI");
     public static final AddressType OPENACD_SECURE_WEB = new AddressType("openacdSecureWebUI");
 

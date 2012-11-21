@@ -19,7 +19,8 @@ AC_PROG_JAVA([java])
 PROG_JAVA_DEP
 CHECK_CLOVER
 CHECK_RUBY([1.8.2])
-CHECK_RUBY_MODULE([soap/wsdlDriver])
+# not avail on ruby 1.9, default on fedora 17
+#CHECK_RUBY_MODULE([soap/wsdlDriver])
 CHECK_RUBYGEMS([0.8.11])
 CHECK_YUM
 AC_PATH_PROG([WSDL2RUBY], wsd2lruby.rb, $abs_srcdir/meta/wsdl2ruby.rb)

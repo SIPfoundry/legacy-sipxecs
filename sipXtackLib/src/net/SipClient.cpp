@@ -307,7 +307,7 @@ UtlBoolean SipClient::sendTo(SipMessage& message,
       // that it can offer the message to all its registered
       // output processors.
 
-      long int msgLength = 0;
+      ssize_t msgLength = 0;
       UtlString msgText;
       message.getBytes(&msgText, &msgLength, true);
       if (msgLength)
