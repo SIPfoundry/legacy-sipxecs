@@ -32,6 +32,7 @@
 #include <sipXecsService/daemon.h>
 #include <ForwardRules.h>
 #include <SipXProxyCseObserver.h>
+#include <utl/Instrumentation.h>
 #include "config.h"
 
 //
@@ -718,20 +719,31 @@ int proxy()
 }
 
 void signal_handler(int sig) {
-    switch(sig) {
+  switch(sig)
+  {
     case SIGPIPE:
-        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGPIPE caught. Ignored.");
-    break;
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGPIPE caught. Ignored.");
+      break;
 
     case SIGHUP:
-        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGHUP caught. Ignored.");
-	break;
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGHUP caught. Ignored.");
+      break;
 
     case SIGTERM:
-        gShutdownFlag = TRUE;
-        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGTERM caught. Shutting down.");
-	break;
-    }
+      gShutdownFlag = TRUE;
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGTERM caught. Shutting down.");
+      break;
+
+    case SIGUSR1:
+      system_tap_start_portlib_instrumentation(true/*Bactrace enabled*/);
+      Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "SIGUSR1 caught. Starting instrumentations.");
+      break;
+      
+    case SIGUSR2:
+      system_tap_stop_portlib_instrumentation();
+      Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "SIGUSR2 caught. Starting instrumentations.");
+      break;
+  }
 }
 
 // USAGE:  sipXproxy [-v] [pidfile]
@@ -751,6 +763,8 @@ int main(int argc, char* argv[]) {
     signal(SIGHUP, signal_handler); // catch hangup signal
     signal(SIGTERM, signal_handler); // catch kill signal
     signal(SIGPIPE, signal_handler); // r/w socket failure
+    signal(SIGUSR1, signal_handler);
+    signal(SIGUSR2, signal_handler);
     proxy();
     Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "Exiting") ;
     Os::Logger::instance().flush();

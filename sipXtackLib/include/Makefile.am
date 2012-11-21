@@ -27,6 +27,7 @@ nobase_include_HEADERS =  \
     net/HttpRequestContext.h \
     net/HttpServer.h \
     net/HttpService.h \
+    net/Instrumentation.h \
     net/MailAttachment.h \
     net/MailMessage.h \
     net/MimeBodyPart.h \

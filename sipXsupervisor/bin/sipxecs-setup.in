@@ -3,6 +3,7 @@
 require 'optparse'
 require 'fileutils'
 require 'socket'
+require 'tempfile'
 
 # using only @VAR@ style vars in this section only helps make this maintainable when integrating
 # patches.
@@ -51,7 +52,7 @@ def set_nonroot_keys
   exit 1 unless run_command "su - #{$user} sh -c '/usr/sbin/cf-key'"
 end
 
-def set_secondary
+def set_secondary_role
   return true if File.exists?($secondary_dat)
   puts "Configuring as an additional server..."
 
@@ -83,8 +84,8 @@ def set_secondary
 end
 
 # Return true or false IF machine is primary, not is anything was done or not
-def set_primary
-  return false unless prompt_confirm("Is this the \e[0;31mfirst server\e[m in your cluster?")
+def choose_primary_role?
+  return unless prompt_confirm("Is this the \e[0;31mfirst server\e[m in your cluster?")
   puts "Configuring as the first server..."
   File.open($location_dat, 'w') {|f|
     f.puts('1')
@@ -100,7 +101,6 @@ def set_primary
 EOF
   }
   puts "Created #{$primary_dat}" if $verbose
-  return true
 end
 
 def prompt_confirm(msg)
@@ -261,7 +261,10 @@ def network_settings
     system("/usr/sbin/system-config-network-tui")
     system("/etc/init.d/network reload")
   end
+  return change
+end
 
+def set_primary_hostname
   net = get_network(true)
   net.host = prompt_default("Enter just the \e[0;31mhost name\e[m of this computer?. Example: myhost.", net.host);
   net.domain = prompt_default("Enter just the \e[0;31mdomain name\e[m of your network? Example: mydomain.com", net.domain)
@@ -341,51 +344,63 @@ class Network
   end
 end
 
-def print_application_settings
-  is_primary = is_primary?
-  puts "Primary server : " + (is_primary ? 'yes' : 'no')
-  location = get_location_id
-  return false if location.empty?
-  [$domain_dat, "#{$cfdatadir}/#{location}/host.cfdat"].each {|fname|
-    return false unless File.exists?(fname)
+def print_role_settings
+  settings = {}
+  puts "\e[0;31mApplication settings:\e[m"
+  puts "Primary server : " + (is_primary? ? 'yes' : 'no')
+  settings[:location] = get_location_id
+  return nil if settings[:location].empty?
+  puts "Location ID    : #{settings[:location]}" if is_secondary?
+  [$domain_dat, $master_dat, "#{$cfdatadir}/#{settings[:location]}/host.cfdat"].each {|fname|
+    next unless File.exists?(fname)
     File.open(fname, "r") {|fstream|
       while (line = fstream.gets)
-        f = line.split('=')
-        case f[1]
-        when /domain/
-          puts "SIP Domain     : " + f[2]
-        when /master_fqdn/
-          puts("Master         : " + f[2]) unless is_primary
-        when /master_address/
-          puts("Master IP      : " + f[2]) unless is_primary
+        f = line.chomp.gsub(/^=/,'').split('=')
+        case f[0]
+        when 'domain'
+          settings[:domain] = f[1]
+          puts "SIP Domain     : " + settings[:domain]  if is_primary?
+        when 'host'          
+          settings[:host] = f[1]
+          puts "Host           : " + settings[:host]  if is_primary?
+        when 'address'
+          settings[:master_address] = f[1]
+          puts("Master         : " + settings[:master_address]) if is_secondary?
         else
         end  
       end
     }
   }
-  return true
+  return settings
 end
 
-def application_settings
-  already_setup = (is_primary? or is_secondary?)
-  if already_setup
-    puts "\e[0;31mApplication settings:\e[m"
-    if print_application_settings
-      if !prompt_confirm("Would you like to \e[0;31mchange\e[m your application settings?")
-        return
-      end
-    end
+
+def has_role?
+  return (is_primary? || is_secondary?)
+end
+
+def change_role?
+  change = prompt_confirm("Would you like to \e[0;31mchange\e[m your application settings?")
+  if change
+    rm_file($primary_dat)
+    rm_file($secondary_dat)
   end
-  is_primary = set_primary()
-  if is_primary
+  change
+end
+
+def choose_role
+  choose_primary_role?
+  if is_primary?
     set_nonroot_keys()
     set_domain
+    set_primary_hostname
   else
-    set_secondary
+    set_secondary_role
   end
 end
 
-def custom_settings
+# Call OEM setup hook function
+def custom_hook
   custom_script = "#{$confdir}/sipxecs-setuprc"
   if File.exists?(custom_script)
     if system "/bin/sh #{custom_script}"
@@ -419,6 +434,11 @@ args = OptionParser.new { |opts|
     $advanced = true
   }
 
+  $sync_time = true
+  opts.on("--no-sync-time", "Do not attempt to sync local date/time with primary server. Specify this if master server is not running an NTP server") {
+    $sync_time = false
+  }
+
   opts.on_tail("--help", "Print options") {
     puts opts
     exit
@@ -430,15 +450,45 @@ args.parse!
 raise 'Must run as root' unless Process.uid == 0
 set_root_keys()
 network_settings
-custom_settings
-application_settings
+custom_hook
+role_settings = nil
+if !has_role?
+  choose_role
+end
+
+while true
+  role_settings = print_role_settings
+  if role_settings.nil? || change_role?
+    choose_role
+    next
+  end
+  break
+end
+
+def ntpd_running?
+ system("/sbin/service ntpd status")
+end
 
 # First pass generated cfdata info
 if is_primary?
   puts "Initial setup, this may take a few minutes..."
   exit 1 unless run_command("#{$bindir}/sipxagent #{'-v ' if $verbose} -d setup")
   puts "Finishing system configuration, almost done..."
-else
+else  
+  if $sync_time
+    unless ntpd_running?
+      tmp_ntp = nil
+      puts "Synchronizing clocks with master server first..."
+      Tempfile.open('sipxecs-setup.ntp') {|f|
+        tmp_ntp = f.path
+        f.puts <<EOF
+driftfile /var/lib/ntp/drift
+server #{role_settings[:master_address]} iburst
+EOF
+      }
+      run_command("/usr/sbin/ntpd -gnq#{'d' if $verbose} -c #{tmp_ntp}")
+    end
+  end
   puts "Configuring system, this may take a few minutes..."
 end
 

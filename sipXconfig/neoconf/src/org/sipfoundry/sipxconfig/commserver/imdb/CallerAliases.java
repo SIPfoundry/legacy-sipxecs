@@ -44,6 +44,7 @@ public class CallerAliases extends AbstractDataSetGenerator {
             } else {
                 removeField(top, CALLERALIAS);
             }
+            top.put(ANONYMOUS, (Boolean) user.getSettingTypedValue(UserCallerAliasInfo.ANONYMOUS_CALLER_ALIAS));
             return true;
         } else if (entity instanceof Gateway) {
             Gateway gateway = (Gateway) entity;

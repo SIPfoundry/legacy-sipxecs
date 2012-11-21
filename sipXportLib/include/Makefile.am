@@ -106,6 +106,7 @@ nobase_include_HEADERS = \
     xmlparser/tinyxml.h \
     xmlparser/TiXmlIterator.h \
     xmlparser/TiXmlUtlStringWriter.h \
+    utl/Instrumentation.h \
     utl/UtlBool.h \
     utl/UtlLink.h \
     utl/UtlContainable.h \

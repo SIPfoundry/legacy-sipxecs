@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -29,11 +30,13 @@ public class PhoneConfiguration extends ProfileContext {
     // The number of blank lines in polycom_phone1.cfg.
     public static final int TEMPLATE_DEFAULT_LINE_COUNT = 6;
 
+    private static final String PHONE_TEMPLATE = PolycomPhone.TEMPLATE_DIR + "/phone.cfg.vm";
+
     private static final String MWI_SUBSCRIBE_SETTING = "msg.mwi/subscribe";
     private static final String BLANK_STRING = "";
 
-    public PhoneConfiguration(PolycomPhone device) {
-        super(device, device.getTemplateDir() + "/phone.cfg.vm");
+    public PhoneConfiguration(Device device) {
+        super(device, PHONE_TEMPLATE);
     }
 
     @Override
@@ -58,9 +61,6 @@ public class PhoneConfiguration extends ProfileContext {
         }
 
         int lineCount = Math.max(lines.size(), TEMPLATE_DEFAULT_LINE_COUNT);
-        if (phone.getDeviceVersion() == PolycomModel.VER_4_0_X) {
-            lineCount = lines.size();
-        }
         ArrayList linesSettings = new ArrayList(lineCount);
 
         for (Line line : lines) {

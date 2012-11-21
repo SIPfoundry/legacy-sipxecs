@@ -43,6 +43,7 @@ class UtlContainableAtomic : public UtlContainable
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+  UtlContainableAtomic();
   virtual ~UtlContainableAtomic();
 /* ============================ CREATORS ================================== */
 

@@ -75,7 +75,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.dao.support.DataAccessUtils;
 
-public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext, BeanFactoryAware,
+public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext, BeanFactoryAware,
         FeatureProvider, AddressProvider, ProcessProvider, DaoEventListener, FirewallProvider, SetupListener {
 
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
@@ -173,12 +173,6 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         }
         return addresses;
     }
-
-    /**
-     * Implemented by Spring lookup-method injection
-     */
-    @Override
-    public abstract OpenAcdClient newOpenAcdClient();
 
     public OpenAcdSettings getSettings() {
         return m_settingsDao.findOrCreateOne();

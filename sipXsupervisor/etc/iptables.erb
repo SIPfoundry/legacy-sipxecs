@@ -31,7 +31,8 @@
   }
 
   rules.each { |rule|
-%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m state --state NEW,ESTABLISHED -j <%= rule[:chain] %>
+%>; <%= rule[:service] %>
+-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m state --state NEW,ESTABLISHED -j <%= rule[:chain] %>
 <%
   }
 
@@ -71,7 +72,8 @@ COMMIT
 <%
   rules.each { |rule|
     if rule[:priority]
-%>-A OUTPUT -o $(sipx.iface) -p <%= rule[:protocol] %> --dport <%= rule[:port] %> -j DSCP --set-dscp-class EF
+%>;<%= rule[:service] %>
+-A OUTPUT -o $(sipx.iface) -p <%= rule[:protocol] %> --dport <%= rule[:port] %> -j DSCP --set-dscp-class EF
 <%
     end
   }

@@ -20,6 +20,7 @@
 #include <net/SipMessageEvent.h>
 #include <net/SipProtocolServerBase.h>
 #include <net/SipUserAgentBase.h>
+#include <net/Instrumentation.h>
 
 #include <os/OsDateTime.h>
 #include <os/OsDatagramSocket.h>
@@ -305,7 +306,19 @@ UtlBoolean SipClient::sendTo(SipMessage& message,
       // SIP message to be sent.  Notify the user agent so
       // that it can offer the message to all its registered
       // output processors.
-      mpSipUserAgent->executeAllSipOutputProcessors( message, address, portToSendTo );
+
+      long int msgLength = 0;
+      UtlString msgText;
+      message.getBytes(&msgText, &msgLength, true);
+      if (msgLength)
+      {
+        system_tap_sip_tx(
+             mLocalHostAddress.data(), portIsValid(mLocalHostPort) ? mLocalHostPort : defaultPort(),
+             address, portToSendTo,
+             msgText.data(), msgLength);
+
+        mpSipUserAgent->executeAllSipOutputProcessors( message, address, portToSendTo );
+      }
 
       // Create message to queue.
       SipClientSendMsg sendMsg(OsMsg::OS_EVENT,
@@ -1056,6 +1069,10 @@ void SipClient::preprocessMessage(SipMessage& msg,
    //
    // Call all sip input processors
    //
+   system_tap_sip_rx(fromIpAddress.data(), portIsValid(fromPort) ? fromPort : defaultPort(),
+           mLocalHostAddress.data(), portIsValid(mLocalHostPort) ? mLocalHostPort : defaultPort(),
+           msgText.data(), msgLength);
+
    mpSipUserAgent->executeAllSipInputProcessors(msg, fromIpAddress.data(), portIsValid(fromPort) ? fromPort : defaultPort());
 }
 

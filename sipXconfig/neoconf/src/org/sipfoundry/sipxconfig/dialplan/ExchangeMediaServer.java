@@ -81,6 +81,6 @@ public class ExchangeMediaServer extends MediaServer {
 
     @Override
     public PermissionName getPermissionName() {
-        return PermissionName.EXCHANGE_VOICEMAIL;
+        return null;
     }
 }

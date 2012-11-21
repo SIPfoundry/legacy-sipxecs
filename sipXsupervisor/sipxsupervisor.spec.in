@@ -34,6 +34,8 @@ Requires: sendmail-cf
 Requires: ntp
 # backup to sftp
 Requires: rubygem-net-sftp
+# iptables
+Requires: policycoreutils
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root

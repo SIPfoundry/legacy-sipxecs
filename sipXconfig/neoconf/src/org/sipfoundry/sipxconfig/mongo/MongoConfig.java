@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.PostConfigListener;
@@ -32,7 +33,7 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 
-public class MongoConfig implements PostConfigListener {
+public class MongoConfig implements ConfigProvider, PostConfigListener {
     private MongoManager m_mongoManager;
     private MongoReplicaSetManager m_mongoReplicaSetManager;
 
@@ -82,7 +83,7 @@ public class MongoConfig implements PostConfigListener {
         m_mongoReplicaSetManager.checkMembers();
     }
 
-    private static void writeServerConfig(Writer w, boolean mongod, boolean arbiter) throws IOException {
+    void writeServerConfig(Writer w, boolean mongod, boolean arbiter) throws IOException {
         String bindToAll = "0.0.0.0";
         CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
         config.writeClass("mongod", mongod);
@@ -93,13 +94,13 @@ public class MongoConfig implements PostConfigListener {
         config.write("mongoArbiterPort", MongoSettings.ARBITER_PORT);
     }
 
-    private static void writeClientConfig(Writer w, String connStr, String connUrl) throws IOException {
+    void writeClientConfig(Writer w, String connStr, String connUrl) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
         config.write("connectionUrl", connUrl);
         config.write("connectionString", connStr);
     }
 
-    public static String getConnectionString(List<Location> servers, int port) {
+    String getConnectionString(List<Location> servers, int port) {
         StringBuilder r = new StringBuilder("sipxecs/");
         for (int i = 0; i < servers.size(); i++) {
             if (i > 0) {
@@ -110,7 +111,7 @@ public class MongoConfig implements PostConfigListener {
         return r.toString();
     }
 
-    public static String getConnectionUrl(List<Location> servers, int port) {
+    String getConnectionUrl(List<Location> servers, int port) {
         StringBuilder r = new StringBuilder("mongodb://");
         for (int i = 0; i < servers.size(); i++) {
             if (i > 0) {
@@ -118,7 +119,7 @@ public class MongoConfig implements PostConfigListener {
             }
             r.append(servers.get(i).getFqdn()).append(':').append(port);
         }
-        r.append("/?readPreference=nearest");
+        r.append("/?slaveOk=true");
         return r.toString();
     }
 

@@ -1,0 +1,133 @@
+#! /usr/bin/env stap
+
+//
+// The name of the process we want to monitor.
+// This will be passed as arg1.  If not set,
+// all sipX sip process will be monitored
+//
+global _process;
+global _hasProcess;
+
+//
+// The uri to be monitored.  If specified on messages
+// to and from this URI will be monitored
+//
+global _uri;
+global _hasUri;
+
+//
+// Define true and false
+//
+global true;
+global false;
+
+probe begin
+{
+  true = 1;
+  false = 0;
+  
+	_process = @1
+	_uri = @2
+	_hasProcess = (_process != "all" && strlen(_process) > 0);
+	_hasUri = (_uri != "all" && strlen(_uri) > 0);
+	
+	if (!_hasProcess)
+		printf ("Started tracing SIP Message from all sipXecs process. \n");
+	else
+		printf ("Started tracing SIP Message from sipXecs::%s process. \n", _process);
+	
+	if (_hasUri)
+	{
+		printf ("Limiting SIP Messages for URI %s", _uri);
+	}
+}
+
+probe end
+{
+  //
+  // Take note:  all global vars are stored in the kernel heap.  We MUST delete them explicitly when we exit and system tap script
+  //
+  delete _process;
+  delete _hasProcess;
+  delete _uri;
+  delete _hasUri;
+  delete true;
+  delete false;
+}
+
+
+
+function is_monitored_process:long()
+{
+	if (!_hasProcess)
+		return true;
+	return execname() == _process;
+}
+
+
+function is_monitored_uri:long(message:string)
+{
+	if (!_hasUri)
+		return true;
+	return isinstr(message, _uri);
+}
+
+
+probe process("/home/joegen/Devel/sipxecs-master/BUILD/build/lib/libsipXtack.so").function("*system_tap_sip_rx*").call
+{	  
+	if (
+		@defined($src) &&
+		@defined($srcPort) &&
+		@defined($dst) &&
+		@defined($dstPort) &&
+		@defined($sipMessage) &&
+		@defined($size) &&
+		is_monitored_process()
+		)
+	{
+	  if ($size > 10)
+	  {
+			buffer = user_string_n($sipMessage, $size);
+			if (strlen(buffer) > 0 && is_monitored_uri(buffer))
+			{
+			  printf ("\n\n----- MESSAGE -----\n\n");
+			  printf ("%s ", ctime(gettimeofday_s()));
+			  printf ("*** [%s] READ BYTES: %d SRC: %s:%d DST: %s:%d ***\n\n", execname(), $size, user_string($src), $srcPort, user_string($dst), $dstPort);
+			  printf ("%s", buffer);
+			}
+		}
+	}
+}
+
+
+probe process("/home/joegen/Devel/sipxecs-master/BUILD/build/lib/libsipXtack.so").function("*system_tap_sip_tx*").call
+{	  
+	if (
+		@defined($src) &&
+		@defined($srcPort) &&
+		@defined($dst) &&
+		@defined($dstPort) &&
+		@defined($sipMessage) &&
+		@defined($size) &&
+		is_monitored_process()
+		)
+	{
+	  if ($size > 10)
+	  {
+			buffer = user_string_n($sipMessage, $size);
+			if (strlen(buffer) > 0 && is_monitored_uri(buffer))
+			{
+			  printf ("\n\n----- MESSAGE -----\n\n");
+			  printf ("%s ", ctime(gettimeofday_s()));
+			  printf ("*** [%s] SEND BYTES: %d SRC: %s:%d DST: %s:%d ***\n\n", execname(), $size, user_string($src), $srcPort, user_string($dst), $dstPort);
+			  printf ("%s", buffer);
+			}
+		}
+	}
+}
+
+
+
+
+
+

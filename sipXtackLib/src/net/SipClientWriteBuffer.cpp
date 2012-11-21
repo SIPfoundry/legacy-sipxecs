@@ -14,6 +14,7 @@
 #include <net/SipClientWriteBuffer.h>
 #include <net/SipMessageEvent.h>
 #include <net/SipUserAgentBase.h>
+#include <net/Instrumentation.h>
 #include <os/OsLogger.h>
 
 // EXTERNAL FUNCTIONS
@@ -145,8 +146,21 @@ void SipClientWriteBuffer::insertMessage(SipMessage* message)
       // SIP message to be sent.  Notify the user agent so
       // that it can offer the message to all its registered
       // output processors.
-      mpSipUserAgent->executeAllBufferedSipOutputProcessors(*message, remoteHostAddress.data(),
+
+
+      long int msgLength = 0;
+      UtlString msgText;
+      message->getBytes(&msgText, &msgLength, true);
+      if (msgLength)
+      {
+        system_tap_sip_tx(
+             mLocalHostAddress.data(), portIsValid(mLocalHostPort) ? mLocalHostPort : defaultPort(),
+             remoteHostAddress.data(), remotePort == PORT_NONE ? defaultPort() : remotePort,
+             msgText.data(), msgLength);
+
+        mpSipUserAgent->executeAllBufferedSipOutputProcessors(*message, remoteHostAddress.data(),
                remotePort == PORT_NONE ? defaultPort() : remotePort);
+      }
     }
 
    // Add the message to the queue.

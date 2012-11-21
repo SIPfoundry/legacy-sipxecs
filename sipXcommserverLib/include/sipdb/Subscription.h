@@ -69,8 +69,7 @@ public:
     unsigned int subscribeCseq();
     unsigned int version();  
     unsigned int expires();
-
-
+    void getMongoOID(mongo::OID& oid) const;
 
     static const char* oid_fld();
     static const char* component_fld();
@@ -92,7 +91,7 @@ public:
     static const char* expires_fld();
 
 private:
-    std::string _oid;
+    std::string  _oid;
     std::string _component;
     std::string _uri;
     std::string _callId;
@@ -121,6 +120,10 @@ inline std::string& Subscription::oid()
     return _oid;
 }
 
+inline void Subscription::getMongoOID(mongo::OID& oid) const
+{
+  oid.init(_oid);
+}
 
 inline std::string& Subscription::component()
 {

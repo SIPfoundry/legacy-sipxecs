@@ -48,11 +48,23 @@ bundle common g {
 #  Example:
 #    classes => if_notkept("fatal_error"),
 #
-body agent control {
-  abortclasses => {
-    "fatal_error"
-  };
-}
+#  BUG: Would be great if this worked, but cfengine has some serious problems here
+#
+#  1.) feature is severely limited
+#    https://cfengine.com/forum/read.php?3,25504,25563#msg-25563
+#
+#  2.) It's been found on some machines, defining *any* class in a cfengine module just
+#    triggers cfengine to abort
+#
+#      cf3> Activated classes: sipxsupervisor
+#      cf3> cf-agent aborted on defined class "sipxsupervisor" defined in bundle sipx_module
+#   
+#
+#body agent control {
+#  abortclasses => {
+#    "fatal_error"
+#  };
+#}
 
 
 #

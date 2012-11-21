@@ -161,13 +161,14 @@ SipRedirectorAliasDB::lookUp(
 
       SipXauthIdentity authIdentity;
       authIdentity.setIdentity(requestIdentity);
-
+      bool isSubscribe = method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase)==0;
       for (EntityDB::Aliases::iterator iter = aliases.begin(); iter != aliases.end(); iter++)
       {
 
+            bool isUserForward = iter->relation == ALIASDB_RELATION_USERFORWARD;
             // If disableForwarding and the relation value is "userforward",
             // do not record this contact.
-            if (!(disableForwarding && iter->relation == ALIASDB_RELATION_USERFORWARD))
+            if (!(disableForwarding && isUserForward) && !(isSubscribe && isUserForward))
             {
                UtlString contact = iter->contact.c_str();
                Url contactUri(contact);
@@ -196,6 +197,34 @@ SipRedirectorAliasDB::lookUp(
                  // Add the contact.
                  contactList.add( contactUri, *this );
                }
+
+
+                if (contactList.getDiversionHeader().empty())
+                {
+                  //
+                  // Add a Diversion header for all deflections
+                  //
+                  UtlString stringUri;
+                  message.getRequestUri(&stringUri);
+                  // The requestUri is an addr-spec, not a name-addr.
+                  Url diversionUri(stringUri, TRUE);
+                  UtlString userId;
+                  diversionUri.getUserId(userId);
+                  UtlString host;
+                  diversionUri.getHostWithPort(host);
+
+
+                  std::ostringstream strm;
+                  strm << "<sip:";
+                  if (!userId.isNull())
+                    strm << userId.data() << "@";
+                  strm << host.data();
+                  strm << ">;reason=unconditional;relation=" << iter->relation;
+                  UtlString diversion = strm.str().c_str();
+                  OS_LOG_INFO(FAC_SIP, "SipRedirectorAliasDB::lookUp inserting diversion from " << diversion.data());
+                  contactList.setDiversionHeader(diversion.data());
+                }
+
             }
       }
    }

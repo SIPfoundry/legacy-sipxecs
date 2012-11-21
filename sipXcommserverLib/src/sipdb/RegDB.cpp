@@ -183,7 +183,7 @@ bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, int 
 		while (pCursor->more())
 		{
 			RegBinding binding(pCursor->next());
-			if (binding.getIdentity().find(matchIdentity) != string::npos)
+			if (binding.getContact().find(matchIdentity) != string::npos)
 				bindings.push_back(binding);
 		}
 		conn.done();

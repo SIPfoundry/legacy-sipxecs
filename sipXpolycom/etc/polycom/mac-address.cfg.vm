@@ -32,11 +32,9 @@
    #set( $optional_root_url_path = "" )
 #end
 
-#set( $folder = "${cfg.FirmwareFolder}" )
-
 #macro( ModelSpecificAttributes $model $fw )
-   APP_FILE_PATH${model}="${folder}/sip.ld"
-   CONFIG_FILES${model}="${custom_configs}${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-phone.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-device.cfg, polycom_phone1_3.1.X.cfg, polycom_sip_3.1.X.cfg"
+   APP_FILE_PATH${model}="sip${fw}.ld"
+   CONFIG_FILES${model}="${custom_configs}${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-phone.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-device.cfg, polycom_phone1${fw}.cfg, polycom_sip${fw}.cfg"
 #end
 
 #macro( ModelSpecificNode $model $fw )
@@ -62,5 +60,13 @@
    OVERRIDES_DIRECTORY="${optional_root_url_path}"
    CONTACTS_DIRECTORY="${optional_root_url_path}"
    LOG_FILE_DIRECTORY="">
+
+#ModelSpecificNode( "SPIP300", "2.1.X" )
+#ModelSpecificNode( "SPIP500", "2.1.X" )
+#ModelSpecificNode( "SPIP301", "3.1.X" )
+#ModelSpecificNode( "SPIP501", "3.1.X" )
+#ModelSpecificNode( "SPIP600", "3.1.X" )
+#ModelSpecificNode( "SPIP601", "3.1.X" )
+#ModelSpecificNode( "SSIP4000", "3.1.X" )
 
 </APPLICATION>

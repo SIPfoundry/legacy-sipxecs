@@ -29,7 +29,6 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
     private static final Log LOG = LogFactory.getLog(UploadManagerImpl.class);
 
     private static final String NAME = "name";
-    private static final String ALLOW_MULTI_UPLOAD = "firmware/allowMultipleUploads";
     private ListableBeanFactory m_beanFactory;
     private ModelSource<UploadSpecification> m_specificationSource;
 
@@ -85,11 +84,11 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
                     if (settingObj.getType() instanceof FileSetting) {
                         fileName = settingObj.getValue();
                         if (fileName != null) {
-                            uploadedFile = new File(upload.getUploadDirectory() + File.separatorChar
-                                    + settingObj.getValue());
+                            uploadedFile = new File(
+                                    upload.getUploadDirectory() + File.separatorChar + settingObj.getValue());
                             if (!uploadedFile.exists()) {
-                                LOG.info("Uploaded file missing: " + uploadedFile.getAbsolutePath()
-                                        + " remove associated setting");
+                                LOG.info("Uploaded file missing: "
+                                        + uploadedFile.getAbsolutePath() + " remove associated setting");
                                 settingObj.setValue(null);
                                 fileDbSynch = false;
                             }
@@ -136,12 +135,8 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
     }
 
     private List<Upload> getUploadNameAndId(String name, int id) {
-        List<Upload> existing = getHibernateTemplate().findByNamedQueryAndNamedParam("uploadNameAndId",
-                new String[] {
-                    NAME, "id"
-                }, new Object[] {
-                    name, id
-                });
+        List<Upload> existing = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "uploadNameAndId", new String[]{NAME, "id"}, new Object[]{name, id});
         return existing;
     }
 
@@ -162,14 +157,12 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
         // check if this is a managed device type
         if (spec.getManaged()) {
             // should never happen
-            boolean allowMultipleUploads = (upload.getSettings().getSetting(ALLOW_MULTI_UPLOAD) != null)
-                    ? (Boolean) upload.getSettingTypedValue(ALLOW_MULTI_UPLOAD) : false;
-            if (!allowMultipleUploads && existing.size() > 1) {
+            if (existing.size() > 1) {
                 throw new AlreadyDeployedException(existing.size(), spec.getLabel());
             }
             if (existing.size() == 1) {
                 Upload existingUpload = existing.get(0);
-                if (!allowMultipleUploads && !existingUpload.getId().equals(upload.getId())) {
+                if (!existingUpload.getId().equals(upload.getId())) {
                     throw new AlreadyDeployedException(existingUpload.getName(), spec.getLabel());
                 }
             }

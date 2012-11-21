@@ -20,7 +20,7 @@ CommentFiles=
 Tar=YES
 ToFile=
 Logs=current
-NumberOfLines=
+PercentageOfFile=
 IncludeCallRecords="FALSE"
 IncludeProfiles="FALSE"
 GenerateCoreFiles=NO
@@ -127,8 +127,12 @@ do
             then
                 echo "'${1}' may only be used with '--logs current'" 1>&2
                 Action=USAGE
-            else
-                NumberOfLines=${2}
+            elif [ "${2}" -gt 99 -o "${2}" -lt 1 ]
+            then
+                echo "'${1}' Must be between 1 and 99 inclusive" 1>&2
+                Action=USAGE
+            else           
+                PercentageOfFile=${2}
                 Logs=tail
 	    fi
             shift
@@ -246,7 +250,7 @@ Usage:
                   [ --profiles ]
                   [ --cdr ]
                   [ -l  | --logs {current|all|nnn|none} ]
-                  [ -ll | --lines <number> ]
+                  [ -ll | --lines <number ranging from 1 to 99> ]
                   [ --core <core-file> ] ...
                   [ --file <file-name> ] ...
                   [ --comment <file-name> ] ...
@@ -290,9 +294,10 @@ Usage:
                nnn     - saves all logs from the specified set of past logs
                none    - does not include any logs (not recommended)
 
-    The --lines allow you to limit the log files size. Only the specified number
+    The --lines allow you to limit the log files size. Only the specified percentage
     of lines will be included in snapshot from tail logs. It may only be used with
-    the 'current' logs (not with archived logs).
+    the 'current' logs (not with archived logs) and must be between 1 and 99 if
+    specified.
 
     The --no-logs switch causes the sipX and Apache logs to be omitted
     from the snapshot; the default is to include them.  (deprecated but
@@ -386,8 +391,22 @@ function marshal_configuration_information () {
 
    function tailLogs() {
      mkdir -p ${cutDir}/${2}
-     tail -${NumberOfLines} "${1}" > ${cutDir}/$2`basename "${1}"`
-     echo ${cutDir}/$2`basename ${1}` >> $Work.copy-files
+     MinSize=102400
+     FsSize=`du -b ${1} | awk '{ print $1 }'`
+     TailSize=$[ ( $FsSize * $PercentageOfFile ) / 100 ]
+     DestFile=${cutDir}/$2`basename "${1}"`
+
+     # files under a 100K, take whole file, this is really about
+     # avoiding humongous snapshots.
+     if [ $FsSize -lt $MinSize ]; then
+       cp ${1} $DestFile
+     else
+       if [ $TailSize -lt $MinSize ]; then
+  	 TailSize=$MinSize
+       fi
+       tail -c $TailSize "${1}" > $DestFile
+     fi
+     echo $DestFile >> $Work.copy-files
    }
 
    # Assemble the list of files to record.
@@ -404,9 +423,8 @@ function marshal_configuration_information () {
    /etc/crontab
    /etc/sendmail.cf
    @SIPX_RUNDIR@
-   @SIPX_VARDIR@/process-state
-   @SIPX_VARDIR@/process-cfgver
-   @SIPX_DATADIR@/process.d
+   @SIPX_VARDIR@/cfdata
+   @SIPX_CFINPUTS@
    @OPENFIRE_HOME@/logs/debug.log
    @OPENFIRE_HOME@/logs/info.log
    @OPENFIRE_HOME@/logs/error.log
@@ -433,10 +451,24 @@ EOF
 	tailLogs $log ${2}/`basename ${1}`/
       done
     else
-      tail -${NumberOfLines} "${1}" > ${cutDir}/${2}`basename "${1}"`
-      echo ${cutDir}/${2}`basename ${1}` >> $Work.copy-files
-    fi
 
+     MinSize=102400
+     FsSize=`du -b ${1} | awk '{ print $1 }'`
+     TailSize=$[ ( $FsSize * $PercentageOfFile ) / 100 ]
+     DestFile=${cutDir}/$2`basename "${1}"`
+
+     # files under a 100K, take whole file, this is really about
+     # avoiding humongous snapshots.
+     if [ $FsSize -lt $MinSize ]; then
+       cp ${1} $DestFile
+     else
+       if [ $TailSize -lt $MinSize ]; then
+  	 TailSize=$MinSize
+       fi
+       tail -c $TailSize "${1}" > $DestFile
+     fi
+     echo ${DestFile} >> $Work.copy-files
+    fi
   }
 
    # Add the requested log files
@@ -451,15 +483,17 @@ EOF
 	   cutDir=`mktemp -d @SIPX_LOGDIR@/cut.XXXXXX`
 	   trap "rm -rf ${cutDir} 2>/dev/null" 0
 
-	   for base_log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log @SIPX_LOGDIR@/trace/*.pcap*
+	   for base_log in `find @SIPX_LOGDIR@ -maxdepth 1 -name '*log'`
 	   do
 	     tailLogs $base_log
-	   done
-	   for base_log in @SIPX_LOGDIR@/phone/*.log
+  	   done
+
+	   ! test -d @SIPX_LOGDIR@/phone || for base_log in `find @SIPX_LOGDIR@/phone -maxdepth 1 -name '*.log'`
 	   do
 	     tailLogs $base_log phone/
 	   done
-	   for base_log in @SIPX_LOGDIR@/trace/*.pcap*
+
+	   ! test -d @SIPX_LOGDIR@/trace || for base_log in `find @SIPX_LOGDIR@/trace -maxdepth 1 -name '*.pcap*'`
 	   do
 	     tailLogs $base_log trace/
 	   done
@@ -544,9 +578,9 @@ EOF
    echo -n "           "
    date
    echo ""
-   if [ -n "${NumberOfLines}" ]
+   if [ -n "${PercentageOfFile}" ]
    then
-     echo "Tail ${NumberOfLines} lines from logs"
+     echo "Tail ${PercentageOfFile} percent of log file"
      echo ""
    fi
    echo -n "SysVersion: "
@@ -1022,6 +1056,7 @@ EOF
 # stdout will be written in ./SystemConfig, while stderr will be written
 # into both ./SystemConfig and ./stderr.
 ( marshal_configuration_information 2>&1 1>&3 | tee ${Work}/stderr ) >${SystemConfig} 3>&1
+
 # Output any stderr output to the user.
 cat ${Work}/stderr
 

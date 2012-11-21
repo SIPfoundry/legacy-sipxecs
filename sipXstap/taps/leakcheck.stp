@@ -1,0 +1,27 @@
+#! /usr/bin/env stap -DMAXSTRINGLEN=10240
+
+
+probe begin
+{
+  printf ("Probing %s for memory leaks\n", @1);
+}
+
+
+probe process(@1).library(@2).function("*system_tap_report_object_count*").call
+{
+  if (@defined($created) && @defined($deleted))
+  {
+    printf ("Created: <%d> Deleted: <%d> Persistent: <%d>\n", $created, $deleted, $created - $deleted);
+  }
+}
+
+probe process(@1).library(@2).function("*system_tap_report_object_trace*").call
+{
+  if (@defined($pointerAddress) && @defined($trace))
+  {
+    printf ("\n\n----- OBJECT -----\n\n");
+    printf ("Excutable: <%s> Address: <0x%x> \n%s\n", execname(), $pointerAddress, user_string($trace));
+  }
+}
+
+

@@ -789,11 +789,15 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
 UtlBoolean
 SipRegistrarServer::handleMessage( OsMsg& eventMessage )
 {
-    int msgType = eventMessage.getMsgType();
-    int msgSubType = eventMessage.getMsgSubType();
 
-    UtlBoolean handled = FALSE;
+  int msgType = eventMessage.getMsgType();
+  int msgSubType = eventMessage.getMsgSubType();
+  UtlBoolean handled = FALSE;
 
+  std::string errorString;
+
+  try
+  {
     // Timer event
     if(   msgType    == OsMsg::OS_EVENT
        && msgSubType == OsEventMsg::NOTIFY
@@ -1186,6 +1190,46 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
     }
 
     return handled;
+  }
+#ifdef MONGO_assert
+  catch (mongo::DBException& e)
+  {
+    errorString = "Registry - Mongo DB Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRegistrarServer::handleMessage() Exception: "
+             << e.what() );
+  }
+#endif
+  catch (boost::exception& e)
+  {
+    errorString = "Registry - Boost Library Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRegistrarServer::handleMessage() Exception: "
+             << boost::diagnostic_information(e));
+  }
+  catch (std::exception& e)
+  {
+    errorString = "Registry - Standard Library Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRegistrarServer::handleMessage() Exception: "
+             << e.what() );
+  }
+  catch (...)
+  {
+    errorString = "Registry - Unknown Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRegistrarServer::handleMessage() Exception: Unknown Exception");
+  }
+
+  //
+  // If it ever get here, that means we caught an exception
+  //
+  if (msgType == OsMsg::PHONE_APP)
+  {
+    const SipMessage& message = *((SipMessageEvent&)eventMessage).getMessage();
+    SipMessage finalResponse;
+    finalResponse.setResponseData(&message, SIP_5XX_CLASS_CODE, errorString.c_str());
+    mSipUserAgent->send(finalResponse);
+    handled = TRUE;
+  }
+
+  return handled;
 }
 
 

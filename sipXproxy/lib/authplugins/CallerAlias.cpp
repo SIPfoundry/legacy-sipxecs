@@ -139,6 +139,7 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
              * Start with the From header field (someday we should use the Identity if present)
              */
             Url fromUrl(originalFromUrl);
+            mpSipRouter->ensureCanonicalDomain(fromUrl);
             fromUrl.removeParameters(); // parameters are not relevant for this 
          
             Url::Scheme fromUrlScheme = fromUrl.getScheme();
@@ -370,7 +371,14 @@ bool CallerAlias::getCallerAlias (
 
     hasUserEntity = mpEntityDb->findByIdentity(identity.str(), userEntity);
     hasGatewayEntity = mpEntityDb->findByIdentity(domain.str(), gatewayEntity);
-    if (hasGatewayEntity && gatewayEntity.callerId().transformExtension)
+
+    // if call is not routed through gw then nothing to do, return empty
+    if (!hasGatewayEntity) {
+        return false;
+    }
+
+    // ignore user and gateway options in case configured to transform extension
+    if (gatewayEntity.callerId().transformExtension)
     {
         size_t loc = identity.str().find("@");
         if (loc != std::string::npos)
@@ -400,13 +408,20 @@ bool CallerAlias::getCallerAlias (
     }
     else
     {
-      if (hasGatewayEntity && hasUserEntity && !userEntity.callerId().id.empty())
-          callerAlias = userEntity.callerId().id;
-      else if (hasGatewayEntity)
-          gatewayEntity.callerId().ignoreUserCalleId = true;
+      // apply user settings in case gateway not configured to ignore them
+      if (hasUserEntity && !gatewayEntity.callerId().ignoreUserCalleId) {
+          if (userEntity.callerId().enforcePrivacy)
+          {
+              callerAlias = "sip:anonymous@anonymous.invalid";
+          }
+          else if (!userEntity.callerId().id.empty())
+          {
+              callerAlias = userEntity.callerId().id;
+          }
+      } 
 
-      if (hasGatewayEntity && gatewayEntity.callerId().ignoreUserCalleId)
-      {
+      // use gateway settings in case user didn't specify them or gateway configured to ignore user's calle id
+      if (callerAlias.empty()) {
           if (gatewayEntity.callerId().enforcePrivacy)
           {
               callerAlias = "sip:anonymous@anonymous.invalid";

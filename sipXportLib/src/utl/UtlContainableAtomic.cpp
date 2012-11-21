@@ -12,7 +12,8 @@
 
 // APPLICATION INCLUDES
 #include "utl/UtlContainableAtomic.h"
-
+#include "utl/Instrumentation.h"
+#include <typeinfo>
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -23,7 +24,10 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-
+UtlContainableAtomic::UtlContainableAtomic()
+{
+  system_tap_object_created((intptr_t)this, typeid(*this).name());
+}
 // Copy constructor
 
 // Destructor
@@ -38,7 +42,7 @@
 
 UtlContainableAtomic::~UtlContainableAtomic()
 {
-  
+  system_tap_object_destroyed((intptr_t)this, typeid(*this).name());
 }
 /// Get hash of object.
 unsigned UtlContainableAtomic::hash() const

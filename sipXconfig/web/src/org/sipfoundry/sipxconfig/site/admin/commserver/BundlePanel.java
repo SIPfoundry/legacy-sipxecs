@@ -178,11 +178,15 @@ public abstract class BundlePanel extends BaseComponent implements PageBeginRend
         FeatureChangeRequest request = buildFeatureChangeRequest();
         FeatureChangeValidator validator = new FeatureChangeValidator(getFeatureManager(), request);
         getFeatureManager().validateFeatureChange(validator);
+        recordAnyInvalidChanges(validator);
+        rebuildForm(request);
+    }
+
+    private void recordAnyInvalidChanges(FeatureChangeValidator validator) {
         for (InvalidChange err : validator.getInvalidChanges()) {
             getValidator().record(localize(err.getMessage()), getMessages());
         }
         setInvalidFeatures(indexByFeature(validator.getInvalidChanges()));
-        rebuildForm(request);
     }
 
     UserException localize(UserException err) {
@@ -214,8 +218,11 @@ public abstract class BundlePanel extends BaseComponent implements PageBeginRend
     public void save() {
         FeatureChangeRequest request = buildFeatureChangeRequest();
         FeatureChangeValidator validator = new FeatureChangeValidator(getFeatureManager(), request);
-        getFeatureManager().applyFeatureChange(validator);
-        setInvalidFeatures(indexByFeature(validator.getInvalidChanges()));
+        try {
+            getFeatureManager().applyFeatureChange(validator);
+        } catch (UserException e) {
+            recordAnyInvalidChanges(validator);
+        }
         rebuildForm(request);
     }
 

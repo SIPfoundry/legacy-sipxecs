@@ -19,6 +19,7 @@
 #include "sipdb/SubscribeDB.h"
 #include "sipdb/SubscribeExpireThread.h"
 #include "os/OsDateTime.h"
+#include "os/OsLogger.h"
 
 using namespace std;
 
@@ -54,8 +55,10 @@ void SubscribeDB::upsert (
     unsigned int version)
 {
     mongo::BSONObj query = BSON(
-        "key" << key.str() <<
-        "contact" << contact.str());
+        "toUri" << toUri.str() <<
+        "fromUri" << fromUri.str() <<
+        "callId" << callId.str() <<
+        "eventTypeKey" << eventTypeKey.str());
 
     mongo::BSONObj update = BSON("$set" << BSON(
         Subscription::component_fld() << component.str() <<
@@ -81,6 +84,8 @@ void SubscribeDB::upsert (
     conn->ensureIndex("node.subscription",  BSON( "key" << 1 ));
     conn->ensureIndex("node.subscription",  BSON( "toUri" << 1 ));
     conn.done();
+
+    removeAllExpired();
 }
 
 //delete methods - delete a subscription session
@@ -125,7 +130,6 @@ bool SubscribeDB::subscriptionExists (
    const UtlString& callId,
    const int timeNow)
 {
-
     mongo::BSONObj query = BSON(
               Subscription::toUri_fld() << toUri.str() <<
               Subscription::fromUri_fld() << fromUri.str() <<
@@ -167,7 +171,7 @@ void SubscribeDB::getUnexpiredSubscriptions (
     const int& timeNow,
     Subscriptions& subscriptions)
 {
-    removeExpired(component, timeNow);
+    removeAllExpired();
     //query="key=",key,"and eventtypekey=",eventTypeKey;
      mongo::BSONObj query = BSON(
         Subscription::key_fld() << key.str() <<
@@ -187,7 +191,9 @@ void SubscribeDB::getUnexpiredContactsFieldsContaining(
     const int& timeNow,
     std::vector<string>& matchingContactFields ) const
 {
-    mongo::BSONObj query = BSON(Subscription::expires_fld() << BSON_LESS_THAN(timeNow));
+    const_cast<SubscribeDB*>(this)->removeAllExpired();
+
+    mongo::BSONObj query = BSON(Subscription::expires_fld() << BSON_GREATER_THAN(timeNow));
 
     mongo::ScopedDbConnection conn(_info.getConnectionString());
     auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
@@ -214,7 +220,6 @@ void SubscribeDB::updateNotifyUnexpiredSubscription(
     int updatedNotifyCseq,
     int version) const
 {
-
     mongo::BSONObj query = BSON(
         Subscription::toUri_fld() << to.str() <<
         Subscription::callId_fld() << callid.str() <<
@@ -312,13 +317,25 @@ void SubscribeDB::updateToTag(
                         to_uri.setFieldParameter("tag", totag);
                         to_uri.toString(dummy); // un-parse as name-addr
 
-                        string oid = bsonObj.getStringField(Subscription::oid_fld());
-                        mongo::BSONObj query = BSON(Subscription::oid_fld() << oid);
-                        mongo::BSONObj update = BSON("$set" << BSON(Subscription::toUri_fld() << dummy.data()));
-                        conn->update(_info.getNS(), query, update);
-                        conn->ensureIndex("node.subscription",  BSON( "expires" << 1 ));
-                        conn->ensureIndex("node.subscription",  BSON( "key" << 1 ));
-			conn->ensureIndex("node.subscription",  BSON( "toUri" << 1 ));
+                        mongo::BSONElement _id_field;
+                        if (true == bsonObj.getObjectID(_id_field))
+                        {
+                            mongo::OID oid;
+                            _id_field.Val(oid);
+
+                            mongo::BSONObj query = BSON("_id" << oid);
+                            mongo::BSONObj update = BSON("$set" << BSON(Subscription::toUri_fld() << dummy.data()));
+
+                            conn->update(_info.getNS(), query, update);
+                            conn->ensureIndex("node.subscription",  BSON( "expires" << 1 ));
+                            conn->ensureIndex("node.subscription",  BSON( "key" << 1 ));
+                            conn->ensureIndex("node.subscription",  BSON( "toUri" << 1 ));
+                        }
+                        else
+                        {
+                            // could not retrieve object id so update will fail
+                            OS_LOG_INFO(FAC_ODBC, "SubscribeDB::updateToTag get object id failed");
+                        }
                     }
                 }
             }

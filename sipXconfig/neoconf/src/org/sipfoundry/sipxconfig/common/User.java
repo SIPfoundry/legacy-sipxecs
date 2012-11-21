@@ -112,8 +112,7 @@ public class User extends AbstractUser implements Replicable {
             mappings.addAll(sequence.getAliasMappings(domainName));
         }
 
-        if (this.hasPermission(PermissionName.EXCHANGE_VOICEMAIL)
-                || this.hasPermission(PermissionName.FREESWITH_VOICEMAIL)) {
+        if (this.hasPermission(PermissionName.FREESWITH_VOICEMAIL)) {
             // NOTE: Missing explaination why exchange needs direction connection to FS
             Address address = getAddressManager().getSingleAddress(Ivr.SIP_ADDRESS);
             if (address != null) {

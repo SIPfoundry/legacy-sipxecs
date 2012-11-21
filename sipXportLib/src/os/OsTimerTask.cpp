@@ -18,6 +18,7 @@
 #include "os/OsTimerMsg.h"
 #include "os/OsTimerTask.h"
 #include "os/OsLock.h"
+#include "utl/Instrumentation.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -198,7 +199,10 @@ int OsTimerTask::run(void* pArg)
          timer->mTimerQueueLink = 0;
          // fireTimer inserts the timer back in the queue if it is periodic.
          // Otherwise, it updates the state counters.
+
          fireTimer(timer);
+
+         system_tap_timer_fire(timer->mExpiresAt, now - timer->mExpiresAt, OsTimer::subtractTimes(OsTimer::now(), now));
       }
 
       if (Os::Logger::instance().willLog(FAC_KERNEL, PRI_WARNING))
@@ -482,6 +486,8 @@ void OsTimerTask::insertTimer(OsTimer* timer)
    // Insert the timer.
    *previous_ptr = timer;
    timer->mTimerQueueLink = current;
+
+   system_tap_timer_create(timer->mQueuedExpiresAt);
 }
 
 // Remove a timer from the timer queue.
@@ -525,6 +531,8 @@ void OsTimerTask::removeTimer(OsTimer* timer)
    // timer queue.  (Although if it was at the end of the queue, it could
    // already be NULL.)
    timer->mTimerQueueLink = 0;
+
+   system_tap_timer_destroy();
 }
 
 /* ============================ FUNCTIONS ================================= */

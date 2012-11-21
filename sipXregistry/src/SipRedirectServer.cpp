@@ -21,6 +21,8 @@
 #include "utl/PluginHooks.h"
 #include "registry/RedirectPlugin.h"
 
+#include <sipdb/RegDB.h> // for mongo exceptions
+
 // DEFINES
 #define LOWEST_AUTHORITY_LEVEL   (0)
 
@@ -507,7 +509,6 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                 // add contacts collected in the contactList to the response
                 size_t index;
                 size_t numEntries = contactList.entries();
-
                 for( index = 0; index < numEntries; index++ )
                 {
                    UtlString contactString;
@@ -522,6 +523,12 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                                     "Failed to retrieve contact index %zu", index );
                    }
                 }
+
+                if (!contactList.getDiversionHeader().empty())
+                {
+                  response.addHeaderField(SIP_DIVERSION_FIELD, contactList.getDiversionHeader().c_str());
+                }
+
              }
              else
              {
@@ -568,211 +575,254 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
 {
    UtlBoolean handled = FALSE;
    int msgType = eventMessage.getMsgType();
+   std::string errorString;
 
-   switch (msgType)
+   try
    {
-   case OsMsg::PHONE_APP:
-   {
-      // An incoming request to be redirected.
+     switch (msgType)
+     {
+     case OsMsg::PHONE_APP:
+     {
+        // An incoming request to be redirected.
 
-      // Get a pointer to the SIP message.
-      const SipMessage* message =
-         ((SipMessageEvent&) eventMessage).getMessage();
+        // Get a pointer to the SIP message.
+        const SipMessage* message =
+           ((SipMessageEvent&) eventMessage).getMessage();
 
-      // Extract the request method.
-      UtlString method;
-      message->getRequestMethod(&method);
+        // Extract the request method.
+        UtlString method;
+        message->getRequestMethod(&method);
 
-      if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
-      {
-         UtlString stringUri;
-         message->getRequestUri(&stringUri);
+        if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
+        {
+           UtlString stringUri;
+           message->getRequestUri(&stringUri);
 
-         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRedirectServer::handleMessage "
-                       "Start processing redirect message %d: '%s' '%s'",
-                       mNextSeqNo, method.data(), stringUri.data());
-      }
+           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRedirectServer::handleMessage "
+                         "Start processing redirect message %d: '%s' '%s'",
+                         mNextSeqNo, method.data(), stringUri.data());
+        }
 
-      if (method.compareTo(SIP_CANCEL_METHOD, UtlString::ignoreCase) == 0)
-      {
-         // For CANCEL.
-         // If we have a suspended request with this Call-Id, cancel it.
-         // Send a 200 response.
+        if (method.compareTo(SIP_CANCEL_METHOD, UtlString::ignoreCase) == 0)
+        {
+           // For CANCEL.
+           // If we have a suspended request with this Call-Id, cancel it.
+           // Send a 200 response.
 
-         // Cancel the suspended request.
-         UtlString cancelCallId;
-         message->getCallIdField(&cancelCallId);
+           // Cancel the suspended request.
+           UtlString cancelCallId;
+           message->getCallIdField(&cancelCallId);
 
-         {
-            // Seize the lock that protects the list of suspend objects.
-            OsLock lock(mRedirectorMutex);
+           {
+              // Seize the lock that protects the list of suspend objects.
+              OsLock lock(mRedirectorMutex);
 
-            // Look for a suspended request that had this Call-Id.
-            UtlHashMapIterator itor(mSuspendList);
+              // Look for a suspended request that had this Call-Id.
+              UtlHashMapIterator itor(mSuspendList);
 
-            // Fetch a pointer to each suspend object.
-            while (itor())
-            {
-               RedirectSuspend* suspend_object =
-                  dynamic_cast<RedirectSuspend*> (itor.value());
+              // Fetch a pointer to each suspend object.
+              while (itor())
+              {
+                 RedirectSuspend* suspend_object =
+                    dynamic_cast<RedirectSuspend*> (itor.value());
 
-               // Is this a request to which the CANCEL applies?
-               if (suspend_object->mMessage.isInviteFor(message))
-               {
-                  // Send a 487 response to the original request.
-                  SipMessage response;
-                  response.setResponseData(&suspend_object->mMessage,
-                                           SIP_REQUEST_TERMINATED_CODE,
-                                           SIP_REQUEST_TERMINATED_TEXT);
-                  mpSipUserAgent->send(response);
+                 // Is this a request to which the CANCEL applies?
+                 if (suspend_object->mMessage.isInviteFor(message))
+                 {
+                    // Send a 487 response to the original request.
+                    SipMessage response;
+                    response.setResponseData(&suspend_object->mMessage,
+                                             SIP_REQUEST_TERMINATED_CODE,
+                                             SIP_REQUEST_TERMINATED_TEXT);
+                    mpSipUserAgent->send(response);
 
-                  // Cancel the redirection.
-                  // (After we are done using suspend_object->mMessage
-                  // to generate the response.)
-                  UtlInt requestNo = *dynamic_cast<UtlInt*> (itor.key());
-                  cancelRedirect(requestNo, suspend_object);
-               }
-            }
-         }
-         // We do not need to send a 200 for the CANCEL, as the stack does that
-         // for us.  (And will eat a 200 that we generate, it seems!)
-      }
-      else
-      {
-         // For all methods other than CANCEL:
-         // Note: any ACK that gets passed up to the redirector
-         // needs to be processed and forwarded if possible.
-         // ACKs for the error responses sent from the redirector
-         // are recognized by the stack and not passed to this application
-         //
-         // Call processRedirect to call the redirectors, and handle
-         // their results, send a response or suspend processing of
-         // the request.
-         // For ACKs, no response is sent(or allowed).  Instead, the ACK is routed
-         // back to the proxy with information that allows it to be sent
-         // to the correct next hop (ReqUri is replaced).
+                    // Cancel the redirection.
+                    // (After we are done using suspend_object->mMessage
+                    // to generate the response.)
+                    UtlInt requestNo = *dynamic_cast<UtlInt*> (itor.key());
+                    cancelRedirect(requestNo, suspend_object);
+                 }
+              }
+           }
+           // We do not need to send a 200 for the CANCEL, as the stack does that
+           // for us.  (And will eat a 200 that we generate, it seems!)
+        }
+        else
+        {
+           // For all methods other than CANCEL:
+           // Note: any ACK that gets passed up to the redirector
+           // needs to be processed and forwarded if possible.
+           // ACKs for the error responses sent from the redirector
+           // are recognized by the stack and not passed to this application
+           //
+           // Call processRedirect to call the redirectors, and handle
+           // their results, send a response or suspend processing of
+           // the request.
+           // For ACKs, no response is sent(or allowed).  Instead, the ACK is routed
+           // back to the proxy with information that allows it to be sent
+           // to the correct next hop (ReqUri is replaced).
 
-         // Assign mNextSeqNo as the sequence number for this request.
-         // If this request needs to be suspended, processRedirect will
-         // increment mNextSeqNo so that value will not be reused (soon).
-         // Initially, the suspendObject is NULL.
-         processRedirect(message, method, mNextSeqNo, (RedirectSuspend*) 0);
-      }
-      handled = TRUE;
+           // Assign mNextSeqNo as the sequence number for this request.
+           // If this request needs to be suspended, processRedirect will
+           // increment mNextSeqNo so that value will not be reused (soon).
+           // Initially, the suspendObject is NULL.
+           processRedirect(message, method, mNextSeqNo, (RedirectSuspend*) 0);
+        }
+        handled = TRUE;
+     }
+     break;
+
+     case RedirectResumeMsg::REDIRECT_RESTART:
+     {
+        // A message saying that a redirector is now willing to resume
+        // processing of a request.
+        // Get the redirector and sequence number.
+        const RedirectResumeMsg* msg =
+           dynamic_cast<RedirectResumeMsg*> (&eventMessage);
+        RedirectPlugin::RequestSeqNo seqNo = msg->getRequestSeqNo();
+        int redirectorNo = msg->getRedirectorNo();
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRedirectServer::handleMessage "
+                      "Resume for redirector %d request %d",
+                      redirectorNo, seqNo);
+
+        // Look up the suspend object.
+        UtlInt containableSeqNo(seqNo);
+        RedirectSuspend* suspendObject =
+           dynamic_cast<RedirectSuspend*>
+           (mSuspendList.findValue(&containableSeqNo));
+
+        // If there is no request with this sequence number, ignore the message.
+        if (!suspendObject)
+        {
+           Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
+                         "SipRedirectServer::handleMessage No suspended request "
+                         "with seqNo %d",
+                         seqNo);
+           break;
+        }
+
+        // Check that this redirector is suspended.
+        if (redirectorNo < 0 || redirectorNo >= mRedirectorCount)
+        {
+           Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                         "SipRedirectServer::handleMessage "
+                         "Invalid redirector %d",
+                         redirectorNo);
+           break;
+        }
+        if (!suspendObject->mRedirectors[redirectorNo].suspended)
+        {
+           Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
+                         "SipRedirectServer::handleMessage Redirector %d is "
+                         "not suspended for seqNo %d",
+                         redirectorNo, seqNo);
+           break;
+        }
+
+        // Mark this redirector as no longer wanting suspension.
+        suspendObject->mRedirectors[redirectorNo].suspended = FALSE;
+        suspendObject->mSuspendCount--;
+        // If no more redirectors want suspension, reprocess the request.
+        if (suspendObject->mSuspendCount == 0)
+        {
+           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRedirectServer::handleMessage "
+                         "Start reprocessing request %d", seqNo);
+
+           // Get a pointer to the message.
+           const SipMessage* message = &suspendObject->mMessage;
+
+           // Extract the request method.
+           UtlString method;
+           message->getRequestMethod(&method);
+
+           processRedirect(message, method, seqNo, suspendObject);
+        }
+        handled = TRUE;
+     }
+     break;
+
+     case OsMsg::OS_SHUTDOWN:
+     {
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                      "SipRedirectServer::handleMessage received shutdown request"
+                      );
+
+        // Seize the lock that protects the list of suspend objects.
+        OsLock lock(mRedirectorMutex);
+
+        // Cancel all suspended requests.
+        UtlHashMapIterator itor(mSuspendList);
+        UtlInt* key;
+        while ((key = dynamic_cast<UtlInt*> (itor())))
+        {
+           cancelRedirect(*key, dynamic_cast<RedirectSuspend*>(itor.value()));
+        }
+
+        // Finalize and delete all the redirectors.
+        PluginIterator redirectors(mRedirectPlugins);
+        RedirectPlugin* redirector;
+        while ((redirector = dynamic_cast<RedirectPlugin*>(redirectors.next())))
+        {
+           redirector->finalize();
+           delete redirector;
+        }
+
+        spInstance = NULL;
+        OsTask::requestShutdown(); // tell OsServerTask::run to exit
+        handled = TRUE;
+     }
+     break;
+
+     default:
+     {
+        Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
+                      "SipRedirectServer::handleMessage unhandled msg type %d",
+                      msgType
+                      );
+     }
+     }
+
+     return handled;
    }
-   break;
+#ifdef MONGO_assert
+  catch (mongo::DBException& e)
+  {
+    errorString = "Registry - Mongo DB Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRedirectServer::handleMessage() Exception: "
+             << e.what() );
+  }
+#endif
+  catch (boost::exception& e)
+  {
+    errorString = "Registry - Boost Library Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRedirectServer::handleMessage() Exception: "
+             << boost::diagnostic_information(e));
+  }
+  catch (std::exception& e)
+  {
+    errorString = "Registry - Standard Library Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRedirectServer::handleMessage() Exception: "
+             << e.what() );
+  }
+  catch (...)
+  {
+    errorString = "Registry - Unknown Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRedirectServer::handleMessage() Exception: Unknown Exception");
+  }
 
-   case RedirectResumeMsg::REDIRECT_RESTART:
-   {
-      // A message saying that a redirector is now willing to resume
-      // processing of a request.
-      // Get the redirector and sequence number.
-      const RedirectResumeMsg* msg =
-         dynamic_cast<RedirectResumeMsg*> (&eventMessage);
-      RedirectPlugin::RequestSeqNo seqNo = msg->getRequestSeqNo();
-      int redirectorNo = msg->getRedirectorNo();
-      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRedirectServer::handleMessage "
-                    "Resume for redirector %d request %d",
-                    redirectorNo, seqNo);
+  //
+  // If it ever get here, that means we caught an exception
+  //
+  if (msgType == OsMsg::PHONE_APP)
+  {
+    const SipMessage& message = *((SipMessageEvent&)eventMessage).getMessage();
+    SipMessage finalResponse;
+    finalResponse.setResponseData(&message, SIP_5XX_CLASS_CODE, errorString.c_str());
+    mpSipUserAgent->send(finalResponse);
+    handled = TRUE;
+  }
 
-      // Look up the suspend object.
-      UtlInt containableSeqNo(seqNo);
-      RedirectSuspend* suspendObject =
-         dynamic_cast<RedirectSuspend*>
-         (mSuspendList.findValue(&containableSeqNo));
-
-      // If there is no request with this sequence number, ignore the message.
-      if (!suspendObject)
-      {
-         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
-                       "SipRedirectServer::handleMessage No suspended request "
-                       "with seqNo %d",
-                       seqNo);
-         break;
-      }
-
-      // Check that this redirector is suspended.
-      if (redirectorNo < 0 || redirectorNo >= mRedirectorCount)
-      {
-         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
-                       "SipRedirectServer::handleMessage "
-                       "Invalid redirector %d",
-                       redirectorNo);
-         break;
-      }
-      if (!suspendObject->mRedirectors[redirectorNo].suspended)
-      {
-         Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
-                       "SipRedirectServer::handleMessage Redirector %d is "
-                       "not suspended for seqNo %d",
-                       redirectorNo, seqNo);
-         break;
-      }
-
-      // Mark this redirector as no longer wanting suspension.
-      suspendObject->mRedirectors[redirectorNo].suspended = FALSE;
-      suspendObject->mSuspendCount--;
-      // If no more redirectors want suspension, reprocess the request.
-      if (suspendObject->mSuspendCount == 0)
-      {
-         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRedirectServer::handleMessage "
-                       "Start reprocessing request %d", seqNo);
-
-         // Get a pointer to the message.
-         const SipMessage* message = &suspendObject->mMessage;
-
-         // Extract the request method.
-         UtlString method;
-         message->getRequestMethod(&method);
-
-         processRedirect(message, method, seqNo, suspendObject);
-      }
-      handled = TRUE;
-   }
-   break;
-
-   case OsMsg::OS_SHUTDOWN:
-   {
-      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectServer::handleMessage received shutdown request"
-                    );
-
-      // Seize the lock that protects the list of suspend objects.
-      OsLock lock(mRedirectorMutex);
-
-      // Cancel all suspended requests.
-      UtlHashMapIterator itor(mSuspendList);
-      UtlInt* key;
-      while ((key = dynamic_cast<UtlInt*> (itor())))
-      {
-         cancelRedirect(*key, dynamic_cast<RedirectSuspend*>(itor.value()));
-      }
-
-      // Finalize and delete all the redirectors.
-      PluginIterator redirectors(mRedirectPlugins);
-      RedirectPlugin* redirector;
-      while ((redirector = dynamic_cast<RedirectPlugin*>(redirectors.next())))
-      {
-         redirector->finalize();
-         delete redirector;
-      }
-
-      spInstance = NULL;
-      OsTask::requestShutdown(); // tell OsServerTask::run to exit
-      handled = TRUE;
-   }
-   break;
-
-   default:
-   {
-      Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
-                    "SipRedirectServer::handleMessage unhandled msg type %d",
-                    msgType
-                    );
-   }
-   }
-
-   return handled;
+  return handled;
 }
 
 void

@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.setting.SettingUtil;
  * Responsible for generating [MAC]-cfg.
  */
 public class SipConfiguration extends ProfileContext {
+    private static final String SIP_TEMPLATE = PolycomPhone.TEMPLATE_DIR + "/sip.cfg.vm";
     private static PatternSettingFilter s_callSettings = new PatternSettingFilter();
 
     static {
@@ -31,7 +32,7 @@ public class SipConfiguration extends ProfileContext {
     }
 
     public SipConfiguration(PolycomPhone device) {
-        super(device, device.getTemplateDir() + "/sip.cfg.vm");
+        super(device, SIP_TEMPLATE);
     }
 
     @Override

@@ -26,24 +26,9 @@
         </file>
       </type>
     </setting>
-	<setting name="version">
-      <type>
-        <enum>
-    	  <option><value>3.1.X</value></option>
-    	  <option><value>3.2.X</value></option>
-    	  <option><value>4.0.X</value></option>
-        </enum>
-    </type>
-    <value>3.2.X</value>
-    </setting>  
     <setting name="bootrom">
       <label>Bootrom (zip)</label>
-      <type>
-        <file>
-          <contentType>application/zip</contentType>
-          <moveTo>../../</moveTo>
-        </file>
-      </type>
+      <type refid="zip"/>
     </setting>
     <setting name="licenses.zip">
       <type refid="zip"/>
@@ -55,15 +40,9 @@
       <type>
         <file>
           <contentType>application/binary</contentType>
-          <rename>sip.ld</rename>
+          <rename>sip_3.1.X.ld</rename>
         </file>
       </type>
-    </setting>
-    <setting name="allowMultipleUploads" hidden="yes">
-      <type>
-        <boolean></boolean>
-      </type>
-      <value>1</value>
     </setting>
   </group>
 </model>

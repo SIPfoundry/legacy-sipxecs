@@ -15,6 +15,7 @@
 
 #include "sipdb/Subscription.h"
 
+using namespace std;
 
 const char* Subscription::oid_fld(){ static std::string fld = "_id"; return fld.c_str(); }
 const char* Subscription::component_fld(){ static std::string fld = "component"; return fld.c_str(); }
@@ -118,7 +119,14 @@ Subscription& Subscription::operator=(const Subscription& subscription)
 
 Subscription& Subscription::operator=(const mongo::BSONObj& bsonObj)
 {
-	_oid = bsonObj.getStringField(Subscription::oid_fld());
+  //For Subscription DB object id is of type mongo::OID and not a std::string
+  mongo::BSONElement id_field;
+  if (true == bsonObj.getObjectID(id_field))
+  {
+    mongo::OID oid;
+    id_field.Val(oid);
+    _oid = oid.str();
+  }
 
 	if (bsonObj.hasField(Subscription::component_fld()))
 		_component = bsonObj.getStringField(Subscription::component_fld());
