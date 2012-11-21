@@ -53,8 +53,12 @@ const char* SipBidirectionalProcessorPlugin::Prefix  = "SIPX_TRAN";
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
-static SipBridgeRouter* _pBridgeRouter = 0;
+
 #define SIPX_PROXY_ENABLE_BRIDGE_ROUTER 0
+
+#if SIPX_PROXY_ENABLE_BRIDGE_ROUTER
+static SipBridgeRouter* _pBridgeRouter = 0;
+#endif
 
 /* ============================ CREATORS ================================== */
 
