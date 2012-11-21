@@ -58,6 +58,7 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
@@ -79,7 +80,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         FeatureProvider, AddressProvider, ProcessProvider, DaoEventListener, FirewallProvider, SetupListener {
 
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
-        REST_API, OPENACD_WEB, OPENACD_SECURE_WEB
+        OPENACD_WEB, OPENACD_SECURE_WEB
     });
     private static final String VALUE = "value";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
@@ -136,12 +137,11 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         if (m_featureManager.isFeatureEnabled(FEATURE)) {
             List<DefaultFirewallRule> rules = new ArrayList<DefaultFirewallRule>();
             OpenAcdSettings settings = getSettings();
-            rules.add(new DefaultFirewallRule(REST_API));
             if (settings.isAgentWebUiEnabled()) {
-                rules.add(new DefaultFirewallRule(OPENACD_WEB));
+                rules.add(new DefaultFirewallRule(OPENACD_WEB, FirewallRule.SystemId.PUBLIC));
             }
             if (settings.isAgentWebUiSSlEnabled()) {
-                rules.add(new DefaultFirewallRule(OPENACD_SECURE_WEB));
+                rules.add(new DefaultFirewallRule(OPENACD_SECURE_WEB, FirewallRule.SystemId.PUBLIC));
             }
             return rules;
         }
@@ -160,9 +160,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         List<Address> addresses = new ArrayList<Address>(locations.size());
         Address address = null;
         for (Location location : locations) {
-            if (type.equals(REST_API)) {
-                address = new Address(REST_API, location.getAddress(), parseInt(settings.getAgentWebUiPort()));
-            } else if (type.equals(OPENACD_WEB) && settings.isAgentWebUiEnabled()) {
+            if (type.equals(OPENACD_WEB) && settings.isAgentWebUiEnabled()) {
                 address = new Address(OPENACD_WEB, location.getAddress(), parseInt(settings.getAgentWebUiPort()));
             } else if (type.equals(OPENACD_SECURE_WEB) && settings.isAgentWebUiSSlEnabled()) {
                 address = new Address(OPENACD_SECURE_WEB, location.getAddress(),
