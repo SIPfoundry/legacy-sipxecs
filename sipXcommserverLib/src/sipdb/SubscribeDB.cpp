@@ -191,7 +191,7 @@ void SubscribeDB::getUnexpiredContactsFieldsContaining(
     const int& timeNow,
     std::vector<string>& matchingContactFields ) const
 {
-    removeAllExpired();
+    const_cast<SubscribeDB*>(this)->removeAllExpired();
 
     mongo::BSONObj query = BSON(Subscription::expires_fld() << BSON_GREATER_THAN(timeNow));
 
