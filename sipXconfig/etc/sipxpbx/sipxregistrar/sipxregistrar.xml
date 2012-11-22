@@ -146,7 +146,11 @@
     <setting name="SIP_REDIRECT.140-FALLBACK.ALLOW_UNBOUND" advanced="yes">
       <type refid="yesNo"/>
       <value>N</value>
-    </setting>    
+    </setting>
+    <setting name="SIP_REGISTRAR_ADD_DIVERSION" advanced="yes">
+      <type refid="yesNo"/>
+      <value>N</value>
+    </setting>
   </group>
   <group name="userparam" advanced="yes">
     <setting name="SIP_REDIRECT.090-USERPARAM.STRIP_ALL" advanced="yes">
