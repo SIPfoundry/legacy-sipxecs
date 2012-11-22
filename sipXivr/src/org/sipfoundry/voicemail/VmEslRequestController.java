@@ -310,6 +310,15 @@ public class VmEslRequestController extends AbstractEslRequestController {
             String[] subParms = divHeader.split(";");
             String ocn = null;
 
+            //
+            // Ignore internal sipx diversion headers as indicated by sipxfwd
+            // parameter. 
+            //
+            for (String param : subParms) {
+                    if (param.startsWith("sipxfwd="))
+                      return;
+            }
+
             // Look for the OCN format <tel:3948809>
             if (ocn == null) {
                 ocn = getOcn(divHeader, "<tel:");
