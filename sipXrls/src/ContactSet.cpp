@@ -38,7 +38,8 @@ const UtlContainableType ContactSet::TYPE = "ContactSet";
 
 // Constructor
 ContactSet::ContactSet(ResourceCached* resource,
-                       UtlString& uri) :
+                       UtlString& uri,
+                       bool allowDirectUriSubscription) :
    mResource(resource),
    mUri(uri)
 {
@@ -48,8 +49,8 @@ ContactSet::ContactSet(ResourceCached* resource,
 
    // Set up the subscriptions.
    // Until we have any information from our SUBSCRIBE for "reg" events,
-   // there will be one subscription to mUri.
-   updateSubscriptions();
+   // and if flag allowDirectUriSubscription permits it, there will be one subscription to mUri.
+   updateSubscriptions(allowDirectUriSubscription);
 
    // Start the subscription.
    UtlBoolean ret;
@@ -196,8 +197,9 @@ void ContactSet::subscriptionEventCallback(
 
       // Delete this subscription from mSubscriptions.
       mSubscriptions.destroy(dialogHandle);
+
       // Update the subscriptions.
-      updateSubscriptions();
+      updateSubscriptions(false);
    }
    break;
    }
@@ -468,12 +470,12 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
       }
 
       // Update the subscriptions we maintain to agree with the new state.
-      updateSubscriptions();
+      updateSubscriptions(false);
    }
 }
 
 // Update the subscriptions we maintain to agree with the current contact state
-void ContactSet::updateSubscriptions()
+void ContactSet::updateSubscriptions(bool allowDirectUriSubscription)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ContactSet::updateSubscriptions mUri = '%s'",
@@ -530,9 +532,18 @@ void ContactSet::updateSubscriptions()
       }
    }
 
-   // If the list of callid_contacts is empty, add mUri as the default contact
-   // (with an empty registration Call-Id).
-   if (callid_contacts.isEmpty())
+   // If the list of callid_contacts is empty, it means that no contacts have been obtained
+   // so far. This could happen because the registrar is down or does not support reg events.
+   // In such cases if it is permitted (allowDirectResourceSubscription is enabled) the
+   // mUri is added as the default contactwith an empty registration Call-Id) so that
+   // a direct subscription will be attempted to the mUri.
+   //
+   // WARNING: Beware that the mechanism below is not correctly implemented and if used
+   // it will result in a dialog subscription being done before a reg subscription,
+   // which will be deleted and redone when the notify for reg subscription is received.
+   // The same will happen when the reg subscription is terminated: the dialog subscription
+   // will also be terminated and anew dialog subscription will be generated.
+   if (callid_contacts.isEmpty() && allowDirectUriSubscription)
    {
       OsSysLog::add(FAC_RLS, PRI_DEBUG,
                     "ContactSet::updateSubscriptions adding default contact mUri = '%s'",

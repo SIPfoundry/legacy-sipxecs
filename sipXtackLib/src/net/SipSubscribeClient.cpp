@@ -714,6 +714,7 @@ UtlBoolean SipSubscribeClient::endSubscriptionGroup(const UtlString& earlyDialog
                     count);
 
       delete groupState;
+      groupState = NULL;
    }
 
    return groupState != NULL;

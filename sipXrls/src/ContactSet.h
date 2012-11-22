@@ -60,8 +60,10 @@ class ContactSet : public UtlContainableAtomic,
    //! Construct a subscription set.
    ContactSet(ResourceCached* resource,
               ///< ancestor Resource object
-              UtlString& uri
+              UtlString& uri,
               ///< the AOR
+              bool allowDirectUriSubscription
+              ///< creates one subscription to SUBSCRIBE directly to AOR
       );
 
    //! Destructor
@@ -115,7 +117,7 @@ class ContactSet : public UtlContainableAtomic,
   protected:
 
    //! Update the subscriptions we maintain to agree with mSubscriptions.
-   void updateSubscriptions();
+   void updateSubscriptions(bool allowDirectUriSubscription);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:

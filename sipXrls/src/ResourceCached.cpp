@@ -103,7 +103,8 @@ void ResourceCached::startSubscriptions()
    mContactSetP = new ContactSet(this,
                                  // The URI, which is the UtlString-nature
                                  // of a RecourceCached.
-                                 *(static_cast <UtlString*> (this))
+                                 *(static_cast <UtlString*> (this)),
+                                 false
       );
 }
 
