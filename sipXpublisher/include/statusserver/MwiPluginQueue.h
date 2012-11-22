@@ -137,7 +137,8 @@ public:
   MwiPluginQueue() :
     _queue(MWI_PLUGIN_QUEUE_MAX_SIZE),
     _pRunThread(0),
-    _isTerminated(false)
+    _isTerminated(false),
+    _enableCaching(false)
   {
   }
 
@@ -181,6 +182,10 @@ public:
     _pRunThread = 0;
   }
 
+  void enableCaching(bool enable)
+  {
+    _enableCaching = enable;
+  }
 private:
 
   void internal_run()
@@ -194,7 +199,7 @@ private:
         if (data.mailBox == "__TERMINATE__")
           break;
 
-        if (data.subscribe)
+        if (data.subscribe && _enableCaching)
         {
           //
           // Check if we have cached it previously
@@ -212,11 +217,14 @@ private:
 
         _handler(data);
 
-        //
-        // Cache it
-        //
-        if (data.mailBox.find("@") != std::string::npos && !data.mailBoxData.empty())
-          _notifyData[data.mailBox] = data.mailBoxData;
+        if (_enableCaching)
+        {
+          //
+          // Cache it
+          //
+          if (data.mailBox.find("@") != std::string::npos && !data.mailBoxData.empty())
+            _notifyData[data.mailBox] = data.mailBoxData;
+        }
 
         if (data.subscribe)
           delete data.subscribe;
@@ -229,6 +237,7 @@ private:
   boost::thread* _pRunThread;
   bool _isTerminated;
   std::map<std::string, std::string> _notifyData;
+  bool _enableCaching;
 };
 
 

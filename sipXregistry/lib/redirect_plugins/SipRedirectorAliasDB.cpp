@@ -43,7 +43,8 @@ static UtlString _localDomain;
 
 // Constructor
 SipRedirectorAliasDB::SipRedirectorAliasDB(const UtlString& instanceName) :
-   RedirectPlugin(instanceName)
+   RedirectPlugin(instanceName),
+   _enableDiversionHeader(FALSE)
 {
    mLogName.append("[");
    mLogName.append(instanceName);
@@ -91,6 +92,8 @@ void SipRedirectorAliasDB::readConfig(OsConfigDb& configDb)
                  "set SipXauthIdentity secret",
                  mLogName.data()
                  );
+
+   _enableDiversionHeader =  configDb.getBoolean("SIP_REGISTRAR_ADD_DIVERSION", FALSE);
 }
 
 RedirectPlugin::LookUpStatus
@@ -183,7 +186,7 @@ SipRedirectorAliasDB::lookUp(
                contactUri.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, "AL");
                
                
-               if (numAliasContacts == 1 && isDomainAlias && isUserIdentity)
+               if (numAliasContacts == 1 && isDomainAlias && isUserIdentity && iter->relation != "callgroup")
                {
 
                  UtlString userId;
@@ -194,12 +197,21 @@ SipRedirectorAliasDB::lookUp(
                }
                else
                {
+                 if (isDomainAlias && iter->relation == "callgroup")
+                 {
+                   //
+                   // Hunt groups are also aliases so we want them to loop back to us so it gets properly mapped
+                   // the next turn around.
+                   //
+                   requestUri.setHostAddress(hostAlias);
+                   requestUri.getUri(requestString);
+                 }
                  // Add the contact.
                  contactList.add( contactUri, *this );
                }
 
 
-                if (contactList.getDiversionHeader().empty())
+                if (_enableDiversionHeader && contactList.getDiversionHeader().empty())
                 {
                   //
                   // Add a Diversion header for all deflections
@@ -219,12 +231,11 @@ SipRedirectorAliasDB::lookUp(
                   if (!userId.isNull())
                     strm << userId.data() << "@";
                   strm << host.data();
-                  strm << ">;reason=unconditional;relation=" << iter->relation;
+                  strm << ">;reason=unconditional;sipxfwd=" << iter->relation;
                   UtlString diversion = strm.str().c_str();
                   OS_LOG_INFO(FAC_SIP, "SipRedirectorAliasDB::lookUp inserting diversion from " << diversion.data());
                   contactList.setDiversionHeader(diversion.data());
                 }
-
             }
       }
    }
