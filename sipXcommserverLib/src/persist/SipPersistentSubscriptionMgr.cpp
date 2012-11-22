@@ -201,7 +201,9 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
                     accept.data());
       mDB.upsert(mComponent, requestUri, callId, contactEntry, expires,
 				subscribeCseq, eventTypeKey, eventType, "", to, from,
-				resourceId, route, 1, accept, 0);
+				resourceId, route, 
+        isNew,  // set the current notify cseq.  true(1) for new dialogs and false(0) for refresh
+        accept, 0);
    }
 
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,

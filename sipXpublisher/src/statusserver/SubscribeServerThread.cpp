@@ -993,13 +993,14 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
                      (int) r, x.data());
     }
     UtlString toTag;
+    bool exists = false;
     if (toUrl.getFieldParameter("tag", toTag))
     {
        // Check to see if this subscription exists.
        // Critical Section here
        OsLock mutex(mLock);
 
-       bool exists = StatusServer::getInstance()->getSubscribeDb()->subscriptionExists(
+       exists = StatusServer::getInstance()->getSubscribeDb()->subscriptionExists(
                 SUBSCRIPTION_COMPONENT_STATUS, to, from, callId, OsDateTime::getSecsSinceEpoch());
        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription subscriptionExists(..., '%s', '%s', '%s', %d) = %d",
                      to.data(), from.data(),
@@ -1050,7 +1051,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
                   from,
                   key,                 // this will be searched for later
                   route,
-                  1))                  // initial notify cseq (sent to phone)
+                  !exists))    // initial notify cseq (sent to phone).  This will be false(0) if dialog already exists
     {
        grantedExpiration = grantedExpirationTime;
        returnStatus = STATUS_SUCCESS;
