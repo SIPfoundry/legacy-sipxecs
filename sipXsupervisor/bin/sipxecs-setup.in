@@ -87,7 +87,10 @@ end
 # Return true or false IF machine is primary, not is anything was done or not
 def choose_primary_role?
   if $prompt[:noui]
-    return unless $prompt[:primary] 
+    unless $prompt[:primary] 
+      rm_file $primary_dat
+      return
+    end
   else
     return unless prompt_confirm("Is this the \e[0;31mfirst server\e[m in your cluster?")
   end
@@ -145,10 +148,9 @@ def prompt_default(msg, system_default, prompt_parameter)
 end
 
 def prompt_required(msg, prompt_parameter)
-  return noui_default
   if $prompt[:noui]
     v = $prompt[prompt_parameter]
-    raise "Missing required parameter #{prompt}" if v.nil?
+    raise("Missing required parameter #{prompt_parameter}") if v.nil?
     return v
   end
   return prompt(msg, "You must specify a value") {|v|
