@@ -62,6 +62,7 @@ public class DeviceConfigurationTest extends TestCase {
     public void testGenerateNetworkProfileDisableOverwrite() throws Exception {
         phone.setSettingValue("network/device.net/overwrite", "0");
         phone.beforeProfileGeneration();
+        phone.beforeProfileGeneration();
         ProfileContext cfg = new DeviceConfiguration(phone);
 
         m_pg.generate(m_location, cfg, null, "profile");
@@ -74,7 +75,6 @@ public class DeviceConfigurationTest extends TestCase {
 
     public void testGenerateNetworkProfileEnableOverwrite() throws Exception {
         phone.setSettingValue("network/device.net/overwrite", "1");
-        phone.beforeProfileGeneration();
         ProfileContext cfg = new DeviceConfiguration(phone);
 
         m_pg.generate(m_location, cfg, null, "profile");

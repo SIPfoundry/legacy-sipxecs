@@ -70,7 +70,6 @@ public class SipConfigurationTest extends PolycomXmlTestCase {
         // file are used, some of which are non-blank. The value below means G711Mu is
         // de-selected.
         phone.setSettingValue("voice/codecPref/OTHERS", "G711A|G729AB");
-
         phone.beforeProfileGeneration();
         ProfileContext cfg = new SipConfiguration(phone);
 

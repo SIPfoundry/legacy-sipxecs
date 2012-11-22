@@ -21,6 +21,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -114,7 +115,7 @@ public class CodecConfigurationForModelTest extends TestCase {
             if (-1 != i) {
                 option = option.substring(0, i);
             }
-            major_supported_codecs.add(option);
+            major_supported_codecs.add(StringUtils.remove(option,"_"));
         }
 
         // Loop though the audioProfiles for the model.  There should be one for major supported codec type.

@@ -61,6 +61,7 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
+import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
 import org.sipfoundry.sipxconfig.device.TimeZoneManager;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.domain.Domain;
@@ -223,6 +224,15 @@ public final class TestHelper {
      */
     public static MemoryProfileLocation setVelocityProfileGenerator(Device device, String etcDir) {
         MemoryProfileLocation location = new MemoryProfileLocation();
+        VelocityProfileGenerator profileGenerator = new VelocityProfileGenerator();
+        profileGenerator.setVelocityEngine(getVelocityEngine(etcDir));
+        profileGenerator.setTemplateRoot(etcDir);
+        device.setProfileGenerator(profileGenerator);
+        return location;
+    }
+
+    public static FileSystemProfileLocation setFsVelocityProfileGenerator(Device device, String etcDir) {
+        FileSystemProfileLocation location = new FileSystemProfileLocation();
         VelocityProfileGenerator profileGenerator = new VelocityProfileGenerator();
         profileGenerator.setVelocityEngine(getVelocityEngine(etcDir));
         profileGenerator.setTemplateRoot(etcDir);
