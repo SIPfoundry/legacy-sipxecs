@@ -69,6 +69,7 @@ class SipRedirectorAliasDB : public RedirectPlugin
    // String to use in place of class name in log messages:
    // "[instance] class".
    UtlString mLogName;
+   UtlBoolean _enableDiversionHeader;
 
   protected:
 };

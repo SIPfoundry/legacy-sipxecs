@@ -43,7 +43,8 @@ static UtlString _localDomain;
 
 // Constructor
 SipRedirectorAliasDB::SipRedirectorAliasDB(const UtlString& instanceName) :
-   RedirectPlugin(instanceName)
+   RedirectPlugin(instanceName),
+   _enableDiversionHeader(FALSE)
 {
    mLogName.append("[");
    mLogName.append(instanceName);
@@ -91,6 +92,8 @@ void SipRedirectorAliasDB::readConfig(OsConfigDb& configDb)
                  "set SipXauthIdentity secret",
                  mLogName.data()
                  );
+
+   _enableDiversionHeader =  configDb.getBoolean("SIP_REGISTRAR_ADD_DIVERSION", FALSE);
 }
 
 RedirectPlugin::LookUpStatus
@@ -208,7 +211,7 @@ SipRedirectorAliasDB::lookUp(
                }
 
 
-                if (contactList.getDiversionHeader().empty())
+                if (_enableDiversionHeader && contactList.getDiversionHeader().empty())
                 {
                   //
                   // Add a Diversion header for all deflections
