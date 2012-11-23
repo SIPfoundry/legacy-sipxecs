@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -48,6 +49,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
 
     private boolean m_preserveMissingUsers;
 
+    @Override
     public void beforeInserting() {
         // Make sure m_userMapper's AttrMap is set up.
         m_userMapper.setAttrMap(m_attrMap);
@@ -61,6 +63,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         }
     }
 
+    @Override
     public void afterInserting() {
         if (m_preserveMissingUsers) {
             return;
@@ -70,6 +73,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         m_existingUserNames.clear();
     }
 
+    @Override
     protected void insertRow(SearchResult searchResult) {
         Attributes attrs = searchResult.getAttributes();
         LOG.info("Inserting:" + attrs.toString());
@@ -129,10 +133,12 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
     /**
      * Initial implementation will just print all attributes...
      */
+    @Override
     protected String dataToString(SearchResult sr) {
         return sr.getName();
     }
 
+    @Override
     protected RowStatus checkRowData(SearchResult sr) {
         Attributes attrs = sr.getAttributes();
         String idAttrName = m_attrMap.getIdentityAttributeName();
@@ -148,15 +154,19 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
             }
             Set<String> aliases = m_userMapper.getAliasesSet(attrs);
             if (aliases != null) {
+                Set<String> aliasesToRemove = new TreeSet<String>();
                 for (String alias : aliases) {
                     if (m_coreContext.isAliasInUseForOthers(alias, userName)) {
-                        aliases.remove(alias);
+                        aliasesToRemove.add(alias);
                         status = RowStatus.WARNING_ALIAS_COLLISION;
                     }
                 }
+                if (!aliasesToRemove.isEmpty()) {
+                    aliases.removeAll(aliasesToRemove);
+                }
             }
             m_aliases = aliases;
-        } catch (NamingException e) {
+        } catch (Exception e) {
             return RowStatus.FAILURE;
         }
         return status;
