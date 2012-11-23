@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -153,15 +154,19 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
             }
             Set<String> aliases = m_userMapper.getAliasesSet(attrs);
             if (aliases != null) {
+                Set<String> aliasesToRemove = new TreeSet<String>();
                 for (String alias : aliases) {
                     if (m_coreContext.isAliasInUseForOthers(alias, userName)) {
-                        aliases.remove(alias);
+                        aliasesToRemove.add(alias);
                         status = RowStatus.WARNING_ALIAS_COLLISION;
                     }
                 }
+                if (!aliasesToRemove.isEmpty()) {
+                    aliases.removeAll(aliasesToRemove);
+                }
             }
             m_aliases = aliases;
-        } catch (NamingException e) {
+        } catch (Exception e) {
             return RowStatus.FAILURE;
         }
         return status;
