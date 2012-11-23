@@ -78,7 +78,6 @@ NatTraversalAgent::NatTraversalAgent(const UtlString& pluginName ) ///< the name
      mMessageProcessingMutex( OsRWMutex::Q_FIFO ),
      mpMediaRelay( 0 ),
      mpNatMaintainer( 0 ),
-     mCleanupTimer( *this ),
      mNextAvailableCallTrackerHandle( 0 ),
      mpRegDb ( 0 ),
      mpSubscribeDb ( 0 )
@@ -162,9 +161,6 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
          // complete the initialization required by the feature
          mbNatTraversalFeatureEnabled = true;
 
-         // start the timer that will be the heartbeat to delete stale session context objects
-         OsTime cleanUpTimerPeriod( CLEAN_UP_TIMER_IN_SECS, 0 );
-         mCleanupTimer.periodicEvery( cleanUpTimerPeriod, cleanUpTimerPeriod );
          Os::Logger::instance().log(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig successfully initialized media relay - NAT traversal feature will be enabled",
                        mInstanceName.data() );
       }
@@ -209,7 +205,14 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                                       UtlString&  reason      ///< rejection reason
                                       )
 {
-   OsWriteLock lock( mMessageProcessingMutex );
+  //
+  // Collect the inactive sesssions prior to locking the mutex or this can cause
+  // a deadlock.
+  //
+  collectInactiveSessions();
+  
+
+  OsWriteLock lock( mMessageProcessingMutex );
 
    AuthResult result = CONTINUE;
 
@@ -500,7 +503,7 @@ void NatTraversalAgent::UndoChangesToRequestUri( SipMessage& message )
    }
 }
 
-OsStatus NatTraversalAgent::signal( intptr_t eventData )
+OsStatus NatTraversalAgent::collectInactiveSessions()
 {
    OsWriteLock lock( mMessageProcessingMutex );
    // send a timer event to all instantiated CallTracker objects
@@ -943,7 +946,6 @@ NatTraversalAgent::~NatTraversalAgent()
 {
    OsWriteLock lock( mMessageProcessingMutex );
 
-   mCleanupTimer.stop();
    if (mpNatMaintainer != NULL)
    {
        delete mpNatMaintainer;

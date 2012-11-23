@@ -1276,7 +1276,8 @@ int MediaBridgePair::compareTo(UtlContainable const *rhs ) const
 
 AsynchMediaRelayRequestSender::AsynchMediaRelayRequestSender( MediaRelay* pOwningMediaRelay ) :
    OsServerTask( "AsynchMediaRelayRequestSender-%d" ),
-   mpOwningMediaRelay( pOwningMediaRelay )
+   mpOwningMediaRelay( pOwningMediaRelay ),
+   _enableAsyncOperations(false)
 {
 }
 
@@ -1514,12 +1515,21 @@ void AsynchMediaRelayRequestSender::queryBridgeStatistics( const UtlString& cont
    postMessageIfStarted( message );
 }
 
-OsStatus AsynchMediaRelayRequestSender::postMessageIfStarted( const OsMsg& rMsg,
+OsStatus AsynchMediaRelayRequestSender::postMessageIfStarted( OsMsg& rMsg,
                                                               const OsTime& rTimeout,
                                                               UtlBoolean sentFromISR )
 {
-   OsStatus result = ( isStarted() ? postMessage( rMsg, rTimeout, sentFromISR ) : OS_TASK_NOT_STARTED );
-   return result;
+  if (_enableAsyncOperations)
+  {
+    OsStatus result = ( isStarted() ? postMessage( rMsg, rTimeout, sentFromISR ) : OS_TASK_NOT_STARTED );
+    return result;
+  }
+  else
+  {
+    if (isStarted())
+      handleMessage(rMsg);
+    return OS_SUCCESS;
+  }
 }
 
 AsynchMediaRelayMsg::AsynchMediaRelayMsg( EventSubType eventSubType,

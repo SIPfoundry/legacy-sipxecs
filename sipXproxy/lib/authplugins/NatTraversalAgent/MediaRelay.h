@@ -138,11 +138,12 @@ public:
    void setSymTimeout( const UtlString& controllerHandle, const UtlString& symId, int timeout );
    void ping( const UtlString& controllerHandle );
    void queryBridgeStatistics( const UtlString& controllerHandle, const UtlString& bridgeId, void* opaqueData );
-   OsStatus postMessageIfStarted( const OsMsg& rMsg,
+   OsStatus postMessageIfStarted( OsMsg& rMsg,
                                   const OsTime& rTimeout=OsTime::OS_INFINITY,
                                   UtlBoolean sentFromISR=FALSE );
 
 private:
+   bool _enableAsyncOperations;
    MediaRelay* mpOwningMediaRelay;
    UtlString   mReferenceSymmitronInstanceHandle;
 };
