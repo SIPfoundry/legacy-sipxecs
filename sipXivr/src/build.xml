@@ -23,6 +23,7 @@
     <pathelement location="${sipxopenfireplugin.jar}"/>
     <pathelement location="${xmlrpc-common.jar}"/>
   	<pathelement location="${iText.jar}"/>
+  	<pathelement location="${apache.ssl.jar}"/>
   </path>
   <property name="classpath" refid="base.path" />
 

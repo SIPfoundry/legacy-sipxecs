@@ -21,5 +21,6 @@
 	<classpathentry kind="src" path="/sipxcommons"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/log4j.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/iText-2.1.7.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/not-yet-commons-ssl.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

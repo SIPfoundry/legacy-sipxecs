@@ -13,7 +13,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.ssl.HostnameVerifier;
 import org.apache.log4j.Logger;
 
 
@@ -31,10 +34,12 @@ public class RestfulRequest {
     Exception m_exception;
 
     public RestfulRequest(String urlString) {
+        HttpsURLConnection.setDefaultHostnameVerifier(HostnameVerifier.ALLOW_ALL);
         m_urlString = urlString;
     }
 
     public RestfulRequest(String urlString, String user, String password) {
+        HttpsURLConnection.setDefaultHostnameVerifier(HostnameVerifier.ALLOW_ALL);
         m_urlString = urlString;
         if (user != null && password != null) {
             m_digest = "Basic " + new String(Base64.encodeBase64((user+":"+password).getBytes()));

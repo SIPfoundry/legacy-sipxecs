@@ -36,4 +36,5 @@ iText.jar=${sipxconfig.lib.dir}/iText-2.1.7.jar
 sipxopenfire.dir=@SIPX_JAVADIR@/sipXopenfire
 sipxopenfireplugin.jar=${sipxopenfire.dir}/plugins/sipx-openfire-presence-plugin.jar
 xmlrpc-common.jar=${sipxcommons.dir}/xmlrpc-common.jar
+apache.ssl.jar=${sipxcommons.dir}/not-yet-commons-ssl.jar
 
