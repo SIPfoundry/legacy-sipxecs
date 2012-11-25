@@ -73,7 +73,11 @@ public enum Index {
     VOICEMAIL_SERVER("voicemailServer", 51),
     // user caller alias
     EXTERNAL_NUMBER("externalNumber", 52),
-    ANONYMOUS_CALLER_ALIAS("anonymousCallerAlias", 53);
+    ANONYMOUS_CALLER_ALIAS("anonymousCallerAlias", 53),
+    // additional phone settings
+    ADDITIONAL_PHONE_SETTINGS("additionalPhoneSettings", 54),
+    // additional line settings
+    ADDITIONAL_LINE_SETTINGS("additionalLineSettings", 55);
 
     private final String m_name;
     private final int m_value;
@@ -151,7 +155,8 @@ public enum Index {
             "Office zip", "Office mail stop", "Twitter", "Linkedin", "Facebook", "Xing", "Active greeting",
             "Email voicemail notification", "Email format", "Email attach audio",
             "Alternate email voicemail notification", "Alternate email format", "Alternate email attach audio",
-            "Internal Voicemail Server", "Caller ID", "Block Caller ID"
+            "Internal Voicemail Server", "Caller ID", "Block Caller ID", "Additional phone settings",
+            "Additional line settings"
         };
     }
 }

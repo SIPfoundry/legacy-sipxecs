@@ -346,12 +346,12 @@ public class CsvRowInserterTest extends TestCase {
         Phone phone = new TestPhone();
         phone.setModel(new PhoneModel("test"));
         User user = new User();
-        Line expected = impl.addLine(phone, user);
-        Line actual = impl.addLine(phone, user);
+        Line expected = impl.addLine(phone, user, "");
+        Line actual = impl.addLine(phone, user, "");
         assertSame(expected, actual);
 
         User newuser = new TestUser(1);
-        Line newline = impl.addLine(phone, newuser);
+        Line newline = impl.addLine(phone, newuser, "");
         assertNotSame(expected, newline);
     }
 
@@ -360,7 +360,7 @@ public class CsvRowInserterTest extends TestCase {
         Phone phone = new TestPhone();
         phone.setModel(new PhoneModel("test"));
 
-        Line nullUserLine = impl.addLine(phone, null);
+        Line nullUserLine = impl.addLine(phone, null, "");
         assertNull(nullUserLine);
         assertEquals(0, phone.getLines().size());
     }

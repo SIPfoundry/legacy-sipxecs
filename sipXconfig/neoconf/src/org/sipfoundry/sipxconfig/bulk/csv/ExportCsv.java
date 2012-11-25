@@ -82,10 +82,10 @@ public class ExportCsv {
             return Collections.emptyList();
         }
         Index.SERIAL_NUMBER.set(row, phoneSerialNumber);
-
         Index.MODEL_ID.set(row, phone.getModelId());
         Index.PHONE_GROUP.set(row, phone.getGroupsNames());
         Index.PHONE_DESCRIPTION.set(row, phone.getDescription());
+        Index.ADDITIONAL_PHONE_SETTINGS.set(row, phone.getAdditionalPhoneSettings());
 
         // Now get the user(s) for each phone.
         List<Line> lines = phone.getLines();
@@ -96,6 +96,10 @@ public class ExportCsv {
                 // skip external lines
                 continue;
             }
+
+            line.setPaths(phone.getLinePaths());
+            Index.ADDITIONAL_LINE_SETTINGS.set(row, line.getAdditionalLineSettings());
+
             String userName = user.getUserName();
             // Add username to list that shows this user is associated with a phone.
             usernames.add(userName);
