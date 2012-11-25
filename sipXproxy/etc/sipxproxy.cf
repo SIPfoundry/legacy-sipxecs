@@ -52,7 +52,6 @@ bundle agent sipxproxy_config {
         "authrules.xml",
         "fallbackrules.xml",
         "forwardingrules.xml",
-        "nattraversalrules.xml",
         "sipxbridge.xml"
       };
 
@@ -72,6 +71,13 @@ bundle agent sipxproxy_config {
         perms => m("644"),
         copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
         classes => if_repaired("restart_sipxproxy_and_registrar");
+
+      "$(sipx.SIPX_CONFDIR)/nattraversalrules.xml"
+        comment => "install NAT traversal rules $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/nattraversalrules.xml"),
+        classes => if_repaired("redeploy_nat");
 }
 
 bundle edit_line sipXproxy_config_contents() {
@@ -138,15 +144,25 @@ bundle agent sipxproxy_running {
         comment => "restart sipxproxy",
         args => "restart";
 
-    restart_sipxproxy_and_registrar.sipxproxy::
-      "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
-        comment => "restart sipxproxy",
+    redeploy_nat.sipxrelay::
+      "$(sipx.SIPX_SERVICEDIR)/sipxrelay"
+        comment => "redeploy NAT config - restart sipxrelay",
         args => "restart";
 
-    restart_sipxproxy_and_registrar.sipxregistrar::
-      "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
-        comment => "restart sipxregistrar",
+    (restart_sipxproxy_and_registrar|redeploy_nat).sipxproxy::
+      "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
+        comment => "dialplan or NAT config redeploy - restart sipxproxy",
         args => "restart";
-        
+
+    (restart_sipxproxy_and_registrar|redeploy_nat).sipxregistrar::
+      "$(sipx.SIPX_SERVICEDIR)/sipxregistrar"
+        comment => "dialplan or NAT config redeploy -restart sipxregistrar",
+        args => "restart";
+
+    redeploy_nat.sipxbridge::
+      "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
+        comment => "redeploy NAT config - restart sipxbridge",
+        args => "restart";
+
 }
 

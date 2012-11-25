@@ -16,22 +16,9 @@
 #
 bundle agent sipxrelay {
   methods:
-    sipxrelay::
-      "any" usebundle => sipxrelay_config;
     any::
       "any" usebundle => sipxrelay_logwatcher;
       "any" usebundle => sipxrelay_running;
-}
-
-bundle agent sipxrelay_config {
-  files:
-    any::
-      "$(sipx.SIPX_CONFDIR)/nattraversalrules.xml"
-        comment => "install NAT traversal rules $(this.promiser)",
-        create => "true",
-        perms => m("644"),
-        copy_from => copy_from_cfdata("$(sipx.location_id)/nattraversalrules.xml"),
-        classes => if_repaired("restart_sipxrelay");
 }
 
 bundle agent sipxrelay_logwatcher {
