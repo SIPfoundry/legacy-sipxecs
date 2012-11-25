@@ -12,11 +12,15 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import static java.lang.String.format;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.OutputFormat;
@@ -42,14 +46,17 @@ import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
  * Support for Polycom 300, 400, and 500 series phones and model 3000 conference phone
  */
 public class PolycomPhone extends Phone {
-    public static final String MIME_TYPE_PLAIN = "text/plain";
-    public static final String BEAN_ID = "polycom";
-    public static final String CALL = "call";
-    public static final String EMERGENCY = "dialplan/digitmap/routing.1/emergency.1.value";
+    static final String COMMA = ",";
+    static final String EQUALS = "=";
+    static final String MIME_TYPE_PLAIN = "text/plain";
+    static final String BEAN_ID = "polycom";
+    static final String CALL = "call";
+    static final String EMERGENCY = "dialplan/digitmap/routing.1/emergency.1.value";
     static final String REGISTRATION_PATH = "reg/server/1/address";
     static final String REGISTRATION_PORT_PATH = "reg/server/1/port";
     static final String CONTACT_MODE = "contact";
     static final String DISPLAY_NAME_PATH = "reg/displayName";
+    static final String REGISTRATION_LABEL = "reg/label";
     static final String TYPE_PATH = "reg/type";
     static final String THIRD_PARTY_NAME_PATH = "reg/thirdPartyName";
     static final String PASSWORD_PATH = "reg/auth.password";
@@ -59,6 +66,14 @@ public class PolycomPhone extends Phone {
     static final String CALL_BACK_MODE_PATH = "msg.mwi/callBackMode";
     static final String SUBSCRIBE_PATH = "msg.mwi/subscribe";
     static final String TEMPLATE_DIR = "polycom/mac-address.d";
+    static final String MB_PROXY = "mb/proxy";
+    static final String MB_IDLE_DISPLAY_HOME_PAGE = "mb/idleDisplay/home";
+    static final String MB_IDLE_DISPLAY_REFRESH = "mb/idleDisplay/refresh";
+    static final String MB_MAIN_HOME_PAGE = "mb/main/home";
+    static final String MB_MAIN_HOME_IDLE = "mb/main/idleTimeout";
+    static final String MB_MAIN_HOME_STATUSBAR = "mb/main/statusbar";
+    static final String MB_LIMITS_NODES = "mb/limits/nodes";
+    static final String MB_LIMITS_CACHE = "mb/limits/cache";
 
     public PolycomPhone() {
         setDeviceVersion(PolycomModel.VER_2_0);
@@ -158,6 +173,33 @@ public class PolycomPhone extends Phone {
     }
 
     @Override
+    public String getAdditionalPhoneSettings() {
+        List<String> settings = new ArrayList<String>();
+        addSetting(settings, MB_PROXY, MB_IDLE_DISPLAY_HOME_PAGE, MB_IDLE_DISPLAY_REFRESH, MB_MAIN_HOME_PAGE,
+                MB_MAIN_HOME_IDLE, MB_MAIN_HOME_STATUSBAR, MB_LIMITS_NODES, MB_LIMITS_CACHE);
+
+        return StringUtils.join(settings, COMMA);
+    }
+
+    @Override
+    public void setAdditionalPhoneSettings(String additionalSettings) {
+        List<String> settings = Arrays.asList(StringUtils.split(additionalSettings, COMMA));
+        settings = Arrays.asList(StringUtils.split(additionalSettings, COMMA));
+        for (String setting : settings) {
+            setSettingValue(StringUtils.substringBefore(setting, EQUALS),
+                    StringUtils.substringAfter(setting, EQUALS));
+        }
+    }
+
+    @Override
+    public List<String> getLinePaths() {
+        List<String> paths = new ArrayList<String>();
+        paths.add(REGISTRATION_LABEL);
+
+        return paths;
+    }
+
+    @Override
     protected void setLineInfo(Line line, LineInfo externalLine) {
         line.setSettingValue(DISPLAY_NAME_PATH, externalLine.getDisplayName());
         line.setSettingValue(USER_ID_PATH, externalLine.getUserId());
@@ -211,6 +253,20 @@ public class PolycomPhone extends Phone {
 
     public String getDeviceFilename() {
         return format("%s-sipx-device.cfg", getProfileFilename());
+    }
+
+    private void addSetting(List<String> settingsList, String... paths) {
+        Setting settings = getSettings();
+        if (settings != null) {
+            for (String path : paths) {
+                Setting setting = settings.getSetting(path);
+                String settingValue = (null == setting ? null : (setting.getValue() == null ? null : setting
+                        .getValue()));
+                if (!StringUtils.isEmpty(settingValue)) {
+                    settingsList.add(path + EQUALS + settingValue);
+                }
+            }
+        }
     }
 
     static class ApplicationProfile extends Profile {

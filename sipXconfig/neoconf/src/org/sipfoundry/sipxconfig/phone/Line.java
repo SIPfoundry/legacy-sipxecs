@@ -9,8 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroupsModel;
@@ -21,6 +25,8 @@ import static org.sipfoundry.sipxconfig.common.SipUri.formatIgnoreDefaultPort;
 import static org.sipfoundry.sipxconfig.common.SipUri.parsePort;
 
 public class Line extends BeanWithGroups {
+    private static final String COMMA = ",";
+    private static final String EQUALS = "=";
 
     private Phone m_phone;
 
@@ -28,12 +34,19 @@ public class Line extends BeanWithGroups {
 
     private boolean m_initialized;
 
+
+    private List<String> m_paths = new ArrayList<String>();
+
     public User getUser() {
         return m_user;
     }
 
     public void setUser(User user) {
         m_user = user;
+    }
+
+    public void setPaths(List<String> paths) {
+        m_paths = paths;
     }
 
     public String getUserName() {
@@ -133,6 +146,36 @@ public class Line extends BeanWithGroups {
      */
     public void setLineInfo(LineInfo lineInfo) {
         getPhone().setLineInfo(this, lineInfo);
+    }
+
+    public String getAdditionalLineSettings() {
+        List<String> settings = new ArrayList<String>();
+        addSetting(settings, m_paths);
+
+        return StringUtils.join(settings, COMMA);
+    }
+
+    public void setAdditionalLineSettings(String additionalSettings) {
+        List<String> settings = Arrays.asList(StringUtils.split(additionalSettings, COMMA));
+        settings = Arrays.asList(StringUtils.split(additionalSettings, COMMA));
+        for (String setting : settings) {
+            setSettingValue(StringUtils.substringBefore(setting, EQUALS),
+                    StringUtils.substringAfter(setting, EQUALS));
+        }
+    }
+
+    private void addSetting(List<String> settingsList, List<String> paths) {
+        Setting settings = getSettings();
+        if (paths != null && settings != null) {
+            for (String path : paths) {
+                Setting setting = settings.getSetting(path);
+                String settingValue = (null == setting ? null : (setting.getValue() == null ? null : setting
+                        .getValue()));
+                if (!StringUtils.isEmpty(settingValue)) {
+                    settingsList.add(path + EQUALS + settingValue);
+                }
+            }
+        }
     }
 
     @Override

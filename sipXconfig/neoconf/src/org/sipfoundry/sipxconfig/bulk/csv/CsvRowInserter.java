@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -129,7 +130,8 @@ public class CsvRowInserter extends RowInserter<String[]> {
             phoneGroups = null;
         }
 
-        insertData(user, userGroups, phone, phoneGroups);
+        String additionalLineSettings = Index.ADDITIONAL_LINE_SETTINGS.get(row);
+        insertData(user, userGroups, phone, phoneGroups, additionalLineSettings);
     }
 
     /**
@@ -235,6 +237,11 @@ public class CsvRowInserter extends RowInserter<String[]> {
             phone.setDescription(description);
         }
 
+        String additionalphoneSettings = Index.ADDITIONAL_PHONE_SETTINGS.get(row);
+        if (!StringUtils.isEmpty(additionalphoneSettings)) {
+            phone.setAdditionalPhoneSettings(additionalphoneSettings);
+        }
+
         return phone;
     }
 
@@ -248,7 +255,7 @@ public class CsvRowInserter extends RowInserter<String[]> {
      * @param phoneGroup phone group to which phone will be added
      */
     private void insertData(User user, Collection<Group> userGroups, Phone phone,
-            Collection<Group> phoneGroups) {
+            Collection<Group> phoneGroups, String settings) {
 
         if (user != null) {
             for (Group userGroup : userGroups) {
@@ -268,7 +275,7 @@ public class CsvRowInserter extends RowInserter<String[]> {
         }
 
         if (phone != null) {
-            addLine(phone, user);
+            addLine(phone, user, settings);
             m_phoneContext.storePhone(phone);
         }
     }
@@ -283,7 +290,7 @@ public class CsvRowInserter extends RowInserter<String[]> {
         }
     }
 
-    Line addLine(Phone phone, User user) {
+    Line addLine(Phone phone, User user, String settings) {
         if (user == null) {
             return null;
         }
@@ -291,10 +298,16 @@ public class CsvRowInserter extends RowInserter<String[]> {
             User candidate = l.getUser();
             if (candidate != null && candidate.equals(user)) {
                 // user already on this line
+                if (!StringUtils.isEmpty(settings)) {
+                    l.setAdditionalLineSettings(settings);
+                }
                 return l;
             }
         }
         Line line = phone.createLine();
+        if (!StringUtils.isEmpty(settings)) {
+            line.setAdditionalLineSettings(settings);
+        }
         line.setUser(user);
         phone.addLine(line);
         return line;
