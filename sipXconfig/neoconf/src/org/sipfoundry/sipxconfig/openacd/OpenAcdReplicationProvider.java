@@ -7,8 +7,11 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
-import org.sipfoundry.sipxconfig.common.ReplicableProvider;
+import java.util.List;
 
-public interface OpenAcdReplicationProvider extends ReplicableProvider {
+import org.sipfoundry.sipxconfig.common.Replicable;
 
+
+public interface OpenAcdReplicationProvider {
+    List<Replicable> getReplicables();
 }

@@ -27,12 +27,15 @@ import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
-import org.sipfoundry.sipxconfig.cfgmgt.PostConfigListener;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
+import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
+import org.sipfoundry.sipxconfig.feature.FeatureListener;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 
-public class OpenAcdConfiguration implements ConfigProvider, PostConfigListener {
+public class OpenAcdConfiguration implements ConfigProvider, FeatureListener {
     private OpenAcdContext m_openAcdContext;
     private OpenAcdReplicationProvider m_openAcdReplicationProvider;
     private SipxReplicationContext m_sipxReplicationContext;
@@ -61,15 +64,7 @@ public class OpenAcdConfiguration implements ConfigProvider, PostConfigListener 
                 IOUtils.closeQuietly(w);
             }
         }
-    }
 
-    @Override
-    public void postReplicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (request.applies(OpenAcdContext.FEATURE)) {
-            for (Replicable openAcdObject : m_openAcdReplicationProvider.getReplicables()) {
-                m_sipxReplicationContext.generate(openAcdObject);
-            }
-        }
     }
 
     public void setOpenAcdContext(OpenAcdContext openAcdContext) {
@@ -84,4 +79,16 @@ public class OpenAcdConfiguration implements ConfigProvider, PostConfigListener 
         m_sipxReplicationContext = sipxReplicationContext;
     }
 
+    @Override
+    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+    }
+
+    @Override
+    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        if (request.getAllNewlyEnabledFeatures().contains(OpenAcdContext.FEATURE)) {
+            for (Replicable openAcdObject : m_openAcdReplicationProvider.getReplicables()) {
+                m_sipxReplicationContext.generate(openAcdObject);
+            }
+        }
+    }
 }

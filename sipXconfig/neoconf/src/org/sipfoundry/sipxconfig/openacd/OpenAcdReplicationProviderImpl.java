@@ -20,9 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 
-public class OpenAcdReplicationProviderImpl implements OpenAcdReplicationProvider {
+public class OpenAcdReplicationProviderImpl implements ReplicableProvider, OpenAcdReplicationProvider {
     private OpenAcdContext m_openAcdContext;
     private FeatureManager m_featureManager;
 
