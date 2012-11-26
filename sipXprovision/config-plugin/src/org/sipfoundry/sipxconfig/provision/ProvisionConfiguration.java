@@ -21,6 +21,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
@@ -39,10 +40,10 @@ public class ProvisionConfiguration implements ConfigProvider {
             return;
         }
 
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(Provision.FEATURE);
+        Set<Location> locations = request.locations(manager);
         ProvisionSettings settings = m_provision.getSettings();
-        boolean enabled = manager.getFeatureManager().isFeatureEnabled(Provision.FEATURE);
         for (Location location : locations) {
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(Provision.FEATURE, location);
             File dir = manager.getLocationDataDirectory(location);
             ConfigUtils.enableCfengineClass(dir, "sipxprovision.cfdat", enabled, "sipxprovision");
             if (!enabled) {
