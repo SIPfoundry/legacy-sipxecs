@@ -23,6 +23,7 @@ import org.restlet.resource.Representation;
 import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -66,13 +67,19 @@ public class PhonesResource extends Resource {
         private final String m_description = null;
         private final String m_serialNumber = null;
         private final String m_model = null;
+        private final String m_version = null;
 
         public Phone getPhone(PhoneContext phoneContext, ModelSource<PhoneModel> phoneModelSource) {
             PhoneModel model = phoneModelSource.getModel(m_model);
             Phone phone = phoneContext.newPhone(model);
             phone.setDescription(m_description);
             phone.setSerialNumber(m_serialNumber);
-
+            for (DeviceVersion  deviceVersion: model.getVersions()) {
+                if (deviceVersion.getName().contains(m_version)) {
+                    phone.setDeviceVersion(deviceVersion);                    
+                }
+            }
+            
             return phone;
         }
     }

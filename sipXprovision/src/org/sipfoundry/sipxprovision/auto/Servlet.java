@@ -398,6 +398,13 @@ public class Servlet extends HttpServlet {
                 ID_PREFIX, getUniqueId(phone.mac), phone.version);
     }
 
+    protected static String extractPolycomVersion(DetectedPhone phone) {
+        if (phone.model.sipxconfig_id != null && phone.model.sipxconfig_id.contains("polycom")) {
+            return (new StringBuilder(phone.version.substring(0,3).concat(".X"))).toString();
+        }
+        return "";
+    }
+    
     protected boolean doProvisionPhone(DetectedPhone phone) {
 
         if (null == phone) {
@@ -413,8 +420,8 @@ public class Servlet extends HttpServlet {
             DataOutputStream dstream = new java.io.DataOutputStream(connection.getOutputStream());
             dstream.writeBytes("<phones>");
             dstream.writeBytes(String.format("<phone><serialNumber>%s</serialNumber>" +
-               "<model>%s</model><description>%s</description></phone>",
-               phone.mac.toLowerCase(), phone.model.sipxconfig_id, getPhoneDescription(phone, new Date())));
+               "<model>%s</model><description>%s</description><version>%s</version></phone>",
+               phone.mac.toLowerCase(), phone.model.sipxconfig_id, getPhoneDescription(phone, new Date()), extractPolycomVersion(phone)));
             dstream.writeBytes("</phones>");
 
             // Do the HTTPS POST.

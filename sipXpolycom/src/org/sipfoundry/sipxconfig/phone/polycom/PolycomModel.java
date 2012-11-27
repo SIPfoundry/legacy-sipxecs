@@ -25,6 +25,7 @@ public final class PolycomModel extends PhoneModel {
 
     public PolycomModel() {
         super(PolycomPhone.BEAN_ID);
+        this.setVersions(new DeviceVersion[]{VER_3_1_X, VER_3_2_X, VER_4_0_X});
         setEmergencyConfigurable(true);
     }
 }
