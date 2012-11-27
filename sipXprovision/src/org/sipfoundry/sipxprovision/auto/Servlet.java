@@ -203,6 +203,10 @@ public class Servlet extends HttpServlet {
             return String.format("http://%s:%d%s/", m_config.getHostname(),
                     m_config.getServletPort(), m_config.getServletUriPath());
         }
+        
+        public String getDefaultFirmware() {
+            return "3.2.X";
+        }
     }
 
     /**
@@ -226,7 +230,7 @@ public class Servlet extends HttpServlet {
             p.setProperty("file.resource.loader.path", polycom_src_dir.getAbsolutePath());
             Velocity.init(p);
 
-            Template template = Velocity.getTemplate("mac-address.cfg.vm");
+            Template template = Velocity.getTemplate("000000000000.cfg.vm");
 
             VelocityContext context = new VelocityContext();
             context.put("cfg", new PolycomVelocityCfg(config));
@@ -394,6 +398,13 @@ public class Servlet extends HttpServlet {
                 ID_PREFIX, getUniqueId(phone.mac), phone.version);
     }
 
+    protected static String extractPolycomVersion(DetectedPhone phone) {
+        if (phone.model.sipxconfig_id != null && phone.model.sipxconfig_id.contains("polycom")) {
+            return (new StringBuilder(phone.version.substring(0,3).concat(".X"))).toString();
+        }
+        return "";
+    }
+    
     protected boolean doProvisionPhone(DetectedPhone phone) {
 
         if (null == phone) {
@@ -409,8 +420,8 @@ public class Servlet extends HttpServlet {
             DataOutputStream dstream = new java.io.DataOutputStream(connection.getOutputStream());
             dstream.writeBytes("<phones>");
             dstream.writeBytes(String.format("<phone><serialNumber>%s</serialNumber>" +
-               "<model>%s</model><description>%s</description></phone>",
-               phone.mac.toLowerCase(), phone.model.sipxconfig_id, getPhoneDescription(phone, new Date())));
+               "<model>%s</model><description>%s</description><version>%s</version></phone>",
+               phone.mac.toLowerCase(), phone.model.sipxconfig_id, getPhoneDescription(phone, new Date()), extractPolycomVersion(phone)));
             dstream.writeBytes("</phones>");
 
             // Do the HTTPS POST.
@@ -740,6 +751,8 @@ public class Servlet extends HttpServlet {
         PHONE_MODEL_MAP.put("SSIP_7000", new PhoneModel("polycom7000", "SoundStation IP 7000"));
 
         PHONE_MODEL_MAP.put("VVX_1500", new PhoneModel("polycomVVX1500", "Polycom VVX 1500"));
+        
+        PHONE_MODEL_MAP.put("VVX_500", new PhoneModel("polycomVVX500", "Polycom VVX 500"));
 
         // Nortel IP 12x0, see:
         //  - plugins/nortel12x0/src/org/sipfoundry/sipxconfig/phone/nortel12x0/nortel12x0-models.beans.xml

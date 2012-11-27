@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.dom4j.DocumentException;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
@@ -39,14 +40,21 @@ public class CodecGroupsTest extends TestCase {
      *
      * @see http://wiki.sipfoundry.org/display/xecsuser/Polycom#Polycom-Codecgroup
      */
-    public void testAllCodecGroups() throws DocumentException {
+    public void test20CodecGroups() throws DocumentException {
 
         for (CodecGroupType codec_group : CodecGroupType.values() ) {
-            assertCodecGroup(codec_group);
+            if (codec_group == CodecGroupType.VVX_500) {
+                continue;
+            }
+            assertCodecGroup(codec_group, PolycomModel.VER_3_2_X);
         }
     }
 
-    private void assertCodecGroup(CodecGroupType codecGroup) throws DocumentException {
+    public void test40CodecGroups() throws DocumentException {
+            assertCodecGroup(CodecGroupType.VVX_500, PolycomModel.VER_4_0_X);
+    }
+
+    private void assertCodecGroup(CodecGroupType codecGroup, DeviceVersion version) throws DocumentException {
 
         // Initialize a phone with the codec group under test.
         PolycomModel model = new PolycomModel();
@@ -55,6 +63,7 @@ public class CodecGroupsTest extends TestCase {
         model.setSupportedFeatures(features);
         PolycomPhone phone = new PolycomPhone();
         phone.setModel(model);
+        phone.setDeviceVersion(version);
         PhoneTestDriver.supplyTestData(phone, new LinkedList<User>());
 
         // The adaptor setting for the multi-enum setting.
@@ -184,6 +193,13 @@ public class CodecGroupsTest extends TestCase {
         VVX_1500_SET.add("Lin16.44ksps");
         VVX_1500_SET.add("Lin16.48ksps");
         CODECGROUP_OPTION_MAP.put(CodecGroupType.VVX_1500, VVX_1500_SET);
+
+        HashSet<String> VVX_500_SET = new HashSet<String>();
+        VVX_500_SET.add("G711_Mu");
+        VVX_500_SET.add("G711_A");
+        VVX_500_SET.add("G729_AB");
+        VVX_500_SET.add("G722");
+        CODECGROUP_OPTION_MAP.put(CodecGroupType.VVX_500, VVX_500_SET);
     }
 
     /**
@@ -253,6 +269,10 @@ public class CodecGroupsTest extends TestCase {
         VVX_1500_LIST.add("G711A");
         VVX_1500_LIST.add("G729AB");
         CODECGROUP_SELECTED_MAP.put(CodecGroupType.VVX_1500, VVX_1500_LIST);
+        
+        ArrayList<String> VVX_500_LIST = new ArrayList<String>();
+        VVX_500_LIST.add("G711_Mu");
+        CODECGROUP_SELECTED_MAP.put(CodecGroupType.VVX_500, VVX_500_LIST);
     }
 
     /**

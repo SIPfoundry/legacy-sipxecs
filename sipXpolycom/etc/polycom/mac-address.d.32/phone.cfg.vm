@@ -192,4 +192,13 @@
   <user_preferences
     up.analogHeadsetOption="$!group.getSetting('analogHeadsetOption').value"
   />
+#set ($bggroup = $cfg.EndpointSettings.getSetting('bg'))
+#if($bggroup)
+<bg
+#foreach ($setting in $cfg.getSettings($bggroup))
+    ${setting.ProfileName}="$!{setting.Value}"
+#end
+  >
+</bg>
+#end
 </phone1>
