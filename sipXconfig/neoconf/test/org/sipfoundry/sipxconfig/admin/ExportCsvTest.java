@@ -14,9 +14,12 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.TestPhone;
@@ -24,17 +27,38 @@ import org.sipfoundry.sipxconfig.phone.TestPhoneModel;
 import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public class ExportCsvTest extends TestCase {
 
+    private ExportCsv m_exportCsv;
+
+    private User m_user;
+
     @Override
     protected void setUp() throws Exception {
-        super.setUp();
+        m_exportCsv = new ExportCsv();
+
+        PermissionManagerImpl pm = new PermissionManagerImpl();
+        pm.setModelFilesContext(TestHelper.getModelFilesContext());
+
+        m_user = new User();
+        m_user.setPermissionManager(pm);
+        m_user.setFirstName("John");
+        m_user.setLastName("Lennon");
+        m_user.setPin("1234", "example.org");
+        m_user.setSipPassword("sip_pass");
+        m_user.setUserName("jlennon");
+
+        m_user.setPrimaryEmailNotification(MailboxPreferences.AttachType.YES.getValue());
+        m_user.setPrimaryEmailFormat(MailboxPreferences.MailFormat.MEDIUM.name());
+        m_user.setPrimaryEmailAttachAudio(true);
+        m_user.setAlternateEmailNotification(MailboxPreferences.AttachType.NO.getValue());
+        m_user.setAlternateEmailFormat(MailboxPreferences.MailFormat.FULL.name());
+        m_user.setAlternateEmailAttachAudio(false);
     }
 
     public void testExportPhoneNoLines() throws Exception {
-        ExportCsv exportCsv = new ExportCsv();
-
         StringWriter writer = new StringWriter();
         CsvWriter csv = new CsvWriter(writer);
 
@@ -42,17 +66,16 @@ public class ExportCsvTest extends TestCase {
         phone.setModel(new TestPhoneModel());
         phone.setSerialNumber("665544332211");
         phone.setDescription("phone description");
-        Collection<String> userIds = exportCsv.exportPhone(csv, phone, "example.org");
+        Collection<String> userIds = m_exportCsv.exportPhone(csv, phone, "example.org");
         assertEquals(0, userIds.size());
         assertEquals(
-                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\"," +
-                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\","
+                        + "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\","
+                        + "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
     public void testExportPhone() throws Exception {
-        ExportCsv exportCsv = new ExportCsv();
-
         StringWriter writer = new StringWriter();
         CsvWriter csv = new CsvWriter(writer);
 
@@ -65,18 +88,12 @@ public class ExportCsvTest extends TestCase {
         groups[2] = new Group();
         groups[2].setName("ug3");
 
-        User user = new User();
-        user.setFirstName("John");
-        user.setLastName("Lennon");
-        user.setPin("1234", "example.org");
-        user.setSipPassword("sip_pass");
-        user.setUserName("jlennon");
-        user.setEmailAddress("jlennon@gmail.com");
-        user.setImId("imId");
-        user.setGroupsAsList(Arrays.asList(groups));
+        m_user.setEmailAddress("jlennon@gmail.com");
+        m_user.setImId("imId");
+        m_user.setGroupsAsList(Arrays.asList(groups));
 
         Line line = new Line();
-        line.setUser(user);
+        line.setUser(m_user);
 
         // Add 4 phone Groups to test export of multiple groups
         // Note: phonegroup3, has a comma in the name. This is to make sure the double quotes are
@@ -98,18 +115,18 @@ public class ExportCsvTest extends TestCase {
         phone.setGroupsAsList(Arrays.asList(phoneGroups));
         phone.addLine(line);
 
-        Collection<String> userIds = exportCsv.exportPhone(csv, phone, "example.org");
+        Collection<String> userIds = m_exportCsv.exportPhone(csv, phone, "example.org");
         assertEquals(1, userIds.size());
         assertTrue(userIds.contains("jlennon"));
         assertEquals(
-                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"jlennon@gmail.com\",\"ug1 ug2 ug3\",\"665544332211\",\"testPhoneModel\",\"phonegroup1 phonegroup2 phonegroup3, phonegroup4\",\"phone description\",\"imId\"," +
-                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
+                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"jlennon@gmail.com\","
+                        + "\"ug1 ug2 ug3\",\"665544332211\",\"testPhoneModel\",\"phonegroup1 phonegroup2 phonegroup3, phonegroup4\",\"phone description\",\"imId\","
+                        + "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\","
+                        + "\"standard\",\"1\",\"MEDIUM\",\"true\",\"0\",\"FULL\",\"false\",\"true\",\"\",\"false\",\"\",\"\"\n",
                 writer.toString());
     }
 
     public void testExportPhoneExternalLine() throws Exception {
-        ExportCsv exportCsv = new ExportCsv();
-
         StringWriter writer = new StringWriter();
         CsvWriter csv = new CsvWriter(writer);
 
@@ -127,48 +144,31 @@ public class ExportCsvTest extends TestCase {
         lineInfo.setRegistrationServer("example.com");
         line.setLineInfo(lineInfo);
 
-        Collection<String> userIds = exportCsv.exportPhone(csv, phone, "example.org");
+        Collection<String> userIds = m_exportCsv.exportPhone(csv, phone, "example.org");
         assertEquals(0, userIds.size());
         assertEquals(
-                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\",\"\"" +
-                ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
-                writer.toString());
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\",\"\""
+                        + ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\","
+                        + "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n", writer.toString());
     }
 
     public void testExportUserNoEmail() throws Exception {
-        ExportCsv exportCsv = new ExportCsv();
-
         StringWriter writer = new StringWriter();
         CsvWriter csv = new CsvWriter(writer);
         String[] row = Index.newRow();
 
-        User user = new User();
-        user.setFirstName("John");
-        user.setLastName("Lennon");
-        user.setPin("1234", "example.org");
-        user.setSipPassword("sip_pass");
-        user.setUserName("jlennon");
-
-        exportCsv.exportUser(csv, row, user, "example.org");
+        m_exportCsv.exportUser(csv, row, m_user, "example.org");
         assertEquals(
-                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
-                ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
+                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\""
+                        + ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\","
+                        + "\"standard\",\"1\",\"MEDIUM\",\"true\",\"0\",\"FULL\",\"false\",\"true\",\"\",\"false\",\"\",\"\"\n",
                 writer.toString());
     }
 
     public void testExportUserDetails() throws Exception {
-        ExportCsv exportCsv = new ExportCsv();
-
         StringWriter writer = new StringWriter();
         CsvWriter csv = new CsvWriter(writer);
         String[] row = Index.newRow();
-
-        User user = new User();
-        user.setFirstName("John");
-        user.setLastName("Lennon");
-        user.setPin("1234", "example.org");
-        user.setSipPassword("sip_pass");
-        user.setUserName("jlennon");
 
         AddressBookEntry addressBookEntry = new AddressBookEntry();
         addressBookEntry.setJobTitle("job title");
@@ -201,15 +201,16 @@ public class ExportCsvTest extends TestCase {
         officeAddress.setOfficeDesignation("office designation");
         addressBookEntry.setOfficeAddress(officeAddress);
 
-        user.setAddressBookEntry(addressBookEntry);
+        m_user.setAddressBookEntry(addressBookEntry);
 
-        exportCsv.exportUser(csv, row, user, "example.org");
+        m_exportCsv.exportUser(csv, row, m_user, "example.org");
         assertEquals(
-                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
-                ",\"job title\",\"job dept\",\"company name\",\"assistant name\"," +
-                "\"001122\",\"112233\",\"223344\",\"33445566\",\"alternate@gmail.com\",\"alternateImId\",\"location\"," +
-                "\"home street\",\"home city\",\"home state\",\"home country\",\"34001\"," +
-                "\"office street\",\"office city\",\"office state\",\"office country\",\"34342\",\"44556677\",\"office designation\"\n",
+                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\""
+                        + ",\"job title\",\"job dept\",\"company name\",\"assistant name\","
+                        + "\"001122\",\"112233\",\"223344\",\"33445566\",\"alternate@gmail.com\",\"alternateImId\",\"location\","
+                        + "\"home street\",\"home city\",\"home state\",\"home country\",\"34001\","
+                        + "\"office street\",\"office city\",\"office state\",\"office country\",\"34342\",\"44556677\",\"office designation\","
+                        + "\"standard\",\"1\",\"MEDIUM\",\"true\",\"0\",\"FULL\",\"false\",\"true\",\"\",\"false\",\"\",\"\"\n",
                 writer.toString());
     }
 }

@@ -137,41 +137,41 @@ public class MailboxPreferences {
     public MailboxPreferences(User user) {
         m_emailAddress = user.getEmailAddress();
         m_alternateEmailAddress = user.getAlternateEmailAddress();
-        m_activeGreeting = ActiveGreeting.fromId((user.getSettingValue(ACTIVE_GREETING)));
+        m_activeGreeting = ActiveGreeting.fromId(user.getActiveGreeting());
         m_busyPrompt = user.getSettingValue(BUSY_PROMPT);
         m_voicemailTui = VoicemailTuiType.fromValue(user.getSettingValue(VOICEMAIL_TUI));
         m_externalMwi = user.getSettingValue(EXTERNAL_MWI);
-        m_attachVoicemailToEmail = AttachType.fromValue(user.getSettingValue(PRIMARY_EMAIL_NOTIFICATION));
-        m_emailFormat = MailFormat.valueOf(user.getSettingValue(PRIMARY_EMAIL_FORMAT));
-        m_alternateEmailFormat = MailFormat.valueOf(user.getSettingValue(ALT_EMAIL_FORMAT));
-        m_voicemailToAlternateEmailNotification = AttachType.fromValue(user.getSettingValue(ALT_EMAIL_NOTIFICATION));
+        m_attachVoicemailToEmail = AttachType.fromValue(user.getPrimaryEmailNotification());
+        m_emailFormat = MailFormat.valueOf(user.getPrimaryEmailFormat());
+        m_includeAudioAttachment = (Boolean) user.isPrimaryEmailAttachAudio();
+        m_voicemailToAlternateEmailNotification = AttachType.fromValue(user.getAlternateEmailNotification());
+        m_alternateEmailFormat = MailFormat.valueOf(user.getAlternateEmailFormat());
+        m_includeAudioAttachmentAlternateEmail = (Boolean) user.isAlternateEmailAttachAudio();
         m_imapHost = user.getSettingValue(IMAP_HOST);
         m_imapPort = user.getSettingValue(IMAP_PORT);
         m_imapTLS = (Boolean) user.getSettingTypedValue(IMAP_TLS);
         m_imapPassword = user.getSettingValue(IMAP_PASSWORD);
         m_imapAccount = user.getSettingValue(IMAP_ACCOUNT);
-        m_includeAudioAttachment = (Boolean) user.getSettingTypedValue(PRIMARY_EMAIL_ATTACH_AUDIO);
-        m_includeAudioAttachmentAlternateEmail = (Boolean) user.getSettingTypedValue(ALT_EMAIL_ATTACH_AUDIO);
     }
 
     public void updateUser(User user) {
         user.setEmailAddress(m_emailAddress);
         user.setAlternateEmailAddress(m_alternateEmailAddress);
-        user.setSettingValue(ACTIVE_GREETING, m_activeGreeting.getId());
+        user.setActiveGreeting(m_activeGreeting.getId());
         user.setSettingValue(BUSY_PROMPT, m_busyPrompt);
         user.setSettingValue(VOICEMAIL_TUI, m_voicemailTui.getValue());
         user.setSettingValue(EXTERNAL_MWI, m_externalMwi);
-        user.setSettingValue(PRIMARY_EMAIL_NOTIFICATION, m_attachVoicemailToEmail.getValue());
-        user.setSettingValue(PRIMARY_EMAIL_FORMAT, m_emailFormat.name());
-        user.setSettingValue(ALT_EMAIL_FORMAT, m_alternateEmailFormat.name());
-        user.setSettingValue(ALT_EMAIL_NOTIFICATION, m_voicemailToAlternateEmailNotification.getValue());
+        user.setPrimaryEmailNotification(m_attachVoicemailToEmail.getValue());
+        user.setPrimaryEmailFormat(m_emailFormat.name());
+        user.setPrimaryEmailAttachAudio(m_includeAudioAttachment);
+        user.setAlternateEmailNotification(m_voicemailToAlternateEmailNotification.getValue());
+        user.setAlternateEmailFormat(m_alternateEmailFormat.name());
+        user.setAlternateEmailAttachAudio(m_includeAudioAttachmentAlternateEmail);
         user.setSettingValue(IMAP_HOST, m_imapHost);
         user.setSettingValue(IMAP_PORT, m_imapPort);
         user.setSettingTypedValue(IMAP_TLS, m_imapTLS);
         user.setSettingValue(IMAP_PASSWORD, m_imapPassword);
         user.setSettingValue(IMAP_ACCOUNT, m_imapAccount);
-        user.setSettingTypedValue(PRIMARY_EMAIL_ATTACH_AUDIO, m_includeAudioAttachment);
-        user.setSettingTypedValue(ALT_EMAIL_ATTACH_AUDIO, m_includeAudioAttachmentAlternateEmail);
     }
 
     public ActiveGreeting getActiveGreeting() {

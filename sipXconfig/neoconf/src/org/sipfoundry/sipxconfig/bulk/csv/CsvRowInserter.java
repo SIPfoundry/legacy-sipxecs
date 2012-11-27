@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.GroupAutoAssign;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
+import org.springframework.beans.factory.annotation.Required;
 
 public class CsvRowInserter extends RowInserter<String[]> {
     private DomainManager m_domainManager;
@@ -53,22 +54,27 @@ public class CsvRowInserter extends RowInserter<String[]> {
 
     private String m_resetPin;
 
+    @Required
     public void setMailboxManager(MailboxManager mailboxManager) {
         m_mailboxManager = mailboxManager;
     }
 
+    @Required
     public void setPhoneModelSource(ModelSource<PhoneModel> modelSource) {
         m_modelSource = modelSource;
     }
 
+    @Required
     public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
         m_conferenceBridgeContext = conferenceBridgeContext;
     }
 
+    @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
 
+    @Required
     public void setForwardingContext(ForwardingContext forwardingContext) {
         m_forwardingContext = forwardingContext;
     }
@@ -150,7 +156,8 @@ public class CsvRowInserter extends RowInserter<String[]> {
             phoneGroups = null;
         }
 
-        insertData(user, userGroups, phone, phoneGroups);
+        String additionalLineSettings = Index.ADDITIONAL_LINE_SETTINGS.get(row);
+        insertData(user, userGroups, phone, phoneGroups, additionalLineSettings);
     }
 
     /**
@@ -170,7 +177,7 @@ public class CsvRowInserter extends RowInserter<String[]> {
         User user = m_coreContext.loadUserByUserName(userName);
 
         if (user == null) {
-            user = new User();
+            user = m_coreContext.newUser();
             user.setUserName(userName);
         }
         String localRealm = m_domainManager.getAuthorizationRealm();
@@ -230,6 +237,17 @@ public class CsvRowInserter extends RowInserter<String[]> {
         Index.OFFICE_ZIP.setProperty(user, row);
         Index.DID_NUMBER.setProperty(user, row);
         Index.OFFICE_MAIL_STOP.setProperty(user, row);
+        Index.ACTIVE_GREETING.setProperty(user, row);
+        Index.PRIMARY_EMAIL_NOTIFICATION.setProperty(user, row);
+        Index.PRIMARY_EMAIL_FORMAT.setProperty(user, row);
+        Index.PRIMARY_EMAIL_ATTACH_AUDIO.setProperty(user, row);
+        Index.ALT_EMAIL_NOTIFICATION.setProperty(user, row);
+        Index.ALT_EMAIL_FORMAT.setProperty(user, row);
+        Index.ALT_EMAIL_ATTACH_AUDIO.setProperty(user, row);
+        Index.VOICEMAIL_SERVER.setProperty(user, row);
+        Index.EXTERNAL_NUMBER.setProperty(user, row);
+        Index.ANONYMOUS_CALLER_ALIAS.setProperty(user, row);
+
         return user;
     }
 
@@ -257,6 +275,11 @@ public class CsvRowInserter extends RowInserter<String[]> {
             phone.setDescription(description);
         }
 
+        String additionalphoneSettings = Index.ADDITIONAL_PHONE_SETTINGS.get(row);
+        if (!StringUtils.isEmpty(additionalphoneSettings)) {
+            phone.setAdditionalPhoneSettings(additionalphoneSettings);
+        }
+
         return phone;
     }
 
@@ -269,8 +292,8 @@ public class CsvRowInserter extends RowInserter<String[]> {
      * @param userGroup user group to which user will be added
      * @param phoneGroup phone group to which phone will be added
      */
-    private void insertData(User user, Collection<Group> userGroups, Phone phone,
-            Collection<Group> phoneGroups) {
+    private void insertData(User user, Collection<Group> userGroups, Phone phone, Collection<Group> phoneGroups,
+            String settings) {
 
         boolean newUser = false;
         if (user != null) {
@@ -287,7 +310,7 @@ public class CsvRowInserter extends RowInserter<String[]> {
         }
 
         if (phone != null) {
-            addLine(phone, user);
+            addLine(phone, user, settings);
             m_phoneContext.storePhone(phone);
         }
 
@@ -313,7 +336,7 @@ public class CsvRowInserter extends RowInserter<String[]> {
 
     }
 
-    Line addLine(Phone phone, User user) {
+    Line addLine(Phone phone, User user, String settings) {
         if (user == null) {
             return null;
         }
@@ -321,10 +344,16 @@ public class CsvRowInserter extends RowInserter<String[]> {
             User candidate = l.getUser();
             if (candidate != null && candidate.equals(user)) {
                 // user already on this line
+                if (!StringUtils.isEmpty(settings)) {
+                    l.setAdditionalLineSettings(settings);
+                }
                 return l;
             }
         }
         Line line = phone.createLine();
+        if (!StringUtils.isEmpty(settings)) {
+            line.setAdditionalLineSettings(settings);
+        }
         line.setUser(user);
         phone.addLine(line);
         return line;

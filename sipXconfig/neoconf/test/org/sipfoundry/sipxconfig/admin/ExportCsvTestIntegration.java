@@ -15,8 +15,11 @@ import java.io.StringWriter;
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 
 public class ExportCsvTestIntegration extends IntegrationTestCase {
 
@@ -56,6 +59,12 @@ public class ExportCsvTestIntegration extends IntegrationTestCase {
     public void testExport() throws Exception {
         loadDataSet("common/TestUserSeed.db.xml");
         loadDataSet("phone/PhoneSummarySeed.xml");
+
+        int userId = 1000;
+        User user = m_coreContext.loadUser(1000);
+        PermissionManagerImpl pm = new PermissionManagerImpl();
+        pm.setModelFilesContext(TestHelper.getModelFilesContext());
+        user.setPermissionManager(pm);
 
         StringWriter writer = new StringWriter();
         m_exportCsv.exportCsv(writer);

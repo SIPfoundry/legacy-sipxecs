@@ -54,7 +54,23 @@ public enum Index {
     OFFICE_COUNTRY("createdAddressBookEntry.officeAddress.country", 32),
     OFFICE_ZIP("createdAddressBookEntry.officeAddress.zip", 33),
     DID_NUMBER("createdAddressBookEntry.didNumber", 34),
-    OFFICE_MAIL_STOP("createdAddressBookEntry.officeAddress.officeDesignation", 35);
+    OFFICE_MAIL_STOP("createdAddressBookEntry.officeAddress.officeDesignation", 35),
+    // voice mail settings
+    ACTIVE_GREETING("activeGreeting", 36),
+    PRIMARY_EMAIL_NOTIFICATION("primaryEmailNotification", 37),
+    PRIMARY_EMAIL_FORMAT("primaryEmailFormat", 38),
+    PRIMARY_EMAIL_ATTACH_AUDIO("primaryEmailAttachAudio", 39),
+    ALT_EMAIL_NOTIFICATION("alternateEmailNotification", 40),
+    ALT_EMAIL_FORMAT("alternateEmailFormat", 41),
+    ALT_EMAIL_ATTACH_AUDIO("alternateEmailAttachAudio", 42),
+    VOICEMAIL_SERVER("voicemailServer", 43),
+    // user caller alias
+    EXTERNAL_NUMBER("externalNumber", 44),
+    ANONYMOUS_CALLER_ALIAS("anonymousCallerAlias", 45),
+    // additional phone settings
+    ADDITIONAL_PHONE_SETTINGS("additionalPhoneSettings", 46),
+    // additional line settings
+    ADDITIONAL_LINE_SETTINGS("additionalLineSettings", 47);
 
     private final String m_name;
     private final int m_value;
@@ -123,14 +139,16 @@ public enum Index {
 
     public static String[] labels() {
         return new String[] {
-            "User name", "Voice-mail PIN", "SIP password", "First name", "Last name",
-            "User alias", "EMail address", "User group", "Phone serial number", "Phone model",
-            "Phone group", "Phone description", "Im Id", "Job Title", "Job department",
-            "Company name", "Assistant name", "Cell phone number", "Home phone number",
-            "Assistant phone number", "Fax number", "Alternate email", "Alternate im",
-            "Location", "Home street", "Home city", "Home state", "Home country", "Home zip",
-            "Office street", "Office city", "Office state", "Office country", "Office zip",
-            "Did number", "Office mail stop"
+            "User name", "Voice-mail PIN", "SIP password", "First name", "Last name", "User alias", "EMail address",
+            "User group", "Phone serial number", "Phone model", "Phone group", "Phone description", "Im Id",
+            "Job Title", "Job department", "Company name", "Assistant name", "Cell phone number",
+            "Home phone number", "Assistant phone number", "Fax number", "Alternate email", "Alternate im",
+            "Location", "Home street", "Home city", "Home state", "Home country", "Home zip", "Office street",
+            "Office city", "Office state", "Office country", "Office zip", "Did number", "Office mail stop",
+            "Active greeting", "Email voicemail notification", "Email format", "Email attach audio",
+            "Alternate email voicemail notification", "Alternate email format", "Alternate email attach audio",
+            "Internal Voicemail Server", "Caller ID", "Block Caller ID", "Additional phone settings",
+            "Additional line settings"
         };
     }
 }

@@ -110,6 +110,17 @@ public abstract class Phone extends Device {
      */
     protected abstract LineInfo getLineInfo(Line line);
 
+    public String getAdditionalPhoneSettings() {
+        return null;
+    }
+
+    public void setAdditionalPhoneSettings(String additionalSettings) {
+    }
+
+    public List<String> getLinePaths() {
+        return null;
+    }
+
     public Line findByUsername(String username) {
         for (Line l : getLines()) {
             User user = l.getUser();
