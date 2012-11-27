@@ -29,6 +29,7 @@ $log = "#{$logdir}/sipxagent.log"
 $verbose = false
 $advanced = false
 $exit_status = 0
+$prompt = {:primary => true}
 
 def run_command(cmd)
   puts cmd if $verbose
@@ -56,9 +57,9 @@ def set_secondary_role
   return true if File.exists?($secondary_dat)
   puts "Configuring as an additional server..."
 
-  master_address = prompt_required("Enter ip address or fully qualified host name of the primary server : ")
+  master_address = prompt_required("Enter ip address or fully qualified host name of the primary server : ", :master_address)
 
-  location_id = prompt_required("Enter the numeric id assigned to this server by the administration server : ")
+  location_id = prompt_required("Enter the numeric id assigned to this server by the administration server : ", :location_id)
   File.open($location_dat,'w') {|f|
     f.puts location_id
   }
@@ -68,8 +69,8 @@ def set_secondary_role
   master_cfdata = "#{$cfdatadir}"
   master_confdir = "#{$confdir}"
   if $advanced
-    master_cfdata = prompt_default("Enter SIPX_CFDATA directory on master", master_cfdata)
-    master_confdir = prompt_default("Enter SIPX_CONFDIR directory on master", master_confdir)
+    master_cfdata = prompt_default("Enter SIPX_CFDATA directory on master", master_cfdata, :cfdata_dir)
+    master_confdir = prompt_default("Enter SIPX_CONFDIR directory on master", master_confdir, :conf_dir)
   end
   File.open($master_dat,'w') {|f|
     f.puts "address=#{master_address}"
@@ -85,7 +86,14 @@ end
 
 # Return true or false IF machine is primary, not is anything was done or not
 def choose_primary_role?
-  return unless prompt_confirm("Is this the \e[0;31mfirst server\e[m in your cluster?")
+  if $prompt[:noui]
+    unless $prompt[:primary] 
+      rm_file $primary_dat
+      return
+    end
+  else
+    return unless prompt_confirm("Is this the \e[0;31mfirst server\e[m in your cluster?")
+  end
   puts "Configuring as the first server..."
   File.open($location_dat, 'w') {|f|
     f.puts('1')
@@ -126,14 +134,25 @@ def prompt(msg, err_msg = "Invalid answer")
   end
 end
 
-def prompt_default(msg, default)
+def prompt_default(msg, system_default, prompt_parameter)
+  prompt_default = $prompt[prompt_parameter]
+  default = prompt_default.nil? ? system_default : prompt_default
+  if $prompt[:noui]
+    raise "Missing parameter #{prompt_parameter}" if default.nil?
+    return default
+  end
   prompt(msg << (default.empty? ? ' : ' : " [ press enter for '\e[0;31m#{default}\e[m' ] : ")) {|v|
     s = v.empty? ? default : v
     s.empty? ? nil : s
   }
 end
 
-def prompt_required(msg)
+def prompt_required(msg, prompt_parameter)
+  if $prompt[:noui]
+    v = $prompt[prompt_parameter]
+    raise("Missing required parameter #{prompt_parameter}") if v.nil?
+    return v
+  end
   return prompt(msg, "You must specify a value") {|v|
     v.empty? ? nil : v
   }
@@ -148,8 +167,8 @@ setting up for the first time or if you know you are only going to setup one
 server. This can make configuration easier.  You can always change the value
 later.
 EOF
-  sip_domain = prompt_default("Enter \e[0;31mSIP domain\e[m name", net.domain)
-  realm = prompt_default("Enter \e[0;31mSIP realm\e[m", sip_domain)
+  sip_domain = prompt_default("Enter \e[0;31mSIP domain\e[m name", net.domain, :sip_domain)
+  realm = prompt_default("Enter \e[0;31mSIP realm\e[m", sip_domain, :sip_realm)
   # shared secret is not really used anymore, but some servers still read it
   shared_secret = `head -c 18 /dev/urandom | base64`.chomp
   File.open($domain_dat, 'w') { |f|
@@ -160,6 +179,7 @@ EOF
 =lang=en
 EOF
   }
+
   puts "Created #{$domain_dat}" if $verbose
   FileUtils.chown($user, $group, $domain_dat)
 end
@@ -256,7 +276,7 @@ def network_settings
     puts "\e[0;31mNetwork settings:\e[m"
     puts "IP address   : #{net.ip}"
   end
-  change = prompt_confirm("Would you like to configure your system\'s \e[0;31m network settings\e[m?")
+  change = prompt_confirm("Would you like to configure your system\'s \e[0;31m network settings\e[m?") unless $prompt[:noui]
   if change
     system("/usr/sbin/system-config-network-tui")
     system("/etc/init.d/network reload")
@@ -266,8 +286,8 @@ end
 
 def set_primary_hostname
   net = get_network(true)
-  net.host = prompt_default("Enter just the \e[0;31mhost name\e[m of this computer?. Example: myhost.", net.host);
-  net.domain = prompt_default("Enter just the \e[0;31mdomain name\e[m of your network? Example: mydomain.com", net.domain)
+  net.host = prompt_default("Enter just the \e[0;31mhost name\e[m of this computer?. Example: myhost.", net.host, :net_host);
+  net.domain = prompt_default("Enter just the \e[0;31mdomain name\e[m of your network? Example: mydomain.com", net.domain, :net_domain)
 
   File.open("#{$cfdatadir}/network.cfdat", 'w') { |f|
     f.puts <<EOF
@@ -380,7 +400,7 @@ def has_role?
 end
 
 def change_role?
-  change = prompt_confirm("Would you like to \e[0;31mchange\e[m your application settings?")
+  change = $prompt[:noui] || prompt_confirm("Would you like to \e[0;31mchange\e[m your application settings?")
   if change
     rm_file($primary_dat)
     rm_file($secondary_dat)
@@ -402,7 +422,7 @@ end
 # Call OEM setup hook function
 def custom_hook
   custom_script = "#{$confdir}/sipxecs-setuprc"
-  if File.exists?(custom_script)
+  if File.exists?(custom_script) and !$prompt[:noui]
     if system "/bin/sh #{custom_script}"
       puts "Continue with application setup ..."
     else
@@ -434,16 +454,59 @@ args = OptionParser.new { |opts|
     $advanced = true
   }
 
-  $sync_time = true
-  opts.on("--no-sync-time", "Do not attempt to sync local date/time with primary server. Specify this if master server is not running an NTP server") {
-    $sync_time = false
+  opts.on("--noui", "Do not prompt for input from user. Must specify parameters for required answers.") {
+    $prompt[:noui] = true
   }
 
-  opts.on_tail("--help", "Print options") {
+  opts.on("--help", "Print options") {
     puts opts
     exit
   }
 
+  $sync_time = true
+  opts.on("--no-sync-time", "Do not attempt to sync local date/time with primary server. Specify this if master server is not running an NTP server.\n\n") {
+    $sync_time = false
+  }
+
+  opts.separator ""
+  opts.separator "**Non-interactive parameters for primary machines:" 
+
+  opts.on("--sip_domain domain", "SIP domain. Default is network domain. Optional for primary setups when using --noui parameter.\n\n") {|v|
+    $prompt[:sip_domain] = v
+  }
+
+  opts.on("--sip_realm realm", "SIP authorization realm. Default is answer for SIP domain. Required for primary setups when using --noui parameter.\n\n") {|v|
+    $prompt[:sip_realm] = v
+  }
+
+  opts.on("--net_domain domain", "Network domain. Default is to using existing network domain. Optional for primary setups when using --noui parameter.\n\n") {|v|
+    $prompt[:net_domain] = v
+  }
+
+  opts.on("--net_host hostname", "Host name without network domain portion. Default is to use existing network domain. Optional for primary setups when using --noui parameter.\n\n") {|v|
+    $prompt[:net_host] = v
+  }
+
+  opts.separator ""
+  opts.separator "**Non-interactive parameters for additional nodes:"
+
+  opts.on("--master_address address", "IP address or Fully qualified host name of master server. Required for additional node setups with using --noui parameter.\n\n") {|v|
+    $prompt[:master_address] = v
+    $prompt[:primary] = false
+  }
+
+  opts.on("--location_id number", "The location id assign in admin UI for this machine. Required for additional node setups when using --noui parameter.\n\n") {|v|
+    $prompt[:location_id] = v
+    $prompt[:primary] = false
+  }
+
+  opts.on("--cfdata_dir dir", "Where the cfdata dir is on master. Default is /var/sipxdata/cfdata. Optional for additional node setups with using --noui parameter.\n\n") { |v|
+    $prompt[:cfdata_dir] = v
+  }
+
+  opts.on("--conf_dir dir", "Where the configuration director is. Default is /etc/sipxpbx. Optional for additional node setups with using --noui parameter.\n\n") { |v|
+    $prompt[:conf_dir] = v
+  }
 }
 args.parse!
 
@@ -460,7 +523,7 @@ while true
   role_settings = print_role_settings
   if role_settings.nil? || change_role?
     choose_role
-    next
+    next unless $prompt[:noui]
   end
   break
 end

@@ -46,9 +46,9 @@ class ResourceInstance;
  *  object which attempts to get the "reg" event package for the URI.
  *  If contacts are obtained via the "reg" event package, the
  *  ContactSet creates a SubscriptionSet object for each contact to
- *  obtain status from it.  If no contacts can be obtained, the
- *  ContactSet creates one SubscriptionSet to SUBSCRIBE to the
- *  resource URI itself.
+ *  obtain status from it.  If mAllowDirectResourceSubscription is enabled and
+ *  no contacts can be obtained, the ContactSet creates one SubscriptionSet
+ *  to SUBSCRIBE to the resource URI itself.
  *
  *  This implementation splits the implementation of the
  *  (unimplemented) Resource object into two parts:  1) a
@@ -142,6 +142,17 @@ class ResourceCached : public UtlString
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
+
+   /**
+    * By default this is disabled.
+    * If enabled it will allow the ContactSet to create one SubscriptionSet to
+    * SUBSCRIBE directly to the resource URI itself in case no contacts can be
+    * obtained through reg subscribes.
+    * NOTE: This flag cannot be set because it is not fully implemented. It is
+    * present here as a remainder of an incomplete functionality that is
+    * subscriptions to resource URIs when reg subscriptions are not supported.
+    */
+   bool mAllowDirectResourceSubscription;
 
    //! The containing ResourceCache.
    ResourceCache* mResourceCache;

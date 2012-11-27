@@ -23,11 +23,6 @@
 #include <sipxproxy/AuthPlugin.h>
 
 // DEFINES
-#ifdef _nat_unit_tests_
-#define CLEAN_UP_TIMER_IN_SECS               (1)
-#else
-#define CLEAN_UP_TIMER_IN_SECS               (60)
-#endif
 
 // CONSTANTS
 // TYPEDEFS
@@ -51,7 +46,7 @@ extern "C" AuthPlugin* getAuthPlugin(const UtlString& name);
  * CallTracker so that they can analyze and modify them as required to
  * facilitate NAT Traversal.
  */
-class NatTraversalAgent : public AuthPlugin, SipOutputProcessor, OsNotification
+class NatTraversalAgent : public AuthPlugin, SipOutputProcessor
 {
   public:
 
@@ -94,7 +89,7 @@ class NatTraversalAgent : public AuthPlugin, SipOutputProcessor, OsNotification
    virtual void announceAssociatedSipRouter( SipRouter* sipRouter );
 
    // OsNotification virtual method implementation
-   virtual OsStatus signal(intptr_t eventData);
+   virtual OsStatus collectInactiveSessions();
 
   protected:
      // header manipulation routines for NAT traversal
@@ -117,7 +112,6 @@ class NatTraversalAgent : public AuthPlugin, SipOutputProcessor, OsNotification
    OsRWMutex         mMessageProcessingMutex;
    MediaRelay*       mpMediaRelay;
    NatMaintainer*    mpNatMaintainer;
-   OsTimer           mCleanupTimer;
    ssize_t           mNextAvailableCallTrackerHandle;
    RegDB*            mpRegDb;
    SubscribeDB*      mpSubscribeDb;

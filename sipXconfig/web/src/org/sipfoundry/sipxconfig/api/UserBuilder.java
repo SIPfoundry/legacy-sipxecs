@@ -50,6 +50,9 @@ public class UserBuilder extends SimpleBeanBuilder {
                 api.setPermissions(permNames.toArray(new String[permNames.size()]));
             }
         }
+        if (properties.contains(BRANCH_NAME) && my.getBranch() != null) {
+            api.setBranchName(my.getBranch().getName());
+        }
     }
 
     public void toMyObject(Object myObject, Object apiObject, Set properties) {

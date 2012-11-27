@@ -68,7 +68,11 @@
     class="org.sipfoundry.sipxconfig.commserver.imdb.OpenAcd">
   </bean>
 
-  <alias name="replicationManagerImpl" alias="replicationManager"/>  
+  <bean id="replicationManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager"/>
+    <property name="target" ref="replicationManagerImpl"/>
+  </bean>
+
   <bean id="replicationManagerImpl" class="org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManagerImpl" parent="abstractDaoImpl">
     <property name="locationsManager" ref="locationsManager" />
     <property name="auditLogContext" ref="auditLogContext" />

@@ -594,10 +594,51 @@ int SipClient::run(void* runArg)
          }
       }
 
+      if ((fds[1].revents & (POLLERR | POLLHUP)) != 0)
+      {
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                        "SipClient[%s]::run "
+                        "SipMessage::poll error(%d) ",
+                        mName.data(), errno);
+
+          if (OsSocket::isFramed(mClientSocket->getIpProtocol()))
+          {
+              Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                            "SipClient[%s]::run "
+                            "SipMessage::poll error(%d) got POLLERR | POLLHUP on UDP socket",
+                            mName.data(), errno);
+
+          }
+          else	// eg. tcp socket
+          // This client's socket is a connection-oriented protocol and the
+          // connection has been terminated (probably by the remote end).
+          // We must terminate the SipClient.
+          // We drop the queued messages, but we do not report them to
+          // SipUserAgent as failed sends.  This will cause SipUserAgent to
+          // retry the send using the same transport (rather than continuing
+          // to the next transport), which should cause a new connection to
+          // be made to the remote end.
+          {
+              // On non-blocking connect failures, we need to get the first send message
+              // in order to successfully trigger the protocol fallback mechanism
+              if (!tcpOnErrWaitForSend)
+              {
+                 // Return all buffered messages with a transport error indication.
+                 emptyBuffer(TRUE);
+                 clientStopSelf();
+              }
+              else
+              {
+                 fds[1].revents &= ~(POLLERR | POLLHUP);  // clear error bit if waiting
+                 waitingToReportErr = TRUE;
+              }
+          }
+      }
+
       // Check for message queue messages (fds[0]) before checking the socket(fds[1]),
       // to make sure that we process shutdown messages promptly, even
       // if we would be spinning trying to service the socket.
-      if ((fds[0].revents & POLLIN) != 0)
+      else if ((fds[0].revents & POLLIN) != 0)
       {
          // Poll finished because the pipe is ready to read.
          // (One byte in pipe means message available in queue.)
@@ -903,46 +944,6 @@ int SipClient::run(void* runArg)
             readBuffer.remove(0);
          }
       } // end POLLIN reading socket
-      else if ((fds[1].revents & (POLLERR | POLLHUP)) != 0)
-      {
-          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                        "SipClient[%s]::run "
-                        "SipMessage::poll error(%d) ",
-                        mName.data(), errno);
-
-          if (OsSocket::isFramed(mClientSocket->getIpProtocol()))
-          {
-              Os::Logger::instance().log(FAC_SIP, PRI_ERR,
-                            "SipClient[%s]::run "
-                            "SipMessage::poll error(%d) got POLLERR | POLLHUP on UDP socket",
-                            mName.data(), errno);
-
-          }
-          else	// eg. tcp socket
-          // This client's socket is a connection-oriented protocol and the
-          // connection has been terminated (probably by the remote end).
-          // We must terminate the SipClient.
-          // We drop the queued messages, but we do not report them to
-          // SipUserAgent as failed sends.  This will cause SipUserAgent to
-          // retry the send using the same transport (rather than continuing
-          // to the next transport), which should cause a new connection to
-          // be made to the remote end.
-          {
-              // On non-blocking connect failures, we need to get the first send message
-              // in order to successfully trigger the protocol fallback mechanism
-              if (!tcpOnErrWaitForSend)
-              {
-                 // Return all buffered messages with a transport error indication.
-                 emptyBuffer(TRUE);
-                 clientStopSelf();
-              }
-              else
-              {
-                 fds[1].revents &= ~(POLLERR | POLLHUP);  // clear error bit if waiting
-                 waitingToReportErr = TRUE;
-              }
-          }
-      }
    }
    while (isStarted());
 
