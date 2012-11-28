@@ -61,6 +61,10 @@ public class PhoneConfiguration extends ProfileContext {
         }
 
         int lineCount = Math.max(lines.size(), TEMPLATE_DEFAULT_LINE_COUNT);
+        if (phone.getDeviceVersion() == PolycomModel.VER_4_0_X) {
+            lineCount = lines.size();
+        }
+        
         ArrayList linesSettings = new ArrayList(lineCount);
 
         for (Line line : lines) {

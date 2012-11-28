@@ -74,12 +74,12 @@ public class PhonesResource extends Resource {
             Phone phone = phoneContext.newPhone(model);
             phone.setDescription(m_description);
             phone.setSerialNumber(m_serialNumber);
-            for (DeviceVersion  deviceVersion: model.getVersions()) {
+            for (DeviceVersion  deviceVersion : model.getVersions()) {
                 if (deviceVersion.getName().contains(m_version)) {
-                    phone.setDeviceVersion(deviceVersion);                    
+                    phone.setDeviceVersion(deviceVersion);
                 }
             }
-            
+
             return phone;
         }
     }

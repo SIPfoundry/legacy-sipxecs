@@ -116,13 +116,13 @@ public class CodecGroupsTest extends TestCase {
 
     public static enum CodecGroupType {
         OTHERS("OTHERS"),
-        IP_300("IP_300"),
         IP_650("IP_650"),
         IP_4000("IP_4000"),
         IP_5000("IP_5000"),
         IP_6000("IP_6000"),
         IP_7000("IP_7000"),
-        VVX_1500("VVX_1500");
+        VVX_1500("VVX_1500"),
+        VVX_500("VVX_500");
 
         @SuppressWarnings("unused")
         private String m_name;
@@ -150,9 +150,6 @@ public class CodecGroupsTest extends TestCase {
         OTHERS_SET.add("G711A");
         OTHERS_SET.add("G729AB");
         CODECGROUP_OPTION_MAP.put(CodecGroupType.OTHERS, OTHERS_SET);
-
-        // IP_300 has the same options as OTHERS.  (But NOT if we ever implement XX-6596.)
-        CODECGROUP_OPTION_MAP.put(CodecGroupType.IP_300, OTHERS_SET);
 
         HashSet<String> IP_650_SET = new HashSet<String>(OTHERS_SET);
         IP_650_SET.add("G722");
@@ -217,9 +214,6 @@ public class CodecGroupsTest extends TestCase {
         OTHERS_LIST.add("G711A");
         OTHERS_LIST.add("G729AB");
         CODECGROUP_SELECTED_MAP.put(CodecGroupType.OTHERS, OTHERS_LIST);
-
-        // IP_300 has the same selected codecs as OTHERS.  (But maybe not if we ever implement XX-6596.)
-        CODECGROUP_SELECTED_MAP.put(CodecGroupType.IP_300, OTHERS_LIST);
 
         ArrayList<String> IP_650_LIST = new ArrayList<String>();
         IP_650_LIST.add("G722");

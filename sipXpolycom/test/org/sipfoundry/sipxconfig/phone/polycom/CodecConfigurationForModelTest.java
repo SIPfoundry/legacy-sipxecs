@@ -63,13 +63,11 @@ public class CodecConfigurationForModelTest extends TestCase {
      */
     public void testCodecConfigurationForAllModels() throws Exception {
 
-        assertCodecConfigurationForModel(CodecGroupType.IP_300, "polycom300");
         assertCodecConfigurationForModel(CodecGroupType.OTHERS, "polycom321");
         assertCodecConfigurationForModel(CodecGroupType.OTHERS, "polycom330");
         assertCodecConfigurationForModel(CodecGroupType.OTHERS, "polycom331");
         assertCodecConfigurationForModel(CodecGroupType.OTHERS, "polycom430");
         assertCodecConfigurationForModel(CodecGroupType.IP_650, "polycom450");
-        assertCodecConfigurationForModel(CodecGroupType.OTHERS, "polycom500");
         assertCodecConfigurationForModel(CodecGroupType.IP_650, "polycom550");
         assertCodecConfigurationForModel(CodecGroupType.OTHERS, "polycom600");
         assertCodecConfigurationForModel(CodecGroupType.IP_650, "polycom650");

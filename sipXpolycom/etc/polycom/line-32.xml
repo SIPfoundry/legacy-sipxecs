@@ -1,0 +1,439 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
+<model>
+  &types;
+  <group name="reg">
+    <setting name="displayName" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="address" advanced="yes">
+      <type />
+      <value />
+    </setting>
+    <setting name="label">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="type" hidden="yes">
+      <type>
+        <string />
+      </type>
+      <value>private</value>
+    </setting>
+    <setting name="lcs" hidden="yes"></setting>
+    <setting name="bargeInEnabled">
+      <type><boolean /></type>
+      <value>0</value>
+    </setting>
+    <setting name="csta">
+      <type>
+        <enum>
+          <option>
+            <label>Use phone setting</label>
+            <value></value>
+          </option>
+          <option>
+            <label>Enabled</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>Disabled</label>
+            <value>0</value>
+          </option>
+        </enum>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="thirdPartyName" hidden="yes">
+      <type />
+      <value />
+    </setting>
+    <setting name="auth.userId" hidden="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="auth.password" advanced="yes">
+      <type>
+        <string password="yes" />
+      </type>
+      <value />
+    </setting>
+    <setting name="auth.optimizedInFailover" hidden="yes"></setting>
+    <setting name="ringType">
+      <type>
+        <integer min="1" max="22" />
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name="lineKeys">
+      <type>
+        <integer min="1" max="24" />
+      </type>
+      <value />
+    </setting>
+    <setting name="callsPerLineKey">
+      <type>
+        <integer min="1" max="24" />
+      </type>
+      <value />
+    </setting>
+    <setting name="lcs">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="outboundProxy.address">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="outboundProxy.port">
+      <type>
+        <integer min="0" max="65535" />
+      </type>
+      <value />
+    </setting>
+    <setting name="outboundProxy.transport">
+      <type refid="transport" />
+      <value>UDPonly</value>
+    </setting>
+    <setting name="serverFeatureControl.cf">
+      <type>
+        <boolean />
+      </type>
+    </setting>
+    <setting name="serverFeatureControl.dnd">
+      <type>
+        <boolean />
+      </type>
+    </setting>
+    <setting name="musicOnHold.uri">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <group name="server">
+      <group name="1">
+        <setting name="address">
+          <profileName>server.1.address</profileName>
+          <type>
+            <!-- dotted-decimal IP address or host name -->
+          </type>
+          <value />
+        </setting>
+        <setting name="port">
+          <profileName>server.1.port</profileName>
+          <type >
+          <integer min="0" max="65535" />
+          </type>
+          <value />
+        </setting>
+        <setting name="transport">
+          <profileName>server.1.transport</profileName>
+          <type refid="transport" />
+          <value>UDPonly</value>
+        </setting>
+        <setting name="expires">
+          <profileName>server.1.expires</profileName>
+          <type>
+             <integer min="1" />
+         </type>
+         <value />
+        </setting>
+        <setting name="expires.overlap">
+          <profileName>server.1.expires.overlap</profileName>
+          <type>
+            <integer min="5" max="65535" />
+          </type>
+          <value>60</value>
+        </setting>
+        <setting name="register">
+          <profileName>server.1.register</profileName>
+          <type />
+          <value />
+        </setting>
+        <setting name="retryTimeOut">
+          <profileName>server.1.retryTimeOut</profileName>
+          <type>
+            <integer min="0"/>
+          </type>
+          <value />
+        </setting>
+        <setting name="retryMaxCount">
+          <profileName>server.1.retryMaxCount</profileName>
+          <type>
+            <integer min="0"/>
+          </type>
+          <value />
+        </setting>
+        <setting name="expires.lineSeize">
+          <profileName>server.1.expires.lineSeize</profileName>
+          <type>
+            <integer min="1" />
+          </type>
+          <value />
+        </setting>
+        <setting name="lcs" hidden="yes">
+          <profileName>server.1.lcs</profileName>
+        </setting>
+      </group>
+      <group name="2">
+        <setting name="address">
+          <profileName>server.2.address</profileName>
+          <type>
+            <!-- dotted-decimal IP address or host name -->
+          </type>
+          <value />
+        </setting>
+        <setting name="port">
+          <profileName>server.2.port</profileName>
+          <type>
+            <integer min="0" max="65535" />
+          </type>
+          <value />
+        </setting>
+        <setting name="transport">
+          <profileName>server.2.transport</profileName>
+          <type refid="transport" />
+          <value>UDPonly</value>
+        </setting>
+        <setting name="expires">
+          <profileName>server.2.expires</profileName>
+          <type>
+            <integer min="1" />
+          </type>
+          <value />
+        </setting>
+        <setting name="expires.overlap">
+          <profileName>server.2.expires.overlap</profileName>
+          <type>
+            <integer min="5" max="65535" />
+          </type>
+          <value>60</value>
+        </setting>
+        <setting name="register">
+          <profileName>server.2.register</profileName>
+          <type />
+          <value />
+        </setting>
+        <setting name="retryTimeOut">
+          <profileName>server.2.retryTimeOut</profileName>
+          <type>
+           <integer min="0"/>
+          </type>
+          <value />
+        </setting>
+        <setting name="retryMaxCount">
+          <profileName>server.2.retryMaxCount</profileName>
+          <type >
+          <integer min="0"/>
+          </type>
+          <value />
+        </setting>
+        <setting name="expires.lineSeize">
+          <profileName>server.2.expires.lineSeize</profileName>
+          <type >
+          <integer min="1" />
+          </type>
+          <value />
+        </setting>
+        <setting name="lcs" hidden="yes">
+          <profileName>server.2.lcs</profileName>
+        </setting>
+      </group>
+    </group>
+  </group>
+  <group name="call">
+    <group name="autoOffHook">
+      <setting name="enabled">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="contact">
+        <value />
+      </setting>
+    </group>
+    <group name="serverMissedCall">
+      <setting name="enabled">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+    <group name="missedCallTracking">
+      <setting name="enabled">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+    </group>
+  </group>
+  <group name="divert" hidden="yes">
+    <setting name="contact">
+      <type>
+        <!-- ASCII encoded string containing digits (the user part of a SIP URL) or a string that constitutes a valid
+          SIP URL (6416 or 6416@domain.com)-->
+      </type>
+      <value />
+    </setting>
+    <setting name="autoOnSpecificCaller">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="sharedDisabled">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <group name="fwd">
+      <setting name="enabled">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+    <group name="busy">
+      <setting name="enabled">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="contact">
+        <type />
+        <value />
+      </setting>
+    </group>
+    <group name="noanswer">
+      <setting name="enabled">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="timeout">
+        <type>
+          <integer min="1" />
+        </type>
+        <value>55</value>
+      </setting>
+      <setting name="contact">
+        <type />
+        <value />
+      </setting>
+    </group>
+    <group name="dnd">
+      <setting name="enabled">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="contact">
+        <type />
+        <value />
+      </setting>
+    </group>
+  </group>
+  <!-- SIMILIAR SECTION EXISTS IN phone.xml to control dialplans for entire phone -->
+  <group name="line-dialplan">
+    <setting name="impossibleMatchHandling">
+      <type>
+        <integer min="0" max="2" />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="removeEndOfDial">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <group name="digitmap">
+      <setting name="digitmap">
+        <type>
+          <!-- string compatible with the digit map feature of MGCP described in 2.1.5 of RFC 3435; string is
+            limited to 512 bytes and 20 segments; a comma is also allowed; when reached in the digit map, a comma will
+            turn dial tone back on. -->
+        </type>
+        <value />
+      </setting>
+      <setting name="digitmap.timeOut">
+        <type>
+          <integer min="1" />
+        </type>
+        <value />
+      </setting>
+      <group name="routing.1">
+        <setting name="address">
+          <type>
+            <!-- dotted-decimal IP address or host name -->
+          </type>
+          <value />
+        </setting>
+        <setting name="port">
+          <type>
+            <integer min="1" max="65535" />
+          </type>
+          <value />
+        </setting>
+        <setting name="emergency.1.value">
+          <type>
+            <!--Comma separated list of entries or single entry representing a SIP URL or a combination of
+              SIP URLs.-->
+          </type>
+          <value />
+        </setting>
+      </group>
+    </group>
+  </group>
+  <group name="msg.mwi">
+    <setting name="subscribe">
+      <type />
+      <value />
+    </setting>
+    <setting name="callBackMode">
+      <type>
+        <enum>
+          <option>
+            <value>contact</value>
+          </option>
+          <option>
+            <value>registration</value>
+          </option>
+          <option>
+            <value>disabled</value>
+          </option>
+        </enum>
+      </type>
+      <value>disabled</value>
+    </setting>
+    <setting name="callBack">
+      <type>
+        <!--ASCII encoded string containing digits (the user part of a SIP URL) or a string that
+          constitutes a valid SIP URL (6416 or 6416@domain.com)-->
+      </type>
+      <value />
+    </setting>
+  </group>
+</model>
