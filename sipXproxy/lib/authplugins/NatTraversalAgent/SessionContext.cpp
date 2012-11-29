@@ -74,51 +74,10 @@ SessionContext::createCallerEndpointDescriptor( const SipMessage& sipRequest, co
    // The Caller endpoint descriptor is initialized based on the information contained in the
    // contact URI.  This is where the NAT traversal feature encodes location information about
    // the caller for dialog-forming requests.
-
-  UtlString tmpString;
-  sipRequest.getContactEntry( 0, &tmpString );
-  Url contactUri( tmpString );
-
-#ifdef FORCE_LEG1_NATED
-  //
-  // Note to developers.  If you need to test media bridge and you not within
-  // a NAT environment, define FORCE_LEG1_NATED and leg1 will always be treated
-  // as REMOTE_NATED
-  //
-  if (sipRequest.getCountHeaderFields("VIA") == 2)
-  {
-    Os::Logger::instance().log(FAC_NAT, PRI_NOTICE, ">>>>>>>>>> DEVELOPER:  Forcing endpoint-type to REMOTE_NATED");
-    EndpointDescriptor* ep = new EndpointDescriptor( contactUri, natTraversalRules );
-    ep->setLocation(REMOTE_NATED);
-    return ep;
-  }
-#endif
-
-
-  // Check if top via header has a 'received' parameter.  Presence of such
-   // a header would indicate that the registering user is located behind
-   // a NAT.
-   UtlString  privateAddress, protocol;
-   int        privatePort;
-   UtlBoolean bReceivedSet;
-   sipRequest.getTopVia( &privateAddress, &privatePort, &protocol, NULL, &bReceivedSet );
-   if( bReceivedSet )
-   {
-     //
-     // Check if the remote end did not lie about the private contact
-     //
-      UtlString publicAddress;
-      int publicPort;
-      sipRequest.getSendAddress(&publicAddress, &publicPort);
-
-      UtlString privateHostAddress;
-      contactUri.getHostAddress(privateHostAddress);
-
-      if (publicAddress == privateHostAddress) // they lied.  use the via host
-        contactUri.setHostAddress(privateAddress);
-   }
-   
-  return new EndpointDescriptor( contactUri, natTraversalRules );
+   UtlString tmpString;
+   sipRequest.getContactEntry( 0, &tmpString );
+   Url contactUri( tmpString );
+   return new EndpointDescriptor( contactUri, natTraversalRules );
 }
 
 EndpointDescriptor*
