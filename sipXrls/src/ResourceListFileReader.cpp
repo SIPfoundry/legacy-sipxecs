@@ -520,7 +520,7 @@ OsStatus ResourceListFileReader::initialize()
    else
    {
       // Report that there is no file.
-      Os::Logger::instance().log(FAC_PARK, PRI_CRIT,
+      Os::Logger::instance().log(FAC_RLS, PRI_CRIT,
                     "main No resource list file set.");
 
       // Leave the current resource list configuration unchanged.
