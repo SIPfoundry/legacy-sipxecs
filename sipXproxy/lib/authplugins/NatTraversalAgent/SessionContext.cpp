@@ -93,6 +93,30 @@ SessionContext::createCallerEndpointDescriptor( const SipMessage& sipRequest, co
     return ep;
   }
 #endif
+
+
+  // Check if top via header has a 'received' parameter.  Presence of such
+   // a header would indicate that the registering user is located behind
+   // a NAT.
+   UtlString  privateAddress, protocol;
+   int        privatePort;
+   UtlBoolean bReceivedSet;
+   sipRequest.getTopVia( &privateAddress, &privatePort, &protocol, NULL, &bReceivedSet );
+   if( bReceivedSet )
+   {
+     //
+     // Check if the remote end did not lie about the private contact
+     //
+      UtlString publicAddress;
+      int publicPort;
+      sipRequest.getSendAddress(&publicAddress, &publicPort);
+
+      UtlString privateHostAddress;
+      contactUri.getHostAddress(privateHostAddress);
+
+      if (publicAddress == privateHostAddress) // they lied.  use the via host
+        contactUri.setHostAddress(privateAddress);
+   }
    
   return new EndpointDescriptor( contactUri, natTraversalRules );
 }
