@@ -1120,27 +1120,7 @@ bool SipRouter::addNatMappingInfoToContacts( SipMessage& sipRequest ) const
       // construct the x-sipX-privcontact URL parameter
       UtlString privateHostAddress;
       newContactUri.getHostAddress( privateHostAddress );
-
-      // get the user's public IP address and port as received
-      // by the sipXtack and use them as the contact's IP & port
-      UtlString publicAddress;
-      int publicPort;
-      sipRequest.getSendAddress( &publicAddress, &publicPort );
-      newContactUri.setHostAddress( publicAddress );
-      newContactUri.setHostPort( publicPort );
-
-      //
-      // Check if the privateHostAddress is equal to the publicAddress
-      //
-      if (publicAddress == privateHostAddress)
-      {
-        //
-        // This is a case of the caller getting smart with NAT. Use the via instead.
-        //
-        privateHostAddress = privateAddress;
-      }
       natUrlParameterValue.append( privateHostAddress );
-
       if( newContactUri.getHostPort() != PORT_NONE )
       {
          char portString[21];
@@ -1154,6 +1134,14 @@ bool SipRouter::addNatMappingInfoToContacts( SipMessage& sipRequest ) const
          natUrlParameterValue.append( ";transport=" );
          natUrlParameterValue.append( transport );
       }
+      
+      // get the user's public IP address and port as received
+      // by the sipXtack and use them as the contact's IP & port
+      UtlString publicAddress;
+      int publicPort;
+      sipRequest.getSendAddress( &publicAddress, &publicPort );
+      newContactUri.setHostAddress( publicAddress );
+      newContactUri.setHostPort( publicPort );      
 
       newContactUri.setUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, natUrlParameterValue ); 
    }
