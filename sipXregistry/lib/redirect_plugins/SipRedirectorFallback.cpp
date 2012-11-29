@@ -117,18 +117,7 @@ SipRedirectorFallback::lookUp(
    UtlString callTag = "UNK";
 
    if (mMappingRulesLoaded == OS_SUCCESS)
-   {
-      if (method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase)==0)
-      {
-        //
-        // There is no reason for a fallback rule to process subscriptions.
-        // Since there is no provision in dialplans to specify a methodMatch
-        // rule, we can safely assume that dialplans refer to calls and thefore
-        // INVITES and not subscriptions.  Subscriptions are best routed in mapping rules.
-        //
-        return RedirectPlugin::SUCCESS;
-      }
-      
+   {      
       UtlString callerLocation;
       determineCallerLocation( message, callerLocation );
     
