@@ -16,15 +16,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.UserValidationUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -127,8 +128,9 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
                                                                       m_forwardingContext, m_mailboxManager);
                 groupAutoAssign.assignUserData(user);
             }
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            LOG.error("Failed inserting row", e);
+            throw new UserException(e);
         }
     }
 
@@ -156,7 +158,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
             if (aliases != null) {
                 Set<String> aliasesToRemove = new TreeSet<String>();
                 for (String alias : aliases) {
-                    if (m_coreContext.isAliasInUseForOthers(alias, userName)) {
+                    if (StringUtils.equals(userName, alias) || m_coreContext.isAliasInUseForOthers(alias, userName)) {
                         aliasesToRemove.add(alias);
                         status = RowStatus.WARNING_ALIAS_COLLISION;
                     }
