@@ -33,7 +33,7 @@ public class OpenfireXmlRpcPresenceClientTest extends TestCase {
         ConfigurationParser configParser = new ConfigurationParser();
         watcherConfig = configParser.parse("file://" + configDir + "/sipxopenfire.xml");
         try {
-            UnfortunateLackOfSpringSupportFactory.initialize(configDir + "/mongo-client.ini");
+            UnfortunateLackOfSpringSupportFactory.initialize();
         } catch (Exception e) {
             Log.error(e);
         }        

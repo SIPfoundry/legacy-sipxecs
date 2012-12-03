@@ -7,11 +7,7 @@ package org.sipfoundry.openfire.vcard.provider;
 
 import org.apache.log4j.Logger;
 import org.dom4j.Element;
-import org.jivesoftware.openfire.MessageRouter;
-import org.jivesoftware.openfire.XMPPServer;
-import org.jivesoftware.openfire.XMPPServerInfo;
 import org.jivesoftware.openfire.vcard.VCardManager;
-import org.jivesoftware.openfire.vcard.VCardProvider;
 import org.sipfoundry.openfire.vcard.synchserver.ContactInfoHandler;
 import org.sipfoundry.openfire.vcard.synchserver.Util;
 

@@ -60,12 +60,12 @@ bundle agent sipxopenfire_config {
         copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_restart)"),
         classes => if_repaired("restart_openfire");
 
-       "$(sipx.SIPX_CONFDIR)/ofproperty.yaml"
-        comment => "install openfire config $(this.promiser)",
+      "$(sipx.OPENFIRE_HOME)/conf/openfire.properties"
+        comment => "install openfire.properties config $(this.promiser)",
         create => "true",
-        perms => m("644"),
-        copy_from => copy_from_cfdata("$(sipx.location_id)/ofproperty.yaml"),
-        classes => if_repaired("update_ofproperty");
+        perms => mog("644", "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
+        edit_line => openfire_properties,
+        classes => if_repaired("restart_openfire");
 
       "$(sipx.OPENFIRE_HOME)/resources/security/truststore"
         comment => "openfire authorities",
@@ -104,11 +104,6 @@ bundle agent sipxopenfire_config {
         perms => mog("644", "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
         copy_from => local_cp_by_digest("$(sipx.OPENFIRE_HOME)/conf/openfire.xml.sipx"),
         classes => if_repaired("restart_openfire");
-  
-  commands:
-    update_ofproperty::
-      "$(sipx.SIPX_BINDIR)/openfire-config-prop"
-        comment => "update or insert openfire properties configured in sipx into ofproperty tabe";
       
 }
 
@@ -144,6 +139,18 @@ bundle edit_line openfire_config_contents {
     "source $(sipx.SIPX_LIBEXECDIR)/openfire-config $1";
 }
 
+bundle edit_line openfire_properties {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/openfire.properties.part"
+        insert_type => "file";
+      "xmpp.domain=$(sipx.domain)";
+      "xmpp.fqdn=$(sipx.host).$(sipx.net_domain)";
+  delete_lines:
+    any::
+      ".*";
+}
+
 bundle edit_line sipxopenfire_sipx_properties {
   insert_lines:	
     "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipx.properties.part"
@@ -158,7 +165,7 @@ bundle agent sipxopenfire_running {
   vars:
     any::
       "service" string => "/etc/init.d/openfire";
-      "service_command" string => ".*\s-DopenfireHome=$(sipx.OPENFIRE_HOME)\s.*";
+      "service_command" string => ".*\s-Dprovider.properties.className=org.jivesoftware.util.FilePropertiesProvider\s.*";
 
   methods:
     any::
@@ -174,12 +181,12 @@ bundle agent sipxopenfire_running {
         comment => "stop sipxopenfire",
         args => "stop";
 
-    sipxopenfire.!openfire_running.(!stop_sipxecs|update_ofproperty)::
+    sipxopenfire.!openfire_running.!stop_sipxecs::
       "$(service)"
         comment => "start sipxopenfire",
         args => "start";
 
-    sipxopenfire.openfire_running.(restart_sipxecs|restart_openfire|update_ofproperty)::
+    sipxopenfire.openfire_running.(restart_sipxecs|restart_openfire)::
       "$(service)"
         comment => "restart sipxopenfire",
         args => "restart";

@@ -5,6 +5,7 @@ Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @plugin_PKGS@
 LOCALCLASSPATH=`echo ${Dependencies} | sed -e 's/ /:/g'`
 
 JAVACMD=`@bindir@/sipx-config --java`
+OPENFIRE_OPTS="-Dprovider.properties.className=org.jivesoftware.util.FilePropertiesProvider -DconfigFile=@OPENFIRE_HOME@/conf/openfire.properties"
 
 refreshPlugins() {
    # Remove all softlinks under @OPENFIRE_HOME@/plugins

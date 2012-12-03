@@ -56,6 +56,7 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
     });
     private BeanWithSettingsDao<OpenfireSettings> m_settingsDao;
     private ConfigManager m_configManager;
+    private boolean m_highAvailabilitySupport;
 
     @Override
     public OpenfireSettings getSettings() {
@@ -117,8 +118,16 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
     public void setSettingsDao(BeanWithSettingsDao<OpenfireSettings> settingsDao) {
         m_settingsDao = settingsDao;
     }
-    
-    public void touchXmppUpdate(Collection<Location> locations) {
+
+    /**
+     * Setting this to true just relaxes the validator, Stock openfire will not work in HA mode
+     */
+    public void setHighAvailabilitySupport(boolean highAvailabilitySupport) {
+        m_highAvailabilitySupport = highAvailabilitySupport;
+    }
+
+    @Override
+	public void touchXmppUpdate(Collection<Location> locations) {
         RunRequest touchXmppUpdate = new RunRequest("touch xmpp update", locations);
         touchXmppUpdate.setBundles("touch_xmpp_update");
         m_configManager.run(touchXmppUpdate);
@@ -137,7 +146,7 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
             return null;
         }
         return Collections.singleton(ProcessDefinition.sysvByRegex("openfire",
-                ".*\\s-DopenfireHome=$(sipx.OPENFIRE_HOME)\\s.*"));
+                ".*\\s-Dprovider.properties.className=org.jivesoftware.util.FilePropertiesProvider\\s.*"));
     }
 
     @Override
@@ -153,8 +162,9 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
-        // require postgres ? that's about all i can think of but we do not have a role for that -- Douglas
-        validator.singleLocationOnly(FEATURE);
+        if (!m_highAvailabilitySupport) {
+            validator.singleLocationOnly(FEATURE);
+        }
     }
 
     @Override
@@ -172,5 +182,5 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
     @Required
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
-    }       
+    }
 }

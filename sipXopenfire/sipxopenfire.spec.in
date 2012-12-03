@@ -57,8 +57,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/sipxecs/cfinputs/plugin.d/lib/*.cf
 %{_sysconfdir}/sipxpbx/database/sipxopenfire-initdb.sql
 %dir %attr(775,sipx,sipx) %{_sysconfdir}/sipxpbx/openfire
-%attr(755,root,root) %{_bindir}/openfire-setprop
-%attr(755,root,root) %{_bindir}/openfire-config-prop
 %{_sysconfdir}/sipxpbx/sipxopenfire-database.xml
 %config(noreplace) %{_sysconfdir}/sipxpbx/openfire/openfire.properties
 %config(noreplace) %{_sysconfdir}/sipxpbx/openfire/openfire.vm

@@ -40,6 +40,25 @@
       </false>
     </boolean>
   </type>
+  <type id="offlineType">
+    <enum>
+      <option>
+        <value>bounce</value>
+      </option>
+      <option>
+        <value>drop</value>
+      </option>
+      <option>
+        <value>store</value>
+      </option>
+      <option>
+        <value>store_and_bounce</value>
+      </option>
+      <option>
+        <value>store_and_drop</value>
+      </option>
+    </enum>
+  </type>
   <type id="requiredNonRootPort">
     <integer min="1025" max="65535" required="yes"/>
   </type>
@@ -82,6 +101,14 @@
     </setting>
   </group>
   <group name="ofproperty">
+    <setting name="register.inband" hidden="yes">
+      <type refid="switch" />
+      <value>false</value>
+    </setting>
+    <setting name="register.password" hidden="yes">
+      <type refid="switch" />
+      <value>false</value>
+    </setting>
     <setting name="xmpp.proxy.port">
       <type refid="requiredNonRootPort"/>
       <value>7777</value>
@@ -103,7 +130,105 @@
     <setting name="route.all-resources">
       <type refid="switch" />
       <value>false</value>
-    </setting>     
+    </setting>
+    <setting name="rss.enabled" advanced="yes">
+      <type refid="switch" />
+      <value>false</value>
+    </setting>
+    <setting name="update.notify-admins" hidden="yes">
+      <type refid="switch" />
+      <value>false</value>
+    </setting>
+    <setting name="update.service-enabled" hidden="yes">
+      <type refid="switch" />
+      <value>false</value>
+    </setting>
+    <setting name="xmpp.audit.active" advanced="yes">
+      <type refid="switch" />
+      <value>false</value>
+    </setting>
+    <setting name="xmpp.audit.logdir" advanced="yes">
+      <type>
+        <string/>
+      </type>
+      <value>/opt/openfire/audit</value>
+    </setting>
+    <setting name="xmpp.audit.message" advanced="yes">
+      <type refid="switch" />
+      <value>false</value>
+    </setting>
+    <setting name="xmpp.audit.presence" advanced="yes">
+      <type refid="switch" />
+      <value>false</value>
+    </setting>
+    <setting name="xmpp.client.idle" advanced="yes">
+      <type>
+        <integer min="-1" />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="xmpp.offline.type" advanced="yes">
+      <type refid="offlineType" />
+      <value>store</value>
+    </setting>
+    <setting name="xmpp.offline.quota" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>102400</value>
+    </setting>
+    <setting name="xmpp.privateStorageEnabled" advanced="yes">
+      <type refid="switch" />
+      <value>true</value>
+    </setting>
+    <setting name="xmpp.server.certificate.accept-selfsigned" hidden="yes">
+      <type refid="switch" />
+      <value>true</value>
+    </setting>
+    <setting name="xmpp.server.certificate.selfsigned" hidden="yes">
+      <type refid="switch" />
+      <value>true</value>
+    </setting>
+    <setting name="xmpp.server.permission" hidden="yes">
+      <type>
+        <string/>
+      </type>
+      <value>whitelist</value>
+    </setting>
+    <setting name="xmpp.server.session.idle" hidden="yes">
+      <type>
+        <string/>
+      </type>
+      <value>-1</value>
+    </setting>
+    <setting name="xmpp.server.socket.active" hidden="yes">
+      <type refid="switch" />
+      <value>false</value>
+    </setting>
+    <setting name="xmpp.server.tls.enabled" hidden="yes">
+      <type refid="switch" />
+      <value>true</value>
+    </setting>
+    <setting name="xmpp.session.conflict-limit" hidden="yes">
+      <type>
+        <string/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="xmpp.socket.plain.active" hidden="yes">
+      <type refid="switch" />
+      <value>true</value>
+    </setting>
+    <setting name="xmpp.socket.ssl.active" hidden="yes">
+      <type refid="switch" />
+      <value>true</value>
+    </setting>
+    <setting name="xmpp.socket.ssl.keypass" hidden="yes">
+      <type>
+        <string/>
+      </type>
+      <value>changeit</value>
+    </setting>
   </group>
   <group name="openfire-server-to-server">
     <setting name="enabled">

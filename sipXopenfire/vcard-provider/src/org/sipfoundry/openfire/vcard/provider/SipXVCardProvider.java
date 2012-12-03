@@ -5,21 +5,22 @@
  */
 package org.sipfoundry.openfire.vcard.provider;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.Element;
+import org.jivesoftware.openfire.provider.VCardProvider;
 import org.jivesoftware.openfire.vcard.DefaultVCardProvider;
 import org.jivesoftware.openfire.vcard.VCardManager;
-import org.jivesoftware.openfire.vcard.VCardProvider;
 import org.jivesoftware.util.AlreadyExistsException;
 import org.jivesoftware.util.NotFoundException;
 import org.jivesoftware.util.cache.Cache;
@@ -55,17 +56,16 @@ public class SipXVCardProvider implements VCardProvider {
     static long ID_index = 0;
     private static Logger logger = Logger.getLogger(SipXVCardProvider.class);
 
-    private Cache<String, Element> vcardCache;
-    private DefaultVCardProvider defaultProvider;
+    private final Cache<String, Element> vcardCache;
+    private final DefaultVCardProvider defaultProvider;
 
     public SipXVCardProvider() {
         super();
 
         defaultProvider = new DefaultVCardProvider();
 
-        String clientConfig = getConfDir() + MONGO_CLIENT_CONFIG;
         try {
-            UnfortunateLackOfSpringSupportFactory.initialize(clientConfig);
+            UnfortunateLackOfSpringSupportFactory.initialize();
             if (new File("/tmp/sipx.properties").exists()) {
                 System.getProperties()
                         .load(new FileInputStream(new File("/tmp/sipx.properties")));
@@ -165,8 +165,9 @@ public class SipXVCardProvider implements VCardProvider {
     @Override
     public Element loadVCard(String username) {
         synchronized (username.intern()) {
-            if (username.compareToIgnoreCase(PA_USER) == 0)
-                return defaultProvider.loadVCard(username);
+            if (username.compareToIgnoreCase(PA_USER) == 0) {
+				return defaultProvider.loadVCard(username);
+			}
 
             return getVCard(username);
         }
@@ -220,8 +221,9 @@ public class SipXVCardProvider implements VCardProvider {
                     }
                 } while (attempts < MAX_ATTEMPTS && tryAgain);
 
-                if (attempts >= MAX_ATTEMPTS)
-                    logger.error("Failed to update contact info for user " + username + ", sipXconfig might be down");
+                if (attempts >= MAX_ATTEMPTS) {
+					logger.error("Failed to update contact info for user " + username + ", sipXconfig might be down");
+				}
 
                 Element vcardAfterUpdate = cacheVCard(username);
 
@@ -233,11 +235,11 @@ public class SipXVCardProvider implements VCardProvider {
 
                 return vcardAfterUpdate;
 
-            } else {
-                logger.error("Failed to find a valid SIP account for user " + username);
-                return vCardElement;
-            }
-        }
+			}
+			logger.error("Failed to find a valid SIP account for user "	+ username);
+
+			return vCardElement;
+		}
 
         catch (Exception ex) {
             logger.error("updateVCard failed! " + ex.getMessage());
@@ -256,7 +258,8 @@ public class SipXVCardProvider implements VCardProvider {
         return false;
     }
 
-    protected Properties loadProperties(String path_under_conf_dir) {
+    @SuppressWarnings("resource")
+	protected Properties loadProperties(String path_under_conf_dir) {
 
         Properties result = null;
 
@@ -267,13 +270,16 @@ public class SipXVCardProvider implements VCardProvider {
             properties.load(in);
         } catch (IOException ex) {
             logger.error(ex);
+        } finally {
+        	IOUtils.closeQuietly(in);
         }
 
         String file_path = properties.getProperty(PROP_SIPX_CONF_DIR) + path_under_conf_dir;
         logger.info("Domain config file path is  " + file_path);
 
+        InputStream fis = null;
         try {
-            FileInputStream fis = new FileInputStream(file_path);
+            fis = new FileInputStream(file_path);
             result = new Properties();
             result.load(fis);
 
@@ -281,12 +287,15 @@ public class SipXVCardProvider implements VCardProvider {
             logger.error("Failed to read '" + file_path + "':");
             System.err.println("Failed to read '" + file_path + "':");
             e.printStackTrace(System.err);
+        } finally {
+        	IOUtils.closeQuietly(fis);
         }
 
         return result;
     }
 
-    public String getConfDir() {
+    @SuppressWarnings("resource")
+	public String getConfDir() {
         InputStream in = this.getClass().getResourceAsStream("/config.properties");
         Properties properties = new Properties();
 
@@ -294,12 +303,14 @@ public class SipXVCardProvider implements VCardProvider {
             properties.load(in);
         } catch (IOException ex) {
             logger.error(ex);
+        } finally {
+        	IOUtils.closeQuietly(in);
         }
 
         return properties.getProperty("sipxpbx.conf.dir");
     }
 
-    public String getAORFromJABBERID(String jabberid) {
+    public static String getAORFromJABBERID(String jabberid) {
         try {
             User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUserByJid(jabberid);
             if (user != null) {
@@ -313,35 +324,32 @@ public class SipXVCardProvider implements VCardProvider {
         }
     }
 
-    public String readXML(File file) {
-
+    @SuppressWarnings("resource")
+	public static String readXML(File file) {
+    	String contents = null;
+    	
         StringBuilder builder = new StringBuilder();
-        FileInputStream fis = null;
-        BufferedInputStream bis = null;
-        DataInputStream dis = null;
+        BufferedReader reader = null;
 
         try {
-            fis = new FileInputStream(file);
-            bis = new BufferedInputStream(fis);
-            dis = new DataInputStream(bis);
+            reader = new BufferedReader(new FileReader(file));
 
-            while (dis.available() != 0) {
-                builder.append(dis.readLine());
+            String line;
+            while ((line = reader.readLine()) != null) {
+                builder.append(line);
             }
 
-            fis.close();
-            bis.close();
-            dis.close();
-
-            return builder.toString().replaceAll("xmlns=", "dummy="); // dom4j parser doesn't like
+            contents = builder.toString().replaceAll("xmlns=", "dummy="); // dom4j parser doesn't like
             // xmlns in the root element
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            return null;
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
+        } finally {
+        	IOUtils.closeQuietly(reader);
         }
+        
+        return contents;
     }
 
     /**
@@ -350,7 +358,7 @@ public class SipXVCardProvider implements VCardProvider {
      * @param username
      * @return LDAP vCard re-added avatar element
      */
-    synchronized Element mergeAvatar(String username, Element vcardFromSipX, Element vcardFromDB) {
+    synchronized static Element mergeAvatar(String username, Element vcardFromSipX, Element vcardFromDB) {
 
         logger.info("merge avatar for user '" + username + "' ...");
 
@@ -375,18 +383,19 @@ public class SipXVCardProvider implements VCardProvider {
         return vcardFromSipX;
     }
 
-    protected Element getAvatarCopy(Element vcard) {
+    protected static Element getAvatarCopy(Element vcard) {
         Element avatarElement = null;
         if (vcard != null) {
             Element photoElement = vcard.element(AVATAR_ELEMENT);
-            if (photoElement != null)
-                avatarElement = photoElement.createCopy();
+            if (photoElement != null) {
+				avatarElement = photoElement.createCopy();
+			}
         }
 
         return avatarElement;
     }
 
-    protected Element getAvatar(Element vcard) {
+    protected static Element getAvatar(Element vcard) {
         Element avatarElement = null;
         if (vcard != null) {
             return vcard.element(AVATAR_ELEMENT);

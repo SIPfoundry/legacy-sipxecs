@@ -10,5 +10,6 @@
 	<classpathentry kind="var" path="SIPX_BUILDDIR/sipXconfig/neoconf/test"/>
 	<classpathentry kind="var" path="SIPX_JAVADIR/sipXecs/sipXconfig/agent-bindings.jar"/>
 	<classpathentry kind="var" path="SIPX_JAVADIR/sipXecs/sipXconfig/cdr-bindings.jar"/>
+	<classpathentry kind="var" path="SIPX_JAVADIR"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

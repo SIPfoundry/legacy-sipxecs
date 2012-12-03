@@ -113,7 +113,7 @@ public class MongoConfig implements ConfigProvider {
                 r.append(server.getName());
             }
         }
-        r.append("/?slaveOk=true");
+        r.append("/?readPreference=nearest");
         return r.toString();
     }
 

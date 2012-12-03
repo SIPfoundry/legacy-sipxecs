@@ -9,26 +9,25 @@
 package org.sipfoundry.sipximbot;
 
 import java.util.Properties;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
-import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
-import org.sipfoundry.sipximbot.WebServer;
 
 public class SipXimbot {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
     private static ImbotConfiguration s_config;
 
-    
+
     /**
      * Load the configuration from the sipximbot.properties file.
      * Wait for FreeSWITCH to make a TCP connection to s_eventSocketPort.
      * Spawn off a thread to handle each connection.
-     * 
+     *
      * @throws Throwable
      */
     static void init() throws Throwable {
-        
+
         // Load the configuration
         s_config = ImbotConfiguration.get();
 
@@ -42,13 +41,12 @@ public class SipXimbot {
         props.setProperty("log4j.appender.file.layout", "org.sipfoundry.commons.log4j.SipFoundryLayout");
         props.setProperty("log4j.appender.file.layout.facility", "sipXimbot");
         PropertyConfigurator.configure(props);
-        UnfortunateLackOfSpringSupportFactory.initialize(s_config.getConfigDirectory() + "/mongo-client.ini");
-        
+
         // Create Web Server
         WebServer webServer = new WebServer(s_config);
         webServer.addServlet("IM", "/IM/*", ImbotServlet.class.getName());
-        webServer.start();        
-        
+        webServer.start();
+
         IMBot.init();
 
         ConfTask confThread = new ConfTask();

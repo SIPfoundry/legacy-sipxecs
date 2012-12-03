@@ -7,8 +7,6 @@ package org.sipfoundry.callcontroller;
 
 import gov.nist.javax.sip.clientauthutils.UserCredentialHash;
 
-import java.net.UnknownHostException;
-
 import javax.sip.Dialog;
 
 import org.apache.log4j.Logger;
@@ -20,7 +18,6 @@ import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxrest.RestServer;
 
 public class CallControllerRestlet extends Restlet {
@@ -29,12 +26,15 @@ public class CallControllerRestlet extends Restlet {
 
     private static Logger logger = Logger.getLogger(CallControllerRestlet.class);
 
-    private String getAddrSpec(String name) {
-        if (name.indexOf("@") != -1) {
-            return name;
+    private static String getAddrSpec(String name) {
+        String addrSpec;
+    	if (name.indexOf("@") != -1) {
+            addrSpec = name;
         } else {
-            return name + "@" + RestServer.getRestServerConfig().getSipxProxyDomain();
+            addrSpec = name + "@" + RestServer.getRestServerConfig().getSipxProxyDomain();
         }
+
+    	return addrSpec;
     }
 
     public CallControllerRestlet(Context context) {
@@ -43,14 +43,6 @@ public class CallControllerRestlet extends Restlet {
 
     @Override
     public void handle(Request request, Response response) {
-
-        String configDir = System.getProperties().getProperty("conf.dir",  "/etc/sipxpbx");
-        try{
-            UnfortunateLackOfSpringSupportFactory.initialize(configDir + "/mongo-client.ini");
-        } catch (UnknownHostException e) {
-            logger.error("Cannot init mongo", e);
-        }
-
         try {
             Method httpMethod = request.getMethod();
             if (!httpMethod.equals(Method.POST) && !httpMethod.equals(Method.GET)) {

@@ -218,9 +218,8 @@ public class ConfBasicThread extends Thread {
 
     @Override
     public void run() {
-        String configDir = System.getProperties().getProperty("conf.dir",  "/etc/sipxpbx");
         try{
-            UnfortunateLackOfSpringSupportFactory.initialize(configDir + "/mongo-client.ini");
+            UnfortunateLackOfSpringSupportFactory.initialize();
         } catch (UnknownHostException e) {
             LOG.error(e);
         }

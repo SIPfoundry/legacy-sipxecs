@@ -65,6 +65,7 @@ provider_PKGS = \
 	xmlrpc-client \
 	xmlrpc-server \
 	log4j \
+	commons-io \
 	commons-digester
 	
 synchserver_PKGS = \

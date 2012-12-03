@@ -1,4 +1,4 @@
-openfire_VER = 3.7.1
+openfire_VER = 3.8.1
 openfire_PACKAGE_REVISION = 1$(shell cd $(SRC)/$(PROJ); ../config/revision-gen $(openfire_VER))
 openfire_SRPM = openfire-$(openfire_VER)-$(openfire_PACKAGE_REVISION).src.rpm
 openfire_SPEC = $(SRC)/$(PROJ)/openfire.spec

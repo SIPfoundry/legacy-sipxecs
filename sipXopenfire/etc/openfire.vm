@@ -38,41 +38,6 @@
 	<usernameField>${attrMap.imAttributeName}</usernameField>
 	<searchFilter><![CDATA[${attrMap.searchFilter}]]></searchFilter>
   </ldap>
-  <provider>
-    <auth>
-      <className>$ldapAuthProvider</className>
-    </auth>
-    <user>
-      <className>$ldapUserProvider</className>
-    </user>
-    <vcard>
-      <className>$ldapVcardProvider</className>
-    </vcard>
-  </provider>
-#else
-  <provider>
-    <admin>
-      <className>$adminProvider</className>
-    </admin>
-    <auth>
-      <className>$authProvider</className>
-    </auth>
-    <group>
-      <className>$groupProvider</className>
-    </group>
-    <user>
-      <className>$userProvider</className>
-    </user>
-    <lockout>
-      <className>$lockoutProvider</className>
-    </lockout>
-    <securityAudit>
-      <className>$securityAuditProvider</className>
-    </securityAudit>
-    <vcard>
-      <className>$sipxVcardProvider</className>
-    </vcard>
-  </provider>
 #end
   <connectionProvider>
 	<className>org.jivesoftware.database.DefaultConnectionProvider</className>
@@ -92,4 +57,7 @@
 	</debug>
   </log>
   <locale>$locale</locale>
+  <clustering>
+    <enabled>$clusteringState</enabled>
+  </clustering>
 </jive>

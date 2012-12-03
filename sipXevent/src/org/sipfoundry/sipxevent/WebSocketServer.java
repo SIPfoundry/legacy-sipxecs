@@ -16,7 +16,6 @@
  */
 package org.sipfoundry.sipxevent;
 
-import java.net.UnknownHostException;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -27,7 +26,6 @@ import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
-import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -88,12 +86,8 @@ public class WebSocketServer {
 	public static void main(String [] args) {
 	    ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("server.beans.xml");
         WebSocketServer server = (WebSocketServer) ctx.getBean("webSocketServer");
-        try {
-            UnfortunateLackOfSpringSupportFactory.initialize(server.getConfDir() + "/mongo-client.ini");
-            server.start();
-        } catch (UnknownHostException e) {
-            LOG.error("Cannot start web-socket server", e);
-        }
+
+        server.start();
 	}
 
     @Required

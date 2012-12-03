@@ -55,7 +55,7 @@ public class MongoConfigTest {
 
     @Test
     public void getConnectionUrl() {
-        assertEquals("mongodb://one:1/?slaveOk=true", m_config.getConnectionUrl(m_single, 1));
-        assertEquals("mongodb://one:1,two:1/?slaveOk=true", m_config.getConnectionUrl(m_multi, 1));
+        assertEquals("mongodb://one:1/?readPreference=nearest", m_config.getConnectionUrl(m_single, 1));
+        assertEquals("mongodb://one:1,two:1/?readPreference=nearest", m_config.getConnectionUrl(m_multi, 1));
     }
 }
