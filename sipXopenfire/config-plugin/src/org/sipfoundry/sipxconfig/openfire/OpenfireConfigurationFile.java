@@ -61,6 +61,8 @@ public class OpenfireConfigurationFile {
         VelocityContext context = new VelocityContext();
         LdapSystemSettings settings = m_ldapManager.getSystemSettings();
         boolean isEnableOpenfireConfiguration = settings.isEnableOpenfireConfiguration() && settings.isConfigured();
+        context.put("authorizedUsernames", getAuthorizedUsernames());
+        context.put("clusteringState", m_clusteringState);
         context.put("isEnableOpenfireConfiguration", isEnableOpenfireConfiguration);
         List<LdapConnectionParams> allParams = m_ldapManager.getAllConnectionParams();
         if (!isEnableOpenfireConfiguration || allParams == null || allParams.isEmpty()) {
@@ -132,10 +134,11 @@ public class OpenfireConfigurationFile {
      */
     protected String getAuthorizedUsernames() {
         List<User> admins = m_coreContext.loadUserByAdmin();
+        String domainName = m_coreContext.getDomainName();
         Set<String> authorizedList = new TreeSet<String>();
         authorizedList.add(AbstractUser.SUPERADMIN);
         for (User user : admins) {
-            authorizedList.add(user.getUserName());
+            authorizedList.add(user.getUserName() + "@" + domainName);
         }
         return StringUtils.join(authorizedList, SEPARATOR);
     }
