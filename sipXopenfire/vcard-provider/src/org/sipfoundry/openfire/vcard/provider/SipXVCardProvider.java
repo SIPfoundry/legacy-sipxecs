@@ -17,9 +17,9 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.dom4j.Element;
+import org.jivesoftware.openfire.provider.VCardProvider;
 import org.jivesoftware.openfire.vcard.DefaultVCardProvider;
 import org.jivesoftware.openfire.vcard.VCardManager;
-import org.jivesoftware.openfire.vcard.VCardProvider;
 import org.jivesoftware.util.AlreadyExistsException;
 import org.jivesoftware.util.NotFoundException;
 import org.jivesoftware.util.cache.Cache;
@@ -55,8 +55,8 @@ public class SipXVCardProvider implements VCardProvider {
     static long ID_index = 0;
     private static Logger logger = Logger.getLogger(SipXVCardProvider.class);
 
-    private Cache<String, Element> vcardCache;
-    private DefaultVCardProvider defaultProvider;
+    private final Cache<String, Element> vcardCache;
+    private final DefaultVCardProvider defaultProvider;
 
     public SipXVCardProvider() {
         super();
@@ -165,8 +165,9 @@ public class SipXVCardProvider implements VCardProvider {
     @Override
     public Element loadVCard(String username) {
         synchronized (username.intern()) {
-            if (username.compareToIgnoreCase(PA_USER) == 0)
-                return defaultProvider.loadVCard(username);
+            if (username.compareToIgnoreCase(PA_USER) == 0) {
+				return defaultProvider.loadVCard(username);
+			}
 
             return getVCard(username);
         }
@@ -220,8 +221,9 @@ public class SipXVCardProvider implements VCardProvider {
                     }
                 } while (attempts < MAX_ATTEMPTS && tryAgain);
 
-                if (attempts >= MAX_ATTEMPTS)
-                    logger.error("Failed to update contact info for user " + username + ", sipXconfig might be down");
+                if (attempts >= MAX_ATTEMPTS) {
+					logger.error("Failed to update contact info for user " + username + ", sipXconfig might be down");
+				}
 
                 Element vcardAfterUpdate = cacheVCard(username);
 
@@ -233,11 +235,11 @@ public class SipXVCardProvider implements VCardProvider {
 
                 return vcardAfterUpdate;
 
-            } else {
-                logger.error("Failed to find a valid SIP account for user " + username);
-                return vCardElement;
-            }
-        }
+			}
+			logger.error("Failed to find a valid SIP account for user "	+ username);
+
+			return vCardElement;
+		}
 
         catch (Exception ex) {
             logger.error("updateVCard failed! " + ex.getMessage());
@@ -299,7 +301,7 @@ public class SipXVCardProvider implements VCardProvider {
         return properties.getProperty("sipxpbx.conf.dir");
     }
 
-    public String getAORFromJABBERID(String jabberid) {
+    public static String getAORFromJABBERID(String jabberid) {
         try {
             User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUserByJid(jabberid);
             if (user != null) {
@@ -313,7 +315,7 @@ public class SipXVCardProvider implements VCardProvider {
         }
     }
 
-    public String readXML(File file) {
+    public static String readXML(File file) {
 
         StringBuilder builder = new StringBuilder();
         FileInputStream fis = null;
@@ -350,7 +352,7 @@ public class SipXVCardProvider implements VCardProvider {
      * @param username
      * @return LDAP vCard re-added avatar element
      */
-    synchronized Element mergeAvatar(String username, Element vcardFromSipX, Element vcardFromDB) {
+    synchronized static Element mergeAvatar(String username, Element vcardFromSipX, Element vcardFromDB) {
 
         logger.info("merge avatar for user '" + username + "' ...");
 
@@ -375,18 +377,19 @@ public class SipXVCardProvider implements VCardProvider {
         return vcardFromSipX;
     }
 
-    protected Element getAvatarCopy(Element vcard) {
+    protected static Element getAvatarCopy(Element vcard) {
         Element avatarElement = null;
         if (vcard != null) {
             Element photoElement = vcard.element(AVATAR_ELEMENT);
-            if (photoElement != null)
-                avatarElement = photoElement.createCopy();
+            if (photoElement != null) {
+				avatarElement = photoElement.createCopy();
+			}
         }
 
         return avatarElement;
     }
 
-    protected Element getAvatar(Element vcard) {
+    protected static Element getAvatar(Element vcard) {
         Element avatarElement = null;
         if (vcard != null) {
             return vcard.element(AVATAR_ELEMENT);
