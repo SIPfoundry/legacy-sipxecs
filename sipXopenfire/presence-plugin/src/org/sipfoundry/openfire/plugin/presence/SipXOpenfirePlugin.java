@@ -1020,7 +1020,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
     }
 
-    public void update( XmppChatRoom xmppChatRoom ) {
+    public void update(XmppChatRoom xmppChatRoom) {
         log.info(String.format("update ChatRoom %s\n %s\n %s\n %s",
                 xmppChatRoom.getSubdomain(), xmppChatRoom.getRoomName(), xmppChatRoom
                 .getDescription(), xmppChatRoom.getConferenceExtension()));
