@@ -22,6 +22,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -39,6 +40,7 @@ public class Upload extends BeanWithSettings {
     private static final Log LOG = LogFactory.getLog(Upload.class);
     private static final String ZIP_TYPE = "application/zip";
     private static final String ERROR_WRONG_TYPE_FILE = "&error.wrongTypeFile";
+    private static final String PATH_SEPARATOR = "/";
     private String m_name;
     private String m_description;
     private UploadSpecification m_specification;
@@ -140,7 +142,7 @@ public class Upload extends BeanWithSettings {
         }
     }
 
-    private class FileDeployer extends AbstractSettingVisitor {
+    public class FileDeployer extends AbstractSettingVisitor {
         @Override
         public void visitSetting(Setting setting) {
             SettingType type = setting.getType();
@@ -153,8 +155,13 @@ public class Upload extends BeanWithSettings {
             }
             String contentType = ((FileSetting) type).getContentType();
             if (contentType.equalsIgnoreCase(ZIP_TYPE)) {
-                deployZipFile(new File(getDestinationDirectory()), new File(getUploadDirectory(), filename),
-                        (FileSetting) type);
+                String moveTo = (((FileSetting) type).getMoveTo() != null) ? (PATH_SEPARATOR + ((FileSetting) type)
+                        .getMoveTo()) : StringUtils.EMPTY;
+                // since moveTo might be a relative path, we need to make sure destination
+                // directory exists
+                File file = new File(getDestinationDirectory());
+                file.mkdirs();
+                deployZipFile(new File(file, moveTo), new File(getUploadDirectory(), filename), (FileSetting) type);
             } else {
                 deployFile(filename, ((FileSetting) type).getRename());
             }
@@ -174,9 +181,11 @@ public class Upload extends BeanWithSettings {
             }
             String contentType = ((FileSetting) type).getContentType();
             if (contentType.equalsIgnoreCase(ZIP_TYPE)) {
-                undeployZipFile(new File(getDestinationDirectory()), new File(getUploadDirectory(), filename),
-                        (FileSetting) type);
-            } else  {
+                String moveTo = (((FileSetting) type).getMoveTo() != null) ? (PATH_SEPARATOR + ((FileSetting) type)
+                        .getMoveTo()) : StringUtils.EMPTY;
+                undeployZipFile(new File(getDestinationDirectory() + moveTo), new File(getUploadDirectory(),
+                        filename), (FileSetting) type);
+            } else {
                 File f = new File(getDestinationDirectory(), filename);
                 f.delete();
                 if (((FileSetting) type).getRename() != null) {
@@ -322,6 +331,7 @@ public class Upload extends BeanWithSettings {
                         continue;
                     }
                     File file = new File(expandDirectory, entry.getName());
+                    expandDirectory.mkdirs();
                     if (entry.isDirectory()) {
                         file.mkdirs();
                     } else {
