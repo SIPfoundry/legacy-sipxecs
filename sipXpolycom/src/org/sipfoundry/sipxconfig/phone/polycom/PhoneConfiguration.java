@@ -30,13 +30,11 @@ public class PhoneConfiguration extends ProfileContext {
     // The number of blank lines in polycom_phone1.cfg.
     public static final int TEMPLATE_DEFAULT_LINE_COUNT = 6;
 
-    private static final String PHONE_TEMPLATE = PolycomPhone.TEMPLATE_DIR + "/phone.cfg.vm";
-
     private static final String MWI_SUBSCRIBE_SETTING = "msg.mwi/subscribe";
     private static final String BLANK_STRING = "";
 
-    public PhoneConfiguration(Device device) {
-        super(device, PHONE_TEMPLATE);
+    public PhoneConfiguration(PolycomPhone device) {
+        super(device, device.getTemplateDir() + "/phone.cfg.vm");
     }
 
     @Override
