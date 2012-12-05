@@ -110,7 +110,6 @@ rm -rf $RPM_BUILD_ROOT
 %doc  README   ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}/syslogviewer
 %attr(755,root,root) %{_bindir}/sipx-upgrade
-%attr(755,root,root) %{_libdir}/libsipXport.la
 %attr(755,root,root) %{_libdir}/libsipXport.so*
 %attr(755,root,root) %{_bindir}/sipx-config
 
