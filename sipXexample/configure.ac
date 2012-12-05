@@ -31,7 +31,6 @@ AM_CONDITIONAL(IS_RPMBUILD, test x$enable_rpmbuild = xyes)
 AC_CONFIG_FILES([
     Makefile
     etc/Makefile
-    bin/Makefile
     config-plugin/Makefile
     config-plugin/test/Makefile
     cpp-executable/Makefile

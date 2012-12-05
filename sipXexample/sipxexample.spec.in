@@ -19,7 +19,13 @@ BuildRequires: libxml2
 BuildRequires: sipxcommserverlib-devel >= %version
 
 # java
+%if %{_vendor} == suse
+BuildRequires: java-1_6_0-sun-devel
+%else
+BuildRequires: java-devel >= 1.6
+%endif
 BuildRequires: sipxcommons >= %version
+BuildRequires: sipxconfig >= %version
 
 # ruby
 BuildRequires: rubygems
@@ -79,9 +85,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-
-# files from ./bin install
-%attr(755,root,root) %{_bindir}/sipxexample-script
 
 # files from ./etc install
 %{_sysconfdir}/sipxpbx/sipxexample.xml
