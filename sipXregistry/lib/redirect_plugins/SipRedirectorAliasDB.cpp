@@ -151,7 +151,7 @@ SipRedirectorAliasDB::lookUp(
          CredentialDB::getInstance()->isUriDefined(requestUri, realm, authType);
       SipXauthIdentity authIdentity;
       authIdentity.setIdentity(requestIdentity);
-      bool isSubscribe = method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase)==0;
+
       for (int i = 0; i < numAliasContacts; i++)
       {
          static UtlString contactKey("contact");
@@ -162,9 +162,9 @@ SipRedirectorAliasDB::lookUp(
          {
             // If disableForwarding and the relation value is "userforward",
             // do not record this contact.
-            bool isUserForward = ((UtlString*)record.findValue(&relationKey))->compareTo(ALIASDB_RELATION_USERFORWARD) == 0;
-
-            if (!(disableForwarding && isUserForward) && !(isSubscribe && isUserForward))
+            if (!(disableForwarding &&
+                  ((UtlString*) record.findValue(&relationKey))->
+                     compareTo(ALIASDB_RELATION_USERFORWARD) == 0))
             {
                UtlString contact = *((UtlString*) record.findValue(&contactKey));
                Url contactUri(contact);
