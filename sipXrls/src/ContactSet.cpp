@@ -254,6 +254,8 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
       // Initialize Tiny XML document object.
       TiXmlDocument document;
       TiXmlNode* reginfo_node;
+      bool allowDirectUriSubscription = false;
+
       if (
          // Load the XML into it.
          document.Parse(content->data()) &&
@@ -281,6 +283,24 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
             // Do not test the aor attribute of <registration> elements
             // because the reg event server may be operating with the real
             // AOR for this URI, whereas we may have been told of an alias.
+
+             // Get the state attribute of registration node
+             TiXmlElement* registration_element = registration_node->ToElement();
+             const char* registration_state = registration_element->Attribute("state");
+             // The state will be "init" when no contacts are registered for this AOR
+             if (strcmp(registration_state, "init") == 0)
+             {
+                 // Allow direct dialog subscriptions to the AOR when the AOR is not registered
+                 // and no contact information can be retrieved from registrar through reg event subscriptions.
+                 // This behavior is needed to monitor static extensions like park orbit extensions. These
+                 // entities will never register to the registrar.
+                 allowDirectUriSubscription = true;
+                 OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                         "ContactSet::notifyEventCallback allowDirectUriSubscription true");
+
+                 // Continue with the next <registration> element because the current one has no contacts to iterate.
+                 continue;
+             }
 
             // Find all the <contact> elements.
             for (TiXmlNode* contact_node = 0;
@@ -439,6 +459,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                                    "ContactSet::notifyEventCallback deleting id = '%s'",
                                    id);
                   }
+
                   // Free id_allocated, if it is not pointed to by a data
                   // structure, which is indicated by setting it to NULL.
                   if (id_allocated)
@@ -470,7 +491,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
       }
 
       // Update the subscriptions we maintain to agree with the new state.
-      updateSubscriptions(false);
+      updateSubscriptions(allowDirectUriSubscription);
    }
 }
 
