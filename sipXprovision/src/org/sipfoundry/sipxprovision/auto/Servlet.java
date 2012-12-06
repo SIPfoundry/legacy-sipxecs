@@ -753,6 +753,7 @@ public class Servlet extends HttpServlet {
         PHONE_MODEL_MAP.put("VVX_1500", new PhoneModel("polycomVVX1500", "Polycom VVX 1500"));
         
         PHONE_MODEL_MAP.put("VVX_500", new PhoneModel("polycomVVX500", "Polycom VVX 500"));
+        PHONE_MODEL_MAP.put("VVX_600", new PhoneModel("polycomVVX600", "Polycom VVX 600"));
 
         // Nortel IP 12x0, see:
         //  - plugins/nortel12x0/src/org/sipfoundry/sipxconfig/phone/nortel12x0/nortel12x0-models.beans.xml
