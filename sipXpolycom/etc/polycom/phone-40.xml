@@ -108,7 +108,7 @@
         <type>
           <integer min="3" max="300" />
         </type>
-        <value />
+        <value>5</value>
       </setting>
     </group>
     <group name="screenSaver" if="video">
@@ -122,7 +122,7 @@
         <type>
           <integer min="1" max="9999" />
         </type>
-        <value />
+        <value>15</value>
       </setting>
     </group>
   </group>
@@ -1108,11 +1108,11 @@
     </setting>
     <setting name="screenMode">
       <type refid="screenMode" />
-      <value/>
+      <value>normal</value>
     </setting>
     <setting name="screenModeFS">
       <type refid="screenMode" />
-      <value/>
+      <value>normal</value>
     </setting>
     <setting name="quality">
       <type>
@@ -1131,7 +1131,7 @@
         <type>
           <integer min="128" max="1024" />
         </type>
-        <value/>
+        <value>768</value>
     </setting>
     <group name="codecPref">
       <setting name="videoCodecs">
@@ -1281,13 +1281,13 @@
         <type>
           <integer min="0" max="1" />
         </type>
-        <value/>
+        <value>1</value>
       </setting>
       <setting name="H2631998.annexN">
         <type>
           <integer min="0" max="1" />
         </type>
-        <value/>
+        <value>1</value>
       </setting>
       <setting name="H261.CifMpi">
 	    <type>
@@ -1331,37 +1331,37 @@
         <type>
           <integer min="0" max="2" />
         </type>
-        <value/>
+        <value>0</value>
       </setting>
       <setting name="frameRate">
         <type>
           <integer min="5" max="30" />
         </type>
-        <value/>
+        <value>25</value>
       </setting>
       <setting name="brightness">
         <type>
           <integer min="0" max="6" />
         </type>
-        <value/>
+        <value>3</value>
       </setting>
       <setting name="saturation">
         <type>
           <integer min="0" max="6" />
         </type>
-        <value/>
+        <value>3</value>
       </setting>
       <setting name="contrast">
         <type>
           <integer min="0" max="4" />
         </type>
-        <value/>
+        <value>0</value>
       </setting>
       <setting name="sharpness">
         <type>
           <integer min="0" max="6" />
         </type>
-        <value/>
+        <value>3</value>
       </setting>
     </group>
     <group name="localCameraView">
@@ -1373,13 +1373,14 @@
         <type>
           <enum>
             <option>
-              <value/>
+              <value>side-by-side</value>
             </option>
             <option>
               <value>pip</value>
             </option>
           </enum>
         </type>
+        <value>side-by-side</value>
       </setting>
     </group>
   </group>
@@ -1741,14 +1742,6 @@
         </type>
         <value>1</value>
       </setting>
-      <setting name="port">
-        <type>
-          <integer min="1" max="65535" />
-        </type>
-        <value>80</value>
-      </setting>
-    </group>
-    <group name="ip" if="video">
       <setting name="port">
         <type>
           <integer min="1" max="65535" />
@@ -2434,12 +2427,6 @@
       </type>
       <value />
     </setting>
-    <setting name="LaunchPad.enabled" if="video">
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
     <group name="idleDisplay">
       <setting name="home">
         <type>
@@ -2474,46 +2461,6 @@
         </type>
         <value />
       </setting>
-      <group name="1" if="video">
-      <setting name="url">
-        <type>
-          <string />
-        </type>
-        <value>PicFrame://</value>
-      </setting>
-      <setting name="icon">
-        <type>
-          <string />
-        </type>
-        <value>http://127.0.0.1/launchpad/geticonPicFrame</value>
-      </setting>
-      <setting name="text">
-        <type>
-          <string />
-        </type>
-        <value>Picture Frame</value>
-      </setting>
-    </group>
-    <group name="2" if="video">
-      <setting name="url">
-        <type>
-          <string />
-        </type>
-        <value>http://myinfoportal.apps.polycom.com</value>
-      </setting>
-      <setting name="icon">
-        <type>
-          <string />
-        </type>
-        <value>http://127.0.0.1/launchpad/geticonMyPortal</value>
-      </setting>
-      <setting name="text">
-        <type>
-          <string />
-        </type>
-        <value>Picture Frame</value>
-      </setting>
-    </group>
     </group>
   </group>
   <group name="pnet" if="polycom7000">
@@ -3068,11 +3015,17 @@
     </group>
   </group>
   <group name="powerSaving" if="video">
-    <setting name="enabled">
+    <setting name="enable">
       <type>
         <boolean />
       </type>
       <value>1</value>
+    </setting>
+    <setting name="enable.VVX500" if="polycomVVX500">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
     </setting>
     <group name="officeHours">
       <setting name="startHour.monday">

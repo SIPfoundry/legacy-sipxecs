@@ -218,14 +218,6 @@
       httpd.cfg.${setting.ProfileName}="$!{setting.Value}"
 #end
     />
-#if ($phone.model.isSupported("video"))
-    <httpd.ip
-#set ($group = $cfg.EndpointSettings.getSetting('httpd').getSetting('ip'))
-#foreach ($setting in $cfg.getSettings($group))
-      httpd.ip.${setting.ProfileName}="$!{setting.Value}"
-#end
-    />
-#end
   </httpd>
   <key
 #set ($group = $cfg.EndpointSettings.getSetting('key'))
