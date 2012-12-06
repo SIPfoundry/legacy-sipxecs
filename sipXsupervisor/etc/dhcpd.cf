@@ -95,7 +95,7 @@ bundle agent dhcpd_sysv_running {
       "any" usebundle => rh_chkconfig_status("dhcpd on");
 
   commands:
-    !dhcpd.!src.!unmanaged_dhcpd.dhcpd_running::
+    !dhcpd.!src.!unmanaged_dhcpd.primary.dhcpd_running::
       "$(service)"
         comment => "stop dhcpd",
         args => "stop";
