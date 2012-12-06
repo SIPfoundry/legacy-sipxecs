@@ -54,19 +54,19 @@
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
-    <setting name="SIPX_PROXY_TCP_PORT" advanced="yes">
+    <setting name="SIPX_PROXY_TCP_PORT" hidden="yes">
       <type>
         <integer />
       </type>
       <value>5060</value>
     </setting>
-    <setting name="SIPX_PROXY_UDP_PORT" advanced="yes">
+    <setting name="SIPX_PROXY_UDP_PORT" hidden="yes">
       <type>
         <integer />
       </type>
       <value>5060</value>
     </setting>
-    <setting name="SIPX_PROXY_TLS_PORT" advanced="yes">
+    <setting name="SIPX_PROXY_TLS_PORT" hidden="yes">
       <type>
         <integer />
       </type>
