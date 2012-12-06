@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -24,6 +25,13 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 public class RegBasicConfiguration extends ProfileContext {
     public RegBasicConfiguration(PolycomPhone device) {
         super(device, device.getTemplateDir() + "/reg-basic.cfg.vm");
+    }
+
+    @Override
+    public Map<String, Object> getContext() {
+        Map context = super.getContext();
+        context.put("lines", getLines());
+        return context;
     }
 
     public Collection<Setting> getLines() {

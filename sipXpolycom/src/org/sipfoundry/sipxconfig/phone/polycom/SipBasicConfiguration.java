@@ -9,11 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -24,15 +24,13 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  * Responsible for generating ipmid.cfg
  */
 public class SipBasicConfiguration extends ProfileContext {
-    private static final String DEVICE_TEMPLATE = PolycomPhone.TEMPLATE_DIR + "/sip-basic.cfg.vm";
     private static final String MWI_SUBSCRIBE_SETTING = "msg.mwi/subscribe";
     private static final String BLANK_STRING = "";
-
 
     public SipBasicConfiguration(PolycomPhone device) {
         super(device, device.getTemplateDir() + "/sip-basic.cfg.vm");
     }
-    
+
     public Collection<Setting> getLines() {
         PolycomPhone phone = (PolycomPhone) getDevice();
         List<Line> lines = phone.getLines();
@@ -48,7 +46,7 @@ public class SipBasicConfiguration extends ProfileContext {
         }
 
         int lineCount = lines.size();
-        
+
         ArrayList<Setting> linesSettings = new ArrayList<Setting>(lineCount);
 
         for (Line line : lines) {
@@ -59,5 +57,12 @@ public class SipBasicConfiguration extends ProfileContext {
         }
 
         return linesSettings;
+    }
+
+    @Override
+    public Map<String, Object> getContext() {
+        Map context = super.getContext();
+        context.put("lines", getLines());
+        return context;
     }
 }

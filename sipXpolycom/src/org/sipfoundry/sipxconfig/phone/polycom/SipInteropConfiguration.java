@@ -65,6 +65,7 @@ public class SipInteropConfiguration extends ProfileContext {
         Setting call = endpointSettings.getSetting(PolycomPhone.CALL);
         Collection items = SettingUtil.filter(s_callSettings, call);
         context.put(PolycomPhone.CALL, items);
+        context.put("lines", getLines());
         return context;
     }
 

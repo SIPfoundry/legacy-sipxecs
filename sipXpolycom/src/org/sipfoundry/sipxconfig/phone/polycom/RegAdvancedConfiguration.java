@@ -68,6 +68,7 @@ public class RegAdvancedConfiguration extends ProfileContext {
         Setting call = endpointSettings.getSetting(PolycomPhone.CALL);
         Collection items = SettingUtil.filter(s_regBasicSettings, call);
         context.put(PolycomPhone.CALL, items);
+        context.put("lines", getLines());
         return context;
     }
 }

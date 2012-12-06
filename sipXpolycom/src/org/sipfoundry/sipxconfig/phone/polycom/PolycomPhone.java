@@ -158,7 +158,7 @@ public class PolycomPhone extends Phone {
     public Profile[] getProfileTypes() {
         Profile[] profileTypes;
         if (getDeviceVersion() == PolycomModel.VER_4_0_X) {
-            profileTypes = new Profile[] {
+            profileTypes = new Profile[] {new ApplicationProfile(getAppFilename()),
                 new ApplicationsProfile(getAppsFilename()), new FeaturesProfile(getFeaturesFilename()),
                 new RegAdvancedProfile(getRegAdvancedFilename()), new RegBasicProfile(getRegBasicFilename()),
                 new RegionProfile(getRegionFilename()), new SipBasicProfile(getSipBasicFilename()),
