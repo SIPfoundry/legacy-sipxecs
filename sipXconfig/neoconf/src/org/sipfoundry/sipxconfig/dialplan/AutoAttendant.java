@@ -13,12 +13,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
@@ -30,25 +32,24 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class AutoAttendant extends BeanWithGroups implements NamedObject, DeployConfigOnEdit {
     public static final Log LOG = LogFactory.getLog(AutoAttendant.class);
-
     public static final String BEAN_NAME = "autoAttendant";
-
     public static final String OPERATOR_ID = "operator";
-
     public static final String AFTERHOUR_ID = "afterhour";
+    public static final String OVERALL_DIGIT_TIMEOUT = "dtmf/overallDigitTimeout";
+    public static final String DTMF_INTERDIGIT_TIMEOUT = "dtmf/interDigitTimeout";
+    public static final String MAX_DIGITS = "dtmf/maxDigits";
+    public static final String ONFAIL_NOINPUT_COUNT = "onfail/noinputCount";
+    public static final String ONFAIL_NOMATCH_COUNT = "onfail/nomatchCount";
+    public static final String ONFAIL_TRANSFER = "onfail/transfer";
+    public static final String ONFAIL_TRANSFER_EXT = "onfail/transfer-extension";
+    public static final String ONFAIL_TRANSFER_PROMPT = "onfail/transfer-prompt";
 
     private static final String SYSTEM_NAME_PREFIX = "xcf";
-
     private String m_name;
-
     private String m_description;
-
     private String m_prompt;
-
     private AttendantMenu m_menu = new AttendantMenu();
-
     private String m_systemId;
-
     private String m_promptsDirectory;
 
     @Override
@@ -198,4 +199,29 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject, Deploy
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Arrays.asList((Feature) DialPlanContext.FEATURE, (Feature) AutoAttendantManager.FEATURE);
     }
+
+    public void duplicateSettings(AutoAttendant attendant) {
+        AttendantMenu menu = new AttendantMenu();
+        Map<DialPad, AttendantMenuItem> items = getMenu().getMenuItems();
+        if (items != null) {
+            for (DialPad dp : items.keySet()) {
+                AttendantMenuItem item = items.get(dp);
+                if (item != null) {
+                    menu.addMenuItem(DialPad.getByName(dp.getName()), item.getAction(), item.getParameter());
+                }
+            }
+        }
+        attendant.setMenu(menu);
+        attendant.setPrompt(getPrompt());
+        attendant.setSettingValue(DTMF_INTERDIGIT_TIMEOUT, getSettingValue(DTMF_INTERDIGIT_TIMEOUT));
+        attendant.setSettingValue(MAX_DIGITS, getSettingValue(MAX_DIGITS));
+        attendant.setSettingValue(OVERALL_DIGIT_TIMEOUT, getSettingValue(OVERALL_DIGIT_TIMEOUT));
+        attendant.setSettingValue(ONFAIL_NOINPUT_COUNT, getSettingValue(ONFAIL_NOINPUT_COUNT));
+        attendant.setSettingValue(ONFAIL_NOMATCH_COUNT, getSettingValue(ONFAIL_NOMATCH_COUNT));
+        attendant.setSettingValue(ONFAIL_TRANSFER, getSettingValue(ONFAIL_TRANSFER));
+        attendant.setSettingValue(ONFAIL_TRANSFER_EXT, getSettingValue(ONFAIL_TRANSFER_EXT));
+        attendant.setSettingValue(ONFAIL_TRANSFER_PROMPT, getSettingValue(ONFAIL_TRANSFER_PROMPT));
+        attendant.setGroupsAsList(getGroupsAsList());
+    }
+
 }
