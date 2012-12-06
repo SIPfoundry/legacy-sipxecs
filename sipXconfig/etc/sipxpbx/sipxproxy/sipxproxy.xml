@@ -154,47 +154,4 @@
       <value></value>
     </setting>
   </group>
-  <group name="call-rate-limit">
-    <setting name="SIPX_PROXY_AUTOBAN_THRESHOLD_VIOLATORS">
-      <type>
-        <boolean>
-          <true>
-            <value>true</value>
-          </true>
-          <false>
-            <value>false</value>
-          </false>
-        </boolean>
-      </type>
-      <value>true</value>
-    </setting>
-    <setting name="SIPX_PROXY_PACKETS_PER_SECOND_THRESHOLD">
-      <type>
-        <integer />
-      </type>
-      <value>100</value>
-    </setting>
-    <setting name="SIPX_PROXY_THRESHOLD_VIOLATION_RATE">
-      <type>
-        <integer />
-      </type>
-      <value>50</value>
-    </setting>
-    <setting name="SIPX_PROXY_BAN_LIFETIME">
-      <type>
-        <integer />
-      </type>
-      <value>3600</value>
-    </setting>
-    <setting name="SIPX_PROXY_WHITE_LIST">
-      <type>
-        <string multiLine="yes" maxLen="1000"/>
-      </type>
-    </setting>
-    <setting name="SIPX_PROXY_BLACK_LIST">
-      <type>
-        <string multiLine="yes" maxLen="1000"/>
-      </type>
-    </setting>
-  </group>
 </model>

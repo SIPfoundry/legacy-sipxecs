@@ -98,7 +98,6 @@ public class ProxyConfiguration implements ConfigProvider {
         config.writeSetting(xferPlugin, root.getSetting("msftxchghack/EXCHANGE_SERVER_FQDN"));
         config.writeSetting(xferPlugin, root.getSetting("msftxchghack/ADDITIONAL_EXCHANGE_SERVER_FQDN"));
         config.writeSetting("SIPX_PROXY.210_msftxchghack.", root.getSetting("msftxchghack/USERAGENT"));
-        config.writeSettings(root.getSetting("call-rate-limit"));
         config.write("SIPX_PROXY_HOST_NAME", location.getFqdn());
         int port = settings.getSipTcpPort();
         String aliases = format("%s:%d %s:%d", location.getAddress(), port, location.getFqdn(), port);
