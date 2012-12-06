@@ -56,22 +56,22 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
     }
 
     public String getFirmwareFolder() {
-        return "polycom/"+getDevice().getDeviceVersion().getVersionId();
+        return "polycom/" + getDevice().getDeviceVersion().getVersionId();
     }
-    
+
     /**
-     *   transform "abc" goes to "abc," if non-blank
+     * transform "abc" goes to "abc," if non-blank
      */
-    protected static String nonBlankEndsInComma(String s)  {
-        String c =  StringUtils.defaultString(s).trim();
+    protected static String nonBlankEndsInComma(String s) {
+        String c = StringUtils.defaultString(s).trim();
         return StringUtils.isNotBlank(c) && !c.endsWith(",") ? c + ',' : c;
     }
 
-   /**
-    * This will list 000000000000-license.cfg and &lt;MAC&gt-license.cfg
-    * in the &lt;MAC&gt.cfg if they exist.
-    *
-    */
+    /**
+     * This will list 000000000000-license.cfg and &lt;MAC&gt-license.cfg in the &lt;MAC&gt.cfg if
+     * they exist.
+     * 
+     */
     public String getLicenseFileNames() {
         StringBuilder licenseFiles = new StringBuilder();
         licenseFiles.append(ApplicationConfiguration.nonBlankEndsInComma(getUniversalLicenseFilename()));
@@ -79,10 +79,11 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
         return licenseFiles.toString();
 
     }
+
     /**
-     * This is to check if universal license file: 000000000000-license.cfg
-     * is available under tftproot.
-     *
+     * This is to check if universal license file: 000000000000-license.cfg is available under
+     * tftproot.
+     * 
      */
     private String getUniversalLicenseFilename() {
 
@@ -98,7 +99,7 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
 
     /**
      * This is to check if &lt;MAC&gt-license.cfg is available under tftproot.
-     *
+     * 
      */
     private String getMyLicenseFilename() {
 
@@ -115,6 +116,5 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
     private String getMyLicenseFileName() {
         return getDevice().getProfileFilename() + "-license.cfg";
     }
-
 
 }

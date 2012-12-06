@@ -85,8 +85,9 @@ public class PolycomPhone extends Phone {
         }
         return TEMPLATE_DIR;
     }
-    
-     /* make use of getApplicationFilename?
+
+    /*
+     * make use of getApplicationFilename?
      */
     public String getAppFile() {
         if (getDeviceVersion() == PolycomModel.VER_4_0_X) {
@@ -104,7 +105,7 @@ public class PolycomPhone extends Phone {
 
     /**
      * Default firmware version for polycom phones. Default is 1.6 right now
-     *
+     * 
      * @param defaultVersionId 1.6 or 2.0
      */
     @Override
@@ -114,19 +115,20 @@ public class PolycomPhone extends Phone {
         if (myVersion == PolycomModel.VER_4_0_X) {
             getModel().setSettingsFile("phone-40.xml");
             getModel().setLineSettingsFile("line-40.xml");
-            getModel().setStaticProfileFilenames(new String[]{});
-        } else if (myVersion == PolycomModel.VER_3_1_X){
+            getModel().setStaticProfileFilenames(new String[] {});
+        } else if (myVersion == PolycomModel.VER_3_1_X) {
             getModel().setSettingsFile("phone.xml");
             getModel().setLineSettingsFile("line.xml");
-            getModel().setStaticProfileFilenames(new String[]{
-                "polycom_phone1_3.1.X.cfg",
-                "polycom_sip_3.1.X.cfg"});
+            getModel().setStaticProfileFilenames(new String[] {
+                "polycom_phone1_3.1.X.cfg", "polycom_sip_3.1.X.cfg"
+            });
         } else {
-            //we need to explicitly define these here otherwise changing versions will not work
+            // we need to explicitly define these here otherwise changing versions will not work
             getModel().setSettingsFile("phone-32.xml");
             getModel().setLineSettingsFile("line-32.xml");
-            getModel().setStaticProfileFilenames(new String[]{
-                    "polycom_phone1.cfg", "polycom_sip.cfg"});
+            getModel().setStaticProfileFilenames(new String[] {
+                "polycom_phone1.cfg", "polycom_sip.cfg"
+            });
         }
     }
 
@@ -154,10 +156,21 @@ public class PolycomPhone extends Phone {
 
     @Override
     public Profile[] getProfileTypes() {
-        Profile[] profileTypes = new Profile[] {
-            new ApplicationProfile(getAppFilename()), new SipProfile(getSipFilename()),
-            new PhoneProfile(getPhoneFilename()), new DeviceProfile(getDeviceFilename())
-        };
+        Profile[] profileTypes;
+        if (getDeviceVersion() == PolycomModel.VER_4_0_X) {
+            profileTypes = new Profile[] {
+                new ApplicationsProfile(getAppsFilename()), new FeaturesProfile(getFeaturesFilename()),
+                new RegAdvancedProfile(getRegAdvancedFilename()), new RegBasicProfile(getRegBasicFilename()),
+                new RegionProfile(getRegionFilename()), new SipBasicProfile(getSipBasicFilename()),
+                new SipInteropProfile(getSipInteropFilename()), new SiteProfile(getSiteFilename()),
+                new VideoProfile(getVideoFilename())
+            };
+        } else {
+            profileTypes = new Profile[] {
+                new ApplicationProfile(getAppFilename()), new SipProfile(getSipFilename()),
+                new PhoneProfile(getPhoneFilename()), new DeviceProfile(getDeviceFilename())
+            };
+        }
 
         if (getPhonebookManager().getPhonebookManagementEnabled()) {
             profileTypes = (Profile[]) ArrayUtils.add(profileTypes, new DirectoryProfile(getDirectoryFilename()));
@@ -276,8 +289,44 @@ public class PolycomPhone extends Phone {
         return format("%s.cfg", getProfileFilename());
     }
 
+    public String getAppsFilename() {
+        return format("%s-sipx-applications.cfg", getProfileFilename());
+    }
+
     public String getSipFilename() {
         return format("%s-sipx-sip.cfg", getProfileFilename());
+    }
+
+    public String getSipInteropFilename() {
+        return format("%s-sipx-sip-interop.cfg", getProfileFilename());
+    }
+
+    public String getSipBasicFilename() {
+        return format("%s-sipx-sip-basic.cfg", getProfileFilename());
+    }
+
+    public String getFeaturesFilename() {
+        return format("%s-sipx-features.cfg", getProfileFilename());
+    }
+
+    public String getRegAdvancedFilename() {
+        return format("%s-sipx-reg-advanced.cfg", getProfileFilename());
+    }
+
+    public String getRegBasicFilename() {
+        return format("%s-sipx-reg-basic.cfg", getProfileFilename());
+    }
+
+    public String getRegionFilename() {
+        return format("%s-sipx-region.cfg", getProfileFilename());
+    }
+
+    public String getSiteFilename() {
+        return format("%s-sipx-site.cfg", getProfileFilename());
+    }
+
+    public String getVideoFilename() {
+        return format("%s-sipx-video.cfg", getProfileFilename());
     }
 
     public String getPhoneFilename() {
@@ -371,6 +420,159 @@ public class PolycomPhone extends Phone {
         protected ProfileContext createContext(Device device) {
             PolycomPhone phone = (PolycomPhone) device;
             return new DeviceConfiguration(phone);
+        }
+    }
+
+    static class SipInteropProfile extends Profile {
+        public SipInteropProfile(String name) {
+            super(name, MIME_TYPE_PLAIN);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            PolycomPhone phone = (PolycomPhone) device;
+            return new SipInteropConfiguration(phone);
+        }
+    }
+
+    static class SipBasicProfile extends Profile {
+        public SipBasicProfile(String name) {
+            super(name, MIME_TYPE_PLAIN);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            PolycomPhone phone = (PolycomPhone) device;
+            return new SipBasicConfiguration(phone);
+        }
+    }
+
+    static class ApplicationsProfile extends Profile {
+        public ApplicationsProfile(String name) {
+            super(name, MIME_TYPE_PLAIN);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            PolycomPhone phone = (PolycomPhone) device;
+            return new ApplicationsConfiguration(phone);
+        }
+    }
+
+    static class RegAdvancedProfile extends Profile {
+        public RegAdvancedProfile(String name) {
+            super(name, MIME_TYPE_PLAIN);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            PolycomPhone phone = (PolycomPhone) device;
+            return new RegAdvancedConfiguration(phone);
+        }
+    }
+
+    static class RegBasicProfile extends Profile {
+        public RegBasicProfile(String name) {
+            super(name, MIME_TYPE_PLAIN);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            PolycomPhone phone = (PolycomPhone) device;
+            return new RegBasicConfiguration(phone);
+        }
+    }
+
+    static class SiteProfile extends Profile {
+        public SiteProfile(String name) {
+            super(name, MIME_TYPE_PLAIN);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            PolycomPhone phone = (PolycomPhone) device;
+            return new SiteConfiguration(phone);
+        }
+    }
+
+    static class VideoProfile extends Profile {
+        public VideoProfile(String name) {
+            super(name, MIME_TYPE_PLAIN);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            PolycomPhone phone = (PolycomPhone) device;
+            return new VideoConfiguration(phone);
+        }
+    }
+
+    static class RegionProfile extends Profile {
+        public RegionProfile(String name) {
+            super(name, MIME_TYPE_PLAIN);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            PolycomPhone phone = (PolycomPhone) device;
+            return new RegionConfiguration(phone);
+        }
+    }
+
+    static class FeaturesProfile extends Profile {
+        public FeaturesProfile(String name) {
+            super(name, MIME_TYPE_PLAIN);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            PolycomPhone phone = (PolycomPhone) device;
+            return new FeaturesConfiguration(phone);
         }
     }
 
