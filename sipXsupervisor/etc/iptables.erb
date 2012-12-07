@@ -71,7 +71,7 @@ COMMIT
 <%
   rules.each { |rule|
     if rule[:priority]
-%>-A OUTPUT -o $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m comment --comment "<%= rule[:service] %>" -j DSCP --set-dscp-class CS3
+%>-A OUTPUT -o $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m comment --comment "<%= rule[:service] %>" -j DSCP --set-dscp-class EF
 <%
     end
   }
