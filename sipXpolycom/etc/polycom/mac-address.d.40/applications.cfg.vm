@@ -16,22 +16,7 @@
 #foreach ($setting in $cfg.getSettings($group))
       mb.main.${setting.ProfileName}="$!{setting.Value}"
 #end
-    >
-#if ($phone.model.isSupported("video"))
-      <app1
-#set ($group = $cfg.EndpointSettings.getSetting('mb').getSetting('main').getSetting('1'))
-#foreach ($setting in $cfg.getSettings($group))
-        mb.main.1.${setting.ProfileName}="$!{setting.Value}"
-#end
-      />
-      <app2
-#set ($group = $cfg.EndpointSettings.getSetting('mb').getSetting('main').getSetting('2'))
-#foreach ($setting in $cfg.getSettings($group))
-        mb.main.2.${setting.ProfileName}="$!{setting.Value}"
-#end
-      />
-#end
-    </main>
+    />
     <idleDisplay
 #set ($group = $cfg.EndpointSettings.getSetting('mb').getSetting('idleDisplay'))
 #foreach ($setting in $cfg.getSettings($group))

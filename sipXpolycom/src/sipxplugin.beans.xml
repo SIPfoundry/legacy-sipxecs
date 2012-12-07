@@ -286,6 +286,7 @@
         <value>singleKeyPressConference</value>
         <value>VVX_500_CodecPref</value>
         <value>desktopIntegration</value>
+        <value>video</value>
       </set>
     </property>
     <property name="versions">
@@ -293,7 +294,29 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
     </property> 
-  </bean> 
+  </bean>
+  <bean id="polycomVVX600" parent="polycomModel">
+    <property name="label" value="Polycom VVX 600" />
+    <property name="maxLineCount" value="16" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>nway-conference</value>
+        <value>localConferenceCallHold</value>
+        <value>singleKeyPressConference</value>
+        <value>VVX_500_CodecPref</value>
+        <value>desktopIntegration</value>
+        <value>video</value>
+      </set>
+    </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
+    </property> 
+  </bean>
   <bean id="polycom" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" scope="prototype"
     parent="abstractPhone">
   </bean>
