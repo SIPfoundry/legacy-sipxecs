@@ -79,7 +79,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
             }
 
             if (!enabled) {
-                return;
+                continue;
             }
 
             Writer sysctl = new FileWriter(new File(dir, "sysctl.part"));
