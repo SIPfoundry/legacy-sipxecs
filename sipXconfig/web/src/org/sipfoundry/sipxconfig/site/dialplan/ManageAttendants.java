@@ -58,6 +58,14 @@ public abstract class ManageAttendants extends SipxBasePage {
         }
     }
 
+    public void dupeSelected() {
+        Collection selectedRows = getSelections().getAllSelected();
+        if (selectedRows != null) {
+            AutoAttendantManager manager = getAutoAttendantManager();
+            manager.dupeAutoAttendants(selectedRows);
+        }
+    }
+
     public IPage edit(Integer id) {
         EditAutoAttendant page = getEditPage();
         AutoAttendant attendant = getAutoAttendantManager().getAutoAttendant(id);
