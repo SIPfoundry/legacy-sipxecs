@@ -20,6 +20,7 @@
 #include "os/OsFS.h"
 #include "os/OsTask.h"
 #include "os/UnixSignals.h"
+#include "os/OsTimer.h"
 
 #include "net/NameValueTokenizer.h"
 #include "sipXecsService/SipXecsService.h"    // now deregister this process's database references from the IMDB
@@ -225,6 +226,10 @@ main(int argc, char* argv[] )
         pServerTask = NULL;
     }
 
+    //
+    // Terminate the timer thread
+    //
+    OsTimer::terminateTimerService();
 
     // Flush the log file
     Os::Logger::instance().flush();
