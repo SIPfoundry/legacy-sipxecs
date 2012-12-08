@@ -86,15 +86,12 @@ nobase_include_HEADERS = \
     os/OsTime.h \
     os/OsTimeLog.h \
     os/OsTimer.h \
-    os/OsTimerMsg.h \
-    os/OsTimerTask.h \
     os/OsTokenizer.h \
     os/ostream \
     os/OsUnLock.h \
     os/OsUtil.h \
     os/OsWriteLock.h \
     os/shared/OsMsgQShared.h \
-    os/shared/OsTimerMessage.h \
     os/OsStunAgentTask.h \
     os/OsStunQueryAgent.h \
     os/OsStunDatagramSocket.h \
