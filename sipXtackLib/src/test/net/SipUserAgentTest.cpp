@@ -15,7 +15,6 @@
 #include <sipxunit/TestUtilities.h>
 
 #include <os/OsDefs.h>
-#include <os/OsTimerTask.h>
 #include <os/OsProcess.h>
 #include <os/OsStunAgentTask.h>
 #include <os/OsLogger.h>
@@ -156,7 +155,6 @@ public:
             KNOWN_BUG("INTERMITTENT failures", "XX-6383");
             CPPUNIT_ASSERT(sipUA.isShutdownDone());
 
-            OsTimerTask::destroyTimerTask();
             OsStunAgentTask::releaseInstance();
          }
 
@@ -233,7 +231,6 @@ public:
             }
             CPPUNIT_ASSERT(sipUA.isShutdownDone());
 
-            OsTimerTask::destroyTimerTask();
             OsStunAgentTask::releaseInstance();
          }
 

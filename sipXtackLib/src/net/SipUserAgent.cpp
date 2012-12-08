@@ -41,7 +41,6 @@
 #include <os/OsEvent.h>
 #include <os/OsQueuedEvent.h>
 #include <os/OsTimer.h>
-#include <os/OsTimerTask.h>
 #include <os/OsEventMsg.h>
 #include <os/OsRpcMsg.h>
 #include <os/OsConfigDb.h>

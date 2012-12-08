@@ -12,7 +12,6 @@
 #include <sipxunit/TestUtilities.h>
 
 #include <os/OsDefs.h>
-#include <os/OsTimerTask.h>
 #include <os/OsProcess.h>
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
