@@ -25,13 +25,14 @@
 #ifdef __pingtel_on_posix__
 #include "os/OsTime.h"
 #include "os/OsCallback.h"
-#include "os/OsTimer.h"
 #endif
 
 
 //  Defines
 #define MILLI2SECS      1000
 #define MILLI2NANO      1000000
+
+class OsTimer;
 
 /**
  *
