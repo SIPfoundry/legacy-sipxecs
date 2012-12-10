@@ -369,4 +369,7 @@
   <bean id="fwUpdateListener" class="org.sipfoundry.sipxconfig.phone.polycom.FirmwareUpdateListener">
     <property name="phoneContext" ref="phoneContext" />
   </bean>
+  <bean id="deviceFilesCleaner" class="org.sipfoundry.sipxconfig.phone.polycom.DeviceFilesCleaner">
+    <property name="uploadManager" ref="uploadManager" />
+  </bean>
 </beans>
