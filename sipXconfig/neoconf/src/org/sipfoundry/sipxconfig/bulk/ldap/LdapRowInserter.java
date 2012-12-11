@@ -47,6 +47,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
     private AttrMap m_attrMap;
     private String m_domain;
     private Set<String> m_aliases;
+    private Set<String> m_importedUserNames;
 
     private boolean m_preserveMissingUsers;
 
@@ -56,7 +57,11 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         m_userMapper.setAttrMap(m_attrMap);
         // get all the users from LDAP group
         m_existingUserNames = new HashSet<String>();
-        Group defaultGroup = m_coreContext.getGroupByName(getAttrMap().getDefaultGroupName(),
+        //initialize imported username set -
+        //this will contain usernames successfuly imported in the current import session
+        //we will use it to check for duplicated usernames
+        m_importedUserNames = new HashSet<String>();
+        Group defaultGroup = m_coreContext.getGroupByName(m_attrMap.getDefaultGroupName(),
                 false);
         if (defaultGroup != null) {
             Collection<String> userNames = m_coreContext.getGroupMembersNames(defaultGroup);
@@ -72,6 +77,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         // remove all the users that were not re-imported from LDAP
         m_coreContext.deleteUsersByUserName(m_existingUserNames);
         m_existingUserNames.clear();
+        m_importedUserNames.clear();
     }
 
     @Override
@@ -126,6 +132,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
             } else {
                 m_coreContext.saveUser(user);
             }
+            m_importedUserNames.add(userName);
         } catch (Exception e) {
             LOG.error("Failed inserting row", e);
             throw new UserException(e);
@@ -151,7 +158,8 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         try {
             String userName = m_userMapper.getUserName(attrs);
             // check username
-            if (!UserValidationUtils.isValidUserName(userName)) {
+            if (!UserValidationUtils.isValidUserName(userName)
+                || (m_importedUserNames != null && m_importedUserNames.contains(userName))) {
                 return RowStatus.FAILURE;
             }
             Set<String> aliases = m_userMapper.getAliasesSet(attrs);
