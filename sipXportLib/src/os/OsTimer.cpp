@@ -21,7 +21,9 @@
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
-
+static const int TIMER_TIME_UNIT = 1000000;
+static const int TIMER_SERVICE_TICK = 10;
+#define TIME_TO_INTERVAL(period) (Interval)(period.seconds()) * TIMER_TIME_UNIT + period.usecs()
 
 class TimerService
 {
@@ -90,8 +92,8 @@ public:
     if (e != boost::asio::error::operation_aborted)
     {
       OsTimer::Time now = OsTimer::now();
-      OsTimer::Interval skew = now - _lastTick - (10*1000000);
-      if (skew < 1000000)
+      OsTimer::Interval skew = now - _lastTick - (TIMER_SERVICE_TICK * TIMER_TIME_UNIT);
+      if (skew < TIMER_TIME_UNIT)
       {
         OS_LOG_DEBUG(FAC_KERNEL, "OsTimer::TimerService timer resolution: " << skew << " microseconds.");
       }
@@ -101,7 +103,7 @@ public:
       }
 
       _lastTick = now;
-      _houseKeepingTimer.expires_from_now(boost::posix_time::seconds(10));
+      _houseKeepingTimer.expires_from_now(boost::posix_time::seconds(TIMER_SERVICE_TICK));
       _houseKeepingTimer.async_wait(boost::bind(&TimerService::onHouseKeepingTimer, this, boost::asio::placeholders::error));
       
     }
@@ -167,8 +169,7 @@ private:
 OsTimer::OsTimer(OsMsgQ* pQueue,
                  void* userData) :
   _pTimer(new Timer(*this)),
-  _pNotifier(new OsQueuedEvent(*pQueue, userData)), //< used to signal timer expiration event
-  _canDeleteNotifier(true)
+  _pNotifier(new OsQueuedEvent(*pQueue, userData)) //< used to signal timer expiration event
 {
 }
 
@@ -176,8 +177,7 @@ OsTimer::OsTimer(OsMsgQ* pQueue,
 // conveyed to the Listener when the notification is signaled.
 OsTimer::OsTimer(OsNotification& rNotifier) :
   _pTimer(new Timer(*this)),
-  _pNotifier(&rNotifier), //< used to signal timer expiration event
-  _canDeleteNotifier(false)
+  _pNotifier(&rNotifier) //< used to signal timer expiration event
 {
 }
 
@@ -186,9 +186,9 @@ OsTimer::OsTimer(OsNotification& rNotifier) :
 OsTimer::OsTimer(OsMsg* pMsg,
                  OsMsgQ* pQueue) :
   _pTimer(new Timer(*this)),
-  _pNotifier(new OsQueueMsgNotification(pQueue, pMsg)), //< used to signal timer expiration event
-  _canDeleteNotifier(true)
+  _pNotifier(new OsQueueMsgNotification(pQueue, pMsg)) //< used to signal timer expiration event
 {
+	_pTimer->takeOwnership(_pNotifier);
 }
 
 /// This constructor accepts a handler function instead of message queue.
@@ -206,11 +206,6 @@ OsTimer::OsTimer(const Handler& handler) :
 OsTimer::~OsTimer()
 {
   stop();
-  if (_pNotifier && _canDeleteNotifier)
-  {
-    delete _pNotifier;
-    _pNotifier = 0;
-  }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -232,7 +227,7 @@ bool OsTimer::signalHandler(boost::system::error_code ec)
 }
 
 // Disarm the timer
-OsStatus OsTimer::stop(bool synchronous)
+OsStatus OsTimer::stop(UtlBoolean synchronous)
 {
   if (!_pTimer->isRunning())
     return OS_FAILED;
@@ -291,7 +286,7 @@ void OsTimer::getFullState(enum OsTimerState& state,
                          Interval& period)
 {
   state = getState();
-  OsTimer::Timer::cs_lock lock(_pTimer->_cs);
+  OsTimer::Timer::mutex_lock lock(_pTimer->_mutex);
   expiresAt = _pTimer->_expiresAt;
   periodic = _pTimer->_periodic ? TRUE : FALSE;
   period = _pTimer->_period;
@@ -304,7 +299,7 @@ OsTimer::Time OsTimer::now()
 {
    OsTime t;
    OsDateTime::getCurTime(t);
-   return (Time)(t.seconds()) * 1000000 + t.usecs();
+   return (Time)(t.seconds()) * TIMER_TIME_UNIT + t.usecs();
 }
 
 
@@ -333,7 +328,8 @@ OsTimer::Timer::Timer(OsTimer& owner) :
   _expiresAt(0),
   _periodic(false),
   _period(0),
-  _isRunning(false)
+  _isRunning(false),
+  _pNotifier(0)
 {
   if (!gpTimerService)
   {
@@ -349,11 +345,16 @@ OsTimer::Timer::~Timer()
   cancel();
   delete _pDeadline;
   _pDeadline = 0;
+  if (_pNotifier)
+  {
+    delete _pNotifier;
+    _pNotifier = 0;
+  }
 }
 
 bool OsTimer::Timer::isRunning()
 {
-  cs_lock lock(_cs);
+  mutex_lock lock(_mutex);
   return _isRunning;
 }
 
@@ -372,7 +373,7 @@ void OsTimer::Timer::onTimerFire(const boost::system::error_code& e, OsTimer* pO
   }
 
   {
-    cs_lock lock(_cs);
+    mutex_lock lock(_mutex);
     if (!_periodic)
     {
       _isRunning = false;
@@ -398,7 +399,7 @@ void OsTimer::Timer::onTimerFire(const boost::system::error_code& e, OsTimer* pO
   //
   _pDeadline->async_wait(boost::bind(&OsTimer::Timer::onTimerFire, shared_from_this(), boost::asio::placeholders::error, &_owner));
   {
-    cs_lock lock(_cs);
+    mutex_lock lock(_mutex);
     _isRunning = true;
   }
 }
@@ -407,7 +408,7 @@ void OsTimer::Timer::onTimerFire(const boost::system::error_code& e, OsTimer* pO
 bool OsTimer::Timer::oneshotAt(const OsDateTime& t)
 {
   {
-    cs_lock lock(_cs);
+    mutex_lock lock(_mutex);
     if (_isRunning)
       return false;
   }
@@ -415,7 +416,7 @@ bool OsTimer::Timer::oneshotAt(const OsDateTime& t)
   OsTimer::Time now = OsTimer::now();
   OsTime t_os;
   t.cvtToTimeSinceEpoch(t_os);
-  OsTimer::Time expireFromNow = (OsTimer::Time)(t_os.seconds()) * 1000000 + t_os.usecs();
+  OsTimer::Time expireFromNow = (OsTimer::Time)(t_os.seconds()) * TIMER_TIME_UNIT + t_os.usecs();
   if (expireFromNow <= now)
   {
     OS_LOG_ERROR(FAC_KERNEL, "OsTimer::Timer::oneshotAt timer expiration is in the past.  Call ignored.");
@@ -423,7 +424,7 @@ bool OsTimer::Timer::oneshotAt(const OsDateTime& t)
   }
 
   {
-    cs_lock lock(_cs);
+    mutex_lock lock(_mutex);
     _expiresAt = expireFromNow;
   }
 
@@ -447,7 +448,7 @@ bool OsTimer::Timer::oneshotAt(const OsDateTime& t)
   _pDeadline->async_wait(boost::bind(&OsTimer::Timer::onTimerFire, shared_from_this(), boost::asio::placeholders::error, &_owner));
   
   {
-    cs_lock lock(_cs);
+    mutex_lock lock(_mutex);
     _isRunning = true;
   }
   
@@ -459,7 +460,7 @@ bool OsTimer::Timer::oneshotAt(const OsDateTime& t)
 bool OsTimer::Timer::oneshotAfter(const boost::asio::deadline_timer::duration_type& offset)
 {
   {
-    cs_lock lock(_cs);
+    mutex_lock lock(_mutex);
     if (_isRunning)
       return false;
   }
@@ -480,7 +481,7 @@ bool OsTimer::Timer::oneshotAfter(const boost::asio::deadline_timer::duration_ty
   _pDeadline->async_wait(boost::bind(&OsTimer::Timer::onTimerFire, shared_from_this(), boost::asio::placeholders::error, &_owner));
 
   {
-    cs_lock lock(_cs);
+    mutex_lock lock(_mutex);
     _expiresAt = expireFromNow + OsTimer::now();
     _isRunning = true;
   }
@@ -490,7 +491,7 @@ bool OsTimer::Timer::oneshotAfter(const boost::asio::deadline_timer::duration_ty
 
 bool OsTimer::Timer::oneshotAfter(const OsTime& t)
 {
-  OsTimer::Time expireFromNow = (Interval)(t.seconds()) * 1000000 + t.usecs();
+  OsTimer::Time expireFromNow = TIME_TO_INTERVAL(t);
   return oneshotAfter(boost::posix_time::microseconds(expireFromNow));
 }
 
@@ -498,9 +499,9 @@ bool OsTimer::Timer::oneshotAfter(const OsTime& t)
 bool OsTimer::Timer::periodicAt(const OsDateTime& when, OsTime period)
 {
   {
-    cs_lock lock(_cs);
+    mutex_lock lock(_mutex);
     _periodic = true;
-    _period = (Interval)(period.seconds()) * 1000000 + period.usecs();
+    _period = TIME_TO_INTERVAL(period);
   }
   return oneshotAt(when);
 }
@@ -511,7 +512,7 @@ bool OsTimer::Timer::periodicEvery(const boost::asio::deadline_timer::duration_t
   const boost::asio::deadline_timer::duration_type& period)
 {
   {
-    cs_lock lock(_cs);
+    mutex_lock lock(_mutex);
     _periodic = true;
     _period = period.total_microseconds();
   }
@@ -522,16 +523,16 @@ bool OsTimer::Timer::periodicEvery(const boost::asio::deadline_timer::duration_t
 bool OsTimer::Timer::periodicEvery(OsTime offset, OsTime period)
 {
   {
-    cs_lock lock(_cs);
+    mutex_lock lock(_mutex);
     _periodic = true;
-    _period = (Interval)(period.seconds()) * 1000000 + period.usecs();
+    _period = TIME_TO_INTERVAL(period);
   }
   return oneshotAfter(offset);
 }
 
 void OsTimer::Timer::clearPeriodic()
 {
-  cs_lock lock(_cs);
+  mutex_lock lock(_mutex);
   _periodic = false;
 }
 
