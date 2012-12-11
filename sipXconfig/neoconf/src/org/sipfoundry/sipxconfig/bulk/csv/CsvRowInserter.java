@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.bulk.csv;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
@@ -30,10 +31,15 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.GroupAutoAssign;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.setting.type.SipUriSetting;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.springframework.beans.factory.annotation.Required;
 
 public class CsvRowInserter extends RowInserter<String[]> {
+
+    public static final String EMPTY = "";
+
     private DomainManager m_domainManager;
 
     private ConferenceBridgeContext m_conferenceBridgeContext;
@@ -96,18 +102,18 @@ public class CsvRowInserter extends RowInserter<String[]> {
      * @return CheckRowDataRetVal
      */
     @Override
-    protected RowStatus checkRowData(String[] row) {
+    protected RowResult checkRowData(String[] row) {
         String userName = Index.USERNAME.get(row);
         String serialNo = Index.SERIAL_NUMBER.get(row);
 
         if (StringUtils.isBlank(serialNo) && StringUtils.isBlank(userName)) {
-            return RowStatus.FAILURE;
+            return new RowResult(RowStatus.FAILURE);
         }
 
         if (StringUtils.isNotBlank(userName)) {
             // check for a valid user name
             if (!UserValidationUtils.isValidUserName(userName)) {
-                return RowStatus.FAILURE;
+                return new RowResult(RowStatus.FAILURE, userName);
             }
             String pin = Index.PIN.get(row);
             String[] realmAndHash = StringUtils.split(pin, "#", 2);
@@ -124,11 +130,35 @@ public class CsvRowInserter extends RowInserter<String[]> {
                     // the CSV file OR the pinHash token length is not 32 characters, reset PIN
                     Index.PIN.set(row, m_resetPin);
 
-                    return RowStatus.WARNING_PIN_RESET;
+                    return new RowResult(RowStatus.WARNING_PIN_RESET);
                 }
             }
+
+            // voice mail settings and user caller alias
+            if (!MailboxPreferences.ActiveGreeting.isValid(Index.ACTIVE_GREETING.get(row))) {
+                return new RowResult(RowStatus.FAILURE, Index.ACTIVE_GREETING.get(row));
+            } else if (!MailboxPreferences.AttachType.isValid(Index.PRIMARY_EMAIL_NOTIFICATION.get(row))) {
+                return new RowResult(RowStatus.FAILURE, Index.PRIMARY_EMAIL_NOTIFICATION.get(row));
+            } else if (!MailboxPreferences.MailFormat.isValid(Index.PRIMARY_EMAIL_FORMAT.get(row))) {
+                return new RowResult(RowStatus.FAILURE, Index.PRIMARY_EMAIL_FORMAT.get(row));
+            } else if (!isValidBooleanData(Index.PRIMARY_EMAIL_ATTACH_AUDIO.get(row))) {
+                return new RowResult(RowStatus.FAILURE, Index.PRIMARY_EMAIL_ATTACH_AUDIO.get(row));
+            } else if (!MailboxPreferences.AttachType.isValid(Index.ALT_EMAIL_NOTIFICATION.get(row))) {
+                return new RowResult(RowStatus.FAILURE, Index.ALT_EMAIL_NOTIFICATION.get(row));
+            } else if (!MailboxPreferences.MailFormat.isValid(Index.ALT_EMAIL_FORMAT.get(row))) {
+                return new RowResult(RowStatus.FAILURE, Index.ALT_EMAIL_FORMAT.get(row));
+            } else if (!isValidBooleanData(Index.ALT_EMAIL_ATTACH_AUDIO.get(row))) {
+                return new RowResult(RowStatus.FAILURE, Index.ALT_EMAIL_ATTACH_AUDIO.get(row));
+            } else if (!isValidBooleanData(Index.VOICEMAIL_SERVER.get(row))) {
+                return new RowResult(RowStatus.FAILURE, Index.VOICEMAIL_SERVER.get(row));
+            } else if (!isValidCallerIdData(Index.EXTERNAL_NUMBER.get(row))) {
+                return new RowResult(RowStatus.FAILURE, Index.EXTERNAL_NUMBER.get(row));
+            } else if (!isValidBooleanData(Index.ANONYMOUS_CALLER_ALIAS.get(row))) {
+                return new RowResult(RowStatus.FAILURE, Index.ANONYMOUS_CALLER_ALIAS.get(row));
+            }
         }
-        return RowStatus.SUCCESS;
+
+        return new RowResult(RowStatus.SUCCESS);
     }
 
     /**
@@ -321,19 +351,16 @@ public class CsvRowInserter extends RowInserter<String[]> {
                 GroupAutoAssign groupAutoAssign = new GroupAutoAssign(m_conferenceBridgeContext, m_coreContext,
                                                                       m_forwardingContext, m_mailboxManager);
                 groupAutoAssign.assignUserData(user);
+                updateMailboxPreferences(user);
             }
         }
     }
 
-    void updateMailbox(User user, boolean newMailbox) {
+    void updateMailboxPreferences(User user) {
         if (!m_mailboxManager.isEnabled()) {
             return;
         }
-        String userName = user.getUserName();
-        if (newMailbox) {
-            m_mailboxManager.deleteMailbox(userName);
-        }
-
+        m_mailboxManager.writePreferencesFile(user);
     }
 
     Line addLine(Phone phone, User user, String settings) {
@@ -382,4 +409,24 @@ public class CsvRowInserter extends RowInserter<String[]> {
         m_permissionManager = permissionManager;
     }
 
+    private static boolean isValidBooleanData(String s) {
+        if (s != null) {
+            if (s.equalsIgnoreCase("true") || s.equalsIgnoreCase("false") || StringUtils.isEmpty(s)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isValidCallerIdData(String s) {
+        SipUriSetting setting = new SipUriSetting();
+        setting.setUserPartOnly(true);
+        Pattern pattern = Pattern.compile(setting.getPattern());
+        if (s != null) {
+            if (pattern.matcher(s).matches() || StringUtils.isEmpty(s)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

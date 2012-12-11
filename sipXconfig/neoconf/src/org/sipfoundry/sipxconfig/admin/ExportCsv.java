@@ -178,7 +178,7 @@ public class ExportCsv {
         Index.ALT_EMAIL_FORMAT.set(row, mailboxPreferences.getAlternateEmailFormat().name());
         Index.ALT_EMAIL_ATTACH_AUDIO.set(row,
                 String.valueOf(mailboxPreferences.isIncludeAudioAttachmentAlternateEmail()));
-        Index.VOICEMAIL_SERVER.set(row, String.valueOf(user.getVoicemailServer()));
+        Index.VOICEMAIL_SERVER.set(row, String.valueOf(user.isVoicemailServer()));
 
         // user caller alias
         UserCallerAliasInfo callerAlias = new UserCallerAliasInfo(user);

@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.bulk.RowInserter;
+import org.sipfoundry.sipxconfig.bulk.RowInserter.RowStatus;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -179,7 +179,7 @@ public class LdapRowInserterTest extends TestCase {
         control.andReturn(null);
         control.replay();
         m_rowInserter.setUserMapper(userMapper);
-        assertEquals(RowInserter.RowStatus.FAILURE, m_rowInserter.checkRowData(searchResult));
+        assertEquals(RowStatus.FAILURE, m_rowInserter.checkRowData(searchResult).getRowStatus());
 
         control.reset();
         searchResult.getAttributes();
@@ -192,7 +192,7 @@ public class LdapRowInserterTest extends TestCase {
         control.andReturn(Collections.singleton(SALES));
         control.replay();
         m_rowInserter.setUserMapper(userMapper);
-        assertEquals(RowInserter.RowStatus.FAILURE, m_rowInserter.checkRowData(searchResult));
+        assertEquals(RowStatus.FAILURE, m_rowInserter.checkRowData(searchResult).getRowStatus());
 
         control.reset();
         searchResult.getAttributes();
@@ -205,6 +205,6 @@ public class LdapRowInserterTest extends TestCase {
         control.andReturn(Collections.singleton(SALES));
         control.replay();
         m_rowInserter.setUserMapper(userMapper);
-        assertEquals(RowInserter.RowStatus.SUCCESS, m_rowInserter.checkRowData(searchResult));
+        assertEquals(RowStatus.SUCCESS, m_rowInserter.checkRowData(searchResult).getRowStatus());
     }
 }

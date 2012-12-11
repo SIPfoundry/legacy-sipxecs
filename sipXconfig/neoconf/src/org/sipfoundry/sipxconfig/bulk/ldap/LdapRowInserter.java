@@ -23,6 +23,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
+import org.sipfoundry.sipxconfig.bulk.RowInserter.RowResult;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -148,19 +149,19 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         return sr.getName();
     }
 
-    protected RowStatus checkRowData(SearchResult sr) {
+    protected RowResult checkRowData(SearchResult sr) {
         Attributes attrs = sr.getAttributes();
         String idAttrName = m_attrMap.getIdentityAttributeName();
         if (attrs.get(idAttrName) == null) {
-            return RowStatus.FAILURE;
+            return new RowResult(RowStatus.FAILURE);
         }
         RowStatus status = RowStatus.SUCCESS;
         try {
             String userName = m_userMapper.getUserName(attrs);
             // check username
             if (!UserValidationUtils.isValidUserName(userName)
-                || (m_importedUserNames != null && m_importedUserNames.contains(userName))) {
-                return RowStatus.FAILURE;
+                    || (m_importedUserNames != null && m_importedUserNames.contains(userName))) {
+                return new RowResult(RowStatus.FAILURE);
             }
             Set<String> aliases = m_userMapper.getAliasesSet(attrs);
             if (aliases != null) {
@@ -177,9 +178,9 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
             }
             m_aliases = aliases;
         } catch (Exception e) {
-            return RowStatus.FAILURE;
+            return new RowResult(RowStatus.FAILURE);
         }
-        return status;
+        return new RowResult(status);
     }
 
     public void setAttrMap(AttrMap attrMap) {
