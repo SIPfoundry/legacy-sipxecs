@@ -98,6 +98,11 @@ public class Servlet extends HttpServlet {
     private static final Pattern POLYCOM_000000000000_CONTACTS_PATH_RE = Pattern.compile(
             "^" + POLYCOM_PATH_PREFIX + "000000000000-directory.xml$");
 
+    private static final Pattern POLYCOM_40_PATH_RE = Pattern.compile(
+String
+                    .format(POLYCOM_PATH_FORMAT_RE_STR,
+                            "(sipx-(applications)||(sip-interop)||(reg-advanced)||(reg-basic)||(region)||(sip-basic)||(video)||(site)||(features)).cfg"));
+    
     private static final String POLYCOM_UA_DELIMITER = "UA/";
 
 
@@ -454,7 +459,8 @@ public class Servlet extends HttpServlet {
             POLYCOM_DEVICE_PATH_RE.matcher(path).matches() ||
             POLYCOM_OVERRIDES_PATH_RE.matcher(path).matches() ||
             POLYCOM_CONTACTS_PATH_RE.matcher(path).matches() ||
-            POLYCOM_000000000000_CONTACTS_PATH_RE.matcher(path).matches();
+            POLYCOM_000000000000_CONTACTS_PATH_RE.matcher(path).matches() ||
+            POLYCOM_40_PATH_RE.matcher(path).matches();
     }
 
     static protected boolean isNortelIp12x0ConfigurationFilePath(String path) {
@@ -489,7 +495,7 @@ public class Servlet extends HttpServlet {
 
         // Is this a path that triggers provisioning of a phone with sipXconfig?
         DetectedPhone phone = null;
-        if (POLYCOM_SIP_PATH_RE.matcher(path).matches()) {
+        if (POLYCOM_SIP_PATH_RE.matcher(path).matches() || POLYCOM_40_PATH_RE.matcher(path).matches()) {
 
             // Polycom SoundPoint IP / SoundStation IP / VVX
             phone = new DetectedPhone();
