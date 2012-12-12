@@ -148,11 +148,11 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
     }
 
     @Override
-    protected RowStatus checkRowData(SearchResult sr) {
+    protected RowResult checkRowData(SearchResult sr) {
         Attributes attrs = sr.getAttributes();
         String idAttrName = m_attrMap.getIdentityAttributeName();
         if (attrs.get(idAttrName) == null) {
-            return RowStatus.FAILURE;
+            return new RowResult(RowStatus.FAILURE);
         }
         RowStatus status = RowStatus.SUCCESS;
         try {
@@ -160,7 +160,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
             // check username
             if (!UserValidationUtils.isValidUserName(userName)
                 || (m_importedUserNames != null && m_importedUserNames.contains(userName))) {
-                return RowStatus.FAILURE;
+                return new RowResult(RowStatus.FAILURE);
             }
             Set<String> aliases = m_userMapper.getAliasesSet(attrs);
             if (aliases != null) {
@@ -177,9 +177,9 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
             }
             m_aliases = aliases;
         } catch (Exception e) {
-            return RowStatus.FAILURE;
+            return new RowResult(RowStatus.FAILURE);
         }
-        return status;
+        return new RowResult(status);
     }
 
     public void setAttrMap(AttrMap attrMap) {
