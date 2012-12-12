@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
@@ -37,9 +38,9 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.Conference;
-import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.event.WebSocket;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -57,14 +58,14 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(OpenfireImpl.FEATURE, LdapManager.FEATURE, LocalizationContext.FEATURE, ImBot.FEATURE)) {
+        if (!request.applies(ImManager.FEATURE, LdapManager.FEATURE, LocalizationContext.FEATURE, ImBot.FEATURE)) {
             return;
         }
 
         Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            boolean enabled = manager.getFeatureManager().isFeatureEnabled(OpenfireImpl.FEATURE, location);
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(ImManager.FEATURE, location);
             String datfile = "sipxopenfire.cfdat";
             String sipxopenfireClass = "sipxopenfire";
             if (!enabled) {
@@ -78,7 +79,8 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
             if(!f.exists()) {
                 f.createNewFile();
             }
-            Writer wtr = new FileWriter(f);
+            @SuppressWarnings("resource")
+			Writer wtr = new FileWriter(f);
             try {
                 if (m_featureManager.isFeatureEnabled(WebSocket.FEATURE, location)) {
                     Address addr = m_configManager.getAddressManager().getSingleAddress(AdminContext.HTTP_ADDRESS);
@@ -88,28 +90,32 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
-            Writer sipxopenfire = new FileWriter(new File(dir, "openfire.xml"));
+            @SuppressWarnings("resource")
+			Writer sipxopenfire = new FileWriter(new File(dir, "openfire.xml"));
             try {
                 m_config.write(sipxopenfire);
             } finally {
                 IOUtils.closeQuietly(sipxopenfire);
             }
 
-            Writer multipleldap = new FileWriter(new File(dir, "multipleldap-openfire.xml"));
+            @SuppressWarnings("resource")
+			Writer multipleldap = new FileWriter(new File(dir, "multipleldap-openfire.xml"));
             try {
                 m_config.writeMultipleLdapConfiguration(multipleldap);
             } finally {
                 IOUtils.closeQuietly(multipleldap);
             }
 
-            Writer openfire = new FileWriter(new File(dir, "sipxopenfire.xml"));
+            @SuppressWarnings("resource")
+			Writer openfire = new FileWriter(new File(dir, "sipxopenfire.xml"));
             try {
                 m_sipxConfig.write(openfire, location);
             } finally {
                 IOUtils.closeQuietly(openfire);
             }
 
-            Writer ofproperty = new FileWriter(new File(dir, "ofproperty.yaml"));
+            @SuppressWarnings("resource")
+			Writer ofproperty = new FileWriter(new File(dir, "ofproperty.yaml"));
             try {
                 writeOfPropertyConfig(ofproperty, m_openfire.getSettings());
             } finally {
@@ -117,22 +123,22 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
             }
         }
         //touch xmpp_update.xml on every location where openfire runs
-        m_openfire.touchXmppUpdate(m_featureManager.getLocationsForEnabledFeature(OpenfireImpl.FEATURE));
+        m_openfire.touchXmppUpdate(m_featureManager.getLocationsForEnabledFeature(ImManager.FEATURE));
     }
 
-    void write(Writer wtr, String wsAddress, int wsPort, String adminRestUrl) throws IOException {
+    private static void write(Writer wtr, String wsAddress, int wsPort, String adminRestUrl) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.write("websocket.address", wsAddress);
         config.write("websocket.port", wsPort);
         config.write("admin.rest.url", adminRestUrl);
     }
 
-    void writeOfPropertyConfig(Writer w, OpenfireSettings settings) throws IOException {
+    private void writeOfPropertyConfig(Writer w, OpenfireSettings settings) throws IOException {
         YamlConfiguration config = new YamlConfiguration(w);
         writeSettings(config, settings);
     }
 
-    void writeSettings(YamlConfiguration config, OpenfireSettings settings) throws IOException {
+    private void writeSettings(YamlConfiguration config, OpenfireSettings settings) throws IOException {
         if (settings == null) {
             return;
         }
@@ -145,7 +151,12 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
         } else {
             config.write(AUTH_CLASSNAME_KEY, m_config.getProviderAuthClassName());
         }
-    }
+
+		for (Map.Entry<String, String> entry : m_config.getAdditionalProperties().entrySet()) {
+			config.write(entry.getKey(), entry.getValue());
+		}
+
+}
 
     public void setConfig(OpenfireConfigurationFile config) {
         m_config = config;
@@ -161,8 +172,8 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
 
     private void checkReplicate(Object entity) {
         if (entity instanceof User || entity instanceof Conference || entity instanceof Group) {
-            if (m_configManager.getFeatureManager().isFeatureEnabled(OpenfireImpl.FEATURE)) {
-                m_configManager.configureEverywhere(OpenfireImpl.FEATURE);
+            if (m_configManager.getFeatureManager().isFeatureEnabled(ImManager.FEATURE)) {
+                m_configManager.configureEverywhere(ImManager.FEATURE);
             }
         }
     }

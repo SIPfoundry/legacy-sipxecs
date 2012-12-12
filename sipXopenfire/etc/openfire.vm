@@ -91,4 +91,7 @@
 	  <enabled>false</enabled>
 	</debug>
   </log>
+  <clustering>
+    <enabled>$clusteringState</enabled>
+  </clustering>
 </jive>
