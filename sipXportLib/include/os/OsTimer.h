@@ -56,21 +56,16 @@
  * A timer may be stopped at any time (except when the timer is being
  * destroyed).  The destructor calls stop() before freeing the timer.
  *
- * If the stop() is synchronous, it may block, but it ensures that any
- * event routine call will have finished before stop() returns.  If
- * the stop() is asynchronous, it will not block, but an event routine
+ * stop() is asynchronous, it will not block, but an event routine
  * execution that has been previously committed may execute after stop()
- * returns.  (For one-shot timers, this can be detected by examining the
- * return value of stop().)
+ * returns.  
  *
  * Once a timer is stopped with stop() or by firing (if it is a one-shot
  * timer), it can be started again.  The time interval of a timer can be
  * changed every time it is started, but its notification information is
  * fixed when it is created.
  *
- * All methods can be used concurrently, except that no other method may be
- * called concurrently with the destructor (which cannot be made to work,
- * as the destructor deletes the timer's memory).  Note that a timer may
+ * All methods can be used concurrently.  Note that a timer may
  * fire while it is being deleted; the destructor handles this situation
  * correctly, the timer is guaranteed to exist until after the event
  * routine returns.
@@ -82,26 +77,6 @@
  * the event routine of a periodic timer is entered, the timer is
  * still in the running state.
  *
- * (If mbManagedNotifier is set, the timer may not be destroyed (using
- * deleteAsync, which is non-blocking), as that destroys the
- * OsNotifier object whose method is the event notifier that is
- * currently running.  But there is no current interface for creating
- * that situation.)
- *
- * Most methods are non-blocking, except to seize the timer's mutex
- * and to post messages to the timer task's message queue.  The
- * exceptions are the destructor and synchronous stops, which must
- * block until they get a response from the timer task.
- *
- * If VALGRIND_TIMER_ERROR is defined, additional code is created to
- * detect and backtrace errors in timer usage.  This code causes run-time
- * errors that Valgrind can detect to produce backtraces of where the
- * invalid method invocations were made.
- *
- * If NDEBUG is defined, some checking code that is used only to trigger
- * asserts is omitted.  (To prevent chaos when different libraries are
- * compiled with different options, defining NDEBUG does *not* change
- * the members of the objects.)
  *
  * @nosubgrouping
  */
@@ -226,7 +201,7 @@ class OsTimer : public UtlContainableAtomic
    /// @}
 
    /// Stop the timer if it has been started
-   OsStatus stop(bool synchronous = TRUE);
+   OsStatus stop(UtlBoolean synchronous = TRUE);
    /**<
     * stop() can be called when the timer is in any state, and returns a
     * value that reflects that state:
@@ -241,11 +216,9 @@ class OsTimer : public UtlContainableAtomic
     * will return OS_SUCCESS.  This allows the caller of stop() to know
     * whether to clean up or not.
     *
-    * If synchronous is TRUE, the call will block if necessary to
-    * ensure that any event routine execution for this timer will
-    * finish before stop() returns.  If synchronous is FALSE, the call
-    * will not block, but a previously committed event routine
-    * execution may happen after stop() returns.
+    * All calls to stop are synchronous.  The synchronous flag is no longer
+    * used after migration to boost deadline timer.
+    *
     */
 
 /* ============================ ACCESSORS ================================= */
@@ -318,8 +291,8 @@ class OsTimer : public UtlContainableAtomic
     {
     public:
       typedef boost::shared_ptr<Timer> Ptr;
-      typedef boost::mutex cs;
-      typedef boost::lock_guard<cs> cs_lock;
+      typedef boost::mutex mutex;
+      typedef boost::lock_guard<mutex> mutex_lock;
       Timer(OsTimer& owner);
       ~Timer();
       void onTimerFire(const boost::system::error_code& e, OsTimer* pOwner);
@@ -348,18 +321,24 @@ class OsTimer : public UtlContainableAtomic
 
       void clearPeriodic();
 
+			void takeOwnership(OsNotification* pNotifier);
+
+
+    public:
       OsTimer& _owner;
       boost::asio::deadline_timer* _pDeadline;
       Time _expiresAt;
       bool _periodic;
       Interval _period;
       bool _isRunning;
-      cs _cs;
+      mutex _mutex;
+      OsNotification* _pNotifier;
     };
+
+    
     friend class OsTimer::Timer;
     Timer::Ptr _pTimer;
     OsNotification* _pNotifier; //< used to signal timer expiration event
-    bool _canDeleteNotifier;
     Handler _handler;
 
 };
@@ -415,6 +394,11 @@ inline UtlContainableType OsTimer::getContainableType() const
 inline OsNotification* OsTimer::getNotifier(void) const
 {
   return _pNotifier;
+}
+
+inline void OsTimer::Timer::takeOwnership(OsNotification* pNotifier)
+{
+	_pNotifier = pNotifier;
 }
 
 #endif  // _OsTimer_h_

@@ -16,15 +16,18 @@ import static org.easymock.EasyMock.verify;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
+import org.sipfoundry.sipxconfig.bulk.RowInserter.RowStatus;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.TestPhone;
 import org.sipfoundry.sipxconfig.phone.TestPhoneModel;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 public class CsvRowInserterTest extends TestCase {
@@ -86,15 +89,20 @@ public class CsvRowInserterTest extends TestCase {
         coreContext.loadUserByUserName("bongo");
         expectLastCall().andReturn(bongo);
 
-        replay(coreContext);
+        PermissionManager pm = createMock(PermissionManager.class);
+        pm.getPermissionModel();
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+        bongo.setPermissionManager(pm);
+
+        replay(coreContext, pm);
 
         String[] userRow1 = new String[] {
-            "bongo", "1234","123", "abcdef", "", "Star", "","","","","","",""," im_id","Prof","Manager","user1122",
-            "job title", "job dept", "company name", "assistant name",
-            "001122", "112233", "223344", "33445566", "44556677", "alternate@gmail.com","alternateImId", "location",
-            "home street", "home city", "home state", "home country", "34001",
-            "office street", "office city", "office state", "office country", "34342", "office designation",
-            "Twitter", "Linkedin", "Facebook", "Xing"
+            "bongo", "1234", "123", "abcdef", "", "Star", "", "", "", "", "", "", "", " im_id", "Prof", "Manager",
+            "user1122", "job title", "job dept", "company name", "assistant name", "001122", "112233", "223344",
+            "33445566", "44556677", "alternate@gmail.com", "alternateImId", "location", "home street", "home city",
+            "home state", "home country", "34001", "office street", "office city", "office state", "office country",
+            "34342", "office designation", "Twitter", "Linkedin", "Facebook", "Xing", "outofoffice", "1", "MEDIUM",
+            "true", "1", "BRIEF", "false", "true", "CallerID", "true", "", ""
         };
 
         CsvRowInserter impl = new CsvRowInserter();
@@ -137,6 +145,17 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals("Facebook", user1.getUserProfile().getFacebookName());
         assertEquals("Xing", user1.getUserProfile().getXingName());
 
+        assertEquals("outofoffice", user1.getActiveGreeting());
+        assertEquals("1", user1.getPrimaryEmailNotification());
+        assertEquals("MEDIUM", user1.getPrimaryEmailFormat());
+        assertEquals(new Boolean(true), user1.isPrimaryEmailAttachAudio());
+        assertEquals("1", user1.getAlternateEmailNotification());
+        assertEquals("BRIEF", user1.getAlternateEmailFormat());
+        assertEquals(new Boolean(false), user1.isAlternateEmailAttachAudio());
+        assertEquals(new Boolean(true), user1.isVoicemailServer());
+        assertEquals("CallerID", user1.getExternalNumber());
+        assertEquals(new Boolean(true), user1.isAnonymousCallerAlias());
+
         verify(coreContext);
     }
 
@@ -150,44 +169,89 @@ public class CsvRowInserterTest extends TestCase {
         String[] row = {
             "kuku", "123", "777", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
         };
-        assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(row));
+        assertEquals(RowStatus.SUCCESS, impl.checkRowData(row).getRowStatus());
+
         String[] rowShort = {
             "kuku", "", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone"
         };
-        assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(rowShort));
+        assertEquals(RowStatus.SUCCESS, impl.checkRowData(rowShort).getRowStatus());
 
         String[] rowAuthRealmMatch = {
             "authMatch", "1234", "123", "", "", "", "", "", "", "001122334466",
             "polycom300", "yellow phone", ""
         };
-        assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(rowAuthRealmMatch));
+        assertEquals(RowStatus.SUCCESS, impl.checkRowData(rowAuthRealmMatch).getRowStatus());
 
         String[] rowSuperadminhashpinsuccess = {
             "superadmin", "12345678901234567890123456789012", "", "", "", "", "", "", "", "001122334466",
             "polycom300", "yellow phone", ""
         };
-        assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(rowSuperadminhashpinsuccess));
+        assertEquals(RowStatus.SUCCESS, impl.checkRowData(rowSuperadminhashpinsuccess).getRowStatus());
 
         superadmin.setPintoken("49b45dc98f67624e117a86ea4c9dc0da");
         String[] rowSuperadminclearpinsuccess = {
             "superadmin", "1234", "444", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
         };
-        assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(rowSuperadminclearpinsuccess));
+        assertEquals(RowStatus.SUCCESS, impl.checkRowData(rowSuperadminclearpinsuccess).getRowStatus());
 
         //
         // Changes made allow either username or serialnumber to be blank, not both.
         //
         row[Index.USERNAME.getValue()] = "";
-        assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(row));
+        assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(row).getRowStatus());
         row[Index.SERIAL_NUMBER.getValue()] = "";
-        assertEquals(RowInserter.RowStatus.FAILURE, impl.checkRowData(row));
+        assertEquals(RowInserter.RowStatus.FAILURE, impl.checkRowData(row).getRowStatus());
         row[Index.USERNAME.getValue()] = "kuku";
-        assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(row));
+        assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(row).getRowStatus());
 
         String[] rowWithInvalidUsername = {
             "@200", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
         };
-        assertEquals(RowInserter.RowStatus.FAILURE, impl.checkRowData(rowWithInvalidUsername));
+        assertEquals(RowStatus.FAILURE, impl.checkRowData(rowWithInvalidUsername).getRowStatus());
+
+        String[] rowWithVMSettingsAndCallerId = {
+            "200", "", "", "", "", "", "", "", "0004f22f62ab", "polycom335", "Polycom Polycom335", "", "", "", "",
+            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+            "", "", "", "outofoffice", "1", "MEDIUM", "true", "1", "BRIEF", "false", "true", "CallerID", "true", "",
+            ""
+        };
+        assertEquals(RowStatus.SUCCESS, impl.checkRowData(rowWithVMSettingsAndCallerId).getRowStatus());
+
+        String[] rowWithInvalidActiveGreeting = {
+            "200", "", "", "", "", "", "", "", "0004f22f62ab", "polycom335", "Polycom Polycom335", "", "", "", "",
+            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+            "", "", "", "wrongGreetings", "1", "MEDIUM", "true", "1", "BRIEF", "false", "true", "JohnCallerID",
+            "true", "", ""
+        };
+        assertEquals(RowStatus.FAILURE, impl.checkRowData(rowWithInvalidActiveGreeting).getRowStatus());
+
+        String[] rowWithInvalidEmailNotification = {
+            "200", "", "", "", "", "", "", "", "0004f22f62ab", "polycom335", "Polycom Polycom335", "", "", "", "",
+            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+            "", "", "", "outofoffice", "3", "MEDIUM", "true", "", "", "", "", "CallerID", "true", "", ""
+        };
+        assertEquals(RowStatus.FAILURE, impl.checkRowData(rowWithInvalidEmailNotification).getRowStatus());
+
+        String[] rowWithInvalidEmailFormat = {
+            "200", "", "", "", "", "", "", "", "0004f22f62ab", "polycom335", "Polycom Polycom335", "", "", "", "",
+            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+            "", "", "", "outofoffice", "2", "WRONG", "true", "", "", "", "", "CallerID", "true", "", ""
+        };
+        assertEquals(RowStatus.FAILURE, impl.checkRowData(rowWithInvalidEmailFormat).getRowStatus());
+
+        String[] rowWithInvalidEmailAttachAudio = {
+            "200", "", "", "", "", "", "", "", "0004f22f62ab", "polycom335", "Polycom Polycom335", "", "", "", "",
+            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+            "", "", "", "outofoffice", "2", "FULL", "wrong", "", "", "", "", "CallerID", "", "", ""
+        };
+        assertEquals(RowStatus.FAILURE, impl.checkRowData(rowWithInvalidEmailAttachAudio).getRowStatus());
+
+        String[] rowWithInvalidCallerID = {
+            "200", "", "", "", "", "", "", "", "0004f22f62ab", "polycom335", "Polycom Polycom335", "", "", "", "",
+            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+            "", "", "", "outofoffice", "2", "FULL", "wrong", "", "", "", "", "wrong Caller ID", "", "", ""
+        };
+        assertEquals(RowStatus.FAILURE, impl.checkRowData(rowWithInvalidCallerID).getRowStatus());
     }
 
     public void testDataToString() {
@@ -311,34 +375,6 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals("001122334455", phone1.getSerialNumber());
 
         verify(phoneContext, phoneModelSource);
-    }
-
-    public void testUpdateMailboxPreferences() {
-        User user = new User();
-        user.setUserName("kuku");
-
-        MailboxManager mailboxManager = createMock(MailboxManager.class);
-
-        mailboxManager.isEnabled();
-        expectLastCall().andReturn(true);
-        mailboxManager.deleteMailbox("kuku");
-
-        mailboxManager.isEnabled();
-        expectLastCall().andReturn(true);
-
-        mailboxManager.isEnabled();
-        expectLastCall().andReturn(false);
-        replay(mailboxManager);
-
-        CsvRowInserter impl = new CsvRowInserter();
-        impl.setMailboxManager(mailboxManager);
-
-        impl.updateMailbox(user, true);
-
-        impl.updateMailbox(user, false);
-
-        impl.updateMailbox(user, true);
-        verify(mailboxManager);
     }
 
     public void testAddLine() {

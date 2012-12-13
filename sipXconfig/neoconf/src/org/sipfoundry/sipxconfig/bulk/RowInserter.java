@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.bulk;
 import java.io.Serializable;
 
 import org.apache.commons.collections.Closure;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvRowInserter;
@@ -71,8 +72,8 @@ public abstract class RowInserter<T> extends HibernateDaoSupport implements Clos
      * @param input - one row of imported data
      * @return if true data can be imported, if false the row will be skipped
      */
-    protected RowStatus checkRowData(T input) {
-        return input == null ? RowStatus.FAILURE : RowStatus.SUCCESS;
+    protected RowResult checkRowData(T input) {
+        return input == null ? new RowResult(RowStatus.FAILURE) : new RowResult(RowStatus.SUCCESS);
     }
 
     /**
@@ -116,15 +117,18 @@ public abstract class RowInserter<T> extends HibernateDaoSupport implements Clos
 
         protected void doInTransactionWithoutResult(TransactionStatus status_) {
             m_jobContext.start(m_id);
-            switch (checkRowData(m_input)) {
+            switch (checkRowData(m_input).getRowStatus()) {
             case SUCCESS:
                 insertRow(m_input);
                 m_jobContext.success(m_id);
                 afterInsert();
                 break;
             case FAILURE:
-                String errorMessage = "Invalid data format when importing: "
-                        + dataToString(m_input);
+                String errorMessage = "Invalid data format when importing: " + dataToString(m_input);
+                String wrongData = checkRowData(m_input).getErrorMessage();
+                if (StringUtils.isNotBlank(wrongData)) {
+                    errorMessage += " - unsupported value: " + wrongData;
+                }
                 LOG.warn(errorMessage);
                 m_jobContext.failure(m_id, errorMessage, null);
                 break;
@@ -144,6 +148,29 @@ public abstract class RowInserter<T> extends HibernateDaoSupport implements Clos
             default:
                 throw new IllegalArgumentException("Need to handle all status cases.");
             }
+        }
+    }
+
+    public static class RowResult {
+        private RowStatus m_rowStatus;
+
+        private String m_errorMessage;
+
+        public RowResult(RowStatus status) {
+            m_rowStatus = status;
+        }
+
+        public RowResult(RowStatus status, String mess) {
+            m_rowStatus = status;
+            m_errorMessage = mess;
+        }
+
+        public RowStatus getRowStatus() {
+            return m_rowStatus;
+        }
+
+        public String getErrorMessage() {
+            return m_errorMessage;
         }
     }
 }
