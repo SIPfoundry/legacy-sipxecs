@@ -2,6 +2,7 @@
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
+
   <group name="dhcpd-config">
     <setting name="subnet" >
       <type><ipaddr/></type>
@@ -34,6 +35,12 @@
        <value>0</value>
     </setting>
     <setting name="bria_https_provisioning">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="snom_statichttp_provisioning">
       <type>
         <boolean />
       </type>

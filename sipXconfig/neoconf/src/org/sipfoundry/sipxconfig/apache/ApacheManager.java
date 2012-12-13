@@ -13,6 +13,7 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 public interface ApacheManager {
     public static final LocationFeature FEATURE = new LocationFeature("apache");
     public static final AddressType HTTP_ADDRESS = new AddressType("apacheHttp", 80);
+    public static final AddressType HTTP_STATIC_ADDRESS = new AddressType("apacheHttpStatic", 8090);
     public static final AddressType HTTPS_ADDRESS = new AddressType("apacheHttps", "https://%s", 443);
 
     public void avoidCheckstyleError();

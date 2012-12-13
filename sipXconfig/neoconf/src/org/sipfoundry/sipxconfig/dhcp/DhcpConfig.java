@@ -27,6 +27,7 @@ import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
+import org.sipfoundry.sipxconfig.apache.ApacheManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -49,6 +50,7 @@ public class DhcpConfig implements ConfigProvider {
         AddressManager addressManager = manager.getAddressManager();
         Address tftp = addressManager.getSingleAddress(FtpManager.TFTP_ADDRESS);
         Address admin = addressManager.getSingleAddress(AdminContext.HTTP_ADDRESS);
+        Address staticHttp = addressManager.getSingleAddress(ApacheManager.HTTP_STATIC_ADDRESS);
         List<Address> dns = addressManager.getAddresses(DnsManager.DNS_ADDRESS);
         List<Address> ntp = addressManager.getAddresses(NtpManager.NTP_SERVER);
 
@@ -67,7 +69,7 @@ public class DhcpConfig implements ConfigProvider {
             }
             Writer w = new FileWriter(new File(dir, "dhcpd.yaml"));
             try {
-                writeConfig(w, settings, tftp, admin, dns, ntp);
+                writeConfig(w, settings, tftp, admin, staticHttp,  dns, ntp);
             } finally {
                 IOUtils.closeQuietly(w);
             }
@@ -75,11 +77,12 @@ public class DhcpConfig implements ConfigProvider {
     }
 
     protected void writeConfig(Writer w, DhcpSettings settings, Address tftp, Address admin,
-        Collection<Address> dns, Collection<Address> ntp) throws IOException {
+        Address staticHttp, Collection<Address> dns, Collection<Address> ntp) throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
         c.writeSettings(settings.getSettings().getSetting("dhcpd-config"));
         c.write("tftp", tftp != null ? tftp.getAddress() : "");
         c.write("config", admin.stripProtocol());
+        c.write("statichttp", staticHttp.addressColonPort() + ":" + staticHttp.getCanonicalPort());
         c.writeInlineArray("ntp", CollectionUtils.collect(ntp, Address.GET_IP));
         c.writeInlineArray("dns", CollectionUtils.collect(dns, Address.GET_IP));
     }

@@ -70,12 +70,13 @@ public class ApacheManagerImpl extends SipxHibernateDaoSupport<Object> implement
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        return DefaultFirewallRule.rules(Arrays.asList(HTTP_ADDRESS, HTTPS_ADDRESS), FirewallRule.SystemId.PUBLIC);
+        return DefaultFirewallRule.rules(Arrays.asList(HTTP_ADDRESS, HTTP_STATIC_ADDRESS, HTTPS_ADDRESS),
+               FirewallRule.SystemId.PUBLIC);
     }
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
-        if (!type.equalsAnyOf(HTTP_ADDRESS, HTTPS_ADDRESS)) {
+        if (!type.equalsAnyOf(HTTP_ADDRESS, HTTP_STATIC_ADDRESS, HTTPS_ADDRESS)) {
             return null;
         }
 

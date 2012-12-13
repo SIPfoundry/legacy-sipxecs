@@ -38,10 +38,11 @@ public class DhcpConfigTest {
         AddressType t = new AddressType("t");
         Address tftp = new Address(t, "tftp");
         Address admin = new Address(t, "admin");
+	Address staticHttp = new Address(t, "static");
         List<Address> dns = Arrays.asList(new Address(t, "dns1"), new Address(t, "dns2"));
         List<Address> ntp = Arrays.asList(new Address(t, "ntp1"), new Address(t, "ntp2"));
         StringWriter actual = new StringWriter();
-        config.writeConfig(actual, settings, tftp, admin, dns, ntp);
+        config.writeConfig(actual, settings, tftp, admin, staticHttp, dns, ntp);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-dhcpd.conf"));
         assertEquals(expected, actual.toString());
     }

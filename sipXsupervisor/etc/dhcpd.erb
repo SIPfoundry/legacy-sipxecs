@@ -16,3 +16,11 @@ subnet <%= subnet %> netmask <%= netmask %> {
   option domain-name-servers <%= dns.join(', ') %>;
   option ntp-servers <%= ntp.join(', ') %>;
 }
+
+<% if snom_statichttp_provisioning == 1 %>
+  class "Snom" {
+      match if substring (hardware, 1, 3) = 00:04:13;
+      option tftp-server-name       "http://<%= statichttp %>";
+      option bootfile-name          "/phone/profile/docroot/{mac}.xml";
+  }
+<% end %>
