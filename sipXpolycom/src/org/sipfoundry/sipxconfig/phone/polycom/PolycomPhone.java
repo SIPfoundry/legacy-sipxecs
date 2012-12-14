@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import static java.lang.String.format;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -17,8 +19,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static java.lang.String.format;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
@@ -26,12 +26,16 @@ import org.dom4j.DocumentException;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileFilter;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -76,6 +80,8 @@ public class PolycomPhone extends Phone {
     static final String MB_MAIN_HOME_STATUSBAR = "mb/main/statusbar";
     static final String MB_LIMITS_NODES = "mb/limits/nodes";
     static final String MB_LIMITS_CACHE = "mb/limits/cache";
+
+    private AddressManager m_addressManager;
 
     public String getTemplateDir() {
         if (getDeviceVersion() == PolycomModel.VER_4_0_X) {
@@ -158,12 +164,12 @@ public class PolycomPhone extends Phone {
     public Profile[] getProfileTypes() {
         Profile[] profileTypes;
         if (getDeviceVersion() == PolycomModel.VER_4_0_X) {
-            profileTypes = new Profile[] {new ApplicationProfile(getAppFilename()),
-                new ApplicationsProfile(getAppsFilename()), new FeaturesProfile(getFeaturesFilename()),
-                new RegAdvancedProfile(getRegAdvancedFilename()), new RegBasicProfile(getRegBasicFilename()),
-                new RegionProfile(getRegionFilename()), new SipBasicProfile(getSipBasicFilename()),
-                new SipInteropProfile(getSipInteropFilename()), new SiteProfile(getSiteFilename()),
-                new VideoProfile(getVideoFilename())
+            profileTypes = new Profile[] {
+                new ApplicationProfile(getAppFilename()), new ApplicationsProfile(getAppsFilename()),
+                new FeaturesProfile(getFeaturesFilename()), new RegAdvancedProfile(getRegAdvancedFilename()),
+                new RegBasicProfile(getRegBasicFilename()), new RegionProfile(getRegionFilename()),
+                new SipBasicProfile(getSipBasicFilename()), new SipInteropProfile(getSipInteropFilename()),
+                new SiteProfile(getSiteFilename()), new VideoProfile(getVideoFilename())
             };
         } else {
             profileTypes = new Profile[] {
@@ -355,7 +361,7 @@ public class PolycomPhone extends Phone {
         }
     }
 
-    static class ApplicationProfile extends Profile {
+    private class ApplicationProfile extends Profile {
         public ApplicationProfile(String name) {
             super(name, MIME_TYPE_PLAIN);
         }
@@ -368,6 +374,11 @@ public class PolycomPhone extends Phone {
         @Override
         protected ProfileContext createContext(Device device) {
             PolycomPhone phone = (PolycomPhone) device;
+            List<Address> addresses = m_addressManager.getAddresses(new AddressType("provisionService",
+                    "http://%s:%d/"));
+            if (!addresses.isEmpty()) {
+                return new ApplicationConfiguration(phone, String.format("http://%s:%d/", addresses.get(0).getAddress(),addresses.get(0).getPort()));
+            }
             return new ApplicationConfiguration(phone);
         }
     }
@@ -594,5 +605,9 @@ public class PolycomPhone extends Phone {
             SpeedDial speedDial = phoneContext.getSpeedDial(phone);
             return new DirectoryConfiguration(entries, speedDial);
         }
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 }

@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.File;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -24,9 +25,22 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
     public static final String LICENSE_FILE_NAME = "000000000000-license.cfg";
 
     private final String m_profileDir;
+    private String m_provisionUrl;
 
     public ApplicationConfiguration(PolycomPhone phone) {
         super(phone, phone.getModel().getModelDir() + phone.getAppFile());
+        m_profileDir = phone.getProfileDir();
+    }
+
+    /**
+     * Provision URL is used only for migrating phones to correct fw in Postgres. Phones will contact provision server
+     * with a specific request which will be redirected to a REST service which will do the job.
+     * @param phone
+     * @param provisioningAddress
+     */
+    public ApplicationConfiguration(PolycomPhone phone, String provisioningAddress) {
+        super(phone, phone.getModel().getModelDir() + phone.getAppFile());
+        m_provisionUrl = provisioningAddress;
         m_profileDir = phone.getProfileDir();
     }
 
@@ -117,4 +131,10 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
         return getDevice().getProfileFilename() + "-license.cfg";
     }
 
+    @Override
+    public Map<String, Object> getContext() {
+        Map context = super.getContext();
+        context.put("provisionUrl", m_provisionUrl);
+        return context;
+    }
 }

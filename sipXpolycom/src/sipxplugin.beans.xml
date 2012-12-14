@@ -354,6 +354,7 @@
   </bean>
   <bean id="polycom" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" scope="prototype"
     parent="abstractPhone">
+    <property name="addressManager" ref="addressManager" />
   </bean>
   <bean id="polycomFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
     <property name="beanId" value="polycomUpload" />
@@ -371,5 +372,16 @@
   </bean>
   <bean id="deviceFilesCleaner" class="org.sipfoundry.sipxconfig.phone.polycom.DeviceFilesCleaner">
     <property name="uploadManager" ref="uploadManager" />
+  </bean>
+  <bean id="phonesUpdateResource" class="org.sipfoundry.sipxconfig.phone.polycom.PhoneUpdateResource" scope="prototype">
+    <property name="phoneContext" ref="phoneContext" />
+    <property name="profileManager" ref="phoneProfileManager" />
+    <property name="readable" value="true" />
+    <property name="modifiable" value="true" />
+  </bean>
+  <alias name="phonesUpdateResource" alias="/updatephone/{mac}/{version}" />
+  <bean id="migrationTask" class="org.sipfoundry.sipxconfig.phone.polycom.MigrationTask">
+    <property name="phoneContext" ref="phoneContext" />
+    <property name="profileManager" ref="phoneProfileManager" />
   </bean>
 </beans>

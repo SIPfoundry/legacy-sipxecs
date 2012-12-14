@@ -58,7 +58,7 @@
 
 <APPLICATION
    #ModelSpecificAttributes( "", "" )
-   MISC_FILES=""
+   MISC_FILES="${provisionUrl}/[PHONE_MAC_ADDRESS]-firmwareUpdate"
    OVERRIDES_DIRECTORY="${optional_root_url_path}"
    CONTACTS_DIRECTORY="${optional_root_url_path}"
    LOG_FILE_DIRECTORY="">
