@@ -11,6 +11,7 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
+#include <queue>
 
 // APPLICATION INCLUDES
 #include "os/OsTimer.h"
@@ -22,7 +23,7 @@
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 static const int TIMER_TIME_UNIT = 1000000;
-static const int TIMER_SERVICE_TICK = 10;
+static const int TIMER_SERVICE_TICK = 1;
 #define TIME_TO_INTERVAL(period) (Interval)(period.seconds()) * TIMER_TIME_UNIT + period.usecs()
 
 class TimerService
@@ -38,10 +39,14 @@ class TimerService
   // task in the queue.  
   //
 public:
+  typedef boost::mutex mutex;
+  typedef boost::lock_guard<mutex> mutex_lock;
+
   TimerService() :
     _ioService(), // The io service
     _houseKeepingTimer(_ioService, boost::posix_time::seconds(10)), // dummy timer just to keep on event in queue.  will fire every hour
-    _pIoServiceThread(0), // The thread pointer
+    _pIoServiceThread1(0), // The thread pointer
+    _pIoServiceThread2(0), // The thread pointer
     _lastTick(0)
   {
   }
@@ -57,7 +62,8 @@ public:
     // Create the dummy house keeper and start the io_service thread
     //
     _houseKeepingTimer.async_wait(boost::bind(&TimerService::onHouseKeepingTimer, this, boost::asio::placeholders::error));
-    _pIoServiceThread = new boost::thread(boost::bind(&boost::asio::io_service::run, &(_ioService)));
+    _pIoServiceThread1 = new boost::thread(boost::bind(&boost::asio::io_service::run, &(_ioService)));
+    _pIoServiceThread2 = new boost::thread(boost::bind(&boost::asio::io_service::run, &(_ioService)));
     OS_LOG_NOTICE(FAC_KERNEL, "OsTimer::TimerService STARTED.");
     _lastTick = OsTimer::now();
   }
@@ -73,17 +79,25 @@ public:
     //
     // Wait until io_service has fully terminated
     //
-    if (_pIoServiceThread)
+    if (_pIoServiceThread1)
     {
-      _pIoServiceThread->join();
-      delete _pIoServiceThread;
-      _pIoServiceThread = 0;
+      _pIoServiceThread1->join();
+      delete _pIoServiceThread1;
+      _pIoServiceThread1 = 0;
+    }
+
+    if (_pIoServiceThread2)
+    {
+      _pIoServiceThread2->join();
+      delete _pIoServiceThread2;
+      _pIoServiceThread2 = 0;
     }
   }
 
 
   void onHouseKeepingTimer(const boost::system::error_code& e)
   {
+    static int iteration = 0;
     //
     // This will fire every hour.  We will simply restart the timer
     // so io_serice thread does not exit.  If the operation is aborted
@@ -91,28 +105,53 @@ public:
     //
     if (e != boost::asio::error::operation_aborted)
     {
-      OsTimer::Time now = OsTimer::now();
-      OsTimer::Interval skew = now - _lastTick - (TIMER_SERVICE_TICK * TIMER_TIME_UNIT);
-      if (skew < TIMER_TIME_UNIT)
       {
-        OS_LOG_DEBUG(FAC_KERNEL, "OsTimer::TimerService timer resolution: " << skew << " microseconds.");
-      }
-      else
-      {
-        OS_LOG_WARNING(FAC_KERNEL, "OsTimer::TimerService timer resolution: " << skew << " microseconds.");
+        mutex_lock lock(_queueMutex);
+        OsTimer::Time now = OsTimer::now();
+        OsTimer::Interval skew = now - _lastTick - (TIMER_SERVICE_TICK * TIMER_TIME_UNIT);
+        _lastTick = now;
+
+        if (iteration++ >= 10)
+        {
+          if (skew < TIMER_TIME_UNIT)
+          {
+            OS_LOG_DEBUG(FAC_KERNEL, "OsTimer::TimerService timer resolution: " << skew << " microseconds.");
+          }
+          else
+          {
+            OS_LOG_WARNING(FAC_KERNEL, "OsTimer::TimerService timer resolution: " << skew << " microseconds.");
+          }
+          iteration = 0;
+        }
+
+        //
+        // Destroy timers that are queued back to us.
+        //
+        while (_timerQueue.size() > 0)
+          _timerQueue.pop();
       }
 
-      _lastTick = now;
       _houseKeepingTimer.expires_from_now(boost::posix_time::seconds(TIMER_SERVICE_TICK));
       _houseKeepingTimer.async_wait(boost::bind(&TimerService::onHouseKeepingTimer, this, boost::asio::placeholders::error));
       
     }
   }
 
+
+  void queueForDestruction(OsTimer::Timer::Ptr pTimer)
+  {
+    mutex_lock lock(_queueMutex);
+    _timerQueue.push(pTimer);
+  }
+
   boost::asio::io_service _ioService;
   boost::asio::deadline_timer _houseKeepingTimer;
-  boost::thread* _pIoServiceThread;
+  boost::thread* _pIoServiceThread1;
+  boost::thread* _pIoServiceThread2;
   OsTimer::Time _lastTick;
+  mutex _serviceMutex;
+  mutex _queueMutex;
+  std::queue<OsTimer::Timer::Ptr> _timerQueue;
 };
 
 static TimerService* gpTimerService = 0;
@@ -171,6 +210,7 @@ OsTimer::OsTimer(OsMsgQ* pQueue,
   _pTimer(new Timer(*this)),
   _pNotifier(new OsQueuedEvent(*pQueue, userData)) //< used to signal timer expiration event
 {
+  _pTimer->takeOwnership(_pNotifier);
 }
 
 // The address of "this" OsTimer object is the eventData that is
@@ -206,6 +246,8 @@ OsTimer::OsTimer(const Handler& handler) :
 OsTimer::~OsTimer()
 {
   stop();
+  gpTimerService->queueForDestruction(_pTimer);
+  _pTimer.reset();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -336,6 +378,7 @@ OsTimer::Timer::Timer(OsTimer& owner) :
     gpTimerService = new TimerService();
     gpTimerService->start();
   }
+  mutex_lock lock(gpTimerService->_serviceMutex);
   _pDeadline = new boost::asio::deadline_timer(gpTimerService->_ioService);
 }
 
@@ -345,11 +388,8 @@ OsTimer::Timer::~Timer()
   cancel();
   delete _pDeadline;
   _pDeadline = 0;
-  if (_pNotifier)
-  {
-    delete _pNotifier;
-    _pNotifier = 0;
-  }
+  delete _pNotifier; 
+  _pNotifier = 0;
 }
 
 bool OsTimer::Timer::isRunning()
@@ -360,12 +400,20 @@ bool OsTimer::Timer::isRunning()
 
 void OsTimer::Timer::cancel()
 {
+  mutex_lock lock(gpTimerService->_serviceMutex);
   boost::system::error_code ec;
+  _isRunning = false;
   _pDeadline->cancel(ec);
 }
 
 void OsTimer::Timer::onTimerFire(const boost::system::error_code& e, OsTimer* pOwner)
 {
+  {
+    mutex_lock lock(_mutex);
+    if (!_isRunning)
+      return;
+  }
+
   if (!pOwner->signalHandler(e))
   {
     if (!e)
@@ -391,13 +439,17 @@ void OsTimer::Timer::onTimerFire(const boost::system::error_code& e, OsTimer* pO
   // be invoked with the boost::asio::error::operation_aborted error code.
   //
 
-  _expiresAt = OsTimer::now() + _period;
-  boost::system::error_code ec;
-  _pDeadline->expires_from_now(boost::posix_time::microseconds(_period), ec);
-  //
-  // Perform an asynchronous wait on the timer
-  //
-  _pDeadline->async_wait(boost::bind(&OsTimer::Timer::onTimerFire, shared_from_this(), boost::asio::placeholders::error, &_owner));
+  {
+    mutex_lock lock(gpTimerService->_serviceMutex);
+    _expiresAt = OsTimer::now() + _period;
+    boost::system::error_code ec;
+    _pDeadline->expires_from_now(boost::posix_time::microseconds(_period), ec);
+    //
+    // Perform an asynchronous wait on the timer
+    //
+    _pDeadline->async_wait(boost::bind(&OsTimer::Timer::onTimerFire, shared_from_this(), boost::asio::placeholders::error, &_owner));
+  }
+
   {
     mutex_lock lock(_mutex);
     _isRunning = true;
@@ -439,14 +491,17 @@ bool OsTimer::Timer::oneshotAt(const OsDateTime& t)
   // operations will be cancelled. The handler for each cancelled operation will
   // be invoked with the boost::asio::error::operation_aborted error code.
   //
-  boost::system::error_code ec;
-  _pDeadline->expires_from_now(boost::posix_time::microseconds(expireFromNow), ec);
+  {
+    mutex_lock lock(gpTimerService->_serviceMutex);
+    boost::system::error_code ec;
+    _pDeadline->expires_from_now(boost::posix_time::microseconds(expireFromNow), ec);
 
-  //
-  // Perform an assynchronous wait on the timer
-  //
-  _pDeadline->async_wait(boost::bind(&OsTimer::Timer::onTimerFire, shared_from_this(), boost::asio::placeholders::error, &_owner));
-  
+    //
+    // Perform an assynchronous wait on the timer
+    //
+    _pDeadline->async_wait(boost::bind(&OsTimer::Timer::onTimerFire, shared_from_this(), boost::asio::placeholders::error, &_owner));
+  }
+
   {
     mutex_lock lock(_mutex);
     _isRunning = true;
@@ -472,13 +527,16 @@ bool OsTimer::Timer::oneshotAfter(const boost::asio::deadline_timer::duration_ty
   // operations will be cancelled. The handler for each cancelled operation will
   // be invoked with the boost::asio::error::operation_aborted error code.
   //
-  boost::system::error_code ec;
-  _pDeadline->expires_from_now(offset, ec);
+  {
+    mutex_lock lock(gpTimerService->_serviceMutex);
+    boost::system::error_code ec;
+    _pDeadline->expires_from_now(offset, ec);
 
-  //
-  // Perform an assynchronous wait on the timer
-  //
-  _pDeadline->async_wait(boost::bind(&OsTimer::Timer::onTimerFire, shared_from_this(), boost::asio::placeholders::error, &_owner));
+    //
+    // Perform an assynchronous wait on the timer
+    //
+    _pDeadline->async_wait(boost::bind(&OsTimer::Timer::onTimerFire, shared_from_this(), boost::asio::placeholders::error, &_owner));
+  }
 
   {
     mutex_lock lock(_mutex);

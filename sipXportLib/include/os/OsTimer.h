@@ -321,7 +321,7 @@ class OsTimer : public UtlContainableAtomic
 
       void clearPeriodic();
 
-			void takeOwnership(OsNotification* pNotifier);
+      void takeOwnership(OsNotification* pNotifier);
 
 
     public:
@@ -337,6 +337,7 @@ class OsTimer : public UtlContainableAtomic
 
     
     friend class OsTimer::Timer;
+    friend class TimerService;
     Timer::Ptr _pTimer;
     OsNotification* _pNotifier; //< used to signal timer expiration event
     Handler _handler;
