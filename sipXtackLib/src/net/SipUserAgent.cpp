@@ -124,6 +124,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         , mSipTcpServer(NULL)
         , mSipUdpServer(NULL)
         , mSipTlsServer(NULL)
+        , mSipTransactions(this)
         , mMessageLogRMutex(OsRWMutex::Q_FIFO)
         , mMessageLogWMutex(OsRWMutex::Q_FIFO)
         , mOutputProcessorMutex(OsRWMutex::Q_FIFO)
@@ -2934,6 +2935,13 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
       messageProcessed = TRUE;
    }
 
+
+#if 0
+   // JEB:  TransactionList will trigger this in findTransactionFor.
+   // This avoid too much mutex contention by guarantying that transaction
+   // garbage collection is only triggered prior to the transaction getting
+   // locked by finTransactionFor
+   //
    // Only GC if no messages are waiting -- othewise we may delete a timer
    // that is queued up for us.
    if (getMessageQueue()->isEmpty())
@@ -2943,6 +2951,8 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                     getName().data());
       garbageCollection();
    }
+#endif
+
    return(messageProcessed);
 }
 
@@ -2964,8 +2974,12 @@ void SipUserAgent::garbageCollection()
         tcpThen = -1;
     }
 
-    if(mLastCleanUpTime < then)      // tx timeout could have happened
+    if(mLastCleanUpTime < then && getMessageQueue()->isEmpty())      // tx timeout could have happened
     {
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                    "SipUserAgent[%s]::garbageCollection reaping terminated transactions.",
+                    getName().data());
+
        #ifdef LOG_TIME
           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipUserAgent[%s]::garbageCollection"

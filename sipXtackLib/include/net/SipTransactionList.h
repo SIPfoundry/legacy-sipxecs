@@ -32,6 +32,7 @@
 // FORWARD DECLARATIONS
 class SipTransaction;
 class SipMessage;
+class SipUserAgent;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -41,7 +42,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-    SipTransactionList();
+    SipTransactionList(SipUserAgent* pSipUserAgent);
     //:Default constructor
 
     virtual
@@ -118,6 +119,7 @@ protected:
 
     UtlHashBag mTransactions;
     OsMutex mListMutex;
+    SipUserAgent* mpSipUserAgent;
 
 };
 

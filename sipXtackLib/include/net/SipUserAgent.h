@@ -751,6 +751,7 @@ protected:
 
     void setInviteTransactionTimeoutSeconds(int expiresSeconds);
 
+    void garbageCollection();
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
@@ -845,8 +846,6 @@ private:
     UtlBoolean mbForceSymmetricSignaling;
     OptionsRequestHandlePref mHandleOptionsRequests;
 
-    void garbageCollection();
-
     void queueMessageToInterestedObservers(SipMessageEvent& event,
                                            const UtlString& method);
     void queueMessageToObservers(SipMessage* message,
@@ -865,6 +864,7 @@ private:
     //! Disabled assignment operator
     SipUserAgent& operator=(const SipUserAgent& rhs);
 
+    friend class SipTransactionList;
 };
 
 /* ============================ INLINE METHODS ============================ */
