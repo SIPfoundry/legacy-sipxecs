@@ -1,12 +1,12 @@
 /*
-*
-*
-* Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
-* Contributors retain copyright to elements licensed under a Contributor Agreement.
-* Licensed to the User under the LGPL license.
-*
-* $
-*/
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ *
+ * $
+ */
 package org.sipfoundry.sipxconfig.upload;
 
 import java.io.File;
@@ -34,8 +34,8 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
     private ModelSource<UploadSpecification> m_specificationSource;
 
     /**
-* Callback that supplies the owning factory to a bean instance.
-*/
+     * Callback that supplies the owning factory to a bean instance.
+     */
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = (ListableBeanFactory) beanFactory;
     }
@@ -163,7 +163,8 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
         if (spec.getManaged()) {
             // should never happen
             boolean allowMultipleUploads = (upload.getSettings().getSetting(ALLOW_MULTI_UPLOAD) != null)
-                    ? (Boolean) upload.getSettingTypedValue(ALLOW_MULTI_UPLOAD) : false;
+                    ? (Boolean) upload
+                    .getSettingTypedValue(ALLOW_MULTI_UPLOAD) : false;
             if (!allowMultipleUploads && existing.size() > 1) {
                 throw new AlreadyDeployedException(existing.size(), spec.getLabel());
             }

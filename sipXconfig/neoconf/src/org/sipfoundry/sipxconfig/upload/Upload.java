@@ -154,16 +154,16 @@ public class Upload extends BeanWithSettings {
                 return;
             }
             String contentType = ((FileSetting) type).getContentType();
+            String moveTo = (((FileSetting) type).getMoveTo() != null) ? (PATH_SEPARATOR + ((FileSetting) type)
+                    .getMoveTo()) : StringUtils.EMPTY;
+            // since moveTo might be a relative path, we need to make sure destination
+            // directory exists
+            File file = new File(getDestinationDirectory());
+            file.mkdirs();
             if (contentType.equalsIgnoreCase(ZIP_TYPE)) {
-                String moveTo = (((FileSetting) type).getMoveTo() != null) ? (PATH_SEPARATOR + ((FileSetting) type)
-                        .getMoveTo()) : StringUtils.EMPTY;
-                // since moveTo might be a relative path, we need to make sure destination
-                // directory exists
-                File file = new File(getDestinationDirectory());
-                file.mkdirs();
                 deployZipFile(new File(file, moveTo), new File(getUploadDirectory(), filename), (FileSetting) type);
             } else {
-                deployFile(filename, ((FileSetting) type).getRename());
+                deployFile(filename, ((FileSetting) type).getRename(), moveTo);
             }
         }
     }
@@ -180,28 +180,29 @@ public class Upload extends BeanWithSettings {
                 return;
             }
             String contentType = ((FileSetting) type).getContentType();
+            String moveTo = (((FileSetting) type).getMoveTo() != null) ? (PATH_SEPARATOR + ((FileSetting) type)
+                    .getMoveTo()) : StringUtils.EMPTY;
+            String moveToDir = getDestinationDirectory() + moveTo;
             if (contentType.equalsIgnoreCase(ZIP_TYPE)) {
-                String moveTo = (((FileSetting) type).getMoveTo() != null) ? (PATH_SEPARATOR + ((FileSetting) type)
-                        .getMoveTo()) : StringUtils.EMPTY;
-                undeployZipFile(new File(getDestinationDirectory() + moveTo), new File(getUploadDirectory(),
+                undeployZipFile(new File(moveToDir), new File(getUploadDirectory(),
                         filename), (FileSetting) type);
             } else {
-                File f = new File(getDestinationDirectory(), filename);
+                File f = new File(moveToDir, filename);
                 f.delete();
                 if (((FileSetting) type).getRename() != null) {
-                    File legacyFile = new File(getDestinationDirectory(), ((FileSetting) type).getRename());
+                    File legacyFile = new File(moveToDir, ((FileSetting) type).getRename());
                     legacyFile.delete();
                 }
             }
         }
     }
 
-    private void deployFile(String file, String toFileName) {
+    private void deployFile(String file, String toFileName, String moveTo) {
         InputStream from;
         OutputStream to;
         try {
             from = new FileInputStream(new File(getUploadDirectory(), file));
-            File destDir = new File(getDestinationDirectory());
+            File destDir = new File(getDestinationDirectory() + moveTo);
             destDir.mkdirs();
             if (toFileName != null) {
                 to = new FileOutputStream(new File(destDir, toFileName));

@@ -46,10 +46,20 @@
       </type>
     </setting>
     <setting name="licenses.zip">
-      <type refid="zip"/>
+      <type>
+	    <file>
+	      <contentType>application/zip</contentType>
+	      <moveTo>../../</moveTo>
+	    </file>
+	  </type>
     </setting>
     <setting name="license.cfg">
-      <type refid="binary"/>
+      <type>
+	    <file>
+	      <contentType>application/binary</contentType>
+	      <moveTo>../../</moveTo>
+	    </file>
+	  </type>
     </setting>
     <setting name="sip_31x.ld">
       <type>
