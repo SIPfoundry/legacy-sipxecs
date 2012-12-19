@@ -71,6 +71,7 @@ then
         fi
     done
 
+	[ -f "@SIPX_BINDIR@/additional-voicemail-cleanup" ] && . @SIPX_BINDIR@/additional-voicemail-cleanup ${DAYS}
 else
     echo "Mailstore '${MAILSTORE_DIR}' not found" 1>&2
     exit 1
