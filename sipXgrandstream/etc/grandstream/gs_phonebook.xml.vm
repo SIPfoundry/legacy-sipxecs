@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<AddressBook>
+#foreach($entry in $cfg.Phonebook)
+    <Contact>
+        <LastName>$!{entry.LastName}</LastName>
+        <FirstName>$!{entry.FirstName}</FirstName>
+        <Phone>
+        	<phonenumber>${entry.Number}</phonenumber>
+        	<accountindex>0</accountindex>
+    	</Phone>
+	</Contact>
+#end
+</AddressBook>

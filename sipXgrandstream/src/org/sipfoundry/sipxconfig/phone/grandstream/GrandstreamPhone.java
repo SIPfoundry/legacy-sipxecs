@@ -9,30 +9,40 @@
  */
 package org.sipfoundry.sipxconfig.phone.grandstream;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
-import org.sipfoundry.sipxconfig.device.RestartException;
+import org.sipfoundry.sipxconfig.device.ProfileFilter;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
+import org.sipfoundry.sipxconfig.speeddial.Button;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 /**
  * Support for Grandstream BudgeTone / HandyTone
  */
 public class GrandstreamPhone extends Phone {
+    private static final Log LOG = LogFactory.getLog(GrandstreamPhone.class);
     private static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
-    private static final String TIMEZONE_SETTING = "phone/P64";
     private static final String DAYLIGHT_SETTING = "phone/P75";
     private static final String GXW_TIMEZONE_SETTING = "gateway/P246";
     private static final String USERID_PATH = "port/P35-P404-P504-P604-P1704-P1804";
@@ -44,42 +54,352 @@ public class GrandstreamPhone extends Phone {
     private static final String PASSWORD_PATH = "port/P34-P406-P506-P606-P1706-P1806";
     private static final String HT_PASSWORD_PATH = "port/P34-P734";
     private static final String GXW_PASSWORD_PATH = "port/P4120-P4121-P4122-P4123-P4124-P4125-P4126-P4127";
+    private static final String ACCOUNT_NAME_PATH = "port/P270-P417-P517-P617-P1717-P1817";
     private static final String DISPLAY_NAME_PATH = "port/P3-P407-P507-P607-P1707-P1807";
     private static final String HT_DISPLAY_NAME_PATH = "port/P3-P703";
     private static final String GXW_DISPLAY_NAME_PATH = "port/P4180-P4181-P4182-P4183-P4184-P4185-P4186-P4187";
     private static final String REGISTRATION_SERVER_PATH = "port/P47-P402-P502-P602-P1702-P1802";
     private static final String LINE_ACTIVE_PATH = "port/P271-P401-P501-P601-P1701-P1801";
-    private static final String OUTBOUND_PROXY_PATH = "port/P48-P403-P503-P603-P1703-P1803";
     private static final String HT_REGISTRATION_SERVER_PATH = "port/P47-P747";
-    private static final String HT_OUTBOUND_PROXY_PATH = "port/P48-P748";
     private static final String GXW_REGISTRATION_SERVER_PATH = "account-proxy/P47";
-    private static final String GXW_OUTBOUND_PROXY_PATH = "account-proxy/P48";
     private static final String GXW_HUNTGROUP_PATH = "port/P4300-P4301-P4302-P4303-P4304-P4305-P4306-P4307";
     private static final String VOICEMAIL_PATH = "port/P33-P426-P526-P626-P1726-P1826";
+    private static final String MOH_URI_PATH = "port/P2350-P2450-P2550-P2650-P2760-P2850";
+    private static final String DIRECTED_CALL_PICKUP_PREFIX = "port/P1347-P481-P581-P681-P1781-P1881";
     private static final String DOT = ".";
+    private static final String CONFIG_FILE_PREFIX = "gs_config/";
+    private static final String SEPARATOR = "/";
+    private static final String THREE = "3";
+    private static final String ZERO = "0";
+    private static final String MULTIPURPOSEKEYS_P323 = "multipurposekeys/P323";
+    private static final String MULTIPURPOSEKEYS_P301 = "multipurposekeys/P301";
+    private static final String MULTIPURPOSEKEYS_P302 = "multipurposekeys/P302";
+    private static final String MULTIPURPOSEKEYS_P303 = "multipurposekeys/P303";
+    private static final String MULTIPURPOSEKEYS_P324 = "multipurposekeys/P324";
+    private static final String MULTIPURPOSEKEYS_P304 = "multipurposekeys/P304";
+    private static final String MULTIPURPOSEKEYS_P305 = "multipurposekeys/P305";
+    private static final String MULTIPURPOSEKEYS_P306 = "multipurposekeys/P306";
+    private static final String MULTIPURPOSEKEYS_P325 = "multipurposekeys/P325";
+    private static final String MULTIPURPOSEKEYS_P307 = "multipurposekeys/P307";
+    private static final String MULTIPURPOSEKEYS_P308 = "multipurposekeys/P308";
+    private static final String MULTIPURPOSEKEYS_P309 = "multipurposekeys/P309";
+    private static final String MULTIPURPOSEKEYS_P326 = "multipurposekeys/P326";
+    private static final String MULTIPURPOSEKEYS_P310 = "multipurposekeys/P310";
+    private static final String MULTIPURPOSEKEYS_P311 = "multipurposekeys/P311";
+    private static final String MULTIPURPOSEKEYS_P312 = "multipurposekeys/P312";
+    private static final String MULTIPURPOSEKEYS_P327 = "multipurposekeys/P327";
+    private static final String MULTIPURPOSEKEYS_P313 = "multipurposekeys/P313";
+    private static final String MULTIPURPOSEKEYS_P314 = "multipurposekeys/P314";
+    private static final String MULTIPURPOSEKEYS_P315 = "multipurposekeys/P315";
+    private static final String MULTIPURPOSEKEYS_P328 = "multipurposekeys/P328";
+    private static final String MULTIPURPOSEKEYS_P316 = "multipurposekeys/P316";
+    private static final String MULTIPURPOSEKEYS_P317 = "multipurposekeys/P317";
+    private static final String MULTIPURPOSEKEYS_P318 = "multipurposekeys/P318";
+    private static final String MULTIPURPOSEKEYS_P329 = "multipurposekeys/P329";
+    private static final String MULTIPURPOSEKEYS_P319 = "multipurposekeys/P319";
+    private static final String MULTIPURPOSEKEYS_P320 = "multipurposekeys/P320";
+    private static final String MULTIPURPOSEKEYS_P321 = "multipurposekeys/P321";
+    private static final String MULTIPURPOSEKEYS_P353 = "multipurposekeys/P353";
+    private static final String MULTIPURPOSEKEYS_P354 = "multipurposekeys/P354";
+    private static final String MULTIPURPOSEKEYS_P355 = "multipurposekeys/P355";
+    private static final String MULTIPURPOSEKEYS_P356 = "multipurposekeys/P356";
+    private static final String MULTIPURPOSEKEYS_P357 = "multipurposekeys/P357";
+    private static final String MULTIPURPOSEKEYS_P358 = "multipurposekeys/P358";
+    private static final String MULTIPURPOSEKEYS_P359 = "multipurposekeys/P359";
+    private static final String MULTIPURPOSEKEYS_P360 = "multipurposekeys/P360";
+    private static final String MULTIPURPOSEKEYS_P361 = "multipurposekeys/P361";
+    private static final String MULTIPURPOSEKEYS_P362 = "multipurposekeys/P362";
+    private static final String MULTIPURPOSEKEYS_P363 = "multipurposekeys/P363";
+    private static final String MULTIPURPOSEKEYS_P364 = "multipurposekeys/P364";
+    private static final String MULTIPURPOSEKEYS_P365 = "multipurposekeys/P365";
+    private static final String MULTIPURPOSEKEYS_P366 = "multipurposekeys/P366";
+    private static final String MULTIPURPOSEKEYS_P367 = "multipurposekeys/P367";
+    private static final String MULTIPURPOSEKEYS_P368 = "multipurposekeys/P368";
+    private static final String MULTIPURPOSEKEYS_P369 = "multipurposekeys/P369";
+    private static final String MULTIPURPOSEKEYS_P370 = "multipurposekeys/P370";
+    private static final String MULTIPURPOSEKEYS_P371 = "multipurposekeys/P371";
+    private static final String MULTIPURPOSEKEYS_P372 = "multipurposekeys/P372";
+    private static final String MULTIPURPOSEKEYS_P373 = "multipurposekeys/P373";
+    private static final String MULTIPURPOSEKEYS_P374 = "multipurposekeys/P374";
+    private static final String MULTIPURPOSEKEYS_P375 = "multipurposekeys/P375";
+    private static final String MULTIPURPOSEKEYS_P376 = "multipurposekeys/P376";
+    private static final String MULTIPURPOSEKEYS_P377 = "multipurposekeys/P377";
+    private static final String MULTIPURPOSEKEYS_P378 = "multipurposekeys/P378";
+    private static final String MULTIPURPOSEKEYS_P379 = "multipurposekeys/P379";
+    private static final String MULTIPURPOSEKEYS_P380 = "multipurposekeys/P380";
+    private static final String MULTIPURPOSEKEYS_P381 = "multipurposekeys/P381";
+    private static final String MULTIPURPOSEKEYS_P382 = "multipurposekeys/P382";
+    private static final String MULTIPURPOSEKEYS_P383 = "multipurposekeys/P383";
+    private static final String MULTIPURPOSEKEYS_P384 = "multipurposekeys/P384";
+    private static final String MULTIPURPOSEKEYS_P385 = "multipurposekeys/P385";
+    private static final String MULTIPURPOSEKEYS_P386 = "multipurposekeys/P386";
+    private static final String MULTIPURPOSEKEYS_P387 = "multipurposekeys/P387";
+    private static final String MULTIPURPOSEKEYS_P388 = "multipurposekeys/P388";
+    private static final String MULTIPURPOSEKEYS_P389 = "multipurposekeys/P389";
+    private static final String MULTIPURPOSEKEYS_P390 = "multipurposekeys/P390";
+    private static final String MULTIPURPOSEKEYS_P391 = "multipurposekeys/P391";
+    private static final String MULTIPURPOSEKEYS_P392 = "multipurposekeys/P392";
+    private static final String MULTIPURPOSEKEYS_P393 = "multipurposekeys/P393";
+    private static final String MULTIPURPOSEKEYS_P394 = "multipurposekeys/P394";
+    private static final String MULTIPURPOSEKEYS_P395 = "multipurposekeys/P395";
+    private static final String MULTIPURPOSEKEYS_P396 = "multipurposekeys/P396";
+
+    private static final String[][] GXP_7_BUTTON = {
+        {
+            MULTIPURPOSEKEYS_P323, MULTIPURPOSEKEYS_P301, MULTIPURPOSEKEYS_P302, MULTIPURPOSEKEYS_P303
+        }, {
+            MULTIPURPOSEKEYS_P324, MULTIPURPOSEKEYS_P304, MULTIPURPOSEKEYS_P305, MULTIPURPOSEKEYS_P306
+        }, {
+            MULTIPURPOSEKEYS_P325, MULTIPURPOSEKEYS_P307, MULTIPURPOSEKEYS_P308, MULTIPURPOSEKEYS_P309
+        }, {
+            MULTIPURPOSEKEYS_P326, MULTIPURPOSEKEYS_P310, MULTIPURPOSEKEYS_P311, MULTIPURPOSEKEYS_P312
+        }, {
+            MULTIPURPOSEKEYS_P327, MULTIPURPOSEKEYS_P313, MULTIPURPOSEKEYS_P314, MULTIPURPOSEKEYS_P315
+        }, {
+            MULTIPURPOSEKEYS_P328, MULTIPURPOSEKEYS_P316, MULTIPURPOSEKEYS_P317, MULTIPURPOSEKEYS_P318
+        }, {
+            MULTIPURPOSEKEYS_P329, MULTIPURPOSEKEYS_P319, MULTIPURPOSEKEYS_P320, MULTIPURPOSEKEYS_P321
+        }
+    };
+    private static final String[][] GXP_18_BUTTON = {
+        {
+            MULTIPURPOSEKEYS_P323, MULTIPURPOSEKEYS_P301, MULTIPURPOSEKEYS_P302, MULTIPURPOSEKEYS_P303
+        }, {
+            MULTIPURPOSEKEYS_P324, MULTIPURPOSEKEYS_P304, MULTIPURPOSEKEYS_P305, MULTIPURPOSEKEYS_P306
+        }, {
+            MULTIPURPOSEKEYS_P325, MULTIPURPOSEKEYS_P307, MULTIPURPOSEKEYS_P308, MULTIPURPOSEKEYS_P309
+        }, {
+            MULTIPURPOSEKEYS_P326, MULTIPURPOSEKEYS_P310, MULTIPURPOSEKEYS_P311, MULTIPURPOSEKEYS_P312
+        }, {
+            MULTIPURPOSEKEYS_P327, MULTIPURPOSEKEYS_P313, MULTIPURPOSEKEYS_P314, MULTIPURPOSEKEYS_P315
+        }, {
+            MULTIPURPOSEKEYS_P328, MULTIPURPOSEKEYS_P316, MULTIPURPOSEKEYS_P317, MULTIPURPOSEKEYS_P318
+        }, {
+            MULTIPURPOSEKEYS_P329, MULTIPURPOSEKEYS_P319, MULTIPURPOSEKEYS_P320, MULTIPURPOSEKEYS_P321
+        }, {
+            MULTIPURPOSEKEYS_P353, MULTIPURPOSEKEYS_P354, MULTIPURPOSEKEYS_P355, MULTIPURPOSEKEYS_P356
+        }, {
+            MULTIPURPOSEKEYS_P357, MULTIPURPOSEKEYS_P358, MULTIPURPOSEKEYS_P359, MULTIPURPOSEKEYS_P360
+        }, {
+            MULTIPURPOSEKEYS_P361, MULTIPURPOSEKEYS_P362, MULTIPURPOSEKEYS_P363, MULTIPURPOSEKEYS_P364
+        }, {
+            MULTIPURPOSEKEYS_P365, MULTIPURPOSEKEYS_P366, MULTIPURPOSEKEYS_P367, MULTIPURPOSEKEYS_P368
+        }, {
+            MULTIPURPOSEKEYS_P369, MULTIPURPOSEKEYS_P370, MULTIPURPOSEKEYS_P371, MULTIPURPOSEKEYS_P372
+        }, {
+            MULTIPURPOSEKEYS_P373, MULTIPURPOSEKEYS_P374, MULTIPURPOSEKEYS_P375, MULTIPURPOSEKEYS_P376
+        }, {
+            MULTIPURPOSEKEYS_P377, MULTIPURPOSEKEYS_P378, MULTIPURPOSEKEYS_P379, MULTIPURPOSEKEYS_P380
+        }, {
+            MULTIPURPOSEKEYS_P381, MULTIPURPOSEKEYS_P382, MULTIPURPOSEKEYS_P383, MULTIPURPOSEKEYS_P384
+        }, {
+            MULTIPURPOSEKEYS_P385, MULTIPURPOSEKEYS_P386, MULTIPURPOSEKEYS_P387, MULTIPURPOSEKEYS_P388
+        }, {
+            MULTIPURPOSEKEYS_P389, MULTIPURPOSEKEYS_P390, MULTIPURPOSEKEYS_P391, MULTIPURPOSEKEYS_P392
+        }, {
+            MULTIPURPOSEKEYS_P393, MULTIPURPOSEKEYS_P394, MULTIPURPOSEKEYS_P395, MULTIPURPOSEKEYS_P396
+        }
+    };
+    private static final String[][] GXP_24_BUTTON = {
+        {
+            MULTIPURPOSEKEYS_P323, MULTIPURPOSEKEYS_P301, MULTIPURPOSEKEYS_P302, MULTIPURPOSEKEYS_P303
+        }, {
+            MULTIPURPOSEKEYS_P324, MULTIPURPOSEKEYS_P304, MULTIPURPOSEKEYS_P305, MULTIPURPOSEKEYS_P306
+        }, {
+            MULTIPURPOSEKEYS_P325, MULTIPURPOSEKEYS_P307, MULTIPURPOSEKEYS_P308, MULTIPURPOSEKEYS_P309
+        }, {
+            MULTIPURPOSEKEYS_P326, MULTIPURPOSEKEYS_P310, MULTIPURPOSEKEYS_P311, MULTIPURPOSEKEYS_P312
+        }, {
+            MULTIPURPOSEKEYS_P327, MULTIPURPOSEKEYS_P313, MULTIPURPOSEKEYS_P314, MULTIPURPOSEKEYS_P315
+        }, {
+            MULTIPURPOSEKEYS_P328, MULTIPURPOSEKEYS_P316, MULTIPURPOSEKEYS_P317, MULTIPURPOSEKEYS_P318
+        }, {
+            MULTIPURPOSEKEYS_P329, MULTIPURPOSEKEYS_P319, MULTIPURPOSEKEYS_P320, MULTIPURPOSEKEYS_P321
+        }, {
+            MULTIPURPOSEKEYS_P353, MULTIPURPOSEKEYS_P354, MULTIPURPOSEKEYS_P355, MULTIPURPOSEKEYS_P356
+        }, {
+            MULTIPURPOSEKEYS_P357, MULTIPURPOSEKEYS_P358, MULTIPURPOSEKEYS_P359, MULTIPURPOSEKEYS_P360
+        }, {
+            MULTIPURPOSEKEYS_P361, MULTIPURPOSEKEYS_P362, MULTIPURPOSEKEYS_P363, MULTIPURPOSEKEYS_P364
+        }, {
+            MULTIPURPOSEKEYS_P365, MULTIPURPOSEKEYS_P366, MULTIPURPOSEKEYS_P367, MULTIPURPOSEKEYS_P368
+        }, {
+            MULTIPURPOSEKEYS_P369, MULTIPURPOSEKEYS_P370, MULTIPURPOSEKEYS_P371, MULTIPURPOSEKEYS_P372
+        }, {
+            MULTIPURPOSEKEYS_P373, MULTIPURPOSEKEYS_P374, MULTIPURPOSEKEYS_P375, MULTIPURPOSEKEYS_P376
+        }, {
+            MULTIPURPOSEKEYS_P377, MULTIPURPOSEKEYS_P378, MULTIPURPOSEKEYS_P379, MULTIPURPOSEKEYS_P380
+        }, {
+            MULTIPURPOSEKEYS_P381, MULTIPURPOSEKEYS_P382, MULTIPURPOSEKEYS_P383, MULTIPURPOSEKEYS_P384
+        }, {
+            MULTIPURPOSEKEYS_P385, MULTIPURPOSEKEYS_P386, MULTIPURPOSEKEYS_P387, MULTIPURPOSEKEYS_P388
+        }, {
+            MULTIPURPOSEKEYS_P389, MULTIPURPOSEKEYS_P390, MULTIPURPOSEKEYS_P391, MULTIPURPOSEKEYS_P392
+        }, {
+            MULTIPURPOSEKEYS_P393, MULTIPURPOSEKEYS_P394, MULTIPURPOSEKEYS_P395, MULTIPURPOSEKEYS_P396
+        }, {
+            "multipurposekeys/P1440", "multipurposekeys/P1441", "multipurposekeys/P1442", "multipurposekeys/P1443"
+        }, {
+            "multipurposekeys/P1444", "multipurposekeys/P1445", "multipurposekeys/P1446", "multipurposekeys/P1447"
+        }, {
+            "multipurposekeys/P1448", "multipurposekeys/P1449", "multipurposekeys/P1450", "multipurposekeys/P1451"
+        }, {
+            "multipurposekeys/P1452", "multipurposekeys/P1453", "multipurposekeys/P1454", "multipurposekeys/P1455"
+        }, {
+            "multipurposekeys/P1456", "multipurposekeys/P1457", "multipurposekeys/P1458", "multipurposekeys/P1459"
+        }, {
+            "multipurposekeys/P1460", "multipurposekeys/P1461", "multipurposekeys/P1462", "multipurposekeys/P1463"
+        }
+    };
 
     private boolean m_isTextFormatEnabled;
+
+    private String m_phonebookLocation = "gs_phonebook/{0}";
+    private String m_phonebookFilename = "/phonebook.xml";
 
     public GrandstreamPhone() {
     }
 
     @Override
     protected SettingExpressionEvaluator getSettingsEvaluator() {
-        SettingExpressionEvaluator evaluator = new GrandstreamSettingExpressionEvaluator(
-                getModel().getModelId());
+        SettingExpressionEvaluator evaluator = new GrandstreamSettingExpressionEvaluator(getModel().getModelId());
         return evaluator;
     }
 
     @Override
     public void initialize() {
-        GrandstreamDefaults defaults = new GrandstreamDefaults(getPhoneContext()
-                .getPhoneDefaults());
+        SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
+        GrandstreamDefaults defaults = new GrandstreamDefaults(getPhoneContext().getPhoneDefaults(), speedDial);
         addDefaultBeanSettingHandler(defaults);
+        GrandstreamPhonebookDefaults phonebookDefaults = new GrandstreamPhonebookDefaults(getPhoneContext()
+                .getPhoneDefaults());
+        addDefaultBeanSettingHandler(phonebookDefaults);
+        if (speedDial != null) {
+            transformSpeedDial(speedDial.getButtons());
+        }
+    }
+
+    public void transformSpeedDial(List<Button> buttons) {
+        if (getGsModel().speedDial()) {
+            int maxSize = buttons.size();
+            switch (getGsModel().speedDialKeys()) {
+
+            // There are some models that have 0 speed dial keys that support expansion consoles
+            case 0:
+                if (getGsModel().speedDialExpansion()) {
+                    if (maxSize >= 112) {
+                        maxSize = 112;
+                    }
+                     // Time to fill the expansion console P values
+                    for (int i = 0; i < maxSize; i++) {
+                        Button button = buttons.get(i);
+                        setButtonSettings(button, i, 0);
+                    }
+                }
+                break;
+
+            // Grandstream phones with 7 speed dial/BLF buttons
+            case 7:
+                for (int i = 0; i < 7 && i < buttons.size(); i++) {
+                    Button button = buttons.get(i);
+                    if (button.isBlf()) {
+                        setSettingTypedValue(GXP_7_BUTTON[i][0], THREE);
+                    } else {
+                        setSettingTypedValue(GXP_7_BUTTON[i][0], ZERO);
+                    }
+                    setSettingTypedValue(GXP_7_BUTTON[i][1], ZERO);
+                    setSettingTypedValue(GXP_7_BUTTON[i][2], button.getLabel());
+                    setSettingTypedValue(GXP_7_BUTTON[i][3], button.getNumber());
+                }
+                // Since the speed dial keys on the phone are all taken up, we must start on the
+                // expansion console.
+                if (getGsModel().speedDialExpansion() && buttons.size() >= 7) {
+                    if (maxSize >= (112 + 7)) {
+                        maxSize = 112;
+                    } else {
+                        maxSize = buttons.size();
+                    }
+                    // Start at the 7th defined button (i = 7) and work our way up until we reach
+                    // the end of the list
+                    for (int i = 7; i < maxSize; i++) {
+                        Button button = buttons.get(i);
+                        setButtonSettings(button, i, 7);
+                    }
+                }
+                break;
+
+            case 18:
+                for (int i = 0; i < 18 && i < buttons.size(); i++) {
+                    Button button = buttons.get(i);
+                    if (button.isBlf()) {
+                        setSettingTypedValue(GXP_18_BUTTON[i][0], THREE);
+                    } else {
+                        setSettingTypedValue(GXP_18_BUTTON[i][0], ZERO);
+                    }
+                    setSettingTypedValue(GXP_18_BUTTON[i][1], ZERO);
+                    setSettingTypedValue(GXP_18_BUTTON[i][2], button.getLabel());
+                    setSettingTypedValue(GXP_18_BUTTON[i][3], button.getNumber());
+                }
+                if (getGsModel().speedDialExpansion() && buttons.size() >= 18) {
+                    if (maxSize >= (112 + 18)) {
+                        maxSize = 112;
+                    }
+                    // Start at the 7th defined button (i = 18) and work our way up until we reach
+                    // the end of the list
+                    for (int i = 18; i < maxSize; i++) {
+                        Button button = buttons.get(i);
+                        setButtonSettings(button, i, 18);
+                    }
+                }
+                break;
+
+            case 24:
+                for (int i = 0; i < 24 && i < buttons.size(); i++) {
+                    Button button = buttons.get(i);
+                    if (button.isBlf()) {
+                        setSettingTypedValue(GXP_24_BUTTON[i][0], THREE);
+                    } else {
+                        setSettingTypedValue(GXP_24_BUTTON[i][0], ZERO);
+                    }
+                    setSettingTypedValue(GXP_24_BUTTON[i][1], ZERO);
+                    setSettingTypedValue(GXP_24_BUTTON[i][2], button.getLabel());
+                    setSettingTypedValue(GXP_24_BUTTON[i][3], button.getNumber());
+                }
+                if (getGsModel().speedDialExpansion() && buttons.size() >= 24) {
+                    if (maxSize >= (112 + 24)) {
+                        maxSize = 112;
+                    }
+                    // Start at the 24th defined button (i = 24) and work our way up until we
+                    // reach the end of the list
+                    for (int i = 24; i < maxSize; i++) {
+                        Button button = buttons.get(i);
+                        setButtonSettings(button, i, 24);
+                    }
+                }
+                break;
+
+            default:
+                return;
+            }
+        }
+    }
+
+    private void setButtonSettings(Button button, int i, int offset) {
+        String expboardkeys = "expboardkeys/P";
+        if (button.isBlf()) {
+            setSettingTypedValue(expboardkeys + Integer.toString(i + 6001 - offset), THREE);
+        } else {
+            setSettingTypedValue(expboardkeys + Integer.toString(i + 6001 - offset), ZERO);
+        }
+        setSettingTypedValue(expboardkeys + Integer.toString(i + 6201 - offset), ZERO);
+        setSettingTypedValue(expboardkeys + Integer.toString(i + 6401 - offset), button.getLabel());
+        setSettingTypedValue(expboardkeys + Integer.toString(i + 6601 - offset), button.getNumber());
     }
 
     @Override
     public void initializeLine(Line line) {
-        GrandstreamLineDefaults defaults = new GrandstreamLineDefaults(this, line);
+        GrandstreamLineDefaults defaults = new GrandstreamLineDefaults(this, line, getPhoneContext()
+                .getPhoneDefaults());
         line.addDefaultBeanSettingHandler(defaults);
     }
 
@@ -113,7 +433,6 @@ public class GrandstreamPhone extends Phone {
             line.setSettingValue(HT_USERID_PATH, lineInfo.getUserId());
             line.setSettingValue(HT_PASSWORD_PATH, lineInfo.getPassword());
             line.setSettingValue(HT_REGISTRATION_SERVER_PATH, lineInfo.getRegistrationServer());
-            line.setSettingValue(HT_OUTBOUND_PROXY_PATH, lineInfo.getRegistrationServer());
         } else if (getGsModel().isFxsGxw()) {
             line.setSettingValue(GXW_DISPLAY_NAME_PATH, lineInfo.getDisplayName());
             line.setSettingValue(GXW_USERID_PATH, lineInfo.getUserId());
@@ -124,7 +443,6 @@ public class GrandstreamPhone extends Phone {
             line.setSettingValue(USERID_PATH, lineInfo.getUserId());
             line.setSettingValue(PASSWORD_PATH, lineInfo.getPassword());
             line.setSettingValue(REGISTRATION_SERVER_PATH, lineInfo.getRegistrationServer());
-            line.setSettingValue(OUTBOUND_PROXY_PATH, lineInfo.getRegistrationServer());
             line.setSettingValue(VOICEMAIL_PATH, lineInfo.getVoiceMail());
         }
     }
@@ -166,14 +484,91 @@ public class GrandstreamPhone extends Phone {
         return "cfg" + phoneFilename.toLowerCase();
     }
 
+    /*
+     * Added phonebook capabilities
+     */
+
+    public void setPhonebookLocation(String phonebookLocation) {
+        m_phonebookLocation = phonebookLocation;
+    }
+
+    public String getPhonebookLocation() {
+        return MessageFormat.format(m_phonebookLocation, getSerialNumber());
+    }
+
+    /*
+     * Set phonebook defaults
+     */
+    public class GrandstreamPhonebookDefaults {
+        private final DeviceDefaults m_defaults;
+
+        GrandstreamPhonebookDefaults(DeviceDefaults defaults) {
+            m_defaults = defaults;
+        }
+
+        /*
+         * TFTP phonebook download
+         */
+        @SettingEntry(path = "phonebook/P330")
+        public String phonebookDownloadMethod() {
+            return "2";
+        }
+
+        /*
+         * Set download location (gs_phonebook/mac_address)
+         */
+        @SettingEntry(path = "phonebook/P331")
+        public String getPhonebookName() {
+            return m_defaults.getTftpServer().getAddress() + SEPARATOR + getPhonebookLocation();
+        }
+    }
+
+    /*
+     * Call phonebook generation
+     */
+    public ProfileContext getPhonebook() {
+        Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
+        return new GrandstreamPhonebook(entries);
+    }
+
+    static class PhonebookProfile extends Profile {
+        public PhonebookProfile(String name) {
+            super(name, "text/csv");
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            GrandstreamPhone phone = (GrandstreamPhone) device;
+            return phone.getPhonebook();
+        }
+    }
 
     @Override
     public Profile[] getProfileTypes() {
-        String profileFilename = getProfileFilename();
-        Profile profile = new Profile(profileFilename, APPLICATION_OCTET_STREAM);
-        return new Profile[] {
-            profile
-        };
+        Profile[] profileTypes;
+        String phonebookLocation = getPhonebookLocation() + m_phonebookFilename;
+        PhonebookManager phonebookManager = getPhonebookManager();
+        /*
+         * If phonebooks are enabled, generate phonebook profile
+         */
+        if (phonebookManager.getPhonebookManagementEnabled()) {
+            profileTypes = new Profile[] {
+                new Profile(getProfileFilename(), APPLICATION_OCTET_STREAM),
+                new Profile(CONFIG_FILE_PREFIX + getProfileFilename(), APPLICATION_OCTET_STREAM),
+                new PhonebookProfile(phonebookLocation)
+            };
+        } else {
+            profileTypes = new Profile[] {
+                new Profile(getProfileFilename(), APPLICATION_OCTET_STREAM),
+                new Profile(CONFIG_FILE_PREFIX + getProfileFilename(), APPLICATION_OCTET_STREAM)
+            };
+        }
+        return profileTypes;
     }
 
     public void setDefaultIfExists(Setting sroot, String param, String value) {
@@ -184,14 +579,28 @@ public class GrandstreamPhone extends Phone {
 
     public static class GrandstreamDefaults {
         private final DeviceDefaults m_defaults;
+        private final SpeedDial m_speedDial;
 
-        GrandstreamDefaults(DeviceDefaults defaults) {
+        GrandstreamDefaults(DeviceDefaults defaults, SpeedDial speedDial) {
             m_defaults = defaults;
+            m_speedDial = speedDial;
         }
 
-        @SettingEntry(paths = { "upgrade/P192", "upgrade/P237" })
-        public String getTftpServer() {
-            return m_defaults.getTftpServer().getAddress();
+        /*
+         * Set BLF URI if BLF entries are defined
+         */
+        @SettingEntry(path = "BLF/P134")
+        public String getAttendantUri() {
+            if (m_speedDial != null && m_speedDial.isBlf()) {
+                return m_speedDial.getResourceListId(true);
+            } else {
+                return "";
+            }
+        }
+
+        @SettingEntry(path = "upgrade/P234")
+        public String configFilePrefix() {
+            return CONFIG_FILE_PREFIX;
         }
 
         private String zoneOffset(String zone, int offset) {
@@ -219,18 +628,10 @@ public class GrandstreamPhone extends Phone {
 
         private String zoneCustomTime(int standardOffset, int daylightOffset) {
             DeviceTimeZone zone = m_defaults.getTimeZone();
-            String timezone = zoneOffset("MTZ", standardOffset)
-                + zoneOffset("MDT", daylightOffset)
-                + zoneDstDate(zone.getStartMonth(), zone.getStartWeek(), zone.getStartDayOfWeek())
-                + zoneDstDate(zone.getStopMonth(), zone.getStopWeek(), zone.getStopDayOfWeek());
+            String timezone = zoneOffset("MTZ", standardOffset) + zoneOffset("MDT", daylightOffset)
+                    + zoneDstDate(zone.getStartMonth(), zone.getStartWeek(), zone.getStartDayOfWeek())
+                    + zoneDstDate(zone.getStopMonth(), zone.getStopWeek(), zone.getStopDayOfWeek());
             return timezone;
-        }
-
-        @SettingEntry(path = TIMEZONE_SETTING)
-        public int getTimeOffset() {
-            // Get the offset in minutes where GMT=720.
-            int offset = ((m_defaults.getTimeZone().getOffset()) + (12 * 60));
-            return offset;
         }
 
         @SettingEntry(path = DAYLIGHT_SETTING)
@@ -255,7 +656,7 @@ public class GrandstreamPhone extends Phone {
             return m_defaults.getNtpServer();
         }
 
-        @SettingEntry(paths = { GXW_REGISTRATION_SERVER_PATH, GXW_OUTBOUND_PROXY_PATH })
+        @SettingEntry(paths = { GXW_REGISTRATION_SERVER_PATH })
         public String getRegistationServer() {
             return m_defaults.getDomainName();
         }
@@ -264,19 +665,49 @@ public class GrandstreamPhone extends Phone {
     public static class GrandstreamLineDefaults {
         private final GrandstreamPhone m_phone;
         private final Line m_line;
+        private final DeviceDefaults m_defaults;
 
-        GrandstreamLineDefaults(GrandstreamPhone phone, Line line) {
+        GrandstreamLineDefaults(GrandstreamPhone phone, Line line, DeviceDefaults defaults) {
             m_phone = phone;
             m_line = line;
+            m_defaults = defaults;
         }
 
-        @SettingEntry(paths = { USERID_PATH, HT_USERID_PATH, GXW_USERID_PATH,
-                AUTHID_PATH, HT_AUTHID_PATH, GXW_AUTHID_PATH })
+        @SettingEntry(paths = { USERID_PATH, HT_USERID_PATH, GXW_USERID_PATH, ACCOUNT_NAME_PATH })
         public String getUserId() {
             String userId = null;
             User u = m_line.getUser();
             if (u != null) {
                 userId = u.getUserName();
+            }
+
+            return userId;
+        }
+
+        @SettingEntry(path = DIRECTED_CALL_PICKUP_PREFIX)
+        public String getDirectedCallPickupString() {
+            return m_defaults.getDirectedCallPickupCode();
+        }
+
+        @SettingEntry(path = MOH_URI_PATH)
+        public String getMusicOnHoldURI() {
+            String mohUri;
+            User u = m_line.getUser();
+            if (u != null) {
+                mohUri = u.getMusicOnHoldUri();
+            } else {
+                mohUri = m_defaults.getMusicOnHoldUri();
+            }
+
+            return SipUri.stripSipPrefix(mohUri);
+        }
+
+        @SettingEntry(paths = { AUTHID_PATH, HT_AUTHID_PATH, GXW_AUTHID_PATH })
+        public String getAuthId() {
+            String userId = null;
+            User u = m_line.getUser();
+            if (u != null) {
+                userId = u.getUserName() + SEPARATOR + m_phone.getSerialNumber();
             }
 
             return userId;
@@ -304,8 +735,7 @@ public class GrandstreamPhone extends Phone {
             return displayName;
         }
 
-        @SettingEntry(paths = { REGISTRATION_SERVER_PATH, OUTBOUND_PROXY_PATH, HT_REGISTRATION_SERVER_PATH,
-                HT_OUTBOUND_PROXY_PATH })
+        @SettingEntry(paths = { REGISTRATION_SERVER_PATH, HT_REGISTRATION_SERVER_PATH })
         public String getRegistationServer() {
             return m_phone.getPhoneContext().getPhoneDefaults().getDomainName();
         }
@@ -356,21 +786,7 @@ public class GrandstreamPhone extends Phone {
 
     @Override
     public void restart() {
-        if (getLines().size() == 0) {
-            throw new RestartException("&phone.line.not.valid");
-        }
-
-        Line line = getLines().get(0);
-        LineInfo info = line.getLineInfo();
-        String password = info.getPassword();
-        try {
-            byte[] resetPayload = new ResetPacket(password, getSerialNumber()).getResetMessage();
-            getSipService().sendNotify(line.getAddrSpec(), "sys-control", APPLICATION_OCTET_STREAM, resetPayload);
-        } catch (IllegalArgumentException iae) {
-            throw new RestartException("&phone.reset.packet");
-        } catch (RuntimeException re) {
-            throw new RestartException("&phone.sip.exception");
-        }
+        sendAuthorizedCheckSyncToFirstLine();
     }
 
     static class GrandstreamSettingExpressionEvaluator implements SettingExpressionEvaluator {

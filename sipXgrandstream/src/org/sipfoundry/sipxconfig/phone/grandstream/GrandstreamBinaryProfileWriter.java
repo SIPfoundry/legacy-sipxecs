@@ -43,8 +43,19 @@ public class GrandstreamBinaryProfileWriter extends GrandstreamProfileWriter {
 
     @Override
     protected void writeLineEntry(String name, String value) {
-        String line = name + '=' + nonNull(value) + ET;
-        writeString(line);
+        if (value != null) {
+            value.replaceAll("\\=", "%3D");
+            value.replaceAll("\\+", "%2B");
+            value.replaceAll("\\,", "%2C");
+            value.replaceAll("\\/", "%2F");
+            value.replaceAll("\\;", "%3B");
+            value.replaceAll("\\@", "%40");
+            value.replaceAll("\\$", "%24");
+            value.replaceAll("\\&", "%26");
+            value.replaceAll("\\?", "%3F");
+            String line = name + '=' + nonNull(value) + ET;
+            writeString(line);
+        }
     }
 
     void finalizeBody(ByteArrayOutputStream wtr) throws IOException {

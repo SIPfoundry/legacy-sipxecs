@@ -12,7 +12,7 @@
 			<type>
 				<boolean/>
 			</type>
-                        <value>0</value>
+            <value>0</value>
 		</setting>
 		<setting name="P270-P417-P517-P617-P1717-P1817" if="gsPhoneGx.*|gsPhoneBt200">
 			<label>Account Name</label>
@@ -284,8 +284,31 @@
                                 </enum>
                         </type>
                         <value>400</value>
-                        <description>RFC 3261 T2 value. The maxium retransmit interval for non-INVITE requests and INVITE responses.</description>
+                        <description>RFC 3261 T2 value. The maximum retransmit interval for non-INVITE requests and INVITE responses.</description>
                 </setting>
+		<setting name="P2350-P2450-P2550-P2650-P2760-P2850" if="gsPhone.*">
+			<label>Music on Hold URI</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P1347-P481-P581-P681-P1781-P1881" if="gsPhone.*">
+			<label>Directed Call Pickup Prefix</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+			<description>Prefix to prepend to an extension for directed call pickup</description>
+		</setting>
+		<setting name="P2331-P2431-P2531-P2631-P2731-P2831" if="gsPhone.*">
+			<label>Use Actual Ephemeral Port in Contact with TCP/TLS</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+			<description>Use Actual Ephemeral Port in Contact with TCP/TLS. Leave this enabled if using firewall.</description>
+		</setting>
 	</group>
 	<group name="opt" if="gsPhone.*|gsHt.*">
 		<label>User options</label>
@@ -311,7 +334,7 @@
 					</option>
 				</enum>
 			</type>
-			<value>0</value>
+			<value>3</value>
 		</setting>
 		<setting name="P90-P425-P525-P625-P1725-P1825" if="gsPhone.*">
 			<label>Auto Answer</label>
@@ -320,15 +343,15 @@
 			</type>
 			<value>0</value>
 		</setting>
-                <setting name="P298-P438-P538-P638-P1738-P1838" if="gsPhone.*">
+                <setting name="P298-P438-P538-P638-P1738-P1838" if="gsPhone.*" unless="gsPhoneGxv31.*">
                         <label>Allow Auto-Answer by Call-Info</label>
                         <type>
                                 <boolean/>
                         </type>
-                        <value>0</value>
-                        <description>Allow the phone to auto-aswer based on Call-Info header.</description>
+                        <value>1</value>
+                        <description>Allow the phone to auto-answer based on Call-Info header.</description>
                 </setting>
-                <setting name="P299-P439-P539-P639-P1739-P1839" if="gsPhone.*">
+                <setting name="P299-P439-P539-P639-P1739-P1839" if="gsPhone.*" unless="gsPhoneGxv31.*">
                         <label>Turn off speaker on remote disconnect</label>
                         <type>
                                 <boolean/>
@@ -336,7 +359,7 @@
                         <value>0</value>
                         <description></description>
                 </setting>
-                <setting name="P258-P449-P549-P649-P1749-P1849" if="gsPhone.*">
+                <setting name="P258-P449-P549-P649-P1749-P1849" if="gsPhone.*" unless="gsPhoneGxv31.*">
                         <label>Check SIP ID</label>
                         <type>
                                 <boolean/>
@@ -352,7 +375,7 @@
                         <value>0</value>
                         <description>Refer-to use target contact.</description>
                 </setting>
-                <setting name="P137-P487-P587-P687-P1787-P1887" if="gsPhone.*">
+                <setting name="P137-P487-P587-P687-P1787-P1887" if="gsPhone.*" unless="gsPhoneGxv31.*">
                         <label>Disable Multiple Media Attributes</label>
                         <type>
                                 <boolean/>
@@ -368,7 +391,7 @@
 			<value>0</value>
 			<description>Caller ID will be blocked if checked.</description>
 		</setting>
-                <setting name="P268-P468-P568-P668-P1768-P1868" if="gsPhone.*">
+                <setting name="P268-P468-P568-P668-P1768-P1868" if="gsPhone.*" unless="gsPhoneGxv31.*">
                         <label>Anonymous Method</label>
                         <type>
                                 <enum>
@@ -425,6 +448,14 @@
 	</group>
 	<group name="advanced" if="gsPhone.*|gsHt.*">
 		<label>Advanced</label>
+		<setting name="P290-P459-P559-P659-P1759-P1859" if="gsPhone.*">
+			<label>Dialplan</label>
+			<type>
+				<string/>
+			</type>
+			<value>{ x+ | *x+ }</value>
+			<description>Dialplan. Default is to allow all</description>
+		</setting>
 		<setting name="P29-P422-P522-P622-P1722-P1822" if="gsPhone.*">
 			<label>Early Dial</label>
 			<type>
@@ -459,7 +490,7 @@
                                         </option>
                                 </enum>
                         </type>
-			<value>1</value>
+			<value>2</value>
 		</setting>
 		<setting name="P52-P752" if="gsHt.*">
 			<label>Disable NAT Traversal</label>
@@ -500,7 +531,7 @@
 			<value/>
 			<description>User ID/extension to dial automatically when offhook.</description>
 		</setting>
-		<setting name="P73-P416-P516-P616-P1716-P1816" if="gsPhone.*">
+		<setting name="P73-P416-P516-P616-P1716-P1816" if="gsPhone.*" unless="gsPhoneGxv31.*">
 			<label>Send DTMF</label>
 			<type>
 				<enum>
@@ -536,6 +567,27 @@
 			</type>
 			<value>1</value>
 		</setting>
+		<setting name="P2301-P2401-P2501" if="gsPhoneGxv31.*">
+			<label>Send DTMF in Audio</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P2302-P2402-P2502" if="gsPhoneGxv31.*">
+			<label>Send DTMF as RFC2833</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="P2303-P2403-P2503" if="gsPhoneGxv31.*">
+			<label>Send DTMF in SIP INFO</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+		</setting>
 		<setting name="P73-P773" if="gsHt.*">
 			<label>Send DTMF</label>
 			<type>
@@ -566,7 +618,7 @@
 			<type>
 				<boolean/>
 			</type>
-			<value>0</value>
+			<value>1</value>
 		</setting>
 		<setting name="P81-P752" if="gsHt.*">
 			<label>Unregister On Reboot</label>
@@ -584,20 +636,12 @@
 			<description>Whether or not send SUBSCRIBE for Message Waiting Indication.</description>
 		</setting>
                 <setting name="P188-P488-P588-P688-P1788-P1888" if="gsPhoneGxp.*">
-                        <label>Publish Presence</label>
+                        <label>Publish for Presence</label>
                         <type>
                                 <boolean/>
                         </type>
-                        <value>1</value>
-                        <description>Whether or not publish the line's presence information for others to monitor.</description>
-                </setting>
-                <setting name="P134-P444-P544-P644-P1744-P1844" if="gsPhoneGxp.*">
-                        <label>Eventlist BLF URI</label>
-                        <type>
-                                <string/>
-                        </type>
-                        <value/>
-                        <description>This is the URL (e.g. blf1006@server.com) to the RLS Server to subsribe to the eventlist for BLF. Fill in the eventlist URI without the domain, e.g. blf1006.</description>
+                        <value>0</value>
+                        <description>Whether or not to use SIP PUBLISH method to present line presence information for others to monitor.</description>
                 </setting>
 		<setting name="P99-P709" if="gsHt.*">
 			<label>SUBSCRIBE for MWI</label>
@@ -624,7 +668,7 @@
                         <description>Disable / enable logging of incoming, outgoing and missed calls.</description>
                 </setting>
 
-                <setting name="P182-P442-P542-P642-P1742-P1842" if="gsPhoneGx.*">
+                <setting name="P182-P442-P542-P642-P1742-P1842" if="gsPhoneGxp.*|gsPhoneGxv30.*">
                         <label>Call Logging</label>
                         <type>
                                 <enum>
@@ -708,7 +752,7 @@
                         </type>
                         <value>1</value>
                 </setting>
-                <setting name="P131-P447-P547-P647-P1747-P1847" if="gsPhoneGx.*|gsPhoneBt200">
+                <setting name="P131-P447-P547-P647-P1747-P1847" if="gsPhoneGxp.*|gsPhoneGxv30.*|gsPhoneBt200">
                         <label>Use Symmetric Routing</label>
                         <type>
                                 <boolean/>
@@ -741,7 +785,7 @@
 		<setting name="P57-P451-P551-P651-P1751-P1851" if="gsPhone.*">
 			<label>First codec</label>
 			<type refid="gscodec"/>
-			<value>0</value>
+			<value>9</value>
 		</setting>
 		<setting name="P57-P757" if="gsHt.*">
 			<label>First codec</label>
@@ -751,7 +795,7 @@
 		<setting name="P58-P452-P552-P652-P1752-P1852" if="gsPhone.*">
 			<label>Second codec</label>
 			<type refid="gscodec"/>
-			<value>9</value>
+			<value>0</value>
 		</setting>
 		<setting name="P58-P758" if="gsHt.*">
 			<label>Second codec</label>
@@ -971,7 +1015,7 @@
 			</type>
 			<value>100</value>
 		</setting>
-		<setting name="P198-P424-P524" if="gsPhoneGxv3000">
+		<setting name="P198-P424-P524" if="gsPhoneGxv3000|gsPhoneGxv3140|gsPhoneGxv3175">
 			<label>Special Feature</label>
 			<type>
 				<enum>
@@ -1119,9 +1163,9 @@
 			<value>0</value>
 		</setting>
 	</group>
-	<group name="video" if="gsPhoneGxv3000">
+	<group name="video" if="gsPhoneGxv3000|gsPhoneGxv3140|gsPhoneGxv3175">
 		<label>Video options</label>
-		<setting name="P292-P461-P561">
+		<setting name="P292-P461-P561" if="gsPhoneGxv3000">
 			<label>Enable Video</label>
 			<type>
 				<boolean/>
@@ -1131,20 +1175,64 @@
 		<setting name="P295-P464-P564">
 			<label>Preferred Video Codec #1</label>
 			<type>
-				<string/>
+				<enum>
+					<option>
+						<label>H.264</label>
+						<value>99</value>
+					</option>
+					<option>
+						<label>H.263</label>
+						<value>34</value>
+					</option>
+					<option>
+						<label>H.263+ (1998(</label>
+						<value>100</value>
+					</option>
+				</enum>
 			</type>
 			<value>99</value>
-			<description>Preferred Video Codec - 99 = H.264</description>
 		</setting>
 		<setting name="P296-P465-P565">
 			<label>Preferred Video Codec #2</label>
 			<type>
-				<string/>
+				<enum>
+					<option>
+						<label>H.264</label>
+						<value>99</value>
+					</option>
+					<option>
+						<label>H.263</label>
+						<value>34</value>
+					</option>
+					<option>
+						<label>H.263+ (1998(</label>
+						<value>100</value>
+					</option>
+				</enum>
+			</type>
+			<value>34</value>
+		</setting>
+		<setting name="P1307-P475-P575">
+			<label>Preferred Video Codec #2</label>
+			<type>
+				<enum>
+					<option>
+						<label>H.264</label>
+						<value>99</value>
+					</option>
+					<option>
+						<label>H.263</label>
+						<value>34</value>
+					</option>
+					<option>
+						<label>H.263+ (1998(</label>
+						<value>100</value>
+					</option>
+				</enum>
 			</type>
 			<value>99</value>
-			<description>Preferred Video Codec - 99 = H.264</description>
 		</setting>
-		<setting name="P300-P467-P567">
+		<setting name="P300-P467-P567" if="gsPhoneGxv3000">
 			<label>Jitter Delay</label>
 			<type>
 				<enum>
@@ -1163,6 +1251,26 @@
 				</enum>			
 			</type>
 			<value>0</value>
+		</setting>
+		<setting name="P132-P497-P597" if="gsPhoneGxv31.*">
+			<label>Jitter Delay</label>
+			<type>
+				<enum>
+					<option>
+						<label>Low</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>Medium</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>High</label>
+						<value>2</value>
+					</option>
+				</enum>			
+			</type>
+			<value>1</value>
 		</setting>
 		<setting name="P293-P462-P562">
 			<label>H.264 Payload Type</label>

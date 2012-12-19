@@ -94,8 +94,19 @@ public class GrandstreamProfileWriter extends AbstractSettingVisitor {
     }
 
     protected void writeLineEntry(String name, String value) {
-        String line = name + " = " + nonNull(value) + LF;
-        writeString(line);
+        if (value != null) {
+            value.replaceAll("\\=", "%3D");
+            value.replaceAll("\\+", "%2B");
+            value.replaceAll("\\,", "%2C");
+            value.replaceAll("\\/", "%2F");
+            value.replaceAll("\\;", "%3B");
+            value.replaceAll("\\@", "%40");
+            value.replaceAll("\\$", "%24");
+            value.replaceAll("\\&", "%26");
+            value.replaceAll("\\?", "%3F");
+            String line = name + " = " + nonNull(value) + LF;
+            writeString(line);
+        }
     }
 
     boolean isCompositeProfileName(String name) {
@@ -118,12 +129,17 @@ public class GrandstreamProfileWriter extends AbstractSettingVisitor {
     public Collection<Line> getLines() {
         int lineCount = getPhone().getModel().getMaxLineCount();
         Collection<Line> lines = new ArrayList(lineCount);
-        lines.addAll(getPhone().getLines());
-
-        // copy in blank lines of all unused lines
-        for (int i = lines.size(); i < lineCount; i++) {
-            Line line = getPhone().createLine();
+        if (getPhone().getLines().isEmpty()) {
+            Line line = getPhone().createSpecialPhoneProvisionUserLine();
+            line.setSettingValue("port/P270-P417-P517-P617-P1717-P1817", line.getUser().getDisplayName());
             lines.add(line);
+        } else {
+            lines.addAll(getPhone().getLines());
+            // copy in blank lines of all unused lines
+            for (int i = lines.size(); i < lineCount; i++) {
+                Line line = getPhone().createLine();
+                lines.add(line);
+            }
         }
 
         return lines;

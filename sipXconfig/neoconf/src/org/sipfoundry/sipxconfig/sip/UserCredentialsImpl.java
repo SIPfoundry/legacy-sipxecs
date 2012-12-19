@@ -24,6 +24,12 @@ class UserCredentialsImpl implements UserCredentials {
         m_realm = realm;
     }
 
+    public UserCredentialsImpl(String userName, String domain, String password) {
+        m_userName = userName;
+        m_password = password;
+        m_realm = domain;
+    }
+
     public String getPassword() {
         return m_password;
     }

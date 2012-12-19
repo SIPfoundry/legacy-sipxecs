@@ -72,94 +72,450 @@
 <type id="gstimezone">
     <enum>
         <option>
-            <label>GMT-12:00 (International Date Line West)</label><value>0</value>
+            <label>Automatic</label><value>auto</value>
         </option>
         <option>
-            <label>GMT-11:00 (Midway Island, Samoa)</label><value>60</value>
+            <label>GMT-12:00 (International Date Line West)</label><value>TZA+12</value>
         </option>
         <option>
-            <label>GMT-10:00 (US Hawaiian Time)</label><value>120</value>
+            <label>GMT-11:00 (Midway Island, Samoa)</label><value>TZB+11</value>
         </option>
         <option>
-            <label>GMT-9:00 (US Alaska Time)</label><value>180</value>
+            <label>GMT-10:00 (US Hawaiian Time)</label><value>HAW10</value>
         </option>
         <option>
-            <label>GMT-8:00 (US Pacific Time, Los Angeles)</label><value>240</value>
+            <label>GMT-9:00 (US Alaska Time)</label><value>AKST9AKDT</value>
         </option>
         <option>
-            <label>GMT-7:00 (US Mountain Time, Denver)</label><value>300</value>
+            <label>GMT-8:00 (US Pacific Time, Los Angeles)</label><value>PST8PDT</value>
         </option>
         <option>
-            <label>GMT-6:00 (US Central Time, Chicago)</label><value>360</value>
+            <label>GMT-7:00 (US Mountain Time, Denver)</label><value>MST7MDT</value>
         </option>
         <option>
-            <label>GMT-5:00 (US Eastern Time, New York)</label><value>420</value>
+            <label>GMT-7:00 (US Mountain Time, Arizona, No DST)</label><value>MST7</value>
         </option>
         <option>
-            <label>GMT-4:00 (Atlantic Time, Quebec)</label><value>480</value>
+            <label>GMT-7:00 (Chihuahua, La Paz, Mazatlan)</label><value>MST7MDT,M4.1.0,M10.5.0</value>
         </option>
         <option>
-            <label>GMT-3:00 (Greenland)</label><value>540</value>
+            <label>GMT-6:00 (US Central Time, Chicago)</label><value>CST6CDT</value>
         </option>
         <option>
-            <label>GMT-2:00 (Mid-Atlantic</label><value>600</value>
+            <label>GMT-6:00 (Central America)</label><value>CST+6</value>
         </option>
         <option>
-            <label>GMT-1:00 (Azores, Cape Verdi Is.)</label><value>660</value>
+            <label>GMT-6:00 (Guadalajara, Mexico City, Monterrey)</label><value>CST6CDT,M4.1.0,M10.5.0</value>
         </option>
         <option>
-            <label>GMT (London, Dublin, Lisbon, Casablanca)</label><value>720</value>
+            <label>GMT-5:00 (US Eastern Time, New York)</label><value>EST5EDT</value>
         </option>
         <option>
-            <label>GMT+1:00 (Paris, Berlin, Rome, Madrid, Brussels)</label><value>780</value>
+            <label>GMT-4:30 (Caracas)</label><value>TZf+4:30</value>
         </option>
         <option>
-            <label>GMT+2:00 (Israel, Cairo, Athens, Helsinki, Istanbul)</label><value>840</value>
+            <label>GMT-4:00 (Atlantic Time, Quebec)</label><value>AST4ADT</value>
         </option>
         <option>
-            <label>GMT+3:00 (Moscow, Kuwait, Baghdad, Tehran, Nairobi)</label><value>900</value>
+            <label>GMT-4:00 (Atlantic Time, New Brunswick)</label><value>AST4ADT,M4.1.0/00:01:00,M10.5.0/00:01:00</value>
+        </option>
+		<option>
+            <label>GMT-3:30 (Newfoundland)</label><value>NST+3:30NDT+2:30,M4.1.0/00:01:00,M10.5.0/00:01:00</value>
         </option>
         <option>
-            <label>GMT+4:00 (Abu Dhabi, Baku)</label><value>960</value>
+            <label>GMT-3:00 (Greenland)</label><value>TZK+3</value>
         </option>
         <option>
-            <label>GMT+5:00 (Islamabad, Ekaterinburg, Karachi)</label><value>1020</value>
+            <label>GMT-3:00 (Brazil, Sao Paulo)</label><value>BRST+3BRDT+2,M10.3.0,M2.3.0</value>
         </option>
         <option>
-            <label>GMT+5:30 (Chennai, New Delhi, Mumbai)</label><value>1050</value>
+            <label>GMT-2:00 (Argentina)</label><value>UTC+3</value>
         </option>
         <option>
-            <label>GMT+5:45 (Kathmandu)</label><value>1065</value>
+            <label>GMT-2:00 (Mid-Atlantic)</label><value>TZL+2</value>
         </option>
         <option>
-            <label>GMT+6:00 (Almaty, Astana, Dhaka, Novosibirsk)</label><value>1080</value>
+            <label>GMT-1:00 (Azores, Cape Verdi Is.)</label><value>TZM+1</value>
         </option>
         <option>
-            <label>GMT+6:30 (Rangoon)</label><value>1110</value>
+            <label>GMT (Edinburg, Casablanca, Monrovia)</label><value>TZN+0</value>
         </option>
         <option>
-            <label>GMT+7:00 (Bankok, Jakarta, Hanoi, Krasnoyarsk)</label><value>1140</value>
+            <label>GMT (London, Great Britain)</label><value>GMT+0BST-1,M3.5.0/01:00:00,M10.5.0/02:00:00</value>
         </option>
         <option>
-            <label>GMT+8:00 (Beijing, Singapore, Taipei, Perth)</label><value>1200</value>
+            <label>GMT (Lisbon, Portugal)</label><value>WET-0WEST-1,M3.5.0/01:00:00,M10.5.0/02:00:00</value>
         </option>
         <option>
-            <label>GMT+9:00 (Japan, Korea, Yakutsk)</label><value>1260</value>
+            <label>GMT (Dublin, Ireland)</label><value>GMT+0IST-1,M3.5.0/01:00:00,M10.5.0/02:00:00</value>
         </option>
         <option>
-            <label>GMT+9:30 (Adelaide, Darwin)</label><value>1290</value>
+            <label>GMT+1:00 (Paris, Vienna, Warsaw, Brussels)</label><value>TZO-1</value>
         </option>
         <option>
-            <label>GMT+10:00 (Sydney, Melbourne, Guam, Hobart)</label><value>1320</value>
+            <label>GMT+1:00 (Roma, Paris, Madrid, Prague, Berlin, Budapest, Amsterdam, Barcelona)</label><value>CET-1CEST-2,M3.5.0/02:00:00,M10.5.0/03:00:00</value>
         </option>
         <option>
-            <label>GMT+11:00 (Magadan, Solomon Is., New Caledonia)</label><value>1380</value>
+            <label>GMT+2:00 (Israel, Cairo, Istanbul)</label><value>TZP-2</value>
         </option>
         <option>
-            <label>GMT+12:00 (Auckland, Wellington, Fiji)</label><value>1440</value>
+            <label>GMT+2:00 (Helsinki, Athens, Tallinn)</label><value>EET-2EEST-3,M3.5.0/03:00:00,M10.5.0/04:00:00</value>
         </option>
         <option>
-            <label>GMT+13:00 (Nuku'alofa)</label><value>1500</value>
+            <label>GMT+2:00 (Kyiv, Ukraine)</label><value>EET-2EEST,M3.5.0/3,M10.5.0/4</value>
+        </option>
+        <option>
+            <label>GMT+3:00 (Kuwait, Baghdad, Tehran, Nairobi)</label><value>TZQ-3</value>
+        </option>
+        <option>
+            <label>GMT+3:00 (Moscow)</label><value>MSK-3MSD,M3.5.0/2,M10.5.0/3</value>
+        </option>
+        <option>
+            <label>GMT+3:00 (St. Petersberg)</label><value>MST-3MDT,M3.5.0/2,M10.5.0/3</value>
+        </option>
+        <option>
+            <label>GMT+4:00 (Abu Dhabi, Baku)</label><value>TZR-4</value>
+        </option>
+        <option>
+            <label>GMT+5:00 (Islamabad, Ekaterinburg, Karachi)</label><value>TZS-5</value>
+        </option>
+        <option>
+            <label>GMT+5:30 (Chennai, New Delhi, Mumbai)</label><value>TZT-5:30</value>
+        </option>
+        <option>
+            <label>GMT+5:45 (Kathmandu)</label><value>TZU-5:45</value>
+        </option>
+        <option>
+            <label>GMT+6:00 (Almaty, Astana, Dhaka, Novosibirsk)</label><value>TZV-6</value>
+        </option>
+        <option>
+            <label>GMT+6:30 (Rangoon)</label><value>TZW-6:30</value>
+        </option>
+        <option>
+            <label>GMT+7:00 (Bankok, Jakarta, Hanoi, Krasnoyarsk)</label><value>TZX-7</value>
+        </option>
+        <option>
+            <label>GMT+7:00 (Jakarta)</label><value>WIB-7</value>
+        </option>
+        <option>
+            <label>GMT+8:00 (Beijing, Taipei, Kuala Lumpur, Irkutsk)</label><value>TZY-8</value>
+        </option>
+        <option>
+            <label>GMT+8:00 (Singapore)</label><value>SGT-8</value>
+        </option>
+        <option>
+            <label>GMT+8:00 (Ulaanbaatar, Mongolia)</label><value>ULAT-8</value>
+        </option>
+        <option>
+            <label>GMT+8:00 (Perth)</label><value>WST-8</value>
+        </option>
+        <option>
+            <label>GMT+9:00 (Japan, Korea, Yakutsk)</label><value>TZZ-9</value>
+        </option>
+        <option>
+            <label>GMT+9:30 (Adelaide)</label><value>CST-9:30CDT-10:30,M10.5.0/02:00:00,M3.5.0/03:00:00</value>
+        </option>
+        <option>
+            <label>GMT+9:30 (Darwin)</label><value>CST-9:30</value>
+        </option>
+        <option>
+            <label>GMT+10:00 (Guam)</label><value>TZb-10</value>
+        </option>
+        <option>
+            <label>GMT+10:00 (Hobart)</label><value>EST-10EDT-11,M10.1.0/02:00:00,M3.5.0/03:00:00</value>
+        </option>
+        <option>
+            <label>GMT+10:00 (Sydney, Melbourne, Canberra)</label><value>EST-10EDT-11,M10.5.0/02:00:00,M3.5.0/03:00:00</value>
+        </option>
+        <option>
+            <label>GMT+10:00 (Brisbane)</label><value>EST-10</value>
+        </option>
+        <option>
+            <label>GMT+11:00 (Magadan, Solomon Is., New Caledonia)</label><value>TZc-11</value>
+        </option>
+        <option>
+            <label>GMT+12:00 (Auckland, Wellington)</label><value>NZST-12NZDT-13,M10.1.0/02:00:00,M3.3.0/03:00:00</value>
+        </option>
+        <option>
+            <label>GMT+12:00 (Fiji)</label><value>TZd-12</value>
+        </option>
+        <option>
+            <label>GMT+13:00 (Nuku'alofa)</label><value>TZe-13</value>
+        </option>
+    </enum>
+</type>
+<type id="gs3175timezone">
+    <enum>
+        <option>
+            <label>GMT-12:00 (International Date Line West)</label><value>TZA+12</value>
+        </option>
+        <option>
+            <label>GMT-11:00 (Midway Island, Samoa)</label><value>TZB+11</value>
+        </option>
+        <option>
+            <label>GMT-10:00 (US Hawaiian Time)</label><value>HAW10</value>
+        </option>
+        <option>
+            <label>GMT-9:00 (US Alaska Time)</label><value>AKST9AKDT</value>
+        </option>
+        <option>
+            <label>GMT-8:00 (US Pacific Time, Los Angeles)</label><value>PST8PDT</value>
+        </option>
+        <option>
+            <label>GMT-7:00 (US Mountain Time, Denver)</label><value>MST7MDT</value>
+        </option>
+        <option>
+            <label>GMT-7:00 (US Mountain Time, Arizona, No DST)</label><value>MST7</value>
+        </option>
+        <option>
+            <label>GMT-7:00 (Chihuahua, La Paz, Mazatlan)</label><value>MST7MDT,M4.1.0,M10.5.0</value>
+        </option>
+        <option>
+            <label>GMT-6:00 (US Central Time, Chicago)</label><value>CST6CDT</value>
+        </option>
+        <option>
+            <label>GMT-6:00 (Central America)</label><value>CST+6</value>
+        </option>
+        <option>
+            <label>GMT-6:00 (Guadalajara, Mexico City, Monterrey)</label><value>CST6CDT,M4.1.0,M10.5.0</value>
+        </option>
+        <option>
+            <label>GMT-5:00 (US Eastern Time, New York)</label><value>EST5EDT</value>
+        </option>
+        <option>
+            <label>GMT-4:30 (Caracas)</label><value>TZf+4:30</value>
+        </option>
+        <option>
+            <label>GMT-4:00 (Atlantic Time, Quebec)</label><value>AST4ADT</value>
+        </option>
+        <option>
+            <label>GMT-4:00 (Atlantic Time, New Brunswick)</label><value>AST4ADT,M4.1.0/00:01:00,M10.5.0/00:01:00</value>
+        </option>
+		<option>
+            <label>GMT-3:30 (Newfoundland)</label><value>NST+3:30NDT+2:30,M4.1.0/00:01:00,M10.5.0/00:01:00</value>
+        </option>
+        <option>
+            <label>GMT-3:00 (Greenland)</label><value>TZK+3</value>
+        </option>
+        <option>
+            <label>GMT-3:00 (Brazil, Sao Paulo)</label><value>BRST+3BRDT+2,M10.3.0,M2.3.0</value>
+        </option>
+        <option>
+            <label>GMT-2:00 (Argentina)</label><value>UTC+3</value>
+        </option>
+        <option>
+            <label>GMT-2:00 (Mid-Atlantic)</label><value>TZL+2</value>
+        </option>
+        <option>
+            <label>GMT-1:00 (Azores, Cape Verdi Is.)</label><value>TZM+1</value>
+        </option>
+        <option>
+            <label>GMT (Edinburg, Casablanca, Monrovia)</label><value>TZN+0</value>
+        </option>
+        <option>
+            <label>GMT (London, Great Britain)</label><value>GMT+0BST-1,M3.5.0/01:00:00,M10.5.0/02:00:00</value>
+        </option>
+        <option>
+            <label>GMT (Lisbon, Portugal)</label><value>WET-0WEST-1,M3.5.0/01:00:00,M10.5.0/02:00:00</value>
+        </option>
+        <option>
+            <label>GMT (Dublin, Ireland)</label><value>GMT+0IST-1,M3.5.0/01:00:00,M10.5.0/02:00:00</value>
+        </option>
+        <option>
+            <label>GMT+1:00 (Paris, Vienna, Warsaw, Brussels)</label><value>TZO-1</value>
+        </option>
+        <option>
+            <label>GMT+1:00 (Roma, Paris, Madrid, Prague, Berlin, Budapest, Amsterdam, Barcelona)</label><value>CET-1CEST-2,M3.5.0/02:00:00,M10.5.0/03:00:00</value>
+        </option>
+        <option>
+            <label>GMT+2:00 (Israel, Cairo, Istanbul)</label><value>TZP-2</value>
+        </option>
+        <option>
+            <label>GMT+2:00 (Helsinki, Athens, Tallinn)</label><value>EET-2EEST-3,M3.5.0/03:00:00,M10.5.0/04:00:00</value>
+        </option>
+        <option>
+            <label>GMT+2:00 (Kyiv, Ukraine)</label><value>EET-2EEST,M3.5.0/3,M10.5.0/4</value>
+        </option>
+        <option>
+            <label>GMT+3:00 (Kuwait, Baghdad, Tehran, Nairobi)</label><value>TZQ-3</value>
+        </option>
+        <option>
+            <label>GMT+3:00 (Moscow)</label><value>MSK-3MSD,M3.5.0/2,M10.5.0/3</value>
+        </option>
+        <option>
+            <label>GMT+3:00 (St. Petersberg)</label><value>MST-3MDT,M3.5.0/2,M10.5.0/3</value>
+        </option>
+        <option>
+            <label>GMT+4:00 (Abu Dhabi, Baku)</label><value>TZR-4</value>
+        </option>
+        <option>
+            <label>GMT+5:00 (Islamabad, Ekaterinburg, Karachi)</label><value>TZS-5</value>
+        </option>
+        <option>
+            <label>GMT+5:30 (Chennai, New Delhi, Mumbai)</label><value>TZT-5:30</value>
+        </option>
+        <option>
+            <label>GMT+5:45 (Kathmandu)</label><value>TZU-5:45</value>
+        </option>
+        <option>
+            <label>GMT+6:00 (Almaty, Astana, Dhaka, Novosibirsk)</label><value>TZV-6</value>
+        </option>
+        <option>
+            <label>GMT+6:30 (Rangoon)</label><value>TZW-6:30</value>
+        </option>
+        <option>
+            <label>GMT+7:00 (Bankok, Jakarta, Hanoi, Krasnoyarsk)</label><value>TZX-7</value>
+        </option>
+        <option>
+            <label>GMT+7:00 (Jakarta)</label><value>WIB-7</value>
+        </option>
+        <option>
+            <label>GMT+8:00 (Beijing, Taipei, Kuala Lumpur, Irkutsk)</label><value>TZY-8</value>
+        </option>
+        <option>
+            <label>GMT+8:00 (Singapore)</label><value>SGT-8</value>
+        </option>
+        <option>
+            <label>GMT+8:00 (Ulaanbaatar, Mongolia)</label><value>ULAT-8</value>
+        </option>
+        <option>
+            <label>GMT+8:00 (Perth)</label><value>WST-8</value>
+        </option>
+        <option>
+            <label>GMT+9:00 (Japan, Korea, Yakutsk)</label><value>TZZ-9</value>
+        </option>
+        <option>
+            <label>GMT+9:30 (Adelaide)</label><value>CST-9:30CDT-10:30,M10.5.0/02:00:00,M3.5.0/03:00:00</value>
+        </option>
+        <option>
+            <label>GMT+9:30 (Darwin)</label><value>CST-9:30</value>
+        </option>
+        <option>
+            <label>GMT+10:00 (Guam)</label><value>TZb-10</value>
+        </option>
+        <option>
+            <label>GMT+10:00 (Hobart)</label><value>EST-10EDT-11,M10.1.0/02:00:00,M3.5.0/03:00:00</value>
+        </option>
+        <option>
+            <label>GMT+10:00 (Sydney, Melbourne, Canberra)</label><value>EST-10EDT-11,M10.5.0/02:00:00,M3.5.0/03:00:00</value>
+        </option>
+        <option>
+            <label>GMT+10:00 (Brisbane)</label><value>EST-10</value>
+        </option>
+        <option>
+            <label>GMT+11:00 (Magadan, Solomon Is., New Caledonia)</label><value>TZc-11</value>
+        </option>
+        <option>
+            <label>GMT+12:00 (Auckland, Wellington)</label><value>NZST-12NZDT-13,M10.1.0/02:00:00,M3.3.0/03:00:00</value>
+        </option>
+        <option>
+            <label>GMT+12:00 (Fiji)</label><value>TZd-12</value>
+        </option>
+        <option>
+            <label>GMT+13:00 (Nuku'alofa)</label><value>TZe-13</value>
+        </option>
+    </enum>
+</type>
+<type id="httimezone">
+    <enum>
+        <option>
+            <label>GMT-12:00 (International Date Line West)</label><value>TZA+12</value>
+        </option>
+        <option>
+            <label>GMT-11:00 (Midway Island, Samoa)</label><value>TZB+11</value>
+        </option>
+        <option>
+            <label>GMT-10:00 (US Hawaiian Time)</label><value>TZC+10</value>
+        </option>
+        <option>
+            <label>GMT-9:00 (US Alaska Time)</label><value>TZD+9</value>
+        </option>
+        <option>
+            <label>GMT-8:00 (US Pacific Time, Los Angeles)</label><value>TZE+8</value>
+        </option>
+        <option>
+            <label>GMT-7:00 (US Mountain Time, Denver)</label><value>TZF+7</value>
+        </option>
+        <option>
+            <label>GMT-6:00 (US Central Time, Chicago)</label><value>TZG+6</value>
+        </option>
+        <option>
+            <label>GMT-5:00 (US Eastern Time, New York)</label><value>TZH+5</value>
+        </option>
+        <option>
+            <label>GMT-4:30 (Caracas)</label><value>TZf+4:30</value>
+        </option>
+        <option>
+            <label>GMT-4:00 (Atlantic Time, Quebec)</label><value>TZI+4</value>
+        </option>
+		<option>
+            <label>GMT-3:30 (Newfoundland)</label><value>TZJ+3:30</value>
+        </option>
+        <option>
+            <label>GMT-3:00 (Greenland)</label><value>TZK+3</value>
+        </option>
+        <option>
+            <label>GMT-2:00 (Mid-Atlantic)</label><value>TZL+2</value>
+        </option>
+        <option>
+            <label>GMT-1:00 (Azores, Cape Verdi Is.)</label><value>TZM+1</value>
+        </option>
+        <option>
+            <label>GMT (London, Dublin, Lisbon, Casablanca)</label><value>TZN+0</value>
+        </option>
+        <option>
+            <label>GMT+1:00 (Paris, Berlin, Rome, Madrid, Brussels)</label><value>TZO-1</value>
+        </option>
+        <option>
+            <label>GMT+2:00 (Israel, Cairo, Athens, Helsinki, Istanbul)</label><value>TZP-2</value>
+        </option>
+        <option>
+            <label>GMT+3:00 (Moscow, Kuwait, Baghdad, Tehran, Nairobi)</label><value>TZQ-3</value>
+        </option>
+        <option>
+            <label>GMT+4:00 (Abu Dhabi, Baku)</label><value>TZR-4</value>
+        </option>
+        <option>
+            <label>GMT+5:00 (Islamabad, Ekaterinburg, Karachi)</label><value>TZS-5</value>
+        </option>
+        <option>
+            <label>GMT+5:30 (Chennai, New Delhi, Mumbai)</label><value>TZT-5:30</value>
+        </option>
+        <option>
+            <label>GMT+5:45 (Kathmandu)</label><value>TZU-5:45</value>
+        </option>
+        <option>
+            <label>GMT+6:00 (Almaty, Astana, Dhaka, Novosibirsk)</label><value>TZV-6</value>
+        </option>
+        <option>
+            <label>GMT+6:30 (Rangoon)</label><value>TZW-6:30</value>
+        </option>
+        <option>
+            <label>GMT+7:00 (Bankok, Jakarta, Hanoi, Krasnoyarsk)</label><value>TZX-7</value>
+        </option>
+        <option>
+            <label>GMT+8:00 (Beijing, Singapore, Taipei, Perth)</label><value>TZY-8</value>
+        </option>
+        <option>
+            <label>GMT+9:00 (Japan, Korea, Yakutsk)</label><value>TZZ-9</value>
+        </option>
+        <option>
+            <label>GMT+9:30 (Adelaide, Darwin)</label><value>TZa-9:30</value>
+        </option>
+        <option>
+            <label>GMT+10:00 (Sydney, Melbourne, Guam, Hobart)</label><value>TZb-10</value>
+        </option>
+        <option>
+            <label>GMT+11:00 (Magadan, Solomon Is., New Caledonia)</label><value>TZc-11</value>
+        </option>
+        <option>
+            <label>GMT+12:00 (Auckland, Wellington, Fiji)</label><value>TZd-12</value>
+        </option>
+        <option>
+            <label>GMT+13:00 (Nuku'alofa)</label><value>TZe-13</value>
+        </option>
+        <option>
+            <label>Custom</label><value>customize</value>
         </option>
     </enum>
 </type>
