@@ -3690,4 +3690,22 @@
         <value>ezLogo800x480.jpg</value>        
       </setting>
     </group>
+    <group name="calendar" if="exchangeIntegration">
+      <setting name="feature.exchangeCalendar.enabled">
+        <type><boolean /></type>
+        <value>0</value>
+      </setting>
+      <group name="exchange">
+	      <setting name="meeting.phonePattern">
+	        <type><string /></type>
+	      </setting>
+	      <setting name="meeting.reminderEnabled">
+	        <type><boolean /></type>
+	        <value>1</value>
+	      </setting>
+	      <setting name="server.url">
+	        <type><string /></type>
+	      </setting>
+	   </group>
+    </group>    
 </model>

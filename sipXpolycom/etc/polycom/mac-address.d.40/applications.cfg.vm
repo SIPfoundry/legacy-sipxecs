@@ -32,4 +32,12 @@
 #end
   />
 </apps>
+#set ($calendar = $cfg.EndpointSettings.getSetting('calendar/exchange'))
+#if($calendar)
+  <exchange
+  #foreach ($setting in $cfg.getSettings($calendar))
+    exchange.${setting.ProfileName}="$!{setting.Value}"
+  #end
+  />
+#end
 </polycomConfig>

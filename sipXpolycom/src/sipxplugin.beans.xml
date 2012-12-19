@@ -230,6 +230,7 @@
         <value>localConferenceCallHold</value>
         <value>singleKeyPressConference</value>
         <value>VVX_1500_CodecPref</value>
+        <value>exchangeIntegration</value>
         <value>video</value>
       </set>
     </property>
@@ -321,6 +322,7 @@
         <value>singleKeyPressConference</value>
         <value>VVX_500_CodecPref</value>
         <value>desktopIntegration</value>
+        <value>exchangeIntegration</value>
         <value>video</value>
       </set>
     </property>

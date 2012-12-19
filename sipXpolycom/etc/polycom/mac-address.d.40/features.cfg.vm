@@ -69,7 +69,11 @@
   <feature
 #set ($group = $cfg.EndpointSettings.getSetting('feature'))
 #foreach ($setting in $cfg.getSettings($group))
-    feature.${setting.ProfileName}="$!{setting.Value}"
+    feature.${setting.ProfileName}="$!{setting.Value}" 
+#end
+#set ($calendar = $cfg.EndpointSettings.getSetting('calendar/feature.exchangeCalendar.enabled'))
+#if($calendar)
+    feature.exchangeCalendar.enabled="$!{calendar.Value}"
 #end
   />
   <attendant
