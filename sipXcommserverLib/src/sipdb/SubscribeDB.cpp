@@ -60,62 +60,46 @@ void SubscribeDB::upsert (
         "callId" << callId.str() <<
         "eventTypeKey" << eventTypeKey.str());
 
+    mongo::BSONObjBuilder objBuilder;
+    objBuilder.append(Subscription::component_fld(), component.str());
+    objBuilder.append(Subscription::uri_fld(), uri.str());
+    objBuilder.append(Subscription::callId_fld(), callId.str());
+    objBuilder.append(Subscription::contact_fld(), contact.str());
+    objBuilder.append(Subscription::expires_fld(), expires);
+    objBuilder.append(Subscription::subscribeCseq_fld(), subscribeCseq);
+    objBuilder.append(Subscription::eventTypeKey_fld(), eventTypeKey.str());
+    objBuilder.append(Subscription::eventType_fld(), eventType.str());
+    objBuilder.append(Subscription::id_fld(), id.str());
+    objBuilder.append(Subscription::toUri_fld(), toUri.str());
+    objBuilder.append(Subscription::fromUri_fld(), fromUri.str());
+    objBuilder.append(Subscription::key_fld(), key.str());
+
+    //do not include RecordRoute if was not provided, because it will delete existing entry
+    if (!recordRoute.isNull())
+    {
+        objBuilder.append(Subscription::recordRoute_fld(), recordRoute.str());
+    }
+
+    // do not include the notifysequence in the update if it is zero
     if (notifyCseq)
     {
-      mongo::BSONObj update = BSON("$set" << BSON(
-          Subscription::component_fld() << component.str() <<
-          Subscription::uri_fld() << uri.str() <<
-          Subscription::callId_fld() << callId.str() <<
-          Subscription::contact_fld() << contact.str() <<
-          Subscription::expires_fld() << expires <<
-          Subscription::subscribeCseq_fld() << subscribeCseq <<
-          Subscription::eventTypeKey_fld() << eventTypeKey.str() <<
-          Subscription::eventType_fld() << eventType.str() <<
-          Subscription::id_fld() << id.str() <<
-          Subscription::toUri_fld() << toUri.str() <<
-          Subscription::fromUri_fld() << fromUri.str() <<
-          Subscription::key_fld() << key.str() <<
-          Subscription::recordRoute_fld() << recordRoute.str() <<
-          Subscription::notifyCseq_fld() << notifyCseq <<
-          Subscription::accept_fld() << accept.str() <<
-          Subscription::version_fld() << version));
-
-      mongo::ScopedDbConnection conn(_info.getConnectionString());
-      conn->update(_info.getNS(), query, update, true, false);
-      conn->ensureIndex("node.subscription",  BSON( "expires" << 1 ));
-      conn->ensureIndex("node.subscription",  BSON( "key" << 1 ));
-      conn->ensureIndex("node.subscription",  BSON( "toUri" << 1 ));
-      conn.done();
+        objBuilder.append(Subscription::notifyCseq_fld(), notifyCseq);
     }
-    else
-    {
-      //
-      // do not include the notifysequence in the update if it is zero
-      //
-      mongo::BSONObj update = BSON("$set" << BSON(
-          Subscription::component_fld() << component.str() <<
-          Subscription::uri_fld() << uri.str() <<
-          Subscription::callId_fld() << callId.str() <<
-          Subscription::contact_fld() << contact.str() <<
-          Subscription::expires_fld() << expires <<
-          Subscription::subscribeCseq_fld() << subscribeCseq <<
-          Subscription::eventTypeKey_fld() << eventTypeKey.str() <<
-          Subscription::eventType_fld() << eventType.str() <<
-          Subscription::id_fld() << id.str() <<
-          Subscription::toUri_fld() << toUri.str() <<
-          Subscription::fromUri_fld() << fromUri.str() <<
-          Subscription::key_fld() << key.str() <<
-          Subscription::recordRoute_fld() << recordRoute.str() <<
-          Subscription::accept_fld() << accept.str() <<
-          Subscription::version_fld() << version));
 
-      mongo::ScopedDbConnection conn(_info.getConnectionString());
-      conn->update(_info.getNS(), query, update, true, false);
-      conn->ensureIndex("node.subscription",  BSON( "expires" << 1 ));
-      conn->ensureIndex("node.subscription",  BSON( "key" << 1 ));
-      conn->ensureIndex("node.subscription",  BSON( "toUri" << 1 ));
-      conn.done();
-    }
+    objBuilder.append(Subscription::accept_fld(), accept.str());
+    objBuilder.append(Subscription::version_fld(),version);
+
+    mongo::BSONObjBuilder opBuilder;
+    opBuilder.append("$set", objBuilder.obj());
+
+    mongo::BSONObj update = opBuilder.obj();
+
+    mongo::ScopedDbConnection conn(_info.getConnectionString());
+	conn->update(_info.getNS(), query, update, true, false);
+	conn->ensureIndex("node.subscription",  BSON( "expires" << 1 ));
+	conn->ensureIndex("node.subscription",  BSON( "key" << 1 ));
+	conn->ensureIndex("node.subscription",  BSON( "toUri" << 1 ));
+	conn.done();
 
     removeAllExpired();
 }

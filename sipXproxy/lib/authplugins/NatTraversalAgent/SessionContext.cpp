@@ -74,27 +74,10 @@ SessionContext::createCallerEndpointDescriptor( const SipMessage& sipRequest, co
    // The Caller endpoint descriptor is initialized based on the information contained in the
    // contact URI.  This is where the NAT traversal feature encodes location information about
    // the caller for dialog-forming requests.
-
-  UtlString tmpString;
-  sipRequest.getContactEntry( 0, &tmpString );
-  Url contactUri( tmpString );
-
-#ifdef FORCE_LEG1_NATED
-  //
-  // Note to developers.  If you need to test media bridge and you not within
-  // a NAT environment, define FORCE_LEG1_NATED and leg1 will always be treated
-  // as REMOTE_NATED
-  //
-  if (sipRequest.getCountHeaderFields("VIA") == 2)
-  {
-    Os::Logger::instance().log(FAC_NAT, PRI_NOTICE, ">>>>>>>>>> DEVELOPER:  Forcing endpoint-type to REMOTE_NATED");
-    EndpointDescriptor* ep = new EndpointDescriptor( contactUri, natTraversalRules );
-    ep->setLocation(REMOTE_NATED);
-    return ep;
-  }
-#endif
-   
-  return new EndpointDescriptor( contactUri, natTraversalRules );
+   UtlString tmpString;
+   sipRequest.getContactEntry( 0, &tmpString );
+   Url contactUri( tmpString );
+   return new EndpointDescriptor( contactUri, natTraversalRules );
 }
 
 EndpointDescriptor*

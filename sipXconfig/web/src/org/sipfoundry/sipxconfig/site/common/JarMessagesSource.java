@@ -16,10 +16,13 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,6 +41,8 @@ public class JarMessagesSource implements LanguageSupport {
             "context:/WEB-INF/admin/language.properties");
     private JarMessagesSourceContext m_context;
     private URLClassLoader m_jarClassLoader;
+    private Map<Locale, Properties> m_globalProps = new HashMap<Locale, Properties>();
+    private String m_globalFile = "WEB-INF/sipXconfig-web_%s.properties";
 
     public void setContext(JarMessagesSourceContext context) {
         m_context = context;
@@ -124,7 +129,27 @@ public class JarMessagesSource implements LanguageSupport {
         } catch (IOException ioe) {
             LOG.error("Error loading localized messages.", ioe);
             return null;
+        } finally {
+            IOUtils.closeQuietly(stream);
         }
+
+        if (m_globalProps.get(locale) == null) {
+            Properties globalMessages = new Properties();
+            try {
+                String globalFile = String.format(m_globalFile, locale.getLanguage());
+                stream = m_jarClassLoader.getResourceAsStream(globalFile);
+                if (stream != null) {
+                    globalMessages.load(stream);
+                }
+                m_globalProps.put(locale, globalMessages);
+            } catch (IOException ioe) {
+                LOG.error("Error loading global localized messages", ioe);
+            } finally {
+                IOUtils.closeQuietly(stream);
+            }
+        }
+        messages.putAll(m_globalProps.get(locale));
+
         return messages;
     }
 

@@ -11,7 +11,8 @@ initd_SCRIPTS = \
 
 bindir = @SIPX_BINDIR@
 bin_SCRIPTS = \
-  sipxivr-archive
+  sipxivr-archive \
+  voicemail_clean
 
 $(bin_SCRIPTS) $(initd_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@,ivr_PKGS)

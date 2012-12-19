@@ -31,7 +31,10 @@ import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdSettings;
 
 public abstract class OpenAcdServerPage extends PageWithCallback implements PageBeginRenderListener {
+
     public static final String PAGE = "openacd/OpenAcdServerPage";
+
+    private static final String SETTINGS_TO_HIDE = "log_dir,freeswitch_media_manager,C_NODE,DIAL_STRING";
 
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
@@ -71,5 +74,14 @@ public abstract class OpenAcdServerPage extends PageWithCallback implements Page
 
     public void apply(IRequestCycle cycle) {
         getOpenAcdContext().saveSettings(getSettings());
+    }
+
+    public String getSettingsToHide() {
+        return SETTINGS_TO_HIDE + ",agent_configuration,DIALPLAN_LISTENER";
+    }
+
+    public String getSettingsToHideAgentDialStrings() {
+        return SETTINGS_TO_HIDE + ",openacd-config,agent-webui-enabled,agent-webui-port"
+                + ",agent-webui-sslenabled,agent-webui-sslport,log_level";
     }
 }

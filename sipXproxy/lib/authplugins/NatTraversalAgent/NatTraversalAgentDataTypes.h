@@ -159,7 +159,6 @@ public:
 
    void toString( UtlString& outputString ) const;
 
-   void setLocation(LocationCode location);
 protected:
 private:
    NativeTransportData  mNativeTransport;
@@ -176,14 +175,6 @@ private:
    LocationCode computeLocationFromNetworkTopology( const NatTraversalRules& natRules );
 
 };
-
-//
-// Inline
-//
-inline void EndpointDescriptor::setLocation(LocationCode location)
-{
-  mLocation = location;
-}
 
 /// This class is an abstraction of a SIP endpoint involved in a media session.
 /// It is used to store that endpoint's media address, RTP and RTCP ports.

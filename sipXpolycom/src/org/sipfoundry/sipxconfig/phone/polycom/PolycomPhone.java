@@ -35,7 +35,6 @@ import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileFilter;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -228,7 +227,6 @@ public class PolycomPhone extends Phone {
         }
     }
 
-    @Override
     public String getAdditionalPhoneSettings() {
         List<String> settings = new ArrayList<String>();
         addSetting(settings, MB_PROXY, MB_IDLE_DISPLAY_HOME_PAGE, MB_IDLE_DISPLAY_REFRESH, MB_MAIN_HOME_PAGE,
@@ -237,7 +235,6 @@ public class PolycomPhone extends Phone {
         return StringUtils.join(settings, COMMA);
     }
 
-    @Override
     public void setAdditionalPhoneSettings(String additionalSettings) {
         List<String> settings = Arrays.asList(StringUtils.split(additionalSettings, COMMA));
         settings = Arrays.asList(StringUtils.split(additionalSettings, COMMA));

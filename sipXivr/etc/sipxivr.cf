@@ -22,6 +22,7 @@ bundle agent sipxivr {
       "any" usebundle => "sync_moh_prompts";
     any::
       "any" usebundle => "sipxivr_logwatcher";
+      "any" usebundle => "sipxivr_vm_cleanup";
       "any" usebundle => "sipxivr_running";
 }
 
@@ -125,6 +126,21 @@ bundle agent sipxivr_running {
       "$(sipx.SIPX_SERVICEDIR)/sipxivr"
         comment => "restart sipxivr",
         args => "restart";
+}
+
+# Install cron schedules for vm cleanup
+bundle agent sipxivr_vm_cleanup {
+  vars:
+    # execute it every day after midnight
+    "cron" string => "10 0 * * * $(sipx.SIPX_BINDIR)/voicemail_clean > /dev/null";
+    "cron_id" string => ".*/voicemail_clean .*"; #regex
+
+  methods:
+    sipxivr::
+      "any" usebundle => add_crontab("$(cron_id)", "$(sipx.SIPXPBXUSER)", "$(cron)");
+
+    !sipxivr::
+      "any" usebundle => remove_crontab("$(cron_id)", "$(sipx.SIPXPBXUSER)");
 }
 
 body copy_from copy_prompts(server,file) {
