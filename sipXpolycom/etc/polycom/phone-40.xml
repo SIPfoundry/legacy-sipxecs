@@ -417,7 +417,10 @@
             <option><value>G711_Mu</value></option>
             <option><value>G711_A</value></option>
             <option><value>G729_AB</value></option>
-            <option><value>G722</value></option>
+            <option><value>G7221.32kbps</value></option>
+            <option><value>G7221_C.48kbps</value></option>
+            <option><value>iLBC.13_33kbps</value></option>
+            <option><value>iLBC.15_2kbps</value></option>
           </multi-enum>
         </type>
         <value>G711_Mu</value>
@@ -1051,6 +1054,66 @@
           <value>100</value>
         </setting>
       </group>
+      <group name="iLBC" if="VVX_500_CodecPref">
+        <setting name="13_33kbps.payloadSize">
+          <type>
+            <!-- 10, 20, 30, ...80 -->
+            <integer min="10" max="80" />
+          </type>
+          <value>30</value>
+        </setting>
+        <setting name="15_2kbps.payloadSize">
+          <type>
+            <!-- 10, 20, 30, ...80 -->
+            <integer min="10" max="80" />
+          </type>
+          <value>20</value>
+        </setting>
+        <setting name="13_33kbps.jitterBufferMin">
+          <!-- 40, 50, 60, ... (multiple of 10) -->
+          <type>
+            <integer min="20" />
+          </type>
+          <value>40</value>
+        </setting>
+        <setting name="15_2kbps.jitterBufferMin">
+          <!-- 40, 50, 60, ... (multiple of 10) -->
+          <type>
+            <integer min="20" />
+          </type>
+          <value>40</value>
+        </setting>
+        <setting name="13_33kbps.jitterBufferShrink">
+          <type>
+            <!-- 10, 20, 30, ... (multiple of 10) -->
+            <integer min="10" />
+          </type>
+          <value>500</value>
+        </setting>
+        <setting name="15_2kbps.jitterBufferShrink">
+          <type>
+            <!-- 10, 20, 30, ... (multiple of 10) -->
+            <integer min="10" />
+          </type>
+          <value>500</value>
+        </setting>
+        <setting name="13_33kbps.jitterBufferMax">
+          <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
+            160 for IP 300 -->
+          <type>
+            <integer min="10" max="500" />
+          </type>
+          <value>160</value>
+        </setting>
+        <setting name="15_2kbps.jitterBufferMax">
+          <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
+            160 for IP 300 -->
+          <type>
+            <integer min="10" max="500" />
+          </type>
+          <value>160</value>
+        </setting>        
+      </group>      
     </group>
     <group name="volume">
       <setting name="persist.handset">
