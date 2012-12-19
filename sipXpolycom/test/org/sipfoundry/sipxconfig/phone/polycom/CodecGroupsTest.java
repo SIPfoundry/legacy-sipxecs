@@ -51,7 +51,7 @@ public class CodecGroupsTest extends TestCase {
     }
 
     public void test40CodecGroups() throws DocumentException {
-            assertCodecGroup(CodecGroupType.VVX_500, PolycomModel.VER_4_0_X);
+        assertCodecGroup(CodecGroupType.VVX_500, PolycomModel.VER_4_0_X);
     }
 
     private void assertCodecGroup(CodecGroupType codecGroup, DeviceVersion version) throws DocumentException {
@@ -196,6 +196,10 @@ public class CodecGroupsTest extends TestCase {
         VVX_500_SET.add("G711_A");
         VVX_500_SET.add("G729_AB");
         VVX_500_SET.add("G722");
+        VVX_500_SET.add("iLBC.15_2kbps");
+        VVX_500_SET.add("G7221_C.48kbps");
+        VVX_500_SET.add("G7221.32kbps");
+        VVX_500_SET.add("iLBC.13_33kbps");
         CODECGROUP_OPTION_MAP.put(CodecGroupType.VVX_500, VVX_500_SET);
     }
 

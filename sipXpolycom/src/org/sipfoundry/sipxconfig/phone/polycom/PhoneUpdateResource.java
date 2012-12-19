@@ -79,7 +79,8 @@ public class PhoneUpdateResource extends Resource {
             }
         }
 
-        LOG.info(String.format("Updated phone ID: %d. It will be rebooted in 1 minute from now in order to pick up correct config.", phone.getId()));
+        LOG.info(String.format("Updated phone ID: %d. It will be rebooted in 1 "
+            + "minute from now in order to pick up correct config.", phone.getId()));
         return new StringRepresentation("empty");
     }
 

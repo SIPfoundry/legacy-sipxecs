@@ -26,19 +26,19 @@ import org.sipfoundry.sipxconfig.upload.UploadManager;
  * Task for deleting the device files in 4.6 after upgrade to 4.6.1
  */
 public class DeviceFilesCleaner implements SetupListener {
+    private static final String DEVICE_CLEANER_FLAG = "upgrade-4.6-4.7-device-files-cleaner";
     private UploadManager m_uploadManager;
-    private static final String FLAG = "upgrade-4.6-4.7-device-files-cleaner";
 
     @Override
     public boolean setup(SetupManager manager) {
-        if (manager.isFalse(FLAG)) {
+        if (manager.isFalse(DEVICE_CLEANER_FLAG)) {
             for (Upload upload : m_uploadManager.getUpload()) {
                 if (StringUtils.equals(upload.getSpecificationId(), "polycomFirmware")) {
                     m_uploadManager.deleteUpload(upload);
                 }
             }
         }
-        manager.setTrue(FLAG);
+        manager.setTrue(DEVICE_CLEANER_FLAG);
         return true;
     }
 

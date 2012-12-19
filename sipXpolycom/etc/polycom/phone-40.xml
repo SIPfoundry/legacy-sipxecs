@@ -417,6 +417,7 @@
             <option><value>G711_Mu</value></option>
             <option><value>G711_A</value></option>
             <option><value>G729_AB</value></option>
+            <option><value>G722</value></option>
             <option><value>G7221.32kbps</value></option>
             <option><value>G7221_C.48kbps</value></option>
             <option><value>iLBC.13_33kbps</value></option>
@@ -2473,6 +2474,18 @@
         <boolean />
       </type>
       <value>1</value>
+    </setting>
+    <setting name="callRecording.enabled" advanced="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="enhancedFeatureKeys.enabled">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
     </setting>
   </group>
   <group name="custom">

@@ -29,7 +29,7 @@ public class VideoConfiguration extends ProfileContext {
     public VideoConfiguration(PolycomPhone device) {
         super(device, device.getTemplateDir() + "/video.cfg.vm");
     }
-    
+
     public String[] getValueCodecs(Setting setting) {
         return StringUtils.split(setting.getValue(), "|");
     }

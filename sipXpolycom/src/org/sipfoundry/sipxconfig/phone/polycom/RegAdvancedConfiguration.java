@@ -18,12 +18,10 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.device.ProfileContext;
-import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.setting.PatternSettingFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;

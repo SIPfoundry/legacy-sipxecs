@@ -9,17 +9,25 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.classextension.EasyMock.replay;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -67,6 +75,11 @@ public class PolycomPhoneTest extends TestCase {
     }
 
     public void testGenerateProfiles() throws Exception {
+        AddressManager addressManager = createMock(AddressManager.class);
+        addressManager.getAddresses(new AddressType("provisionService", "http://%s:%d/"));
+        expectLastCall().andReturn(new ArrayList<Address>()).anyTimes();
+        replay(addressManager);
+        m_phone.setAddressManager(addressManager);
         ApplicationConfiguration cfg = new ApplicationConfiguration(m_phone);
         m_phone.generateProfiles(m_location);
 

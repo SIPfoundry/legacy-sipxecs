@@ -84,7 +84,7 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
     /**
      * This will list 000000000000-license.cfg and &lt;MAC&gt-license.cfg in the &lt;MAC&gt.cfg if
      * they exist.
-     * 
+     *
      */
     public String getLicenseFileNames() {
         StringBuilder licenseFiles = new StringBuilder();
@@ -97,7 +97,7 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
     /**
      * This is to check if universal license file: 000000000000-license.cfg is available under
      * tftproot.
-     * 
+     *
      */
     private String getUniversalLicenseFilename() {
 
@@ -113,7 +113,7 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
 
     /**
      * This is to check if &lt;MAC&gt-license.cfg is available under tftproot.
-     * 
+     *
      */
     private String getMyLicenseFilename() {
 

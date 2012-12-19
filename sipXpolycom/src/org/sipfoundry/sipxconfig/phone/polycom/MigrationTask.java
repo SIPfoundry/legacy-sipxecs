@@ -27,31 +27,32 @@ import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
 
 /**
- * Task for migrating Polycom phones to multiple firmware support system.
- * This task, run only once will just generate profiles for Polycom phones
- * and restart them. Restart is scheduled after 1 minute to give time to phones
- * to register.
- * See wiki for more details. 
+ * Task for migrating Polycom phones to multiple firmware support system. This task, run only once
+ * will just generate profiles for Polycom phones and restart them. Restart is scheduled after 1
+ * minute to give time to phones to register. See wiki for more details.
  */
 public class MigrationTask implements SetupListener {
     private static final Log LOG = LogFactory.getLog(MigrationTask.class);
+    private static final String MIGRATION_FLAG = "upgrade-4.6-4.7-phones-migration";
     private PhoneContext m_phoneContext;
     private ProfileManager m_profileManager;
 
     @Override
     public boolean setup(SetupManager manager) {
-        if (manager.isFalse("upgrade-4.6-4.7-phones-migration")) {
+        if (manager.isFalse(MIGRATION_FLAG)) {
             LOG.info("Starting migrating Polycom phones.");
             for (Phone phone : m_phoneContext.loadPhones()) {
                 if (phone instanceof PolycomPhone) {
                     Calendar c = Calendar.getInstance();
                     c.roll(Calendar.MINUTE, 1);
                     m_profileManager.generateProfile(phone.getId(), true, c.getTime());
-                    LOG.info(String.format("Generated profiles for %s which will be rebooted in 1 minute from  now.", phone.getSerialNumber()));
+                    LOG.info(String.format(
+                            "Generated profiles for %s which will be rebooted in 1 minute from  now.",
+                            phone.getSerialNumber()));
                 }
             }
         }
-        manager.setTrue("upgrade-4.6-4.7-phones-migration");
+        manager.setTrue(MIGRATION_FLAG);
         return true;
     }
 

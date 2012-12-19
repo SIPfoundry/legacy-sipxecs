@@ -22,7 +22,13 @@ public final class PolycomModel extends PhoneModel {
     public static final DeviceVersion VER_3_1_X = new DeviceVersion(PolycomPhone.BEAN_ID, "3.1.X");
     public static final DeviceVersion VER_3_2_X = new DeviceVersion(PolycomPhone.BEAN_ID, "3.2.X");
     public static final DeviceVersion VER_4_0_X = new DeviceVersion(PolycomPhone.BEAN_ID, "4.0.X");
-    
+
+    public PolycomModel() {
+        super(PolycomPhone.BEAN_ID);
+        this.setVersions(new DeviceVersion[]{VER_3_1_X, VER_3_2_X, VER_4_0_X});
+        setEmergencyConfigurable(true);
+    }
+
     public DeviceVersion getPhoneDeviceVersion(String version) {
         for (DeviceVersion  deviceVersion : getVersions()) {
             if (deviceVersion.getName().contains(version)) {
@@ -30,11 +36,5 @@ public final class PolycomModel extends PhoneModel {
             }
         }
         return null;
-    }
-    
-    public PolycomModel() {
-        super(PolycomPhone.BEAN_ID);
-        this.setVersions(new DeviceVersion[]{VER_3_1_X, VER_3_2_X, VER_4_0_X});
-        setEmergencyConfigurable(true);
     }
 }

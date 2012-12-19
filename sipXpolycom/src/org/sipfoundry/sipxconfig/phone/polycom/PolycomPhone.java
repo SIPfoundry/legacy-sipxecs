@@ -110,7 +110,7 @@ public class PolycomPhone extends Phone {
 
     /**
      * Default firmware version for polycom phones. Default is 1.6 right now
-     * 
+     *
      * @param defaultVersionId 1.6 or 2.0
      */
     @Override
@@ -371,10 +371,12 @@ public class PolycomPhone extends Phone {
         @Override
         protected ProfileContext createContext(Device device) {
             PolycomPhone phone = (PolycomPhone) device;
+            String addrFormat = "http://%s:%d/";
             List<Address> addresses = m_addressManager.getAddresses(new AddressType("provisionService",
-                    "http://%s:%d/"));
+                    addrFormat));
             if (!addresses.isEmpty()) {
-                return new ApplicationConfiguration(phone, String.format("http://%s:%d/", addresses.get(0).getAddress(),addresses.get(0).getPort()));
+                return new ApplicationConfiguration(phone,
+                        String.format(addrFormat, addresses.get(0).getAddress(), addresses.get(0).getPort()));
             }
             return new ApplicationConfiguration(phone);
         }

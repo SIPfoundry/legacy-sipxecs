@@ -29,7 +29,7 @@ public class SiteConfiguration extends ProfileContext {
     public SiteConfiguration(PolycomPhone device) {
         super(device, device.getTemplateDir() + "/site.cfg.vm");
     }
-    
+
     public String[] getEmergencySetting() {
         String emergencyValue = getEndpointSettings().getSetting(PolycomPhone.EMERGENCY).getValue();
         return StringUtils.split(emergencyValue, ",");
