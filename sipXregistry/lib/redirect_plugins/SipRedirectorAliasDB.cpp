@@ -202,10 +202,24 @@ SipRedirectorAliasDB::lookUp(
    {
      //
      // No alias found.  If this is was towards a domain alias, make sure to reset it back to
-     // the old value prior to feeding it to the rest of the redirectors.
+     // the old value prior to feeding it to the rest of the redirectors if the userId is not a real user.
      //
-     requestUri.setHostAddress(hostAlias);
-     requestUri.getUri(requestString);
+     UtlString realm;
+     UtlString authType;
+     bool isUserIdentity =
+         CredentialDB::getInstance()->isUriDefined(requestUri, realm, authType);
+
+     if (isUserIdentity)
+     {
+       requestUri.getUri(requestString);
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp normalized request-uri to '%s'",
+               mLogName.data(), requestString.data());
+     }
+     else
+     {
+        requestUri.setHostAddress(hostAlias);
+        requestUri.getUri(requestString);
+     }
    }
 
    return RedirectPlugin::SUCCESS;
