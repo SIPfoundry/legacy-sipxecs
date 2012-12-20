@@ -5,6 +5,7 @@
      http://wiki.sipfoundry.org/display/xecsdev/Adding+Polycom+SoundPoint+IP+New+Configuration+File+Content+into+sipXconfig
 -->
 <polycomConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="polycomConfig.xsd">
+<se>
 <se.pat>
       <se.pat.callProg>
 #set ($setting_type = $cfg.EndpointSettings.getSetting('se/CALL_WAITING/type'))
@@ -45,4 +46,5 @@
         />
       </se.pat.misc>
     </se.pat>
+</se>
 </polycomConfig>

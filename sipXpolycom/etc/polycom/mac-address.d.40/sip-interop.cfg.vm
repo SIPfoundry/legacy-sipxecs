@@ -6,18 +6,7 @@
 -->
 <polycomConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="polycomConfig.xsd">
   <voIpProt>
-   <local
-## XX-6959: Generate with voIpProt.local.port for compatibility with pre-3.2.2 firmware.
-#set ($sip_local_port = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('local').getSetting('port'))
-      voIpProt.SIP.local.port="$!{sip_local_port.Value}"
-    />
-    <server
-#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.server.dhcp'))
-#foreach ($setting in $cfg.getSettings($group))
-      voIpProt.server.dhcp.${setting.ProfileName}="$!{setting.Value}"
-#end
-    />
-    <SIP
+    <voIpProt.SIP
 #set ($failover = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('failover').getValue())
       voIpProt.SIP.tcpFastFailover="$!{failover}"
 #set ($allow_Transfer_On_Proceeding = "2")
@@ -26,18 +15,26 @@
 #foreach ($setting in $cfg.getSettings($group))
       voIpProt.SIP.${setting.ProfileName}="$!{setting.Value}"
 #end
+   >
+   <voIpProt.SIP.local
+## XX-6959: Generate with voIpProt.local.port for compatibility with pre-3.2.2 firmware.
+#set ($sip_local_port = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('local').getSetting('port'))
+      voIpProt.SIP.local.port="$!{sip_local_port.Value}"
+    />
+
+   <voIpProt.SIP.serverFeatureControl
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('serverFeatureControl'))
 #foreach ($setting in $cfg.getSettings($group))
       voIpProt.SIP.serverFeatureControl.${setting.ProfileName}="$!{setting.Value}"
 #end
-    >
-      <outboundProxy
+    />
+      <voIpProt.SIP.outboundProxy
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt').getSetting('SIP.outboundProxy'))
 #foreach ($setting in $cfg.getSettings($group))
         voIpProt.SIP.outboundProxy.${setting.ProfileName}="$!{setting.Value}"
 #end
       />
-      <alertInfo
+      <voIpProt.SIP.alertInfo
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('alertInfo'))
 #foreach ($subgroup in $group.Values)
 #set ($parentProfileName = $subgroup.ProfileName)
@@ -46,7 +43,7 @@
 #end
 #end
       />
-      <requestValidation
+      <voIpProt.SIP.requestValidation
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('requestValidation'))
 #foreach ($subgroup in $group.Values)
 #set ($parentProfileName = $subgroup.ProfileName)
@@ -55,41 +52,47 @@
 #end
 #end
       >
-        <digest
+        <voIpProt.SIP.requestValidation.digest
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('digest'))
 #foreach ($setting in $cfg.getRecursiveSettings($group))
           voIpProt.SIP.requestValidation.digest.${setting.ProfileName}="$!{setting.Value}"
 #end
         />
-      </requestValidation>
-      <specialEvent
-#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('specialEvent'))
-#foreach ($setting in $cfg.getSettings($group))
-        voIpProt.SIP.specialEvent.${setting.ProfileName}="$!{setting.Value}"
-#end
+      </voIpProt.SIP.requestValidation>
+      <voIpProt.SIP.specialEvent>
+       <voIpProt.SIP.specialEvent.lineSeize
+       #set ($setting=$cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('specialEvent').getSetting('lineSeize.nonStandard'))
+        voIpProt.SIP.specialEvent.lineSeize.nonStandard="$!{setting.Value}"
       />
-      <conference
+      </voIpProt.SIP.specialEvent>
+      <voIpProt.SIP.conference
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('conference'))
 #foreach ($setting in $cfg.getSettings($group))
         voIpProt.SIP.conference.${setting.ProfileName}="$!{setting.Value}"
 #end
       />
-      <dialog
+      <voIpProt.SIP.dialog
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('dialog'))
 #foreach ($setting in $cfg.getSettings($group))
         voIpProt.SIP.dialog.${setting.ProfileName}="$!{setting.Value}"
 #end
       />
-      <connectionReuse
+      <voIpProt.SIP.connectionReuse
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('connectionReuse'))
 #foreach ($setting in $cfg.getSettings($group))
         voIpProt.SIP.connectionReuse.${setting.ProfileName}="$!{setting.Value}"
 #end
       />
-    </SIP>
+    </voIpProt.SIP>
+    <voIpProt.server
+#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.server.dhcp'))
+#foreach ($setting in $cfg.getSettings($group))
+      voIpProt.server.dhcp.${setting.ProfileName}="$!{setting.Value}"
+#end
+    />
   </voIpProt>
   <tone>
-    <DTMF
+    <tone.dtmf
 #set ($group = $cfg.EndpointSettings.getSetting('tone.dtmf'))
 #foreach ($setting in $cfg.getSettings($group))
       tone.dtmf.${setting.ProfileName}="$!{setting.Value}"
@@ -114,8 +117,6 @@
 #foreach ($setting in ${call})
     call.${setting.ProfileName}="$!{setting.Value}"
 #end
-    call.stickyAutoLineSeize=""
-    call.stickyAutoLineSeize.onHookDialing=""
   >
     <call.shared
 #set ($group = $cfg.EndpointSettings.getSetting('call').getSetting('shared'))

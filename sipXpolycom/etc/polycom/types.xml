@@ -44,6 +44,25 @@
     </option>
   </enum>
 </type>
+<type id="transport-40">
+  <enum>
+    <option>
+      <value>UDPOnly</value>
+    </option>
+    <option>
+      <value>TCPOnly</value>
+    </option>
+    <option>
+      <value>TCPpreferred</value>
+    </option>
+    <option>
+      <value>DNSnaptr</value>
+    </option>
+    <option>
+      <value>TLS</value>
+    </option>
+  </enum>
+</type>
 <type id="tone-pattern">
   <enum>
     <option>

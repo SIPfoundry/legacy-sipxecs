@@ -1887,6 +1887,18 @@
       </type>
       <value />
     </setting>
+    <setting name="stickyAutoLineSeize">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="stickyAutoLineSeize.onHookDialing">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
     <setting name="singleKeyPressConference" if="singleKeyPressConference">
       <type><boolean /></type>
       <value>0</value>
@@ -2587,8 +2599,8 @@
         <value>5060</value>
       </setting>
       <setting name="transport">
-        <type refid="transport" />
-        <value>UDPonly</value>
+        <type refid="transport-40" />
+        <value>UDPOnly</value>
       </setting>
     </group>
   </group>
@@ -2795,13 +2807,13 @@
         <type>
           <boolean />
         </type>
-        <value />
+        <value>0</value>
       </setting>
       <setting name="usePvalue" advanced="yes">
         <type>
           <boolean />
         </type>
-        <value />
+        <value>0</value>
       </setting>
     </group>
     <group name="connectionReuse">
