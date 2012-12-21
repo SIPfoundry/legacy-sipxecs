@@ -30,7 +30,7 @@ import org.sipfoundry.sipxconfig.setting.SettingUtil;
 /**
  * Responsible for generating [MAC]-cfg.
  */
-public class SipInteropConfiguration extends ProfileContext {
+public class SipInteropConfiguration extends ProfileContext<PolycomPhone> {
     private static PatternSettingFilter s_callSettings = new PatternSettingFilter();
 
     static {

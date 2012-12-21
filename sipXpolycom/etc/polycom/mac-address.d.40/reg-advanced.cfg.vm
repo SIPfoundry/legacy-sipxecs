@@ -65,16 +65,20 @@
 #end
     >
 #set ($pictureFrame = $cfg.EndpointSettings.getSetting('up').getSetting('pictureFrame'))
+#if($pictureFrame)
     <up.pictureFrame
 #foreach ($setting in $cfg.getSettings($pictureFrame))
       up.pictureFrame.${setting.ProfileName}="$!{setting.Value}"
 #end
     />
+#end
 #set ($screenSaver = $cfg.EndpointSettings.getSetting('up').getSetting('screenSaver'))
+#if($screenSaver)
     <up.screenSaver
 #foreach ($setting in $cfg.getSettings($screenSaver))
       up.screenSaver.${setting.ProfileName}="$!{setting.Value}"
 #end
     />
+#end
   </up>
 </polycomConfig>

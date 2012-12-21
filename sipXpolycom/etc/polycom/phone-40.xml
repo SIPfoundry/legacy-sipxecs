@@ -2453,13 +2453,6 @@
       </type>
       <value>1</value>
     </setting>
-    <setting name="calllist_hidden" hidden="yes" unless="disableCallList">
-      <profileName>calllist</profileName>
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
     <setting name="ringDownload">
       <type>
         <boolean />
@@ -2472,34 +2465,13 @@
       </type>
       <value>1</value>
     </setting>
-    <setting name="calllist-received_hidden" hidden="yes" unless="disableCallList">
-      <profileName>calllist-received</profileName>
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
     <setting name="calllistPlaced" if="disableCallList">
       <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="calllist-placed_hidden" hidden="yes" unless="disableCallList">
-      <profileName>calllist-placed</profileName>
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
     <setting name="calllistMissed" if="disableCallList">
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
-    <setting name="calllist-missed_hidden" hidden="yes" unless="disableCallList">
-      <profileName>calllist-missed</profileName>
       <type>
         <boolean />
       </type>
@@ -2571,21 +2543,7 @@
       </type>
       <value>0</value>
     </setting>
-    <setting name="nwayConference" if="nway-conference" unless="polycom7000">
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
-    <setting name="nway-conference_hidden" hidden="yes" unless="nway-conference">
-      <profileName>nway-conference</profileName>
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
-    </setting>
-    <setting name="nway-conference_hidden_ip7000" hidden="yes" if="polycom7000">
-      <profileName>nway-conference</profileName>
+    <setting name="nwayConference" if="nway-conference">
       <type>
         <boolean />
       </type>
@@ -2907,7 +2865,7 @@
           - different from admin manual, gives us ability to reboot
           - remotely on demand
         -->
-        <value>1</value>
+        <value>0</value>
       </setting>
     </group>
     <group name="conference">

@@ -166,7 +166,7 @@ public class PolycomPhone extends Phone {
             profileTypes = new Profile[] {
                 new ApplicationProfile(getAppFilename()), new ApplicationsProfile(getAppsFilename()),
                 new FeaturesProfile(getFeaturesFilename()), new RegAdvancedProfile(getRegAdvancedFilename()),
-                new RegBasicProfile(getRegBasicFilename()), new RegionProfile(getRegionFilename()),
+                new RegionProfile(getRegionFilename()),
                 new SipBasicProfile(getSipBasicFilename()), new SipInteropProfile(getSipInteropFilename()),
                 new SiteProfile(getSiteFilename()), new VideoProfile(getVideoFilename())
             };
@@ -498,23 +498,6 @@ public class PolycomPhone extends Phone {
         protected ProfileContext createContext(Device device) {
             PolycomPhone phone = (PolycomPhone) device;
             return new RegAdvancedConfiguration(phone);
-        }
-    }
-
-    static class RegBasicProfile extends Profile {
-        public RegBasicProfile(String name) {
-            super(name, MIME_TYPE_PLAIN);
-        }
-
-        @Override
-        protected ProfileFilter createFilter(Device device) {
-            return null;
-        }
-
-        @Override
-        protected ProfileContext createContext(Device device) {
-            PolycomPhone phone = (PolycomPhone) device;
-            return new RegBasicConfiguration(phone);
         }
     }
 

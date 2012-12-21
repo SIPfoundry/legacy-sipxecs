@@ -180,7 +180,7 @@
           <type>
             <boolean />
           </type>
-          <value>0</value>
+          <value>1</value>
         </setting>
         <setting name="retryTimeOut">
           <profileName>server.1.retryTimeOut</profileName>
@@ -245,7 +245,7 @@
         <setting name="register">
           <profileName>server.2.register</profileName>
           <type />
-          <value>0</value>
+          <value>1</value>
         </setting>
         <setting name="retryTimeOut">
           <profileName>server.2.retryTimeOut</profileName>

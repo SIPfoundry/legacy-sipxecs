@@ -183,7 +183,7 @@
 #set ($group = $cfg.EndpointSettings.getSetting('qos').getSetting('ethernet').getSetting('rtp'))
       <qos.ethernet.rtp
 #foreach ($setting in $cfg.getSettings($group))
-      qos.ethernet.${setting.ProfileName}="$!{setting.Value}"
+      qos.ethernet.rtp.${setting.ProfileName}="$!{setting.Value}"
 #end
       >
 #if ($phone.model.isSupported("video"))
@@ -194,7 +194,7 @@
 #set ($group = $cfg.EndpointSettings.getSetting('qos').getSetting('ethernet').getSetting('callControl'))
       <qos.ethernet.callControl
 #foreach ($setting in $cfg.getSettings($group))
-      qos.ethernet.${setting.ProfileName}="$!{setting.Value}"
+      qos.ethernet.callControl.${setting.ProfileName}="$!{setting.Value}"
 #end
       />
 #set ($group = $cfg.EndpointSettings.getSetting('qos').getSetting('ethernet').getSetting('other'))

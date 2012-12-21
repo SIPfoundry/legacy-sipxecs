@@ -30,16 +30,7 @@ import org.sipfoundry.sipxconfig.setting.SettingUtil;
 /**
  * Responsible for generating ipmid.cfg
  */
-public class RegAdvancedConfiguration extends ProfileContext {
-    private static PatternSettingFilter s_regBasicSettings = new PatternSettingFilter();
-
-    static {
-        s_regBasicSettings.addExcludes("reg/address");
-        s_regBasicSettings.addExcludes("reg/auth.password");
-        s_regBasicSettings.addExcludes("reg/auth.userId");
-        s_regBasicSettings.addExcludes("reg/label");
-        s_regBasicSettings.addExcludes("reg/outboundProxy.address");
-    }
+public class RegAdvancedConfiguration extends ProfileContext<PolycomPhone> {
 
     public RegAdvancedConfiguration(PolycomPhone device) {
         super(device, device.getTemplateDir() + "/reg-advanced.cfg.vm");
@@ -52,6 +43,7 @@ public class RegAdvancedConfiguration extends ProfileContext {
         // Phones with no configured lines will register under the sipXprovision special user.
         if (lines.isEmpty()) {
             Line line = phone.createSpecialPhoneProvisionUserLine();
+            line.setSettingValue("reg/label", line.getUser().getDisplayName());
             lines.add(line);
         }
 
@@ -69,10 +61,7 @@ public class RegAdvancedConfiguration extends ProfileContext {
     @Override
     public Map<String, Object> getContext() {
         Map<String, Object> context = super.getContext();
-        Setting endpointSettings = getDevice().getSettings();
-        Setting call = endpointSettings.getSetting(PolycomPhone.CALL);
-        Collection items = SettingUtil.filter(s_regBasicSettings, call);
-        context.put(PolycomPhone.CALL, items);
+        getDevice().getSettings();
         context.put("lines", getLines());
         return context;
     }
