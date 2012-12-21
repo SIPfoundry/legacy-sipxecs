@@ -1530,30 +1530,36 @@
   </group>
   <group name="qos">
     <group name="ethernet">
-      <setting name="rtp.user_priority">
-        <type>
-          <integer min="0" max="7" />
-        </type>
-        <value>5</value>
-      </setting>
-      <setting name="rtp.video.user_priority" if="video">
-        <type>
-          <integer min="0" max="7" />
-        </type>
-        <value>5</value>
-      </setting>
-      <setting name="callControl.user_priority">
-        <type>
-          <integer min="0" max="7" />
-        </type>
-        <value>5</value>
-      </setting>
-      <setting name="other.user_priority">
-        <type>
-          <integer min="0" max="7" />
-        </type>
-        <value>2</value>
-      </setting>
+      <group name="rtp">
+        <setting name="user_priority">
+          <type>
+            <integer min="0" max="7" />
+          </type>
+          <value>5</value>
+        </setting>
+        <setting name="video.user_priority" if="video">
+          <type>
+            <integer min="0" max="7" />
+          </type>
+          <value>5</value>
+        </setting>
+      </group>
+      <group name="callControl">
+        <setting name="user_priority">
+          <type>
+            <integer min="0" max="7" />
+          </type>
+          <value>5</value>
+        </setting>
+      </group>
+      <group name="other">
+        <setting name="other.user_priority">
+          <type>
+            <integer min="0" max="7" />
+          </type>
+          <value>2</value>
+        </setting>
+      </group>
     </group>
     <group name="ip.rtp">
       <setting name="min_delay">
@@ -3226,90 +3232,94 @@
       <value>0</value>
     </setting>
     <group name="officeHours">
-      <setting name="startHour.monday">
-        <type>
-          <integer min="0" max="23" />
-        </type>
-        <value>8</value>
-      </setting>
-      <setting name="startHour.tuesday">
-        <type>
-          <integer min="0" max="23" />
-        </type>
-        <value>8</value>
-      </setting>
-      <setting name="startHour.wednesday">
-        <type>
-          <integer min="0" max="23" />
-        </type>
-        <value>8</value>
-      </setting>
-      <setting name="startHour.thursday">
-        <type>
-          <integer min="0" max="23" />
-        </type>
-        <value>8</value>
-      </setting>
-      <setting name="startHour.friday">
-        <type>
-          <integer min="0" max="23" />
-        </type>
-        <value>8</value>
-      </setting>
-      <setting name="startHour.saturday">
-        <type>
-          <integer min="0" max="23" />
-        </type>
-        <value>8</value>
-      </setting>
-      <setting name="startHour.sunday">
-        <type>
-          <integer min="0" max="23" />
-        </type>
-        <value>8</value>
-      </setting>
-      <setting name="duration.monday">
-        <type>
-          <integer min="0" max="12" />
-        </type>
-        <value>8</value>
-      </setting>
-      <setting name="duration.tuesday">
-        <type>
-          <integer min="0" max="12" />
-        </type>
-        <value>8</value>
-      </setting>
-      <setting name="duration.wednesday">
-        <type>
-          <integer min="0" max="12" />
-        </type>
-        <value>8</value>
-      </setting>
-      <setting name="duration.thursday">
-        <type>
-          <integer min="0" max="12" />
-        </type>
-        <value>8</value>
-      </setting>
-      <setting name="duration.friday">
-        <type>
-          <integer min="0" max="12" />
-        </type>
-        <value>8</value>
-      </setting>
-      <setting name="duration.saturday">
-        <type>
-          <integer min="0" max="12" />
-        </type>
-        <value>0</value>
-      </setting>
-      <setting name="duration.sunday">
-        <type>
-          <integer min="0" max="12" />
-        </type>
-        <value>0</value>
-      </setting>
+      <group name="startHour">
+        <setting name="startHour.monday">
+          <type>
+            <integer min="0" max="23" />
+          </type>
+          <value>8</value>
+        </setting>
+        <setting name="startHour.tuesday">
+          <type>
+            <integer min="0" max="23" />
+          </type>
+          <value>8</value>
+        </setting>
+        <setting name="startHour.wednesday">
+          <type>
+            <integer min="0" max="23" />
+          </type>
+          <value>8</value>
+        </setting>
+        <setting name="startHour.thursday">
+          <type>
+            <integer min="0" max="23" />
+          </type>
+          <value>8</value>
+        </setting>
+        <setting name="startHour.friday">
+          <type>
+            <integer min="0" max="23" />
+          </type>
+          <value>8</value>
+        </setting>
+        <setting name="startHour.saturday">
+          <type>
+            <integer min="0" max="23" />
+          </type>
+          <value>8</value>
+        </setting>
+        <setting name="startHour.sunday">
+          <type>
+            <integer min="0" max="23" />
+          </type>
+          <value>8</value>
+        </setting>
+      </group>
+      <group name="duration">
+        <setting name="duration.monday">
+          <type>
+            <integer min="0" max="12" />
+          </type>
+          <value>8</value>
+        </setting>
+        <setting name="duration.tuesday">
+          <type>
+            <integer min="0" max="12" />
+          </type>
+          <value>8</value>
+        </setting>
+        <setting name="duration.wednesday">
+          <type>
+            <integer min="0" max="12" />
+          </type>
+          <value>8</value>
+        </setting>
+        <setting name="duration.thursday">
+          <type>
+            <integer min="0" max="12" />
+          </type>
+          <value>8</value>
+        </setting>
+        <setting name="duration.friday">
+          <type>
+            <integer min="0" max="12" />
+          </type>
+          <value>8</value>
+        </setting>
+        <setting name="duration.saturday">
+          <type>
+            <integer min="0" max="12" />
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="duration.sunday">
+          <type>
+            <integer min="0" max="12" />
+          </type>
+          <value>0</value>
+        </setting>
+      </group>
     </group>
     <group name="idleTimeout">
       <setting name="officeHours">

@@ -180,17 +180,29 @@
   </voice>
   <qos>
     <qos.ethernet>
-#set ($group = $cfg.EndpointSettings.getSetting('qos').getSetting('ethernet'))
-#set ($setting = $group.getSetting('rtp.user_priority'))
-      <qos.ethernet.rtp qos.ethernet.${setting.ProfileName}="$!{setting.Value}" />
-#set ($setting = $group.getSetting('callControl.user_priority'))
-      <qos.ethernet.callControl qos.ethernet.${setting.ProfileName}="$!{setting.Value}" />
-#set ($setting = $group.getSetting('other.user_priority'))
-      <qos.ethernet.other qos.ethernet.${setting.ProfileName}="$!{setting.Value}" />
+#set ($group = $cfg.EndpointSettings.getSetting('qos').getSetting('ethernet').getSetting('rtp'))
+      <qos.ethernet.rtp
+#foreach ($setting in $cfg.getSettings($group))
+      qos.ethernet.${setting.ProfileName}="$!{setting.Value}"
+#end
+      >
 #if ($phone.model.isSupported("video"))
 #set ($setting = $group.getSetting('rtp.video.user_priority'))
       <qos.ethernet.rtp.video qos.ethernet.${setting.ProfileName}="$!{setting.Value}" />
 #end
+      </qos.ethernet.rtp>
+#set ($group = $cfg.EndpointSettings.getSetting('qos').getSetting('ethernet').getSetting('callControl'))
+      <qos.ethernet.callControl
+#foreach ($setting in $cfg.getSettings($group))
+      qos.ethernet.${setting.ProfileName}="$!{setting.Value}"
+#end
+      />
+#set ($group = $cfg.EndpointSettings.getSetting('qos').getSetting('ethernet').getSetting('other'))
+      <qos.ethernet.other
+#foreach ($setting in $cfg.getSettings($group))
+      qos.ethernet.${setting.ProfileName}="$!{setting.Value}"
+#end
+      />
     </qos.ethernet>
     <qos.ip>
       <qos.ip.rtp
@@ -300,12 +312,20 @@
       powerSaving.${setting.ProfileName}="$!{setting.Value}"
 #end
   >
-     <powerSaving.officeHours
-#set ($group = $cfg.EndpointSettings.getSetting('powerSaving').getSetting('officeHours'))
+     <powerSaving.officeHours>
+#set ($group = $cfg.EndpointSettings.getSetting('powerSaving').getSetting('officeHours').getSetting('startHour'))
+       <powerSaving.officeHours.startHour
 #foreach ($setting in $cfg.getSettings($group))
       powerSaving.officeHours.${setting.ProfileName}="$!{setting.Value}"
 #end
-     />
+       />
+#set ($group = $cfg.EndpointSettings.getSetting('powerSaving').getSetting('officeHours').getSetting('duration'))
+       <powerSaving.officeHours.duration
+#foreach ($setting in $cfg.getSettings($group))
+      powerSaving.officeHours.${setting.ProfileName}="$!{setting.Value}"
+#end
+       />
+     </powerSaving.officeHours>
      <powerSaving.idleTimeout
 #set ($group = $cfg.EndpointSettings.getSetting('powerSaving').getSetting('idleTimeout'))
 #foreach ($setting in $cfg.getSettings($group))
