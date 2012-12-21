@@ -11,9 +11,15 @@ help.app=Build all sipx apps including targets autoreconf, configure, all and in
 app :
 	$(MAKE) $(foreach P,$(app),$(P))
 
-$(foreach T,$(sipx) $(app),$(T)) : % : %.build;
+.PHONY:$(sipx) $(app)
+$(sipx) $(app) : % : mak/%-$(PACKAGE_VERSION)-$(PROJ_REVISION);
+
+mak/%-$(PACKAGE_VERSION)-$(PROJ_REVISION) :
+	$(MAKE) $*.build
+	touch $@
+
 $(foreach T,$(sipx) $(app),$(T)...) : %... : %.build...;
-$(foreach T,$(sipx) $(app),$(T).build) : %.build : %.autoreconf %.configure %.all-install ;
+$(foreach T,$(sipx) $(app),$(T).build) : %.build : %.autoreconf %.configure %.all-install;
 
 help.{1|6}.all-install=Run 'make all install' in each target
 $(foreach T,$(sipx) $(app),$(T).all-install) : %.all-install : %.all %.install ;
