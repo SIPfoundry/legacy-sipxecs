@@ -207,7 +207,7 @@ public class Servlet extends HttpServlet {
         }
 
         public String getDefaultFirmware() {
-            return "3.2.X";
+            return "4.0.X";
         }
     }
 
