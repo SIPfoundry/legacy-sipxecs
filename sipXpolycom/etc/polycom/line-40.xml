@@ -5,6 +5,15 @@
   ]>
 <model>
   &types;
+  <type id="transport-4.0">
+    <enum>
+      <option><value>UDPOnly</value></option>
+      <option><value>TCPpreferred</value></option>
+      <option><value>DNSnaptr</value></option>
+      <option><value>TCPOnly</value></option>
+      <option><value>TLS</value></option>
+    </enum>
+  </type>
   <group name="reg">
     <setting name="displayName" advanced="yes">
       <type>
@@ -28,7 +37,9 @@
       </type>
       <value>private</value>
     </setting>
-    <setting name="lcs" hidden="yes"></setting>
+    <setting name="lcs" hidden="yes">
+      <value>0</value>
+    </setting>
     <setting name="bargeInEnabled">
       <type><boolean /></type>
       <value>0</value>
@@ -50,7 +61,7 @@
           </option>
         </enum>
       </type>
-      <value></value>
+      <value>0</value>
     </setting>
     <setting name="thirdPartyName" hidden="yes">
       <type />
@@ -68,7 +79,9 @@
       </type>
       <value />
     </setting>
-    <setting name="auth.optimizedInFailover" hidden="yes"></setting>
+    <setting name="auth.optimizedInFailover" hidden="yes">
+      <value>0</value>
+    </setting>
     <setting name="ringType">
       <type>
         <integer min="1" max="22" />
@@ -91,6 +104,7 @@
       <type>
         <string />
       </type>
+      <value>0</value>
     </setting>
     <setting name="outboundProxy.address">
       <type>
@@ -105,18 +119,20 @@
       <value>0</value>
     </setting>
     <setting name="outboundProxy.transport">
-      <type refid="transport" />
-      <value>UDPonly</value>
+      <type refid="transport-4.0" />
+      <value>UDPOnly</value>
     </setting>
     <setting name="serverFeatureControl.cf">
       <type>
         <boolean />
       </type>
+      <value>0</value>
     </setting>
     <setting name="serverFeatureControl.dnd">
       <type>
         <boolean />
       </type>
+      <value>0</value>
     </setting>
     <setting name="musicOnHold.uri">
       <type>
@@ -142,8 +158,8 @@
         </setting>
         <setting name="transport">
           <profileName>server.1.transport</profileName>
-          <type refid="transport" />
-          <value>UDPonly</value>
+          <type refid="transport-4.0" />
+          <value>UDPOnly</value>
         </setting>
         <setting name="expires">
           <profileName>server.1.expires</profileName>
@@ -161,8 +177,10 @@
         </setting>
         <setting name="register">
           <profileName>server.1.register</profileName>
-          <type />
-          <value />
+          <type>
+            <boolean />
+          </type>
+          <value>0</value>
         </setting>
         <setting name="retryTimeOut">
           <profileName>server.1.retryTimeOut</profileName>
@@ -187,6 +205,7 @@
         </setting>
         <setting name="lcs" hidden="yes">
           <profileName>server.1.lcs</profileName>
+          <value>0</value>
         </setting>
       </group>
       <group name="2">
@@ -206,8 +225,8 @@
         </setting>
         <setting name="transport">
           <profileName>server.2.transport</profileName>
-          <type refid="transport" />
-          <value>UDPonly</value>
+          <type refid="transport-4.0" />
+          <value>UDPOnly</value>
         </setting>
         <setting name="expires">
           <profileName>server.2.expires</profileName>
@@ -226,7 +245,7 @@
         <setting name="register">
           <profileName>server.2.register</profileName>
           <type />
-          <value />
+          <value>0</value>
         </setting>
         <setting name="retryTimeOut">
           <profileName>server.2.retryTimeOut</profileName>
@@ -251,6 +270,7 @@
         </setting>
         <setting name="lcs" hidden="yes">
           <profileName>server.2.lcs</profileName>
+          <value>0</value>
         </setting>
       </group>
     </group>

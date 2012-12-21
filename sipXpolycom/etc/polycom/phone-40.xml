@@ -43,60 +43,62 @@
     </group>
   </group>
   <group name="up">
-    <setting name="analogHeadsetOption">
+    <group name="general">
+      <setting name="analogHeadsetOption">
+          <type>
+              <boolean />
+          </type>
+          <value>0</value>
+      </setting>
+      <setting name="headsetMode">
         <type>
-            <boolean />
+          <boolean />
         </type>
         <value>0</value>
-    </setting>
-    <setting name="headsetMode">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
-    </setting>
-    <setting name="handsfreeMode">
-        <type>
+      </setting>
+      <setting name="handsfreeMode">
+          <type>
             <boolean />
         </type>
         <value>1</value>
-    </setting>
-    <setting name="useDirectoryNames">
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
-    <setting name="oneTouchVoiceMail">
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
-    <setting name="welcomeSoundEnabled">
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
-    <setting name="welcomeSoundOnWarmBootEnabled">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
-    </setting>
-    <setting name="localClockEnabled">
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
-    <setting name="idleTimeout">
-      <type>
-        <integer min="0" max="65536" />
-      </type>
-      <value>40</value>
-    </setting>
+      </setting>
+      <setting name="useDirectoryNames">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="oneTouchVoiceMail">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="welcomeSoundEnabled">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="welcomeSoundOnWarmBootEnabled">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="localClockEnabled">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="idleTimeout">
+        <type>
+          <integer min="0" max="65536" />
+        </type>
+        <value>40</value>
+      </setting>
+    </group>
     <group name="pictureFrame" if="video">
       <setting name="folder">
         <type>

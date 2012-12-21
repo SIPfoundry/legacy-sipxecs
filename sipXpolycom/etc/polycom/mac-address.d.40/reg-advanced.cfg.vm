@@ -5,9 +5,11 @@
      http://wiki.sipfoundry.org/display/xecsdev/Adding+Polycom+SoundPoint+IP+New+Configuration+File+Content+into+sipXconfig
 -->
 <polycomConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="polycomConfig.xsd">
-<se>
-    <se.rt se.rt.modification.enabled="1">
-</se>
+  <se se.destination="chassis">
+    <se.rt>
+      <se.rt.modification se.rt.modification.enabled="1" />
+    </se.rt>
+  </se>
   <reg
 #foreach ($line in ${lines})
 #set ($i = $velocityCount)
@@ -23,8 +25,8 @@
   
   <call>
 #set ($dndPerReg = $cfg.EndpointSettings.getSetting('call/donotdisturb.perReg'))
-    <donotdisturb call.donotdisturb.perReg="$!{dndPerReg.Value}" />
-    <autoOffHook
+    <call.donotdisturb call.donotdisturb.perReg="$!{dndPerReg.Value}" />
+    <call.autoOffHook
 #foreach ($line in $lines)
 #set ($i = $velocityCount)
 #set ($group = $line.getSetting('call').getSetting('autoOffHook'))
@@ -33,7 +35,7 @@
 #end
 #end
     />
-    <missedCallTracking
+    <call.missedCallTracking
 #foreach ($line in $lines)
 #set ($i = $velocityCount)
 #set ($group = $line.getSetting('call').getSetting('missedCallTracking'))
@@ -42,7 +44,7 @@
 #end
 #end
     />
-    <serverMissedCall
+    <call.serverMissedCall
 #foreach ($line in $lines)
 #set ($i = $velocityCount)
 #set ($group = $line.getSetting('call').getSetting('serverMissedCall'))
@@ -52,12 +54,27 @@
 #end
     />
 #set ($callWaitingRing = $cfg.EndpointSettings.getSetting('call/callWaiting.ring'))
-    <callWaiting
+    <call.callWaiting
       call.callWaiting.ring="$!{callWaitingRing.value}"
     />
   </call>
-#set ($group = $cfg.EndpointSettings.getSetting('up'))
-  <user_preferences
-    up.analogHeadsetOption="$!group.getSetting('analogHeadsetOption').value"
-  />
+#set ($group = $cfg.EndpointSettings.getSetting('up').getSetting('general'))
+  <up
+#foreach ($setting in $cfg.getSettings($group))
+      up.${setting.ProfileName}="$!{setting.Value}"
+#end
+    >
+#set ($pictureFrame = $cfg.EndpointSettings.getSetting('up').getSetting('pictureFrame'))
+    <up.pictureFrame
+#foreach ($setting in $cfg.getSettings($pictureFrame))
+      up.pictureFrame.${setting.ProfileName}="$!{setting.Value}"
+#end
+    />
+#set ($screenSaver = $cfg.EndpointSettings.getSetting('up').getSetting('screenSaver'))
+    <up.screenSaver
+#foreach ($setting in $cfg.getSettings($screenSaver))
+      up.screenSaver.${setting.ProfileName}="$!{setting.Value}"
+#end
+    />
+  </up>
 </polycomConfig>
