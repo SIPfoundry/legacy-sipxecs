@@ -24,27 +24,60 @@
    #end
 #end
 <polycomConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="polycomConfig.xsd">
-## SIMILIAR DIALPLAN SECTION EXISTS IN phone.cfg.vm
-## to control dialplans for each line
   <dialplan
 #set ($group = $cfg.EndpointSettings.getSetting('dialplan'))
 #foreach ($setting in $cfg.getSettings($group))
     dialplan.${setting.ProfileName}="$!{setting.Value}"
 #end
+
+##LINES DIALPLAN
+#foreach ($line in $lines)
+#set ($i = $velocityCount)
+#set ($group = $line.getSetting('line-dialplan'))
+#foreach ($setting in $cfg.getSettings($group))
+    dialplan.${i}.${setting.ProfileName}="$!{setting.Value}"
+#end
+    dialplan.${i}.applyToUserSend="1"
+    dialplan.${i}.applyToUserDial="1"
+    dialplan.${i}.applyToCallListDial="0"
+    dialplan.${i}.applyToDirectoryDial="0"
+#end
+
+#foreach ($line in $lines)
+#set ($i = $velocityCount)
+#set ($group = $line.getSetting('line-dialplan').getSetting('digitmap'))
+#foreach ($setting in $cfg.getSettings($group))
+      dialplan.${i}.${setting.ProfileName}="$!{setting.Value}"
+#end
+#end
+#foreach ($line in $lines)
+#set ($i = $velocityCount)
+#set ($group = $line.getSetting('line-dialplan').getSetting('digitmap').getSetting("routing.1"))
+        dialplan.${i}.routing.server.1.address="$!{group.getSetting('address').Value}"
+        dialplan.${i}.routing.server.1.port="$!{group.getSetting('port').Value}"
+#end
+#foreach ($line in $lines)
+#set ($i = $velocityCount)
+#foreach ($emergencyVal in $cfg.getLineEmergencySetting($line))
+#set ($j = $velocityCount)
+        dialplan.${i}.routing.emergency.${j}.value="$!{emergencyVal}"
+        dialplan.${i}.routing.emergency.${j}.server.1="1"
+#end
+#end
   >
-     <digitmap
+     <dialplan.digitmap
 #set ($group = $cfg.EndpointSettings.getSetting('dialplan').getSetting('digitmap'))
 #foreach ($setting in $cfg.getSettings($group))
       dialplan.${setting.ProfileName}="$!{setting.Value}"
 #end
     />
-    <routing>
-      <server
+    <dialplan.routing>
+      <dialplan.routing.server
 #set ($group = $cfg.EndpointSettings.getSetting('dialplan').getSetting('digitmap').getSetting('routing.1'))
         dialplan.routing.server.1.address="$!{group.getSetting('address').Value}"
         dialplan.routing.server.1.port="$!{group.getSetting('port').Value}"
       />
-      <emergency
+      <dialplan.routing.emergency
 #set ($group = $cfg.EndpointSettings.getSetting('dialplan').getSetting('digitmap').getSetting('routing.1'))
 #set ($index = 1)
 #foreach ($emergencyVal in $cfg.EmergencySetting)
@@ -52,7 +85,7 @@
 #set ($index = $index+1)
 #end
       />
-    </routing>
+    </dialplan.routing>
   </dialplan>
   <lcl>
 #set ($setting = $cfg.EndpointSettings.getSetting('localization/language'))
@@ -119,12 +152,14 @@
    #computeCodecSettings($setting $prefix)
 #end
       />
-    <voice.volume
+    <voice.volume>
+      <voice.volume.persist
 #set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('volume'))
 #foreach ($setting in $cfg.getSettings($group))
       voice.volume.${setting.ProfileName}="$!{setting.Value}"
 #end
     />
+    </voice.volume>
       <voice.audioProfile
 #set($voice_audioProfile_G7221_24kbps_payloadType = "127")
       voice.audioProfile.G7221.24kbps.payloadType="$!{voice_audioProfile_G7221_24kbps_payloadType}"
@@ -136,7 +171,6 @@
 #end
 #end
       />
-    </codecs>
     <voice.vad
 #set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('vad'))
 #foreach ($setting in $cfg.getSettings($group))
@@ -174,7 +208,7 @@
         />
 #end
       </qos.ip.rtp>
-      <qos.ip.rtp.callControl
+      <qos.ip.callControl
 #set ($group = $cfg.EndpointSettings.getSetting('qos').getSetting('ip.callControl'))
 #foreach ($setting in $cfg.getSettings($group))
         qos.ip.callControl.${setting.ProfileName}="$!{setting.Value}"
@@ -198,12 +232,14 @@
 #end
       />
     </tcpIpApp.port>
-    <tcpIpApp.keepalive
+    <tcpIpApp.keepalive>
+     <tcpIpApp.keepalive.tcp
 #set ($group = $cfg.EndpointSettings.getSetting('tcpIpApp.keepalive.tcp'))
 #foreach ($setting in $cfg.getSettings($group))
       tcpIpApp.keepalive.tcp.${setting.ProfileName}="$!{setting.Value}"
 #end
     />
+  </tcpIpApp.keepalive>
   </tcpIpApp>
 
   <httpd
@@ -256,7 +292,7 @@
 #end
       />
     </sec.pwd>
-
+</sec>
 #if ($phone.model.isSupported("video"))
   <powerSaving
 #set ($group = $cfg.EndpointSettings.getSetting('powerSaving'))
@@ -294,7 +330,7 @@
 #end
 #end
   >
-    <fwd
+    <divert.fwd
 #foreach ($line in $lines)
 #set ($i = $velocityCount)
 #set ($group = $line.getSetting('divert').getSetting('fwd'))
@@ -303,7 +339,7 @@
 #end
 #end
     />
-    <busy
+    <divert.busy
 #foreach ($line in $lines)
 #set ($i = $velocityCount)
 #set ($group = $line.getSetting('divert').getSetting('busy'))
@@ -312,7 +348,7 @@
 #end
 #end
     />
-    <noanswer
+    <divert.noanswer
 #foreach ($line in $lines)
 #set ($i = $velocityCount)
 #set ($group = $line.getSetting('divert').getSetting('noanswer'))
@@ -321,7 +357,7 @@
 #end
 #end
     />
-    <dnd
+    <divert.dnd
 #foreach ($line in $lines)
 #set ($i = $velocityCount)
 #set ($group = $line.getSetting('divert').getSetting('dnd'))
@@ -332,50 +368,7 @@
     />
   </divert>
   
-##LINES DIALPLAN
-  <dialplan
-#foreach ($line in $lines)
-#set ($i = $velocityCount)
-#set ($group = $line.getSetting('line-dialplan'))
-#foreach ($setting in $cfg.getSettings($group))
-    dialplan.${i}.${setting.ProfileName}="$!{setting.Value}"
-#end
-    dialplan.${i}.applyToUserSend="1"
-    dialplan.${i}.applyToUserDial="1"
-    dialplan.${i}.applyToCallListDial="0"
-    dialplan.${i}.applyToDirectoryDial="0"
-#end
-  >
-    <digitmap
-#foreach ($line in $lines)
-#set ($i = $velocityCount)
-#set ($group = $line.getSetting('line-dialplan').getSetting('digitmap'))
-#foreach ($setting in $cfg.getSettings($group))
-      dialplan.${i}.${setting.ProfileName}="$!{setting.Value}"
-#end
-#end
-    />
-    <routing>
-      <server
-#foreach ($line in $lines)
-#set ($i = $velocityCount)
-#set ($group = $line.getSetting('line-dialplan').getSetting('digitmap').getSetting("routing.1"))
-        dialplan.${i}.routing.server.1.address="$!{group.getSetting('address').Value}"
-        dialplan.${i}.routing.server.1.port="$!{group.getSetting('port').Value}"
-#end
-      />
-      <emergency
-#foreach ($line in $lines)
-#set ($i = $velocityCount)
-#foreach ($emergencyVal in $cfg.getLineEmergencySetting($line))
-#set ($j = $velocityCount)
-        dialplan.${i}.routing.emergency.${j}.value="$!{emergencyVal}"
-        dialplan.${i}.routing.emergency.${j}.server.1="1"
-#end
-#end
-      />
-    </routing>
-  </dialplan>
+
 <device device.set="1"
 #set ($group = $cfg.EndpointSettings.getSetting('log').getSetting('device.syslog'))
 #foreach ($setting in $cfg.getSettings($group))
