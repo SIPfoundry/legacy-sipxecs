@@ -1975,7 +1975,7 @@
       <type>
         <boolean />
       </type>
-      <value />
+      <value>0</value>
     </setting>
     <group name="volatile">
       <setting name="dir.local.volatile.maxSize">
@@ -1997,7 +1997,7 @@
       <type>
         <boolean />
       </type>
-      <value />
+      <value>0</value>
     </setting>
   </group>
   <group name="key">
@@ -2421,25 +2421,25 @@
     </setting>
   </group>
   <group name="feature">
-    <setting name="presence.enabled">
+    <setting name="presence">
       <type>
         <boolean />
       </type>
       <value>0</value>
     </setting>
-    <setting name="messaging.enabled">
+    <setting name="messaging">
       <type>
         <boolean />
       </type>
       <value>0</value>
     </setting>
-    <setting name="directory.enabled">
+    <setting name="directory">
       <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="calllist.enabled" if="disableCallList">
+    <setting name="calllist" if="disableCallList">
       <type>
         <boolean />
       </type>
@@ -2452,8 +2452,26 @@
       </type>
       <value>1</value>
     </setting>
+    <setting name="ringDownload">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="calllistReceived" if="disableCallList">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
     <setting name="calllist-received_hidden" hidden="yes" unless="disableCallList">
       <profileName>calllist-received</profileName>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="calllistPlaced" if="disableCallList">
       <type>
         <boolean />
       </type>
@@ -2466,8 +2484,86 @@
       </type>
       <value>1</value>
     </setting>
+    <setting name="calllistMissed" if="disableCallList">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
     <setting name="calllist-missed_hidden" hidden="yes" unless="disableCallList">
       <profileName>calllist-missed</profileName>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="urlDialing">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="callPark">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="groupCallPickup">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="directedCallPickup">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="lastCallReturn">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="acdLoginLogout">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="acdAgentAvailability">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="acdPremiumUnavailability" advanced="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="acdServiceControlUri">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="bluetooth">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="callCenterStatus">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="nwayConference" if="nway-conference" unless="polycom7000">
       <type>
         <boolean />
       </type>
@@ -2487,13 +2583,25 @@
       </type>
       <value>1</value>
     </setting>
-    <setting name="callRecording.enabled" advanced="yes">
+    <setting name="callRecording" advanced="yes">
       <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="enhancedFeatureKeys.enabled">
+    <setting name="corporateDirectory">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="enhancedFeatureKeys">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="enhancedCallDisplay">
       <type>
         <boolean />
       </type>
@@ -3611,108 +3719,104 @@
         <value></value>
       </setting>
     </group>
-    <group name="bg" hidden="yes" if="polycomVVX500||polycom550||polycom560||polycom650||polycom670||polycom450||polycomVVX1500">
-      <setting name="bg.color.selection" if="polycomVVX500">
+    <group name="polycomVVX500bg" hidden="yes">
+      <setting name="selection">
         <type>
-		  <string />
-		</type>
+          <string />
+        </type>
         <value>2,1</value>        
       </setting>
-      <setting name="bg.color.bm.1.em.name" if="polycomVVX500">
+      <setting name="bm.1.em.name">
         <type>
-		  <string />
-		</type>
+	      <string />
+	    </type>
         <value>ezLogo320x240.jpg</value>        
       </setting>
-      <setting name="bg.color.bm.1.name" if="polycomVVX500">
+       <setting name="bm.1.name">
         <type>
-		  <string />
-		</type>
+          <string />
+        </type>
         <value>ezLogo320x240.jpg</value>        
       </setting>
-      <setting name="bg.hiRes.gray.selection" if="polycom550||polycom560||polycom650">
+    </group>
+    <group name="polycom550bg" hidden="yes">
+      <setting name="selection">
         <type>
-		  <string />
-		</type>
+          <string />
+        </type>
         <value>3,1</value>
       </setting>
-      <setting name="bg.hiRes.gray.bm.1.em.name" if="polycom550||polycom560||polycom650">
+      <setting name="bm.1.em.name">
+      <type>
+        <string />
+      </type>
+      <value>ezLogo320x160.jpg</value>        
+      </setting>
+      <setting name="bm.1.name">
         <type>
-		  <string />
-		</type>
+          <string />
+        </type>
         <value>ezLogo320x160.jpg</value>        
       </setting>
-      <setting name="bg.hiRes.gray.bm.1.name" if="polycom550||polycom560||polycom650">
+      <setting name="bm.1.adj">
         <type>
-		  <string />
-		</type>
-        <value>ezLogo320x160.jpg</value>        
-      </setting>
-      <setting name="bg.hiRes.gray.bm.1.adj" if="polycom550||polycom560||polycom650">
-        <type>
-		  <string />
-		</type>
+          <string />
+        </type>
         <value>-6</value>        
       </setting>
-      <setting name="bg.hiRes.color.selection" if="polycom670">
+    </group>
+    <group name="polycom670bg" hidden="yes">
+      <setting name="selection">
         <type>
-		  <string />
-		</type>
+          <string />
+        </type>
         <value>3,1</value>
       </setting>
-      <setting name="bg.hiRes.color.bm.1.em.name" if="polycom670">
+      <setting name="bm.1.em.name">
         <type>
-		  <string />
-		</type>
+          <string />
+        </type>
         <value>ezLogo320x160.jpg</value>        
       </setting>
-      <setting name="bg.hiRes.color.bm.1.name" if="polycom670">
+      <setting name="bm.1.name">
         <type>
-		  <string />
-		</type>
-        <value>ezLogo320x160.jpg</value>        
+          <string />
+        </type>
+        <value>ezLogo320x160.jpg</value>
       </setting>
-      <setting name="bg.medRes.gray.selection" if="polycom450">
+    </group>
+    <group name="polycom450bg" hidden="yes">
+      <setting name="selection">
         <type>
-		  <string />
-		</type>
+          <string />
+        </type>
         <value>3,1</value>
       </setting>
-      <setting name="bg.medRes.gray.bm.1.em.name" if="polycom450">
+      <setting name="bm.1.name">
         <type>
-		  <string />
-		</type>
-        <value>ezLogo250x116.jpg</value>        
+          <string />
+        </type>
+        <value>ezLogo250x116.jpg</value>
       </setting>
-      <setting name="bg.medRes.gray.bm.1.name" if="polycom450">
+      <setting name="bm.1.adj">
         <type>
-		  <string />
-		</type>
-        <value>ezLogo250x116.jpg</value>        
+          <string />
+        </type>
+        <value>-6</value>
       </setting>
-      <setting name="bg.medRes.gray.bm.1.adj" if="polycom450">
+    </group>
+    <group name="polycomVVX1500bg" hidden="yes">
+      <setting name="selection">
         <type>
-		  <string />
-		</type>
-        <value>-6</value>        
-      </setting>
-      <setting name="bg.hiRes.color.selection" if="polycomVVX1500">
-        <type>
-		  <string />
-		</type>
+          <string />
+        </type>
         <value>3,1</value>
       </setting>
-      <setting name="bg.hiRes.color.bm.1.em.name" if="polycomVVX1500">
+      <setting name="bm.1.em.name">
         <type>
-		  <string />
-		</type>
-        <value>ezLogo800x480.jpg</value>        
-      </setting>
-      <setting name="bg.hiRes.color.bm.1.name" if="polycomVVX1500">
-        <type>
-		  <string />
-		</type>
-        <value>ezLogo800x480.jpg</value>        
+          <string />
+        </type>
+        <value>ezLogo800x480.jpg</value>
       </setting>
     </group>
     <group name="calendar" if="exchangeIntegration">
