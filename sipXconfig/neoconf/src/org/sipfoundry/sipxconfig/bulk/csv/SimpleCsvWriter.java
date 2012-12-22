@@ -17,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 public class SimpleCsvWriter {
     private Writer m_writer;
     private boolean m_quote = true;
+    private char m_delim = CsvParserImpl.FIELD_SEPARATOR;
 
     public SimpleCsvWriter(Writer writer) {
         m_writer = writer;
@@ -46,7 +47,7 @@ public class SimpleCsvWriter {
                 line.append(CsvParserImpl.FIELD_QUOTE);
             }
             if (i < fields.length - 1) {
-                line.append(CsvParserImpl.FIELD_SEPARATOR);
+                line.append(m_delim);
             } else {
                 line.append('\n');
             }
@@ -79,5 +80,9 @@ public class SimpleCsvWriter {
 
     public void setQuote(boolean quote) {
         m_quote = quote;
+    }
+
+    public void setDelim(char delim) {
+        m_delim = delim;
     }
 }

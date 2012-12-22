@@ -21,6 +21,7 @@
 #include "os/OsLogger.h"
 #include "os/OsLoggerHelper.h"
 #include "os/UnixSignals.h"
+#include "os/OsTimer.h"
 
 #include "net/NameValueTokenizer.h"
 #include "sipXecsService/SipXecsService.h"
@@ -326,6 +327,11 @@ main(int argc, char* argv[] )
    {
       delete configDb;
    }
+
+   //
+   // Terminate the timer thread
+   //
+   OsTimer::terminateTimerService();
 
    // Flush the log file
    Os::Logger::instance().flush();

@@ -40,8 +40,7 @@ TaoProviderAdaptor::TaoProviderAdaptor(CpCallManager *pCallMgr,
         : TaoAdaptor("TaoProviderAdaptor-%d", maxRequestQMsgs),
         mpCallMgrTask(pCallMgr),
         mpMediaTask(NULL),
-        mpPhoneTask(NULL),
-        mpTimerTask(NULL)
+        mpPhoneTask(NULL)
 {
         mpSvrTransport = rpSvrTransport;
         parseMessage(rMsg);

@@ -11,9 +11,16 @@ help.app=Build all sipx apps including targets autoreconf, configure, all and in
 app :
 	$(MAKE) $(foreach P,$(app),$(P))
 
-$(foreach T,$(sipx) $(app),$(T)) : % : %.build;
-$(foreach T,$(sipx) $(app),$(T)...) : %... : %.build...;
-$(foreach T,$(sipx) $(app),$(T).build) : %.build : %.autoreconf %.configure %.all-install ;
+.PHONY:$(sipx) $(app)
+.SECONDEXPANSION:
+$(sipx) $(app) : $$($$@_DEPS)
+	@echo "$$rm_on_deps_change" | bash
+	@if ! test -f $(PROJ)/.installed ; then \
+	  $(MAKE) $@.build; \
+	  touch $(PROJ)/.installed; \
+	fi
+
+$(foreach T,$(sipx) $(app),$(T).build) : %.build : %.autoreconf %.configure %.all-install;
 
 help.{1|6}.all-install=Run 'make all install' in each target
 $(foreach T,$(sipx) $(app),$(T).all-install) : %.all-install : %.all %.install ;
@@ -45,10 +52,36 @@ help.{1|2|6}.dist = Build archive, typically compressed tar
 MAKE_COMMANDS = check install clean dist
 $(foreach C,$(MAKE_COMMANDS) all,$(eval help.{1}.$(C)=Run make $(C) on each project))
 $(foreach P,$(sipx) $(app),$(P).install) :; $(MAKE) -C $(PROJ) install
-$(foreach P,$(sipx) $(app),$(P).clean) :; $(MAKE) -C $(PROJ) clean
+$(foreach P,$(sipx) $(app),$(P).clean) :
+	$(MAKE) -C $(PROJ) clean
+	! test -f $(PROJ)/.installed || rm $(PROJ)/.installed
+
 $(foreach P,$(sipx) $(app),$(P).check) :; $(MAKE) -C $(PROJ) check
 
 # projects do not all have an "all" target, they probably should, until then, use
 # no-target default
 $(foreach C,all,$(foreach T,$(sipx) $(app),$(T).all)) :
 	$(MAKE) -C $(PROJ)
+
+# This first checks if any files have changed in a project, if not, then 
+# checks if any dependent projects were build since this project was
+# build. If so clear the build file
+define rm_on_deps_change
+	if test -f $(PROJ)/.installed ; then
+	  x=`find $(SRC)/$(PROJ) -type f -newer $(PROJ)/.installed -printf .`
+	  if [ -n "$$x" ] ; then
+	    rm $(PROJ)/.installed
+	  elif [ -n "$($@_DEPS)" ] ; then
+	    for f in $(addprefix $(PROJ)/,$($@_DEPS=.installed)) ; do
+	      if test -f $(PROJ)/.installed ; then
+	        if test -f $$f ; then
+	          if [ $$f -nt $(PROJ)/.installed ] ; then
+	            rm $(PROJ)/.installed
+	          fi
+	        fi
+	      fi
+	    done
+	  fi
+	fi
+endef
+export rm_on_deps_change

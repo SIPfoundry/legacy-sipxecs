@@ -537,7 +537,7 @@ public abstract class AbstractUser extends BeanWithGroups {
         setSettingTypedValue(ALT_EMAIL_ATTACH_AUDIO, alternateEmailAttachAudio);
     }
 
-    public Boolean getVoicemailServer() {
+    public Boolean isVoicemailServer() {
         Setting setting = null == getSettings() ? null : getSettings().getSetting(FREESWITH_VOICEMAIL.getPath());
         return null == setting ? Boolean.valueOf(EMPTY_STRING) : (setting.getTypedValue() == null ? Boolean
                 .valueOf(EMPTY_STRING) : (Boolean) setting.getTypedValue());

@@ -16,6 +16,7 @@
 #include <os/OsFS.h>
 #include <os/OsSocket.h>
 #include <os/UnixSignals.h>
+#include <os/OsTimer.h>
 #include <xmlparser/tinystr.h>
 #include "xmlparser/ExtractContent.h"
 #include <utl/UtlString.h>
@@ -474,7 +475,12 @@ int main(int argc, char* argv[])
    
    // Delete the LineMgr Object
    delete lineMgr;
-   
+
+   //
+   // Terminate the timer thread
+   //
+   OsTimer::terminateTimerService();
+
    // Say goodnight Gracie...
    Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "Exiting") ;
    Os::Logger::instance().flush();

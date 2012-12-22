@@ -13,6 +13,7 @@
 #include <process.h>
 #endif
 
+#include <os/OsTimer.h>
 #include "rtcp/RTCPTimer.h"
 #ifdef INCLUDE_RTCP /* [ */
 

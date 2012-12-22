@@ -27,17 +27,6 @@ PROJ = $(filter $(all),$(subst ., ,$@))
 proj = $(call lowercase,$(PROJ))
 PROJ_REVISION = $(shell cd $(SRC)/$(PROJ) && ./config/revision-gen @PACKAGE_VERSION@)
 
-# find any matches of $(sipx) or $(lib) anywhere in a target string and expands it into multiple target that
-# would follow the given target.  
-# example:  foo.B.bar...  becomes  'foo.B.bar foo.C.bar'   when list is 'A B C'
-after = $(shell echo $(space)$2$(space) | awk -F : '{if (match($$0,/ $1 /)) {print substr($$0,RSTART)}}')
-..._sipx_list = $(call after,$(PROJ),$(sipx))
-..._sipx_expanded = $(foreach T,$(..._sipx_list),$(subst $(PROJ),$(T),$*))
-..._lib_list = $(call after,$(PROJ),$(lib))
-..._lib_expanded = $(foreach T,$(..._lib_list),$(subst $(PROJ),$(T),$*))
-..._app_list = $(call after,$(PROJ),$(app))
-..._app_expanded = $(foreach T,$(..._app_list),$(subst $(PROJ),$(T),$*))
-
 default-first-target : help;
 
 sipx.% :
@@ -54,16 +43,6 @@ app.list lib.list sipx.list : %.list :
 	@echo $($*)
 
 include $(sort $(wildcard mak/*.mk))
-
-help.*{1|2}*... = Perform all targets would normally follow the given target in addition to the target itself.\
- Very useful when you want to pick-up the build where it last stopped. For example 'make sipXthree...' would\
- expand to 'make sipXthree sipXfour sipXfive' but it would not include 'make sipXone sipXtwo'. You can use\
- the ... pattern anywhere you a specify a package name. Examples: 'make sipXconfig.rpm...',\
- 'make distro.centos-5-i386.OpenACD.rpm...'.  See 'make sipx.list lib.list' for what the natural order of\
- packages.
-
-%... :
-	$(MAKE) $(..._sipx_expanded) $(..._lib_expanded) $(..._app_expanded)
 
 help-values.{1} = Any sipXecs package. For all sipXecs packages use 'sipx'. Complete list of sipXecs packages : $(sipx)
 help-values.{2} = Any dependency package. For all dependencies use 'lib'.  Complete list of dependencies : $(lib)

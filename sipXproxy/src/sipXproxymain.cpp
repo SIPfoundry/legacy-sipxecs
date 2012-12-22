@@ -18,7 +18,7 @@
 #include <os/OsConfigDb.h>
 #include <os/OsSocket.h>
 #include <os/OsTask.h>
-#include <os/OsTimerTask.h>
+#include <os/OsTimer.h>
 #include <os/OsStunAgentTask.h>
 #include <os/OsLogger.h>
 #include <os/OsLoggerHelper.h>
@@ -712,7 +712,7 @@ int proxy()
     }
 
     // End the singleton threads.
-    OsTimerTask::destroyTimerTask();
+    OsTimer::terminateTimerService();
     OsStunAgentTask::releaseInstance();
 
     return 0 ;

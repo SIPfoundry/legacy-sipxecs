@@ -18,6 +18,7 @@
 #include "os/OsConfigDb.h"
 #include "os/OsLogger.h"
 #include "os/OsLoggerHelper.h"
+#include "os/OsTimer.h"
 #include "os/UnixSignals.h"
 #include "sipdb/EntityDB.h"
 #include "sipXecsService/SipXecsService.h"
@@ -447,6 +448,11 @@ int main(int argc, char* argv[])
       saa.shutdown();
    }
 
+   //
+   // Terminate the timer thread
+   //
+   OsTimer::terminateTimerService();
+   
    // Flush the log file
    Os::Logger::instance().flush();
 

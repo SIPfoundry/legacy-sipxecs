@@ -44,6 +44,8 @@ public class ResourceLists {
         Document document = XmlFile.FACTORY.createDocument();
         Element lists = document.addElement("lists", NAMESPACE);
         Element imList = null;
+        // TIP : To avoid loading all users, can't this query
+        //  use { "spdl" : { "$exists" : true } } instead? --Douglas
         DBCursor cursor = m_validUsers.getUsers();
         while (cursor.hasNext()) {
             DBObject user = cursor.next();

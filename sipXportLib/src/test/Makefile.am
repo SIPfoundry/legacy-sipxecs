@@ -55,7 +55,6 @@ testsuite_SOURCES = \
     os/OsTestUtilities.h \
     os/OsNameDbTest.cpp \
     os/OsCallbackTest.cpp \
-    os/OsTimerTaskTest.cpp \
     os/OsTimeTest.cpp \
     os/OsEventTest.cpp \
     os/OsLockTest.cpp \
@@ -63,7 +62,6 @@ testsuite_SOURCES = \
     os/OsMutexTest.cpp \
     os/OsSemTest.cpp \
     os/OsSocketTest.cpp \
-    os/OsSysLogTest.cpp \
     os/OsConfigDbTest.cpp \
     os/OsFileIteratorTest.cpp \
     os/OsFileSystemTest.cpp \

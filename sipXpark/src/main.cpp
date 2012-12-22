@@ -17,6 +17,7 @@
 #include <os/OsLogger.h>
 #include <os/OsConfigDb.h>
 #include <os/UnixSignals.h>
+#include <os/OsTimer.h>
 #include <net/NameValueTokenizer.h>
 #include <net/SipPublishContentMgr.h>
 #include <persist/SipPersistentSubscriptionMgr.h>
@@ -670,6 +671,11 @@ int main(int argc, char* argv[])
        }
 
     }
+
+    //
+    // Terminate the timer thread
+    //
+    OsTimer::terminateTimerService();
 
     // Flush the log file
     Os::Logger::instance().flush();
