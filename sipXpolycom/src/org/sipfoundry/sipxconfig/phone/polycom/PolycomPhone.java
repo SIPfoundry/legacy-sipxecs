@@ -79,6 +79,7 @@ public class PolycomPhone extends Phone {
     static final String MB_MAIN_HOME_STATUSBAR = "mb/main/statusbar";
     static final String MB_LIMITS_NODES = "mb/limits/nodes";
     static final String MB_LIMITS_CACHE = "mb/limits/cache";
+    static final String[] UNSUPPORTED_MODELS = new String[]{"polycom300", "polycom500"};
 
     private AddressManager m_addressManager;
 
