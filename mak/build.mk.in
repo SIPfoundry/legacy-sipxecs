@@ -14,7 +14,10 @@ app :
 .PHONY:$(sipx) $(app)
 .SECONDEXPANSION:
 $(sipx) $(app) : $$($$@_DEPS)
-	@echo "$$rm_on_deps_change" | bash
+	@echo "$$rm_on_deps_change" | \
+	  DEP_TARGETS="$(addprefix $(PROJ)/,$($@_DEPS=.installed))" \
+	  TARGET=$(PROJ)/.installed \
+	  bash
 	@if ! test -f $(PROJ)/.installed ; then \
 	  $(MAKE) $@.build; \
 	  touch $(PROJ)/.installed; \
@@ -67,16 +70,16 @@ $(foreach C,all,$(foreach T,$(sipx) $(app),$(T).all)) :
 # checks if any dependent projects were build since this project was
 # build. If so clear the build file
 define rm_on_deps_change
-	if test -f $(PROJ)/.installed ; then
-	  x=`find $(SRC)/$(PROJ) -type f -newer $(PROJ)/.installed -printf .`
+	if test -f $$TARGET ; then
+	  x=`find $(SRC)/$(PROJ) -type f -newer $$TARGET -printf .`
 	  if [ -n "$$x" ] ; then
-	    rm $(PROJ)/.installed
+	    rm $$TARGET
 	  elif [ -n "$($@_DEPS)" ] ; then
-	    for f in $(addprefix $(PROJ)/,$($@_DEPS=.installed)) ; do
-	      if test -f $(PROJ)/.installed ; then
+	    for f in $$DEP_TARGETS ; do
+	      if test -f $$TARGET ; then
 	        if test -f $$f ; then
-	          if [ $$f -nt $(PROJ)/.installed ] ; then
-	            rm $(PROJ)/.installed
+	          if [ $$f -nt $$TARGET ] ; then
+	            rm $$TARGET
 	          fi
 	        fi
 	      fi
