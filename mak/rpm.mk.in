@@ -24,7 +24,6 @@ MOCK_OPTS = \
 # Define sipx SRPMS and tarball files. Cannot define RPM files however as one specfile may generate many rpms
 $(foreach P,$(sipx) $(app),$(eval $(P)_SRPM = $$(call lowercase,$(P))-$(PACKAGE_VERSION)-$$(PROJ_REVISION).src.rpm))
 # Only the main rpm
-$(foreach P,$(sipx) $(app),$(eval $(P)_RPM = $$(call lowercase,$(P))-$(PACKAGE_VERSION)-$$(PROJ_REVISION).*.rpm))
 $(foreach P,$(sipx) $(app),$(eval $(P)_TAR = $(P)/$$(call lowercase,$(P))-$(PACKAGE_VERSION).tar.gz))
 
 # pull in dependency make fragments
@@ -51,15 +50,16 @@ $(foreach D,@ALL_DISTROS@, $(eval distro.$(D).% :; $$(MAKE) $$* $$(SUBMAKE_VARS)
 help.{1|2}.rpm = Build RPMs, you must have mock installed. See Experimental call to build rpms. See \
   http://wiki.sipfoundry.org/display/sipXecs/Building+RPMS+on+CentOS+or+Fedora
 
+RPM_TARGET = $(MOCK_RESULTS_DIR)/.$(PROJ).rpm
 .SECONDEXPANSION:
 $(all:=.rpm) : %.rpm : $$(addsuffix .rpm,$$($$*_DEPS))
 	@echo "$$rm_on_deps_change" | \
 	  DEP_TARGETS="$(foreach D,$($(PROJ)_DEPS),$(MOCK_RESULTS_DIR)/.$(D).rpm)" \
-	  TARGET=$(MOCK_RESULTS_DIR)/.$(PROJ).rpm \
+	  TARGET=$(RPM_TARGET) \
 	  bash
-	@if ! test -f $(MOCK_RESULTS_DIR)/.$(PROJ).rpm ; then \
+	@if ! test -f $(RPM_TARGET) ; then \
 	  $(MAKE) $(PROJ).rpm-build; \
-	  touch $(MOCK_RESULTS_DIR)/.$(PROJ).rpm; \
+	  touch $(RPM_TARGET); \
 	fi
 
 $(all:=.rpm-build) : %.rpm-build : %.autoreconf %.configure %.dist %.srpm %.rpm-by-mock;
@@ -128,7 +128,7 @@ repo-clean :
 # this is problematic
 repo-webserver :
 	-killall thttpd
-	find $(MOCK_RESULTS_DIR) -type f -exec touch {} \;
+	find $(MOCK_RESULTS_DIR) -type f -not -path '*/.*.rpm' -exec touch {} \;
 	/usr/sbin/thttpd -d @RPM_DIST_DIR@ -p 40100 -M 0
 
 help.repo-src = Assemble source rpms into @RPM_DIST_DIR@/$(DISTRO_RESULTS_DIR)/source
