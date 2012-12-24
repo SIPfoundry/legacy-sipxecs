@@ -100,7 +100,7 @@ public class Servlet extends HttpServlet {
     private static final Pattern POLYCOM_40_PATH_RE = Pattern
             .compile(String
                     .format(POLYCOM_PATH_FORMAT_RE_STR,
-                            "(sipx-(applications)||(sip-interop)||(reg-advanced)||(reg-basic)||(region)||(sip-basic)||(video)||(site)||(features)).cfg"));
+                            "sipx-((applications)|(sip-interop)|(reg-advanced)|(region)|(sip-basic)|(video)|(site)|(features)).cfg"));
 
     private static final String POLYCOM_UA_DELIMITER = "UA/";
 
