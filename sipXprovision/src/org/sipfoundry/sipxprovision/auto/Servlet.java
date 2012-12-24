@@ -399,12 +399,17 @@ public class Servlet extends HttpServlet {
 
     protected static String extractPolycomVersion(DetectedPhone phone) {
         if (phone.model.sipxconfig_id != null && phone.model.sipxconfig_id.contains("polycom")) {
-            return extractPolycomVersion(phone.version);
+            return formatPolycomVersion(phone.version);
         }
         return "";
     }
 
-    protected static String extractPolycomVersion(String version) {
+    /**
+     * Format the Polycom version as defined in PolycomModel bean
+     * @param version
+     * @return
+     */
+    protected static String formatPolycomVersion(String version) {
             return (new StringBuilder(version.substring(0, 3).concat(".X"))).toString();
     }
     
@@ -449,15 +454,15 @@ public class Servlet extends HttpServlet {
         return success;
     }
 
-    protected boolean doUpdatePhone(String mac, String version, HttpServletResponse response) {
+    protected boolean doUpdatePhone(String mac, String version, String model, HttpServletResponse response) {
 
         boolean success = false;
         try {
-            LOG.info(String.format("update phone %s to version %s", mac, extractPolycomVersion(version)));
+            LOG.info(String.format("update phone %s to version %s", mac, formatPolycomVersion(version)));
 
             // Construct the REST request.
-            String uri = String.format("%s/rest/updatephone/%s/%s", m_config.getConfigurationUri(), mac,
-                    extractPolycomVersion(version));
+            String uri = String.format("%s/rest/updatephone/%s/%s/%s", m_config.getConfigurationUri(), mac,
+                    formatPolycomVersion(version),model);
             HttpURLConnection connection = createRestConnection("GET", uri);
 
             // Do the HTTPS GET, and write the content.
@@ -553,9 +558,10 @@ public class Servlet extends HttpServlet {
             return;
         } else if (path.contains("firmwareUpdate")) {
             phone = new DetectedPhone();
+            extractPolycomModelAndVersion(phone, useragent);
             phone.mac = extractMac(path, POLYCOM_PATH_PREFIX);
             if (null != phone.mac && extractPolycomModelAndVersion(phone, useragent)) {
-                doUpdatePhone(phone.mac, phone.version, response);
+                doUpdatePhone(phone.mac, phone.version, phone.model.sipxconfig_id, response);
             }
             return;
         }
@@ -753,9 +759,9 @@ public class Servlet extends HttpServlet {
         // - http://wiki.sipfoundry.org/display/xecsuser/Polycom
         // - plugins/polycom/src/org/sipfoundry/sipxconfig/phone/polycom/polycom-models.beans.xml
         PHONE_MODEL_MAP.put("SPIP_300", new PhoneModel("polycom300", "SoundPoint IP 300"));
-        PHONE_MODEL_MAP.put("SPIP_301", new PhoneModel("polycom300", "SoundPoint IP 301"));
+        PHONE_MODEL_MAP.put("SPIP_301", new PhoneModel("polycom301", "SoundPoint IP 301"));
 
-        PHONE_MODEL_MAP.put("SPIP_320", new PhoneModel("polycom330", "SoundPoint IP 320"));
+        PHONE_MODEL_MAP.put("SPIP_320", new PhoneModel("polycom320", "SoundPoint IP 320"));
         PHONE_MODEL_MAP.put("SPIP_330", new PhoneModel("polycom330", "SoundPoint IP 330"));
 
         PHONE_MODEL_MAP.put("SPIP_321", new PhoneModel("polycom321", "SoundPoint IP 321"));
@@ -769,13 +775,13 @@ public class Servlet extends HttpServlet {
         PHONE_MODEL_MAP.put("SPIP_450", new PhoneModel("polycom450", "SoundPoint IP 450"));
 
         PHONE_MODEL_MAP.put("SPIP_500", new PhoneModel("polycom500", "SoundPoint IP 500"));
-        PHONE_MODEL_MAP.put("SPIP_501", new PhoneModel("polycom500", "SoundPoint IP 501"));
+        PHONE_MODEL_MAP.put("SPIP_501", new PhoneModel("polycom501", "SoundPoint IP 501"));
 
         PHONE_MODEL_MAP.put("SPIP_550", new PhoneModel("polycom550", "SoundPoint IP 550"));
-        PHONE_MODEL_MAP.put("SPIP_560", new PhoneModel("polycom550", "SoundPoint IP 560"));
+        PHONE_MODEL_MAP.put("SPIP_560", new PhoneModel("polycom560", "SoundPoint IP 560"));
 
         PHONE_MODEL_MAP.put("SPIP_600", new PhoneModel("polycom600", "SoundPoint IP 600"));
-        PHONE_MODEL_MAP.put("SPIP_601", new PhoneModel("polycom600", "SoundPoint IP 601"));
+        PHONE_MODEL_MAP.put("SPIP_601", new PhoneModel("polycom601", "SoundPoint IP 601"));
 
         PHONE_MODEL_MAP.put("SPIP_650", new PhoneModel("polycom650", "SoundPoint IP 650"));
         PHONE_MODEL_MAP.put("SPIP_670", new PhoneModel("polycom650", "SoundPoint IP 670"));
