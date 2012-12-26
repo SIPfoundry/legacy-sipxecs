@@ -71,7 +71,10 @@ $(foreach C,all,$(foreach T,$(sipx) $(app),$(T).all)) :
 # build. If so clear the build file
 define rm_on_deps_change
 	if test -f $$TARGET ; then
-	  x=`find $(SRC)/$(PROJ) -type f -newer $$TARGET -printf .`
+	  x=`find $(SRC)/$(PROJ) -type f \( \
+	       -not -name configure \
+	       -a -not -path '*/autom4te.cache/*' \
+	       -a -newer $$TARGET \) -printf .`
 	  if [ -n "$$x" ] ; then
 	    rm $$TARGET
 	  elif [ -n "$($@_DEPS)" ] ; then
