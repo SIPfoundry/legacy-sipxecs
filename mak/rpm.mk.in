@@ -26,9 +26,6 @@ $(foreach P,$(sipx) $(app),$(eval $(P)_SRPM = $$(call lowercase,$(P))-$(PACKAGE_
 # Only the main rpm
 $(foreach P,$(sipx) $(app),$(eval $(P)_TAR = $(P)/$$(call lowercase,$(P))-$(PACKAGE_VERSION).tar.gz))
 
-# pull in dependency make fragments
-include $(SRC)/*/.sipxecs.mk
-
 # Allows to target other distros other than the default
 help-values.{3} = Any of the available distros identifiers. Complete list: all @ALL_DISTROS@
 help-values.{4} = Any rpm related target. Partial list : autoreconf dist rpm srpm rpm-check
@@ -47,23 +44,6 @@ distro.all.% :
 # only makes x once. usually not what you want and not what we want here
 $(foreach D,@ALL_DISTROS@, $(eval distro.$(D).% :; $$(MAKE) $$* $$(SUBMAKE_VARS)))
 
-help.{1|2}.rpm = Build RPMs, you must have mock installed. See Experimental call to build rpms. See \
-  http://wiki.sipfoundry.org/display/sipXecs/Building+RPMS+on+CentOS+or+Fedora
-
-RPM_TARGET = $(MOCK_RESULTS_DIR)/.$(PROJ).rpm
-.SECONDEXPANSION:
-$(all:=.rpm) : %.rpm : $$(addsuffix .rpm,$$($$*_DEPS))
-	@echo "$$rm_on_deps_change" | \
-	  DEP_TARGETS="$(foreach D,$($(PROJ)_DEPS),$(MOCK_RESULTS_DIR)/.$(D).rpm)" \
-	  TARGET=$(RPM_TARGET) \
-	  bash
-	@if ! test -f $(RPM_TARGET) ; then \
-	  $(MAKE) $(PROJ).rpm-build; \
-	  touch $(RPM_TARGET); \
-	fi
-
-$(all:=.rpm-build) : %.rpm-build : %.autoreconf %.configure %.dist %.srpm %.rpm-by-mock;
-
 CopySourceFile = \
 	if [ -f $1 ]; then \
 	  cp $1 $2; \
@@ -74,8 +54,23 @@ CopySourceFile = \
 	  cp @DOWNLOAD_LIB_CACHE@/$(notdir $1) $2; \
 	fi; \
 
+SRPM_DEP = $(MOCK_SRPM_DIR)/.dep.$(PROJ)
 help.{1|2}.srpm = Called automatically as part of rpm process after srpm target. Uses rpmbuild command after dist target
-%.srpm :
+$(all:=.srpm) : %.srpm :
+	@if test -f $(SRPM_DEP) ; then \
+	  x=`find $(SRC)/$(PROJ)/ -type f \( \
+	       -not -name configure \
+	       -a -not -path '*/autom4te.cache/*' \
+	       -a -newer $(SRPM_DEP) \) -printf .`; \
+	  if [ -n "$$x" ] ; then \
+	    rm $(SRPM_DEP); \
+	  fi; \
+	fi
+	@if ! test -f $(SRPM_DEP) ; then \
+	  $(MAKE) $(PROJ).srpm-build && touch $(SRPM_DEP); \
+	fi
+
+$(all:=.srpm-build) : %.srpm-build : %.autoreconf %.configure %.dist
 	test -d @DOWNLOAD_LIB_CACHE@ || mkdir -p @DOWNLOAD_LIB_CACHE@
 	test -d $(MOCK_SRPM_DIR) || mkdir -p $(MOCK_SRPM_DIR)
 	if [ -n "$($(PROJ)_SPEC)" ]; then \
@@ -88,16 +83,37 @@ help.{1|2}.srpm = Called automatically as part of rpm process after srpm target.
 	fi
 	cp @RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM) $(MOCK_SRPM_DIR)
 
-help.{1|2}.rpm-by-mock = Called automatically as part of rpm process after srpm target. Uses mock program to build rpm
-%.rpm-by-mock : repo-webserver
+help.{1|2}.rpm = Build RPMs, you must have mock installed. See Experimental call to build rpms. See \
+  http://wiki.sipfoundry.org/display/sipXecs/Building+RPMS+on+CentOS+or+Fedora
+.SECONDEXPANSION:
+RPM_DEP = $(MOCK_RESULTS_DIR)/.dep.$(PROJ)
+$(all:=.rpm) : %.rpm : repo-webserver $$(addsuffix .rpm,$$($$*_DEPS)) $$*.srpm
+	@if test -f $(RPM_DEP); then \
+	  if [ $(SRPM_DEP) -nt $(RPM_DEP) ]; then \
+	    rm $(RPM_DEP); \
+	  elif [ -n "$($(PROJ)_DEPS)" ]; then \
+	    for f in $(addprefix $(MOCK_RESULTS_DIR)/.dep.,$($(PROJ)_DEPS)) ; do \
+	      if test -f $(RPM_DEP); then \
+	        if [ $$f -nt $(RPM_DEP) ]; then \
+	          rm $(RPM_DEP); \
+	        fi \
+	      fi \
+	    done \
+	  fi \
+	fi
+	@if ! test -f $(RPM_DEP); then \
+	  $(MAKE) $(PROJ).rpm-build && touch $(RPM_DEP); \
+	fi
+
+$(all:=.rpm-build) : %.rpm-build :
 	mock $(MOCK_OPTS) \
 	  --no-clean \
 	  --no-cleanup-after \
 	  --rebuild \
-	  $($(PROJ)_RPM_DEFS) \
-	  $(MOCK_SRPM_DIR)/$($(PROJ)_SRPM)
+	  $($*_RPM_DEFS) \
+	  $(MOCK_SRPM_DIR)/$($*_SRPM)
 	find $(MOCK_RESULTS_DIR) -name '*.src.rpm' -exec rm {} \;
-# generate repo AFTER build because then it's usable as a repo to feed to next build or other systems.
+# generate repo AFTER build otherwise it's unusable as a repo to feed to next build or other systems.
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS) .
 
 repo-comps : $(SRC)/mak/comps.xml
@@ -128,7 +144,7 @@ repo-clean :
 # this is problematic
 repo-webserver :
 	-killall thttpd
-	find $(MOCK_RESULTS_DIR) -type f -not -path '*/.*.rpm' -exec touch {} \;
+	find $(MOCK_RESULTS_DIR) -type f -not -path '*/.dep.*' -exec touch {} \;
 	/usr/sbin/thttpd -d @RPM_DIST_DIR@ -p 40100 -M 0
 
 help.repo-src = Assemble source rpms into @RPM_DIST_DIR@/$(DISTRO_RESULTS_DIR)/source
