@@ -2,6 +2,7 @@
 # Licensed to the User under the LGPL license.
 # 
 OPTIONS = @OPTIONS@
+DOWNLOAD_LIB_CACHE = @DOWNLOAD_LIB_CACHE@
 
 help.sipx=Build all sipx components including targets autoreconf, configure, all and install targets
 build sipx :
@@ -10,6 +11,9 @@ build sipx :
 help.app=Build all sipx apps including targets autoreconf, configure, all and install targets
 app :
 	$(MAKE) $(foreach P,$(app),$(P))
+
+# pull in dependency make fragments
+include $(SRC)/*/.sipxecs.mk
 
 .PHONY:$(sipx) $(app)
 .SECONDEXPANSION:
@@ -65,6 +69,12 @@ $(foreach P,$(sipx) $(app),$(P).check) :; $(MAKE) -C $(PROJ) check
 # no-target default
 $(foreach C,all,$(foreach T,$(sipx) $(app),$(T).all)) :
 	$(MAKE) -C $(PROJ)
+
+$(all:=.update) :
+	if [ -f $(SRC)/$(PROJ)/.git/config ] ; then \
+	  cd $(PROJ); \
+	  git pull origin; \
+	fi
 
 # This first checks if any files have changed in a project, if not, then 
 # checks if any dependent projects were build since this project was

@@ -26,9 +26,6 @@ $(foreach P,$(sipx) $(app),$(eval $(P)_SRPM = $$(call lowercase,$(P))-$(PACKAGE_
 # Only the main rpm
 $(foreach P,$(sipx) $(app),$(eval $(P)_TAR = $(P)/$$(call lowercase,$(P))-$(PACKAGE_VERSION).tar.gz))
 
-# pull in dependency make fragments
-include $(SRC)/*/.sipxecs.mk
-
 # Allows to target other distros other than the default
 help-values.{3} = Any of the available distros identifiers. Complete list: all @ALL_DISTROS@
 help-values.{4} = Any rpm related target. Partial list : autoreconf dist rpm srpm rpm-check
@@ -61,7 +58,7 @@ SRPM_DEP = $(MOCK_SRPM_DIR)/.dep.$(PROJ)
 help.{1|2}.srpm = Called automatically as part of rpm process after srpm target. Uses rpmbuild command after dist target
 $(all:=.srpm) : %.srpm :
 	@if test -f $(SRPM_DEP) ; then \
-	  x=`find $(SRC)/$(PROJ) -type f \( \
+	  x=`find $(SRC)/$(PROJ)/ -type f \( \
 	       -not -name configure \
 	       -a -not -path '*/autom4te.cache/*' \
 	       -a -newer $(SRPM_DEP) \) -printf .`; \
@@ -70,8 +67,7 @@ $(all:=.srpm) : %.srpm :
 	  fi; \
 	fi
 	@if ! test -f $(SRPM_DEP) ; then \
-	  $(MAKE) $(PROJ).srpm-build; \
-	  touch $(SRPM_DEP); \
+	  $(MAKE) $(PROJ).srpm-build && touch $(SRPM_DEP); \
 	fi
 
 $(all:=.srpm-build) : %.srpm-build : %.autoreconf %.configure %.dist
@@ -106,8 +102,7 @@ $(all:=.rpm) : %.rpm : repo-webserver $$(addsuffix .rpm,$$($$*_DEPS)) $$*.srpm
 	  fi \
 	fi
 	@if ! test -f $(RPM_DEP); then \
-	  $(MAKE) $(PROJ).rpm-build; \
-	  touch $(RPM_DEP); \
+	  $(MAKE) $(PROJ).rpm-build && touch $(RPM_DEP); \
 	fi
 
 $(all:=.rpm-build) : %.rpm-build :
