@@ -37,7 +37,7 @@
 #macro( ModelSpecificAttributes $model $fw )
    APP_FILE_PATH${model}="polycom/${fw}/sip.ld"
    #if($fw == "4.0.X") 
-     CONFIG_FILES${model}="${custom_configs}${optional_license_files},${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-applications.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-features.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-reg-advanced.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-region.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip-basic.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip-interop.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-site.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-video.cfg"
+     CONFIG_FILES${model}="${custom_configs}${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-applications.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-features.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-reg-advanced.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-region.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip-basic.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip-interop.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-site.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-video.cfg"
    #else
      CONFIG_FILES${model}="${custom_configs}${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-phone.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-device.cfg"     
    #end
