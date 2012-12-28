@@ -32,6 +32,18 @@ public class FileSetting extends AbstractSettingType {
     private String m_contentType = "audio/x-wav";
 
     private String m_rename;
+    /**
+     * Relative path to where the files need to be moved
+     */
+    private String m_moveTo;
+
+    public String getMoveTo() {
+        return m_moveTo;
+    }
+
+    public void setMoveTo(String moveTo) {
+        m_moveTo = moveTo;
+    }
 
     public boolean isRequired() {
         return m_required;

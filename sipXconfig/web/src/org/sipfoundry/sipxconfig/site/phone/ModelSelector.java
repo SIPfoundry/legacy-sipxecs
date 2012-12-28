@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
@@ -70,7 +73,14 @@ public abstract class ModelSelector extends BaseComponent {
 
     public IPropertySelectionModel createPropertySelectionModel() {
         ObjectSelectionModel model = new ObjectSelectionModel();
-        model.setCollection(getPhoneModelSource().getModels());
+        Collection<PhoneModel> models = getPhoneModelSource().getModels();
+        Collection<PhoneModel> supported = new ArrayList<PhoneModel>();
+        for (PhoneModel phoneModel : models) {
+            if (phoneModel.isSupported()) {
+                supported.add(phoneModel);
+            }
+        }
+        model.setCollection(supported);
         model.setLabelExpression("label");
         model.sortBy(DeviceDescriptor.LABEL_COMPARATOR);
 
