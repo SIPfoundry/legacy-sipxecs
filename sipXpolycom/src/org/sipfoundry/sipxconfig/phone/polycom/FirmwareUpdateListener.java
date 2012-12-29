@@ -49,7 +49,7 @@ public class FirmwareUpdateListener implements DaoEventListener {
                         if (phone instanceof PolycomPhone) {
                             DeviceVersion version = DeviceVersion.getDeviceVersion(PolycomPhone.BEAN_ID
                                     + g.getSettingValue(GROUP_FW_VERSION));
-                            if (ArrayUtils.contains(PolycomModel.s_supportedVersions, version)) {
+                            if (ArrayUtils.contains(phone.getModel().getVersions(), version)) {
                                 phone.setDeviceVersion(version);
                                 m_phoneContext.storePhone(phone);
                             }
