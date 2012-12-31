@@ -13,12 +13,28 @@
   	    <fieldset>
   	      <span jwcid="@If" condition="ognl:ldapConfigured">
   	       <table>
+  	        <tbody>
             <tr jwcid="configuredPanel@common/FieldPanel" for="ldap:configured"
         	  field="ognl:components.configured" label="message:label.configured"
         	  description="message:description.configured">        	  
-              <input jwcid="configured@Checkbox" id="ldap:configured" value="ognl:settings.configured"/><br>  
-              <input jwcid="applySettings@Submit" action="listener:applySettings" value="message:label.applySettings"/>            
-            </tr>    	         	     
+              <input jwcid="configured@Checkbox" id="ldap:configured" value="ognl:settings.configured"/><br>                            
+            </tr>
+            <tr jwcid="overwritePinPanel@common/FieldPanel" for="ldap:overwritePin"
+              field="ognl:components.overwritePin" label="message:label.overwritePin"
+              description="message:description.overwritePin">
+              <input jwcid="overwritePin@Checkbox" id="ldap:overwritePin" value="ognl:overwritePin"/>
+            </tr>
+           </tbody>
+           </table>
+           <table>
+           <tbody>
+            <tr>
+              <input jwcid="applySettings@Submit" action="listener:applySettings" value="message:label.applySettings"/>
+            </tr> 
+           </tbody>
+           </table>
+           <table>
+           <tbody> 
     	    <tr jwcid="@common/FieldPanel"
               for="backupPlan:type"
               field="component:ldapSelector"
@@ -29,6 +45,7 @@
           	   value="ognl:currentConnectionId"
           	   onchange="literal:javascript:this.form.submit();"/>
             </tr>
+           </tbody> 
            </table>          	  
           </span>
   	    </fieldset>

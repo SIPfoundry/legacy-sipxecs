@@ -62,6 +62,10 @@ public interface LdapManager {
 
     LdapSystemSettings getSystemSettings();
 
+    public void saveOverwritePin(boolean overwrite);
+
+    public OverwritePinBean retriveOverwritePin();
+
     void replicateOpenfireConfig();
 
     public List<LdapConnectionParams> getAllConnectionParams();

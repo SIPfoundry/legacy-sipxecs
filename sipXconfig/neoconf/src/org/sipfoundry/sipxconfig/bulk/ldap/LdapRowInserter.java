@@ -101,7 +101,9 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
             m_userMapper.setAliasesSet(m_aliases, user);
 
             String pin = m_userMapper.getPin(attrs, newUser);
-            if (pin != null) {
+            OverwritePinBean overwritePinBean = m_ldapManager.retriveOverwritePin();
+            boolean overwritePin = (overwritePinBean == null || overwritePinBean.isValue());
+            if (pin != null && (user.isNew() || overwritePin)) {
                 user.setPin(pin, m_coreContext.getAuthorizationRealm());
             }
 

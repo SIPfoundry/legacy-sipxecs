@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,11 +31,14 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.ldap.AttributesMapper;
 import org.springframework.ldap.UncategorizedLdapException;
 
@@ -43,9 +49,12 @@ import static org.springframework.dao.support.DataAccessUtils.singleResult;
  */
 public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapManager, ApplicationContextAware {
     private static final Log LOG = LogFactory.getLog(LdapManagerImpl.class);
+    private static final String QUERY_OVERRIDE_PIN =
+            "SELECT value_storage_id, value from setting_value where path='ldap/overwrite_pin'";
     private static final String NAMING_CONTEXTS = "namingContexts";
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
     private LdapTemplateFactory m_templateFactory;
+    private JdbcTemplate m_jdbcTemplate;
     private ApplicationContext m_applicationContext;
     private SipxServiceManager m_sipxServiceManager;
     private ServiceConfigurator m_serviceConfigurator;
@@ -72,6 +81,31 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         } catch (DataAccessException e) {
             verifyException("&connection.failed", e);
         }
+    }
+
+    public void saveOverwritePin(boolean overwrite) {
+        OverwritePinBean existingOPB = retriveOverwritePin();
+        ValueStorage storage = null;
+        if (existingOPB == null) {
+            storage = new ValueStorage();
+        } else {
+            storage = getHibernateTemplate().load(ValueStorage.class, existingOPB.getId());
+        }
+        storage.setSettingValue("ldap/overwrite_pin", String.valueOf(overwrite));
+        getHibernateTemplate().saveOrUpdate(storage);
+    }
+
+    public OverwritePinBean retriveOverwritePin() {
+        final ArrayList<OverwritePinBean> values = new ArrayList<OverwritePinBean>();
+        RowCallbackHandler rows = new RowCallbackHandler() {
+            @Override
+            public void processRow(ResultSet rs) throws SQLException {
+                OverwritePinBean bean = new OverwritePinBean(rs.getInt("value_storage_id"), rs.getBoolean("value"));
+                values.add(bean);
+            }
+        };
+        m_jdbcTemplate.query(QUERY_OVERRIDE_PIN, rows);
+        return values.isEmpty() ? null : values.get(0);
     }
 
     public boolean verifyLdapConnection(LdapConnectionParams params) {
@@ -333,4 +367,8 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         m_daoEventPublisher = daoEventPublisher;
     }
 
+    @Required
+    public void setConfigJdbcTemplate(JdbcTemplate template) {
+        m_jdbcTemplate = template;
+    }
 }

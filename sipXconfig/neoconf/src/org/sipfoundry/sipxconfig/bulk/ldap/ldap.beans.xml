@@ -94,6 +94,7 @@
 	<property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="serviceConfigurator" ref="serviceConfigurator" />
     <property name="daoEventPublisher" ref="daoEventPublisher"/>
+    <property name="configJdbcTemplate" ref="configJdbcTemplate" />
   </bean>
 
   <bean id="ldapManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
