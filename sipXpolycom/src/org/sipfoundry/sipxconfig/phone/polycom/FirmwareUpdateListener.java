@@ -18,6 +18,8 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -25,6 +27,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public class FirmwareUpdateListener implements DaoEventListener {
+    private static final Log LOG = LogFactory.getLog(FirmwareUpdateListener.class);
     private static final String GROUP_FW_VERSION = "group.version/firmware.version";
     private PhoneContext m_phoneContext;
 
@@ -34,8 +37,6 @@ public class FirmwareUpdateListener implements DaoEventListener {
 
     @Override
     public void onDelete(Object entity) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -50,8 +51,12 @@ public class FirmwareUpdateListener implements DaoEventListener {
                             DeviceVersion version = DeviceVersion.getDeviceVersion(PolycomPhone.BEAN_ID
                                     + g.getSettingValue(GROUP_FW_VERSION));
                             if (ArrayUtils.contains(phone.getModel().getVersions(), version)) {
+                                LOG.info("Updating " + phone.getSerialNumber() + " to " + version.getVersionId());
                                 phone.setDeviceVersion(version);
                                 m_phoneContext.storePhone(phone);
+                            } else {
+                                LOG.info("Skipping " + phone.getSerialNumber() + " as it doesn't support "
+                                        + version.getVersionId() + "; model: " + phone.getModelId());
                             }
                         }
                     }

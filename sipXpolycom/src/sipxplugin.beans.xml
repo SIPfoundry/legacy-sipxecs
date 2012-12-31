@@ -32,7 +32,6 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_2_0"/>
       </list>
     </property>
-    <property name="supported" value="false" />
   </bean>
 
   <bean id="polycom301" parent="polycomModel">
@@ -191,10 +190,9 @@
     </property>
     <property name="versions">
       <list>
-        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_2_0"/>
       </list>
     </property>
-    <property name="supported" value="false" />
   </bean>
   <bean id="polycom501" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 501" />
@@ -270,7 +268,7 @@
     </property>
     <property name="versions">
       <list>
-        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_2_0"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
       </list>
     </property>
   </bean>

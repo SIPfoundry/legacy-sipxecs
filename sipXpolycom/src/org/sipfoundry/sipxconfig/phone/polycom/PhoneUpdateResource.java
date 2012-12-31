@@ -63,7 +63,7 @@ public class PhoneUpdateResource extends Resource {
             getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
             return new StringRepresentation("empty");
         }
-        LOG.info(String.format("Updating phone %s to version %s...", serialNumber, version));
+        LOG.info(String.format("Trying to updating phone %s to version %s...", serialNumber, version));
         Phone phone = m_phoneContext.loadPhone((m_phoneContext.getPhoneIdBySerialNumber(serialNumber)));
         if (phone == null) {
             getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
@@ -73,15 +73,8 @@ public class PhoneUpdateResource extends Resource {
             getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
             return new StringRepresentation("empty");
         }
-        if (ArrayUtils.contains(PolycomPhone.UNSUPPORTED_MODELS, model)) {
-            m_phoneContext.deletePhone(phone);
-            LOG.info(String.format("Deleted unsupported phone: MAC: %s, model: %s ", serialNumber, model));
-        }
         DeviceVersion deviceVersion = PolycomModel.getPhoneDeviceVersion(version);
-        if (deviceVersion == null) {
-            getResponse().setStatus(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY);
-            return new StringRepresentation("empty");
-        } else if (!phone.getDeviceVersion().equals(deviceVersion)
+        if (!phone.getDeviceVersion().equals(deviceVersion)
                     || !StringUtils.equals(phone.getModelId(), model)) {
                 phone.setDeviceVersion(deviceVersion);
                 phone.setModelId(model);
@@ -92,7 +85,7 @@ public class PhoneUpdateResource extends Resource {
                 LOG.info(String.format("Updated phone ID: %d. It will be rebooted in 1 "
                         + "minute from now in order to pick up correct config.", phone.getId()));
         }
-        
+        LOG.info("Phone not updated - no change.");
         return new StringRepresentation("empty");
     }
 

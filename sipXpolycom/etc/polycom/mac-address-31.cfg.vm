@@ -36,7 +36,7 @@
 
 #macro( ModelSpecificAttributes $model $fw )
    APP_FILE_PATH${model}="${folder}/sip.ld"
-   CONFIG_FILES${model}="${custom_configs}${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-phone.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-device.cfg, polycom_phone1_2.1.X.cfg, polycom_sip_2.1.X.cfg"
+   CONFIG_FILES${model}="${custom_configs}${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-phone.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-device.cfg, polycom_phone1_3.1.X.cfg, polycom_sip_3.1.X.cfg"
 #end
 
 #macro( ModelSpecificNode $model $fw )
@@ -58,7 +58,7 @@
 
 <APPLICATION
    #ModelSpecificAttributes( "", "" )
-   MISC_FILES="${provisionUrl}/[PHONE_MAC_ADDRESS]-firmwareUpdate"
+   MISC_FILES=""
    OVERRIDES_DIRECTORY="${optional_root_url_path}"
    CONTACTS_DIRECTORY="${optional_root_url_path}"
    LOG_FILE_DIRECTORY="">

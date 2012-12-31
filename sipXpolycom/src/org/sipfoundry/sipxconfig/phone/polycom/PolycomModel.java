@@ -35,7 +35,7 @@ public final class PolycomModel extends PhoneModel {
                 return deviceVersion;
             }
         }
-        return null;
+        return VER_2_0;
     }
 
 }
