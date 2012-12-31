@@ -104,6 +104,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
 
             m_userMapper.setUserProperties(user, attrs);
             m_userMapper.setAliasesSet(m_aliases, user);
+
             m_userMapper.setPin(user, attrs);
             m_userMapper.setVoicemailPin(user, attrs);
             m_userMapper.setSipPassword(user, attrs);
