@@ -15,6 +15,9 @@ app :
 # pull in dependency make fragments
 include $(SRC)/*/.sipxecs.mk
 
+# Only the main rpm
+$(foreach P,$(sipx) $(app),$(eval $(P)_TAR = $(P)/$$(call lowercase,$(P))-$(PACKAGE_VERSION).tar.gz))
+
 .PHONY:$(sipx) $(app)
 .SECONDEXPANSION:
 $(sipx) $(app) : $$($$@_DEPS)
@@ -53,7 +56,22 @@ help.{1|2|6}.configure = Run configure on each project
 	  $(SRC)/$(PROJ)/configure $(OPTIONS) $(sipx_OPTIONS) $($(PROJ)_OPTIONS)
 
 help.{1|2|6}.dist = Build archive, typically compressed tar
-%.dist :; $(MAKE) -C $(PROJ) dist
+%.dist :
+	$(MAKE) -C $(PROJ) dist
+
+$(all:=.dist-by-dep) : %.dist-by-dep :
+	@if test -f $($(PROJ)_TAR) ; then \
+	  x=`find $(SRC)/$(PROJ)/ -type f \( \
+	       -not -name configure \
+	       -a -not -path '*/autom4te.cache/*' \
+	       -a -newer $($(PROJ)_TAR) \) -printf .`; \
+	  if [ -n "$$x" ] ; then \
+	    rm $($(PROJ)_TAR); \
+	  fi; \
+	fi
+	@if ! test -f $($(PROJ)_TAR) ; then \
+	  $(MAKE) $(PROJ).dist; \
+	fi
 
 # Targets for sipx only. 
 MAKE_COMMANDS = check install clean dist
