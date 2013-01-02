@@ -23,8 +23,6 @@ MOCK_OPTS = \
 
 # Define sipx SRPMS and tarball files. Cannot define RPM files however as one specfile may generate many rpms
 $(foreach P,$(sipx) $(app),$(eval $(P)_SRPM = $$(call lowercase,$(P))-$(PACKAGE_VERSION)-$$(PROJ_REVISION).src.rpm))
-# Only the main rpm
-$(foreach P,$(sipx) $(app),$(eval $(P)_TAR = $(P)/$$(call lowercase,$(P))-$(PACKAGE_VERSION).tar.gz))
 
 # Allows to target other distros other than the default
 help-values.{3} = Any of the available distros identifiers. Complete list: all @ALL_DISTROS@
@@ -56,21 +54,20 @@ CopySourceFile = \
 
 SRPM_DEP = $(MOCK_SRPM_DIR)/.dep.$(PROJ)
 help.{1|2}.srpm = Called automatically as part of rpm process after srpm target. Uses rpmbuild command after dist target
-$(all:=.srpm) : %.srpm :
+.SECONDEXPANSION:
+$(sipx:=.srpm-by-dep) $(app:=.srpm-by-dep) : %.srpm-by-dep : %.dist-by-dep
 	@if test -f $(SRPM_DEP) ; then \
-	  x=`find $(SRC)/$(PROJ)/ -type f \( \
-	       -not -name configure \
-	       -a -not -path '*/autom4te.cache/*' \
-	       -a -newer $(SRPM_DEP) \) -printf .`; \
-	  if [ -n "$$x" ] ; then \
+	  if [ $($(PROJ)_TAR) -nt $(SRPM_DEP) ] ; then \
 	    rm $(SRPM_DEP); \
-	  fi; \
+	  fi \
 	fi
 	@if ! test -f $(SRPM_DEP) ; then \
-	  $(MAKE) $(PROJ).srpm-build && touch $(SRPM_DEP); \
+	  $(MAKE) $(PROJ).srpm_; \
 	fi
 
-$(all:=.srpm-build) : %.srpm-build : %.autoreconf %.configure %.dist
+%.srpm : %.autoreconf %.configure %.dist %.srpm_;
+
+%.srpm_ :
 	test -d @DOWNLOAD_LIB_CACHE@ || mkdir -p @DOWNLOAD_LIB_CACHE@
 	test -d $(MOCK_SRPM_DIR) || mkdir -p $(MOCK_SRPM_DIR)
 	if [ -n "$($(PROJ)_SPEC)" ]; then \
@@ -82,12 +79,15 @@ $(all:=.srpm-build) : %.srpm-build : %.autoreconf %.configure %.dist
 	  $(call CopySourceFile,$($(PROJ)_SRPM),@RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM)) \
 	fi
 	cp @RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM) $(MOCK_SRPM_DIR)
+	touch $(SRPM_DEP)
+
+sipx.rpm : $(sipx:=.rpm-by-dep);
+app.rpm : $(app:=.rpm-by-dep);
 
 help.{1|2}.rpm = Build RPMs, you must have mock installed. See Experimental call to build rpms. See \
   http://wiki.sipfoundry.org/display/sipXecs/Building+RPMS+on+CentOS+or+Fedora
-.SECONDEXPANSION:
 RPM_DEP = $(MOCK_RESULTS_DIR)/.dep.$(PROJ)
-$(all:=.rpm) : %.rpm : repo-webserver $$(addsuffix .rpm,$$($$*_DEPS)) $$*.srpm
+$(all:=.rpm-by-dep) : %.rpm-by-dep : $$(addsuffix .rpm-by-dep,$$($$*_DEPS)) %.srpm-by-dep
 	@if test -f $(RPM_DEP); then \
 	  if [ $(SRPM_DEP) -nt $(RPM_DEP) ]; then \
 	    rm $(RPM_DEP); \
@@ -102,16 +102,19 @@ $(all:=.rpm) : %.rpm : repo-webserver $$(addsuffix .rpm,$$($$*_DEPS)) $$*.srpm
 	  fi \
 	fi
 	@if ! test -f $(RPM_DEP); then \
-	  $(MAKE) $(PROJ).rpm-build && touch $(RPM_DEP); \
+	  $(MAKE) $(PROJ).rpm_; \
 	fi
 
-$(all:=.rpm-build) : %.rpm-build :
+%.rpm : $$(addsuffix .rpm-by-dep,$$($$*_DEPS)) %.srpm %.rpm_;
+
+$(all:=.rpm_) : %.rpm_ : repo-webserver
 	mock $(MOCK_OPTS) \
 	  --no-clean \
 	  --no-cleanup-after \
 	  --rebuild \
 	  $($*_RPM_DEFS) \
 	  $(MOCK_SRPM_DIR)/$($*_SRPM)
+	touch $(RPM_DEP)
 	find $(MOCK_RESULTS_DIR) -name '*.src.rpm' -exec rm {} \;
 # generate repo AFTER build otherwise it's unusable as a repo to feed to next build or other systems.
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS) .
