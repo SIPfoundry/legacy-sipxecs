@@ -110,13 +110,14 @@ RPM_DEP = $(MOCK_RESULTS_DIR)/.dep.$(PROJ)
 	  $(MAKE) $(PROJ).srpm_ $(PROJ).rpm_; \
 	fi
 
+$(lib:=.rpm_): SRPM=$$($$(PROJ)_SRPM)
 %.rpm_ : repo-webserver
 	mock $(MOCK_OPTS) \
 	  --no-clean \
 	  --no-cleanup-after \
 	  --rebuild \
-	  $($*_RPM_DEFS) \
-	  $(MOCK_SRPM_DIR)/$($*_SRPM)
+	  $($(PROJ)_RPM_DEFS) \
+	  $(MOCK_SRPM_DIR)/$(SRPM)
 	touch $(RPM_DEP)
 	find $(MOCK_RESULTS_DIR) -name '*.src.rpm' -exec rm {} \;
 # generate repo AFTER build otherwise it's unusable as a repo to feed to next build or other systems.
