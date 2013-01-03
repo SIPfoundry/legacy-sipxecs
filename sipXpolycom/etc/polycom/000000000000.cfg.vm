@@ -36,7 +36,7 @@
 
 #macro( ModelSpecificAttributes $model $fw )
    APP_FILE_PATH${model}="polycom/${fw}/sip.ld"
-   #if($fw == "4.0.X") 
+   #if($fw == "${fw}") 
      CONFIG_FILES${model}="${custom_configs}${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-applications.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-features.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-reg-advanced.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-region.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip-basic.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip-interop.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-site.cfg,${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-video.cfg"
    #else
      CONFIG_FILES${model}="${custom_configs}${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-phone.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-device.cfg"     
@@ -46,6 +46,11 @@
 #macro( ModelSpecificAttributes31 $model )
    APP_FILE_PATH${model}="sip_3.1.X.ld"
    CONFIG_FILES${model}="${custom_configs}${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-phone.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-device.cfg, polycom_phone1_3.1.X.cfg, polycom_sip_3.1.X.cfg"
+#end
+
+#macro( ModelSpecificAttributes20 $model )
+   APP_FILE_PATH${model}="sip_2.1.X.ld"
+   CONFIG_FILES${model}="${custom_configs}${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-phone.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-device.cfg, polycom_phone1_2.1.X.cfg, polycom_sip_2.1.X.cfg"
 #end
 
 #macro( ModelSpecificNode $model $fw )
@@ -58,8 +63,8 @@
    <APPLICATION${actual_model}
    #if($fw == "3.1.X")
       #ModelSpecificAttributes31( $actual_model)
-   #else
-      #ModelSpecificAttributes( $actual_model, $fw)
+   #else if ($fw == "2.0")
+      #ModelSpecificAttributes20( $actual_model)
    #end
    />
 #end
@@ -73,6 +78,10 @@
 
 #ModelSpecificNode( "SPIP301", "3.1.X" )
 #ModelSpecificNode( "SPIP600", "3.1.X" )
+#ModelSpecificNode( "SPIP601", "3.1.X" )
+#ModelSpecificNode( "SPIP501", "3.1.X" )
 #ModelSpecificNode( "SSIP4000", "3.1.X" )
+#ModelSpecificNode( "SSIP300", "2.0" )
+#ModelSpecificNode( "SSIP500", "2.0" )
 
 </APPLICATION>
