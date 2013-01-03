@@ -54,20 +54,7 @@ CopySourceFile = \
 
 SRPM_DEP = $(MOCK_SRPM_DIR)/.dep.$(PROJ)
 help.{1|2}.srpm = Called automatically as part of rpm process after srpm target. Uses rpmbuild command after dist target
-.SECONDEXPANSION:
-$(sipx:=.srpm-by-dep) $(app:=.srpm-by-dep) : %.srpm-by-dep : %.dist-by-dep
-	@if test -f $(SRPM_DEP) ; then \
-	  if [ $($(PROJ)_TAR) -nt $(SRPM_DEP) ] ; then \
-	    rm $(SRPM_DEP); \
-	  fi \
-	fi
-	@if ! test -f $(SRPM_DEP) ; then \
-	  $(MAKE) $(PROJ).srpm_; \
-	fi
-
-%.srpm : %.autoreconf %.configure %.dist %.srpm_;
-
-%.srpm_ :
+%.srpm :  %.dist
 	test -d @DOWNLOAD_LIB_CACHE@ || mkdir -p @DOWNLOAD_LIB_CACHE@
 	test -d $(MOCK_SRPM_DIR) || mkdir -p $(MOCK_SRPM_DIR)
 	if [ -n "$($(PROJ)_SPEC)" ]; then \
@@ -79,17 +66,27 @@ $(sipx:=.srpm-by-dep) $(app:=.srpm-by-dep) : %.srpm-by-dep : %.dist-by-dep
 	  $(call CopySourceFile,$($(PROJ)_SRPM),@RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM)) \
 	fi
 	cp @RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM) $(MOCK_SRPM_DIR)
-	touch $(SRPM_DEP)
 
 sipx.rpm : $(sipx:=.rpm-by-dep);
 app.rpm : $(app:=.rpm-by-dep);
 
+# by-dep uses tarball and not all libs come from tarball so not implementing smart
+# builds here yet.  Could easily do this though by looking at $($(PROJ)_SOURCES)
+lib.rpm : $(lib:=.rpm);
+
+# If make sipXfoo.rpm is explicit target, force fresh build of target but
+# only build dependencies if they've changed
 help.{1|2}.rpm = Build RPMs, you must have mock installed. See Experimental call to build rpms. See \
   http://wiki.sipfoundry.org/display/sipXecs/Building+RPMS+on+CentOS+or+Fedora
+.SECONDEXPANSION:
+%.rpm : $$(addsuffix .rpm-by-dep,$$($$*_DEPS)) %.srpm %.rpm_;
+
+# Only build rpm if underlying tarball changed. Do not rely on srpm because srpms are cheap to
+# create AND because if there is a new tarball, it will contain
 RPM_DEP = $(MOCK_RESULTS_DIR)/.dep.$(PROJ)
-$(all:=.rpm-by-dep) : %.rpm-by-dep : $$(addsuffix .rpm-by-dep,$$($$*_DEPS)) %.srpm-by-dep
+%.rpm-by-dep : $$(addsuffix .rpm-by-dep,$$($$*_DEPS)) %.dist-by-dep
 	@if test -f $(RPM_DEP); then \
-	  if [ $(SRPM_DEP) -nt $(RPM_DEP) ]; then \
+	  if [ $($(PROJ)_TAR) -nt $(RPM_DEP) ]; then \
 	    rm $(RPM_DEP); \
 	  elif [ -n "$($(PROJ)_DEPS)" ]; then \
 	    for f in $(addprefix $(MOCK_RESULTS_DIR)/.dep.,$($(PROJ)_DEPS)) ; do \
@@ -102,12 +99,10 @@ $(all:=.rpm-by-dep) : %.rpm-by-dep : $$(addsuffix .rpm-by-dep,$$($$*_DEPS)) %.sr
 	  fi \
 	fi
 	@if ! test -f $(RPM_DEP); then \
-	  $(MAKE) $(PROJ).rpm_; \
+	  $(MAKE) $(PROJ).srpm $(PROJ).rpm_; \
 	fi
 
-%.rpm : $$(addsuffix .rpm-by-dep,$$($$*_DEPS)) %.srpm %.rpm_;
-
-$(all:=.rpm_) : %.rpm_ : repo-webserver
+%.rpm_ : repo-webserver
 	mock $(MOCK_OPTS) \
 	  --no-clean \
 	  --no-cleanup-after \
