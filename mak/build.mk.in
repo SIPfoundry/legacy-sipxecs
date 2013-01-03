@@ -56,10 +56,10 @@ help.{1|2|6}.configure = Run configure on each project
 	  $(SRC)/$(PROJ)/configure $(OPTIONS) $(sipx_OPTIONS) $($(PROJ)_OPTIONS)
 
 help.{1|2|6}.dist = Build archive, typically compressed tar
-%.dist :
-	$(MAKE) -C $(PROJ) dist
 
-$(all:=.dist-by-dep) : %.dist-by-dep :
+%.dist : %.autoreconf %.configure %.dist_;
+%.dist_ :;$(MAKE) -C $(PROJ) dist
+%.dist-by-dep :
 	@if test -f $($(PROJ)_TAR) ; then \
 	  x=`find $(SRC)/$(PROJ)/ -type f \( \
 	       -not -name configure \
