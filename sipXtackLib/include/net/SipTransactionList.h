@@ -80,7 +80,8 @@ public:
     //: Marks the transaction as available
 
     void removeOldTransactions(long oldTransaction,
-                               long oldTcpTransaction);
+                               long oldTcpTransaction,
+                               long completedTimeout);
     //: Remove transactions not accessed after given time
 
     void stopTransactionTimers();

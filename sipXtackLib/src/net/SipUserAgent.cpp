@@ -143,6 +143,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                  "sipTlsPort = %d",
                  getName().data(), sipTcpPort, sipUdpPort, sipTlsPort);
 
+    _timerHandler = boost::bind(&SipUserAgent::onTimerExpire, this, _1, _2);
     // Get pointer to line manager
     mpLineMgr = lineMgr;
 
@@ -2560,6 +2561,13 @@ UtlBoolean checkExtensions(SipMessage* message)
 }
 
 
+void SipUserAgent::onTimerExpire(OsTimer& time, OsMsg* pMsg)
+{
+  SipMessageEvent* pMsgEvent = (SipMessageEvent*)pMsg;
+  handleMessage(*pMsgEvent);
+  delete pMsgEvent;
+}
+
 UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
 {
    UtlBoolean messageProcessed = FALSE;
@@ -2966,7 +2974,7 @@ void SipUserAgent::garbageCollection()
     long tcpThen = bootime - mMaxTcpSocketIdleTime;
     long oldTransaction = then - (mTransactionStateTimeoutMs / 1000);
     long oldInviteTransaction = then - mMinInviteTransactionTimeout;
-
+    long completedTransaction = then - 32;
     // If the timeout is negative we never timeout or garbage collect
     // tcp connections
     if(mMaxTcpSocketIdleTime < 0)
@@ -2990,7 +2998,8 @@ void SipUserAgent::garbageCollection()
                         oldInviteTransaction);
           #endif
        mSipTransactions.removeOldTransactions(oldTransaction,
-                                              oldInviteTransaction);
+                                              oldInviteTransaction,
+                                              completedTransaction);
        if (mSipUdpServer)
        {
           #ifdef LOG_TIME
