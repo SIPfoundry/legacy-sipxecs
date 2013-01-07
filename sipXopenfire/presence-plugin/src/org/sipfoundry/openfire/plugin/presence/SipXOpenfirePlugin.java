@@ -431,21 +431,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         log.info("plugin initializaton completed");
         log.info("DONE");
 
-        if (watcherConfig.isEnableCallWatcher()) {
-            CallWatcher.setWatcherConfig(watcherConfig);
-            try {
-                CallWatcher.init();
-                log.info("completed init");
-                ResourceStateChangeListener resourceStateChangeListener = new ResourceStateChangeListenerImpl(
-                        this);
-                CallWatcher.getSubscriber().setResourceStateChangeListener(
-                        resourceStateChangeListener);
-            } catch (Exception e) {
-                log.error("Error initializing CallWatcher", e);
-                throw new SipXOpenfirePluginException("Init error", e);
-            }
-        }
-
         isInitialized = true;
     }
 
@@ -506,9 +491,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             InterceptorManager.getInstance().removeInterceptor(abstractMessagePacketInterceptor);
         }
         abstractMessagePacketInterceptors.clear();
-        if (watcherConfig.isEnableCallWatcher()) {
-            CallWatcher.destroy();
-        }
 
         multiUserChatManager = null;
         groupManager = null;

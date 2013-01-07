@@ -40,7 +40,7 @@ public class ResourceLists {
     private CoreContext m_coreContext;
     private ValidUsers m_validUsers;
 
-    public Document getDocument() {
+    public Document getDocument(boolean xmppPresenceEnabled) {
         Document document = XmlFile.FACTORY.createDocument();
         Element lists = document.addElement("lists", NAMESPACE);
         Element imList = null;
@@ -53,7 +53,7 @@ public class ResourceLists {
             if (userName.equals("superadmin")) {
                 continue;
             }
-            if (BooleanUtils.toBoolean(user.get(IM_ENABLED).toString())) {
+            if (xmppPresenceEnabled && BooleanUtils.toBoolean(user.get(IM_ENABLED).toString())) {
                 if (imList == null) {
                     imList = createResourceList(lists, XMPP_SERVER.getUserName());
                 }

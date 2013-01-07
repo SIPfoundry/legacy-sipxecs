@@ -25,6 +25,7 @@
         </property>
       </bean>
     </property>
+    <property name="configManager" ref="configManager" />
   </bean>
 
   <bean id="rlsConfig" class="org.sipfoundry.sipxconfig.rls.RlsConfig">
