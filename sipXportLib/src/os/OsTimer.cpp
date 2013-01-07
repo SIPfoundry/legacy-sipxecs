@@ -24,6 +24,7 @@
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 static const int TIMER_TIME_UNIT = 1000000;
 static const int TIMER_SERVICE_TICK = 1;
+static const int TIMER_THREAD_COUNT = 4;
 #define TIME_TO_INTERVAL(period) (Interval)(period.seconds()) * TIMER_TIME_UNIT + period.usecs()
 
 class TimerService
@@ -45,8 +46,6 @@ public:
   TimerService() :
     _ioService(), // The io service
     _houseKeepingTimer(_ioService, boost::posix_time::seconds(10)), // dummy timer just to keep on event in queue.  will fire every hour
-    _pIoServiceThread1(0), // The thread pointer
-    _pIoServiceThread2(0), // The thread pointer
     _lastTick(0)
   {
   }
@@ -62,8 +61,10 @@ public:
     // Create the dummy house keeper and start the io_service thread
     //
     _houseKeepingTimer.async_wait(boost::bind(&TimerService::onHouseKeepingTimer, this, boost::asio::placeholders::error));
-    _pIoServiceThread1 = new boost::thread(boost::bind(&boost::asio::io_service::run, &(_ioService)));
-    _pIoServiceThread2 = new boost::thread(boost::bind(&boost::asio::io_service::run, &(_ioService)));
+
+    for (int i = 0; i < TIMER_THREAD_COUNT; i++)
+      _threadPool.push_back(new boost::thread(boost::bind(&boost::asio::io_service::run, &(_ioService))));
+
     OS_LOG_NOTICE(FAC_KERNEL, "OsTimer::TimerService STARTED.");
     _lastTick = OsTimer::now();
   }
@@ -79,18 +80,11 @@ public:
     //
     // Wait until io_service has fully terminated
     //
-    if (_pIoServiceThread1)
+    for (std::vector<boost::thread*>::iterator iter = _threadPool.begin(); iter != _threadPool.end(); iter++)
     {
-      _pIoServiceThread1->join();
-      delete _pIoServiceThread1;
-      _pIoServiceThread1 = 0;
-    }
-
-    if (_pIoServiceThread2)
-    {
-      _pIoServiceThread2->join();
-      delete _pIoServiceThread2;
-      _pIoServiceThread2 = 0;
+      boost::thread* pThread = *iter;
+      pThread->join();
+      delete pThread;
     }
   }
 
@@ -146,8 +140,7 @@ public:
 
   boost::asio::io_service _ioService;
   boost::asio::deadline_timer _houseKeepingTimer;
-  boost::thread* _pIoServiceThread1;
-  boost::thread* _pIoServiceThread2;
+  std::vector<boost::thread*> _threadPool;
   OsTimer::Time _lastTick;
   mutex _serviceMutex;
   mutex _queueMutex;
@@ -208,7 +201,8 @@ private:
 OsTimer::OsTimer(OsMsgQ* pQueue,
                  void* userData) :
   _pTimer(new Timer(*this)),
-  _pNotifier(new OsQueuedEvent(*pQueue, userData)) //< used to signal timer expiration event
+  _pNotifier(new OsQueuedEvent(*pQueue, userData)),
+  _pHandlerEvent(0)
 {
   _pTimer->takeOwnership(_pNotifier);
 }
@@ -217,7 +211,8 @@ OsTimer::OsTimer(OsMsgQ* pQueue,
 // conveyed to the Listener when the notification is signaled.
 OsTimer::OsTimer(OsNotification& rNotifier) :
   _pTimer(new Timer(*this)),
-  _pNotifier(&rNotifier) //< used to signal timer expiration event
+  _pNotifier(&rNotifier),
+  _pHandlerEvent(0)
 {
 }
 
@@ -226,7 +221,8 @@ OsTimer::OsTimer(OsNotification& rNotifier) :
 OsTimer::OsTimer(OsMsg* pMsg,
                  OsMsgQ* pQueue) :
   _pTimer(new Timer(*this)),
-  _pNotifier(new OsQueueMsgNotification(pQueue, pMsg)) //< used to signal timer expiration event
+  _pNotifier(new OsQueueMsgNotification(pQueue, pMsg)), //< used to signal timer expiration event
+  _pHandlerEvent(0)
 {
 	_pTimer->takeOwnership(_pNotifier);
 }
@@ -238,7 +234,16 @@ OsTimer::OsTimer(OsMsg* pMsg,
 OsTimer::OsTimer(const Handler& handler) :
   _pTimer(new Timer(*this)),
   _pNotifier(0),
-  _handler(handler)
+  _handler(handler),
+  _pHandlerEvent(0)
+{
+}
+
+OsTimer::OsTimer(OsMsg* pMsg, const MessageHandler& handler) :
+  _pTimer(new Timer(*this)),
+  _pNotifier(0),
+  _messageHandler(handler),
+  _pHandlerEvent(pMsg)
 {
 }
 
@@ -248,6 +253,7 @@ OsTimer::~OsTimer()
   stop();
   gpTimerService->queueForDestruction(_pTimer);
   _pTimer.reset();
+  delete _pHandlerEvent;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -262,10 +268,19 @@ bool OsTimer::signalNotifier()
 
 bool OsTimer::signalHandler(boost::system::error_code ec)
 {
-  if (!_handler)
-    return false;
-  _handler(*this, ec);
-  return true;
+  if (_handler)
+  {
+    _handler(*this, ec);
+    return true;
+  }
+  else if (_messageHandler && !ec)
+  {
+    _messageHandler(*this, _pHandlerEvent);
+    _pHandlerEvent = 0; /// the application must take care of deleting the event
+    return true;
+  }
+
+  return false;
 }
 
 // Disarm the timer

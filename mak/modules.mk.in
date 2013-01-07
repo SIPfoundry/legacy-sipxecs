@@ -4,6 +4,43 @@
 # order is import for some of these as afar as building dependencies first
 # consult spec files for authority on dependencies before changing the order
 
+deps = $(1) $($(1)_DEPS)
+
+sipXtackLib_DEPS = $(call deps,sipXportLib)
+sipXmediaLib_DEPS = $(call deps,sipXtackLib)
+sipXmediaAdapterLib_DEPS = $(call deps,sipXmediaLib)
+sipXcallLib_DEPS = $(call deps,sipXmediaAdapterLib)
+sipXsupervisor_DEPS =
+sipXmongo_DEPS = $(call deps,sipXsupervisor)
+sipXcommserverLib_DEPS = $(call deps,sipXsupervisor) $(call deps,sipXtackLib)
+sipXsqa_DEPS = $(call deps,sipXcommserverLib)
+sipXsnmp_DEPS = $(call deps,sipXsupervisor)
+sipXpostgres_DEPS = $(call deps,sipXsupervisor)
+sipXtunnel_DEPS = $(call deps,sipXsupervisor)
+sipXdns_DEPS = $(call deps,sipXsupervisor)
+sipXhttpd_DEPS = $(call deps,sipXsupervisor)
+sipXcommons_DEPS = $(call deps,sipXsupervisor)
+sipXrelay_DEPS = $(call deps,sipXcommserverLib) $(call deps,sipXcommons)
+sipXbridge_DEPS = $(call deps,sipXrelay)
+sipXfreeSwitch_DEPS = $(call deps,sipXcommserverLib)
+sipXcdr_DEPS = $(call deps,sipXcommserverLib)
+sipXacdStatistics_DEPS = $(call deps,sipXcommons)
+sipXconfig_DEPS = $(call deps,sipXcommons) $(call deps,sipXsupervisor)
+sipXopenfire_DEPS = $(call deps,sipXconfig)
+sipXcounterpath_DEPS = $(call deps,sipXconfig)
+sipXaudiocodes_DEPS = $(call deps,sipXconfig)
+sipXprompts_DEPS = $(call deps,sipXsupervisor)
+sipXivr_DEPS = $(call deps,sipXconfig)
+sipXproxy_DEPS = $(call deps,sipXcommserverLib)
+sipXpublisher_DEPS = $(call deps,sipXcommserverLib)
+sipXregistry_DEPS = $(call deps,sipXcommserverLib)
+sipXpark_DEPS = $(call deps,sipXcallLib) $(call deps,sipXcommserverLib)
+sipXpage_DEPS = $(call deps,sipXcommserverLib) $(call deps,sipXcommons)
+sipXpolycom_DEPS = $(call deps,sipXconfig)
+sipXrls_DEPS = $(call deps,sipXsqa) $(call deps,sipXcallLib) $(call deps,sipXcommserverLib)
+sipXsaa_DEPS = $(call deps,sipXcallLib)
+sipXrelease_DEPS =
+
 sipx = \
   sipXportLib \
   sipXtackLib \
