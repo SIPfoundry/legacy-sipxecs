@@ -50,6 +50,10 @@
       </type>
       <value></value>
     </setting>
+    <setting name="enable-presence">
+      <type refid="switch" />
+      <value>true</value>
+    </setting>
     <setting name="watcher-port">
       <type refid="requiredNonRootPort"/>
       <value>5064</value>

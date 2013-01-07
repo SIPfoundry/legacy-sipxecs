@@ -17,6 +17,7 @@
 package org.sipfoundry.sipxconfig.openfire;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +28,7 @@ import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
@@ -34,6 +36,7 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 public class OpenfireSettings extends PersistableSettings implements DeployConfigOnEdit {
     private static final String LOCALE = "settings/locale";
     private static final String LOG_LEVEL = "settings/log.level";
+    private static final String ENABLE_PRESENCE = "settings/enable-presence";
     private static final String WATCHER_PORT = "settings/watcher-port";
     private static final String XML_RPC_PORT = "settings/openfire-xml-rpc-port";
     private static final String XML_RPC_VCARD_PORT = "settings/openfire-xml-rpc-vcard-port";
@@ -57,6 +60,10 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
 
     public int getWatcherPort() {
         return (Integer) getSettingTypedValue(WATCHER_PORT);
+    }
+
+    public boolean isPresenceEnabled() {
+        return (Boolean) getSettingTypedValue(ENABLE_PRESENCE);
     }
 
     public int getXmlRpcPort() {
@@ -170,7 +177,7 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Collections.singleton((Feature) OpenfireImpl.FEATURE);
+        return Arrays.asList((Feature) OpenfireImpl.FEATURE, (Feature) Rls.FEATURE);
     }
 
     @Override
