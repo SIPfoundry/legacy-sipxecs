@@ -6,6 +6,7 @@ polycom_PKGS = \
 	commons-collections \
 	commons-logging \
 	org.springframework.beans \
+	org.springframework.core \
 	sipxcommons \
 	sipxconfig-neoconf \
 	velocity \
