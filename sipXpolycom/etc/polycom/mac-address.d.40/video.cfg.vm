@@ -31,31 +31,53 @@
     video.${setting.ProfileName}="$!{setting.Value}"
 #end
   >
-    <codecPref
+    <video.codecPref
 #set ($group = $cfg.EndpointSettings.getSetting('video').getSetting('codecPref'))
 #foreach ($setting in $cfg.getSettings($group))
       #set ($prefix = "video.codecPref")
       #computeCodecSettings($setting $prefix)
 #end
     />
-    <profile
-#set ($group = $cfg.EndpointSettings.getSetting('video').getSetting('profile'))
+    <video.profile>
+     <video.profile.H264
+#set ($group = $cfg.EndpointSettings.getSetting('video').getSetting('profile').getSetting('H264'))
 #foreach ($setting in $cfg.getSettings($group))
-      video.profile.${setting.ProfileName}="$!{setting.Value}"
+      video.profile.H264.${setting.ProfileName}="$!{setting.Value}"
 #end
-    />
-    <camera
+     />
+     <video.profile.H263
+#set ($group = $cfg.EndpointSettings.getSetting('video').getSetting('profile').getSetting('H263'))
+#foreach ($setting in $cfg.getSettings($group))
+      video.profile.H263.${setting.ProfileName}="$!{setting.Value}"
+#end
+     />
+     <video.profile.H2631998
+#set ($group = $cfg.EndpointSettings.getSetting('video').getSetting('profile').getSetting('H2631998'))
+#foreach ($setting in $cfg.getSettings($group))
+      video.profile.H2631998.${setting.ProfileName}="$!{setting.Value}"
+#end
+     />
+     <video.profile.H261
+#set ($group = $cfg.EndpointSettings.getSetting('video').getSetting('profile').getSetting('H261'))
+#foreach ($setting in $cfg.getSettings($group))
+      video.profile.H261.${setting.ProfileName}="$!{setting.Value}"
+#end
+     />
+    </video.profile>
+    <video.camera
 #set ($group = $cfg.EndpointSettings.getSetting('video').getSetting('camera'))
 #foreach ($setting in $cfg.getSettings($group))
       video.camera.${setting.ProfileName}="$!{setting.Value}"
 #end
     />
-    <localCameraView
+    <video.localCameraView>
+     <video.localCameraView.fullScreen
 #set ($group = $cfg.EndpointSettings.getSetting('video').getSetting('localCameraView'))
 #foreach ($setting in $cfg.getSettings($group))
       video.localCameraView.${setting.ProfileName}="$!{setting.Value}"
 #end
     />
+    </video.localCameraView>
   </video>
 #end
 </polycomConfig>

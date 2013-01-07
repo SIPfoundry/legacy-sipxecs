@@ -143,6 +143,15 @@
 #foreach ($setting in $cfg.getSettings($group))
     voice.${setting.ProfileName}="$!{setting.Value}"
 #end
+#set($voice_audioProfile_G7221_24kbps_payloadType = "127")
+      voice.audioProfile.G7221.24kbps.payloadType="$!{voice_audioProfile_G7221_24kbps_payloadType}"
+#set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('audioProfile'))
+#foreach ($subgroup in $group.Values)
+#set ($parentProfileName = $subgroup.ProfileName)
+#foreach ($setting in $subgroup.Values)
+        voice.audioProfile.${parentProfileName}.${setting.ProfileName}="$!{setting.Value}"
+#end
+#end
   >
       <voice.codecPref
 #set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('codecPref'))
@@ -160,17 +169,6 @@
 #end
     />
     </voice.volume>
-      <voice.audioProfile
-#set($voice_audioProfile_G7221_24kbps_payloadType = "127")
-      voice.audioProfile.G7221.24kbps.payloadType="$!{voice_audioProfile_G7221_24kbps_payloadType}"
-#set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('audioProfile'))
-#foreach ($subgroup in $group.Values)
-#set ($parentProfileName = $subgroup.ProfileName)
-#foreach ($setting in $subgroup.Values)
-        voice.audioProfile.${parentProfileName}.${setting.ProfileName}="$!{setting.Value}"
-#end
-#end
-      />
     <voice.vad
 #set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('vad'))
 #foreach ($setting in $cfg.getSettings($group))
