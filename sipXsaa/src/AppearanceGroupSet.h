@@ -12,6 +12,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
+#include <boost/thread.hpp>
 #include "net/SipSubscribeClient.h"
 #include "os/OsBSem.h"
 #include "utl/UtlContainableAtomic.h"
@@ -49,6 +50,15 @@ class AppearanceGroup;
 class AppearanceGroupSet : public UtlContainableAtomic
 {
   public:
+
+    typedef boost::shared_mutex mutex_read_write;
+    typedef boost::shared_lock<boost::shared_mutex> mutex_read_lock;
+    typedef boost::lock_guard<boost::shared_mutex> mutex_write_lock;
+
+    typedef boost::recursive_mutex recursive_mutex_read_write;
+    typedef boost::lock_guard<boost::recursive_mutex> recursive_mutex_read_lock;
+    typedef boost::lock_guard<boost::recursive_mutex> recursive_mutex_write_lock;
+
 
    // Enum to differentiate NOTIFY messages.
    // Max value must be less than sSeqNoIncrement.
@@ -187,7 +197,17 @@ class AppearanceGroupSet : public UtlContainableAtomic
    /** Reader/writer lock for synchronization of the AppearanceGroup and its
     *  contained Appearances.
     */
-   mutable OsBSem mSemaphore;
+   mutable mutex_read_write _listMutex;
+
+   /** Reader/writer lock for synchronization of the Subscriptions and its
+    *  contained Appearances.
+    */
+   mutable recursive_mutex_read_write _subscriptionMutex;
+
+   /** Reader/writer lock for synchronization of the Notifies and its
+    *  contained Appearances.
+    */
+   mutable mutex_read_write _notifyMutex;
 
    /** List of AppearanceGroup objects in the AppearanceGroupSet.
     */
