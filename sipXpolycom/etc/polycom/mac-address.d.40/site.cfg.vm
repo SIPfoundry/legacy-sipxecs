@@ -106,31 +106,6 @@
       />
     </lcl.datetime>
   </lcl>
-  <up
-#set ($group = $cfg.EndpointSettings.getSetting('up'))
-#foreach ($setting in $cfg.getSettings($group))
-#if ($setting.ProfileName != "analogHeadsetOption")
-    up.${setting.ProfileName}="$!{setting.Value}"
-#end
-#end
-  >
-#if ($phone.model.isSupported("video"))
-    <up.pictureFrame
-#set ($group = $cfg.EndpointSettings.getSetting('up').getSetting('pictureFrame'))
-#foreach ($setting in $cfg.getSettings($group))
-      up.pictureFrame.${setting.ProfileName}="$!{setting.Value}"
-#end
-    />
-#end
-#if ($phone.model.isSupported("video"))
-    <up.screenSaver
-#set ($group = $cfg.EndpointSettings.getSetting('up').getSetting('screenSaver'))
-#foreach ($setting in $cfg.getSettings($group))
-      up.screenSaver.${setting.ProfileName}="$!{setting.Value}"
-#end
-    />
-#end
-  </up>
   <se
 #set ($group = $cfg.EndpointSettings.getSetting('se'))
 #foreach ($setting in $cfg.getSettings($group))
@@ -186,9 +161,9 @@
       >
 #if ($phone.model.isSupported("video"))
       <qos.ethernet.rtp.video
-#set ($setting = $cfg.EndpointSettings.getSetting('qos').getSetting('ethernet').getSetting('rtp'))
+#set ($setting = $cfg.EndpointSettings.getSetting('qos').getSetting('ethernet').getSetting('rtp').getSetting('video'))
    #foreach ($setting in $cfg.getSettings($group))
-       qos.ethernet.rtp.${setting.ProfileName}="$!{setting.Value}"
+       qos.ethernet.rtp.video.${setting.ProfileName}="$!{setting.Value}"
    #end
    />
 #end

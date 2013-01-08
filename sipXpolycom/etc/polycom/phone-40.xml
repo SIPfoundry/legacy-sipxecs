@@ -1545,12 +1545,14 @@
           </type>
           <value>5</value>
         </setting>
-        <setting name="video.user_priority" if="video">
+        <group name="video" if="video">
+         <setting name="user_priority">
           <type>
             <integer min="0" max="7" />
           </type>
           <value>5</value>
-        </setting>
+         </setting>
+        </group>
       </group>
       <group name="callControl">
         <setting name="user_priority">
