@@ -13,6 +13,7 @@
 #include <poll.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <string>
 
 // APPLICATION INCLUDES
 #include <net/SipMessage.h>
@@ -804,19 +805,56 @@ int SipClient::run(void* runArg)
             // remember any unparsed input for later use.
             readBuffer.remove(0, res);
          }  // end keep-alive msg
-
+         else if (res <= 4 && mSocketType == OsSocket::UDP)
+         {
+            //
+            // UDP socket read bytes that is too small to be a valid SIP Message
+            //
+            delete msg;
+            readBuffer.remove(0, res);
+         }
          else if (res > 0)      // got message, but not keep-alive
          {
-            // Message successfully read.
-            repeatedEOFs = 0;
+            
+            const char* firstHeaderLine = msg->getFirstHeaderLine();
+            bool seemsValid = firstHeaderLine && *firstHeaderLine != '\0';
+            std::string startLine;
+            if(seemsValid)
+            {
+              startLine = firstHeaderLine;
+              seemsValid = (startLine.find("SIP") != std::string::npos);
+            }
 
-            // Do preliminary processing of message to log it,
-            // clean up its data, and extract any needed source address.
-            preprocessMessage(*msg, readBuffer, res);
+            if (seemsValid)
+            {
+              // Message successfully read.
+              repeatedEOFs = 0;
 
-            // Dispatch the message.
-            // dispatch() takes ownership of *msg.
-            mpSipUserAgent->dispatch(msg);
+              // Do preliminary processing of message to log it,
+              // clean up its data, and extract any needed source address.
+              preprocessMessage(*msg, readBuffer, res);
+
+              // Dispatch the message.
+              // dispatch() takes ownership of *msg.
+              mpSipUserAgent->dispatch(msg);
+            }
+            else
+            {
+              // Delete the SipMessage allocated above.  It is malformed.
+              delete msg;
+              OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipClient[%s]::run error "
+                          "startLine: %s "
+                          "tcpOnErrWaitForSend-%d waitingToReportErr-%d "
+                          "mbTcpOnErrWaitForSend-%d repeatedEOFs-%d "
+                          "protocol %d framed %d",
+                          mName.data(),
+                          startLine.c_str(),
+                          tcpOnErrWaitForSend, waitingToReportErr,
+                          mbTcpOnErrWaitForSend, repeatedEOFs,
+                          mClientSocket->getIpProtocol(),
+                          OsSocket::isFramed(mClientSocket->getIpProtocol()));
+            }
 
             // Now that logging is done, remove the parsed bytes and
             // remember any unparsed input for later use.
