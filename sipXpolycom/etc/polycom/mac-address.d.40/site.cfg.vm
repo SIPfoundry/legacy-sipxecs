@@ -320,51 +320,12 @@
 #end
 
   <divert
-#foreach ($line in $lines)
-#set ($i = $velocityCount)
-#set ($group = $line.getSetting('divert'))
-#foreach ($setting in $cfg.getSettings($group))
-    divert.${i}.${setting.ProfileName}="$!{setting.Value}"
+#set($start = 1)
+#set($end = $lines)
+#foreach($i in [$start..$end])
+    divert.fwd.${i}.enabled="0"
 #end
-#end
-  >
-    <divert.fwd
-#foreach ($line in $lines)
-#set ($i = $velocityCount)
-#set ($group = $line.getSetting('divert').getSetting('fwd'))
-#foreach ($setting in $cfg.getSettings($group))
-      divert.fwd.${i}.${setting.ProfileName}="$!{setting.Value}"
-#end
-#end
-    />
-    <divert.busy
-#foreach ($line in $lines)
-#set ($i = $velocityCount)
-#set ($group = $line.getSetting('divert').getSetting('busy'))
-#foreach ($setting in $cfg.getSettings($group))
-      divert.busy.${i}.${setting.ProfileName}="$!{setting.Value}"
-#end
-#end
-    />
-    <divert.noanswer
-#foreach ($line in $lines)
-#set ($i = $velocityCount)
-#set ($group = $line.getSetting('divert').getSetting('noanswer'))
-#foreach ($setting in $cfg.getSettings($group))
-      divert.noanswer.${i}.${setting.ProfileName}="$!{setting.Value}"
-#end
-#end
-    />
-    <divert.dnd
-#foreach ($line in $lines)
-#set ($i = $velocityCount)
-#set ($group = $line.getSetting('divert').getSetting('dnd'))
-#foreach ($setting in $cfg.getSettings($group))
-      divert.dnd.${i}.${setting.ProfileName}="$!{setting.Value}"
-#end
-#end
-    />
-  </divert>
+  />
   
 
 <device device.set="1"
