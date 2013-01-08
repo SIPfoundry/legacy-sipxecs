@@ -15,6 +15,8 @@
 #define _OsMsgQShared_h_
 
 // SYSTEM INCLUDES
+#include <queue>
+#include <boost/thread.hpp>
 
 // APPLICATION INCLUDES
 #include "os/OsCSem.h"
@@ -24,6 +26,8 @@
 #include "os/OsMutex.h"
 #include "os/OsTime.h"
 #include "utl/UtlDList.h"
+
+
 
 // DEFINES
 // MACROS
@@ -45,7 +49,69 @@ class OsMsgQShared : public OsMsgQBase
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+  typedef boost::mutex mutex_critic_sec;
+  typedef boost::lock_guard<mutex_critic_sec> mutex_critic_sec_lock;
+
 /* ============================ CREATORS ================================== */
+  class Semaphore
+  {
+      //The current semaphore count.
+      unsigned int _count;
+
+      //_mutex protects _count.
+      //Any code that reads or writes the _count data must hold a lock on
+      //the mutex.
+      boost::mutex _mutex;
+
+      //Code that increments _count must notify the condition variable.
+      boost::condition_variable _condition;
+
+  public:
+      explicit Semaphore(unsigned int initial_count = 0)
+         : _count(initial_count),
+           _mutex(),
+           _condition()
+      {
+      }
+
+
+      void signal() //called "release" in Java
+      {
+          boost::unique_lock<boost::mutex> lock(_mutex);
+
+          ++_count;
+
+          //Wake up any waiting threads.
+          //Always do this, even if _count wasn't 0 on entry.
+          //Otherwise, we might not wake up enough waiting threads if we
+          //get a number of signal() calls in a row.
+          _condition.notify_one();
+      }
+
+      void wait() //called "acquire" in Java
+      {
+          boost::unique_lock<boost::mutex> lock(_mutex);
+          while (_count == 0)
+          {
+               _condition.wait(lock);
+          }
+          --_count;
+      }
+
+      bool wait(int milliseconds)
+      {
+        boost::unique_lock<boost::mutex> lock(_mutex);
+        boost::system_time const timeout = boost::get_system_time()+ boost::posix_time::milliseconds(milliseconds);
+        while (_count == 0)
+        {
+           if (!_condition.timed_wait(lock,timeout))
+             return false;
+        }
+        --_count;
+        return true;
+      }
+
+   };
 
    OsMsgQShared(
       const char* name,                        //:global name for this queue
@@ -77,11 +143,6 @@ public:
      // Wait until there is either room on the queue or the timeout expires.
      // Takes ownership of *pMsg.
 
-   virtual OsStatus sendUrgent(const OsMsg& rMsg,
-                               const OsTime& rTimeout=OsTime::OS_INFINITY);
-     //:Insert a message at the head of the queue
-     // Wait until there is either room on the queue or the timeout expires.
-
    virtual OsStatus sendFromISR(const OsMsg& rMsg);
      //:Insert a message at the tail of the queue.
      // Sending from an ISR has a couple of implications.  Since we can't
@@ -100,55 +161,23 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-#ifdef OS_MSGQ_DEBUG
-   int getFullCount(void) { return mFull.getValue();}
-   int getEmptyCount(void) { return mEmpty.getValue();}
-   UtlDList& getList() { return mDlist;}
-#endif
+
 
    virtual int numMsgs(void);
      //:Return the number of messages in the queue
 
-#ifdef MSGQ_IS_VALID_CHECK
-   virtual void show(void);
-     //:Print information on the message queue to the console
-     // Output enabled via a compile-time #ifdef
-#endif
+
 
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-#ifdef MSGQ_IS_VALID_CHECK
-   virtual void testMessageQ();
-#endif
+
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   OsMutex  mGuard;  // mutex used to synchronize access to the msg queue
-   OsCSem   mEmpty;  // counting semaphore used to coordinate sending msgs to
-                     //  the queue and blocking senders to keep the number
-                     //  of messages less than or equal to maxMsgs.
-   OsCSem   mFull;   // counting semaphore used to coordinate receiving msgs
-                     //  from the queue and blocking receivers when there are
-                     //  no messages to receive.
-   UtlDList  mDlist; // doubly-linked list used to store messages
-   int      mOptions; // message queue options
-   int      mHighCnt; // high water mark for the number of msgs in the queue
-   bool     mReportFull; // if true, report when queue is over half full
-
-#ifdef OS_MSGQ_REPORTING
-   int      mIncreaseLevel;   // emit a message to the log when the number
-                              //  of messages reaches the mIncreaseLevel
-   int      mDecreaseLevel;   // emit a message to the log when the number
-                              //  of messages goes below the mDecreaseLevel
-   int      mIncrementLevel;  // When the mIncreaseLevel or mDecreaseLevels
-                              //  are reached, increment/decrement the level
-                              //  by mIncrementLevel
-#endif
-
    OsStatus doSend(const OsMsg& rMsg,
                    const OsTime& rTimeout,
                    const UtlBoolean isUrgent,
@@ -175,6 +204,47 @@ private:
    OsMsgQShared& operator=(const OsMsgQShared& rhs);
      //:Assignment operator (not implemented for this class)
 
+
+protected:
+
+  void enqueue(OsMsg* data)
+  {
+    _cs.lock();
+    _queue.push(data);
+    _cs.unlock();
+    _sem.signal();
+  }
+
+  void dequeue(OsMsg*& data)
+  {
+    _sem.wait();
+    _cs.lock();
+    data = _queue.front();
+    _queue.pop();
+    _cs.unlock();
+  }
+
+  bool try_dequeue(OsMsg*& data, long milliseconds)
+  {
+    if (!_sem.wait(milliseconds))
+      return false;
+
+    _cs.lock();
+    data = _queue.front();
+    _queue.pop();
+    _cs.unlock();
+
+    return true;
+  }
+
+private:
+  Semaphore _sem;
+  mutex_critic_sec _cs;
+  std::queue<OsMsg*> _queue;
+  int _maxMsgs;
+  int _maxMsgLen;
+  int _options;
+  bool _reportFull;
 };
 
 /* ============================ INLINE METHODS ============================ */
