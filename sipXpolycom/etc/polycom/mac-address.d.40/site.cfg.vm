@@ -185,9 +185,14 @@
 #end
       >
 #if ($phone.model.isSupported("video"))
-#set ($setting = $group.getSetting('rtp.video.user_priority'))
-      <qos.ethernet.rtp.video qos.ethernet.${setting.ProfileName}="$!{setting.Value}" />
+      <qos.ethernet.rtp.video
+#set ($setting = $cfg.EndpointSettings.getSetting('qos').getSetting('ethernet').getSetting('rtp'))
+   #foreach ($setting in $cfg.getSettings($group))
+       qos.ethernet.rtp.${setting.ProfileName}="$!{setting.Value}"
+   #end
+   />
 #end
+		
       </qos.ethernet.rtp>
 #set ($group = $cfg.EndpointSettings.getSetting('qos').getSetting('ethernet').getSetting('callControl'))
       <qos.ethernet.callControl

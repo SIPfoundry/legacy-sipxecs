@@ -1243,7 +1243,7 @@
         <value>1.3</value>
       </setting>
      </group>
-     <group name="H264">
+     <group name="H263">
       <setting name="jitterBufferMax">
         <type>
           <integer min="533" max="2500" />
