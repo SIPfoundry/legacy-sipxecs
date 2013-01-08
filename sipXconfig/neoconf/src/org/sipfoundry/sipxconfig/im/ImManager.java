@@ -41,4 +41,6 @@ public abstract class ImManager  {
     public static final AddressType XMLRPC_VCARD_ADDRESS = new AddressType("instantMessageVcardXmlrpc",
             URL_FORMAT);
     public static final AddressType WATCHER_ADDRESS = new AddressType("instantMessageWatcher");
+
+    public abstract boolean isPresenceEnabled();
 }

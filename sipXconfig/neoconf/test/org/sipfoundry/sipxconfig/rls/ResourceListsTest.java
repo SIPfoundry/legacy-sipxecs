@@ -77,9 +77,13 @@ public class ResourceListsTest extends XMLTestCase {
         Thread.sleep(1000);// sleep 1 second. I get inconsistent results when running the tests,
                            // as if mongo does not pick up quickly
 
-        Document doc = m_rl.getDocument();        
+        Document doc = m_rl.getDocument(true);        
         String generatedXml = TestHelper.asString(doc);
         InputStream referenceXml = getClass().getResourceAsStream("resource-lists.test.xml");
+        assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
+        doc = m_rl.getDocument(false);        
+        generatedXml = TestHelper.asString(doc);
+        referenceXml = getClass().getResourceAsStream("resource-lists-no-xmpp.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
     }
 
@@ -100,7 +104,7 @@ public class ResourceListsTest extends XMLTestCase {
         insertJson(getEntityCollection(), json3, json2);
         Thread.sleep(1000);
 
-        Document doc = m_rl.getDocument();        
+        Document doc = m_rl.getDocument(true);        
         String fileContent = TestHelper.asString(doc);
         InputStream referenceXml = getClass().getResourceAsStream("resource-lists-noblfperm.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(fileContent));

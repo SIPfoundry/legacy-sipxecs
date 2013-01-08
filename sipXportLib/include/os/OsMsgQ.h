@@ -87,19 +87,13 @@ public:
      // Wait until there is either room on the queue or the timeout expires.
      // Takes ownership of *pMsg.
 
-   virtual OsStatus sendUrgent(const OsMsg& rMsg,
-                               const OsTime& rTimeout=OsTime::OS_INFINITY) = 0;
-     //:Insert a message at the head of the queue
-     // Wait until there is either room on the queue or the timeout expires.
-
    virtual OsStatus sendFromISR(const OsMsg& rMsg) = 0;
-     //:Insert a message at the tail of the queue
-     // Sending from an ISR has a couple of implications.  Since we can't
-     // allocate memory within an ISR, we don't create a copy of the message
-     // before sending it and the sender and receiver need to agree on a
-     // protocol (outside this class) for when the message can be freed.
-     // The sentFromISR flag in the OsMsg object will be TRUE for messages
-     // sent using this method.
+
+     //:Insert a message at the tail of the queue and wait for a response
+     // Wait until there is either room on the queue or the timeout expires.
+     // Does not take ownership of *pMsg, unless *pMsg is reusable (which
+     // is not the default).  will signal only the first thread the is waiting
+     // on a queue
 
    virtual OsStatus receive(OsMsg*& rpMsg,
                             const OsTime& rTimeout=OsTime::OS_INFINITY) = 0;
