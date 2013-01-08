@@ -106,31 +106,6 @@
       />
     </lcl.datetime>
   </lcl>
-  <up
-#set ($group = $cfg.EndpointSettings.getSetting('up'))
-#foreach ($setting in $cfg.getSettings($group))
-#if ($setting.ProfileName != "analogHeadsetOption")
-    up.${setting.ProfileName}="$!{setting.Value}"
-#end
-#end
-  >
-#if ($phone.model.isSupported("video"))
-    <up.pictureFrame
-#set ($group = $cfg.EndpointSettings.getSetting('up').getSetting('pictureFrame'))
-#foreach ($setting in $cfg.getSettings($group))
-      up.pictureFrame.${setting.ProfileName}="$!{setting.Value}"
-#end
-    />
-#end
-#if ($phone.model.isSupported("video"))
-    <up.screenSaver
-#set ($group = $cfg.EndpointSettings.getSetting('up').getSetting('screenSaver'))
-#foreach ($setting in $cfg.getSettings($group))
-      up.screenSaver.${setting.ProfileName}="$!{setting.Value}"
-#end
-    />
-#end
-  </up>
   <se
 #set ($group = $cfg.EndpointSettings.getSetting('se'))
 #foreach ($setting in $cfg.getSettings($group))
@@ -142,6 +117,15 @@
 #set ($group = $cfg.EndpointSettings.getSetting('voice'))
 #foreach ($setting in $cfg.getSettings($group))
     voice.${setting.ProfileName}="$!{setting.Value}"
+#end
+#set($voice_audioProfile_G7221_24kbps_payloadType = "127")
+      voice.audioProfile.G7221.24kbps.payloadType="$!{voice_audioProfile_G7221_24kbps_payloadType}"
+#set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('audioProfile'))
+#foreach ($subgroup in $group.Values)
+#set ($parentProfileName = $subgroup.ProfileName)
+#foreach ($setting in $subgroup.Values)
+        voice.audioProfile.${parentProfileName}.${setting.ProfileName}="$!{setting.Value}"
+#end
 #end
   >
       <voice.codecPref
@@ -160,17 +144,6 @@
 #end
     />
     </voice.volume>
-      <voice.audioProfile
-#set($voice_audioProfile_G7221_24kbps_payloadType = "127")
-      voice.audioProfile.G7221.24kbps.payloadType="$!{voice_audioProfile_G7221_24kbps_payloadType}"
-#set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('audioProfile'))
-#foreach ($subgroup in $group.Values)
-#set ($parentProfileName = $subgroup.ProfileName)
-#foreach ($setting in $subgroup.Values)
-        voice.audioProfile.${parentProfileName}.${setting.ProfileName}="$!{setting.Value}"
-#end
-#end
-      />
     <voice.vad
 #set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('vad'))
 #foreach ($setting in $cfg.getSettings($group))
@@ -187,9 +160,14 @@
 #end
       >
 #if ($phone.model.isSupported("video"))
-#set ($setting = $group.getSetting('rtp.video.user_priority'))
-      <qos.ethernet.rtp.video qos.ethernet.${setting.ProfileName}="$!{setting.Value}" />
+      <qos.ethernet.rtp.video
+#set ($setting = $cfg.EndpointSettings.getSetting('qos').getSetting('ethernet').getSetting('rtp').getSetting('video'))
+   #foreach ($setting in $cfg.getSettings($group))
+       qos.ethernet.rtp.video.${setting.ProfileName}="$!{setting.Value}"
+   #end
+   />
 #end
+		
       </qos.ethernet.rtp>
 #set ($group = $cfg.EndpointSettings.getSetting('qos').getSetting('ethernet').getSetting('callControl'))
       <qos.ethernet.callControl

@@ -1158,19 +1158,19 @@
       <type>
         <boolean />
       </type>
-      <value/>
+      <value>1</value>
     </setting>
     <setting name="autoStartVideoTx">
       <type>
         <boolean />
       </type>
-      <value/>
+      <value>1</value>
     </setting>
     <setting name="autoFullScreen">
       <type>
         <boolean />
       </type>
-      <value/>
+      <value>1</value>
     </setting>
     <setting name="screenMode">
       <type refid="screenMode" />
@@ -1213,184 +1213,192 @@
       </setting>
     </group>
     <group name="profile"  advanced="yes">
-      <setting name="H264.jitterBufferMax">
+     <group name="H264">
+      <setting name="jitterBufferMax">
         <type>
           <integer min="533" max="2500" />
         </type>
         <value>2000</value>
       </setting>
-      <setting name="H264.jitterBufferMin">
+      <setting name="jitterBufferMin">
         <type>
           <integer min="33" max="1000" />
         </type>
         <value>150</value>
       </setting>
-      <setting name="H264.jitterBufferShrink">
+      <setting name="jitterBufferShrink">
         <type>
           <integer min="33" max="1000" />
         </type>
         <value>70</value>
       </setting>
-      <setting name="H264.payloadType">
+      <setting name="payloadType">
         <type>
           <integer min="96" max="127" />
         </type>
         <value>109</value>
       </setting>
-          <setting name="H264.profileLevel">
+          <setting name="profileLevel">
         <type refid="profileLevel" />
         <value>1.3</value>
       </setting>
-      <setting name="H263.jitterBufferMax">
+     </group>
+     <group name="H263">
+      <setting name="jitterBufferMax">
         <type>
           <integer min="533" max="2500" />
         </type>
         <value>2000</value>
       </setting>
-      <setting name="H263.jitterBufferMin">
+      <setting name="jitterBufferMin">
         <type>
           <integer min="33" max="1000" />
         </type>
         <value>150</value>
       </setting>
-      <setting name="H263.jitterBufferShrink">
+      <setting name="jitterBufferShrink">
         <type>
           <integer min="33" max="1000" />
         </type>
         <value>70</value>
       </setting>
-      <setting name="H263.CifMpi">
+      <setting name="CifMpi">
         <type>
           <integer min="1" max="32" />
         </type>
         <value>1</value>
       </setting>
-      <setting name="H263.QcifMpi">
+      <setting name="QcifMpi">
         <type>
           <integer min="1" max="32" />
         </type>
         <value>1</value>
       </setting>
-      <setting name="H263.SqcifMpi">
+      <setting name="SqcifMpi">
         <type>
           <integer min="1" max="32" />
         </type>
         <value>1</value>
       </setting>
-      <setting name="H2631998.jitterBufferMax">
+     </group>
+     <group name="H2631998">
+      <setting name="jitterBufferMax">
         <type>
           <integer min="533" max="2500" />
         </type>
         <value>2000</value>
       </setting>
-      <setting name="H2631998.jitterBufferMin">
+      <setting name="jitterBufferMin">
         <type>
           <integer min="33" max="1000" />
         </type>
         <value>150</value>
       </setting>
-      <setting name="H2631998.jitterBufferShrink">
+      <setting name="jitterBufferShrink">
         <type>
           <integer min="33" max="1000" />
         </type>
         <value>70</value>
       </setting>
-      <setting name="H2631998.payloadType">
+      <setting name="payloadType">
         <type>
           <integer min="96" max="127" />
         </type>
         <value>96</value>
       </setting>
-      <setting name="H2631998.CifMpi">
+      <setting name="CifMpi">
         <type>
           <integer min="1" max="32" />
         </type>
         <value>1</value>
       </setting>
-      <setting name="H2631998.QcifMpi">
+      <setting name="QcifMpi">
         <type>
           <integer min="1" max="32" />
         </type>
         <value>1</value>
       </setting>
-      <setting name="H2631998.SqcifMpi">
+      <setting name="SqcifMpi">
         <type>
           <integer min="1" max="32" />
         </type>
         <value>1</value>
       </setting>
-      <setting name="H2631998.annexF">
+      <setting name="annexF">
         <type>
-          <integer min="0" max="1" />
+          <boolean />
         </type>
-        <value/>
+        <value>0</value>
       </setting>
-      <setting name="H2631998.annexI">
+      <setting name="annexI">
         <type>
-          <integer min="0" max="1" />
+          <boolean />
         </type>
-        <value/>
+        <value>0</value>
       </setting>
-      <setting name="H2631998.annexJ">
+      <setting name="annexJ">
         <type>
-          <integer min="0" max="1" />
+          <boolean />
         </type>
-        <value/>
+        <value>0</value>
       </setting>
-      <setting name="H2631998.annexT">
+      <setting name="annexT">
         <type>
-          <integer min="0" max="1" />
+          <boolean />
         </type>
-        <value/>
+        <value>0</value>
       </setting>
-      <setting name="H2631998.annexK">
+      <setting name="annexK">
         <type>
-          <integer min="0" max="1" />
-        </type>
-        <value>1</value>
-      </setting>
-      <setting name="H2631998.annexN">
-        <type>
-          <integer min="0" max="1" />
+          <boolean />
         </type>
         <value>1</value>
       </setting>
-      <setting name="H261.CifMpi">
+      <setting name="annexN">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+     </group>
+     <group name="H261">
+      <setting name="CifMpi">
 	    <type>
 	      <integer min="1" max="32" />
 	    </type>
 	    <value>1</value>
 	  </setting>
-	  <setting name="H261.QcifMpi">
+	  <setting name="QcifMpi">
 	    <type>
 	      <integer min="1" max="32" />
 	    </type>
 	    <value>1</value>
 	  </setting>
-	  <setting name="H261.annexD">
-	    <type>
-	      <integer min="0" max="1" />
-	    </type>
-	    <value/>
+	  <setting name="annexD">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
 	  </setting>
-	  <setting name="H261.jitterBufferMax">
+	  <setting name="jitterBufferMax">
 	    <type>
 	      <integer min="533" max="2500" />
 	    </type>
 	    <value>2000</value>
 	  </setting>
-	  <setting name="H261.jitterBufferMin">
+	  <setting name="jitterBufferMin">
 	    <type>
 	      <integer min="33" max="1000" />
 	    </type>
 	    <value>150</value>
 	  </setting>
-	  <setting name="H261.jitterBufferShrink">
+	  <setting name="jitterBufferShrink">
 	    <type>
 	      <integer min="33" max="1000" />
 	    </type>
 	    <value>70</value>
 	  </setting>
+	 </group>
     </group>
     <group name="camera">
       <setting name="flickerAvoidance">
@@ -1433,7 +1441,7 @@
     <group name="localCameraView">
       <setting name="fullscreen.enabled">
         <type><boolean /></type>
-        <value/>
+        <value>1</value>
       </setting>
       <setting name="fullscreen.mode">
         <type>
@@ -1537,12 +1545,14 @@
           </type>
           <value>5</value>
         </setting>
-        <setting name="video.user_priority" if="video">
+        <group name="video" if="video">
+         <setting name="user_priority">
           <type>
             <integer min="0" max="7" />
           </type>
           <value>5</value>
-        </setting>
+         </setting>
+        </group>
       </group>
       <group name="callControl">
         <setting name="user_priority">
@@ -2621,7 +2631,7 @@
         <type>
           <boolean />
         </type>
-        <value />
+        <value>1</value>
       </setting>
     </group>
   </group>

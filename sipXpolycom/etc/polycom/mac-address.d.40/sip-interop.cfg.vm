@@ -159,12 +159,6 @@
   />
 #end
 
-#foreach ($line in ${lines})
-#set ($i = $velocityCount)
-<reg
-  reg.${i}.proxyRequire=""
-/>
-#end
   <msg
 #set ($group = $cfg.EndpointSettings.getSetting('msg'))
 #foreach ($setting in $cfg.getSettings($group))
