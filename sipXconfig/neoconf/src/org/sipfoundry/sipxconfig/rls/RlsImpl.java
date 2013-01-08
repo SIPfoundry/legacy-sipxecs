@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
@@ -37,15 +38,18 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
+import org.springframework.beans.factory.annotation.Required;
 
 public class RlsImpl implements AddressProvider, FeatureProvider, Rls, ProcessProvider, FirewallProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(UDP_SIP, TCP_SIP);
     private BeanWithSettingsDao<RlsSettings> m_settingsDao;
+    private ConfigManager m_configManager;
 
     @Override
     public RlsSettings getSettings() {
@@ -124,5 +128,13 @@ public class RlsImpl implements AddressProvider, FeatureProvider, Rls, ProcessPr
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        if (request.hasChanged(Rls.FEATURE)) {
+            m_configManager.configureEverywhere(ImManager.FEATURE);
+        }
+    }
+
+    @Required
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
     }
 }

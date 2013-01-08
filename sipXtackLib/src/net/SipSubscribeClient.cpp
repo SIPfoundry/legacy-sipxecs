@@ -777,6 +777,7 @@ UtlBoolean SipSubscribeClient::endSubscriptionDialogByNotifier(const UtlString& 
 
    SubscriptionDialogState* dialogState;
    {
+       OsLock  lock(mSemaphore);
       // Delete the dialogState so that when the termination NOTIFY arrives
       // it does not match an existing dialog and so does not cause the
       // subscription to be reestablished.
@@ -1059,7 +1060,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
       // A subscription received a successful response.
       // We may already have dialog state for it, or we may not.
 
-      OsLock lock(mSemaphore);
+      OsLockUnlockable lock(mSemaphore);
 
       // Find the subscription group.
       SubscriptionGroupState* groupState = getGroupStateByCurrentHandle(earlyDialogHandle);
@@ -1101,6 +1102,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
                           groupState->mSuccessResponses);
          }
 
+         OsUnLock unlock(lock);
          if (groupState->mpStateCallback)
          {
             // Do the callback with the new expiration time.
@@ -1170,6 +1172,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
 
                if (groupState->mpStateCallback)
                {
+                   OsUnLock unlock(lock);
                   // Do the callback with the new state.
                   groupState->mpStateCallback(dialogState->mState,
                                               groupState->data(),
@@ -1229,9 +1232,6 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
 
 void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
 {
-    // Hold the locks for the entire function body.
-    OsLockUnlockable lock(mSemaphore);
-
     UtlString eventField;
     notifyRequest.getEventFieldParts(&eventField);
     // We could validate that the event field is
@@ -1339,6 +1339,7 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
 
     foundEarlyDialog = mpDialogMgr->earlyDialogExists(earlyDialogHandle);
 
+    OsLockUnlockable lock(mSemaphore);
     if (foundDialog)
     {
        groupState = getGroupStateByCurrentHandle(earlyDialogHandle);
@@ -1489,6 +1490,7 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
        if (groupState->mpStateCallback)
        {
 	  // Indicate that the subscription was established
+           OsUnLock unlock(lock);
 	  dialogState->mpGroupState->mpStateCallback(SUBSCRIPTION_SETUP,
 						     groupState->data(),
 						     dialogState->data(),
@@ -1559,6 +1561,8 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
        {
           if (dialogState->mpGroupState->mpNotifyCallback)
           {
+              OsUnLock unlock(lock);
+
              bSendResponse = dialogState->mpGroupState->mpNotifyCallback(dialogState->mpGroupState->data(),
                                                          dialogState->data(),
                                                          dialogState->mpGroupState->mpApplicationData,
@@ -1582,11 +1586,12 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
              // Save the group state handle.
              UtlString originalHandle(*dialogState->mpGroupState);
 
+             OsUnLock unlock(lock);
              // Delete knowledge of this subscription dialog, without sending
              // an un-SUBSCRIBE (which would be redundant).
              endSubscriptionDialogByNotifier(*dialogState);
 
-             OsUnLock unlock(lock);
+
              dialogState = NULL;
              groupState = NULL;
 
@@ -1975,6 +1980,7 @@ void SipSubscribeClient::reestablish(const UtlString& handle)
          // Give a copy of the request to the refresh manager to send the
          // SUBSCRIBE and keep the subscription alive.
          UtlString earlyDialogHandle;
+
          mpRefreshManager->
             initiateRefresh(new SipMessage(*groupState->mpSubscriptionRequest),
                             //< give ownership to mpRefreshManager
