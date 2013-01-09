@@ -7,6 +7,7 @@
 	<resource-list>~~rl~C~~~id~xmpprlsclient</resource-list>
 	<watcher-address>192.168.1.1</watcher-address>
 	<watcher-port>5064</watcher-port>
+	<watcher-enabled>true</watcher-enabled>
 	<log-directory>LogDirTest</log-directory>
 	<log-level>ERR</log-level>
 	<openfire-xml-rpc-port>9095</openfire-xml-rpc-port>
