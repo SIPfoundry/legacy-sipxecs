@@ -8,6 +8,11 @@ SFAC_AUTOMAKE_VERSION([1.6])
 AC_CONFIG_SRCDIR([src/net/SipMessage.cpp])
 AM_CONFIG_HEADER([src/config.h])
 AC_PROG_LIBTOOL
+AC_CHECK_LIB(boost_thread, main, [BOOST_LDADD="-lboost_thread -lboost_system"],
+    [AC_CHECK_LIB(boost_thread-mt, main,
+    [BOOST_LDADD="-lboost_thread-mt -lboost_system-mt"],
+    [AC_MSG_ERROR("no boost thread found")])])
+AC_SUBST(BOOST_LDADD)
 AC_PATH_PROG([BASH], [bash])
 AC_PROG_CXX
 AX_COMPILER_VENDOR

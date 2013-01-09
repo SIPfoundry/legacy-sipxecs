@@ -40,7 +40,6 @@
 class CpCallManager;
 class MpMediaTask;
 class OsNameDb;
-class OsTimerTask;
 class PsPhoneTask;
 class UtlMemCheck;
 class SipUserAgent;
@@ -161,7 +160,6 @@ private:
         CpCallManager*    mpCallMgrTask; // call manager task
         MpMediaTask*      mpMediaTask;   // media processing task
         PsPhoneTask*      mpPhoneTask;   // phone set task
-        OsTimerTask*      mpTimerTask;   // timer manager task
         SipUserAgent*     mpSipUserAgentTask; // sip stack
         PtMGCP*           mpMgcpStackTask; // MGCP stack
         HttpServer*       mpHttpServer;  // Http Server

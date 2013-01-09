@@ -44,7 +44,6 @@
 #include "net/SipRefreshMgr.h"
 #include "os/OsLock.h"
 #include "os/OsSysLog.h"
-#include "os/OsTimerTask.h"
 #include "os/OsStunAgentTask.h"
 #include "net/TapiMgr.h"
 #include "net/SipSrvLookup.h"
@@ -521,9 +520,6 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst)
 
         if ( (nCalls == 0) && (nConferences == 0) && (nLines == 0) )
         {
-            // Destroy the timer task to flush timers
-            OsTimerTask::destroyTimerTask() ;
-
             // get rid of pointer to the line manager in the refresh manager
             pInst->pRefreshManager->setLineMgr(NULL);
 
@@ -619,10 +615,6 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst)
 
             delete pInst;
             pInst = NULL;
-
-            // Destroy the timer task once more -- some of the destructors (SipUserAgent)
-            // mistakenly re-creates them when terminating.
-            OsTimerTask::destroyTimerTask() ;
 
             sipxDestroyMediaFactoryFactory() ;
 

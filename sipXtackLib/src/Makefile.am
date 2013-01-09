@@ -46,6 +46,7 @@ libsipXtack_la_CFLAGS = \
 libsipXtack_la_LIBADD = \
 	@SIPXPORT_LIBS@ \
 	@SSL_LIBS@ \
+        @BOOST_LDADD@
 	-lstdc++
 
 libsipXtack_la_SOURCES =  \

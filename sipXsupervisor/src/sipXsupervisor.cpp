@@ -20,6 +20,7 @@
 #include "os/OsSysLog.h"
 #include "os/OsConfigDb.h"
 #include "os/OsTask.h"
+#include "os/OsTimer.h"
 #include "os/OsSSLServerSocket.h"
 #include "net/XmlRpcDispatch.h"
 #include "sipXecsService/SipXecsService.h"
@@ -563,6 +564,7 @@ int supervisorMain(bool bOriginalSupervisor)
 
     doWaitLoop();
 
+    OsTimer::terminateTimerService();
     // Successful run.
     return 0;
 }
