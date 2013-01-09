@@ -19,7 +19,8 @@ CHECK_JDK
 CHECK_ANT
 CHECK_CLOVER
 CHECK_RUBY([1.8.2])
-CHECK_RUBY_MODULE([soap/wsdlDriver])
+# doesnt work on f17, and will not get past make dist target
+# CHECK_RUBY_MODULE([soap/wsdlDriver])
 CHECK_GEM([0.8.11])
 CHECK_RAKE([0.7])
 CHECK_YUM

@@ -389,21 +389,25 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         log.info("plugin initializaton completed");
         log.info("DONE");
 
-        CallWatcher.setWatcherConfig(watcherConfig);
+        if (watcherConfig.isEnableCallWatcher()) {
+            CallWatcher.setWatcherConfig(watcherConfig);
 
-        /*
-         * Everything else is ready.  Let the SIP side of the show begin...
-         */
-        try {
-            CallWatcher.init();
-            log.info("completed init");
-            ResourceStateChangeListener resourceStateChangeListener = new ResourceStateChangeListenerImpl(
-                    this);
-            CallWatcher.getSubscriber().setResourceStateChangeListener(
-                    resourceStateChangeListener);
-        } catch (Exception e) {
-            log.error("Error initializing CallWatcher", e);
-            throw new SipXOpenfirePluginException("Init error", e);
+            /*
+             * Everything else is ready.  Let the SIP side of the show begin...
+             */
+            try {
+                CallWatcher.init();
+                log.info("completed init");
+                ResourceStateChangeListener resourceStateChangeListener = new ResourceStateChangeListenerImpl(
+                        this);
+                CallWatcher.getSubscriber().setResourceStateChangeListener(
+                        resourceStateChangeListener);
+            } catch (Exception e) {
+                log.error("Error initializing CallWatcher", e);
+                throw new SipXOpenfirePluginException("Init error", e);
+            }
+        } else {
+            log.info("SIP presence integration disabled");
         }
 
         isInitialized = true;
@@ -464,7 +468,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             InterceptorManager.getInstance().removeInterceptor(abstractMessagePacketInterceptor);
         }
 	abstractMessagePacketInterceptors.clear();
-        CallWatcher.destroy();
+	    if (watcherConfig.isEnableCallWatcher()) {
+          CallWatcher.destroy();
+	    }
 
         multiUserChatManager = null;
         groupManager = null;

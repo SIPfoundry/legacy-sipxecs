@@ -25,6 +25,7 @@ public class WatcherConfig {
     private String imMessageLoggingDirectory;
     private XmppS2sInfo xmppS2sInfo;     // Server to server settings
     private String locale;
+    private boolean enableCallWatcher;
 
     public String getSipxProxyTransport() {
         return sipxProxyTransport;
@@ -236,6 +237,14 @@ public class WatcherConfig {
 
     public XmppS2sInfo getS2sInfo() {
     	return this.xmppS2sInfo;
+    }
+
+    public boolean isEnableCallWatcher() {
+        return enableCallWatcher;
+    }
+
+    public void setEnableCallWatcher(boolean enableCallWatcher) {
+        this.enableCallWatcher = enableCallWatcher;
     }
 
 }

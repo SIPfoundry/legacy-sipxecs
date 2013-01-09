@@ -58,6 +58,10 @@
       </type>
       <value></value>
     </setting>
+    <setting name="watcher-enabled">
+      <type refid="switch" />
+      <value>true</value>
+    </setting>
     <setting name="watcher-port">
       <type>
         <integer required="yes" />
