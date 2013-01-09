@@ -30,6 +30,13 @@
 <%
   }
 
+  unless blacklist.nil?
+    blacklist.each { |blackipv4|
+%>-A INPUT -i $(sipx.iface) -s <%= blackipv4[:cidr] %> -j DROP
+<%
+  }
+  end
+
   rules.each { |rule|
 %>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m state --state NEW,ESTABLISHED -m comment --comment "<%= rule[:service] %>" -j <%= rule[:chain] %>
 <%
