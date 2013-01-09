@@ -26,6 +26,7 @@ libsipXport_la_LIBADD = \
 	@PCRE_LIBS@ \
 	@SSL_LIBS@ \
 	@RT_LIBS@ \
+        @BOOST_LDADD@ \
 	-lpthread  \
 	-lstdc++
 
@@ -118,8 +119,6 @@ libsipXport_la_SOURCES =  \
     os/OsTime.cpp \
     os/OsTimeLog.cpp \
     os/OsTimer.cpp \
-    os/OsTimerMsg.cpp \
-    os/OsTimerTask.cpp \
     os/OsTokenizer.cpp \
     os/OsUtil.cpp \
     os/OsStunAgentTask.cpp \

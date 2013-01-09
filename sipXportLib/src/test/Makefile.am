@@ -55,7 +55,6 @@ testsuite_SOURCES = \
     os/OsTestUtilities.h \
     os/OsNameDbTest.cpp \
     os/OsCallbackTest.cpp \
-    os/OsTimerTaskTest.cpp \
     os/OsTimeTest.cpp \
     os/OsEventTest.cpp \
     os/OsLockTest.cpp \
