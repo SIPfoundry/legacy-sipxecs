@@ -62,6 +62,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         }
 
         FirewallSettings settings = m_firewallManager.getSettings();
+        Set<String> blackList = settings.getBlackListSet();
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FirewallManager.FEATURE);
         List<FirewallRule> rules = m_firewallManager.getFirewallRules();
         List<ServerGroup> groups = m_firewallManager.getServerGroups();
@@ -92,7 +93,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
             List<CustomFirewallRule> custom = m_firewallManager.getCustomRules(location, configRequest);
             Writer config = new FileWriter(new File(dir, "firewall.yaml"));
             try {
-                writeIptables(config, rules, custom, groups, locations, location);
+                writeIptables(config, blackList, rules, custom, groups, locations, location);
             } finally {
                 IOUtils.closeQuietly(config);
             }
@@ -111,7 +112,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         c.writeSettings(settings.getSettings().getSetting("sysctl"));
     }
 
-    void writeIptables(Writer w, List<FirewallRule> rules, List<CustomFirewallRule> custom,
+    void writeIptables(Writer w, Set<String> blackList, List<FirewallRule> rules, List<CustomFirewallRule> custom,
             List<ServerGroup> groups, List<Location> cluster, Location thisLocation) throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
 
@@ -128,6 +129,13 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
                 sourceIPs = Arrays.asList(StringUtils.split(servers, " "));
             }
             c.writeArray(":ipv4s", sourceIPs);
+        }
+        c.endArray();
+
+        c.startArray("blacklist");
+        for (String ip : blackList) {
+            c.nextElement();
+            c.write(":cidr", ip);
         }
         c.endArray();
 

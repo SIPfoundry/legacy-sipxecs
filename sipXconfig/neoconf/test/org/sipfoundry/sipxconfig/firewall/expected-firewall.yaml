@@ -7,6 +7,7 @@ chains:
  - :name: ClassB
    :ipv4s:
     - 192.168.0.0/16
+blacklist:
 rules:
  - :port: 300
    :protocol: tcp
