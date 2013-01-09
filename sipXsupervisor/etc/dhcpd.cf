@@ -89,9 +89,9 @@ bundle agent dhcpd_sysv_running {
 
   methods:
     "any" usebundle => find_service_by_command("$(service_command)", "dhcpd_running", "$(dhcpd_users)");
-    !src.!dhcpd::
+    !src.!dhcpd.!unmanaged_dhcpd::
       "any" usebundle => rh_chkconfig_status("dhcpd off");
-    dhcpd::
+    !src.dhcpd.!unmanaged_dhcpd::
       "any" usebundle => rh_chkconfig_status("dhcpd on");
 
   commands:
