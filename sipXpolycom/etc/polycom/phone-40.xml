@@ -1903,7 +1903,7 @@
       <type>
         <boolean />
       </type>
-      <value />
+      <value>0</value>
     </setting>
     <setting name="stickyAutoLineSeize">
       <type>
@@ -2772,9 +2772,9 @@
       </setting>
       <setting name="requestURI.E164.addGlobalPrefix">
         <type>
-          <string />
+          <boolean />
         </type>
-        <value />
+        <value>0</value>
       </setting>
     </group>
     <group name="alertInfo">
@@ -2933,7 +2933,7 @@
           </option>
         </enum>
       </type>
-      <value />
+      <value>1</value>
     </setting>
   </group>
   <!-- SIMILIAR SECTION EXISTS IN line.xml to control dialplans per line -->
