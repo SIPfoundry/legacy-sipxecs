@@ -25,12 +25,12 @@ class OsConfigDb;
 
 #define FRAME_SAMPS  320
 
-#ifndef max
-#define max(x,y) (((x)>(y))?(x):(y))
+#ifndef get_max
+#define get_max(x,y) (((x)>(y))?(x):(y))
 #endif
 
-#ifndef min
-#define min(x,y) (((x)<(y))?(x):(y))
+#ifndef get_min
+#define get_min(x,y) (((x)<(y))?(x):(y))
 #endif
 
 /* miscellaneous debugging support: */

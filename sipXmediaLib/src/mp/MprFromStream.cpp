@@ -340,7 +340,7 @@ UtlBoolean MprFromStream::doProcessFrame(MpBufPtr inBufs[],
       assert(NULL != out);
 
       count = MpBuf_getByteLen(out) / sizeof(Sample);
-      count = min(samplesPerFrame, count);
+      count = get_min(samplesPerFrame, count);
       MpBuf_setNumSamples(out, count);
 
 

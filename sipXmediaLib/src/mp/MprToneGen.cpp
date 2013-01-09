@@ -147,7 +147,7 @@ UtlBoolean MprToneGen::doProcessFrame(MpBufPtr inBufs[],
    if (isEnabled) {
       out = MpBuf_getBuf(MpMisc.UcbPool, samplesPerFrame, 0, MP_FMT_T12);
       assert(NULL != out);
-      count = min(samplesPerFrame, MpBuf_getNumSamples(out));
+      count = get_min(samplesPerFrame, MpBuf_getNumSamples(out));
       MpBuf_setNumSamples(out, count);
       outbuf = (int16_t*)MpBuf_getSamples(out);
       ret = MpToneGen_getNextBuff(mpToneGenState, outbuf, count);

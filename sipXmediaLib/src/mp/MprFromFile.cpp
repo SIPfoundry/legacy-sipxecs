@@ -530,7 +530,7 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
       out = MpBuf_getBuf(MpMisc.UcbPool, samplesPerFrame, 0, MP_FMT_T12);
       assert(NULL != out);
       count = MpBuf_getByteLen(out) / sizeof(Sample);
-      count = min(samplesPerFrame, count);
+      count = get_min(samplesPerFrame, count);
       MpBuf_setNumSamples(out, count);
       MpBuf_setSpeech(out, MP_SPEECH_TONE);
       outbuf = MpBuf_getSamples(out);
@@ -548,7 +548,7 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
           if(mFileBufferIndex < bufferLength)
           {
               totalBytesRead = bufferLength - mFileBufferIndex;
-              totalBytesRead = min(totalBytesRead, bytesPerFrame);
+              totalBytesRead = get_min(totalBytesRead, bytesPerFrame);
               memcpy(outbuf, &(mpFileBuffer->data()[mFileBufferIndex]),
                  totalBytesRead);
               mFileBufferIndex += totalBytesRead;
@@ -568,7 +568,7 @@ UtlBoolean MprFromFile::doProcessFrame(MpBufPtr inBufs[],
                     bytesPerFrame);
 #endif
                  mFileBufferIndex = 0;
-                 bytesLeft = min(bufferLength - mFileBufferIndex,
+                 bytesLeft = get_min(bufferLength - mFileBufferIndex,
                     bytesPerFrame - totalBytesRead);
                  memcpy(&outbuf[(totalBytesRead/sizeof(Sample))],
                     &(mpFileBuffer->data()[mFileBufferIndex]), bytesLeft);

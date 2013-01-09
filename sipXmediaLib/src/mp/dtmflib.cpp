@@ -26,11 +26,11 @@
 
 #include "mp/dtmflib.h"
 
-#ifndef max
-#define max(x,y) (((x)>(y))?(x):(y))
+#ifndef get_max
+#define get_max(x,y) (((x)>(y))?(x):(y))
 #endif
-#ifndef min
-#define min(x,y) (((x)<(y))?(x):(y))
+#ifndef get_min
+#define get_min(x,y) (((x)<(y))?(x):(y))
 #endif
 
 typedef struct __tone_tag {
@@ -263,7 +263,7 @@ OsStatus MpToneGen_getNextBuff(MpToneGenPtr pThis, int16_t *b, int N)
                 i = (p->usecs - p->curusecs) / pThis->usecspersample;
                 if (i > 0) {
                   /* for as many as remain, do setsw() and addsw() as needed */
-                    i = min(i, (N-n));
+                    i = get_min(i, (N-n));
                     if(NULL!=(p->low) || NULL!=(p->high)) {
                         setsw(p, b, i);
                     } else {
@@ -726,7 +726,7 @@ void playsilence(MpToneGenPtr p, int ms)
 void playdigit(MpToneGenPtr p, char digit, int ms)
 {
         MpToneGen_startTone(p, digit);
-        semTake(semDelay, ticks(max(60,ms)));
+        semTake(semDelay, ticks(get_max(60,ms)));
         playsilence(p, 80);
 }
 
@@ -794,25 +794,25 @@ int playnumb(MpToneGenPtr p, char *n)
 void playdial(MpToneGenPtr p, int ms)
 {
         MpToneGen_startTone(p, DTMF_TONE_DIALTONE);
-        semTake(semDelay, ticks(max(60,ms)));
+        semTake(semDelay, ticks(get_max(60,ms)));
 }
 
 void playbusy(MpToneGenPtr p, int ms)
 {
         MpToneGen_startTone(p, DTMF_TONE_BUSY);
-        semTake(semDelay, ticks(max(60,ms)));
+        semTake(semDelay, ticks(get_max(60,ms)));
 }
 
 void playringback(MpToneGenPtr p, int ms)
 {
         MpToneGen_startTone(p, DTMF_TONE_RINGBACK);
-        semTake(semDelay, ticks(max(60,ms)));
+        semTake(semDelay, ticks(get_max(60,ms)));
 }
 
 void playring(MpToneGenPtr p, int ms)
 {
         MpToneGen_startTone(p, DTMF_TONE_RINGTONE);
-        semTake(semDelay, ticks(max(60,ms)));
+        semTake(semDelay, ticks(get_max(60,ms)));
 }
 
 static int toning;
