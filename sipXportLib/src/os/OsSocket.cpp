@@ -231,14 +231,14 @@ int OsSocket::read(char* buffer, int bufferLength)
    flags = MSG_NOSIGNAL;
 #endif
 
-   int error;
+   int error = 0;
    ssize_t bytesRead = recv(socketDescriptor, buffer, bufferLength, flags);
    if (bytesRead < 0)
    {
       error = OsSocketGetERRNO();
       // WIN32: 10038 WSAENOTSOCK not a valid socket descriptor
    }
-
+   (void)error;
    return bytesRead;
 }
 
