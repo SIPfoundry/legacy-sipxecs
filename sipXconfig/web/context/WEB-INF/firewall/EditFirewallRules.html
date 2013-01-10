@@ -1,11 +1,14 @@
 <form jwcid="@Form" id="editRules" delegate="bean:validator">
   <table jwcid="rules@common/Table" id="rules:list"
-      columns="* !service,!group,!priority"
+      columns="* !service,!portDetails,!group,!priority"
       source="ognl:rules"
       row="ognl:rule"
       converter="ognl:ruleConverter">
     <div jwcid="serviceColumnValue@Block">
       <span jwcid="@Any" title="ognl:addressDescription"><span jwcid="@Insert" value="ognl:addressLabel"/></span>
+    </div>
+    <div jwcid="portDetailsColumnValue@Block">
+      <span class="settingDescription" jwcid="@Insert" value="ognl:portDetails" raw="true"/>
     </div>
     <div jwcid="groupColumnValue@Block">
       <select jwcid="@PropertySelection" value="ognl:serverGroupOption" model="ognl:selectServerGroup"/>
