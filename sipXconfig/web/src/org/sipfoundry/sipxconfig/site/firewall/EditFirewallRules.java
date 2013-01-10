@@ -16,17 +16,22 @@ package org.sipfoundry.sipxconfig.site.firewall;
 
 import static java.lang.String.format;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.firewall.EditableFirewallRule;
@@ -42,6 +47,9 @@ public abstract class EditFirewallRules extends BaseComponent implements PageBeg
 
     @InjectObject("spring:firewallManager")
     public abstract FirewallManager getFirewallManager();
+
+    @InjectObject("spring:addressManager")
+    public abstract AddressManager getAddressManager();
 
     public abstract EditableFirewallRule getRule();
 
@@ -62,8 +70,37 @@ public abstract class EditFirewallRules extends BaseComponent implements PageBeg
     }
 
     public String getAddressLabel() {
-        String key = ADDRESS + getRule().getAddressType().getId();
+        AddressType type = getRule().getAddressType();
+        String key = ADDRESS + type.getId();
         return TapestryUtils.getDefaultMessage(getMessages(), key, key);
+    }
+
+    public String getPortDetails() {
+        AddressType type = getRule().getAddressType();
+        List<Address> addresses = getAddressManager().getAddresses(type);
+        String disabled = getMessages().getMessage("disabled");
+        if (addresses.size() == 0) {
+            return disabled;
+        }
+        List<String> details = new ArrayList<String>();
+        for (Address address : addresses) {
+            StringBuilder detail = new StringBuilder();
+            if (address.getCanonicalPort() == 0) {
+                detail.append(disabled);
+            } else {
+                if (address.getAddress() != null) {
+                    detail.append(address.getAddress());
+                    detail.append(" : ");
+                }
+                detail.append(address.getCanonicalPort());
+                if (address.getEndPort() != 0) {
+                    detail.append(":");
+                    detail.append(address.getEndPort());
+                }
+            }
+            details.add(detail.toString());
+        }
+        return StringUtils.join(details, "<br/>");
     }
 
     public String getAddressDescription() {
