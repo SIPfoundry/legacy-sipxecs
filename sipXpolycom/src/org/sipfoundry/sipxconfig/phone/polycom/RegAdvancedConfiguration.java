@@ -23,9 +23,7 @@ import java.util.Map;
 
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.setting.PatternSettingFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
 /**
  * Responsible for generating ipmid.cfg

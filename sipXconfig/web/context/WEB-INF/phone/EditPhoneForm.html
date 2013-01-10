@@ -16,13 +16,14 @@
     <span jwcid="phoneModel@If" condition="ognl:!phone.isNew() && phone.getModelIdsForSelection(phone.modelId) != null">
       <tr jwcid="@common/FieldPanel"
         for="phone:version"
-        label="message:label.model"
+        label="message:model.label"
         field="component:selectModel">
 
         <td jwcid="selectModel@PropertySelection"
           model="ognl:modelSelectionModel"
           value="ognl:phone.model"
-          displayName="message:label.model"/>
+          displayName="message:label.model"
+          onchange="literal:javascript:this.form.submit();" />
       </tr>
     </span>
     <tr jwcid="@common/FieldPanel"

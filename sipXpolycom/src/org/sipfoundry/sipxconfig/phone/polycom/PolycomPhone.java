@@ -83,8 +83,22 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
     static final String MB_MAIN_HOME_STATUSBAR = "mb/main/statusbar";
     static final String MB_LIMITS_NODES = "mb/limits/nodes";
     static final String MB_LIMITS_CACHE = "mb/limits/cache";
+    static final String POLY_300 = "polycom300";
+    static final String POLY_301 = "polycom301";
+    static final String POLY_500 = "polycom500";
+    static final String POLY_501 = "polycom501";
+    static final String POLY_600 = "polycom600";
+    static final String POLY_601 = "polycom601";
+    static final String POLY_550 = "polycom550";
+    static final String POLY_560 = "polycom560";
+    static final String POLY_320 = "polycom320";
+    static final String POLY_330 = "polycom330";
+    static final String POLY_650 = "polycom650";
+    static final String POLY_670 = "polycom670";
+    static final String PHONE_XML = "phone.xml";
+    static final String LINE_XML = "line.xml";
     static final String[] UNSUPPORTED_MODELS = new String[] {
-        "polycom300", "polycom500"
+        POLY_300, POLY_500
     };
 
     private AddressManager m_addressManager;
@@ -120,7 +134,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
 
     /**
      * Default firmware version for polycom phones. Default is 1.6 right now
-     * 
+     *
      * @param defaultVersionId 1.6 or 2.0
      */
     @Override
@@ -132,8 +146,8 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
             getModel().setLineSettingsFile("line-40.xml");
             getModel().setStaticProfileFilenames(new String[] {});
         } else if (myVersion == PolycomModel.VER_3_1_X) {
-            getModel().setSettingsFile("phone.xml");
-            getModel().setLineSettingsFile("line.xml");
+            getModel().setSettingsFile(PHONE_XML);
+            getModel().setLineSettingsFile(LINE_XML);
             getModel().setStaticProfileFilenames(new String[] {
                 "polycom_phone1_3.1.X.cfg", "polycom_sip_3.1.X.cfg"
             });
@@ -146,8 +160,8 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
             });
         } else {
             // we need to explicitly define these here otherwise changing versions will not work
-            getModel().setSettingsFile("phone.xml");
-            getModel().setLineSettingsFile("line.xml");
+            getModel().setSettingsFile(PHONE_XML);
+            getModel().setLineSettingsFile(LINE_XML);
             getModel().setStaticProfileFilenames(new String[] {
                 "polycom_phone1_2.1.X.cfg", "polycom_sip_2.1.X.cfg"
             });
@@ -609,41 +623,61 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
     }
 
     @Override
-    public Collection<? extends PhoneModel> getModelIdsForSelection(String beanId) {
-        PolycomModel p300 = m_beanFactory.getBean("polycom300", PolycomModel.class);
-        PolycomModel p301 = m_beanFactory.getBean("polycom301", PolycomModel.class);
-        PolycomModel p500 = m_beanFactory.getBean("polycom500", PolycomModel.class);
-        PolycomModel p501 = m_beanFactory.getBean("polycom501", PolycomModel.class);
-        PolycomModel p600 = m_beanFactory.getBean("polycom600", PolycomModel.class);
-        PolycomModel p601 = m_beanFactory.getBean("polycom601", PolycomModel.class);
-        PolycomModel p550 = m_beanFactory.getBean("polycom550", PolycomModel.class);
-        PolycomModel p560 = m_beanFactory.getBean("polycom560", PolycomModel.class);
-        PolycomModel p330 = m_beanFactory.getBean("polycom330", PolycomModel.class);
-        PolycomModel p320 = m_beanFactory.getBean("polycom320", PolycomModel.class);
-        PolycomModel p650 = m_beanFactory.getBean("polycom650", PolycomModel.class);
-        PolycomModel p670 = m_beanFactory.getBean("polycom670", PolycomModel.class);
+    public Collection< ? extends PhoneModel> getModelIdsForSelection(String beanId) {
+        PolycomModel p300 = m_beanFactory.getBean(POLY_300, PolycomModel.class);
+        PolycomModel p301 = m_beanFactory.getBean(POLY_301, PolycomModel.class);
+        PolycomModel p500 = m_beanFactory.getBean(POLY_500, PolycomModel.class);
+        PolycomModel p501 = m_beanFactory.getBean(POLY_501, PolycomModel.class);
+        PolycomModel p600 = m_beanFactory.getBean(POLY_600, PolycomModel.class);
+        PolycomModel p601 = m_beanFactory.getBean(POLY_601, PolycomModel.class);
+        PolycomModel p550 = m_beanFactory.getBean(POLY_550, PolycomModel.class);
+        PolycomModel p560 = m_beanFactory.getBean(POLY_560, PolycomModel.class);
+        PolycomModel p330 = m_beanFactory.getBean(POLY_330, PolycomModel.class);
+        PolycomModel p320 = m_beanFactory.getBean(POLY_320, PolycomModel.class);
+        PolycomModel p650 = m_beanFactory.getBean(POLY_650, PolycomModel.class);
+        PolycomModel p670 = m_beanFactory.getBean(POLY_670, PolycomModel.class);
 
-        if (StringUtils.equals(beanId, "polycom300")) {
-            return Arrays.asList(new PolycomModel[]{p300, p301});
+        if (isModel(beanId, POLY_300, POLY_301)) {
+            return Arrays.asList(new PolycomModel[] {
+                p300, p301
+            });
         }
-        if (StringUtils.equals(beanId, "polycom500")) {
-            return Arrays.asList(new PolycomModel[]{p500, p501});
+        if (isModel(beanId, POLY_500, POLY_501)) {
+            return Arrays.asList(new PolycomModel[] {
+                p500, p501
+            });
         }
-        if (StringUtils.equals(beanId, "polycom600")) {
-            return Arrays.asList(new PolycomModel[]{p600, p601});
+        if (isModel(beanId, POLY_600, POLY_601)) {
+            return Arrays.asList(new PolycomModel[] {
+                p600, p601
+            });
         }
-        if (StringUtils.equals(beanId, "polycom550")) {
-            return Arrays.asList(new PolycomModel[]{p550, p560});
+        if (isModel(beanId, POLY_550, POLY_560)) {
+            return Arrays.asList(new PolycomModel[] {
+                p550, p560
+            });
         }
-        if (StringUtils.equals(beanId, "polycom330")) {
-            return Arrays.asList(new PolycomModel[]{p320, p330});
+        if (isModel(beanId, POLY_320, POLY_330)) {
+            return Arrays.asList(new PolycomModel[] {
+                p320, p330
+            });
         }
-        if (StringUtils.equals(beanId, "polycom650")) {
-            return Arrays.asList(new PolycomModel[]{p650, p670});
+        if (isModel(beanId, POLY_650, POLY_670)) {
+            return Arrays.asList(new PolycomModel[] {
+                p650, p670
+            });
         }
         return null;
     }
 
+    private boolean isModel(String modelId, String... models) {
+        for (String model : models) {
+            if (StringUtils.equals(modelId, model)) {
+                return true;
+            }
+        }
+        return false;
+    }
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         m_beanFactory = beanFactory;

@@ -17,8 +17,6 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -56,7 +54,7 @@ public class SiteConfiguration extends ProfileContext {
 
         return lines.size();
     }
-    
+
     @Override
     public Map<String, Object> getContext() {
         Map<String, Object> context = super.getContext();
