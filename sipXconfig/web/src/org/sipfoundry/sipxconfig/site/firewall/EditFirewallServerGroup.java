@@ -14,11 +14,14 @@
  */
 package org.sipfoundry.sipxconfig.site.firewall;
 
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -59,6 +62,10 @@ public abstract class EditFirewallServerGroup extends PageWithCallback implement
 
     public void save() {
         if (!TapestryUtils.isValid(this)) {
+            return;
+        }
+        if (StringUtils.contains(getServerGroup().getServerList(), ",")) {
+            getValidator().record(new ValidatorException(getMessages().getMessage("err.wrongformat")));
             return;
         }
         getFirewallManager().saveServerGroup(getServerGroup());
