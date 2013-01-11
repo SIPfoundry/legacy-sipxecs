@@ -45,8 +45,7 @@ public:
   TimerService() :
     _ioService(), // The io service
     _houseKeepingTimer(_ioService, boost::posix_time::seconds(10)), // dummy timer just to keep on event in queue.  will fire every hour
-    _pIoServiceThread1(0), // The thread pointer
-    _pIoServiceThread2(0), // The thread pointer
+    _pIoServiceThread1(0)
     _lastTick(0)
   {
   }
@@ -63,7 +62,6 @@ public:
     //
     _houseKeepingTimer.async_wait(boost::bind(&TimerService::onHouseKeepingTimer, this, boost::asio::placeholders::error));
     _pIoServiceThread1 = new boost::thread(boost::bind(&boost::asio::io_service::run, &(_ioService)));
-    _pIoServiceThread2 = new boost::thread(boost::bind(&boost::asio::io_service::run, &(_ioService)));
     OsSysLog::add(FAC_KERNEL, PRI_NOTICE, "OsTimer::TimerService STARTED.");
     _lastTick = OsTimer::now();
   }
@@ -84,13 +82,6 @@ public:
       _pIoServiceThread1->join();
       delete _pIoServiceThread1;
       _pIoServiceThread1 = 0;
-    }
-
-    if (_pIoServiceThread2)
-    {
-      _pIoServiceThread2->join();
-      delete _pIoServiceThread2;
-      _pIoServiceThread2 = 0;
     }
   }
 
@@ -147,7 +138,6 @@ public:
   boost::asio::io_service _ioService;
   boost::asio::deadline_timer _houseKeepingTimer;
   boost::thread* _pIoServiceThread1;
-  boost::thread* _pIoServiceThread2;
   OsTimer::Time _lastTick;
   mutex _serviceMutex;
   mutex _queueMutex;
