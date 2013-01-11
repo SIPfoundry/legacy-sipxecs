@@ -6,11 +6,26 @@
     end
     s
   end
+
+  def limitdrop(loglimit, loginterval)
+    s = ""
+    if loglimit > 0
+      s += "-m limit --limit " + loglimit.to_s + "/" + loginterval.to_s + " "
+    end
+    s
+  end
 %>*filter
 :INPUT DROP [0:0]
 :FORWARD DROP [0:0]
 :OUTPUT ACCEPT [60:6096]
 :syn-flood - [0:0]
+:LOGDROP - [0:0]
+<%
+  if logdropped
+%>-A LOGDROP -j LOG <%= limitdrop(loglimit, loginterval) %>--log-level 6 --log-prefix "firewall-drop: "
+<%
+  end
+%>-A LOGDROP -j DROP
 <%
   unless chains.nil?
     chains.each { |chain|
@@ -20,7 +35,7 @@
 %>-A <%= chain[:name] %> -s <%= ipv4 %> -j ACCEPT
 <%
       }
-%>-A <%= chain[:name] %> -j DROP
+%>-A <%= chain[:name] %> -j LOGDROP
 <%
     }
   end
@@ -32,7 +47,7 @@
 
   unless blacklist.nil?
     blacklist.each { |blackipv4|
-%>-A INPUT -i $(sipx.iface) -s <%= blackipv4[:cidr] %> -j DROP
+%>-A INPUT -i $(sipx.iface) -s <%= blackipv4[:cidr] %> -j LOGDROP
 <%
   }
   end
@@ -53,6 +68,8 @@
 -A INPUT -i $(sipx.iface) -m state --state RELATED,ESTABLISHED -j ACCEPT
 -A INPUT -p icmp -j ACCEPT
 -A INPUT -i lo -j ACCEPT
+<%# log and drop everything else %>
+-A INPUT -j LOGDROP
 COMMIT
 
 *nat

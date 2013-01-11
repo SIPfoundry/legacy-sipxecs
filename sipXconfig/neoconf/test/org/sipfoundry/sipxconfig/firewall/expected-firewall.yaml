@@ -1,3 +1,6 @@
+logdropped: false
+loglimit: -1
+loginterval: hour
 cluster: [ 1.1.1.1, 2.2.2.2 ]
 chains:
  - :name: ClassA

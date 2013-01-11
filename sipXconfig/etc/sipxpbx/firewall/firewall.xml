@@ -15,6 +15,37 @@
       </type>
     </setting>
   </group>
+  <group name="logging">
+    <setting name="enable-drop">
+      <type refid="true-false"/>
+      <value>0</value>
+    </setting>
+    <setting name="limit-drop-no">
+      <type>
+        <integer min="-1"/>
+      </type>
+      <value>-1</value>
+    </setting>
+    <setting name="limit-drop-time">
+      <type>
+        <enum>
+          <option>
+            <value>second</value>
+          </option>
+          <option>
+            <value>minute</value>
+          </option>
+          <option>
+            <value>hour</value>
+          </option>
+          <option>
+            <value>day</value>
+          </option>
+        </enum>
+      </type>
+      <value>hour</value>
+    </setting>
+  </group>
   <group name="sysctl">
     <setting name="icmp_echo_ignore_broadcasts" >
       <type refid="true-false"/>

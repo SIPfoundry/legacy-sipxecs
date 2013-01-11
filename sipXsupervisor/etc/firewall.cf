@@ -48,6 +48,30 @@ bundle agent firewall_module_config {
         create => "true",
         edit_line => firewall_module_contents,
         classes => if_repaired("restart_iptables");
+
+      "/etc/rsyslog.d/firewall-logdrop.conf"
+        comment => "Configure firewall logdrop",
+        perms => mog("0600","root","root"),
+        create => "true",
+        edit_line => firewall_logdrop_contents,
+        classes => if_repaired("restart_firewall_log");
+
+  commands:
+    restart_firewall_log.!fedora16_or_greater::
+       "/etc/init.d/rsyslog"
+        comment => "firewall - restart rsyslog",
+        args => "restart";
+
+    restart_firewall_log.fedora16_or_greater::
+       "$(sipx.systemctl)"
+        comment => "firewall - restart rsyslog",
+        args => "restart rsyslogd.service";
+}
+
+bundle edit_line firewall_logdrop_contents {
+  insert_lines:
+    ":msg, contains, \"firewall-drop: \" -$(sipx.SIPX_LOGDIR)/firewall/firewall-drop.log";
+    "& ~";
 }
 
 bundle edit_line firewall_module_contents {
