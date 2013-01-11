@@ -93,7 +93,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
             List<CustomFirewallRule> custom = m_firewallManager.getCustomRules(location, configRequest);
             Writer config = new FileWriter(new File(dir, "firewall.yaml"));
             try {
-                writeIptables(config, blackList, rules, custom, groups, locations, location);
+                writeIptables(config, blackList, settings, rules, custom, groups, locations, location);
             } finally {
                 IOUtils.closeQuietly(config);
             }
@@ -112,11 +112,16 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         c.writeSettings(settings.getSettings().getSetting("sysctl"));
     }
 
-    void writeIptables(Writer w, Set<String> blackList, List<FirewallRule> rules, List<CustomFirewallRule> custom,
-            List<ServerGroup> groups, List<Location> cluster, Location thisLocation) throws IOException {
+    void writeIptables(Writer w, Set<String> blackList, FirewallSettings settings, List<FirewallRule> rules,
+            List<CustomFirewallRule> custom, List<ServerGroup> groups, List<Location> cluster, Location thisLocation)
+        throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
 
         Collection< ? > ips = CollectionUtils.collect(cluster, Location.GET_ADDRESS);
+        c.write("logdropped", settings.isLogDroppedPacketsEnabled());
+        c.write("loglimit", settings.getLogLimitNumber());
+        c.write("loginterval", settings.getLogLimitInterval());
+
         c.writeInlineArray("cluster", ips);
 
         c.startArray("chains");

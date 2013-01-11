@@ -64,6 +64,18 @@ public class FirewallSettings extends PersistableSettings implements DeployConfi
         return (String) getSettingTypedValue("dos/black_list");
     }
 
+    public boolean isLogDroppedPacketsEnabled() {
+        return (Boolean) getSettingTypedValue("logging/enable-drop");
+    }
+
+    public int getLogLimitNumber() {
+        return (Integer) getSettingTypedValue("logging/limit-drop-no");
+    }
+
+    public String getLogLimitInterval() {
+        return (String) getSettingTypedValue("logging/limit-drop-time");
+    }
+
     public Set<String> getBlackListSet() {
         Set<String> ips = new HashSet<String>();
         String blackList = getBlackList();
