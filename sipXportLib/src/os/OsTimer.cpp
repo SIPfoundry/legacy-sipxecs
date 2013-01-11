@@ -45,7 +45,7 @@ public:
   TimerService() :
     _ioService(), // The io service
     _houseKeepingTimer(_ioService, boost::posix_time::seconds(10)), // dummy timer just to keep on event in queue.  will fire every hour
-    _pIoServiceThread1(0)
+    _pIoServiceThread1(0),
     _lastTick(0)
   {
   }
