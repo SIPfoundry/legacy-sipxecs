@@ -16,6 +16,7 @@
 	<resource-list>$resource-list</resource-list>
 	<watcher-address>$settings.getSetting('settings/watcher-address').Value</watcher-address>
 	<watcher-port>$settings.getSetting('settings/watcher-port').Value</watcher-port>
+	<watcher-enabled>$settings.getSetting('settings/watcher-enabled').Value</watcher-enabled>
 	<log-directory>$service.logDir</log-directory>
 	<log-level>$service.logLevelsMappings.get("${settings.getSetting('settings/log-level').Value}")</log-level>
 	<openfire-xml-rpc-port>$settings.getSetting('settings/openfire-xml-rpc-port').Value</openfire-xml-rpc-port>

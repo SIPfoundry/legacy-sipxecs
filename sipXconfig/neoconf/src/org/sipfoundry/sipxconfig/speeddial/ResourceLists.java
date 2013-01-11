@@ -55,7 +55,9 @@ public class ResourceLists extends XmlFile {
         final Element lists = document.addElement("lists", NAMESPACE);
         final String domainName = m_coreContext.getDomainName();
         Element imLists = null;
-        m_jdbcTemplate.query(QUERY, new RlsRowCallbackHandler(lists, domainName, imLists));
+        boolean xmppDisabled = m_jdbcTemplate.queryForInt("SELECT count(*) from setting_value where "
+                        + "path='settings/watcher-enabled' and value='false'") > 0;
+        m_jdbcTemplate.query(QUERY, new RlsRowCallbackHandler(lists, domainName, imLists, xmppDisabled));
         return document;
     }
 
@@ -126,11 +128,13 @@ public class ResourceLists extends XmlFile {
         private Element m_imList;
         private final Element m_lists;
         private final String m_domainName;
+        private final boolean m_xmppDisabled;
 
-        public RlsRowCallbackHandler(Element lists, String domainName, Element imList) {
+        public RlsRowCallbackHandler(Element lists, String domainName, Element imList, boolean xmppDisabled) {
             m_lists = lists;
             m_domainName = domainName;
             m_imList = imList;
+            m_xmppDisabled = xmppDisabled;
         }
 
         @Override
@@ -138,7 +142,7 @@ public class ResourceLists extends XmlFile {
             boolean imEnabled = StringUtils.equals(rs.getString("im_enabled"), "1");
             int groupImEnabled = rs.getInt("group_im_enabled");
             String userName = StringUtils.defaultString(rs.getString(USER_NAME), StringUtils.EMPTY);
-            if (imEnabled || groupImEnabled > 0) {
+            if ((imEnabled || groupImEnabled > 0) && !m_xmppDisabled) {
                 if (m_imList == null) {
                     m_imList = createResourceList(m_lists, XMPP_SERVER.getUserName());
                 }

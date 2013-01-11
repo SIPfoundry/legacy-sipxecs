@@ -20,6 +20,7 @@
         <ref bean="openfireConfiguration" />
         <ref bean="xmppAccountInfo" />
         <ref bean="sipxRegistrarConfiguration" />
+        <ref bean="resourceListGenerator" />
       </list>
     </property>
     <property name="affectedServices">
