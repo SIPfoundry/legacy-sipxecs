@@ -343,4 +343,11 @@
 #end 
 #end
 />
+
+<ptt
+#set ($ptt = $cfg.EndpointSettings.getSetting('ptt'))
+#foreach ($setting in $cfg.getRecursiveSettings($ptt))
+          ptt.${setting.ProfileName}="$!{setting.Value}"
+#end
+/>
 </polycomConfig>

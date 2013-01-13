@@ -3686,6 +3686,1370 @@
         <value>24800</value>
       </setting>
     </group>
+    <group name="ptt">
+      <setting name="address">
+        <type>
+		  <string />
+		</type>
+        <value></value>
+      </setting>
+      <setting name="callWaiting.enable">
+        <type>
+		  <boolean />
+		</type>
+        <value>0</value>
+      </setting>
+      <setting name="compatibilityMode">
+        <type>
+		  <boolean/>
+		</type>
+        <value>1</value>
+      </setting>
+      <setting name="emergencyChannel.volume">
+        <type>
+		  <integer/>
+		</type>
+        <value>-10</value>
+      </setting>
+      <setting name="port">
+        <type>
+		  <integer min="0" max="65535"/>
+		</type>
+        <value>5001</value>
+      </setting>
+      <group name="ptt-only">
+        <setting name="pttMode.enable">
+          <type>
+		    <boolean/>
+		  </type>
+          <value>0</value>
+        </setting> 
+        <setting name="allowOffHookPages">
+          <type>
+		    <boolean/>
+		  </type>
+          <value>0</value>
+        </setting>
+        <setting name="codec">
+          <type>
+           <enum>
+            <option>
+             <value>G.711mu</value>
+            </option>
+            <option>
+             <value>G.726QI</value>
+            </option>
+            <option>
+             <value>G.722</value>
+            </option>
+           </enum>
+          </type>
+          <value>G.722</value>
+        </setting>
+        <setting name="defaultChannel">
+          <type>
+            <int min="1" max="25"/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="displayName">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="emergencyChannel">
+          <type>
+            <int min="1" max="25"/>
+          </type>
+          <value>25</value>
+        </setting>
+        <setting name="payloadSize">
+          <type>
+            <int min="10" max="80"/>
+          </type>
+          <value>20</value>
+        </setting>
+        <setting name="priorityChannel">
+          <type>
+            <int min="1" max="25"/>
+          </type>
+          <value>24</value>
+        </setting>
+        <setting name="channel.1.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.1.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.1.label">
+          <type>
+            <string/>
+          </type>
+          <value>All</value>
+        </setting>
+        <setting name="channel.1.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.2.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.2.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.2.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.2.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.3.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.3.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.3.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.3.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.4.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.4.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.4.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.4.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.5.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.5.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.5.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.5.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.6.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.6.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.6.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.6.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.7.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.7.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.7.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.7.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.8.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.8.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.8.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.8.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.9.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.9.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.9.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.9.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.10.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.10.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.10.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.10.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.11.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.11.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.11.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.11.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.12.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.12.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.12.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.12.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.13.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.13.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.13.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.13.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.14.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.14.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.14.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.14.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.15.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.15.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.15.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.15.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.16.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.16.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.16.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.16.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.17.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.17.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.17.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.17.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.18.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.18.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.18.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.18.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.19.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.19.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.19.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.19.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.20.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.20.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.20.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.20.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.21.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.21.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.21.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.21.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.22.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.22.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.22.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.22.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.23.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.23.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.23.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="channel.23.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="channel.24.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.24.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.24.label">
+          <type>
+            <string/>
+          </type>
+          <value>Priority</value>
+        </setting>
+        <setting name="channel.24.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.25.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.25.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="channel.25.label">
+          <type>
+            <string/>
+          </type>
+          <value>Emergency</value>
+        </setting>
+        <setting name="channel.25.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+      </group>
+      <group name="groupPaging">
+        <setting name="pageMode.enable">
+          <type>
+		    <boolean/>
+		  </type>
+          <value>0</value>
+        </setting> 
+        <setting name="pageMode.allowOffHookPages">
+          <type>
+		    <boolean/>
+		  </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.codec">
+          <type>
+           <enum>
+            <option>
+             <value>G.711mu</value>
+            </option>
+            <option>
+             <value>G.726QI</value>
+            </option>
+            <option>
+             <value>G.722</value>
+            </option>
+           </enum>
+          </type>
+          <value>G.722</value>
+        </setting>      
+        <setting name="pageMode.defaultGroup">
+          <type>
+            <int min="1" max="25"/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.displayName">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.emergencyGroup">
+          <type>
+            <int min="1" max="25"/>
+          </type>
+          <value>25</value>
+        </setting>
+        <setting name="pageMode.payloadSize">
+          <type>
+            <int min="10" max="80"/>
+          </type>
+          <value>20</value>
+        </setting>
+        <setting name="pageMode.priorityGroup">
+          <type>
+            <int min="1" max="25"/>
+          </type>
+          <value>24</value>
+        </setting>      
+        <setting name="pageMode.transmit.timeout.continuation">
+         <type>
+		  <integer min="0" max="65535"/>
+		 </type>
+         <value>60</value>
+        </setting>
+        <setting name="pageMode.transmit.timeout.initial">
+         <type>
+		  <integer min="0" max="65535"/>
+		 </type>
+         <value>0</value>
+        </setting>
+        <setting name="pageMode.group.1.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.1.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.1.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.1.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.2.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.2.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.2.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.2.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.3.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.3.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.3.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.3.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.4.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.4.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.4.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.4.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.5.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.5.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.5.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.5.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.6.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.6.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.6.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.6.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.7.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.7.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.7.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.7.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.8.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.8.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.8.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.8.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.9.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.9.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.9.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.9.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.10.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.10.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.10.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.10.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.11.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.11.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.11.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.11.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.12.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.12.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.12.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.12.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.13.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.13.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.13.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.13.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.14.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.14.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.14.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.14.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.15.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.15.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.15.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.15.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.16.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.16.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.16.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.16.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.17.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.17.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.17.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.17.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.18.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.18.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.18.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.18.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.19.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.19.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.19.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.19.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.20.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.20.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.20.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.20.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.21.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.21.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.21.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.21.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.22.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.22.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.22.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.22.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.23.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.23.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.23.label">
+          <type>
+            <string/>
+          </type>
+          <value></value>
+        </setting>
+        <setting name="pageMode.group.23.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>0</value>
+        </setting>
+        <setting name="pageMode.group.24.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.24.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.24.label">
+          <type>
+            <string/>
+          </type>
+          <value>Priority</value>
+        </setting>
+        <setting name="pageMode.group.24.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.25.available">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.25.allowTransmit">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>
+        <setting name="pageMode.group.25.label">
+          <type>
+            <string/>
+          </type>
+          <value>Emergency</value>
+        </setting>
+        <setting name="pageMode.group.25.subscribed">
+          <type>
+            <boolean/>
+          </type>
+          <value>1</value>
+        </setting>        
+      </group>
+    </group>
     <group name="group.version">
       <setting name="firmware.version">
         <type>
