@@ -25,12 +25,14 @@
     />
   </mb>
 <apps>
+#set ($apps = $cfg.EndpointSettings.getSetting('apps'))
+#if ($apps)
   <apps.ucdesktop
-#set ($group = $cfg.EndpointSettings.getSetting('apps'))
-#foreach ($setting in $cfg.getSettings($group))
+#foreach ($setting in $cfg.getSettings($apps))
     apps.${setting.ProfileName}="$!{setting.Value}"
 #end
   />
+#end
 </apps>
 #set ($calendar = $cfg.EndpointSettings.getSetting('calendar/exchange'))
 #if($calendar)
