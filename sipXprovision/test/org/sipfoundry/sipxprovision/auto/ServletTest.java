@@ -53,6 +53,21 @@ public class ServletTest extends TestCase {
         assertEquals(null, Servlet.lookupPhoneModel("nope"));
     }
 
+    public void testIsPolycom() {
+        assertTrue(Servlet.isPolycomConfigurationFilePath("/0004f238a125-sipx-phone.cfg"));
+        assertTrue(Servlet.isPolycomConfigurationFilePath("/0004f238a125-sipx-sip.cfg"));
+        assertTrue(Servlet.isPolycomConfigurationFilePath("/0004f238a125-sipx-device.cfg"));
+        assertTrue(Servlet.isPolycomConfigurationFilePath("/0004f238a125-sipx-reg-advanced.cfg"));
+        assertTrue(Servlet.isPolycomConfigurationFilePath("/0004f238a125-sipx-applications.cfg"));
+        assertTrue(Servlet.isPolycomConfigurationFilePath("/0004f238a125-sipx-sip-interop.cfg"));
+        assertTrue(Servlet.isPolycomConfigurationFilePath("/0004f238a125-sipx-sip-basic.cfg"));
+        assertTrue(Servlet.isPolycomConfigurationFilePath("/0004f238a125-sipx-region.cfg"));
+        assertTrue(Servlet.isPolycomConfigurationFilePath("/0004f238a125-sipx-video.cfg"));
+        assertTrue(Servlet.isPolycomConfigurationFilePath("/0004f238a125-sipx-site.cfg"));
+        assertTrue(Servlet.isPolycomConfigurationFilePath("/0004f238a125-sipx-features.cfg"));
+        assertTrue(Servlet.isPolycomConfigurationFilePath("/0004f238a125-sipx-reg-basic.cfg"));
+    }
+    
     public void testExtractPolycomModelAndVersion() {
 
         DetectedPhone phone = new DetectedPhone();
@@ -71,14 +86,33 @@ public class ServletTest extends TestCase {
 
         // Success
         phone = new DetectedPhone();
-        assertEquals(true, Servlet.extractPolycomModelAndVersion(phone, "FileTransport PolycomSoundPointIP-SPIP_601-UA/3.1.3.0439"));
+        assertEquals(true, Servlet.extractPolycomModelAndVersion(phone, "FileTransport PolycomSoundPointIP-SPIP_600-UA/3.1.3.0439"));
         assertNotNull(phone.model);
         assertEquals("polycom600", phone.model.sipxconfig_id);
         assertEquals("3.1.3.0439", phone.version);
 
+        // Success
+        phone = new DetectedPhone();
+        assertEquals(true, Servlet.extractPolycomModelAndVersion(phone, "FileTransport PolycomSoundPointIP-SPIP_601-UA/3.1.3.0439"));
+        assertNotNull(phone.model);
+        assertEquals("polycom601", phone.model.sipxconfig_id);
+        assertEquals("3.1.3.0439", phone.version);
+        
+        // Success
+        phone = new DetectedPhone();
+        assertEquals(true, Servlet.extractPolycomModelAndVersion(phone, "FileTransport PolycomSoundPointIP-VVX_500-UA/4.0.3.0439"));
+        assertNotNull(phone.model);
+        assertEquals("polycomVVX500", phone.model.sipxconfig_id);
+        assertEquals("4.0.3.0439", phone.version);
         // TODO - test case that includes Serial Number string in th UA header.
     }
 
+    public void testFormatPolycomVersion() {
+        assertEquals("3.1.X",Servlet.formatPolycomVersion("3.1.3.0438"));
+        assertEquals("3.2.X",Servlet.formatPolycomVersion("3.2.3.0438"));
+        assertEquals("4.0.X",Servlet.formatPolycomVersion("4.0.3.0438"));
+    }
+    
     public void testExtractMacFromConfigurationFilePath() {
         assertEquals("c0ffee000016", Servlet.extractMac("/c0ffee000016-sipx-sip.cfg", Servlet.POLYCOM_PATH_PREFIX));
         assertEquals("002162ff374b", Servlet.extractMac("/Nortel/config/SIP002162FF374B.xml", Servlet.NORTEL_IP_12X0_PATH_PREFIX));
