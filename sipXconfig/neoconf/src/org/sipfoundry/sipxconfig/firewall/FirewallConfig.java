@@ -63,6 +63,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
 
         FirewallSettings settings = m_firewallManager.getSettings();
         Set<String> blackList = settings.getBlackListSet();
+        Set<String> whiteList = settings.getWhiteListSet();
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FirewallManager.FEATURE);
         List<FirewallRule> rules = m_firewallManager.getFirewallRules();
         List<ServerGroup> groups = m_firewallManager.getServerGroups();
@@ -93,7 +94,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
             List<CustomFirewallRule> custom = m_firewallManager.getCustomRules(location, configRequest);
             Writer config = new FileWriter(new File(dir, "firewall.yaml"));
             try {
-                writeIptables(config, blackList, settings, rules, custom, groups, locations, location);
+                writeIptables(config, whiteList, blackList, settings, rules, custom, groups, locations, location);
             } finally {
                 IOUtils.closeQuietly(config);
             }
@@ -112,13 +113,20 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         c.writeSettings(settings.getSettings().getSetting("sysctl"));
     }
 
-    void writeIptables(Writer w, Set<String> blackList, FirewallSettings settings, List<FirewallRule> rules,
-            List<CustomFirewallRule> custom, List<ServerGroup> groups, List<Location> cluster, Location thisLocation)
+    void writeIptables(Writer w, Set<String> whiteList, Set<String> blackList, FirewallSettings settings,
+            List<FirewallRule> rules, List<CustomFirewallRule> custom, List<ServerGroup> groups, List<Location> cluster,
+            Location thisLocation)
         throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
 
         Collection< ? > ips = CollectionUtils.collect(cluster, Location.GET_ADDRESS);
         c.write("logdropped", settings.isLogDroppedPacketsEnabled());
+        c.write("logdos", settings.isLogDosPacketsEnabled());
+        c.write("logregister", settings.isLogSipRegisterEnabled());
+        c.write("loginvite", settings.isLogSipInviteEnabled());
+        c.write("logack", settings.isLogSipAckEnabled());
+        c.write("logoptions", settings.isLogSipOptionsEnabled());
+        c.write("logsubscribe", settings.isLogSipSubscribeEnabled());
         c.write("loglimit", settings.getLogLimitNumber());
         c.write("loginterval", settings.getLogLimitInterval());
 
@@ -137,12 +145,9 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         }
         c.endArray();
 
-        c.startArray("blacklist");
-        for (String ip : blackList) {
-            c.nextElement();
-            c.write(":cidr", ip);
-        }
-        c.endArray();
+        c.writeArray("whitelist", whiteList);
+        c.writeArray("blacklist", blackList);
+        c.writeArray("deniedsip", settings.getDeniedSipUAs());
 
         c.startArray("rules");
         for (FirewallRule rule : rules) {
@@ -172,6 +177,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
 
                     c.write(":port", port);
                     c.write(":protocol", atype.getProtocol());
+                    c.write(":sip", atype.isExternalSip());
                     c.write(":service", id);
                     c.write(":priority", rule.isPriority());
                     if (address.getEndPort() != 0) {
