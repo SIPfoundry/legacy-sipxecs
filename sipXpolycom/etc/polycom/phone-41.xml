@@ -3691,7 +3691,7 @@
         <type>
 		  <string />
 		</type>
-        <value></value>
+        <value>224.000.001.116</value>
       </setting>
       <setting name="callWaiting.enable">
         <type>
@@ -3707,7 +3707,7 @@
       </setting>
       <setting name="emergencyChannel.volume">
         <type>
-		  <integer/>
+		  <integer min="-32768" max="32767"/>
 		</type>
         <value>-10</value>
       </setting>
