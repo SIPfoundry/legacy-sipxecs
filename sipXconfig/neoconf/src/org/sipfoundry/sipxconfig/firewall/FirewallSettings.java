@@ -14,11 +14,15 @@
  */
 package org.sipfoundry.sipxconfig.firewall;
 
-
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.commons.util.IPAddressUtil;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -38,6 +42,15 @@ public class FirewallSettings extends PersistableSettings implements DeployConfi
         }
     }
 
+    public void validate() {
+        Set<String> blackList = getBlackListSet();
+        for (String ip : blackList) {
+            if (!IPAddressUtil.isLiteralIPAddress(ip) && !IPAddressUtil.isLiteralIPSubnetAddress(ip)) {
+                throw new UserException("&msg.invalidcidr", ip);
+            }
+        }
+    }
+
     @Override
     public String getBeanId() {
         return "firewallSettings";
@@ -45,6 +58,22 @@ public class FirewallSettings extends PersistableSettings implements DeployConfi
 
     public Setting getSystemSettings() {
         return getSettings().getSetting("sys");
+    }
+
+    public String getBlackList() {
+        return (String) getSettingTypedValue("dos/black_list");
+    }
+
+    public Set<String> getBlackListSet() {
+        Set<String> ips = new HashSet<String>();
+        String blackList = getBlackList();
+        if (StringUtils.isNotEmpty(blackList)) {
+            String[] ipTokens = StringUtils.split(blackList, ',');
+            for (String ip : ipTokens) {
+                ips.add(StringUtils.trim(ip));
+            }
+        }
+        return ips;
     }
 
     @Override

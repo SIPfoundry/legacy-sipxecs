@@ -490,7 +490,7 @@ public class Servlet extends HttpServlet {
         return (useragent.contains("Gecko") || useragent.contains("curl")) && m_config.isDebugOn();
     }
 
-    protected boolean isPolycomConfigurationFilePath(String path) {
+    protected static boolean isPolycomConfigurationFilePath(String path) {
         return POLYCOM_SIP_PATH_RE.matcher(path).matches() || POLYCOM_PHONE1_PATH_RE.matcher(path).matches()
                 || POLYCOM_DEVICE_PATH_RE.matcher(path).matches()
                 || POLYCOM_OVERRIDES_PATH_RE.matcher(path).matches()
@@ -521,7 +521,7 @@ public class Servlet extends HttpServlet {
 
         // For debugging.
         if (isDebugTestUserAgent(useragent)) {
-            if (isPolycomConfigurationFilePath(path)) {
+            if (Servlet.isPolycomConfigurationFilePath(path)) {
                 useragent = "FileTransport PolycomSoundStationIP-SSIP_6000-UA/3.2.0.0157";
             } else if (isNortelIp12x0ConfigurationFilePath(path)) {
                 useragent = "Nortel IP Phone 1210 (SIP12x0.45.02.05.00)";

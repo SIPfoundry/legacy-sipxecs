@@ -194,6 +194,9 @@ public class NtpManagerImpl implements NtpManager, ProcessProvider, FeatureProvi
             }
             return addresses;
         } else if (type.equals(NTP_ADDRESS)) {
+            if (requester == null) {
+                return Collections.singleton(new Address(NTP_ADDRESS));
+            }
             if (manager.getFeatureManager().isFeatureEnabled(FEATURE)) {
                 return Collections.singleton(new Address(NTP_ADDRESS, requester.getAddress()));
             }

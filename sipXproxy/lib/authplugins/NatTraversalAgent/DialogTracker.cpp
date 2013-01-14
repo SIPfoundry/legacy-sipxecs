@@ -467,6 +467,11 @@ bool DialogTracker::patchSdp( SdpBody* pSdpBody, int mediaIndex, int rtpPort, tM
 {
    bool bPatchedSuccessfully = false;
 
+   //
+   // patch the session level address if one is present
+   //
+   pSdpBody->modifySessionAddress( mediaRelayAddressToUse );
+
    if( pSdpBody && mediaIndex < pSdpBody->getMediaSetCount() )
    {
       // patch connection address

@@ -44,6 +44,9 @@ public class SshManager implements AddressProvider, FirewallProvider {
 
         if (type.equals(SSH)) {
             // return the ssh server on the server that asking. mostly useful for firewall rules
+            if (requester == null) {
+                return Collections.singleton(new Address(SSH));
+            }
             return Collections.singleton(new Address(SSH, requester.getAddress()));
         }
 
