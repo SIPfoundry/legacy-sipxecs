@@ -43,7 +43,12 @@ public class FirewallSettings extends PersistableSettings implements DeployConfi
     }
 
     public void validate() {
-        Set<String> blackList = getBlackListSet();
+        validateIpList(getWhiteList());
+        validateIpList(getBlackList());
+    }
+
+    private void validateIpList(String ipList) {
+        Set<String> blackList = getIpsSet(ipList);
         for (String ip : blackList) {
             if (!IPAddressUtil.isLiteralIPAddress(ip) && !IPAddressUtil.isLiteralIPSubnetAddress(ip)) {
                 throw new UserException("&msg.invalidcidr", ip);
@@ -64,8 +69,36 @@ public class FirewallSettings extends PersistableSettings implements DeployConfi
         return (String) getSettingTypedValue("dos/black_list");
     }
 
+    public String getWhiteList() {
+        return (String) getSettingTypedValue("dos/white_list");
+    }
+
     public boolean isLogDroppedPacketsEnabled() {
         return (Boolean) getSettingTypedValue("logging/enable-drop");
+    }
+
+    public boolean isLogDosPacketsEnabled() {
+        return (Boolean) getSettingTypedValue("logging/enable-dos");
+    }
+
+    public boolean isLogSipRegisterEnabled() {
+        return (Boolean) getSettingTypedValue("logging/sip/enable-register");
+    }
+
+    public boolean isLogSipInviteEnabled() {
+        return (Boolean) getSettingTypedValue("logging/sip/enable-invite");
+    }
+
+    public boolean isLogSipAckEnabled() {
+        return (Boolean) getSettingTypedValue("logging/sip/enable-ack");
+    }
+
+    public boolean isLogSipOptionsEnabled() {
+        return (Boolean) getSettingTypedValue("logging/sip/enable-options");
+    }
+
+    public boolean isLogSipSubscribeEnabled() {
+        return (Boolean) getSettingTypedValue("logging/sip/enable-subscribe");
     }
 
     public int getLogLimitNumber() {
@@ -77,10 +110,47 @@ public class FirewallSettings extends PersistableSettings implements DeployConfi
     }
 
     public Set<String> getBlackListSet() {
+        return getIpsSet(getBlackList());
+    }
+
+    public Set<String> getWhiteListSet() {
+        return getIpsSet(getWhiteList());
+    }
+
+    public Set<String> getCustomDeniedUas() {
+        Set<String> uas = new HashSet<String>();
+        String uasString = (String) getSettingTypedValue("dos/drop-uas");
+        if (StringUtils.isNotEmpty(uasString)) {
+            String[] uasTokens = StringUtils.split(uasString, ',');
+            for (String ua : uasTokens) {
+                uas.add(StringUtils.trim(ua));
+            }
+        }
+        return uas;
+    }
+
+    public Set<String> getDeniedSipUAs() {
+        Set<String> uas = new HashSet<String>();
+        addDeniedUserAgent(uas, "dos/friendly-scanner", "friendly-scanner");
+        addDeniedUserAgent(uas, "dos/sipvicious", "sipvicious");
+        addDeniedUserAgent(uas, "dos/sundayddr", "sundayddr");
+        addDeniedUserAgent(uas, "dos/iwar", "iWar");
+        addDeniedUserAgent(uas, "dos/sip-scan", "sip-scan");
+        addDeniedUserAgent(uas, "dos/sipsak", "sipsak");
+        uas.addAll(getCustomDeniedUas());
+        return uas;
+    }
+
+    private void addDeniedUserAgent(Set<String> uas, String pathToSetting, String ua) {
+        if ((Boolean) getSettingTypedValue(pathToSetting)) {
+            uas.add(ua);
+        }
+    }
+
+    private Set<String> getIpsSet(String ipList) {
         Set<String> ips = new HashSet<String>();
-        String blackList = getBlackList();
-        if (StringUtils.isNotEmpty(blackList)) {
-            String[] ipTokens = StringUtils.split(blackList, ',');
+        if (StringUtils.isNotEmpty(ipList)) {
+            String[] ipTokens = StringUtils.split(ipList, ',');
             for (String ip : ipTokens) {
                 ips.add(StringUtils.trim(ip));
             }

@@ -9,10 +9,58 @@
     </boolean>
   </type>
   <group name="dos">
+    <setting name="white_list">
+      <type>
+        <string multiLine="yes" maxLen="1000"/>
+      </type>
+    </setting>
     <setting name="black_list">
       <type>
         <string multiLine="yes" maxLen="1000"/>
       </type>
+    </setting>
+    <setting name="friendly-scanner" advanced="yes">
+      <type refid="true-false"/>
+      <value>1</value>
+    </setting>
+    <setting name="sipvicious" advanced="yes">
+      <type refid="true-false"/>
+      <value>1</value>
+    </setting>
+    <setting name="sundayddr" advanced="yes">
+      <type refid="true-false"/>
+      <value>0</value>
+    </setting>
+    <setting name="iwar" advanced="yes">
+      <type refid="true-false"/>
+      <value>0</value>
+    </setting>
+    <setting name="sip-scan" advanced="yes">
+      <type refid="true-false"/>
+      <value>0</value>
+    </setting>
+    <setting name="sipsak" advanced="yes">
+      <type refid="true-false"/>
+      <value>0</value>
+    </setting>
+    <setting name="drop-uas" advanced="yes">
+      <type>
+        <string multiLine="yes" maxLen="1000"/>
+      </type>
+    </setting>
+  </group>
+  <group name="sysctl">
+    <setting name="icmp_echo_ignore_broadcasts" advanced="yes">
+      <type refid="true-false"/>
+      <value>1</value>
+    </setting>
+    <setting name="tcp_syncookies" advanced="yes">
+      <type refid="true-false"/>
+      <value>1</value>
+    </setting>
+    <setting name="log_martians" advanced="yes">
+      <type refid="true-false"/>
+      <value>1</value>
     </setting>
   </group>
   <group name="logging">
@@ -20,6 +68,32 @@
       <type refid="true-false"/>
       <value>0</value>
     </setting>
+    <setting name="enable-dos">
+      <type refid="true-false"/>
+      <value>0</value>
+    </setting>
+    <group name="sip">
+      <setting name="enable-register">
+        <type refid="true-false"/>
+        <value>0</value>
+      </setting>
+      <setting name="enable-invite">
+        <type refid="true-false"/>
+        <value>0</value>
+      </setting>
+      <setting name="enable-ack">
+        <type refid="true-false"/>
+        <value>0</value>
+      </setting>
+      <setting name="enable-options">
+        <type refid="true-false"/>
+        <value>0</value>
+      </setting>
+      <setting name="enable-subscribe">
+        <type refid="true-false"/>
+        <value>0</value>
+      </setting>
+    </group>
     <setting name="limit-drop-no">
       <type>
         <integer min="-1"/>
@@ -46,20 +120,6 @@
       <value>hour</value>
     </setting>
   </group>
-  <group name="sysctl">
-    <setting name="icmp_echo_ignore_broadcasts" >
-      <type refid="true-false"/>
-      <value>1</value>
-    </setting>
-    <setting name="tcp_syncookies" >
-      <type refid="true-false"/>
-      <value>1</value>
-    </setting>
-    <setting name="log_martians" >
-      <type refid="true-false"/>
-      <value>1</value>
-    </setting>
-   </group>
   <group name="sys">
     <setting name="unmanaged">
       <type refid="true-false"/>

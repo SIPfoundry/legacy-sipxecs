@@ -20,12 +20,19 @@
 :OUTPUT ACCEPT [60:6096]
 :syn-flood - [0:0]
 :LOGDROP - [0:0]
+:SIPDOS - [0:0]
 <%
   if logdropped
 %>-A LOGDROP -j LOG <%= limitdrop(loglimit, loginterval) %>--log-level 6 --log-prefix "firewall-drop: "
 <%
   end
 %>-A LOGDROP -j DROP
+<%
+  if logdos
+%>-A SIPDOS -j LOG <%= limitdrop(loglimit, loginterval) %>--log-level 6 --log-prefix "firewall-sipdos: "
+<%
+  end
+%>-A SIPDOS -j DROP
 <%
   unless chains.nil?
     chains.each { |chain|
@@ -45,14 +52,49 @@
 <%
   }
 
+  unless whitelist.nil?
+    whitelist.each { |whiteipv4|
+%>-A INPUT -i $(sipx.iface) -s <%= whiteipv4 %> -j ACCEPT
+<%
+  }
+  end
+
   unless blacklist.nil?
     blacklist.each { |blackipv4|
-%>-A INPUT -i $(sipx.iface) -s <%= blackipv4[:cidr] %> -j LOGDROP
+%>-A INPUT -i $(sipx.iface) -s <%= blackipv4 %> -j LOGDROP
 <%
   }
   end
 
   rules.each { |rule|
+    if rule[:sip]
+      unless deniedsip.nil?
+        deniedsip.each { |ua|
+%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --algo kmp --string "<%= ua %>" -m comment --comment "deny <%= ua %>" -j SIPDOS
+<%
+        }
+      end
+      if logregister
+%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --algo kmp --string "REGISTER sip:" -j LOG --log-level 6 --log-prefix "firewall-sip: SIP REGISTER: "
+<%
+      end
+      if loginvite
+%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --algo kmp --string "INVITE sip:" -j LOG --log-level 6 --log-prefix "firewall-sip: SIP INVITE: "
+<%
+      end
+      if logack
+%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --algo kmp --string "ACK sip:" -j LOG --log-level 6 --log-prefix "firewall-sip: SIP ACK: "
+<%
+      end
+      if logack
+%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --algo kmp --string "OPTIONS sip:" -j LOG --log-level 6 --log-prefix "firewall-sip: SIP OPTIONS: "
+<%
+      end
+      if logack
+%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --algo kmp --string "SUBSCRIBE sip:" -j LOG --log-level 6 --log-prefix "firewall-sip: SIP SUBSCRIBE: "
+<%
+      end
+    end
 %>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m state --state NEW,ESTABLISHED -m comment --comment "<%= rule[:service] %>" -j <%= rule[:chain] %>
 <%
   }

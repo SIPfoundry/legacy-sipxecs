@@ -17,10 +17,12 @@
 package org.sipfoundry.sipxconfig.address;
 
 public class AddressType {
+    private static final String SIP_FORMAT = "sip:%s:%d";
     private String m_id;
     private String m_format;
     private Protocol m_protocol = Protocol.tcp;
     private int m_canonicalPort;
+    private boolean m_externalSip;
 
     /**
      * There are a lot more types (see /etc/protocol) but these are the only imaginable ones
@@ -51,6 +53,12 @@ public class AddressType {
         m_protocol = protocol;
     }
 
+    public AddressType(String uniqueId, String format, Protocol protocol, boolean externalSip) {
+        this(uniqueId, format);
+        m_protocol = protocol;
+        m_externalSip = externalSip;
+    }
+
     public AddressType(String uniqueId, String format, int canonicalPort) {
         this(uniqueId, format);
         m_canonicalPort = canonicalPort;
@@ -78,20 +86,40 @@ public class AddressType {
         return sip(uniqueId, Protocol.tcp);
     }
 
+    public static AddressType externalSipTcp(String uniqueId) {
+        return externalsip(uniqueId, Protocol.tcp);
+    }
+
     public static AddressType sipUdp(String uniqueId) {
         return sip(uniqueId, Protocol.udp);
+    }
+
+    public static AddressType externalSipUdp(String uniqueId) {
+        return externalsip(uniqueId, Protocol.udp);
     }
 
     public static AddressType sipTls(String uniqueId) {
         return sip(uniqueId, Protocol.tlsp);
     }
 
+    public static AddressType externalSipTls(String uniqueId) {
+        return externalsip(uniqueId, Protocol.tlsp);
+    }
+
     public static AddressType sip(String uniqueId, Protocol protocol) {
-        return new AddressType(uniqueId, "sip:%s:%d", protocol);
+        return new AddressType(uniqueId, SIP_FORMAT, protocol);
+    }
+
+    public static AddressType externalsip(String uniqueId, Protocol protocol) {
+        return new AddressType(uniqueId, SIP_FORMAT, protocol, true);
     }
 
     public String getId() {
         return m_id;
+    }
+
+    public boolean isExternalSip() {
+        return m_externalSip;
     }
 
     public String format(Address address) {

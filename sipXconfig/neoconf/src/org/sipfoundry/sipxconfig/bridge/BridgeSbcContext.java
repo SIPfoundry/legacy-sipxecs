@@ -46,8 +46,8 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider, Firew
     public static final AddressType XMLRPC_ADDRESS = new AddressType("sbcBridgeXmlRpc", "http://%s:%d");
     public static final AddressType INTERNAL_SIP_ADDRESS = AddressType.sipTcp("sbcBridgeSip");
     public static final AddressType INTERNAL_TLS_ADDRESS = AddressType.sipTcp("sbcBridgeTls");
-    public static final AddressType EXTERNAL_SIP_ADDRESS = AddressType.sipTcp("sbcBridgeSipExternal");
-    public static final AddressType EXTERNAL_TLS_ADDRESS = AddressType.sipTcp("sbcBridgeTlsExternal");
+    public static final AddressType EXTERNAL_SIP_ADDRESS = AddressType.externalSipTcp("sbcBridgeSipExternal");
+    public static final AddressType EXTERNAL_TLS_ADDRESS = AddressType.externalSipTcp("sbcBridgeTlsExternal");
     private SbcDeviceManager m_sbcDeviceManager;
 
     @Override
