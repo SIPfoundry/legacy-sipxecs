@@ -70,28 +70,28 @@
     if rule[:sip]
       unless deniedsip.nil?
         deniedsip.each { |ua|
-%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --algo kmp --string "<%= ua %>" -m comment --comment "deny <%= ua %>" -j SIPDOS
+%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --string "<%= ua %>" --algo bm -m comment --comment "deny <%= ua %>" -j SIPDOS
 <%
         }
       end
       if logregister
-%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --algo kmp --string "REGISTER sip:" -j LOG --log-level 6 --log-prefix "firewall-sip: SIP REGISTER: "
+%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --string "REGISTER sip:" --algo bm --to 65 -j LOG --log-level 6 --log-prefix "firewall-sip: SIP REGISTER: "
 <%
       end
       if loginvite
-%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --algo kmp --string "INVITE sip:" -j LOG --log-level 6 --log-prefix "firewall-sip: SIP INVITE: "
+%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --string "INVITE sip:" --algo bm --to 65 -j LOG --log-level 6 --log-prefix "firewall-sip: SIP INVITE: "
 <%
       end
       if logack
-%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --algo kmp --string "ACK sip:" -j LOG --log-level 6 --log-prefix "firewall-sip: SIP ACK: "
+%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --string "ACK sip:" --algo bm --to 65 -j LOG --log-level 6 --log-prefix "firewall-sip: SIP ACK: "
 <%
       end
       if logoptions
-%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --algo kmp --string "OPTIONS sip:" -j LOG --log-level 6 --log-prefix "firewall-sip: SIP OPTIONS: "
+%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --string "OPTIONS sip:" --algo bm --to 65 -j LOG --log-level 6 --log-prefix "firewall-sip: SIP OPTIONS: "
 <%
       end
       if logsubscribe
-%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --algo kmp --string "SUBSCRIBE sip:" -j LOG --log-level 6 --log-prefix "firewall-sip: SIP SUBSCRIBE: "
+%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --string "SUBSCRIBE sip:" --algo bm --to 65 -j LOG --log-level 6 --log-prefix "firewall-sip: SIP SUBSCRIBE: "
 <%
       end
     end
