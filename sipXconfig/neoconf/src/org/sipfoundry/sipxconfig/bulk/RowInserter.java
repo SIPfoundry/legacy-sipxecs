@@ -78,8 +78,9 @@ public abstract class RowInserter<T> extends HibernateDaoSupport implements Clos
 
     /**
      * Called before inserting begins, before the first time insertRow is called
+     * @param inputs
      */
-    public void beforeInserting() {
+    public void beforeInserting(Object... inputs) {
         // do nothing
     }
 
