@@ -86,11 +86,11 @@
 %>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --algo kmp --string "ACK sip:" -j LOG --log-level 6 --log-prefix "firewall-sip: SIP ACK: "
 <%
       end
-      if logack
+      if logoptions
 %>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --algo kmp --string "OPTIONS sip:" -j LOG --log-level 6 --log-prefix "firewall-sip: SIP OPTIONS: "
 <%
       end
-      if logack
+      if logsubscribe
 %>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --algo kmp --string "SUBSCRIBE sip:" -j LOG --log-level 6 --log-prefix "firewall-sip: SIP SUBSCRIBE: "
 <%
       end
