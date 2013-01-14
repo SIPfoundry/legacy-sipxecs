@@ -1,0 +1,17 @@
+<?xml version="1.0" standalone="yes"?>
+<!-- Device Configuration File -->
+<device device.set="1"
+#set ($group = $cfg.EndpointSettings.getSetting('log').getSetting('device.syslog'))
+#foreach ($setting in $cfg.getSettings($group))
+    device.syslog.${setting.ProfileName}="$!{setting.Value}"
+#end
+
+#set ($group = $cfg.EndpointSettings.getSetting('network').getSetting('device.net'))
+#if ($cfg.EndpointSettings.getSetting('network').getSetting('device.net').getSetting('overwrite').Value != 0)
+#foreach ($setting in $cfg.getSettings($group))
+#if (${setting.ProfileName} != '$ignore$')
+    device.net.${setting.ProfileName}="$!{setting.Value}"
+#end
+#end 
+#end
+/>

@@ -4,7 +4,11 @@ polycom_PKGS = \
 	commons-lang \
 	commons-io \
 	commons-collections \
+	commons-logging \
 	org.springframework.beans \
+	org.springframework.core \
 	sipxcommons \
 	sipxconfig-neoconf \
-	velocity
+	velocity \
+	org.restlet \
+	org.restlet.ext.spring

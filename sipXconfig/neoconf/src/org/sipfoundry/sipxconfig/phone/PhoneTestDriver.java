@@ -46,6 +46,10 @@ import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public final class PhoneTestDriver {
     public static final String SIPFOUNDRY_ORG = "sipfoundry.org";
+    public static final String USERNAME = "juser";
+    public static final String SHARED_USER = "sharedUser";
+    public static final String SHARED = "Shared";
+    public static final String PASS = "1234";
 
     private final IMocksControl m_phoneContextControl;
 
@@ -139,17 +143,42 @@ public final class PhoneTestDriver {
         List<User> users = new ArrayList<User>();
 
         User firstUser = new User();
-        firstUser.setUserName("juser");
+        firstUser.setUserName(USERNAME);
         firstUser.setFirstName("Joe");
         firstUser.setLastName("User");
-        firstUser.setSipPassword("1234");
+        firstUser.setSipPassword(PASS);
         firstUser.setIsShared(false);
         users.add(firstUser);
 
         if (includeSharedLine) {
             User secondUser = new User();
-            secondUser.setUserName("sharedUser");
-            secondUser.setFirstName("Shared");
+            secondUser.setUserName(SHARED_USER);
+            secondUser.setFirstName(SHARED);
+            secondUser.setLastName(firstUser.getLastName());
+            secondUser.setSipPassword(firstUser.getSipPassword());
+            secondUser.setIsShared(true);
+            users.add(secondUser);
+        }
+
+        return new PhoneTestDriver(phone, users, phonebookManagementEnabled, speedDial, sendCheckSyncToMac);
+    }
+
+    public static PhoneTestDriver supplyTestDataWithSpecialChars(Phone phone, boolean phonebookManagementEnabled,
+            boolean speedDial, boolean includeSharedLine, boolean sendCheckSyncToMac) {
+        List<User> users = new ArrayList<User>();
+
+        User firstUser = new User();
+        firstUser.setUserName(USERNAME);
+        firstUser.setFirstName("Joe<>?'\"");
+        firstUser.setLastName("Schröder");
+        firstUser.setSipPassword(PASS);
+        firstUser.setIsShared(false);
+        users.add(firstUser);
+
+        if (includeSharedLine) {
+            User secondUser = new User();
+            secondUser.setUserName(SHARED_USER);
+            secondUser.setFirstName(SHARED);
             secondUser.setLastName(firstUser.getLastName());
             secondUser.setSipPassword(firstUser.getSipPassword());
             secondUser.setIsShared(true);
@@ -241,18 +270,18 @@ public final class PhoneTestDriver {
         replay(addressManager);
         defaults.setAddressManager(addressManager);
 
-//        SipxService registrarService = new SipxRegistrarService();
-//        registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
-//        registrarService.setBeanId(SipxRegistrarService.BEAN_ID);
-//        registrarService.setModelName("sipxregistrar.xml");
-//        registrarService.setModelDir("sipxregistrar");
+// SipxService registrarService = new SipxRegistrarService();
+// registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
+// registrarService.setBeanId(SipxRegistrarService.BEAN_ID);
+// registrarService.setModelName("sipxregistrar.xml");
+// registrarService.setModelDir("sipxregistrar");
 //
-//        SipxService proxyService = new SipxProxyService();
-//        proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
-//        proxyService.setBeanId(SipxProxyService.BEAN_ID);
-//        proxyService.setModelName("sipxproxy.xml");
-//        proxyService.setModelDir("sipxproxy");
-//        proxyService.setSipPort("5555");
+// SipxService proxyService = new SipxProxyService();
+// proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
+// proxyService.setBeanId(SipxProxyService.BEAN_ID);
+// proxyService.setModelName("sipxproxy.xml");
+// proxyService.setModelDir("sipxproxy");
+// proxyService.setSipPort("5555");
 
         return defaults;
     }

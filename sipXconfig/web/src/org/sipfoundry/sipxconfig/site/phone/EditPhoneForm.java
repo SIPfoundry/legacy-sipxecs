@@ -18,8 +18,10 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
+import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.translator.Translator;
 import org.apache.tapestry.form.validator.Validator;
+import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.SerialNumberTranslator;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -82,5 +84,12 @@ public abstract class EditPhoneForm extends BaseComponent {
 
     public Translator getSerialNumberTranslator() {
         return new SerialNumberTranslator(getPhone().getModel());
+    }
+
+    public IPropertySelectionModel getModelSelectionModel() {
+        ObjectSelectionModel model = new ObjectSelectionModel();
+        model.setCollection(getPhone().getModelIdsForSelection(getPhone().getModelId()));
+        model.setLabelExpression("label");
+        return model;
     }
 }

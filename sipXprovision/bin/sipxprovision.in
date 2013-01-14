@@ -57,6 +57,7 @@ start() {
     -Dprocname=sipxprovision \
     $TrustStoreOpts \
 	$KeyStoreOpts \
+    ${SIPXPROVISION_OPTS} \
     -Djetty.x509.algorithm=$X509Algorithm \
 	-Djetty.ssl.password=$StorePassword \
 	-Djetty.ssl.keypassword=$StorePassword	\
