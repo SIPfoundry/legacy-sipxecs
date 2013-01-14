@@ -594,3 +594,12 @@
     </option>
   </enum>
 </type>
+<type id="fwver">
+          <enum>
+            <option><value></value></option>
+            <option><value>3.1.X</value></option>
+            <option><value>3.2.X</value></option>
+            <option><value>4.0.X</value></option>
+            <option><value>4.1.X</value></option>
+          </enum>
+</type>

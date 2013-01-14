@@ -74,6 +74,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
     static final String SUBSCRIBE_PATH = "msg.mwi/subscribe";
     static final String TEMPLATE_DIR = "polycom/mac-address.d";
     static final String TEMPLATE_DIR40 = "polycom/mac-address.d.40";
+    static final String TEMPLATE_DIR41 = "polycom/mac-address.d.41";
     static final String TEMPLATE_DIR32 = "polycom/mac-address.d.32";
     static final String MB_PROXY = "mb/proxy";
     static final String MB_IDLE_DISPLAY_HOME_PAGE = "mb/idleDisplay/home";
@@ -114,6 +115,8 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
             return TEMPLATE_DIR40;
         } else if (getDeviceVersion() == PolycomModel.VER_3_2_X) {
             return TEMPLATE_DIR32;
+        } else if (getDeviceVersion() == PolycomModel.VER_4_1_X) {
+            return TEMPLATE_DIR41;
         }
         return TEMPLATE_DIR;
     }
@@ -128,6 +131,8 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
             return "/mac-address-32.cfg.vm";
         } else if (getDeviceVersion() == PolycomModel.VER_3_1_X) {
             return "/mac-address-31.cfg.vm";
+        } else if (getDeviceVersion() == PolycomModel.VER_4_1_X) {
+            return "/mac-address-41.cfg.vm";
         }
         return "/mac-address.cfg.vm";
     }
@@ -144,6 +149,10 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
         if (myVersion == PolycomModel.VER_4_0_X) {
             getModel().setSettingsFile("phone-40.xml");
             getModel().setLineSettingsFile("line-40.xml");
+            getModel().setStaticProfileFilenames(new String[] {});
+        } else if (myVersion == PolycomModel.VER_4_1_X) {
+            getModel().setSettingsFile("phone-41.xml");
+            getModel().setLineSettingsFile("line-41.xml");
             getModel().setStaticProfileFilenames(new String[] {});
         } else if (myVersion == PolycomModel.VER_3_1_X) {
             getModel().setSettingsFile(PHONE_XML);
@@ -193,7 +202,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
     @Override
     public Profile[] getProfileTypes() {
         Profile[] profileTypes;
-        if (getDeviceVersion() == PolycomModel.VER_4_0_X) {
+        if (getDeviceVersion() == PolycomModel.VER_4_0_X || getDeviceVersion() == PolycomModel.VER_4_1_X) {
             profileTypes = new Profile[] {
                 new ApplicationProfile(getAppFilename()), new ApplicationsProfile(getAppsFilename()),
                 new FeaturesProfile(getFeaturesFilename()), new RegAdvancedProfile(getRegAdvancedFilename()),

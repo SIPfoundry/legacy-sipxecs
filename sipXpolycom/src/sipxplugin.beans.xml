@@ -15,6 +15,8 @@
     class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />    
   <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"
     class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+  <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"
+    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
 
   <bean id="polycom300" parent="polycomModel">
    <property name="label" value="Polycom SoundPoint IP 300" />
@@ -445,6 +447,7 @@
     <property name="versions">
       <list>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
       </list>
     </property> 
   </bean>
@@ -467,7 +470,7 @@
     </property>
     <property name="versions">
       <list>
-        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
       </list>
     </property> 
   </bean>
