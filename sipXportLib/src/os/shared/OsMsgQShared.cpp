@@ -189,7 +189,7 @@ OsStatus OsMsgQShared::doReceive(OsMsg*& rpMsg, const OsTime& rTimeout)
 {
   OsStatus ret;
 
-  if (!rTimeout.isInfinite() && !rTimeout.isNoWait())
+  if (!rTimeout.isInfinite())
   {
     Interval expireFromNow = TIME_TO_INTERVAL(rTimeout);
     if (try_dequeue(rpMsg, expireFromNow))
