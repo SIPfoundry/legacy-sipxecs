@@ -81,6 +81,10 @@ public class FirewallSettings extends PersistableSettings implements DeployConfi
         return (Boolean) getSettingTypedValue("logging/enable-dos");
     }
 
+    public boolean isLogRatePacketsEnabled() {
+        return (Boolean) getSettingTypedValue("logging/enable-ratelimit");
+    }
+
     public boolean isLogSipRegisterEnabled() {
         return (Boolean) getSettingTypedValue("logging/sip/enable-register");
     }

@@ -53,6 +53,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
     private FirewallManager m_firewallManager;
     private AddressManager m_addressManager;
     private ConfigManager m_configManager;
+    private CallRateManager m_callRateManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -68,6 +69,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         List<FirewallRule> rules = m_firewallManager.getFirewallRules();
         List<ServerGroup> groups = m_firewallManager.getServerGroups();
         List<Location> locations = manager.getLocationManager().getLocationsList();
+        List<CallRateRule> rateRules = m_callRateManager.getCallRateRules();
         for (Location location : request.locations(manager)) {
             File dir = manager.getLocationDataDirectory(location);
             Map<Object, Object> configRequest = request.getRequestData();
@@ -94,7 +96,8 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
             List<CustomFirewallRule> custom = m_firewallManager.getCustomRules(location, configRequest);
             Writer config = new FileWriter(new File(dir, "firewall.yaml"));
             try {
-                writeIptables(config, whiteList, blackList, settings, rules, custom, groups, locations, location);
+                writeIptables(config, whiteList, blackList, settings, rateRules, rules, custom,
+                        groups, locations, location);
             } finally {
                 IOUtils.closeQuietly(config);
             }
@@ -114,14 +117,15 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
     }
 
     void writeIptables(Writer w, Set<String> whiteList, Set<String> blackList, FirewallSettings settings,
-            List<FirewallRule> rules, List<CustomFirewallRule> custom, List<ServerGroup> groups, List<Location> cluster,
-            Location thisLocation)
+            List<CallRateRule> rateRules, List<FirewallRule> rules, List<CustomFirewallRule> custom,
+            List<ServerGroup> groups, List<Location> cluster, Location thisLocation)
         throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
 
         Collection< ? > ips = CollectionUtils.collect(cluster, Location.GET_ADDRESS);
         c.write("logdropped", settings.isLogDroppedPacketsEnabled());
         c.write("logdos", settings.isLogDosPacketsEnabled());
+        c.write("lograte", settings.isLogRatePacketsEnabled());
         c.write("logregister", settings.isLogSipRegisterEnabled());
         c.write("loginvite", settings.isLogSipInviteEnabled());
         c.write("logack", settings.isLogSipAckEnabled());
@@ -148,6 +152,25 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         c.writeArray("whitelist", whiteList);
         c.writeArray("blacklist", blackList);
         c.writeArray("deniedsip", settings.getDeniedSipUAs());
+
+        c.startArray("raterules");
+        for (CallRateRule rule : rateRules) {
+            c.nextElement();
+            c.write(":rule", StringUtils.deleteWhitespace(rule.getName()));
+            c.write(":startIp", rule.getStartIp());
+            if (rule.getEndIp() != null) {
+                c.write(":endIp", rule.getEndIp());
+            }
+            c.startArray(":limits");
+            for (CallRateLimit limit : rule.getCallRateLimits()) {
+                c.nextElement();
+                c.write(":method", limit.getSipMethod());
+                c.write(":rate", limit.getRate());
+                c.write(":interval", limit.getInterval());
+            }
+            c.endArray();
+        }
+        c.endArray();
 
         c.startArray("rules");
         for (FirewallRule rule : rules) {
@@ -217,6 +240,10 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
 
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
+    }
+
+    public void setCallRateManager(CallRateManager callRateManager) {
+        m_callRateManager = callRateManager;
     }
 
     @Override

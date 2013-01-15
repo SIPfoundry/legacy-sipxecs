@@ -72,6 +72,10 @@
       <type refid="true-false"/>
       <value>0</value>
     </setting>
+    <setting name="enable-ratelimit">
+      <type refid="true-false"/>
+      <value>0</value>
+    </setting>
     <group name="sip">
       <setting name="enable-register">
         <type refid="true-false"/>

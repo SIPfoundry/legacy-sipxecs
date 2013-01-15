@@ -70,6 +70,13 @@ bundle agent firewall_module_config {
         edit_line => firewall_logsip_contents,
         classes => if_repaired("restart_firewall_log");
 
+      "/etc/rsyslog.d/firewall-lograte.conf"
+        comment => "Configure firewall logratelimit",
+        perms => mog("0600","root","root"),
+        create => "true",
+        edit_line => firewall_lograte_contents,
+        classes => if_repaired("restart_firewall_log");
+
   commands:
     restart_firewall_log.!fedora16_or_greater::
        "/etc/init.d/rsyslog"
@@ -97,6 +104,12 @@ bundle edit_line firewall_logdos_contents {
 bundle edit_line firewall_logsip_contents {
   insert_lines:
     ":msg, contains, \"firewall-sip: \" -$(sipx.SIPX_LOGDIR)/firewall/firewall-sip.log";
+    "& ~";
+}
+
+bundle edit_line firewall_lograte_contents {
+  insert_lines:
+    ":msg, contains, \"firewall-ratedrop: \" -$(sipx.SIPX_LOGDIR)/firewall/firewall-ratedrop.log";
     "& ~";
 }
 

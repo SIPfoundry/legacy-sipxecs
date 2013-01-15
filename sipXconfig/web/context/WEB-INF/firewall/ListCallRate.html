@@ -1,0 +1,45 @@
+<form jwcid="rates@Form" id="ratesForm" delegate="bean:validator" listener="listener:formSubmit">
+  <ul class="component-links">
+    <li>
+      <a jwcid="@DirectLink"  listener="listener:addCallRate" id="link.addCallRate">
+        <span key="link.add">Add Call Rate</span>
+      </a>
+    </li>
+  </ul>
+  <table jwcid="@common/Table" id="rates:list" columns="literal:* !name,!description,!appliesTo" source="ognl:callRates"
+    row="ognl:currentRow" selections="bean:selections" class="bean:rowClass.next">
+    <tr jwcid="nameColumnValue@Block">
+      <td jwcid="editRowLink@DirectLink" listener="listener:editCallRate" parameters="ognl:currentRow.id">
+        <span jwcid="@Insert" value="ognl:currentRow.name"/>
+      </td>
+    </tr>
+    <tr jwcid="appliesToColumeValue@Block">
+      <td>
+        <span jwcid="@Insert" value="ognl:currentRow.appliesTo"/>
+      </td>
+    </tr>
+  </table>
+  <ul class="component-submit">
+    <li>
+        <input jwcid="delete@Submit" id="rates:delete"
+          selected="ognl:selectedRows"
+          tag="ognl:allSelected"
+          value="message:button.delete" />
+	          <span jwcid="@common/Confirm"
+	            component="component:delete"
+	            prompt="message:confirm.delete"/>
+	</li>
+    <li>
+          <input jwcid="moveUp@Submit" id="rates:move:up"
+            selected="ognl:rowsToMoveUp"
+            tag="ognl:allSelected"
+            value="message:button.moveUp" />
+        </li>
+        <li>
+          <input jwcid="moveDown@Submit" id="rates:move:down"
+            selected="ognl:rowsToMoveDown"
+            tag="ognl:allSelected"
+            value="message:button.moveDown" />
+        </li>
+  </ul>
+</form>

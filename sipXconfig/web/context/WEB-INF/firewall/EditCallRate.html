@@ -1,0 +1,33 @@
+    <div jwcid="@common/Border" restricted="false" borderTitle="ognl:borderTitle">
+	  <span jwcid="@common/ErrorMsg"></span>
+	  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
+	  <form jwcid="editCallRateForm@Form" delegate="bean:validator" listener="listener:submit">
+	    <table>
+         <tbody>
+	       <span jwcid="@common/ItemCommon" item="ognl:rule" nameValidator="spring-validators:required" useEnabled="literal:false" useExtension="literal:false"/>
+	        <tr jwcid="@common/FieldPanel" for="startIp" field="component:startIp" label="message:label.startIp">
+              <td jwcid="startIp@TextField" id="prefix" validators="spring-validators:required" maxlength="255" value="ognl:rule.startIp" type="text"/>
+            </tr>
+            <tr jwcid="@common/FieldPanel" for="endIp" field="component:endIp" label="message:label.endIp">
+              <td jwcid="endIp@TextField" id="prefix" maxlength="255" value="ognl:rule.endIp" type="text"/>
+            </tr>
+          </tbody>
+        </table>
+		   <ul class="component-links">
+			<li>
+				<a jwcid="addLimit@LinkSubmit" selected="ognl:action" tag="add"><span key="add">Add Limit</span></a>
+			</li>
+		  </ul>
+	      <fieldset>
+	        <table>
+	          <tbody>
+	            <!-- iterate here -->
+	            <tr jwcid="@For" source="ognl:limits" value="ognl:limit" index="ognl:index" volatile="true">
+	              <span jwcid="@firewall/EditCallRateLimit" callRateLimit="ognl:limit" index="ognl:index" deleteListener="listener:deleteLimit"/>
+				</tr>
+	          </tbody>
+	        </table>
+	      </fieldset>
+	    <span jwcid="@common/FormActions" callback="ognl:callback" listener="listener:commit"/>
+	  </form>
+    </div>
