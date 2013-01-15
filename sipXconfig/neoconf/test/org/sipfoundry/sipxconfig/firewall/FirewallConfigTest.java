@@ -25,6 +25,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -106,7 +107,25 @@ public class FirewallConfigTest {
           new CustomFirewallRule(FirewallTable.mangle, "mangle 1")
         );
 
-        m_config.writeIptables(m_actual, new HashSet<String>(), new HashSet<String>(), m_settings, rules, custom, groups, cluster, l1);
+        CallRateRule rule = new CallRateRule();
+        rule.setName("rule1");
+        rule.setStartIp("192.168.0.1");
+        CallRateLimit limit = new CallRateLimit();
+        limit.setSipMethod("INVITE");
+        limit.setRate(5);
+        limit.setInterval("minute");
+        List<CallRateLimit> limits = new ArrayList<CallRateLimit>();
+        limits.add(limit);
+        rule.setCallRateLimits(limits);
+        CallRateRule rule1 = new CallRateRule();
+        rule1.setName("rule2");
+        rule1.setStartIp("192.168.0.2");
+        rule1.setEndIp("192.168.0.4");
+        rule1.setCallRateLimits(limits);
+        List<CallRateRule> rateRules = new LinkedList<CallRateRule>();
+        rateRules.add(rule);
+        rateRules.add(rule1);
+        m_config.writeIptables(m_actual, new HashSet<String>(), new HashSet<String>(), m_settings, rateRules, rules, custom, groups, cluster, l1);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-firewall.yaml"));
         assertEquals(expected, m_actual.toString());
         
