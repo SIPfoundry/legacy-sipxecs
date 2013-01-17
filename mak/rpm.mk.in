@@ -70,10 +70,9 @@ help.{1|2}.srpm = Called automatically as part of rpm process after srpm target.
 # srpm git revision in tarball may not match HEAD of git repo.  tarball is only rebuilt
 # if project source changed. So we need to extract the rev from the tarball
 DIST_REV = $(shell tar -O -xzf $(PROJ)/$(proj)-$(PACKAGE_VERSION).tar.gz $(proj)-$(PACKAGE_VERSION)/.tarball-revision)
-SRPM = $(proj)-$(PACKAGE_VERSION)-$(DIST_REV).src.rpm
 $(sipx:=.srpm_) $(app:=.srpm_) : %.srpm_ :
 	rpmbuild -ts $(SRPM_DEFS) $($(PROJ)_SRPM_DEFS) --nodeps $($(PROJ)_TAR)
-	cp @RPMBUILD_TOPDIR@/SRPMS/$(SRPM) $(MOCK_SRPM_DIR)
+	cp @RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM) $(MOCK_SRPM_DIR)
 
 sipx.rpm : $(sipx:=.rpm-by-dep);
 app.rpm : $(app:=.rpm-by-dep);
@@ -110,14 +109,13 @@ RPM_DEP = $(MOCK_RESULTS_DIR)/.dep.$(PROJ)
 	  $(MAKE) $(PROJ).srpm_ $(PROJ).rpm_; \
 	fi
 
-$(lib:=.rpm_): SRPM=$$($$(PROJ)_SRPM)
 %.rpm_ : repo-webserver
 	mock $(MOCK_OPTS) \
 	  --no-clean \
 	  --no-cleanup-after \
 	  --rebuild \
 	  $($(PROJ)_RPM_DEFS) \
-	  $(MOCK_SRPM_DIR)/$(SRPM)
+	  $(MOCK_SRPM_DIR)/$($(PROJ)_SRPM)
 	touch $(RPM_DEP)
 	find $(MOCK_RESULTS_DIR) -name '*.src.rpm' -exec rm {} \;
 # generate repo AFTER build otherwise it's unusable as a repo to feed to next build or other systems.
