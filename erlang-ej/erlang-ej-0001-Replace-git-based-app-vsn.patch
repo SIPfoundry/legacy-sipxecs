@@ -1,0 +1,26 @@
+From fb88866b276cfb99d761dbea4225c6477186a1ec Mon Sep 17 00:00:00 2001
+From: Jan Vincent Liwanag <jvliwanag@gmail.com>
+Date: Mon, 26 Nov 2012 18:51:26 +0800
+Subject: [PATCH] Replace git-based app vsn
+
+Using {vsn, git} prevents building from tarball
+---
+ src/ej.app.src | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/ej.app.src b/src/ej.app.src
+index 4e91219..bbf104d 100644
+--- a/src/ej.app.src
++++ b/src/ej.app.src
+@@ -1,7 +1,7 @@
+ {application, ej,
+  [
+   {description, ""},
+-  {vsn, git},
++  {vsn, "0.0.2"},
+   {registered, []},
+   {applications, [
+                   kernel,
+-- 
+1.8.0
+

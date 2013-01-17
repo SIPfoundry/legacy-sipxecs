@@ -1,0 +1,25 @@
+From 59724114b73f5ae69516b1e1abbdb7639fd6f2a9 Mon Sep 17 00:00:00 2001
+From: Jan Vincent Liwanag <jvliwanag@gmail.com>
+Date: Wed, 28 Nov 2012 16:09:25 +0800
+Subject: [PATCH] Replace git vsn with fixed value
+
+---
+ src/mimetypes.app.src | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/mimetypes.app.src b/src/mimetypes.app.src
+index ba36915..e51eb30 100644
+--- a/src/mimetypes.app.src
++++ b/src/mimetypes.app.src
+@@ -1,7 +1,7 @@
+ {application, mimetypes,
+  [
+   {description, "mimetypes"},
+-  {vsn, git},
++  {vsn, "0.9"},
+   {registered, [mimetypes]},
+   {applications, [
+                   kernel,
+-- 
+1.8.0
+
