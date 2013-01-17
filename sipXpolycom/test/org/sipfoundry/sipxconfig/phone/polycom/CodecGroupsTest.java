@@ -1,12 +1,12 @@
 /*
- *
- *
- * Copyright (C) 2009 Nortel, certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the LGPL license.
- *
- * $
- */
+*
+*
+* Copyright (C) 2009 Nortel, certain elements licensed under a Contributor Agreement.
+* Contributors retain copyright to elements licensed under a Contributor Agreement.
+* Licensed to the User under the LGPL license.
+*
+* $
+*/
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import static org.apache.commons.lang.StringUtils.join;
@@ -30,16 +30,16 @@ import org.sipfoundry.sipxconfig.test.TestHelper;
 import junit.framework.TestCase;
 
 /**
- * Checks that each Polycom codec group has the correct codec options, and the correct
- * ordered list of default selected codecs.
- */
+* Checks that each Polycom codec group has the correct codec options, and the correct
+* ordered list of default selected codecs.
+*/
 public class CodecGroupsTest extends TestCase {
 
     /**
-     * Test the option list and default selected values for every single Polycom group.
-     *
-     * @see http://wiki.sipfoundry.org/display/xecsuser/Polycom#Polycom-Codecgroup
-     */
+* Test the option list and default selected values for every single Polycom group.
+*
+* @see http://wiki.sipfoundry.org/display/xecsuser/Polycom#Polycom-Codecgroup
+*/
     public void test20CodecGroups() throws DocumentException {
 
         for (CodecGroupType codec_group : CodecGroupType.values() ) {
@@ -133,14 +133,14 @@ public class CodecGroupsTest extends TestCase {
     }
 
     /**
-     * The correct full list of codec options for the specified Polycom codec group.
-     *
-     * Note that this may be a subset of the options actually supported by the Polycom codec group.
-     * For example, we have not (yet) bothered to list the iLBC codec (XX-6596.)
-     *
-     * @see http://track.sipfoundry.org/browse/XX-6596: Polycom 3.2.0: Add iLBC codec support
-     * @see http://wiki.sipfoundry.org/display/xecsuser/Polycom#Polycom-Codecgroup
-     */
+* The correct full list of codec options for the specified Polycom codec group.
+*
+* Note that this may be a subset of the options actually supported by the Polycom codec group.
+* For example, we have not (yet) bothered to list the iLBC codec (XX-6596.)
+*
+* @see http://track.sipfoundry.org/browse/XX-6596: Polycom 3.2.0: Add iLBC codec support
+* @see http://wiki.sipfoundry.org/display/xecsuser/Polycom#Polycom-Codecgroup
+*/
     private static final HashMap<CodecGroupType, Collection<String>> CODECGROUP_OPTION_MAP;
     static {
         CODECGROUP_OPTION_MAP = new HashMap<CodecGroupType, Collection<String>>();
@@ -155,7 +155,7 @@ public class CodecGroupsTest extends TestCase {
         IP_650_SET.add("G722");
         CODECGROUP_OPTION_MAP.put(CodecGroupType.IP_650, IP_650_SET);
 
-        // IP_4000 has the same options as OTHERS.  (But NOT if we ever implement XX-6596.)
+        // IP_4000 has the same options as OTHERS. (But NOT if we ever implement XX-6596.)
         CODECGROUP_OPTION_MAP.put(CodecGroupType.IP_4000, OTHERS_SET);
 
         HashSet<String> IP_5000_SET = new HashSet<String>(OTHERS_SET);
@@ -204,11 +204,11 @@ public class CodecGroupsTest extends TestCase {
     }
 
     /**
-     * The correct full list of default selected codecs for the specified Polycom codec group.
-     * The AbstractSequentialList value of the Map is ordered by preference.
-     *
-     * @see http://wiki.sipfoundry.org/display/xecsuser/Polycom#Polycom-Codecgroup
-     */
+* The correct full list of default selected codecs for the specified Polycom codec group.
+* The AbstractSequentialList value of the Map is ordered by preference.
+*
+* @see http://wiki.sipfoundry.org/display/xecsuser/Polycom#Polycom-Codecgroup
+*/
     private static final HashMap<CodecGroupType, ArrayList<String>> CODECGROUP_SELECTED_MAP;
     static {
         CODECGROUP_SELECTED_MAP = new HashMap<CodecGroupType, ArrayList<String>>();
@@ -274,15 +274,15 @@ public class CodecGroupsTest extends TestCase {
     }
 
     /**
-     * For each codec group, ensure this unit test's recorded default selected codecs is
-     * indeed a subset of the recorded full options list for that codec group.
-     *
-     * This is really an  double-check of this test case's data, to ensure false errors are
-     * note reported in the other test methods.  It doesn't actually test anything outside
-     * of this class.
-     *
-     * @see http://wiki.sipfoundry.org/display/xecsuser/Polycom#Polycom-Codecgroup
-     */
+* For each codec group, ensure this unit test's recorded default selected codecs is
+* indeed a subset of the recorded full options list for that codec group.
+*
+* This is really an double-check of this test case's data, to ensure false errors are
+* note reported in the other test methods. It doesn't actually test anything outside
+* of this class.
+*
+* @see http://wiki.sipfoundry.org/display/xecsuser/Polycom#Polycom-Codecgroup
+*/
     public void testCodecGroupsSelectedSubsetOfOptions() {
 
         assertEquals(CODECGROUP_OPTION_MAP.size(), CODECGROUP_SELECTED_MAP.size());

@@ -18,33 +18,7 @@
 #include "os/OsDateTime.h"
 #include "os/OsLogger.h"
 
-// EXTERNAL FUNCTIONS
-// EXTERNAL VARIABLES
-// CONSTANTS
-// STATIC VARIABLE INITIALIZATIONS
 
-// Message Queue implementation for OS's which do not have native message queues
-//
-// Two kinds of concurrent tasks, called "senders" and "receivers",
-// communicate using a message queue. When the queue is empty, receivers are
-// blocked until there are messages to receive. When the queue is full,
-// senders are blocked until some of the queued messages are received --
-// freeing up space in the queue for more messages.
-//
-// This implementation is based on the description from the book "Operating
-// Systems Principles" by Per Brinch Hansen, 1973.  This solution uses:
-//   - a counting semaphore (mEmpty) to control the delay of the sender in
-//     the following way:
-//       initially:      the "empty" semaphore count is set to maxMsgs
-//       before send:    acquire(empty)
-//       after receive:  release(empty)
-//   - a counting semaphore (mFull) to control the delay of the receiver in
-//     the following way:
-//       initially:      the "full" semaphore count is set to 0
-//       before receive: acquire(full)
-//       after send:     release(full)
-//   - a binary semaphore (mGuard) to ensure against concurrent access to
-//     internal object data
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -59,44 +33,12 @@ OsMsgQShared::OsMsgQShared(const char* name,
                            int maxMsgLen,
                            int options,
                            bool reportFull)
-   :
-   OsMsgQBase(name),
-   mGuard(OsMutex::Q_PRIORITY + OsMutex::INVERSION_SAFE +
-          OsMutex::DELETE_SAFE),
-   mEmpty(OsCSem::Q_PRIORITY, maxMsgs, maxMsgs),
-   mFull(OsCSem::Q_PRIORITY, maxMsgs, 0),
-   mDlist(),
-   mOptions(options),
-   mHighCnt(0),
-   mReportFull(reportFull)
+   : OsMsgQBase(name),
+     _maxMsgs(maxMsgs),
+     _maxMsgLen(maxMsgLen),
+     _options(options),
+     _reportFull(reportFull)
 {
-   mMaxMsgs = maxMsgs;
-
-#ifdef OS_MSGQ_REPORTING
-   mIncrementLevel = mMaxMsgs / 20;
-   if (mIncrementLevel < 1)
-      mIncrementLevel = 1;
-   mIncreaseLevel = mIncrementLevel;
-   mDecreaseLevel = 0;
-#endif
-
-#ifdef MSGQ_IS_VALID_CHECK /* [ */
-   OsStatus ret = mGuard.acquire();         // start critical section
-   assert(ret == OS_SUCCESS);
-
-   mNumInsertEntry = 0;
-   mNumInsertExitOk = 0;
-   mNumInsertExitFail = 0;
-
-   mNumRemoveEntry = 0;
-   mNumRemoveExitOk = 0;
-   mNumRemoveExitFail = 0;
-
-   mLastSuccessTest = 0;
-
-   ret = mGuard.release();         // exit critical section
-   assert(ret == OS_SUCCESS);
-#endif /* MSGQ_IS_VALID_CHECK ] */
 }
 
 // Destructor
@@ -116,6 +58,7 @@ OsStatus OsMsgQShared::send(const OsMsg& rMsg,
    return doSend(rMsg, rTimeout, FALSE, FALSE);
 }
 
+
 // Insert a message at the tail of the queue
 // Wait until there is either room on the queue or the timeout expires.
 OsStatus OsMsgQShared::sendP(OsMsg* pMsg,
@@ -129,13 +72,6 @@ OsStatus OsMsgQShared::sendP(OsMsg* pMsg,
    return ret;
 }
 
-// Insert a message at the head of the queue
-// Wait until there is either room on the queue or the timeout expires.
-OsStatus OsMsgQShared::sendUrgent(const OsMsg& rMsg,
-                                  const OsTime& rTimeout)
-{
-   return doSend(rMsg, rTimeout, TRUE, FALSE);
-}
 
 // Insert a message at the tail of the queue.
 // Sending from an ISR has a couple of implications.  Since we can't
@@ -165,26 +101,10 @@ OsStatus OsMsgQShared::receive(OsMsg*& rpMsg, const OsTime& rTimeout)
 // Return the number of messages in the queue
 int OsMsgQShared::numMsgs(void)
 {
-   OsLock lock(mGuard);
-
-   return(mDlist.entries());
+   mutex_critic_sec_lock lock(_cs);
+   return(_queue.size());
 }
 
-// Print information on the message queue to the console
-// Output enabled via a compile-time #ifdef
-#ifdef MSGQ_IS_VALID_CHECK
-void OsMsgQShared::show(void)
-{
-   osPrintf("* OsMsgQShared: OsMsgQ=%p, options=%d, limitMsgs=%d, maxMsgs=%d, numMsgs=%d\n",
-            (void *) this, mOptions, mMaxMsgs, mHighCnt, numMsgs());
-
-   osPrintf("* OsMsgQShared: mEmpty counting semaphore information\n");
-   mEmpty.OsCSemShow();
-
-   osPrintf("* OsMsgQShared: mFull counting semaphore information\n");
-   mFull.OsCSemShow();
-}
-#endif
 
 /* ============================ INQUIRY =================================== */
 
@@ -228,39 +148,12 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
                                   UtlBoolean isUrgent,
                                   UtlBoolean deleteWhenDone)
 {
-   OsStatus ret;
-   const void*    insResult;
-
-#ifdef MSGQ_IS_VALID_CHECK /* [ */
-   int      msgCnt;
-
-   ret = mGuard.acquire();         // start critical section
-   assert(ret == OS_SUCCESS);
-
-   testMessageQ();
-
-   mNumInsertEntry++;
-
-   ret = mGuard.release();         // exit critical section
-   assert(ret == OS_SUCCESS);
-#endif /* MSGQ_IS_VALID_CHECK ] */
-
    if (mSendHookFunc != NULL)
    {
       if (mSendHookFunc(*pMsg))
       {
          // by returning TRUE, the mSendHookFunc indicates that it has handled
          // the message and there is no need to queue the message.
-#ifdef MSGQ_IS_VALID_CHECK /* [ */
-         OsStatus rc = mGuard.acquire();         // start critical section
-         assert(rc == OS_SUCCESS);
-
-         mNumInsertExitOk++;
-         testMessageQ();
-
-         rc = mGuard.release();         // exit critical section
-         assert(rc == OS_SUCCESS);
-#endif /* MSGQ_IS_VALID_CHECK ] */
          if (deleteWhenDone)
          {
             // Delete *pMsg, since we are done with it.
@@ -270,244 +163,45 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
       }
    }
 
-   ret = mEmpty.acquire(rTimeout);   // wait for there to be room in the queue
-   if (ret != OS_SUCCESS)
+   enqueue(pMsg);
+
+   int count = numMsgs();
+   
+   if (_reportFull && 2 * count > _maxMsgs)
    {
-      // Do not log problem with the queue for the syslog task to prevent
-      // infinite recursion.
-      if (mName != "syslog")
-      {
-         Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
-                       "OsMsgQShared::doSendCore message send failed for queue '%s' - no room, ret = %d",
-                       mName.data(), ret);
-      }
-      if (ret == OS_BUSY || ret == OS_WAIT_TIMEOUT)
-      {
-          ret =  OS_WAIT_TIMEOUT;     // send timed out
-      }
-      if (deleteWhenDone)
-      {
-         // Delete *pMsg, since we are done with it.
-         delete pMsg;
-      }
-   }
-   else
-   {
-      int count, max;
-      mFull.getCountMax(count, max);
-      // Do not log problems with the queue for the syslog task to prevent
-      // infinite recursion.
-      if (mReportFull && 2 * count > max && mName != "syslog")
-      {
-         Os::Logger::instance().log(FAC_KERNEL, PRI_NOTICE,
-                       "OsMsgQShared::doSendCore message queue '%s' is over half full - count = %d, max = %d",
-                       mName.data(), count, max);
-      }
-
-      ret = mGuard.acquire();           // start critical section
-      assert(ret == OS_SUCCESS);
-
-      if (isUrgent)
-      {
-         insResult = mDlist.insertAt(0, pMsg); // insert msg at queue head
-      }
-      else
-      {
-         insResult = mDlist.insert(pMsg);      // insert msg at queue tail
-      }
-
-#ifdef MSGQ_IS_VALID_CHECK
-      msgCnt = mDlist.entries();
-      if (msgCnt > mHighCnt)
-      {
-	 mHighCnt = msgCnt;
-      }
-#endif
-
-      if (insResult == NULL)
-      {                                 // queue insert failed
-         Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
-                       "OsMsgQShared::doSendCore message send failed - insert failed");
-         assert(FALSE);
-
-         if (deleteWhenDone)
-         {
-            // Delete *pMsg, since we are done with it.
-            delete pMsg;
-         }
-         ret = OS_UNSPECIFIED;
-      }
-      else
-      {
-         ret = mFull.release();            // signal rcvrs that a msg is available
-         assert(ret == OS_SUCCESS);
-      }
-
-#ifdef OS_MSGQ_REPORTING
-      int curCount;
-      UtlBoolean increasedLevel = FALSE;
-      UtlBoolean decreasedLevel = FALSE;
-
-      curCount = mDlist.entries();
-      if (curCount >= mIncreaseLevel)
-      {
-          increasedLevel = TRUE;
-          while (curCount >= mIncreaseLevel)
-          {
-              mIncreaseLevel += mIncrementLevel;
-          }
-          mDecreaseLevel = mIncreaseLevel - (2 * mIncrementLevel);
-      }
-
-      if (curCount <= mDecreaseLevel)
-      {
-          decreasedLevel = TRUE;
-          while (curCount <= mDecreaseLevel)
-          {
-              mDecreaseLevel = mDecreaseLevel - mIncrementLevel;
-          }
-          mIncreaseLevel = mDecreaseLevel + (2 * mIncrementLevel);
-      }
-#endif
-
-      OsStatus guardRet = mGuard.release();           // exit critical section
-      assert(guardRet == OS_SUCCESS);
-
-#ifdef OS_MSGQ_REPORTING
-      if (increasedLevel)
-      {
-          OsSysLogPriority pri = PRI_INFO;
-          if (curCount == mMaxMsgs)
-	  {
-	     pri = PRI_WARNING;
-	  }
-
-          Os::Logger::instance().log(FAC_KERNEL, pri,
-                        "OsMsgQShared::doSendCore Message queue %p increased to %d msgs (max=%d)\n",
-                        this, curCount, mMaxMsgs);
-      }
-      else if (decreasedLevel)
-      {
-          Os::Logger::instance().log(FAC_KERNEL, PRI_INFO,
-                        "OsMsgQShared::doSendCore Message queue %p decreased to %d msgs (max=%d)\n",
-                        this, curCount, mMaxMsgs);
-      }
-#endif
+     OS_LOG_WARNING(FAC_KERNEL,
+                   "OsMsgQShared::doSendCore message queue '" << mName.data()
+                   << "' is over half full - count = " << count
+                   << " max = " << _maxMsgs);
    }
 
-   system_tap_queue_enqueue(mName.data(), 0, mDlist.entries());
-
-#ifdef MSGQ_IS_VALID_CHECK /* [ */
-   OsStatus rc = mGuard.acquire();         // start critical section
-   assert(rc == OS_SUCCESS);
-
-   if (ret == OS_SUCCESS)
-   {
-      mNumInsertExitOk++;
-   }
-   else
-   {
-      mNumInsertExitFail++;
-   }
-
-   testMessageQ();
-
-   rc = mGuard.release();         // exit critical section
-   assert(rc == OS_SUCCESS);
-#endif /* MSGQ_IS_VALID_CHECK ] */
-
-   return ret;
+   system_tap_queue_enqueue(mName.data(), 0, _queue.size());
+   return OS_SUCCESS;
 }
 
 // Helper function for removing a message from the head of the queue
 OsStatus OsMsgQShared::doReceive(OsMsg*& rpMsg, const OsTime& rTimeout)
 {
-   OsStatus ret;
+  OsStatus ret;
 
-#ifdef MSGQ_IS_VALID_CHECK /* [ */
-   ret = mGuard.acquire();         // start critical section
-   assert(ret == OS_SUCCESS);
+  if (!rTimeout.isInfinite())
+  {
+    int expireFromNow = rTimeout.cvtToMsecs();
+    if (try_dequeue(rpMsg, expireFromNow))
+      ret = OS_SUCCESS;
+    else
+      ret = OS_WAIT_TIMEOUT;
+  }
+  else
+  {
+    dequeue(rpMsg);
+    ret = OS_SUCCESS;
+  }
 
-   testMessageQ();
-   mNumRemoveEntry++;
-
-   ret = mGuard.release();         // exit critical section
-   assert(ret == OS_SUCCESS);
-#endif /* MSGQ_IS_VALID_CHECK ] */
-
-   ret = mFull.acquire(rTimeout);  // wait for a message to be available
-   if (ret != OS_SUCCESS)
-   {
-      if (ret == OS_BUSY || ret == OS_WAIT_TIMEOUT)
-         ret = OS_WAIT_TIMEOUT;   // receive timed out
-      else
-      {
-         assert(FALSE);
-         ret = OS_UNSPECIFIED;
-      }
-   }
-   else
-   {
-      ret = mGuard.acquire();         // start critical section
-      assert(ret == OS_SUCCESS);
-
-      assert(numMsgs() > 0);
-      rpMsg = (OsMsg*) mDlist.get();  // get the first message
-
-      if (rpMsg == NULL)              // was there a message?
-      {
-         assert(FALSE);
-         ret = OS_UNSPECIFIED;
-      }
-      else
-      {
-         ret = mEmpty.release();         // the remove operation succeeded, signal
-         assert(ret == OS_SUCCESS);      //  senders that there is an available
-                                         //  message slot.
-      }
-
-      (void)mGuard.release();         // exit critical section
-   }
-
-#ifdef MSGQ_IS_VALID_CHECK /* [ */
-   OsStatus rc = mGuard.acquire();         // start critical section
-   assert(rc == OS_SUCCESS);
-
-   if (ret == OS_SUCCESS)
-      mNumRemoveExitOk++;
-   else
-      mNumRemoveExitFail++;
-
-   testMessageQ();
-
-   rc = mGuard.release();         // exit critical section
-   assert(rc == OS_SUCCESS);
-#endif /* MSGQ_IS_VALID_CHECK ] */
-
-   system_tap_queue_dequeue(mName.data(), 0, mDlist.entries());
+   system_tap_queue_dequeue(mName.data(), 0, _queue.size());
 
    return ret;
 }
 
-#if defined(MSGQ_IS_VALID_CHECK) && defined(OS_CSEM_DEBUG) /* [ */
-// Test for message queue integrity
-void OsMsgQShared::testMessageQ()
-{
-
-   if ( (mNumInsertEntry - mNumInsertExitOk - mNumInsertExitFail == 0) &&
-        (mNumRemoveEntry - mNumRemoveExitOk - mNumRemoveExitFail == 0))
-   {
-      unsigned int numMsgs = mDlist.entries();
-      assert(numMsgs == mNumInsertExitOk - mNumRemoveExitOk);
-      assert(mEmpty.getValue() == mMaxMsgs - numMsgs);
-      assert(mFull.getValue() == numMsgs);
-      mLastSuccessTest = 0;
-   }
-   else
-   {
-      mLastSuccessTest++;
-   }
-}
-#endif /* defined(MSGQ_IS_VALID_CHECK) && defined(OS_CSEM_DEBUG) ] */
 
 /* ============================ FUNCTIONS ================================= */

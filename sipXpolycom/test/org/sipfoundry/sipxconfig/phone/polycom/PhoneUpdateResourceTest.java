@@ -70,7 +70,11 @@ public class PhoneUpdateResourceTest extends TestCase {
         m_profileManager = EasyMock.createMock(ProfileManager.class);
     }
     
-    public void testDeleteUnsupported() throws Exception {
+    /*
+     * no longer there are unsupported poly models 
+     *
+     */
+    public void _testDeleteUnsupported() throws Exception {
         m_phoneContext.getPhoneIdBySerialNumber("111111111111");
         expectLastCall().andReturn(1);
         m_phoneContext.loadPhone(1);

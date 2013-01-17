@@ -79,8 +79,8 @@ import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.dao.DataIntegrityViolationException;
 
 /**
- * TestHelper: used for unit tests that need Spring instantiated
- */
+* TestHelper: used for unit tests that need Spring instantiated
+*/
 public final class TestHelper {
     private static final String ROOT_RES_PATH = "/org/sipfoundry/sipxconfig/";
 
@@ -217,11 +217,11 @@ public final class TestHelper {
     }
 
     /**
-     * Sets velocity profile generator that generates profile to memory and can be used during
-     * testing.
-     *
-     * @param device
-     */
+* Sets velocity profile generator that generates profile to memory and can be used during
+* testing.
+*
+* @param device
+*/
     public static MemoryProfileLocation setVelocityProfileGenerator(Device device, String etcDir) {
         MemoryProfileLocation location = new MemoryProfileLocation();
         VelocityProfileGenerator profileGenerator = new VelocityProfileGenerator();
@@ -306,12 +306,12 @@ public final class TestHelper {
     }
 
     /**
-     * Special TestCase class that catches prints additional info for SQL Exceptions errors that
-     * may happed during setUp, testXXX and tearDown.
-     *
-     * Alternatively we could just throw e.getNextException, but we may want to preserve the
-     * original exception.
-     */
+* Special TestCase class that catches prints additional info for SQL Exceptions errors that
+* may happed during setUp, testXXX and tearDown.
+*
+* Alternatively we could just throw e.getNextException, but we may want to preserve the
+* original exception.
+*/
     public static class TestCaseDb extends TestCase {
         @Override
         public void runBare() throws Throwable {
@@ -375,13 +375,13 @@ public final class TestHelper {
     }
 
     /**
-     * Use in test to create copy of example files to be changed by test methods.
-     *
-     * @param from input stream
-     * @param dir destination directory
-     * @param filename destination file name
-     * @throws IOException
-     */
+* Use in test to create copy of example files to be changed by test methods.
+*
+* @param from input stream
+* @param dir destination directory
+* @param filename destination file name
+* @throws IOException
+*/
     public static final void copyStreamToDirectory(InputStream from, String dir, String filename) throws IOException {
         FileOutputStream to = new FileOutputStream(new File(dir, filename));
         IOUtils.copy(from, to);
@@ -395,24 +395,24 @@ public final class TestHelper {
     }
 
     /**
-     * Retrieves the file corresponding to the class resource
-     *
-     * @param klass
-     * @param resource resource name relative to class
-     * @return file that can be opened and used to read resource
-     */
+* Retrieves the file corresponding to the class resource
+*
+* @param klass
+* @param resource resource name relative to class
+* @return file that can be opened and used to read resource
+*/
     public static File getResourceAsFile(Class klass, String resource) {
         URL url = klass.getResource(resource);
         return new File(url.getFile());
     }
 
     /**
-     * Retrieves the file corresponding to the class resource
-     *
-     * @param klass
-     * @param resource resource name relative to class
-     * @return file that can be opened and used to read resource
-     */
+* Retrieves the file corresponding to the class resource
+*
+* @param klass
+* @param resource resource name relative to class
+* @return file that can be opened and used to read resource
+*/
     public static File getResourceAsFile(String resource) {
         URL url = TestHelper.class.getResource(resource);
         return url == null ? null : new File(url.getFile());
@@ -432,11 +432,11 @@ public final class TestHelper {
     }
 
     /**
-     * If you want to use a date in a unit test that eventually
-     *
-     * @param usDate typical US date representation
-     * @return local date
-     */
+* If you want to use a date in a unit test that eventually
+*
+* @param usDate typical US date representation
+* @return local date
+*/
     public static final Date localizeDateTime(String usDate) {
         try {
             return ENGLISH_DATE.parse(usDate);
@@ -446,9 +446,9 @@ public final class TestHelper {
     }
 
     /**
-     * Change "\n" the the native end-of-line char. On unix, this does nothing on windows, this
-     * add "\r\n"
-     */
+* Change "\n" the the native end-of-line char. On unix, this does nothing on windows, this
+* add "\r\n"
+*/
     public static final String cleanEndOfLines(String s) {
         String clean = s.replaceAll("\n", EOL);
         return clean;
@@ -464,8 +464,8 @@ public final class TestHelper {
     }
 
     /**
-     * The directory that is part of the classpath that a class was loaded from
-     */
+* The directory that is part of the classpath that a class was loaded from
+*/
     public static String getClasspathDirectory(Class testClass) {
         // create file on classpath
         CodeSource code = testClass.getProtectionDomain().getCodeSource();
@@ -476,28 +476,28 @@ public final class TestHelper {
     }
 
     /**
-     * Where to direct test output, cleaned on 'ant clean' and ignored by subversion
-     */
+* Where to direct test output, cleaned on 'ant clean' and ignored by subversion
+*/
     public static String getTestOutputDirectory() {
         return "test-results";
     }
 
     /**
-     * Use ClassLoader.getSystemResource() when you can gets you a stream and can work from jars,
-     * but when you need a filename use this. Example:
-     *
-     * <pre>
-     *   # Test file in same directory as JUnit test source file
-     *   String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
-     * </pre>
-     */
-//    public static String getTestSourceDirectory(Class testClass) {
-//        StringBuffer sb = new StringBuffer(TestUtil.getProjectDirectory()).append("/test/").append(
-//                testClass.getPackage().getName().replace('.', '/'));
-//        String path = sb.toString();
+* Use ClassLoader.getSystemResource() when you can gets you a stream and can work from jars,
+* but when you need a filename use this. Example:
+*
+* <pre>
+* # Test file in same directory as JUnit test source file
+* String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
+* </pre>
+*/
+// public static String getTestSourceDirectory(Class testClass) {
+// StringBuffer sb = new StringBuffer(TestUtil.getProjectDirectory()).append("/test/").append(
+// testClass.getPackage().getName().replace('.', '/'));
+// String path = sb.toString();
 //
-//        return path;
-//    }
+// return path;
+// }
 
     public static Properties getTestProperties() {
         if (s_testProps == null) {
@@ -539,8 +539,8 @@ public final class TestHelper {
     }
 
     /**
-     * Creates a mock domain manager using EasyMock. Up to the caller to call replay on the mock.
-     */
+* Creates a mock domain manager using EasyMock. Up to the caller to call replay on the mock.
+*/
     public static DomainManager getMockDomainManager() {
         return getMockDomainManager(false);
     }
@@ -560,8 +560,8 @@ public final class TestHelper {
     }
 
     /**
-     * Creates a default location for use in tests
-     */
+* Creates a default location for use in tests
+*/
     public static Location createDefaultLocation() {
         Location location = new Location();
         location.setName("localLocation");
@@ -571,8 +571,8 @@ public final class TestHelper {
     }
 
     /**
-     * Gets mock user group phonebooks
-     */
+* Gets mock user group phonebooks
+*/
     public static Collection<Phonebook> getMockPublicPhonebooks() {
         Phonebook phonebook = new Phonebook();
         Collection<Phonebook> phonebooks = new ArrayList<Phonebook>();
@@ -581,8 +581,8 @@ public final class TestHelper {
     }
 
     /**
-     * Gets mock all user phonebooks
-     */
+* Gets mock all user phonebooks
+*/
     public static Collection<Phonebook> getMockAllPhonebooks() {
         Phonebook privatePhonebook = new Phonebook();
         Collection<Phonebook> phonebooks = getMockPublicPhonebooks();
@@ -593,10 +593,10 @@ public final class TestHelper {
     }
 
     /**
-     * Creates a mock LocationsManager with the specified locations. This LocationsManager only
-     * responds to requests for the primary service.
-     *
-     */
+* Creates a mock LocationsManager with the specified locations. This LocationsManager only
+* responds to requests for the primary service.
+*
+*/
     public static LocationsManager getMockLocationsManager() {
         LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
         locationsManager.getPrimaryLocation();
@@ -606,11 +606,11 @@ public final class TestHelper {
     }
 
     /**
-     * Dumps DOM4J document to Strings.
-     *
-     * @param doc DOM4J document
-     * @return String containing XML document
-     */
+* Dumps DOM4J document to Strings.
+*
+* @param doc DOM4J document
+* @return String containing XML document
+*/
     public static String asString(Document doc) {
         try {
             StringWriter writer = new StringWriter();

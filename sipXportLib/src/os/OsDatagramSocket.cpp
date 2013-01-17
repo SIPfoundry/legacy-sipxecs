@@ -384,6 +384,16 @@ int OsDatagramSocket::write(const char* buffer, int bufferLength,
                 mNumRecentWriteErrors = 0;
             }
         }
+        else
+        {
+          Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
+                         "OsDatagramSocket::write(4) %d ipAddress = '%s', "
+                         "port = %d, bytesSent = %d, "
+                         "bufferLength = %d is on the wire.",
+                         socketDescriptor,
+                         ipAddress ? ipAddress : "[null]", port,
+                         bytesSent, bufferLength);
+        }
     }
     return(bytesSent);
 }

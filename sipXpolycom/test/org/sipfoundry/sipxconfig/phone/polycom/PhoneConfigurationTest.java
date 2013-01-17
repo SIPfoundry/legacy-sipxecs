@@ -1,12 +1,12 @@
 /*
- *
- *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the LGPL license.
- *
- * $
- */
+*
+*
+* Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+* Contributors retain copyright to elements licensed under a Contributor Agreement.
+* Licensed to the User under the LGPL license.
+*
+* $
+*/
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import static org.easymock.classextension.EasyMock.expectLastCall;
@@ -42,8 +42,8 @@ import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 /**
- * Tests file phone.cfg generation
- */
+* Tests file phone.cfg generation
+*/
 public class PhoneConfigurationTest extends PolycomXmlTestCase {
 
     private PolycomPhone phone;
@@ -59,8 +59,8 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
     }
 
     /**
-     * Test 2.x profile generation.
-     */
+* Test 2.x profile generation.
+*/
     public void testGenerateProfileVersion20() throws Exception {
         FileSystemProfileLocation location = TestHelper.setFsVelocityProfileGenerator(phone, TestHelper.getEtcDir());;
         location.setParentDir(TestHelper.getTestOutputDirectory());
@@ -98,11 +98,11 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
     }
 
     /**
-     * XX-6976: Polycom/Nortel 12x0: Give User-less profiles the sipXprovision special user
-     * credentials and MAC hash ID label
-     *
-     * @throws Exception
-     */
+* XX-6976: Polycom/Nortel 12x0: Give User-less profiles the sipXprovision special user
+* credentials and MAC hash ID label
+*
+* @throws Exception
+*/
     public void testGenerateSpecialUserRegistrationWhenNoConfiguredLines() throws Exception {
         PolycomModel model = new PolycomModel();
         model.setMaxLineCount(2);

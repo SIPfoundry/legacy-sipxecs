@@ -39,16 +39,20 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.setting.DelegatingSettingModel.InsertValueFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.XmlEscapeValueFilter;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 
 /**
  * Support for Polycom 300, 400, and 500 series phones and model 3000 conference phone
  */
-public class PolycomPhone extends Phone {
+public class PolycomPhone extends Phone implements BeanFactoryAware {
     static final String COMMA = ",";
     static final String EQUALS = "=";
     static final String MIME_TYPE_PLAIN = "text/plain";
@@ -70,6 +74,7 @@ public class PolycomPhone extends Phone {
     static final String SUBSCRIBE_PATH = "msg.mwi/subscribe";
     static final String TEMPLATE_DIR = "polycom/mac-address.d";
     static final String TEMPLATE_DIR40 = "polycom/mac-address.d.40";
+    static final String TEMPLATE_DIR41 = "polycom/mac-address.d.41";
     static final String TEMPLATE_DIR32 = "polycom/mac-address.d.32";
     static final String MB_PROXY = "mb/proxy";
     static final String MB_IDLE_DISPLAY_HOME_PAGE = "mb/idleDisplay/home";
@@ -79,15 +84,39 @@ public class PolycomPhone extends Phone {
     static final String MB_MAIN_HOME_STATUSBAR = "mb/main/statusbar";
     static final String MB_LIMITS_NODES = "mb/limits/nodes";
     static final String MB_LIMITS_CACHE = "mb/limits/cache";
-    static final String[] UNSUPPORTED_MODELS = new String[]{"polycom300", "polycom500"};
+    static final String POLY_300 = "polycom300";
+    static final String POLY_301 = "polycom301";
+    static final String POLY_500 = "polycom500";
+    static final String POLY_501 = "polycom501";
+    static final String POLY_600 = "polycom600";
+    static final String POLY_601 = "polycom601";
+    static final String POLY_550 = "polycom550";
+    static final String POLY_560 = "polycom560";
+    static final String POLY_320 = "polycom320";
+    static final String POLY_330 = "polycom330";
+    static final String POLY_650 = "polycom650";
+    static final String POLY_670 = "polycom670";
+    static final String PHONE_XML = "phone.xml";
+    static final String LINE_XML = "line.xml";
+    static final String[] UNSUPPORTED_MODELS = new String[] {
+        POLY_300, POLY_500
+    };
 
     private AddressManager m_addressManager;
+    private BeanFactory m_beanFactory;
+
+    public String getDefaultVersionId() {
+        DeviceVersion version = getDeviceVersion();
+        return version != null ? version.getVersionId() : null;
+    }
 
     public String getTemplateDir() {
         if (getDeviceVersion() == PolycomModel.VER_4_0_X) {
             return TEMPLATE_DIR40;
         } else if (getDeviceVersion() == PolycomModel.VER_3_2_X) {
             return TEMPLATE_DIR32;
+        } else if (getDeviceVersion() == PolycomModel.VER_4_1_X) {
+            return TEMPLATE_DIR41;
         }
         return TEMPLATE_DIR;
     }
@@ -100,13 +129,12 @@ public class PolycomPhone extends Phone {
             return "/mac-address-40.cfg.vm";
         } else if (getDeviceVersion() == PolycomModel.VER_3_2_X) {
             return "/mac-address-32.cfg.vm";
+        } else if (getDeviceVersion() == PolycomModel.VER_3_1_X) {
+            return "/mac-address-31.cfg.vm";
+        } else if (getDeviceVersion() == PolycomModel.VER_4_1_X) {
+            return "/mac-address-41.cfg.vm";
         }
         return "/mac-address.cfg.vm";
-    }
-
-    public String getDefaultVersionId() {
-        DeviceVersion version = getDeviceVersion();
-        return version != null ? version.getVersionId() : null;
     }
 
     /**
@@ -122,18 +150,29 @@ public class PolycomPhone extends Phone {
             getModel().setSettingsFile("phone-40.xml");
             getModel().setLineSettingsFile("line-40.xml");
             getModel().setStaticProfileFilenames(new String[] {});
+        } else if (myVersion == PolycomModel.VER_4_1_X) {
+            getModel().setSettingsFile("phone-41.xml");
+            getModel().setLineSettingsFile("line-41.xml");
+            getModel().setStaticProfileFilenames(new String[] {});
         } else if (myVersion == PolycomModel.VER_3_1_X) {
-            getModel().setSettingsFile("phone.xml");
-            getModel().setLineSettingsFile("line.xml");
+            getModel().setSettingsFile(PHONE_XML);
+            getModel().setLineSettingsFile(LINE_XML);
             getModel().setStaticProfileFilenames(new String[] {
                 "polycom_phone1_3.1.X.cfg", "polycom_sip_3.1.X.cfg"
             });
-        } else {
+        } else if (myVersion == PolycomModel.VER_3_2_X) {
             // we need to explicitly define these here otherwise changing versions will not work
             getModel().setSettingsFile("phone-32.xml");
             getModel().setLineSettingsFile("line-32.xml");
             getModel().setStaticProfileFilenames(new String[] {
                 "polycom_phone1.cfg", "polycom_sip.cfg"
+            });
+        } else {
+            // we need to explicitly define these here otherwise changing versions will not work
+            getModel().setSettingsFile(PHONE_XML);
+            getModel().setLineSettingsFile(LINE_XML);
+            getModel().setStaticProfileFilenames(new String[] {
+                "polycom_phone1_2.1.X.cfg", "polycom_sip_2.1.X.cfg"
             });
         }
     }
@@ -163,13 +202,13 @@ public class PolycomPhone extends Phone {
     @Override
     public Profile[] getProfileTypes() {
         Profile[] profileTypes;
-        if (getDeviceVersion() == PolycomModel.VER_4_0_X) {
+        if (getDeviceVersion() == PolycomModel.VER_4_0_X || getDeviceVersion() == PolycomModel.VER_4_1_X) {
             profileTypes = new Profile[] {
                 new ApplicationProfile(getAppFilename()), new ApplicationsProfile(getAppsFilename()),
                 new FeaturesProfile(getFeaturesFilename()), new RegAdvancedProfile(getRegAdvancedFilename()),
-                new RegionProfile(getRegionFilename()),
-                new SipBasicProfile(getSipBasicFilename()), new SipInteropProfile(getSipInteropFilename()),
-                new SiteProfile(getSiteFilename()), new VideoProfile(getVideoFilename())
+                new RegionProfile(getRegionFilename()), new SipBasicProfile(getSipBasicFilename()),
+                new SipInteropProfile(getSipInteropFilename()), new SiteProfile(getSiteFilename()),
+                new VideoProfile(getVideoFilename())
             };
         } else {
             profileTypes = new Profile[] {
@@ -245,7 +284,6 @@ public class PolycomPhone extends Phone {
         }
     }
 
-    @Override
     public List<String> getLinePaths() {
         List<String> paths = new ArrayList<String>();
         paths.add(REGISTRATION_LABEL);
@@ -373,11 +411,10 @@ public class PolycomPhone extends Phone {
         protected ProfileContext createContext(Device device) {
             PolycomPhone phone = (PolycomPhone) device;
             String addrFormat = "http://%s:%d/";
-            List<Address> addresses = m_addressManager.getAddresses(new AddressType("provisionService",
-                    addrFormat));
+            List<Address> addresses = m_addressManager.getAddresses(new AddressType("provisionService", addrFormat));
             if (!addresses.isEmpty()) {
-                return new ApplicationConfiguration(phone,
-                        String.format(addrFormat, addresses.get(0).getAddress(), addresses.get(0).getPort()));
+                return new ApplicationConfiguration(phone, String.format(addrFormat, addresses.get(0).getAddress(),
+                        addresses.get(0).getPort()));
             }
             return new ApplicationConfiguration(phone);
         }
@@ -592,5 +629,66 @@ public class PolycomPhone extends Phone {
 
     public void setAddressManager(AddressManager addressManager) {
         m_addressManager = addressManager;
+    }
+
+    @Override
+    public Collection< ? extends PhoneModel> getModelIdsForSelection(String beanId) {
+        PolycomModel p300 = m_beanFactory.getBean(POLY_300, PolycomModel.class);
+        PolycomModel p301 = m_beanFactory.getBean(POLY_301, PolycomModel.class);
+        PolycomModel p500 = m_beanFactory.getBean(POLY_500, PolycomModel.class);
+        PolycomModel p501 = m_beanFactory.getBean(POLY_501, PolycomModel.class);
+        PolycomModel p600 = m_beanFactory.getBean(POLY_600, PolycomModel.class);
+        PolycomModel p601 = m_beanFactory.getBean(POLY_601, PolycomModel.class);
+        PolycomModel p550 = m_beanFactory.getBean(POLY_550, PolycomModel.class);
+        PolycomModel p560 = m_beanFactory.getBean(POLY_560, PolycomModel.class);
+        PolycomModel p330 = m_beanFactory.getBean(POLY_330, PolycomModel.class);
+        PolycomModel p320 = m_beanFactory.getBean(POLY_320, PolycomModel.class);
+        PolycomModel p650 = m_beanFactory.getBean(POLY_650, PolycomModel.class);
+        PolycomModel p670 = m_beanFactory.getBean(POLY_670, PolycomModel.class);
+
+        if (isModel(beanId, POLY_300, POLY_301)) {
+            return Arrays.asList(new PolycomModel[] {
+                p300, p301
+            });
+        }
+        if (isModel(beanId, POLY_500, POLY_501)) {
+            return Arrays.asList(new PolycomModel[] {
+                p500, p501
+            });
+        }
+        if (isModel(beanId, POLY_600, POLY_601)) {
+            return Arrays.asList(new PolycomModel[] {
+                p600, p601
+            });
+        }
+        if (isModel(beanId, POLY_550, POLY_560)) {
+            return Arrays.asList(new PolycomModel[] {
+                p550, p560
+            });
+        }
+        if (isModel(beanId, POLY_320, POLY_330)) {
+            return Arrays.asList(new PolycomModel[] {
+                p320, p330
+            });
+        }
+        if (isModel(beanId, POLY_650, POLY_670)) {
+            return Arrays.asList(new PolycomModel[] {
+                p650, p670
+            });
+        }
+        return null;
+    }
+
+    private boolean isModel(String modelId, String... models) {
+        for (String model : models) {
+            if (StringUtils.equals(modelId, model)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        m_beanFactory = beanFactory;
     }
 }

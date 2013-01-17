@@ -15,6 +15,8 @@
     class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />    
   <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"
     class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+  <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"
+    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
 
   <bean id="polycom300" parent="polycomModel">
    <property name="label" value="Polycom SoundPoint IP 300" />
@@ -32,7 +34,6 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_2_0"/>
       </list>
     </property>
-    <property name="supported" value="false" />
   </bean>
 
   <bean id="polycom301" parent="polycomModel">
@@ -191,10 +192,9 @@
     </property>
     <property name="versions">
       <list>
-        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_2_0"/>
       </list>
     </property>
-    <property name="supported" value="false" />
   </bean>
   <bean id="polycom501" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 501" />
@@ -270,7 +270,7 @@
     </property>
     <property name="versions">
       <list>
-        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_2_0"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
       </list>
     </property>
   </bean>
@@ -447,6 +447,7 @@
     <property name="versions">
       <list>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
       </list>
     </property> 
   </bean>
@@ -463,12 +464,13 @@
         <value>singleKeyPressConference</value>
         <value>VVX_500_CodecPref</value>
         <value>desktopIntegration</value>
+        <value>exchangeIntegration</value>
         <value>video</value>
       </set>
     </property>
     <property name="versions">
       <list>
-        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
       </list>
     </property> 
   </bean>

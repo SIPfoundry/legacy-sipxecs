@@ -658,7 +658,8 @@ int SipClient::run(void* runArg)
          {
             // Receive the messages.
             res = receiveMessage((OsMsg*&) pMsg, OsTime::NO_WAIT);
-            assert(res == OS_SUCCESS);
+            if (res != OS_SUCCESS)
+              break;
 
             // Normally, this is a SIP message for the write buffer.  Once we have gotten
             // here, we are able to report any initial non-blocking connect error.

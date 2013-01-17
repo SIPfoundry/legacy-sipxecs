@@ -104,9 +104,6 @@ class OsTimer : public UtlContainableAtomic
    /// type for timer boost function callback
    typedef boost::function<void(OsTimer&, boost::system::error_code)> Handler;
 
-   /// type for timer boost function message callback
-   typedef boost::function<void(OsTimer&, OsMsg*)> MessageHandler;
-
 /* ============================ CREATORS ================================== */
 
    /** @name Constructors
@@ -152,12 +149,6 @@ class OsTimer : public UtlContainableAtomic
     */
 
    OsTimer(const Handler& handler);
-   /// This constructor accepts a handler function instead of message queue.
-   /// One must take caution in using this facility to make sure that the handler
-   /// function will not block becuase it is directly called from the
-   /// io_service thread;
-
-   OsTimer(OsMsg* pMsg, const MessageHandler& handler);
    /// This constructor accepts a handler function instead of message queue.
    /// One must take caution in using this facility to make sure that the handler
    /// function will not block becuase it is directly called from the
@@ -350,8 +341,7 @@ class OsTimer : public UtlContainableAtomic
     Timer::Ptr _pTimer;
     OsNotification* _pNotifier; //< used to signal timer expiration event
     Handler _handler;
-    MessageHandler _messageHandler;
-    OsMsg* _pHandlerEvent;
+
 };
 
 //

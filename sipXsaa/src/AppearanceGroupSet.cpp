@@ -34,7 +34,6 @@ const UtlContainableType AppearanceGroupSet::TYPE = "AppearanceGroupSet";
 // Constructor
 AppearanceGroupSet::AppearanceGroupSet(AppearanceAgent* appearanceAgent) :
    mAppearanceAgent(appearanceAgent),
-   mSemaphore(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mVersion(0)
 {
    Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
@@ -61,7 +60,7 @@ void AppearanceGroupSet::addAppearanceGroup(const char* user)
                  this, user);
 
    // Serialize access to the AppearanceGroupSet.
-   OsLock lock(mSemaphore);
+   mutex_write_lock lock(_listMutex);
 
    // Check to see if there is already a group with this name.
    if (!findAppearanceGroup(user))
@@ -92,7 +91,7 @@ void AppearanceGroupSet::removeAppearanceGroup(const char* user)
                  this, user);
 
    // Serialize access to the AppearanceGroupSet.
-   OsLock lock(mSemaphore);
+   mutex_write_lock lock(_listMutex);
 
    // Check to see if there is a group with this name.
    AppearanceGroup* ag;
@@ -134,7 +133,7 @@ void AppearanceGroupSet::deleteAllAppearanceGroups()
    do
    {
       // Serialize access to the AppearanceGroupSet.
-      OsLock lock(mSemaphore);
+       mutex_write_lock lock(_listMutex);
 
       // Get pointer to the first AppearanceGroup.
       ag = dynamic_cast <AppearanceGroup*> (mAppearanceGroups.first());
@@ -158,7 +157,7 @@ void AppearanceGroupSet::getAllAppearanceGroups(UtlSList& list)
                  this);
 
    // Serialize access to the AppearanceGroupSet.
-   OsLock lock(mSemaphore);
+   mutex_read_lock lock(_listMutex);
 
    // Iterate through the Appearance Groups.
    UtlSListIterator appearanceGroupItor(mAppearanceGroups);
@@ -237,7 +236,7 @@ void AppearanceGroupSet::subscriptionEventCallbackSync(
                  subscriptionState->data());
 
    // Serialize access to the appearance group set.
-   OsLock lock(mSemaphore);
+   recursive_mutex_read_lock lock(_subscriptionMutex);
 
    // Look up the ResourceSubscriptionReceiver to notify based on the
    // earlyDialogHandle.
@@ -308,7 +307,7 @@ void AppearanceGroupSet::notifyEventCallbackSync(const UtlString* dialogHandle,
                  dialogHandle->data());
 
    // Serialize access to the appearance group set.
-   OsLock lock(mSemaphore);
+   mutex_read_lock lock(_notifyMutex);
 
    // Look up the ResourceNotifyReceiver to notify based on the dialogHandle.
    /* To call the handler, we dynamic_cast the object to
@@ -347,6 +346,8 @@ void AppearanceGroupSet::notifyEventCallbackSync(const UtlString* dialogHandle,
 void AppearanceGroupSet::addSubscribeMapping(UtlString* earlyDialogHandle,
                                           UtlContainable* handler)
 {
+    recursive_mutex_write_lock lock(_subscriptionMutex);
+
    Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet::addSubscribeMapping this = %p, earlyDialogHandle = '%s', handler = %p",
                  this, earlyDialogHandle->data(), handler);
@@ -358,6 +359,8 @@ void AppearanceGroupSet::addSubscribeMapping(UtlString* earlyDialogHandle,
  */
 void AppearanceGroupSet::deleteSubscribeMapping(UtlString* earlyDialogHandle)
 {
+    recursive_mutex_write_lock lock(_subscriptionMutex);
+
    Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet::deleteSubscribeMapping this = %p, earlyDialogHandle = '%s'",
                  this, earlyDialogHandle->data());
@@ -371,6 +374,8 @@ void AppearanceGroupSet::deleteSubscribeMapping(UtlString* earlyDialogHandle)
 void AppearanceGroupSet::addNotifyMapping(const UtlString* d,
                                        UtlContainable* handler)
 {
+    mutex_write_lock lock(_notifyMutex);
+
    /* The machinery surrounding dialog handles is broken in that it
     * does not keep straight which tag is local and which is remote,
     * and the dialogHandle for notifyEventCallback has the tags

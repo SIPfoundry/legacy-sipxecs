@@ -22,7 +22,6 @@
 #include <net/SipUserAgent.h>
 #include <os/OsTask.h>
 #include <os/OsEvent.h>
-#include <utl/UtlHashBag.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -322,8 +321,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
 }
 
 void SipTransactionList::removeOldTransactions(long oldTransaction,
-                                               long oldInviteTransaction,
-                                               long completedTimeout)
+                                               long oldInviteTransaction)
 {
     SipTransaction** transactionsToBeDeleted = NULL;
     int deleteCount = 0;
@@ -345,6 +343,7 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
         UtlHashBagIterator iterator(mTransactions);
         SipTransaction* transactionFound = NULL;
         long transTime;
+
         // Pull all of the transactions to be deleted out of the list
         while ((transactionFound = (SipTransaction*) iterator()))
         {
@@ -357,16 +356,11 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
             transTime = transactionFound->getTimeStamp();
 
             // Invites need to be kept longer than other transactions
-            long effectiveTimeout = transactionFound->isMethod(SIP_INVITE_METHOD)
+            if ( transTime < (  transactionFound->isMethod(SIP_INVITE_METHOD)
                               ? oldInviteTransaction
-                              : oldTransaction;
-            if (transactionFound->getState() >= SipTransaction::TRANSACTION_COMPLETE)
-            {
-              effectiveTimeout = completedTimeout;
-            }
-
-            
-            if ( transTime < (effectiveTimeout))
+                              : oldTransaction
+                              )
+                )
             {
 #ifdef TRANSACTION_MATCH_DEBUG
                 Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
@@ -374,7 +368,9 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
                               " removing %p",  transactionFound );
 #endif
 
-                
+                // Remove it from the list
+                mTransactions.removeReference(transactionFound);
+
                 // Make sure we have a pointer array to hold it
                 if(transactionsToBeDeleted == NULL)
                 {
@@ -390,7 +386,7 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
                 // any of the transactions or we end up with
                 // incomplete transaction trees (i.e. deleted branches)
                 // :TODO: move to the actual deletion loop so we're not holding the lock? -SDL
-                //transactionFound->signalAllAvailable();
+                transactionFound->signalAllAvailable();
             }
            }
         }
@@ -399,15 +395,6 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
 #   ifdef TIME_LOG
     gcTimes.addEvent("scan done");
 #   endif
-
-    // Remove it from the list
-    if (transactionsToBeDeleted)
-    {
-       for(int txIndex = 0; txIndex < deleteCount; txIndex++)
-       {
-          mTransactions.removeReference(transactionsToBeDeleted[txIndex]);
-       }
-    }
 
     // We do not need the lock now that the transactions have been
     // removed from the list

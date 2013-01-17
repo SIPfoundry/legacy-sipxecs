@@ -31,17 +31,17 @@ public class BulkManagerImpl extends HibernateDaoSupport implements BulkManager 
         m_rowInserter = rowInserter;
     }
 
-    public void insertFromCsv(Reader reader) {
-        m_rowInserter.beforeInserting();
+    public void insertFromCsv(Reader reader, boolean disableEmailNotifications) {
+        m_rowInserter.beforeInserting(disableEmailNotifications);
         m_csvParser.parse(reader, m_rowInserter);
         m_rowInserter.afterInserting();
     }
 
-    public void insertFromCsv(File file, boolean deleteOnImport) {
+    public void insertFromCsv(File file, boolean deleteOnImport, boolean disableEmailNotifications) {
         Reader reader = null;
         try {
             reader = new FileReader(file);
-            insertFromCsv(reader);
+            insertFromCsv(reader, disableEmailNotifications);
             reader.close();
             if (deleteOnImport) {
                 file.delete();
