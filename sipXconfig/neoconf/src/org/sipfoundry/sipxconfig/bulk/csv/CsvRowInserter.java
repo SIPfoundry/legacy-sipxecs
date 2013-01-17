@@ -170,7 +170,7 @@ public class CsvRowInserter extends RowInserter<String[]> {
      *
      * @return modified (but not saved used object)
      */
-    User userFromRow(String[] row) {
+    public User userFromRow(String[] row) {
         String userName = Index.USERNAME.get(row);
         if (userName.length() == 0) {
             return null;
@@ -181,8 +181,11 @@ public class CsvRowInserter extends RowInserter<String[]> {
             user = m_coreContext.newUser();
             user.setUserName(userName);
         }
-        Index.PIN.setProperty(user, row);
 
+        // disable user email notification
+        user.setNotified(true);
+
+        Index.PIN.setProperty(user, row);
         String voicemailPin = Index.VOICEMAIL_PIN.get(row);
         if (isHashed(voicemailPin)) {
             user.setVoicemailPintoken(voicemailPin);

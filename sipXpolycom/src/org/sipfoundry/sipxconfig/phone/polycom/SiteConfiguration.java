@@ -17,8 +17,12 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
@@ -37,6 +41,26 @@ public class SiteConfiguration extends ProfileContext {
 
     public String[] getValueCodecs(Setting setting) {
         return StringUtils.split(setting.getValue(), "|");
+    }
+
+    public int getLineCount() {
+        PolycomPhone phone = (PolycomPhone) getDevice();
+        List<Line> lines = phone.getLines();
+
+        // Phones with no configured lines will register under the sipXprovision special user.
+        if (lines.isEmpty()) {
+            return 1;
+        }
+
+        return lines.size();
+    }
+
+    @Override
+    public Map<String, Object> getContext() {
+        Map<String, Object> context = super.getContext();
+        getDevice().getSettings();
+        context.put("lines", getLineCount());
+        return context;
     }
 
 }

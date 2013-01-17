@@ -26,7 +26,6 @@
 #include <os/OsQueuedEvent.h>
 #include <net/SipOutputProcessor.h>
 #include <net/SipInputProcessor.h>
-#include <os/OsTimer.h>
 
 // DEFINES
 #define SIP_DEFAULT_RTT     100 // Default T1 value (RFC 3261), in msec.
@@ -59,6 +58,7 @@
 // FORWARD DECLARATIONS
 class OsConfigDb;
 class OsQueuedEvent;
+class OsTimer;
 class SipSession;
 class SipTcpServer;
 class SipTlsServer;
@@ -296,10 +296,6 @@ public:
 
     //! For internal use only
     virtual UtlBoolean handleMessage(OsMsg& eventMessage);
-
-    void onTimerExpire(OsTimer& time, OsMsg* pMsg);
-
-    OsTimer* createSipTimer(OsMsg* pMsg);
 
     //! Deprecated (Add a SIP message recipient)
     virtual void addMessageConsumer(OsServerTask* messageConsumer);
@@ -858,8 +854,6 @@ private:
     //! timer that sends events to the queue periodically
     OsTimer* mpTimer;
 
-    OsTimer::MessageHandler _timerHandler;
-
     //! flags used during shutdown
     UtlBoolean mbShuttingDown;
     UtlBoolean mbShutdownDone;
@@ -875,9 +869,4 @@ private:
 
 /* ============================ INLINE METHODS ============================ */
 
-
-inline OsTimer* SipUserAgent::createSipTimer(OsMsg* pMsg)
-{
-  return new OsTimer(pMsg, _timerHandler);
-}
 #endif  // _SipUserAgent_h_

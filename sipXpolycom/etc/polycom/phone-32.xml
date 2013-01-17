@@ -2989,14 +2989,7 @@
   </group>
     <group name="group.version">
       <setting name="firmware.version">
-        <type>
-          <enum>
-            <option><value></value></option>
-            <option><value>3.1.X</value></option>
-            <option><value>3.2.X</value></option>
-            <option><value>4.0.X</value></option>
-          </enum>
-        </type>
+        <type refid="fwver"/>
         <value></value>
       </setting>
     </group>

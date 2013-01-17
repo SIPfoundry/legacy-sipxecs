@@ -52,7 +52,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
     private boolean m_preserveMissingUsers;
 
     @Override
-    public void beforeInserting() {
+    public void beforeInserting(Object... inputs) {
         // Make sure m_userMapper's AttrMap is set up.
         m_userMapper.setAttrMap(m_attrMap);
         // get all the users from LDAP group
@@ -96,6 +96,10 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
                 user = m_coreContext.newUser();
                 user.setUserName(userName);
             }
+
+            // disable user email notification
+            user.setNotified(true);
+
             m_existingUserNames.remove(userName);
 
             m_userMapper.setUserProperties(user, attrs);

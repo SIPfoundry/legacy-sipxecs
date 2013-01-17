@@ -66,7 +66,7 @@ public abstract class BulkImport extends SipxBasePage {
             os = new FileOutputStream(tmpFile);
             IOUtils.copy(uploadFile.getStream(), os);
             os.close();
-            getBulkManager().insertFromCsv(tmpFile, true);
+            getBulkManager().insertFromCsv(tmpFile, true, true);
             validator.recordSuccess(getMessages().getMessage("msg.success"));
         } catch (IOException e) {
             LogFactory.getLog(getClass()).error("Cannot import file", e);

@@ -59,7 +59,8 @@ help.{1|2|6}.dist = Build archive, typically compressed tar
 
 %.dist : %.autoreconf %.configure %.dist_;
 %.dist_ :;$(MAKE) -C $(PROJ) dist
-%.dist-by-dep :
+.SECONDEXPANSION:
+%.dist-by-dep : $$(addsuffix .dist-by-dep,$$($$*_DEPS))
 	@if test -f $($(PROJ)_TAR) ; then \
 	  x=`find $(SRC)/$(PROJ)/ -type f \( \
 	       -not -name configure \
@@ -68,6 +69,17 @@ help.{1|2|6}.dist = Build archive, typically compressed tar
 	  if [ -n "$$x" ] ; then \
 	    rm $($(PROJ)_TAR); \
 	  fi; \
+	fi
+	@if test -f $($(PROJ)_TAR) ; then \
+	  if [ -n "$($(PROJ)_DEPS)" ]; then \
+	    for t in $(foreach P,$($(PROJ)_DEPS),$($(P)_TAR)) ; do \
+	      if test -f $($(PROJ)_TAR); then \
+	        if [ $$t -nt $($(PROJ)_TAR) ]; then \
+	          rm $($(PROJ)_TAR); \
+	        fi \
+	      fi \
+	    done \
+	  fi \
 	fi
 	@if ! test -f $($(PROJ)_TAR) ; then \
 	  $(MAKE) $(PROJ).dist; \

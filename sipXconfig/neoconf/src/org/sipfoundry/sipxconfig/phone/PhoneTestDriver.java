@@ -270,18 +270,18 @@ public final class PhoneTestDriver {
         replay(addressManager);
         defaults.setAddressManager(addressManager);
 
-//        SipxService registrarService = new SipxRegistrarService();
-//        registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
-//        registrarService.setBeanId(SipxRegistrarService.BEAN_ID);
-//        registrarService.setModelName("sipxregistrar.xml");
-//        registrarService.setModelDir("sipxregistrar");
+// SipxService registrarService = new SipxRegistrarService();
+// registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
+// registrarService.setBeanId(SipxRegistrarService.BEAN_ID);
+// registrarService.setModelName("sipxregistrar.xml");
+// registrarService.setModelDir("sipxregistrar");
 //
-//        SipxService proxyService = new SipxProxyService();
-//        proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
-//        proxyService.setBeanId(SipxProxyService.BEAN_ID);
-//        proxyService.setModelName("sipxproxy.xml");
-//        proxyService.setModelDir("sipxproxy");
-//        proxyService.setSipPort("5555");
+// SipxService proxyService = new SipxProxyService();
+// proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
+// proxyService.setBeanId(SipxProxyService.BEAN_ID);
+// proxyService.setModelName("sipxproxy.xml");
+// proxyService.setModelDir("sipxproxy");
+// proxyService.setSipPort("5555");
 
         return defaults;
     }

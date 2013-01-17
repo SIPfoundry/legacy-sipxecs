@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
-"http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
   <type id="zip">
     <file>
@@ -26,16 +26,17 @@
         </file>
       </type>
     </setting>
-<setting name="version">
+	<setting name="version">
       <type>
         <enum>
-     <option><value>3.1.X</value></option>
-     <option><value>3.2.X</value></option>
-     <option><value>4.0.X</value></option>
+    	  <option><value>3.1.X</value></option>
+    	  <option><value>3.2.X</value></option>
+    	  <option><value>4.0.X</value></option>
+    	  <option><value>4.1.X</value></option>
         </enum>
     </type>
     <value>3.2.X</value>
-    </setting>
+    </setting>  
     <setting name="bootrom">
       <label>Bootrom (zip)</label>
       <type>

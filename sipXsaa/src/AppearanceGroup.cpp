@@ -27,8 +27,9 @@
 
 // Number of milliseconds to wait after terminating subscriptions to a
 // contact before initiating a subscription that might reach the same
-// UA.
-#define SUBSCRIPTION_WAIT 100
+// UA. This is set to 50 ms and is similar with the one from RLS.
+// A higher value will cause SAA to deadlock.
+#define SUBSCRIPTION_WAIT 50
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -262,7 +263,6 @@ void AppearanceGroup::subscriptionEventCallback(
                     ret ? "succeeded" : "failed",
                     mSharedUser.data(),
                     mSubscriptionEarlyDialogHandle.data());
-      OsTask::delay(getAppearanceAgent()->getChangeDelay());
 
       // Check to see if there is supposed to be a group with this name.
       if (mAppearanceGroupSet->findAppearanceGroup(mSharedUser))

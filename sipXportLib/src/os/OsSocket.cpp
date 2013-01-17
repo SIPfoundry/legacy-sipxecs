@@ -182,6 +182,16 @@ int OsSocket::write(const char* buffer, int bufferLength)
 #       error Unsupported target platform.
 #       endif
 
+   if (bytesSent == bufferLength)
+   {
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
+                    "OsSocket::write %d (%s:%d %s:%d) is on the wire.",
+                    socketDescriptor,
+                    remoteHostName.data(), remoteHostPort,
+                    localHostName.data(), localHostPort,
+                    bytesSent);
+   }
+
    return(bytesSent);
 }
 

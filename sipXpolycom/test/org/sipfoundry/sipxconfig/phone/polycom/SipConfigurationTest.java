@@ -54,7 +54,7 @@ public class SipConfigurationTest extends PolycomXmlTestCase {
 
         tester = PhoneTestDriver.supplyTestData(phone);
         initSettings();
-        phone.setDeviceVersion(PolycomModel.VER_2_0);
+        phone.setDeviceVersion(PolycomModel.VER_3_1_X);
 
         // XCF-3581: No longer automatically generating phone emergency dial routing. These
         // settings
@@ -99,7 +99,7 @@ public class SipConfigurationTest extends PolycomXmlTestCase {
         phone.setModel(model);
         tester = PhoneTestDriver.supplyTestData(phone);
         initSettings();
-        phone.setDeviceVersion(PolycomModel.VER_2_0);
+        phone.setDeviceVersion(PolycomModel.VER_3_1_X);
         // XCF-3581: No longer automatically generating phone emergency dial routing. These
         // settings
         // are as if they'd been manually configured under Phone - Dial Plan - Emergency Routing.

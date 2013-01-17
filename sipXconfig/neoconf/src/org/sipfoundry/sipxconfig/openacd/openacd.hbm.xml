@@ -177,8 +177,6 @@
     <property name="name"/>
     <property name="identity"/>
     <property name="description"/>
-	<many-to-one cascade="all" name="valueStorage" column="value_storage_id"
-		class="org.sipfoundry.sipxconfig.setting.ValueStorage" foreign-key="fk_openacd_client_value_storage" />
   </class>
 
   <class name="OpenAcdReleaseCode" table="openacd_release_codes">
