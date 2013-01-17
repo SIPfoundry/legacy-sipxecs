@@ -45,7 +45,7 @@ enabled=@PULL_MISSING_RPMS@
 
 [build]
 name=build
-baseurl=http://localhost:40100/Fedora_16/x86_64/
+baseurl=http://localhost:@REPO_PORT@/Fedora_16/x86_64/
 """
 
 

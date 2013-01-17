@@ -4,6 +4,14 @@ dnl
 
 AC_ARG_VAR(MIRROR_SITE, [Single place to find CentOS, Redhat and EPEL. Example: http://mirrors.kernel.org])
 
+DEFAULT_REPO_PORT=40100
+dnl Required for getting files to chroot.
+AC_ARG_VAR(REPO_PORT, [Port to host yum repo. Default is $DEFAULT_REPO_PORT])
+if test -z "$REPO_PORT" ; then
+  REPO_PORT=$DEFAULT_REPO_PORT
+fi
+
+
 AC_ARG_WITH(yum-proxy, [--with-yum-proxy send downloads thru caching proxy like squid to speed downloads], [
   AC_SUBST(DOWNLOAD_PROXY,$withval)
   AC_SUBST(DOWNLOAD_PROXY_CONFIG_LINE,"proxy=$withval")
