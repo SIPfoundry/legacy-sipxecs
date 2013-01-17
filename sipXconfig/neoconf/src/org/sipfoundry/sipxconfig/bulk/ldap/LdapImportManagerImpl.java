@@ -26,7 +26,6 @@ import org.sipfoundry.sipxconfig.bulk.UserPreview;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.bulk.csv.SimpleCsvWriter;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.springframework.dao.DataAccessException;
 import org.springframework.ldap.CollectingNameClassPairCallbackHandler;
 import org.springframework.ldap.LdapTemplate;
 import org.springframework.ldap.NameClassPairCallbackHandler;
@@ -47,13 +46,18 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
     }
 
     public void insert(int connectionId) {
-        m_rowInserter.setAttrMap(m_ldapManager.getAttrMap(connectionId));
-        m_rowInserter.setDomain(m_ldapManager.getConnectionParams(connectionId).getDomain());
-        m_rowInserter.beforeInserting();
-        NameClassPairCallbackHandler handler = new NameClassPairMapperClosureAdapter(
-                m_rowInserter);
-        runSearch(handler, 0, connectionId);
-        m_rowInserter.afterInserting();
+        LOG.info("***** START INSERTING DATA *****");
+        try {
+            m_rowInserter.setAttrMap(m_ldapManager.getAttrMap(connectionId));
+            m_rowInserter.setDomain(m_ldapManager.getConnectionParams(connectionId).getDomain());
+            m_rowInserter.beforeInserting(null);
+            NameClassPairCallbackHandler handler = new NameClassPairMapperClosureAdapter(
+                    m_rowInserter);
+            runSearch(handler, 0, connectionId);
+            m_rowInserter.afterInserting();
+        } catch (Exception ex) {
+            LOG.error("***** FAILURE DURING INSERTING DATA *****", ex);
+        }
     }
 
     public List<UserPreview> getExample(int connectionId) {
@@ -149,11 +153,14 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         LdapTemplate template = m_templateFactory.getLdapTemplate(m_ldapManager.getConnectionParams(connectionId));
         try {
             template.search(base, filter, sc, handler, LdapManager.NULL_PROCESSOR);
-        } catch (SearchLimitExceededException normal) {
-            // See http://forum.springframework.org/archive/index.php/t-27836.html
-            LOG.debug("Normal overflow, requesting to preview more records then exist");
-        } catch (DataAccessException e) {
-            throw new UserException("LDAP search failed : " + e.getCause().getMessage());
+        } catch (Exception e) {
+            if (e instanceof SearchLimitExceededException) {
+                // See http://forum.springframework.org/archive/index.php/t-27836.html
+                LOG.info("Normal overflow, requesting to preview more records then exist");
+            } else {
+                LOG.error("LDAP search failed", e);
+                throw new UserException("LDAP search failed : " + e.getCause().getMessage());
+            }
         }
     }
 

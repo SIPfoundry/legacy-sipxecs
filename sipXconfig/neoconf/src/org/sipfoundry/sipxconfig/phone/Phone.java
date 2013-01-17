@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -267,4 +268,9 @@ public abstract class Phone extends Device {
         line.setPhone(this);
         return line;
     }
+
+    public Collection<? extends PhoneModel> getModelIdsForSelection(String beanId) {
+        return null;
+    }
+
 }

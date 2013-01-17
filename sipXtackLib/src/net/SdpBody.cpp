@@ -2213,6 +2213,27 @@ bool SdpBody::modifyMediaAddress(int mediaIndex,
    return bAddressSet;
 }
 
+bool SdpBody::modifySessionAddress(const char* pNewAddress)
+{
+  UtlSListIterator iterator( *sdpFields );
+  bool bAddressSet = false;
+
+  if( pNewAddress )
+  {
+    NameValuePair* nv;
+    nv = findFieldNameBefore( &iterator, "c", "m" );
+    if(nv)
+    {
+      // c= line found, modify it.
+      UtlString value = nv->getValue();
+      bAddressSet = modifySdpSubfieldValue( value, 2, pNewAddress );
+      nv->setValue( value );
+      bAddressSet = true;
+    }
+  }
+  return bAddressSet;
+}
+
 /// Set the port number for the indicated media stream.
 bool SdpBody::modifyMediaPort(int mediaIndex, ///< which media description set to modify
                               int port)

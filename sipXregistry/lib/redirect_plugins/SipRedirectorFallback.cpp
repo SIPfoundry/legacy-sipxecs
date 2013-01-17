@@ -211,20 +211,20 @@ SipRedirectorFallback::determineCallerLocationFromProvisionedUserLocation(
   // If the request contains a P-Asserted-Identity header and is not signed,
   // we will not trust it the returned location will be blank.
   UtlString matchedIdentityHeader;
-  SipXauthIdentity sipxIdentity;
+  SipXauthIdentity* pSipxIdentity = 0;
   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRedirectorFallback:: unbound entities allowing: %s", mAllowUnbound ? "TRUE" : "FALSE");
   if (!mAllowUnbound) {
-	  SipXauthIdentity sipxIdentity( message, matchedIdentityHeader, false );
+	  pSipxIdentity = new SipXauthIdentity( message, matchedIdentityHeader, false );
   } else {
-	  SipXauthIdentity sipxIdentity( message, matchedIdentityHeader, false, SipXauthIdentity::allowUnbound);
+	  pSipxIdentity = new SipXauthIdentity( message, matchedIdentityHeader, false, SipXauthIdentity::allowUnbound);
   }
 
-  if( !matchedIdentityHeader.isNull() )
+  if( pSipxIdentity && !matchedIdentityHeader.isNull() )
   {
 
      UtlString authenticatedUserIdentity;
      bool bRequestIsAuthenticated;
-     bRequestIsAuthenticated = sipxIdentity.getIdentity( authenticatedUserIdentity );
+     bRequestIsAuthenticated = pSipxIdentity->getIdentity( authenticatedUserIdentity );
      if( bRequestIsAuthenticated )
      {
         // we now have the autheticated identity of the caller.  Look up the user location
@@ -252,6 +252,7 @@ SipRedirectorFallback::determineCallerLocationFromProvisionedUserLocation(
         }
      }
   }
+   delete pSipxIdentity;
    return result;
 }
 

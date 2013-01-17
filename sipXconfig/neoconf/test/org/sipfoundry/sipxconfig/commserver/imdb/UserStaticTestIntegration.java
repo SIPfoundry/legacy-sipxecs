@@ -25,6 +25,8 @@ public class UserStaticTestIntegration extends ImdbTestCase {
             "1", "first2", "last2", "8810", "63948810"
         }, {
             "2", "first3", "last3", "8811", "63948811"
+        }, {
+            "3", "first4", "last4", "8812", "test@mwi.com"
         },
     };
 
@@ -52,7 +54,8 @@ public class UserStaticTestIntegration extends ImdbTestCase {
         getReplicationManager().replicateEntity(m_users.get(0), DataSet.USER_STATIC);
         getReplicationManager().replicateEntity(m_users.get(1), DataSet.USER_STATIC);
         getReplicationManager().replicateEntity(m_users.get(2), DataSet.USER_STATIC);
-        assertCollectionCount(getEntityCollection(), 3);
+        getReplicationManager().replicateEntity(m_users.get(3), DataSet.USER_STATIC);
+        assertCollectionCount(getEntityCollection(), 4);
         QueryBuilder qb = QueryBuilder.start(MongoConstants.ID);
         qb.is("User0").and(MongoConstants.STATIC+"."+MongoConstants.CONTACT).is("sip:"+USER_DATA[0][4]+"@"+DOMAIN);
         assertObjectPresent(getEntityCollection(), qb.get());
@@ -60,5 +63,6 @@ public class UserStaticTestIntegration extends ImdbTestCase {
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User0", MongoConstants.STATIC+"."+MongoConstants.TO_URI, "sip:"+USER_DATA[0][3]+"@"+DOMAIN);
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.STATIC+"."+MongoConstants.EVENT, "message-summary");
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User2", MongoConstants.STATIC+"."+MongoConstants.FROM_URI, "sip:IVR@"+DOMAIN);
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User3", MongoConstants.STATIC+"."+MongoConstants.CONTACT, "sip:test@mwi.com");
     }
 }

@@ -4,29 +4,53 @@
   <bean id="polycomModel" parent="abstractPhoneModel" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel"
     abstract="true" >
 	<property name="vendor" value="Polycom"/>
-    <property name="staticProfileFilenames">
-      <list>
-        <value>polycom_phone1_2.1.X.cfg</value>
-        <value>polycom_sip_2.1.X.cfg</value>
-        <value>polycom_phone1_3.1.X.cfg</value>
-        <value>polycom_sip_3.1.X.cfg</value>
-        <value>polycom_phone1.cfg</value>
-        <value>polycom_sip.cfg</value>
-      </list>
-    </property>
     <property name="restartSupported" value="true" />
   </bean>
 
+  <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_2_0"
+    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+  <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"
+    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+  <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"
+    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />    
+  <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"
+    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+  <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"
+    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+
   <bean id="polycom300" parent="polycomModel">
-    <property name="label" value="Polycom SoundPoint IP 300/301" />
-    <property name="maxLineCount" value="2" />
-    <property name="supportedFeatures">
-      <set>
-        <value>disableCallList</value>
-        <value>intercom</value>
-        <value>IP_300_CodecPref</value>
-        <value>pre_3.2.0_model</value>
-      </set>
+   <property name="label" value="Polycom SoundPoint IP 300" />
+   <property name="maxLineCount" value="2" />
+   <property name="supportedFeatures">
+     <set>
+       <value>disableCallList</value>
+       <value>intercom</value>
+       <value>IP_300_CodecPref</value>
+       <value>pre_3.2.0_model</value>
+     </set>
+   </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_2_0"/>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="polycom301" parent="polycomModel">
+   <property name="label" value="Polycom SoundPoint IP 301" />
+   <property name="maxLineCount" value="2" />
+   <property name="supportedFeatures">
+     <set>
+       <value>disableCallList</value>
+       <value>intercom</value>
+       <value>IP_300_CodecPref</value>
+       <value>pre_3.2.0_model</value>
+     </set>
+   </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
+      </list>
     </property>
   </bean>
   <bean id="polycom321" parent="polycomModel">
@@ -39,9 +63,16 @@
         <value>OTHERS_CodecPref</value>
       </set>
     </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
+    </property>
   </bean>
-  <bean id="polycom330" parent="polycomModel">
-    <property name="label" value="Polycom SoundPoint IP 320/330" />
+  <bean id="polycom320" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 320" />
     <property name="maxLineCount" value="2" />
     <property name="supportedFeatures">
       <set>
@@ -49,6 +80,29 @@
         <value>intercom</value>
         <value>OTHERS_CodecPref</value>
       </set>
+    </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="polycom330" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 330" />
+    <property name="maxLineCount" value="2" />
+    <property name="supportedFeatures">
+      <set>
+        <value>voiceQualityMonitoring</value>
+        <value>intercom</value>
+        <value>OTHERS_CodecPref</value>
+      </set>
+    </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
     </property>
   </bean>
   <bean id="polycom335" parent="polycomModel">
@@ -61,6 +115,13 @@
         <value>IP_650_CodecPref</value>
       </set>
     </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
+    </property>    
   </bean>
   <bean id="polycom331" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 331" />
@@ -72,6 +133,13 @@
         <value>OTHERS_CodecPref</value>
       </set>
     </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
+    </property>    
   </bean>
   <bean id="polycom430" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 430" />
@@ -83,6 +151,12 @@
         <value>voiceQualityMonitoring</value>
         <value>OTHERS_CodecPref</value>
       </set>
+    </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
     </property>
   </bean>
   <bean id="polycom450" parent="polycomModel">
@@ -96,9 +170,16 @@
         <value>IP_650_CodecPref</value>
       </set>
     </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
+    </property>    
   </bean>
   <bean id="polycom500" parent="polycomModel">
-    <property name="label" value="Polycom SoundPoint IP 500/501" />
+    <property name="label" value="Polycom SoundPoint IP 500" />
     <property name="maxLineCount" value="3" />
     <property name="supportedFeatures">
       <set>
@@ -109,9 +190,32 @@
         <value>OTHERS_CodecPref</value>
       </set>
     </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_2_0"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="polycom501" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 501" />
+    <property name="maxLineCount" value="3" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>pre_3.2.0_model</value>
+        <value>OTHERS_CodecPref</value>
+      </set>
+    </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
+      </list>
+    </property>
   </bean>
   <bean id="polycom550" parent="polycomModel">
-    <property name="label" value="Polycom SoundPoint IP 550/560" />
+    <property name="label" value="Polycom SoundPoint IP 550" />
     <property name="maxLineCount" value="4" />
     <property name="supportedFeatures">
       <set>
@@ -124,9 +228,36 @@
         <value>IP_650_CodecPref</value>
       </set>
     </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
+    </property>    
+  </bean>
+  <bean id="polycom560" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 560" />
+    <property name="maxLineCount" value="4" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>nway-conference</value>
+        <value>localConferenceCallHold</value>
+        <value>singleKeyPressConference</value>
+        <value>IP_650_CodecPref</value>
+      </set>
+    </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
+    </property>    
   </bean>
   <bean id="polycom600" parent="polycomModel">
-    <property name="label" value="Polycom SoundPoint IP 600/601" />
+    <property name="label" value="Polycom SoundPoint IP 600" />
     <property name="maxLineCount" value="12" />
     <property name="supportedFeatures">
       <set>
@@ -137,9 +268,32 @@
         <value>pre_3.2.0_model</value>
       </set>
     </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="polycom601" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 601" />
+    <property name="maxLineCount" value="12" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>OTHERS_CodecPref</value>
+        <value>pre_3.2.0_model</value>
+      </set>
+    </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
+      </list>
+    </property>
   </bean>
   <bean id="polycom650" parent="polycomModel">
-    <property name="label" value="Polycom SoundPoint IP 650/670" />
+    <property name="label" value="Polycom SoundPoint IP 650" />
     <property name="maxLineCount" value="34" />
     <property name="supportedFeatures">
       <set>
@@ -152,6 +306,35 @@
         <value>IP_650_CodecPref</value>
       </set>
     </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
+    </property>    
+  </bean>
+  <bean id="polycom670" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 670" />
+    <property name="maxLineCount" value="34" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>nway-conference</value>
+        <value>localConferenceCallHold</value>
+        <value>singleKeyPressConference</value>
+        <value>IP_650_CodecPref</value>
+      </set>
+    </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
+    </property>    
   </bean>
   <bean id="polycomVVX1500" parent="polycomModel">
     <property name="label" value="Polycom VVX IP 1500" />
@@ -165,8 +348,16 @@
         <value>localConferenceCallHold</value>
         <value>singleKeyPressConference</value>
         <value>VVX_1500_CodecPref</value>
+        <value>exchangeIntegration</value>
         <value>video</value>
       </set>
+    </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
     </property>
   </bean>
   <bean id="polycom4000" parent="polycomModel">
@@ -192,6 +383,13 @@
         <value>IP_5000_CodecPref</value>
       </set>
     </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
+    </property>    
   </bean>
   <bean id="polycom6000" parent="polycomModel">
     <property name="label" value="Polycom SoundStation IP 6000" />
@@ -203,6 +401,12 @@
         <value>IP_6000_CodecPref</value>
       </set>
     </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
+    </property>    
   </bean>
   <bean id="polycom7000" parent="polycomModel">
     <property name="label" value="Polycom SoundStation IP 7000" />
@@ -216,13 +420,90 @@
         <value>IP_7000_CodecPref</value>
       </set>
     </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+      </list>
+    </property>    
+  </bean>
+  <bean id="polycomVVX500" parent="polycomModel">
+    <property name="label" value="Polycom VVX 500" />
+    <property name="maxLineCount" value="12" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>nway-conference</value>
+        <value>localConferenceCallHold</value>
+        <value>singleKeyPressConference</value>
+        <value>VVX_500_CodecPref</value>
+        <value>desktopIntegration</value>
+        <value>exchangeIntegration</value>
+        <value>video</value>
+      </set>
+    </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
+      </list>
+    </property> 
+  </bean>
+  <bean id="polycomVVX600" parent="polycomModel">
+    <property name="label" value="Polycom VVX 600" />
+    <property name="maxLineCount" value="16" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>nway-conference</value>
+        <value>localConferenceCallHold</value>
+        <value>singleKeyPressConference</value>
+        <value>VVX_500_CodecPref</value>
+        <value>desktopIntegration</value>
+        <value>exchangeIntegration</value>
+        <value>video</value>
+      </set>
+    </property>
+    <property name="versions">
+      <list>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
+      </list>
+    </property> 
   </bean>
   <bean id="polycom" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" scope="prototype"
     parent="abstractPhone">
+    <property name="addressManager" ref="addressManager" />
   </bean>
   <bean id="polycomFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
-    <property name="beanId" value="upload" />
+    <property name="beanId" value="polycomUpload" />
     <property name="modelFilePath" value="polycom/upload.xml" />
     <property name="label" value="Polycom SoundPoint IP/SoundStation IP/VVX" />
+  </bean>
+  <bean id="polycomUpload" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomUpload"
+    scope="prototype" parent="upload">
+    <property name="profileDir">
+      <value>${sysdir.phone}/profile/tftproot</value>
+    </property>
+  </bean>
+  <bean id="fwUpdateListener" class="org.sipfoundry.sipxconfig.phone.polycom.FirmwareUpdateListener">
+    <property name="phoneContext" ref="phoneContext" />
+  </bean>
+  <bean id="deviceFilesCleaner" class="org.sipfoundry.sipxconfig.phone.polycom.DeviceFilesCleaner">
+    <property name="uploadManager" ref="uploadManager" />
+  </bean>
+  <bean id="phonesUpdateResource" class="org.sipfoundry.sipxconfig.phone.polycom.PhoneUpdateResource" scope="prototype">
+    <property name="phoneContext" ref="phoneContext" />
+    <property name="profileManager" ref="phoneProfileManager" />
+    <property name="readable" value="true" />
+    <property name="modifiable" value="true" />
+  </bean>
+  <alias name="phonesUpdateResource" alias="/updatephone/{mac}/{version}/{model}" />
+  <bean id="migrationTask" class="org.sipfoundry.sipxconfig.phone.polycom.MigrationTask">
+    <property name="phoneContext" ref="phoneContext" />
+    <property name="profileManager" ref="phoneProfileManager" />
   </bean>
 </beans>

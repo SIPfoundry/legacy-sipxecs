@@ -61,7 +61,7 @@ bundle agent dhcpd_systemctl_running {
   commands:
     # NOTE: Start/stop commands will complain about not being able to open a TTY, but commands
     # to complete their task
-    dhcpd_running.!dhcpd::
+    dhcpd_running.!src.!dhcpd::
       "$(sipx.systemctl)"
         comment => "stop dhcpd",
         args => "stop $(service)";
@@ -89,13 +89,13 @@ bundle agent dhcpd_sysv_running {
 
   methods:
     "any" usebundle => find_service_by_command("$(service_command)", "dhcpd_running", "$(dhcpd_users)");
-    !src.!dhcpd::
+    !src.!dhcpd.!unmanaged_dhcpd::
       "any" usebundle => rh_chkconfig_status("dhcpd off");
-    dhcpd::
+    !src.dhcpd.!unmanaged_dhcpd::
       "any" usebundle => rh_chkconfig_status("dhcpd on");
 
   commands:
-    !dhcpd.!src.!unmanaged_dhcpd.dhcpd_running::
+    !dhcpd.!src.!unmanaged_dhcpd.primary.dhcpd_running::
       "$(service)"
         comment => "stop dhcpd",
         args => "stop";

@@ -26,6 +26,8 @@ public class PhoneModel extends DeviceDescriptor {
 
     private String m_lineSettingsFile = "line.xml";
 
+    private boolean m_supported = true;
+
     public PhoneModel() {
     }
 
@@ -87,5 +89,18 @@ public class PhoneModel extends DeviceDescriptor {
 
     public void setLineSettingsFile(String lineSettingsFile) {
         m_lineSettingsFile = lineSettingsFile;
+    }
+
+    /**
+     * Unsupported phones must be in the beans descriptors for migration purposes.
+     * However, they should not be listed in the phones dropdown
+     * @return
+     */
+    public boolean isSupported() {
+        return m_supported;
+    }
+
+    public void setSupported(boolean supported) {
+        m_supported = supported;
     }
 }

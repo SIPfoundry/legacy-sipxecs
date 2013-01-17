@@ -311,6 +311,9 @@ class SdpBody : public HttpBody
                             const char* pNewAddress  ///< new address information
                                );
 
+
+    bool modifySessionAddress(const char* pNewAddress);
+
     /// Set the port number for the indicated media stream.
     bool modifyMediaPort(int mediaIndex, ///< which media description set to modify
                          int newPort     ///< new port value

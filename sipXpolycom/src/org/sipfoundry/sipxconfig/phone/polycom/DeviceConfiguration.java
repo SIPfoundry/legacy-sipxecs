@@ -16,10 +16,8 @@ import org.sipfoundry.sipxconfig.device.ProfileContext;
  * Responsible for generating ipmid.cfg
  */
 public class DeviceConfiguration extends ProfileContext {
-    private static final String DEVICE_TEMPLATE = PolycomPhone.TEMPLATE_DIR + "/device.cfg.vm";
-
 
     public DeviceConfiguration(PolycomPhone device) {
-        super(device, DEVICE_TEMPLATE);
+        super(device, device.getTemplateDir() + "/device.cfg.vm");
     }
 }

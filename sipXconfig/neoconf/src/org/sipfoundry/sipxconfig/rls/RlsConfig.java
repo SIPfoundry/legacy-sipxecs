@@ -33,12 +33,16 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.im.ImManager;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
 
-public class RlsConfig implements ConfigProvider, DaoEventListener {
+public class RlsConfig implements ConfigProvider, DaoEventListener, BeanFactoryAware {
     private Rls m_rls;
     private ResourceLists m_lists;
     private ConfigManager m_configManager;
+    private BeanFactory m_factory;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -49,6 +53,11 @@ public class RlsConfig implements ConfigProvider, DaoEventListener {
         Set<Location> locations = request.locations(manager);
 
         RlsSettings settings = m_rls.getSettings();
+        boolean xmppPresenceEnabled = false;
+        if (manager.getFeatureManager().isFeatureEnabled(ImManager.FEATURE)) {
+            ImManager imManager = m_factory.getBean(ImManager.class);
+            xmppPresenceEnabled = imManager.isPresenceEnabled();
+        }
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(Rls.FEATURE, location);
@@ -66,7 +75,7 @@ public class RlsConfig implements ConfigProvider, DaoEventListener {
 
             FileWriter xmlwtr = new FileWriter(new File(dir, "resource-lists.xml"));
             XmlFile listsXml = new XmlFile(xmlwtr);
-            listsXml.write(m_lists.getDocument());
+            listsXml.write(m_lists.getDocument(xmppPresenceEnabled));
             IOUtils.closeQuietly(xmlwtr);
         }
     }
@@ -108,5 +117,10 @@ public class RlsConfig implements ConfigProvider, DaoEventListener {
         if (m_configManager.getFeatureManager().isFeatureEnabled(Rls.FEATURE) && entity instanceof User) {
             m_configManager.configureEverywhere(Rls.FEATURE);
         }
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory factory) {
+        m_factory = factory;
     }
 }

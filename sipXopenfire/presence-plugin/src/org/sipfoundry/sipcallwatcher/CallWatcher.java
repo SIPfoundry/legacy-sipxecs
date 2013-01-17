@@ -66,21 +66,6 @@ public class CallWatcher
     public static SipStackBean getSipStackBean() {
         return sipStackBean;
     }
-  
-    
-    /**
-     * Entry point to get things going from the openfire plugin.
-     * 
-     * @throws Exception
-     */
-    
-    public static void init() throws Exception {
-        CallWatcher.parseConfigurationFile();   
-        initializeLogging();
-        //Create Listening Point
-        initializeJainSip();
-        sipStackBean.getSubscriber().start();
-    }
 
     static void initializeLogging() {
         try {
@@ -137,9 +122,4 @@ public class CallWatcher
         return sipStackBean.getSubscriber();
     }
     
-    
-    public static void main(String[] args) throws Exception
-    {
-        init();
-    }
 }

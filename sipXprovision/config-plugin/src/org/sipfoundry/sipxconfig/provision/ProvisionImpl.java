@@ -70,7 +70,7 @@ public class ProvisionImpl implements FeatureProvider, AddressProvider, Provisio
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
-        if (!type.equals(PROVISION_SERVICE)) {
+        if (!type.getId().equals("provisionService")) {
             return null;
         }
 

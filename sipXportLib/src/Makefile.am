@@ -97,6 +97,7 @@ libsipXport_la_SOURCES =  \
     os/OsNameDb.cpp \
     os/OsPathBase.cpp \
     os/OsPluginManager.cpp \
+    os/OsPooledTask.cpp \
     os/osPrintf.cpp \
     os/OsProcessBase.cpp \
     os/OsProcessIteratorBase.cpp \
@@ -118,8 +119,6 @@ libsipXport_la_SOURCES =  \
     os/OsTime.cpp \
     os/OsTimeLog.cpp \
     os/OsTimer.cpp \
-    os/OsTimerMsg.cpp \
-    os/OsTimerTask.cpp \
     os/OsTokenizer.cpp \
     os/OsUtil.cpp \
     os/OsStunAgentTask.cpp \

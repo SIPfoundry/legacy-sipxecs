@@ -38,7 +38,6 @@
 #include "os/OsRWMutex.h"
 #include "os/OsTime.h"
 #include "os/OsTimer.h"
-#include "os/OsTimerTask.h"
 #include "os/OsWriteLock.h"
 #include "os/OsTask.h"
 #include "os/OsFS.h"
@@ -549,17 +548,10 @@ int main()
    pConfigDb = new OsConfigDb();
    delete pConfigDb;
 
-/* ============================ OsTimerTask =============================== */
 
-   OsTimerTask* pTimerTask;
-   pTimerTask = OsTimerTask::getTimerTask();
-   OsTask::delay(500);    // wait 1/2 second
-   osPrintf("Going to delete the timer task.\n");
-   delete pTimerTask;
 
 /* ============================ OsTimer =================================== */
 
-   pTimerTask = OsTimerTask::getTimerTask();
    OsTask::delay(500);    // wait 1/2 second
    OsCallback* pNotifier;
    OsCallback* pNotifier2;
@@ -696,16 +688,6 @@ int main()
    delete pTimer;
    delete pNotifier;
 
-/* ============================ OsTimerTask cleanup ======================= */
-
-   // The timer task may have been created indirectly (as a result of
-   // creating OsTimer objects). If the timer task exists, delete it now.
-   pTimerTask = OsTimerTask::getTimerTask();
-   if (pTimerTask != NULL)
-   {
-      osPrintf("Going to delete the timer task.\n");
-      delete pTimerTask;
-   }
 
 /* ============================ OsNameDb cleanup ========================== */
 

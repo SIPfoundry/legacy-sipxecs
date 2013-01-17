@@ -42,6 +42,7 @@ import org.sipfoundry.sipxconfig.event.WebSocket;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -72,19 +73,21 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
                 continue;
             }
             ConfigUtils.enableCfengineClass(dir, datfile, true, sipxopenfireClass, "postgres");
-            boolean consoleEnabled = (Boolean) m_openfire.getSettings().getSettingTypedValue("settings/console");
+            OpenfireSettings settings = m_openfire.getSettings();
+            boolean consoleEnabled = (Boolean) settings.getSettingTypedValue("settings/console");
+            boolean presenceEnabled = (Boolean) settings.getSettingTypedValue("settings/enable-presence")
+                    && manager.getFeatureManager().isFeatureEnabled(Rls.FEATURE);
             ConfigUtils.enableCfengineClass(dir, "ofconsole.cfdat", consoleEnabled, "ofconsole");
             File f = new File(dir, "sipx.properties.part");
-            if(!f.exists()) {
+            if (!f.exists()) {
                 f.createNewFile();
             }
             Writer wtr = new FileWriter(f);
             try {
-                if (m_featureManager.isFeatureEnabled(WebSocket.FEATURE, location)) {
-                    Address addr = m_configManager.getAddressManager().getSingleAddress(AdminContext.HTTP_ADDRESS);
-                    write(wtr, location.getAddress(), m_websocket.getSettings().getWebSocketPort(), addr.toString());
-                }
-
+                boolean isWsEnabled = m_featureManager.isFeatureEnabled(WebSocket.FEATURE, location);
+                Address addr = m_configManager.getAddressManager().getSingleAddress(AdminContext.HTTP_ADDRESS);
+                write(wtr, presenceEnabled, isWsEnabled, location.getAddress(), m_websocket.getSettings()
+                        .getWebSocketPort(), addr.toString());
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
@@ -116,15 +119,19 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
                 IOUtils.closeQuietly(ofproperty);
             }
         }
-        //touch xmpp_update.xml on every location where openfire runs
+        // touch xmpp_update.xml on every location where openfire runs
         m_openfire.touchXmppUpdate(m_featureManager.getLocationsForEnabledFeature(OpenfireImpl.FEATURE));
     }
 
-    void write(Writer wtr, String wsAddress, int wsPort, String adminRestUrl) throws IOException {
+    void write(Writer wtr, boolean presence, boolean wsEnabled, String wsAddress, int wsPort, String adminRestUrl)
+            throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
-        config.write("websocket.address", wsAddress);
-        config.write("websocket.port", wsPort);
-        config.write("admin.rest.url", adminRestUrl);
+        config.write("openfire.presence", presence);
+        if (wsEnabled) {
+            config.write("websocket.address", wsAddress);
+            config.write("websocket.port", wsPort);
+            config.write("admin.rest.url", adminRestUrl);
+        }
     }
 
     void writeOfPropertyConfig(Writer w, OpenfireSettings settings) throws IOException {
@@ -139,7 +146,8 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
 
         config.writeSettings(settings.getOfProperty());
         LdapSystemSettings systemSettings = m_ldapManager.getSystemSettings();
-        boolean isEnableOpenfireConfiguration = systemSettings.isEnableOpenfireConfiguration() && systemSettings.isConfigured();
+        boolean isEnableOpenfireConfiguration = systemSettings.isEnableOpenfireConfiguration()
+                && systemSettings.isConfigured();
         if (isEnableOpenfireConfiguration) {
             config.write(AUTH_CLASSNAME_KEY, m_config.getProviderLdapAuthClassName());
         } else {

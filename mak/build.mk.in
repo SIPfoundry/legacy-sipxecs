@@ -2,6 +2,7 @@
 # Licensed to the User under the LGPL license.
 # 
 OPTIONS = @OPTIONS@
+DOWNLOAD_LIB_CACHE = @DOWNLOAD_LIB_CACHE@
 
 help.sipx=Build all sipx components including targets autoreconf, configure, all and install targets
 build sipx :
@@ -11,9 +12,25 @@ help.app=Build all sipx apps including targets autoreconf, configure, all and in
 app :
 	$(MAKE) $(foreach P,$(app),$(P))
 
-$(foreach T,$(sipx) $(app),$(T)) : % : %.build;
-$(foreach T,$(sipx) $(app),$(T)...) : %... : %.build...;
-$(foreach T,$(sipx) $(app),$(T).build) : %.build : %.autoreconf %.configure %.all-install ;
+# pull in dependency make fragments
+include $(SRC)/*/.sipxecs.mk
+
+# Only the main rpm
+$(foreach P,$(sipx) $(app),$(eval $(P)_TAR = $(P)/$$(call lowercase,$(P))-$(PACKAGE_VERSION).tar.gz))
+
+.PHONY:$(sipx) $(app)
+.SECONDEXPANSION:
+$(sipx) $(app) : $$($$@_DEPS)
+	@echo "$$rm_on_deps_change" | \
+	  DEP_TARGETS="$(addprefix $(PROJ)/,$($@_DEPS=.installed))" \
+	  TARGET=$(PROJ)/.installed \
+	  bash
+	@if ! test -f $(PROJ)/.installed ; then \
+	  $(MAKE) $@.build; \
+	  touch $(PROJ)/.installed; \
+	fi
+
+$(foreach T,$(sipx) $(app),$(T).build) : %.build : %.autoreconf %.configure %.all-install;
 
 help.{1|6}.all-install=Run 'make all install' in each target
 $(foreach T,$(sipx) $(app),$(T).all-install) : %.all-install : %.all %.install ;
@@ -39,16 +56,78 @@ help.{1|2|6}.configure = Run configure on each project
 	  $(SRC)/$(PROJ)/configure $(OPTIONS) $(sipx_OPTIONS) $($(PROJ)_OPTIONS)
 
 help.{1|2|6}.dist = Build archive, typically compressed tar
-%.dist :; $(MAKE) -C $(PROJ) dist
+
+%.dist : %.autoreconf %.configure %.dist_;
+%.dist_ :;$(MAKE) -C $(PROJ) dist
+.SECONDEXPANSION:
+%.dist-by-dep : $$(addsuffix .dist-by-dep,$$($$*_DEPS))
+	@if test -f $($(PROJ)_TAR) ; then \
+	  x=`find $(SRC)/$(PROJ)/ -type f \( \
+	       -not -name configure \
+	       -a -not -path '*/autom4te.cache/*' \
+	       -a -newer $($(PROJ)_TAR) \) -printf .`; \
+	  if [ -n "$$x" ] ; then \
+	    rm $($(PROJ)_TAR); \
+	  fi; \
+	fi
+	@if test -f $($(PROJ)_TAR) ; then \
+	  if [ -n "$($(PROJ)_DEPS)" ]; then \
+	    for t in $(foreach P,$($(PROJ)_DEPS),$($(P)_TAR)) ; do \
+	      if test -f $($(PROJ)_TAR); then \
+	        if [ $$t -nt $($(PROJ)_TAR) ]; then \
+	          rm $($(PROJ)_TAR); \
+	        fi \
+	      fi \
+	    done \
+	  fi \
+	fi
+	@if ! test -f $($(PROJ)_TAR) ; then \
+	  $(MAKE) $(PROJ).dist; \
+	fi
 
 # Targets for sipx only. 
 MAKE_COMMANDS = check install clean dist
 $(foreach C,$(MAKE_COMMANDS) all,$(eval help.{1}.$(C)=Run make $(C) on each project))
 $(foreach P,$(sipx) $(app),$(P).install) :; $(MAKE) -C $(PROJ) install
-$(foreach P,$(sipx) $(app),$(P).clean) :; $(MAKE) -C $(PROJ) clean
+$(foreach P,$(sipx) $(app),$(P).clean) :
+	$(MAKE) -C $(PROJ) clean
+	! test -f $(PROJ)/.installed || rm $(PROJ)/.installed
+
 $(foreach P,$(sipx) $(app),$(P).check) :; $(MAKE) -C $(PROJ) check
 
 # projects do not all have an "all" target, they probably should, until then, use
 # no-target default
 $(foreach C,all,$(foreach T,$(sipx) $(app),$(T).all)) :
 	$(MAKE) -C $(PROJ)
+
+$(all:=.update) :
+	if [ -f $(SRC)/$(PROJ)/.git/config ] ; then \
+	  cd $(PROJ); \
+	  git pull origin; \
+	fi
+
+# This first checks if any files have changed in a project, if not, then 
+# checks if any dependent projects were build since this project was
+# build. If so clear the build file
+define rm_on_deps_change
+	if test -f $$TARGET ; then
+	  x=`find $(SRC)/$(PROJ) -type f \( \
+	       -not -name configure \
+	       -a -not -path '*/autom4te.cache/*' \
+	       -a -newer $$TARGET \) -printf .`
+	  if [ -n "$$x" ] ; then
+	    rm $$TARGET
+	  elif [ -n "$($@_DEPS)" ] ; then
+	    for f in $$DEP_TARGETS ; do
+	      if test -f $$TARGET ; then
+	        if test -f $$f ; then
+	          if [ $$f -nt $$TARGET ] ; then
+	            rm $$TARGET
+	          fi
+	        fi
+	      fi
+	    done
+	  fi
+	fi
+endef
+export rm_on_deps_change

@@ -35,6 +35,8 @@ public interface AutoAttendantManager extends AliasOwner {
 
     void deleteAutoAttendantsByIds(Collection<Integer> attendantsIds);
 
+    void dupeAutoAttendants(Collection<Integer> attendantsIds);
+
     Group getDefaultAutoAttendantGroup();
 
     AutoAttendant newAutoAttendantWithDefaultGroup();

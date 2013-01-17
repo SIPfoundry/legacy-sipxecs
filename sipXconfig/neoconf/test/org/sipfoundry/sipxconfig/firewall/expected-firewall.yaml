@@ -1,3 +1,12 @@
+logdropped: false
+logdos: false
+logregister: false
+loginvite: false
+logack: false
+logoptions: false
+logsubscribe: false
+loglimit: -1
+loginterval: hour
 cluster: [ 1.1.1.1, 2.2.2.2 ]
 chains:
  - :name: ClassA
@@ -7,14 +16,21 @@ chains:
  - :name: ClassB
    :ipv4s:
     - 192.168.0.0/16
+whitelist:
+blacklist:
+deniedsip:
+ - sipvicious
+ - friendly-scanner
 rules:
  - :port: 300
    :protocol: tcp
+   :sip: false
    :service: t2
    :priority: false
    :chain: ACCEPT
  - :port: 400
    :protocol: tcp
+   :sip: false
    :service: t2
    :priority: false
    :chain: ClassA

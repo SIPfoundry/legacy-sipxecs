@@ -1,22 +1,25 @@
 /*
- *
- *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the LGPL license.
- *
- * $
- */
+*
+*
+* Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+* Contributors retain copyright to elements licensed under a Contributor Agreement.
+* Licensed to the User under the LGPL license.
+*
+* $
+*/
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import static org.easymock.classextension.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.replay;
 
+import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.dom.DOMDocumentFactory;
@@ -26,6 +29,7 @@ import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
@@ -38,8 +42,8 @@ import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 /**
- * Tests file phone.cfg generation
- */
+* Tests file phone.cfg generation
+*/
 public class PhoneConfigurationTest extends PolycomXmlTestCase {
 
     private PolycomPhone phone;
@@ -55,14 +59,17 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
     }
 
     /**
-     * Test 2.x profile generation.
-     */
+* Test 2.x profile generation.
+*/
     public void testGenerateProfileVersion20() throws Exception {
+        FileSystemProfileLocation location = TestHelper.setFsVelocityProfileGenerator(phone, TestHelper.getEtcDir());;
+        location.setParentDir(TestHelper.getTestOutputDirectory());
+
         PolycomModel model = new PolycomModel();
         model.setMaxLineCount(6);
         phone.setModel(model);
 
-        m_testDriver = PhoneTestDriver.supplyTestData(phone, true, false, true, true);
+        m_testDriver = PhoneTestDriver.supplyTestDataWithSpecialChars(phone, true, false, true, true);
         m_testDriver.getPrimaryLine().setSettingValue("reg/label", "Joe & Joe");
 
         // XCF-3581: No longer automatically generating phone emergency dial routing. These
@@ -76,23 +83,26 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         phone.beforeProfileGeneration();
         PhoneConfiguration cfg = new PhoneConfiguration(phone);
 
-        m_pg.generate(m_location, cfg, null, "profile");
+        m_pg.generate(location, cfg, null, "profile.XXX");
 
         System.out.println("*** BEGIN actual profile content. ***");
-        dumpXml(m_location.getReader(), System.out);
+        dumpXml(new FileReader(TestHelper.getTestOutputDirectory()+"/profile.XXX"), System.out);
         System.out.println("*** END actual profile content. ***");
         System.out.println("*** BEGIN expected profile content. ***");
         dumpXml(getClass().getResourceAsStream("expected-phone.cfg.xml"), System.out);
         System.out.println("*** END expected profile content. ***");
-        assertPolycomXmlEquals(getClass().getResourceAsStream("expected-phone.cfg.xml"), m_location.getReader());
+        
+        //Use string comparison here since we want to capture special chars like German umlaut, etc;
+        //using xml comparison via assertXmlEquals will reconvert the characters encoded
+        assertEquals(FileUtils.readFileToString(new File(getClass().getResource("expected-phone.cfg.xml").getFile())), FileUtils.readFileToString(new File(TestHelper.getTestOutputDirectory()+"/profile.XXX")));
     }
 
     /**
-     * XX-6976: Polycom/Nortel 12x0: Give User-less profiles the sipXprovision special user
-     * credentials and MAC hash ID label
-     *
-     * @throws Exception
-     */
+* XX-6976: Polycom/Nortel 12x0: Give User-less profiles the sipXprovision special user
+* credentials and MAC hash ID label
+*
+* @throws Exception
+*/
     public void testGenerateSpecialUserRegistrationWhenNoConfiguredLines() throws Exception {
         PolycomModel model = new PolycomModel();
         model.setMaxLineCount(2);
@@ -135,7 +145,6 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
 
         // This displaces the PhoneContext set by supplyTestData() above.
         phone.setPhoneContext(phoneContext);
-
         phone.beforeProfileGeneration();
         PhoneConfiguration cfg = new PhoneConfiguration(phone);
         m_pg.generate(m_location, cfg, null, "profile");
@@ -238,7 +247,6 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         line.setSettingValue("line-dialplan/digitmap/routing.1/address", "emergency-gateway.example.org");
         line.setSettingValue("line-dialplan/digitmap/routing.1/port", "5440");
         line.setSettingValue("line-dialplan/digitmap/routing.1/emergency.1.value", "911,9911");
-
         phone.beforeProfileGeneration();
         PhoneConfiguration cfg = new PhoneConfiguration(phone);
 
@@ -269,12 +277,17 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         Line externalLine = phone.createLine();
         phone.addLine(externalLine);
         externalLine.setLineInfo(li);
-
         phone.beforeProfileGeneration();
         PhoneConfiguration cfg = new PhoneConfiguration(phone);
 
         m_pg.generate(m_location, cfg, null, "profile");
 
         assertPolycomXmlEquals(getClass().getResourceAsStream("expected-external-line-sipx-phone.cfg.xml"), m_location.getReader());
+    }
+    
+    @Override
+    protected void tearDown() throws Exception {
+        new File(TestHelper.getTestOutputDirectory()+"/profile.XXX").delete();
+        super.tearDown();
     }
 }

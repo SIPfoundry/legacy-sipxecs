@@ -52,6 +52,7 @@ neoconf_PKGS = \
 	jaxen \
 	jaxrpc \
 	jettison \
+	js-1.7R4 \
 	ldapbp \
 	lucene-core \
 	mime-dir-j-vcard4j \

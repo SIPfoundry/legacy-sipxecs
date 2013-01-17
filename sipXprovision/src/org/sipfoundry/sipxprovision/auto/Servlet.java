@@ -51,7 +51,7 @@ import org.sipfoundry.commons.util.ShortHash;
 
 /**
  * A Jetty servlet that auto-provisions phones based on their HTTP requests.
- *
+ * 
  * @author Paul Mossman
  */
 @SuppressWarnings("serial")
@@ -67,8 +67,8 @@ public class Servlet extends HttpServlet {
 
     /**
      * Returns a simple unique-ish ID string (hash) generated from the specified seed.
-     *
-     * @see  org.sipfoundry.commons.util.ShortHash
+     * 
+     * @see org.sipfoundry.commons.util.ShortHash
      */
     protected static String getUniqueId(String seed_string) {
 
@@ -77,40 +77,42 @@ public class Servlet extends HttpServlet {
 
     protected static final String POLYCOM_PATH_PREFIX = "/";
 
-    private static final String POLYCOM_PATH_FORMAT_RE_STR =
-        "^" + POLYCOM_PATH_PREFIX + MAC_RE_STR + "-%s$";
+    private static final String POLYCOM_PATH_FORMAT_RE_STR = "^" + POLYCOM_PATH_PREFIX + MAC_RE_STR + "-%s$";
 
-    private static final Pattern POLYCOM_SIP_PATH_RE = Pattern.compile(
-            String.format(POLYCOM_PATH_FORMAT_RE_STR, "sipx-sip.cfg"));
+    private static final Pattern POLYCOM_SIP_PATH_RE = Pattern.compile(String.format(POLYCOM_PATH_FORMAT_RE_STR,
+            "sipx-sip.cfg"));
 
-    private static final Pattern POLYCOM_PHONE1_PATH_RE = Pattern.compile(
-            String.format(POLYCOM_PATH_FORMAT_RE_STR, "sipx-phone.cfg"));
+    private static final Pattern POLYCOM_PHONE1_PATH_RE = Pattern.compile(String.format(POLYCOM_PATH_FORMAT_RE_STR,
+            "sipx-phone.cfg"));
 
-    private static final Pattern POLYCOM_DEVICE_PATH_RE = Pattern.compile(
-            String.format(POLYCOM_PATH_FORMAT_RE_STR, "sipx-device.cfg"));
+    private static final Pattern POLYCOM_DEVICE_PATH_RE = Pattern.compile(String.format(POLYCOM_PATH_FORMAT_RE_STR,
+            "sipx-device.cfg"));
 
-    private static final Pattern POLYCOM_OVERRIDES_PATH_RE = Pattern.compile(
-            String.format(POLYCOM_PATH_FORMAT_RE_STR, "phone.cfg"));
+    private static final Pattern POLYCOM_OVERRIDES_PATH_RE = Pattern.compile(String.format(
+            POLYCOM_PATH_FORMAT_RE_STR, "phone.cfg"));
 
-    private static final Pattern POLYCOM_CONTACTS_PATH_RE = Pattern.compile(
-            String.format(POLYCOM_PATH_FORMAT_RE_STR, "directory.xml"));
+    private static final Pattern POLYCOM_CONTACTS_PATH_RE = Pattern.compile(String.format(
+            POLYCOM_PATH_FORMAT_RE_STR, "directory.xml"));
 
-    private static final Pattern POLYCOM_000000000000_CONTACTS_PATH_RE = Pattern.compile(
-            "^" + POLYCOM_PATH_PREFIX + "000000000000-directory.xml$");
+    private static final Pattern POLYCOM_000000000000_CONTACTS_PATH_RE = Pattern.compile("^" + POLYCOM_PATH_PREFIX
+            + "000000000000-directory.xml$");
+
+    private static final Pattern POLYCOM_40_PATH_RE = Pattern
+            .compile(String
+                    .format(POLYCOM_PATH_FORMAT_RE_STR,
+                            "sipx-((applications)|(sip-interop)|(reg-advanced)|(region)|(sip-basic)|(video)|(site)|(features)).cfg"));
 
     private static final String POLYCOM_UA_DELIMITER = "UA/";
 
-
     protected static final String NORTEL_IP_12X0_PATH_PREFIX = "/Nortel/config/SIP";
 
-    private static final Pattern NORTEL_IP_12X0_PATH_RE =
-        Pattern.compile("^" + NORTEL_IP_12X0_PATH_PREFIX + MAC_RE_STR + ".xml$");
+    private static final Pattern NORTEL_IP_12X0_PATH_RE = Pattern.compile("^" + NORTEL_IP_12X0_PATH_PREFIX
+            + MAC_RE_STR + ".xml$");
 
     private static final String NORTEL12X0_UA_PREFIX_STR = "Nortel IP Phone 12";
 
-    private static final Pattern NORTEL12X0_UA_RE = Pattern.compile(
-            String.format("^%s[1-3]0 \\(SIP12x0[0-9\\.]*\\)$", NORTEL12X0_UA_PREFIX_STR));
-
+    private static final Pattern NORTEL12X0_UA_RE = Pattern.compile(String.format(
+            "^%s[1-3]0 \\(SIP12x0[0-9\\.]*\\)$", NORTEL12X0_UA_PREFIX_STR));
 
     private static final Pattern EXACT_MAC_RE = Pattern.compile("^" + MAC_RE_STR + "$");
 
@@ -121,7 +123,7 @@ public class Servlet extends HttpServlet {
     /**
      * Extracts the MAC from the specified path, starting immediately after the first occurrence
      * of the specified prefix.
-     *
+     * 
      * @return the MAC, or null on failure.
      */
     protected static String extractMac(String path, String prefix) {
@@ -131,8 +133,8 @@ public class Servlet extends HttpServlet {
             if (isMacAddress(mac)) {
                 return mac.toLowerCase();
             }
+        } catch (Exception e) {
         }
-        catch (Exception e) {}
 
         return null;
     }
@@ -147,15 +149,15 @@ public class Servlet extends HttpServlet {
             m_config.configureLog4j();
 
             LOG.info("START.");
-            LOG.debug(String.format("Unique ID - length: %d  set size: %d  combinations: %d.",
-                    ShortHash.ID_LENGTH, ShortHash.ID_CHARS.length,
+            LOG.debug(String.format("Unique ID - length: %d  set size: %d  combinations: %d.", ShortHash.ID_LENGTH,
+                    ShortHash.ID_CHARS.length,
                     new Double(Math.pow(ShortHash.ID_CHARS.length, ShortHash.ID_LENGTH)).intValue()));
 
             // Dump the configuration into the log.
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             m_config.dumpConfiguration(new PrintWriter(stream));
             String[] lines = stream.toString().split("\\n");
-            for (String line : lines){
+            for (String line : lines) {
                 LOG.info(line);
             }
 
@@ -173,8 +175,8 @@ public class Servlet extends HttpServlet {
 
             // Setup the servlet to call the class when the URL is fetched.
             ServletHandler servletHandler = new ServletHandler();
-            servletHandler.addServlet(Servlet.class.getCanonicalName(), m_config.getServletUriPath()
-                    + "/*", Servlet.class.getName());
+            servletHandler.addServlet(Servlet.class.getCanonicalName(), m_config.getServletUriPath() + "/*",
+                    Servlet.class.getName());
             httpContext.addHandler(servletHandler);
             server.addContext(httpContext);
 
@@ -200,14 +202,19 @@ public class Servlet extends HttpServlet {
         }
 
         public String getRootUrlPath() {
-            return String.format("http://%s:%d%s/", m_config.getHostname(),
-                    m_config.getServletPort(), m_config.getServletUriPath());
+            return String.format("http://%s:%d%s/", m_config.getHostname(), m_config.getServletPort(),
+                    m_config.getServletUriPath());
+        }
+
+        public String getDefaultFirmware() {
+            return "4.0.X";
         }
     }
 
     /**
-     * This content is static only while the servlet is running.  A configuration change of the
+     * This content is static only while the servlet is running. A configuration change of the
      * servlet port will change the content, but this will be done during the servlet re-start.
+     * 
      * @throws Exception
      * @throws ParseErrorException
      * @throws ResourceNotFoundException
@@ -222,11 +229,11 @@ public class Servlet extends HttpServlet {
             Properties p = new Properties();
             p.setProperty("resource.loader", "file");
             p.setProperty("class.resource.loader.class",
-                    "org.apache.velocity.runtime.resource.loader.FileResourceLoader" );
+                    "org.apache.velocity.runtime.resource.loader.FileResourceLoader");
             p.setProperty("file.resource.loader.path", polycom_src_dir.getAbsolutePath());
             Velocity.init(p);
 
-            Template template = Velocity.getTemplate("mac-address.cfg.vm");
+            Template template = Velocity.getTemplate("000000000000.cfg.vm");
 
             VelocityContext context = new VelocityContext();
             context.put("cfg", new PolycomVelocityCfg(config));
@@ -245,7 +252,8 @@ public class Servlet extends HttpServlet {
             LOG.error("Velocity initialization error:", e);
         }
 
-        // Copy the Polycom static files.  (See: http://list.sipfoundry.org/archive/sipx-dev/msg20157.html)
+        // Copy the Polycom static files. (See:
+        // http://list.sipfoundry.org/archive/sipx-dev/msg20157.html)
         try {
 
             FilenameFilter cfg_filter = new FilenameFilter() {
@@ -256,9 +264,8 @@ public class Servlet extends HttpServlet {
 
             File[] files = polycom_src_dir.listFiles(cfg_filter);
             if (null == files) {
-               LOG.error(String.format("No Polycom static files found at %s.", polycom_src_dir.getAbsolutePath()));
-            }
-            else {
+                LOG.error(String.format("No Polycom static files found at %s.", polycom_src_dir.getAbsolutePath()));
+            } else {
                 int copy_count = 0;
                 for (File file : files) {
 
@@ -271,13 +278,11 @@ public class Servlet extends HttpServlet {
                             input = new FileInputStream(file);
                             IOUtils.copy(input, output);
                             copy_count++;
-                        }
-                        catch (IOException e) {
+                        } catch (IOException e) {
                             LOG.error(String.format("Failed to copy Polycom static file %s.", file.getName()), e);
-                        }
-                        finally {
-                           IOUtils.closeQuietly(input);
-                           IOUtils.closeQuietly(output);
+                        } finally {
+                            IOUtils.closeQuietly(input);
+                            IOUtils.closeQuietly(output);
                         }
                     }
                 }
@@ -285,12 +290,12 @@ public class Servlet extends HttpServlet {
                 LOG.info(String.format("Copied %d (of %d) Polycom static files from %s.", copy_count, files.length,
                         polycom_src_dir.getAbsolutePath()));
             }
-        }
-        catch(Exception e ) {
+        } catch (Exception e) {
             LOG.error("Failed to copy Polycom static files from " + polycom_src_dir.getAbsolutePath() + ":", e);
         }
 
-        // Generate the Nortel IP 12x0 SIPdefault.xml, which will cause un-provisioned phones to send
+        // Generate the Nortel IP 12x0 SIPdefault.xml, which will cause un-provisioned phones to
+        // send
         // an HTTP request to this servlet.
         try {
             File dir = new File(config.getTftpPath() + "/Nortel/config");
@@ -312,8 +317,7 @@ public class Servlet extends HttpServlet {
             }
             createTftpDirectory(new File(config.getTftpPath() + "/Nortel/firmware"));
             createTftpDirectory(new File(config.getTftpPath() + "/Nortel/languages"));
-        }
-        catch(Exception e ) {
+        } catch (Exception e) {
             LOG.error("Failed to generate Nortel IP 12x0 SIPdefault.xml: ", e);
         }
     }
@@ -331,7 +335,8 @@ public class Servlet extends HttpServlet {
         out.println(msg);
     }
 
-    protected void writeDebuggingResponse(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void writeDebuggingResponse(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
 
         // Do some debugging.
         LOG.debug("Debugging: " + request.getPathInfo());
@@ -355,10 +360,9 @@ public class Servlet extends HttpServlet {
     }
 
     /**
-     * Creates a (single-use) HTTPS connection to the sipXconfig REST Phones resource
-     * server.
-     *
-     *  @return the HTTPS connection, or null upon failure.
+     * Creates a (single-use) HTTPS connection to the sipXconfig REST Phones resource server.
+     * 
+     * @return the HTTPS connection, or null upon failure.
      */
     protected HttpURLConnection createRestConnection(String method, String string_url) {
         LOG.debug("Creating connection: " + method + " " + string_url);
@@ -376,7 +380,7 @@ public class Servlet extends HttpServlet {
 
         } catch (Exception e) {
             LOG.error("Failed to create HttpsURLConnection:", e);
-            connection =  null;
+            connection = null;
         }
 
         return connection;
@@ -384,16 +388,31 @@ public class Servlet extends HttpServlet {
 
     /**
      * Create a Description text for the specified phone.
-     *
-     *  @see provisionPhones
-     *  @return the string description.
+     * 
+     * @see provisionPhones
+     * @return the string description.
      */
     protected static String getPhoneDescription(DetectedPhone phone, Date date) {
-        return String.format(
-                "Auto-provisioned\n  %s%s\n  Version: %s\n",
-                ID_PREFIX, getUniqueId(phone.mac), phone.version);
+        return String.format("Auto-provisioned\n  %s%s\n  Version: %s\n", ID_PREFIX, getUniqueId(phone.mac),
+                phone.version);
     }
 
+    protected static String extractPolycomVersion(DetectedPhone phone) {
+        if (phone.model.sipxconfig_id != null && phone.model.sipxconfig_id.contains("polycom")) {
+            return formatPolycomVersion(phone.version);
+        }
+        return "";
+    }
+
+    /**
+     * Format the Polycom version as defined in PolycomModel bean
+     * @param version
+     * @return
+     */
+    protected static String formatPolycomVersion(String version) {
+            return (new StringBuilder(version.substring(0, 3).concat(".X"))).toString();
+    }
+    
     protected boolean doProvisionPhone(DetectedPhone phone) {
 
         if (null == phone) {
@@ -405,25 +424,27 @@ public class Servlet extends HttpServlet {
             LOG.info("doProvisionPhone - " + phone);
 
             // Write the REST representation of the phone(s).
-            HttpURLConnection connection = createRestConnection("POST", m_config.getConfigurationUri() + "/rest/phone");
+            HttpURLConnection connection = createRestConnection("POST", m_config.getConfigurationUri()
+                    + "/rest/phone");
             DataOutputStream dstream = new java.io.DataOutputStream(connection.getOutputStream());
             dstream.writeBytes("<phones>");
-            dstream.writeBytes(String.format("<phone><serialNumber>%s</serialNumber>" +
-               "<model>%s</model><description>%s</description></phone>",
-               phone.mac.toLowerCase(), phone.model.sipxconfig_id, getPhoneDescription(phone, new Date())));
+            dstream.writeBytes(String.format("<phone><serialNumber>%s</serialNumber>"
+                    + "<model>%s</model><description>%s</description><version>%s</version></phone>",
+                    phone.mac.toLowerCase(), phone.model.sipxconfig_id, getPhoneDescription(phone, new Date()),
+                    extractPolycomVersion(phone)));
             dstream.writeBytes("</phones>");
 
             // Do the HTTPS POST.
             dstream.close();
 
-            // Record the result.  (Only transport, internal, etc. errors will be reported.
+            // Record the result. (Only transport, internal, etc. errors will be reported.
             // Duplicate and/or invalid MACs for example will result in 200 OK.)
             if (HttpsURLConnection.HTTP_OK == connection.getResponseCode()) {
                 success = true;
                 LOG.info("REST HTTPS POST success.");
             } else {
-                LOG.error("REST HTTPS POST failed:" + connection.getResponseCode() + " - " +
-                        connection.getResponseMessage() );
+                LOG.error("REST HTTPS POST failed:" + connection.getResponseCode() + " - "
+                        + connection.getResponseMessage());
             }
 
         } catch (Exception e) {
@@ -433,17 +454,49 @@ public class Servlet extends HttpServlet {
         return success;
     }
 
+    protected boolean doUpdatePhone(String mac, String version, String model, HttpServletResponse response) {
+
+        boolean success = false;
+        try {
+            LOG.info(String.format("update phone %s to version %s", mac, formatPolycomVersion(version)));
+
+            // Construct the REST request.
+            String uri = String.format("%s/rest/updatephone/%s/%s/%s", m_config.getConfigurationUri(), mac,
+                    formatPolycomVersion(version),model);
+            HttpURLConnection connection = createRestConnection("GET", uri);
+
+            // Do the HTTPS GET, and write the content.
+            connection.connect();
+            IOUtils.copy(connection.getInputStream(), response.getOutputStream());
+
+            // Record the result. (Only transport, internal, etc. errors will be reported.
+            // Duplicate and/or invalid MACs for example will result in 200 OK.)
+            if (HttpsURLConnection.HTTP_OK == connection.getResponseCode()) {
+                success = true;
+                LOG.info("REST HTTPS GET success.");
+            } else {
+                LOG.error("REST HTTPS GET failed:" + connection.getResponseCode() + " - "
+                        + connection.getResponseMessage());
+            }
+
+        } catch (Exception e) {
+            LOG.error("REST HTTPS GET failed:", e);
+        }
+
+        return success;
+    }
+
     protected boolean isDebugTestUserAgent(String useragent) {
         return (useragent.contains("Gecko") || useragent.contains("curl")) && m_config.isDebugOn();
     }
 
-    protected boolean isPolycomConfigurationFilePath(String path) {
-        return POLYCOM_SIP_PATH_RE.matcher(path).matches() ||
-            POLYCOM_PHONE1_PATH_RE.matcher(path).matches() ||
-            POLYCOM_DEVICE_PATH_RE.matcher(path).matches() ||
-            POLYCOM_OVERRIDES_PATH_RE.matcher(path).matches() ||
-            POLYCOM_CONTACTS_PATH_RE.matcher(path).matches() ||
-            POLYCOM_000000000000_CONTACTS_PATH_RE.matcher(path).matches();
+    protected static boolean isPolycomConfigurationFilePath(String path) {
+        return POLYCOM_SIP_PATH_RE.matcher(path).matches() || POLYCOM_PHONE1_PATH_RE.matcher(path).matches()
+                || POLYCOM_DEVICE_PATH_RE.matcher(path).matches()
+                || POLYCOM_OVERRIDES_PATH_RE.matcher(path).matches()
+                || POLYCOM_CONTACTS_PATH_RE.matcher(path).matches()
+                || POLYCOM_000000000000_CONTACTS_PATH_RE.matcher(path).matches()
+                || POLYCOM_40_PATH_RE.matcher(path).matches();
     }
 
     static protected boolean isNortelIp12x0ConfigurationFilePath(String path) {
@@ -452,7 +505,7 @@ public class Servlet extends HttpServlet {
 
     // TODO: Test case (x2 phone types) when MAC is too short (should not invoke the do___Get...)
     @Override
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         String path = request.getPathInfo();
         String useragent = request.getHeader("User-Agent");
@@ -468,17 +521,16 @@ public class Servlet extends HttpServlet {
 
         // For debugging.
         if (isDebugTestUserAgent(useragent)) {
-            if (isPolycomConfigurationFilePath(path)) {
+            if (Servlet.isPolycomConfigurationFilePath(path)) {
                 useragent = "FileTransport PolycomSoundStationIP-SSIP_6000-UA/3.2.0.0157";
-            }
-            else if (isNortelIp12x0ConfigurationFilePath(path)) {
+            } else if (isNortelIp12x0ConfigurationFilePath(path)) {
                 useragent = "Nortel IP Phone 1210 (SIP12x0.45.02.05.00)";
             }
         }
 
         // Is this a path that triggers provisioning of a phone with sipXconfig?
         DetectedPhone phone = null;
-        if (POLYCOM_SIP_PATH_RE.matcher(path).matches()) {
+        if (POLYCOM_SIP_PATH_RE.matcher(path).matches() || POLYCOM_40_PATH_RE.matcher(path).matches()) {
 
             // Polycom SoundPoint IP / SoundStation IP / VVX
             phone = new DetectedPhone();
@@ -489,8 +541,7 @@ public class Servlet extends HttpServlet {
                 writeUiForwardResponse(request, response);
                 return;
             }
-        }
-        else if (isNortelIp12x0ConfigurationFilePath(path)) {
+        } else if (isNortelIp12x0ConfigurationFilePath(path)) {
 
             // Nortel IP 1210/1220/1230
             phone = new DetectedPhone();
@@ -501,18 +552,25 @@ public class Servlet extends HttpServlet {
                 writeUiForwardResponse(request, response);
                 return;
             }
-        }
-        else if (path.startsWith("/debug") && m_config.isDebugOn()) {
+        } else if (path.startsWith("/debug") && m_config.isDebugOn()) {
             // Debugging.
             writeDebuggingResponse(request, response);
             return;
-        }
-/*  TODO: Test case to catch this problem....      else {
-            writeUiForwardResponse(request, response);
+        } else if (path.contains("firmwareUpdate")) {
+            phone = new DetectedPhone();
+            extractPolycomModelAndVersion(phone, useragent);
+            phone.mac = extractMac(path, POLYCOM_PATH_PREFIX);
+            if (null != phone.mac && extractPolycomModelAndVersion(phone, useragent)) {
+                doUpdatePhone(phone.mac, phone.version, phone.model.sipxconfig_id, response);
+            }
             return;
         }
-  */
-        // Provision the phone with sipXconfig.  (If it wasn't a provision trigger path, then phone will
+        /*
+         * TODO: Test case to catch this problem.... else { writeUiForwardResponse(request,
+         * response); return; }
+         */
+        // Provision the phone with sipXconfig. (If it wasn't a provision trigger path, then phone
+        // will
         // be null, which fails cleanly.)
         doProvisionPhone(phone);
 
@@ -524,19 +582,16 @@ public class Servlet extends HttpServlet {
 
                 // This file won't be found, so save the REST request overhead.
                 response.sendError(HttpURLConnection.HTTP_NOT_FOUND);
-            }
-            else if (POLYCOM_OVERRIDES_PATH_RE.matcher(path).matches()) {
+            } else if (POLYCOM_OVERRIDES_PATH_RE.matcher(path).matches()) {
 
-                // sipXconfig doesn't currently generate this Polycom config file.  (See XX-5450)
+                // sipXconfig doesn't currently generate this Polycom config file. (See XX-5450)
                 PrintWriter out = response.getWriter();
                 out.println("<?xml version=\"1.0\" standalone=\"yes\"?>");
                 out.println("<PHONE_CONFIG><OVERRIDES/></PHONE_CONFIG>");
-            }
-            else {
+            } else {
                 writeProfileConfigurationResponse(path, extractMac(path, POLYCOM_PATH_PREFIX), response);
             }
-        }
-        else if (isNortelIp12x0ConfigurationFilePath(path)) {
+        } else if (isNortelIp12x0ConfigurationFilePath(path)) {
 
             int index = path.indexOf(NORTEL_IP_12X0_PATH_PREFIX);
             if (-1 != index) {
@@ -544,10 +599,10 @@ public class Servlet extends HttpServlet {
             }
 
             writeProfileConfigurationResponse(path, extractMac(path, NORTEL_IP_12X0_PATH_PREFIX), response);
-        }
-        else {
+        } else {
 
-            // Unknown configuration file path.  (Wouldn't know how to extract a MAC from the path.)
+            // Unknown configuration file path. (Wouldn't know how to extract a MAC from the
+            // path.)
             writeUiForwardResponse(request, response);
             return;
         }
@@ -562,22 +617,22 @@ public class Servlet extends HttpServlet {
             String encoded_path = new String() + path.charAt(0) + URLEncoder.encode(path.substring(1), "UTF-8");
 
             // Construct the REST request.
-            String uri = String.format("%s/rest/phone/%s/profile%s", m_config.getConfigurationUri(),
-                    mac, encoded_path);
+            String uri = String.format("%s/rest/phone/%s/profile%s", m_config.getConfigurationUri(), mac,
+                    encoded_path);
             HttpURLConnection connection = createRestConnection("GET", uri);
 
             // Do the HTTPS GET, and write the content.
             connection.connect();
             IOUtils.copy(connection.getInputStream(), response.getOutputStream());
 
-            // Record the result.  (Only transport, internal, etc. errors will be reported.
+            // Record the result. (Only transport, internal, etc. errors will be reported.
             // Duplicate and/or invalid MACs for example will result in 200 OK.)
             if (HttpsURLConnection.HTTP_OK == connection.getResponseCode()) {
                 success = true;
                 LOG.info("REST HTTPS GET success.");
             } else {
-                LOG.error("REST HTTPS GET failed:" + connection.getResponseCode() + " - " +
-                        connection.getResponseMessage() );
+                LOG.error("REST HTTPS GET failed:" + connection.getResponseCode() + " - "
+                        + connection.getResponseMessage());
             }
 
         } catch (Exception e) {
@@ -589,20 +644,20 @@ public class Servlet extends HttpServlet {
 
     protected static boolean extractPolycomModelAndVersion(DetectedPhone phone, String useragent) {
 
-        if (null == useragent ||
-            null == phone
-            // TODO regexp match, makes below parsing easier --> ! POLYCOM_UA_RE.matcher(useragent).matches()
-            ) {
+        if (null == useragent || null == phone
+        // TODO regexp match, makes below parsing easier --> !
+        // POLYCOM_UA_RE.matcher(useragent).matches()
+        ) {
             return false;
         }
 
         // Model
         int i1 = useragent.indexOf("-");
-        int i2 = useragent.indexOf("-", i1+1);
+        int i2 = useragent.indexOf("-", i1 + 1);
         if (-1 == i1 || -1 == i2) {
             return false;
         }
-        String model_id = useragent.substring(i1+1, i2);
+        String model_id = useragent.substring(i1 + 1, i2);
         phone.model = lookupPhoneModel(model_id);
         if (null == phone.model) {
             return false;
@@ -623,9 +678,7 @@ public class Servlet extends HttpServlet {
 
     protected static boolean extractNortelIp12X0ModelAndVersion(DetectedPhone phone, String useragent) {
 
-        if (null == useragent ||
-            null == phone ||
-            ! NORTEL12X0_UA_RE.matcher(useragent).matches() ) {
+        if (null == useragent || null == phone || !NORTEL12X0_UA_RE.matcher(useragent).matches()) {
             return false;
         }
 
@@ -644,21 +697,21 @@ public class Servlet extends HttpServlet {
     }
 
     // TODO - test cases for various problems that could occur with
-    private static void writeUiForwardResponse(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private static void writeUiForwardResponse(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
 
         LOG.debug("Un-recognized user-agent or path.  Redirecting to sipXconfig.");
 
-        // Try to redirect with the servername used in the request.  Helpful if the client can't
+        // Try to redirect with the servername used in the request. Helpful if the client can't
         // resolve the FQDN that we're using.
         String redirect_location = m_config.getConfigurationUri();
         try {
             URI config_uri = new URI(redirect_location);
-            URI redirect_uri = new URI(config_uri.getScheme(), null, request.getServerName(),
-                    config_uri.getPort(), config_uri.getPath(), null, null);
+            URI redirect_uri = new URI(config_uri.getScheme(), null, request.getServerName(), config_uri.getPort(),
+                    config_uri.getPath(), null, null);
 
             redirect_location = redirect_uri.toString();
-        }
-        catch (URISyntaxException e) {
+        } catch (URISyntaxException e) {
             LOG.debug("Failed to customize re-direct URI based on request parameters: ", e);
         }
 
@@ -677,6 +730,7 @@ public class Servlet extends HttpServlet {
             sipxconfig_id = id;
             full_label = label;
         }
+
         public final String sipxconfig_id;
         public final String full_label;
     }
@@ -685,10 +739,11 @@ public class Servlet extends HttpServlet {
         public PhoneModel model = new PhoneModel("unknown", "unknown");
         public String version = new String("unknown");
         public String mac = null;
+
         @Override
-		public String toString() {
-            return "id: " + getUniqueId(mac) + "  mac: " + mac + "  version: " + version +
-                "  model: " + model.full_label;
+        public String toString() {
+            return "id: " + getUniqueId(mac) + "  mac: " + mac + "  version: " + version + "  model: "
+                    + model.full_label;
         }
     }
 
@@ -701,12 +756,12 @@ public class Servlet extends HttpServlet {
         PHONE_MODEL_MAP = new HashMap<String, PhoneModel>();
 
         // Polycom SoundPoing IP family, see:
-        //  - http://wiki.sipfoundry.org/display/xecsuser/Polycom
-        //  - plugins/polycom/src/org/sipfoundry/sipxconfig/phone/polycom/polycom-models.beans.xml
+        // - http://wiki.sipfoundry.org/display/xecsuser/Polycom
+        // - plugins/polycom/src/org/sipfoundry/sipxconfig/phone/polycom/polycom-models.beans.xml
         PHONE_MODEL_MAP.put("SPIP_300", new PhoneModel("polycom300", "SoundPoint IP 300"));
-        PHONE_MODEL_MAP.put("SPIP_301", new PhoneModel("polycom300", "SoundPoint IP 301"));
+        PHONE_MODEL_MAP.put("SPIP_301", new PhoneModel("polycom301", "SoundPoint IP 301"));
 
-        PHONE_MODEL_MAP.put("SPIP_320", new PhoneModel("polycom330", "SoundPoint IP 320"));
+        PHONE_MODEL_MAP.put("SPIP_320", new PhoneModel("polycom320", "SoundPoint IP 320"));
         PHONE_MODEL_MAP.put("SPIP_330", new PhoneModel("polycom330", "SoundPoint IP 330"));
 
         PHONE_MODEL_MAP.put("SPIP_321", new PhoneModel("polycom321", "SoundPoint IP 321"));
@@ -720,13 +775,13 @@ public class Servlet extends HttpServlet {
         PHONE_MODEL_MAP.put("SPIP_450", new PhoneModel("polycom450", "SoundPoint IP 450"));
 
         PHONE_MODEL_MAP.put("SPIP_500", new PhoneModel("polycom500", "SoundPoint IP 500"));
-        PHONE_MODEL_MAP.put("SPIP_501", new PhoneModel("polycom500", "SoundPoint IP 501"));
+        PHONE_MODEL_MAP.put("SPIP_501", new PhoneModel("polycom501", "SoundPoint IP 501"));
 
         PHONE_MODEL_MAP.put("SPIP_550", new PhoneModel("polycom550", "SoundPoint IP 550"));
-        PHONE_MODEL_MAP.put("SPIP_560", new PhoneModel("polycom550", "SoundPoint IP 560"));
+        PHONE_MODEL_MAP.put("SPIP_560", new PhoneModel("polycom560", "SoundPoint IP 560"));
 
         PHONE_MODEL_MAP.put("SPIP_600", new PhoneModel("polycom600", "SoundPoint IP 600"));
-        PHONE_MODEL_MAP.put("SPIP_601", new PhoneModel("polycom600", "SoundPoint IP 601"));
+        PHONE_MODEL_MAP.put("SPIP_601", new PhoneModel("polycom601", "SoundPoint IP 601"));
 
         PHONE_MODEL_MAP.put("SPIP_650", new PhoneModel("polycom650", "SoundPoint IP 650"));
         PHONE_MODEL_MAP.put("SPIP_670", new PhoneModel("polycom650", "SoundPoint IP 670"));
@@ -741,8 +796,12 @@ public class Servlet extends HttpServlet {
 
         PHONE_MODEL_MAP.put("VVX_1500", new PhoneModel("polycomVVX1500", "Polycom VVX 1500"));
 
+        PHONE_MODEL_MAP.put("VVX_500", new PhoneModel("polycomVVX500", "Polycom VVX 500"));
+        PHONE_MODEL_MAP.put("VVX_600", new PhoneModel("polycomVVX600", "Polycom VVX 600"));
+
         // Nortel IP 12x0, see:
-        //  - plugins/nortel12x0/src/org/sipfoundry/sipxconfig/phone/nortel12x0/nortel12x0-models.beans.xml
+        // -
+        // plugins/nortel12x0/src/org/sipfoundry/sipxconfig/phone/nortel12x0/nortel12x0-models.beans.xml
         PHONE_MODEL_MAP.put("1210", new PhoneModel("avaya-1210", "Avaya 1210 IP Deskphone"));
         PHONE_MODEL_MAP.put("1220", new PhoneModel("avaya-1220", "Avaya 1220 IP Deskphone"));
         PHONE_MODEL_MAP.put("1230", new PhoneModel("avaya-1230", "Avaya 1230 IP Deskphone"));

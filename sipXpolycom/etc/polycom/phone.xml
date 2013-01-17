@@ -2987,4 +2987,10 @@
       </setting>
     </group>
   </group>
+    <group name="group.version">
+      <setting name="firmware.version">
+        <type refid="fwver"/>
+        <value></value>
+      </setting>
+    </group>
 </model>

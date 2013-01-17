@@ -242,10 +242,29 @@ SipRedirectorAliasDB::lookUp(
    {
      //
      // No alias found.  If this is was towards a domain alias, make sure to reset it back to
-     // the old value prior to feeding it to the rest of the redirectors.
+     // the old value prior to feeding it to the rest of the redirectors if the userId is not a real user.
      //
-     requestUri.setHostAddress(hostAlias);
-     requestUri.getUri(requestString);
+     UtlString userId;
+     requestUri.getUserId(userId);
+     EntityRecord entity;
+     if (entityDb->findByUserId(userId.str(), entity))
+     {
+       if (!entity.realm().empty() && !entity.password().empty())
+       {
+         requestUri.getUri(requestString);
+         OS_LOG_NOTICE(FAC_SIP, "SipRedirectorAliasDB::lookUp normalized request-uri to " << requestString.data());
+       }
+       else
+       {
+          requestUri.setHostAddress(hostAlias);
+          requestUri.getUri(requestString);
+       }
+     }
+     else
+     {
+       requestUri.setHostAddress(hostAlias);
+       requestUri.getUri(requestString);
+     }
    }
 
    return RedirectPlugin::SUCCESS;

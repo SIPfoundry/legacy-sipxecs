@@ -40,10 +40,12 @@ public class ResourceLists {
     private CoreContext m_coreContext;
     private ValidUsers m_validUsers;
 
-    public Document getDocument() {
+    public Document getDocument(boolean xmppPresenceEnabled) {
         Document document = XmlFile.FACTORY.createDocument();
         Element lists = document.addElement("lists", NAMESPACE);
         Element imList = null;
+        // TIP : To avoid loading all users, can't this query
+        //  use { "spdl" : { "$exists" : true } } instead? --Douglas
         DBCursor cursor = m_validUsers.getUsers();
         while (cursor.hasNext()) {
             DBObject user = cursor.next();
@@ -51,7 +53,7 @@ public class ResourceLists {
             if (userName.equals("superadmin")) {
                 continue;
             }
-            if (BooleanUtils.toBoolean(user.get(IM_ENABLED).toString())) {
+            if (xmppPresenceEnabled && BooleanUtils.toBoolean(user.get(IM_ENABLED).toString())) {
                 if (imList == null) {
                     imList = createResourceList(lists, XMPP_SERVER.getUserName());
                 }

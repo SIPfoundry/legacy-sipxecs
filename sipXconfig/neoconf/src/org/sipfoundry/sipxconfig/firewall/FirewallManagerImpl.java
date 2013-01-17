@@ -70,6 +70,7 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
 
     @Override
     public void saveSettings(FirewallSettings settings) {
+        settings.validate();
         m_settingsDao.upsert(settings);
     }
 

@@ -53,6 +53,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/sipxivr-archive
+%attr(755,root,root) %{_bindir}/voicemail_clean
 %dir %attr(755,sipx,sipx) %{_datadir}/sipxecs
 %dir %attr(755,sipx,sipx) %{_datadir}/sipxecs/schema
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxivr

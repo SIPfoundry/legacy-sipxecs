@@ -11,11 +11,15 @@ package org.sipfoundry.sipxconfig.vm;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.User;
 
 public class MailboxPreferences {
+    public static final String EMPTY = "";
+
     public static final String ACTIVE_GREETING = "voicemail/mailbox/active-greeting";
     public static final String BUSY_PROMPT = "voicemail/mailbox/user-busy-prompt";
     public static final String VOICEMAIL_TUI = "voicemail/mailbox/voicemail-tui";
@@ -37,6 +41,8 @@ public class MailboxPreferences {
     public enum ActiveGreeting {
         NONE("none"), STANDARD("standard"), OUT_OF_OFFICE("outofoffice"), EXTENDED_ABSENCE("extendedabsence");
 
+        private static final Set<String> IDS = new HashSet<String>();
+
         private final String m_id;
 
         ActiveGreeting(String id) {
@@ -47,6 +53,13 @@ public class MailboxPreferences {
             return m_id;
         }
 
+        static {
+            for (ActiveGreeting e : ActiveGreeting.values()) {
+                IDS.add(e.getId());
+            }
+            IDS.add(EMPTY);
+        }
+
         public static ActiveGreeting fromId(String id) {
             for (ActiveGreeting greeting : ActiveGreeting.values()) {
                 if (greeting.getId().equals(id)) {
@@ -55,10 +68,16 @@ public class MailboxPreferences {
             }
             return NONE;
         }
+
+        public static boolean isValid(String s) {
+            return IDS.contains(s);
+        }
     }
 
     public enum AttachType {
         NO("0"), YES("1")/* , IMAP("2") */;
+
+        private static final Set<String> VALUES = new HashSet<String>();
 
         private String m_value;
 
@@ -70,6 +89,13 @@ public class MailboxPreferences {
             return m_value;
         }
 
+        static {
+            for (AttachType e : AttachType.values()) {
+                VALUES.add(e.getValue());
+            }
+            VALUES.add(EMPTY);
+        }
+
         public static AttachType fromValue(String value) {
             for (AttachType e : values()) {
                 if (e.m_value.equals(value)) {
@@ -77,6 +103,10 @@ public class MailboxPreferences {
                 }
             }
             return NO;
+        }
+
+        public static boolean isValid(String s) {
+            return VALUES.contains(s);
         }
     }
 
@@ -105,6 +135,19 @@ public class MailboxPreferences {
 
     public enum MailFormat {
         FULL, MEDIUM, BRIEF;
+
+        private static final Set<String> VALUES = new HashSet<String>();
+
+        static {
+            for (MailFormat e : MailFormat.values()) {
+                VALUES.add(e.toString());
+            }
+            VALUES.add(EMPTY);
+        }
+
+        public static boolean isValid(String s) {
+            return VALUES.contains(s);
+        }
     }
 
     private ActiveGreeting m_activeGreeting = ActiveGreeting.NONE;

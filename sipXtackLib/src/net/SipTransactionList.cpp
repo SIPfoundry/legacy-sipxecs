@@ -19,6 +19,7 @@
 #include <net/SipTransactionList.h>
 #include <net/SipTransaction.h>
 #include <net/SipMessage.h>
+#include <net/SipUserAgent.h>
 #include <os/OsTask.h>
 #include <os/OsEvent.h>
 
@@ -40,9 +41,10 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SipTransactionList::SipTransactionList() :
+SipTransactionList::SipTransactionList(SipUserAgent* pSipUserAgent) :
 mTransactions(),
-mListMutex(OsMutex::Q_FIFO)
+mListMutex(OsMutex::Q_FIFO),
+mpSipUserAgent(pSipUserAgent)
 {
 }
 
@@ -91,6 +93,11 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
     enum SipTransaction::messageRelationship relationship2xx = SipTransaction::MESSAGE_UNKNOWN;
     UtlString callId;
     SipTransaction::buildHash(message, isOutgoing, callId);
+
+    //
+    // Call garbage collection before we further process existence of a transaction.
+    //
+    mpSipUserAgent->garbageCollection();
 
     lock();
 

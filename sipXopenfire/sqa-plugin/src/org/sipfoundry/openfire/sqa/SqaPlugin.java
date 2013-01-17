@@ -50,26 +50,32 @@ public class SqaPlugin implements Plugin {
         try {
             String configurationPath = System.getProperty("conf.dir");
             String libPath = System.getProperty("lib.dir");
-            if (isBlank(configurationPath) || isBlank(libPath)) {
+            String presence = System.getProperty("openfire.presence");
+            if (isBlank(configurationPath) || isBlank(libPath) || isBlank(presence)) {
                 System.getProperties().load(new FileInputStream(new File("/tmp/sipx.properties")));
                 configurationPath = System.getProperty("conf.dir", "/etc/sipxpbx");
                 libPath = System.getProperty("lib.dir", "/lib");
+                presence = System.getProperty("openfire.presence", "true");
             }
 
             String clientConfig = configurationPath + "/mongo-client.ini";
             UnfortunateLackOfSpringSupportFactory.initialize(clientConfig);
 
-            System.load(libPath + "/libsqaclient.so");
-            SQAWatcher watcher = new SQAWatcher("openfire", "sswdata", 1, 100, 100);
-            logger.info("Connected: " + watcher.isConnected());
+            if (Boolean.valueOf(presence)) {
+                System.load(libPath + "/libsqaclient.so");
+                SQAWatcher watcher = new SQAWatcher("openfire", "sswdata", 1, 100, 100);
+                logger.info("Connected: " + watcher.isConnected());
 
-            JAXBContext context = JAXBContext.newInstance(DialogInfo.class);
+                JAXBContext context = JAXBContext.newInstance(DialogInfo.class);
 
-            new SqaSubscriberThread(watcher, context, m_presenceCache).start();
+                new SqaSubscriberThread(watcher, context, m_presenceCache).start();
 
-            PresenceEventDispatcher.addListener(new PresenceEventListenerImpl(m_presenceCache));
+                PresenceEventDispatcher.addListener(new PresenceEventListenerImpl(m_presenceCache));
 
-            logger.info("SQA subscriber started...");
+                logger.info("SQA subscriber started...");
+            } else {
+                logger.info("XMPP presence not enabled");
+            }
         } catch (SecurityException e) {
             logger.error(INITALIZATION_EXCEPTION, e);
         } catch (IllegalArgumentException e) {
