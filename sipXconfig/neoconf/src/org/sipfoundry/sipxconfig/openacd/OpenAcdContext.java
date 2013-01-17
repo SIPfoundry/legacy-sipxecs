@@ -194,6 +194,4 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner 
     void saveReleaseCode(OpenAcdReleaseCode code);
 
     void removeReleaseCodes(Collection<Integer> codesId);
-
-    OpenAcdClient newOpenAcdClient();
 }
