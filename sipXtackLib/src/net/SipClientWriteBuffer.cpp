@@ -187,9 +187,9 @@ void SipClientWriteBuffer::insertMessage(SipMessage* message)
       // as to clear any state of the socket).
       Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                     "SipClientWriteBuffer[%s]::insertMessage "
-                    "mWriteBuffer has %d entries, exceeding the limit of %d",
+                    "mWriteBuffer has '%d' entries, exceeding the limit of maxMsgs '%d'",
                     getName().data(), (int) mWriteBuffer.entries(),
-                    (int) getMessageQueue()->maxMsgs());
+                    getMessageQueue()->maxMsgs());
       emptyBuffer(TRUE);
       clientStopSelf();
    }
