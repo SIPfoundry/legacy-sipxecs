@@ -148,7 +148,7 @@ repo-clean :
 # if it has a file time that is newer then the file system. When building rpms from 2 different locations on the sames system
 # this is problematic
 repo-webserver :
-	-killall thttpd
+	-kill -15 $(firstword $(shell ps xo "%p %a" | grep -v grep | egrep 'thttpd -d repo -p @REPO_PORT@'))
 	find $(MOCK_RESULTS_DIR) -type f -not -path '*/.dep.*' -exec touch {} \;
 	/usr/sbin/thttpd -d @RPM_DIST_DIR@ -p 40100 -M 0
 
