@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 
 import javax.xml.rpc.ServiceException;
@@ -293,7 +294,9 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
             if (user != null) {
                 m_forUser = new CdrSearch();
                 m_forUser.setMode(CdrSearch.Mode.ANY);
-                m_forUser.setTerm(user.getUserName());
+                Set<String> names = user.getAliases();
+                names.add(user.getName());
+                m_forUser.setTerm(names.toArray(new String[0]));
             }
         }
 
