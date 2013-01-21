@@ -55,9 +55,7 @@ public class CdrManagerImplTestIntegration extends IntegrationTestCase {
     public void testGetCdrsSearchFrom() {
         CdrSearch cdrSearch = new CdrSearch();
         cdrSearch.setMode(Mode.CALLER);
-        cdrSearch.setTerm(new String[] {
-            "200"
-        });
+        cdrSearch.setTerm("200");
         List<Cdr> cdrs = m_cdrManager.getCdrs(null, null, cdrSearch, null);
         assertTrue(cdrs.size() == 3);
     }
@@ -65,9 +63,7 @@ public class CdrManagerImplTestIntegration extends IntegrationTestCase {
     public void testGetCdrsSearchTo() {
         CdrSearch cdrSearch = new CdrSearch();
         cdrSearch.setMode(Mode.CALLEE);
-        cdrSearch.setTerm(new String[] {
-            "201"
-        });
+        cdrSearch.setTerm("201");
         List<Cdr> cdrs = m_cdrManager.getCdrs(null, null, cdrSearch, null);
         assertTrue(cdrs.size() == 6);
     }
@@ -75,9 +71,7 @@ public class CdrManagerImplTestIntegration extends IntegrationTestCase {
     public void testGetCdrsSearchAny() {
         CdrSearch cdrSearch = new CdrSearch();
         cdrSearch.setMode(Mode.ANY);
-        cdrSearch.setTerm(new String[] {
-            "200"
-        });
+        cdrSearch.setTerm("200");
         List<Cdr> cdrs = m_cdrManager.getCdrs(null, null, cdrSearch, null);
         assertTrue(cdrs.size() == 5);
     }

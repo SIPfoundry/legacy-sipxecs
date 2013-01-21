@@ -9,11 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.cdr;
 
-import static org.apache.commons.lang.StringUtils.join;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.dialplan.CallTag;
@@ -44,7 +40,7 @@ public class CdrSearch {
     }
 
     private Mode m_mode = Mode.NONE;
-    private String[] m_term;
+    private String m_term;
     private String m_order;
     private boolean m_ascending = true;
 
@@ -64,11 +60,11 @@ public class CdrSearch {
         return m_mode;
     }
 
-    public void setTerm(String[] term) {
+    public void setTerm(String term) {
         m_term = term;
     }
 
-    public String[] getTerm() {
+    public String getTerm() {
         return m_term;
     }
 
@@ -77,17 +73,16 @@ public class CdrSearch {
         m_ascending = ascending;
     }
 
-    private void appendSearchTermSql(StringBuilder sql, String call) {
-        List<String> sqlList = new ArrayList<String>();
-        for (String name : m_term) {
-            sqlList.add(call + " LIKE '%<sip:" + name + "@%>'");
-        }
-        sql.append(join(sqlList.toArray(), OR));
+    private void appendSearchTermSql(StringBuilder sql) {
+        sql.append(" LIKE '%<sip:");
+        sql.append(m_term);
+        sql.append("@%>'");
     }
 
     private void appendCallerSql(StringBuilder sql) {
         sql.append(OPEN_PARANTHESIS);
-        appendSearchTermSql(sql, CdrManagerImpl.CALLER_AOR);
+        sql.append(CdrManagerImpl.CALLER_AOR);
+        appendSearchTermSql(sql);
         sql.append(AND);
         sql.append(CdrManagerImpl.CALLER_INTERNAL);
         sql.append("=true)");
@@ -95,7 +90,8 @@ public class CdrSearch {
 
     private void appendCalleeSql(StringBuilder sql) {
         sql.append(OPEN_PARANTHESIS);
-        appendSearchTermSql(sql, CdrManagerImpl.CALLEE_AOR);
+        sql.append(CdrManagerImpl.CALLEE_AOR);
+        appendSearchTermSql(sql);
         sql.append(AND);
         appendCalleeInternalRouteSql(sql);
         sql.append(CLOSED_PARANTHESIS);
