@@ -95,59 +95,15 @@
       <type><string/></type>
       <value>^(CSCO|Cisco)</value>
     </setting>
-    <setting name="SIP_REDIRECT_AUTHORITY_LEVEL.090-USERPARAM" hidden="yes">
-      <type><integer required="yes"/></type>
-      <value>60</value>
-    </setting>
-    <setting name="SIP_REDIRECT_AUTHORITY_LEVEL.100-PICKUP" hidden="yes">
-      <type><integer required="yes"/></type>
-      <value>50</value>
-    </setting>
-    <setting name="SIP_REDIRECT_AUTHORITY_LEVEL.110-ALIAS" hidden="yes">
-      <type><integer required="yes"/></type>
-      <value>40</value>
-    </setting>
-    <setting name="SIP_REDIRECT_AUTHORITY_LEVEL.120-REG" hidden="yes">
-      <type><integer required="yes"/></type>
-      <value>40</value>
-    </setting>
-    <setting name="SIP_REDIRECT_AUTHORITY_LEVEL.130-MAPPING" hidden="yes">
-      <type><integer required="yes"/></type>
-      <value>40</value>
-    </setting>
-    <setting name="SIP_REDIRECT_AUTHORITY_LEVEL.140-FALLBACK" hidden="yes">
-      <type><integer required="yes"/></type>
-      <value>30</value>
-    </setting>
-    <setting name="SIP_REDIRECT_AUTHORITY_LEVEL.150-ISN" hidden="yes">
-      <type><integer required="yes"/></type>
-      <value>40</value>
-    </setting>
-    <setting name="SIP_REDIRECT_AUTHORITY_LEVEL.160-ENUM" hidden="yes">
-      <type><integer required="yes"/></type>
-      <value>40</value>
-    </setting>
-    <setting name="SIP_REDIRECT_AUTHORITY_LEVEL.900-PRESENCE" hidden="yes">
-      <type><integer required="yes"/></type>
-      <value>100</value>
-    </setting>
-    <setting name="SIP_REDIRECT_AUTHORITY_LEVEL.997-SUBSCRIBE" hidden="yes">
-      <type><integer required="yes"/></type>
-      <value>100</value>
-    </setting>
-    <setting name="SIP_REDIRECT_AUTHORITY_LEVEL.998-TIMEOFDAY" hidden="yes">
-      <type><integer required="yes"/></type>
-      <value>100</value>
-    </setting>
-    <setting name="SIP_REDIRECT_AUTHORITY_LEVEL.999-AUTHROUTER" hidden="yes">
-      <type><integer required="yes"/></type>
-      <value>100</value>
-    </setting>
     <setting name="SIP_REDIRECT.140-FALLBACK.ALLOW_UNBOUND" advanced="yes">
       <type refid="yesNo"/>
       <value>N</value>
     </setting>
     <setting name="SIP_REGISTRAR_ADD_DIVERSION" advanced="yes">
+      <type refid="yesNo"/>
+      <value>N</value>
+    </setting>
+    <setting name="SIP_REGISTRAR_EARLY_ALIAS_RESOLUTION" advanced="yes">
       <type refid="yesNo"/>
       <value>N</value>
     </setting>
