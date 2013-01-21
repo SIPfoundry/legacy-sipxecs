@@ -44,7 +44,8 @@ static UtlString _localDomain;
 // Constructor
 SipRedirectorAliasDB::SipRedirectorAliasDB(const UtlString& instanceName) :
    RedirectPlugin(instanceName),
-   _enableDiversionHeader(FALSE)
+   _enableDiversionHeader(FALSE),
+   _enableEarlyAliasResolution(FALSE)
 {
    mLogName.append("[");
    mLogName.append(instanceName);
@@ -94,6 +95,7 @@ void SipRedirectorAliasDB::readConfig(OsConfigDb& configDb)
                  );
 
    _enableDiversionHeader =  configDb.getBoolean("SIP_REGISTRAR_ADD_DIVERSION", FALSE);
+   _enableEarlyAliasResolution = configDb.getBoolean("SIP_REGISTRAR_EARLY_ALIAS_RESOLUTION", FALSE);
 }
 
 RedirectPlugin::LookUpStatus
@@ -125,7 +127,7 @@ SipRedirectorAliasDB::lookUp(
    UtlString hostAlias;
    requestUri.getHostAddress(domain);
    UtlBoolean isMyHostAlias = mpSipUserAgent->isMyHostAlias(requestUri);
-   if (mpSipUserAgent && domain != _localDomain && isMyHostAlias)
+   if (_enableEarlyAliasResolution && mpSipUserAgent && domain != _localDomain && isMyHostAlias)
    {
      isDomainAlias = true;
      hostAlias = domain;
@@ -185,7 +187,7 @@ SipRedirectorAliasDB::lookUp(
                contactUri.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, "AL");
                
                
-               if (numAliasContacts == 1 && isDomainAlias && isUserIdentity && iter->relation != "callgroup")
+               if (_enableEarlyAliasResolution && numAliasContacts == 1 && isDomainAlias && isUserIdentity && iter->relation != "callgroup")
                {
 
                  UtlString userId;
@@ -196,7 +198,7 @@ SipRedirectorAliasDB::lookUp(
                }
                else
                {
-                 if (isDomainAlias && iter->relation == "callgroup")
+                 if (_enableEarlyAliasResolution && isDomainAlias && iter->relation == "callgroup")
                  {
                    //
                    // Hunt groups are also aliases so we want them to loop back to us so it gets properly mapped

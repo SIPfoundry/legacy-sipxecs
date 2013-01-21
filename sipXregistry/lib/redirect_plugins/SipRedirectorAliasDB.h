@@ -70,6 +70,7 @@ class SipRedirectorAliasDB : public RedirectPlugin
    // "[instance] class".
    UtlString mLogName;
    UtlBoolean _enableDiversionHeader;
+   UtlBoolean _enableEarlyAliasResolution;
 
   protected:
 };
