@@ -15,10 +15,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.rls.Rls;
@@ -29,6 +31,8 @@ import org.springframework.beans.factory.annotation.Required;
 public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements SpeedDialManager {
     private CoreContext m_coreContext;
     private FeatureManager m_featureManager;
+    private ConfigManager m_configManager;
+    private SipxReplicationContext m_sipxReplicationContext;
 
     @Override
     public SpeedDial getSpeedDialForUserId(Integer userId, boolean create) {
@@ -180,5 +184,20 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     @Override
     public void clear() {
         removeAll(SpeedDial.class);
+
+        // A little convoluted, but only way i could keep mongo and postgres in sync
+        // which is critical for resource-lists.xml.
+        m_sipxReplicationContext.generateAll();
+        m_configManager.configureEverywhere(Rls.FEATURE);
+    }
+
+    @Required
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
+    }
+
+    @Required
+    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_sipxReplicationContext = sipxReplicationContext;
     }
 }
