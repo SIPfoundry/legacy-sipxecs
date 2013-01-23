@@ -75,6 +75,7 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    ,mAuthPlugins(AuthPlugin::Factory, AuthPlugin::Prefix)
    ,mTransactionPlugins(SipBidirectionalProcessorPlugin::Factory, SipBidirectionalProcessorPlugin::Prefix)
    ,mpEntityDb(0)
+   ,mEnsureTcpLifetime(FALSE)
 {
    // Get Via info to use as defaults for route & realm
    UtlString dnsName;
@@ -278,6 +279,8 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
    mRouteHostSecurePort.append(hostIpAddr);
    mRouteHostSecurePort.append(":");
    mRouteHostSecurePort.appendNumber(proxyTlsPort);
+
+   mEnsureTcpLifetime = configDb.getBoolean("SIPX_PROXY_ENSURE_TCP_LIFETIME", FALSE);
 
    // these should really be redundant with the existing aliases,
    // but it's better to be safe and add them to ensure that they are
@@ -939,7 +942,21 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
             route.setUrlParameter("lr",NULL);
 
             if( sipRequest.getSendProtocol() == OsSocket::SSL_SOCKET )
+            {
             	route.setUrlParameter("transport=tls",NULL);
+            }
+            else if (mEnsureTcpLifetime && sipRequest.getSendProtocol() == OsSocket::TCP)
+            {
+              //
+              // Endpoints behind NAT need to maintain a reusable transport
+              // to work properly.  Unfortuantely, Some user-agents fallback
+              // to UDP if the transport parameter in record route is not
+              // specific.  We therefore explicitly define "tcp" transport param
+              // to maintain the TCP connection at least within the life time
+              // of the dialog
+              //
+              route.setUrlParameter("transport=tcp",NULL);
+            }
 
             route.toString(recordRoute);
             sipRequest.addRecordRouteUri(recordRoute);

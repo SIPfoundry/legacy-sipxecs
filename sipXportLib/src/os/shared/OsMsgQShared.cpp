@@ -34,11 +34,11 @@ OsMsgQShared::OsMsgQShared(const char* name,
                            int options,
                            bool reportFull)
    : OsMsgQBase(name),
-     _maxMsgs(maxMsgs),
      _maxMsgLen(maxMsgLen),
      _options(options),
      _reportFull(reportFull)
 {
+    mMaxMsgs = maxMsgs;
 }
 
 // Destructor
@@ -167,12 +167,12 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
 
    int count = numMsgs();
    
-   if (_reportFull && 2 * count > _maxMsgs)
+   if (_reportFull && 2 * count > mMaxMsgs)
    {
      OS_LOG_WARNING(FAC_KERNEL,
                    "OsMsgQShared::doSendCore message queue '" << mName.data()
                    << "' is over half full - count = " << count
-                   << " max = " << _maxMsgs);
+                   << " max = " << mMaxMsgs);
    }
 
    system_tap_queue_enqueue(mName.data(), 0, _queue.size());

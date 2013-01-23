@@ -66,6 +66,12 @@ class SipRedirectorAliasDB : public RedirectPlugin
 
   private:
 
+    bool resolveAlias(
+       const SipMessage& message,
+       UtlString& requestString,
+       Url& requestUri
+    );
+
    // String to use in place of class name in log messages:
    // "[instance] class".
    UtlString mLogName;
