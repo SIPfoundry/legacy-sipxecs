@@ -39,6 +39,7 @@ import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -77,6 +78,9 @@ public abstract class BundlePanel extends BaseComponent implements PageBeginRend
 
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
+
+    @InjectObject("spring:configManager")
+    public abstract ConfigManager getConfigManager();
 
     public abstract void setLocations(List<Location> locations);
 
@@ -152,7 +156,7 @@ public abstract class BundlePanel extends BaseComponent implements PageBeginRend
 
         List<Location> locations = getLocations();
         if (locations == null) {
-            locations = getLocationsManager().getLocationsList();
+            locations = new ArrayList<Location>(getConfigManager().getRegisteredLocations());
             setLocations(locations);
         }
 

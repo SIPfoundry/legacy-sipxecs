@@ -241,7 +241,6 @@ private:
   Semaphore _sem;
   mutex_critic_sec _cs;
   std::queue<OsMsg*> _queue;
-  int _maxMsgs;
   int _maxMsgLen;
   int _options;
   bool _reportFull;

@@ -16,6 +16,8 @@
   <bean id="speedDialManagerImpl" class="org.sipfoundry.sipxconfig.speeddial.SpeedDialManagerImpl" parent="abstractDaoImpl">
     <property name="coreContext" ref="coreContext" />
     <property name="featureManager" ref="featureManager" />
+    <property name="configManager" ref="configManager" />
+    <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
   </bean>
   
   <bean id="speedDialOnEdit" class="org.sipfoundry.sipxconfig.speeddial.SpeadDialOnEdit">
