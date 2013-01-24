@@ -49,6 +49,10 @@ public abstract class LocationsPage extends PageWithCallback implements PageBegi
         setTab("locations");
     }
 
+    public void editDatabases() {
+        setTab("databases");
+    }
+
     public void editBundle(String bundleId) {
         setTab(bundleId);
     }

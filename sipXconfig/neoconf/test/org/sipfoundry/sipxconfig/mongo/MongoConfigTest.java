@@ -25,20 +25,26 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sipfoundry.sipxconfig.commserver.Location;
 
 public class MongoConfigTest {
     private MongoConfig m_config;
-    private List<Location> m_single;
-    private List<Location> m_multi;
+    private List<MongoServer> m_single;
+    private List<MongoServer> m_multi;
     
     @Before
     public void setUp() {
         m_config = new MongoConfig();
-        m_multi = Arrays.asList(new Location("one"), new Location("two"));
-        m_multi.get(0).setAddress("1.1.1.1");
-        m_multi.get(1).setAddress("1.1.1.2");
-        m_single = Collections.singletonList(m_multi.get(0));
+        MongoServer server1 = new MongoServer();
+        server1.setName("one:1");
+        server1.setIsServer();
+        MongoServer server2 = new MongoServer();
+        server2.setName("two:1");
+        server2.setIsServer();
+        MongoServer server3 = new MongoServer();
+        server3.setName("three:1");
+        server3.setIsArbiter();
+        m_multi = Arrays.asList(server1, server2, server3);
+        m_single = Collections.singletonList(server1);
     }
     
     @Test
