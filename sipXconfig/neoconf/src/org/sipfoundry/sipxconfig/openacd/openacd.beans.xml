@@ -3,6 +3,7 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
   
   <bean id="openAcdLine" class="org.sipfoundry.sipxconfig.openacd.OpenAcdLine" scope="prototype">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
     <property name="addressManager" ref="addressManager"/>
   </bean>
 

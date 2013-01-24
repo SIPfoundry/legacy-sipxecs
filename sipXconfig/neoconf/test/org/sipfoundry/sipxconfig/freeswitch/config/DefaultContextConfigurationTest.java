@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class DefaultContextConfigurationTest {
@@ -85,7 +86,13 @@ public class DefaultContextConfigurationTest {
     }
     
     List<FreeswitchExtension> getExtensions() {
-        FreeswitchExtension extension = new FreeswitchExtension() {};
+        FreeswitchExtension extension = new FreeswitchExtension() {
+
+            @Override
+            protected Setting loadSettings() {
+                // TODO Auto-generated method stub
+                return null;
+            }};
         extension.setName("sales");
         FreeswitchCondition condition = new FreeswitchCondition();
         condition.setField("destination_number");
