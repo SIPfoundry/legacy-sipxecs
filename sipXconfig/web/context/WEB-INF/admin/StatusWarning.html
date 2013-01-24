@@ -14,9 +14,7 @@
     <span key="prompt.here">here</span>
   </a>
 </div>
-<div jwcid="@If" condition="ognl:showPackageUpdateWarning" class="user-warning">
-  <span key="prompt.softwareUpdates">New software package update found. For details click:</span>
-  <a jwcid="softwareUpdateNeededLink@PageLink" page="admin/softwareupdates/SoftwareUpdatesPage">
-    <span key="prompt.here">here</span>
-  </a>
+<div jwcid="@If" condition="ognl:showReplicaSetWarning" class="user-warning">
+  <span key="prompt.replicaSetWarning">Replica Set warning. For details click:</span>
+  <a jwcid="@DirectLink" listener="listener:getDatabasesPage"><span key="prompt.here">here</span></a>
 </div>

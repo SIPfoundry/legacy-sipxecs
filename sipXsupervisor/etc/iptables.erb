@@ -61,10 +61,12 @@
     }
   end
 
-  raterules.each { |raterule|
+  unless raterules.nil?
+    raterules.each { |raterule|
 %>-N <%= raterule[:rule] %>
 <%
-  }
+    }
+  end
 
   cluster.each { |ipv4|
 %>-A INPUT -i $(sipx.iface) -s <%= ipv4 %> -j ACCEPT
@@ -93,10 +95,12 @@
 <%
         }
       end
-      raterules.each { |raterule|
+      unless raterules.nil?
+        raterules.each { |raterule|
 %>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> <%= srciprange(raterule) %> -m state --state NEW,ESTABLISHED -j <%= raterule[:rule]%>
 <%
-      }
+        }
+      end
 
       if logregister
 %>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --string "REGISTER sip:" --algo bm --to 65 -j LOG --log-level 6 --log-prefix "firewall-sip: SIP REGISTER: "
@@ -134,14 +138,16 @@
 -A INPUT -i $(sipx.iface) -m state --state RELATED,ESTABLISHED -j ACCEPT
 -A INPUT -p icmp -j ACCEPT
 -A INPUT -i lo -j ACCEPT
-<%    raterules.each { |raterule|
-        raterule[:limits].each{ |limit|
+<%    unless raterules.nil?
+        raterules.each { |raterule|
+          raterule[:limits].each{ |limit|
 %>-A <%= raterule[:rule]%> -i $(sipx.iface) -m string --string "<%= limit[:method]%> sip:" --algo bm --to 65 -m hashlimit --hashlimit-mode srcip,srcport --hashlimit-name "<%= limit[:method]%>" --hashlimit-htable-max 10000 --hashlimit-htable-expire 10000 --hashlimit-burst 4 --hashlimit-above <%= limit[:rate]%>/<%= limit[:interval]%> -j DROP
 <%
-        }
+          }
 %>-A <%= raterule[:rule]%> -j LOGLIMIT
 <%
-      }
+        }
+      end
 %>
 <%# log and drop everything else %>
 -A INPUT -j LOGDROP
