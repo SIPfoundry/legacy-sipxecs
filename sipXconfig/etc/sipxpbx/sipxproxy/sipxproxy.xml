@@ -85,6 +85,10 @@
       <type><boolean /></type>
       <value>0</value>
     </setting>
+    <setting name="SIPX_PROXY_ENABLE_TCP_RESEND">
+      <type><boolean /></type>
+      <value>0</value>
+    </setting>
     <!--  unsure what these next 2 settings do -->
     <setting name="SIPX_PROXY_LOG_CONSOLE" hidden="yes">
       <type><string/></type>
