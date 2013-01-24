@@ -116,8 +116,8 @@ public class OpenAcdContextTestIntegration extends MongoTestIntegration {
                 .enableLocationFeature(OpenAcdContext.FEATURE, m_locationsManager.getPrimaryLocation(), true);
     }
 
-    public static OpenAcdLine createOpenAcdLine(String extensionName) {
-        OpenAcdLine extension = new OpenAcdLine();
+    public OpenAcdLine createOpenAcdLine(String extensionName) {
+        OpenAcdLine extension = m_openAcdContext.newOpenAcdLine();
         extension.setName(extensionName);
 
         FreeswitchCondition condition = new FreeswitchCondition();
