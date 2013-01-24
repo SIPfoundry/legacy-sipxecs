@@ -84,7 +84,7 @@ bundle agent sipxfreeswitch_config {
 
 bundle edit_line sipxfreeswitch_modules {
   classes:
-    "fs_g729" expression => fileexists("$(sipx.FREESWITCH_PREEFIX)/mod/mod_com_g729.so");
+    "fs_g729" expression => fileexists("$(sipx.FREESWITCH_PREFIX)/mod/mod_com_g729.so");
 
   insert_lines:
 
