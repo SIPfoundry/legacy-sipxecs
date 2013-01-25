@@ -18,6 +18,8 @@ public interface JobContext {
     Serializable schedule(String name);
     Serializable schedule(String name, Location location);
 
+    void checkAndThrowErrorOnFailedJobs();
+
     void start(Serializable jobId);
 
     void success(Serializable jobId);

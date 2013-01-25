@@ -74,6 +74,13 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner 
     static final String SSL = "ssl";
     static final String SSL_PORT = "sslprt";
 
+    static final String CLIENT_NAME = "clnm";
+    static final String CLIENT_ID = "clid";
+    static final String DID = "did";
+    static final String Q_NAME = "qnm";
+    static final String LINE_NAME = "linm";
+
+
     OpenAcdSettings getSettings();
 
     void saveSettings(OpenAcdSettings settings);

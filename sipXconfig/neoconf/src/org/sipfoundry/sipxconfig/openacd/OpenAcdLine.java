@@ -16,11 +16,14 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class OpenAcdLine extends OpenAcdExtension {
     public static final Integer FS = new Integer(1);
@@ -33,6 +36,9 @@ public class OpenAcdLine extends OpenAcdExtension {
     public static final String ERLANG_ANSWER = "erlang_answer=false";
     public static final String EMPTY_STRING = "";
     public static final String OPEN_ACD = "openacd@";
+    public static final String PATH_CLIENT_ID = "openacd-line/client-identity";
+    public static final String PATH_CLIENT_NAME = "openacd-line/client-name";
+    public static final String PATH_QUEUE_NAME = "openacd-line/queue-name";
 
     public static List<FreeswitchAction> getDefaultActions(Location location) {
         List<FreeswitchAction> actions = new LinkedList<FreeswitchAction>();
@@ -63,12 +69,27 @@ public class OpenAcdLine extends OpenAcdExtension {
         }
     }
 
-    public static FreeswitchAction createQueueAction(String queue) {
-        return createAction(FreeswitchAction.PredefinedAction.set.toString(), Q + queue);
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put(OpenAcdContext.DID, getDid());
+        props.put(OpenAcdContext.CLIENT_NAME, getSettingValue(PATH_CLIENT_NAME));
+        props.put(OpenAcdContext.CLIENT_ID, getSettingValue(PATH_CLIENT_ID));
+        props.put(OpenAcdContext.Q_NAME, getSettingValue(PATH_QUEUE_NAME));
+        props.put(OpenAcdContext.LINE_NAME, getName());
+        props.putAll(super.getMongoProperties(domain));
+        return props;
     }
 
-    public static FreeswitchAction createClientAction(String client) {
-        return createAction(FreeswitchAction.PredefinedAction.set.toString(), BRAND + client);
+    public FreeswitchAction createQueueAction(OpenAcdQueue queue) {
+        setSettingValue(PATH_QUEUE_NAME, queue.getName());
+        return createAction(FreeswitchAction.PredefinedAction.set.toString(), Q + queue.getName());
+    }
+
+    public FreeswitchAction createClientAction(OpenAcdClient client) {
+        setSettingValue(PATH_CLIENT_NAME, client.getName());
+        setSettingValue(PATH_CLIENT_ID, client.getIdentity());
+        return createAction(FreeswitchAction.PredefinedAction.set.toString(), BRAND + client.getIdentity());
     }
 
     public static FreeswitchAction createPlaybackAction(String path) {
@@ -78,5 +99,15 @@ public class OpenAcdLine extends OpenAcdExtension {
     @Override
     public boolean isValidUser() {
         return true;
+    }
+
+    @Override
+    public void initialize() {
+        addDefaultBeanSettingHandler(this);
+    }
+
+    @Override
+    protected Setting loadSettings() {
+        return getModelFilesContext().loadModelFile("openacd/openacdline.xml");
     }
 }

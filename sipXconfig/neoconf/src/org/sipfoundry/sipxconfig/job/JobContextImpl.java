@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 
 public class JobContextImpl implements JobContext {
@@ -28,6 +29,22 @@ public class JobContextImpl implements JobContext {
 
     public void setMaxJobs(int maxJobs) {
         m_maxJobs = maxJobs;
+    }
+
+    public void checkAndThrowErrorOnFailedJobs() {
+        List<Job> failed = getFailedJobs();
+        if (failed != null && failed.size() > 0) {
+            Job job = failed.get(0);
+            Throwable e = job.getException();
+            if (e != null) {
+                if (e instanceof RuntimeException) {
+                    throw (RuntimeException) e;
+                }
+                throw new UserException("Failure setting up system", e);
+            } else {
+                throw new UserException(job.getErrorMsg());
+            }
+        }
     }
 
     private synchronized Job getJob(Serializable id) {

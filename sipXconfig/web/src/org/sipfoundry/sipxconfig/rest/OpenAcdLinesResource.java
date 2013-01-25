@@ -489,7 +489,7 @@ public class OpenAcdLinesResource extends Resource {
         }
 
         line.getNumberCondition().addAction(
-                OpenAcdLine.createQueueAction(lineRestInfo.getActions().getQueue().getName()));
+                line.createQueueAction(m_openAcdContext.getQueueById(lineRestInfo.getActions().getQueue().getId())));
 
         // check client identity
         client = m_openAcdContext.getClientByIdentity(lineRestInfo.getActions().getClient().getIdentity());
@@ -499,7 +499,7 @@ public class OpenAcdLinesResource extends Resource {
         }
 
         line.getNumberCondition().addAction(
-                OpenAcdLine.createClientAction(lineRestInfo.getActions().getClient().getIdentity()));
+                line.createClientAction(m_openAcdContext.getClientById((lineRestInfo.getActions().getClient().getId()))));
 
         // web ui only displays filename and appends audio directory
         // line.getNumberCondition().addAction(OpenAcdLine.createPlaybackAction(
