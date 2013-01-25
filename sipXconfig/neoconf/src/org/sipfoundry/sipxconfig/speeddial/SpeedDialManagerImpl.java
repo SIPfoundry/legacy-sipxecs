@@ -19,6 +19,8 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.rls.Rls;
@@ -180,5 +182,20 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     @Override
     public void clear() {
         removeAll(SpeedDial.class);
+
+        // A little convoluted, but only way i could keep mongo and postgres in sync
+        // which is critical for resource-lists.xml.
+        m_sipxReplicationContext.generateAll(DataSet.SPEED_DIAL);
+        m_configManager.configureEverywhere(Rls.FEATURE);
+    }
+
+    @Required
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
+    }
+
+    @Required
+    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_sipxReplicationContext = sipxReplicationContext;
     }
 }
