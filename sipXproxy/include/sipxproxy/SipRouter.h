@@ -201,7 +201,7 @@ class SipRouter : public OsServerTask
    ForwardRules* mpForwardingRules;      ///< Holds to forwarding rules instructions
    PluginHooks   mAuthPlugins;           ///< decision making modules from configuration
    PluginHooks   mTransactionPlugins; 
-
+   UtlBoolean    mEnsureTcpLifetime;     ///< If set, transport will be explicity specified in record routes.
    /// P-Asserted-Identity header is only applicable for INVITE, REFER, BYE,
    /// OPTIONS, NOTIFY, and SUBSCRIBE
    bool isPAIdentityApplicable(const SipMessage& sipRequest);

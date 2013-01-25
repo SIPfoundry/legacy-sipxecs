@@ -44,7 +44,8 @@ static UtlString _localDomain;
 // Constructor
 SipRedirectorAliasDB::SipRedirectorAliasDB(const UtlString& instanceName) :
    RedirectPlugin(instanceName),
-   _enableDiversionHeader(FALSE)
+   _enableDiversionHeader(FALSE),
+   _enableEarlyAliasResolution(FALSE)
 {
    mLogName.append("[");
    mLogName.append(instanceName);
@@ -94,7 +95,78 @@ void SipRedirectorAliasDB::readConfig(OsConfigDb& configDb)
                  );
 
    _enableDiversionHeader =  configDb.getBoolean("SIP_REGISTRAR_ADD_DIVERSION", FALSE);
+   _enableEarlyAliasResolution =  configDb.getBoolean("SIP_REGISTRAR_EARLY_ALIAS_RESOLUTION", FALSE);
 }
+
+bool
+SipRedirectorAliasDB::resolveAlias(
+   const SipMessage& message,
+   UtlString& requestString,
+   Url& requestUri
+)
+{
+  bool isDomainAlias = false;
+  bool isUserAlias = false;
+
+  UtlString domain;
+  UtlString hostAlias;
+  UtlString userAlias;
+
+  requestUri.getHostAddress(domain);
+  UtlBoolean isMyHostAlias = mpSipUserAgent->isMyHostAlias(requestUri);
+  if (mpSipUserAgent && domain != _localDomain && isMyHostAlias)
+  {
+    isDomainAlias = true;
+    hostAlias = domain;
+  }
+
+  UtlString requestIdentity;
+  requestUri.getIdentity(requestIdentity);
+
+  EntityDB::Aliases aliases;
+  bool isUserIdentity = false;
+  EntityDB* entityDb = SipRegistrar::getInstance(NULL)->getEntityDB();
+  entityDb->getAliasContacts(requestUri, aliases, isUserIdentity);
+  int numAliasContacts = aliases.size();
+  EntityDB::Aliases::iterator iter = aliases.begin();
+
+  if (numAliasContacts == 1 && iter != aliases.end())
+  {
+    // If disableForwarding and the relation value is "userforward",
+    // do not record this contact.
+    if (isUserIdentity && iter->relation != ALIASDB_RELATION_USERFORWARD && iter->relation != "callgroup")
+    {
+      UtlString contact = iter->contact.c_str();
+      Url contactUri(contact);
+      isUserAlias = true;
+      contactUri.getUserId(userAlias);
+    }
+  }
+
+
+  if (isUserAlias)
+  {
+    requestUri.setUserId(userAlias.data());
+    requestUri.getUri(requestString);
+  }
+
+  if (isDomainAlias)
+  {
+    requestUri.setHostAddress(hostAlias);
+    requestUri.getUri(requestString);
+  }
+
+  if (isUserAlias || isDomainAlias)
+  {
+    OS_LOG_NOTICE(FAC_SIP, "SipRedirectorAliasDB::lookUp normalized request-uri to " << requestString.data());
+  }
+
+
+  return isUserAlias || isDomainAlias;
+}
+
+
+
 
 RedirectPlugin::LookUpStatus
 SipRedirectorAliasDB::lookUp(
@@ -120,30 +192,15 @@ SipRedirectorAliasDB::lookUp(
                     mLogName.data());
    }
 
-   bool isDomainAlias = false;
-   UtlString domain;
-   UtlString hostAlias;
-   requestUri.getHostAddress(domain);
-   UtlBoolean isMyHostAlias = mpSipUserAgent->isMyHostAlias(requestUri);
-   if (mpSipUserAgent && domain != _localDomain && isMyHostAlias)
+   if (_enableEarlyAliasResolution)
    {
-     isDomainAlias = true;
-     hostAlias = domain;
-     requestUri.setHostAddress(_localDomain);
+     resolveAlias(message, requestString, requestUri);
    }
+
 
    UtlString requestIdentity;
    requestUri.getIdentity(requestIdentity);
 
-   OS_LOG_DEBUG(FAC_SIP, mLogName.data() << "::lookUp identity: " << requestIdentity.data()
-           << " domain: " << domain.data()
-           << " local-domain: " << _localDomain.data()
-           << " isHostAlias: " << isMyHostAlias);
-
-   
-   //ResultSet aliases;
-   //AliasDB::getInstance()->getContacts(requestUri, aliases);
-   //int numAliasContacts = aliases.getSize();
 
    EntityDB::Aliases aliases;
    bool isUserIdentity = false;
@@ -183,32 +240,7 @@ SipRedirectorAliasDB::lookUp(
                }
 
                contactUri.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, "AL");
-               
-               
-               if (numAliasContacts == 1 && isDomainAlias && isUserIdentity && iter->relation != "callgroup")
-               {
-
-                 UtlString userId;
-                 contactUri.getUserId(userId);
-                 requestUri.setUserId(userId.data());
-                 requestUri.getUri(requestString);
-                 OS_LOG_NOTICE(FAC_SIP, "SipRedirectorAliasDB::lookUp normalized request-uri to " << requestString.data());
-               }
-               else
-               {
-                 if (isDomainAlias && iter->relation == "callgroup")
-                 {
-                   //
-                   // Hunt groups are also aliases so we want them to loop back to us so it gets properly mapped
-                   // the next turn around.
-                   //
-                   requestUri.setHostAddress(hostAlias);
-                   requestUri.getUri(requestString);
-                 }
-                 // Add the contact.
-                 contactList.add( contactUri, *this );
-               }
-
+               contactList.add( contactUri, *this );
 
                 if (_enableDiversionHeader && contactList.getDiversionHeader().empty())
                 {
@@ -238,35 +270,7 @@ SipRedirectorAliasDB::lookUp(
             }
       }
    }
-   else if (isDomainAlias)
-   {
-     //
-     // No alias found.  If this is was towards a domain alias, make sure to reset it back to
-     // the old value prior to feeding it to the rest of the redirectors if the userId is not a real user.
-     //
-     UtlString userId;
-     requestUri.getUserId(userId);
-     EntityRecord entity;
-     if (entityDb->findByUserId(userId.str(), entity))
-     {
-       if (!entity.realm().empty() && !entity.password().empty())
-       {
-         requestUri.getUri(requestString);
-         OS_LOG_NOTICE(FAC_SIP, "SipRedirectorAliasDB::lookUp normalized request-uri to " << requestString.data());
-       }
-       else
-       {
-          requestUri.setHostAddress(hostAlias);
-          requestUri.getUri(requestString);
-       }
-     }
-     else
-     {
-       requestUri.setHostAddress(hostAlias);
-       requestUri.getUri(requestString);
-     }
-   }
-
+   
    return RedirectPlugin::SUCCESS;
 }
 

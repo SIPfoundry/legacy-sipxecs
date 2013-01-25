@@ -1,5 +1,6 @@
 logdropped: false
 logdos: false
+lograte: false
 logregister: false
 loginvite: false
 logack: false
@@ -21,6 +22,20 @@ blacklist:
 deniedsip:
  - sipvicious
  - friendly-scanner
+raterules:
+ - :rule: rule1
+   :startIp: 192.168.0.1
+   :limits:
+    - :method: INVITE
+      :rate: 5
+      :interval: minute
+ - :rule: rule2
+   :startIp: 192.168.0.2
+   :endIp: 192.168.0.4
+   :limits:
+    - :method: INVITE
+      :rate: 5
+      :interval: minute
 rules:
  - :port: 300
    :protocol: tcp

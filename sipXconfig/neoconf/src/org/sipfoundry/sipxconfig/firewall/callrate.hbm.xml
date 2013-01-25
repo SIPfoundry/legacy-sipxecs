@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.firewall" default-lazy="false">
+
+  <class name="CallRateRule" table="call_rate_rule">
+    <id name="id" column="call_rate_rule_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">call_rate_rule_seq</param>
+      </generator>
+    </id>
+    <property name="name"/>
+    <property name="position"/>
+    <property name="description"/>
+    <property name="startIp"/>
+    <property name="endIp"/>
+    <list name="callRateLimits" table="call_rate_limit">
+      <key column="call_rate_rule_id" foreign-key="fk_call_rate_limit_call_rate_rule"/>
+      <list-index column="call_rate_limit_id" />
+      <composite-element class="org.sipfoundry.sipxconfig.firewall.CallRateLimit">
+        <property name="rate" />
+        <property name="sipMethod" />
+        <property name="interval" />
+      </composite-element>
+    </list>
+  </class>
+
+  <query name="orderedCallRates">
+    <![CDATA[from CallRateRule rate order by rate.position]]>
+  </query>
+
+</hibernate-mapping>

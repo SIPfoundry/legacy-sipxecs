@@ -50,6 +50,8 @@ import org.springframework.context.ApplicationContextAware;
 
 public class RegistrarConfiguration implements ConfigProvider, ApplicationContextAware {
     private static final SettingFilter NO_UNDERSCORE = new PatternSettingFilter(".*/_.*");
+    private static final String WEIGHT_40 = "40";
+    private static final String WEIGHT_100 = "100";
     private Registrar m_registrar;
     private ApplicationContext m_context;
 
@@ -87,13 +89,39 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
         KeyValueConfiguration file = KeyValueConfiguration.colonSeparated(wtr);
         Setting root = settings.getSettings();
         file.writeSettings(SettingUtil.filter(NO_UNDERSCORE, root.getSetting("registrar-config")));
+        // add authority levels
+        file.write("SIP_REDIRECT_AUTHORITY_LEVEL.090-USERPARAM", "60");
+        file.write("SIP_REDIRECT_AUTHORITY_LEVEL.100-PICKUP", "50");
+        if (settings.isEarlyAliasResolutionEnabled()) {
+            file.write("SIP_REDIRECT_AUTHORITY_LEVEL.110-ALIAS", WEIGHT_40);
+            file.write("SIP_REDIRECT_AUTHORITY_LEVEL.120-REG", WEIGHT_40);
+        } else {
+            file.write("SIP_REDIRECT_AUTHORITY_LEVEL.110-REG", WEIGHT_40);
+            file.write("SIP_REDIRECT_AUTHORITY_LEVEL.120-ALIAS", WEIGHT_40);
+        }
+        file.write("SIP_REDIRECT_AUTHORITY_LEVEL.130-MAPPING", WEIGHT_40);
+        file.write("SIP_REDIRECT_AUTHORITY_LEVEL.140-FALLBACK", "30");
+        file.write("SIP_REDIRECT_AUTHORITY_LEVEL.150-ISN", WEIGHT_40);
+        file.write("SIP_REDIRECT_AUTHORITY_LEVEL.160-ENUM", WEIGHT_40);
+        file.write("SIP_REDIRECT_AUTHORITY_LEVEL.900-PRESENCE", WEIGHT_100);
+        file.write("SIP_REDIRECT_AUTHORITY_LEVEL.997-SUBSCRIBE", WEIGHT_100);
+        file.write("SIP_REDIRECT_AUTHORITY_LEVEL.998-TIMEOFDAY", WEIGHT_100);
+        file.write("SIP_REDIRECT_AUTHORITY_LEVEL.999-AUTHROUTER", WEIGHT_100);
+
         file.write("SIP_REDIRECT.100-PICKUP.ORBIT_FILENAME", "$(sipx.SIPX_CONFDIR)/orbits.xml");
         file.write("SIP_REDIRECT.130-MAPPING.MAPPING_RULES_FILENAME", "$(sipx.SIPX_CONFDIR)/mappingrules.xml");
         file.write("SIP_REDIRECT.140-FALLBACK.MAPPING_RULES_FILENAME", "$(sipx.SIPX_CONFDIR)/fallbackrules.xml");
         file.write("SIP_REDIRECT_HOOK_LIBRARY.090-USERPARAM", "$(sipx.SIPX_LIBDIR)/libRedirectorUserParam.so");
         file.write("SIP_REDIRECT_HOOK_LIBRARY.100-PICKUP", "$(sipx.SIPX_LIBDIR)/libRedirectorPickUp.so");
-        file.write("SIP_REDIRECT_HOOK_LIBRARY.110-ALIAS", "$(sipx.SIPX_LIBDIR)/libRedirectorAliasDB.so");
-        file.write("SIP_REDIRECT_HOOK_LIBRARY.120-REG", "$(sipx.SIPX_LIBDIR)/libRedirectorRegDB.so");
+        String aliasRedirector = "$(sipx.SIPX_LIBDIR)/libRedirectorAliasDB.so";
+        String regRedirector = "$(sipx.SIPX_LIBDIR)/libRedirectorRegDB.so";
+        if (settings.isEarlyAliasResolutionEnabled()) {
+            file.write("SIP_REDIRECT_HOOK_LIBRARY.110-ALIAS", aliasRedirector);
+            file.write("SIP_REDIRECT_HOOK_LIBRARY.120-REG", regRedirector);
+        } else {
+            file.write("SIP_REDIRECT_HOOK_LIBRARY.110-REG", regRedirector);
+            file.write("SIP_REDIRECT_HOOK_LIBRARY.120-ALIAS", aliasRedirector);
+        }
         file.write("SIP_REDIRECT_HOOK_LIBRARY.130-MAPPING", "$(sipx.SIPX_LIBDIR)/libRedirectorMapping.so");
         file.write("SIP_REDIRECT_HOOK_LIBRARY.140-FALLBACK", "$(sipx.SIPX_LIBDIR)/libRedirectorFallback.so");
         file.write("SIP_REDIRECT_HOOK_LIBRARY.150-ISN", "$(sipx.SIPX_LIBDIR)/libRedirectorISN.so");
