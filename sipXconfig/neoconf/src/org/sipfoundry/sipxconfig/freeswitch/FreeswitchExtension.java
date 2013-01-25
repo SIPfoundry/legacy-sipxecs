@@ -19,9 +19,9 @@ package org.sipfoundry.sipxconfig.freeswitch;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 
-public abstract class FreeswitchExtension extends BeanWithId {
+public abstract class FreeswitchExtension extends BeanWithSettings {
     private String m_name;
     private boolean m_enabled = true; // default enabled
     private String m_description;

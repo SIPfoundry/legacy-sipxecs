@@ -14,7 +14,7 @@
 
 usage() {
 cat <<USAGE
-Usage: sipxconfig [start|stop|configtest|status|setup|db commands ...]
+Usage: sipxconfig [start|stop|configtest|status|setup|db|run commands ...]
 
 Start Web UI administration for sipXpbx and for remotely provisioned
 SIP-based phones.
@@ -40,6 +40,7 @@ Options include:
 
   configtest           Run diagnostics
 
+  run bean args        Run a spring bean that implements SystemTaskEntryPoint
 
 Common Database commands include:
 
@@ -305,6 +306,10 @@ case "$1" in
   setup)
     shift
     runTask setup ${@}
+    ;;
+  run)
+    shift
+    runTask ${@}
     ;;
   *)
     echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart|db|setup|reset-admin}"

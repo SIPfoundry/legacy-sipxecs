@@ -44,7 +44,7 @@
 //#define LOG_TRANSLOCK
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
-
+UtlBoolean SipTransaction::enableTcpResend = FALSE;
 /* ============================ CREATORS ================================== */
 
 // Constructor
@@ -3845,22 +3845,26 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
     {
         if (numTries < SIP_TCP_RESEND_TIMES)
         {
-            bool r = false;
+            bool r = !SipTransaction::enableTcpResend;
             // Try sending again.
-            if (protocol == OsSocket::TCP)
+            if (SipTransaction::enableTcpResend)
             {
-               r = userAgent.sendTcp(&resendMessage,
-                                     sendAddress.data(),
-                                     sendPort);
+              if (protocol == OsSocket::TCP)
+              {
+                 r = userAgent.sendTcp(&resendMessage,
+                                       sendAddress.data(),
+                                       sendPort);
+              }
+  #ifdef SIP_TLS
+              else if (protocol == OsSocket::SSL_SOCKET)
+              {
+                 r = userAgent.sendTls(&resendMessage,
+                                       sendAddress.data(),
+                                       sendPort);
+              }
+  #endif
             }
-#ifdef SIP_TLS
-            else if (protocol == OsSocket::SSL_SOCKET)
-            {
-               r = userAgent.sendTls(&resendMessage,
-                                     sendAddress.data(),
-                                     sendPort);
-            }
-#endif
+
             if (r)
             {
                 // Do this after the send so that the log message is correct
@@ -3877,6 +3881,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
                 sentOk = TRUE;
             }
         }
+
     } // TCP/TLS
 
     return sentOk;
