@@ -24,11 +24,13 @@
 // Constructor
 ResourceSubscriptionReceiver::ResourceSubscriptionReceiver()
 {
+  _safeCallBack = CallBack::Ptr(new CallBack(this));
 }
 
 // Destructor
 ResourceSubscriptionReceiver::~ResourceSubscriptionReceiver()
 {
+  _safeCallBack->invalidateCallBack();
 }
 
 /* ============================ MANIPULATORS ============================== */
