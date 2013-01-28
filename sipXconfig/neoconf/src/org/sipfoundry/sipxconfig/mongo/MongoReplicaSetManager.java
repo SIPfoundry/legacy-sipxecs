@@ -18,29 +18,23 @@ package org.sipfoundry.sipxconfig.mongo;
 
 import static java.lang.String.format;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.BasicBSONObject;
 import org.sipfoundry.commons.mongo.MongoUtil;
 import org.sipfoundry.commons.mongo.MongoUtil.MongoCommandException;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigException;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
 import com.mongodb.MongoException;
 
 /**
@@ -53,7 +47,6 @@ import com.mongodb.MongoException;
  */
 public class MongoReplicaSetManager {
     private static final Log LOG = LogFactory.getLog(MongoReplicaSetManager.class);
-    private static final String REPLSET = "sipxecs";
     private static final String MEMBERS = "members";
     private static final String HOST = "host";
     private static final String CHECK_COMMAND = "rs.config()";
@@ -61,36 +54,44 @@ public class MongoReplicaSetManager {
             + "[ { \"_id\" : 0, \"host\" : \"%s:%d\", priority : 2 } ] })";
     private static final String ADD_SERVER_COMMAND = "rs.add(\"%s\")";
     private static final String REMOVE_SERVER_COMMAND = "rs.remove(\"%s\")";
+    private static final String STEP_DOWN_COMMAND = "rs.stepDown()";
     private static final String RENAME_PRIMARY_COMMAND = "c = rs.config(); c.members[0].host = '%s'; rs.reconfig(c)";
     private static final String ADD_ARBITER_COMMAND = "rs.addArb(\"%s\")";
-    private static final String REMOVE_ARBITER_COMMAND = REMOVE_SERVER_COMMAND;
+    private static final String GET_STATUS_COMMAND = "rs.status()";
+    private static final String COMMAND_FORCE_RECONFIG = "rs.reconfig(%s, { force : true })";
     private MongoTemplate m_localDb;
+    private MongoTemplate m_localReplicasetDb;
     private ReplicationManager m_replicationManager;
-    private JdbcTemplate m_jdbcTemplate;
     private String m_primaryFqdn;
+    private ConfigManager m_configManager;
 
     public void checkState() {
-        BasicBSONObject ret = MongoUtil.runCommand(m_localDb.getDb(), CHECK_COMMAND);
-        boolean initialized = false;
-        if (ret != null) {
-            BasicDBList members = (BasicDBList) ret.get(MEMBERS);
-            if (members != null) {
-                BasicDBObject primary = (BasicDBObject) members.get(0);
-                if (primary != null) {
-                    initialized = true;
-                    String host = primary.getString(HOST);
-                    String expected = format(m_primaryFqdn + ':' + MongoSettings.SERVER_PORT);
-                    if (!expected.equals(host)) {
-                        String rename = format(RENAME_PRIMARY_COMMAND, expected);
-                        MongoUtil.runCommand(m_localDb.getDb(), rename);
+        try {
+            BasicBSONObject ret = MongoUtil.runCommand(m_localDb.getDb(), CHECK_COMMAND);
+            boolean initialized = false;
+            if (ret != null) {
+                BasicDBList members = (BasicDBList) ret.get(MEMBERS);
+                if (members != null) {
+                    BasicDBObject primary = (BasicDBObject) members.get(0);
+                    if (primary != null) {
+                        initialized = true;
+                        String host = primary.getString(HOST);
+                        String expected = format(m_primaryFqdn + ':' + MongoSettings.SERVER_PORT);
+                        if (!expected.equals(host)) {
+                            String rename = format(RENAME_PRIMARY_COMMAND, expected);
+                            MongoUtil.runCommand(m_localDb.getDb(), rename);
+                        }
                     }
                 }
             }
+
+            if (!initialized) {
+                initialize();
+            }
+        } catch (Exception ex) {
+            LOG.error("Failed to check replica set state!");
         }
 
-        if (!initialized) {
-            initialize();
-        }
     }
 
     public void initialize() {
@@ -111,105 +112,83 @@ public class MongoReplicaSetManager {
         }
     }
 
-    public void checkMembers() {
-        Set<String> mongoMembers = new HashSet<String>();
-        Set<String> mongoArbiters = new HashSet<String>();
-        Set<String> postgresMembers = new HashSet<String>();
-        Set<String> postgresArbiters = new HashSet<String>();
-        getMongoMembers(mongoMembers, mongoArbiters);
-        getPostgresMembers(postgresMembers, postgresArbiters);
-        List<String> cmds = updateMembersAndArbitors(mongoMembers, mongoArbiters, postgresMembers, postgresArbiters);
-        for (String cmd : cmds) {
-            boolean complete = false;
-            // A new mongo server takes a while before it will accept connections
-            // hang out until it's available
-            for (int i = 0; !complete && i < 4; i++) {
-                try {
-                    BasicBSONObject result = MongoUtil.runCommand(m_localDb.getDb(), cmd);
-                    MongoUtil.checkForError(result);
-                    complete = true;
-                } catch (MongoCommandException e) {
-                    String msg = "Could not complete command '%s', will try again in %d secs";
-                    int waitTime = (i + 1) * 10000;
-                    LOG.warn(format(msg, cmd, waitTime), e);
-                    try {
-                        Thread.sleep(waitTime);
-                        i++;
-                    } catch (InterruptedException ignore) {
-                        i++;
-                    }
-                }
-            }
-
-            if (!complete) {
-                LOG.error("Gave up trying to apply mongo command : " + cmd);
-            } else {
-                LOG.info("Successfully applied mongo command : " + cmd);
-            }
-        }
-    }
-
-    List<String> updateMembersAndArbitors(Set<String> mongoMembers, Set<String> mongoArbiters,
-            Set<String> postgresMembers, Set<String> postgresArbiters) {
-        List<String> commands = new ArrayList<String>();
-        Collection<String> missingServers = CollectionUtils.subtract(postgresMembers, mongoMembers);
-        for (String add : missingServers) {
-            String cmd = format(ADD_SERVER_COMMAND, add);
-            commands.add(cmd);
-        }
-        Collection<String> additionalServers = CollectionUtils.subtract(mongoMembers, postgresMembers);
-        for (String remove : additionalServers) {
-            String cmd = format(REMOVE_SERVER_COMMAND, remove);
-            commands.add(cmd);
-        }
-        Collection<String> missingArbiters = CollectionUtils.subtract(postgresArbiters, mongoArbiters);
-        for (String add : missingArbiters) {
-            String cmd = format(ADD_ARBITER_COMMAND, add);
-            commands.add(cmd);
-        }
-        Collection<String> additionaArbiters = CollectionUtils.subtract(mongoArbiters, postgresArbiters);
-        for (String remove : additionaArbiters) {
-            String cmd = format(REMOVE_ARBITER_COMMAND, remove);
-            commands.add(cmd);
-        }
-        return commands;
-    }
-
-    void getPostgresMembers(Set<String> members, Set<String> arbiters) {
-        String sql = "select fqdn, feature_id from feature_local f, location l where f.location_id = l.location_id "
-                + "and feature_id in (? , ?)";
-        List<Map<String, Object>> pgLocations = m_jdbcTemplate.queryForList(sql, MongoManager.FEATURE_ID.getId(),
-                MongoManager.ARBITER_FEATURE.getId());
-        for (Map<String, Object> line : pgLocations) {
-            boolean arbiter = MongoManager.ARBITER_FEATURE.getId().equals(line.get("feature_id"));
-            String host = (String) line.get("fqdn");
-            if (arbiter) {
-                arbiters.add(host + ':' + MongoSettings.ARBITER_PORT);
-            } else {
-                members.add(host + ':' + MongoSettings.SERVER_PORT);
-            }
-        }
-    }
-
-    void getMongoMembers(Set<String> members, Set<String> arbiters) {
-        DB ds = m_localDb.getDb();
-        DBCollection registrarCollection = ds.getCollection("system.replset");
+    public List<MongoServer> getMongoServers() {
+        List<MongoServer> servers = new LinkedList<MongoServer>();
+        DB ds = m_localReplicasetDb.getDb();
+        String errmsg = "&err.read.localMongo";
         try {
-            DBObject repl = registrarCollection.findOne(new BasicDBObject("_id", REPLSET));
-            BasicDBList membersObj = (BasicDBList) repl.get(MEMBERS);
-            for (Object o : membersObj) {
-                BasicDBObject dbo = ((BasicDBObject) o);
-                String host = dbo.getString(HOST);
-                if (dbo.getBoolean("arbiterOnly")) { // FYI: older versions of mongo this was spelled arbitorOnly
-                    arbiters.add(host);
-                } else {
-                    members.add(host);
-                }
+            BasicBSONObject status = MongoUtil.runCommand(ds, GET_STATUS_COMMAND);
+            BasicDBList members = (BasicDBList) status.get(MEMBERS);
+            for (Object obj : members) {
+                BasicDBObject server = (BasicDBObject) obj;
+                servers.add(new MongoServer(server));
             }
         } catch (MongoException.Network e) {
-            String msg = "Cannot read from local mongo instance.";
-            LOG.error(msg, e);
-            throw new ConfigException(msg);
+            LOG.error(errmsg, e);
+            throw new UserException(errmsg);
+        } catch (MongoException e) {
+            LOG.error(errmsg, e);
+            throw new UserException(errmsg);
+        }
+        return servers;
+    }
+
+    public void addInReplicaSet(String name) {
+        String cmd = format(ADD_SERVER_COMMAND, name);
+        if (StringUtils.contains(name, String.valueOf(MongoSettings.ARBITER_PORT))) {
+            cmd = format(ADD_ARBITER_COMMAND, name);
+        }
+        try {
+            BasicBSONObject result = MongoUtil.runCommand(m_localReplicasetDb.getDb(), cmd);
+            MongoUtil.checkForError(result);
+        } catch (MongoCommandException e) {
+            LOG.warn("Failed to add in replica set", e);
+            throw new UserException("&err.add.rs.member");
+        }
+        m_configManager.configureEverywhere(MongoManager.FEATURE_ID);
+    }
+
+    public void removeFromReplicaSet(String name) {
+        String cmd = format(REMOVE_SERVER_COMMAND, name);
+        try {
+            BasicBSONObject result = MongoUtil.runCommand(m_localReplicasetDb.getDb(), cmd);
+            MongoUtil.checkForError(result);
+        } catch (MongoCommandException e) {
+            LOG.warn("Failed to remove from replica set", e);
+            throw new UserException("&err.remove.rs.member");
+        }
+        m_configManager.configureEverywhere(MongoManager.FEATURE_ID);
+    }
+
+    public void stepDown() {
+        try {
+            BasicBSONObject result = MongoUtil.runCommand(m_localReplicasetDb.getDb(), STEP_DOWN_COMMAND);
+            MongoUtil.checkForError(result);
+        } catch (MongoCommandException e) {
+            LOG.warn("Failed to step down replica set", e);
+            throw new UserException("&err.failed.stepDown");
+        }
+    }
+
+    public void forceReconfig() {
+        try {
+            String id = "_id";
+            BasicDBObject config = new BasicDBObject();
+            config.put(id, "sipxecs");
+            config.put("version", 1);
+            BasicDBList members = new BasicDBList();
+            BasicDBObject primary = new BasicDBObject();
+            primary.put(id, 0);
+            primary.put(HOST, format("%s:%d", m_primaryFqdn, MongoSettings.SERVER_PORT));
+            primary.put("priority", 2);
+            members.add(primary);
+            config.put(MEMBERS, members);
+            String command = format(COMMAND_FORCE_RECONFIG, config.toString());
+            BasicBSONObject result = MongoUtil.runCommand(m_localDb.getDb(), command);
+            MongoUtil.checkForError(result);
+        } catch (MongoCommandException e) {
+            LOG.warn("Failed to force replica set reconfiguration", e);
+            throw new UserException("&err.failed.forceReconfig");
         }
     }
 
@@ -217,8 +196,8 @@ public class MongoReplicaSetManager {
         m_localDb = localDb;
     }
 
-    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-        m_jdbcTemplate = jdbcTemplate;
+    public void setLocalReplicaSetDb(MongoTemplate localRs) {
+        m_localReplicasetDb = localRs;
     }
 
     public void setReplicationManager(ReplicationManager replicationManager) {
@@ -227,5 +206,9 @@ public class MongoReplicaSetManager {
 
     public void setPrimaryFqdn(String primaryFqdn) {
         m_primaryFqdn = primaryFqdn;
+    }
+
+    public void setConfigManager(ConfigManager manager) {
+        m_configManager = manager;
     }
 }

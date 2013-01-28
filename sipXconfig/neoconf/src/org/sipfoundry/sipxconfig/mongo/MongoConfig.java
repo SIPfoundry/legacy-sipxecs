@@ -25,14 +25,14 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
-import org.sipfoundry.sipxconfig.cfgmgt.PostConfigListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 
-public class MongoConfig implements PostConfigListener {
+public class MongoConfig implements ConfigProvider {
     private MongoManager m_mongoManager;
     private MongoReplicaSetManager m_mongoReplicaSetManager;
 
@@ -43,7 +43,7 @@ public class MongoConfig implements PostConfigListener {
         }
         FeatureManager fm = manager.getFeatureManager();
         Location[] all = manager.getLocationManager().getLocations();
-        List<Location> servers = fm.getLocationsForEnabledFeature(MongoManager.FEATURE_ID);
+        List<MongoServer> servers = m_mongoReplicaSetManager.getMongoServers();
         MongoSettings settings = m_mongoManager.getSettings();
         int port = settings.getPort();
         String connStr = getConnectionString(servers, port);
@@ -71,18 +71,7 @@ public class MongoConfig implements PostConfigListener {
         }
     }
 
-
-    @Override
-    public void postReplicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(MongoManager.FEATURE_ID, LocationsManager.FEATURE, MongoManager.ARBITER_FEATURE)) {
-            return;
-        }
-
-        // NOTE:  live updating of mongo settings.
-        m_mongoReplicaSetManager.checkMembers();
-    }
-
-    private static void writeServerConfig(Writer w, boolean mongod, boolean arbiter) throws IOException {
+    void writeServerConfig(Writer w, boolean mongod, boolean arbiter) throws IOException {
         String bindToAll = "0.0.0.0";
         CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
         config.writeClass("mongod", mongod);
@@ -99,24 +88,30 @@ public class MongoConfig implements PostConfigListener {
         config.write("connectionString", connStr);
     }
 
-    public static String getConnectionString(List<Location> servers, int port) {
+    String getConnectionString(List<MongoServer> servers, int port) {
         StringBuilder r = new StringBuilder("sipxecs/");
         for (int i = 0; i < servers.size(); i++) {
-            if (i > 0) {
-                r.append(',');
+            MongoServer server = servers.get(i);
+            if (server.isServer()) {
+                if (i > 0) {
+                    r.append(',');
+                }
+                r.append(server.getName());
             }
-            r.append(servers.get(i).getFqdn()).append(':').append(port);
         }
         return r.toString();
     }
 
-    public static String getConnectionUrl(List<Location> servers, int port) {
+    String getConnectionUrl(List<MongoServer> servers, int port) {
         StringBuilder r = new StringBuilder("mongodb://");
         for (int i = 0; i < servers.size(); i++) {
-            if (i > 0) {
-                r.append(',');
+            MongoServer server = servers.get(i);
+            if (server.isServer()) {
+                if (i > 0) {
+                    r.append(',');
+                }
+                r.append(server.getName());
             }
-            r.append(servers.get(i).getFqdn()).append(':').append(port);
         }
         r.append("/?readPreference=nearest");
         return r.toString();

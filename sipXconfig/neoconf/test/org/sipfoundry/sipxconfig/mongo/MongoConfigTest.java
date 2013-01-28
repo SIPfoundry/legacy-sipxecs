@@ -25,29 +25,37 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sipfoundry.sipxconfig.commserver.Location;
 
 public class MongoConfigTest {
-    private List<Location> m_single;
-    private List<Location> m_multi;
-
+    private MongoConfig m_config;
+    private List<MongoServer> m_single;
+    private List<MongoServer> m_multi;
+    
     @Before
     public void setUp() {
-        m_multi = Arrays.asList(new Location("one"), new Location("two"));
-        m_multi.get(0).setAddress("1.1.1.1");
-        m_multi.get(1).setAddress("1.1.1.2");
-        m_single = Collections.singletonList(m_multi.get(0));
+        m_config = new MongoConfig();
+        MongoServer server1 = new MongoServer();
+        server1.setName("one:1");
+        server1.setIsServer();
+        MongoServer server2 = new MongoServer();
+        server2.setName("two:1");
+        server2.setIsServer();
+        MongoServer server3 = new MongoServer();
+        server3.setName("three:1");
+        server3.setIsArbiter();
+        m_multi = Arrays.asList(server1, server2, server3);
+        m_single = Collections.singletonList(server1);
     }
 
     @Test
     public void getConnectionString() {
-        assertEquals("sipxecs/one:1", MongoConfig.getConnectionString(m_single, 1));
-        assertEquals("sipxecs/one:1,two:1", MongoConfig.getConnectionString(m_multi, 1));
+        assertEquals("sipxecs/one:1", m_config.getConnectionString(m_single, 1));
+        assertEquals("sipxecs/one:1,two:1", m_config.getConnectionString(m_multi, 1));
     }
 
     @Test
     public void getConnectionUrl() {
-        assertEquals("mongodb://one:1/?readPreference=nearest", MongoConfig.getConnectionUrl(m_single, 1));
-        assertEquals("mongodb://one:1,two:1/?readPreference=nearest", MongoConfig.getConnectionUrl(m_multi, 1));
+        assertEquals("mongodb://one:1/?readPreference=nearest", m_config.getConnectionUrl(m_single, 1));
+        assertEquals("mongodb://one:1,two:1/?readPreference=nearest", m_config.getConnectionUrl(m_multi, 1));
     }
 }
