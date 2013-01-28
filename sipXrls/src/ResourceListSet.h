@@ -11,10 +11,13 @@
 #define _ResourceListSet_h_
 
 // SYSTEM INCLUDES
-// APPLICATION INCLUDES
-
+#include <string>
+#include <map>
 #include <boost/thread.hpp>
+
+// APPLICATION INCLUDES
 #include "ResourceCache.h"
+#include "ResourceList.h"
 #include <utl/UtlContainableAtomic.h>
 #include <utl/UtlString.h>
 #include <utl/UtlSList.h>
@@ -35,7 +38,6 @@
 // FORWARD DECLARATIONS
 
 class ResourceListServer;
-class ResourceList;
 class ResourceCached;
 class SubscriptionSet;
 class ResourceInstance;
@@ -454,7 +456,7 @@ class ResourceListSet : public UtlContainableAtomic
   protected:
 
    //! Search for a resource list with a given name (user-part).
-   ResourceList* findResourceList(const char* user);
+   ResourceList::Ptr findResourceList(const char* user);
 
    //! Swap the tags in a dialog handle.
    //  Part of the work-around for XSL-146.
@@ -490,7 +492,8 @@ class ResourceListSet : public UtlContainableAtomic
    /** List of ResourceList objects for all the resource lists in the
     *  ResourceListSet.
     */
-   UtlSList mResourceLists;
+   typedef std::map<std::string, ResourceList::Ptr> ResourceMap;
+   ResourceMap _resourceLists;
 
    //! Map from early dialog handles to the objects that handle their events.
    //  The values are instances of subclasses of ResourceSubscriptionReceiver.
