@@ -210,3 +210,74 @@ const UtlString* NotifyCallbackMsg::getContent() const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
+
+// Constructor
+SubscriptionSetMsg::SubscriptionSetMsg(
+        UtlContainable *handler,
+        const UtlString& callidContact) :
+   OsMsg(RLS_SUBSCRIPTION_SET_MSG, 0),
+   _handler(handler),
+   _callidContact(callidContact)
+{
+}
+
+// Copy constructor
+SubscriptionSetMsg::SubscriptionSetMsg(
+        const SubscriptionSetMsg& rhs)
+:  OsMsg(rhs)
+{
+   _handler       = rhs._handler;
+   _callidContact = rhs._callidContact;
+}
+
+// Create a copy of this msg object (which may be of a derived type)
+OsMsg* SubscriptionSetMsg::createCopy(void) const
+{
+   return new SubscriptionSetMsg(*this);
+}
+
+// Destructor
+SubscriptionSetMsg::~SubscriptionSetMsg()
+{
+   // no work required
+}
+
+/* ============================ MANIPULATORS ============================== */
+
+// Assignment operator
+SubscriptionSetMsg&
+SubscriptionSetMsg::operator=(const SubscriptionSetMsg& rhs)
+{
+   if (this == &rhs)            // handle the assignment to self case
+      return *this;
+
+   OsMsg::operator=(rhs);       // assign fields for parent class
+
+   _handler       = rhs._handler;
+   _callidContact = rhs._callidContact;
+
+   return *this;
+}
+
+/* ============================ ACCESSORS ================================= */
+
+// Return the size of the message in bytes.
+// This is a virtual method so that it will return the accurate size for
+// the message object even if that object has been upcast to the type of
+// an ancestor class.
+int SubscriptionSetMsg::getMsgSize(void) const
+{
+   return sizeof(*this);
+}
+
+// Return the newState.
+UtlContainable* SubscriptionSetMsg::getHandler() const
+{
+   return _handler;
+}
+
+// Return pointer to mSubscriptionState.
+const UtlString* SubscriptionSetMsg::getCallidContact() const
+{
+   return &_callidContact;
+}
