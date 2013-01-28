@@ -24,7 +24,7 @@
 #include <sipxunit/TestUtilities.h>
 #include <string>
 
-#include "os/OsSysLog.h"
+//#include "os/OsSysLog.h"
 
 #include "utl/UtlSList.h"
 #include "net/SipXauthIdentity.h"

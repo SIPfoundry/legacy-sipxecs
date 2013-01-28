@@ -17,8 +17,11 @@
 
 #include <os/OsDefs.h>
 #include <os/OsServerTask.h>
+#include <os/OsTimer.h>
+#include <utl/UtlRandom.h>
 #include <utl/UtlHashBag.h>
 #include <net/SipRefreshManager.h>
+
 
 // DEFINES
 // MACROS
@@ -37,6 +40,51 @@ class SubscriptionGroupState;
 class SubscriptionDialogState;
 
 // TYPEDEFS
+
+//! Class to prevent access to a object from multiple threads
+/** This class is a locking wrapper over an object. The wrap constructor
+ * it will lock the received object by calling the lock method of the
+ * object. The object will be unlocked in the wrap destructor. This
+ * wrapper class inherits from boost:noncopyable so it cannot be copied,
+ * thus preventing usage of the object lock outside the constructor and
+ * destructor (this is a guarantee that the lock/unlock will be done only
+ * one time per wrap).
+ */
+template <class T>
+class UtlLocker: public boost::noncopyable
+{
+public:
+    UtlLocker()
+    {
+        _obj = T();
+    }
+
+    UtlLocker(T obj)
+    {
+        _obj = obj;
+
+        if (_obj)
+        {
+            _obj->lock();
+        }
+    }
+
+    virtual ~UtlLocker()
+    {
+        if (_obj)
+        {
+            _obj->unlock();
+        }
+    }
+
+    T get() const
+    {
+        return _obj;
+    }
+
+private:
+    T _obj;
+};
 
 //! Class for maintaining the subscriber role of SIP subscriptions
 /** Once a SipSubscribeClient has been created, it can be directed to
@@ -129,6 +177,190 @@ public:
         //   Ownership is retained by SipSubscribeClient.
           );
 
+    // Private class to contain information about subscription groups
+    class SubscriptionGroupState : public UtlString
+    {
+    public:
+        typedef boost::shared_ptr<SubscriptionGroupState> Ptr;
+        typedef UtlLocker<SubscriptionGroupState::Ptr> WrapPtr;
+        typedef boost::shared_ptr<SubscriptionGroupState::WrapPtr> AutoWrapPtr;
+
+       // The parent UtlString contains the original earlyDialogHandle as a key.
+       // This key never changes, and is the earlyDialogHandle returned by
+       // ::addSubscription().
+       // The early dialog handle of transmitted SUBSCRIBE requests will change
+       // when we reestablish failed subscriptions.
+
+       SubscriptionGroupState(SipSubscribeClient* pClient,
+                              ///< the owning SipSubscribeClient
+                              const UtlString& handle,
+                              ///< early dialog handle for key
+                              SipMessage* subscriptionRequest,
+                              /**< SUBSCRIBE request to create subscriptions
+                               *   *subscriptionRequest becomes owned by the
+                               *   SubscriptionGroupState.
+                               */
+                              void* pApplicationData,
+                              ///< application data for callback functions
+                              SipSubscribeClient::SubscriptionStateCallback pStateCallback,
+                              ///< callback function for state changes
+                              SipSubscribeClient::NotifyEventCallback pNotifyCallback,
+                              ///< callback function for NOTIFYs
+                              bool reestablish,
+                              ///< set to reestablish failed subscriptions
+                              bool restart
+                              ///< set to periodically restart subscriptions
+          );
+
+       virtual ~SubscriptionGroupState();
+
+       void toString(UtlString& dumpString);
+
+       //! Copying operators.
+       SubscriptionGroupState(const SubscriptionGroupState& rSubscriptionGroupState);
+       SubscriptionGroupState& operator=(const SubscriptionGroupState& rhs);
+
+       /** Test whether the state of this group indicates that the subscription
+        *  has been successfully started.
+        */
+       // The test is:
+       //        at least one success response to the SUBSCRIBE
+       //        no failure response to the SUBSCRIBE
+       //        at least one NOTIFY arrived (that does not have
+       //           "Subscription-State: terminated")
+       bool successfulStart();
+
+       /// Set the timer for subscription starting.
+       //  initial == true means to use the first-attempt time,
+       //  initial == false means to use the time for the next attempt, based
+       //  on the time for the previous attempt
+       void setStartingTimer(bool initial);
+
+       /// Set the timer for subscription restarting.
+       void setRestartTimer();
+
+       /** Set the subscription group state variables to indicate a
+        *  successfully established subscription.
+        */
+       void transitionToEstablished();
+
+       /// Set the subscription group to prepare to attempt another start.
+       //  In particular, revise the stored SUBSCRIBE message with another
+       //  Call-Id and from-tag.
+       void resetStarting();
+
+       /// Lock the object to prevent access from multiple threads.
+       void lock();
+
+       /// Unlock a previously locked object.
+       void unlock();
+
+       // This class does not define ::getContainableType or ::TYPE so that objects
+       // compare as members of the base class (UtlString).
+
+       //! Random number generator for generating refresh times.
+       static UtlRandom sRandom;
+
+       // Prototype SUBSCRIBE request for the subscriptions.
+       SipMessage* mpSubscriptionRequest;
+       // UtlString::data contains the initial early dialog handle.
+       // Current early dialog handle (derived from *mpSubscriptionRequest).
+       UtlString mCurrentEarlyDialogHandle;
+
+       // Application data provided for callbacks.
+       void* mpApplicationData;
+       // Callback function for state changes, or NULL.
+       SipSubscribeClient::SubscriptionStateCallback mpStateCallback;
+       SipSubscribeClient::NotifyEventCallback mpNotifyCallback;
+       // Whether to reestablish subscriptions that fail.
+       bool mReestablish;
+       // Whether to restart subscriptions on an approximately daily cycle.
+       bool mRestart;
+
+       // true if we are starting the subscription group, false if it is established.
+       bool mStarting;
+       // If mStarting, the time-out time of this starting attempt (secs).
+       int mStartingTimeout;
+       // Number of success responses to SUBSCRIBE seen since reestablishement.
+       int mSuccessResponses;
+       // Number of failure responses to SUBSCRIBE seen since reestablishement.
+       int mFailureResponses;
+       // Number of dialog-establishing (not terminating) NOTIFYs seen since
+       // reestablishment.
+       int mEstablishingNotifys;
+
+       /// Timer for subscription establishement.
+       OsTimer mStartingTimer;
+       /// Timer for periodic subscription restart.
+       OsTimer mRestartTimer;
+
+    private:
+       /// Mutex needed to protect access to the class.
+       // It is recursive because it can be locked multiple times from the same thread.
+       mutable boost::recursive_mutex _accessMutex;
+    };
+
+public:
+    // Private class to contain information about subscription dialogs within
+    // subscription groups
+    class SubscriptionDialogState : public UtlString
+    {
+    public:
+        typedef boost::shared_ptr<SubscriptionDialogState> Ptr;
+        typedef UtlLocker<SubscriptionDialogState::Ptr> WrapPtr;
+        typedef std::auto_ptr<SubscriptionDialogState::WrapPtr> AutoWrapPtr;
+
+       // The parent UtlString contains the dialogHandle as a key
+       // When an initial SUBSCRIBE is sent, a SubscriptionDialogState is
+       // created for the early dialog.  When the first NOTIFY is
+       // received, the SubscriptionDialogState is changed to use the
+       // established dialog handle as key.  Later NOTIFYs cause further
+       // SubscriptionDialogState's to be created, with their established
+       // dialog handles as keys.
+
+       SubscriptionDialogState(const UtlString& handle,
+                               ///< dialog handle for key
+                               SipSubscribeClient::SubscriptionGroupState::Ptr pGroupState,
+                               ///< pointer to owning SubscriptionGroupState
+                               SipSubscribeClient::SubscriptionState state
+                               ///< state of the subscription
+          );
+
+       virtual ~SubscriptionDialogState();
+
+       void toString(UtlString& dumpString);
+
+       //! Copying operators.
+       SubscriptionDialogState(const SubscriptionDialogState& rSubscriptionDialogState);
+       SubscriptionDialogState& operator=(const SubscriptionDialogState& rhs);
+
+       /// Lock the object to prevent access from multiple threads.
+       void lock();
+
+       /// Unlock a previously locked object.
+       void unlock();
+
+       // The SubscriptionGroupState object for the ::addSubscription() that
+       // created this subscription.
+       SipSubscribeClient::SubscriptionGroupState::Ptr mpGroupState;
+       // UtlString::data contains the established dialog handle.
+       SipSubscribeClient::SubscriptionState mState;
+
+       // true if a NOTIFY has been received for this dialog.
+       // (May be false because a dialog state can be established by a success
+       // response from SUBSCRIBE as well as by a NOTIFY.)
+       bool mNotifyReceived;
+
+       // This class does not define ::getContainableType or ::TYPE so that objects
+       // compare as members of the base class (UtlString).
+
+    private:
+       /// Mutex needed to protect access to the class.
+       // It is recursive because it can be locked multiple times from the same thread.
+       mutable boost::recursive_mutex _accessMutex;
+    };
+
+public:
 /* ============================ CREATORS ================================== */
 
     //! Default Dialog constructor
@@ -139,6 +371,7 @@ public:
     //! Destructor
     virtual
     ~SipSubscribeClient();
+
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -261,8 +494,10 @@ public:
     //! Dump the object's internal state.
     void dumpState();
 
+    void dumpSubscriptionDialog(const char *message, SubscriptionDialogState::Ptr &dialogState);
+    void dumpSubscriptionDialogs(const char *message, bool lock);
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
-protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -299,48 +534,54 @@ private:
     //! Add the state for a subscription group to mSubscriptionGroups.
     /*  Assumes external locking
      */
-    void addGroupState(SubscriptionGroupState* groupState);
+    void addGroupState(SubscriptionGroupState::Ptr &groupState);
 
     //! Add the state for a subscription dialog to mSubscriptionDialogs.
     /*  Assumes external locking
      */
-    void addDialogState(SubscriptionDialogState* dialogState);
+    void addDialogState(SubscriptionDialogState::Ptr &dialogState);
+
+    SubscriptionGroupState::AutoWrapPtr getFirstGroupState();
 
     //! find the state from mSubscriptionGroups with the specified current handle
     /*  Assumes external locking
      */
-    SubscriptionGroupState* getGroupStateByOriginalHandle(const UtlString& dialogHandle);
+    SubscriptionGroupState::AutoWrapPtr getGroupStateByOriginalHandle(const UtlString& dialogHandle);
+    SubscriptionGroupState::Ptr getGroupStateFromAWP(const SubscriptionGroupState::AutoWrapPtr &awp);
+    SubscriptionDialogState::Ptr getDialogStateFromAWP(const SubscriptionDialogState::AutoWrapPtr &awp);
 
     //! find the state from mSubscriptionGroups with the specified original handle
     /*  Assumes external locking
      */
-    SubscriptionGroupState* getGroupStateByCurrentHandle(const UtlString& dialogHandle);
+    SubscriptionGroupState::AutoWrapPtr getGroupStateByCurrentHandle(const UtlString& dialogHandle);
 
     //! find the state from mSubscriptionDialogs that matches the handle
     /*  Assumes external locking
      */
-    SubscriptionDialogState* getDialogState(const UtlString& dialogHandle);
+    SubscriptionDialogState::AutoWrapPtr getDialogState(const UtlString& dialogHandle);
+
+    SubscriptionDialogState::AutoWrapPtr getDialogStateByGroupState(const SubscriptionGroupState::Ptr& groupState);
 
     /** Recalculate the current early dialog handle from the SUBSCRIBE request
      *  and revise mSubscriptionGroupsByCurrentHandle.
      *  Assumes external locking
      */
-    void reindexGroupState(SubscriptionGroupState* groupState);
+    void reindexGroupState(SubscriptionGroupState::Ptr groupState);
 
     //! remove the state from mSubscriptionGroups with the specified original handle
     /*  Assumes external locking.
      */
-    SubscriptionGroupState* removeGroupStateByOriginalHandle(const UtlString& dialogHandle);
+    SubscriptionGroupState::AutoWrapPtr removeGroupStateByOriginalHandle(const UtlString& dialogHandle);
 
     //! remove the state from mSubscriptionGroups with the specified current handle
     /*  Assumes external locking.
      */
-    SubscriptionGroupState* removeGroupStateByCurrentHandle(const UtlString& dialogHandle);
+    SubscriptionGroupState::AutoWrapPtr removeGroupStateByCurrentHandle(const UtlString& dialogHandle);
 
     //! remove the state from mSubscriptionDialogs that matches the dialog
     /*  Assumes external locking.
      */
-    SubscriptionDialogState* removeDialogState(const UtlString& dialogHandle);
+    SubscriptionDialogState::AutoWrapPtr removeDialogState(const UtlString& dialogHandle);
 
     /// Reestablish a subscription.
     /*  This method  is used both to "reestablish" a subscription that has failed
@@ -365,17 +606,23 @@ private:
     /** SubscriptionGroupState objects carrying the information for
      *  each subscription group.
      */
-    UtlHashBag mSubscriptionGroups;
+    std::vector<SubscriptionGroupState::Ptr> mSubscriptionGroups;
+    //UtlHashBag mSubscriptionGroups;
     /** Index of mSubscriptionGroups by the current early dialog handle
      *  (mCurrentEarlyDialogHandle).
      *  Note that mSubscriptionGroupsByCurrentHandle does not own either the
      *  keys or the values of this UtlHashMap.
      */
-    UtlHashMap mSubscriptionGroupsByCurrentHandle;
+
+    std::map<UtlString, SubscriptionGroupState::Ptr> mSubscriptionGroupsByCurrentHandle;
+    //UtlHashMap mSubscriptionGroupsByCurrentHandle;
+
     /** SubscriptionGroupDialog objects carrying the information for
      *  each subscription dialog.
      */
-    UtlHashBag mSubscriptionDialogs;
+    std::vector<SubscriptionDialogState::Ptr> mSubscriptionDialogs;
+    //UtlHashBag mSubscriptionDialogs;
+
     /** SIP event types that we are currently a SipUserAgent message observer
      *  for.
      */
