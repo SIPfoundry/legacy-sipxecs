@@ -450,8 +450,7 @@ void ResourceListSet::subscriptionEventCallbackSync(
                  earlyDialogHandle->data(), dialogHandle->data(), newState,
                  subscriptionState->data());
 
-   // Serialize access to the ResourceListSet.
-   recursive_mutex_read_lock lock(_subscriptionMutex);
+
 
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::subscriptionEventCallbackSync after mutex_read_lock on semaphore");
@@ -466,9 +465,13 @@ void ResourceListSet::subscriptionEventCallbackSync(
     * type of the object is a subclass of both UtlContainable and
     * ResourceSubscriptionReceiver.
     */
-   ResourceSubscriptionReceiver* receiver =
-      dynamic_cast <ResourceSubscriptionReceiver*>
-         (mSubscribeMap.findValue(earlyDialogHandle));
+   ResourceSubscriptionReceiver::CallBack::Ptr receiver;
+   {
+     recursive_mutex_read_lock lock(_subscriptionMutex);
+     if (_subscribeMap.find(earlyDialogHandle->data()) != _subscribeMap.end())
+       receiver = _subscribeMap[earlyDialogHandle->data()];
+   }
+
 
    if (receiver)
    {
@@ -572,26 +575,28 @@ void ResourceListSet::notifyEventCallbackSync(const UtlString* dialogHandle,
 void ResourceListSet::addSubscribeMapping(UtlString* earlyDialogHandle,
                                           UtlContainable* handler)
 {
-   recursive_mutex_write_lock lock(_subscriptionMutex);
-
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::addSubscribeMapping this = %p, earlyDialogHandle = '%s', handler = %p",
                  this, earlyDialogHandle->data(), handler);
 
-   mSubscribeMap.insertKeyAndValue(earlyDialogHandle, handler);
+   ResourceSubscriptionReceiver* pReceiver = dynamic_cast<ResourceSubscriptionReceiver*>(handler);
+   if (pReceiver)
+   {
+     recursive_mutex_write_lock lock(_subscriptionMutex);
+     _subscribeMap[earlyDialogHandle->data()] = pReceiver->getSafeCallBack();
+   }
 }
 
 /** Delete a mapping for an early dialog handle.
  */
 void ResourceListSet::deleteSubscribeMapping(UtlString* earlyDialogHandle)
 {
-   recursive_mutex_write_lock lock(_subscriptionMutex);
-
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::deleteSubscribeMapping this = %p, earlyDialogHandle = '%s'",
                  this, earlyDialogHandle->data());
 
-   mSubscribeMap.remove(earlyDialogHandle);
+   recursive_mutex_write_lock lock(_subscriptionMutex);
+   _subscribeMap.erase(earlyDialogHandle->data());
 }
 
 /** Add a mapping for a dialog handle to its handler for

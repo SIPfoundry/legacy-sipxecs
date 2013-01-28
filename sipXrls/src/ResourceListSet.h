@@ -18,6 +18,7 @@
 // APPLICATION INCLUDES
 #include "ResourceCache.h"
 #include "ResourceList.h"
+#include "ResourceSubscriptionReceiver.h"
 #include <utl/UtlContainableAtomic.h>
 #include <utl/UtlString.h>
 #include <utl/UtlSList.h>
@@ -499,7 +500,8 @@ class ResourceListSet : public UtlContainableAtomic
    //  The values are instances of subclasses of ResourceSubscriptionReceiver.
    //  The keys are UtlString's owned by the value objects.
    //  Thus, neither keys nor values are owned by mSubscribeMap.
-   UtlHashMap mSubscribeMap;
+   typedef std::map<std::string, ResourceSubscriptionReceiver::CallBack::Ptr> SubscribeMap;
+   SubscribeMap _subscribeMap;
 
    //! Map from dialog handles to the objects that handle their events.
    //  The values are instances of subclasses of ResourceNotifyReceiver.
