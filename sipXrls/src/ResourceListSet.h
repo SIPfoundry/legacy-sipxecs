@@ -19,6 +19,7 @@
 #include "ResourceCache.h"
 #include "ResourceList.h"
 #include "ResourceSubscriptionReceiver.h"
+#include "ResourceNotifyReceiver.h"
 #include <utl/UtlContainableAtomic.h>
 #include <utl/UtlString.h>
 #include <utl/UtlSList.h>
@@ -506,7 +507,8 @@ class ResourceListSet : public UtlContainableAtomic
    //! Map from dialog handles to the objects that handle their events.
    //  The values are instances of subclasses of ResourceNotifyReceiver.
    //  The keys are UtlString's owned by the value objects.
-   UtlHashMap mNotifyMap;
+   typedef std::map<std::string, ResourceNotifyReceiver::CallBack::Ptr> NotifyMap;
+   NotifyMap _notifyMap;
 
    /** Map from UtlInt's containing sequence numbers to the objects they
     *  designate.

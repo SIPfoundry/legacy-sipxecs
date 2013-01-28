@@ -24,11 +24,13 @@
 // Constructor
 ResourceNotifyReceiver::ResourceNotifyReceiver()
 {
+  _safeCallBack = CallBack::Ptr(new CallBack(this));
 }
 
 // Destructor
 ResourceNotifyReceiver::~ResourceNotifyReceiver()
 {
+  _safeCallBack->invalidateCallBack();
 }
 
 /* ============================ MANIPULATORS ============================== */
