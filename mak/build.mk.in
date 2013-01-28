@@ -14,6 +14,7 @@ app :
 
 # pull in dependency make fragments
 include $(SRC)/*/.sipxecs.mk
+include $(SRC)/mak/*.sipxecs.mk
 
 # Only the main rpm
 $(foreach P,$(sipx) $(app),$(eval $(P)_TAR = $(P)/$$(call lowercase,$(P))-$(PACKAGE_VERSION).tar.gz))

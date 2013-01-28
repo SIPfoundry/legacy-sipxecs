@@ -1,9 +1,6 @@
 [submodule "freeswitch"]
 	path = freeswitch
 	url = git://github.com/dhubler/freeswitch.git
-[submodule "OpenACD"]
-	path = OpenACD
-	url = git://github.com/OpenACD/OpenACD.git
 [submodule "homer"]
 	path = homer
 	url = http://code.google.com/p/homer/
