@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
@@ -31,6 +32,8 @@ import org.springframework.beans.factory.annotation.Required;
 public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements SpeedDialManager {
     private CoreContext m_coreContext;
     private FeatureManager m_featureManager;
+    private ConfigManager m_configManager;
+    private SipxReplicationContext m_sipxReplicationContext;
 
     @Override
     public SpeedDial getSpeedDialForUserId(Integer userId, boolean create) {
