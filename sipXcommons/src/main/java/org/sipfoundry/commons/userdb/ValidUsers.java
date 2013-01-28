@@ -107,6 +107,12 @@ public class ValidUsers {
         return cursor;
     }
 
+    public DBCursor getUsersWithSpeedDial() {
+        DBCursor cursor = getEntityCollection().find(QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_USER).and("spdl").exists(true
+                ).get());
+        return cursor;
+    }
+    
     /**
      * Loading all users into memory is an extremely expensive call for large systems (10K-50K user system).
      * Consider refactoring your code to not call this method.
