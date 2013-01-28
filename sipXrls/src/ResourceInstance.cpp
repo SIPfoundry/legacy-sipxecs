@@ -64,6 +64,8 @@ ResourceInstance::ResourceInstance(SubscriptionSet* parent,
 // Destructor
 ResourceInstance::~ResourceInstance()
 {
+   _safeCallBack->invalidateCallBack();
+
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceInstance::~ mInstanceName = '%s'",
                  mInstanceName.data());

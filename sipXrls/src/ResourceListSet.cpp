@@ -541,8 +541,8 @@ void ResourceListSet::notifyEventCallbackSync(const UtlString* dialogHandle,
                  "ResourceListSet::notifyEventCallbackSync dialogHandle = '%s'",
                  dialogHandle->data());
 
-   // Serialize access to the ResourceListSet.
-   mutex_read_lock lock(_notifyMutex);
+   
+   
 
    // Look up the ResourceNotifyReceiver to notify based on the dialogHandle.
    /* To call the handler, we dynamic_cast the object to
@@ -553,9 +553,13 @@ void ResourceListSet::notifyEventCallbackSync(const UtlString* dialogHandle,
     * type of the object is a subclass of both UtlContainable and
     * ResourceNotifyReceiver.
     */
-   ResourceNotifyReceiver* receiver =
-      dynamic_cast <ResourceNotifyReceiver*>
-         (mNotifyMap.findValue(dialogHandle));
+   ResourceNotifyReceiver::CallBack::Ptr receiver;
+   {
+     // Serialize access to the ResourceListSet.
+     mutex_read_lock lock(_notifyMutex);
+     if (_notifyMap.find(dialogHandle->data()) != _notifyMap.end())
+       receiver = _notifyMap[dialogHandle->data()];
+   }
 
    if (receiver)
    {
@@ -616,11 +620,22 @@ void ResourceListSet::addNotifyMapping(const UtlString& dialogHandle,
     * SipDialog::isSameDialog.)
     */
 
-   mutex_write_lock lock(_notifyMutex);
+   
    // If we already have a different mapping, report an error, as this
    // addNotifyMapping() should be a duplicate of the mapping we
    // already have.
-   UtlContainable* current_handler = mNotifyMap.find(&dialogHandle);
+   UtlContainable* current_handler = 0;
+   ResourceNotifyReceiver::CallBack::Ptr receiver;
+   {
+     // Serialize access to the ResourceListSet.
+     mutex_read_lock lock(_notifyMutex);
+     if (_notifyMap.find(dialogHandle.data()) != _notifyMap.end())
+     {
+       receiver = _notifyMap[dialogHandle.data()];
+       current_handler = (UtlContainable*)receiver->receiver();
+     }
+   }
+
    if (current_handler)
    {
       if (current_handler != handler)
@@ -645,8 +660,14 @@ void ResourceListSet::addNotifyMapping(const UtlString& dialogHandle,
                  handler);
 
    // Make entries in mNotifyMap for both forms of the handle.
-   mNotifyMap.insertKeyAndValue(dialogHandleP, handler);
-   mNotifyMap.insertKeyAndValue(swappedDialogHandleP, handler);
+
+   ResourceNotifyReceiver* pNotifier = dynamic_cast<ResourceNotifyReceiver*>(handler);
+   if (pNotifier)
+   {
+      mutex_write_lock lock(_notifyMutex);
+      _notifyMap[dialogHandleP->data()] = pNotifier->getSafeCallBack();
+      _notifyMap[swappedDialogHandleP->data()] = pNotifier->getSafeCallBack();
+   }
 }
 
 /** Delete a mapping for a dialog handle.
@@ -662,23 +683,11 @@ void ResourceListSet::deleteNotifyMapping(const UtlString* dialogHandle)
                  "ResourceListSet::deleteNotifyMapping this = %p, dialogHandle = '%s', swappedDialogHandle = '%s'",
                  this, dialogHandle->data(), swappedDialogHandle.data());
 
-   // We have to get a pointer to the key objects, as our caller won't
-   // free them.  Otherwise, we could use UtlHashMap::remove().
-   // We own the key objects and have to delete them, but we don't own
-   // the value objects, and so don't delete them.
-   UtlContainable* value;
-   UtlContainable* keyString = mNotifyMap.removeKeyAndValue(dialogHandle, value);
-   if (keyString)
-   {
-      // Delete the key object.
-      delete keyString;
-   }
-   keyString = mNotifyMap.removeKeyAndValue(&swappedDialogHandle, value);
-   if (keyString)
-   {
-      // Delete the swapped key object.
-      delete keyString;
-   }
+
+   mutex_write_lock lock(_notifyMutex);
+   _notifyMap.erase(dialogHandle->data());
+   _notifyMap.erase(swappedDialogHandle.data());
+
 }
 
 // Get the next sequence number for objects for the parent ResourceListServer.
