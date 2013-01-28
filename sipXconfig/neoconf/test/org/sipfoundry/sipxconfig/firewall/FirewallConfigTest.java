@@ -106,7 +106,7 @@ public class FirewallConfigTest {
           new CustomFirewallRule(FirewallTable.mangle, "mangle 1")
         );
 
-        m_config.writeIptables(m_actual, new HashSet<String>(), rules, custom, groups, cluster, l1);
+        m_config.writeIptables(m_actual, new HashSet<String>(), new HashSet<String>(), m_settings, rules, custom, groups, cluster, l1);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-firewall.yaml"));
         assertEquals(expected, m_actual.toString());
         

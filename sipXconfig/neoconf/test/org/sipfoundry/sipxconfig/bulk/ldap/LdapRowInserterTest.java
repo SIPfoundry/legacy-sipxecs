@@ -133,7 +133,7 @@ public class LdapRowInserterTest extends TestCase {
         m_rowInserter.setMailboxManager(mailboxManager);
         m_rowInserter.setAttrMap(map);
         m_rowInserter.setDomain("example.com");
-        m_rowInserter.beforeInserting();
+        m_rowInserter.beforeInserting(null);
         m_rowInserter.insertRow(searchResult, attributes);
         m_rowInserter.afterInserting();
 

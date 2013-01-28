@@ -27,7 +27,7 @@ public class BulkManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testInsertFromCsvEmpty() throws Exception {
-        m_bulkManager.insertFromCsv(new StringReader(""));
+        m_bulkManager.insertFromCsv(new StringReader(""), false);
         assertEquals(0, countRowsInTable("users"));
         assertEquals(0, countRowsInTable("phone"));
         assertEquals(0, countRowsInTable("line"));
@@ -38,7 +38,7 @@ public class BulkManagerImplTestIntegration extends IntegrationTestCase {
     public void testInsertFromCsvNameDuplication() throws Exception {
         // users with duplicated names should be overwritten
         InputStream cutsheet = getClass().getResourceAsStream("dup_names.csv");
-        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet), false);
         commit();
         assertEquals(2, countRowsInTable("users"));
         assertEquals(3, countRowsInTable("phone"));
@@ -54,7 +54,7 @@ public class BulkManagerImplTestIntegration extends IntegrationTestCase {
         // second user has a duplicated alias - it should be ignored, but remaining users have to
         // be imported
         InputStream cutsheet = getClass().getResourceAsStream("errors.csv");
-        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet), false);
         //commit();
         assertEquals(2, countRowsInTable("users"));
         assertEquals(2, countRowsInTable("phone"));
@@ -68,7 +68,7 @@ public class BulkManagerImplTestIntegration extends IntegrationTestCase {
     public void testInsertFromCsvPhoneDuplication() throws Exception {
         // users with duplicated names should be overwritten
         InputStream cutsheet = getClass().getResourceAsStream("dup_phones.csv");
-        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet), false);
         assertEquals(5, countRowsInTable("users"));
         assertEquals(4, countRowsInTable("phone"));
         assertEquals(5, countRowsInTable("line"));
@@ -80,7 +80,7 @@ public class BulkManagerImplTestIntegration extends IntegrationTestCase {
 
     public void testInsertFromCsv() throws Exception {
         InputStream cutsheet = getClass().getResourceAsStream("cutsheet.csv");
-        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet), false);
         assertEquals(5, countRowsInTable("users"));
         assertEquals(5, countRowsInTable("phone"));
         assertEquals(5, countRowsInTable("line"));
@@ -93,10 +93,10 @@ public class BulkManagerImplTestIntegration extends IntegrationTestCase {
     public void testInsertFromCsvDuplicate() throws Exception {
         InputStream cutsheet = getClass().getResourceAsStream("cutsheet.csv");
         cutsheet.mark(-1);
-        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet), false);
         // and try again
         cutsheet.reset();
-        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet), false);
         assertEquals(5, countRowsInTable("users"));
         assertEquals(5, countRowsInTable("phone"));
         // lines are updated, if this value is 10, lines are erroneously being duplicated
@@ -109,13 +109,13 @@ public class BulkManagerImplTestIntegration extends IntegrationTestCase {
 
     public void testInsertFromCsvUserNameAliasConflict() throws Exception {
         InputStream cutsheet = getClass().getResourceAsStream("user_alias_conflict.csv");
-        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet), false);
         assertEquals(1, countRowsInTable("users"));
     }
 
     public void testInsertFromCsvBlankPhoneGroup() throws Exception {
         InputStream cutsheet = getClass().getResourceAsStream("blank_phonegroup.csv");
-        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet), false);
         assertEquals(1, countRowsInTable("users"));
         assertEquals(1, countRowsInTable("phone"));
         assertEquals(0, countRowsInTable("phone_group"));
@@ -124,7 +124,7 @@ public class BulkManagerImplTestIntegration extends IntegrationTestCase {
 
     public void testInsertFromCsvBlankUserGroup() throws Exception {
         InputStream cutsheet = getClass().getResourceAsStream("blank_usergroup.csv");
-        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet), false);
         assertEquals(1, countRowsInTable("users"));
         assertEquals(1, countRowsInTable("phone"));
         assertEquals(1, countRowsInTable("phone_group"));

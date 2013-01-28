@@ -26,10 +26,6 @@
 
 #include "utl/Instrumentation.h"
 
-typedef Int64 Interval;
-static const int TIMER_TIME_UNIT = 1000000;
-#define TIME_TO_INTERVAL(period) (Interval)(period.seconds()) * TIMER_TIME_UNIT + period.usecs()
-
 // Constructor
 // If the name is specified but is already in use, throw an exception
 OsMsgQShared::OsMsgQShared(const char* name,
@@ -38,11 +34,11 @@ OsMsgQShared::OsMsgQShared(const char* name,
                            int options,
                            bool reportFull)
    : OsMsgQBase(name),
-     _maxMsgs(maxMsgs),
      _maxMsgLen(maxMsgLen),
      _options(options),
      _reportFull(reportFull)
 {
+    mMaxMsgs = maxMsgs;
 }
 
 // Destructor
@@ -171,14 +167,13 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
 
    int count = numMsgs();
    
-   if (_reportFull && 2 * count > _maxMsgs)
+   if (_reportFull && 2 * count > mMaxMsgs)
    {
      OS_LOG_WARNING(FAC_KERNEL,
                    "OsMsgQShared::doSendCore message queue '" << mName.data()
                    << "' is over half full - count = " << count
-                   << " max = " << _maxMsgs);
+                   << " max = " << mMaxMsgs);
    }
-
 
    system_tap_queue_enqueue(mName.data(), 0, _queue.size());
    return OS_SUCCESS;
@@ -189,9 +184,9 @@ OsStatus OsMsgQShared::doReceive(OsMsg*& rpMsg, const OsTime& rTimeout)
 {
   OsStatus ret;
 
-  if (!rTimeout.isInfinite() && !rTimeout.isNoWait())
+  if (!rTimeout.isInfinite())
   {
-    Interval expireFromNow = TIME_TO_INTERVAL(rTimeout);
+    int expireFromNow = rTimeout.cvtToMsecs();
     if (try_dequeue(rpMsg, expireFromNow))
       ret = OS_SUCCESS;
     else
@@ -202,7 +197,7 @@ OsStatus OsMsgQShared::doReceive(OsMsg*& rpMsg, const OsTime& rTimeout)
     dequeue(rpMsg);
     ret = OS_SUCCESS;
   }
-   
+
    system_tap_queue_dequeue(mName.data(), 0, _queue.size());
 
    return ret;

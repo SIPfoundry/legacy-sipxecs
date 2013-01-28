@@ -15,8 +15,8 @@
 #
 # Things that we recommend you set in site-defaults.cfg:
 #
-# config_opts['basedir'] = '/var/lib/mock/'
-# config_opts['cache_topdir'] = '/var/cache/mock'
+config_opts['basedir'] = '@abs_top_builddir@/mock/'
+config_opts['cache_topdir'] = '@abs_top_builddir@/mock-cache'
 #  Note: the path pointed to by basedir and cache_topdir must be owned 
 #        by group 'mock' and must have mode: g+rws
 # config_opts['rpmbuild_timeout'] = 0

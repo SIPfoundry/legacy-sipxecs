@@ -59,7 +59,7 @@ enabled=@PULL_MISSING_RPMS@
 
 [build]
 name=build
-baseurl=http://localhost:40100/CentOS_6/x86_64/
+baseurl=http://localhost:@REPO_PORT@/CentOS_6/x86_64/
 
 """
 

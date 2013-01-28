@@ -15,7 +15,7 @@ import java.io.Reader;
 public interface BulkManager {
     public static final String CONTEXT_BEAN_NAME = "bulkManager";
 
-    void insertFromCsv(Reader reader);
+    void insertFromCsv(Reader reader, boolean disableEmailNotifications);
 
-    void insertFromCsv(File file, boolean deleteOnImport);
+    void insertFromCsv(File file, boolean deleteOnImport, boolean emailNotifications);
 }
