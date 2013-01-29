@@ -21,8 +21,9 @@
 
 // DEFINES
 
-#define RLS_SUBSCRIPTION_MSG OsMsg::USER_START
-#define RLS_NOTIFY_MSG (OsMsg::USER_START + 1)
+#define SAA_SUBSCRIPTION_MSG (OsMsg::USER_START)
+#define SAA_NOTIFY_MSG (OsMsg::USER_START + 1)
+#define SAA_APPEARANCE_MSG (OsMsg::USER_START + 2)
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -167,5 +168,58 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+//: Message to trigger creation of a new appearance
+class AppearanceMsg : public OsMsg
+{
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+public:
+
+/* ============================ CREATORS ================================== */
+
+    AppearanceMsg(/// The handler for this message which has knowledge on how to process it.
+            UtlContainable* handler,
+            /// The contact for the new appearance.
+            const UtlString& callidContact);
+   //:Constructor
+
+    AppearanceMsg(const AppearanceMsg& rhs);
+   //:Copy constructor
+
+   virtual OsMsg* createCopy(void) const;
+   //:Create a copy of this msg object (which may be of a derived type)
+
+   virtual ~AppearanceMsg();
+   //:Destructor
+
+/* ============================ MANIPULATORS ============================== */
+
+   AppearanceMsg& operator=(const AppearanceMsg& rhs);
+   //:Assignment operator
+
+/* ============================ ACCESSORS ================================= */
+
+   virtual int getMsgSize(void) const;
+     //:Return the size of the message in bytes
+     // This is a virtual method so that it will return the accurate size for
+     // the message object even if that object has been upcast to the type of
+     // an ancestor class.
+
+   //: Return the handler.
+   virtual UtlContainable* getHandler() const;
+
+   //: Return pointer to callid contact.
+   virtual const UtlString* getCallidContact() const;
+
+/* ============================ INQUIRY =================================== */
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+protected:
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
+   UtlContainable* _handler;
+   UtlString _callidContact;
+};
 
 #endif  // _ResourceListMsg_h_

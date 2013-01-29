@@ -27,6 +27,14 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 
+// In case a ContactSet needs to initiate multiple subscriptions at the same time
+// then multiple timers will be started to delay creation of these SubscriptionSets,
+// one timer per each SubscriptionSet. To avoid having these timers firing all at
+// the same moment, creating a burst of new dialog subscriptions, the expiration
+// time of subsequent timers is increased by a small increment to spread the timers
+// over an even interval.
+#define SUBSCRIPTION_WAIT_INCR_MSEC 2
+
 // STATIC VARIABLE INITIALIZATIONS
 
 const UtlContainableType ContactSet::TYPE = "ContactSet";
@@ -586,7 +594,7 @@ void ContactSet::updateSubscriptions(bool allowDirectUriSubscription)
    // subscription will be lost.
    // This variable tracks whether such a wait is needed before a
    // subscription is started.
-   bool subscription_ended_but_no_wait_done_yet = false;
+   bool wait_after_subscription_ended = false;
 
    // Iterate through the list of SubscriptionSets and remove any that aren't
    // in callid_contacts.
@@ -601,22 +609,23 @@ void ContactSet::updateSubscriptions(bool allowDirectUriSubscription)
                           "ContactSet::updateSubscriptions deleting subscription for '%s' in mUri = '%s'",
                           ss->data(), mUri.data());
             mSubscriptionSets.destroy(ss);
-            subscription_ended_but_no_wait_done_yet = true;
+            wait_after_subscription_ended = true;
          }
       }
    }
 
-   // Iterate through callid_contacts and add a SubscriptionSet for
-   // any that aren't in mSubscriptionSets.
-   // We don't limit the number of additions here, as the size of
-   // callid_contacts is guarded by the tests in notifyEventCallback.
-   {
-      UtlHashBagIterator itor(callid_contacts);
-      UtlString* callid_contact;
-      while ((callid_contact = dynamic_cast <UtlString*> (itor())))
-      {
-         if (!mSubscriptionSets.find(callid_contact))
-         {
+    // Iterate through callid_contacts and add a SubscriptionSet for
+    // any that aren't in mSubscriptionSets.
+    // We don't limit the number of additions here, as the size of
+    // callid_contacts is guarded by the tests in notifyEventCallback.
+    {
+        UtlHashBagIterator itor(callid_contacts);
+        UtlString* callid_contact;
+        long subscription_wait_msec = getResourceListServer()->getChangeDelay() / 2;
+        int subscriptionSetCount = 0;
+
+        while ((callid_contact = dynamic_cast <UtlString*> (itor())))
+        {
             // If we both terminate subscriptions and create subscriptions,
             // wait a short while to allow the terminations to complete.
             // Note that this wait must be less than the bulk add/delete
@@ -624,32 +633,36 @@ void ContactSet::updateSubscriptions(bool allowDirectUriSubscription)
             // generates requests to the ResourceListServer task, so a longer
             // wait would prevent the ResourceListServer task from servicing
             // requests as fast as it received them.
-            int wait = getResourceListServer()->getChangeDelay() / 2;
-            if (wait > 0)
-            {
-               if (subscription_ended_but_no_wait_done_yet)
-               {
-                  Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
-                                "ContactSet::updateSubscriptions waiting for %d msec",
-                                wait);
-                  OsTask::delay(wait);
-                  subscription_ended_but_no_wait_done_yet = false;
-               }
-            }
+        	if (!mSubscriptionSets.find(callid_contact))
+        	{
+				if (wait_after_subscription_ended)
+				{
+					Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
+							"ContactSet::updateSubscriptions waiting for %d msec",
+							subscription_wait_msec);
 
-            Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
-                          "ContactSet::updateSubscriptions adding subscription for '%s' in mUri = '%s'",
-                          callid_contact->data(), mUri.data());
-            // Get the contact URI into a UtlString.
-            UtlString uri(callid_contact->data() +
-                          callid_contact->index(';') +
-                          1);
-            mSubscriptionSets.insertKeyAndValue(new UtlString(*callid_contact),
-                                                new SubscriptionSet(mResource,
-                                                                    uri));
-         }
-      }
-   }
+					OsTime offset(subscription_wait_msec);
+					bool ret = getResourceListSet()->addSubscriptionSetByTimer(*callid_contact, this, offset);
+					if (ret)
+					{
+						subscriptionSetCount++;
+						/* for each successful fire timer the wait is incremented */
+						subscription_wait_msec += SUBSCRIPTION_WAIT_INCR_MSEC;
+					}
+				}
+				else
+				{
+					subscriptionSetCount++;
+					addSubscriptionSet(callid_contact);
+				}
+        	}
+        }
+
+        Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
+                "ContactSet::updateSubscriptions added '%d' new SubscriptionSets",
+                subscriptionSetCount);
+
+    }
 
    // Free callid_contacts.
    callid_contacts.destroyAll();
@@ -744,6 +757,29 @@ void ContactSet::dumpState() const
 UtlContainableType ContactSet::getContainableType() const
 {
    return ContactSet::TYPE;
+}
+
+void ContactSet::addSubscriptionSet(const UtlString* callidContact)
+{
+    Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
+            "ContactSetSet::addSubscriptionSet this = %p, mUri = '%s' callid;contact = '%s'",
+             this, mUri.data(), callidContact->data());
+
+     // Get the contact URI into a UtlString.
+     UtlString uri(callidContact->data() +
+                   callidContact->index(';') +
+                   1);
+
+    // Create the subscription set
+	SubscriptionSet* ss = new SubscriptionSet(mResource,  uri);
+
+	// Add the subscription to the set.
+	mSubscriptionSets.insertKeyAndValue(new UtlString(*callidContact), ss);
+
+	Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
+			"ContactSet::addSubscriptionSet "
+			"added SubscriptionSet for uri = '%s'",
+			uri.data() );
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
