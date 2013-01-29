@@ -119,4 +119,9 @@ public class SpecialUser extends BeanWithId implements Replicable {
         props.put(UID, getUserName());
         return props;
     }
+
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

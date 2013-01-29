@@ -101,4 +101,9 @@ public class OpenAcdClient extends BeanWithId implements Replicable {
     public boolean isValidUser() {
         return false;
     }
+
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

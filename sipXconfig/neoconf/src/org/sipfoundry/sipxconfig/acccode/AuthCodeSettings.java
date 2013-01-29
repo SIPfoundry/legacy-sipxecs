@@ -155,4 +155,9 @@ public class AuthCodeSettings extends PersistableSettings implements DeployConfi
     public String getBeanId() {
         return "authCodeSettings";
     }
+
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

@@ -639,14 +639,14 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         if (entity.isValidUser()) {
             top.put(VALID_USER, true);
         }
-        top.put(ENTITY_NAME,  entity.getClass().getSimpleName().toLowerCase());
+        top.put(ENTITY_NAME,  entity.getEntityName().toLowerCase());
         return top;
     }
 
     private String getEntityId(Replicable entity) {
         String id = "";
         if (entity instanceof BeanWithId) {
-            id = entity.getClass().getSimpleName() + ((BeanWithId) entity).getId();
+            id = entity.getEntityName() + ((BeanWithId) entity).getId();
         }
         if (entity instanceof SpecialUser) {
             id = ((SpecialUser) entity).getUserName();

@@ -183,4 +183,9 @@ public class OpenAcdQueue extends OpenAcdQueueWithSkills implements Replicable, 
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) FreeswitchFeature.FEATURE);
     }
+
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

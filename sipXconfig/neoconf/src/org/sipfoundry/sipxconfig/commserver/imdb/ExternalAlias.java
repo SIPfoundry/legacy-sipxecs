@@ -141,4 +141,9 @@ public class ExternalAlias implements Replicable {
     public Map<String, Object> getMongoProperties(String domain) {
         return Collections.EMPTY_MAP;
     }
+
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

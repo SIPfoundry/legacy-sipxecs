@@ -372,4 +372,9 @@ public class Gateway extends Device implements Replicable, DeployConfigOnEdit {
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) DialPlanContext.FEATURE);
     }
+
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

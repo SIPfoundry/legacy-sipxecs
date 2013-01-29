@@ -90,5 +90,8 @@ public class OpenAcdWebMgmtConfigCommand extends BeanWithId implements Replicabl
         return m_ssl;
     }
 
-
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

@@ -97,4 +97,8 @@ public class OpenAcdAgentWebConfigCommand extends BeanWithId implements Replicab
         return m_sslPort;
     }
 
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

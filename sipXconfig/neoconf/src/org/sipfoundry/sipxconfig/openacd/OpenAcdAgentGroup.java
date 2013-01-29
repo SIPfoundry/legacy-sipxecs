@@ -130,4 +130,9 @@ public class OpenAcdAgentGroup extends OpenAcdAgentWithSkills implements Replica
     public boolean isValidUser() {
         return false;
     }
+
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

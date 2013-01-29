@@ -126,4 +126,9 @@ public class OpenAcdSkill extends BeanWithId implements Replicable {
         props.put(OpenAcdContext.DESCRIPTION, getDescription());
         return props;
     }
+
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

@@ -143,4 +143,9 @@ public class User extends AbstractUser implements Replicable {
         props.put(MongoConstants.TIMESTAMP, System.currentTimeMillis());
         return props;
     }
+
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

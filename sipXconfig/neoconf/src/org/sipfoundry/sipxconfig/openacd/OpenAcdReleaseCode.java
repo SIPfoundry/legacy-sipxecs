@@ -110,4 +110,9 @@ public class OpenAcdReleaseCode extends BeanWithId implements Replicable {
     @Override
     public void setName(String name) {
     }
+
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

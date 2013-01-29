@@ -60,4 +60,9 @@ public interface Replicable extends NamedObject {
      * @return
      */
     public Map<String, Object> getMongoProperties(String domain);
+
+    /**
+     * @return the name of the entity to be persisted
+     */
+    public String getEntityName();
 }

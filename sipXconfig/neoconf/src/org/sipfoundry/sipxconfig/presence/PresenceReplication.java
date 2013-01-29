@@ -101,4 +101,9 @@ public class PresenceReplication implements Replicable, ReplicableProvider {
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
     }
+
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

@@ -147,4 +147,9 @@ public class OpenAcdQueueGroup extends OpenAcdQueueWithSkills implements Replica
     public boolean isValidUser() {
         return false;
     }
+
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

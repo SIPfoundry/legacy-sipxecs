@@ -741,6 +741,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         }
     }
 
+    @Override
     public OpenAcdClient getClientByName(String clientName) {
         List<OpenAcdClient> clients = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 OPEN_ACD_CLIENT_WITH_NAME, VALUE, clientName);

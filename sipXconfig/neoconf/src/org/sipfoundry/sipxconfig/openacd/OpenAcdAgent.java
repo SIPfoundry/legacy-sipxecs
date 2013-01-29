@@ -178,4 +178,8 @@ public class OpenAcdAgent extends OpenAcdAgentWithSkills implements Replicable {
         return false;
     }
 
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

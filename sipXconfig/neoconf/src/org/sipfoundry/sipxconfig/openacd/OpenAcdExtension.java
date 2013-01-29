@@ -200,4 +200,8 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable,
     protected Setting loadSettings() {
         return null;
     }
+
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

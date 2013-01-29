@@ -368,4 +368,9 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Arrays.asList((Feature) FreeswitchFeature.FEATURE, (Feature) ConferenceBridgeContext.FEATURE);
     }
+
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }
