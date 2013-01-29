@@ -87,7 +87,6 @@ lib_common = \
   hiredis \
   net-snmp \
   homer \
-  OpenACD \
   openfire \
   erlmongo \
   ruby-dbi \

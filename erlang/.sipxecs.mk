@@ -1,4 +1,4 @@
-lib_common += erlang
+lib_centos_6 += erlang
 
 erlang_SRPM=erlang-R15B-03.2.fc17.src.rpm
 

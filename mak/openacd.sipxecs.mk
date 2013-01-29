@@ -13,14 +13,17 @@ openacd_SOURCES = $(openacd_TAR)
 openacd_SRPM_DEFS = --define "buildno $(openacd_PACKAGE_REVISION)"
 openacd_RPM_DEFS = --define="buildno $(openacd_PACKAGE_REVISION)"
 
+openacd.git:
+	git clone git://github.com/sipxopenacd/openacd.git $(SRC)/openacd
+
 openacd.autoreconf:
 	cd $(SRC)/$(PROJ); \
 	  autoreconf -if
 
-openacd.configure:;
+openacd.configure: openacd.autoreconf
 	cd $(SRC)/$(PROJ); \
-	  configure
+	  ./configure --disable-dep-check
 
-openacd.dist :
+openacd.dist : openacd.configure
 	cd $(SRC)/$(PROJ); \
 	  make dist
