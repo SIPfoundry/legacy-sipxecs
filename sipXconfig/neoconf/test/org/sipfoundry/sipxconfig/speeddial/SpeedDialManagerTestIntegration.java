@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.sipfoundry.commons.mongo.MongoConstants;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper;
@@ -23,7 +25,9 @@ import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.QueryBuilder;
 
 public class SpeedDialManagerTestIntegration extends ImdbTestCase {
     private SpeedDialManager m_speedDialManager;
@@ -94,6 +98,13 @@ public class SpeedDialManagerTestIntegration extends ImdbTestCase {
         user.put("spdl", speeddial);
 
         MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user);
+        
+        //Test clear speed dials directly from Mongo
+        int result = getEntityCollection().find(QueryBuilder.start(MongoConstants.SPEEDDIAL).exists(true).get()).count();
+        assertEquals(1, result);
+        m_speedDialManager.clear();
+        result = getEntityCollection().find(QueryBuilder.start(MongoConstants.SPEEDDIAL).exists(true).get()).count();
+        assertEquals(0, result);
     }
 
     public void testSaveSpeedDialForGroup() throws Exception {

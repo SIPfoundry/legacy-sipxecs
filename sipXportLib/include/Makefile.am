@@ -87,6 +87,7 @@ nobase_include_HEADERS = \
     os/OsTime.h \
     os/OsTimeLog.h \
     os/OsTimer.h \
+    os/OsTimerQueue.h\
     os/OsTokenizer.h \
     os/ostream \
     os/OsUnLock.h \

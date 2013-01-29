@@ -72,6 +72,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     private Set<String> m_registeredIps;
     private boolean m_postSetup;
     private final Object m_lock = new Object();
+    private boolean m_flag;
 
     @Override
     public synchronized void configureEverywhere(Feature... features) {
@@ -102,6 +103,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     @Override
     public synchronized void regenerateMongo(Collection<Location> locations) {
         if (locations.contains(m_locationManager.getPrimaryLocation())) {
+            m_flag = true;
             m_sipxReplicationContext.generateAll();
         }
     }
@@ -154,7 +156,9 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     private void runProviders(ConfigRequest request, String jobLabel) {
         synchronized (m_lock) {
             try {
-                m_lock.wait();
+                while (m_flag) {
+                    m_lock.wait();
+                }
             } catch (InterruptedException e) {
                 LOG.warn("Thread interrupted. Config might be in stale state; rerun send profiles.");
             }
@@ -405,6 +409,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     @Override
     public void onApplicationEvent(MongoGenerationFinishedEvent event) {
         synchronized (m_lock) {
+            m_flag = false;
             m_lock.notifyAll();
         }
     }

@@ -29,6 +29,7 @@
 #include <net/SipSubscribeClient.h>
 #include <os/OsBSem.h>
 #include <os/OsTimer.h>
+#include <os/OsTimerQueue.h>
 
 // DEFINES
 // MACROS
@@ -103,6 +104,18 @@ class ResourceListSet : public UtlContainableAtomic
 
    //! Get the contained ResourceCache.
    ResourceCache& getResourceCache();
+
+   //! Create and add an SubscriptionSet Timer
+   //  May be called externally.
+   //  Return true if timer was added, false otherwise.
+   bool addSubscriptionSetByTimer(
+           /// callidContact used to create a new SubscriptionSet
+           const UtlString& callidContact,
+           /// handler that knows how to create a new SubscriptionSet
+           UtlContainable* handler,
+           /// the timer expiration starting from now
+           const OsTime& offset
+           );
 
    //! Create and add a resource list.
    //  Returns true if resource list was added, returns false if 'user'
@@ -541,6 +554,9 @@ class ResourceListSet : public UtlContainableAtomic
 
    //! version number for consolidated RLMI
    mutable int mVersion;
+
+   //! Queue of timers used to delay creation of new SubscriptionSet for ContactSets
+   OsTimerQueue _subscriptionSetTimers;
 
    //! sGapTimeout is an OsTime for the minimum interval between publishing
    //  events.

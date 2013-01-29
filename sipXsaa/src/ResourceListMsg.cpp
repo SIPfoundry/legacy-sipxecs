@@ -30,7 +30,7 @@ SubscriptionCallbackMsg::SubscriptionCallbackMsg(const char* earlyDialogHandle,
                                                  const char* dialogHandle,
                                                  SipSubscribeClient:: SubscriptionState newState,
                                                  const char* subscriptionState) :
-   OsMsg(RLS_SUBSCRIPTION_MSG, 0),
+   OsMsg(SAA_SUBSCRIPTION_MSG, 0),
    mEarlyDialogHandle(earlyDialogHandle),
    mDialogHandle(dialogHandle),
    mNewState(newState),
@@ -133,7 +133,7 @@ const UtlString* SubscriptionCallbackMsg::getSubscriptionState() const
 // Constructor
 NotifyCallbackMsg::NotifyCallbackMsg(const char* dialogHandle,
                                      SipMessage* msg) :
-   OsMsg(RLS_NOTIFY_MSG, 0),
+   OsMsg(SAA_NOTIFY_MSG, 0),
    mDialogHandle(dialogHandle),
    mpMsg(msg)
 {
@@ -209,3 +209,75 @@ const SipMessage* NotifyCallbackMsg::getMsg() const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
+
+
+// Constructor
+AppearanceMsg::AppearanceMsg(
+        UtlContainable *handler,
+        const UtlString& callidContact) :
+   OsMsg(SAA_APPEARANCE_MSG, 0),
+   _handler(handler),
+   _callidContact(callidContact)
+{
+}
+
+// Copy constructor
+AppearanceMsg::AppearanceMsg(
+        const AppearanceMsg& rhs)
+:  OsMsg(rhs)
+{
+   _handler          = rhs._handler;
+   _callidContact = rhs._callidContact;
+}
+
+// Create a copy of this msg object (which may be of a derived type)
+OsMsg* AppearanceMsg::createCopy(void) const
+{
+   return new AppearanceMsg(*this);
+}
+
+// Destructor
+AppearanceMsg::~AppearanceMsg()
+{
+   // no work required
+}
+
+/* ============================ MANIPULATORS ============================== */
+
+// Assignment operator
+AppearanceMsg&
+AppearanceMsg::operator=(const AppearanceMsg& rhs)
+{
+   if (this == &rhs)            // handle the assignment to self case
+      return *this;
+
+   OsMsg::operator=(rhs);       // assign fields for parent class
+
+   _handler          = rhs._handler;
+   _callidContact = rhs._callidContact;
+
+   return *this;
+}
+
+/* ============================ ACCESSORS ================================= */
+
+// Return the size of the message in bytes.
+// This is a virtual method so that it will return the accurate size for
+// the message object even if that object has been upcast to the type of
+// an ancestor class.
+int AppearanceMsg::getMsgSize(void) const
+{
+   return sizeof(*this);
+}
+
+// Return the newState.
+UtlContainable* AppearanceMsg::getHandler() const
+{
+   return _handler;
+}
+
+// Return pointer to mSubscriptionState.
+const UtlString* AppearanceMsg::getCallidContact() const
+{
+   return &_callidContact;
+}

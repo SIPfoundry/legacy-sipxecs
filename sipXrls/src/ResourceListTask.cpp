@@ -24,6 +24,7 @@
 #include "ResourceListTask.h"
 #include "ResourceListSet.h"
 #include "ResourceListMsg.h"
+#include "ContactSet.h"
 #include <os/OsLogger.h>
 #include <os/OsEventMsg.h>
 #include <os/OsMsg.h>
@@ -171,6 +172,18 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
       
 
       handled = TRUE;
+   }
+   else if (RLS_SUBSCRIPTION_SET_MSG == rMsg.getMsgType())
+   {
+       // This is a create new subscription request
+       Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+                     "ResourceListTask::handleMessage RLS_SUBSCRIPTION_SET_MSG");
+
+       SubscriptionSetMsg* msg = dynamic_cast <SubscriptionSetMsg*> (&rMsg);
+       ContactSet *contactSet = static_cast<ContactSet*> (msg->getHandler());
+
+       contactSet->addSubscriptionSet(msg->getCallidContact());
+       handled = TRUE;
    }
    else if (rMsg.getMsgType() == OsMsg::PHONE_APP &&
             rMsg.getMsgSubType() == SipMessage::NET_SIP_MESSAGE)
