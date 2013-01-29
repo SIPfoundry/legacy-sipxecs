@@ -910,6 +910,24 @@ EOF
      iptables --table $t --list --verbose --numeric --line-numbers 2>&1
    done
 
+   # Get mongodb rs config
+   echo ""
+   echo "======== MongoDB replica set config:"
+   echo "rs.config()"
+   mongo --eval "printjson(rs.config())"
+
+   # Get mongodb rs status
+   echo ""
+   echo "======== MongoDB replica set status:"
+   echo "rs.status()"
+   mongo --eval "printjson(rs.status())"
+
+   # Get mongodb server status
+   echo ""
+   echo "======== MongoDB server status:"
+   echo "db.serverStatus()"
+   mongo --eval "printjson(db.serverStatus())"
+
    # Execute system monitoring commands
    for command in \
        "ps -efww" \

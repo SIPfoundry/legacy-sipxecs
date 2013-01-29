@@ -141,7 +141,7 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
             return null;
         }
         String[] ids = new String[] {
-            "ALARM_SIPXIVR_FAILED_LOGIN"
+            "SIPXIVR_FAILED_LOGIN"
         };
 
         return AlarmDefinition.asArray(ids);

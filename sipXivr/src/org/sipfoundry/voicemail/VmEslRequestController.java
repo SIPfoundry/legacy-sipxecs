@@ -32,7 +32,7 @@ import org.sipfoundry.voicemail.mailbox.TempMessage;
 
 public class VmEslRequestController extends AbstractEslRequestController {
     private static final String RESOURCE_NAME = "org.sipfoundry.voicemail.VoiceMail";
-    private static final String ALARM_SIPXIVR_FAILED_LOGIN = "ALARM_SIPXIVR_FAILED_LOGIN for user %s";
+    private static final String ALARM_SIPXIVR_FAILED_LOGIN = "ALARM_SIPXIVR_FAILED_LOGIN user %s failed to login in voicemail 3 times in a row";
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     private String m_action;
     private String m_mailboxString;
