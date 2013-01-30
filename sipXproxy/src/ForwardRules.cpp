@@ -35,6 +35,11 @@ ForwardRules::ForwardRules()
 // Destructor
 ForwardRules::~ForwardRules()
 {
+	if (mDoc)
+	{
+		delete mDoc;
+	}
+
    delete mPatterns;
 }
 /* ============================ MANIPULATORS ============================== */
