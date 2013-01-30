@@ -23,7 +23,7 @@
     <binding name="renderer" value="bean:propertyRenderer" />
   </component>
   <component id="queryText" type="TextField">
-    <binding name="value" value="cdrSearch.term" />
+    <binding name="value" value="cdrSearch.term[0]" />
   </component>
   <component id="renderQuery" type="If">
     <binding name="condition" value="cdrSearch.search" />
