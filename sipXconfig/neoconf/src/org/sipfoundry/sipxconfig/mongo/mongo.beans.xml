@@ -56,5 +56,11 @@
     <property name="replicationManager" ref="replicationManager"/>
     <property name="configManager" ref="configManager" />
   </bean>
+
+  <bean id="mongoAlarms" class="org.springframework.context.support.ResourceBundleMessageSource">
+    <property name="basename">
+      <value>org.sipfoundry.sipxconfig.mongo.mongo</value>
+    </property>
+  </bean>
   
 </beans>
