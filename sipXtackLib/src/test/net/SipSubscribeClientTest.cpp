@@ -19,6 +19,7 @@
 #include <os/OsDefs.h>
 #include <os/OsDateTime.h>
 #include <os/OsLogger.h>
+#include <os/OsLoggerHelper.h>
 #include <net/SipDialog.h>
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>

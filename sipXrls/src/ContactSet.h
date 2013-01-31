@@ -113,11 +113,14 @@ class ContactSet : public UtlContainableAtomic,
 
    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
 
+   /// Add a new SubscriptionSet in this ContactSet for callid contact
+   void addSubscriptionSet(const UtlString* callidContact);
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
 
    //! Update the subscriptions we maintain to agree with mSubscriptions.
    void updateSubscriptions(bool allowDirectUriSubscription);
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:

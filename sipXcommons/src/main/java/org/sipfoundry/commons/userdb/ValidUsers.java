@@ -40,6 +40,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.QueryBuilder;
+import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
 
 /**
@@ -107,6 +108,27 @@ public class ValidUsers {
         return cursor;
     }
 
+    public DBCursor getUsersWithSpeedDial() {
+        DBCursor cursor = getEntityCollection().find(
+                QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_USER).
+                or(
+                        QueryBuilder.start(SPEEDDIAL).exists(true).get(),
+                        new BasicDBObject(IM_ENABLED, "true")
+                  ).get());
+        return cursor;
+    }
+
+    /**
+     * Use this method if you need to remove a field from users completely.
+     * This may be achieved by regenerating the entire collection, or a DataSet, but this would be much faster.
+     * @param field
+     */
+    public void removeFieldFromUsers(String field) {
+        getEntityCollection().update( new BasicDBObject()
+        , new BasicDBObject( "$unset" , new BasicDBObject( SPEEDDIAL , 1 ) )
+        , false , true ); 
+    }
+    
     /**
      * Loading all users into memory is an extremely expensive call for large systems (10K-50K user system).
      * Consider refactoring your code to not call this method.

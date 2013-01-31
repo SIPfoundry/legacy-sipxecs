@@ -1023,6 +1023,11 @@ void DialogTracker::ProcessMediaAnswer( SipMessage& message, OfferAnswerPattern 
          // apply the new SDP body to the message.
          message.setBody( pSdpBody );
       }
+      else
+      {
+    	  //not needed above so it can be safely deleted
+    	  delete pSdpBody;
+      }
    }
    else
    {

@@ -16,7 +16,6 @@
 
 #include <os/OsDateTime.h>
 #include <os/OsLock.h>
-#include <os/OsTimer.h>
 #include <os/OsUnLock.h>
 #include <net/SipSubscribeClient.h>
 #include <net/SipUserAgent.h>
@@ -24,8 +23,6 @@
 #include <net/SipDialogMgr.h>
 #include <net/NetMd5Codec.h>
 #include <net/CallId.h>
-#include <utl/UtlRandom.h>
-#include <utl/UtlHashBagIterator.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -169,123 +166,12 @@ private:
 
 };
 
-
-// Private class to contain information about subscription groups
-class SubscriptionGroupState : public UtlString
-{
-public:
-   // The parent UtlString contains the original earlyDialogHandle as a key.
-   // This key never changes, and is the earlyDialogHandle returned by
-   // ::addSubscription().
-   // The early dialog handle of transmitted SUBSCRIBE requests will change
-   // when we reestablish failed subscriptions.
-
-   SubscriptionGroupState(SipSubscribeClient* pClient,
-                          ///< the owning SipSubscribeClient
-                          const UtlString& handle,
-                          ///< early dialog handle for key
-                          SipMessage* subscriptionRequest,
-                          /**< SUBSCRIBE request to create subscriptions
-                           *   *subscriptionRequest becomes owned by the
-                           *   SubscriptionGroupState.
-                           */
-                          void* pApplicationData,
-                          ///< application data for callback functions
-                          SipSubscribeClient::SubscriptionStateCallback pStateCallback,
-                          ///< callback function for state changes
-                          SipSubscribeClient::NotifyEventCallback pNotifyCallback,
-                          ///< callback function for NOTIFYs
-                          bool reestablish,
-                          ///< set to reestablish failed subscriptions
-                          bool restart
-                          ///< set to periodically restart subscriptions
-      );
-
-   virtual ~SubscriptionGroupState();
-
-   void toString(UtlString& dumpString);
-
-   //! Copying operators.
-   SubscriptionGroupState(const SubscriptionGroupState& rSubscriptionGroupState);
-   SubscriptionGroupState& operator=(const SubscriptionGroupState& rhs);
-
-   /** Test whether the state of this group indicates that the subscription
-    *  has been successfully started.
-    */
-   // The test is:
-   //        at least one success response to the SUBSCRIBE
-   //        no failure response to the SUBSCRIBE
-   //        at least one NOTIFY arrived (that does not have
-   //           "Subscription-State: terminated")
-   bool successfulStart();
-
-   /// Set the timer for subscription starting.
-   //  initial == true means to use the first-attempt time,
-   //  initial == false means to use the time for the next attempt, based
-   //  on the time for the previous attempt
-   void setStartingTimer(bool initial);
-
-   /// Set the timer for subscription restarting.
-   void setRestartTimer();
-
-   /** Set the subscription group state variables to indicate a
-    *  successfully established subscription.
-    */
-   void transitionToEstablished();
-
-   /// Set the subscription group to prepare to attempt another start.
-   //  In particular, revise the stored SUBSCRIBE message with another
-   //  Call-Id and from-tag.
-   void resetStarting();
-
-   // This class does not define ::getContainableType or ::TYPE so that objects
-   // compare as members of the base class (UtlString).
-
-   //! Random number generator for generating refresh times.
-   static UtlRandom sRandom;
-
-   // Prototype SUBSCRIBE request for the subscriptions.
-   SipMessage* mpSubscriptionRequest;
-   // UtlString::data contains the initial early dialog handle.
-   // Current early dialog handle (derived from *mpSubscriptionRequest).
-   UtlString mCurrentEarlyDialogHandle;
-
-   // Application data provided for callbacks.
-   void* mpApplicationData;
-   // Callback function for state changes, or NULL.
-   SipSubscribeClient::SubscriptionStateCallback mpStateCallback;
-   SipSubscribeClient::NotifyEventCallback mpNotifyCallback;
-   // Whether to reestablish subscriptions that fail.
-   bool mReestablish;
-   // Whether to restart subscriptions on an approximately daily cycle.
-   bool mRestart;
-
-   // true if we are starting the subscription group, false if it is established.
-   bool mStarting;
-   // If mStarting, the time-out time of this starting attempt (secs).
-   int mStartingTimeout;
-   // Number of success responses to SUBSCRIBE seen since reestablishement.
-   int mSuccessResponses;
-   // Number of failure responses to SUBSCRIBE seen since reestablishement.
-   int mFailureResponses;
-   // Number of dialog-establishing (not terminating) NOTIFYs seen since
-   // reestablishment.
-   int mEstablishingNotifys;
-
-   /// Timer for subscription establishement.
-   OsTimer mStartingTimer;
-   /// Timer for periodic subscription restart.
-   OsTimer mRestartTimer;
-
-private:
-};
-
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
 // Constructor for private class
-SubscriptionGroupState::SubscriptionGroupState(SipSubscribeClient* pClient,
+SipSubscribeClient::SubscriptionGroupState::SubscriptionGroupState(SipSubscribeClient* pClient,
                                                const UtlString& handle,
                                                SipMessage* pSubscriptionRequest,
                                                void* pApplicationData,
@@ -311,14 +197,14 @@ SubscriptionGroupState::SubscriptionGroupState(SipSubscribeClient* pClient,
 }
 
 // Destructor for private class
-SubscriptionGroupState::~SubscriptionGroupState()
+SipSubscribeClient::SubscriptionGroupState::~SubscriptionGroupState()
 {
    // Free the saved SUBSCRIBE request.
    delete mpSubscriptionRequest;
 }
 
 // Debug dump of SubscriptionGroupState.
-void SubscriptionGroupState::toString(UtlString& dumpString)
+void SipSubscribeClient::SubscriptionGroupState::toString(UtlString& dumpString)
 {
    dumpString = "SubscriptionGroupState:\n";
    dumpString.append("\nOriginal handle: ");
@@ -346,65 +232,28 @@ void SubscriptionGroupState::toString(UtlString& dumpString)
    dumpString.append('\n');
 }
 
+void SipSubscribeClient::SubscriptionGroupState::lock()
+{
+    _accessMutex.lock();
+}
+
+void SipSubscribeClient::SubscriptionGroupState::unlock()
+{
+    _accessMutex.unlock();
+}
+
 //! Copying operators.
 //SubscriptionGroupState::SubscriptionGroupState(const SubscriptionGroupState& rSubscriptionGroupState)
 
 //SubscriptionGroupState& SubscriptionGroupState::operator=(const SubscriptionGroupState& rhs)
-
-
-// Private class to contain information about subscription dialogs within
-// subscription groups
-class SubscriptionDialogState : public UtlString
-{
-public:
-   // The parent UtlString contains the dialogHandle as a key
-   // When an initial SUBSCRIBE is sent, a SubscriptionDialogState is
-   // created for the early dialog.  When the first NOTIFY is
-   // received, the SubscriptionDialogState is changed to use the
-   // established dialog handle as key.  Later NOTIFYs cause further
-   // SubscriptionDialogState's to be created, with their established
-   // dialog handles as keys.
-
-   SubscriptionDialogState(const UtlString& handle,
-                           ///< dialog handle for key
-                           SubscriptionGroupState* pGroupState,
-                           ///< pointer to owning SubscriptionGroupState
-                           SipSubscribeClient::SubscriptionState state
-                           ///< state of the subscription
-      );
-
-   virtual ~SubscriptionDialogState();
-
-   void toString(UtlString& dumpString);
-
-   //! Copying operators.
-   SubscriptionDialogState(const SubscriptionDialogState& rSubscriptionDialogState);
-   SubscriptionDialogState& operator=(const SubscriptionDialogState& rhs);
-
-   // The SubscriptionGroupState object for the ::addSubscription() that
-   // created this subscription.
-   SubscriptionGroupState* mpGroupState;
-   // UtlString::data contains the established dialog handle.
-   SipSubscribeClient::SubscriptionState mState;
-
-   // true if a NOTIFY has been received for this dialog.
-   // (May be false because a dialog state can be established by a success
-   // response from SUBSCRIBE as well as by a NOTIFY.)
-   bool mNotifyReceived;
-
-   // This class does not define ::getContainableType or ::TYPE so that objects
-   // compare as members of the base class (UtlString).
-
-private:
-};
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
 // Constructor for private class
-SubscriptionDialogState::SubscriptionDialogState(const UtlString& handle,
-                                                 SubscriptionGroupState* pGroupState,
+SipSubscribeClient::SubscriptionDialogState::SubscriptionDialogState(const UtlString& handle,
+                                                 SubscriptionGroupState::Ptr pGroupState,
                                                  SipSubscribeClient::SubscriptionState state) :
    UtlString(handle),
    mpGroupState(pGroupState),
@@ -414,14 +263,14 @@ SubscriptionDialogState::SubscriptionDialogState(const UtlString& handle,
 }
 
 // Destructor for private class
-SubscriptionDialogState::~SubscriptionDialogState()
+SipSubscribeClient::SubscriptionDialogState::~SubscriptionDialogState()
 {
 }
 
-// Debug dump of SubscriptionDialogState.
-void SubscriptionDialogState::toString(UtlString& dumpString)
+// Debug dump of SipSubscribeClient::SubscriptionDialogState.
+void SipSubscribeClient::SubscriptionDialogState::toString(UtlString& dumpString)
 {
-    dumpString = "SubscriptionDialogState:\n";
+    dumpString = "SipSubscribeClient::SubscriptionDialogState:\n";
     dumpString.append("\nmpHandle: ");
     dumpString.append(*this);
     dumpString.append("\nmState: ");
@@ -430,10 +279,20 @@ void SubscriptionDialogState::toString(UtlString& dumpString)
     dumpString.append(subStateString);
 }
 
-//! Copying operators.
-//SubscriptionDialogState::SubscriptionDialogState(const SubscriptionDialogState& rSubscriptionDialogState)
+void SipSubscribeClient::SubscriptionDialogState::lock()
+{
+    _accessMutex.lock();
+}
 
-//SubscriptionDialogState& SubscriptionDialogState::operator=(const SubscriptionDialogState& rhs)
+void SipSubscribeClient::SubscriptionDialogState::unlock()
+{
+    _accessMutex.unlock();
+}
+
+//! Copying operators.
+//SipSubscribeClient::SubscriptionDialogState::SipSubscribeClient::SubscriptionDialogState(const SipSubscribeClient::SubscriptionDialogState& rSipSubscribeClient::SubscriptionDialogState)
+
+//SipSubscribeClient::SubscriptionDialogState& SipSubscribeClient::SubscriptionDialogState::operator=(const SipSubscribeClient::SubscriptionDialogState& rhs)
 
 
 // Constructor
@@ -579,15 +438,16 @@ UtlBoolean SipSubscribeClient::addSubscription(
 
     UtlString handle;
     subscriptionRequest->getDialogHandle(handle);
-    SubscriptionGroupState* groupState =
-       new SubscriptionGroupState(this,
+    SubscriptionGroupState::Ptr groupState =
+            SubscriptionGroupState::Ptr(
+                    new SubscriptionGroupState(this,
                                   handle,
                                   new SipMessage(*subscriptionRequest),
                                   applicationData,
                                   subscriptionStateCallback,
                                   notifyEventsCallback,
                                   reestablish,
-                                  restart);
+                                  restart));
 
     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                   "SipSubscribeClient::addSubscription adding subscription with handle '%s'",
@@ -604,11 +464,7 @@ UtlBoolean SipSubscribeClient::addSubscription(
     }
 
     // Put the state in the list
-    {
-       OsLock lock(mSemaphore);
-
-       addGroupState(groupState);
-    }
+    addGroupState(groupState);
 
     // Give a copy of the request to the refresh manager to send the
     // SUBSCRIBE and keep the subscription alive.
@@ -633,91 +489,90 @@ UtlBoolean SipSubscribeClient::addSubscription(
     return initialSendOk;
 }
 
+SipSubscribeClient::SubscriptionGroupState::Ptr SipSubscribeClient::getGroupStateFromAWP(const SubscriptionGroupState::AutoWrapPtr &awp)
+{
+    if (awp.get())
+    {
+        return awp.get()->get();
+    }
+
+    return SubscriptionGroupState::Ptr();
+}
+
+SipSubscribeClient::SubscriptionDialogState::Ptr SipSubscribeClient::getDialogStateFromAWP(const SubscriptionDialogState::AutoWrapPtr &awp)
+{
+    if (awp.get())
+    {
+        return awp.get()->get();
+    }
+
+    return SubscriptionDialogState::Ptr();
+}
+
+
 UtlBoolean SipSubscribeClient::endSubscriptionGroup(const UtlString& earlyDialogHandle)
 {
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSubscribeClient::endSubscriptionGroup earlyDialogHandle = '%s'",
                  earlyDialogHandle.data());
 
-   SubscriptionGroupState* groupState;
-   {
-      OsLock lock(mSemaphore);
+    SubscriptionGroupState::AutoWrapPtr groupStateAWP = removeGroupStateByOriginalHandle(earlyDialogHandle);
+    SubscriptionGroupState::Ptr groupState = getGroupStateFromAWP(groupStateAWP);
 
-      groupState = removeGroupStateByOriginalHandle(earlyDialogHandle);
+    // Ensure that terminated subscriptions do not cause restart of the
+    // subscription.
+    if (groupState)
+    {
+     groupState->mReestablish = false;
+     groupState->mRestart = false;
+    }
 
-      // Ensure that terminated subscriptions do not cause restart of the
-      // subscription.
-      if (groupState)
-      {
-         groupState->mReestablish = false;
-         groupState->mRestart = false;
-      }
+    // Update the SipRefreshManager while we are locking the SipSubscribeClient
+    // to ensure that the two are synchronized.
+    // Stop the refresh of all dialogs and unsubscribe.
+    mpRefreshManager->stopRefresh(earlyDialogHandle);
 
-      // Update the SipRefreshManager while we are locking the SipSubscribeClient
-      // to ensure that the two are synchronized.
-      // Stop the refresh of all dialogs and unsubscribe.
-      mpRefreshManager->stopRefresh(earlyDialogHandle);
+    // At this point, we have the only pointer to *groupState, so we do not
+    // need to hold the lock to prevent other threads from deleting it while
+    // we are accessing *groupState.
 
-      // At this point, we have the only pointer to *groupState, so we do not
-      // need to hold the lock to prevent other threads from deleting it while
-      // we are accessing *groupState.
-   }
+    int count = 0;
+    if (groupState)
+    {
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                    "SipSubscribeClient::endSubscriptionGroup groupState = '%p', '%s'",
+                    groupState.get(),
+                    groupState->data());
 
-   if (groupState)
-   {
-      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                    "SipSubscribeClient::endSubscriptionGroup groupState = %p",
-                    groupState);
+        // Stop the timers, synchronously.
+        // Since mReestablish and mRestart are now false, this cannot cause
+        // further actions.
+        groupState->mStartingTimer.stop(TRUE);
+        groupState->mRestartTimer.stop(TRUE);
 
-      // Stop the timers, synchronously.
-      // Since mReestablish and mRestart are now false, this cannot cause
-      // further actions.
-      groupState->mStartingTimer.stop(TRUE);
-      groupState->mRestartTimer.stop(TRUE);
-
-      UtlHashBagIterator iterator(mSubscriptionDialogs);
-      UtlBoolean found;
-      UtlString key;
-      int count = 0;
-
-      // Repeatedly get the key of the first subscription in mSubscriptionDialogs
-      // that is within the group and terminate that subscription.
-      do {
-         {
-            OsLock lock(mSemaphore);
-
-            iterator.reset();
-
-            SubscriptionDialogState* dialog;
-            found = FALSE;
-            while (!found &&
-                   (dialog = (dynamic_cast <SubscriptionDialogState*> (iterator()))))
+        // Repeatedly get the key of the first subscription in mSubscriptionDialogs
+        // that is within the group and terminate that subscription.
+        while (1)
+        {
+            SubscriptionDialogState::AutoWrapPtr dialogStateAWP = getDialogStateByGroupState(groupState);
+            SubscriptionDialogState::Ptr dialogState = getDialogStateFromAWP(dialogStateAWP);
+            if (dialogState)
             {
-               found = dialog->mpGroupState == groupState;
-               if (found)
-               {
-                  // Save the key of the dialog.
-                  key = *static_cast <UtlString*> (dialog);
-               }
+                endSubscriptionDialog(dialogState->data());
+                count++;
             }
-         }
-
-         if (found)
-         {
-            endSubscriptionDialog(key);
-            count++;
-         }
-      } while (found);
+            else
+            {
+                break;
+            }
+        }
 
       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipSubscribeClient::endSubscriptionGroup exited %d dialogs",
                     count);
-
-      delete groupState;
-      groupState = NULL;
    }
 
-   return groupState != NULL;
+   return (count > 0);
 }
 
 UtlBoolean SipSubscribeClient::endSubscriptionDialog(const UtlString& dialogHandle)
@@ -726,83 +581,73 @@ UtlBoolean SipSubscribeClient::endSubscriptionDialog(const UtlString& dialogHand
                  "SipSubscribeClient::endSubscriptionDialog dialogHandle = '%s'",
                  dialogHandle.data());
 
-   SubscriptionDialogState* dialogState;
-   {
-      OsLock lock(mSemaphore);
+    // Delete the dialogState so that when the termination NOTIFY arrives
+    // it does not match an existing dialog and so does not cause the
+    // subscription to be reestablished.
+    SubscriptionDialogState::AutoWrapPtr dialogStateAWP = removeDialogState(dialogHandle);
+    SubscriptionDialogState::Ptr dialogState = getDialogStateFromAWP(dialogStateAWP);
 
-      // Delete the dialogState so that when the termination NOTIFY arrives
-      // it does not match an existing dialog and so does not cause the
-      // subscription to be reestablished.
-      dialogState = removeDialogState(dialogHandle);
+    // Update the SipRefreshManager while we are locking the SipSubscribeClient
+    // to ensure that the two are synchronized.
+    // Stop the refresh and unsubscribe
+    mpRefreshManager->stopRefresh(dialogHandle.data());
 
-      // Update the SipRefreshManager while we are locking the SipSubscribeClient
-      // to ensure that the two are synchronized.
-      // Stop the refresh and unsubscribe
-      mpRefreshManager->stopRefresh(dialogHandle.data());
-   }
-
-   if (dialogState)
-   {
-      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+    if (dialogState)
+    {
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipSubscribeClient::endSubscriptionDialog dialogState = %p",
-                    dialogState);
+                    dialogState.get());
 
-      // If there is a state change and there is a callback function
-      if (dialogState->mState != SUBSCRIPTION_TERMINATED &&
+        // If there is a state change and there is a callback function
+        if (dialogState->mState != SUBSCRIPTION_TERMINATED &&
           dialogState->mpGroupState->mpStateCallback)
-      {
-         // Indicate that the subscription was terminated
-         dialogState->mpGroupState->
-            mpStateCallback(SUBSCRIPTION_TERMINATED,
-                            dialogState->mpGroupState->data(),
-                            dialogState->data(),
-                            dialogState->mpGroupState->mpApplicationData,
-                            -1, // no response code
-                            NULL, // no response text
-                            0, // expires now
-                            NULL); // no response
-      }
+        {
+            // Indicate that the subscription was terminated
+            dialogState->mpGroupState->
+                mpStateCallback(SUBSCRIPTION_TERMINATED,
+                        dialogState->mpGroupState->data(),
+                        dialogState->data(),
+                        dialogState->mpGroupState->mpApplicationData,
+                        -1, // no response code
+                        NULL, // no response text
+                        0, // expires now
+                        NULL); // no response
+        }
+    }
 
-      delete dialogState;
-   }
-
-   return dialogState != NULL;
+   return (dialogState) ? TRUE : FALSE;
 }
 
 UtlBoolean SipSubscribeClient::endSubscriptionDialogByNotifier(const UtlString& dialogHandle)
 {
-   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSubscribeClient::endSubscriptionDialogByNotifier dialogHandle = '%s'",
                  dialogHandle.data());
+    // Delete the dialogState so that when the termination NOTIFY arrives
+    // it does not match an existing dialog and so does not cause the
+    // subscription to be reestablished.
+    SubscriptionDialogState::AutoWrapPtr dialogStateAWP = removeDialogState(dialogHandle);
+    SubscriptionDialogState::Ptr dialogState = getDialogStateFromAWP(dialogStateAWP);
 
-   SubscriptionDialogState* dialogState;
-   {
-       OsLock  lock(mSemaphore);
-      // Delete the dialogState so that when the termination NOTIFY arrives
-      // it does not match an existing dialog and so does not cause the
-      // subscription to be reestablished.
-      dialogState = removeDialogState(dialogHandle);
+    // Update the SipRefreshManager while we are locking the SipSubscribeClient
+    // to ensure that the two are synchronized.
+    // Stop the refresh but do not send an un-SUBSCRIBE, as the subscription
+    // has already been ended by the notifier.
+    mpRefreshManager->stopRefresh(dialogHandle.data(), TRUE);
 
-      // Update the SipRefreshManager while we are locking the SipSubscribeClient
-      // to ensure that the two are synchronized.
-      // Stop the refresh but do not send an un-SUBSCRIBE, as the subscription
-      // has already been ended by the notifier.
-      mpRefreshManager->stopRefresh(dialogHandle.data(), TRUE);
-   }
-
-   if (dialogState)
-   {
-      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+    if (dialogState)
+    {
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipSubscribeClient::endSubscriptionDialogByNotifier dialogState = %p",
-                    dialogState);
+                    dialogState.get());
 
-      // If there is a state change and there is a callback function
-      if (dialogState->mState != SUBSCRIPTION_TERMINATED &&
+        // If there is a state change and there is a callback function
+        if (dialogState->mState != SUBSCRIPTION_TERMINATED &&
           dialogState->mpGroupState->mpStateCallback)
-      {
-         // Indicate that the subscription was terminated
-         dialogState->mpGroupState->
-            mpStateCallback(SUBSCRIPTION_TERMINATED,
+        {
+             // Indicate that the subscription was terminated
+            dialogState->mpGroupState->
+                mpStateCallback(SUBSCRIPTION_TERMINATED,
                             dialogState->mpGroupState->data(),
                             dialogState->data(),
                             dialogState->mpGroupState->mpApplicationData,
@@ -810,12 +655,10 @@ UtlBoolean SipSubscribeClient::endSubscriptionDialogByNotifier(const UtlString& 
                             NULL, // no response text
                             0, // expires now
                             NULL); // no response
-      }
+        }
+    }
 
-      delete dialogState;
-   }
-
-   return dialogState != NULL;
+   return (dialogState) ? TRUE : FALSE;
 }
 
 void SipSubscribeClient::endAllSubscriptions()
@@ -823,38 +666,29 @@ void SipSubscribeClient::endAllSubscriptions()
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSubscribeClient::endAllSubscriptions entered");
 
-   UtlHashBagIterator iterator(mSubscriptionGroups);
-   UtlString key;
-   UtlBoolean found;
    int count = 0;
 
    // Repeatedly get the key of the first subscription in mSubscriptionGroups
    // and terminate that subscription.
-   do {
-      {
-         OsLock lock(mSemaphore);
+   while (1)
+   {
+       SubscriptionGroupState::AutoWrapPtr groupStateAWP = getFirstGroupState();
+       SubscriptionGroupState::Ptr groupState = getGroupStateFromAWP(groupStateAWP);
 
-         found = !mSubscriptionGroups.isEmpty();
-         if (found)
-         {
-            iterator.reset();
-            // Copy the key of the subscription into a local variable so that we
-            // can release the lock.
-            key = *static_cast <UtlString*>
-               (dynamic_cast <SubscriptionGroupState*>
-                (iterator()));
-         }
-      }
+       if (groupState)
+       {
+           endSubscriptionGroup(groupState->data());
+           count++;
+       }
+       else
+       {
+           break;
+       }
 
-      if (found)
-      {
-         endSubscriptionGroup(key);
-         count++;
-      }
-   } while (found);
+   }
 
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                 "SipSubscribeClient::endAllSubscriptions exited %d entries",
+                 "SipSubscribeClient::endAllSubscriptions exited %d subscriptions ended",
                  count);
 }
 
@@ -932,7 +766,7 @@ int SipSubscribeClient::countSubscriptionGroups()
 {
    OsLock lock(mSemaphore);
 
-   int count = mSubscriptionGroups.entries();
+   int count = mSubscriptionGroups.size();
 
    return count;
 }
@@ -941,7 +775,7 @@ int SipSubscribeClient::countSubscriptionDialogs()
 {
    OsLock lock(mSemaphore);
 
-   int count = mSubscriptionDialogs.entries();
+   int count = mSubscriptionDialogs.size();
 
    return count;
 }
@@ -988,25 +822,29 @@ void SipSubscribeClient::dumpState()
                  this);
 
    UtlString s;
-   SubscriptionGroupState* groupState;
-   UtlHashBagIterator groupIterator(mSubscriptionGroups);
-   UtlHashBagIterator dialogIterator(mSubscriptionDialogs);
-   while ((groupState = dynamic_cast <SubscriptionGroupState*> (groupIterator())))
+
+   std::vector<SubscriptionGroupState::Ptr>::iterator groupIterator;
+
+   SubscriptionGroupState::Ptr groupState;
+   for (groupIterator = mSubscriptionGroups.begin(); groupIterator != mSubscriptionGroups.end(); groupIterator++)
    {
+       groupState = *groupIterator;
+
       groupState->toString(s);
       Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                     "\t    SubscribeGroupState %p %s",
-                    groupState, s.data());
+                    groupState.get(), s.data());
 
-      dialogIterator.reset();
-      SubscriptionDialogState* dialogState;
-      while ((dialogState =
-              dynamic_cast <SubscriptionDialogState*> (dialogIterator())))
+      std::vector<SubscriptionDialogState::Ptr>::iterator dialogIterator;
+      SubscriptionDialogState::Ptr dialogState;
+      for (dialogIterator = mSubscriptionDialogs.begin(); dialogIterator != mSubscriptionDialogs.end(); dialogIterator++)
       {
-         dialogState->toString(s);
-         Os::Logger::instance().log(FAC_RLS, PRI_INFO,
-                       "\t      SubscribeDialogState %p %s",
-                       dialogState, s.data());
+          dialogState = *dialogIterator;
+
+          dialogState->toString(s);
+          Os::Logger::instance().log(FAC_RLS, PRI_INFO,
+                        "\t      SubscribeDialogState %p %s",
+                        dialogState.get(), s.data());
       }
    }
    mpRefreshManager->dumpState();
@@ -1060,14 +898,14 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
       // A subscription received a successful response.
       // We may already have dialog state for it, or we may not.
 
-      OsLockUnlockable lock(mSemaphore);
-
       // Find the subscription group.
-      SubscriptionGroupState* groupState = getGroupStateByCurrentHandle(earlyDialogHandle);
+      SubscriptionGroupState::AutoWrapPtr groupStateAWP = getGroupStateByCurrentHandle(earlyDialogHandle);
+      SubscriptionGroupState::Ptr groupState = getGroupStateFromAWP(groupStateAWP);
       if (groupState)
       {
-         // Increment the count of success responses.
-         groupState->mSuccessResponses++;
+          // Increment the count of success responses.
+          groupState->mSuccessResponses++;
+
          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                        "SipSubscribeClient::refreshCallback "
                        "for group '%s', incrementing mSuccessResponses to %d",
@@ -1075,26 +913,29 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
                        groupState->mSuccessResponses);
 
          // It would be convenient to not have to create the
-         // SubscriptionDialogState here (as RFC 3265bis does not
+         // SipSubscribeClient::SubscriptionDialogState here (as RFC 3265bis does not
          // recognize a dialog to have been created until a NOTIFY
          // arrives), but we need to keep the set of
-         // SubscriptionDialogState's aligned with the state of the
+         // SipSubscribeClient::SubscriptionDialogState's aligned with the state of the
          // SipDialogMgr and SipRefreshManager.
 
          // Find the subscription dialog.
-         SubscriptionDialogState* dialogState = getDialogState(dialogHandle);
-
+         SubscriptionDialogState::AutoWrapPtr dialogStateAWP = getDialogState(dialogHandle);
+         SubscriptionDialogState::Ptr dialogState = getDialogStateFromAWP(dialogStateAWP);
          if (!dialogState)
          {
             // Subscription dialog state does not exist -- create and insert it.
 
             UtlString d(dialogHandle);
-            dialogState =
-               new SubscriptionDialogState(d, groupState, SUBSCRIPTION_SETUP);
+            dialogState = SubscriptionDialogState::Ptr(
+                    new SubscriptionDialogState(d, groupState, SUBSCRIPTION_SETUP));
+            dialogStateAWP = SubscriptionDialogState::AutoWrapPtr(
+                    new SubscriptionDialogState::WrapPtr(dialogState));
             addDialogState(dialogState);
 
             // Increment the count of success responses.
             groupState->mSuccessResponses++;
+
             Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipSubscribeClient::refreshCallback "
                           "for group '%s', incrementing mSuccessResponses to %d",
@@ -1102,11 +943,10 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
                           groupState->mSuccessResponses);
          }
 
-         OsUnLock unlock(lock);
          if (groupState->mpStateCallback)
          {
             // Do the callback with the new expiration time.
-            groupState->mpStateCallback(dialogState->mState,
+             groupState->mpStateCallback(dialogState->mState,
                                         groupState->data(),
                                         dialogState->data(),
                                         groupState->mpApplicationData,
@@ -1142,10 +982,9 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
                                     dialogHandle :
                                     earlyDialogHandle);
 
-      OsLockUnlockable lock(mSemaphore);
-
       // Find the subscription group.
-      SubscriptionGroupState* groupState = getGroupStateByCurrentHandle(earlyDialogHandle);
+      SubscriptionGroupState::AutoWrapPtr groupStateAWP = getGroupStateByCurrentHandle(earlyDialogHandle);
+      SubscriptionGroupState::Ptr groupState = getGroupStateFromAWP(groupStateAWP);
       if (groupState)
       {
          // Increment the count of failure responses.
@@ -1157,7 +996,8 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
                        groupState->mFailureResponses);
 
          // Find the subscription dialog.
-         SubscriptionDialogState* dialogState = getDialogState(dialogHandle);
+         SubscriptionDialogState::AutoWrapPtr dialogStateAWP = getDialogState(dialogHandle);
+         SubscriptionDialogState::Ptr dialogState = getDialogStateFromAWP(dialogStateAWP);
 
          // If an initial SUBSCRIBE fails, we can get a FAILED callback
          // for a dialog we do not yet have state for.  In that case,
@@ -1172,9 +1012,8 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
 
                if (groupState->mpStateCallback)
                {
-                   OsUnLock unlock(lock);
                   // Do the callback with the new state.
-                  groupState->mpStateCallback(dialogState->mState,
+                   groupState->mpStateCallback(dialogState->mState,
                                               groupState->data(),
                                               dialogState->data(),
                                               groupState->mpApplicationData,
@@ -1200,11 +1039,12 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
                           "SipSubscribeClient::refreshCallback REFRESH_REQUEST_FAILED triggering reestablishment for group '%s'",
                           earlyDialogHandle);
 
-            UtlString originalHandle(*groupState);
+            UtlString originalHandle(groupState->data());
 
-            OsUnLock unlock(lock);
-            groupState = NULL;
-            dialogState = NULL;
+            groupStateAWP = SubscriptionGroupState::AutoWrapPtr();
+            groupState = SubscriptionGroupState::Ptr();
+            dialogStateAWP = SubscriptionDialogState::AutoWrapPtr();
+            dialogState = SubscriptionDialogState::Ptr();
 
             reestablish(originalHandle);
          }
@@ -1309,8 +1149,11 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
     UtlBoolean foundDialog = false;
     UtlBoolean foundEarlyDialog = false;
     enum SipDialogMgr::transactionSequence sequence = SipDialogMgr::NO_DIALOG;
-    SubscriptionDialogState* dialogState = NULL;
-    SubscriptionGroupState* groupState = NULL;
+
+    SubscriptionDialogState::AutoWrapPtr dialogStateAWP;
+    SubscriptionDialogState::Ptr dialogState;
+    SubscriptionGroupState::AutoWrapPtr groupStateAWP;
+    SubscriptionGroupState::Ptr groupState;
 
     UtlString notifyDialogHandle;
     notifyRequest.getDialogHandle(notifyDialogHandle);
@@ -1339,10 +1182,10 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
 
     foundEarlyDialog = mpDialogMgr->earlyDialogExists(earlyDialogHandle);
 
-    OsLockUnlockable lock(mSemaphore);
     if (foundDialog)
     {
-       groupState = getGroupStateByCurrentHandle(earlyDialogHandle);
+       groupStateAWP = getGroupStateByCurrentHandle(earlyDialogHandle);
+       groupState = getGroupStateFromAWP(groupStateAWP);
        if (groupState)
        {
           // Set the sequence status from SipDialogMgr.
@@ -1351,7 +1194,8 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
 
           // Get or create the dialog state.
 	  // (If this fails to find a dialog state, one will be created below.)
-          dialogState = getDialogState(notifyDialogHandle);
+          dialogStateAWP = getDialogState(notifyDialogHandle);
+          dialogState = getDialogStateFromAWP(dialogStateAWP);
        }
        else
        {
@@ -1365,16 +1209,18 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
     // No established dialog
     else if (foundEarlyDialog)
     {
-       groupState = getGroupStateByCurrentHandle(earlyDialogHandle);
+       groupStateAWP = getGroupStateByCurrentHandle(earlyDialogHandle);
+       groupState = getGroupStateFromAWP(groupStateAWP);
        if (groupState)
        {
           // Transition the dialog to established in *mpDialogMgr.
           sequence =
              mpDialogMgr->isNewRemoteTransaction(notifyRequest);
 
-	  // Set dialogState to NULL so that a new SubscriptionDialogState
+	  // Set dialogState to NULL so that a new SipSubscribeClient::SubscriptionDialogState
 	  // state will be created below.
-	  dialogState = NULL;
+	  dialogStateAWP = SubscriptionDialogState::AutoWrapPtr();
+	  dialogState = SubscriptionDialogState::Ptr();
 
           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipSubscribeClient::handleNotifyRequest Transition '%s' to '%s'",
@@ -1399,14 +1245,18 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
        {
           // establishedDialogHandle is the existing subscription that
           // is a sibling fork of the current NOTIFY.
-          SubscriptionDialogState* establishedState =
-             getDialogState(establishedDialogHandle);
+          SubscriptionDialogState::AutoWrapPtr establishedStateAWP =
+                  getDialogState(establishedDialogHandle);
+          SubscriptionDialogState::Ptr establishedState =
+                  getDialogStateFromAWP(establishedStateAWP);
           if (establishedState)
           {
-	     // Set dialogState to NULL so that a new SubscriptionDialogState
-	     // state will be created below.
-	     groupState = establishedState->mpGroupState;
-	     dialogState = NULL;
+             // Set dialogState to NULL so that a new SipSubscribeClient::SubscriptionDialogState
+             // state will be created below.
+             groupState = establishedState->mpGroupState;
+             groupStateAWP = SubscriptionGroupState::AutoWrapPtr(new SubscriptionGroupState::WrapPtr(groupState));
+             dialogStateAWP = SubscriptionDialogState::AutoWrapPtr();
+             dialogState = SubscriptionDialogState::Ptr();
 
              // Insert the subscription state into the Refresh Manager
              // (which will insert the dialog state into the Dialog
@@ -1472,7 +1322,7 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
                   "foundDialog = %d, foundEarlyDialog = %d, sequence = %d, "
                   "dialogState = %p",
                   foundDialog, foundEarlyDialog, sequence,
-                  dialogState);
+                  dialogState.get());
 
     // If the request is OK but no dialog state has been created for it yet,
     // create it.
@@ -1482,23 +1332,25 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
        assert(groupState);
 
        // Create a subscription dialog based on this NOTIFY.
-       dialogState = new SubscriptionDialogState(notifyDialogHandle,
-						 groupState,
-						 SUBSCRIPTION_SETUP);
+       dialogState = SubscriptionDialogState::Ptr(
+               new SubscriptionDialogState(notifyDialogHandle,
+                                           groupState,
+                                           SUBSCRIPTION_SETUP));
+       dialogStateAWP = SubscriptionDialogState::AutoWrapPtr(
+               new SubscriptionDialogState::WrapPtr(dialogState));
        addDialogState(dialogState);
 
        if (groupState->mpStateCallback)
        {
-	  // Indicate that the subscription was established
-           OsUnLock unlock(lock);
-	  dialogState->mpGroupState->mpStateCallback(SUBSCRIPTION_SETUP,
-						     groupState->data(),
-						     dialogState->data(),
-						     groupState->mpApplicationData,
-						     -1, // no response code
-						     NULL, // no response text
-						     -1, // do not know expiration
-						     NULL); // no response
+            // Indicate that the subscription was established
+            dialogState->mpGroupState->mpStateCallback(SUBSCRIPTION_SETUP,
+                                 groupState->data(),
+                                 dialogState->data(),
+                                 groupState->mpApplicationData,
+                                 -1, // no response code
+                                 NULL, // no response text
+                                 -1, // do not know expiration
+                                 NULL); // no response
        }
        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
 		     "SipSubscribeClient::handleNotifyRequest Create dialog state for '%s'",
@@ -1561,8 +1413,6 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
        {
           if (dialogState->mpGroupState->mpNotifyCallback)
           {
-              OsUnLock unlock(lock);
-
              bSendResponse = dialogState->mpGroupState->mpNotifyCallback(dialogState->mpGroupState->data(),
                                                          dialogState->data(),
                                                          dialogState->mpGroupState->mpApplicationData,
@@ -1577,23 +1427,24 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
           // If the NOTIFY says the state is terminated, end the subscription.
           if (terminated)
           {
-	     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-			   "SipSubscribeClient::handleNotifyRequest "
-			   "ending subscription '%s' '%s' due to NOTIFY with "
-			   "Subscription-State:terminated",
-			   notifyDialogHandle.data(), dialogState->data());
+              Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                      "SipSubscribeClient::handleNotifyRequest "
+                      "ending subscription '%s' '%s' due to NOTIFY with "
+                      "Subscription-State:terminated",
+                      notifyDialogHandle.data(), dialogState->data());
 
              // Save the group state handle.
-             UtlString originalHandle(*dialogState->mpGroupState);
+             UtlString originalHandle(dialogState->mpGroupState->data());
 
-             OsUnLock unlock(lock);
              // Delete knowledge of this subscription dialog, without sending
              // an un-SUBSCRIBE (which would be redundant).
-             endSubscriptionDialogByNotifier(*dialogState);
+             endSubscriptionDialogByNotifier(dialogState->data());
 
 
-             dialogState = NULL;
-             groupState = NULL;
+             dialogStateAWP = SubscriptionDialogState::AutoWrapPtr();
+             dialogState = SubscriptionDialogState::Ptr();
+             groupStateAWP = SubscriptionGroupState::AutoWrapPtr();
+             groupState = SubscriptionGroupState::Ptr();
 
              // Reestablish the subscription.
              reestablish(originalHandle);
@@ -1663,149 +1514,546 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
     }
 }
 
-void SipSubscribeClient::addGroupState(SubscriptionGroupState* groupState)
+void SipSubscribeClient::addGroupState(SubscriptionGroupState::Ptr &groupState)
 {
+    OsLock lock(mSemaphore);
+
     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                  "SipSubscribeClient::addGroupState groupState = %p '%s'",
-                  groupState,
-                  groupState->data());
-    mSubscriptionGroups.insert(groupState);
-    mSubscriptionGroupsByCurrentHandle.insertKeyAndValue(&groupState->mCurrentEarlyDialogHandle,
-                                                         groupState);
+                  "SipSubscribeClient::addGroupState groupState = '%p' data = '%s'"
+                   "mSubscriptionGroups = '%d','%d'",
+                  groupState.get(),
+                  groupState->data(),
+                  mSubscriptionGroups.size(),
+                  mSubscriptionGroupsByCurrentHandle.size());
+
+    mSubscriptionGroups.push_back(groupState);
+
+    std::pair<std::map<UtlString,SubscriptionGroupState::Ptr>::iterator,bool> ret =
+            mSubscriptionGroupsByCurrentHandle.insert(
+                    std::make_pair(groupState->mCurrentEarlyDialogHandle, groupState));
+    if (false == ret.second)
+    {
+        // adding fails because of duplicates
+        Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                      "SipSubscribeClient::addGroupState"
+                      "groupState %p by early dialogHandle %s was already added",
+                      groupState.get(),
+                      groupState->mCurrentEarlyDialogHandle.data());
+    }
 }
 
-void SipSubscribeClient::addDialogState(SubscriptionDialogState* dialogState)
+void SipSubscribeClient::addDialogState(SubscriptionDialogState::Ptr &dialogState)
 {
+    OsLock lock(mSemaphore);
+
     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                  "SipSubscribeClient::addDialogState dialogState = %p '%s'",
-                  dialogState,
-                  dialogState->data());
-    mSubscriptionDialogs.insert(dialogState);
+                  "SipSubscribeClient::addDialogState dialogState = '%p' data = '%s'"
+                  "mSubscriptionDialogs = '%d'",
+                  dialogState.get(),
+                  dialogState->data(),
+                  mSubscriptionDialogs.size());
+
+    mSubscriptionDialogs.push_back(dialogState);
 }
 
-SubscriptionGroupState* SipSubscribeClient::getGroupStateByOriginalHandle(const UtlString& dialogHandle)
+// Helper function used to search elements in a std::map by dialogHandle
+bool compareGroupStateByCurrentHandle(
+        const std::pair<UtlString,SipSubscribeClient::SubscriptionGroupState::Ptr> &pair,
+        const UtlString& dialogHandle)
 {
-    SubscriptionGroupState* foundState =
-       dynamic_cast <SubscriptionGroupState*> (mSubscriptionGroups.find(&dialogHandle));
-    assert(foundState ?
-           mSubscriptionGroupsByCurrentHandle.find(&foundState->mCurrentEarlyDialogHandle) != NULL :
-           true);
-    return foundState;
+    return pair.first.data() == dialogHandle;
 }
 
-SubscriptionGroupState* SipSubscribeClient::getGroupStateByCurrentHandle(const UtlString& dialogHandle)
+// Helper function used to search elements in a std::vector by dialogHandle
+bool compareGroupStateByHandle(
+        const SipSubscribeClient::SubscriptionGroupState::Ptr &groupState,
+        const UtlString& dialogHandle)
 {
-    SubscriptionGroupState* foundState =
-       dynamic_cast <SubscriptionGroupState*> (mSubscriptionGroupsByCurrentHandle.findValue(&dialogHandle));
-    UtlString originalDialogHandle;
-    assert(foundState ?
-           // Need to turn foundState to UtlString* or something goes wrong with
-           // the find().
-           ( originalDialogHandle = *(static_cast <UtlString*> (foundState)),
-             mSubscriptionGroups.find(&originalDialogHandle) != NULL) :
-           true);
-    return foundState;
+    if (groupState)
+    {
+        return (groupState.get()->data() == dialogHandle);
+    }
+
+    return false;
 }
 
-SubscriptionDialogState* SipSubscribeClient::getDialogState(const UtlString& dialogHandle)
+// Helper function used to search elements in a std::vector by dialogHandle
+bool compareDialogStateByHandle(
+        const SipSubscribeClient::SubscriptionDialogState::Ptr &dialogState,
+        const UtlString& dialogHandle)
 {
-    SubscriptionDialogState* foundState =
-       dynamic_cast <SubscriptionDialogState*> (mSubscriptionDialogs.find(&dialogHandle));
-    if (foundState == NULL)
+    if (dialogState)
+    {
+        return (dialogState->data() == dialogHandle);
+    }
+
+    return false;
+}
+
+// Helper function used to search elements in a std::vector by groupState
+bool compareDialogStateByGroupState(
+        const SipSubscribeClient::SubscriptionDialogState::Ptr &dialogState,
+        const SipSubscribeClient::SubscriptionGroupState::Ptr &groupState)
+{
+    if (dialogState && groupState)
+    {
+        return (dialogState->mpGroupState.get() == groupState.get());
+    }
+
+    return false;
+}
+
+SipSubscribeClient::SubscriptionGroupState::AutoWrapPtr SipSubscribeClient::getFirstGroupState()
+{
+    SubscriptionGroupState::Ptr foundState;
+    SubscriptionGroupState::AutoWrapPtr foundStateAWP;
+
+    OsLockUnlockable lock(mSemaphore);
+
+    if (mSubscriptionGroups.size() > 0)
+    {
+        foundState = *mSubscriptionGroups.begin();
+    }
+
+    OsUnLock unlock(lock);
+
+    if (foundState)
+    {
+        foundStateAWP = SubscriptionGroupState::AutoWrapPtr(
+                new SubscriptionGroupState::WrapPtr(foundState));
+    }
+
+    return foundStateAWP;
+}
+
+SipSubscribeClient::SubscriptionGroupState::AutoWrapPtr SipSubscribeClient::getGroupStateByOriginalHandle(const UtlString& dialogHandle)
+{
+    SubscriptionGroupState::Ptr foundState;
+    SubscriptionGroupState::AutoWrapPtr foundStateAWP;
+
+    OsLockUnlockable lock(mSemaphore);
+
+    std::vector<SubscriptionGroupState::Ptr>::iterator iterator =
+             std::find_if(
+                     mSubscriptionGroups.begin(),
+                     mSubscriptionGroups.end(),
+                     boost::bind(compareGroupStateByHandle, _1, dialogHandle));
+
+    if (iterator != mSubscriptionGroups.end())
+    {
+            foundState = *iterator;
+    }
+    else
+    {
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                "SipSubscribeClient::getGroupStateByOriginalHandle"
+                "groupState not found by original handle '%s'",
+                dialogHandle.data());
+    }
+
+    if (foundState)
+    {
+        std::map<UtlString, SubscriptionGroupState::Ptr>::iterator foundByCurrentHandle =
+                std::find_if(
+                        mSubscriptionGroupsByCurrentHandle.begin(),
+                        mSubscriptionGroupsByCurrentHandle.end(),
+                        boost::bind(compareGroupStateByCurrentHandle, _1, foundState->mCurrentEarlyDialogHandle));
+
+
+        //NOTE: This should not happen.
+        if (mSubscriptionGroupsByCurrentHandle.end() == foundByCurrentHandle)
+        {
+            //set foundState to NULL as it was not found in the second container
+            foundState = SubscriptionGroupState::Ptr();
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                      "SipSubscribeClient::getGroupStateByOriginalHandle"
+                      "groupState by dialogHandle '%s' could not be matched by"
+                      "foundState '%p' by earlyDialogHandle '%s'",
+                      dialogHandle.data(),
+                      foundState.get(),
+                      foundState->mCurrentEarlyDialogHandle.data());
+        }
+     }
+
+    OsUnLock unlock(lock);
+
+    if (foundState)
+    {
+        foundStateAWP = SubscriptionGroupState::AutoWrapPtr(
+                new SubscriptionGroupState::WrapPtr(foundState));
+    }
+
+    return foundStateAWP;
+
+}
+
+SipSubscribeClient::SubscriptionGroupState::AutoWrapPtr SipSubscribeClient::getGroupStateByCurrentHandle(const UtlString& dialogHandle)
+{
+    SubscriptionGroupState::Ptr foundState;
+    SubscriptionGroupState::AutoWrapPtr foundStateAWP;
+
+    OsLockUnlockable lock(mSemaphore);
+
+    std::map<UtlString, SubscriptionGroupState::Ptr>::iterator iterator =
+            std::find_if(
+                    mSubscriptionGroupsByCurrentHandle.begin(),
+                    mSubscriptionGroupsByCurrentHandle.end(),
+                    boost::bind(compareGroupStateByCurrentHandle, _1, dialogHandle));
+
+    if (iterator != mSubscriptionGroupsByCurrentHandle.end())
+    {
+        foundState = iterator->second;
+    }
+    else
+    {
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                "SipSubscribeClient::getGroupStateByCurrentHandle"
+                "groupState not found by current handle '%s'",
+                dialogHandle.data());
+    }
+
+    if (foundState)
+    {
+        std::vector<SubscriptionGroupState::Ptr>::iterator foundByCurrentHandle =
+                std::find(
+                        mSubscriptionGroups.begin(),
+                        mSubscriptionGroups.end(),
+                        foundState);
+
+        //NOTE: This should not happen
+        if (mSubscriptionGroups.end() == foundByCurrentHandle)
+        {
+            //set foundState to NULL as it was not found in the second container
+            foundState = SubscriptionGroupState::Ptr();
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                      "SipSubscribeClient::getGroupStateByCurrentHandle"
+                      "groupState by dialogHandle '%s' could not be matched by"
+                      "foundState '%p' by currentHandle %s",
+                      dialogHandle.data(),
+                      foundState.get(),
+                      foundState->data());
+        }
+    }
+
+    OsUnLock unlock(lock);
+
+    if (foundState)
+    {
+        foundStateAWP = SubscriptionGroupState::AutoWrapPtr(
+                new SubscriptionGroupState::WrapPtr(foundState));
+    }
+
+    return foundStateAWP;
+}
+
+SipSubscribeClient::SubscriptionDialogState::AutoWrapPtr SipSubscribeClient::getDialogState(const UtlString& dialogHandle)
+{
+    SubscriptionDialogState::Ptr foundState;
+    SubscriptionDialogState::AutoWrapPtr foundStateAWP;
+
+    OsLockUnlockable lock(mSemaphore);
+
+    std::vector<SubscriptionDialogState::Ptr>::iterator iterator =
+             std::find_if(
+                     mSubscriptionDialogs.begin(),
+                     mSubscriptionDialogs.end(),
+                     boost::bind(compareDialogStateByHandle, _1, dialogHandle));
+
+    if (iterator != mSubscriptionDialogs.end())
+    {
+        foundState = *iterator;
+    }
+    else
     {
         // Swap the tags around to see if it is keyed the other way
         UtlString reversedHandle;
         SipDialog::reverseTags(dialogHandle, reversedHandle);
-        foundState =
-           dynamic_cast <SubscriptionDialogState*> (mSubscriptionDialogs.find(&reversedHandle));
+
+        iterator = std::find_if(
+                mSubscriptionDialogs.begin(),
+                mSubscriptionDialogs.end(),
+                boost::bind(compareDialogStateByHandle, _1, reversedHandle));
+        if (iterator != mSubscriptionDialogs.end())
+        {
+            foundState = *iterator;
+        }
+        else
+        {
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                    "SipSubscribeClient::getDialogState"
+                    "dialogState not found by handle '%s' reversed '%s'",
+                    dialogHandle.data(),
+                    reversedHandle.data());
+        }
     }
 
-    return (foundState);
+    OsUnLock unlock(lock);
+
+    if (foundState)
+    {
+        foundStateAWP = SubscriptionDialogState::AutoWrapPtr(
+                new SubscriptionDialogState::WrapPtr(foundState));
+    }
+
+    return foundStateAWP;
 }
 
-void SipSubscribeClient::reindexGroupState(SubscriptionGroupState* groupState)
+SipSubscribeClient::SubscriptionDialogState::AutoWrapPtr SipSubscribeClient::getDialogStateByGroupState(const SubscriptionGroupState::Ptr& groupState)
 {
+    SubscriptionDialogState::Ptr foundState;
+    SubscriptionDialogState::AutoWrapPtr foundStateAWP;
+
+    OsLockUnlockable lock(mSemaphore);
+
+    std::vector<SubscriptionDialogState::Ptr>::iterator iterator =
+             std::find_if(
+                     mSubscriptionDialogs.begin(),
+                     mSubscriptionDialogs.end(),
+                     boost::bind(compareDialogStateByGroupState, _1, groupState));
+
+    if (iterator != mSubscriptionDialogs.end())
+    {
+            foundState = *iterator;
+    }
+
+    OsUnLock unlock(lock);
+
+    if (foundState)
+    {
+        foundStateAWP = SubscriptionDialogState::AutoWrapPtr(
+                new SubscriptionDialogState::WrapPtr(foundState));
+    }
+
+    return foundStateAWP;
+}
+
+
+void SipSubscribeClient::reindexGroupState(SubscriptionGroupState::Ptr groupState)
+{
+    OsLock lock(mSemaphore);
+
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSubscribeClient::reindexGroupState original handle = '%s', previous handle = '%s'",
                  groupState->data(),
                  groupState->mCurrentEarlyDialogHandle.data());
 
    // Remove the entry in mSubscriptionGroupsByCurrentHandle.
-   UtlContainable* r =
-      mSubscriptionGroupsByCurrentHandle.remove(&groupState->mCurrentEarlyDialogHandle);
-   assert(r);
+   std::map<UtlString, SubscriptionGroupState::Ptr>::iterator map_iterator =
+           std::find_if(
+                   mSubscriptionGroupsByCurrentHandle.begin(),
+                   mSubscriptionGroupsByCurrentHandle.end(),
+                   boost::bind(compareGroupStateByCurrentHandle, _1, groupState->mCurrentEarlyDialogHandle));
+
+   if (map_iterator != mSubscriptionGroupsByCurrentHandle.end())
+   {
+       mSubscriptionGroupsByCurrentHandle.erase(map_iterator);
+   }
+   else
+   {
+       Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                     "SipSubscribeClient::reindexGroupState"
+                     "groupState '%p' not found by earlyDialogHandle '%s'",
+                     groupState.get(),
+                     groupState->mCurrentEarlyDialogHandle.data());
+   }
 
    // Calculate the new early dialog handle and record it in mCurrentEarlyDialogHandle.
    groupState->mpSubscriptionRequest->getDialogHandle(groupState->mCurrentEarlyDialogHandle);
 
    // Correct the entry in mSubscriptionGroupsByCurrentHandle.
-   mSubscriptionGroupsByCurrentHandle.
-      insertKeyAndValue(&groupState->mCurrentEarlyDialogHandle,
-                        groupState);
+   std::pair<std::map<UtlString,SubscriptionGroupState::Ptr>::iterator,bool> ret;
+   ret = mSubscriptionGroupsByCurrentHandle.insert(
+           std::make_pair(groupState->mCurrentEarlyDialogHandle,groupState));
+   if (false == ret.second)
+   {
+       // Adding fails because of duplicates
+       Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                     "SipSubscribeClient::reindexGroupState"
+                     "groupState '%p' by earlyDialogHandle '%s' was already added",
+                     groupState.get(),
+                     groupState->mCurrentEarlyDialogHandle.data());
+   }
 
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSubscribeClient::reindexGroupState new handle = '%s'",
                  groupState->mCurrentEarlyDialogHandle.data());
 }
 
-SubscriptionGroupState* SipSubscribeClient::removeGroupStateByCurrentHandle(const UtlString& dialogHandle)
+SipSubscribeClient::SubscriptionGroupState::AutoWrapPtr SipSubscribeClient::removeGroupStateByCurrentHandle(const UtlString& dialogHandle)
 {
-   UtlContainable* value;
-   mSubscriptionGroupsByCurrentHandle.removeKeyAndValue(&dialogHandle, value);
-   SubscriptionGroupState* foundState =
-      dynamic_cast <SubscriptionGroupState*> (value);
+    SubscriptionGroupState::Ptr foundState;
+    SubscriptionGroupState::AutoWrapPtr foundStateAWP;
+
+    OsLockUnlockable lock(mSemaphore);
+
+    std::map<UtlString, SubscriptionGroupState::Ptr>::iterator remove_it =
+            std::find_if(
+                    mSubscriptionGroupsByCurrentHandle.begin(),
+                    mSubscriptionGroupsByCurrentHandle.end(),
+                    boost::bind(compareGroupStateByCurrentHandle, _1, dialogHandle));
+
+    if (remove_it != mSubscriptionGroupsByCurrentHandle.end())
+    {
+        foundState = remove_it->second;
+        mSubscriptionGroupsByCurrentHandle.erase(remove_it);
+    }
+
+    if (foundState)
+    {
+        std::vector<SubscriptionGroupState::Ptr>::iterator vec_iterator =
+                std::find(
+                        mSubscriptionGroups.begin(),
+                        mSubscriptionGroups.end(),
+                        foundState);
+        if (vec_iterator != mSubscriptionGroups.end())
+        {
+            mSubscriptionGroups.erase(vec_iterator);
+        }
+        else
+        {
+            //NOTE: This should not happen
+            //set foundState to NULL as it was not found in the second container
+            foundState = SubscriptionGroupState::Ptr();
+            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                    "SipSubscribeClient::removeGroupStateByCurrentHandle"
+                    "groupState could not be matched by"
+                    "foundState '%p' by currentDialogHandle '%s'",
+                    foundState.get(),
+                    dialogHandle.data());
+        }
+    }
+
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                 "SipSubscribeClient::removeGroupStateByCurrentHandle dialogHandle = '%s', foundState = '%p','%s'  mSubscriptionGroups='%d','%d'",
+                 dialogHandle.data(),
+                 (foundState) ? foundState.get() : NULL,
+                 (foundState) ? foundState->data() : "(null)",
+                 mSubscriptionGroups.size(),
+                 mSubscriptionGroupsByCurrentHandle.size());
+
+   OsUnLock unlock(lock);
+
    if (foundState)
    {
-      UtlContainable* r = mSubscriptionGroups.remove(foundState);
-      assert(r);
+       foundStateAWP = SubscriptionGroupState::AutoWrapPtr(
+               new SubscriptionGroupState::WrapPtr(foundState));
+   }
+
+   return foundStateAWP;
+}
+
+SipSubscribeClient::SubscriptionGroupState::AutoWrapPtr SipSubscribeClient::removeGroupStateByOriginalHandle(const UtlString& dialogHandle)
+{
+    SubscriptionGroupState::Ptr foundState;
+    SubscriptionGroupState::AutoWrapPtr foundStateAWP;
+
+    OsLockUnlockable lock(mSemaphore);
+
+    std::vector<SubscriptionGroupState::Ptr>::iterator iterator =
+            std::find_if(
+                    mSubscriptionGroups.begin(),
+                    mSubscriptionGroups.end(),
+                    boost::bind(compareGroupStateByHandle, _1, dialogHandle));
+
+   if (iterator != mSubscriptionGroups.end())
+   {
+       foundState = *iterator;
+       mSubscriptionGroups.erase(iterator);
+
+       std::map<UtlString, SubscriptionGroupState::Ptr>::iterator remove_it =
+               std::find_if(
+                       mSubscriptionGroupsByCurrentHandle.begin(),
+                       mSubscriptionGroupsByCurrentHandle.end(),
+                       boost::bind(compareGroupStateByCurrentHandle, _1, foundState->mCurrentEarlyDialogHandle));
+       if (remove_it != mSubscriptionGroupsByCurrentHandle.end())
+       {
+           mSubscriptionGroupsByCurrentHandle.erase(remove_it);
+       }
+       else
+       {
+           //NOTE: This should not happen
+           //set foundState to NULL as it was not found in the second container
+           foundState = SubscriptionGroupState::Ptr();
+           Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                   "SipSubscribeClient::removeGroupStateByOriginalHandle"
+                   "groupState for dialogHandle '%s' could not be matched by"
+                   "foundState '%p' by currentEarlyDialogHandle '%s'",
+                   dialogHandle.data(),
+                   foundState.get(),
+                   foundState->data());
+       }
    }
 
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                 "SipSubscribeClient::removeGroupStateByCurrentHandle dialogHandle = '%s', foundState = %p '%s'",
+                 "SipSubscribeClient::removeGroupStateByOriginalHandle dialogHandle = '%s', foundState = '%p', '%s'  mSubscriptionGroups = '%d', '%d'",
                  dialogHandle.data(),
-                 foundState,
-                 foundState ? foundState->data() : "(null)");
-   return foundState;
-}
+                 (foundState) ? foundState.get() : NULL,
+                 (foundState) ? foundState->data() : "(null)",
+                 mSubscriptionGroups.size(),
+                 mSubscriptionGroupsByCurrentHandle.size());
 
-SubscriptionGroupState* SipSubscribeClient::removeGroupStateByOriginalHandle(const UtlString& dialogHandle)
-{
-   SubscriptionGroupState* foundState =
-      dynamic_cast <SubscriptionGroupState*> (mSubscriptionGroups.remove(&dialogHandle));
+   OsUnLock unlock(lock);
+
    if (foundState)
    {
-      UtlContainable* r =
-         mSubscriptionGroupsByCurrentHandle.remove(&foundState->mCurrentEarlyDialogHandle);
-      assert(r);
+       foundStateAWP = SubscriptionGroupState::AutoWrapPtr(
+               new SubscriptionGroupState::WrapPtr(foundState));
    }
 
-   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                 "SipSubscribeClient::removeGroupStateByOriginalHandle dialogHandle = '%s', foundState = %p '%s'",
-                 dialogHandle.data(),
-                 foundState,
-                 foundState ? foundState->data() : "(null)");
-   return foundState;
+   return foundStateAWP;
 }
 
-SubscriptionDialogState* SipSubscribeClient::removeDialogState(const UtlString& dialogHandle)
+SipSubscribeClient::SubscriptionDialogState::AutoWrapPtr SipSubscribeClient::removeDialogState(const UtlString& dialogHandle)
 {
-   SubscriptionDialogState* foundState =
-      dynamic_cast <SubscriptionDialogState*> (mSubscriptionDialogs.remove(&dialogHandle));
-   if (foundState == NULL)
-   {
-      // Swap the tags around to see if it is keyed the other way
-      UtlString reversedHandle;
-      SipDialog::reverseTags(dialogHandle, reversedHandle);
-      foundState =
-         dynamic_cast <SubscriptionDialogState*> (mSubscriptionDialogs.remove(&reversedHandle));
-   }
+    SubscriptionDialogState::Ptr foundState;
+    SubscriptionDialogState::AutoWrapPtr foundStateAWP;
+
+    OsLockUnlockable lock(mSemaphore);
+
+    std::vector<SubscriptionDialogState::Ptr>::iterator iterator =
+             std::find_if(
+                     mSubscriptionDialogs.begin(),
+                     mSubscriptionDialogs.end(),
+                     boost::bind(compareDialogStateByHandle, _1, dialogHandle));
+
+    if (iterator != mSubscriptionDialogs.end())
+    {
+            foundState = *iterator;
+            mSubscriptionDialogs.erase(iterator);
+    }
+    else
+    {
+        // Swap the tags around to see if it is keyed the other way
+        UtlString reversedHandle;
+        SipDialog::reverseTags(dialogHandle, reversedHandle);
+
+        iterator = std::find_if(
+                mSubscriptionDialogs.begin(),
+                mSubscriptionDialogs.end(),
+                boost::bind(compareDialogStateByHandle, _1, reversedHandle));
+        if (iterator != mSubscriptionDialogs.end())
+        {
+                foundState = *iterator;
+                mSubscriptionDialogs.erase(iterator);
+        }
+    }
 
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSubscribeClient::removeDialogState dialogHandle = '%s', foundState = %p '%s'",
                  dialogHandle.data(),
-                 foundState,
-                 foundState ? foundState->data() : "(null)");
-   return foundState;
+                 (foundState) ? foundState.get() : NULL,
+                 (foundState) ? foundState->data() : "(null)");
+
+   OsUnLock unlock(lock);
+
+
+   if (foundState)
+   {
+       foundStateAWP = SubscriptionDialogState::AutoWrapPtr(
+               new SubscriptionDialogState::WrapPtr(foundState));
+   }
+
+   return foundStateAWP;
 }
 
 /* ============================ FUNCTIONS ================================= */
@@ -1827,7 +2075,7 @@ SubscriptionDialogState* SipSubscribeClient::removeDialogState(const UtlString& 
 // indefinitely without increasing the waiting time.
 
 // Has the subscription start succeeded?
-bool SubscriptionGroupState::successfulStart()
+bool SipSubscribeClient::SubscriptionGroupState::successfulStart()
 {
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSubscribeClient::successfulStart "
@@ -1841,7 +2089,7 @@ bool SubscriptionGroupState::successfulStart()
 }
 
 // Set up the starting timer.
-void SubscriptionGroupState::setStartingTimer(bool initial)
+void SipSubscribeClient::SubscriptionGroupState::setStartingTimer(bool initial)
 {
    // Use the initial starting time (if initial == true (when called
    // from ::addSubscription()) or !mStarting (failure of an
@@ -1879,13 +2127,13 @@ void SubscriptionGroupState::setStartingTimer(bool initial)
 }
 
 // Set the subscription group to established state.
-void SubscriptionGroupState::transitionToEstablished()
+void SipSubscribeClient::SubscriptionGroupState::transitionToEstablished()
 {
    mStarting = false;
 }
 
 // Prepare for the next starting attempt.
-void SubscriptionGroupState::resetStarting()
+void SipSubscribeClient::SubscriptionGroupState::resetStarting()
 {
    // Set a new Call-Id into the SUBSCRIBE request.
    UtlString callId;
@@ -1913,104 +2161,81 @@ void SipSubscribeClient::reestablish(const UtlString& handle)
    // Terminate all current subscriptions for this group.
    // (This should be factored with ::endSubscriptionGroup.)
 
-   OsLockUnlockable lock(mSemaphore);
+  int count = 0;
 
-   // Repeatedly look up the group and terminate one subscription.
-   {
-      UtlHashBagIterator iterator(mSubscriptionDialogs);
-      int count = 0;
-      UtlBoolean found;
+  // Look up the group state.
+  // We must find the group state again on every iteration because
+  // we unlock mSemaphore before calling ::endSubscriptionDialog() below.
+  SubscriptionGroupState::AutoWrapPtr groupStateAWP;
+  SubscriptionGroupState::Ptr groupState;
+  SubscriptionDialogState::AutoWrapPtr dialogStateAWP;
+  SubscriptionDialogState::Ptr dialogState;
 
-      do {
-         found = FALSE;
-         // Look up the group state.
-         // We must find the group state again on every iteration because
-         // we unlock mSemaphore before calling ::endSubscriptionDialog() below.
-         SubscriptionGroupState* groupState =
-            getGroupStateByOriginalHandle(handle);
-         // Check that reestablishment is set for this group.
-         if (groupState && groupState->mReestablish)
-         {
-            iterator.reset();
+    do {
+        groupStateAWP = getGroupStateByOriginalHandle(handle);
+        groupState = getGroupStateFromAWP(groupStateAWP);
 
-            SubscriptionDialogState* dialogState;
-            found = FALSE;
-            while (!found &&
-                   (dialogState = (dynamic_cast <SubscriptionDialogState*> (iterator()))))
+        // Check that reestablishment is set for this group.
+        if (groupState && groupState->mReestablish)
+        {
+            dialogStateAWP = getDialogStateByGroupState(groupState);
+            dialogState = getDialogStateFromAWP(dialogStateAWP);
+            if (dialogState)
             {
-               found = dialogState->mpGroupState == groupState;
-               if (found)
-               {
-                  // Remember the key of the dialog.
-                  UtlString key(*static_cast <UtlString*> (dialogState));
-                  count++;
-                  // Unlock mSemaphore so ::endSubscriptionDialog() can lock it.
-                  OsUnLock unlock(lock);
-                  dialogState = NULL;
-                  groupState = NULL;
-
-                  endSubscriptionDialog(key);
-               }
+                count++;
+                endSubscriptionDialog(dialogState->data());
             }
-         }
-      } while (found);
+        }
+    } while (dialogState);
 
-      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                    "SipSubscribeClient::reestablish ended %d dialogs",
-	            count);
+  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                "SipSubscribeClient::reestablish ended %d dialogs", count);
 
-      // Look up the group state.
-      // We must find the group state again because we unlocked
-      // mSemaphore before calling ::endSubscriptionDialog() above.
-      SubscriptionGroupState* groupState =
-         getGroupStateByOriginalHandle(handle);
 
-      // Test whether reestablish is set.
-      // It may be false because the subscription group is being ended.
-      if (groupState && groupState->mReestablish)
-      {
-         // Prepare for the next starting attempt.
-         groupState->resetStarting();
-         // Reindex the group under the new early dialog handle.
-         reindexGroupState(groupState);
+  // Test whether reestablish is set.
+  // It may be false because the subscription group is being ended.
+  if (groupState && groupState->mReestablish)
+  {
+     // Prepare for the next starting attempt.
+      groupState->resetStarting();
+     // Reindex the group under the new early dialog handle.
+     reindexGroupState(groupState);
 
-         // Try establishing the subscription again.
-         groupState->setStartingTimer(false);
+     // Try establishing the subscription again.
+     groupState->setStartingTimer(false);
 
-         // Give a copy of the request to the refresh manager to send the
-         // SUBSCRIBE and keep the subscription alive.
-         UtlString earlyDialogHandle;
+     // Give a copy of the request to the refresh manager to send the
+     // SUBSCRIBE and keep the subscription alive.
+     UtlString earlyDialogHandle;
 
-         mpRefreshManager->
-            initiateRefresh(new SipMessage(*groupState->mpSubscriptionRequest),
-                            //< give ownership to mpRefreshManager
-                            this,
-                            // refreshCallback receives the SipSubscribeClient as app. data
-                            SipSubscribeClient::refreshCallback,
-                            earlyDialogHandle);
-      }
-   }
+     mpRefreshManager->
+        initiateRefresh(new SipMessage(*groupState->mpSubscriptionRequest),
+                        //< give ownership to mpRefreshManager
+                        this,
+                        // refreshCallback receives the SipSubscribeClient as app. data
+                        SipSubscribeClient::refreshCallback,
+                        earlyDialogHandle);
+  }
 }
 
 // The timer message processing routine for SipSubscribeClient::mStartingTimer.
 OsStatus SipSubscribeClient::handleStartingEvent(const UtlString& handle)
 {
-   OsLockUnlockable lock(mSemaphore);
-
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SubscriptionStartingNotification::signal Timer fired, groupState handle = '%s'",
                  handle.data());
 
    // Get the SubscriptionGroupState.
    // Due to race conditions, it may no longer exist.
-   SubscriptionGroupState* groupState = getGroupStateByOriginalHandle(handle);
+   SubscriptionGroupState::AutoWrapPtr groupStateAWP = getGroupStateByOriginalHandle(handle);
+   SubscriptionGroupState::Ptr groupState = getGroupStateFromAWP(groupStateAWP);
    if (groupState)
    {
       // Check to see if we set up the subscription(s) successfully.
       if (groupState->successfulStart())
       {
          // If so, update the state variables.
-         groupState->transitionToEstablished();
+          groupState->transitionToEstablished();
       }
       else
       {
@@ -2019,8 +2244,8 @@ OsStatus SipSubscribeClient::handleStartingEvent(const UtlString& handle)
          // or because the subscription group is being ended.
          if (groupState->mReestablish)
          {
-            OsUnLock unlock(lock);
-            groupState = NULL;
+            groupStateAWP = SubscriptionGroupState::AutoWrapPtr();
+            groupState = SubscriptionGroupState::Ptr();
 
             reestablish(handle);
          }
@@ -2040,10 +2265,10 @@ OsStatus SipSubscribeClient::handleStartingEvent(const UtlString& handle)
 // the notifier URI changes.
 
 // Random number generator.
-UtlRandom SubscriptionGroupState::sRandom;
+UtlRandom SipSubscribeClient::SubscriptionGroupState::sRandom;
 
 // Set the restart timer.
-void SubscriptionGroupState::setRestartTimer()
+void SipSubscribeClient::SubscriptionGroupState::setRestartTimer()
 {
    // Choose a random time between 1/2 and 1 times RESTART_INTERVAL.
    int refresh_time =
@@ -2059,25 +2284,24 @@ void SubscriptionGroupState::setRestartTimer()
 // The timer message processing routine for SipSubscribeClient::mRestartTimer.
 OsStatus SipSubscribeClient::handleRestartEvent(const UtlString& handle)
 {
-   OsLockUnlockable lock(mSemaphore);
-
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSubscribeClient::handleRestartEvent Timer fired, groupState handle = '%s'",
                  handle.data());
 
    // Get the SubscriptionGroupState.
    // Due to race conditions, it may no longer exist.
-   SubscriptionGroupState* groupState = getGroupStateByOriginalHandle(handle);
+   SubscriptionGroupState::AutoWrapPtr groupStateAWP = getGroupStateByOriginalHandle(handle);
+   SubscriptionGroupState::Ptr groupState = getGroupStateFromAWP(groupStateAWP);
    if (groupState)
    {
       // Test whether restart is set.
       // It may be false because the subscription group is being ended.
       if (groupState->mRestart)
       {
-         groupState->setRestartTimer();
+          groupState->setRestartTimer();
 
-         OsUnLock unlock(lock);
-         groupState = NULL;
+         groupStateAWP = SubscriptionGroupState::AutoWrapPtr();
+         groupState = SubscriptionGroupState::Ptr();
          
          reestablish(handle);
       }

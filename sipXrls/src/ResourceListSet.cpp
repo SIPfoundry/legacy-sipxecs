@@ -63,7 +63,8 @@ ResourceListSet::ResourceListSet(ResourceListServer* resourceListServer) :
                     getMessageQueue(),
                     (void*)ResourceListSet::PUBLISH_TIMEOUT),
    mPublishOnTimeout(FALSE),
-   mVersion(0)
+   mVersion(0),
+   _subscriptionSetTimers(resourceListServer->getResourceListTask().getMessageQueue())
 {
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet:: this = %p",
@@ -118,6 +119,31 @@ void ResourceListSet::finalize()
 
 /* ============================ MANIPULATORS ============================== */
 
+bool ResourceListSet::addSubscriptionSetByTimer(
+        const UtlString& callidContact,
+        UtlContainable* handler,
+        const OsTime& offset)
+{
+    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+            "ResourceListSet::addSubscriptionSetByTimer "
+            "this = %p, callidContact = '%s', handler = '%p', offset = '%d'",
+                  this, callidContact.data(), handler, offset.cvtToMsecs());
+
+    OsStatus ret = _subscriptionSetTimers.scheduleOneshotAfter(
+                        new SubscriptionSetMsg(handler, callidContact),
+                        offset);
+
+    if (OS_SUCCESS != ret)
+    {
+        Os::Logger::instance().log(FAC_RLS, PRI_ERR,
+                "ResourceListSet::addSubscriptionSetByTimer failed for "
+                "this = %p, callidContact = '%s', handler = '%p', offset = '%d'",
+                      this, callidContact.data(), handler, offset.cvtToMsecs());
+    }
+
+    return (OS_SUCCESS == ret);
+}
+
 // Create and add a resource list.
 bool ResourceListSet::addResourceList(const char* user,
                                       const char* userCons,
@@ -127,41 +153,41 @@ bool ResourceListSet::addResourceList(const char* user,
                  "ResourceListSet::addResourceList this = %p, user = '%s', userCons = '%s', nameXml = '%s'",
                  this, user, userCons, nameXml);
 
-   // Serialize access to the ResourceListSet.
-   mutex_write_lock lock(_listMutex);
 
    // Check to see if there is already a list with this name.
-   bool ret = !findResourceList(user);
-   if (ret)
+   ResourceList::Ptr pResource = findResourceList(user);
+   if (!pResource)
    {
       // Create the resource list.
-      ResourceList* resourceList = new ResourceList(this, user, userCons);
+      pResource = ResourceList::Ptr(new ResourceList(this, user, userCons));
 
       // Update the version number for consolidated events if it is too
       // small for an existing subscription to this URI.
       int v =
          getResourceListServer()->getSubscriptionMgr().
-         getNextAllowedVersion(*resourceList->getResourceListUriCons());
+         getNextAllowedVersion(*(pResource->getResourceListUriCons()));
       if (v > mVersion)
       {
          mVersion = v;
       }
 
       // Add the resource list to the set.
-      mResourceLists.append(resourceList);
+      mutex_write_lock lock(_listMutex);
+      _resourceLists[user] = pResource;
 
       Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ResourceListSet::addResourceList added ResourceList, mVersion = %d",
                     mVersion);
+      return true;
    }
    else
    {
       Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ResourceListSet::addResourceList ResourceList '%s' already exists",
                     user);
+      return false;
    }
 
-   return ret;
 }
 
 // Get the information from resource in a resource list specified
@@ -173,12 +199,10 @@ void ResourceListSet::getResourceInfoAt(const char* user,
                                         UtlString& display_name)
 {
    // Serialize access to the ResourceListSet.
-   mutex_read_lock lock(_listMutex);
-
-   ResourceList* resourceList = findResourceList(user);
-   if (resourceList)
+   ResourceList::Ptr pResource = findResourceList(user);
+   if (pResource)
    {
-      resourceList->getResourceInfoAt(at, uri, nameXml, display_name);
+      pResource->getResourceInfoAt(at, uri, nameXml, display_name);
    }
    else
    {
@@ -197,7 +221,7 @@ void ResourceListSet::deleteAllResourceLists(bool abortOnShutdown)
                  this, abortOnShutdown);
 
    // Gradually remove elements from the ResourceLists and delete them.
-   ResourceList* rl;
+   ResourceList::Ptr rl;
    int changeDelay = getResourceListServer()->getChangeDelay();
    do {
       // Set to true if a ResourceCached was deleted and so we need to delay.
@@ -208,7 +232,10 @@ void ResourceListSet::deleteAllResourceLists(bool abortOnShutdown)
          mutex_write_lock lock(_listMutex);
 
          // Get pointer to the first ResourceList.
-         rl = dynamic_cast <ResourceList*> (mResourceLists.first());
+         if (!_resourceLists.empty())
+           rl =  _resourceLists.begin()->second;
+         else
+           rl = ResourceList::Ptr();
 
          // If one exists, shrink it.
          if (rl) {
@@ -216,8 +243,7 @@ void ResourceListSet::deleteAllResourceLists(bool abortOnShutdown)
             rl->shrink(list_empty, resource_deleted);
             if (list_empty) {
                // The ResourceList is empty, and so can be removed and deleted.
-               mResourceLists.removeReference(rl);
-               delete rl;
+               _resourceLists.erase(rl->getUserPart()->data());
             }
          }
       }
@@ -238,30 +264,32 @@ void ResourceListSet::deleteResourceList(const char* user)
                  this, user);
 
    // Gradually remove elements from the ResourceList and delete them.
-   ResourceList* rl;
    int changeDelay = getResourceListServer()->getChangeDelay();
+   bool exitLoop = false;
    do {
       // Set to true if a ResourceCached was deleted and so we need to delay.
       bool resource_deleted = false;
 
       {
-         // Serialize access to the ResourceListSet.
-         mutex_write_lock lock(_listMutex);
-
+ 
          // Get pointer to the ResourceList.
-         rl = findResourceList(user);
+         ResourceList::Ptr pResource = findResourceList(user);
 
          // If it exists, shrink it.
-         if (rl) {
+         if (pResource) {
             bool list_empty;
-            rl->shrink(list_empty, resource_deleted);
+            pResource->shrink(list_empty, resource_deleted);
             if (list_empty) {
                // The ResourceList is empty, and so can be removed and deleted.
-               mResourceLists.removeReference(rl);
-               delete rl;
-               // Exit the loop now.
-               rl = NULL;
+              // Serialize access to the ResourceListSet.
+               mutex_write_lock lock(_listMutex);
+               _resourceLists.erase(pResource->getUserPart()->data());
+               exitLoop = true;
             }
+         }
+         else
+         {
+           exitLoop = true;
          }
       }
 
@@ -270,7 +298,7 @@ void ResourceListSet::deleteResourceList(const char* user)
          // Delay to allow the consequent processing to catch up.
          OsTask::delay(changeDelay);
       }
-   } while (rl && !gShutdownFlag);
+   } while (exitLoop && !gShutdownFlag);
 }
 
 void ResourceListSet::deleteResourceAt(const char* user,
@@ -280,13 +308,11 @@ void ResourceListSet::deleteResourceAt(const char* user,
                  "ResourceListSet::deleteResourceAt this = %p, user = '%s', at = %d",
                  this, user, (int) at);
 
-   // Serialize access to the ResourceListSet.
-   mutex_write_lock lock(_listMutex);
 
-   ResourceList* resourceList = findResourceList(user);
-   if (resourceList)
+   ResourceList::Ptr pResource = findResourceList(user);
+   if (pResource)
    {
-      bool resource_deleted = resourceList->deleteResourceAt(at);
+      bool resource_deleted = pResource->deleteResourceAt(at);
 
       if (resource_deleted)
       {
@@ -314,13 +340,9 @@ void ResourceListSet::getAllResourceLists(UtlSList& list)
 
    // Serialize access to the ResourceListSet.
    mutex_read_lock lock(_listMutex);
-
-   // Iterate through the resource lists.
-   UtlSListIterator resourceListItor(mResourceLists);
-   ResourceList* resourceList;
-   while ((resourceList = dynamic_cast <ResourceList*> (resourceListItor())))
+   for (ResourceMap::iterator iter = _resourceLists.begin(); iter != _resourceLists.end(); iter++)
    {
-      list.append(new UtlString(*resourceList->getUserPart()));
+     list.append(new UtlString(*(iter->second->getUserPart())));
    }
 }
 
@@ -337,15 +359,12 @@ bool ResourceListSet::addResource(const char* user,
                  this, user, uri, nameXml, display_name,
                  (int) no_check_start, (int) no_check_end);
 
-   // Serialize access to the ResourceListSet.
-   mutex_write_lock lock(_listMutex);
-
    bool resource_added = false;
-   ResourceList* resourceList = findResourceList(user);
-   if (resourceList)
+   ResourceList::Ptr pResource = findResourceList(user);
+   if (pResource)
    {
       bool resource_cached_created;
-      resourceList->addResource(uri, nameXml, display_name,
+      pResource->addResource(uri, nameXml, display_name,
                                 resource_added, resource_cached_created,
                                 no_check_start, no_check_end);
 
@@ -372,14 +391,12 @@ bool ResourceListSet::addResource(const char* user,
 size_t ResourceListSet::getResourceListEntries(const char* user)
 {
    // Serialize access to the ResourceListSet.
-   mutex_read_lock lock(_listMutex);
-
    size_t ret = 0;
 
-   ResourceList* resourceList = findResourceList(user);
-   if (resourceList)
+   ResourceList::Ptr pResource = findResourceList(user);
+   if (pResource)
    {
-      ret = resourceList->entries();
+      ret = pResource->entries();
    }
    else
    {
@@ -459,8 +476,7 @@ void ResourceListSet::subscriptionEventCallbackSync(
                  earlyDialogHandle->data(), dialogHandle->data(), newState,
                  subscriptionState->data());
 
-   // Serialize access to the ResourceListSet.
-   recursive_mutex_read_lock lock(_subscriptionMutex);
+
 
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::subscriptionEventCallbackSync after mutex_read_lock on semaphore");
@@ -475,9 +491,13 @@ void ResourceListSet::subscriptionEventCallbackSync(
     * type of the object is a subclass of both UtlContainable and
     * ResourceSubscriptionReceiver.
     */
-   ResourceSubscriptionReceiver* receiver =
-      dynamic_cast <ResourceSubscriptionReceiver*>
-         (mSubscribeMap.findValue(earlyDialogHandle));
+   ResourceSubscriptionReceiver::CallBack::Ptr receiver;
+   {
+     recursive_mutex_read_lock lock(_subscriptionMutex);
+     if (_subscribeMap.find(earlyDialogHandle->data()) != _subscribeMap.end())
+       receiver = _subscribeMap[earlyDialogHandle->data()];
+   }
+
 
    if (receiver)
    {
@@ -547,8 +567,8 @@ void ResourceListSet::notifyEventCallbackSync(const UtlString* dialogHandle,
                  "ResourceListSet::notifyEventCallbackSync dialogHandle = '%s'",
                  dialogHandle->data());
 
-   // Serialize access to the ResourceListSet.
-   mutex_read_lock lock(_notifyMutex);
+   
+   
 
    // Look up the ResourceNotifyReceiver to notify based on the dialogHandle.
    /* To call the handler, we dynamic_cast the object to
@@ -559,9 +579,13 @@ void ResourceListSet::notifyEventCallbackSync(const UtlString* dialogHandle,
     * type of the object is a subclass of both UtlContainable and
     * ResourceNotifyReceiver.
     */
-   ResourceNotifyReceiver* receiver =
-      dynamic_cast <ResourceNotifyReceiver*>
-         (mNotifyMap.findValue(dialogHandle));
+   ResourceNotifyReceiver::CallBack::Ptr receiver;
+   {
+     // Serialize access to the ResourceListSet.
+     mutex_read_lock lock(_notifyMutex);
+     if (_notifyMap.find(dialogHandle->data()) != _notifyMap.end())
+       receiver = _notifyMap[dialogHandle->data()];
+   }
 
    if (receiver)
    {
@@ -581,26 +605,28 @@ void ResourceListSet::notifyEventCallbackSync(const UtlString* dialogHandle,
 void ResourceListSet::addSubscribeMapping(UtlString* earlyDialogHandle,
                                           UtlContainable* handler)
 {
-   recursive_mutex_write_lock lock(_subscriptionMutex);
-
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::addSubscribeMapping this = %p, earlyDialogHandle = '%s', handler = %p",
                  this, earlyDialogHandle->data(), handler);
 
-   mSubscribeMap.insertKeyAndValue(earlyDialogHandle, handler);
+   ResourceSubscriptionReceiver* pReceiver = dynamic_cast<ResourceSubscriptionReceiver*>(handler);
+   if (pReceiver)
+   {
+     recursive_mutex_write_lock lock(_subscriptionMutex);
+     _subscribeMap[earlyDialogHandle->data()] = pReceiver->getSafeCallBack();
+   }
 }
 
 /** Delete a mapping for an early dialog handle.
  */
 void ResourceListSet::deleteSubscribeMapping(UtlString* earlyDialogHandle)
 {
-   recursive_mutex_write_lock lock(_subscriptionMutex);
-
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::deleteSubscribeMapping this = %p, earlyDialogHandle = '%s'",
                  this, earlyDialogHandle->data());
 
-   mSubscribeMap.remove(earlyDialogHandle);
+   recursive_mutex_write_lock lock(_subscriptionMutex);
+   _subscribeMap.erase(earlyDialogHandle->data());
 }
 
 /** Add a mapping for a dialog handle to its handler for
@@ -620,11 +646,22 @@ void ResourceListSet::addNotifyMapping(const UtlString& dialogHandle,
     * SipDialog::isSameDialog.)
     */
 
-   mutex_write_lock lock(_notifyMutex);
+   
    // If we already have a different mapping, report an error, as this
    // addNotifyMapping() should be a duplicate of the mapping we
    // already have.
-   UtlContainable* current_handler = mNotifyMap.find(&dialogHandle);
+   UtlContainable* current_handler = 0;
+   ResourceNotifyReceiver::CallBack::Ptr receiver;
+   {
+     // Serialize access to the ResourceListSet.
+     mutex_read_lock lock(_notifyMutex);
+     if (_notifyMap.find(dialogHandle.data()) != _notifyMap.end())
+     {
+       receiver = _notifyMap[dialogHandle.data()];
+       current_handler = (UtlContainable*)receiver->receiver();
+     }
+   }
+
    if (current_handler)
    {
       if (current_handler != handler)
@@ -649,8 +686,14 @@ void ResourceListSet::addNotifyMapping(const UtlString& dialogHandle,
                  handler);
 
    // Make entries in mNotifyMap for both forms of the handle.
-   mNotifyMap.insertKeyAndValue(dialogHandleP, handler);
-   mNotifyMap.insertKeyAndValue(swappedDialogHandleP, handler);
+
+   ResourceNotifyReceiver* pNotifier = dynamic_cast<ResourceNotifyReceiver*>(handler);
+   if (pNotifier)
+   {
+      mutex_write_lock lock(_notifyMutex);
+      _notifyMap[dialogHandleP->data()] = pNotifier->getSafeCallBack();
+      _notifyMap[swappedDialogHandleP->data()] = pNotifier->getSafeCallBack();
+   }
 }
 
 /** Delete a mapping for a dialog handle.
@@ -666,23 +709,11 @@ void ResourceListSet::deleteNotifyMapping(const UtlString* dialogHandle)
                  "ResourceListSet::deleteNotifyMapping this = %p, dialogHandle = '%s', swappedDialogHandle = '%s'",
                  this, dialogHandle->data(), swappedDialogHandle.data());
 
-   // We have to get a pointer to the key objects, as our caller won't
-   // free them.  Otherwise, we could use UtlHashMap::remove().
-   // We own the key objects and have to delete them, but we don't own
-   // the value objects, and so don't delete them.
-   UtlContainable* value;
-   UtlContainable* keyString = mNotifyMap.removeKeyAndValue(dialogHandle, value);
-   if (keyString)
-   {
-      // Delete the key object.
-      delete keyString;
-   }
-   keyString = mNotifyMap.removeKeyAndValue(&swappedDialogHandle, value);
-   if (keyString)
-   {
-      // Delete the swapped key object.
-      delete keyString;
-   }
+
+   mutex_write_lock lock(_notifyMutex);
+   _notifyMap.erase(dialogHandle->data());
+   _notifyMap.erase(swappedDialogHandle.data());
+
 }
 
 // Get the next sequence number for objects for the parent ResourceListServer.
@@ -812,20 +843,17 @@ void ResourceListSet::publish()
                  "ResourceListSet::publish this = %p",
                  this);
 
-   // Serialize access to the ResourceListSet.
-   mutex_read_lock lock(_listMutex);
+   
 
    // If publishing has been suspended, do nothing --
    // publish() will be called again after publishing is resumed.
    if (!publishingSuspended())
    {
+      mutex_read_lock lock(_listMutex);
       // Iterate through the resource lists.
-      UtlSListIterator resourceListItor(mResourceLists);
-      ResourceList* resourceList;
-      while ((resourceList =
-              dynamic_cast <ResourceList*> (resourceListItor())))
+      for (ResourceMap::iterator iter = _resourceLists.begin(); iter != _resourceLists.end(); iter++)
       {
-         resourceList->publishIfNecessary();
+        iter->second->publishIfNecessary();
       }
 
       // Purge dialogs with terminated state and terminated resource
@@ -861,9 +889,6 @@ void ResourceListSet::splitUserData(int userData,
 // Retrieve an entry from mEventMap and delete it.
 UtlContainable* ResourceListSet::retrieveObjectBySeqNoAndDeleteMapping(int seqNo)
 {
-   // Serialize access to the ResourceListSet.
-   mutex_write_lock lock(_listMutex);
-
    // Search for and possibly delete seqNo.
    UtlInt search_key(seqNo);
    UtlContainable* value;
@@ -928,20 +953,14 @@ void ResourceListSet::deleteResourceSeqNoMapping(int seqNo)
 // Dump the object's internal state.
 void ResourceListSet::dumpState()
 {
-   // Serialize access to the ResourceListSet.
-   mutex_read_lock lock(_listMutex);
-
-   // indented 2
-
    Os::Logger::instance().log(FAC_RLS, PRI_INFO,
                  "\t  ResourceListSet %p mSuspendPublishingCount = %d",
                  this, mSuspendPublishingCount);
 
-   UtlSListIterator i(mResourceLists);
-   ResourceList* rl;
-   while ((rl = dynamic_cast <ResourceList*> (i())))
+   mutex_read_lock lock(_listMutex);
+   for (ResourceMap::iterator iter = _resourceLists.begin(); iter != _resourceLists.end(); iter++)
    {
-      rl->dumpState();
+     iter->second->dumpState();
    }
 
    mResourceCache.dumpState();
@@ -950,23 +969,14 @@ void ResourceListSet::dumpState()
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 // Search for a resource list with a given name (user-part).
-ResourceList* ResourceListSet::findResourceList(const char* user)
+ResourceList::Ptr ResourceListSet::findResourceList(const char* user)
 {
-   ResourceList* ret = 0;
+  mutex_read_lock lock(_listMutex);
 
-   // Iterate through the resource lists.
-   UtlSListIterator resourceListItor(mResourceLists);
-   ResourceList* resourceList;
-   while (!ret &&
-          (resourceList = dynamic_cast <ResourceList*> (resourceListItor())))
-   {
-      if (resourceList->getUserPart()->compareTo(user) == 0)
-      {
-         ret = resourceList;
-      }
-   }
+  if (_resourceLists.find(user) != _resourceLists.end())
+    return _resourceLists[user];
 
-   return ret;
+  return ResourceList::Ptr();
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

@@ -182,5 +182,11 @@ repo-update :
 	mock $(MOCK_OPTS) --scrub=yum-cache
 	mock $(MOCK_OPTS) --update
 
+help.repo-quick-update = Remove only the packages from chroot that are built. Takes 14 seconds when a full rebuild can take 2 minutues
+repo-quick-update :
+	rpm -qp --queryformat '%{name}\n' $(MOCK_RESULTS_DIR)/*.rpm | sort | uniq | \
+	  xargs --no-run-if-empty mock $(MOCK_OPTS) --remove
+	find mock-cache/$(DISTRO)/yum_cache/sipxecs/packages/ -name '*.rpm' | xargs --no-run-if-empty rm
+
 help.repo = Prepares repository for $(DISTRO) for publishing or re-distributing in ISO by removing extra rpms and moving source rpms to separate directory.
 repo: repo-src repo-remove-dups repo-create;

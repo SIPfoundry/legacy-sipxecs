@@ -15,6 +15,7 @@
 #include "AppAgentTask.h"
 #include "AppearanceAgent.h"
 #include "ResourceListMsg.h"
+#include "AppearanceGroup.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -51,11 +52,11 @@ UtlBoolean AppearanceAgentTask::handleMessage(OsMsg& rMsg)
 {
    UtlBoolean handled = FALSE;
 
-   if (rMsg.getMsgType() == RLS_SUBSCRIPTION_MSG)
+   if (rMsg.getMsgType() == SAA_SUBSCRIPTION_MSG)
    {
       // This is a request to refresh a Resource's subscription state.
       Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
-                    "AppearanceAgentTask::handleMessage RLS_SUBSCRIPTION_MSG");
+                    "AppearanceAgentTask::handleMessage SAA_SUBSCRIPTION_MSG");
       SubscriptionCallbackMsg* pSubscriptionMsg =
          dynamic_cast <SubscriptionCallbackMsg*> (&rMsg);
          getAppearanceAgent()->getAppearanceGroupSet().
@@ -65,17 +66,29 @@ UtlBoolean AppearanceAgentTask::handleMessage(OsMsg& rMsg)
                                        pSubscriptionMsg->getSubscriptionState());
       handled = TRUE;
    }
-   else if (rMsg.getMsgType() == RLS_NOTIFY_MSG)
+   else if (rMsg.getMsgType() == SAA_NOTIFY_MSG)
    {
       // This is a NOTIFY.
       Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
-                    "AppearanceAgentTask::handleMessage RLS_NOTIFY_MSG");
+                    "AppearanceAgentTask::handleMessage SAA_NOTIFY_MSG");
       NotifyCallbackMsg* pNotifyMsg =
          dynamic_cast <NotifyCallbackMsg*> (&rMsg);
          getAppearanceAgent()->getAppearanceGroupSet().
          notifyEventCallbackSync(pNotifyMsg->getDialogHandle(),
                                  pNotifyMsg->getMsg());
       handled = TRUE;
+   }
+   else if (SAA_APPEARANCE_MSG == rMsg.getMsgType())
+   {
+       // This is a create new subscription request
+       Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
+                     "AppearanceAgentTask::handleMessage SAA_APPEARANCE_MSG");
+
+       AppearanceMsg* pCSMsg = dynamic_cast <AppearanceMsg*> (&rMsg);
+       AppearanceGroup *appearanceGroup = static_cast<AppearanceGroup*> (pCSMsg->getHandler());
+
+       appearanceGroup->addAppearance(pCSMsg->getCallidContact());
+       handled = TRUE;
    }
    else if (rMsg.getMsgType() == OsMsg::PHONE_APP &&
             rMsg.getMsgSubType() == SipMessage::NET_SIP_MESSAGE)

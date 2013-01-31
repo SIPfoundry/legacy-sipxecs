@@ -9,12 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.speeddial;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.sipfoundry.commons.mongo.MongoConstants;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -33,7 +36,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     private CoreContext m_coreContext;
     private FeatureManager m_featureManager;
     private ConfigManager m_configManager;
-    private SipxReplicationContext m_sipxReplicationContext;
+    private ValidUsers m_validUsers;
 
     @Override
     public SpeedDial getSpeedDialForUserId(Integer userId, boolean create) {
@@ -188,7 +191,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
 
         // A little convoluted, but only way i could keep mongo and postgres in sync
         // which is critical for resource-lists.xml.
-        m_sipxReplicationContext.generateAll(DataSet.SPEED_DIAL);
+        m_validUsers.removeFieldFromUsers(MongoConstants.SPEEDDIAL);
         m_configManager.configureEverywhere(Rls.FEATURE);
     }
 
@@ -197,8 +200,11 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         m_configManager = configManager;
     }
 
-    @Required
-    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
-        m_sipxReplicationContext = sipxReplicationContext;
+    public ValidUsers getValidUsers() {
+        return m_validUsers;
+    }
+
+    public void setValidUsers(ValidUsers validUsers) {
+        m_validUsers = validUsers;
     }
 }

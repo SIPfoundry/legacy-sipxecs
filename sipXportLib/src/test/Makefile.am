@@ -72,6 +72,7 @@ testsuite_SOURCES = \
     os/OsProcessIteratorTest.cpp \
     os/OsProcessTest.cpp \
     os/OsTimerTest.cpp \
+    os/OsTimerQueueTest.cpp \
     os/OsUnLockTest.cpp \
     utl/TestPlugin.h \
     utl/PluginHooksTest.cpp

@@ -119,6 +119,7 @@ libsipXport_la_SOURCES =  \
     os/OsTime.cpp \
     os/OsTimeLog.cpp \
     os/OsTimer.cpp \
+    os/OsTimerQueue.cpp\
     os/OsTokenizer.cpp \
     os/OsUtil.cpp \
     os/OsStunAgentTask.cpp \

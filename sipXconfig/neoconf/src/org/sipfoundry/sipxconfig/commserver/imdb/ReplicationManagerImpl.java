@@ -39,6 +39,7 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.MongoGenerationFinishedEvent;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -48,7 +49,6 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.VersionInfo;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -58,6 +58,8 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import com.mongodb.BasicDBObject;
@@ -73,7 +75,7 @@ import com.mongodb.MongoException;
  * {@link ConfigurationFile}s on different locations.
  */
 public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements ReplicationManager, BeanFactoryAware,
-    SetupListener {
+    SetupListener, ApplicationContextAware {
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
     private static final String REPLICATION_FAILED = "Replication: insert/update failed - ";
     private static final String REPLICATION_FAILED_REMOVE = "Replication: delete failed - ";
@@ -96,12 +98,12 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private AuditLogContext m_auditLogContext;
     private ListableBeanFactory m_beanFactory;
     private CoreContext m_coreContext;
-    private ForwardingContext m_forwardingContext;
     private ExternalAliases m_externalAliases;
     private int m_pageSize = 1000;
     private int m_nThreads = 2;
     private boolean m_useDynamicPageSize;
     private DataSet m_dataSet;
+    private ApplicationContext m_applicationContext;
 
     private final Closure<User> m_userClosure = new Closure<User>() {
         @Override
@@ -165,7 +167,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     }
 
     /*
-     * Callable used in the async replication of a large group of entities, namely all users. We
+     * Callable used in the parallel replication of a large group of entities, namely all users. We
      * use Callable and not Runnable, b/c we need to wait for the termination of the threads
      * calling it.
      */
@@ -278,22 +280,27 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
      */
     @Override
     public void replicateAllData() {
-        Location primary = m_locationsManager.getPrimaryLocation();
-        dropDatasetDb();
-        int membersCount = m_coreContext.getAllUsersCount();
-        doParallelAsyncReplication(membersCount, ReplicationWorker.class, null);
-        // get the rest of Replicables and replicate them
-        Map<String, ReplicableProvider> beanMap = m_beanFactory.getBeansOfType(ReplicableProvider.class);
-        for (ReplicableProvider provider : beanMap.values()) {
-            for (Replicable entity : provider.getReplicables()) {
-                replicateEntity(entity);
+        try {
+            Location primary = m_locationsManager.getPrimaryLocation();
+            dropDatasetDb();
+            int membersCount = m_coreContext.getAllUsersCount();
+            doParallelReplication(membersCount, ReplicationWorker.class, null);
+            // get the rest of Replicables and replicate them
+            Map<String, ReplicableProvider> beanMap = m_beanFactory.getBeansOfType(ReplicableProvider.class);
+            for (ReplicableProvider provider : beanMap.values()) {
+                for (Replicable entity : provider.getReplicables()) {
+                    replicateEntity(entity);
+                }
             }
+            // Replicate the external aliases
+            ExternalAlias extalias = new ExternalAlias();
+            extalias.setFiles(m_externalAliases.getFiles());
+            replicateEntity(extalias);
+            m_auditLogContext.logReplicationMongo(DATABASE_REGENERATION, primary);
+        } finally {
+            m_applicationContext.publishEvent(new MongoGenerationFinishedEvent(this));
         }
-        // Replicate the external aliases
-        ExternalAlias extalias = new ExternalAlias();
-        extalias.setFiles(m_externalAliases.getFiles());
-        replicateEntity(extalias);
-        m_auditLogContext.logReplicationMongo(DATABASE_REGENERATION, primary);
+
     }
 
     /**
@@ -387,7 +394,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             }
             int membersCount = m_coreContext.getAllUsersCount();
             m_dataSet = ds;
-            doParallelAsyncReplication(membersCount, ReplicationWorkerDataSet.class, null);
+            doParallelReplication(membersCount, ReplicationWorkerDataSet.class, null);
             Long end = System.currentTimeMillis();
             LOG.info(REGENERATION_OF + ds.getName() + " completed in " + (end - start) / 1000 + SECONDS
                     + (end - start) / 1000 / 60 + MINUTES);
@@ -412,7 +419,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private void replicateGroupWithWorker(Group group, Class<? extends ReplicationWorker> worker) {
         try {
             int membersCount = m_coreContext.getGroupMembersCount(group.getId());
-            doParallelAsyncReplication(membersCount, worker, group);
+            doParallelReplication(membersCount, worker, group);
             LOG.info("Regeneration of group complete");
         } catch (Exception e) {
             LOG.error("Regeneration of group failed", e);
@@ -426,7 +433,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         Location primary = m_locationsManager.getPrimaryLocation();
         try {
             int membersCount = m_coreContext.getBranchMembersCount(branch.getId());
-            doParallelAsyncReplication(membersCount, AllBranchMembersReplicationWorker.class, branch);
+            doParallelReplication(membersCount, AllBranchMembersReplicationWorker.class, branch);
             m_auditLogContext.logReplicationMongo(BRANCH_REGENERATION, primary);
         } catch (Exception e) {
             m_auditLogContext.logReplicationMongoFailed(BRANCH_REGENERATION, primary, e);
@@ -476,7 +483,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
      * synchronise here. We do not want multiple threads doing heavy replication stuff at the same time.
      * (i.e. if we hit send profiles, then do a change on group with 20.000 members)
      */
-    private synchronized void doParallelAsyncReplication(int membersCount,
+    private synchronized void doParallelReplication(int membersCount,
             Class<? extends ReplicationWorker> cls, Object type) {
         ExecutorService replicationExecutorService = Executors.newFixedThreadPool(m_nThreads);
         Long start = System.currentTimeMillis();
@@ -489,7 +496,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         Constructor<? extends ReplicationWorker> ct = (Constructor< ? extends ReplicationWorker>)
             cls.getConstructors()[0];
         List<Future<Void>> futures = new ArrayList<Future<Void>>();
-        LOG.info("Starting async parallel regeneration of mongo group of "
+        LOG.info("Starting parallel regeneration of mongo group of "
                 + membersCount + " entities on " + m_nThreads
                 + " threads using chunks of " + pageSize
                 + " users");
@@ -707,10 +714,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         m_coreContext = coreContext;
     }
 
-    public void setForwardingContext(ForwardingContext forwardingContext) {
-        m_forwardingContext = forwardingContext;
-    }
-
     public void setExternalAliases(ExternalAliases externalAliases) {
         m_externalAliases = externalAliases;
     }
@@ -741,6 +744,11 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
 
     public void setImdb(MongoTemplate imdb) {
         m_imdb = imdb;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        m_applicationContext = applicationContext;
     }
 
     @Override

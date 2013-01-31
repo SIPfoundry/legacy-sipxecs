@@ -511,6 +511,7 @@ SipUserAgent::~SipUserAgent()
     allowedSipExtensions.destroyAll();
     requiredSipExtensions.destroyAll();
     allowedSipMethods.destroyAll();
+    mMyHostAliases.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
