@@ -1113,81 +1113,85 @@ bool SipRouter::addNatMappingInfoToContacts( SipMessage& sipRequest ) const
    int        privatePort;
    UtlBoolean bReceivedSet;
    UtlString  contactString;
-   sipRequest.getContactEntry(0, &contactString);
-   Url newContactUri( contactString );
    
    sipRequest.getTopVia( &privateAddress, &privatePort, &protocol, NULL, &bReceivedSet );
-   if( bReceivedSet )
-   {
-      UtlString  natUrlParameterValue;
-      // presence of the 'received' parameter indicates that the UA is behind a NAT.
-      // Transform the request's contact so that it carries its private and public IP 
-      // addresses:
-      // Before transformation:
-      //   Contact: caller@privIP:privPort;transport=xxx
-      // After transformation:
-      //   Contact: caller@pubIp:pubPort;transport=xxx;x-sipX-privcontact=privIP:privPort;transport=xxx
-      // 
-      
-      // Erase any other mapping info that the contact may carry as the information
-      // that we are about to compute is more precise than than what the request's contact 
-      // may carry -> Remove any of our proprietary headers 
-      newContactUri.removeUrlParameter( SIPX_NO_NAT_URI_PARAM );
-      newContactUri.removeUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM );
-      
-      // construct the x-sipX-privcontact URL parameter
-      UtlString privateHostAddress;
-      newContactUri.getHostAddress( privateHostAddress );
-      natUrlParameterValue.append( privateHostAddress );
-      if( newContactUri.getHostPort() != PORT_NONE )
-      {
-         char portString[21];
-         sprintf( portString, "%d", newContactUri.getHostPort() );               
-         natUrlParameterValue.append( ":" );
-         natUrlParameterValue.append( portString );
-      }
-      UtlString transport;
-      if( newContactUri.getUrlParameter( "transport", transport, 0 ) )
-      {
-         natUrlParameterValue.append( ";transport=" );
-         natUrlParameterValue.append( transport );
-      }
-      
-      // get the user's public IP address and port as received
-      // by the sipXtack and use them as the contact's IP & port
-      UtlString publicAddress;
-      int publicPort;
-      sipRequest.getSendAddress( &publicAddress, &publicPort );
-      newContactUri.setHostAddress( publicAddress );
-      newContactUri.setHostPort( publicPort );      
 
-      newContactUri.setUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, natUrlParameterValue ); 
-   }
-   else
-   {
-      // we have not detected a NAT.  Check whether or not the request's 
-      // contact contained NAT mapping information.  If it did, keep
-      // it around as this mapping information can still be useful.  If
-      // not, then add a sipX-nonat ULR parameter.
-      UtlString dummyValue;
-      if( newContactUri.getUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, dummyValue, 0 ) == FALSE &&
-          newContactUri.getUrlParameter( SIPX_NO_NAT_URI_PARAM,          dummyValue, 0 ) == FALSE )
-      {
-         // no NAT detected between registering user and sipXecs
-         // and no prior NAT mapping info in contact header;
-         newContactUri.setUrlParameter( SIPX_NO_NAT_URI_PARAM, "" );
-      }
-   }
-   UtlString newContactAsString;
-   newContactUri.toString( newContactAsString );
-   
-   UtlString dummyContact;
+   // Update nat mapping info for each contact from the sip request message
    for (int contactNumber = 0;
-        sipRequest.getContactEntry(contactNumber, &dummyContact);
+        sipRequest.getContactEntry(contactNumber, &contactString);
         contactNumber++ )
    {
-      sipRequest.setContactField(newContactAsString, contactNumber);
+	   Url newContactUri( contactString );
+
+	   if( bReceivedSet )
+	   {
+		  UtlString  natUrlParameterValue;
+		  // presence of the 'received' parameter indicates that the UA is behind a NAT.
+		  // Transform the request's contact so that it carries its private and public IP
+		  // addresses:
+		  // Before transformation:
+		  //   Contact: caller@privIP:privPort;transport=xxx
+		  // After transformation:
+		  //   Contact: caller@pubIp:pubPort;transport=xxx;x-sipX-privcontact=privIP:privPort;transport=xxx
+		  //
+
+		  // Erase any other mapping info that the contact may carry as the information
+		  // that we are about to compute is more precise than than what the request's contact
+		  // may carry -> Remove any of our proprietary headers
+		  newContactUri.removeUrlParameter( SIPX_NO_NAT_URI_PARAM );
+		  newContactUri.removeUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM );
+
+		  // construct the x-sipX-privcontact URL parameter
+		  UtlString privateHostAddress;
+		  newContactUri.getHostAddress( privateHostAddress );
+		  natUrlParameterValue.append( privateHostAddress );
+		  if( newContactUri.getHostPort() != PORT_NONE )
+		  {
+			 char portString[21];
+			 sprintf( portString, "%d", newContactUri.getHostPort() );
+			 natUrlParameterValue.append( ":" );
+			 natUrlParameterValue.append( portString );
+		  }
+		  UtlString transport;
+		  if( newContactUri.getUrlParameter( "transport", transport, 0 ) )
+		  {
+			 natUrlParameterValue.append( ";transport=" );
+			 natUrlParameterValue.append( transport );
+		  }
+
+		  // get the user's public IP address and port as received
+		  // by the sipXtack and use them as the contact's IP & port
+		  UtlString publicAddress;
+		  int publicPort;
+		  sipRequest.getSendAddress( &publicAddress, &publicPort );
+		  newContactUri.setHostAddress( publicAddress );
+		  newContactUri.setHostPort( publicPort );
+
+		  newContactUri.setUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, natUrlParameterValue );
+	   }
+	   else
+	   {
+		  // we have not detected a NAT.  Check whether or not the request's
+		  // contact contained NAT mapping information.  If it did, keep
+		  // it around as this mapping information can still be useful.  If
+		  // not, then add a sipX-nonat ULR parameter.
+		  UtlString dummyValue;
+		  if( newContactUri.getUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, dummyValue, 0 ) == FALSE &&
+			  newContactUri.getUrlParameter( SIPX_NO_NAT_URI_PARAM,          dummyValue, 0 ) == FALSE )
+		  {
+			 // no NAT detected between registering user and sipXecs
+			 // and no prior NAT mapping info in contact header;
+			 newContactUri.setUrlParameter( SIPX_NO_NAT_URI_PARAM, "" );
+		  }
+	   }
+
+	   UtlString newContactString;
+
+	   // set the newly constructed contact in the sip request
+	   newContactUri.toString( newContactString );
+	   sipRequest.setContactField( newContactString, contactNumber );
    }
+
    return true;
 }
 
