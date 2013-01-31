@@ -15,11 +15,17 @@
 
 
 #include "os/OsTimerQueue.h"
+#include "os/OsLogger.h"
 
 OsTimerQueue::OsTimerQueue(OsMsgQ *pQueue):
         _signalQueue(pQueue)
 {
-    // In case pQueue is NULL the timer queue object will be unusable
+    // In case pQueue is NULL the timer queue object will be unusable.
+    // It's better to assert here than continue.
+    OS_LOG_AND_ASSERT(
+            pQueue ,
+            FAC_KERNEL,
+            "OsTimerQueue::OsTimerQueue pQueue is NULL");
 }
 
 OsTimerQueue::~OsTimerQueue()
@@ -34,11 +40,9 @@ OsStatus OsTimerQueue::scheduleOneshotAfter(OsMsg* pMsg, const OsTime& offset)
     OsTime now;
 
     // pMsg is not checked as it's not this object responsibility
+
     // check to see if signal queue is valid
-    if (!_signalQueue)
-    {
-        return OS_FAILED;
-    }
+    assert(_signalQueue);
 
     // first remove all timers which expired until now
     OsDateTime::getCurTime(now);

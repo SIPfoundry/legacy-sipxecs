@@ -210,6 +210,13 @@ OsTimer::OsTimer(OsMsgQ* pQueue,
   _pTimer(new Timer(*this)),
   _pNotifier(new OsQueuedEvent(*pQueue, userData)) //< used to signal timer expiration event
 {
+    // No point in continuing with an invalid queue
+    OS_LOG_AND_ASSERT(
+            (NULL != pQueue),
+            FAC_KERNEL,
+            "OsTimer::OsTimer pQueue is NULL"
+            );
+
   _pTimer->takeOwnership(_pNotifier);
 }
 
@@ -228,6 +235,13 @@ OsTimer::OsTimer(OsMsg* pMsg,
   _pTimer(new Timer(*this)),
   _pNotifier(new OsQueueMsgNotification(pQueue, pMsg)) //< used to signal timer expiration event
 {
+    // No point in continuing with an invalid msg and queue
+    OS_LOG_AND_ASSERT(
+            ((NULL != pMsg) && (NULL != pQueue)),
+            FAC_KERNEL,
+            "OsTimer::OsTimer pMsg or pQueue are NULL"
+            );
+
 	_pTimer->takeOwnership(_pNotifier);
 }
 
