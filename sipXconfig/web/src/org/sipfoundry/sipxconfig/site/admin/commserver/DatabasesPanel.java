@@ -89,7 +89,7 @@ public abstract class DatabasesPanel extends BaseComponent implements PageBeginR
                 MongoSettings.ARBITER_PORT, servers);
         List<MongoServer> serversInReplicaSet = new ArrayList<MongoServer>();
         try {
-            serversInReplicaSet = getReplicaSetManager().getMongoServers();
+            serversInReplicaSet = getReplicaSetManager().getMongoServers(false);
         } catch (Exception ex) {
             getValidator().record(new UserException(ex.getMessage()), getMessages());
         }

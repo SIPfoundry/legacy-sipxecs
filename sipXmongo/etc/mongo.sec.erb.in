@@ -38,7 +38,16 @@ pattern=replSet member (\S+) is now in state (\S+)
 desc=Replica set node $1 is now in state $2
 action=shellcmd @SIPX_BINDIR@/sipxtrap MONGO_NODE_STATE_CHANGED '%s'
 <% 
-  end 
+  end
+  if MONGO_CANNOT_SEE_MAJORITY[:groupName] != 'disabled'
+%>
+type=Single
+ptype=RegExp
+pattern=replSet can't see a majority, will not try to elect self
+desc=Replica set error, node cannot see majority
+action=shellcmd @SIPX_BINDIR@/sipxtrap MONGO_CANNOT_SEE_MAJORITY '%s'
+<% 
+  end
 %>
 
 

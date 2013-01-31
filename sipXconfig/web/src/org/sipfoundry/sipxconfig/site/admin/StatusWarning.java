@@ -50,7 +50,7 @@ public abstract class StatusWarning extends BaseComponent {
      */
     public boolean showReplicaSetWarning() {
         try {
-            int runningMembers = getMongoReplicaSetManager().getMongoServers().size();
+            int runningMembers = getMongoReplicaSetManager().getMongoServers(false).size();
             int configuredDbs = 0;
             List<Location> mongos = getFeatureManager().getLocationsForEnabledFeature(MongoManager.FEATURE_ID);
             if (mongos != null) {

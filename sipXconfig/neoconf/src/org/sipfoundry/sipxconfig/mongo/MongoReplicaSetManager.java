@@ -112,9 +112,14 @@ public class MongoReplicaSetManager {
         }
     }
 
-    public List<MongoServer> getMongoServers() {
+    public List<MongoServer> getMongoServers(boolean readFromLocal) {
         List<MongoServer> servers = new LinkedList<MongoServer>();
-        DB ds = m_localReplicasetDb.getDb();
+        DB ds;
+        if (readFromLocal) {
+            ds = m_localDb.getDb();
+        } else {
+            ds = m_localReplicasetDb.getDb();
+        }
         String errmsg = "&err.read.localMongo";
         try {
             BasicBSONObject status = MongoUtil.runCommand(ds, GET_STATUS_COMMAND);
@@ -139,7 +144,7 @@ public class MongoReplicaSetManager {
             cmd = format(ADD_ARBITER_COMMAND, name);
         }
         try {
-            BasicBSONObject result = MongoUtil.runCommand(m_localReplicasetDb.getDb(), cmd);
+            BasicBSONObject result = MongoUtil.runCommand(m_localDb.getDb(), cmd);
             MongoUtil.checkForError(result);
         } catch (MongoCommandException e) {
             LOG.warn("Failed to add in replica set", e);
@@ -151,7 +156,7 @@ public class MongoReplicaSetManager {
     public void removeFromReplicaSet(String name) {
         String cmd = format(REMOVE_SERVER_COMMAND, name);
         try {
-            BasicBSONObject result = MongoUtil.runCommand(m_localReplicasetDb.getDb(), cmd);
+            BasicBSONObject result = MongoUtil.runCommand(m_localDb.getDb(), cmd);
             MongoUtil.checkForError(result);
         } catch (MongoCommandException e) {
             LOG.warn("Failed to remove from replica set", e);
