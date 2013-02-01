@@ -411,7 +411,13 @@ void OsTimer::Timer::onTimerFire(const boost::system::error_code& e, OsTimer* pO
   {
     mutex_lock lock(_mutex);
     if (!_isRunning)
+    {
       return;
+    }
+    else
+    {
+      _isRunning = false;
+    }
   }
 
   if (!pOwner->signalHandler(e))
@@ -424,7 +430,6 @@ void OsTimer::Timer::onTimerFire(const boost::system::error_code& e, OsTimer* pO
     mutex_lock lock(_mutex);
     if (!_periodic)
     {
-      _isRunning = false;
       return;
     }
   }
