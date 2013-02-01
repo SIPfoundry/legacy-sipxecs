@@ -934,7 +934,7 @@ private:
     }
     catch(std::exception e)
     {
-      OS_LOG_ERROR(FAC_NET, "Unknow exception: " << e.what());
+      OS_LOG_ERROR(FAC_NET, "Unknown exception: " << e.what());
       return false;
     }
     return true;
