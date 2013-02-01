@@ -24,6 +24,9 @@
 
 // DEFINES
 // MACROS
+
+#define DEFAULT_GARBAGE_COLLECTOR_INTERVAL 100
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -120,6 +123,15 @@ protected:
     UtlHashBag mTransactions;
     OsMutex mListMutex;
     SipUserAgent* mpSipUserAgent;
+
+    //
+    // Garbage collection
+    //
+    void runGarbageCollection();
+    void abortGarbageCollection();
+    boost::thread* _pGarbageCollectionThread;
+    bool _abortGarbageCollection;
+    boost::mutex _garbageCollectionMutex;
 
 };
 

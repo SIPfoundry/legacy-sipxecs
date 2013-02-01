@@ -2927,7 +2927,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
         //  NOTE: When the transaction is deleted, the sipEvent is deleted
         //  in SipTransaction::deleteTimers().  DO NOT delete it here !!!
         //
-
+         
       } // end if sipEvent
       messageProcessed = TRUE;
    }

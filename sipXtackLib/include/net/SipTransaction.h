@@ -168,6 +168,8 @@ public:
 
     void linkChild(SipTransaction& child);
 
+    void unlinkChild(SipTransaction* pChild);
+
     void toString(UtlString& dumpString,
                   UtlBoolean dumpMessagesAlso);
     //: Serialize the contents of this
@@ -327,6 +329,10 @@ public:
     // Set the data to be used to generate a Reason header for any CANCEL
     // generated for any child transaction.
 
+    UtlSList& childTransactions();
+
+    bool isMarkedForDeletion() const;
+    void markForDeletion();
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     void handleChildTimeoutEvent(SipTransaction& child,
@@ -387,6 +393,8 @@ protected:
 
     OsSocket::IpProtocolSocketType getPreferredProtocol();
     //: Determine best protocol, based on message size
+
+    
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -556,10 +564,27 @@ private:
     UtlString mBusyTaskName;
     UtlSList* mWaitingList;    /**< Events waiting until this is available
                                 * Note only a parent tx should have a waiting list */
+    bool _markedForDeletion;
+
 public:
   static UtlBoolean enableTcpResend;
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+inline UtlSList& SipTransaction::childTransactions()
+{
+  return mChildTransactions;
+}
+
+inline bool SipTransaction::isMarkedForDeletion() const
+{
+  return _markedForDeletion;
+}
+
+inline void SipTransaction::markForDeletion()
+{
+  _markedForDeletion = true;
+}
 
 #endif // _SipTransaction_h_

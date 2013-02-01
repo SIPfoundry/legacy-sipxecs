@@ -78,6 +78,7 @@ SipTransaction::SipTransaction(SipMessage* initialMsg,
    , mIsBusy(FALSE)
    , mProvoExtendsTimer(FALSE)
    , mWaitingList(NULL)
+   , _markedForDeletion(false)
 {
 
 #  ifdef ROUTE_DEBUG
@@ -282,6 +283,19 @@ SipTransaction::~SipTransaction()
 
         delete mWaitingList;
         mWaitingList = NULL;
+    }
+
+    //
+    // Break the parent/child chain
+    //
+    if (mpParentTransaction)
+      mpParentTransaction->unlinkChild(this);
+
+    UtlSListIterator iterator(mChildTransactions);
+    SipTransaction* childTransaction = NULL;
+    while ((childTransaction = (SipTransaction*) iterator()))
+    {
+      childTransaction->mpParentTransaction = 0;
     }
 }
 
@@ -4585,6 +4599,11 @@ void SipTransaction::cancelChildren(SipUserAgent& userAgent,
     }
 }
 
+void SipTransaction::unlinkChild(SipTransaction* pChild)
+{
+  mChildTransactions.removeReference(pChild);
+}
+
 void SipTransaction::linkChild(SipTransaction& newChild)
 {
     if (newChild.mpParentTransaction)
@@ -5150,6 +5169,12 @@ long SipTransaction::getTimeStamp() const
 
 void SipTransaction::touch()
 {
+    //
+    // if the transaction is already in completed state, do not reset the timestamp
+    //
+    if (getState() >= TRANSACTION_COMPLETE)
+      return;
+
     // We touch the whole parent-child tree so that
     // none of transactions get garbage collected
     // until they are all stale.  This saves checking

@@ -519,22 +519,13 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                          // Build the row for the validated contacts hash
                          UtlHashMap registrationRow;
 
-                         // value strings
-                         UtlString* contactValue =
-                            new UtlString ( contactWithoutExpires );
-                         UtlInt* expiresValue =
-                            new UtlInt ( expires );
-                         UtlString* qvalueValue =
-                            new UtlString ( registerQvalueStr );
-                         UtlString* instanceIdValue = new UtlString ( instanceId );
-                         UtlString* gruuValue;
-                         UtlString* pathValue = new UtlString( pathStr );
-                         UtlString* contactInstrumentValue = new UtlString( contactInstrument );
+                       
 
                          // Calculate GRUU if +sip.instance is provided.
                          // Note a GRUU is constructed even if the UA does not
                          // support GRUU itself -- other UAs can discover the
                          // GRUU via the reg event package.
+                         UtlString gruuValue;
                          if (!instanceId.isNull())
                          {
                             // Hash the GRUU base, the AOR, and IID to
@@ -565,29 +556,25 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                             // searched for by the redirector, since it searches
                             // for the "identity" part of the URI, which does
                             // not contain the scheme.
-                            gruuValue = new UtlString(GRUU_PREFIX);
-                            gruuValue->append(hash);
-                            gruuValue->append('@');
-                            gruuValue->append(mRegistrar.defaultDomain());
-                            gruuValue->append(";" SIP_GRUU_URI_PARAM);
+                            gruuValue = GRUU_PREFIX;
+                            gruuValue.append(hash);
+                            gruuValue.append('@');
+                            gruuValue.append(mRegistrar.defaultDomain());
+                            gruuValue.append(";" SIP_GRUU_URI_PARAM);
                             Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                                           "SipRegistrarServer::applyRegisterToDirectory "
                                           "gruu = '%s'",
-                                          gruuValue->data());
-                         }
-                         else
-                         {
-                            gruuValue = new UtlString( "" );
+                                          gruuValue.data());
                          }
 
                         RegBinding::Ptr pRegBinding(new RegBinding());
-                         pRegBinding->setContact(contactValue->str());
-                         pRegBinding->setExpirationTime(expiresValue->getValue());
-                         pRegBinding->setQvalue(qvalueValue->str());
-                         pRegBinding->setInstanceId(instanceIdValue->str());
-                         pRegBinding->setGruu(gruuValue->str());
-                         pRegBinding->setPath(pathValue->str());
-                         pRegBinding->setInstrument(contactInstrumentValue->str());
+                         pRegBinding->setContact(contactWithoutExpires.str());
+                         pRegBinding->setExpirationTime(expires);
+                         pRegBinding->setQvalue(registerQvalueStr.str());
+                         pRegBinding->setInstanceId(instanceId.str());
+                         pRegBinding->setGruu(gruuValue.str());
+                         pRegBinding->setPath(pathStr.str());
+                         pRegBinding->setInstrument(contactInstrument.str());
                          pRegBinding->setCallId(registerCallidStr.str());
                          pRegBinding->setCseq(registerCseqInt);
                          pRegBinding->setIdentity(registerToStr.str());
