@@ -2153,15 +2153,10 @@ NameValuePair* HttpMessage::getHeaderField(int index, const char* name) const
 
 const char* HttpMessage::getHeaderValue(int index, const char* name) const
 {
-   		const char* value = NULL;
-        NameValuePair* headerField = getHeaderField(index, name);
-
-        if(headerField)
-        {
-                value = headerField->getValue();
-        }
-
-        return(value);
+  NameValuePair* headerField = getHeaderField(index, name);
+  if (headerField && headerField->getValue() && strlen(headerField->getValue()))
+    return headerField->getValue();
+  return NULL;
 }
 
 void HttpMessage::setHeaderValue(const char* name, const char* newValue, int index)
