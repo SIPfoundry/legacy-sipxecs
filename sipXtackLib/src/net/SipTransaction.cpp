@@ -4468,16 +4468,12 @@ void SipTransaction::deleteTimers()
                       this, timer);
 #       endif
 
-        // If the timer has not fired, we must delete the dependent
-        // SipMessageEvent.
-        // If the timer has fired, the consequent OsEventMsg is on the
-        // queue of the SipUserAgent, and SipUserAgent::handleMessage will
-        // delete the dependent SipMessageEvent.
-        if (timer->stop(FALSE /* do not block */) == OS_SUCCESS)
-        {
-            SipMessageEvent* pMsgEvent = (SipMessageEvent*) timer->getUserData();
-            delete pMsgEvent;
-        }
+        //
+        // The timer owns the event.  we must delete it here
+        //
+        timer->stop(FALSE /* do not block */);
+        SipMessageEvent* pMsgEvent = (SipMessageEvent*) timer->getUserData();
+        delete pMsgEvent;
 
         // We always delete the timer.
         delete timer;

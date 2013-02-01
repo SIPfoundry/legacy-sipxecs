@@ -2923,10 +2923,11 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                           "SipUserAgent::handleMessage unknown timeout event: %d.", msgEventType);
          }
 
-         // Since the timer has fired, it is our responsibility to
-         // delete the SipMessageEvent.  The attached SipMessage will
-         // be freed with the SipMessageEvent.
-         delete sipEvent;
+        //
+        //  NOTE: When the transaction is deleted, the sipEvent is deleted
+        //  in SipTransaction::deleteTimers().  DO NOT delete it here !!!
+        //
+
       } // end if sipEvent
       messageProcessed = TRUE;
    }
