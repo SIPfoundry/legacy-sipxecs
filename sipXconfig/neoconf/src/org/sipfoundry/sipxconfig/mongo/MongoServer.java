@@ -42,6 +42,7 @@ public class MongoServer {
     private String m_pingMs;
     private String m_errMsg = NA;
     private boolean m_configured;
+    private boolean m_voting = true;
 
     public MongoServer(BasicDBObject dbo) {
         m_id = dbo.getInt("_id");
@@ -78,6 +79,10 @@ public class MongoServer {
         m_name = name;
     }
 
+    public int getId() {
+        return m_id;
+    }
+
     public String getName() {
         return m_name;
     }
@@ -110,6 +115,10 @@ public class MongoServer {
         return m_errMsg;
     }
 
+    public void setVotingMember(boolean voting) {
+        m_voting = voting;
+    }
+
     public void setIsServer() {
         m_type = SERVER;
     }
@@ -132,6 +141,10 @@ public class MongoServer {
 
     public boolean isConfigured() {
         return m_configured;
+    }
+
+    public boolean isVotingMember() {
+        return m_voting;
     }
 
     public int hashCode() {

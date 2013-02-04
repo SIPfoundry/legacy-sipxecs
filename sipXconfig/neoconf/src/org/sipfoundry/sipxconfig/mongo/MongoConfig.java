@@ -43,7 +43,7 @@ public class MongoConfig implements ConfigProvider {
         }
         FeatureManager fm = manager.getFeatureManager();
         Location[] all = manager.getLocationManager().getLocations();
-        List<MongoServer> servers = m_mongoReplicaSetManager.getMongoServers(true);
+        List<MongoServer> servers = m_mongoReplicaSetManager.getMongoServers(true, false);
         MongoSettings settings = m_mongoManager.getSettings();
         int port = settings.getPort();
         String connStr = getConnectionString(servers, port);

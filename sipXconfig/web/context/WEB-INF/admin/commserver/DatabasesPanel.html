@@ -2,8 +2,11 @@
   <span jwcid="@common/QuickHelp" value="message:quick.help" />
   <form jwcid="@common/AutoRefreshForm" interval="5">
    <span jwcid="@common/ErrorMsg" validator="ognl:validator"/>
+   <div jwcid="@If" condition="ognl:totalVoters >= 7" class="user-warning">
+     <span key="maxNumberOfVotersReached"/>
+   </div>
     <table jwcid="nodes@common/Table" id="nodes:list"
-      columns="* !name,!optimeDate,!errMsg,!action"
+      columns="* !name,!optimeDate,!votingMember,!errMsg,!action"
       source="ognl:mongos"
       row="ognl:mongo"
       converter="ognl:converter">
@@ -18,6 +21,23 @@
           <img jwcid="@Image" image="asset:unconfiguredIcon" align="absmiddle" />
         </span>
         <span jwcid="@Insert" value="ognl:mongo.name" /> - <span jwcid="@Insert" value="ognl:mongo.state" />
+      </span>
+      <span jwcid="votingMemberColumnValue@Block">
+        <span jwcid="@If" condition="ognl:mongo.health != 'UNCONFIGURED'">
+          <span jwcid="@If" condition="ognl:mongo.votingMember">
+            <span key="label.votingMember"/> - <a jwcid="@DirectLink" listener="listener:removeVoter" parameters="ognl:mongo.id">
+              <span key="removeVoter"/>
+            </a>
+          </span>
+          <span jwcid="@Else">
+            <span key="label.nonVotingMember"/> 
+            <span jwcid="@If" condition="ognl:totalVoters < 7">- 
+              <a jwcid="@DirectLink" listener="listener:addVoter" parameters="ognl:mongo.id">
+                <span key="addVoter"/>
+              </a>
+            </span>
+          </span>
+        </span>
       </span>
       <span jwcid="actionColumnValue@Block">
         <span jwcid="@If" condition="ognl:mongo.health == 'UNCONFIGURED'">

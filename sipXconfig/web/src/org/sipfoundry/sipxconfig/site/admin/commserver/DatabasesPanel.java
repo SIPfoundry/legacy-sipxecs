@@ -76,6 +76,10 @@ public abstract class DatabasesPanel extends BaseComponent implements PageBeginR
 
     public abstract MongoServer getMongo();
 
+    public abstract int getTotalVoters();
+
+    public abstract void setTotalVoters(int voters);
+
     public Collection getAllSelected() {
         return getSelections().getAllSelected();
     }
@@ -89,14 +93,19 @@ public abstract class DatabasesPanel extends BaseComponent implements PageBeginR
                 MongoSettings.ARBITER_PORT, servers);
         List<MongoServer> serversInReplicaSet = new ArrayList<MongoServer>();
         try {
-            serversInReplicaSet = getReplicaSetManager().getMongoServers(false);
+            serversInReplicaSet = getReplicaSetManager().getMongoServers(false, true);
         } catch (Exception ex) {
             getValidator().record(new UserException(ex.getMessage()), getMessages());
         }
+        int totalNoOfVoters = 0;
         for (MongoServer server : serversInReplicaSet) {
             servers.put(server.getName(), server);
+            if (server.isVotingMember()) {
+                totalNoOfVoters++;
+            }
         }
         setMongos(servers.values());
+        setTotalVoters(totalNoOfVoters);
     }
 
     private void addMongoFeatures(List<Location> mongos, int port, Map<String, MongoServer> servers) {
@@ -119,6 +128,22 @@ public abstract class DatabasesPanel extends BaseComponent implements PageBeginR
     public void removeFromReplicaSet(String name) {
         try {
             getReplicaSetManager().removeFromReplicaSet(name);
+        } catch (Exception ex) {
+            getValidator().record(new UserException(ex.getMessage()), getMessages());
+        }
+    }
+
+    public void removeVoter(Integer id) {
+        try {
+            getReplicaSetManager().removeVoter(id);
+        } catch (Exception ex) {
+            getValidator().record(new UserException(ex.getMessage()), getMessages());
+        }
+    }
+
+    public void addVoter(Integer id) {
+        try {
+            getReplicaSetManager().addVoter(id);
         } catch (Exception ex) {
             getValidator().record(new UserException(ex.getMessage()), getMessages());
         }
