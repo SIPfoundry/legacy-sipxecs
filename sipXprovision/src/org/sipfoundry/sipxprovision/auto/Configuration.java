@@ -13,7 +13,6 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.Properties;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.util.Hostname;
@@ -38,6 +37,8 @@ public class Configuration {
     private boolean m_Debug = false;
 
     private int m_ServletPort = -1;
+    private int m_securePort = -1;
+    private boolean m_useSecure;
 
     private String m_ProvisionSipUsername = DEFAULT_STRING;
 
@@ -64,6 +65,8 @@ public class Configuration {
             m_Logfile = prov_config.getProperty("log.file", DEFAULT_STRING);
             m_Debug = (new Boolean(prov_config.getProperty("provision.debug", DEBUG_BY_DEFAULT))).booleanValue();
             m_ServletPort = (new Integer(prov_config.getProperty("provision.servlet.port", "-1"))).intValue();
+            m_securePort = (new Integer(prov_config.getProperty("provision.servlet.securePort", "-1"))).intValue();
+            m_useSecure = (new Boolean(prov_config.getProperty("provision.servlet.useSecure", "false"))).booleanValue();
             m_ProvisionSipUsername = prov_config.getProperty("provision.username", DEFAULT_STRING);
             m_ProvisionSipPassword = prov_config.getProperty("provision.password", DEFAULT_STRING);
             m_ConfigurationUri  = prov_config.getProperty("provision.configUrl", DEFAULT_STRING);
@@ -179,6 +182,22 @@ public class Configuration {
         Configuration config = new Configuration();
 
         config.dumpConfiguration(new PrintWriter(System.out, true));
+    }
+
+    public int getSecurePort() {
+        return m_securePort;
+    }
+
+    public void setSecurePort(int securePort) {
+        m_securePort = securePort;
+    }
+
+    public boolean isUseSecure() {
+        return m_useSecure;
+    }
+
+    public void setUseSecure(boolean useSecure) {
+        m_useSecure = useSecure;
     }
 
 }

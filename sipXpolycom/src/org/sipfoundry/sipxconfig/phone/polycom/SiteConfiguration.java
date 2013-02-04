@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.cert.CertificateManager;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -29,9 +30,11 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  * Responsible for generating ipmid.cfg
  */
 public class SiteConfiguration extends ProfileContext {
+    private CertificateManager m_certificateManager;
 
-    public SiteConfiguration(PolycomPhone device) {
+    public SiteConfiguration(PolycomPhone device, CertificateManager certificateManager) {
         super(device, device.getTemplateDir() + "/site.cfg.vm");
+        m_certificateManager = certificateManager;
     }
 
     public String[] getEmergencySetting() {
@@ -60,6 +63,9 @@ public class SiteConfiguration extends ProfileContext {
         Map<String, Object> context = super.getContext();
         getDevice().getSettings();
         context.put("lines", getLineCount());
+        
+        context.put("cert", m_certificateManager.getSelfSigningAuthorityText());
+        
         return context;
     }
 

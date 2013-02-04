@@ -342,6 +342,8 @@
 #end
 #end 
 #end
+device.sec.TLS.customCaCert1.set="1"
+device.sec.TLS.customCaCert1="$cert"
 />
 
 <ptt

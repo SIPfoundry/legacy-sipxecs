@@ -477,6 +477,7 @@
   <bean id="polycom" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" scope="prototype"
     parent="abstractPhone">
     <property name="addressManager" ref="addressManager" />
+    <property name="certificateManager" ref="certificateManager" />
   </bean>
   <bean id="polycomFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
     <property name="beanId" value="polycomUpload" />
