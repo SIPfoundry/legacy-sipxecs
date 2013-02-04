@@ -757,7 +757,7 @@ osscore_prefix="yes")
   if test "$osscore_prefix" != "no"; then
     AC_MSG_CHECKING([for OssCore])
     for d in $osscore_prefix ; do
-      if test -d $d/liboss_core.la ; then
+      if test -f $d/liboss_core.la ; then
         AC_MSG_RESULT([yes - $d])
         osscore_found=yes
         break;

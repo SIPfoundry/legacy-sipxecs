@@ -958,6 +958,26 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
               //
               route.setUrlParameter("transport=tcp",NULL);
             }
+            else if (mEnsureTcpLifetime && sipRequest.getFirstHeaderLine())
+            {
+              //
+              // Check the request-line if transport=tcp is set;
+              //
+              std::string rline(sipRequest.getFirstHeaderLine());
+              boost::to_lower(rline);
+              if (rline.find("transport=tcp") != std::string::npos)
+              {
+                //
+                // Endpoints behind NAT need to maintain a reusable transport
+                // to work properly.  Unfortuantely, Some user-agents fallback
+                // to UDP if the transport parameter in record route is not
+                // specific.  We therefore explicitly define "tcp" transport param
+                // to maintain the TCP connection at least within the life time
+                // of the dialog
+                //
+                route.setUrlParameter("transport=tcp",NULL);
+              }
+            }
 
             route.toString(recordRoute);
             sipRequest.addRecordRouteUri(recordRoute);

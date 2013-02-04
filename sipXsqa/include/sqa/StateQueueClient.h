@@ -38,6 +38,7 @@
 #define SQA_KEY_ALPHA 22180
 #define SQA_KEY_DEFAULT SQA_KEY_MIN
 #define SQA_KEY_MAX 22200
+#define SQA_KEEP_ALIVE_TICKS 30
 
 class StateQueueClient : public boost::enable_shared_from_this<StateQueueClient>, private boost::noncopyable
 {
@@ -371,6 +372,9 @@ protected:
   bool _refreshSignin;
   int _currentSigninTick;
   std::string _localAddress;
+  int _keepAliveTicks;
+  int _currentKeepAliveTicks;
+  int _isAlive;
 
 public:
   StateQueueClient(
@@ -381,7 +385,8 @@ public:
         const std::string& zmqEventId,
         std::size_t poolSize,
         int readTimeout = SQA_CONN_READ_TIMEOUT,
-        int writeTimeout = SQA_CONN_WRITE_TIMEOUT
+        int writeTimeout = SQA_CONN_WRITE_TIMEOUT,
+        int keepAliveTicks = SQA_KEEP_ALIVE_TICKS
         ) :
     _type(type),
     _ioService(),
@@ -400,7 +405,10 @@ public:
     _subscriptionExpires(1800),
     _backoffCount(0),
     _refreshSignin(false),
-    _currentSigninTick(-1)
+    _currentSigninTick(-1),
+    _keepAliveTicks(keepAliveTicks),
+    _currentKeepAliveTicks(keepAliveTicks),
+    _isAlive(true)
   {
       if (_type != Publisher)
       {
@@ -448,7 +456,8 @@ public:
         const std::string& zmqEventId,
         std::size_t poolSize,
         int readTimeout = SQA_CONN_READ_TIMEOUT,
-        int writeTimeout = SQA_CONN_WRITE_TIMEOUT
+        int writeTimeout = SQA_CONN_WRITE_TIMEOUT,
+        int keepAliveTicks = SQA_KEEP_ALIVE_TICKS
         ) :
     _type(type),
     _ioService(),
@@ -465,7 +474,10 @@ public:
     _subscriptionExpires(1800),
     _backoffCount(0),
     _refreshSignin(false),
-    _currentSigninTick(-1)
+    _currentSigninTick(-1),
+    _keepAliveTicks(keepAliveTicks),
+    _currentKeepAliveTicks(keepAliveTicks),
+    _isAlive(true)
   {
       if (_type != Publisher)
       {
@@ -570,7 +582,7 @@ private:
     int sleepCount = 0;
     while (!_terminate)
     {
-      if (++sleepCount < 30)
+      if (++sleepCount <= _currentKeepAliveTicks)
         boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
       else
         sleepCount = 0;
@@ -593,9 +605,26 @@ private:
           StateQueueMessage pong;
           ping.setType(StateQueueMessage::Ping);
           ping.set("message-app-id", _applicationId.c_str());
-          sendAndReceive(ping, pong);
-          if (pong.getType() == StateQueueMessage::Pong)
-            OS_LOG_DEBUG(FAC_NET, "Keep-alive response received from " << _serviceAddress << ":" << _servicePort);
+          if (sendAndReceive(ping, pong))
+          {
+            if (pong.getType() == StateQueueMessage::Pong)
+            {
+              OS_LOG_DEBUG(FAC_NET, "Keep-alive response received from " << _serviceAddress << ":" << _servicePort);
+              //
+              // Reset it back to the default value
+              //
+              _currentKeepAliveTicks = _keepAliveTicks;
+              _isAlive = true;
+            }
+          }
+          else
+          {
+            //
+            // Reset the keep-alive to 1 so we attempt to reconnect every second
+            //
+            _currentKeepAliveTicks = 1;
+            _isAlive = false;
+          }
         }
       }
     }
@@ -976,6 +1005,9 @@ private:
 
   bool sendNoResponse(const StateQueueMessage& request)
   {
+    if (!_isAlive)
+      return false;
+
     BlockingTcpClient::Ptr conn;
     if (!_clientPool.dequeue(conn))
       return false;
@@ -996,6 +1028,15 @@ private:
 
   bool sendAndReceive(const StateQueueMessage& request, StateQueueMessage& response)
   {
+
+    if (!_isAlive && request.getType() != StateQueueMessage::Ping)
+    {
+      //
+      // Only allow ping requests to get through when connection is not alive
+      //
+      return false;
+    }
+
     BlockingTcpClient::Ptr conn;
     if (!_clientPool.dequeue(conn))
     {
