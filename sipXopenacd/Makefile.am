@@ -41,7 +41,7 @@ LINK_TARGETS = $(addprefix $(abspath $(builddir))/, src rebar rebar.config)
 # ignored when srcdir == bindir.
 $(SRC_FILES) : $(LINK_TARGETS) deps/.downloaded;
 $(LINK_TARGETS) :
-	ln -s $(abspath $(srcdir))/$(notdir $@) $@
+	ln -snf $(abspath $(srcdir))/$(notdir $@) $@
 
 # this ensures any change to source then a recompile is triggered
 ebin/%.beam : src/%.erl

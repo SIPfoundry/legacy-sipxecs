@@ -32,7 +32,7 @@ public class MongoReplicaSetManagerTestIntegration extends IntegrationTestCase {
     }
 
     public void testGetMongoServers() throws Exception {
-        List<MongoServer> servers = m_mongoReplicaSetManager.getMongoServers(true);
+        List<MongoServer> servers = m_mongoReplicaSetManager.getMongoServers(true, false);
         for (MongoServer server : servers) {
             assertTrue(StringUtils.contains(server.getName(), ":27017") || StringUtils.contains(server.getName(), ":27018"));
         }
