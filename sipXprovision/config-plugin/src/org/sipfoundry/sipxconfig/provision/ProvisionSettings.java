@@ -66,6 +66,10 @@ public class ProvisionSettings extends PersistableSettings implements DeployConf
         return (Integer) getSettingTypedValue("provision-config/provision.servlet.port");
     }
 
+    public int getSecurePort() {
+        return (Integer) getSettingTypedValue("provision-config/provision.servlet.securePort");
+    }
+
     private Address getAdminAddress() {
         if (m_adminAddress == null) {
             m_adminAddress = m_addressManager.getSingleAddress(AdminContext.HTTP_ADDRESS);

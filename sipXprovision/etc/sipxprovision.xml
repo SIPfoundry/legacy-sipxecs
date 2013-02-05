@@ -42,6 +42,25 @@
       </type>
       <value>8185</value>
     </setting>    
+    <setting name="provision.servlet.useSecure">
+     <type>
+		<boolean>
+			<true>
+				<value>true</value>
+			</true>
+			<false>
+				<value>false</value>
+			</false>
+		</boolean>
+		</type>
+      <value>false</value>
+    </setting>
+    <setting name="provision.servlet.securePort">
+      <type>
+        <integer min="1025" max="65335" />
+      </type>
+      <value>8186</value>
+    </setting>
     <setting name="provision.username" hidden="yes">
       <type><string/></type>
     </setting>

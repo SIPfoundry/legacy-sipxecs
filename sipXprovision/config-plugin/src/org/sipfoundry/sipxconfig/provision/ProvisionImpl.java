@@ -17,6 +17,7 @@
 package org.sipfoundry.sipxconfig.provision;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -65,12 +66,13 @@ public class ProvisionImpl implements FeatureProvider, AddressProvider, Provisio
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        return Collections.singleton(new DefaultFirewallRule(PROVISION_SERVICE, FirewallRule.SystemId.PUBLIC));
+        return Arrays.asList(new DefaultFirewallRule(PROVISION_SERVICE, FirewallRule.SystemId.PUBLIC),
+                new DefaultFirewallRule(PROVISION_SECURE_SERVICE, FirewallRule.SystemId.PUBLIC));
     }
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
-        if (!type.getId().equals("provisionService")) {
+        if (!type.getId().contains(("provision"))) {
             return null;
         }
 
@@ -79,6 +81,7 @@ public class ProvisionImpl implements FeatureProvider, AddressProvider, Provisio
         List<Address> addresses = new ArrayList<Address>(locations.size());
         for (Location location : locations) {
             addresses.add(new Address(PROVISION_SERVICE, location.getAddress(), settings.getPort()));
+            addresses.add(new Address(PROVISION_SECURE_SERVICE, location.getAddress(), settings.getSecurePort()));
         }
 
         return addresses;

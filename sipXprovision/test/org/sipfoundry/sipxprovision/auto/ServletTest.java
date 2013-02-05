@@ -65,7 +65,6 @@ public class ServletTest extends TestCase {
         assertTrue(Servlet.isPolycomConfigurationFilePath("/0004f238a125-sipx-video.cfg"));
         assertTrue(Servlet.isPolycomConfigurationFilePath("/0004f238a125-sipx-site.cfg"));
         assertTrue(Servlet.isPolycomConfigurationFilePath("/0004f238a125-sipx-features.cfg"));
-        assertTrue(Servlet.isPolycomConfigurationFilePath("/0004f238a125-sipx-reg-basic.cfg"));
     }
     
     public void testExtractPolycomModelAndVersion() {

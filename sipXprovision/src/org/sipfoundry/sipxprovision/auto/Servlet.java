@@ -31,6 +31,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLServerSocket;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -46,7 +47,9 @@ import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpServer;
+import org.mortbay.http.SslListener;
 import org.mortbay.jetty.servlet.ServletHandler;
+import org.mortbay.util.ThreadedServer;
 import org.sipfoundry.commons.util.ShortHash;
 
 /**
@@ -196,6 +199,36 @@ public class Servlet extends HttpServlet {
             // Start up jetty.
             HttpServer server = new HttpServer();
 
+            SslListener sslListener = new SslListener();
+            sslListener.setPort(m_config.getSecurePort());
+            String keystore = System.getProperties().getProperty("javax.net.ssl.keyStore");
+            LOG.debug("keystore = " + keystore);
+            sslListener.setKeystore(keystore);
+            String algorithm = System.getProperties().getProperty("jetty.x509.algorithm");
+            LOG.debug("algorithm = " + algorithm);
+            sslListener.setAlgorithm(algorithm);
+            String password = System.getProperties().getProperty("jetty.ssl.password");
+            sslListener.setPassword(password);
+            String keypassword = System.getProperties().getProperty("jetty.ssl.keypassword");
+            sslListener.setKeyPassword(keypassword);
+            sslListener.setMaxThreads(32);
+            sslListener.setMinThreads(4);
+            sslListener.setLingerTimeSecs(30000);
+
+            ((ThreadedServer) sslListener).open();
+
+            String[] cypherSuites = ((SSLServerSocket) sslListener.getServerSocket()).getSupportedCipherSuites();
+
+            ((SSLServerSocket) sslListener.getServerSocket()).setEnabledCipherSuites(cypherSuites);
+
+            String[] protocols = ((SSLServerSocket) sslListener.getServerSocket()).getSupportedProtocols();
+
+            ((SSLServerSocket) sslListener.getServerSocket()).setEnabledProtocols(protocols);
+            sslListener.setMaxIdleTimeMs(60000);
+
+            server.addListener(sslListener);
+            sslListener.start();
+
             // Bind the port on all interfaces.
             server.addListener(":" + m_config.getServletPort());
 
@@ -231,7 +264,10 @@ public class Servlet extends HttpServlet {
         }
 
         public String getRootUrlPath() {
-            return String.format("http://%s:%d%s/", m_config.getHostname(), m_config.getServletPort(),
+            int port = (m_config.isUseSecure()) ? (m_config.getSecurePort()) : (m_config.getServletPort());
+            String proto = (m_config.isUseSecure()) ? ("https") : ("http");
+            LOG.info("Using " + ((m_config.isUseSecure()) ? ("secure ") : ("non secure" )) + " port" );
+            return String.format(proto + "://%s:%d%s/", m_config.getHostname(), port,
                     m_config.getServletUriPath());
         }
 
@@ -465,13 +501,14 @@ public class Servlet extends HttpServlet {
 
     /**
      * Format the Polycom version as defined in PolycomModel bean
+     * 
      * @param version
      * @return
      */
     protected static String formatPolycomVersion(String version) {
-            return (new StringBuilder(version.substring(0, 3).concat(".X"))).toString();
+        return (new StringBuilder(version.substring(0, 3).concat(".X"))).toString();
     }
-    
+
     protected boolean doProvisionPhone(DetectedPhone phone) {
 
         if (null == phone) {
@@ -521,7 +558,7 @@ public class Servlet extends HttpServlet {
 
             // Construct the REST request.
             String uri = String.format("%s/rest/updatephone/%s/%s/%s", m_config.getConfigurationUri(), mac,
-                    formatPolycomVersion(version),model);
+                    formatPolycomVersion(version), model);
             HttpURLConnection connection = createRestConnection("GET", uri);
 
             // Do the HTTPS GET, and write the content.
