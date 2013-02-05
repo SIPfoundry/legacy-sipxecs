@@ -357,7 +357,7 @@ protected:
   typedef BlockingQueue<BlockingTcpClient::Ptr> ClientPool;
   ClientPool _clientPool;
   bool _terminate;
-  boost::thread _keepAliveThread;
+  boost::thread *_keepAliveThread;
   zmq::context_t* _zmqContext;
   zmq::socket_t* _zmqSocket;
   boost::thread* _pEventThread;
@@ -395,7 +395,6 @@ public:
     _servicePort(servicePort),
     _clientPool(_poolSize),
     _terminate(false),
-    _keepAliveThread(boost::bind(&StateQueueClient::keepAliveLoop, this)),
     _zmqContext(new zmq::context_t(1)),
     _zmqSocket(0),
     _pEventThread(0),
@@ -410,6 +409,8 @@ public:
     _currentKeepAliveTicks(keepAliveTicks),
     _isAlive(true)
   {
+      _keepAliveThread = new boost::thread(boost::bind(&StateQueueClient::keepAliveLoop, this));
+
       if (_type != Publisher)
       {
         _zmqSocket = new zmq::socket_t(*_zmqContext,ZMQ_SUB);
@@ -464,7 +465,6 @@ public:
     _poolSize(poolSize),
     _clientPool(_poolSize),
     _terminate(false),
-    _keepAliveThread(boost::bind(&StateQueueClient::keepAliveLoop, this)),
     _zmqContext(new zmq::context_t(1)),
     _zmqSocket(0),
     _pEventThread(0),
@@ -479,6 +479,8 @@ public:
     _currentKeepAliveTicks(keepAliveTicks),
     _isAlive(true)
   {
+      _keepAliveThread = new boost::thread(boost::bind(&StateQueueClient::keepAliveLoop, this));
+
       if (_type != Publisher)
       {
         _zmqSocket = new zmq::socket_t(*_zmqContext,ZMQ_SUB);
@@ -540,7 +542,13 @@ public:
     logout();
 
      _terminate = true;
-    _keepAliveThread.join();
+
+     if (_keepAliveThread)
+     {
+         _keepAliveThread->join();
+         delete _keepAliveThread;
+         _keepAliveThread = NULL;
+     }
 
     delete _zmqContext;
     _zmqContext = 0;
