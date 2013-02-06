@@ -5169,12 +5169,6 @@ long SipTransaction::getTimeStamp() const
 
 void SipTransaction::touch()
 {
-    //
-    // if the transaction is already in completed state, do not reset the timestamp
-    //
-    if (getState() >= TRANSACTION_COMPLETE)
-      return;
-
     // We touch the whole parent-child tree so that
     // none of transactions get garbage collected
     // until they are all stale.  This saves checking
