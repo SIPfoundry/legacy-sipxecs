@@ -202,6 +202,7 @@ class SipRouter : public OsServerTask
    PluginHooks   mAuthPlugins;           ///< decision making modules from configuration
    PluginHooks   mTransactionPlugins; 
    UtlBoolean    mEnsureTcpLifetime;     ///< If set, transport will be explicity specified in record routes.
+   UtlBoolean    mRelayAllowed;     ///< If set, transport will be explicity specified in record routes.
    /// P-Asserted-Identity header is only applicable for INVITE, REFER, BYE,
    /// OPTIONS, NOTIFY, and SUBSCRIBE
    bool isPAIdentityApplicable(const SipMessage& sipRequest);

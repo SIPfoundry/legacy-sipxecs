@@ -76,6 +76,8 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    ,mTransactionPlugins(SipBidirectionalProcessorPlugin::Factory, SipBidirectionalProcessorPlugin::Prefix)
    ,mpEntityDb(0)
    ,mEnsureTcpLifetime(FALSE)
+   ,mRelayAllowed(TRUE)
+
 {
    // Get Via info to use as defaults for route & realm
    UtlString dnsName;
@@ -281,6 +283,7 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
    mRouteHostSecurePort.appendNumber(proxyTlsPort);
 
    mEnsureTcpLifetime = configDb.getBoolean("SIPX_PROXY_ENSURE_TCP_LIFETIME", FALSE);
+   mRelayAllowed = configDb.getBoolean("SIPX_PROXY_RELAY_ALLOWED", TRUE);
    SipTransaction::enableTcpResend = configDb.getBoolean("SIPX_PROXY_ENABLE_TCP_RESEND", FALSE);
 
    // these should really be redundant with the existing aliases,
@@ -631,6 +634,17 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRouter::proxyMessage "
                                 " From '%s' not local to realm '%s' - do not challenge",
                                 fromUrl.toString().data(), mRealm.data());
+
+                  //
+                  // Checking if it wants to relay
+                  //
+                  if (!isLocalDomain(normalizedRequestUri, true) && !mRelayAllowed)
+                  {
+                    sipResponse.setResponseData(&sipRequest,
+                                               SIP_FORBIDDEN_CODE,
+                                               "Relay Not Allowed");
+                    return SendResponse;
+                  }
                }
             }
          }
