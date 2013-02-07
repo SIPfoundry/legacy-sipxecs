@@ -478,31 +478,26 @@ void OsTimer::Timer::onTimerFire(const boost::system::error_code& e, OsTimer* pO
 /// Start the timer to fire once at the indicated date/time
 bool OsTimer::Timer::oneshotAt(const OsDateTime& t)
 {
-  {
-    mutex_lock lock(_mutex);
-    if (_isRunning)
-      return false;
-  }
-
   OsTimer::Time now = OsTimer::now();
   OsTime t_os;
   t.cvtToTimeSinceEpoch(t_os);
   OsTimer::Time expireFromNow = (OsTimer::Time)(t_os.seconds()) * TIMER_TIME_UNIT + t_os.usecs();
-  if (expireFromNow <= now)
-  {
-    OS_LOG_ERROR(FAC_KERNEL, "OsTimer::Timer::oneshotAt timer expiration is in the past.  Call ignored.");
-    return false;
-  }
 
   {
     mutex_lock lock(_mutex);
+    if (_isRunning)
+      return false;
+    else
+      _isRunning = true;
+ 
+    if (expireFromNow <= now)
+    {
+      OS_LOG_ERROR(FAC_KERNEL, "OsTimer::Timer::oneshotAt timer expiration is in the past.  Call ignored.");
+      _isRunning = false;
+      return false;
+    }
     _expiresAt = expireFromNow;
   }
-
-  //
-  //  Convert to offset
-  //
-  expireFromNow = expireFromNow - now;
 
 
   //
@@ -513,33 +508,29 @@ bool OsTimer::Timer::oneshotAt(const OsDateTime& t)
   {
     mutex_lock lock(gpTimerService->_serviceMutex);
     boost::system::error_code ec;
-    _pDeadline->expires_from_now(boost::posix_time::microseconds(expireFromNow), ec);
-
+    _pDeadline->expires_from_now(boost::posix_time::microseconds(expireFromNow - now), ec);
     //
     // Perform an assynchronous wait on the timer
     //
     _pDeadline->async_wait(boost::bind(&OsTimer::Timer::onTimerFire, shared_from_this(), boost::asio::placeholders::error, &_owner));
-  }
-
-  {
-    mutex_lock lock(_mutex);
-    _isRunning = true;
-  }
-  
-  return true;
+  }  
+  return _isRunning;
 }
 
 /// Start the timer to fire once at the current time + offset
 /// Start the timer to fire once at the current time + offset
 bool OsTimer::Timer::oneshotAfter(const boost::asio::deadline_timer::duration_type& offset)
 {
+  OsTimer::Time expireFromNow = offset.total_microseconds();
   {
     mutex_lock lock(_mutex);
     if (_isRunning)
       return false;
-  }
+    else
+      _isRunning = true;
 
-  OsTimer::Time expireFromNow = offset.total_microseconds();
+    _expiresAt = expireFromNow + OsTimer::now();
+  }
 
   //
   // This function sets the expiry time. Any pending asynchronous wait
@@ -556,14 +547,7 @@ bool OsTimer::Timer::oneshotAfter(const boost::asio::deadline_timer::duration_ty
     //
     _pDeadline->async_wait(boost::bind(&OsTimer::Timer::onTimerFire, shared_from_this(), boost::asio::placeholders::error, &_owner));
   }
-
-  {
-    mutex_lock lock(_mutex);
-    _expiresAt = expireFromNow + OsTimer::now();
-    _isRunning = true;
-  }
-
-  return true;
+  return _isRunning;
 }
 
 bool OsTimer::Timer::oneshotAfter(const OsTime& t)
