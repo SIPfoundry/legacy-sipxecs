@@ -851,9 +851,9 @@ void SipTransactionList::runGarbageCollection()
 
 void SipTransactionList::abortGarbageCollection()
 {
-  if (!_pGarbageCollectionThread)
+  if (_pGarbageCollectionThread)
   {
-    _abortGarbageCollection = false;
+    _abortGarbageCollection = true;
     _pGarbageCollectionThread->join();
     delete _pGarbageCollectionThread;
     _pGarbageCollectionThread = 0;
