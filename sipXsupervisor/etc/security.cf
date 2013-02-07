@@ -1,0 +1,256 @@
+# Copyright (c) 2013 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+bundle agent security {
+  methods:
+    security.!security_unmanaged::
+      "any" usebundle => "security_config";
+    sipxlogwatcher::
+      "any" usebundle => "security_logwatcher";
+    fedora16_or_greater.!security_unmanaged::
+      "any" usebundle => security_systemctl_running;
+    !fedora16_or_greater.!security_unmanaged::
+      "any" usebundle => security_sysv_running;
+}
+
+bundle agent security_logwatcher {
+  files:
+    "$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/security.sec"
+      comment => "security log watcher",
+      create => "true",
+      perms => m(644),
+      transformer => "$(sipx.SIPX_LIBEXECDIR)/sipxlogwatcher-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/alarms.yaml --template $(sipx.SIPX_CONFDIR)/fail2ban/security.sec.erb --out $(this.promiser)",
+      classes => if_repaired("reload_sipxlogwatcher");
+}
+
+bundle agent security_config {
+  vars:
+    "template" string => "$(sipx.SIPX_CONFDIR)/fail2ban/security.erb";
+    "temp" string => "$(sipx.SIPX_TMPDIR)/security.conf.temp";
+    "data" string => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/security.yaml";
+
+  files:
+    any::      
+      "$(temp)"
+        comment => "Preprocess SECURITY template $(this.promiser)",
+        create => "true",
+        perms => m(644),
+        transformer => "$(sipx.SIPX_LIBEXECDIR)/sipx-config-maker \
+            --in $(data) --out $(temp) --template $(template)";
+
+      "/etc/fail2ban/jail.conf"
+        comment => "Security daemon jail config $(this.promoiser)",
+        perms => mog("0644","root","root"),
+        create => "true",
+        edit_defaults => empty,
+        edit_line => expand_template("$(temp)"),
+        classes => if_repaired("restart_security");
+
+      "/etc/fail2ban/fail2ban.conf"
+        comment => "Security daemon config $(this.promoiser)",
+        perms => mog("0644","root","root"),
+        create => "true",
+        edit_defaults => empty,
+        edit_line => conf_contents,
+        classes => if_repaired("restart_security");
+
+      "/etc/fail2ban/action.d/block-allports.conf"
+        comment => "Security daemon action config $(this.promoiser)",
+        perms => mog("0644","root","root"),
+        create => "true",
+        edit_defaults => empty,
+        edit_line => action_contents,
+        classes => if_repaired("restart_security");
+
+      "/etc/fail2ban/filter.d/sip-dos.conf"
+        comment => "install SIP DOS security filter",
+        perms => mog("0600","root","root"),
+        create => "true",
+        edit_line => sip_dos_contents,
+        classes => if_repaired("restart_security");
+
+      "/etc/fail2ban/filter.d/sip-invite.conf"
+        comment => "install SIP INVITE security filter",
+        perms => mog("0600","root","root"),
+        create => "true",
+        edit_line => sip_invite_contents,
+        classes => if_repaired("restart_security");
+
+      "/etc/fail2ban/filter.d/sip-register.conf"
+        comment => "install SIP REGISTER security filter",
+        perms => mog("0600","root","root"),
+        create => "true",
+        edit_line => sip_register_contents,
+        classes => if_repaired("restart_security");
+
+      "/etc/fail2ban/filter.d/sip-ack.conf"
+        comment => "install SIP ACK security filter",
+        perms => mog("0600","root","root"),
+        create => "true",
+        edit_line => sip_ack_contents;
+
+      "/etc/fail2ban/filter.d/sip-options.conf"
+        comment => "install SIP OPTIONS security filter",
+        perms => mog("0600","root","root"),
+        create => "true",
+        edit_line => sip_options_contents,
+        classes => if_repaired("restart_security");
+
+      "/etc/fail2ban/filter.d/sip-subscribe.conf"
+        comment => "install SIP SUBSCRIBE security filter",
+        perms => mog("0600","root","root"),
+        create => "true",
+        edit_line => sip_subscribe_contents,
+        classes => if_repaired("restart_security");
+}
+
+bundle edit_line conf_contents {
+  insert_lines:
+    "[Definition]
+loglevel = 2
+logtarget = $(sipx.SIPX_LOGDIR)/sipxsecurity.log
+socket = /var/run/fail2ban/fail2ban.sock";
+}
+
+bundle edit_line action_contents {
+  insert_lines:
+    "
+[Definition]
+
+actionstart = iptables -N security-<name>
+              iptables -A security-<name> -j RETURN
+              iptables -I <chain> -p <protocol> -j security-<name>
+
+actionstop = iptables -D <chain> -p <protocol> -j security-<name>
+             iptables -F security-<name>
+             iptables -X security-<name>
+
+actioncheck = iptables -n -L <chain> | grep -q 'security-<name>[ \t]'
+
+actionban = iptables -I security-<name> 1 -s <ip> -j DROP
+
+actionunban = iptables -D security-<name> -s <ip> -j DROP
+
+[Init]
+
+name = block
+
+protocol = all
+
+chain = INPUT";
+}
+
+bundle edit_line sip_dos_contents {
+  insert_lines:
+    "[Definition]
+failregex =.*kernel:.*firewall-sipdos.*SRC=<HOST>.*
+ignoreregex =";
+}
+
+bundle edit_line sip_invite_contents {
+  insert_lines:
+    "[Definition]
+failregex =.*kernel:.*INVITE.*SRC=<HOST>.*
+ignoreregex =";
+}
+
+bundle edit_line sip_register_contents {
+  insert_lines:
+    "[Definition]
+failregex =.*kernel:.*REGISTER.*SRC=<HOST>.*
+ignoreregex =";
+}
+
+bundle edit_line sip_ack_contents {
+  insert_lines:
+    "[Definition]
+failregex =.*kernel:.*ACK.*SRC=<HOST>.*
+ignoreregex =";
+}
+
+bundle edit_line sip_options_contents {
+  insert_lines:
+    "[Definition]
+failregex =.*kernel:.*OPTIONS.*SRC=<HOST>.*
+ignoreregex =";
+}
+
+bundle edit_line sip_subscribe_contents {
+  insert_lines:
+    "[Definition]
+failregex =.*kernel:.*SUBSCRIBE.*SRC=<HOST>.*
+ignoreregex =";
+}
+
+bundle agent security_systemctl_running {
+  vars:
+    "service" string => "fail2ban.service";
+
+  classes:
+    # wrap w/fedora16_or_greater to avoid 
+    fedora16_or_greater::
+      "security_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+
+  commands:
+    # NOTE: Start/stop commands will complain about not being able to open a TTY, but commands
+    # to complete their task
+    security_running.!src.!security::
+      "$(sipx.systemctl)"
+        comment => "stop fail2ban",
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable fail2ban",
+        args => "disable $(service)";
+
+    !security_running.security::
+      "$(sipx.systemctl)"
+        comment => "start fail2ban",
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable fail2ban",
+        args => "enable $(service)";
+}
+
+
+bundle agent security_sysv_running {
+  vars:
+   "service" string => "/etc/init.d/fail2ban";
+
+  classes:    
+    "security_running" expression => fileexists("/var/lock/subsys/fail2ban");
+
+  methods:
+    !src.!security::
+      "any" usebundle => rh_chkconfig_status("fail2ban off");
+    !src.security::
+      "any" usebundle => rh_chkconfig_status("fail2ban on");
+
+  commands:
+    !security.!src.security_running::
+      "$(service)"
+        comment => "stop fail2ban",
+        args => "stop";
+
+    security.!security_running::
+      "$(service)"
+        comment => "restart fail2ban",
+        args => "start";
+
+    security.security_running.(restart_security|restart_iptables|apply_iptables)::
+      "$(service)"
+        comment => "restart fail2ban",
+        args => "restart";
+}
+

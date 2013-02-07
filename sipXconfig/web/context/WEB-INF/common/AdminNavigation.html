@@ -60,6 +60,9 @@
 					</span>
 					<li><a jwcid="@PageLink" id="menu.internetCalling" page="dialplan/sbc/InternetCalling"><span key="menu.internetCalling">Internet Calling</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.adminSettings" page="admin/EditAdmin"><span key="menu.adminSettings">Admin Settings</span></a></li>
+					<span jwcid="@If" condition="ognl:isOn('fail2ban')">
+					  <li><a jwcid="@PageLink" id="menu.fail2ban" page="fail2ban/ListFail2banFilters"><span key="menu.fail2ban">Security</span></a></li>
+					</span>
 					<li><a jwcid="@PageLink" id="menu.permissions" page="permission/ListPermissions"><span key="menu.permissions">Permissions</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.importCsv" page="admin/BulkImport"><span key="menu.importCsv">Import</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.ldap" page="admin/ldap/LdapPage"><span key="menu.ldap">LDAP</span></a></li>

@@ -1,0 +1,63 @@
+unmanaged: false
+ignoreip:
+ - 127.0.0.1
+bantime: 300
+maxretry: 3
+findtime: 600
+backend: auto
+action: iptables-allports
+siprules:
+ - :name: dos
+   :enable: true
+   :ignoreip:
+    - 127.0.0.1
+   :bantime: -1
+   :maxretry: 1
+   :findtime: 60
+   :log: $(sipx.SIPX_LOGDIR)/firewall/firewall-sipdos.log
+ - :name: register
+   :enable: false
+   :ignoreip:
+    - 127.0.0.1
+   :bantime: 600
+   :maxretry: 180
+   :findtime: 60
+   :log: $(sipx.SIPX_LOGDIR)/firewall/firewall-sip.log
+ - :name: invite
+   :enable: false
+   :ignoreip:
+    - 127.0.0.1
+   :bantime: 600
+   :maxretry: 180
+   :findtime: 60
+   :log: $(sipx.SIPX_LOGDIR)/firewall/firewall-sip.log
+ - :name: ack
+   :enable: false
+   :ignoreip:
+    - 127.0.0.1
+   :bantime: 600
+   :maxretry: 180
+   :findtime: 60
+   :sendemail: false
+   :emailto: 
+   :log: $(sipx.SIPX_LOGDIR)/firewall/firewall-sip.log
+ - :name: options
+   :enable: false
+   :ignoreip:
+    - 127.0.0.1
+   :bantime: 600
+   :maxretry: 180
+   :findtime: 60
+   :sendemail: false
+   :emailto: 
+   :log: $(sipx.SIPX_LOGDIR)/firewall/firewall-sip.log
+ - :name: subscribe
+   :enable: false
+   :ignoreip:
+    - 127.0.0.1
+   :bantime: 600
+   :maxretry: 180
+   :findtime: 60
+   :sendemail: false
+   :emailto: 
+   :log: $(sipx.SIPX_LOGDIR)/firewall/firewall-sip.log

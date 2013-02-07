@@ -1,0 +1,24 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'settings','sipRules'}" selectedTab="ognl:tab"/>
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div>
+  <span jwcid="settingsTab@Block">
+	  <form jwcid="@Form" delegate="bean:validator">
+	    <fieldset jwcid="@setting/SettingsFieldset"
+	        settings="ognl:settings.settings.getSetting('config')" />
+	    <ul jwcid="@common/FormActions" callback="ognl:callback"
+	        listener="listener:apply"/>
+	  </form>  
+  </span>
+  <span jwcid="sipRulesTab@Block">
+	  <form jwcid="@Form" delegate="bean:validator">
+	    <fieldset jwcid="@setting/SettingsFieldset"
+	        settings="ognl:settings.settings.getSetting('rules')" />
+	    <ul jwcid="@common/FormActions" callback="ognl:callback"
+	        listener="listener:apply"/>
+	  </form>  
+  </span>  
+</div>

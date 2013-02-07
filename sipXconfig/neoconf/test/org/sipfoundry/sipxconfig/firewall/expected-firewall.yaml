@@ -1,5 +1,5 @@
 logdropped: false
-logdos: false
+logdos: true
 lograte: false
 logregister: false
 loginvite: false
@@ -20,8 +20,12 @@ chains:
 whitelist:
 blacklist:
 deniedsip:
+ - sundayddr
+ - sipsak
  - sipvicious
  - friendly-scanner
+ - iWar
+ - sip-scan
 raterules:
  - :rule: rule1
    :startIp: 192.168.0.1

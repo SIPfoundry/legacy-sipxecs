@@ -5,8 +5,12 @@
  */
 package org.sipfoundry.commons.util;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -58,6 +62,27 @@ public class IPAddressUtil {
         Pattern subnetPattern = Pattern.compile("[0-9]{1,3}(\\.[0-9]{1,3}){0,3}/[0-9]{1,2}");
         Matcher subnetMather = subnetPattern.matcher(address);
         return subnetMather.matches();
+    }
+
+    public static boolean validateIpList(String ipList) {
+        Set<String> blackList = getIpsSet(ipList);
+        for (String ip : blackList) {
+            if (!IPAddressUtil.isLiteralIPAddress(ip) && !IPAddressUtil.isLiteralIPSubnetAddress(ip)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static Set<String> getIpsSet(String ipList) {
+        Set<String> ips = new HashSet<String>();
+        if (StringUtils.isNotEmpty(ipList)) {
+            String[] ipTokens = StringUtils.split(ipList, ',');
+            for (String ip : ipTokens) {
+                ips.add(StringUtils.trim(ip));
+            }
+        }
+        return ips;
     }
 
 }

@@ -36,6 +36,8 @@ Requires: ntp
 Requires: rubygem-net-sftp
 # iptables
 Requires: policycoreutils
+# fail2ban
+Requires: fail2ban
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -87,6 +89,7 @@ fi
 %attr(755,root,root) %{_sysconfdir}/sipxpbx/dhcp/*
 %attr(755,root,root) %{_sysconfdir}/sipxpbx/ntpd/*
 %attr(755,root,root) %{_sysconfdir}/sipxpbx/firewall/*
+%attr(755,root,root) %{_sysconfdir}/sipxpbx/fail2ban/*
 %attr(755,root,root) %{_datadir}/sipxecs/cfmodules/*
 %attr(755,root,root) %{_libexecdir}/sipXecs/*
 %{_datadir}/sipxecs/cfinputs/*.cf
