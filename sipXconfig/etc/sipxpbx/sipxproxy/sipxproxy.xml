@@ -85,6 +85,10 @@
       <type><boolean /></type>
       <value>0</value>
     </setting>
+    <setting name="SIPX_PROXY_RELAY_ALLOWED">
+      <type><boolean /></type>
+      <value>1</value>
+    </setting>
     <setting name="SIPX_PROXY_ENABLE_TCP_RESEND">
       <type><boolean /></type>
       <value>0</value>
