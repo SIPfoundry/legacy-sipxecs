@@ -634,17 +634,6 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRouter::proxyMessage "
                                 " From '%s' not local to realm '%s' - do not challenge",
                                 fromUrl.toString().data(), mRealm.data());
-
-                  //
-                  // Checking if it wants to relay
-                  //
-                  if (!isLocalDomain(normalizedRequestUri, true) && !mRelayAllowed)
-                  {
-                    sipResponse.setResponseData(&sipRequest,
-                                               SIP_FORBIDDEN_CODE,
-                                               "Relay Not Allowed");
-                    return SendResponse;
-                  }
                }
             }
          }

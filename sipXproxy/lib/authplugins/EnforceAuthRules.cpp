@@ -193,6 +193,13 @@ EnforceAuthRules::authorizeAndModify(const UtlString& id,    /**< The authentica
                           " no permission required for call %s",
                           mInstanceName.data(), callId.data()
                           );
+            //
+            // Checking if it wants to relay
+            //
+            if (mpSipRouter && !mpSipRouter->isLocalDomain(requestUri, true) && !mpSipRouter->isRelayAllowed())
+            {
+              return DENY;
+            }
          }
          else if (id.isNull())
          {
