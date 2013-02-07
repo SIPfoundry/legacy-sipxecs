@@ -962,7 +962,6 @@ namespace Os
       
       char* buff;
       size_t needed = 1024;
-      int ret = 0;
 
       bool formatted = false;
       std::string message;
@@ -970,25 +969,14 @@ namespace Os
       {
         va_list args;
         va_start(args, format);
-
         buff = (char*)::malloc(needed); /// Create a big enough buffer
         ::memset(buff, '\0', needed);
-
         size_t oldSize = needed;
-        ret = vsnprintf(buff, needed, format, args);
-        if (ret < 0)
-        {
-            //error encountered;
-            break;
-        }
-
-        needed = ret + 100;
+        needed = vsnprintf(buff, needed, format, args) + 1;
         formatted = needed <= oldSize;
         if (formatted)
           message = buff;
-
         ::free(buff);
-
         va_end(args);
       }
 

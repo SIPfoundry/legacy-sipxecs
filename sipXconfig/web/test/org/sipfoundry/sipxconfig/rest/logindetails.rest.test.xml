@@ -2,4 +2,5 @@
   <userName>200</userName>
   <imId>johnim</imId>
   <ldapImAuth>false</ldapImAuth>
+  <sipPassword>12345678</sipPassword>
 </login-details>
