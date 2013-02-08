@@ -14,6 +14,26 @@ using namespace std;
 
 namespace pod = boost::program_options::detail;
 
+bool ConnectionInfo::testConnection(const mongo::ConnectionString &connectionString, const string& errmsg)
+{
+    bool ret = false;
+
+    try
+    {
+        mongo::ScopedDbConnection conn(connectionString);
+        ret = conn.ok();
+        conn.done();
+    }
+    catch( mongo::DBException& e )
+    {
+        ret = false;
+        errmsg = e.what();
+    }
+
+    return ret;
+}
+
+
 const mongo::ConnectionString ConnectionInfo::connectionStringFromFile(const string& configFile)
 {
 	const char* configFileStr = (configFile.size() == 0 ? SIPX_CONFDIR "/mongo-client.ini" : configFile.c_str());
