@@ -137,7 +137,7 @@ EmergencyNotify::authorizeAndModify(const UtlString& id, /**< The authenticated 
          request.getContactUri(0, &contactField);
 
          Os::Logger::instance().log(FAC_ALARM, PRI_EMERG,
-               "ALARM_PROXY_EMERG_NUMBER_DIALED Emergency dial rule '%s (%s)' was invoked by '%s<%s>' Contact: %s",
+               "ALARM_PROXY_EMERG_NUMBER_DIALED Emergency dial rule %s (%s) was invoked by %s<%s> Contact: %s",
                nameStr.data(), descriptionStr.data(), fromLabel.data(), fromField.data(),
                contactField.data());
       }
