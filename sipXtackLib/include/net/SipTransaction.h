@@ -21,6 +21,7 @@
 #include <os/OsDefs.h>
 #include <os/OsSocket.h>
 #include <os/OsMsgQ.h>
+#include <os/OsTimerQueue.h>
 #include <net/BranchId.h>
 #include <net/Url.h>
 #include <net/SipSrvLookup.h>
@@ -38,6 +39,7 @@ class SipUserAgent;
 class SipTransactionList;
 class OsEvent;
 class OsTimer;
+class OsTimerQueue;
 
 /** SipTransaction correlates requests and responses.
  *
@@ -158,8 +160,6 @@ public:
                              enum messageRelationship relationship,
                              SipTransactionList& transactionList,
                              SipMessage*& delayedDispatchedMessage);
-
-    void removeTimer(OsTimer* timer);
 
     void stopTimers();
     void deleteTimers();
@@ -462,7 +462,7 @@ private:
     enum transactionStates mTransactionState;
     UtlBoolean mDispatchedFinalResponse; ///< For UA recursion
     UtlBoolean mProvisionalSdp;          ///< early media
-    UtlSList mTimers;                    /**< A list of all outstanding timers
+    OsTimerQueue mTimers;              /**< A list of all outstanding timers
                                           *   started by this transaction. */
     /**< SipTransaction Timer Usage
       * In this comment, "transaction" refers to the SipTransaction object in the code, not an RFC3261 transaction.

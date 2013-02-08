@@ -176,11 +176,8 @@ public:
     }
 
     // Check status of a timer queue built with regular constructor
-    void checkAfterRegularConstructor(const OsTimerQueue& tq, OsMsgQ *q)
+    void checkAfterRegularConstructor(const OsTimerQueue& tq)
     {
-        // TEST: Signal queue was set as specified in constructor
-        CPPUNIT_ASSERT(q == tq._signalQueue);
-
         // TEST: Upon creation internal queue should be empty
         CPPUNIT_ASSERT(0 == tq._timers.size());
     }
@@ -192,12 +189,13 @@ public:
         CPPUNIT_ASSERT(0 == tq._timers.size());
     }
 
+#if 0
     // Check expected behavior of a queue built with regular constructor which
     // received invalid parameters
     void testRegularConstructorWithInvalidParam()
     {
         OsTimerQueue tq(NULL);
-        checkAfterRegularConstructor(tq, NULL);
+        checkAfterRegularConstructor(tq);
 
         OsMsgTest *msgFail = new OsMsgTest("fail");
         // TEST: Schedule should fail to start any timer
@@ -209,16 +207,17 @@ public:
         tq.stop();
         checkAfterStop(tq);
     }
+#endif // if 0
 
     // Check expected behavior of schedule() method for one timer only
     void doTestScheduleOneTimer(OsTime& at, UtlString& strTest)
     {
-        OsTimerQueue tq(&_msgSignalQueue);
-        checkAfterRegularConstructor(tq, &_msgSignalQueue);
+        OsTimerQueue tq;
+        checkAfterRegularConstructor(tq);
 
         OsMsgTest *msgTest = new OsMsgTest(strTest);
         // TEST: schedule should succeed in adding a timer
-        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest, at));
+        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest, &_msgSignalQueue, at));
         CPPUNIT_ASSERT(1 == tq._timers.size());
 
         //give it some time to fire;
@@ -252,13 +251,13 @@ public:
     }
 
     // Helper to plain schedule of a timer
-    void doScheduleTimer(OsTimerQueue& tq, OsTime& offset, const char* cstr)
+    void doScheduleTimer(OsTimerQueue& tq, OsMsgQ *msgQueue, OsTime& offset, const char* cstr)
     {
         int  tqSize = tq._timers.size();
 
         UtlString str(cstr);
         OsMsgTest *msgTest = new OsMsgTest(str);
-        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest, offset));
+        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest, msgQueue, offset));
         CPPUNIT_ASSERT((tqSize+1) == tq._timers.size());
     }
 
@@ -274,17 +273,17 @@ public:
         OsTime at4;
         OsTime at5;
 
-        OsTimerQueue tq(&_msgSignalQueue);
-        checkAfterRegularConstructor(tq, &_msgSignalQueue);
+        OsTimerQueue tq;
+        checkAfterRegularConstructor(tq);
 
         OsDateTime::getCurTime(startTime);
 
         // TEST: Add several timers and expect them to be added ordered
-        doScheduleTimer(tq, msec1000, "Schedule msec1000");
-        doScheduleTimer(tq, msec100, "Schedule msec100");
-        doScheduleTimer(tq, msec300, "Schedule msec300");
-        doScheduleTimer(tq, msec200, "Schedule msec200");
-        doScheduleTimer(tq, msec1000, "Schedule msec1000");
+        doScheduleTimer(tq, &_msgSignalQueue, msec1000, "Schedule msec1000");
+        doScheduleTimer(tq, &_msgSignalQueue, msec100, "Schedule msec100");
+        doScheduleTimer(tq, &_msgSignalQueue, msec300, "Schedule msec300");
+        doScheduleTimer(tq, &_msgSignalQueue, msec200, "Schedule msec200");
+        doScheduleTimer(tq, &_msgSignalQueue, msec1000, "Schedule msec1000");
 
         // extract expiration date from the timers and remove all timers
         at1 = tq._timers.top()._at;
@@ -316,26 +315,26 @@ public:
     // Check expected behavior of schedule() method for more timers
     void testScheduleManyTimers()
     {
-        OsTimerQueue tq(&_msgSignalQueue);
-        checkAfterRegularConstructor(tq, &_msgSignalQueue);
+        OsTimerQueue tq;
+        checkAfterRegularConstructor(tq);
 
         // TEST: Add three timers and check that they all fired
 
         UtlString str100("Schedule msec100");
         OsMsgTest *msgTest100 = new OsMsgTest(str100);
-        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest100, msec100));
+        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest100, &_msgSignalQueue, msec100));
         CPPUNIT_ASSERT(1 == tq._timers.size());
 
         // TEST: Adding second timer should work
         UtlString str200("Schedule msec200");
         OsMsgTest *msgTest200 = new OsMsgTest(str200);
-        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest200, msec200));
+        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest200, &_msgSignalQueue, msec200));
         CPPUNIT_ASSERT(2 == tq._timers.size());
 
         // TEST: Adding third timer should work
         UtlString str1000("Schedule msec1000");
         OsMsgTest *msgTest1000 = new OsMsgTest(str1000);
-        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest1000, msec1000));
+        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest1000, &_msgSignalQueue, msec1000));
 
         // TEST: 3 timers added so the queue size should be 3
         // TEST: This proves that schedule does not remove unexpired timers
@@ -352,7 +351,7 @@ public:
         // TEST: Upon addition schedule should remove the expired timers above
         UtlString str50("Schedule msec50");
         OsMsgTest *msgTest50 = new OsMsgTest(str50);
-        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest50, msec50));
+        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest50, &_msgSignalQueue, msec50));
         // TEST: 3 initial timers, 2 fired, 1 newly added timers so 2 timers should be in the queue
         CPPUNIT_ASSERT(2 == tq._timers.size());
 
@@ -369,17 +368,17 @@ public:
 
     void testStopRemovesNonExpiredTimers()
     {
-        OsTimerQueue tq(&_msgSignalQueue);
-        checkAfterRegularConstructor(tq, &_msgSignalQueue);
+        OsTimerQueue tq;
+        checkAfterRegularConstructor(tq);
 
         //TEST: Verify that stop() removes unexpired timers by adding two
         // timers with long expiration and call stop() immediately
 
         UtlString str300("Schedule msec300");
         OsMsgTest *msgTest300 = new OsMsgTest(str300);
-        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest300, msec300));
+        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest300, &_msgSignalQueue, msec300));
         OsMsgTest *msgTest301 = new OsMsgTest(str300);
-        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest301, msec300));
+        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest301, &_msgSignalQueue, msec300));
         CPPUNIT_ASSERT(2 == tq._timers.size());
 
         // TEST: Stop removed unexpired timers
@@ -396,7 +395,7 @@ public:
         // timer and let it fire.
         UtlString str100("Schedule msec100");
         OsMsgTest *msgTest100 = new OsMsgTest(str100);
-        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest100, msec100));
+        CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest100, &_msgSignalQueue, msec100));
         CPPUNIT_ASSERT(1 == tq._timers.size());
 
         //give them some time to supposedly fire;
@@ -416,11 +415,11 @@ public:
         UtlString str1000("Schedule msec1000");
 
         {
-            OsTimerQueue tq(&_msgSignalQueue);
-            checkAfterRegularConstructor(tq, &_msgSignalQueue);
+            OsTimerQueue tq;
+            checkAfterRegularConstructor(tq);
 
             OsMsgTest *msgTest1000 = new OsMsgTest(str1000);
-            CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest1000, msec1000));
+            CPPUNIT_ASSERT(OS_SUCCESS == tq.scheduleOneshotAfter(msgTest1000, &_msgSignalQueue, msec1000));
             CPPUNIT_ASSERT(1 == tq._timers.size());
 
             //TEST: Do not call stop(), destructor should remove timers
