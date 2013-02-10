@@ -3,6 +3,7 @@ include $(top_srcdir)/config/utility.am
 EXTRA_DIST = \
 	$(cfinputs_PROMISES:=.in) \
 	$(cflib_DATA:=.in) \
+	security.sec.erb.in \
 	cfengine_stdlib.cf
 
 cfdefaultsdir = $(SIPX_CFDATA)/defaults
