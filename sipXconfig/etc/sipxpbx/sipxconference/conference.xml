@@ -48,6 +48,14 @@
       <type refid="yes-no" />
       <value>yes</value>
     </setting>
+    <setting name="video">
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="video-toogle-floor">
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
     <setting name="AOR" hidden="yes">
       <value />
     </setting>

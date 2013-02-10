@@ -102,6 +102,9 @@ public abstract class ConferencesPanel extends TablePanel {
     @Asset("/images/lock.png")
     public abstract IAsset getLockedIcon();
 
+    @Asset("/images/video.png")
+    public abstract IAsset getVideoIcon();
+
     public abstract Map<Conference, ActiveConference> getActiveConferenceMap();
     public abstract void setActiveConferenceMap(Map<Conference, ActiveConference> activeConferenceMap);
 
