@@ -49,7 +49,8 @@ public class SipXrecording implements Runnable {
      * Run the autoattendant if action=autoattendant
      * Otherwise, hang up.
      */
-    public void run() {
+    @Override
+	public void run() {
         LOG.debug("SipXrecording::run Starting SipXrecording thread with client " + m_clientSocket);
         LOG.debug("SipXrecording::run Ending SipXrecording thread with client " + m_clientSocket);
     }
@@ -88,8 +89,7 @@ public class SipXrecording implements Runnable {
     }
 
     private static void initConferenceService() throws Exception {
-        String config = s_config.getMongoConfigFile();
-        Mongo mongo = MongoFactory.fromConnectionFile(config);
+        Mongo mongo = MongoFactory.fromConnectionFile();
         List<Converter<DBObject, Conference>> converters = new ArrayList<Converter<DBObject, Conference>>();
         ConfReadConverter confReadConverter = new ConfReadConverter();
         converters.add(confReadConverter);

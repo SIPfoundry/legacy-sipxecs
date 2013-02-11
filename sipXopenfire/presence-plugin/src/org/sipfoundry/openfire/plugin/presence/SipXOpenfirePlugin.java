@@ -27,6 +27,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -75,8 +76,6 @@ import org.sipfoundry.openfire.config.XmppGroup;
 import org.sipfoundry.openfire.config.XmppGroupMember;
 import org.sipfoundry.openfire.config.XmppS2sInfo;
 import org.sipfoundry.openfire.config.XmppUserAccount;
-import org.sipfoundry.sipcallwatcher.CallWatcher;
-import org.sipfoundry.sipcallwatcher.ResourceStateChangeListener;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.convert.CustomConversions;
@@ -266,13 +265,11 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     }
 
     private void initConferenceService() throws Exception {
-        String configurationPath = System.getProperty("conf.dir");
         if (isBlank(configurationPath)) {
             System.getProperties().load(new FileInputStream(new File("/tmp/sipx.properties")));
             configurationPath = System.getProperty("conf.dir", "/etc/sipxpbx");
         }
-        String config = configurationPath + "/mongo-client.ini";
-        Mongo mongo = MongoFactory.fromConnectionFile(config);
+        Mongo mongo = MongoFactory.fromConnectionFile();
         List<Converter<DBObject, Conference>> converters = new ArrayList<Converter<DBObject, Conference>>();
         ConfReadConverter confReadConverter = new ConfReadConverter();
         converters.add(confReadConverter);
@@ -285,6 +282,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         ((ConferenceServiceImpl) m_conferenceService).setTemplate(entityDb);
     }
 
+    @SuppressWarnings("resource")
     @Override
     public void initializePlugin(PluginManager manager, File pluginDirectory) {
         SipXOpenfirePlugin.instance = this;
@@ -296,6 +294,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             properties.load(in);
         } catch (IOException ex) {
             log.error(ex);
+        } finally {
+            IOUtils.closeQuietly(in);
         }
 
         try {
@@ -309,9 +309,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
         configurationPath = System.getProperty("conf.dir", "/etc/sipxpbx");
 
-        String clientConfig = configurationPath + "/mongo-client.ini";
         try {
-            UnfortunateLackOfSpringSupportFactory.initialize(clientConfig);
+            UnfortunateLackOfSpringSupportFactory.initialize();
             initConferenceService();
         } catch (Exception e) {
             e.printStackTrace();

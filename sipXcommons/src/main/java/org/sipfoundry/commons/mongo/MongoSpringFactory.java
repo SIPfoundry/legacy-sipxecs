@@ -18,6 +18,7 @@ package org.sipfoundry.commons.mongo;
 
 import java.net.UnknownHostException;
 
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
@@ -49,7 +50,7 @@ public class MongoSpringFactory implements MongoDbFactory {
     private MongoDbFactory getDelegate() {
         if (m_delegate == null) {
             if (m_connectionUrl == null) {
-                m_connectionUrl = MongoFactory.readConfig(m_configFile);
+                m_connectionUrl = UnfortunateLackOfSpringSupportFactory.getConnectionURL();
             }
             MongoURI uri = new MongoURI(m_connectionUrl);        
             try {

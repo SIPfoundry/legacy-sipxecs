@@ -117,8 +117,9 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
     public void setSettingsDao(BeanWithSettingsDao<OpenfireSettings> settingsDao) {
         m_settingsDao = settingsDao;
     }
-    
-    public void touchXmppUpdate(Collection<Location> locations) {
+
+    @Override
+	public void touchXmppUpdate(Collection<Location> locations) {
         RunRequest touchXmppUpdate = new RunRequest("touch xmpp update", locations);
         touchXmppUpdate.setBundles("touch_xmpp_update");
         m_configManager.run(touchXmppUpdate);
@@ -154,7 +155,7 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         // require postgres ? that's about all i can think of but we do not have a role for that -- Douglas
-        validator.singleLocationOnly(FEATURE);
+        //validator.singleLocationOnly(FEATURE);
     }
 
     @Override
@@ -172,5 +173,5 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
     @Required
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
-    }       
+    }
 }

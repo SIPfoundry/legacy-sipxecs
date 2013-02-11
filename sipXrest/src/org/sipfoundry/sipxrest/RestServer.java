@@ -19,7 +19,6 @@ import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpServer;
 import org.mortbay.http.SocketListener;
 import org.mortbay.jetty.servlet.ServletHandler;
-import org.mortbay.util.InetAddrPort;
 import org.sipfoundry.commons.jetty.SocketFactory;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
@@ -158,7 +157,7 @@ public class RestServer {
         restServiceFinder.search(System.getProperty("plugin.dir"));
 
         try {
-            UnfortunateLackOfSpringSupportFactory.initialize(configDir + "/mongo-client.ini");
+            UnfortunateLackOfSpringSupportFactory.initialize();
         } catch (Exception e) {
             logger.error(e);
         }
@@ -175,9 +174,8 @@ public class RestServer {
     public static SipStackBean getSipStack() {
         return sipStackBean;
     }
-    
+
     public static String getRealm() {
-        DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir")+"/domain-config");
-        return config.getSipRealm();
-    }    
+        return DomainConfiguration.getSipRealm();
+    }
 }

@@ -54,6 +54,7 @@ public class OpenfireConfigurationFile {
     private String m_providerLdapVCardClassName;
     private String m_multipleLdapConfFile;
     private boolean m_clusteringState;
+    private String m_openfireTemplate;
 
     private Map<String, String> m_additionalProperties;
 
@@ -91,7 +92,7 @@ public class OpenfireConfigurationFile {
         context.put("clusteringState", m_clusteringState);
 
         try {
-            m_velocityEngine.mergeTemplate("openfire/openfire.vm", context, writer);
+            m_velocityEngine.mergeTemplate(m_openfireTemplate, context, writer);
         } catch (Exception e) {
             throw new IOException(e);
         }
@@ -119,7 +120,7 @@ public class OpenfireConfigurationFile {
      * When you have LDAP-Openfire configured different other users
      * can be added with admin rights.
      */
-    private String getAuthorizedUsernames() {
+    protected String getAuthorizedUsernames() {
         List<User> admins = m_coreContext.loadUserByAdmin();
         Set<String> authorizedList = new TreeSet<String>();
         authorizedList.add(ADMIN);
@@ -135,6 +136,10 @@ public class OpenfireConfigurationFile {
         m_ldapManager = ldapManager;
     }
 
+    protected LdapManager getLdapManager() {
+        return m_ldapManager;
+    }
+
     @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
@@ -142,6 +147,10 @@ public class OpenfireConfigurationFile {
 
     public void setVelocityEngine(VelocityEngine velocityEngine) {
         m_velocityEngine = velocityEngine;
+    }
+
+    public VelocityEngine getVelocityEngine() {
+        return m_velocityEngine;
     }
 
     @Required
@@ -203,10 +212,14 @@ public class OpenfireConfigurationFile {
         m_clusteringState = state;
     }
 
+    public void setOpenfireTemplate(String openfireTemplate) {
+        m_openfireTemplate = openfireTemplate;
+    }
+
     public static class LdapData {
-        private LdapConnectionParams m_ldapParams;
-        private AttrMap m_attrMap;
-        private boolean m_ldapAnonymousAccess;
+        private final LdapConnectionParams m_ldapParams;
+        private final AttrMap m_attrMap;
+        private final boolean m_ldapAnonymousAccess;
         public LdapData(LdapConnectionParams ldapParams, AttrMap attrMap) {
             m_ldapParams = ldapParams;
             m_attrMap = attrMap;

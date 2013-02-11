@@ -2,15 +2,19 @@ package org.sipfoundry.commons.mongo;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+
 import org.junit.Test;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 
 import com.mongodb.Mongo;
 
 public class MongoFactoryTest {
     @Test
     public void configFile() {
-        String file = MongoFactoryTest.class.getResource("mongo-client-sample.ini").getFile();
-        String url = MongoFactory.readConfig(file);
+    	System.out.println(new File(".").getAbsolutePath());
+    	System.setProperty("conf.dir", ".");
+        String url = UnfortunateLackOfSpringSupportFactory.getConnectionURL();
         assertEquals("mongodb://server1:27017,server2:27018/?slaveOk=true", url);
     }
 

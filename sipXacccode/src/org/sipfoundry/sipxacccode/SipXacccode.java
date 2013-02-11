@@ -16,57 +16,57 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.sipfoundry.authcode.AuthCode;
 import org.sipfoundry.commons.freeswitch.Answer;
 import org.sipfoundry.commons.freeswitch.DisconnectException;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.Hangup;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
-import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
-import org.sipfoundry.authcode.AuthCode;
 
 public class SipXacccode implements Runnable {
     private static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxacccode");
     private static AccCodeConfiguration s_config;
 
-    private Socket m_clientSocket;
+    private final Socket m_clientSocket;
     private FreeSwitchEventSocketInterface m_fses;
 
     public SipXacccode(Socket client) {
         m_clientSocket = client;
     }
+
     /*
      * header looks like:
      * variable_sip_h_diversion=<tel:3948809>;reason=no-answer;counter=1;screen=no;privacy=off
      */
     private void parseHeader(Hashtable<String, String> parameters) {
-        
+
         String divHeader = m_fses.getVariable("variable_sip_h_diversion");
-               
+
         if(divHeader != null) {
             divHeader = divHeader.toLowerCase();
             String[] subParms = divHeader.split(";");
-            
+
             int index = divHeader.indexOf("tel:");
-            
+
             if(index >= 0) {
                 divHeader = divHeader.substring(index+4);
                 index = divHeader.indexOf(">");
                 if(index > 0) {
                     divHeader = divHeader.substring(0, index);
-                    
+
                     parameters.put("action", "deposit");
-                    parameters.put("origCalledNumber", divHeader); 
-                    
+                    parameters.put("origCalledNumber", divHeader);
+
                     // now look for call forward reason
-                    for (String param : subParms) {                      
+                    for (String param : subParms) {
                         if(param.startsWith("reason=")) {
                             param = param.substring("reason=".length());
                             param.trim();
                             parameters.put("call-forward-reason", param);
                             break;
-                        }                      
-                    }                               
+                        }
+                    }
                 }
             }
         }
@@ -74,21 +74,22 @@ public class SipXacccode implements Runnable {
 
     /**
      * Determine what to do based on the SIP request.
-     * 
+     *
      */
-    public void run() {
+    @Override
+	public void run() {
         LOG.debug("SipXacccode::run Starting SipXacccode thread with client " + m_clientSocket);
 
         try {
             m_fses = new FreeSwitchEventSocket(s_config);
             if (m_fses.connect(m_clientSocket, null)) {
-		
-		
+
+
                         LOG.debug("SipXacccode socket connection, event received");
 		        String sipReqParams = m_fses.getVariable("variable_sip_req_params");
 		        // Create a table of parameters to pass in
 		        Hashtable<String, String> parameters = new Hashtable<String, String>();
-		
+
 		        if (sipReqParams != null) {
 		            // Split parameter fields (separated by semicolons)
 		            String[] params = sipReqParams.split(";");
@@ -102,15 +103,15 @@ public class SipXacccode implements Runnable {
 		                }
 		            }
 		        }
-		        
-		        LOG.info(String.format("SipXacccode::run Accepting call-id %s from %s to %s", 
+
+		        LOG.info(String.format("SipXacccode::run Accepting call-id %s from %s to %s",
 		                m_fses.getVariable("variable_sip_call_id"),
 		                m_fses.getVariable("variable_sip_from_uri"),
 		                m_fses.getVariable("variable_sip_req_uri")));
-		        
+
                         // Answer the call.
 		        m_fses.invoke(new Answer(m_fses));
-		
+
 		        String action = parameters.get("command");
 		        if (action == null) {
 		            LOG.warn("Cannot determine which application to run as the action parameter is missing.");
@@ -129,7 +130,7 @@ public class SipXacccode implements Runnable {
 		            // Nothing else to run...
 		            LOG.warn("Cannot determine which application to run from command="+ action);
 		        }
-		
+
 		        m_fses.invoke(new Hangup(m_fses));
             }
         } catch (DisconnectException e) {
@@ -147,17 +148,17 @@ public class SipXacccode implements Runnable {
         LOG.debug("SipXacccode::run Ending SipXacccode thread with client " + m_clientSocket);
     }
 
-    
+
     /**
      * Load the configuration from the sipxacccode.properties file.
      * Wait for FreeSWITCH to make a TCP connection to s_eventSocketPort.
      * Spawn off a thread to handle each connection.
-     * 
+     *
      * @throws Throwable
      */
     static void init() throws Throwable {
         int eventSocketPort;
-        
+
         // Load the configuration
         s_config = AccCodeConfiguration.get();
 
@@ -171,8 +172,6 @@ public class SipXacccode implements Runnable {
         props.setProperty("log4j.appender.file.layout", "org.sipfoundry.commons.log4j.SipFoundryLayout");
         props.setProperty("log4j.appender.file.layout.facility", "sipXacccode");
         PropertyConfigurator.configure(props);
- 
-        initMongoConnection();
 
         eventSocketPort = s_config.getEventSocketPort();
         LOG.info("Starting SipXacccode listening on port " + eventSocketPort);
@@ -183,15 +182,6 @@ public class SipXacccode implements Runnable {
             Thread thread = new Thread(acccode);
             thread.start();
         }
-    }
-
-    private static void initMongoConnection() throws Exception {
-        String configPath = System.getProperty("conf.dir");
-        if (configPath == null) {
-            LOG.fatal("Cannot get System Property conf.dir!  Check jvm argument -Dconf.dir=") ;
-            System.exit(1);
-        }
-        UnfortunateLackOfSpringSupportFactory.initialize(configPath + "/mongo-client.ini");
     }
 
     /**

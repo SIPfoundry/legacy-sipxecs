@@ -58,8 +58,7 @@ public class SqaPlugin implements Plugin {
                 presence = System.getProperty("openfire.presence", "true");
             }
 
-            String clientConfig = configurationPath + "/mongo-client.ini";
-            UnfortunateLackOfSpringSupportFactory.initialize(clientConfig);
+            UnfortunateLackOfSpringSupportFactory.initialize();
 
             if (Boolean.valueOf(presence)) {
                 System.load(libPath + "/libsqaclient.so");

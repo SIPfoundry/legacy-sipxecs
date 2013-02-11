@@ -59,6 +59,7 @@
     <property name="providerLdapAuthClassName" value="org.jivesoftware.openfire.ldap.LdapAuthProvider"/>
     <property name="providerLdapUserClassName" value="org.jivesoftware.openfire.ldap.LdapUserProvider"/>
     <property name="providerLdapVCardClassName" value="org.jivesoftware.openfire.ldap.LdapVCardProvider"/>
+    <property name="openfireTemplate" value="openfire/openfire.vm"/>
     <property name="additionalProperties">
       <map/>
     </property>

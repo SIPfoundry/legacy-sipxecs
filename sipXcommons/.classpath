@@ -162,7 +162,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/xmlrpc-2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jedis-2.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-data-redis-1.0.1.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mongo-2.9.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/js-1.7R4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mongo-2.10.1.jar"/>
 	<classpathentry kind="output" path="bin.eclipse/classes"/>
 </classpath>

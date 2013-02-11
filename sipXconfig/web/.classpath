@@ -8,13 +8,12 @@
 	<classpathentry kind="var" path="SIPX_BUILDDIR/sipXconfig/web/classes"/>
 	<classpathentry exported="true" kind="src" path="/sipXconfig-neoconf"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/sipxcommons"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/hivemind-1.1.1.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/hivemind-lib-1.1.1.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/smartgwt-2.5.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/smartgwt-skins-2.5.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/tapestry-annotations-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/tapestry-contrib-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src/tapestry-contrib/src/java"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/tapestry-framework-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src/tapestry-framework/src/java"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/hivemind-1.1.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/hivemind-lib-1.1.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/smartgwt-2.5.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/smartgwt-skins-2.5.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/tapestry-annotations-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/tapestry-contrib-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src/tapestry-contrib/src/java"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/tapestry-framework-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src/tapestry-framework/src/java"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

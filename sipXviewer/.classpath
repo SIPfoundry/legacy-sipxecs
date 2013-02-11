@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/jdom-1.0.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG"/>
+	<classpathentry kind="var" path="SIPX_SRCDIR/sipXcommons/lib/jdom-1.0.jar"/>
+	<classpathentry kind="var" path="SIPX_SRCDIR/sipXcommons"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
