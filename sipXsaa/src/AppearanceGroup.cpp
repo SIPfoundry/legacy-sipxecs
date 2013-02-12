@@ -253,36 +253,6 @@ void AppearanceGroup::subscriptionEventCallback(
       // Delete this AppearanceGroup from mSubscribeMap (for the "reg" subscription).
       mAppearanceGroupSet->deleteSubscribeMapping(&mSubscriptionEarlyDialogHandle);
 
-      // End the terminated "reg" subscription.
-      UtlBoolean ret;
-      ret = getAppearanceAgent()->getSubscribeClient().
-         endSubscriptionGroup(mSubscriptionEarlyDialogHandle);
-      Os::Logger::instance().log(FAC_SAA,
-                    ret ? PRI_INFO : PRI_WARNING,
-                    "AppearanceGroup::subscriptionEventCallback "
-                    "endSubscriptionGroup %s mSharedUser = '%s', mSubscriptionEarlyDialogHandle = '%s'",
-                    ret ? "succeeded" : "failed",
-                    mSharedUser.data(),
-                    mSubscriptionEarlyDialogHandle.data());
-
-      // Check to see if there is supposed to be a group with this name.
-      if (mAppearanceGroupSet->findAppearanceGroup(mSharedUser))
-      {
-         Os::Logger::instance().log(FAC_SAA, PRI_WARNING,
-                       "AppearanceGroup::subscriptionEventCallback "
-                       "subscription terminated for AppearanceGroup '%s', but should exist. Retrying subscription",
-                       mSharedUser.data());
-         startSubscription();
-      }
-      else
-      {
-         Os::Logger::instance().log(FAC_SAA, PRI_INFO,
-                       "AppearanceGroup::subscriptionEventCallback "
-                       "subscription terminated for AppearanceGroup = '%s', dialogHandle = '%s'",
-                       mSharedUser.data(), dialogHandle->data());
-
-      }
-
       // Update the subscriptions.
       updateSubscriptions();
    }
