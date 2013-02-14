@@ -25,6 +25,9 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
+import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
+import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
@@ -46,7 +49,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class MongoManagerImpl implements AddressProvider, FeatureProvider, MongoManager, ProcessProvider,
-        SetupListener, FirewallProvider {
+        SetupListener, FirewallProvider, AlarmProvider {
     private BeanWithSettingsDao<MongoSettings> m_settingsDao;
 
     public MongoSettings getSettings() {
@@ -154,5 +157,18 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+    }
+
+    @Override
+    public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
+        if (!manager.getFeatureManager().isFeatureEnabled(MongoManager.FEATURE_ID)
+                || !manager.getFeatureManager().isFeatureEnabled(MongoManager.FEATURE_ID)) {
+            return null;
+        }
+        Collection<AlarmDefinition> defs = Arrays.asList(new AlarmDefinition[] {
+            MONGO_FATAL_REPLICATION_STOP, MONGO_FAILED_ELECTION, MONGO_MEMBER_DOWN,
+            MONGO_NODE_STATE_CHANGED, MONGO_CANNOT_SEE_MAJORITY
+        });
+        return defs;
     }
 }

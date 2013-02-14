@@ -409,8 +409,19 @@ int main(int argc, char* argv[])
        serverMaxExpiration = SAA_DEFAULT_SERVER_MAX_EXPIRATION;
    }
 
-   // add the ~~sipXsaa credentials so that sipXsaa can respond to challenges
+   std::string errmsg;
    mongo::ConnectionString mongoConn = MongoDB::ConnectionInfo::connectionStringFromFile();
+   if (false == MongoDB::ConnectionInfo::testConnection(mongoConn, errmsg))
+   {
+       Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
+               "Failed to connect to '%s' - %s",
+               mongoConn.toString().c_str(), errmsg.c_str());
+
+       return 1;
+   }
+
+   // add the ~~sipXsaa credentials so that sipXsaa can respond to challenges
+   mongoConn = MongoDB::ConnectionInfo::connectionStringFromFile();
    SubscribeDB subscribeDb(MongoDB::ConnectionInfo(mongoConn, SubscribeDB::NS));
    EntityDB entityDb(MongoDB::ConnectionInfo(mongoConn, EntityDB::NS));
    SipLineMgr* lineMgr = addCredentials(entityDb, domainName, realm);

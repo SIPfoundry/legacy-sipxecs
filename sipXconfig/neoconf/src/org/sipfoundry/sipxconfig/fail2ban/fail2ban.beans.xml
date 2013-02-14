@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="fail2banManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.fail2ban.Fail2banManager</value>
+    </property>
+    <property name="target">
+      <ref local="fail2banManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="fail2banManagerImpl" class="org.sipfoundry.sipxconfig.fail2ban.Fail2banManagerImpl">
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.fail2ban.Fail2banSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+  </bean>
+  
+  <bean id="fail2banSettings" class="org.sipfoundry.sipxconfig.fail2ban.Fail2banSettings" parent="settingsBean">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+    <property name="firewallManager" ref="firewallManager"/>
+  </bean>
+
+  <bean id="fail2banConfig" class="org.sipfoundry.sipxconfig.fail2ban.Fail2banConfig">
+    <property name="fail2banManager" ref="fail2banManager"/>
+  </bean>
+
+  <bean id="securityAlarms" class="org.springframework.context.support.ResourceBundleMessageSource">
+    <property name="basename">
+      <value>org.sipfoundry.sipxconfig.fail2ban.fail2ban</value>
+    </property>
+  </bean>
+</beans>

@@ -77,7 +77,6 @@
     <property name="locationsManager" ref="locationsManager" />
     <property name="auditLogContext" ref="auditLogContext" />
     <property name="coreContext" ref="coreContext" />
-    <property name="forwardingContext" ref="forwardingContext" />
     <property name="externalAliases" ref="externalAliases" />
     <property name="validUsers" ref="validUsers"/>
     <property name="imdb" ref="imdb"/>

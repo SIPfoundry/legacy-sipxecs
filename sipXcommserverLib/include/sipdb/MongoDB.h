@@ -119,6 +119,8 @@ public:
 
 	static const mongo::ConnectionString connectionString(const std::string& str);
 
+	static bool	testConnection(const mongo::ConnectionString &connectionString, const std::string& errmsg);
+
 	const mongo::ConnectionString& getConnectionString() const
 	{
 		return _connectionString;

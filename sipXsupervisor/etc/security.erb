@@ -1,0 +1,40 @@
+<%
+  def srciprange(ips)
+    s = ""
+    unless ips.nil?
+      ips.each { |ipv4|
+        s += ipv4.to_s + ' '
+      }
+    end
+    s
+  end
+%>
+# sipXecs generated
+[DEFAULT]
+
+ignoreip = <%= srciprange(ignoreip) %>
+bantime  = <%= bantime %>
+findtime  = <%= findtime %>
+maxretry = <%= maxretry %>
+backend = <%= backend %>
+
+<%
+ unless siprules.nil?
+    siprules.each { |siprule|
+      if siprule[:enable]
+%>
+[sip-<%= siprule[:name] %>]
+enabled = true
+filter = sip-<%= siprule[:name] %>
+logpath = <%= siprule[:log] %>
+maxretry = <%= siprule[:maxretry] %>
+action = block-allports
+findtime = <%= siprule[:findtime] %>
+ignoreip = <%= srciprange(siprule[:ignoreip]) %>
+bantime = <%= siprule[:bantime] %>
+<%
+    end
+    }
+  end
+%>
+

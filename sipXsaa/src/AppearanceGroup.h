@@ -62,6 +62,9 @@ class AppearanceGroup : public UtlContainableAtomic,
    //! Destructor
    virtual ~AppearanceGroup();
 
+   /// Add a new Appearance in this group for callid contact
+   void addAppearance(const UtlString* callidContact);
+
    //! Get the ancestor AppearanceAgent.
    AppearanceAgent* getAppearanceAgent() const;
 

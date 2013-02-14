@@ -191,8 +191,27 @@ EnforceAuthRules::authorizeAndModify(const UtlString& id,    /**< The authentica
             result = ALLOW;
             Os::Logger::instance().log(FAC_AUTH, PRI_INFO, "EnforceAuthRules[%s]::authorizeAndModify "
                           " no permission required for call %s",
-                          mInstanceName.data(), callId.data()
-                          );
+                          mInstanceName.data(), callId.data() );
+
+            if (!mpSipRouter->isRelayAllowed() && bSpiralingRequest)
+            {
+              Url fromUri;
+              request.getFromUrl(fromUri);
+              if (mpSipRouter && !mpSipRouter->isLocalDomain(fromUri, true))
+              {
+                //
+                // Checking if it wants to relay
+                //
+                if (!mpSipRouter->isLocalDomain(requestUri, true))
+                {
+                  Os::Logger::instance().log(FAC_AUTH, PRI_INFO, "EnforceAuthRules[%s]::authorizeAndModify "
+                          " %s REJECTED - Relay is not allowed!",
+                          mInstanceName.data(), callId.data() );
+
+                  return DENY;
+                }
+              }
+            }
          }
          else if (id.isNull())
          {

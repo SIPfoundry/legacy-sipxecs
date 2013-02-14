@@ -78,7 +78,8 @@ class TransactionApplicationData {
             String method = m_helper.getCSeqMethod(response);
             LOG.debug("method = " + method);
             LOG.debug("Operator = " + m_operator);
-            if (response.getStatusCode() == Response.PROXY_AUTHENTICATION_REQUIRED) {
+            if (response.getStatusCode() == Response.PROXY_AUTHENTICATION_REQUIRED
+                || response.getStatusCode() == Response.UNAUTHORIZED) {
                 if (m_counter == 1) {
                     m_helper.tearDownDialog(dialog);
                     return;
@@ -87,10 +88,14 @@ class TransactionApplicationData {
                 m_counter++;
                 if (ctx != null) {
                     ctx.setApplicationData(this);
-                    if (dialog.getState() == DialogState.CONFIRMED) {
-                        dialog.sendRequest(ctx);
-                    } else  {
+                    if (response.getStatusCode() == Response.UNAUTHORIZED) {
                         ctx.sendRequest();
+                    } else {
+                        if (dialog.getState() == DialogState.CONFIRMED) {
+                            dialog.sendRequest(ctx);
+                        } else  {
+                            ctx.sendRequest();
+                        }
                     }
                 }
             } else if (m_operator == Operator.SEND_NOTIFY) {
@@ -117,7 +122,6 @@ class TransactionApplicationData {
                         ContactHeader contactHeader = m_helper.createContactHeader();
                         referRequest.setHeader(contactHeader);
                         ClientTransaction ctx = m_helper.getSipProvider().getNewClientTransaction(referRequest);
-
                         // And send it to the other side.
                         TransactionApplicationData tad = new TransactionApplicationData(Operator.SEND_REFER, m_helper,
                                 null);

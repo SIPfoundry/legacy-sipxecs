@@ -140,4 +140,8 @@ public class MohSettings extends PersistableSettings implements Replicable, Bean
         return Collections.singleton((Feature) MusicOnHoldManager.FEATURE);
     }
 
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

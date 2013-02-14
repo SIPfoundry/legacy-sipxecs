@@ -134,4 +134,9 @@ public class ImBotSettings extends PersistableSettings implements DeployConfigOn
         props.put(TIMESTAMP, System.currentTimeMillis());
         return props;
     }
+
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

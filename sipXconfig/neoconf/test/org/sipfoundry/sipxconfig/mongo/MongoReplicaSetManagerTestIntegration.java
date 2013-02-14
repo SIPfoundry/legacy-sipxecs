@@ -16,9 +16,9 @@
  */
 package org.sipfoundry.sipxconfig.mongo;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class MongoReplicaSetManagerTestIntegration extends IntegrationTestCase {
@@ -31,22 +31,11 @@ public class MongoReplicaSetManagerTestIntegration extends IntegrationTestCase {
         sql("commserver/SeedLocations.sql");
     }
 
-    public void testPostgresMembers() throws Exception {
-        sql("mongo/seed_mongo_servers.sql");
-        Set<String> actualMembers = new HashSet<String>();
-        Set<String> actualArbiters = new HashSet<String>();
-        m_mongoReplicaSetManager.getPostgresMembers(actualMembers, actualArbiters);
-        assertEquals("[remote.example.org:27017]", actualMembers.toString());
-        assertEquals("[localhost:27018]", actualArbiters.toString());
-    }
-    
-    public void testMongoMembers() throws Exception {
-        Set<String> actualMembers = new HashSet<String>();
-        Set<String> actualArbiters = new HashSet<String>();
-        m_mongoReplicaSetManager.getMongoMembers(actualMembers, actualArbiters);
-        String actual = actualMembers.toString();
-        // Should be [hostname:27017]
-        assertTrue("Got " + actual, actual.matches("\\[[\\-\\w.]+:27017\\]"));
+    public void testGetMongoServers() throws Exception {
+        List<MongoServer> servers = m_mongoReplicaSetManager.getMongoServers(true, false);
+        for (MongoServer server : servers) {
+            assertTrue(StringUtils.contains(server.getName(), ":27017") || StringUtils.contains(server.getName(), ":27018"));
+        }
     }
 
     public void setMongoReplicaSetManager(MongoReplicaSetManager mongoReplicaSetManager) {

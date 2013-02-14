@@ -33,5 +33,19 @@
     <property name="firewallManager" ref="firewallManager"/>
     <property name="addressManager" ref="addressManager"/>
     <property name="configManager" ref="configManager"/>
+    <property name="callRateManager" ref="callRateManager"/>
+  </bean>
+
+  <bean id="callRateManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.firewall.CallRateManager</value>
+    </property>
+    <property name="target">
+      <ref local="callRateManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="callRateManagerImpl" class="org.sipfoundry.sipxconfig.firewall.CallRateManagerImpl" parent="abstractDaoImpl">
+    <property name="jdbc" ref="configJdbcTemplate"/>
   </bean>
 </beans>

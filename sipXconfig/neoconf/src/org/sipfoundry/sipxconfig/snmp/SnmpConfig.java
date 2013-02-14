@@ -62,7 +62,7 @@ public class SnmpConfig implements ConfigProvider, FeatureListener, SetupListene
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(SnmpManager.FEATURE, LocationsManager.FEATURE)) {
+        if (!request.applies(SnmpManager.FEATURE, LocationsManager.FEATURE, Alarms.FEATURE)) {
             return;
         }
         Set<Location> locations = request.locations(manager);

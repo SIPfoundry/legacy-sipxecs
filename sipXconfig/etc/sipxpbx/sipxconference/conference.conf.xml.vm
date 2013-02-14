@@ -51,12 +51,12 @@
       <param name="rate" value="8000"/>
       <param name="interval" value="20"/>
       <param name="energy-level" value="0"/>
-      <param name="member-flags" value="waste"/>
-#if(${conference.getSettingTypedValue("fs-conf-conference/quickstart")})
-      <param name="conference-flags" value="waste-bandwidth"/>
+#if(${conference.isVideoConference()})
+      <param name="member-flags" value="video-bridge"/>
 #else
-      <param name="conference-flags" value="waste-bandwidth | wait-mod"/>
+      <param name="member-flags" value="waste"/>
 #end
+      <param name="conference-flags" value="${conference.getConferenceFlags()}"/>
 #if(${conference.getModeratorAccessCode()})
       <param name="moderator-pin" value="${conference.getModeratorAccessCode()}"/>
 #end

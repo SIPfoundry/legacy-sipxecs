@@ -37,6 +37,7 @@ public abstract class Phone extends Device {
     public static final String GROUP_RESOURCE_ID = PHONE_CONSTANT;
 
     private static final String PHONE_SIP_EXCEPTION = "&phone.sip.exception";
+    private static final String PHONE_LINE_NOT_VALID = "&phone.line.not.valid";
 
     private String m_description;
 
@@ -148,7 +149,7 @@ public abstract class Phone extends Device {
 
     protected void sendCheckSyncToFirstLine() {
         if (getLines().size() == 0) {
-            throw new RestartException("&phone.line.not.valid");
+            throw new RestartException(PHONE_LINE_NOT_VALID);
         }
 
         Line line = getLine(0);
@@ -156,6 +157,38 @@ public abstract class Phone extends Device {
             m_sip.sendCheckSync(line.getAddrSpec());
         } catch (RuntimeException ex) {
             throw new RestartException(PHONE_SIP_EXCEPTION);
+        }
+    }
+
+    // If device challenges check-sync NOTIFY, use this method
+    protected void sendAuthorizedCheckSyncToFirstLine() {
+        if (getLines().size() == 0) {
+            Line line = createSpecialPhoneProvisionUserLine();
+            try {
+                m_sip.sendCheckSync(line.getAddrSpec(), line.getUserName(), getSerialNumber(),
+                        line.getUser().getSipPassword());
+            } catch (RuntimeException ex) {
+                throw new RestartException(PHONE_SIP_EXCEPTION);
+            }
+        } else {
+            Line line = getLine(0);
+            try {
+                m_sip.sendCheckSync(line.getAddrSpec(), line.getUserName(), getSerialNumber(),
+                        line.getUser().getSipPassword());
+            } catch (RuntimeException ex) {
+                /*
+                 * If the previous attempt didn't work, perhaps the phone has been auto-provisioned,
+                 * but has not yet been restarted. If sending a restart to the defined line doesn't
+                 * work, fall back to the auto-provision user.
+                 */
+                Line linedefault = createSpecialPhoneProvisionUserLine();
+                try {
+                    m_sip.sendCheckSync(linedefault.getAddrSpec(), linedefault.getUserName(), getSerialNumber(),
+                            linedefault.getUser().getSipPassword());
+                } catch (RuntimeException exc) {
+                    throw new RestartException(PHONE_SIP_EXCEPTION);
+                }
+            }
         }
     }
 

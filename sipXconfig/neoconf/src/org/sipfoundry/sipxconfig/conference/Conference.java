@@ -71,6 +71,7 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
     public static final String MODERATOR_CODE = "fs-conf-conference/moderator-code";
     public static final String TERMINATE_ON_MODERATOR_EXIT = "fs-conf-conference/terminate-on-moderator-exit";
     public static final String QUICKSTART = "fs-conf-conference/quickstart";
+    public static final String VIDEO = "fs-conf-conference/video";
 
     private static final String ALIAS_RELATION = "conference";
     private boolean m_enabled;
@@ -177,6 +178,10 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
         return getSettingValue(MOH).equals(MOH_SOUNDCARD_SOURCE);
     }
 
+    public boolean isVideoConference() {
+        return (Boolean) getSettingTypedValue(VIDEO);
+    }
+
     public boolean isMohFilesSrcEnabled() {
         return getSettingValue(MOH).equals(MOH_FILES_SOURCE);
     }
@@ -191,6 +196,21 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
 
     public Setting getConfigSettings() {
         return getSettings().getSetting("fs-conf-conference");
+    }
+
+    public String getConferenceFlags() {
+        StringBuilder flags = new StringBuilder();
+        flags.append("waste-bandwidth");
+        if (isVideoConference()) {
+            flags.append(" | video-bridge");
+        }
+        if ((Boolean) getSettingTypedValue("fs-conf-conference/video-toogle-floor")) {
+            flags.append(" | video-floor-only");
+        }
+        if (!(Boolean) getSettingTypedValue(QUICKSTART)) {
+            flags.append(" | wait-mod");
+        }
+        return flags.toString();
     }
 
     /**
@@ -367,5 +387,10 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Arrays.asList((Feature) FreeswitchFeature.FEATURE, (Feature) ConferenceBridgeContext.FEATURE);
+    }
+
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
     }
 }

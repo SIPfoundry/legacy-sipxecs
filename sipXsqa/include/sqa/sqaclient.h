@@ -65,6 +65,7 @@ class SQAEvent
 public:
   SQAEvent();
   SQAEvent(const SQAEvent& data);
+  SQAEvent(const std::string& id_, const std::string& data_);
   ~SQAEvent();
 
   char* id;
@@ -376,22 +377,43 @@ inline SQAEvent::SQAEvent() :
 
 inline SQAEvent::~SQAEvent()
 {
-  free(id);
-  free(data);
+  if (NULL != id)
+  {
+    delete [] id;
+    id = NULL;
+  }
+
+  if (NULL != data)
+  {
+    delete [] data;
+    data = NULL;
+  }
 }
 
 inline SQAEvent::SQAEvent(const SQAEvent& ev)
 {
-  id = (char*)malloc(strlen(ev.id) + 1);
-  ::memset(id, 0x00, strlen(ev.id) + 1);
-  ::memcpy(id, ev.id, strlen(ev.id) + 1);
   id_len = ev.id_len;
+  id = new char[id_len + 1];
+  ::memcpy(id, ev.id, id_len);
+  id[id_len] = '\0';
 
-  data = (char*)malloc(strlen(ev.data) + 1);
-  ::memset(data, 0x00, strlen(ev.data) + 1);
-  ::memcpy(data, ev.data, strlen(ev.data) + 1);
   data_len = ev.data_len;
+  data = new char[data_len + 1];
+  ::memcpy(data, ev.data, data_len);
+  data[data_len] = '\0';
+}
 
+inline SQAEvent::SQAEvent(const std::string& id_, const std::string& data_)
+{
+  id_len = id_.size();
+  id = new char[id_len + 1];
+  std::copy(id_.begin(), id_.end(), id);
+  id[id_len] = '\0';
+
+  data_len = data_.size();
+  data = new char[data_len + 1];
+  std::copy(data_.begin(), data_.end(), data);
+  data[data_len] = '\0';
 }
 
 //
@@ -466,15 +488,8 @@ inline SQAEvent* SQAWatcher::watch()
   if (!reinterpret_cast<StateQueueClient*>(_connection)->watch(id, data))
     return 0;
 
-  SQAEvent* pEvent = new SQAEvent();
+  SQAEvent* pEvent = new SQAEvent(id, data);
 
-  pEvent->id = (char*)malloc(id.size());
-  ::memcpy(pEvent->id, id.data(), id.size());
-
-  pEvent->data = (char*)malloc(data.size());
-  ::memcpy(pEvent->data, data.data(), data.size());
-
-  pEvent->data_len = data.size();
   return pEvent;
 }
 

@@ -11,6 +11,10 @@
 #define _ResourceNotifyReceiver_h_
 
 // SYSTEM INCLUDES
+#include <boost/shared_ptr.hpp>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+#include <boost/noncopyable.hpp>
 // APPLICATION INCLUDES
 
 #include <net/SipMessage.h>
@@ -35,6 +39,28 @@ class ResourceNotifyReceiver
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
+    class CallBack : boost::noncopyable
+    {
+    public:
+
+      typedef boost::mutex mutex;
+      typedef boost::lock_guard<mutex> mutex_lock;
+      typedef boost::shared_ptr<CallBack> Ptr;
+
+      void notifyEventCallback(const UtlString* dialogHandle, const UtlString* content);
+
+      void invalidateCallBack();
+
+      ResourceNotifyReceiver* receiver() const;
+    protected:
+      CallBack(ResourceNotifyReceiver* receiver);
+
+    private:
+      mutex _mutex;
+      ResourceNotifyReceiver* _receiver;
+      bool _isValid;
+      friend class ResourceNotifyReceiver;
+    };
 
    //! Construct an instance
    ResourceNotifyReceiver();
@@ -48,8 +74,13 @@ class ResourceNotifyReceiver
    virtual void notifyEventCallback(const UtlString* dialogHandle,
                                     const UtlString* content) = 0;
 
+   CallBack::Ptr getSafeCallBack() const;
+
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
+
+    CallBack::Ptr _safeCallBack;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
@@ -60,5 +91,41 @@ class ResourceNotifyReceiver
    //! Disabled assignment operator
    ResourceNotifyReceiver& operator=(const ResourceNotifyReceiver& rhs);
 };
+
+
+//
+// Inlines
+//
+inline ResourceNotifyReceiver::CallBack::Ptr ResourceNotifyReceiver::getSafeCallBack() const
+{
+  return _safeCallBack;
+}
+
+inline ResourceNotifyReceiver::CallBack::CallBack(ResourceNotifyReceiver* receiver) :
+  _receiver(receiver),
+  _isValid(true)
+{
+}
+
+inline void ResourceNotifyReceiver::CallBack::notifyEventCallback(
+  const UtlString* dialogHandle, const UtlString* content
+)
+{
+  mutex_lock lock(_mutex);
+  if (_isValid && _receiver)
+    _receiver->notifyEventCallback(dialogHandle, content);
+}
+
+inline void ResourceNotifyReceiver::CallBack::invalidateCallBack()
+{
+  mutex_lock lock(_mutex);
+  _isValid = false;
+  _receiver = 0;
+}
+
+inline ResourceNotifyReceiver* ResourceNotifyReceiver::CallBack::receiver() const
+{
+  return _receiver;
+}
 
 #endif  // _ResourceNotifyReceiver_h_

@@ -190,6 +190,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/commserver/*
 %config(noreplace) %{sipxpbxconf}/database/*
 %config(noreplace) %{sipxpbxconf}/dhcp/*
+%config(noreplace) %{sipxpbxconf}/fail2ban/*
 %config(noreplace) %{sipxpbxconf}/firewall/*
 %config(noreplace) %{sipxpbxconf}/freeswitch/*
 %config(noreplace) %{sipxpbxconf}/ftp/*

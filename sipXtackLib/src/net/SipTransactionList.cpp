@@ -22,6 +22,7 @@
 #include <net/SipUserAgent.h>
 #include <os/OsTask.h>
 #include <os/OsEvent.h>
+#include <os/OsDateTime.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -46,6 +47,12 @@ mTransactions(),
 mListMutex(OsMutex::Q_FIFO),
 mpSipUserAgent(pSipUserAgent)
 {
+  //
+  // Run the garbage collector
+  //
+  _pGarbageCollectionThread = 0;
+  _abortGarbageCollection = false;
+  runGarbageCollection();
 }
 
 // Copy constructor
@@ -57,6 +64,7 @@ mListMutex(OsMutex::Q_FIFO)
 // Destructor
 SipTransactionList::~SipTransactionList()
 {
+    abortGarbageCollection();
     mTransactions.destroyAll();
 }
 
@@ -97,7 +105,10 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
     //
     // Call garbage collection before we further process existence of a transaction.
     //
+    {
+    boost::lock_guard<boost::mutex> lock(_garbageCollectionMutex);
     mpSipUserAgent->garbageCollection();
+    }
 
     lock();
 
@@ -323,7 +334,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
 void SipTransactionList::removeOldTransactions(long oldTransaction,
                                                long oldInviteTransaction)
 {
-    SipTransaction** transactionsToBeDeleted = NULL;
+    std::vector<SipTransaction*> transactionsToBeDeleted;
     int deleteCount = 0;
     int busyCount = 0;
 
@@ -337,6 +348,10 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
     gcTimes.addEvent("locked");
 #   endif
 
+    OsTime time;
+    OsDateTime::getCurTimeSinceBoot(time);
+    long bootime = time.seconds();
+
     int numTransactions = mTransactions.entries();
     if(numTransactions > 0)
     {
@@ -344,6 +359,7 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
         SipTransaction* transactionFound = NULL;
         long transTime;
 
+        transactionsToBeDeleted.reserve(numTransactions);
         // Pull all of the transactions to be deleted out of the list
         while ((transactionFound = (SipTransaction*) iterator()))
         {
@@ -351,7 +367,7 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
            {
               busyCount++;
            }
-           else
+           else if (!transactionFound->isMarkedForDeletion())
            {
             transTime = transactionFound->getTimeStamp();
 
@@ -368,19 +384,12 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
                               " removing %p",  transactionFound );
 #endif
 
-                // Remove it from the list
-                mTransactions.removeReference(transactionFound);
-
-                // Make sure we have a pointer array to hold it
-                if(transactionsToBeDeleted == NULL)
-                {
-                     transactionsToBeDeleted = new SipTransaction*[numTransactions];
-                }
-
                 // Put it in the pointer array
-                transactionsToBeDeleted[deleteCount] = transactionFound;
+                transactionsToBeDeleted.push_back(transactionFound);
                 deleteCount++;
 
+                transactionFound->markForDeletion();
+                
                 // Make sure the events waiting for the transaction
                 // to be available are signaled before we delete
                 // any of the transactions or we end up with
@@ -388,21 +397,64 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
                 // :TODO: move to the actual deletion loop so we're not holding the lock? -SDL
                 transactionFound->signalAllAvailable();
             }
-           }
+            else if (
+              transactionFound->isMethod(SIP_INVITE_METHOD)
+              && transactionFound->getState() >= SipTransaction::TRANSACTION_COMPLETE
+              && bootime - transTime > 32
+              && !transactionFound->isMarkedForDeletion()
+              && !transactionFound->getTopMostParent())
+            {
+              UtlSListIterator busyIter(transactionFound->childTransactions());
+              SipTransaction* childTransaction = NULL;
+              bool isChildBusy = false;
+
+              while ((childTransaction = (SipTransaction*) busyIter()))
+              {
+                if (childTransaction->isBusy() || transactionFound->getState() < SipTransaction::TRANSACTION_COMPLETE)
+                {
+                  isChildBusy = true;
+                  break;
+                }
+              }
+
+              if (!isChildBusy)
+              {
+                //
+                // Remove all child transactions
+                //
+                UtlSListIterator iterator(transactionFound->childTransactions());
+                childTransaction = NULL;
+                while ((childTransaction = (SipTransaction*) iterator()))
+                {
+                  if (!childTransaction->isMarkedForDeletion())
+                  {
+                    transactionsToBeDeleted.push_back(childTransaction);
+                    childTransaction->signalAllAvailable();
+                    childTransaction->markForDeletion();
+                    deleteCount++;
+                  }
+                }
+                //
+                // Finally, delete the parent if it is not marked previously as
+                // a child transaction ready for deletion.
+                //
+                transactionsToBeDeleted.push_back(transactionFound);
+                deleteCount++;
+                transactionFound->signalAllAvailable();
+                transactionFound->markForDeletion();
+              }
+            }
+          }
         }
     }
 
 #   ifdef TIME_LOG
     gcTimes.addEvent("scan done");
-#   endif
+#   endif   
 
-    // We do not need the lock now that the transactions have been
-    // removed from the list
-    unlock();
-
-    if ( deleteCount || busyCount ) // do not log 'doing nothing when nothing to do', even at debug
+    if ( deleteCount || busyCount || numTransactions > 10000 ) // do not log 'doing nothing when nothing to do', even at debug
     {
-       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+       Os::Logger::instance().log(FAC_SIP, PRI_NOTICE,
                      "SipTransactionList::removeOldTransactions"
                      " deleting %d of %d transactions (%d busy)",
                      deleteCount , numTransactions, busyCount
@@ -410,22 +462,22 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
     }
 
     // Delete the transactions in the array
-    if (transactionsToBeDeleted)
+    if (!transactionsToBeDeleted.empty())
     {
 #      ifdef TIME_LOG
        gcTimes.addEvent("start delete");
 #      endif
 
-       for(int txIndex = 0; txIndex < deleteCount; txIndex++)
+       for(std::vector<SipTransaction*>::iterator iter = transactionsToBeDeleted.begin(); iter != transactionsToBeDeleted.end(); iter++)
        {
-          delete transactionsToBeDeleted[txIndex];
+         mTransactions.removeReference(*iter);
+          delete *iter;
        }
 
 #      ifdef TIME_LOG
        gcTimes.addEvent("finish delete");
 #      endif
 
-       delete[] transactionsToBeDeleted;
     }
 
 #   ifdef TIME_LOG
@@ -435,6 +487,8 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
                   "%s", timeString.data()
                   );
 #   endif
+
+    unlock();
 }
 
 void SipTransactionList::stopTransactionTimers()
@@ -776,6 +830,34 @@ UtlBoolean SipTransactionList::transactionExists(const SipTransaction* transacti
     }
 
     return(foundTransaction);
+}
+
+
+void SipTransactionList::runGarbageCollection()
+{
+  if (!_pGarbageCollectionThread)
+  {
+    _pGarbageCollectionThread = new boost::thread(boost::bind(&SipTransactionList::runGarbageCollection, this));
+    return;
+  }
+
+  while(!_abortGarbageCollection)
+  {
+    OsTask::delay(DEFAULT_GARBAGE_COLLECTOR_INTERVAL);
+    boost::lock_guard<boost::mutex> lock(_garbageCollectionMutex);
+    mpSipUserAgent->garbageCollection();
+  }
+}
+
+void SipTransactionList::abortGarbageCollection()
+{
+  if (_pGarbageCollectionThread)
+  {
+    _abortGarbageCollection = true;
+    _pGarbageCollectionThread->join();
+    delete _pGarbageCollectionThread;
+    _pGarbageCollectionThread = 0;
+  }
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

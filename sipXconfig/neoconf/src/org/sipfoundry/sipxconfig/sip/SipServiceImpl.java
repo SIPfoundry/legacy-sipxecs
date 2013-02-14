@@ -20,22 +20,21 @@ import org.springframework.beans.factory.annotation.Required;
 public class SipServiceImpl extends SipStackBean implements SipService {
 
     static final Log LOG = LogFactory.getLog(SipServiceImpl.class);
+    private static final String CHECK_SYNC = "check-sync";
 
     private DomainManager m_domainManager;
 
     private boolean m_allowForwarding;
 
     public void sendCheckSync(String addrSpec) {
-        AbstractMessage message = new NotifyMessage(this, addrSpec, "check-sync");
+        AbstractMessage message = new NotifyMessage(this, addrSpec, CHECK_SYNC);
         message.createAndSend();
     }
 
     public void sendNotify(String addrSpec, String eventType, String contentType, byte[] payload) {
-        AbstractMessage message = new NotifyMessage(this, addrSpec, eventType, contentType,
-                payload);
+        AbstractMessage message = new NotifyMessage(this, addrSpec, eventType, contentType, payload);
         message.createAndSend();
     }
-
 
     public void sendRefer(User user, String sourceAddrSpec, String displayName, String destinationAddrSpec,
             String referTarget, boolean allowForwarding) {
@@ -62,5 +61,12 @@ public class SipServiceImpl extends SipStackBean implements SipService {
 
     public void setAllowReferForwarding(boolean allowForwarding) {
         m_allowForwarding = allowForwarding;
+    }
+
+    @Override
+    public void sendCheckSync(String addrSpec, String userName, String serialNo, String sipPassword) {
+        AbstractMessage message = new NotifyMessage(this, addrSpec, CHECK_SYNC, userName, sipPassword,
+                m_domainManager.getDomainName(), serialNo);
+        message.createAndSend();
     }
 }

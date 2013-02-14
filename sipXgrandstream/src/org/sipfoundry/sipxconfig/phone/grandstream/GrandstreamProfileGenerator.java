@@ -9,17 +9,21 @@
  */
 package org.sipfoundry.sipxconfig.phone.grandstream;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
-import org.sipfoundry.sipxconfig.device.AbstractProfileGenerator;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 
-public class GrandstreamProfileGenerator extends AbstractProfileGenerator {
+public class GrandstreamProfileGenerator extends VelocityProfileGenerator {
 
-    protected void generateProfile(ProfileContext context, OutputStream out) throws IOException {
-        GrandstreamProfileContext gpc = (GrandstreamProfileContext) context;
-        GrandstreamProfileWriter writer = gpc.getWriter();
-        writer.write(out);
+    protected void generateProfile(ProfileContext context, OutputStream out) {
+        if (context instanceof GrandstreamProfileContext) {
+            GrandstreamProfileContext gpc = (GrandstreamProfileContext) context;
+            GrandstreamProfileWriter writer = gpc.getWriter();
+            writer.write(out);
+        } else if (context instanceof GrandstreamPhonebook) {
+            super.generateProfile(context, out);
+        }
     }
+
 }

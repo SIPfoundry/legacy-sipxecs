@@ -1,5 +1,6 @@
 {"login-details": {
   "userName": "200",
   "imId": "johnim",
-  "ldapImAuth": false
+  "ldapImAuth": false,
+  "sipPassword": "12345678"
 }}

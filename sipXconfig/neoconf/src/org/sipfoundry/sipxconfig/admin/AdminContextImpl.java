@@ -44,6 +44,9 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
         HTTP_ADDRESS, HTTP_ADDRESS_AUTH, SIPXCDR_DB_ADDRESS
     });
+    private StringBuilder m_backup = new StringBuilder("$(sipx.SIPX_BINDIR)/sipxconfig-archive --backup %s");
+    private StringBuilder m_restore = new StringBuilder(
+            "$(sipx.SIPX_BINDIR)/sipxconfig-archive --restore %s --ipaddress $(sipx.bind_ip)");
     private LocationsManager m_locationsManager;
     private BeanWithSettingsDao<AdminSettings> m_settingsDao;
 
@@ -91,19 +94,22 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         if (!location.isPrimary()) {
             return null;
         }
-        StringBuilder backup = new StringBuilder("$(sipx.SIPX_BINDIR)/sipxconfig-archive --backup %s");
-        StringBuilder restore = new StringBuilder(
-                "$(sipx.SIPX_BINDIR)/sipxconfig-archive --restore %s --ipaddress $(sipx.bind_ip)");
 
+        buildArchiveCommands(settings);
+        ArchiveDefinition def = new ArchiveDefinition(ARCHIVE, m_backup.toString(), m_restore.toString());
+        return Collections.singleton(def);
+    }
+
+    protected void buildArchiveCommands(BackupSettings settings) {
         if (settings != null) {
             if (!settings.isKeepDeviceFiles()) {
-                backup.append(" --no-device-files");
+                m_backup.append(" --no-device-files");
             }
             if (settings.isKeepDomain()) {
-                restore.append(" --domain $(sipx.domain)");
+                m_restore.append(" --domain $(sipx.domain)");
             }
             if (settings.isKeepFqdn()) {
-                restore.append(" --fqdn $(sipx.host).$(sipx.net_domain)");
+                m_restore.append(" --fqdn $(sipx.host).$(sipx.net_domain)");
             }
             String resetPin = settings.getResetPin();
             String resetPassword = settings.getResetPassword();
@@ -111,20 +117,30 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
                 if (StringUtils.isBlank(resetPin) || StringUtils.isBlank(resetPassword)) {
                     throw new UserException("&error.passwordsRequired");
                 }
-                restore.append(" --crack-pin ").append(resetPin);
-                restore.append(" --crack-passwd ").append(resetPassword);
-                restore.append(" --crack-pin-len ").append(settings.getDecodePinLen());
+                m_restore.append(" --crack-pin ").append(resetPin);
+                m_restore.append(" --crack-passwd ").append(resetPassword);
+                m_restore.append(" --crack-pin-len ").append(settings.getDecodePinLen());
             } else {
                 if (StringUtils.isNotBlank(resetPin)) {
-                    restore.append(" --reset-pin ").append(resetPin);
+                    m_restore.append(" --reset-pin ").append(resetPin);
                 }
                 if (StringUtils.isNotBlank(resetPassword)) {
-                    restore.append(" --reset-password ").append(resetPassword);
+                    m_restore.append(" --reset-password ").append(resetPassword);
                 }
             }
         }
-        ArchiveDefinition def = new ArchiveDefinition(ARCHIVE, backup.toString(), restore.toString());
-        return Collections.singleton(def);
+    }
+
+    protected void setBackup(StringBuilder backup) {
+        m_backup = backup;
+    }
+
+    protected StringBuilder getRestore() {
+        return m_restore;
+    }
+
+    protected void setRestore(StringBuilder restore) {
+        m_restore = restore;
     }
 
     @Override

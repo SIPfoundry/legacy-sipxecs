@@ -144,6 +144,8 @@ class SipRouter : public OsServerTask
 
    /// If the fromUrl uses domain alias, change to original domain as identities are stored in credential database using mDomainName.
    void ensureCanonicalDomain(Url& url) const;
+
+   UtlBoolean isRelayAllowed() const;
    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
@@ -201,7 +203,8 @@ class SipRouter : public OsServerTask
    ForwardRules* mpForwardingRules;      ///< Holds to forwarding rules instructions
    PluginHooks   mAuthPlugins;           ///< decision making modules from configuration
    PluginHooks   mTransactionPlugins; 
-
+   UtlBoolean    mEnsureTcpLifetime;     ///< If set, transport will be explicity specified in record routes.
+   UtlBoolean    mRelayAllowed;     ///< If set, transport will be explicity specified in record routes.
    /// P-Asserted-Identity header is only applicable for INVITE, REFER, BYE,
    /// OPTIONS, NOTIFY, and SUBSCRIBE
    bool isPAIdentityApplicable(const SipMessage& sipRequest);
@@ -222,5 +225,11 @@ class SipRouter : public OsServerTask
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+inline UtlBoolean SipRouter::isRelayAllowed() const
+{
+  return mRelayAllowed;
+}
+
 
 #endif  // _SipRouter_h_

@@ -110,6 +110,13 @@ RPM_DEP = $(MOCK_RESULTS_DIR)/.dep.$(PROJ)
 	fi
 
 %.rpm_ : repo-webserver
+# Added --update because otherwise previously built deps are not installed, if there are
+# no deps, this adds 4s to each rpm that's built. This time is signifigant but only 
+# reasonable option at this time
+	mock $(MOCK_OPTS) \
+	  --no-clean \
+	  --no-cleanup-after \
+	  --update
 	mock $(MOCK_OPTS) \
 	  --no-clean \
 	  --no-cleanup-after \
@@ -179,7 +186,7 @@ help.repo-quick-update = Remove only the packages from chroot that are built. Ta
 repo-quick-update :
 	rpm -qp --queryformat '%{name}\n' $(MOCK_RESULTS_DIR)/*.rpm | sort | uniq | \
 	  xargs --no-run-if-empty mock $(MOCK_OPTS) --remove
-	find mock-cache/$(DISTRO)/yum_cache/sipxecs/packages/ -name '*.rpm' | xargs --no-run-if-empty rm
+	mock $(MOCK_OPTS) --scrub=yum-cache
 
 help.repo = Prepares repository for $(DISTRO) for publishing or re-distributing in ISO by removing extra rpms and moving source rpms to separate directory.
 repo: repo-src repo-remove-dups repo-create;

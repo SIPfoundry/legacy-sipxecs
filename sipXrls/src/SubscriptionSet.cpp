@@ -77,6 +77,11 @@ SubscriptionSet::~SubscriptionSet()
                  "SubscriptionSet::~ mUri = '%s'",
                  mUri.data());
 
+   //
+   // Invalidate the safe callback so events no longer gets called
+   //
+   _safeCallBack->invalidateCallBack();
+
    // Delete this SubscriptionSet from mSubscribeMap.
    getResourceListSet()->deleteSubscribeMapping(&mSubscriptionEarlyDialogHandle);
 

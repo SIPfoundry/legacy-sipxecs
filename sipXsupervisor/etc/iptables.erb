@@ -7,6 +7,14 @@
     s
   end
 
+  def srciprange(rule)
+    s = "-s #{rule[:startIp]}"
+    unless rule[:endIp].nil?
+      s = "-m iprange --src-range #{rule[:startIp]}-#{rule[:endIp]}"
+    end
+    s
+  end
+
   def limitdrop(loglimit, loginterval)
     s = ""
     if loglimit > 0
@@ -21,6 +29,7 @@
 :syn-flood - [0:0]
 :LOGDROP - [0:0]
 :SIPDOS - [0:0]
+:LOGLIMIT - [0:0]
 <%
   if logdropped
 %>-A LOGDROP -j LOG <%= limitdrop(loglimit, loginterval) %>--log-level 6 --log-prefix "firewall-drop: "
@@ -34,6 +43,11 @@
   end
 %>-A SIPDOS -j DROP
 <%
+  if lograte
+%>-A LOGLIMIT -j LOG <%= limitdrop(loglimit, loginterval) %>--log-level 6 --log-prefix "firewall-ratedrop: "
+<%
+  end
+
   unless chains.nil?
     chains.each { |chain|
 %>-N <%= chain[:name] %>
@@ -43,6 +57,13 @@
 <%
       }
 %>-A <%= chain[:name] %> -j LOGDROP
+<%
+    }
+  end
+
+  unless raterules.nil?
+    raterules.each { |raterule|
+%>-N <%= raterule[:rule] %>
 <%
     }
   end
@@ -74,6 +95,13 @@
 <%
         }
       end
+      unless raterules.nil?
+        raterules.each { |raterule|
+%>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> <%= srciprange(raterule) %> -m state --state NEW,ESTABLISHED -j <%= raterule[:rule]%>
+<%
+        }
+      end
+
       if logregister
 %>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m string --string "REGISTER sip:" --algo bm --to 65 -j LOG --log-level 6 --log-prefix "firewall-sip: SIP REGISTER: "
 <%
@@ -110,6 +138,17 @@
 -A INPUT -i $(sipx.iface) -m state --state RELATED,ESTABLISHED -j ACCEPT
 -A INPUT -p icmp -j ACCEPT
 -A INPUT -i lo -j ACCEPT
+<%    unless raterules.nil?
+        raterules.each { |raterule|
+          raterule[:limits].each{ |limit|
+%>-A <%= raterule[:rule]%> -i $(sipx.iface) -m string --string "<%= limit[:method]%> sip:" --algo bm --to 65 -m hashlimit --hashlimit-mode srcip,srcport --hashlimit-name "<%= limit[:method]%>" --hashlimit-htable-max 10000 --hashlimit-htable-expire 10000 --hashlimit-burst 4 --hashlimit-above <%= limit[:rate]%>/<%= limit[:interval]%> -j DROP
+<%
+          }
+%>-A <%= raterule[:rule]%> -j LOGLIMIT
+<%
+        }
+      end
+%>
 <%# log and drop everything else %>
 -A INPUT -j LOGDROP
 COMMIT

@@ -248,13 +248,13 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
             if (getSelectedQueue() == null) {
                 throw new UserException(getMessages().getMessage("error.requiredQueue"));
             } else {
-                line.getNumberCondition().addAction(OpenAcdLine.createQueueAction(getSelectedQueue().getName()));
+                line.getNumberCondition().addAction(line.createQueueAction(getSelectedQueue()));
             }
             if (getSelectedClient() == null) {
                 throw new UserException(getMessages().getMessage("error.requiredClient"));
             } else {
                 line.getNumberCondition().addAction(
-                        OpenAcdLine.createClientAction(getSelectedClient().getIdentity()));
+                        line.createClientAction(getSelectedClient()));
             }
             if (StringUtils.isNotEmpty(getWelcomeMessage())) {
                 line.getNumberCondition().addAction(

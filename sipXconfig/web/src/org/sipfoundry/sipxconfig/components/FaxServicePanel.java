@@ -20,12 +20,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 @ComponentClass(allowBody = false)
@@ -50,6 +52,9 @@ public abstract class FaxServicePanel extends BaseComponent implements PageBegin
 
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
+
+    @InjectState(value = "userSession")
+    public abstract UserSession getUserSession();
 
     @Override
     public void pageBeginRender(PageEvent event) {
@@ -80,6 +85,7 @@ public abstract class FaxServicePanel extends BaseComponent implements PageBegin
 
     public boolean isFaxDisabled() {
         return StringUtils.isEmpty(getMailboxPreferences().getEmailAddress())
-                && StringUtils.isEmpty(getMailboxPreferences().getAlternateEmailAddress());
+                && StringUtils.isEmpty(getMailboxPreferences().getAlternateEmailAddress())
+                || !getUserSession().isAdmin();
     }
 }

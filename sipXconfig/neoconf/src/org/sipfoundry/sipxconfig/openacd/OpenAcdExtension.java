@@ -42,6 +42,7 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class OpenAcdExtension extends FreeswitchExtension implements Replicable, DeployConfigOnEdit {
     public static final String DESTINATION_NUMBER = "destination_number";
@@ -193,5 +194,14 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable,
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) FreeswitchFeature.FEATURE);
+    }
+
+    @Override
+    protected Setting loadSettings() {
+        return null;
+    }
+
+    public String getEntityName() {
+        return getClass().getSimpleName();
     }
 }

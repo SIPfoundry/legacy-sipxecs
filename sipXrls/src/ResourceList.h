@@ -13,6 +13,9 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
+#include <boost/thread.hpp>
+#include <boost/shared_ptr.hpp>
+
 #include <utl/UtlContainableAtomic.h>
 #include <utl/UtlString.h>
 #include <utl/UtlSList.h>
@@ -41,6 +44,10 @@ class ResourceList : public UtlContainableAtomic
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
+
+   typedef boost::recursive_mutex mutex;
+   typedef boost::lock_guard<mutex> mutex_lock;
+   typedef boost::shared_ptr<ResourceList> Ptr;
 
    //! Construct a resource list.
    ResourceList(/// The parent ResourceListSet.
@@ -198,6 +205,7 @@ class ResourceList : public UtlContainableAtomic
    //! Disabled assignment operator
    ResourceList& operator=(const ResourceList& rhs);
 
+   mutable mutex _mutex;
 };
 
 /* ============================ INLINE METHODS ============================ */
@@ -210,12 +218,6 @@ class ResourceList : public UtlContainableAtomic
 inline ResourceListSet* ResourceList::getResourceListSet() const
 {
    return mResourceListSet;
-}
-
-// Get the ancestor ResourceListServer.
-inline ResourceListServer* ResourceList::getResourceListServer() const
-{
-   return mResourceListSet->getResourceListServer();
 }
 
 // Get the user-part for this resource list.

@@ -94,6 +94,18 @@ public class ConferenceConfigurationTest extends TestCase {
         conf.setSettingValue(Conference.MOH, "NONE");
         bridge.addConference(conf);
 
+        conf = new Conference();
+        conf.setModelFilesContext(TestHelper.getModelFilesContext());
+        conf.initialize();
+        conf.setOwner(owner);
+        conf.setExtension("678");
+        conf.setSettingValue(Conference.MAX_LEGS, "4");
+        conf.setSettingTypedValue(Conference.VIDEO, true);
+        conf.setSettingTypedValue("fs-conf-conference/video-toogle-floor", true);
+        conf.setUniqueId();
+        conf.setAutorecorded(true);
+        bridge.addConference(conf);
+
         ConferenceBridgeContext confContext = EasyMock.createMock(ConferenceBridgeContext.class);
         confContext.getBridgeByServer("test.example.com");
         EasyMock.expectLastCall().andReturn(bridge).once();
@@ -104,7 +116,7 @@ public class ConferenceConfigurationTest extends TestCase {
         StringWriter actual = new StringWriter();
         m_config.writeXml(actual, m_location, m_domain, bridge);
         InputStream referenceXml = getClass().getResourceAsStream("conference_config.test.xml");
-        assertEquals(actual.toString().trim(), IOUtils.toString(referenceXml).trim());
+        assertEquals(IOUtils.toString(referenceXml).trim(), actual.toString().trim());
     }
 
     public void testGenerateNullBridge() throws Exception {

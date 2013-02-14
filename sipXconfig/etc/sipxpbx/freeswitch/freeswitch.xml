@@ -21,6 +21,21 @@
       </option>
       <option>
         <value>G729</value>
+      </option>
+      <option>
+        <value>H261</value>
+      </option>
+      <option>
+        <value>H263</value>
+      </option>
+      <option>
+        <value>H263-1998</value>
+      </option>
+      <option>
+        <value>H263-2000</value>
+      </option>
+      <option>
+        <value>H264</value>
       </option>                                           
     </multi-enum>
   </type>

@@ -21,6 +21,7 @@
 #include <os/OsDefs.h>
 #include <os/OsSocket.h>
 #include <os/OsMsgQ.h>
+#include <os/OsTimerQueue.h>
 #include <net/BranchId.h>
 #include <net/Url.h>
 #include <net/SipSrvLookup.h>
@@ -38,6 +39,7 @@ class SipUserAgent;
 class SipTransactionList;
 class OsEvent;
 class OsTimer;
+class OsTimerQueue;
 
 /** SipTransaction correlates requests and responses.
  *
@@ -159,14 +161,14 @@ public:
                              SipTransactionList& transactionList,
                              SipMessage*& delayedDispatchedMessage);
 
-    void removeTimer(OsTimer* timer);
-
     void stopTimers();
     void deleteTimers();
 
 /* ============================ Deprecated ============================== */
 
     void linkChild(SipTransaction& child);
+
+    void unlinkChild(SipTransaction* pChild);
 
     void toString(UtlString& dumpString,
                   UtlBoolean dumpMessagesAlso);
@@ -327,6 +329,10 @@ public:
     // Set the data to be used to generate a Reason header for any CANCEL
     // generated for any child transaction.
 
+    UtlSList& childTransactions();
+
+    bool isMarkedForDeletion() const;
+    void markForDeletion();
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     void handleChildTimeoutEvent(SipTransaction& child,
@@ -387,6 +393,8 @@ protected:
 
     OsSocket::IpProtocolSocketType getPreferredProtocol();
     //: Determine best protocol, based on message size
+
+    
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -454,7 +462,7 @@ private:
     enum transactionStates mTransactionState;
     UtlBoolean mDispatchedFinalResponse; ///< For UA recursion
     UtlBoolean mProvisionalSdp;          ///< early media
-    UtlSList mTimers;                    /**< A list of all outstanding timers
+    OsTimerQueue mTimers;              /**< A list of all outstanding timers
                                           *   started by this transaction. */
     /**< SipTransaction Timer Usage
       * In this comment, "transaction" refers to the SipTransaction object in the code, not an RFC3261 transaction.
@@ -556,9 +564,27 @@ private:
     UtlString mBusyTaskName;
     UtlSList* mWaitingList;    /**< Events waiting until this is available
                                 * Note only a parent tx should have a waiting list */
+    bool _markedForDeletion;
 
+public:
+  static UtlBoolean enableTcpResend;
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+inline UtlSList& SipTransaction::childTransactions()
+{
+  return mChildTransactions;
+}
+
+inline bool SipTransaction::isMarkedForDeletion() const
+{
+  return _markedForDeletion;
+}
+
+inline void SipTransaction::markForDeletion()
+{
+  _markedForDeletion = true;
+}
 
 #endif // _SipTransaction_h_

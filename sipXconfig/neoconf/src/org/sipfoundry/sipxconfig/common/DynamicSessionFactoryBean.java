@@ -9,15 +9,21 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.Formatter;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
+import org.hibernate.HibernateException;
 import org.hibernate.cfg.Configuration;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
 
 public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implements
@@ -100,5 +106,26 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
 
     public void setBaseClassBeanIds(List<String> baseClassBeanIds) {
         m_baseClassBeanIds = baseClassBeanIds;
+    }
+
+    @Override
+    public void postProcessMappings(Configuration config) throws HibernateException {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        Map<String, HibernateConfigurationPlugin> beans = m_beanFactory
+                .getBeansOfType(HibernateConfigurationPlugin.class);
+        for (HibernateConfigurationPlugin bean : beans.values()) {
+            InputStream is = null;
+            for (String resourceName : bean.getMappingResources()) {
+                try {
+                    ClassPathResource resource = new ClassPathResource(resourceName, classLoader);
+                    is = resource.getInputStream();
+                    config.addInputStream(is);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                } finally {
+                    IOUtils.closeQuietly(is);
+                }
+            }
+        }
     }
 }

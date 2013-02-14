@@ -35,6 +35,7 @@ import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
 import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
+import org.sipfoundry.sipxconfig.common.MongoGenerationFinishedEvent;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
@@ -48,9 +49,10 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.ApplicationListener;
 
 public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFactoryAware, AlarmProvider,
-    ConfigCommands, SetupListener {
+    ConfigCommands, SetupListener, ApplicationListener<MongoGenerationFinishedEvent> {
     private static final Log LOG = LogFactory.getLog(ConfigManagerImpl.class);
     private File m_cfDataDir;
     private DomainManager m_domainManager;
@@ -69,6 +71,8 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     private String m_uploadDir;
     private Set<String> m_registeredIps;
     private boolean m_postSetup;
+    private final Object m_lock = new Object();
+    private boolean m_flag;
 
     @Override
     public synchronized void configureEverywhere(Feature... features) {
@@ -99,6 +103,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     @Override
     public synchronized void regenerateMongo(Collection<Location> locations) {
         if (locations.contains(m_locationManager.getPrimaryLocation())) {
+            m_flag = true;
             m_sipxReplicationContext.generateAll();
         }
     }
@@ -149,6 +154,15 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     }
 
     private void runProviders(ConfigRequest request, String jobLabel) {
+        synchronized (m_lock) {
+            try {
+                while (m_flag) {
+                    m_lock.wait();
+                }
+            } catch (InterruptedException e) {
+                LOG.warn("Thread interrupted. Config might be in stale state; rerun send profiles.");
+            }
+        }
         LOG.info("Configuration work to do. Notifying providers.");
         Serializable job = m_jobContext.schedule(jobLabel);
         m_jobContext.start(job);
@@ -390,5 +404,13 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
         m_worker.start();
         notifyWorker();
         return true;
+    }
+
+    @Override
+    public void onApplicationEvent(MongoGenerationFinishedEvent event) {
+        synchronized (m_lock) {
+            m_flag = false;
+            m_lock.notifyAll();
+        }
     }
 }

@@ -24,6 +24,7 @@ public interface Provision {
     public static final String FEATURE_ID = "provision";
     public static final LocationFeature FEATURE = new LocationFeature(FEATURE_ID);
     public static final AddressType PROVISION_SERVICE = new AddressType("provisionService", "http://%s:%d/");
+    public static final AddressType PROVISION_SECURE_SERVICE = new AddressType("provisionSecureService", "https://%s:%d/");
 
     public ProvisionSettings getSettings();
 

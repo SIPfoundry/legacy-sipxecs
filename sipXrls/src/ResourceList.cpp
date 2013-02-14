@@ -99,6 +99,8 @@ ResourceList::~ResourceList()
 // Delete a resource identified by position.
 bool ResourceList::deleteResourceAt(size_t at)
 {
+   mutex_lock lock(_mutex);
+
    bool resource_deleted = false;
 
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
@@ -134,10 +136,13 @@ void ResourceList::addResource(const char* uri,
                                ssize_t no_check_start,
                                ssize_t no_check_end)
 {
+   mutex_lock lock(_mutex);
+
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceList::addResource mUserPart = '%s', uri = '%s', nameXml = '%s', display_name = '%s', no_check_start = %d, no_check_end = %d",
                  mUserPart.data(), uri, nameXml, display_name,
                  (int) no_check_start, (int) no_check_end);
+
 
    // See if 'uri' is already in the list of ResourceReference's.
    ssize_t location;
@@ -199,6 +204,8 @@ void ResourceList::getResourceInfoAt(size_t at,
                                      UtlString& nameXml,
                                      UtlString& display_name)
 {
+   mutex_lock lock(_mutex);
+
    uri.remove(0);
    nameXml.remove(0);
    display_name.remove(0);
@@ -216,10 +223,13 @@ void ResourceList::getResourceInfoAt(size_t at,
 // Declare that the contents have changed and need to be published.
 void ResourceList::setToBePublished(const UtlString* chgUri)
 {
+   mutex_lock lock(_mutex);
+
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceList::setToBePublished chgUri = '%s', mUserPart = '%s'",
                  chgUri ? chgUri->data() : "[null]",
                  mUserPart.data());
+
 
    // Add this resource URI to mChangesList (if it is not already).
    if (chgUri != NULL && !chgUri->isNull())
@@ -236,7 +246,9 @@ void ResourceList::setToBePublished(const UtlString* chgUri)
 // Publish the contents if necessary and clear the publishing indicator.
 void ResourceList::publishIfNecessary()
 {
-    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+   mutex_lock lock(_mutex);
+
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                   "ResourceList::publishIfNecessary mUserPart = '%s'",
                   mUserPart.data());
 
@@ -254,6 +266,8 @@ void ResourceList::publishIfNecessary()
 // Generate and publish the content for the resource list.
 void ResourceList::publish()
 {
+   mutex_lock lock(_mutex);
+
    UtlBoolean publishingSuspended =
       getResourceListSet()->publishingSuspended();
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
@@ -278,6 +292,8 @@ void ResourceList::publish()
 void ResourceList::shrink(bool& listEmpty,
                           bool& resourceDeleted)
 {
+   mutex_lock lock(_mutex);
+
    resourceDeleted = false;
 
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
@@ -318,6 +334,8 @@ HttpBody* ResourceList::generateRlmiBody(UtlBoolean consolidated,
                                          UtlBoolean fullRlmi,
                                          UtlSList& listToSend)
 {
+   mutex_lock lock(_mutex);
+
    if (Os::Logger::instance().willLog(FAC_RLS, PRI_DEBUG))
    {
       UtlString l;
@@ -411,6 +429,8 @@ HttpBody* ResourceList::generateRlmiBody(UtlBoolean consolidated,
 // Dump the object's internal state.
 void ResourceList::dumpState() const
 {
+   mutex_lock lock(_mutex);
+
    // indented 4
 
    Os::Logger::instance().log(FAC_RLS, PRI_INFO,
@@ -447,6 +467,8 @@ UtlContainableType ResourceList::getContainableType() const
 // Returns true if partialList is non-empty.
 UtlBoolean ResourceList::genPartialList(UtlSList& partialList)
 {
+   mutex_lock lock(_mutex);
+
    UtlSListIterator resourcesItor(mResourcesList);
    ResourceReference* resource;
    UtlBoolean any_found = FALSE;
@@ -485,6 +507,8 @@ UtlBoolean ResourceList::genPartialList(UtlSList& partialList)
 // SUBSCRIBEs and re-SUBSCRIBEs.
 void ResourceList::genAndPublish(UtlBoolean consolidated, UtlString resourceListUri)
 {
+   mutex_lock lock(_mutex);
+   
    const UtlBoolean RLMI_FULL = TRUE;
    const UtlBoolean RLMI_PARTIAL = FALSE;
    HttpBody* body;
@@ -523,6 +547,12 @@ void ResourceList::genAndPublish(UtlBoolean consolidated, UtlString resourceList
                  // notification.
                  FALSE);
    }
+}
+
+// Get the ancestor ResourceListServer.
+ResourceListServer* ResourceList::getResourceListServer() const
+{
+   return mResourceListSet->getResourceListServer();
 }
 
 

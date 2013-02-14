@@ -82,4 +82,8 @@ public class OpenAcdLogConfigCommand extends BeanWithId implements Replicable {
     public void setName(String name) {
     }
 
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

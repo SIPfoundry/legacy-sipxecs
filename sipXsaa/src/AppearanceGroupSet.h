@@ -12,8 +12,10 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
+
 #include <boost/thread.hpp>
 #include "net/SipSubscribeClient.h"
+#include "os/OsTimerQueue.h"
 #include "os/OsBSem.h"
 #include "utl/UtlContainableAtomic.h"
 #include "utl/UtlHashMap.h"
@@ -81,6 +83,15 @@ class AppearanceGroupSet : public UtlContainableAtomic
 
    //! Get the parent AppearanceAgent.
    AppearanceAgent* getAppearanceAgent() const;
+
+   //! Create and add an Appearance Timer
+   //  May be called externally.
+
+   bool addAppearanceByTimer(
+           const UtlString& callidContact, /// callidContact used to create a new Appearance
+           UtlContainable* handler, /// handler that knows how to create a new Appearance
+           const OsTime& offset /// the timer expiration starting from now
+           );
 
    //! Create and add an Appearance Group.
    //  May be called externally.
@@ -233,6 +244,9 @@ class AppearanceGroupSet : public UtlContainableAtomic
 
    //! version number for consolidated RLMI
    mutable int mVersion;
+
+   //! Queue of timers used to delay creation of new Appearance for AppearanceGroups
+   OsTimerQueue _appearanceTimers;
 
    //! Disabled copy constructor
    AppearanceGroupSet(const AppearanceGroupSet& rAppearanceGroupSet);

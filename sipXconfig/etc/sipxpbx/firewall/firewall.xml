@@ -29,19 +29,19 @@
     </setting>
     <setting name="sundayddr" advanced="yes">
       <type refid="true-false"/>
-      <value>0</value>
+      <value>1</value>
     </setting>
     <setting name="iwar" advanced="yes">
       <type refid="true-false"/>
-      <value>0</value>
+      <value>1</value>
     </setting>
     <setting name="sip-scan" advanced="yes">
       <type refid="true-false"/>
-      <value>0</value>
+      <value>1</value>
     </setting>
     <setting name="sipsak" advanced="yes">
       <type refid="true-false"/>
-      <value>0</value>
+      <value>1</value>
     </setting>
     <setting name="drop-uas" advanced="yes">
       <type>
@@ -69,6 +69,10 @@
       <value>0</value>
     </setting>
     <setting name="enable-dos">
+      <type refid="true-false"/>
+      <value>1</value>
+    </setting>
+    <setting name="enable-ratelimit">
       <type refid="true-false"/>
       <value>0</value>
     </setting>

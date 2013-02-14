@@ -48,11 +48,8 @@ public class FirewallSettings extends PersistableSettings implements DeployConfi
     }
 
     private void validateIpList(String ipList) {
-        Set<String> blackList = getIpsSet(ipList);
-        for (String ip : blackList) {
-            if (!IPAddressUtil.isLiteralIPAddress(ip) && !IPAddressUtil.isLiteralIPSubnetAddress(ip)) {
-                throw new UserException("&msg.invalidcidr", ip);
-            }
+        if (!IPAddressUtil.validateIpList(ipList)) {
+            throw new UserException("&msg.invalidcidr", ipList);
         }
     }
 
@@ -79,6 +76,10 @@ public class FirewallSettings extends PersistableSettings implements DeployConfi
 
     public boolean isLogDosPacketsEnabled() {
         return (Boolean) getSettingTypedValue("logging/enable-dos");
+    }
+
+    public boolean isLogRatePacketsEnabled() {
+        return (Boolean) getSettingTypedValue("logging/enable-ratelimit");
     }
 
     public boolean isLogSipRegisterEnabled() {
@@ -110,11 +111,11 @@ public class FirewallSettings extends PersistableSettings implements DeployConfi
     }
 
     public Set<String> getBlackListSet() {
-        return getIpsSet(getBlackList());
+        return IPAddressUtil.getIpsSet(getBlackList());
     }
 
     public Set<String> getWhiteListSet() {
-        return getIpsSet(getWhiteList());
+        return IPAddressUtil.getIpsSet(getWhiteList());
     }
 
     public Set<String> getCustomDeniedUas() {
@@ -145,17 +146,6 @@ public class FirewallSettings extends PersistableSettings implements DeployConfi
         if ((Boolean) getSettingTypedValue(pathToSetting)) {
             uas.add(ua);
         }
-    }
-
-    private Set<String> getIpsSet(String ipList) {
-        Set<String> ips = new HashSet<String>();
-        if (StringUtils.isNotEmpty(ipList)) {
-            String[] ipTokens = StringUtils.split(ipList, ',');
-            for (String ip : ipTokens) {
-                ips.add(StringUtils.trim(ip));
-            }
-        }
-        return ips;
     }
 
     @Override

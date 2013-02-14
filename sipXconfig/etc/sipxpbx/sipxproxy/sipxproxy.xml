@@ -81,6 +81,18 @@
     <setting name="SIPX_PROXY_STALE_TCP_TIMEOUT" advanced="yes">
       <type><integer/></type>      
     </setting>
+    <setting name="SIPX_PROXY_ENSURE_TCP_LIFETIME">
+      <type><boolean /></type>
+      <value>0</value>
+    </setting>
+    <setting name="SIPX_PROXY_RELAY_ALLOWED">
+      <type><boolean /></type>
+      <value>1</value>
+    </setting>
+    <setting name="SIPX_PROXY_ENABLE_TCP_RESEND">
+      <type><boolean /></type>
+      <value>0</value>
+    </setting>
     <!--  unsure what these next 2 settings do -->
     <setting name="SIPX_PROXY_LOG_CONSOLE" hidden="yes">
       <type><string/></type>

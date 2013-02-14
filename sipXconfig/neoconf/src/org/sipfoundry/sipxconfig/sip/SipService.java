@@ -18,6 +18,8 @@ import org.sipfoundry.sipxconfig.common.User;
 public interface SipService {
     public void sendCheckSync(String addrSpec);
 
+    public void sendCheckSync(String addrSpec, String userName, String serialNo, String sipPassword);
+
     public void sendNotify(String addrSpec, String eventType, String contentType, byte[] payload);
 
     public void sendRefer(User user, String sourceAddrSpec, String destinationAddSpec);

@@ -38,6 +38,7 @@
 #define SQA_KEY_ALPHA 22180
 #define SQA_KEY_DEFAULT SQA_KEY_MIN
 #define SQA_KEY_MAX 22200
+#define SQA_KEEP_ALIVE_TICKS 30
 
 class StateQueueClient : public boost::enable_shared_from_this<StateQueueClient>, private boost::noncopyable
 {
@@ -54,6 +55,55 @@ public:
   {
   public:
     typedef boost::shared_ptr<BlockingTcpClient> Ptr;
+
+    class ConnectTimer
+    {
+    public:
+      ConnectTimer(BlockingTcpClient* pOwner) :
+        _pOwner(pOwner)
+      {
+        _pOwner->startConnectTimer();
+      }
+
+      ~ConnectTimer()
+      {
+        _pOwner->cancelConnectTimer();
+      }
+      BlockingTcpClient* _pOwner;
+    };
+
+    class ReadTimer
+    {
+    public:
+      ReadTimer(BlockingTcpClient* pOwner) :
+        _pOwner(pOwner)
+      {
+        _pOwner->startReadTimer();
+      }
+
+      ~ReadTimer()
+      {
+        _pOwner->cancelReadTimer();
+      }
+      BlockingTcpClient* _pOwner;
+    };
+
+    class WriteTimer
+    {
+    public:
+      WriteTimer(BlockingTcpClient* pOwner) :
+        _pOwner(pOwner)
+      {
+        _pOwner->startWriteTimer();
+      }
+
+      ~WriteTimer()
+      {
+        _pOwner->cancelWriteTimer();
+      }
+      BlockingTcpClient* _pOwner;
+    };
+
     BlockingTcpClient(
       boost::asio::io_service& ioService,
       int readTimeout = SQA_CONN_READ_TIMEOUT,
@@ -65,7 +115,10 @@ public:
       _isConnected(false),
       _readTimeout(readTimeout),
       _writeTimeout(writeTimeout),
-      _key(key)
+      _key(key),
+      _readTimer(_ioService),
+      _writeTimer(_ioService),
+      _connectTimer(_ioService)
     {
     }
 
@@ -94,19 +147,95 @@ public:
       setsockopt(socket.native(), SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
     }
 
-    bool connect(const std::string& serviceAddress, const std::string& servicePort)
+    void startReadTimer()
+    {
+      boost::system::error_code ec;
+      _readTimer.expires_from_now(boost::posix_time::milliseconds(_readTimeout), ec);
+      _readTimer.async_wait(boost::bind(&BlockingTcpClient::onReadTimeout, this, boost::asio::placeholders::error));
+    }
+
+    void startWriteTimer()
+    {
+      boost::system::error_code ec;
+      _writeTimer.expires_from_now(boost::posix_time::milliseconds(_writeTimeout), ec);
+      _writeTimer.async_wait(boost::bind(&BlockingTcpClient::onWriteTimeout, this, boost::asio::placeholders::error));
+    }
+
+    void startConnectTimer()
+    {
+      boost::system::error_code ec;
+      _connectTimer.expires_from_now(boost::posix_time::milliseconds(_readTimeout), ec);
+      _connectTimer.async_wait(boost::bind(&BlockingTcpClient::onConnectTimeout, this, boost::asio::placeholders::error));
+    }
+
+    void cancelReadTimer()
+    {
+      boost::system::error_code ec;
+      _readTimer.cancel(ec);
+    }
+
+    void cancelWriteTimer()
+    {
+      boost::system::error_code ec;
+      _writeTimer.cancel(ec);
+    }
+
+    void cancelConnectTimer()
+    {
+      boost::system::error_code ec;
+      _connectTimer.cancel(ec);
+    }
+
+    void onReadTimeout(const boost::system::error_code& e)
+    {
+      if (e)
+        return;
+      close();
+      OS_LOG_ERROR(FAC_NET, "StateQueueClient::BlockingTcpClient::onReadTimeout() - " << _readTimeout << " milliseconds.");
+    }
+
+
+    void onWriteTimeout(const boost::system::error_code& e)
+    {
+      if (e)
+        return;
+      close();
+      OS_LOG_ERROR(FAC_NET, "StateQueueClient::BlockingTcpClient::onWriteTimeout() - " << _writeTimeout << " milliseconds.");
+    }
+
+    void onConnectTimeout(const boost::system::error_code& e)
+    {
+      if (e)
+        return;
+      close();
+      OS_LOG_ERROR(FAC_NET, "StateQueueClient::BlockingTcpClient::onConnectTimeout() - " << _readTimeout << " milliseconds.");
+    }
+
+    void close()
     {
       if (_pSocket)
       {
         boost::system::error_code ignored_ec;
        _pSocket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
        _pSocket->close(ignored_ec);
-       delete _pSocket;
-       _pSocket = 0;
-       OS_LOG_DEBUG(FAC_NET, "BlockingTcpClient::connect() deleting previous socket.");
+       _isConnected = false;
+       OS_LOG_DEBUG(FAC_NET, "BlockingTcpClient::close() - socket deleted.");
+      }
+    }
+
+    bool connect(const std::string& serviceAddress, const std::string& servicePort)
+    {
+      //
+      // Close the previous socket;
+      //
+      close();
+
+      if (_pSocket)
+      {
+        delete _pSocket;
+        _pSocket = 0;
       }
 
-      
       _pSocket = new boost::asio::ip::tcp::socket(_ioService);
 
       OS_LOG_INFO(FAC_NET, "BlockingTcpClient::connect() creating new connection to " << serviceAddress << ":" << servicePort);
@@ -119,14 +248,12 @@ public:
         boost::asio::ip::tcp::resolver::query query(boost::asio::ip::tcp::v4(), serviceAddress.c_str(), servicePort.c_str());
         boost::asio::ip::tcp::resolver::iterator hosts = _resolver.resolve(query);
 
+        ConnectTimer timer(this);
         //////////////////////////////////////////////////////////////////////////
         // Only works in 1.47 version of asio.  1.46 doesnt have this utility func
         // boost::asio::connect(*_pSocket, hosts);
         _pSocket->connect(hosts->endpoint()); // so we use the connect member
         //////////////////////////////////////////////////////////////////////////
-
-        setReadTimeout(*_pSocket, _readTimeout);
-        setWriteTimeout(*_pSocket, _writeTimeout);
         _isConnected = true;
         OS_LOG_INFO(FAC_NET, "BlockingTcpClient::connect() creating new connection to " << serviceAddress << ":" << servicePort << " SUCESSFUL.");
       }
@@ -199,7 +326,13 @@ public:
       strm << data << "_";
       std::string packet = strm.str();
       boost::system::error_code ec;
-      bool ok = _pSocket->write_some(boost::asio::buffer(packet.c_str(), packet.size()), ec) > 0;
+      bool ok = false;
+      
+      {
+        WriteTimer timer(this);
+        ok = _pSocket->write_some(boost::asio::buffer(packet.c_str(), packet.size()), ec) > 0;
+      }
+
       if (!ok || ec)
       {
         OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::send() write_some error: " << ec.message());
@@ -221,7 +354,11 @@ public:
 
       char responseBuff[len];
       boost::system::error_code ec;
-      _pSocket->read_some(boost::asio::buffer((char*)responseBuff, len), ec);
+      {
+        ReadTimer timer(this);
+        _pSocket->read_some(boost::asio::buffer((char*)responseBuff, len), ec);
+      }
+
       if (ec)
       {
         OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::receive() read_some error: " << ec.message());
@@ -342,6 +479,9 @@ public:
     int _readTimeout;
     int _writeTimeout;
     short _key;
+    boost::asio::deadline_timer _readTimer;
+    boost::asio::deadline_timer _writeTimer;
+    boost::asio::deadline_timer _connectTimer;
     friend class StateQueueClient;
   };
 
@@ -356,7 +496,7 @@ protected:
   typedef BlockingQueue<BlockingTcpClient::Ptr> ClientPool;
   ClientPool _clientPool;
   bool _terminate;
-  boost::thread _keepAliveThread;
+  boost::thread *_keepAliveThread;
   zmq::context_t* _zmqContext;
   zmq::socket_t* _zmqSocket;
   boost::thread* _pEventThread;
@@ -371,6 +511,9 @@ protected:
   bool _refreshSignin;
   int _currentSigninTick;
   std::string _localAddress;
+  int _keepAliveTicks;
+  int _currentKeepAliveTicks;
+  int _isAlive;
 
 public:
   StateQueueClient(
@@ -381,7 +524,8 @@ public:
         const std::string& zmqEventId,
         std::size_t poolSize,
         int readTimeout = SQA_CONN_READ_TIMEOUT,
-        int writeTimeout = SQA_CONN_WRITE_TIMEOUT
+        int writeTimeout = SQA_CONN_WRITE_TIMEOUT,
+        int keepAliveTicks = SQA_KEEP_ALIVE_TICKS
         ) :
     _type(type),
     _ioService(),
@@ -390,7 +534,6 @@ public:
     _servicePort(servicePort),
     _clientPool(_poolSize),
     _terminate(false),
-    _keepAliveThread(boost::bind(&StateQueueClient::keepAliveLoop, this)),
     _zmqContext(new zmq::context_t(1)),
     _zmqSocket(0),
     _pEventThread(0),
@@ -400,8 +543,13 @@ public:
     _subscriptionExpires(1800),
     _backoffCount(0),
     _refreshSignin(false),
-    _currentSigninTick(-1)
+    _currentSigninTick(-1),
+    _keepAliveTicks(keepAliveTicks),
+    _currentKeepAliveTicks(keepAliveTicks),
+    _isAlive(true)
   {
+      _keepAliveThread = new boost::thread(boost::bind(&StateQueueClient::keepAliveLoop, this));
+
       if (_type != Publisher)
       {
         _zmqSocket = new zmq::socket_t(*_zmqContext,ZMQ_SUB);
@@ -448,14 +596,14 @@ public:
         const std::string& zmqEventId,
         std::size_t poolSize,
         int readTimeout = SQA_CONN_READ_TIMEOUT,
-        int writeTimeout = SQA_CONN_WRITE_TIMEOUT
+        int writeTimeout = SQA_CONN_WRITE_TIMEOUT,
+        int keepAliveTicks = SQA_KEEP_ALIVE_TICKS
         ) :
     _type(type),
     _ioService(),
     _poolSize(poolSize),
     _clientPool(_poolSize),
     _terminate(false),
-    _keepAliveThread(boost::bind(&StateQueueClient::keepAliveLoop, this)),
     _zmqContext(new zmq::context_t(1)),
     _zmqSocket(0),
     _pEventThread(0),
@@ -465,8 +613,13 @@ public:
     _subscriptionExpires(1800),
     _backoffCount(0),
     _refreshSignin(false),
-    _currentSigninTick(-1)
+    _currentSigninTick(-1),
+    _keepAliveTicks(keepAliveTicks),
+    _currentKeepAliveTicks(keepAliveTicks),
+    _isAlive(true)
   {
+      _keepAliveThread = new boost::thread(boost::bind(&StateQueueClient::keepAliveLoop, this));
+
       if (_type != Publisher)
       {
         _zmqSocket = new zmq::socket_t(*_zmqContext,ZMQ_SUB);
@@ -528,7 +681,13 @@ public:
     logout();
 
      _terminate = true;
-    _keepAliveThread.join();
+
+     if (_keepAliveThread)
+     {
+         _keepAliveThread->join();
+         delete _keepAliveThread;
+         _keepAliveThread = NULL;
+     }
 
     delete _zmqContext;
     _zmqContext = 0;
@@ -570,7 +729,7 @@ private:
     int sleepCount = 0;
     while (!_terminate)
     {
-      if (++sleepCount < 30)
+      if (++sleepCount <= _currentKeepAliveTicks)
         boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
       else
         sleepCount = 0;
@@ -593,9 +752,26 @@ private:
           StateQueueMessage pong;
           ping.setType(StateQueueMessage::Ping);
           ping.set("message-app-id", _applicationId.c_str());
-          sendAndReceive(ping, pong);
-          if (pong.getType() == StateQueueMessage::Pong)
-            OS_LOG_DEBUG(FAC_NET, "Keep-alive response received from " << _serviceAddress << ":" << _servicePort);
+          if (sendAndReceive(ping, pong))
+          {
+            if (pong.getType() == StateQueueMessage::Pong)
+            {
+              OS_LOG_DEBUG(FAC_NET, "Keep-alive response received from " << _serviceAddress << ":" << _servicePort);
+              //
+              // Reset it back to the default value
+              //
+              _currentKeepAliveTicks = _keepAliveTicks;
+              _isAlive = true;
+            }
+          }
+          else
+          {
+            //
+            // Reset the keep-alive to 1 so we attempt to reconnect every second
+            //
+            _currentKeepAliveTicks = 1;
+            _isAlive = false;
+          }
         }
       }
     }
@@ -934,7 +1110,7 @@ private:
     }
     catch(std::exception e)
     {
-      OS_LOG_ERROR(FAC_NET, "Unknow exception: " << e.what());
+      OS_LOG_ERROR(FAC_NET, "Unknown exception: " << e.what());
       return false;
     }
     return true;
@@ -976,6 +1152,9 @@ private:
 
   bool sendNoResponse(const StateQueueMessage& request)
   {
+    if (!_isAlive)
+      return false;
+
     BlockingTcpClient::Ptr conn;
     if (!_clientPool.dequeue(conn))
       return false;
@@ -996,6 +1175,15 @@ private:
 
   bool sendAndReceive(const StateQueueMessage& request, StateQueueMessage& response)
   {
+
+    if (!_isAlive && request.getType() != StateQueueMessage::Ping)
+    {
+      //
+      // Only allow ping requests to get through when connection is not alive
+      //
+      return false;
+    }
+
     BlockingTcpClient::Ptr conn;
     if (!_clientPool.dequeue(conn))
     {

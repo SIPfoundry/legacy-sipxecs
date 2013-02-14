@@ -425,7 +425,18 @@ int main(int argc, char* argv[])
        serverMaxExpiration = RLS_DEFAULT_SERVER_MAX_EXPIRATION;
    }
 
+   std::string errmsg;
    mongo::ConnectionString mongoConnectionString = MongoDB::ConnectionInfo::connectionStringFromFile();
+   if (false == MongoDB::ConnectionInfo::testConnection(mongoConnectionString, errmsg))
+   {
+       Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
+               "Failed to connect to '%s' - %s",
+               mongoConnectionString.toString().c_str(), errmsg.c_str());
+
+       return 1;
+   }
+
+   mongoConnectionString = MongoDB::ConnectionInfo::connectionStringFromFile();
    EntityDB entityDb(MongoDB::ConnectionInfo(mongoConnectionString, EntityDB::NS));
 
    // add the ~~sipXrls credentials so that sipXrls can respond to challenges
@@ -438,7 +449,7 @@ int main(int argc, char* argv[])
    if (!gShutdownFlag)
    {
       // Initialize the ResourceListServer.
-      mongo::ConnectionString mongoConnectionString = MongoDB::ConnectionInfo::connectionStringFromFile();
+      mongoConnectionString = MongoDB::ConnectionInfo::connectionStringFromFile();
 	  SubscribeDB subscribeDb(MongoDB::ConnectionInfo(mongoConnectionString, SubscribeDB::NS));
       ResourceListServer rls(domainName, realm, lineMgr,
                              DIALOG_EVENT_TYPE, DIALOG_EVENT_CONTENT_TYPE,

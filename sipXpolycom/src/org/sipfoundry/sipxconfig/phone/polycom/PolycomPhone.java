@@ -29,6 +29,7 @@ import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.cert.CertificateManager;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.Profile;
@@ -104,6 +105,11 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
 
     private AddressManager m_addressManager;
     private BeanFactory m_beanFactory;
+    private CertificateManager m_certificateManager;
+
+    public void setCertificateManager(CertificateManager certificateManager) {
+        m_certificateManager = certificateManager;
+    }
 
     public String getDefaultVersionId() {
         DeviceVersion version = getDeviceVersion();
@@ -539,7 +545,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
         }
     }
 
-    static class SiteProfile extends Profile {
+    class SiteProfile extends Profile {
         public SiteProfile(String name) {
             super(name, MIME_TYPE_PLAIN);
         }
@@ -552,7 +558,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
         @Override
         protected ProfileContext createContext(Device device) {
             PolycomPhone phone = (PolycomPhone) device;
-            return new SiteConfiguration(phone);
+            return new SiteConfiguration(phone, m_certificateManager);
         }
     }
 

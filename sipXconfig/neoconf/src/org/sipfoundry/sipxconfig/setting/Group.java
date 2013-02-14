@@ -236,4 +236,9 @@ public class Group extends ValueStorage implements Comparable, NamedObject, Repl
         }
         return props;
     }
+
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
 }

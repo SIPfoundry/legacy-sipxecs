@@ -84,11 +84,11 @@ end
 #
 # ============= Builtin net-snmp alarm =======
 # DISMAN-EVENT-MIB::mteTriggerFired
-# DISMAN-EVENT-MIB::mteHotTrigger.0 = STRING: CPU_THRESHOLD_EXCEEDED
+# DISMAN-EVENT-MIB::mteHotTrigger.0 CPU_THRESHOLD_EXCEEDED
 # DISMAN-EVENT-MIB::mteHotTargetName.0 = STRING: 
 # DISMAN-EVENT-MIB::mteHotContextName.0 = STRING: 
 # DISMAN-EVENT-MIB::mteHotOID.0 = OID: HOST-RESOURCES-MIB::hrProcessorLoad.768
-# DISMAN-EVENT-MIB::mteHotValue.0 = INTEGER: 95
+# DISMAN-EVENT-MIB::mteHotValue.0 95
 ####################################
 def parse_alarm(data, input_stream)
   alarm = {}
@@ -98,9 +98,9 @@ def parse_alarm(data, input_stream)
       alarm = get_alarm(data, $1)
     when /^SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmSource/
       alarm['source'] = line.split[1]
-    when /^DISMAN-EVENT-MIB::mteHotTrigger.0 = STRING: (.*)$/
+    when /^DISMAN-EVENT-MIB::mteHotTrigger.0 (.*)$/
       alarm = get_alarm(data, $1)
-    when /^DISMAN-EVENT-MIB::mteHotValue.0 = INTEGER: (.*)$/
+    when /^DISMAN-EVENT-MIB::mteHotValue.0 (.*)$/
       alarm['message'] = "threshold is #{$1}"
     when /^SIPXECS-ALARM-NOTIFICATION-MIB::sipxecsAlarmDescr "(.*)"$/
       alarm['message'] = $1
