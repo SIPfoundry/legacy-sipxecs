@@ -110,13 +110,6 @@ RPM_DEP = $(MOCK_RESULTS_DIR)/.dep.$(PROJ)
 	fi
 
 %.rpm_ : repo-webserver
-# Added --update because otherwise previously built deps are not installed, if there are
-# no deps, this adds 4s to each rpm that's built. This time is signifigant but only 
-# reasonable option at this time
-	mock $(MOCK_OPTS) \
-	  --no-clean \
-	  --no-cleanup-after \
-	  --update
 	mock $(MOCK_OPTS) \
 	  --no-clean \
 	  --no-cleanup-after \
