@@ -450,6 +450,8 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 
     // Record the local address.
     cacheLocalAddress();
+
+    mSipTransactions.runGarbageCollection();
 }
 
 // Copy constructor NOT ALLOWED
@@ -512,6 +514,8 @@ SipUserAgent::~SipUserAgent()
     requiredSipExtensions.destroyAll();
     allowedSipMethods.destroyAll();
     mMyHostAliases.destroyAll();
+
+    mSipTransactions.abortGarbageCollection();
 }
 
 /* ============================ MANIPULATORS ============================== */
