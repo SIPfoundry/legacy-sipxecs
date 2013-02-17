@@ -176,6 +176,14 @@
     <property name="restartSupported" value="false" />
     <property name="externalLinesSupported" value="false" />
   </bean>
+  <bean id="gsFxsGxw4024" parent="gsModel">
+    <property name="label" value="Grandstream GXW4024" />
+    <property name="maxLineCount" value="24" />
+    <property name="isFxsGxw" value="true" />
+    <property name="speedDial" value="false" />
+    <property name="restartSupported" value="false" />
+    <property name="externalLinesSupported" value="false" />
+  </bean>
   <bean id="gsHt286" parent="gsModel">
     <property name="label" value="Grandstream HandyTone 286" />
     <property name="maxLineCount" value="1" />
@@ -222,6 +230,13 @@
     <property name="label" value="Grandstream HandyTone 702" />
     <property name="maxLineCount" value="2" />
     <property name="isHandyTone" value="true" />
+    <property name="speedDial" value="false" />
+  </bean>
+  <bean id="gsHt704" parent="gsModel">
+    <property name="label" value="Grandstream HandyTone 704" />
+    <property name="maxLineCount" value="4" />
+    <property name="isHandyTone" value="true" />
+    <property name="isHandyTone704" value="true" />
     <property name="speedDial" value="false" />
   </bean>
   <bean id="grandstreamProfileGenerator"

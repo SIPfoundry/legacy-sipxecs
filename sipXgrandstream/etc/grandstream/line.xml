@@ -7,7 +7,7 @@
     &types;
     <group name="port">
 		<label>Registration</label>
-		<setting name="P271-P401-P501-P601-P1701-P1801" if="gsPhoneGx.*|gsPhoneBt200">
+		<setting name="P271-P401-P501-P601-P1701-P1801" if="gsPhoneGx.*|gsPhoneBt200|gsHt5.*">
 			<label>Account Active</label>
 			<type>
 				<boolean/>
@@ -21,7 +21,7 @@
 			</type>
 			<value/>
 		</setting>
-		<setting name="P4150-P4151-P4152-P4153-P4154-P4155-P4156-P4157" if="gsFxsGxw.*" hidden="yes">
+		<setting name="P4150-P4151-P4152-P4153-P4154-P4155-P4156-P4157-P4158-P4159-P4160-P4161-P4162-P4163-P4164-P4165-P4166-P4167-P4168-P4169-P4170-P4171-P4172-P4173" if="gsFxsGxw.*|gsHt704" hidden="yes">
 			<label>Profile ID</label>
 			<type>
 				<string/>
@@ -35,7 +35,7 @@
 			</type>
 			<value>1</value>
 		</setting>
-		<setting name="P31-P731" if="gsHt.*">
+		<setting name="P31-P731" if="gsHt2.*|gsHt3.*|gsHt4.*|gsHt5.*|gsHt701|gsHt702">
 			<label>Enable SIP Registration</label>
 			<type>
 				<boolean/>
@@ -49,14 +49,14 @@
 			</type>
 			<value/>
 		</setting>
-		<setting name="P4180-P4181-P4182-P4183-P4184-P4185-P4186-P4187" if="gsFxsGxw.*">
+		<setting name="P4180-P4181-P4182-P4183-P4184-P4185-P4186-P4187-P4188-P4189-P4190-P4191-P4192-P4193-P4194-P4195-P4196-P4197-P4198-P4199-P4252-P4253-P5254-P4255" if="gsFxsGxw.*|gsHt704">
 			<label>User Caller Name</label>
 			<type>
 				<string/>
 			</type>
 			<value/>
 		</setting>
-		<setting name="P3-P703" if="gsHt.*">
+		<setting name="P3-P703" if="gsHt2.*|gsHt3.*|gsHt4.*|gsHt5.*|gsHt701|gsHt702">
 			<label>User Caller Name</label>
 			<type>
 				<string/>
@@ -70,14 +70,14 @@
 			</type>
 			<value/>
 		</setting>
-		<setting name="P4060-P4061-P4062-P4063-P4064-P4065-P4066-P4067" if="gsFxsGxw.*">
+		<setting name="P4060-P4061-P4062-P4063-P4064-P4065-P4066-P4067-P4068-P4069-P4070-P4071-P4072-P4073-P4074-P4075-P4076-P4077-P4078-P4079-P4080-P4081-P4082-P4083" if="gsFxsGxw.*|gsHt704">
 			<label>SIP User ID</label>
 			<type>
 				<string/>
 			</type>
 			<value/>
 		</setting>
-		<setting name="P35-P735" if="gsHt.*">
+		<setting name="P35-P735" if="gsHt2.*|gsHt3.*|gsHt4.*|gsHt5.*|gsHt701|gsHt702">
 			<label>SIP User ID</label>
 			<type>
 				<string/>
@@ -91,14 +91,14 @@
 			</type>
 			<value/>
 		</setting>
-		<setting name="P4090-P4091-P4092-P4093-P4094-P4095-P4096-P4097" if="gsFxsGxw.*">
+		<setting name="P4090-P4091-P4092-P4093-P4094-P4095-P4096-P4097-P4098-P4099-P4100-P4101-P4102-P4103-P4104-P4105-P4106-P4107-P4108-P4109-P4110-P4111-P4112-P4113" if="gsFxsGxw.*|gsHt704">
 			<label>Authentication ID</label>
 			<type>
 				<string/>
 			</type>
 			<value/>
 		</setting>
-		<setting name="P36-P736" if="gsHt.*">
+		<setting name="P36-P736" if="gsHt2.*|gsHt3.*|gsHt4.*|gsHt5.*|gsHt701|gsHt702">
 			<label>Authentication ID</label>
 			<type>
 				<string/>
@@ -112,21 +112,21 @@
 			</type>
 			<value/>
 		</setting>
-		<setting name="P4120-P4121-P4122-P4123-P4124-P4125-P4126-P4127" if="gsFxsGxw.*">
+		<setting name="P4120-P4121-P4122-P4123-P4124-P4125-P4126-P4127-P4128-P4129-P4130-P4131-P4132-P4133-P4134-P4135-P4136-P4137-P4138-P4139-P4140-P4141-P4142-P4143" if="gsFxsGxw.*|gsHt704">
 			<label>Authentication password</label>
 			<type>
 				<string/>
 			</type>
 			<value/>
 		</setting>
-		<setting name="P34-P734" if="gsHt.*">
+		<setting name="P34-P734" if="gsHt2.*|gsHt3.*|gsHt4.*|gsHt5.*|gsHt701|gsHt702">
 			<label>Authentication password</label>
 			<type>
 				<string/>
 			</type>
 			<value/>
 		</setting>
-		<setting name="P4300-P4301-P4302-P4303-P4304-P4305-P4306-P4307" if="gsFxsGxw.*">
+		<setting name="P4300-P4301-P4302-P4303-P4304-P4305-P4306-P4307-P4308-P4309-P4310-P4311-P4312-P4313-P4314-P4315-P4316-P4317-P4318-P4319-P4320-P4321-P4322-P4323" if="gsFxsGxw.*|gsHt704">
 			<label>Hunting Group</label>
                         <type>
                                 <enum>
@@ -158,6 +158,54 @@
                                         <option>
                                                 <value>8</value>
                                         </option>
+                                        <option>
+                                                <value>9</value>
+                                        </option>
+                                        <option>
+                                                <value>10</value>
+                                        </option>
+                                        <option>
+                                                <value>11</value>
+                                        </option>
+                                        <option>
+                                                <value>12</value>
+                                        </option>
+                                        <option>
+                                                <value>13</value>
+                                        </option>
+                                        <option>
+                                                <value>14</value>
+                                        </option>
+                                        <option>
+                                                <value>15</value>
+                                        </option>
+                                        <option>
+                                                <value>16</value>
+                                        </option>
+                                        <option>
+                                                <value>17</value>
+                                        </option>
+                                        <option>
+                                                <value>18</value>
+                                        </option>
+                                        <option>
+                                                <value>19</value>
+                                        </option>
+                                        <option>
+                                                <value>20</value>
+                                        </option>
+                                        <option>
+                                                <value>21</value>
+                                        </option>
+                                        <option>
+                                                <value>22</value>
+                                        </option>
+                                        <option>
+                                                <value>23</value>
+                                        </option>
+                                        <option>
+                                                <value>24</value>
+                                        </option>
                                 </enum>
                         </type>
                         <value>0</value>
@@ -179,7 +227,7 @@
 			</type>
 			<value/>
 		</setting>
-		<setting name="P47-P747" if="gsHt.*">
+		<setting name="P47-P747-P47-P747" if="gsHt.*">
 			<label>SIP Server</label>
 			<type>
 				<string/>
@@ -193,7 +241,7 @@
 			</type>
 			<value>1</value>
 		</setting>
-		<setting name="P103-P702" if="gsHt.*">
+		<setting name="P103-P702-P103-P702" if="gsHt.*">
 			<label>Use DNS SRV</label>
 			<type>
 				<boolean/>
@@ -207,7 +255,7 @@
 			</type>
 			<value/>
 		</setting>
-		<setting name="P48-P748" if="gsHt.*">
+		<setting name="P48-P748-P48-P748" if="gsHt.*">
 			<label>Outbound Proxy</label>
 			<type>
 				<string/>
@@ -221,7 +269,7 @@
 			</type>
 			<value>0</value>
 		</setting>
-		<setting name="P63-P763" if="gsHt.*">
+		<setting name="P63-P763-P63-P763" if="gsHt.*">
 			<label>SIP User ID is phone number</label>
 			<type>
 				<boolean/>
@@ -423,14 +471,14 @@
 			<value/>
 			<description>User ID/extension to dial automatically when offhook.</description>
 		</setting>
-		<setting name="P50-P750" if="gsHt.*">
+		<setting name="P50-P750-P50-P750" if="gsHt.*">
 			<label>Silence Suppression</label>
 			<type>
 				<boolean/>
 			</type>
 			<value>0</value>
 		</setting>
-		<setting name="P72-P772" if="gsHt.*">
+		<setting name="P72-P772-P72-P772" if="gsHt.*">
 			<label>Use # as Dial Key</label>
 			<type>
 				<boolean/>
@@ -438,7 +486,7 @@
 			<value>1</value>
 			<description>If checked, "#" will function as the "(Re-)Dial" key.</description>
 		</setting>
-		<setting name="P91-P791" if="gsHt.*">
+		<setting name="P91-P791-P91-P791" if="gsHt.*">
 			<label>Disable Call-Waiting</label>
 			<type>
 				<boolean/>
@@ -446,7 +494,7 @@
 			<value>1</value>
 		</setting>
 	</group>
-	<group name="advanced" if="gsPhone.*|gsHt.*">
+	<group name="advanced" if="gsPhone.*|gsHt2.*|gsHt3.*|gsHt4.*|gsHt5.*|gsHt701|gsHt702">
 		<label>Advanced</label>
 		<setting name="P290-P459-P559-P659-P1759-P1859" if="gsPhone.*">
 			<label>Dialplan</label>
@@ -464,7 +512,7 @@
 			<value>0</value>
 			<description>Check only if proxy supports 484 response.</description>
 		</setting>
-		<setting name="P29-P729" if="gsHt.*">
+		<setting name="P29-P729-P29-P729" if="gsHt.*">
 			<label>Early Dial</label>
 			<type>
 				<boolean/>
@@ -492,14 +540,14 @@
                         </type>
 			<value>2</value>
 		</setting>
-		<setting name="P52-P752" if="gsHt.*">
+		<setting name="P52-P752-P52-P752" if="gsHt.*">
 			<label>Disable NAT Traversal</label>
 			<type>
 				<boolean/>
 			</type>
 			<value>1</value>
 		</setting>
-		<setting name="P65-P765" if="gsHt.*">
+		<setting name="P65-P765-P65-P765" if="gsHt.*">
 			<label>Send Anonymous</label>
 			<type>
 				<boolean/>
@@ -515,7 +563,7 @@
 			<value/>
 			<description>Prefix string added to called numbers.</description>
 		</setting>
-		<setting name="P66-P766" if="gsHt.*">
+		<setting name="P66-P766-P66-P766" if="gsHt.*">
 			<label>Dial Plan Prefix</label>
 			<type>
 				<string/>
@@ -523,7 +571,7 @@
 			<value/>
 			<description>Prefix string added to called numbers.</description>
 		</setting>
-		<setting name="P71-P771" if="gsHt.*">
+		<setting name="P71-P771-P71-P771" if="gsHt.*">
 			<label>Offhook Auto-Dial</label>
 			<type>
 				<string/>
@@ -588,7 +636,7 @@
 			</type>
 			<value>0</value>
 		</setting>
-		<setting name="P73-P773" if="gsHt.*">
+		<setting name="P73-P773-P73-P773" if="gsHt.*">
 			<label>Send DTMF</label>
 			<type>
 				<enum>
@@ -608,7 +656,7 @@
 			</type>
 			<value>1</value>
 		</setting>
-		<setting name="P79-P779" if="gsHt.*">
+		<setting name="P79-P779-P79-P779" if="gsHt.*">
 			<label>DTMF Payload Type</label>
 			<type refid="byte"/>
 			<value>101</value>
@@ -620,7 +668,7 @@
 			</type>
 			<value>1</value>
 		</setting>
-		<setting name="P81-P752" if="gsHt.*">
+		<setting name="P81-P752-P81-P752" if="gsHt.*">
 			<label>Unregister On Reboot</label>
 			<type>
 				<boolean/>
@@ -643,7 +691,7 @@
                         <value>0</value>
                         <description>Whether or not to use SIP PUBLISH method to present line presence information for others to monitor.</description>
                 </setting>
-		<setting name="P99-P709" if="gsHt.*">
+		<setting name="P99-P709-P99-P709" if="gsHt.*">
 			<label>SUBSCRIBE for MWI</label>
 			<type>
 				<boolean/>
@@ -688,7 +736,7 @@
                         </type>
                         <value>0</value>
                 </setting>
-		<setting name="P191-P751" if="gsHt.*">
+		<setting name="P191-P751-P191-P751" if="gsHt.*">
 			<label>Enable/Disable Call Features</label>
 			<type>
 				<boolean/>
@@ -704,7 +752,7 @@
 			<value/>
 			<description>A SIP extension to enable firewall penetration.</description>
 		</setting>
-		<setting name="P197-P792" if="gsHt.*">
+		<setting name="P197-P792-P197-P792" if="gsHt.*">
 			<label>Proxy-Require</label>
 			<type>
 				<string/>
@@ -720,7 +768,7 @@
 			<value>0</value>
 			<description>Flash will be sent as a DTMF event if checked.</description>
 		</setting>
-		<setting name="P74-P774" if="gsHt.*">
+		<setting name="P74-P774-P74-P774" if="gsHt.*">
 			<label>Send Flash Event</label>
 			<type>
 				<boolean/>
@@ -742,10 +790,14 @@
                                 <enum>
                                         <option>
                                                 <label>UDP</label>
-                                                <value>1</value>
+                                                <value>0</value>
                                         </option>
                                         <option>
                                                 <label>TCP</label>
+                                                <value>1</value>
+                                        </option>
+                                        <option>
+                                                <label>TLS/TCP</label>
                                                 <value>2</value>
                                         </option>
                                 </enum>
@@ -759,7 +811,7 @@
                         </type>
                         <value>0</value>
                 </setting>
-		<setting name="P40-P740" if="gsHt.*">
+		<setting name="P40-P740-P40-P740" if="gsHt.*">
 			<label>Local SIP port</label>
 			<type>
 				<integer min="1024" max="65535"/>
@@ -767,7 +819,7 @@
 			<value/>
 			<description>Local SIP port</description>
 		</setting>
-		<setting name="P39-P739" if="gsHt.*">
+		<setting name="P39-P739-P39-P739" if="gsHt.*">
 			<label>Local RTP port</label>
 			<type>
 				<integer min="1024" max="65535"/>
@@ -775,7 +827,7 @@
 			<value>5004</value>
 			<description>Local RTP port (1024-65535, default 5004)</description>
 		</setting>
-		<setting name="P78-P778" if="gsHt.*">
+		<setting name="P78-P778-P78-P778" if="gsHt.*">
 			<label>Use Random Port</label>
 			<type>
 				<boolean/>
@@ -787,7 +839,7 @@
 			<type refid="gscodec"/>
 			<value>9</value>
 		</setting>
-		<setting name="P57-P757" if="gsHt.*">
+		<setting name="P57-P757-P57-P757" if="gsHt.*">
 			<label>First codec</label>
 			<type refid="gscodec"/>
 			<value>0</value>
@@ -797,7 +849,7 @@
 			<type refid="gscodec"/>
 			<value>0</value>
 		</setting>
-		<setting name="P58-P758" if="gsHt.*">
+		<setting name="P58-P758-P58-P758" if="gsHt.*">
 			<label>Second codec</label>
 			<type refid="gscodec"/>
 			<value>9</value>
@@ -807,7 +859,7 @@
 			<type refid="gscodec"/>
 			<value>8</value>
 		</setting>
-		<setting name="P59-P759" if="gsHt.*">
+		<setting name="P59-P759-P59-P759" if="gsHt.*">
 			<label>Third codec</label>
 			<type refid="gscodec"/>
 			<value>8</value>
@@ -817,7 +869,7 @@
 			<type refid="gscodec"/>
 			<value>4</value>
 		</setting>
-		<setting name="P60-P760" if="gsHt.*">
+		<setting name="P60-P760-P60-P760" if="gsHt.*">
 			<label>Fourth codec</label>
 			<type refid="gscodec"/>
 			<value>4</value>
@@ -827,7 +879,7 @@
 			<type refid="gscodec"/>
 			<value>18</value>
 		</setting>
-		<setting name="P61-P761" if="gsHt.*">
+		<setting name="P61-P761-P61-P761" if="gsHt.*">
 			<label>Fifth codec</label>
 			<type refid="gscodec"/>
 			<value>18</value>
@@ -837,7 +889,7 @@
 			<type refid="gscodec"/>
 			<value>2</value>
 		</setting>
-		<setting name="P62-P762" if="gsHt.*">
+		<setting name="P62-P762-P62-P762" if="gsHt.*">
 			<label>Sixth codec</label>
 			<type refid="gscodec"/>
 			<value>2</value>
@@ -857,7 +909,7 @@
 			<type refid="gscodec"/>
 			<value>3</value>
 		</setting>
-		<setting name="P37-P737" if="gsHt.*">
+		<setting name="P37-P737-P37-P737" if="gsHt.*">
 			<label>Voice Frames per TX</label>
 			<type>
 				<integer min="0" max="64"/>
@@ -883,7 +935,7 @@
 			</type>
 			<value>0</value>
 		</setting>
-		<setting name="P49-P749" if="gsHt.*">
+		<setting name="P49-P749-P49-P749" if="gsHt.*">
 			<label>G723 encoding rate</label>
 			<type>
 				<enum>
@@ -907,7 +959,7 @@
 			<value>97</value>
 			<description>iLBC payload type. Between 96 and 127</description>
 		</setting>
-		<setting name="P96-P704" if="gsHt.*">
+		<setting name="P96-P704-P96-P704" if="gsHt.*">
 			<label>iLBC payload type</label>
 			<type>
 				<integer min="96" max="127"/>
@@ -931,7 +983,7 @@
 			</type>
 			<value>0</value>
 		</setting>
-		<setting name="P97-P705" if="gsHt.*">
+		<setting name="P97-P705-P97-P705" if="gsHt.*">
 			<label>iLBC Frame Size</label>
 			<type>
 				<enum>
@@ -947,7 +999,7 @@
 			</type>
 			<value>0</value>
 		</setting>
-		<setting name="P228-P710" if="gsHt.*">
+		<setting name="P228-P710-P228-P710" if="gsHt.*">
 			<label>Pass Through FAX Mode</label>
 			<type>
 				<boolean/>

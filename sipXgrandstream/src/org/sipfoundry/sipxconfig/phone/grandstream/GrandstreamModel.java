@@ -17,6 +17,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
 public final class GrandstreamModel extends PhoneModel {
 
     private boolean m_isHandyTone;
+    private boolean m_isHandyTone704;
     private boolean m_isFxsGxw;
     private boolean m_speedDial;
     private int m_speedDialKeys;
@@ -27,6 +28,14 @@ public final class GrandstreamModel extends PhoneModel {
 
     public void setIsHandyTone(boolean isHandyTone) {
         m_isHandyTone = isHandyTone;
+    }
+
+    public void setIsHandyTone704(boolean isHandyTone704) {
+        m_isHandyTone704 = isHandyTone704;
+    }
+
+    public boolean isHandyTone704() {
+        return m_isHandyTone704;
     }
 
     public boolean isHandyTone() {

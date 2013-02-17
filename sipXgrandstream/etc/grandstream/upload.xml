@@ -40,6 +40,11 @@
       <type refid="zip"/>
       <description>Firmware. Example file name : Release_GXP140x_1.0.4.23.zip</description>
     </setting>
+    <setting name="gxp1450-release.zip">
+      <label>GXP 1450 Firmware (zip)</label>
+      <type refid="zip"/>
+      <description>Firmware. Example file name : Release_GXP1450_1.0.4.23.zip</description>
+    </setting>
     <setting name="gxp2100-release.zip">
       <label>GXP 2100 Firmware (zip)</label>
       <type refid="zip"/>
@@ -75,6 +80,11 @@
       <type refid="zip"/>
       <description>Firmware. Example file name : Release_GXW4008_1.0.1.54.zip</description>
     </setting>
+    <setting name="gxw4024-release.zip">
+      <label>GXW 4024 Firmware (zip)</label>
+      <type refid="zip"/>
+      <description>Firmware. Example file name : Release_GXW4024_1.0.1.54.zip</description>
+    </setting>
     <setting name="bt100-ht1-release.zip">
       <label>Budgetone 100 and HT486/286 Firmware (zip)</label>
       <type refid="zip"/>
@@ -99,11 +109,6 @@
       <label>HT502 Firmware (zip)</label>
       <type refid="zip"/>
       <description>Firmware. Example file name : Release_HT502_1.0.7.6.zip</description>
-    </setting>
-    <setting name="ht503-release.zip">
-      <label>HT503 Firmware (zip)</label>
-      <type refid="zip"/>
-      <description>Firmware. Example file name : Release_HT503_1.0.7.6.zip</description>
     </setting>
     <setting name="ht701-release.zip">
       <label>HT701 Firmware (zip)</label>

@@ -350,7 +350,7 @@
             <value></value>
             <description> </description>
         </setting>
-        <setting name="P86" if="gsHt.*">
+        <setting name="P86" if="gsHt2.*|gsHt3.*|gsHt4.*">
             <label>FXS Impedence</label>
             <type>
                 <enum>
@@ -390,7 +390,63 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P200" if="gsHt.*">
+        <setting name="P854" if="gsHt5.*|gsHt7.*">
+            <label>FXS Impedence</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>600 Ohm (North America)</label>
+                        <value>0</value>
+                    </option>
+                    <option>
+                        <label>Standard 900 Ohm</label>
+                        <value>1</value>
+                    </option>
+                    <option>
+                        <label>Japan CO</label>
+                        <value>2</value>
+                    </option>
+                    <option>
+                        <label>600 Ohm + 2.16 uF (North America 2)</label>
+                        <value>3</value>
+                    </option>
+                    <option>
+                        <label>European CTR21</label>
+                        <value>4</value>
+                    </option>
+                    <option>
+                        <label>China CO</label>
+                        <value>5</value>
+                    </option>
+                    <option>
+                        <label>China PBX</label>
+                        <value>6</value>
+                    </option>
+                    <option>
+                        <label>Japan PBX</label>
+                        <value>7</value>
+                    </option>
+                    <option>
+                        <label>India/New Zealand</label>
+                        <value>8</value>
+                    </option>
+                    <option>
+                        <label>Germany</label>
+                        <value>9</value>
+                    </option>
+                    <option>
+                        <label>UK</label>
+                        <value>10</value>
+                    </option>
+                    <option>
+                        <label>Australia</label>
+                        <value>10</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P200" if="gsHt2.*|gsHt3.*|gsHt4.*">
             <label>Caller ID Scheme</label>
             <type>
                 <enum>
@@ -414,14 +470,78 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P205" if="gsHt.*">
+        <setting name="P853" if="gsHt5.*|gsHt7.*">
+            <label>Caller ID Scheme</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>Bellcore (North America)</label>
+                        <value>0</value>
+                    </option>
+                    <option>
+                        <label>ETSI-FSK during ringing</label>
+                        <value>1</value>
+                    </option>
+                    <option>
+                        <label>ETSI-FSK prior to ringing with DTAS</label>
+                        <value>2</value>
+                    </option>
+                    <option>
+                        <label>ETSI-FSK prior to ringing with LR+DTAS</label>
+                        <value>3</value>
+                    </option>
+                    <option>
+                        <label>ETSI-FSK prior to ringing with RP</label>
+                        <value>4</value>
+                    </option>
+                    <option>
+                        <label>ETSI-DTMF during ringing</label>
+                        <value>5</value>
+                    </option>
+                    <option>
+                        <label>ETSI-DTMF prior to ringing with DTAS</label>
+                        <value>6</value>
+                    </option>
+                    <option>
+                        <label>ETSI-DTMF prior to ringing with LR+DTAS</label>
+                        <value>7</value>
+                    </option>
+                    <option>
+                        <label>ETSI-DTMF prior to ringing with RP</label>
+                        <value>8</value>
+                    </option>
+                    <option>
+                        <label>SIN 227 - BT</label>
+                        <value>9</value>
+                    </option>
+                    <option>
+                        <label>NTT Japan</label>
+                        <value>10</value>
+                    </option>
+                    <option>
+                        <label>DTMF Denmark prior to ringing no DTAS no LR</label>
+                        <value>11</value>
+                    </option>
+                    <option>
+                        <label>DTMF Denmark prior to ringing with LR</label>
+                        <value>12</value>
+                    </option>
+                    <option>
+                        <label>DTMF Sweden/Finalnd prior to ringing with LR</label>
+                        <value>13</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P205" if="gsHt2.*|gsHt3.*|gsHt4.*">
             <label>Enable Polarity Reversal</label>
             <type>
                 <boolean/>
             </type>
             <value>0</value>
         </setting>
-        <setting name="P206" if="gsHt.*">
+        <setting name="P206" if="gsHt2.*|gsHt3.*|gsHt4.*">
             <label>Onhook Voltage</label>
             <type>
                 <enum>
@@ -458,7 +578,7 @@
             <description>Key pattern to use the PSTN line.</description>
         </setting>
     </group>
-    <group name="gateway" if="gsFxsGxw.*">
+    <group name="gateway" if="gsFxsGxw.*|gsHt5.*|gsHt7.*">
         <label>Gateway</label>
         <setting name="P196">
             <label>End User Password</label>
@@ -959,14 +1079,14 @@
             <description>Always refresh with INVITE instead of UPDATE.</description>
         </setting>
     </group>
-    <group name="account-proxy" if="gsFxsGxw.*">
+    <group name="account-proxy" if="gsFxsGxw.*|gsHt704">
 		<label>Proxy and Registration</label>
 		<setting name="P271" hidden="yes">
 			<label>Account Active</label>
 			<type>
 				<boolean/>
 			</type>
-                        <value>1</value>
+            <value>1</value>
 		</setting>
 		<setting name="P47">
 			<label>Primary SIP Server</label>
@@ -1013,7 +1133,7 @@
                         <description>If enabled, call feature using star codes will be handled locally by the gateway.</description>
 		</setting>
     </group>
-    <group name="account-codecs" if="gsFxsGxw.*">
+    <group name="account-codecs" if="gsFxsGxw.*|gsHt5.*|gsHt7.*">
 		<label>Voice Codecs</label>
 		<setting name="P57">
 			<label>First codec</label>
@@ -1056,7 +1176,7 @@
 			<value>99</value>
 		</setting>
     </group>
-    <group name="account-advanced" if="gsFxsGxw.*">
+    <group name="account-advanced" if="gsFxsGxw.*|gsHt5.*|gsHt7.*">
                 <label>Advanced Parameters</label>
 		<setting name="P29">
 			<label>Early Dial</label>

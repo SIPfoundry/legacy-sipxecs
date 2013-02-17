@@ -998,6 +998,15 @@ public class Servlet extends HttpServlet {
         
         PHONE_MODEL_MAP.put("GXP280", new PhoneModel("gsPhoneGxp280", "Grandstream GXP280/285"));
         PHONE_MODEL_MAP.put("GXP285", new PhoneModel("gsPhoneGxp280", "Grandstream GXP280/285"));
+        
+        PHONE_MODEL_MAP.put("HT502", new PhoneModel("gsHt502", "Grandstream HandyTone 502"));
+        PHONE_MODEL_MAP.put("HT701", new PhoneModel("gsHt701", "Grandstream HandyTone 701"));
+        PHONE_MODEL_MAP.put("HT702", new PhoneModel("gsHt702", "Grandstream HandyTone 702"));
+        PHONE_MODEL_MAP.put("HT704", new PhoneModel("gsHt704", "Grandstream HandyTone 704"));
+        
+        PHONE_MODEL_MAP.put("GXW4004", new PhoneModel("gsFxsGxw4004", "Grandstream GXW4004"));
+        PHONE_MODEL_MAP.put("GXW4008", new PhoneModel("gsFxsGxw4008", "Grandstream GXW4008"));
+        PHONE_MODEL_MAP.put("GXW4024", new PhoneModel("gsFxsGxw4024", "Grandstream GXW4024"));
     }
 
     public static void main(String[] args) throws Exception {

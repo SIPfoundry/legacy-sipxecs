@@ -47,22 +47,27 @@ public class GrandstreamPhone extends Phone {
     private static final String GXW_TIMEZONE_SETTING = "gateway/P246";
     private static final String USERID_PATH = "port/P35-P404-P504-P604-P1704-P1804";
     private static final String HT_USERID_PATH = "port/P35-P735";
-    private static final String GXW_USERID_PATH = "port/P4060-P4061-P4062-P4063-P4064-P4065-P4066-P4067";
+    private static final String GXW_USERID_PATH = "port/P4060-P4061-P4062-P4063-P4064-P4065-P4066-P4067"
+        + "-P4068-P4069-P4070-P4071-P4072-P4073-P4074-P4075-P4076-P4077-P4078-P4079-P4080-P4081-P4082-P4083";
     private static final String AUTHID_PATH = "port/P36-P405-P505-P605-P1705-P1805";
     private static final String HT_AUTHID_PATH = "port/P36-P736";
-    private static final String GXW_AUTHID_PATH = "port/P4090-P4091-P4092-P4093-P4094-P4095-P4096-P4097";
+    private static final String GXW_AUTHID_PATH = "port/P4090-P4091-P4092-P4093-P4094-P4095-P4096-P4097"
+        + "-P4098-P4099-P4100-P4101-P4102-P4103-P4104-P4105-P4106-P4107-P4108-P4109-P4110-P4111-P4112-P4113";
     private static final String PASSWORD_PATH = "port/P34-P406-P506-P606-P1706-P1806";
     private static final String HT_PASSWORD_PATH = "port/P34-P734";
-    private static final String GXW_PASSWORD_PATH = "port/P4120-P4121-P4122-P4123-P4124-P4125-P4126-P4127";
+    private static final String GXW_PASSWORD_PATH = "port/P4120-P4121-P4122-P4123-P4124-P4125-P4126-P4127"
+        + "-P4128-P4129-P4130-P4131-P4132-P4133-P4134-P4135-P4136-P4137-P4138-P4139-P4140-P4141-P4142-P4143";
     private static final String ACCOUNT_NAME_PATH = "port/P270-P417-P517-P617-P1717-P1817";
     private static final String DISPLAY_NAME_PATH = "port/P3-P407-P507-P607-P1707-P1807";
     private static final String HT_DISPLAY_NAME_PATH = "port/P3-P703";
-    private static final String GXW_DISPLAY_NAME_PATH = "port/P4180-P4181-P4182-P4183-P4184-P4185-P4186-P4187";
+    private static final String GXW_DISPLAY_NAME_PATH = "port/P4180-P4181-P4182-P4183-P4184-P4185-P4186-P4187"
+        + "-P4188-P4189-P4190-P4191-P4192-P4193-P4194-P4195-P4196-P4197-P4198-P4199-P4252-P4253-P5254-P4255";
     private static final String REGISTRATION_SERVER_PATH = "port/P47-P402-P502-P602-P1702-P1802";
     private static final String LINE_ACTIVE_PATH = "port/P271-P401-P501-P601-P1701-P1801";
-    private static final String HT_REGISTRATION_SERVER_PATH = "port/P47-P747";
+    private static final String HT_REGISTRATION_SERVER_PATH = "port/P47-P747-P47-P747";
     private static final String GXW_REGISTRATION_SERVER_PATH = "account-proxy/P47";
-    private static final String GXW_HUNTGROUP_PATH = "port/P4300-P4301-P4302-P4303-P4304-P4305-P4306-P4307";
+    private static final String GXW_HUNTGROUP_PATH = "port/P4300-P4301-P4302-P4303-P4304-P4305-P4306-P4307-P4308"
+        + "-P4309-P4310-P4311-P4312-P4313-P4314-P4315-P4316-P4317-P4318-P4319-P4320-P4321-P4322-P4323";
     private static final String VOICEMAIL_PATH = "port/P33-P426-P526-P626-P1726-P1826";
     private static final String MOH_URI_PATH = "port/P2350-P2450-P2550-P2650-P2760-P2850";
     private static final String DIRECTED_CALL_PICKUP_PREFIX = "port/P1347-P481-P581-P681-P1781-P1881";
@@ -406,12 +411,12 @@ public class GrandstreamPhone extends Phone {
     @Override
     protected LineInfo getLineInfo(Line line) {
         LineInfo lineInfo = new LineInfo();
-        if (getGsModel().isHandyTone()) {
+        if (getGsModel().isHandyTone() && !getGsModel().isHandyTone704()) {
             lineInfo.setDisplayName(line.getSettingValue(HT_DISPLAY_NAME_PATH));
             lineInfo.setUserId(line.getSettingValue(HT_USERID_PATH));
             lineInfo.setPassword(line.getSettingValue(HT_PASSWORD_PATH));
             lineInfo.setRegistrationServer(line.getSettingValue(HT_REGISTRATION_SERVER_PATH));
-        } else if (getGsModel().isFxsGxw()) {
+        } else if (getGsModel().isFxsGxw() || getGsModel().isHandyTone704()) {
             lineInfo.setDisplayName(line.getSettingValue(GXW_DISPLAY_NAME_PATH));
             lineInfo.setUserId(line.getSettingValue(GXW_USERID_PATH));
             lineInfo.setPassword(line.getSettingValue(GXW_PASSWORD_PATH));
