@@ -63,7 +63,8 @@ ResourceListSet::ResourceListSet(ResourceListServer* resourceListServer) :
                     getMessageQueue(),
                     (void*)ResourceListSet::PUBLISH_TIMEOUT),
    mPublishOnTimeout(FALSE),
-   mVersion(0)
+   mVersion(0),
+   _subscriptionSetTimers(resourceListServer->getResourceListTask().getMessageQueue())
 {
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet:: this = %p",
@@ -130,7 +131,6 @@ bool ResourceListSet::addSubscriptionSetByTimer(
 
     OsStatus ret = _subscriptionSetTimers.scheduleOneshotAfter(
                         new SubscriptionSetMsg(handler, callidContact),
-                        mResourceListServer->getResourceListTask().getMessageQueue(),
                         offset);
 
     if (OS_SUCCESS != ret)

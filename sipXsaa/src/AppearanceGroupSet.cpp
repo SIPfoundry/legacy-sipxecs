@@ -34,7 +34,8 @@ const UtlContainableType AppearanceGroupSet::TYPE = "AppearanceGroupSet";
 // Constructor
 AppearanceGroupSet::AppearanceGroupSet(AppearanceAgent* appearanceAgent) :
    mAppearanceAgent(appearanceAgent),
-   mVersion(0)
+   mVersion(0),
+   _appearanceTimers(appearanceAgent->getAppearanceAgentTask().getMessageQueue())
 {
    Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet:: this = %p",
@@ -47,6 +48,8 @@ AppearanceGroupSet::~AppearanceGroupSet()
    Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet::~ this = %p",
                  this);
+
+   _appearanceTimers.stop();
 }
 
 
@@ -64,7 +67,6 @@ bool AppearanceGroupSet::addAppearanceByTimer(
 
     OsStatus ret = _appearanceTimers.scheduleOneshotAfter(
                          new AppearanceMsg(handler, callidContact),
-                         mAppearanceAgent->getAppearanceAgentTask().getMessageQueue(),
                          offset);
     if (OS_SUCCESS != ret)
     {

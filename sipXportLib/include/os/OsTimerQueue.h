@@ -80,7 +80,7 @@ public:
     *  pQueue->send(*pMsg)      // Note that pQueue->send() copies *pMsg.
     *  @endcode
     */
-   OsTimerQueue();       ///< Queue to send message to.
+   OsTimerQueue(OsMsgQ* pQueue);       ///< Queue to send message to.
    /// @}
 
    /// Destructor
@@ -115,7 +115,7 @@ public:
     *  pQueue->send(*pMsg)      // Note that pQueue->send() copies *pMsg.
     *  @endcode
     */
-   OsStatus scheduleOneshotAfter(OsMsg* pMsg, OsMsgQ* pQueue, const OsTime& offset);
+   OsStatus scheduleOneshotAfter(OsMsg* pMsg, const OsTime& offset);
    /* The timers are stored in queue ordered by the firing interval.
     *
     * The OsTimer takes ownership of *pMsg.
@@ -188,6 +188,9 @@ private:
    /* Timers which expired are removed from the queue.
     * Timer which have not fired yet are stopped and then removed.
     */
+
+    /// The message queue where to send the messages when a timer fires.
+    OsMsgQ* _signalQueue;
 
     /// Ordered queue to store all started timers
     OrderedTimerQueue _timers;
