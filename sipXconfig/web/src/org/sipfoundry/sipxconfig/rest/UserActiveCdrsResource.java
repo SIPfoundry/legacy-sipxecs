@@ -35,6 +35,7 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.cdr.Cdr;
 import org.sipfoundry.sipxconfig.cdr.CdrManager;
+import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.beans.factory.annotation.Required;
 
 import com.thoughtworks.xstream.XStream;
@@ -56,12 +57,16 @@ public class UserActiveCdrsResource extends UserResource {
     public Representation represent(Variant variant) throws ResourceException {
         List<Representable> representableList = null;
         try {
-            List<Cdr> cdrs = m_cdrManager.getActiveCallsREST(getUser());
+            List<Cdr> cdrs = m_cdrManager.getActiveCallsREST(getUserToQuery());
             representableList = convertCdrs(cdrs);
         } catch (IOException ex) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, ex);
         }
         return new CdrRepresentation(variant.getMediaType(), representableList);
+    }
+
+    protected User getUserToQuery() {
+        return getUser();
     }
 
     protected ArrayList<Representable> convertCdrs(List<Cdr> cdrs) {
