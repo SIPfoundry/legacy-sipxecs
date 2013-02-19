@@ -4,7 +4,7 @@
 
 Name:		erlang-%{realname}
 Version:	0.0.1
-Release:	1%{?dist}.g%{gitref}
+Release:	2%{?dist}.g%{gitref}
 Summary:	Erlang JSON-RPC 2 Utility
 Group:		Development/Libraries
 License:	Freely redistributable without restriction
