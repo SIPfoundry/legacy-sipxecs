@@ -6,7 +6,7 @@
 
 Name:		erlang-%{realname}
 Version:	0.0.2
-Release:	1%{?dist}.g%{gitref}
+Release:	2%{?dist}.g%{gitref}
 Summary:	An Erlang JSON helper library
 Group:		Development/Libraries
 License:	Freely redistributable without restriction
