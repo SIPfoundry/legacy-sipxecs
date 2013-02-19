@@ -23,6 +23,7 @@
 #include <os/OsLogger.h>
 #include <os/OsLoggerHelper.h>
 #include <os/UnixSignals.h>
+#include <os/OsMsgQ.h>
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
 #include <net/NameValueTokenizer.h>
@@ -228,8 +229,9 @@ int proxy()
     UtlString authScheme;    
     UtlString ipAddress;
 
-    OsSocket::getHostIp(&ipAddress);
+    OsMsgQShared::setQueuePreference(OsMsgQShared::QUEUE_UNLIMITED);
 
+    OsSocket::getHostIp(&ipAddress);
 
     OsPath ConfigfileName = SipXecsService::Path(SipXecsService::ConfigurationDirType,
                                                  CONFIG_SETTINGS_FILE);
