@@ -20,7 +20,9 @@ import static org.sipfoundry.commons.util.AudioUtil.extractMp3Duration;
 import static org.sipfoundry.commons.util.AudioUtil.extractWavDuration;
 
 import java.io.File;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
@@ -44,7 +46,8 @@ public class TempMessage {
         m_fromUri = fromUri;
         m_priority = priority;
         m_otherRecipients = otherRecipients;
-        m_timestamp = System.currentTimeMillis();
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        m_timestamp = cal.getTimeInMillis();
         m_currentUser = username;
     }
 

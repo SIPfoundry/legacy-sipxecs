@@ -37,14 +37,12 @@ public class UserStaticTestIntegration extends ImdbTestCase {
         super.onSetUpInTransaction();
         m_users = new ArrayList<User>();
         for (String[] ud : USER_DATA) {
-            User user = new User();
-            user.setPermissionManager(getPermissionManager());
+            User user = getCoreContext().newUser();
 
             user.setUniqueId(new Integer(ud[0]));
             user.setFirstName(ud[1]);
             user.setLastName(ud[2]);
             user.setUserName(ud[3]);
-            user.setDomainManager(getDomainManager());
             user.setSettingValue("voicemail/mailbox/external-mwi", ud[4]);
             m_users.add(user);
         }

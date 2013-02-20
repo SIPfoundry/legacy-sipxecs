@@ -41,8 +41,7 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
     private static final String DELETE_MAILBOX_URL = "/mailbox/{userId}/delete";
     private static final String RENAME_MAILBOX_URL = "/mailbox/{userId}/rename/{oldUserId}";
     private static final String MESSAGE_READ_URL = "/mailbox/{userId}/message/{messageId}/heard";
-    private static final String MOVE_MSG = "/mailbox/{userId}/"
-            + "message/{messageId}/move/{destination}";
+    private static final String MOVE_MSG = "/mailbox/{userId}/" + "message/{messageId}/move/{destination}";
     private static final String DEL_MSG_URL = "/mailbox/{userId}/message/{messageId}/delete";
     private static final String SAVE_SUBJECT = "/mailbox/{userId}/message/{messageId}/subject";
     private static final String LINE_BREAK = "\n";
@@ -81,36 +80,36 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
                 return retrieveVoicemails(ivrRestAddresses, url, failedAddresses, messages, urlVariables);
             } catch (UserException ex) {
                 LOG.debug("IVR cache address call failed");
-                //do not throw exception because we have to iterate again through all nodes
+                // do not throw exception because we have to iterate again through all nodes
             }
         }
         ivrRestAddresses = getAddressManager().getAddresses((Ivr.REST_API));
-        //Remove the node that is already checked
+        // Remove the node that is already checked
         if (lastGoodIvrNode != null) {
             ivrRestAddresses.remove(lastGoodIvrNode);
         }
         return retrieveVoicemails(ivrRestAddresses, url, failedAddresses, messages, urlVariables);
     }
 
-    private List<Voicemail> retrieveVoicemails(List<Address> ivrRestAddresses,
-            String url, StringBuilder failedAddresses, StringBuilder messages, final Object... urlVariables) {
+    private List<Voicemail> retrieveVoicemails(List<Address> ivrRestAddresses, String url,
+            StringBuilder failedAddresses, StringBuilder messages, final Object... urlVariables) {
 
         for (Address address : ivrRestAddresses) {
             try {
                 Source voicemails = m_restTemplate.getForObject(address + url, Source.class, urlVariables);
                 List<Voicemail> voicemailList = m_xPathTemplate.evaluate("//message", voicemails,
-                    new NodeMapper<Voicemail>() {
-                        @Override
-                        public Voicemail mapNode(Node node, int pos) {
-                            return new RemoteVoicemail((Element) node, (String) urlVariables[0],
-                                    (String) urlVariables[1]);
-                        }
-                    });
+                        new NodeMapper<Voicemail>() {
+                            @Override
+                            public Voicemail mapNode(Node node, int pos) {
+                                return new RemoteVoicemail((Element) node, (String) urlVariables[0],
+                                        (String) urlVariables[1], getCoreContext().loadUserByUserName(
+                                                (String) urlVariables[0]).getTimezone());
+                            }
+                        });
                 setLastGoodIvrNode(address);
                 return voicemailList;
             } catch (RestClientException ex) {
-                LOG.debug("Cannot connect to last good node" + address
-                        + " for following reason: " + ex.getMessage());
+                LOG.debug("Cannot connect to last good node" + address + " for following reason: " + ex.getMessage());
                 failedAddresses.append(address).append(LINE_BREAK);
                 messages.append(ex.getMessage()).append(LINE_BREAK);
             }
@@ -135,8 +134,7 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
 
     @Override
     public void move(String userId, Voicemail voicemail, String destinationFolderId) {
-        putWithFallback(MOVE_MSG, null, userId, voicemail.getMessageId(),
-                destinationFolderId);
+        putWithFallback(MOVE_MSG, null, userId, voicemail.getMessageId(), destinationFolderId);
     }
 
     @Override
@@ -146,8 +144,7 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
 
     @Override
     public void save(Voicemail voicemail) {
-        putWithFallback(SAVE_SUBJECT, voicemail.getSubject(),
-                voicemail.getUserId(), voicemail.getMessageId());
+        putWithFallback(SAVE_SUBJECT, voicemail.getSubject(), voicemail.getUserId(), voicemail.getMessageId());
     }
 
     public void setXpathTemplate(XPathOperations xpathTemplate) {
@@ -171,11 +168,11 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
                 return;
             } catch (UserException ex) {
                 LOG.debug("IVR cache node call failed");
-                //do no throw exception because we have to iterate again through all nodes
+                // do no throw exception because we have to iterate again through all nodes
             }
         }
         ivrRestAddresses = getAddressManager().getAddresses((Ivr.REST_API));
-        //Remove the address that is already checked
+        // Remove the address that is already checked
         if (lastGoodIvrNode != null) {
             ivrRestAddresses.remove(lastGoodIvrNode);
         }
@@ -218,4 +215,5 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
     public void setLastGoodIvrNode(Address lastGoodIvrNode) {
         m_lastGoodIvrNode = lastGoodIvrNode;
     }
+
 }

@@ -55,6 +55,7 @@ import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
+import org.sipfoundry.sipxconfig.time.NtpManager;
 
 /**
  * Can be user that logs in, can be superadmin, can be user for phone line
@@ -106,6 +107,7 @@ public abstract class AbstractUser extends BeanWithGroups {
     private ForwardingContext m_fwdContext;
     private AddressManager m_addressManager;
     private MohAddressFactory m_mohAddresses;
+    private NtpManager m_timeManager;
 
     private String m_firstName;
 
@@ -745,6 +747,11 @@ public abstract class AbstractUser extends BeanWithGroups {
         return m_proxyManager.getSettings().getDefaultInitDelay();
     }
 
+    @SettingEntry(path = "timezone/timezone")
+    public String getDefaultTimeZone() {
+        return m_timeManager.getSystemTimezone();
+    }
+
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }
@@ -783,5 +790,9 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     public void setNotified(boolean notified) {
         m_notified = notified;
+    }
+
+    public void setTimeManager(NtpManager timeManager) {
+        m_timeManager = timeManager;
     }
 }

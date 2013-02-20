@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.test.TestHelper;
+import org.sipfoundry.sipxconfig.vm.AbstractMailboxManager;
 import org.sipfoundry.sipxconfig.vm.DistributionList;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
@@ -45,20 +46,13 @@ import com.mongodb.DBObject;
 
 public class MailstoreTestIntegration extends ImdbTestCase {
     private MailboxManager m_mailboxManager;
-    private AddressManager m_addressManager;
-    private ProxyManager m_proxyManager;
     private User m_user;
     private SettingDao m_settingDao;
 
     @Override
     protected void onSetUpBeforeTransaction() {
-        m_user = new User();
+        m_user = getCoreContext().newUser();
         m_user.setUserName("200");
-        m_user.setDomainManager(getDomainManager());
-        m_user.setPermissionManager(getPermissionManager());
-        m_user.setAddressManager(m_addressManager);
-        m_user.setProxyManager(m_proxyManager);
-        m_user.setForwardingContext(getForwardingContext());
     }
 
     public void testGenerate() throws Exception {
@@ -178,14 +172,6 @@ public class MailstoreTestIntegration extends ImdbTestCase {
         m_mailboxManager = localMailboxManager;
     }
 
-    @Override
-    public void setAddressManager(AddressManager addressManager) {
-        m_addressManager = addressManager;
-    }
-
-    public void setProxyManager(ProxyManager proxyManager) {
-        m_proxyManager = proxyManager;
-    }
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
     }

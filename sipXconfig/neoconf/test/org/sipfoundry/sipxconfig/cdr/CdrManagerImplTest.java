@@ -81,7 +81,7 @@ public class CdrManagerImplTest extends TestCase {
         expectLastCall().andReturn("70b89a0-5966db05-3b0936a6@192.168.7.19;rel=refer");
 
         rs.getTimestamp(eq("start_time"), eqTimeZone(calendar));
-        expectLastCall().andReturn(new Timestamp(0));
+        expectLastCall().andReturn(new Timestamp(7200000));
         rs.getTimestamp(eq("connect_time"), eqTimeZone(calendar));
         expectLastCall().andReturn(new Timestamp(1));
         rs.getTimestamp(eq("end_time"), eqTimeZone(calendar));

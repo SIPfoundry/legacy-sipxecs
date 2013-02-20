@@ -146,4 +146,6 @@ public interface MongoConstants {
     static final String GROUP_RESOURCE = "grprsc";
     static final String PLAY_DEFAULT_VM = "defvmopt";
     static final String MY_BUDDY_GROUP = "imbot";
+    
+    static final String TIMEZONE = "tz";
 }

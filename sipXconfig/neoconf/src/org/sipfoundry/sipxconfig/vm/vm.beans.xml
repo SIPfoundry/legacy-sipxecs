@@ -16,6 +16,7 @@
   <bean id="remoteMailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.RemoteMailboxManagerImpl"  parent="abstractMailboxManager">
     <property name="xpathTemplate" ref="xpathTemplate"/>
     <property name="restTemplate" ref="restTemplate"/>
+    <property name="coreContext" ref="coreContext"/>
   </bean>
 
   <bean id="mailboxManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

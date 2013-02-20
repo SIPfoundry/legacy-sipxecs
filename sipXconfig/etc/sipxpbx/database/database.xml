@@ -447,6 +447,7 @@
     <antcall target="change-on-restore-update1" />
     <antcall target="iptables-call-rate-limit" />
     <antcall target="cisco-to-linksys"/>
+  	<antcall target="branch-timezone" />
   </target>
 
   <target name="plugin-patches">
@@ -1331,7 +1332,9 @@
   <target name="cisco-to-linksys" unless="cisco-to-linksys">
 	<db-patch patch="cisco-to-linksys"/>
   </target>
-
+  <target name="branch-timezone" unless="branch-timezone">
+    <db-patch patch="branch-timezone"/>
+  </target>
   <!--
     - SUPPORT UTILITIES
   -->

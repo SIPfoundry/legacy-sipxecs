@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.sipfoundry.sipxconfig.common.ScheduledDay;
 import org.sipfoundry.sipxconfig.common.TimeOfDay;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -61,8 +63,8 @@ public class WorkingTime extends ScheduledAttendant {
     }
 
     public List<Interval> calculateValidTime(TimeZone timeZone) {
-        int timeZoneOffset = timeZone.getOffset((new Date()).getTime());
-        int timeZoneOffsetInMinutes = timeZoneOffset / 1000 / 60;
+        int timeZoneOffsetInMinutes = DateTimeZone.forTimeZone(timeZone).getOffset(
+                new DateTime(DateTimeZone.forTimeZone(timeZone)).getMillis()) / 1000 / 60;
         return calculateValidTimes(timeZoneOffsetInMinutes);
     }
 
@@ -293,8 +295,7 @@ public class WorkingTime extends ScheduledAttendant {
             }
         }
 
-        private void addMinutesFromSunday(List<Interval> minutes, int tzOffsetInMinutes,
-                ScheduledDay... days) {
+        private void addMinutesFromSunday(List<Interval> minutes, int tzOffsetInMinutes, ScheduledDay... days) {
             for (ScheduledDay dow : days) {
                 List<Interval> intervals = calculateMinutesFromSunday(dow, tzOffsetInMinutes);
                 minutes.addAll(intervals);

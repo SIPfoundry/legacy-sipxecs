@@ -191,7 +191,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         if (getFeatureManager().isFeatureEnabled(ImBot.FEATURE)) {
             tabNames.add("myAssistant");
         }
-
+        tabNames.add("timeZone");
         setAvailableTabNames(tabNames);
     }
 

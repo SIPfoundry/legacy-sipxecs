@@ -10,6 +10,8 @@ package org.sipfoundry.sipxconfig.common;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
 import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
+import static org.sipfoundry.commons.mongo.MongoConstants.TIMESTAMP;
+import static org.sipfoundry.commons.mongo.MongoConstants.TIMEZONE;
 import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
 import java.util.ArrayList;
@@ -19,16 +21,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.forwarding.CallSequence;
-import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+
+//import static org.sipfoundry.commons.mongo.MongoConstants.TIMEZONE;
 
 /**
  * Can be user that logs in, can be superadmin, can be user for phone line
@@ -36,6 +41,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 public class User extends AbstractUser implements Replicable {
     private static final String ALIAS_RELATION = "alias";
     private static final String ALIAS_RELATION_FAX = "fax";
+    private static final String TZ = "timezone/timezone";
     private String m_identity;
     private boolean m_validUser = true;
 
@@ -140,12 +146,35 @@ public class User extends AbstractUser implements Replicable {
         props.put(UID, getUserName());
         props.put(CONTACT, getContactUri(domain));
         props.put(GROUPS, getGroupsNames().split(" "));
-        props.put(MongoConstants.TIMESTAMP, System.currentTimeMillis());
+        props.put(TIMEZONE, getTimezone().getID());
+        props.put(TIMESTAMP, System.currentTimeMillis());
         return props;
     }
 
     @Override
     public String getEntityName() {
         return getClass().getSimpleName();
+    }
+
+    /**
+     * Return the effective branch a user is in.
+     *
+     * @return
+     */
+    public Branch getUserBranch() {
+        return (getInheritedBranch() != null) ? (getInheritedBranch()) : (getBranch());
+    }
+
+    public TimeZone getTimezone() {
+        if (getUserBranch() != null && (Boolean) getSettingTypedValue("timezone/useBranchTimezone")
+                && getUserBranch().getTimeZone() != null) {
+            return TimeZone.getTimeZone((getUserBranch().getTimeZone()));
+        }
+
+        if (getSettingValue(TZ) != null) {
+            return TimeZone.getTimeZone(getSettingValue(TZ));
+        }
+
+        return TimeZone.getDefault();
     }
 }

@@ -12,6 +12,7 @@
     <property name="description" />
     <property name="phoneNumber" />
     <property name="faxNumber" />
+    <property name="timeZone" />
 	<many-to-one name="address" class="org.sipfoundry.sipxconfig.phonebook.Address"
     unique="true"
     cascade="all"

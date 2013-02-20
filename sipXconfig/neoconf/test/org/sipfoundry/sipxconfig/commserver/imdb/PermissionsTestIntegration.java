@@ -37,9 +37,7 @@ public class PermissionsTestIntegration extends ImdbTestCase {
     @Override
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
-        m_testUser = new User();
-        m_testUser.setPermissionManager(getPermissionManager());
-        m_testUser.setDomainManager(getDomainManager());
+        m_testUser = getCoreContext().newUser();
     }
 
     public void testGenerateEmpty() throws Exception {

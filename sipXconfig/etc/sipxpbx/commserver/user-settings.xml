@@ -481,4 +481,17 @@
       <value>SYSTEM_DEFAULT</value>
     </setting>
   </group>
+  <group name="timezone">
+    <setting name="useBranchTimezone">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>    
+    <setting name="timezone">
+      <type>
+        <string/>
+      </type>
+    </setting>    
+  </group>
 </model>

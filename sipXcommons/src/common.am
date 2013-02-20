@@ -47,4 +47,5 @@ commons_PKGS = \
 	servlet-api \
 	spring-security-config \
 	spring-security-core \
-	spring-security-web
+	spring-security-web \
+	joda-time
