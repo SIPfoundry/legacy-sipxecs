@@ -103,12 +103,13 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
      * interpret as local time. We pass TimeZone explicitely to force interpreting zoneless
      * timestamp as UTC timestamps.
      */
-    private TimeZone m_tz = DateUtils.UTC_TIME_ZONE;
+    private final TimeZone m_tz = DateUtils.UTC_TIME_ZONE;
     private AddressManager m_addressManager;
     private FeatureManager m_featureManager;
     private BeanWithSettingsDao<CdrSettings> m_settingsDao;
     private NtpManager m_ntpManager;
 
+    @Override
     public CdrSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
     }
@@ -122,10 +123,12 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         return getCdrs(from, to, new CdrSearch(), user);
     }
 
+    @Override
     public List<Cdr> getCdrs(Date from, Date to, CdrSearch search, User user) {
         return getCdrs(from, to, search, user, 0, 0);
     }
 
+    @Override
     public List<Cdr> getCdrs(Date from, Date to, CdrSearch search, User user, int limit, int offset) {
         CdrsStatementCreator psc = new SelectAll(from, to, search, user, (user != null) ? (user.getTimezone())
                 : m_tz, limit, offset);
@@ -135,12 +138,14 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         return resultReader.getResults();
     }
 
+    @Override
     public void dumpCdrs(Writer writer, Date from, Date to, CdrSearch search, User user) throws IOException {
         ColumnInfoFactory columnInforFactory = new DefaultColumnInfoFactory(m_tz);
         CdrsWriter resultReader = new CdrsCsvWriter(writer, columnInforFactory);
         dump(resultReader, from, to, search, user, m_csvLimit);
     }
 
+    @Override
     public void dumpCdrsJson(Writer out) throws IOException {
         DefaultColumnInfoFactory columnInforFactory = new DefaultColumnInfoFactory(m_tz);
         columnInforFactory.setAorFormat(CdrsJsonWriter.AOR_FORMAT);
@@ -177,6 +182,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         }
     }
 
+    @Override
     public int getCdrCount(Date from, Date to, CdrSearch search, User user) {
         CdrsStatementCreator psc = new SelectCount(from, to, search, user, m_tz);
         RowMapper rowMapper = new SingleColumnRowMapper(Integer.class);
@@ -184,6 +190,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         return (Integer) DataAccessUtils.requiredUniqueResult(results);
     }
 
+    @Override
     public List<Cdr> getActiveCalls() {
         try {
             CdrService cdrService = getCdrService();
@@ -204,6 +211,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         }
     }
 
+    @Override
     public List<Cdr> getActiveCallsREST(User user) throws IOException {
         HttpClient client = new HttpClient();
         GetMethod getMethod = new GetMethod(getActiveCdrsRestUrl(user));
@@ -275,13 +283,13 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         private static final String FROM = " FROM cdrs WHERE (? <= start_time) AND (start_time <= ?)";
         private static final String LIMIT = " LIMIT ? OFFSET ?";
 
-        private Timestamp m_from;
-        private Timestamp m_to;
-        private CdrSearch m_search;
+        private final Timestamp m_from;
+        private final Timestamp m_to;
+        private final CdrSearch m_search;
         private CdrSearch m_forUser;
-        private int m_limit;
-        private int m_offset;
-        private Calendar m_calendar;
+        private final int m_limit;
+        private final int m_offset;
+        private final Calendar m_calendar;
 
         public CdrsStatementCreator(Date from, Date to, CdrSearch search, User user, TimeZone tz) {
             this(from, to, search, user, tz, 0, 0);
@@ -306,6 +314,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
             }
         }
 
+        @Override
         public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
             StringBuilder sql = new StringBuilder(getSelectSql());
             sql.append(FROM);
@@ -371,9 +380,9 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
      * class is trying to acheive
      */
     static class CdrsResultReader implements RowCallbackHandler {
-        private List<Cdr> m_cdrs = new ArrayList<Cdr>();
+        private final List<Cdr> m_cdrs = new ArrayList<Cdr>();
 
-        private Calendar m_calendar;
+        private final Calendar m_calendar;
         private TimeZone m_systemTimeZone;
 
         public CdrsResultReader(TimeZone tz) {
@@ -384,6 +393,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
             return m_cdrs;
         }
 
+        @Override
         public void processRow(ResultSet rs) throws SQLException {
             Cdr cdr = new Cdr();
             cdr.setCalleeAor(rs.getString(CALLEE_AOR));
@@ -428,9 +438,9 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
 
         private final int m_rsIndex;
         private final int m_fieldIndex;
-        private boolean m_timestamp;
+        private final boolean m_timestamp;
         private Format m_format;
-        private Calendar m_calendar;
+        private final Calendar m_calendar;
 
         public ColumnInfo(ResultSet rs, int i, Calendar calendar, Format dateFormat, Format aorFormat)
             throws SQLException {
@@ -483,12 +493,13 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
     static class DefaultColumnInfoFactory implements ColumnInfoFactory {
         private Format m_dateFormat = DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT;
         private Format m_aorFormat;
-        private Calendar m_calendar;
+        private final Calendar m_calendar;
 
         public DefaultColumnInfoFactory(TimeZone tz) {
             m_calendar = Calendar.getInstance(tz);
         }
 
+        @Override
         public ColumnInfo[] create(ResultSet rs) throws SQLException {
             ColumnInfo[] fields = new ColumnInfo[ColumnInfo.FIELDS.length];
             for (int i = 0; i < fields.length; i++) {
@@ -511,11 +522,11 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
      * Maps Active call retrieved from callresolver active calls REST service
      */
     static class ActiveCallREST {
-        private String m_from;
-        private String m_to;
-        private String m_recipient;
-        private long m_startTime;
-        private long m_duration;
+        private final String m_from;
+        private final String m_to;
+        private final String m_recipient;
+        private final long m_startTime;
+        private final long m_duration;
 
         public ActiveCallREST(String from, String to, String recipient, long startTime, long duration) {
             m_from = from;
