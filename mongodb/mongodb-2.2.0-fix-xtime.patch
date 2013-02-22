@@ -1,0 +1,102 @@
+diff -Nru mongodb-src-r2.2.0.orig/src/mongo/util/background.cpp mongodb-src-r2.2.0/src/mongo/util/background.cpp
+--- mongodb-src-r2.2.0.orig/src/mongo/util/background.cpp	2012-08-28 01:28:11.000000000 -0400
++++ mongodb-src-r2.2.0/src/mongo/util/background.cpp	2012-09-13 13:29:57.817750182 -0400
+@@ -92,7 +92,7 @@
+             if ( msTimeOut ) {
+                 // add msTimeOut millisecond to current time
+                 boost::xtime xt;
+-                boost::xtime_get( &xt, MONGO_BOOST_TIME_UTC );
++                xt = boost::get_xtime(boost::get_system_time());
+ 
+                 unsigned long long ns = msTimeOut * 1000000ULL; // milli to nano
+                 if ( xt.nsec + ns < 1000000000 ) {
+diff -Nru mongodb-src-r2.2.0.orig/src/mongo/util/concurrency/mutex.h mongodb-src-r2.2.0/src/mongo/util/concurrency/mutex.h
+--- mongodb-src-r2.2.0.orig/src/mongo/util/concurrency/mutex.h	2012-08-28 01:28:11.000000000 -0400
++++ mongodb-src-r2.2.0/src/mongo/util/concurrency/mutex.h	2012-09-13 13:30:19.747755106 -0400
+@@ -38,7 +38,7 @@
+ 
+     inline boost::xtime incxtimemillis( long long s ) {
+         boost::xtime xt;
+-        boost::xtime_get(&xt, MONGO_BOOST_TIME_UTC);
++        xt = boost::get_xtime(boost::get_system_time());
+         xt.sec += (int)( s / 1000 );
+         xt.nsec += (int)(( s % 1000 ) * 1000000);
+         if ( xt.nsec >= 1000000000 ) {
+diff -Nru mongodb-src-r2.2.0.orig/src/mongo/util/queue.h mongodb-src-r2.2.0/src/mongo/util/queue.h
+--- mongodb-src-r2.2.0.orig/src/mongo/util/queue.h	2012-08-28 01:28:11.000000000 -0400
++++ mongodb-src-r2.2.0/src/mongo/util/queue.h	2012-09-13 13:31:04.514762934 -0400
+@@ -121,7 +121,7 @@
+             Timer timer;
+ 
+             boost::xtime xt;
+-            boost::xtime_get(&xt, MONGO_BOOST_TIME_UTC);
++            xt = boost::get_xtime(boost::get_system_time());
+             xt.sec += maxSecondsToWait;
+ 
+             scoped_lock l( _lock );
+diff -Nru mongodb-src-r2.2.0.orig/src/mongo/util/time_support.cpp mongodb-src-r2.2.0/src/mongo/util/time_support.cpp
+--- mongodb-src-r2.2.0.orig/src/mongo/util/time_support.cpp	2012-08-28 01:28:11.000000000 -0400
++++ mongodb-src-r2.2.0/src/mongo/util/time_support.cpp	2012-09-13 13:34:10.394794129 -0400
+@@ -106,7 +106,7 @@
+         if ( s <= 0 )
+             return;
+         boost::xtime xt;
+-        boost::xtime_get(&xt, MONGO_BOOST_TIME_UTC);
++        xt = boost::get_xtime(boost::get_system_time());
+         xt.sec += (int)( s / 1000000 );
+         xt.nsec += (int)(( s % 1000000 ) * 1000);
+         if ( xt.nsec >= 1000000000 ) {
+@@ -118,13 +118,13 @@
+ #elif defined(__sunos__)
+     void sleepsecs(int s) {
+         boost::xtime xt;
+-        boost::xtime_get(&xt, MONGO_BOOST_TIME_UTC);
++        xt = boost::get_xtime(boost::get_system_time());
+         xt.sec += s;
+         boost::thread::sleep(xt);
+     }
+     void sleepmillis(long long s) {
+         boost::xtime xt;
+-        boost::xtime_get(&xt, MONGO_BOOST_TIME_UTC);
++        xt = boost::get_xtime(boost::get_system_time());
+         xt.sec += (int)( s / 1000 );
+         xt.nsec += (int)(( s % 1000 ) * 1000000);
+         if ( xt.nsec >= 1000000000 ) {
+@@ -137,7 +137,7 @@
+         if ( s <= 0 )
+             return;
+         boost::xtime xt;
+-        boost::xtime_get(&xt, MONGO_BOOST_TIME_UTC);
++        xt = boost::get_xtime(boost::get_system_time());
+         xt.sec += (int)( s / 1000000 );
+         xt.nsec += (int)(( s % 1000000 ) * 1000);
+         if ( xt.nsec >= 1000000000 ) {
+@@ -238,24 +238,24 @@
+ #ifdef _WIN32 // no gettimeofday on windows
+     unsigned long long curTimeMillis64() {
+         boost::xtime xt;
+-        boost::xtime_get(&xt, MONGO_BOOST_TIME_UTC);
++        xt = boost::get_xtime(boost::get_system_time());
+         return ((unsigned long long)xt.sec) * 1000 + xt.nsec / 1000000;
+     }
+     Date_t jsTime() {
+         boost::xtime xt;
+-        boost::xtime_get(&xt, MONGO_BOOST_TIME_UTC);
++        xt = boost::get_xtime(boost::get_system_time());
+         unsigned long long t = xt.nsec / 1000000;
+         return ((unsigned long long) xt.sec * 1000) + t + getJSTimeVirtualSkew() + getJSTimeVirtualThreadSkew();
+     }
+     unsigned long long curTimeMicros64() {
+         boost::xtime xt;
+-        boost::xtime_get(&xt, MONGO_BOOST_TIME_UTC);
++        xt = boost::get_xtime(boost::get_system_time());
+         unsigned long long t = xt.nsec / 1000;
+         return (((unsigned long long) xt.sec) * 1000000) + t;
+     }    
+     unsigned curTimeMicros() {
+         boost::xtime xt;
+-        boost::xtime_get(&xt, MONGO_BOOST_TIME_UTC);
++        xt = boost::get_xtime(boost::get_system_time());
+         unsigned t = xt.nsec / 1000;
+         unsigned secs = xt.sec % 1024;
+         return secs*1000000 + t;

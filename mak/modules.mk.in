@@ -99,7 +99,8 @@ lib_fedora_16 = \
   sec \
   js \
   v8 \
-  $(lib_common)
+  $(lib_common) \
+  mongodb
 
 # ruby-postgres broken, but should be replaced with ruby-pg on
 # all distros

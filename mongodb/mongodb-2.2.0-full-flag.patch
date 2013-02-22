@@ -1,0 +1,12 @@
+diff -ur mongodb-src-r2.2.0.orig/src/SConscript.client mongodb-src-r2.2.0/src/SConscript.client
+--- mongodb-src-r2.2.0.orig/src/SConscript.client	2012-10-05 12:57:10.944338273 -0500
++++ mongodb-src-r2.2.0/src/SConscript.client	2012-10-05 12:58:53.347336622 -0500
+@@ -134,7 +134,7 @@
+ # install
+ prefix = GetOption("prefix")
+ 
+-env.Install(prefix + "/lib", '${LIBPREFIX}mongoclient${LIBSUFFIX}')
++env.InstallAs(prefix + "/lib", '${LIBPREFIX}mongoclient${LIBSUFFIX}')
+ 
+ for x in clientHeaderDirectories:
+     env.Install(prefix + "/include/mongo/" + x,

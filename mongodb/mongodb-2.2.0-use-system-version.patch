@@ -1,0 +1,41 @@
+diff -ur mongodb-src-r2.2.0.orig/SConstruct mongodb-src-r2.2.0/SConstruct
+--- mongodb-src-r2.2.0.orig/SConstruct	2012-09-28 16:48:16.755503308 -0500
++++ mongodb-src-r2.2.0/SConstruct	2012-09-28 16:51:19.261374860 -0500
+@@ -249,7 +249,7 @@
+ 
+ printLocalInfo()
+ 
+-boostLibs = [ "thread" , "filesystem" , "program_options", "system" ]
++boostLibs = [ "thread" , "filesystem" , "iostreams" , "program_options", "system" ]
+ 
+ onlyServer = len( COMMAND_LINE_TARGETS ) == 0 or ( len( COMMAND_LINE_TARGETS ) == 1 and str( COMMAND_LINE_TARGETS[0] ) in [ "mongod" , "mongos" , "test" ] )
+ nix = False
+@@ -790,6 +790,28 @@
+             print( "c++ compiler not installed!" )
+             Exit(1)
+ 
++    if use_system_version_of_library("snappy"):
++        if not conf.CheckCXXHeader("snappy.h"):
++            print( "can't find snappy header" )
++            Exit(1)
++        if not conf.CheckLib("libsnappy"):
++            print( "can't find snappy library" )
++            Exit(1)
++
++    if use_system_version_of_library("pcre"):
++        if not conf.CheckCXXHeader("pcre.h"):
++            print( "can't find pcre header" )
++            Exit(1)
++        if not conf.CheckLib("libpcre"):
++            print( "can't find pcre library" )
++            Exit(1)
++        if not conf.CheckCXXHeader("pcrecpp.h"):
++            print( "can't find pcrecpp header" )
++            Exit(1)
++        if not conf.CheckLib("libpcrecpp"):
++            print( "can't find pcrecpp library" )
++            Exit(1)
++
+     if use_system_version_of_library("boost"):
+         if not conf.CheckCXXHeader( "boost/filesystem/operations.hpp" ):
+             print( "can't find boost headers" )
