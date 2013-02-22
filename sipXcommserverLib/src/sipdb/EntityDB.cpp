@@ -28,35 +28,35 @@ bool EntityDB::findByIdentity(const string& identity, EntityRecord& entity) cons
 	mongo::BSONObj query = BSON(EntityRecord::identity_fld() << identity);
 	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Finding entity record for " << identity << " from namespace " << _info.getNS());
 
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
-	auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
+        mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
 	if (pCursor.get() && pCursor->more())
 	{
 		OS_LOG_DEBUG(FAC_ODBC, identity << " is present in namespace " << _info.getNS());
 		entity = pCursor->next();
-                conn.done();
+                conn->done();
 		return true;
 	}
 	OS_LOG_DEBUG(FAC_ODBC, identity << " is NOT present in namespace " << _info.getNS());
 	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Unable to find entity record for " << identity << " from namespace " << _info.getNS());
-        conn.done();
+        conn->done();
 	return false;
 }
 
 bool EntityDB::findByUserId(const string& userId, EntityRecord& entity) const
 {
 	mongo::BSONObj query = BSON(EntityRecord::userId_fld() << userId);
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
-	auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
+        mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
 	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByUserId - Finding entity record for " << userId << " from namespace " << _info.getNS());
 	if (pCursor.get() && pCursor->more())
 	{
 		entity = pCursor->next();
-                conn.done();
+                conn->done();
 		return true;
 	}
 	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByUserId - Unable to find entity record for " << userId << " from namespace " << _info.getNS());
-        conn.done();
+        conn->done();
 	return false;
 }
 
@@ -87,17 +87,17 @@ bool EntityDB::findByAliasUserId(const string& alias, EntityRecord& entity) cons
 	mongo::BSONObj query = BSON( EntityRecord::aliases_fld() <<
 			BSON_ELEM_MATCH( BSON(EntityRecord::aliasesId_fld() << alias) ) );
 
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
-	auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
+        mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
 	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByAliasUserId - Finding entity record for alias " << alias << " from namespace " << _info.getNS());
 	if (pCursor.get() && pCursor->more())
 	{
 		entity = pCursor->next();
-                conn.done();
+                conn->done();
 		return true;
 	}
 	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByAliasUserId - Unable to find entity record for alias " << alias << " from namespace " << _info.getNS());
-        conn.done();
+        conn->done();
 	return false;
 }
 
@@ -191,14 +191,14 @@ bool  EntityDB::tail(std::vector<std::string>& opLogs) {
   // minKey is smaller than any other possible value
 
   static bool hasLastTailId = false;
-  mongo::ScopedDbConnection conn(_info.getConnectionString());
+  mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
   if (!hasLastTailId)
   {
     mongo::Query query = QUERY( "_id" << mongo::GT << _lastTailId
           << "ns" << NS).sort("$natural");
 
     std::auto_ptr<mongo::DBClientCursor> c =
-      conn->query("local.oplog", query, 0, 0, 0,
+      conn->get()->query("local.oplog", query, 0, 0, 0,
                  mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData );
     while(true)
     {
@@ -207,7 +207,7 @@ bool  EntityDB::tail(std::vector<std::string>& opLogs) {
         if( c->isDead() )
         {
           // we need to requery
-          conn.done();
+          conn->done();
           return false;
         }
         // No need to wait here, cursor will block for several sec with _AwaitData
@@ -225,7 +225,7 @@ bool  EntityDB::tail(std::vector<std::string>& opLogs) {
   // capped collection insertion order
 
   std::auto_ptr<mongo::DBClientCursor> c =
-    conn->query("local.oplog", query, 0, 0, 0,
+    conn->get()->query("local.oplog", query, 0, 0, 0,
                mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData );
   while(true)
   {
@@ -234,18 +234,18 @@ bool  EntityDB::tail(std::vector<std::string>& opLogs) {
       if( c->isDead() )
       {
         // we need to requery
-        conn.done();
+        conn->done();
         return false;
       }
       // No need to wait here, cursor will block for several sec with _AwaitData
-      conn.done();
+      conn->done();
       return !opLogs.empty();
     }
     mongo::BSONObj o = c->next();
     _lastTailId = o["_id"];
     opLogs.push_back(o.toString());
   }
-  conn.done();
+  conn->done();
   return true;
 }
 

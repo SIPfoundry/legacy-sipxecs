@@ -71,6 +71,7 @@ typedef boost::error_info<struct tag_errmsg, std::string> errmsg_info;
 
 namespace MongoDB
 {
+   typedef boost::scoped_ptr<mongo::ScopedDbConnection> ScopedDbConnectionPtr;
 
 class ConfigError: public boost::exception, public std::exception {
 public:
@@ -121,9 +122,9 @@ public:
 
 	static bool	testConnection(const mongo::ConnectionString &connectionString, const std::string& errmsg);
 
-	const mongo::ConnectionString& getConnectionString() const
+        const mongo::ConnectionString& getConnectionString() const
 	{
-		return _connectionString;
+              return _connectionString;
 	}
 	;
 

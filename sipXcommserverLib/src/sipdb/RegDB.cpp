@@ -62,11 +62,12 @@ void RegDB::updateBinding(RegBinding& binding)
           "instrument" << binding.getInstrument() <<
           "expired" << isExpired ));
 
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
-	conn->update(_info.getNS(), query, update, true, false);
-	conn->ensureIndex("node.registrar", BSON( "identity" << 1 ));
-	conn->ensureIndex("node.registrar", BSON( "expirationTime" << 1 ));
-	conn.done();
+        mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+        mongo::DBClientBase* client = conn->get();
+	client->update(_info.getNS(), query, update, true, false);
+	client->ensureIndex("node.registrar", BSON( "identity" << 1 ));
+	client->ensureIndex("node.registrar", BSON( "expirationTime" << 1 ));
+	conn->done();
 }
 
 void RegDB::expireOldBindings(const string& identity, const string& callId, unsigned int cseq,
@@ -77,11 +78,12 @@ void RegDB::expireOldBindings(const string& identity, const string& callId, unsi
 			"callId"<< callId <<
 			"cseq" << BSON_LESS_THAN(cseq));
 
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
-	conn->remove(_info.getNS(), query);
-	conn->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
-	conn->ensureIndex("node.registrar", BSON( "expirationTime" << 1 ));
-	conn.done();
+        mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+        mongo::DBClientBase* client = conn->get();
+	client->remove(_info.getNS(), query);
+	client->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
+	client->ensureIndex("node.registrar", BSON( "expirationTime" << 1 ));
+	conn->done();
 }
 
 void RegDB::expireAllBindings(const string& identity, const string& callId, unsigned int cseq,
@@ -90,22 +92,24 @@ void RegDB::expireAllBindings(const string& identity, const string& callId, unsi
 	mongo::BSONObj query = BSON(
 			"identity" << identity);
 
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
-	conn->remove(_info.getNS(), query);
-	conn->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
-	conn->ensureIndex("node.registrar", BSON( "expirationTime" << 1 ));
-	conn.done();
+        mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+        mongo::DBClientBase* client = conn->get();
+	client->remove(_info.getNS(), query);
+	client->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
+	client->ensureIndex("node.registrar", BSON( "expirationTime" << 1 ));
+	conn->done();
 }
 
 void RegDB::removeAllExpired()
 {
   int timeNow = (int) OsDateTime::getSecsSinceEpoch();
 	mongo::BSONObj query = BSON("expirationTime" << BSON_LESS_THAN_EQUAL(timeNow));
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
-	conn->remove(_info.getNS(), query);
-  conn->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
-	conn->ensureIndex("node.registrar", BSON( "expirationTime" << 1 ));
-	conn.done();
+        mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+        mongo::DBClientBase* client = conn->get();
+	client->remove(_info.getNS(), query);
+        client->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
+	client->ensureIndex("node.registrar", BSON( "expirationTime" << 1 ));
+	conn->done();
 }
 
 bool RegDB::isOutOfSequence(const string& identity, const string& callId, unsigned int cseq) const
@@ -114,8 +118,9 @@ bool RegDB::isOutOfSequence(const string& identity, const string& callId, unsign
 			"identity" << identity <<
 			"callId" << callId);
 
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
-	auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
+        mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+        mongo::DBClientBase* client = conn->get();
+	auto_ptr<mongo::DBClientCursor> pCursor = client->query(_info.getNS(), query);
 	if (pCursor.get() && pCursor->more())
 	{
 		while (pCursor->more())
@@ -123,13 +128,13 @@ bool RegDB::isOutOfSequence(const string& identity, const string& callId, unsign
 			RegBinding binding = pCursor->next();
 			unsigned int a = binding.getCseq();
 			if (a >= cseq) {
-				conn.done();
+				conn->done();
 				return true;
 			}
 		}
 	}
 
-	conn.done();
+	conn->done();
 	return false;
 }
 
@@ -156,19 +161,20 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, int timeNow, Bindin
 				"expirationTime" << BSON_GREATER_THAN(timeNow));
 	}
 
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
-	auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
+        mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+        mongo::DBClientBase* client = conn->get();
+	auto_ptr<mongo::DBClientCursor> pCursor = client->query(_info.getNS(), query);
 	if (pCursor.get() && pCursor->more())
 	{
 		while (pCursor->more())
 		{
 			bindings.push_back(RegBinding(pCursor->next()));
 		}
-		conn.done();
+		conn->done();
 		return true;
 	}
 
-	conn.done();
+	conn->done();
 	return false;
 }
 
@@ -176,8 +182,9 @@ bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, int 
 {
 	mongo::BSONObj query = BSON("expirationTime" << BSON_GREATER_THAN(timeNow));
 
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
-	auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
+        mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+        mongo::DBClientBase* client = conn->get();
+	auto_ptr<mongo::DBClientCursor> pCursor = client->query(_info.getNS(), query);
 	if (pCursor.get() && pCursor->more())
 	{
 		while (pCursor->more())
@@ -186,11 +193,11 @@ bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, int 
 			if (binding.getContact().find(matchIdentity) != string::npos)
 				bindings.push_back(binding);
 		}
-		conn.done();
+		conn->done();
 		return bindings.size() > 0;
 	}
 
-	conn.done();
+	conn->done();
 	return false;
 }
 
@@ -202,19 +209,20 @@ bool RegDB::getUnexpiredContactsUserInstrument(const string& identity, const str
 			"instrument" << instrument <<
 			"expirationTime" << BSON_GREATER_THAN(timeNow));
 
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
-	auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
+        mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+        mongo::DBClientBase* client = conn->get();
+	auto_ptr<mongo::DBClientCursor> pCursor = client->query(_info.getNS(), query);
 	if (pCursor.get() && pCursor->more())
 	{
 		while (pCursor->more())
 		{
 			bindings.push_back(RegBinding(pCursor->next()));
 		}
-		conn.done();
+		conn->done();
 		return true;
 	}
 
-	conn.done();
+	conn->done();
 	return false;
 }
 
@@ -225,33 +233,36 @@ bool RegDB::getUnexpiredContactsInstrument(const string& instrument, int timeNow
 			"instrument" << instrument <<
 			"expirationTime" << BSON_GREATER_THAN(timeNow));
 
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
-	auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
+        mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+        mongo::DBClientBase* client = conn->get();
+	auto_ptr<mongo::DBClientCursor> pCursor = client->query(_info.getNS(), query);
 	if (pCursor.get() && pCursor->more())
 	{
 		while (pCursor->more()) {
 			bindings.push_back(RegBinding(pCursor->next()));
 		}
-		conn.done();
+		conn->done();
 		return true;
 	}
 
-	conn.done();
+	conn->done();
 	return false;
 }
 
 void RegDB::cleanAndPersist(int currentExpireTime)
 {
 	mongo::BSONObj query = BSON("expirationTime" << BSON_LESS_THAN(currentExpireTime));
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
-	conn->remove(_info.getNS(), query);
-	conn.done();
+        mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+        mongo::DBClientBase* client = conn->get();
+	client->remove(_info.getNS(), query);
+	conn->done();
 }
 
 void RegDB::clearAllBindings()
 {
 	mongo::BSONObj all;
-	mongo::ScopedDbConnection conn(_info.getConnectionString());
-	conn->remove(_info.getNS(), all);
-	conn.done();
+        mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+        mongo::DBClientBase* client = conn->get();
+	client->remove(_info.getNS(), all);
+	conn->done();
 }

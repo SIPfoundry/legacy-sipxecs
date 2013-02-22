@@ -91,11 +91,11 @@ void MongoOpLog::internal_run()
   mongo::Query query = QUERY( "_id" << mongo::GT << lastTailId
           << "ns" << _info.getNS()).sort("$natural");
 
-  _pTailConnection = new mongo::ScopedDbConnection(_info.getConnectionString());
+  _pTailConnection = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
   mongo::ScopedDbConnection& conn = *_pTailConnection;
 
   std::auto_ptr<mongo::DBClientCursor> c =
-    conn->query("local.oplog", query, 0, 0, 0,
+    conn.get()->query("local.oplog", query, 0, 0, 0,
                mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData );
   while(true)
   {
@@ -118,7 +118,7 @@ void MongoOpLog::internal_run()
   while (_isRunning)
   {
     std::auto_ptr<mongo::DBClientCursor> c =
-      conn->query("local.oplog", query, 0, 0, 0,
+      conn.get()->query("local.oplog", query, 0, 0, 0,
                  mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData );
     while(true)
     {

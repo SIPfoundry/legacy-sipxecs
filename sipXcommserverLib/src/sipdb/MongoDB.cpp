@@ -3,6 +3,7 @@
 #include <fstream>
 //#include <boost/program_options.hpp>
 #include <boost/config.hpp>
+//#include <boost/scoped_ptr.hpp>
 #include <boost/program_options/detail/config_file.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <mongo/client/dbclient.h>
@@ -20,9 +21,9 @@ bool ConnectionInfo::testConnection(const mongo::ConnectionString &connectionStr
 
     try
     {
-        mongo::ScopedDbConnection conn(connectionString);
-        ret = conn.ok();
-        conn.done();
+        mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(connectionString.toString());
+        ret = conn->ok();
+        conn->done();
     }
     catch( mongo::DBException& e )
     {
@@ -74,8 +75,8 @@ const mongo::ConnectionString ConnectionInfo::connectionString(const string& con
 
 void BaseDB::forEach(mongo::BSONObj& query, boost::function<void(mongo::BSONObj)> doSomething)
 {
-    mongo::ScopedDbConnection conn(_info.getConnectionString());
-    auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
+    mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+    auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
     if (pCursor.get() && pCursor->more())
     {
         while (pCursor->more())
@@ -84,6 +85,6 @@ void BaseDB::forEach(mongo::BSONObj& query, boost::function<void(mongo::BSONObj)
         }
     }
 
-    conn.done();
+    conn->done();
 }
 
