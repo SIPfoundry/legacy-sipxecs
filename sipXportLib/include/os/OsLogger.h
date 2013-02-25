@@ -21,13 +21,11 @@
 #include <vector>
 #include <boost/version.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 #include <boost/interprocess/detail/atomic.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
-namespace boost_filesystem = boost::filesystem;
 
 
 enum tagOsSysLogFacility
@@ -160,11 +158,6 @@ namespace Os
       open(path, mode);
     }
 
-    LogFileChannelBase(const boost_filesystem::path& path, std::ios_base::openmode mode = default_mode)
-    {
-      open(path.string().c_str(), mode);
-    }
-
     LogFileChannelBase(const std::string& path, std::ios_base::openmode mode = default_mode)
     {
       open(path.c_str(), mode);
@@ -206,7 +199,7 @@ namespace Os
       _fstream.close();
       _path = std::string(path_);
       _mode = mode;
-      _fstream.open(_path.string().c_str(), _mode);
+      _fstream.open(_path.c_str(), _mode);
       return _fstream.is_open();
     }
 
@@ -218,11 +211,6 @@ namespace Os
       std::streamsize size = _fstream.tellg();
       _fstream.seekg(offset);
       return size;
-    }
-
-    void open(const boost_filesystem::path& path, std::ios_base::openmode mode = default_mode)
-    {
-      open(path.string().c_str(), mode);
     }
 
     void open(const std::string& path, std::ios_base::openmode mode = default_mode)
@@ -245,7 +233,7 @@ namespace Os
       return false;
     }
 
-    const boost_filesystem::path& path() const
+    const std::string& path() const
     {
       return _path;
     }
@@ -255,43 +243,13 @@ namespace Os
       _fstream.close();
       try
       {
-        boost_filesystem::remove(_path);
+        std::remove(_path.c_str());
       }
       catch(std::exception& e)
       {
         return false;
       }
-      return !boost_filesystem::exists(_path);
-    }
-
-    bool copy(const boost_filesystem::path& newLocation)
-    {
-      try
-      {
-        boost_filesystem::copy_file(_path, newLocation);
-      }
-      catch(std::exception& e)
-      {
-        return false;
-      }
-
-      return boost_filesystem::exists(newLocation);
-    }
-
-    bool move(const boost_filesystem::path& newLocation, bool openNew = false)
-    {
-      if (!copy(newLocation))
-        return false;
-
-      if (erase())
-      {
-        if (openNew)
-          open(newLocation, _mode);
-        else
-          _path = newLocation;
-        return true;
-      }
-      return false;
+      return true;
     }
 
     T& stream()
@@ -299,7 +257,7 @@ namespace Os
       return _fstream;
     }
   private:
-    boost_filesystem::path _path;
+    std::string _path;
     T _fstream;
     std::ios_base::openmode _mode;
   };
