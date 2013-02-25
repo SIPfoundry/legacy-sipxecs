@@ -31,13 +31,14 @@ public class MongoServer {
     public static final String DOWN = "DOWN";
     private static final String ERR_MSG = "errmsg";
     private static final String HEALTH = "health";
+    private static final String OPTIME = "optime";
     private static final String NA = "N/A";
     private int m_id;
     private String m_name;
     private String m_type;
     private String m_state = UNCONFIGURED;
     private String m_health = UNCONFIGURED;
-    private String m_optimeDate;
+    private String m_optimeDate = NA;
     private String m_lastHeartbeat;
     private String m_pingMs;
     private String m_errMsg = NA;
@@ -63,9 +64,11 @@ public class MongoServer {
             m_errMsg = dbo.getString(ERR_MSG);
         }
         try {
-            BSONTimestamp optime = (BSONTimestamp) dbo.get("optime");
-            if (optime.getTime() != 0) {
-                m_optimeDate = new Date((long) optime.getTime() * 1000).toString();
+            if (dbo.containsField(OPTIME)) {
+                BSONTimestamp optime = (BSONTimestamp) dbo.get(OPTIME);
+                if (optime.getTime() != 0) {
+                    m_optimeDate = new Date((long) optime.getTime() * 1000).toString();
+                }
             }
         } catch (NumberFormatException ex) {
             m_optimeDate = NA;
