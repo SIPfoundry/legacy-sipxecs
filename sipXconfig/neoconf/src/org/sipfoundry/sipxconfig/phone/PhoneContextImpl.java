@@ -354,7 +354,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     public SpeedDial getSpeedDial(Phone phone) {
         User user = phone.getPrimaryUser();
-        if (user != null) {
+        if (user != null && !user.isNew()) {
             return m_speedDialManager.getSpeedDialForUserId(user.getId(), false);
         }
         return null;
