@@ -2512,46 +2512,52 @@
 			<value>15</value>
 			<description>Video frame rate in frames per second</description>
 		</setting>
-		<setting name="P905" unless="gsPhoneGxv3175">
-			<label>Video bit rate</label>
+		<setting name="P905" if="gsPhoneGxv3000|gsPhoneGxv3140">
+			<label>Video Bitrate (kbps)</label>
 			<type>
 				<enum>
 					<option>
-						<label>32</label>
 						<value>32</value>
 					</option>
 					<option>
-						<label>64</label>
 						<value>64</value>
 					</option>
 					<option>
-						<label>128</label>
+						<value>96</value>
+					</option>
+					<option>
 						<value>128</value>
 					</option>
 					<option>
-						<label>256</label>
+						<value>160</value>
+					</option>
+					<option>
+						<value>192</value>
+					</option>
+					<option>
+						<value>224</value>
+					</option>
+					<option>
 						<value>256</value>
 					</option>
 					<option>
-						<label>384</label>
+						<value>320</value>
+					</option>
+					<option>
 						<value>384</value>
 					</option>
 					<option>
-						<label>512</label>
 						<value>512</value>
 					</option>
 					<option>
-						<label>768</label>
 						<value>768</value>
 					</option>
 					<option>
-						<label>1024</label>
 						<value>1024</value>
 					</option>
 				</enum>
 			</type>
-			<value>256</value>
-			<description>Video bit rate in kbps</description>
+			<value>128</value>
 		</setting>
 		<setting name="P924">
 			<label>Video Rate Control</label>
@@ -4333,6 +4339,7 @@
         </setting>
     </group>
 	<group name="expboardkeys" if="gsPhoneGxp2000|gsPhoneGxp2100|gsPhoneGxp2020|gsPhoneGxp2010|gsPhoneGxp21.*|gsPhoneGxp2200">
+		<label>Expansion Board Keys</label>
 		<setting name="P6001">
             <label>Expansion Key 1 Mode</label>
             <type>
@@ -11500,5 +11507,278 @@
             <value></value>
             <description>___________________________________________________</description>
         </setting>
+	</group>
+	<group name="custom" advanced="yes">
+		<label>Custom Configuration</label>
+		<setting name="CustomPValue1">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue2">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue3">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue4">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue5">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue6">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue7">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue8">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue9">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue10">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue11">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue12">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue13">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue14">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue15">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue16">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue17">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue18">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue19">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue20">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue21">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue22">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue23">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue24">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue25">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue26">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue27">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue28">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue29">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
+		<setting name="CustomPValue30">
+			<label>P Value</label>
+			<type>
+				<string>
+					<pattern>^(P\d{1,5}=.*)$</pattern>
+				</string>
+			</type>
+			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
+		</setting>
 	</group>
 </model>

@@ -235,11 +235,24 @@
 			<value/>
 		</setting>
 		<setting name="P103-P408-P508-P608-P1708-P1808" if="gsPhone.*">
-			<label>Use DNS SRV</label>
+			<label>DNS Mode</label>
 			<type>
-				<boolean/>
+				<enum>
+					<option>
+						<value>0</value>
+						<label>A Record</label>
+					</option>
+					<option>
+						<value>1</value>
+						<label>SRV</label>
+					</option>
+					<option>
+						<value>2</value>
+						<label>NAPTR/SRV</label>
+					</option>
+				</enum>
 			</type>
-			<value>1</value>
+			<value>2</value>
 		</setting>
 		<setting name="P103-P702-P103-P702" if="gsHt.*">
 			<label>Use DNS SRV</label>
@@ -1215,9 +1228,9 @@
 			<value>0</value>
 		</setting>
 	</group>
-	<group name="video" if="gsPhoneGxv3000|gsPhoneGxv3140|gsPhoneGxv3175">
+	<group name="3175video" if="gsPhoneGxv3175">
 		<label>Video options</label>
-		<setting name="P292-P461-P561" if="gsPhoneGxv3000">
+		<setting name="P292-P461-P561">
 			<label>Enable Video</label>
 			<type>
 				<boolean/>
@@ -1237,8 +1250,12 @@
 						<value>34</value>
 					</option>
 					<option>
-						<label>H.263+ (1998(</label>
+						<label>H.263+ (1998)</label>
 						<value>100</value>
+					</option>
+					<option>
+						<label>None</label>
+						<value></value>
 					</option>
 				</enum>
 			</type>
@@ -1257,8 +1274,12 @@
 						<value>34</value>
 					</option>
 					<option>
-						<label>H.263+ (1998(</label>
+						<label>H.263+ (1998)</label>
 						<value>100</value>
+					</option>
+					<option>
+						<label>None</label>
+						<value></value>
 					</option>
 				</enum>
 			</type>
@@ -1277,34 +1298,135 @@
 						<value>34</value>
 					</option>
 					<option>
-						<label>H.263+ (1998(</label>
+						<label>H.263+ (1998)</label>
 						<value>100</value>
+					</option>
+					<option>
+						<label>None</label>
+						<value></value>
 					</option>
 				</enum>
 			</type>
 			<value>99</value>
 		</setting>
-		<setting name="P300-P467-P567" if="gsPhoneGxv3000">
-			<label>Jitter Delay</label>
+		<setting name="P2307-P2407-P2507">
+			<label>H.264 Image Size Selection</label>
 			<type>
 				<enum>
 					<option>
-						<label>Medium</label>
+						<label>QVGA (320x240)</label>
 						<value>0</value>
 					</option>
 					<option>
-						<label>Low</label>
+						<label>VGA (640x480)</label>
 						<value>1</value>
 					</option>
 					<option>
-						<label>High</label>
+						<label>WQVGA (400x240)</label>
+						<value>2</value>
+					</option>
+					<option>
+						<label>QQVGA (160x120)</label>
+						<value>3</value>
+					</option>
+					<option>
+						<label>4CIF (704x480)</label>
+						<value>4</value>
+					</option>
+					<option>
+						<label>CIF (360x240)</label>
+						<value>5</value>
+					</option>
+					<option>
+						<label>QCIF (176x144)</label>
+						<value>6</value>
+					</option>
+				</enum>
+			</type>
+			<value>2</value>
+		</setting>
+		<setting name="P1331-P478-P578">
+			<label>Video Bitrate (kbps)</label>
+			<type>
+				<enum>
+					<option>
+						<value>32</value>
+					</option>
+					<option>
+						<value>64</value>
+					</option>
+					<option>
+						<value>96</value>
+					</option>
+					<option>
+						<value>128</value>
+					</option>
+					<option>
+						<value>160</value>
+					</option>
+					<option>
+						<value>192</value>
+					</option>
+					<option>
+						<value>224</value>
+					</option>
+					<option>
+						<value>256</value>
+					</option>
+					<option>
+						<value>320</value>
+					</option>
+					<option>
+						<value>384</value>
+					</option>
+					<option>
+						<value>512</value>
+					</option>
+					<option>
+						<value>768</value>
+					</option>
+					<option>
+						<value>1024</value>
+					</option>
+				</enum>
+			</type>
+			<value>256</value>
+		</setting>
+		<setting name="P2314-P2414-P2514">
+			<label>Start Video Automatically</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="P2326-P2426-P2526">
+			<label>Accept Remote Video Request</label>
+			<type>
+				<enum>
+					<option>
+						<label>Prompt</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>Accept Automatically</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>Deny Automatically</label>
 						<value>2</value>
 					</option>
 				</enum>			
 			</type>
 			<value>0</value>
 		</setting>
-		<setting name="P132-P497-P597" if="gsPhoneGxv31.*">
+		<setting name="P1331-P478-P578">
+			<label>RFC5168 Support</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P132-P497-P597">
 			<label>Jitter Delay</label>
 			<type>
 				<enum>
@@ -1323,6 +1445,288 @@
 				</enum>			
 			</type>
 			<value>1</value>
+		</setting>
+		<setting name="P293-P462-P562">
+			<label>H.264 Payload Type</label>
+			<type>
+				<string/>
+			</type>
+			<value>99</value>
+			<description>Between 96 - 127, Default 99</description>
+		</setting>
+	</group>
+	<group name="3140video" if="gsPhoneGxv3140">
+		<label>Video options</label>
+		<setting name="P292-P461-P561">
+			<label>Enable Video</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="P295-P464-P564">
+			<label>Preferred Video Codec #1</label>
+			<type>
+				<enum>
+					<option>
+						<label>H.264</label>
+						<value>99</value>
+					</option>
+					<option>
+						<label>H.263</label>
+						<value>34</value>
+					</option>
+					<option>
+						<label>H.263+ (1998)</label>
+						<value>100</value>
+					</option>
+					<option>
+						<label>None</label>
+						<value></value>
+					</option>
+				</enum>
+			</type>
+			<value>99</value>
+		</setting>
+		<setting name="P296-P465-P565">
+			<label>Preferred Video Codec #2</label>
+			<type>
+				<enum>
+					<option>
+						<label>H.264</label>
+						<value>99</value>
+					</option>
+					<option>
+						<label>H.263</label>
+						<value>34</value>
+					</option>
+					<option>
+						<label>H.263+ (1998)</label>
+						<value>100</value>
+					</option>
+					<option>
+						<label>None</label>
+						<value></value>
+					</option>
+				</enum>
+			</type>
+			<value>34</value>
+		</setting>
+		<setting name="P1307-P475-P575">
+			<label>Preferred Video Codec #2</label>
+			<type>
+				<enum>
+					<option>
+						<label>H.264</label>
+						<value>99</value>
+					</option>
+					<option>
+						<label>H.263</label>
+						<value>34</value>
+					</option>
+					<option>
+						<label>H.263+ (1998)</label>
+						<value>100</value>
+					</option>
+					<option>
+						<label>None</label>
+						<value></value>
+					</option>
+				</enum>
+			</type>
+			<value>99</value>
+		</setting>
+		<setting name="P2307-P2407-P2507">
+			<label>H.264 Image Size Selection</label>
+			<type>
+				<enum>
+					<option>
+						<label>QVGA (320x240)</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>WQVGA (400x240)</label>
+						<value>2</value>
+					</option>
+					<option>
+						<label>QQVGA (160x120)</label>
+						<value>3</value>
+					</option>
+					<option>
+						<label>CIF (360x240)</label>
+						<value>5</value>
+					</option>
+					<option>
+						<label>QCIF (176x144)</label>
+						<value>6</value>
+					</option>
+				</enum>
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P2314-P2414-P2514">
+			<label>Start Video Automatically</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="P2326-P2426-P2526">
+			<label>Accept Remote Video Request</label>
+			<type>
+				<enum>
+					<option>
+						<label>Prompt</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>Accept Automatically</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>Deny Automatically</label>
+						<value>2</value>
+					</option>
+				</enum>			
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P1331-P478-P578">
+			<label>RFC5168 Support</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P132-P497-P597">
+			<label>Jitter Delay</label>
+			<type>
+				<enum>
+					<option>
+						<label>Low</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>Medium</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>High</label>
+						<value>2</value>
+					</option>
+				</enum>			
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="P293-P462-P562">
+			<label>H.264 Payload Type</label>
+			<type>
+				<string/>
+			</type>
+			<value>99</value>
+			<description>Between 96 - 127, Default 99</description>
+		</setting>
+	</group>
+	<group name="video" if="gsPhoneGxv3000">
+		<label>Video options</label>
+		<setting name="P292-P461-P561">
+			<label>Enable Video</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="P295-P464-P564">
+			<label>Preferred Video Codec #1</label>
+			<type>
+				<enum>
+					<option>
+						<label>H.264</label>
+						<value>99</value>
+					</option>
+					<option>
+						<label>H.263</label>
+						<value>34</value>
+					</option>
+					<option>
+						<label>H.263+ (1998)</label>
+						<value>100</value>
+					</option>
+					<option>
+						<label>None</label>
+						<value></value>
+					</option>
+				</enum>
+			</type>
+			<value>99</value>
+		</setting>
+		<setting name="P296-P465-P565">
+			<label>Preferred Video Codec #2</label>
+			<type>
+				<enum>
+					<option>
+						<label>H.264</label>
+						<value>99</value>
+					</option>
+					<option>
+						<label>H.263</label>
+						<value>34</value>
+					</option>
+					<option>
+						<label>H.263+ (1998)</label>
+						<value>100</value>
+					</option>
+					<option>
+						<label>None</label>
+						<value></value>
+					</option>
+				</enum>
+			</type>
+			<value>34</value>
+		</setting>
+		<setting name="P1307-P475-P575">
+			<label>Preferred Video Codec #2</label>
+			<type>
+				<enum>
+					<option>
+						<label>H.264</label>
+						<value>99</value>
+					</option>
+					<option>
+						<label>H.263</label>
+						<value>34</value>
+					</option>
+					<option>
+						<label>H.263+ (1998)</label>
+						<value>100</value>
+					</option>
+					<option>
+						<label>None</label>
+						<value></value>
+					</option>
+				</enum>
+			</type>
+			<value>99</value>
+		</setting>
+		<setting name="P300-P467-P567">
+			<label>Jitter Delay</label>
+			<type>
+				<enum>
+					<option>
+						<label>Medium</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>Low</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>High</label>
+						<value>2</value>
+					</option>
+				</enum>			
+			</type>
+			<value>0</value>
 		</setting>
 		<setting name="P293-P462-P562">
 			<label>H.264 Payload Type</label>
