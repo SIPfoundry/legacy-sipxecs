@@ -22,7 +22,7 @@ MOCK_OPTS = \
 	  --resultdir=$(MOCK_RESULTS_DIR)
 
 # Define sipx SRPMS and tarball files. Cannot define RPM files however as one specfile may generate many rpms
-$(foreach P,$(sipx) $(app),$(eval $(P)_SRPM = $$(call lowercase,$(P))-$(PACKAGE_VERSION)-$$(PROJ_REVISION).src.rpm))
+$(foreach P,$(sipx) $(app),$(eval $(P)_SRPM = $$(call lowercase,$(P))-$(PACKAGE_VERSION)-$$(DIST_REV).src.rpm))
 
 # Allows to target other distros other than the default
 help-values.{3} = Any of the available distros identifiers. Complete list: all @ALL_DISTROS@
