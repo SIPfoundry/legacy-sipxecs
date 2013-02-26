@@ -18,12 +18,15 @@ package org.sipfoundry.sipxconfig.openacd;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.mongodb.BasicDBObject;
 
 public class OpenAcdRecipeAction extends OpenAcdQueueWithSkills implements Serializable {
+    private static final String AT_SIGN = "@";
+
     public static enum ACTION {
         ADD_SKILLS {
             public String toString() {
@@ -58,6 +61,11 @@ public class OpenAcdRecipeAction extends OpenAcdQueueWithSkills implements Seria
         MEDIA_ANNOUCE {
             public String toString() {
                 return "announce";
+            }
+        },
+        TRANSFER_OUTBAND {
+            public String toString() {
+                return "transfer_outband";
             }
         }
     }
@@ -98,7 +106,7 @@ public class OpenAcdRecipeAction extends OpenAcdQueueWithSkills implements Seria
                 .isEquals();
     }
 
-    public BasicDBObject getMongoObject() {
+    public BasicDBObject getMongoObject(String domain) {
         BasicDBObject action = new BasicDBObject();
         action.put("action", m_action);
         String actionValue = "";
@@ -108,7 +116,19 @@ public class OpenAcdRecipeAction extends OpenAcdQueueWithSkills implements Seria
                 || m_action.equals(ACTION.MEDIA_ANNOUCE.toString())) {
             actionValue = getActionValue();
             action.put(OpenAcdContext.ACTION_VALUE, actionValue);
+        } else if (m_action.equals(ACTION.TRANSFER_OUTBAND.toString())) {
+            actionValue = getActionValue();
+            if (StringUtils.contains(actionValue, AT_SIGN)) {
+                // external sip uri
+                action.put(OpenAcdContext.ACTION_VALUE, actionValue);
+            } else {
+                // internal extension
+                StringBuilder builder = new StringBuilder();
+                builder.append(actionValue).append(AT_SIGN).append(domain);
+                action.put(OpenAcdContext.ACTION_VALUE, builder.toString());
+            }
         }
+
         return action;
     }
 }

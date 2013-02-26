@@ -33,11 +33,19 @@
 				</span>
 				<span jwcid="@If" condition="ognl:mediaAnnounceComponent">
 				<td>
-				  <span jwcid="mediaAnnounce@TextField" id="mediaAnnounce" size="8"
-					value="ognl:recipeStepBean.recipeStep.action.actionValue" 
+				  <span jwcid="mediaAnnounce@TextField" id="mediaAnnounce" size="18"
+					value="ognl:recipeStepBean.recipeStep.action.actionValue"
 					validators="validators:required"
 					displayName="message:action.announce"/>
 				</td>
+				</span>
+				<span jwcid="@If" condition="ognl:transferOutband">
+				  <td>
+					<span jwcid="transferOutband@TextField" id="transferOutband" size="18"
+						value="ognl:recipeStepBean.recipeStep.action.actionValue"
+						validators="spring-validators:validPhoneOrAor,required"
+						displayName="message:action.transfer_outband"/>
+				  </td>
 				</span>
 			  </tr>
 			  <tr><td><span jwcid="@Insert" value="ognl:actionHelpText" class="settingDescription"/></td></tr>

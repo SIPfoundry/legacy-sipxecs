@@ -150,4 +150,9 @@ public abstract class OpenAcdRecipeComponent extends BaseComponent implements Pa
         String actionValue = getRecipeStepBean().getRecipeStep().getAction().getAction();
         return actionValue.equals(ACTION.MEDIA_ANNOUCE.toString());
     }
+
+    public boolean isTransferOutband() {
+        String actionValue = getRecipeStepBean().getRecipeStep().getAction().getAction();
+        return actionValue.equals(ACTION.TRANSFER_OUTBAND.toString());
+    }
 }

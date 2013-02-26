@@ -122,7 +122,7 @@ public class OpenAcdQueueGroup extends OpenAcdQueueWithSkills implements Replica
         for (OpenAcdAgentGroup profile : getAgentGroups()) {
             profiles.add(profile.getName());
         }
-        props.put(OpenAcdContext.RECIPES, OpenAcdQueue.constructRecipeMongoObject(m_steps));
+        props.put(OpenAcdContext.RECIPES, OpenAcdQueue.constructRecipeMongoObject(domain, m_steps));
         props.put(OpenAcdContext.PROFILES, profiles);
         props.put(OpenAcdContext.OLD_NAME, getOldName());
         return props;
