@@ -76,10 +76,7 @@ $(sipx:=.srpm_) $(app:=.srpm_) : %.srpm_ :
 
 sipx.rpm : $(sipx:=.rpm-by-dep);
 app.rpm : $(app:=.rpm-by-dep);
-
-# by-dep uses tarball and not all libs come from tarball so not implementing smart
-# builds here yet.  Could easily do this though by looking at $($(PROJ)_SOURCES)
-lib.rpm : $(lib:=.rpm);
+lib.rpm : $(lib:=.rpm-by-dep);
 
 # If make sipXfoo.rpm is explicit target, force fresh build of target but
 # only build dependencies if they've changed
@@ -88,10 +85,32 @@ help.{1|2}.rpm = Build RPMs, you must have mock installed. See Experimental call
 .SECONDEXPANSION:
 %.rpm : $$(addsuffix .rpm-by-dep,$$($$*_DEPS)) %.srpm %.rpm_;
 
+RPM_DEP = $(MOCK_RESULTS_DIR)/.dep.$(PROJ)
+$(lib:=.rpm-by-dep) : %.rpm-by-dep : $$(addsuffix .rpm-by-dep,$$($$*_DEPS))
+	@if test -f $(RPM_DEP); then \
+	  x=`find $(SRC)/$(PROJ) -type f \( \
+	       -newer $(RPM_DEP) \) -printf .`; \
+	  if [ -n "$$x" ] ; then \
+	    rm $(RPM_DEP); \
+	  fi; \
+	fi
+	@if [ -f $(RPM_DEP) -a -n "$($(PROJ)_DEPS)" ]; then \
+	  for f in $(addprefix $(MOCK_RESULTS_DIR)/.dep.,$($(PROJ)_DEPS)) ; do \
+	    if test -f $(RPM_DEP); then \
+	      if [ $$f -nt $(RPM_DEP) ]; then \
+	        rm $(RPM_DEP); \
+		  break; \
+	      fi \
+	    fi \
+	  done \
+	fi
+	@if ! test -f $(RPM_DEP); then \
+	  $(MAKE) $(PROJ).srpm $(PROJ).rpm_; \
+	fi
+
 # Only build rpm if underlying tarball changed. Do not rely on srpm because srpms are cheap to
 # create AND because if there is a new tarball, it will contain
-RPM_DEP = $(MOCK_RESULTS_DIR)/.dep.$(PROJ)
-%.rpm-by-dep : $$(addsuffix .rpm-by-dep,$$($$*_DEPS)) %.dist-by-dep
+$(sipx:=.rpm-by-dep) : %.rpm-by-dep : $$(addsuffix .rpm-by-dep,$$($$*_DEPS)) %.dist-by-dep
 	@if test -f $(RPM_DEP); then \
 	  if [ $($(PROJ)_TAR) -nt $(RPM_DEP) ]; then \
 	    rm $(RPM_DEP); \
