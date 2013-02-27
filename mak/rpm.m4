@@ -128,15 +128,6 @@ AC_ARG_ENABLE(rpm, [--enable-rpm Using mock package to build rpms],
     AC_SUBST(EPEL_BASE_URL_OFF,[])
   fi
 
-  AC_ARG_ENABLE(pull-missing-rpms,
-     AC_HELP_STRING([--disable-pull-missing-rpms], [Do not use download.sipfoundry.org for rpms that are not built locally]))
-  if test "x$enable_pull_missing_rpms" != "xno"; then
-    PULL_MISSING_RPMS=1
-  else
-    PULL_MISSING_RPMS=0
-  fi
-  AC_SUBST(PULL_MISSING_RPMS)
-
   AC_CONFIG_FILES([mak/mock/logging.ini])
   AC_CONFIG_FILES([mak/mock/site-defaults.cfg])
   AC_CONFIG_FILES([mak/mock/centos-6-i386.cfg])

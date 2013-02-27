@@ -124,3 +124,4 @@ lib = $(lib_$(DISTRO_OS)_$(DISTRO_VER))
 all =  $(lib) $(sipx) $(app)
 
 oss_core_REPO = git://github.com/joegen/oss_core.git
+

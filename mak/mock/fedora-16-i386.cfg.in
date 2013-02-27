@@ -33,12 +33,6 @@ baseurl=http://kojipkgs.fedoraproject.org/repos/dist-f16-build/latest/i386/
 cost=2000
 enabled=0
 
-[sipxecs]
-name=sipxecs
-baseurl=http://download.sipfoundry.org/pub/sipXecs/@PACKAGE_VERSION@/Fedora_16/i386/
-gpgcheck=0
-enabled=@PULL_MISSING_RPMS@
-
 [build]
 name=build
 baseurl=http://localhost:@REPO_PORT@/Fedora_16/i386/

@@ -50,12 +50,6 @@ mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-deb
 failovermethod=priority
 enabled=0
 
-[sipxecs]
-name=sipxecs
-baseurl=http://download.sipfoundry.org/pub/sipXecs/@PACKAGE_VERSION@/Fedora_17/x86_64/
-gpgcheck=0
-enabled=@PULL_MISSING_RPMS@
-
 [build]
 name=build
 baseurl=http://localhost:@REPO_PORT@/Fedora_17/x86_64/
