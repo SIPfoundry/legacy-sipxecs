@@ -504,7 +504,9 @@ int main(int argc, char* argv[])
    // Delete the LineMgr Object
    delete lineMgr;
 
-   
+
+   OsTimer::terminateTimerService();
+
    // Flush the log file
    OsSysLog::flush();
    

@@ -18,6 +18,7 @@
 #include "os/OsFS.h"
 #include "os/OsTime.h"
 #include "os/OsTask.h"
+#include "os/OsTimer.h"
 
 #include "net/NameValueTokenizer.h"
 #include "sipdb/SIPDBManager.h"
@@ -329,6 +330,8 @@ main(int argc, char* argv[] )
    {
       delete configDb;
    }
+
+   OsTimer::terminateTimerService();
 
    // Flush the log file
    OsSysLog::flush();

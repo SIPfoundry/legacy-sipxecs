@@ -21,7 +21,6 @@
 #include <os/OsConfigDb.h>
 #include <os/OsSocket.h>
 #include <os/OsTask.h>
-#include <os/OsTimerTask.h>
 #include <os/OsStunAgentTask.h>
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
@@ -816,8 +815,8 @@ proxy( int argc, char* argv[] )
     }
 
     // End the singleton threads.
-    OsTimerTask::destroyTimerTask();
     OsStunAgentTask::releaseInstance();
+    OsTimer::terminateTimerService();
 
     return 0 ;
 }

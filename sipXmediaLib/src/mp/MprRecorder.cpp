@@ -25,7 +25,7 @@
 #include "os/OsProtectEventMgr.h"
 
 #ifndef ABS
-#define ABS(x) (max((x), -(x)))
+#define ABS(x) (get_max((x), -(x)))
 #endif
 
 // EXTERNAL FUNCTIONS

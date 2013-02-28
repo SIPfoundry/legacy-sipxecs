@@ -394,9 +394,9 @@ int showNetInTable() {
    for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
       if (NULL != ppr->fwdTo) {
          if (NULL != ppr->pRtpSocket)
-            last=max(last, ppr->pRtpSocket->getSocketDescriptor());
+            last=get_max(last, ppr->pRtpSocket->getSocketDescriptor());
          if (NULL != ppr->pRtcpSocket)
-            last=max(last, ppr->pRtcpSocket->getSocketDescriptor());
+            last=get_max(last, ppr->pRtcpSocket->getSocketDescriptor());
       }
       ppr++;
    }
@@ -476,9 +476,9 @@ int NetInTask::run(void *pNotUsed)
                for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
                   if (NULL != ppr->fwdTo) {
                     if (NULL != ppr->pRtpSocket)
-                       last=max(last, ppr->pRtpSocket->getSocketDescriptor());
+                       last=get_max(last, ppr->pRtpSocket->getSocketDescriptor());
                     if (NULL != ppr->pRtcpSocket)
-                       last=max(last, ppr->pRtcpSocket->getSocketDescriptor());
+                       last=get_max(last, ppr->pRtcpSocket->getSocketDescriptor());
                   }
                   ppr++;
                }
@@ -558,8 +558,8 @@ int NetInTask::run(void *pNotUsed)
                 } else if (NULL != msg.fwdTo) {
                     if ((NULL != msg.pRtpSocket) || (NULL != msg.pRtcpSocket)) {
                         /* add a new pair of file descriptors */
-                        last = max(last,msg.pRtpSocket->getSocketDescriptor());
-                        last = max(last,msg.pRtcpSocket->getSocketDescriptor());
+                        last = get_max(last,msg.pRtpSocket->getSocketDescriptor());
+                        last = get_max(last,msg.pRtcpSocket->getSocketDescriptor());
 #define CHECK_FOR_DUP_DESCRIPTORS
 #ifdef CHECK_FOR_DUP_DESCRIPTORS
                         int newRtpFd  = (msg.pRtpSocket)  ? msg.pRtpSocket->getSocketDescriptor()  : -1;

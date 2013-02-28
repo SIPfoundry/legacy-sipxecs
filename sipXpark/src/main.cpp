@@ -666,6 +666,8 @@ int main(int argc, char* argv[])
     // Flush the log file
     OsSysLog::flush();
 
+    OsTimer::terminateTimerService();
+    
     // Say goodnight Gracie...
     return 0;
 }

@@ -18,6 +18,7 @@ require 'rubygems'
 require 'rake/gempackagetask'
 
 spec = Gem::Specification.new do |s|
+  s.authors = 'ezuce'
   s.platform = Gem::Platform::RUBY
   s.summary = "sipxcallresolver provides CDR generation from logged call state events"
   s.name = 'sipxcallresolver'
@@ -27,6 +28,7 @@ spec = Gem::Specification.new do |s|
   s.files = FileList["{lib,test,system-test}/**/*"].to_a
   s.test_files = FileList[TEST_FILES].to_a
   s.description = <<EOF
+  
 sipxcallresolver implements call resolution from logged call state events
 EOF
 end

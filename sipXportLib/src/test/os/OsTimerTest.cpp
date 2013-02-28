@@ -16,12 +16,10 @@
 
 #include <os/OsCallback.h>
 #include <os/OsTimer.h>
-#include <os/OsTimerTask.h>
 #include <os/OsTime.h>
 #include <sipxunit/TestUtilities.h>
 #include <os/OsLock.h>
 #include <os/OsEvent.h>
-#include <os/OsTimerMsg.h>
 
 #include <time.h>
 #include <string.h>
@@ -74,7 +72,6 @@ class OsTimerTest : public CppUnit::TestCase
     CPPUNIT_TEST(testStop);
     CPPUNIT_TEST(testStartDeleteAsync);
 
-    CPPUNIT_TEST(testDelayedStopMessage);
     CPPUNIT_TEST(testDeleteFireRace);
 
     CPPUNIT_TEST_SUITE_END();
@@ -648,85 +645,7 @@ public:
        CPPUNIT_ASSERT_MESSAGE("Test start/deleteAsync", gCallBackCount == 0);
     }
 
-    void testDelayedStopMessage()
-    {
-       // Test a race condition where a periodic timer fires after
-       // the application has stopped it, but before OsTimerTask has
-       // processed the update message for the stop.
-       // Previously, OsTimerTask would leave the task state as
-       // "started" but not put the timer back in the timer queue, so
-       // when the update message caused OsTimerTask::removeTimer to run, it
-       // couldn't find the timer.
-       OsCallback notifier((void*) this, TVCallback);
-       OsTimer timer(notifier);
-
-       // Start timer to fire in 1 sec, and every 1 sec after that.
-       timer.periodicEvery(OsTime(1, 0), OsTime(1, 0));
-       // Delay slightly to ensure the timer start message is processed,
-       // so timer.mOutstandingMessages == 0.
-       OsTask::delay(100);
-       CPPUNIT_ASSERT(timer.mOutstandingMessages == 0);
-
-       // This is timer.OsTimer::stop(TRUE), with a delay put in the middle.
-       {
-          UtlBoolean synchronous = TRUE;
-          OsStatus result;
-          {
-             UtlBoolean sendMessage = FALSE;
-
-             // Update members.
-             {
-                OsLock lock(timer.mBSem);
-
-                // Determine whether the call is successful.
-                if (OsTimer::isStarted(timer.mApplicationState))
-                {
-                   // Update state to stopped.
-                   timer.mApplicationState++;
-                   result = OS_SUCCESS;
-                   if (timer.mOutstandingMessages == 0)
-                   {
-                      // We will send a message.
-                      sendMessage = TRUE;
-                      timer.mOutstandingMessages++;
-                   }
-                }
-                else
-                {
-                   result = OS_FAILED;
-                }
-             }
-
-             // Delay 2 seconds, which is long enough for the timer to fire.
-             OsTask::delay(2000);
-
-             // If we need to, send an UPDATE message to the timer task.
-             if (sendMessage)
-             {
-                if (synchronous) {
-                   // Send message and wait.
-                   OsEvent event;
-                   OsTimerMsg msg(OsTimerMsg::UPDATE_SYNC, &timer, &event);
-                   OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
-                   assert(res == OS_SUCCESS);
-                   event.wait();
-                }
-                else
-                {
-                   // Send message.
-                   OsTimerMsg msg(OsTimerMsg::UPDATE, &timer, NULL);
-                   OsStatus res = OsTimerTask::getTimerTask()->postMessage(msg);
-                   assert(res == OS_SUCCESS);
-                }
-             }
-          }
-          CPPUNIT_ASSERT(result == OS_SUCCESS);
-       }
-
-       // We do no explicit test for success of this test, as the success
-       // condition is that it does not trigger "assert(current)" in
-       // OsTimerTask::removeTimer.
-    }
+   
 
     // Service function for testDeleteFireRace.
     static void slowNotifier(void* userData, const intptr_t eventData)

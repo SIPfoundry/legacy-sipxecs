@@ -189,7 +189,7 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
                if((MpBuf_getSpeech(inBufs[inIdx]) != MP_SPEECH_COMFORT_NOISE) &&
                   (MpBuf_getSpeech(inBufs[inIdx]) != MP_SPEECH_SILENT) ) {
                   input = MpBuf_getSamples(inBufs[inIdx]);
-                  n = min(MpBuf_getNumSamples(inBufs[inIdx]), samplesPerFrame);
+                  n = get_min(MpBuf_getNumSamples(inBufs[inIdx]), samplesPerFrame);
                   for (i=0; i<n; i++) *output++ += (*input++) >> scale;
                }
             }
@@ -258,7 +258,7 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
                (MpBuf_getSpeech(inBufs[inIdx]) != MP_SPEECH_COMFORT_NOISE) &&
                    (MpBuf_getSpeech(inBufs[inIdx]) != MP_SPEECH_SILENT) ) {
                    input = MpBuf_getSamples(inBufs[inIdx]);
-                   n = min(MpBuf_getNumSamples(inBufs[inIdx]), samplesPerFrame);
+                   n = get_min(MpBuf_getNumSamples(inBufs[inIdx]), samplesPerFrame);
                    for (i=0; i<n; i++) *output++ += (*input++) >> scale;
                }
             }

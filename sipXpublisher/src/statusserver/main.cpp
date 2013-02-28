@@ -19,6 +19,7 @@
 #include "os/OsConfigDb.h"
 #include "os/OsFS.h"
 #include "os/OsTask.h"
+#include "os/OsTimer.h"
 
 #include "net/NameValueTokenizer.h"
 #include "sipXecsService/SipXecsService.h"
@@ -312,6 +313,8 @@ main(int argc, char* argv[] )
 
     // now deregister this process's database references from the IMDB
     closeIMDBConnections();
+
+    OsTimer::terminateTimerService();
 
     // Flush the log file
     OsSysLog::flush();

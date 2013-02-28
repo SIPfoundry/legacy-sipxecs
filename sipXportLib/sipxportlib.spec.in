@@ -16,6 +16,7 @@ BuildRequires: cppunit-devel
 BuildRequires: openssl-devel
 BuildRequires: pcre-devel
 BuildRequires: findutils
+BuildRequires: boost-devel >= 1.39
 
 # sipXphone would require 0.9.7c to decrypt profiles to get access to
 # certain new alg.  If this is still nec., this may need to be
@@ -25,6 +26,7 @@ BuildRequires: findutils
 # security package to a RH uncertified version.
 Requires: openssl >= 0.9.7a
 Requires: pcre >= 4.5
+Requires: boost >= 1.39
 
 Source: %name-%version.tar.gz
 
@@ -92,7 +94,8 @@ helpful to build projects from the sipX library
 mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
-%configure @SIPX_RPM_CONFIGURE_OPTIONS@
+# no strict because boost warnings about int v.s. Int64 issues
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@ --disable-compile-strict
 cp config.log %name.configlog
 make %{_smp_mflags} all
 
