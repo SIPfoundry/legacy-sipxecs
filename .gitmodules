@@ -55,3 +55,6 @@
 [submodule "sipXlang-zh"]
 	path = sipXlang-zh
 	url = git://github.com/dhubler/sipXlang-zh.git
+[submodule "oss_core"]
+	path = oss_core
+	url = git://github.com/ezuce/oss_core.git
