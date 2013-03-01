@@ -5,17 +5,20 @@
 # consult spec files for authority on dependencies before changing the order
 
 # sort removes dups and should speed maketime
-deps = $(sort $(1) $(foreach D,$(1)_DEPS,$($(D))))
+deps = $(filter-out $(lib_exclude_$(DISTRO_OS)_$(DISTRO_VER)),$(sort $(1) $(foreach D,$(1)_DEPS,$($(D)))))
 
+mongodb_DEPS = $(call deps,js)
+oss_core_DEPS = $(call deps,v8)
+rubygem-net-sftp_DEPS = $(call deps,rubygem-net-ssh)
+sipXportLib_DEPS = $(call deps,epel-release)
 sipXtackLib_DEPS = $(call deps,sipXportLib)
 sipXmediaLib_DEPS = $(call deps,sipXtackLib)
 sipXmediaAdapterLib_DEPS = $(call deps,sipXmediaLib)
 sipXcallLib_DEPS = $(call deps,sipXmediaAdapterLib)
-rubygem-net-sftp_DEPS = $(call deps,rubygem-net-ssh)
-sipXsupervisor_DEPS = $(call deps,cfengine rubygem-net-sftp)
-sipXmongo_DEPS = $(call deps,sipXsupervisor)
+sipXsupervisor_DEPS = $(call deps,sec cfengine rubygem-net-sftp)
+sipXmongo_DEPS = $(call deps,mongodb sipXsupervisor)
 sipXcommserverLib_DEPS = $(call deps,sipXsupervisor sipXtackLib sipXmongo)
-sipXsqa_DEPS = $(call deps,sipXcommserverLib)
+sipXsqa_DEPS = $(call deps,hiredis sipXcommserverLib)
 sipXsnmp_DEPS = $(call deps,net-snmp sipXsupervisor)
 sipXpostgres_DEPS = $(call deps,sipXsupervisor)
 sipXtunnel_DEPS = $(call deps,sipXsupervisor)
@@ -24,11 +27,12 @@ sipXhttpd_DEPS = $(call deps,sipXsupervisor)
 sipXcommons_DEPS = $(call deps,sipXsupervisor)
 sipXrelay_DEPS = $(call deps,sipXcommserverLib sipXcommons)
 sipXbridge_DEPS = $(call deps,sipXrelay)
-sipXfreeSwitch_DEPS = $(call deps,sipXcommserverLib)
-sipXcdr_DEPS = $(call deps,sipXcommserverLib)
-sipXacdStatistics_DEPS = $(call deps,sipXcommons)
+sipXfreeSwitch_DEPS = $(call deps,freeswitch sipXcommserverLib)
+sipXcdr_DEPS = $(call deps,ruby-dbi ruby-postgres sipXcommserverLib)
+sipXacdStatistics_DEPS = $(call deps,ruby-dbi ruby-postgres sipXcommons)
 sipXconfig_DEPS = $(call deps,sipXcommons sipXsupervisor sipXacdStatistics sipXcdr sipXpostgres sipXcommserverLib sipXhttpd sipXmongo)
 sipXopenfire_DEPS = $(call deps,openfire sipXconfig)
+sipXopenacd_DEPS = $(call deps,erlmongo OpenACD sipXconfig)
 sipXcounterpath_DEPS = $(call deps,sipXconfig)
 sipXaudiocodes_DEPS = $(call deps,sipXconfig)
 sipXprompts_DEPS = $(call deps,sipXsupervisor)
@@ -41,9 +45,14 @@ sipXpage_DEPS = $(call deps,sipXcommserverLib sipXcommons)
 sipXpolycom_DEPS = $(call deps,sipXconfig)
 sipXrls_DEPS = $(call deps,sipXsqa sipXcallLib sipXcommserverLib)
 sipXsaa_DEPS = $(call deps,sipXcallLib)
-sipXhomer_DEPS = $(call deps,sipXsqa)
+sipXhomer_DEPS = $(call deps,homer sipXsqa)
 sipXsbc_DEPS = $(call deps,oss_core sipXsupervisor sipXconfig sipXsqa sipXregistry)
 sipXrelease_DEPS =
+sipXviewer_DEPS = $(call deps,nsis nsis-data)
+
+# uc
+sipXtest_DEPS = $(call deps,rrdtool)
+
 
 sipx = \
   sipXportLib \
@@ -109,7 +118,9 @@ lib_all = \
   v8 \
   mongodb
 
-lib_exclude_centos_6 = 
+lib_exclude_centos_6 = \
+  mongodb \
+  js
 
 lib_exclude_fedora_16 = \
   epel-release \
