@@ -105,6 +105,19 @@
       </type>
       <value>true</value>
     </setting>
+    <setting name="SIPX_PROXY_ENABLE_TCP_RESEND">
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>false</value>
+    </setting>
     <group name="alert-info">
       <label>Alert Info</label>
       <setting name="INTERNAL_ENABLED">

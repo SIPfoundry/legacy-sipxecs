@@ -20,6 +20,7 @@ SIPX_PROXY_AUTHENTICATE_REALM : realm.example.org
 SIPX_PROXY_HOSTPORT : 192.168.1.2:5064
 
 SIPX_SEND_TRYING_FOR_NIST : true
+SIPX_PROXY_ENABLE_TCP_RESEND : false
 
 SIPX_PROXY_HOOK_LIBRARY.200_xfer : @sipxpbx.lib.dir@/authplugins/libTransferControl.so
 
