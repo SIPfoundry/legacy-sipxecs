@@ -58,3 +58,9 @@
 [submodule "oss_core"]
 	path = oss_core
 	url = git://github.com/ezuce/oss_core.git
+[submodule "sipXsbc"]
+	path = sipXsbc
+	url = git://github.com/ezuce/sipXsbc.git
+[submodule "openfire"]
+	path = openfire
+	url = git://github.com/dhubler/openfire.git

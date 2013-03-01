@@ -19,10 +19,12 @@ include $(SRC)/mak/*.sipxecs.mk
 # Only the main rpm
 $(foreach P,$(sipx) $(app),$(eval $(P)_TAR = $(P)/$$(call lowercase,$(P))-$(PACKAGE_VERSION).tar.gz))
 
-SUBMODULES = $(shell sed -e '/^\[submodule/! d' -e 's/^\[submodule "\(.*\)"]$$/\1/g' $(SRC)/.gitmodules)
-$(foreach M,$(SUBMODULES),$(eval $(M)_SUBMODULE = $(SRC)/$(M)/.git))
-# Initialize submodules as we need them and only the specific submodule. This allows many submodules
-# to be defined, but only requested submodules to be loaded
+# Initialize submodules as we need them and only the specific submodule. This allows
+# many submodules to be defined, but only requested submodules to be loaded. There
+# is no need to specify which projects are git submodules, all of this is handled
+# by these this section.
+git_submodules = $(shell sed -e '/^\[submodule/! d' -e 's/^\[submodule "\(.*\)"]$$/\1/g' $(SRC)/.gitmodules)
+$(foreach M,$(git_submodules),$(eval $(M)_GIT_SUBMODULE = $(SRC)/$(M)/.git))
 .PRECIOUS: $(SRC)/%/.git
 $(SRC)/%/.git :
 	cd $(SRC); \
@@ -31,7 +33,7 @@ $(SRC)/%/.git :
 
 .PHONY:$(sipx) $(app)
 .SECONDEXPANSION:
-$(sipx) $(app) : $$($$@_DEPS) $$($$@_SUBMODULE)
+$(sipx) $(app) : $$($$@_DEPS) $$($$@_GIT_SUBMODULE)
 	@echo "$$rm_on_deps_change" | \
 	  DEP_TARGETS="$(addprefix $(PROJ)/,$($@_DEPS=.installed))" \
 	  TARGET=$(PROJ)/.installed \
@@ -51,7 +53,7 @@ $(foreach T,$(sipx) $(app),$(T).all-install) : %.all-install : %.all %.install ;
 # This also means all targets in all other make files cannot create a target that
 # ends in autoreconf, configure or dist.
 help.{1|2|6}.autoreconf=Run autoreconf on each project
-%.autoreconf : $$($$*_SUBMODULE)
+%.autoreconf : $$($$*_GIT_SUBMODULE)
 	cd $(SRC)/$(PROJ); \
 	  autoreconf -if
 
@@ -66,12 +68,13 @@ help.{1|2|6}.configure = Run configure on each project
 	cd $(PROJ); \
 	  $(SRC)/$(PROJ)/configure $(OPTIONS) $(sipx_OPTIONS) $($(PROJ)_OPTIONS)
 
-help.{1|2|6}.dist = Build archive, typically compressed tar
-
 .SECONDEXPANSION:
-%.dist : %.autoreconf %.configure %.dist_;
-%.dist_ :;$(MAKE) -C $(PROJ) dist
-$(sipx:=.dist-by-dep) $(app:=.dist-by-dep): %.dist-by-dep : $$(addsuffix .dist-by-dep,$$($$*_DEPS)) $$($$*_SUBMODULE)
+help.{1|2|6}.dist-only : Force a build of the archive (tarball) for this project
+$(sipx:=.dist-only) $(app:=.dist-only) : %.dist-only : %.autoreconf %.configure %.dist_;
+%.dist_ :
+	$(MAKE) -C $(PROJ) dist
+help.{1|2|6}.dist = Build archive, typically compressed tar
+$(sipx:=.dist) $(app:=.dist): %.dist : $$(addsuffix .dist,$$(filter-out $$(lib_all),$$($$*_DEPS))) $$($$*_GIT_SUBMODULE)
 	@if test -f $($(PROJ)_TAR) ; then \
 	  x=`find $(SRC)/$(PROJ)/ -type f \( \
 	       -not -name configure \
@@ -93,7 +96,7 @@ $(sipx:=.dist-by-dep) $(app:=.dist-by-dep): %.dist-by-dep : $$(addsuffix .dist-b
 	  fi \
 	fi
 	@if ! test -f $($(PROJ)_TAR) ; then \
-	  $(MAKE) $(PROJ).dist; \
+	  $(MAKE) $(PROJ).dist-only; \
 	fi
 
 # Targets for sipx only. 
@@ -110,12 +113,6 @@ $(foreach P,$(sipx) $(app),$(P).check) :; $(MAKE) -C $(PROJ) check
 # no-target default
 $(foreach C,all,$(foreach T,$(sipx) $(app),$(T).all)) :
 	$(MAKE) -C $(PROJ)
-
-$(all:=.update) :
-	if [ -f $(SRC)/$(PROJ)/.git/config ] ; then \
-	  cd $(PROJ); \
-	  git pull origin; \
-	fi
 
 # This first checks if any files have changed in a project, if not, then 
 # checks if any dependent projects were build since this project was

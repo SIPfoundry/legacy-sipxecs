@@ -22,9 +22,6 @@ freeswitch_SOURCES = $(freeswitch_TARBALL) \
 freeswitch_SRPM_DEFS = --define "buildno $(freeswitch_PACKAGE_REVISION)"
 freeswitch_RPM_DEFS = --define="buildno $(freeswitch_PACKAGE_REVISION)"
 
-# we could, but we don't these targets. FS doesn't support running ./configure from anywhere but source root.
-freeswitch.autoreconf freeswitch.configure:;
-
 freeswitch.dist : $(SRC)/freeswitch/.git
 	test -d $(dir $(freeswitch_TARBALL)) || mkdir -p $(dir $(freeswitch_TARBALL))
 	cd $(SRC)/$(PROJ); \

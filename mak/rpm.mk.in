@@ -74,19 +74,22 @@ $(sipx:=.srpm_) $(app:=.srpm_) : %.srpm_ :
 	rpmbuild -ts $(SRPM_DEFS) $($(PROJ)_SRPM_DEFS) --nodeps $($(PROJ)_TAR)
 	cp @RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM) $(MOCK_SRPM_DIR)
 
-sipx.rpm : $(sipx:=.rpm-by-dep);
-app.rpm : $(app:=.rpm-by-dep);
-lib.rpm : $(lib:=.rpm-by-dep);
+sipx.rpm : $(sipx:=.rpm);
+app.rpm : $(app:=.rpm);
+lib.rpm : $(lib:=.rpm);
 
 # If make sipXfoo.rpm is explicit target, force fresh build of target but
 # only build dependencies if they've changed
-help.{1|2}.rpm = Build RPMs, you must have mock installed. See Experimental call to build rpms. See \
-  http://wiki.sipfoundry.org/display/sipXecs/Building+RPMS+on+CentOS+or+Fedora
+help.{1|2}.rpm-only = Force a build of just this rpm.
 .SECONDEXPANSION:
-%.rpm : $$(addsuffix .rpm-by-dep,$$($$*_DEPS)) %.srpm %.rpm_;
+%.rpm-only : %.srpm %.rpm_;
 
 RPM_DEP = $(MOCK_RESULTS_DIR)/.dep.$(PROJ)
-$(lib:=.rpm-by-dep) : %.rpm-by-dep : $$(addsuffix .rpm-by-dep,$$($$*_DEPS))
+
+help.{1|2}.rpm = Builds rpms all the required projects for a project, IF they need to be rebuilt. \
+  You must have mock installed. See Experimental call to build rpms. See \
+  http://wiki.sipfoundry.org/display/sipXecs/Building+RPMS+on+CentOS+or+Fedora
+$(lib:=.rpm) : %.rpm : $$(addsuffix .rpm,$$($$*_DEPS))
 	@if test -f $(RPM_DEP); then \
 	  x=`find $(SRC)/$(PROJ) -type f \( \
 	       -newer $(RPM_DEP) \) -printf .`; \
@@ -110,7 +113,7 @@ $(lib:=.rpm-by-dep) : %.rpm-by-dep : $$(addsuffix .rpm-by-dep,$$($$*_DEPS))
 
 # Only build rpm if underlying tarball changed. Do not rely on srpm because srpms are cheap to
 # create AND because if there is a new tarball, it will contain
-$(sipx:=.rpm-by-dep) : %.rpm-by-dep : $$(addsuffix .rpm-by-dep,$$($$*_DEPS)) %.dist-by-dep
+$(sipx:=.rpm) $(app:=.rpm) : %.rpm : $$(addsuffix .rpm,$$($$*_DEPS)) %.dist
 	@if test -f $(RPM_DEP); then \
 	  if [ $($(PROJ)_TAR) -nt $(RPM_DEP) ]; then \
 	    rm $(RPM_DEP); \
