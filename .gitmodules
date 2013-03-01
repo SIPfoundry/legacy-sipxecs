@@ -10,3 +10,48 @@
 [submodule "sipXhomer"]
 	path = sipXhomer
 	url = git://github.com/dhubler/sipXhomer.git
+[submodule "sipXlang-abitibi-fr_CA"]
+	path = sipXlang-abitibi-fr_CA
+	url = git://github.com/dhubler/sipXlang-abitibi-fr_CA.git
+[submodule "sipXlang-ch"]
+	path = sipXlang-ch
+	url = git://github.com/dhubler/sipXlang-ch.git
+[submodule "sipXlang-cs"]
+	path = sipXlang-cs
+	url = git://github.com/dhubler/sipXlang-cs.git
+[submodule "sipXlang-de"]
+	path = sipXlang-de
+	url = git://github.com/dhubler/sipXlang-de.git
+[submodule "sipXlang-en_GB"]
+	path = sipXlang-en_GB
+	url = git://github.com/dhubler/sipXlang-en_GB.git
+[submodule "sipXlang-es"]
+	path = sipXlang-es
+	url = git://github.com/dhubler/sipXlang-es.git
+[submodule "sipXlang-fr_CA"]
+	path = sipXlang-fr_CA
+	url = git://github.com/dhubler/sipXlang-fr_CA.git
+[submodule "sipXlang-fr"]
+	path = sipXlang-fr
+	url = git://github.com/dhubler/sipXlang-fr.git
+[submodule "sipXlang-it"]
+	path = sipXlang-it
+	url = git://github.com/dhubler/sipXlang-it.git
+[submodule "sipXlang-ja"]
+	path = sipXlang-ja
+	url = git://github.com/dhubler/sipXlang-ja.git
+[submodule "sipXlang-es_MX"]
+	path = sipXlang-es_MX
+	url = git://github.com/dhubler/sipXlang-es_MX.git
+[submodule "sipXlang-nl"]
+	path = sipXlang-nl
+	url = git://github.com/dhubler/sipXlang-nl.git
+[submodule "sipXlang-pl"]
+	path = sipXlang-pl
+	url = git://github.com/dhubler/sipXlang-pl.git
+[submodule "sipXlang-pt_BR"]
+	path = sipXlang-pt_BR
+	url = git://github.com/dhubler/sipXlang-pt_BR.git
+[submodule "sipXlang-zh"]
+	path = sipXlang-zh
+	url = git://github.com/dhubler/sipXlang-zh.git

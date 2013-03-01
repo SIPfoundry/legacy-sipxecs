@@ -25,5 +25,3 @@ lib/*/build
 lib/cache-file
 lib/dist
 sipXtackLib/src/test/net/SipXauthIdentityTest.cpp
-# because these are not git modules but download as part of build process
-sipXlang-*

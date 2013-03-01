@@ -29,9 +29,3 @@ freeswitch.dist : $(SRC)/freeswitch/.git
 	test -d $(dir $(freeswitch_TARBALL)) || mkdir -p $(dir $(freeswitch_TARBALL))
 	cd $(SRC)/$(PROJ); \
 	  git archive --format tar --prefix freeswitch-$(freeswitch_VER)/ HEAD | bzip2 > $(freeswitch_TARBALL)
-
-$(SRC)/freeswitch/.git :
-	cd $(SRC); \
-	  git submodule init freeswitch; \
-	  git submodule update freeswitch
-

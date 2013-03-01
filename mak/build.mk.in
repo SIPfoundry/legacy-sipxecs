@@ -19,9 +19,19 @@ include $(SRC)/mak/*.sipxecs.mk
 # Only the main rpm
 $(foreach P,$(sipx) $(app),$(eval $(P)_TAR = $(P)/$$(call lowercase,$(P))-$(PACKAGE_VERSION).tar.gz))
 
+SUBMODULES = $(shell sed -e '/^\[submodule/! d' -e 's/^\[submodule "\(.*\)"]$$/\1/g' $(SRC)/.gitmodules)
+$(foreach M,$(SUBMODULES),$(eval $(M)_SUBMODULE = $(SRC)/$(M)/.git))
+# Initialize submodules as we need them and only the specific submodule. This allows many submodules
+# to be defined, but only requested submodules to be loaded
+.PRECIOUS: $(SRC)/%/.git
+$(SRC)/%/.git :
+	cd $(SRC); \
+	  git submodule init $*; \
+	  git submodule update $*
+
 .PHONY:$(sipx) $(app)
 .SECONDEXPANSION:
-$(sipx) $(app) : $$($$@_DEPS)
+$(sipx) $(app) : $$($$@_DEPS) $$($$@_SUBMODULE)
 	@echo "$$rm_on_deps_change" | \
 	  DEP_TARGETS="$(addprefix $(PROJ)/,$($@_DEPS=.installed))" \
 	  TARGET=$(PROJ)/.installed \
@@ -41,7 +51,7 @@ $(foreach T,$(sipx) $(app),$(T).all-install) : %.all-install : %.all %.install ;
 # This also means all targets in all other make files cannot create a target that
 # ends in autoreconf, configure or dist.
 help.{1|2|6}.autoreconf=Run autoreconf on each project
-%.autoreconf : $(SRC)/%
+%.autoreconf : $$($$*_SUBMODULE)
 	cd $(SRC)/$(PROJ); \
 	  autoreconf -if
 
@@ -58,10 +68,10 @@ help.{1|2|6}.configure = Run configure on each project
 
 help.{1|2|6}.dist = Build archive, typically compressed tar
 
+.SECONDEXPANSION:
 %.dist : %.autoreconf %.configure %.dist_;
 %.dist_ :;$(MAKE) -C $(PROJ) dist
-.SECONDEXPANSION:
-$(sipx:=.dist-by-dep) $(app:=.dist-by-dep): %.dist-by-dep : $$(addsuffix .dist-by-dep,$$($$*_DEPS))
+$(sipx:=.dist-by-dep) $(app:=.dist-by-dep): %.dist-by-dep : $$(addsuffix .dist-by-dep,$$($$*_DEPS)) $$($$*_SUBMODULE)
 	@if test -f $($(PROJ)_TAR) ; then \
 	  x=`find $(SRC)/$(PROJ)/ -type f \( \
 	       -not -name configure \

@@ -39,6 +39,7 @@ sipXpage_DEPS = $(call deps,sipXcommserverLib) $(call deps,sipXcommons)
 sipXpolycom_DEPS = $(call deps,sipXconfig)
 sipXrls_DEPS = $(call deps,sipXsqa) $(call deps,sipXcallLib) $(call deps,sipXcommserverLib)
 sipXsaa_DEPS = $(call deps,sipXcallLib)
+sipXhomer_DEPS = $(call deps,sipXsqa)
 sipXrelease_DEPS =
 
 sipx = \
