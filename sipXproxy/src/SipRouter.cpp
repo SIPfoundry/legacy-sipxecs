@@ -272,6 +272,8 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
    mRouteHostSecurePort.append(":");
    mRouteHostSecurePort.appendNumber(proxyTlsPort);
 
+   SipTransaction::enableTcpResend = configDb.getBoolean("SIPX_PROXY_ENABLE_TCP_RESEND", FALSE);
+
    // these should really be redundant with the existing aliases,
    // but it's better to be safe and add them to ensure that they are
    // properly recognized (the alias db prunes duplicates anyway)

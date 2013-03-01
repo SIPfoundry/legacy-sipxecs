@@ -557,7 +557,9 @@ private:
     UtlSList* mWaitingList;    /**< Events waiting until this is available
                                 * Note only a parent tx should have a waiting list */
 
-public: static UtlBoolean SendTryingForNist;
+public: 
+  static UtlBoolean SendTryingForNist;
+  static UtlBoolean enableTcpResend;
 };
 
 /* ============================ INLINE METHODS ============================ */
