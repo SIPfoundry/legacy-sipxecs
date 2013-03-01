@@ -22,7 +22,7 @@ MOCK_OPTS = \
 	  --resultdir=$(MOCK_RESULTS_DIR)
 
 # Define sipx SRPMS and tarball files. Cannot define RPM files however as one specfile may generate many rpms
-$(foreach P,$(sipx) $(app),$(eval $(P)_SRPM = $$(call lowercase,$(P))-$(PACKAGE_VERSION)-$$(DIST_REV).src.rpm))
+$(foreach P,$(sipx),$(eval $(P)_SRPM = $$(call lowercase,$(P))-$(PACKAGE_VERSION)-$$(DIST_REV).src.rpm))
 
 # Allows to target other distros other than the default
 help-values.{3} = Any of the available distros identifiers. Complete list: all @ALL_DISTROS@
@@ -70,19 +70,18 @@ help.{1|2}.srpm = Called automatically as part of rpm process after srpm target.
 # srpm git revision in tarball may not match HEAD of git repo.  tarball is only rebuilt
 # if project source changed. So we need to extract the rev from the tarball
 DIST_REV = $(shell tar -O -xzf $(PROJ)/$(proj)-$(PACKAGE_VERSION).tar.gz $(proj)-$(PACKAGE_VERSION)/.tarball-revision)
-$(sipx:=.srpm_) $(app:=.srpm_) : %.srpm_ :
+$(sipx:=.srpm_) : %.srpm_ :
 	rpmbuild -ts $(SRPM_DEFS) $($(PROJ)_SRPM_DEFS) --nodeps $($(PROJ)_TAR)
 	cp @RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM) $(MOCK_SRPM_DIR)
 
 sipx.rpm : $(sipx:=.rpm);
-app.rpm : $(app:=.rpm);
 lib.rpm : $(lib:=.rpm);
 
 # If make sipXfoo.rpm is explicit target, force fresh build of target but
 # only build dependencies if they've changed
 help.{1|2}.rpm-only = Force a build of just this rpm.
 .SECONDEXPANSION:
-%.rpm-only : %.srpm %.rpm_;
+%.rpm-only : %.dist_ %.srpm_ %.rpm_;
 
 RPM_DEP = $(MOCK_RESULTS_DIR)/.dep.$(PROJ)
 
@@ -113,7 +112,7 @@ $(lib:=.rpm) : %.rpm : $$(addsuffix .rpm,$$($$*_DEPS))
 
 # Only build rpm if underlying tarball changed. Do not rely on srpm because srpms are cheap to
 # create AND because if there is a new tarball, it will contain
-$(sipx:=.rpm) $(app:=.rpm) : %.rpm : $$(addsuffix .rpm,$$($$*_DEPS)) %.dist
+$(sipx:=.rpm) : %.rpm : $$(addsuffix .rpm,$$($$*_DEPS)) %.dist
 	@if test -f $(RPM_DEP); then \
 	  if [ $($(PROJ)_TAR) -nt $(RPM_DEP) ]; then \
 	    rm $(RPM_DEP); \

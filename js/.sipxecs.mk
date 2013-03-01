@@ -10,5 +10,4 @@ js_SOURCES = js-1.7.0.tar.gz \
   $(SRC)/$(PROJ)/js-perlconnect.patch \
   $(SRC)/$(PROJ)/js-shlib.patch
 
-# targets not defined, nothing to do
-js.autoreconf js.configure js.dist:;
+js.dist:;

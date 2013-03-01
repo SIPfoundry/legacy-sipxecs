@@ -5,5 +5,4 @@ resiprocate_SRPM = resiprocate-$(resiprocate_VER)-$(resiprocate_REV).src.rpm
 resiprocate_SOURCES = \
 	resiprocate-$(resiprocate_VER).tar.gz
 
-# targets not defined, nothing to do
-resiprocate.autoreconf resiprocate.configure resiprocate.dist :;
+resiprocate.dist :;

@@ -18,5 +18,4 @@ mongodb_SOURCES = \
 	$(SRC)/$(PROJ)/mongod.service \
 	$(SRC)/$(PROJ)/mongod.sysconf
 
-# targets not defined, nothing to do
-mongodb.autoreconf mongodb.configure mongodb.dist:;
+mongodb.dist:;

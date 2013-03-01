@@ -33,5 +33,4 @@ net-snmp_SOURCES = \
 	net-snmp-$(net-snmp_VER).tar.gz \
 	$(addprefix $(SRC)/$(PROJ)/,$(net-snmp_FILES))
 
-# targets not defined, nothing to do
-net-snmp.autoreconf net-snmp.configure net-snmp.dist :;
+net-snmp.dist :;

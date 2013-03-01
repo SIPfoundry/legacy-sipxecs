@@ -3,14 +3,15 @@
 #
 # Language utlity functions for projects building localization packages
 
-include config/utility.am
-
 # use lowercase and hyphens to be backward compatible with previous sipxecs versions
 STDPROMPTS_LANG_ID = $(call lowercase,$(subst _,-,@LANG_ID@))
 
 promptsdir = $(datadir)/www/doc/stdprompts_$(STDPROMPTS_LANG_ID)
 confplugindir = @SIPX_JAVADIR@/sipXconfig/plugins
 ivrplugindir = @SIPX_JAVADIR@/sipXivr
+
+@PACKAGE@-dist-specfile :
+	@$(call SearchAndReplace,$(srcdir)/sipxlang-@LANG_ID@.spec.in,$(distdir)/sipxlang-@LANG_ID@.spec, $(dist_EXTRA_REPLACE))
 
 sipxlang-%.jar :
 	jar -cf $@ -C $(srcdir)/sipxpbx .

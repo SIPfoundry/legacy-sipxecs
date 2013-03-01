@@ -4,20 +4,17 @@
 OPTIONS = @OPTIONS@
 DOWNLOAD_LIB_CACHE = @DOWNLOAD_LIB_CACHE@
 
+# pull in dependency make fragments
+include $(SRC)/mak/modules.mk
+include $(SRC)/mak/*.sipxecs.mk
+include $(SRC)/*/.sipxecs.mk
+
 help.sipx=Build all sipx components including targets autoreconf, configure, all and install targets
 build sipx :
 	$(MAKE) $(foreach P,$(sipx),$(P))
 
-help.app=Build all sipx apps including targets autoreconf, configure, all and install targets
-app :
-	$(MAKE) $(foreach P,$(app),$(P))
-
-# pull in dependency make fragments
-include $(SRC)/*/.sipxecs.mk
-include $(SRC)/mak/*.sipxecs.mk
-
 # Only the main rpm
-$(foreach P,$(sipx) $(app),$(eval $(P)_TAR = $(P)/$$(call lowercase,$(P))-$(PACKAGE_VERSION).tar.gz))
+$(foreach P,$(sipx),$(eval $(P)_TAR = $(P)/$$(call lowercase,$(P))-$(PACKAGE_VERSION).tar.gz))
 
 # Initialize submodules as we need them and only the specific submodule. This allows
 # many submodules to be defined, but only requested submodules to be loaded. There
@@ -31,9 +28,9 @@ $(SRC)/%/.git :
 	  git submodule init $*; \
 	  git submodule update $*
 
-.PHONY:$(sipx) $(app)
+.PHONY:$(sipx)
 .SECONDEXPANSION:
-$(sipx) $(app) : $$($$@_DEPS) $$($$@_GIT_SUBMODULE)
+$(sipx) : $$($$@_DEPS) $$($$@_GIT_SUBMODULE)
 	@echo "$$rm_on_deps_change" | \
 	  DEP_TARGETS="$(addprefix $(PROJ)/,$($@_DEPS=.installed))" \
 	  TARGET=$(PROJ)/.installed \
@@ -43,10 +40,10 @@ $(sipx) $(app) : $$($$@_DEPS) $$($$@_GIT_SUBMODULE)
 	  touch $(PROJ)/.installed; \
 	fi
 
-$(foreach T,$(sipx) $(app),$(T).build) : %.build : %.autoreconf %.configure %.all-install;
+$(foreach T,$(sipx),$(T).build) : %.build : %.autoreconf %.configure %.all-install;
 
 help.{1|6}.all-install=Run 'make all install' in each target
-$(foreach T,$(sipx) $(app),$(T).all-install) : %.all-install : %.all %.install ;
+$(foreach T,$(sipx),$(T).all-install) : %.all-install : %.all %.install ;
 
 # Targets for sipx and lib. Uses pattern %.xyz so libs can implement their own
 # implementation that will override the patterned one. i.e. freeswitch.autoreconf
@@ -58,7 +55,7 @@ help.{1|2|6}.autoreconf=Run autoreconf on each project
 	  autoreconf -if
 
 # TODO: Needs to support switching branches automatically
-$(foreach P,$(sipx) $(app) $(lib),$(SRC)/$(P)) : $(SRC)/% :
+$(foreach P,$(all),$(SRC)/$(P)) : $(SRC)/% :
 	git clone $($*_REPO) $*.git
 	mv $*.git $@
 
@@ -70,11 +67,11 @@ help.{1|2|6}.configure = Run configure on each project
 
 .SECONDEXPANSION:
 help.{1|2|6}.dist-only : Force a build of the archive (tarball) for this project
-$(sipx:=.dist-only) $(app:=.dist-only) : %.dist-only : %.autoreconf %.configure %.dist_;
+$(sipx:=.dist-only) : %.dist-only : %.autoreconf %.configure %.dist_;
 %.dist_ :
 	$(MAKE) -C $(PROJ) dist
 help.{1|2|6}.dist = Build archive, typically compressed tar
-$(sipx:=.dist) $(app:=.dist): %.dist : $$(addsuffix .dist,$$(filter-out $$(lib_all),$$($$*_DEPS))) $$($$*_GIT_SUBMODULE)
+$(sipx:=.dist): %.dist : $$(addsuffix .dist,$$(filter-out $$(lib_all),$$($$*_DEPS))) $$($$*_GIT_SUBMODULE)
 	@if test -f $($(PROJ)_TAR) ; then \
 	  x=`find $(SRC)/$(PROJ)/ -type f \( \
 	       -not -name configure \
@@ -102,16 +99,16 @@ $(sipx:=.dist) $(app:=.dist): %.dist : $$(addsuffix .dist,$$(filter-out $$(lib_a
 # Targets for sipx only. 
 MAKE_COMMANDS = check install clean dist
 $(foreach C,$(MAKE_COMMANDS) all,$(eval help.{1}.$(C)=Run make $(C) on each project))
-$(foreach P,$(sipx) $(app),$(P).install) :; $(MAKE) -C $(PROJ) install
-$(foreach P,$(sipx) $(app),$(P).clean) :
+$(foreach P,$(sipx),$(P).install) :; $(MAKE) -C $(PROJ) install
+$(foreach P,$(sipx),$(P).clean) :
 	$(MAKE) -C $(PROJ) clean
 	! test -f $(PROJ)/.installed || rm $(PROJ)/.installed
 
-$(foreach P,$(sipx) $(app),$(P).check) :; $(MAKE) -C $(PROJ) check
+$(foreach P,$(sipx),$(P).check) :; $(MAKE) -C $(PROJ) check
 
 # projects do not all have an "all" target, they probably should, until then, use
 # no-target default
-$(foreach C,all,$(foreach T,$(sipx) $(app),$(T).all)) :
+$(foreach C,all,$(foreach T,$(sipx),$(T).all)) :
 	$(MAKE) -C $(PROJ)
 
 # This first checks if any files have changed in a project, if not, then 

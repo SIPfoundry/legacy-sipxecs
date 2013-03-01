@@ -5,7 +5,7 @@ erlmongo_SOURCES = $(erlmongo_TARBALL)
 erlmongo_SRPM = erlmongo-$(erlmongo_VER)-$(erlmongo_REV)$(RPM_DIST).src.rpm
 erlmongo_TARBALL = erlmongo-$(erlmongo_VER).tar.gz
 
-erlmongo.autoreconf erlmongo.configure erlmongo.dist:;
+erlmongo.dist:;
 
 # Helpful for package maintainer when you want to pull in new changes from erlmongo project
 erlmongo.update_dist :

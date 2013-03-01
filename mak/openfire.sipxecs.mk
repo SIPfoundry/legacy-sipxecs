@@ -8,9 +8,6 @@ openfire_DEFS = --define="OPENFIRE_VERSION $(openfire_VER)" --define="OPENFIRE_B
 openfire_SRPM_DEFS = $(openfire_DEFS)
 openfire_RPM_DEFS = $(openfire_DEFS)
 
-debug :
-	echo $(filter-out $(lib_all),$(sipXopenfire_DEPS))
-
 openfire.dist :;
 	test -d $(dir $(openfire_TARBALL)) || mkdir -p $(dir $(openfire_TARBALL))
 	cd $(SRC)/$(PROJ); \

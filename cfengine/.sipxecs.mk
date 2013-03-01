@@ -7,5 +7,4 @@ cfengine_SOURCES = \
 	$(SRC)/$(PROJ)/cf-serverd \
 	$(SRC)/$(PROJ)/cf-execd
 
-# targets not defined, nothing to do
-cfengine.autoreconf cfengine.configure cfengine.dist :;
+cfengine.dist :;

@@ -34,5 +34,4 @@ sec_SOURCES = \
 	$(addprefix $(SRC)/$(PROJ)/,$(sec_FILES)) \
 	sec-$(sec_VER).tar.gz
 
-# targets not defined, nothing to do
-sec.autoreconf sec.configure sec.dist:;
+sec.dist:;
