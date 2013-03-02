@@ -56,7 +56,7 @@ $(sipx) : $$(filter-out $$(lib),$$($$@_DEPS)) $$($$@_GIT_SUBMODULE)
 	  TARGET=$(PROJ)/.installed \
 	  bash
 	@if ! test -f $(PROJ)/.installed ; then \
-	  $(MAKE) $@.build; \
+	  $(MAKE) $@.build && \
 	  touch $(PROJ)/.installed; \
 	fi
 
