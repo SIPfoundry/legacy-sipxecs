@@ -42,7 +42,7 @@ $(SRC)/%/.git :
 
 .PHONY:$(sipx)
 .SECONDEXPANSION:
-$(sipx) : $$($$@_DEPS) $$($$@_GIT_SUBMODULE)
+$(sipx) : $$(filter-out $$(lib),$$($$@_DEPS)) $$($$@_GIT_SUBMODULE)
 	@echo "$$rm_on_deps_change" | \
 	  DEP_TARGETS="$(addprefix $(PROJ)/,$($@_DEPS=.installed))" \
 	  TARGET=$(PROJ)/.installed \
