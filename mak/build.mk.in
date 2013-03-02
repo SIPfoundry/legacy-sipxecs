@@ -4,6 +4,9 @@
 OPTIONS = @OPTIONS@
 DOWNLOAD_LIB_CACHE = @DOWNLOAD_LIB_CACHE@
 
+git_submodules = $(shell sed -e '/^\[submodule/! d' -e 's/^\[submodule "\(.*\)"]$$/\1/g' $(SRC)/.gitmodules)
+
+
 # pull in dependency make fragments
 include $(SRC)/mak/modules.mk
 include $(SRC)/mak/*.sipxecs.mk
@@ -21,6 +24,8 @@ $(eval sipx_include = $(shell test -f .modules-include && \
 $(eval sipx_exclude = $(shell test -f .modules-exclude && \
 	cat .modules-exclude))
 
+sipx = $(filter-out $(sipx_exclude),$(sipx_include))
+
 help.sipx=Build all sipx components including targets autoreconf, configure, all and install targets
 build sipx :
 	$(MAKE) $(foreach P,$(sipx),$(P))
@@ -32,13 +37,16 @@ $(foreach P,$(sipx),$(eval $(P)_TAR = $(P)/$$(call lowercase,$(P))-$(PACKAGE_VER
 # many submodules to be defined, but only requested submodules to be loaded. There
 # is no need to specify which projects are git submodules, all of this is handled
 # by these this section.
-git_submodules = $(shell sed -e '/^\[submodule/! d' -e 's/^\[submodule "\(.*\)"]$$/\1/g' $(SRC)/.gitmodules)
 $(foreach M,$(git_submodules),$(eval $(M)_GIT_SUBMODULE = $(SRC)/$(M)/.git))
 .PRECIOUS: $(SRC)/%/.git
 $(SRC)/%/.git :
 	cd $(SRC); \
 	  git submodule init $*; \
 	  git submodule update $*
+
+
+sipx.git :
+	$(MAKE) -B $(foreach S,$(git_submodules),$($(S)_GIT_SUBMODULE))
 
 .PHONY:$(sipx)
 .SECONDEXPANSION:
