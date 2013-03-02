@@ -95,18 +95,6 @@ sipx_all = \
   $(sipx_extra) \
   $(sipx_lang)
 
-# Example .modules-include files
-# - Includes sipxecs core pieces and Italian language pack
-#    $(sipx_core) sipXlang-it
-# - Includes all sipxecs pieces
-#    $(sipx_all)
-$(eval sipx_include = $(shell test -f .modules-include && \
-	cat .modules-include || echo "$(sipx_core)"))
-
-# Exclude specific packages from building.
-$(eval sipx_exclude = $(shell test -f .modules-exclude && \
-	cat .modules-exclude))
-
 sipx = $(filter-out $(sipx_exclude),$(sipx_include))
 
 # re: ruby-postgres, there's a new one we should be using ruby-pgsql i 

@@ -9,6 +9,18 @@ include $(SRC)/mak/modules.mk
 include $(SRC)/mak/*.sipxecs.mk
 include $(SRC)/*/.sipxecs.mk
 
+# Example .modules-include files
+# - Includes sipxecs core pieces and Italian language pack
+#    $(sipx_core) sipXlang-it
+# - Includes all sipxecs pieces
+#    $(sipx_all)
+$(eval sipx_include = $(shell test -f .modules-include && \
+	cat .modules-include || echo "$(sipx_core)"))
+
+# Exclude specific packages from building.
+$(eval sipx_exclude = $(shell test -f .modules-exclude && \
+	cat .modules-exclude))
+
 help.sipx=Build all sipx components including targets autoreconf, configure, all and install targets
 build sipx :
 	$(MAKE) $(foreach P,$(sipx),$(P))
