@@ -28,9 +28,8 @@ const string SubscribeDB::NS("node.subscription");
 void SubscribeDB::getAll(Subscriptions& subscriptions)
 {
 	mongo::BSONObj query;
-        mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
-        mongo::DBClientBase* client = conn->get();
-	auto_ptr<mongo::DBClientCursor> pCursor = client->query(_info.getNS(), query);
+    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
 	while (pCursor.get() && pCursor->more()) {
 		subscriptions.push_back(Subscription(pCursor->next()));
 	}
@@ -95,7 +94,7 @@ void SubscribeDB::upsert (
 
     mongo::BSONObj update = opBuilder.obj();
 
-    mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     mongo::DBClientBase* client = conn->get();
     client->update(_info.getNS(), query, update, true, false);
     client->ensureIndex("node.subscription",  BSON( "expires" << 1 ));
@@ -120,9 +119,8 @@ void SubscribeDB::remove (
         Subscription::callId_fld() << callid.str() <<
         Subscription::subscribeCseq_fld() << BSON_LESS_THAN(subscribeCseq));
 
-    mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
-    mongo::DBClientBase* client = conn->get();
-    client->remove(_info.getNS(), query);
+    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    conn->get()->remove(_info.getNS(), query);
     conn->done();
 }
 
@@ -137,9 +135,8 @@ void SubscribeDB::removeError (
         Subscription::fromUri_fld() << from.str() <<
         Subscription::callId_fld() << callid.str());
 
-    mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
-    mongo::DBClientBase* client = conn->get();
-    client->remove(_info.getNS(), query);
+    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    conn->get()->remove(_info.getNS(), query);
     conn->done();
 }
 
@@ -156,9 +153,8 @@ bool SubscribeDB::subscriptionExists (
               Subscription::callId_fld() << callId.str() <<
               Subscription::expires_fld() << BSON_GREATER_THAN_EQUAL(timeNow));
 
-    mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
-    mongo::DBClientBase* client = conn->get();
-    auto_ptr<mongo::DBClientCursor> pCursor = client->query(_info.getNS(), query);
+    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
     if (pCursor.get() && pCursor->more()) {
     	conn->done();
         return pCursor->itcount() > 0;
@@ -180,9 +176,8 @@ void SubscribeDB::removeExpired( const UtlString& component, const int timeNow )
     mongo::BSONObj query = BSON(
         Subscription::component_fld() << component.str() <<
         Subscription::expires_fld() << BSON_LESS_THAN(timeNow));
-    mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
-    mongo::DBClientBase* client = conn->get();
-    client->remove(_info.getNS(), query);
+    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    conn->get()->remove(_info.getNS(), query);
     conn->done();
 }
 
@@ -199,9 +194,8 @@ void SubscribeDB::getUnexpiredSubscriptions (
         Subscription::key_fld() << key.str() <<
         Subscription::eventTypeKey_fld() << eventTypeKey.str());
 
-    mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
-    mongo::DBClientBase* client = conn->get();
-    auto_ptr<mongo::DBClientCursor> pCursor = client->query(_info.getNS(), query);
+    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
     while (pCursor.get() && pCursor->more())
     {
         subscriptions.push_back(Subscription(pCursor->next()));
@@ -218,9 +212,8 @@ void SubscribeDB::getUnexpiredContactsFieldsContaining(
 
     mongo::BSONObj query = BSON(Subscription::expires_fld() << BSON_GREATER_THAN(timeNow));
 
-    mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
-    mongo::DBClientBase* client = conn->get();
-    auto_ptr<mongo::DBClientCursor> pCursor = client->query(_info.getNS(), query);
+    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
     while (pCursor.get() && pCursor->more())
     {
         string contact;
@@ -254,7 +247,7 @@ void SubscribeDB::updateNotifyUnexpiredSubscription(
         Subscription::notifyCseq_fld() << updatedNotifyCseq <<
         Subscription::version_fld() << version));
 
-    mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     mongo::DBClientBase* client = conn->get();
     client->update(_info.getNS(), query, update);
     client->ensureIndex("node.subscription",  BSON( "expires" << 1 ));
@@ -320,7 +313,7 @@ void SubscribeDB::updateToTag(
    const UtlString& totag) const
 {
     mongo::BSONObj query = BSON(Subscription::callId_fld() << callid.str());
-    mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     mongo::DBClientBase* client = conn->get();
     auto_ptr<mongo::DBClientCursor> pCursor = client->query(_info.getNS(), query);
     while (pCursor.get() && pCursor->more())
@@ -378,9 +371,8 @@ bool SubscribeDB::findFromAndTo(
    UtlString& to) const
 {
     mongo::BSONObj query = BSON(Subscription::callId_fld() << callid.str());
-    mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
-    mongo::DBClientBase* client = conn->get();
-    auto_ptr<mongo::DBClientCursor> pCursor = client->query(_info.getNS(), query);
+    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
     while (pCursor.get() && pCursor->more())
     {
         Subscription row = pCursor->next();
@@ -416,9 +408,8 @@ bool SubscribeDB::findFromAndTo(
 int SubscribeDB::getMaxVersion(const UtlString& uri) const
 {
     mongo::BSONObj query = BSON(Subscription::uri_fld() << uri.str());
-    mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
-    mongo::DBClientBase* client = conn->get();
-    auto_ptr<mongo::DBClientCursor> pCursor = client->query(_info.getNS(), query);
+    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
     unsigned int value = 0;
     while (pCursor.get() && pCursor->more())
     {
@@ -434,9 +425,8 @@ void SubscribeDB::removeAllExpired()
 {
     int timeNow = (int) OsDateTime::getSecsSinceEpoch();
     mongo::BSONObj query = BSON(Subscription::expires_fld() << BSON_LESS_THAN_EQUAL(timeNow));
-    mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
-    mongo::DBClientBase* client = conn->get();
-    client->remove(_info.getNS(), query);
+    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    conn->get()->remove(_info.getNS(), query);
     conn->done();
 }
 

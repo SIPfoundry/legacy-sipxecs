@@ -21,7 +21,7 @@ bool ConnectionInfo::testConnection(const mongo::ConnectionString &connectionStr
 
     try
     {
-        mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(connectionString.toString());
+        MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(connectionString.toString()));
         ret = conn->ok();
         conn->done();
     }
@@ -75,7 +75,7 @@ const mongo::ConnectionString ConnectionInfo::connectionString(const string& con
 
 void BaseDB::forEach(mongo::BSONObj& query, boost::function<void(mongo::BSONObj)> doSomething)
 {
-    mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
     if (pCursor.get() && pCursor->more())
     {
