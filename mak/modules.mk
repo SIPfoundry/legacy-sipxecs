@@ -95,8 +95,6 @@ sipx_all = \
   $(sipx_extra) \
   $(sipx_lang)
 
-sipx = $(filter-out $(sipx_exclude),$(sipx_include))
-
 # re: ruby-postgres, there's a new one we should be using ruby-pgsql i 
 # think it's called as ruby-postgres is obsoleted.
 lib_all = \
