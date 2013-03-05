@@ -23,8 +23,8 @@ $(eval sipx_include = $(shell test -f .modules-include && \
 $(eval sipx_exclude = $(shell test -f .modules-exclude && \
 	cat .modules-exclude))
 
-sipx := $(sort $(filter-out $(sipx_exclude),$(filter-out $(lib),$(sipx_include))))
-lib := $(sort $(filter-out $(sipx_exclude),$(filter-out $(sipx),$(lib) $(sipx_include))))
+sipx := $(sort $(filter-out $(sipx_exclude) $(lib),$(sipx_include)))
+lib := $(sort $(filter-out $(sipx_exclude) $(sipx),$(lib) $(sipx_include)))
 
 help.sipx=Build all sipx components including targets autoreconf, configure, all and install targets
 build sipx :
