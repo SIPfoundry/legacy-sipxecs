@@ -25,6 +25,7 @@ libsipXport_la_LIBADD = \
 	@SSL_LIBS@ \
 	@RT_LIBS@ \
 	-lpthread  \
+	-ltcmalloc \
 	-lstdc++ \
 	-lboost_system-mt \
 	-lboost_thread-mt \

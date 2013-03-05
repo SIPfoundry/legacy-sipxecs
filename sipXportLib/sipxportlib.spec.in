@@ -14,6 +14,7 @@ BuildRequires: automake
 BuildRequires: gcc-c++
 BuildRequires: cppunit-devel
 BuildRequires: openssl-devel
+BuildRequires: gperftools-devel
 BuildRequires: pcre-devel
 BuildRequires: findutils
 BuildRequires: boost-devel >= 1.39
