@@ -498,6 +498,9 @@ int main(int argc, char* argv[])
    // Say goodnight Gracie...
    Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "Exiting") ;
    Os::Logger::instance().flush();
+
+   mongo::dbexit(mongo::EXIT_CLEAN);
+
    return 0;
 }
 
