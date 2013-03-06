@@ -22,6 +22,7 @@
 #include "os/OsLoggerHelper.h"
 #include "os/UnixSignals.h"
 #include "os/OsTimer.h"
+#include "os/OsMsgQ.h"
 
 #include "net/NameValueTokenizer.h"
 #include "sipXecsService/SipXecsService.h"
@@ -239,6 +240,8 @@ main(int argc, char* argv[] )
     if (pidFile) {
       daemonize(pidFile);
     }
+
+    OsMsgQShared::setQueuePreference(OsMsgQShared::QUEUE_UNLIMITED);
 
    // Configuration Database (used for OsSysLog)
    OsConfigDb* configDb = new OsConfigDb();

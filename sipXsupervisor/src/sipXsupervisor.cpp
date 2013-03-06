@@ -22,6 +22,7 @@
 #include "os/OsConfigDb.h"
 #include "os/OsTask.h"
 #include "os/OsSSLServerSocket.h"
+#include "os/OsMsgQ.h"
 #include "net/XmlRpcDispatch.h"
 #include "sipXecsService/SipXecsService.h"
 #include "SipxRpc.h"
@@ -399,6 +400,8 @@ int supervisorMain(bool bOriginalSupervisor)
     osPrintf("sipXsupervisor: Dropped privileges with setuid(%s)/setgid(%s).",
        sipxpbxuser, sipxpbxgroup);
 #endif
+
+    OsMsgQShared::setQueuePreference(OsMsgQShared::QUEUE_UNLIMITED);
 
     // Block all signals in this the main thread
     // Any threads created after this will have all signals masked.

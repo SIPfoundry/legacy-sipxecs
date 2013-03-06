@@ -18,6 +18,7 @@
 #include <os/OsConfigDb.h>
 #include <os/UnixSignals.h>
 #include <os/OsTimer.h>
+#include <os/OsMsgQ.h>
 #include <net/NameValueTokenizer.h>
 #include <net/SipPublishContentMgr.h>
 #include <persist/SipPersistentSubscriptionMgr.h>
@@ -320,6 +321,8 @@ int main(int argc, char* argv[])
     }
     signal(SIGHUP, signal_handler); // catch hangup signal
     signal(SIGTERM, signal_handler); // catch kill signal
+
+    OsMsgQShared::setQueuePreference(OsMsgQShared::QUEUE_LIMITED);
 
     // Configuration Database (used for OsSysLog)
     OsConfigDb configDb;

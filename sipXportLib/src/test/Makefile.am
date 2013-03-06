@@ -60,6 +60,7 @@ testsuite_SOURCES = \
     os/OsEventTest.cpp \
     os/OsLockTest.cpp \
     os/OsMsgQTest.cpp \
+    os/OsMsgQSharedTest.cpp \
     os/OsMutexTest.cpp \
     os/OsSemTest.cpp \
     os/OsSocketTest.cpp \

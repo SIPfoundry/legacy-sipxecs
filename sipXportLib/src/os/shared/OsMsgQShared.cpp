@@ -18,13 +18,14 @@
 #include "os/OsDateTime.h"
 #include "os/OsLogger.h"
 
-
+static OsMsgQShared::QueuePreference gQueuePreference = OsMsgQShared::QUEUE_LIMITED;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
 #include "utl/Instrumentation.h"
+
 
 // Constructor
 // If the name is specified but is already in use, throw an exception
@@ -36,9 +37,21 @@ OsMsgQShared::OsMsgQShared(const char* name,
    : OsMsgQBase(name),
      _maxMsgLen(maxMsgLen),
      _options(options),
-     _reportFull(reportFull)
+     _reportFull(reportFull),
+     _queuePreference(gQueuePreference)
 {
     mMaxMsgs = maxMsgs;
+
+    if (OsMsgQShared::QUEUE_LIMITED == _queuePreference)
+    {
+        _empty = new Semaphore(mMaxMsgs, mMaxMsgs);
+        _full = new Semaphore(mMaxMsgs, 0);
+    }
+    else
+    {
+        _empty = NULL;
+        _full = new Semaphore();
+    }
 }
 
 // Destructor
@@ -46,6 +59,18 @@ OsMsgQShared::~OsMsgQShared()
 {
     if (numMsgs())
         flush();    // get rid of any messages in the queue
+
+    if (_empty)
+    {
+        delete _empty;
+        _empty = NULL;
+    }
+
+    if (_full)
+    {
+        delete _full;
+        _full = NULL;
+    }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -148,6 +173,8 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
                                   UtlBoolean isUrgent,
                                   UtlBoolean deleteWhenDone)
 {
+   OsStatus ret = OS_SUCCESS;
+
    if (mSendHookFunc != NULL)
    {
       if (mSendHookFunc(*pMsg))
@@ -163,7 +190,20 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
       }
    }
 
-   enqueue(pMsg);
+   if (!rTimeout.isInfinite())
+   {
+     int expireFromNow = rTimeout.cvtToMsecs();
+     if (try_enqueue(pMsg, expireFromNow))
+       ret = OS_SUCCESS;
+     else
+       ret = OS_WAIT_TIMEOUT;
+   }
+   else
+   {
+     enqueue(pMsg);
+     ret = OS_SUCCESS;
+   }
+
 
    int count = numMsgs();
    
@@ -176,13 +216,13 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
    }
 
    system_tap_queue_enqueue(mName.data(), 0, _queue.size());
-   return OS_SUCCESS;
+   return ret;
 }
 
 // Helper function for removing a message from the head of the queue
 OsStatus OsMsgQShared::doReceive(OsMsg*& rpMsg, const OsTime& rTimeout)
 {
-  OsStatus ret;
+  OsStatus ret = OS_SUCCESS;
 
   if (!rTimeout.isInfinite())
   {
@@ -205,3 +245,9 @@ OsStatus OsMsgQShared::doReceive(OsMsg*& rpMsg, const OsTime& rTimeout)
 
 
 /* ============================ FUNCTIONS ================================= */
+
+
+void OsMsgQShared::setQueuePreference(OsMsgQShared::QueuePreference preference)
+{
+    gQueuePreference = preference;
+}

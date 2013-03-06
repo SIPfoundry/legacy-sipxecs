@@ -102,6 +102,9 @@ public:
     //
     // Returns the number of transactions in the hash bag
     //
+
+    void runGarbageCollection();
+    void abortGarbageCollection();
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -127,8 +130,6 @@ protected:
     //
     // Garbage collection
     //
-    void runGarbageCollection();
-    void abortGarbageCollection();
     boost::thread* _pGarbageCollectionThread;
     bool _abortGarbageCollection;
     boost::mutex _garbageCollectionMutex;
