@@ -7,6 +7,7 @@ OpenACD_SRPM = openacd-$(OpenACD_VER)-$(OpenACD_REV).src.rpm
 OpenACD_TAR = OpenACD/OpenACD.tar.gz
 OpenACD_SRPM_DEFS = --define "buildno $(OpenACD_REV)"
 OpenACD_RPM_DEFS = --define="buildno $(OpenACD_REV)"
+OpenACD_BUILD_ON_CHANGE = $(DEFAULT_ON_CHANGE) -a -not -name commit_ver.hrl
 
 OpenACD.dist :
 	test -d OpenACD || mkdir -p OpenACD

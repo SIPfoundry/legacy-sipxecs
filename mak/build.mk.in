@@ -4,8 +4,7 @@
 OPTIONS = @OPTIONS@
 DOWNLOAD_LIB_CACHE = @DOWNLOAD_LIB_CACHE@
 
-git_submodules = $(shell sed -e '/^\[submodule/! d' -e 's/^\[submodule "\(.*\)"]$$/\1/g' $(SRC)/.gitmodules)
-
+git_submodules = $(shell sed -e '/^\[submodule/! d' -e 's/^\[submodule "\(.*\)"]$$/\1/g' $(wildcard $(SRC)/.gitmodules $(SRC)/custom/.gitmodules))
 
 # pull in dependency make fragments
 include $(SRC)/mak/modules.mk
@@ -24,7 +23,8 @@ $(eval sipx_include = $(shell test -f .modules-include && \
 $(eval sipx_exclude = $(shell test -f .modules-exclude && \
 	cat .modules-exclude))
 
-sipx = $(filter-out $(sipx_exclude),$(sipx_include))
+sipx := $(sort $(filter-out $(sipx_exclude) $(lib),$(sipx_include)))
+lib := $(sort $(filter-out $(sipx_exclude) $(sipx),$(lib) $(sipx_include)))
 
 help.sipx=Build all sipx components including targets autoreconf, configure, all and install targets
 build sipx :
@@ -44,17 +44,49 @@ $(SRC)/%/.git :
 	  git submodule init $*; \
 	  git submodule update $*
 
-
 sipx.git :
 	$(MAKE) -B $(foreach S,$(git_submodules),$($(S)_GIT_SUBMODULE))
 
+build_on_change= find $(SRC)/$(PROJ)/ \( ! -regex '.*\/\.git/.*' \) -a  \( -type f -newer $1 -a $(build_on_change_var) \)
+build_on_change_var = $(build_on_change_$(origin $(PROJ)_BUILD_ON_CHANGE))
+build_on_change_file = $($(PROJ)_BUILD_ON_CHANGE)
+DEFAULT_ON_CHANGE = \
+	-not -name configure \
+	-a -not -path '*/autom4te.cache/*' \
+	-a -not -name Makefile.in \
+	-a -not -name ltmain.sh \
+	-a -not -name depcomp \
+	-a -not -name install-sh \
+	-a -not -name config.guess \
+	-a -not -name config.sub \
+	-a -not -name aclocal.m4 \
+	-a -not -name missing \
+	-a -not -name '*~' \
+	-a -not -name config.h.in
+build_on_change_undefined = $(DEFAULT_ON_CHANGE)
 .PHONY:$(sipx)
 .SECONDEXPANSION:
+help.{sipx}.changes = List changes since last build and install.
+$(sipx:=.changes) :
+	@! test -f $(PROJ)/.installed || $(call build_on_change,$(PROJ)/.installed)
+
 $(sipx) : $$(filter-out $$(lib),$$($$@_DEPS)) $$($$@_GIT_SUBMODULE)
-	@echo "$$rm_on_deps_change" | \
-	  DEP_TARGETS="$(addprefix $(PROJ)/,$($@_DEPS=.installed))" \
-	  TARGET=$(PROJ)/.installed \
-	  bash
+	@if test -f $(PROJ)/.installed ; then \
+	  x=`$(call build_on_change,$(PROJ)/.installed) -printf .`; \
+	  if [ -n "$$x" ] ; then \
+	    rm $(PROJ)/.installed; \
+	  elif [ -n "$($@_DEPS)" ] ; then \
+	    for f in $(addprefix $(PROJ)/,$($@_DEPS=.installed)) ; do \
+	      if test -f $(PROJ)/.installed ; then \
+	        if test -f $$f ; then \
+	          if [ $$f -nt $(PROJ)/.installed ] ; then \
+	            rm $(PROJ)/.installed; \
+	          fi \
+	        fi \
+	      fi \
+	    done \
+	  fi \
+	fi
 	@if ! test -f $(PROJ)/.installed ; then \
 	  $(MAKE) $@.build && \
 	  touch $(PROJ)/.installed; \
@@ -62,14 +94,14 @@ $(sipx) : $$(filter-out $$(lib),$$($$@_DEPS)) $$($$@_GIT_SUBMODULE)
 
 $(foreach T,$(sipx),$(T).build) : %.build : %.autoreconf %.configure %.all-install;
 
-help.{1|6}.all-install=Run 'make all install' in each target
+help.{sipx}.all-install=Run 'make all install' in each target
 $(foreach T,$(sipx),$(T).all-install) : %.all-install : %.all %.install ;
 
 # Targets for sipx and lib. Uses pattern %.xyz so libs can implement their own
 # implementation that will override the patterned one. i.e. freeswitch.autoreconf
 # This also means all targets in all other make files cannot create a target that
 # ends in autoreconf, configure or dist.
-help.{1|2|6}.autoreconf=Run autoreconf on each project
+help.{sipx}.autoreconf=Run autoreconf on each project
 %.autoreconf : $$($$*_GIT_SUBMODULE)
 	cd $(SRC)/$(PROJ); \
 	  autoreconf -if
@@ -79,25 +111,30 @@ $(foreach P,$(all),$(SRC)/$(P)) : $(SRC)/% :
 	git clone $($*_REPO) $*.git
 	mv $*.git $@
 
-help.{1|2|6}.configure = Run configure on each project
+help.{sipx}.configure = Run configure on each project
 %.configure :
 	test -d $(PROJ) || mkdir -p $(PROJ)
 	cd $(PROJ); \
 	  $(SRC)/$(PROJ)/configure $(OPTIONS) $(sipx_OPTIONS) $($(PROJ)_OPTIONS)
 
 .SECONDEXPANSION:
-help.{1|2|6}.dist-only : Force a build of the archive (tarball) for this project
+help.{sipx}.dist-only : Force a build of the archive (tarball) for this project
 $(sipx:=.dist-only) : %.dist-only : %.autoreconf %.configure %.dist_;
 %.dist_ :
 	$(MAKE) -C $(PROJ) dist
-help.{1|2|6}.dist = Build archive, typically compressed tar
+
+help.{sipx}.dist-changes = List changes since last tarball was built.
+$(sipx:=.dist-changes) :
+	@! test -f $($(PROJ)_TAR) || $(call build_on_change,$($(PROJ)_TAR))
+
+# This first checks if any files have changed in a project, if not, then 
+# checks if any dependent projects were build since this project was
+# build. If so clear the build file
+help.{sipx|lib}.dist = Build archive, typically compressed tar
 $(sipx:=.dist): %.dist : $$(addsuffix .dist,$$(filter-out $$(lib_all),$$($$*_DEPS))) $$($$*_GIT_SUBMODULE)
 	@if test -f $($(PROJ)_TAR) ; then \
-	  x=`find $(SRC)/$(PROJ)/ -type f \( \
-	       -not -name configure \
-	       -a -not -path '*/autom4te.cache/*' \
-	       -a -newer $($(PROJ)_TAR) \) -printf .`; \
-	  if [ -n "$$x" ] ; then \
+	  x=`$(call build_on_change,$($(PROJ)_TAR)) -printf .`; \
+	  if [ -n "$${x}" ] ; then \
 	    rm $($(PROJ)_TAR); \
 	  fi; \
 	fi
@@ -118,7 +155,7 @@ $(sipx:=.dist): %.dist : $$(addsuffix .dist,$$(filter-out $$(lib_all),$$($$*_DEP
 
 # Targets for sipx only. 
 MAKE_COMMANDS = check install clean dist
-$(foreach C,$(MAKE_COMMANDS) all,$(eval help.{1}.$(C)=Run make $(C) on each project))
+$(foreach C,$(MAKE_COMMANDS) all,$(eval help.{sipx}.$(C)=Run make $(C) on each project))
 $(foreach P,$(sipx),$(P).install) :; $(MAKE) -C $(PROJ) install
 $(foreach P,$(sipx),$(P).clean) :
 	$(MAKE) -C $(PROJ) clean
@@ -131,28 +168,3 @@ $(foreach P,$(sipx),$(P).check) :; $(MAKE) -C $(PROJ) check
 $(foreach C,all,$(foreach T,$(sipx),$(T).all)) :
 	$(MAKE) -C $(PROJ)
 
-# This first checks if any files have changed in a project, if not, then 
-# checks if any dependent projects were build since this project was
-# build. If so clear the build file
-define rm_on_deps_change
-	if test -f $$TARGET ; then
-	  x=`find $(SRC)/$(PROJ) -type f \( \
-	       -not -name configure \
-	       -a -not -path '*/autom4te.cache/*' \
-	       -a -newer $$TARGET \) -printf .`
-	  if [ -n "$$x" ] ; then
-	    rm $$TARGET
-	  elif [ -n "$($@_DEPS)" ] ; then
-	    for f in $$DEP_TARGETS ; do
-	      if test -f $$TARGET ; then
-	        if test -f $$f ; then
-	          if [ $$f -nt $$TARGET ] ; then
-	            rm $$TARGET
-	          fi
-	        fi
-	      fi
-	    done
-	  fi
-	fi
-endef
-export rm_on_deps_change
