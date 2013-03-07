@@ -540,8 +540,11 @@ int main(int argc, char* argv[])
                                                NULL, // authorizePasswords (deprecated)
                                                lineMgr
                                                );
-    userAgent->setUserAgentHeaderProperty("sipXecs/park");
-    userAgent->start();
+    if (userAgent)
+    {
+        userAgent->setUserAgentHeaderProperty("sipXecs/park");
+        userAgent->start();
+    }
 
     if (!userAgent->isOk())
     {
@@ -549,6 +552,10 @@ int main(int argc, char* argv[])
        gShutdownFlag = TRUE;
     }
 
+    CallManager *callManager = NULL;
+    OrbitListener *listener= NULL;
+    if (!gShutdownFlag)
+    {
     // Read the list of codecs from the configuration file.
     SdpCodecFactory codecFactory;
     initCodecs(&codecFactory, &configDb);
@@ -581,7 +588,7 @@ int main(int argc, char* argv[])
                portIsValid(UdpPort) ? UdpPort : TcpPort);
        outgoingAddress = buffer;
     }
-    CallManager callManager(FALSE,
+    callManager = new CallManager(FALSE,
                            NULL,
                            TRUE,                              // early media in 180 ringing
                            &codecFactory,
@@ -614,10 +621,10 @@ int main(int argc, char* argv[])
 
     // Create a listener (application) to deal with call
     // processing events (e.g. incoming call and hang ups)
-    OrbitListener listener(&callManager, Lifetime, BlindXferWait, KeepAliveTime, ConsXferWait);
+    listener = new OrbitListener(callManager, Lifetime, BlindXferWait, KeepAliveTime, ConsXferWait);
 
-    callManager.addTaoListener(&listener);
-    listener.start();
+    callManager->addTaoListener(listener);
+    listener->start();
 
     // Create the SIP Subscribe Server
     SubscribeDB subscribeDb(MongoDB::ConnectionInfo(mongoConnectionString, SubscribeDB::NS));
@@ -640,12 +647,13 @@ int main(int argc, char* argv[])
     // Create the DialogEventPublisher.
     // Use the sipX domain as the hostport of resource-IDs of the
     // published events, as that will be the request-URIs of SUBSCRIBEs.
-    DialogEventPublisher dialogEvents(&callManager, &publisher, domain, PORT_NONE, OneButtonBLF);
-    callManager.addTaoListener(&dialogEvents);
+    DialogEventPublisher dialogEvents(callManager, &publisher, domain, PORT_NONE, OneButtonBLF);
+    callManager->addTaoListener(&dialogEvents);
     dialogEvents.start();
 
     // Start up the call processing system
-    callManager.start();
+    callManager->start();
+    }
 
     // Loop forever until signaled to shut down
 
@@ -665,8 +673,8 @@ int main(int argc, char* argv[])
                              "park main "
                              "logging call status"
                              );
-               callManager.printCalls(0) ;
-               listener.dumpCallsAndTransfers();
+               callManager->printCalls(0) ;
+               listener->dumpCallsAndTransfers();
            }
        }
        else
@@ -675,6 +683,11 @@ int main(int argc, char* argv[])
        }
 
     }
+
+    if (callManager)
+        delete callManager;
+    if (listener)
+        delete listener;
 
     // Flush the log file
     Os::Logger::instance().flush();
@@ -685,6 +698,9 @@ int main(int argc, char* argv[])
     // Terminate the timer thread
     //
     OsTimer::terminateTimerService();
+
+    mongo::dbexit(mongo::EXIT_CLEAN);
+
 
     // Say goodnight Gracie...
     return 0;

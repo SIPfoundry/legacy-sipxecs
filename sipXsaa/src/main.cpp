@@ -473,6 +473,8 @@ int main(int argc, char* argv[])
    // Delete the LineMgr Object
    delete lineMgr;
 
+   mongo::dbexit(mongo::EXIT_CLEAN);
+
    // Say goodnight Gracie...
    return 0;
 }
