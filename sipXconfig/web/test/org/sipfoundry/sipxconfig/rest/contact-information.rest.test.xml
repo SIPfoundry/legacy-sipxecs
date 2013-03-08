@@ -21,6 +21,7 @@
   <linkedinName>Linkedin</linkedinName>
   <facebookName>Facebook</facebookName>
   <xingName>Xing</xingName>
+  <timestamp>0</timestamp>
   <enabled>true</enabled>
   <ldapManaged>false</ldapManaged>
   <firstName>John</firstName>

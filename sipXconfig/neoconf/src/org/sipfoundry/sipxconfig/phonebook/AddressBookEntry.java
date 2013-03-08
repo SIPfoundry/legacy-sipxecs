@@ -204,4 +204,5 @@ public class AddressBookEntry extends BeanWithId {
     public void setDidNumber(String didNumber) {
         m_didNumber = didNumber;
     }
+
 }

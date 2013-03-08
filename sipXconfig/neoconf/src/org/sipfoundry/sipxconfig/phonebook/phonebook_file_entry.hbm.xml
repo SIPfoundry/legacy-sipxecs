@@ -13,7 +13,7 @@
 	<property name="firstName" column="first_name"/>
 	<property name="lastName" column="last_name"/>
 	<property name="number" column="phone_number"/>
-
+	<property name="internalId" column="internal_id"/>
     <many-to-one name="addressBookEntry"
                  class="org.sipfoundry.sipxconfig.phonebook.AddressBookEntry"
 			     unique="true"
@@ -24,13 +24,17 @@
 
     <subclass name="GooglePhonebookEntry" discriminator-value="G">
 		<property name="googleAccount" column="google_account_id"/>
-		<property name="internalId" column="internal_id"/>
 	</subclass>
 
     <subclass name="FilePhonebookEntry" discriminator-value="F">
-        <property name="internalId" column="internal_id"/>
     </subclass>
 
   </class>
+
+  <query name="phonebookEntryByInternalId">
+    <![CDATA[
+      select pbe from PhonebookEntry as pbe
+      where pbe.internalId = :internalId]]>
+  </query>
 
 </hibernate-mapping>

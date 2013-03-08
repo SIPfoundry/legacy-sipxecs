@@ -8,9 +8,11 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
+import java.io.Serializable;
+
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
-public class Address extends BeanWithId {
+public class Address extends BeanWithId implements Serializable {
 
     private String m_street;
     private String m_city;

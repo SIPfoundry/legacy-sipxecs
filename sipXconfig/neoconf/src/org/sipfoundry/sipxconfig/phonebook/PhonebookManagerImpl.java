@@ -84,9 +84,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
-
 import com.glaforge.i18n.io.CharsetToolkit;
-
 
 public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> implements PhonebookManager,
         DaoEventListener {
@@ -96,11 +94,12 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     private static final String FIELD_ID = "id";
     private static final String FIELD_CONTENT = "content";
     private static final String PARAM_USER_ID = "userId";
+    private static final String PARAM_INTERNAL_ID = "internalId";
     private static final String AT_SIGN = "@";
 
     private static final String QUERY_GROUP = "SELECT u.user_id from Users u "
-        + "inner join user_group ug on u.user_id = ug.user_id "
-        + "WHERE u.user_type='C' AND ug.group_id=%d ORDER BY u.user_id;";
+            + "inner join user_group ug on u.user_id = ug.user_id "
+            + "WHERE u.user_type='C' AND ug.group_id=%d ORDER BY u.user_id;";
 
     private boolean m_phonebookManagementEnabled;
     private String m_externalUsersDirectory;
@@ -113,6 +112,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     private BeanWithSettingsDao<GeneralPhonebookSettings> m_settingsDao;
     private UserProfileService m_userProfileService;
 
+    @Override
     public Collection<Phonebook> getPhonebooks() {
         Collection<Phonebook> books = getHibernateTemplate().loadAll(Phonebook.class);
         if (!books.isEmpty()) {
@@ -131,43 +131,67 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         return books;
     }
 
+    /** {@inheritDoc */
+    @Override
+    public Collection<Phonebook> getAllPhonebooks() {
+        return getHibernateTemplate().loadAll(Phonebook.class);
+    }
+
+    @Override
     public Phonebook getPhonebook(Integer id) {
         Phonebook phonebook = load(Phonebook.class, id);
         return phonebook;
     }
 
+    @Override
     public void deletePhonebooks(Collection<Integer> ids) {
         for (Integer id : ids) {
             Phonebook phonebook = getPhonebook(id);
-            getDaoEventPublisher().publishDelete(phonebook);
             deletePhonebook(phonebook);
         }
     }
 
     public void deletePhonebook(Phonebook phonebook) {
         getHibernateTemplate().delete(phonebook);
+        getDaoEventPublisher().publishDelete(phonebook);
     }
 
+    @Override
     public void savePhonebook(Phonebook phonebook) {
         checkDuplicates(getHibernateTemplate(), Phonebook.class, phonebook, NAME, new DuplicatePhonebookName());
         getHibernateTemplate().saveOrUpdate(phonebook);
+        getDaoEventPublisher().publishSave(phonebook);
     }
 
+    @Override
     public PhonebookEntry getPhonebookEntry(Integer id) {
         return getHibernateTemplate().load(PhonebookEntry.class, id);
     }
 
-    public void savePhonebookEntry(PhonebookEntry entry) {
-        getHibernateTemplate().saveOrUpdate(entry);
+    @Override
+    public PhonebookEntry findPhonebookEntryByInternalId(String internalId) {
+        String query = "phonebookEntryByInternalId";
+        List<PhonebookEntry> entries = getHibernateTemplate().findByNamedQueryAndNamedParam(query,
+                PARAM_INTERNAL_ID, internalId);
+        return requireOneOrZero(entries, query);
     }
 
+    @Override
+    public void savePhonebookEntry(PhonebookEntry entry) {
+        getHibernateTemplate().saveOrUpdate(entry);
+        getDaoEventPublisher().publishSave(entry);
+    }
+
+    @Override
     public void updatePhonebookEntry(PhonebookEntry entry) {
         getHibernateTemplate().merge(entry);
         getDaoEventPublisher().publishSave(entry);
     }
 
+    @Override
     public void deletePhonebookEntry(PhonebookEntry entry) {
         getHibernateTemplate().delete(entry);
+        getDaoEventPublisher().publishDelete(entry);
     }
 
     class DuplicatePhonebookName extends UserException {
@@ -176,6 +200,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         }
     }
 
+    @Override
     public PhonebookEntry getDuplicatePhonebookEntry(PhonebookEntry newEntry, User user) {
         PhoneEntryComparator entriesComparator = new PhoneEntryComparator();
         Collection<Phonebook> allUserPhonebooks = getAllPhonebooksByUser(user);
@@ -213,6 +238,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
      *
      * This method does not ensure that directory exists.
      */
+    @Override
     public String getExternalUsersDirectory() {
         return m_externalUsersDirectory;
     }
@@ -222,18 +248,21 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         m_externalUsersDirectory = externalUsersDirectory;
     }
 
+    @Override
     public Phonebook getPhonebookByName(String name) {
         String query = "phoneBookByName";
         Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam(query, NAME, name);
         return requireOneOrZero(books, query);
     }
 
+    @Override
     public Collection<Phonebook> getPublicPhonebooksByUser(User consumer) {
         Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam("phoneBooksByUser",
                 PARAM_USER_ID, consumer.getId());
         return books;
     }
 
+    @Override
     public Collection<Phonebook> getAllPhonebooksByUser(User consumer) {
 
         Collection<Phonebook> phonebooks = getPublicPhonebooksByUser(consumer);
@@ -244,6 +273,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         return phonebooks;
     }
 
+    @Override
     public Phonebook getPrivatePhonebook(User user) {
         String query = "privatePhoneBookByUser";
         List<Phonebook> privateBooks = getHibernateTemplate().findByNamedQueryAndNamedParam(query, PARAM_USER_ID,
@@ -251,6 +281,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         return requireOneOrZero(privateBooks, query);
     }
 
+    @Override
     public Phonebook getPrivatePhonebookCreateIfRequired(User user) {
         Phonebook phonebook = getPrivatePhonebook(user);
         if (null == phonebook) {
@@ -258,11 +289,13 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             phonebook.setName("privatePhonebook_" + user.getId());
             phonebook.setUser(user);
             savePhonebook(phonebook);
+            getDaoEventPublisher().publishSave(phonebook);
         }
 
         return phonebook;
     }
 
+    @Override
     public Collection<PhonebookEntry> getEntries(Collection<Phonebook> phonebooks, User user) {
         Map<String, PhonebookEntry> entries = new TreeMap();
         if (!phonebooks.isEmpty()) {
@@ -363,6 +396,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         return new UserPhonebookEntry(firstName, lastName, userName, abe);
     }
 
+    @Override
     public PagedPhonebook getPagedPhonebook(Collection<Phonebook> phonebook, User user, String startRow,
             String endRow, String queryString) {
 
@@ -389,10 +423,12 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
                 .getDomainName());
     }
 
+    @Override
     public Collection<PhonebookEntry> getEntries(int phonebookId) {
         return getEntries(getPhonebook(phonebookId));
     }
 
+    @Override
     public Collection<PhonebookEntry> getEntries(Phonebook phonebook) {
         final Map<String, PhonebookEntry> entries = new TreeMap<String, PhonebookEntry>();
         Collection<Group> members = phonebook.getMembers();
@@ -422,6 +458,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         return finalList;
     }
 
+    @Override
     public Collection<PhonebookEntry> getAllEntries(int phonebookId) {
         Map<String, PhonebookEntry> entriesMap = new TreeMap<String, PhonebookEntry>();
         Collection<PhonebookEntry> entries = getEntries(getPhonebook(phonebookId));
@@ -462,6 +499,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
      *
      * @param queryString The string to search for. Can not be null
      */
+    @Override
     public Collection<PhonebookEntry> search(Collection<Phonebook> phonebooks, String queryString, User portalUser) {
         RAMDirectory index = new RAMDirectory();
         Collection<PhonebookEntry> phonebookEntries = getEntries(phonebooks, portalUser);
@@ -554,6 +592,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         }
     }
 
+    @Override
     public void reset() {
         for (Phonebook phonebook : getPhonebooks()) {
             deletePhonebook(phonebook);
@@ -561,6 +600,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     static class PhoneEntryComparator implements Comparator<PhonebookEntry> {
+        @Override
         public int compare(PhonebookEntry a, PhonebookEntry b) {
             CompareToBuilder compare = new CompareToBuilder();
             compare.append(a.getLastName(), b.getLastName());
@@ -644,6 +684,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             m_extractHeader = extractHeader;
         }
 
+        @Override
         public void execute(Object input) {
             if (m_extractHeader) {
                 Map<String, Integer> header = extractHeader(input);
@@ -746,10 +787,10 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
      * public so Velocity doesn't reject object
      */
     public static class UserPhonebookEntry extends PhonebookEntry {
-        private String m_firstName;
-        private String m_lastName;
-        private String m_number;
-        private AddressBookEntry m_abe;
+        private final String m_firstName;
+        private final String m_lastName;
+        private final String m_number;
+        private final AddressBookEntry m_abe;
 
         UserPhonebookEntry(String first, String last, String number, AddressBookEntry abe) {
             m_firstName = first;
@@ -779,6 +820,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         }
     }
 
+    @Override
     public void onDelete(Object entity) {
         if (entity instanceof Group) {
             Group group = (Group) entity;
@@ -796,9 +838,11 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         }
     }
 
+    @Override
     public void onSave(Object entity) {
     }
 
+    @Override
     public boolean getPhonebookManagementEnabled() {
         return m_phonebookManagementEnabled;
     }
@@ -807,6 +851,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         m_phonebookManagementEnabled = phonebookManagementEnabled;
     }
 
+    @Override
     public void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out, PhonebookFormat format)
         throws IOException {
         if (entries.isEmpty()) {
@@ -891,6 +936,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         return entriesList.size();
     }
 
+    @Override
     @SuppressWarnings("deprecation")
     public void removeTableColumns() {
         try {
@@ -915,14 +961,16 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
      * direct SQL query to retrieve them.
      *
      */
+    @Override
     public Map<Integer, String[]> getPhonebookFilesName() {
         Map<Integer, String[]> names = new TreeMap<Integer, String[]>();
         try {
             String query = "select phonebook_id, members_csv_filename, members_vcard_filename from phonebook;";
             Session currentSession = getHibernateTemplate().getSessionFactory().getCurrentSession();
-            List<Object[]> entries = currentSession.createSQLQuery(query).addScalar("phonebook_id",
-                    Hibernate.INTEGER).addScalar("members_csv_filename", Hibernate.STRING).addScalar(
-                    "members_vcard_filename", Hibernate.STRING).list();
+            List<Object[]> entries = currentSession.createSQLQuery(query)
+                    .addScalar("phonebook_id", Hibernate.INTEGER)
+                    .addScalar("members_csv_filename", Hibernate.STRING)
+                    .addScalar("members_vcard_filename", Hibernate.STRING).list();
             for (Object[] entry : entries) {
                 String[] files = {
                     (String) entry[1], (String) entry[2]
@@ -998,6 +1046,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     /**
      * To be used only for upgrading existing contacts
      */
+    @Override
     public void updateFilePhonebookEntryInternalIds() {
         Collection<FilePhonebookEntry> fileEntries = getHibernateTemplate().loadAll(FilePhonebookEntry.class);
         for (FilePhonebookEntry entry : fileEntries) {
@@ -1006,24 +1055,30 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         getHibernateTemplate().saveOrUpdateAll(fileEntries);
     }
 
+    @Override
     public GoogleDomain getGoogleDomain() {
         List domains = getHibernateTemplate().loadAll(GoogleDomain.class);
         GoogleDomain gd = (GoogleDomain) singleResult(domains);
         return gd;
     }
 
+    @Override
     public void saveGoogleDomain(GoogleDomain gd) {
         getHibernateTemplate().saveOrUpdate(gd);
     }
 
+    @Override
     public void saveGeneralPhonebookSettings(GeneralPhonebookSettings generalPhonebookSettings) {
         m_settingsDao.upsert(generalPhonebookSettings);
+        getDaoEventPublisher().publishSave(generalPhonebookSettings);
     }
 
+    @Override
     public GeneralPhonebookSettings getGeneralPhonebookSettings() {
         return m_settingsDao.findOrCreateOne();
     }
 
+    @Override
     public void removePrivatePhonebook(User user) {
         Phonebook privatePhonebook = getPrivatePhonebook(user);
         if (privatePhonebook != null) {
@@ -1042,5 +1097,10 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     public void setUserProfileService(UserProfileService profileService) {
         m_userProfileService = profileService;
+    }
+
+    @Override
+    public Phonebook getPrivatePhonebookCreateIfRequired(String userName) {
+        return getPrivatePhonebookCreateIfRequired(m_coreContext.loadUserByUserName(userName));
     }
 }

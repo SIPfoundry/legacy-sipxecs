@@ -120,4 +120,15 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     public void removePrivatePhonebook(User user);
 
+    /**
+     * Retrieves all phonebooks, both system and private
+     *
+     * @return
+     */
+    Collection<Phonebook> getAllPhonebooks();
+
+    Phonebook getPrivatePhonebookCreateIfRequired(String userName);
+
+    PhonebookEntry findPhonebookEntryByInternalId(String internalId);
+
 }

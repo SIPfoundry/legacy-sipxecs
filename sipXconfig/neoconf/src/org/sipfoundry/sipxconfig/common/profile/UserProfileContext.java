@@ -18,6 +18,8 @@ package org.sipfoundry.sipxconfig.common.profile;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import static org.apache.commons.lang.StringUtils.EMPTY;
 
@@ -93,6 +95,8 @@ public class UserProfileContext implements DaoEventListener, SetupListener {
                 profile.setBranchName(user.getSite() != null ? user.getSite().getName() : EMPTY);
                 profile.setBranchAddress(user.getSite() != null ? createBranchAddress(user.getSite()) : new Address());
                 profile.setImDisplayName(new ImAccount(user).getImDisplayName());
+                Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+                profile.setTimestamp(cal.getTimeInMillis());
                 m_userProfileService.saveUserProfile(profile);
             } catch (Exception ex) {
                 LOG.error("failed to save profile in mongo" + ex.getMessage());

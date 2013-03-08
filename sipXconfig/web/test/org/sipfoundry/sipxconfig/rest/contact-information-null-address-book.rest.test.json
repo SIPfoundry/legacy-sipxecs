@@ -5,6 +5,7 @@
   "imDisplayName": "John Doe",
   "useBranchAddress": false,
   "salutation": "None",
+  "timestamp": 0,
   "enabled": true,
   "ldapManaged": false,
   "firstName": "John",

@@ -61,6 +61,7 @@ public class UserProfile {
     private String m_linkedinName;
     private String m_facebookName;
     private String m_xingName;
+    private long m_timestamp;
 
     private String m_avatar;
     private String m_extAvatar;
@@ -397,5 +398,13 @@ public class UserProfile {
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void setTimestamp(long timeInMillis) {
+        m_timestamp = timeInMillis;
+    }
+
+    public long getTimestamp() {
+        return m_timestamp;
     }
 }

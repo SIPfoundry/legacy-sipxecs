@@ -21,6 +21,7 @@
   "linkedinName": "Linkedin",
   "facebookName": "Facebook",
   "xingName": "Xing",
+  "timestamp": 0,
   "enabled": true,
   "ldapManaged": false,
   "firstName": "John",

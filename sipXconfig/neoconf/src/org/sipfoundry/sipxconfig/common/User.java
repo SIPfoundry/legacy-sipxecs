@@ -165,8 +165,8 @@ public class User extends AbstractUser implements Replicable {
         props.put(CONTACT, getContactUri(domain));
         props.put(GROUPS, getGroupsNames().split(" "));
         props.put(TIMEZONE, getTimezone().getID());
-        props.put(TIMESTAMP, System.currentTimeMillis());
         props.put(VOICEMAIL_ENABLED, isDepositVoicemail());
+        props.put(TIMESTAMP, System.currentTimeMillis());
         return props;
     }
 

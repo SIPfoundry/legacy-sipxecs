@@ -22,6 +22,7 @@ public class PhonebookEntry extends BeanWithId {
     private String m_internalId;
     private AddressBookEntry m_addressBookEntry;
     private Phonebook m_phonebook;
+    private Long m_timestamp;
 
     public String getFirstName() {
         return m_firstName;
@@ -180,5 +181,25 @@ public class PhonebookEntry extends BeanWithId {
             "Home Zip/Postal code", "Office city", "Office country", "Office State", "Office Street",
             "Office Zip/Postal code", "Office designation", "Office Mail", "Alternate Office Mail"
         };
+    }
+
+    // same as user profiles - acutally the names of the private fields
+    public static String[] mongoLabels() {
+        return new String[] {
+            "m_firstName", "m_lastName", "m_phoneNumber", "m_jobTitle", "m_jobDept", "m_companyName",
+            "m_assistantName", "m_cellPhoneNumber", "m_homePhoneNumber", "m_assistantPhone", "m_faxNumber",
+            "m_imId", "m_alternateImId", "m_location", "m_homeAddressCity", "m_homeAddressCountry",
+            "m_homeAddressState", "m_homeAddressStreet", "m_homeAddressZip", "m_officeAddressCity",
+            "m_officeAddressCountry", "m_officeAddressState", "m_officeAddressStreet", "m_officeAddressZip",
+            "m_officeAddressOfficeDesignation", "m_emailAddress", "m_alternateEmailAddress"
+        };
+    }
+
+    public Long getTimestamp() {
+        return m_timestamp;
+    }
+
+    public void setTimestamp(Long timestamp) {
+        m_timestamp = timestamp;
     }
 }
