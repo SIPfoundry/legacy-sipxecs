@@ -25,6 +25,7 @@
 #include <net/SipDialogEvent.h>
 #include <os/OsLogger.h>
 #include <os/OsLoggerHelper.h>
+#include <os/OsMsgQ.h>
 #include "ResourceListServer.h"
 #include "main.h"
 #include <net/SipLine.h>
@@ -315,6 +316,8 @@ int main(int argc, char* argv[])
     signal(SIGTERM, signal_handler); // catch kill signal
     signal(SIGPIPE, signal_handler); // r/w socket failure
 
+   OsMsgQShared::setQueuePreference(OsMsgQShared::QUEUE_UNLIMITED);
+
    // Configuration Database (used for OsSysLog)
    OsConfigDb configDb;
 
@@ -495,6 +498,9 @@ int main(int argc, char* argv[])
    // Say goodnight Gracie...
    Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "Exiting") ;
    Os::Logger::instance().flush();
+
+   mongo::dbexit(mongo::EXIT_CLEAN);
+
    return 0;
 }
 

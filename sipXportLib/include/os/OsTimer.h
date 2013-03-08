@@ -262,6 +262,8 @@ class OsTimer : public UtlContainableAtomic
    /// This is normally called prior to program termination.
    /// If the timer service is terminated, it cannot be restarted.
    static void terminateTimerService();
+   //NOTE: It's safer to call this after all timers were stopped and destroyed.
+   // If this is called while timers are still active it will leak.
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:

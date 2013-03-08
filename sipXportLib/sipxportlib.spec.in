@@ -63,6 +63,7 @@ Requires: openssl-devel
 Requires: boost-devel >= 1.39
 Requires: cppunit-devel
 Requires: pcre-devel
+Requires: gperftools-devel
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Header files for %name

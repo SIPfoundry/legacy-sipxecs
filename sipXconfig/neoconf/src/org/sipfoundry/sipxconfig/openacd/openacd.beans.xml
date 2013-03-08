@@ -51,7 +51,7 @@
   </bean>
 
   <bean id="openAcdReplicationProviderImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdReplicationProviderImpl">
-    <property name="openAcdContext" ref="openAcdContext" />
+    <property name="openAcdContext" ref="openAcdContextImpl" />
     <property name="featureManager" ref="featureManager" />
   </bean>
 
@@ -61,8 +61,8 @@
   </bean>
 
   <bean id="openAcdConfig" class="org.sipfoundry.sipxconfig.openacd.OpenAcdConfiguration">
-    <property name="openAcdContext" ref="openAcdContext" />
-    <property name="openAcdReplicationProvider" ref="openAcdReplicationProvider" />
+    <property name="openAcdContext" ref="openAcdContextImpl" />
+    <property name="openAcdReplicationProvider" ref="openAcdReplicationProviderImpl" />
     <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
   </bean>
 

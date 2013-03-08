@@ -20,6 +20,7 @@
 #include "os/OsLoggerHelper.h"
 #include "os/OsTimer.h"
 #include "os/UnixSignals.h"
+#include "os/OsMsgQ.h"
 #include "sipdb/EntityDB.h"
 #include "sipXecsService/SipXecsService.h"
 #include "utl/UtlString.h"
@@ -290,6 +291,8 @@ int main(int argc, char* argv[])
      daemonize(pidFile);
    }
 
+   OsMsgQShared::setQueuePreference(OsMsgQShared::QUEUE_UNLIMITED);
+
    // Load configuration file.
    OsPath workingDirectory;
    if (OsFileSystem::exists(CONFIG_ETC_DIR))
@@ -469,6 +472,8 @@ int main(int argc, char* argv[])
 
    // Delete the LineMgr Object
    delete lineMgr;
+
+   mongo::dbexit(mongo::EXIT_CLEAN);
 
    // Say goodnight Gracie...
    return 0;

@@ -54,7 +54,6 @@ OsStunDatagramSocket::OsStunDatagramSocket(int remoteHostPortNum,
         , mStunServer(szStunServer ? szStunServer : "") // szStunServer can be NULL
         , mStunOptions(iStunOptions)
         , mStunPort(PORT_NONE)
-        , mpTimer(new OsTimer(pStunAgent->getMessageQueue(), this))
         , mbEnabled(bEnableStun)
         , mStunRefreshErrors(0)
         , pStunAgent(OsStunAgentTask::getInstance(this))
@@ -77,6 +76,8 @@ OsStunDatagramSocket::OsStunDatagramSocket(int remoteHostPortNum,
         mKeepAlivePeriod = iRefreshPeriodInSec ;
         setKeepAlivePeriod(iRefreshPeriodInSec) ;
     }
+
+    mpTimer  = new OsTimer(pStunAgent->getMessageQueue(), this);
 }
 
 

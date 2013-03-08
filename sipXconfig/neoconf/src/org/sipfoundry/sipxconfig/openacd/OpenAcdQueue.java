@@ -158,15 +158,15 @@ public class OpenAcdQueue extends OpenAcdQueueWithSkills implements Replicable, 
         props.put(OpenAcdContext.WEIGHT, getWeight());
         props.put(OpenAcdContext.OLD_NAME, getOldName());
 
-        props.put(OpenAcdContext.RECIPES, constructRecipeMongoObject(m_steps));
+        props.put(OpenAcdContext.RECIPES, constructRecipeMongoObject(domain, m_steps));
         return props;
     }
 
-    public static List<BasicDBObject> constructRecipeMongoObject(Set<OpenAcdRecipeStep> steps) {
+    public static List<BasicDBObject> constructRecipeMongoObject(String domain, Set<OpenAcdRecipeStep> steps) {
         List<BasicDBObject> objects = new ArrayList<BasicDBObject>();
         for (OpenAcdRecipeStep step : steps) {
             BasicDBObject recipeStep = new BasicDBObject();
-            recipeStep.put(OpenAcdContext.ACTION, step.getAction().getMongoObject());
+            recipeStep.put(OpenAcdContext.ACTION, step.getAction().getMongoObject(domain));
             List<BasicDBObject> conditions = new ArrayList<BasicDBObject>();
             for (OpenAcdRecipeCondition condition : step.getConditions()) {
                 conditions.add(condition.getMongoObject());

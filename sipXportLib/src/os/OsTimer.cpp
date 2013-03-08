@@ -26,6 +26,13 @@ static const int TIMER_TIME_UNIT = 1000000;
 static const int TIMER_SERVICE_TICK = 1;
 #define TIME_TO_INTERVAL(period) (Interval)(period.seconds()) * TIMER_TIME_UNIT + period.usecs()
 
+// Global counter for number of active timers at a given moment. Having active timers
+// will prevent the terminateTimerService from actually stopping the service and corrupt memory.
+// TODO: This could be done better: the timer service should have a way to signal all timers to stop.
+static long int gTimersNum = 0;
+// Mutex protecting the timer service
+static boost::mutex gTimerServiceMutex;
+
 class TimerService
 {
   //
@@ -67,7 +74,7 @@ public:
     OS_LOG_NOTICE(FAC_KERNEL, "OsTimer::TimerService STARTED.");
     _lastTick = OsTimer::now();
   }
-
+private:
   void stop()
   {
     //
@@ -94,7 +101,7 @@ public:
     }
   }
 
-
+public:
   void onHouseKeepingTimer(const boost::system::error_code& e)
   {
     static int iteration = 0;
@@ -142,6 +149,10 @@ public:
   {
     mutex_lock lock(_queueMutex);
     _timerQueue.push(pTimer);
+
+    // decr global timers count as a timer was schedulled for destruction
+    gTimersNum--;
+    assert(0 <= gTimersNum);
   }
 
   boost::asio::io_service _ioService;
@@ -149,12 +160,12 @@ public:
   boost::thread* _pIoServiceThread1;
   boost::thread* _pIoServiceThread2;
   OsTimer::Time _lastTick;
-  mutex _serviceMutex;
   mutex _queueMutex;
   std::queue<OsTimer::Timer::Ptr> _timerQueue;
 };
 
 static TimerService* gpTimerService = 0;
+
 const UtlContainableType OsTimer::TYPE = "OsTimer";
 
 
@@ -260,6 +271,7 @@ OsTimer::OsTimer(const Handler& handler) :
 OsTimer::~OsTimer()
 {
   stop();
+
   gpTimerService->queueForDestruction(_pTimer);
   _pTimer.reset();
 }
@@ -294,9 +306,14 @@ OsStatus OsTimer::stop(UtlBoolean synchronous)
 
 void OsTimer::terminateTimerService()
 {
-  if (gpTimerService)
+  boost::lock_guard<boost::mutex> lock(gTimerServiceMutex);
+
+  // Verify the following conditions:
+  // 1. Timer service has not been deleted already
+  // 2. There are not active timers which are using the timer service.
+  //    WARN: If there are active timers we'd rather leak mem than corrupt something.
+  if (gpTimerService && (0 == gTimersNum))
   {
-    gpTimerService->stop();
     delete gpTimerService;
     gpTimerService = 0;
   }
@@ -392,14 +409,20 @@ OsTimer::Timer::Timer(OsTimer& owner) :
     gpTimerService = new TimerService();
     gpTimerService->start();
   }
-  mutex_lock lock(gpTimerService->_serviceMutex);
+  mutex_lock lock(gTimerServiceMutex);
   _pDeadline = new boost::asio::deadline_timer(gpTimerService->_ioService);
+  // incr global timers counter as new timer was created
+  gTimersNum++;
 }
 
 OsTimer::Timer::~Timer()
 {
   _periodic = false;
-  cancel();
+
+  boost::system::error_code ec;
+  _isRunning = false;
+  _pDeadline->cancel(ec);
+
   delete _pDeadline;
   _pDeadline = 0;
   delete _pNotifier; 
@@ -414,7 +437,7 @@ bool OsTimer::Timer::isRunning()
 
 void OsTimer::Timer::cancel()
 {
-  mutex_lock lock(gpTimerService->_serviceMutex);
+  mutex_lock lock(gTimerServiceMutex);
   boost::system::error_code ec;
   _isRunning = false;
   _pDeadline->cancel(ec);
@@ -448,9 +471,8 @@ void OsTimer::Timer::onTimerFire(const boost::system::error_code& e, OsTimer* pO
     }
   }
 
-
   //
-  // This is a perioic timer
+  // This is a periodic timer
   //
   //
   // This function sets the expiry time. Any pending asynchronous wait
@@ -459,7 +481,7 @@ void OsTimer::Timer::onTimerFire(const boost::system::error_code& e, OsTimer* pO
   //
 
   {
-    mutex_lock lock(gpTimerService->_serviceMutex);
+    mutex_lock lock(gTimerServiceMutex);
     _expiresAt = OsTimer::now() + _period;
     boost::system::error_code ec;
     _pDeadline->expires_from_now(boost::posix_time::microseconds(_period), ec);
@@ -506,7 +528,7 @@ bool OsTimer::Timer::oneshotAt(const OsDateTime& t)
   // be invoked with the boost::asio::error::operation_aborted error code.
   //
   {
-    mutex_lock lock(gpTimerService->_serviceMutex);
+    mutex_lock lock(gTimerServiceMutex);
     boost::system::error_code ec;
     _pDeadline->expires_from_now(boost::posix_time::microseconds(expireFromNow - now), ec);
     //
@@ -538,7 +560,7 @@ bool OsTimer::Timer::oneshotAfter(const boost::asio::deadline_timer::duration_ty
   // be invoked with the boost::asio::error::operation_aborted error code.
   //
   {
-    mutex_lock lock(gpTimerService->_serviceMutex);
+    mutex_lock lock(gTimerServiceMutex);
     boost::system::error_code ec;
     _pDeadline->expires_from_now(offset, ec);
 

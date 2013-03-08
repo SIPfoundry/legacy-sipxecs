@@ -52,7 +52,6 @@ mpSipUserAgent(pSipUserAgent)
   //
   _pGarbageCollectionThread = 0;
   _abortGarbageCollection = false;
-  runGarbageCollection();
 }
 
 // Copy constructor
