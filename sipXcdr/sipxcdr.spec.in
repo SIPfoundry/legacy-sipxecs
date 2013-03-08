@@ -14,6 +14,7 @@ BuildRequires: rubygems
 BuildRequires: ruby
 # not really, but accomdates a persnickety autoconf macro
 BuildRequires: unixODBC-devel
+BuildRequires: sipxcommons >= %version
 
 Source:   %name-%version.tar.gz
 
