@@ -935,7 +935,7 @@ public class Servlet extends HttpServlet {
         PHONE_MODEL_MAP.put("SPIP_601", new PhoneModel("polycom601", "SoundPoint IP 601"));
 
         PHONE_MODEL_MAP.put("SPIP_650", new PhoneModel("polycom650", "SoundPoint IP 650"));
-        PHONE_MODEL_MAP.put("SPIP_670", new PhoneModel("polycom650", "SoundPoint IP 670"));
+        PHONE_MODEL_MAP.put("SPIP_670", new PhoneModel("polycom670", "SoundPoint IP 670"));
 
         PHONE_MODEL_MAP.put("SSIP_4000", new PhoneModel("polycom4000", "SoundStation IP 4000"));
 
