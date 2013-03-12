@@ -58,7 +58,7 @@ public class PhoneConfiguration extends ProfileContext {
         }
 
         int lineCount = Math.max(lines.size(), TEMPLATE_DEFAULT_LINE_COUNT);
-        if (phone.getDeviceVersion() == PolycomModel.VER_4_0_X || phone.getDeviceVersion() == PolycomModel.VER_4_1_X ) {
+        if (phone.getDeviceVersion() == PolycomModel.VER_4_0_X || phone.getDeviceVersion() == PolycomModel.VER_4_1_X) {
             lineCount = lines.size();
         }
 

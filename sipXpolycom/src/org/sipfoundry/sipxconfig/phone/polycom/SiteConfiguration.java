@@ -63,9 +63,9 @@ public class SiteConfiguration extends ProfileContext {
         Map<String, Object> context = super.getContext();
         getDevice().getSettings();
         context.put("lines", getLineCount());
-        
+
         context.put("cert", m_certificateManager.getSelfSigningAuthorityText());
-        
+
         return context;
     }
 
