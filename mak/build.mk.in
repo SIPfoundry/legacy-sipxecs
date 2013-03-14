@@ -64,7 +64,7 @@ build sipx :
 $(SRC)/custom/%/.git :
 	cd $(SRC)/custom; \
 	  git submodule init $*; \
-	  git submodule update $* \
+	  git submodule update $*
 	ln -s $(SRC)/custom/$* $(SRC)
 
 .PRECIOUS: $(SRC)/%/.git
