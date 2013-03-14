@@ -9,6 +9,6 @@ OpenACD_SRPM_DEFS = --define "buildno $(OpenACD_REV)"
 OpenACD_RPM_DEFS = --define="buildno $(OpenACD_REV)"
 OpenACD_BUILD_ON_CHANGE = $(DEFAULT_ON_CHANGE) -a -not -name commit_ver.hrl
 
-OpenACD.dist :
+OpenACD.dist : $(OpenACD_GIT_SUBMODULE)
 	test -d OpenACD || mkdir -p OpenACD
 	make -C $(SRC)/OpenACD dist DESTDIR=$(abspath .)/OpenACD/
