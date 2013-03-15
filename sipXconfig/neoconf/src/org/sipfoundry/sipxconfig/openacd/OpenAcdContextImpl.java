@@ -251,7 +251,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         getHibernateTemplate().delete(ext);
         getHibernateTemplate().flush();
     }
-    
+
     /**
      * For setup phase when there is no user to pick another extension, we cannot
      * afford to fail.  This method picks an invalid extension, but at least one that
