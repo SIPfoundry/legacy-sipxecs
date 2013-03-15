@@ -446,6 +446,7 @@
     <!-- sipx-version version="14" -->
     <antcall target="change-on-restore-update1" />
     <antcall target="iptables-call-rate-limit" />
+    <antcall target="cisco-to-linksys"/>
   </target>
 
   <target name="plugin-patches">
@@ -1326,6 +1327,9 @@
   </target>
   <target name="iptables-call-rate-limit" unless="iptables-call-rate-limit">
 	<db-patch patch="iptables-call-rate-limit"/>
+  </target>
+  <target name="cisco-to-linksys" unless="cisco-to-linksys">
+	<db-patch patch="cisco-to-linksys"/>
   </target>
 
   <!--
