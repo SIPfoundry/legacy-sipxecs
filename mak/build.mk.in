@@ -82,6 +82,11 @@ help.{sipx}.changes = List changes since last build and install.
 $(sipx:=.changes) :
 	@! test -f $(PROJ)/.installed || $(call build_on_change,$(PROJ)/.installed)
 
+help.{sipx}.only = Compile source for only this project and assume all dependencies are already compiled.  Useful when you want to target specific project and do a full build later on.
+$(sipx:=.only) : %.only : $$($$*_GIT_SUBMODULE)
+	$(MAKE) $*.build && \
+	  touch $(PROJ)/.installed
+
 $(sipx) : $$(filter-out $$(lib),$$($$@_DEPS)) $$($$@_GIT_SUBMODULE)
 	@if test -f $(PROJ)/.installed ; then \
 	  x=`$(call build_on_change,$(PROJ)/.installed) -printf .`; \
