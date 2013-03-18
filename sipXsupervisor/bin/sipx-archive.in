@@ -150,7 +150,7 @@ class FileManagerBase
   # Call given block on oldest backups that exceed max backup count
   def purgable(max)
     all = list.reverse
-    if all.length > max
+    if max != nil && all.length > max
       for i in 0..((all.length - max) - 1)
         yield all[i]
       end
