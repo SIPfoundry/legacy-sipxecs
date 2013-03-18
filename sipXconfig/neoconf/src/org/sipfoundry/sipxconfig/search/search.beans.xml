@@ -67,7 +67,6 @@
   <bean id="indexTrigger" class="org.sipfoundry.sipxconfig.search.IndexTrigger">
     <property name="indexDirectoryName" value="${sysdir.tmp}/index"/>
     <property name="indexManager" ref="indexManager"/>
-    <property name="setupManager" ref="setupManager" />
   </bean>
 
   <bean id="userSearchManager" class="org.sipfoundry.sipxconfig.search.UserSearchManagerImpl">

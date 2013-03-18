@@ -11,6 +11,7 @@
     <property name="featureManager" ref="featureManager"/>
     <property name="configManager" ref="configManager"/>
     <property name="coreContext" ref="coreContext"/>
+    <property name="indexTrigger" ref="indexTrigger"/>
     <property name="jdbcTemplate" ref="configJdbcTemplate"/>
   </bean>  
   

@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.search.IndexTrigger;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -47,9 +48,11 @@ public class SetupManagerImpl implements SetupManager, ApplicationListener<Appli
     private JdbcTemplate m_jdbcTemplate;
     private Set<SetupListener> m_setupListeners;
     private Set<MigrationListener> m_migrationListeners;
+    private IndexTrigger m_indexTrigger;
     private boolean m_enabled = true;
     private boolean m_triggerConfigOnStartup = true;
     private boolean m_setup;
+    private Context m_context;
 
     Set<String> getSetupIds() {
         if (m_setupIds == null) {
@@ -118,16 +121,17 @@ public class SetupManagerImpl implements SetupManager, ApplicationListener<Appli
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof ApplicationInitializedEvent) {
-            setup();
+            setup(Context.APP_MAIN);
         }
     }
 
     @Override
-    public void setup() {
+    public void setup(Context c) {
         if (m_setup) {
             return;
         }
 
+        m_context = c;
         if (m_enabled) {
             // There's no special detection when we're migrating v.s. starting up
             // only that migration tasks should run first so setup tasks can ensure
@@ -139,6 +143,7 @@ public class SetupManagerImpl implements SetupManager, ApplicationListener<Appli
             // fairly critical these are initialized first. Other listeners can use normal deps management
             m_configManager.getDomainManager().setup(this);
             m_configManager.getLocationManager().setup(this);
+            m_indexTrigger.setup(this);
             m_coreContext.setup(this);
             List<SetupListener> again = new ArrayList<SetupListener>();
             Collection<SetupListener> todo = getSetupListeners();
@@ -163,6 +168,10 @@ public class SetupManagerImpl implements SetupManager, ApplicationListener<Appli
         if (m_triggerConfigOnStartup) {
             m_configManager.configureAllFeaturesEverywhere();
         }
+    }
+
+    public void setIndexTrigger(IndexTrigger indexTrigger) {
+        m_indexTrigger = indexTrigger;
     }
 
     @Override
@@ -217,5 +226,10 @@ public class SetupManagerImpl implements SetupManager, ApplicationListener<Appli
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    @Override
+    public Context getContext() {
+        return m_context;
     }
 }

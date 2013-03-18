@@ -11,31 +11,14 @@ package org.sipfoundry.sipxconfig.search;
 
 import java.io.File;
 
-import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 
-public class IndexTrigger implements ApplicationListener<ApplicationEvent> {
+public class IndexTrigger implements SetupListener {
     private IndexManager m_indexManager;
-    private SetupManager m_setupManager;
     private boolean m_enabled = true;
     private File m_indexDirectory;
-
-    @Override
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (!m_enabled) {
-            return;
-        }
-        if (event instanceof ApplicationInitializedEvent) {
-            // calling SetupManager.setup() forces SetupManager to run first as order is not
-            // guaranteed. Calling multiple times is harmless (idempotent)
-            m_setupManager.setup();
-            if (!m_indexDirectory.exists()) {
-                m_indexManager.indexAll();
-            }
-        }
-    }
+    private boolean m_setupSecondPass;
 
     public void setIndexManager(IndexManager indexManager) {
         m_indexManager = indexManager;
@@ -49,7 +32,23 @@ public class IndexTrigger implements ApplicationListener<ApplicationEvent> {
         m_enabled = enabled;
     }
 
-    public void setSetupManager(SetupManager setupManager) {
-        m_setupManager = setupManager;
+    @Override
+    public boolean setup(SetupManager manager) {
+        if (!m_enabled) {
+            return true;
+        }
+
+        if (!m_indexDirectory.exists()) {
+
+            // this ensures we index on 2nd pass after objects have had a chance to
+            // migrate/update/whatever before we index them
+            if (!m_setupSecondPass) {
+                m_setupSecondPass = true;
+                return false;
+            }
+
+            m_indexManager.indexAll();
+        }
+        return true;
     }
 }

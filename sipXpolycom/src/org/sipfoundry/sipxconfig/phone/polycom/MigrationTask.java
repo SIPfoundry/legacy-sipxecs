@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
+import org.sipfoundry.sipxconfig.setup.SetupManager.Context;
 
 /**
  * Task for migrating Polycom phones to multiple firmware support system. This task, run only once
@@ -39,7 +40,10 @@ public class MigrationTask implements SetupListener {
 
     @Override
     public boolean setup(SetupManager manager) {
-        if (manager.isFalse(MIGRATION_FLAG)) {
+    	// only trigger migration of phones when sipxconfig is starting for running
+    	// and not during setup or restore phase because phone jobs will take too
+    	// long to complete and there's no reason to slow down setup process for that.
+        if (manager.getContext() == Context.APP_MAIN && manager.isFalse(MIGRATION_FLAG)) {
             LOG.info("Starting migrating Polycom phones.");
             for (Phone phone : m_phoneContext.loadPhones()) {
                 if (phone instanceof PolycomPhone) {

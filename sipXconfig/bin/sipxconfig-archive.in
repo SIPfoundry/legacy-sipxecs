@@ -29,6 +29,7 @@ class ArchiveBase
     @tmpdir = "/tmp"
     @libexec = "@SIPX_LIBEXECDIR@"
     @initd = "@SIPX_SERVICEDIR@"
+    @bindir = "@SIPX_BINDIR@"
     @attachments = [
        '@localstatedir@/sipxdata/parkserver/music',
        '@localstatedir@/sipxdata/upload',
@@ -157,11 +158,14 @@ class Restore < ArchiveBase
     # quotes is lost passing thru ruby
     sql_exec('postgres', "alter database \\\"#{@restoredb}\\\" rename to \\\"#{@db}\\\";") or
       raise "Could not rename database. Please run '#{@initd}/sipxconfig db create' to reset your system."
-    cmd "#{@initd}/sipxconfig start" if params[:restart]
+
+    cmd "#{@initd}/sipxconfig db drop-index"
 
     # exclude certdb because we don't need it but it's in <= 4.4.0 backups
     cmd "tar --exclude certdb -zxvf #{params[:file]} -C @localstatedir@/.. var/sipxdata" or
       raise "Could not restore file uploads"
+    cmd "#{@bindir}/sipxagent -d setup #{'-v ' if @verbose}" if params[:restart]
+    cmd "#{@bindir}/sipxagent #{'-v ' if @verbose}" if params[:restart]
   end
 end
 

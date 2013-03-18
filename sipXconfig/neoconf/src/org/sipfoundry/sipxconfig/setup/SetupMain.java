@@ -18,7 +18,7 @@ public class SetupMain implements SystemTaskEntryPoint {
 
     @Override
     public void runSystemTask(String[] args) {
-        m_setupManager.setup();
+        m_setupManager.setup(SetupManager.Context.SETUP_MAIN);
         m_configManager.runProviders();
         m_jobContext.checkAndThrowErrorOnFailedJobs();
     }

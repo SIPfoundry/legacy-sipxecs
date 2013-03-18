@@ -24,6 +24,10 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
  * beans can initialize data, set defaults and such
  */
 public interface SetupManager {
+    public enum Context {
+        SETUP_MAIN,
+        APP_MAIN
+    }
 
     public ConfigManager getConfigManager();
 
@@ -44,5 +48,7 @@ public interface SetupManager {
      */
     public void setFalse(String id);
 
-    public void setup();
+    public void setup(Context c);
+
+    public Context getContext();
 }
