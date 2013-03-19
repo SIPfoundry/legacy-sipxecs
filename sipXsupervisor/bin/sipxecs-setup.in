@@ -356,7 +356,7 @@ class Network
   end
 
   def valid?
-    !(@ip.empty? or @host.empty? or @domain.empty?)
+    @ip and @host and @domain
   end
 
   def fqdn
