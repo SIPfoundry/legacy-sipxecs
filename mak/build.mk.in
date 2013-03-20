@@ -5,14 +5,17 @@ OPTIONS = @OPTIONS@
 DOWNLOAD_LIB_CACHE = @DOWNLOAD_LIB_CACHE@
 
 git_submodules = $(shell sed -e '/^\[submodule/! d' -e 's/^\[submodule "\(.*\)"]$$/\1/g' $(wildcard $(SRC)/.gitmodules))
-git_custommodules = $(shell sed -e '/^\[submodule/! d' -e 's/^\[submodule "\(.*\)"]$$/\1/g' $(wildcard $(SRC)/custom/.gitmodules))
+git_custommodules_file = $(wildcard $(SRC)/custom/.gitmodules)
+ifneq ($(git_custommodules_file),)
+git_custommodules = $(shell sed -e '/^\[submodule/! d' -e 's/^\[submodule "\(.*\)"]$$/\1/g' $(git_custommodules_file))
+endif
 
 # Initialize submodules as we need them and only the specific submodule. This allows
 # many submodules to be defined, but only requested submodules to be loaded. There
 # is no need to specify which projects are git submodules, all of this is handled
 # by these this section.
 $(foreach M,$(git_custommodules),$(eval $(M)_GIT_SUBMODULE = $(SRC)/custom/$(M)/.git))
-.PRECIOUS: $(SRC)/custom/%/.git
+.PRECIOUS: $(SRC)/%/.git $(SRC)/custom/%/.git
 $(foreach M,$(git_submodules),$(eval $(M)_GIT_SUBMODULE = $(SRC)/$(M)/.git))
 
 include $(SRC)/mak/modules.mk
