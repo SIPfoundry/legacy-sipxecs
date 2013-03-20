@@ -28,6 +28,7 @@ import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.cert.CertificateManager;
 import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -37,7 +38,7 @@ import org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone.FormatFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
-public class PolycomPhoneTest extends TestCase {
+public class PolycomPhone40Test extends TestCase {
 
     private PolycomPhone m_phone;
 
@@ -52,13 +53,16 @@ public class PolycomPhoneTest extends TestCase {
         m_phone = new PolycomPhone();
         PolycomModel model = new PolycomModel();
         m_phone.setModel(model);
-        model.setModelId("polycom600");
+        m_phone.setDeviceVersion(PolycomModel.VER_4_0_X);
+        model.setModelId("polycomVVX500");
         Set<String> features = new HashSet<String>();
         features.add("disableCallList");
         features.add("intercom");
         features.add("voiceQualityMonitoring");
-        features.add("OTHERS_CodecPref");
-        features.add("pre_3.2.0_model");
+        features.add("VVX_500_CodecPref");
+        features.add("desktopIntegration");
+        features.add("exchangeIntegration");
+        features.add("video");
         model.setSupportedFeatures(features);
         m_tester = PhoneTestDriver.supplyTestData(m_phone,true,false,false,true);
         m_location = new FileSystemProfileLocation();
@@ -78,9 +82,15 @@ public class PolycomPhoneTest extends TestCase {
         AddressManager addressManager = createMock(AddressManager.class);
         addressManager.getAddresses(new AddressType("provisionService", "http://%s:%d/"));
         expectLastCall().andReturn(new ArrayList<Address>()).anyTimes();
-        replay(addressManager);
+        
         m_phone.setAddressManager(addressManager);
         ApplicationConfiguration cfg = new ApplicationConfiguration(m_phone);
+        
+        CertificateManager cm = createMock(CertificateManager.class);
+        cm.getSelfSigningAuthorityText();
+        expectLastCall().andReturn("empty");
+        replay(addressManager, cm);
+        m_phone.setCertificateManager(cm);
         m_phone.generateProfiles(m_location);
 
         File phonebook = new File(m_root, cfg.getDirectoryFilename());
@@ -90,22 +100,26 @@ public class PolycomPhoneTest extends TestCase {
         File appFile = new File(m_root, cfg.getAppFilename());
         assertTrue(appFile.exists());
 
-        File phoneFile = new File(m_root, cfg.getPhoneFilename());
-        assertTrue(phoneFile.exists());
-
-        File sipFile = new File(m_root, cfg.getSipFilename());
-        assertTrue(sipFile.exists());
-
-        File deviceFile = new File(m_root, cfg.getDeviceFilename());
-        assertTrue(deviceFile.exists());
-
-
+        assertTrue(new File(m_root, m_phone.getSipInteropFilename()).exists());
+        assertTrue(new File(m_root, m_phone.getAppsFilename()).exists());
+        assertTrue(new File(m_root, m_phone.getSipBasicFilename()).exists());
+        assertTrue(new File(m_root, m_phone.getFeaturesFilename()).exists());
+        assertTrue(new File(m_root, m_phone.getRegAdvancedFilename()).exists());
+        assertTrue(new File(m_root, m_phone.getRegionFilename()).exists());
+        assertTrue(new File(m_root, m_phone.getSiteFilename()).exists());
+        assertTrue(new File(m_root, m_phone.getVideoFilename()).exists());
+        
         m_phone.removeProfiles(m_location);
         assertTrue(phonebook.exists());
         assertFalse(appFile.exists());
-        assertFalse(phoneFile.exists());
-        assertFalse(sipFile.exists());
-        assertFalse(deviceFile.exists());
+        assertFalse(new File(m_root, m_phone.getSipInteropFilename()).exists());
+        assertFalse(new File(m_root, m_phone.getAppsFilename()).exists());
+        assertFalse(new File(m_root, m_phone.getSipBasicFilename()).exists());
+        assertFalse(new File(m_root, m_phone.getFeaturesFilename()).exists());
+        assertFalse(new File(m_root, m_phone.getRegAdvancedFilename()).exists());
+        assertFalse(new File(m_root, m_phone.getRegionFilename()).exists());
+        assertFalse(new File(m_root, m_phone.getSiteFilename()).exists());
+        assertFalse(new File(m_root, m_phone.getVideoFilename()).exists());
     }
 
     public void testRestartFailureNoLine() throws Exception {
@@ -129,7 +143,7 @@ public class PolycomPhoneTest extends TestCase {
         assertEquals("sipfoundry.org", address.getValue());
         
         Setting missedCallTracking = settings.getSetting("call/missedCallTracking/enabled");
-        assertTrue((Boolean)missedCallTracking.getTypedValue());
+        assertFalse((Boolean)missedCallTracking.getTypedValue());
     }
 
     public void testLineDefaultsNoUser() throws Exception {
