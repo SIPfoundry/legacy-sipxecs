@@ -113,7 +113,7 @@ public class ValidUsers {
                 QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_USER).
                 or(
                         QueryBuilder.start(SPEEDDIAL).exists(true).get(),
-                        new BasicDBObject(IM_ENABLED, "true")
+                        new BasicDBObject(IM_ENABLED, true)
                   ).get());
         return cursor;
     }
