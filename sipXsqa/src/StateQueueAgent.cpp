@@ -44,6 +44,8 @@ StateQueueAgent::~StateQueueAgent()
 {
   delete _pEntityDb;
   delete _pEntityDbConnectionInfo;
+  _pEntityDb = 0;
+  _pEntityDbConnectionInfo = 0;
   stop();
   OS_LOG_INFO(FAC_NET, "StateQueueAgent DESTROYED.");
 }
