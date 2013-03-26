@@ -60,6 +60,35 @@ public class ConferenceConfigurationTest extends TestCase {
         bridge.setSettingValue(Bridge.CALL_CONTROL_TALK_DOWN, "*");
         bridge.setSettingValue(Bridge.CALL_CONTROL_HANGUP, "0");
 
+        testConference(bridge, "conference_config.test.xml");
+    }
+
+    public void testGenerateDtmf() throws Exception {
+        Bridge bridge = new Bridge() {
+            @Override
+            public String getAudioDirectory() {
+                return "/audioDirectory";
+            }
+        };
+        bridge.setModelFilesContext(TestHelper.getModelFilesContext());
+        bridge.getSettings();
+        bridge.setSettingValue(Bridge.CALL_CONTROL_MUTE, "1");
+        bridge.setSettingValue(Bridge.CALL_CONTROL_DEAF_MUTE, "2");
+        bridge.setSettingValue(Bridge.CALL_CONTROL_ENERGY_UP, "3");
+        bridge.setSettingValue(Bridge.CALL_CONTROL_ENERGY_RESET, "");
+        bridge.setSettingValue(Bridge.CALL_CONTROL_ENERGY_DOWN, "5");
+        bridge.setSettingValue(Bridge.CALL_CONTROL_VOLUME_UP, "");
+        bridge.setSettingValue(Bridge.CALL_CONTROL_VOLUME_RESET, "7");
+        bridge.setSettingValue(Bridge.CALL_CONTROL_VOLUME_DOWN, "");
+        bridge.setSettingValue(Bridge.CALL_CONTROL_TALK_UP, "9");
+        bridge.setSettingValue(Bridge.CALL_CONTROL_TALK_RESET, "");
+        bridge.setSettingValue(Bridge.CALL_CONTROL_TALK_DOWN, "*");
+        bridge.setSettingValue(Bridge.CALL_CONTROL_HANGUP, "0");
+
+        testConference(bridge, "conference_config.dtmftest.xml");
+    }
+
+    private void testConference(Bridge bridge, String file) throws Exception {
         User owner = new User();
 
         Conference conf = new Conference();
@@ -115,7 +144,7 @@ public class ConferenceConfigurationTest extends TestCase {
 
         StringWriter actual = new StringWriter();
         m_config.writeXml(actual, m_location, m_domain, bridge);
-        InputStream referenceXml = getClass().getResourceAsStream("conference_config.test.xml");
+        InputStream referenceXml = getClass().getResourceAsStream(file);
         assertEquals(IOUtils.toString(referenceXml).trim(), actual.toString().trim());
     }
 

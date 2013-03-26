@@ -321,7 +321,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
         protected boolean work() {
             ConfigRequest work = getWork();
             // check null, it's possible work has been done by the time we
-            // have gotten around to it 
+            // have gotten around to it
             if (work != null) {
                 doWork(work);
             }

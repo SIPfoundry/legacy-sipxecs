@@ -57,22 +57,22 @@ public class ResourceListsTest extends XMLTestCase {
     }
 
     public void testGenerate() throws Exception {
-        String json1 = "{ \"_id\" : \"User1\", \"uid\" : \"user_a\", \"imenbld\" : \"false\", \"ent\": \"user\", " + "\""
+        String json1 = "{ \"_id\" : \"User1\", \"uid\" : \"user_a\", \"imenbld\" : false, \"ent\": \"user\", " + "\""
                 + MongoConstants.SPEEDDIAL + "\": { \"" + MongoConstants.USER + "\" : \"~~rl~F~user_a\", \""
                 + MongoConstants.USER_CONS + "\" : \"~~rl~C~user_a\", \"" + MongoConstants.BUTTONS + "\" : [ "
                 + "{\"" + MongoConstants.URI + "\" : \"sip:102@example.org\",\"" + MongoConstants.NAME
                 + "\" : \"beta\"}," + "{\"" + MongoConstants.URI + "\" : \"sip:104@sipfoundry.org\",\""
                 + MongoConstants.NAME + "\" : \"gamma\"}" + "]}, \"prm\" : [\"subscribe-to-presence\"" + "]}";
 
-        String json2 = "{ \"_id\" : \"User2\", \"uid\" : \"user_c\", \"imenbld\" : \"false\", \"ent\": \"user\"," + "\""
+        String json2 = "{ \"_id\" : \"User2\", \"uid\" : \"user_c\", \"imenbld\" : false, \"ent\": \"user\"," + "\""
                 + MongoConstants.SPEEDDIAL + "\" : { \"" + MongoConstants.USER + "\" : \"~~rl~F~user_c\", \""
                 + MongoConstants.USER_CONS + "\" : \"~~rl~C~user_c\", \"" + MongoConstants.BUTTONS + "\" : [ "
                 + "{\"" + MongoConstants.URI + "\" : \"sip:100@example.org\",\"" + MongoConstants.NAME
                 + "\" : \"delta\"}" + "]}, \"prm\" : [\"subscribe-to-presence\"" + "]}";
 
-        String json3 = "{ \"_id\" : \"User3\", \"uid\" : \"user_name_0\", \"imenbld\" : \"true\", \"ent\": \"user\"}";
+        String json3 = "{ \"_id\" : \"User3\", \"uid\" : \"user_name_0\", \"imenbld\" : true, \"ent\": \"user\"}";
 
-        String json4 = "{ \"_id\" : \"User4\", \"uid\" : \"user_name_1\", \"imenbld\" : \"true\", ent: \"user\"}";
+        String json4 = "{ \"_id\" : \"User4\", \"uid\" : \"user_name_1\", \"imenbld\" : true, ent: \"user\"}";
         insertJson(getEntityCollection(), json1, json2, json3, json4);
         Thread.sleep(1000);// sleep 1 second. I get inconsistent results when running the tests,
                            // as if mongo does not pick up quickly
@@ -93,9 +93,9 @@ public class ResourceListsTest extends XMLTestCase {
      * @throws Exception
      */
     public void testGenerateNoBlfPerm() throws Exception {
-        String json3 = "{ \"_id\" : \"User3\", \"uid\" : \"user_name_0\", \"imenbld\" : \"false\", \"ent\": \"user\"}";
+        String json3 = "{ \"_id\" : \"User3\", \"uid\" : \"user_name_0\", \"imenbld\" : false, \"ent\": \"user\"}";
 
-        String json2 = "{ \"_id\" : \"User2\", \"uid\" : \"user_c\", \"imenbld\" : \"false\", \"ent\": \"user\", " + "\""
+        String json2 = "{ \"_id\" : \"User2\", \"uid\" : \"user_c\", \"imenbld\" : false, \"ent\": \"user\", " + "\""
                 + MongoConstants.SPEEDDIAL + "\" : { \"" + MongoConstants.USER + "\" : \"~~rl~F~user_c\", \""
                 + MongoConstants.USER_CONS + "\" : \"~~rl~C~user_c\", \"" + MongoConstants.BUTTONS + "\" : [ "
                 + "{\"" + MongoConstants.URI + "\" : \"sip:100@example.org\",\"" + MongoConstants.NAME

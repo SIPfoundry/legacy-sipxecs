@@ -2,18 +2,42 @@
 #if(${bridge})
   <caller-controls>
     <group name="sipx-default">
+#if(${bridge.isCallerControlDefined("${Bridge.CALL_CONTROL_MUTE}")})
       <control action="mute" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_MUTE}")"/>
+#end
+#if(${bridge.isCallerControlDefined("${Bridge.CALL_CONTROL_DEAF_MUTE}")})
       <control action="deaf mute" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_DEAF_MUTE}")"/>
+#end
+#if(${bridge.isCallerControlDefined("${Bridge.CALL_CONTROL_ENERGY_UP}")})
       <control action="energy up" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_ENERGY_UP}")"/>
+#end
+#if(${bridge.isCallerControlDefined("${Bridge.CALL_CONTROL_ENERGY_RESET}")})
       <control action="energy equ" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_ENERGY_RESET}")"/>
+#end
+#if(${bridge.isCallerControlDefined("${Bridge.CALL_CONTROL_ENERGY_DOWN}")})
       <control action="energy dn" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_ENERGY_DOWN}")"/>
+#end
+#if(${bridge.isCallerControlDefined("${Bridge.CALL_CONTROL_TALK_UP}")})
       <control action="vol talk up" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_TALK_UP}")"/>
+#end
+#if(${bridge.isCallerControlDefined("${Bridge.CALL_CONTROL_TALK_RESET}")})
       <control action="vol talk zero" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_TALK_RESET}")"/>
+#end
+#if(${bridge.isCallerControlDefined("${Bridge.CALL_CONTROL_TALK_DOWN}")})
       <control action="vol talk dn" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_TALK_DOWN}")"/>
+#end
+#if(${bridge.isCallerControlDefined("${Bridge.CALL_CONTROL_VOLUME_UP}")})
       <control action="vol listen up" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_VOLUME_UP}")"/>
+#end
+#if(${bridge.isCallerControlDefined("${Bridge.CALL_CONTROL_VOLUME_RESET}")})
       <control action="vol listen zero" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_VOLUME_RESET}")"/>
+#end
+#if(${bridge.isCallerControlDefined("${Bridge.CALL_CONTROL_VOLUME_DOWN}")})
       <control action="vol listen dn" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_VOLUME_DOWN}")"/>
+#end
+#if(${bridge.isCallerControlDefined("${Bridge.CALL_CONTROL_HANGUP}")})
       <control action="hangup" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_HANGUP}")"/>
+#end
     </group>
   </caller-controls>
   <profiles>

@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Feature;
@@ -117,6 +118,10 @@ public class Bridge extends BeanWithSettings implements DeployConfigOnEdit {
             m_audioDirectory = m_promptsDir + SLASH + PROMPTS_DEFAULT;
         }
         return m_audioDirectory;
+    }
+
+    public boolean isCallerControlDefined(String path) {
+        return StringUtils.isNotEmpty(getSettingValue(path));
     }
 
     @Override
