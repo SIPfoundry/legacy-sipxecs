@@ -14,9 +14,8 @@ endif
 # many submodules to be defined, but only requested submodules to be loaded. There
 # is no need to specify which projects are git submodules, all of this is handled
 # by these this section.
-$(foreach M,$(git_custommodules),$(eval $(M)_GIT_SUBMODULE = $(SRC)/custom/$(M)/.git))
-.PRECIOUS: $(SRC)/%/.git $(SRC)/custom/%/.git
-$(foreach M,$(git_submodules),$(eval $(M)_GIT_SUBMODULE = $(SRC)/$(M)/.git))
+.PRECIOUS: $(SRC)/%/.git
+$(foreach M,$(git_submodules) $(git_custommodules),$(eval $(M)_GIT_SUBMODULE = $(SRC)/$(M)/.git))
 
 include $(SRC)/mak/modules.mk
 
@@ -64,14 +63,13 @@ help.sipx=Build all sipx components including targets autoreconf, configure, all
 build sipx :
 	$(MAKE) $(foreach P,$(sipx),$(P))
 
-$(SRC)/custom/%/.git :
+$(foreach P,$(git_custommodules),$(SRC)/$(P)/.git) : $(SRC)/%/.git :
 	cd $(SRC)/custom; \
 	  git submodule init $*; \
 	  git submodule update $*
-	ln -s $(SRC)/custom/$* $(SRC)
+	ln -snf $(SRC)/custom/$* $(SRC)
 
-.PRECIOUS: $(SRC)/%/.git
-$(SRC)/%/.git :
+$(foreach P,$(git_submodules),$(SRC)/$(P)/.git) : $(SRC)/%/.git :
 	cd $(SRC); \
 	  git submodule init $*; \
 	  git submodule update $*
