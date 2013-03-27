@@ -431,9 +431,9 @@
 	<antcall target="migrate-openacd-skill-groups" />
 	<antcall target="alarm_receiver" />
   	<antcall target="voicemail-pin" />
-  	<antcall target="remove-im-password" />
   	<antcall target="change-on-restore" />
   	<antcall target="crack-pin" />
+  	<antcall target="remove-im-password" />
   	<antcall target="convert-init-task-to-setup" />
   	<antcall target="backup-types" />
   	<antcall target="notified" />
