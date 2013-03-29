@@ -200,9 +200,9 @@
       </setting>
       <setting name="value">
         <type>
-          <integer />
+          <string />
         </type>
-        <value>6</value>
+        <value>callWaiting</value>
       </setting>
     </group>
     <group name="LONG_CALL_WAITING">
@@ -212,9 +212,9 @@
       </setting>
       <setting name="1-value">
         <type>
-          <integer />
+          <string />
         </type>
-        <value>6</value>
+        <value>callWaitingLong</value>
       </setting>
       <setting name="2-type">
         <type refid="tone-pattern" />

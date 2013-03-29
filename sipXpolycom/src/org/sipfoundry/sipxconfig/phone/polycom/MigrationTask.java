@@ -40,9 +40,9 @@ public class MigrationTask implements SetupListener {
 
     @Override
     public boolean setup(SetupManager manager) {
-    	// only trigger migration of phones when sipxconfig is starting for running
-    	// and not during setup or restore phase because phone jobs will take too
-    	// long to complete and there's no reason to slow down setup process for that.
+        // only trigger migration of phones when sipxconfig is starting for running
+        // and not during setup or restore phase because phone jobs will take too
+        // long to complete and there's no reason to slow down setup process for that.
         if (manager.getContext() == Context.APP_MAIN && manager.isFalse(MIGRATION_FLAG)) {
             LOG.info("Starting migrating Polycom phones.");
             for (Phone phone : m_phoneContext.loadPhones()) {
