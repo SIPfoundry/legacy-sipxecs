@@ -34,7 +34,8 @@ Appearance::Appearance( AppearanceAgent* appAgent,
    mAppearanceAgent(appAgent),
    mAppearanceGroup(appGroup),
    mUri(uri),
-   mbShortTimeout(false)
+   mbShortTimeout(false),
+   _isTerminated(false)
 {
    Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "Appearance:: this = %p, mUri = '%s'",
@@ -82,19 +83,8 @@ Appearance::~Appearance()
 
    // Delete this Appearance from mSubscribeMap.
    getAppearanceGroupSet().deleteSubscribeMapping(&mSubscriptionEarlyDialogHandle);
-   getAppearanceGroupSet().deleteNotifyMapping(&mDialogHandle);
 
-   // Terminate the master subscription.
-   UtlBoolean ret;
-   ret = getAppearanceAgent()->getSubscribeClient().
-      endSubscriptionGroup(mSubscriptionEarlyDialogHandle.data());
-
-   Os::Logger::instance().log(FAC_SAA,
-                 ret ? PRI_DEBUG : PRI_WARNING,
-                 "Appearance::~ endSubscriptionGroup %s: mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
-                 ret ? "succeeded" : "failed",
-                 mUri.data(),
-                 mSubscriptionEarlyDialogHandle.data());
+   terminate();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -150,8 +140,11 @@ void Appearance::subscriptionEventCallback(
 
       Os::Logger::instance().log(FAC_SAA, PRI_INFO,
                     "Appearance::subscriptionEventCallback "
-                    "subscription terminated for uri = '%s', dialogHandle = '%s'",
+                    "subscription is terminated for uri = '%s', dialogHandle = '%s'",
                     mUri.data(), dialogHandle->data());
+
+      // parent subscription was ended so this appearance is completely terminated
+      _isTerminated = true;
    }
    break;
    }
@@ -210,6 +203,32 @@ bool Appearance::terminateDialogs(bool terminateHeldDialogs)
          ret = true;
       }
    }
+   return ret;
+}
+
+bool Appearance::terminate()
+{
+    // NOTE: _isTerminated value is intentionally ignored here because it is the caller
+    // responsibility to check it.
+
+    Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
+            "Appearance::terminate this = %p, mUri = '%s'",
+            this, mUri.data());
+
+
+    getAppearanceGroupSet().deleteNotifyMapping(&mDialogHandle);
+
+    // Terminate the master subscription.
+    UtlBoolean ret = getAppearanceAgent()->getSubscribeClient().
+            endSubscriptionGroup(mSubscriptionEarlyDialogHandle.data());
+
+   Os::Logger::instance().log(FAC_SAA,
+           ret ? PRI_DEBUG : PRI_WARNING,
+           "Appearance::terminate endSubscriptionGroup %s: mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
+           ret ? "succeeded" : "failed",
+           mUri.data(),
+           mSubscriptionEarlyDialogHandle.data());
+
    return ret;
 }
 
@@ -374,6 +393,12 @@ bool Appearance::appearanceIsBusy()
    }
    return ret;
 }
+
+bool Appearance::isTerminated()
+{
+    return _isTerminated;
+}
+
 
 bool Appearance::appearanceIdIsSeized(const UtlString& appearanceId)
 {

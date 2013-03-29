@@ -185,6 +185,8 @@ AppearanceGroup::~AppearanceGroup()
          OsTask::delay(changeDelay);
       }
    }
+
+   mTerminatedAppearances.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -249,9 +251,6 @@ void AppearanceGroup::subscriptionEventCallback(
 
       // Delete this subscription from mSubscriptions.
       mSubscriptions.destroy(dialogHandle);
-
-      // Delete this AppearanceGroup from mSubscribeMap (for the "reg" subscription).
-      mAppearanceGroupSet->deleteSubscribeMapping(&mSubscriptionEarlyDialogHandle);
 
       // Update the subscriptions.
       updateSubscriptions();
@@ -464,12 +463,21 @@ void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
                         }
 
                         // Insert the registration record.
-                        state_from_this_subscr->insertKeyAndValue(id_allocated, uri_allocated);
-                        Os::Logger::instance().log( FAC_SAA, PRI_DEBUG,
-                              "AppearanceGroup::notifyEventCallback adding id = '%s' Call-Id;URI = '%s'",
-                              id, uri_allocated->data());
-                        id_allocated = NULL;
-                        uri_allocated = NULL;
+                        if (state_from_this_subscr->insertKeyAndValue(  id_allocated,
+                                                                        uri_allocated))
+                        {
+                            Os::Logger::instance().log( FAC_SAA, PRI_DEBUG,
+                                  "AppearanceGroup::notifyEventCallback adding id = '%s' Call-Id;URI = '%s'",
+                                  id, uri_allocated->data());
+                            id_allocated = NULL;
+                            uri_allocated = NULL;
+                        }
+                        else
+                        {
+                            Os::Logger::instance().log(FAC_RLS, PRI_ERR,
+                                          "AppearanceGroup::notifyEventCallback adding id = '%s' Call-Id;URI = '%s' failed",
+                                          id_allocated->data(), uri_allocated->data());
+                        }
                      }
                   }
                   else if (strcmp(state, "terminated") == 0)
@@ -516,10 +524,37 @@ void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
    }
 }
 
+
+void AppearanceGroup::deleteTerminatedAppearances()
+{
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
+           "AppearanceGroup::deleteTerminatedAppearances");
+
+   // Search for the resource instance in question.
+   UtlSListIterator itor(mTerminatedAppearances);
+   Appearance* inst = 0;
+
+   int count = 0;
+   while ((inst = dynamic_cast <Appearance*> (itor())))
+   {
+      if (true == inst->isTerminated())
+      {
+          mTerminatedAppearances.destroy(inst);
+          count++;
+      }
+   }
+
+   Os::Logger::instance().log(FAC_SAA, PRI_DEBUG, "AppearanceGroup::deleteTerminatedAppearances "
+           "deleted %d terminated appearances", count);
+}
+
 void AppearanceGroup::publish(bool bSendFullContent, bool bSendPartialContent, SipDialogEvent* lContent)
 {
    Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
          "AppearanceGroup::publish sending NOTIFY for: '%s'", mSharedUser.data());
+
+   deleteTerminatedAppearances();
+
    if (bSendFullContent)
    {
       // Both the Full and the Partial dialog-infos are sent to the SIP Subscribe Server.
@@ -848,21 +883,19 @@ void AppearanceGroup::updateSubscriptions()
          if (!callid_contacts.find(ss))
          {
             Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
-                          "AppearanceGroup::updateSubscriptions deleting subscription for '%s' in mUri = '%s'",
+                          "AppearanceGroup::updateSubscriptions terminating subscription for '%s' in mUri = '%s'",
                           ss->data(), mSharedUser.data());
-            // Terminate all dialogs for this Appearance, then publish - before we delete it
-            bool bContentChanged = false;
-            SipDialogEvent* lPartialContent = new SipDialogEvent("partial", mSharedUser.data());
+
+            // Trigger termination of the appearance
             Appearance* inst = dynamic_cast <Appearance*> (itor.value());
-            bContentChanged = inst->terminateDialogs(true); // terminate all dialogs
-            inst->getDialogs(lPartialContent);
-            if (bContentChanged)
-            {
-               lPartialContent->buildBody();
-               publish(true, true, lPartialContent);
-               delete lPartialContent;
-            }
-            mAppearances.destroy(ss);
+            inst->terminate();
+
+            // NOTE:The appearance needs some time to properly terminate the parent subscription
+            // so it should not be destroyed here. Move the appearance to the list with terminated
+            // appearances to be deleted later when it was completely terminated.
+            mAppearances.removeReference(ss);
+            mTerminatedAppearances.insert(inst);
+
             wait_after_subscription_ended = true;
          }
          else
@@ -981,7 +1014,7 @@ UtlContainableType AppearanceGroup::getContainableType() const
 void AppearanceGroup::addAppearance(const UtlString* callidContact)
 {
     Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
-            "AppearanceGroupSet::addAppearance this = %p, mSharedUser = '%s' callid;contact = '%s'",
+            "AppearanceGroup::addAppearance this = %p, mSharedUser = '%s' callid;contact = '%s'",
              this, mSharedUser.data(), callidContact->data());
 
      // Get the contact URI into a UtlString.

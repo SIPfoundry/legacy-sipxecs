@@ -87,6 +87,9 @@ class AppearanceGroup : public UtlContainableAtomic,
    virtual void notifyEventCallback(const UtlString* dialogHandle,
                                     const SipMessage* msg);
 
+   /// Frees all appearances which were marked as terminated
+   void deleteTerminatedAppearances();
+
    /// Format and publish NOTIFY content.
    void publish(bool bSendFullContent, bool bSendPartialContent, SipDialogEvent* lContent);
 
@@ -156,6 +159,11 @@ class AppearanceGroup : public UtlContainableAtomic,
     * Call-Id.
     */
    UtlHashMap mAppearances;
+
+   /** The set of terminated subscriptions established by the SUBSCRIBE, as a UtlSList
+    *  of Appearance's.
+    */
+   UtlSList mTerminatedAppearances;
 
    //! Disabled copy constructor
    AppearanceGroup(const AppearanceGroup& rAppearanceGroup);
