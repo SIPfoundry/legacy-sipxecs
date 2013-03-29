@@ -55,7 +55,13 @@ class ArchiveBase
       remote = nil
       params = settings['ftp']
       uri = URI.parse(params['url'])
-      remote = FtpFileManager.new("#{@backup_dir}/#{@data['plan']}")
+      if uri.scheme == "sftp"
+        remote = SftpFileManager.new("#{@backup_dir}/#{@data['plan']}")
+      elsif uri.scheme == "ftp"
+        remote = FtpFileManager.new("#{@backup_dir}/#{@data['plan']}")
+      else
+        puts("not a known protocol")
+      end
       remote.connect(uri, params)
       return remote
     end
@@ -158,8 +164,8 @@ class FileManagerBase
   end
 end
 
-# Listing, uploading and purging backups on FTP server
-class FtpFileManager < FileManagerBase
+# Listing, uploading and purging backups on SFTP server
+class SftpFileManager < FileManagerBase
 
   def initialize(backup_dir)
     @backup_dir = backup_dir
@@ -238,7 +244,99 @@ class FtpFileManager < FileManagerBase
   end
 end
 
-# Listing and purging backups on FTP server
+# Listing, uploading and purging backups on FTP server
+class FtpFileManager < FileManagerBase
+
+  @uri = nil
+  @params = nil
+  
+  def initialize(backup_dir)
+    @backup_dir = backup_dir
+  end
+
+  def connect(uri, params)
+    @uri = uri
+    @params = params
+  end
+
+  def save(max)
+    # handy - reuse local backup file handler to manage temp ftp directory
+    local = LocalFileManager.new(@backup_dir)
+
+    upload(local.list.last)
+
+    purgable(max) { |b|
+      purge(b)
+    }
+
+    local.save(0)
+  end
+
+  def sanitize_path(path)
+    path.gsub(%r[^/],'').gsub(%r[/$],'')
+  end
+
+  def select_backups(list)
+    filtered = list.select { |f|
+      # ignore dirs that don't appear to be backups
+      f =~ /\d{12}$/
+    }
+    filtered.sort!.reverse!
+  end
+
+  def purge(b)
+    Net::FTP.open(@uri.host, @params['user'], @params['password']) do |ftp|
+      ftp.passive = true
+      ftp.chdir("/#{@uri.path}/#{b}")
+      ftp.nlst("*").each{ |entry|
+        ftp.delete(entry)
+      }
+      ftp.chdir("/#{@uri.path}")
+      ftp.rmdir("#{b}")
+    end
+  end
+
+  def upload(b)
+    Net::FTP.open(@uri.host, @params['user'], @params['password']) do |ftp|
+      ftp.passive = true
+      ipad_folder = ftp.list("/#{@uri.path}")
+      ftp.mkdir("/#{@uri.path}/#{b}") if !ipad_folder.any?{|dir| dir.match(/\s#{b}$/)}
+      Dir["#{@backup_dir}/#{b}/*"].each {|f|
+        ftp.putbinaryfile(f, "#{@uri.path}/#{b}/#{File.basename(f)}")
+      }
+    end
+  end
+
+  def list
+    Net::FTP.open(@uri.host, @params['user'], @params['password']) do |ftp|
+      ftp.passive = true
+      ftp.chdir("/#{@uri.path}")
+      candidates = ftp.nlst("*").collect { |f| f }
+      select_backups(candidates)
+    end
+  end
+
+  def list_items(b)
+    Net::FTP.open(@uri.host, @params['user'], @params['password']) do |ftp|
+      ftp.passive = true
+      ftp.chdir("/#{@uri.path}/#{b}")
+      return ftp.nlst("*").collect { |f| f }
+    end
+  end
+
+  def link
+    @uri.to_s
+  end
+
+  def stage(dir, file, dst)
+    Net::FTP.open(@uri.host, @params['user'], @params['password']) do |ftp|
+      ftp.passive = true
+      ftp.getbinaryfile("/#{@uri.path}/#{dir}/#{file}", "#{dst}/#{file}", 1024)
+    end
+  end
+end
+
+# Listing and purging backups on Local System
 class LocalFileManager < FileManagerBase
 
   def initialize(backup_dir)
