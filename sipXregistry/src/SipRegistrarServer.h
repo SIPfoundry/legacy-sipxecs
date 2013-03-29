@@ -86,6 +86,7 @@ protected:
     bool mUseCredentialDB;
     UtlString mRealm;
     UtlBoolean mSendExpiresInResponse;
+    UtlBoolean mSendAllContactsInResponse;
     RegExpireThread _expireThread;
 
     SipNonceDb mNonceDb;

@@ -89,6 +89,7 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
         KeyValueConfiguration file = KeyValueConfiguration.colonSeparated(wtr);
         Setting root = settings.getSettings();
         file.writeSettings(SettingUtil.filter(NO_UNDERSCORE, root.getSetting("registrar-config")));
+        file.writeSettings(SettingUtil.filter(NO_UNDERSCORE, root.getSetting("other")));
         // add authority levels
         file.write("SIP_REDIRECT_AUTHORITY_LEVEL.090-USERPARAM", "60");
         file.write("SIP_REDIRECT_AUTHORITY_LEVEL.100-PICKUP", "50");
