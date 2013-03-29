@@ -147,6 +147,8 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    {
 	  mBindIp = "0.0.0.0";
    }
+
+   SipTransaction::SendTryingForNist = mConfigDb->getBoolean("SIPX_SEND_TRYING_FOR_NIST", TRUE);
 }
 
 int SipRegistrar::run(void* pArg)

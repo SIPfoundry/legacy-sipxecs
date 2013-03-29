@@ -19,6 +19,8 @@ SIPX_PROXY_AUTHENTICATE_ALGORITHM :
 SIPX_PROXY_AUTHENTICATE_REALM : ${proxyService.realm}
 SIPX_PROXY_HOSTPORT : ${location.address}:${proxyService.sipPort}
 
+SIPX_SEND_TRYING_FOR_NIST : $settings.getSetting('SIPX_SEND_TRYING_FOR_NIST').Value
+
 SIPX_PROXY_HOOK_LIBRARY.200_xfer : @SIPX_LIBDIR@/authplugins/libTransferControl.so
 
 SIPX_PROXY_HOOK_LIBRARY.205_subscriptionauth : @SIPX_LIBDIR@/authplugins/libSubscriptionAuth.so

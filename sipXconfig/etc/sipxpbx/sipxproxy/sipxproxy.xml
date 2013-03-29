@@ -93,6 +93,19 @@
       <type><boolean /></type>
       <value>0</value>
     </setting>
+    <setting name="SIPX_SEND_TRYING_FOR_NIST" advanced="yes">
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>true</value>
+    </setting>
     <!--  unsure what these next 2 settings do -->
     <setting name="SIPX_PROXY_LOG_CONSOLE" hidden="yes">
       <type><string/></type>

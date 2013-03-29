@@ -45,6 +45,7 @@
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 UtlBoolean SipTransaction::enableTcpResend = FALSE;
+UtlBoolean SipTransaction::SendTryingForNist = TRUE;
 /* ============================ CREATORS ================================== */
 
 // Constructor
@@ -3975,20 +3976,23 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                 if (!response)
                 {
                    // Create a 100 Trying and send it.
-                   SipMessage trying;
-                   trying.setTryingResponseData(&incomingMessage);
-                   // We cannot set 'response' to 'trying', as 'trying' does
-                   // not have its transport parameters set.  So we have to
-                   // pass it to handleOutgoing().
-#                  ifdef TEST_PRINT
-                   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                                 "SipTransaction::handleIncoming "
-                                 "sending trying response for resent non-INVITE request");
-#                  endif
-                   handleOutgoing(trying,
-                                  userAgent,
-                                  transactionList,
-                                  MESSAGE_PROVISIONAL);
+                   if (method.compareTo(SIP_INVITE_METHOD) == 0 || SipTransaction::SendTryingForNist)
+		   {
+		     SipMessage trying;
+                     trying.setTryingResponseData(&incomingMessage);
+                     // We cannot set 'response' to 'trying', as 'trying' does
+                     // not have its transport parameters set.  So we have to
+                     // pass it to handleOutgoing().
+#                    ifdef TEST_PRINT
+                     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                                   "SipTransaction::handleIncoming "
+                                   "sending trying response for resent non-INVITE request");
+#                    endif
+                     handleOutgoing(trying,
+                                    userAgent,
+                                    transactionList,
+                                    MESSAGE_PROVISIONAL);
+		   }
 
                 }
             }

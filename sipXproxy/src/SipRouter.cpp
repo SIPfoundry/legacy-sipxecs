@@ -26,6 +26,7 @@
 #include "net/SipUserAgent.h"
 #include "net/SipXauthIdentity.h"
 #include "net/SipSrvLookup.h"
+#include "net/SipTransaction.h"
 #include "sipdb/ResultSet.h"
 #include <sipxproxy/AuthPlugin.h>
 #include "ForwardRules.h"
@@ -249,7 +250,9 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
                        algorithm.data());
       }
    }
-   
+
+   SipTransaction::SendTryingForNist = configDb.getBoolean("SIPX_SEND_TRYING_FOR_NIST", TRUE);
+
    UtlString hostname;
    configDb.get("SIPX_PROXY_HOST_NAME", hostname);
    if (!hostname.isNull())
