@@ -653,7 +653,6 @@ int main(int argc, char* argv[])
 
     // Start up the call processing system
     callManager->start();
-    }
 
     // Loop forever until signaled to shut down
 
@@ -682,6 +681,7 @@ int main(int argc, char* argv[])
            numTwoSecIntervals += 1;
        }
 
+    }
     }
 
     if (callManager)
