@@ -156,7 +156,6 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         if (!speedDials.isEmpty()) {
             getDaoEventPublisher().publishDeleteCollection(speedDials);
             getHibernateTemplate().deleteAll(speedDials);
-            getDaoEventPublisher().publishSave(m_coreContext.getUser(userId));
         }
     }
 
