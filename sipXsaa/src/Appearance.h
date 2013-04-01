@@ -93,6 +93,10 @@ class Appearance : public UtlContainableAtomic,
     */
    bool terminateDialogs(bool terminateHeldDialogs);
 
+   /// Terminate this appearance by ending the parent subscription
+   /// Notify mapping is also removed.
+   bool terminate();
+
    /// Add dialogs managed by this appearance into the passed dialog event
    void getDialogs(SipDialogEvent *fullContent);
 
@@ -101,6 +105,9 @@ class Appearance : public UtlContainableAtomic,
 
    // Returns true if the consolidated state of this appearance instance is busy
    bool appearanceIsBusy();
+
+   /// Returns true if appearance instance has been completely terminated by ending the parent subscription
+   bool isTerminated();
 
    // Returns true if the specified appearanceId (sometimes called x-line-id) is "seized"
    // by this appearance
@@ -137,6 +144,9 @@ class Appearance : public UtlContainableAtomic,
 
    // Whether the current subscription expiration time is short (i.e. line is seized by this app)
    bool mbShortTimeout;
+
+   /// Will be set to true when this appearance is terminated
+   bool _isTerminated;
 
    //! The early dialog handle for the subscription.
    UtlString mSubscriptionEarlyDialogHandle;
