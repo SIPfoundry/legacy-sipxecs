@@ -914,19 +914,19 @@ EOF
    echo ""
    echo "======== MongoDB replica set config:"
    echo "rs.config()"
-   mongo --eval "printjson(rs.config())"
+   mongo --eval "tojson(rs.config())"
 
    # Get mongodb rs status
    echo ""
    echo "======== MongoDB replica set status:"
    echo "rs.status()"
-   mongo --eval "printjson(rs.status())"
+   mongo --eval "tojson(rs.status())"
 
    # Get mongodb server status
    echo ""
    echo "======== MongoDB server status:"
    echo "db.serverStatus()"
-   mongo --eval "printjson(db.serverStatus())"
+   mongo --eval "tojson(db.serverStatus())"
 
    # Execute system monitoring commands
    for command in \
