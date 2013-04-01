@@ -23,13 +23,16 @@ emptydirs = \
 	$(DESTDIR)@SIPX_VARDIR@/phonebook \
 	$(DESTDIR)@SIPX_JAVADIR@/sipXconfig/plugins
 
-
 cfinputsdir = @SIPX_CFINPUTS@/plugin.d
 dist_cfinputs_DATA = \
 	00_sipxconfig.cf \
 	sipxconfig.cf \
 	tftp.cf \
 	ftp.cf
+
+cflibdir = @SIPX_CFINPUTS@/plugin.d/lib
+dist_cflib_DATA = \
+	reset_cfkey.cf
 
 # automatically selects configuration files, but as importantly, also has to distinguish what is NOT
 # a configuration file in the 'find' statement

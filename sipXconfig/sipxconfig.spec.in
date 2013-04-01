@@ -160,6 +160,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc  README  NOTICE  ChangeLog %name.configlog
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxconfig
 %{_datadir}/sipxecs/cfinputs/plugin.d/*.cf
+%{_datadir}/sipxecs/cfinputs/plugin.d/lib/*.cf
 %attr(755,sipx, sipx) %{_bindir}/*
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXconfig/.java-dep
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXconfig/*.jar

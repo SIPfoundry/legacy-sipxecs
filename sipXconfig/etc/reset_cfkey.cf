@@ -1,0 +1,44 @@
+# Copyright (c) 2013 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+bundle agent reset_cfkey {
+  methods:
+    any::
+      "any" usebundle => "sipx_module";
+      "any" usebundle => "reset_cfkey_do";
+}
+
+bundle agent reset_cfkey_do {  
+  vars:
+    "reset_file" string => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/reset_cfkey.cfdat";
+
+  classes:
+    "have_reset_file" expression => fileexists("$(reset_file)");
+    "have_keys_to_reset" expression => isvariable("sipx.reset_cfkeys");
+
+  files:
+    have_reset_file::
+      "$(reset_file)"
+        delete => nodir;
+
+  commands:
+    have_keys_to_reset::
+      "/usr/sbin/cf-key"
+        comment => "Deleting cfkey for root user",
+        args => "-r $(sipx.reset_cfkeys)";
+
+      "/usr/sbin/cf-key"
+        comment => "Deleting cfkey for $(sipx.user) user",
+        args => "-r $(sipx.reset_cfkeys)",
+        contain => su("$(sipx.SIPXPBXUSER)");
+}

@@ -17,9 +17,11 @@
 package org.sipfoundry.sipxconfig.cfgmgt;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
@@ -31,13 +33,20 @@ public class ConfigTrigger implements DaoEventListener, FeatureListener {
 
     @Override
     public void onDelete(Object entity) {
-        if (entity instanceof DeployConfigOnEdit) {
-            onChange((DeployConfigOnEdit) entity);
-        }
+        onEntityChange(entity);
     }
 
     @Override
     public void onSave(Object entity) {
+        onEntityChange(entity);
+    }
+
+    private void onEntityChange(Object entity) {
+        if (entity instanceof Location) {
+            Collection<Location> reset = Collections.singleton((Location) entity);
+            // reset on add or delete incase last delete didn't complete
+            m_configManager.resetKeys(reset);
+        }
         if (entity instanceof DeployConfigOnEdit) {
             onChange((DeployConfigOnEdit) entity);
         }
