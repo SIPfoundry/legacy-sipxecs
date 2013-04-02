@@ -1,0 +1,290 @@
+require 'ostruct'
+require 'optparse'
+
+class ArchiveBase
+  attr_writer :verbose
+
+  def initialize
+    @pguser = "postgres"
+    @db = "SIPXCONFIG"
+    @tmpdir = "/tmp"
+    @libexec = "@SIPX_LIBEXECDIR@"
+    @initd = "@SIPX_SERVICEDIR@"
+    @bindir = "@SIPX_BINDIR@"
+    @attachments = [
+       '@localstatedir@/sipxdata/parkserver/music',
+       '@localstatedir@/sipxdata/upload',
+       '@localstatedir@/sipxdata/mediaserver/data/moh',
+       '@localstatedir@/sipxdata/sipxpage/music'
+    ];
+  end
+
+  def sql_exec(db, sql)
+    cmd "psql -U #{@pguser} #{db} -c \"#{sql}\""
+  end
+
+  def cmd(cmd)
+    puts cmd if @verbose
+    rc = system(cmd)
+    return rc
+  end
+end
+
+class Backup < ArchiveBase
+  def run(params)
+    cmd "pg_dump -U #{@pguser} -F t #{@db} > db.tar" or
+      raise "Could not backup postgres database"
+    cmd "mongodump --db profiles --collection userProfile" or
+      raise "Could not backup user profiles database"
+    cmd "mongodump --db profiles --collection fs.files" or
+      raise "Could not backup avatar database"
+    cmd "mongodump --db profiles --collection fs.chunks" or
+      raise "Could not backup avatar database"
+    cmd "echo @PACKAGE_VERSION@ > version" or
+      raise "Could not generate version file"
+    if params.has_key?(:no_device_files)
+      @attachments = [
+         '@localstatedir@/sipxdata/parkserver/music',
+         '@localstatedir@/sipxdata/mediaserver/data/moh',
+         '@localstatedir@/sipxdata/sipxpage/music'
+      ];
+    end
+    attachments = @attachments.find_all{|d|
+      File.directory? d
+    }
+
+    # by stripping @localstatedir@ we can backup/restore from/to source/production machines
+    localstatedir = '@localstatedir@'[1..-1]
+    cmd "tar --transform='s,^#{localstatedir}/,var/,' -cvzf #{params[:file]} db.tar version dump/ #{attachments.join('/ ')}" or
+      raise "Could not archive databases"
+    FileUtils.rm_rf(['db.tar', 'version', 'dump'])
+  end
+end
+
+class Restore < ArchiveBase
+  def initialize
+    super
+    @restoredb = "#{@db}_RESTORE"
+  end
+
+  def custom_option(args)
+  end
+
+  def run(params)
+    pre_mongo = false
+    if cmd "tar -zxvf #{params[:file]} -C #{@tmpdir} version"
+      v = File.read("#{@tmpdir}/version").split(".")
+      dev = (v[0] == '0' and v[1] == '0')
+      pre_mongo = !(dev or (v[0] == '4' and v[1] > '4') or v[0] > '4')
+    else
+      raise "Not a known archive, version file is missing."
+    end
+
+    cmd "dropdb -U #{@pguser} #{@restoredb} 2>/dev/null";
+    cmd "createdb -U #{@pguser} #{@restoredb}" or
+      raise "Restore database failed."
+
+    cmd "tar -xzOf #{params[:file]} db.tar > #{@tmpdir}/db.tar" or
+      raise "Failed to extract database from archive."
+    cmd "pg_restore -U #{@pguser} -d #{@restoredb} #{@tmpdir}/db.tar" or
+      raise "Failed to restore database from archive."
+
+    ant = "-Dsipxconfig.db.name=#{@restoredb}"
+    if params.has_key?(:crack_pin)
+      ant += " -Dmigrate44.crack_pin=#{params[:crack_pin]}"
+      ant += " -Dmigrate44.crack_passwd=#{params[:crack_passwd]}"
+      ant += " -Dmigrate44.crack_pin_len=#{params[:crack_pin_len]}"
+    end
+
+    cmd "SIPXCONFIG_ANT_OPTS=\"#{ant}\" #{@initd}/sipxconfig db upgrade" or
+      raise "Failed to migrate database."
+
+    if !pre_mongo
+      cmd "tar -zxvf #{params[:file]} -C #{@tmpdir} dump" or
+        raise "Failed to extract user profiles database from archive"
+      cmd "mongorestore --db profiles --collection userProfile #{@tmpdir}/dump/profiles/userProfile.bson" or
+        raise "Failed to restore user profiles database"
+      cmd "mongorestore --db profiles --collection fs.files #{@tmpdir}/dump/profiles/fs.files.bson" or
+        cmd "echo Failed to restore avatar database"
+      cmd "mongorestore --db profiles --collection fs.chunks #{@tmpdir}/dump/profiles/fs.chunks.bson" or
+        cmd "echo Failed to restore avatar database"
+    else
+      sql_exec(@restoredb, "insert into setup(setup_id) values ('migrate_profiles');") or
+          raise "Failed to trigger user profile migration."
+    end
+
+    if params.has_key?(:reset_password)
+      sql_exec(@restoredb, "update users set pintoken = '#{params[:reset_password]}'") or
+          raise "Failed to reset password."
+    end
+
+    if params.has_key?(:reset_pin)
+      sql_exec(@restoredb, "update users set voicemail_pintoken = md5(user_name || ':#{params[:reset_pin]}')") or
+          raise "Failed to reset pins."
+    end
+
+    if params.has_key?(:domain)
+      sql_exec(@restoredb, "select change_domain_on_restore('#{params[:domain]}');") or
+        raise "Failed to change domain."
+    end
+
+    if params.has_key?(:fqdn)
+        sql_exec(@restoredb, "select change_primary_fqdn_on_restore('#{params[:fqdn]}');") or
+          raise "Failed to change domain."
+    end
+
+	custom_option(params)
+
+    sql_exec(@restoredb, "select change_primary_ip_on_restore('#{params[:ipaddress]}');") or
+      raise "Failed to update ip address."
+
+    cmd "#{@initd}/sipxconfig stop" if params[:restart]
+    cmd "dropdb -U #{@pguser} #{@db}"
+    # alter database command need double quotes if db name is capitalized. Also, first set of double
+    # quotes is lost passing thru ruby
+    sql_exec('postgres', "alter database \\\"#{@restoredb}\\\" rename to \\\"#{@db}\\\";") or
+      raise "Could not rename database. Please run '#{@initd}/sipxconfig db create' to reset your system."
+
+    cmd "#{@initd}/sipxconfig db drop-index"
+
+    # exclude certdb because we don't need it but it's in <= 4.4.0 backups
+    cmd "tar --exclude certdb -zxvf #{params[:file]} -C @localstatedir@/.. var/sipxdata" or
+      raise "Could not restore file uploads"
+    cmd "#{@bindir}/sipxagent -d setup #{'-v ' if @verbose}" if params[:restart]
+    cmd "#{@bindir}/sipxagent #{'-v ' if @verbose}" if params[:restart]
+  end
+end
+
+class Fetcher
+  def initialize
+	@operation = nil
+	@params = {}
+	@verbose = false
+  end
+
+  def add_additional_options(args)
+  end
+
+  def fetcher_options
+    opts = OptionParser.new do |opts|
+      opts.banner = "Create or restore configuration to/from an archive file."
+
+	opts.on("--backup <archive>",
+		"Restore the specified Configuration archive."){ |v|
+	  @operation = Backup.new
+	  @params[:file] = v
+	}
+
+	opts.separator ""
+	opts.separator "Backup options:"
+
+	opts.on_tail("--no-device-files",
+		"Do not include device uploaded files in backup."){
+      @params[:no_device_files] = true
+	}
+
+	opts.on("--restore <archive>",
+		"Restore the specified Configuration archive."){ |v|
+	  @operation = Restore.new
+	  @params[:file] = v
+	}
+
+	opts.on("--verbose",
+		"Restore the specified Configuration archive."){
+	  @verbose = true
+	}
+
+	opts.separator ""
+	opts.separator "Restore options:"
+
+	opts.on_tail("--ipaddress <address>",
+		"IP Address. Default #{@params[:ipaddress]}."){ |v|
+	  @params[:ipaddress] = v
+	}
+
+	opts.on_tail("--domain <domain>",
+		"SIP domain for new system. i.e. example.org. Default is to keep domain from archive"){ |v|
+	  @params[:domain] = v
+	}
+
+	opts.on_tail("--fqdn <fqdn of primary machine>",
+		"Set FQDN of this primary machine"){ |v|
+	  @params[:fqdn] = v
+	}
+
+	opts.on_tail("--dryrun",
+		"Don't actually restore db, but test the db migration process."){
+	  @params[:dryrun] = true
+	}
+
+	opts.on_tail("--reset-pin default-pin",
+		"Blindly reset all pins to given pin."){|v|
+	  @params[:reset_pin] = v
+	}
+
+	opts.on_tail("--reset-password default-password",
+		"Blindly reset all user portal passwords. Password is also used for IM and call center."){|v|
+	  @params[:reset_password] = v
+	}
+
+	opts.on_tail("--crack-pin default-pin",
+		"When changing the domain and when restoring from backups for versions 4.4.0, attempt to \
+recover original Voicemail PIN by brute force. If unsuccessful, reset users pin. Also, if user \
+does not have an IM password, this pin will be used for that as well."){|v|
+	  @params[:crack_pin] = v
+	}
+
+	opts.on_tail("--crack-passwd default-passwd",
+		"When changing the domain and when restoring from backups for versions 4.4.0, attempt to \
+recover original user PIN by brute force. If unsuccessful, reset users pintoken. Also, if user \
+does not have an IM password, this pin will be usedfor that as well."){|v|
+	  @params[:crack_passwd] = v
+	}
+
+	opts.on_tail("--crack-pin-len length",
+		"Maximum length of PIN to attempt. Default is #{@params[:crack_pin_len]}. Higher \
+values take exponentially more time."){|v|
+	  @params[:crack_pin_len] = v
+	}
+
+	opts.on_tail("--no-restart",
+		"Use this flag if sipxconfig is already stopped and you do not want this script to re-stop \
+or start sipxconfig after it's done."){
+	  @params[:restart] = false
+	}
+    end
+
+	add_additional_options(opts)
+
+	return opts
+  end
+
+  def parse(args)
+	@params = {}
+	@params[:ipaddress] = `hostname -i`.chomp
+	@params[:restart] = true
+	@params[:dryrun] = false
+	@params[:crack_pin_len] = 4
+
+	fetcher_options
+  end
+
+  def run(opts)
+    begin
+	  opts.parse!
+
+	  if @operation.nil?
+	    raise "Must specify either restore or archive options."
+	  end
+	  if @params.has_key?(:crack_pin) and !@params.has_key?(:crack_passwd)
+	    raise "Use 'crack-pin' option togheter with 'crack-passwd' option"
+	  end
+	  if @params.has_key?(:crack_passwd) and !@params.has_key?(:crack_pin)
+	    raise "Use 'crack_passwd' option togheter with 'crack_pin' option"
+	  end
+
+	  @operation.verbose = @verbose
+	  @operation.run(@params)
+    end
+  end
+end
