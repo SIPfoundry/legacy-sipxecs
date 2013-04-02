@@ -64,9 +64,6 @@ public abstract class UserNavigation extends BeanNavigation {
     @InjectPage(value = EditPersonalAttendant.PAGE)
     public abstract EditPersonalAttendant getEditPersonalAttendantPage();
 
-    @InjectPage(value = SupervisorPermission.PAGE)
-    public abstract SupervisorPermission getSupervisorPermissionPage();
-
     @InjectPage(value = UserPhones.PAGE)
     public abstract UserPhones getUserPhonesPage();
 
@@ -126,13 +123,6 @@ public abstract class UserNavigation extends BeanNavigation {
         UserSettings page = getUserSettingsPage();
         page.setUserId(beanId);
         page.setParentSettingName(path);
-        page.setReturnPage(ManageUsers.PAGE);
-        return page;
-    }
-
-    public IPage editSupervisorPermission(Integer userId) {
-        SupervisorPermission page = getSupervisorPermissionPage();
-        page.setUserId(userId);
         page.setReturnPage(ManageUsers.PAGE);
         return page;
     }
@@ -217,10 +207,6 @@ public abstract class UserNavigation extends BeanNavigation {
 
     public boolean isSpeedDialTabActive() {
         return SpeedDialPage.PAGE.equals(getPage().getPageName());
-    }
-
-    public boolean isSupervisorTabActive() {
-        return SupervisorPermission.PAGE.equals(getPage().getPageName());
     }
 
     public boolean isPersonalAttendantTabActive() {

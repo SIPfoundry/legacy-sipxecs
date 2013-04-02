@@ -53,12 +53,6 @@
               <span key="link.speedDial">Speed Dial</span>
             </a>
           </span>
-          <span jwcid="@common/Tab" isActive="ognl:supervisorTabActive">
-            <a id="groupSupervisorLink" jwcid="supervisorPermissionLink@DirectLink"
-              listener="listener:editSupervisorPermission" parameters="ognl:bean.id">
-              <span key="link.supervisor">Group Supervisor</span>
-            </a>
-          </span>
           <span jwcid="@If" condition="ognl:voicemailEnabled" renderTag="false">
 			<span jwcid="@common/Tab" isActive="ognl:personalAttendantTabActive">
 			  <a id="personalAttendantLink" jwcid="personalAttendantLink@DirectLink"
