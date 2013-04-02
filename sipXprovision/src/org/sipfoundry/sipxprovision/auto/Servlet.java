@@ -272,7 +272,7 @@ public class Servlet extends HttpServlet {
         }
 
         public String getDefaultFirmware() {
-            return "4.0.X";
+            return m_config.getPolycomDefaultVersion();
         }
     }
 
