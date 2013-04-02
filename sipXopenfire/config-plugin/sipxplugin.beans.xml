@@ -27,7 +27,7 @@
   <bean id="openfireSettings" class="org.sipfoundry.sipxconfig.openfire.OpenfireSettings">
     <property name="localizationContext" ref="localizationContext"/>
     <property name="modelFilesContext" ref="modelFilesContext"/>
-    <property name="logDir" value="${sysdir.log}" />
+    <property name="logDir" value="${openfire.home}/logs" />
   </bean>
   
   <bean id="openfireConfiguration" class="org.sipfoundry.sipxconfig.openfire.OpenfireConfiguration">
