@@ -5,6 +5,7 @@ cmcprov_PKGS = \
 	commons-logging \
 	javax.servlet \
 	commons-collections \
+	acegi-security \
 	org.springframework.beans \
 	org.springframework.web \
 	org.springframework.context \
