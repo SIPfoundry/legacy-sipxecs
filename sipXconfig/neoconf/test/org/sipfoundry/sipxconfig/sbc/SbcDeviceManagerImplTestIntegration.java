@@ -34,8 +34,9 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
     @Override
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
-        db().execute("insert into location (location_id, name, fqdn, ip_address) values (1, 'x', 'y', '10.1.2.5')");
-        m_location = m_locationsManager.getLocation(1);
+        db().execute("insert into location (location_id, name, fqdn, ip_address, primary_location) values (1, 'a', 'b', '10.1.2.1', true)");
+        db().execute("insert into location (location_id, name, fqdn, ip_address) values (2, 'x', 'y', '10.1.2.5')");
+        m_location = m_locationsManager.getLocation(2);
     }
     
     @Override

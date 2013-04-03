@@ -141,17 +141,11 @@ public class LocationsManagerImplTestIntegration extends ImdbTestCase {
 
     public void testsaveLocationWithDuplicateFqdnOrIp() throws Exception {
         loadDataSetXml("commserver/clearLocations.xml");
-        Location location = new Location();
-        location.setName("test location");
-        location.setAddress("10.1.1.1");
-        location.setFqdn("localhost");
-        m_locationsManager.saveLocation(location);
+        loadDataSetXml("commserver/seedLocations.xml");
+        Location location;
 
         Location[] dbLocations = m_locationsManager.getLocations();
-        assertEquals(1, dbLocations.length);
-        assertEquals("test location", dbLocations[0].getName());
-        assertEquals("10.1.1.1", dbLocations[0].getAddress());
-        assertEquals("localhost", dbLocations[0].getFqdn());
+        assertEquals(2, dbLocations.length);
 
         location = new Location();
         location.setName("test location");
@@ -168,7 +162,7 @@ public class LocationsManagerImplTestIntegration extends ImdbTestCase {
         location = new Location();
         location.setName("test location");
         // Same ip address
-        location.setAddress("10.1.1.1");
+        location.setAddress("192.168.0.26");
         location.setFqdn("localhost.localdomain");
         try {
             m_locationsManager.saveLocation(location);

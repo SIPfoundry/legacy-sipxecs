@@ -157,11 +157,11 @@ public abstract class LocationsPanel extends BaseComponent implements PageBeginR
         // update locations list
         setLocations(null);
     }
-    
+
     public void resetKeys() {
-        getConfigManager().resetKeys(getSelectedLocations());    	
+        getConfigManager().resetKeys(getSelectedLocations());
     }
-    
+
     public void generateProfiles() {
         getConfigManager().sendProfiles(getSelectedLocations());
     }
@@ -173,8 +173,8 @@ public abstract class LocationsPanel extends BaseComponent implements PageBeginR
             if (selectedIds.contains(location.getId())) {
                 selectedLocations.add(location);
             }
-        }	
-        return selectedLocations;    	
+        }
+        return selectedLocations;
     }
 
     public boolean isFailedState() {

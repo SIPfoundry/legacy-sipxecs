@@ -85,7 +85,7 @@ public interface ConfigManager {
     void sendProfiles(Collection<Location> locations);
 
     void resetKeys(Collection<Location> locations);
-    
+
     /**
      * Only used by setup init task
      */
