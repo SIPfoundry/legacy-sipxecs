@@ -950,6 +950,11 @@ public class Servlet extends HttpServlet {
         PHONE_MODEL_MAP.put("VVX_500", new PhoneModel("polycomVVX500", "Polycom VVX 500"));
 
         PHONE_MODEL_MAP.put("VVX_600", new PhoneModel("polycomVVX600", "Polycom VVX 600"));
+        PHONE_MODEL_MAP.put("VVX_300", new PhoneModel("polycomVVX300", "Polycom VVX 300"));
+        PHONE_MODEL_MAP.put("VVX_310", new PhoneModel("polycomVVX310", "Polycom VVX 310"));
+        PHONE_MODEL_MAP.put("VVX_400", new PhoneModel("polycomVVX400", "Polycom VVX 400"));
+        PHONE_MODEL_MAP.put("VVX_410", new PhoneModel("polycomVVX410", "Polycom VVX 410"));
+        
         // Nortel IP 12x0, see:
         // -
         // plugins/nortel12x0/src/org/sipfoundry/sipxconfig/phone/nortel12x0/nortel12x0-models.beans.xml
