@@ -141,6 +141,7 @@ protected:
 
   std::string _agentId;
   OsServiceOptions& _options;
+
   boost::thread* _pIoServiceThread;
   boost::asio::io_service _ioService;
   TimedQueue _cache;
