@@ -50,7 +50,7 @@ public class ProvisioningContextImpl implements ProvisioningContext {
      * password is wrong.
      */
     public User getUser(String username, String password) {
-        User user = m_sipxCoreContext.loadUserByUserName(username);
+        User user = m_sipxCoreContext.loadUserByUserNameOrAlias(username);
         if (user != null) {
             if (checkLogin(user, password)) {
                 return user;
