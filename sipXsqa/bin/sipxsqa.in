@@ -48,6 +48,7 @@ start() {
       Status=$?
       [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
       checkIfListening $prog
+
       Status=$?
       [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
       [ $Status -eq 0 ] && { echo_success; echo; }
