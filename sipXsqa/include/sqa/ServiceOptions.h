@@ -312,7 +312,7 @@ inline bool ServiceOptions::parseOptions()
     return true;
   }
 
-  displayVersion(std::cout);
+  //displayVersion(std::cout);
   
   try
   {

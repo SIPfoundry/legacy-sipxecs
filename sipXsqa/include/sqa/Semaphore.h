@@ -64,6 +64,18 @@ public:
         --_count;
     }
 
+    bool wait(int milliseconds)
+    {
+      boost::unique_lock<boost::mutex> lock(_mutex);
+      boost::system_time const timeout = boost::get_system_time()+ boost::posix_time::milliseconds(milliseconds);
+      while (_count == 0)
+      {
+        if (!_condition.timed_wait(lock,timeout))
+          return false;
+      }
+      --_count;
+      return true;
+    }
 };
 
 #endif	/* SEMAPHORE_H */

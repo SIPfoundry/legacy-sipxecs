@@ -228,13 +228,26 @@ protected:
   {
     redisReply* reply = const_cast<RedisClient*>(this)->execute(args);
     std::string value;
-    if (reply && (reply->type == REDIS_REPLY_STATUS || reply->type == REDIS_REPLY_ERROR) && reply->len > 0)
-    {
-      value = std::string(reply->str, reply->len);
-    }
-
     if (reply)
+    {
+        if ((reply->type == REDIS_REPLY_STATUS || reply->type == REDIS_REPLY_ERROR) && reply->len > 0)
+        {
+          value = std::string(reply->str, reply->len);
+        }
+
+        if (reply->type == REDIS_REPLY_INTEGER)
+        {
+          try
+          {
+            value  = boost::lexical_cast<std::string>(reply->integer);
+          }
+          catch(...)
+          {
+          }
+        }
+
       const_cast<RedisClient*>(this)->freeReply(reply);
+    }
 
     return value;
   }
@@ -384,6 +397,7 @@ public:
     std::vector<std::string> args;
     args.push_back("HSET");
     args.push_back(key);
+    args.push_back(name);
     args.push_back(value);
     std::string status = getStatusString(args);
     return status == "0" || status == "1";
@@ -442,6 +456,7 @@ public:
     std::vector<std::string> args;
     args.push_back("HGET");
     args.push_back(key);
+    args.push_back(name);
     value = getReplyString(args);
     return !value.empty();
   }

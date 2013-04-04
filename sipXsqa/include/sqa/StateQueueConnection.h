@@ -54,6 +54,7 @@ public:
     }
   };
 
+  //TODO: Decouple this class from StateQueueAgent as it makes testing of this class difficult
   explicit StateQueueConnection(
       boost::asio::io_service& ioService,
       StateQueueAgent& agent);
@@ -106,6 +107,8 @@ protected:
     RequestBody,
   } _state;
   request _request;
+
+  friend class StateQueueConnectionTest;
 };
 
 

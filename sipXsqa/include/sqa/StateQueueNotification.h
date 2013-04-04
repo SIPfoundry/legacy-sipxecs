@@ -23,8 +23,8 @@
 #include <cassert>
 #include <boost/thread.hpp>
 #include <zmq.hpp>
-#include "ServiceOptions.h"
-#include "sqaclient.h"
+#include "sqa/ServiceOptions.h"
+#include "sqa/sqaclient.h"
 
 class StateQueueNotification
 {
@@ -37,11 +37,7 @@ public:
     std::string key;
   };
 
-  StateQueueNotification(ServiceOptions& options);
-
-  StateQueueNotification(
-    const std::string& sqaControlAddress,
-    const std::string& sqaControlPort);
+  StateQueueNotification();
 
   ~StateQueueNotification();
 
@@ -60,8 +56,6 @@ private:
   boost::thread* _queueThread;
   bool _isRunning;
   SQAPublisher* _pPublisher;
-  std::string _sqaControlAddress;
-  std::string _sqaControlPort;
 };
 
 
@@ -69,28 +63,10 @@ private:
 // Inlines
 //
 
-inline StateQueueNotification::StateQueueNotification(ServiceOptions& options) :
+inline StateQueueNotification::StateQueueNotification() :
   _queueThread(0),
   _isRunning(false),
   _pPublisher(0)
-{
-  #define within(num) (int) ((float) (num) * random () / (RAND_MAX + 1.0))
-  std::ostringstream ss;
-  ss << std::hex << std::uppercase
-     << std::setw(4) << std::setfill('0') << within (0x10000) << "-exit";
-  _exitString = ss.str();
-
-  options.getOption("sqa-control-address", _sqaControlAddress);
-  options.getOption("sqa-control-port", _sqaControlPort);
-}
-
-inline StateQueueNotification::StateQueueNotification(const std::string& sqaControlAddress,
-    const std::string& sqaControlPort) :
-  _queueThread(0),
-  _isRunning(false),
-  _pPublisher(0),
-  _sqaControlAddress(sqaControlAddress),
-  _sqaControlPort(sqaControlPort)
 {
   #define within(num) (int) ((float) (num) * random () / (RAND_MAX + 1.0))
   std::ostringstream ss;
@@ -125,15 +101,11 @@ inline void StateQueueNotification::internal_run()
 {
   assert(!_isRunning && _queueThread);
 
-
-  if (_sqaControlAddress.empty() || _sqaControlPort.empty())
-    return;
-
   std::ostringstream ss;
-  ss << "ssw-" << std::hex << std::uppercase
+  ss << "RLSNotifier-" << std::hex << std::uppercase
      << std::setw(4) << std::setfill('0') << (int) ((float) (0x10000) * random () / (RAND_MAX + 1.0));
 
-  _pPublisher = new SQAPublisher(ss.str().c_str(), _sqaControlAddress.c_str(), _sqaControlPort.c_str(), 1, 100, 100);
+  _pPublisher = new SQAPublisher(ss.str().c_str(), 1, 100, 100);
 
 
   std::string key;
