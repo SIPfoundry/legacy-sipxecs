@@ -12,7 +12,7 @@
 # details.
 
 #
-# This is redis configuration. Uses either /etc/init.d./redis (centos 6) or 
+# This is redis configuration. Uses either /etc/init.d./redis (centos 6) or
 # /bin/systemctl (fedora 16) scripts whichever are available.
 #
 
@@ -20,6 +20,18 @@ bundle agent redis {
   methods:
     redis::
       "any" usebundle => "redis_running";
+    any::
+      "any" usebundle => "redis_config";
+}
+
+bundle agent redis_config {
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/redis-client.ini"
+        comment => "Redis client config for SQA $(this.promiser)",
+        perms => mog("655", "root", "root"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/redis-client.ini"),
+        classes => if_repaired("restart_redis_clients");
 }
 
 bundle agent redis_running {
@@ -36,12 +48,6 @@ bundle agent redis_running {
 
   files:
     redis::
-      "$(sipx.SIPX_CONFDIR)/redis-client.ini"
-        comment => "Redis client config for SQA $(this.promiser)",
-        perms => mog("655", "root", "root"),
-        copy_from => copy_from_cfdata("$(sipx.location_id)/redis-client.ini"),
-        classes => if_repaired("restart_redis_clients");
-
       "/etc/redis.conf"
         comment => "remove bind 127.0.0.1 from redis.conf",
         edit_line => delete_lines_matching('bind 127.0.0.1'),

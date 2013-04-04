@@ -57,20 +57,28 @@ ResourceListTask::ResourceListTask(ResourceListServer* parent) :
    //
    // Initialize State Queue Agent Publisher if an address is provided
    //
-   std::string sqaControlAddress;
-   std::string sqaControlPort;
-   std::ostringstream sqaconfig;
-   sqaconfig << SIPX_CONFDIR << "/" << "sipxsqa-client.ini";
-   ServiceOptions configOptions(sqaconfig.str());
+   std::ostringstream strm;
+   strm << SIPX_CONFDIR << "/" << "sipxsqa-client.ini";
+
+   std::string sqaconfig = strm.str();
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+                 "ResourceListTask:: this = %p, read SQA notifier configuration from file '%s'",
+                 this, sqaconfig.c_str());
+
+   ServiceOptions configOptions(sqaconfig);
    if (configOptions.parseOptions())
    {
      bool enabled = false;
      if (configOptions.getOption("enabled", enabled, enabled) && enabled)
      {
-       _pSqaNotifier = new StateQueueNotification(configOptions);
+       _pSqaNotifier = new StateQueueNotification();
        _pSqaNotifier->run();
      }
    }
+
+   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+                 "ResourceListTask:: this = %p, SQA notifier is %s",
+                 this, ((_pSqaNotifier) ? "UP" : "DOWN"));
 }
 
 // Destructor

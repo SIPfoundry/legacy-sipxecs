@@ -771,3 +771,49 @@ osscore_prefix="yes")
 
   AC_SUBST(OSSCORE_LIBS, "$d/liboss_core.la")
 ])
+
+## sipXsqaLib
+# SFAC_LIB_SQA attempts to find the sf call processing library and include
+# files by looking in /usr/[lib|include], /usr/local/[lib|include], and
+# relative paths.
+#
+# If not found, the configure is aborted.  Otherwise, variables are defined
+# for both the INC and LIB paths AND the paths are added to the CFLAGS,
+# CXXFLAGS, LDFLAGS, and LIBS.
+AC_DEFUN([SFAC_LIB_SQA],
+[
+    SFAC_ARG_WITH_INCLUDE([sqa/StateQueueClient.h],
+            [sipxsqainc],
+            [ --with-sipxsqainc=<dir> sqa library include path ],
+            [sipXsqaLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_WARN([    assuming it will be in '${prefix}/include'])
+        foundpath=${prefix}/include
+    fi
+    SIPXSQAINC=$foundpath
+    AC_SUBST(SIPXSQAINC)
+
+    if test "$SIPXSQAINC" != "$SIPXPORTINC"
+    then
+        CFLAGS="-I$SIPXSQAINC $CFLAGS"
+        CXXFLAGS="-I$SIPXSQAINC $CXXFLAGS"
+    fi
+
+    SFAC_ARG_WITH_LIB([libsipXsqa.la],
+            [sipxsqalib],
+            [ --with-sipxsqalib=<dir> call processing library path ],
+            [sipXsqaLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_WARN([    assuming it will be in '${prefix}/lib'])
+        foundpath=${prefix}/lib
+    fi
+    SIPXSQALIB=$foundpath
+
+    AC_SUBST(SIPXSQA_LIBS,   ["$SIPXSQALIB/libsipXsqa.la"])
+]) # SFAC_LIB_SQA
