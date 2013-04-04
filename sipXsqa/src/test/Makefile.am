@@ -14,8 +14,13 @@ TESTDIR=$(if $(patsubst /%,,$(top_srcdir)),$(shell pwd)/$(top_srcdir),$(top_srcd
 # @NAMED_PROGRAM@ to non-null.
 testsuite_CXXFLAGS = \
     -DTESTDIR=\"$(TESTDIR)\" \
-    $(if @NAMED_PROGRAM@,-DNAMED_PROGRAM=\"@NAMED_PROGRAM@\")
-
+    $(if @NAMED_PROGRAM@,-DNAMED_PROGRAM=\"@NAMED_PROGRAM@\") \
+    -I$(top_srcdir)/include \
+		-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
+    -DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
+    -DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
+    -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
+    
 testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
     	@SIPXPORT_LIBS@ \
@@ -33,6 +38,14 @@ testsuite_LDADD = \
 	  -lev
 
 testsuite_SOURCES = \
-    StateQueueConnectionTest.cpp
+		StateQueueAgentTest.cpp \
+		StateQueueMessageTest.cpp \
+    StateQueueConnectionTest.cpp \
+    SQAAgentUtil.cpp \
+    SQAClientUtil.cpp \
+    SQAClientTest.cpp \
+    SQAClientHATest.cpp \
+    SQAUtilTest.cpp
+    
 
 EXTRA_DIST =

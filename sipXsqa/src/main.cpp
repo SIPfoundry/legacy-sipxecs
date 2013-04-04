@@ -18,6 +18,7 @@
 #include "sqa/ServiceOptions.h"
 #include "sqa/StateQueueAgent.h"
 #include "sqa/StateQueueDriverTest.h"
+#include "sqa/StateQueueConnection.h"
 
 int main(int argc, char** argv)
 {
@@ -29,6 +30,8 @@ int main(int argc, char** argv)
   service.addOptionString("zmq-subscription-port", ": Port where to send subscription for events.");
   service.addOptionString("sqa-control-port", ": Port where to send control commands.");
   service.addOptionString("sqa-control-address", ": Address where to send control commands.");
+
+  service.addOptionInt("id", ": Address where to send control commands.");
   service.addOptionFlag("test-driver", ": Set this flag if you want to run the driver unit tests to ensure proper operations.");
   
 
@@ -43,7 +46,7 @@ int main(int argc, char** argv)
     return -1;
   }
 
-  StateQueueAgent sqa(service);
+  StateQueueAgent sqa("main", service);
   sqa.run();
 
   if (service.hasOption("test-driver"))

@@ -86,21 +86,23 @@ public class RedisImpl implements Redis, ConfigProvider, ProcessProvider, Firewa
             boolean on = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
             ConfigUtils.enableCfengineClass(dir, "redis.cfdat", on, FEATURE.getId());
 
-            Address redisApi = new Address(SERVER, location.getAddress());
+            Address redisApi = manager.getAddressManager().getSingleAddress(SERVER, location);
             Writer w = new FileWriter(new File(dir, "redis-client.ini"));
             try {
-                writeClient(w, on, redisApi);
+                writeClient(w, redisApi);
             } finally {
                 IOUtils.closeQuietly(w);
             }
         }
     }
 
-    void writeClient(Writer w, boolean on, Address redis) throws IOException {
+    void writeClient(Writer w, Address redis) throws IOException {
         KeyValueConfiguration c = KeyValueConfiguration.equalsSeparated(w);
-        c.write("enabled", on);
-        c.write("tcp-port", redis.getCanonicalPort());
-        c.write("tcp-address", redis.getAddress());
+        c.write("enabled", redis != null);
+        if (redis != null) {
+            c.write("tcp-port", redis.getCanonicalPort());
+            c.write("tcp-address", redis.getAddress());
+        }
     }
 
     @Override
@@ -115,6 +117,7 @@ public class RedisImpl implements Redis, ConfigProvider, ProcessProvider, Firewa
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
+        validator.singleLocationOnly(FEATURE);
     }
 
     @Override

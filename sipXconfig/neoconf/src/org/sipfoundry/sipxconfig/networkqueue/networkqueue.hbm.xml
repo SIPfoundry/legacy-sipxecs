@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.networkqueue" default-lazy="false">
+  <class name="SqaPreferences" table="sqa_preferences">
+    <id name="id" column="sqa_preferences_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">sqa_preferences_seq</param>
+      </generator>
+    </id>
+	<many-to-one name="location" column="location_id" unique="true" not-null="true"
+		class="org.sipfoundry.sipxconfig.commserver.Location" />
+    <property name="proxy" />
+    <property name="rls" />
+  </class>
+
+  <query name="sqaPreferenceByLocation">
+	<![CDATA[from SqaPreferences pref where pref.location.id = ?]]>
+  </query>
+</hibernate-mapping>

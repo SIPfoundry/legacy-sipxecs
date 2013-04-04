@@ -124,7 +124,7 @@ public: // Methods
     _contextAsync->data = (void*)this;
     redisLibevAttach(_eventLoop ,_contextAsync);
     redisAsyncSetConnectCallback(_contextAsync, &RedisClientAsync::redisClientAsyncConnectCB);
-    redisAsyncSetConnectCallback(_contextAsync, &RedisClientAsync::redisClientAsyncDisconnectCB);
+    redisAsyncSetDisconnectCallback(_contextAsync, &RedisClientAsync::redisClientAsyncDisconnectCB);
     _calledConnect = true;
     _connectCb = connectCb;
     _disconnectCb = disconnectCb;
@@ -151,7 +151,9 @@ public: // Methods
     _eventSync.signal(); // signal the internal loop that we are about to terminate
 
     if (_eventLoop)
+    {
       ev_unloop(_eventLoop, EVUNLOOP_ALL);
+    }
 
     if (_pEventLoopThread)
     {

@@ -7,13 +7,13 @@ SUBDIRS = . test
 EXTRA_DIST =
 
 sipxrls_LDADD = \
-        @SIPXCALL_LIBS@ \
+  @SIPXCALL_LIBS@ \
 	@SIPXMEDIAADAPTER_LIBS@ \
 	@SIPXCOMMSERVER_LIBS@ \
 	@GIPS_NEQ_OBJS@ \
+	@SIPXSQA_LIBS@ \
 	-lboost_thread-mt \
-	-lmongoclient \
-	-lzmq
+	-lmongoclient
 
 sipxrls_CXXFLAGS = \
         -DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \

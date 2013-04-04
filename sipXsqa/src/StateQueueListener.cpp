@@ -22,12 +22,12 @@ StateQueueListener::StateQueueListener(StateQueueAgent* agent) :
   _acceptor(_pAgent->_ioService),
   _resolver(_pAgent->_ioService)
 {
-  OS_LOG_DEBUG(FAC_NET, "StateQueueListener::StateQueueListener this:" << this << " CREATED");
+  OS_LOG_DEBUG(FAC_NET, "StateQueueListener CREATED");
 }
 
 StateQueueListener::~StateQueueListener()
 {
-  OS_LOG_DEBUG(FAC_NET, "StateQueueListener::~StateQueueListener this:" << this << " DESTROYED");
+  OS_LOG_DEBUG(FAC_NET, "StateQueueListener DESTROYED");
 }
 
 void StateQueueListener::run()
@@ -48,7 +48,7 @@ void StateQueueListener::run()
       boost::bind(&StateQueueListener::handleAccept, this,
         boost::asio::placeholders::error));
 
-  OS_LOG_INFO(FAC_NET, "StateQueueListener::run this:" << this
+  OS_LOG_INFO(FAC_NET, "StateQueueListener::run "
     << " started accepting connections at bind address tcp://" << address << ":" << port);
 }
 
@@ -70,7 +70,7 @@ void StateQueueListener::addConnection(StateQueueConnection::Ptr conn)
 {
   mutex_lock lock(_mutex);
   _connections[conn.get()] = conn;
-  OS_LOG_INFO(FAC_NET, "StateQueueListener::addConnection this:" << this
+  OS_LOG_INFO(FAC_NET, "StateQueueListener::addConnection "
     << " connection accepted "  << conn.get());
   conn->start();
 }
@@ -79,7 +79,7 @@ void StateQueueListener::destroyConnection(StateQueueConnection::Ptr conn)
 {
   mutex_lock lock(_mutex);
   _connections.erase(conn.get());
-  OS_LOG_INFO(FAC_NET, "StateQueueListener::destroyConnection this:" << this
+  OS_LOG_INFO(FAC_NET, "StateQueueListener::destroyConnection "
     << " connection removed - " << conn.get());
   conn->stop();
 }

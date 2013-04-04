@@ -313,9 +313,11 @@ bool StateQueuePersistence::mapGet(unsigned workspace, const std::string& mapId,
         unescape(unescaped, data.c_str());
         record.id = mapId;
         record.data = unescaped;
+        return true;
       }
     }
   }
+
   return false;
 }
 

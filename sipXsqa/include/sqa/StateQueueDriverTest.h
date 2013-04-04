@@ -31,7 +31,6 @@
 #include <boost/bind.hpp>
 #include "TimedMap.h"
 
-
 class StateQueueDriverTest : boost::noncopyable
 {
 public:
@@ -56,7 +55,7 @@ public:
         const std::string& servicePort,
         const std::string& zmqEventId,
         std::size_t poolSize = 1) :
-                StateQueueClient(StateQueueClient::Worker, applicationId, serviceAddress, servicePort, zmqEventId, poolSize),
+                StateQueueClient(SQAUtil::SQAClientWorker, applicationId, serviceAddress, servicePort, zmqEventId, poolSize),
                 _pThread(0),
                 total(0)
   {
@@ -95,7 +94,8 @@ protected:
       StateQueueMessage ev;
       std::string data;
       std::string id;
-      if (pop(id, data))
+      int serviceId;
+      if (pop(id, data, serviceId))
       {
         if (_eventHandler)
           _eventHandler(_applicationId, data);
