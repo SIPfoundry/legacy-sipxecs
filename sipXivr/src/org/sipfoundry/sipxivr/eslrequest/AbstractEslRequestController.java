@@ -189,6 +189,10 @@ public abstract class AbstractEslRequestController implements EslRequestControll
         return getVariable("variable_sip_req_uri");
     }
 
+    public String getHostname() {
+        return getVariable("FreeSWITCH-Hostname");
+    }
+
     public String getChannelCallerIdName() {
         return getVariable("channel-caller-id-name");
     }
