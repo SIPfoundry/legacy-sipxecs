@@ -173,16 +173,16 @@ public class LoginServlet extends ProvisioningServlet {
         String inputfilename = inputfile.getPath();
         String outputfilename = inputfilename.replaceAll(".ini", "-briamobile.xml");
 
-        ArrayList<String> validAudioCodecs = new ArrayList<String>() {
+        HashMap<String, String> validAudioCodecs = new HashMap<String, String>() {
             {
-                add("SILK/1600");
-                add("SILK/8000");
-                add("g711a");
-                add("g711u");
-                add("g722");
-                add("g729");
-                add("ilbc");
-                add("GSM");
+                put("SILK/1600", "SILK/1600");
+                put("SILK/8000", "SILK/8000");
+                put("g711a", "G711a");
+                put("g711u", "G711u");
+                put("g722", "G722");
+                put("g729", "G729");
+                put("ilbc", "iLBC");
+                put("GSM", "GSM");
             }
         };
 
@@ -252,15 +252,15 @@ public class LoginServlet extends ProvisioningServlet {
                     if (line.contains(":")) {
                         String[] splitline = line.split(":|=", 4);
                         if (splitline[0].equals("codecs") && splitline[2].equals("priority")
-                                && validAudioCodecs.contains(splitline[1])) {
+                                && validAudioCodecs.containsKey(splitline[1])) {
                             int priority = Integer.parseInt(splitline[3].substring(1, splitline[3].length() - 1)
                                     .split("\\.", 2)[0]);
-                            audiocodecs_priority.put(priority, splitline[1]);
-                            audiocodecs.add(splitline[1]);
+                            audiocodecs_priority.put(priority, validAudioCodecs.get(splitline[1]));
+                            audiocodecs.add(validAudioCodecs.get(splitline[1]));
                         }
                         if (splitline[0].equals("codecs") && splitline[2].equals("enabled")
-                                && validAudioCodecs.contains(splitline[1])) {
-                            audiocodecs.add(splitline[1]);
+                                && validAudioCodecs.containsKey(splitline[1])) {
+                            audiocodecs.add(validAudioCodecs.get(splitline[1]));
                         }
                         if (splitline[0].equals("codecs") && splitline[2].equals("priority")
                                 && validVideoCodecs.contains(splitline[1])) {
