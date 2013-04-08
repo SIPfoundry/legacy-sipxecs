@@ -329,7 +329,7 @@ public:
       bool ok = false;
       
       {
-        WriteTimer timer(this);
+       // WriteTimer timer(this);
         ok = _pSocket->write_some(boost::asio::buffer(packet.c_str(), packet.size()), ec) > 0;
       }
 
@@ -355,7 +355,7 @@ public:
       char responseBuff[len];
       boost::system::error_code ec;
       {
-        ReadTimer timer(this);
+        //ReadTimer timer(this);
         _pSocket->read_some(boost::asio::buffer((char*)responseBuff, len), ec);
       }
 
