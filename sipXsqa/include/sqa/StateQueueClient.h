@@ -329,7 +329,7 @@ public:
       bool ok = false;
       
       {
-       // WriteTimer timer(this);
+        WriteTimer timer(this);
         ok = _pSocket->write_some(boost::asio::buffer(packet.c_str(), packet.size()), ec) > 0;
       }
 
@@ -355,7 +355,7 @@ public:
       char responseBuff[len];
       boost::system::error_code ec;
       {
-        //ReadTimer timer(this);
+        ReadTimer timer(this);
         _pSocket->read_some(boost::asio::buffer((char*)responseBuff, len), ec);
       }
 
@@ -490,13 +490,15 @@ protected:
   typedef boost::recursive_mutex mutex;
   typedef boost::lock_guard<mutex> mutex_lock;
   boost::asio::io_service _ioService;
+  boost::thread* _pIoServiceThread;
+  boost::asio::deadline_timer _houseKeepingTimer;
+  int _sleepCount;
   std::size_t _poolSize;
   std::string _serviceAddress;
   std::string _servicePort;
   typedef BlockingQueue<BlockingTcpClient::Ptr> ClientPool;
   ClientPool _clientPool;
   bool _terminate;
-  boost::thread *_keepAliveThread;
   zmq::context_t* _zmqContext;
   zmq::socket_t* _zmqSocket;
   boost::thread* _pEventThread;
@@ -529,6 +531,9 @@ public:
         ) :
     _type(type),
     _ioService(),
+    _pIoServiceThread(0),
+    _houseKeepingTimer(_ioService, boost::posix_time::seconds(1)),
+    _sleepCount(0),
     _poolSize(poolSize),
     _serviceAddress(serviceAddress),
     _servicePort(servicePort),
@@ -548,13 +553,12 @@ public:
     _currentKeepAliveTicks(keepAliveTicks),
     _isAlive(true)
   {
-      _keepAliveThread = new boost::thread(boost::bind(&StateQueueClient::keepAliveLoop, this));
 
       if (_type != Publisher)
       {
         _zmqSocket = new zmq::socket_t(*_zmqContext,ZMQ_SUB);
-		int linger = SQA_LINGER_TIME_MILLIS; // milliseconds
-		_zmqSocket->setsockopt(ZMQ_LINGER, &linger, sizeof(int));
+        int linger = SQA_LINGER_TIME_MILLIS; // milliseconds
+        _zmqSocket->setsockopt(ZMQ_LINGER, &linger, sizeof(int));
       }
 
       for (std::size_t i = 0; i < _poolSize; i++)
@@ -569,6 +573,9 @@ public:
         _clientPointers.push_back(client);
         _clientPool.enqueue(client);
       }
+
+      _houseKeepingTimer.async_wait(boost::bind(&StateQueueClient::keepAliveLoop, this, boost::asio::placeholders::error));
+      _pIoServiceThread = new boost::thread(boost::bind(&boost::asio::io_service::run, &_ioService));
 
       if (_type == Watcher)
         _zmqEventId = "sqw.";
@@ -601,6 +608,9 @@ public:
         ) :
     _type(type),
     _ioService(),
+    _pIoServiceThread(0),
+    _houseKeepingTimer(_ioService, boost::posix_time::seconds(1)),
+    _sleepCount(0),
     _poolSize(poolSize),
     _clientPool(_poolSize),
     _terminate(false),
@@ -618,8 +628,6 @@ public:
     _currentKeepAliveTicks(keepAliveTicks),
     _isAlive(true)
   {
-      _keepAliveThread = new boost::thread(boost::bind(&StateQueueClient::keepAliveLoop, this));
-
       if (_type != Publisher)
       {
         _zmqSocket = new zmq::socket_t(*_zmqContext,ZMQ_SUB);
@@ -642,6 +650,9 @@ public:
         _clientPointers.push_back(client);
         _clientPool.enqueue(client);
       }
+
+      _houseKeepingTimer.async_wait(boost::bind(&StateQueueClient::keepAliveLoop, this, boost::asio::placeholders::error));
+      _pIoServiceThread = new boost::thread(boost::bind(&boost::asio::io_service::run, &_ioService));
 
       if (_type == Watcher)
         _zmqEventId = "sqw.";
@@ -682,12 +693,6 @@ public:
 
      _terminate = true;
 
-     if (_keepAliveThread)
-     {
-         _keepAliveThread->join();
-         delete _keepAliveThread;
-         _keepAliveThread = NULL;
-     }
 
     delete _zmqContext;
     _zmqContext = 0;
@@ -704,6 +709,14 @@ public:
       _pEventThread->join();
       delete _pEventThread;
       _pEventThread = 0;
+    }
+
+    if (_pIoServiceThread)
+    {
+      _houseKeepingTimer.cancel();
+      _pIoServiceThread->join();
+      delete _pIoServiceThread;
+      _pIoServiceThread = 0;
     }
 
     OS_LOG_INFO(FAC_NET, "StateQueueClient::terminate() Ok");
@@ -723,16 +736,15 @@ public:
     return false;
   }
 
-private:
-  void keepAliveLoop()
+
+  void keepAliveLoop(const boost::system::error_code& e)
   {
-    int sleepCount = 0;
-    while (!_terminate)
+    if (!e && !_terminate)
     {
-      if (++sleepCount <= _currentKeepAliveTicks)
+      if (++_sleepCount <= _currentKeepAliveTicks)
         boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
       else
-        sleepCount = 0;
+        _sleepCount = 0;
      
       if (_refreshSignin && (--_currentSigninTick == 0))
       {
@@ -741,7 +753,7 @@ private:
         OS_LOG_INFO(FAC_NET, "StateQueueClient::keepAliveLoop refreshed signin @ " << publisherAddress);
       }
 
-      if (!sleepCount)
+      if (!_sleepCount)
       {
         //
         // send keep-alives
@@ -774,10 +786,13 @@ private:
           }
         }
       }
+
+      _houseKeepingTimer.expires_from_now(boost::posix_time::seconds(1));
+      _houseKeepingTimer.async_wait(boost::bind(&StateQueueClient::keepAliveLoop, this, boost::asio::placeholders::error));
     }
-    OS_LOG_INFO(FAC_NET, "StateQueueClient::keepAliveLoop TERMIANTED.");
   }
 
+private:
   bool subscribe(const std::string& eventId, const std::string& sqaAddress)
   {
     assert(_type != Publisher);
