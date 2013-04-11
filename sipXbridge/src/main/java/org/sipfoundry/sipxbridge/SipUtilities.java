@@ -741,7 +741,7 @@ class SipUtilities {
 			String fromUser = ((SipURI) from.getAddress().getURI()).getUser();
 			String fromDomain = ((SipURI) from.getAddress().getURI()).getHost();
 			String fromDisplayName = from.getAddress().getDisplayName();
-			if (fromDisplayName == null) {
+			if (fromDisplayName == null || fromDisplayName.isEmpty()) {
 				fromDisplayName = "sipxbridge";
 			}
 
