@@ -20,6 +20,7 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 
+import org.acegisecurity.providers.ProviderManager;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -33,6 +34,7 @@ public abstract class ProvisioningServlet extends HttpServlet {
     public static final String CORE_CONTEXT_BEAN_NAME = "coreContext";
     public static final String PHONE_CONTEXT_BEAN_NAME = "phoneContext";
     public static final String UPLOAD_BEAN_NAME = "upload";
+    public static final String AUTH_MANAGER = "authenticationManager";
     public static final String DATA_SECTION = "[DATA]";
     public static final String QUOTE_CHAR = "\"";
     public static final String USERNAME = "username";
@@ -57,9 +59,11 @@ public abstract class ProvisioningServlet extends HttpServlet {
             PhoneContext sipxPhoneContext = ((PhoneContext) (webContext
                     .getBean(PHONE_CONTEXT_BEAN_NAME)));
             Upload sipxUpload = ((Upload) (webContext.getBean(UPLOAD_BEAN_NAME)));
+            ProviderManager authManager = (ProviderManager) webContext.getBean(AUTH_MANAGER);
             s_context = new ProvisioningContextImpl();
             s_context.setSipxCoreContext(sipxCoreContext);
             s_context.setSipxPhoneContext(sipxPhoneContext);
+            s_context.setAuthManager(authManager);
             s_context.setSipxUpload(sipxUpload);
         }
     }
