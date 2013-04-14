@@ -62,8 +62,6 @@ public class OpenfireConfigurationFile {
         VelocityContext context = new VelocityContext();
         LdapSystemSettings settings = m_ldapManager.getSystemSettings();
         boolean isEnableOpenfireConfiguration = settings.isEnableOpenfireConfiguration() && settings.isConfigured();
-        context.put("authorizedUsernames", getAuthorizedUsernames());
-        context.put("clusteringState", m_clusteringState);
         context.put("isEnableOpenfireConfiguration", isEnableOpenfireConfiguration);
         List<LdapConnectionParams> allParams = m_ldapManager.getAllConnectionParams();
         if (!isEnableOpenfireConfiguration || allParams == null || allParams.isEmpty()) {

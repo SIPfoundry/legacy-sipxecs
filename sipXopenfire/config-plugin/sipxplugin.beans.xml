@@ -33,7 +33,8 @@
   <bean id="openfireConfiguration" class="org.sipfoundry.sipxconfig.openfire.OpenfireConfiguration">
     <property name="config" ref="openfireXml"/>
     <property name="sipxConfig" ref="openfireSipxXml"/>
-    <property name="configManager" ref="configManager"/>
+	<property name="ldapManager" ref="ldapManager"/>
+	<property name="configManager" ref="configManager"/>
     <property name="featureManager" ref="featureManager"/>
     <property name="websocket" ref="websocket"/>
     <property name="openfire" ref="openfire"/>
@@ -51,6 +52,7 @@
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="ldapManager" ref="ldapManager" />
     <property name="coreContext" ref="coreContext" />
+    <property name="localizationContext" ref="localizationContext" />
     <property name="providers">
       <map>
         <entry>
