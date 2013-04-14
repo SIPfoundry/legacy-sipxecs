@@ -52,6 +52,7 @@
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="ldapManager" ref="ldapManager" />
     <property name="coreContext" ref="coreContext" />
+    <property name="localizationContext" ref="localizationContext" />
     <property name="providerAuthClassName" value="org.jivesoftware.openfire.auth.DefaultAuthProvider"/>
     <property name="providerUserClassName" value="org.jivesoftware.openfire.user.DefaultUserProvider"/>
     <property name="providerGroupClassName" value="org.jivesoftware.openfire.group.DefaultGroupProvider"/>
