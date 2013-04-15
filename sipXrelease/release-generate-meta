@@ -5,20 +5,24 @@
 # a particular release update number.  Output is a tarfile that would
 # normally go into sipXrelease rpm and get installed into a system
 
-if [ $# -ne 3 ]; then
-  echo "Usage: $0 update-number repository-directory destination-directory"
-  echo "Example: $0 19 repo ../sipXrelease"
+if [ $# -ne 2 ]; then
+  echo "Usage: $0 repository-directory number"
+  echo "Example: $0 repo 4"
   exit 1
 fi
 
-echo "$1" > $3/release
-find $3 -name 'packages-*' -exec rm {} \;
-for d in $2/*/*; do
+destDir=`dirname $0`
+repoDir=$1
+updateNum=$2
+
+echo "$updateNum" > $destDir/release
+find $repoDir -name 'packages-*' -exec rm {} \;
+for d in $repoDir/*/*; do
     rel_id=(${d//\// })
     len="${#rel_id[@]}"
     arch="${rel_id[${len} - 1]}"
     distro="${rel_id[${len} - 2]}"
     test "${arch}" == "source" && continue
     echo "${distro} ${arch}"
-    rpm -qp --queryformat '%{NAME} %{VERSION} %{RELEASE}\n' $d/*.rpm > $3/packages-${distro}-${arch}
+    rpm -qp --queryformat '%{NAME} %{VERSION} %{RELEASE}\n' $d/*.rpm > $destDir/packages-${distro}-${arch}
 done

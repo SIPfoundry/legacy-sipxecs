@@ -91,4 +91,5 @@
 	  <enabled>false</enabled>
 	</debug>
   </log>
+  <locale>$locale</locale>
 </jive>

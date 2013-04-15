@@ -129,8 +129,8 @@ public class LoginServlet extends ProvisioningServlet {
         if (line == null) {
             return parameters;
         }
-
-        if (!br.ready()) {
+        
+        if(!line.contains("<?xml version=")){
             String[] pairs = line.split("\\&");
             for (int i = 0; i < pairs.length; i++) {
                 String[] fields = pairs[i].split("=");
@@ -143,16 +143,16 @@ public class LoginServlet extends ProvisioningServlet {
             parameters.put("output_type", "txt");
         } else {
             boolean inLogin = false;
-            while (br.ready()) {
+            String fulltext = line;
+            while(br.ready()){
                 line = br.readLine();
-                if (line.trim().length() > 6 && line.trim().substring(0, 6).equals("user=\"")) {
-                    parameters.put("username", line.trim().substring(6, line.trim().length() - 1));
-                } else if (line.trim().length() > 10 && line.trim().substring(0, 10).equals("password=\"")) {
-                    parameters.put("password", line.trim().substring(10, line.trim().length() - 1));
-                }
+                fulltext = fulltext + line;
             }
-            parameters.put("output_type", "xml");
-
+            int usrindex = fulltext.indexOf("user=\"");
+            parameters.put("username",fulltext.substring(usrindex+6,fulltext.substring(usrindex+6).indexOf("\"")+usrindex+6));
+            int passwdindex = fulltext.indexOf("password=\"");
+            parameters.put("password",fulltext.substring(passwdindex+10,fulltext.substring(passwdindex+10).indexOf("\"")+passwdindex+10));
+            parameters.put("output_type","xml");
         }
 
         return parameters;
