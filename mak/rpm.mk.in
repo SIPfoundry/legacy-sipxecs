@@ -14,8 +14,9 @@ RPM_DIST = @RPM_DIST@
 CREATEREPO_OPTS_centos = @BACKWARD_COMPATIBLE_CREATEREPO_OPTS_FOR_CENTOS@
 CREATEREPO_COMPS = $(SRC)/mak/comps.xml
 CREATEREPO_OPTS = -g $(abspath $(CREATEREPO_COMPS)) $(CREATEREPO_OPTS_$(DISTRO_OS))
-MOCK_RESULTS_DIR = @RPM_DIST_DIR@/$(DISTRO_RESULTS_DIR)/$(DISTRO_ARCH)
-MOCK_SRPM_DIR = @RPM_DIST_DIR@/$(DISTRO_RESULTS_DIR)/source
+RPM_DIST_DIR = @RPM_DIST_DIR@
+MOCK_RESULTS_DIR = $(RPM_DIST_DIR)/$(DISTRO_RESULTS_DIR)/$(DISTRO_ARCH)
+MOCK_SRPM_DIR = $(RPM_DIST_DIR)/$(DISTRO_RESULTS_DIR)/source
 MOCK_OPTS = \
 	  --configdir=$(MOCK_CONFIG_DIR) \
 	  -r $(MOCK_TARGET_PLATFORM) \
@@ -172,9 +173,9 @@ repo-clean :
 repo-webserver :
 	-kill -15 $(firstword $(shell ps xo "%p %a" | grep -v grep | egrep 'thttpd -d repo -p @REPO_PORT@'))
 	find $(MOCK_RESULTS_DIR) -type f -not -path '*/.dep.*' -exec touch {} \;
-	/usr/sbin/thttpd -d @RPM_DIST_DIR@ -p @REPO_PORT@ -M 0
+	/usr/sbin/thttpd -d $(RPM_DIST_DIR) -p @REPO_PORT@ -M 0
 
-help.repo-src = Assemble source rpms into @RPM_DIST_DIR@/$(DISTRO_RESULTS_DIR)/source
+help.repo-src = Assemble source rpms into $(RPM_DIST_DIR)/$(DISTRO_RESULTS_DIR)/source
 repo-src : repo-comps
 	for f in $(shell $(SRC)/mak/list-obsolete-rpms $(MOCK_SRPM_DIR)); do rm $$f; done
 	cd $(MOCK_SRPM_DIR); createrepo $(CREATEREPO_OPTS) .
