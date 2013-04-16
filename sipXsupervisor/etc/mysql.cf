@@ -90,7 +90,7 @@ bundle agent mysql_sysv_running {
 
   methods:
     any::
-      "any" usebundle => find_service_by_command("$(service_command)", "mysqld_running", "$(service_user)");
+      "any" usebundle => find_service_by_command("$(service_command)", "mysql_running", "$(service_user)");
     mysql::
       "any" usebundle => rh_chkconfig_status("mysqld on");
     !mysql::
