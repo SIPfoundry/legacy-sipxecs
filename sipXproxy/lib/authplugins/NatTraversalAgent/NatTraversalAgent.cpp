@@ -381,7 +381,6 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
             // undo changes to request uri because the request will not be routed correctly.
             if( requestUri.getUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, dummyString, 0 ) )
             {
-                OS_LOG_ERROR(FAC_SIP, "c undoChangesToRequestUri false");
                 undoChangesToRequestUri = false;
             }
         }
