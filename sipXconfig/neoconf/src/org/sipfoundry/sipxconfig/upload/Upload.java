@@ -184,7 +184,8 @@ public class Upload extends BeanWithSettings {
                     .getMoveTo()) : StringUtils.EMPTY;
             String moveToDir = getDestinationDirectory() + moveTo;
             if (contentType.equalsIgnoreCase(ZIP_TYPE)) {
-                undeployZipFile(new File(moveToDir), new File(getUploadDirectory(), filename), (FileSetting) type);
+                undeployZipFile(new File(moveToDir), new File(getUploadDirectory(),
+                        filename), (FileSetting) type);
             } else {
                 File f = new File(moveToDir, filename);
                 f.delete();
@@ -280,7 +281,7 @@ public class Upload extends BeanWithSettings {
     /**
      * Uses zip file list and list of files to be deleted
      */
-    void undeployZipFile(File expandedDirectory, File zipFile, FileSetting fs) {
+    static void undeployZipFile(File expandedDirectory, File zipFile, FileSetting fs) {
         if (!checkZipFile(zipFile)) {
             throw new UserException(ERROR_WRONG_TYPE_FILE, zipFile.getName());
         }
@@ -301,24 +302,13 @@ public class Upload extends BeanWithSettings {
                 if (fs.isExcluded(entry.getName())) {
                     continue;
                 }
-
-                createFileRemover().removeFile(expandedDirectory, entry.getName());
+                File victim = new File(expandedDirectory, entry.getName());
+                victim.delete();
             }
         } catch (ZipException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    public FileRemover createFileRemover() {
-        return new FileRemover();
-    }
-
-    public class FileRemover {
-        public void removeFile(File dir, String name) {
-            File victim = new File(dir, name);
-            victim.delete();
         }
     }
 
@@ -364,7 +354,7 @@ public class Upload extends BeanWithSettings {
         }
     }
 
-    public static boolean checkZipFile(File file) {
+    private static boolean checkZipFile(File file) {
         String fileExt = ".zip";
         if (file != null && !file.getName().endsWith(fileExt)) {
             return false;

@@ -46,7 +46,7 @@ public class ZipUploadTest extends TestCase {
         assertTrue(file3.exists());
         InputStream stream3 = getClass().getResourceAsStream("file3.bin");
         assertTrue(IOUtils.contentEquals(stream3, new FileInputStream(file3)));
-        new Upload().undeployZipFile(m_expandDir, m_zipFile, new FileSetting());
+        Upload.undeployZipFile(m_expandDir, m_zipFile, new FileSetting());
         assertFalse(file1.exists());
     }
 
@@ -82,7 +82,7 @@ public class ZipUploadTest extends TestCase {
         FileUtils.touch(file3);
 
         // Some should exist, and some should not.
-        new Upload().undeployZipFile(m_expandDir, m_zipFile, type);
+        Upload.undeployZipFile(m_expandDir, m_zipFile, type);
         assertTrue(dir1.exists()); // do not clean up directory, no guarantee we created them
         assertTrue(!dir2.exists());
         assertTrue(!file1.exists());
@@ -93,7 +93,7 @@ public class ZipUploadTest extends TestCase {
     public void testUndeployMissing() throws Exception {
         File file = new File("test_missing_file.zip");
         assertFalse(file.exists());
-        new Upload().undeployZipFile(m_expandDir, file, new FileSetting());
+        Upload.undeployZipFile(m_expandDir, file, new FileSetting());
     }
 
     public void testFile() throws Exception {
