@@ -2,11 +2,19 @@
 ## only emit not null setting
 #macro(generate_setting $setting)
 #if($setting.profileName == $setting.name)
+#if($setting.name == "ui:mute_sound:online" || $setting.name == "ui:mute_sound:offline")
+#if(${setting.value}=="true")
+${setting.name}="false"
+#else
+${setting.name}="true"
+#end
+#else
 #if($setting.value)
 ${setting.name}="${setting.value}"
 #else
 #if($setting.name != "system:auto_update:code_server_url")
 ${setting.name}=""
+#end
 #end
 #end
 #end
@@ -25,6 +33,13 @@ codecs:${priority}:enabled="false"
 #end
 [DATA]
 Success=1
+#foreach ($setting in $phone_leaf_settings)
+#if($setting.name == "LicenseKey")
+#if($setting.value)
+#generate_setting($setting)
+#end
+#end
+#end
 
 [SETTINGS]
 
@@ -57,7 +72,7 @@ proxies:proxy${line_index}:password=""
 #end
 #end
 #foreach ($setting in $phone_leaf_settings)
-#if($setting.name != "voiceCodecs" && $setting.name != "videoCodecs")
+#if($setting.name != "voiceCodecs" && $setting.name != "videoCodecs" && $setting.name != "LicenseKey")
 #generate_setting($setting)
 #end
 #end
