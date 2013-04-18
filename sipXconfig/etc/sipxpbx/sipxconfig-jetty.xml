@@ -4,7 +4,11 @@
  "http://jetty.mortbay.org/configure_1_2.dtd">
                                                
 <Configure class="org.mortbay.jetty.Server">
-  
+  <Call class="java.lang.System" name="setProperty">
+    <Arg>org.mortbay.http.HttpRequest.maxFormContentSize</Arg>
+    <Arg>700000</Arg>
+  </Call>
+
   <Set name="rootWebApp">sipxconfig</Set>
   <Call name="addWebApplication">
     <Arg>/sipxconfig</Arg>
