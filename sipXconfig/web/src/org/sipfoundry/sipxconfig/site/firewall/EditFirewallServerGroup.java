@@ -68,6 +68,8 @@ public abstract class EditFirewallServerGroup extends PageWithCallback implement
             getValidator().record(new ValidatorException(getMessages().getMessage("err.wrongformat")));
             return;
         }
-        getFirewallManager().saveServerGroup(getServerGroup());
+        ServerGroup group = getServerGroup();
+        getFirewallManager().saveServerGroup(group);
+        setServerGroupId(group.getId());
     }
 }

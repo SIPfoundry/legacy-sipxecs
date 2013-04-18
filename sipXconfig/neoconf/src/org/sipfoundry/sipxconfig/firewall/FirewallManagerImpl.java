@@ -34,6 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
@@ -51,7 +52,6 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 
 public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> implements FirewallManager,
@@ -261,20 +261,29 @@ public class FirewallManagerImpl extends SipxHibernateDaoSupport<FirewallRule> i
     public void saveServerGroup(final ServerGroup serverGroup) {
         String sql;
         if (serverGroup.isNew()) {
-            sql = "insert into firewall_server_group (firewall_server_group_id, name, servers) values "
-                + "(nextval('firewall_server_group_seq'),?,?)";
-        } else {
-            sql = "update firewall_server_group set name = ?, servers = ? where firewall_server_group_id = ?";
-        }
-        m_jdbc.update(sql, new PreparedStatementSetter() {
-            public void setValues(PreparedStatement ps) throws SQLException {
-                ps.setString(1, serverGroup.getName());
-                ps.setString(2, serverGroup.getServerList());
-                if (!serverGroup.isNew()) {
-                    ps.setInt(3, serverGroup.getId());
-                }
+            if (isGroupDefined(serverGroup.getName())) {
+                throw new UserException("&err.serverGroupExists");
+            } else {
+                sql = "insert into firewall_server_group (firewall_server_group_id, name, servers) values "
+                        + "(nextval('firewall_server_group_seq'),?,?) returning firewall_server_group_id";
             }
-        });
+        } else {
+            sql = "update firewall_server_group set name = ?, servers = ? where firewall_server_group_id = ? "
+                    + "returning firewall_server_group_id";
+        }
+        ArrayList<Object> params = new ArrayList<Object>();
+        params.add(serverGroup.getName());
+        params.add(serverGroup.getServerList());
+        if (!serverGroup.isNew()) {
+            params.add(serverGroup.getId());
+        }
+        Integer newId = m_jdbc.queryForInt(sql, params.toArray());
+        serverGroup.setUniqueId(newId);
+    }
+
+    private boolean isGroupDefined(String groupName) {
+        int check = m_jdbc.queryForInt("select count(*) from firewall_server_group where name = ?", groupName);
+        return (check >= 1);
     }
 
     @Override
