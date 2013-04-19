@@ -57,6 +57,7 @@ public class ProfileResource extends Resource {
         Profile[] profiles = device.getProfileTypes();
         for (int i = 0; i < profiles.length; i++) {
             if (profiles[i].getName().equals(m_name)) {
+                profiles[i].generate(device, device.getModel().getDefaultProfileLocation());
                 return new ProfileRepresentation(device, profiles[i]);
             }
         }
