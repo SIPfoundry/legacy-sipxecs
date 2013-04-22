@@ -46,6 +46,7 @@ class Backup < ArchiveBase
       @attachments = [
          '@localstatedir@/sipxdata/parkserver/music',
          '@localstatedir@/sipxdata/mediaserver/data/moh',
+         '@localstatedir@/sipxdata/mediaserver/data/prompts',
          '@localstatedir@/sipxdata/sipxpage/music'
       ];
     end
