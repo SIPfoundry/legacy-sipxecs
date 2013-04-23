@@ -70,6 +70,9 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
     </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+    </property>
   </bean>
   <bean id="polycom320" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 320" />
@@ -86,6 +89,9 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
     </property>
   </bean>
   <bean id="polycom330" parent="polycomModel">
@@ -104,6 +110,9 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
     </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+    </property>
   </bean>
   <bean id="polycom335" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 335" />
@@ -121,7 +130,10 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
-    </property>    
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+    </property>
   </bean>
   <bean id="polycom331" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 331" />
@@ -139,7 +151,10 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
-    </property>    
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+    </property>
   </bean>
   <bean id="polycom430" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 430" />
@@ -157,6 +172,9 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
     </property>
   </bean>
   <bean id="polycom450" parent="polycomModel">
@@ -176,7 +194,10 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
-    </property>    
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+    </property>
   </bean>
   <bean id="polycom500" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 500" />
@@ -213,6 +234,9 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
       </list>
     </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_1_X"/>
+    </property>
   </bean>
   <bean id="polycom550" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 550" />
@@ -233,7 +257,10 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
-    </property>    
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+    </property>
   </bean>
   <bean id="polycom560" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 560" />
@@ -254,7 +281,10 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
-    </property>    
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+    </property>
   </bean>
   <bean id="polycom600" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 600" />
@@ -313,6 +343,9 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
     </property>    
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+    </property>
   </bean>
   <bean id="polycom670" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 670" />
@@ -334,7 +367,10 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
-    </property>    
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+    </property>
   </bean>
   <bean id="polycomVVX1500" parent="polycomModel">
     <property name="label" value="Polycom VVX IP 1500" />
@@ -358,6 +394,9 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
     </property>
   </bean>
   <bean id="polycom4000" parent="polycomModel">
@@ -389,7 +428,10 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
-    </property>    
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+    </property>
   </bean>
   <bean id="polycom6000" parent="polycomModel">
     <property name="label" value="Polycom SoundStation IP 6000" />
@@ -406,7 +448,10 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
-    </property>    
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+    </property>
   </bean>
   <bean id="polycom7000" parent="polycomModel">
     <property name="label" value="Polycom SoundStation IP 7000" />
@@ -426,7 +471,10 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_3_2_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
       </list>
-    </property>    
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+    </property>
   </bean>
   <bean id="polycomVVX500" parent="polycomModel">
     <property name="label" value="Polycom VVX 500" />
@@ -450,7 +498,10 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
       </list>
-    </property> 
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_0_X"/>
+    </property>
   </bean>
   <bean id="polycomVVX600" parent="polycomModel">
     <property name="label" value="Polycom VVX 600" />
@@ -473,7 +524,10 @@
       <list>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
       </list>
-    </property> 
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
+    </property>
   </bean>
   <bean id="polycomVVX300" parent="polycomModel">
     <property name="label" value="Polycom VVX 300" />
@@ -493,7 +547,10 @@
       <list>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
       </list>
-    </property> 
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
+    </property>
   </bean>
   <bean id="polycomVVX310" parent="polycomModel">
     <property name="label" value="Polycom VVX 310" />
@@ -513,7 +570,10 @@
       <list>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
       </list>
-    </property> 
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
+    </property>
   </bean>
   <bean id="polycomVVX400" parent="polycomModel">
     <property name="label" value="Polycom VVX 400" />
@@ -533,7 +593,10 @@
       <list>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
       </list>
-    </property> 
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
+    </property>
   </bean>
   <bean id="polycomVVX410" parent="polycomModel">
     <property name="label" value="Polycom VVX 410" />
@@ -553,7 +616,10 @@
       <list>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
       </list>
-    </property> 
+    </property>
+    <property name="defaultVersion">
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
+    </property>
   </bean>
   <bean id="polycom" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" scope="prototype"
     parent="abstractPhone">
