@@ -329,9 +329,16 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
                               message->getRequestUri(&requestUri);
                               finalResponse.setContactField(requestUri);
                            }
-                           // Now that final NOTIFY has been sent, remove row
-                           removeSubscription(message);
-
+                           
+                           // The notifier will be responsible for removing the subscription
+                           // after it sends the final notify.  We MUST NOT remove
+                           // the subscription here because NOTIFY will be sent
+                           // from a different queue which leaves us no guaranty
+                           // the it has already been sent prior to us removing the
+                           // subscription
+                           #if 0
+                             removeSubscription(message);
+                           #endif
                            break;
 
                         case STATUS_LESS_THAN_MINEXPIRES:

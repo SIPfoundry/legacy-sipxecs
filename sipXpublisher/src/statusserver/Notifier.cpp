@@ -19,6 +19,7 @@
 #include "sipdb/EntityDB.h"
 #include "statusserver/Notifier.h"
 #include "statusserver/StatusServer.h"
+#include "statusserver/SubscribeServerThread.h"
 
 // DEFINES
 // MACROS
@@ -48,7 +49,8 @@ UtlString Notifier::sNotifycseqKey ("notifycseq");
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-Notifier::Notifier(SipUserAgent* sipUserAgent)
+Notifier::Notifier(SipUserAgent* sipUserAgent) :
+  _pSubscribeServer(0)
 {
     mpSipUserAgent = sipUserAgent;
     mpStaticSeq = 0;
@@ -238,6 +240,10 @@ Notifier::sendNotifyForeachSubscription (
             {
                subscriptionState = SIP_SUBSCRIPTION_TERMINATED;
                // the subscription should be removed from the database after this NOTIFY is sent
+               if (_pSubscribeServer)
+               {
+                 _pSubscribeServer->removeSubscription(subscribe);
+               }
             }
             else
             {

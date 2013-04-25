@@ -27,6 +27,7 @@
 // FORWARD DECLARATIONS
 class OsServerTask;
 class SipUserAgent;
+class SubscribeServerThread;
 
 class Notifier
 {
@@ -53,9 +54,11 @@ public:
 
     SipUserAgent* getUserAgent();
 
+    void setSubscribeServer(SubscribeServerThread* pSubscriveServer);
 private:
     SipUserAgent*   mpSipUserAgent;
     int             mpStaticSeq;
+    SubscribeServerThread* _pSubscribeServer;
 
     static UtlString sComponentKey;
     static UtlString sUriKey;
@@ -73,5 +76,14 @@ private:
     static UtlString sNotifycseqKey;
 
 };
+
+//
+// Inlines
+//
+
+inline void Notifier::setSubscribeServer(SubscribeServerThread* pSubscribeServer)
+{
+  _pSubscribeServer = pSubscribeServer;
+}
 
 #endif // NOTIFIER_H

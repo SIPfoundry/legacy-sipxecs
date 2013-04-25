@@ -624,6 +624,8 @@ StatusServer::startSubscribeServerThread()
         mSubscribeServerThreadQ = mSubscribeServerThread->getMessageQueue();
         mSubscribeThreadInitialized = TRUE;
     }
+
+    mNotifier->setSubscribeServer(mSubscribeServerThread);
 }
 
 void
