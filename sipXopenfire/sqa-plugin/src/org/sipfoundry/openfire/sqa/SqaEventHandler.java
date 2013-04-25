@@ -72,6 +72,10 @@ public class SqaEventHandler implements Runnable {
             }
             String sipId = bean.getCallerId();
             String targetSipId = bean.getCalleeId();
+            if (StringUtils.equals(sipId, targetSipId)) {
+                logger.debug("Do not handle events when sipId is EQUAL with targetSipId: " + sipId + " = " + targetSipId);
+                return;
+            }
             logger.debug("Target SIP Id (callee) "+targetSipId);
             User user = m_users.getUser(sipId);
             User targetUser = targetSipId != null ? m_users.getUser(targetSipId) : null;
