@@ -1,5 +1,6 @@
 require 'ostruct'
 require 'optparse'
+require 'fileutils'
 
 class ArchiveBase
   attr_writer :verbose
