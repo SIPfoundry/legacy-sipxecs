@@ -19,6 +19,13 @@
 #include "os/OsLogger.h"
 
 
+// Minimum size of a message read from socket is:
+//  - header size: version + key + len
+//  - min body size: 1 byte
+//  - 1 byte for characther '_';
+const std::size_t g_minReadSize = sizeof(short) + sizeof(short) + sizeof(unsigned long) + 1 + 1 ;
+
+
 StateQueueConnection::StateQueueConnection(
   boost::asio::io_service& ioService,
   StateQueueAgent& agent) :
@@ -26,24 +33,28 @@ StateQueueConnection::StateQueueConnection(
   _agent(agent),
   _socket(_ioService),
   _resolver(_ioService),
-  _moreReadRequired(0),
   _lastExpectedPacketSize(0),
   _localPort(0),
   _remotePort(0),
   _pInactivityTimer(0),
   _isAlphaConnection(false),
-  _isCreationPublished(false)
+  _isCreationPublished(false),
+  _isSocketClosed(false),
+  _state(RequestHeader)
 {
   int expires = _agent.inactivityThreshold() * 1000;
   _pInactivityTimer = new boost::asio::deadline_timer(_ioService, boost::posix_time::milliseconds(expires));
-  OS_LOG_DEBUG(FAC_NET, "StateQueueConnection CREATED.");
+
+  OS_LOG_DEBUG(FAC_NET, "StateQueueConnection::StateQueueConnection this:" << this << "  CREATED.");
 }
 
 StateQueueConnection::~StateQueueConnection()
 {
   delete _pInactivityTimer;
+
   stop();
-  OS_LOG_DEBUG(FAC_NET, "StateQueueConnection DESTROYED.");
+
+  OS_LOG_DEBUG(FAC_NET, "StateQueueConnection::~StateQueueConnection this:" << this << " DESTROYED.");
 }
 
 bool StateQueueConnection::write(const std::string& data)
@@ -62,323 +73,218 @@ bool StateQueueConnection::write(const std::string& data)
   return ok;
 }
 
-void StateQueueConnection::handleRead(const boost::system::error_code& e, std::size_t bytes_transferred)
+bool StateQueueConnection::consume(std::size_t bytes_transferred)
 {
-  if (!e && bytes_transferred)
+  std::stringstream strm;
+  std::size_t strmSize = 0;
+
+  if (!_messageBuffer.empty())
   {
-    try
+    strm << _messageBuffer;
+    strmSize += _messageBuffer.size();
+    _messageBuffer.clear();
+  }
+
+  strm.write(_buffer.data(), bytes_transferred);
+  strmSize += bytes_transferred;
+
+  while (strmSize > 0)
+  {
+    switch (_state)
     {
-      if (!_localPort)
+    case RequestHeader:
+    {
+      if (strmSize < g_minReadSize)
       {
-        _localPort = _socket.local_endpoint().port();
-        _localAddress = _socket.local_endpoint().address().to_string();
+        char data[g_minReadSize];
+        strm.read((char*)data, strmSize);
+        _messageBuffer = std::string(data, strmSize);
+
+        OS_LOG_INFO(FAC_NET,"StateQueueConnection::handleRead this:" << this
+              << "More bytes required to complete message header.  "
+              << " Read: " << bytes_transferred
+              << " Required: " << g_minReadSize);
+
+        return true;
       }
 
-      if (!_remotePort)
-      {
-        _remotePort = _socket.remote_endpoint().port();
-        _remoteAddress = _socket.remote_endpoint().address().to_string();
-      }
-    }
-    catch(...)
-    {
-      //
-      //  Exception is non relevant if it is even thrown
-      //
-    }
-    
-    //
-    // Start the inactivity timer
-    //
-    startInactivityTimer();
+      strm.read((char*)(&_request.version), sizeof(_request.version));
+      strm.read((char*)(&_request.key), sizeof(_request.key));
+      strm.read((char*)(&_request.len), sizeof(_request.len));
+      strmSize -= (sizeof(_request.version) + sizeof(_request.key) + sizeof(_request.len));
 
-    OS_LOG_DEBUG(FAC_NET, "StateQueueConnection::handleRead"
-            << " BYTES: " << bytes_transferred
-            << " SRC: " << _localAddress << ":" << _localPort
-            << " DST: " << _remoteAddress << ":" << _remotePort );
-
-    //
-    // The first read will always have _moreReadRequired as 0
-    //
-    if (_moreReadRequired == 0)
-    {
-      std::stringstream strm;
-
- 
-      strm.write(_buffer.data(), bytes_transferred);
-
-      
-      short version;
-      strm.read((char*)(&version), sizeof(version));
-      short key;
-      strm.read((char*)(&key), sizeof(key));
-      if (version == 1 && key >= SQA_KEY_MIN && key <= SQA_KEY_MAX)
-      {
-        _isAlphaConnection = (key == SQA_KEY_ALPHA);
-        unsigned long len;
-        strm.read((char*)(&len), sizeof(len));
-        //
-        // Preserve the expected packet size
-        //
-        _lastExpectedPacketSize = len + sizeof(version) + sizeof(key) + (sizeof(len));
-
-        if (_lastExpectedPacketSize > bytes_transferred)
-          _moreReadRequired =  _lastExpectedPacketSize - bytes_transferred;
-        else
-          _moreReadRequired = 0;
-
-        //
-        // we dont need to read more.  there are enough in the buffer
-        //
-        if (!_moreReadRequired)
-        {
-          if (len < SQA_CONN_MAX_READ_BUFF_SIZE)
-          {
-            char buf[SQA_CONN_MAX_READ_BUFF_SIZE];
-            strm.read(buf, len);
-
-            //
-            // Check terminating character to avoid corrupted/truncated/overran messages
-            //
-            if (buf[len-1] == '_')
-            {
-              _agent.onIncomingRequest(*this, buf, len -1);
-
-              if (_lastExpectedPacketSize < bytes_transferred)
-              {
-                //
-                // We have spill over bytes
-                //
-                std::size_t extraBytes = bytes_transferred - _lastExpectedPacketSize;
-                char spillbuf[extraBytes];
-                strm.read(spillbuf, extraBytes);
-                OS_LOG_DEBUG(FAC_NET, "StateQueueConnection::handleRead "
-                    << "Spillover bytes from last read detected.  "
-                    << " BYTES: " << extraBytes
-                    << " Buffer: " << _messageBuffer.size()
-                    << " Expected: " << _lastExpectedPacketSize
-                    << " Data: " << len
-                    << " Transferred: " << bytes_transferred);
-                memcpy(_buffer.data(), (void*)spillbuf, extraBytes);
-                _messageBuffer = std::string();
-                handleRead(e, extraBytes);
-                return;
-              }
-            }
-            else
-            {
-              //
-              // This is a corrupted message.  Simply reset the buffers
-              //
-              _messageBuffer = std::string();
-              _lastExpectedPacketSize = 0;
-              _moreReadRequired = 0;
-              OS_LOG_WARNING(FAC_NET, "StateQueueConnection::handleRead "
-                  << "TERMINATED - "
-                  << " Message is not terminated with '_' character");
-              boost::system::error_code ignored_ec;
-              _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
-              _socket.close(ignored_ec);
-              _agent.listener().destroyConnection(shared_from_this());
-              return;
-            }
-          }
-          else
-          {
-            //
-            // This is a corrupted message.  Simply reset the buffers
-            //
-            _messageBuffer = std::string();
-            _lastExpectedPacketSize = 0;
-            _moreReadRequired = 0;
-            OS_LOG_WARNING(FAC_NET, "StateQueueConnection::handleRead "
-                << "TERMINATED - "
-                    << " Message exceeds maximum buffer size. Lenth=" << len );
-            boost::system::error_code ignored_ec;
-            _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
-            _socket.close(ignored_ec);
-            _agent.listener().destroyConnection(shared_from_this());
-            return;
-          }
-        }
-        else
-        {
-          _messageBuffer += std::string(_buffer.data(), bytes_transferred);
-          OS_LOG_INFO(FAC_NET,"StateQueueConnection::handleRead "
-                << "More bytes required to complete message.  "
-                << " Read: " << bytes_transferred
-                << " Required: " << _moreReadRequired
-                << " Expected: " << _lastExpectedPacketSize
-                << " Data: " << len);
-        }
-      }
-      else
+      // version and key are valid ?
+      if (!(_request.version == 1 && _request.key >= SQA_KEY_MIN && _request.key <= SQA_KEY_MAX))
       {
         //
         // This is a corrupted message.  Simply reset the buffers
         //
-        _messageBuffer = std::string();
-        _lastExpectedPacketSize = 0;
-        _moreReadRequired = 0;
-        OS_LOG_WARNING(FAC_NET, "StateQueueConnection::handleRead "
+        OS_LOG_WARNING(FAC_NET, "StateQueueConnection::handleRead this:" << this
                 << "TERMINATED - "
-                    << " Invalid protocol headers.");
-        boost::system::error_code ignored_ec;
-        _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
-        _socket.close(ignored_ec);
-        _agent.listener().destroyConnection(shared_from_this());
-        return;
+                << " Invalid protocol headers.");
+        return false;
       }
+
+      _isAlphaConnection = (_request.key == SQA_KEY_ALPHA);
+
+      //
+      // Preserve the expected packet size
+      //
+      _lastExpectedPacketSize = _request.len + sizeof(_request.version) + sizeof(_request.key) + (sizeof(_request.len));
+      if (_lastExpectedPacketSize > SQA_CONN_MAX_READ_BUFF_SIZE)
+      {
+        //
+        // This is a corrupted message.  Simply reset the buffers
+        //
+        OS_LOG_WARNING(FAC_NET, "StateQueueConnection::handleRead this:" << this
+            << "TERMINATED - "
+            << " Message exceeds maximum buffer size. Lenth=" << _request.len );
+        return false;
+      }
+
+      //fall down
+      _state = RequestBody;
+    }
+    case RequestBody:
+    {
+      if (_request.len > strmSize)
+      {
+        char data[strmSize];
+        strm.read((char*)data, strmSize);
+        _messageBuffer = std::string(data, strmSize);
+
+        OS_LOG_INFO(FAC_NET,"StateQueueConnection::handleRead this:" << this
+              << "More bytes required to complete message.  "
+              << " Read: " << bytes_transferred
+              << " Required: " << (_request.len - strmSize)
+              << " Expected: " << _lastExpectedPacketSize
+              << " Data: " << _request.len);
+
+        return true;
+      }
+
+      //
+       // we dont need to read more.  there are enough in the buffer
+       //
+       strm.read(_request.data, _request.len);
+       strmSize -= _request.len;
+
+       //
+       // Check terminating character to avoid corrupted/truncated/overrun messages
+       //
+       if (_request.data[_request.len-1] == '_')
+       {
+         _agent.onIncomingRequest(*this, _request.data, _request.len -1);
+         _request.clear();
+         _state = RequestHeader;
+       }
+       else // if (buf[len-1] == '_')
+       {
+         //
+         // This is a corrupted message.  Simply reset the buffers
+         //
+         OS_LOG_WARNING(FAC_NET, "StateQueueConnection::handleRead this:" << this
+             << "TERMINATED - "
+             << " Message is not terminated with '_' character");
+
+         return false;
+       }
+       //start over
+       break;
+    }
+    default:
+    {
+      return false;
+    }
+    }
+  }
+
+  return true;
+}
+
+void StateQueueConnection::handleRead(const boost::system::error_code& e, std::size_t bytes_transferred)
+{
+
+  //close connections on error
+  if (e)
+  {
+    if (boost::asio::error::eof == e)
+    {
+      OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::handleRead this:" << this << " remote closed the connection: " << e.message());
     }
     else
     {
-      readMore(bytes_transferred);
+      OS_LOG_WARNING(FAC_NET, "StateQueueConnection::handleRead this:" << this
+          << " TERMINATED - " << e.message());
     }
-  }
-  else if (e)
-  {
-    OS_LOG_WARNING(FAC_NET, "StateQueueConnection::handleRead "
-                << "TERMINATED - " << e.message() 
-                << " Most likely remote closed the connection.");
-    boost::system::error_code ignored_ec;
-    _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+
     _agent.onDestroyConnection(shared_from_this());
+    if (e != boost::asio::error::operation_aborted)
+    {
+      abortRead();
+    }
     return;
+  }
+
+  //
+  // Start the inactivity timer
+  //
+  startInactivityTimer();
+
+  initLocalAddressPort();
+  OS_LOG_DEBUG(FAC_NET, "StateQueueConnection::handleRead this:" << this
+          << " SRC: " << _localAddress << ":" << _localPort
+          << " DST: " << _remoteAddress << ":" << _remotePort
+          << " BYTES: " << bytes_transferred);
+
+  bool result = consume(bytes_transferred);
+
+  if (!result)
+  {
+    abortRead();
   }
 
   start();
 }
 
-void StateQueueConnection::readMore(std::size_t bytes_transferred)
+void StateQueueConnection::initLocalAddressPort()
 {
-  if (!bytes_transferred)
-    return;
-
-  _messageBuffer += std::string(_buffer.data(), bytes_transferred);
-
-  std::stringstream strm;
-  strm << _messageBuffer;
-
-  short version;
-  strm.read((char*)(&version), sizeof(version));
-  short key;
-  strm.read((char*)(&key), sizeof(key));
-  if (version == 1 && key >= SQA_KEY_MIN && key <= SQA_KEY_MAX)
+  try
   {
-    unsigned long len;
-    strm.read((char*)(&len), sizeof(len));
-
-    _lastExpectedPacketSize = len + sizeof(version) + sizeof(key) + (sizeof(len));
-    if (_messageBuffer.size() < _lastExpectedPacketSize)
-      _moreReadRequired = _lastExpectedPacketSize - _messageBuffer.size();
-    else
-      _moreReadRequired = 0;
-
-    if (!_moreReadRequired)
+    if (!_localPort)
     {
-      if (len < SQA_CONN_MAX_READ_BUFF_SIZE)
-      {
-        char buf[SQA_CONN_MAX_READ_BUFF_SIZE];
-        strm.read(buf, len);
-
-        //
-        // Check terminating character to avoid corrupted/truncated/overran messages
-        //
-        if (buf[len-1] == '_')
-        {
-          _agent.onIncomingRequest(*this, buf, len -1);
-
-          if (_lastExpectedPacketSize < _messageBuffer.size())
-          {
-            //
-            // We have spill over bytes
-            //
-            std::size_t extraBytes = _messageBuffer.size() - _lastExpectedPacketSize;
-            char spillbuf[extraBytes];
-            strm.read(spillbuf, extraBytes);
-            OS_LOG_DEBUG(FAC_NET, "StateQueueConnection::readMore "
-                << "Spillover bytes from last read detected.  "
-                << " BYTES: " << extraBytes
-                << " Buffer: " << _messageBuffer.size()
-                << " Expected: " << _lastExpectedPacketSize
-                << " Data: " << len
-                << " Transferred: " << bytes_transferred);
-            memcpy(_buffer.data(), (void*)spillbuf, extraBytes);
-            boost::system::error_code dummy;
-            _messageBuffer = std::string();
-            handleRead(dummy, extraBytes);
-            return;
-          }
-        }
-        else
-        {
-          //
-          // This is a corrupted message.  Simply reset the buffers
-          //
-          _messageBuffer = std::string();
-          _lastExpectedPacketSize = 0;
-          _moreReadRequired = 0;
-          OS_LOG_WARNING(FAC_NET, "StateQueueConnection::handleRead "
-              << "TERMINATED - "
-              << " Message is not terminated with '_' character");
-          boost::system::error_code ignored_ec;
-          _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
-          _socket.close(ignored_ec);
-          _agent.listener().destroyConnection(shared_from_this());
-          return;
-        }
-      }
-      else
-      {
-        //
-        // We got an extreme large len.
-        // This is a corrupted message.  Simply reset the buffers
-        //
-        _messageBuffer = std::string();
-        _lastExpectedPacketSize = 0;
-        _moreReadRequired = 0;
-        OS_LOG_WARNING(FAC_NET, "StateQueueConnection::handleRead "
-                << "TERMINATED - "
-                << " Message exceeds maximum buffer size. Lenth=" << len );
-        boost::system::error_code ignored_ec;
-        _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
-        _socket.close(ignored_ec);
-        _agent.listener().destroyConnection(shared_from_this());
-        return;
-      }
+      _localPort = _socket.local_endpoint().port();
+      _localAddress = _socket.local_endpoint().address().to_string();
     }
-    else
+
+    if (!_remotePort)
     {
-      OS_LOG_INFO(FAC_NET,"StateQueueConnection::handleRead "
-                << "More bytes required to complete message.  "
-                << " Read: " << bytes_transferred
-                << " Required: " << _moreReadRequired
-                << " Expected: " << _lastExpectedPacketSize
-                << " Data: " << len);
+      _remotePort = _socket.remote_endpoint().port();
+      _remoteAddress = _socket.remote_endpoint().address().to_string();
     }
   }
-  else
+  catch(...)
   {
     //
-    // This is a corrupted message.  Simply reset the buffers
+    //  Exception is non relevant if it is even thrown
     //
-    _messageBuffer = std::string();
-    _lastExpectedPacketSize = 0;
-    _moreReadRequired = 0;
-    OS_LOG_WARNING(FAC_NET, "StateQueueConnection::readMore "
-                << "TERMINATED - "
-                << " Invalid protocol headers." );
-    boost::system::error_code ignored_ec;
-    _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
-    _socket.close(ignored_ec);
-    _agent.listener().destroyConnection(shared_from_this());
-    return;
   }
+}
+
+void StateQueueConnection::abortRead()
+{
+  OS_LOG_WARNING(FAC_NET, "StateQueueConnection::abortRead() this:" << this);
+
+  _state = RequestHeader;
+  _messageBuffer = std::string();
+  _lastExpectedPacketSize = 0;
+
+  _agent.listener().destroyConnection(shared_from_this());
 }
 
 void StateQueueConnection::start()
 {
-  OS_LOG_DEBUG(FAC_NET, "StateQueueConnection::start() INVOKED");
+  OS_LOG_DEBUG(FAC_NET, "StateQueueConnection::start() this:" << this << " INVOKED");
 
   if (_socket.is_open())
   {
@@ -391,21 +297,35 @@ void StateQueueConnection::start()
 
 void StateQueueConnection::stop()
 {
-  OS_LOG_DEBUG(FAC_NET, "StateQueueConnection::stop() INVOKED");
-  boost::system::error_code ignored_ec;
-  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
-  _socket.close(ignored_ec);
+  // _socket.isOpened() is not an option here because it does not return false
+  // immediately after a socket is closed.
+  // This will result in multiple attempts to close the socket coming from handleRead
+  // and lots of TERMINATION log messages being logged.
+
+  // _isSocketClosed is used to close the socket one time only. When the socket is
+  // closed it will be set to true and subsequent attempts to close the socket will be
+  // dismissed. Also there will be one handleRead call, and there will be only one
+  // socket termination message.
+
+  if (!_isSocketClosed)
+  {
+	  OS_LOG_DEBUG(FAC_NET, "StateQueueConnection::stop() this:" << this << " INVOKED");
+	  _isSocketClosed = true;
+
+	  boost::system::error_code ignored_ec;
+	  _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
+	  _socket.close(ignored_ec);
+  }
 }
 
 void StateQueueConnection::onInactivityTimeout(const boost::system::error_code& ec)
 {
   if (!ec)
   {
-    OS_LOG_WARNING(FAC_NET, "StateQueueConnection::onInactivityTimeout "
-                  << "No activity on this socket for too long." );
-    boost::system::error_code ignored_ec;
-    _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
-    _socket.close(ignored_ec);
+    OS_LOG_WARNING(FAC_NET, "StateQueueConnection::onInactivityTimeout this:" << this
+                  << " No activity on this socket for too long." );
+
+    stop();
     _agent.listener().destroyConnection(shared_from_this());
   }
 }
@@ -417,6 +337,6 @@ void StateQueueConnection::startInactivityTimer()
   _pInactivityTimer->expires_from_now(boost::posix_time::milliseconds(_agent.inactivityThreshold() * 1000));
   _pInactivityTimer->async_wait(boost::bind(&StateQueueConnection::onInactivityTimeout, this, boost::asio::placeholders::error));
 
-  OS_LOG_DEBUG(FAC_NET, "StateQueueConnection::startInactivityTimer "
+  OS_LOG_DEBUG(FAC_NET, "StateQueueConnection::startInactivityTimer this:" << this
           << " Session inactivity timeout set at " << _agent.inactivityThreshold() << " seconds.");
 }
