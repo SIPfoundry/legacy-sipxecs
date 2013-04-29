@@ -16,6 +16,7 @@ AC_PROG_CXX
 AX_COMPILER_VENDOR
 AC_PROG_CC
 CHECK_XARGS_REPLACE
+CHECK_CPPUNIT
 AC_PROG_JAVA_CC([javac])
 AC_PROG_JAVA([java])
 AC_PATH_PROG([SWIG], [swig])
@@ -30,6 +31,7 @@ AC_CONFIG_FILES([
   src/Makefile
   src/plugin/Makefile
   src/swig/Makefile
+  src/test/Makefile
   include/Makefile
   bin/Makefile
   etc/Makefile
