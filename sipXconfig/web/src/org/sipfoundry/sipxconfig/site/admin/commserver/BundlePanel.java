@@ -226,6 +226,7 @@ public abstract class BundlePanel extends BaseComponent implements PageBeginRend
             getFeatureManager().applyFeatureChange(validator);
         } catch (UserException e) {
             recordAnyInvalidChanges(validator);
+            getValidator().record(e, getMessages());
         }
         rebuildForm(request);
     }
