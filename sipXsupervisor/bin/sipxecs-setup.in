@@ -159,7 +159,7 @@ def prompt_required(msg, prompt_parameter)
 end
 
 # PRIMARY ONLY
-def set_domain
+def set_sip_domain
   net = get_network
   puts <<EOF
 \e[0;31mTip:\e[m Use '\e[0;31m#{net.host}.#{net.domain}\e[m' as your SIP domain if you are 
@@ -271,15 +271,19 @@ def cmd_no_die(cmd)
 end
 
 def network_settings
-  net = get_network
-  if net.valid?
+  change = false
+  while true
+    net = get_network(true)
     puts "\e[0;31mNetwork settings:\e[m"
     puts "IP address   : #{net.ip}"
-  end
-  change = prompt_confirm("Would you like to configure your system\'s \e[0;31m network settings\e[m?") unless $prompt[:noui]
-  if change
-    system("/usr/sbin/system-config-network-tui")
-    system("/etc/init.d/network reload")
+    reprompt = prompt_confirm("Would you like to configure your system\'s \e[0;31m network settings\e[m?") unless $prompt[:noui]
+    if reprompt
+      change = true
+      system("/usr/sbin/system-config-network-tui")
+      system("/etc/init.d/network reload")
+    else
+      break
+    end
   end
   return change
 end
@@ -342,17 +346,94 @@ class Network
     # glean the results in such a way that if someone did change the host name using
     # that tool, we can tell what they entered.  The hostname.cf file will clean up the 
     # /etc/hosts file later.
-    File.open('/etc/sysconfig/network', 'r') {|f|
+
+    domain_from_resolv = nil
+    fqdn_from_network = nil
+    host_from_hostname_s = nil
+    domain_from_hostname_d = nil
+    host_from_hosts = nil
+    fqdn_from_hosts = nil
+
+    File.open('/etc/resolv.conf', 'r') {|f|
       while (line = f.gets)
-        case line
-        when /^HOSTNAME=["']?(.*?)["']?$/
-          segments = $1.split('.')
-          @host = segments[0]
-          @domain = segments[1..-1].join('.')
-        else
+        if line =~ /^search\s*(.*?)$/
+          domain_from_resolv = $1.gsub(/\s+/,'')
         end
       end
     }
+    
+    File.open('/etc/sysconfig/network', 'r') {|f|
+      while (line = f.gets)
+        if line =~ /^HOSTNAME=["']?(.*?)["']?$/
+          fqdn_from_network = $1
+        end
+      end
+    }
+
+    x = `hostname -s 2>/dev/null`.chomp
+    if $? == 0 && ! x.empty?
+      host_from_hostname_s = x
+    end
+
+    x = `hostname -d 2>/dev/null`.chomp
+    if $? == 0 && ! x.empty?
+      domain_from_hostname_d = x
+    end    
+
+    File.open('/etc/hosts', 'r') {|f|
+      while (line = f.gets)
+        segments = line.split
+        if segments.length == 3 and segments[0] == @ip
+          if segments[2].end_with?(segments[1])
+            # user got it backwards, but we can detect this and correct it.
+            # the non-obvious but required format of hosts file for hostname to work
+            #    IP_ADDRESS  fqdn  hostname            
+            fqdn_from_hosts = segments[2]
+            host_from_hosts = segments[1]
+          else
+            fqdn_from_hosts = segments[1]
+            host_from_hosts = segments[2]
+          end
+        end
+      end
+    }
+
+    # now that we've gathered all the possible answers, use the values
+    # in order of most likely to be accurate to least likely to be accurate
+    # from investigation of installations  
+    if domain_from_resolv
+      # most accurate on new systemd when admin configured network
+      @domain = domain_from_resolv
+    elsif fqdn_from_hosts && fqdn_from_hosts.end_with?(host_from_hosts)
+      @domain = fqdn_from_hosts
+      @domain.slice!(host_from_hosts + '.')
+    elsif domain_from_hostname_d
+      @domain = domain_from_hostname_d
+    elsif fqdn_from_network
+      @domain = fqdn_from_network.partition('.')[2]
+    end
+
+    if fqdn_from_network and fqdn_from_network.end_with?(@domain)
+      @host = fqdn_from_network.chomp(".#{@domain}")
+    elsif host_from_hosts and ! host_from_hosts.end_with?(@domain)
+      @host = host_from_hosts
+    elsif host_from_hostname_s
+      @host = host_from_hosts
+    elsif fqdn_from_network
+      @host = fqdn_from_network.partition('.')[0]
+    end
+
+
+    if $verbose
+      puts "domain_from_resolv=#{domain_from_resolv}" 
+      puts "fqdn_from_hosts=#{fqdn_from_hosts}"
+      puts "host_from_hosts=#{host_from_hosts}"
+      puts "domain_from_hostname_d=#{domain_from_hostname_d}" 
+      puts "fqdn_from_network=#{fqdn_from_network}" 
+      puts "host_from_hostname_s=#{host_from_hostname_s}" 
+      puts "@domain=#{@domain}" 
+      puts "@host=#{@host}"
+    end
   end
 
   def valid?
@@ -371,7 +452,13 @@ def print_role_settings
   settings[:location] = get_location_id
   return nil if settings[:location].empty?
   puts "Location ID    : #{settings[:location]}" if is_secondary?
-  [$domain_dat, $master_dat, "#{$cfdatadir}/#{settings[:location]}/host.cfdat"].each {|fname|
+  files = [ 
+    "#{$cfdatadir}/#{settings[:location]}/host.cfdat",
+    $domain_dat,
+    $master_dat, 
+    "#{$cfdatadir}/network.cfdat", 
+  ]
+  files.each {|fname|
     next unless File.exists?(fname)
     File.open(fname, "r") {|fstream|
       while (line = fstream.gets)
@@ -380,7 +467,10 @@ def print_role_settings
         when 'domain'
           settings[:domain] = f[1]
           puts "SIP Domain     : " + settings[:domain]  if is_primary?
-        when 'host'          
+        when 'net_domain'
+          settings[:net_domain] = f[1]
+          puts "Network Domain : " + settings[:net_domain]  if is_primary?
+        when 'host'
           settings[:host] = f[1]
           puts "Host           : " + settings[:host]  if is_primary?
         when 'address'
@@ -412,8 +502,8 @@ def choose_role
   choose_primary_role?
   if is_primary?
     set_nonroot_keys()
-    set_domain
     set_primary_hostname
+    set_sip_domain
   else
     set_secondary_role
   end
@@ -515,14 +605,11 @@ set_root_keys()
 network_settings
 custom_hook
 role_settings = nil
-if !has_role?
-  choose_role
-end
 
 while true
+  choose_role
   role_settings = print_role_settings
-  if role_settings.nil? || change_role?
-    choose_role
+  if change_role?
     next unless $prompt[:noui]
   end
   break

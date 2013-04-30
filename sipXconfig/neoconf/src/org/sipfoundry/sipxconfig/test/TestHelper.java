@@ -66,6 +66,7 @@ import org.sipfoundry.sipxconfig.device.TimeZoneManager;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.domain.DomainManagerImpl;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.setting.ModelBuilder;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
@@ -137,6 +138,8 @@ public final class TestHelper {
 
     public static DomainManager getTestDomainManager(String domain) {
         Domain exampleDomain = new Domain(domain);
+        exampleDomain.setNetworkName(domain);
+        exampleDomain.setName(domain);
         IMocksControl domainManagerControl = EasyMock.createControl();
         DomainManager domainManager = domainManagerControl.createMock(DomainManager.class);
         domainManager.getDomain();
@@ -568,6 +571,17 @@ public final class TestHelper {
         location.setFqdn("sipx.example.org");
         location.setAddress("192.168.1.1");
         return location;
+    }
+
+    /**
+* Creates a default location for use in tests
+*/
+    public static void initDefaultDomain() {
+        Domain domain = new Domain();
+        domain.setNetworkName(EXAMPLE_ORG);
+        domain.setName(EXAMPLE_ORG);
+        DomainManagerImpl manager = new DomainManagerImpl();
+        manager.setTestDomain(domain);
     }
 
     /**

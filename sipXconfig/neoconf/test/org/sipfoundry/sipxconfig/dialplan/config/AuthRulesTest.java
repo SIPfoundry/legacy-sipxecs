@@ -46,6 +46,7 @@ public class AuthRulesTest {
     public AuthRulesTest() {
         XmlUnitHelper.setNamespaceAware(false);
         XMLUnit.setIgnoreWhitespace(true);
+        TestHelper.initDefaultDomain();
     }
 
     @Test

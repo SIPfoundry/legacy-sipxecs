@@ -37,7 +37,6 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.dialplan.CallTag;
-import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.dialplan.ExchangeMediaServer;
 import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
@@ -70,6 +69,7 @@ public class MappingRulesTest extends XMLTestCase {
     }    
     
     public void setUp() {
+        TestHelper.initDefaultDomain();
         m_out = new MappingRules();
         m_out.setDomainName("example.org");
         Location l = TestHelper.createDefaultLocation();

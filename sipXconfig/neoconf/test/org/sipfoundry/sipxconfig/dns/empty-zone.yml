@@ -7,12 +7,12 @@ resource_records:
 dns_servers:
 im_servers:
 all_servers:
- - :name: one
+ - :name: one.example.org
    :ipv4: 1.1.1.1
    :port: 0
- - :name: two
+ - :name: two.example.org
    :ipv4: 2.2.2.2
    :port: 0
- - :name: three
+ - :name: three.example.org
    :ipv4: 3.3.3.3
    :port: 0

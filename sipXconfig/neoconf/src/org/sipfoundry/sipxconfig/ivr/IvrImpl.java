@@ -141,7 +141,7 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
         }
 
         if (whoIsAsking != null && m_featureManager.isFeatureEnabled(Ivr.FEATURE, whoIsAsking)) {
-            return new Address(t, getAddress(whoIsAsking.getFqdn()));
+            return new Address(t, getAddress(whoIsAsking.getHostnameInSipDomain()));
         }
         return new Address(t, getAddress(m_domainManager.getDomainName()));
     }
@@ -153,16 +153,13 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
     @Override
     public List<ResourceRecords> getResourceRecords(DnsManager manager, Location whoIsAsking) {
         ResourceRecords tcpRecords = new ResourceRecords("_sip._tcp", VM);
-        ResourceRecords udpRecords = new ResourceRecords("_sip._udp", VM);
         List<ResourceRecords> records = new LinkedList<ResourceRecords>();
         Collection<Address> addresses = getAvailableAddresses(manager.getAddressManager(), SIP_ADDRESS, whoIsAsking);
         if (addresses != null && addresses.isEmpty()) {
             return records;
         }
         tcpRecords.addAddresses(addresses);
-        udpRecords.addAddresses(addresses);
         records.add(tcpRecords);
-        records.add(udpRecords);
         return records;
     }
 

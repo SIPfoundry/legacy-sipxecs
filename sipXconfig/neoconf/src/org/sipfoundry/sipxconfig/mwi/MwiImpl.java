@@ -118,7 +118,7 @@ public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvid
         if (t.equals(SIP_TCP)) {
             // NOTE: drop port, it's in DNS resource records
             if (m_featureManager.isFeatureEnabled(Mwi.FEATURE, whoIsAsking)) {
-                return new Address(t, getAddress(whoIsAsking.getFqdn()));
+                return new Address(t, getAddress(whoIsAsking.getHostnameInSipDomain()));
             } else {
                 return new Address(t, getAddress(m_domainManager.getDomainName()));
             }

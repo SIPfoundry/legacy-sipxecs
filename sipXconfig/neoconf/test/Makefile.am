@@ -112,6 +112,7 @@ define sipxconfig_properties
 	sysdir.mongo_ns=_TEST
 	setupManagerImpl.enabled=false
 	domainManagerImpl.configuredDomain=example.org
+	domainManagerImpl.configuredSipDomain=example.org
 	domainManagerImpl.configuredRealm=example.org
 	domainManagerImpl.configuredSecret=pHJhejhCcSy5nc+UfcMF2wMN
 	domainManagerImpl.configuredFqdn=$(shell hostname)

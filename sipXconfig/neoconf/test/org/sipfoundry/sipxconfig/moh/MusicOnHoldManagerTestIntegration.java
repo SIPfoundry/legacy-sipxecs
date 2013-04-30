@@ -84,7 +84,7 @@ public class MusicOnHoldManagerTestIntegration extends ImdbTestCase {
         rule = (MohRule) rules.get(0);
         transform = (FullTransform) rule.getTransforms()[0];
         assertEquals("IVR", transform.getUser());
-        assertEquals("vm.localhost", transform.getHost());
+        assertEquals("vm.primary.example.org", transform.getHost());
         assertEquals(2, transform.getUrlParams().length);
         assertEquals("action=moh", transform.getUrlParams()[0]);
         assertEquals("moh=u{vdigits}", transform.getUrlParams()[1]);

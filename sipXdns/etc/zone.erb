@@ -50,12 +50,12 @@ _sip._tls.<%= domain %>.     IN      SRV     10 10 5061 <%= server[:name] %>.
     resource_records.each { |rr|
       if rr[:records]
         rr[:records].each { |a|
-%><%= rr[:proto] %>.<%= rr[:resource] %>.<%= domain %>.   IN    SRV   10 10 <%= a[:port] %> <%= a[:name] %>.
+%><%= rr[:proto] %>.<%= rr[:resource] %>.<%= domain %>.   IN    SRV   10 10 <%= a[:port] %> <%= a[:target] %>.
 <%
           rr[:records].each { |b|
             # give priority to local registrar
             rr_priority = (a == b ? '10' : '20')
-%><%= rr[:proto] %>.<%= rr[:resource] %>.<%= a[:name] %>.   IN    SRV   <%= rr_priority %> 10 <%= b[:port] %> <%= b[:name] %>.
+%><%= rr[:proto] %>.<%= rr[:resource] %>.<%= a[:name] %>.   IN    SRV   <%= rr_priority %> 10 <%= b[:port] %> <%= b[:target] %>.
 <%        } 
         }
       end
@@ -74,8 +74,9 @@ _xmpp-client._tcp.conference.<%= domain %>.     IN   SRV   10  10  5222  <%= ser
   end
 
 %><%= record_id('a') %><%
-
-  all_servers.each { |server| 
+  if all_servers
+    all_servers.each { |server| 
 %><%= server[:name] %>.           IN      A       <%= server[:ipv4] %>
-<%}
+<%  }
+  end
 %>

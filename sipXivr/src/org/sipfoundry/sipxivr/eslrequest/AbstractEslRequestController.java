@@ -57,7 +57,7 @@ public abstract class AbstractEslRequestController implements EslRequestControll
             if (alternate != null) {
                 m_localization = new Localization(alternate, m_localeString, m_fsConfig, m_fses);
             }
-        }  
+        }
     }
 
     private void extractCommonParameters(Hashtable<String, String> parameters) {
@@ -259,7 +259,7 @@ public abstract class AbstractEslRequestController implements EslRequestControll
         return m_localization.getPromptList(fragment);
     }
 
-    public PromptList getPromptList(String fragment, String ...vars) {
+    public PromptList getPromptList(String fragment, String... vars) {
         return m_localization.getPromptList(fragment, vars);
     }
 
@@ -285,6 +285,10 @@ public abstract class AbstractEslRequestController implements EslRequestControll
 
     public String getSipxchangeDomainName() {
         return m_sipxChangeDomainName;
+    }
+
+    public String getFreeswitchIpAndPort() {
+        return getVariable("FreeSWITCH-IPv4") + ":15060";
     }
 
 }

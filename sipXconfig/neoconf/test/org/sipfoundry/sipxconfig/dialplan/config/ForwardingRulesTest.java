@@ -61,6 +61,7 @@ public class ForwardingRulesTest extends XMLTestCase {
 
     @Override
     protected void setUp() throws Exception {
+        TestHelper.initDefaultDomain();
         XmlUnitHelper.setNamespaceAware(false);
         XMLUnit.setIgnoreWhitespace(true);
 

@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
+import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.feature.Feature;
 
 public class Location extends BeanWithId implements DeployConfigOnEdit {
@@ -51,6 +52,7 @@ public class Location extends BeanWithId implements DeployConfigOnEdit {
     private static final int OPENFIRE_CONTACT_INFO_UPDATE_PORT = 9099;
     private static final int LOCATION_PASSWORD_LEN = 8;
     private static final String XML_RPC_URL = "https://%s:%d/RPC2";
+    private static final String DOT = ".";
 
     private String m_name;
     private String m_address;
@@ -72,6 +74,7 @@ public class Location extends BeanWithId implements DeployConfigOnEdit {
     private int m_publicTlsPort = 5061;
     private int m_startRtpPort = 30000;
     private int m_stopRtpPort = 31000;
+    private String m_hostName;
 
     public Location() {
     }
@@ -251,7 +254,14 @@ public class Location extends BeanWithId implements DeployConfigOnEdit {
      * Get the hostname portion of the fully qualified domain name
      */
     public String getHostname() {
-        return substringBefore(m_fqdn, ".");
+        if (m_hostName == null) {
+            m_hostName = substringBefore(m_fqdn, DOT + Domain.getDomain().getNetworkName());
+        }
+        return m_hostName;
+    }
+
+    public String getHostnameInSipDomain() {
+        return getHostname() + DOT + Domain.getDomain().getName();
     }
 
     public boolean isPrimary() {

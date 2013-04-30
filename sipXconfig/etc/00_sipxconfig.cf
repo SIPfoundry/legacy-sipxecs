@@ -65,7 +65,8 @@ bundle edit_line sipxconfig_config {
     primary::
 "# Part 3 - from $(sipx.SIPX_CFINPUTS)/plugin.d/00_sipxconfig.cf
 sysdir.mongo_ns=
-domainManagerImpl.configuredDomain=$(sipx.domain)
+domainManagerImpl.configuredDomain=$(sipx.net_domain)
+domainManagerImpl.configuredSipDomain=$(sipx.domain)
 domainManagerImpl.configuredRealm=$(sipx.realm)
 domainManagerImpl.configuredSecret=$(sipx.secret)
 domainManagerImpl.configuredFqdn=$(sipx.host).$(sipx.net_domain)

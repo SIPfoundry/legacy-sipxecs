@@ -49,7 +49,9 @@
 
 %>;; RECORDS: a
 <%
-  all_servers.each { |server| 
+  if all_servers
+    all_servers.each { |server| 
 %>-t A <%= server[:name] %>
-<%}
+<%  }
+  end
 %>

@@ -3,55 +3,57 @@ sip_protocols: [ udp, tcp, tls ]
 naptr_protocols: [ udp, tcp ]
 domain: x
 proxy_servers:
- - :name: one
+ - :name: one.example.org
    :ipv4: 1.1.1.1
    :port: 0
- - :name: two
+ - :name: two.example.org
    :ipv4: 2.2.2.2
    :port: 0
- - :name: three
+ - :name: three.example.org
    :ipv4: 3.3.3.3
    :port: 0
 resource_records:
  - :proto: _sip._tcp
    :resource: rr1
    :records:
-    - :name: one
+    - :name: one.example.org
       :ipv4: 1.1.1.1
       :port: 0
+      :target: one.example.org
  - :proto: _xyx._abc
    :resource: rr2
    :records:
-    - :name: two
+    - :name: two.example.org
       :ipv4: 2.2.2.2
       :port: 0
+      :target: two.example.org
 dns_servers:
- - :name: one
+ - :name: one.example.org
    :ipv4: 1.1.1.1
    :port: 0
- - :name: two
+ - :name: two.example.org
    :ipv4: 2.2.2.2
    :port: 0
- - :name: three
+ - :name: three.example.org
    :ipv4: 3.3.3.3
    :port: 0
 im_servers:
- - :name: one
+ - :name: one.example.org
    :ipv4: 1.1.1.1
    :port: 0
- - :name: two
+ - :name: two.example.org
    :ipv4: 2.2.2.2
    :port: 0
- - :name: three
+ - :name: three.example.org
    :ipv4: 3.3.3.3
    :port: 0
 all_servers:
- - :name: one
+ - :name: one.example.org
    :ipv4: 1.1.1.1
    :port: 0
- - :name: two
+ - :name: two.example.org
    :ipv4: 2.2.2.2
    :port: 0
- - :name: three
+ - :name: three.example.org
    :ipv4: 3.3.3.3
    :port: 0

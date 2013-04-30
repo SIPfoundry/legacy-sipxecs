@@ -33,6 +33,7 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     private JdbcTemplate m_jdbc;
     private volatile Domain m_domain;
     private String m_configuredDomain;
+    private String m_configuredSipDomain;
     private String m_configuredRealm;
     private String m_configuredSecret;
     private String m_configuredFqdn;
@@ -71,7 +72,7 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
                     d2 = loadDomainFromDb();
                     if (d2 == null) {
                         Domain config = new Domain();
-                        config.setName(m_configuredDomain);
+                        config.setName(getEffectiveSipDomain());
                         config.setSharedSecret(m_configuredSecret);
                         config.setSipRealm(m_configuredRealm);
                         config.addAlias(m_configuredIp);
@@ -79,6 +80,7 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
                         getHibernateTemplate().saveOrUpdate(config);
                         d2 = reloadDomainFromDb();
                     }
+                    d2.setNetworkName(m_configuredDomain);
 
                     m_domain = d2;
                 }
@@ -182,8 +184,8 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
     @Override
     public boolean setup(SetupManager manager) {
         Domain d = getDomain();
-        if (!d.getName().equals(m_configuredDomain)) {
-            changeDomainName(m_configuredDomain);
+        if (!d.getName().equals(getEffectiveSipDomain())) {
+            changeDomainName(getEffectiveSipDomain());
         }
 
         return true;
@@ -211,5 +213,17 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
 
     public void setJdbc(JdbcTemplate jdbc) {
         m_jdbc = jdbc;
+    }
+
+    private String getEffectiveSipDomain() {
+        return m_configuredSipDomain == null ? m_configuredDomain : m_configuredSipDomain;
+    }
+
+    public void setConfiguredSipDomain(String configuredSipDomain) {
+        m_configuredSipDomain = configuredSipDomain;
+    }
+
+    public void setTestDomain(Domain d) {
+        m_domain = d;
     }
 }

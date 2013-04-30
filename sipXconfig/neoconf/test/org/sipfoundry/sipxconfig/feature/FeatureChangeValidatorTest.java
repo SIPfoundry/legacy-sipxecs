@@ -29,10 +29,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class FeatureChangeValidatorTest {
+
+    @Before
+    public void setUp() {
+        TestHelper.initDefaultDomain();
+    }
     
     @Test
     public void requiresGlobalFeature() {

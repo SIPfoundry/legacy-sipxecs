@@ -44,10 +44,11 @@ public class DnsConfigTest {
     
     @Before
     public void setUp() {
+        TestHelper.initDefaultDomain();
         m_config = new DnsConfig();
-        m_l1 = new Location("one", "1.1.1.1");
-        m_l2 = new Location("two", "2.2.2.2");
-        m_l3 = new Location("three", "3.3.3.3");
+        m_l1 = new Location("one.example.org", "1.1.1.1");
+        m_l2 = new Location("two.example.org", "2.2.2.2");
+        m_l3 = new Location("three.example.org", "3.3.3.3");
         m_locations = Arrays.asList(m_l1, m_l2, m_l3);
         m_a1 = new Address(DnsManager.DNS_ADDRESS, "1.1.1.1");
         m_a2 = new Address(DnsManager.DNS_ADDRESS, "2.2.2.2");
@@ -86,7 +87,7 @@ public class DnsConfigTest {
     @Test
     public void emptyZone() throws IOException {
         StringWriter actual = new StringWriter();
-        m_config.writeZoneConfig(actual, "x", m_locations, null, null, null, null, 1);
+        m_config.writeZoneConfig(actual, "x", m_locations, null, null, null, null, 1, true);
         String expected = IOUtils.toString(getClass().getResourceAsStream("empty-zone.yml"));
         assertEquals(expected, actual.toString());
     }
@@ -100,7 +101,7 @@ public class DnsConfigTest {
         ResourceRecords rr2 = new ResourceRecords("_xyx._abc", "rr2");
         rr2.addAddress(m_a2);
         List<ResourceRecords> rrs = Arrays.asList(rr1, rr2);
-        m_config.writeZoneConfig(actual, "x", m_locations, all, all, all, rrs, 1);
+        m_config.writeZoneConfig(actual, "x", m_locations, all, all, all, rrs, 1, true);
         String expected = IOUtils.toString(getClass().getResourceAsStream("full-zone.yml"));
         assertEquals(expected, actual.toString());
     }
@@ -115,7 +116,7 @@ public class DnsConfigTest {
         actual = new StringWriter();
         c = new YamlConfiguration(actual);
         m_config.writeServerYaml(c, m_locations, "robin", Collections.singletonList(m_a1));
-        assertEquals("robin:\n - :name: one\n   :ipv4: 1.1.1.1\n   :port: 0\n", actual.toString());
+        assertEquals("robin:\n - :name: one.example.org\n   :ipv4: 1.1.1.1\n   :port: 0\n", actual.toString());
 
         actual = new StringWriter();
         c = new YamlConfiguration(actual);

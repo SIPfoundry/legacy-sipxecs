@@ -29,11 +29,8 @@ public class BridgeEslRequestController extends AbstractEslRequestController {
     public void extractParameters(Hashtable<String, String> parameters) {
         String uuid = getCallerUniqueId();
         String sipReqParams = getSipReqParams();
-        m_sipReqUri = getSipReqUri();
-        // bridge always to same node
-        if (parameters.get("action").equals("deposit")) {
-            m_sipReqUri = m_sipReqUri.replace(getSipxchangeDomainName(), getHostname());
-        }
+        // bridge always to same node, that is local node
+        m_sipReqUri = "IVR@" + getFreeswitchIpAndPort();
         if (uuid == null || getSipxchangeDomainName() == null || sipReqParams == null) {
             hangup();
             return;

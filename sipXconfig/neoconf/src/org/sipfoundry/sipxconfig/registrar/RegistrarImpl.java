@@ -143,7 +143,7 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
         }
 
         // NOTE: drop port, it's in DNS resource records
-        return new Address(t, format("rr.%s", whoIsAsking.getFqdn()));
+        return new Address(t, format("rr.%s", whoIsAsking.getHostnameInSipDomain()));
     }
 
     @Override
