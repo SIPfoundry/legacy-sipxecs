@@ -418,7 +418,7 @@ class Network
     elsif host_from_hosts and ! host_from_hosts.end_with?(@domain)
       @host = host_from_hosts
     elsif host_from_hostname_s
-      @host = host_from_hosts
+      @host = host_from_hostname_s
     elsif fqdn_from_network
       @host = fqdn_from_network.partition('.')[0]
     end
