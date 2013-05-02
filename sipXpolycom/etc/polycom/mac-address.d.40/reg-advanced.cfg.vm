@@ -64,21 +64,23 @@
       up.${setting.ProfileName}="$!{setting.Value}"
 #end
     >
-#set ($pictureFrame = $cfg.EndpointSettings.getSetting('up').getSetting('pictureFrame'))
-#if($pictureFrame)
+ #if ($phone.model.isSupported("video"))
+  #set ($pictureFrame = $cfg.EndpointSettings.getSetting('up').getSetting('pictureFrame'))
+  #if($pictureFrame)
     <up.pictureFrame
-#foreach ($setting in $cfg.getSettings($pictureFrame))
+  #foreach ($setting in $cfg.getSettings($pictureFrame))
       up.pictureFrame.${setting.ProfileName}="$!{setting.Value}"
-#end
+  #end
     />
-#end
-#set ($screenSaver = $cfg.EndpointSettings.getSetting('up').getSetting('screenSaver'))
-#if($screenSaver)
+  #end
+  #set ($screenSaver = $cfg.EndpointSettings.getSetting('up').getSetting('screenSaver'))
+  #if($screenSaver)
     <up.screenSaver
-#foreach ($setting in $cfg.getSettings($screenSaver))
+  #foreach ($setting in $cfg.getSettings($screenSaver))
       up.screenSaver.${setting.ProfileName}="$!{setting.Value}"
-#end
+  #end
     />
-#end
+  #end
+ #end
   </up>
 </polycomConfig>
