@@ -95,4 +95,12 @@ public class MailboxDetails {
         return m_conferences.size();
     }
 
+    public void incrementHeardCount() {
+        m_heardCount ++;
+    }
+
+    public void incrementUnheardCount() {
+        m_unheardCount ++;
+    }
+
 }
