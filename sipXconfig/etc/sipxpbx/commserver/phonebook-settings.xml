@@ -15,7 +15,7 @@
   <group name="application">
     <setting name="everyone">
       <type refid="enable-disable" />
-      <value>ENABLE</value>
+      <value>DISABLE</value>
     </setting>
   </group>
 </model>

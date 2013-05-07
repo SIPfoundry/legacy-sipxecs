@@ -68,21 +68,10 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         // yellowthroat should not see any sparrows, but see other warblers and ducks
         sql("phonebook/PhonebookMembersAndConsumersSeed.sql");
         initPhonebookMembersAndConsumersSeed();
-        //test everyone enabled
+        //test everyone disabled
         User yellowthroat = m_coreContext.loadUser(1001);
         Collection<Phonebook> books = m_phonebookManager.getPublicPhonebooksByUser(yellowthroat);
         Iterator<PhonebookEntry> entries = m_phonebookManager.getEntries(books, yellowthroat).iterator();
-        assertEquals("canadian", entries.next().getNumber());
-        assertEquals("chirping", entries.next().getNumber());
-        assertEquals("mallard", entries.next().getNumber());
-        assertEquals("pintail", entries.next().getNumber());
-        assertEquals("song", entries.next().getNumber());
-        assertEquals("yellowthroat", entries.next().getNumber());
-        assertFalse(entries.hasNext());
-                
-        //test everyone disabled
-        setEveryoneEnabled(false);
-        commit();
         yellowthroat = m_coreContext.loadUser(1001);
         books = m_phonebookManager.getPublicPhonebooksByUser(yellowthroat);
         entries = m_phonebookManager.getEntries(books, yellowthroat).iterator();
@@ -91,6 +80,20 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertEquals("pintail", entries.next().getNumber());
         assertEquals("yellowthroat", entries.next().getNumber());
         assertFalse(entries.hasNext());
+        
+        //test everyone enabled
+        setEveryoneEnabled(true);
+        commit();
+        books = m_phonebookManager.getPublicPhonebooksByUser(yellowthroat);
+        entries = m_phonebookManager.getEntries(books, yellowthroat).iterator();
+        assertEquals("canadian", entries.next().getNumber());
+        assertEquals("chirping", entries.next().getNumber());
+        assertEquals("mallard", entries.next().getNumber());
+        assertEquals("pintail", entries.next().getNumber());
+        assertEquals("song", entries.next().getNumber());
+        assertEquals("yellowthroat", entries.next().getNumber());
+        assertFalse(entries.hasNext());
+
     }
 
     private void initPhonebookMembersAndConsumersSeed() {
@@ -259,13 +262,13 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         Phonebook privatePhonebook = m_phonebookManager.getPrivatePhonebook(portaluser);
         assertNotNull(privatePhonebook);
         assertEquals("privatePhonebook_1002", privatePhonebook.getName());
-        //test everyone enabled
-        assertEquals(4, m_phonebookManager.getEntries(Collections.singletonList(privatePhonebook), portaluser)
-                .size());
         //test everyone disabled
-        setEveryoneEnabled(false);
-        commit();
         assertEquals(1, m_phonebookManager.getEntries(Collections.singletonList(privatePhonebook), portaluser)
+                .size());
+        //test everyone enabled
+        setEveryoneEnabled(true);
+        commit();
+        assertEquals(4, m_phonebookManager.getEntries(Collections.singletonList(privatePhonebook), portaluser)
                 .size());
     }
     
@@ -273,17 +276,18 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         sql("phonebook/PhonebookSeed.sql");
 
         initPhonebookSeed();
-        //test everyone enabled
+        //test everyone disabled
         User anotheruser = m_coreContext.loadUser(1003);
         Collection<Phonebook> phonebooks = m_phonebookManager.getPublicPhonebooksByUser(anotheruser);
+        assertEquals(2, m_phonebookManager.getPagedPhonebook(phonebooks, anotheruser, "0", "10", null).getEntries()
+                .size());
+        //test everyone enabled
+        setEveryoneEnabled(true);
+        commit();
+        phonebooks = m_phonebookManager.getPublicPhonebooksByUser(anotheruser);
         assertEquals(4, m_phonebookManager.getPagedPhonebook(phonebooks, anotheruser, "0", "10", null).getEntries()
                 .size());
 
-        //test everyone disabled
-        setEveryoneEnabled(false);
-        commit();
-        assertEquals(2, m_phonebookManager.getPagedPhonebook(phonebooks, anotheruser, "0", "10", null).getEntries()
-                .size());
     }
 
     public void testDeletePrivatePhonebook() throws Exception {
@@ -315,6 +319,8 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
     public void testGetPagedPhonebookEveryone() throws Exception {
         sql("phonebook/PhonebookMembersAndConsumersSeed.sql");
         initPhonebookMembersAndConsumersSeed();
+        setEveryoneEnabled(true);
+        commit();
         User yellowthroat = m_coreContext.loadUser(1001);
         yellowthroat.setPermissionManager(m_permissionManager);
         User user1002 = m_coreContext.loadUser(1002);
@@ -359,9 +365,6 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
 
     public void testGetPagedPhonebookNotEveryone() throws Exception {
         sql("phonebook/PhonebookMembersAndConsumersSeed.sql");
-        setEveryoneEnabled(false);
-        commit();
-
         initPhonebookMembersAndConsumersSeed();
         User user1002 = m_coreContext.loadUser(1002);
         user1002.setPermissionManager(m_permissionManager);
@@ -421,6 +424,8 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         User canadian = m_coreContext.loadUser(1002);
         canadian.setPermissionManager(m_permissionManager);
         //test everyone enabled
+        setEveryoneEnabled(true);
+        commit();
         Collection<Phonebook> books = m_phonebookManager.getPublicPhonebooksByUser(canadian);
         PagedPhonebook pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, canadian, "0", "100", null);
         assertEquals(7, pagedPhonebook.getSize());
@@ -444,8 +449,6 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
 
         // test everyone disabled
         setEveryoneEnabled(false);
-        commit();
-
         books = m_phonebookManager.getPublicPhonebooksByUser(canadian);
         pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, canadian, "0", "100", null);
         assertEquals(5, pagedPhonebook.getSize());
@@ -492,19 +495,19 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
     }
 
     public void testSaveGeneralPhonebookSettings() throws Exception {
-        //test that everyone is true by default
+        //test that everyone is false by default
         GeneralPhonebookSettings genPhSettings = m_phonebookManager.getGeneralPhonebookSettings();
-        assertTrue(genPhSettings.isEveryoneEnabled());
-        //test save everyone to false
-        genPhSettings.setEveryoneEnabled(false);
-        m_phonebookManager.saveGeneralPhonebookSettings(genPhSettings);
-        genPhSettings = m_phonebookManager.getGeneralPhonebookSettings();
         assertFalse(genPhSettings.isEveryoneEnabled());
-        //test revert everyone to default value (true)
+        //test save everyone to true
         genPhSettings.setEveryoneEnabled(true);
         m_phonebookManager.saveGeneralPhonebookSettings(genPhSettings);
         genPhSettings = m_phonebookManager.getGeneralPhonebookSettings();
         assertTrue(genPhSettings.isEveryoneEnabled());
+        //test revert everyone to default value (false)
+        genPhSettings.setEveryoneEnabled(false);
+        m_phonebookManager.saveGeneralPhonebookSettings(genPhSettings);
+        genPhSettings = m_phonebookManager.getGeneralPhonebookSettings();
+        assertFalse(genPhSettings.isEveryoneEnabled());
     }
 
     public void testNoPhonebooks() throws Exception {
@@ -512,6 +515,10 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         initNoPhonebookSeed();
         User user = m_coreContext.loadUser(1001);
         Collection<PhonebookEntry> entries = m_phonebookManager.getEntries(new ArrayList<Phonebook>(), user);
+        assertEquals(0, entries.size());
+        setEveryoneEnabled(true);
+        commit();
+        entries = m_phonebookManager.getEntries(new ArrayList<Phonebook>(), user);
         assertEquals(3, entries.size());
     }
 
@@ -531,6 +538,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         sql("phonebook/PhonebookMembersAndConsumersSeed.sql");
         initPhonebookMembersAndConsumersSeed();
         setEveryoneEnabled(false);
+        commit();
         assertTrue(m_phonebookManager.getAllEntries(1002).isEmpty());
         setEveryoneEnabled(true);
         assertFalse(m_phonebookManager.getAllEntries(1002).isEmpty());
