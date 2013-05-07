@@ -24,8 +24,10 @@ public interface LdapManager {
     public static final String CONTEXT_BEAN_NAME = "ldapManager";
 
     public static final DirContextProcessor NULL_PROCESSOR = new DirContextProcessor() {
+        @Override
         public void postProcess(DirContext ctx) throws NamingException {
         }
+        @Override
         public void preProcess(DirContext ctx) throws NamingException {
         }
     };
@@ -63,6 +65,10 @@ public interface LdapManager {
     void saveSystemSettings(LdapSystemSettings settings);
 
     LdapSystemSettings getSystemSettings();
+
+    public void saveOverwritePin(boolean overwrite);
+
+    public OverwritePinBean retriveOverwritePin();
 
     public List<LdapConnectionParams> getAllConnectionParams();
 

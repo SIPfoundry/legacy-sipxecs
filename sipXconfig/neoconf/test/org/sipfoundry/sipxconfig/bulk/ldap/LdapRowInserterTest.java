@@ -44,6 +44,7 @@ public class LdapRowInserterTest extends TestCase {
 
     private LdapRowInserter m_rowInserter;
 
+    @Override
     protected void setUp() {
         m_rowInserter = new LdapRowInserter();
         AttrMap attrMap = new AttrMap();
@@ -116,6 +117,8 @@ public class LdapRowInserterTest extends TestCase {
         coreContext.saveUser(joe);
         coreContextControl.andReturn(true).atLeastOnce();
         coreContext.deleteUsersByUserName(Collections.singleton("olderImportUser"));
+        ldapManager.retriveOverwritePin();
+        coreContextControl.andReturn(new OverwritePinBean(100, true)).anyTimes();
         coreContextControl.replay();
 
         IMocksControl mailboxManagerControl = EasyMock.createControl();

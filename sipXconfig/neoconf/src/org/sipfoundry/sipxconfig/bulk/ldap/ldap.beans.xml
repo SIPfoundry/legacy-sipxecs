@@ -88,6 +88,7 @@
 
   <bean id="ldapManagerImpl" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapManagerImpl" parent="abstractDaoImpl">
     <property name="templateFactory" ref="ldapTemplateFactory"/>
+    <property name="configJdbcTemplate" ref="configJdbcTemplate" />
   </bean>
 
   <bean id="ldapManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

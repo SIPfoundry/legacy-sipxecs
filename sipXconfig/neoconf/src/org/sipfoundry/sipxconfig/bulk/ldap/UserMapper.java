@@ -41,6 +41,7 @@ public class UserMapper implements NameClassPairMapper {
     /**
      * @return UserPreview
      */
+    @Override
     public Object mapFromNameClassPair(NameClassPair nameClass) throws NamingException {
         SearchResult searchResult = (SearchResult) nameClass;
         Attributes attrs = searchResult.getAttributes();
@@ -109,7 +110,9 @@ public class UserMapper implements NameClassPairMapper {
 
     public void setVoicemailPin(User user, Attributes attrs) throws NamingException {
         String voicemailPin = getVoicemailPin(attrs, user.isNew());
-        if (voicemailPin != null) {
+        OverwritePinBean overwritePinBean = m_ldapManager.retriveOverwritePin();
+        boolean overwritePin = (overwritePinBean == null || overwritePinBean.isValue());
+        if (voicemailPin != null && (user.isNew() || overwritePin)) {
             user.setVoicemailPin(voicemailPin);
         }
     }

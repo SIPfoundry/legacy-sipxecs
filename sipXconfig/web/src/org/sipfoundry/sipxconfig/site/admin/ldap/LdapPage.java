@@ -30,6 +30,7 @@ import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
+import org.sipfoundry.sipxconfig.bulk.ldap.OverwritePinBean;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
@@ -69,6 +70,10 @@ public abstract class LdapPage extends SipxBasePage implements PageBeginRenderLi
 
     public abstract void setSettings(LdapSystemSettings settings);
 
+    public abstract Boolean getOverwritePin();
+
+    public abstract void setOverwritePin(Boolean overwritePin);
+
     @Persist
     public abstract boolean isLdapConnectionValid();
 
@@ -78,6 +83,10 @@ public abstract class LdapPage extends SipxBasePage implements PageBeginRenderLi
     public abstract boolean isAddMode();
 
     public void pageBeginRender(PageEvent event) {
+        if (getOverwritePin() == null) {
+            OverwritePinBean overwritePinBean = getLdapManager().retriveOverwritePin();
+            setOverwritePin(overwritePinBean == null ? true : overwritePinBean.isValue());
+        }
         LdapManager manager = getLdapManager();
         setSettings(manager.getSystemSettings());
         setLdapSelectionModel(new LdapSelectionModel(manager));
@@ -124,6 +133,7 @@ public abstract class LdapPage extends SipxBasePage implements PageBeginRenderLi
     public void applySettings() {
         // save system settings even if no valid connection - e.g. if uncheck LDAP configured
         getLdapManager().saveSystemSettings(getSettings());
+        getLdapManager().saveOverwritePin(getOverwritePin());
     }
 
     public boolean isLdapConfigured() {

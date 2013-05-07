@@ -11,6 +11,9 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 
 import static org.springframework.dao.support.DataAccessUtils.singleResult;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,10 +29,14 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.CronSchedule;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.setting.ValueStorage;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.ldap.AttributesMapper;
 import org.springframework.ldap.UncategorizedLdapException;
 
@@ -38,11 +45,15 @@ import org.springframework.ldap.UncategorizedLdapException;
  */
 public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapManager, ApplicationContextAware {
     private static final Log LOG = LogFactory.getLog(LdapManagerImpl.class);
+    private static final String QUERY_OVERRIDE_PIN =
+            "SELECT value_storage_id, value from setting_value where path='ldap/overwrite_pin'";
     private static final String NAMING_CONTEXTS = "namingContexts";
     private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
     private LdapTemplateFactory m_templateFactory;
+    private JdbcTemplate m_jdbcTemplate;
     private ApplicationContext m_applicationContext;
 
+    @Override
     public void verify(LdapConnectionParams params, AttrMap attrMap) {
         try {
             String[] attrNames = new String[] {
@@ -65,6 +76,34 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         }
     }
 
+    @Override
+    public void saveOverwritePin(boolean overwrite) {
+        OverwritePinBean existingOPB = retriveOverwritePin();
+        ValueStorage storage = null;
+        if (existingOPB == null) {
+            storage = new ValueStorage();
+        } else {
+            storage = getHibernateTemplate().load(ValueStorage.class, existingOPB.getId());
+        }
+        storage.setSettingValue("ldap/overwrite_pin", String.valueOf(overwrite));
+        getHibernateTemplate().saveOrUpdate(storage);
+    }
+
+    @Override
+    public OverwritePinBean retriveOverwritePin() {
+        final ArrayList<OverwritePinBean> values = new ArrayList<OverwritePinBean>();
+        RowCallbackHandler rows = new RowCallbackHandler() {
+            @Override
+            public void processRow(ResultSet rs) throws SQLException {
+                OverwritePinBean bean = new OverwritePinBean(rs.getInt("value_storage_id"), rs.getBoolean("value"));
+                values.add(bean);
+            }
+        };
+        m_jdbcTemplate.query(QUERY_OVERRIDE_PIN, rows);
+        return values.isEmpty() ? null : values.get(0);
+    }
+
+    @Override
     public boolean verifyLdapConnection(LdapConnectionParams params) {
         LOG.debug("verifying LDAP connection: " + params.getFullHost());
         try {
@@ -80,6 +119,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         }
     }
 
+    @Override
     public boolean verifyAllLdapConnections() {
         LOG.debug("verifying all LDAP connections");
         List<LdapConnectionParams> connParams = getAllConnectionParams();
@@ -106,6 +146,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         throw new UserException(message, parsedMessage);
     }
 
+    @Override
     public Schema getSchema(String subschemaSubentry, LdapConnectionParams params) {
         try {
             SearchControls cons = new SearchControls();
@@ -146,6 +187,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             };
         }
 
+        @Override
         public Object mapFromAttributes(Attributes attributes) throws NamingException {
             // only interested in the first result
             if (!m_initialized) {
@@ -198,6 +240,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             m_attrNames = attrNames;
         }
 
+        @Override
         public Map<String, String> mapFromAttributes(Attributes attributes) throws NamingException {
             Map<String, String> values = new HashMap<String, String>();
             for (String attrName : m_attrNames) {
@@ -209,10 +252,12 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         }
     }
 
+    @Override
     public CronSchedule getSchedule(int connectionId) {
         return getConnectionParams(connectionId).getSchedule();
     }
 
+    @Override
     public void setSchedule(CronSchedule schedule, int connectionId) {
         if (!schedule.isNew()) {
             // XCF-1168 incoming schedule is probably an update to this schedule
@@ -231,6 +276,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         m_applicationContext.publishEvent(new LdapImportTrigger.ScheduleChangedEvent(schedule, this, connectionId));
     }
 
+    @Override
     public AttrMap getAttrMap(int connectionId) {
         List<AttrMap> connectionsAttrMap = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 "ldapConnectionAttrMap", "attrMapId", connectionId);
@@ -240,6 +286,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         return createAttrMap();
     }
 
+    @Override
     public LdapConnectionParams getConnectionParams(int connectionId) {
         List<LdapConnectionParams> connections = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 "ldapConnection", "connectionId", connectionId);
@@ -249,44 +296,52 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         return createConnectionParams();
     }
 
+    @Override
     public LdapConnectionParams createConnectionParams() {
-        LdapConnectionParams params = (LdapConnectionParams) m_applicationContext.getBean(
+        LdapConnectionParams params = m_applicationContext.getBean(
                 "ldapConnectionParams", LdapConnectionParams.class);
         return params;
     }
 
+    @Override
     public AttrMap createAttrMap() {
-        return (AttrMap) m_applicationContext.getBean("attrMap", AttrMap.class);
+        return m_applicationContext.getBean("attrMap", AttrMap.class);
     }
 
+    @Override
     public List<LdapConnectionParams> getAllConnectionParams() {
         return getHibernateTemplate().loadAll(LdapConnectionParams.class);
     }
 
+    @Override
     public void setAttrMap(AttrMap attrMap) {
         getHibernateTemplate().merge(attrMap);
         getDaoEventPublisher().publishSave(attrMap);
     }
 
+    @Override
     public void saveSystemSettings(LdapSystemSettings settings) {
         getHibernateTemplate().saveOrUpdate(settings);
     }
 
+    @Override
     public LdapSystemSettings getSystemSettings() {
         List settingses = getHibernateTemplate().loadAll(LdapSystemSettings.class);
         LdapSystemSettings settings = (LdapSystemSettings) singleResult(settingses);
         if (settings == null) {
-            settings = (LdapSystemSettings) m_applicationContext.getBean("ldapSystemSettings",
+            settings = m_applicationContext.getBean("ldapSystemSettings",
                                             LdapSystemSettings.class);
         }
         return settings;
     }
 
+    @Override
     public void setConnectionParams(LdapConnectionParams params) {
         getHibernateTemplate().saveOrUpdate(params);
         getDaoEventPublisher().publishSave(params);
     }
 
+    @Override
     public void removeConnectionParams(int connectionId) {
         LdapConnectionParams params = getConnectionParams(connectionId);
         getHibernateTemplate().delete(params);
@@ -295,11 +350,17 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         m_applicationContext.publishEvent(new LdapImportTrigger.ScheduleDeletedEvent(this, connectionId));
     }
 
+    @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         m_applicationContext = applicationContext;
     }
 
     public void setTemplateFactory(LdapTemplateFactory templateFactory) {
         m_templateFactory = templateFactory;
+    }
+
+    @Required
+    public void setConfigJdbcTemplate(JdbcTemplate template) {
+        m_jdbcTemplate = template;
     }
 }

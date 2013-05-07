@@ -16,7 +16,12 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import javax.naming.NamingException;
@@ -35,13 +40,19 @@ public class UserMapperTest extends TestCase {
     private static final String LDAP_1_GROUP = "ldap1Group";
     private static final String LDAP_IMPORTS = "ldap_imports";
     private UserMapper m_userMapper;
+    private LdapManager m_ldapManager;
     private User m_user;
 
     @Override
     protected void setUp() {
         m_user = new User();
         m_userMapper = new UserMapper();
+        m_ldapManager = createMock(LdapManager.class);
+        m_ldapManager.retriveOverwritePin();
+        expectLastCall().andReturn(new OverwritePinBean(10, true)).anyTimes();
+        replay(m_ldapManager);
         AttrMap attrMap = new AttrMap();
+        m_userMapper.setLdapManager(m_ldapManager);
         attrMap.setAttribute("userName", "uid");
         attrMap.setAttribute("firstName","firstName");
         attrMap.setAttribute("aliasesString", "telephoneNumber");
@@ -60,6 +71,7 @@ public class UserMapperTest extends TestCase {
         attrs.put("vmpin2", "1235");
         attrs.put("vmpin3", "1236");
         UserMapper userMapper = new UserMapper();
+        userMapper.setLdapManager(m_ldapManager);
         AttrMap attrMap = new AttrMap();
         attrMap.setAttribute("userName", "uid");
         attrMap.setDefaultPin("5555");
