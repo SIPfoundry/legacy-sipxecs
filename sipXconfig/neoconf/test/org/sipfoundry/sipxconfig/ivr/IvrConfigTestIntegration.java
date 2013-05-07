@@ -16,29 +16,17 @@
  */
 package org.sipfoundry.sipxconfig.ivr;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.commserver.SipxReplicationContextImpl;
 import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
-import org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
-import org.sipfoundry.sipxconfig.proxy.ProxyManager;
-import org.sipfoundry.sipxconfig.registrar.Registrar;
 import org.sipfoundry.sipxconfig.test.TestHelper;
-
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 
 public class IvrConfigTestIntegration extends ImdbTestCase {
     private CoreContext m_coreContext;
@@ -97,6 +85,7 @@ public class IvrConfigTestIntegration extends ImdbTestCase {
         MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), userMongo);*/
     }
 
+    @Override
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
@@ -109,6 +98,7 @@ public class IvrConfigTestIntegration extends ImdbTestCase {
         m_sipxReplicationContextImpl = sipxReplicationContextImpl;
     }
 
+    @Override
     public void setPermissionManager(PermissionManager permissionManager) {
         m_permissionManager = permissionManager;
     }
