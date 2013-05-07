@@ -44,6 +44,7 @@
   <bean id="ivrConfig" class="org.sipfoundry.sipxconfig.ivr.IvrConfig">
     <property name="ivr" ref="ivr" />
     <property name="mwi" ref="mwi" />
+    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
   </bean>
 
   <bean id="sipXivrMessages" class="org.springframework.context.support.ResourceBundleMessageSource">
