@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestCase {
     private ConferenceBridgeContext m_context;
+    private ConferenceBridgeContextImpl m_contextImpl;
     private CoreContext m_core;
     private LocationsManager m_locations;
     private DomainManager m_domainManager;
@@ -47,6 +48,10 @@ public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestC
 
     public void setConferenceBridgeContext(ConferenceBridgeContext conference) {
         m_context = conference;
+    }
+    
+    public void setConferenceBridgeContextImpl(ConferenceBridgeContextImpl impl) {
+        m_contextImpl = impl;
     }
 
     protected void onSetUpInTransaction() throws Exception {
@@ -260,6 +265,18 @@ public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestC
         assertEquals(m_message, 1, getConferencesCount("conference_no_owner"));
     }
 
+    //remove conf when owner is deleted
+    public void testRemoveConferencesByOwner() {
+        assertEquals(m_message, 1, getConferencesCount("conf_name_3001"));
+        getDaoEventPublisher().resetListeners();
+        getDaoEventPublisher().divertEvents(m_contextImpl);
+        m_core.deleteUsers(Collections.singletonList(1002));
+        assertEquals(m_message, 0, getConferencesCount("conf_name_3001"));
+        assertEquals(m_message, 0, getConferencesCount("conf_name_3002"));
+        assertEquals(m_message, 0, getConferencesCount("conf_name_3003"));
+        assertEquals(m_message, 0, getConferencesCount("conf_name_3004"));
+    }
+    
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }

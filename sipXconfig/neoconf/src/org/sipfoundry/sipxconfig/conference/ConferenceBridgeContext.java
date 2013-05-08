@@ -39,7 +39,7 @@ public interface ConferenceBridgeContext extends AliasOwner {
 
     Conference newConference();
 
-    void removeConferences(Collection conferencesIds);
+    void removeConferences(Collection<Integer> conferencesIds);
 
     Bridge loadBridge(Serializable serverId);
 
