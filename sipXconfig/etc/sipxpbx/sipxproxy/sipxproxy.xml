@@ -144,7 +144,7 @@
       <type><string /></type>
       <!--Polycom phones interpret only the part in angle brackets, Snom phones only the part following info=.
           alert-internal is a default value for Snom-->
-      <value>&lt;http://internal.call&gt;;info=alert-internal;x-line-id=0</value>
+      <value>&lt;internal&gt;;info=alert-internal;x-line-id=0</value>
     </setting>
     <setting name="EXTERNAL_ENABLED">
       <type><boolean /></type>
@@ -152,7 +152,7 @@
     </setting>
     <setting name="EXTERNAL" advanced="yes">
       <type><string /></type>
-      <value>&lt;http://external.call&gt;;info=alert-external;x-line-id=0</value>
+      <value>&lt;external&gt;;info=alert-external;x-line-id=0</value>
     </setting>
     <setting name="ON_EXISTING" advanced="yes">
       <type refid="replaceOrKeep" />

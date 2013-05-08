@@ -111,6 +111,20 @@
         se.rt.ringAutoAnswer.callWait="$!{ringAnswer.getSetting('callWait').Value}"
         se.rt.ringAutoAnswer.mod="$!{ringAnswer.getSetting('mod').Value}"
       />
+    <se.rt.custom1 se.rt.custom1.name="Silent" se.rt.custom1.ringer="ringer1" />
+	<se.rt.custom2 se.rt.custom2.name="Low Trill" se.rt.custom2.ringer="ringer2" />
+	<se.rt.custom3 se.rt.custom3.name="Low Double Trill" se.rt.custom3.ringer="ringer3" />
+	<se.rt.custom4 se.rt.custom4.name="Medium Trill" se.rt.custom4.ringer="ringer4" />
+	<se.rt.custom5 se.rt.custom5.name="Medium Double Trill" se.rt.custom5.ringer="ringer5" />
+	<se.rt.custom6 se.rt.custom6.name="High Trill" se.rt.custom6.ringer="ringer6" />
+	<se.rt.custom7 se.rt.custom7.name="High Double Trill" se.rt.custom7.ringer="ringer7" />
+	<se.rt.custom8 se.rt.custom8.name="Highest Trill" se.rt.custom8.ringer="ringer8" />
+	<se.rt.custom9 se.rt.custom9.name="Highest Double Trill" se.rt.custom9.ringer="ringer9" />
+	<se.rt.custom10 se.rt.custom10.name="Beeble" se.rt.custom10.ringer="ringer10" />
+	<se.rt.custom11 se.rt.custom11.name="Triplet" se.rt.custom11.ringer="ringer11" />
+	<se.rt.custom12 se.rt.custom12.name="Ringback-style" se.rt.custom12.ringer="ringer12" />
+	<se.rt.custom13 se.rt.custom13.name="Low Trill Precedence" se.rt.custom13.ringer="ringer13" />
+	<se.rt.custom14 se.rt.custom14.name="Ring Splash" se.rt.custom14.ringer="ringer14" />
 </se.rt>
 </se>
 <call
