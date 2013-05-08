@@ -35,6 +35,7 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
 
 public class ProfileResourceTest extends TestCase {
     private User m_user;
@@ -56,6 +57,7 @@ public class ProfileResourceTest extends TestCase {
         m_phoneContext = createMock(PhoneContext.class);
         m_phone = new LimitedPhone();
         m_phone.setSerialNumber("123456");
+        m_phone.getModel().setDefaultProfileLocation(new MemoryProfileLocation());
 
         m_phoneContext.getPhoneIdBySerialNumber(m_phone.getSerialNumber());
         Integer phoneId = 1;
