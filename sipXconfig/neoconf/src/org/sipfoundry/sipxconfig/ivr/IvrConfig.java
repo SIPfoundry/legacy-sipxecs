@@ -40,8 +40,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
@@ -55,7 +53,6 @@ import org.springframework.beans.factory.annotation.Required;
 public class IvrConfig implements ConfigProvider, AlarmProvider {
     private Ivr m_ivr;
     private Mwi m_mwi;
-    private SipxReplicationContext m_sipxReplicationContext;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -75,7 +72,6 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
         Domain domain = manager.getDomainManager().getDomain();
         List<Location> mwiLocations = manager.getFeatureManager().getLocationsForEnabledFeature(Mwi.FEATURE);
         int mwiPort = m_mwi.getSettings().getHttpApiPort();
-        m_sipxReplicationContext.generateAll(DataSet.ALIAS);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = featureManager.isFeatureEnabled(Ivr.FEATURE, location);
@@ -159,9 +155,5 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
     @Required
     public void setMwi(Mwi mwi) {
         m_mwi = mwi;
-    }
-
-    public void setSipxReplicationContext(SipxReplicationContext replicationContext) {
-        m_sipxReplicationContext = replicationContext;
     }
 }
