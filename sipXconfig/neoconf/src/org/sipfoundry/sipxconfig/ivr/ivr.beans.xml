@@ -38,6 +38,7 @@
     <property name="configManager" ref="configManager" />
     <property name="domainManager" ref="domainManager" />
     <property name="freeswitchFeature" ref="freeswitchFeature" />
+    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
   </bean>
 
   <bean id="ivrConfig" class="org.sipfoundry.sipxconfig.ivr.IvrConfig">
