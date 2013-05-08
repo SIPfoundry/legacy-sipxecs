@@ -345,7 +345,7 @@
 
         </enum>
       </type>
-      <value>+00:00</value>
+      <value>-05:00</value>
     </setting>
     <group name="daylight_saving">
       <setting name="activate">

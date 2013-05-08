@@ -36,8 +36,6 @@ public class AudioCodesPhone extends Phone {
     public static final String TIME_SERVER_NAME = "systes/ntp/primary_server_address";
     public static final String ALTERNATE_TIME_SERVER_NAME = "system/ntp/secondary_server_address";
     public static final String MIME_TYPE_PLAIN = "text/plain";
-    public static final String MODEL_310HD = "310HD";
-    public static final String MODEL_320HD = "320HD";
     public static final String FILE_SEPERATOR = "/";
     public static final String SPEED_DIAL_FILE_NAME = "-speeddial.txt";
 
@@ -140,7 +138,7 @@ public class AudioCodesPhone extends Phone {
 
 
     public String getModelName() {
-        return this.getModelId().contains("310") ? MODEL_310HD : MODEL_320HD;
+        return this.getModelId().replaceFirst("audiocodes-", "") + "HD";
     }
 
     public String getFirmwareFileName() {

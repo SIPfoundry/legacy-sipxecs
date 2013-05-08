@@ -197,6 +197,21 @@
     <property name="maxLineCount" value="4" />
   </bean>
 
+  <bean id="audiocodes-420" parent="audiocodesModel">
+    <property name="label" value="AudioCodes 420HD IP Phone" />
+    <property name="maxLineCount" value="2" />
+  </bean>
+  
+  <bean id="audiocodes-430" parent="audiocodesModel">
+    <property name="label" value="AudioCodes 430HD IP Phone" />
+    <property name="maxLineCount" value="6" />
+  </bean>
+  
+  <bean id="audiocodes-440" parent="audiocodesModel">
+    <property name="label" value="AudioCodes 440HD IP Phone" />
+    <property name="maxLineCount" value="6" />
+  </bean>
+
   <bean id="audiocodesphone" class="org.sipfoundry.sipxconfig.phone.audiocodesphone.AudioCodesPhone" scope="prototype"
     parent="abstractPhone">
     <property name="locationsManager" ref="locationsManager" />
@@ -205,6 +220,6 @@
   <bean id="audiocodesPhoneFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
     <property name="beanId" value="upload" />
     <property name="modelFilePath" value="audiocodesphone/upload.xml" />
-    <property name="label" value="AudioCodes 310HD/320HD IP Phone" />
+    <property name="label" value="AudioCodes HD IP Phone" />
   </bean>
 </beans>

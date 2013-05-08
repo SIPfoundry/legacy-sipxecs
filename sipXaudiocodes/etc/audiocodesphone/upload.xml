@@ -8,7 +8,7 @@
     </file>
   </type>
   <group name="audiocodesPhoneFirmware">
-    <label>Audiocodes 300HD Series IP Phone Firmware File</label>
+    <label>Audiocodes HD Series IP Phone Firmware Files</label>
     <setting name="310HD">
     <label>310HD Firmware File</label>
        <type>
@@ -24,6 +24,33 @@
         <file>
           <contentType>application/binary</contentType>
           <rename>320HD.img</rename>
+        </file>
+      </type>
+    </setting>
+    <setting name="420HD">
+    <label>420HD Firmware File</label>
+      <type>
+        <file>
+          <contentType>application/binary</contentType>
+          <rename>420HD.img</rename>
+        </file>
+      </type>
+    </setting>
+    <setting name="430HD">
+    <label>430HD Firmware File</label>
+      <type>
+        <file>
+          <contentType>application/binary</contentType>
+          <rename>430HD.img</rename>
+        </file>
+      </type>
+    </setting>
+    <setting name="440HD">
+    <label>440HD Firmware File</label>
+      <type>
+        <file>
+          <contentType>application/binary</contentType>
+          <rename>440HD.img</rename>
         </file>
       </type>
     </setting>
