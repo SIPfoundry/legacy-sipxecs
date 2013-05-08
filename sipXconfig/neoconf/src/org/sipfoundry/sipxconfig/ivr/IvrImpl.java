@@ -33,6 +33,8 @@ import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupSettings;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dns.DnsManager;
 import org.sipfoundry.sipxconfig.dns.DnsProvider;
@@ -54,6 +56,7 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
+import org.springframework.beans.factory.annotation.Required;
 
 public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessProvider, DnsProvider,
         FirewallProvider, ArchiveProvider {
@@ -69,6 +72,8 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
     private FreeswitchFeature m_fsFeature;
     private boolean m_highAvailabilitySupport;
     private String m_archiveScript = "sipxivr-archive";
+    private SipxReplicationContext m_sipxReplicationContext;
+
 
     public IvrSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
@@ -213,6 +218,7 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
             if (settings.isNew()) {
                 saveSettings(settings);
             }
+            m_sipxReplicationContext.generateAll(DataSet.ALIAS);
         }
 
         if (request.hasChanged(Ivr.FEATURE)) {
@@ -242,5 +248,10 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
         String script = "$(sipx.SIPX_BINDIR)/" + m_archiveScript;
         ArchiveDefinition def = new ArchiveDefinition(ARCHIVE, script + " --backup %s", script + " --restore %s");
         return Collections.singleton(def);
+    }
+
+    @Required
+    public void setSipxReplicationContext(SipxReplicationContext replicationContext) {
+        m_sipxReplicationContext = replicationContext;
     }
 }
