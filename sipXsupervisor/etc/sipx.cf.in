@@ -494,3 +494,46 @@ body contain timeout(sec) {
   exec_timeout => "$(sec)";
 }
 
+#
+# Allows 'sipx' user to run a specific command on host running this promise.
+# Generally accompanied by an allow_ssh_command.
+#
+# Security notes:
+#    - Do not use full path to as PATH is controlled by sipx-allowed-commands wrapper script.
+#    - Commands should not come from variables from meta data in 
+#      SIPX_CFDATA directory because then sipx user on primary server can configure 
+#      what commands they are allowed access to and defeats purpose of restricting
+#      list. 
+#    - Be conscience of what commands you give access to, obviously acccess to
+#      run commands like scp would be not good.  It's better to create a wrapper script
+#      that is installed w/the service that is allowed here.
+#    - You do not specify arguments, so commands should take care to sanitize parameters
+#
+# Example:
+#   methods:
+#     myservice::
+#       "any" usebundle => allow_ssh_command("myservice-cool-command");
+#     !myservice::
+#       "any" usebundle => disallow_ssh_command("myservice-cool-command");
+#
+bundle agent allow_ssh_command(command) {
+  files:
+    any::
+      "/root/.ssh/authorized_sipx_commands"
+        create => "true",
+        perms => mog("600", "root", "root"),
+        edit_line => insert_lines("$(command)");
+}
+
+#
+# Removes ability for 'sipx' user to run a specific command on host running this promise.
+# See allow_ssh_command for more info
+#
+bundle agent disallow_ssh_command(command) {
+  files:
+    any::
+      "/root/.ssh/authorized_sipx_commands"
+        create => "false",
+        perms => mog("600", "root", "root"),
+        edit_line => delete_lines_matching("^$(command)$");
+}

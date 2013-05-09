@@ -21,6 +21,7 @@ import static java.lang.String.format;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -297,9 +298,15 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     }
 
     public void enableLocationFeature(LocationFeature feature, Location location, boolean enable) {
-        Set<LocationFeature> features = getEnabledLocationFeatures(location);
-        if (update(features, feature, enable)) {
-            enableLocationFeatures(features, location, enable);
+        // take 2 different approaches on enable false or true.  should investigate why this
+        // is nec.
+        if (enable) {
+            Set<LocationFeature> features = getEnabledLocationFeatures(location);
+            if (update(features, feature, enable)) {
+                enableLocationFeatures(features, location, enable);
+            }
+        } else {
+            enableLocationFeatures(Collections.singleton(feature), location, enable);
         }
     }
 
@@ -314,7 +321,7 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
     public void enableGlobalFeature(GlobalFeature feature, boolean enable) {
         Set<GlobalFeature> features = getEnabledGlobalFeatures();
         if (update(features, feature, enable)) {
-            enableGlobalFeatures(features, enable);
+            enableGlobalFeatures(features, true);
         }
     }
 

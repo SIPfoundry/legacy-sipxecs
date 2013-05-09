@@ -87,7 +87,17 @@ public interface ConfigManager {
     void resetKeys(Collection<Location> locations);
 
     /**
+     * Force running fulle configuration cycle now, assuming there is any work to do.
+     * Blocks until done and may be a while so you probably want to do this in a thread
+     * of you're in web UI.
+     */
+    public void run();
+
+    /**
      * Only used by setup init task
      */
     public void runProviders();
+
+    public String getRemoteCommand(String server);
+
 }

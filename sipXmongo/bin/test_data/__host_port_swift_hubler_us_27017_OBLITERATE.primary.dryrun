@@ -1,0 +1,6 @@
+COMMAND:OBLITERATE
+OS:/sbin/service mongod stop
+OS:rm -f /var/lib/mongodb/mongod.lock
+OS:/bin/rm -f /var/lib/mongodb/{,_tmp,journal}/*.*
+OS:/bin/chown mongodb:mongodb /var/lib/mongodb
+OS:/sbin/service mongod start

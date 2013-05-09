@@ -1,0 +1,6 @@
+{
+        "servers" : [
+                  "swift.hubler.us:27000"
+         ],
+         "replSet" : "sipxecs"
+}

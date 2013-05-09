@@ -20,7 +20,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
@@ -32,9 +36,10 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 
+import com.mongodb.util.JSON;
+
 public class MongoConfig implements ConfigProvider {
     private MongoManager m_mongoManager;
-    private MongoReplicaSetManager m_mongoReplicaSetManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -43,13 +48,11 @@ public class MongoConfig implements ConfigProvider {
         }
         FeatureManager fm = manager.getFeatureManager();
         Location[] all = manager.getLocationManager().getLocations();
-        List<MongoServer> servers = m_mongoReplicaSetManager.getMongoServers(true, false);
         MongoSettings settings = m_mongoManager.getSettings();
-        int port = settings.getPort();
-        String connStr = getConnectionString(servers, port);
-        String connUrl = getConnectionUrl(servers, port);
+        List<Location> dbs = manager.getFeatureManager().getLocationsForEnabledFeature(MongoManager.FEATURE_ID);
+        String connStr = getConnectionString(dbs, settings.getPort());
+        String connUrl = getConnectionUrl(dbs, settings.getPort());
         for (Location location : all) {
-
             // CLIENT
             File dir = manager.getLocationDataDirectory(location);
             FileWriter client = new FileWriter(new File(dir, "mongo-client.ini"));
@@ -69,6 +72,37 @@ public class MongoConfig implements ConfigProvider {
                 IOUtils.closeQuietly(server);
             }
         }
+
+        List<Location> arbiters = fm.getLocationsForEnabledFeature(MongoManager.ARBITER_FEATURE);
+        Writer w = null;
+        try {
+            File f = new File(manager.getGlobalDataDirectory(), "mongo.json");
+            w = new FileWriter(f);
+            serverList(w, dbs, arbiters);
+        } finally {
+            IOUtils.closeQuietly(w);
+        }
+    }
+
+    void serverList(Writer sb, List<Location> servers, List<Location> arbiters) throws IOException {
+        Map<String, Object> model = new HashMap<String, Object>();
+        if (servers.size() > 0) {
+            model.put("servers", serverIdList(servers, MongoSettings.SERVER_PORT));
+        }
+        if (arbiters.size() > 0) {
+            model.put("arbiters", serverIdList(arbiters, MongoSettings.ARBITER_PORT));
+        }
+        model.put("replSet", "sipxecs");
+        String json = JSON.serialize(model);
+        sb.write(json);
+    }
+
+    List<String> serverIdList(Collection<Location> servers, int port) {
+        List<String> ids = new ArrayList<String>(servers.size());
+        for (Location l : servers) {
+            ids.add(l.getFqdn() + ':' + port);
+        }
+        return ids;
     }
 
     void writeServerConfig(Writer w, boolean mongod, boolean arbiter) throws IOException {
@@ -88,30 +122,26 @@ public class MongoConfig implements ConfigProvider {
         config.write("connectionString", connStr);
     }
 
-    String getConnectionString(List<MongoServer> servers, int port) {
+    String getConnectionString(List<Location> servers, int port) {
         StringBuilder r = new StringBuilder("sipxecs/");
         for (int i = 0; i < servers.size(); i++) {
-            MongoServer server = servers.get(i);
-            if (server.isServer()) {
-                if (i > 0) {
-                    r.append(',');
-                }
-                r.append(server.getName());
+            Location server = servers.get(i);
+            if (i > 0) {
+                r.append(',');
             }
+            r.append(server.getFqdn() + ':' + port);
         }
         return r.toString();
     }
 
-    String getConnectionUrl(List<MongoServer> servers, int port) {
+    String getConnectionUrl(List<Location> servers, int port) {
         StringBuilder r = new StringBuilder("mongodb://");
         for (int i = 0; i < servers.size(); i++) {
-            MongoServer server = servers.get(i);
-            if (server.isServer()) {
-                if (i > 0) {
-                    r.append(',');
-                }
-                r.append(server.getName());
+            Location server = servers.get(i);
+            if (i > 0) {
+                r.append(',');
             }
+            r.append(server.getFqdn() + ':' + port);
         }
         r.append("/?readPreference=nearest");
         return r.toString();
@@ -119,9 +149,5 @@ public class MongoConfig implements ConfigProvider {
 
     public void setMongoManager(MongoManager mongoManager) {
         m_mongoManager = mongoManager;
-    }
-
-    public void setMongoReplicaSetManager(MongoReplicaSetManager mongoReplicaSetManager) {
-        m_mongoReplicaSetManager = mongoReplicaSetManager;
     }
 }

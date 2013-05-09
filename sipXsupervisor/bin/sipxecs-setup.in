@@ -257,7 +257,7 @@ def reset_all
     drop_db_if_exists('SIPXCDR')
     drop_db_if_exists('openfire')
   end
-  cmd_no_die("#{$bindir}/mongodb-repair --obliterate")
+  cmd_no_die("#{$bindir}/mongodb-admin --obliterate")
 end
 
 def drop_db_if_exists(db)

@@ -25,6 +25,7 @@ BuildRequires: cron
 BuildRequires: zip
 BuildRequires: libxslt
 BuildRequires: ruby-devel
+BuildRequires: dart-sdk
 BuildRequires: rubygems
 BuildRequires: sipxcommons >= %version
 BuildRequires: sipxacdstatistics-client >= %version

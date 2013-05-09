@@ -60,3 +60,13 @@ AC_SUBST(IF, [if])
 AC_SUBST(IFDEF, [ifdef])
 AC_SUBST(IFNDEF, [ifndef])
 AC_SUBST(ENDIF, [endif])
+
+AC_ARG_ENABLE(dep-check,
+  AS_HELP_STRING([--disable-dep-check],
+  [Do not check for dependencies other then those required for dist target]))
+
+AC_DEFUN([SF_MISSING_DEP],[
+  if test "x$enable_dep_check" != "xno"; then
+    AC_MSG_ERROR([$1])
+  fi
+])

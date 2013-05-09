@@ -1,0 +1,98 @@
+# Copyright (c) 2013 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# Configure ssh access to machines using same keys Cfengine uses for communication
+# Generally modules configure what ssh commands as root are allowed to be run 
+# on a machine by the unprivledged user 'sipx'.
+#
+# Utility methods are in sipx.cf such as
+#   allow_ssh_command
+#   disallow_ssh_command
+#
+
+bundle agent 00_ssh {
+  vars:
+    "key_file" string => "$(sipx.SIPX_CFDATA)/primary.ssh.pub";
+
+  methods:
+    primary::
+      "any" usebundle => ssh_priv;
+      "any" usebundle => ssh_pub;
+
+  files:
+    any::
+      "/root/.ssh/."
+       create => "true",
+       perms => mog("700", "root", "root");
+    
+      "/root/.ssh/authorized_keys"
+        create => "true",
+        perms => mog("600", "root", "root"),
+        edit_line => authorized_sipx_commands;
+}
+
+bundle edit_line authorized_sipx_commands {
+  vars:
+    any::
+      "key" string => readfile("$(00_ssh.key_file)", "1000");
+
+  delete_lines:
+    "^.*\ssipx@primary$";
+
+  insert_lines:
+    "from=\"$(sipx.master_address)\",command=\"$(sipx.SIPX_LIBEXECDIR)/sipx-allow-command ${SSH_ORIGINAL_COMMAND}\" $(key) sipx@primary";
+}
+
+bundle agent ssh_priv {
+  vars:
+    "passphrase" string => "Cfengine passphrase";
+    "userdata_no" int => getfields("$(sipx.SIPXPBXUSER):.*", "/etc/passwd",":","userdata");
+    "ppkdir" string => "$(userdata[6])/.cfagent/ppkeys";
+    "pvkey" string => "$(ppkdir)/localhost.priv";
+    "key" string => "$(ppkdir)/localhost.nopass.priv";
+
+  classes:
+    "missing" not => fileexists("$(key)");
+    "old" expression => isnewerthan("$(pvkey)", "$(key)");
+
+  files:
+    "$(key)"
+      create => "true",
+      perms => mog("600", "$(sipx.SIPXPBXUSER)", "$(sipx.SIPXPBXGROUP)");
+
+  commands:
+    primary.(missing|old)::
+      "/usr/bin/openssl"
+        comment => "Update private key copy",
+        args => "rsa -in $(ppkdir)/localhost.priv -passin 'pass:$(passphrase)' -out $(key)";
+}
+
+bundle agent ssh_pub {
+  classes:
+    "missing" not => fileexists("$(00_ssh.key_file)");
+    "old" expression => isnewerthan("$(ssh_priv.key)", "$(00_ssh.key_file)");
+
+  files:
+    "$(00_ssh.key_file)"
+      create => "true",
+      perms => mog("644", "$(sipx.SIPXPBXUSER)", "$(sipx.SIPXPBXGROUP)");
+
+  commands:
+    primary.(missing|old)::
+     "/usr/bin/ssh-keygen"
+       comment => "Update public ssh key",
+       args => "-y -f $(ssh_priv.key) > $(00_ssh.key_file)",
+       contain => in_shell;    
+}
+

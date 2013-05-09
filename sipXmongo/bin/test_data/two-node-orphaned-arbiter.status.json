@@ -1,0 +1,152 @@
+{
+    "states": {
+        "goose.hubler.us:27017": [
+            "SECONDARY"
+        ],
+        "junco.hubler.us:27017": [
+            "EXTRA_NODE junco.hubler.us:27018",
+            "PRIMARY"
+        ]
+    },
+    "cluster": [],
+    "model": {
+        "replSet": "sipxecs",
+        "servers": [
+            "goose.hubler.us:27017",
+            "junco.hubler.us:27017"
+        ]
+    },
+    "meta": {
+        "goose.hubler.us:27017": {
+            "available": true,
+            "status": {
+                "set": "sipxecs",
+                "ok": 1.0,
+                "syncingTo": "junco.hubler.us:27017",
+                "myState": 2,
+                "members": [
+                    {
+                        "uptime": 1484,
+                        "optime": 1369847471,
+                        "name": "junco.hubler.us:27017",
+                        "pingMs": 0,
+                        "optimeDate": "2013-05-29T17:11:11",
+                        "state": 1,
+                        "health": 1.0,
+                        "stateStr": "PRIMARY",
+                        "_id": 0,
+                        "lastHeartbeat": "2013-05-29T17:19:50"
+                    },
+                    {
+                        "uptime": 1734,
+                        "optime": 1369847471,
+                        "name": "goose.hubler.us:27017",
+                        "self": true,
+                        "optimeDate": "2013-05-29T17:11:11",
+                        "state": 2,
+                        "health": 1.0,
+                        "stateStr": "SECONDARY",
+                        "_id": 1
+                    },
+                    {
+                        "uptime": 0,
+                        "name": "junco.hubler.us:27018",
+                        "pingMs": 0,
+                        "state": 8,
+                        "health": 0.0,
+                        "stateStr": "(not reachable/healthy)",
+                        "_id": 2,
+                        "lastHeartbeat": "2013-05-29T17:17:11",
+                        "errmsg": "socket exception [CONNECT_ERROR] for junco.hubler.us:27018"
+                    }
+                ],
+                "date": "2013-05-29T17:19:50"
+            },
+            "config": {
+                "_id": "sipxecs",
+                "version": 106652,
+                "members": [
+                    {
+                        "host": "junco.hubler.us:27017",
+                        "_id": 0
+                    },
+                    {
+                        "host": "goose.hubler.us:27017",
+                        "_id": 1
+                    },
+                    {
+                        "host": "junco.hubler.us:27018",
+                        "_id": 2,
+                        "arbiterOnly": true
+                    }
+                ]
+            },
+            "server": "goose.hubler.us:27017"
+        },
+        "junco.hubler.us:27017": {
+            "available": true,
+            "status": {
+                "date": "2013-05-29T17:19:50",
+                "myState": 1,
+                "set": "sipxecs",
+                "ok": 1.0,
+                "members": [
+                    {
+                        "uptime": 14855,
+                        "optime": 1369847471,
+                        "name": "junco.hubler.us:27017",
+                        "self": true,
+                        "optimeDate": "2013-05-29T17:11:11",
+                        "state": 1,
+                        "health": 1.0,
+                        "stateStr": "PRIMARY",
+                        "_id": 0
+                    },
+                    {
+                        "uptime": 1494,
+                        "optime": 1369847471,
+                        "name": "goose.hubler.us:27017",
+                        "pingMs": 0,
+                        "optimeDate": "2013-05-29T17:11:11",
+                        "state": 2,
+                        "health": 1.0,
+                        "stateStr": "SECONDARY",
+                        "_id": 1,
+                        "lastHeartbeat": "2013-05-29T17:19:50"
+                    },
+                    {
+                        "uptime": 0,
+                        "name": "junco.hubler.us:27018",
+                        "pingMs": 0,
+                        "state": 8,
+                        "health": 0.0,
+                        "stateStr": "(not reachable/healthy)",
+                        "_id": 2,
+                        "lastHeartbeat": "2013-05-29T17:17:11",
+                        "errmsg": "socket exception [CONNECT_ERROR] for junco.hubler.us:27018"
+                    }
+                ]
+            },
+            "config": {
+                "_id": "sipxecs",
+                "version": 106652,
+                "members": [
+                    {
+                        "host": "junco.hubler.us:27017",
+                        "_id": 0
+                    },
+                    {
+                        "host": "goose.hubler.us:27017",
+                        "_id": 1
+                    },
+                    {
+                        "host": "junco.hubler.us:27018",
+                        "_id": 2,
+                        "arbiterOnly": true
+                    }
+                ]
+            },
+            "server": "junco.hubler.us:27017"
+        }
+    }
+}

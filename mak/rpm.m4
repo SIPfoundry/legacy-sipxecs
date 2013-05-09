@@ -11,6 +11,19 @@ if test -z "$REPO_PORT" ; then
   REPO_PORT=$DEFAULT_REPO_PORT
 fi
 
+UPSTREAM=1
+AC_ARG_ENABLE(upstream, [--disable-upstream Do not use upstream. Appropriate for master build servers or when you want to build all rpms.],
+[
+  UPSTREAM=0
+])
+AC_SUBST(UPSTREAM)
+
+AC_ARG_VAR(UPSTREAM_URL, [Where to find sipXecs distribution. Default: http://download.sipfoundry.org/pub/sipXecs])
+if test -z "$UPSTREAM_URL"; then
+  UPSTREAM_URL=http://download.sipfoundry.org/pub/sipXecs/${PACKAGE_VERSION}
+else
+  UPSTREAM_URL=`echo $UPSTREAM_URL | sed 's|/$||g'`
+fi
 
 AC_ARG_WITH(yum-proxy, [--with-yum-proxy send downloads thru caching proxy like squid to speed downloads], [
   AC_SUBST(DOWNLOAD_PROXY,$withval)

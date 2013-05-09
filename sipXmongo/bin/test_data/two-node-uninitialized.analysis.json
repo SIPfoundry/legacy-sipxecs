@@ -1,0 +1,25 @@
+{
+    "available": {
+        "swift.hubler.us:27001": [
+            "RESTART"
+        ],
+        "swift.hubler.us:27000": [
+            "RESTART"
+        ]
+    },
+    "model": {
+        "replSet": "sipxecs",
+        "servers": [
+            "swift.hubler.us:27000",
+            "swift.hubler.us:27001"
+        ]
+    },
+    "required": {
+        "swift.hubler.us:27001": [
+            "INITIALIZE"
+        ],
+        "swift.hubler.us:27000": [
+            "INITIALIZE"
+        ]
+    }
+}

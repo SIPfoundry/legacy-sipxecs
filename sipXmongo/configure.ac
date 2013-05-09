@@ -4,6 +4,7 @@ AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE(foreign tar-ustar)
 m4_include([config/general.m4])
 m4_include([config/sipXlib2.m4])
+
 AC_CONFIG_FILES([
     Makefile
     etc/Makefile

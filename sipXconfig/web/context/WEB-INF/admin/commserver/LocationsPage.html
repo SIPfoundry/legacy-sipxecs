@@ -6,10 +6,7 @@
         <a jwcid="@DirectLink" listener="listener:editLocations" id="ognl:'link:locations'"><span
           key="locations">Servers</span> </a>
       </div> 
-      <div jwcid="@common/Tab" isActive="ognl:tab == 'databases'">
-        <a jwcid="@DirectLink" listener="listener:editDatabases" id="ognl:'link:databases'"><span
-          key="databases">Databases</span> </a>
-      </div> <span jwcid="@For" source="ognl:bundles" value="ognl:currentBundle" volatile="ognl:true"
+      <span jwcid="@For" source="ognl:bundles" value="ognl:currentBundle" volatile="ognl:true"
       renderTag="ognl:false">
         <div jwcid="@common/Tab" isActive="ognl:tab == currentBundle.id">
           <a jwcid="@DirectLink" listener="listener:editBundle" parameters="ognl:currentBundle.id"
@@ -20,9 +17,6 @@
   <div id="settings-content">
     <div jwcid="@If" condition="ognl:tab == 'locations'">
       <div jwcid="@admin/commserver/LocationsPanel"></div>
-    </div>
-    <div jwcid="@If" condition="ognl:tab == 'databases'">
-      <div jwcid="@admin/commserver/DatabasesPanel"></div>
     </div>
     <div jwcid="@If" condition="ognl:tab != 'locations' && tab != 'databases'">
       <div jwcid="@admin/commserver/BundlePanel" bundleId="ognl:tab"></div>

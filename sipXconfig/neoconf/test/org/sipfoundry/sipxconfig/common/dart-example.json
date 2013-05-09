@@ -1,0 +1,16 @@
+{ "report" : "birds" , 
+  "countries" : [ "USA" , "Romania" , "Philippines"],
+  "spottings" : { 
+     "01/04/2013" : [ "Brown Thrasher" , "Eastern Flycatcher" , "Barn Owl"] , 
+     "01/03/2013" : [ "Western Tanager" , "Hearing Gull"],
+     "01/05/2013" : [ "Western Tanager" , "Hearing Gull"],
+     "01/06/2013" : [ "Western Tanager" , "Hearing Gull"],
+     "01/07/2013" : [ "Western Tanager" , "Hearing Gull"],
+     "01/08/2013" : [ "Western Tanager" , "Hearing Gull"],
+     "01/09/2013" : [ "Western Tanager" , "Hearing Gull"],
+     "01/10/2013" : [ "Western Tanager" , "Hearing Gull"],
+     "01/11/2013" : [ "Western Tanager" , "Hearing Gull"],
+     "01/12/2013" : [ "Western Tanager" , "Hearing Gull"],
+     "01/13/2013" : [ "Western Tanager" , "Hearing Gull"]
+   } 
+}

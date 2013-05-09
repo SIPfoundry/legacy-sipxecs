@@ -50,6 +50,11 @@ mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-deb
 failovermethod=priority
 enabled=0
 
+[upstream]
+name=upstream
+baseurl=@UPSTREAM_URL@/Fedora_17/i386/
+enabled=@UPSTREAM@
+
 [build]
 name=build
 baseurl=http://localhost:@REPO_PORT@/Fedora_17/i386/

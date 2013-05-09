@@ -25,6 +25,10 @@
       <ref local="coreContextImpl"/>
     </property>
   </bean>
+  
+  <bean id="dartApi" class="org.sipfoundry.sipxconfig.common.DartExampleApi" scope="prototype">
+  </bean>
+  <alias name="dartApi" alias="/birds"/>
 
   <bean id="resetAdministrator" class="org.sipfoundry.sipxconfig.common.ResetAdministratorInitTaskListener">
     <property name="coreContext" ref="coreContext"/>

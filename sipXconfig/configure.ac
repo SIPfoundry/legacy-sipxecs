@@ -5,6 +5,7 @@ m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
 m4_include([config/java.m4])
 m4_include([config/java2.m4])
+m4_include([config/dart.m4])
 AM_INIT_AUTOMAKE(foreign tar-ustar)
 SFAC_AUTOMAKE_VERSION([1.6])
 AC_CONFIG_SRCDIR([neoconf/src/org/sipfoundry/sipxconfig/common/User.java])
@@ -25,6 +26,7 @@ CHECK_RUBYGEMS([0.8.11])
 CHECK_YUM
 AC_PATH_PROG([WSDL2RUBY], wsd2lruby.rb, $abs_srcdir/meta/wsdl2ruby.rb)
 AC_PATH_PROG([XSLTPROC], xsltproc)
+CHECK_DART_SDK
 CHECK_POSTGRES
 CHECK_SERVICEDIR
 AC_SUBST(SIPX_IS_SRC, [true])

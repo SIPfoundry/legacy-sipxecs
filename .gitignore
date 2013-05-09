@@ -25,3 +25,5 @@ lib/*/build
 lib/cache-file
 lib/dist
 sipXtackLib/src/test/net/SipXauthIdentityTest.cpp
+custom
+build

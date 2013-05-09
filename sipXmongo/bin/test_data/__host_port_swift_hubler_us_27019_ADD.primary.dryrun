@@ -1,0 +1,2 @@
+COMMAND:ADD
+RS:rs.add("swift.hubler.us:27019")

@@ -6,6 +6,7 @@ MOCK_CONFIG_DIR = mak/mock
 MOCK_TARGET_PLATFORM = $(DISTRO)
 # avoids https://bugzilla.redhat.com/show_bug.cgi?id=490613 hit by *some* fedora 14 machines
 SRPM_DEFS = --define "_source_filedigest_algorithm md5"
+DOWNLOAD_LIB_CACHE = @DOWNLOAD_LIB_CACHE@
 
 # variable not used here, but can be used in */.sipxecs files
 RPM_DIST = @RPM_DIST@
@@ -40,6 +41,11 @@ distro.all.% :
 # only makes x once. usually not what you want and not what we want here
 $(foreach D,@ALL_DISTROS@, $(eval distro.$(D).% :; $$(MAKE) $$* $$(SUBMAKE_VARS)))
 
+DownloadSourceFile = \
+	  if [ ! -f $1 ]; then \
+	    curl -f -o $1 @DOWNLOAD_LIB_URL@/$(notdir $1); \
+	  fi
+
 CopySourceFile = \
 	if [ -f $1 ]; then \
 	  cp $1 $2; \
@@ -49,6 +55,9 @@ CopySourceFile = \
 	  fi ;\
 	  cp @DOWNLOAD_LIB_CACHE@/$(notdir $1) $2; \
 	fi; \
+
+$(DOWNLOAD_LIB_CACHE)/% :
+	curl -f -o $@ @DOWNLOAD_LIB_URL@/$(notdir $@)
 
 SRPM_DEP = $(MOCK_SRPM_DIR)/.dep.$(PROJ)
 help.{sipx|lib}.srpm = Called automatically as part of rpm process after srpm target. Uses rpmbuild command after dist target

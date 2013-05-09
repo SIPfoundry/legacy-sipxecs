@@ -894,6 +894,11 @@ div.userPortal
 	text-align:center;
 }
 
+#inprogress {
+  background-color: white;
+}
+
+
 #logtext {
 	height: 400px;
 	width: 650px;

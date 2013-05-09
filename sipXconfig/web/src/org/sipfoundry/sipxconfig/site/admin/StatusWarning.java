@@ -9,17 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import java.util.List;
-
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
-import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.mongo.MongoManager;
-import org.sipfoundry.sipxconfig.mongo.MongoReplicaSetManager;
 import org.sipfoundry.sipxconfig.site.admin.commserver.LocationsPage;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
@@ -27,8 +23,8 @@ public abstract class StatusWarning extends BaseComponent {
     @InjectObject(value = "spring:jobContext")
     public abstract JobContext getJobContext();
 
-    @InjectObject(value = "spring:mongoReplicaSetManager")
-    public abstract MongoReplicaSetManager getMongoReplicaSetManager();
+    @InjectObject(value = "spring:mongoManager")
+    public abstract MongoManager getMongoManager();
 
     @InjectObject("spring:featureManager")
     public abstract FeatureManager getFeatureManager();
@@ -50,18 +46,7 @@ public abstract class StatusWarning extends BaseComponent {
      */
     public boolean showReplicaSetWarning() {
         try {
-            int runningMembers = getMongoReplicaSetManager().getMongoServers(false, false).size();
-            int configuredDbs = 0;
-            List<Location> mongos = getFeatureManager().getLocationsForEnabledFeature(MongoManager.FEATURE_ID);
-            if (mongos != null) {
-                configuredDbs = mongos.size();
-            }
-            int configuredArbiters = 0;
-            List<Location> arbiters = getFeatureManager().getLocationsForEnabledFeature(MongoManager.ARBITER_FEATURE);
-            if (arbiters != null) {
-                configuredArbiters = arbiters.size();
-            }
-            return !(configuredDbs + configuredArbiters == runningMembers);
+            return getMongoManager().isMisconfigured();
         } catch (Exception ex) {
             return true;
         }

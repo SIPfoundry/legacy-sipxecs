@@ -1,0 +1,3 @@
+COMMAND:INITIALIZE
+RS:rs.config()
+RS:rs.initiate({"_id" : "sipxecs", "version" : 1, "members" : [{ "_id" : 0, "host" : "swift.hubler.us:27017"}]})

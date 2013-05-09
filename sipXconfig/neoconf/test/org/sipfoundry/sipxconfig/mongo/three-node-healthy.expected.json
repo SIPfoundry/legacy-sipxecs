@@ -1,0 +1,19 @@
+{ 
+  "dbCandidates" : [ ] , 
+  "databases" : { 
+    "swift.hubler.us:27017" : { 
+       "host" : "swift", "status" : [ "PRIMARY"] , "available" : [ "RESTART"] , "required" : [ ] , "voting" : true
+     } , 
+     "goose.hubler.us:27017" : { 
+       "host" : "goose", "status" : [ "SECONDARY"] , "available" : [ "RESTART"] , "required" : [ ] , "voting" : true
+     }
+   }, 
+   "lastConfigError" :  null  ,
+   "arbiters" : { 
+     "swift.hubler.us:27018" : { 
+       "host" : "swift", "status" : [ "ARBITER"] , "available" : [ "RESTART"] , "required" : [ ] , "voting" : true
+     }
+    }, 
+    "inProgress" : false ,
+   "arbiterCandidates" : [ "goose.hubler.us:27018" ]
+}

@@ -1,0 +1,3 @@
+COMMAND:RENAME new_name:27018
+RS:rs.config()
+RS:RENAME(swift.hubler.us:27018, new_name:27018)

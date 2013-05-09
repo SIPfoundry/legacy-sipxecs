@@ -1,0 +1,17 @@
+#!/bin/sh
+conf=/root/.ssh/authorized_sipx_commands
+if ! test -f $conf; then
+   echo "No configured command" >&2
+   exit 1
+fi
+
+export PATH=$PATH:@SIPX_BINDIR@:@SIPXLIBEXECDIR@
+
+CMD=($@)
+if grep -e "^${CMD[0]}$" -e '^${CMD[0]}\s.*' $conf; then
+   # using exec seems appropriate given it's purpose, but not stricly nec.
+   exec $@
+else        
+   echo "Command not allowed" >&2
+   exit 1
+fi

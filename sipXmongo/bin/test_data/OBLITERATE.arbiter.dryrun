@@ -1,0 +1,6 @@
+COMMAND:OBLITERATE
+OS:@SIPX_SERVICEDIR@/mongod-arbiter stop
+OS:rm -f /var/lib/mongodb-arbiter/mongod.lock
+OS:/bin/rm -f /var/lib/mongodb-arbiter/{,_tmp,journal}/*.*
+OS:/bin/chown mongodb:mongodb /var/lib/mongodb-arbiter
+OS:@SIPX_SERVICEDIR@/mongod-arbiter start

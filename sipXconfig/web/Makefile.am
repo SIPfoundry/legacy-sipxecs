@@ -9,6 +9,7 @@ SUBDIRS = \
 EXTRA_DIST = \
 	$(gwt_SRC) \
 	context \
+	packages \
 	$(web_SRC) \
 	$(addprefix src/,$(web_RESOURCES))
 
@@ -82,6 +83,19 @@ java-gwt : $(gwt_SRC)
 	mv out/gwt/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/org.sipfoundry.sipxconfig.userportal.user_phonebook_search.nocache.js out/gwt/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/nocache.js
 	mv out/gwt/org.sipfoundry.sipxconfig.userportal.contact_information/org.sipfoundry.sipxconfig.userportal.contact_information.nocache.js out/gwt/org.sipfoundry.sipxconfig.userportal.contact_information/nocache.js
 
+DART_SRC = $(shell cd $(srcdir)/context/WEB-INF; find . -name '*.dart')
+DART_PKGS = $(shell cd $(srcdir); find packages -name '*.js')
+
+java-dart : $(addprefix $(web_JAVAROOT)/,$(DART_SRC:.dart=.js) $(DART_PKGS))
+
+$(addprefix $(web_JAVAROOT)/,$(DART_PKGS)) : $(DART_PKGS)
+	test -d $(dir $@) || mkdir -p $(dir $@)
+	cp $< $@
+
+$(addprefix $(web_JAVAROOT)/,$(DART_SRC:.dart=.js)) : $(web_JAVAROOT)/%.js : context/WEB-INF/%.dart
+	test -d $(dir $@) || mkdir -p $(dir $@)
+	$(DART_HOME)/bin/dart2js -o$@ $<
+
 # W E B
 web_COMPILE_PKGS = \
 	$(web_PKGS) \
@@ -146,7 +160,7 @@ context_SRC = $(shell cd $(srcdir)/context; find . -type f \( \
 wardir = @SIPX_JAVADIR@/sipXconfig
 war_DATA = sipxconfig.war sipxconfig-web.jar
 
-sipxconfig-web.jar : javac-web javac-wsdl $(addprefix src/,$(web_RESOURCES)) $(neoconf_JAR)
+sipxconfig-web.jar : javac-web java-dart javac-wsdl $(addprefix src/,$(web_RESOURCES)) $(neoconf_JAR)
 	jar cf $@ \
 		$(call JarInclude,$(web_JAVAROOT),.) \
 		$(call JarInclude,$(srcdir)/src,$(web_RESOURCES))
@@ -192,6 +206,7 @@ clean :
 		sipxconfig.war \
 	    javac-web \
 	    java-gwt \
+	    java-dart \
 		wsdl-src \
 		$(WSDD) \
 		server-config.wsdd.dirty \

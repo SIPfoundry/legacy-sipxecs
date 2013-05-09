@@ -1,0 +1,31 @@
+{
+    "available": {
+        "swift.hubler.us:27018": [
+            "RESTART"
+        ],
+        "goose.hubler.us:27017": [
+            "RESTART"
+        ],
+        "swift.hubler.us:27017": [
+            "RESTART"
+        ]
+    },
+    "model": {
+        "arbiters": [
+            "swift.hubler.us:27018"
+        ],
+        "replSet": "sipxecs",
+        "servers": [
+            "swift.hubler.us:27017",
+            "goose.hubler.us:27017"
+        ]
+    },
+    "required": {
+        "swift.hubler.us:27018": [
+            "ADD"
+        ],
+        "goose.hubler.us:27017": [
+            "ADD"
+        ]
+    }
+}

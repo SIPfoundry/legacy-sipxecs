@@ -42,9 +42,14 @@ public class Location extends BeanWithId implements DeployConfigOnEdit, Comparab
             return (o == null ? null : ((Location) o).getAddress());
         }
     };
-    public static final Transformer GET_HOSTNAME = new Transformer() {
+    public static final Transformer GET_FQDN = new Transformer() {
         public Object transform(Object o) {
             return (o == null ? null : ((Location) o).getFqdn());
+        }
+    };
+    public static final Transformer GET_HOSTNAME = new Transformer() {
+        public Object transform(Object o) {
+            return (o == null ? null : ((Location) o).getHostname());
         }
     };
     private static final int SOFTWARE_ADMIN_PORT = 8092;

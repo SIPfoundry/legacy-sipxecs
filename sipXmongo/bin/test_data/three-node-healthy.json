@@ -1,0 +1,210 @@
+{"model" : {
+  "replSet" : "sipxecs",
+  "servers" : [
+    "swift.hubler.us:27017",
+    "swift.hubler.us:27019"
+  ],
+  "arbiters" : [
+    "swift.hubler.us:27018"
+  ]
+},
+"meta" :
+{
+    "swift.hubler.us:27018": {
+        "available": true,
+        "status": {
+            "date": "2013-03-25T17:48:37",
+            "myState": 7,
+            "set": "sipxecs",
+            "ok": 1.0,
+            "members": [
+                {
+                    "uptime": 9958,
+                    "optime": 1364227237,
+                    "name": "swift.hubler.us:27017",
+                    "pingMs": 0,
+                    "optimeDate": "2013-03-25T16:00:37",
+                    "state": 1,
+                    "health": 1.0,
+                    "stateStr": "PRIMARY",
+                    "_id": 0,
+                    "lastHeartbeat": "2013-03-25T17:48:35"
+                },
+                {
+                    "uptime": 529386,
+                    "name": "swift.hubler.us:27018",
+                    "self": true,
+                    "state": 7,
+                    "health": 1.0,
+                    "stateStr": "ARBITER",
+                    "_id": 1
+                },
+                {
+                    "uptime": 150,
+                    "optime": 1364227237,
+                    "name": "swift.hubler.us:27019",
+                    "pingMs": 0,
+                    "optimeDate": "2013-03-25T16:00:37",
+                    "state": 2,
+                    "health": 1.0,
+                    "stateStr": "SECONDARY",
+                    "_id": 2,
+                    "lastHeartbeat": "2013-03-25T17:48:37"
+                }
+            ]
+        },
+        "type": "ARBITER",
+        "config": {
+            "_id": "sipxecs",
+            "version": 19,
+            "members": [
+                {
+                    "host": "swift.hubler.us:27017",
+                    "_id": 0
+                },
+                {
+                    "host": "swift.hubler.us:27018",
+                    "_id": 1,
+                    "arbiterOnly": true
+                },
+                {
+                    "host": "swift.hubler.us:27019",
+                    "_id": 2
+                }
+            ]
+        },
+        "server": "swift.hubler.us:27018"
+    },
+    "swift.hubler.us:27019": {
+        "available": true,
+        "status": {
+            "set": "sipxecs",
+            "ok": 1.0,
+            "syncingTo": "swift.hubler.us:27017",
+            "myState": 2,
+            "members": [
+                {
+                    "uptime": 138,
+                    "optime": 1364227237,
+                    "name": "swift.hubler.us:27017",
+                    "pingMs": 0,
+                    "optimeDate": "2013-03-25T16:00:37",
+                    "state": 1,
+                    "health": 1.0,
+                    "stateStr": "PRIMARY",
+                    "_id": 0,
+                    "lastHeartbeat": "2013-03-25T17:48:35"
+                },
+                {
+                    "uptime": 138,
+                    "name": "swift.hubler.us:27018",
+                    "pingMs": 0,
+                    "state": 7,
+                    "health": 1.0,
+                    "stateStr": "ARBITER",
+                    "_id": 1,
+                    "lastHeartbeat": "2013-03-25T17:48:35"
+                },
+                {
+                    "uptime": 188,
+                    "optime": 1364227237,
+                    "name": "swift.hubler.us:27019",
+                    "self": true,
+                    "optimeDate": "2013-03-25T16:00:37",
+                    "state": 2,
+                    "health": 1.0,
+                    "stateStr": "SECONDARY",
+                    "_id": 2
+                }
+            ],
+            "date": "2013-03-25T17:48:37"
+        },
+        "type": "DATABASE",
+        "config": {
+            "_id": "sipxecs",
+            "version": 19,
+            "members": [
+                {
+                    "host": "swift.hubler.us:27017",
+                    "_id": 0
+                },
+                {
+                    "host": "swift.hubler.us:27018",
+                    "_id": 1,
+                    "arbiterOnly": true
+                },
+                {
+                    "host": "swift.hubler.us:27019",
+                    "_id": 2
+                }
+            ]
+        },
+        "server": "swift.hubler.us:27019"
+    },
+    "swift.hubler.us:27017": {
+        "available": true,
+        "status": {
+            "date": "2013-03-25T17:48:37",
+            "myState": 1,
+            "set": "sipxecs",
+            "ok": 1.0,
+            "members": [
+                {
+                    "uptime": 423354,
+                    "optime": 1364227237,
+                    "name": "swift.hubler.us:27017",
+                    "self": true,
+                    "optimeDate": "2013-03-25T16:00:37",
+                    "state": 1,
+                    "health": 1.0,
+                    "stateStr": "PRIMARY",
+                    "_id": 0
+                },
+                {
+                    "uptime": 9984,
+                    "name": "swift.hubler.us:27018",
+                    "pingMs": 0,
+                    "state": 7,
+                    "health": 1.0,
+                    "stateStr": "ARBITER",
+                    "_id": 1,
+                    "lastHeartbeat": "2013-03-25T17:48:36"
+                },
+                {
+                    "uptime": 150,
+                    "optime": 1364227237,
+                    "name": "swift.hubler.us:27019",
+                    "pingMs": 0,
+                    "optimeDate": "2013-03-25T16:00:37",
+                    "state": 2,
+                    "health": 1.0,
+                    "stateStr": "SECONDARY",
+                    "_id": 2,
+                    "lastHeartbeat": "2013-03-25T17:48:35"
+                }
+            ]
+        },
+        "type": "DATABASE",
+        "config": {
+            "_id": "sipxecs",
+            "version": 19,
+            "members": [
+                {
+                    "host": "swift.hubler.us:27017",
+                    "_id": 0
+                },
+                {
+                    "host": "swift.hubler.us:27018",
+                    "_id": 1,
+                    "arbiterOnly": true
+                },
+                {
+                    "host": "swift.hubler.us:27019",
+                    "_id": 2
+                }
+            ]
+        },
+        "server": "swift.hubler.us:27017"
+    }
+}
+}

@@ -9,6 +9,7 @@ TEST_DB = SIPXCONFIG_TEST
 	@PACKAGE@-rpmlintrc \
 	LICENSE \
 	NOTICE \
+	packages \
 	meta
 
 SUBDIRS = \

@@ -18,6 +18,9 @@
 bundle agent 00_sipxconfig {
   methods:
     primary::
+      # normally not nec but mongodb need 00_ssh to run first
+      "any" usebundle => 00_ssh;
+
       "any" usebundle => mongodb;
       "any" usebundle => postgres;
       "any" usebundle => sipxcommserverlib;

@@ -928,6 +928,8 @@ EOF
    echo "db.serverStatus()"
    mongo --eval "tojson(db.serverStatus())"
 
+   @SIPX_BINDIR@/mongodb-status --dump > ${Work}/mongodb-status.json
+
    # Execute system monitoring commands
    for command in \
        "ps -efww" \

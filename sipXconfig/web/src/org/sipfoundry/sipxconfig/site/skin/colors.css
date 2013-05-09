@@ -8,6 +8,12 @@ a:link
 	color: #000099;
 }
 
+#refreshRate
+{
+  border: 1;
+  background-color: #fff;
+}
+
 a:visited
 {
 	color: #660099;

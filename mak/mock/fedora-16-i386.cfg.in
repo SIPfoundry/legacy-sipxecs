@@ -33,6 +33,11 @@ baseurl=http://kojipkgs.fedoraproject.org/repos/dist-f16-build/latest/i386/
 cost=2000
 enabled=0
 
+[upstream]
+name=upstream
+baseurl=@UPSTREAM_URL@/Fedora_16/i386/
+enabled=@UPSTREAM@
+
 [build]
 name=build
 baseurl=http://localhost:@REPO_PORT@/Fedora_16/i386/

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Dart Example</title>
+<link rel="stylesheet"
+	href="../../../src/org/sipfoundry/sipxconfig/site/skin/layout.css">
+<link rel="stylesheet"
+	href="../../../src/org/sipfoundry/sipxconfig/site/skin/colors.css">
+</head>
+<body id="devmode" jwcid="$content$">
+	<div jwcid="@common/Border" restricted="false"
+		borderTitle="ognl:borderTitle">
+
+		<span id="message"></span>
+
+		<ul class="component-links">
+			<li><span key="label.day">Day</span> : <input id="day"/>
+				<span key="label.bird">Bird</span>: <input id="bird"/>
+				<button id="add">
+					<span key="button.add">Add</span>
+				</button></li>
+		</ul>
+
+		<div class="tableDiv">
+			<span id="tableView">
+				<table class="component">
+					<thead>
+						<tr>
+							<th><span key="label.day">Day</span></th>
+							<th><span key="label.sightings">Sightings</span></th>
+							<th><span key="label.actions"></span></th>
+						</tr>
+					</thead>
+					<tbody id="spottings-data">
+					</tbody>
+				</table>
+			</span>
+		</div>
+
+		<ul>
+			<button id="reset">
+				<span key="button.reset">Reset</span>
+			</button>
+		</ul>
+
+		<script jwcid="@common/DartCode" type="application/dart"
+			src="DartExample.dart"></script>
+
+		<script jwcid="@common/DartCode"
+			src="../../../packages/browser/dart.js"></script>
+
+	</div>
+</body>
+</html>

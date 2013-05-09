@@ -1,0 +1,4 @@
+COMMAND:RESET_LOCAL
+OS:/sbin/service mongod stop
+OS:/bin/rm -f /var/lib/mongodb/local.*
+OS:/sbin/service mongod start

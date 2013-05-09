@@ -5,7 +5,6 @@ Name: @PACKAGE@
 Version: @VERSION@
 Release: @PACKAGE_REVISION@
 
-# Change to your information!
 Summary: Utilities for connecting to mongo for sipXecs
 License: LGPL
 Group: Telcommunications
@@ -17,8 +16,10 @@ BuildRequires: automake
 # libxml2 is for xml validation in 'make check'
 BuildRequires: libxml2
 
-Requires: mongodb >= 2.0
+Requires: mongodb >= 2.2
 Requires: sipxsupervisor >= %version
+Requires: pymongo
+Requires: python-argparse
 Requires: js
 
 Source: %name-%version.tar.gz
@@ -33,7 +34,7 @@ respectively.
 
 %package server
 Requires: %name >= %version
-Requires: mongodb-server >= 2.0.0
+Requires: mongodb-server >= 2.2.0
 Group: Telcommunications
 Vendor: SIPfoundry
 Summary: Utilities for running mongo server for sipXecs
@@ -64,5 +65,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_sysconfdir}/sipxpbx/mongo/mongo.sec.erb
 %attr(755,root,root) %{_sysconfdir}/init.d/mongod-arbiter
-%attr(755,root,root) %{_bindir}/mongodb-repair
+%attr(755,root,root) %{_bindir}/mongodb-status
+%attr(755,root,root) %{_bindir}/mongodb-analyzer
+%attr(755,root,root) %{_bindir}/mongodb-admin
 %{_datadir}/sipxecs/cfinputs/plugin.d/mongodb.cf

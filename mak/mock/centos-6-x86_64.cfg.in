@@ -51,6 +51,11 @@ baseurl=http://kojipkgs.fedoraproject.org/repos/dist-6E-epel-build/latest/x86_64
 cost=2000
 enabled=0
 
+[upstream]
+name=upstream
+baseurl=@UPSTREAM_URL@/CentOS_6/x86_64/
+enabled=@UPSTREAM@
+
 [build]
 name=build
 baseurl=http://localhost:@REPO_PORT@/CentOS_6/x86_64/

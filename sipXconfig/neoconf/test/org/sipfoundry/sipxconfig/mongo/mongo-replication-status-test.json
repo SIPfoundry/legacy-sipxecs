@@ -1,0 +1,16 @@
+[
+ {"status" : { "date" : "2013-02-14T14:32:15" , "myState" : 1 , "set" : "sipxecs" , "ok" : 1.0 , 
+     "members" : [ { "optime" : 1360805663 , "name" : "swift.hubler.us:27017" , "self" : true , "optimeDate" : "2013-02-14T01:34:23" , 
+         "state" : 1 , "health" : 1.0 , "stateStr" : "ARBITER" , "_id" : 0}]} , 
+  "state" : "ok" , 
+  "config" : { "_id" : "sipxecs" , "version" : 5 , 
+      "members" : [ { "host" : "swift.hubler.us:27017" , "_id" : 0}]} , 
+  "server" : "swift.hubler.us:27018"},
+ {"status" : { "date" : "2013-02-14T14:32:15" , "myState" : 1 , "set" : "sipxecs" , "ok" : 1.0 , 
+     "members" : [ { "optime" : 1360805663 , "name" : "swift.hubler.us:27017" , "self" : true , "optimeDate" : "2013-02-14T01:34:23" , 
+         "state" : 1 , "health" : 1.0 , "stateStr" : "PRIMARY" , "_id" : 0}]} , 
+  "state" : "ok" , 
+  "config" : { "_id" : "sipxecs" , "version" : 5 , 
+      "members" : [ { "host" : "swift.hubler.us:27017" , "_id" : 0}]} , 
+  "server" : "swift.hubler.us:27017"}
+]

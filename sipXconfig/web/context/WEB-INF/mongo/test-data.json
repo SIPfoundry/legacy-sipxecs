@@ -1,0 +1,14 @@
+{ 
+  "inProgress": false,
+  "lastConfigError" : "Last configuration error here", 
+  "dbCandidates" : [ "foo.hubler.us:27017" ] ,
+   "databases" : {
+       "swift.example.org:27017" : { "host" : "swift", "status" : [ "PRIMARY"] , "priority":  1, "voting": false, "available" : [ "RESTART"] , "required" : [ "REMOVE_EXTRA orphan:27017" ]} , 
+       "goose.example.org:27017" : { "host" : "goose", "status" : [ "ELSE"] , "priority":  2, "voting": true, "available" : [ "RESTART"] , "required" : [ "START"]}
+     } ,
+    "arbiters" : {  
+       "swift.example.org:27018" : { "host" : "swift", "status" : [ "OK"] , "available" : [ "RESTART"] , "required" : [ ]},
+       "goose.example.org:27018" : { "host" : "goose", "status" : [ "OK"] , "available" : [ "RESTART"] , "required" : [ ]}
+     } ,
+   "arbiterCandidates" : [ "foo.hubler.us:27018", "bar.hubler.us:27018"]
+}

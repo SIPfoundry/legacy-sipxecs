@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Mongoui</title>
+<link rel="stylesheet"
+	href="../../../src/org/sipfoundry/sipxconfig/site/skin/layout.css">
+<link rel="stylesheet"
+	href="../../../src/org/sipfoundry/sipxconfig/site/skin/colors.css">
+</head>
+<body id="devmode" jwcid="$content$">
+	<div jwcid="@common/Border" restricted="false"
+		borderTitle="ognl:borderTitle">		  
+        <span jwcid="@common/QuickHelp" value="message:quick.help" />
+		<p><span id="inprogress" >
+		  <img src="/sipxconfig/images/loading.gif"/>
+		  <span key="label.inprogress">Operation in progress...</span>
+		</span>&nbsp;
+		<span id="message"></span></p>
+		<ul class="component-links">
+			<li id="newDbs"></li>
+			<li id="newArbs"></li>
+			<li>
+			  <input type="checkbox" name="refreshEnabled" id="refreshEnabled" checked="checked"/>
+			  <span key="refreshEveryPart1">Refresh every</span>
+			  <input value="30" size="2" id="refreshRate"/>
+        <span key="refreshEveryPart2">seconds.</span>
+			</li>
+		</ul>		
+		<div class="tableDiv">
+			<span id="tableView">
+				<table class="component">
+					<thead>
+						<tr>
+              <th><span key="service">Service</span></th>
+							<th><span key="status">Status</span></th>
+							<th><span key="action"></span></th>
+						</tr>
+					</thead>
+					<tbody id="nodes">
+					</tbody>
+				</table>
+			</span>
+		</div>
+		<ul>
+		  <button id="refresh"><span key="button.refresh">Refresh</span></button>
+		</ul>
+    <span id="rc" style="display:none">
+      <span jwcid="@common/Message" key="options">Options...</span>
+      <span jwcid="@common/Message" key="addArbiter">Add arbiter...</span>
+      <span jwcid="@common/Message" key="addDatabase">Add database...</span>
+      <span jwcid="@common/Message" key="addDatabase">Add database...</span>
+      <span jwcid="@common/Message" key="error.internal">Internal server error</span>
+      <span jwcid="@common/Message" key="operation.success">Success</span>
+      <span jwcid="@common/Message" key="type.db">database</span>
+      <span jwcid="@common/Message" key="type.arbiter">arbiter</span>
+      <span jwcid="@common/Message" key="confirmOperation">Are you sure you want to perform the following operation on {0} ?
+      '{1}'</span>
+      <span jwcid="@common/Message" key="action.DELETE">Delete</span>
+      <span jwcid="@common/Message" key="action.ADD">Add to config</span>
+      <span jwcid="@common/Message" key="action.REMOVE">Remove from config</span>
+      <span jwcid="@common/Message" key="action.RESTART">Restart</span>
+      <span jwcid="@common/Message" key="action.START">Start</span>
+      <span jwcid="@common/Message" key="action.ADD_VOTE">Enable voting</span>
+      <span jwcid="@common/Message" key="action.REMOVE_VOTE">Disable voting</span>
+      <span jwcid="@common/Message" key="action.INCREASE_PRIORITY">Increase priority</span>
+      <span jwcid="@common/Message" key="action.DECREASE_PRIORITY">Decrease priority</span>
+      <span jwcid="@common/Message" key="action.STEP_DOWN">Offer primary role to another server</span>                  
+      <span jwcid="@common/Message" key="action.FORCE_PRIMARY">Force Primary</span>                  
+      <span jwcid="@common/Message" key="action.REMOVE_EXTRA">Remove {0} from configuration</span>
+      <span jwcid="@common/Message" key="label.priority">Priority: </span>
+      <span jwcid="@common/Message" key="label.voting">Voting: </span>                        
+    </span>
+		<script jwcid="@common/DartCode" type="application/dart"
+			src="ManageMongo.dart"></script>
+		<script jwcid="@common/DartCode"
+			src="../../../packages/browser/dart.js"></script>
+
+	</div>
+</body>
+</html>

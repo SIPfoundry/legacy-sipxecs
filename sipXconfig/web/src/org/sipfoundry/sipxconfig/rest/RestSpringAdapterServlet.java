@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
+
 import static org.springframework.web.context.support.WebApplicationContextUtils.getRequiredWebApplicationContext;
 
 import java.io.IOException;
@@ -20,6 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.restlet.Router;
+import org.restlet.data.MediaType;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.context.ApplicationContext;
 
 import com.noelios.restlet.ext.servlet.ServletConverter;
@@ -48,6 +51,13 @@ public class RestSpringAdapterServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        m_converter.service(req, res);
+        try {
+            m_converter.service(req, res);
+        } catch (UserException e) {
+            res.setContentType(MediaType.APPLICATION_JSON.getName());
+            String msg = String.format("{\"error\":\"%s\",\"type\":\"%s\"} ", e.getMessage(), e.getClass().getName());
+            res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            res.getWriter().append(msg);
+        }
     }
 }

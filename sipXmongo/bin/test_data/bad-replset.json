@@ -1,0 +1,79 @@
+{"model" : {
+  "replSet" : "sipxecs",
+  "servers" : [
+    "swift.hubler.us:27017",
+    "swift.hubler.us:27019"
+  ]
+},
+"meta":
+{
+    "swift.hubler.us:27019": {
+        "available": true,
+        "status": {
+            "date": "2013-03-22T13:33:34",
+            "myState": 1,
+            "set": "sipx",
+            "ok": 1.0,
+            "members": [
+                {
+                    "uptime": 2288,
+                    "optime": 1363959207,
+                    "name": "swift.hubler.us:27019",
+                    "self": true,
+                    "optimeDate": "2013-03-22T13:33:27",
+                    "state": 1,
+                    "health": 1.0,
+                    "stateStr": "PRIMARY",
+                    "_id": 0
+                }
+            ]
+        },
+        "type": "DATABASE",
+        "config": {
+            "_id": "sipx",
+            "version": 1,
+            "members": [
+                {
+                    "host": "swift.hubler.us:27019",
+                    "_id": 0
+                }
+            ]
+        },
+        "server": "swift.hubler.us:27019"
+    },
+    "swift.hubler.us:27017": {
+        "available": true,
+        "status": {
+            "date": "2013-03-22T13:33:34",
+            "myState": 1,
+            "set": "sipxecs",
+            "ok": 1.0,
+            "members": [
+                {
+                    "uptime": 148851,
+                    "optime": 1363811797,
+                    "name": "swift.hubler.us:27017",
+                    "self": true,
+                    "optimeDate": "2013-03-20T20:36:37",
+                    "state": 1,
+                    "health": 1.0,
+                    "stateStr": "PRIMARY",
+                    "_id": 0
+                }
+            ]
+        },
+        "type": "DATABASE",
+        "config": {
+            "_id": "sipxecs",
+            "version": 17,
+            "members": [
+                {
+                    "host": "swift.hubler.us:27017",
+                    "_id": 0
+                }
+            ]
+        },
+        "server": "swift.hubler.us:27017"
+    }
+}
+}

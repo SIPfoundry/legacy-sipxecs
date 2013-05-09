@@ -1,0 +1,113 @@
+[
+ {"status" : { 
+     "members" : [ 
+        {"name" : "one:27017" , "self" : true , "stateStr" : "PRIMARY" , "_id" : 0},
+        {"name" : "two:27017" , "stateStr" : "SECONDARY" , "_id" : 1},
+        {"name" : "three:27018" , "stateStr" : "ARBITER" , "_id" : 2},
+        {"name" : "four:27017" , "stateStr" : "STARTUP" , "_id" : 3},
+        {"name" : "five:27017" , "stateStr" : "SECONDARY" , "_id" : 4}
+      ]
+   } , 
+  "state" : "ok" , 
+  "config" : { "_id" : "sipxecs" , 
+    "members" : [ 
+      {"host" : "one:27017" , "_id" : 0},
+      {"host" : "two:27017" , "_id" : 1},
+      {"host" : "three:27018" , "_id" : 2},
+      {"host" : "four:27017" , "_id" : 3},
+      {"host" : "five:27017" , "_id" : 4}
+     ]
+   } , 
+  "server" : "one:27017"
+ },
+ 
+ {"status" : { 
+     "members" : [ 
+        {"name" : "one:27017" , "stateStr" : "PRIMARY" , "_id" : 0},
+        {"name" : "two:27017" , "self" : true , "stateStr" : "SECONDARY" , "_id" : 1},
+        {"name" : "three:27018" , "stateStr" : "ARBITER" , "_id" : 2},
+        {"name" : "four:27017" , "stateStr" : "STARTUP" , "_id" : 3},
+        {"name" : "five:27017" , "stateStr" : "SECONDARY" , "_id" : 4}
+      ]
+   } , 
+  "state" : "ok" , 
+  "config" : { "_id" : "sipxecs" , 
+    "members" : [ 
+      {"host" : "one:27017" , "_id" : 0},
+      {"host" : "two:27017" , "_id" : 1},
+      {"host" : "three:27018" , "_id" : 2},
+      {"host" : "four:27017" , "_id" : 3},
+      {"host" : "five:27017" , "_id" : 4}
+     ]
+   } , 
+  "server" : "two:27017"
+ },
+
+ {"status" : { 
+     "members" : [ 
+        {"name" : "one:27017" , "stateStr" : "PRIMARY" , "_id" : 0},
+        {"name" : "two:27017" , "stateStr" : "SECONDARY" , "_id" : 1},
+        {"name" : "three:27018" , "self" : true , "stateStr" : "ARBITER" , "_id" : 2},
+        {"name" : "four:27017" , "stateStr" : "STARTUP" , "_id" : 3},
+        {"name" : "five:27017" , "stateStr" : "SECONDARY" , "_id" : 4}
+      ]
+   } , 
+  "state" : "ok" , 
+  "config" : { "_id" : "sipxecs" , 
+    "members" : [ 
+      {"host" : "one:27017" , "_id" : 0},
+      {"host" : "two:27017" , "_id" : 1},
+      {"host" : "three:27018" , "_id" : 2},
+      {"host" : "four:27017" , "_id" : 3},
+      {"host" : "five:27017" , "_id" : 4}
+     ]
+   } , 
+  "server" : "three:27018"
+ },
+
+ {"status" : { 
+     "members" : [ 
+        {"name" : "one:27017" , "stateStr" : "PRIMARY" , "_id" : 0},
+        {"name" : "two:27017" , "stateStr" : "SECONDARY" , "_id" : 1},
+        {"name" : "three:27018" , "stateStr" : "ARBITER" , "_id" : 2},
+        {"name" : "four:27017" , "self" : true , "stateStr" : "STARTUP" , "_id" : 3},
+        {"name" : "five:27017" , "stateStr" : "SECONDARY" , "_id" : 4}
+      ]
+   } , 
+  "state" : "ok" , 
+  "config" : { "_id" : "sipxecs" , 
+    "members" : [ 
+      {"host" : "one:27017" , "_id" : 0},
+      {"host" : "two:27017" , "_id" : 1},
+      {"host" : "three:27018" , "_id" : 2},
+      {"host" : "four:27017" , "_id" : 3},
+      {"host" : "five:27017" , "_id" : 4}
+     ]
+   } , 
+  "server" : "four:27017"
+ },
+
+ {"status" : { 
+     "members" : [ 
+        {"name" : "one:27017" , "stateStr" : "PRIMARY" , "_id" : 0},
+        {"name" : "two:27017" , "stateStr" : "SECONDARY" , "_id" : 1},
+        {"name" : "three:27018" , "stateStr" : "ARBITER" , "_id" : 2},
+        {"name" : "four:27017" , "stateStr" : "STARTUP" , "_id" : 3},
+        {"name" : "five:27017" , "self" : true , "stateStr" : "SECONDARY" , "_id" : 4}
+      ]
+   } , 
+  "state" : "ok" , 
+  "config" : { "_id" : "sipxecs" , 
+    "members" : [ 
+      {"host" : "one:27017" , "_id" : 0},
+      {"host" : "two:27017" , "_id" : 1},
+      {"host" : "three:27018" , "_id" : 2},
+      {"host" : "four:27017" , "_id" : 3},
+      {"host" : "five:27017" , "_id" : 4}
+     ]
+   } , 
+  "server" : "five:27017"
+ }
+ 
+ 
+]

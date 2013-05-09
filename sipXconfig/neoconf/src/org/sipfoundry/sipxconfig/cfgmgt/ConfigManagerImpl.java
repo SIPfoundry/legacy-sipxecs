@@ -78,6 +78,11 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     private Set<String> m_registeredIps;
     private boolean m_postSetup;
     private final Object m_lock = new Object();
+    // No strict host key checking is only for initial handshake. Once that passes, ssh will
+    // check host name with key.
+    private String m_remoteCommand = "/usr/bin/ssh -o 'StrictHostKeyChecking no' "
+            + "-i %s/.cfagent/ppkeys/localhost.nopass.priv root@%s";
+    private String m_remoteHostsFile = "%s/.ssh/known_hosts";
     private boolean m_flag;
 
     @Override
@@ -92,6 +97,18 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
             m_worker.workScheduled();
             m_worker.notify();
         }
+    }
+
+    public String getRemoteCommand(String server) {
+        return String.format(m_remoteCommand, getHomeDir(), server);
+    }
+
+    private String getHomeDir() {
+        return System.getProperty("user.home");
+    }
+
+    private String getRemoteHostsFile() {
+        return String.format(m_remoteHostsFile, getHomeDir());
     }
 
     @Override
@@ -149,6 +166,14 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
         runProviders(request, jobLabel);
         runCfengine(request, jobLabel);
         runPostProviders(request, jobLabel);
+    }
+
+    @Override
+    public void run() {
+        ConfigRequest work = getWork();
+        if (work != null) {
+            doWork(work);
+        }
     }
 
     @Override
@@ -326,8 +351,8 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
         @Override
         protected boolean work() {
             ConfigRequest work = getWork();
-            // check null, it's possible work has been done by the time we
-            // have gotten around to it
+            // work could be null if call to run() was made explicitly
+            // then this is a nop.
             if (work != null) {
                 doWork(work);
             }
@@ -412,8 +437,15 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
         Location primary = getLocationManager().getPrimaryLocation();
         RunRequest reset = new RunRequest("reset cfengine keys", Collections.singleton(primary));
         reset.setBundles("reset_cfkey");
-        run(reset);
         // cfengine promise should delete file as this job is asynchronous
+        run(reset);
+
+        // clobbering of ~/.ssh/hosts wholesale ensures remote ssh command accept new
+        // ssh keys
+        File remoteHosts = new File(getRemoteHostsFile());
+        if (remoteHosts.exists()) {
+            remoteHosts.delete();
+        }
     }
 
     @Override
@@ -427,6 +459,10 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
 
     public void setUploadDir(String uploadDir) {
         m_uploadDir = uploadDir;
+    }
+
+    public void setRemoteCommand(String remoteCommand) {
+        m_remoteCommand = remoteCommand;
     }
 
     @Override
@@ -446,5 +482,9 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
             m_flag = false;
             m_lock.notifyAll();
         }
+    }
+
+    public void setRemoteHostsFile(String remoteHostsFile) {
+        m_remoteHostsFile = remoteHostsFile;
     }
 }
