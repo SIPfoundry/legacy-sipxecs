@@ -45,7 +45,7 @@ public class ServletTest extends TestCase {
         Servlet servlet = new Servlet();
         Servlet.m_config = new Configuration();
 
-        assertFalse(servlet.doProvisionPhone(null));
+        assertFalse(servlet.doProvisionPhone(null, null));
     }
 
     public void testLookupPhoneModelFailure() {

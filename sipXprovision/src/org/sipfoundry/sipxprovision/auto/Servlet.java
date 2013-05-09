@@ -103,7 +103,10 @@ public class Servlet extends HttpServlet {
     private static final Pattern POLYCOM_000000000000_CONTACTS_PATH_RE = Pattern.compile("^" + POLYCOM_PATH_PREFIX
             + "000000000000-directory.xml$");
 
-    private static final Pattern POLYCOM_40_PATH_RE = Pattern
+    private static final Pattern POLYCOM_40_PROV_PATH_RE = Pattern.compile(String.format(POLYCOM_PATH_FORMAT_RE_STR,
+            "sipx-(applications).cfg"));
+
+    private static final Pattern POLYCOM_40_PROFILE_PATH_RE = Pattern
             .compile(String
                     .format(POLYCOM_PATH_FORMAT_RE_STR,
                             "sipx-((applications)|(sip-interop)|(reg-advanced)|(region)|(sip-basic)|(video)|(site)|(features)).cfg"));
@@ -127,27 +130,27 @@ public class Servlet extends HttpServlet {
      * Grandstream
      */
     private static final String GRANDSTREAM_CONFIG_FILE_PREFIX = "gs_config/";
-    
+
     private static final String GRANDSTREAM_PATH_PREFIX = "/cfg";
-    
+
     private static final String GRANDSTREAM_ALT_PATH_PREFIX = "/gs_config/cfg";
-    
-    private static final Pattern GRANDSTREAM_PATH_FORMAT_RE_STR =
-            Pattern.compile("^" + GRANDSTREAM_PATH_PREFIX + MAC_RE_STR + "$");
-    
-    private static final Pattern GRANDSTREAM_ALT_PATH_FORMAT_RE_STR =
-            Pattern.compile("^" + GRANDSTREAM_ALT_PATH_PREFIX + MAC_RE_STR + "$");
-    
+
+    private static final Pattern GRANDSTREAM_PATH_FORMAT_RE_STR = Pattern.compile("^" + GRANDSTREAM_PATH_PREFIX
+            + MAC_RE_STR + "$");
+
+    private static final Pattern GRANDSTREAM_ALT_PATH_FORMAT_RE_STR = Pattern.compile("^"
+            + GRANDSTREAM_ALT_PATH_PREFIX + MAC_RE_STR + "$");
+
     private static final String GRANDSTREAM_UA_PREFIX_STR = "Grandstream Model HW";
-    
-    private static final Pattern GRANDSTREAM_UA_RE = Pattern.compile(
-            String.format("^%s.+$", GRANDSTREAM_UA_PREFIX_STR));
+
+    private static final Pattern GRANDSTREAM_UA_RE = Pattern.compile(String.format("^%s.+$",
+            GRANDSTREAM_UA_PREFIX_STR));
     /*
      * Generic stuff
      */
 
     private static final Pattern EXACT_MAC_RE = Pattern.compile("^" + MAC_RE_STR + "$");
-    
+
     protected static boolean isMacAddress(String mac) {
         return EXACT_MAC_RE.matcher(mac).matches();
     }
@@ -266,9 +269,8 @@ public class Servlet extends HttpServlet {
         public String getRootUrlPath() {
             int port = (m_config.isUseSecure()) ? (m_config.getSecurePort()) : (m_config.getServletPort());
             String proto = (m_config.isUseSecure()) ? ("https") : ("http");
-            LOG.info("Using " + ((m_config.isUseSecure()) ? ("secure ") : ("non secure" )) + " port" );
-            return String.format(proto + "://%s:%d%s/", m_config.getHostname(), port,
-                    m_config.getServletUriPath());
+            LOG.info("Using " + ((m_config.isUseSecure()) ? ("secure ") : ("non secure")) + " port");
+            return String.format(proto + "://%s:%d%s/", m_config.getHostname(), port, m_config.getServletUriPath());
         }
 
         public String getDefaultFirmware() {
@@ -385,7 +387,7 @@ public class Servlet extends HttpServlet {
         } catch (Exception e) {
             LOG.error("Failed to generate Nortel IP 12x0 SIPdefault.xml: ", e);
         }
-        
+
         // Generate the Grandstream cfg.xml, which will cause un-provisioned phones to send
         // an HTTP request to this servlet.
         try {
@@ -401,8 +403,7 @@ public class Servlet extends HttpServlet {
                 ps.println("    <P212>1</P212>");
                 ps.println("    <P145>0</P145>");
                 ps.println("    <P1411>0</P1411>");
-                ps.println(String.format("    <P237>%s:%d</P237>", m_config.getHostname(),
-                        m_config.getServletPort()));
+                ps.println(String.format("    <P237>%s:%d</P237>", m_config.getHostname(), m_config.getServletPort()));
                 ps.println(String.format("    <P234>%s</P234>", GRANDSTREAM_CONFIG_FILE_PREFIX));
                 ps.println("  </config>");
                 ps.println("</gs_provision>");
@@ -411,8 +412,7 @@ public class Servlet extends HttpServlet {
                 LOG.info("Generated Grandstream cfg.xml.");
 
             }
-        }
-        catch(Exception e ) {
+        } catch (Exception e) {
             LOG.error("Generated Grandstream cfg.xml: ", e);
         }
     }
@@ -509,7 +509,7 @@ public class Servlet extends HttpServlet {
         return (new StringBuilder(version.substring(0, 3).concat(".X"))).toString();
     }
 
-    protected boolean doProvisionPhone(DetectedPhone phone) {
+    protected boolean doProvisionPhone(DetectedPhone phone, HttpServletResponse response) {
 
         if (null == phone) {
             return false;
@@ -543,6 +543,11 @@ public class Servlet extends HttpServlet {
                         + connection.getResponseMessage());
             }
 
+            // if this is a polycom, we want to generate its MAC.cfg now
+            if (phone.model.sipxconfig_id.startsWith("polycom")) {
+                LOG.info("Writing " + phone.mac + ".cfg");
+                writeProfileConfigurationResponse("/" + phone.mac + ".cfg", phone.mac, response);
+            }
         } catch (Exception e) {
             LOG.error("REST HTTPS POST failed:", e);
         }
@@ -592,16 +597,16 @@ public class Servlet extends HttpServlet {
                 || POLYCOM_OVERRIDES_PATH_RE.matcher(path).matches()
                 || POLYCOM_CONTACTS_PATH_RE.matcher(path).matches()
                 || POLYCOM_000000000000_CONTACTS_PATH_RE.matcher(path).matches()
-                || POLYCOM_40_PATH_RE.matcher(path).matches();
+                || POLYCOM_40_PROFILE_PATH_RE.matcher(path).matches();
     }
 
     static protected boolean isNortelIp12x0ConfigurationFilePath(String path) {
         return null != extractMac(path, NORTEL_IP_12X0_PATH_PREFIX);
     }
-    
+
     static protected boolean isGrandstreamConfigurationFilePath(String path) {
-        return GRANDSTREAM_PATH_FORMAT_RE_STR.matcher(path).matches() ||
-                GRANDSTREAM_ALT_PATH_FORMAT_RE_STR.matcher(path).matches();
+        return GRANDSTREAM_PATH_FORMAT_RE_STR.matcher(path).matches()
+                || GRANDSTREAM_ALT_PATH_FORMAT_RE_STR.matcher(path).matches();
     }
 
     // TODO: Test case (x2 phone types) when MAC is too short (should not invoke the do___Get...)
@@ -631,7 +636,7 @@ public class Servlet extends HttpServlet {
 
         // Is this a path that triggers provisioning of a phone with sipXconfig?
         DetectedPhone phone = null;
-        if (POLYCOM_SIP_PATH_RE.matcher(path).matches() || POLYCOM_40_PATH_RE.matcher(path).matches()) {
+        if (POLYCOM_SIP_PATH_RE.matcher(path).matches() || POLYCOM_40_PROV_PATH_RE.matcher(path).matches()) {
 
             // Polycom SoundPoint IP / SoundStation IP / VVX
             phone = new DetectedPhone();
@@ -653,11 +658,10 @@ public class Servlet extends HttpServlet {
                 writeUiForwardResponse(request, response);
                 return;
             }
-        }
-        else if (isGrandstreamConfigurationFilePath(path)) {
+        } else if (isGrandstreamConfigurationFilePath(path)) {
             // Grandstream
             phone = new DetectedPhone();
-            
+
             // MAC, Model, & Version
             if (path.length() == GRANDSTREAM_PATH_PREFIX.length() + 12) {
                 phone.mac = extractMac(path, GRANDSTREAM_PATH_PREFIX);
@@ -668,8 +672,7 @@ public class Servlet extends HttpServlet {
                 writeUiForwardResponse(request, response);
                 return;
             }
-        }
-        else if (path.startsWith("/debug") && m_config.isDebugOn()) {
+        } else if (path.startsWith("/debug") && m_config.isDebugOn()) {
             // Debugging.
             writeDebuggingResponse(request, response);
             return;
@@ -689,7 +692,7 @@ public class Servlet extends HttpServlet {
         // Provision the phone with sipXconfig. (If it wasn't a provision trigger path, then phone
         // will
         // be null, which fails cleanly.)
-        doProvisionPhone(phone);
+        doProvisionPhone(phone, response);
 
         // Return the appropriate actual profile content.
         response.setContentType("application/text");
@@ -716,15 +719,13 @@ public class Servlet extends HttpServlet {
             }
 
             writeProfileConfigurationResponse(path, extractMac(path, NORTEL_IP_12X0_PATH_PREFIX), response);
-        }
-        else if (isGrandstreamConfigurationFilePath(path)) {
+        } else if (isGrandstreamConfigurationFilePath(path)) {
             if (path.length() == GRANDSTREAM_PATH_PREFIX.length() + 12) {
                 writeProfileConfigurationResponse(path, extractMac(path, GRANDSTREAM_PATH_PREFIX), response);
             } else {
                 writeProfileConfigurationResponse(path, extractMac(path, GRANDSTREAM_ALT_PATH_PREFIX), response);
             }
-        }
-        else {
+        } else {
 
             // Unknown configuration file path. (Wouldn't know how to extract a MAC from the
             // path.)
@@ -768,12 +769,10 @@ public class Servlet extends HttpServlet {
     }
 
     protected static boolean extractGrandstreamModelAndVersion(DetectedPhone phone, String useragent) {
-        if (null == useragent ||
-            null == phone ||
-            !GRANDSTREAM_UA_RE.matcher(useragent).matches() ) {
-                return false;
+        if (null == useragent || null == phone || !GRANDSTREAM_UA_RE.matcher(useragent).matches()) {
+            return false;
         }
-        
+
         // Model
         String[] gs_ua_split = useragent.split(" ");
         // Model number is always 4th in the UA string
@@ -782,8 +781,8 @@ public class Servlet extends HttpServlet {
         if (null == phone.model) {
             return false;
         }
-        
-        //Version
+
+        // Version
         for (int i = 0; i < gs_ua_split.length; i++) {
             if (gs_ua_split[i].equals("SW")) {
                 // Phone software version always follows SW in UA string
@@ -792,7 +791,7 @@ public class Servlet extends HttpServlet {
         }
         return true;
     }
-    
+
     protected static boolean extractPolycomModelAndVersion(DetectedPhone phone, String useragent) {
 
         if (null == useragent || null == phone
@@ -954,61 +953,61 @@ public class Servlet extends HttpServlet {
         PHONE_MODEL_MAP.put("VVX_310", new PhoneModel("polycomVVX310", "Polycom VVX 310"));
         PHONE_MODEL_MAP.put("VVX_400", new PhoneModel("polycomVVX400", "Polycom VVX 400"));
         PHONE_MODEL_MAP.put("VVX_410", new PhoneModel("polycomVVX410", "Polycom VVX 410"));
-        
+
         // Nortel IP 12x0, see:
         // -
         // plugins/nortel12x0/src/org/sipfoundry/sipxconfig/phone/nortel12x0/nortel12x0-models.beans.xml
         PHONE_MODEL_MAP.put("1210", new PhoneModel("avaya-1210", "Avaya 1210 IP Deskphone"));
         PHONE_MODEL_MAP.put("1220", new PhoneModel("avaya-1220", "Avaya 1220 IP Deskphone"));
         PHONE_MODEL_MAP.put("1230", new PhoneModel("avaya-1230", "Avaya 1230 IP Deskphone"));
-        
+
         // Grandstream model map
         PHONE_MODEL_MAP.put("GXV3175v2", new PhoneModel("gsPhoneGxv3175", "Grandstream GXV3175"));
         PHONE_MODEL_MAP.put("GXV3175", new PhoneModel("gsPhoneGxv3175", "Grandstream GXV3175"));
-        
+
         PHONE_MODEL_MAP.put("GXV3140", new PhoneModel("gsPhoneGxv3140", "Grandstream GXV3140"));
-        
+
         PHONE_MODEL_MAP.put("GXV3000", new PhoneModel("gsPhoneGxv3000", "Grandstream GXV3000/3005/3006"));
-        
+
         PHONE_MODEL_MAP.put("GXV3005", new PhoneModel("gsPhoneGxv3000", "Grandstream GXV3000/3005/3006"));
-        
+
         PHONE_MODEL_MAP.put("GXV3006", new PhoneModel("gsPhoneGxv3000", "Grandstream GXV3000/3005/3006"));
-        
+
         PHONE_MODEL_MAP.put("GXP2200", new PhoneModel("gsPhoneGxp2200", "Grandstream GXP2200"));
-        
+
         PHONE_MODEL_MAP.put("GXP2124", new PhoneModel("gsPhoneGxp2124", "Grandstream GXP2124"));
-        
+
         PHONE_MODEL_MAP.put("GXP2100", new PhoneModel("gsPhoneGxp2100", "Grandstream GXP2100"));
-        
+
         PHONE_MODEL_MAP.put("GXP2120", new PhoneModel("gsPhoneGxp2020", "Grandstream GXP2020/2120"));
         PHONE_MODEL_MAP.put("GXP2020", new PhoneModel("gsPhoneGxp2020", "Grandstream GXP2020/2120"));
-        
+
         PHONE_MODEL_MAP.put("GXP2010", new PhoneModel("gsPhoneGxp2010", "Grandstream GXP2010/2110"));
         PHONE_MODEL_MAP.put("GXP2110", new PhoneModel("gsPhoneGxp2010", "Grandstream GXP2010/2110"));
-        
+
         PHONE_MODEL_MAP.put("GXP2000", new PhoneModel("gsPhoneGxp2000", "Grandstream GXP2000"));
-        
+
         PHONE_MODEL_MAP.put("GXP1450", new PhoneModel("gsPhoneGxp1450", "Grandstream GXP1450"));
-        
+
         PHONE_MODEL_MAP.put("GXP1400", new PhoneModel("gsPhoneGxp1400", "Grandstream GXP1400/1405"));
         PHONE_MODEL_MAP.put("GXP1405", new PhoneModel("gsPhoneGxp1400", "Grandstream GXP1400/1405"));
-        
+
         PHONE_MODEL_MAP.put("GXP1200", new PhoneModel("gsPhoneGxp1200", "Grandstream GXP1200"));
-        
+
         PHONE_MODEL_MAP.put("GXP1160", new PhoneModel("gsPhoneGxp1160", "Grandstream GXP1160/1165"));
         PHONE_MODEL_MAP.put("GXP1165", new PhoneModel("gsPhoneGxp1160", "Grandstream GXP1160/1165"));
-        
+
         PHONE_MODEL_MAP.put("GXP1100", new PhoneModel("gsPhoneGxp1100", "Grandstream GXP1100/1105"));
         PHONE_MODEL_MAP.put("GXP1105", new PhoneModel("gsPhoneGxp1105", "Grandstream GXP1100/1105"));
-        
+
         PHONE_MODEL_MAP.put("GXP280", new PhoneModel("gsPhoneGxp280", "Grandstream GXP280/285"));
         PHONE_MODEL_MAP.put("GXP285", new PhoneModel("gsPhoneGxp280", "Grandstream GXP280/285"));
-        
+
         PHONE_MODEL_MAP.put("HT502", new PhoneModel("gsHt502", "Grandstream HandyTone 502"));
         PHONE_MODEL_MAP.put("HT701", new PhoneModel("gsHt701", "Grandstream HandyTone 701"));
         PHONE_MODEL_MAP.put("HT702", new PhoneModel("gsHt702", "Grandstream HandyTone 702"));
         PHONE_MODEL_MAP.put("HT704", new PhoneModel("gsHt704", "Grandstream HandyTone 704"));
-        
+
         PHONE_MODEL_MAP.put("GXW4004", new PhoneModel("gsFxsGxw4004", "Grandstream GXW4004"));
         PHONE_MODEL_MAP.put("GXW4008", new PhoneModel("gsFxsGxw4008", "Grandstream GXW4008"));
         PHONE_MODEL_MAP.put("GXW4024", new PhoneModel("gsFxsGxw4024", "Grandstream GXW4024"));
