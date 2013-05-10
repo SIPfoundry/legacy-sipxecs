@@ -252,12 +252,15 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         getHibernateTemplate().flush();
     }
 
+    public final class DefaultExtensionException extends UserException {
+    }
+
     /**
      * For setup phase when there is no user to pick another extension, we cannot
      * afford to fail.  This method picks an invalid extension, but at least one that
      * will allow setup to proceed.  Admin can fix later.
      */
-    void saveExtentionWithWorkaroundIfInUse(OpenAcdExtension extension, FreeswitchCondition condition) {
+    protected void saveExtentionWithWorkaroundIfInUse(OpenAcdExtension extension, FreeswitchCondition condition) {
         int typesOfExceptions = 3;
         for (int i = 0; i < typesOfExceptions; i++) {
             try {
@@ -286,6 +289,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         }
     }
 
+    @Override
     public void saveExtension(OpenAcdExtension extension) {
         if (extension.getName() == null) {
             throw new UserException("&null.name");

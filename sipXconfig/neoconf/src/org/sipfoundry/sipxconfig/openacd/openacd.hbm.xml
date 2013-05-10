@@ -194,6 +194,8 @@
   </subclass>
 
   <subclass name="OpenAcdLine" extends="org.sipfoundry.sipxconfig.openacd.OpenAcdExtension" discriminator-value="L">
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
   </subclass>
 
   <subclass name="OpenAcdCommand" extends="org.sipfoundry.sipxconfig.openacd.OpenAcdExtension" discriminator-value="C">

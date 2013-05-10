@@ -41,7 +41,6 @@ sipx_core = \
 # sipxecs projects that are NOT essential for a running communication system
 sipx_extra = \
   sipXacccode \
-  sipXopenacd \
   sipXviewer \
   sipXimbot \
   sipXexample \
@@ -106,9 +105,13 @@ lib_all = \
   hiredis \
   net-snmp \
   homer \
-  OpenACD \
   openfire \
   erlmongo \
+  erlang-ejrpc2 \
+  erlang-ej \
+  erlang-cowboy \
+  erlang-gen_server_mock \
+  erlang-mimetypes \
   ruby-dbi \
   cfengine \
   oss_core \
@@ -121,7 +124,8 @@ lib_all = \
   sec \
   js \
   v8 \
-  mongodb
+  mongodb \
+  erlang
 
 lib_exclude_centos_6 = \
   mongodb \
@@ -129,6 +133,7 @@ lib_exclude_centos_6 = \
 
 lib_exclude_fedora_16 = \
   epel-release \
+  erlang \
   rrdtool \
   nsis \
   nsis-data \
@@ -143,19 +148,30 @@ lib_exclude_fedora_17 = \
   v8 \
   mongodb
 
-# ruby-postgres broken, but should be replaced with ruby-pg on
-# all distros
-$(foreach V,18 19 20 21 21 23,\
-  $(eval lib_exclude_fedora_$(V) = $(lib_exclude_fedora_17)))
+lib_exclude_fedora_18 = $(lib_exclude_fedora_17)
+lib_exclude_fedora_19 = $(lib_exclude_fedora_18)
+lib_exclude_fedora_20 = $(lib_exclude_fedora_19)
+lib_exclude_fedora_21 = $(lib_exclude_fedora_20)
+lib_exclude_fedora_22 = $(lib_exclude_fedora_21)
+lib_exclude_fedora_23 = $(lib_exclude_fedora_22)
 
 lib = $(filter-out $(lib_exclude_$(DISTRO_OS)_$(DISTRO_VER)),$(lib_all))
 
 # sort removes dups and should speed maketime
 deps = $(filter-out $(lib_exclude_$(DISTRO_OS)_$(DISTRO_VER)),$(sort $(1) $(foreach D,$(1)_DEPS,$($(D)))))
 
+# lib deps
 mongodb_DEPS = $(call deps,js)
 oss_core_DEPS = $(call deps,v8)
 rubygem-net-sftp_DEPS = $(call deps,rubygem-net-ssh)
+gen_server_mock_DEPS = $(call deps,erlang)
+erlmongo_DEPS = $(call deps,erlang)
+erlang-ej_DEPS = $(call deps,erlang)
+erlang-cowboy_DEPS = $(call deps,erlang)
+erlang-mimetypes_DEPS = $(call deps,erlang)
+erlang-ejrpc2_DEPS = $(call deps,erlang-ej)
+
+#sipx deps
 sipXportLib_DEPS = $(call deps,epel-release)
 sipXtackLib_DEPS = $(call deps,sipXportLib)
 sipXmediaLib_DEPS = $(call deps,sipXtackLib)
@@ -178,7 +194,6 @@ sipXcdr_DEPS = $(call deps,ruby-dbi ruby-postgres sipXcommserverLib)
 sipXacdStatistics_DEPS = $(call deps,ruby-dbi ruby-postgres sipXcommons)
 sipXconfig_DEPS = $(call deps,sipXcommons sipXsupervisor sipXacdStatistics sipXcdr sipXpostgres sipXcommserverLib sipXhttpd sipXmongo)
 sipXopenfire_DEPS = $(call deps,openfire sipXconfig)
-sipXopenacd_DEPS = $(call deps,erlmongo OpenACD sipXconfig)
 sipXcounterpath_DEPS = $(call deps,sipXconfig)
 sipXaudiocodes_DEPS = $(call deps,sipXconfig)
 sipXprompts_DEPS = $(call deps,sipXsupervisor)

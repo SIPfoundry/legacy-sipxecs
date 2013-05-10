@@ -1,0 +1,25 @@
+From 93a2b476cd27747ba4895e5d668eaf65b548b33a Mon Sep 17 00:00:00 2001
+From: Jan Vincent Liwanag <jvliwanag@gmail.com>
+Date: Tue, 19 Feb 2013 17:04:35 +0800
+Subject: [PATCH] Using {vsn, git} prevents building from tarball
+
+---
+ src/ej.app.src | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/ej.app.src b/src/ej.app.src
+index f458494..07f2a93 100644
+--- a/src/ej.app.src
++++ b/src/ej.app.src
+@@ -1,7 +1,7 @@
+ {application, ej,
+  [
+   {description, "An Erlang JSON Helper Library"},
+-  {vsn, git},
++  {vsn, "0.0.2"},
+   {registered, []},
+   {applications, [
+                   kernel,
+-- 
+1.8.1.3
+

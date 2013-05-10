@@ -64,3 +64,18 @@
 [submodule "openfire"]
 	path = openfire
 	url = git://github.com/dhubler/openfire.git
+[submodule "oacd_freeswitch"]
+	path = oacd_freeswitch
+	url = git@github.com:sipxopenacd/oacd_freeswitch
+[submodule "oacd_dialplan"]
+	path = oacd_dialplan
+	url = git@github.com:sipxopenacd/oacd_dialplan
+[submodule "oacd_web"]
+	path = oacd_web
+	url = git@github.com:sipxopenacd/oacd_web
+[submodule "sipxopenacd"]
+	path = sipxopenacd
+	url = git@github.com:sipxopenacd/sipxplugin
+[submodule "openacd"]
+	path = openacd
+	url = git@github.com:sipxopenacd/openacd.git

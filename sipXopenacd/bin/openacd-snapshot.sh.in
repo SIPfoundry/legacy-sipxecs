@@ -1,8 +1,0 @@
-#!/bin/sh
-cd $1
-mkdir -p .@OPENACD_LOGDIR@
-cp -r @OPENACD_LOGDIR@/*.log .@OPENACD_LOGDIR@/
-mkdir -p .@OPENACD_DBDIR@
-cp -r @OPENACD_DBDIR@/* .@OPENACD_DBDIR@/
-mkdir -p .@OPENACD_CONFDIR@
-cp -r @OPENACD_CONFDIR@/* .@OPENACD_CONFDIR@/
