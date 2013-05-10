@@ -18,6 +18,8 @@ public interface NatTraversal {
     public static final AddressType RELAY_RTP = new AddressType("natRtp", "rtp:%s:%d", 30000,
             AddressType.Protocol.udp);
 
+    public static final AddressType RELAY_RPC = new AddressType("natRpc", 9090);
+
     public NatSettings getSettings();
 
     public void saveSettings(NatSettings settings);

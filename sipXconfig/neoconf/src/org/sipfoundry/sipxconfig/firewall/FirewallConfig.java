@@ -97,16 +97,18 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
             List<CustomFirewallRule> custom = m_firewallManager.getCustomRules(location, configRequest);
             Writer config = new FileWriter(new File(dir, "firewall.yaml"));
             try {
-                writeIptables(config, whiteList, blackList, settings, rateRules, rules, custom,
-                        groups, locations, location);
+                writeIptables(config, whiteList, blackList, settings, rateRules, rules, custom, groups, locations,
+                        location);
             } finally {
                 IOUtils.closeQuietly(config);
             }
         }
     }
 
+    // @formatter:off
     static void writeCfdat(Writer w, boolean enabled, Setting sysSettings, Collection<String> mods)
-            throws IOException {
+        throws IOException {
+        // @formatter:on
         CfengineModuleConfiguration cfg = new CfengineModuleConfiguration(w);
         cfg.writeClass("firewall", enabled);
         cfg.writeSettings("firewall_", sysSettings);
@@ -120,8 +122,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
 
     void writeIptables(Writer w, Set<String> whiteList, Set<String> blackList, FirewallSettings settings,
             List<CallRateRule> rateRules, List<FirewallRule> rules, List<CustomFirewallRule> custom,
-            List<ServerGroup> groups, List<Location> cluster, Location thisLocation)
-        throws IOException {
+            List<ServerGroup> groups, List<Location> cluster, Location thisLocation) throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
 
         Collection< ? > ips = CollectionUtils.collect(cluster, Location.GET_ADDRESS);
