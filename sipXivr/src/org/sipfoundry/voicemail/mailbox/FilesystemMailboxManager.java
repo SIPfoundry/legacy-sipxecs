@@ -616,7 +616,7 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
         Arrays.sort(files, new Comparator<File>() {
             @Override
             public int compare(File f1, File f2) {
-                return Long.valueOf(f2.lastModified()).compareTo(f1.lastModified());
+                return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
             }
         });
         List<String> messageList = new LinkedList<String>();
@@ -649,7 +649,7 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
     private static class FileDateComparator implements Comparator<File> {
         @Override
         public int compare(File file1, File file2) {
-            long result = file2.lastModified() - file1.lastModified();
+            long result = file1.lastModified() - file2.lastModified();
             if (result < 0) {
                 return -1;
             } else if (result > 0) {
