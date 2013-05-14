@@ -64,6 +64,10 @@
        #set ($setting=$cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('specialEvent').getSetting('lineSeize.nonStandard'))
         voIpProt.SIP.specialEvent.lineSeize.nonStandard="$!{setting.Value}"
       />
+       <voIpProt.SIP.specialEvent.checkSync
+       #set ($setting=$cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('specialEvent').getSetting('checkSync.alwaysReboot'))
+        voIpProt.SIP.specialEvent.checkSync.alwaysReboot="$!{setting.Value}"
+      />
       </voIpProt.SIP.specialEvent>
       <voIpProt.SIP.conference
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('conference'))
