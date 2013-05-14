@@ -4,18 +4,17 @@
     <strong><span key="label.model">Model</span>:</strong>&nbsp;
     <span jwcid="@Insert" value="ognl:phone.model.label"/>
   </p>
-  <form jwcid="@Form">
-    <p jwcid="@If" condition="ognl:phoneModel.versions.length > 0">
-      <strong><span key="label.firmware">Firmware Version</span>:</strong>&nbsp;
-      <span jwcid="selectVersion@PropertySelection"
-        model="bean:versions"
-        value="ognl:deviceVersion"
-        displayName="message:label.firmware"
-        onchange="literal:javascript:this.form.submit();" />
-    </p>
-  </form>
   <div jwcid="@common/LeftNavigation">
+       <ul class="htabs">
+            <span jwcid="@common/Tab" isActive="ognl:fwverTabActive">
+            <a jwcid="fwverLink@DirectLink" listener="listener:editFirmwareVersion">
+              <span key="link.fwver">aaaaa</span>
+            </a>
+          </span>
+       </ul>
     <strong><span key="label.phones">Phones</span></strong>
+  	
+  	
     <span jwcid="@setting/SettingsNavigation" bean="ognl:phone" activeSetting="ognl:phoneActiveSetting"
       editSettingsListener="listener:editPhoneSettingsClicked">
     </span>
@@ -24,7 +23,30 @@
     <span jwcid="@setting/SettingsNavigation" bean="ognl:line" activeSetting="ognl:lineActiveSetting"
       editSettingsListener="listener:editLineSettingsClicked">
     </span>
+
   </div>
+    <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <span jwcid="@RenderBlock" block="ognl:displayFwverTab" />
+  </div>
+    <span jwcid="fwverTab@Block" >
+		<span jwcid="@common/QuickHelp" value="message:quick.help.profile.version"/>
+		  <form jwcid="@Form">
+		    <p jwcid="@If" condition="ognl:phoneModel.versions.length > 0">
+		    <fieldset>
+  			  <table>
+  			      <tr jwcid="@common/FieldPanel" for=selectVersion field="component:selectVersion"
+        			label="message:label.selectVersion"
+        			description="message:description.selectVersion">
+      				<span jwcid="selectVersion@PropertySelection"
+				        model="bean:versions"
+				        value="ognl:deviceVersion"
+				        displayName="message:label.firmware"
+				        onchange="literal:javascript:this.form.submit();" />
+    				</tr> 
+		    </p>
+		  </form>
+	 </span>
 
   <p><span jwcid="@Insert" value="ognl:editFormSettingDescription"/></p>
   <span jwcid="@setting/SettingsForm"
