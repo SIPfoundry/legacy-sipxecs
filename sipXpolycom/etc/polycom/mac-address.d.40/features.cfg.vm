@@ -65,9 +65,11 @@
 #foreach ($setting in $cfg.getSettings($group))
     feature.${setting.ProfileName}.enabled="$!{setting.Value}" 
 #end
-#set ($calendar = $cfg.EndpointSettings.getSetting('calendar/feature.exchangeCalendar.enabled'))
-#if($calendar)
+#if ($phone.model.isSupported("exchangeIntegration"))
+ #set ($calendar = $cfg.EndpointSettings.getSetting('calendar/feature.exchangeCalendar.enabled'))
+ #if($calendar)
     feature.exchangeCalendar.enabled="$!{calendar.Value}"
+ #end
 #end
   />
   <attendant

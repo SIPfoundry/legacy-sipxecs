@@ -25,6 +25,9 @@
           displayName="message:faxNumber"
           maxlength="255"/>
       </tr>
+      <tr jwcid="@common/FieldPanel" for="timeZone" field="component:timeZone" label="message:timeZone">
+         <span jwcid="timeZone@PropertySelection" model="ognl:timezoneTypeModel" value="ognl:branch.timeZone"/>
+      </tr>
     </div>
     <span jwcid="@common/FormActions"
       listener="listener:apply"

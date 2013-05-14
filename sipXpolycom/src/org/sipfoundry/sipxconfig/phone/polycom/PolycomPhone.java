@@ -107,6 +107,11 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
     private BeanFactory m_beanFactory;
     private CertificateManager m_certificateManager;
 
+    @Override
+    public void setModel(PhoneModel model) {
+        super.setModel(model);
+        setDeviceVersion(((PolycomModel) model).getDefaultVersion());
+    }
     public void setCertificateManager(CertificateManager certificateManager) {
         m_certificateManager = certificateManager;
     }

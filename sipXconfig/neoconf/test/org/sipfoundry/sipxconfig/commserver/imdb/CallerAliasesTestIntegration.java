@@ -62,15 +62,14 @@ public class CallerAliasesTestIntegration extends ImdbTestCase {
         ref.put(MongoConstants.ANONYMOUS, gcai.isAnonymous());
         assertObjectPresent(getEntityCollection(), ref);
         
-        User user = new User();
+        User user = getCoreContext().newUser();
         user.setUniqueId(1);
-        user.setPermissionManager(getPermissionManager());
         user.setSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER, "userCID");
         
         getReplicationManager().replicateEntity(user, DataSet.CALLER_ALIAS);
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.CALLERALIAS, "sip:userCID@example.org");
 
-        User userWithoutClrid = new User();
+        User userWithoutClrid = getCoreContext().newUser();
         userWithoutClrid.setUniqueId(1);
         userWithoutClrid.setPermissionManager(getPermissionManager());
         

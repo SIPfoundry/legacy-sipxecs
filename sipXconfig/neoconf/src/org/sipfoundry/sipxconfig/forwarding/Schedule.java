@@ -71,7 +71,7 @@ public abstract class Schedule extends BeanWithId {
 
     public String calculateValidTime() {
         WorkingTime workingTime = getWorkingTime();
-        TimeZone timeZone = TimeZone.getDefault();
+        TimeZone timeZone = (m_user != null) ? m_user.getTimezone() : TimeZone.getDefault();
         List<Interval> intervals = workingTime.calculateValidTime(timeZone);
         List<String> validTimeStr = new ArrayList<String>(intervals.size());
         for (Interval time : intervals) {

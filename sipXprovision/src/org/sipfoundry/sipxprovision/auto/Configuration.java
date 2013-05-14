@@ -25,6 +25,7 @@ import org.sipfoundry.commons.util.Hostname;
 public class Configuration {
 
     private static final String DEFAULT_STRING = "unknown";
+    private static final String POLYCOM_DEFAULT_VERSION = "3.2.X";
 
     protected static final String SUPERADMIN_USERNAME = "superadmin";
 
@@ -45,6 +46,8 @@ public class Configuration {
     private String m_ProvisionSipPassword = DEFAULT_STRING;
 
     private String m_ConfigurationUri = DEFAULT_STRING;
+    
+    private String m_PolycomDefaultVersion = POLYCOM_DEFAULT_VERSION;
 
     private static final String DEBUG_BY_DEFAULT = "false";
 
@@ -69,7 +72,8 @@ public class Configuration {
             m_useSecure = (new Boolean(prov_config.getProperty("provision.servlet.useSecure", "false"))).booleanValue();
             m_ProvisionSipUsername = prov_config.getProperty("provision.username", DEFAULT_STRING);
             m_ProvisionSipPassword = prov_config.getProperty("provision.password", DEFAULT_STRING);
-            m_ConfigurationUri  = prov_config.getProperty("provision.configUrl", DEFAULT_STRING);
+            m_ConfigurationUri = prov_config.getProperty("provision.configUrl", DEFAULT_STRING);
+            m_PolycomDefaultVersion =  prov_config.getProperty("polycom.default", POLYCOM_DEFAULT_VERSION);
         }
     }
 
@@ -148,6 +152,10 @@ public class Configuration {
         return m_ProvisionSipPassword;
     }
 
+    public String getPolycomDefaultVersion() {
+        return m_PolycomDefaultVersion;
+    }
+    
     public long getQueueDebugPostProvisionSleepTime() {
         return isDebugOn() ? 50 : 0;
     }

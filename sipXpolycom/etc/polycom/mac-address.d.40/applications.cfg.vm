@@ -24,6 +24,7 @@
 #end
     />
   </mb>
+#if ($phone.model.isSupported("desktopIntegration"))
 <apps>
 #set ($apps = $cfg.EndpointSettings.getSetting('apps'))
 #if ($apps)
@@ -34,11 +35,14 @@
   />
 #end
 </apps>
+#end
+#if ($phone.model.isSupported("exchangeIntegration"))
 #set ($calendar = $cfg.EndpointSettings.getSetting('calendar/exchange'))
 #if($calendar)
   <exchange>
     <exchange.meeting exchange.meeting.phonePattern="$!calendar.getSetting('meeting.phonePattern').Value" exchange.meeting.reminderEnabled="$!calendar.getSetting('meeting.reminderEnabled').Value" />
     <exchange.server exchange.server.url="$!calendar.getSetting('server.url').Value" />
   </exchange>
+#end
 #end
 </polycomConfig>

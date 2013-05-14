@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.site.phone;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
@@ -35,6 +36,8 @@ import org.sipfoundry.sipxconfig.setting.SettingUtil;
 public abstract class EditPhoneDefaults extends SipxBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "phone/EditPhoneDefaults";
+
+    private static final int FW_TAB = -1;
 
     private static final int PHONE_SETTINGS = 0;
 
@@ -163,7 +166,7 @@ public abstract class EditPhoneDefaults extends SipxBasePage implements PageBegi
 
         String editSettingsName = getEditFormSettingName();
         if (editSettingsName == null) {
-            setResourceId(PHONE_SETTINGS);
+            setResourceId(-1);
             Iterator nav = getPhoneNavigationSettings().iterator();
             setEditFormSettingName(((Setting) nav.next()).getName());
         }
@@ -176,7 +179,9 @@ public abstract class EditPhoneDefaults extends SipxBasePage implements PageBegi
      */
     private void editSettings() {
         BeanWithSettings bean;
-        if (getResourceId() == PHONE_SETTINGS) {
+        if (getResourceId() == FW_TAB) {
+            return;
+        } else if (getResourceId() == PHONE_SETTINGS) {
             bean = getPhone();
         } else {
             bean = getLine();
@@ -201,10 +206,16 @@ public abstract class EditPhoneDefaults extends SipxBasePage implements PageBegi
     }
 
     public String getEditFormSettingDescription() {
+        if (getEditFormSetting() == null) {
+            return null;
+        }
         return LocalizationUtils.getSettingDescription(this, getEditFormSetting());
     }
 
     public String getCurrentNavigationSettingLabel() {
+        if (getEditFormSetting() == null) {
+            return null;
+        }
         return LocalizationUtils.getSettingLabel(this, getCurrentNavigationSetting());
     }
 
@@ -219,5 +230,18 @@ public abstract class EditPhoneDefaults extends SipxBasePage implements PageBegi
     @Override
     public String getBorderTitle() {
         return getPhoneModel().getLabel();
+    }
+
+    public void editFirmwareVersion() {
+        setEditFormSetting(null);
+        setResourceId(FW_TAB);
+    }
+
+    public IComponent getDisplayFwverTab() {
+        if (getResourceId() == FW_TAB) {
+            return (IComponent) getComponents().get("fwverTab");
+        } else {
+            return null;
+        }
     }
 }

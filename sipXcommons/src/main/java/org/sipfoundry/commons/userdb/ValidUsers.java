@@ -544,6 +544,7 @@ public class ValidUsers {
         user.setPasstoken(getStringValue(obj, HASHED_PASSTOKEN));
         user.setPintoken(getStringValue(obj, PINTOKEN));
         user.setVoicemailPintoken(getStringValue(obj, VOICEMAIL_PINTOKEN));
+        user.setTimeZone(getStringValue(obj, TIMEZONE));
 
         BasicDBList permissions = (BasicDBList) obj.get(PERMISSIONS);
         if (permissions != null) {

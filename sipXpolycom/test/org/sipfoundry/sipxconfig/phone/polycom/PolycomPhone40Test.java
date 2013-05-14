@@ -143,7 +143,7 @@ public class PolycomPhone40Test extends TestCase {
         assertEquals("sipfoundry.org", address.getValue());
         
         Setting missedCallTracking = settings.getSetting("call/missedCallTracking/enabled");
-        assertFalse((Boolean)missedCallTracking.getTypedValue());
+        assertTrue((Boolean)missedCallTracking.getTypedValue());
     }
 
     public void testLineDefaultsNoUser() throws Exception {

@@ -89,7 +89,8 @@ neoconf_PKGS = \
 	velocity-tools-generic \
 	xercesImpl \
 	xmlrpc \
-	xstream
+	xstream \
+	joda-time
 
 war_ROOT = $(abspath $(top_builddir)/web/out)
 web_JAVAROOT = $(abspath $(top_builddir)/web/classes)

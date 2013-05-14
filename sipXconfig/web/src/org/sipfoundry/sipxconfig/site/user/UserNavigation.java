@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.site.admin.time.EditTimeZonePage;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
 import org.sipfoundry.sipxconfig.site.moh.MusicOnHoldPage;
 import org.sipfoundry.sipxconfig.site.speeddial.SpeedDialPage;
@@ -84,6 +85,9 @@ public abstract class UserNavigation extends BeanNavigation {
 
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
+
+    @InjectPage(value = EditTimeZonePage.PAGE)
+    public abstract EditTimeZonePage getEditTimeZonePage();
 
     public IPage editCallForwarding(Integer userId) {
         UserCallForwarding page = getUserCallForwardingPage();
@@ -169,12 +173,20 @@ public abstract class UserNavigation extends BeanNavigation {
         return page;
     }
 
+    public IPage editTimeZone(Integer userId) {
+        EditTimeZonePage page = getEditTimeZonePage();
+        page.setUserId(userId);
+        page.setReturnPage(EditTimeZonePage.PAGE);
+        return page;
+    }
+
     public String getGroupsToHide() {
         List<String> names = new LinkedList<String>();
         names.add("voicemail");
         names.add(PERSONAL_ATTENDANT);
         names.add("callfwd");
         names.add("moh");
+        names.add("timezone");
         if (!getFeatureManager().isFeatureEnabled(ImBot.FEATURE)) {
             names.add("im_notification");
         }
@@ -227,6 +239,10 @@ public abstract class UserNavigation extends BeanNavigation {
 
     public boolean isMusicOnHoldTabActive() {
         return MusicOnHoldPage.PAGE.equals(getPage().getPageName());
+    }
+
+    public boolean isTimeZoneTabActive() {
+        return EditTimeZonePage.PAGE.equals(getPage().getPageName());
     }
 
     public Collection<Setting> getNavigationGroups() {

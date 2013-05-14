@@ -17,11 +17,14 @@ import java.util.Locale;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDateTime;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.freeswitch.TextToPrompts;
 import org.sipfoundry.commons.userdb.PersonalAttendant;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.TimeZoneUtils;
 import org.sipfoundry.sipxivr.common.DialByNameChoice;
 import org.sipfoundry.sipxivr.common.IvrChoice;
 import org.sipfoundry.sipxivr.common.IvrChoice.IvrChoiceReason;
@@ -454,9 +457,11 @@ public class Retrieve extends AbstractVmAction {
      */
     PromptList messageInfo(MessageDescriptor md) {
         DateFormat ttsDateFormat = TextToPrompts.ttsDateFormat();
-
+        
         Calendar rxCal = Calendar.getInstance();
-        rxCal.setTime(md.getTimeStampDate());
+        
+        rxCal.setTime(TimeZoneUtils.convertJodaTimezone(new LocalDateTime(md.getTimeStampDate()), DateTimeZone
+                .getDefault().getID(), getCurrentUser().getTimeZone()));
         Calendar nowCal = Calendar.getInstance();
 
         long daysInrxYear = rxCal.getMaximum(Calendar.DAY_OF_YEAR);

@@ -603,3 +603,49 @@
             <option><value>4.1.X</value></option>
           </enum>
 </type>
+<type id="ringtones">
+  <enum>
+    <option>
+      <value>Silent</value>
+    </option>
+    <option>
+      <value>Low Trill</value>
+    </option>
+    <option>
+      <value>Low Double Trill</value>
+    </option>
+    <option>
+      <value>Medium Trill</value>
+    </option>
+    <option>
+      <value>Medium Double Trill</value>
+    </option>
+    <option>
+      <value>High Trill</value>
+    </option>
+    <option>
+      <value>High Double Trill</value>
+    </option>
+    <option>
+      <value>Highest Trill</value>
+    </option>
+    <option>
+      <value>Highest Double Trill</value>
+    </option>
+    <option>
+      <value>Beeble</value>
+    </option>
+    <option>
+      <value>Triplet</value>
+    </option>
+    <option>
+      <value>Ringback-style</value>
+    </option>
+    <option>
+      <value>Low Trill Precedence</value>
+    </option>
+    <option>
+      <value>Ring Splash</value>
+    </option>
+  </enum>
+</type>

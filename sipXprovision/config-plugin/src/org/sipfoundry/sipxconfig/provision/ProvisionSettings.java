@@ -33,6 +33,7 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class ProvisionSettings extends PersistableSettings implements DeployConfigOnEdit {
     private static final String ADMIN_URL = "provision-config/provision.configUrl";
+    private static final String POLY = "provision-config/polycom.default";
     private CoreContext m_coreContext;
     private AddressManager m_addressManager;
     private User m_user;
@@ -55,6 +56,11 @@ public class ProvisionSettings extends PersistableSettings implements DeployConf
         public String getConfigUrl() {
             return getAdminAddress().toString();
         }
+        
+        @SettingEntry(path = POLY)
+        public String getPolycomDefaultVersion() {
+            return "4.0.X";
+        }
     }
 
     @Override
@@ -70,6 +76,10 @@ public class ProvisionSettings extends PersistableSettings implements DeployConf
         return (Integer) getSettingTypedValue("provision-config/provision.servlet.securePort");
     }
 
+    public String getPolycomDefaultVersion() {
+        return getSettingValue(POLY);
+    }
+    
     private Address getAdminAddress() {
         if (m_adminAddress == null) {
             m_adminAddress = m_addressManager.getSingleAddress(AdminContext.HTTP_ADDRESS);

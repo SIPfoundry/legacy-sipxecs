@@ -1,0 +1,14 @@
+<form jwcid="changeTimeZone@Form" delegate="bean:validator">
+	<span jwcid="renderBranch@If" condition="ognl:renderBranchOption" renderTag="false">
+      <fieldset jwcid="tz@setting/SettingsFieldset"
+	        settings="ognl:editedUser.getSettings().getSetting('timezone/useBranchTimezone')" onchange="javascript:this.form.submit();"/>
+	</span>
+  <span jwcid="renderTz@If" condition="ognl:renderTimeZoneDropdown" renderTag="false">
+	  <span jwcid="@common/FieldPanel"
+	    field="component:type"
+	    label="message:timeSettings.newTimezone">
+	    <span jwcid="type@PropertySelection" model="ognl:timezoneTypeModel" value="ognl:timezoneType"/>
+	  </span>
+  </span>
+  <div jwcid="submitTimezone@Submit" value="message:button.apply" listener="listener:onApply" />
+</form>

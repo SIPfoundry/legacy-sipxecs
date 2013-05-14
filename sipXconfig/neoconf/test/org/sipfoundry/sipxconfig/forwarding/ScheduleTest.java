@@ -16,7 +16,11 @@ import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
+import org.easymock.classextension.EasyMock;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.sipfoundry.sipxconfig.common.ScheduledDay;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
 
@@ -24,7 +28,12 @@ public class ScheduleTest extends TestCase {
     private static final String COLON = ":";
 
     public void testCalculateValidTime() {
+        User user = EasyMock.createMock(User.class);
+        user.getTimezone();
+        EasyMock.expectLastCall().andReturn(TimeZone.getTimeZone("GMT"));
+        EasyMock.replay(user);
         Schedule sch = new UserSchedule();
+        sch.setUser(user);
         WorkingHours[] hours = new WorkingHours[1];
         WorkingTime wt = new WorkingTime();
 
@@ -53,7 +62,8 @@ public class ScheduleTest extends TestCase {
 
         sch.setWorkingTime(wt);
 
-        int tz_offset = TimeZone.getDefault().getOffset((new Date()).getTime()) / 60000;
+        //int tz_offset = TimeZone.getDefault().getOffset((new Date()).getTime()) / 60000;
+        int tz_offset = 0;
 
         Integer startWithTimezone = minutesFromSunday + startHour * 60 + startMinute - tz_offset;
         Integer stopWithTimezone = minutesFromSunday + stopHour * 60 + stopMinute - tz_offset;
@@ -66,9 +76,12 @@ public class ScheduleTest extends TestCase {
     }
 
     public void testCalculateValidTimeSaturdayWithTwoPeriods() {
-        TimeZone default_tz = TimeZone.getDefault();
-        TimeZone.setDefault(TimeZone.getTimeZone("GMT-11"));
+        User user = EasyMock.createMock(User.class);
+        user.getTimezone();
+        EasyMock.expectLastCall().andReturn(TimeZone.getTimeZone("GMT-11"));
+        EasyMock.replay(user);
         Schedule sch = new UserSchedule();
+        sch.setUser(user);
         WorkingHours[] hours = new WorkingHours[1];
         WorkingTime wt = new WorkingTime();
 
@@ -97,7 +110,8 @@ public class ScheduleTest extends TestCase {
 
         sch.setWorkingTime(wt);
 
-        int tz_offset = TimeZone.getDefault().getOffset((new Date()).getTime()) / 60000;
+        int tz_offset = DateTimeZone.forTimeZone(TimeZone.getTimeZone("GMT-11")).getOffset(
+                new DateTime(DateTimeZone.forTimeZone(TimeZone.getTimeZone("GMT-11"))).getMillis()) / 1000 / 60;
 
         Integer startWithTimezone = minutesFromSunday + startHour * 60 + startMinute - tz_offset;
         Integer stopWithTimezone = minutesFromSunday + stopHour * 60 + stopMinute - tz_offset;
@@ -108,13 +122,15 @@ public class ScheduleTest extends TestCase {
         String actual = sch.calculateValidTime();
 
         assertEquals(expected, actual);
-        TimeZone.setDefault(default_tz);
     }
 
     public void testCalculateValidTimeSundayWithTwoPeriods() {
-        TimeZone default_tz = TimeZone.getDefault();
-        TimeZone.setDefault(TimeZone.getTimeZone("GMT+5"));
+        User user = EasyMock.createMock(User.class);
+        user.getTimezone();
+        EasyMock.expectLastCall().andReturn(TimeZone.getTimeZone("GMT+5"));
+        EasyMock.replay(user);
         Schedule sch = new UserSchedule();
+        sch.setUser(user);
         WorkingHours[] hours = new WorkingHours[1];
         WorkingTime wt = new WorkingTime();
 
@@ -143,7 +159,8 @@ public class ScheduleTest extends TestCase {
 
         sch.setWorkingTime(wt);
 
-        int tz_offset = TimeZone.getDefault().getOffset((new Date()).getTime()) / 60000;
+        int tz_offset = DateTimeZone.forTimeZone(TimeZone.getTimeZone("GMT+5")).getOffset(
+                new DateTime(DateTimeZone.forTimeZone(TimeZone.getTimeZone("GMT+5"))).getMillis()) / 1000 / 60;
 
         Integer startWithTimezone = minutesFromSunday + startHour * 60 + startMinute - tz_offset;
         Integer stopWithTimezone = minutesFromSunday + stopHour * 60 + stopMinute - tz_offset;
@@ -154,6 +171,5 @@ public class ScheduleTest extends TestCase {
         String actual = sch.calculateValidTime();
 
         assertEquals(expected, actual);
-        TimeZone.setDefault(default_tz);
     }
 }

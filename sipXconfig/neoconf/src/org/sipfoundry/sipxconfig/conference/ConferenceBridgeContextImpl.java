@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -41,7 +42,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
-        ConferenceBridgeContext {
+        ConferenceBridgeContext, DaoEventListener {
     private static final String BUNDLE_CONFERENCE = "conference";
     private static final String CONFERENCE = "&label.conference";
     private static final String VALUE = "value";
@@ -123,10 +124,18 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
         return conference;
     }
 
-    public void removeConferences(Collection conferencesIds) {
+    private void removeConferences(List<Conference> conferences) {
+        Collection<Integer> ids = new ArrayList<Integer>();
+        for (Conference conf : conferences) {
+            ids.add(conf.getId());
+        }
+        removeConferences(ids);
+    }
+
+    public void removeConferences(Collection<Integer> conferencesIds) {
         Set<Bridge> bridges = new HashSet<Bridge>();
-        for (Iterator i = conferencesIds.iterator(); i.hasNext();) {
-            Serializable id = (Serializable) i.next();
+        for (Iterator<Integer> i = conferencesIds.iterator(); i.hasNext();) {
+            Serializable id = i.next();
             Conference conference = loadConference(id);
             getDaoEventPublisher().publishDelete(conference);
             Bridge bridge = conference.getBridge();
@@ -302,6 +311,18 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
     @Override
     public void removeBridge(Bridge bridge) {
         getHibernateTemplate().delete(bridge);
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        if (entity instanceof User) {
+            User u = (User) entity;
+            removeConferences(findConferencesByOwner(u));
+        }
+    }
+
+    @Override
+    public void onSave(Object entity) {
     }
 
 }

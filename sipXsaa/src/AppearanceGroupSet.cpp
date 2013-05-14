@@ -422,7 +422,7 @@ void AppearanceGroupSet::addNotifyMapping(const UtlString* d,
     */
    if ( mNotifyMap.findValue(d) )
    {
-      Os::Logger::instance().log(FAC_SAA, PRI_ERR,
+      Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroupSet::addNotifyMapping already exists for this = %p, dialogHandle = '%s', handler = %p",
                     this, d->data(),
                     handler);

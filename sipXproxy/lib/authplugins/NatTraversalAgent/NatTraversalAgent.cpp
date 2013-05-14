@@ -209,6 +209,7 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                                       UtlString&  reason      ///< rejection reason
                                       )
 {
+    bool undoChangesToRequestUri = true;
    OsWriteLock lock( mMessageProcessingMutex );
 
    AuthResult result = CONTINUE;
@@ -351,7 +352,7 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
             const char* pParameterName = ( directionIsCallerToCalled ? CALLEE_PUBLIC_TRANSPORT_PARAM : CALLER_PUBLIC_TRANSPORT_PARAM );
             routeState.getParameter( mInstanceName.data(), pParameterName, sipxNatRouteString );
 
-            if( sipxNatRouteString.isNull() && !pCallTracker && method.compareTo( SIP_INVITE_METHOD ) != 0 )
+            if( sipxNatRouteString.isNull() /*&& !pCallTracker  && method.compareTo( SIP_INVITE_METHOD ) != 0 */ )
             {
                UtlString dummyString;
                if( requestUri.getUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, dummyString, 0 ) )
@@ -370,6 +371,19 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                request.setSipXNatRoute( sipxNatRouteString );
             }
          }
+         else
+         {
+            UtlString dummyString;
+
+            // NOTE: Try to find out if the proxy should undo any changes, i.e. routing
+            // the request to the endpoint private address:port.
+            // If the request contains a Route header and a x-sipX-privcontact do not
+            // undo changes to request uri because the request will not be routed correctly.
+            if( requestUri.getUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, dummyString, 0 ) )
+            {
+                undoChangesToRequestUri = false;
+            }
+        }
 
          // OPTIMIZATION CODE
          // The following lines of code implement an optimization that relieves the
@@ -407,18 +421,31 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
             delete pCallee;
          }
       }
-      // before to send out the message, undo any changes we may have performed on the Request-URI. Note that these
+
+      // Before to send out the message, undo any changes we may have performed on the Request-URI. Note that these
       // changes are performed even when the NAT traversal feature is disabled, that is why this operation is
       // performed whether or not the NAT traversal feature is disabled.
-      UndoChangesToRequestUri( request );
-      // Also, when are dealing with a non-INVITE requests,w e have seen cases where
-      // our modified Contacts cause mis-routed re-SUBSCRIBEs (XX-6244 for example).
-      // Given that our modified contacts do not play an active role in message routing
-      // for non-INVITE transactions, we will undo our modifications here.
+      // NOTE: In a setup with multiple proxies, NAT, and endpoints behind NAT, the undoing should be done by
+      // by the "last" proxy in the proxy chain, otherwise a "middle" proxy will try routing the request
+      // to the endpoint private IP address:port instead of the next proxy or public endpoint address.
+      // So do not allow undoing if this is not the last proxy.
+      if (undoChangesToRequestUri)
+      {
+          UndoChangesToRequestUri( request );
+      }
+
+      // Also, when are dealing with a non-INVITE requests,we have seen cases where
+      // our modified Contacts cause miss-routed re-SUBSCRIBEs (XX-6244 for example).
+      // We will undo our modifications here as a fix for the issue above.
+
       // NOTE: for INVITE transactions, the modified Contact is required for
       // proper NAT traversal of call park and call pickup involving remote workers,
       // that is why we only undo our contacts for non-INVITE transactions.
-      if( method.compareTo( SIP_INVITE_METHOD ) != 0 )
+
+      // NOTE: The modified Contact is necessary for proper NAT traversal for PRACK and
+      // ACK. Given that the restoring of original contact was initially needed only
+      // for presence we will undo changes only for SUBSCRIBE and NOTIFY.
+      if( method.compareTo( SIP_SUBSCRIBE_METHOD ) == 0 || method.compareTo( SIP_NOTIFY_METHOD ) == 0 )
       {
          restoreOriginalContact( request );
       }

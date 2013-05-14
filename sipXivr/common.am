@@ -31,4 +31,5 @@ ivr_PKGS = \
 	org.springframework.aop \
 	org.springframework.asm \
 	spring-data-commons-core \
-	spring-data-mongodb
+	spring-data-mongodb \
+	joda-time

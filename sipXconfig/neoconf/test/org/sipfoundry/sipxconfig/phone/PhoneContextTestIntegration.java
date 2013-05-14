@@ -196,20 +196,20 @@ public class PhoneContextTestIntegration extends IntegrationTestCase {
         m_phonebookManager.saveGeneralPhonebookSettings(settings);  
 
         Phone phone = m_context.loadPhone(1001);
-        assertEquals(6, m_context.getPhonebookEntries(phone).size());
+        assertEquals(5, m_context.getPhonebookEntries(phone).size());
 
         Phone phone2 = m_context.loadPhone(2001);
-        assertEquals(1, m_context.getPhonebookEntries(phone2).size());
+        assertEquals(0, m_context.getPhonebookEntries(phone2).size());
 
         //Test everyone disabled
-        settings.setEveryoneEnabled(false);
+        settings.setEveryoneEnabled(true);
         m_phonebookManager.saveGeneralPhonebookSettings(settings);
         flush();
         phone = m_context.loadPhone(1001);
-        assertEquals(5, m_context.getPhonebookEntries(phone).size());
-
+        assertEquals(6, m_context.getPhonebookEntries(phone).size());
+        
         phone2 = m_context.loadPhone(2001);
-        assertEquals(0, m_context.getPhonebookEntries(phone2).size());
+        assertEquals(1, m_context.getPhonebookEntries(phone2).size());        
 
         //Reset everyone to default value(true)
         settings.setEveryoneEnabled(true);

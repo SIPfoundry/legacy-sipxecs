@@ -16,9 +16,9 @@ SIPX_PROXY_CALL_STATE :
 SIPX_PROXY.205_subscriptionauth.PACKAGES_REQUIRING_AUTHENTICATION : dialog
 SIPX_PROXY.205_subscriptionauth.TARGETS_EXEMPTED_FROM_AUTHENTICATION : ^~~rl~
 SIPX_PROXY.350_calleralertinfo.INTERNAL_ENABLED : 0
-SIPX_PROXY.350_calleralertinfo.INTERNAL : <http://internal.call>;info=alert-internal;x-line-id=0
+SIPX_PROXY.350_calleralertinfo.INTERNAL : <internal>;info=alert-internal;x-line-id=0
 SIPX_PROXY.350_calleralertinfo.EXTERNAL_ENABLED : 1
-SIPX_PROXY.350_calleralertinfo.EXTERNAL : <http://external.call>;info=alert-external;x-line-id=0
+SIPX_PROXY.350_calleralertinfo.EXTERNAL : <external>;info=alert-external;x-line-id=0
 SIPX_PROXY.350_calleralertinfo.ON_EXISTING : 0
 SIPX_PROXY.400_authrules.IDENTITY_VALIDITY_SECONDS : 300
 SIPX_PROXY.200_xfer.EXCHANGE_SERVER_FQDN : 

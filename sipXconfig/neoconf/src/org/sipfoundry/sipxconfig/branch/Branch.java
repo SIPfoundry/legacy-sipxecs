@@ -21,6 +21,7 @@ public class Branch extends BeanWithId implements NamedObject {
     private Address m_address = new Address();
     private String m_phoneNumber;
     private String m_faxNumber;
+    private String m_timeZone;
 
     public String getName() {
         return m_name;
@@ -66,4 +67,11 @@ public class Branch extends BeanWithId implements NamedObject {
         m_faxNumber = faxNumber;
     }
 
+    public String getTimeZone() {
+        return m_timeZone;
+    }
+
+    public void setTimeZone(String timeZone) {
+        m_timeZone = timeZone;
+    }
 }

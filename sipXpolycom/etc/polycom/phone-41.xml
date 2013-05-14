@@ -2791,14 +2791,12 @@
           </type>
           <!-- This checks the URL included in the Alert-Info field, if it isn't a bogus URL 
                other phones (e.g. Snom) will refuse to work and it will violate RFC 3261-->
-          <value>http://external.call</value>
+          <value>external</value>
         </setting>
         <setting name="class">
-          <type>
-            <integer min="1" />
-          </type>
+          <type refid="ringtones"/>
           <!--Must be one greater than the corresponding ring-type number-->
-          <value>9</value>
+          <value>Low Trill</value>
         </setting>
       </group>
       <group name="3">
@@ -2809,14 +2807,12 @@
           </type>
           <!-- This checks the URL included in the Alert-Info field, if it isn't a bogus URL 
                other phones (e.g. Snom) will refuse to work and it will violate RFC 3261-->
-          <value>http://internal.call</value>
+          <value>internal</value>
         </setting>
         <setting name="class">
-          <type>
-            <integer min="1" />
-          </type>
+          <type refid="ringtones"/>
           <!--Must be one greater than the corresponding ring-type number-->
-          <value>10</value>
+          <value>High Trill</value>
         </setting>
       </group>
       <!-- reserved for sipXpage - call with this value of alert-info will be used for paging -->
