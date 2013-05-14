@@ -88,7 +88,7 @@ iso-update-repo-% : iso-disc-% $(ISO_COMPS)
 # add modifications to disc to make it operate
 iso-update-files-% :
 	m4 $(ISO_M4_OPTS) $(ISO_SRC)/ks.m4 > $(ISO_DISC)/ks.cfg
-	m4 $(ISO_M4_OPTS) -D manual-partition $(ISO_SRC)/ks.m4 > $(ISO_DISC)/ks-manual-format.cfg
+	m4 $(ISO_M4_OPTS) -D manual-partition $(ISO_SRC)/ks.m4 > $(ISO_DISC)/ks-manual-partition.cfg
 	for f in $(ISOLINUX_FILES); do \
 	  cp -f $$f $(ISO_DISC)/isolinux/`basename $$f`; \
 	done
@@ -222,14 +222,22 @@ ISO_ADD_EPEL = \
   erlang-webtool-* \
   erlang-wx-* \
   erlang-xmerl-* \
+  fail2ban-* \
+  js-* \
+  gperftools-libs-* \
   libev-4.* \
   libmongodb-* \
   mongodb-2.* \
   mongodb-server-* \
+  openpgm-5* \
   php-pecl-mongo-* \
+  python-inotify-0* \
   redis-* \
   rubygem-daemons-* \
+  shorewall-4* \
+  shorewall-core-* \
   snappy-* \
+  v8-3* \
   wxBase-* \
   wxGTK-2.* \
   wxGTK-gl-* \
@@ -329,7 +337,8 @@ ISO_ADD_OS = \
   fontconfig-* \
   fontpackages-filesystem-* \
   freetype-2.* \
-  gamin-0.* \
+  gamin-0* \
+  gamin-python-* \
   gawk-* \
   gdb-7.* \
   gdbm-* \
@@ -416,7 +425,7 @@ ISO_ADD_OS = \
   libgpg-error-* \
   libicu-* \
   libidn-* \
-  libjpeg-6b-* \
+  libjpeg-* \
   libnih-* \
   libnl-* \
   libogg-* \
@@ -447,18 +456,9 @@ ISO_ADD_OS = \
   lvm2-libs-* \
   mailcap-* \
   matahari-0.* \
-  matahari-agent-lib-* \
-  matahari-broker-* \
-  matahari-consoles-* \
-  matahari-core-* \
-  matahari-host-* \
-  matahari-lib-* \
-  matahari-network-* \
-  matahari-python-* \
-  matahari-rpc-* \
-  matahari-service-* \
-  matahari-sysconfig-* \
-  mesa-dri-drivers-7.* \
+  mesa-dri-drivers-9.* \
+  mesa-dri-filesystem-* \
+  mesa-dri1-drivers-* \
   mesa-libGL-* \
   mesa-libGLU-* \
   mingetty-* \
@@ -497,6 +497,7 @@ ISO_ADD_OS = \
   perl-5.* \
   perl-DBD-MySQL-* \
   perl-DBI-1.* \
+  perl-Digest-SHA-* \
   perl-Module-Pluggable-* \
   perl-Pod-Escapes-* \
   perl-Pod-Simple-* \
@@ -583,6 +584,7 @@ ISO_ADD_OS = \
   sysvinit-tools-* \
   tar-* \
   tcl-8.* \
+  tcp_wrappers-7* \
   tcp_wrappers-libs-* \
   tftp-server-* \
   tk-* \
