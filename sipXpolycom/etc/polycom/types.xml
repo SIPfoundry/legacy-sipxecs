@@ -606,46 +606,46 @@
 <type id="ringtones">
   <enum>
     <option>
-      <value>Silent</value>
+      <value>custom1</value>
     </option>
     <option>
-      <value>Low Trill</value>
+      <value>custom2</value>
     </option>
     <option>
-      <value>Low Double Trill</value>
+      <value>custom3</value>
     </option>
     <option>
-      <value>Medium Trill</value>
+      <value>custom4</value>
     </option>
     <option>
-      <value>Medium Double Trill</value>
+      <value>custom5</value>
     </option>
     <option>
-      <value>High Trill</value>
+      <value>custom6</value>
     </option>
     <option>
-      <value>High Double Trill</value>
+      <value>custom7</value>
     </option>
     <option>
-      <value>Highest Trill</value>
+      <value>custom8</value>
     </option>
     <option>
-      <value>Highest Double Trill</value>
+      <value>custom9</value>
     </option>
     <option>
-      <value>Beeble</value>
+      <value>custom10</value>
     </option>
     <option>
-      <value>Triplet</value>
+      <value>custom11</value>
     </option>
     <option>
-      <value>Ringback-style</value>
+      <value>custom12</value>
     </option>
     <option>
-      <value>Low Trill Precedence</value>
+      <value>custom13</value>
     </option>
     <option>
-      <value>Ring Splash</value>
+      <value>custom14</value>
     </option>
   </enum>
 </type>
