@@ -103,5 +103,9 @@
 #ModelSpecificNode( "SSIP300", "2.0" )
 #ModelSpecificNode( "SSIP500", "2.0" )
 #ModelSpecificNode( "VVX600", "4.1.X" )
+#ModelSpecificNode( "VVX300", "4.1.X" )
+#ModelSpecificNode( "VVX310", "4.1.X" )
+#ModelSpecificNode( "VVX400", "4.1.X" )
+#ModelSpecificNode( "VVX410", "4.1.X" )
 
 </APPLICATION>
