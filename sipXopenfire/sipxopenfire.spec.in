@@ -15,14 +15,14 @@ BuildRequires: zip
 BuildRequires: sipxcommserverlib >= %version
 BuildRequires: sipxcommons >= %version
 BuildRequires: sipxconfig >= %version
-BuildRequires: openfire >= 3.7.1
+BuildRequires: openfire >= 3.8.1
 BuildRequires: sipxsqa
 
 Source: %name-%version.tar.gz
 
 Requires: sipxcommserverlib >= %version
 Requires: sipxcommons >= %version
-Requires: openfire >= 3.7.1
+Requires: openfire >= 3.8.1
 Requires: sipxsqa >= %version
 
 # old openfire package in 4.4, this allows 4.6 systems

@@ -28,7 +28,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-web"/>
-	<classpathentry kind="var" path="SIPX_JAVADIR/sipXecs/sipXopenfire/lib/sipx-openfire-vcard-synchserver.jar"/>
 	<classpathentry kind="var" path="SIPX_JAVADIR/sipXecs/sipXcommons/sipxsqaclient.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

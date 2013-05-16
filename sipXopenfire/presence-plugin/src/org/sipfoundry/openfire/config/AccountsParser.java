@@ -6,7 +6,6 @@
 package org.sipfoundry.openfire.config;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -89,16 +88,17 @@ public class AccountsParser {
             logger.debug("Pruning unwanted chatroom services");
             pruneUnwantedXmppChatRoomServices( newAccountInfo.getXmppChatRooms() );
             logger.debug("Done pruning unwanted chatroom services");
-        } else {
-            Collection<XmppConfigurationElement> confElements = new ArrayList<XmppConfigurationElement>();
-            confElements.addAll(newAccountInfo.getXmppChatRooms());
-            enforceConfigurationDeltas(newAccountInfo, previousXmppAccountInfo, confElements);
-            logger.debug("Pruning unwanted chatrooms");
-            pruneUnwantedXmppChatrooms( newAccountInfo );
-            logger.debug("Dome pruning unwanted chatrooms");
-            logger.debug("Pruning unwanted chatroom services");
-            pruneUnwantedXmppChatRoomServices( newAccountInfo.getXmppChatRooms() );
-            logger.debug("Done pruning unwanted chatroom services");
+            // } else {
+            // Collection<XmppConfigurationElement> confElements = new
+            // ArrayList<XmppConfigurationElement>();
+            // confElements.addAll(newAccountInfo.getXmppChatRooms());
+            // enforceConfigurationDeltas(newAccountInfo, previousXmppAccountInfo, confElements);
+            // logger.debug("Pruning unwanted chatrooms");
+            // pruneUnwantedXmppChatrooms( newAccountInfo );
+            // logger.debug("Dome pruning unwanted chatrooms");
+            // logger.debug("Pruning unwanted chatroom services");
+            // pruneUnwantedXmppChatRoomServices( newAccountInfo.getXmppChatRooms() );
+            // logger.debug("Done pruning unwanted chatroom services");
         }
         previousXmppAccountInfo = newAccountInfo;
     }
