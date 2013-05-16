@@ -13,6 +13,7 @@ OPTIONS=
 for a in $@; do
   case $a in
     --prefix*)OPTIONS+=" $a" ;;
+    PACKAGE_REVISION*)OPTIONS+=" $a" ;;
   esac
 done
 AC_SUBST(OPTIONS)
