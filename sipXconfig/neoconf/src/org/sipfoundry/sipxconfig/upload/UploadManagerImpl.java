@@ -30,6 +30,7 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
 
     private static final String NAME = "name";
     private static final String ALLOW_MULTI_UPLOAD = "firmware/allowMultipleUploads";
+    private static final String VERSION = "firmware/version";
     private ListableBeanFactory m_beanFactory;
     private ModelSource<UploadSpecification> m_specificationSource;
 
@@ -163,10 +164,22 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
         if (spec.getManaged()) {
             // should never happen
             boolean allowMultipleUploads = (upload.getSettings().getSetting(ALLOW_MULTI_UPLOAD) != null)
-                    ? (Boolean) upload
-                    .getSettingTypedValue(ALLOW_MULTI_UPLOAD) : false;
+                    ? (Boolean) upload.getSettingTypedValue(ALLOW_MULTI_UPLOAD) : false;
             if (!allowMultipleUploads && existing.size() > 1) {
                 throw new AlreadyDeployedException(existing.size(), spec.getLabel());
+            }
+            if (allowMultipleUploads) {
+                // some uploads may be versioned
+                // check to not have multiple uploads of the same version deployed
+                for (Upload existingUpload : existing) {
+                    if (existingUpload.isDeployed()
+                            && existingUpload.getSettings().getSetting(VERSION) != null
+                            && upload.getSettings().getSetting(VERSION) != null
+                            && existingUpload.getSettings().getSetting(VERSION).getValue()
+                                    .equals(upload.getSettings().getSetting(VERSION).getValue())) {
+                        throw new AlreadyDeployedException(existingUpload.getName(), spec.getLabel());
+                    }
+                }
             }
             if (existing.size() == 1) {
                 Upload existingUpload = existing.get(0);
