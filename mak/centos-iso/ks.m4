@@ -39,12 +39,11 @@ ifdef(`manual-partition',
 #--- Auto Partitioning
 zerombr yes
 clearpart --all --initlabel
-part /boot --fstype ext3 --size=128
-part swap --size=6144
+part /boot --fstype ext2 --size=1024
+part swap --size=4096
 part pv.01 --size=1 --grow
 volgroup vg_root pv.01
-logvol / --fstype ext3 --name lv_root --vgname=vg_root --size 6144
-logvol /var --fstype ext3 --name lv_var --vgname=vg_root --size=1 --grow
+logvol / --fstype ext3 --name lv_var --vgname=vg_root --size=1 --grow
 )
 
 # According to anaconda docs, if you do not include a "network..." line, user is supposed
