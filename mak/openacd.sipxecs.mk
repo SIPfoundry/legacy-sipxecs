@@ -37,11 +37,11 @@ $(foreach P,$(oacd_class_2), \
 )
 
 openacd_DEPS = $(call deps,erlang-ejrpc2 erlang-gen_server_mock erlmongo)
-# sipxopenacd is treated like a lib because does not confrom yet to sipx build policies
-sipxopenacd_DEPS = $(call deps,erlmongo openacd sipXconfig)
 oacd_web_DEPS = $(call deps,openacd erlang-cowboy erlang-mimetypes)
 oacd_dialplan_DEPS = $(call deps,openacd)
 oacd_freeswitch_DEPS = $(call deps,openacd)
+# sipxopenacd is treated like a lib because does not confrom yet to sipx build policies
+sipxopenacd_DEPS = $(call deps,erlmongo openacd sipXconfig oacd_freeswitch oacd_dialplan oacd_web)
 
 openacd.dist: $(openacd_GIT_SUBMODULE)
 	cd $(SRC)/$(PROJ); \
