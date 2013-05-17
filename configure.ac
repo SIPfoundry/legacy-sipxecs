@@ -12,8 +12,10 @@ AC_INIT(sipX, 4.6.0, sipx-dev@list.sipfoundry.org)
 OPTIONS=
 for a in $@; do
   case $a in
-    --prefix*)OPTIONS+=" $a" ;;
-    PACKAGE_REVISION*)OPTIONS+=" $a" ;;
+    --prefix*)
+    --disable-dep-check*)
+    PACKAGE_REVISION*)
+        OPTIONS+=" $a" ;;
   esac
 done
 AC_SUBST(OPTIONS)
