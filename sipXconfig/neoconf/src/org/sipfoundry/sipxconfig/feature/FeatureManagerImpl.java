@@ -201,8 +201,8 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
         for (Entry<Location, Set<LocationFeature>> entry : request.getEnableByLocation().entrySet()) {
             Location location = entry.getKey();
             for (LocationFeature f : entry.getValue()) {
-                sql.add(format("insert into feature_local (feature_id, location_id) values ('%s', %d)",
-                    f, location.getId()));
+                sql.add(format("insert into feature_local (feature_id, location_id) values ('%s', %d)", f,
+                        location.getId()));
             }
         }
         if (!sql.isEmpty()) {
@@ -345,6 +345,9 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
             // When deleting a location, treat this as if someone disabled all features at this
             // location.
             Location location = (Location) entity;
+            if (location.isUninitialized()) {
+                m_jdbcTemplate.execute(format("delete from feature_local where location_id=%d", location.getId()));
+            }
             Set<LocationFeature> on = getEnabledLocationFeatures(location);
             enableLocationFeatures(on, location, false);
         }

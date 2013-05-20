@@ -446,14 +446,29 @@
     </group>
   </group>
   <group name="provisioning">
+    <setting name="LicenseKey">
+        <label>License Key</label>
+        <description>The key that will be provisioned to the client</description>
+        <value></value>
+    </setting>
     <setting name="feature:call:enable_recording">
       <type refid="true-false"/>
       <value>true</value>
     </setting>
     <group name="auto_update">
+      <setting name="feature:auto_update:config_server_url" advanced="yes">
+        <label>Config Server URL</label>
+        <description>The server that handles remote upgrade, remote reset, and forced update requests</description>
+        <value></value>
+      </setting>
       <setting name="system:auto_update:code_server_url" advanced="yes">
         <value/>
       </setting>
+      <setting name="feature:auto_update:code_check_initial_t_s">
+            <label>Code Check Initial</label>
+            <description>The initial value of the update timer, used for timing the first time the client hits the update server (code_check_initial_t_s)</description>
+            <value>60</value>
+        </setting>
       <setting name="system:auto_update:update_check_initial_t1_s">
         <type>
           <integer/>
@@ -478,6 +493,33 @@
         </type>
         <value>60</value>
       </setting>
+    </group>
+    <group name="ui_settings">
+        <label>User Interface Settings</label>
+        <setting name="ui:alerts:online">
+            <label>Display Online</label>
+            <description>Display alert information when a contact comes online</description>
+            <type refid="true-false"/>
+            <value>false</value>
+        </setting>
+        <setting name="ui:alerts:offline">
+            <label>Display Offline</label>
+            <description>Display alert information when a contact goes offline</description>
+            <type refid="true-false"/>
+            <value>false</value>
+        </setting>
+        <setting name="ui:mute_sound:online">
+            <label>Sound Online</label>
+            <description>Play alert sound when a contact comes online</description>
+            <type refid="true-false"/>
+            <value>false</value>
+        </setting>
+        <setting name="ui:mute_sound:offline">
+            <label>Sound Offline</label>
+            <description>Play alert sound when a contact goes offline</description>
+            <type refid="true-false"/>
+            <value>false</value>
+        </setting>
     </group>
   </group>
   <group name="qos">

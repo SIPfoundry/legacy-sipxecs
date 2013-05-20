@@ -11,25 +11,18 @@ package org.sipfoundry.sipxivr.email;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.util.ByteArrayDataSource;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
@@ -38,6 +31,8 @@ import org.sipfoundry.voicemail.mailbox.Folder;
 import org.sipfoundry.voicemail.mailbox.VmMessage;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.mail.javamail.MimeMessageHelper;
 
 public class Emailer implements ApplicationContextAware {
     private static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
@@ -112,29 +107,25 @@ public class Emailer implements ApplicationContextAware {
             // Use multipart/alternative if we are attaching audio or there is an html body part
             if (attachAudio || htmlBody != null && htmlBody.length() > 0) {
                 // Create an "mulipart/alternative" part with text and html alternatives
-                Multipart mpalt = new MimeMultipart("alternative");
+                MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED);
 
                 if (textBody != null && textBody.length() > 0) {
                     // Add the text part of the message first
-                    MimeBodyPart textPart = new MimeBodyPart();
-                    textPart.setText(textBody, "UTF-8"); // UTF-8 in case there's Unicode in there
-                    mpalt.addBodyPart(textPart);
+                    helper.setText(textBody, "UTF-8"); // UTF-8 in case there's Unicode in there
                 }
-
+                
                 if (htmlBody != null && htmlBody.length() > 0) {
                     // Add the HTML part of the message
-                    MimeBodyPart htmlpart = new MimeBodyPart();
-                    htmlpart.setContent(htmlBody, "text/html");
-                    mpalt.addBodyPart(htmlpart);
+                    helper.setText(htmlBody, true);
+
                     // Add the IMAGEs part of the message
-                    insertMimeImage(mpalt, "images/play_50x50.png", "imageListen");
-                    insertMimeImage(mpalt, "images/inbox_50x50.png", "imageInbox");
-                    insertMimeImage(mpalt, "images/delete_50x50.png", "imageDelete");
+                    insertMimeImage("images/play_50x50.png", "imageListen", helper);
+                    insertMimeImage("images/inbox_50x50.png", "imageInbox", helper);
+                    insertMimeImage("images/delete_50x50.png", "imageDelete", helper);
                 }
 
                 // Add the audio file as an attachment
                 if (attachAudio) {
-                    MimeBodyPart audioBodyPart = new MimeBodyPart();
 
                     File file = m_vmessage.getAudioFile();
 
@@ -145,30 +136,10 @@ public class Emailer implements ApplicationContextAware {
                         }
                     };
 
-                    audioBodyPart.setDataHandler(new DataHandler(dataSource));
-                    audioBodyPart.setFileName(file.getName());
-                    audioBodyPart.setHeader("Content-Transfer-Encoding", "base64");
-                    audioBodyPart.setDisposition(Part.ATTACHMENT);
-
-                    // Create a top level multipart/mixed part
-                    Multipart mpmixed = new MimeMultipart();
-
-                    // Make a new part to wrap the multipart/alternative part
-                    if (mpalt.getCount() > 0) {
-                        MimeBodyPart altpart = new MimeBodyPart();
-                        altpart.setContent(mpalt);
-                        // Add the alt part to the mixed part
-                        mpmixed.addBodyPart(altpart);
-                    }
-
-                    // Add the wav part to the mixed part
-                    mpmixed.addBodyPart(audioBodyPart);
-                    // Use the mixed part as the content
-                    message.setContent(mpmixed);
-                } else {
-                    // Use the alt part as the content
-                    message.setContent(mpalt); // JavaMail guesses content type
+                    helper.addAttachment(file.getName(), dataSource);
                 }
+
+
             } else {
                 if (textBody != null && textBody.length() > 0) {
                     // Just a text part, use a simple message
@@ -189,25 +160,10 @@ public class Emailer implements ApplicationContextAware {
             return "audio/x-wav";
         }
 
-        /**
-         *
-         * @param mpalt - multipart instance previously created that contains all HTML text
-         *        including image keys sample: <img src="cid:[imageKey]">
-         * @param imageSource - image source file name embedded in *this* class jar file
-         * @param imageKey - the image key value as it is written in the multipart html content
-         * @throws MessagingException
-         * @throws IOException
-         */
-        private void insertMimeImage(Multipart mpalt, String imageSource, String imageKey)
+        private void insertMimeImage(String imageSource, String imageKey, MimeMessageHelper helper)
                 throws MessagingException, IOException {
-            MimeBodyPart imagePart = new MimeBodyPart();
-            InputStream playImage = Emailer.class.getClassLoader().getResourceAsStream(imageSource);
-            DataSource fds = new ByteArrayDataSource(playImage, "image/png");
-            imagePart.setDataHandler(new DataHandler(fds));
-            StringBuilder builder = new StringBuilder();
-            builder.append("<").append(imageKey).append(">");
-            imagePart.setHeader("Content-ID", builder.toString());
-            mpalt.addBodyPart(imagePart);
+            ClassPathResource res = new ClassPathResource(imageSource);
+            helper.addInline(imageKey, res);
         }
 
         /**

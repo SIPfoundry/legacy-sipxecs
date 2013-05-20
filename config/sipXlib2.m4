@@ -42,8 +42,8 @@ test -n "$SIPXPBXUSER" || SIPXPBXUSER=$USER
 AC_ARG_VAR(SIPXPBXGROUP, [The sipX service daemon group name, default is value of SIPXPBXUSER])
 test -n "$SIPXPBXGROUP" || SIPXPBXGROUP=$SIPXPBXUSER
 
-PACKAGE_REVISION=`cd ${srcdir} && ./config/revision-gen ${PACKAGE_VERSION}`
-AC_SUBST(PACKAGE_REVISION)
+AC_ARG_VAR(PACKAGE_REVISION, [Package revision number, default is pulled from git])
+test -n "$PACKAGE_REVISION" || PACKAGE_REVISION=`cd ${srcdir} && ./config/revision-gen ${PACKAGE_VERSION}`
 AC_DEFINE_UNQUOTED([PACKAGE_REVISION], "${PACKAGE_REVISION}", [Revion number including git SHA])
 
 # automake eats straight "if.." in makefiles as autoconf conditions. this avoids that

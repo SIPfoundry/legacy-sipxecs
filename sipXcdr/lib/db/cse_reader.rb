@@ -70,6 +70,7 @@ class CseReader < Dao
   rescue DBI::DatabaseError, DBI::OperationalError, DBI::ProgrammingError => excp
     @log.error("Loss of connection to database #{@database_url} - retrying to connect after sleep") if @log
     if !@stop.wait
+       dbh.disconnect
        retry
     end
   rescue

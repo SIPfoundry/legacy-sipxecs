@@ -2796,7 +2796,7 @@
         <setting name="class">
           <type refid="ringtones"/>
           <!--Must be one greater than the corresponding ring-type number-->
-          <value>Low Trill</value>
+          <value>custom1</value>
         </setting>
       </group>
       <group name="3">
@@ -2812,7 +2812,7 @@
         <setting name="class">
           <type refid="ringtones"/>
           <!--Must be one greater than the corresponding ring-type number-->
-          <value>High Trill</value>
+          <value>custom1</value>
         </setting>
       </group>
       <!-- reserved for sipXpage - call with this value of alert-info will be used for paging -->

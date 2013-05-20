@@ -24,6 +24,7 @@ ivr_PKGS = \
 	org.springframework.beans \
 	org.springframework.web \
 	org.springframework.context \
+	org.springframework.context.support \
 	org.springframework.core \
 	org.springframework.jdbc \
 	org.springframework.transaction \
