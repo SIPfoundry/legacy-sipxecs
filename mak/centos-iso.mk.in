@@ -6,6 +6,7 @@
 ISO_SRC ?= $(SRC)/mak/centos-iso
 ISO_LABEL ?= sipxecs
 ISO_REV ?= $(PACKAGE_REVISION)
+DIST_DIR = $(DIST_DIR)
 SPLASH_FILE ?= $(ISO_SRC)/splash.jpg
 SPLASH_MENU ?= $(ISO_SRC)/isolinux.cfg
 VOLUME_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
@@ -36,7 +37,7 @@ iso: iso-32 iso-64;
 
 help.iso-clean = Delete intermediate files, but do not re-download RPMs from $(ISO_RPM_DOWNLOAD_URL)
 iso-clean: iso-clean-32 iso-clean-64
-	find @DIST_DIR@ -maxdepth 1 \( -name '*.iso' -o -name '*.md5' \) -exec rm {} \;
+	find $(DIST_DIR) -maxdepth 1 \( -name '*.iso' -o -name '*.md5' \) -exec rm {} \;
 	! test -f comps-iso.xml || rm comps-iso.xml
 
 help.iso-clean-all = Delete intermediate files, including files from downloaded from $(ISO_RPM_DOWNLOAD_URL) that will be downloaded again
@@ -105,10 +106,10 @@ iso-assemble-% :
 	  -c "isolinux/boot.cat" \
 	  -x "lost+found" \
 	  -o $@.tmp $(ISO_DISC)
-	mv $@.tmp @DIST_DIR@/$(ISO)
+	mv $@.tmp $(DIST_DIR)/$(ISO)
 
 iso-md5-% :
-	md5sum @DIST_DIR@/$(ISO) > @DIST_DIR@/$(ISO:%.iso=%.md5)
+	md5sum $(DIST_DIR)/$(ISO) > $(DIST_DIR)/$(ISO:%.iso=%.md5)
 
 $(foreach B,32 64,$(eval help.iso-check-$(B) = Verify all the rpms on $(B) bit ISO have all nec. rpm according to their specs))
 iso-check-32 : ARCH=i686
@@ -133,7 +134,7 @@ iso-download-epel-% : mak/*-centos-iso.mk
 iso-packages-% : iso-download-os-% iso-download-epel-%
 	rsync -av $(ARCH)-os-Packages/  $(ISO_DISC)/Packages/
 	rsync -av $(ARCH)-epel-Packages/  $(ISO_DISC)/Packages/
-	rsync -av $(realpath @RPM_DIST_DIR@)/CentOS_6/$(ARCH)/ $(ISO_DISC)/Packages/
+	rsync -av $(realpath $(RPM_DIST_DIR))/CentOS_6/$(ARCH)/ $(ISO_DISC)/Packages/
 	find $(ISO_DISC)/Packages -not -name 'java-1.6.0-openjdk-devel-*.rpm' \
 	   | grep $(foreach REGEX,$(ISO_RM_LIST),-e '.*/$(REGEX)') \
 	   | xargs rm
