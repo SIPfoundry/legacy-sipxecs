@@ -2823,6 +2823,15 @@
           <value>3</value>
         </setting>
       </group>
+      <!-- intercom -->
+      <group name="4" hidden="yes">
+        <setting name="value">
+          <value>2</value>
+        </setting>
+        <setting name="class">
+          <value>4</value>
+        </setting>
+      </group>
     </group>
     <group name="requestValidation">
       <group name="1">
