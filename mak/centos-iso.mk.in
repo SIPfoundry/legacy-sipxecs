@@ -6,7 +6,7 @@
 ISO_SRC ?= $(SRC)/mak/centos-iso
 ISO_LABEL ?= sipxecs
 ISO_REV ?= $(PACKAGE_REVISION)
-DIST_DIR = $(DIST_DIR)
+DIST_DIR = @DIST_DIR@
 SPLASH_FILE ?= $(ISO_SRC)/splash.jpg
 SPLASH_MENU ?= $(ISO_SRC)/isolinux.cfg
 VOLUME_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
@@ -128,7 +128,7 @@ iso-download-os-% : mak/*-centos-iso.mk
 
 iso-download-epel-% : mak/*-centos-iso.mk
 	rsync -av --delete \
-	  $(addprefix @CENTOS_RSYNC_URL@/epel/6/$(ARCH)/, $(ISO_ADD_EPEL)) \
+	  $(addprefix @CENTOS_RSYNC_URL@/epel/6/$(ARCH)/,$(ISO_ADD_EPEL)) \
 	  $(ISO_PACKAGES_EPEL)/
 
 iso-packages-% : iso-download-os-% iso-download-epel-%
@@ -144,7 +144,6 @@ iso-packages-% : iso-download-os-% iso-download-epel-%
 ISO_RM_LIST = \
   freeswitch-[^1].* \
   net-snmp-gui-.* \
-  oss_core-.* \
   .*-static-.* \
   .*-doc-.* \
   .*-debuginfo-.* \
@@ -226,12 +225,27 @@ ISO_ADD_EPEL = \
   fail2ban-* \
   js-* \
   gperftools-libs-* \
+  gtest-1* \
+  libiodbc-3* \
   libev-4.* \
+  libmcrypt-* \
   libmongodb-* \
   mongodb-2.* \
   mongodb-server-* \
   openpgm-5* \
   php-pecl-mongo-* \
+  poco-crypto-* \
+  poco-data-* \
+  poco-foundation-* \
+  poco-mysql-* \
+  poco-net-* \
+  poco-netssl-* \
+  poco-odbc-* \
+  poco-pagecompiler-* \
+  poco-sqlite-* \
+  poco-util-* \
+  poco-xml-* \
+  poco-zip-* \
   python-inotify-0* \
   redis-* \
   rubygem-daemons-* \
@@ -416,6 +430,7 @@ ISO_ADD_OS = \
   libcap-2.* \
   libcap-ng-0.* \
   libcom_err-* \
+  libconfig-* \
   libcurl-* \
   libdrm-* \
   libedit-* \
