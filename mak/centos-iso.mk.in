@@ -471,6 +471,7 @@ ISO_ADD_OS = \
   lua-5.* \
   lvm2-libs-* \
   mailcap-* \
+  make-* \
   matahari-0.* \
   mesa-dri-drivers-9.* \
   mesa-dri-filesystem-* \

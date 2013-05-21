@@ -32,6 +32,7 @@ Requires: sec
 Requires: sendmail
 Requires: sendmail-cf
 Requires: ntp
+Requires: make
 # backup to sftp
 Requires: rubygem-net-sftp
 # iptables
