@@ -43,7 +43,7 @@ part /boot --fstype ext2 --size=1024
 part swap --size=4096
 part pv.01 --size=1 --grow
 volgroup vg_root pv.01
-logvol / --fstype ext3 --name lv_var --vgname=vg_root --size=1 --grow
+logvol / --fstype ext3 --name lv_root --vgname=vg_root --size=1 --grow
 )
 
 # According to anaconda docs, if you do not include a "network..." line, user is supposed
