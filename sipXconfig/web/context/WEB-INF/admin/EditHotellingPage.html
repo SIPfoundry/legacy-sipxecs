@@ -1,0 +1,8 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg" />
+<span jwcid="@user/UserNavigation" bean="ognl:editedUser" />
+<form jwcid="changeHotelling@Form" delegate="bean:validator">
+	<fieldset jwcid="@setting/SettingsFieldset" settings="ognl:hotellingSetting"/>
+<div jwcid="submitHotelling@Submit" value="message:button.apply" listener="listener:onApply" />
+</form>
+</div>

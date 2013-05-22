@@ -654,4 +654,15 @@
     <property name="phoneContext" ref="phoneContext" />
     <property name="profileManager" ref="phoneProfileManager" />
   </bean>
+
+  <bean id="hotellingManagerImpl" class="org.sipfoundry.sipxconfig.phone.polycom.HotellingManagerImpl">
+    <property name="profileTemplate" value="polycom/user.cfg.vm" />
+    <property name="directoryTemplate" value="polycom/mac-address-directory-40.xml.vm" />
+    <property name="userCfg" value="${sysdir.phone}/profile/tftproot/%s.cfg" />
+    <property name="userDirectoryXml" value="${sysdir.phone}/profile/tftproot/%s-directory.xml" />
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="phonebookManager" ref="phonebookManager" />
+    <property name="speedDialManager" ref="speedDialManager" />
+  </bean>
 </beans>

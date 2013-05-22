@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.site.admin.EditHotellingPage;
 import org.sipfoundry.sipxconfig.site.admin.time.EditTimeZonePage;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
 import org.sipfoundry.sipxconfig.site.moh.MusicOnHoldPage;
@@ -88,6 +89,9 @@ public abstract class UserNavigation extends BeanNavigation {
 
     @InjectPage(value = EditTimeZonePage.PAGE)
     public abstract EditTimeZonePage getEditTimeZonePage();
+    
+    @InjectPage(value = EditHotellingPage.PAGE)
+    public abstract EditHotellingPage getEditHotellingPage();
 
     public IPage editCallForwarding(Integer userId) {
         UserCallForwarding page = getUserCallForwardingPage();
@@ -180,6 +184,13 @@ public abstract class UserNavigation extends BeanNavigation {
         return page;
     }
 
+    public IPage editHotelling(Integer userId) {
+        EditHotellingPage page = getEditHotellingPage();
+        page.setUserId(userId);
+        page.setReturnPage(EditHotellingPage.PAGE);
+        return page;
+    }
+    
     public String getGroupsToHide() {
         List<String> names = new LinkedList<String>();
         names.add("voicemail");
@@ -187,6 +198,7 @@ public abstract class UserNavigation extends BeanNavigation {
         names.add("callfwd");
         names.add("moh");
         names.add("timezone");
+        names.add("hotelling");
         if (!getFeatureManager().isFeatureEnabled(ImBot.FEATURE)) {
             names.add("im_notification");
         }
@@ -245,6 +257,10 @@ public abstract class UserNavigation extends BeanNavigation {
         return EditTimeZonePage.PAGE.equals(getPage().getPageName());
     }
 
+    public boolean isHotellingTabActive() {
+        return EditHotellingPage.PAGE.equals(getPage().getPageName());
+    }
+    
     public Collection<Setting> getNavigationGroups() {
         Setting settings = getBean().getSettings();
         return getUserNavigationGroups(settings);

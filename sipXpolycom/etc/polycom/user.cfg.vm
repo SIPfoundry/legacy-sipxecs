@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<User_CONFIG>
+	<OVERRIDES
+	prov.login.localPassword="$pintoken"
+    reg.1.displayName="$displayName"
+    reg.1.address="$uid"
+    reg.1.label="$label"
+    reg.1.auth.userId="$uid"
+    reg.1.auth.password="$pintoken"
+    />
+</User_CONFIG>

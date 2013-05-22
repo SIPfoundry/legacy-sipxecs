@@ -56,4 +56,11 @@
   <bean id="timeZoneInit" class="org.sipfoundry.sipxconfig.device.TimeZoneInit">
     <property name="timeZoneManager" ref="timeZoneManager" />
   </bean>
+
+  <bean id="hotellingManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.device.HotellingManager</value>
+    </property>
+    <property name="target" ref="hotellingManagerImpl" />
+  </bean>  
 </beans>

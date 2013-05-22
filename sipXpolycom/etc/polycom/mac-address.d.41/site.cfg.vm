@@ -350,4 +350,9 @@
           ptt.${setting.ProfileName}="$!{setting.Value}"
 #end
 />
+<prov
+#set ($prov = $cfg.EndpointSettings.getSetting('prov'))
+#foreach ($setting in $cfg.getRecursiveSettings($prov))
+          prov.${setting.ProfileName}="$!{setting.Value}"
+#end
 </polycomConfig>

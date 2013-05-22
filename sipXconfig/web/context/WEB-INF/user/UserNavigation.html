@@ -87,6 +87,12 @@
               <span key="link.timezone">Timezones</span>
             </a>
           </span>
+          <span jwcid="hotelling@common/Tab" isActive="ognl:hotellingTabActive">
+            <a jwcid="hotellingLink@DirectLink"
+              listener="listener:editHotelling" parameters="ognl:bean.id">
+              <span key="link.hotelling">Hot Desking</span>
+            </a>
+          </span>
         </span>
       </div>
       <span jwcid="@RenderBody"/>

@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.device.HotellingManager;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
@@ -64,6 +65,8 @@ public abstract class UserGroupSettings extends GroupSettings {
     private static final String MOH = "moh";
     private static final String TIMEZONE_TAB = "timezone";
     private static final String TIMEZONE_SETTING = "timezone/timezone";
+    private static final String HOTELLING_TAB = "hotelling";
+    private static final String HOTELLING_SETTING = "hotelling/enable";
 
     @InjectObject(value = "spring:forwardingContext")
     public abstract ForwardingContext getForwardingContext();
@@ -116,6 +119,10 @@ public abstract class UserGroupSettings extends GroupSettings {
 
     public abstract void setTimezoneTypeModel(IPropertySelectionModel model);
 
+    public abstract Setting getHotellingSetting();
+
+    public abstract void setHotellingSetting(Setting value);
+
     @Persist
     public abstract boolean getIsTabsSelected();
 
@@ -136,13 +143,16 @@ public abstract class UserGroupSettings extends GroupSettings {
 
     public abstract void setTab(String tab);
 
+    @InjectObject("spring:hotellingManager")
+    public abstract HotellingManager getHotellingManager();
+
     public Collection<String> getAvailableTabNames() {
         Collection<String> tabNames = new ArrayList<String>();
         tabNames.add(CONFIGURE);
         if (isVoicemailEnabled()) {
             tabNames.add(VOICEMAIL);
         }
-        tabNames.addAll(Arrays.asList(SCHEDULES, CONFERENCE, EXTCONTACT, SPEEDDIAL, TIMEZONE_TAB));
+        tabNames.addAll(Arrays.asList(SCHEDULES, CONFERENCE, EXTCONTACT, SPEEDDIAL, TIMEZONE_TAB, HOTELLING_TAB));
         if (isVoicemailEnabled()) {
             tabNames.add(MOH);
         }
@@ -234,6 +244,7 @@ public abstract class UserGroupSettings extends GroupSettings {
             setParentSetting(parent);
             setIsTabsSelected(false);
         }
+        setHotellingSetting(getSettings().getSetting("hotelling/enable"));
     }
 
     public IPage addSchedule(IRequestCycle cycle) {
@@ -348,6 +359,7 @@ public abstract class UserGroupSettings extends GroupSettings {
             names.add("personal-attendant");
         }
         names.add(TIMEZONE_TAB);
+        names.add(HOTELLING_TAB);
         return StringUtils.join(names, SEPARATOR);
     }
 
@@ -380,5 +392,11 @@ public abstract class UserGroupSettings extends GroupSettings {
         }
 
         return !Permission.isEnabled(setting.getValue());
+    }
+
+    public void onChangeHotelling() {
+        getGroup().setSettingValue(HOTELLING_SETTING, getHotellingSetting().getValue());
+        apply();
+        getHotellingManager().generate(getGroup());
     }
 }

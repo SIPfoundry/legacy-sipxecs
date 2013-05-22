@@ -494,4 +494,12 @@
       </type>
     </setting>    
   </group>
+  <group name="hotelling">
+    <setting name="enable">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>    
+  </group>
 </model>

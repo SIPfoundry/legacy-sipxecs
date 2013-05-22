@@ -5176,5 +5176,27 @@
 	        <type><string /></type>
 	      </setting>
 	   </group>
-    </group>    
+    </group>
+    <group name="prov">
+      <setting name="login.enabled">
+		<type><boolean /></type>
+		<value>0</value>
+      </setting>
+      <setting name="login.persistent">
+		<type><boolean /></type>
+		<value>0</value>
+      </setting>
+      <setting name="login.required">
+		<type><boolean /></type>
+		<value>0</value>
+      </setting>
+      <setting name="loginCredPwdFlushed.enabled">
+		<type><boolean /></type>
+		<value>1</value>
+      </setting>
+      <setting name="login.automaticLogout">
+		<type><integer min="0" max="46000"/></type>
+		<value>0</value>
+      </setting>
+    </group>      
 </model>
