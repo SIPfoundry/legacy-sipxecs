@@ -66,7 +66,7 @@ public class ImBotConfiguration implements ConfigProvider {
         Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            boolean enabled = featureManager.isFeatureEnabled(ImBot.FEATURE);
+            boolean enabled = featureManager.isFeatureEnabled(ImBot.FEATURE, location);
 
             ConfigUtils.enableCfengineClass(dir, "sipximbot.cfdat", enabled, "sipximbot");
             if (!enabled) {
