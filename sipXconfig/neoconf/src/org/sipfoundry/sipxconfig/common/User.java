@@ -94,7 +94,7 @@ public class User extends AbstractUser implements Replicable {
 
         ImAccount imAccount = new ImAccount(this);
         if (imAccount.isEnabled() && !StringUtils.isEmpty(imAccount.getImId())
-                && !imAccount.getImId().equals(getUserName())) {
+                && !imAccount.getImId().equals(getUserName()) && !getAliases().contains(imAccount.getImId())) {
             AliasMapping mapping = new AliasMapping(imAccount.getImId(), contact, ALIAS_RELATION);
             mappings.add(mapping);
         }

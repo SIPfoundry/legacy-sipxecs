@@ -281,6 +281,78 @@ public class UserTest extends TestCase {
         assertEquals(5, aliasMappings.size());
     }
 
+    public void testGetAliasesWithSameImId() {
+        User user = new User() {
+            @Override
+            public String getFaxExtension() {
+                return new String("321");
+            }
+
+            @Override
+            public String getFaxDid() {
+                return new String("+1234");
+            }
+        };
+        user.setUserName("username");
+        Domain domain = new Domain("sipfoundry.org");
+        DomainManager domainManager = EasyMock.createMock(DomainManager.class);
+        domainManager.getDomain();
+        EasyMock.expectLastCall().andReturn(domain).anyTimes();
+        EasyMock.replay(domainManager);
+        user.setDomainManager(domainManager);
+        Set aliases = new LinkedHashSet(); // use LinkedHashSet for stable ordering
+        aliases.add("mambo");
+        aliases.add("tango");
+        user.setAliases(aliases);
+        assertEquals("mambo tango", user.getAliasesString());
+        checkAliases(user);
+
+        user.setAliases(new LinkedHashSet());
+        user.setAliasesString("mambo tango");
+        checkAliases(user);
+        // set im id same as alias
+        user.setImId("tango");
+
+        PermissionManager pManager = createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+        replay(pManager);
+        user.setPermissionManager(pManager);
+
+        user.setSettingTypedValue("im/im-account", true);
+
+        AddressManager am = EasyMock.createNiceMock(AddressManager.class);
+        am.getSingleAddress(Ivr.SIP_ADDRESS);
+        expectLastCall().andReturn(new Address(FreeswitchFeature.SIP_ADDRESS, "1111111", 22)).anyTimes();
+        replay(am);
+        user.setAddressManager(am);
+
+        ForwardingContext fc = EasyMock.createNiceMock(ForwardingContext.class);
+        CallSequence seq = new CallSequence();
+        seq.setUser(user);
+        List<Ring> rings = new ArrayList<Ring>();
+        Ring ring1 = new Ring("343434", 30, Type.IMMEDIATE, true);
+        Ring ring2 = new Ring("454545", 30, Type.DELAYED, true);
+        rings.add(ring1);
+        rings.add(ring2);
+        seq.insertRings(rings);
+        fc.getCallSequenceForUserId(user.getId());
+        expectLastCall().andReturn(seq);
+        replay(fc);
+        user.setForwardingContext(fc);
+
+        Location l = new Location();
+        l.setAddress("blabla.com");
+
+        LocationsManager lm = createMock(LocationsManager.class);
+        lm.getPrimaryLocation();
+        expectLastCall().andReturn(l).anyTimes();
+        replay(lm);
+
+        List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org");
+        assertEquals(7, aliasMappings.size());
+    }
+
     private void checkAliases(User user) {
         Set aliasesCheck = user.getAliases();
         assertEquals(2, aliasesCheck.size());
