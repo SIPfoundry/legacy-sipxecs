@@ -23,9 +23,12 @@ import static org.junit.Assert.assertEquals;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
+import org.easymock.classextension.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.common.InternalUser;
@@ -34,6 +37,7 @@ import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.sipfoundry.sipxconfig.tls.TlsPeer;
 import org.sipfoundry.sipxconfig.tls.TlsPeerManager;
+import org.springframework.context.ApplicationContext;
 
 
 public class ProxyConfigurationTest {
@@ -54,6 +58,30 @@ public class ProxyConfigurationTest {
 
     @Test
     public void testConfig() throws Exception {
+        ApplicationContext context = EasyMock.createMock(ApplicationContext.class);
+        context.getBeansOfType(ProxyHookPlugin.class);
+        ProxyHookPlugin plugin = new ProxyHookPlugin() {
+            
+            @Override
+            public boolean isEnabled() {
+                return true;
+            }
+
+            @Override
+            public String getProxyHookName() {
+                return "SIPX_PROXY_HOOK_LIBRARY.111_test";
+            }
+
+            @Override
+            public String getProxyHookValue() {
+                return "$(sipx.SIPX_LIBDIR)/authplugins/libTest.so";
+            }
+        };
+        Map<String, ProxyHookPlugin> beans = new HashMap<String, ProxyHookPlugin>();
+        beans.put("test", plugin);
+        EasyMock.expectLastCall().andReturn(beans).anyTimes();
+        EasyMock.replay(context);
+        m_config.setApplicationContext(context);
         StringWriter actual = new StringWriter();
         m_config.write(actual, m_settings, m_location, m_domain, true);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-proxy-config"));

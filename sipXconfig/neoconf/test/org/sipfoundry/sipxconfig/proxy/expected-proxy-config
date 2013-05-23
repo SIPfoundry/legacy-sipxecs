@@ -29,3 +29,14 @@ SIPX_PROXY_HOST_ALIASES : 192.168.1.1:5060 sipx.example.org:5060
 SIPX_PROXY_CALL_STATE_DB : ENABLE
 SIPX_PROXY_HOSTPORT : 192.168.1.1:5060
 SIPX_PROXY_AUTHENTICATE_REALM : realm.example.org
+SIPX_PROXY_HOOK_LIBRARY.200_xfer : $(sipx.SIPX_LIBDIR)/authplugins/libTransferControl.so
+SIPX_PROXY_HOOK_LIBRARY.205_subscriptionauth : $(sipx.SIPX_LIBDIR)/authplugins/libSubscriptionAuth.so
+SIPX_PROXY_HOOK_LIBRARY.210_msftxchghack : $(sipx.SIPX_LIBDIR)/authplugins/libMSFT_ExchangeTransferHack.so
+SIPX_PROXY_HOOK_LIBRARY.300_calldestination : $(sipx.SIPX_LIBDIR)/authplugins/libCallDestination.so
+SIPX_PROXY_HOOK_LIBRARY.350_calleralertinfo : $(sipx.SIPX_LIBDIR)/authplugins/libCallerAlertInfo.so
+SIPX_PROXY_HOOK_LIBRARY.400_authrules : $(sipx.SIPX_LIBDIR)/authplugins/libEnforceAuthRules.so
+SIPX_PROXY_HOOK_LIBRARY.700_fromalias : $(sipx.SIPX_LIBDIR)/authplugins/libCallerAlias.s
+SIPX_PROXY_HOOK_LIBRARY.900_ntap : $(sipx.SIPX_LIBDIR)/authplugins/libNatTraversalAgent.so
+SIPX_PROXY_HOOK_LIBRARY.990_emergnotif : $(sipx.SIPX_LIBDIR)/authplugins/libEmergencyNotify.so
+SIPX_PROXY_HOOK_LIBRARY.995_requestlinter : $(sipx.SIPX_LIBDIR)/authplugins/libRequestLinter.so
+SIPX_PROXY_HOOK_LIBRARY.111_test : $(sipx.SIPX_LIBDIR)/authplugins/libTest.so

@@ -16,6 +16,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
@@ -35,13 +36,16 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.tls.TlsPeer;
 import org.sipfoundry.sipxconfig.tls.TlsPeerManager;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
-public class ProxyConfiguration implements ConfigProvider {
+public class ProxyConfiguration implements ConfigProvider, ApplicationContextAware {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/peeridentities-00-00";
     private static final String PROXY = "sipxproxy";
     private static final String PROXY_CFDAT = "sipxproxy.cfdat";
     private TlsPeerManager m_tlsPeerManager;
     private ProxyManager m_proxyManager;
+    private ApplicationContext m_context;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -105,6 +109,37 @@ public class ProxyConfiguration implements ConfigProvider {
         config.write("SIPX_PROXY_CALL_STATE_DB", isCdrOn ? "ENABLE" : "DISABLE");
         config.write("SIPX_PROXY_HOSTPORT", location.getAddress() + ':' + port);
         config.write("SIPX_PROXY_AUTHENTICATE_REALM", domain.getSipRealm());
+
+        // write proxy hooks
+        config.write("SIPX_PROXY_HOOK_LIBRARY.200_xfer", "$(sipx.SIPX_LIBDIR)/authplugins/libTransferControl.so");
+        config.write("SIPX_PROXY_HOOK_LIBRARY.205_subscriptionauth",
+                "$(sipx.SIPX_LIBDIR)/authplugins/libSubscriptionAuth.so");
+        config.write("SIPX_PROXY_HOOK_LIBRARY.210_msftxchghack",
+                "$(sipx.SIPX_LIBDIR)/authplugins/libMSFT_ExchangeTransferHack.so");
+        config.write("SIPX_PROXY_HOOK_LIBRARY.300_calldestination",
+                "$(sipx.SIPX_LIBDIR)/authplugins/libCallDestination.so");
+        config.write("SIPX_PROXY_HOOK_LIBRARY.350_calleralertinfo",
+                "$(sipx.SIPX_LIBDIR)/authplugins/libCallerAlertInfo.so");
+        config.write("SIPX_PROXY_HOOK_LIBRARY.400_authrules",
+                "$(sipx.SIPX_LIBDIR)/authplugins/libEnforceAuthRules.so");
+        config.write("SIPX_PROXY_HOOK_LIBRARY.700_fromalias",
+                "$(sipx.SIPX_LIBDIR)/authplugins/libCallerAlias.s");
+        config.write("SIPX_PROXY_HOOK_LIBRARY.900_ntap",
+                "$(sipx.SIPX_LIBDIR)/authplugins/libNatTraversalAgent.so");
+        config.write("SIPX_PROXY_HOOK_LIBRARY.990_emergnotif",
+                "$(sipx.SIPX_LIBDIR)/authplugins/libEmergencyNotify.so");
+        config.write("SIPX_PROXY_HOOK_LIBRARY.995_requestlinter",
+                "$(sipx.SIPX_LIBDIR)/authplugins/libRequestLinter.so");
+
+        // write plugin proxy hooks
+        Map<String, ProxyHookPlugin> beans = m_context.getBeansOfType(ProxyHookPlugin.class);
+        if (beans != null) {
+            for (ProxyHookPlugin bean : beans.values()) {
+                if (bean.isEnabled()) {
+                    config.write(bean.getProxyHookName(), bean.getProxyHookValue());
+                }
+            }
+        }
     }
 
     public Document getDocument(Collection<TlsPeer> peers) {
@@ -126,5 +161,10 @@ public class ProxyConfiguration implements ConfigProvider {
 
     public void setProxyManager(ProxyManager proxyManager) {
         m_proxyManager = proxyManager;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext context) {
+        m_context = context;
     }
 }

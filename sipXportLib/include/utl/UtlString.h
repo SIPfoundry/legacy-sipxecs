@@ -745,6 +745,11 @@ public:
 
 inline UtlString::UtlString(const std::string& str)
 {
+    mpData = mBuiltIn;
+    mBuiltIn[0] = '\000';
+    mSize = 0;
+    mCapacity = DEFAULT_UTLSTRING_CAPACITY;
+
     operator=(str);
 }
 

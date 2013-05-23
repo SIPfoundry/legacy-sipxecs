@@ -84,20 +84,11 @@ bundle edit_line sipXproxy_config_contents() {
   insert_lines:
     any::
       "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipXproxy-config.part"
-        insert_type => "file";
+        insert_type => "file",
+        expand_scalars => "true";
       "SIPX_PROXY.400_authrules.RULES : $(sipx.SIPX_CONFDIR)/authrules.xml";
       "SIPX_PROXY.990_emergnotif.EMERGRULES : $(sipx.SIPX_CONFDIR)/authrules.xml";
       "SIPX_PROXY_BIND_IP : $(sipx.bind_ip)";
-      "SIPX_PROXY_HOOK_LIBRARY.200_xfer : $(sipx.SIPX_LIBDIR)/authplugins/libTransferControl.so";
-      "SIPX_PROXY_HOOK_LIBRARY.205_subscriptionauth : $(sipx.SIPX_LIBDIR)/authplugins/libSubscriptionAuth.so";
-      "SIPX_PROXY_HOOK_LIBRARY.210_msftxchghack : $(sipx.SIPX_LIBDIR)/authplugins/libMSFT_ExchangeTransferHack.so";
-      "SIPX_PROXY_HOOK_LIBRARY.300_calldestination: $(sipx.SIPX_LIBDIR)/authplugins/libCallDestination.so";
-      "SIPX_PROXY_HOOK_LIBRARY.350_calleralertinfo: $(sipx.SIPX_LIBDIR)/authplugins/libCallerAlertInfo.so";
-      "SIPX_PROXY_HOOK_LIBRARY.400_authrules : $(sipx.SIPX_LIBDIR)/authplugins/libEnforceAuthRules.so";
-      "SIPX_PROXY_HOOK_LIBRARY.700_fromalias : $(sipx.SIPX_LIBDIR)/authplugins/libCallerAlias.so";
-      "SIPX_PROXY_HOOK_LIBRARY.900_ntap : $(sipx.SIPX_LIBDIR)/authplugins/libNatTraversalAgent.so";
-      "SIPX_PROXY_HOOK_LIBRARY.990_emergnotif: $(sipx.SIPX_LIBDIR)/authplugins/libEmergencyNotify.so";
-      "SIPX_PROXY_HOOK_LIBRARY.995_requestlinter: $(sipx.SIPX_LIBDIR)/authplugins/libRequestLinter.so";
     homer::
       "SIPX_TRAN_HOOK_LIBRARY.100_sipxhomer : $(sipx.SIPX_LIBDIR)/transactionplugins/libsipXhomerProxyPlugin.so";
 
