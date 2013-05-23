@@ -41,7 +41,6 @@ import org.springframework.beans.factory.annotation.Required;
 public class OpenfireConfigurationFile {
     private static final String PROVIDER_ADMIN_CLASSNAME = "org.jivesoftware.openfire.admin.DefaultAdminProvider";
     private static final String SEPARATOR = ", ";
-    private static final String ADMIN = "admin";
 
     private String m_providerLdapAuthClassName;
     private String m_providerLdapUserClassName;
@@ -133,12 +132,10 @@ public class OpenfireConfigurationFile {
      */
     protected String getAuthorizedUsernames() {
         List<User> admins = m_coreContext.loadUserByAdmin();
-        String domainName = m_coreContext.getDomainName();
         Set<String> authorizedList = new TreeSet<String>();
-        authorizedList.add(ADMIN + "@" + domainName);
-        authorizedList.add(AbstractUser.SUPERADMIN + "@" + domainName);
+        authorizedList.add(AbstractUser.SUPERADMIN);
         for (User user : admins) {
-            authorizedList.add(user.getUserName() + "@" + domainName);
+            authorizedList.add(user.getUserName());
         }
         return StringUtils.join(authorizedList, SEPARATOR);
     }
