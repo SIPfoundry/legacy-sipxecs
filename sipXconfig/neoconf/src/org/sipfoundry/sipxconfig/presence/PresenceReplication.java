@@ -106,4 +106,9 @@ public class PresenceReplication implements Replicable, ReplicableProvider {
     public String getEntityName() {
         return getClass().getSimpleName();
     }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

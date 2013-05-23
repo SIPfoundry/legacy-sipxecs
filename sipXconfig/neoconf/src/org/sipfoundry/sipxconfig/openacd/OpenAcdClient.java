@@ -36,10 +36,12 @@ public class OpenAcdClient extends BeanWithId implements Replicable {
     private String m_identity;
     private String m_description;
 
+    @Override
     public String getName() {
         return m_name;
     }
 
+    @Override
     public void setName(String name) {
         m_name = name;
     }
@@ -60,10 +62,12 @@ public class OpenAcdClient extends BeanWithId implements Replicable {
         m_description = description;
     }
 
+    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(m_name).append(m_identity).toHashCode();
     }
 
+    @Override
     public boolean equals(Object other) {
         if (!(other instanceof OpenAcdClient)) {
             return false;
@@ -105,5 +109,10 @@ public class OpenAcdClient extends BeanWithId implements Replicable {
     @Override
     public String getEntityName() {
         return getClass().getSimpleName();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

@@ -11,7 +11,8 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.ldap.LdapTemplate;
+import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.core.support.SingleContextSource;
 
 public class LdapTemplateFactory implements ApplicationContextAware {
     public static final String LDAP_TEMPLATE_BEAN_ID = "ldapTemplate";
@@ -29,10 +30,11 @@ public class LdapTemplateFactory implements ApplicationContextAware {
         ContextSourceFromConnectionParams source = new ContextSourceFromConnectionParams();
         params.applyToContext(source);
         source.applyParameters(params);
-        template.setContextSource(source);
+        template.setContextSource(new SingleContextSource(source.getReadOnlyContext()));
         return template;
     }
 
+    @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         m_applicationContext = applicationContext;
     }

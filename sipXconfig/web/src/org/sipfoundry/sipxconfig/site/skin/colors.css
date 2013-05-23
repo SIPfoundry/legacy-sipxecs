@@ -277,6 +277,18 @@ form.with-sections legend
 	font-style: italic;
 }
 
+.user-disabled
+{
+	color: #FF001A;
+	font-style : bold;
+}
+
+.user-ldap
+{
+	color: #007733;
+	font-style : bold;
+}
+
 #comments
 {
 	color: #000033;

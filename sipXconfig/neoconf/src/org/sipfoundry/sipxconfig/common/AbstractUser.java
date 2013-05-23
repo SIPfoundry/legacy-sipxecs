@@ -28,9 +28,11 @@ import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.PRIMARY_EMAIL_ATTA
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.PRIMARY_EMAIL_FORMAT;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.PRIMARY_EMAIL_NOTIFICATION;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,10 +41,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
@@ -56,6 +60,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.time.NtpManager;
+import org.apache.commons.logging.Log;
 
 /**
  * Can be user that logs in, can be superadmin, can be user for phone line
@@ -64,6 +69,7 @@ public abstract class AbstractUser extends BeanWithGroups {
     public static final int VOICEMAIL_PIN_LEN = 4;
     public static final int PASSWORD_LEN = 8;
     public static final String GROUP_RESOURCE_ID = "user";
+    public static final String NOT_AVAILABLE = "N/A";
 
     // property names
     public static final String ALIASES_PROP = "aliases";
@@ -81,6 +87,7 @@ public abstract class AbstractUser extends BeanWithGroups {
     public static final String CALLFWD_TIMER = "callfwd/timer";
     public static final String OPERATOR_SETTING = "personal-attendant/operator";
     public static final String DEFAULT_VM_OPTION = "personal-attendant/default-vm-option";
+    public static final Log LOG = LogFactory.getLog(LdapImportManager.class);
 
     public static enum MohAudioSource {
         FILES_SRC, PERSONAL_FILES_SRC, SOUNDCARD_SRC, SYSTEM_DEFAULT, NONE;
@@ -664,6 +671,55 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     public void setImDisplayName(String imDisplayName) {
         m_userProfile.setImDisplayName(trim(imDisplayName));
+    }
+
+    public void setEnabled(boolean enabled) {
+        //user is disabled and we need to store the disabled date
+        if (m_userProfile.isEnabled() && !enabled) {
+            setDisabledDate(new Date());
+        } else if (enabled) {
+            setDisabledDate(null);
+        }
+        m_userProfile.setEnabled(enabled);
+    }
+
+    public boolean isLdapManaged() {
+        return m_userProfile.isLdapManaged();
+    }
+
+    public void setLdapManaged(boolean ldapManaged) {
+        m_userProfile.setLdapManaged(ldapManaged);
+        if (m_userProfile.getLastImportedDate() == null && m_userProfile.isLdapManaged()) {
+            setLastImportedDate(new Date());
+        } else if (!m_userProfile.isLdapManaged()) {
+            setLastImportedDate(null);
+        }
+    }
+
+    public Date getLastImportedDate() {
+        return m_userProfile.getLastImportedDate();
+    }
+
+    public void setLastImportedDate(Date lastImportedDate) {
+        m_userProfile.setLastImportedDate(lastImportedDate);
+    }
+
+    public String getLastImportedDateStr() {
+        Date date = m_userProfile.getLastImportedDate();
+        return date != null ? DateFormat.getInstance().format(date) : NOT_AVAILABLE;
+    }
+
+    public String getDisabledDateStr() {
+        Date date = m_userProfile.getDisabledDate();
+        return date != null ? DateFormat.getInstance().format(date) : NOT_AVAILABLE;
+    }
+
+    public Date getDisabledDate() {
+        return m_userProfile.getDisabledDate();
+    }
+
+    public void setDisabledDate(Date disabledDate) {
+        m_userProfile.setDisabledDate(disabledDate);
     }
 
     public String getOperator() {

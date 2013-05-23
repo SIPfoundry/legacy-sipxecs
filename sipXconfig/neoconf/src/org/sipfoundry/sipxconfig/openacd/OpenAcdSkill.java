@@ -36,10 +36,12 @@ public class OpenAcdSkill extends BeanWithId implements Replicable {
     private String m_description;
     private boolean m_defaultSkill;
 
+    @Override
     public String getName() {
         return m_name;
     }
 
+    @Override
     public void setName(String name) {
         m_name = name;
     }
@@ -83,10 +85,12 @@ public class OpenAcdSkill extends BeanWithId implements Replicable {
         m_defaultSkill = defaultSkill;
     }
 
+    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(m_name).append(m_atom).toHashCode();
     }
 
+    @Override
     public boolean equals(Object other) {
         if (!(other instanceof OpenAcdSkill)) {
             return false;
@@ -130,5 +134,10 @@ public class OpenAcdSkill extends BeanWithId implements Replicable {
     @Override
     public String getEntityName() {
         return getClass().getSimpleName();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

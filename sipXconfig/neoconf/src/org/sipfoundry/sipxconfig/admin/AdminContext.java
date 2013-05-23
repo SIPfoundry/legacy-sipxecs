@@ -37,4 +37,12 @@ public interface AdminContext {
     String getDefaultPassword();
 
     String getDefaultVmPin();
+
+    int getAge();
+
+    public int getPageImportSize();
+
+    boolean isDisable();
+
+    boolean isDelete();
 }

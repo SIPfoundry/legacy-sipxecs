@@ -148,7 +148,7 @@ public class AuthCodeSettings extends PersistableSettings implements DeployConfi
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Arrays.asList((Feature) AuthCodes.FEATURE, (Feature) DialPlanContext.FEATURE);
+        return Arrays.asList(AuthCodes.FEATURE, DialPlanContext.FEATURE);
     }
 
     @Override
@@ -159,5 +159,10 @@ public class AuthCodeSettings extends PersistableSettings implements DeployConfi
     @Override
     public String getEntityName() {
         return getClass().getSimpleName();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

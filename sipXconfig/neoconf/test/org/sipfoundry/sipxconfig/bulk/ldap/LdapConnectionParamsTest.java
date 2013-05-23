@@ -17,7 +17,7 @@ import javax.naming.Context;
 import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
-import org.springframework.ldap.support.LdapContextSource;
+import org.springframework.ldap.core.support.LdapContextSource;
 
 public class LdapConnectionParamsTest extends TestCase {
 
@@ -27,7 +27,7 @@ public class LdapConnectionParamsTest extends TestCase {
 
         LdapContextSource config = EasyMock.createMock(LdapContextSource.class);
         config.setUrl("ldap://example.sipfoundry.org:10");
-        config.setUserName("uid=bongo,dc=sipfoundry,dc=com");
+        config.setUserDn("uid=bongo,dc=sipfoundry,dc=com");
         config.setPassword("abc");
         config.setBaseEnvironmentProperties(other);
 
@@ -51,7 +51,7 @@ public class LdapConnectionParamsTest extends TestCase {
 
         LdapContextSource config = EasyMock.createMock(LdapContextSource.class);
         config.setUrl("ldap://example.sipfoundry.org:389");
-        config.setUserName("uid=bongo,dc=sipfoundry,dc=com");
+        config.setUserDn("uid=bongo,dc=sipfoundry,dc=com");
         config.setPassword("abc");
         config.setBaseEnvironmentProperties(other);
 

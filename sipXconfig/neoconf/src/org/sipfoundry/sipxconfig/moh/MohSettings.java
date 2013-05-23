@@ -58,7 +58,7 @@ public class MohSettings extends PersistableSettings implements Replicable, Bean
     }
 
     public String getMusicOnHoldSource() {
-        return (String) getSettingValue(MOH_SOURCE);
+        return getSettingValue(MOH_SOURCE);
     }
 
     @Override
@@ -143,5 +143,10 @@ public class MohSettings extends PersistableSettings implements Replicable, Bean
     @Override
     public String getEntityName() {
         return getClass().getSimpleName();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

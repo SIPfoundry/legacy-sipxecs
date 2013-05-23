@@ -27,17 +27,20 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.UserPreview;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.User;
-import org.springframework.ldap.NameClassPairMapper;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
+import org.springframework.beans.factory.annotation.Required;
+import org.springframework.ldap.core.NameClassPairMapper;
 
 public class UserMapper implements NameClassPairMapper {
     private LdapManager m_ldapManager;
+    private PermissionManager m_permissionManager;
     private AttrMap m_attrMap;
-
     /**
      * @return UserPreview
      */
@@ -46,6 +49,7 @@ public class UserMapper implements NameClassPairMapper {
         SearchResult searchResult = (SearchResult) nameClass;
         Attributes attrs = searchResult.getAttributes();
         User user = new User();
+        user.setPermissionManager(m_permissionManager);
         List<String> groupNames = new ArrayList<String>(getGroupNames(searchResult));
 
         setUserProperties(user, attrs);
@@ -89,6 +93,7 @@ public class UserMapper implements NameClassPairMapper {
         setProperty(user, attrs, Index.OFFICE_STATE);
         setProperty(user, attrs, Index.OFFICE_COUNTRY);
         setProperty(user, attrs, Index.OFFICE_ZIP);
+        setProperty(user, attrs, Index.EXTERNAL_NUMBER);
     }
 
     public void setAliasesSet(Set<String> aliases, User user) {
@@ -98,7 +103,7 @@ public class UserMapper implements NameClassPairMapper {
     }
 
     public Set<String> getAliasesSet(Attributes attrs) throws NamingException {
-        return getValues(attrs, Index.ALIAS);
+        return getMultiAttrValues(attrs, Index.ALIAS);
     }
 
     public void setPin(User user, Attributes attrs) throws NamingException {
@@ -197,7 +202,7 @@ public class UserMapper implements NameClassPairMapper {
     }
 
     private String getValue(Attributes attrs, Index index) throws NamingException {
-        String attrName = getAttrMap().userProperty2ldapAttribute(index.getName());
+        String attrName = getAttrMap().getAttribute(index.getName());
         if (attrName == null) {
             // no attribute for this property - nothing to do
             return null;
@@ -206,12 +211,43 @@ public class UserMapper implements NameClassPairMapper {
     }
 
     private Set<String> getValues(Attributes attrs, Index index) throws NamingException {
-        String attrName = getAttrMap().userProperty2ldapAttribute(index.getName());
+        String attrName = getAttrMap().getAttribute(index.getName());
         if (attrName == null) {
             // no attribute for this property - nothing to do
             return null;
         }
         return getValues(attrs, attrName);
+    }
+
+    /**
+     * This method should be used for getting multiple attributes mapping values (example: alias)
+     * Also, one attribute can have multiple values configured
+     * EXAMPLE:
+     *
+     * mobile=111
+     *        222
+     *        333
+     * ipPhone=1234321
+     *
+     * Resulted aliases that will be imported for this particular user: 111 222 333 1234321
+     * @param field
+     * @return
+     */
+    private Set<String> getMultiAttrValues(Attributes attrs, Index index) throws NamingException {
+        List<String> attrNames = getAttrMap().getAttributes(index.getName());
+        if (CollectionUtils.isEmpty(attrNames)) {
+            // no attribute for this property - nothing to do
+            return null;
+        }
+        Set<String> values = new TreeSet<String>();
+        Set<String> attributeValues = null;
+        for (String attrName : attrNames) {
+            attributeValues = getValues(attrs, attrName);
+            if (attributeValues != null) {
+                values.addAll(attributeValues);
+            }
+        }
+        return values;
     }
 
     private AttrMap getAttrMap() {
@@ -242,7 +278,7 @@ public class UserMapper implements NameClassPairMapper {
 
     /**
      * Returns all string values for an attribute with a given name, ignores the values that are
-     * not string values
+     * not string or byte array values
      *
      * @param attrs collection of attributes
      * @param attr attribute name
@@ -258,6 +294,9 @@ public class UserMapper implements NameClassPairMapper {
             Object object = allValues.nextElement();
             if (object instanceof String) {
                 values.add((String) object);
+            // some values like userPassword are returned as byte[], see XX-9328
+            } else if (object instanceof byte[]) {
+                values.add(new String((byte[]) object));
             }
         }
         return values;
@@ -279,10 +318,6 @@ public class UserMapper implements NameClassPairMapper {
             pin = getAttrMap().getDefaultPin();
         }
         return pin;
-    }
-
-    public String getAliases(Attributes attrs) throws NamingException {
-        return getValue(attrs, Index.ALIAS);
     }
 
     public String getImId(Attributes attrs) throws NamingException {
@@ -308,5 +343,10 @@ public class UserMapper implements NameClassPairMapper {
 
     public void setLdapManager(LdapManager ldapManager) {
         m_ldapManager = ldapManager;
+    }
+
+    @Required
+    public void setPermissionManager(PermissionManager permissionManager) {
+        m_permissionManager = permissionManager;
     }
 }

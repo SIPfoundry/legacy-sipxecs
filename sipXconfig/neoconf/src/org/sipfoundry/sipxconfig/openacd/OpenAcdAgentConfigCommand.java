@@ -83,4 +83,9 @@ public class OpenAcdAgentConfigCommand extends BeanWithId  implements Replicable
     public String getEntityName() {
         return getClass().getSimpleName();
     }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

@@ -136,6 +136,14 @@
             value="ognl:user.userProfile.location"
             displayName="message:label.location" disabled="true"/>
 		</tr>
+        <tr jwcid="@common/FieldPanel" id="callerIdPanel"
+    	    for="user:callerId"
+            field="component:callerId"
+            label="message:label.callerId">
+    	    <td jwcid="callerId@TextField"
+    	        value="ognl:user.externalNumber"
+    		    displayName="message:label.callerId" disabled="true"/>
+        </tr>		
 		<tr>
 		  <td>
 			<b><span jwcid="@Insert" value="message:label.homeAddressTitle"/>

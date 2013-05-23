@@ -38,16 +38,19 @@ public class OpenAcdAgent extends OpenAcdAgentWithSkills implements Replicable {
 
     public static enum Security {
         AGENT {
+            @Override
             public String toString() {
                 return "AGENT";
             }
         },
         SUPERVISOR {
+            @Override
             public String toString() {
                 return "SUPERVISOR";
             }
         },
         ADMIN {
+            @Override
             public String toString() {
                 return "ADMIN";
             }
@@ -83,10 +86,12 @@ public class OpenAcdAgent extends OpenAcdAgentWithSkills implements Replicable {
         m_security = security;
     }
 
+    @Override
     public String getName() {
         return m_user.getUserName();
     }
 
+    @Override
     public void setName(String name) {
         m_user.setName(name);
     }
@@ -143,10 +148,12 @@ public class OpenAcdAgent extends OpenAcdAgentWithSkills implements Replicable {
         return props;
     }
 
+    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(m_group).append(m_user).toHashCode();
     }
 
+    @Override
     public boolean equals(Object other) {
         if (!(other instanceof OpenAcdAgent)) {
             return false;
@@ -181,5 +188,10 @@ public class OpenAcdAgent extends OpenAcdAgentWithSkills implements Replicable {
     @Override
     public String getEntityName() {
         return getClass().getSimpleName();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

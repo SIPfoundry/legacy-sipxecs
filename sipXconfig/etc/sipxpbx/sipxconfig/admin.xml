@@ -28,7 +28,31 @@
       <type>
         <string minLen="4" password="yes"/>
       </type>
-    </setting>  
+    </setting>
+    <setting name="age">
+      <type>
+    	<integer/>
+      </type>
+      <value>24</value>
+    </setting>
+    <setting name="pageImportSize">
+      <type>
+    	<integer/>
+      </type>
+      <value>1000</value>
+    </setting>    
+    <setting name="disable">
+      <type>
+    	<boolean/>
+      </type>
+      <value>false</value>
+    </setting>    
+    <setting name="delete">
+      <type>
+    	<boolean/>
+      </type>
+      <value>false</value>
+    </setting>      
     <setting name="externalAliases.aliasAddins" advanced="yes">
       <type>
         <string/>

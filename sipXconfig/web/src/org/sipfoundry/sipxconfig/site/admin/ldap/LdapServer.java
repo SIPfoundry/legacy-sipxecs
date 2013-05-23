@@ -69,6 +69,7 @@ public abstract class LdapServer extends BaseComponent implements PageBeginRende
     public abstract boolean isAddMode();
     public abstract void setAddMode(boolean addMode);
 
+    @Override
     public void pageBeginRender(PageEvent event_) {
         LdapManager ldapManager = getLdapManager();
 

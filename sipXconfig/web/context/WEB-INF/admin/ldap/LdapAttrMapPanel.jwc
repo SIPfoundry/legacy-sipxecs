@@ -85,11 +85,6 @@
     <binding name="label" value="message:label.alias" />
     <binding name="description" value="message:description.alias" />
   </component>
-  <component id="alias" type="PropertySelection">
-    <binding name="value" value="attrMap.attribute['aliasesString']" />
-    <binding name="model" value="attributesOptionalSelectionModel" />
-    <binding name="displayName" value="message:label.alias" />
-  </component>
 
   <component id="emailPanel" type="common/FieldPanel">
     <binding name="field" value="components.email" />

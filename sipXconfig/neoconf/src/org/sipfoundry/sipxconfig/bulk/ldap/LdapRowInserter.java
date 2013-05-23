@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,9 +28,11 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.UserValidationUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.GroupAutoAssign;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Specialized version of row inserter for inserting users from LDAP searches LdapRowinserter
@@ -40,6 +43,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
     private LdapManager m_ldapManager;
     private ConferenceBridgeContext m_conferenceBridgeContext;
     private CoreContext m_coreContext;
+    private PermissionManager m_permissionManager;
     private ForwardingContext m_forwardingContext;
     private MailboxManager m_mailboxManager;
     private Set<String> m_existingUserNames;
@@ -95,8 +99,17 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
             if (newUser) {
                 user = m_coreContext.newUser();
                 user.setUserName(userName);
+            } else if (!user.isLdapManaged()) {
+                //this user was already created but it is not supposed to be managed by LDAP
+                LOG.info("STOP Inserting:" + attrs.toString()
+                    + " as this is an existing user which is not LDAP managed");
+                return;
             }
-
+            user.setEnabled(true);
+            user.setPermissionManager(m_permissionManager);
+            //set ldap import information
+            user.setLdapManaged(true);
+            user.setLastImportedDate(new Date());
             // disable user email notification
             user.setNotified(true);
 
@@ -225,5 +238,10 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
 
     public void setDomain(String domain) {
         m_domain = domain;
+    }
+
+    @Required
+    public void setPermissionManager(PermissionManager permissionManager) {
+        m_permissionManager = permissionManager;
     }
 }

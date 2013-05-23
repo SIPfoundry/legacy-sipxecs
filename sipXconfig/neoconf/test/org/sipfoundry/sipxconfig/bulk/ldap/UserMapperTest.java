@@ -146,7 +146,7 @@ public class UserMapperTest extends TestCase {
         AttrMap map = control.createMock(AttrMap.class);
         SearchResult sr = control.createMock(SearchResult.class);
 
-        map.userProperty2ldapAttribute(Index.USER_GROUP.getName());
+        map.getAttribute(Index.USER_GROUP.getName());
         if (existLdapGroup) {
             control.andReturn(LDAP_GROUP);
         } else {

@@ -9,8 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang.StringUtils.split;
+import static org.apache.commons.lang.StringUtils.trimToNull;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -24,6 +31,8 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
  * Information related to mapping LDAP attributes to User properties
  */
 public class AttrMap extends BeanWithId {
+    private static final String SEPARATOR = "|";
+
     private Map<String, String> m_user2ldap = new TreeMap<String, String>();
 
     /**
@@ -75,16 +84,20 @@ public class AttrMap extends BeanWithId {
     public Collection<String> getLdapAttributes() {
         Collection<String> attrs = new ArrayList<String>(m_user2ldap.values());
         CollectionUtils.filter(attrs, NotNullPredicate.INSTANCE);
-        return attrs;
+        //we can have multiple attributes values assigned for a user field (alias for example)
+        //In DB, table ldap_user_property_to_ldap_attr  these values are saved like this: audio|mobile|ipphone
+        List<String> attrsList = new ArrayList<String>();
+        for (String attr : attrs) {
+            if (!isEmpty(attr)) {
+                attrsList.addAll(Arrays.asList(split(attr, SEPARATOR)));
+            }
+        }
+        return attrsList;
     }
 
     public String[] getLdapAttributesArray() {
         Collection<String> attrs = getLdapAttributes();
         return attrs.toArray(new String[attrs.size()]);
-    }
-
-    public String userProperty2ldapAttribute(String propertyName) {
-        return m_user2ldap.get(propertyName);
     }
 
     public String getIdentityAttributeName() {
@@ -165,6 +178,26 @@ public class AttrMap extends BeanWithId {
 
     public String getAttribute(String field) {
         return m_user2ldap.get(field);
+    }
+    /**
+     * This method should be used for getting multiple attributes mapping (example: alias)
+     * @param field
+     * @return
+     */
+    public List<String> getAttributes(String field) {
+        String joinedAttrs = m_user2ldap.get(field);
+        return isEmpty(joinedAttrs) ? new ArrayList<String>()
+               : new ArrayList<String>(Arrays.asList(split(joinedAttrs, SEPARATOR)));
+    }
+
+    /**
+     * This method should be used for setting multiple attributes mapping (example: alias)
+     * @param field
+     * @return
+     */
+    public void setAttributes(String field, List<String> attributes) {
+        String joinedAttrs = trimToNull(join(attributes, SEPARATOR));
+        m_user2ldap.put(field, joinedAttrs);
     }
 
     public String getFilter() {

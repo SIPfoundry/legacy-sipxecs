@@ -17,7 +17,6 @@
         </entry>
         <entry key="firstName" value="givenName" />
         <entry key="lastName" value="sn" />
-        <entry key="aliasesString" value="sAMAccountName" />
         <entry key="emailAddress" value="mail" />
         <entry key="userGroupName" value="ou" />
         <entry key="imId" value="sAMAccountName" />
@@ -76,12 +75,14 @@
     <property name="ldapManager">
       <ref local="ldapManager" />
     </property>
+    <property name="permissionManager" ref="permissionManager" />
   </bean>
 
   <bean id="ldapUserMapper" class="org.sipfoundry.sipxconfig.bulk.ldap.UserMapper" scope="prototype">
     <property name="ldapManager">
       <ref local="ldapManager" />
     </property>
+    <property name="permissionManager" ref="permissionManager" />
   </bean>
 
   <bean id="ldapTemplateFactory" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapTemplateFactory" />
@@ -109,6 +110,7 @@
     </property>
     <property name="previewSize" value="10" />
     <property name="templateFactory" ref="ldapTemplateFactory" />
+    <property name="adminContext" ref="adminContext"/>
   </bean>
 
   <bean id="eagerLdapImportManager" class="org.springframework.aop.framework.ProxyFactoryBean">
@@ -143,5 +145,30 @@
     <property name="ldapManager">
       <ref local="ldapManager" />
     </property>
+  </bean>
+
+  <bean id="disableLdapUsersTimer" class="org.sipfoundry.sipxconfig.bulk.ldap.DisableLdapUsersTimer">
+    <property name="adminContext" ref="adminContext"/>
+    <property name="userProfileService" ref="userProfileService" />
+  </bean>
+  
+  <bean id="ldapScheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask" lazy-init="false">
+    <property name="delay" value="1000"/> 
+    <property name="period" value="10000"/>
+    <property name="timerTask" ref="disableLdapUsersTimer"/>
+  </bean>
+  
+  <bean id="ldapTimerFactory" class="org.springframework.scheduling.timer.TimerFactoryBean" lazy-init="false">
+    <property name="scheduledTimerTasks">
+      <list>        
+        <ref bean="ldapScheduledTask"/>
+      </list>
+    </property>
+  </bean> 
+  
+  <bean id="disableLdapUsersTask" class="org.sipfoundry.sipxconfig.bulk.ldap.DisableLdapUsersTask" scope="prototype">
+    <property name="userProfileService" ref="userProfileService" />
+    <property name="imdb" ref="imdb"/>
+    <property name="coreContext" ref="coreContext"/>
   </bean>
 </beans>

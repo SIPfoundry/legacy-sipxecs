@@ -4,6 +4,8 @@
   "branchAddress": {},
   "useBranchAddress": false,
   "salutation": "None",
+  "enabled": true,
+  "ldapManaged": false,
   "firstName": "John",
   "lastName": "Doe"
 }}

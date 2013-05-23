@@ -44,10 +44,12 @@ public class Group extends ValueStorage implements Comparable, NamedObject, Repl
     private Integer m_weight;
     private Branch m_branch;
 
+    @Override
     public String getName() {
         return m_name;
     }
 
+    @Override
     public void setName(String label) {
         m_name = label;
     }
@@ -89,6 +91,7 @@ public class Group extends ValueStorage implements Comparable, NamedObject, Repl
         m_branch = branch;
     }
 
+    @Override
     public int compareTo(Object arg0) {
         Group b = (Group) arg0;
         int w1 = defaultWeight(m_weight);
@@ -156,10 +159,12 @@ public class Group extends ValueStorage implements Comparable, NamedObject, Repl
             m_baseSetting = baseSetting;
         }
 
+        @Override
         public void setSettingValue(Setting setting, String value) {
             m_group.setSettingValue(setting, new SettingValueImpl(value), getDefaultSettingValue(setting));
         }
 
+        @Override
         public SettingValue getSettingValue(Setting setting) {
             SettingValue value = m_group.getSettingValue(setting);
             if (value != null) {
@@ -168,11 +173,13 @@ public class Group extends ValueStorage implements Comparable, NamedObject, Repl
             return getDefaultSettingValue(setting);
         }
 
+        @Override
         public SettingValue getDefaultSettingValue(Setting setting) {
             Setting baseSetting = m_baseSetting.getSetting(setting.getPath());
             return new SettingValueImpl(baseSetting.getDefaultValue());
         }
 
+        @Override
         public SettingValue getProfileName(Setting setting) {
             Setting baseSetting = m_baseSetting.getSetting(setting.getPath());
             return new SettingValueImpl(baseSetting.getProfileName());
@@ -240,5 +247,10 @@ public class Group extends ValueStorage implements Comparable, NamedObject, Repl
     @Override
     public String getEntityName() {
         return getClass().getSimpleName();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

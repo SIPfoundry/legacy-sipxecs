@@ -25,5 +25,5 @@ public interface LdapImportManager {
      */
     List<UserPreview> getExample(int connectionId);
 
-    void dumpExample(Writer output, int connectionId);
+    void dumpExample(List<UserPreview> list, Writer output, int connectionId);
 }

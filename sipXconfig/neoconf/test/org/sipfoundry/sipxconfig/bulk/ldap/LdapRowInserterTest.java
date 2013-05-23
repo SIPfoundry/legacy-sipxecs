@@ -14,6 +14,7 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.classextension.EasyMock.createMock;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,6 +27,8 @@ import junit.framework.TestCase;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.junit.Assert;
+import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.bulk.RowInserter.RowStatus;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
@@ -53,7 +56,7 @@ public class LdapRowInserterTest extends TestCase {
         m_rowInserter.setAttrMap(attrMap);
     }
 
-    private User insertRow(boolean existingUser) throws Exception {
+    private User insertRow(boolean existingUser, boolean ldapManaged) throws Exception {
         IMocksControl control = org.easymock.classextension.EasyMock.createNiceControl();
         UserMapper userMapper = control.createMock(UserMapper.class);
         SearchResult searchResult = control.createMock(SearchResult.class);
@@ -71,6 +74,7 @@ public class LdapRowInserterTest extends TestCase {
         expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
         replay(pManager);
         joe.setPermissionManager(pManager);
+        joe.setUserProfile(new UserProfile());
         Group salesGroup = new Group();
         salesGroup.setName(SALES);
         salesGroup.setUniqueId();
@@ -106,6 +110,7 @@ public class LdapRowInserterTest extends TestCase {
             groups.add(ldapGroup);
             groups.add(noLdapGroup);
             joe.setGroups(groups);
+            joe.setLdapManaged(ldapManaged);
             coreContextControl.andReturn(joe);
         }
 
@@ -136,6 +141,7 @@ public class LdapRowInserterTest extends TestCase {
         m_rowInserter.setMailboxManager(mailboxManager);
         m_rowInserter.setAttrMap(map);
         m_rowInserter.setDomain("example.com");
+        m_rowInserter.setPermissionManager(pManager);
         m_rowInserter.beforeInserting(null);
         m_rowInserter.insertRow(searchResult, attributes);
         m_rowInserter.afterInserting();
@@ -146,7 +152,7 @@ public class LdapRowInserterTest extends TestCase {
     }
 
     public void testInsertRowExistingUser() throws Exception {
-        User joe = insertRow(true);
+        User joe = insertRow(true, true);
         assertEquals("example.com", joe.getSettingValue(User.DOMAIN_SETTING));
         assertEquals(2, joe.getGroups().size());
         //existing ldap group have been deleted and replaced with new ldap group
@@ -159,8 +165,17 @@ public class LdapRowInserterTest extends TestCase {
         }
     }
 
+    public void testInsertRowExistingUserNonLdap() throws Exception {
+        try {
+            insertRow(true, false);
+            Assert.fail("Did not fail on insert");
+        } catch (AssertionError ex) {
+            Assert.assertNotNull(ex.getMessage());
+        }
+    }
+
     public void testInsertRowNewUser() throws Exception {
-        User joe = insertRow(false);
+        User joe = insertRow(false, false);
         assertEquals(1, joe.getGroups().size());
         //ldap group was saved
         for (Group group : joe.getGroups()) {

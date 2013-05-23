@@ -136,6 +136,7 @@ public class AcdLine extends AcdComponent implements Replicable {
         }
     }
 
+    @Override
     public Serializable getAcdServerId() {
         return getAcdServer().getId();
     }
@@ -196,5 +197,10 @@ public class AcdLine extends AcdComponent implements Replicable {
     @Override
     public String getEntityName() {
         return getClass().getSimpleName();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

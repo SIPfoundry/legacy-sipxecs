@@ -37,8 +37,9 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.ldap.AttributesMapper;
+import org.springframework.ldap.CommunicationException;
 import org.springframework.ldap.UncategorizedLdapException;
+import org.springframework.ldap.core.AttributesMapper;
 
 /**
  * Maintains LDAP connection params, attribute maps and schedule LdapManagerImpl
@@ -69,10 +70,16 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             attrMap.setSearchBaseDefault(searchBase);
             String subschemaSubentry = results.get(attrNames[1]);
             attrMap.setSubschemaSubentry(subschemaSubentry);
-        } catch (NamingException e) {
-            verifyException("&readData.failed", e);
-        } catch (DataAccessException e) {
-            verifyException("&connection.failed", e);
+        } catch (Exception e) {
+            if (e instanceof NamingException) {
+                verifyException("&readData.failed", e);
+            } else if (e instanceof DataAccessException) {
+                verifyException("&connection.failed", e);
+            } else if (e instanceof CommunicationException) {
+                verifyException("&ldap.communication.failed", e);
+            } else {
+                verifyException("&generic.failed", e);
+            }
         }
     }
 
@@ -112,9 +119,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             };
             retrieveDefaultSearchBase(params, attrNames);
             return true;
-        } catch (NamingException e) {
-            return false;
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -227,7 +232,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         List<Map<String, String>> results = m_templateFactory.getLdapTemplate(params).search("",
                 FILTER_ALL_CLASSES, cons, new AttributesToValues(attrNames), NULL_PROCESSOR);
         // only interested in the first result
-        if (results.size() > 0) {
+        if (results != null && results.size() > 0) {
             return results.get(0);
         }
         return null;

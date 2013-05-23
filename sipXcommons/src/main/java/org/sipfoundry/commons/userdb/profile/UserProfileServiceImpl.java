@@ -20,6 +20,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -45,6 +46,8 @@ public class UserProfileServiceImpl implements UserProfileService {
     private static final String BRANCH_NAME = "m_branchName";
     private static final String BRANCH_ADDRESS = "m_branchAddress";
     private static final String AVATAR_NAME = "avatar_%s.png";
+    private static final int LIMIT_DISABLE = 500;
+    private static final int LIMIT_DELETE = 50;
     private MongoTemplate m_template;
 
     @Override
@@ -187,6 +190,29 @@ public class UserProfileServiceImpl implements UserProfileService {
     public void updateBranchAddress(String branchName, Address address) {
         m_template.updateMulti(new Query(Criteria.where(BRANCH_NAME).is(branchName)),
                 new Update().set(BRANCH_ADDRESS, address), USER_PROFILE_COLLECTION);
+    }
+
+    @Override
+    public void disableUsers(List<String> userNames) {
+        m_template.updateMulti(new Query(Criteria.where("m_userName").in(userNames)),
+                new Update()
+                .set("m_enabled", false)
+                .set("m_disabledDate", new Date()), USER_PROFILE_COLLECTION);
+    }
+
+    @Override
+    public List<UserProfile> getUserProfilesToDisable(long age) {
+        return m_template.find(new Query(Criteria.where("m_lastImportedDate")
+                .lt(new Date(new Date().getTime() - age))
+                .and("m_enabled").is(true)
+                .and("m_ldapManaged").is(true)).limit(LIMIT_DISABLE), UserProfile.class, USER_PROFILE_COLLECTION);
+    }
+
+    @Override
+    public List<UserProfile> getUserProfilesToDelete(long age) {
+        return m_template.find(new Query(Criteria.where("m_lastImportedDate")
+                .lt(new Date(new Date().getTime() - age))
+                .and("m_ldapManaged").is(true)).limit(LIMIT_DELETE), UserProfile.class, USER_PROFILE_COLLECTION);
     }
 
     public void setProfilesDb(MongoTemplate template) {

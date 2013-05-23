@@ -20,6 +20,7 @@ public class UserDetailsImpl implements UserDetails {
     private final String m_pintoken;  // MD5-encoded password
     private final GrantedAuthority[] m_authorities;
     private final String m_userDomain;
+    private final boolean m_enabled;
 
     /**
      * UserDetails constructor
@@ -35,28 +36,35 @@ public class UserDetailsImpl implements UserDetails {
         m_pintoken = user.getPintoken();
         m_authorities = authorities;
         m_userDomain = user.getUserDomain();
+        m_enabled = user.isEnabled();
     }
 
+    @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return m_enabled;
     }
 
+    @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return m_enabled;
     }
 
+    @Override
     public GrantedAuthority[] getAuthorities() {
         return m_authorities;
     }
 
+    @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return m_enabled;
     }
 
+    @Override
     public boolean isEnabled() {
-        return true;
+        return m_enabled;
     }
 
+    @Override
     public String getPassword() {
         return m_pintoken;
     }
@@ -64,6 +72,7 @@ public class UserDetailsImpl implements UserDetails {
     /**
      * Return the userName or alias that is the userName part of the user's credentials.
      */
+    @Override
     public String getUsername() {
         return m_userNameOrAlias;
     }

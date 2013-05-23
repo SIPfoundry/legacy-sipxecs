@@ -55,6 +55,22 @@ public class AdminSettings extends PersistableSettings {
         return getSettingValue("configserver-config/vmpin-default");
     }
 
+    public int getAge() {
+        return (Integer) getSettingTypedValue("configserver-config/age");
+    }
+
+    public int getPageImportSize() {
+        return (Integer) getSettingTypedValue("configserver-config/pageImportSize");
+    }
+
+    public boolean isDisable() {
+        return (Boolean) getSettingTypedValue("configserver-config/disable");
+    }
+
+    public boolean isDelete() {
+        return (Boolean) getSettingTypedValue("configserver-config/delete");
+    }
+
     @Required
     public void setPasswordPolicy(PasswordPolicy passwordPolicy) {
         m_passwordPolicy = passwordPolicy;

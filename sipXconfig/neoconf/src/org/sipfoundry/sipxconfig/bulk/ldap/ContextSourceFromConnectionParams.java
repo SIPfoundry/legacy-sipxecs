@@ -9,7 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
-import org.springframework.ldap.support.LdapContextSource;
+import org.springframework.ldap.core.support.LdapContextSource;
+
 
 /**
  * Will resolve required context properties from LdapManager which in turn gets them

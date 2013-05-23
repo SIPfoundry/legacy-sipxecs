@@ -46,10 +46,12 @@ public class OpenAcdQueue extends OpenAcdQueueWithSkills implements Replicable, 
     private Set<OpenAcdRecipeStep> m_steps = new LinkedHashSet<OpenAcdRecipeStep>();
     private String m_oldName;
 
+    @Override
     public String getName() {
         return m_name;
     }
 
+    @Override
     public void setName(String name) {
         m_name = name;
     }
@@ -82,18 +84,22 @@ public class OpenAcdQueue extends OpenAcdQueueWithSkills implements Replicable, 
         return m_group.getName();
     }
 
+    @Override
     public Set<OpenAcdRecipeStep> getSteps() {
         return m_steps;
     }
 
+    @Override
     public void setSteps(Set<OpenAcdRecipeStep> steps) {
         m_steps = steps;
     }
 
+    @Override
     public void addStep(OpenAcdRecipeStep step) {
         m_steps.add(step);
     }
 
+    @Override
     public void removeStep(OpenAcdRecipeStep step) {
         m_steps.remove(step);
     }
@@ -106,10 +112,12 @@ public class OpenAcdQueue extends OpenAcdQueueWithSkills implements Replicable, 
         m_oldName = oldName;
     }
 
+    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(m_name).toHashCode();
     }
 
+    @Override
     public boolean equals(Object other) {
         if (!(other instanceof OpenAcdQueue)) {
             return false;
@@ -187,5 +195,10 @@ public class OpenAcdQueue extends OpenAcdQueueWithSkills implements Replicable, 
     @Override
     public String getEntityName() {
         return getClass().getSimpleName();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

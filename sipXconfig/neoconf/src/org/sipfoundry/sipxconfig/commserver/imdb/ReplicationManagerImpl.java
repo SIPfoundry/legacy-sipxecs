@@ -309,6 +309,10 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
      */
     @Override
     public void replicateEntity(Replicable entity) {
+        if (!entity.isEnabled()) {
+            removeEntity(entity);
+            return;
+        }
         String name = (entity.getName() != null) ? entity.getName() : entity.toString();
         try {
             Long start = System.currentTimeMillis();
@@ -342,6 +346,10 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
      */
     @Override
     public void replicateEntity(Replicable entity, DataSet... dataSets) {
+        if (!entity.isEnabled()) {
+            removeEntity(entity);
+            return;
+        }
         String name = (entity.getName() != null) ? entity.getName() : entity.toString();
         try {
             Long start = System.currentTimeMillis();
@@ -366,6 +374,9 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     }
 
     private boolean replicateEntity(Replicable entity, DataSet dataSet, DBObject top) {
+        if (!entity.isEnabled()) {
+            return false;
+        }
         String beanName = dataSet.getBeanName();
         final AbstractDataSetGenerator generator = m_beanFactory.getBean(beanName, AbstractDataSetGenerator.class);
         return generator.generate(entity, top);
@@ -662,6 +673,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         return id;
     }
 
+    @Override
     public boolean testDatabaseReady() {
         try {
             getDbCollection();

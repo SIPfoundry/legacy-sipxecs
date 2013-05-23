@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.branch.Branch;
@@ -65,14 +66,20 @@ public class User extends AbstractUser implements Replicable {
         return dataSets;
     }
 
+    @SuppressWarnings("unchecked")
     public Collection<String> getPermissions() {
-        return getUserPermissionNames();
+        if (isEnabled()) {
+            return getUserPermissionNames();
+        } else {
+            return CollectionUtils.EMPTY_COLLECTION;
+        }
     }
 
     public String getContactUri(String domain) {
         return SipUri.format(getDisplayName(), getUserName(), domain);
     }
 
+    @Override
     public String getIdentity(String domain) {
         if (m_identity == null) {
             m_identity = SipUri.stripSipPrefix(SipUri.format(null, getUserName(), domain));
@@ -84,6 +91,12 @@ public class User extends AbstractUser implements Replicable {
         m_identity = identity;
     }
 
+    @Override
+    public boolean isEnabled() {
+        return getUserProfile().isEnabled();
+    }
+
+    @Override
     public Collection<AliasMapping> getAliasMappings(String domainName) {
         List<AliasMapping> mappings = new ArrayList<AliasMapping>();
         String contact = getUri(domainName);

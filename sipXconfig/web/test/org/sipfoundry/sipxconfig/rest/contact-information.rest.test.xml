@@ -21,6 +21,8 @@
   <linkedinName>Linkedin</linkedinName>
   <facebookName>Facebook</facebookName>
   <xingName>Xing</xingName>
+  <enabled>true</enabled>
+  <ldapManaged>false</ldapManaged>
   <firstName>John</firstName>
   <lastName>Doe</lastName>
 </contact-information>

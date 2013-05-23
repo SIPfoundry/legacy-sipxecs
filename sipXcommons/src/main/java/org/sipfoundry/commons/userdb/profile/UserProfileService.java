@@ -52,4 +52,9 @@ public interface UserProfileService {
 
     void updateBranchAddress(String branch, Address address);
 
+    void disableUsers(List<String> userNames);
+
+    List<UserProfile> getUserProfilesToDisable(long age);
+
+    List<UserProfile> getUserProfilesToDelete(long age);
 }

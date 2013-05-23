@@ -12,7 +12,10 @@ import static org.restlet.data.MediaType.APPLICATION_JSON;
 import static org.restlet.data.MediaType.TEXT_XML;
 
 import java.io.Serializable;
+import java.util.Date;
 
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.converters.DateConverter;
 import org.apache.commons.lang.StringUtils;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -34,6 +37,8 @@ public class ContactInformationResource extends UserResource {
         super.init(context, request, response);
         getVariants().add(new Variant(TEXT_XML));
         getVariants().add(new Variant(APPLICATION_JSON));
+        //Required by: https://issues.apache.org/jira/browse/BEANUTILS-387
+        ConvertUtils.register(new DateConverter(null), Date.class);
     }
 
     @Override
@@ -92,10 +97,12 @@ public class ContactInformationResource extends UserResource {
             }
         }
 
+        @Override
         public String getFirstName() {
             return m_firstName;
         }
 
+        @Override
         public String getLastName() {
             return m_lastName;
         }

@@ -16,7 +16,7 @@ import javax.naming.directory.DirContext;
 
 import org.sipfoundry.sipxconfig.common.CronSchedule;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
-import org.springframework.ldap.DirContextProcessor;
+import org.springframework.ldap.core.DirContextProcessor;
 
 public interface LdapManager {
     public static final GlobalFeature FEATURE = new GlobalFeature("ldapConfig");

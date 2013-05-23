@@ -65,4 +65,10 @@ public interface Replicable extends NamedObject {
      * @return the name of the entity to be persisted
      */
     public String getEntityName();
+
+    /**
+     * @return true if the entity is enabled, meaning is going to be replicated in mongo. If false
+     * no mongo replication
+     */
+    public boolean isEnabled();
 }

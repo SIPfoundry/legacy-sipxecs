@@ -139,4 +139,9 @@ public class ImBotSettings extends PersistableSettings implements DeployConfigOn
     public String getEntityName() {
         return getClass().getSimpleName();
     }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

@@ -59,10 +59,12 @@ public class OpenAcdReleaseCode extends BeanWithId implements Replicable {
         m_description = description;
     }
 
+    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(m_label).append(m_bias).toHashCode();
     }
 
+    @Override
     public boolean equals(Object other) {
         if (!(other instanceof OpenAcdReleaseCode)) {
             return false;
@@ -114,5 +116,10 @@ public class OpenAcdReleaseCode extends BeanWithId implements Replicable {
     @Override
     public String getEntityName() {
         return getClass().getSimpleName();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

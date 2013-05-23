@@ -38,10 +38,12 @@ public class OpenAcdQueueGroup extends OpenAcdQueueWithSkills implements Replica
     private String m_oldName;
     private Set<OpenAcdRecipeStep> m_steps = new LinkedHashSet<OpenAcdRecipeStep>();
 
+    @Override
     public String getName() {
         return m_name;
     }
 
+    @Override
     public void setName(String name) {
         m_name = name;
     }
@@ -78,26 +80,32 @@ public class OpenAcdQueueGroup extends OpenAcdQueueWithSkills implements Replica
         m_oldName = oldName;
     }
 
+    @Override
     public Set<OpenAcdRecipeStep> getSteps() {
         return m_steps;
     }
 
+    @Override
     public void setSteps(Set<OpenAcdRecipeStep> steps) {
         m_steps = steps;
     }
 
+    @Override
     public void addStep(OpenAcdRecipeStep step) {
         m_steps.add(step);
     }
 
+    @Override
     public void removeStep(OpenAcdRecipeStep step) {
         m_steps.remove(step);
     }
 
+    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(m_name).toHashCode();
     }
 
+    @Override
     public boolean equals(Object other) {
         if (!(other instanceof OpenAcdQueueGroup)) {
             return false;
@@ -151,5 +159,10 @@ public class OpenAcdQueueGroup extends OpenAcdQueueWithSkills implements Replica
     @Override
     public String getEntityName() {
         return getClass().getSimpleName();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

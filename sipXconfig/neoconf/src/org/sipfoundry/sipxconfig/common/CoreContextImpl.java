@@ -46,6 +46,8 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
     public static final String ADMIN_GROUP_NAME = "administrators";
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
+    public static final String DISABLED = "DISABLED";
+    public static final String LDAP = "LDAP";
     private static final int SIP_PASSWORD_LEN = 12;
     private static final String USERNAME_PROP_NAME = "userName";
     private static final String VALUE = "value";
@@ -526,11 +528,36 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             @Override
             public Object doInHibernate(Session session) {
                 UserLoader loader = new UserLoader(session);
-                return loader
+                if (StringUtils.equals(search, DISABLED) || StringUtils.equals(search, LDAP)) {
+                    return loader
+                            .loadUsersByPage(StringUtils.EMPTY,
+                                groupId, branchId, firstRow, pageSize, orderBy, orderAscending);
+
+                } else {
+                    return loader
                         .loadUsersByPage(search, groupId, branchId, firstRow, pageSize, orderBy, orderAscending);
+                }
             }
         };
         List<User> users = getHibernateTemplate().executeFind(callback);
+        //We add here two special filters to search for disabled users or for LDAP managed users
+        if (StringUtils.equals(search, DISABLED)) {
+            ArrayList<User> filteredUsers = new ArrayList<User>();
+            for (User user : users) {
+                if (!user.isEnabled()) {
+                    filteredUsers.add(user);
+                }
+            }
+            return filteredUsers;
+        } else if (StringUtils.equals(search, LDAP)) {
+            ArrayList<User> filteredUsers = new ArrayList<User>();
+            for (User user : users) {
+                if (user.isLdapManaged()) {
+                    filteredUsers.add(user);
+                }
+            }
+            return filteredUsers;
+        }
         return users;
     }
 

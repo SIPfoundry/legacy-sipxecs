@@ -68,7 +68,7 @@ public abstract class LdapImportPreview extends SipxBasePage implements PageBegi
             if (getExample() == null) {
                 List<UserPreview> example = getLdapImportManager().getExample(getCurrentConnectionId());
                 setExample(example);
-                File file = loadPreviewToFile();
+                File file = loadPreviewToFile(example);
                 setFile(file);
             }
 
@@ -80,7 +80,7 @@ public abstract class LdapImportPreview extends SipxBasePage implements PageBegi
         }
     }
 
-    private File loadPreviewToFile() {
+    private File loadPreviewToFile(List<UserPreview> list) {
         try {
             File file = getFile();
             if (file != null) {
@@ -90,7 +90,7 @@ public abstract class LdapImportPreview extends SipxBasePage implements PageBegi
             // FIXME: it really should be deleted by the time session terminates
             file.deleteOnExit();
             FileWriter writer = new FileWriter(file);
-            getLdapImportManager().dumpExample(writer, getCurrentConnectionId());
+            getLdapImportManager().dumpExample(list, writer, getCurrentConnectionId());
             writer.close();
             return file;
         } catch (IOException e) {

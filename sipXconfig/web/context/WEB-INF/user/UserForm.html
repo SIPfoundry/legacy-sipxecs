@@ -3,6 +3,14 @@
   </ul>
   <fieldset>
     <table jwcid="render@Any">
+      <tr jwcid="@common/FieldPanel" for="user:enabled"
+        field="component:enabled"
+        label="message:label.enabled"
+        description="message:desc.enabled">
+        <checkbox jwcid="enabled@Checkbox"
+          id="user:enabled"
+          value="ognl:user.enabled" />
+      </tr> 
       <tr jwcid="userIdPanel" for="user:userId">
         <input jwcid="userId" id="user:userId" type="text" autocomplete="off"/>
       </tr>
@@ -85,6 +93,22 @@
         <checkbox jwcid="notified@Checkbox"
           id="user:notified"
           value="ognl:user.notified" />
-      </tr>            
+      </tr>
+      <tr jwcid="@common/FieldPanel" for="user:ldapManaged"
+        field="component:ldapManaged"
+        label="message:label.ldapManaged"
+        description="message:desc.ldapManaged">
+        <checkbox jwcid="ldapManaged@Checkbox"
+          id="user:ldapManaged"
+          value="ognl:user.ldapManaged" />
+      </tr>
+      <tr>
+         <td><label><span key="label.lastImportedDate"/></label></td>
+         <td><b><span jwcid="lastImportedDate@Insert" id="user:lastImportedDate" value="ognl:user.lastImportedDateStr"/></b></td>
+      </tr>
+      <tr>
+         <td><label><span key="label.disabledDate"/></label></td>
+         <td><b><span jwcid="disabledDate@Insert" id="user:disabledDate" value="ognl:user.disabledDateStr"/></b></td>
+      </tr>        
     </table>
   </fieldset>

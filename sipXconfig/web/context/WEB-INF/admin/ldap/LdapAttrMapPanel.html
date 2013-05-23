@@ -19,7 +19,10 @@
       <input jwcid="lastName" />
     </tr>
     <tr jwcid="aliasPanel">
-      <input jwcid="alias" />
+      <span jwcid="multiEnumField@contrib:Palette"
+    	selected="ognl:attrMap.attributes['aliasesString']"
+    	model="ognl:attributesSelectionModel"
+    	sort="literal:USER"/>
     </tr>
     <tr jwcid="emailPanel">
       <input jwcid="email" />
@@ -147,6 +150,15 @@
     		model="ognl:attributesOptionalSelectionModel"
     		displayName="message:label.location"/>
     </tr>
+    <tr jwcid="@common/FieldPanel" id="callerIdPanel"
+    	for="user:callerId"
+        field="component:callerId"
+        label="message:label.callerId"
+        description="message:description.callerId">
+    	<input jwcid="callerId@PropertySelection" id="user:callerId", value="ognl:attrMap.attribute['externalNumber']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.callerId"/>
+    </tr>    
 	<tr>
   		<td>
     		<b><span jwcid="@Insert" value="message:homeAddressTitle"/>
@@ -246,6 +258,6 @@
     	<input jwcid="officeZip@PropertySelection" id="user:officeZip", value="ognl:attrMap.attribute['userProfile.officeAddress.zip']"
     		model="ognl:attributesOptionalSelectionModel"
     		displayName="message:label.zip"/>
-    </tr>    
+    </tr>   
   </table>
 </div>

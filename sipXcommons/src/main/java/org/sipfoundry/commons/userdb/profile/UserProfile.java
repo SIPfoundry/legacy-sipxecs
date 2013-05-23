@@ -17,6 +17,7 @@
 package org.sipfoundry.commons.userdb.profile;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.data.annotation.Id;
@@ -64,6 +65,11 @@ public class UserProfile {
     private String m_avatar;
     private String m_extAvatar;
     private boolean m_useExtAvatar;
+
+    private boolean m_enabled = true;
+    private boolean m_ldapManaged;
+    private Date m_lastImportedDate;
+    private Date m_disabledDate;
 
     public String getUserId() {
         return m_userid;
@@ -349,6 +355,38 @@ public class UserProfile {
 
     public void setXingName(String xingName) {
         m_xingName = xingName;
+    }
+
+    public boolean isEnabled() {
+        return m_enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        m_enabled = enabled;
+    }
+
+    public boolean isLdapManaged() {
+        return m_ldapManaged;
+    }
+
+    public void setLdapManaged(boolean ldapManaged) {
+        m_ldapManaged = ldapManaged;
+    }
+
+    public Date getLastImportedDate() {
+        return m_lastImportedDate;
+    }
+
+    public void setLastImportedDate(Date lastImportedDate) {
+        m_lastImportedDate = lastImportedDate;
+    }
+
+    public Date getDisabledDate() {
+        return m_disabledDate;
+    }
+
+    public void setDisabledDate(Date disabledDate) {
+        m_disabledDate = disabledDate;
     }
 
     public void update(UserProfile object) {

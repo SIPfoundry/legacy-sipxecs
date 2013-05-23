@@ -37,10 +37,12 @@ public class OpenAcdAgentGroup extends OpenAcdAgentWithSkills implements Replica
     private Set<OpenAcdAgent> m_agents = new LinkedHashSet<OpenAcdAgent>();
     private String m_oldName;
 
+    @Override
     public String getName() {
         return m_name;
     }
 
+    @Override
     public void setName(String name) {
         m_name = name;
     }
@@ -77,10 +79,12 @@ public class OpenAcdAgentGroup extends OpenAcdAgentWithSkills implements Replica
         m_oldName = oldName;
     }
 
+    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(m_name).toHashCode();
     }
 
+    @Override
     public boolean equals(Object other) {
         if (!(other instanceof OpenAcdAgentGroup)) {
             return false;
@@ -134,5 +138,10 @@ public class OpenAcdAgentGroup extends OpenAcdAgentWithSkills implements Replica
     @Override
     public String getEntityName() {
         return getClass().getSimpleName();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

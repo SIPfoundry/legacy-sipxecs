@@ -157,15 +157,38 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         m_settingsDao = settingsDao;
     }
 
+    @Override
     public String getPasswordPolicy() {
         return getSettings().getSelectedPolicy();
     }
 
+    @Override
     public String getDefaultPassword() {
         return getSettings().getDefaultPassword();
     }
 
+    @Override
     public String getDefaultVmPin() {
         return getSettings().getDefaultVmPin();
+    }
+
+    @Override
+    public int getAge() {
+        return getSettings().getAge();
+    }
+
+    @Override
+    public int getPageImportSize() {
+        return getSettings().getPageImportSize();
+    }
+
+    @Override
+    public boolean isDisable() {
+        return getSettings().isDisable();
+    }
+
+    @Override
+    public boolean isDelete() {
+        return getSettings().isDelete();
     }
 }

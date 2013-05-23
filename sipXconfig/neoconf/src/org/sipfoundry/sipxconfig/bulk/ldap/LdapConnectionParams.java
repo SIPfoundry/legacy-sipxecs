@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CronSchedule;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.springframework.ldap.support.LdapContextSource;
+import org.springframework.ldap.core.support.LdapContextSource;
 
 /**
  * Used to store LDAP connections in the DB LdapConnectionParams
@@ -129,7 +129,7 @@ public class LdapConnectionParams extends BeanWithId implements DeployConfigOnEd
     }
 
     public void applyToContext(LdapContextSource config) {
-        config.setUserName(defaultString(m_principal, EMPTY));
+        config.setUserDn(defaultString(m_principal, EMPTY));
         config.setPassword(defaultString(m_secret, EMPTY));
         config.setUrl(getUrl());
         Map<String, String> otherParams = new HashMap<String, String>();
