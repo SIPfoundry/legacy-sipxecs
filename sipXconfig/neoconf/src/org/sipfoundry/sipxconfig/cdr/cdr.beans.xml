@@ -17,6 +17,7 @@
     <property name="jsonLimit" value="500" />
     <property name="addressManager" ref="addressManager" />
     <property name="featureManager" ref="featureManager" />
+    <property name="ntpManager" ref="ntpManager" />
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">

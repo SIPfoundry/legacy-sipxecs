@@ -67,6 +67,7 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
+import org.sipfoundry.sipxconfig.time.NtpManager;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -106,6 +107,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
     private AddressManager m_addressManager;
     private FeatureManager m_featureManager;
     private BeanWithSettingsDao<CdrSettings> m_settingsDao;
+    private NtpManager m_ntpManager;
 
     public CdrSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
@@ -127,7 +129,8 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
     public List<Cdr> getCdrs(Date from, Date to, CdrSearch search, User user, int limit, int offset) {
         CdrsStatementCreator psc = new SelectAll(from, to, search, user, (user != null) ? (user.getTimezone())
                 : m_tz, limit, offset);
-        CdrsResultReader resultReader = new CdrsResultReader((user != null) ? (user.getTimezone()) : m_tz);
+        CdrsResultReader resultReader = new CdrsResultReader((user != null) ? (user.getTimezone())
+                : (TimeZone.getTimeZone(m_ntpManager.getSystemTimezone())));
         getJdbcTemplate().query(psc, resultReader);
         return resultReader.getResults();
     }
@@ -371,6 +374,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         private List<Cdr> m_cdrs = new ArrayList<Cdr>();
 
         private Calendar m_calendar;
+        private TimeZone m_systemTimeZone;
 
         public CdrsResultReader(TimeZone tz) {
             m_calendar = Calendar.getInstance(tz);
@@ -619,4 +623,9 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
                 "$(sipx.SIPX_BINDIR)/sipxcdr-archive --restore %s");
         return Collections.singleton(def);
     }
+
+    public void setNtpManager(NtpManager ntpManager) {
+        m_ntpManager = ntpManager;
+    }
+
 }
