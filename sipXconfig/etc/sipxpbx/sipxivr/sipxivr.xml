@@ -75,7 +75,7 @@
       <value>8000</value>
     </setting>
     <setting name="record.time">
-      <integer />
+      <type><integer /></type>
       <value>300</value>
     </setting>
     <setting name="fax.format">
