@@ -409,10 +409,15 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                     result = imAccount.getImId();
                 }
 
-                // check if the user's fax extension is unique in the alias namespace
+                // check if the user's fax extension and DID areunique in the alias namespace
                 if (!faxExtension.isEmpty()) {
                     if (!m_aliasManager.canObjectUseAlias(user, faxExtension)) {
                         result = faxExtension;
+                    }
+                }
+                if (!faxDid.isEmpty()) {
+                    if (!m_aliasManager.canObjectUseAlias(user, faxDid)) {
+                        result = faxDid;
                     }
                 }
             }
