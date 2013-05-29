@@ -87,7 +87,10 @@ fi
 # an upgrade.
 #   see http://fedoraproject.org/wiki/Packaging/ScriptletSnippets
 if [ "$1" == "0" ] ; then
-  gem uninstall sipxcallresolver >/dev/null 2>&1
+  export resolver_exists=`gem list | grep sipxcallresolver`;
+  if [ -n "$resolver_exists"  ];then 
+    gem uninstall sipxcallresolver >/dev/null 2>&1  
+  fi
 fi
 
 %files client
