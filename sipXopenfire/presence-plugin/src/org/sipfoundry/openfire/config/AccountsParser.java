@@ -246,8 +246,9 @@ public class AccountsParser {
                     // when IM room is deleted, delete bookmark as well if necessary
                     if (SipXBookmarkManager.isInitialized()) {
                         SipXBookmarkManager manager = SipXBookmarkManager.getInstance();
-                        if (manager.getMUCBookmarkID(mucRoomInOpenfire.getName()) != null)  {
-                            manager.deleteMUCBookmark(mucRoomInOpenfire.getName());
+                        String roomJid = mucRoomInOpenfire.getJID().toBareJID();
+                        for (JID member : mucRoomInOpenfire.getMembers()) {
+                            manager.deleteMUCBookmark(member.toBareJID(), roomJid);
                         }
                     }
                 }
@@ -259,7 +260,7 @@ public class AccountsParser {
         /*
          * Restrict the chat services to those contained configured chatrooms
          */
-        HashSet<String> allowedDomains = new HashSet<String>();
+        Set<String> allowedDomains = new HashSet<String>();
         for (XmppChatRoom configuredChatRoom : configuredXmppChatRooms) {
             allowedDomains.add(configuredChatRoom.getSubdomain());
         }

@@ -365,7 +365,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         multiUserChatManager = server.getMultiUserChatManager();
 
         //Initialize BookmarkManager
-        SipXBookmarkManager.initialize(pluginManager);
+        SipXBookmarkManager.initialize();
         log.info("Bookmark Manager initialized: "+SipXBookmarkManager.isInitialized());
 
         /*

@@ -3,6 +3,10 @@ package org.sipfoundry.openfire.muc;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.Namespace;
+import org.dom4j.io.SAXReader;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.muc.ConflictException;
 import org.jivesoftware.openfire.muc.ForbiddenException;
@@ -11,6 +15,8 @@ import org.jivesoftware.openfire.muc.MUCRoom;
 import org.jivesoftware.openfire.muc.MultiUserChatService;
 import org.jivesoftware.openfire.muc.NotAllowedException;
 import org.jivesoftware.openfire.muc.cluster.UpdateHistoryStrategy;
+import org.jivesoftware.openfire.provider.PrivateStorageProvider;
+import org.jivesoftware.openfire.provider.ProviderFactory;
 import org.jivesoftware.util.AlreadyExistsException;
 import org.sipfoundry.openfire.plugin.presence.SipXBookmarkManager;
 import org.xmpp.packet.JID;
@@ -20,13 +26,20 @@ public class RoomManager {
 
     private static final String MUC_SUBDOMAIN = "conference";
     private static final String DEFAULT_DESCRIPTION = "default MUC service";
+    private static final String STORAGE_TAG = "storage";
+    private static final Namespace NAMESPACE = DocumentHelper.createNamespace("", "storage:bookmarks");
+    private static final String BOOKMARK_TAG = "conference";
+    private static final String BOOKMARK_NAME = "name";
+    private static final String BOOKMARK_AUTOJOIN = "autojoin";
+    private static final String BOOKMARK_JID = "jid";
 
-    public static MultiUserChatService createChatRoomService(String subdomain)
-    {
+    private static final PrivateStorageProvider PROVIDER = ProviderFactory.getPrivateStorageProvider();
+
+    public static MultiUserChatService createChatRoomService(String subdomain) {
         MultiUserChatService mucService = XMPPServer.getInstance().getMultiUserChatManager()
                 .getMultiUserChatService(subdomain);
         if (mucService == null) {
-            try{
+            try {
                 mucService = XMPPServer.getInstance().getMultiUserChatManager()
                         .createMultiUserChatService(subdomain, "default MUC service", false);
                 Collection<JID> admins = XMPPServer.getAdmins();
@@ -39,9 +52,8 @@ public class RoomManager {
                 new UpdateHistoryStrategy(subdomain, historyStrategy).run();
                 mucService.enableService(true, true);
                 mucService.setRoomCreationRestricted(false);
-            }
-            catch( Exception ex ){
-                logger.error("createChatRoomService caught " + ex );
+            } catch (Exception ex) {
+                logger.error("createChatRoomService caught " + ex);
             }
         }
 
@@ -132,16 +144,31 @@ public class RoomManager {
 
     /**
      * When a room is created we create a bookmark for the owner of this room
+     *
      * @param mucRoom
      * @param jid
      */
     private static void ensureBookmark(MUCRoom mucRoom, JID jid) {
         if (SipXBookmarkManager.isInitialized()) {
             SipXBookmarkManager bookmarkManager = SipXBookmarkManager.getInstance();
-            if (bookmarkManager.getMUCBookmarkID(mucRoom.getName()) == null) {
-                bookmarkManager.createMUCBookmark(mucRoom.getName(), mucRoom.getJID().toBareJID());
-            }
-            bookmarkManager.setMUCBookmarkOwner(mucRoom.getName(), jid.getNode());
+            bookmarkManager.createMUCBookmark(jid.getNode(), mucRoom.getName(), mucRoom.getJID().toBareJID());
         }
+    }
+
+    public static Element getBookmarks(String owner) {
+        Element bookmarks = DocumentHelper.createElement(STORAGE_TAG);
+        bookmarks.add(NAMESPACE);
+
+        return PROVIDER.get(owner, bookmarks, new SAXReader());
+    }
+
+    public static Element buildBookmarkElement(String bookmarkName, String jid) {
+        Element conference = DocumentHelper.createElement(BOOKMARK_TAG);
+
+        DocumentHelper.createAttribute(conference, BOOKMARK_NAME, bookmarkName);
+        DocumentHelper.createAttribute(conference, BOOKMARK_AUTOJOIN, "false");
+        DocumentHelper.createAttribute(conference, BOOKMARK_JID, jid);
+
+        return conference;
     }
 }
