@@ -32,11 +32,26 @@ class StateQueueConnection : public boost::enable_shared_from_this<StateQueueCon
 public:
   typedef boost::asio::ip::tcp::socket::endpoint_type EndPoint;
   typedef boost::shared_ptr<StateQueueConnection> Ptr;
-  struct Packet
+
+  /// A request received from a client.
+  struct request
   {
-    short version; // Expecting version 1
-    short size; // size of the data buffer
-    char* data;
+    short version;
+    short key;
+    unsigned long len;
+    char data[SQA_CONN_MAX_READ_BUFF_SIZE];
+
+    request(): version(0), key(0), len(0)
+    {
+    }
+
+    void clear()
+    {
+      version = 0;
+      key = 0;
+      len = 0;
+      data[0] = 0x0;
+    }
   };
 
   explicit StateQueueConnection(
@@ -63,7 +78,9 @@ public:
   void setCreationPublished();
   bool isCreationPublished() const;
 protected:
-  void readMore(std::size_t bytes_transferred);
+  void abortRead();
+  void initLocalAddressPort();
+  bool consume(std::size_t bytes_transferred);
   void startInactivityTimer();
   void onInactivityTimeout(const boost::system::error_code&);
   boost::asio::io_service& _ioService;
@@ -73,8 +90,6 @@ protected:
   boost::array<char, SQA_CONN_MAX_READ_BUFF_SIZE> _buffer;
 
   std::string _messageBuffer;
-  std::string _spillOverBuffer;
-  std::size_t _moreReadRequired;
   std::size_t _lastExpectedPacketSize;
   std::string _localAddress;
   std::string _remoteAddress;
@@ -84,6 +99,13 @@ protected:
   std::string _applicationId;
   bool _isAlphaConnection;
   bool _isCreationPublished;
+  bool _isSocketClosed;
+  enum ParserState
+  {
+    RequestHeader,
+    RequestBody,
+  } _state;
+  request _request;
 };
 
 

@@ -39,7 +39,6 @@
 #define SQA_KEY_DEFAULT SQA_KEY_MIN
 #define SQA_KEY_MAX 22200
 #define SQA_KEEP_ALIVE_TICKS 30
-
 class StateQueueClient : public boost::enable_shared_from_this<StateQueueClient>, private boost::noncopyable
 {
 public:
@@ -191,7 +190,7 @@ public:
       if (e)
         return;
       close();
-      OS_LOG_ERROR(FAC_NET, "StateQueueClient::BlockingTcpClient::onReadTimeout() - " << _readTimeout << " milliseconds.");
+      OS_LOG_ERROR(FAC_NET, "StateQueueClient::BlockingTcpClient::onReadTimeout() this:" << this << " - " << _readTimeout << " milliseconds.");
     }
 
 
@@ -200,7 +199,7 @@ public:
       if (e)
         return;
       close();
-      OS_LOG_ERROR(FAC_NET, "StateQueueClient::BlockingTcpClient::onWriteTimeout() - " << _writeTimeout << " milliseconds.");
+      OS_LOG_ERROR(FAC_NET, "StateQueueClient::BlockingTcpClient::onWriteTimeout() this:" << this << " - " << _writeTimeout << " milliseconds.");
     }
 
     void onConnectTimeout(const boost::system::error_code& e)
@@ -208,7 +207,7 @@ public:
       if (e)
         return;
       close();
-      OS_LOG_ERROR(FAC_NET, "StateQueueClient::BlockingTcpClient::onConnectTimeout() - " << _readTimeout << " milliseconds.");
+      OS_LOG_ERROR(FAC_NET, "StateQueueClient::BlockingTcpClient::onConnectTimeout() this:" << this << " - " << _readTimeout << " milliseconds.");
     }
 
     void close()
@@ -219,7 +218,7 @@ public:
        _pSocket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignored_ec);
        _pSocket->close(ignored_ec);
        _isConnected = false;
-       OS_LOG_DEBUG(FAC_NET, "BlockingTcpClient::close() - socket deleted.");
+       OS_LOG_INFO(FAC_NET, "BlockingTcpClient::close() this:" << this << "  - socket deleted.");
       }
     }
 
@@ -238,7 +237,7 @@ public:
 
       _pSocket = new boost::asio::ip::tcp::socket(_ioService);
 
-      OS_LOG_INFO(FAC_NET, "BlockingTcpClient::connect() creating new connection to " << serviceAddress << ":" << servicePort);
+      OS_LOG_INFO(FAC_NET, "BlockingTcpClient::connect() this:" << this << " creating new connection to " << serviceAddress << ":" << servicePort);
 
       _serviceAddress = serviceAddress;
       _servicePort = servicePort;
@@ -255,11 +254,11 @@ public:
         _pSocket->connect(hosts->endpoint()); // so we use the connect member
         //////////////////////////////////////////////////////////////////////////
         _isConnected = true;
-        OS_LOG_INFO(FAC_NET, "BlockingTcpClient::connect() creating new connection to " << serviceAddress << ":" << servicePort << " SUCESSFUL.");
+        OS_LOG_INFO(FAC_NET, "BlockingTcpClient::connect() this:" << this << " creating new connection to " << serviceAddress << ":" << servicePort << " SUCESSFUL.");
       }
       catch(std::exception e)
       {
-        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::connect() failed with error " << e.what());
+        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::connect() this:" << this << " failed with error " << e.what());
         _isConnected = false;
       }
 
@@ -291,7 +290,7 @@ public:
           }
           else
           {
-            OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::connect() Unable to read connection information from " << sqaconfig.str());
+            OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::connect() this:" << this << " Unable to read connection information from " << sqaconfig.str());
             return false;
           }
         }
@@ -299,7 +298,7 @@ public:
 
       if(_serviceAddress.empty() || _servicePort.empty())
       {
-        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::connect() remote address is not set");
+        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::connect() this:" << this << " remote address is not set");
         return false;
       }
       
@@ -313,7 +312,7 @@ public:
 
       if (data.size() > SQA_CONN_MAX_READ_BUFF_SIZE - 1) /// Account for the terminating char "_"
       {
-        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::send() data size: " << data.size() << " maximum buffer length of " << SQA_CONN_MAX_READ_BUFF_SIZE - 1);
+        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::send() this:" << this << " data size: " << data.size() << " maximum buffer length of " << SQA_CONN_MAX_READ_BUFF_SIZE - 1);
         return false;
       }
 
@@ -330,12 +329,13 @@ public:
       
       {
         WriteTimer timer(this);
+        //ok = boost::asio::write(*_pSocket, boost::asio::buffer(packet.c_str(), packet.size()),  boost::asio::transfer_all(), ec) > 0;
         ok = _pSocket->write_some(boost::asio::buffer(packet.c_str(), packet.size()), ec) > 0;
       }
 
       if (!ok || ec)
       {
-        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::send() write_some error: " << ec.message());
+        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::send() this:" << this << " write_some error: " << ec.message());
         _isConnected = false;
         return false;
       }
@@ -348,7 +348,7 @@ public:
       unsigned long len = getNextReadSize();
       if (!len)
       {
-        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::receive() next read size is empty.");
+        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::receive() this:" << this << " next read size is empty.");
         return false;
       }
 
@@ -361,7 +361,15 @@ public:
 
       if (ec)
       {
-        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::receive() read_some error: " << ec.message());
+        if (boost::asio::error::eof == ec)
+        {
+          OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::receive() this:" << this << " remote closed the connection, read_some error: " << ec.message());
+        }
+        else
+        {
+          OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::receive() this:" << this << " read_some error: " << ec.message());
+        }
+
         _isConnected = false;
         return false;
       }
@@ -387,6 +395,7 @@ public:
         short remoteVersion;
         short remoteKey;
 
+        //TODO: Refactor the code below to do one read for the three fields
         //
         // Read the version (must be 1)
         //
@@ -397,9 +406,17 @@ public:
           _pSocket->read_some(boost::asio::buffer((char*)&remoteVersion, sizeof(remoteVersion)), ec);
           if (ec)
           {
-            OS_LOG_DEBUG(FAC_NET, "StateQueueClient::getNextReadSize "
-                    << "Unable to read version "
-                    << "ERROR: " << ec.message());
+            if (boost::asio::error::eof == ec)
+            {
+              OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::getNextReadSize() this:" << this << " remote closed the connection, read_some error: " << ec.message());
+            }
+            else
+            {
+              OS_LOG_INFO(FAC_NET, "StateQueueClient::getNextReadSize this:" << this
+                  << " Unable to read version "
+                  << "ERROR: " << ec.message());
+        	  }
+
             _isConnected = false;
             return 0;
           }
@@ -420,9 +437,17 @@ public:
           _pSocket->read_some(boost::asio::buffer((char*)&remoteKey, sizeof(remoteKey)), ec);
           if (ec)
           {
-            OS_LOG_DEBUG(FAC_NET, "StateQueueClient::getNextReadSize "
-                    << "Unable to read secret key "
-                    << "ERROR: " << ec.message());
+            if (boost::asio::error::eof == ec)
+            {
+              OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::getNextReadSize() this:" << this << " remote closed the connection, read_some error: " << ec.message());
+            }
+            else
+            {
+              OS_LOG_INFO(FAC_NET, "StateQueueClient::getNextReadSize this:" << this
+                  << "Unable to read secret key "
+                  << "ERROR: " << ec.message());
+            }
+
             _isConnected = false;
             return 0;
           }
@@ -441,9 +466,17 @@ public:
       _pSocket->read_some(boost::asio::buffer((char*)&remoteLen, sizeof(remoteLen)), ec);
       if (ec)
       {
-        OS_LOG_DEBUG(FAC_NET, "StateQueueClient::getNextReadSize "
-                << "Unable to read secret packet length "
-                << "ERROR: " << ec.message());
+        if (boost::asio::error::eof == ec)
+        {
+          OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::getNextReadSize() this:" << this << " remote closed the connection, read_some error: " << ec.message());
+        }
+        else
+        {
+          OS_LOG_INFO(FAC_NET, "StateQueueClient::getNextReadSize this:" << this
+              << " Unable to read secret packet length "
+              << "ERROR: " << ec.message());
+        }
+
         _isConnected = false;
         return 0;
       }

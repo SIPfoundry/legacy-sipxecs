@@ -220,8 +220,6 @@ void StateQueueAgent::onDestroyConnection(StateQueueConnection::Ptr conn)
     record.data += conn->getRemoteAddress();
     publish(record);
   }
-
-  _listener.destroyConnection(conn);
 }
 
 void StateQueueAgent::onIncomingRequest(StateQueueConnection& conn, const char* bytes, std::size_t bytes_transferred)
