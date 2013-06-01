@@ -52,13 +52,29 @@ public:
 	static const std::string NS;
     typedef std::vector<Subscription> Subscriptions;
     SubscribeDB(const MongoDB::ConnectionInfo& info) :
-		BaseDB(info)
+                BaseDB(info), _ns(NS), _local(NULL)
 	{
 	}
 	;
 
-	~SubscribeDB()
+    SubscribeDB(const MongoDB::ConnectionInfo& info, SubscribeDB* local) :
+		BaseDB(info), _ns(NS), _local(local)
 	{
+	}
+	;
+
+    SubscribeDB(const MongoDB::ConnectionInfo& info, SubscribeDB* local, std::string ns) :
+		BaseDB(info), _ns(ns), _local(local)
+	{
+	}
+	;
+
+    ~SubscribeDB()
+	{
+          if (_local) {
+            delete _local;
+            _local = NULL;
+          }
 	}
 	;
 
@@ -157,6 +173,13 @@ public:
 
     void removeAllExpired();
 
+    static SubscribeDB* CreateInstance();
+
+private:
+    void ensureIndex(mongo::DBClientBase* client);
+
+    std::string _ns;
+    SubscribeDB* _local;
 };
 
 #endif	/* SUBSCRIBEDB_H */

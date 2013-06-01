@@ -195,8 +195,7 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    }
 #endif
    
-   MongoDB::ConnectionInfo info(MongoDB::ConnectionInfo::connectionStringFromFile(), EntityDB::NS);
-   mpEntityDb = new EntityDB(info);
+   mpEntityDb = new EntityDB(MongoDB::ConnectionInfo::globalInfo());
 
    // All is in readiness... Let the proxying begin...
    mpSipUserAgent->start();

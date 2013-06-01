@@ -1,0 +1,31 @@
+{ 
+  "inProgress": false,
+  "lastConfigError" : "Last configuration error here",
+  "localCandidates" : [ "uc2.ezuce.ro:27019", "uc3.ezuce.ro:27019" ], 
+  "shards" : [
+      { 
+        "id" : "1" ,
+        "databases" : {
+          "uc1.ezuce.ro:27019" : { "host" : "uc1", "status" : [ "PRIMARY"] , "priority":  1, "voting": false, "available" : [ "RESTART"] , "required" : [  ]} , 
+          "uc2.ezuce.ro:27019" : { "host" : "uc2", "status" : [ "ELSE"] , "priority":  2, "voting": true, "available" : [ "RESTART"] , "required" : [ "START" ]}
+        } ,
+        "arbiters" : {  
+          "uc1.ezuce.ro:27019" : { "host" : "uc1", "status" : [ "OK"] , "available" : [ "RESTART"] , "required" : [ ]}
+        }
+      } ,
+      { 
+        "id" : "2" ,
+        "databases" : {
+          "uc4.ezuce.ro:27019" : { "host" : "uc4", "status" : [ "PRIMARY"] , "priority":  1, "voting": false, "available" : [ "RESTART"] , "required" : [ "REMOVE_EXTRA orphan:27019" ]} 
+        } ,
+        "arbiters" : {}
+      } ,
+      { 
+        "id" : "3" ,
+        "databases" : {
+          "uc5.ezuce.ro:27019" : { "host" : "uc5", "status" : [ "PRIMARY"] , "priority":  1, "voting": false, "available" : [ "RESTART"] , "required" : [ ]} 
+        } ,
+        "arbiters" : {}
+      }
+   ]
+}

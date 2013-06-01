@@ -1,0 +1,73 @@
+#!/bin/env python
+
+# Copyright (c) 2013 eZuce, Inc. All rights reserved. 
+# Contributed to SIPfoundry under a Contributor Agreement 
+# 
+# This software is free software; you can redistribute it and/or modify it under 
+# the terms of the Affero General Public License (AGPL) as published by the 
+# Free Software Foundation; either version 3 of the License, or (at your option) 
+# any later version. 
+# 
+# This software is distributed in the hope that it will be useful, but WITHOUT 
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more 
+# details.
+
+# This script copies documents from one database into another. This assumes
+# the documents in the destination include a "shardId" attribute and this
+# script drops all records in destination *before* copying in new data.  Once
+# data is copied, then the mongooplog tool can be run to keep new changes from
+# source into destination
+
+from pymongo.mongo_client import MongoClient
+from pymongo.database import Database
+
+import sys
+import time
+import traceback
+import logging
+import argparse
+import json
+import os
+import bson.timestamp
+import datetime
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        description='Mongo/sipXecs copy local database into global database'
+        )
+    parser.add_argument('--src', metavar="host:port", default="localhost:27019",
+                help='Database to copy from')
+    parser.add_argument('--dest', metavar="host:port", default="localhost:27017",
+                help='Database to copy to')
+    parser.add_argument('--verbose', action="store_true", default=False,
+                help='verbose output')
+    parser.add_argument('--shardId', metavar="id", type=int, required=True,
+                help='Value of the shardId attribute on top-level documents that identifies a location.')
+    parser.add_argument('--db', metavar="db", required=True,
+                help='Name of the database to synchronize')
+    args = vars(parser.parse_args())
+
+    level = None
+    if args['verbose']:
+        level = logging.DEBUG
+    logging.basicConfig(level = level, format = '.%(message)s')
+    logging.debug("Source to %s/%s" % (args['src'], args['db']))
+    src = Database(MongoClient(host=args['src']), args['db'])
+    logging.debug("Destination %s/%s" % (args['dest'], args['db']))
+    dest = Database(MongoClient(host=args['dest']), args['db'])
+
+    start = datetime.datetime.now()
+    for collection in src.collection_names():
+        if collection.startswith("system."):
+            continue
+        dest_collection = dest[collection]
+        logging.debug("Clearing collection " + collection)
+        dest_collection.remove({"shardId": args['shardId']})
+        logging.debug("Selecting collection " + collection)
+        docs = src[collection].find()
+        logging.debug("Found %d items " % docs.count())
+        dest_collection.insert(docs)
+        time = datetime.datetime.now() - start
+        logging.debug("Took %dms " % (time.microseconds / 1000))

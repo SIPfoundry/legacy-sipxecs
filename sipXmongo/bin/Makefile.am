@@ -2,12 +2,17 @@ include $(top_srcdir)/config/utility.am
 
 EXTRA_DIST = \
 	$(bin_SCRIPTS:=.in) \
-	$(initd_SCRIPTS:=.in)
+	$(initd_SCRIPTS:=.in) \
+	$(libexec_SCRIPTS:=.in)
 
 bin_SCRIPTS = \
 	mongodb-status \
 	mongodb-analyzer \
 	mongodb-admin
+
+libexecdir = @SIPX_LIBEXECDIR@
+libexec_SCRIPTS = \
+	mongodb-initial-sync
 
 mongodb_TESTS = \
 	bad-replset \
@@ -96,9 +101,14 @@ check-admin:
 
 initddir = @SIPX_SERVICEDIR@
 initd_SCRIPTS = \
-	mongod-arbiter
+	mongod-arbiter \
+	mongo-local \
+	mongo-local-arbiter \
+	mongodb-sync
 
-$(initd_SCRIPTS) $(bin_SCRIPTS) : % : %.in
+$(libexec_SCRIPTS) $(initd_SCRIPTS) $(bin_SCRIPTS) : % : %.in
 	@$(call SearchAndReplace,$<,$@)
 
-CLEANFILES = $(initd_SCRIPTS) $(bin_SCRIPTS)
+CLEANFILES = \
+	$(initd_SCRIPTS) \
+	$(bin_SCRIPTS)

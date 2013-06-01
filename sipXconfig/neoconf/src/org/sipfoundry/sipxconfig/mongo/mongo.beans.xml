@@ -24,11 +24,18 @@
       </bean>
     </property>
     <property name="configManager" ref="configManager"/>
+    <property name="configJdbcTemplate" ref="configJdbcTemplate"/>
+    <property name="globalManager" ref="mongoReplSetManager"/>        
+    <property name="featureManager" ref="featureManager"/>
+  </bean>
+  
+  <bean id="mongoReplSetManager" class="org.sipfoundry.sipxconfig.mongo.MongoReplSetManagerImpl" scope="prototype">
+    <property name="configManager" ref="configManager"/>
     <property name="featureManager" ref="featureManager"/>
     <property name="mongoStatusScript" value="${sysdir.bin}/mongodb-status"/>        
     <property name="mongoAnalyzerScript" value="${sysdir.bin}/mongodb-analyzer"/>
     <!-- no path because this is a remote script -->        
-    <property name="mongoAdminScript" value="mongodb-admin"/>        
+    <property name="mongoAdminScript" value="mongodb-admin"/>  
   </bean>
   
   <bean id="mongoConfig" class="org.sipfoundry.sipxconfig.mongo.MongoConfig">
@@ -50,9 +57,17 @@
       HACK : Spring silently refuses to set this property, suspect a circular dep somewhere, but
       cannot determine where.
     <property name="configManager" ref="configManager"/>
+    <property name="featureManager" ref="featureManager"/>
     -->
     <property name="mongoManager" ref="mongoManager"/>
   </bean>
   <alias name="mongoApi" alias="/mongo"/>
 
+  <bean id="mongoLocalApi" class="org.sipfoundry.sipxconfig.mongo.MongoLocalApi" scope="prototype">
+    <property name="locationsManager" ref="locationsManager"/>
+    <property name="mongoManager" ref="mongoManager"/>
+    <property name="globalApi" ref="mongoApi"/>
+  </bean>
+  <alias name="mongoLocalApi" alias="/mongolocal"/>  
+    
 </beans>

@@ -40,6 +40,7 @@ public:
     const std::string& getQvalue() const;
     const std::string& getInstanceId() const;
     const std::string& getGruu() const;
+    unsigned int getShardId() const;
     const std::string& getPath() const;
     unsigned int getCseq() const;
     unsigned int getExpirationTime() const;
@@ -55,6 +56,7 @@ public:
     void setQvalue(const std::string& qvalue);
     void setInstanceId(const std::string& instanceId);
     void setGruu(const std::string& gruu);
+    void setShardId(unsigned int shardId);
     void setPath(const std::string& path);
     void setCseq(unsigned int cseq);
     void setExpirationTime(unsigned int expirationTime);
@@ -71,6 +73,7 @@ private:
     std::string _qvalue;
     std::string _instanceId;
     std::string _gruu;
+    unsigned int _shardId;
     std::string _path;
     unsigned int _cseq;
     unsigned int _expirationTime;
@@ -118,6 +121,11 @@ inline const std::string& RegBinding::getInstanceId() const
 inline const std::string& RegBinding::getGruu() const
 {
   return _gruu;
+}
+
+inline unsigned int RegBinding::getShardId() const
+{
+  return _shardId;
 }
 
 inline const std::string& RegBinding::getPath() const
@@ -188,6 +196,11 @@ inline void RegBinding::setInstanceId(const std::string& instanceId)
 inline void RegBinding::setGruu(const std::string& gruu)
 {
   _gruu = gruu;
+}
+
+inline void RegBinding::setShardId(unsigned int shardId)
+{
+  _shardId = shardId;
 }
 
 inline void RegBinding::setPath(const std::string& path)

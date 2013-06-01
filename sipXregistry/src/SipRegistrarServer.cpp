@@ -251,6 +251,7 @@ SipRegistrarServer::initialize(
        }
     }
 
+
     // This is a developer-only configuration parameter
     // to prevent sending an Expires header in REGISTER responses
     mSendExpiresInResponse = pOsConfigDb->getBoolean("SIP_REGISTRAR_EXP_HDR_RSP", TRUE);
@@ -572,7 +573,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                           "gruu = '%s'",
                                           gruuValue.data());
                          }
-
+    
                         RegBinding::Ptr pRegBinding(new RegBinding());
                          pRegBinding->setContact(contactWithoutExpires.str());
                          pRegBinding->setExpirationTime(expires);

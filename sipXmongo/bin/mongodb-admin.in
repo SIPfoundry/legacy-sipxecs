@@ -520,6 +520,17 @@ class MongoAdminRedhatOps(MongoRSAdmin):
             # use os_command to dryrun works
             self.os_system('rm -f ' + self.lockfile)
 
+# remain fairly flexible on file path because command might come
+# from ssh path
+def model_file(f):
+    if f.startswith('/'):
+        return f
+    if os.path.isfile(f):
+        return f
+    path = "%s/%s" % ("@SIPX_CFDATA@", f)
+    if os.path.isfile(path):
+        return path
+
 if __name__ == '__main__':
     c = None
     # Parse arguments
@@ -564,7 +575,8 @@ if __name__ == '__main__':
         if not args['host_port']:
             raise MongoAdminException('--host-port is a required for this option')
 
-        admin = MongoAdminRedhatOps(args['model'], args['host_port'], args['primary'], args['dryrun'])
+        model = model_file(args['model'])
+        admin = MongoAdminRedhatOps(model, args['host_port'], args['primary'], args['dryrun'])
         admin.timeout = args['timeout']
         if len(args['action']) > 0:
             admin.run(args['action'])

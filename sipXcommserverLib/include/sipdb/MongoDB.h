@@ -26,6 +26,7 @@
 
 #include <mongo/client/dbclient.h>
 
+
 // unfortunately mongo undefines assert and for some c++ files, that's bad
 // so we universally include it here whether c++ uses it or not.
 #include <assert.h>
@@ -67,16 +68,24 @@ class ConnectionInfo
 {
 public:
 	ConnectionInfo(const ConnectionInfo& rhs) :
-		_connectionString(rhs._connectionString), _ns(rhs._ns)
+		_connectionString(rhs._connectionString), _shard(rhs._shard)
 	{
 	}
 	;
 
-	ConnectionInfo(const mongo::ConnectionString& connectionString, const std::string& ns) :
-		_connectionString(connectionString), _ns(ns)
+	ConnectionInfo(const mongo::ConnectionString& connectionString) :
+		_connectionString(connectionString), _shard(0)
 	{
 	}
 	;
+
+	ConnectionInfo(const mongo::ConnectionString& connectionString, const int shard) :
+		_connectionString(connectionString), _shard(shard)
+	{
+	}
+	;
+
+	ConnectionInfo(std::ifstream& configFile);
 
 	virtual ~ConnectionInfo()
 	{
@@ -99,28 +108,36 @@ public:
 	 * sipxecs/localhost:27017,localhost:27018
 	 * ======================
 	 */
-	static const mongo::ConnectionString connectionStringFromFile(
-			const std::string& configFile = "");
-
-	static const mongo::ConnectionString connectionString(const std::string& str);
+	static const ConnectionInfo globalInfo();
+	static const ConnectionInfo localInfo();
 
 	static bool	testConnection(const mongo::ConnectionString &connectionString, const std::string& errmsg);
 
-        const mongo::ConnectionString& getConnectionString() const
+    const mongo::ConnectionString& getConnectionString() const
 	{
               return _connectionString;
 	}
 	;
 
-	const std::string& getNS() const
+	const int getShardId() const
 	{
-		return _ns;
+		return _shard;
+	}
+	;
+
+	const bool isEmpty() const
+	{
+		return !_connectionString.isValid();
 	}
 	;
 
 private:
+
+	ConnectionInfo() : _connectionString(), _shard(0) {
+	}
+
 	mongo::ConnectionString _connectionString;
-	std::string _ns;
+    int _shard;
 };
 
 class BaseDB
@@ -157,7 +174,11 @@ public:
 	//   mongo::BSONObj all;
 	//   d.forEach(all, bind(&X::y, &z, _1));   // _1 is required means a single argument
 	//
-	void forEach(mongo::BSONObj& query, boost::function<void(mongo::BSONObj)> doSomething);
+	void forEach(mongo::BSONObj& query, const std::string& ns, boost::function<void(mongo::BSONObj)> doSomething);
+
+	void  nearest(mongo::BSONObjBuilder& builder, mongo::BSONObj query) const;
+
+	const int getShardId() const { return _info.getShardId(); };
 
 protected:
 	mutable ConnectionInfo _info;

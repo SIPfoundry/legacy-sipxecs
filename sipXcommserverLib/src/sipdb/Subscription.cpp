@@ -35,6 +35,7 @@ const char* Subscription::accept_fld(){ static std::string fld = "accept"; retur
 const char* Subscription::file_fld(){ static std::string fld = "file"; return fld.c_str(); }
 const char* Subscription::version_fld(){ static std::string fld = "version"; return fld.c_str(); }
 const char* Subscription::expires_fld(){ static std::string fld = "expires"; return fld.c_str(); }
+const char* Subscription::shardId_fld(){ static std::string fld = "shardId"; return fld.c_str(); }
 
 Subscription::Subscription() :
     _notifyCseq(0),

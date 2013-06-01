@@ -398,7 +398,8 @@ int main(int argc, char* argv[])
 
     OsConfigDb  domainConfiguration;
     OsPath      domainConfigPath = SipXecsService::domainConfigPath();
-    mongo::ConnectionString mongoConnectionString = MongoDB::ConnectionInfo::connectionStringFromFile();
+
+    MongoDB::ConnectionInfo gInfo = MongoDB::ConnectionInfo::globalInfo();
 
     if (OS_SUCCESS == domainConfiguration.loadFromFile(domainConfigPath.data()))
     {
@@ -415,7 +416,7 @@ int main(int argc, char* argv[])
              UtlString ha1_authenticator;
              UtlString authtype;
 
-             EntityDB    entityDb(MongoDB::ConnectionInfo(mongoConnectionString, EntityDB::NS));
+             EntityDB    entityDb(gInfo);
              if (entityDb.getCredential(identity, realm, user, ha1_authenticator, authtype))
              {
                 if ((line = new SipLine( identity // user entered url
@@ -554,6 +555,7 @@ int main(int argc, char* argv[])
 
     CallManager *callManager = NULL;
     OrbitListener *listener= NULL;
+    SubscribeDB* subscribeDb = NULL;
     if (!gShutdownFlag)
     {
     // Read the list of codecs from the configuration file.
@@ -627,11 +629,11 @@ int main(int argc, char* argv[])
     listener->start();
 
     // Create the SIP Subscribe Server
-    SubscribeDB subscribeDb(MongoDB::ConnectionInfo(mongoConnectionString, SubscribeDB::NS));
+    subscribeDb = SubscribeDB::CreateInstance();
     SipPersistentSubscriptionMgr
        subscriptionMgr(SUBSCRIPTION_COMPONENT_PARK,
                        domain,
-                       subscribeDb); // Component for holding the subscription data
+                       *subscribeDb); // Component for holding the subscription data
     SipSubscribeServerEventHandler policyHolder; // Component for granting the subscription rights
     SipPublishContentMgr publisher; // Component for publishing the event contents
 
@@ -688,6 +690,8 @@ int main(int argc, char* argv[])
         delete callManager;
     if (listener)
         delete listener;
+    if (subscribeDb)
+        delete subscribeDb;
 
     // Flush the log file
     Os::Logger::instance().flush();

@@ -3,7 +3,7 @@
 #include <sipxunit/TestUtilities.h>
 #include <sipdb/RegDB.h>
 #include <os/OsDateTime.h>
-#include <json/json_spirit.h>
+//#include <json/json_spirit.h>
 #include <mongo/util/net/hostandport.h>
 #include <mongo/client/connpool.h>
 
@@ -28,9 +28,10 @@ public:
 	void setUp()
 	{
 		_db = new RegDB(_info);
-		mongo::ScopedDbConnection conn(_info.getConnectionString());
-		conn->remove(_info.getNS(), mongo::Query());
-		conn.done();
+		mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+		(*conn)->remove(_info.getNS(), mongo::Query());
+		(*conn).done();
+		delete conn;
 	}
 
 	void tearDown()
@@ -140,12 +141,6 @@ public:
 		CPPUNIT_ASSERT_EQUAL(1, (int) bindings.size());
 		CPPUNIT_ASSERT_EQUAL(string("sip:bob@host1.biloxy.com;transport=tcp"), bindings[0].getContact());
 		CPPUNIT_ASSERT_EQUAL(string("call-id@bob12345"), bindings[0].getCallId());
-		//
-		// Check out of sequence
-		//
-		CPPUNIT_ASSERT(_db->isOutOfSequence("bob@biloxy.com", "call-id@bob12345", 999));
-		CPPUNIT_ASSERT(_db->isOutOfSequence("bob@biloxy.com", "call-id@bob12345", 1000));
-		CPPUNIT_ASSERT(!_db->isOutOfSequence("bob@biloxy.com", "call-id@bob12345", 1001));
 
 		//
 		// Thre should still be 2 unexpired contacts for alice
@@ -270,8 +265,8 @@ public:
 	bool getAllOldBindings(int timeNow, RegDB::Bindings& bindings)
 	{
 		mongo::BSONObj query = BSON( "expirationTime" << BSON_LESS_THAN(timeNow));
-		mongo::ScopedDbConnection conn(_info.getConnectionString());
-		auto_ptr<mongo::DBClientCursor> pCursor = conn->query(_info.getNS(), query);
+		mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+		auto_ptr<mongo::DBClientCursor> pCursor = (*conn)->query(_info.getNS(), query);
 		if (pCursor.get() && pCursor->more())
 		{
 			while (pCursor->more())
@@ -279,9 +274,9 @@ public:
 				RegBinding binding(pCursor->next());
 				bindings.push_back(binding);
 			}
-			return true;
 		}
-		return false;
+		delete conn;
+		return bindings.size() > 0;
 	}
 };
 

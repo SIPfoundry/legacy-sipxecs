@@ -456,6 +456,7 @@
     <!-- slot 4 -->
     <!-- slot 5 -->
     <!-- slot 6 -->
+    <antcall target="shards"/>
     <!-- slot 7 -->
     <!-- slot 8 -->
     <!-- slot 9 -->
@@ -1366,6 +1367,10 @@
   <target name="add_timeout_to_ldap" unless="add_timeout_to_ldap">
     <db-patch patch="add_timeout_to_ldap"/>
   </target>
+  <target name="shards" unless="shards">
+	<db-patch patch="shards"/>
+  </target>
+
   <!--
     - SUPPORT UTILITIES
   -->
