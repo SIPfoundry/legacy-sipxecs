@@ -45,8 +45,8 @@ public class MongoConfigTest {
     
     @Test
     public void getConnectionString() {
-        assertEquals("sipxecs/one:1", m_config.getConnectionString(m_single, 1));
-        assertEquals("sipxecs/one:1,two:1", m_config.getConnectionString(m_multi, 1));
+        assertEquals("sipxecs/one:1", m_config.getConnectionString(m_single, "sipxecs", 1));
+        assertEquals("sipxecs/one:1,two:1", m_config.getConnectionString(m_multi, "sipxecs", 1));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class MongoConfigTest {
         Arrays.asList(s1, s2);
         Arrays.asList(s3, s4);
         StringWriter actual = new StringWriter();
-        m_config.serverList(actual, Arrays.asList(s1, s2), Arrays.asList(s3, s4));
+        m_config.modelFile(actual, Arrays.asList(s1, s2), Arrays.asList(s3, s4), "sipxecs", 27017, 27018);
         assertEquals("{ \"servers\" : [ \"one:27017\" , \"two:27017\"] , \"arbiters\" : "
                 + "[ \"three:27018\" , \"four:27018\"] , \"replSet\" : \"sipxecs\"}", actual.toString());
     }

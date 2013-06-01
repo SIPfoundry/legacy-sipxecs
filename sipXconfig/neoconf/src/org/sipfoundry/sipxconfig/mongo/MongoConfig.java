@@ -16,12 +16,15 @@
  */
 package org.sipfoundry.sipxconfig.mongo;
 
+
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,18 +42,21 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import com.mongodb.util.JSON;
 
 public class MongoConfig implements ConfigProvider {
+    private static final String GLOBAL_REPLSET = "sipxecs";
+    private static final String LOCAL_REPLSET = "sipxlocal";
     private MongoManager m_mongoManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(MongoManager.FEATURE_ID, LocationsManager.FEATURE, MongoManager.ARBITER_FEATURE)) {
+        if (!request.applies(MongoManager.FEATURE_ID, LocationsManager.FEATURE, MongoManager.ARBITER_FEATURE,
+                MongoManager.LOCAL_FEATURE)) {
             return;
         }
         FeatureManager fm = manager.getFeatureManager();
         Location[] all = manager.getLocationManager().getLocations();
         MongoSettings settings = m_mongoManager.getSettings();
         List<Location> dbs = manager.getFeatureManager().getLocationsForEnabledFeature(MongoManager.FEATURE_ID);
-        String connStr = getConnectionString(dbs, settings.getPort());
+        String connStr = getConnectionString(dbs, GLOBAL_REPLSET, settings.getPort());
         String connUrl = getConnectionUrl(dbs, settings.getPort());
         for (Location location : all) {
             // CLIENT
@@ -65,9 +71,31 @@ public class MongoConfig implements ConfigProvider {
             // SERVERS
             boolean mongod = fm.isFeatureEnabled(MongoManager.FEATURE_ID, location);
             boolean arbiter = fm.isFeatureEnabled(MongoManager.ARBITER_FEATURE, location);
+            boolean local = fm.isFeatureEnabled(MongoManager.LOCAL_FEATURE, location);
+            if (local) {
+                File localFile = new File(dir, "mongo-local.ini");
+                FileWriter localConfig = new FileWriter(localFile);
+                try {
+                    writeLocalClientConfig(localConfig, MongoSettings.LOCAL_PORT, location);
+                } finally {
+                    IOUtils.closeQuietly(localConfig);
+                }
+
+                FileWriter localModel = null;
+                try {
+                    File f = new File(dir, "mongo-local.json");
+                    localModel = new FileWriter(f);
+                    List<Location> none = Collections.emptyList();
+                    modelFile(localModel, Collections.singletonList(location), none, LOCAL_REPLSET,
+                            MongoSettings.LOCAL_PORT, MongoSettings.LOCAL_ARBITER_PORT);
+                } finally {
+                    IOUtils.closeQuietly(localModel);
+                }
+            }
+
             FileWriter server = new FileWriter(new File(dir, "mongodb.cfdat"));
             try {
-                writeServerConfig(server, mongod, arbiter);
+                writeServerConfig(server, mongod, arbiter, local);
             } finally {
                 IOUtils.closeQuietly(server);
             }
@@ -78,21 +106,22 @@ public class MongoConfig implements ConfigProvider {
         try {
             File f = new File(manager.getGlobalDataDirectory(), "mongo.json");
             w = new FileWriter(f);
-            serverList(w, dbs, arbiters);
+            modelFile(w, dbs, arbiters, GLOBAL_REPLSET, MongoSettings.SERVER_PORT, MongoSettings.ARBITER_PORT);
         } finally {
             IOUtils.closeQuietly(w);
         }
     }
 
-    void serverList(Writer sb, List<Location> servers, List<Location> arbiters) throws IOException {
+    void modelFile(Writer sb, List<Location> servers, List<Location> arbiters, String replSet, int dbPort,
+            int arbPort) throws IOException {
         Map<String, Object> model = new HashMap<String, Object>();
         if (servers.size() > 0) {
-            model.put("servers", serverIdList(servers, MongoSettings.SERVER_PORT));
+            model.put("servers", serverIdList(servers, dbPort));
         }
         if (arbiters.size() > 0) {
-            model.put("arbiters", serverIdList(arbiters, MongoSettings.ARBITER_PORT));
+            model.put("arbiters", serverIdList(arbiters, arbPort));
         }
-        model.put("replSet", "sipxecs");
+        model.put("replSet", replSet);
         String json = JSON.serialize(model);
         sb.write(json);
     }
@@ -105,7 +134,7 @@ public class MongoConfig implements ConfigProvider {
         return ids;
     }
 
-    void writeServerConfig(Writer w, boolean mongod, boolean arbiter) throws IOException {
+    void writeServerConfig(Writer w, boolean mongod, boolean arbiter, boolean local) throws IOException {
         String bindToAll = "0.0.0.0";
         CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
         config.writeClass("mongod", mongod);
@@ -114,6 +143,7 @@ public class MongoConfig implements ConfigProvider {
         config.writeClass("mongod_arbiter", arbiter);
         config.write("mongoArbiterBindIp", bindToAll);
         config.write("mongoArbiterPort", MongoSettings.ARBITER_PORT);
+        config.writeClass("mongo_local", local);
     }
 
     void writeClientConfig(Writer w, String connStr, String connUrl) throws IOException {
@@ -122,8 +152,17 @@ public class MongoConfig implements ConfigProvider {
         config.write("connectionString", connStr);
     }
 
-    String getConnectionString(List<Location> servers, int port) {
-        StringBuilder r = new StringBuilder("sipxecs/");
+    void writeLocalClientConfig(Writer w, int port, Location location) throws IOException {
+        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
+        List<Location> ldb = Collections.singletonList(location);
+        String lconnStr = getConnectionString(ldb, LOCAL_REPLSET, port);
+        String lconnUrl = getConnectionUrl(ldb, port);
+        writeClientConfig(w, lconnStr, lconnUrl);
+        config.write("shardId", location.getId());
+    }
+
+    String getConnectionString(List<Location> servers, String replSet, int port) {
+        StringBuilder r = new StringBuilder(replSet).append('/');
         for (int i = 0; i < servers.size(); i++) {
             Location server = servers.get(i);
             if (i > 0) {

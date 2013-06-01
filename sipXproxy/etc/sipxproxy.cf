@@ -110,6 +110,10 @@ bundle agent sipxproxy_running {
     any::
       "service_command" string => "$(sipx.SIPX_BINDIR)/sipXproxy";
 
+  classes:
+    mongo_local_reconnect::
+      "restart_sipxproxy" expression => "any";
+
   methods:
     any::
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxproxy_running");

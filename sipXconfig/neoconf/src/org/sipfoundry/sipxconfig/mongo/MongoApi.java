@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.Context;
@@ -52,11 +53,21 @@ class MongoApi extends Resource {
     private static final String PRIORITY = "priority";
     private MongoManager m_mongoManager;
     private LocationsManager m_locationsManager;
+    private MongoReplSetManager m_rsManager;
+    private MongoShard m_shard;
 
     @Override
     public void init(Context context, Request request, Response response) {
         super.init(context, request, response);
         getVariants().add(new Variant(APPLICATION_JSON));
+        String shardIdParam = (String) getRequest().getAttributes().get("shardId");
+        if (StringUtils.isNotBlank(shardIdParam)) {
+            Integer shardId = Integer.parseInt(shardIdParam);
+            m_shard = m_mongoManager.getShard(shardId);
+            m_rsManager = m_mongoManager.getShardManager(m_shard);
+        } else {
+            m_rsManager = m_mongoManager;
+        }
     }
 
     @Override
@@ -74,44 +85,21 @@ class MongoApi extends Resource {
         getResponse().setStatus(Status.SUCCESS_OK);
         Collection<Location> locations = m_mongoManager.getConfigManager().getRegisteredLocations(
                 m_locationsManager.getLocationsList());
-        Map<String, Object> meta = metaMap(m_mongoManager.getMeta(), locations);
+        Map<String, Object> meta = metaMap(m_rsManager, m_rsManager.getMeta(), locations);
         String json = JSON.serialize(meta);
         return new StringRepresentation(json);
     }
 
     public void acceptRepresentation(Representation entity) throws ResourceException {
         String json;
-        String delete = "DELETE";
         try {
             json = IOUtils.toString(entity.getStream());
             @SuppressWarnings("unchecked")
             Map<String, Object> form = (Map<String, Object>) JSON.parse(json);
             String action = (String) form.get("action");
             String hostPort = (String) form.get("server");
-            MongoMeta meta = m_mongoManager.getMeta();
-            if (action.startsWith("NEW_") || action.equals(delete)) {
-                MongoNode node = meta.getNode(hostPort);
-                MongoNode primary = requirePrimary(meta);
-                if (action.equals("NEW_DB")) {
-                    m_mongoManager.addDatabase(primary.getHostPort(), hostPort);
-                } else if (action.equals("NEW_ARBITER")) {
-                    m_mongoManager.addArbiter(primary.getHostPort(), hostPort);
-                } else if (action.equals(delete)) {
-                    if (node.isArbiter()) {
-                        m_mongoManager.removeArbiter(primary.getHostPort(), hostPort);
-                    } else {
-                        m_mongoManager.removeDatabase(primary.getHostPort(), hostPort);
-                    }
-                }
-            } else {
-                String primaryHostport = null;
-                MongoNode primary = meta.getPrimary();
-                if (primary != null) {
-                    primaryHostport = primary.getHostPort();
-                }
-
-                m_mongoManager.takeAction(primaryHostport, hostPort, action);
-            }
+            MongoMeta meta = m_rsManager.getMeta();
+            takeAction(m_rsManager, meta, action, hostPort);
         } catch (IOException e) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
         }
@@ -125,7 +113,34 @@ class MongoApi extends Resource {
         return primary;
     }
 
-    Map<String, Object> metaMap(MongoMeta meta, Collection<Location> locations) {
+    void takeAction(MongoReplSetManager rsManager, MongoMeta meta, String action, String hostPort) {
+        String delete = "DELETE";
+        if (action.startsWith("NEW_") || action.equals(delete)) {
+            MongoNode node = meta.getNode(hostPort);
+            MongoNode primary = requirePrimary(meta);
+            if (action.equals("NEW_DB")) {
+                rsManager.addDatabase(primary.getHostPort(), hostPort);
+            } else if (action.equals("NEW_ARBITER")) {
+                rsManager.addArbiter(primary.getHostPort(), hostPort);
+            } else if (action.equals(delete)) {
+                if (node.isArbiter()) {
+                    rsManager.removeArbiter(primary.getHostPort(), hostPort);
+                } else {
+                    rsManager.removeDatabase(primary.getHostPort(), hostPort);
+                }
+            }
+        } else {
+            String primaryHostport = null;
+            MongoNode primary = meta.getPrimary();
+            if (primary != null) {
+                primaryHostport = primary.getHostPort();
+            }
+
+            rsManager.takeAction(primaryHostport, hostPort, action);
+        }
+    }
+
+    Map<String, Object> metaMap(MongoReplSetManager rsManager, MongoMeta meta, Collection<Location> locations) {
         Map<String, Object> map = new HashMap<String, Object>();
 
         Map<String, Location> locationMap = new HashMap<String, Location>();
@@ -139,16 +154,16 @@ class MongoApi extends Resource {
             String arbHostPort = entry.getKey() + ':' + MongoSettings.ARBITER_PORT;
             if (!nodes.contains(arbHostPort)) {
                 candidateArbiters.add(arbHostPort);
-                Collections.sort(candidateArbiters);
             }
             String dbHostPort = entry.getKey() + ':' + MongoSettings.SERVER_PORT;
             if (!nodes.contains(dbHostPort)) {
                 candidateDatabases.add(dbHostPort);
-                Collections.sort(candidateDatabases);
             }
         }
-        map.put("inProgress", m_mongoManager.isInProgress());
-        map.put("lastConfigError", m_mongoManager.getLastConfigError());
+        Collections.sort(candidateArbiters);
+        Collections.sort(candidateDatabases);
+        map.put("inProgress", rsManager.isInProgress());
+        map.put("lastConfigError", rsManager.getLastConfigError());
         map.put("arbiterCandidates", candidateArbiters);
         map.put("dbCandidates", candidateDatabases);
 
@@ -165,6 +180,8 @@ class MongoApi extends Resource {
             Map<String, Object> nmap = new HashMap<String, Object>();
             nmap.put("status", node.getStatus());
             nmap.put(HOST, l.getHostname());
+            boolean local = m_mongoManager.getFeatureManager().isFeatureEnabled(MongoManager.LOCAL_FEATURE, l);
+            nmap.put("local", local);
             nmap.put("required", meta.getRequiredActions(node.getHostPort()));
             nmap.put("available", meta.getAvailableActions(node.getHostPort()));
             Map<String, Object> config = getMemberConfig(primaryMeta, node.getHostPort());

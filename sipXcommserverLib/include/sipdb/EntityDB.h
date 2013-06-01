@@ -30,12 +30,23 @@ public:
 	typedef std::vector<EntityRecord::Alias> Aliases;
 	typedef std::set<std::string> Permissions;
 
-	EntityDB(const MongoDB::ConnectionInfo& info) :
-		BaseDB(info)
+	void init()
 	{
-    _lastTailId = mongo::minKey.firstElement();
+	    _lastTailId = mongo::minKey.firstElement();
+	}
+
+	EntityDB(const MongoDB::ConnectionInfo& info) :
+		BaseDB(info), _ns(NS)
+	{
+		init();
 	}
 	;
+
+	EntityDB(const MongoDB::ConnectionInfo& info, const std::string& ns) :
+		BaseDB(info), _ns(ns)
+	{
+		init();
+	}
 
 	~EntityDB()
 	{
@@ -66,6 +77,7 @@ public:
 
 private:
   mongo::BSONElement _lastTailId;
+  std::string _ns;
 };
 
 #endif	/* ENTITYDB_H */

@@ -244,7 +244,8 @@ main(int argc, char* argv[] )
     std::set_terminate(catch_global);
 
     std::string errmsg;
-    mongo::ConnectionString mongoConn = MongoDB::ConnectionInfo::connectionStringFromFile();
+    MongoDB::ConnectionInfo ginfo = MongoDB::ConnectionInfo::globalInfo();    
+    mongo::ConnectionString mongoConn = ginfo.getConnectionString();
     if (false == MongoDB::ConnectionInfo::testConnection(mongoConn, errmsg))
     {
         Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,

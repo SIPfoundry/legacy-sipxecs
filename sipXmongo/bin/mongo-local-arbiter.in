@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# mongo-local-arbiter - Startup script for mongod local arbiter
+
+# chkconfig: 35 85 15
+# description: Mongodb arbiter unblocks tie votes in local dbs on new primary should it become unavailable
+# processname: mongod
+# config: /etc/mongo-local-arbiter.conf
+# pidfile: /var/run/mongo/local-arbiter.pid
+
+# NOTE: This file cloned from /etc/init.d/mongod from mongodb proper
+
+. /etc/rc.d/init.d/functions
+
+# things from mongod.conf get there by mongod reading it
+
+# NOTE: if you change any OPTIONS here, you get what you pay for:
+# this script assumes all options are in the config file.
+CONFIGFILE="/etc/mongo-local-arbiter.conf"
+OPTIONS=" -f $CONFIGFILE"
+SYSCONFIG="/etc/sysconfig/mongo-local-arbiter"
+LOCKFILE=/var/lock/subsys/mongo-local-arbiter
+
+# 10gen v.s. fedora
+if `id mongodb 1>/dev/null 2>&1` ; then
+  # fedora
+  MONGO_USER=mongodb
+  MONGO_GROUP=mongodb
+else
+  # 10gen
+  MONGO_USER=mongod
+  MONGO_GROUP=mongod
+fi
+
+test -f $CONFIGFILE || exit 5
+
+# FIXME: 1.9.x has a --shutdown flag that parses the config file and
+# shuts down the correct running pid, but that's unavailable in 1.8
+# for now.  This can go away when this script stops supporting 1.8.
+DBPATH=`awk -F= '/^dbpath ?= ?/{print $2}' "$CONFIGFILE"`
+PIDFILE=`awk -F= '/^pidfilepath ?= ?/{print $2}' "$CONFIGFILE"`
+mongod=${MONGOD-/usr/bin/mongod}
+
+! test -d $DBPATH || mkdir -p $DBPATH
+chown $MONGO_USER:$MONGO_GROUP $DBPATH
+
+! test -f "$SYSCONFIG" || . "$SYSCONFIG"
+
+start()
+{
+  echo -n $"Starting mongo-local-arbiter: "
+  daemon --user "$MONGO_USER" $mongod $OPTIONS
+  RETVAL=$?
+  echo
+  [ $RETVAL -eq 0 ] && touch $LOCKFILE
+}
+
+stop()
+{
+  echo -n $"Stopping mongo-local-arbiter: "
+  killproc -p $PIDFILE $mongod
+  RETVAL=$?
+  echo
+  [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+}
+
+restart () {
+	stop
+	start
+}
+
+ulimit -n 12000
+RETVAL=0
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    restart
+    ;;
+  condrestart)
+    [ -f $LOCKFILE ] && restart || :
+    ;;
+  status)
+    status -p $PIDFILE "mongo-local-arbiter"
+    RETVAL=$?
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart}"
+    RETVAL=1
+esac
+
+exit $RETVAL

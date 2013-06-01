@@ -17,7 +17,8 @@ AM_CPPFLAGS = \
 
 LDADD = \
 	@SIPXUNIT_LIBS@ \
-   ../libsipXcommserver.la
+	-lmongoclient \
+	../libsipXcommserver.la
 
 # Define values used in local database unit tests. This only
 # happens if configure was run with --enable-dbtests.
@@ -38,7 +39,7 @@ TESTS = \
 	SipXecsServiceTest \
 	SharedSecretTest \
 	$(db_TESTS)
-  
+
 check_PROGRAMS = $(TESTS)
 
 MongoDBTest_SOURCES = MongoDBTest.cpp

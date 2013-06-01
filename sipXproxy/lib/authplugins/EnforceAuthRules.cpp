@@ -51,8 +51,7 @@ EnforceAuthRules::EnforceAuthRules(const UtlString& pluginName ///< the name for
 {
     Os::Logger::instance().log(FAC_SIP,PRI_INFO,"EnforceAuthRules plugin instantiated '%s'",
                  mInstanceName.data());
-	MongoDB::ConnectionInfo info(MongoDB::ConnectionInfo::connectionStringFromFile(), EntityDB::NS);
-	mpEntityDb = new EntityDB(info);
+    mpEntityDb = new EntityDB(MongoDB::ConnectionInfo::globalInfo());
 };
 
 /// Read (or re-read) the authorization rules.

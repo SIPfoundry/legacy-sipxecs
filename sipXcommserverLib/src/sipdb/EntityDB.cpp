@@ -14,6 +14,7 @@
  */
 
 #include <mongo/client/connpool.h>
+#include <mongo/client/dbclient.h>
 #include "os/OsLogger.h"
 #include "sipdb/EntityDB.h"
 #include <boost/algorithm/string.hpp>
@@ -26,19 +27,23 @@ const string EntityDB::NS("imdb.entity");
 bool EntityDB::findByIdentity(const string& identity, EntityRecord& entity) const
 {
 	mongo::BSONObj query = BSON(EntityRecord::identity_fld() << identity);
-	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Finding entity record for " << identity << " from namespace " << _info.getNS());
+	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Finding entity record for " << identity << " from namespace " << _ns);
 
     MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
-	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
+
+    mongo::BSONObjBuilder builder;
+    BaseDB::nearest(builder, query);
+
+    auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 	if (pCursor.get() && pCursor->more())
 	{
-		OS_LOG_DEBUG(FAC_ODBC, identity << " is present in namespace " << _info.getNS());
+		OS_LOG_DEBUG(FAC_ODBC, identity << " is present in namespace " << _ns);
 		entity = pCursor->next();
 		conn->done();
 		return true;
 	}
-	OS_LOG_DEBUG(FAC_ODBC, identity << " is NOT present in namespace " << _info.getNS());
-	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Unable to find entity record for " << identity << " from namespace " << _info.getNS());
+	OS_LOG_DEBUG(FAC_ODBC, identity << " is NOT present in namespace " << _ns);
+	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Unable to find entity record for " << identity << " from namespace " << _ns);
     conn->done();
 	return false;
 }
@@ -46,16 +51,18 @@ bool EntityDB::findByIdentity(const string& identity, EntityRecord& entity) cons
 bool EntityDB::findByUserId(const string& userId, EntityRecord& entity) const
 {
 	mongo::BSONObj query = BSON(EntityRecord::userId_fld() << userId);
+    mongo::BSONObjBuilder builder;
+    BaseDB::nearest(builder, query);
     MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
-	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
-	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByUserId - Finding entity record for " << userId << " from namespace " << _info.getNS());
+    auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
+	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByUserId - Finding entity record for " << userId << " from namespace " << _ns);
 	if (pCursor.get() && pCursor->more())
 	{
 		entity = pCursor->next();
         conn->done();
 		return true;
 	}
-	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByUserId - Unable to find entity record for " << userId << " from namespace " << _info.getNS());
+	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByUserId - Unable to find entity record for " << userId << " from namespace " << _ns);
     conn->done();
 	return false;
 }
@@ -87,16 +94,18 @@ bool EntityDB::findByAliasUserId(const string& alias, EntityRecord& entity) cons
 	mongo::BSONObj query = BSON( EntityRecord::aliases_fld() <<
 			BSON_ELEM_MATCH( BSON(EntityRecord::aliasesId_fld() << alias) ) );
 
+    mongo::BSONObjBuilder builder;
+    BaseDB::nearest(builder, query);
     MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
-	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
-	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByAliasUserId - Finding entity record for alias " << alias << " from namespace " << _info.getNS());
+    auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
+	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByAliasUserId - Finding entity record for alias " << alias << " from namespace " << _ns);
 	if (pCursor.get() && pCursor->more())
 	{
 		entity = pCursor->next();
 		conn->done();
 		return true;
 	}
-	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByAliasUserId - Unable to find entity record for alias " << alias << " from namespace " << _info.getNS());
+	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByAliasUserId - Unable to find entity record for alias " << alias << " from namespace " << _ns);
 	conn->done();
 	return false;
 }
@@ -197,9 +206,11 @@ bool  EntityDB::tail(std::vector<std::string>& opLogs) {
     mongo::Query query = QUERY( "_id" << mongo::GT << _lastTailId
           << "ns" << NS).sort("$natural");
 
+    mongo::BSONObjBuilder builder;
+    BaseDB::nearest(builder, query.obj);
     std::auto_ptr<mongo::DBClientCursor> c =
-      conn->get()->query("local.oplog", query, 0, 0, 0,
-                 mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData );
+      conn->get()->query("local.oplog", builder.obj(), 0, 0, 0,
+      mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData | mongo::QueryOption_SlaveOk);
     while(true)
     {
       if( !c->more() )
@@ -221,12 +232,14 @@ bool  EntityDB::tail(std::vector<std::string>& opLogs) {
 
   mongo::Query query = QUERY( "_id" << mongo::GT << _lastTailId
           << "ns" << NS).sort("$natural");
+  mongo::BSONObjBuilder builder;
+  BaseDB::nearest(builder, query.obj);
 
   // capped collection insertion order
 
   std::auto_ptr<mongo::DBClientCursor> c =
-    conn->get()->query("local.oplog", query, 0, 0, 0,
-               mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData );
+    conn->get()->query("local.oplog", builder.obj(), 0, 0, 0,
+        mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData | mongo::QueryOption_SlaveOk);
   while(true)
   {
     if( !c->more() )

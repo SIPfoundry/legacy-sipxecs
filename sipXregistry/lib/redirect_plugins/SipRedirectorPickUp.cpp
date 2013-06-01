@@ -507,7 +507,7 @@ SipRedirectorPickUp::lookUp(
 
           // TODO: is code is flawed? as registrations change, will this still function with
           // changes.  Unclear but recommendations to use CoR will address --Douglas
-          regDb->forEach(query, bind(&SipRedirectorAddContact::add, &add, _1));
+          regDb->forEach(query, regDb->getNS(), bind(&SipRedirectorAddContact::add, &add, _1));
          return RedirectPlugin::SUCCESS;
       }
       else
