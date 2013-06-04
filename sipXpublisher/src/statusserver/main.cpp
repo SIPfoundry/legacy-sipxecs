@@ -236,5 +236,7 @@ main(int argc, char* argv[] )
 
     cout << "Cleanup...Finished" << endl;
 
+    mongo::dbexit(mongo::EXIT_CLEAN);
+
     return 0;
 }
