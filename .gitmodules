@@ -1,9 +1,6 @@
 [submodule "freeswitch"]
 	path = freeswitch
 	url = git://github.com/dhubler/freeswitch.git
-[submodule "OpenACD"]
-	path = OpenACD
-	url = git://github.com/OpenACD/OpenACD.git
 [submodule "homer"]
 	path = homer
 	url = http://code.google.com/p/homer/
@@ -66,16 +63,16 @@
 	url = git://github.com/dhubler/openfire.git
 [submodule "oacd_freeswitch"]
 	path = oacd_freeswitch
-	url = git@github.com:sipxopenacd/oacd_freeswitch
+	url = git://github.com/sipxopenacd/oacd_freeswitch.git
 [submodule "oacd_dialplan"]
 	path = oacd_dialplan
-	url = git@github.com:sipxopenacd/oacd_dialplan
+	url = git://github.com/sipxopenacd/oacd_dialplan.git
 [submodule "oacd_web"]
 	path = oacd_web
-	url = git@github.com:sipxopenacd/oacd_web
+	url = git://github.com/sipxopenacd/oacd_web.git
 [submodule "sipxopenacd"]
 	path = sipxopenacd
-	url = git@github.com:sipxopenacd/sipxplugin
+	url = git://github.com/sipxopenacd/sipxplugin.git
 [submodule "openacd"]
 	path = openacd
-	url = git@github.com:sipxopenacd/openacd.git
+	url = git://github.com/sipxopenacd/openacd.git
