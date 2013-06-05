@@ -770,4 +770,6 @@ int main(int argc, char* argv[]) {
     proxy();
     Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "Exiting") ;
     Os::Logger::instance().flush();
+
+    mongo::dbexit(mongo::EXIT_CLEAN);
 }

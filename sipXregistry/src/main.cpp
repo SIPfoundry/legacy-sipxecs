@@ -339,6 +339,8 @@ main(int argc, char* argv[] )
    // Flush the log file
    Os::Logger::instance().flush();
 
+   mongo::dbexit(mongo::EXIT_CLEAN);
+
    return 0;
 }
 
