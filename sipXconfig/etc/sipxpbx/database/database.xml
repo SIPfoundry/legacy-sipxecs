@@ -1336,13 +1336,8 @@
   <target name="cisco-to-linksys" unless="cisco-to-linksys">
 	<db-patch patch="cisco-to-linksys"/>
   </target>
-<<<<<<< HEAD
   <target name="add_value_storage_to_openacdline" unless="add_value_storage_to_openacdline">
 	<db-patch patch="add_value_storage_to_openacdline"/>
-=======
-  <target name="branch-timezone" unless="branch-timezone">
-    <db-patch patch="branch-timezone"/>
->>>>>>> PT-336655 Multiple zones in a cluster
   </target>
   <!--
     - SUPPORT UTILITIES
