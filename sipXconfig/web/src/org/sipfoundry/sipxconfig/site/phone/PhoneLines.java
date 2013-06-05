@@ -12,17 +12,13 @@ package org.sipfoundry.sipxconfig.site.phone;
 import java.util.Collection;
 
 import org.apache.tapestry.IPage;
-import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
-import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.components.SelectMap;
-import org.sipfoundry.sipxconfig.components.SipxBasePage;
-import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -33,12 +29,9 @@ import org.sipfoundry.sipxconfig.site.line.EditLine;
 /**
  * Manage a phone's lines
  */
-public abstract class PhoneLines extends SipxBasePage implements PageBeginRenderListener {
+public abstract class PhoneLines extends PhoneBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "phone/PhoneLines";
-
-    @InjectObject(value = "spring:phoneContext")
-    public abstract PhoneContext getPhoneContext();
 
     @InjectObject(value = "spring:tapestry")
     public abstract TapestryContext getTapestry();
@@ -51,18 +44,6 @@ public abstract class PhoneLines extends SipxBasePage implements PageBeginRender
 
     @InjectPage(value = EditLine.PAGE)
     public abstract EditLine getEditLinePage();
-
-    @Bean
-    public abstract SipxValidationDelegate getValidator();
-
-    public abstract Phone getPhone();
-
-    public abstract void setPhone(Phone phone);
-
-    @Persist
-    public abstract Integer getPhoneId();
-
-    public abstract void setPhoneId(Integer id);
 
     public Collection getLines() {
         return getPhone().getLines();

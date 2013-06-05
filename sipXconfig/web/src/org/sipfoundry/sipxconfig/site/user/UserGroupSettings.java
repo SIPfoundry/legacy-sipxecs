@@ -54,7 +54,7 @@ import com.davekoelle.AlphanumComparator;
 public abstract class UserGroupSettings extends GroupSettings {
     public static final String PAGE = "user/UserGroupSettings";
 
-    private static final String SEPARATOR = ",";
+    public static final String SEPARATOR = ",";
 
     private static final String SCHEDULES = "schedules";
     private static final String CONFERENCE = "conference";
@@ -358,6 +358,7 @@ public abstract class UserGroupSettings extends GroupSettings {
         if (!isVoicemailEnabled()) {
             names.add("personal-attendant");
         }
+        names.add("e911");
         names.add(TIMEZONE_TAB);
         names.add(HOTELLING_TAB);
         return StringUtils.join(names, SEPARATOR);

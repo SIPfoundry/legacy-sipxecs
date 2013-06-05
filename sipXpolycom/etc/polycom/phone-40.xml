@@ -5159,6 +5159,13 @@
         <value>ezLogo800x480.jpg</value>
       </setting>
     </group>
+  <group name="e911" hidden="yes">
+    <setting name="location">
+      <type>
+        <integer/>
+      </type>
+    </setting>    
+  </group>
     <group name="calendar" if="exchangeIntegration">
       <setting name="feature.exchangeCalendar.enabled">
         <type><boolean /></type>

@@ -15,25 +15,13 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
-import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.user.UserTable;
 
-public abstract class AddPhoneUser extends SipxBasePage implements PageBeginRenderListener {
+public abstract class AddPhoneUser extends PhoneBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "phone/AddPhoneUser";
-
-    public abstract Phone getPhone();
-
-    public abstract void setPhone(Phone phone);
-
-    /** REQUIRED PROPERTY */
-    public abstract Integer getPhoneId();
-
-    public abstract void setPhoneId(Integer id);
-
-    public abstract PhoneContext getPhoneContext();
 
     public abstract CoreContext getCoreContext();
 

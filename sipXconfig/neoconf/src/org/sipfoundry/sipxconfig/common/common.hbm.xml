@@ -38,7 +38,6 @@
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
     </set>
     <many-to-one name="branch" column="branch_id" not-found="ignore" />
-
     <subclass name="User" discriminator-value="C"></subclass>
     <subclass name="InternalUser" discriminator-value="I"></subclass>
   </class>

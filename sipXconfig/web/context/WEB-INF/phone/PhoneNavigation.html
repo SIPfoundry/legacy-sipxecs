@@ -5,18 +5,19 @@
           activeSetting="ognl:activeSetting"
           editSettingsListener="listener:editSettings"
           groupsToHide="group.version">
-          <span jwcid="@common/Tab" isActive="ognl:identificationTabActive">
+          <span jwcid="id@common/Tab" isActive="ognl:identificationTabActive">
             <a jwcid="deviceIdLink@DirectLink" listener="listener:editPhone"
               parameters="ognl:bean.id">
               <span key="link.identification">Identification</span>
             </a>
           </span>
-          <span jwcid="@common/Tab" isActive="ognl:linesTabActive">
+          <span jwcid="lines@common/Tab" isActive="ognl:linesTabActive">
             <a jwcid="linesLink@DirectLink" listener="listener:editLines"
               parameters="ognl:bean.id">
               <span key="link.lines">Lines</span>
             </a>
           </span>
+		  <span jwcid="@common/Plugin" blockId="PhoneNavigationSpecialTab"/>
         </span>
       </div>
   <span jwcid="@RenderBody"/>

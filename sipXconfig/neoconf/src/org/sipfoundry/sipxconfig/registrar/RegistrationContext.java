@@ -11,12 +11,20 @@ package org.sipfoundry.sipxconfig.registrar;
 
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.commserver.imdb.RegistrationItem;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.commserver.imdb.RegistrationItem;
+
+import com.mongodb.DBCursor;
 
 public interface RegistrationContext {
 
     public abstract List<RegistrationItem> getRegistrations();
 
     public abstract List<RegistrationItem> getRegistrationsByUser(User user);
+
+    DBCursor getRegistrationsByLineId(String uid);
+
+    DBCursor getRegistrationsByMac(String mac);
+
+    DBCursor getRegistrationsByIp(String ip);
 }

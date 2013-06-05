@@ -26,10 +26,10 @@ nobase_lib_LTLIBRARIES = \
     authplugins/libCallerAlertInfo.la \
     authplugins/libTransferControl.la \
     authplugins/libEnforceAuthRules.la \
-    authplugins/libEmergencyNotify.la \
+    authplugins/libEmergencyLineIdentifier.la \
     authplugins/libRequestLinter.la \
-	 authplugins/libMSFT_ExchangeTransferHack.la \
-	 authplugins/libSubscriptionAuth.la \
+    authplugins/libMSFT_ExchangeTransferHack.la \
+    authplugins/libSubscriptionAuth.la \
     authplugins/libCallDestination.la
 
 authplugins_libCallerAlias_la_SOURCES = \
@@ -73,21 +73,6 @@ authplugins_libEnforceAuthRules_la_LDFLAGS = \
     $(AUTHPLUGIN_COMMON_LD_FLAGS)
 
 authplugins_libEnforceAuthRules_la_LIBADD = \
-    @SIPXCOMMSERVER_LIBS@ \
-    -lmongoclient \
-    -lboost_system-mt
-
-authplugins_libEmergencyNotify_la_SOURCES = \
-    EmergencyNotify.h \
-    EmergencyNotify.cpp
-
-authplugins_libEmergencyNotify_la_CXXFLAGS = \
-    $(AUTHPLUGIN_COMMON_CXX_FLAGS)
-
-authplugins_libEmergencyNotify_la_LDFLAGS = \
-    $(AUTHPLUGIN_COMMON_LD_FLAGS)
-
-authplugins_libEmergencyNotify_la_LIBADD = \
     @SIPXCOMMSERVER_LIBS@ \
     -lmongoclient \
     -lboost_system-mt
@@ -167,3 +152,17 @@ authplugins_libCallDestination_la_LIBADD = \
     -lmongoclient \
     -lboost_system-mt
 
+authplugins_libEmergencyLineIdentifier_la_SOURCES = \
+    EmergencyLineIdentifier.h \
+    EmergencyLineIdentifier.cpp
+
+authplugins_libEmergencyLineIdentifier_la_CXXFLAGS = \
+    $(AUTHPLUGIN_COMMON_CXX_FLAGS)
+
+authplugins_libEmergencyLineIdentifier_la_LDFLAGS = \
+    $(AUTHPLUGIN_COMMON_LD_FLAGS)
+
+authplugins_libEmergencyLineIdentifier_la_LIBADD = \
+    @SIPXCOMMSERVER_LIBS@ \
+    -lmongoclient \
+    -lboost_system-mt

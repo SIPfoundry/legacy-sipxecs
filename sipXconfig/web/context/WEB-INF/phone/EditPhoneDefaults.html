@@ -11,6 +11,7 @@
               <span key="link.fwver">aaaaa</span>
             </a>
           </span>
+		  <span jwcid="specialTab@common/Plugin" blockId="PhoneGroupsNavigationSpecialTab"/>
        </ul>
     <strong><span key="label.phones">Phones</span></strong>
   	
@@ -28,6 +29,7 @@
     <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:displayFwverTab" />
+    <span jwcid="@RenderBlock" block="ognl:displayE911Tab" />
   </div>
     <span jwcid="fwverTab@Block" >
 		<span jwcid="@common/QuickHelp" value="message:quick.help.profile.version"/>
@@ -47,6 +49,7 @@
 		    </p>
 		  </form>
 	 </span>
+   <span jwcid="specialTabBody@common/Plugin" blockId="PhoneGroupsTabBody"/>
 
   <p><span jwcid="@Insert" value="ognl:editFormSettingDescription"/></p>
   <span jwcid="@setting/SettingsForm"

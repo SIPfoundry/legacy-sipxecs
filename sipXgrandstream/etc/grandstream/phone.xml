@@ -11781,4 +11781,11 @@
 			<description>Enter the P value number in the form of PXXXX where XXXX is the P value number, followed by the value. Example: P9999=Value9999</description>
 		</setting>
 	</group>
+  <group name="e911" hidden="yes">
+    <setting name="location">
+      <type>
+        <integer/>
+      </type>
+    </setting>    
+  </group>
 </model>

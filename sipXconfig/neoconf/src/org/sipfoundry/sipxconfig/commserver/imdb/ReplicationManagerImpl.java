@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.commserver.imdb;
 
-
 import static org.sipfoundry.commons.mongo.MongoConstants.ENTITY_NAME;
 import static org.sipfoundry.commons.mongo.MongoConstants.ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.IDENTITY;
@@ -57,6 +56,7 @@ import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -75,7 +75,7 @@ import com.mongodb.MongoException;
  * {@link ConfigurationFile}s on different locations.
  */
 public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements ReplicationManager, BeanFactoryAware,
-    SetupListener, ApplicationContextAware {
+        SetupListener, ApplicationContextAware {
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
     private static final String REPLICATION_FAILED = "Replication: insert/update failed - ";
     private static final String REPLICATION_FAILED_REMOVE = "Replication: delete failed - ";
@@ -88,10 +88,13 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private static final String REPLICATION_INS_UPD = "Replication: inserted/updated ";
     private static final String IN = " in ";
     private static final String MS = " ms ";
-    private static final DataSet[] GROUP_DATASETS = {DataSet.ATTENDANT, DataSet.PERMISSION,
-        DataSet.CALLER_ALIAS, DataSet.SPEED_DIAL,
-        DataSet.USER_FORWARD, DataSet.USER_LOCATION, DataSet.USER_STATIC};
-    private static final DataSet[] BRANCH_DATASETS = {DataSet.USER_LOCATION};
+    private static final DataSet[] GROUP_DATASETS = {
+        DataSet.ATTENDANT, DataSet.PERMISSION, DataSet.CALLER_ALIAS, DataSet.SPEED_DIAL, DataSet.USER_FORWARD,
+        DataSet.USER_LOCATION, DataSet.USER_STATIC
+    };
+    private static final DataSet[] BRANCH_DATASETS = {
+        DataSet.USER_LOCATION
+    };
     private MongoTemplate m_imdb;
     private ValidUsers m_validUsers;
     private LocationsManager m_locationsManager;
@@ -167,8 +170,8 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     }
 
     /*
-     * Callable used in the parallel replication of a large group of entities, namely all users. We
-     * use Callable and not Runnable, b/c we need to wait for the termination of the threads
+     * Callable used in the parallel replication of a large group of entities, namely all users.
+     * We use Callable and not Runnable, b/c we need to wait for the termination of the threads
      * calling it.
      */
     private class ReplicationWorker implements Callable<Void> {
@@ -240,8 +243,8 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
 
         @Override
         public Void call() {
-            DaoUtils.forAllGroupMembersDo(m_coreContext, m_group,
-                    m_userSpeedDialGroupClosure, getStartIndex(), getPage());
+            DaoUtils.forAllGroupMembersDo(m_coreContext, m_group, m_userSpeedDialGroupClosure, getStartIndex(),
+                    getPage());
             return null;
         }
     }
@@ -266,17 +269,16 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
 
     /*
      * Get all replicable entities and replicate them; this is far better than getting the
-     * DataSet.values and generating for each of them.
-     * Users are replicated using multiple threads in parallel.
-     * Properties defined in sipxconfig.properties:
-     * m_nThreads - number of parallel threads
-     * m_pageSize - chunk of users to be processed by each thread. (Argument to sql LIMIT)
-     * m_useDynamicPageSize - if set to true users will be processed in chunks of userCount/nThread
+     * DataSet.values and generating for each of them. Users are replicated using multiple threads
+     * in parallel. Properties defined in sipxconfig.properties: m_nThreads - number of parallel
+     * threads m_pageSize - chunk of users to be processed by each thread. (Argument to sql LIMIT)
+     * m_useDynamicPageSize - if set to true users will be processed in chunks of
+     * userCount/nThread
      */
     /**
      * Replicate all replicable entities. Users require special treatment, because large number of
-     * users may be present which may present performance issues.
-     * This method will print out replication time.
+     * users may be present which may present performance issues. This method will print out
+     * replication time.
      */
     @Override
     public void replicateAllData() {
@@ -378,8 +380,16 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             return false;
         }
         String beanName = dataSet.getBeanName();
-        final AbstractDataSetGenerator generator = m_beanFactory.getBean(beanName, AbstractDataSetGenerator.class);
-        return generator.generate(entity, top);
+        try {
+            final AbstractDataSetGenerator generator = m_beanFactory.getBean(beanName,
+                    AbstractDataSetGenerator.class);
+            return generator.generate(entity, top);
+        } catch (NoSuchBeanDefinitionException e) {
+            // This will happen always for datasets defined in plugins.
+            // Logging will only litter the logs.
+            // LOG.debug("No such bean: " + beanName);
+            return true;
+        }
     }
 
     /**
@@ -416,7 +426,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         }
     }
 
-
     @Override
     public void replicateGroup(Group group) {
         replicateGroupWithWorker(group, AllGroupMembersReplicationWorker.class);
@@ -427,7 +436,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         replicateGroupWithWorker(group, AllGroupSpeedDialMembersReplicationWorker.class);
     }
 
-    private void replicateGroupWithWorker(Group group, Class<? extends ReplicationWorker> worker) {
+    private void replicateGroupWithWorker(Group group, Class< ? extends ReplicationWorker> worker) {
         try {
             int membersCount = m_coreContext.getGroupMembersCount(group.getId());
             doParallelReplication(membersCount, worker, group);
@@ -437,7 +446,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             throw new UserException(e);
         }
     }
-
 
     @Override
     public void replicateBranch(Branch branch) {
@@ -452,7 +460,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             throw new UserException(e);
         }
     }
-
 
     @Override
     public void deleteBranch(Branch branch) {
@@ -491,26 +498,23 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     }
 
     /*
-     * synchronise here. We do not want multiple threads doing heavy replication stuff at the same time.
-     * (i.e. if we hit send profiles, then do a change on group with 20.000 members)
+     * synchronise here. We do not want multiple threads doing heavy replication stuff at the same
+     * time. (i.e. if we hit send profiles, then do a change on group with 20.000 members)
      */
-    private synchronized void doParallelReplication(int membersCount,
-            Class<? extends ReplicationWorker> cls, Object type) {
+    private synchronized void doParallelReplication(int membersCount, Class< ? extends ReplicationWorker> cls,
+            Object type) {
         ExecutorService replicationExecutorService = Executors.newFixedThreadPool(m_nThreads);
         Long start = System.currentTimeMillis();
         int pageSize = m_pageSize;
         if (m_useDynamicPageSize) {
             pageSize = membersCount / m_nThreads + 1;
         }
-        int pages = new Double(Math.ceil(membersCount
-                / pageSize)).intValue() + 1;
-        Constructor<? extends ReplicationWorker> ct = (Constructor< ? extends ReplicationWorker>)
-            cls.getConstructors()[0];
+        int pages = new Double(Math.ceil(membersCount / pageSize)).intValue() + 1;
+        Constructor< ? extends ReplicationWorker> ct = (Constructor< ? extends ReplicationWorker>) cls
+                .getConstructors()[0];
         List<Future<Void>> futures = new ArrayList<Future<Void>>();
-        LOG.info("Starting parallel regeneration of mongo group of "
-                + membersCount + " entities on " + m_nThreads
-                + " threads using chunks of " + pageSize
-                + " users");
+        LOG.info("Starting parallel regeneration of mongo group of " + membersCount + " entities on " + m_nThreads
+                + " threads using chunks of " + pageSize + " users");
         for (int i = 0; i < pages; i++) {
             ReplicationWorker worker = null;
             try {
@@ -566,8 +570,8 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         DBObject search = new BasicDBObject();
         search.put(ID, id);
         DBObject node = collection.findOne(search);
-        //necessary only in case of CallSequences
-        //(user delete will trigger CS delete but CS for user may not exist)
+        // necessary only in case of CallSequences
+        // (user delete will trigger CS delete but CS for user may not exist)
         if (node != null) {
             collection.remove(node);
         }
@@ -650,7 +654,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         if (entity.isValidUser()) {
             top.put(VALID_USER, true);
         }
-        top.put(ENTITY_NAME,  entity.getEntityName().toLowerCase());
+        top.put(ENTITY_NAME, entity.getEntityName().toLowerCase());
         return top;
     }
 

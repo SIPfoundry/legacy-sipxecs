@@ -148,4 +148,16 @@ public interface MongoConstants {
     static final String MY_BUDDY_GROUP = "imbot";
     
     static final String TIMEZONE = "tz";
+    
+    //e911
+    static final String EMERGENCY = "e911";
+    static final String ELIN = "elin";
+    static final String ADDRESS_INFO = "addrinfo";
+    
+    //registrations
+    static final String INSTRUMENT = "instrument";
+    static final String EXPIRATION_TIME = "expirationTime";
+    static final String REG_CONTACT = "contact";
+    static final String PRIMARY = "primary";
+    static final String CALL_ID = "callId";
 }

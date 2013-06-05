@@ -19,7 +19,6 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
@@ -31,22 +30,13 @@ import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 /**
  * Tapestry Page support for editing and creating new phones
  */
-public abstract class EditPhone extends PageWithCallback implements PageBeginRenderListener {
+public abstract class EditPhone extends PhoneBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "phone/EditPhone";
 
     public abstract Phone getPhone();
 
     public abstract void setPhone(Phone phone);
-
-    /** REQUIRED PROPERTY */
-    @Persist
-    public abstract Integer getPhoneId();
-
-    public abstract void setPhoneId(Integer id);
-
-    @InjectObject(value = "spring:phoneContext")
-    public abstract PhoneContext getPhoneContext();
 
     @InjectObject(value = "spring:settingDao")
     public abstract SettingDao getSettingDao();

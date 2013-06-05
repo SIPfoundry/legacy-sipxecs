@@ -30,6 +30,7 @@ public class DataSet extends Enum {
     public static final DataSet SPEED_DIAL = new DataSet("speeddial");
     public static final DataSet MAILSTORE = new DataSet("mailstore");
     public static final DataSet OPENACD = new DataSet("openacd");
+    public static final DataSet E911 = new DataSet("e911");
 
     public DataSet(String dataSet) {
         super(dataSet);

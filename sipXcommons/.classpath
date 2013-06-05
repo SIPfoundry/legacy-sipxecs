@@ -83,7 +83,9 @@
 	<classpathentry exported="true" kind="lib" path="lib/not-yet-commons-ssl-0.3.11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/odmg-3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ognl-2.7.3.jar"/>
+        <classpathentry exported="true" kind="lib" path="lib/org.json_2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.restlet-1.1.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.restlet.ext.json-2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.restlet.ext.spring-2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.springframework.aop-3.1.4.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.springframework.asm-3.1.4.RELEASE.jar"/>

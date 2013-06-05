@@ -306,4 +306,7 @@ public abstract class Phone extends Device {
         return null;
     }
 
+    public Integer getE911LocationId() {
+        return (Integer) getSettingTypedValue("e911/location");
+    }
 }

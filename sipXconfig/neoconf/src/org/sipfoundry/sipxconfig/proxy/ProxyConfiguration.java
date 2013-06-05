@@ -126,10 +126,10 @@ public class ProxyConfiguration implements ConfigProvider, ApplicationContextAwa
                 "$(sipx.SIPX_LIBDIR)/authplugins/libCallerAlias.so");
         config.write("SIPX_PROXY_HOOK_LIBRARY.900_ntap",
                 "$(sipx.SIPX_LIBDIR)/authplugins/libNatTraversalAgent.so");
-        config.write("SIPX_PROXY_HOOK_LIBRARY.990_emergnotif",
-                "$(sipx.SIPX_LIBDIR)/authplugins/libEmergencyNotify.so");
         config.write("SIPX_PROXY_HOOK_LIBRARY.995_requestlinter",
                 "$(sipx.SIPX_LIBDIR)/authplugins/libRequestLinter.so");
+        config.write("SIPX_PROXY_HOOK_LIBRARY.990_emerglineid",
+                "$(sipx.SIPX_LIBDIR)/authplugins/libEmergencyLineIdentifier.so");
 
         // write plugin proxy hooks
         Map<String, ProxyHookPlugin> beans = m_context.getBeansOfType(ProxyHookPlugin.class);

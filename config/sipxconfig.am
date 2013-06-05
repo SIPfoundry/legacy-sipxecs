@@ -40,6 +40,7 @@ sipxconfig_neoconf_PKGS = \
 	mongo \
 	mysql-connector-java \
 	org.restlet \
+	org.restlet.ext.json \
 	org.restlet.ext.spring \
 	org.springframework.aop \
 	org.springframework.asm \

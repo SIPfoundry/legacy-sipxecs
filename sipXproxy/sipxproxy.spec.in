@@ -91,7 +91,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/authplugins/libCallDestination.so*
 %attr(755,root,root) %{_libdir}/authplugins/libCallerAlertInfo.so*
 %attr(755,root,root) %{_libdir}/authplugins/libCallerAlias.so*
-%attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.so*
+%attr(755,root,root) %{_libdir}/authplugins/libEmergencyLineIdentifier.so*
 %attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.so*
 %attr(755,root,root) %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.so*
 %attr(755,root,root) %{_libdir}/authplugins/libNatTraversalAgent.so*
@@ -105,7 +105,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/authplugins/libCallDestination.la
 %{_libdir}/authplugins/libCallerAlertInfo.la
 %{_libdir}/authplugins/libCallerAlias.la
-%{_libdir}/authplugins/libEmergencyNotify.la
+%{_libdir}/authplugins/libEmergencyLineIdentifier.la
 %{_libdir}/authplugins/libEnforceAuthRules.la
 %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.la
 %{_libdir}/authplugins/libNatTraversalAgent.la

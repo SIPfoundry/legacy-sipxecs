@@ -9,9 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.components.SipxBasePage;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -19,29 +21,22 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 /**
  * Edit vendor specific phone setttings in abstract manor using setting model of meta data
  */
-public abstract class PhoneSettings extends SipxBasePage implements PageBeginRenderListener {
+public abstract class PhoneSettings extends PhoneBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "phone/PhoneSettings";
 
-    public abstract Integer getPhoneId();
-
-    /** REQUIRED PAGE PARAMETER */
-    public abstract void setPhoneId(Integer id);
-
-    public abstract Phone getPhone();
-
-    public abstract void setPhone(Phone phone);
-
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
+    
     public abstract String getParentSettingName();
 
     /** REQUIRED PAGE PARAMETER */
+    @Persist
     public abstract void setParentSettingName(String name);
 
     public abstract Setting getParentSetting();
 
     public abstract void setParentSetting(Setting parent);
-
-    public abstract PhoneContext getPhoneContext();
 
     public void pageBeginRender(PageEvent event_) {
         Phone phone = getPhone();

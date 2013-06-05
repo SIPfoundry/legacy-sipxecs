@@ -22,24 +22,19 @@ import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
-import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
-public abstract class UserSettings extends PageWithCallback implements PageBeginRenderListener {
+public abstract class UserSettings extends UserBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "user/UserSettings";
 
     @InjectObject("spring:featureManager")
     public abstract FeatureManager getFeatureManager();
-
-    @Persist
-    public abstract void setUserId(Integer userId);
-
-    public abstract Integer getUserId();
 
     public abstract User getUser();
 
@@ -54,9 +49,6 @@ public abstract class UserSettings extends PageWithCallback implements PageBegin
     public abstract Setting getParentSetting();
 
     public abstract void setParentSetting(Setting parent);
-
-    @InjectObject(value = "spring:coreContext")
-    public abstract CoreContext getCoreContext();
 
     @InjectObject("spring:ldapManager")
     public abstract LdapManager getLdapManager();

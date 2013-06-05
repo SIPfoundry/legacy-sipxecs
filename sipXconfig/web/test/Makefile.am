@@ -44,13 +44,16 @@ test_PKGS = \
 	regexp \
 	sac \
 	slf4j-api \
-	slf4j-log4j12
+	xmlunit \
+	slf4j-log4j12 \
+	spring-mock
 
 test_DEPS = \
 	$(JAVAROOT) \
 	$(srcdir) \
 	$(neoconf_SRCDIR) \
 	$(neoconf_JAVAROOT) \
+	$(neoconf_TESTROOT) \
 	$(web_SRCDIR) \
 	$(web_JAVAROOT) \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons $(top_srcdir)/lib,$(test_PKGS))

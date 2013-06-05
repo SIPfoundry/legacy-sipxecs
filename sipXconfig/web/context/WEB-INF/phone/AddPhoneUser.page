@@ -5,17 +5,9 @@
   <!--
 	  - P R O P E R T I E S
 	  -->
-  <property name="phone" />
-  <property name="phoneId"  persist="session"/>
   <property name="returnToEditPhone" />
-  <inject property="phoneContext" object="spring:phoneContext"/>
-  <inject property="coreContext" object="spring:coreContext"/>
   <inject property="tapestry" object="spring:tapestry"/>
   <property name="simpleSearch"  initial-value="true" persist="session"/>
-  <!--
-      - B E A N S
-      -->
-  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <!--
       - C O M P O N E N T S
       -->

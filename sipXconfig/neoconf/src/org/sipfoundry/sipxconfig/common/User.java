@@ -43,6 +43,7 @@ public class User extends AbstractUser implements Replicable {
     private static final String ALIAS_RELATION = "alias";
     private static final String ALIAS_RELATION_FAX = "fax";
     private static final String TZ = "timezone/timezone";
+    private static final String E911_SETTING_PATH = "e911/location";
     private String m_identity;
     private boolean m_validUser = true;
 
@@ -63,6 +64,7 @@ public class User extends AbstractUser implements Replicable {
         dataSets.add(DataSet.USER_LOCATION);
         dataSets.add(DataSet.SPEED_DIAL);
         dataSets.add(DataSet.MAILSTORE);
+        dataSets.add(DataSet.E911);
         return dataSets;
     }
 
@@ -189,5 +191,27 @@ public class User extends AbstractUser implements Replicable {
         }
 
         return TimeZone.getDefault();
+    }
+
+    public String getDid() {
+        return getUserProfile().getDidNumber();
+    }
+
+    public Integer getE911LocationId() {
+        if (getSettingTypedValue(E911_SETTING_PATH) == null) {
+            return null;
+        }
+        Integer id = (Integer) getSettingTypedValue(E911_SETTING_PATH);
+        if (id < 0) {
+            LOG.error("Database is in bad state, E911 location defined is wrong! Please review!");
+        }
+        return id;
+    }
+
+    public void setE911LocationId(Integer id) {
+        if (id < 0) {
+            return;
+        }
+        setSettingTypedValue(E911_SETTING_PATH, id);
     }
 }

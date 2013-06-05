@@ -6,6 +6,9 @@ outboundProxyPort=
 domainName=
 voiceMailNumber=
 
+[e911]
+location=
+
 [credential]
 userId=juser
 displayName=Joe User

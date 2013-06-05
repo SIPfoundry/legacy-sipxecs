@@ -114,25 +114,31 @@ bool DB::findE911LineIdentifier(
 	std::auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
 	if (pCursor.get() && pCursor->more())
 	{
-    mongo::BSONObj obj = pCursor->next();
+	  mongo::BSONObj obj = pCursor->next();
 
-    if (obj.hasField("elin"))
-    {
-      e911 = obj.getStringField("elin");
+	  if (obj.hasField("elin"))
+	  {
+	    e911 = obj.getStringField("elin");
+	    
+	    mongo::BSONObj e911LocationQuery = BSON("ent" << "e911location" << "elin" << e911);
+	    std::auto_ptr<mongo::DBClientCursor> e911Cursor = conn->get()->query(_info.getNS(), e911LocationQuery);
+	    if (e911Cursor.get() && e911Cursor->more())
+	      {
+		mongo::BSONObj e911LocationObj = e911Cursor->next();
 
-      if (obj.hasField("addrinfo"))
-      {
-        address = obj.getStringField("addrinfo");
-      }
-      
-      if (obj.hasField("loctn"))
-      {
-        location = obj.getStringField("loctn");
-      }
-
-      conn->done();
-      return true;
-    }
+		if (e911LocationObj.hasField("addrinfo"))
+		{
+		  address = e911LocationObj.getStringField("addrinfo");
+		}
+		
+		if (e911LocationObj.hasField("loctn"))
+		{
+		  location = e911LocationObj.getStringField("loctn");
+		}
+	      }
+	    conn->done();
+	    return true;
+	  }
 	}
   conn->done();
 	return false;
@@ -201,8 +207,8 @@ AuthPlugin::AuthResult EmergencyLineIdentifier::authorizeAndModify(const UtlStri
         << "<" << fromField.data() << ">"
         << " Contact: " << contactField.data()
         << " ELIN: " << e911
-        << " Addr-Info: " << address
-        << " Location: " << location);
+        << " Addr-Info: '" << address << "'"
+        << " Location: '" << location << "'");
     }
   }
 

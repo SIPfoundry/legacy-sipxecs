@@ -274,4 +274,11 @@
       <value>0.1.90</value>
     </setting>
   </group>
+  <group name="e911" hidden="yes">
+    <setting name="location">
+      <type>
+        <integer/>
+      </type>
+    </setting>    
+  </group>
 </model>

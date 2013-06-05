@@ -476,4 +476,5 @@
   </bean>
   <alias name="usersPermissionResource" alias="/user-permission/{id}" />
 
+
 </beans>

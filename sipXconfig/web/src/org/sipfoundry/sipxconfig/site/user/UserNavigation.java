@@ -199,6 +199,7 @@ public abstract class UserNavigation extends BeanNavigation {
         names.add("moh");
         names.add("timezone");
         names.add("hotelling");
+        names.add("e911");
         if (!getFeatureManager().isFeatureEnabled(ImBot.FEATURE)) {
             names.add("im_notification");
         }
@@ -275,14 +276,14 @@ public abstract class UserNavigation extends BeanNavigation {
      * - group 1
      * - group 2
      * </code>
-     *
+     * 
      * Into tree that looks like this: <code>
      * - application permissions
      * - call handling
      * - group 1
      * - group 2
      * </code>
-     *
+     * 
      * Additionally, the personal-attendant group is hidden as this tab is implemented as its own
      * page
      */
