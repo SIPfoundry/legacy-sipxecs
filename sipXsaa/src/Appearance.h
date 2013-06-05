@@ -49,6 +49,13 @@ class Appearance : public UtlContainableAtomic,
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
 
+  enum TerminationState
+  {
+    TerminationNone,
+    TerminationRequested,
+    TerminationCompleted,
+  };
+
    //! Construct an Appearance (subscription to a shared line from a UA).
    Appearance(AppearanceAgent* appAgent,
               AppearanceGroup* appGroup,        ///< ancestor AppearanceGroup object
@@ -145,8 +152,8 @@ class Appearance : public UtlContainableAtomic,
    // Whether the current subscription expiration time is short (i.e. line is seized by this app)
    bool mbShortTimeout;
 
-   /// Will be set to true when this appearance is terminated
-   bool _isTerminated;
+   /// Will be updated with the progress of appearance termination
+   TerminationState _terminationState;
 
    //! The early dialog handle for the subscription.
    UtlString mSubscriptionEarlyDialogHandle;

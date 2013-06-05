@@ -35,7 +35,7 @@ Appearance::Appearance( AppearanceAgent* appAgent,
    mAppearanceGroup(appGroup),
    mUri(uri),
    mbShortTimeout(false),
-   _isTerminated(false)
+   _terminationState(TerminationNone)
 {
    Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                  "Appearance:: this = %p, mUri = '%s'",
@@ -144,7 +144,10 @@ void Appearance::subscriptionEventCallback(
                     mUri.data(), dialogHandle->data());
 
       // parent subscription was ended so this appearance is completely terminated
-      _isTerminated = true;
+      if (_terminationState == TerminationRequested)
+      {
+        _terminationState = TerminationCompleted;
+      }
    }
    break;
    }
@@ -208,8 +211,10 @@ bool Appearance::terminateDialogs(bool terminateHeldDialogs)
 
 bool Appearance::terminate()
 {
-    // NOTE: _isTerminated value is intentionally ignored here because it is the caller
-    // responsibility to check it.
+    if (TerminationNone != _terminationState)
+    {
+        return true;
+    }
 
     Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
             "Appearance::terminate this = %p, mUri = '%s'",
@@ -228,6 +233,8 @@ bool Appearance::terminate()
            ret ? "succeeded" : "failed",
            mUri.data(),
            mSubscriptionEarlyDialogHandle.data());
+
+   _terminationState = TerminationRequested;
 
    return ret;
 }
@@ -396,9 +403,8 @@ bool Appearance::appearanceIsBusy()
 
 bool Appearance::isTerminated()
 {
-    return _isTerminated;
+  return (TerminationCompleted == _terminationState);
 }
-
 
 bool Appearance::appearanceIdIsSeized(const UtlString& appearanceId)
 {
