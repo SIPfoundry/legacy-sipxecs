@@ -66,7 +66,14 @@ private:
   {
     if (!e && _pDb)
     {
+      try
+      {
       _pDb->removeAllExpired();
+      }
+      catch (...)
+      {
+      }
+
       delete _pOldTimer;
       _pOldTimer = _pTimer;
       if (_pTimer)
