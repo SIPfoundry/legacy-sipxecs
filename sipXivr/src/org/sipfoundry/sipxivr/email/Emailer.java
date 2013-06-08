@@ -111,17 +111,19 @@ public class Emailer implements ApplicationContextAware {
 
                 if (textBody != null && textBody.length() > 0) {
                     // Add the text part of the message first
-                    helper.setText(textBody, "UTF-8"); // UTF-8 in case there's Unicode in there
+                    helper.setText(textBody); // UTF-8 in case there's Unicode in there
                 }
                 
                 if (htmlBody != null && htmlBody.length() > 0) {
                     // Add the HTML part of the message
                     helper.setText(htmlBody, true);
 
-                    // Add the IMAGEs part of the message
-                    insertMimeImage("images/play_50x50.png", "imageListen", helper);
-                    insertMimeImage("images/inbox_50x50.png", "imageInbox", helper);
-                    insertMimeImage("images/delete_50x50.png", "imageDelete", helper);
+                    if (m_user.getEmailFormat().equals(EmailFormats.FORMAT_FULL)) {
+                        // Add the IMAGEs part of the message
+                        insertMimeImage("images/play_50x50.png", "imageListen", helper);
+                        insertMimeImage("images/inbox_50x50.png", "imageInbox", helper);
+                        insertMimeImage("images/delete_50x50.png", "imageDelete", helper);
+                    }
                 }
 
                 // Add the audio file as an attachment
@@ -155,7 +157,7 @@ public class Emailer implements ApplicationContextAware {
 
         private String getMimeType() {
             if (m_audioFormat.equals("mp3")) {
-                return "audio/x-mp3";
+                return "audio/mpeg";
             }
             return "audio/x-wav";
         }
