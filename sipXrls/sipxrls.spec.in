@@ -22,12 +22,14 @@ BuildRequires: sipxmedialib-devel >= %version
 BuildRequires: sipxportlib-devel >= %version
 BuildRequires: sipxtacklib-devel >= %version
 BuildRequires: sipxsqa-devel >= %version
+BuildRequires: resiprocate-devel
 
 Source:   %name-%version.tar.gz
 Obsoletes: %name-devel
 
 Requires: sipxcalllib >= %version
 Requires: sipxcommserverlib >= %version
+Requires: resiprocate
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
