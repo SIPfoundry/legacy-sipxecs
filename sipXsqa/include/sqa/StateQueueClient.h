@@ -348,7 +348,7 @@ public:
       unsigned long len = getNextReadSize();
       if (!len)
       {
-        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::receive() this:" << this << " next read size is empty.");
+        OS_LOG_INFO(FAC_NET, "BlockingTcpClient::receive() this:" << this << " next read size is empty.");
         return false;
       }
 
@@ -363,7 +363,7 @@ public:
       {
         if (boost::asio::error::eof == ec)
         {
-          OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::receive() this:" << this << " remote closed the connection, read_some error: " << ec.message());
+          OS_LOG_INFO(FAC_NET, "BlockingTcpClient::receive() this:" << this << " remote closed the connection, read_some error: " << ec.message());
         }
         else
         {
