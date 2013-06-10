@@ -907,11 +907,16 @@ EOF
    # Get any firewall or other tricky IP manipulations
    echo ""
    echo "======== IPTables:"
-   for t in nat filter mangle
-   do
-     echo "=== $t table:"
-     iptables --table $t --list --verbose --numeric --line-numbers 2>&1
-   done
+   service iptables status &> /dev/null
+   if [ $? -eq 3 ]; then
+     echo "OFF"
+   else
+     for t in nat filter mangle
+     do
+       echo "=== $t table:"
+       iptables --table $t --list --verbose --numeric --line-numbers 2>&1
+     done
+   fi
 
    # Get mongodb rs config
    echo ""

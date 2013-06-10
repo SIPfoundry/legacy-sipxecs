@@ -125,7 +125,7 @@ public class FirewallConfigTest {
         List<CallRateRule> rateRules = new LinkedList<CallRateRule>();
         rateRules.add(rule);
         rateRules.add(rule1);
-        m_config.writeIptables(m_actual, new HashSet<String>(), new HashSet<String>(), m_settings, rateRules, rules, custom, groups, cluster, l1);
+        m_config.writeIptables(m_actual, true, new HashSet<String>(), new HashSet<String>(), m_settings, rateRules, rules, custom, groups, cluster, l1);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-firewall.yaml"));
         assertEquals(expected, m_actual.toString());
         

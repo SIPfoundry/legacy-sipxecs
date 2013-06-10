@@ -1,3 +1,4 @@
+restrictive: true
 logdropped: false
 logdos: true
 lograte: false
