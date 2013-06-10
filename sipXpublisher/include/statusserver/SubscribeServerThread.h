@@ -18,6 +18,7 @@
 // APPLICATION INCLUDES
 #include "os/OsServerTask.h"
 #include "sipXecsService/SipNonceDb.h"
+#include "statusserver/DomainValidator.h"
 
 // DEFINES
 // MACROS
@@ -109,12 +110,10 @@ protected:
     UtlString mRealm;
     int mDefaultSubscribePeriod;
     int mMinExpiresTimeint;
-    int mDefaultDomainPort;
     UtlString mDefaultDomain;
-    UtlString mDefaultDomainHostFQDN;
-    UtlString mDefaultDomainHostIP;
     SipNonceDb mNonceDb;
     PluginXmlParser* mPluginTable;
+    DomainValidator* _domainValidator;
 
     /// This semaphore mediates access to the subscription DB
     OsBSem mLock;

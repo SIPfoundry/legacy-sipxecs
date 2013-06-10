@@ -30,6 +30,7 @@
 #include "statusserver/StatusPluginReference.h"
 #include "utl/UtlSortedList.h"
 #include "utl/UtlSortedListIterator.h"
+#include "sipXecsService/SipXecsService.h"
 
 // DEFINES
 // MACROS
@@ -63,6 +64,12 @@ SubscribeServerThread::~SubscribeServerThread()
 
     if( mPluginTable )
         mPluginTable = NULL;
+
+    if (_domainValidator)
+    {
+      delete _domainValidator;
+      _domainValidator = NULL;
+    }
 }
 
 ///////////////////////////PUBLIC///////////////////////////////////
@@ -104,28 +111,10 @@ SubscribeServerThread::initialize (
     {
         mDefaultDomain.remove(0);
         mDefaultDomain.append( defaultDomain );
-        Url defaultDomainUrl( mDefaultDomain );
-        mDefaultDomainPort = defaultDomainUrl.getHostPort();
-
-        // the isValidDomain compares the server's domain to
-        // that in the incoming URI, sometimes the incoming
-        // URI is a dotted IP address.
-        UtlString ipOrFQDNHost;
-
-        defaultDomainUrl.getHostAddress(ipOrFQDNHost);
-
-        // sometimes the request URI will contain
-        // an IP Address and at others it contains a FQDN
-        if ( OsSocket::isIp4Address( ipOrFQDNHost.data() ) )
-        {
-            mDefaultDomainHostIP = ipOrFQDNHost;
-            OsSocket::getDomainName( mDefaultDomainHostFQDN );
-        } else
-        {
-            mDefaultDomainHostFQDN = ipOrFQDNHost;
-            OsSocket::getHostIp( &mDefaultDomainHostIP );
-        }
     }
+
+    // create the validator based on the default domain for sipstatus
+    _domainValidator = new DomainValidator(&(StatusServer::getConfigDb()), "SIP_STATUS_DOMAIN_NAME");
 
     if ( !realm.isNull() )
     {
@@ -143,6 +132,23 @@ SubscribeServerThread::initialize (
     {
         mpSipUserAgent = NULL;
         return FALSE;
+    }
+
+    {
+      // set domain aliases below to be used later during authentification and authorization
+      UtlString hostAliases;
+      OsConfigDb domainConfig;
+      domainConfig.loadFromFile(SipXecsService::domainConfigPath());
+
+      // get SIP_DOMAIN_ALIASES from domain-config
+      domainConfig.get(SipXecsService::DomainDbKey::SIP_DOMAIN_ALIASES, hostAliases);
+
+      if (!hostAliases.isNull())
+      {
+          Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIP_DOMAIN_ALIASES : %s",
+                        hostAliases.data());
+          mpSipUserAgent->setHostAliases(hostAliases);
+      }
     }
 
     //get Plugin table
@@ -693,9 +699,17 @@ SubscribeServerThread::isAuthenticated (const SipMessage* message,
             Url fromUrl;
             message->getFromUrl(fromUrl);
             fromUrl.getFieldParameter("tag", fromTag);
+
             UtlString reqUri;
             message->getRequestUri(&reqUri);
             Url mailboxUrl(reqUri);
+            // If the reqUri Url uses domain alias, we need to change the
+            // domain to mDefaultDomain for credential database search,
+            // as identities are stored in credential database using default domain name.
+            if (mpSipUserAgent->isMyHostAlias(mailboxUrl))
+            {
+                mailboxUrl.setHostAddress(mDefaultDomain);
+            }
 
             message->getCallIdField(&callId);
 
@@ -824,22 +838,16 @@ SubscribeServerThread::isValidDomain(
     const SipMessage* message,
     SipMessage* responseMessage )
 {
-    UtlString address;
     UtlString requestUri;
     message->getRequestUri(&requestUri);
     Url reqUri(requestUri);
-    reqUri.getHostAddress(address);
-    int port = reqUri.getHostPort();
 
-    // Compare against either an IP address of the
-    // local host or a FullyQalified Domain Name
-    if ( ( (address.compareTo(mDefaultDomainHostIP.data(), UtlString::ignoreCase) == 0) ||
-           (address.compareTo(mDefaultDomainHostFQDN.data(), UtlString::ignoreCase) == 0) )
-         && ( (mDefaultDomainPort == PORT_NONE) || (port == mDefaultDomainPort) ) )
+    if (_domainValidator->isValidDomain(reqUri))
     {
         Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isValidDomain() - VALID Domain") ;
         return TRUE;
     }
+
     Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isValidDomain() - INVALID Domain") ;
     return FALSE;
 }
