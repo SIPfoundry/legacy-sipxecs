@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-bin_PROGRAMS = sipxrls
+bin_PROGRAMS = sipxrls sipxsub
 
 SUBDIRS = . test
 
@@ -56,5 +56,36 @@ noinst_HEADERS = \
 	RlsSubscribePolicy.h \
 	SubscriptionSet.h \
 	main.h
+
+sipxsub_LDADD = \
+	-lboost_date_time-mt \
+	-lboost_filesystem-mt \
+	-lboost_system-mt \
+	-lboost_thread-mt \
+	-lboost_program_options-mt \
+	-lpthread \
+	-ldum \
+	-lresip \
+	-lrutil \
+	-lrt \
+	-ldl \
+	-lssl \
+	-lcrypto \
+        -lmongoclient \
+	@SIPXPORT_LIBS@ \
+	@SIPXCOMMSERVER_LIBS@
+
+sipxsub_CXXFLAGS = \
+	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
+	-I$(top_srcdir)/include
+
+sipxsub_SOURCES =  sipxsub.cpp \
+    ResipLogger.h \
+    ResipLogger.cpp \
+    SubscriptionDialog.h \
+    SubscriptionDialog.cpp \
+    EventSubscriber.h \
+    EventSubscriber.cpp
 
 install-exec-hook :
