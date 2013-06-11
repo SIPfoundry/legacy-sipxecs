@@ -10,7 +10,8 @@ bin_SCRIPTS = \
 libexecdir = @SIPX_LIBEXECDIR@
 libexec_SCRIPTS = \
     snmptrap-email-handler \
-	snmp-fix-process
+    snmp-fix-process \
+    snmp-fix-process-cron
 
 $(libexec_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)

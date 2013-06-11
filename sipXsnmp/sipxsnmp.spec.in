@@ -18,6 +18,7 @@ BuildRequires: pcre-devel
 Requires: net-snmp >= 5.7.1
 Requires: net-snmp-sysvinit >= 5.7.1
 Requires: net-snmp-utils >= 5.7.1
+Requires: net-snmp-python
 
 Source: %name-%version.tar.gz
 Prefix: %_prefix

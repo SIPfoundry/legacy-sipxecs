@@ -26,6 +26,17 @@ bundle agent snmp {
 }
 
 bundle agent snmp_config {
+  vars:
+    any::
+      "cron" string => "* * * * * $(sipx.SIPX_LIBEXECDIR)/snmp-fix-process-cron";
+      "cron_id" string => ".*/snmp-fix-process-cron";
+
+  methods:
+    snmp::
+        "any" usebundle => add_crontab("$(cron_id)", "root", "$(cron)");
+    !snmp::
+        "any" usebundle => remove_crontab("$(cron_id)", "root");
+
   files:
     snmp::
       "/etc/snmp/snmpd.conf"
