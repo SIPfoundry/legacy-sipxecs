@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionProvider;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 
 public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner {
     public static final LocationFeature FEATURE = new LocationFeature("openacd");
@@ -201,4 +202,6 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner 
     void saveReleaseCode(OpenAcdReleaseCode code);
 
     void removeReleaseCodes(Collection<Integer> codesId);
+
+    void migrate(SetupManager manager);
 }

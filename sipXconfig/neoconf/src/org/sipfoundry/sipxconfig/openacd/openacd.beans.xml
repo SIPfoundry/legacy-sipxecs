@@ -30,6 +30,7 @@
     </property>
     <property name="coreContext" ref="coreContext" />
     <property name="settingDao" ref="settingDao"/>
+    <property name="jdbcTemplate" ref="configJdbcTemplate"/>
   </bean>
   
   <bean id="openAcdContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

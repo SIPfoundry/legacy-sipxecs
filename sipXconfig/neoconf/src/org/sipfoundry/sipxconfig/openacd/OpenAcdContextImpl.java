@@ -68,6 +68,7 @@ import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.setup.MigrationListener;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
@@ -77,9 +78,11 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext, BeanFactoryAware,
-        FeatureProvider, AddressProvider, ProcessProvider, DaoEventListener, FirewallProvider, SetupListener {
+        FeatureProvider, AddressProvider, ProcessProvider, DaoEventListener, FirewallProvider, SetupListener,
+        MigrationListener {
 
     private static final Log LOG = LogFactory.getLog(OpenAcdContextImpl.class);
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
@@ -124,6 +127,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private ReplicationManager m_replicationManager;
     private SettingDao m_settingDao;
     private LocationsManager m_locationsManager;
+    private JdbcTemplate m_jdbcTemplate;
 
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
@@ -1293,6 +1297,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         validator.requiredOnSameHost(FEATURE, FreeswitchFeature.FEATURE);
+        validator.primaryLocationOnly(FEATURE);
     }
 
     @Override
@@ -1307,4 +1312,37 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         m_locationsManager = locationsManager;
     }
 
+    @Override
+    public void migrate(SetupManager manager) {
+        // Limitation introduced in OpenACD v2.0
+        String id = "restrict-openacd-to-primary-only";
+        if (manager.isFalse(id)) {
+            FeatureManager fm = manager.getFeatureManager();
+            List<Location> current = fm.getLocationsForEnabledFeature(FEATURE);
+            if (current.size() >= 1) {
+                for (Location l : current) {
+                    if (!l.isPrimary()) {
+                        Location primary = m_locationsManager.getPrimaryLocation();
+                        LOG.warn("Disabling OpenACD on non-primary server due to feature limitation");
+                        // Cannot use FeatureManager to disable because that
+                        // triggers validation
+                        // and other migration tasks may still need to "repair"
+                        // the database first
+                        m_jdbcTemplate.update("delete from feature_local where feature_id = ? and location_id != ?",
+                                FEATURE.getId(), primary.getId());
+                        break;
+                    }
+                }
+            }
+            manager.setTrue(id);
+        }
+    }
+
+    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        m_jdbcTemplate = jdbcTemplate;
+    }
+
+    protected JdbcTemplate getJdbcTemplate() {
+        return m_jdbcTemplate;
+    }
 }
