@@ -43,7 +43,15 @@ AC_ARG_VAR(SIPXPBXGROUP, [The sipX service daemon group name, default is value o
 test -n "$SIPXPBXGROUP" || SIPXPBXGROUP=$SIPXPBXUSER
 
 AC_ARG_VAR(PACKAGE_REVISION, [Package revision number, default is pulled from git])
-test -n "$PACKAGE_REVISION" || PACKAGE_REVISION=`cd ${srcdir} && ./config/revision-gen ${PACKAGE_VERSION}`
+if test -z "$PACKAGE_REVISION" ; then
+  # Submodules need to add the number of commits of parent plus the number of commits
+  # to their repository. Otherwise a rebuild may not increase revision and fresh rpm
+  # silently not installed.
+  if test -d "${srcdir}/.git" ; then
+    SUBMOD_OPT="-s .."
+  fi
+  PACKAGE_REVISION=`cd ${srcdir} && ./config/revision-gen ${SUBMOD_OPT} ${PACKAGE_VERSION}`
+fi
 AC_DEFINE_UNQUOTED([PACKAGE_REVISION], "${PACKAGE_REVISION}", [Revion number including git SHA])
 
 # automake eats straight "if.." in makefiles as autoconf conditions. this avoids that
