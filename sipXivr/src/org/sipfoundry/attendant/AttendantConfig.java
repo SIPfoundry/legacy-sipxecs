@@ -25,7 +25,7 @@ public class AttendantConfig extends ApplicationConfiguraton {
     private String m_id; // The ID of this attendant
     private String m_name; // The name of this attendant
     private String m_prompt; // The top level prompt
-    private List<AttendantMenuItem> m_menuItems;
+    private List<AttendantMenuItem> m_menuItems = new LinkedList<AttendantMenuItem>();;
 
     public AttendantConfig() {
         super();
@@ -56,9 +56,6 @@ public class AttendantConfig extends ApplicationConfiguraton {
     }
 
     public void addMenuItem(AttendantMenuItem item) {
-        if (m_menuItems == null) {
-            m_menuItems = new LinkedList<AttendantMenuItem>();
-        }
         m_menuItems.add(item);
     }
 
