@@ -33,7 +33,7 @@ import org.sipfoundry.sipxconfig.common.EnumUserType;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.feature.Feature;
 
-public class Location extends BeanWithId implements DeployConfigOnEdit {
+public class Location extends BeanWithId implements DeployConfigOnEdit, Comparable<Location> {
     // security role
     public static final String ROLE_LOCATION = "ROLE_LOCATION";
     public static final int PROCESS_MONITOR_PORT = 8092;
@@ -391,5 +391,17 @@ public class Location extends BeanWithId implements DeployConfigOnEdit {
             addresses.add(a);
         }
         return addresses;
+    }
+
+    @Override
+    public int compareTo(Location o) {
+        if (o.isPrimary() && isPrimary()) {
+            return 0;
+        } else if (isPrimary()) {
+            return -1;
+        } else if (o.isPrimary()) {
+            return 1;
+        }
+        return getId() - o.getId();
     }
 }

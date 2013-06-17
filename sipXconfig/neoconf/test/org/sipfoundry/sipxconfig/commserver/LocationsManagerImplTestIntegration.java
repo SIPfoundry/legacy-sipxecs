@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.commserver;
 
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
 
@@ -209,7 +211,19 @@ public class LocationsManagerImplTestIntegration extends ImdbTestCase {
         assertEquals(31000, natLocation.getStopRtpPort());
     }
 
-
+    public void testLocationsListSorted() throws Exception {
+        loadDataSetXml("commserver/clearLocations.xml");
+        loadDataSetXml("commserver/seedLocationsSort.xml");
+        
+        List<Location> locations = m_locationsManager.getLocationsList();
+        assertEquals(new Integer(4), locations.get(0).getId());
+        assertEquals(new Integer(1), locations.get(1).getId());
+        assertEquals(new Integer(2), locations.get(2).getId());
+        assertEquals(new Integer(5), locations.get(3).getId());
+        assertEquals(new Integer(6), locations.get(4).getId());
+        assertEquals(new Integer(7), locations.get(5).getId());
+    }
+    
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }

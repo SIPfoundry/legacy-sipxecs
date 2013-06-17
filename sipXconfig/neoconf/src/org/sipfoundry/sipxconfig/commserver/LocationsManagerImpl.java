@@ -16,7 +16,6 @@ import static org.springframework.dao.support.DataAccessUtils.singleResult;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -60,20 +59,16 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     @Override
     public Location[] getLocations() {
         List<Location> locationList = getHibernateTemplate().loadAll(Location.class);
-        Collections.sort(locationList, new Comparator<Location>() {
-
-            @Override
-            public int compare(Location o1, Location o2) {
-                return o1.getId() - o2.getId();
-            }
-        });
+        Collections.sort(locationList);
         Location[] locationArray = new Location[locationList.size()];
         locationList.toArray(locationArray);
         return locationArray;
     }
 
     public List<Location> getLocationsList() {
-        return getHibernateTemplate().loadAll(Location.class);
+        List<Location> locations = getHibernateTemplate().loadAll(Location.class);
+        Collections.sort(locations);
+        return locations;
     }
 
     @Override
