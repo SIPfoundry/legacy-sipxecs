@@ -37,37 +37,6 @@ SubscriptionSet::SubscriptionSet(ResourceCached* resource,
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "SubscriptionSet:: this = %p, resource = %p, mUri = '%s'",
                  this, mResource, mUri.data());
-
-   // Start the subscription for dialog events.
-   UtlBoolean ret;
-   UtlString mUriNameAddr = "<" + mUri + ">";
-   ret = getResourceListServer()->getSubscribeClient().
-      addSubscription(mUri.data(),
-                      getResourceListServer()->getEventType(),
-                      getResourceListServer()->getContentType(),
-                      getResourceListServer()->getClientFromURI(),
-                      mUriNameAddr.data(),
-                      getResourceListServer()->getClientContactURI(),
-                      getResourceListServer()->getResubscribeInterval(),
-                      getResourceListSet(),
-                      ResourceListSet::subscriptionEventCallbackAsync,
-                      ResourceListSet::notifyEventCallbackAsync,
-                      mSubscriptionEarlyDialogHandle);
-   if (ret)
-   {
-      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
-                    "SubscriptionSet:: addSubscription for '%s' succeeded",
-                    mUri.data());
-      // Add this SubscriptionSet to mSubscribeMap.
-      getResourceListSet()->addSubscribeMapping(&mSubscriptionEarlyDialogHandle,
-                                                this);
-   }
-   else
-   {
-      Os::Logger::instance().log(FAC_RLS, PRI_WARNING,
-                    "SubscriptionSet:: addSubscription for '%s' failed",
-                    mUri.data());
-   }
 }
 
 // Destructor
@@ -122,6 +91,41 @@ SubscriptionSet::~SubscriptionSet()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+void SubscriptionSet::start()
+{
+  // Start the subscription for dialog events.
+   UtlBoolean ret;
+   UtlString mUriNameAddr = "<" + mUri + ">";
+   ret = getResourceListServer()->getSubscribeClient().
+      addSubscription(mUri.data(),
+                      getResourceListServer()->getEventType(),
+                      getResourceListServer()->getContentType(),
+                      getResourceListServer()->getClientFromURI(),
+                      mUriNameAddr.data(),
+                      getResourceListServer()->getClientContactURI(),
+                      getResourceListServer()->getResubscribeInterval(),
+                      getResourceListSet(),
+                      ResourceListSet::subscriptionEventCallbackAsync,
+                      ResourceListSet::notifyEventCallbackAsync,
+                      mSubscriptionEarlyDialogHandle);
+   if (ret)
+   {
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+                    "SubscriptionSet:: addSubscription for '%s' succeeded",
+                    mUri.data());
+      // Add this SubscriptionSet to mSubscribeMap.
+      getResourceListSet()->addSubscribeMapping(&mSubscriptionEarlyDialogHandle,
+                                                this);
+   }
+   else
+   {
+      Os::Logger::instance().log(FAC_RLS, PRI_WARNING,
+                    "SubscriptionSet:: addSubscription for '%s' failed",
+                    mUri.data());
+   }
+}
+
 
 void SubscriptionSet::subscriptionEventCallback(
    const UtlString* earlyDialogHandle,

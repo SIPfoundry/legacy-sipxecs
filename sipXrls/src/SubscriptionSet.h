@@ -122,6 +122,8 @@ class SubscriptionSet : public UtlContainableAtomic,
     */
    virtual UtlContainableType getContainableType() const;
 
+   void start();
+
    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
