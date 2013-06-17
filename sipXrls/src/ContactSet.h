@@ -22,6 +22,7 @@
 #include <utl/UtlHashMap.h>
 #include <net/SipSubscribeClient.h>
 #include <net/HttpBody.h>
+#include <boost/thread.hpp>
 
 // DEFINES
 // MACROS
@@ -163,6 +164,10 @@ class ContactSet : public UtlContainableAtomic,
    //! Disabled assignment operator
    ContactSet& operator=(const ContactSet& rhs);
 
+
+   typedef boost::mutex mutex_critic_sec;
+   typedef boost::lock_guard<mutex_critic_sec> mutex_lock;
+   mutex_critic_sec _subscriptionsMutex;
 };
 
 // Get the parent ResourceCached.
