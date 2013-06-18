@@ -115,7 +115,7 @@ class ContactSet : public UtlContainableAtomic,
    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
 
    /// Add a new SubscriptionSet in this ContactSet for callid contact
-   void addSubscriptionSet(const UtlString* callidContact);
+   bool addSubscriptionSet(const UtlString* callidContact);
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
 

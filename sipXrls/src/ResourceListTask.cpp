@@ -179,6 +179,9 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
        Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                      "ResourceListTask::handleMessage RLS_SUBSCRIPTION_SET_MSG");
 
+       //
+       // JEB:  What if the timer fires and ContactSet has been destroyed???
+       //
        SubscriptionSetMsg* msg = dynamic_cast <SubscriptionSetMsg*> (&rMsg);
        ContactSet *contactSet = static_cast<ContactSet*> (msg->getHandler());
 
