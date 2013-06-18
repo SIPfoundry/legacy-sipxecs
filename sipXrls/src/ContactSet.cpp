@@ -524,45 +524,43 @@ void ContactSet::updateSubscriptions(bool allowDirectUriSubscription)
    UtlHashBag callid_contacts;
    UtlHashMapIterator subs_itor(mSubscriptions);
 
+   while (subs_itor())
    {
-     mutex_lock lock(_subscriptionsMutex);
-     while (subs_itor())
-     {
-        if (Os::Logger::instance().willLog(FAC_RLS, PRI_DEBUG))
-        {
-           Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
-                         "ContactSet::updateSubscriptions subscription '%s'",
-                         (dynamic_cast <UtlString*> (subs_itor.key()))->data());
-        }
-        UtlHashMap* contact_state =
-           dynamic_cast <UtlHashMap*> (subs_itor.value());
-        Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
-                      "ContactSet::updateSubscriptions contact_state = %p",
-                      contact_state);
-        UtlHashMapIterator contact_itor(*contact_state);
-        while (contact_itor())
-        {
-           UtlString* contact =
-              dynamic_cast <UtlString*> (contact_itor.value());
-           if (Os::Logger::instance().willLog(FAC_RLS, PRI_DEBUG))
-           {
-              Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
-                            "ContactSet::updateSubscriptions contact id '%s', Call-Id/URI '%s'",
-                            (dynamic_cast <UtlString*> (contact_itor.key()))->data(),
-                            contact->data());
-           }
-           // Check if the contact is already in callid_contacts.
-           if (!callid_contacts.find(contact))
-           {
-              // If not, add it.
-              UtlString* c = new UtlString(*contact);
-              callid_contacts.insert(c);
-              Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
-                            "ContactSet::updateSubscriptions contact added");
-           }
-        }
-     }
+      if (Os::Logger::instance().willLog(FAC_RLS, PRI_DEBUG))
+      {
+         Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+                       "ContactSet::updateSubscriptions subscription '%s'",
+                       (dynamic_cast <UtlString*> (subs_itor.key()))->data());
+      }
+      UtlHashMap* contact_state =
+         dynamic_cast <UtlHashMap*> (subs_itor.value());
+      Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+                    "ContactSet::updateSubscriptions contact_state = %p",
+                    contact_state);
+      UtlHashMapIterator contact_itor(*contact_state);
+      while (contact_itor())
+      {
+         UtlString* contact =
+            dynamic_cast <UtlString*> (contact_itor.value());
+         if (Os::Logger::instance().willLog(FAC_RLS, PRI_DEBUG))
+         {
+            Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+                          "ContactSet::updateSubscriptions contact id '%s', Call-Id/URI '%s'",
+                          (dynamic_cast <UtlString*> (contact_itor.key()))->data(),
+                          contact->data());
+         }
+         // Check if the contact is already in callid_contacts.
+         if (!callid_contacts.find(contact))
+         {
+            // If not, add it.
+            UtlString* c = new UtlString(*contact);
+            callid_contacts.insert(c);
+            Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+                          "ContactSet::updateSubscriptions contact added");
+         }
+      }
    }
+
 
    // If the list of callid_contacts is empty, it means that no contacts have been obtained
    // so far. This could happen because the registrar is down or does not support reg events.
@@ -637,29 +635,31 @@ void ContactSet::updateSubscriptions(bool allowDirectUriSubscription)
             // generates requests to the ResourceListServer task, so a longer
             // wait would prevent the ResourceListServer task from servicing
             // requests as fast as it received them.
-        	if (!mSubscriptionSets.find(callid_contact))
-        	{
+
             if (wait_after_subscription_ended)
             {
-              Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
+              if (!mSubscriptionSets.find(callid_contact))
+              {
+                Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                   "ContactSet::updateSubscriptions waiting for %d msec",
                   subscription_wait_msec);
 
-              OsTime offset(subscription_wait_msec);
-              bool ret = getResourceListSet()->addSubscriptionSetByTimer(*callid_contact, this, offset);
-              if (ret)
-              {
-                subscriptionSetCount++;
-                /* for each successful fire timer the wait is incremented */
-                subscription_wait_msec += SUBSCRIPTION_WAIT_INCR_MSEC;
+                OsTime offset(subscription_wait_msec);
+                bool ret = getResourceListSet()->addSubscriptionSetByTimer(*callid_contact, this, offset);
+                if (ret)
+                {
+                    subscriptionSetCount++;
+                    /* for each successful fire timer the wait is incremented */
+                    subscription_wait_msec += SUBSCRIPTION_WAIT_INCR_MSEC;
+                }
               }
             }
             else
             {
-              subscriptionSetCount++;
-              addSubscriptionSet(callid_contact);
+                if (addSubscriptionSet(callid_contact))
+                  subscriptionSetCount++;
             }
-        	}
+
         }
 
         Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
@@ -672,7 +672,7 @@ void ContactSet::updateSubscriptions(bool allowDirectUriSubscription)
    callid_contacts.destroyAll();
 }
 
-void ContactSet::addSubscriptionSet(const UtlString* callidContact)
+bool ContactSet::addSubscriptionSet(const UtlString* callidContact)
 {
     Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
             "ContactSetSet::addSubscriptionSet this = %p, mUri = '%s' callid;contact = '%s'",
@@ -685,22 +685,24 @@ void ContactSet::addSubscriptionSet(const UtlString* callidContact)
 
   mutex_lock lock(_subscriptionsMutex);
 
+  if (mSubscriptionSets.find(callidContact))
+    return false;
 
-  if (!mSubscriptionSets.find(callidContact))
-  {
-    // Create the subscription set
-    SubscriptionSet* ss = new SubscriptionSet(mResource,  uri);
 
-    // Add the subscription to the set.
-    mSubscriptionSets.insertKeyAndValue(new UtlString(*callidContact), ss);
+  // Create the subscription set
+  SubscriptionSet* ss = new SubscriptionSet(mResource,  uri);
 
-    ss->start();
+  // Add the subscription to the set.
+  mSubscriptionSets.insertKeyAndValue(new UtlString(*callidContact), ss);
 
-    Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
-        "ContactSet::addSubscriptionSet "
-        "added SubscriptionSet for uri = '%s'",
-        uri.data() );
-  }
+  ss->start();
+
+  Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
+      "ContactSet::addSubscriptionSet "
+      "added SubscriptionSet for uri = '%s'",
+      uri.data() );
+
+    return true;
 }
 
 // Add to the HttpBody the current state of the resource instances.
