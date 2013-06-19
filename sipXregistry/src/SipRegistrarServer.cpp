@@ -777,6 +777,373 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
 }
 
 
+void SipRegistrarServer::handleRegister(SipMessage* pMsg)
+{
+  const SipMessage& message = *pMsg;
+
+  Os::Logger::instance().log( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage() - "
+          "Start processing REGISTER Message" );
+
+  UtlString userKey, uri;
+  SipMessage finalResponse;
+
+  // Fetch the domain and port from the request URI
+  UtlString lookupDomain, requestUri;
+  message.getRequestUri( &requestUri );
+  Url reqUri(requestUri);
+
+  if ( mRegistrar.isValidDomain(reqUri) )
+  {
+     // Get the full To name-addr.
+     Url toUri;
+     message.getToUrl(toUri);
+
+     /*
+      * Normalize the port in the To URI.
+      *   This is not strictly kosher, but it solves interoperability problems.
+      *   Technically, user@foo:5060 != user@foo , but many implementations
+      *   insist on including the explicit port even when they should not, and
+      *   it causes registration mismatches, so we normalize the URI when inserting
+      *   and looking up in the database so that if explicit port is the same as
+      *   the proxy listening port, then we remove it.
+      *   (Since our proxy has mProxyNormalPort open, no other SIP entity
+      *   can use sip:user@domain:mProxyNormalPort, so this normalization
+      *   cannot interfere with valid addresses.)
+      *
+      * For the strict rules, set the configuration parameter
+      *   SIP_REGISTRAR_PROXY_PORT : PORT_NONE
+      */
+     int proxyPort = mRegistrar.domainProxyPort();
+     if (   proxyPort != PORT_NONE
+         && toUri.getHostPort() == proxyPort
+         )
+     {
+        toUri.setHostPort(PORT_NONE);
+     }
+
+     /*
+      * This is to support registration where the To URI uses a domain alias.
+      * Replace domain part of the ToURI with the default domain
+      */
+     if (mSipUserAgent->isMyHostAlias(toUri))
+     {
+        if (Os::Logger::instance().willLog(FAC_SIP, PRI_INFO))
+        {
+           UtlString alias;
+           toUri.getHostWithPort(alias);
+           Os::Logger::instance().log( FAC_SIP, PRI_INFO, "SipRegistrarServer::handleMessage() "
+                         "Allowing use of domain alias; To domain '%s' -> '%s'",
+                         alias.data(), mRegistrar.defaultDomain());
+        }
+        toUri.setHostAddress(mRegistrar.defaultDomain() );
+     }
+
+     // check in credential database if authentication needed
+     UtlString instrument; // the instrument value from the authentication user name
+     if ( isAuthorized( toUri, instrument, message, finalResponse ) )
+      {
+          int port;
+          UtlString address, protocol, tag;
+          message.getToAddress( &address, &port, &protocol, NULL, NULL, &tag );
+
+          // Add new contact values - update or insert.
+          int timeNow = (int) OsDateTime::getSecsSinceEpoch();
+          RegistrationExpiryIntervals* pExpiryIntervalsUsed = 0;
+          RegisterStatus applyStatus
+             = applyRegisterToDirectory( toUri, instrument,
+                                         timeNow, message,
+                                         pExpiryIntervalsUsed );
+
+          switch (applyStatus)
+          {
+              case REGISTER_SUCCESS:
+              case REGISTER_QUERY:
+              {
+                  Os::Logger::instance().log( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage() - "
+                         "contact successfully added");
+
+                  //create response - 200 ok reseponse
+                  finalResponse.setOkResponseData(&message);
+
+                  // get the call-id from the register message for context test below
+                  UtlString registerCallId;
+                  message.getCallIdField(&registerCallId);
+
+                  //get all current contacts now for the response
+
+                  UtlString identity_;
+                  toUri.getIdentity(identity_);
+                  RegDB::Bindings registrations;
+                  SipRegistrar::getInstance(NULL)->getRegDB()->getUnexpiredContactsUser(identity_.str(),
+                      timeNow, registrations);
+                  bool requestSupportsGruu =
+                     message.isInSupportedField("gruu");
+#ifdef GRUU_WORKAROUND
+                  // Workaround causes GRUU to be sent even if
+                  // "Supported: gruu" was not in request.
+                  requestSupportsGruu = true;
+#endif
+                  bool allExpirationsEqual = false;
+                  bool firstConsideredContact = true;
+                  // commonExpirationTime is used only if allExpirationsEqual
+                  // is true, and when the latter is set, commonExpirationTime
+                  // is set.  But we must initialize it to stop the compiler
+                  // from complaining.
+                  unsigned int commonExpirationTime = 0;
+
+                  int contactCounter = 0;
+                  for (RegDB::Bindings::const_iterator iter = registrations.begin(); iter != registrations.end(); iter++)
+                  {
+                    const RegBinding& record = *iter;
+
+                    // Check if this contact should be returned in this context
+                    // for REGISTER_QUERY, return all contacts
+                    // for REGISTER_SUCCESS, return only the contacts with the same
+                    //     call-id.  This is because we've seen too many phones that
+                    //     don't expect to see contacts other than the one they sent,
+                    //     and get upset by contact parameters meant for others
+                    //     In particular, when some other contact is about to expire,
+                    //     they think that they got a short time and try again - which
+                    //     loops until the other contact expires or is refreshed by
+                    //     someone else - not good.
+
+
+
+                    if (mSendAllContactsInResponse || REGISTER_QUERY == applyStatus || registerCallId.str() == record.getCallId())
+
+                    {
+
+
+                      unsigned int expires = record.getExpirationTime();
+                      expires = expires - timeNow;
+
+                      Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
+                                    "SipRegistrarServer::handleMessage - "
+                                    "processing contact '%s'", record.getContact().c_str());
+                      Url contactUri( record.getContact().c_str() );
+
+                      UtlString expiresStr;
+                      expiresStr.appendNumber((int)expires);
+
+                      if ( firstConsideredContact ) // first considered contact
+                      {
+                         firstConsideredContact = false;
+                         allExpirationsEqual = true;
+                         commonExpirationTime = expires;
+                      }
+                      else if (expires != commonExpirationTime)
+                      {
+                         allExpirationsEqual = false;
+                      }
+
+                      contactUri.setFieldParameter(SIP_EXPIRES_FIELD, expiresStr.data());
+
+                      if ( !record.getQvalue().empty() )
+                      {
+                         Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
+                                       "SipRegistrarServer::handleMessage - "
+                                       "adding q '%s'", record.getQvalue().c_str());
+
+                         //check if q value is numeric and between the range 0.0 and 1.0
+                         RegEx qValueValid(RegQValue);
+                         if (qValueValid.Search(record.getQvalue().c_str()))
+                         {
+                            contactUri.setFieldParameter(SIP_Q_FIELD, record.getQvalue().c_str());
+                         }
+                      }
+
+                      // Add the +sip.instance and gruu
+                      // parameters if an instance ID is recorded.
+
+
+                      Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
+                                    "SipRegistrarServer::handleMessage"
+                                    " - instanceIdKey = '%s'",
+                                     record.getInstanceId().c_str());
+
+                      if (!record.getInstanceId().empty())
+                      {
+                         Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
+                                       "SipRegistrarServer::handleMessage"
+                                       " - add instance '%s'",
+                                       record.getInstanceId().c_str());
+
+                         contactUri.setFieldParameter("+sip.instance", record.getInstanceId().c_str());
+
+
+                         // Only add the "gruu" parameter if the GRUU is
+                         // non-null and the request includes "Supported:
+                         // gruu".
+                         if (requestSupportsGruu && !record.getGruu().empty())
+                         {
+                            // Prepend "sip:" to the GRUU, since it is stored
+                            // in the database in identity form.
+                            UtlString temp("sip:");
+                            temp.append(record.getGruu().c_str());
+                            contactUri.setFieldParameter("pub-gruu", temp);
+#ifdef GRUU_WORKAROUND
+                            // Workaround causes GRUU to be sent in the
+                            // 'gruu' parameter as well, for
+                            // backward compatibility.
+                            contactUri.setFieldParameter("gruu", temp);
+#endif
+                         }
+                      }
+
+                      // Undo the transformations made to the Contact by the
+                      // sipXproxy for NAT traversal.  These transformations
+                      // effectively create a Contact that will cause a UAC compliant
+                      // with section 19.1.4 of RFC 3261 to fail to match the
+                      // Contact returned in the 200 OK with the one it sent.
+                      // We have seen that this causes interop problems
+                      // with some phones.  As a results, steps are taken here
+                      // to undo the transformations that sipXproxy applied to the
+                      // Contact.  See XX-5926 for details.
+                      UtlString privateContact;
+                      if( contactUri.getUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, privateContact, 0 ) )
+                      {
+                         Url privateContactAsUrl;
+                         UtlString hostAddressString;
+
+                         privateContactAsUrl.fromString( privateContact );
+                         privateContactAsUrl.getHostAddress( hostAddressString );
+                         contactUri.setHostAddress( hostAddressString );
+                         contactUri.setHostPort( privateContactAsUrl.getHostPort() );
+                         contactUri.removeUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM );
+                      }
+                      else
+                      {
+                         // if we do not have a SIPX_PRIVATE_CONTACT_URI_PARAM,
+                         // we almost certainly have a SIPX_NO_NAT_URI_PARAM - just
+                         // remove it without testing for its presence - if it is not
+                         // present then the remove operation just ends up being a no-op
+                         contactUri.removeUrlParameter( SIPX_NO_NAT_URI_PARAM );
+                      }
+
+                      finalResponse.setContactField(contactUri.toString(), contactCounter++);
+                    }
+                  }
+
+                  if (allExpirationsEqual && mSendExpiresInResponse)
+                  {
+                     /*
+                      * Some clients are not good at picking the expiration out of the contact
+                      * field parameter, so if all the expiration times are the same (usually
+                      * true in a REGISTER response because we only send the contacts for that call-id),
+                      * copy the value into an Expires header too.
+                      */
+                     UtlString expiresString;
+                     expiresString.appendNumber((int)commonExpirationTime);
+                     finalResponse.setHeaderValue(SIP_EXPIRES_FIELD, expiresString, 0);
+                  }
+
+                  // Add the testing contact, if it is set.
+                  if (!mAdditionalContact.isNull())
+                  {
+                     finalResponse.setContactField(mAdditionalContact,
+                                                   registrations.size());
+                  }
+              }
+              break;
+
+              case REGISTER_OUT_OF_ORDER:
+                  finalResponse.setResponseData(&message,SIP_5XX_CLASS_CODE,"Out Of Order");
+                  break;
+
+              case REGISTER_LESS_THAN_MINEXPIRES:
+              {
+                  //send 423 Registration Too Brief response
+                  //must contain Min-Expires header field
+                  finalResponse.setResponseData(&message,
+                                                SIP_TOO_BRIEF_CODE,SIP_TOO_BRIEF_TEXT);
+                  UtlString minExpiresAsString;
+                  if( pExpiryIntervalsUsed )
+                  {
+                     minExpiresAsString.appendNumber( pExpiryIntervalsUsed->mMinExpiresTime );
+                  }
+                  else
+                  {
+                     // safeguard - should never happen
+                     minExpiresAsString.appendNumber( mNormalExpiryIntervals.mMinExpiresTime );
+                  }
+                  finalResponse.setHeaderValue(SIP_MIN_EXPIRES_FIELD, minExpiresAsString, 0);
+              }
+              break;
+
+              case REGISTER_INVALID_REQUEST:
+                  finalResponse.setResponseData(&message,
+                                                SIP_BAD_REQUEST_CODE, SIP_BAD_REQUEST_TEXT);
+                  break;
+
+              case REGISTER_FORBIDDEN:
+                  finalResponse.setResponseData(&message,
+                                                SIP_FORBIDDEN_CODE, SIP_FORBIDDEN_TEXT);
+                  break;
+
+              case REGISTER_NOT_FOUND:
+                  finalResponse.setResponseData(&message,
+                                                SIP_NOT_FOUND_CODE, SIP_NOT_FOUND_TEXT);
+                  break;
+
+              default:
+                 Os::Logger::instance().log( FAC_SIP, PRI_ERR,
+                               "Invalid result %d from applyRegisterToDirectory",
+                               applyStatus
+                               );
+                  finalResponse.setResponseData(&message,
+                                                SIP_SERVER_INTERNAL_ERROR_CODE,
+                                                SIP_SERVER_INTERNAL_ERROR_TEXT);
+                  break;
+          }
+
+          // Add tag to response if none is present in the request (which
+          // there shouldn't be).
+          if ( tag.isNull() )
+          {
+             UtlString newTag;
+             CallId::getNewTag(newTag);
+             finalResponse.setToFieldTag(newTag.data());
+          }
+      }
+     else
+      {
+         // authentication error - response data was set in isAuthorized
+      }
+  }
+  else
+  {
+     // Invalid domain for registration
+     UtlString requestedDomain;
+     reqUri.getHostAddress(requestedDomain);
+
+     Os::Logger::instance().log(FAC_AUTH, PRI_WARNING,
+                   "SipRegistrarServer::handleMessage('%s' == '%s') Invalid",
+                   requestedDomain.data(), lookupDomain.data()) ;
+
+     UtlString responseText;
+     responseText.append("Domain '");
+     responseText.append(requestedDomain);
+     responseText.append("' is not valid at this registrar");
+     finalResponse.setResponseData(&message, SIP_NOT_FOUND_CODE, responseText.data() );
+  }
+
+  mSipUserAgent->setUserAgentHeader(finalResponse);
+
+  if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
+  {
+     UtlString finalMessageStr;
+     ssize_t finalMessageLen;
+     finalResponse.getBytes(&finalMessageStr, &finalMessageLen);
+     Os::Logger::instance().log( FAC_SIP, PRI_DEBUG, "\n----------------------------------\n"
+                   "Sending final response\n%s", finalMessageStr.data());
+  }
+
+  mSipUserAgent->send(finalResponse);
+
+
+
+  delete pMsg;
+}
 
 //functions
 UtlBoolean
@@ -804,366 +1171,26 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
     // SIP message event
     else if (msgType == OsMsg::PHONE_APP)
     {
-        Os::Logger::instance().log( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage() - "
-                "Start processing REGISTER Message" );
-
-        const SipMessage& message = *((SipMessageEvent&)eventMessage).getMessage();
-        UtlString userKey, uri;
-        SipMessage finalResponse;
-
-        // Fetch the domain and port from the request URI
-        UtlString lookupDomain, requestUri;
-        message.getRequestUri( &requestUri );
-        Url reqUri(requestUri);
-
-        if ( mRegistrar.isValidDomain(reqUri) )
+        //
+        // Schedule the processing using the threadPool
+        //
+        SipMessage* pMsg = new SipMessage(*((SipMessageEvent&)eventMessage).getMessage());
+        if (!_registerHandler.schedule(boost::bind(&SipRegistrarServer::handleRegister, this, _1), pMsg))
         {
-           // Get the full To name-addr.
-           Url toUri;
-           message.getToUrl(toUri);
+          SipMessage finalResponse;
+          finalResponse.setResponseData(pMsg, SIP_5XX_CLASS_CODE, "No Thread Available");
+          mSipUserAgent->send(finalResponse);
 
-           /*
-            * Normalize the port in the To URI.
-            *   This is not strictly kosher, but it solves interoperability problems.
-            *   Technically, user@foo:5060 != user@foo , but many implementations
-            *   insist on including the explicit port even when they should not, and
-            *   it causes registration mismatches, so we normalize the URI when inserting
-            *   and looking up in the database so that if explicit port is the same as
-            *   the proxy listening port, then we remove it.
-            *   (Since our proxy has mProxyNormalPort open, no other SIP entity
-            *   can use sip:user@domain:mProxyNormalPort, so this normalization
-            *   cannot interfere with valid addresses.)
-            *
-            * For the strict rules, set the configuration parameter
-            *   SIP_REGISTRAR_PROXY_PORT : PORT_NONE
-            */
-           int proxyPort = mRegistrar.domainProxyPort();
-           if (   proxyPort != PORT_NONE
-               && toUri.getHostPort() == proxyPort
-               )
-           {
-              toUri.setHostPort(PORT_NONE);
-           }
-
-           /*
-            * This is to support registration where the To URI uses a domain alias.
-            * Replace domain part of the ToURI with the default domain
-            */
-           if (mSipUserAgent->isMyHostAlias(toUri))
-           {
-              if (Os::Logger::instance().willLog(FAC_SIP, PRI_INFO))
-              {
-                 UtlString alias;
-                 toUri.getHostWithPort(alias);
-                 Os::Logger::instance().log( FAC_SIP, PRI_INFO, "SipRegistrarServer::handleMessage() "
-                               "Allowing use of domain alias; To domain '%s' -> '%s'",
-                               alias.data(), mRegistrar.defaultDomain());
-              }
-              toUri.setHostAddress(mRegistrar.defaultDomain() );
-           }
-
-           // check in credential database if authentication needed
-           UtlString instrument; // the instrument value from the authentication user name
-           if ( isAuthorized( toUri, instrument, message, finalResponse ) )
-            {
-                int port;
-                UtlString address, protocol, tag;
-                message.getToAddress( &address, &port, &protocol, NULL, NULL, &tag );
-
-                // Add new contact values - update or insert.
-                int timeNow = (int) OsDateTime::getSecsSinceEpoch();
-                RegistrationExpiryIntervals* pExpiryIntervalsUsed = 0;
-                RegisterStatus applyStatus
-                   = applyRegisterToDirectory( toUri, instrument,
-                                               timeNow, message,
-                                               pExpiryIntervalsUsed );
-
-                switch (applyStatus)
-                {
-                    case REGISTER_SUCCESS:
-                    case REGISTER_QUERY:
-                    {
-                        Os::Logger::instance().log( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage() - "
-                               "contact successfully added");
-
-                        //create response - 200 ok reseponse
-                        finalResponse.setOkResponseData(&message);
-
-                        // get the call-id from the register message for context test below
-                        UtlString registerCallId;
-                        message.getCallIdField(&registerCallId);
-
-                        //get all current contacts now for the response
-
-                        UtlString identity_;
-                        toUri.getIdentity(identity_);
-                        RegDB::Bindings registrations;
-                        SipRegistrar::getInstance(NULL)->getRegDB()->getUnexpiredContactsUser(identity_.str(),
-                            timeNow, registrations);
-                        bool requestSupportsGruu =
-                           message.isInSupportedField("gruu");
-#ifdef GRUU_WORKAROUND
-                        // Workaround causes GRUU to be sent even if
-                        // "Supported: gruu" was not in request.
-                        requestSupportsGruu = true;
-#endif
-                        bool allExpirationsEqual = false;
-                        bool firstConsideredContact = true;
-                        // commonExpirationTime is used only if allExpirationsEqual
-                        // is true, and when the latter is set, commonExpirationTime
-                        // is set.  But we must initialize it to stop the compiler
-                        // from complaining.
-                        unsigned int commonExpirationTime = 0;
-
-                        int contactCounter = 0;
-                        for (RegDB::Bindings::const_iterator iter = registrations.begin(); iter != registrations.end(); iter++)
-                        {
-                          const RegBinding& record = *iter;
-
-                          // Check if this contact should be returned in this context
-                          // for REGISTER_QUERY, return all contacts
-                          // for REGISTER_SUCCESS, return only the contacts with the same
-                          //     call-id.  This is because we've seen too many phones that
-                          //     don't expect to see contacts other than the one they sent,
-                          //     and get upset by contact parameters meant for others
-                          //     In particular, when some other contact is about to expire,
-                          //     they think that they got a short time and try again - which
-                          //     loops until the other contact expires or is refreshed by
-                          //     someone else - not good.
-
-
-
-                          if (mSendAllContactsInResponse || REGISTER_QUERY == applyStatus || registerCallId.str() == record.getCallId())
-                             
-                          {
-
-
-                            unsigned int expires = record.getExpirationTime();
-                            expires = expires - timeNow;
-
-                            Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
-                                          "SipRegistrarServer::handleMessage - "
-                                          "processing contact '%s'", record.getContact().c_str());
-                            Url contactUri( record.getContact().c_str() );
-
-                            UtlString expiresStr;
-                            expiresStr.appendNumber((int)expires);
-
-                            if ( firstConsideredContact ) // first considered contact
-                            {
-                               firstConsideredContact = false;
-                               allExpirationsEqual = true;
-                               commonExpirationTime = expires;
-                            }
-                            else if (expires != commonExpirationTime)
-                            {
-                               allExpirationsEqual = false;
-                            }
-
-                            contactUri.setFieldParameter(SIP_EXPIRES_FIELD, expiresStr.data());
-
-                            if ( !record.getQvalue().empty() )
-                            {
-                               Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
-                                             "SipRegistrarServer::handleMessage - "
-                                             "adding q '%s'", record.getQvalue().c_str());
-
-                               //check if q value is numeric and between the range 0.0 and 1.0
-                               RegEx qValueValid(RegQValue);
-                               if (qValueValid.Search(record.getQvalue().c_str()))
-                               {
-                                  contactUri.setFieldParameter(SIP_Q_FIELD, record.getQvalue().c_str());
-                               }
-                            }
-
-                            // Add the +sip.instance and gruu
-                            // parameters if an instance ID is recorded.
-
-
-                            Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
-                                          "SipRegistrarServer::handleMessage"
-                                          " - instanceIdKey = '%s'",
-                                           record.getInstanceId().c_str());
-
-                            if (!record.getInstanceId().empty())
-                            {
-                               Os::Logger::instance().log( FAC_SIP, PRI_DEBUG,
-                                             "SipRegistrarServer::handleMessage"
-                                             " - add instance '%s'",
-                                             record.getInstanceId().c_str());
-
-                               contactUri.setFieldParameter("+sip.instance", record.getInstanceId().c_str());
-
-
-                               // Only add the "gruu" parameter if the GRUU is
-                               // non-null and the request includes "Supported:
-                               // gruu".
-                               if (requestSupportsGruu && !record.getGruu().empty())
-                               {
-                                  // Prepend "sip:" to the GRUU, since it is stored
-                                  // in the database in identity form.
-                                  UtlString temp("sip:");
-                                  temp.append(record.getGruu().c_str());
-                                  contactUri.setFieldParameter("pub-gruu", temp);
-#ifdef GRUU_WORKAROUND
-                                  // Workaround causes GRUU to be sent in the
-                                  // 'gruu' parameter as well, for
-                                  // backward compatibility.
-                                  contactUri.setFieldParameter("gruu", temp);
-#endif
-                               }
-                            }
-
-                            // Undo the transformations made to the Contact by the
-                            // sipXproxy for NAT traversal.  These transformations
-                            // effectively create a Contact that will cause a UAC compliant
-                            // with section 19.1.4 of RFC 3261 to fail to match the
-                            // Contact returned in the 200 OK with the one it sent.
-                            // We have seen that this causes interop problems
-                            // with some phones.  As a results, steps are taken here
-                            // to undo the transformations that sipXproxy applied to the
-                            // Contact.  See XX-5926 for details.
-                            UtlString privateContact;
-                            if( contactUri.getUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, privateContact, 0 ) )
-                            {
-                               Url privateContactAsUrl;
-                               UtlString hostAddressString;
-
-                               privateContactAsUrl.fromString( privateContact );
-                               privateContactAsUrl.getHostAddress( hostAddressString );
-                               contactUri.setHostAddress( hostAddressString );
-                               contactUri.setHostPort( privateContactAsUrl.getHostPort() );
-                               contactUri.removeUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM );
-                            }
-                            else
-                            {
-                               // if we do not have a SIPX_PRIVATE_CONTACT_URI_PARAM,
-                               // we almost certainly have a SIPX_NO_NAT_URI_PARAM - just
-                               // remove it without testing for its presence - if it is not
-                               // present then the remove operation just ends up being a no-op
-                               contactUri.removeUrlParameter( SIPX_NO_NAT_URI_PARAM );
-                            }
-
-                            finalResponse.setContactField(contactUri.toString(), contactCounter++);
-                          }
-                        }
-
-                        if (allExpirationsEqual && mSendExpiresInResponse)
-                        {
-                           /*
-                            * Some clients are not good at picking the expiration out of the contact
-                            * field parameter, so if all the expiration times are the same (usually
-                            * true in a REGISTER response because we only send the contacts for that call-id),
-                            * copy the value into an Expires header too.
-                            */
-                           UtlString expiresString;
-                           expiresString.appendNumber((int)commonExpirationTime);
-                           finalResponse.setHeaderValue(SIP_EXPIRES_FIELD, expiresString, 0);
-                        }
-
-                        // Add the testing contact, if it is set.
-                        if (!mAdditionalContact.isNull())
-                        {
-                           finalResponse.setContactField(mAdditionalContact,
-                                                         registrations.size());
-                        }
-                    }
-                    break;
-
-                    case REGISTER_OUT_OF_ORDER:
-                        finalResponse.setResponseData(&message,SIP_5XX_CLASS_CODE,"Out Of Order");
-                        break;
-
-                    case REGISTER_LESS_THAN_MINEXPIRES:
-                    {
-                        //send 423 Registration Too Brief response
-                        //must contain Min-Expires header field
-                        finalResponse.setResponseData(&message,
-                                                      SIP_TOO_BRIEF_CODE,SIP_TOO_BRIEF_TEXT);
-                        UtlString minExpiresAsString;
-                        if( pExpiryIntervalsUsed )
-                        {
-                           minExpiresAsString.appendNumber( pExpiryIntervalsUsed->mMinExpiresTime );
-                        }
-                        else
-                        {
-                           // safeguard - should never happen
-                           minExpiresAsString.appendNumber( mNormalExpiryIntervals.mMinExpiresTime );
-                        }
-                        finalResponse.setHeaderValue(SIP_MIN_EXPIRES_FIELD, minExpiresAsString, 0);
-                    }
-                    break;
-
-                    case REGISTER_INVALID_REQUEST:
-                        finalResponse.setResponseData(&message,
-                                                      SIP_BAD_REQUEST_CODE, SIP_BAD_REQUEST_TEXT);
-                        break;
-
-                    case REGISTER_FORBIDDEN:
-                        finalResponse.setResponseData(&message,
-                                                      SIP_FORBIDDEN_CODE, SIP_FORBIDDEN_TEXT);
-                        break;
-
-                    case REGISTER_NOT_FOUND:
-                        finalResponse.setResponseData(&message,
-                                                      SIP_NOT_FOUND_CODE, SIP_NOT_FOUND_TEXT);
-                        break;
-
-                    default:
-                       Os::Logger::instance().log( FAC_SIP, PRI_ERR,
-                                     "Invalid result %d from applyRegisterToDirectory",
-                                     applyStatus
-                                     );
-                        finalResponse.setResponseData(&message,
-                                                      SIP_SERVER_INTERNAL_ERROR_CODE,
-                                                      SIP_SERVER_INTERNAL_ERROR_TEXT);
-                        break;
-                }
-
-                // Add tag to response if none is present in the request (which
-                // there shouldn't be).
-                if ( tag.isNull() )
-                {
-                   UtlString newTag;
-                   CallId::getNewTag(newTag);
-                   finalResponse.setToFieldTag(newTag.data());
-                }
-            }
-           else
-            {
-               // authentication error - response data was set in isAuthorized
-            }
+          OS_LOG_ERROR(FAC_SIP, "SipRegistrarServer::handleMessage failed to create pooled thread!  Threadpool size="
+            << _registerHandler.threadPool().available());
+            
+          delete pMsg;
         }
         else
         {
-           // Invalid domain for registration
-           UtlString requestedDomain;
-           reqUri.getHostAddress(requestedDomain);
-
-           Os::Logger::instance().log(FAC_AUTH, PRI_WARNING,
-                         "SipRegistrarServer::handleMessage('%s' == '%s') Invalid",
-                         requestedDomain.data(), lookupDomain.data()) ;
-
-           UtlString responseText;
-           responseText.append("Domain '");
-           responseText.append(requestedDomain);
-           responseText.append("' is not valid at this registrar");
-           finalResponse.setResponseData(&message, SIP_NOT_FOUND_CODE, responseText.data() );
+          OS_LOG_INFO(FAC_SIP, "SipRegistrarServer::handleMessage scheduled new REGISTER request.  Threadpool size="
+            << _registerHandler.threadPool().available());
         }
-
-        mSipUserAgent->setUserAgentHeader(finalResponse);
-
-        if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
-        {
-           UtlString finalMessageStr;
-           ssize_t finalMessageLen;
-           finalResponse.getBytes(&finalMessageStr, &finalMessageLen);
-           Os::Logger::instance().log( FAC_SIP, PRI_DEBUG, "\n----------------------------------\n"
-                         "Sending final response\n%s", finalMessageStr.data());
-        }
-
-        mSipUserAgent->send(finalResponse);
-
         handled = TRUE;
     }
     else if ( msgType == OsMsg::OS_SHUTDOWN )

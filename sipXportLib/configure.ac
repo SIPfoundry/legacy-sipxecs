@@ -23,6 +23,7 @@ AC_SEARCH_LIBS([dlopen], [dl])
 CHECK_CPPUNIT
 CHECK_PCRE
 CHECK_SSL
+CHECK_POCO
 SFAC_INIT_FLAGS
 SFAC_FEATURE_SIP_TLS
 AC_MSG_CHECKING(for system type for process iterator ($host))

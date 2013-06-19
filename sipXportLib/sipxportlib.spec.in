@@ -18,6 +18,7 @@ BuildRequires: gperftools-devel
 BuildRequires: pcre-devel
 BuildRequires: findutils
 BuildRequires: boost-devel >= 1.39
+BuildRequires: poco-devel
 
 # sipXphone would require 0.9.7c to decrypt profiles to get access to
 # certain new alg.  If this is still nec., this may need to be
@@ -28,6 +29,18 @@ BuildRequires: boost-devel >= 1.39
 Requires: openssl >= 0.9.7a
 Requires: pcre >= 4.5
 Requires: boost >= 1.39
+Requires: poco-crypto
+Requires: poco-data
+Requires: poco-foundation
+Requires: poco-mysql
+Requires: poco-net
+Requires: poco-netssl
+Requires: poco-odbc
+Requires: poco-pagecompiler
+Requires: poco-sqlite
+Requires: poco-util
+Requires: poco-xml
+Requires: poco-zip
 
 Source: %name-%version.tar.gz
 
@@ -61,6 +74,7 @@ encapsulate functions and operations for:
 Requires: %name
 Requires: openssl-devel
 Requires: boost-devel >= 1.39
+Requires: poco-devel
 Requires: cppunit-devel
 Requires: pcre-devel
 Requires: gperftools-devel
