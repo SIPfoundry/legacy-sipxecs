@@ -33,6 +33,7 @@ import org.sipfoundry.voicemail.mailbox.MailboxManager;
 import org.sipfoundry.voicemail.mailbox.MessageDescriptor;
 import org.sipfoundry.voicemail.mailbox.MessageNotFoundException;
 import org.sipfoundry.voicemail.mailbox.VmMessage;
+import org.springframework.web.util.HtmlUtils;
 
 /**
  * A RESTful interface to the mailbox messages
@@ -360,7 +361,7 @@ public class MailboxServlet extends HttpServlet {
         pw.format(
                 "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" fromUri=\"%s\" author=\"%s\" subject=\"%s\" username=\"%s\" format=\"%s\"/>\n",
                 message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder,
-                descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), fromUri, StringEscapeUtils.escapeHtml(author),
+                descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), fromUri, HtmlUtils.htmlEscapeHex(author),
                 descriptor.getSubject(), message.getUserName(), descriptor.getAudioFormat());
     }
 
