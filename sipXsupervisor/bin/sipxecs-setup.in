@@ -490,7 +490,7 @@ def has_role?
 end
 
 def change_role?
-  change = $prompt[:noui] || prompt_confirm("Would you like to \e[0;31mchange\e[m your application settings?")
+  change = prompt_confirm("Would you like to \e[0;31mchange\e[m your application settings?") unless $prompt[:noui] 
   if change
     rm_file($primary_dat)
     rm_file($secondary_dat)
