@@ -217,7 +217,7 @@ def reset
 end
 
 def reset_all
-  return false unless prompt_confirm("This will \e[0;31mwipe all\e[m configuration data from this server. Are you sure?")
+  return false unless $prompt[:noui] || prompt_confirm("This will \e[0;31mwipe all\e[m configuration data from this server. Are you sure?")
 
   # may not work, but try to shut down whatever is running
   cmd_no_die("#{$bindir}/sipxagent -d stop_sipxecs")
