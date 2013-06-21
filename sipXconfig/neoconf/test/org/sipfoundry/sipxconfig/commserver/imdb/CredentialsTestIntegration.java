@@ -25,6 +25,7 @@ public class CredentialsTestIntegration extends ImdbTestCase {
         CallGroup cg = new CallGroup();
         cg.setUniqueId(1);
         cg.setName("sales");
+        cg.setEnabled(true);
         cg.setSipPassword("pass4321");
 
         getReplicationManager().replicateEntity(cg, DataSet.CREDENTIAL);

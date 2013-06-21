@@ -97,7 +97,7 @@ public class DnsConfig implements ConfigProvider {
             List<Address> im = am.getAddresses(ImManager.XMPP_ADDRESS, location);
             Writer zone = new FileWriter(new File(dir, "zone.yaml"));
             try {
-                boolean generateARecords = domain.equals(networkDomain);
+                boolean generateARecords = domain.equals(networkDomain) || domain.equals(location.getFqdn());
                 writeZoneConfig(zone, domain, all, proxy, im, dns, rrs, serNo, generateARecords);
             } finally {
                 IOUtils.closeQuietly(zone);
