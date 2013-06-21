@@ -39,9 +39,7 @@
 	url = git://github.com/dhubler/sipXlang-it.git
 [submodule "sipXlang-ja"]
 	path = sipXlang-ja
-	url = git://github.co[submodule "sipXcustomCallerId"]
-	path = sipXcustomCallerId
-	url = git://github.com/ezuce/sipXcustomCallerIdm/dhubler/sipXlang-ja.git
+	url = git://github.com/dhubler/sipXlang-ja.git
 [submodule "sipXlang-es_MX"]
 	path = sipXlang-es_MX
 	url = git://github.com/dhubler/sipXlang-es_MX.git
