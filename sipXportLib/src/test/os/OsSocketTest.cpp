@@ -28,7 +28,16 @@ class SocketsTest : public CppUnit::TestCase
     CPPUNIT_TEST_SUITE_END();
 
 
+    int m_port;
+
 public:
+  
+    void setUp() {
+        int port = PORT_NONE;
+	OsServerSocket s(50);
+	m_port = s.getLocalHostPort();
+	s.close();
+    }
 
     /**
      * Test accept with various timeouts
@@ -38,7 +47,7 @@ public:
     	OsTime before;
     	OsTime after;
 
-        OsServerSocket* server = new OsServerSocket(50, 8021);
+        OsServerSocket* server = new OsServerSocket(50, m_port);
 
         OsDateTime::getCurTime(before);
         OsSocket* serverClient = server->accept(50);
@@ -88,12 +97,11 @@ public:
     void testWriteAndAcceptMsg()
     {
     	// Create/Verify Sockets
-        OsServerSocket* server = new OsServerSocket(50, 8021);
-        KNOWN_BUG("This can fail if there is a port conflict on the test system", "XECS-1924");
+        OsServerSocket* server = new OsServerSocket(50, m_port);
         CPPUNIT_ASSERT_MESSAGE("server socket failure",
                                server->isOk());
 
-        OsSocket* client = new OsConnectionSocket(8021, "localhost");
+        OsSocket* client = new OsConnectionSocket(m_port, "localhost");
         CPPUNIT_ASSERT_MESSAGE("client socket failure",
                                client->isOk());
 
