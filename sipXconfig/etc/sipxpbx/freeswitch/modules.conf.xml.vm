@@ -1,6 +1,6 @@
 <configuration name="modules.conf" description="Modules">
   <modules>
-    
+
     <!-- Loggers (I'd load these first) -->
     <load module="mod_console"/>
     <load module="mod_logfile"/>
@@ -55,6 +55,7 @@
     <!-- <load module="mod_cluechoo"/> -->
     <load module="mod_valet_parking"/>
     <!-- <load module="mod_spy"/> -->
+    <load module="mod_callcenter"/>
 
     <!-- SNOM Module -->
     <!--<load module="mod_snom"/>-->
@@ -106,7 +107,7 @@
     <!-- <load module="mod_pocketsphinx"/> -->
     <!-- <load module="mod_cepstral"/> -->
     <!-- <load module="mod_rss"/> -->
-    
+
     <!-- Say -->
     <load module="mod_say_en"/>
     <load module="mod_say_de"/>

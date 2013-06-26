@@ -1,0 +1,46 @@
+<configuration name="callcenter.conf" description="CallCenter">
+
+  <settings>
+      <!--<param name="odbc-dsn" value="dsn:user:pass"/>-->
+      <!--<param name="dbname" value="/dev/shm/callcenter.db"/>-->
+  </settings>
+
+  <queues>
+#foreach($queue in $queues)
+#if(${queue.enabled})
+    <queue name="queue-${queue.extension}">
+#foreach($group in ${queue.settings.values})
+#foreach($setting in ${group.values})
+        <param name="${setting.name}" value="$!{setting.Value}"/>
+#end
+#end
+    </queue>
+#end
+#end
+  </queues>
+
+<!-- WARNING: Configuration of XML Agents will be updated into the DB upon restart. -->
+<!-- WARNING: Configuration of XML Tiers will reset the level and position if those were supplied. -->
+<!-- WARNING: Agents and Tiers XML config shouldn't be used in a multi FS shared DB setup. -->
+
+  <agents>
+#foreach($agent in $agents)
+    <agent name="agent-${agent.Extension}" type="callback" contact="${agent.ContactUri}"
+#foreach($group in ${agent.settings.values})
+#foreach($setting in ${group.values})
+        ${setting.name}="$!{setting.Value}"
+#end
+#end
+        />
+#end
+  </agents>
+
+  <tiers>
+#foreach($agent in $agents)
+#foreach($tier in $agent.tiers.tiers)
+    <tier agent="agent-${agent.Extension}" queue="queue-${agent.getQueueByTier($tier).extension}" level="${tier.level}" position="${tier.position}" />
+#end
+#end
+  </tiers>
+
+</configuration>

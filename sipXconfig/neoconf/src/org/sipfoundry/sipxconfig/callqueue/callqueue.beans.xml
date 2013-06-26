@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - See springframework documentation for proper syntax.
+  -   http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/beans.html
+  -->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="callQueueContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.callqueue.CallQueueContext"/>
+    <property name="target" ref="callQueueContextImpl"/>
+  </bean>
+
+  <bean id="callQueueContextImpl" class="org.sipfoundry.sipxconfig.callqueue.CallQueueContextImpl" parent="abstractDaoImpl">
+    <property name="aliasManager" ref="aliasManager"/>
+    <property name="featureManager" ref="featureManager" />
+    <property name="replicationManager" ref="replicationManagerImpl" />
+    <property name="settingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.callqueue.CallQueueSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="callQueueExtension" class="org.sipfoundry.sipxconfig.callqueue.CallQueueExtension" scope="prototype"/>
+
+  <bean id="callQueue" class="org.sipfoundry.sipxconfig.callqueue.CallQueue" scope="prototype">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+    <property name="addressManager" ref="addressManager"/>
+  </bean>
+
+  <bean id="callQueueCommand" class="org.sipfoundry.sipxconfig.callqueue.CallQueueCommand" scope="prototype">
+    <property name="addressManager" ref="addressManager"/>
+  </bean>
+
+  <bean id="callQueueAgent" class="org.sipfoundry.sipxconfig.callqueue.CallQueueAgent" scope="prototype" parent="beanWithSettings">
+    <property name="domainManager" ref="domainManager" />
+    <property name="callQueueContext" ref="callQueueContext" />
+  </bean>
+
+  <bean id="callQueueSettings" class="org.sipfoundry.sipxconfig.callqueue.CallQueueSettings" parent="settingsBean">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+  </bean>
+</beans>

@@ -1,0 +1,56 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+    <!-- HTML layout components begin-->
+    <!-- HTML layout components end-->
+
+    <span jwcid="@common/ErrorMsg"/>
+    <form jwcid="form@Form" delegate="bean:validator">
+	<!-- Main properties from datatbase fieldset begin -->
+	<fieldset>
+	<table>
+	<tbody>
+	    <span jwcid="common@common/ItemCommon"
+		useFieldset="false"
+		useEnabled="false"
+		useExtensionSelect="ognl:CallQueueAgentId!=null"
+		selectUserListener="listener:setUser"
+		item="ognl:CallQueueAgent"
+	    />
+	</tbody>
+	</table>
+	</fieldset>
+	<!-- Main properties from datatbase fieldset end -->
+	<!-- Tiers fieldset begin -->
+	<fieldset>
+	<span jwcid="@If" condition="ognl:CallQueueAgentId!=null">
+	<h2><span key="label.queues"/></h2>
+	<a jwcid="addQueuesLink@DirectLink" listener="listener:addQueues"><span key="label.queues.add"/></a>
+	<table>
+	<thead>
+	    <tr>
+		<th><span key="label.queue"/></th>
+		<th><span key="label.position"/></th>
+		<th><span key="label.level"/></th>
+		<th>&nbsp;</th>
+	    </tr>
+	</thead>
+	<tbody>
+	    <tr jwcid="@For"
+		source="ognl:CallQueueAgent.tiers.tiers"
+		value="ognl:CallQueueTier"
+		index="ognl:index">
+		<td><span jwcid="@Insert" value="ognl:CallQueueContext.loadCallQueue(CallQueueTier.CallQueueId).Name"/></td>
+		<td><input jwcid="@TextField" id="ognl:'tier:position_'+index" size="5" value="ognl:CallQueueTier.Position"/></td>
+		<td><input jwcid="@TextField" id="ognl:'tier:level_'+index" size="5"  value="ognl:CallQueueTier.Level"/></td>
+		<td><a jwcid="removeQueueLink@DirectLink" listener="listener:removeQueue" parameters="ognl:CallQueueTier.CallQueueId"><span key="label.queues.remove"/></a></td>
+	    </tr>
+	</tbody>
+	</table>
+	</span>
+	</fieldset>
+	<!-- Tiers fieldset end -->
+	<!-- Settings from model file fieldset begin -->
+	<fieldset jwcid="@setting/SettingsFieldset" settings="ognl:CallQueueAgent.settings" renderGroupTitle="false"/>
+	<ul jwcid="@common/FormActions" listener="listener:commit" callback="ognl:callback"/>
+	<!-- Settings from model file fieldset end -->
+    </form>
+</div>

@@ -1,0 +1,29 @@
+<div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
+    <form jwcid="queuesSelectForm@Form" id="queuesSelectForm">
+	<table jwcid="@common/Table"
+	    source="ognl:CallQueueContext.getAvaiableQueuesFroAgentId(CallQueueAgentId)"
+	    columns="literal:* name,extension,description"
+	    class="bean:rowClass.next"
+	    row="ognl:currentRow"
+	    selections="ognl:selections">
+	</table>
+	<ul class="component-submit">
+	    <li><input
+		id="callqueue:select"
+		jwcid="select@Submit"
+		listener="listener:select"
+		type="submit"
+		value="message:button.select"
+		/>
+	    </li>
+	    <li><input
+		id="callqueue:cancel"
+		jwcid="cancel@Submit"
+		listener="listener:cancel"
+		type="submit"
+		value="message:button.cancel"
+		/>
+	    </li>
+	</ul>
+    </form>
+</div>

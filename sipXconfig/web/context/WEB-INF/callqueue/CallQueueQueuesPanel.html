@@ -1,0 +1,41 @@
+<span jwcid="$content$">
+    <span jwcid="@common/QuickHelp" value="message:quick.help.queues"/>
+    <ul class="component-links">
+	<li><a jwcid="addQueueLink@DirectLink" listener="listener:add"><span key="label.queues.add"/></a></li>
+    </ul>
+    <form jwcid="queuesForm@Form" id="queuesForm" delegate="bean:validator">
+	<table jwcid="@common/Table"
+	    source="ognl:CallQueueContext.CallQueues"
+	    columns="literal:* name,extension,enabled,description"
+	    class="bean:rowClass.next"
+	    row="ognl:currentRow"
+	    selections="ognl:selections">
+	    <span jwcid="nameColumnValue@Block">
+		<a jwcid="editRowLink@DirectLink" listener="listener:edit" parameters="ognl:currentRow.id"><span jwcid="@Insert" value="ognl:currentRow.name"/></a>
+	    </span>
+	    <span jwcid="enabledColumnValue@Block">
+		<span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
+	    </span>
+	</table>
+	<ul class="component-submit">
+	    <li>
+		<input type="submit"
+		    jwcid="duplicate@Submit"
+		    listener="listener:duplicate"
+		    selected="ognl:rowsToDuplicate"
+		    tag="ognl:selections.allSelected"
+		    value="message:button.duplicate"
+		/>
+	    </li>
+	    <li>
+		<input type="submit"
+		    jwcid="delete@Submit"
+		    listener="listener:delete"
+		    selected="ognl:rowsToDelete"
+		    tag="ognl:selections.allSelected"
+		    value="message:button.queues.delete"
+		/>
+	    </li>
+	</ul>
+    </form>
+</span>

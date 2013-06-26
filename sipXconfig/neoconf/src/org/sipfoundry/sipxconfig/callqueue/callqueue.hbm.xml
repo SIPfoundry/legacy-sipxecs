@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.callqueue" default-lazy="false">
+  <!--
+    - Classes
+  -->
+  <subclass name="CallQueueExtension" extends="org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension" discriminator-value="c"/>
+
+  <subclass name="CallQueue" extends="org.sipfoundry.sipxconfig.callqueue.CallQueueExtension" discriminator-value="q"/>
+
+  <subclass name="CallQueueCommand" extends="org.sipfoundry.sipxconfig.callqueue.CallQueueExtension" discriminator-value="f"/>
+
+  <class name="CallQueueAgent" table="call_queue_agent" discriminator-value="P" polymorphism="explicit">
+    <id name="id" column="call_queue_agent_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">call_queue_agent_seq</param>
+      </generator>
+    </id>
+    <property name="name" />
+    <property name="extension" />
+    <property name="description" />
+    <component name="tiers" class="CallQueueTiers">
+      <set name="tiers" cascade="all-delete-orphan" table="call_queue_tier">
+        <key column="call_queue_agent_id" not-null="true"/>
+        <composite-element class="CallQueueTier">
+	    <!-- explicit column names, default prepended 'element_' -->
+	    <property name="callQueueId" column="freeswitch_ext_id" type="int" />
+	    <property name="position" type="int" />
+	    <property name="level" type="int" />
+        </composite-element>
+      </set>
+    </component>
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id" class="org.sipfoundry.sipxconfig.setting.ValueStorage" />
+    <!--set name="tiers" cascade="all-delete-orphan" lazy="false">
+	<key column="call_queue_agent_id" not-null="true"/>
+	<one-to-many class="org.sipfoundry.sipxconfig.callqueue.CallQueueTier"/>
+    </set-->
+  </class>
+
+  <!--class name="CallQueueTier" table="call_queue_tier" discriminator-value="P" polymorphism="explicit">
+    <id name="id" column="call_queue_tier_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">call_queue_tier_seq</param>
+      </generator>
+    </id>
+    <property name="callQueueId" column="freeswitch_ext_id" type="int" />
+    <property name="position" type="int" />
+    <property name="level" type="int" />
+  </class-->
+
+  <!--
+    - Queries
+  -->
+  <query name="callQueueExtensionWithName">
+    <![CDATA[from CallQueueExtension ext where ext.name = :value]]>
+  </query>
+
+  <query name="callQueueAgentIds">
+    <![CDATA[select agent.id from CallQueueAgent agent where agent.name = :value or agent.extension = :value]]>
+  </query>
+
+</hibernate-mapping>

@@ -1,0 +1,38 @@
+<span jwcid="$content$">
+    <span jwcid="@common/QuickHelp" value="message:quick.help.agents"/>
+    <ul class="component-links">
+	<li><a jwcid="addAgentLink@DirectLink" listener="listener:add"><span key="label.agents.add"/></a></li>
+    </ul>
+    <form jwcid="agentsForm@Form" id="agentsForm" delegate="bean:validator">
+	<table jwcid="@common/Table"
+	    source="ognl:CallQueueContext.CallQueueAgents"
+	    columns="literal:* name,extension,description"
+	    class="bean:rowClass.next"
+	    row="ognl:currentRow"
+	    selections="ognl:selections">
+	    <span jwcid="nameColumnValue@Block">
+		<a jwcid="editRowLink@DirectLink" listener="listener:edit" parameters="ognl:currentRow.id"><span jwcid="@Insert" value="ognl:currentRow.name"/></a>
+	    </span>
+	</table>
+	<ul class="component-submit">
+	    <li>
+		<!--input type="submit"
+		    jwcid="duplicate@Submit"
+		    listener="listener:duplicate"
+		    selected="ognl:rowsToDuplicate"
+		    tag="ognl:selections.allSelected"
+		    value="message:button.duplicate"
+		/-->
+	    </li>
+	    <li>
+		<input type="submit"
+		    jwcid="delete@Submit"
+		    listener="listener:delete"
+		    selected="ognl:rowsToDelete"
+		    tag="ognl:selections.allSelected"
+		    value="message:button.agents.delete"
+		/>
+	    </li>
+	</ul>
+    </form>
+</span>
