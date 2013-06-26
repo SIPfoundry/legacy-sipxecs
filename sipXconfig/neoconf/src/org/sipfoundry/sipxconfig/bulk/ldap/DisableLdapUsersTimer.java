@@ -42,7 +42,6 @@ public class DisableLdapUsersTimer extends TimerTask implements BeanFactoryAware
     public void run() {
         try {
             if (!m_adminContext.isDelete() && !m_adminContext.isDisable()) {
-                LOG.debug("Nothing to do - do not disable or delete users imported from LDAP ");
                 return;
             }
             DisableLdapUsersTask task = (DisableLdapUsersTask) m_beanFactory.getBean(DisableLdapUsersTask.BEAN_NAME);
