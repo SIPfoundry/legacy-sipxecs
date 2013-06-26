@@ -153,8 +153,8 @@
   </bean>
   
   <bean id="ldapScheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask" lazy-init="false">
-    <property name="delay" value="1000"/> 
-    <property name="period" value="10000"/>
+    <property name="delay" value="60000"/> 
+    <property name="period" value="60000"/>
     <property name="timerTask" ref="disableLdapUsersTimer"/>
   </bean>
   
