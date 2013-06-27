@@ -44,6 +44,11 @@ namespace Os
 {
 struct ServiceLogger
 {
+  std::string getFilterNames()
+  {
+    return filterNames;
+  }
+
   std::string getHostName()
   {
     char hostname[1024];
@@ -171,6 +176,7 @@ struct ServiceLogger
 
   std::string hostName;
   std::string processName;
+  std::string filterNames;
 };
 }
 #endif

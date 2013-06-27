@@ -54,10 +54,12 @@ public:
   std::string getHostName();
   std::string getCurrentTask();
   std::string getProcessName();
+  std::string getFilterNames();
 protected:
   std::string hostName;
   std::string taskName;
   std::string processName;
+  std::string filterNames;
 };
 
 class SQAEvent
@@ -976,6 +978,11 @@ inline std::string SQALogger::getCurrentTask()
 inline std::string SQALogger::getProcessName()
 {
   return processName;
+}
+
+inline std::string SQALogger::getFilterNames()
+{
+  return filterNames;
 }
 
 

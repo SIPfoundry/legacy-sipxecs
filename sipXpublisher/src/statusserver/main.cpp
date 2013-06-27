@@ -34,6 +34,8 @@
 #include "sipXecsService/SipXApplication.h"
 
 // DEFINES
+#define SIP_STATUS_PROCESS_NAME       "SipStatus"
+#define CONFIG_SETTING_LOG_FORMAT     "SIP_STATUS_LOG_FORMAT"
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

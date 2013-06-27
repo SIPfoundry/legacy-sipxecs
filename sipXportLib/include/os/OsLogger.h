@@ -19,6 +19,7 @@
 #include <fstream>
 #include <sstream>
 #include <map>
+#include <set>
 #include <vector>
 #include <boost/version.hpp>
 #include <boost/noncopyable.hpp>
@@ -26,9 +27,29 @@
 #include <boost/interprocess/detail/atomic.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <boost/regex.hpp>
+#include <boost/algorithm/string.hpp>
 
 typedef boost::function<bool(int /*facility*/, int /*level*/, const std::ostringstream& /*headers*/, std::string& /*message*/)> OsExternalLogger;
 
+#define LOG_FORMAT_DELIMITERS          ", "
+#define LOG_FILTER_DATE                 "date"
+#define LOG_FILTER_COUNTER              "counter"
+#define LOG_FILTER_FACILITY             "facility"
+#define LOG_FILTER_PRIORITY             "priority"
+#define LOG_FILTER_HOST_NAME            "hostName"
+#define LOG_FILTER_THREAD_ID            "thread_id"
+#define LOG_FILTER_PROCESS_NAME         "processName"
+#define LOG_FILTER_TASK_NAME            "taskName"
+#define LOG_FILTER_ESCAPE               "escape"
+#define LOG_FILTER_NULL                 "nullFilter"
+#define DEFAULT_LOG_FORMAT              LOG_FILTER_DATE LOG_FORMAT_DELIMITERS \
+                                        LOG_FILTER_COUNTER LOG_FORMAT_DELIMITERS \
+                                        LOG_FILTER_FACILITY LOG_FORMAT_DELIMITERS \
+                                        LOG_FILTER_PRIORITY LOG_FORMAT_DELIMITERS \
+                                        LOG_FILTER_HOST_NAME LOG_FORMAT_DELIMITERS \
+                                        LOG_FILTER_THREAD_ID LOG_FORMAT_DELIMITERS \
+                                        LOG_FILTER_PROCESS_NAME LOG_FORMAT_DELIMITERS
 
 enum tagOsSysLogFacility
 {
@@ -266,14 +287,45 @@ namespace Os
 
   typedef LogFileChannelBase<std::fstream> LogFileChannel;
 
+  //
+  // filter from which all other filters derive
+  //
+  class LogBaseFilter
+  {
+  public:
+    LogBaseFilter(const std::string& filterName) :
+      _filterName(filterName),
+      _enabled(false)
+    {
+    }
+
+    ~LogBaseFilter()
+    {
+    }
+
+    void enable(const std::set<std::string>& filters)
+    {
+      if(filters.find(_filterName) != filters.end())
+      {
+        _enabled = true;
+      }
+    }
+
+  public:
+    std::string _hostName;
+    std::string _processName;
+    std::string _filterName;
+    bool _enabled;
+  };
 
 //
 // This filter adds an atomic counter to the log header
 //
-  class LogCounterFilter
+  class LogCounterFilter : public LogBaseFilter
   {
   public:
     LogCounterFilter() :
+      LogBaseFilter(LOG_FILTER_COUNTER),
       _counter(0)
     {
     }
@@ -284,257 +336,278 @@ namespace Os
 
     bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
     {
+      if(_enabled)
+      {
 #if (BOOST_VERSION < 104800)
-      // CentOS 6
-      headers << boost::interprocess::detail::atomic_inc32(&_counter) + 1 << ":";
+        // CentOS 6
+        headers << boost::interprocess::detail::atomic_inc32(&_counter) + 1 << ":";
 #else
-      //Fedora 17 or greater
-      headers << boost::interprocess::ipcdetail::atomic_inc32(&_counter) + 1 << ":";
+        //Fedora 17 or greater
+        headers << boost::interprocess::ipcdetail::atomic_inc32(&_counter) + 1 << ":";
 #endif
+        return true;
+      }
       return true;
     }
-
-  public:
-    std::string _hostName;
-    std::string _processName;
 
   private:
     volatile boost::uint32_t _counter;
 
   };
 
-  class LogTimeFilter
+  class LogTimeFilter : public LogBaseFilter
   {
   public:
-    LogTimeFilter()
+    LogTimeFilter() :
+      LogBaseFilter(LOG_FILTER_DATE)
     {
+        _enabled = true;
     }
 
     ~LogTimeFilter()
     {
     }
 
-    bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
-    {
-      struct timeval tv;
-      struct timezone tz;
-      struct tm *tm;
-      ::gettimeofday(&tv, &tz);
-      tm=::gmtime(&tv.tv_sec);
-      char strTime[28];
-      ::memset(strTime, '\0', 28);
-      ::sprintf(strTime, "%4d-%02d-%02dT%02d:%02d:%02d.%06dZ",
-        tm->tm_year + 1900, tm->tm_mon+1, tm->tm_mday,
-        tm->tm_hour, tm->tm_min, tm->tm_sec, (int)tv.tv_usec);
-
-      headers << "\"" << strTime << "\"" << ":";
-
-      return true;
-    }
-    public:
-    std::string _hostName;
-    std::string _processName;
-  };
-
-  class LogFacilityFilter
-  {
-  public:
-    LogFacilityFilter()
+    void enable(const std::set<std::string>& filters)
     {
     }
 
     bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
     {
-      static const char* facilityList[44] =
+      if(_enabled)
       {
-         "PERF",
-         "KERNEL",
-         "AUTH",
-         "NET",
-         "RTP",
-         "PHONESET",
-         "HTTP",
-         "SIP",
-         "CP",
-         "MP",
-         "TAO",
-         "JNI",
-         "JAVA",
-         "LOG",
-         "SUPERVISOR",
-         "OUTGOING",
-         "INCOMING",
-         "INCOMING_PARSED",
-         "MEDIASERVER_CGI",
-         "MEDIASERVER_VXI",
-         "ACD",
-         "PARK",
-         "APACHE_AUTH",
-         "UPGRADE",
-         "LINE_MGR",
-         "REFRESH_MGR",
-         "UNIT_TEST",
-         "STREAMING",
-         "REPLICATION_CGI",
-         "SIPDB",
-         "PROCESSMGR",
-         "OS",
-         "SIPXTAPI",
-         "AUDIO",
-         "CONFERENCE",
-         "ODBC",
-         "CDR",
-         "RLS",
-         "XMLRPC",
-         "FSM",
-         "NAT",
-         "ALARM",
-         "SAA",
-         "UNKNOWN",
-      } ;
+        struct timeval tv;
+        struct timezone tz;
+        struct tm *tm;
+        ::gettimeofday(&tv, &tz);
+        tm=::gmtime(&tv.tv_sec);
+        char strTime[28];
+        ::memset(strTime, '\0', 28);
+        ::sprintf(strTime, "%4d-%02d-%02dT%02d:%02d:%02d.%06dZ",
+          tm->tm_year + 1900, tm->tm_mon+1, tm->tm_mday,
+          tm->tm_hour, tm->tm_min, tm->tm_sec, (int)tv.tv_usec);
 
-      headers <<  facilityList[facility] << ":";
+        headers << "\"" << strTime << "\"" << ":";
 
-      return true;
-    }
-    public:
-    std::string _hostName;
-    std::string _processName;
-  };
-
-  class LogPriorityFilter
-  {
-  public:
-    LogPriorityFilter()
-    {
-    }
-
-    bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
-    {
-      static const char* _priorityNames[8] =
-      {
-         "DEBUG",
-         "INFO",
-         "NOTICE",
-         "WARNING",
-         "ERR",
-         "CRIT",
-         "ALERT",
-         "EMERG"
-      };
-
-      headers << _priorityNames[priority] << ":";
-      return true;
-    }
-    public:
-    std::string _hostName;
-    std::string _processName;
-  };
-
-  class LogHostFilter
-  {
-  public:
-    LogHostFilter()
-    {
-    }
-
-    bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
-    {
-      headers << _hostName << ":";
-      return true;
-    }
-    public:
-    std::string _hostName;
-    std::string _processName;
-   };
-
-  class LogTaskNameFilter
-  {
-  public:
-    LogTaskNameFilter()
-    {
-    }
-
-    bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
-    {
-      headers << task << ":";
-      return true;
-    }
-    public:
-    std::string _hostName;
-    std::string _processName;
-   };
-
-  class LogThreadIdFilter
-  {
-  public:
-    LogThreadIdFilter()
-    {
-    }
-
-    bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
-    {
-      headers << std::hex << pthread_self() << ":";
-      return true;
-    }
-    public:
-    std::string _hostName;
-    std::string _processName;
-  };
-
-  class LogProcessNameFilter
-  {
-  public:
-    LogProcessNameFilter()
-    {
-    }
-
-    bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
-    {
-      headers << _processName << ":";
-      return true;
-    }
-    public:
-    std::string _hostName;
-    std::string _processName;
-   };
-
-  class LogEscapeFilter
-  {
-  public:
-    LogEscapeFilter()
-    {
-    }
-    bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
-    {
-      std::string escaped;
-      escaped.reserve(message.size());
-      for (std::string::const_iterator iter = message.begin(); iter != message.end(); iter++)
-      {
-        if (*iter == '\\')
-          escaped.append("\\\\");
-        else if (*iter == '\r')
-          escaped.append("\\r");
-        else if (*iter == '\n')
-          escaped.append("\\n");
-        else if (*iter == '\"')
-          escaped.append("\\\"");
-        else
-          escaped.append(1, *iter);
+        return true;
       }
-      message = escaped;
       return true;
     }
-
-  public:
-    std::string _hostName;
-    std::string _processName;
   };
 
-  class NullFilter
+  class LogFacilityFilter : public LogBaseFilter
   {
   public:
-    NullFilter()
+    LogFacilityFilter() :
+      LogBaseFilter(LOG_FILTER_FACILITY)
+    {
+    }
+
+    bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
+    {
+      if(_enabled)
+      {
+        static const char* facilityList[44] =
+        {
+           "PERF",
+           "KERNEL",
+           "AUTH",
+           "NET",
+           "RTP",
+           "PHONESET",
+           "HTTP",
+           "SIP",
+           "CP",
+           "MP",
+           "TAO",
+           "JNI",
+           "JAVA",
+           "LOG",
+           "SUPERVISOR",
+           "OUTGOING",
+           "INCOMING",
+           "INCOMING_PARSED",
+           "MEDIASERVER_CGI",
+           "MEDIASERVER_VXI",
+           "ACD",
+           "PARK",
+           "APACHE_AUTH",
+           "UPGRADE",
+           "LINE_MGR",
+           "REFRESH_MGR",
+           "UNIT_TEST",
+           "STREAMING",
+           "REPLICATION_CGI",
+           "SIPDB",
+           "PROCESSMGR",
+           "OS",
+           "SIPXTAPI",
+           "AUDIO",
+           "CONFERENCE",
+           "ODBC",
+           "CDR",
+           "RLS",
+           "XMLRPC",
+           "FSM",
+           "NAT",
+           "ALARM",
+           "SAA",
+           "UNKNOWN",
+        } ;
+
+        headers <<  facilityList[facility] << ":";
+
+        return true;
+      }
+      return true;
+    }
+  };
+
+  class LogPriorityFilter : public LogBaseFilter
+  {
+  public:
+    LogPriorityFilter() :
+      LogBaseFilter(LOG_FILTER_PRIORITY)
+    {
+    }
+
+    bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
+    {
+      if(_enabled)
+      {
+        static const char* _priorityNames[8] =
+        {
+           "DEBUG",
+           "INFO",
+           "NOTICE",
+           "WARNING",
+           "ERR",
+           "CRIT",
+           "ALERT",
+           "EMERG"
+        };
+
+        headers << _priorityNames[priority] << ":";
+        return true;
+      }
+      return true;
+    }
+  };
+
+  class LogHostFilter : public LogBaseFilter
+  {
+  public:
+    LogHostFilter() :
+      LogBaseFilter(LOG_FILTER_HOST_NAME)
+    {
+    }
+
+    bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
+    {
+      if(_enabled)
+      {
+        headers << _hostName << ":";
+        return true;
+      }
+      return true;
+    }
+   };
+
+  class LogTaskNameFilter : public LogBaseFilter
+  {
+  public:
+    LogTaskNameFilter() :
+      LogBaseFilter(LOG_FILTER_TASK_NAME)
+    {
+    }
+
+    bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
+    {
+      if(_enabled)
+      {
+        headers << task << ":";
+        return true;
+      }
+      return true;
+    }
+   };
+
+  class LogThreadIdFilter : public LogBaseFilter
+  {
+  public:
+    LogThreadIdFilter() :
+      LogBaseFilter(LOG_FILTER_THREAD_ID)
+    {
+    }
+
+    bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
+    {
+      if(_enabled)
+      {
+        headers << std::hex << pthread_self() << ":";
+        return true;
+      }
+      return true;
+    }
+  };
+
+  class LogProcessNameFilter : public LogBaseFilter
+  {
+  public:
+    LogProcessNameFilter() :
+      LogBaseFilter(LOG_FILTER_PROCESS_NAME)
+    {
+    }
+
+    bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
+    {
+      if(_enabled)
+      {
+        headers << _processName << ":";
+        return true;
+      }
+      return true;
+    }
+   };
+
+  class LogEscapeFilter : public LogBaseFilter
+  {
+  public:
+    LogEscapeFilter() :
+      LogBaseFilter(LOG_FILTER_ESCAPE)
+    {
+    }
+    bool filter(int facility, int priority, const std::string& task, std::ostringstream& headers, std::string& message)
+    {
+      if(_enabled)
+      {
+        std::string escaped;
+        escaped.reserve(message.size());
+        for (std::string::const_iterator iter = message.begin(); iter != message.end(); iter++)
+        {
+          if (*iter == '\\')
+            escaped.append("\\\\");
+          else if (*iter == '\r')
+            escaped.append("\\r");
+          else if (*iter == '\n')
+            escaped.append("\\n");
+          else if (*iter == '\"')
+            escaped.append("\\\"");
+          else
+            escaped.append(1, *iter);
+        }
+        message = escaped;
+        return true;
+      }
+      return true;
+    }
+  };
+
+  class NullFilter : public LogBaseFilter
+  {
+  public:
+    NullFilter():
+      LogBaseFilter(LOG_FILTER_NULL)
     {
     }
 
@@ -542,9 +615,6 @@ namespace Os
     {
       return false;
     }
-    public:
-    std::string _hostName;
-    std::string _processName;
   };
 
   template <
@@ -690,6 +760,31 @@ namespace Os
       return level == debug || level >= warning;
     }
 
+    void enableFilters(const std::set<std::string>& filters)
+    {
+      _filters = filters;
+      _f1.enable(filters);
+      _f2.enable(filters);
+      _f3.enable(filters);
+      _f4.enable(filters);
+      _f5.enable(filters);
+      _f6.enable(filters);
+      _f7.enable(filters);
+      _f8.enable(filters);
+      _f9.enable(filters);
+      _f10.enable(filters);
+      _f11.enable(filters);
+      _f12.enable(filters);
+      _f13.enable(filters);
+      _f14.enable(filters);
+      _f15.enable(filters);
+      _f16.enable(filters);
+      _f17.enable(filters);
+      _f18.enable(filters);
+      _f19.enable(filters);
+      _f20.enable(filters);
+    }
+
     void setHostName(const char* hostName)
     {
       _hostName = hostName;
@@ -743,6 +838,7 @@ namespace Os
     public:
       std::string _hostName;
       std::string _processName;
+      std::set<std::string> _filters;
       std::map<int, int> _facilityLevel;
 
   private:
@@ -915,6 +1011,23 @@ namespace Os
       _pFilter->setProcessName(processName);
     }
 
+    void getSetFromString(const std::string& strFilters, std::set<std::string>& filters)
+    {
+      const std::string& delimiters = LOG_FORMAT_DELIMITERS;
+      boost::split(filters, strFilters, boost::is_any_of(delimiters));
+    }
+
+    void enableFilters(const std::string& stringFilters)
+    {
+      getSetFromString(stringFilters, _filters);
+      enableFilters(_filters);
+    }
+
+    void enableFilters(const std::set<std::string>& filters)
+    {
+      _pFilter->enableFilters(filters);
+    }
+
     //
     // This is the OsSysLog compatibility function
     //
@@ -1066,7 +1179,9 @@ namespace Os
       setLevel(priorityLevel);
       setHostName(helper.getHostName().c_str());
       setProcessName(helper.getProcessName().c_str());
+      enableFilters(helper.getFilterNames());
       setCurrentTaskCallBack(boost::bind(&Helper::getCurrentTask, &helper));
+
       if (open(path))
       {
         _logRotateStrategy.start(_pChannel);
@@ -1080,6 +1195,7 @@ namespace Os
     {
       setHostName(helper.getHostName().c_str());
       setProcessName(helper.getProcessName().c_str());
+      enableFilters(helper.getFilterNames());
       setCurrentTaskCallBack(boost::bind(&Helper::getCurrentTask, &helper));
       if (open(path))
       {
@@ -1103,6 +1219,11 @@ namespace Os
       _externalLogger = externalLogger;
     }
 
+    void enableFilter(const std::string& filter)
+    {
+      _filters.insert(filter);
+    }
+
   private:
     TChannel* _pChannel;
     TFilter* _pFilter;
@@ -1112,6 +1233,7 @@ namespace Os
     TaskCallBack getCurrentTask;
     bool _enableConsoleOutput;
     OsExternalLogger _externalLogger;
+    std::set<std::string> _filters;
   };
 
   typedef LogLevelFilter<

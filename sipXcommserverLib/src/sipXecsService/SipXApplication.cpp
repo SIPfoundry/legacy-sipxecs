@@ -367,10 +367,24 @@ void SipXApplication::initLoggerByConfigurationFile()
   if (_appData._logFilename.empty())
     return;
 
-  Os::LoggerHelper::instance().processName = _appData._appName.c_str();
+  Os::LoggerHelper::instance().setProcessName(_appData._appName.c_str());
 
   std::string configSettingLogDir = _appData._configPrefix + "_LOG_DIR";
   std::string configSettingLogConsole = _appData._configPrefix + "_LOG_CONSOLE";
+  std::string configSettingLogFormat = _appData._configPrefix + "_LOG_FORMAT";
+
+  //
+  // Set active log format
+  //
+  UtlString filterNames;
+  if ((_pOsServiceOptions->getOption(configSettingLogFormat, filterNames) == OS_SUCCESS))
+  {
+    Os::LoggerHelper::instance().setFilterNames(filterNames.data());
+  }
+  else
+  {
+    Os::LoggerHelper::instance().setFilterNames(DEFAULT_LOG_FORMAT);
+  }
 
   //
   // Get/Apply Log Filename
@@ -473,7 +487,8 @@ void SipXApplication::initLoggerByCommandLine(bool& initialized)
 
       logLevel = normalizeLogLevel(logLevel);
 
-      Os::LoggerHelper::instance().processName = _appData._appName;
+      Os::LoggerHelper::instance().setProcessName(_appData._appName.c_str());
+      Os::LoggerHelper::instance().setFilterNames(DEFAULT_LOG_FORMAT);
 
       if (!Os::LoggerHelper::instance().initialize(logLevel, logFile.c_str()))
       {

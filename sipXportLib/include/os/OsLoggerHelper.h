@@ -26,6 +26,26 @@ namespace Os
       closelog ();
     }
     
+    void setFilterNames(const std::string& filterNames)
+    {
+      this->filterNames = filterNames;
+    }
+
+    void setProcessName(const std::string& processName)
+    {
+      this->processName = processName;
+    }
+
+    void setHostName(const std::string& hostName)
+    {
+      this->hostName = hostName;
+    }
+
+    std::string getFilterNames()
+    {
+      return filterNames;
+    }
+
     std::string getHostName()
     {
       if (hostName.empty())
@@ -299,8 +319,8 @@ namespace Os
   protected:
     LogFileChannel _alarmLog;
     LogRotateStrategy<LogFileChannel> _alarmLogRotate;
+    std::string filterNames;
   };
 }
 
 #endif	/* OSLOGGERHELPER_H */
-
