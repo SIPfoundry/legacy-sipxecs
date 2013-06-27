@@ -51,6 +51,7 @@
 #include "OrbitListener.h"
 #include "config.h"
 
+#define SIP_PARK_PROCESS_NAME         "sipxpark"
 #define CONFIG_SETTINGS_FILE          "sipxpark-config"
 #define CONFIG_ETC_DIR                SIPX_CONFDIR
 
@@ -60,6 +61,7 @@
 #define CONFIG_SETTING_PREFIX         "SIP_PARK"
 #define CONFIG_SETTING_AUTH_ID        "SIP_PARK_AUTHENTICATE_ID"
 #define CONFIG_SETTING_AUTH_HA1       "SIP_PARK_AUTHENTICATE_HA1"
+#define CONFIG_SETTING_LOG_FORMAT     "SIP_PARK_LOG_FORMAT"
 #define CONFIG_SETTING_LOG_DIR        "SIP_PARK_LOG_DIR"
 #define CONFIG_SETTING_LOG_CONSOLE    "SIP_PARK_LOG_CONSOLE"
 #define CONFIG_SETTING_UDP_PORT       "SIP_PARK_UDP_PORT"
@@ -171,7 +173,21 @@ void initSysLog(OsConfigDb* pConfig)
    UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
                                     // exist
 
-   Os::LoggerHelper::instance().processName = "sipxpark";
+   Os::LoggerHelper::instance().setProcessName(SIP_PARK_PROCESS_NAME);
+
+   //
+   // Set active log format
+   //
+   UtlString filterNames;
+   if((pConfig->get(CONFIG_SETTING_LOG_FORMAT, filterNames)) == OS_SUCCESS)
+   {
+     Os::LoggerHelper::instance().setFilterNames(filterNames.data());
+   }
+   else
+   {
+     Os::LoggerHelper::instance().setFilterNames(DEFAULT_LOG_FORMAT);
+   }
+
    Os::Logger::instance().log(FAC_SIP, PRI_INFO, ">>>>>>>>>>>>>>>> Starting - version %s build %s",
                  PACKAGE_VERSION, PACKAGE_REVISION
                  );

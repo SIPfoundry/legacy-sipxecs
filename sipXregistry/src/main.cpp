@@ -37,12 +37,14 @@
 #include <mongo/util/assert_util.h>
 
 // DEFINES
-#define CONFIG_SETTINGS_FILE  "registrar-config"
-#define CONFIG_LOG_FILE       "sipregistrar.log"
-#define CONFIG_NODE_FILE      "node.json"
-#define CONFIG_LOG_DIR        SIPX_LOGDIR
-#define CONFIG_ETC_DIR        SIPX_CONFDIR
+#define SIP_REGISTRY_PROCESS_NAME     "SipRegistrar"
+#define CONFIG_SETTINGS_FILE          "registrar-config"
+#define CONFIG_LOG_FILE               "sipregistrar.log"
+#define CONFIG_NODE_FILE              "node.json"
+#define CONFIG_LOG_DIR                SIPX_LOGDIR
+#define CONFIG_ETC_DIR                SIPX_CONFDIR
 
+#define CONFIG_SETTING_LOG_FORMAT     "SIP_REGISTRAR_LOG_FORMAT"
 #define CONFIG_SETTING_PREFIX         "SIP_REGISTRAR"
 #define CONFIG_SETTING_LOG_CONSOLE    "SIP_REGISTRAR_LOG_CONSOLE"
 #define CONFIG_SETTING_LOG_DIR        "SIP_REGISTRAR_LOG_DIR"
@@ -85,7 +87,20 @@ initSysLog(OsConfigDb* pConfig)
    UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
    // exist
 
-   Os::LoggerHelper::instance().processName = "SipRegistrar";
+   Os::LoggerHelper::instance().setProcessName(SIP_REGISTRY_PROCESS_NAME);
+
+   //
+   // Set active log format
+   //
+   UtlString filterNames;
+   if((pConfig->get(CONFIG_SETTING_LOG_FORMAT, filterNames)) == OS_SUCCESS)
+   {
+     Os::LoggerHelper::instance().setFilterNames(filterNames.data());
+   }
+   else
+   {
+     Os::LoggerHelper::instance().setFilterNames(DEFAULT_LOG_FORMAT);
+   }
 
    //
    // Get/Apply Log Filename
