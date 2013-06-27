@@ -43,6 +43,7 @@
 #include <execinfo.h>
 #include <mongo/util/assert_util.h>
 
+#define SIP_PROXY_PROCESS_NAME            "SipXProxy"
 #define CONFIG_SETTING_CALL_STATE         "SIPX_PROXY_CALL_STATE"
 #define CONFIG_SETTING_CALL_STATE_LOG     "SIPX_PROXY_CALL_STATE_LOG"
 #define CALL_STATE_LOG_FILE_DEFAULT SIPX_LOGDIR "/sipxproxy_callstate.log"
@@ -56,6 +57,7 @@
 #define CONFIG_SETTINGS_FILE          "sipXproxy-config"
 #define CONFIG_SETTING_LOG_LEVEL      "SIPX_PROXY_LOG_LEVEL"
 #define CONFIG_SETTING_LOG_CONSOLE    "SIPX_PROXY_LOG_CONSOLE"
+#define CONFIG_SETTING_LOG_FORMAT     "SIPX_PROXY_LOG_FORMAT"
 #define CONFIG_SETTING_LOG_DIR        "SIPX_PROXY_LOG_DIR"
 #define CONFIG_SETTING_CALL_STATE     "SIPX_PROXY_CALL_STATE"
 #define CONFIG_SETTING_CALL_STATE_LOG "SIPX_PROXY_CALL_STATE_LOG"
@@ -90,7 +92,20 @@ void initSysLog(OsConfigDb* pConfig)
    UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
                                     // exist
 
-   Os::LoggerHelper::instance().processName = "SipXProxy";
+   Os::LoggerHelper::instance().setProcessName(SIP_PROXY_PROCESS_NAME);
+
+   //
+   // Set active log format
+   //
+   UtlString filterNames;
+   if((pConfig->get(CONFIG_SETTING_LOG_FORMAT, filterNames)) == OS_SUCCESS)
+   {
+     Os::LoggerHelper::instance().setFilterNames(filterNames.data());
+   }
+   else
+   {
+     Os::LoggerHelper::instance().setFilterNames(DEFAULT_LOG_FORMAT);
+   }
 
    //
    // Get/Apply Log Filename

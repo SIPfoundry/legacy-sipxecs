@@ -40,6 +40,7 @@
 
 // SIPXRLS User ID
 #define RLSSERVER_ID_TOKEN            "~~id~sipXrls"
+#define SIP_RLS_PROCESS_NAME          "sipxrls"
 #define CONFIG_SETTINGS_FILE          "sipxrls-config"
 #define CONFIG_ETC_DIR                SIPX_CONFDIR
 
@@ -48,6 +49,7 @@
 
 #define CONFIG_SETTING_PREFIX         "SIP_RLS"
 #define CONFIG_SETTING_LOG_DIR        "SIP_RLS_LOG_DIR"
+#define CONFIG_SETTING_LOG_FORMAT     "SIP_RLS_LOG_FORMAT"
 #define CONFIG_SETTING_LOG_CONSOLE    "SIP_RLS_LOG_CONSOLE"
 #define CONFIG_SETTING_UDP_PORT       "SIP_RLS_UDP_PORT"
 #define CONFIG_SETTING_TCP_PORT       "SIP_RLS_TCP_PORT"
@@ -101,7 +103,20 @@ void initSysLog(OsConfigDb* pConfig)
    UtlString fileTarget;             // Path to store log file.
    UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
                                     // exist
-   Os::LoggerHelper::instance().processName = "sipxrls";
+   Os::LoggerHelper::instance().setProcessName(SIP_RLS_PROCESS_NAME);
+
+   //
+   // Set active log format
+   //
+   UtlString filterNames;
+   if((pConfig->get(CONFIG_SETTING_LOG_FORMAT, filterNames)) == OS_SUCCESS)
+   {
+     Os::LoggerHelper::instance().setFilterNames(filterNames.data());
+   }
+   else
+   {
+     Os::LoggerHelper::instance().setFilterNames(DEFAULT_LOG_FORMAT);
+   }
 
    //
    // Get/Apply Log Filename
@@ -151,7 +166,6 @@ void initSysLog(OsConfigDb* pConfig)
          OsPathBase::separator +
          CONFIG_LOG_FILE;
    }
-
 
    //
    // Get/Apply Log Level

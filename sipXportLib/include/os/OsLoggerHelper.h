@@ -13,6 +13,26 @@ namespace Os
 {
   struct LoggerHelper
   {
+    void setFilterNames(const std::string& filterNames)
+    {
+      this->filterNames = filterNames;
+    }
+
+    void setProcessName(const std::string& processName)
+    {
+      this->processName = processName;
+    }
+
+    void setHostName(const std::string& hostName)
+    {
+      this->hostName = hostName;
+    }
+
+    std::string getFilterNames()
+    {
+      return filterNames;
+    }
+
     std::string getHostName()
     {
       if (hostName.empty())
@@ -142,6 +162,7 @@ namespace Os
 
     std::string hostName;
     std::string processName;
+    std::string filterNames;
   };
 }
 

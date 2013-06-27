@@ -31,6 +31,8 @@
 #include <os/OsLoggerHelper.h>
 
 // DEFINES
+#define SIP_STATUS_PROCESS_NAME       "SipStatus"
+#define CONFIG_SETTING_LOG_FORMAT     "SIP_STATUS_LOG_FORMAT"
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -62,7 +64,20 @@ void initSysLog(OsConfigDb* pConfig)
    UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
                                     // exist
 
-   Os::LoggerHelper::instance().processName = "SipStatus";
+   Os::LoggerHelper::instance().setProcessName(SIP_STATUS_PROCESS_NAME);
+
+   //
+   // Set active log format
+   //
+   UtlString filterNames;
+   if((pConfig->get(CONFIG_SETTING_LOG_FORMAT, filterNames)) == OS_SUCCESS)
+   {
+     Os::LoggerHelper::instance().setFilterNames(filterNames.data());
+   }
+   else
+   {
+     Os::LoggerHelper::instance().setFilterNames(DEFAULT_LOG_FORMAT);
+   }
 
    //
    // Get/Apply Log Filename
@@ -90,7 +105,8 @@ void initSysLog(OsConfigDb* pConfig)
          OsFileSystem::getWorkingDirectory(path);
          path.getNativePath(workingDirectory);
 
-         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
+         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s",
+                      CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
       }
 
       fileTarget = workingDirectory +
@@ -100,13 +116,13 @@ void initSysLog(OsConfigDb* pConfig)
    else
    {
       bSpecifiedDirError = false ;
-      Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, fileTarget.data()) ;
+      Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s",
+                    CONFIG_SETTING_LOG_DIR, fileTarget.data()) ;
 
       fileTarget = fileTarget +
          OsPathBase::separator +
          CONFIG_LOG_FILE;
    }
-
 
    //
    // Get/Apply Log Level
@@ -129,11 +145,14 @@ void initSysLog(OsConfigDb* pConfig)
       }
    }
 
-   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
+   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE,
+                  bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
 
    if (bSpecifiedDirError)
    {
-      Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT, "Cannot access %s directory; please check configuration.", CONFIG_SETTING_LOG_DIR);
+      Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
+                    "Cannot access %s directory; please check configuration.",
+                    CONFIG_SETTING_LOG_DIR);
    }
 }
 

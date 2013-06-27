@@ -34,6 +34,7 @@
 
 // SIPXSAA User ID
 #define SAASERVER_ID_TOKEN            "~~id~sipXsaa"
+#define SIP_SAA_PROCESS_NAME          "sipxsaa"
 #define CONFIG_SETTINGS_FILE          "sipxsaa-config"
 #define CONFIG_ETC_DIR                SIPX_CONFDIR
 
@@ -44,6 +45,7 @@
 #define CONFIG_SETTING_LOG_DIR                   "SIP_SAA_LOG_DIR"
 #define CONFIG_SETTING_LOG_CONSOLE               "SIP_SAA_LOG_CONSOLE"
 #define CONFIG_SETTING_UDP_PORT                  "SIP_SAA_UDP_PORT"
+#define CONFIG_SETTING_LOG_FORMAT                "SIP_SAA_LOG_FORMAT"
 #define CONFIG_SETTING_TCP_PORT                  "SIP_SAA_TCP_PORT"
 #define CONFIG_SETTING_BIND_IP                   "SIP_SAA_BIND_IP"
 #define CONFIG_SETTING_SAA_FILE                  "SIP_SAA_FILE_NAME"
@@ -99,7 +101,20 @@ void initSysLog(OsConfigDb* pConfig)
    UtlString fileTarget;             // Path to store log file.
    UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
                                     // exist
-   Os::LoggerHelper::instance().processName = "sipxsaa";
+   Os::LoggerHelper::instance().setProcessName(SIP_SAA_PROCESS_NAME);
+
+   //
+   // Set active log format
+   //
+   UtlString filterNames;
+   if((pConfig->get(CONFIG_SETTING_LOG_FORMAT, filterNames)) == OS_SUCCESS)
+   {
+     Os::LoggerHelper::instance().setFilterNames(filterNames.data());
+   }
+   else
+   {
+     Os::LoggerHelper::instance().setFilterNames(DEFAULT_LOG_FORMAT);
+   }
 
    //
    // Get/Apply Log Filename
