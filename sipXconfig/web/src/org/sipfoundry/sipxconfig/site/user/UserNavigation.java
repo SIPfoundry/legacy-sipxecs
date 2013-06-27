@@ -89,7 +89,7 @@ public abstract class UserNavigation extends BeanNavigation {
 
     @InjectPage(value = EditTimeZonePage.PAGE)
     public abstract EditTimeZonePage getEditTimeZonePage();
-    
+
     @InjectPage(value = EditHotellingPage.PAGE)
     public abstract EditHotellingPage getEditHotellingPage();
 
@@ -190,7 +190,7 @@ public abstract class UserNavigation extends BeanNavigation {
         page.setReturnPage(EditHotellingPage.PAGE);
         return page;
     }
-    
+
     public String getGroupsToHide() {
         List<String> names = new LinkedList<String>();
         names.add("voicemail");
@@ -260,7 +260,7 @@ public abstract class UserNavigation extends BeanNavigation {
     public boolean isHotellingTabActive() {
         return EditHotellingPage.PAGE.equals(getPage().getPageName());
     }
-    
+
     public Collection<Setting> getNavigationGroups() {
         Setting settings = getBean().getSettings();
         return getUserNavigationGroups(settings);

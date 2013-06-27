@@ -244,7 +244,7 @@ public abstract class UserGroupSettings extends GroupSettings {
             setParentSetting(parent);
             setIsTabsSelected(false);
         }
-        setHotellingSetting(getSettings().getSetting("hotelling/enable"));
+        setHotellingSetting(getSettings().getSetting(HOTELLING_SETTING));
     }
 
     public IPage addSchedule(IRequestCycle cycle) {

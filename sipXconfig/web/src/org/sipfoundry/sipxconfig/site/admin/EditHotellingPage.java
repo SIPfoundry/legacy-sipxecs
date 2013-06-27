@@ -19,16 +19,16 @@ import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
 public abstract class EditHotellingPage extends UserBasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/EditHotellingPage";
-    
+
     public abstract User getEditedUser();
 
     public abstract void setEditedUser(User user);
-    
+
     @InjectObject("spring:hotellingManager")
     public abstract HotellingManager getHotellingProfileGenerator();
-    
+
     public abstract Setting getHotellingSetting();
-    
+
     public abstract void setHotellingSetting(Setting value);
 
     public void pageBeginRender(PageEvent event_) {
