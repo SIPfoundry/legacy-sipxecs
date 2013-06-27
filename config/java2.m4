@@ -39,7 +39,5 @@ AC_ARG_ENABLE([debug],
   AC_HELP_STRING([--enable-debug], [Build project with debug flags. Default is off]))
 if test "x$enable_debug" = "xyes"; then
   JAVA_CC_FLAGS='-encoding UTF-8 -g:source,lines,vars'
-else
-  JAVA_CC_FLAGS='-encoding UTF-8'
 fi
 
