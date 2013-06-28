@@ -65,7 +65,7 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
 
     @Override
     public List<UserPreview> getExample(int connectionId) {
-        return search(m_previewSize, connectionId);
+        return searchPreview(m_previewSize, connectionId);
     }
 
     @Override
@@ -135,13 +135,18 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         return m_adminContext.getPageImportSize();
     }
 
-    private List<UserPreview> search(int limit, int connectionId) {
-        LdapTemplate template = m_templateFactory.getLdapTemplate(m_ldapManager.getConnectionParams(connectionId));
-        m_userMapper.setAttrMap(m_ldapManager.getAttrMap(connectionId));
-        CollectingNameClassPairCallbackHandler handler = new NameClassPairMapperCollector(m_userMapper);
-        runSearch(limit, handler, connectionId);
-        List<UserPreview> result = handler.getList();
-        return result;
+    private List<UserPreview> searchPreview(int limit, int connectionId) {
+        try {
+            LdapTemplate template = m_templateFactory.getLdapTemplate(m_ldapManager.getConnectionParams(connectionId));
+            m_userMapper.setAttrMap(m_ldapManager.getAttrMap(connectionId));
+            CollectingNameClassPairCallbackHandler handler = new NameClassPairMapperCollector(m_userMapper);
+            runSearch(limit, handler, connectionId);
+            List<UserPreview> result = handler.getList();
+            return result;
+        } catch (Exception ex) {
+            LOG.error("LDAP preview search failed", ex);
+            throw new UserException("LDAP preview search failed : " + ex.getCause().getMessage());
+        }
     }
 
     private void runSearch(int limit, CollectingNameClassPairCallbackHandler handler, int connectionId) {
