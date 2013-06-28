@@ -194,6 +194,8 @@ AC_DEFUN([SFAC_LIB_PORT],
     fi
     AC_SUBST(SIPXUNIT_LIBS,    "$foundpath/libsipXunit.la")
 
+    CHECK_POCO
+
 ]) # SFAC_LIB_PORT
 
 

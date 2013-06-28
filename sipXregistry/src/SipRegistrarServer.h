@@ -16,6 +16,7 @@
 // APPLICATION INCLUDES
 #include "os/OsLock.h"
 #include "os/OsServerTask.h"
+#include "os/OsThreadPool.h"
 #include "sipXecsService/SipNonceDb.h"
 #include "utl/PluginHooks.h"
 #include "sipdb/RegExpireThread.h"
@@ -120,6 +121,8 @@ protected:
     // Process a single REGISTER request
     UtlBoolean handleMessage( OsMsg& eventMessage );
 
+    void handleRegister(SipMessage* pMsg);
+
     /// Check authentication for REGISTER request
     UtlBoolean isAuthorized(const Url& toUri, ///< AOR from the message
                             UtlString& instrument,
@@ -137,6 +140,8 @@ protected:
 
     /// determine whether or not the registant is located behind a remote NAT.
     bool isRegistrantBehindNat( const SipMessage& registerRequest ) const;
+
+    OsThreadPool<SipMessage*> _registerHandler;
 };
 
 #endif // SIPREGISTRARSERVER_H

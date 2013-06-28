@@ -310,6 +310,15 @@ AC_DEFUN([CHECK_SSL],
     AC_SUBST(SSL_CXXFLAGS,"$SSL_CFLAGS")
 ])
 
+# ============ P O C O  =========================
+AC_DEFUN([CHECK_POCO],
+[
+    AC_CHECK_LIB(PocoFoundation, main,[], [AC_MSG_ERROR("Poco C++ Library not found")])
+    AC_CHECK_LIB(PocoXML, main,[], [AC_MSG_ERROR("PocoXML C++ Library not found")])
+    AC_CHECK_LIB(PocoUtil, main,[], [AC_MSG_ERROR("PocoUtil C++ Library not found")])
+    AC_CHECK_LIB(PocoNet, main,[], [AC_MSG_ERROR("PocoNet C++ Library not found")])
+    AC_SUBST(POCO_LIBS, "-lPocoNet -lPocoUtil -lPocoXML -lPocoFoundation")
+])
 
 # ============ L I B R T  =========================
 AC_DEFUN([CHECK_LIBRT],

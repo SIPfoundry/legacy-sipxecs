@@ -84,6 +84,7 @@ nobase_include_HEADERS = \
     os/OsStatus.h \
     os/OsSyncBase.h \
     os/OsTask.h \
+    os/OsThreadPool.h \
     os/OsTime.h \
     os/OsTimeLog.h \
     os/OsTimer.h \
