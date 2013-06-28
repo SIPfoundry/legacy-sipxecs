@@ -58,6 +58,7 @@ public class HotellingManagerImpl implements HotellingManager {
                     StringUtils.defaultIfEmpty(String.format("%s %s", user.getFirstName(), user.getLastName()), ""));
             velocityContext.put("uid", user.getUserName());
             velocityContext.put("label", user.getUserName());
+            velocityContext.put("sip", user.getSipPassword());
             velocityContext.put("dollar", "$");
 
             DirectoryConfiguration dc = new DirectoryConfiguration(m_phonebookManager.getEntries(
