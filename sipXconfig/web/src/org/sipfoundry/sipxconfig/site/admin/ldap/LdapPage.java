@@ -29,8 +29,6 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
-import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
-import org.sipfoundry.sipxconfig.bulk.ldap.OverwritePinBean;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
@@ -39,6 +37,7 @@ public abstract class LdapPage extends SipxBasePage implements PageBeginRenderLi
     private static final String CONFIGURATION_TAB = "configurationTarget";
     private static final String IMPORT_TAB = "importTarget";
     private static final String SETTINGS_TAB = "settingsTarget";
+    private static final String MANAGEMENT_SETTINGS_TAB = "managementSettingsTarget";
 
     @InjectObject(value = "spring:ldapManager")
     public abstract LdapManager getLdapManager();
@@ -66,14 +65,6 @@ public abstract class LdapPage extends SipxBasePage implements PageBeginRenderLi
 
     public abstract void setVerifiedConnectionId(Integer connectionId);
 
-    public abstract LdapSystemSettings getSettings();
-
-    public abstract void setSettings(LdapSystemSettings settings);
-
-    public abstract Boolean getOverwritePin();
-
-    public abstract void setOverwritePin(Boolean overwritePin);
-
     @Persist
     public abstract boolean isLdapConnectionValid();
 
@@ -82,13 +73,9 @@ public abstract class LdapPage extends SipxBasePage implements PageBeginRenderLi
     @Persist
     public abstract boolean isAddMode();
 
+    @Override
     public void pageBeginRender(PageEvent event) {
-        if (getOverwritePin() == null) {
-            OverwritePinBean overwritePinBean = getLdapManager().retriveOverwritePin();
-            setOverwritePin(overwritePinBean == null ? true : overwritePinBean.isValue());
-        }
         LdapManager manager = getLdapManager();
-        setSettings(manager.getSystemSettings());
         setLdapSelectionModel(new LdapSelectionModel(manager));
 
         //the selected ldap server might be down -
@@ -120,20 +107,14 @@ public abstract class LdapPage extends SipxBasePage implements PageBeginRenderLi
 
     public Collection<String> getAvailableTabNames() {
         if (!getLdapManager().getSystemSettings().isConfigured()) {
-            return Arrays.asList(CONFIGURATION_TAB, IMPORT_TAB);
+            return Arrays.asList(CONFIGURATION_TAB, IMPORT_TAB, MANAGEMENT_SETTINGS_TAB);
         }
-        return Arrays.asList(CONFIGURATION_TAB, IMPORT_TAB, SETTINGS_TAB);
+        return Arrays.asList(CONFIGURATION_TAB, IMPORT_TAB, SETTINGS_TAB, MANAGEMENT_SETTINGS_TAB);
     }
 
     public boolean isConnectionStage() {
         LdapServer configurationPanel = (LdapServer) getComponent("configurationPanel");
         return StringUtils.equals(configurationPanel.getStage(), LdapServer.CONNECTION_STAGE);
-    }
-
-    public void applySettings() {
-        // save system settings even if no valid connection - e.g. if uncheck LDAP configured
-        getLdapManager().saveSystemSettings(getSettings());
-        getLdapManager().saveOverwritePin(getOverwritePin());
     }
 
     public boolean isLdapConfigured() {

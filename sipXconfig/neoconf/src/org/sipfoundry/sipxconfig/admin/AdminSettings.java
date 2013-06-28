@@ -24,6 +24,10 @@ import org.springframework.beans.factory.annotation.Required;
  * and we don't want to restart config server
  */
 public class AdminSettings extends PersistableSettings {
+    private static final String LDAP_MANAGEMENT_DISABLE = "ldap-management/disable";
+    private static final String LDAP_MANAGEMENT_DELETE = "ldap-management/delete";
+    private static final String LDAP_MANAGEMENT_AGE = "ldap-management/age";
+    private static final String LDAP_MANAGEMENT_PAGE_SIZE = "ldap-management/pageImportSize";
     private PasswordPolicy m_passwordPolicy;
 
     @Override
@@ -56,19 +60,27 @@ public class AdminSettings extends PersistableSettings {
     }
 
     public int getAge() {
-        return (Integer) getSettingTypedValue("configserver-config/age");
+        return (Integer) getSettingTypedValue(LDAP_MANAGEMENT_AGE);
     }
 
     public int getPageImportSize() {
-        return (Integer) getSettingTypedValue("configserver-config/pageImportSize");
+        return (Integer) getSettingTypedValue(LDAP_MANAGEMENT_PAGE_SIZE);
     }
 
     public boolean isDisable() {
-        return (Boolean) getSettingTypedValue("configserver-config/disable");
+        return (Boolean) getSettingTypedValue(LDAP_MANAGEMENT_DISABLE);
     }
 
     public boolean isDelete() {
-        return (Boolean) getSettingTypedValue("configserver-config/delete");
+        return (Boolean) getSettingTypedValue(LDAP_MANAGEMENT_DELETE);
+    }
+
+    public void setDisable(boolean disable) {
+        setSettingTypedValue(LDAP_MANAGEMENT_DISABLE, disable);
+    }
+
+    public void setDelete(boolean delete) {
+        setSettingTypedValue(LDAP_MANAGEMENT_DELETE, delete);
     }
 
     @Required

@@ -1,0 +1,26 @@
+<div jwcis="$content$">
+  <form jwcid="managementSettings@Form">
+    <fieldset>
+      <table>
+        <tbody>
+            <tr jwcid="configuredPanel@common/FieldPanel" for="ldap:configured"
+        	  field="ognl:components.configured" label="message:label.configured"
+        	  description="message:description.configured">        	  
+              <input jwcid="configured@Checkbox" id="ldap:configured" value="ognl:settings.configured"/><br>                            
+            </tr>
+            <tr jwcid="overwritePinPanel@common/FieldPanel" for="ldap:overwritePin"
+              field="ognl:components.overwritePin" label="message:label.overwritePin"
+              description="message:description.overwritePin">
+              <input jwcid="overwritePin@Checkbox" id="ldap:overwritePin" value="ognl:overwritePin"/>
+            </tr>
+            <tr>
+    		  <fieldset jwcid="@setting/SettingsFieldset" settings="ognl:adminSettings.settings.getSetting('ldap-management')" />            
+            </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <ul class="form-actions">
+      <li><input jwcid="apply@Submit" id="ldap:settings:apply" listener="listener:submitManagementSettings" value="message:button.apply"/></li>
+    </ul>
+  </form>
+</div>

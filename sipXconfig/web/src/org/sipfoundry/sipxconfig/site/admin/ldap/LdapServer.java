@@ -16,11 +16,14 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
+import org.sipfoundry.sipxconfig.admin.AdminContext;
+import org.sipfoundry.sipxconfig.admin.AdminSettings;
 import org.sipfoundry.sipxconfig.bulk.ldap.AttrMap;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager;
@@ -48,6 +51,9 @@ public abstract class LdapServer extends BaseComponent implements PageBeginRende
     public abstract LdapImportManager getLdapImportManager();
 
     public abstract LdapManager getLdapManager();
+
+    @InjectObject("spring:adminContext")
+    public abstract AdminContext getAdminContext();
 
     public abstract String getStage();
 
@@ -101,6 +107,11 @@ public abstract class LdapServer extends BaseComponent implements PageBeginRende
             settings.setConfigured(false);
             settings.setEnableOpenfireConfiguration(false);
             getLdapManager().saveSystemSettings(settings);
+            //make sure to stop disable/delete routine when there is no LDAP connection
+            AdminSettings adminSettings = getAdminContext().getSettings();
+            adminSettings.setDisable(false);
+            adminSettings.setDelete(false);
+            getAdminContext().saveSettings(adminSettings);
         } else {
             setCurrentConnectionId(allParams.get(0).getId());
         }
