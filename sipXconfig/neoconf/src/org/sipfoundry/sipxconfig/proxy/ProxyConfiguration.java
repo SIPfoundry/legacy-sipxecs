@@ -123,7 +123,7 @@ public class ProxyConfiguration implements ConfigProvider, ApplicationContextAwa
         config.write("SIPX_PROXY_HOOK_LIBRARY.400_authrules",
                 "$(sipx.SIPX_LIBDIR)/authplugins/libEnforceAuthRules.so");
         config.write("SIPX_PROXY_HOOK_LIBRARY.700_fromalias",
-                "$(sipx.SIPX_LIBDIR)/authplugins/libCallerAlias.s");
+                "$(sipx.SIPX_LIBDIR)/authplugins/libCallerAlias.so");
         config.write("SIPX_PROXY_HOOK_LIBRARY.900_ntap",
                 "$(sipx.SIPX_LIBDIR)/authplugins/libNatTraversalAgent.so");
         config.write("SIPX_PROXY_HOOK_LIBRARY.990_emergnotif",
