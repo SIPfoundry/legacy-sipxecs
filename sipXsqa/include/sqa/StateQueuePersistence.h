@@ -31,7 +31,7 @@ public:
   typedef std::map<int, TimedMap*> MapWorkSpaces ;
   typedef std::vector<StateQueueRecord> RecordVector;
   typedef std::map<int, RedisClient::Ptr> RedisWorkSpaces;
-  StateQueuePersistence(unsigned workspaceCount = 16, bool useRedis = true);
+  StateQueuePersistence(unsigned workspaceCount = 16, bool useRedis = false);
   ~StateQueuePersistence();
   void set(unsigned workspace, const StateQueueRecord& record, int expires);
   bool get(unsigned workspace, const std::string& id, StateQueueRecord& record);

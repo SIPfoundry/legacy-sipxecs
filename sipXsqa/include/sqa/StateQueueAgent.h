@@ -121,16 +121,9 @@ protected:
   void sendErrorResponse(StateQueueMessage::Type type, StateQueueConnection& conn, const std::string& messageId, const std::string& error);
   void sendOkResponse(StateQueueMessage::Type type, StateQueueConnection& conn, const std::string& messageId, const std::string& messageData);
 
-  void onOpLogUpdate(const std::string& opLog);
-  void onOpLogInsert(const std::string& opLog);
-  void onOpLogDelete(const std::string& opLog);
-
-
   void onRedisWatcherEvent(const std::vector<std::string>& event);
   void onRedisWatcherConnect(int status);
   void onRedisWatcherDisconnect(int status);
-
-  
 
   ServiceOptions& _options;
   boost::thread* _pIoServiceThread;
@@ -142,10 +135,7 @@ protected:
   StateQueueListener _listener;
   int _inactivityThreshold;
   std::string _publisherAddress;
-  MongoOpLog* _pEntityDb;
-  MongoDB::ConnectionInfo* _pEntityDbConnectionInfo;
-  boost::thread* _pRedisWatcherThread;
-  RedisClientAsync _redisWatcher;
+  //RedisClientAsync _redisWatcher;
   bool _terminated;
   friend class StateQueueListener;
   friend class StateQueueConnection;

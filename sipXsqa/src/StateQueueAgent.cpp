@@ -27,8 +27,6 @@ StateQueueAgent::StateQueueAgent(ServiceOptions& options) :
   _queueWorkSpaceIndex(REDIS_STATEQUEUE_WORKSPACE),
   _listener(this),
   _inactivityThreshold(60),
-  _pEntityDb(0),
-  _pEntityDbConnectionInfo(0),
   _terminated(false)
 {
     std::string port;
@@ -42,10 +40,6 @@ StateQueueAgent::StateQueueAgent(ServiceOptions& options) :
 
 StateQueueAgent::~StateQueueAgent()
 {
-  delete _pEntityDb;
-  delete _pEntityDbConnectionInfo;
-  _pEntityDb = 0;
-  _pEntityDbConnectionInfo = 0;
   stop();
   OS_LOG_INFO(FAC_NET, "StateQueueAgent DESTROYED.");
 }
@@ -95,42 +89,20 @@ void StateQueueAgent::internal_run_io_service()
   }
 
   //
-  // Check if oplog needs to be published
-  //
-  std::string oplogConfig;
-  if (_options.getOption("publish-entity-oplog-config", oplogConfig))
-  {
-    try
-    {
-      const mongo::ConnectionString connString =
-        MongoDB::ConnectionInfo::connectionStringFromFile(oplogConfig);
-      _pEntityDbConnectionInfo = new MongoDB::ConnectionInfo(connString, "imdb.identity");
-      _pEntityDb = new MongoOpLog(*_pEntityDbConnectionInfo);
-      _pEntityDb->registerCallback(MongoOpLog::Insert, boost::bind(&StateQueueAgent::onOpLogInsert, this, _1));
-      _pEntityDb->registerCallback(MongoOpLog::Update, boost::bind(&StateQueueAgent::onOpLogUpdate, this, _1));
-      _pEntityDb->registerCallback(MongoOpLog::Delete, boost::bind(&StateQueueAgent::onOpLogDelete, this, _1));
-      _pEntityDb->run();
-    }
-    catch(...)
-    {
-    }
-  }
-
-  //
   // Connect the redis client
   //
-  _redisWatcher.connect(
-    boost::bind(&StateQueueAgent::onRedisWatcherConnect, this, _1),
-    boost::bind(&StateQueueAgent::onRedisWatcherDisconnect, this, _1),
-    boost::bind(&StateQueueAgent::onRedisWatcherEvent, this, _1)
-  );
-  
-  std::vector<std::string> watch;
-  watch.push_back("SUBSCRIBE");
-  watch.push_back(REDIS_CHANNEL);
-  _redisWatcher.asyncCommand(watch);
-
-  _redisWatcher.run();
+//  _redisWatcher.connect(
+//    boost::bind(&StateQueueAgent::onRedisWatcherConnect, this, _1),
+//    boost::bind(&StateQueueAgent::onRedisWatcherDisconnect, this, _1),
+//    boost::bind(&StateQueueAgent::onRedisWatcherEvent, this, _1)
+//  );
+//
+//  std::vector<std::string> watch;
+//  watch.push_back("SUBSCRIBE");
+//  watch.push_back(REDIS_CHANNEL);
+//  _redisWatcher.asyncCommand(watch);
+//
+//  _redisWatcher.run();
   
   _listener.run();
   _ioService.run();
@@ -144,20 +116,13 @@ void StateQueueAgent::stop()
 
   _terminated = true;
 
-  if (_pEntityDb)
-  {
-    _pEntityDb->stop();
-    delete _pEntityDb;
-    _pEntityDb = 0;
-  }
-
   //
   // Unsubscribe from redis channel
   //
-  std::vector<std::string> unsubscribe;
-  unsubscribe.push_back("UNSUBSCRIBE");
-  unsubscribe.push_back(REDIS_CHANNEL);
-  _redisWatcher.stop();
+//  std::vector<std::string> unsubscribe;
+//  unsubscribe.push_back("UNSUBSCRIBE");
+//  unsubscribe.push_back(REDIS_CHANNEL);
+//  _redisWatcher.stop();
 
 
   _dataStore.stop();
@@ -167,39 +132,6 @@ void StateQueueAgent::stop()
   delete _pIoServiceThread;
   _pIoServiceThread = 0;
   _publisher.stop();
-}
-
-void StateQueueAgent::onOpLogUpdate(const std::string& opLog)
-{
-  StateQueueRecord record;
-  record.id = "sqw.identity.oplog.update";
-  record.data = opLog;
-  publish(record);
-
-  record.id = "sqw.identity.oplog.all";
-  publish(record);
-}
-
-void StateQueueAgent::onOpLogInsert(const std::string& opLog)
-{
-  StateQueueRecord record;
-  record.id = "sqw.identity.oplog.insert";
-  record.data = opLog;
-  publish(record);
-
-  record.id = "sqw.identity.oplog.all";
-  publish(record);
-}
-
-void StateQueueAgent::onOpLogDelete(const std::string& opLog)
-{
-  StateQueueRecord record;
-  record.id = "sqw.identity.oplog.delete";
-  record.data = opLog;
-  publish(record);
-
-  record.id = "sqw.identity.oplog.all";
-  publish(record);
 }
 
 void StateQueueAgent::onIncomingConnection(StateQueueConnection::Ptr conn)
