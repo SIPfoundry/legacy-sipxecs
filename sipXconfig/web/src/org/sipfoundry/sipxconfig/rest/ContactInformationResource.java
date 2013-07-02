@@ -72,6 +72,10 @@ public class ContactInformationResource extends UserResource {
             reprUserProfile.setSalutation(userProfile.getSalutation());
             reprUserProfile.setManager(userProfile.getManager());
             reprUserProfile.setEmployeeId(userProfile.getEmployeeId());
+            reprUserProfile.setEnabled(userProfile.isEnabled());
+            reprUserProfile.setLastImportedDate(userProfile.getLastImportedDate());
+            reprUserProfile.setDisabledDate(userProfile.getDisabledDate());
+            reprUserProfile.setLdapManaged(userProfile.isLdapManaged());
             userProfile.update(reprUserProfile);
             user.setUserProfile(userProfile);
         }
