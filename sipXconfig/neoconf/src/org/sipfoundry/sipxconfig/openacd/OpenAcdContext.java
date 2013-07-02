@@ -32,7 +32,7 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner 
     public static final LocationFeature FEATURE = new LocationFeature("openacd");
     public static final AddressType OPENACD_WEB = new AddressType("openacdWebUI");
     public static final AddressType OPENACD_SECURE_WEB = new AddressType("openacdSecureWebUI");
-
+    public static final String DEFAULT_QUEUE = "default_queue";
     public static final String MAGIC_SKILL_GROUP_NAME = "Magic";
     public static final String GROUP_NAME_DEFAULT = "Default";
     public static final String OPENACD_LOG = "/full.log";
@@ -96,6 +96,8 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner 
 
     List<OpenAcdExtension> getFreeswitchExtensions();
 
+    boolean isUsedByLine(String data);
+
     String[] getOpenAcdApplicationNames();
 
     Set<OpenAcdLine> getLines();
@@ -155,6 +157,8 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasOwner 
     Map<String, List<OpenAcdSkill>> getAgentGroupedSkills();
 
     Map<String, List<OpenAcdSkill>> getQueueGroupedSkills();
+
+    boolean isSkillInUse(OpenAcdSkill skill);
 
     void saveClient(OpenAcdClient client);
 
