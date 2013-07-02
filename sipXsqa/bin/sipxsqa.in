@@ -28,15 +28,13 @@ start() {
       runuser - @SIPXPBXUSER@ -c "$exec  \
         --config-file $config \
         --pid-file $pidfile \
-        --log-file $logfile \
-        --publish-entity-oplog-config $mongoconfig"
+        --log-file $logfile"
     else
       echo -n $"Starting $prog: "
       daemon --user @SIPXPBXUSER@ --pidfile $pidfile $exec \
         --config-file $config \
         --pid-file $pidfile \
         --log-file $logfile \
-        --publish-entity-oplog-config $mongoconfig \
         --daemonize
       Status=$?
       echo_success

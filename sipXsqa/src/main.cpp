@@ -29,7 +29,6 @@ int main(int argc, char** argv)
   service.addOptionString("zmq-subscription-port", ": Port where to send subscription for events.");
   service.addOptionString("sqa-control-port", ": Port where to send control commands.");
   service.addOptionString("sqa-control-address", ": Address where to send control commands.");
-  service.addOptionString("publish-entity-oplog-config", ": Set this value if you want SQA to publish oplogs from mongo for the IdentityDB.");
   service.addOptionFlag("test-driver", ": Set this flag if you want to run the driver unit tests to ensure proper operations.");
   
 
