@@ -6,6 +6,72 @@
     http://www.springframework.org/schema/util
     http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
+  <bean id="openfireSipxXml" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireConfiguration">
+    <property name="coreContext" ref="coreContext" />
+    <property name="addressManager" ref="addressManager" />
+    <property name="openfire" ref="openfire" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="velocityEngine" ref="velocityEngine" />    
+  </bean>
+
+  <bean id="openfireXml" class="org.sipfoundry.sipxconfig.openfire.OpenfireConfigurationFile">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="ldapManager" ref="ldapManager" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="localizationContext" ref="localizationContext" />
+    <property name="properties">
+      <map>
+        <entry>
+            <key>
+                <value>provider.admin.className</value>
+            </key>
+            <value>org.jivesoftware.openfire.admin.DefaultAdminProvider</value>
+        </entry>
+      </map>
+    </property>
+    <property name="nonLdapProperties">
+      <map>
+        <entry>
+            <key>
+                <value>provider.vcard.className</value>
+            </key>
+            <value>org.sipfoundry.openfire.vcard.provider.SipXVCardProvider</value>
+        </entry>
+      </map>
+    </property>
+    <property name="ldapProperties">
+      <map>
+        <entry>
+            <key>
+                <value>provider.auth.className</value>
+            </key>
+            <value>org.jivesoftware.openfire.ldap.LdapAuthProvider</value>
+        </entry>
+        <entry>
+            <key>
+                <value>provider.user.className</value>
+            </key>
+            <value>org.jivesoftware.openfire.ldap.LdapUserProvider</value>
+        </entry>
+        <entry>
+            <key>
+                <value>provider.vcard.className</value>
+            </key>
+            <value>org.jivesoftware.openfire.ldap.LdapVCardProvider</value>
+        </entry>
+      </map>
+    </property>
+  </bean>
+
+  <bean id="openfireConfiguration" class="org.sipfoundry.sipxconfig.openfire.OpenfireConfiguration">
+    <property name="config" ref="openfireXml"/>
+    <property name="sipxConfig" ref="openfireSipxXml"/>
+	<property name="configManager" ref="configManager"/>
+    <property name="featureManager" ref="featureManager"/>
+    <property name="websocket" ref="websocket"/>
+    <property name="openfire" ref="openfire"/>
+  </bean>
+
   <bean id="openfireImpl" class="org.sipfoundry.sipxconfig.openfire.OpenfireImpl">
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
@@ -30,47 +96,6 @@
     <property name="logDir" value="${openfire.home}/logs" />
   </bean>
   
-  <bean id="openfireConfiguration" class="org.sipfoundry.sipxconfig.openfire.OpenfireConfiguration">
-    <property name="config" ref="openfireXml"/>
-    <property name="sipxConfig" ref="openfireSipxXml"/>
-	<property name="configManager" ref="configManager"/>
-    <property name="featureManager" ref="featureManager"/>
-    <property name="websocket" ref="websocket"/>
-    <property name="openfire" ref="openfire"/>
-  </bean>
-
-  <bean id="openfireSipxXml" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireConfiguration">
-    <property name="coreContext" ref="coreContext" />
-    <property name="addressManager" ref="addressManager" />
-    <property name="openfire" ref="openfire" />
-    <property name="domainManager" ref="domainManager" />
-    <property name="velocityEngine" ref="velocityEngine" />    
-  </bean>
-
-  <bean id="openfireXml" class="org.sipfoundry.sipxconfig.openfire.OpenfireConfigurationFile">
-    <property name="velocityEngine" ref="velocityEngine" />
-    <property name="ldapManager" ref="ldapManager" />
-    <property name="coreContext" ref="coreContext" />
-    <property name="localizationContext" ref="localizationContext" />
-    <property name="providers">
-      <map>
-        <entry>
-            <key>
-                <value>provider.vcard.className</value>
-            </key>
-            <value>org.sipfoundry.openfire.vcard.provider.SipXVCardProvider</value>
-        </entry>
-      </map>
-    </property>
-    <property name="providerLdapAuthClassName" value="org.jivesoftware.openfire.ldap.LdapAuthProvider"/>
-    <property name="providerLdapUserClassName" value="org.jivesoftware.openfire.ldap.LdapUserProvider"/>
-    <property name="providerLdapVCardClassName" value="org.jivesoftware.openfire.ldap.LdapVCardProvider"/>
-    <property name="openfireTemplate" value="openfire/openfire.vm"/>
-    <property name="additionalProperties">
-      <map/>
-    </property>
-  </bean>
-
   <bean id="openfireApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
     <property name="methodNamePrefix" value="userAccountServer." />
     <property name="secure" value="false" />

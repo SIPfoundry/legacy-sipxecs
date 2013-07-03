@@ -4,9 +4,9 @@
 	<classpathentry kind="src" path="config-plugin/test"/>
 	<classpathentry kind="src" path="config-plugin/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="src" path="/sipxcommons"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-neoconf"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-web"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

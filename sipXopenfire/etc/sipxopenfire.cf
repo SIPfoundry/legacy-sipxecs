@@ -23,7 +23,7 @@ bundle agent sipxopenfire {
       "any" usebundle => sipxopenfire_running;
   files:	
     !sipxopenfire::
-      "$(sipx.OPENFIRE_HOME)/conf/openfire.xml.sipx"
+      "$(sipx.OPENFIRE_HOME)/conf/openfire.xml"
         comment => "delete openfire configuration file if service not enabled",
         delete => unlink;      
 }
@@ -91,19 +91,20 @@ bundle agent sipxopenfire_config {
       # config change and another update openfire. This is because openfire oddly
       # writes changes back to the conf/openfire.xml
       # Phase 1.
-      "$(sipx.OPENFIRE_HOME)/conf/openfire.xml.sipx"
-        comment => "install openfire config $(this.promiser)",
-        perms => mog("644", "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
-        copy_from => copy_from_cfdata("$(sipx.location_id)/openfire.xml"),
-        classes => if_repaired("update_openfire_xml");
-   
-    update_openfire_xml::
-      # Phase 2.
       "$(sipx.OPENFIRE_HOME)/conf/openfire.xml"
         comment => "install openfire config $(this.promiser)",
         perms => mog("644", "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
-        copy_from => local_cp_by_digest("$(sipx.OPENFIRE_HOME)/conf/openfire.xml.sipx"),
+        copy_from => local_cp_by_digest("$(sipx.SIPX_CONFDIR)/openfire/openfire.xml"),
         classes => if_repaired("restart_openfire");
+   
+#        copy_from => copy_from_cfdata("$(sipx.location_id)/openfire.xml"),
+#    update_openfire_xml::
+      # Phase 2.
+      #"$(sipx.OPENFIRE_HOME)/conf/openfire.xml"
+       # comment => "install openfire config $(this.promiser)",
+        #perms => mog("644", "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
+        #copy_from => local_cp_by_digest("$(sipx.OPENFIRE_HOME)/conf/openfire.xml.sipx"),
+        #classes => if_repaired("restart_openfire");
       
 }
 

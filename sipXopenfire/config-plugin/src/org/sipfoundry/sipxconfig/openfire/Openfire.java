@@ -24,8 +24,8 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 public interface Openfire {
 
     public OpenfireSettings getSettings();
-    
+
     public void saveSettings(OpenfireSettings settings);
-    
+
     void touchXmppUpdate(Collection<Location> locations);
 }

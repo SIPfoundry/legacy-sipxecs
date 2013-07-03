@@ -45,6 +45,9 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
 public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
+    protected static final String DAT_FILE = "sipxopenfire.cfdat";
+    protected static final String SIPXOPENFIRE_CLASS = "sipxopenfire";
+
     private OpenfireConfigurationFile m_config;
     private SipxOpenfireConfiguration m_sipxConfig;
     private ConfigManager m_configManager;
@@ -54,21 +57,27 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(ImManager.FEATURE, LdapManager.FEATURE, LocalizationContext.FEATURE, ImBot.FEATURE)) {
-            return;
-        }
+        if (applies(request)) {
+            writeConfigFiles(manager, request);
 
+            touchImFile();
+        }
+    }
+
+    protected static boolean applies(ConfigRequest request) {
+        return request.applies(ImManager.FEATURE, LdapManager.FEATURE, LocalizationContext.FEATURE, ImBot.FEATURE);
+    }
+
+    protected void writeConfigFiles(ConfigManager manager, ConfigRequest request) throws IOException {
         Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(ImManager.FEATURE, location);
-            String datfile = "sipxopenfire.cfdat";
-            String sipxopenfireClass = "sipxopenfire";
             if (!enabled) {
-                ConfigUtils.enableCfengineClass(dir, datfile, false, sipxopenfireClass);
+                disableIm(dir);
                 continue;
             }
-            ConfigUtils.enableCfengineClass(dir, datfile, true, sipxopenfireClass, "postgres");
+            enableIm(dir);
             OpenfireSettings settings = m_openfire.getSettings();
             boolean consoleEnabled = (Boolean) settings.getSettingTypedValue("settings/console");
             boolean presenceEnabled = (Boolean) settings.getSettingTypedValue("settings/enable-presence")
@@ -86,12 +95,6 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
                         .getWebSocketPort(), addr.toString());
             } finally {
                 IOUtils.closeQuietly(wtr);
-            }
-            Writer sipxopenfire = new FileWriter(new File(dir, "openfire.xml"));
-            try {
-                m_config.write(sipxopenfire);
-            } finally {
-                IOUtils.closeQuietly(sipxopenfire);
             }
 
             Writer ofproperty = new FileWriter(new File(dir, "openfire.properties.part"));
@@ -115,7 +118,20 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
                 IOUtils.closeQuietly(openfire);
             }
         }
-        //touch xmpp_update.xml on every location where openfire runs
+    }
+
+    @SuppressWarnings("static-method")
+    protected void enableIm(File dir) throws IOException {
+        ConfigUtils.enableCfengineClass(dir, DAT_FILE, true, SIPXOPENFIRE_CLASS, "postgres");
+    }
+
+    @SuppressWarnings("static-method")
+    protected void disableIm(File dir) throws IOException {
+        ConfigUtils.enableCfengineClass(dir, DAT_FILE, false, SIPXOPENFIRE_CLASS);
+    }
+
+    protected void touchImFile() {
+        // touch xmpp_update.xml on every location where openfire runs
         m_openfire.touchXmppUpdate(m_featureManager.getLocationsForEnabledFeature(ImManager.FEATURE));
     }
 

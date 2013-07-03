@@ -35,9 +35,9 @@ cflib_DATA = touch_xmpp_update.cf
 cfgdir = @SIPX_CONFDIR@/openfire
 dist_cfg_DATA = \
 	sipxopenfire-prompts.properties \
-	openfire.properties \
-	openfire.vm \
 	sipxopenfire.vm \
+	openfire-settings.xml \
+	openfire-settings.properties \
 	openfire.xml 
 
 etcdir = @SIPX_CONFDIR@

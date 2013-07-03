@@ -41,7 +41,6 @@ import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.im.ImManager;
-import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
@@ -128,7 +127,7 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
 
     @Override
 	public void touchXmppUpdate(Collection<Location> locations) {
-        RunRequest touchXmppUpdate = new RunRequest("touch xmpp update", locations);
+        RunRequest touchXmppUpdate = new RunRequest("Signal XMPP configuration change", locations);
         touchXmppUpdate.setBundles("touch_xmpp_update");
         m_configManager.run(touchXmppUpdate);
     }
@@ -169,9 +168,7 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
-        if (request.hasChanged(ImManager.FEATURE)) {
-            m_configManager.configureEverywhere(Rls.FEATURE);
-        }
+        // nothing to do
     }
 
     @Override

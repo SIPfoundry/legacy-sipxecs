@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
@@ -55,7 +56,7 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
 
     @Override
     protected Setting loadSettings() {
-        return getModelFilesContext().loadModelFile("openfire/openfire.xml");
+        return getModelFilesContext().loadModelFile("openfire/openfire-settings.xml");
     }
 
     public int getWatcherPort() {
@@ -106,11 +107,11 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
     }
 
     public String getServerToServer() {
-        return (String) getSettingTypedValue(SERVER_TO_SERVER_ENABLED).toString();
+        return getSettingTypedValue(SERVER_TO_SERVER_ENABLED).toString();
     }
 
     public String getDisconnectOnIdle() {
-        return (String) getSettingTypedValue(DISCONNECT_ON_IDLE).toString();
+        return getSettingTypedValue(DISCONNECT_ON_IDLE).toString();
     }
 
     public Integer getIdleTimeout() {
@@ -118,11 +119,11 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
     }
 
     public String getAnyCanConnect() {
-        return (String) getSettingTypedValue(ANY_CAN_CONNECT).toString();
+        return getSettingTypedValue(ANY_CAN_CONNECT).toString();
     }
 
     public String getMessageLogEnabled() {
-        return (String) getSettingTypedValue(MESSAGE_LOG_ENABLED).toString();
+        return getSettingTypedValue(MESSAGE_LOG_ENABLED).toString();
     }
 
     public String getLogDir() {
@@ -136,7 +137,7 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
      * Return
      *   { Address("foo", 5096), Address("bar", 1235), Address("goose", 5096) }
      */
-    List<Address> parseServerArray(String value, int defaultPort) {
+    static List<Address> parseServerArray(String value, int defaultPort) {
         if (StringUtils.isBlank(value)){
             return Collections.emptyList();
         }
@@ -177,7 +178,7 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Arrays.asList((Feature) OpenfireImpl.FEATURE, (Feature) Rls.FEATURE);
+        return Arrays.asList((Feature) ImManager.FEATURE, (Feature) Rls.FEATURE);
     }
 
     @Override

@@ -6,7 +6,8 @@ EXTRA_DIST = \
 
 confdir = @SIPX_LIBEXECDIR@
 conf_DATA = \
-	openfire-config
+	openfire-config \
+	openfire-config-functions
 
 $(conf_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@,plugin_PKGS provider_PKGS_RT)

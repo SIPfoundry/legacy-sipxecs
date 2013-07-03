@@ -11,14 +11,14 @@ package org.sipfoundry.sipxconfig.openfire;
 import java.util.Map;
 
 public interface OpenfireApi {
-    public Map<String, String> userExists(String userName);
+    Map<String, String> userExists(String userName);
 
-    public Map<String, String> createUserAccount(String xmppUserName, String password, String displayName,
+    Map<String, String> createUserAccount(String xmppUserName, String password, String displayName,
             String email);
 
-    public Map<String, String> destroyUserAccount(String xmppUserName);
+    Map<String, String> destroyUserAccount(String xmppUserName);
 
-    public Map<String, String> setSipId(String xmppUserName, String sipId);
+    Map<String, String> setSipId(String xmppUserName, String sipId);
 
-    public Map<String, String> setSipPassword(String xmppUserName, String sipPassword);
+    Map<String, String> setSipPassword(String xmppUserName, String sipPassword);
 }

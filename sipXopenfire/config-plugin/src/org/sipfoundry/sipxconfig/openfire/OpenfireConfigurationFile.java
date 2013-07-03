@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
@@ -39,50 +41,18 @@ import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.springframework.beans.factory.annotation.Required;
 
 public class OpenfireConfigurationFile {
-    private static final String PROVIDER_ADMIN_CLASSNAME = "org.jivesoftware.openfire.admin.DefaultAdminProvider";
     private static final String SEPARATOR = ", ";
 
-    private String m_providerLdapAuthClassName;
-    private String m_providerLdapUserClassName;
-    private String m_providerLdapVCardClassName;
     private String m_multipleLdapConfFile;
-    private boolean m_clusteringState;
-    private String m_openfireTemplate;
 
-    private Map<String, String> m_additionalProperties;
-    private Map<String, String> m_providers;
+    private Map<String, String> m_properties;
+    private Map<String, String> m_nonLdapProperties;
+    private Map<String, String> m_ldapProperties;
 
     private LdapManager m_ldapManager;
     private CoreContext m_coreContext;
     private LocalizationContext m_localizationContext;
     private VelocityEngine m_velocityEngine;
-
-    public void write(Writer writer) throws IOException {
-        VelocityContext context = new VelocityContext();
-        LdapSystemSettings settings = m_ldapManager.getSystemSettings();
-        boolean isEnableOpenfireConfiguration = settings.isEnableOpenfireConfiguration() && settings.isConfigured();
-        context.put("isEnableOpenfireConfiguration", isEnableOpenfireConfiguration);
-        List<LdapConnectionParams> allParams = m_ldapManager.getAllConnectionParams();
-        if (!isEnableOpenfireConfiguration || allParams == null || allParams.isEmpty()) {
-        } else if (!allParams.isEmpty()) {
-            LdapConnectionParams ldapConnectionParams = allParams.get(0);
-            boolean isLdapAnonymousAccess = (StringUtils.isBlank(ldapConnectionParams.getPrincipal())) ? true
-                    : false;
-            context.put("isLdapAnonymousAccess", isLdapAnonymousAccess);
-            context.put("ldapParams", ldapConnectionParams);
-            context.put("attrMap", m_ldapManager.getAttrMap(ldapConnectionParams.getId()));
-        }
-
-        context.put("authorizedUsernames", getAuthorizedUsernames());
-        context.put("locale", m_localizationContext.getCurrentLanguage());
-        context.put("clusteringState", m_clusteringState);
-
-        try {
-            m_velocityEngine.mergeTemplate(m_openfireTemplate, context, writer);
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
-    }
 
     public void writeMultipleLdapConfiguration(Writer writer) throws IOException {
         if (m_multipleLdapConfFile != null) {
@@ -95,40 +65,68 @@ public class OpenfireConfigurationFile {
             context.put("ldapDataList", ldapDataList);
             try {
                 m_velocityEngine.mergeTemplate(m_multipleLdapConfFile, context, writer);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 throw new IOException(e);
             }
         }
     }
 
-
     public void writeOfPropertyConfig(Writer w, OpenfireSettings settings) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
-        config.write("admin.authorizedJIDs", getAuthorizedUsernames());
-        LdapSystemSettings ldapSettings = m_ldapManager.getSystemSettings();
-        boolean isEnableOpenfireConfiguration = ldapSettings.isEnableOpenfireConfiguration() && ldapSettings.isConfigured();
-        if (isEnableOpenfireConfiguration) {
-            config.write("provider.auth.className", m_providerLdapAuthClassName);
-            config.write("provider.user.className", m_providerLdapUserClassName);
-            config.write("provider.vcard.className", m_providerLdapVCardClassName);
-        } else {
-            config.write("provider.admin.className", PROVIDER_ADMIN_CLASSNAME);
-            for(Map.Entry<String, String> entry: m_providers.entrySet()) {
-                config.write(entry.getKey(), entry.getValue());
-            }
-        }
+
         config.writeSettings(settings.getOfProperty());
-        if (m_additionalProperties != null) {
-            for(Map.Entry<String, String> entry: m_additionalProperties.entrySet()) {
-                config.write(entry.getKey(), entry.getValue());
-            }
+
+        for (Map.Entry<String, Object> property : buildOpenfirePropertiesMap().entrySet()) {
+            config.write(property.getKey(), property.getValue());
         }
     }
 
+    protected SortedMap<String, Object> buildOpenfirePropertiesMap() {
+        SortedMap<String, Object> props = new TreeMap<String, Object>();
+
+        props.put("admin.authorizedJIDs", getAuthorizedUsernames());
+        LdapSystemSettings ldapSettings = m_ldapManager.getSystemSettings();
+        boolean ldapEnabled = ldapSettings.isEnableOpenfireConfiguration() && ldapSettings.isConfigured();
+
+        if (ldapEnabled) {
+            List<LdapConnectionParams> allParams = m_ldapManager.getAllConnectionParams();
+            LdapConnectionParams ldapConnectionParams = allParams.get(0);
+            AttrMap attrMap = m_ldapManager.getAttrMap(ldapConnectionParams.getId());
+
+            props.put("ldap.host", ldapConnectionParams.getHost());
+            props.put("ldap.port", ldapConnectionParams.getPort());
+            props.put("ldap.sslEnabled", ldapConnectionParams.getUseTls());
+            props.put("ldap.baseDN", attrMap.getAttribute("searchBase"));
+            props.put("ldap.usernameField", attrMap.getAttribute("imAttributeName"));
+            props.put("ldap.searchFilter", attrMap.getAttribute("searchFilter"));
+
+            boolean ldapAnonymousAccess = StringUtils.isBlank(ldapConnectionParams.getPrincipal());
+            if (!ldapAnonymousAccess) {
+                props.put("ldap.adminDN", ldapConnectionParams.getPrincipal());
+                props.put("ldap.adminPassword", ldapConnectionParams.getSecret());
+            }
+            if (m_ldapProperties != null) {
+                props.putAll(m_ldapProperties);
+            } else {
+                throw new IllegalArgumentException("LDAP properties not found");
+            }
+        } else {
+            if (m_nonLdapProperties != null) {
+                props.putAll(m_nonLdapProperties);
+            }
+        }
+        for (Map.Entry<String, String> entry : m_properties.entrySet()) {
+            props.put(entry.getKey(), entry.getValue());
+        }
+        props.put("locale", m_localizationContext.getCurrentLanguage());
+        props.put("log.debug.enabled", false);
+
+        return props;
+    }
+
     /**
-     * Get authorized usernames. The defaults are admin and superadmin.
-     * When you have LDAP-Openfire configured different other users
-     * can be added with admin rights.
+     * Get authorized usernames. The defaults are admin and superadmin. When you have
+     * LDAP-Openfire configured different other users can be added with admin rights.
      */
     protected String getAuthorizedUsernames() {
         List<User> admins = m_coreContext.loadUserByAdmin();
@@ -167,58 +165,33 @@ public class OpenfireConfigurationFile {
         return m_velocityEngine;
     }
 
-    @Required
-    public void setProviderLdapAuthClassName(String providerLdapAuthClassName) {
-        m_providerLdapAuthClassName = providerLdapAuthClassName;
-    }
-
-    public String getProviderLdapAuthClassName() {
-        return m_providerLdapAuthClassName;
-    }
-
-    @Required
-    public void setProviderLdapUserClassName(String providerLdapUserClassName) {
-        m_providerLdapUserClassName = providerLdapUserClassName;
-    }
-
-    @Required
-    public void setProviderLdapVCardClassName(String providerLdapVCardClassName) {
-        m_providerLdapVCardClassName = providerLdapVCardClassName;
-    }
-
     public void setMultipleLdapConfFile(String multipleLdapConfFile) {
         m_multipleLdapConfFile = multipleLdapConfFile;
     }
 
-    public void setAdditionalProperties(Map<String, String> properties) {
-        m_additionalProperties = properties;
+    public void setProperties(Map<String, String> properties) {
+        m_properties = properties;
     }
 
-    public Map<String, String> getAdditionalProperties() {
-        return m_additionalProperties;
+    public void setNonLdapProperties(Map<String, String> properties) {
+        m_nonLdapProperties = properties;
     }
 
-    public void setProviders(Map<String, String> providers) {
-        m_providers = providers;
-    }
-
-    public void setClusteringState(boolean state) {
-        m_clusteringState = state;
-    }
-
-    public void setOpenfireTemplate(String openfireTemplate) {
-        m_openfireTemplate = openfireTemplate;
+    public void setLdapProperties(Map<String, String> properties) {
+        m_ldapProperties = properties;
     }
 
     public static class LdapData {
         private final LdapConnectionParams m_ldapParams;
         private final AttrMap m_attrMap;
         private final boolean m_ldapAnonymousAccess;
+
         public LdapData(LdapConnectionParams ldapParams, AttrMap attrMap) {
             m_ldapParams = ldapParams;
             m_attrMap = attrMap;
             m_ldapAnonymousAccess = (StringUtils.isBlank(m_ldapParams.getPrincipal())) ? true : false;
         }
+
         public LdapConnectionParams getLdapParams() {
             return m_ldapParams;
         }
@@ -230,10 +203,11 @@ public class OpenfireConfigurationFile {
         public String getImAttribute() {
             String imAttribute = m_attrMap.getImAttributeName();
             String usernameAttribute = m_attrMap.getIdentityAttributeName();
-            //if im id is not mapped, default it to username -
-            //because this is a rule, when a user gets created the im id has to automatically be defaulted to username
-            return  imAttribute == null ?
-                    usernameAttribute == null ? StringUtils.EMPTY : usernameAttribute : imAttribute;
+            // if im id is not mapped, default it to username -
+            // because this is a rule, when a user gets created the im id has to automatically be
+            // defaulted to username
+            return imAttribute == null ? usernameAttribute == null ? StringUtils.EMPTY : usernameAttribute
+                    : imAttribute;
         }
 
         public String getDomain() {

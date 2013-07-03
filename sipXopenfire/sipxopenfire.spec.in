@@ -53,14 +53,15 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,sipx,sipx,755)
 %attr(755,root,root) %{_libexecdir}/sipXecs/openfire-config
+%attr(755,root,root) %{_libexecdir}/sipXecs/openfire-config-functions
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxopenfire.cf
 %{_datadir}/sipxecs/cfinputs/plugin.d/lib/*.cf
 %{_sysconfdir}/sipxpbx/database/sipxopenfire-initdb.sql
 %dir %attr(775,sipx,sipx) %{_sysconfdir}/sipxpbx/openfire
 %{_sysconfdir}/sipxpbx/sipxopenfire-database.xml
-%config(noreplace) %{_sysconfdir}/sipxpbx/openfire/openfire.properties
-%config(noreplace) %{_sysconfdir}/sipxpbx/openfire/openfire.vm
 %config(noreplace) %{_sysconfdir}/sipxpbx/openfire/openfire.xml
+%config(noreplace) %{_sysconfdir}/sipxpbx/openfire/openfire-settings.xml
+%config(noreplace) %{_sysconfdir}/sipxpbx/openfire/openfire-settings.properties
 %config(noreplace) %{_sysconfdir}/sipxpbx/openfire/sipxopenfire.vm
 %config(noreplace) %{_sysconfdir}/sipxpbx/openfire/sipxopenfire-prompts.properties
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXopenfire
