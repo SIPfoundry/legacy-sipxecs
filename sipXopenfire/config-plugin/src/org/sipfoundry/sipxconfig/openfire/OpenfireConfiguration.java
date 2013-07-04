@@ -31,20 +31,16 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.event.WebSocket;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.rls.Rls;
-import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
-public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
+public class OpenfireConfiguration implements ConfigProvider {
     protected static final String DAT_FILE = "sipxopenfire.cfdat";
     protected static final String SIPXOPENFIRE_CLASS = "sipxopenfire";
 
@@ -151,24 +147,6 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
 
     public void setSipxConfig(SipxOpenfireConfiguration sipxConfig) {
         m_sipxConfig = sipxConfig;
-    }
-
-    private void checkReplicate(Object entity) {
-        if (entity instanceof User || entity instanceof Conference || entity instanceof Group) {
-            if (m_configManager.getFeatureManager().isFeatureEnabled(ImManager.FEATURE)) {
-                m_configManager.configureEverywhere(ImManager.FEATURE);
-            }
-        }
-    }
-
-    @Override
-    public void onDelete(Object entity) {
-        checkReplicate(entity);
-    }
-
-    @Override
-    public void onSave(Object entity) {
-        checkReplicate(entity);
     }
 
     public void setConfigManager(ConfigManager configManager) {
