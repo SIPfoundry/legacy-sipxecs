@@ -29,6 +29,10 @@ namespace Os
     void setFilterNames(const std::string& filterNames)
     {
       this->filterNames = filterNames;
+      if(filterNames.find(LOG_FILTER_VERBOSE) != std::string::npos)
+      {
+        Os::Logger::instance().enableVerbose(true);
+      }
     }
 
     void setProcessName(const std::string& processName)
