@@ -47,22 +47,22 @@
 #define CONFIG_LOG_FILE               "sipxrls.log"
 #define CONFIG_LOG_DIR                SIPX_LOGDIR
 
-#define CONFIG_SETTING_PREFIX         "SIP_RLS"
-#define CONFIG_SETTING_LOG_DIR        "SIP_RLS_LOG_DIR"
-#define CONFIG_SETTING_LOG_FORMAT     "SIP_RLS_LOG_FORMAT"
-#define CONFIG_SETTING_LOG_CONSOLE    "SIP_RLS_LOG_CONSOLE"
-#define CONFIG_SETTING_UDP_PORT       "SIP_RLS_UDP_PORT"
-#define CONFIG_SETTING_TCP_PORT       "SIP_RLS_TCP_PORT"
-#define CONFIG_SETTING_BIND_IP        "SIP_RLS_BIND_IP"
-#define CONFIG_SETTING_RLS_FILE       "SIP_RLS_FILE_NAME"
-#define CONFIG_SETTING_DOMAIN_NAME    "SIP_RLS_DOMAIN_NAME"
-#define CONFIG_SETTING_AUTHENTICATE_REALM "SIP_RLS_AUTHENTICATE_REALM"
-#define CONFIG_SETTING_REFRESH_INTERVAL "SIP_RLS_REFRESH_INTERVAL"
-#define CONFIG_SETTING_RESUBSCRIBE_INTERVAL "SIP_RLS_RESUBSCRIBE_INTERVAL"
-#define CONFIG_SETTING_MIN_RESUBSCRIBE_INTERVAL "SIP_RLS_MIN_RESUBSCRIBE_INTERVAL"
-#define CONFIG_SETTING_SERVER_MIN_EXPIRATION "SIP_RLS_SERVER_MIN_EXPIRATION"
-#define CONFIG_SETTING_SERVER_DEFAULT_EXPIRATION "SIP_RLS_SERVER_DEFAULT_EXPIRATION"
-#define CONFIG_SETTING_SERVER_MAX_EXPIRATION "SIP_RLS_SERVER_MAX_EXPIRATION"
+#define CONFIG_SETTING_PREFIX                     "SIP_RLS"
+#define CONFIG_SETTING_LOG_DIR                    "SIP_RLS_LOG_DIR"
+#define CONFIG_SETTING_LOG_FORMAT                 "SIP_RLS_LOG_FORMAT"
+#define CONFIG_SETTING_LOG_CONSOLE                "SIP_RLS_LOG_CONSOLE"
+#define CONFIG_SETTING_UDP_PORT                   "SIP_RLS_UDP_PORT"
+#define CONFIG_SETTING_TCP_PORT                   "SIP_RLS_TCP_PORT"
+#define CONFIG_SETTING_BIND_IP                    "SIP_RLS_BIND_IP"
+#define CONFIG_SETTING_RLS_FILE                   "SIP_RLS_FILE_NAME"
+#define CONFIG_SETTING_DOMAIN_NAME                "SIP_RLS_DOMAIN_NAME"
+#define CONFIG_SETTING_AUTHENTICATE_REALM         "SIP_RLS_AUTHENTICATE_REALM"
+#define CONFIG_SETTING_REFRESH_INTERVAL           "SIP_RLS_REFRESH_INTERVAL"
+#define CONFIG_SETTING_RESUBSCRIBE_INTERVAL       "SIP_RLS_RESUBSCRIBE_INTERVAL"
+#define CONFIG_SETTING_MIN_RESUBSCRIBE_INTERVAL   "SIP_RLS_MIN_RESUBSCRIBE_INTERVAL"
+#define CONFIG_SETTING_SERVER_MIN_EXPIRATION      "SIP_RLS_SERVER_MIN_EXPIRATION"
+#define CONFIG_SETTING_SERVER_DEFAULT_EXPIRATION  "SIP_RLS_SERVER_DEFAULT_EXPIRATION"
+#define CONFIG_SETTING_SERVER_MAX_EXPIRATION      "SIP_RLS_SERVER_MAX_EXPIRATION"
 
 #define LOG_FACILITY                  FAC_RLS
 
@@ -195,10 +195,11 @@ void initSysLog(OsConfigDb* pConfig)
 
    if (bSpecifiedDirError)
    {
-      Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
-                    "Cannot access %s directory; please check configuration.",
-                    CONFIG_SETTING_LOG_DIR);
+     Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
+                   "Cannot access %s directory; please check configuration.",
+                   CONFIG_SETTING_LOG_DIR);
    }
+
 }
 
 // Get and add the credentials for sipXrls
@@ -246,37 +247,37 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm, EntityDB& entityD
               }
               else
               {
-                 Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
-                               "Error adding identity '%s': user='%s' realm='%s'\n",
-                               identity.toString().data(), user.data(), realm.data()
-                               );
+                Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
+                              "Error adding identity '%s': user='%s' realm='%s'\n",
+                              identity.toString().data(), user.data(), realm.data()
+                              );
               }
            }
            else
            {
-              Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT, "addLine failed" );
+             Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT, "addLine failed" );
            }
         }
         else
         {
-           Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
-                         "Constructing SipLineMgr failed" );
+          Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
+                        "Constructing SipLineMgr failed" );
         }
         // lineMgr does not take ownership of *line, so we have to delete it.
         delete line;
      }
      else
      {
-        Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
-                      "Constructing SipLine failed" );
+       Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
+                     "Constructing SipLine failed" );
      }
   }
   else
   {
-     Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
-                   "No credential found for '%s' in realm '%s'"
-                   ,identity.toString().data(), realm.data()
-                   );
+    Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
+                  "No credential found for '%s' in realm '%s'"
+                  ,identity.toString().data(), realm.data()
+                  );
   }
 
   if( !bSuccess )
@@ -295,17 +296,17 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm, EntityDB& entityD
 void signal_handler(int sig) {
     switch(sig) {
     case SIGPIPE:
-        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGPIPE caught. Ignored.");
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGPIPE caught. Ignored.");
     break;
 
     case SIGHUP:
-        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGHUP caught. Ignored.");
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGHUP caught. Ignored.");
 	break;
 
     case SIGTERM:
-        gShutdownFlag = TRUE;
-        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGTERM caught. Shutting down.");
-	break;
+      gShutdownFlag = TRUE;
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGTERM caught. Shutting down.");
+	    break;
     }
 }
 
@@ -388,7 +389,7 @@ int main(int argc, char* argv[])
        resourceListFile.isNull())
    {
       Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
-                    "Resource list file name is not configured");
+                   "Resource list file name is not configured");
       return 1;
    }
 
@@ -398,7 +399,7 @@ int main(int argc, char* argv[])
        domainName.isNull())
    {
       Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
-                    "Resource domain name is not configured");
+                   "Resource domain name is not configured");
       return 1;
    }
 
@@ -408,7 +409,7 @@ int main(int argc, char* argv[])
        realm.isNull())
    {
       Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
-                    "Resource realm is not configured");
+                   "Resource realm is not configured");
       return 1;
    }
 
@@ -446,11 +447,11 @@ int main(int argc, char* argv[])
    mongo::ConnectionString mongoConnectionString = MongoDB::ConnectionInfo::connectionStringFromFile();
    if (false == MongoDB::ConnectionInfo::testConnection(mongoConnectionString, errmsg))
    {
-       Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
-               "Failed to connect to '%s' - %s",
-               mongoConnectionString.toString().c_str(), errmsg.c_str());
+      Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
+             "Failed to connect to '%s' - %s",
+             mongoConnectionString.toString().c_str(), errmsg.c_str());
 
-       return 1;
+      return 1;
    }
 
    mongoConnectionString = MongoDB::ConnectionInfo::connectionStringFromFile();

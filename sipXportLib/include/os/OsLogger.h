@@ -29,7 +29,8 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
-#define LOG_FORMAT_DELIMITERS          ", "
+#define LOG_FORMAT_DELIMITERS           ", "
+#define LOG_FILTER_VERBOSE              "verbose"
 #define LOG_FILTER_DATE                 "date"
 #define LOG_FILTER_COUNTER              "counter"
 #define LOG_FILTER_FACILITY             "facility"
@@ -189,8 +190,6 @@ namespace Os
       _fstream.close();
     }
 
-
-
     std::streamsize read(char* s, std::streamsize n)
     {
         // Read up to n characters from the underlying data source
@@ -302,7 +301,7 @@ namespace Os
     {
     }
 
-    void enable(std::set<std::string> filters)
+    void enable(const std::set<std::string>& filters)
     {
       if(filters.find(_filterName) != filters.end())
       {
@@ -367,7 +366,7 @@ namespace Os
     {
     }
 
-    void enable(std::set<std::string> filters)
+    void enable(const std::set<std::string>& filters)
     {
     }
 
@@ -760,7 +759,7 @@ namespace Os
       return level == debug || level >= warning;
     }
 
-    void enableFilters(std::set<std::string> filters)
+    void enableFilters(const std::set<std::string>& filters)
     {
       _filters = filters;
       _f1.enable(filters);
@@ -933,7 +932,9 @@ namespace Os
 
     LoggerBase() :
       _flushRate(1),
-      _enableConsoleOutput(false)
+      _enableConsoleOutput(false),
+      _enableVerbose(false),
+      _lineNumber(0)
     {
       _pChannel = new TChannel();
       _pFilter = new TFilter();
@@ -1008,24 +1009,34 @@ namespace Os
       _pFilter->setProcessName(processName);
     }
 
-    std::set<std::string> getSetFromString(const std::string& strFilters)
+    void setVerbose(const std::string& sourceName, const std::string& functionName, int lineNumber)
     {
-      std::set<std::string> filters;
+      _sourceName = sourceName;
+      _functionName = functionName;
+      _lineNumber = lineNumber;
+    }
+
+    void getSetFromString(const std::string& strFilters, std::set<std::string>& filters)
+    {
       const std::string& delimiters = LOG_FORMAT_DELIMITERS;
       boost::split(filters, strFilters, boost::is_any_of(delimiters));
 
-      return filters;
     }
 
     void enableFilters(const std::string& stringFilters)
     {
-      std::set<std::string> filters = getSetFromString(stringFilters);
-      enableFilters(filters);
+      getSetFromString(stringFilters, _filters);
+      enableFilters(_filters);
     }
 
-    void enableFilters(std::set<std::string> filters)
+    void enableFilters(const std::set<std::string>& filters)
     {
       _pFilter->enableFilters(filters);
+    }
+
+    bool isVerboseEnabled()
+    {
+      return _enableVerbose;
     }
 
     //
@@ -1038,9 +1049,22 @@ namespace Os
       
       char* buff;
       size_t needed = 1024;
-
       bool formatted = false;
       std::string message;
+
+      if(_enableVerbose && !_functionName.empty(), !_sourceName.empty() && _lineNumber != 0)
+      {
+        buff = (char*)::malloc(needed);
+        snprintf(buff, needed, "%s:%d %s: ", _sourceName.c_str(), _lineNumber, _functionName.c_str());
+        message = buff;
+        ::free(buff);
+
+        // reset additional data
+        _functionName.erase(_functionName.begin(), _functionName.end());
+        _sourceName.erase(_sourceName.begin(), _sourceName.end());
+        _lineNumber = 0;
+      }
+
       for (int i = 0; !formatted && i < 3; i++)
       {
         va_list args;
@@ -1051,7 +1075,7 @@ namespace Os
         needed = vsnprintf(buff, needed, format, args) + 1;
         formatted = needed <= oldSize;
         if (formatted)
-          message = buff;
+          message += buff;
         ::free(buff);
         va_end(args);
       }
@@ -1209,6 +1233,11 @@ namespace Os
       _enableConsoleOutput = enableConsoleOutput;
     }
 
+    void enableVerbose(bool enableVerbose = true)
+    {
+      _enableVerbose = enableVerbose;
+    }
+
     void enableFilter(const std::string& filter)
     {
       _filters.insert(filter);
@@ -1222,7 +1251,11 @@ namespace Os
     unsigned _flushRate;
     TaskCallBack getCurrentTask;
     bool _enableConsoleOutput;
+    bool _enableVerbose;
     std::set<std::string> _filters;
+    std::string _sourceName;
+    std::string _functionName;
+    int _lineNumber;
   };
 
   typedef LogLevelFilter<
@@ -1242,23 +1275,27 @@ namespace Os
   //
   // Macros
   //
-  #define OS_LOG_PUSH(priority, facility,  data) \
+  #define OS_LOG_PUSH(priority, facility,  source, function, line, data) \
   { \
     if (Os::Logger::instance().willLog(priority)) { \
       std::ostringstream strm; \
       strm << data; \
+      if(Os::Logger::instance().isVerboseEnabled()) \
+      { \
+        Os::Logger::instance().setVerbose(source, function, line); \
+      } \
       Os::Logger::instance().log(facility, priority, "%s", strm.str().c_str()); \
     }\
   }
 
-  #define OS_LOG_DEBUG(facility, data) OS_LOG_PUSH(Os::LogFilter::debug, facility, data)
-  #define OS_LOG_INFO(facility, data) OS_LOG_PUSH(Os::LogFilter::information, facility, data)
-  #define OS_LOG_NOTICE(facility, data) OS_LOG_PUSH(Os::LogFilter::notice, facility, data)
-  #define OS_LOG_WARNING(facility, data) OS_LOG_PUSH(Os::LogFilter::warning, facility, data)
-  #define OS_LOG_ERROR(facility, data) OS_LOG_PUSH(Os::LogFilter::error, facility, data)
-  #define OS_LOG_CRITICAL(facility, data) OS_LOG_PUSH(Os::LogFilter::critical, facility, data)
-  #define OS_LOG_ALERT(facility, data) OS_LOG_PUSH(Os::LogFilter::alert, facility, data)
-  #define OS_LOG_EMERGENCY(facility, data) OS_LOG_PUSH(Os::LogFilter::emergency, facility, data)
+  #define OS_LOG_DEBUG(facility, data) OS_LOG_PUSH(Os::LogFilter::debug, facility, __FILE__, __func__, __LINE__, data)
+  #define OS_LOG_INFO(facility, data) OS_LOG_PUSH(Os::LogFilter::information, facility, __FILE__, __func__, __LINE__, data)
+  #define OS_LOG_NOTICE(facility, data) OS_LOG_PUSH(Os::LogFilter::notice, facility, __FILE__, __func__, __LINE__, data)
+  #define OS_LOG_WARNING(facility, data) OS_LOG_PUSH(Os::LogFilter::warning, facility, __FILE__, __func__, __LINE__, data)
+  #define OS_LOG_ERROR(facility, data) OS_LOG_PUSH(Os::LogFilter::error, facility, __FILE__, __func__, __LINE__, data)
+  #define OS_LOG_CRITICAL(facility, data) OS_LOG_PUSH(Os::LogFilter::critical, facility, __FILE__, __func__, __LINE__, data)
+  #define OS_LOG_ALERT(facility, data) OS_LOG_PUSH(Os::LogFilter::alert, facility, __FILE__, __func__, __LINE__, data)
+  #define OS_LOG_EMERGENCY(facility, data) OS_LOG_PUSH(Os::LogFilter::emergency, facility, __FILE__, __func__, __LINE__, data)
 
 
     #define OS_LOG_AND_ASSERT(condition, facility, ...)                  \
