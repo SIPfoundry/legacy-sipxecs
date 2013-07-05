@@ -72,8 +72,8 @@ class TransferControl : public AuthPlugin
   protected:
    friend class TransferControlTest;
    
-static const char* RecognizerConfigKey1;
-static const char* RecognizerConfigKey2;
+   static const char* RecognizerConfigKey1;
+   static const char* RecognizerConfigKey2;
   private:
    friend AuthPlugin* getAuthPlugin(const UtlString& name);
    

@@ -98,6 +98,7 @@ nobase_include_HEADERS =  \
     net/SipUserAgent.h \
     net/SipUserAgentStateless.h \
     net/SipXauthIdentity.h \
+    net/SipXlocationInfo.h \
     net/SmimeBody.h \
     net/StateChangeNotifier.h \
     net/TapiMgr.h \

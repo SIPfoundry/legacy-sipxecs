@@ -131,6 +131,7 @@ libsipXtack_la_SOURCES =  \
     net/TapiMgr.cpp \
     net/Url.cpp \
     net/SipXauthIdentity.cpp \
+    net/SipXlocationInfo.cpp \
     net/XmlRpcBody.cpp \
     net/XmlRpcDispatch.cpp \
     net/XmlRpcMethod.cpp \

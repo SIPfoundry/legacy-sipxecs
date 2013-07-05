@@ -1512,3 +1512,17 @@ bool SipRouter::getCredential (
 
     return true;
 }
+
+bool SipRouter::getUserLocation(const UtlString& identity, UtlString& location) const
+{
+
+  EntityRecord entity;
+  if (mpEntityDb->findByIdentity(identity.str(), entity))
+  {
+    location = entity.location().c_str();
+
+    return true;
+  }
+
+  return false;
+}

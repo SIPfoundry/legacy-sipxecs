@@ -142,6 +142,17 @@ class SipRouter : public OsServerTask
        UtlString& authType
                               ) const;
 
+    /// Retrieve the location associated with an user
+    bool getUserLocation (
+       const UtlString& identity, ///< identity of the user
+       UtlString& location        ///< location of the user or empty string
+       ) const;
+    /**<
+     * Check if the user has a location in EntityDB and retrieves it.
+     * @returns true if user has a location, false otherwise
+     */
+
+
    /// If the fromUrl uses domain alias, change to original domain as identities are stored in credential database using mDomainName.
    void ensureCanonicalDomain(Url& url) const;
 
