@@ -30,7 +30,7 @@ public class PolycomUpload extends Upload {
     private static final Log LOG = LogFactory.getLog(PolycomUpload.class);
     private static final String POLYCOM_DIR = "/polycom/";
     private static final String VERSION = "firmware/version";
-    private static final String SIP_APP = "*.sip.ld";
+    private static final String SIP_APP = "*sip.ld";
     private String m_profileDir;
 
     public String getProfileDir() {
