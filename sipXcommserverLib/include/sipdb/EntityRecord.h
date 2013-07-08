@@ -187,6 +187,8 @@ public:
     //
     static const char* vmOnDnd_fld();
     bool& vmOnDnd();
+private:
+    void fillStaticUserLoc(StaticUserLoc& userLoc, const mongo::BSONObj& innerObj);
 
 private:
     std::string _oid;

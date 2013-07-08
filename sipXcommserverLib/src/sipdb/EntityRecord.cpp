@@ -102,6 +102,20 @@ void EntityRecord::swap(EntityRecord& entity)
     std::swap(_vmOnDnd, entity._vmOnDnd);
 }
 
+void EntityRecord::fillStaticUserLoc(StaticUserLoc& userLoc, const mongo::BSONObj& innerObj)
+{
+  if (innerObj.hasField(EntityRecord::staticUserLocEvent_fld()))
+    userLoc.event = innerObj.getStringField(EntityRecord::staticUserLocEvent_fld());
+  if (innerObj.hasField(EntityRecord::staticUserLocContact_fld()))
+    userLoc.contact = innerObj.getStringField(EntityRecord::staticUserLocContact_fld());
+  if (innerObj.hasField(EntityRecord::staticUserLocFromUri_fld()))
+    userLoc.fromUri = innerObj.getStringField(EntityRecord::staticUserLocFromUri_fld());
+  if (innerObj.hasField(EntityRecord::staticUserLocToUri_fld()))
+    userLoc.toUri = innerObj.getStringField(EntityRecord::staticUserLocToUri_fld());
+  if (innerObj.hasField(EntityRecord::staticUserLocCallId_fld()))
+    userLoc.callId = innerObj.getStringField(EntityRecord::staticUserLocCallId_fld());
+}
+
 EntityRecord& EntityRecord::operator = (const mongo::BSONObj& bsonObj)
 {
 	_oid = bsonObj.getStringField(EntityRecord::oid_fld());
@@ -205,26 +219,25 @@ EntityRecord& EntityRecord::operator = (const mongo::BSONObj& bsonObj)
 	if (bsonObj.hasField(EntityRecord::staticUserLoc_fld()))
 	{
 		mongo::BSONElement obj = bsonObj[EntityRecord::staticUserLoc_fld()];
-		if ( obj.isABSONObj() &&  obj.type() == mongo::Array)
+    if (obj.isABSONObj() &&  obj.type() == mongo::Array)
+    {
+      std::vector<mongo::BSONElement> userLocs = obj.Array();
+      for (std::vector<mongo::BSONElement>::iterator iter = userLocs.begin();
+        iter != userLocs.end(); iter++)
+      {
+        mongo::BSONObj innerObj = iter->Obj();
+        StaticUserLoc userLoc;
+        fillStaticUserLoc(userLoc, innerObj);
+        _staticUserLoc.push_back(userLoc);
+      }
+    }
+    else if (obj.isABSONObj())
 		{
-			std::vector<mongo::BSONElement> userLocs = obj.Array();
-			for (std::vector<mongo::BSONElement>::iterator iter = userLocs.begin();
-				iter != userLocs.end(); iter++)
-			{
-				mongo::BSONObj innerObj = iter->Obj();
-				StaticUserLoc userLoc;
-				if (innerObj.hasField(EntityRecord::staticUserLocEvent_fld()))
-					userLoc.event = innerObj.getStringField(EntityRecord::staticUserLocEvent_fld());
-				if (innerObj.hasField(EntityRecord::staticUserLocContact_fld()))
-					userLoc.contact = innerObj.getStringField(EntityRecord::staticUserLocContact_fld());
-				if (innerObj.hasField(EntityRecord::staticUserLocFromUri_fld()))
-					userLoc.fromUri = innerObj.getStringField(EntityRecord::staticUserLocFromUri_fld());
-				if (innerObj.hasField(EntityRecord::staticUserLocToUri_fld()))
-					userLoc.toUri = innerObj.getStringField(EntityRecord::staticUserLocToUri_fld());
-				if (innerObj.hasField(EntityRecord::staticUserLocCallId_fld()))
-					userLoc.callId = innerObj.getStringField(EntityRecord::staticUserLocCallId_fld());
-				_staticUserLoc.push_back(userLoc);
-			}
+      //NOTE: This can be removed when config will have support for more than one static user loc
+      mongo::BSONObj innerObj = obj.embeddedObject();;
+      StaticUserLoc userLoc;
+      fillStaticUserLoc(userLoc, innerObj);
+      _staticUserLoc.push_back(userLoc);
 		}
 	}
 
