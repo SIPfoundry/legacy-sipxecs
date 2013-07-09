@@ -1,8 +1,6 @@
 <?xml version="1.0"?> 
-<!DOCTYPE Configure PUBLIC 
- "-//Mort Bay Consulting//DTD Configure 1.2//EN"
- "http://jetty.mortbay.org/configure_1_2.dtd">
-                                               
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN"
+ "http://www.eclipse.org/jetty/configure.dtd">
 <Configure class="org.mortbay.jetty.Server">
   <Call class="java.lang.System" name="setProperty">
     <Arg>org.mortbay.http.HttpRequest.maxFormContentSize</Arg>
@@ -32,7 +30,7 @@
       </New>
     </Arg>
   </Call>
-  
+
   <Call name="addListener">
     <Arg>
       <New class="org.mortbay.http.SocketListener">
@@ -42,6 +40,5 @@
         <Set name="MaxThreads">200</Set>
       </New>
     </Arg>
-  </Call>  
-
+  </Call>
 </Configure>
