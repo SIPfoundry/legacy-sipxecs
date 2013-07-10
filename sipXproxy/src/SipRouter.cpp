@@ -27,6 +27,7 @@
 #include "net/SipTransaction.h"
 #include "sipdb/ResultSet.h"
 #include "sipdb/CredentialDB.h"
+#include "sipdb/UserLocationDB.h"
 #include "AuthPlugin.h"
 #include "SipRouter.h"
 #include "ForwardRules.h"
@@ -185,6 +186,8 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
       _pBridgeRouter = 0;
    }
 
+   mpUserLocationDbInstance = UserLocationDB::getInstance();
+
    // All is in readiness... Let the proxying begin...
    mpSipUserAgent->start();
 }
@@ -313,6 +316,12 @@ SipRouter::~SipRouter()
       mpSipUserAgent->removeMessageObserver(*getMessageQueue());
    }
    delete mSharedSecret;
+
+   if( mpUserLocationDbInstance )
+   {
+      mpUserLocationDbInstance->releaseInstance();
+      mpUserLocationDbInstance = 0;
+   }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -1349,4 +1358,33 @@ bool SipRouter::isPAIdentityApplicable(const SipMessage& sipRequest)
    }
 
    return result;
+}
+
+bool SipRouter::getUserLocation(const UtlString& identity, UtlString& location) const
+{
+  if (mpUserLocationDbInstance)
+  {
+    // Look up the user location
+    // database to find out the location that is mapped to it.
+    ResultSet userLocationsResult;
+
+    // Check in User Location database if user has locations
+    mpUserLocationDbInstance->getLocations(identity, userLocationsResult);
+
+    // Get the caller's site location. Only the first returned location is used.
+    // This is not a problem given that a user should only belong to one location.
+    if (userLocationsResult.getSize() > 0)
+    {
+      static UtlString locationKey( "location" );
+
+      UtlHashMap record;
+      if (userLocationsResult.getIndex( 0, record ))
+      {
+         location = *((UtlString*)record.findValue(&locationKey));
+         return true;
+      }
+    }
+  }
+
+  return false;
 }

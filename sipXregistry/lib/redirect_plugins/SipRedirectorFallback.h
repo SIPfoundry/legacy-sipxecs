@@ -123,6 +123,9 @@ class SipRedirectorFallback : public RedirectPlugin
      OsStatus 
      determineCallerLocationFromProvisionedUserLocation( const SipMessage& message,
                                                          UtlString& callerLocation );
+     OsStatus
+     determineCallerLocationFromLocationInfoHeader( const SipMessage& message,
+                                                      UtlString& callerLocation );
    
      LocationDB*     mpLocationDbInstance;     ///< Pointer to database that holds every location's attributes such as its name and topology information 
      UserLocationDB* mpUserLocationDbInstance; ///< Pointer to database that holds mappings between user identities and their location attribute

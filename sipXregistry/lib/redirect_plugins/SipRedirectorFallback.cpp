@@ -19,7 +19,9 @@
 #include "sipdb/LocationDB.h"
 #include "sipdb/UserLocationDB.h"
 #include "net/SipXauthIdentity.h"
+#include "net/SipXlocationInfo.h"
 #include "net/NameValueTokenizer.h"
+#include "net/NetMd5Codec.h"
 #include "SipRedirectorFallback.h"
 #include "sipXecsService/SipXecsService.h"
 #include "sipXecsService/SharedSecret.h"
@@ -199,6 +201,11 @@ SipRedirectorFallback::determineCallerLocation(
    {
       result = determineCallerLocationFromProvisionedUserLocation( message, callerLocation );
    }
+   if (OS_SUCCESS != result)
+   {
+     result = determineCallerLocationFromLocationInfoHeader(message,callerLocation );
+   }
+
    return result;
 }
 
@@ -326,3 +333,24 @@ SipRedirectorFallback::determineCallerLocationFromProvisionedUserLocation(
    return result;
 }
 
+OsStatus
+SipRedirectorFallback::determineCallerLocationFromLocationInfoHeader(
+   const SipMessage& message,
+   UtlString& callerLocation )
+{
+   OsStatus result = OS_FAILED;
+   callerLocation.remove(0);
+
+   SipXlocationInfo locationInfo(message);
+   if (locationInfo.getLocation(callerLocation))
+   {
+     result = OS_SUCCESS;
+
+     OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                   "%s::determineCallerLocationFromLocationInfoHeader got from header 'X-sipX-Location-Branch' location '%s'",
+                   mLogName.data(),
+                   callerLocation.data());
+   }
+
+   return result;
+}
