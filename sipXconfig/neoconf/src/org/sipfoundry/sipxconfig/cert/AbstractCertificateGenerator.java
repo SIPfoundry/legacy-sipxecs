@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 public abstract class AbstractCertificateGenerator extends AbstractCertificateCommon {
     public static final String NETSCAPE_CERT_TYPE_OID = "2.16.840.1.113730.1.1";
     public static final String NETSCAPE_COMMENT_OID = "2.16.840.1.113730.1.13";
+    private static final byte[] SERIAL_NO_LOCK = new byte[0];
     private int m_validYears = 3; // historical default, otherwise insignificant AFAIK
     private KeyPair m_keys;
     private X509Certificate m_certificate;
@@ -62,10 +63,7 @@ public abstract class AbstractCertificateGenerator extends AbstractCertificateCo
         return buf.toString();
     }
 
-    X509v3CertificateBuilder createCertificateGenerator(String issuer, PublicKey pub) {
-        // use minutes in the epoch as the initial serial number
-        // to prevent clashes when the admin wipes out the system and starts over.
-        BigInteger serialNum = BigInteger.valueOf(System.currentTimeMillis() / (1000 * 60));
+    protected X509v3CertificateBuilder createCertificateGenerator(String issuer, PublicKey pub) {
         Calendar cal = Calendar.getInstance();
         // cert valid 1hr ago just to be sure we're covered.
         cal.add(Calendar.HOUR, -1);
@@ -73,9 +71,32 @@ public abstract class AbstractCertificateGenerator extends AbstractCertificateCo
         cal.add(Calendar.YEAR, getValidYears());
         Date end = cal.getTime();
         SubjectPublicKeyInfo pubKeyInfo = SubjectPublicKeyInfo.getInstance(pub.getEncoded());
-        X509v3CertificateBuilder gen = new X509v3CertificateBuilder(x500(issuer), serialNum, start, end,
+        X509v3CertificateBuilder gen = new X509v3CertificateBuilder(x500(issuer), generateSerialNo(), start, end,
                 x500(getSubject()), pubKeyInfo);
         return gen;
+    }
+
+    private static BigInteger generateSerialNo() {
+        BigInteger serialNo;
+
+        // a bit heavy, but it ensures serial numbers will be different even in a multithreaded
+        // environment
+        synchronized (SERIAL_NO_LOCK) {
+            // add a slight delay, just so we can be sure there's no way we generate the same
+            // serial
+            // number twice
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                // ignore
+            }
+            // can't use a sequence as this can lead to clashes when the admin wipes out the
+            // system
+            // and starts over.
+            serialNo = BigInteger.valueOf(System.currentTimeMillis());
+        }
+
+        return serialNo;
     }
 
     public String getPrivateKeyText() {

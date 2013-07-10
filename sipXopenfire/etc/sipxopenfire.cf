@@ -25,13 +25,13 @@ bundle agent sipxopenfire {
     !sipxopenfire::
       "$(sipx.OPENFIRE_HOME)/conf/openfire.xml"
         comment => "delete openfire configuration file if service not enabled",
-        delete => unlink;      
+        delete => unlink;
 }
 
 bundle agent sipxopenfire_config {
   vars:
     any::
-      "xml_file_restart" slist => { 
+      "xml_file_restart" slist => {
         "sipxopenfire.xml",
         "multipleldap-openfire.xml"
       };
@@ -77,7 +77,7 @@ bundle agent sipxopenfire_config {
         comment => "openfire certificates",
         create => "false",
         perms => mog(600, "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
-        copy_from => copy_from_cfdata("ssl.keystore"),
+        copy_from => copy_from_cfdata("ssl-web.keystore"),
         classes => if_repaired("restart_openfire");
 
       "/etc/sysconfig/openfire"
@@ -105,7 +105,7 @@ bundle agent sipxopenfire_config {
         copy_from => local_cp_by_digest("$(sipx.OPENFIRE_HOME)/conf/openfire.properties.sipx"),
         classes => if_repaired("restart_openfire");
 
-}
+
 
 # TRICKY ALERT : This attempts to edit the admin plugins web.xml. This uses a bit of cf trickery
 # around selectinng the xml element with "select_region" then uses "replace_patterns"
@@ -115,8 +115,8 @@ bundle edit_line admin_portal_web_xml {
     ofconsole::
       "console_value" string => "login.jsp,index.jsp?logout=true,setup/index.jsp,setup/setup-*,.gif,.png,error-serverdown.jsp,setup/clearspace-integration-prelogin.jsp";
     !ofconsole::
-      # TRICKY ALERT: we make all require authentication which would mean you cannot 
-      # get to login page to autenticate. there's no such file console_disabled but 
+      # TRICKY ALERT: we make all require authentication which would mean you cannot
+      # get to login page to autenticate. there's no such file console_disabled but
       # doesn't matter. we just use it as a placeholder to swap out if console goes on
       "console_value" string => "console_disabled";
 
@@ -197,4 +197,3 @@ body copy_from local_cp_by_digest(filename) {
   compare => "digest";
   purge => "true";
 }
-
