@@ -33,6 +33,7 @@ class SipMessage;
 class RouteState;
 class ForwardRules;
 class SipOutputProcessor;
+class UserLocationDB;
 
 /// SipRouter implements the main message handling responsible for the forking
 /// authorization and forwarding of SIP messages.
@@ -117,6 +118,17 @@ class SipRouter : public OsServerTask
    /// Send a keepalive message to the specified address/port using the SipRouter's SipUserAgent.
    void sendUdpKeepAlive( SipMessage& keepAliveMsg, const char* serverAddress, int port );
 
+   /// Retrieve the location associated with an user
+   bool getUserLocation (
+      const UtlString& identity, ///< identity of the user
+      UtlString& location        ///< location of the user or empty string
+      ) const;
+   /**<
+    * Check if the user has a location in db and retrieves it.
+    * @returns true if user has a location, false otherwise
+    */
+
+
    /// Get the canonical form of our SIP domain name.
    void getDomain(UtlString& canonicalDomain) const;
    
@@ -181,6 +193,7 @@ class SipRouter : public OsServerTask
    ForwardRules* mpForwardingRules;      ///< Holds to forwarding rules instructions
    PluginHooks   mAuthPlugins;           ///< decision making modules from configuration
    PluginHooks   mTransactionPlugins;
+   UserLocationDB* mpUserLocationDbInstance; ///< Pointer to database that holds mappings between user identities and their location attribute
 
    /// P-Asserted-Identity header is only applicable for INVITE, REFER, BYE,
    /// OPTIONS, NOTIFY, and SUBSCRIBE

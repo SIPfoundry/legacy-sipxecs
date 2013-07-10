@@ -55,7 +55,8 @@ testsuite_SOURCES = \
     net/SipUserAgentTest.cpp \
     net/SipXauthIdentityTest.cpp \
     net/SipxNatRouteTest.cpp \
-    net/XmlRpcTest.cpp
+    net/XmlRpcTest.cpp \
+    net/SipXlocationInfoTest.cpp
 
 $(srcdir)/net/SipXauthIdentityTest.cpp: net/SipXauthIdentityTest.cpp.in
 	$(srcdir)/net/refresh-hashes <$(srcdir)/net/SipXauthIdentityTest.cpp.in >$(srcdir)/net/SipXauthIdentityTest.cpp
