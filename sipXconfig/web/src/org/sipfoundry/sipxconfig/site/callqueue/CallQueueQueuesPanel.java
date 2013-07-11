@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
-*/
+ */
 
 package org.sipfoundry.sipxconfig.site.callqueue;
 
@@ -18,14 +18,13 @@ import org.apache.tapestry.IRequestCycle;
 
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.annotations.InitialValue;
-import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.ComponentClass;
 
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.UserException;
 /*sipXecs WEB components API imports */
-import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 
 /*sipXecs WEB settings API imports */
@@ -38,9 +37,6 @@ public abstract class CallQueueQueuesPanel extends BaseComponent {
     @Persist
     @InitialValue(value = "literal:queues")
     public abstract String getTab();
-
-    @Bean
-    public abstract SipxValidationDelegate getValidator();
 
     @InjectObject("spring:callQueueContext")
     public abstract CallQueueContext getCallQueueContext();
@@ -86,6 +82,12 @@ public abstract class CallQueueQueuesPanel extends BaseComponent {
     public void delete() {
         Collection<Integer> selectedRows = getRowsToDelete();
         if (null != selectedRows) {
+            for (Integer callqueueid : selectedRows) {
+                if (getCallQueueContext().getCallQueueAgentsForQueue(callqueueid).size() > 0) {
+                    // TODO: display exception on page
+                    throw new UserException(getMessages().getMessage("&error.callQueueBusy"));
+                }
+            }
             getCallQueueContext().removeCallQueues(selectedRows);
         }
     }

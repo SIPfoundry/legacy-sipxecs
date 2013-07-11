@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
-*/
+ */
 
 package org.sipfoundry.sipxconfig.callqueue;
 
@@ -49,5 +49,14 @@ public class CallQueueTier implements Serializable {
 
     public Integer getLevel() {
         return m_level;
+    }
+
+    public void copyTo(CallQueueTier dst) {
+        if (null != dst) {
+            dst.setCallQueueAgentId(getCallQueueAgentId());
+            dst.setCallQueueId(getCallQueueId());
+            dst.setPosition(getPosition());
+            dst.setLevel(getLevel());
+        }
     }
 }

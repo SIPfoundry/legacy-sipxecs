@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
-*/
+ */
 
 package org.sipfoundry.sipxconfig.site.callqueue;
 
@@ -17,9 +17,6 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /*sipXecs WEB components API imports */
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -33,7 +30,6 @@ import org.sipfoundry.sipxconfig.callqueue.CallQueueTier;
 
 public abstract class CallQueueEditAgent extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "callqueue/CallQueueEditAgent";
-    private static final Log LOG = LogFactory.getLog(CallQueueEditAgent.class);
 
     /* Properties */
     @InjectObject("spring:callQueueContext")
@@ -106,7 +102,8 @@ public abstract class CallQueueEditAgent extends PageWithCallback implements Pag
         setCallQueueAgent(null);
         setCallQueueAgentId(id);
     }
-//TODO: commit only on Apply or OK submit button pressed
+
+    // TODO: commit only on Apply or OK submit button pressed
     public IPage addQueues(IRequestCycle cycle) {
         CallQueueSelectPage queuesSelectPage = (CallQueueSelectPage) cycle.getPage(CallQueueSelectPage.PAGE);
         queuesSelectPage.setCallQueueAgentId(getCallQueueAgentId());

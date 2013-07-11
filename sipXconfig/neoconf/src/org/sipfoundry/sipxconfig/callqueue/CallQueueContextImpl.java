@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
-*/
+ */
 
 package org.sipfoundry.sipxconfig.callqueue;
 
@@ -32,7 +32,6 @@ import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -45,25 +44,25 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 
-public class CallQueueContextImpl
-    extends SipxHibernateDaoSupport
-    implements CallQueueContext, BeanFactoryAware, FeatureProvider {
+public class CallQueueContextImpl extends SipxHibernateDaoSupport implements CallQueueContext, BeanFactoryAware,
+        FeatureProvider {
 
-    private static final String QUERY_CALL_QUEUE_IDS = "callQueueIds";
-    private static final String QUERY_CALL_QUEUE_AGENT_IDS = "callQueueAgentIds";
     private static final String QUERY_CALL_QUEUE_EXTENSIONS_WITH_NAMES = "callQueueExtensionWithName";
     private static final String QUERY_PARAM_VALUE = "value";
     private static final String QUERY_PARAM_AGENT_ID = "callqueueagentid";
+    private static final String QUERY_PARAM_QUEUE_ID = "callqueueid";
 
     private static final String ALIAS = "alias";
     private static final String EXTENSION = "extension";
     private static final String DID = "did";
     private static final String QUEUE_NAME = CALL_QUEUE;
 
+    private static final String COPY = "Copy of ";
+    private static final String COPIED = "Copied \n";
+
     private BeanFactory m_beanFactory;
     private AliasManager m_aliasManager;
     private FeatureManager m_featureManager;
-    private ReplicationManager m_replicationManager;
     private BeanWithSettingsDao<CallQueueSettings> m_settingsDao;
 
     public void setBeanFactory(BeanFactory beanFactory) {
@@ -81,10 +80,6 @@ public class CallQueueContextImpl
         m_featureManager = featureManager;
     }
 
-    public void setReplicationManager(ReplicationManager replicationManager) {
-        m_replicationManager = replicationManager;
-    }
-
     /* Settings API */
 
     public void setSettingsDao(BeanWithSettingsDao<CallQueueSettings> settingsDao) {
@@ -98,10 +93,6 @@ public class CallQueueContextImpl
     public void saveSettings(CallQueueSettings settings) {
         m_settingsDao.upsert(settings);
         refreshCallQueueCommands(settings);
-    }
-
-    /* CallQueue exceptions */
-    public final class QueueInUseException extends UserException {
     }
 
     @Override
@@ -148,33 +139,6 @@ public class CallQueueContextImpl
         return false;
     }
 
-    /* Replication support */
-    public void onSave(Object entity) {
-/*
-        else if (entity instanceof User) {
-            User user = (User) entity;
-            CallQueueAgent callqueueagent = getAgentByUserId(user.getId());
-            if (callqueueagent != null) {
-                getDaoEventPublisher().publishSave(callqueueagent);
-            }
-        }
-*/
-    }
-
-    public void onDelete(Object entity) {
-/*
-        else if (entity instanceof User) {
-            User user = (User) entity;
-            CallQueueAgent callqueueagent = getAgentByUserId(user.getId());
-            if (callqueueagent != null) {
-                getDaoEventPublisher().publishDelete(callqueueagent);
-                getHibernateTemplate().delete(callqueueagent);
-            }
-        }
-*/
-    }
-
-    /* FreeSwitchExtensionProvider */
     @Override
     public boolean isEnabled() {
         return m_featureManager.isFeatureEnabled(FEATURE);
@@ -198,7 +162,8 @@ public class CallQueueContextImpl
             throw new NameInUseException(QUEUE_NAME, extension.getName());
         } else if (!m_aliasManager.canObjectUseAlias(extension, capturedExt)) {
             throw new ExtensionInUseException(QUEUE_NAME, capturedExt);
-        } else if (extension.getAlias() != null && !m_aliasManager.canObjectUseAlias(extension, extension.getAlias())) {
+        } else if (extension.getAlias() != null
+                && !m_aliasManager.canObjectUseAlias(extension, extension.getAlias())) {
             throw new ExtensionInUseException(QUEUE_NAME, extension.getAlias());
         } else if (extension.getAlias() != null && extension.getAlias().equals(extension.getExtension())) {
             throw new SameExtensionException(ALIAS, EXTENSION);
@@ -267,10 +232,15 @@ public class CallQueueContextImpl
     public void duplicateCallQueues(Collection<Integer> ids) {
         for (Integer id : ids) {
             CallQueue srcCallQueue = (CallQueue) getHibernateTemplate().load(CallQueue.class, id);
-            // Create a copy of the rule with a unique name
-            CallQueue callQueue = (CallQueue) duplicateBean(srcCallQueue, QUERY_CALL_QUEUE_IDS);
-            getDaoEventPublisher().publishSave(callQueue);
-            getHibernateTemplate().saveOrUpdate(callQueue);
+            CallQueue newCallQueue = newCallQueue();
+            // TODO: localize strings
+            newCallQueue.setName(COPY + srcCallQueue.getName());
+            if (null != srcCallQueue.getDescription()) {
+                newCallQueue.setDescription(COPIED + srcCallQueue.getDescription());
+            }
+            srcCallQueue.copySettingsTo(newCallQueue);
+            getDaoEventPublisher().publishSave(newCallQueue);
+            getHibernateTemplate().saveOrUpdate(newCallQueue);
         }
     }
 
@@ -287,33 +257,49 @@ public class CallQueueContextImpl
 
     /* CallQueueCommand API */
 
-    public CallQueueCommand newCallQueueCommand() {
+    private void createCallQeuueCommand(String command, String status) {
+        CallQueueCommand callQueueCommand = newCallQueueCommand();
+        callQueueCommand.setName(command);
+        callQueueCommand.setAlias(getSettings().getSettingValue("call-queue-agent-code/" + command));
+        callQueueCommand.setExtension(command, status);
+        storeCallQueueCommand(callQueueCommand);
+    }
+
+    private void refreshCallQueueCommands(CallQueueSettings settings) {
+        Collection<CallQueueCommand> callqueuecommands = getCallQueueCommands();
+        for (CallQueueCommand callQueueCommand : callqueuecommands) {
+            callQueueCommand.setAlias(settings.getSettingValue(String.format("call-queue-agent-code/%s",
+                    callQueueCommand.getName())));
+            storeCallQueueCommand(callQueueCommand);
+        }
+    }
+
+    private CallQueueCommand newCallQueueCommand() {
         CallQueueCommand callqueuecommand = (CallQueueCommand) m_beanFactory.getBean(CallQueueCommand.class);
         return callqueuecommand;
     }
 
-    public void storeCallQueueCommand(CallQueueCommand callQueueCommand) {
+    private void storeCallQueueCommand(CallQueueCommand callQueueCommand) {
         getDaoEventPublisher().publishSave(callQueueCommand);
         saveExtension(callQueueCommand);
     }
 
-    public CallQueueCommand loadCallQueueCommand(Integer id) {
+    private CallQueueCommand loadCallQueueCommand(Integer id) {
         return (CallQueueCommand) getHibernateTemplate().load(CallQueueCommand.class, id);
     }
 
-    public Collection<CallQueueCommand> getCallQueueCommands() {
+    private Collection<CallQueueCommand> getCallQueueCommands() {
         return getHibernateTemplate().loadAll(CallQueueCommand.class);
     }
 
     /* CallQueueAgent API */
 
     public CallQueueAgent newCallQueueAgent() {
-        CallQueueAgent callqueueagent =
-                (CallQueueAgent) m_beanFactory.getBean(CallQueueAgent.class);
+        CallQueueAgent callqueueagent = (CallQueueAgent) m_beanFactory.getBean(CallQueueAgent.class);
         return callqueueagent;
     }
 
-    public void storeCallQueueAgent(CallQueueAgent callQueueAgent) {
+    public void storeCallQueueAgent(CallQueueAgent callQueueAgent) { // Tested
         // Check for duplicate names and extensions before saving the call queue
         String name = callQueueAgent.getName();
         final String callQueueAgentTypeName = "&label.callQueueAgent";
@@ -331,13 +317,17 @@ public class CallQueueContextImpl
 
     public void duplicateCallQueueAgents(Collection<Integer> ids) {
         for (Integer id : ids) {
-            CallQueueAgent srcCallQueueAgent =
-                    (CallQueueAgent) getHibernateTemplate().load(CallQueueAgent.class, id);
-            // Create a copy of the rule with a unique name
-            CallQueueAgent callQueueAgent =
-                    (CallQueueAgent) duplicateBean(srcCallQueueAgent, QUERY_CALL_QUEUE_AGENT_IDS);
-            getDaoEventPublisher().publishSave(callQueueAgent);
-            getHibernateTemplate().saveOrUpdate(callQueueAgent);
+            CallQueueAgent srcCallQueueAgent = (CallQueueAgent) getHibernateTemplate()
+                    .load(CallQueueAgent.class, id);
+            CallQueueAgent newCallQueueAgent = newCallQueueAgent();
+            // TODO: localize strings
+            newCallQueueAgent.setName(COPY + srcCallQueueAgent.getName());
+            if (null != srcCallQueueAgent.getDescription()) {
+                newCallQueueAgent.setDescription(COPIED + srcCallQueueAgent.getDescription());
+            }
+            srcCallQueueAgent.copySettingsTo(newCallQueueAgent);
+            getDaoEventPublisher().publishSave(newCallQueueAgent);
+            getHibernateTemplate().saveOrUpdate(newCallQueueAgent);
         }
     }
 
@@ -353,41 +343,31 @@ public class CallQueueContextImpl
     }
 
     @Override
-    public List<CallQueueTier> getCallQueueTiersForAgent(Integer callqueueagentid) {
+    public List<CallQueue> getAvaiableQueuesForAgent(Integer callqueueagentid) {
         if (null == callqueueagentid) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
-        Query query = getSession().createSQLQuery(
-                "SELECT DISTINCT t.* FROM call_queue_tier t WHERE t.call_queue_agent_id = :" + QUERY_PARAM_AGENT_ID)
-                .addEntity(CallQueueTier.class)
-                .setParameter(QUERY_PARAM_AGENT_ID, callqueueagentid.intValue());
-        List<CallQueueTier> result = query.list();
-        return result;
-    }
-
-    @Override
-    public List<CallQueue> getAvaiableQueuesFroAgentId(Integer callqueueagentid) {
-        if (null == callqueueagentid) {
-            return Collections.EMPTY_LIST;
-        }
-        Query query = getSession().createSQLQuery(
-                "(SELECT q.* FROM freeswitch_extension q WHERE freeswitch_ext_type = 'q')"
-                + " EXCEPT"
-                + " (SELECT DISTINCT q.* FROM freeswitch_extension q"
-                + " LEFT JOIN call_queue_tier t USING(freeswitch_ext_id)"
-                + " WHERE t.call_queue_agent_id = :" + QUERY_PARAM_AGENT_ID + ")")
-                .addEntity(CallQueue.class)
-                .setParameter(QUERY_PARAM_AGENT_ID, callqueueagentid.intValue());
+        Query query = getSession()
+                .createSQLQuery(
+                        "(SELECT q.* FROM freeswitch_extension q WHERE freeswitch_ext_type = 'q')" + " EXCEPT"
+                                + " (SELECT DISTINCT q.* FROM freeswitch_extension q"
+                                + " LEFT JOIN call_queue_tier t USING(freeswitch_ext_id)"
+                                + " WHERE t.call_queue_agent_id = :" + QUERY_PARAM_AGENT_ID + ")")
+                .addEntity(CallQueue.class).setParameter(QUERY_PARAM_AGENT_ID, callqueueagentid.intValue());
         List<CallQueue> result = query.list();
         return result;
     }
 
-    private void createCallQeuueCommand(String command, String status) {
-        CallQueueCommand callQueueCommand = newCallQueueCommand();
-        callQueueCommand.setName(command);
-        callQueueCommand.setAlias(getSettings().getSettingValue("call-queue-agent-code/" + command));
-        callQueueCommand.setExtension(command, status);
-        storeCallQueueCommand(callQueueCommand);
+    @Override
+    public List<Integer> getCallQueueAgentsForQueue(Integer callqueueid) {
+        if (null == callqueueid) {
+            return Collections.emptyList();
+        }
+        Query query = getSession().createSQLQuery(
+                "SELECT DISTINCT t.call_queue_agent_id FROM call_queue_tier t WHERE t.freeswitch_ext_id = :"
+                        + QUERY_PARAM_QUEUE_ID).setParameter(QUERY_PARAM_QUEUE_ID, callqueueid.intValue());
+        List<Integer> result = query.list();
+        return result;
     }
 
     @Override
@@ -400,15 +380,6 @@ public class CallQueueContextImpl
             createCallQeuueCommand("agent-login", "Available");
             createCallQeuueCommand("agent-on-break", "On Break");
             createCallQeuueCommand("agent-logout", "Logged Out");
-        }
-    }
-
-    private void refreshCallQueueCommands(CallQueueSettings settings) {
-        Collection<CallQueueCommand> callqueuecommands = getCallQueueCommands();
-        for (CallQueueCommand callQueueCommand : callqueuecommands) {
-            callQueueCommand.setAlias(
-                    settings.getSettingValue(String.format("call-queue-agent-code/%s", callQueueCommand.getName())));
-            storeCallQueueCommand(callQueueCommand);
         }
     }
 

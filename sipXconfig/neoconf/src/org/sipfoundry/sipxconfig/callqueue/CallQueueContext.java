@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
-*/
+ */
 
 package org.sipfoundry.sipxconfig.callqueue;
 
@@ -17,8 +17,7 @@ import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionProvider;
 
-public interface CallQueueContext
-    extends FreeswitchExtensionProvider, AliasOwner, ReplicableProvider {
+public interface CallQueueContext extends FreeswitchExtensionProvider, AliasOwner, ReplicableProvider {
 
     public static final String CALL_FEATURE_ID = CallQueueContext.CALL_QUEUE;
     public static final LocationFeature FEATURE = new LocationFeature(CALL_FEATURE_ID);
@@ -73,8 +72,7 @@ public interface CallQueueContext
     Collection<CallQueueAgent> getCallQueueAgents();
 
     /* CallQueueTier API */
+    List<CallQueue> getAvaiableQueuesForAgent(Integer agentid);
 
-    List<CallQueueTier> getCallQueueTiersForAgent(Integer callqueueagentid);
-
-    List<CallQueue> getAvaiableQueuesFroAgentId(Integer agentid);
+    List<Integer> getCallQueueAgentsForQueue(Integer callqueueid);
 }

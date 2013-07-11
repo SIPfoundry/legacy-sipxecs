@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
-*/
+ */
 
 package org.sipfoundry.sipxconfig.callqueue;
 
@@ -36,6 +36,16 @@ public class CallQueueTiers {
             if (callqueuetier.getCallQueueId().equals(callqueueid)) {
                 tiers.remove(callqueuetier);
                 break;
+            }
+        }
+    }
+
+    public void copyTiersTo(Set<CallQueueTier> dst) {
+        if (null != dst) {
+            for (CallQueueTier callqueuetier : m_tiers) {
+                CallQueueTier newTier = new CallQueueTier();
+                callqueuetier.copyTo(newTier);
+                dst.add(newTier);
             }
         }
     }

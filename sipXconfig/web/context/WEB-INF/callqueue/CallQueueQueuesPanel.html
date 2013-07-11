@@ -3,7 +3,7 @@
     <ul class="component-links">
 	<li><a jwcid="addQueueLink@DirectLink" listener="listener:add"><span key="label.queues.add"/></a></li>
     </ul>
-    <form jwcid="queuesForm@Form" id="queuesForm" delegate="bean:validator">
+    <form jwcid="queuesForm@Form" id="queuesForm">
 	<table jwcid="@common/Table"
 	    source="ognl:CallQueueContext.CallQueues"
 	    columns="literal:* name,extension,enabled,description"

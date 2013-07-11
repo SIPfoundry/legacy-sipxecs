@@ -68,4 +68,9 @@ public class CallQueue extends CallQueueExtension {
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("sipxcallqueue/CallQueue.xml");
     }
+
+    public void copySettingsTo(CallQueue dst) {
+        // Copy bean settings
+        dst.setSettings(getSettings());
+    }
 }

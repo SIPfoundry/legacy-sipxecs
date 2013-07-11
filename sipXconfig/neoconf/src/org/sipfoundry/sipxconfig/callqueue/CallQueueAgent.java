@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
-*/
+ */
 
 package org.sipfoundry.sipxconfig.callqueue;
 
@@ -32,9 +32,7 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 import org.springframework.beans.factory.annotation.Required;
 
-public class CallQueueAgent
-    extends BeanWithSettings
-    implements Replicable, DeployConfigOnEdit {
+public class CallQueueAgent extends BeanWithSettings implements Replicable, DeployConfigOnEdit {
 
     static final String ALIAS_RELATION = "callqueueagent";
     static final String PREFIX_CALLQUEUE_AGENT = "~~cqa~";
@@ -46,17 +44,18 @@ public class CallQueueAgent
     private DomainManager m_domainManager;
     private CallQueueContext m_callQueueContext;
 
-//    private Set<CallQueueTier> m_tiers = new HashSet<CallQueueTier>();
     private CallQueueTiers m_tiers = new CallQueueTiers();
 
     /* Enabled */
     public boolean isEnabled() {
         return true;
     }
+
     /* Name */
     public String getName() {
         return m_name;
     }
+
     public void setName(String name) {
         m_name = name;
     }
@@ -65,6 +64,7 @@ public class CallQueueAgent
     public String getExtension() {
         return m_extension;
     }
+
     public void setExtension(String extension) {
         m_extension = extension;
     }
@@ -105,8 +105,8 @@ public class CallQueueAgent
     }
 
     public String getContactUri() {
-        return String.format("sofia/%s/~~cqa~%s@%s",
-                m_domainManager.getDomainName(), getExtension(), m_domainManager.getDomainName());
+        return String.format("sofia/%s/~~cqa~%s@%s", m_domainManager.getDomainName(), getExtension(),
+                m_domainManager.getDomainName());
     }
 
     @Override
@@ -129,8 +129,8 @@ public class CallQueueAgent
     public Collection<AliasMapping> getAliasMappings(String domainName) {
         List<AliasMapping> mappings = new ArrayList<AliasMapping>();
         if (getExtension() != null) {
-            AliasMapping aliasMapping = new AliasMapping(PREFIX_CALLQUEUE_AGENT + getExtension(),
-                    SipUri.format(getExtension(), domainName, false), ALIAS_RELATION);
+            AliasMapping aliasMapping = new AliasMapping(PREFIX_CALLQUEUE_AGENT + getExtension(), SipUri.format(
+                    getExtension(), domainName, false), ALIAS_RELATION);
             mappings.add(aliasMapping);
         }
         return mappings;
@@ -183,29 +183,38 @@ public class CallQueueAgent
 
     public class Defaults {
 
-        @SettingEntry(paths = { "call-queue-agent/max-no-answer" })
+        @SettingEntry(paths = "call-queue-agent/max-no-answer")
         public String getDefaultMaxNoAnswer() {
             return getCallQueueContext().getSettings().getSettingValue("call-queue-agent/max-no-answer");
         }
 
-        @SettingEntry(paths = { "call-queue-agent/wrap-up-time" })
+        @SettingEntry(paths = "call-queue-agent/wrap-up-time")
         public String getDefaultWrapUpTime() {
             return getCallQueueContext().getSettings().getSettingValue("call-queue-agent/wrap-up-time");
         }
 
-        @SettingEntry(paths = { "call-queue-agent/reject-delay-time" })
+        @SettingEntry(paths = "call-queue-agent/reject-delay-time")
         public String getDefaultRejectDelayTime() {
             return getCallQueueContext().getSettings().getSettingValue("call-queue-agent/reject-delay-time");
         }
 
-        @SettingEntry(paths = { "call-queue-agent/busy-delay-time" })
+        @SettingEntry(paths = "call-queue-agent/busy-delay-time")
         public String getDefaultBusyDelayTime() {
             return getCallQueueContext().getSettings().getSettingValue("call-queue-agent/busy-delay-time");
         }
 
-        @SettingEntry(paths = { "call-queue-agent/no-answer-delay-time" })
+        @SettingEntry(paths = "call-queue-agent/no-answer-delay-time")
         public String getDefaultNoAnswerDelayTime() {
             return getCallQueueContext().getSettings().getSettingValue("call-queue-agent/no-answer-delay-time");
         }
+    }
+
+    public void copySettingsTo(CallQueueAgent dst) {
+        // Copy CallQueueTiers
+        CallQueueTiers newTiers = new CallQueueTiers();
+        m_tiers.copyTiersTo(newTiers.getTiers());
+        dst.setTiers(newTiers);
+        // Copy bean settings
+        dst.setSettings(getSettings());
     }
 }
