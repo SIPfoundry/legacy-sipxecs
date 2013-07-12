@@ -165,9 +165,9 @@ class ContactSet : public UtlContainableAtomic,
    ContactSet& operator=(const ContactSet& rhs);
 
 
-   typedef boost::mutex mutex_critic_sec;
-   typedef boost::lock_guard<mutex_critic_sec> mutex_lock;
-   mutex_critic_sec _subscriptionsMutex;
+   typedef boost::recursive_mutex mutex;
+   typedef boost::lock_guard<mutex> mutex_lock;
+   mutable mutex _subscriptionsMutex;
 };
 
 // Get the parent ResourceCached.
