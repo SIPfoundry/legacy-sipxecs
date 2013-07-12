@@ -58,14 +58,22 @@ ContactSet::ContactSet(ResourceCached* resource,
    // Set up the subscriptions.
    // Until we have any information from our SUBSCRIBE for "reg" events,
    // and if flag allowDirectUriSubscription permits it, there will be one subscription to mUri.
+   if (uri.contains("dtezuce.ro"))
+   {
+     allowDirectUriSubscription = false;
+   }
+
    updateSubscriptions(allowDirectUriSubscription);
 
    // Start the subscription.
-   UtlBoolean ret;
+   UtlBoolean ret=FALSE;
    UtlString mUriNameAddr = "<" + mUri + ">";
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "SubscriptionSet:: mUri = '%s', mUriNameAddr = '%s'",
                  mUri.data(), mUriNameAddr.data());
+
+   if (allowDirectUriSubscription==FALSE)
+   {
    ret = getResourceListServer()->getSubscribeClient().
       addSubscription(mUri.data(),
                       REG_EVENT_TYPE,
@@ -78,6 +86,7 @@ ContactSet::ContactSet(ResourceCached* resource,
                       ResourceListSet::subscriptionEventCallbackAsync,
                       ResourceListSet::notifyEventCallbackAsync,
                       mSubscriptionEarlyDialogHandle);
+   }
    if (ret)
    {
       Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,

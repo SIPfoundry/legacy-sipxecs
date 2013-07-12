@@ -62,7 +62,7 @@ class ContactSet : public UtlContainableAtomic,
               ///< ancestor Resource object
               UtlString& uri,
               ///< the AOR
-              bool allowDirectUriSubscription
+              bool allowDirectUriSubscription = true
               ///< creates one subscription to SUBSCRIBE directly to AOR
       );
 

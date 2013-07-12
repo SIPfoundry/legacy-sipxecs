@@ -104,7 +104,7 @@ void ResourceCached::startSubscriptions()
                                  // The URI, which is the UtlString-nature
                                  // of a RecourceCached.
                                  *(static_cast <UtlString*> (this)),
-                                 false
+                                 true
       );
 }
 
