@@ -134,6 +134,7 @@ ContactSet::~ContactSet()
       // destroyAll() deadlocks with the access to mSubscriptionSets
       // during the the attempt to publish new status for the resource
       // as the ResourceInstances are recursively deleted.
+      mutex_lock lock(_subscriptionsMutex);
       UtlHashMapIterator itor(mSubscriptionSets);
       UtlContainable* k;
       while ((k = itor()))
@@ -626,6 +627,7 @@ void ContactSet::updateSubscriptions(bool allowDirectUriSubscription)
         long subscription_wait_msec = getResourceListServer()->getChangeDelay() / 2;
         int subscriptionSetCount = 0;
 
+        mutex_lock lock(_subscriptionsMutex);
         while ((callid_contact = dynamic_cast <UtlString*> (itor())))
         {
             // If we both terminate subscriptions and create subscriptions,
@@ -685,6 +687,13 @@ bool ContactSet::addSubscriptionSet(const UtlString* callidContact)
 
   mutex_lock lock(_subscriptionsMutex);
 
+  //  addSubscriptionSet can be called directly or as a timer event callback if
+  //  wait_after_subscription_ended is set.  Within the time period when the
+  //  timer is still awaiting expiration, other threads may have already destroyed
+  //  the subscription set.  Thus, we do not have a guaranty that the subscription
+  //  set that is getting added has not been removed.  To avoid this race condition,
+  //  we find it again here and return false if the callidContact is no longer
+  //  reachable
   if (mSubscriptionSets.find(callidContact))
     return false;
 
@@ -713,6 +722,7 @@ void ContactSet::generateBody(UtlString& rlmi,
 {
    // Iterate through the list of SubscriptionSet's and call their
    // generateBody methods.
+   //mutex_lock lock(_subscriptionsMutex);
    UtlHashMapIterator itor(mSubscriptionSets);
    UtlString* ss;
    while ((ss = dynamic_cast <UtlString*> (itor())))
@@ -731,6 +741,7 @@ void ContactSet::purgeTerminated()
 
    // Iterate through the list of SubscriptionSet's and call their
    // purgeTerminated methods.
+   mutex_lock lock(_subscriptionsMutex);
    UtlHashMapIterator itor(mSubscriptionSets);
    UtlString* ss;
    while ((ss = dynamic_cast <UtlString*> (itor())))
@@ -780,6 +791,7 @@ void ContactSet::dumpState() const
       }
    }
 
+   mutex_lock lock(_subscriptionsMutex);
    UtlHashMapIterator itor3(mSubscriptionSets);
    while ((handle = dynamic_cast <UtlString*> (itor3())))
    {
