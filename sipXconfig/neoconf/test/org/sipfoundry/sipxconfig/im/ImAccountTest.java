@@ -89,6 +89,8 @@ public class ImAccountTest extends TestCase {
 
         imAccount.setImDisplayName("jane");
         assertEquals("jane", imAccount.getImDisplayName());
-        assertNull(user.getImDisplayName());
+        //we need to always set imDisplayName even if is equal with username.
+        //we need it replicated in potential plugins for vcard in openfire
+        assertEquals("jane", user.getImDisplayName());
     }
 }

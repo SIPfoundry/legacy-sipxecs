@@ -85,17 +85,12 @@ public class ImAccount {
     }
 
     /**
-     * Update user IM Display name.
-     *
-     * If the new value happens to be the same as default, we are removing user set value.
-     * Otherwise we update to a new value.
+     * Always save imDisplayName in mongo including the default value.
+     * This is needed in openfire plugins to be available
+     * for vcard conversion
      */
     public void setImDisplayName(String imDisplayName) {
-        if (getDefaultImDisplayName().equals(imDisplayName)) {
-            m_user.setImDisplayName(null);
-        } else {
-            m_user.setImDisplayName(imDisplayName);
-        }
+        m_user.setImDisplayName(imDisplayName);
     }
 
     public String getDefaultImDisplayName() {
