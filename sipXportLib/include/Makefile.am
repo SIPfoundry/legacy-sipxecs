@@ -76,6 +76,7 @@ nobase_include_HEADERS = \
     os/OsServerSocket.h \
     os/OsServerTask.h \
     os/OsServerTaskWaitable.h \
+    os/OsServiceOptions.h \
     os/OsSharedLibMgr.h \
     os/OsSocket.h \
     os/OsSSL.h \
