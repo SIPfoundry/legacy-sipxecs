@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.site.callqueue.CallQueueEditSettingsPanel">
+  <!--
+	- P R O P E R T I E S
+     -->
+  <inject property="callQueueContext" object="spring:callQueueContext"/>
+  <!--
+	- B E A N S
+    -->
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+</component-specification>

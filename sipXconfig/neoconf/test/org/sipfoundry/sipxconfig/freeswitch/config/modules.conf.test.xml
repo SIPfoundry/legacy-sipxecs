@@ -55,6 +55,7 @@
     <!-- <load module="mod_cluechoo"/> -->
     <load module="mod_valet_parking"/>
     <!-- <load module="mod_spy"/> -->
+    <load module="mod_callcenter"/>
 
     <!-- SNOM Module -->
     <!--<load module="mod_snom"/>-->

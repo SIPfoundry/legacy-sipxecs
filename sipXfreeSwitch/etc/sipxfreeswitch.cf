@@ -29,7 +29,8 @@ bundle agent sipxfreeswitch_config {
       "conference_file" string => "$(sipx.SIPX_CONFDIR)/freeswitch/conf/autoload_configs/conference.conf.xml";
 
       "xml_file_reload_only" slist => { 
-        "dialplan/sipX_context.xml"
+        "dialplan/sipX_context.xml",
+         "autoload_configs/callcenter.conf.xml"
       };
 
       "xml_file" slist => { 
@@ -39,7 +40,7 @@ bundle agent sipxfreeswitch_config {
         "autoload_configs/xml_rpc.conf.xml",
          "autoload_configs/switch.conf.xml",
          "autoload_configs/logfile.conf.xml",
-         "autoload_configs/local_stream.conf.xml"
+         "autoload_configs/local_stream.conf.xml",
       };
 
   files:
@@ -114,6 +115,7 @@ any::
     <load module=\"mod_voipcodecs\"/>
     <load module=\"mod_g723_1\"/>
     <load module=\"mod_timerfd\"/>
+    <load module=\"mod_callcenter\"/>
 ";
 
 fs_g729::

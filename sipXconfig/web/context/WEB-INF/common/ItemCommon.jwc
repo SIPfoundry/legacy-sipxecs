@@ -5,10 +5,12 @@
   <!-- P A R A M E T E R S -->
   <parameter name="useEnabled" required="no" default-value="true" />
   <parameter name="useExtension" required="no" default-value="false" />
+  <parameter name="useExtensionSelect" required="no" default-value="false" />
   <parameter name="useDid" required="no" default-value="false" />
   <parameter name="useFieldset" required="no" default-value="true" />
   <parameter name="nameValidator" required="no" default-value="validators:required" />
   <parameter name="extensionValidator" required="no" default-value="spring-validators:required,validPhone" />
   <parameter name="maxDescriptionLen" required="no" default-value="255" />
   <parameter name="disableEnabledCheckbox" required="no" default-value="false" />
+  <parameter name="selectUserListener" required="no" default-value="null" />
 </component-specification>

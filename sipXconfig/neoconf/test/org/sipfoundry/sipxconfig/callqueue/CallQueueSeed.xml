@@ -1,0 +1,170 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+    <!--// System tables //-->
+    <table name="value_storage">
+	<column>value_storage_id</column>
+	<row>
+	    <value>200001</value>
+	</row>
+	<row>
+	    <value>200002</value>
+	</row>
+	<row>
+	    <value>200003</value>
+	</row>
+	<row>
+	    <value>200004</value>
+	</row>
+	<row>
+	    <value>200005</value>
+	</row>
+	<row>
+	    <value>200006</value>
+	</row>
+	<row>
+	    <value>200007</value>
+	</row>
+	<row>
+	    <value>200008</value>
+	</row>
+	<row>
+	    <value>200009</value>
+	</row>
+	<row>
+	    <value>200010</value>
+	</row>
+    </table>
+    <table name="freeswitch_extension">
+	<column>freeswitch_ext_id</column>
+	<column>name</column>
+	<column>description</column>
+	<column>freeswitch_ext_type</column>
+	<column>did</column>
+	<column>alias</column>
+	<column>enabled</column>
+	<column>value_storage_id</column>
+	<row>
+	    <value>300001</value>
+	    <value>Queue 1</value>
+	    <value>Fake CallQueue with ID 300001</value>
+	    <value>q</value>
+	    <value>8101</value>
+	    <value></value>
+	    <value>1</value>
+	    <value>200004</value>
+	</row>
+	<row>
+	    <value>300002</value>
+	    <value>Queue 2</value>
+	    <value>Fake CallQueue with ID 300002</value>
+	    <value>q</value>
+	    <value>8102</value>
+	    <value></value>
+	    <value>1</value>
+	    <value>200005</value>
+	</row>
+	<row>
+	    <value>300003</value>
+	    <value>Queue 3</value>
+	    <value>Fake CallQueue with ID 300003</value>
+	    <value>q</value>
+	    <value>8103</value>
+	    <value></value>
+	    <value>1</value>
+	    <value>200006</value>
+	</row>
+	<row>
+	    <value>300004</value>
+	    <value>Queue 4</value>
+	    <value>Fake CallQueue with ID 300004</value>
+	    <value>q</value>
+	    <value>8104</value>
+	    <value></value>
+	    <value>1</value>
+	    <value>200007</value>
+	</row>
+	<row>
+	    <value>400001</value>
+	    <value>CQC 1</value>
+	    <value>Fake CallQueueCommand with ID 400001</value>
+	    <value>f</value>
+	    <value>cqc-1</value>
+	    <value></value>
+	    <value>1</value>
+	    <value>200008</value>
+	</row>
+	<row>
+	    <value>400002</value>
+	    <value>CQC 2</value>
+	    <value>Fake CallQueueCommand with ID 400002</value>
+	    <value>f</value>
+	    <value>cqc-2</value>
+	    <value></value>
+	    <value>1</value>
+	    <value>200009</value>
+	</row>
+	<row>
+	    <value>400003</value>
+	    <value>CQC 3</value>
+	    <value>Fake CallQueueCommand with ID 400003</value>
+	    <value>f</value>
+	    <value>cqc-3</value>
+	    <value></value>
+	    <value>1</value>
+	    <value>200010</value>
+	</row>
+    </table>
+    <!--// Component tables //-->
+    <table name="call_queue_agent">
+	<column>call_queue_agent_id</column>
+	<column>name</column>
+	<column>extension</column>
+	<column>description</column>
+	<column>value_storage_id</column>
+	<row>
+	    <value>100001</value>
+	    <value>Agent 1</value>
+	    <value>4001</value>
+	    <value>Fake CallQueueAgent Object with ID 100001</value>
+	    <value>200001</value>
+	</row>
+	<row>
+	    <value>100002</value>
+	    <value>Agent 2</value>
+	    <value>4002</value>
+	    <value>Fake CallQueueAgent Object with ID 100002</value>
+	    <value>200002</value>
+	</row>
+	<row>
+	    <value>100003</value>
+	    <value>Agent 3</value>
+	    <value>4003</value>
+	    <value>Fake CallQueueAgent Object with ID 100003</value>
+	    <value>200003</value>
+	</row>
+    </table>
+    <table name="call_queue_tier">
+	<column>call_queue_agent_id</column>
+	<column>freeswitch_ext_id</column>
+	<column>position</column>
+	<column>level</column>
+	<row>
+	    <value>100001</value>
+	    <value>300001</value>
+	    <value>11</value>
+	    <value>22</value>
+	</row>
+	<row>
+	    <value>100001</value>
+	    <value>300002</value>
+	    <value>33</value>
+	    <value>44</value>
+	</row>
+	<row>
+	    <value>100002</value>
+	    <value>300002</value>
+	    <value>55</value>
+	    <value>66</value>
+	</row>
+    </table>
+</dataset>

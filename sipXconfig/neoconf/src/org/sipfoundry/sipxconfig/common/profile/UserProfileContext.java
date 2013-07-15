@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.springframework.beans.factory.annotation.Required;
@@ -91,6 +92,7 @@ public class UserProfileContext implements DaoEventListener, SetupListener {
                         m_locationManager.getPrimaryLocation().getFqdn(), user.getUserName()));
                 profile.setBranchName(user.getSite() != null ? user.getSite().getName() : EMPTY);
                 profile.setBranchAddress(user.getSite() != null ? createBranchAddress(user.getSite()) : new Address());
+                profile.setImDisplayName(new ImAccount(user).getImDisplayName());
                 m_userProfileService.saveUserProfile(profile);
             } catch (Exception ex) {
                 LOG.error("failed to save profile in mongo" + ex.getMessage());

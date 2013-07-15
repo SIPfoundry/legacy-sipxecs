@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+    "sipXconfig/etc/setting_2_0.dtd">
+<model>
+<type id="type_strategy">
+    <enum>
+        <option><value>ring-all</value></option>
+        <option><value>longest-idle-agent</value></option>
+        <option><value>round-robin</value></option>
+        <option><value>top-down</value></option>
+        <option><value>agent-with-least-talk-time</value></option>
+        <option><value>agent-with-fewest-calls</value></option>
+        <option><value>sequetially-by-agent-order</value></option>
+        <option><value>random</value></option>
+    </enum>
+</type>
+<type id="type_upload-music">
+    <file variable="yes" directory="/var/sipxdata/mediaserver/data/moh"/>
+</type>
+    <group name="call-queue">
+	<setting name="strategy"><type refid="type_strategy"/><value>0</value></setting>
+	<setting name="welcome-audio"><type refid="type_upload-music"/></setting>
+	<setting name="announce-position"><type><boolean/></type><value>1</value></setting>
+	<setting name="moh-sound"><type refid="type_upload-music"/></setting>
+	<setting name="record-calls"><type><boolean/></type><value>1</value></setting>
+	<setting name="record-calls-directory"><type><string/></type><value></value></setting>
+	<setting name="tier-rules-apply"><type><boolean/></type><value>1</value></setting>
+	<setting name="tier-rule-wait-second"><type><integer/></type><value>10</value></setting>
+	<setting name="tier-rule-wait-multiply-level"><type><boolean/></type><value>1</value></setting>
+	<setting name="tier-rule-no-agent-no-wait"><type><boolean/></type><value>1</value></setting>
+
+	<setting name="discard-abandoned-after" hidden="yes"><type><integer/></type><value>0</value></setting>
+	<setting name="abandoned-resume-allowed" hidden="yes"><type><boolean/></type><value>1</value></setting>
+
+	<setting name="max-wait-time"><type><integer/></type><value>0</value></setting>
+	<setting name="max-wait-time-with-no-agent"><type><integer/></type><value>0</value></setting>
+	<setting name="max-wait-time-with-no-agent-time-reached"><type><integer/></type><value>5</value></setting>
+    </group>
+</model>

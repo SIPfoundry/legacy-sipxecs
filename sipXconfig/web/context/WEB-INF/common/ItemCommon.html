@@ -18,15 +18,30 @@
           value="ognl:#this.item.name"/>
      </tr>
     </span>
-    <span jwcid="ifUseExtension@If" condition="ognl:useExtension">
-      <tr jwcid="@common/FieldPanel" for="item:extension" field="component:extension" label="message:extension">
-      	<input jwcid="extension@TextField" id="item:extension"
-          value="ognl:#this.item.extension"
-          validators="ognl:extensionValidator"
-          displayName="message:extension"
-          maxlength="15"/>
+    <span jwcid="ifUseExtensionSelect@If" condition="ognl:useExtensionSelect">
+      <tr jwcid="@common/FieldPanel" label="message:extension">
+	    <input jwcid="extensionSelected@TextField" id="item:extension"
+		value="ognl:#this.item.extension"
+		validators="ognl:extensionValidator"
+		displayName="message:extension"
+		disabled="disabled"
+		maxlength="15"/>
+	    <a jwcid="selectUserLink@DirectLink" id="item:selectUser" listener="ognl:selectUserListener"><span key="link.selectuser"/></a>
       </tr>
     </span>
+    <span jwcid="@Else">
+	<span jwcid="ifUseExtension@If" condition="ognl:useExtension">
+	<tr jwcid="@common/FieldPanel" for="item:extension" field="component:extension" label="message:extension">
+	    <input jwcid="extension@TextField" id="item:extension"
+		value="ognl:#this.item.extension"
+		validators="ognl:extensionValidator"
+		displayName="message:extension"
+		maxlength="15"/>
+	</tr>
+	</span>
+    </span>
+
+
     <span jwcid="ifUseDid@If" condition="ognl:useDid">
       <tr jwcid="@common/FieldPanel" for="item:did" field="component:did" label="message:did" description="message:did.description">
         <input jwcid="did@TextField" id="item:did"
