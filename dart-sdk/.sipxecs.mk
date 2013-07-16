@@ -27,6 +27,6 @@ $(dart-sdk_x86_64_RPM) : $(DOWNLOAD_LIB_CACHE)/$(dart-sdk_TARBALL)
 # Yes this assumes build host machine is 64bit
 $(dart-sdk_i386_RPM) : $(DOWNLOAD_LIB_CACHE)/$(dart-sdk_TARBALL)
 	fpm -f -s tar -t rpm -n dart-sdk -v $(dart-sdk_VER) --iteration $(dart-sdk_REL) \
-	  --after-install $(SRC)/$(PROJ)/after-install.sh \
+	  --after-install $(SRC)/dart-sdk/after-install.sh \
 	  --license BSD --prefix /opt -a noarch $<
 	mv $(dart-sdk_intermediate_RPM) $@
