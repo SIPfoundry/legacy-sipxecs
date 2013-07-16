@@ -84,7 +84,7 @@ java-gwt : $(gwt_SRC)
 	mv out/gwt/org.sipfoundry.sipxconfig.userportal.contact_information/org.sipfoundry.sipxconfig.userportal.contact_information.nocache.js out/gwt/org.sipfoundry.sipxconfig.userportal.contact_information/nocache.js
 
 DART_SRC = $(shell cd $(srcdir)/context/WEB-INF; find . -name '*.dart')
-DART_PKGS = $(shell cd $(srcdir); find packages -name '*.js')
+DART_PKGS = $(shell cd $(top_srcdir); find packages -name '*.js')
 
 java-dart : $(addprefix $(web_JAVAROOT)/,$(DART_SRC:.dart=.js) $(DART_PKGS))
 
