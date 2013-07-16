@@ -11,6 +11,8 @@
 package org.sipfoundry.sipxconfig.security;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,15 +24,16 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.userdetails.UserDetails;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.login.PrivateUserKeyManager;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public class PrivateUserKeyProcessingFilter implements Filter {
     private static final Log LOG = LogFactory.getLog(PrivateUserKeyProcessingFilter.class);
@@ -86,7 +89,9 @@ public class PrivateUserKeyProcessingFilter implements Filter {
             return null;
         }
 
-        UserDetails details = new UserDetailsImpl(user, user.getUserName(), UserRole.User.toAuth());
+        Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(1);
+        authorities.add(UserRole.User.toAuth());
+        UserDetails details = new UserDetailsImpl(user, user.getUserName(), authorities);
         UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(details, user
                 .getPintoken(), details.getAuthorities());
         result.setDetails(details);

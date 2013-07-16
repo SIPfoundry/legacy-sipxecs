@@ -13,10 +13,10 @@ package org.sipfoundry.sipxconfig.security;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UserDetailsService;
-import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -24,7 +24,6 @@ import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.sipfoundry.sipxconfig.permission.PermissionName.RECORD_SYSTEM_PROMPTS;
-import static org.sipfoundry.sipxconfig.security.UserRole.AcdAgent;
 import static org.sipfoundry.sipxconfig.security.UserRole.AcdSupervisor;
 import static org.sipfoundry.sipxconfig.security.UserRole.Admin;
 import static org.sipfoundry.sipxconfig.security.UserRole.AttendantAdmin;
@@ -56,11 +55,6 @@ public abstract class AbstractUserDetailsService implements UserDetailsService {
             gas.add(AcdSupervisor.toAuth());
         }
 
-        // FIXME: should be possible to implement without loading all agents in memory
-        boolean isAgent = m_acdContext.getUsersWithAgents().contains(user);
-        if (isAgent) {
-            gas.add(AcdAgent.toAuth());
-        }
         if (user.hasPermission(RECORD_SYSTEM_PROMPTS)) {
             gas.add(AttendantAdmin.toAuth());
         }

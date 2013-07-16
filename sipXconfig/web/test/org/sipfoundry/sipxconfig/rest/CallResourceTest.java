@@ -4,8 +4,6 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.context.SecurityContextHolder;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.Method;
 import org.restlet.data.Request;
@@ -17,6 +15,8 @@ import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
 import org.sipfoundry.sipxconfig.sip.SipService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import junit.framework.TestCase;
 

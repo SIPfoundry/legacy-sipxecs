@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.site.cdr;
 import static org.sipfoundry.sipxconfig.security.UserRole.Admin;
 import static org.sipfoundry.sipxconfig.security.UserRole.User;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,8 +28,10 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.security.UserDetailsImpl;
+import org.sipfoundry.sipxconfig.security.UserRole;
 import org.sipfoundry.sipxconfig.sip.SipServiceImpl;
 import org.sipfoundry.sipxconfig.site.UserSession;
+import org.springframework.security.core.GrantedAuthority;
 
 public class CdrTableTest extends TestCase {
     private CdrTable m_cdrTable;
@@ -101,11 +105,12 @@ public class CdrTableTest extends TestCase {
 
         MockUserSession(boolean admin) {
             User user = new User();
+            Collection<GrantedAuthority> gas = new ArrayList<GrantedAuthority>();
+            gas.add(UserRole.User.toAuth());
             if (admin) {
-                m_userDetailsImpl = new UserDetailsImpl(user, "bongo", User.toAuth(), Admin.toAuth());
-            } else {
-                m_userDetailsImpl = new UserDetailsImpl(user, "bongo", User.toAuth());
+                gas.add(UserRole.Admin.toAuth());
             }
+            m_userDetailsImpl = new UserDetailsImpl(user, "bongo", gas);
         }
 
         @Override

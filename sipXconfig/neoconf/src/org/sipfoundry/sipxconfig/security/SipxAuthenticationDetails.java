@@ -21,14 +21,15 @@ import java.io.Serializable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.acegisecurity.concurrent.SessionIdentifierAware;
+import org.springframework.security.core.session.SessionIdentifierAware;
 
 // Adapted from Acegi's WebAuthenticationDetails
 public class SipxAuthenticationDetails implements SessionIdentifierAware, Serializable {
     private String m_remoteAddress;
     private String m_sessionId;
 
-    public SipxAuthenticationDetails(HttpServletRequest request) {
+    public SipxAuthenticationDetails(Object arg0) {
+        HttpServletRequest request = (HttpServletRequest) arg0;
         String realIp = request.getHeader("x-forwarded-for");
         if (realIp != null) {
             m_remoteAddress = realIp;

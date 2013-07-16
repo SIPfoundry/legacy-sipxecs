@@ -20,8 +20,6 @@ import java.util.Collection;
 
 import junit.framework.TestCase;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.context.SecurityContextHolder;
 import org.apache.commons.io.IOUtils;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.MediaType;
@@ -38,6 +36,8 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
 import org.sipfoundry.sipxconfig.test.TestHelper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 public class UserPagedPhonebookResourceTest extends TestCase {
     protected PhonebookManager m_phonebookManager;

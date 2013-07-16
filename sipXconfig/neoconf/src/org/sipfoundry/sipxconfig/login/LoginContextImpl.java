@@ -17,9 +17,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.acegisecurity.event.authentication.AbstractAuthenticationEvent;
-import org.acegisecurity.event.authentication.AbstractAuthenticationFailureEvent;
-import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
+import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
+import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
+import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -29,10 +29,9 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.security.SipxAuthenticationDetails;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
-public class LoginContextImpl implements LoginContext, ApplicationListener {
+public class LoginContextImpl implements LoginContext, ApplicationListener<AbstractAuthenticationEvent> {
     private static final String USERLOGINS_LOG = "sipxconfig-logins.log";
 
     private static final Log LOG = LogFactory.getLog("login");
@@ -131,15 +130,14 @@ public class LoginContextImpl implements LoginContext, ApplicationListener {
     /**
      * Log WEB authentication attempts
      */
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (!(event instanceof InteractiveAuthenticationSuccessEvent)
-                && !(event instanceof AbstractAuthenticationFailureEvent)) {
+    public void onApplicationEvent(AbstractAuthenticationEvent authEvent) {
+        if (!(authEvent instanceof InteractiveAuthenticationSuccessEvent)
+                && !(authEvent instanceof AbstractAuthenticationFailureEvent)) {
             return;
         }
 
-        AbstractAuthenticationEvent authEvent = (AbstractAuthenticationEvent) event;
         final String username = authEvent.getAuthentication().getName();
-        final boolean success = event instanceof InteractiveAuthenticationSuccessEvent;
+        final boolean success = authEvent instanceof InteractiveAuthenticationSuccessEvent;
 
         Object details = authEvent.getAuthentication().getDetails();
         if (details instanceof SipxAuthenticationDetails) {

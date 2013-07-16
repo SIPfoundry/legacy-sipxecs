@@ -9,29 +9,31 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
-import org.acegisecurity.userdetails.UserDetails;
+import java.util.ArrayList;
+import java.util.Collection;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public class LocationDetailsImpl implements UserDetails {
     private static final GrantedAuthority AUTH_LOCATION = new GrantedAuthorityImpl(Location.ROLE_LOCATION);
 
     private final String m_hostFqdn;
     private final String m_password;
-    private final GrantedAuthority[] m_authorities = {
-        AUTH_LOCATION
-    };
+    private final Collection<GrantedAuthority> m_authorities;
 
     /**
      * LocationDetails constructor
      *
-     * Create an Acegi Security LocationDetails object based on the Location, the userNameOrAlias
+     * Create an Spring Security LocationDetails object based on the Location, the userNameOrAlias
      * that is the location fqdn, and the authorities granted to this location.
      */
     public LocationDetailsImpl(Location location) {
         m_hostFqdn = location.getFqdn();
         m_password = location.getPassword();
+        m_authorities = new ArrayList<GrantedAuthority>();
+        m_authorities.add(AUTH_LOCATION);
     }
 
     public boolean isAccountNonExpired() {
@@ -42,7 +44,7 @@ public class LocationDetailsImpl implements UserDetails {
         return true; // accounts are never locked
     }
 
-    public GrantedAuthority[] getAuthorities() {
+    public Collection<GrantedAuthority> getAuthorities() {
         return m_authorities;
     }
 

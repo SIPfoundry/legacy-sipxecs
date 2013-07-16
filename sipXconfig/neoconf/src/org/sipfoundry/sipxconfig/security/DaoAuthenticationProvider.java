@@ -18,17 +18,6 @@ package org.sipfoundry.sipxconfig.security;
 import static org.sipfoundry.commons.security.Util.retrieveDomain;
 import static org.sipfoundry.commons.security.Util.retrieveUsername;
 
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.BadCredentialsException;
-import org.acegisecurity.providers.AuthenticationProvider;
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.providers.dao.AbstractUserDetailsAuthenticationProvider;
-import org.acegisecurity.providers.dao.SaltSource;
-import org.acegisecurity.providers.encoding.PasswordEncoder;
-import org.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UserDetailsService;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
@@ -36,6 +25,17 @@ import org.sipfoundry.sipxconfig.common.AbstractUser;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.DataAccessException;
 import org.springframework.util.Assert;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
+import org.springframework.security.authentication.dao.SaltSource;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
+import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
  * An {@link AuthenticationProvider} implementation that retrieves user details
@@ -46,8 +46,6 @@ import org.springframework.util.Assert;
  * benalex $
  *
  * Code copied from org.acegisecurity.providers.dao.DaoAuthenticationProvider
- * Sipxconfig custom code marked inside START SIPXECS CUSTOM CODE / END SIPXECS CUSTOM CODE:
- * if digest auth just compare the received password with the one from db
  */
 public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
@@ -84,14 +82,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
         String presentedPassword = authentication.getCredentials() == null ? "" : authentication.getCredentials()
                 .toString();
-
-        // START SIPXECS CUSTOM CODE: XX-8253: if digest authentication then just compare user pin token from db
-        // with the one processed by Digest filter
-        if (authentication instanceof DigestUsernamePasswordAuthenticationToken
-                && userDetails.getPassword().equals(presentedPassword)) {
-            return;
-        }
-        // END SIPXECS CUSTOM CODE: XX-8253
 
         if (!passwordEncoder.isPasswordValid(userDetails.getPassword(), presentedPassword, salt)) {
             throw new BadCredentialsException(messages.getMessage(

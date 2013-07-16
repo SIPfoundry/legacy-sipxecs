@@ -1,5 +1,4 @@
 sipxconfig_neoconf_PKGS = \
-	acegi-security \
 	ant-contrib \
 	antlr \
 	aopalliance \
@@ -70,7 +69,14 @@ sipxconfig_neoconf_PKGS = \
 	xmlrpc \
 	xstream \
         jedis \
-        spring-data-redis
+        spring-data-redis \
+        spring-security-config \
+        spring-security-core \
+        spring-security-ldap \
+        spring-security-web \
+	jradius-core \
+	jradius-dictionary \
+	gnu-crypto
 
 sipxconfig_web_PKGS = \
 	$(sipxconfig_neoconf_PKGS) \

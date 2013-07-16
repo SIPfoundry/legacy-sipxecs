@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Locale;
 
 import junit.framework.TestCase;
@@ -39,6 +41,7 @@ import org.sipfoundry.sipxconfig.site.ApplicationLifecycleImpl;
 import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.skin.SkinControl;
 import org.sipfoundry.sipxconfig.site.user.FirstUser;
+import org.springframework.security.core.GrantedAuthority;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -154,10 +157,13 @@ public class BorderTest extends TestCase {
 
         MockUserSession(boolean admin) {
             User user = new User();
+            Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+            authorities.add(User.toAuth());
             if (admin) {
-                m_userDetailsImpl = new UserDetailsImpl(user, "bongo", User.toAuth(), Admin.toAuth());
+                authorities.add(Admin.toAuth());
+                m_userDetailsImpl = new UserDetailsImpl(user, "bongo", authorities);
             } else {
-                m_userDetailsImpl = new UserDetailsImpl(user, "bongo", User.toAuth());
+                m_userDetailsImpl = new UserDetailsImpl(user, "bongo", authorities);
             }
         }
 

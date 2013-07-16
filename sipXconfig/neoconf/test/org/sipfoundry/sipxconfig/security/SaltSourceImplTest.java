@@ -11,12 +11,14 @@ package org.sipfoundry.sipxconfig.security;
 
 import org.sipfoundry.sipxconfig.commserver.Location;
 
+import java.util.ArrayList;
+
 import junit.framework.TestCase;
 
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.providers.dao.SaltSource;
-import org.acegisecurity.userdetails.UserDetails;
 import org.sipfoundry.sipxconfig.common.User;
+import org.springframework.security.authentication.dao.SaltSource;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public class SaltSourceImplTest extends TestCase {
     public void testGetSalt() {
@@ -25,7 +27,7 @@ public class SaltSourceImplTest extends TestCase {
 
         User u = new User();
         u.setUserName("bongo");
-        UserDetails user = new UserDetailsImpl(u, "userNameOrAlias", new GrantedAuthority[0]);
+        UserDetails user = new UserDetailsImpl(u, "userNameOrAlias", new ArrayList<GrantedAuthority>());
         assertEquals("bongo", ss.getSalt(user));
     }
 }

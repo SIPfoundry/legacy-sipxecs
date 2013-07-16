@@ -9,11 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import junit.framework.TestCase;
-import org.acegisecurity.GrantedAuthority;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.security.UserDetailsImpl;
 import org.sipfoundry.sipxconfig.security.UserRole;
+import org.springframework.security.core.GrantedAuthority;
 
 public class UserSessionTest extends TestCase {
 
@@ -25,9 +28,9 @@ public class UserSessionTest extends TestCase {
         UserSession userSession = new UserSession() {
             @Override
             protected UserDetailsImpl getUserDetails() {
-                GrantedAuthority[] gas = {
-                    UserRole.User.toAuth(), UserRole.Admin.toAuth()
-                };
+                Collection<GrantedAuthority> gas = new ArrayList<GrantedAuthority>(2);
+                gas.add(UserRole.User.toAuth());
+                gas.add(UserRole.Admin.toAuth());
                 return new UserDetailsImpl(user, "kuku", gas);
             }
         };

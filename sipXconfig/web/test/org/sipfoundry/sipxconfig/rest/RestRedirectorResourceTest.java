@@ -9,8 +9,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.context.SecurityContextHolder;
 import org.apache.axis.utils.ByteArrayOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.restlet.data.ChallengeResponse;
@@ -28,6 +26,8 @@ import org.sipfoundry.sipxconfig.rest.RestRedirectorResource.HttpInvoker;
 import org.sipfoundry.sipxconfig.restserver.RestServer;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 public class RestRedirectorResourceTest extends TestCase {
     private User m_user;

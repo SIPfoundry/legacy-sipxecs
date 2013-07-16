@@ -16,15 +16,13 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.acegisecurity.ui.AuthenticationDetailsSource;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 
 public class SipxAuthenticationDetailsSource implements AuthenticationDetailsSource {
 
     @Override
-    public Object buildDetails(HttpServletRequest request) {
-        return new SipxAuthenticationDetails(request);
+    public Object buildDetails(Object arg0) {
+        return new SipxAuthenticationDetails(arg0);
     }
 
 }

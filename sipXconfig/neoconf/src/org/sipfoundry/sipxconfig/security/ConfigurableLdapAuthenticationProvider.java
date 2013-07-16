@@ -22,28 +22,27 @@ import static org.sipfoundry.commons.security.Util.retrieveUsername;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.AuthenticationServiceException;
-import org.acegisecurity.ldap.DefaultInitialDirContextFactory;
-import org.acegisecurity.ldap.InitialDirContextFactory;
-import org.acegisecurity.ldap.LdapUserSearch;
-import org.acegisecurity.ldap.search.FilterBasedLdapUserSearch;
-import org.acegisecurity.providers.AuthenticationProvider;
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
-import org.acegisecurity.providers.ldap.LdapAuthenticationProvider;
-import org.acegisecurity.providers.ldap.LdapAuthenticator;
-import org.acegisecurity.providers.ldap.LdapAuthoritiesPopulator;
-import org.acegisecurity.providers.ldap.authenticator.BindAuthenticator;
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UserDetailsService;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.ldap.AttrMap;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.springframework.dao.DataAccessException;
+import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.support.BaseLdapPathContextSource;
+import org.springframework.ldap.core.support.DirContextSource;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.ldap.authentication.BindAuthenticator;
+import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
+import org.springframework.security.ldap.authentication.LdapAuthenticator;
+import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
+import org.springframework.security.ldap.search.LdapUserSearch;
+import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 
 /**
  * Creates a rebuildable reference to Acegi's real LdapAuthenticationProvider as settings change.
@@ -163,7 +162,7 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         if (params == null) {
             return null;
         }
-        InitialDirContextFactory dirFactory = getDirFactory(params);
+        DirContextSource dirFactory = getDirFactory(params);
         BindAuthenticator authenticator = new BindAuthenticator(dirFactory);
         authenticator.setUserSearch(getSearch(dirFactory, connectionId)); // used for user login
         SipxLdapAuthenticationProvider provider = new SipxLdapAuthenticationProvider(authenticator);
@@ -171,18 +170,19 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         return provider;
     }
 
-    InitialDirContextFactory getDirFactory(LdapConnectionParams params) {
+    DirContextSource getDirFactory(LdapConnectionParams params) {
         String bindUrl = params.getUrl();
-        DefaultInitialDirContextFactory dirContextFactory = new DefaultInitialDirContextFactory(bindUrl);
+        DirContextSource dirContextFactory = new DirContextSource();
+        dirContextFactory.setUrl(bindUrl);
         //allow anonymous access if so configured in LDAP server configuration page
         if (!StringUtils.isEmpty(params.getPrincipal())) {
-            dirContextFactory.setManagerDn(params.getPrincipal());
-            dirContextFactory.setManagerPassword(params.getSecret());
+            dirContextFactory.setUserDn(params.getPrincipal());
+            dirContextFactory.setPassword(params.getSecret());
         }
         return dirContextFactory;
     }
 
-    LdapUserSearch getSearch(InitialDirContextFactory dirFactory, int connectionId) {
+    LdapUserSearch getSearch(BaseLdapPathContextSource dirFactory, int connectionId) {
         AttrMap attrMap = m_ldapManager.getAttrMap(connectionId);
 
         String sbase = StringUtils.defaultString(attrMap.getSearchBase());
@@ -222,8 +222,9 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
          * otherwise cannot get authenticated against LDAP using user alias
          */
         @Override
-        protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) {
+        protected DirContextOperations doAuthentication(UsernamePasswordAuthenticationToken authentication) {
             UserDetailsImpl user = null;
+            String username = (String) authentication.getPrincipal();
             String userLoginName = retrieveUsername(username);
             String domain = retrieveDomain(username);
             try {
@@ -241,17 +242,10 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
                         user.getCanonicalUserName(), authentication.getCredentials());
                 //we call the super method to verifiy true username/password ldap authentication
                 //we don't return default LDAP retrieved user, but our sipX user, authenticated against LDAP
-                super.retrieveUser(user.getCanonicalUserName(), myAuthentication);
-            } catch (DataAccessException repositoryProblem) {
+                return super.doAuthentication(myAuthentication);
+            } catch (AuthenticationException repositoryProblem) {
                 throw new AuthenticationServiceException(repositoryProblem.getMessage(), repositoryProblem);
             }
-            return user;
-        }
-
-        @Override
-        protected void additionalAuthenticationChecks(UserDetails userDetails,
-                UsernamePasswordAuthenticationToken authentication) {
-            // passwords are checked in ldap layer, nothing else to do here
         }
     }
 

@@ -9,9 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
+import java.util.ArrayList;
 import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.login.LoginContext;
+import org.springframework.security.core.GrantedAuthority;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -37,7 +39,7 @@ public class PasswordEncoderImplTest extends TestCase {
 
         final User user = new User();
         user.setUserName(USER_NAME);
-        m_userDetails = new UserDetailsImpl(user, USER_ALIAS);
+        m_userDetails = new UserDetailsImpl(user, USER_ALIAS, new ArrayList<GrantedAuthority>());
 
         m_saltSourceImpl = new SaltSourceImpl();
     }

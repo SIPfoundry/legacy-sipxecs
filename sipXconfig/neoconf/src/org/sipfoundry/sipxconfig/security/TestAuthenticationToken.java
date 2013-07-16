@@ -11,13 +11,14 @@
 package org.sipfoundry.sipxconfig.security;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.providers.AbstractAuthenticationToken;
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.sipfoundry.sipxconfig.common.User;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 import static org.sipfoundry.sipxconfig.security.UserRole.AcdSupervisor;
 import static org.sipfoundry.sipxconfig.security.UserRole.Admin;
@@ -49,7 +50,7 @@ public class TestAuthenticationToken extends AbstractAuthenticationToken {
      */
     public Authentication authenticateToken() {
         User user = (User) getPrincipal();
-        GrantedAuthority[] authorities = getAuthorities();
+        Collection<GrantedAuthority> authorities = getAuthorities();
         UserDetailsImpl detailsImpl = new UserDetailsImpl(user, user.getUserName(), authorities);
 
         UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(user.getUserName(),
@@ -58,7 +59,7 @@ public class TestAuthenticationToken extends AbstractAuthenticationToken {
         return result;
     }
 
-    private static GrantedAuthority[] createAuthorities(boolean isAdmin, boolean isSupervisor) {
+    private static Collection<? extends GrantedAuthority> createAuthorities(boolean isAdmin, boolean isSupervisor) {
         List<GrantedAuthority> gas = new ArrayList<GrantedAuthority>(3);
         gas.add(User.toAuth());
 
@@ -68,6 +69,6 @@ public class TestAuthenticationToken extends AbstractAuthenticationToken {
         if (isSupervisor) {
             gas.add(AcdSupervisor.toAuth());
         }
-        return gas.toArray(new GrantedAuthority[gas.size()]);
+        return gas;
     }
 }

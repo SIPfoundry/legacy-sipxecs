@@ -9,10 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
-import org.acegisecurity.GrantedAuthority;
+import java.util.Collection;
 import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.springframework.security.core.GrantedAuthority;
 
 public class SharedSecretUserDetailsImpl extends UserDetailsImpl {
     private final DomainManager m_domainManager;
@@ -20,12 +21,12 @@ public class SharedSecretUserDetailsImpl extends UserDetailsImpl {
     /**
      * UserDetails constructor
      *
-     * Create an Acegi Security UserDetails object based on the sipXconfig User, the
+     * Create an Spring Security UserDetails object based on the sipXconfig User, the
      * userNameOrAlias that is the userName part of the user's credentials, and the authorities
      * granted to this user.
      */
     public SharedSecretUserDetailsImpl(DomainManager domainManager, User user, String userNameOrAlias,
-            GrantedAuthority... authorities) {
+            Collection<GrantedAuthority> authorities) {
         super(user, userNameOrAlias, authorities);
         m_domainManager = domainManager;
     }

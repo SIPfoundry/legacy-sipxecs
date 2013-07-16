@@ -11,15 +11,16 @@ package org.sipfoundry.sipxconfig.cmcprov;
 
 import java.util.Collection;
 
-import org.acegisecurity.AuthenticationException;
-import org.acegisecurity.providers.ProviderManager;
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
 import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.upload.Upload;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 
 public class ProvisioningContextImpl implements ProvisioningContext {
     private static final String MODEL_ID = "counterpathCMCEnterprise";
@@ -85,7 +86,8 @@ public class ProvisioningContextImpl implements ProvisioningContext {
 
     private boolean checkLogin(User user, String password) {
         try {
-            m_authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUserName(), password));
+            Authentication auth = new UsernamePasswordAuthenticationToken(user.getUserName(), password);
+            m_authManager.authenticate(auth);
             return true;
         } catch (AuthenticationException exception) {
             return false;

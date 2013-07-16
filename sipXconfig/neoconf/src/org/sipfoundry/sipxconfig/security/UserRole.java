@@ -10,8 +10,8 @@
 
 package org.sipfoundry.sipxconfig.security;
 
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.GrantedAuthorityImpl;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
 
 public enum UserRole {
     User("ROLE_USER"), Admin("ROLE_ADMIN"), AcdAgent("ROLE_ACD_AGENT"), AcdSupervisor("ROLE_ACD_SUPERVISOR"),

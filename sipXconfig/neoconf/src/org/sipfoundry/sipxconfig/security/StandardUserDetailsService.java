@@ -11,17 +11,17 @@ package org.sipfoundry.sipxconfig.security;
 
 import java.util.List;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.context.SecurityContext;
-import org.acegisecurity.context.SecurityContextHolder;
-import org.acegisecurity.userdetails.UserDetails;
 import org.sipfoundry.sipxconfig.common.User;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public class StandardUserDetailsService extends AbstractUserDetailsService {
     @Override
     protected UserDetails createUserDetails(String userNameOrAlias, User user, List<GrantedAuthority> gas) {
-        return new UserDetailsImpl(user, userNameOrAlias, gas.toArray(new GrantedAuthority[gas.size()]));
+        return new UserDetailsImpl(user, userNameOrAlias, gas);
     }
 
     public static UserDetailsImpl getUserDetails() {

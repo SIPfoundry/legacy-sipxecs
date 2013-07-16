@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:security="http://www.springframework.org/schema/security"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://www.springframework.org/schema/security
+  http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
   <!-- ======================== FILTER CHAIN ======================= -->
 
@@ -11,22 +15,25 @@
     filterInvocationInterceptor is not added to the chain for the remaining URLs.
   -->
   <bean id="sipxFilterChainProxy" class="org.sipfoundry.sipxconfig.security.SipxFilterChainProxy">
-    <property name="filterInvocationDefinitionSource">
-      <value>
-        CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-        /initial-config/.*=lazyHttpSessionContextIntegrationFilter,basicProcessingFilter,basicExceptionTranslationFilter,filterInvocationInterceptor
-        /rest/private/[^/]{32}/.*=lazyHttpSessionContextIntegrationFilter,privateUserKeyProcessingFilter,digestExceptionTranslationFilter,filterInvocationInterceptor
-        /rest/avatar/.*=lazyHttpSessionContextIntegrationFilter,basicProcessingFilter,digestProcessingFilter,digestExceptionTranslationFilter,anonymousProcessingFilter,filterInvocationInterceptor
-        /(services|rest)/.*=lazyHttpSessionContextIntegrationFilter,basicProcessingFilter,digestProcessingFilter,digestExceptionTranslationFilter,filterInvocationInterceptor
-        /(TestPage|FirstUser).html=httpSessionContextIntegrationFilter
-        /.*=httpSessionContextIntegrationFilter,authenticationProcessingFilter,digestExceptionTranslationFilter
-      </value>
-    </property>
+    <security:filter-chain-map request-matcher="ciRegex">
+      <security:filter-chain pattern="/initial-config/.*"
+            filters="lazySecurityContextPersistenceFilter,basicAuthenticationFilter,basicExceptionTranslationFilter,filterInvocationInterceptor"/>
+      <security:filter-chain pattern="/rest/private/[^/]{32}/.*"
+            filters="lazySecurityContextPersistenceFilter,privateUserKeyProcessingFilter,digestExceptionTranslationFilter,filterInvocationInterceptor"/>
+      <security:filter-chain pattern="/rest/avatar/.*"
+            filters="lazySecurityContextPersistenceFilter,basicAuthenticationFilter,digestAuthenticationFilter,digestExceptionTranslationFilter,anonymousProcessingFilter,filterInvocationInterceptor"/>
+      <security:filter-chain pattern="/(services|rest)/.*"
+            filters="lazySecurityContextPersistenceFilter,basicAuthenticationFilter,digestAuthenticationFilter,digestExceptionTranslationFilter,filterInvocationInterceptor"/>
+      <security:filter-chain pattern="/(TestPage|FirstUser).html"
+            filters="securityContextPersistenceFilter"/>
+      <security:filter-chain pattern="/.*"
+            filters="securityContextPersistenceFilter,authenticationProcessingFilter,digestExceptionTranslationFilter"/>
+    </security:filter-chain-map>
     <property name="domainManager" ref="domainManager" />
   </bean>
 
   <!-- ======================== AUTHENTICATION ======================= -->
-  <bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
+  <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
     <property name="providers">
       <list>
         <ref local="testAuthenticationProvider" />
@@ -37,7 +44,10 @@
         <ref local="anonymousAuthenticationProvider"/>
       </list>
     </property>
+    <property name="authenticationEventPublisher" ref="defaultAuthenticationEventPublisher" />
   </bean>
+
+  <bean id="defaultAuthenticationEventPublisher" class="org.springframework.security.authentication.DefaultAuthenticationEventPublisher" />
 
   <bean id="userAuthenticationProvider" class="org.sipfoundry.sipxconfig.security.DaoAuthenticationProvider">
     <property name="userDetailsService" ref="standardUserDetailsService" />
@@ -49,7 +59,7 @@
     <property name="ldapManager" ref="ldapManager"/>
   </bean>
 
-  <bean id="sharedSecretUserAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
+  <bean id="sharedSecretUserAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
     <property name="userDetailsService" ref="sharedSecretUserDetailsService" />
     <property name="userCache" ref="userCache" />
     <property name="passwordEncoder" ref="passwordEncoder" />
@@ -58,7 +68,7 @@
     </property>
   </bean>
 
-  <bean id="locationAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
+  <bean id="locationAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
     <property name="userDetailsService" ref="locationDetailsService" />
     <property name="userCache" ref="userCache" />
   </bean>
@@ -87,69 +97,83 @@
   </bean>
 
   <!-- User cache configuration -->
-  <bean id="userCache" class="org.acegisecurity.providers.dao.cache.NullUserCache">
+  <bean id="userCache" class="org.springframework.security.core.userdetails.cache.NullUserCache">
   </bean>
 
   <!-- Automatically receives AuthenticationEvent messages from DaoAuthenticationProvider -->
-  <bean id="loggerListener" class="org.acegisecurity.event.authentication.LoggerListener">
+  <bean id="loggerListener" class="org.springframework.security.authentication.event.LoggerListener">
     <property name="logInteractiveAuthenticationSuccessEvents" value="false" />
   </bean>
 
   <!-- used for WEB services - it never creates sessions -->
-  <bean id="lazyHttpSessionContextIntegrationFilter" class="org.acegisecurity.context.HttpSessionContextIntegrationFilter">
-    <property name="allowSessionCreation" value="false" />
+  <bean id="lazySecurityContextPersistenceFilter" class="org.springframework.security.web.context.SecurityContextPersistenceFilter">
+    <property name="securityContextRepository">
+      <bean class="org.springframework.security.web.context.HttpSessionSecurityContextRepository">
+        <property name="allowSessionCreation" value="false" />
+      </bean>
+    </property>
   </bean>
 
-  <bean id="httpSessionContextIntegrationFilter" class="org.acegisecurity.context.HttpSessionContextIntegrationFilter" />
+  <bean id="securityContextPersistenceFilter" class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
 
   <!-- ===================== HTTP REQUEST SECURITY ==================== -->
 
-  <bean id="digestExceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
-    <property name="authenticationEntryPoint" ref="digestProcessingFilterEntryPoint" />
+  <bean id="digestExceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
+    <property name="authenticationEntryPoint" ref="digestAuthenticationEntryPoint" />
   </bean>
 
-  <bean id="basicExceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
-    <property name="authenticationEntryPoint" ref="basicProcessingFilterEntryPoint" />
+  <bean id="basicExceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
+    <property name="authenticationEntryPoint" ref="authenticationEntryPoint" />
   </bean>
 
   <bean id="authenticationDetailsSource" class="org.sipfoundry.sipxconfig.security.SipxAuthenticationDetailsSource">
   </bean>
 
-  <bean id="basicProcessingFilter" class="org.acegisecurity.ui.basicauth.BasicProcessingFilter">
+  <bean id="basicAuthenticationFilter" class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
     <property name="authenticationManager" ref="authenticationManager" />
-    <property name="authenticationEntryPoint" ref="basicProcessingFilterEntryPoint" />
+    <property name="authenticationEntryPoint" ref="authenticationEntryPoint" />
     <property name="authenticationDetailsSource" ref="authenticationDetailsSource" />
   </bean>
 
-  <bean id="basicProcessingFilterEntryPoint" class="org.sipfoundry.sipxconfig.security.SipxBasicProcessingFilterEntryPoint">
+  <bean id="authenticationEntryPoint" class="org.sipfoundry.sipxconfig.security.SipxBasicAuthenticationEntryPoint">
     <property name="domainManager" ref="domainManager" />
   </bean>
 
-  <bean id="digestProcessingFilter" class="org.sipfoundry.sipxconfig.security.DigestProcessingFilter">
-    <property name="authenticationEntryPoint" ref="digestProcessingFilterEntryPoint" />
+  <bean id="digestAuthenticationFilter" class="org.springframework.security.web.authentication.www.DigestAuthenticationFilter">
+    <property name="authenticationEntryPoint" ref="digestAuthenticationEntryPoint" />
     <property name="userCache" ref="userCache" />
     <property name="userDetailsService" ref="standardUserDetailsService" />
-    <property name="passwordAlreadyEncoded" value="false" />
     <property name="authenticationDetailsSource" ref="authenticationDetailsSource" />
   </bean>
 
-  <bean id="digestProcessingFilterEntryPoint" class="org.sipfoundry.sipxconfig.security.SipxDigestProcessingFilterEntryPoint">
+  <bean id="digestAuthenticationEntryPoint" class="org.sipfoundry.sipxconfig.security.SipxDigestAuthenticationEntryPoint">
     <property name="domainManager" ref="domainManager" />
     <property name="key" value="sipXconfig" />
   </bean>
 
-  <bean id="authenticationProcessingFilter" class="org.sipfoundry.sipxconfig.security.SipxAuthenticationProcessingFilter">
-    <property name="authenticationManager" ref="authenticationManager" />
-    <property name="authenticationFailureUrl" value="/LoginPage.html?error=badCredentials" />
-    <property name="defaultTargetUrl" value="/Home.html" />
+  <bean id="authenticationProcessingFilter"
+        class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
+    <property name="authenticationManager" ref="authenticationManager"/>
+    <property name="authenticationFailureHandler" ref="authenticationFailureHandler"/>
+    <property name="authenticationSuccessHandler" ref="authenticationSuccessHandler"/>
     <property name="authenticationDetailsSource" ref="authenticationDetailsSource" />
+  </bean>
+
+  <bean id="authenticationSuccessHandler"
+        class="org.sipfoundry.sipxconfig.security.SipxSimpleUrlAuthenticationSuccessHandler">
+    <property name="defaultTargetUrl" value="/Home.html"/>
+  </bean>
+
+  <bean id="authenticationFailureHandler"
+        class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+    <property name="defaultFailureUrl" value="/LoginPage.html?error=badCredentials"/>
   </bean>
 
   <bean id="privateUserKeyProcessingFilter" class="org.sipfoundry.sipxconfig.security.PrivateUserKeyProcessingFilter">
     <property name="privateUserKeyManager" ref="privateUserKeyManager" />
   </bean>
 
-  <bean id="httpRequestAccessDecisionManager" class="org.acegisecurity.vote.AffirmativeBased">
+  <bean id="httpRequestAccessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
     <property name="allowIfAllAbstainDecisions">
       <value>false</value>
     </property>
@@ -161,10 +185,9 @@
   </bean>
 
   <!--
-    - An access decision voter that reads ROLE_* configuration settings. - See
-    acegisecurity/samples/contacts/src/main/webapp/common/WEB-INF/applicationContext-common-authorization.xml .
+    - An access decision voter that reads ROLE_* configuration settings.
   -->
-  <bean id="roleVoter" class="org.acegisecurity.vote.RoleVoter" />
+  <bean id="roleVoter" class="org.springframework.security.access.vote.RoleVoter" />
 
   <!--
     Note the order that entries are placed against the objectDefinitionSource is critical. The
@@ -172,22 +195,21 @@
     URL. Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*)
     expressions last
   -->
-  <bean id="filterInvocationInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
+  <bean id="filterInvocationInterceptor" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
     <property name="authenticationManager" ref="authenticationManager" />
     <property name="accessDecisionManager" ref="httpRequestAccessDecisionManager" />
-    <property name="objectDefinitionSource">
-      <value>
-        CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-        /rest/auto-attendant/.*/special=ROLE_ADMIN,ROLE_ATTENDANT_ADMIN
-        /rest/auto-attendant/specialmode=ROLE_ADMIN,ROLE_ATTENDANT_ADMIN
-        /rest/auto-attendant=ROLE_ADMIN,ROLE_ATTENDANT_ADMIN
-        /rest/call/.*=ROLE_USER
-        /rest/my/.*=ROLE_USER
-        /rest/avatar/.*=ROLE_ANONYMOUS,ROLE_ADMIN,ROLE_USER
-        /rest/private/.*=ROLE_USER
-        /(services|rest)/.*=ROLE_ADMIN
-        /initial-config/.*=ROLE_LOCATION
-      </value>
+    <property name="securityMetadataSource">
+      <security:filter-security-metadata-source request-matcher="ciRegex">
+        <security:intercept-url pattern="/rest/auto-attendant/.*/special" access="ROLE_ADMIN,ROLE_ATTENDANT_ADMIN"/>
+        <security:intercept-url pattern="/rest/auto-attendant/specialmode" access="ROLE_ADMIN,ROLE_ATTENDANT_ADMIN"/>
+        <security:intercept-url pattern="/rest/auto-attendant" access="ROLE_ADMIN,ROLE_ATTENDANT_ADMIN"/>
+        <security:intercept-url pattern="/rest/call/.*" access="ROLE_USER"/>
+        <security:intercept-url pattern="/rest/my/.*" access="ROLE_USER"/>
+        <security:intercept-url pattern="/rest/avatar/.*" access="ROLE_ANONYMOUS,ROLE_ADMIN,ROLE_USER"/>
+        <security:intercept-url pattern="/rest/private/.*" access="ROLE_USER"/>
+        <security:intercept-url pattern="/(services|rest)/.*" access="ROLE_ADMIN"/>
+        <security:intercept-url pattern="/initial-config/.*" access="ROLE_LOCATION"/>
+      </security:filter-security-metadata-source>
     </property>
   </bean>
 
@@ -196,11 +218,11 @@
     <property name="ldapManager" ref="ldapManager"/>   
   </bean>
 
-  <bean id="anonymousAuthenticationProvider" class="org.acegisecurity.providers.anonymous.AnonymousAuthenticationProvider">
+  <bean id="anonymousAuthenticationProvider" class="org.springframework.security.authentication.AnonymousAuthenticationProvider">
     <property name="key" value="foobar" />
   </bean>
 
-  <bean id="anonymousProcessingFilter" class="org.acegisecurity.providers.anonymous.AnonymousProcessingFilter">
+  <bean id="anonymousProcessingFilter" class="org.springframework.security.web.authentication.AnonymousAuthenticationFilter">
     <property name="key" value="foobar"/>
     <property name="userAttribute" value="anonymousUser,ROLE_ANONYMOUS" />
   </bean>

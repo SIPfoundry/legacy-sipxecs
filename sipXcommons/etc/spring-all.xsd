@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://www.example.com">
+    <xs:import namespace="http://www.springframework.org/schema/beans" schemaLocation="spring-beans-2.0.xsd" />
+    <xs:import namespace="http://www.springframework.org/schema/security" schemaLocation="spring-security-3.1.xsd" />
+</xs:schema>

@@ -9,8 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
-import org.acegisecurity.providers.dao.SaltSource;
-import org.acegisecurity.userdetails.UserDetails;
+import org.springframework.security.authentication.dao.SaltSource;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public class SaltSourceImpl implements SaltSource {
     public Object getSalt(UserDetails userDetails) {

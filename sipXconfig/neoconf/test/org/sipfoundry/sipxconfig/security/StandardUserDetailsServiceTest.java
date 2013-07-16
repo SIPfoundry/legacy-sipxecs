@@ -9,18 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
+import java.util.Collection;
 import java.util.Collections;
 
 import junit.framework.TestCase;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.userdetails.UserDetails;
-import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.test.TestHelper;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import static org.apache.commons.lang.ArrayUtils.contains;
 import static org.easymock.EasyMock.createMock;
@@ -36,7 +37,10 @@ public class StandardUserDetailsServiceTest extends TestCase {
         User u = new User() {
             @Override
             public boolean hasPermission(PermissionName permission) {
-                return true;
+                if (permission.equals(PermissionName.SUPERADMIN) || permission.equals(PermissionName.RECORD_SYSTEM_PROMPTS)) {
+                    return true;
+                }
+                return false;
             }
         };
         u.setUserName(USER_NAME);
@@ -51,22 +55,20 @@ public class StandardUserDetailsServiceTest extends TestCase {
         coreContext.loadUserByUserNameOrAlias(USER_NAME);
         expectLastCall().andReturn(u);
 
-        acdContext.getUsersWithAgents();
-        expectLastCall().andReturn(Collections.emptyList());
-        replay(coreContext, acdContext);
+        replay(coreContext);
 
         // load the user details
         UserDetails details = uds.loadUserByUsername(USER_NAME);
         assertEquals(USER_NAME, details.getUsername());
-        GrantedAuthority[] authorities = details.getAuthorities();
+        Collection<? extends GrantedAuthority> authorities = details.getAuthorities();
 
-        assertTrue(contains(authorities, UserRole.Admin.toAuth()));
-        assertTrue(contains(authorities, UserRole.User.toAuth()));
-        assertFalse(contains(authorities, UserRole.AcdAgent.toAuth()));
-        assertFalse(contains(authorities, UserRole.AcdSupervisor.toAuth()));
-        assertTrue(contains(authorities, UserRole.AttendantAdmin.toAuth()));
+        assertTrue(authorities.contains(UserRole.Admin.toAuth()));
+        assertTrue(authorities.contains(UserRole.User.toAuth()));
+        assertFalse(authorities.contains(UserRole.AcdAgent.toAuth()));
+        assertFalse(authorities.contains(UserRole.AcdSupervisor.toAuth()));
+        assertTrue(authorities.contains(UserRole.AttendantAdmin.toAuth()));
 
-        verify(coreContext, acdContext);
+        verify(coreContext);
     }
 
     public void testLoadUserByConfiguredImId() {
@@ -140,22 +142,19 @@ public class StandardUserDetailsServiceTest extends TestCase {
         coreContext.loadUserByUserNameOrAlias(USER_NAME);
         expectLastCall().andReturn(u);
 
-        acdContext.getUsersWithAgents();
-        expectLastCall().andReturn(Collections.singletonList(u));
-        replay(coreContext, acdContext);
+        replay(coreContext);
 
         // load the user details
         UserDetails details = uds.loadUserByUsername(USER_NAME);
         assertEquals(USER_NAME, details.getUsername());
-        GrantedAuthority[] authorities = details.getAuthorities();
+        Collection<? extends GrantedAuthority> authorities = details.getAuthorities();
 
-        assertFalse(contains(authorities, UserRole.Admin.toAuth()));
-        assertTrue(contains(authorities, UserRole.User.toAuth()));
-        assertTrue(contains(authorities, UserRole.AcdAgent.toAuth()));
-        assertFalse(contains(authorities, UserRole.AcdSupervisor.toAuth()));
-        assertFalse(contains(authorities, UserRole.AttendantAdmin.toAuth()));
+        assertFalse(authorities.contains(UserRole.Admin.toAuth()));
+        assertTrue(authorities.contains(UserRole.User.toAuth()));
+        assertFalse(authorities.contains(UserRole.AcdSupervisor.toAuth()));
+        assertFalse(authorities.contains(UserRole.AttendantAdmin.toAuth()));
 
-        verify(coreContext, acdContext);
+        verify(coreContext);
     }
 
     public void testNoUser() {

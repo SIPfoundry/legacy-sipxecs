@@ -45,7 +45,9 @@ commons_PKGS = \
 	jetty-websocket \
 	jetty-xml \
 	servlet-api \
+	spring-security-cas \
 	spring-security-config \
 	spring-security-core \
+	spring-security-ldap \
 	spring-security-web \
 	joda-time

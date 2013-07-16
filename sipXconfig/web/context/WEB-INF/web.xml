@@ -30,25 +30,15 @@
   </filter-mapping>
 
   <!--
-    - Configure Acegi Security filters.  Use FilterChainProxy to avoid cluttering up
-    - web.xml with lots of filters.
-    - See http://acegisecurity.org/docbook/acegi.html#filters .
+    Configure Spring Security filters.  Use FilterChainProxy to avoid cluttering up
   -->
   <filter>
-    <filter-name>Acegi Filter Chain Proxy</filter-name>
-    <filter-class>org.acegisecurity.util.FilterToBeanProxy</filter-class>
-    <init-param>
-      <param-name>targetClass</param-name>
-      <param-value>org.sipfoundry.sipxconfig.security.SipxFilterChainProxy</param-value>
-    </init-param>
+    <filter-name>sipxFilterChainProxy</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
   </filter>
 
-  <!--
-    - For now, secure only the web services URLs via Acegi.
-    - Web app URLs are secured via the Tapestry Border component.
-  -->
   <filter-mapping>
-    <filter-name>Acegi Filter Chain Proxy</filter-name>
+    <filter-name>sipxFilterChainProxy</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
 

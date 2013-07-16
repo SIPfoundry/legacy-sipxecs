@@ -10,14 +10,17 @@
 
 package org.sipfoundry.sipxconfig.security;
 
-import org.acegisecurity.Authentication;
-import org.acegisecurity.GrantedAuthority;
-import org.acegisecurity.providers.AbstractAuthenticationToken;
-import org.acegisecurity.providers.AuthenticationProvider;
-import org.acegisecurity.providers.UsernamePasswordAuthenticationToken;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 import static org.sipfoundry.sipxconfig.security.UserRole.Admin;
 import static org.sipfoundry.sipxconfig.security.UserRole.User;
@@ -25,9 +28,8 @@ import static org.sipfoundry.sipxconfig.security.UserRole.User;
 public class TestAuthenticationProvider implements AuthenticationProvider {
     static final String DUMMY_ADMIN_USER_NAME = "dummyAdminUserNameForTestingOnly";
 
-    private static final GrantedAuthority[] AUTH_USER_AND_ADMIN_ARRAY = {
-        User.toAuth(), Admin.toAuth()
-    };
+    private static final Collection<GrantedAuthority> AUTH_USER_AND_ADMIN_COLLECTION =
+            new ArrayList<GrantedAuthority>(Arrays.asList(new GrantedAuthority[]{User.toAuth(), Admin.toAuth()}));
 
     private CoreContext m_coreContext;
 
@@ -62,9 +64,10 @@ public class TestAuthenticationProvider implements AuthenticationProvider {
         testUser.setUserName(DUMMY_ADMIN_USER_NAME);
         testUser.setPintoken("");
 
-        UserDetailsImpl userDetails = new UserDetailsImpl(testUser, DUMMY_ADMIN_USER_NAME, AUTH_USER_AND_ADMIN_ARRAY);
+        UserDetailsImpl userDetails =
+                new UserDetailsImpl(testUser, DUMMY_ADMIN_USER_NAME, AUTH_USER_AND_ADMIN_COLLECTION);
         AbstractAuthenticationToken result = new UsernamePasswordAuthenticationToken(token.getPrincipal(), token
-                .getCredentials(), AUTH_USER_AND_ADMIN_ARRAY);
+                .getCredentials(), AUTH_USER_AND_ADMIN_COLLECTION);
         result.setDetails(userDetails);
         return result;
     }

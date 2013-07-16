@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
-import org.sipfoundry.sipxconfig.security.SipxAuthenticationProcessingFilter;
+import org.sipfoundry.sipxconfig.security.SipxSimpleUrlAuthenticationSuccessHandler;
 import org.sipfoundry.sipxconfig.site.user.FirstUser;
 
 public abstract class LoginPage extends PageWithCallback implements PageBeginRenderListener {
@@ -60,8 +60,8 @@ public abstract class LoginPage extends PageWithCallback implements PageBeginRen
             getValidator().record(new ValidatorException(getMessages().getMessage("message.loginError")));
             // save original http referer in session so we can later redirect to
             WebSession session = getRequest().getSession(false);
-            if (session.getAttribute(SipxAuthenticationProcessingFilter.ORIGINAL_REFERER) == null) {
-                session.setAttribute(SipxAuthenticationProcessingFilter.ORIGINAL_REFERER, getRequest().getHeader(
+            if (session.getAttribute(SipxSimpleUrlAuthenticationSuccessHandler.ORIGINAL_REFERER) == null) {
+                session.setAttribute(SipxSimpleUrlAuthenticationSuccessHandler.ORIGINAL_REFERER, getRequest().getHeader(
                         "Referer"));
             }
         }

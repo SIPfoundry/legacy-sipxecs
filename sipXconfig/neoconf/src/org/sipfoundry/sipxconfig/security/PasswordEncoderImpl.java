@@ -9,9 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
-import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.sipfoundry.sipxconfig.login.LoginContext;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
 
 public class PasswordEncoderImpl implements PasswordEncoder {
     private LoginContext m_loginContext;
