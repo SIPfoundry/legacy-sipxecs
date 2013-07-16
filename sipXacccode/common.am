@@ -1,6 +1,7 @@
 # NOTE: List is alphabetical
 sipxacc_PKGS = \
 	commons-codec \
+	commons-lang \
 	commons-io \
 	commons-logging \
 	dom4j \

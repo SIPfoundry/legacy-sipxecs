@@ -6,6 +6,7 @@ rest_PKGS = \
 	commons-collections \
 	commons-digester \
 	commons-io \
+	commons-lang \
 	commons-logging \
 	dnsjava \
 	jain-sip-sdp \
