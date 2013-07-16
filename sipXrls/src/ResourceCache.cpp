@@ -9,10 +9,12 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
+#include "ContactSet.h"
 #include "ResourceCache.h"
 #include "ResourceListSet.h"
 #include "ResourceList.h"
 #include "ResourceCached.h"
+#include "ResourceListMsg.h"
 #include <os/OsLogger.h>
 #include <os/OsLock.h>
 #include <os/OsEventMsg.h>
@@ -40,7 +42,8 @@ const UtlContainableType ResourceCache::TYPE = "ResourceCache";
 
 // Constructor
 ResourceCache::ResourceCache(ResourceListSet* resourceListSet) :
-   mResourceListSet(resourceListSet)
+   mResourceListSet(resourceListSet),
+   _subscriptionSetTimers(resourceListSet->getResourceListServer()->getResourceListTask().getMessageQueue())
 {
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceCache:: this = %p",
@@ -50,11 +53,14 @@ ResourceCache::ResourceCache(ResourceListSet* resourceListSet) :
 // Destructor
 ResourceCache::~ResourceCache()
 {
+  _subscriptionSetTimers.stop();
+
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceCache::~ this = %p",
                  this);
 
    // This assumes that all ResourceReference's have already been destroyed.
+   mutex_write_lock lock(_resourcesMutex);
    mResources.destroyAll();
 }
 
@@ -99,6 +105,7 @@ void ResourceCache::addReferenceToResource(ResourceReference* rr,
 
    // See if there is already a ResourceCached for the URI.
    UtlString uri_s(uri);
+   mutex_write_lock lock(_resourcesMutex);
    rc = dynamic_cast <ResourceCached*> (mResources.find(&uri_s));
    // If not, create one.
    resourceCreated = rc == NULL;
@@ -141,6 +148,8 @@ bool ResourceCache::destroyResourceReference(ResourceReference* rr)
 bool ResourceCache::deleteReferenceToResource(ResourceReference* resourceReference,
                                               ResourceCached* resourceCached)
 {
+   mutex_write_lock lock(_resourcesMutex);
+
    // Remove pointer from ResourceReference to ResourceCached.
    resourceReference->setResourceCached(NULL);
 
@@ -205,6 +214,58 @@ void ResourceCache::dumpState()
 UtlContainableType ResourceCache::getContainableType() const
 {
    return ResourceCache::TYPE;
+}
+
+bool ResourceCache::addSubscriptionSetByTimer(
+        const UtlString& uri,
+        const UtlString& callidContact,
+        const OsTime& offset)
+{
+    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+            "ResourceCache::addSubscriptionSetByTimer "
+            "this = %p, callidContact = '%s', uri = '%s', offset = '%d'",
+                  this, callidContact.data(), uri.data(), offset.cvtToMsecs());
+
+    OsStatus ret = _subscriptionSetTimers.scheduleOneshotAfter(
+                        new SubscriptionSetMsg(uri, callidContact),
+                        offset);
+
+    if (OS_SUCCESS != ret)
+    {
+        Os::Logger::instance().log(FAC_RLS, PRI_ERR,
+                "ResourceCache::addSubscriptionSetByTimer failed for "
+                "this = %p, callidContact = '%s', uri = '%s', offset = '%d'",
+                      this, callidContact.data(), uri.data(), offset.cvtToMsecs());
+    }
+
+    return (OS_SUCCESS == ret);
+}
+
+// Get a pointer to the ResourceCached for a URI, creating it if necessary.
+bool ResourceCache::addSubscriptionSet(const UtlString& uri, const UtlString& callidContact)
+{
+  bool ret = false;
+  Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
+      "ResourceCache::addSubscriptionSet this = %p, uri = '%s'",
+      this, uri.data());
+
+  // See if there is a ResourceCached for the URI.
+  mutex_read_lock lock(_resourcesMutex);
+  ResourceCached* rc = dynamic_cast <ResourceCached*> (mResources.find(&uri));
+
+  if (rc)
+  {
+    ContactSet *contactSet = rc->getContactSet();
+    ret = contactSet->addSubscriptionSet(callidContact);
+  }
+  else
+  {
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO,
+        "ResourceCache::addSubscriptionSet cached resource for uri '%s' is no longer available",
+        uri.data());
+  }
+
+  return ret;
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

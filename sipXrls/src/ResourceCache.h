@@ -16,6 +16,7 @@
 #include <utl/UtlContainableAtomic.h>
 #include <utl/UtlHashBag.h>
 #include <utl/UtlString.h>
+#include <os/OsTimerQueue.h>
 
 // DEFINES
 // MACROS
@@ -46,6 +47,10 @@ class ResourceCache : public UtlContainableAtomic
   public:
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
+
+  typedef boost::shared_mutex mutex_read_write;
+  typedef boost::shared_lock<boost::shared_mutex> mutex_read_lock;
+  typedef boost::lock_guard<boost::shared_mutex> mutex_write_lock;
 
    //! Constructor.
    ResourceCache(/// Parent ResourceListSet.
@@ -105,6 +110,25 @@ class ResourceCache : public UtlContainableAtomic
    //! Dump the object's internal state.
    void dumpState();
 
+   //! Create and add a SubscriptionSet Timer
+   //  When timer fires it trigger the calling of addSubscriptionSet()
+   //  Return true if timer was added, false otherwise.
+   bool addSubscriptionSetByTimer(
+       /// cached resource uri for which the SubscriptionSet will be created
+       const UtlString& uri,
+       /// callidContact used to create a new SubscriptionSet
+       const UtlString& callidContact,
+       /// the timer expiration starting from now
+       const OsTime& offset
+       );
+
+   //! Create and add a SubscriptionSet
+   bool addSubscriptionSet(
+       /// cached resource uri for which the SubscriptionSet will be created
+       const UtlString& uri,
+       /// callidContact used to create a new SubscriptionSet
+       const UtlString& callidContact);
+
    /**
     * Get the ContainableType for a UtlContainable-derived class.
     */
@@ -125,6 +149,12 @@ class ResourceCache : public UtlContainableAtomic
     *  their URIs).
     */
    UtlHashBag mResources;
+
+   //! mutex guarding access to mResources
+   mutable mutex_read_write _resourcesMutex;
+
+   //! Queue of timers used to delay creation of new SubscriptionSet for ContactSets
+   OsTimerQueue _subscriptionSetTimers;
 
 };
 

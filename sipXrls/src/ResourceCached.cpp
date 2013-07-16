@@ -322,6 +322,10 @@ UtlContainableType ResourceCached::getContainableType() const
    return ResourceCached::TYPE;
 }
 
+ContactSet* ResourceCached::getContactSet() const
+{
+  return mContactSetP;
+}
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

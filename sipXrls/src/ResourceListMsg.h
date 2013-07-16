@@ -179,7 +179,7 @@ public:
 /* ============================ CREATORS ================================== */
 
     SubscriptionSetMsg(/// The handler for this message which has knowledge on how to process it.
-            UtlContainable* handler,
+            const UtlString& uri,
             /// The contact for the new SubscriptionSet.
             const UtlString& callidContact);
    //:Constructor
@@ -207,10 +207,10 @@ public:
      // an ancestor class.
 
    //: Return the handler.
-   virtual UtlContainable* getHandler() const;
+   virtual const UtlString& getUri() const;
 
    //: Return pointer to callid contact.
-   virtual const UtlString* getCallidContact() const;
+   virtual const UtlString& getCallidContact() const;
 
 /* ============================ INQUIRY =================================== */
 
@@ -219,7 +219,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   UtlContainable* _handler;
+   UtlString _uri;
    UtlString _callidContact;
 };
 #endif  // _ResourceListMsg_h_

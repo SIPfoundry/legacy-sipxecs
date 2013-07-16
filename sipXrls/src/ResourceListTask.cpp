@@ -183,9 +183,8 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
        // JEB:  What if the timer fires and ContactSet has been destroyed???
        //
        SubscriptionSetMsg* msg = dynamic_cast <SubscriptionSetMsg*> (&rMsg);
-       ContactSet *contactSet = static_cast<ContactSet*> (msg->getHandler());
+       getResourceListServer()->getResourceListSet().getResourceCache().addSubscriptionSet(msg->getUri(), msg->getCallidContact());
 
-       contactSet->addSubscriptionSet(msg->getCallidContact());
        handled = TRUE;
    }
    else if (rMsg.getMsgType() == OsMsg::PHONE_APP &&

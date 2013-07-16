@@ -197,6 +197,9 @@ private:
 
     /// Needed to guard access to _timers
     mutex _queueMutex;
+
+    /// Set when stop() was called, timers cannot be started after this was set
+    bool _terminate;
 };
 
 #endif  // _OsTimerQueue_h_

@@ -213,10 +213,10 @@ const UtlString* NotifyCallbackMsg::getContent() const
 
 // Constructor
 SubscriptionSetMsg::SubscriptionSetMsg(
-        UtlContainable *handler,
+        const UtlString& uri,
         const UtlString& callidContact) :
    OsMsg(RLS_SUBSCRIPTION_SET_MSG, 0),
-   _handler(handler),
+   _uri(uri),
    _callidContact(callidContact)
 {
 }
@@ -226,7 +226,7 @@ SubscriptionSetMsg::SubscriptionSetMsg(
         const SubscriptionSetMsg& rhs)
 :  OsMsg(rhs)
 {
-   _handler       = rhs._handler;
+   _uri           = rhs._uri;
    _callidContact = rhs._callidContact;
 }
 
@@ -253,7 +253,7 @@ SubscriptionSetMsg::operator=(const SubscriptionSetMsg& rhs)
 
    OsMsg::operator=(rhs);       // assign fields for parent class
 
-   _handler       = rhs._handler;
+   _uri           = rhs._uri;
    _callidContact = rhs._callidContact;
 
    return *this;
@@ -271,13 +271,13 @@ int SubscriptionSetMsg::getMsgSize(void) const
 }
 
 // Return the newState.
-UtlContainable* SubscriptionSetMsg::getHandler() const
+const UtlString& SubscriptionSetMsg::getUri() const
 {
-   return _handler;
+   return _uri;
 }
 
 // Return pointer to mSubscriptionState.
-const UtlString* SubscriptionSetMsg::getCallidContact() const
+const UtlString& SubscriptionSetMsg::getCallidContact() const
 {
-   return &_callidContact;
+   return _callidContact;
 }

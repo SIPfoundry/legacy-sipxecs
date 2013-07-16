@@ -183,6 +183,9 @@ public:
 
         // TEST: Upon creation internal queue should be empty
         CPPUNIT_ASSERT(0 == tq._timers.size());
+
+        // TEST: Upon creation terminate is not set
+        CPPUNIT_ASSERT(false == tq._terminate);
     }
 
     // Check status of a timer queue after stop() called
@@ -190,6 +193,9 @@ public:
     {
         // TEST: Internal queue should be empty after stop()
         CPPUNIT_ASSERT(0 == tq._timers.size());
+
+        // TEST: terminate should be set
+        CPPUNIT_ASSERT(true == tq._terminate);
     }
 
     // Check expected behavior of a queue built with regular constructor which
@@ -204,6 +210,7 @@ public:
         CPPUNIT_ASSERT(OS_FAILED == tq.scheduleOneshotAfter(msgFail, msec100));
         // Failed schedule should not add anything
         CPPUNIT_ASSERT(0 == tq._timers.size());
+        CPPUNIT_ASSERT(false == tq._terminate);
 
         // stop() should not crash
         tq.stop();

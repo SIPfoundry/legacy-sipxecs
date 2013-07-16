@@ -647,7 +647,8 @@ void ContactSet::updateSubscriptions(bool allowDirectUriSubscription)
                   subscription_wait_msec);
 
                 OsTime offset(subscription_wait_msec);
-                bool ret = getResourceListSet()->addSubscriptionSetByTimer(*callid_contact, this, offset);
+
+                bool ret = getResourceListSet()->getResourceCache().addSubscriptionSetByTimer(mUri, *callid_contact, offset);
                 if (ret)
                 {
                     subscriptionSetCount++;
@@ -658,7 +659,7 @@ void ContactSet::updateSubscriptions(bool allowDirectUriSubscription)
             }
             else
             {
-                if (addSubscriptionSet(callid_contact))
+                if (addSubscriptionSet(*callid_contact))
                   subscriptionSetCount++;
             }
 
@@ -674,15 +675,15 @@ void ContactSet::updateSubscriptions(bool allowDirectUriSubscription)
    callid_contacts.destroyAll();
 }
 
-bool ContactSet::addSubscriptionSet(const UtlString* callidContact)
+bool ContactSet::addSubscriptionSet(const UtlString& callidContact)
 {
     Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
             "ContactSetSet::addSubscriptionSet this = %p, mUri = '%s' callid;contact = '%s'",
-             this, mUri.data(), callidContact->data());
+             this, mUri.data(), callidContact.data());
 
      // Get the contact URI into a UtlString.
-     UtlString uri(callidContact->data() +
-                   callidContact->index(';') +
+     UtlString uri(callidContact.data() +
+                   callidContact.index(';') +
                    1);
 
   mutex_lock lock(_subscriptionsMutex);
@@ -694,7 +695,7 @@ bool ContactSet::addSubscriptionSet(const UtlString* callidContact)
   //  set that is getting added has not been removed.  To avoid this race condition,
   //  we find it again here and return false if the callidContact is no longer
   //  reachable
-  if (mSubscriptionSets.find(callidContact))
+  if (mSubscriptionSets.find(&callidContact))
     return false;
 
 
@@ -702,7 +703,7 @@ bool ContactSet::addSubscriptionSet(const UtlString* callidContact)
   SubscriptionSet* ss = new SubscriptionSet(mResource,  uri);
 
   // Add the subscription to the set.
-  mSubscriptionSets.insertKeyAndValue(new UtlString(*callidContact), ss);
+  mSubscriptionSets.insertKeyAndValue(new UtlString(callidContact), ss);
 
   ss->start();
 

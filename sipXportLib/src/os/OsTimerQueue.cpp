@@ -18,7 +18,8 @@
 #include "os/OsLogger.h"
 
 OsTimerQueue::OsTimerQueue(OsMsgQ *pQueue):
-        _signalQueue(pQueue)
+        _signalQueue(pQueue),
+        _terminate(false)
 {
     // In case pQueue is NULL the timer queue object will be unusable.
     // It's better to assert here than continue.
@@ -43,6 +44,11 @@ OsStatus OsTimerQueue::scheduleOneshotAfter(OsMsg* pMsg, const OsTime& offset)
 
     // check to see if signal queue is valid
     assert(_signalQueue);
+
+    if (_terminate)
+    {
+        return OS_FAILED;
+    }
 
     // first remove all timers which expired until now
     OsDateTime::getCurTime(now);
@@ -92,5 +98,7 @@ void OsTimerQueue::clearUntil(const OsTime &at)
 
 void OsTimerQueue::stop()
 {
+    _terminate = true;
+
     clearUntil(OsTime::OS_INFINITY);
 }

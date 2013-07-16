@@ -63,8 +63,7 @@ ResourceListSet::ResourceListSet(ResourceListServer* resourceListServer) :
                     getMessageQueue(),
                     (void*)ResourceListSet::PUBLISH_TIMEOUT),
    mPublishOnTimeout(FALSE),
-   mVersion(0),
-   _subscriptionSetTimers(resourceListServer->getResourceListTask().getMessageQueue())
+   mVersion(0)
 {
    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet:: this = %p",
@@ -118,31 +117,6 @@ void ResourceListSet::finalize()
 }
 
 /* ============================ MANIPULATORS ============================== */
-
-bool ResourceListSet::addSubscriptionSetByTimer(
-        const UtlString& callidContact,
-        UtlContainable* handler,
-        const OsTime& offset)
-{
-    Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
-            "ResourceListSet::addSubscriptionSetByTimer "
-            "this = %p, callidContact = '%s', handler = '%p', offset = '%d'",
-                  this, callidContact.data(), handler, offset.cvtToMsecs());
-
-    OsStatus ret = _subscriptionSetTimers.scheduleOneshotAfter(
-                        new SubscriptionSetMsg(handler, callidContact),
-                        offset);
-
-    if (OS_SUCCESS != ret)
-    {
-        Os::Logger::instance().log(FAC_RLS, PRI_ERR,
-                "ResourceListSet::addSubscriptionSetByTimer failed for "
-                "this = %p, callidContact = '%s', handler = '%p', offset = '%d'",
-                      this, callidContact.data(), handler, offset.cvtToMsecs());
-    }
-
-    return (OS_SUCCESS == ret);
-}
 
 // Create and add a resource list.
 bool ResourceListSet::addResourceList(const char* user,

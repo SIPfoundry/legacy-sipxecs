@@ -124,6 +124,8 @@ class ResourceCached : public UtlString
    //! Dump the object's internal state.
    void dumpState() const;
 
+   ContactSet* getContactSet() const;
+
    /**
     * Get the ContainableType for a UtlContainable-derived class.
     */
