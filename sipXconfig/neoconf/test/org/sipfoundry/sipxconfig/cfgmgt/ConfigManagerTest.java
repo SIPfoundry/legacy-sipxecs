@@ -12,7 +12,7 @@ public class ConfigManagerTest {
     @Test
     public void test() {
         ConfigManager cfg = new ConfigManagerImpl();
-        String expected = "/usr/bin/ssh -i /.+/.cfagent/ppkeys/localhost.nopass.priv root@foo";
+        String expected = "/usr/bin/ssh -o 'StrictHostKeyChecking=no' -i /.+/.cfagent/ppkeys/localhost.nopass.priv root@foo";
         String actual = cfg.getRemoteCommand("foo");
         if (!Pattern.matches(expected, actual)) {
             fail(String.format("'%s' ~= '%s'", expected, actual));            

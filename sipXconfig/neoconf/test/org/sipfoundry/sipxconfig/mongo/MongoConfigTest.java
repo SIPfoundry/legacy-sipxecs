@@ -66,7 +66,7 @@ public class MongoConfigTest {
         StringWriter actual = new StringWriter();
         m_config.serverList(actual, Arrays.asList(s1, s2), Arrays.asList(s3, s4));
         assertEquals("{ \"servers\" : [ \"one:27017\" , \"two:27017\"] , \"arbiters\" : "
-                + "[ \"one:27018\" , \"two:27018\"] , \"replSet\" : \"sipxecs\"}", actual.toString());
+                + "[ \"three:27018\" , \"four:27018\"] , \"replSet\" : \"sipxecs\"}", actual.toString());
     }
     
 

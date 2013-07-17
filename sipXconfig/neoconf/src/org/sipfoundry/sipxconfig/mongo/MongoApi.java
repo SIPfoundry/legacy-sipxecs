@@ -28,7 +28,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
-import org.jfree.util.Log;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.Context;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
@@ -45,6 +46,8 @@ import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import com.mongodb.util.JSON;
 
 class MongoApi extends Resource {
+    private static final Log LOG = LogFactory.getLog(MongoApi.class);
+
     private static final String HOST = "host";
     private static final String PRIORITY = "priority";
     private MongoManager m_mongoManager;
@@ -156,7 +159,7 @@ class MongoApi extends Resource {
         for (MongoNode node : meta.getNodes()) {
             Location l = locationMap.get(node.getFqdn());
             if (l == null) {
-                Log.warn("Could not find location for mongo node " + node.getFqdn());
+                LOG.warn("Could not find location for mongo node " + node.getFqdn());
                 continue;
             }
             Map<String, Object> nmap = new HashMap<String, Object>();

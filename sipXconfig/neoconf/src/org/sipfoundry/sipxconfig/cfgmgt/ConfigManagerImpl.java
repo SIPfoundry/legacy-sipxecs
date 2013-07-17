@@ -80,7 +80,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     private final Object m_lock = new Object();
     // No strict host key checking is only for initial handshake. Once that passes, ssh will
     // check host name with key.
-    private String m_remoteCommand = "/usr/bin/ssh -o 'StrictHostKeyChecking no' "
+    private String m_remoteCommand = "/usr/bin/ssh -o 'StrictHostKeyChecking=no' "
             + "-i %s/.cfagent/ppkeys/localhost.nopass.priv root@%s";
     private String m_remoteHostsFile = "%s/.ssh/known_hosts";
     private boolean m_flag;

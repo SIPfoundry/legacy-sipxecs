@@ -46,8 +46,12 @@ public class MongoMetaTest {
     public void getAnalyis() throws IOException {
         String analToken = IOUtils.toString(getClass().getResourceAsStream("three-node-missing-arbiter-and-database.analysis.json"));
         m_meta.setAnalysisToken(analToken);
-        Collection<String> actual = m_meta.getRequiredActions("swift.hubler.us:27017");
-        assertEquals("[ \"ADD swift.hubler.us:27018\" , \"ADD swift.hubler.us:27019\"]", actual.toString());
+        Collection<String> actual = m_meta.getRequiredActions("swift.hubler.us:27018");
+        assertEquals("[ \"ADD\"]", actual.toString());
+        actual = m_meta.getRequiredActions("goose.hubler.us:27017");
+        assertEquals("[ \"ADD\"]", actual.toString());
+        actual = m_meta.getRequiredActions("swift.hubler.us:27017");
+        assertEquals("[]", actual.toString());
     }
 
     @Test
