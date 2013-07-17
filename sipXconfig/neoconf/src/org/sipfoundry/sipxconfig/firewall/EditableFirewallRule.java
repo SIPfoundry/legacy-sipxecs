@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.feature.Feature;
 
 public class EditableFirewallRule extends BeanWithId implements DeployConfigOnEdit, FirewallRule {
-    private DefaultFirewallRule m_delegate;
+    private final DefaultFirewallRule m_delegate;
     private ServerGroup m_serverGroup;
     private Boolean m_priority;
     private SystemId m_systemId;
@@ -48,6 +48,7 @@ public class EditableFirewallRule extends BeanWithId implements DeployConfigOnEd
         return Collections.singleton((Feature) FirewallManager.FEATURE);
     }
 
+    @Override
     public ServerGroup getServerGroup() {
         return m_serverGroup;
     }
@@ -79,5 +80,11 @@ public class EditableFirewallRule extends BeanWithId implements DeployConfigOnEd
     public void setSystemId(SystemId systemId) {
         m_systemId = systemId;
         m_serverGroup = null;
+    }
+
+    @Override
+    public String toString() {
+        return "EditableFirewallRule [m_delegate=" + m_delegate + ", m_serverGroup=" + m_serverGroup
+                + ", m_priority=" + m_priority + ", m_systemId=" + m_systemId + "]";
     }
 }

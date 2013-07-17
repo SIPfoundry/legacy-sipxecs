@@ -22,8 +22,8 @@ import org.sipfoundry.sipxconfig.address.AddressType;
 
 public class DefaultFirewallRule implements FirewallRule {
     private boolean m_priority;
-    private SystemId m_systemId;
-    private AddressType m_addressType;
+    private final SystemId m_systemId;
+    private final AddressType m_addressType;
     private String m_module;
 
     public DefaultFirewallRule(AddressType type) {
@@ -71,6 +71,7 @@ public class DefaultFirewallRule implements FirewallRule {
         return false;
     }
 
+    @Override
     public SystemId getSystemId() {
         return m_systemId;
     }
@@ -89,5 +90,11 @@ public class DefaultFirewallRule implements FirewallRule {
 
     public void setModule(String module) {
         m_module = module;
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultFirewallRule [m_priority=" + m_priority + ", m_systemId=" + m_systemId + ", m_addressType="
+                + m_addressType + ", m_module=" + m_module + "]";
     }
 }

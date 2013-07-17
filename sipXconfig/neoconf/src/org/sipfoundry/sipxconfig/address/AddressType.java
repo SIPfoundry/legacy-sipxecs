@@ -18,7 +18,7 @@ package org.sipfoundry.sipxconfig.address;
 
 public class AddressType {
     private static final String SIP_FORMAT = "sip:%s:%d";
-    private String m_id;
+    private final String m_id;
     private String m_format;
     private Protocol m_protocol = Protocol.tcp;
     private int m_canonicalPort;
@@ -147,8 +147,8 @@ public class AddressType {
     }
 
     public boolean equalsAnyOf(AddressType... types) {
-        for (int i = 0; i < types.length; i++) {
-            if (this.equals(types[i])) {
+        for (AddressType type : types) {
+            if (this.equals(type)) {
                 return true;
             }
         }
@@ -169,5 +169,11 @@ public class AddressType {
 
     public void setProtocol(Protocol protocol) {
         m_protocol = protocol;
+    }
+
+    @Override
+    public String toString() {
+        return "AddressType [m_id=" + m_id + ", m_format=" + m_format + ", m_protocol=" + m_protocol
+                + ", m_canonicalPort=" + m_canonicalPort + ", m_externalSip=" + m_externalSip + "]";
     }
 }

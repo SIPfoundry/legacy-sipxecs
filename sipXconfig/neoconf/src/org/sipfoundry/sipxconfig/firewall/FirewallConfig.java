@@ -67,6 +67,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         Set<String> whiteList = settings.getWhiteListSet();
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FirewallManager.FEATURE);
         List<FirewallRule> rules = m_firewallManager.getFirewallRules();
+        LOG.debug("Firewall rules: " + rules);
         List<ServerGroup> groups = m_firewallManager.getServerGroups();
         List<Location> locations = manager.getLocationManager().getLocationsList();
         List<CallRateRule> rateRules = m_callRateManager.getCallRateRules();
@@ -104,14 +105,15 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         }
     }
 
-    void writeCfdat(Writer w, boolean enabled, Setting sysSettings, Collection<String> mods) throws IOException {
+    static void writeCfdat(Writer w, boolean enabled, Setting sysSettings, Collection<String> mods)
+            throws IOException {
         CfengineModuleConfiguration cfg = new CfengineModuleConfiguration(w);
         cfg.writeClass("firewall", enabled);
         cfg.writeSettings("firewall_", sysSettings);
         cfg.write("firewall_modules", StringUtils.join(mods, ' '));
     }
 
-    void writeSysctl(Writer w, FirewallSettings settings) throws IOException {
+    static void writeSysctl(Writer w, FirewallSettings settings) throws IOException {
         KeyValueConfiguration c = KeyValueConfiguration.equalsSeparated(w);
         c.writeSettings(settings.getSettings().getSetting("sysctl"));
     }
@@ -181,6 +183,8 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
 
                     // not a rule for this server
                     if (!address.getAddress().equals(thisLocation.getAddress())) {
+                        LOG.debug(String.format("Rule %s, address %s does not affect this server (%s)", rule,
+                                address.getAddress(), thisLocation.getAddress()));
                         continue;
                     }
 
@@ -195,9 +199,11 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
 
                     // blindly allowed
                     if (FirewallRule.SystemId.CLUSTER == rule.getSystemId() && rule.getServerGroup() == null) {
+                        LOG.debug(String.format("Blindly allowing %s", rule));
                         continue;
                     }
 
+                    LOG.debug(String.format("Writing rule for %s, address %s", rule, thisLocation.getAddress()));
                     c.write(":port", port);
                     c.write(":protocol", atype.getProtocol());
                     c.write(":sip", atype.isExternalSip());
@@ -218,6 +224,8 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
                     c.write(":chain", chain);
                     c.nextElement();
                 }
+            } else {
+                LOG.debug(String.format("No address found for type % and location %s", type, thisLocation));
             }
         }
         c.endArray();
