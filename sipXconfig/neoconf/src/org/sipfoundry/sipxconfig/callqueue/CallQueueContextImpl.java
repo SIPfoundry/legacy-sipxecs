@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -47,22 +48,24 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 public class CallQueueContextImpl extends SipxHibernateDaoSupport implements CallQueueContext, BeanFactoryAware,
         FeatureProvider {
 
+    private static final String QUERY_CALL_QUEUE_IDS = "callQueueIds";
+    private static final String QUERY_CALL_QUEUE_AGENT_IDS = "callQueueAgentIds";
     private static final String QUERY_CALL_QUEUE_EXTENSIONS_WITH_NAMES = "callQueueExtensionWithName";
     private static final String QUERY_PARAM_VALUE = "value";
     private static final String QUERY_PARAM_AGENT_ID = "callqueueagentid";
     private static final String QUERY_PARAM_QUEUE_ID = "callqueueid";
+    private static final String COPY_OF = "Copy of";
+    private static final String COPIED = "(Copied)";
 
     private static final String ALIAS = "alias";
     private static final String EXTENSION = "extension";
     private static final String DID = "did";
     private static final String QUEUE_NAME = CALL_QUEUE;
 
-    private static final String COPY = "Copy of ";
-    private static final String COPIED = "Copied \n";
-
     private BeanFactory m_beanFactory;
     private AliasManager m_aliasManager;
     private FeatureManager m_featureManager;
+    private ReplicationManager m_replicationManager;
     private BeanWithSettingsDao<CallQueueSettings> m_settingsDao;
 
     public void setBeanFactory(BeanFactory beanFactory) {
@@ -78,6 +81,10 @@ public class CallQueueContextImpl extends SipxHibernateDaoSupport implements Cal
     @Required
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
+    }
+
+    public void setReplicationManager(ReplicationManager replicationManager) {
+        m_replicationManager = replicationManager;
     }
 
     /* Settings API */
@@ -139,6 +146,7 @@ public class CallQueueContextImpl extends SipxHibernateDaoSupport implements Cal
         return false;
     }
 
+    /* FreeSwitchExtensionProvider */
     @Override
     public boolean isEnabled() {
         return m_featureManager.isFeatureEnabled(FEATURE);
@@ -200,7 +208,7 @@ public class CallQueueContextImpl extends SipxHibernateDaoSupport implements Cal
         return getHibernateTemplate().loadAll(CallQueueExtension.class);
     }
 
-    private void removeNullActions(CallQueueExtension extension) {
+    private void removeNullActions(CallQueueExtension extension) { // Should not be Tested
         if (extension.getConditions() == null) {
             return;
         }
@@ -215,28 +223,28 @@ public class CallQueueContextImpl extends SipxHibernateDaoSupport implements Cal
 
     /* CallQueue API */
 
-    public CallQueue newCallQueue() {
+    public CallQueue newCallQueue() { // Tested
         CallQueue callqueue = (CallQueue) m_beanFactory.getBean(CallQueue.class);
         return callqueue;
     }
 
-    public void storeCallQueue(CallQueue callQueue) {
+    public void storeCallQueue(CallQueue callQueue) { // Tested
         getDaoEventPublisher().publishSave(callQueue);
         saveExtension(callQueue);
     }
 
-    public CallQueue loadCallQueue(Integer id) {
+    public CallQueue loadCallQueue(Integer id) { // Tested
         return (CallQueue) getHibernateTemplate().load(CallQueue.class, id);
     }
 
-    public void duplicateCallQueues(Collection<Integer> ids) {
+    public void duplicateCallQueues(Collection<Integer> ids) { // Tested
         for (Integer id : ids) {
             CallQueue srcCallQueue = (CallQueue) getHibernateTemplate().load(CallQueue.class, id);
             CallQueue newCallQueue = newCallQueue();
             // TODO: localize strings
-            newCallQueue.setName(COPY + srcCallQueue.getName());
+            newCallQueue.setName(COPY_OF + srcCallQueue.getName());
             if (null != srcCallQueue.getDescription()) {
-                newCallQueue.setDescription(COPIED + srcCallQueue.getDescription());
+                newCallQueue.setDescription(srcCallQueue.getDescription() + COPIED);
             }
             srcCallQueue.copySettingsTo(newCallQueue);
             getDaoEventPublisher().publishSave(newCallQueue);
@@ -244,20 +252,20 @@ public class CallQueueContextImpl extends SipxHibernateDaoSupport implements Cal
         }
     }
 
-    public void removeCallQueues(Collection<Integer> ids) {
+    public void removeCallQueues(Collection<Integer> ids) { // Tested
         if (ids.isEmpty()) {
             return;
         }
         removeAll(CallQueue.class, ids);
     }
 
-    public Collection<CallQueue> getCallQueues() {
+    public Collection<CallQueue> getCallQueues() { // Test
         return getHibernateTemplate().loadAll(CallQueue.class);
     }
 
     /* CallQueueCommand API */
 
-    private void createCallQeuueCommand(String command, String status) {
+    private void createCallQeuueCommand(String command, String status) { // Should not be Tested
         CallQueueCommand callQueueCommand = newCallQueueCommand();
         callQueueCommand.setName(command);
         callQueueCommand.setAlias(getSettings().getSettingValue("call-queue-agent-code/" + command));
@@ -265,7 +273,7 @@ public class CallQueueContextImpl extends SipxHibernateDaoSupport implements Cal
         storeCallQueueCommand(callQueueCommand);
     }
 
-    private void refreshCallQueueCommands(CallQueueSettings settings) {
+    private void refreshCallQueueCommands(CallQueueSettings settings) { // Should not be Tested
         Collection<CallQueueCommand> callqueuecommands = getCallQueueCommands();
         for (CallQueueCommand callQueueCommand : callqueuecommands) {
             callQueueCommand.setAlias(settings.getSettingValue(String.format("call-queue-agent-code/%s",
@@ -274,27 +282,28 @@ public class CallQueueContextImpl extends SipxHibernateDaoSupport implements Cal
         }
     }
 
-    private CallQueueCommand newCallQueueCommand() {
+    private CallQueueCommand newCallQueueCommand() { // Should not be Tested
         CallQueueCommand callqueuecommand = (CallQueueCommand) m_beanFactory.getBean(CallQueueCommand.class);
         return callqueuecommand;
     }
 
-    private void storeCallQueueCommand(CallQueueCommand callQueueCommand) {
+    private void storeCallQueueCommand(CallQueueCommand callQueueCommand) { // Should not be
+                                                                            // Tested
         getDaoEventPublisher().publishSave(callQueueCommand);
         saveExtension(callQueueCommand);
     }
 
-    private CallQueueCommand loadCallQueueCommand(Integer id) {
+    private CallQueueCommand loadCallQueueCommand(Integer id) { // Should not be Tested
         return (CallQueueCommand) getHibernateTemplate().load(CallQueueCommand.class, id);
     }
 
-    private Collection<CallQueueCommand> getCallQueueCommands() {
+    private Collection<CallQueueCommand> getCallQueueCommands() { // Should not be Tested
         return getHibernateTemplate().loadAll(CallQueueCommand.class);
     }
 
     /* CallQueueAgent API */
 
-    public CallQueueAgent newCallQueueAgent() {
+    public CallQueueAgent newCallQueueAgent() { // Tested
         CallQueueAgent callqueueagent = (CallQueueAgent) m_beanFactory.getBean(CallQueueAgent.class);
         return callqueueagent;
     }
@@ -311,19 +320,19 @@ public class CallQueueContextImpl extends SipxHibernateDaoSupport implements Cal
         getHibernateTemplate().saveOrUpdate(callQueueAgent);
     }
 
-    public CallQueueAgent loadCallQueueAgent(Integer id) {
+    public CallQueueAgent loadCallQueueAgent(Integer id) { // Tested
         return (CallQueueAgent) getHibernateTemplate().load(CallQueueAgent.class, id);
     }
 
-    public void duplicateCallQueueAgents(Collection<Integer> ids) {
+    public void duplicateCallQueueAgents(Collection<Integer> ids) { // Tested
         for (Integer id : ids) {
             CallQueueAgent srcCallQueueAgent = (CallQueueAgent) getHibernateTemplate()
                     .load(CallQueueAgent.class, id);
             CallQueueAgent newCallQueueAgent = newCallQueueAgent();
             // TODO: localize strings
-            newCallQueueAgent.setName(COPY + srcCallQueueAgent.getName());
+            newCallQueueAgent.setName(COPY_OF + srcCallQueueAgent.getName());
             if (null != srcCallQueueAgent.getDescription()) {
-                newCallQueueAgent.setDescription(COPIED + srcCallQueueAgent.getDescription());
+                newCallQueueAgent.setDescription(srcCallQueueAgent.getDescription() + COPIED);
             }
             srcCallQueueAgent.copySettingsTo(newCallQueueAgent);
             getDaoEventPublisher().publishSave(newCallQueueAgent);
@@ -331,21 +340,21 @@ public class CallQueueContextImpl extends SipxHibernateDaoSupport implements Cal
         }
     }
 
-    public void removeCallQueueAgents(Collection<Integer> ids) {
+    public void removeCallQueueAgents(Collection<Integer> ids) { // Tested
         if (ids.isEmpty()) {
             return;
         }
         removeAll(CallQueueAgent.class, ids);
     }
 
-    public Collection<CallQueueAgent> getCallQueueAgents() {
+    public Collection<CallQueueAgent> getCallQueueAgents() { // Tested
         return getHibernateTemplate().loadAll(CallQueueAgent.class);
     }
 
     @Override
-    public List<CallQueue> getAvaiableQueuesForAgent(Integer callqueueagentid) {
+    public List<CallQueue> getAvaiableQueuesForAgent(Integer callqueueagentid) { // Tested
         if (null == callqueueagentid) {
-            return Collections.emptyList();
+            return Collections.EMPTY_LIST;
         }
         Query query = getSession()
                 .createSQLQuery(
@@ -359,9 +368,9 @@ public class CallQueueContextImpl extends SipxHibernateDaoSupport implements Cal
     }
 
     @Override
-    public List<Integer> getCallQueueAgentsForQueue(Integer callqueueid) {
+    public List<Integer> getCallQueueAgentsForQueue(Integer callqueueid) { // Tested
         if (null == callqueueid) {
-            return Collections.emptyList();
+            return Collections.EMPTY_LIST;
         }
         Query query = getSession().createSQLQuery(
                 "SELECT DISTINCT t.call_queue_agent_id FROM call_queue_tier t WHERE t.freeswitch_ext_id = :"
@@ -403,4 +412,5 @@ public class CallQueueContextImpl extends SipxHibernateDaoSupport implements Cal
             b.addFeature(FEATURE);
         }
     }
+
 }

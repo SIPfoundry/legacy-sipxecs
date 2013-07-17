@@ -5,31 +5,25 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- */
+*/
 
 package org.sipfoundry.sipxconfig.site.callqueue;
 
 import java.util.Collection;
 
-/* Tapestry 4 page API imports */
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
-
-import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
-import org.apache.tapestry.annotations.ComponentClass;
-
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.UserException;
-/*sipXecs WEB components API imports */
-import org.sipfoundry.sipxconfig.components.SelectMap;
-
-/*sipXecs WEB settings API imports */
+import org.apache.tapestry.annotations.Persist;
 import org.sipfoundry.sipxconfig.callqueue.CallQueue;
 import org.sipfoundry.sipxconfig.callqueue.CallQueueContext;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.SelectMap;
 
 @ComponentClass
 public abstract class CallQueueQueuesPanel extends BaseComponent {
@@ -84,7 +78,7 @@ public abstract class CallQueueQueuesPanel extends BaseComponent {
         if (null != selectedRows) {
             for (Integer callqueueid : selectedRows) {
                 if (getCallQueueContext().getCallQueueAgentsForQueue(callqueueid).size() > 0) {
-                    // TODO: display exception on page
+                    //TODO: display exception on page
                     throw new UserException(getMessages().getMessage("&error.callQueueBusy"));
                 }
             }

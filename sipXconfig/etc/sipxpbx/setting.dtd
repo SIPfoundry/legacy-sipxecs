@@ -84,7 +84,8 @@
 <!ELEMENT file (directory?,contentType?,rename?,exclude?)>
 <!ATTLIST file
     required %flag; "no"
-    variable %flag; "no">
+    variable %flag; "no"
+    directory CDATA #IMPLIED>
 
 <!ELEMENT directory (#PCDATA)>
 <!ELEMENT contentType (#PCDATA)>

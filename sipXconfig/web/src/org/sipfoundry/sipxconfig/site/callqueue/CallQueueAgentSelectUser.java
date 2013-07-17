@@ -6,24 +6,20 @@
  * Licensed to the User under the LGPL license.
  *
 */
-
 package org.sipfoundry.sipxconfig.site.callqueue;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-
-import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.callqueue.CallQueueAgent;
+import org.sipfoundry.sipxconfig.callqueue.CallQueueContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
-
 import org.sipfoundry.sipxconfig.site.user.UserTable;
-
-import org.sipfoundry.sipxconfig.callqueue.CallQueueContext;
-import org.sipfoundry.sipxconfig.callqueue.CallQueueAgent;
 
 public abstract class CallQueueAgentSelectUser extends SipxBasePage implements PageBeginRenderListener {
 

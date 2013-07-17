@@ -5,29 +5,24 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- */
+*/
 
 package org.sipfoundry.sipxconfig.site.callqueue;
 
 import java.util.Collection;
 
-import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.annotations.InitialValue;
-import org.apache.tapestry.event.PageBeginRenderListener;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
-
-import org.sipfoundry.sipxconfig.components.SelectMap;
-
-/*sipXecs WEB components API imports */
-import org.sipfoundry.sipxconfig.components.SipxBasePage;
-
-/*sipXecs WEB settings API imports */
+import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.callqueue.CallQueue;
 import org.sipfoundry.sipxconfig.callqueue.CallQueueAgent;
-import org.sipfoundry.sipxconfig.callqueue.CallQueueTiers;
 import org.sipfoundry.sipxconfig.callqueue.CallQueueContext;
+import org.sipfoundry.sipxconfig.callqueue.CallQueueTiers;
+import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 
 public abstract class CallQueueSelectPage extends SipxBasePage implements PageBeginRenderListener {
 

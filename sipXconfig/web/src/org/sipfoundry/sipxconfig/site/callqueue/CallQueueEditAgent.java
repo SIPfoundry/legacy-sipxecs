@@ -9,27 +9,25 @@
 
 package org.sipfoundry.sipxconfig.site.callqueue;
 
-/* Tapestry 4 page API imports */
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.IPage;
-import org.apache.tapestry.IRequestCycle;
-
-/*sipXecs WEB components API imports */
+import org.sipfoundry.sipxconfig.callqueue.CallQueueAgent;
+import org.sipfoundry.sipxconfig.callqueue.CallQueueContext;
+import org.sipfoundry.sipxconfig.callqueue.CallQueueTier;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-/*sipXecs WEB settings API imports */
-import org.sipfoundry.sipxconfig.callqueue.CallQueueContext;
-import org.sipfoundry.sipxconfig.callqueue.CallQueueAgent;
-import org.sipfoundry.sipxconfig.callqueue.CallQueueTier;
-
 public abstract class CallQueueEditAgent extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "callqueue/CallQueueEditAgent";
+    private static final Log LOG = LogFactory.getLog(CallQueueEditAgent.class);
 
     /* Properties */
     @InjectObject("spring:callQueueContext")
