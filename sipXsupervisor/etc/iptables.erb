@@ -7,6 +7,14 @@
     s
   end
 
+  def sports(rule)
+    s = "--sport #{rule[:port]}"
+    unless rule[:end_port].nil?
+      s += ':' + rule[:end_port].to_s
+    end
+    s
+  end
+
   def srciprange(rule)
     s = "-s #{rule[:startIp]}"
     unless rule[:endIp].nil?
@@ -184,7 +192,7 @@ COMMIT
 <%
   rules.each { |rule|
     if rule[:priority]
-%>-A OUTPUT -o $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m comment --comment "<%= rule[:service] %>" -j DSCP --set-dscp-class EF
+%>-A OUTPUT -o $(sipx.iface) -p <%= rule[:protocol] %> <%= sports(rule) %> -m comment --comment "<%= rule[:service] %>" -j DSCP --set-dscp-class EF
 <%
     end
   }
