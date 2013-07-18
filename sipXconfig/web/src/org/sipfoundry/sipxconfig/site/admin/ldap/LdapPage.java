@@ -96,7 +96,8 @@ public abstract class LdapPage extends SipxBasePage implements PageBeginRenderLi
             setVerifiedConnectionId(getCurrentConnectionId());
             if (!isLdapConnectionValid()) {
                 //current selected connection is not valid, move to configuration tab if case
-                if (!StringUtils.equals(getTab(), CONFIGURATION_TAB)) {
+                if (!StringUtils.equals(getTab(), CONFIGURATION_TAB)
+                        && !StringUtils.equals(getTab(), MANAGEMENT_SETTINGS_TAB)) {
                     setTab(CONFIGURATION_TAB);
                 }
                 getValidator().record(new ValidatorException(getMessages().
@@ -106,10 +107,14 @@ public abstract class LdapPage extends SipxBasePage implements PageBeginRenderLi
     }
 
     public Collection<String> getAvailableTabNames() {
-        if (!getLdapManager().getSystemSettings().isConfigured()) {
-            return Arrays.asList(CONFIGURATION_TAB, IMPORT_TAB, MANAGEMENT_SETTINGS_TAB);
+        if (isLdapConnectionValid()) {
+            if (!getLdapManager().getSystemSettings().isConfigured()) {
+                return Arrays.asList(CONFIGURATION_TAB, IMPORT_TAB, MANAGEMENT_SETTINGS_TAB);
+            }
+            return Arrays.asList(CONFIGURATION_TAB, IMPORT_TAB, SETTINGS_TAB, MANAGEMENT_SETTINGS_TAB);
+        } else {
+            return Arrays.asList(CONFIGURATION_TAB, MANAGEMENT_SETTINGS_TAB);
         }
-        return Arrays.asList(CONFIGURATION_TAB, IMPORT_TAB, SETTINGS_TAB, MANAGEMENT_SETTINGS_TAB);
     }
 
     public boolean isConnectionStage() {
