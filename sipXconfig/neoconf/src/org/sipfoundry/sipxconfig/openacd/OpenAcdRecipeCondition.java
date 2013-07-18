@@ -176,7 +176,8 @@ public class OpenAcdRecipeCondition implements Serializable {
         //try to cast value to a number; if fails, insert a string
         //note that in most cases this is a number
         if (m_condition.equals(CONDITION.CALLER_ID.toString())
-                || m_condition.equals(CONDITION.CALLER_NAME.toString())) {
+                || m_condition.equals(CONDITION.CALLER_NAME.toString())
+                || m_condition.equals(CONDITION.CLIENT.toString())) {
             condition.put(OpenAcdContext.VALUE, m_valueCondition);
         } else {
             try {
