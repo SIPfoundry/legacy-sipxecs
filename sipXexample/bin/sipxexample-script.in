@@ -1,0 +1,8 @@
+#!/bin/sh
+
+cat <<EOF
+This is just a few of the build variables you can have in a shell scripts:
+SIPX_CONFDIR=@SIPX_CONFDIR@
+SIPXPBXUSER=@SIPXPBXUSER@
+CUSTOM_VAR=@CUSTOM_VAR@
+EOF
