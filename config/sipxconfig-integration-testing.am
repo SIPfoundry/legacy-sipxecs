@@ -141,13 +141,17 @@ SIPXCONFIG_TEST_CONFIG_FILES = test.properties sipxconfig.properties
 # tip: to append to CLEANFILES, use CLEANFILES += A B C
 CLEANFILES = $(SIPXCONFIG_TEST_CONFIG_FILES)
 
-sipxconfig.properties : $(SIPX_CONFDIR)/sipxconfig/sipxconfig.properties.install Makefile
-	@$(call SearchAndReplace,$<,$@.tmp)
+# force regen for fresh info
+.PHONY: sipxconfig.properties
+sipxconfig.properties :
+	@$(call SearchAndReplace,$(SIPX_CONFDIR)/sipxconfig/sipxconfig.properties.install,$@.tmp)
 	@echo "$$sipxconfig_properties" | tr -d '\011' >> $@.tmp
 	mv $@.tmp $@
 
 test.properties : DOMAIN=$(shell hostname -f)
-test.properties : Makefile
+# force regen for fresh info
+.PHONY: test.properties
+test.properties :
 	@echo -e "$(subst $(space),\n,$(foreach V,local.etc.dir DOMAIN $(CommonVariablesNames),$(V)=$($(V))))" > $@
 
 # customize spring beans for unit test environment, must include tab as first char otherwise
