@@ -3,17 +3,17 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="gwt/src"/>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="var" path="SIPX_BUILDDIR/sipXconfig/web/classes"/>
 	<classpathentry exported="true" kind="src" path="/sipXconfig-neoconf"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/sipxcommons"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/hivemind-1.1.1.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/hivemind-lib-1.1.1.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/smartgwt-2.5.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/smartgwt-skins-2.5.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/tapestry-annotations-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/tapestry-contrib-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src/tapestry-contrib/src/java"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRCDIR/sipXconfig/lib/tapestry-framework-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src/tapestry-framework/src/java"/>
+	<classpathentry exported="true" kind="var" path="SIPXCONFIG_SRCDIR/lib/hivemind-1.1.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPXCONFIG_SRCDIR/lib/hivemind-lib-1.1.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPXCONFIG_SRCDIR/lib/smartgwt-2.5.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPXCONFIG_SRCDIR/lib/smartgwt-skins-2.5.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPXCONFIG_SRCDIR/lib/tapestry-annotations-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src"/>
+	<classpathentry exported="true" kind="var" path="SIPXCONFIG_SRCDIR/lib/tapestry-contrib-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src/tapestry-contrib/src/java"/>
+	<classpathentry exported="true" kind="var" path="SIPXCONFIG_SRCDIR/lib/tapestry-framework-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src/tapestry-framework/src/java"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

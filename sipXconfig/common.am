@@ -1,3 +1,7 @@
+# do not include $(top_srcdir)/config/sipxconfig.am here, each sipxconfig
+# makefile should include it explicitly for clarity and to avoid redundancy
+# but it is required
+
 if TEST_MODE
 IS_TEST_MODE=true
 else
@@ -14,107 +18,12 @@ EXTRA_REPLACE = \
 	POSTGRESQL_USER \
 	OPENACD_HOME
 
+neoconf_PKGS = $(sipxconfig_neoconf_PKGS)
 neoconf_JAVAROOT = $(abspath $(top_builddir)/neoconf/src/classes)
 neoconf_JAR = $(abspath $(top_builddir)/neoconf/src/sipxconfig-neoconf.jar)
 neoconf_SRCDIR = $(abspath $(top_srcdir)/neoconf/src)
-neoconf_PKGS = \
-	acegi-security \
-	ant-contrib \
-	antlr \
-	aopalliance \
-	axis \
-    bcpkix-jdk15on \
-	bcprov-jdk15on \
-	cglib \
-	com.noelios.restlet \
-	com.noelios.restlet.ext.servlet \
-	commons-beanutils \
-	commons-codec \
-	commons-collections \
-	commons-digester \
-	commons-httpclient \
-	commons-io \
-	commons-lang \
-	commons-logging \
-	commons-net \
-	dom4j \
-	gdata-client \
-	gdata-contacts \
-	gdata-contacts \
-	guessencoding \
-	hibernate \
-	jain-sip-sdp \
-	jakarta-oro \
-	jasper-runtime \
-	jasperreports \
-	javamail \
-	javax.servlet \
-	jaxen \
-	jaxrpc \
-	jettison \
-	js-1.7R4 \
-	ldapbp \
-	lucene-core \
-	mime-dir-j-vcard4j \
-	mongo \
-	mysql-connector-java \
-	org.restlet \
-	org.restlet.ext.spring \
-	org.restlet.ext.spring \
-	org.springframework.aop \
-	org.springframework.asm \
-	org.springframework.beans \
-	org.springframework.context \
-	org.springframework.context.support \
-	org.springframework.core \
-	org.springframework.expression \
-	org.springframework.jdbc \
-	org.springframework.orm \
-	org.springframework.transaction \
-	org.springframework.web \
-	org.springframework.web.servlet \
-	spring-ws \
-	postgresql \
-	saxpath \
-	serializer \
-	sipxcommons \
-	snmp4j \
-	spring-data-commons-core \
-	spring-data-mongodb \
-	spring-ldap \
-        spring-data-redis \
-        jedis \
-	thumbnailator \
-	velocity \
-	velocity-tools-generic \
-	xercesImpl \
-	xmlrpc \
-	xstream \
-	joda-time
 
 war_ROOT = $(abspath $(top_builddir)/web/out)
+web_PKGS = $(sipxconfig_web_PKGS)
 web_JAVAROOT = $(abspath $(top_builddir)/web/classes)
 web_SRCDIR = $(abspath $(top_srcdir)/web/src)
-web_PKGS = \
-	$(neoconf_PKGS) \
-	ant \
-	ant-launcher \
-	backport-util-concurrent \
-	c3p0 \
-	cglib-nodep \
-	commons-pool \
-	commons-fileupload \
-	hivemind \
-	hivemind-lib \
-	jasper-compiler \
-	javassist \
-	jdom \
-	jetty \
-	jta \
-	not-yet-commons-ssl \
-	ognl \
-	rome \
-	tapestry-annotations \
-	tapestry-contrib \
-	tapestry-framework \
-	xpp3

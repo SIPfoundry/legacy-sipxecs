@@ -1,0 +1,173 @@
+include $(top_srcdir)/config/sipxconfig.am
+
+sipxconfig_neoconf_PKGS = \
+	acegi-security \
+	ant-contrib \
+	antlr \
+	aopalliance \
+	axis \
+	bcpkix-jdk15on \
+	bcprov-jdk15on \
+	cglib \
+	com.noelios.restlet \
+	com.noelios.restlet.ext.servlet \
+	commons-beanutils \
+	commons-codec \
+	commons-collections \
+	commons-digester \
+	commons-httpclient \
+	commons-io \
+	commons-lang \
+	commons-logging \
+	commons-net \
+	dom4j \
+	gdata-client \
+	gdata-contacts \
+	gdata-contacts \
+	guessencoding \
+	hibernate \
+	jain-sip-sdp \
+	jakarta-oro \
+	jasper-runtime \
+	jasperreports \
+	javamail \
+	javax.servlet \
+	jaxen \
+	jaxrpc \
+	jettison \
+	joda-time \
+	js-1.7R4 \
+	ldapbp \
+	lucene-core \
+	mime-dir-j-vcard4j \
+	mongo \
+	mysql-connector-java \
+	org.restlet \
+	org.restlet.ext.spring \
+	org.springframework.aop \
+	org.springframework.asm \
+	org.springframework.beans \
+	org.springframework.context \
+	org.springframework.context.support \
+	org.springframework.core \
+	org.springframework.expression \
+	org.springframework.jdbc \
+	org.springframework.orm \
+	org.springframework.transaction \
+	org.springframework.web \
+	org.springframework.web.servlet \
+	postgresql \
+	saxpath \
+	serializer \
+	sipxcommons \
+	snmp4j \
+	spring-data-commons-core \
+	spring-data-mongodb \
+	spring-ldap \
+	spring-ws \
+	thumbnailator \
+	velocity \
+	velocity-tools-generic \
+	xercesImpl \
+	xmlrpc \
+	xstream \
+        jedis \
+        spring-data-redis
+
+sipxconfig_web_PKGS = \
+	$(sipxconfig_neoconf_PKGS) \
+	ant \
+	ant-launcher \
+	backport-util-concurrent \
+	c3p0 \
+	cglib-nodep \
+	commons-fileupload \
+	commons-pool \
+	hivemind \
+	hivemind-lib \
+	jasper-compiler \
+	javassist \
+	jdom \
+	jetty \
+	jta \
+	not-yet-commons-ssl \
+	ognl \
+	rome \
+	tapestry-annotations \
+	tapestry-contrib \
+	tapestry-framework \
+	xpp3
+
+sipxconfig_test_integration_core_PKGS = \
+	$(sipxconfig_web_PKGS) \
+	dbunit \
+	easymock \
+	easymockclassextension \
+	junit \
+	junitperf \
+	p6spy \
+	spring-mock \
+	xml-apis \
+	xmlunit
+
+sipxconfig_test_integration_PKGS = \
+	$(sipxconfig_test_integration_core_PKGS) \
+	agent-bindings \
+	cdr-bindings \
+	sipxconfig-neoconf \
+	sipxconfig-web
+
+ant_PKGS = \
+	ant \
+	ant-launcher \
+	postgresql
+
+ant_DEPS = $(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(ant_PKGS))
+sipxconfig-reset-integration-test :
+	if ! `$(PG_SQL) -l | grep SIPXCONFIG_TEST > /dev/null` ; then \
+	  $(PG_CREATEDB) SIPXCONFIG_TEST; \
+	fi
+	cd $(SIPX_CONFDIR)/database; \
+	  $(call JavaCommand,ant) org.apache.tools.ant.launch.Launcher \
+	    -Dsipxconfig.db.name=SIPXCONFIG_TEST \
+	    -Dsipxconfig.db.user=$(POSTGRESQL_USER) \
+	    -Dlog.dir=$(abspath $(builddir)) \
+	    -Dtmp.dir=$(abspath $(builddir)) \
+	    -f database.xml unittest-reset
+
+javac-test : $(SIPXCONFIG_TEST_CONFIG_FILES)
+
+SIPXCONFIG_TEST_CONFIG_FILES = test.properties sipxconfig.properties
+# tip: to append to CLEANFILES, use CLEANFILES += A B C
+CLEANFILES = $(SIPXCONFIG_TEST_CONFIG_FILES)
+
+sipxconfig.properties : $(SIPX_CONFDIR)/sipxconfig/sipxconfig.properties.install Makefile
+	@$(call SearchAndReplace,$<,$@.tmp)
+	@echo "$$sipxconfig_properties" | tr -d '\011' >> $@.tmp
+	mv $@.tmp $@
+
+test.properties : DOMAIN=$(shell hostname -f)
+test.properties : Makefile
+	@echo -e "$(subst $(space),\n,$(foreach V,local.etc.dir DOMAIN $(CommonVariablesNames),$(V)=$($(V))))" > $@
+
+# customize spring beans for unit test environment, must include tab as first char otherwise
+# automake treats it differently
+define sipxconfig_properties
+	domainManagerImpl.domainConfigFilename=$(abspath .)/domain-config
+	dataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXCONFIG_TEST
+	cdrDataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXCDR_TEST
+	acdHistoryDataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST
+	mongoDbFactory.connectionUrl=mongodb://127.0.0.1:27017
+	sysdir.mongo_ns=_TEST
+	setupManagerImpl.enabled=false
+	domainManagerImpl.configuredDomain=example.org
+	domainManagerImpl.configuredSipDomain=example.org
+	domainManagerImpl.configuredRealm=example.org
+	domainManagerImpl.configuredSecret=pHJhejhCcSy5nc+UfcMF2wMN
+	domainManagerImpl.configuredFqdn=$(shell hostname)
+	domainManagerImpl.configuredIp=127.0.0.1
+	locationsManagerImpl.primaryFqdn=$(shell hostname)
+	locationsManagerImpl.primaryIp=127.0.0.1
+	mongoReplicaSetManager.primaryFqdn=$(shell hostname)
+endef
+export sipxconfig_properties
