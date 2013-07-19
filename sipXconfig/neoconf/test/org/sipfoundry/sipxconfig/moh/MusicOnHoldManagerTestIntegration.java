@@ -22,8 +22,8 @@ import java.util.regex.Pattern;
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.dialplan.config.FullTransform;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 
 import com.mongodb.DBObject;
 import com.mongodb.QueryBuilder;

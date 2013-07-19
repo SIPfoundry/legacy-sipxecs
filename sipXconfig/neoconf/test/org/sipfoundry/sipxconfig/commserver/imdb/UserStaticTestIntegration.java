@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 
 import com.mongodb.QueryBuilder;
 

@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 
 public class TlsPeerManagerImplTestIntegration extends ImdbTestCase {
     private TlsPeerManager m_tlsPeerManager;

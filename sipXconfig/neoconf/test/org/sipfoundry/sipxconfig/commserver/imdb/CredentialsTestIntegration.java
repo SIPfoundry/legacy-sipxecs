@@ -17,6 +17,7 @@ import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 
 public class CredentialsTestIntegration extends ImdbTestCase {
 

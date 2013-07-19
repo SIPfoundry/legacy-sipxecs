@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserCallerAliasInfo;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayCallerAliasInfo;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;

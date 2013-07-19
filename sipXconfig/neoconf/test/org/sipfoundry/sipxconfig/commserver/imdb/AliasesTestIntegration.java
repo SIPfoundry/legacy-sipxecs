@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 
 public class AliasesTestIntegration extends ImdbTestCase {
     private User m_user;

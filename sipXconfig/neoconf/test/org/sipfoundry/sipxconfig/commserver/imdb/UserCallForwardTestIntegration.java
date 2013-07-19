@@ -15,6 +15,7 @@ import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 import org.sipfoundry.sipxconfig.time.NtpManager;
 
 public class UserCallForwardTestIntegration extends ImdbTestCase {

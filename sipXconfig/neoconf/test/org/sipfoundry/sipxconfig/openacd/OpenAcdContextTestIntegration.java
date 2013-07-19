@@ -42,7 +42,6 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
-import org.sipfoundry.sipxconfig.mongo.MongoTestIntegration;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.DefaultAgentGroupDeleteException;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.QueueGroupInUseException;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl.QueueInUseException;
@@ -52,6 +51,7 @@ import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeCondition.CONDITION;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdRecipeStep.FREQUENCY;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
+import org.sipfoundry.sipxconfig.test.MongoTestIntegration;
 import org.springframework.dao.support.DataAccessUtils;
 
 import com.mongodb.DBCollection;

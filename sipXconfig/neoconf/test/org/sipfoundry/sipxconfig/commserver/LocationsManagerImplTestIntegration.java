@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.commserver;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 
 public class LocationsManagerImplTestIntegration extends ImdbTestCase {
     private LocationsManager m_locationsManager;

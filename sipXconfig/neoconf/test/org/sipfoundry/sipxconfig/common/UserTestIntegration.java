@@ -15,10 +15,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.sipfoundry.commons.userdb.ValidUsers;
-import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 import org.springframework.dao.DataIntegrityViolationException;
 
 public class UserTestIntegration extends ImdbTestCase {

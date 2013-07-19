@@ -18,9 +18,9 @@ import java.util.List;
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 

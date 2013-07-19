@@ -9,6 +9,7 @@ import java.util.List;
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.acccode.AuthCode;
 import org.sipfoundry.sipxconfig.common.InternalUser;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 
 public class AuthCodesTestIntegration extends ImdbTestCase {
     private final String[][] AUTHCODES_DATA = {

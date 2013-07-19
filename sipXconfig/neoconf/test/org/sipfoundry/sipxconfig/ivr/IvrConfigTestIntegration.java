@@ -23,9 +23,9 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.commserver.SipxReplicationContextImpl;
-import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class IvrConfigTestIntegration extends ImdbTestCase {

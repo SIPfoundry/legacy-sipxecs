@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialGroup;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 import com.mongodb.BasicDBObject;

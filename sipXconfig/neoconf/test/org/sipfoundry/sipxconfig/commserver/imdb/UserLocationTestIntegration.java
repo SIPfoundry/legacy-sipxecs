@@ -18,6 +18,7 @@ import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 
 public class UserLocationTestIntegration extends ImdbTestCase {
 

@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 
 import com.mongodb.QueryBuilder;
 

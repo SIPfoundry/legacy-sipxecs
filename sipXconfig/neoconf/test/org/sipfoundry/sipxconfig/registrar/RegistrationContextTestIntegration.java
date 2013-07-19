@@ -12,10 +12,10 @@ package org.sipfoundry.sipxconfig.registrar;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.commserver.imdb.RegistrationItem;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.registrar.RegistrationContextImpl;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import com.mongodb.BasicDBObject;

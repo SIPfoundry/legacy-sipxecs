@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationTrigger.BranchDeleteWorker;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 import org.sipfoundry.sipxconfig.tls.TlsPeer;
 import org.sipfoundry.sipxconfig.tls.TlsPeerManager;
 
