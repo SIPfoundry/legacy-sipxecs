@@ -114,7 +114,6 @@ bind_ip=0.0.0.0
 port=27018
 logpath=/var/log/$(mongodb.id)/mongod-arbiter.log
 fork=true
-arbiter=true
 smallfiles=true
 pidfilepath=/var/run/$(mongodb.id)/mongodb-arbiter.pid
 journal=true
