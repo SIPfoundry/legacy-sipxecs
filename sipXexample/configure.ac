@@ -23,6 +23,12 @@ AC_PROG_JAVA_CC([javac])
 AC_PROG_JAVA([java])
 PROG_JAVA_DEP
 
+# mainly for sipXconfig UI plugins
+CHECK_DART_SDK
+
+# Psotgres operations
+CHECK_POSTGRES
+
 # ruby projects - typical macros
 CHECK_RUBY([1.8.2])
 CHECK_RUBYGEMS([0.8.11])
