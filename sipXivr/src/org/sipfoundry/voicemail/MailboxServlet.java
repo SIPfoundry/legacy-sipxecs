@@ -58,14 +58,17 @@ public class MailboxServlet extends HttpServlet {
     private static final String METHOD_PUT = "PUT";
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
 
+    @Override
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doIt(request, response);
     }
 
+    @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doIt(request, response);
     }
 
+    @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException,
             IOException {
         doIt(request, response);
@@ -333,17 +336,19 @@ public class MailboxServlet extends HttpServlet {
     }
 
     private void listMessages(List<VmMessage> messages, String folder, PrintWriter pw) {
-        String author = null;
-        String fromUri = null;
+        String authorDisplayName = null;
+        String authorExtension = null;
         for (VmMessage message : messages) {
             MessageDescriptor descriptor = message.getDescriptor();
             String uri = descriptor.getFromUri();
-            author = SipUriUtil.extractUserName(uri.replace('+', ' '));
-            fromUri = StringUtils.substringBetween(uri, "<", ">");
+            authorDisplayName = StringUtils.defaultIfEmpty(ValidUsers.getDisplayPart(uri), StringUtils.EMPTY);
+            authorExtension = StringUtils.defaultIfEmpty(ValidUsers.getUserPart(uri), StringUtils.EMPTY);
             pw.format(
-                    "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" author=\"%s\" username=\"%s\" format=\"%s\"/>\n",
+                    "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" " +
+                    "author=\"%s\" authorExtension=\"%s\" username=\"%s\" format=\"%s\"/>\n",
                     message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder,
-                    descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), author, message.getUserName(), descriptor.getAudioFormat());
+                    descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(),
+                    HtmlUtils.htmlEscapeHex(authorDisplayName), HtmlUtils.htmlEscapeHex(authorExtension), message.getUserName(), descriptor.getAudioFormat());
         }
     }
 
@@ -356,13 +361,15 @@ public class MailboxServlet extends HttpServlet {
     private void listFullMessage(VmMessage message, String folder, PrintWriter pw) {
         MessageDescriptor descriptor = message.getDescriptor();
         String uri = descriptor.getFromUri();
-        String author = SipUriUtil.extractUserName(uri.replace('+', ' '));
+        String authorDisplayName = StringUtils.defaultIfEmpty(ValidUsers.getDisplayPart(uri), StringUtils.EMPTY);
+        String authorExtension = StringUtils.defaultIfEmpty(ValidUsers.getUserPart(uri), StringUtils.EMPTY);
         String fromUri = StringUtils.substringBetween(uri, "<", ">");
         pw.format(
-                "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" fromUri=\"%s\" author=\"%s\" subject=\"%s\" username=\"%s\" format=\"%s\"/>\n",
+                "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" " +
+                "fromUri=\"%s\" author=\"%s\" authorExtension=\"%s\" subject=\"%s\" username=\"%s\" format=\"%s\"/>\n",
                 message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder,
-                descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), fromUri, HtmlUtils.htmlEscapeHex(author),
-                descriptor.getSubject(), message.getUserName(), descriptor.getAudioFormat());
+                descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), fromUri, HtmlUtils.htmlEscapeHex(authorDisplayName),
+                HtmlUtils.htmlEscapeHex(authorExtension) ,descriptor.getSubject(), message.getUserName(), descriptor.getAudioFormat());
     }
 
 }
