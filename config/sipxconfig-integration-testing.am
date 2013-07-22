@@ -46,7 +46,7 @@ CLEANFILES = $(SIPXCONFIG_TEST_CONFIG_FILES)
 # force regen for fresh info
 .PHONY: sipxconfig.properties
 sipxconfig.properties :
-	@$(call SearchAndReplace,$(SIPX_CONFDIR)/sipxconfig/sipxconfig.properties.install,$@.tmp)
+	@$(call SearchAndReplace,$(SIPX_CONFDIR)/sipxconfig/sipxconfig.properties.install,$@.tmp,IS_TEST_MODE)
 	@echo "$$sipxconfig_properties" | tr -d '\011' >> $@.tmp
 	mv $@.tmp $@
 
