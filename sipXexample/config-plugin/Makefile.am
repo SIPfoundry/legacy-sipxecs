@@ -7,7 +7,7 @@ SUBDIRS = \
 
 EXTRA_DIST = \
 	$(example_SRC) \
-	$(example_RESOURCES)
+	$(addprefix src/,$(example_RESOURCES))
 
 jardir = @SIPX_JAVADIR@/sipXconfig/plugins
 JAR_FILE = sipxexample-config.jar
