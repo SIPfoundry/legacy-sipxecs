@@ -12,6 +12,7 @@ Url: http://www.sipfoundry.org
 
 # B U I L D - typical only, please adjust accordingly
 BuildRequires: automake
+
 # libxml2 is for xml validation in 'make check'
 BuildRequires: libxml2
 
@@ -20,6 +21,9 @@ BuildRequires: sipxcommserverlib-devel >= %version
 
 # java
 BuildRequires: sipxcommons >= %version
+
+# sipxconfig plugin
+BuildRequires: sipxconfig >= %version
 
 # ruby
 BuildRequires: rubygems
@@ -48,6 +52,8 @@ Requires: sipxconfig >= %version
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Example configuration support for sipXecs. Meant to be changed by implementors
+
+Requires: sipxconfig >= %version
 
 %description config
 This is just sample text for the config portion of your project. Change this
