@@ -78,22 +78,29 @@ ContactSet::ContactSet(ResourceCached* resource,
                       ResourceListSet::subscriptionEventCallbackAsync,
                       ResourceListSet::notifyEventCallbackAsync,
                       mSubscriptionEarlyDialogHandle);
+
    if (ret)
    {
       Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "ContactSet:: addSubscription succeeded mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                     mUri.data(),
                     mSubscriptionEarlyDialogHandle.data());
-      // Add this ContactSet to mSubscribeMap.
-      getResourceListSet()->addSubscribeMapping(&mSubscriptionEarlyDialogHandle,
-                                                this);
    }
    else
    {
       Os::Logger::instance().log(FAC_RLS, PRI_WARNING,
-                    "ContactSet:: addSubscription failed mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
+                    "ContactSet:: addSubscription failed first send mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                     mUri.data(),
                     mSubscriptionEarlyDialogHandle.data());
+   }
+
+   // Add this ContactSet to mSubscribeMap.
+   // The mapping is done as long as addSubscription returned a valid handle
+   // no matter if the addSubscription above succeeded or failed.
+   if (!mSubscriptionEarlyDialogHandle.isNull())
+   {
+       getResourceListSet()->addSubscribeMapping(&mSubscriptionEarlyDialogHandle,
+                                             this);
    }
 }
 

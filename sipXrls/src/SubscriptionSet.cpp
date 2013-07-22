@@ -58,15 +58,25 @@ SubscriptionSet::SubscriptionSet(ResourceCached* resource,
       Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
                     "SubscriptionSet:: addSubscription for '%s' succeeded",
                     mUri.data());
-      // Add this SubscriptionSet to mSubscribeMap.
-      getResourceListSet()->addSubscribeMapping(&mSubscriptionEarlyDialogHandle,
-                                                this);
    }
    else
    {
       Os::Logger::instance().log(FAC_RLS, PRI_WARNING,
                     "SubscriptionSet:: addSubscription for '%s' failed",
                     mUri.data());
+   }
+
+
+   // NOTE: The mapping is done as long as addSubscription returned a valid handle
+   // no matter if the addSubscription above succeeded or failed.
+   // That is because the stack's subscribe client can recover from some send errors and
+   // even if the first send of the SUBSCRIBE failed subsequent sends could be successful.
+   // In case addSubscription failed from other kind of errors this object is unused anyway.
+   if (!mSubscriptionEarlyDialogHandle.isNull())
+   {
+       // Add this SubscriptionSet to mSubscribeMap.
+       getResourceListSet()->addSubscribeMapping(&mSubscriptionEarlyDialogHandle,
+                                               this);
    }
 }
 

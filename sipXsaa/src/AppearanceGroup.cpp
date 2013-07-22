@@ -100,9 +100,6 @@ void AppearanceGroup::startSubscription()
                     "AppearanceGroup:: startSubscription succeeded mSharedUser = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                     mSharedUser.data(),
                     mSubscriptionEarlyDialogHandle.data());
-      // Add this AppearanceGroup to mSubscribeMap.
-      getAppearanceAgent()->getAppearanceGroupSet().addSubscribeMapping(&mSubscriptionEarlyDialogHandle,
-                                                this);
    }
    else
    {
@@ -110,6 +107,16 @@ void AppearanceGroup::startSubscription()
                     "AppearanceGroup:: startSubscription failed mSharedUser = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                     mSharedUser.data(),
                     mSubscriptionEarlyDialogHandle.data());
+   }
+
+   // Add this ContactSet to mSubscribeMap.
+   // The mapping is done as long as addSubscription returned a valid handle
+   // no matter if the addSubscription above succeeded or failed.
+   if (!mSubscriptionEarlyDialogHandle.isNull())
+   {
+     // Add this AppearanceGroup to mSubscribeMap.
+       getAppearanceAgent()->getAppearanceGroupSet().addSubscribeMapping(&mSubscriptionEarlyDialogHandle,
+                                               this);
    }
 }
 

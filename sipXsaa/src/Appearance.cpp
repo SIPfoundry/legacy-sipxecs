@@ -61,16 +61,23 @@ Appearance::Appearance( AppearanceAgent* appAgent,
       Os::Logger::instance().log(FAC_SAA, PRI_DEBUG,
                     "Appearance:: addSubscription for '%s' succeeded",
                     mUri.data());
-      // Add this Appearance to mSubscribeMap.
-      getAppearanceGroupSet().addSubscribeMapping(&mSubscriptionEarlyDialogHandle,
-                                                this);
-      mDialogHandle = mSubscriptionEarlyDialogHandle;
    }
    else
    {
       Os::Logger::instance().log(FAC_SAA, PRI_WARNING,
                     "Appearance:: addSubscription for '%s' failed",
                     mUri.data());
+   }
+
+   // Add this ContactSet to mSubscribeMap.
+   // The mapping is done as long as addSubscription returned a valid handle
+   // no matter if the addSubscription above succeeded or failed.
+   if (!mSubscriptionEarlyDialogHandle.isNull())
+   {
+       // Add this Appearance to mSubscribeMap.
+       getAppearanceGroupSet().addSubscribeMapping(&mSubscriptionEarlyDialogHandle,
+                                               this);
+       mDialogHandle = mSubscriptionEarlyDialogHandle;
    }
 }
 
