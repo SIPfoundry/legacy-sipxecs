@@ -121,8 +121,13 @@ SipRedirectorFallback::lookUp(
    if (mMappingRulesLoaded == OS_SUCCESS)
    {      
       UtlString callerLocation;
-      determineCallerLocation( message, callerLocation );
-    
+      UtlString callerInitialLineId;
+      // initial gateway contact retrieved following X-SipX-Location-Info headers takes precedence
+      if (OS_SUCCESS != getInitialGatewayContact(message, callerLocation, callerInitialLineId))
+      {
+        determineCallerLocation(message, callerLocation);
+      }
+
 #ifndef __USE_OLD_FALLBACKRULES_SCHEMA__      
       mMap.getContactList(
          requestUri,
@@ -161,8 +166,23 @@ SipRedirectorFallback::lookUp(
 
             contactUri.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, callTag.data());
 
-            // Add the contact.
-            contactList.add( contactUri, *this );
+            if (callerInitialLineId.isNull())
+            {
+              // no initial gateway so just add all found contacts
+              contactList.add(contactUri, *this);
+            }
+            else
+
+            {
+              // If there is an initial gateway lineId then add only the contact that matches the lineId
+              UtlString actualLineId;
+              if (contactUri.getUrlParameter(SIPX_SIPXECS_LINEID_URI_PARAM, actualLineId) &&
+                  0 == actualLineId.compareTo(callerInitialLineId))
+              {
+                contactList.add( contactUri, *this );
+                break;
+              }
+            }
          }
       }
    }
@@ -177,7 +197,7 @@ const UtlString& SipRedirectorFallback::name( void ) const
 OsStatus 
 SipRedirectorFallback::determineCallerLocation(
    const SipMessage& message,
-   UtlString& callerLocation )
+   UtlString& callerLocation)
 {
    // First, try to determine the location of the caller based on its public IP address.  If that 
    // does not yield any result revert to looking up the location provisioned against the 
@@ -270,16 +290,52 @@ SipRedirectorFallback::determineCallerLocationFromLocationInfoHeader(
 {
    OsStatus result = OS_FAILED;
    callerLocation.remove(0);
+   UtlString paramName;
 
-   SipXlocationInfo locationInfo(message);
-   if (locationInfo.getLocation(callerLocation))
+   SipXSignedHeader locationInfo(message, SIP_SIPX_LOCATION_INFO);
+   if (locationInfo.getParam(SIPX_SIPXECS_LOCATION_URI_PARAM, callerLocation))
    {
      result = OS_SUCCESS;
 
      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                   "%s::determineCallerLocationFromLocationInfoHeader got from header 'X-sipX-Location-Branch' location '%s'",
+                   "%s::determineCallerLocationFromLocationInfoHeader got from header '%s' location '%s'",
                    mLogName.data(),
+                   SIP_SIPX_LOCATION_INFO,
                    callerLocation.data());
+   }
+   else
+   {
+     callerLocation.remove(0);
+   }
+
+   return result;
+}
+
+OsStatus
+SipRedirectorFallback::getInitialGatewayContact(
+   const SipMessage& message,
+   UtlString& location,
+   UtlString& lineId) const
+{
+   OsStatus result = OS_FAILED;
+
+   SipXSignedHeader locationInfo(message, SIP_SIPX_LOCATION_INFO);
+   if (locationInfo.getParam(SIPX_SIPXECS_LOCATION_URI_PARAM, location) &&
+       locationInfo.getParam(SIPX_SIPXECS_LINEID_URI_PARAM, lineId))
+   {
+     result = OS_SUCCESS;
+
+     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                   "%s::getInitialGatewayContact got from header '%s' location: '%s', lineId: '%s'",
+                   mLogName.data(),
+                   SIP_SIPX_LOCATION_INFO,
+                   location.data(),
+                   lineId.data());
+   }
+   else
+   {
+     location.remove(0);
+     lineId.remove(0);
    }
 
    return result;

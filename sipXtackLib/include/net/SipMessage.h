@@ -125,6 +125,7 @@ class SipUserAgent;
 #define SIP_SIPX_CALL_DEST_FIELD "sipXecs-CallDest"
 #define SIP_SIPX_USER "sipXecs-User"
 #define SIP_SIPX_FROM "sipXecs-From"
+#define SIP_SIPX_LOCATION_INFO "X-SipX-Location-Info"
 
 ///custom fields
 #define SIP_LINE_IDENTIFIER "LINEID"

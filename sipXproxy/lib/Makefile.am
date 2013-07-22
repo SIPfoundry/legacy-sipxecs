@@ -1,1 +1,1 @@
-SUBDIRS = authplugins
+SUBDIRS = transactionplugins authplugins

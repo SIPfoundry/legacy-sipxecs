@@ -60,5 +60,6 @@ SIPX_PROXY_WHITE_LIST : $!{proxyService.whiteList}
 SIPX_PROXY_BLACK_LIST : $!{proxyService.blackList}
 
 SIPX_TRAN_HOOK_LIBRARY.100_sipxhomer : @sipxpbx.lib.dir@/transactionplugins/libsipXhomerProxyPlugin.so
-
+SIPX_TRAN_HOOK_LIBRARY.905_gatewaydest: @sipxpbx.lib.dir@/transactionplugins/libGatewayDestPlugin.so
 SIPX_TRAN_HOOK_LIBRARY.910_sssmessagefilter: @sipxpbx.lib.dir@/transactionplugins/libSSSMessageFilterProxyPlugin.so
+

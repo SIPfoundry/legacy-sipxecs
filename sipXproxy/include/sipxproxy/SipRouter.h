@@ -187,6 +187,15 @@ class SipRouter : public OsServerTask
      * @returns true if user has a location, false otherwise
      */
 
+    /// Check if the feature is enabled
+    bool supportMultipleGatewaysPerLocation() const;
+    /**<
+     * This is a recommended feature in case there are multiple gateways bound to the same
+     * location. This will make use of custom sipx headers to ensure that transfered calls
+     * use the same gateway as the call to the transfer target.
+     * @sa UC-1382 Consultative transfer must point to the exact gateway that accepted the initial INVITE
+     */
+
 
    /// If the fromUrl uses domain alias, change to original domain as identities are stored in credential database using mDomainName.
    void ensureCanonicalDomain(Url& url) const;

@@ -84,6 +84,21 @@ class TransferControl : public AuthPlugin
    
   protected:
    friend class TransferControlTest;
+
+   /// Add in the REFER request's Refer-To header a X-SipX-Location-Info header containing user location and gateway line-id
+   void addLocationInfo(
+       const UtlString& id, ///< The authenticated identity of the request originator, expected to not be null
+       Url& target          ///< Refer-To url where to add location info
+       );
+   /**<
+    * This methods will construct the X-SipX-Location-Info header and adds it to Refer-To url.
+    * the X-SipX-Location-Info header can contain two parameters:
+    * - location of the refer originator. In case the user has no location then this parameter
+    * will not be added;
+    * - line-id of the initial gateway used as destination for call from the referror to the transfer target.
+    * In case support for multiple gateways per location is NOT enabled this parameter will not be added.
+    * @note In case the parameters above are not available then the header will not be added at all
+    */
    
    static const char* RecognizerConfigKey1;
    static const char* RecognizerConfigKey2;

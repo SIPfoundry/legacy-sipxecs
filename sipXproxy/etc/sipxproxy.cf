@@ -103,6 +103,7 @@ bundle edit_line sipXproxy_config_contents() {
       "SIPX_PROXY.400_authrules.RULES : $(sipx.SIPX_CONFDIR)/authrules.xml";
       "SIPX_PROXY.990_emerglineid.EMERGRULES : $(sipx.SIPX_CONFDIR)/authrules.xml";
       "SIPX_PROXY_BIND_IP : $(sipx.bind_ip)";
+      "SIPX_TRAN_HOOK_LIBRARY.905_gatewaydest : $(sipx.SIPX_LIBDIR)/transactionplugins/libGatewayDestPlugin.so";
     homer::
       "SIPX_TRAN_HOOK_LIBRARY.100_sipxhomer : $(sipx.SIPX_LIBDIR)/transactionplugins/libsipXhomerProxyPlugin.so";
 

@@ -48,5 +48,6 @@ libsipdb_la_SOURCES =  \
    SubscribeDB.cpp \
    ResultSet.cpp \
    DbHelper.cpp \
-   CustomConnPool.cpp
-   
+   CustomConnPool.cpp \
+   GatewayDestDB.cpp \
+   GatewayDestRecord.cpp

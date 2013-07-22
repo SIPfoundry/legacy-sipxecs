@@ -29,15 +29,15 @@
 // FORWARD DECLARATIONS
 class SipXlocationInfoTest;
 
-/// Maintain SipXlocationInfo information
+/// Maintain SipXSignedHeader information
 /**
- * This class encapsulates SipXlocationInfo information. SipXlocationInfo is used by the
+ * This class encapsulates SipXSignedHeader information. SipXSignedHeader is used by the
  * sipXproxy to inform sipXregistrar of which location should be associated with an INVITE request
  * based on the location of the REFER request originator. This is useful in call transfer
  * scenarios, where the transfered call should be bound to the location of the call transfer
  * initiator, and directed through the gateway associated with the initiator location.
  *
- * SipXlocationInfo information is carried in X-Sipx-Location-Info header of the following format:
+ * SipXSignedHeader information is carried in X-Sipx-Location-Info header of the following format:
  *
  *  X-Sipx-Location-Info: "<" <identity>;location=<location>;signature=<signature-hash> ">"
  * where:
@@ -50,20 +50,19 @@ class SipXlocationInfoTest;
  * in a given installation. This should prevent (or minimize) the replay attacks on the
  * system making it relatively difficult to spoof the X-Sipx-Location-Info header.
  *
- * To access the SipXlocationInfo information in a message, construct a SipXlocationInfo object
- * passing the SipMessage to the SipXlocationInfo constructor. Use setInfo to set location info,
+ * To access the SipXSignedHeader information in a message, construct a SipXSignedHeader object
+ * passing the SipMessage to the SipXSignedHeader constructor. Use setInfo to set location info,
  * use getIdentity and getLocation method to get location info. Use remove method to remove the
  * info from message.
  *
  * @nosubgrouping
  */
-class SipXlocationInfo
+class SipXSignedHeader
 {
   public:
-  static const char* HeaderName;
 
   /// Default Constructor
-  SipXlocationInfo();
+  SipXSignedHeader(const UtlString&  identity, const UtlString& headerName);
 
   // ================================================================
   /** @name            Decoding Operations
@@ -72,28 +71,28 @@ class SipXlocationInfo
    */
   ///@{
 
-  /// Constructor which decodes SipXlocationInfo from a received message.
-  SipXlocationInfo(const SipMessage& message  ///< message to scan for an location info header
-      );
+  /// Constructor which decodes SipXSignedHeader from a received message.
+  SipXSignedHeader(const SipMessage& message,  ///< message to scan for an location info header
+      const UtlString& headerName);
   /**<
-   * The message may or may not contain SipXlocationInfo information. If location information is
+   * The message may or may not contain SipXSignedHeader information. If location information is
    * present but signature does not match subsequent calls to get information will return false
    * until the new info is set via a call to setInfo
    */
 
-  /// Extract location saved in the SipXlocationInfo.
-  bool getLocation(UtlString& location) const;
+  /// Extract location saved in the SipXSignedHeader.
+  bool getParam(const UtlString&  paramName, UtlString& paramValue) const;
   /**<
    * Returns encapsulated location
-   * @returns true if the SipXlocationInfo information is valid, false if not.
+   * @returns true if the SipXSignedHeader information is valid, false if not.
    * @param location is null if return was false
    */
 
-  /// Extract identity saved in the SipXlocationInfo.
+  /// Extract identity saved in the SipXSignedHeader.
   bool getIdentity(UtlString&  identity) const;
   /**<
    * Returns encapsulated identity in the format user@domain
-   * @returns true if the SipXlocationInfo information is valid, false if not.
+   * @returns true if the SipXSignedHeader information is valid, false if not.
    * @param identity is null if return was false; if true, it is in the format user@domain
    */
 
@@ -108,15 +107,15 @@ class SipXlocationInfo
   ///@{
 
   /// Stores location info
-  void setInfo(const UtlString&  identity, const UtlString&  location);
+  void setParam(const UtlString&  paramName, const UtlString& paramValue);
   /**<
    * Establish a new value for the identity and location to be included
-   * when the SipXlocationInfo information is generated.
+   * when the SipXSignedHeader information is generated.
    * @param identity is in the format user@domain
    */
 
   /// Remove location info header from a message.
-  static void remove(SipMessage& request);
+  static void remove(SipMessage& request, const UtlString& headerName);
 
   /// Encode location information into a URL
   bool encodeUri(Url& uri           ///< target URI to get encoded location information
@@ -125,12 +124,12 @@ class SipXlocationInfo
    * Encodes new information, identity and location into a URI based
    * on the stored info.
    *
-   * @returns true if the SipXlocationInfo information is valid, false if not.
+   * @returns true if the SipXSignedHeader information is valid, false if not.
    *
    * @Note  Existing location info in the URI is removed
    */
 
-  /// Initialize the secret value used to sign SipXlocationInfo information.
+  /// Initialize the secret value used to sign SipXSignedHeader information.
   static void setSecret(const char* secret /**< a random value used as input to sign the
                               *  header info.  This should be chosen such that it:
                               * - is hard for an attacker to guess (includes at
@@ -142,7 +141,7 @@ class SipXlocationInfo
           );
   /**<
    * This must be called once at initialization time,
-   * before any SipXlocationInfo objects are created.
+   * before any SipXSignedHeader objects are created.
    *
    * It may be called after that, but doing so with a
    * new value will invalidate any outstanding headers.
@@ -150,19 +149,19 @@ class SipXlocationInfo
   ///@}
 
   /// destructor
-  ~SipXlocationInfo();
-
-  protected:
-
-  friend class SipXlocationInfoTest; // to allow unit tests for protected members
+  ~SipXSignedHeader();
 
   /// Encodes user location info: identity and location
-  void encode(UtlString& headerValue ///< encoded header value
+  bool encode(UtlString& headerValue ///< encoded header value
       );
   /**<
    * Encodes the user location info, identity and location, into a string value
    * including the signature
    */
+
+  protected:
+
+  friend class SipXSignedHeaderTest; // to allow unit tests for protected members
 
   /// Check the signature, extract the identity and location
   bool decodeHeader(const UtlString& headerValue ///<  headerValue value to decode
@@ -187,20 +186,20 @@ class SipXlocationInfo
 
   private:
   static const char* SignatureUrlParamName;
-  static const char* LocationUrlParamName;
 
   UtlString  _identity;  /// identity of the user
-  UtlString  _location;
+  UtlString  _headerName;
   bool     _isValid;
+  Url     _encodedUrl;
 
   static UtlString _sSignatureSecret;
 
   // @cond INCLUDENOCOPY
   // There is no copy constructor.
-  SipXlocationInfo(const SipXlocationInfo& nocopyconstructor);
+  SipXSignedHeader(const SipXSignedHeader& nocopyconstructor);
 
   // There is no assignment operator.
-  SipXlocationInfo& operator=(const SipXlocationInfo& noassignmentoperator);
+  SipXSignedHeader& operator=(const SipXSignedHeader& noassignmentoperator);
   // @endcond
 };
 
