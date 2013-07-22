@@ -10,6 +10,9 @@ Vendor: SIPfoundry
 Packager: Douglas Hubler <dhubler@ezuce.com>
 Url: http://www.sipfoundry.org
 
+# disable JAR repacking
+%define __jar_repack %{nil}
+
 # B U I L D - typical only, please adjust accordingly
 BuildRequires: automake
 
@@ -20,6 +23,7 @@ BuildRequires: libxml2
 BuildRequires: sipxcommserverlib-devel >= %version
 
 # java
+BuildRequires: java-devel >= 1.6
 BuildRequires: sipxcommons >= %version
 
 # sipxconfig plugin
