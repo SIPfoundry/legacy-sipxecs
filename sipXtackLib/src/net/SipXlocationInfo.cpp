@@ -21,15 +21,13 @@
 #include "net/SipXlocationInfo.h"
 
 // CONSTANTS
-const char* SipXlocationInfo::SignatureUrlParamName = "signature";
-const char* SipXlocationInfo::LocationUrlParamName = "location";
-const char* SipXlocationInfo::HeaderName = "X-SipX-Location-Info";
+const char* SipXSignedHeader::SignatureUrlParamName = "signature";
 
 // STATIC VARIABLES
-UtlString  SipXlocationInfo::_sSignatureSecret;
+UtlString  SipXSignedHeader::_sSignatureSecret;
 
 /*****************************************************************
- * SipXlocationInfo Encoding
+ * SipXSignedHeader Encoding
  *
  *  X-Sipx-Location-Info: "<" <identity>;location=<location>;signature=<signature-hash> ">"
  * where:
@@ -39,37 +37,48 @@ UtlString  SipXlocationInfo::_sSignatureSecret;
  */
 
 /// Default Constructor
-SipXlocationInfo::SipXlocationInfo()
-  : _isValid(false)
+SipXSignedHeader::SipXSignedHeader(const UtlString&  identity, const UtlString& headerName)
+  : _identity(identity),
+    _headerName(headerName),
+    _isValid(false),
+    _encodedUrl(_identity)
 {
+    _encodedUrl.setScheme(Url::SipUrlScheme);
+
+    if (!_identity.isNull() && !_headerName.isNull())
+    {
+      _isValid = true;
+    }
 }
 
 /// destructor
-SipXlocationInfo::~SipXlocationInfo()
+SipXSignedHeader::~SipXSignedHeader()
 {
 }
 
-/// Decode the location from a message by searching for SipXlocationInfo
-SipXlocationInfo::SipXlocationInfo(const SipMessage& message)
-  : _isValid(false)
+/// Decode the location from a message by searching for SipXSignedHeader
+SipXSignedHeader::SipXSignedHeader(const SipMessage& message, const UtlString& headerName)
+  : _headerName(headerName),
+    _isValid(false)
 {
   decode(message);
 }
 
-/// Extract location saved in the SipXlocationInfo.
-bool SipXlocationInfo::getLocation(UtlString& location) const
+/// Extract location saved in the SipXSignedHeader.
+bool SipXSignedHeader::getParam(const UtlString&  paramName, UtlString& paramValue) const
 {
-  location.remove(0);
+  paramValue.remove(0);
   if (_isValid)
   {
-    location = _location;
+    return _encodedUrl.getUrlParameter(paramName, paramValue);
   }
 
   return _isValid;
 }
 
-/// Extract identity saved in the SipXlocationInfo.
-bool SipXlocationInfo::getIdentity(UtlString&  identity) const
+
+/// Extract identity saved in the SipXSignedHeader.
+bool SipXSignedHeader::getIdentity(UtlString&  identity) const
 {
   identity.remove(0);
   if (_isValid)
@@ -81,55 +90,55 @@ bool SipXlocationInfo::getIdentity(UtlString&  identity) const
 }
 
 /// Stores the new value of identity and location
-void SipXlocationInfo::setInfo(const UtlString&  identity, const UtlString&  location)
+void SipXSignedHeader::setParam(const UtlString&  paramName, const UtlString&  paramValue)
 {
-  _identity = identity;
-  _location = location;
-
-  // Reset the validity flag
-  _isValid = true;
+  if (_isValid)
+  {
+    _encodedUrl.setUrlParameter(paramName, paramValue.data());
+  }
 }
 
+
 /// Remove location info from a message.
-void SipXlocationInfo::remove(SipMessage& message)
+void SipXSignedHeader::remove(SipMessage& message, const UtlString& headerName)
 {
-  int headerCount = message.getCountHeaderFields(HeaderName);
+  int headerCount = message.getCountHeaderFields(headerName);
 
   if (headerCount > 0)
   {
     Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
-        "SipXlocationInfo::remove"
-        ": '%d' occurrances of %s",
-        headerCount, HeaderName);
+        "SipXSignedHeader::remove"
+        ": '%d' occurrences of %s",
+        headerCount, headerName.data());
 
     for (int i = headerCount - 1; i >= 0 ; i--)
     {
-      message.removeHeader(HeaderName, i);
+      message.removeHeader(headerName, i);
     }
   }
 }
 
 /// Encode location info into a URL
-bool SipXlocationInfo::encodeUri(Url& uri)
+bool SipXSignedHeader::encodeUri(Url& uri)
 {
   // Don't proceed if the encapsulated info is invalid
   if (!_isValid)
   {
     Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
-        "SipXlocationInfo::encodeUri encapsulated SipXlocationInfo is invalid");
+        "SipXSignedHeader::encode encapsulated SipXSignedHeader is invalid");
   }
   else
   {
     // make sure no existing location info header in the URI
-    uri.removeHeaderParameter(SipXlocationInfo::HeaderName);
+    uri.removeHeaderParameter(_headerName);
 
 
     UtlString value;
     encode(value);
-    uri.setHeaderParameter(HeaderName, value.data());
+    uri.setHeaderParameter(_headerName, value.data());
 
     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-        "SipXlocationInfo::encodeUri encoded URI '%s'",
+        "SipXSignedHeader::encodeUri encoded URI '%s'",
         uri.toString().data());
   }
 
@@ -137,76 +146,83 @@ bool SipXlocationInfo::encodeUri(Url& uri)
 }
 
 /// Encodes location info
-void SipXlocationInfo::encode(UtlString& headerValue)
+bool SipXSignedHeader::encode(UtlString& headerValue)
 {
-  //<signature-hash> is  MD5(<identity><location><secret>)
-   NetMd5Codec signature;
-   signature.hash(_identity);
-   signature.hash(_location);
-   signature.hash(_sSignatureSecret);
+  // Don't proceed if the encapsulated info is invalid
+  if (!_isValid)
+  {
+    Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
+        "SipXSignedHeader::encode encapsulated SipXSignedHeader is invalid");
+  }
+  else
+  {
+    //<signature-hash> is  MD5(<identity><location><secret>)
+     NetMd5Codec signature;
+     UtlString body;
+     _encodedUrl.toString(body);
+     signature.hash(body);
+     Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
+         "SipXSignedHeader::decode WILL DO SIG FOR '%s'", body.data());
+     signature.hash(_sSignatureSecret);
 
-   UtlString signatureStr;
-   signature.appendHashValue(signatureStr);
+     UtlString signatureStr;
+     signature.appendHashValue(signatureStr);
 
-   Url encodedUrl(_identity);
-   encodedUrl.setScheme(Url::SipUrlScheme);
-   encodedUrl.setUrlParameter(LocationUrlParamName, _location.data());
-   encodedUrl.setUrlParameter(SignatureUrlParamName, signatureStr.data());
+     _encodedUrl.setUrlParameter(SignatureUrlParamName, signatureStr.data());
 
-   encodedUrl.toString(headerValue);
+     _encodedUrl.toString(headerValue);
 
-   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-       "SipXlocationInfo::encode location info '%s'", headerValue.data());
+     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+         "SipXSignedHeader::encode location info '%s'", headerValue.data());
+  }
+
+  return _isValid;
 }
 
 
 /// Check the signature and parse the location info
-bool SipXlocationInfo::decodeHeader(const UtlString& headerValue)
+bool SipXSignedHeader::decodeHeader(const UtlString& headerValue)
 {
   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-      "SipXlocationInfo::decode parse '%s'", headerValue.data());
+      "SipXSignedHeader::decode parse '%s'", headerValue.data());
 
   _identity.remove(0);
-  _location.remove(0);
   _isValid = false;
 
   bool decodeError = false; // false if the info was correctly signed and successfully parsed
   UtlString decodedIdentity;
   UtlString actualSignature;
 
-  Url encodedUrl(headerValue, Url::NameAddr);
-  if (Url::SipUrlScheme == encodedUrl.getScheme())
+  bool ret=false;
+  ret = _encodedUrl.fromString(headerValue, Url::NameAddr);
+  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+         "SipXSignedHeader::decode first parsing '%d'", ret);
+
+  if (Url::SipUrlScheme == _encodedUrl.getScheme())
   {
     UtlString decodedIdentity;
     // Only proceed if the URL parsing succeeded
     // Extract the identity
-    encodedUrl.getIdentity(_identity);
+    _encodedUrl.getIdentity(_identity);
 
-    // Extract location parameter
-    if (encodedUrl.getUrlParameter(LocationUrlParamName, _location))
+    if (_encodedUrl.getUrlParameter(SignatureUrlParamName, actualSignature))
     {
-      // Extract signature parameter
-      if (!encodedUrl.getUrlParameter(SignatureUrlParamName, actualSignature))
-      {
-        decodeError = true;
-        Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
-            "SipXlocationInfo::decode '%s' missing '%s' param",
-            headerValue.data(), SignatureUrlParamName);
-      }
+      _encodedUrl.removeUrlParameter(SignatureUrlParamName);
+
     }
     else
     {
       decodeError = true;
       Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
-          "SipXlocationInfo::decode '%s' missing '%s' param",
-          headerValue.data(), LocationUrlParamName);
+          "SipXSignedHeader::decode '%s' missing '%s' param",
+          headerValue.data(), SignatureUrlParamName);
     }
   }
   else
   {
     decodeError = true;
     Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
-        "SipXlocationInfo::decode '%s' URL parsing failed",
+        "SipXSignedHeader::decode '%s' URL parsing failed",
         headerValue.data());
   }
 
@@ -215,8 +231,11 @@ bool SipXlocationInfo::decodeHeader(const UtlString& headerValue)
   {
     //<signature-hash> is  MD5(<identity><location><secret>)
     NetMd5Codec validSignatureHash;
-    validSignatureHash.hash(_identity);
-    validSignatureHash.hash(_location);
+    UtlString body;
+    _encodedUrl.toString(body);
+    Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
+        "SipXSignedHeader::decode WILL CHECK SIG FOR '%s'", body.data());
+    validSignatureHash.hash(body);
     validSignatureHash.hash(_sSignatureSecret);
 
     UtlString validSignature;
@@ -231,7 +250,7 @@ bool SipXlocationInfo::decodeHeader(const UtlString& headerValue)
     {
       decodeError = true;
       Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
-          "SipXlocationInfo::decode '%s' invalid signature '%s' != '%s'",
+          "SipXSignedHeader::decode '%s' invalid signature '%s' != '%s'",
           headerValue.data(), actualSignature.data(), validSignature.data());
     }
   }
@@ -239,42 +258,42 @@ bool SipXlocationInfo::decodeHeader(const UtlString& headerValue)
   if (decodeError)
   {
     _identity.remove(0);
-    _location.remove(0);
+    _encodedUrl.reset();
   }
 
   return _isValid;
 }
 
 /// Check the signature and parse the identity contained in specified header name
-bool SipXlocationInfo::decode(const SipMessage& message)
+bool SipXSignedHeader::decode(const SipMessage& message)
 {
   bool foundHeader = false;
 
-  int headerCount = message.getCountHeaderFields(HeaderName);
+  int headerCount = message.getCountHeaderFields(_headerName);
   if (1 == headerCount)
   {
-    foundHeader = decodeHeader(message.getHeaderValue(0, HeaderName));
+    foundHeader = decodeHeader(message.getHeaderValue(0, _headerName));
   }
   else if (headerCount>1)
   {
     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-        "SipXlocationInfo::decode: '%d' occurrences of %s",
-        headerCount, HeaderName);
-    foundHeader = decodeHeader(message.getHeaderValue(headerCount - 1, HeaderName));
+        "SipXSignedHeader::decode: '%d' occurrences of %s",
+        headerCount, _headerName.data());
+    foundHeader = decodeHeader(message.getHeaderValue(headerCount - 1, _headerName));
   }
 
   if (foundHeader)
   {
     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-        "SipXlocationInfo::decode: found %s, identity '%s', location '%s'",
-        HeaderName, _identity.data(), _location.data());
+        "SipXSignedHeader::decode: found %s, identity '%s'",
+        _headerName.data(), _identity.data());
   }
 
   return foundHeader;
 }
 
 /// Initialize the secret value used to sign hashes.
-void SipXlocationInfo::setSecret(const char* secret /**< a random value used as input to sign the
+void SipXSignedHeader::setSecret(const char* secret /**< a random value used as input to sign the
                                     * state value.  This should be chosen such that it:
                                     * - is hard for an attacker to guess
                                     * - ideally, is the same in replicated authproxies
@@ -285,7 +304,7 @@ void SipXlocationInfo::setSecret(const char* secret /**< a random value used as 
 {
   /*
    * This must be called once at initialization time,
-   * before any SipXlocationInfo objects are created.
+   * before any SipXSignedHeader objects are created.
    *
    * It may be called after that, but doing so with a
    * new value will invalidate any outstanding identities.
@@ -293,7 +312,7 @@ void SipXlocationInfo::setSecret(const char* secret /**< a random value used as 
   if (!_sSignatureSecret.isNull() && _sSignatureSecret.compareTo(secret))
   {
     Os::Logger::instance().log(FAC_SIP,PRI_NOTICE,
-        "SipXlocationInfo::setSecret called more than once;\n"
+        "SipXSignedHeader::setSecret called more than once;\n"
         " previously signed state will now fail signature checks");
   }
   _sSignatureSecret.remove(0);

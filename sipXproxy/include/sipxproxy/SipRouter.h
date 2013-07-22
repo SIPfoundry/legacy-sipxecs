@@ -147,9 +147,14 @@ class SipRouter : public OsServerTask
        const UtlString& identity, ///< identity of the user
        UtlString& location        ///< location of the user or empty string
        ) const;
+
+    /// Check if the feature is enabled
+    bool supportMultipleGatewaysPerLocation() const;
     /**<
-     * Check if the user has a location in EntityDB and retrieves it.
-     * @returns true if user has a location, false otherwise
+     * This is a recommended feature in case there are multiple gateways bound to the same
+     * location. This will make use of custom sipx headers to ensure that transfered calls
+     * use the same gateway as the call to the transfer target.
+     * @sa UC-1382 Consultative transfer must point to the exact gateway that accepted the initial INVITE
      */
 
 

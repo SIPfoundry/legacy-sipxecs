@@ -123,6 +123,7 @@ class SipUserAgent;
 #define SIP_SIPX_NAT_ROUTE_FIELD "X-sipX-Nat-Route"
 #define SIP_SIPX_SPIRAL_HEADER "X-sipX-Spiral"
 #define SIP_SIPX_CALL_DEST_FIELD "sipXecs-CallDest"
+#define SIP_SIPX_LOCATION_INFO "X-SipX-Location-Info"
 
 ///custom fields
 #define SIP_LINE_IDENTIFIER "LINEID"

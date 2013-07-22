@@ -298,7 +298,7 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
 
    // Load, instantiate and configure all authorization plugins
    mAuthPlugins.readConfig(configDb);
-   
+
    // Announce the associated SIP Router to all newly instantiated authorization plugins
    PluginIterator authPlugins(mAuthPlugins);
    AuthPlugin* authPlugin;
@@ -1525,4 +1525,9 @@ bool SipRouter::getUserLocation(const UtlString& identity, UtlString& location) 
   }
 
   return false;
+}
+
+bool SipRouter::supportMultipleGatewaysPerLocation() const
+{
+  return true;
 }

@@ -34,6 +34,7 @@ AC_CONFIG_FILES([
   src/test/Makefile
   include/Makefile
   lib/Makefile
+  lib/transactionplugins/Makefile
   lib/authplugins/Makefile
   lib/authplugins/NatTraversalAgent/Makefile
   lib/authplugins/test/Makefile

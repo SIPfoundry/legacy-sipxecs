@@ -129,6 +129,13 @@ class SipRedirectorFallback : public RedirectPlugin
      OsStatus
      determineCallerLocationFromLocationInfoHeader( const SipMessage& message,
                                                       UtlString& callerLocation );
+
+     OsStatus
+     getInitialGatewayContact(const SipMessage& message, UtlString& location, UtlString& contact) const;
+     /**>
+      * Searches for any X-SipX-Location-Info header and extracts the gateway lineid and location
+      * @return OS_SUCCESS if it found both location and lineid, OS_FAILURE otherwise
+      */
    
     
      friend class SipRedirectorFallbackTest;

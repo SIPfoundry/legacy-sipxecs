@@ -218,32 +218,10 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
                                 mInstanceName.data(), callId.data()
                                );
 
-                	    UtlString location;
-                	    mpSipRouter->getUserLocation(id, location);
-                	    if (!location.isNull())
-                	    {
-                	      SipXlocationInfo locationInfo;
-                	      locationInfo.setInfo(id, location);
-
-                	      if (locationInfo.encodeUri(target))
-                	      {
-                	        Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
-                	            "identity [%s], adding location field [%s] to refer-to ",
-                	            mInstanceName.data(), id.data(), location.data());
-                	      }
-                	      else
-                	      {
-                	        Os::Logger::instance().log(FAC_AUTH, PRI_WARNING, "TransferControl[%s]::authorizeAndModify "
-                	            "identity [%s], failed to add location field [%s] to refer-to ",
-                	            mInstanceName.data(), id.data(), location.data());
-                	      }
-                	    }
-                	    else
-                	    {
-                	      Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
-                	          "identity [%s] has no location specified",
-                	          mInstanceName.data(), id.data());
-                	    }
+                	   if (!mpSipRouter->supportMultipleGatewaysPerLocation())
+                	   {
+                	     addLocationInfo(id, target);
+                	   }
 
                      Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
                                 "adding Reference field [%s] to refer-to",
@@ -274,7 +252,6 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
       }
       else if (method.compareTo(SIP_INVITE_METHOD) == 0)
       {
-
          UtlString targetCallId;
          UtlString targetFromTag;
          UtlString targetToTag;
@@ -293,7 +270,7 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
             if (!bSpiralingRequest)
             {
                // remove any x-sipX-Location-Info header
-               SipXlocationInfo::remove(request);
+               SipXSignedHeader::remove(request, SIP_SIPX_LOCATION_INFO);
             }
          }
          else
@@ -311,13 +288,40 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
       // Some earlier plugin already denied this - don't waste time figuring it out.
       Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
                     "prior authorization result %s for call %s",
-                    mInstanceName.data(), AuthResultStr(priorResult), callId.data()
-                    );
+                    mInstanceName.data(), AuthResultStr(priorResult), callId.data());
    }
    
    return result;
 }
 
+void TransferControl::addLocationInfo(const UtlString& id, /// The authenticated identity of the request originator,
+                                                      /// this is expected to not be null
+                                           Url& target   /// Refer-To header where to add location info
+                                        )
+{
+  SipXSignedHeader locationInfo(id, SIP_SIPX_LOCATION_INFO);
+
+  UtlString location;
+  mpSipRouter->getUserLocation(id, location);
+  if (!location.isNull())
+  {
+    // set location param if any
+    locationInfo.setParam(SIPX_SIPXECS_LOCATION_URI_PARAM, location.data());
+  }
+  else
+  {
+    Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
+        "identity [%s] has no location specified",
+        mInstanceName.data(), id.data());
+  }
+
+  if (!locationInfo.encodeUri(target))
+  {
+    Os::Logger::instance().log(FAC_AUTH, PRI_INFO, "TransferControl[%s]::authorizeAndModify "
+       "identity [%s], failed to add location field [] to refer-to ",
+       mInstanceName.data(), id.data());
+  }
+}
 
 /// destructor
 TransferControl::~TransferControl()

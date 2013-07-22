@@ -22,6 +22,8 @@ nobase_include_HEADERS =  \
     sipdb/SubscribeDB.h \
     sipdb/Subscription.h \
     sipdb/ResultSet.h \
+    sipdb/GatewayDestDB.h \
+    sipdb/GatewayDestRecord.h \
     digitmaps/UrlMapping.h \
     digitmaps/FallbackRulesUrlMapping.h \
     digitmaps/AuthRulesUrlMapping.h \
