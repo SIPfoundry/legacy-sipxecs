@@ -147,7 +147,8 @@ $(sipx:=.rpm) : %.rpm : $$(addsuffix .rpm,$$($$*_DEPS)) %.dist
 	  --no-cleanup-after \
 	  --rebuild \
 	  $($(PROJ)_RPM_DEFS) \
-	  $(MOCK_SRPM_DIR)/$($(PROJ)_SRPM)
+	  $(MOCK_SRPM_DIR)/$($(PROJ)_SRPM) || \
+	  (tail -100 $(MOCK_RESULTS_DIR)/build.log ; false)
 	touch $(RPM_DEP)
 	find $(MOCK_RESULTS_DIR) -name '*.src.rpm' -exec rm {} \;
 # generate repo AFTER build otherwise it's unusable as a repo to feed to next build or other systems.
