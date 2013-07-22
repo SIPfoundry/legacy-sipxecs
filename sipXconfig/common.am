@@ -2,6 +2,8 @@
 # makefile should include it explicitly for clarity and to avoid redundancy
 # but it is required
 
+include $(top_srcdir)/config/sipxconfig.am
+
 if TEST_MODE
 IS_TEST_MODE=true
 else
