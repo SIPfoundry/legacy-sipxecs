@@ -18,11 +18,16 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class UserCloud extends BaseComponent {
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
+
+    @InjectObject(value = "spring:webInvocationPrivilegeEvaluator")
+    public abstract WebInvocationPrivilegeEvaluator getPrivilegeEvaluator();
 
     @InjectPage(value = EditUser.PAGE)
     public abstract EditUser getEditUserPage();
@@ -67,5 +72,10 @@ public abstract class UserCloud extends BaseComponent {
 
     public String getTitle() {
         return getMessages().format("title", getCount());
+    }
+
+    public boolean isAllowed() {
+        return getPrivilegeEvaluator().isAllowed("sipxconfig", "/user/UserCloud", null,
+                SecurityContextHolder.getContext().getAuthentication());
     }
 }

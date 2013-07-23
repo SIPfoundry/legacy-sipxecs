@@ -16,11 +16,17 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.InjectObject;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class SearchPanel extends BaseComponent {
     @Asset(value = "context:/WEB-INF/search/SearchPanel.script")
     public abstract IAsset getScript();
+
+    @InjectObject(value = "spring:webInvocationPrivilegeEvaluator")
+    public abstract WebInvocationPrivilegeEvaluator getPrivilegeEvaluator();
 
     public abstract String getQuery();
 
@@ -32,5 +38,10 @@ public abstract class SearchPanel extends BaseComponent {
         SearchPage page = (SearchPage) cycle.getPage(SearchPage.PAGE);
         page.setQuery(query);
         return page;
+    }
+
+    public boolean isAllowed() {
+        return getPrivilegeEvaluator().isAllowed("sipxconfig", "/search/SearchPanel", null,
+                SecurityContextHolder.getContext().getAuthentication());
     }
 }

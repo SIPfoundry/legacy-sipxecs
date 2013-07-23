@@ -7,10 +7,10 @@
 				<a class="heading"><span key="menu.section.user">Users</span></a>
 				<ul>
 					<span jwcid="@common/Plugin" blockId="UserTop"/>
-					<li><a jwcid="@PageLink" id="menu.users" page="user/ManageUsers"><span key="menu.users">Users</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.userGroups" page="user/UserGroups"><span key="menu.userGroups">User Groups</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.extensions" page="admin/ExtensionPools"><span key="menu.extensions">User Extension Pool</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.tlspeers" page="admin/TlsPeers"><span key="menu.tlspeers">TLS Peers</span></a></li>
+					<span jwcid="@common/AdminNavigationMenu" pagePath="user/ManageUsers" label="ognl:messages.getMessage('menu.users')" />
+					<span jwcid="@common/AdminNavigationMenu" pagePath="user/UserGroups" label="ognl:messages.getMessage('menu.userGroups')" />
+				    <span jwcid="@common/AdminNavigationMenu" pagePath="admin/ExtensionPools" label="ognl:messages.getMessage('menu.extensions')" />
+					<span jwcid="@common/AdminNavigationMenu" pagePath="admin/TlsPeers" label="ognl:messages.getMessage('menu.tlspeers')" />
 					<span jwcid="@common/Plugin" blockId="UserBottom"/>
 				</ul>
 			</div>
@@ -21,14 +21,14 @@
 				<a class="heading"><span key="menu.section.devices">Devices</span></a>
 				<ul>
 					<span jwcid="@common/Plugin" blockId="DevicesTop"/>
-					<li><a jwcid="@PageLink" id="menu.devices" page="phone/ManagePhones"><span key="menu.devices">Phones</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.deviceGroups" page="phone/PhoneGroups"><span key="menu.deviceGroups">Phone Groups</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.gateways" page="gateway/ListGateways"><span key="menu.gateways">Gateways</span></a></li>
-				    <li jwcid="@If" condition="ognl:isOn('sbcBridge')">
-						<a jwcid="@PageLink" id="menu.internalsbcs" page="bridge/ListBridgeSbcs"><span key="menu.internalsbcs">Internal SBCs</span></a>
-					</li>
-					<li><a jwcid="@PageLink" id="menu.uploads" page="upload/ManageUploads"><span key="menu.uploads">Upload Firmware</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.timezone" page="device/TimeZonePage"><span key="menu.timezone">Timezone Settings</span></a></li>
+					<span jwcid="@common/AdminNavigationMenu" pagePath="phone/ManagePhones" label="ognl:messages.getMessage('menu.devices')" />
+					<span jwcid="@common/AdminNavigationMenu" pagePath="phone/PhoneGroups" label="ognl:messages.getMessage('menu.deviceGroups')" />
+					<span jwcid="@common/AdminNavigationMenu" pagePath="gateway/ListGateways" label="ognl:messages.getMessage('menu.gateways')" />
+				    <span jwcid="@If" condition="ognl:isOn('sbcBridge')">
+				        <span jwcid="@common/AdminNavigationMenu" pagePath="bridge/ListBridgeSbcs" label="ognl:messages.getMessage('menu.internalsbcs')" />
+					</span>
+					<span jwcid="@common/AdminNavigationMenu" pagePath="upload/ManageUploads" label="ognl:messages.getMessage('menu.uploads')" />
+					<span jwcid="@common/AdminNavigationMenu" pagePath="device/TimeZonePage" label="ognl:messages.getMessage('menu.timezone')" />
 					<span jwcid="@common/Plugin" blockId="DevicesBottom"/>
 				</ul>
 			</div>
@@ -49,27 +49,27 @@
 				<a class="heading"><span key="menu.section.system">System</span></a>
 				<ul>
 					<span jwcid="@common/Plugin" blockId="SystemTop"/>
-					<li><a jwcid="@PageLink" id="menu.locations" page="admin/commserver/LocationsPage"><span key="menu.locations">Locations (HA)</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.branches" page="branch/BranchesPage"><span key="menu.branches">Branches</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.domain" page="admin/ManageDomain"><span key="menu.domain">Domain</span></a></li>
+					<span jwcid="@common/AdminNavigationMenu" pagePath="admin/commserver/LocationsPage" label="ognl:messages.getMessage('menu.locations')" />
+					<span jwcid="@common/AdminNavigationMenu" pagePath="branch/BranchesPage" label="ognl:messages.getMessage('menu.branches')" />
+					<span jwcid="@common/AdminNavigationMenu" pagePath="admin/ManageDomain" label="ognl:messages.getMessage('menu.domain')" />
 				    <span jwcid="@If" condition="ognl:isOn('proxy')">
-					  <li><a jwcid="@PageLink" id="menu.dialPlans" page="dialplan/EditFlexibleDialPlan"><span key="menu.dialPlans">Dial Plans</span></a></li>
+					  <span jwcid="@common/AdminNavigationMenu" pagePath="dialplan/EditFlexibleDialPlan" label="ognl:messages.getMessage('menu.dialPlans')" />
 					</span>
 					<span jwcid="@If" condition="ognl:isOn('ftp')">
-					  <li><a jwcid="@PageLink" id="menu.ftp" page="ftp/EditFtp"><span key="menu.ftp">FTP</span></a></li>
+					  <span jwcid="@common/AdminNavigationMenu" pagePath="ftp/EditFtp" label="ognl:messages.getMessage('menu.ftp')" />
 					</span>
-					<li><a jwcid="@PageLink" id="menu.internetCalling" page="dialplan/sbc/InternetCalling"><span key="menu.internetCalling">Internet Calling</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.adminSettings" page="admin/EditAdmin"><span key="menu.adminSettings">Admin Settings</span></a></li>
+					<span jwcid="@common/AdminNavigationMenu" pagePath="dialplan/sbc/InternetCalling" label="ognl:messages.getMessage('menu.internetCalling')" />
+					<span jwcid="@common/AdminNavigationMenu" pagePath="admin/EditAdmin" label="ognl:messages.getMessage('menu.adminSettings')" />
 					<span jwcid="@If" condition="ognl:isOn('fail2ban')">
-					  <li><a jwcid="@PageLink" id="menu.fail2ban" page="fail2ban/ListFail2banFilters"><span key="menu.fail2ban">Security</span></a></li>
+					  <span jwcid="@common/AdminNavigationMenu" pagePath="fail2ban/ListFail2banFilters" label="ognl:messages.getMessage('menu.fail2ban')" />
 					</span>
-					<li><a jwcid="@PageLink" id="menu.permissions" page="permission/ListPermissions"><span key="menu.permissions">Permissions</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.importCsv" page="admin/BulkImport"><span key="menu.importCsv">Import</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.ldap" page="admin/ldap/LdapPage"><span key="menu.ldap">LDAP</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.localization" page="admin/LocalizationPage"><span key="menu.localization">Localization</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.certificates" page="admin/ManageCertificates"><span key="menu.certificates">Certificates</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.timeSettings" page="admin/TimeSettingsPage"><span key="menu.timeSettings">Time Settings</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.manageMongo" page="mongo/ManageMongo"><span key="menu.manageMongo">Database</span></a></li>
+					<span jwcid="@common/AdminNavigationMenu" pagePath="permission/ListPermissions" label="ognl:messages.getMessage('menu.permissions')" />
+					<span jwcid="@common/AdminNavigationMenu" pagePath="admin/BulkImport" label="ognl:messages.getMessage('menu.importCsv')" />
+					<span jwcid="@common/AdminNavigationMenu" pagePath="admin/ldap/LdapPage" label="ognl:messages.getMessage('menu.ldap')" />
+					<span jwcid="@common/AdminNavigationMenu" pagePath="admin/LocalizationPage" label="ognl:messages.getMessage('menu.localization')" />
+					<span jwcid="@common/AdminNavigationMenu" pagePath="admin/ManageCertificates" label="ognl:messages.getMessage('menu.certificates')" />
+					<span jwcid="@common/AdminNavigationMenu" pagePath="admin/TimeSettingsPage" label="ognl:messages.getMessage('menu.timeSettings')" />
+					<span jwcid="@common/AdminNavigationMenu" pagePath="mongo/ManageMongo" label="ognl:messages.getMessage('menu.manageMongo')" />
 					<span jwcid="@common/Plugin" blockId="SystemBottom"/>
 				</ul>
 			</div>
@@ -80,10 +80,10 @@
 				<a class="heading"><span key="menu.section.diag">Diagnostics</span></a>
 				<ul>
 					<span jwcid="@common/Plugin" blockId="DiagnosticsTop"/>
-					<li><a jwcid="@PageLink" id="menu.jobs" page="admin/JobStatusPage"><span key="menu.jobs">Job Status</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.snapshot" page="admin/SnapshotPage"><span key="menu.snapshot">Snapshot</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.loginhistory" page="admin/LoginHistoryPage"><span key="menu.loginhistory">Login History</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.alarms" page="admin/AlarmsPage"><span key="menu.alarms">Alarms</span></a></li>
+					<span jwcid="@common/AdminNavigationMenu" pagePath="admin/JobStatusPage" label="ognl:messages.getMessage('menu.jobs')" />
+					<span jwcid="@common/AdminNavigationMenu" pagePath="admin/SnapshotPage" label="ognl:messages.getMessage('menu.snapshot')" />
+					<span jwcid="@common/AdminNavigationMenu" pagePath="admin/LoginHistoryPage" label="ognl:messages.getMessage('menu.loginhistory')" />
+					<span jwcid="@common/AdminNavigationMenu" pagePath="admin/AlarmsPage" label="ognl:messages.getMessage('menu.alarms')" />
 					<li><span jwcid="@admin/AboutDialog" id="menu.about" linkTitle="message:menu.about"/></li>
 					<span jwcid="@common/Plugin" blockId="DiagnosticsBottom"/>
 				</ul>

@@ -2,7 +2,7 @@
   <span jwcid="@common/QuickHelp" value="message:quick.help" />
   <span jwcid="@common/TabNavigation" tabNames="ognl:{'rules', 'groups', 'callRate', 'settings'}" selectedTab="ognl:tab" />
   <div id="settings-content">
-    <span jwcid="@common/ErrorMsg" /> <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
   <div jwcid="rulesTab@Block">
     <span jwcid="@firewall/EditFirewallRules"/>    
@@ -14,6 +14,7 @@
     <span jwcid="@firewall/ListCallRate"/>    
   </div>
   <div jwcid="settingsTab@Block">
+    <span jwcid="@common/ErrorMsg" />
     <form jwcid="form@Form" delegate="bean:validator">
       <fieldset jwcid="@setting/SettingsFieldset" settings="ognl:settings.settings" />      
       <ul jwcid="formActions@common/FormActions" callback="ognl:callback" listener="listener:saveSettings" />

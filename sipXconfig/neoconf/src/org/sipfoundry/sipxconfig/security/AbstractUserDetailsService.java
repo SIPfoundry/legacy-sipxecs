@@ -33,6 +33,7 @@ public abstract class AbstractUserDetailsService implements UserDetailsService {
 
     private CoreContext m_coreContext;
     private AcdContext m_acdContext;
+    private AdditionalAuthoritiesLoader m_authLoader;
 
     public final UserDetails loadUserByUsername(String userNameOrAliasOrImId) {
         User user = m_coreContext.loadUserByUserNameOrAlias(userNameOrAliasOrImId);
@@ -57,6 +58,9 @@ public abstract class AbstractUserDetailsService implements UserDetailsService {
 
         if (user.hasPermission(RECORD_SYSTEM_PROMPTS)) {
             gas.add(AttendantAdmin.toAuth());
+        }
+        if (m_authLoader != null) {
+            m_authLoader.addUserAuthorities(user, gas);
         }
 
         return createUserDetails(userNameOrAliasOrImId, user, gas);
@@ -84,5 +88,9 @@ public abstract class AbstractUserDetailsService implements UserDetailsService {
     @Required
     public void setAcdContext(AcdContext acdContext) {
         m_acdContext = acdContext;
+    }
+
+    public void setAdditionalAuthoritiesLoader(AdditionalAuthoritiesLoader loader) {
+        m_authLoader = loader;
     }
 }

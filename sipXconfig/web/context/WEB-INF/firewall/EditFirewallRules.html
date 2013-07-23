@@ -1,4 +1,5 @@
-<form jwcid="@Form" id="editRules" delegate="bean:validator">
+<span jwcid="@common/ErrorMsg" validator="ognl:validator"/>
+<form jwcid="@Form" id="editRules">
   <table jwcid="rules@common/Table" id="rules:list"
       columns="* !service,!portDetails,!group,!priority"
       source="ognl:rules"

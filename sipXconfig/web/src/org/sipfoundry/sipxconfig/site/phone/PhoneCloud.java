@@ -19,12 +19,17 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class PhoneCloud extends BaseComponent {
 
     @InjectObject(value = "spring:phoneContext")
     public abstract PhoneContext getPhoneContext();
+
+    @InjectObject(value = "spring:webInvocationPrivilegeEvaluator")
+    public abstract WebInvocationPrivilegeEvaluator getPrivilegeEvaluator();
 
     // Allows pseudo device discovery by showing phone page
     // with filter set to show unassigned phone
@@ -73,5 +78,10 @@ public abstract class PhoneCloud extends BaseComponent {
 
     public String getTitle() {
         return getMessages().format("title", getCount());
+    }
+
+    public boolean isAllowed() {
+        return getPrivilegeEvaluator().isAllowed("sipxconfig", "/phone/PhoneCloud", null,
+                SecurityContextHolder.getContext().getAuthentication());
     }
 }

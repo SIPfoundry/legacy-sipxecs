@@ -27,7 +27,7 @@
       <security:filter-chain pattern="/(TestPage|FirstUser).html"
             filters="securityContextPersistenceFilter"/>
       <security:filter-chain pattern="/.*"
-            filters="securityContextPersistenceFilter,authenticationProcessingFilter,digestExceptionTranslationFilter"/>
+            filters="securityContextPersistenceFilter,authenticationProcessingFilter,digestExceptionTranslationFilter,filterInvocationInterceptor"/>
     </security:filter-chain-map>
     <property name="domainManager" ref="domainManager" />
   </bean>
@@ -198,20 +198,20 @@
   <bean id="filterInvocationInterceptor" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
     <property name="authenticationManager" ref="authenticationManager" />
     <property name="accessDecisionManager" ref="httpRequestAccessDecisionManager" />
-    <property name="securityMetadataSource">
-      <security:filter-security-metadata-source request-matcher="ciRegex">
-        <security:intercept-url pattern="/rest/auto-attendant/.*/special" access="ROLE_ADMIN,ROLE_ATTENDANT_ADMIN"/>
-        <security:intercept-url pattern="/rest/auto-attendant/specialmode" access="ROLE_ADMIN,ROLE_ATTENDANT_ADMIN"/>
-        <security:intercept-url pattern="/rest/auto-attendant" access="ROLE_ADMIN,ROLE_ATTENDANT_ADMIN"/>
-        <security:intercept-url pattern="/rest/call/.*" access="ROLE_USER"/>
-        <security:intercept-url pattern="/rest/my/.*" access="ROLE_USER"/>
-        <security:intercept-url pattern="/rest/avatar/.*" access="ROLE_ANONYMOUS,ROLE_ADMIN,ROLE_USER"/>
-        <security:intercept-url pattern="/rest/private/.*" access="ROLE_USER"/>
-        <security:intercept-url pattern="/(services|rest)/.*" access="ROLE_ADMIN"/>
-        <security:intercept-url pattern="/initial-config/.*" access="ROLE_LOCATION"/>
-      </security:filter-security-metadata-source>
-    </property>
+    <property name="securityMetadataSource" ref="webSecurityMetadataSource" />
   </bean>
+
+  <security:filter-security-metadata-source request-matcher="ciRegex" id="webSecurityMetadataSource">
+    <security:intercept-url pattern="/rest/auto-attendant/.*/special" access="ROLE_ADMIN,ROLE_ATTENDANT_ADMIN"/>
+    <security:intercept-url pattern="/rest/auto-attendant/specialmode" access="ROLE_ADMIN,ROLE_ATTENDANT_ADMIN"/>
+    <security:intercept-url pattern="/rest/auto-attendant" access="ROLE_ADMIN,ROLE_ATTENDANT_ADMIN"/>
+    <security:intercept-url pattern="/rest/call/.*" access="ROLE_USER"/>
+    <security:intercept-url pattern="/rest/my/.*" access="ROLE_USER"/>
+    <security:intercept-url pattern="/rest/avatar/.*" access="ROLE_ANONYMOUS,ROLE_ADMIN,ROLE_USER"/>
+    <security:intercept-url pattern="/rest/private/.*" access="ROLE_USER"/>
+    <security:intercept-url pattern="/(services|rest)/.*" access="ROLE_ADMIN"/>
+    <security:intercept-url pattern="/initial-config/.*" access="ROLE_LOCATION"/>
+  </security:filter-security-metadata-source>
 
   <bean id="ldapAuthProvider" class="org.sipfoundry.sipxconfig.security.ConfigurableLdapAuthenticationProvider">
     <property name="userDetailsService" ref="sharedSecretUserDetailsService" />
@@ -225,6 +225,10 @@
   <bean id="anonymousProcessingFilter" class="org.springframework.security.web.authentication.AnonymousAuthenticationFilter">
     <property name="key" value="foobar"/>
     <property name="userAttribute" value="anonymousUser,ROLE_ANONYMOUS" />
+  </bean>
+
+  <bean id="webInvocationPrivilegeEvaluator" class="org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator">
+    <constructor-arg ref="filterInvocationInterceptor"/>
   </bean>
 
 </beans>

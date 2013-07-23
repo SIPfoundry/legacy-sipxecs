@@ -476,6 +476,7 @@
     <foreach param="file" target="plugin-patch">
       <path>
         <fileset dir="${sql.dir}/plugin.d/v12" includes="*.sql"/>
+        <fileset dir="${sql.dir}/plugin.d/v13" includes="*.sql"/>
       </path>
     </foreach>
   </target>

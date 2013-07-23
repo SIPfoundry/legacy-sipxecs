@@ -32,6 +32,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.firewall.EditableFirewallRule;
@@ -118,6 +119,7 @@ public abstract class EditFirewallRules extends BaseComponent implements PageBeg
             public Object getPrimaryKey(Object value) {
                 return ((EditableFirewallRule) value).getAddressType().getId();
             }
+
             public Object getValue(Object primaryKey) {
                 return ruleMap.get(primaryKey);
             }
@@ -145,6 +147,13 @@ public abstract class EditFirewallRules extends BaseComponent implements PageBeg
     }
 
     public void save() {
-        getFirewallManager().saveRules(getRules());
+        try {
+            getFirewallManager().saveRules(getRules());
+        } catch (UserException ex) {
+            setRules(null);
+            throw ex;
+        }
+
+        getValidator().recordSuccess(getMessages().getMessage("msg.firewall.updated"));
     }
 }
