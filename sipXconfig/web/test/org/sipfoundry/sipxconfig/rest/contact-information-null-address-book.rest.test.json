@@ -2,6 +2,7 @@
   "homeAddress": {},
   "officeAddress": {},
   "branchAddress": {},
+  "imDisplayName": "John Doe",
   "useBranchAddress": false,
   "salutation": "None",
   "enabled": true,

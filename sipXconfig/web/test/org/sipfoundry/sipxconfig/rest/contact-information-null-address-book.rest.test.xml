@@ -2,6 +2,7 @@
   <homeAddress/>
   <officeAddress/>
   <branchAddress/>
+  <imDisplayName>John Doe</imDisplayName>
   <useBranchAddress>false</useBranchAddress>
   <salutation>None</salutation>
   <enabled>true</enabled>

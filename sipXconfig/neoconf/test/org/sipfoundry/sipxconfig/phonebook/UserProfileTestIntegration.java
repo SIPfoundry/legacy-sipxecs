@@ -52,7 +52,7 @@ public class UserProfileTestIntegration extends IntegrationTestCase {
         assertEquals("Last", profile.getLastName());
         assertEquals("test@test.org", profile.getEmailAddress());
         assertEquals("alttest@test.org", profile.getAlternateEmailAddress());
-        assertEquals("First ImId", profile.getImDisplayName());
+        assertEquals("First Last", profile.getImDisplayName());
         assertTrue(getUserProfileService().isImIdInUse("imid"));
         assertFalse(getUserProfileService().isImIdInUse("imid", userId));
     }
@@ -71,7 +71,7 @@ public class UserProfileTestIntegration extends IntegrationTestCase {
         assertEquals("Last", profile.getLastName());
         assertEquals("test@test.org", profile.getEmailAddress());
         assertEquals("alttest@test.org", profile.getAlternateEmailAddress());
-        assertEquals("First ImId", profile.getImDisplayName());
+        assertEquals("First Last", profile.getImDisplayName());
     }
 
     public void setCoreContext(CoreContext coreContext) {

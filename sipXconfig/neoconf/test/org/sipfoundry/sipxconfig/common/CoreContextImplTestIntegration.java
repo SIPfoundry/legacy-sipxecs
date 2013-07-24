@@ -300,7 +300,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         flush();
         User admin = m_coreContext.loadUserByUserName(User.SUPERADMIN);
         Group adminGroup = admin.getGroups().iterator().next();
-        
+
         assertEquals(0, countRowsInTable("address_book_entry"));
         assertEquals(1, countRowsInTable("users"));
         assertEquals(1, countRowsInTable("group_storage"));
@@ -391,12 +391,12 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
 
         page = m_coreContext.loadUsersByPage("og", null, null, 2, 2, "userName", true);
         assertEquals(2, page.size());
-        User u = (User) page.iterator().next();
+        User u = page.iterator().next();
         assertEquals("frank", u.getUserName());
 
         page = m_coreContext.loadUsersByPage("og", null, null, 4, 2, "userName", true);
         assertEquals(1, page.size());
-        u = (User) page.iterator().next();
+        u = page.iterator().next();
         assertEquals("kyle", u.getUserName());
 
         page = m_coreContext.loadUsersByPage("og", null, null, 5, 2, "userName", true);
@@ -688,7 +688,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         assertEquals("Last", user.getLastName());
         assertEquals("username", user.getUserName());
         assertEquals("imid", user.getImId());
-        assertEquals("displayName", user.getImDisplayName());
+        assertEquals("First Last", user.getImDisplayName());
         assertEquals("Alias1 Alias2", user.getAliasesString());
     }
 
@@ -734,11 +734,11 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
             assertEquals("b2", e.getRawParams()[1]);
             assertEquals("b1", e.getRawParams()[2]);
         }
-        
+
         User u3 = m_coreContext.newUser();
         u3.setUserName("u3");
         m_coreContext.saveUser(u3);
-        
+
         m_coreContext.addToGroup(m_settingDao.getGroupByName("user", "group1").getId(),
                 Arrays.asList(m_coreContext.loadUserByUserName("u3").getId()));
         try {

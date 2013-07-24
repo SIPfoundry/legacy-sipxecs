@@ -16,6 +16,7 @@ import static org.apache.commons.lang.StringUtils.lowerCase;
 import static org.apache.commons.lang.StringUtils.split;
 import static org.apache.commons.lang.StringUtils.trim;
 import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sipfoundry.sipxconfig.common.UserCallerAliasInfo.ANONYMOUS_CALLER_ALIAS;
 import static org.sipfoundry.sipxconfig.common.UserCallerAliasInfo.EXTERNAL_NUMBER;
 import static org.sipfoundry.sipxconfig.permission.PermissionName.EXCHANGE_VOICEMAIL;
@@ -192,6 +193,7 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     public void setFirstName(String firstName) {
         m_firstName = trim(firstName);
+        updateImDisplayName();
     }
 
     public String getSipPassword() {
@@ -213,6 +215,7 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     public void setLastName(String lastName) {
         m_lastName = trim(lastName);
+        updateImDisplayName();
     }
 
     public String getUserName() {
@@ -235,6 +238,17 @@ public abstract class AbstractUser extends BeanWithGroups {
         };
         String s = join(names, ' ');
         return trimToNull(s);
+    }
+
+    private void updateImDisplayName() {
+        StringBuilder sb = new StringBuilder();
+        if (!isBlank(m_firstName)) {
+            sb.append(m_firstName).append(' ');
+        }
+        if (!isBlank(m_lastName)) {
+            sb.append(m_lastName);
+        }
+        setImDisplayName(sb.toString());
     }
 
     public String getLabel() {
