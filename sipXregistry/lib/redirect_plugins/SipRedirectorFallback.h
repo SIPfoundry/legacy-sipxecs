@@ -126,6 +126,9 @@ class SipRedirectorFallback : public RedirectPlugin
      OsStatus 
      determineCallerLocationFromProvisionedUserLocation( const SipMessage& message,
                                                          UtlString& callerLocation );
+     OsStatus
+     determineCallerLocationFromLocationInfoHeader( const SipMessage& message,
+                                                      UtlString& callerLocation );
    
     
      friend class SipRedirectorFallbackTest;

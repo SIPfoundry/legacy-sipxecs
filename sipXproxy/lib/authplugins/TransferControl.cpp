@@ -14,6 +14,8 @@
 #include "net/Url.h"
 #include "net/SipMessage.h"
 #include "net/SipXauthIdentity.h"
+#include "net/SipXlocationInfo.h"
+#include "net/NetMd5Codec.h"
 #include "TransferControl.h"
 
 // DEFINES
@@ -145,21 +147,21 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
                   // when user-based gateway section is used.  See tracker for the details
                   if (mpSipRouter->isLocalDomain(target))
                   {
-			//White list of two servets to let Exchange REFER to sipXecs endpoints
-			if (hostAddress.compareTo(server1, UtlString::ignoreCase) == 0 || hostAddress.compareTo(server2, UtlString::ignoreCase) == 0)
-			{
-			     Os::Logger::instance().log(FAC_AUTH, PRI_INFO, "TransferControl[%s]::authorizeAndModify "
-					   "Whitelist host '%s' in call '%s'",
-					   mInstanceName.data(),hostAddress.data(),callId.data()
-					   );
-			     result = ALLOW; //Whitelist matched so allow the transfer
-			}else{
-			     Os::Logger::instance().log(FAC_AUTH, PRI_INFO, "TransferControl[%s]::authorizeAndModify "
-					   "challenging transfer in call '%s' from host '%s'",
-					   mInstanceName.data(), callId.data(),hostAddress.data()
-					   );
-			     result = DENY; // we need an identity to attach to the Refer-To URI
-			}
+                     //White list of two servets to let Exchange REFER to sipXecs endpoints
+                     if (hostAddress.compareTo(server1, UtlString::ignoreCase) == 0 || hostAddress.compareTo(server2, UtlString::ignoreCase) == 0)
+                     {
+                        Os::Logger::instance().log(FAC_AUTH, PRI_INFO, "TransferControl[%s]::authorizeAndModify "
+                            "Whitelist host '%s' in call '%s'",
+					                  mInstanceName.data(),hostAddress.data(),callId.data()
+                            );
+			                  result = ALLOW; //Whitelist matched so allow the transfer
+			               }else{
+                        Os::Logger::instance().log(FAC_AUTH, PRI_INFO, "TransferControl[%s]::authorizeAndModify "
+                            "challenging transfer in call '%s' from host '%s'",
+                            mInstanceName.data(), callId.data(),hostAddress.data()
+                            );
+                        result = DENY; // we need an identity to attach to the Refer-To URI
+                     }
                   }
                   else
                   {
@@ -196,9 +198,10 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
                    UtlString userId;
                    contactUri.getUserId(contactString);
 
-            	   Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "TransferControl::authorizeAndModify - Contact field is: %s ", contactString.data());
+            	     Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "TransferControl::authorizeAndModify - Contact field is: %s ", contactString.data());
 
-                   if (contactString != "callcontroller") {
+                   if (contactString != "callcontroller")
+                   {
                 	   // Authenticated REFER
                 	   // annotate the refer-to with the authenticated controller identity
                 	   SipXauthIdentity controllerIdentity;
@@ -214,6 +217,39 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
                                 "adding Reference field [%s] to refer-to",
                                 mInstanceName.data(), callId.data()
                                );
+
+                	    UtlString location;
+                	    mpSipRouter->getUserLocation(id, location);
+                	    if (!location.isNull())
+                	    {
+                	      SipXlocationInfo locationInfo;
+                	      locationInfo.setInfo(id, location);
+
+                	      if (locationInfo.encodeUri(target))
+                	      {
+                	        Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
+                	            "identity [%s], adding location field [%s] to refer-to ",
+                	            mInstanceName.data(), id.data(), location.data());
+                	      }
+                	      else
+                	      {
+                	        Os::Logger::instance().log(FAC_AUTH, PRI_WARNING, "TransferControl[%s]::authorizeAndModify "
+                	            "identity [%s], failed to add location field [%s] to refer-to ",
+                	            mInstanceName.data(), id.data(), location.data());
+                	      }
+                	    }
+                	    else
+                	    {
+                	      Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
+                	          "identity [%s] has no location specified",
+                	          mInstanceName.data(), id.data());
+                	    }
+
+                     Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
+                                "adding Reference field [%s] to refer-to",
+                                mInstanceName.data(), callId.data()
+                               );
+
                 	   request.setReferToField(target.toString().data());
                    }
                }
@@ -238,6 +274,7 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
       }
       else if (method.compareTo(SIP_INVITE_METHOD) == 0)
       {
+
          UtlString targetCallId;
          UtlString targetFromTag;
          UtlString targetToTag;
@@ -252,6 +289,12 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
              * decisions.
              */
             result = ALLOW;
+
+            if (!bSpiralingRequest)
+            {
+               // remove any x-sipX-Location-Info header
+               SipXlocationInfo::remove(request);
+            }
          }
          else
          {
