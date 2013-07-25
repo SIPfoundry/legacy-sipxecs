@@ -5,6 +5,7 @@ OPTIONS = @OPTIONS@
 DOWNLOAD_LIB_CACHE = @DOWNLOAD_LIB_CACHE@
 
 git_submodules = $(shell sed -e '/^\[submodule/! d' -e 's/^\[submodule "\(.*\)"]$$/\1/g' $(wildcard $(SRC)/.gitmodules))
+custommodules =
 git_custommodules_file = $(wildcard $(SRC)/custom/.gitmodules)
 ifneq ($(git_custommodules_file),)
 git_custommodules = $(shell sed -e '/^\[submodule/! d' -e 's/^\[submodule "\(.*\)"]$$/\1/g' $(git_custommodules_file))
@@ -69,6 +70,9 @@ $(foreach P,$(git_custommodules),$(SRC)/$(P)/.git) : $(SRC)/%/.git :
 	  git submodule update $*
 	ln -snf $(SRC)/custom/$* $(SRC)
 
+$(foreach P,$(custommodules),$(SRC)/$(P)) : $(SRC)/% :
+	ln -snf $(SRC)/custom/$* $(SRC)
+
 $(foreach P,$(git_submodules),$(SRC)/$(P)/.git) : $(SRC)/%/.git :
 	cd $(SRC); \
 	  git submodule init $*; \
@@ -88,7 +92,7 @@ $(sipx:=.only) : %.only : $$($$*_GIT_SUBMODULE)
 	$(MAKE) $*.build && \
 	  touch $(PROJ)/.installed
 
-$(sipx) : $$(filter-out $$(lib),$$($$@_DEPS)) $$($$@_GIT_SUBMODULE)
+$(sipx) : $$(filter-out $$(lib),$$($$@_DEPS)) $$($$@_GIT_SUBMODULE) $(SRC)/$$@
 	@if test -f $(PROJ)/.installed ; then \
 	  x=`$(call build_on_change,$(PROJ)/.installed) -printf .`; \
 	  if [ -n "$$x" ] ; then \
@@ -123,11 +127,6 @@ help.{sipx}.autoreconf=Run autoreconf on each project
 %.autoreconf : $$($$*_GIT_SUBMODULE)
 	cd $(SRC)/$(PROJ); \
 	  autoreconf -if
-
-# TODO: Needs to support switching branches automatically
-$(foreach P,$(all),$(SRC)/$(P)) : $(SRC)/% :
-	git clone $($*_REPO) $*.git
-	mv $*.git $@
 
 help.{sipx}.configure = Run configure on each project
 %.configure :
