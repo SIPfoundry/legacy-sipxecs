@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.event.WebSocket;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.im.ImManager;
@@ -61,7 +62,8 @@ public class OpenfireConfiguration implements ConfigProvider {
     }
 
     protected static boolean applies(ConfigRequest request) {
-        return request.applies(ImManager.FEATURE, LdapManager.FEATURE, LocalizationContext.FEATURE, ImBot.FEATURE);
+        return request.applies(ImManager.FEATURE, LdapManager.FEATURE, LocalizationContext.FEATURE, ImBot.FEATURE,
+                LocationsManager.FEATURE);
     }
 
     protected void writeConfigFiles(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -131,7 +133,8 @@ public class OpenfireConfiguration implements ConfigProvider {
         m_openfire.touchXmppUpdate(m_featureManager.getLocationsForEnabledFeature(ImManager.FEATURE));
     }
 
-    private static void write(Writer wtr, boolean presence, boolean wsEnabled, String wsAddress, int wsPort, String adminRestUrl) throws IOException {
+    private static void write(Writer wtr, boolean presence, boolean wsEnabled, String wsAddress, int wsPort,
+            String adminRestUrl) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.write("openfire.presence", presence);
         if (wsEnabled) {
