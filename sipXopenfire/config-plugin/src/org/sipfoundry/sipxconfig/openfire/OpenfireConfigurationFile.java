@@ -121,6 +121,8 @@ public class OpenfireConfigurationFile {
         props.put("locale", m_localizationContext.getCurrentLanguage());
         props.put("log.debug.enabled", false);
 
+        overrideCustomProperties(props);
+
         return props;
     }
 
@@ -136,6 +138,10 @@ public class OpenfireConfigurationFile {
             authorizedList.add(user.getUserName());
         }
         return StringUtils.join(authorizedList, SEPARATOR);
+    }
+
+    protected void overrideCustomProperties(SortedMap<String, Object> props) {
+        // subclasses could override properties here at their will
     }
 
     @Required

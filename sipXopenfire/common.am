@@ -99,7 +99,11 @@ provider_PKGS_RT = \
 	spring-data-commons-core \
 	spring-data-mongodb \
 	thumbnailator \
-	jain-sip-sdp
+	jain-sip-sdp \
+	jradius-core \
+	jradius-dictionary \
+	commons-pool \
+	gnu-crypto
 
 sipxvcard_JAVAROOT = $(abspath $(top_builddir)/vcard-provider/classes)
 vcardsynchserver_JAVAROOT = $(abspath $(top_builddir)/vcard-synchserver/classes)
