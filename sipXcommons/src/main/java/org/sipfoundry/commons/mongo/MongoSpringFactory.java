@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.commons.mongo;
 
+import java.io.File;
 import java.net.UnknownHostException;
 
 import org.springframework.dao.DataAccessException;
