@@ -11,6 +11,7 @@
 # Source function library.
 . /etc/init.d/functions
 . /etc/sysconfig/network
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
 PATH=/sbin:/usr/sbin:/bin:/usr/bin:@FREESWITCH_PREFIX@/bin
 DESC="FreeSwitch Voice Switching System"
@@ -79,73 +80,79 @@ do_audio_setup() {
 base=${0##*/}
 
 do_start() {
-        do_setlimits
-        do_permission_check
-	do_audio_setup
-        $DAEMON $DAEMON_START_ARGS
-        RETVAL=$?
-        if [ $RETVAL = 0 ]; then
-                success $"$base startup"
-        else
-                failure $"$base startup"
-        fi
-        echo
-        return $RETVAL
+  checkRunningInstance @SIPXPBXUSER@ $NAME > /dev/null
+  RETVAL=$?
+  [ $RETVAL -eq 0 ] && { echo -n "$NAME $runningError"; echo_failure; echo; exit $ERUNNING; } 
+  do_setlimits
+  do_permission_check
+  do_audio_setup
+  $DAEMON $DAEMON_START_ARGS
+  
+  #check if process spawned
+  checkRunningInstanceTimeout @SIPXPBXUSER@ $NAME
+  RETVAL=$?
+  [ $RETVAL -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
+  checkIfListening $NAME 
+  RETVAL=$? 
+  [ $RETVAL -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
+  [ $RETVAL -eq 0 ] && { echo_success; echo; }
+  return $RETVAL
 }
 
 do_stop() {
-	fspid=$(pidof $NAME)
+  fspid=$(pidof $NAME)
+  status=$?
+  $DAEMON $DAEMON_STOP_ARGS
+  RETVAL=$?
+  [ $RETVAL = 0 ] && success $"$base shutdown" || failure $"$base shutdown"
+  echo "Waiting for daemon to exit..."
+  i=0
+  while [[ $status -lt 1 && $i -lt 10 ]]
+    do
+    sleep 1
+      fspid=$(pidof $NAME)
 	status=$?
-	$DAEMON $DAEMON_STOP_ARGS
-        RETVAL=$?
-        [ $RETVAL = 0 ] && success $"$base shutdown" || failure $"$base shutdown"
-	echo "Waiting for daemon to exit..."
-	i=0
-	while [[ $status -lt 1 && $i -lt 10 ]]
-	do
-		sleep 1
-		fspid=$(pidof $NAME)
-		status=$?
-		i=$(expr $i + 1)
-	done
-	if [ $status -lt 1 ]; then
-		echo "Process did not exit cleanly. Aborting..."
-		killproc $NAME	
-        fi
-	rm -f $LOCKFILE
-        echo
-        return $RETVAL
+	i=$(expr $i + 1)
+  done
+  if [ $status -lt 1 ]; then
+    echo "Process did not exit cleanly. Aborting..."
+    killproc $NAME	
+  fi
+  rm -f $LOCKFILE
+  echo
+  killAnyOrphans @SIPXPBXUSER@ $NAME
+  return $RETVAL
 }
 
 do_reload() {
-        $FS_CLI -x "reloadXml"
-        RETVAL=$?
-        echo
-        return $RETVAL
+  $FS_CLI -x "reloadXml"
+  RETVAL=$?
+  echo
+  return $RETVAL
 }
 
 # See how we were called.
 case "$1" in
   start)
-        do_start
-        ;;
+    do_start
+  ;;
   stop)
-        do_stop
-        ;;
+    do_stop
+  ;;
   reload)
-        do_reload
-        ;;
+    do_reload
+  ;;
   restart)
-        do_stop
-        do_start
-        ;;
+    do_stop
+    do_start
+  ;;
   status)
-        status -p ${PIDFILE} sipxfreeswitch
-    ;;
+    status $NAME
+  ;;
   *)
-        echo $"Usage: $0 {start|stop|status}"
-        exit 2
-        ;;
+    echo $"Usage: $0 {start|stop|status}"
+    exit 2
+  ;;
 esac
 
 exit $RETVAL

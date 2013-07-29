@@ -65,6 +65,9 @@ PluginDir=@SIPX_JAVADIR@/sipXconfig/plugins
 CommonsLibDir=@SIPX_JAVADIR@/sipXcommons
 LogDir=@SIPX_LOGDIR@
 TmpDir=@SIPX_TMPDIR@
+prog=sipxconfig
+regex="Dprocname=sipxconfig"
+waitForListenPortTime=20
 
 . /etc/rc.d/init.d/functions || exit 1
 . @SIPX_LIBEXECDIR@/sipx-utils.sh
@@ -81,42 +84,37 @@ clearIndexLocks() {
   rm ${IndexDir}/*.lock 2>/dev/null
 }
 
-killAnyOrphans() {
-  procs=`ps -u @SIPXPBXUSER@ -o pid,args | grep '\-Dprocname=sipxconfig' | awk '{print $1 }'`
-  for pid in $procs; do kill -KILL $pid; done
-}
-
 # Turn control over to ant to run database command
 databaseCommand() {
-    clearIndexLocks
+  clearIndexLocks
 
-    # XCF-1275 - Do not want to suppress output if there is an error
-    # however want to be quiet if everything is ok for clean rpm install
-    # output
-    # ant.library.dir needs to be set - but should not point to any jars
-    Command="$JavaCmd \
-        -Dant.library.dir=${TmpDir} \
-        -Djava.net.preferIPv4Stack=true \
-        org.apache.tools.ant.launch.Launcher \
-        -emacs \
-        -quiet \
-        -Dlib.dir=${LibDir} \
-        -Dlog.dir=${LogDir} \
-        -Dtmp.dir=${TmpDir} \
-        -Dsipxconfig.db.user=@POSTGRESQL_USER@ \
-        ${SIPXCONFIG_ANT_OPTS} \
-        -f @SIPX_CONFDIR@/database/database.xml \
-        $@"
+  # XCF-1275 - Do not want to suppress output if there is an error
+  # however want to be quiet if everything is ok for clean rpm install
+  # output
+  # ant.library.dir needs to be set - but should not point to any jars
+  Command="$JavaCmd \
+      -Dant.library.dir=${TmpDir} \
+      -Djava.net.preferIPv4Stack=true \
+      org.apache.tools.ant.launch.Launcher \
+      -emacs \
+      -quiet \
+      -Dlib.dir=${LibDir} \
+      -Dlog.dir=${LogDir} \
+      -Dtmp.dir=${TmpDir} \
+      -Dsipxconfig.db.user=@POSTGRESQL_USER@ \
+      ${SIPXCONFIG_ANT_OPTS} \
+      -f @SIPX_CONFDIR@/database/database.xml \
+      $@"
 
-    CmdOut=`runuser -s @BASH@ @SIPXPBXUSER@ -c "${Command}"`
+  CmdOut=`runuser -s @BASH@ @SIPXPBXUSER@ -c "${Command}"`
 
-    if [ $? != "0" ]; then
-       echo "$CmdOut" | grep -v '^Unable to locate tools.jar' >&2
-    fi
+  if [ $? != "0" ]; then
+     echo "$CmdOut" | grep -v '^Unable to locate tools.jar' >&2
+  fi
 
-    if [ -d "@SIPX_VXMLDATADIR@/mailstore" ]; then
-      chown -R @SIPXPBXUSER@:@SIPXPBXGROUP@ @SIPX_VXMLDATADIR@/mailstore
-    fi
+  if [ -d "@SIPX_VXMLDATADIR@/mailstore" ]; then
+    chown -R @SIPXPBXUSER@:@SIPXPBXGROUP@ @SIPX_VXMLDATADIR@/mailstore
+  fi
 }
 
 setupCheck() {
@@ -129,57 +127,68 @@ setupCheck() {
 }
 
 buildCommand() {
-    procNameId=$1
+  procNameId=$1
 
-    setJavaSslOpts
+  setJavaSslOpts
 
-    # -Dprocname needs to be early in the command so cfengine can detect it
-    Command="$JavaCmd \
-       -Dprocname=${procNameId} \
-       -XX:MaxPermSize=128M \
-       -Xmx1024m \
-       ${SIPXCONFIG_OPTS} \
-       ${TrustStoreOpts} \
-       -Djava.io.tmpdir=${TmpDir} \
-       -Djetty.lib.dir=@SIPX_JAVADIR@/sipXconfig \
-       -Djetty.conf.dir=@SIPX_CONFDIR@ \
-       -Djetty.log.dir=${LogDir} \
-       -Dorg.apache.lucene.lockdir=${IndexDir} \
-       -Dorg.apache.commons.loging.Log=org.apache.commons.logging.impl.Log4JLogger \
-       -Djava.awt.headless=true"
+  # -Dprocname needs to be early in the command so cfengine can detect it
+  Command="$JavaCmd \
+     -Dprocname=${procNameId} \
+     -XX:MaxPermSize=128M \
+     -Xmx1024m \
+     ${SIPXCONFIG_OPTS} \
+     ${TrustStoreOpts} \
+     -Djava.io.tmpdir=${TmpDir} \
+     -Djetty.lib.dir=@SIPX_JAVADIR@/sipXconfig \
+     -Djetty.conf.dir=@SIPX_CONFDIR@ \
+     -Djetty.log.dir=${LogDir} \
+     -Dorg.apache.lucene.lockdir=${IndexDir} \
+     -Dorg.apache.commons.loging.Log=org.apache.commons.logging.impl.Log4JLogger \
+     -Djava.awt.headless=true"
 }
 
 runTask() {
-    setupCheck
-    databaseCommand upgrade
-    databaseVersionCheck    
-    buildCommand task-$taskId
-    Command="$Command org.sipfoundry.sipxconfig.common.SystemTaskRunner $*"
-    runuser -m -s @BASH@ @SIPXPBXUSER@ -c "${Command}"
-    Status=$?
+  setupCheck
+  databaseCommand upgrade
+  databaseVersionCheck    
+  buildCommand task-$taskId
+  Command="$Command org.sipfoundry.sipxconfig.common.SystemTaskRunner $*"
+  runuser -m -s @BASH@ @SIPXPBXUSER@ -c "${Command}"
+  Status=$?
 }
 
 
 # Run Web interface
 start() {
-    setupCheck
-    databaseCommand upgrade
-    databaseVersionCheck    
-    clearIndexLocks
-    killAnyOrphans
-    buildCommand sipxconfig
-    Command="$Command org.mortbay.jetty.Server @SIPX_CONFDIR@/sipxconfig-jetty.xml"
-    if [ -n "${NoFork}" ] ; then
-      runuser -m -s @BASH@ @SIPXPBXUSER@ -c "${Command}"
-      Status=$?
-    else
-      echo -n $"Starting sipxconfig: "
-      runuser -s @BASH@ @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
-      Status=$?
-      echo $! > ${PidFile}
-      echo
-      echo_success
-    fi
+  setupCheck
+  databaseCommand upgrade
+  databaseVersionCheck    
+  clearIndexLocks
+  buildCommand $prog
+  Command="$Command org.mortbay.jetty.Server @SIPX_CONFDIR@/sipxconfig-jetty.xml"
+  if [ -n "${NoFork}" ] ; then
+    killAnyOrphans @SIPXPBXUSER@ $regex
+    runuser -m -s @BASH@ @SIPXPBXUSER@ -c "${Command}"
+    Status=$?
+  else
+    checkRunningInstance @SIPXPBXUSER@ $regex > /dev/null
+    Status=$?
+    [ $Status -eq 0 ] && { echo -n "$prog $runningError"; echo_failure; echo; exit $ERUNNING; }
+
+    echo -n $"Starting $prog: "
+    runuser -s @BASH@ @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
+    echo $! > ${PidFile}
+
+    #check if process was spawned
+    checkRunningInstanceTimeout @SIPXPBXUSER@ $regex
+    Status=$?
+    pid=`ps -u @SIPXPBXUSER@ -o pid,args | grep $regex | grep -v "grep" | awk '{print $1 }'`
+    [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
+    checkIfListening $pid $waitForListenPortTime
+    Status=$? 
+    [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
+    [ $Status -eq 0 ] && { echo_success; echo; }
+  fi
 }
 
 # Return false if postgres is
@@ -230,32 +239,26 @@ EOF
 
 # simple diagnostics
 configtest() {
-    if ! databaseCheck
-    then
-      cat <<EOF
-    Postgres configuration database not detected.
-    Run (as root:)
+  if ! databaseCheck
+  then
+    cat <<EOF
+  Postgres configuration database not detected.
+  Run (as root:)
 
-       @bindir@/sipxconfig.sh --setup
+    @bindir@/sipxconfig.sh --setup
 EOF
-      Status=1
-    fi
-    Status=$(($Status+$?))
+    Status=1
+  fi
+  Status=$(($Status+$?))
 }
 
 stop() {
-  echo -n $"Stopping sipxconfig: "
-  killproc -p "${PidFile}" -d 10 sipxconfig
+  echo -n $"Stopping $prog: "
+  killAnyOrphans @SIPXPBXUSER@ $regex
+  checkRunningInstance @SIPXPBXUSER@ $regex > /dev/null
   Status=$?
-  if [ $Status -eq 0 ]; then
-     echo_success
-    [ $Status -eq 0 ] && rm -f "${PidFile}"
-  else
-    echo_failure
-  fi
-  echo
-  # found useful when orphans exist, we should add this to all service scripts
-  killAnyOrphans
+  [ $Status -eq 0 ] && { echo_failure; echo; exit $ERUNNING; }
+  [ $Status -eq 0 ] || { echo_success; echo; }
 }
 
 restart() {
@@ -286,10 +289,13 @@ case "$1" in
     restart
     ;;
   condrestart)
-    [ -f ${PidFile} ] && restart || :
+    checkRunningInstance @SIPXPBXUSER@ $regex > /dev/null
+    Status=$?
+    [ $Status -eq 0 ] && restart || :
     ;;
   status)
-    status -p ${PidFile} sipxconfig
+    checkRunningInstance @SIPXPBXUSER@ $regex $prog
+    Status=$?
     ;;
   configtest)
     configtest

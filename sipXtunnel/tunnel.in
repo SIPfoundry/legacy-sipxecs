@@ -31,14 +31,34 @@ USAGE
 
 Status=0
 PidFile=@SIPX_RUNDIR@/tunnel-@MODE@.pid
+[ @MODE@ = "server" ] && regex=".*/stunnel\\s.*/tunnel-server.ini"
+[ @MODE@ = "client" ] && regex=".*/stunnel\\s.*/tunnel-client.ini"
 
 start() {
-    echo "Starting tunnel service in @MODE@ mode..."
-    /usr/bin/stunnel @SIPX_CONFDIR@/tunnel-@MODE@.ini
+  checkRunningInstance  "root" $regex > /dev/null
+  [ $? -eq 0 ] && { echo -n "@MODE@ $runningError"; echo_failure; echo; exit $ERUNNING; }
+  echo -n "Starting tunnel service in @MODE@ mode..."
+  /usr/bin/stunnel @SIPX_CONFDIR@/tunnel-@MODE@.ini
+
+  #check if process was spawned
+  checkRunningInstanceTimeout "root" $regex
+  Status=$?
+  [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
+  pid=`ps -u "root" -o pid,args | grep $regex | grep -v "grep" | tail -1 | awk '{print $1 }'`
+  checkIfListening $pid
+  Status=$? 
+  [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
+  [ $Status -eq 0 ] && { echo_success; echo; }
 }
 
 stop() {
-    sipx_stop tunnel ${PidFile}
+  sipx_stop tunnel ${PidFile}
+  killAnyOrphans root $regex
+}
+
+restart() {
+  stop
+  start
 }
 
 case "$1" in
@@ -53,14 +73,16 @@ case "$1" in
     stop
     ;;
   restart|reload|force-reload)
-    stop
-    start
+    restart
     ;;
   condrestart)
-    [ -f ${PidFile} ] && restart || :
+    checkRunningInstance  root $regex > /dev/null
+    Status=$?
+    [ $Status -eq 0 ] && restart || :
     ;;
   status)
-    status -p ${PidFile} tunnel-@MODE@
+    checkRunningInstance root $regex tunnel-@MODE@
+    Status=$?
     ;;
   configtest)
     configtest
