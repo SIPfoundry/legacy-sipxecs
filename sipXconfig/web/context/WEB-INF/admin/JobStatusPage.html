@@ -1,5 +1,6 @@
 <div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
 <span jwcid="@common/TabNavigation" tabNames="ognl:{'failedJobs', 'notFailedJobs'}" selectedTab="ognl:tab"/>
+<span jwcid="@common/ErrorMsg"></span>
   <div jwcid="@common/QuickHelp" value="message:quick.help"></div>
   <div id="settings-content">
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />

@@ -27,7 +27,7 @@
       <security:filter-chain pattern="/(TestPage|FirstUser).html"
             filters="securityContextPersistenceFilter"/>
       <security:filter-chain pattern="/.*"
-            filters="securityContextPersistenceFilter,authenticationProcessingFilter,digestExceptionTranslationFilter,filterInvocationInterceptor"/>
+            filters="securityContextPersistenceFilter,authenticationProcessingFilter,loginExceptionTranslationFilter,filterInvocationInterceptor"/>
     </security:filter-chain-map>
     <property name="domainManager" ref="domainManager" />
   </bean>
@@ -114,9 +114,18 @@
     </property>
   </bean>
 
+  <bean id="loginUrlEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+    <constructor-arg value="/Home.html"/>
+  </bean>
+
+
   <bean id="securityContextPersistenceFilter" class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
 
   <!-- ===================== HTTP REQUEST SECURITY ==================== -->
+
+  <bean id="loginExceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
+    <property name="authenticationEntryPoint" ref="loginUrlEntryPoint" />
+  </bean>
 
   <bean id="digestExceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
     <property name="authenticationEntryPoint" ref="digestAuthenticationEntryPoint" />
@@ -149,6 +158,7 @@
   <bean id="digestAuthenticationEntryPoint" class="org.sipfoundry.sipxconfig.security.SipxDigestAuthenticationEntryPoint">
     <property name="domainManager" ref="domainManager" />
     <property name="key" value="sipXconfig" />
+    <property name="nonceValiditySeconds" value="10"/>
   </bean>
 
   <bean id="authenticationProcessingFilter"

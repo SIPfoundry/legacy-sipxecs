@@ -23,7 +23,9 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.services.ExpressionEvaluator;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.job.Job;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
@@ -47,6 +49,9 @@ public abstract class JobStatusPage extends SipxBasePage {
 
     @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
     public abstract ExpressionEvaluator getExpressionEvaluator();
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
 
     public abstract List<Job> getNotFailedJobsProperty();
 
@@ -123,17 +128,29 @@ public abstract class JobStatusPage extends SipxBasePage {
     }
 
     public void clear() {
-        getJobContext().clear();
+        try {
+            getJobContext().clear();
+        } catch (UserException ex) {
+            getValidator().record(ex, getMessages());
+        }
         setNotFailedJobsProperty(null);
     }
 
     public void clearFailed() {
-        getJobContext().clearFailed();
+        try {
+            getJobContext().clearFailed();
+        } catch (UserException ex) {
+            getValidator().record(ex, getMessages());
+        }
         setFailedJobsProperty(null);
     }
 
     public void remove() {
-        getJobContext().removeCompleted();
+        try {
+            getJobContext().removeCompleted();
+        } catch (UserException ex) {
+            getValidator().record(ex, getMessages());
+        }
         setNotFailedJobsProperty(null);
     }
 

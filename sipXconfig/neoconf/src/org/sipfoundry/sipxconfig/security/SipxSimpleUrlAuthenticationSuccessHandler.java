@@ -50,13 +50,13 @@ public class SipxSimpleUrlAuthenticationSuccessHandler extends SimpleUrlAuthenti
                 targetUrl = referer;
             }
             request.getSession().removeAttribute(ORIGINAL_REFERER);
+
+            if (targetUrl != null) {
+                return targetUrl;
+            }
         }
 
-        if (targetUrl == null) {
-            targetUrl = getDefaultTargetUrl();
-        }
-
-        return targetUrl;
+        return getDefaultTargetUrl();
     }
 
     private String obtainFullRequestUrl(HttpServletRequest request, HttpServletResponse response) {
