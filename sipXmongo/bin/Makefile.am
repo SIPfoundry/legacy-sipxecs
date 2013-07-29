@@ -12,7 +12,8 @@ bin_SCRIPTS = \
 
 libexecdir = @SIPX_LIBEXECDIR@
 libexec_SCRIPTS = \
-	mongodb-initial-sync
+	mongodb-initial-sync \
+	mongodb-oplog-sync
 
 mongodb_TESTS = \
 	bad-replset \
