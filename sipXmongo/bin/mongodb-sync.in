@@ -30,12 +30,13 @@ FREQ=15 #seconds
 # Assumes there's a local, global db which i think is a safe assumption otherwise
 # local makes little sense.
 SRC=localhost:27019
+test -f @SIPX_CONFDIR@/mongo-local.ini || (echo "@SIPX_CONFDIR@/mongo-local.ini missing"; exit 1)
 SHARD=`awk -F = '/shardId=/ {print $2}' @SIPX_CONFDIR@/mongo-local.ini`
 
 # format for modern drivers
 DEST_URL=`awk -F = '/connectionUrl=/ {print substr($0,15)}' @SIPX_CONFDIR@/mongo-client.ini`
 # legacy format for c++ driver and some mongo tools like mongooplog
-DEST_STR=`awk -F = '/connectionString=/ {print $2}' @SIPX_CONFDIR@/mongo-client.ini`
+DEST_STR=`sed -n 's|^connectionString=sipxecs/\(.*\)$|\1|p' @SIPX_CONFDIR@/mongo-client.ini`
 
 LOG=@SIPX_LOGDIR@/mongodb-sync.log
 DB=node
@@ -79,25 +80,23 @@ function start() {
     # 1.) Intial sync where we brute for replace all records in dest and copy
     #     in new ones
     # 2.) Watch oplog for any changes going forward.
+    t1=`date +%s`
     if [ $t0 -eq 0 ]; then
-        t0=`date +%s`
-        @SIPX_LIBEXECDIR@/mongodb-initial-sync --src $SRC --dest $DEST_URL --shardId $SHARD --db $DB --verbose &> $LOG
+        @SIPX_LIBEXECDIR@/mongodb-initial-sync --src $SRC --dest $DEST_STR --shardId $SHARD --db $DB --verbose &>> $LOG
         if [ $? -ne 0 ]; then
           # we'll enter incremental phase of sync on failures because
           # it's better than sitting stuck here forever.  at least incremental
           # will start to replace old records over time.  Every restart of this
           # script would reattempt a full sync again.
-          echo "Failed to make initial sync. failed w/exit code." > $LOG
+          echo "Failed to make initial sync. failed w/exit code $? " >> $LOG
         fi
+        t0=$t1
     else
-      # TODO: Get min config from system or just take all
-      # We take one plus t1 - t0 to ensure we do not miss any
-      # gaps
-      t1=`date +%s`
-      s=$[ 1 + $t1 - $t0 ]
-      mongooplog -s $s --from $SRC --host $DEST_STR -d $DB 2> $LOG
+      # Due to the rought granularity of time handling in bash, it's possible some attempts 
+      # of reapplying oplog is expected. Critical howerver no data is missed.
+      @SIPX_LIBEXECDIR@/mongodb-oplog-sync --starttime $t0 --src $SRC --dest $DEST_STR --db $DB 2>> $LOG
       if [ $? -ne 0 ]; then
-        echo `date`" - sync failed w/exit code $?" > $LOG
+        echo `date`" - sync failed w/exit code $?." >> $LOG
       else
         t0=$t1
       fi
