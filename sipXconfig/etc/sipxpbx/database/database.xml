@@ -449,7 +449,6 @@
     <antcall target="cisco-to-linksys"/>
   	<antcall target="branch-timezone" />
   	<antcall target="add_value_storage_to_openacdline"/>
-	<antcall target="call-queue" />
     <!-- slot 1 -->
     <!-- slot 2 -->
     <!-- slot 3 -->
@@ -1360,9 +1359,6 @@
   </target>
   <target name="add_value_storage_to_openacdline" unless="add_value_storage_to_openacdline">
 	<db-patch patch="add_value_storage_to_openacdline"/>
-  </target>
-  <target name="call-queue" unless="call-queue">
-	<db-patch patch="call-queue"/>
   </target>
   <!--
     - SUPPORT UTILITIES

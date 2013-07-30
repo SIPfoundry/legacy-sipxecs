@@ -18,6 +18,8 @@ package org.sipfoundry.sipxconfig.freeswitch.config;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -25,7 +27,7 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings;
 
-public abstract class AbstractFreeswitchConfiguration {
+public abstract class AbstractFreeswitchConfiguration implements FreeswitchProvider {
     private VelocityEngine m_velocityEngine;
     private FreeswitchFeature m_freeswitchFeature;
 
@@ -50,6 +52,18 @@ public abstract class AbstractFreeswitchConfiguration {
     protected abstract String getTemplate();
 
     protected abstract String getFileName();
+
+    /**
+     * Override to add modules to modules.conf.xml. Note you don't have to have a subclass
+     * of this class to add modules. Any bean that implements FreeswitchProvider can
+     * also submit modules to be enabled.
+     *
+     * @return list of module names.
+     */
+    @Override
+    public List<String> getRequiredModules(FreeswitchFeature feature, Location location) {
+        return Collections.emptyList();
+    }
 
     public FreeswitchFeature getFreeswitchFeature() {
         return m_freeswitchFeature;

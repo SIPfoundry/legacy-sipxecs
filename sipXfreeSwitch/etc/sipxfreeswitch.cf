@@ -29,8 +29,7 @@ bundle agent sipxfreeswitch_config {
       "conference_file" string => "$(sipx.SIPX_CONFDIR)/freeswitch/conf/autoload_configs/conference.conf.xml";
 
       "xml_file_reload_only" slist => { 
-        "dialplan/sipX_context.xml",
-         "autoload_configs/callcenter.conf.xml"
+        "dialplan/sipX_context.xml"
       };
 
       "xml_file" slist => { 
@@ -40,7 +39,7 @@ bundle agent sipxfreeswitch_config {
         "autoload_configs/xml_rpc.conf.xml",
          "autoload_configs/switch.conf.xml",
          "autoload_configs/logfile.conf.xml",
-         "autoload_configs/local_stream.conf.xml",
+         "autoload_configs/local_stream.conf.xml"
       };
 
   files:
@@ -84,8 +83,12 @@ bundle agent sipxfreeswitch_config {
 }
 
 bundle edit_line sipxfreeswitch_modules {
+  vars:
+    "mods_part" string => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/modules.conf.xml.part";
+
   classes:
     "fs_g729" expression => fileexists("$(sipx.FREESWITCH_PREFIX)/mod/mod_com_g729.so");
+    "has_mods_part" expression => fileexists("$(mods_part)");
 
   insert_lines:
 
@@ -115,7 +118,6 @@ any::
     <load module=\"mod_voipcodecs\"/>
     <load module=\"mod_g723_1\"/>
     <load module=\"mod_timerfd\"/>
-    <load module=\"mod_callcenter\"/>
 ";
 
 fs_g729::
@@ -149,6 +151,18 @@ any::
     <load module=\"mod_lua\"/>
     <load module=\"mod_say_en\"/>
     <load module=\"mod_say_de\"/>
+";
+
+  has_mods_part::
+    "$(mods_part)"
+      insert_type => "file";
+
+"
+    <load module=\"mod_g729\"/>
+";
+
+any::
+"
   </modules>
 </configuration>
 ";

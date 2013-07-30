@@ -10,6 +10,10 @@ package org.sipfoundry.sipxconfig.freeswitch.config;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -53,6 +57,26 @@ public class FreeswitchConfigurationProvider implements ConfigProvider, BeanFact
                 config.write(writer, location, settings);
                 IOUtils.closeQuietly(writer);
             }
+
+            Map<String, FreeswitchProvider> providers = m_beanFactory.getBeansOfType(FreeswitchProvider.class);
+            Writer modWriter = null;
+            try {
+                modWriter = new FileWriter(new File(dir, "modules.conf.xml.part"));
+                writeModsParts(modWriter, providers.values(), location);
+            } finally {
+                IOUtils.closeQuietly(modWriter);
+            }
+        }
+    }
+
+    void writeModsParts(Writer w, Collection<FreeswitchProvider> providers, Location location) throws IOException {
+        List<String> mods = new ArrayList<String>();
+        for (FreeswitchProvider provider : providers) {
+            mods.addAll(provider.getRequiredModules(m_freeswitch, location));
+        }
+        for (String mod : mods) {
+            String entry = String.format("<load module=\"%s\"/>\n", mod);
+            w.append(entry);
         }
     }
 

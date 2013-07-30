@@ -164,7 +164,6 @@
         <value>org/sipfoundry/sipxconfig/openacd/openacd.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/feature/feature.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/firewall/callrate.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/callqueue/callqueue.hbm.xml</value>
       </list>
     </property>
     <property name="baseClassBeanIds">

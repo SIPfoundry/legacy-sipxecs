@@ -35,7 +35,4 @@
   </bean>
   <bean id="freeswitchXmlRpcConfig" class="org.sipfoundry.sipxconfig.freeswitch.config.XmlRpcConfiguration" parent="freeswitchConfigFile">
   </bean>
-  <bean id="freeswitchCallCenterConfig" class="org.sipfoundry.sipxconfig.freeswitch.config.CallCenterConfiguration" parent="freeswitchConfigFile">
-    <property name="callQueueContext" ref="callQueueContext" />
-  </bean>
 </beans>

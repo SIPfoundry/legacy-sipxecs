@@ -51,7 +51,8 @@ sipx_extra = \
   sipXevent \
   sipXrecording \
   sipXsbc \
-  sipXhomer
+  sipXhomer \
+  sipXcallQueue
 
 # sipxecs projects that are NOT essential for a running communication system
 # and are related to configuration system. Many are phone plugins
@@ -212,6 +213,7 @@ sipXhomer_DEPS = $(call deps,homer resiprocate sipXsqa)
 sipXsbc_DEPS = $(call deps,oss_core sipXsupervisor sipXconfig sipXsqa sipXregistry)
 sipXrelease_DEPS =
 sipXviewer_DEPS = $(call deps,nsis nsis-data)
+sipXcallQueue_DEPS = $(call deps,sipXconfig)
 
 # uc
 sipXtest_DEPS = $(call deps,rrdtool)

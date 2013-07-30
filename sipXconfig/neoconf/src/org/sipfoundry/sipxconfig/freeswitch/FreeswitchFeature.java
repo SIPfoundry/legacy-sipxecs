@@ -164,4 +164,8 @@ public class FreeswitchFeature implements FeatureProvider, AddressProvider, Proc
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
     }
+
+    public ConfigManager getConfigManager() {
+        return m_configManager;
+    }
 }

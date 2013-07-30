@@ -79,3 +79,6 @@
 [submodule "openacd"]
 	path = openacd
 	url = git://github.com/sipxopenacd/openacd.git
+[submodule "sipXcallQueue"]
+	path = sipXcallQueue
+	url = git@github.com:dhubler/sipXcallQueue.git
