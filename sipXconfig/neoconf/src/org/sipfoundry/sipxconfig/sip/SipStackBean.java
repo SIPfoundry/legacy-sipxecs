@@ -364,7 +364,7 @@ public class SipStackBean {
             } else if (dialog.getState() != DialogState.TERMINATED) {
                 dialog.delete();
             }
-        } catch (SipException e) {
+        } catch (Exception e) {
             LOG.error("Unexpected exception sending BYE", e);
         }
     }

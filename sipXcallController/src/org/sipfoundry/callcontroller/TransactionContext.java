@@ -45,7 +45,7 @@ import org.sipfoundry.sipxrest.SipHelper;
 /**
  * Transaction context data. Register one of these per transaction to track data that is specific
  * to a transaction.
- * 
+ *
  */
 class TransactionContext {
 
@@ -120,7 +120,7 @@ class TransactionContext {
             String method = SipHelper.getCSeqMethod(response);
             DialogContext dialogContext = (DialogContext) clientTransaction.getDialog()
                     .getApplicationData();
-            
+
             SipHelper sipHelper = SipListenerImpl.getInstance().getHelper();
 
             LOG.debug("method = " + method);
@@ -136,7 +136,7 @@ class TransactionContext {
                 /* The old dialog is terminated -- take him out */
                 dialogContext.removeMe(dialog);
                 dialogContext.addDialog(ctx.getDialog(), ctx.getRequest());
-                
+
                 ctx.getDialog().setApplicationData(dialogContext);
                 m_counter++;
                 if (ctx != null) {
@@ -159,7 +159,7 @@ class TransactionContext {
                         long seqno = SipHelper.getSequenceNumber(response);
                         Request ack = dialog.createAck(seqno);
                         dialog.sendAck(ack);
-                        InviteMessage inviteMessage = (InviteMessage) m_sipMessage;
+                        InviteMessage inviteMessage = m_sipMessage;
 
                         // Create a REFER pointing back at the caller.
                         Request referRequest = dialog.createRequest(Request.REFER);
@@ -183,10 +183,10 @@ class TransactionContext {
                     } else if (this.m_operator == Operator.SEND_3PCC_CALL_SETUP1) {
                         long seqno = SipHelper.getSequenceNumber(response);
                         Request ack = dialog.createAck(seqno);
-                        String sdpAnswer = new String(response.getRawContent());    
+                        String sdpAnswer = new String(response.getRawContent());
                         DialogContext.get(dialog).setLastSdpReceived(dialog, sdpAnswer);
                         dialog.sendAck(ack);
-                        InviteMessage inviteMessage = (InviteMessage) this.m_sipMessage;
+                        InviteMessage inviteMessage = this.m_sipMessage;
 
                         // Create a new INVITE ( no sdp ).
                         String toAddrSpec = inviteMessage.getAgentAddrSpec();
@@ -232,11 +232,11 @@ class TransactionContext {
                         SessionDescription newSd = SipHelper
                                 .decrementSessionDescriptionVersionNumber(response);
                         m_helper.setContent(ack, newSd);
-                        DialogContext.get(peerDialog).setLastSdpSent(peerDialog, newSd.toString());      
+                        DialogContext.get(peerDialog).setLastSdpSent(peerDialog, newSd.toString());
                         peerDialog.sendAck(ack);
                         seqno = SipHelper.getSequenceNumber(response);
                         ack = dialog.createAck(seqno);
-                        dialog.sendAck(ack);                 
+                        dialog.sendAck(ack);
                     } else if (m_operator == Operator.FORWARD_REQUEST) {
                         DialogContext dat = (DialogContext) dialog.getApplicationData();
                         dat.setLastResponse(response);
@@ -250,7 +250,7 @@ class TransactionContext {
                         dialogContext.setLastResponse(response);
                         dialogContext.sendLastSdpSentInAck(dialog,response);
                         String sdp = new String(response.getRawContent());
-                        
+
                         dialogContext.sendSdpOffer(target, sdp);
                     } else if (m_operator == Operator.SEND_SDP_OFFER) {
                         long ackSeqno = SipHelper.getSequenceNumber(response);
@@ -260,18 +260,18 @@ class TransactionContext {
                         if ( peer == null || peer.getState() == DialogState.TERMINATED) {
                             DialogContext.get(dialog).tearDownDialogs("Peer dialog terminated");
                         }
-                       
+
                        if (dialogContext.getPendingOperation() == PendingOperation.PENDING_RE_INVITE) {
                           dialogContext.reSendSdpOffereToPeerDialog(dialog, response, PendingOperation.NONE);
                        }
-                       
+
                     } else if (m_operator == Operator.RESEND_SDP_OFFER_TO_PEER) {
                         long ackSeqno = SipHelper.getSequenceNumber(response);
                         Request ack = dialog.createAck(ackSeqno);
                         dialog.sendAck(ack);
                         if (dialogContext.getPendingOperation() == PendingOperation.PENDING_RE_INVITE) {
                              dialogContext.reSendSdpOffereToPeerDialog(dialog, response, PendingOperation.NONE);
-                        }                
+                        }
                     } else
                         throw new IllegalStateException("Unknown state " + m_operator);
                 } else if (response.getStatusCode() / 100 > 2) {
@@ -284,7 +284,7 @@ class TransactionContext {
                 // We set up a timer to terminate the INVITE dialog if we do not see a 200 OK in
                 // the transfer.
                 SipUtils.scheduleTerminate(dialog, 32);
-            } 
+            }
         } catch (InvalidArgumentException e) {
             LOG.error("Invalid argument", e);
             throw new SipxSipException(e);

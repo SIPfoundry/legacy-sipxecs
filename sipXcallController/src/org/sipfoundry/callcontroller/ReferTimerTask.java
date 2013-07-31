@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.callcontroller;
@@ -32,11 +32,10 @@ public class ReferTimerTask extends TimerTask {
     @Override
     public void run() {
         try {
+            //We need here only to delete the callcontroller dialog if not already terminated
+            //We are sending a BYE when callee phone rings @see DialogContext.processNotify
             if (m_dialog.getState() != DialogState.TERMINATED) {
-                Request byeRequest = m_dialog.createRequest(Request.BYE);
-                SipProvider provider = ((DialogExt) m_dialog).getSipProvider();
-                ClientTransaction ctx = provider.getNewClientTransaction(byeRequest);
-                m_dialog.sendRequest(ctx);
+                m_dialog.delete();
             }
         } catch (Exception ex) {
             logger.error("Exception caught", ex);

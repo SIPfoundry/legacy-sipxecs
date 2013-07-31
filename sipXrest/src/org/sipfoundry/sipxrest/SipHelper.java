@@ -115,7 +115,7 @@ public class SipHelper {
     final public AcceptHeader createAcceptHeader(String type, String subType) throws ParseException {
         return getStackBean().getHeaderFactory().createAcceptHeader(type, subType);
     }
-    
+
     final public ViaHeader createViaHeader() throws ParseException, InvalidArgumentException {
 
         String host = RestServer.getRestServerConfig().getIpAddress();
@@ -185,10 +185,10 @@ public class SipHelper {
            message.setContent(sdpContent, cth);
        } catch (Exception ex) {
            logger.error("Unexpected exception creating header", ex);
-           throw new SipxRestException(ex);  
+           throw new SipxRestException(ex);
        }
     }
-    
+
     final public ReferToHeader createReferToHeader(String referToAddrSpec) {
         try {
             String referToUri = "sip:" + referToAddrSpec;
@@ -202,21 +202,21 @@ public class SipHelper {
             throw new SipxRestException(ex);
         }
     }
-    
 
+   /**
+    * Generic code to tear down a dialog (send a BYE request). Conditions when we should
+    * tear down a dialog are judged depending on SIP events
+    * @param dialog
+    */
     final public void tearDownDialog(Dialog dialog) {
         logger.debug("Tearinging Down Dialog : " + dialog);
         if (dialog == null) {
             return;
         }
         try {
-            if (dialog.getState() == DialogState.CONFIRMED) {
-                Request request = dialog.createRequest(Request.BYE);
-                ClientTransaction ctx = this.getNewClientTransaction(request);
-                dialog.sendRequest(ctx);
-            } else if (dialog.getState() != DialogState.TERMINATED) {
-                dialog.delete();
-            }
+            Request request = dialog.createRequest(Request.BYE);
+            ClientTransaction ctx = this.getNewClientTransaction(request);
+            dialog.sendRequest(ctx);
         } catch (SipException e) {
             logger.error("Unexpected exception sending BYE", e);
         }
@@ -451,7 +451,7 @@ public class SipHelper {
             throw new SipxRestException(ex);
         }
     }
-    
+
     /**
      * @return the m_stackBean
      */

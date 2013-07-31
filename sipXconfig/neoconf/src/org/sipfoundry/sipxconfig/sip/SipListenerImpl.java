@@ -36,14 +36,17 @@ class SipListenerImpl implements SipListener {
         m_stackBean = stackBean;
     }
 
+    @Override
     public void processDialogTerminated(DialogTerminatedEvent dialogTerminatedEvent) {
 
     }
 
+    @Override
     public void processIOException(IOExceptionEvent exceptionEvent) {
 
     }
 
+    @Override
     public void processRequest(RequestEvent requestEvent) {
         try {
             ServerTransaction serverTransaction = requestEvent.getServerTransaction();
@@ -63,7 +66,9 @@ class SipListenerImpl implements SipListener {
                 serverTransaction.sendResponse(response);
                 SubscriptionStateHeader subscriptionState =
                         (SubscriptionStateHeader) request.getHeader(SubscriptionStateHeader.NAME);
-                if (subscriptionState.getState().equalsIgnoreCase(SubscriptionStateHeader.TERMINATED)) {
+                //Make sure to tear down click-to-call initiated call when the callee phone rings
+                //why do not need the click-to-call dialog starting with this point
+                if (subscriptionState.getState().equalsIgnoreCase(SubscriptionStateHeader.ACTIVE)) {
                     Dialog dialog = requestEvent.getDialog();
                     m_stackBean.tearDownDialog(dialog);
                 }
@@ -75,6 +80,7 @@ class SipListenerImpl implements SipListener {
         }
     }
 
+    @Override
     public void processResponse(ResponseEvent responseEvent) {
         try {
             ClientTransaction clientTransaction = responseEvent.getClientTransaction();
@@ -98,6 +104,7 @@ class SipListenerImpl implements SipListener {
         }
     }
 
+    @Override
     public void processTimeout(TimeoutEvent timeoutEvent) {
         if (!timeoutEvent.isServerTransaction()) {
             ClientTransaction clientTransaction = timeoutEvent.getClientTransaction();
@@ -117,6 +124,7 @@ class SipListenerImpl implements SipListener {
         }
     }
 
+    @Override
     public void processTransactionTerminated(TransactionTerminatedEvent transactionTerminatedEvent) {
     }
 }
