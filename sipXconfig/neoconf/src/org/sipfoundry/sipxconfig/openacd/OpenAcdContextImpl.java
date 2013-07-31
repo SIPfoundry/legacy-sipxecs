@@ -1289,9 +1289,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.CALL_CENTER) {
-            b.addFeature(FEATURE);
-        }
     }
 
     @Override
@@ -1314,24 +1311,17 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     @Override
     public void migrate(SetupManager manager) {
-        // Limitation introduced in OpenACD v2.0
-        String id = "restrict-openacd-to-primary-only";
+        String id = "restrict-openacd";
         if (manager.isFalse(id)) {
             FeatureManager fm = manager.getFeatureManager();
             List<Location> current = fm.getLocationsForEnabledFeature(FEATURE);
             if (current.size() >= 1) {
                 for (Location l : current) {
-                    if (!l.isPrimary()) {
-                        Location primary = m_locationsManager.getPrimaryLocation();
-                        LOG.warn("Disabling OpenACD on non-primary server due to feature limitation");
-                        // Cannot use FeatureManager to disable because that
-                        // triggers validation
-                        // and other migration tasks may still need to "repair"
-                        // the database first
-                        m_jdbcTemplate.update("delete from feature_local where feature_id = ? and location_id != ?",
-                                FEATURE.getId(), primary.getId());
-                        break;
-                    }
+                    LOG.info("Disabling OpenACD");
+                    // Cannot use FeatureManager to disable because that triggers validation and
+                    // other migration tasks may still need to "repair" the database first
+                    m_jdbcTemplate.update("delete from feature_local where feature_id = ?", FEATURE.getId());
+                    break;
                 }
             }
             manager.setTrue(id);

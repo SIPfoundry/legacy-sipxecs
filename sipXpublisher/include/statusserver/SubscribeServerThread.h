@@ -159,5 +159,6 @@ protected:
      */
     int removeErrorSubscription(const SipMessage& sipMessage);
 
+    friend class Notifier;
 };
 #endif // SUBSCRIBESERVERTHREAD_H

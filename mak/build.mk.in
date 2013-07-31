@@ -124,7 +124,7 @@ $(foreach T,$(sipx),$(T).all-install) : %.all-install : %.all %.install ;
 # This also means all targets in all other make files cannot create a target that
 # ends in autoreconf, configure or dist.
 help.{sipx}.autoreconf=Run autoreconf on each project
-%.autoreconf : $$($$*_GIT_SUBMODULE)
+%.autoreconf : $$($$*_GIT_SUBMODULE) $(SRC)/$$*
 	cd $(SRC)/$(PROJ); \
 	  autoreconf -if
 
