@@ -98,15 +98,9 @@ public class OpenfireConfiguration implements ConfigProvider {
             Writer ofproperty = new FileWriter(new File(dir, "openfire.properties.part"));
             try {
                 m_config.writeOfPropertyConfig(ofproperty, m_openfire.getSettings());
+                writeLdapProps(ofproperty, manager);
             } finally {
                 IOUtils.closeQuietly(ofproperty);
-            }
-
-            Writer multipleldap = new FileWriter(new File(dir, "multipleldap-openfire.xml"));
-            try {
-                m_config.writeMultipleLdapConfiguration(multipleldap);
-            } finally {
-                IOUtils.closeQuietly(multipleldap);
             }
 
             Writer openfire = new FileWriter(new File(dir, "sipxopenfire.xml"));
@@ -116,6 +110,10 @@ public class OpenfireConfiguration implements ConfigProvider {
                 IOUtils.closeQuietly(openfire);
             }
         }
+    }
+
+    protected void writeLdapProps(Writer ofproperty, ConfigManager manager) throws IOException {
+        m_config.writeOfLdapPropertyConfig(ofproperty, m_openfire.getSettings());
     }
 
     @SuppressWarnings("static-method")
@@ -169,5 +167,9 @@ public class OpenfireConfiguration implements ConfigProvider {
     @Required
     public void setOpenfire(Openfire openfire) {
         m_openfire = openfire;
+    }
+
+    public OpenfireConfigurationFile getConfig() {
+        return m_config;
     }
 }
