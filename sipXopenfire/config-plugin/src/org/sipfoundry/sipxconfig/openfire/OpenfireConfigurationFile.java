@@ -43,8 +43,6 @@ import org.springframework.beans.factory.annotation.Required;
 public class OpenfireConfigurationFile {
     private static final String SEPARATOR = ", ";
 
-    private String m_multipleLdapConfFile;
-
     private Map<String, String> m_properties;
     private Map<String, String> m_nonLdapProperties;
     private Map<String, String> m_ldapProperties;
@@ -54,37 +52,28 @@ public class OpenfireConfigurationFile {
     private LocalizationContext m_localizationContext;
     private VelocityEngine m_velocityEngine;
 
-    public void writeMultipleLdapConfiguration(Writer writer) throws IOException {
-        if (m_multipleLdapConfFile != null) {
-            List<LdapConnectionParams> allParams = m_ldapManager.getAllConnectionParams();
-            VelocityContext context = new VelocityContext();
-            List<LdapData> ldapDataList = new ArrayList<LdapData>();
-            for (LdapConnectionParams params : allParams) {
-                ldapDataList.add(new LdapData(params, m_ldapManager.getAttrMap(params.getId())));
-            }
-            context.put("ldapDataList", ldapDataList);
-            try {
-                m_velocityEngine.mergeTemplate(m_multipleLdapConfFile, context, writer);
-            } catch (Exception e) {
-                throw new IOException(e);
-            }
-        }
+    public void writeOfPropertyConfig(Writer w, OpenfireSettings settings) throws IOException {
+        writePropertyConfig(w, settings, buildOpenfirePropertiesMap());
     }
 
-    public void writeOfPropertyConfig(Writer w, OpenfireSettings settings) throws IOException {
+    public void writeOfLdapPropertyConfig(Writer w, OpenfireSettings settings) throws IOException {
+        writePropertyConfig(w, settings, buildOpenfireLdapPropertiesMap());
+    }
+
+    private void writePropertyConfig(Writer w, OpenfireSettings settings,
+            SortedMap<String, Object> map) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
 
         config.writeSettings(settings.getOfProperty());
 
-        for (Map.Entry<String, Object> property : buildOpenfirePropertiesMap().entrySet()) {
+        for (Map.Entry<String, Object> property : map.entrySet()) {
             config.write(property.getKey(), property.getValue());
         }
     }
 
-    protected SortedMap<String, Object> buildOpenfirePropertiesMap() {
+    protected SortedMap<String, Object> buildOpenfireLdapPropertiesMap() {
         SortedMap<String, Object> props = new TreeMap<String, Object>();
 
-        props.put("admin.authorizedJIDs", getAuthorizedUsernames());
         LdapSystemSettings ldapSettings = m_ldapManager.getSystemSettings();
         boolean ldapEnabled = ldapSettings.isEnableOpenfireConfiguration() && ldapSettings.isConfigured();
 
@@ -94,7 +83,7 @@ public class OpenfireConfigurationFile {
             AttrMap attrMap = m_ldapManager.getAttrMap(ldapConnectionParams.getId());
 
             props.put("ldap.host", ldapConnectionParams.getHost());
-            props.put("ldap.port", ldapConnectionParams.getPort());
+            props.put("ldap.port", ldapConnectionParams.getPortToUse());
             props.put("ldap.sslEnabled", ldapConnectionParams.getUseTls());
             props.put("ldap.baseDN", attrMap.getAttribute("searchBase"));
             props.put("ldap.usernameField", attrMap.getAttribute("imAttributeName"));
@@ -105,6 +94,19 @@ public class OpenfireConfigurationFile {
                 props.put("ldap.adminDN", ldapConnectionParams.getPrincipal());
                 props.put("ldap.adminPassword", ldapConnectionParams.getSecret());
             }
+        }
+
+        return props;
+    }
+
+    protected SortedMap<String, Object> buildOpenfirePropertiesMap() {
+        SortedMap<String, Object> props = new TreeMap<String, Object>();
+
+        props.put("admin.authorizedJIDs", getAuthorizedUsernames());
+        LdapSystemSettings ldapSettings = m_ldapManager.getSystemSettings();
+        boolean ldapEnabled = ldapSettings.isEnableOpenfireConfiguration() && ldapSettings.isConfigured();
+
+        if (ldapEnabled) {
             if (m_ldapProperties != null) {
                 props.putAll(m_ldapProperties);
             } else {
@@ -165,10 +167,6 @@ public class OpenfireConfigurationFile {
         return m_velocityEngine;
     }
 
-    public void setMultipleLdapConfFile(String multipleLdapConfFile) {
-        m_multipleLdapConfFile = multipleLdapConfFile;
-    }
-
     public void setProperties(Map<String, String> properties) {
         m_properties = properties;
     }
@@ -179,44 +177,5 @@ public class OpenfireConfigurationFile {
 
     public void setLdapProperties(Map<String, String> properties) {
         m_ldapProperties = properties;
-    }
-
-    public static class LdapData {
-        private final LdapConnectionParams m_ldapParams;
-        private final AttrMap m_attrMap;
-        private final boolean m_ldapAnonymousAccess;
-
-        public LdapData(LdapConnectionParams ldapParams, AttrMap attrMap) {
-            m_ldapParams = ldapParams;
-            m_attrMap = attrMap;
-            m_ldapAnonymousAccess = (StringUtils.isBlank(m_ldapParams.getPrincipal())) ? true : false;
-        }
-
-        public LdapConnectionParams getLdapParams() {
-            return m_ldapParams;
-        }
-
-        public AttrMap getAttrMap() {
-            return m_attrMap;
-        }
-
-        public String getImAttribute() {
-            String imAttribute = m_attrMap.getImAttributeName();
-            String usernameAttribute = m_attrMap.getIdentityAttributeName();
-            // if im id is not mapped, default it to username -
-            // because this is a rule, when a user gets created the im id has to automatically be
-            // defaulted to username
-            return imAttribute == null ? usernameAttribute == null ? StringUtils.EMPTY : usernameAttribute
-                    : imAttribute;
-        }
-
-        public String getDomain() {
-            String domain = m_ldapParams.getDomain();
-            return domain == null ? StringUtils.EMPTY : domain;
-        }
-
-        public boolean isLdapAnonymousAccess() {
-            return m_ldapAnonymousAccess;
-        }
     }
 }
