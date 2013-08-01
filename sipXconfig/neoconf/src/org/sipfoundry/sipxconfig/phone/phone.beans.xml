@@ -36,7 +36,12 @@
     <property name="phoneContext" ref="phoneContext" />
   </bean>
 
-  <bean id="phoneRestartManager" class="org.sipfoundry.sipxconfig.device.ScheduledRestartManagerImpl">
+  <bean id="phoneRestartManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.device.RestartManager" />
+    <property name="target" ref="phoneRestartManagerImpl" />
+  </bean>
+
+  <bean id="phoneRestartManagerImpl" class="org.sipfoundry.sipxconfig.device.ScheduledRestartManagerImpl">
     <property name="deviceSource">
       <ref local="phoneSource" />
     </property>
@@ -45,19 +50,29 @@
     <property name="executorService" ref="restartExecutorService" />
   </bean>
 
-  <bean id="eagerPhoneProfileManager" class="org.sipfoundry.sipxconfig.device.ProfileManagerImpl">
+  <bean id="eagerPhoneProfileManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.device.ProfileManager" />
+    <property name="target" ref="eagerPhoneProfileManagerImpl" />
+  </bean>
+
+  <bean id="eagerPhoneProfileManagerImpl" class="org.sipfoundry.sipxconfig.device.ProfileManagerImpl">
     <property name="deviceSource">
       <ref local="phoneSource" />
     </property>
     <property name="restartManager">
-      <ref local="phoneRestartManager" />
+      <ref local="phoneRestartManagerImpl" />
     </property>
     <property name="jobContext" ref="jobContext" />
   </bean>
 
-  <bean id="phoneProfileManager" class="org.sipfoundry.sipxconfig.device.LazyProfileManagerImpl" init-method="init">
+  <bean id="phoneProfileManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.device.ProfileManager" />
+    <property name="target" ref="phoneProfileManagerImpl" />
+  </bean>
+
+  <bean id="phoneProfileManagerImpl" class="org.sipfoundry.sipxconfig.device.LazyProfileManagerImpl" init-method="init">
     <property name="target">
-      <ref local="eagerPhoneProfileManager" />
+      <ref local="eagerPhoneProfileManagerImpl" />
     </property>
     <property name="sleepInterval" value="5000" />
   </bean>

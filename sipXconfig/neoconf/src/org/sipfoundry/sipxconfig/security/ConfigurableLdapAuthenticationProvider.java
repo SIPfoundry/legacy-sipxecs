@@ -88,7 +88,7 @@ public class ConfigurableLdapAuthenticationProvider extends AbstractUserDetailsA
 
     @Override
     protected UserDetails retrieveUser(String userLoginName, UsernamePasswordAuthenticationToken authentication)
-            throws AuthenticationException {
+        throws AuthenticationException {
         if (!m_ldapManager.getSystemSettings().isConfigured()) {
             throw new AuthenticationServiceException("LDAP Authentication not configured");
         }

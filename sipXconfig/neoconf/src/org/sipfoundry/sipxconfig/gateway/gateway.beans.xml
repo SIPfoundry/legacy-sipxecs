@@ -60,26 +60,41 @@
     <property name="gatewayContext" ref="gatewayContext" />
   </bean>
 
-  <bean id="gatewayRestartManager" class="org.sipfoundry.sipxconfig.device.ScheduledRestartManagerImpl">
+  <bean id="gatewayRestartManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.device.RestartManager" />
+    <property name="target" ref="gatewayRestartManagerImpl" />
+  </bean>
+
+  <bean id="gatewayRestartManagerImpl" class="org.sipfoundry.sipxconfig.device.ScheduledRestartManagerImpl">
     <property name="deviceSource" ref="gatewaySource" />
     <property name="jobContext" ref="jobContext" />
     <property name="sleepInterval" value="5000" />
     <property name="executorService" ref="restartExecutorService" />
   </bean>
 
-  <bean id="eagerGatewayProfileManager" class="org.sipfoundry.sipxconfig.device.ProfileManagerImpl">
+  <bean id="eagerGatewayProfileManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.device.ProfileManager" />
+    <property name="target" ref="eagerGatewayProfileManagerImpl" />
+  </bean>
+
+  <bean id="eagerGatewayProfileManagerImpl" class="org.sipfoundry.sipxconfig.device.ProfileManagerImpl">
     <property name="deviceSource">
       <ref local="gatewaySource" />
     </property>
     <property name="restartManager">
-      <ref local="gatewayRestartManager" />
+      <ref local="gatewayRestartManagerImpl" />
     </property>
     <property name="jobContext" ref="jobContext" />
   </bean>
 
-  <bean id="gatewayProfileManager" class="org.sipfoundry.sipxconfig.device.LazyProfileManagerImpl" init-method="init">
+  <bean id="gatewayProfileManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.device.ProfileManager" />
+    <property name="target" ref="gatewayProfileManagerImpl" />
+  </bean>
+
+  <bean id="gatewayProfileManagerImpl" class="org.sipfoundry.sipxconfig.device.LazyProfileManagerImpl" init-method="init">
     <property name="target">
-      <ref local="eagerGatewayProfileManager" />
+      <ref local="eagerGatewayProfileManagerImpl" />
     </property>
     <property name="sleepInterval" value="5000" />
   </bean>
