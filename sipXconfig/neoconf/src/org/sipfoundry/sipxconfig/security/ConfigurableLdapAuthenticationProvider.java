@@ -47,11 +47,12 @@ import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.search.LdapUserSearch;
 
 /**
- * Creates a rebuildable reference to Spring Security real LdapAuthenticationProvider as settings change.
- * We cannot use LdapAuthenticationProvider directly because ldap settings are immutable and
- * Spring keeps a more permanent reference list of auth providers.
+ * Creates a rebuildable reference to Spring Security real LdapAuthenticationProvider as settings
+ * change. We cannot use LdapAuthenticationProvider directly because ldap settings are immutable
+ * and Spring keeps a more permanent reference list of auth providers.
  */
-public class ConfigurableLdapAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider implements DaoEventListener {
+public class ConfigurableLdapAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider implements
+    DaoEventListener {
 
     private static final Log LOG = LogFactory.getLog(ConfigurableLdapAuthenticationProvider.class);
     private LdapManager m_ldapManager;
@@ -101,22 +102,26 @@ public class ConfigurableLdapAuthenticationProvider extends AbstractUserDetailsA
             UserDetailsImpl loaddedUser = (UserDetailsImpl) m_userDetailsService.loadUserByUsername(username);
             if (loaddedUser == null) {
                 throw new AuthenticationServiceException("UserDetailsService returned null, which "
-                    + "is an interface contract violation");
+                        + "is an interface contract violation");
             }
 
             for (SipxLdapAuthenticationProvider provider : m_providers) {
                 String providerDomain = provider.getDomain();
-                // verify if user input domain can be handled by this provider, continue with next provider
+                // verify if user input domain can be handled by this provider, continue with next
+                // provider
                 if (userDomain != null && !userDomain.equals(providerDomain)) {
                     continue;
                 }
 
-                // if no domain specified by user, compare the one from database with the provider domain
+                // if no domain specified by user, compare the one from database with the provider
+                // domain
                 if (userDomain == null) {
-                    if (loaddedUser.getUserDomain() != null && !StringUtils.equals(loaddedUser.getUserDomain(), providerDomain)) {
+                    String savedDomain = loaddedUser.getUserDomain();
+                    if (!StringUtils.equals(StringUtils.defaultString(savedDomain, StringUtils.EMPTY),
+                            StringUtils.defaultString(providerDomain, StringUtils.EMPTY))) {
                         throw new AuthenticationServiceException(
                                 "The following domain does not belong to the actual user: " + userDomain
-                                + " in the system - is an interface contract violation");
+                                        + " in the system - is an interface contract violation");
                     }
                 }
 
@@ -184,7 +189,10 @@ public class ConfigurableLdapAuthenticationProvider extends AbstractUserDetailsA
         }
         ContextSource dirFactory = getDirFactory(params);
         BindAuthenticator authenticator = new BindAuthenticator((BaseLdapPathContextSource) dirFactory);
-        authenticator.setUserSearch(getSearch((BaseLdapPathContextSource) dirFactory, connectionId)); // used for user login
+        authenticator.setUserSearch(getSearch((BaseLdapPathContextSource) dirFactory, connectionId)); // used
+                                                                                                      // for
+                                                                                                      // user
+                                                                                                      // login
         SipxLdapAuthenticationProvider provider = new SipxLdapAuthenticationProvider(authenticator);
         provider.setDomain(params.getDomain());
         return provider;
@@ -194,7 +202,7 @@ public class ConfigurableLdapAuthenticationProvider extends AbstractUserDetailsA
         String bindUrl = params.getUrl();
         LdapContextSource dirContextFactory = new LdapContextSource();
         dirContextFactory.setUrl(bindUrl);
-        //allow anonymous access if so configured in LDAP server configuration page
+        // allow anonymous access if so configured in LDAP server configuration page
         if (!StringUtils.isEmpty(params.getPrincipal())) {
             dirContextFactory.setUserDn(params.getPrincipal());
             dirContextFactory.setPassword(params.getSecret());
@@ -213,9 +221,9 @@ public class ConfigurableLdapAuthenticationProvider extends AbstractUserDetailsA
         AttrMap attrMap = m_ldapManager.getAttrMap(connectionId);
 
         String sbase = StringUtils.defaultString(attrMap.getSearchBase());
-        //Any additional LDAP filters (RFC 2254) are removed from authentication search because
-        //here the filter is used to specify what LDAP attribute represents the username and it
-        //does not respect RFC2254 guidelines
+        // Any additional LDAP filters (RFC 2254) are removed from authentication search because
+        // here the filter is used to specify what LDAP attribute represents the username and it
+        // does not respect RFC2254 guidelines
         String filter = String.format("(%s={0})", attrMap.getIdentityAttributeName());
 
         FilterBasedLdapUserSearch search = new FilterBasedLdapUserSearch(sbase, filter, dirFactory);
