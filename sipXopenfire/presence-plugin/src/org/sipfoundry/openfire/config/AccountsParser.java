@@ -72,10 +72,12 @@ public class AccountsParser {
         XmppAccountInfo newAccountInfo = AccountsParser.parse(conferenceService, parseEnabled);
         if (m_parsingEnabled) {
             logger.debug("Pruning unwanted users");
-            pruneUnwantedXmppUsers( newAccountInfo.getXmppUserAccountNames() );
+            pruneUnwantedXmppUsers(newAccountInfo.getXmppUserAccountNames());
             logger.debug("Done pruning unwanted users");
             logger.debug("Pruning unwanted groups");
-            pruneUnwantedXmppGroups( newAccountInfo.getXmppGroupNames() ); // prune groups before applying deltas - see XX-7886
+            pruneUnwantedXmppGroups(newAccountInfo.getXmppGroupNames()); // prune groups before
+                                                                         // applying deltas - see
+                                                                         // XX-7886
             logger.debug("Done pruning unwanted groups");
             logger.debug("Enforcing config deltas");
             // unfortunately, previous account info is always null on startup; this will trigger a
@@ -83,10 +85,10 @@ public class AccountsParser {
             enforceConfigurationDeltas(newAccountInfo, previousXmppAccountInfo);
             logger.debug("Done enforcing config deltas");
             logger.debug("Pruning unwanted chatrooms");
-            pruneUnwantedXmppChatrooms( newAccountInfo );
+            pruneUnwantedXmppChatrooms(newAccountInfo);
             logger.debug("Dome pruning unwanted chatrooms");
             logger.debug("Pruning unwanted chatroom services");
-            pruneUnwantedXmppChatRoomServices( newAccountInfo.getXmppChatRooms() );
+            pruneUnwantedXmppChatRoomServices(newAccountInfo.getXmppChatRooms());
             logger.debug("Done pruning unwanted chatroom services");
             // } else {
             // Collection<XmppConfigurationElement> confElements = new
@@ -320,14 +322,19 @@ public class AccountsParser {
 
             accountInfo.addAccount(account);
         }
+
         User imbotUser = validUsers.getImbotUser();
-        account = new XmppUserAccount();
-        account.setPassword(imbotUser.getPintoken());
-        account.setUserName(imbotUser.getUserName());
-        accountInfo.addAccount(account);
+
+        if (imbotUser != null) {
+            account = new XmppUserAccount();
+            account.setPassword(imbotUser.getPintoken());
+            account.setUserName(imbotUser.getUserName());
+            accountInfo.addAccount(account);
+        }
     }
 
-    private static void parseMongoConferences(XmppAccountInfo accountInfo, ConferenceService conferenceService) throws Exception {
+    private static void parseMongoConferences(XmppAccountInfo accountInfo, ConferenceService conferenceService)
+            throws Exception {
         List<Conference> conferences = conferenceService.getAllConferences();
         ValidUsers users = UnfortunateLackOfSpringSupportFactory.getValidUsers();
         User user;

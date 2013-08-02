@@ -18,7 +18,6 @@ package org.sipfoundry.sipxconfig.openfire;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +26,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.bulk.ldap.AttrMap;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
@@ -60,7 +58,7 @@ public class OpenfireConfigurationFile {
         writePropertyConfig(w, settings, buildOpenfireLdapPropertiesMap());
     }
 
-    private void writePropertyConfig(Writer w, OpenfireSettings settings,
+    private static void writePropertyConfig(Writer w, OpenfireSettings settings,
             SortedMap<String, Object> map) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
 

@@ -22,4 +22,12 @@
 	<securePort>9095</securePort>
   </adminConsole>
   <setup>true</setup>
+  <database>
+	<defaultProvider>
+		<driver>org.postgresql.Driver</driver>
+		<serverURL>jdbc:postgresql://localhost:5432/openfire</serverURL>
+		<username>postgres</username>
+		<password>postgres</password>
+	</defaultProvider>
+  </database>
 </jive>
