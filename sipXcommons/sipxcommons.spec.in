@@ -23,6 +23,7 @@ BuildRequires: shadow-utils
 BuildRequires: pwdutils
 %endif
 BuildRequires: zip
+BuildRequires: rsync
 
 # disable JAR repacking. gwt for one won't repack
 %define __jar_repack %{nil}
