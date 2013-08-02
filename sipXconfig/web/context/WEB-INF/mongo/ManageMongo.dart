@@ -7,6 +7,7 @@ import 'package:sipxconfig/sipxconfig.dart';
 // developer aid. Path will have last developers work directory in it. darteditor 
 // has no way to avoid this AFAICT 
 String devBasePath = "http://127.0.0.1:3030/home/dhubler/work/sipxecs";
+bool useStaticJson = false;
 
 String baseurl;
 bool inProgressFlag = false;
@@ -62,8 +63,8 @@ class ManageGlobal extends ManageBase {
   ManageGlobal() {
     help = "global.help";
     jsonurl = "${baseurl}/sipxconfig/rest/mongo";
-    if (devmode()) {
-      //jsonurl = "${devBasePath}/sipXconfig/web/context/WEB-INF/mongo/global-test.json";
+    if (devmode() && useStaticJson) {
+      jsonurl = "${devBasePath}/sipXconfig/web/context/WEB-INF/mongo/global-test.json";
     }
     msg = new UserMessage(query("#globalMessage"));    
     table = dataTable(query("#globalTable"), [
@@ -71,13 +72,14 @@ class ManageGlobal extends ManageBase {
         getString('status'), 
         getString('action')]);
     loader = new DataLoader(msg, loadTable);
-    builder = new UiBuilder(this);
+    builder = new UiBuilder(this);    
     refresh = new Refresher(query("#globalRefreshWidget"), query("#globalRefreshButton"), () {
       loader.load(jsonurl);      
     });
   }
  
   void load() {
+    builder.inProgress(true);    
     refresh.refresh();
   }
   
@@ -128,13 +130,12 @@ class ManageLocal extends ManageBase {
   ManageLocal() {
     help = "local.help";
     jsonurl = "${baseurl}/sipxconfig/rest/mongolocal";
-    if (devmode()) {
-      //jsonurl = "${devBasePath}/sipXconfig/web/context/WEB-INF/mongo/local-test.json";
+    if (devmode() && useStaticJson) {
+      jsonurl = "${devBasePath}/sipXconfig/web/context/WEB-INF/mongo/local-test.json";
     }
     msg = new UserMessage(query("#localMessage"));    
     table = dataTable(query("#localTable"), [
         getString('service'), 
-        getString('shard'), 
         getString('status'), 
         getString('action')]);
     loader = new DataLoader(msg, loadTable);
@@ -157,7 +158,6 @@ class ManageLocal extends ManageBase {
         shard[type].forEach((server, node) {
           var row = builder.row();
           builder.nameColumn(row.addCell(), node, server, type);
-          row.addCell().text = shard['id'];          
           builder.statusColumn(row.addCell(), node, server, type);
           var actions = builder.actionColumn(row.addCell(), node, server, type);
           if (shard[type].length == 1) {
@@ -185,6 +185,7 @@ class ManageLocal extends ManageBase {
   }  
 
   void load() {
+    builder.inProgress(true);    
     refresh.refresh();
   }
 
