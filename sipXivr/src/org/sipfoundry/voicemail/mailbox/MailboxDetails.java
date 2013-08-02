@@ -62,27 +62,6 @@ public class MailboxDetails {
         to.addAll(from);
         return to;
     }
-        
-    public void merge(MailboxDetails from) {
-        m_inbox = safeMerge(m_inbox, from.m_inbox);
-        m_saved = safeMerge(m_saved, from.m_saved);
-        m_deleted = safeMerge(m_deleted, from.m_deleted);
-        m_conferences = safeMerge(m_conferences, from.m_conferences);
-        m_unheard = safeMerge(m_unheard, from.m_unheard);
-        m_heardCount += from.m_heardCount;
-        m_unheardCount += from.m_unheardCount;
-    }
-    
-    private List<String> safeMerge(List<String> to, List<String> from) {
-        if (from == null) {
-            return to;
-        }
-        if (to == null) {
-            return new ArrayList<String>(from);
-        }
-        to.addAll(from);
-        return to;
-    }    
 
     public MailboxDetails(String username, int heard, int unheard) {
         m_userName = username;
