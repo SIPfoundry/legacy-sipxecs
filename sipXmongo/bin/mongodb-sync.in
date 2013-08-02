@@ -41,6 +41,9 @@ DEST_STR=`sed -n 's|^connectionString=sipxecs/\(.*\)$|\1|p' @SIPX_CONFDIR@/mongo
 LOG=@SIPX_LOGDIR@/mongodb-sync.log
 DB=node
 
+#To enable more logging, put MONGO_SYNC_OPTS=--verbose in @SIPX_CONFDIR@/mongodb-sync.conf
+MONGO_SYNC_OPTS=
+
 CONFIG=@SIPX_CONFDIR@/mongodb-sync.conf
 ! test -f "$CONFIG" || . "$CONFIG"
 
@@ -82,6 +85,8 @@ function start() {
     # 2.) Watch oplog for any changes going forward.
     t1=`date +%s`
     if [ $t0 -eq 0 ]; then
+        # Leave --verbose because it's only logged once at startup and won't fill disk
+        # too much
         @SIPX_LIBEXECDIR@/mongodb-initial-sync --src $SRC --dest $DEST_STR --shardId $SHARD --db $DB --verbose &>> $LOG
         if [ $? -ne 0 ]; then
           # we'll enter incremental phase of sync on failures because
@@ -94,7 +99,7 @@ function start() {
     else
       # Due to the rought granularity of time handling in bash, it's possible some attempts 
       # of reapplying oplog is expected. Critical howerver no data is missed.
-      @SIPX_LIBEXECDIR@/mongodb-oplog-sync --starttime $t0 --src $SRC --dest $DEST_STR --db $DB 2>> $LOG
+      @SIPX_LIBEXECDIR@/mongodb-oplog-sync --starttime $t0 --src $SRC --dest $DEST_STR --db $DB $(MONGO_SYNC_OPTS) 2>> $LOG
       if [ $? -ne 0 ]; then
         echo `date`" - sync failed w/exit code $?." >> $LOG
       else

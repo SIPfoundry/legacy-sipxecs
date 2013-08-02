@@ -13,6 +13,7 @@ bin_SCRIPTS = \
 libexecdir = @SIPX_LIBEXECDIR@
 libexec_SCRIPTS = \
 	mongodb-initial-sync \
+	mongodb-move-sync \
 	mongodb-oplog-sync
 
 mongodb_TESTS = \
