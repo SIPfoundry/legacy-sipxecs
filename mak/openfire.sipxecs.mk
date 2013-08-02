@@ -11,4 +11,4 @@ openfire_RPM_DEFS = $(openfire_DEFS)
 openfire.dist : $(openfire_GIT_SUBMODULE)
 	test -d $(dir $(openfire_TARBALL)) || mkdir -p $(dir $(openfire_TARBALL))
 	cd $(SRC)/$(PROJ); \
-	  tar -caf $(openfire_TARBALL) --transform="s#^#openfire-$(openfire_VER)/#" --exclude=src/plugins/* `ls | egrep -v "bin|target|work"`
+	  tar -caf $(openfire_TARBALL) --transform="s#^#openfire-$(openfire_VER)/#" `ls | egrep -v "bin|target|work"`
