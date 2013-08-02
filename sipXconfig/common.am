@@ -27,3 +27,6 @@ war_ROOT = $(abspath $(top_builddir)/web/out)
 web_PKGS = $(sipxconfig_web_PKGS)
 web_JAVAROOT = $(abspath $(top_builddir)/web/classes)
 web_SRCDIR = $(abspath $(top_srcdir)/web/src)
+
+$(SIPXCONFIG_TEST_CONFIG_FILES) sipxconfig-reset-integration-test : SIPX_CONFDIR = $(top_srcdir)/etc/sipxpbx
+test.properties : local.etc.dir = $(top_srcdir)/etc/sipxpbx

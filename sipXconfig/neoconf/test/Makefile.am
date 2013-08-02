@@ -38,9 +38,6 @@ precommit : check
 
 reset : sipxconfig-reset-integration-test reset-acd reset-cdr;
 
-$(SIPXCONFIG_TEST_CONFIG_FILES) sipxconfig-reset-integration-test : SIPX_CONFDIR = $(top_srcdir)/etc/sipxpbx
-test.properties : local.etc.dir = $(top_srcdir)/etc/sipxpbx
-
 # reset-db is a convience target, not nec.
 reset-db : sipxconfig-reset-integration-test
 

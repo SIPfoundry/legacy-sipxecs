@@ -46,8 +46,6 @@ test_PKGS = \
 	slf4j-api \
 	slf4j-log4j12
 
-#test_PKGS = $(sipxconfig_test_integration_core_PKGS)
-
 test_DEPS = \
 	$(JAVAROOT) \
 	$(srcdir) \
