@@ -50,6 +50,7 @@ import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
 import javax.sip.header.HeaderFactory;
 import javax.sip.header.MaxForwardsHeader;
+import javax.sip.header.ReasonHeader;
 import javax.sip.header.ReferToHeader;
 import javax.sip.header.RouteHeader;
 import javax.sip.header.ToHeader;
@@ -74,6 +75,8 @@ import org.springframework.beans.factory.annotation.Required;
  * Spring adapter for JAIN SIP factories
  */
 public class SipStackBean {
+
+    public static final String BUSY_MESSAGE = "Busy Here";
 
     private static final Log LOG = LogFactory.getLog(SipStackBean.class);
 
@@ -236,6 +239,10 @@ public class SipStackBean {
         return m_headerFactory.createToHeader(toNameAddress, null);
     }
 
+    final ReasonHeader createBusyReasonHeader(String sipVersion) throws ParseException, InvalidArgumentException {
+        return m_headerFactory.createReasonHeader(sipVersion, 486, BUSY_MESSAGE);
+    }
+
     final ViaHeader createViaHeader() throws ParseException, InvalidArgumentException {
 
         String host = m_listeningPoint.getIPAddress();
@@ -351,6 +358,10 @@ public class SipStackBean {
     }
 
     final void tearDownDialog(Dialog dialog) {
+        tearDownDialog(dialog, null);
+    }
+
+    final void tearDownDialog(Dialog dialog, ReasonHeader reasonHeader) {
         LOG.debug("Tearinging Down Dialog : " + dialog);
         if (dialog == null) {
             return;
@@ -358,6 +369,9 @@ public class SipStackBean {
         try {
             if (dialog.getState() == DialogState.CONFIRMED) {
                 Request request = dialog.createRequest(Request.BYE);
+                if (reasonHeader != null) {
+                    request.addHeader(reasonHeader);
+                }
                 SipProvider provider = ((DialogExt) dialog).getSipProvider();
                 ClientTransaction ctx = provider.getNewClientTransaction(request);
                 dialog.sendRequest(ctx);
