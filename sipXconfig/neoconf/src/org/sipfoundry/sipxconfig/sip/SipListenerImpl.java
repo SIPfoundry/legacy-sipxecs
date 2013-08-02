@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.sip;
 
+import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
+
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogTerminatedEvent;
@@ -19,6 +21,7 @@ import javax.sip.ServerTransaction;
 import javax.sip.SipListener;
 import javax.sip.TimeoutEvent;
 import javax.sip.TransactionTerminatedEvent;
+import javax.sip.header.ReasonHeader;
 import javax.sip.header.SubscriptionStateHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
@@ -66,11 +69,14 @@ class SipListenerImpl implements SipListener {
                 serverTransaction.sendResponse(response);
                 SubscriptionStateHeader subscriptionState =
                         (SubscriptionStateHeader) request.getHeader(SubscriptionStateHeader.NAME);
-                //Make sure to tear down click-to-call initiated call when the callee phone rings
-                //why do not need the click-to-call dialog starting with this point
-                if (subscriptionState.getState().equalsIgnoreCase(SubscriptionStateHeader.ACTIVE)) {
+                if (subscriptionState.getState().equalsIgnoreCase(SubscriptionStateHeader.TERMINATED)) {
                     Dialog dialog = requestEvent.getDialog();
-                    m_stackBean.tearDownDialog(dialog);
+                    String content = new String(request.getRawContent());
+                    ReasonHeader busyHeader = null;
+                    if (containsIgnoreCase(content, SipStackBean.BUSY_MESSAGE)) {
+                        busyHeader = m_stackBean.createBusyReasonHeader(request.getSIPVersion());
+                    }
+                    m_stackBean.tearDownDialog(dialog, busyHeader);
                 }
             }
         } catch (Exception ex) {

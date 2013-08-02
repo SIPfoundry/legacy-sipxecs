@@ -10,6 +10,7 @@
 
 package org.sipfoundry.callcontroller;
 
+import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.clientauthutils.UserCredentialHash;
 
@@ -364,11 +365,16 @@ public class DialogContext {
                                 statusLine);
                     }
                 }
-                //Make sure to tear down callcontroller initiated call when the callee phone rings
-                //why do not need the callcontroller dialog starting with this point
+
                 if (subscriptionState.getState().equalsIgnoreCase(
-                        SubscriptionStateHeader.ACTIVE)) {
-                    SipListenerImpl.getInstance().getHelper().tearDownDialog(dialog);
+                        SubscriptionStateHeader.TERMINATED)) {
+                    String content = new String(request.getRawContent());
+                    ReasonHeader busyHeader = null;
+                    if (containsIgnoreCase(content, SipHelper.BUSY_MESSAGE)) {
+                        busyHeader = SipListenerImpl.getInstance().getHelper().createBusyReasonHeader(request.getSIPVersion());
+                    }
+
+                    SipListenerImpl.getInstance().getHelper().tearDownDialog(dialog, busyHeader);
                 }
             } else {
                 this.forwardRequest(requestEvent);

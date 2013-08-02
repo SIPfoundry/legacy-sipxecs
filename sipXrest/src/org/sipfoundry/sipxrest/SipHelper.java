@@ -5,6 +5,7 @@
  */
 package org.sipfoundry.sipxrest;
 
+import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.header.HeaderFactoryImpl;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 
@@ -63,6 +64,8 @@ public class SipHelper {
 
     private AbstractSipListener abstractListener;
 
+    public static final String BUSY_MESSAGE = "Busy Here";
+
     SipHelper(AbstractSipListener abstractListener) {
         this.abstractListener = abstractListener;
     }
@@ -96,6 +99,10 @@ public class SipHelper {
             sipUri.setUser("~~id~sipXrest");
         }
         return contactHeader;
+    }
+
+    final public ReasonHeader createBusyReasonHeader(String sipVersion) throws ParseException, InvalidArgumentException {
+        return getStackBean().getHeaderFactory().createReasonHeader(sipVersion, 486, BUSY_MESSAGE);
     }
 
     static final public long getSequenceNumber(Message sipMessage) {
@@ -203,21 +210,29 @@ public class SipHelper {
         }
     }
 
-   /**
-    * Generic code to tear down a dialog (send a BYE request). Conditions when we should
-    * tear down a dialog are judged depending on SIP events
-    * @param dialog
-    */
     final public void tearDownDialog(Dialog dialog) {
+        tearDownDialog(dialog, null);
+    }
+
+
+    final public void tearDownDialog(Dialog dialog, ReasonHeader reasonHeader) {
         logger.debug("Tearinging Down Dialog : " + dialog);
         if (dialog == null) {
             return;
         }
         try {
-            Request request = dialog.createRequest(Request.BYE);
-            ClientTransaction ctx = this.getNewClientTransaction(request);
-            dialog.sendRequest(ctx);
-        } catch (SipException e) {
+            if (dialog.getState() == DialogState.CONFIRMED) {
+                Request request = dialog.createRequest(Request.BYE);
+                if (reasonHeader != null) {
+                    request.addHeader(reasonHeader);
+                }
+                SipProvider provider = ((DialogExt) dialog).getSipProvider();
+                ClientTransaction ctx = provider.getNewClientTransaction(request);
+                dialog.sendRequest(ctx);
+            } else if (dialog.getState() != DialogState.TERMINATED) {
+                dialog.delete();
+            }
+        } catch (Exception e) {
             logger.error("Unexpected exception sending BYE", e);
         }
     }
