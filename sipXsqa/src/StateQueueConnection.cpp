@@ -214,7 +214,7 @@ void StateQueueConnection::handleRead(const boost::system::error_code& e, std::s
     }
     else
     {
-      OS_LOG_WARNING(FAC_NET, "StateQueueConnection::handleRead this:" << this
+      OS_LOG_INFO(FAC_NET, "StateQueueConnection::handleRead this:" << this
           << " TERMINATED - " << e.message());
     }
 
@@ -322,7 +322,7 @@ void StateQueueConnection::onInactivityTimeout(const boost::system::error_code& 
 {
   if (!ec)
   {
-    OS_LOG_WARNING(FAC_NET, "StateQueueConnection::onInactivityTimeout this:" << this
+    OS_LOG_INFO(FAC_NET, "StateQueueConnection::onInactivityTimeout this:" << this
                   << " No activity on this socket for too long." );
 
     stop();
