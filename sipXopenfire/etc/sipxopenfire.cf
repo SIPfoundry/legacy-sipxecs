@@ -104,7 +104,7 @@ bundle agent sipxopenfire_config {
         perms => mog("644", "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
         copy_from => local_cp_by_digest("$(sipx.OPENFIRE_HOME)/conf/openfire.properties.sipx"),
         classes => if_repaired("restart_openfire");
-
+}
 
 
 # TRICKY ALERT : This attempts to edit the admin plugins web.xml. This uses a bit of cf trickery
