@@ -4,8 +4,8 @@
         <span jwcid="@setting/SettingsNavigation" bean="ognl:bean"
           activeSetting="ognl:activeSetting"
           editSettingsListener="listener:editSettings"
-          groupsToHide="group.version">
-          <span jwcid="id@common/Tab" isActive="ognl:identificationTabActive">
+          groupsToHide="ognl:groupsToHide">
+          <span jwcid="@common/Tab" isActive="ognl:identificationTabActive">
             <a jwcid="deviceIdLink@DirectLink" listener="listener:editPhone"
               parameters="ognl:bean.id">
               <span key="link.identification">Identification</span>

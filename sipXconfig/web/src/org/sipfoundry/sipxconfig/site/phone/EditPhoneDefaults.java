@@ -11,7 +11,11 @@ package org.sipfoundry.sipxconfig.site.phone;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
@@ -19,8 +23,10 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.web.WebContext;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
+import org.sipfoundry.sipxconfig.device.HotellingManager;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
@@ -30,9 +36,10 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
+import org.sipfoundry.sipxconfig.site.SpringBeanFactoryHolderImpl;
+import org.springframework.beans.factory.ListableBeanFactory;
 
 public abstract class EditPhoneDefaults extends PhoneBasePage implements PageBeginRenderListener {
-
     public static final String PAGE = "phone/EditPhoneDefaults";
 
     public static final int FW_TAB = -1;
@@ -41,6 +48,8 @@ public abstract class EditPhoneDefaults extends PhoneBasePage implements PageBeg
 
     private static final int LINE_SETTITNGS = 1;
 
+    private HotellingManager m_hotellingManager;
+    
     @InjectObject(value = "spring:settingDao")
     public abstract SettingDao getSettingDao();
 
@@ -80,6 +89,9 @@ public abstract class EditPhoneDefaults extends PhoneBasePage implements PageBeg
     public abstract void setDeviceVersion(DeviceVersion version);
 
     public abstract DeviceVersion getDeviceVersion();
+
+    @InjectObject(value = "service:tapestry.globals.WebContext")
+    public abstract WebContext getWebContext();
 
     /**
      * Entry point for other pages to edit a phone model's default settings
@@ -161,7 +173,13 @@ public abstract class EditPhoneDefaults extends PhoneBasePage implements PageBeg
             Iterator nav = getPhoneNavigationSettings().iterator();
             setEditFormSettingName(((Setting) nav.next()).getName());
         }
+        ListableBeanFactory factory = SpringBeanFactoryHolderImpl.getWebApplicationContext(getWebContext());
 
+        Map<String, HotellingManager> managers = factory.getBeansOfType(HotellingManager.class);
+        if (!managers.isEmpty())
+            for (String key : managers.keySet()) {
+                m_hotellingManager = managers.get(key);
+            }
         editSettings();
     }
 
@@ -235,5 +253,21 @@ public abstract class EditPhoneDefaults extends PhoneBasePage implements PageBeg
         } else {
             return null;
         }
+    }
+
+    public String getGroupsToHide() {
+        List<String> names = new LinkedList<String>();
+        if (!isHotellingEnabled()) {
+            names.add("prov");
+        }
+        names.add("group.version");
+        return StringUtils.join(names, ",");
+    }
+
+    public boolean isHotellingEnabled() {
+        if (m_hotellingManager == null) {
+            return false;
+        }
+        return m_hotellingManager.isActive();
     }
 }

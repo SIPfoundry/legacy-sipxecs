@@ -21,6 +21,8 @@ import org.sipfoundry.sipxconfig.setting.Group;
 
 public interface HotellingManager {
 
+    boolean isActive();
+
     void generate(User user);
 
     void generate(Group g);

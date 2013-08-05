@@ -15,7 +15,7 @@
               <span key="link.identification">Identification</span>
             </a>
           </span>
-          <span jwcid="@If" condition="ognl:mailboxManager.enabled && voicemailEnabled" renderTag="false">
+          <span jwcid="mboxpref@If" condition="ognl:mailboxManager.enabled && voicemailEnabled" renderTag="false">
             <span jwcid="@common/Tab" isActive="ognl:mailboxPreferencesTabActive">
               <a id="mailboxPreferencesLink" jwcid="mailboxPreferencesLink@DirectLink"
                 listener="listener:viewMailboxPreferences" parameters="ognl:bean.id">
@@ -53,7 +53,7 @@
               <span key="link.speedDial">Speed Dial</span>
             </a>
           </span>
-          <span jwcid="@If" condition="ognl:voicemailEnabled" renderTag="false">
+          <span jwcid="pa@If" condition="ognl:voicemailEnabled" renderTag="false">
 			<span jwcid="@common/Tab" isActive="ognl:personalAttendantTabActive">
 			  <a id="personalAttendantLink" jwcid="personalAttendantLink@DirectLink"
 				listener="listener:editPersonalAttendant" parameters="ognl:bean.id">
@@ -73,7 +73,7 @@
               <span key="link.registrations">Registrations</span>
             </a>
           </span>
-          <span jwcid="@If" condition="ognl:voicemailEnabled" renderTag="false">
+          <span jwcid="moh@If" condition="ognl:voicemailEnabled" renderTag="false">
 			<span jwcid="@common/Tab" isActive="ognl:MusicOnHoldTabActive">
 			  <a jwcid="MusicOnHoldLink@DirectLink" listener="listener:editMusicOnHold"
 				parameters="ognl:bean.id">
@@ -87,11 +87,13 @@
               <span key="link.timezone">Timezones</span>
             </a>
           </span>
-          <span jwcid="hotelling@common/Tab" isActive="ognl:hotellingTabActive">
-            <a jwcid="hotellingLink@DirectLink"
-              listener="listener:editHotelling" parameters="ognl:bean.id">
-              <span key="link.hotelling">Hot Desking</span>
-            </a>
+          <span jwcid="hotellingIf@If" condition="ognl:hotellingEnabled" renderTag="false">
+	          <span jwcid="hotelling@common/Tab" isActive="ognl:hotellingTabActive">
+	            <a jwcid="hotellingLink@DirectLink"
+	              listener="listener:editHotelling" parameters="ognl:bean.id">
+	              <span key="link.hotelling">Hot Desking</span>
+	            </a>
+	          </span>
           </span>
           <span jwcid="@common/Plugin" blockId="UserNavigationBottom"/>
         </span>
