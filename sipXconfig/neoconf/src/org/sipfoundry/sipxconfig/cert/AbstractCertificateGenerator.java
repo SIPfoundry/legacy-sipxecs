@@ -88,7 +88,8 @@ public abstract class AbstractCertificateGenerator extends AbstractCertificateCo
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
-                // ignore
+                // precommit task requires at least one statement
+                e.getMessage();
             }
             // can't use a sequence as this can lead to clashes when the admin wipes out the
             // system
