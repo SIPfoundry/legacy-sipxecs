@@ -36,6 +36,14 @@ public class SaaSettings extends PersistableSettings implements DeployConfigOnEd
         return Collections.singleton((Feature) SaaManager.FEATURE);
     }
 
+    public int getTcpPort() {
+        return (Integer) getSettingTypedValue("saa-config/SIP_SAA_TCP_PORT");
+    }
+
+    public int getUdpPort() {
+        return (Integer) getSettingTypedValue("saa-config/SIP_SAA_UDP_PORT");
+    }
+
     @Override
     public String getBeanId() {
         return "saaSettings";

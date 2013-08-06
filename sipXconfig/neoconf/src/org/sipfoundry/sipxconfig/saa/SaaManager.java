@@ -16,12 +16,26 @@
  */
 package org.sipfoundry.sipxconfig.saa;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 
 public interface SaaManager {
-    public static final LocationFeature FEATURE = new LocationFeature("saa");
+    final AddressType SAA_TCP = new AddressType("saaTcp");
+    final AddressType SAA_UDP = new AddressType("saaUdp");
+    final List<AddressType> SUPPORTED_ADDRESS_TYPES = Arrays.asList(new AddressType[] {
+        SAA_TCP, SAA_UDP
+    });
 
-    public SaaSettings getSettings();
+    final Collection<DefaultFirewallRule> DEFAULT_RULES = DefaultFirewallRule.rules(SUPPORTED_ADDRESS_TYPES);
 
-    public void saveSettings(SaaSettings settings);
+    final LocationFeature FEATURE = new LocationFeature("saa");
+
+    SaaSettings getSettings();
+
+    void saveSettings(SaaSettings settings);
 }
