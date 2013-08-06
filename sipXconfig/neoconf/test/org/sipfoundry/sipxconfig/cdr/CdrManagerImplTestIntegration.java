@@ -120,7 +120,6 @@ public class CdrManagerImplTestIntegration extends IntegrationTestCase {
         List<Cdr> cdrs = m_cdrManagerImpl.getCdrs(from.toDate(), to.toDate(), u);
         assertTrue(cdrs.size() == 1);
         Cdr cdr = cdrs.get(0);
-        cdr.getStartTime().getHours();
 
         assertEquals(14, cdr.getStartTime().getHours());
     }
