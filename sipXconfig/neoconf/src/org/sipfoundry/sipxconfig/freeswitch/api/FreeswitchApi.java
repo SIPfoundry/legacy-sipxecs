@@ -17,4 +17,5 @@ public interface FreeswitchApi {
     String conference(String command);
     String g729_status();
     String g729_available();
+    String callcenter_config(String command);
 }
