@@ -31,6 +31,8 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.easymock.IArgumentMatcher;
 import org.easymock.internal.matchers.InstanceOf;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.sipfoundry.sipxconfig.cdr.Cdr.Termination;
 import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl.CdrsResultReader;
 import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl.ColumnInfo;
@@ -82,8 +84,7 @@ public class CdrManagerImplTest extends TestCase {
 
         rs.getTimestamp(eq("start_time"), eqTimeZone(calendar));
         
-        // CRISTI TO FIX!
-        expectLastCall().andReturn(new Timestamp(-18000000));
+        expectLastCall().andReturn(new Timestamp(0));
         
         rs.getTimestamp(eq("connect_time"), eqTimeZone(calendar));
         expectLastCall().andReturn(new Timestamp(1));
@@ -119,7 +120,14 @@ public class CdrManagerImplTest extends TestCase {
         assertEquals("caller", cdr.getCallerAor());
         assertEquals("70b89a0-5966db05-3b0936a6@192.168.7.19", cdr.getCallId());
         assertEquals("70b89a0-5966db05-3b0936a6@192.168.7.19;rel=refer", cdr.getReference());
-        assertEquals(0, cdr.getStartTime().getTime());
+        /*
+         * this test is actually invalid. When we "mock" the result set we lose the ability to pass in the timezone to sql's ResultSet.getTimestamp
+         * (Date startTime = rs.getTimestamp(START_TIME, Calendar.getInstance(TimeZone.getTimeZone("GMT")));)
+         * So, the millis that we pass in the Timestamp (in our case 0) will actually convert to the date 0 but in the local (system) timezone.
+         * This is why in order for the test to pass, we need to expect the time difference between UTC and local 0 date.
+         * This has to be part of an integration test.
+         */
+        assertEquals(new DateTime(0).withZone(DateTimeZone.UTC).toLocalDateTime().toDate().getTime(), cdr.getStartTime().getTime());
         assertEquals(1, cdr.getConnectTime().getTime());
         assertEquals(2, cdr.getEndTime().getTime());
         assertEquals(404, cdr.getFailureStatus());

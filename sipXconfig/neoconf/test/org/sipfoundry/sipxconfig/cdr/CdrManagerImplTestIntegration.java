@@ -19,11 +19,14 @@ import org.easymock.EasyMock;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.sipfoundry.sipxconfig.cdr.CdrSearch.Mode;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.time.NtpManager;
 
 public class CdrManagerImplTestIntegration extends IntegrationTestCase {
     private CdrManagerImpl m_cdrManagerImpl;
+    private CoreContext m_coreContext;
     
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
@@ -102,14 +105,32 @@ public class CdrManagerImplTestIntegration extends IntegrationTestCase {
         List<Cdr> cdrs = m_cdrManagerImpl.getCdrs(from.toDate(), to.toDate(), null);
         assertTrue(cdrs.size() == 1);
         Cdr cdr = cdrs.get(0);
-        DateTime start = new DateTime(cdr.getStartTime());
+        cdr.getStartTime().getHours();
 
-        // CRISTI TO FIX!
-        assertEquals(3, start.getHourOfDay());
+        assertEquals(10, cdr.getStartTime().getHours());
+    }
+    
+    public void testGetCdrTimestampUser(){
+        User u = m_coreContext.newUser();
+        u.setUserName("200");
+        u.setSettingValue("timezone/timezone", "GMT+1");
+        
+        DateTime from = new DateTime(2010, 1, 16, 0, 0, 0, 0);
+        DateTime to = new DateTime(2010, 1, 17, 0, 0, 0, 0);
+        List<Cdr> cdrs = m_cdrManagerImpl.getCdrs(from.toDate(), to.toDate(), u);
+        assertTrue(cdrs.size() == 1);
+        Cdr cdr = cdrs.get(0);
+        cdr.getStartTime().getHours();
+
+        assertEquals(14, cdr.getStartTime().getHours());
     }
     
     public void setCdrManagerImpl(CdrManagerImpl cdrManager) {
         m_cdrManagerImpl = cdrManager;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 
 }
