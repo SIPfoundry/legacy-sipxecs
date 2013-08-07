@@ -2056,5 +2056,26 @@
         <value>trapuser</value>
       </setting>
     </group>
+    <group name="WEB">
+	  <setting name="HTTPSOnly">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+	  </setting>
+	  <setting name="HTTPSCipherString">
+		<type>
+		  <string password="yes"/>
+		</type>
+	  </setting>
+	</group>
+	<group name="SYSTEM">
+	  <setting name="SSHServerEnable">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+	  </setting>
+	</group>
   </group>
 </model>

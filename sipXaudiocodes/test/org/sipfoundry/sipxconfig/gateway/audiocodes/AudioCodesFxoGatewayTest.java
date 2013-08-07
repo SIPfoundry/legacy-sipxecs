@@ -20,7 +20,6 @@ import org.easymock.classextension.IMocksControl;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.gateway.FxoPort;
-import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
@@ -50,7 +49,7 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         m_gateway = new AudioCodesFxoGateway();
         m_gateway.setModel(m_model);
         m_gateway.setModelFilesContext(m_modelFilesContext);
-        m_gateway.setDefaults(PhoneTestDriver.getDeviceDefaults());
+        m_gateway.setDefaults(AudioCodesGatewayDefaultsMock.getDeviceDefaults());
     }
 
     public void testGenerateTypicalProfiles() throws Exception {
@@ -71,9 +70,13 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         m_gateway.setSerialNumber("001122334455");
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway, TestHelper.getEtcDir());
 
+        m_gateway.setSettingValue("Network/EnableSyslog", "0");
         m_gateway.setSettingValue("Network/NTPServerIP", "10.10.10.40");
-        if((AudioCodesModel.REL_5_8 == version) ||
-           (AudioCodesModel.REL_6_0 == version)) {
+        if ((AudioCodesModel.REL_5_0 == version) || (AudioCodesModel.REL_5_2 == version)
+                || (AudioCodesModel.REL_5_4 == version) || (AudioCodesModel.REL_5_6 == version)) {
+            m_gateway.setSettingValue("advanced_general/AllowedIPs", "192.168.1.1");
+        }
+        if ((AudioCodesModel.REL_5_8 == version) || (AudioCodesModel.REL_6_0 == version)) {
             m_gateway.setSettingValue("tel2ip-call-routing/tel-to-ip-failover/ProxyAddress", "10.10.10.50:5080");
         }
 
@@ -85,12 +88,13 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         assertNotNull(version.getVersionId(), expectedProfile);
         String expected_lines[] = IOUtils.toString(expectedProfile).split("\n");
 
-        for(int x=0; x < expected_lines.length; x++) {
-            String line = expectedName + " line " + (x+1);
+        for (int x = 0; x < expected_lines.length; x++) {
+            String line = expectedName + " line " + (x + 1);
             assertTrue(line, x < actual_lines.length); // Generated too few lines?
             assertEquals(line, expected_lines[x], actual_lines[x]);
         }
-        assertEquals(expectedName, expected_lines.length, actual_lines.length); // Generated too many lines?
+        assertEquals(expectedName, expected_lines.length, actual_lines.length); // Generated too
+                                                                                // many lines?
     }
 
     public void testGeneratePrevieProfiles() {

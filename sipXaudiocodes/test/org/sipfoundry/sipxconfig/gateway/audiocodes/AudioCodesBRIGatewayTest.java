@@ -8,7 +8,6 @@
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
-
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,7 +17,6 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.gateway.FxoPort;
-import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.test.TestHelper;
@@ -46,7 +44,7 @@ public class AudioCodesBRIGatewayTest extends TestCase {
         m_gateway = new AudioCodesBRIGateway();
         m_gateway.setModel(model);
         m_gateway.setModelFilesContext(m_modelFilesContext);
-        m_gateway.setDefaults(PhoneTestDriver.getDeviceDefaults());
+        m_gateway.setDefaults(AudioCodesGatewayDefaultsMock.getDeviceDefaults());
     }
 
     public void testGenerateTypicalProfiles() throws Exception {
@@ -70,9 +68,13 @@ public class AudioCodesBRIGatewayTest extends TestCase {
         m_gateway.setSettingValue("SIP_general/REMOVECLIWHENRESTRICTED", "1");
         m_gateway.setSettingValue("SIP_coders/CoderName", "g711Alaw64k|g729");
         m_gateway.setSettingValue("Network/NTPServerIP", "10.10.10.40");
-        if((AudioCodesModel.REL_5_8 == version) ||
-           (AudioCodesModel.REL_6_0 == version)) {
+        m_gateway.setSettingValue("Network/EnableSyslog", "0");
+        if ((AudioCodesModel.REL_5_8 == version) || (AudioCodesModel.REL_6_0 == version)) {
             m_gateway.setSettingValue("tel2ip-call-routing/tel-to-ip-failover/ProxyAddress", "10.10.10.50:5080");
+        }
+        if ((AudioCodesModel.REL_5_0 == version) || (AudioCodesModel.REL_5_2 == version)
+                || (AudioCodesModel.REL_5_4 == version) || (AudioCodesModel.REL_5_6 == version)) {
+            m_gateway.setSettingValue("advanced_general/AllowedIPs", "192.168.1.1");
         }
 
         m_gateway.generateProfiles(location);
@@ -83,12 +85,13 @@ public class AudioCodesBRIGatewayTest extends TestCase {
         assertNotNull(version.getVersionId(), expectedProfile);
         String expected_lines[] = IOUtils.toString(expectedProfile).split("\n");
 
-        for(int x=0; x < expected_lines.length; x++) {
-            String line = expectedName + " line " + (x+1);
+        for (int x = 0; x < expected_lines.length; x++) {
+            String line = expectedName + " line " + (x + 1);
             assertTrue(line, x < actual_lines.length); // Generated too few lines?
             assertEquals(line, expected_lines[x], actual_lines[x]);
         }
-        assertEquals(expectedName, expected_lines.length, actual_lines.length); // Generated too many lines?
+        assertEquals(expectedName, expected_lines.length, actual_lines.length); // Generated too
+                                                                                // many lines?
     }
 
     public void testGetActiveCalls() throws Exception {

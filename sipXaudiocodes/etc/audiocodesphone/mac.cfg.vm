@@ -24,7 +24,7 @@ $prefix${s.ProfilePath}=$!{s.Value}
 #set ($setting = $phone.Settings.getSetting("codec/codec_info"))
 #set ($selected_codecs = $setting.value)
 #set ($codec_options = $setting.getType().getEnums().keySet())
-## Loop through each selected codec.  
+## Loop through each selected codec.
 #foreach ($codec in $phone.SelectedCodecs)
 #set ($index1 = $velocityCount - 1)
 voip/codec/codec_info/$index1/ptime=20
