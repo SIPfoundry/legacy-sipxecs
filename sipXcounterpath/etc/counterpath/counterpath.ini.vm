@@ -12,7 +12,7 @@ ${setting.name}="true"
 #if($setting.value)
 ${setting.name}="${setting.value}"
 #else
-#if($setting.name != "system:auto_update:code_server_url")
+#if($setting.name != "feature:auto_update:code_server_url")
 ${setting.name}=""
 #end
 #end

@@ -461,7 +461,7 @@
         <description>The server that handles remote upgrade, remote reset, and forced update requests</description>
         <value></value>
       </setting>
-      <setting name="system:auto_update:code_server_url" advanced="yes">
+      <setting name="feature:auto_update:code_server_url" advanced="yes">
         <value/>
       </setting>
       <setting name="feature:auto_update:code_check_initial_t_s">
@@ -469,25 +469,25 @@
             <description>The initial value of the update timer, used for timing the first time the client hits the update server (code_check_initial_t_s)</description>
             <value>60</value>
         </setting>
-      <setting name="system:auto_update:update_check_initial_t1_s">
+      <setting name="feature:auto_update:update_check_initial_t1_s">
         <type>
           <integer/>
         </type>
         <value>20</value>
       </setting>
-      <setting name="system:auto_update:update_check_t1_s">
+      <setting name="feature:auto_update:update_check_t1_s">
         <type>
           <integer/>
         </type>
         <value>86400</value>
       </setting>
-      <setting name="system:auto_update:block_timer_t3_s">
+      <setting name="feature:auto_update:block_timer_t3_s">
         <type>
           <integer/>
         </type>
         <value>10</value>
       </setting>
-      <setting name="system:auto_update:deffer_timer_t2_s">
+      <setting name="feature:auto_update:deffer_timer_t2_s">
         <type>
           <integer/>
         </type>
