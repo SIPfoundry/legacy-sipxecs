@@ -1,17 +1,13 @@
 <span jwcid="@If" condition="ognl:showOnlyExternalPlayer">
-  <span jwcid="@RenderBlock" block="ognl:components.get('audioBlock')"/>
+  <span jwcid="@RenderBlock" block="ognl:components.get('externalPlayerBlock')"/>
 </span>
 <span jwcid="@Else">
   <span jwcid="@If" condition="ognl:showPlayer">
     <span jwcid="@If" condition="ognl:autoplay">
-	  <audio jwcid="@Any" src="ognl:url" autoplay="true" controls="true" tabindex="0">
-		  <span jwcid="@RenderBlock" block="ognl:components.get('audioBlock')"/>
-	  </audio>
+      <span jwcid="@RenderBlock" block="ognl:components.get('internalAutoPlayerBlock')"/>
     </span>
     <span jwcid="@Else">
-	  <audio jwcid="@Any" src="ognl:url" controls="true" tabindex="0">
-		  <span jwcid="@RenderBlock" block="ognl:components.get('audioBlock')"/>
-	  </audio>
+	  <span jwcid="@RenderBlock" block="ognl:components.get('internalPlayerBlock')"/>
     </span>
   </span>
   <span jwcid="@Else">
@@ -20,7 +16,23 @@
   </span>
 </span>
 
-<span jwcid="audioBlock@Block">
+<span jwcid="internalPlayerBlock@Block">
+	<audio controls>
+  		<source jwcid="@Any" src="ognl:url" type="audio/mpeg"/>
+  		<source jwcid="@Any" src="ognl:url" type="audio/wav"/>
+  		<span jwcid="@RenderBlock" block="ognl:components.get('externalPlayerBlock')"/>
+	</audio>
+</span>
+
+<span jwcid="internalAutoPlayerBlock@Block">
+	<audio controls="controls" autoplay="autoplay">
+  		<source jwcid="@Any" src="ognl:url" type="audio/mpeg"/>
+  		<source jwcid="@Any" src="ognl:url" type="audio/wav"/>  		
+  		<span jwcid="@RenderBlock" block="ognl:components.get('externalPlayerBlock')"/>
+	</audio>
+</span>
+
+<span jwcid="externalPlayerBlock@Block">
 	<table>
 	  <tr>
 	     <td>

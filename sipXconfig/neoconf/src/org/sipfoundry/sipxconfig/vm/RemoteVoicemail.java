@@ -18,7 +18,6 @@ package org.sipfoundry.sipxconfig.vm;
 
 import java.util.Date;
 import java.util.TimeZone;
-
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 import org.sipfoundry.commons.util.TimeZoneUtils;
@@ -33,6 +32,7 @@ public class RemoteVoicemail implements Voicemail, Comparable {
     private String m_from;
     private String m_fromBrief;
     private String m_forwardedFromBrief;
+    private String m_audioFormat;
     private Date m_timestamp;
     private Date m_forwardedTimestamp;
     private int m_durationSecs;
@@ -50,8 +50,10 @@ public class RemoteVoicemail implements Voicemail, Comparable {
         m_from = node.getAttribute("fromUri");
         m_fromBrief = node.getAttribute("author");
         m_subject = node.getAttribute("subject");
+        m_audioFormat = node.getAttribute("format");
     }
 
+    @Override
     public int compareTo(Object o) {
         if (o == null || o instanceof RemoteVoicemail) {
             return -1;
@@ -131,5 +133,10 @@ public class RemoteVoicemail implements Voicemail, Comparable {
     @Override
     public int getForwardedDurationsecs() {
         return 0;
+    }
+
+    @Override
+    public String getAudioFormat() {
+        return m_audioFormat;
     }
 }
