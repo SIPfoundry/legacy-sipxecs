@@ -84,6 +84,9 @@
       <option>
         <value>h264_unified</value>
       </option>
+      <option>
+        <value>H264</value>
+      </option>
     </multi-enum>
   </type>
   <type id="log-level">

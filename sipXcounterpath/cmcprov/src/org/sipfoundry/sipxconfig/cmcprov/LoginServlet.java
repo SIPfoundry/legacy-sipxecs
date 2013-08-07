@@ -255,7 +255,7 @@ public class LoginServlet extends ProvisioningServlet {
                             audiocodecs.add(validAudioCodecs.get(splitline[1]));
                         }
                         if (splitline[0].equals(CODECS) && splitline[2].equals(ENABLED)
-                                && validAudioCodecs.containsKey(splitline[1])) {
+                                && validAudioCodecs.containsKey(splitline[1]) && splitline[3].equals("\"true\"")) {
                             audiocodecs.add(validAudioCodecs.get(splitline[1]));
                         }
                         if (splitline[0].equals(CODECS) && splitline[2].equals(PRIORITY)
@@ -263,10 +263,9 @@ public class LoginServlet extends ProvisioningServlet {
                             int priority = Integer.parseInt(splitline[3].substring(1, splitline[3].length() - 1)
                                     .split(FULL_STOP, 2)[0]);
                             videocodecsPriority.put(priority, splitline[1]);
-                            videocodecs.add(splitline[1]);
                         }
                         if (splitline[0].equals(CODECS) && splitline[2].equals(ENABLED)
-                                && validVideoCodecs.contains(splitline[1])) {
+                                && validVideoCodecs.contains(splitline[1]) && splitline[3].equals("\"true\"")) {
                             videocodecs.add(splitline[1]);
                         }
                         if (splitline[0].equals("proxies")) {
@@ -293,7 +292,7 @@ public class LoginServlet extends ProvisioningServlet {
             }
 
             writeCoreSettings(bw, coreSettings);
-            writeCodecs(bw, audiocodecs, audiocodecsPriority, videocodecsPriority);
+            writeCodecs(bw, audiocodecs, audiocodecsPriority, videocodecs, videocodecsPriority);
             writeAccount(bw, proxyList);
 
             // Write out footer
@@ -330,7 +329,8 @@ public class LoginServlet extends ProvisioningServlet {
     }
 
     private static void writeCodecs(BufferedWriter bw, List<String> audiocodecs,
-            Map<Integer, String> audiocodecsPriority, Map<Integer, String> videocodecsPriority) {
+            Map<Integer, String> audiocodecsPriority, List<String> videocodecs,
+            Map<Integer, String> videocodecsPriority) {
         // Write out codecs list
         try {
             LOG.debug("Writing codec list... ");
@@ -349,10 +349,8 @@ public class LoginServlet extends ProvisioningServlet {
             }
             bw.write("\t\t\t\t</codec_list_audio_cell>\n");
             bw.write("\t\t\t\t<codec_list_video_wifi>\n");
-            for (int i = videocodecsPriority.size(); i >= 0; i--) {
-                if (audiocodecs.contains(audiocodecsPriority.get(i))) {
-                    bw.write(CODEC_START_TAG + videocodecsPriority.get(i) + "\" enabled=\"true\"/>\n");
-                }
+            for (String videocodec : videocodecs) {
+                bw.write(CODEC_START_TAG + videocodec + "\" enabled=\"true\"/>\n");
             }
             bw.write("\t\t\t\t</codec_list_video_wifi>\n");
             bw.write("\t\t\t</codec_list>\n");
