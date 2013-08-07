@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.site.vm;
 
+import static org.apache.commons.lang.StringUtils.contains;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IAsset;
@@ -59,6 +62,8 @@ import org.sipfoundry.sipxconfig.vm.Voicemail;
 public abstract class ManageVoicemail extends UserBasePage implements IExternalPage {
 
     public static final String PAGE = "vm/ManageVoicemail";
+
+    private static final String WAV_FORMAT = "wav";
 
     private static final Log LOG = LogFactory.getLog(ManageVoicemail.class);
 
@@ -127,11 +132,15 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
 
     public abstract void setMailboxOperation(MailboxOperation operation);
 
+    @Override
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
     public abstract User getLoadedUser();
     public abstract void setLoadedUser(User user);
+
+    public abstract String getBrowserName();
+    public abstract void setBrowserName(String browser);
 
     public boolean getHasVoicemailPermission() {
         return getLoadedUser().hasPermission(PermissionName.VOICEMAIL);
@@ -167,6 +176,7 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         }
     }
 
+    @Override
     public void activateExternalPage(Object[] parameters, IRequestCycle cycle) {
         String sparam = parameters[0].toString();
         MailboxOperation operation = MailboxOperation.createMailboxOperationFromServletPath(sparam);
@@ -217,7 +227,7 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     public PlayVoicemailService.Info getPlayVoicemailInfo() {
         Voicemail voicemail = getVoicemail();
         PlayVoicemailService.Info info = new PlayVoicemailService.Info(voicemail.getFolderId(),
-                voicemail.getMessageId(), voicemail.getUserId());
+                voicemail.getMessageId(), voicemail.getUserId(), voicemail.getAudioFormat());
         return info;
     }
 
@@ -227,6 +237,11 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
 
         if (getLoadedUser() == null) {
             setLoadedUser(getUser());
+        }
+
+        if (getBrowserName() == null) {
+            setBrowserName(getBrowser());
+            LOG.debug("Browser version: " + getBrowserName());
         }
         // this needs to be first as it may alter data gathered from subsequent steps in this
         // method
@@ -287,10 +302,12 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     }
 
     public static class VoicemailRowInfo implements RowInfo {
+        @Override
         public Object getSelectId(Object row) {
             return VoicemailSource.getVoicemailId((Voicemail) row);
         }
 
+        @Override
         public boolean isSelectable(Object row) {
             return true;
         }
@@ -322,7 +339,7 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     public String getVoicemailLink() {
         Voicemail voicemail = getVoicemail();
         PlayVoicemailService.Info info = new PlayVoicemailService.Info(voicemail.getFolderId(),
-                voicemail.getMessageId(), voicemail.getUserId());
+                voicemail.getMessageId(), voicemail.getUserId(), voicemail.getAudioFormat());
         ILink link = getPlayVoicemailService().getLink(false, info);
         return link.getURL();
 
@@ -332,7 +349,15 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         return getMessages().format("prompt.installtoolbar", getMessages().getMessage("product.name.short"));
     }
 
-    public boolean showOnlyExternalPlayer() {
-        return getIvr().getSettings().getAudioFormat().equals("mp3");
+    public boolean isUseInternalPlayer() {
+        String browserName = getBrowserName();
+        return (contains(browserName, CHROME) && !contains(browserName, OPERA_NEW))
+                || (contains(browserName, SAFARI) && !contains(browserName, OPERA_NEW))
+                || ((contains(browserName, IE9)
+                        || contains(browserName, IE10))
+                        && !StringUtils.equals(getVoicemail().getAudioFormat(), WAV_FORMAT))
+                || ((contains(browserName, FIREFOX) || contains(browserName, OPERA_NEW)
+                        || (contains(browserName, OPERA_OLD) && contains(browserName, OPERA_OLD_VERSION_10_PLUS)))
+                        && StringUtils.equals(getVoicemail().getAudioFormat(), WAV_FORMAT));
     }
 }

@@ -21,8 +21,10 @@ public abstract class AudioPlayer extends BaseComponent {
 
     @Parameter(required = true)
     public abstract String getUrl();
+
     @Parameter
     public abstract String getPlayerId();
+
     @Parameter(defaultValue = "false")
     public abstract boolean getAutoplay();
 
@@ -30,6 +32,7 @@ public abstract class AudioPlayer extends BaseComponent {
     public abstract boolean getShowOnlyExternalPlayer();
 
     public abstract String getActivePlayerId();
+
     public abstract void setActivePlayerId(String activePlayerId);
 
     @Asset("/images/play.png")
@@ -43,5 +46,4 @@ public abstract class AudioPlayer extends BaseComponent {
         return (getPlayerId() == null || (getActivePlayerId() != null
                 && StringUtils.equals(getActivePlayerId(), getPlayerId())));
     }
-
 }

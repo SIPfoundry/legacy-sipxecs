@@ -74,6 +74,7 @@ public abstract class MailboxOperation implements Serializable {
             super(userId, folderId, null);
         }
 
+        @Override
         public void operate(ManageVoicemail page) {
             // let ManageVoicemail page show folder
         }
@@ -87,6 +88,7 @@ public abstract class MailboxOperation implements Serializable {
             m_destinationFolderId = destinationFolderId;
         }
 
+        @Override
         public void operate(ManageVoicemail page) {
             MailboxManager mgr = page.getMailboxManager();
             Voicemail vm = mgr.getVoicemail(getUserId(), getFolderId(), getMessageId());
@@ -99,6 +101,7 @@ public abstract class MailboxOperation implements Serializable {
             super(userId, folderId, messageId);
         }
 
+        @Override
         public void operate(ManageVoicemail page) {
             // this works perfectly, but tells client to redirect. if service encoder
             // directed tapestry to the playvm service (or derivative) then we could
@@ -108,7 +111,7 @@ public abstract class MailboxOperation implements Serializable {
             MailboxManager mgr = page.getMailboxManager();
             Voicemail vm = mgr.getVoicemail(getUserId(), getFolderId(), getMessageId());
             PlayVoicemailService.Info info = new PlayVoicemailService.Info(vm.getFolderId(), vm.getMessageId(),
-                    vm.getUserId());
+                    vm.getUserId(), vm.getAudioFormat());
             ILink link = playService.getLink(false, info);
             page.getRequestCycle().sendRedirect(link.getURL());
         }
