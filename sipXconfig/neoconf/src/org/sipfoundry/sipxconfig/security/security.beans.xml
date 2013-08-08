@@ -56,7 +56,7 @@
     <property name="saltSource">
       <bean class="org.sipfoundry.sipxconfig.security.SaltSourceImpl" />
     </property>
-    <property name="ldapManager" ref="ldapManager"/>
+     <property name="systemAuthPolicyCollector" ref="systemAuthPolicyCollector"/>    
   </bean>
 
   <bean id="sharedSecretUserAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
@@ -240,5 +240,11 @@
   <bean id="webInvocationPrivilegeEvaluator" class="org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator">
     <constructor-arg ref="filterInvocationInterceptor"/>
   </bean>
-
+  
+  <bean id="systemAuthPolicyVerifier" class="org.sipfoundry.sipxconfig.security.SystemAuthPolicyVerifierImpl">
+     <property name="ldapManager" ref="ldapManager"/>
+  </bean>
+ 
+  <bean id="systemAuthPolicyCollector" class="org.sipfoundry.sipxconfig.security.SystemAuthPolicyCollectorImpl">
+  </bean>
 </beans>

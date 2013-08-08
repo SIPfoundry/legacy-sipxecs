@@ -22,6 +22,7 @@ public class UserDetailsImpl implements UserDetails {
     private final Collection<GrantedAuthority> m_authorities;
     private final String m_userDomain;
     private final boolean m_enabled;
+    private final boolean m_ldapManaged;
 
     /**
      * UserDetails constructor
@@ -38,6 +39,7 @@ public class UserDetailsImpl implements UserDetails {
         m_authorities = authorities;
         m_userDomain = user.getUserDomain();
         m_enabled = user.isEnabled();
+        m_ldapManaged = user.isLdapManaged();
     }
 
     @Override
@@ -93,5 +95,9 @@ public class UserDetailsImpl implements UserDetails {
 
     public String getUserDomain() {
         return m_userDomain;
+    }
+
+    public boolean isLdapManaged() {
+        return m_ldapManaged;
     }
 }

@@ -52,13 +52,15 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
     // ~ Instance fields
     // ================================================================================================
 
-    private LdapManager m_ldapManager;
+
 
     private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
 
     private SaltSource saltSource;
 
     private UserDetailsService userDetailsService;
+
+    private SystemAuthPolicyCollectorImpl m_systemAuthPolicyCollector;
 
     private boolean includeDetailsObject = true;
 
@@ -110,13 +112,12 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
     @Override
     protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
             throws AuthenticationException {
+        if (! StringUtils.equals(username, AbstractUser.SUPERADMIN)) {
+            m_systemAuthPolicyCollector.verifyPolicy(username);
+        }
+
         UserDetailsImpl loadedUser;
 
-        LdapSystemSettings settings = m_ldapManager.getSystemSettings();
-        if (settings.isConfigured() && settings.isLdapOnly() && ! StringUtils.equals(username, AbstractUser.SUPERADMIN)) {
-            throw new AuthenticationServiceException(
-                "Only LDAP authentication is permitted");
-        }
         String userLoginName = retrieveUsername(username);
         String domain = retrieveDomain(username);
         try {
@@ -174,8 +175,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         this.includeDetailsObject = includeDetailsObject;
     }
 
-    @Required
-    public void setLdapManager(LdapManager ldapManager) {
-        m_ldapManager = ldapManager;
+    public void setSystemAuthPolicyCollector(SystemAuthPolicyCollectorImpl systemAuthPolicyCollector) {
+        m_systemAuthPolicyCollector = systemAuthPolicyCollector;
     }
 }
