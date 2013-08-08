@@ -10,15 +10,8 @@ noinst_DATA = \
 
 WSDL = $(abspath $(srcdir)/../agent/sipxacd-stats.wsdl)
 
-sipxacd_stats_client_SRC = \
+# Not generated, copied from system w/ruby 1.8 and soap4r
+dist_sipxacd_stats_client_SRC = \
 	lib/defaultDriver.rb \
 	lib/default.rb \
 	lib/StatsImplServiceClient.rb
-
-sipxacd-stats-client-clean : rm-src
-
-rm-src :
-	-rm $(sipxacd_stats_client_SRC)
-
-$(sipxacd_stats_client_SRC) : $(WSDL)
-	@echo "$$wsdl2ruby" | Wsdl=$< ruby

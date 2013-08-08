@@ -170,7 +170,7 @@ public final class PhoneTestDriver {
         User firstUser = new User();
         firstUser.setUserName(USERNAME);
         firstUser.setFirstName("Joe<>?'\"");
-        firstUser.setLastName("Schröder");
+        firstUser.setLastName("Schr\u00F6der");
         firstUser.setSipPassword(PASS);
         firstUser.setIsShared(false);
         users.add(firstUser);

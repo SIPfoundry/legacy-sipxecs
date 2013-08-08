@@ -15,7 +15,11 @@ BuildRequires: java-devel >= 1.6
 BuildRequires: rubygems
 BuildRequires: sipxcommons >= %version
 %if %{_vendor} == redhat
+%if 0%{?fedora} >= 17 || 0%{?rhel} >= 7
+BuildRequires: cronie
+%else
 BuildRequires: vixie-cron
+%endif
 %endif
 %if %{_vendor} == suse
 BuildRequires: cron
