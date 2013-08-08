@@ -14,9 +14,14 @@ Url:      http://www.sipfoundry.org/
 
 BuildRequires: automake
 BuildRequires: java-devel >= 1.6
+
 %if %{_vendor} == redhat
 BuildRequires: shadow-utils
+%if 0%{?fedora} >= 17 || 0%{?rhel} >= 7
+BuildRequires: cronie
+%else
 BuildRequires: vixie-cron
+%endif
 %endif
 %if %{_vendor} == suse
 BuildRequires: pwdutils

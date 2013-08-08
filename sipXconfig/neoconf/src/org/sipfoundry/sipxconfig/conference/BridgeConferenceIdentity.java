@@ -9,11 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
-import java.io.Serializable;
-
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 
-public interface BridgeConferenceIdentity extends DataObjectSource {
-    Conference load(Class<Conference> c, Serializable id);
+public interface BridgeConferenceIdentity extends DataObjectSource<Conference> {
     public void setBridge(Bridge bridge);
 }

@@ -37,7 +37,7 @@ public class XmlEscapeValueFilterTest extends TestCase {
         SettingValueImpl sv = new SettingValueImpl("<xml />");
         assertEquals("&lt;xml /&gt;", filter.filter(sv).getValue());
 
-        sv = new SettingValueImpl("Bölek&Lolek");
-        assertEquals("Bölek&amp;Lolek", filter.filter(sv).getValue());
+        sv = new SettingValueImpl("B\u00F6lek&Lolek");
+        assertEquals("B\u00F6lek&amp;Lolek", filter.filter(sv).getValue());
     }
 }
