@@ -35,7 +35,7 @@ CommonJavaArgs="-Dcom.ibm.tools.attach.enable=no"
 
 # All sipx programs require 1.4 or above, if this does not become
 # true, I suggest parameter-izing this
-JavaVersions="1\.[456]"
+JavaVersions="1\.[4567]"
 
 ## Test the java executable command
 testJavaTool()

@@ -21,6 +21,7 @@ import com.mongodb.util.JSON;
 
 public class MongoApiTest {
     private MongoApi m_api;
+    private MongoManagerImpl m_mgr;
     
     @Before
     public void setUp() {
@@ -28,7 +29,8 @@ public class MongoApiTest {
         d.setNetworkName("hubler.us");
         new DomainManagerImpl().setTestDomain(d);
         m_api = new MongoApi();
-        m_api.setMongoManager(new MongoManagerImpl());        
+        m_mgr = new MongoManagerImpl();
+        m_api.setMongoManager(m_mgr);        
     }
 
     @Test
@@ -37,7 +39,7 @@ public class MongoApiTest {
         Location l1 = new Location("swift.hubler.us");
         Location l2 = new Location("goose.hubler.us");
         List<Location> locations = Arrays.asList(l1, l2);
-        String actual = JSON.serialize(m_api.metaMap(meta, locations));        
+        String actual = JSON.serialize(m_api.metaMap(m_mgr, meta, locations));        
         String expected = IOUtils.toString(getClass().getResourceAsStream("three-node-healthy.expected.json"));
         assertEqualJson(expected, actual);
     }
@@ -60,7 +62,7 @@ public class MongoApiTest {
         Location l1 = new Location("swift.hubler.us");
         Location l2 = new Location("goose.hubler.us");
         List<Location> locations = Arrays.asList(l1, l2);
-        String actual = JSON.serialize(m_api.metaMap(meta, locations));        
+        String actual = JSON.serialize(m_api.metaMap(m_mgr, meta, locations));        
         String expected = IOUtils.toString(getClass().getResourceAsStream("three-node-missing-arbiter-and-database.expected.json"));
         assertEqualJson(expected, actual);
     }

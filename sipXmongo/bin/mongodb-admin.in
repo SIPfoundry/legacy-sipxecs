@@ -54,6 +54,8 @@ import string
 REDHAT_CONFIG_FILE = "/etc/mongodb.conf"
 TENGEN_CONFIG_FILE = "/etc/mongod.conf"
 ARBITER_CONFIG_FILE = "/etc/mongod-arbiter.conf"
+LOCAL_CONFIG_FILE = "/etc/mongo-local.conf"
+LOCAL_ARBITER_CONFIG_FILE = "/etc/mongo-local-arbiter.conf"
 ABORT_WAIT = None
 
 # http://docs.mongodb.org/manual/reference/replica-status/
@@ -161,6 +163,10 @@ class MongoRSAdmin:
         self.primary = primary
         self.dryrun = dryrun
         self.timeout = 0
+
+    def cmd_FORCE_SECONDARY(self):
+        self.cmd_OBLITERATE()
+        self.cmd_ADD()
 
     def cmd_ADD(self):
         if not self.waitForConnection(self.host_port):
@@ -333,6 +339,11 @@ class MongoRSAdmin:
     def isArbiter(self, host_port):
         return self.nodeType(host_port) == 'arbiters'
 
+    def isLocal(self):
+        if 'local' in self.model:
+            return self.model['local']
+        return False
+
     def eval(self, db, command):
         c = db.connection
         logging.debug("%s:%d - %s" % (c.host, c.port, command))
@@ -429,15 +440,28 @@ class MongoAdminRedhatOps(MongoRSAdmin):
             self.user = 'mongod'
             self.group = 'mongod'
         if self.isArbiter(host_port):
-            self.upCommand = '@SIPX_SERVICEDIR@/mongod-arbiter start'
-            self.downCommand = '@SIPX_SERVICEDIR@/mongod-arbiter stop'
-            self.cfg = ARBITER_CONFIG_FILE
+            if self.isLocal():
+                self.upCommand = '@SIPX_SERVICEDIR@/mongo-local-arbiter start'
+                self.downCommand = '@SIPX_SERVICEDIR@/mongo-local-arbiter stop'
+                self.cfg = LOCAL_ARBITER_CONFIG_FILE
+            else:
+                self.upCommand = '@SIPX_SERVICEDIR@/mongod-arbiter start'
+                self.downCommand = '@SIPX_SERVICEDIR@/mongod-arbiter stop'
+                self.cfg = ARBITER_CONFIG_FILE
         else:
-            self.upCommand = '/sbin/service mongod start'
-            self.downCommand = '/sbin/service mongod stop'
-            self.cfg = db_cfg
-        ok, self.dbpath = commands.getstatusoutput('awk -F= \'/^dbpath *= */{print $2}\' "%s"' \
-             % self.cfg)
+            if self.isLocal():
+                self.upCommand = '@SIPX_SERVICEDIR@/mongo-local start'
+                self.downCommand = '@SIPX_SERVICEDIR@/mongo-local stop'
+                self.cfg = LOCAL_CONFIG_FILE
+            else:
+                self.upCommand = '/sbin/service mongod start'
+                self.downCommand = '/sbin/service mongod stop'
+                self.cfg = db_cfg
+        if self.dryrun:
+            self.dbpath = '[%s:dbpath]' % self.cfg
+        else:
+            ok, self.dbpath = commands.getstatusoutput('awk -F= \'/^dbpath *= */{print $2}\' "%s"' \
+                 % self.cfg)
         logging.debug("db path " + self.dbpath)
         self.lockfile = self.dbpath + "/mongod.lock"
 
@@ -516,9 +540,20 @@ class MongoAdminRedhatOps(MongoRSAdmin):
 
     def clearLockFile(self):
         self.requireRoot()
-        if os.path.exists(self.lockfile):
+        if os.path.exists(self.lockfile) or self.dryrun:
             # use os_command to dryrun works
             self.os_system('rm -f ' + self.lockfile)
+
+# remain fairly flexible on file path because command might come
+# from ssh path
+def model_file(f):
+    if f.startswith('/'):
+        return f
+    if os.path.isfile(f):
+        return f
+    path = "%s/%s" % ("@SIPX_CFDATA@", f)
+    if os.path.isfile(path):
+        return path
 
 if __name__ == '__main__':
     c = None
@@ -538,7 +573,7 @@ if __name__ == '__main__':
     parser.add_argument('--primary', metavar="name", default=None,
                 help='Current primary mongo server required by some operations that operation on the replset config')
     parser.add_argument('--obliterate', action="store_true", default=False,
-                help='Force the obliteration on the local database. Tip: use OBLITERATE command to obliterate arbiter db.')
+                help='Force the obliteration on the database. Tip: use OBLITERATE command to obliterate arbiter db.')
     parser.add_argument('--model', metavar="name", default="@SIPX_CFDATA@/mongo.json",
                 help='Expected replset name for servers')
     parser.add_argument('--timeout', metavar="int", default=120,
@@ -557,14 +592,13 @@ if __name__ == '__main__':
 
         # force a model to ensure obilerate will operate under any circumstance
         if args['obliterate']:
-            args['host_port'] = 'localhost:27017'
-            args['model'] = {'servers': ['localhost:27017']}
             args['action'] = [ 'OBLITERATE' ]
 
         if not args['host_port']:
             raise MongoAdminException('--host-port is a required for this option')
 
-        admin = MongoAdminRedhatOps(args['model'], args['host_port'], args['primary'], args['dryrun'])
+        model = model_file(args['model'])
+        admin = MongoAdminRedhatOps(model, args['host_port'], args['primary'], args['dryrun'])
         admin.timeout = args['timeout']
         if len(args['action']) > 0:
             admin.run(args['action'])

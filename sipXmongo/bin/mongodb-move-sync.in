@@ -1,0 +1,91 @@
+#!/bin/env python
+
+# Copyright (c) 2013 eZuce, Inc. All rights reserved. 
+# Contributed to SIPfoundry under a Contributor Agreement 
+# 
+# This software is free software; you can redistribute it and/or modify it under 
+# the terms of the Affero General Public License (AGPL) as published by the 
+# Free Software Foundation; either version 3 of the License, or (at your option) 
+# any later version. 
+# 
+# This software is distributed in the hope that it will be useful, but WITHOUT 
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more 
+# details.
+
+# This script moves documents from one database into another. 
+#
+# You might use this approach that clones data with mongodb-oplog-sync 
+# when you need to ensure there is always just one master copy of a document.
+# A single master copy is useful to avoid  messy conflict resolution when 
+# the document is mutable, for example a voicemail can be deleted or marked read.
+#
+# A move is also useful for immutable objects that have no reason to be
+# in both local and global dbs and you want to save space. Note there is a
+# delay of a few seconds as the copy into the global database brings the document
+# back down to this machine thru global db replication.
+
+from pymongo.mongo_client import MongoClient
+from pymongo.database import Database
+from pymongo.errors import DuplicateKeyError
+
+import sys
+import time
+import traceback
+import logging
+import argparse
+import json
+import os
+import bson.timestamp
+import datetime
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        description='Mongo/sipXecs copy local database into global database'
+        )
+    parser.add_argument('--src', metavar="host:port", default="localhost:27019",
+                help='Database to copy from')
+    parser.add_argument('--dest', metavar="host:port", default="localhost:27017",
+                help='Database to copy to')
+    parser.add_argument('--verbose', action="store_true", default=False,
+                help='verbose output')
+    parser.add_argument('--db', metavar="db", required=True,
+                help='Name of the database to synchronize')
+    args = vars(parser.parse_args())
+
+    level = None
+    if args['verbose']:
+        level = logging.DEBUG
+    logging.basicConfig(level = level, format = '.%(message)s')
+    logging.debug("Source to %s/%s" % (args['src'], args['db']))
+    src = Database(MongoClient(host=args['src']), args['db'])
+    logging.debug("Destination %s/%s" % (args['dest'], args['db']))
+    dest = Database(MongoClient(host=args['dest']), args['db'])
+
+    start = datetime.datetime.now()
+    for collection in src.collection_names():
+        if collection.startswith("system."):
+            continue
+        dest_collection = dest[collection]
+        src_collection = src[collection]        
+        cursor = src_collection.find()
+
+        # we cycle thru each record even though it's less inefficient then bulk
+        # move because we want the move to be as atomic as it can be. Put another way 
+        # doing it this way makes running this idempotent so we need to remove each
+        # document from the source as it's saved to destination.  I have no empirical
+        # evidence to support this approach but rather it seems like common sense.
+        for i in range(cursor.count()):
+            doc = cursor[i]
+            try:
+                dest_collection.insert(doc)
+            except DuplicateKeyError:
+                # Warning! Only if source alread has document is it safe to continue
+                # otherwise be careful about eating errors that document could not
+                # be inserted and we proceed to delete the original
+                logging.debug("Duplicate ignored %s.%s" % (collection, doc['_id']))
+
+            src_collection.remove(doc['_id'])
+        time = datetime.datetime.now() - start
+        logging.debug("Took %dms " % (time.microseconds / 1000))

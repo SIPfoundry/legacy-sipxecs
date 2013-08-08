@@ -458,7 +458,8 @@ int main(int argc, char* argv[])
    }
 
    std::string errmsg;
-   mongo::ConnectionString mongoConn = MongoDB::ConnectionInfo::connectionStringFromFile();
+   MongoDB::ConnectionInfo gInfo = MongoDB::ConnectionInfo::globalInfo();
+   mongo::ConnectionString mongoConn = gInfo.getConnectionString();
    if (false == MongoDB::ConnectionInfo::testConnection(mongoConn, errmsg))
    {
        Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
@@ -470,9 +471,8 @@ int main(int argc, char* argv[])
    }
 
    // add the ~~sipXsaa credentials so that sipXsaa can respond to challenges
-   mongoConn = MongoDB::ConnectionInfo::connectionStringFromFile();
-   SubscribeDB subscribeDb(MongoDB::ConnectionInfo(mongoConn, SubscribeDB::NS));
-   EntityDB entityDb(MongoDB::ConnectionInfo(mongoConn, EntityDB::NS));
+   SubscribeDB* subscribeDb = SubscribeDB::CreateInstance();
+   EntityDB entityDb(gInfo);
    SipLineMgr* lineMgr = addCredentials(entityDb, domainName, realm);
    if(NULL == lineMgr)
    {
@@ -492,7 +492,7 @@ int main(int argc, char* argv[])
                           serverMinExpiration,
                           serverDefaultExpiration,
                           serverMaxExpiration,
-                          subscribeDb,
+                          *subscribeDb,
                           entityDb);
       saa.start();
 
@@ -518,6 +518,9 @@ int main(int argc, char* argv[])
 
    // Delete the LineMgr Object
    delete lineMgr;
+
+   if (subscribeDb)
+     delete subscribeDb;
 
    mongo::dbexit(mongo::EXIT_CLEAN);
 

@@ -1,0 +1,11 @@
+{ 
+  "inProgress": false,
+  "lastConfigError" : "Last configuration error here", 
+  "name" : "Bucharest",
+  "id" : "2",
+  "dbCandidates" : [  ],
+  "arbiterCandidates" : [ ],
+  "databases" : {
+    "uc1.ezuce.ro:27101" : { "host" : "uc1", "status" : [ "PRIMARY"] , "priority":  1, "voting": false, "available" : [ "RESTART"] , "required" : [ "REMOVE_EXTRA orphan:27101" ]} 
+  }
+}

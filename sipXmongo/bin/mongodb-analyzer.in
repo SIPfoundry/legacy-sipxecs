@@ -89,6 +89,7 @@ class  PrimaryActions:
     def requiredActions(self, meta):
         self.elect_primary = 'NO_PRIMARY' in meta.cluster_states
         self.multi_primary = 'MULTIPLE_PRIMARIES' in meta.cluster_states
+        reset_local = False
         for host_port, states in meta.server_states.items():
             if self.elect_primary:
                 if 'UNINITIALIZED' in states:
@@ -104,6 +105,7 @@ class  PrimaryActions:
                 continue
 
             if 'BAD_REPLSET' in states or 'BAD_CONFIG_VERSION' in states:
+                reset_local = True
                 meta.requireAction(host_port, 'RESET_LOCAL')
                 continue
 
@@ -112,12 +114,14 @@ class  PrimaryActions:
             for s in states:
                 if s.startswith(extra):
                     meta.requireAction(host_port, 'REMOVE_EXTRA ' + s[len(extra):])
-                
-
-        # 2nd pass we option to reset databases
-        if len(meta.primaries()) > 2:
+        
+        # 2nd pass we option to reset databases        
+        if len(meta.primaries()) >= 2 and not reset_local:
             for primary in meta.primaries():
-                meta.requireAction(primary, 'OBLITERATE')
+                # multiple otherwise healthy primaries? sofie's choice 
+                # give action to obliterate all, but from ui they'll
+                # only really get to obilterate one.
+                meta.requireAction(primary, 'FORCE_SECONDARY')
 
     def availableActions(self, meta):
         pass                

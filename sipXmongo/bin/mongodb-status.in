@@ -42,6 +42,7 @@ import traceback
 import logging
 import argparse
 import json
+import os
 import bson.timestamp
 import datetime
 
@@ -230,7 +231,8 @@ class MongoAdmin:
         meta = self.loadMeta(model_file)
         sys.stdout.write(json.dumps(meta, cls=MongoJSONEncoder, indent=4, separators=(',', ': ')))
 
-    def parse(self):
+    def parse(self, full = False):
+        self.full = full
         meta = json.load(sys.stdin)
         self.statusFromMeta(meta)
 
@@ -298,6 +300,17 @@ class MongoJSONEncoder(json.JSONEncoder):
         else:
             return super(MongoJSONEncoder, self).default(obj)    
 
+# remain fairly flexible on file path because command might come
+# from ssh path
+def model_file(f):
+    if f.startswith('/'):
+        return f
+    if os.path.isfile(f):
+        return f
+    path = "%s/%s" % ("@SIPX_CFDATA@", f)
+    if os.path.isfile(path):
+        return path
+
 if __name__ == '__main__':
     c = None
     # Parse arguments
@@ -326,14 +339,14 @@ if __name__ == '__main__':
             level=level,
             format='.%(message)s'
         )
-
+        
         admin = MongoAdmin()
         if args['parse']:
-            admin.parse()
+            admin.parse(args['full'])
         elif args['dump']:
-            admin.dump(args['model'])
+            admin.dump(model_file(args['model']))
         else:
-            admin.status(args['model'], args['full'])
+            admin.status(model_file(args['model']), args['full'])
 
     except :
         sys.stderr.write(traceback.format_exc())

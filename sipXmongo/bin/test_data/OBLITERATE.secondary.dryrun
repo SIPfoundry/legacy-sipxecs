@@ -1,6 +1,6 @@
 COMMAND:OBLITERATE
 OS:/sbin/service mongod stop
-OS:rm -f /var/lib/mongodb/mongod.lock
-OS:/bin/rm -f /var/lib/mongodb/{,_tmp,journal}/*.*
-OS:/bin/chown mongodb:mongodb /var/lib/mongodb
+OS:rm -f [/etc/mongodb.conf:dbpath]/mongod.lock
+OS:/bin/rm -f [/etc/mongodb.conf:dbpath]/{,_tmp,journal}/*.*
+OS:/bin/chown mongodb:mongodb [/etc/mongodb.conf:dbpath]
 OS:/sbin/service mongod start

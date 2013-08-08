@@ -83,7 +83,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/not-yet-commons-ssl-0.3.11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/odmg-3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ognl-2.7.3.jar"/>
-        <classpathentry exported="true" kind="lib" path="lib/org.json_2.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/org.json_2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.restlet-1.1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.restlet.ext.json-2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.restlet.ext.spring-2.5.jar"/>
@@ -133,7 +133,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils-core-1.8.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/google-collections-1.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mongo-2.10.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-data-mongodb-1.3.1.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-data-commons-1.6.1.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/snmp4j-2.0.3.jar"/>
@@ -171,5 +170,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/jradius-core-1.1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jradius-dictionary-1.1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gnu-crypto-2.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mongo-2.11.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jackson-core-asl-1.9.13.jar" sourcepath="/home/dhubler/libsrc/jackson-core-asl-1.9.11-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jackson-mapper-asl-1.9.13.jar" sourcepath="/home/dhubler/libsrc/jackson-mapper-asl-1.9.11-sources.jar"/>
 	<classpathentry kind="output" path="bin.eclipse/classes"/>
 </classpath>

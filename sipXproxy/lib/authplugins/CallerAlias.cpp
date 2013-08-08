@@ -56,7 +56,7 @@ CallerAlias::CallerAlias(const UtlString& pluginName ///< the name for this inst
 ) :
 	AuthPlugin(pluginName)
 {
-	MongoDB::ConnectionInfo info(MongoDB::ConnectionInfo::connectionStringFromFile(), EntityDB::NS);
+        MongoDB::ConnectionInfo info = MongoDB::ConnectionInfo::globalInfo();
 	mpEntityDb = new EntityDB(info);
 }
 ;

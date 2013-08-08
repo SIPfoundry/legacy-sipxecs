@@ -8,44 +8,51 @@
 <link rel="stylesheet"
 	href="../../../src/org/sipfoundry/sipxconfig/site/skin/colors.css">
 </head>
+<div id="leftNav">
+  <!-- Devmode only -->
+</div>
 <body id="devmode" jwcid="$content$">
 	<div jwcid="@common/Border" restricted="false"
-		borderTitle="ognl:borderTitle">		  
-        <span jwcid="@common/QuickHelp" value="message:quick.help" />
-		<p><span id="inprogress" >
-		  <img src="/sipxconfig/images/loading.gif"/>
-		  <span key="label.inprogress">Operation in progress...</span>
-		</span>&nbsp;
-		<span id="message"></span></p>
-		<ul class="component-links">
-			<li id="newDbs"></li>
-			<li id="newArbs"></li>
-			<li>
-			  <input type="checkbox" name="refreshEnabled" id="refreshEnabled" checked="checked"/>
-			  <span key="refreshEveryPart1">Refresh every</span>
-			  <input value="30" size="2" id="refreshRate"/>
-        <span key="refreshEveryPart2">seconds.</span>
-			</li>
-		</ul>		
-		<div class="tableDiv">
-			<span id="tableView">
-				<table class="component">
-					<thead>
-						<tr>
-              <th><span key="service">Service</span></th>
-							<th><span key="status">Status</span></th>
-							<th><span key="action"></span></th>
-						</tr>
-					</thead>
-					<tbody id="nodes">
-					</tbody>
-				</table>
-			</span>
-		</div>
-		<ul>
-		  <button id="refresh"><span key="button.refresh">Refresh</span></button>
-		</ul>
-    <span id="rc" style="display:none">
+		borderTitle="ognl:borderTitle">
+    <div class="help">
+      <div id="global.help">
+        <span jwcid="@Insert" raw="true" value="message:global.help">Global Help</span>
+      </div>
+      <div id="local.help" style="display:none">
+        <span jwcid="@Insert" raw="true" value="message:local.help">Local Help</span>
+      </div>
+    </div>		  
+    <p><span id="inprogress" ><img src="/sipxconfig/images/loading.gif"/>
+      <span key="label.inprogress">Operation in progress...</span>
+    </span>&nbsp;</p>
+    
+		<div id="global">
+      <p id="globalMessage"></p>
+  		<ul class="component-links">
+  			<li id="globalAddDb"></li>
+  			<li id="globalAddArbiter"></li>
+        <li id="globalRefreshWidget"></li>    
+  		</ul>		  		
+  		<div id="globalTable">
+  		</div>
+      <ul>
+        <button id="globalRefreshButton"><span key="button.refresh">Refresh</span></button>
+      </ul>
+    </div>
+    <div id="local" style="display: none;">
+        <p id="localMessage"></p>
+        <ul class="component-links">
+          <li id="localAddDb"></li>
+          <li id="localAddArbiter"></li>
+          <li id="localRefreshWidget"></li>    
+        </ul>         
+        <div id="localTable">
+        </div>
+        <ul>
+          <button id="localRefreshButton"><span key="button.refresh">Refresh</span></button>
+        </ul>
+    </div>
+   <span id="rc" style="display:none">
       <span jwcid="@common/Message" key="options">Options...</span>
       <span jwcid="@common/Message" key="addArbiter">Add arbiter...</span>
       <span jwcid="@common/Message" key="addDatabase">Add database...</span>
@@ -68,8 +75,19 @@
       <span jwcid="@common/Message" key="action.STEP_DOWN">Offer primary role to another server</span>                  
       <span jwcid="@common/Message" key="action.FORCE_PRIMARY">Force Primary</span>                  
       <span jwcid="@common/Message" key="action.REMOVE_EXTRA">Remove {0} from configuration</span>
+      <span jwcid="@common/Message" key="action.USE_GLOBAL">Disable local database</span>
+      <span jwcid="@common/Message" key="action.USE_LOCAL">Enable local database</span>
+      <span jwcid="@common/Message" key="action.INITIALIZE">Initialize</span>
       <span jwcid="@common/Message" key="label.priority">Priority: </span>
-      <span jwcid="@common/Message" key="label.voting">Voting: </span>                        
+      <span jwcid="@common/Message" key="label.voting">Voting: </span>
+      <span jwcid="@common/Message" key="tab.global">Global Databases</span>
+      <span jwcid="@common/Message" key="tab.local">Regional Databases</span>      
+      <span jwcid="@common/Message" key="service">Service</span>      
+      <span jwcid="@common/Message" key="status">Status</span>      
+      <span jwcid="@common/Message" key="shard">Shard</span>      
+      <span jwcid="@common/Message" key="action"></span>      
+      <span jwcid="@common/Message" key="refreshEvery">Refresh every</span>      
+      <span jwcid="@common/Message" key="seconds">seconds.</span>      
     </span>
 		<script jwcid="@common/DartCode" type="application/dart"
 			src="ManageMongo.dart"></script>

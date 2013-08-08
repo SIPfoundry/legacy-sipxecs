@@ -1,0 +1,200 @@
+#!/bin/env bash
+
+# mongodb-sync - Copy changes made to one database into to another database
+# chkconfig: 35 95 10
+# description: Mongodb arbiter unblocks tie votes on new primary should it become unavailable
+# processname: mongodb-sync
+# config: @SIPX_CONFDIR@/mongodb-sync.conf
+# pidfile: @SIPX_RUNDIR@/mongodb-sync.pid
+
+. /etc/rc.d/init.d/functions
+
+# Copyright (c) 2013 eZuce, Inc. All rights reserved. 
+# Contributed to SIPfoundry under a Contributor Agreement 
+# 
+# This software is free software; you can redistribute it and/or modify it under 
+# the terms of the Affero General Public License (AGPL) as published by the 
+# Free Software Foundation; either version 3 of the License, or (at your option) 
+# any later version. 
+# 
+# This software is distributed in the hope that it will be useful, but WITHOUT 
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more 
+# details.
+
+# Service that syncs changes made to a local database into a larger, global database
+
+PIDFILE=@SIPX_RUNDIR@/mongodb-sync.pid
+FREQ=15 #seconds 
+
+# Assumes there's a local, global db which i think is a safe assumption otherwise
+# local makes little sense.
+SRC=localhost:27019
+test -f @SIPX_CONFDIR@/mongo-local.ini || (echo "@SIPX_CONFDIR@/mongo-local.ini missing"; exit 1)
+SHARD=`awk -F = '/shardId=/ {print $2}' @SIPX_CONFDIR@/mongo-local.ini`
+
+# format for modern drivers
+DEST_URL=`awk -F = '/connectionUrl=/ {print substr($0,15)}' @SIPX_CONFDIR@/mongo-client.ini`
+# legacy format for c++ driver and some mongo tools like mongooplog
+DEST_STR=`sed -n 's|^connectionString=sipxecs/\(.*\)$|\1|p' @SIPX_CONFDIR@/mongo-client.ini`
+
+LOG=@SIPX_LOGDIR@/mongodb-sync.log
+DB=node
+
+#To enable more logging, put MONGO_SYNC_OPTS=--verbose in @SIPX_CONFDIR@/mongodb-sync.conf
+MONGO_SYNC_OPTS=
+
+CONFIG=@SIPX_CONFDIR@/mongodb-sync.conf
+! test -f "$CONFIG" || . "$CONFIG"
+
+USAGE="Usage: $0 [options] {start|stop|status|restart|nofork|condrestart}"
+
+function min() {
+  if [ $1 -lt $2 ] ; then
+    echo -n $1
+  else
+    echo -n $2
+  fi
+}
+
+function single_instance() {
+  PID=$$
+  # constantly read/write pid to ensure only one copy is running or if
+  # there's 2 they're not running for very long
+  if [ -f $PIDFILE ] ; then
+    PID2=`cat $PIDFILE`
+    if [ $PID2 -ne $PID ]; then
+      ps -p $PID2
+      if [ $? -eq 0 ]; then
+        echo "Already running"
+        exit 0
+      fi
+    fi  
+  fi
+  echo $PID > $PIDFILE
+}
+
+function start() {
+  t0=0
+  while true; do
+    single_instance
+
+    ISPRIMARY=`mongo --quiet $SRC --eval 'db.isMaster().ismaster;' 2>/dev/null`
+
+    t1=`date +%s`
+    if ! $ISPRIMARY ; then
+
+      # if primary status changes, force an initial full sync if/when primary status
+      # ever comes back to this server..  Other than that, all this sync script does
+      # is keeping checking primary status and assume some other 
+      # regional server that *is* primary is doing the sync to the global database
+      t0=0
+
+    # synchronizing is broken into 2 parts
+    #
+    # P A R T 1
+    # Intial sync where we brute for replace all records in dest and copy in new ones
+    elif [ $t0 -eq 0 ]; then
+        # Leave --verbose because it's only logged once at startup and won't fill disk
+        # too much
+        @SIPX_LIBEXECDIR@/mongodb-initial-sync --src $SRC --dest $DEST_STR --shardId $SHARD --db $DB --verbose &>> $LOG
+        if [ $? -ne 0 ]; then
+          # we'll enter incremental phase of sync on failures because
+          # it's better than sitting stuck here forever.  at least incremental
+          # will start to replace old records over time.  Every restart of this
+          # script would reattempt a full sync again.
+          echo "Failed to make initial sync. failed w/exit code $? " >> $LOG
+        fi
+        t0=$t1
+
+    # P A R T 2
+    # Watch oplog for any changes going forward.
+    else
+      # Due to the rought granularity of time handling in bash, it's possible some attempts 
+      # of reapplying oplog is expected. Critical howerver no data is missed.
+      @SIPX_LIBEXECDIR@/mongodb-oplog-sync \
+          --starttime $t0 \
+          --src $SRC \
+          --dest $DEST_STR \
+          --db $DB $MONGO_SYNC_OPTS 2>> $LOG
+      if [ $? -ne 0 ]; then
+        echo `date`" - sync failed w/exit code $?." >> $LOG
+      else
+        t0=$t1
+      fi
+    fi
+
+    sleep $FREQ
+    single_instance
+  done
+}
+
+function stop() {
+  echo -n $"Stopping mongodb-sync: "
+  killproc -p $PIDFILE "mongodb-sync"
+  RETVAL=$?
+  echo
+  [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+}
+
+CMD=$@
+while [ $# -gt 0 ]; do
+  case $1 in
+    --freq)
+      shift
+      FREQ=$1
+      ;;
+    --src)
+      shift
+      SRC=$1
+      ;;
+    --dest)
+      shift
+      DEST=$1
+      ;;
+    --db)
+      shift
+      DB=$1
+      ;;
+    nofork)
+      start
+      ;;
+    start)
+      # we do this instead of 'start &' because cannot
+      # get forked pid in start function $$ and $! are not valid
+      $0 ${CMD/start/nofork} &> /dev/null &
+      ;;
+    stop)
+      stop
+      ;;
+    restart)
+      stop
+      $0 ${CMD/restart/nofork} &> /dev/null &
+      ;;
+    condrestart)
+      [ -f $PIDFILE ] && restart || :
+      ;;
+    status)
+      status -p $PIDFILE "mongodb-sync"
+      RETVAL=$?
+      ;;
+    --help|-h)
+      cat <<EOF
+
+$USAGE
+
+Options:
+ --src   Source mongo server and port. Default is $SRC
+ --dest  Destination mongo server and port. Default is $DEST
+ --freq  Number of seconds to wait between each sync. Default is $FREQ seconds
+ --db    Database to synchronoze. Default is $DB
+EOF
+      ;;
+    *)
+      echo $USAGE
+      RETVAL=1
+      ;;
+  esac
+  shift
+done
+

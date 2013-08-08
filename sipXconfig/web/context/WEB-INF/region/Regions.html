@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Regions</title>
+<link rel="stylesheet"
+  href="../../../src/org/sipfoundry/sipxconfig/site/skin/layout.css">
+<link rel="stylesheet"
+  href="../../../src/org/sipfoundry/sipxconfig/site/skin/colors.css">
+</head>
+<div id="leftNav">
+  <!-- Devmode only -->
+</div>
+<body jwcid="$content$">
+  <div jwcid="@common/Border" restricted="false"
+    borderTitle="ognl:borderTitle">
+    <div class="help">
+      <span jwcid="@Insert" raw="true" value="message:region.help">Region Help</span>
+    </div>      
+    <div id="region">
+      <p id="userMessage"></p>
+      <div id="regionTable">
+      </div>
+    </div>
+    <span id="rc" style="display:none">
+      <span jwcid="@common/Message" key="name">Name</span>
+      <span jwcid="@common/Message" key="servers">Servers</span>
+    </span>
+    <script jwcid="@common/DartCode" type="application/dart"
+      src="Regions.dart"></script>
+    <script jwcid="@common/DartCode"
+      src="../../../packages/browser/dart.js"></script>
+  </div>
+</body>
+</html>
