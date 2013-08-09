@@ -1,0 +1,8 @@
+{ 
+   "regions" : [
+     {"id" : 1, "name" : "US - Boston" },
+     {"id" : 2, "name" : "Europe - Bucharest" },
+     {"id" : 3, "name" : "Philippines - Manila" },
+     {"id" : 4, "name" : "US - Austin" }
+   ]
+}

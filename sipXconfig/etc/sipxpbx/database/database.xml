@@ -457,6 +457,7 @@
     <!-- slot 5 -->
     <!-- slot 6 -->
     <antcall target="shards"/>
+    <antcall target="region"/>
     <!-- slot 7 -->
     <!-- slot 8 -->
     <!-- slot 9 -->
@@ -1369,6 +1370,9 @@
   </target>
   <target name="shards" unless="shards">
 	<db-patch patch="shards"/>
+  </target>
+  <target name="region" unless="region">
+	<db-patch patch="region"/>
   </target>
 
   <!--

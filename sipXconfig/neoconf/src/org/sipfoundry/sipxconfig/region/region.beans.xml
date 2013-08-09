@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="regionManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="regionManagerImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.region.RegionManager"/>
+  </bean>
+
+  <bean id="regionManagerImpl" class="org.sipfoundry.sipxconfig.region.RegionManagerImpl">
+    <property name="configJdbcTemplate" ref="configJdbcTemplate"/>
+  </bean>
+  
+  <bean id="regionApi" class="org.sipfoundry.sipxconfig.region.RegionApi" scope="prototype">
+    <property name="regionManager" ref="regionManager"/>
+  </bean>
+  <alias name="regionApi" alias="/region"/>
+</beans>  
