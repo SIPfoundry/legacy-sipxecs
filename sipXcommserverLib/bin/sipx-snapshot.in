@@ -386,6 +386,7 @@ SystemConfig=${Work}/SystemConfig
 function marshal_configuration_information () {
    # Files into which the postgres databases are dumped
    ConfigDb=${Work}/SIPXCONFIG
+   OpenfireDb=${Work}/openfire
    CallStateDb=${Work}/SIPXCSE
    CallDetailDb=${Work}/SIPXCDR
 
@@ -430,6 +431,8 @@ function marshal_configuration_information () {
    @OPENFIRE_HOME@/logs/error.log
    @OPENFIRE_HOME@/logs/warn.log
    @OPENFIRE_HOME@/logs/sipxopenfire.log
+   @OPENFIRE_HOME@/logs/nohup.out
+   @OPENFIRE_HOME@/conf
    /var/named
    /var/log/yum.log
    /var/log/messages
@@ -1002,6 +1005,9 @@ EOF
        done
      fi
 
+     # Record the openfire database contents
+     pg_dump -U @POSTGRESQL_USER@ --attribute-inserts openfire > ${OpenfireDb} 2> /dev/null
+
      # Copy all the files and directories that should be copied.
      for file in `sort -u $Work.copy-files`
      do
@@ -1069,8 +1075,16 @@ EOF
      mongoexport -d imdb -c node -o ${Work}/mongo.imdb.node.json
      mongoexport -d node -c registrar -o ${Work}/mongo.node.registrar.json
      mongoexport -d node -c subscription -o ${Work}/mongo.node.subscription.json
+     # this will dump in BSON (binary) format
+     mongodump -d openfiredb -o ${Work}
    fi
 }
+
+# use this to add things to the snapshot as needed
+if [ -f "snapshot-extras" ]
+then
+	snapshot-extras "$@"
+fi
 
 # Now execute the code in the function that we have just defined.
 # stdout will be written in ./SystemConfig, while stderr will be written
