@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.site;
 
 import org.apache.tapestry.PageRedirectException;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -28,6 +29,11 @@ public abstract class Home extends SipxBasePage implements PageBeginRenderListen
 
     @InjectObject("spring:featureManager")
     public abstract FeatureManager getFeatureManager();
+
+    public abstract void setShowForbiddenMessage(boolean forbidden);
+
+    @InitialValue(value = "false")
+    public abstract boolean getShowForbiddenMessage();
 
     public void pageBeginRender(PageEvent event) {
         if (!getUserSession().isAdmin()) {
