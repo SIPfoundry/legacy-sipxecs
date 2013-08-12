@@ -42,9 +42,9 @@ public:
     (*argv)[args.size()] = NULL; // argv must be NULL terminated
   }
 
-  void freeCArray(int argc, char*** argv)
+  void freeCArray(std::size_t argc, char*** argv)
   {
-    for (int i = 0; i < argc; i++)
+    for (std::size_t i = 0; i < argc; i++)
       free((*argv)[i]);
     free(*argv);
   }
@@ -85,6 +85,7 @@ public:
     char** argv = 0;
     vectorToCArray(args, &argv);
     OsServiceOptions service(args.size(), argv, "ServiceOptions", "1.0", "Ezuce Inc. All Rights Reserved");
+    service._unitTestMode = true;
     service.addDaemonOptions();
 
     service.addOptionFlag("is-test-run", ": Flag signifying this is a test run",  OsServiceOptions::ConfigOption);
@@ -116,6 +117,51 @@ public:
 
     CPPUNIT_ASSERT(service.getOption("refresh-interval", val));
     CPPUNIT_ASSERT(1800 == val);
+
+    freeCArray(args.size(), &argv);
+    args.clear();
+
+    //
+    // Test required field
+    //
+    args.push_back("ServiceOptions");
+    args.push_back("--is-test-run");
+    vectorToCArray(args, &argv);
+    
+    OsServiceOptions service2(args.size(), argv, "ServiceOptions", "1.0", "Ezuce Inc. All Rights Reserved");
+    service2._unitTestMode = true;
+    service2.addOptionFlag("is-test-run", ": Flag signifying this is a test run",  OsServiceOptions::ConfigOption);
+    service2.addOptionString("local-uri", ": URI to be used in the From header",  OsServiceOptions::ConfigOption, true);
+
+    //
+    // parseOptions must fail.  local-uri is required
+    //
+    CPPUNIT_ASSERT(!service2.parseOptions());
+
+    freeCArray(args.size(), &argv);
+
+
+    args.clear();
+
+    //
+    // Test required field with alternate
+    //
+    args.push_back("ServiceOptions");
+    args.push_back("--is-test-run");
+    vectorToCArray(args, &argv);
+
+    OsServiceOptions service3(args.size(), argv, "ServiceOptions", "1.0", "Ezuce Inc. All Rights Reserved");
+    service3._unitTestMode = true;
+    service3.addOptionFlag("is-test-run", ": Flag signifying this is a test run",  OsServiceOptions::ConfigOption);
+    service3.addOptionString("local-uri", ": URI to be used in the From header",  OsServiceOptions::ConfigOption, true, "is-test-run");
+
+    //
+    // parseOptions must not fail.  local-uri is required but alternate is present
+    //
+    CPPUNIT_ASSERT(service3.parseOptions());
+
+    freeCArray(args.size(), &argv);
+
 
     OS_LOG_DEBUG(FAC_KERNEL, "testServiceOptions ENDED");
   }

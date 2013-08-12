@@ -62,44 +62,61 @@ public:
     char shortForm,
     const std::string& optionName,
     const std::string description,
-    OptionType type);
+    OptionType type,
+    bool required = false,
+    const std::string& altOptionName = std::string() /* alternative option if this option is required and is missing*/);
 
   void addOptionString(
     const std::string& optionName,
     const std::string description,
-    OptionType type);
+    OptionType type,
+    bool required = false,
+    const std::string& altOptionName = std::string() /* alternative option if this option is required and is missing*/);
 
   void addOptionStringVector(
     char shortForm,
     const std::string& optionName,
     const std::string description,
-    OptionType type);
+    OptionType type,
+    bool required = false,
+    const std::string& altOptionName = std::string() /* alternative option if this option is required and is missing*/);
 
   void addOptionStringVector(
     const std::string& optionName,
     const std::string description,
-    OptionType type);
+    OptionType type,
+    bool required = false,
+    const std::string& altOptionName = std::string() /* alternative option if this option is required and is missing*/);
 
   void addOptionInt(
     char shortForm,
     const std::string& optionName,
-    const std::string description, OptionType type);
+    const std::string description, 
+    OptionType type,
+    bool required = false,
+    const std::string& altOptionName = std::string() /* alternative option if this option is required and is missing*/);
 
   void addOptionInt(
     const std::string& optionName,
     const std::string description,
-    OptionType type);
+    OptionType type,
+    bool required = false,
+    const std::string& altOptionName = std::string() /* alternative option if this option is required and is missing*/);
 
   void addOptionIntVector(
     char shortForm,
     const std::string& optionName,
     const std::string description,
-    OptionType type);
+    OptionType type,
+    bool required = false,
+    const std::string& altOptionName = std::string() /* alternative option if this option is required and is missing*/);
 
   void addOptionIntVector(
     const std::string& optionName,
     const std::string description,
-    OptionType type);
+    OptionType type,
+    bool required = false,
+    const std::string& altOptionName = std::string() /* alternative option if this option is required and is missing*/);
 
   void displayUsage(std::ostream& strm) const;
 
@@ -142,6 +159,9 @@ public:
   static void waitForTerminationRequest();
 
 protected:
+  void registerRequiredParameters(const std::string& optionName, const std::string& altOptionName);
+  bool validateRequiredParameters();
+
   int _argc;
   char** _argv;
   std::string _daemonName;
@@ -162,7 +182,17 @@ protected:
   boost::property_tree::ptree _ptree;
   bool _hasConfig;
   bool _isConfigOnly;
+  //
+  // A vector the contains required parameters
+  //
+  std::vector<std::string> _required;
+  //
+  // A map that contains alternative parameter for a required parameter.
+  //
+  std::map<std::string, std::string> _alternative;
 
+  friend class OsServiceOptionsTest;
+  bool _unitTestMode;
 };
 
 
