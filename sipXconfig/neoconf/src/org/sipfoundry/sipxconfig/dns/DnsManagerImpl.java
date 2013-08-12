@@ -22,9 +22,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -119,18 +120,18 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
         if (!type.equals(DNS_ADDRESS)) {
             return null;
         }
+        Set<Address> addresses = new LinkedHashSet<Address>();
         DnsSettings settings = getSettings();
         if (settings.isServiceUnmanaged()) {
             List<String> dnsServers = settings.getUnmanagedDnsServers();
-            List<Address> addresses = new LinkedList<Address>();
             for (String server : dnsServers) {
                 Address address = new Address(DNS_ADDRESS, server);
                 addresses.add(address);
             }
-            return addresses;
         }
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
-        return Location.toAddresses(DNS_ADDRESS, locations);
+        addresses.addAll(Location.toAddresses(DNS_ADDRESS, locations));
+        return addresses;
     }
 
     @Override
