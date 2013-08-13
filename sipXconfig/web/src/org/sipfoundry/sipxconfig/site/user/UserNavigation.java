@@ -276,14 +276,14 @@ public abstract class UserNavigation extends BeanNavigation {
      * - group 1
      * - group 2
      * </code>
-     * 
+     *
      * Into tree that looks like this: <code>
      * - application permissions
      * - call handling
      * - group 1
      * - group 2
      * </code>
-     * 
+     *
      * Additionally, the personal-attendant group is hidden as this tab is implemented as its own
      * page
      */
