@@ -75,6 +75,10 @@ public:
 	
 	bool tail(std::vector<std::string>& opLogs);
 
+	std::string& ns() {
+	  return _ns;
+	}
+
 private:
   mongo::BSONElement _lastTailId;
   std::string _ns;
