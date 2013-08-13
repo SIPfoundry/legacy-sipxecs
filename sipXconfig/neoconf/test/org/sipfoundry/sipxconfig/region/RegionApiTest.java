@@ -20,7 +20,7 @@ public class RegionApiTest {
         new ObjectMapper().writeValue(actual, rs);
         assertEquals("[{\"name\":\"r1\",\"id\":-1},{\"name\":\"r2\",\"id\":-1}]", actual.toString());
     }
-    
+
     @Test
     public void read() throws IOException {
         String json = "{\"name\":\"Foo\",\"id\":1}";

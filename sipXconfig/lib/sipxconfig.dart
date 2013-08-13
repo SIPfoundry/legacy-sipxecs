@@ -14,6 +14,37 @@ loadStrings() {
   }
 }
 
+class Api {
+  bool test;
+  
+  Api({bool test: false}) {
+    this.test = test;
+  }
+  
+  String url(String url, [devUrl]) {
+   if (isDartium()) {
+     if (test && devUrl != null) {
+       return devUrl;
+     }
+     // dartium dev mode 
+     return "http://localhost:12000/sipxconfig/${url}";
+   }  
+   return "/sipxconfig/${url}";
+  }
+  
+  bool isDartium() {
+    return (window.location.port == '3030');    
+  }
+  
+  String baseUrl() {
+    if (isDartium()) {
+      var baseUrl = new RegExp(r"(.*/context)");
+      return baseUrl.stringMatch(window.location.href);
+    }
+    return "/sipxconfig";
+  }
+}
+
 /**
  * Tests if page is using dartium to render
  */

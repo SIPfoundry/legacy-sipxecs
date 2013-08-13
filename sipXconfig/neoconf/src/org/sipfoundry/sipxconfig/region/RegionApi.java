@@ -18,9 +18,18 @@ import static org.restlet.data.MediaType.APPLICATION_JSON;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.Version;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializerProvider;
+import org.codehaus.jackson.map.module.SimpleModule;
+import org.codehaus.jackson.map.ser.std.SerializerBase;
 import org.codehaus.jackson.type.TypeReference;
 import org.restlet.Context;
 import org.restlet.data.Request;
@@ -32,9 +41,12 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.StringRepresentation;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 
 public class RegionApi extends Resource {
     private RegionManager m_regionManager;
+    private LocationsManager m_locationsManager;
     private ObjectMapper m_jsonMapper = new ObjectMapper();
     private Integer m_regionId;
 
@@ -46,6 +58,13 @@ public class RegionApi extends Resource {
         if (id != null) {
             m_regionId = Integer.valueOf(id);
         }
+    }
+    
+    void registerJsonSerilizer() {
+        SimpleModule module = new SimpleModule("regionsWithServers", new Version(1, 0, 0, null));
+        List<Location> locations = m_locationsManager.getLocationsList();
+        module.addSerializer(Region.class, new RegionWithServers(locations));
+        m_jsonMapper.registerModule(module);    	
     }
 
     @Override
@@ -67,11 +86,16 @@ public class RegionApi extends Resource {
         m_regionManager = regionManager;
     }
 
+    public void setLocationsManager(LocationsManager locationsManager) {
+		m_locationsManager = locationsManager;
+	}
+
     // GET : list or specific region
     @Override
     public Representation represent(Variant variant) throws ResourceException {
         getResponse().setStatus(Status.SUCCESS_OK);
         StringWriter json = new StringWriter();
+        registerJsonSerilizer();
         try {
             Object o;
             if (m_regionId != null) {
@@ -85,6 +109,42 @@ public class RegionApi extends Resource {
         }
         return new StringRepresentation(json.toString());
     }
+
+	/**
+	 * Add server list to region as help aid to caller to know what server are
+	 * in what region.
+	 */    
+    static final class RegionWithServers extends SerializerBase<Region> {
+		private List<Location> m_locations;
+
+    	protected RegionWithServers(List<Location> locations) {
+			super(Region.class);
+			m_locations = locations;
+		}
+
+		@Override
+		public void serialize(final Region region, JsonGenerator jgen,
+				SerializerProvider provider) throws IOException,
+				JsonGenerationException {
+
+			jgen.writeStartObject();
+
+			// Ideally, I ask default implementation to write out all the bean
+			// properties so i do not have to enumerate them here. but i could
+			// not figure this out -- Douglas
+			jgen.writeObjectField("name", region.getName());
+			jgen.writeObjectField("id", region.getId());
+			
+			List<String> servers = new ArrayList<String>();
+			for (Location location : m_locations) {
+				if (location.getRegionId().equals(region.getId())) {
+					servers.add(location.getHostname());
+				}
+			}
+			jgen.writeObjectField("servers", servers);
+			jgen.writeEndObject();
+		}
+    }	
 
     // POST
     @Override

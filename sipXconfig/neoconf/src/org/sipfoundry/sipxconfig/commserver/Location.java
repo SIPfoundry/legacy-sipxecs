@@ -83,8 +83,9 @@ public class Location extends BeanWithId implements DeployConfigOnEdit, Comparab
     private int m_startRtpPort = 30000;
     private int m_stopRtpPort = 31000;
     private String m_hostName;
+    private Integer m_regionId;
 
-    public Location() {
+	public Location() {
     }
 
     public Location(String fqdn) {
@@ -311,6 +312,14 @@ public class Location extends BeanWithId implements DeployConfigOnEdit, Comparab
     public void setLastAttempt(Timestamp lastAttempt) {
         m_lastAttempt = lastAttempt;
     }
+
+    public Integer getRegionId() {
+		return m_regionId;
+	}
+
+	public void setRegionId(Integer regionId) {
+		m_regionId = regionId;
+	}
 
     public boolean isInProgressState() {
         return getState().equals(State.PROGRESS);

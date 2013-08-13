@@ -30,6 +30,7 @@
     <property name="publicTlsPort" />
     <property name="startRtpPort" />
     <property name="stopRtpPort" />
+    <property name="regionId" />
     <many-to-one name="branch" column="branch_id" not-found="ignore" />
   </class>
 

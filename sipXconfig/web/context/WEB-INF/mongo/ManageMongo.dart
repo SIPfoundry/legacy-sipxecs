@@ -1,24 +1,17 @@
 import 'dart:html';
 import 'dart:json';
 import 'dart:async';
-import 'dart:collection';
 import 'package:sipxconfig/sipxconfig.dart';
 
-// developer aid. Path will have last developers work directory in it. darteditor 
-// has no way to avoid this AFAICT 
-String devBasePath = "http://127.0.0.1:3030/home/dhubler/work/sipxecs";
-bool useStaticJson = false;
-
-String baseurl;
 bool inProgressFlag = false;
 ManageGlobal global = new ManageGlobal();
 ManageLocal local = new ManageLocal();
 List<ManageBase> all = [global, local];
 ManageBase manage = global;
 Tabs tabs;
+var api = new Api(test : true);
 
 main() {
-  baseurl = devmode() ? "http://localhost:12000" : "";
   tabs = new Tabs(query("#leftNav"));
   tabs.add('global', getString('tab.global'), query("#global"), global);
   tabs.add('local', getString('tab.local'), query("#local"), local);
@@ -57,15 +50,10 @@ class ManageGlobal extends ManageBase {
   Refresher refresh;
   DataLoader loader;
   UiBuilder builder;
-  String jsonurl;
   var help = "global.help";
   
   ManageGlobal() {
     help = "global.help";
-    jsonurl = "${baseurl}/sipxconfig/rest/mongo";
-    if (devmode() && useStaticJson) {
-      jsonurl = "${devBasePath}/sipXconfig/web/context/WEB-INF/mongo/global-test.json";
-    }
     msg = new UserMessage(query("#globalMessage"));    
     table = dataTable(query("#globalTable"), [
         getString('service'), 
@@ -74,7 +62,8 @@ class ManageGlobal extends ManageBase {
     loader = new DataLoader(msg, loadTable);
     builder = new UiBuilder(this);    
     refresh = new Refresher(query("#globalRefreshWidget"), query("#globalRefreshButton"), () {
-      loader.load(jsonurl);      
+      var url = api.url("mongo", "global-test.json");
+      loader.load(url);      
     });
   }
  
@@ -110,7 +99,7 @@ class ManageGlobal extends ManageBase {
   
   void onServerAction(String label, String server, String action) {    
     var httpRequest = new HttpRequest();
-    httpRequest.open('POST', jsonurl);
+    httpRequest.open('POST', api.url("mongo"));
     httpRequest.onLoadEnd.listen((e) {
       loader.checkResponse(httpRequest);
       load();
@@ -125,23 +114,20 @@ class ManageLocal extends ManageBase {
   Refresher refresh;
   DataLoader loader;
   UiBuilder builder;
-  String jsonurl;
   
   ManageLocal() {
     help = "local.help";
-    jsonurl = "${baseurl}/sipxconfig/rest/mongolocal";
-    if (devmode() && useStaticJson) {
-      jsonurl = "${devBasePath}/sipXconfig/web/context/WEB-INF/mongo/local-test.json";
-    }
     msg = new UserMessage(query("#localMessage"));    
     table = dataTable(query("#localTable"), [
         getString('service'), 
         getString('status'), 
+        getString('region'), 
         getString('action')]);
     loader = new DataLoader(msg, loadTable);
     builder = new UiBuilder(this);
     refresh = new Refresher(query("#localRefreshWidget"), query("#localRefreshButton"), () {
-      loader.load(jsonurl);      
+      var url = api.url("mongolocal", "local-test.json");
+      loader.load(url);      
     });
   }
       
@@ -159,6 +145,8 @@ class ManageLocal extends ManageBase {
           var row = builder.row();
           builder.nameColumn(row.addCell(), node, server, type);
           builder.statusColumn(row.addCell(), node, server, type);
+          String region = node['region'];
+          row.addCell().text = (region == null  ? '' : region);
           var actions = builder.actionColumn(row.addCell(), node, server, type);
           if (shard[type].length == 1) {
             // Delete on last database is different server side command
@@ -175,7 +163,7 @@ class ManageLocal extends ManageBase {
 
   void onServerAction(String label, String server, String action) {    
     var httpRequest = new HttpRequest();
-    httpRequest.open('POST', jsonurl);
+    httpRequest.open('POST', api.url("mongolocal"));
     httpRequest.onLoadEnd.listen((e) {
       loader.checkResponse(httpRequest);
       load();
@@ -207,7 +195,7 @@ class UiBuilder {
   void nameColumn(Element cell, node, server, type) {
     var img = new ImageElement();
     var src = statusImage(node['status']);
-    img.src = "${baseurl}/sipxconfig/images/${src}";
+    img.src = "${api.baseUrl()}/images/${src}";
     cell.append(img);
     String typeText = dbType(type);      
     cell.appendText(" ${node['host']} ${typeText}");  
@@ -282,7 +270,7 @@ class UiBuilder {
     var addNode = new SelectElement();
     addNode.classes = ['action'];
     addNode.onChange.listen((e) {
-      onServerAction(noneSelectedLabel, e.target.value, action);
+      onServerAction(noneSelectedLabel, addNode.value, action);
     });
     addNode.append(new OptionElement(noneSelectedLabel, "", false, true));
     for (var candidate in candidates) {
