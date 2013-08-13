@@ -1,6 +1,4 @@
 /**
- *
- *
  * Copyright (c) 2012 eZuce, Inc. All rights reserved.
  * Contributed to SIPfoundry under a Contributor Agreement
  *
@@ -15,8 +13,6 @@
  * details.
  */
 package org.sipfoundry.sipxconfig.mongo;
-
-
 
 import java.io.File;
 import java.io.FileWriter;
@@ -38,6 +34,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.region.Region;
 
 import com.mongodb.util.JSON;
 
@@ -55,9 +52,13 @@ public class MongoConfig implements ConfigProvider {
         FeatureManager fm = manager.getFeatureManager();
         Location[] all = manager.getLocationManager().getLocations();
         MongoSettings settings = m_mongoManager.getSettings();
-        List<Location> dbs = manager.getFeatureManager().getLocationsForEnabledFeature(MongoManager.FEATURE_ID);
+        List<Location> dbs = fm.getLocationsForEnabledFeature(MongoManager.FEATURE_ID);
         String connStr = getConnectionString(dbs, GLOBAL_REPLSET, settings.getPort());
         String connUrl = getConnectionUrl(dbs, settings.getPort());
+        List<Location> localServers = fm.getLocationsForEnabledFeature(MongoManager.LOCAL_FEATURE);
+        List<Location> localArbiters = fm.getLocationsForEnabledFeature(MongoManager.LOCAL_ARBITER_FEATURE);
+        Map<Integer, List<Location>> localServersByRegion = Region.locationsByRegion(localServers);
+        Map<Integer, List<Location>> localArbitersByRegion = Region.locationsByRegion(localArbiters);
         for (Location location : all) {
             // CLIENT
             File dir = manager.getLocationDataDirectory(location);
@@ -72,6 +73,7 @@ public class MongoConfig implements ConfigProvider {
             boolean mongod = fm.isFeatureEnabled(MongoManager.FEATURE_ID, location);
             boolean arbiter = fm.isFeatureEnabled(MongoManager.ARBITER_FEATURE, location);
             boolean local = fm.isFeatureEnabled(MongoManager.LOCAL_FEATURE, location);
+            boolean localArbiter = fm.isFeatureEnabled(MongoManager.LOCAL_ARBITER_FEATURE, location);
             if (local) {
                 File localFile = new File(dir, "mongo-local.ini");
                 FileWriter localConfig = new FileWriter(localFile);
@@ -79,14 +81,24 @@ public class MongoConfig implements ConfigProvider {
                     writeLocalClientConfig(localConfig, MongoSettings.LOCAL_PORT, location);
                 } finally {
                     IOUtils.closeQuietly(localConfig);
-                }
-
+                }               
+            }
+            
+            if (local || localArbiter) {
                 FileWriter localModel = null;
                 try {
                     File f = new File(dir, "mongo-local.json");
                     localModel = new FileWriter(f);
-                    List<Location> none = Collections.emptyList();
-                    modelFile(localModel, Collections.singletonList(location), none, LOCAL_REPLSET,
+                    List<Location> ldbs = localServersByRegion.get(location.getRegionId());
+                    List<Location> larbs = localArbitersByRegion.get(location.getRegionId());
+                    
+                    // NOTE: If no region is specified, allow this local database to
+                    // start w/o a region as a convenience to user to not required a 
+                    // region for a single local database in one location.
+                    if (ldbs == null && local) {
+                    	ldbs = Collections.singletonList(location);
+                    }
+                    modelFile(localModel, ldbs, larbs, LOCAL_REPLSET,
                             MongoSettings.LOCAL_PORT, MongoSettings.LOCAL_ARBITER_PORT);
                 } finally {
                     IOUtils.closeQuietly(localModel);
@@ -95,7 +107,7 @@ public class MongoConfig implements ConfigProvider {
 
             FileWriter server = new FileWriter(new File(dir, "mongodb.cfdat"));
             try {
-                writeServerConfig(server, mongod, arbiter, local);
+                writeServerConfig(server, mongod, arbiter, local, localArbiter);
             } finally {
                 IOUtils.closeQuietly(server);
             }
@@ -111,14 +123,14 @@ public class MongoConfig implements ConfigProvider {
             IOUtils.closeQuietly(w);
         }
     }
-
+    
     void modelFile(Writer sb, List<Location> servers, List<Location> arbiters, String replSet, int dbPort,
             int arbPort) throws IOException {
         Map<String, Object> model = new HashMap<String, Object>();
         if (servers.size() > 0) {
             model.put("servers", serverIdList(servers, dbPort));
         }
-        if (arbiters.size() > 0) {
+        if (arbiters != null && arbiters.size() > 0) {
             model.put("arbiters", serverIdList(arbiters, arbPort));
         }
         model.put("replSet", replSet);
@@ -134,7 +146,7 @@ public class MongoConfig implements ConfigProvider {
         return ids;
     }
 
-    void writeServerConfig(Writer w, boolean mongod, boolean arbiter, boolean local) throws IOException {
+    void writeServerConfig(Writer w, boolean mongod, boolean arbiter, boolean local, boolean localArbiter) throws IOException {
         String bindToAll = "0.0.0.0";
         CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
         config.writeClass("mongod", mongod);
@@ -144,6 +156,7 @@ public class MongoConfig implements ConfigProvider {
         config.write("mongoArbiterBindIp", bindToAll);
         config.write("mongoArbiterPort", MongoSettings.ARBITER_PORT);
         config.writeClass("mongo_local", local);
+        config.writeClass("mongo_arbiter_local", localArbiter);
     }
 
     void writeClientConfig(Writer w, String connStr, String connUrl) throws IOException {

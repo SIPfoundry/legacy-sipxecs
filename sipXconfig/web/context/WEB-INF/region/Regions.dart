@@ -2,16 +2,10 @@ import 'dart:html';
 import 'dart:json';
 import 'package:sipxconfig/sipxconfig.dart';
 
-// developer aid. Path will have last developers work directory in it. darteditor 
-// has no way to avoid this AFAICT 
-String devBasePath = "http://127.0.0.1:3030/home/dhubler/work/sipxecs";
-bool useStaticJson = true;
-
-String baseurl;
 ManageRegions regions = new ManageRegions();
+var api = new Api(test : true);
 
 main() {
-  baseurl = devmode() ? "http://localhost:12000" : "";
   regions.reload();
 }
 
@@ -19,26 +13,38 @@ class ManageRegions {
   UserMessage msg;
   TableSectionElement table;
   DataLoader loader;
-  String jsonurl;
   
   ManageRegions() {
-    jsonurl = "${baseurl}/sipxconfig/rest/region";
-    if (devmode() && useStaticJson) {
-      jsonurl = "${devBasePath}/sipXconfig/web/context/WEB-INF/region/regions-test.json";
-    }
     msg = new UserMessage(query("#userMessage"));    
-    table = dataTable(query("#regionTable"), [ getString('name'), '']);
+    table = dataTable(query("#regionTable"), [ getString('name'), getString('servers'), '']);
     loader = new DataLoader(msg, loadTable);
   }
     
   void removeRegion(int region, String name) {
     if (window.confirm("Are you sure you want to remove ${name}?")) {
-      //removeRegions();
+      HttpRequest req = new HttpRequest();
+      req.open('DELETE', api.url("rest/region/${region}"));
+      req.setRequestHeader("Content-Type", "application/json"); 
+      req.send();
+      req.onLoad.listen(reload).onError((e) {
+        window.alert(e.toString());      
+      });
     }
   }
   
-  void reload() {
-    loader.load(jsonurl);
+  void reload([event]) {
+    loader.load(api.url("rest/region/", 'regions-test.json'));
+  }
+  
+  void addRegion(Event event) {
+    var name = (event.target as InputElement).value;
+    HttpRequest req = new HttpRequest();
+    req.open('POST', api.url("rest/region/"));
+    req.setRequestHeader("Content-Type", "application/json"); 
+    req.send('{"name":"${name}"}');
+    req.onLoad.listen(reload).onError((e) {
+      window.alert(e.toString());      
+    });
   }
    
   void loadTable(data) {    
@@ -48,6 +54,7 @@ class ManageRegions {
       var row = new Element.html('''
 <tr>
  <td>${region['name']}</td>
+ <td>${region['servers'].join(', ')}</td>
 </tr>''');
       ButtonElement remove = new ButtonElement();
       remove.text = "Remove";
@@ -60,12 +67,10 @@ class ManageRegions {
     var addRow = new TableRowElement();
     var cell = addRow.addCell();
     var addName = new InputElement();
-    addName.onChange.listen((e) {
-      window.alert((e.target as InputElement).value);
-    });
+    addName.autofocus = true;
+    addName.onChange.listen(addRegion);
     cell.children.add(addName);
-    table.children.add(addRow);
-    
+    table.children.add(addRow);   
   }
 }
 

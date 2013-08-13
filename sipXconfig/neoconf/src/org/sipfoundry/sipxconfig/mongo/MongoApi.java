@@ -180,6 +180,7 @@ class MongoApi extends Resource {
             Map<String, Object> nmap = new HashMap<String, Object>();
             nmap.put("status", node.getStatus());
             nmap.put(HOST, l.getHostname());
+            nmap.put("region", l.getRegionId());
             boolean local = m_mongoManager.getFeatureManager().isFeatureEnabled(MongoManager.LOCAL_FEATURE, l);
             nmap.put("local", local);
             nmap.put("required", meta.getRequiredActions(node.getHostPort()));

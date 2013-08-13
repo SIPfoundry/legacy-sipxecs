@@ -14,8 +14,12 @@
  */
 package org.sipfoundry.sipxconfig.region;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -23,10 +27,27 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Feature;
 
 public class Region extends BeanWithId implements NamedObject, DeployConfigOnEdit {
     private String m_name;
+
+    public static final Map<Integer, List<Location>> locationsByRegion(List<Location> locations) {
+    	Map<Integer, List<Location>> map = new HashMap<Integer, List<Location>>();
+    	for (Location location : locations) {
+    		if (location.getRegionId() != null) {
+    			List<Location> list = map.get(location.getRegionId());
+    			if (list == null) {
+    				list = new ArrayList<Location>();
+    				map.put(location.getRegionId(), list);
+    			}
+				list.add(location);
+    		}    		
+    	}
+    	
+    	return map;
+    }
 
     public Region() {
     }

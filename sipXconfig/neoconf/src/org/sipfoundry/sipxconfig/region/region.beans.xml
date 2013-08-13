@@ -11,8 +11,16 @@
     <property name="configJdbcTemplate" ref="configJdbcTemplate"/>
   </bean>
   
-  <bean id="regionApi" class="org.sipfoundry.sipxconfig.region.RegionApi" scope="prototype">
+  <bean id="baseRegionApi" class="org.sipfoundry.sipxconfig.region.RegionApi" abstract="true" scope="prototype">
     <property name="regionManager" ref="regionManager"/>
+    <property name="locationsManager" ref="locationsManager"/>
+    <property name="modifiable" value="false" />
   </bean>
-  <alias name="regionApi" alias="/region"/>
+  
+  <bean id="regionApi" parent="baseRegionApi"/>
+  <alias name="regionApi" alias="/region" />
+  
+  <bean name="editRegionApi" parent="baseRegionApi"/>
+  <alias name="editRegionApi" alias="/region/{id}" />
+  
 </beans>  
