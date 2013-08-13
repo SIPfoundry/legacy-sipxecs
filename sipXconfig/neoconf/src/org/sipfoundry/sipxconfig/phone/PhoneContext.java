@@ -63,6 +63,7 @@ public interface PhoneContext extends DataObjectSource, DaoEventListener {
 
     Integer getPhoneIdBySerialNumber(String serialNumber);
 
+    @Override
     Object load(Class c, Serializable id);
 
     void storePhone(Phone phone);
@@ -70,6 +71,20 @@ public interface PhoneContext extends DataObjectSource, DaoEventListener {
     void deletePhone(Phone phone);
 
     List<Group> getGroups();
+
+    /**
+     * This method is meant to be intercepted when phone group saving permissions are effective
+     * @see spring 3 security guidelines
+     * @param group
+     */
+    void saveGroup(Group group);
+
+    /**
+     * This method is meant to be intercepted when user group saving permissions are effective
+     * @see spring 3 security guidelines
+     * @param group
+     */
+    boolean deleteGroups(Collection<Integer> groupIds);
 
     /**
      * Retrieves phone group by name.

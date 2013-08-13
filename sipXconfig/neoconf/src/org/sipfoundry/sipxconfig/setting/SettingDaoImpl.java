@@ -9,13 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
@@ -38,8 +39,9 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
 
     private JdbcTemplate m_jdbcTemplate;
 
+    @Override
     public Group getGroup(Integer groupId) {
-        return (Group) getHibernateTemplate().load(Group.class, groupId);
+        return getHibernateTemplate().load(Group.class, groupId);
     }
 
     /*
@@ -52,6 +54,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
      * event listeners that listened to group deletes were removed, and control moved in this method.
      * This was the price to pay for increased efficiency in saving large groups.
      */
+    @Override
     public boolean deleteGroups(Collection<Integer> groupIds) {
         List<String> sqlUpdates = new ArrayList<String>();
         boolean affectAdmin = false;
@@ -59,7 +62,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         List<Group> groups = new ArrayList<Group>(groupIds.size());
         for (Integer groupId : groupIds) {
             Group group = loadGroup(groupId);
-            if (group != adminGroup) {
+            if (!group.equals(adminGroup)) {
                 groups.add(group);
                 sqlUpdates.add("DELETE FROM user_group where group_id=" + group.getId() + SEMICOLON);
                 sqlUpdates.add("DELETE FROM supervisor where group_id=" + group.getId() + SEMICOLON);
@@ -89,14 +92,17 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         return affectAdmin;
     }
 
+    @Override
     public void storeValueStorage(ValueStorage storage) {
         getHibernateTemplate().saveOrUpdate(storage);
     }
 
+    @Override
     public ValueStorage loadValueStorage(Integer storageId) {
-        return (ValueStorage) getHibernateTemplate().load(ValueStorage.class, storageId);
+        return getHibernateTemplate().load(ValueStorage.class, storageId);
     }
 
+    @Override
     public void saveGroup(Group group) {
         checkDuplicates(group);
         checkBranchValidity(group);
@@ -164,6 +170,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         }
     }
 
+    @Override
     public Group getGroupByName(String resource, String name) {
         String[] params = new String[] {
             RESOURCE_PARAM, NAME_PARAM
@@ -176,8 +183,9 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         return (Group) DaoUtils.requireOneOrZero(groups, query);
     }
 
+    @Override
     public List<Group> getGroupsByString(String resource, String groupString, boolean saveNew) {
-        if (StringUtils.isBlank(groupString)) {
+        if (isBlank(groupString)) {
             return new ArrayList(0);
         }
         String[] groupNames = groupString.trim().split("\\s+");
@@ -198,16 +206,19 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         return groups;
     }
 
+    @Override
     public Group loadGroup(Integer id) {
-        return (Group) getHibernateTemplate().load(Group.class, id);
+        return getHibernateTemplate().load(Group.class, id);
     }
 
+    @Override
     public List<Group> getGroups(String resource) {
         List<Group> groups = getHibernateTemplate().findByNamedQueryAndNamedParam("groupsByResource",
                 RESOURCE_PARAM, resource);
         return groups;
     }
 
+    @Override
     public Map<Integer, Long> getGroupMemberCountIndexedByGroupId(Class groupOwner) {
         String query = "select g.id, count(*) from " + groupOwner.getName() + " o join o.groups g group by g.id";
         List<Object[]> l = getHibernateTemplate().find(query);
@@ -216,6 +227,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         return members;
     }
 
+    @Override
     public Map<Integer, Long> getBranchMemberCountIndexedByBranchId(Class branchOwner) {
         String query = "select b.id, count(*) from " + branchOwner.getName() + " o join o.branch b group by b.id";
         List<Object[]> l = getHibernateTemplate().find(query);
@@ -224,6 +236,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         return members;
     }
 
+    @Override
     public Map<Integer, Long> getGroupBranchMemberCountIndexedByBranchId(Class branchOwner) {
         String query = "select g.branch.id, count(*) from " + branchOwner.getName() + " o join "
             + "o.groups g where o.branch = null group by g.branch.id";
@@ -233,6 +246,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         return members;
     }
 
+    @Override
     public Map<Integer, Long> getAllBranchMemberCountIndexedByBranchId(Class branchOwner) {
         Map<Integer, Long> mapBranch = getBranchMemberCountIndexedByBranchId(branchOwner);
         Map<Integer, Long> mapGroupBranch = getGroupBranchMemberCountIndexedByBranchId(branchOwner);
@@ -271,6 +285,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         }
     }
 
+    @Override
     public Group getGroupCreateIfNotFound(String resourceId, String groupName) {
         Group g = getGroupByName(resourceId, groupName);
         if (g == null) {

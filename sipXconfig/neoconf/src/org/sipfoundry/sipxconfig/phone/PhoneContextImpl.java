@@ -115,14 +115,17 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     /**
      * Callback that supplies the owning factory to a bean instance.
      */
+    @Override
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }
 
+    @Override
     public void flush() {
         getHibernateTemplate().flush();
     }
 
+    @Override
     public void storePhone(Phone phone) {
         HibernateTemplate hibernate = getHibernateTemplate();
         String serialNumber = phone.getSerialNumber();
@@ -136,6 +139,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         getDaoEventPublisher().publishSave(phone);
     }
 
+    @Override
     public void deletePhone(Phone phone) {
         ProfileLocation location = phone.getModel().getDefaultProfileLocation();
         phone.removeProfiles(location);
@@ -146,65 +150,88 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         getHibernateTemplate().delete(phone);
     }
 
+    @Override
     public void storeLine(Line line) {
         line.setValueStorage(clearUnsavedValueStorage(line.getValueStorage()));
         getHibernateTemplate().saveOrUpdate(line);
         getDaoEventPublisher().publishSave(line);
     }
 
+    @Override
     public void deleteLine(Line line) {
         line.setValueStorage(clearUnsavedValueStorage(line.getValueStorage()));
         getHibernateTemplate().delete(line);
     }
 
+    @Override
     public Line loadLine(Integer id) {
-        Line line = (Line) getHibernateTemplate().load(Line.class, id);
+        Line line = getHibernateTemplate().load(Line.class, id);
         return line;
     }
 
+    @Override
     public int getPhonesCount() {
         return getPhonesInGroupCount(null);
     }
 
+    @Override
     public int getPhonesInGroupCount(Integer groupId) {
         return getBeansInGroupCount(Phone.class, groupId);
     }
 
+    @Override
     public List<Phone> loadPhonesByPage(Integer groupId, int firstRow, int pageSize,
             String[] orderBy, boolean orderAscending) {
         return loadBeansByPage(Phone.class, groupId, firstRow, pageSize, orderBy, orderAscending);
     }
 
+    @Override
     public List<Phone> loadPhones() {
         return getHibernateTemplate().loadAll(Phone.class);
     }
 
+    @Override
     public List<Integer> getAllPhoneIds() {
         return getHibernateTemplate().findByNamedQuery("phoneIds");
     }
 
+    @Override
     public Phone loadPhone(Integer id) {
-        Phone phone = (Phone) getHibernateTemplate().load(Phone.class, id);
+        Phone phone = getHibernateTemplate().load(Phone.class, id);
 
         return phone;
     }
 
+    @Override
     public Integer getPhoneIdBySerialNumber(String serialNumber) {
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_PHONE_ID_BY_SERIAL_NUMBER, "value",
                 serialNumber);
         return (Integer) DaoUtils.requireOneOrZero(objs, QUERY_PHONE_ID_BY_SERIAL_NUMBER);
     }
 
+    @Override
     public Phone newPhone(PhoneModel model) {
         Phone phone = (Phone) m_beanFactory.getBean(model.getBeanId());
         phone.setModel(model);
         return phone;
     }
 
+    @Override
     public List<Group> getGroups() {
         return m_settingDao.getGroups(GROUP_RESOURCE_ID);
     }
 
+    @Override
+    public void saveGroup(Group group) {
+        m_settingDao.saveGroup(group);
+    }
+
+    @Override
+    public boolean deleteGroups(Collection<Integer> groupIds) {
+        return m_settingDao.deleteGroups(groupIds);
+    }
+
+    @Override
     public Group getGroupByName(String phoneGroupName, boolean createIfNotFound) {
         if (createIfNotFound) {
             return m_settingDao.getGroupCreateIfNotFound(GROUP_RESOURCE_ID, phoneGroupName);
@@ -213,6 +240,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     /** unittesting only */
+    @Override
     public void clear() {
         // ordered bottom-up, e.g. traverse foreign keys so as to
         // not leave hanging references. DB will reject otherwise
@@ -225,6 +253,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         getHibernateTemplate().deleteAll(c);
     }
 
+    @Override
     public String getSystemDirectory() {
         return m_systemDirectory;
     }
@@ -247,10 +276,12 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         }
     }
 
+    @Override
     public void onApplicationEvent(ApplicationEvent event_) {
         // no init tasks defined yet
     }
 
+    @Override
     public DeviceDefaults getPhoneDefaults() {
         return m_deviceDefaults;
     }
@@ -259,12 +290,14 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         m_deviceDefaults = deviceDefaults;
     }
 
+    @Override
     public Collection getPhonesByGroupId(Integer groupId) {
         Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByGroupId", "groupId",
                 groupId);
         return users;
     }
 
+    @Override
     public void onDelete(Object entity) {
         Class c = entity.getClass();
         if (User.class.equals(c)) {
@@ -285,13 +318,16 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         }
     }
 
+    @Override
     public void onSave(Object entity_) {
     }
 
+    @Override
     public Collection<Phone> getPhonesByUserId(Integer userId) {
         return getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByUserId", USER_ID, userId);
     }
 
+    @Override
     public Collection<Phone> getPhonesByUserIdAndPhoneModel(Integer userId, String modelId) {
         String[] paramsNames = {
             USER_ID, "modelId"
@@ -304,14 +340,17 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         return phones;
     }
 
+    @Override
     public void addToGroup(Integer groupId, Collection<Integer> ids) {
         DaoUtils.addToGroup(getHibernateTemplate(), getDaoEventPublisher(), groupId, Phone.class, ids);
     }
 
+    @Override
     public void removeFromGroup(Integer groupId, Collection<Integer> ids) {
         DaoUtils.removeFromGroup(getHibernateTemplate(), getDaoEventPublisher(), groupId, Phone.class, ids);
     }
 
+    @Override
     public void addUsersToPhone(Integer phoneId, Collection<Integer> ids) {
         Phone phone = loadPhone(phoneId);
         for (Integer userId : ids) {
@@ -323,10 +362,12 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         storePhone(phone);
     }
 
+    @Override
     public Intercom getIntercomForPhone(Phone phone) {
         return m_intercomManager.getIntercomForPhone(phone);
     }
 
+    @Override
     public Collection<PhonebookEntry> getPhonebookEntries(Phone phone) {
         User user = phone.getPrimaryUser();
         if (user != null) {
@@ -352,6 +393,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         return filteredPhonebooks;
     }
 
+    @Override
     public SpeedDial getSpeedDial(Phone phone) {
         User user = phone.getPrimaryUser();
         if (user != null && !user.isNew()) {
@@ -360,6 +402,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         return null;
     }
 
+    @Override
     public Collection<Integer> getPhoneIdsByUserGroupId(int groupId) {
         final List<Integer> userIds = new LinkedList<Integer>();
         m_jdbcTemplate.query("SELECT u.user_id from users u inner join user_group g "
@@ -379,6 +422,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         return ids;
     }
 
+    @Override
     public User createSpecialPhoneProvisionUser(String serialNumber) {
         User user = m_coreContext.getSpecialUser(SpecialUserType.PHONE_PROVISION);
         user.setFirstName("ID:");
@@ -387,6 +431,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         return user;
     }
 
+    @Override
     public List<Phone> loadPhonesWithNoLinesByPage(int firstRow, int pageSize, String[] orderBy,
             boolean orderAscending) {
         DetachedCriteria c = DetachedCriteria.forClass(Phone.class);
@@ -400,6 +445,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         return getHibernateTemplate().findByCriteria(c, firstRow, pageSize);
     }
 
+    @Override
     public int getPhonesWithNoLinesCount() {
         DetachedCriteria crit = DetachedCriteria.forClass(Phone.class);
         addByNoLinesCriteria(crit);
