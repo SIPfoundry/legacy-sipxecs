@@ -20,24 +20,37 @@ pidfile="@SIPX_RUNDIR@/sipxrls.pid"
 [ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
 
 start() {
-    [ -x $exec ] || exit 5
-    [ -f $config ] || exit 6
-    if [ -n "${NoFork}" ] ; then
-      runuser - @SIPXPBXUSER@ -c $exec
-    else
-      echo -n $"Starting $prog: "
-      daemon --user @SIPXPBXUSER@ --pidfile $pidfile $exec $pidfile
-      Status=$?
-      echo_success
-    fi
+  [ -x $exec ] || { echo -n "$execError"; echo_failure; echo; exit $ENOEXEC; }
+  [ -f $config ] || { echo -n "$invalidFileError"; echo_failure; echo; exit $ENOENT; }
+  if [ -n "${NoFork}" ] ; then
+    killAnyOrphans @SIPXPBXUSER@ $prog
+    runuser - @SIPXPBXUSER@ -c $exec
+  else
+    checkRunningInstance @SIPXPBXUSER@ $prog > /dev/null
+    Status=$?
+    [ $Status -eq 0 ] && { echo -n "$prog $runningError"; echo_failure; echo; exit $ERUNNING; } 
+      
+    echo -n $"Starting $prog: "
+    daemon --user @SIPXPBXUSER@ --pidfile $pidfile $exec $pidfile
+      
+    #check if process spawned
+    checkRunningInstanceTimeout @SIPXPBXUSER@ $prog
+    Status=$?
+    [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
+    checkIfListening $prog 
+    Status=$? 
+    [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
+    [ $Status -eq 0 ] && { echo_success; echo; }
+  fi
 }
 
 stop() {
-  echo -n $"Stopping sipXrls: "
-  killproc -p "${pidfile}" "${exec}"
+  echo -n $"Stopping $prog: "
+  killproc "${exec}"
   Status=$?
   echo
   [ $Status -eq 0 ] && rm -f "${pidfile}"
+  killAnyOrphans @SIPXPBXUSER@ $prog
 }
 
 restart() {
@@ -60,10 +73,12 @@ case "$1" in
     restart
     ;;
   condrestart)
-    [ -f ${pidfile} ] && restart || :
+    checkRunningInstance @SIPXPBXUSER@ $prog > /dev/null
+    Status=$?
+    [ $Status -eq 0 ] && restart || :
     ;;
   status)
-    status -p "${pidfile}" "${prog}"
+    status "${prog}"
     Status=$?
     ;;
   configtest)

@@ -27,7 +27,7 @@ public abstract class PhoneSettings extends PhoneBasePage implements PageBeginRe
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
-    
+
     public abstract String getParentSettingName();
 
     /** REQUIRED PAGE PARAMETER */

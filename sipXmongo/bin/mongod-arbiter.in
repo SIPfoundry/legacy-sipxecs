@@ -11,16 +11,18 @@
 # NOTE: This file cloned from /etc/init.d/mongod from mongodb proper
 
 . /etc/rc.d/init.d/functions
-
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 # things from mongod.conf get there by mongod reading it
 
 
 # NOTE: if you change any OPTIONS here, you get what you pay for:
 # this script assumes all options are in the config file.
+PROG="mongod-arbiter"
 CONFIGFILE="/etc/mongod-arbiter.conf"
 OPTIONS=" -f $CONFIGFILE"
 SYSCONFIG="/etc/sysconfig/mongod-arbiter"
 LOCKFILE=/var/lock/subsys/mongod-arbiter
+regex="mongod"
 
 # 10gen v.s. fedora
 if `id mongodb 1>/dev/null 2>&1` ; then
@@ -49,25 +51,37 @@ chown $MONGO_USER:$MONGO_GROUP $DBPATH
 
 start()
 {
-  echo -n $"Starting mongod-arbiter: "
+  checkRunningInstance $MONGO_USER $PROG > /dev/null
+  Status=$?
+  [ $Status -eq 0 ] && { echo -n "$PROG $runningError"; echo_failure; echo; exit $ERUNNING; }
+  echo -n $"Starting $PROG: "
   daemon --user "$MONGO_USER" $mongod $OPTIONS
+  
+  #check if process was spawned
+  checkRunningInstanceTimeout $MONGO_USER $PROG
   RETVAL=$?
-  echo
+  [ $RETVAL -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
+  pid=`ps -u $MONGO_USER -o pid,args | grep $regex | grep -v "grep" | awk '{print $1 }'`
+  checkIfListening $pid
+  RETVAL=$?
+  [ $RETVAL -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
   [ $RETVAL -eq 0 ] && touch $LOCKFILE
+  [ $RETVAL -eq 0 ] && { echo_success; echo; }
 }
 
 stop()
 {
-  echo -n $"Stopping mongod-arbiter: "
-  killproc -p $PIDFILE $mongod
+  echo -n $"Stopping $PROG: "
+  killproc $mongod
   RETVAL=$?
   echo
   [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+  killAnyOrphans $MONGO_USER $PROG
 }
 
 restart () {
-	stop
-	start
+  stop
+  start
 }
 
 ulimit -n 12000
@@ -84,10 +98,12 @@ case "$1" in
     restart
     ;;
   condrestart)
-    [ -f $LOCKFILE ] && restart || :
+    checkRunningInstance $MONGO_USER $PROG $PROG > /dev/null
+    RETVAL=$?
+    [ $RETVAL -eq 0 ] && [ -f $LOCKFILE ] && restart || :
     ;;
   status)
-    status -p $PIDFILE "mongod-arbiter"
+    checkRunningInstance $MONGO_USER $PROG $PROG
     RETVAL=$?
     ;;
   *)

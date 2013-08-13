@@ -26,10 +26,6 @@ public abstract class PhoneNavigation extends BeanNavigation {
 
     @InjectPage(value = EditPhone.PAGE)
     public abstract EditPhone getEditPhonePage();
-    
-/*    @InjectPage(value = EditPhoneE911Page.PAGE)
-    public abstract EditPhoneE911Page getEditPhoneE911Page();*/
-    
 
     public IPage editPhone(Integer phoneId) {
         EditPhone page = getEditPhonePage();
@@ -44,23 +40,12 @@ public abstract class PhoneNavigation extends BeanNavigation {
     public boolean isLinesTabActive() {
         return PhoneLines.PAGE.equals(getPage().getPageName());
     }
-    
-/*    public boolean isE911TabActive() {
-        return EditE911Page.PAGE.equals(getPage().getPageName());
-    }*/
-    
+
     public IPage editLines(Integer phoneId) {
         PhoneLines page = getPhoneLinesPage();
         page.setPhoneId(phoneId);
         return page;
     }
-
-/*    public IPage editE911(Integer phoneId) {
-        EditPhoneE911Page page = getEditPhoneE911Page();
-        page.setPhoneId(phoneId);
-        page.setReturnPage(EditPhoneE911Page.PAGE);
-        return page;
-    }*/
 
     public IPage editSettings(Integer beanId, String section) {
         PhoneSettings page = getPhoneSettingsPage();

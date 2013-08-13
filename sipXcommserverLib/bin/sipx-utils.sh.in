@@ -3,6 +3,14 @@
 ### Utility script functions common to server startup scripts
 ###
 
+EALREADY=114	#Operation already in progress
+ENOENT=2	#No such file or directory
+ENOEXEC=8	#Exec format error
+ESRCH=3 	#No such process
+ERUNNING=1	#Process still running
+ENOSCKT=4	#No listening socket
+ 
+
 # Set up correctly depending on the distribution
 if [ -f /etc/redhat-release ]
 then
@@ -458,4 +466,83 @@ EOF
         esac
     fi
     return $selinux_status
+}
+
+##
+## functions for process management
+##
+maxTimeout=10
+sleepTime=0.5
+runningError="is already running"
+execError="Provided file is not executable"
+invalidFileError="Invalid file "
+noPortError="No listening port found"
+
+#check if process is in the process table
+checkRunningInstance () {
+  user=$1
+  regex=$2
+  program=$3
+  procs=`ps -u $1 -o pid,args | grep $regex | grep -v "grep" | awk '{print $1 }' | tr -s '\n' " "`
+  [ "${procs}" ] && { echo "$program (pid $procs) is running"; return 0; }
+  [ "${procs}" ] || { echo "$program is stopped"; return $ESRCH; } 
+}
+
+#check if process is in the process table for a maximum amount of time
+checkRunningInstanceTimeout () {
+  user=$1
+  regex=$2
+  [ $3 ] && timeout=$3
+  [ $3 ] || timeout=$maxTimeout
+
+  for((i=0; i<$timeout; i++ )); do
+    checkRunningInstance $user $regex > /dev/null
+    Status=$?
+    [ $Status -eq 0 ] && return 0
+    sleep $sleepTime
+  done
+
+  return $ESRCH
+}
+
+#check if process is listening on a port for a maximum amount of time
+checkIfListening() {
+  regex=$1
+  [ $2 ] && timeout=$2
+  [ $2 ] || timeout=$maxTimeout
+  for((i=0; i<$timeout; i++)); do
+    result=`netstat -tulpn | awk '$6 == "LISTEN"' | grep $regex | awk '{ print $4 }'` 
+    [ "${result}" ] && return 0; 
+    sleep $sleepTime
+  done
+  return $ENOSCKT
+}
+
+#kill any process that belongs to a specified user and related to a regex
+killAnyOrphans () {
+  user=$1
+  regex=$2
+  Status=0
+  [ $3 ] && timeout=$3
+  [ $3 ] || timeout=$maxTimeout
+  
+  #TERM first, then KILL if not dead
+  procs=`ps -u $1 -o pid,args | grep $regex | grep -v "grep" | awk '{print $1 }'`
+  for pid in $procs; do kill -TERM $pid; done
+  for((i=0; i<$timeout; i++)); do
+    checkRunningInstance $user $regex > /dev/null
+    Status=$?
+    [ $Status -eq $ESRCH ] && break;
+    sleep $sleepTime
+  done
+  
+  checkRunningInstance $user $regex > /dev/null
+  Status=$?
+  [ $Status -eq 0 ] && { procs=`ps -u $1 -o pid,args | grep $regex | grep -v "grep" | awk '{print $1 }'`; \
+			 for pid in $procs; do kill -KILL $pid; done ; \
+		       }
+		       
+  checkRunningInstance $user $regex > /dev/null
+  Status=$?
+  [ $Status -eq 0 ] && { echo_failure; echo; } 
 }

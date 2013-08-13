@@ -20,53 +20,57 @@
 
 prog=sipxbridge
 pidfile="@SIPX_RUNDIR@/sipxbridge.pid"
+regex="Dprocname=sipxbridge"
 
 [ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
 
-checkRunningInstance() {
-  if [ -f "${pidfile}" ]; then
-    pid=`cat ${pidfile}`
-    if checkpid $pid 2>&1; then
-      echo "Process $prog is already running with pid $pid"
-      exit 1
-    fi
+start() {
+  JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
+  Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @bridge_PKGS@`
+  export CLASSPATH=`echo @SIPX_CONFDIR@/sipxbridge @SIPX_JAVADIR@/sipXbridge/*.jar ${Dependencies} | sed -e 's/ /:/g'`
+
+  # procname is there so cfengine can find it
+  Command="$JavaCmd \
+    ${SIPXBRIDGE_OPTS} \
+    -Dprocname=sipxbridge \
+    -Dconf.dir=@SIPX_CONFDIR@ \
+    -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+    -Djavax.net.ssl.keyStore=@SIPX_CONFDIR@/ssl/ssl.keystore \
+    -Djavax.net.ssl.keyStorePassword=changeit \
+    -Dsipxbridge.command=start \
+    org.sipfoundry.sipxbridge.Gateway \
+    $Args"
+  if [ -n "${NoFork}" ] ; then
+    killAnyOrphans @SIPXPBXUSER@ $regex
+    runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"
+  else
+    checkRunningInstance @SIPXPBXUSER@ $regex > /dev/null
+    Status=$?
+    [ $Status -eq 0 ] && { echo -n "$prog $runningError"; echo_failure; echo; exit $ERUNNING; }
+ 
+    echo -n $"Starting $prog: "
+    runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
+    echo $! > ${pidfile}
+
+    #check if process was spawned
+    checkRunningInstanceTimeout @SIPXPBXUSER@ $regex
+    Status=$?
+    [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
+    pid=`ps -u @SIPXPBXUSER@ -o pid,args | grep $regex | grep -v "grep" | awk '{print $1 }'`
+    checkIfListening $pid
+    Status=$? 
+    [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
+    [ $Status -eq 0 ] && { echo_success; echo; }
   fi
 }
 
-start() {
-    checkRunningInstance
-
-    JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
-    Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @bridge_PKGS@`
-    export CLASSPATH=`echo @SIPX_CONFDIR@/sipxbridge @SIPX_JAVADIR@/sipXbridge/*.jar ${Dependencies} | sed -e 's/ /:/g'`
-
-    # procname is there so cfengine can find it
-    Command="$JavaCmd \
-      ${SIPXBRIDGE_OPTS} \
-      -Dprocname=sipxbridge \
-      -Dconf.dir=@SIPX_CONFDIR@ \
-      -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
-      -Djavax.net.ssl.keyStore=@SIPX_CONFDIR@/ssl/ssl.keystore \
-      -Djavax.net.ssl.keyStorePassword=changeit \
-      -Dsipxbridge.command=start \
-      org.sipfoundry.sipxbridge.Gateway \
-	 $Args"
-    if [ -n "${NoFork}" ] ; then
-      runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"
-    else
-      echo -n $"Starting sipxbridge: "
-      runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
-      echo $! > ${pidfile}
-      echo_success
-    fi
-}
-
 stop() {
-  echo -n $"Stopping sipxbridge: "
-  killproc -p "${pidfile}" "sipxbridge"
+  echo -n $"Stopping $prog: "
+  killAnyOrphans @SIPXPBXUSER@ $regex
+  checkRunningInstance @SIPXPBXUSER@ $regex > /dev/null
   Status=$?
-  echo
-  [ $Status -eq 0 ] && rm -f "${pidfile}"
+  [ $Status -eq 0 ] && { echo_failure; echo; exit $ERUNNING; }
+  [ $Status -eq 0 ] || { echo_success; echo; }
 }
 
 restart() {
@@ -75,19 +79,19 @@ restart() {
 }
 
 configtest() {
-     Status=0
-     # check validity of xml files
-     ! test -e @SIPX_CONFDIR@/peeridentities.xml \
-     || @bindir@/sipx-validate-xml @SIPX_CONFDIR@/peeridentities.xml
-     Status=$(($Status+$?))
+  Status=0
+  # check validity of xml files
+  ! test -e @SIPX_CONFDIR@/peeridentities.xml \
+  || @bindir@/sipx-validate-xml @SIPX_CONFDIR@/peeridentities.xml
+  Status=$(($Status+$?))
 
-     # Check that the log file is writable.
-     logfile="@SIPX_LOGDIR@/sipxbridge.log"
-     if [ -e $logfile -a ! -w $logfile ]
-     then
-	 echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
-	 Status=1
-     fi
+  # Check that the log file is writable.
+  logfile="@SIPX_LOGDIR@/sipxbridge.log"
+  if [ -e $logfile -a ! -w $logfile ]
+  then
+    echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+    Status=1
+  fi
 }
 
 case "$1" in
@@ -105,10 +109,13 @@ case "$1" in
     restart
     ;;
   condrestart)
-    [ -f ${pidfile} ] && restart || :
+    checkRunningInstance @SIPXPBXUSER@ $regex > /dev/null
+    Status=$?
+    [ $Status -eq 0 ] && restart || :
     ;;
   status)
-    status -p ${pidfile} sipxbridge
+    checkRunningInstance @SIPXPBXUSER@ $regex $prog
+    Status=$?
     ;;
   configtest)
     configtest
