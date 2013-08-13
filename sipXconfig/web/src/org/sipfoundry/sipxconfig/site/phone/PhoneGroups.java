@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
@@ -34,6 +35,9 @@ public abstract class PhoneGroups extends SipxBasePage implements PageBeginRende
 
     public abstract SettingDao getSettingContext();
 
+    @InitialValue(value = "ognl:PhoneContext.GROUP_RESOURCE_ID")
+    public abstract String getResource();
+
     public IPage addGroup(IRequestCycle cycle) {
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
         page.newGroup("phone", PAGE);
@@ -53,6 +57,7 @@ public abstract class PhoneGroups extends SipxBasePage implements PageBeginRende
         return page;
     }
 
+    @Override
     public void pageBeginRender(PageEvent event_) {
         PhoneContext context = getPhoneContext();
         setGroups(context.getGroups());

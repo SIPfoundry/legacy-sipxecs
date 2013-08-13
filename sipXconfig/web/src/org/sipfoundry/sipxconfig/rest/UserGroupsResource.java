@@ -200,7 +200,7 @@ public class UserGroupsResource extends Resource {
             // copy values over to existing item
             try {
                 updateUserGroup(userGroup, userGroupRestInfo);
-                m_settingContext.saveGroup(userGroup);
+                m_coreContext.saveGroup(userGroup);
             } catch (Exception exception) {
                 RestUtilities.setResponseError(getResponse(), ERROR_UPDATE_FAILED, parameterInfo.getValue(),
                         exception.getLocalizedMessage());
@@ -214,7 +214,7 @@ public class UserGroupsResource extends Resource {
         // if not single, add new item
         try {
             userGroup = createUserGroup(userGroupRestInfo);
-            m_settingContext.saveGroup(userGroup);
+            m_coreContext.saveGroup(userGroup);
         } catch (Exception exception) {
             RestUtilities.setResponseError(getResponse(), ERROR_CREATE_FAILED, exception.getLocalizedMessage());
             return;
@@ -252,7 +252,7 @@ public class UserGroupsResource extends Resource {
                 // user groups deleted using collection of ids, not user group object
                 List<Integer> userGroupIds = new ArrayList<Integer>();
                 userGroupIds.add(parameterInfo.getValue());
-                m_settingContext.deleteGroups(userGroupIds);
+                m_coreContext.deleteGroups(userGroupIds);
             } catch (Exception exception) {
                 RestUtilities.setResponseError(getResponse(), ERROR_DELETE_FAILED, parameterInfo.getValue(),
                         exception.getLocalizedMessage());

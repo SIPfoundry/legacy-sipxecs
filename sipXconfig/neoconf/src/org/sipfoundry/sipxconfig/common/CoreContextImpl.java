@@ -675,6 +675,16 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     @Override
+    public void saveGroup(Group group) {
+        m_settingDao.saveGroup(group);
+    }
+
+    @Override
+    public boolean deleteGroups(Collection<Integer> groupIds) {
+        return m_settingDao.deleteGroups(groupIds);
+    }
+
+    @Override
     public List<Group> getAvailableGroups(User user) {
         List<Group> allGroups = getGroups();
         List<Group> availableGroups = new ArrayList<Group>();

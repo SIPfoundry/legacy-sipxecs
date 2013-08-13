@@ -139,6 +139,20 @@ public interface CoreContext extends DataObjectSource<User>, AliasOwner, Replica
     List<Group> getGroups();
 
     /**
+     * This method is meant to be intercepted when user group saving permissions are effective
+     * @see spring 3 security guidelines
+     * @param group
+     */
+    void saveGroup(Group group);
+
+    /**
+     * This method is meant to be intercepted when user group saving permissions are effective
+     * @see spring 3 security guidelines
+     * @param group
+     */
+    boolean deleteGroups(Collection<Integer> groupIds);
+
+    /**
      * Retrieves user group by name.
      *
      * @param userGroupName name of the group

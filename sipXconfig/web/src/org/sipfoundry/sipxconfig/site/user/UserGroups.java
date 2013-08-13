@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -33,6 +34,9 @@ public abstract class UserGroups extends SipxBasePage implements PageBeginRender
     public abstract CoreContext getCoreContext();
 
     public abstract SettingDao getSettingContext();
+
+    @InitialValue(value = "ognl:CoreContext.USER_GROUP_RESOURCE_ID")
+    public abstract String getResource();
 
     public IPage addGroup(IRequestCycle cycle) {
         GroupSettings page = (GroupSettings) cycle.getPage(UserGroupSettings.PAGE);
@@ -59,6 +63,7 @@ public abstract class UserGroups extends SipxBasePage implements PageBeginRender
         return page;
     }
 
+    @Override
     public void pageBeginRender(PageEvent event_) {
         CoreContext context = getCoreContext();
         setGroups(context.getGroups());

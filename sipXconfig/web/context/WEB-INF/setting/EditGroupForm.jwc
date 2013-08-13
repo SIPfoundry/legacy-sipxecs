@@ -7,5 +7,4 @@
   <parameter name="validator" required="yes"/>
   <parameter name="groupId" required="no" />
   <parameter name="callback" required="no" />
-  <inject property="settingContext" object="spring:settingDao"/>
 </component-specification>

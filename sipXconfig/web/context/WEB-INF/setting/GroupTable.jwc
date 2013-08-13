@@ -9,7 +9,6 @@
   <parameter name="groupMembersListener"  required="yes" />
   <property name="currentRow" />
   <property name="selections"  initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>
-  <property name="settingContext"  initial-value="hivemind:spring:settingDao"/>
   <component id="groupManagement" type="Form">
   </component>
   <component id="tableView" type="common/Table">
