@@ -209,7 +209,7 @@ public class User extends AbstractUser implements Replicable {
     }
 
     public void setE911LocationId(Integer id) {
-        if (id < 0) {
+        if (id != null && id < 0) {
             return;
         }
         setSettingTypedValue(E911_SETTING_PATH, id);
