@@ -26,6 +26,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.restlet.Context;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
@@ -51,6 +52,7 @@ import com.sun.syndication.io.SyndFeedOutput;
 import edu.emory.mathcs.backport.java.util.Collections;
 
 public class VoicemailResource extends UserResource {
+    private static final String WAV = "wav";
     private static final String UTF_8 = "UTF-8";
 
     private String m_folder;
@@ -96,10 +98,10 @@ public class VoicemailResource extends UserResource {
                     voicemail.getDurationsecs(), voicemail.getTimestamp()));
             entry.setDescription(content);
 
-            SyndEnclosureImpl wav = new SyndEnclosureImpl();
-            wav.setType("audio/x-wav");
-            wav.setUrl(messageUrl);
-            entry.setEnclosures(Collections.singletonList(wav));
+            SyndEnclosureImpl enclosure = new SyndEnclosureImpl();
+            enclosure.setType(StringUtils.equals(voicemail.getAudioFormat(), WAV) ? "audio/wav" : "audio/mpeg");
+            enclosure.setUrl(messageUrl);
+            entry.setEnclosures(Collections.singletonList(enclosure));
 
             entries.add(entry);
         }
