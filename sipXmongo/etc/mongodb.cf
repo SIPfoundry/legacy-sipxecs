@@ -124,6 +124,8 @@ bundle agent mongodb_arbiter_config {
 }
 
 bundle edit_line mongodb_arbiter_config_contents {
+  # bind_ip=0.0.0.0 may not be nec, but if it's anything else
+  # mongo config will not be right so reinforce the default
   insert_lines:
 "replSet=sipxecs
 port=27018
@@ -135,6 +137,7 @@ smallfiles=true
 journal=true
 nohttpinterface=true
 dbpath=/var/lib/mongodb-arbiter
+bind_ip=0.0.0.0
 ";
 }
 
@@ -163,6 +166,8 @@ bundle agent mongo_local_config {
 }
 
 bundle edit_line mongo_local_config_contents {
+  # bind_ip=0.0.0.0 may not be nec, but if it's anything else
+  # mongo config will not be right so reinforce the default
   insert_lines:
 "replSet=sipxlocal
 port=27019
@@ -174,6 +179,7 @@ pidfilepath=/var/run/$(mongodb.id)/local.pid
 journal=true
 nohttpinterface=true
 dbpath=/var/lib/mongo-local
+bind_ip=0.0.0.0
 ";
 }
 
@@ -235,6 +241,8 @@ bundle agent mongo_local_arbiter_config {
 }
 
 bundle edit_line mongo_local_arbiter_config_contents {
+  # bind_ip=0.0.0.0 may not be nec, but if it's anything else
+  # mongo config will not be right so reinforce the default
   insert_lines:
 "replSet=sipxlocal
 port=27020
@@ -246,6 +254,7 @@ journal=true
 smallfiles=true
 nohttpinterface=true
 dbpath=/var/lib/mongo-local-arbiter
+bind_ip=0.0.0.0
 ";
 }
 
@@ -255,6 +264,7 @@ bundle agent mongodb_config {
       "server[replSet]" string => "sipxecs";
       "server[port]" string => "27017";
       "server[smallfiles]" string => "true";
+      "server[bind_ip]" string => "0.0.0.0";
 
   files:
     any::

@@ -46,13 +46,6 @@ class Api {
 }
 
 /**
- * Tests if page is using dartium to render
- */
-bool devmode() {
-  return query("#devmode") != null;
-}
-
-/**
  * Gets a resource string from a coresponding tapestry component on the
  * page.
  *   getString("bird");
