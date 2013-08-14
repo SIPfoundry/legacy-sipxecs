@@ -62,7 +62,7 @@ class ManageGlobal extends ManageBase {
     loader = new DataLoader(msg, loadTable);
     builder = new UiBuilder(this);    
     refresh = new Refresher(query("#globalRefreshWidget"), query("#globalRefreshButton"), () {
-      var url = api.url("mongo", "global-test.json");
+      var url = api.url("rest/mongo", "global-test.json");
       loader.load(url);      
     });
   }
@@ -99,7 +99,7 @@ class ManageGlobal extends ManageBase {
   
   void onServerAction(String label, String server, String action) {    
     var httpRequest = new HttpRequest();
-    httpRequest.open('POST', api.url("mongo"));
+    httpRequest.open('POST', api.url("rest/mongo"));
     httpRequest.onLoadEnd.listen((e) {
       loader.checkResponse(httpRequest);
       load();
@@ -126,7 +126,7 @@ class ManageLocal extends ManageBase {
     loader = new DataLoader(msg, loadTable);
     builder = new UiBuilder(this);
     refresh = new Refresher(query("#localRefreshWidget"), query("#localRefreshButton"), () {
-      var url = api.url("mongolocal", "local-test.json");
+      var url = api.url("rest/mongolocal", "local-test.json");
       loader.load(url);      
     });
   }
@@ -163,7 +163,7 @@ class ManageLocal extends ManageBase {
 
   void onServerAction(String label, String server, String action) {    
     var httpRequest = new HttpRequest();
-    httpRequest.open('POST', api.url("mongolocal"));
+    httpRequest.open('POST', api.url("rest/mongolocal"));
     httpRequest.onLoadEnd.listen((e) {
       loader.checkResponse(httpRequest);
       load();
