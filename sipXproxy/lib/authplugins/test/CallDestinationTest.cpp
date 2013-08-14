@@ -29,6 +29,8 @@ class CallDestinationTest : public CppUnit::TestCase
 
    CPPUNIT_TEST(normalRefer);
    
+   CPPUNIT_TEST(normalInviteNoRecordRouteWithCallTag);
+
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -212,6 +214,53 @@ public:
          ASSERT_STR_EQUAL(message, forwardedMsg.data());
       }
    
+   // Test that for an INVITE with call tags but no Record-Route, the message is unchanged
+   void normalInviteNoRecordRouteWithCallTag()
+      {
+         UtlString identity; // no authenticated identity
+         Url requestUri("sip:someone@somewhere");
+
+         const char* message =
+            "INVITE sip:someone@somewhere;sipXecs-CallDest=AL%2CSTS SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:someone@somewhere\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage testMsg(message, strlen(message));
+
+         UtlSList noRemovedRoutes;
+         UtlString myRouteName("myhost.example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, myRouteName );
+
+         const char unmodifiedRejectReason[] = "unmodified";
+         UtlString rejectReason(unmodifiedRejectReason);
+
+         UtlString method("INVITE");
+         bool bSpiralingRequest = false;
+         AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
+                        == calldest->authorizeAndModify(identity,
+                                                       requestUri,
+                                                       routeState,
+                                                       method,
+                                                       priorResult,
+                                                       testMsg,
+                                                       bSpiralingRequest,
+                                                       rejectReason
+                                                       ));
+         // verify that the call tags were moved to the Record-Route.
+         UtlString forwardedMsg;
+         ssize_t length;
+         testMsg.getBytes(&forwardedMsg,&length);
+         ASSERT_STR_EQUAL(message, forwardedMsg.data());
+      }
+
 private:
 };
 
