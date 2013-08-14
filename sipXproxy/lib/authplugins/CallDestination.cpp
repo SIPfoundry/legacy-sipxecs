@@ -81,17 +81,19 @@ CallDestination::moveCallDestToRecordRoute( SipMessage& request )
    
    UtlString inviteUriStr;
    UtlString headercalldest;
-      
+   UtlString recordroute;
+
    // Get the Command header and see if there are any Call Destination tags in it.
-   // If there are tags, remove them from the header and add them to the Record-Route.
+   // If there are tags, and if there is a Record-Route header, remove them from the header
+   // and add them to the Record-Route.
    request.getRequestUri(&inviteUriStr);
-   Url inviteUri(inviteUriStr, Url::AddrSpec); 
-   if (inviteUri.getUrlParameter(SIP_SIPX_CALL_DEST_FIELD, headercalldest, 0)) {
-      UtlString recordroute;
-         
+   Url inviteUri(inviteUriStr, Url::AddrSpec);
+   if (inviteUri.getUrlParameter(SIP_SIPX_CALL_DEST_FIELD, headercalldest, 0) &&
+       request.getRecordRouteField(0, &recordroute))
+   {
       inviteUri.removeUrlParameter(SIP_SIPX_CALL_DEST_FIELD);
       request.changeUri(inviteUri.toString().data());
-      request.getRecordRouteField(0, &recordroute);
+
       Url recordrouteUri(recordroute, Url::NameAddr); 
       UtlString routecalldest;
       if (recordrouteUri.getUrlParameter(SIP_SIPX_CALL_DEST_FIELD, routecalldest, 0)) {
