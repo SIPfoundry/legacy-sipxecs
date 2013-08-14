@@ -19,15 +19,20 @@ import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.request.IUploadFile;
+import org.sipfoundry.sipxconfig.cert.AbstractCertificateCommon;
 import org.sipfoundry.sipxconfig.cert.CertificateManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.site.common.IntegerPropertySelectionModel;
 
 @ComponentClass
-public abstract class CertificateAuthorities extends BaseComponent {
+public abstract class CertificateAuthorities extends BaseComponent implements PageBeginRenderListener {
 
     public abstract IUploadFile getUploadFile();
 
@@ -47,12 +52,21 @@ public abstract class CertificateAuthorities extends BaseComponent {
     @InjectObject(value = "spring:certificateManager")
     public abstract CertificateManager getCertificateManager();
 
+    @Persist
+    public abstract void setKeySize(int keySize);
+
+    public abstract int getKeySize();
+
+    public abstract String getKeySizeDescr();
+
+    public abstract void setKeySizeDescr(String descr);
+
     public String getAuthorityText() {
         return getCertificateManager().getAuthorityCertificate(getAuthority());
     }
 
     public void rebuild() {
-        getCertificateManager().rebuildSelfSignedData();
+        getCertificateManager().rebuildSelfSignedData(getKeySize());
         getValidator().recordSuccess(getMessages().getMessage("msg.rebuild.success"));
     }
 
@@ -88,5 +102,36 @@ public abstract class CertificateAuthorities extends BaseComponent {
         for (Object authority : selections) {
             mgr.deleteTrustedAuthority(authority.toString());
         }
+    }
+
+    public IPropertySelectionModel getKeySizeModel() {
+        return new IntegerPropertySelectionModel(this, new int[] {
+            1024, 2048, 4096
+        });
+    }
+
+    @Override
+    public void pageBeginRender(PageEvent evt) {
+        if (!TapestryUtils.isValid(this)) {
+            return;
+        }
+
+        if (getKeySize() == 0) {
+            setKeySize(AbstractCertificateCommon.DEFAULT_KEY_SIZE);
+        }
+
+        String webKey = getCertificateManager().getWebPrivateKey();
+        String sipKey = getCertificateManager().getCommunicationsPrivateKey();
+
+        int webSize;
+        int sipSize;
+        try {
+            webSize = CertificateUtils.getEncryptionStrength(webKey);
+            sipSize = CertificateUtils.getEncryptionStrength(sipKey);
+        } catch (Exception e) {
+            throw new UserException(e.getMessage(), e);
+        }
+
+        setKeySizeDescr(getMessages().format("description.keySize", webSize, sipSize));
     }
 }

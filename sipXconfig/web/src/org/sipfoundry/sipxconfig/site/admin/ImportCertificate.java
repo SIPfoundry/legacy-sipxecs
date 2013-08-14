@@ -25,13 +25,25 @@ import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
+import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.request.IUploadFile;
+import org.sipfoundry.sipxconfig.cert.AbstractCertificateCommon;
 import org.sipfoundry.sipxconfig.cert.CertificateManager;
+import org.sipfoundry.sipxconfig.cert.CertificateRequestGenerator;
+import org.sipfoundry.sipxconfig.cert.CertificateSettings;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.site.common.IntegerPropertySelectionModel;
 
-public abstract class ImportCertificate extends BaseComponent {
+public abstract class ImportCertificate extends BaseComponent implements PageBeginRenderListener {
     public static final Integer UPLOAD = new Integer(1);
     public static final Integer TEXT = new Integer(2);
     private static final String WEB = "web";
@@ -58,26 +70,50 @@ public abstract class ImportCertificate extends BaseComponent {
     @InjectObject(value = "spring:certificateManager")
     public abstract CertificateManager getCertificateManager();
 
+    @InjectObject(value = "spring:locationsManager")
+    public abstract LocationsManager getLocationsManager();
+
     @InitialValue(value = "@org.sipfoundry.sipxconfig.site.admin.ImportCertificate@UPLOAD")
     public abstract Integer getImportMethodSelected();
 
     @Parameter(required = true)
     public abstract String getCertificateType();
 
+    @Persist
+    public abstract void setKeySize(int keySize);
+
+    public abstract int getKeySize();
+
+    public Setting getCsrSettings() {
+        return getSettings().getSettings().getSetting("csr");
+    }
+
+    public abstract void setSettings(CertificateSettings settings);
+
+    public abstract CertificateSettings getSettings();
+
+    public abstract String getCsr();
+
+    public abstract void setCsr(String csr);
+
+    public abstract String getKeySizeDescr();
+
+    public abstract void setKeySizeDescr(String descr);
+
     public void rebuild() {
         if (getCertificateType().equals(WEB)) {
-            getCertificateManager().rebuildWebCert();
+            getCertificateManager().rebuildWebCert(getKeySize());
         } else {
-            getCertificateManager().rebuildCommunicationsCert();
+            getCertificateManager().rebuildCommunicationsCert(getKeySize());
         }
         getValidator().recordSuccess(getMessages().getMessage("msg.rebuild.success"));
     }
 
     public String getCertificateName() {
         if (getCertificateType().equals(WEB)) {
-            return getCertificateManager().WEB_CERT + getCertificateManager().CRT;
+            return CertificateManager.WEB_CERT + CertificateManager.CRT;
         }
-        return getCertificateManager().COMM_CERT + getCertificateManager().CRT;
+        return CertificateManager.COMM_CERT + CertificateManager.CRT;
     }
 
     public String getCertificateText() {
@@ -87,16 +123,16 @@ public abstract class ImportCertificate extends BaseComponent {
         return getCertificateManager().getCommunicationsCertificate();
     }
 
-    public String getChainCertificateName() {
-        return getCertificateManager().CHAIN_CERT + getCertificateManager().CRT;
+    public static String getChainCertificateName() {
+        return CertificateManager.CHAIN_CERT + CertificateManager.CRT;
     }
 
     public String getChainCertificateText() {
         return getCertificateManager().getChainCertificate();
     }
 
-    public String getCACertificateName() {
-        return getCertificateManager().CA_CERT + getCertificateManager().CRT;
+    public static String getCACertificateName() {
+        return CertificateManager.CA_CERT + CertificateManager.CRT;
     }
 
     public String getCACertificateText() {
@@ -152,10 +188,9 @@ public abstract class ImportCertificate extends BaseComponent {
             if (getCertificateType().equals(WEB)) {
                 if (!StringUtils.isBlank(certificate)) {
                     if (StringUtils.isBlank(key)) {
-                        mgr.setWebCertificate(certificate);
-                    } else {
-                        mgr.setWebCertificate(certificate, key);
+                        key = mgr.getWebPrivateKey();
                     }
+                    mgr.setWebCertificate(certificate, key);
                 }
                 if (!StringUtils.isBlank(chainCertificate)) {
                     mgr.setChainCertificate(chainCertificate);
@@ -166,10 +201,9 @@ public abstract class ImportCertificate extends BaseComponent {
                 }
             } else {
                 if (StringUtils.isBlank(key)) {
-                    mgr.setCommunicationsCertificate(certificate);
-                } else {
-                    mgr.setCommunicationsCertificate(certificate, key);
+                    key = mgr.getCommunicationsPrivateKey();
                 }
+                mgr.setCommunicationsCertificate(certificate, key);
             }
             validator.recordSuccess(getMessages().getMessage("msg.importSuccess"));
         } catch (IOException e) {
@@ -183,5 +217,73 @@ public abstract class ImportCertificate extends BaseComponent {
 
     public boolean getTextDisabled() {
         return getImportMethodSelected() != TEXT;
+    }
+
+    public IPropertySelectionModel getKeySizeModel() {
+        return new IntegerPropertySelectionModel(this, new int[] {
+            1024, 2048, 4096
+        });
+    }
+
+    public void generate() {
+        if (!TapestryUtils.isValid(this)) {
+            // do nothing on errors
+            return;
+        }
+
+        SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(this);
+        CertificateManager mgr = getCertificateManager();
+        CertificateSettings settings = getSettings();
+        mgr.saveSettings(settings);
+
+        String cert;
+        String key;
+        if (getCertificateType().equals(WEB)) {
+            cert = mgr.getWebCertificate();
+            key = mgr.getWebPrivateKey();
+        } else {
+            cert = mgr.getCommunicationsCertificate();
+            key = mgr.getCommunicationsPrivateKey();
+        }
+        Location primary = getLocationsManager().getPrimaryLocation();
+        String domain = Domain.getDomain().getName();
+        CertificateRequestGenerator csr = new CertificateRequestGenerator(domain, primary.getFqdn());
+        settings.updateCertificateDetails(csr);
+        setCsr(csr.getCertificateRequestText(cert, key));
+
+        validator.recordSuccess(getMessages().getMessage("msg.generateSuccess"));
+    }
+
+    @Override
+    public void pageBeginRender(PageEvent evt) {
+        if (!TapestryUtils.isValid(this)) {
+            return;
+        }
+
+        String key;
+        if (getCertificateType().equals(WEB)) {
+            key = getCertificateManager().getWebPrivateKey();
+        } else {
+            key = getCertificateManager().getCommunicationsPrivateKey();
+        }
+
+        int size;
+        try {
+            size = CertificateUtils.getEncryptionStrength(key);
+        } catch (Exception e) {
+            throw new UserException(e.getMessage());
+        }
+
+        setKeySizeDescr(getMessages().format("description.keySize", size));
+
+        if (getKeySize() == 0) {
+            setKeySize(AbstractCertificateCommon.DEFAULT_KEY_SIZE);
+        }
+
+        CertificateSettings settings = getSettings();
+        if (settings == null) {
+            settings = getCertificateManager().getSettings();
+            setSettings(settings);
+        }
     }
 }

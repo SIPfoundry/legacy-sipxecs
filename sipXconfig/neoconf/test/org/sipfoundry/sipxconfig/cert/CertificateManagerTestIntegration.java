@@ -7,7 +7,6 @@
  */
 package org.sipfoundry.sipxconfig.cert;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,11 +19,11 @@ public class CertificateManagerTestIntegration extends IntegrationTestCase {
     protected void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
         clear();
-        sql("commserver/SeedLocations.sql");        
+        sql("commserver/SeedLocations.sql");
     }
-    
-    public void testSaveCert() throws IOException {
-        m_certificateManagerImpl.checkSetup();
+
+    public void testSaveCert() {
+        m_certificateManagerImpl.checkSetup(AbstractCertificateCommon.DEFAULT_KEY_SIZE);
         String authority = "ca.example.org";
         Set<String> authorities = new HashSet<String>(m_certificateManagerImpl.getAuthorities());
         assertTrue(authorities.contains(authority));
@@ -38,5 +37,5 @@ public class CertificateManagerTestIntegration extends IntegrationTestCase {
 
     public void setCertificateManagerImpl(CertificateManagerImpl certificateManager) {
         m_certificateManagerImpl = certificateManager;
-    }    
+    }
 }

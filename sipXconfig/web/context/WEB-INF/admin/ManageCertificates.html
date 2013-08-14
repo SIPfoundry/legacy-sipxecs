@@ -1,27 +1,13 @@
 <div jwcid="@common/Border" borderTitle="ognl:borderTitle">
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'generate', 'importWeb', 'importSip', 'authorities'}" selectedTab="ognl:tab"/>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'web', 'sip', 'authorities'}" selectedTab="ognl:tab"/>
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
-  <div jwcid="generateTab@Block">
-    <div jwcid="@common/QuickHelp" value="message:quick.help.generate"></div>
-    <form jwcid="form@Form" delegate="bean:validator">
-      <fieldset jwcid="@setting/SettingsFieldset"
-          settings="ognl:csrSettings" />          
-      <span jwcid="generate@Submit"
-        id="generate"
-        action="listener:generate"
-        value="message:button.generate"/>            
-      <span key="label.csr" renderTag="false"/><br/>
-      <textarea id="csrText" rows="16" readonly="readonly" class="textBox"><span 
-        jwcid="@Insert" value="ognl:csr"/></textarea>
-    </form>
-  </div>
-  <div jwcid="importWebTab@Block">
+  <div jwcid="webTab@Block">
     <span jwcid="@admin/ImportCertificate" certificateType="web"/>
   </div>
-  <div jwcid="importSipTab@Block">
+  <div jwcid="sipTab@Block">
     <span jwcid="@admin/ImportCertificate" certificateType="sip"/>
   </div>
   <div jwcid="authoritiesTab@Block">

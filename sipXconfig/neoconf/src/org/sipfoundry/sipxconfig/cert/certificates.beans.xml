@@ -12,7 +12,7 @@
     </property>
   </bean>
 
-  <bean id="certificateManagerImpl" class="org.sipfoundry.sipxconfig.cert.CertificateManagerImpl" parent="abstractDaoImpl">
+  <bean id="certificateManagerImpl" class="org.sipfoundry.sipxconfig.cert.CertificateManagerImpl">
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">

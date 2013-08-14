@@ -15,5 +15,6 @@
 	<classpathentry exported="true" kind="var" path="SIPXCONFIG_SRCDIR/lib/tapestry-annotations-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src"/>
 	<classpathentry exported="true" kind="var" path="SIPXCONFIG_SRCDIR/lib/tapestry-contrib-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src/tapestry-contrib/src/java"/>
 	<classpathentry exported="true" kind="var" path="SIPXCONFIG_SRCDIR/lib/tapestry-framework-4.1.6.jar" sourcepath="/LIBSRC/tapestry-framework-4.1.6.jar.src/tapestry-framework/src/java"/>
+	<classpathentry kind="var" path="SIPXCONFIG_SRCDIR"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

@@ -22,7 +22,6 @@ public class CertificateAuthorityGenerator extends AbstractCertificateGenerator 
 
         // historical defaults, otherwise insignificant AFAIK
         setValidYears(10);
-        setBitCount(2048);
     }
 
     public CertificateAuthorityGenerator(String domain) {

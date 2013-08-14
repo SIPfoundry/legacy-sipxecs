@@ -10,6 +10,8 @@ package org.sipfoundry.sipxconfig.cert;
 import static java.lang.String.format;
 
 public class AbstractCertificateCommon {
+    public static final int DEFAULT_KEY_SIZE = 2048;
+
     private String m_country = "US";
     private String m_state = "AnyState";
     private String m_locality = "AnyTown";
@@ -19,7 +21,7 @@ public class AbstractCertificateCommon {
     private String m_email;
     private String m_dnsDomain;
     private String m_host;
-    private int m_bitCount = 1024;
+    private int m_bitCount = DEFAULT_KEY_SIZE;
     private String m_algorithm = "SHA1WithRSAEncryption";
 
     protected AbstractCertificateCommon(String domain, String fqdn) {

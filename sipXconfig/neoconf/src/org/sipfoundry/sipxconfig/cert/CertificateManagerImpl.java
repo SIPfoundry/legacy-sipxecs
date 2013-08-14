@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
-import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.Domain;
@@ -36,7 +35,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 /**
  * Certificate Management Implementation.
  */
-public class CertificateManagerImpl extends SipxHibernateDaoSupport implements CertificateManager, SetupListener {
+public class CertificateManagerImpl implements CertificateManager, SetupListener {
     private static final Log LOG = LogFactory.getLog(CertificateManager.class);
     private static final String AUTHORITY_TABLE = "authority";
     private static final String CERT_TABLE = "cert";
@@ -49,10 +48,12 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
     private ConfigManager m_configManager;
     private List<String> m_thirdPartyAuthorites;
 
+    @Override
     public CertificateSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
     }
 
+    @Override
     public void saveSettings(CertificateSettings settings) {
         m_settingsDao.upsert(settings);
     }
@@ -83,6 +84,7 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
         setCommunicationsCertificate(cert, null);
     }
 
+    @Override
     public void setCommunicationsCertificate(String cert, String key) {
         validateCert(cert, key);
         updateCertificate(COMM_CERT, cert, key, getSelfSigningAuthority());
@@ -110,7 +112,7 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
         updateCertificate(CA_CERT, cert, null, null);
     }
 
-    void updateCertificate(String name, String cert, String key, String authority) {
+    private void updateCertificate(String name, String cert, String key, String authority) {
         updateNamedCertificate(name, cert, key, authority);
         m_configManager.configureEverywhere(FEATURE);
     }
@@ -122,18 +124,18 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
                 authority);
     }
 
-    void addThirdPartyAuthority(String name, String data) {
+    private void addThirdPartyAuthority(String name, String data) {
         addAuthority(name, data, null);
     }
 
-    void addAuthority(String name, String data, String key) {
+    private void addAuthority(String name, String data, String key) {
         m_jdbc.update("delete from authority where name = ? ", name);
         m_jdbc.update("delete from cert where authority = ? ", name); // should be zero
         m_jdbc.update("insert into authority (name, data, private_key) values (?, ?, ?)", name, data, key);
         m_configManager.configureEverywhere(FEATURE);
     }
 
-    String getSecurityData(String table, String column, String name) {
+    private String getSecurityData(String table, String column, String name) {
         String sql = format("select %s from %s where name = ?", column, table);
         return DaoUtils.requireOneOrZero(m_jdbc.queryForList(sql, String.class, name), sql);
     }
@@ -199,22 +201,22 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
     }
 
     @Override
-    public void rebuildSelfSignedData() {
+    public void rebuildSelfSignedData(int keySize) {
         forceDeleteTrustedAuthority(getSelfSigningAuthority());
-        checkSetup();
+        checkSetup(keySize);
     }
 
     @Override
-    public void rebuildCommunicationsCert() {
-        rebuildCert(COMM_CERT);
+    public void rebuildCommunicationsCert(int keySize) {
+        rebuildCert(COMM_CERT, keySize);
     }
 
     @Override
-    public void rebuildWebCert() {
-        rebuildCert(WEB_CERT);
+    public void rebuildWebCert(int keySize) {
+        rebuildCert(WEB_CERT, keySize);
     }
 
-    void rebuildCert(String type) {
+    private void rebuildCert(String type, int keySize) {
         String domain = Domain.getDomain().getName();
         String fqdn = m_locationsManager.getPrimaryLocation().getFqdn();
         String authority = getSelfSigningAuthority();
@@ -226,6 +228,7 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
         } else {
             gen = CertificateGenerator.web(domain, fqdn, issuer, authKey);
         }
+        gen.setBitCount(keySize);
         updateCertificate(type, gen.getCertificateText(), gen.getPrivateKeyText(), authority);
     }
 
@@ -238,13 +241,17 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
         forceDeleteTrustedAuthority(authority);
     }
 
-    void forceDeleteTrustedAuthority(String authority) {
+    private void forceDeleteTrustedAuthority(String authority) {
         m_jdbc.update("delete from authority where name = ?", authority);
         m_jdbc.update("delete from cert where authority = ?", authority);
         m_configManager.configureEverywhere(FEATURE);
     }
 
-    void checkSetup() {
+    private void checkSetup() {
+        checkSetup(AbstractCertificateCommon.DEFAULT_KEY_SIZE);
+    }
+
+    public void checkSetup(int keySize) {
         String domain = Domain.getDomain().getName();
         String authority = getSelfSigningAuthority();
         String authorityCertificate = getAuthorityCertificate(authority);
@@ -254,8 +261,9 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
         }
         for (String thirdPartAuth : m_thirdPartyAuthorites) {
             if (getAuthorityCertificate(thirdPartAuth) == null) {
+                InputStream thirdPartIn = null;
                 try {
-                    InputStream thirdPartIn = getClass().getResourceAsStream(thirdPartAuth);
+                    thirdPartIn = getClass().getResourceAsStream(thirdPartAuth);
                     if (thirdPartIn == null) {
                         throw new IOException("Missing resource " + thirdPartAuth);
                     }
@@ -264,6 +272,8 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
                     addThirdPartyAuthority(thirdPartAuthId, thirdPartCert);
                 } catch (IOException e) {
                     LOG.error("Cannot import authority " + thirdPartAuth, e);
+                } finally {
+                    IOUtils.closeQuietly(thirdPartIn);
                 }
             }
         }
@@ -273,26 +283,28 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
         String authKey = getAuthorityKey(authority);
         if (!hasCertificate(COMM_CERT, authority)) {
             CertificateGenerator gen = CertificateGenerator.sip(domain, fqdn, issuer, authKey);
+            gen.setBitCount(keySize);
             updateCertificate(COMM_CERT, gen.getCertificateText(), gen.getPrivateKeyText(), authority);
         }
         if (!hasCertificate(WEB_CERT, authority)) {
             CertificateGenerator gen = CertificateGenerator.web(domain, fqdn, issuer, authKey);
+            gen.setBitCount(keySize);
             updateCertificate(WEB_CERT, gen.getCertificateText(), gen.getPrivateKeyText(), authority);
         }
     }
 
-    boolean hasCertificate(String id, String authority) {
+    private boolean hasCertificate(String id, String authority) {
         int check = m_jdbc.queryForInt("select count(*) from cert where name = ? and authority = ?", id, authority);
         return (check >= 1);
     }
 
-    String getIssuer(String authority) {
+    private String getIssuer(String authority) {
         String authCertText = getSecurityData(AUTHORITY_TABLE, CERT_COLUMN, authority);
         X509Certificate authCert = CertificateUtils.readCertificate(authCertText);
         return authCert.getSubjectDN().getName();
     }
 
-    void validateCert(String certTxt, String keyTxt) {
+    private static void validateCert(String certTxt, String keyTxt) {
         X509Certificate cert = CertificateUtils.readCertificate(certTxt);
         try {
             cert.checkValidity();
@@ -307,7 +319,7 @@ public class CertificateManagerImpl extends SipxHibernateDaoSupport implements C
         // to do, validate key w/cert and cert w/authorities
     }
 
-    void validateAuthority(String cert) {
+    private static void validateAuthority(String cert) {
         validateCert(cert, null);
         // to do validate authority cert
     }

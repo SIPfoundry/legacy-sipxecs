@@ -11,19 +11,35 @@
             <ul class="settingDescription">
               <span jwcid="@admin/ShowCertificate" certificateText="ognl:certificateManager.selfSigningAuthorityText"/>
             </ul>
-        </label>      
+        </label>
       </tr>
-      
+
+      <tr>
+		<label jwcid="keySizeLabel@common/FieldPanel"
+			label="message:label.keySize">
+			<span jwcid="type@PropertySelection"
+			  model="ognl:keySizeModel"
+			  value="ognl:keySize"/>
+		</label>
+      </tr>
+
+      <tr>
+        <td/>
+        <td>
+          <span jwcid="@Insert" value="ognl:keySizeDescr"/>
+        </td>
+      </tr>
+
       <tr>
         <label jwcid="rebuildLabel@common/FieldPanel"
             for="id:rebuild"
             field="component:rebuild"
             label="message:label.rebuild"
             description="message:description.rebuild">
-            <input jwcid="rebuild@Submit" listener="listener:rebuild" value="message:button.rebuild" />            
-        </label>      
+            <input jwcid="rebuild@Submit" listener="listener:rebuild" value="message:button.rebuild" />
+        </label>
       </tr>
-      
+
 	  <tr>
 		<label jwcid="certificateFileLabel@common/FieldPanel"
 		    for="id:upload"
@@ -33,7 +49,7 @@
 		    <input jwcid="certificateFile@Upload"
                    file="ognl:uploadFile"
                    displayName="message:label.certificateFile"/>
-                   
+
              <span jwcid="import@Submit"
                    id="import"
                    action="listener:importCA"
@@ -64,7 +80,7 @@
       <span jwcid="fileNameColumnValue@Block">
         <span jwcid="@Insert" value="ognl:authority"/>
       </span>
-      <span jwcid="certDescriptionColumnValue@Block">      
+      <span jwcid="certDescriptionColumnValue@Block">
         <ul class="settingDescription">
           <span jwcid="@admin/ShowCertificate" certificateText="ognl:authorityText"/>
 	    </ul>

@@ -76,11 +76,11 @@ public interface CertificateManager {
 
     public String getSelfSigningAuthorityText();
 
-    public void rebuildSelfSignedData();
+    public void rebuildSelfSignedData(int keySize);
 
-    public void rebuildCommunicationsCert();
+    public void rebuildCommunicationsCert(int keySize);
 
-    public void rebuildWebCert();
+    public void rebuildWebCert(int keySize);
 
     public String getChainCertificate();
 
