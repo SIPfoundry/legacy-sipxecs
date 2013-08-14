@@ -56,7 +56,6 @@ public class FaxRx extends SipxIvrApp {
             controller.invokeSet("fax_enable_t38_request", "true");
             controller.invokeSet("fax_enable_t38", "true");
             faxReceive = controller.receiveFax(faxPathName.getAbsolutePath());
-            faxReceive.go();
 
         } catch (IOException e) {
             LOG.error("FaxReceive: failed to receive fax " + e.getMessage());
