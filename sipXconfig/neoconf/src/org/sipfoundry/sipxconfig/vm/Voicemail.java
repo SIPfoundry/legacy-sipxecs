@@ -47,6 +47,8 @@ public interface Voicemail extends Serializable {
 
     int getDurationsecs();
 
+    long getContentLength();
+
     int getForwardedDurationsecs();
 
     boolean isForwarded();

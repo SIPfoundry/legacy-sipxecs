@@ -33,6 +33,7 @@ public class MessageDescriptor {
     private Vector<String> m_otherRecipients;
     private String m_filePath;
     private String m_audioFormat;
+    private String m_contentLength;
 
     public enum Priority {
         NORMAL("normal"),
@@ -88,6 +89,18 @@ public class MessageDescriptor {
 
     public void setDurationSecs(long durationSecs) {
         m_durationSecs = Long.toString(durationSecs);
+    }
+
+    public String getContentLength() {
+        return m_contentLength;
+    }
+
+    public void setContentLength(long contentLength) {
+        m_contentLength = Long.toString(contentLength);
+    }
+
+    public void setContentLength(String contentLength) {
+        m_contentLength = contentLength;
     }
 
     public Date getTimeStampDate() {

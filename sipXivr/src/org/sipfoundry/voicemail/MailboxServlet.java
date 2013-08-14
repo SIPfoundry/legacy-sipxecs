@@ -19,12 +19,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
-import org.sipfoundry.commons.util.SipUriUtil;
 import org.sipfoundry.sipxivr.SipxIvrConfiguration;
 import org.sipfoundry.sipxivr.rest.SipxIvrServletHandler;
 import org.sipfoundry.voicemail.mailbox.Folder;
@@ -344,11 +342,12 @@ public class MailboxServlet extends HttpServlet {
             authorDisplayName = StringUtils.defaultIfEmpty(ValidUsers.getDisplayPart(uri), StringUtils.EMPTY);
             authorExtension = StringUtils.defaultIfEmpty(ValidUsers.getUserPart(uri), StringUtils.EMPTY);
             pw.format(
-                    "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" " +
+                    "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" contentlength=\"%s\" received=\"%s\" " +
                     "author=\"%s\" authorExtension=\"%s\" username=\"%s\" format=\"%s\"/>\n",
                     message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder,
-                    descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(),
-                    HtmlUtils.htmlEscapeHex(authorDisplayName), HtmlUtils.htmlEscapeHex(authorExtension), message.getUserName(), descriptor.getAudioFormat());
+                    descriptor.getDurationSecsLong(), StringUtils.defaultIfEmpty(descriptor.getContentLength(), StringUtils.EMPTY),
+                    descriptor.getTimeStampDate().getTime(), HtmlUtils.htmlEscapeHex(authorDisplayName),
+                    HtmlUtils.htmlEscapeHex(authorExtension), message.getUserName(), descriptor.getAudioFormat());
         }
     }
 
@@ -365,11 +364,13 @@ public class MailboxServlet extends HttpServlet {
         String authorExtension = StringUtils.defaultIfEmpty(ValidUsers.getUserPart(uri), StringUtils.EMPTY);
         String fromUri = StringUtils.substringBetween(uri, "<", ">");
         pw.format(
-                "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" " +
+                "<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" contentlength=\"%s\" received=\"%s\" " +
                 "fromUri=\"%s\" author=\"%s\" authorExtension=\"%s\" subject=\"%s\" username=\"%s\" format=\"%s\"/>\n",
                 message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder,
-                descriptor.getDurationSecsLong(), descriptor.getTimeStampDate().getTime(), fromUri, HtmlUtils.htmlEscapeHex(authorDisplayName),
-                HtmlUtils.htmlEscapeHex(authorExtension) ,descriptor.getSubject(), message.getUserName(), descriptor.getAudioFormat());
+                descriptor.getDurationSecsLong(), StringUtils.defaultIfEmpty(descriptor.getContentLength(),
+                StringUtils.EMPTY), descriptor.getTimeStampDate().getTime(), fromUri,
+                HtmlUtils.htmlEscapeHex(authorDisplayName), HtmlUtils.htmlEscapeHex(authorExtension) ,descriptor.getSubject(),
+                message.getUserName(), descriptor.getAudioFormat());
     }
 
 }

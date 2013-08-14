@@ -36,6 +36,7 @@ public class TempMessage {
     private String m_tempPath;
     private boolean m_isToBeStored = true;
     private long m_duration = 0L;
+    private long m_contentLength =0L;
     private long m_timestamp;
     private boolean m_stored = false;
     private String m_currentUser;
@@ -92,6 +93,16 @@ public class TempMessage {
             }
         }
         return m_duration;
+    }
+
+    public long getContentLength() {
+        if (m_tempPath != null) {
+            File audioFile = new File(m_tempPath);
+            if (audioFile != null) {
+                m_contentLength = audioFile.length();
+            }
+        }
+        return m_contentLength;
     }
 
     public long getTimestamp() {

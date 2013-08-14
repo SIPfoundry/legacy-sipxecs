@@ -227,7 +227,8 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     public PlayVoicemailService.Info getPlayVoicemailInfo() {
         Voicemail voicemail = getVoicemail();
         PlayVoicemailService.Info info = new PlayVoicemailService.Info(voicemail.getFolderId(),
-                voicemail.getMessageId(), voicemail.getUserId(), voicemail.getAudioFormat());
+                voicemail.getMessageId(), voicemail.getUserId(),
+                voicemail.getAudioFormat(), voicemail.getContentLength());
         return info;
     }
 
@@ -339,7 +340,8 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     public String getVoicemailLink() {
         Voicemail voicemail = getVoicemail();
         PlayVoicemailService.Info info = new PlayVoicemailService.Info(voicemail.getFolderId(),
-                voicemail.getMessageId(), voicemail.getUserId(), voicemail.getAudioFormat());
+                voicemail.getMessageId(), voicemail.getUserId(),
+                voicemail.getAudioFormat(), voicemail.getContentLength());
         ILink link = getPlayVoicemailService().getLink(false, info);
         return link.getURL();
 

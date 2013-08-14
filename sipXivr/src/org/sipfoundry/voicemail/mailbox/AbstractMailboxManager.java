@@ -204,6 +204,7 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         descriptor.setId(identity);
         descriptor.setFromUri(message.getFromUri());
         descriptor.setDurationSecs(message.getDuration());
+        descriptor.setContentLength(message.getContentLength());
         descriptor.setTimestamp(message.getTimestamp());
         descriptor.setSubject(subject + messageId);
         descriptor.setPriority(message.getPriority());

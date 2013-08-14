@@ -111,7 +111,7 @@ public abstract class MailboxOperation implements Serializable {
             MailboxManager mgr = page.getMailboxManager();
             Voicemail vm = mgr.getVoicemail(getUserId(), getFolderId(), getMessageId());
             PlayVoicemailService.Info info = new PlayVoicemailService.Info(vm.getFolderId(), vm.getMessageId(),
-                    vm.getUserId(), vm.getAudioFormat());
+                    vm.getUserId(), vm.getAudioFormat(), vm.getContentLength());
             ILink link = playService.getLink(false, info);
             page.getRequestCycle().sendRedirect(link.getURL());
         }

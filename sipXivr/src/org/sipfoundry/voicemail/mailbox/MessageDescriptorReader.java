@@ -27,6 +27,7 @@ public class MessageDescriptorReader extends XmlReaderImpl<MessageDescriptor> {
         md.setId(valueOf("id"));
         md.setFromUri(valueOf("from"));
         md.setDurationSecs(valueOf("durationsecs"));
+        md.setContentLength(valueOf("contentlength"));
         md.setTimestamp(valueOf("timestamp"));
         md.setSubject(valueOf("subject"));
         md.setPriority((Priority.valueOfById(valueOf("priority"))));

@@ -49,6 +49,8 @@ public class PlayVoicemailService extends AssetService {
 
     private static final String AUDIO_FORMAT = "format";
 
+    private static final String CONTENT_LENGTH = "contentlength";
+
     private MailboxManager m_mailboxManager;
 
     private LinkFactory m_linkFactory;
@@ -72,6 +74,10 @@ public class PlayVoicemailService extends AssetService {
         Address addressCache = m_mailboxManager.getLastGoodIvrNode();
         String urlCache = null;
         String contentType = StringUtils.equals(cycle.getParameter(AUDIO_FORMAT), "wav") ? "audio/wav" : "audio/mpeg";
+        String contentLength = cycle.getParameter(CONTENT_LENGTH);
+        if (Long.valueOf(contentLength) > 0) {
+            m_response.setHeader("Content-Length", contentLength);
+        }
         OutputStream responseOutputStream = m_response.getOutputStream(new ContentType(contentType));
         if (addressCache != null) {
             urlCache = m_mailboxManager.getMediaFileURL(
@@ -125,16 +131,18 @@ public class PlayVoicemailService extends AssetService {
         private String m_folderId;
         private String m_userId;
         private String m_audioFormat;
+        private long m_contentLength;
 
         public Info(Object[] serviceParameters) {
             m_messageId = (String) serviceParameters[1];
         }
 
-        public Info(String folderId, String messageId, String userId, String audioFormat) {
+        public Info(String folderId, String messageId, String userId, String audioFormat, long contentLength) {
             m_folderId = folderId;
             m_messageId = messageId;
             m_userId = userId;
             m_audioFormat = audioFormat;
+            m_contentLength = contentLength;
         }
 
         public String getFolderId() {
@@ -152,6 +160,10 @@ public class PlayVoicemailService extends AssetService {
         public String getAudioFormat() {
             return m_audioFormat;
         }
+
+        public long getContentLength() {
+            return m_contentLength;
+        }
     }
 
     @Override
@@ -162,6 +174,7 @@ public class PlayVoicemailService extends AssetService {
         params.put(MESSAGE_ID, info.getMessageId());
         params.put(FOLDER, info.getFolderId());
         params.put(AUDIO_FORMAT, info.getAudioFormat());
+        params.put(CONTENT_LENGTH, String.valueOf(info.getContentLength()));
         return m_linkFactory.constructLink(this, post, params, false);
     }
 

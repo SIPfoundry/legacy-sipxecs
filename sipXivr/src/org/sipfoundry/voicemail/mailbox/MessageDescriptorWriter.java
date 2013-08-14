@@ -12,6 +12,7 @@ package org.sipfoundry.voicemail.mailbox;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
@@ -48,6 +49,7 @@ public class MessageDescriptorWriter extends XmlWriterImpl<MessageDescriptor> {
         addAndSet(prefsEl, "id", m_messageDescriptor.getId());
         addAndSet(prefsEl, "from", m_messageDescriptor.getFromUri());
         addAndSet(prefsEl, "durationsecs", m_messageDescriptor.getDurationSecs());
+        addAndSet(prefsEl, "contentlength", m_messageDescriptor.getContentLength());
         addAndSet(prefsEl, "timestamp", m_messageDescriptor.getTimestampString());
         addAndSet(prefsEl, "subject", m_messageDescriptor.getSubject());
         addAndSet(prefsEl, "priority", m_messageDescriptor.getPriority().getId());
