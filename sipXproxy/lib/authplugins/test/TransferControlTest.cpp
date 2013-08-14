@@ -21,6 +21,8 @@
 
 #include "sipxunit/FileTestContext.h"
 #include "TransferControl.h"
+#include "sipXecsService/SipXecsService.h"
+#include "sipdb/MongoDB.h"
 
 class TransferControlTest : public CppUnit::TestCase
 {
@@ -36,6 +38,7 @@ class TransferControlTest : public CppUnit::TestCase
    CPPUNIT_TEST(UnAuthenticatedReferWithoutReplaces);
    CPPUNIT_TEST(AuthenticatedRefer);
    CPPUNIT_TEST(UnAuthenticatedForiegnRefer);
+   CPPUNIT_TEST(terminateMongoDB);
 
    CPPUNIT_TEST_SUITE_END();
 
@@ -498,6 +501,11 @@ public:
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
       }
+
+   void terminateMongoDB()
+   {
+     mongo::dbexit(mongo::EXIT_CLEAN);
+   }
 
 private:
    ForwardRules  mForwardingRules;

@@ -572,15 +572,17 @@ int proxy()
         UtlString routeTo;
         UtlString routeType;
         bool authRequired;
+        UtlString ruriParams;
         OsStatus routeStatus = forwardingRules.getRoute(msgUrl, 
                                                         foo, 
                                                         routeTo, 
                                                         routeType,
-                                                        authRequired);
+                                                        authRequired,
+                                                        ruriParams);
 
         Url msgRouteToUri(routeTo);
-        osPrintf("Message:\n\tmethod: %s\n\turi: %s\n\tevent: %s\nRouted:\n\tstring: %s\n\turi: %s\n\ttype: %s\n",
-            method, uri, eventType, routeTo.data(), msgRouteToUri.toString().data(), routeType.data());
+        osPrintf("Message:\n\tmethod: %s\n\turi: %s\n\tevent: %s\nRouted:\n\tstring: %s\n\turi: %s\n\ttype: %s\n\truriParams: %s\n",
+            method, uri, eventType, routeTo.data(), msgRouteToUri.toString().data(), routeType.data(), ruriParams.data());
         if(routeStatus != OS_SUCCESS) 
             osPrintf("forwardingRules.getRoute returned: %d\n",
                     routeStatus);
