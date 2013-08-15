@@ -3,7 +3,7 @@
 <form jwcid="upload@Form">
   <fieldset>
     <table>
-      <span jwcid="@For" source="ognl:backupManager.archiveDefinitionIds" value="ognl:definitionId">
+      <span jwcid="@For" source="ognl:backupManager.archiveDefinitionIds" value="ognl:definitionId" renderTag="false">
         <tr jwcid="@common/FieldPanel"
           field="component:uploadFile"
               label="ognl:messages.getMessage('archive.' + definitionId + '.label')">
