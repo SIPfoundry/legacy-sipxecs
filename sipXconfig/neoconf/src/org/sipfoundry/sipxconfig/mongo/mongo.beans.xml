@@ -24,7 +24,6 @@
       </bean>
     </property>
     <property name="configManager" ref="configManager"/>
-    <property name="configJdbcTemplate" ref="configJdbcTemplate"/>
     <property name="globalManager" ref="mongoReplSetManager"/>        
     <property name="featureManager" ref="featureManager"/>
   </bean>
@@ -40,6 +39,7 @@
   
   <bean id="mongoConfig" class="org.sipfoundry.sipxconfig.mongo.MongoConfig">
     <property name="mongoManager" ref="mongoManager"/>
+    <property name="regionManager" ref="regionManager"/>
   </bean>
 
   <bean id="mongoSettings" class="org.sipfoundry.sipxconfig.mongo.MongoSettings" parent="settingsBean">

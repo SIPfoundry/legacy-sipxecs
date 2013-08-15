@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -49,6 +48,7 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.region.Region;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
@@ -59,8 +59,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 public class MongoManagerImpl implements AddressProvider, FeatureProvider, MongoManager, ProcessProvider,
         SetupListener, FirewallProvider, AlarmProvider, BeanFactoryAware, FeatureListener {
@@ -68,7 +66,6 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     private BeanWithSettingsDao<MongoSettings> m_settingsDao;
     private ConfigManager m_configManager;
     private FeatureManager m_featureManager;
-    private JdbcTemplate m_db;
     private Map<Integer, MongoReplSetManager> m_shardManagers;
     private MongoReplSetManager m_globalManager;
     private ListableBeanFactory m_beans;
@@ -246,53 +243,17 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     }
 
     @Override
-    public Collection<MongoShard> getShards() {
-        List<MongoShard> shards = new ArrayList<MongoShard>();
-        SqlRowSet rs = m_db.queryForRowSet("select shard_id, name from shard");
-        while (rs.next()) {
-            MongoShard shard = new MongoShard();
-            shard.setUniqueId(rs.getInt(1));
-            shard.setName(rs.getString(2));
-        }
-
-        return shards;
-    }
-
-    public MongoShard getShard(Integer shardId) {
-        return null;
-    }
-
-    public void saveShard(MongoShard shard) {
-        Integer id = shard.getId();
-        if (id == null || id <= 0) {
-            id = m_db.queryForInt("select nextval('shard_seq')");
-            m_db.update("insert into shard (shard_id, name) values (?, ?)", id, shard.getName());
-        } else {
-            m_db.update("update shard set name = ? where id = ?", shard.getName(), id);
-        }
-    }
-
-    public void deleteShard(MongoShard shard) {
-        m_db.update("delete from from shard where id = ?", shard.getId());
-        getShardManagers().remove(shard.getId());
-    }
-
-    public void setConfigJdbcTemplate(JdbcTemplate jdbcTemplate) {
-        m_db = jdbcTemplate;
-    }
-
-    @Override
-    public MongoReplSetManager getShardManager(MongoShard shard) {
+    public MongoReplSetManager getShardManager(Region region) {
         // we cache manager because rest API needs to know if things are in progress
         // between requests.
-        MongoReplSetManager manager = getShardManagers().get(shard.getId());
+        MongoReplSetManager manager = getShardManagers().get(region.getId());
         if (manager != null) {
             return manager;
         }
 
         manager = (MongoReplSetManager) m_beans.getBean("mongoReplSetManager");
-        ((MongoReplSetManagerImpl) manager).setShard(shard);
-        getShardManagers().put(shard.getId(), manager);
+        ((MongoReplSetManagerImpl) manager).setRegion(region);
+        getShardManagers().put(region.getId(), manager);
         return manager;
     }
 

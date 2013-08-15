@@ -14,7 +14,6 @@
  */
 package org.sipfoundry.sipxconfig.mongo;
 
-
 import static org.restlet.data.MediaType.APPLICATION_JSON;
 
 import java.io.IOException;
@@ -28,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.Context;
@@ -53,21 +51,11 @@ class MongoApi extends Resource {
     private static final String PRIORITY = "priority";
     private MongoManager m_mongoManager;
     private LocationsManager m_locationsManager;
-    private MongoReplSetManager m_rsManager;
-    private MongoShard m_shard;
 
     @Override
     public void init(Context context, Request request, Response response) {
         super.init(context, request, response);
         getVariants().add(new Variant(APPLICATION_JSON));
-        String shardIdParam = (String) getRequest().getAttributes().get("shardId");
-        if (StringUtils.isNotBlank(shardIdParam)) {
-            Integer shardId = Integer.parseInt(shardIdParam);
-            m_shard = m_mongoManager.getShard(shardId);
-            m_rsManager = m_mongoManager.getShardManager(m_shard);
-        } else {
-            m_rsManager = m_mongoManager;
-        }
     }
 
     @Override
@@ -85,7 +73,7 @@ class MongoApi extends Resource {
         getResponse().setStatus(Status.SUCCESS_OK);
         Collection<Location> locations = m_mongoManager.getConfigManager().getRegisteredLocations(
                 m_locationsManager.getLocationsList());
-        Map<String, Object> meta = metaMap(m_rsManager, m_rsManager.getMeta(), locations);
+        Map<String, Object> meta = metaMap(m_mongoManager, m_mongoManager.getMeta(), locations);
         String json = JSON.serialize(meta);
         return new StringRepresentation(json);
     }
@@ -98,8 +86,8 @@ class MongoApi extends Resource {
             Map<String, Object> form = (Map<String, Object>) JSON.parse(json);
             String action = (String) form.get("action");
             String hostPort = (String) form.get("server");
-            MongoMeta meta = m_rsManager.getMeta();
-            takeAction(m_rsManager, meta, action, hostPort);
+            MongoMeta meta = m_mongoManager.getMeta();
+            takeAction(m_mongoManager, meta, action, hostPort);
         } catch (IOException e) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
         }

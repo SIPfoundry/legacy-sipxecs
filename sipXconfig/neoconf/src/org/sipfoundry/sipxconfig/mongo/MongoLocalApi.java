@@ -35,13 +35,15 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.StringRepresentation;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.commserver.Location;
-
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.region.Region;
+import org.sipfoundry.sipxconfig.region.RegionManager;
 
 import com.mongodb.util.JSON;
 
 public class MongoLocalApi extends Resource {
     private MongoManager m_mongoManager;
+    private RegionManager m_regionManager;
     private LocationsManager m_locationsManager;
     private MongoApi m_globalApi;
 
@@ -60,7 +62,8 @@ public class MongoLocalApi extends Resource {
     public boolean allowPost() {
         return true;
     }
-
+    
+    // GET
     public void acceptRepresentation(Representation entity) throws ResourceException {
         String json;
         try {
@@ -71,15 +74,17 @@ public class MongoLocalApi extends Resource {
             String hostPort = (String) form.get("server");
             String fqdn = MongoNode.fqdn(hostPort);
             Location location = m_locationsManager.getLocationByFqdn(fqdn);
-            MongoShard shard = getShard(location);
-            MongoReplSetManager rsMgr = m_mongoManager.getShardManager(shard);
-            if (action.equals("NEW_LOCAL")) {
-                rsMgr.newLocalDatabase(hostPort);
-            } else if (action.equals("DELETE_LOCAL")) {
-                rsMgr.removeLocalDatabase(hostPort);
-            } else {
-                MongoMeta meta = rsMgr.getMeta();
-                m_globalApi.takeAction(rsMgr, meta, action, hostPort);
+            if (location.getRegionId() != null) {
+            	Region region = m_regionManager.getRegion(location.getRegionId());
+                MongoReplSetManager rsMgr = m_mongoManager.getShardManager(region);
+                if (action.equals("NEW_LOCAL")) {
+                    rsMgr.newLocalDatabase(hostPort);
+                } else if (action.equals("DELETE_LOCAL")) {
+                    rsMgr.removeLocalDatabase(hostPort);
+                } else {
+                    MongoMeta meta = rsMgr.getMeta();
+                    m_globalApi.takeAction(rsMgr, meta, action, hostPort);
+                }
             }
 
         } catch (IOException e) {
@@ -87,6 +92,7 @@ public class MongoLocalApi extends Resource {
         }
     };
 
+    // POST
     @Override
     public Representation represent(Variant variant) throws ResourceException {
         Map<String, Object> meta = new HashMap<String, Object>();
@@ -99,36 +105,34 @@ public class MongoLocalApi extends Resource {
 
         List<String> candidateDbs = new ArrayList<String>();
         for (Location location : locations) {
-            if (!locals.contains(location)) {
-                candidateDbs.add(location.getFqdn() + ':' + MongoSettings.LOCAL_PORT);
-            }
+        	// Make strict requirement to define a region for any location otherwise 
+        	// logic gets messy w/o region object
+        	if (location.getRegionId() != null) {
+	            if (!locals.contains(location)) {
+	                candidateDbs.add(location.getFqdn() + ':' + MongoSettings.LOCAL_PORT);
+	            }
+        	}
         }
         Collections.sort(candidateDbs);
         meta.put("localCandidates", candidateDbs);
 
         List<Map<String, Object>> shards = new ArrayList<Map<String, Object>>();
         boolean inProgress = false;
-        for (Location location : locals) {
-            MongoShard shard = getShard(location);
-            MongoReplSetManager rsMgr = m_mongoManager.getShardManager(shard);
-            Collection<Location> single = Collections.singleton(location);
-            Map<String, Object> localMeta = m_globalApi.metaMap(rsMgr, rsMgr.getMeta(), single);
-            inProgress = inProgress | rsMgr.isInProgress();
-            shards.add(localMeta);
+        Map<Integer, List<Location>> regionLocations = Region.locationsByRegion(locations);
+        for (Region region : m_regionManager.getRegions()) {
+        	List<Location> miniCluster = regionLocations.get(region.getId());
+        	if (miniCluster != null && miniCluster.size() > 0) {
+	            MongoReplSetManager rsMgr = m_mongoManager.getShardManager(region);
+	            Map<String, Object> localMeta = m_globalApi.metaMap(rsMgr, rsMgr.getMeta(), miniCluster);
+	            inProgress = inProgress | rsMgr.isInProgress();
+	            shards.add(localMeta);        		
+        	}
         }
         meta.put("shards", shards);
         meta.put("inProgress", inProgress);
 
         String json = JSON.serialize(meta);
         return new StringRepresentation(json);
-    }
-
-    MongoShard getShard(Location location) {
-        // eventually these will come from database
-        MongoShard shard = new MongoShard();
-        shard.setName(location.getFqdn());
-        shard.setUniqueId(location.getId());
-        return shard;
     }
 
     public void setMongoManager(MongoManager mongoManager) {

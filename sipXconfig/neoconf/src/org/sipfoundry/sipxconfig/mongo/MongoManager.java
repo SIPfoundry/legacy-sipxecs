@@ -16,13 +16,12 @@
  */
 package org.sipfoundry.sipxconfig.mongo;
 
-import java.util.Collection;
-
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.region.Region;
 
 public interface MongoManager extends MongoReplSetManager {
     public static final String MONGO = "mongo";
@@ -51,15 +50,7 @@ public interface MongoManager extends MongoReplSetManager {
 
     public void saveSettings(MongoSettings settings);
 
-    public Collection<MongoShard> getShards();
-
-    public void saveShard(MongoShard shard);
-
-    public void deleteShard(MongoShard shard);
-
-    public MongoShard getShard(Integer shardId);
-
-    public MongoReplSetManager getShardManager(MongoShard shard);
+    public MongoReplSetManager getShardManager(Region region);
 
     public ConfigManager getConfigManager();
 

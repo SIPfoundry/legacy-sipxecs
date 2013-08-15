@@ -14,9 +14,12 @@
  */
 package org.sipfoundry.sipxconfig.mongo;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
@@ -35,6 +39,7 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.region.Region;
+import org.sipfoundry.sipxconfig.region.RegionManager;
 
 import com.mongodb.util.JSON;
 
@@ -42,6 +47,7 @@ public class MongoConfig implements ConfigProvider {
     private static final String GLOBAL_REPLSET = "sipxecs";
     private static final String LOCAL_REPLSET = "sipxlocal";
     private MongoManager m_mongoManager;
+    private RegionManager m_regionManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -55,10 +61,7 @@ public class MongoConfig implements ConfigProvider {
         List<Location> dbs = fm.getLocationsForEnabledFeature(MongoManager.FEATURE_ID);
         String connStr = getConnectionString(dbs, GLOBAL_REPLSET, settings.getPort());
         String connUrl = getConnectionUrl(dbs, settings.getPort());
-        List<Location> localServers = fm.getLocationsForEnabledFeature(MongoManager.LOCAL_FEATURE);
-        List<Location> localArbiters = fm.getLocationsForEnabledFeature(MongoManager.LOCAL_ARBITER_FEATURE);
-        Map<Integer, List<Location>> localServersByRegion = Region.locationsByRegion(localServers);
-        Map<Integer, List<Location>> localArbitersByRegion = Region.locationsByRegion(localArbiters);
+        
         for (Location location : all) {
             // CLIENT
             File dir = manager.getLocationDataDirectory(location);
@@ -84,33 +87,31 @@ public class MongoConfig implements ConfigProvider {
                 }               
             }
             
-            if (local || localArbiter) {
-                FileWriter localModel = null;
-                try {
-                    File f = new File(dir, "mongo-local.json");
-                    localModel = new FileWriter(f);
-                    List<Location> ldbs = localServersByRegion.get(location.getRegionId());
-                    List<Location> larbs = localArbitersByRegion.get(location.getRegionId());
-                    
-                    // NOTE: If no region is specified, allow this local database to
-                    // start w/o a region as a convenience to user to not required a 
-                    // region for a single local database in one location.
-                    if (ldbs == null && local) {
-                    	ldbs = Collections.singletonList(location);
-                    }
-                    modelFile(localModel, ldbs, larbs, LOCAL_REPLSET,
-                            MongoSettings.LOCAL_PORT, MongoSettings.LOCAL_ARBITER_PORT);
-                } finally {
-                    IOUtils.closeQuietly(localModel);
-                }
-            }
-
             FileWriter server = new FileWriter(new File(dir, "mongodb.cfdat"));
             try {
                 writeServerConfig(server, mongod, arbiter, local, localArbiter);
             } finally {
                 IOUtils.closeQuietly(server);
             }
+        }
+        
+        List<Location> localServers = fm.getLocationsForEnabledFeature(MongoManager.LOCAL_FEATURE);
+        List<Location> localArbiters = fm.getLocationsForEnabledFeature(MongoManager.LOCAL_ARBITER_FEATURE);
+        List<Region> regions = m_regionManager.getRegions();
+        Map<Integer, String> localModelsByRegion = getLocalModelsByRegion(regions, localServers, localArbiters);
+        for (Location location : all) {
+        	if (location.getRegionId() != null) {
+                File dir = manager.getLocationDataDirectory(location);
+        		File modelFile = new File(dir, "mongo-local.json");
+        		FileUtils.writeStringToFile(modelFile, localModelsByRegion.get(location.getRegionId()));
+        	}        	
+        }
+        
+        for (Region region : regions) {
+            File dir = manager.getGlobalDataDirectory();
+            String fname = format("mongo-local-%d.json", region.getId());
+    		File modelFile = new File(dir, fname);
+    		FileUtils.writeStringToFile(modelFile, localModelsByRegion.get(region.getId()));        	
         }
 
         List<Location> arbiters = fm.getLocationsForEnabledFeature(MongoManager.ARBITER_FEATURE);
@@ -122,6 +123,23 @@ public class MongoConfig implements ConfigProvider {
         } finally {
             IOUtils.closeQuietly(w);
         }
+    }
+    
+	Map<Integer, String> getLocalModelsByRegion(Collection<Region> regions,
+			Collection<Location> localServers,
+			Collection<Location> localArbiters) throws IOException {
+    	Map<Integer, String> models = new HashMap<Integer, String>();
+        Map<Integer, List<Location>> localServersByRegion = Region.locationsByRegion(localServers);
+        Map<Integer, List<Location>> localArbitersByRegion = Region.locationsByRegion(localArbiters);
+        for (Region region : regions) {    	
+            StringWriter model = new StringWriter();
+	        List<Location> ldbs = localServersByRegion.get(region.getId());
+	        List<Location> larbs = localArbitersByRegion.get(region.getId());
+            modelFile(model, ldbs, larbs, LOCAL_REPLSET,
+                    MongoSettings.LOCAL_PORT, MongoSettings.LOCAL_ARBITER_PORT);
+            models.put(region.getId(), model.toString());
+        }
+        return models;        
     }
     
     void modelFile(Writer sb, List<Location> servers, List<Location> arbiters, String replSet, int dbPort,
@@ -201,5 +219,9 @@ public class MongoConfig implements ConfigProvider {
 
     public void setMongoManager(MongoManager mongoManager) {
         m_mongoManager = mongoManager;
+    }
+    
+    public void setRegionManager(RegionManager regionManager) {
+    	m_regionManager = regionManager;
     }
 }
