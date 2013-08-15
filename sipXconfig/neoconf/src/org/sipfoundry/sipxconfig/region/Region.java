@@ -33,7 +33,7 @@ import org.sipfoundry.sipxconfig.feature.Feature;
 public class Region extends BeanWithId implements NamedObject, DeployConfigOnEdit {
     private String m_name;
 
-    public static final Map<Integer, List<Location>> locationsByRegion(List<Location> locations) {
+    public static final Map<Integer, List<Location>> locationsByRegion(Collection<Location> locations) {
     	Map<Integer, List<Location>> map = new HashMap<Integer, List<Location>>();
     	for (Location location : locations) {
     		if (location.getRegionId() != null) {

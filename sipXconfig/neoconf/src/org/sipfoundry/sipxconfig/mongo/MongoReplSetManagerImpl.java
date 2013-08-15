@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.region.Region;
 
 public class MongoReplSetManagerImpl implements MongoReplSetManager {
     private static final Log LOG = LogFactory.getLog(MongoReplSetManagerImpl.class);
@@ -36,7 +37,7 @@ public class MongoReplSetManagerImpl implements MongoReplSetManager {
     private FeatureManager m_featureManager;
     private CommandRunner m_actionRunner;
     private Object m_lastErrorToken;
-    private MongoShard m_shard;
+    private Region m_region;
     private LocationFeature m_dbFeature = MongoManager.FEATURE_ID;
     private LocationFeature m_arbFeature = MongoManager.ARBITER_FEATURE;
 
@@ -59,8 +60,8 @@ public class MongoReplSetManagerImpl implements MongoReplSetManager {
     }
 
     void appendModel(StringBuilder cmd) {
-        if (m_shard != null) {
-            cmd.append(" --model ").append(m_shard.getId()).append("/mongo-local.json");
+        if (m_region != null) {
+            cmd.append(" --model ").append(m_region.getId()).append("/mongo-local.json");
         }
     }
 
@@ -277,13 +278,13 @@ public class MongoReplSetManagerImpl implements MongoReplSetManager {
         m_configManager = configManager;
     }
 
-    public MongoShard getShard() {
-        return m_shard;
+    public Region getRegion() {
+        return m_region;
     }
 
-    public void setShard(MongoShard shard) {
-        m_shard = shard;
-        if (m_shard != null) {
+    public void setRegion(Region region) {
+        m_region = region;
+        if (m_region != null) {
             m_dbFeature = MongoManager.LOCAL_FEATURE;
             m_arbFeature = MongoManager.LOCAL_ARBITER_FEATURE;
         }

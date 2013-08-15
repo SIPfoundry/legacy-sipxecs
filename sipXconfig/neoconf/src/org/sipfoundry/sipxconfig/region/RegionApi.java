@@ -19,7 +19,6 @@ import static org.restlet.data.MediaType.APPLICATION_JSON;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -137,7 +136,7 @@ public class RegionApi extends Resource {
 			
 			List<String> servers = new ArrayList<String>();
 			for (Location location : m_locations) {
-				if (location.getRegionId().equals(region.getId())) {
+				if (region.getId().equals(location.getRegionId())) {
 					servers.add(location.getHostname());
 				}
 			}
