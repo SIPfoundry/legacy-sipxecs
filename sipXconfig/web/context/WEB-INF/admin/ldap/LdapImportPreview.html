@@ -26,13 +26,13 @@
 		<tr jwcid="sipPasswordPanel@common/FieldPanel"
 		    field="component:sipPassword"
 		    label="message:label.sipPassword">
-		  <span jwcid="@If" condition="ognl:user.sipPassword != null">
+		  <span jwcid="@If" condition="ognl:user.sipPassword != null" renderTag="false">
 	        <td jwcid="sipPassword@TextField"
 		      value="ognl:user.sipPassword"
 		      disabled="true"
 		      displayName="message:label.sipPassword"/>
 		  </span>
-          <span jwcid="@Else">
+          <span jwcid="@Else" renderTag="false">
 	        <td jwcid="sipPasswordHidden@TextField"
 		      value="******"
 		      disabled="true"

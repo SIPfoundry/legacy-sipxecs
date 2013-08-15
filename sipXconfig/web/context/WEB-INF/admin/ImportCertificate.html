@@ -13,7 +13,7 @@
             </ul>
           </label>
         </tr>
-        <span jwcid="@If" condition="ognl:certificateType == 'web' && chainCertificateText != null">
+        <span jwcid="@If" condition="ognl:certificateType == 'web' && chainCertificateText != null" renderTag="false">
           <tr>
             <label jwcid="chainCertificateLabel@common/FieldPanel" label="message:label.chainCertificateFile">
               <span jwcid="@Insert" value="ognl:chainCertificateName" />
@@ -23,7 +23,7 @@
             </label>
           </tr>
         </span>
-        <span jwcid="@If" condition="ognl:certificateType == 'web' && cACertificateText != null">
+        <span jwcid="@If" condition="ognl:certificateType == 'web' && cACertificateText != null" renderTag="false">
           <tr>
             <label jwcid="caCertificateLabel@common/FieldPanel" label="message:label.caCertificateFile">
               <span jwcid="@Insert" value="ognl:cACertificateName" />
@@ -65,7 +65,7 @@
         </tr>
       </table>
       <table>
-        <span jwcid="@If" condition="ognl:!uploadDisabled">
+        <span jwcid="@If" condition="ognl:!uploadDisabled" renderTag="false">
           <tr>
             <td><span jwcid="crtFileLabel@FieldLabel" field="component:crtFile" /></td>
             <td><span jwcid="crtFile@Upload" file="ognl:uploadCrtFile" displayName="message:label.crtFile"
@@ -76,7 +76,7 @@
             <td><span jwcid="keyFile@Upload" file="ognl:uploadKeyFile" displayName="message:label.keyFile"
               disabled="ognl:uploadDisabled" /></td>
           </tr>
-          <span jwcid="@If" condition="ognl:certificateType == 'web'">
+          <span jwcid="@If" condition="ognl:certificateType == 'web'" renderTag="false">
             <tr>
               <td><span jwcid="chainCertificateFileLabel@FieldLabel" field="component:chainCertificateFile" /></td>
               <td><span jwcid="chainCertificateFile@Upload" file="ognl:uploadChainCertificateFile"
@@ -89,7 +89,7 @@
             </tr>
           </span>
         </span>
-        <span jwcid="@If" condition="ognl:uploadDisabled">
+        <span jwcid="@If" condition="ognl:uploadDisabled" renderTag="false">
           <tr>
             <td><span jwcid="crtLabel@FieldLabel" field="component:crt" /></td>
           </tr>

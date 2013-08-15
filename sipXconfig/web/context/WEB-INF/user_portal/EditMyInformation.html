@@ -36,7 +36,7 @@
 	          passwordDescription="message:description.voicemail.pin"
 	          passwordValidator="spring-validators:validPin,minLength=4,required">
 	      </tr>	      
-	      <span jwcid="@If" condition="ognl:voicemailEnabled">
+	      <span jwcid="@If" condition="ognl:voicemailEnabled" renderTag="false">
 			<tr jwcid="@vm/MailboxPreferencesForm" preferences="ognl:mailboxPreferences"/>
 	      </span>
 	    </table>

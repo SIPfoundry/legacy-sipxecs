@@ -46,7 +46,7 @@
           <td jwcid="@Insert" value="ognl:currentRow.type" format="bean:typeFormat"/>
         </tr>
         <tr jwcid="scheduleColumnValue@Block">
-          <span jwcid="@If" condition="ognl:currentRow.schedule!=null">
+          <span jwcid="@If" condition="ognl:currentRow.schedule!=null" renderTag="false">
             <td jwcid="editScheduleRow@DirectLink" listener="listener:editSchedule" parameters="ognl:currentRow.schedule.id">
               <span jwcid="@Insert" value="ognl:currentRow.schedule.name"/>
             </td>
