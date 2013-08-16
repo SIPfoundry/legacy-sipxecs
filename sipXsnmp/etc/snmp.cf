@@ -28,8 +28,8 @@ bundle agent snmp {
 bundle agent snmp_config {
   vars:
     any::
-      "cron" string => "* * * * * $(sipx.SIPX_LIBEXECDIR)/snmp-fix-process-cron";
-      "cron_id" string => ".*/snmp-fix-process-cron";
+      "cron" string => "* * * * * $(sipx.SIPX_LIBEXECDIR)/snmp-fix-process-cron &>> $(sipx.SIPX_LOGDIR)/snmp-fix-process-cron.log";
+      "cron_id" string => ".*/snmp-fix-process-cron .*";  #regex
 
   methods:
     snmp::
