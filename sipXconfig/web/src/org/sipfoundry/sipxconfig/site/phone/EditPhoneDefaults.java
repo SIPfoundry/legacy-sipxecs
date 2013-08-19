@@ -49,7 +49,7 @@ public abstract class EditPhoneDefaults extends PhoneBasePage implements PageBeg
     private static final int LINE_SETTITNGS = 1;
 
     private HotellingManager m_hotellingManager;
-    
+
     @InjectObject(value = "spring:settingDao")
     public abstract SettingDao getSettingDao();
 
@@ -176,10 +176,11 @@ public abstract class EditPhoneDefaults extends PhoneBasePage implements PageBeg
         ListableBeanFactory factory = SpringBeanFactoryHolderImpl.getWebApplicationContext(getWebContext());
 
         Map<String, HotellingManager> managers = factory.getBeansOfType(HotellingManager.class);
-        if (!managers.isEmpty())
+        if (!managers.isEmpty()) {
             for (String key : managers.keySet()) {
                 m_hotellingManager = managers.get(key);
             }
+        }
         editSettings();
     }
 

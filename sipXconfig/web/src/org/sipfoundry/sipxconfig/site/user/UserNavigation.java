@@ -109,10 +109,11 @@ public abstract class UserNavigation extends BeanNavigation implements PageBegin
         ListableBeanFactory factory = SpringBeanFactoryHolderImpl.getWebApplicationContext(getWebContext());
 
         Map<String, HotellingManager> managers = factory.getBeansOfType(HotellingManager.class);
-        if (!managers.isEmpty())
+        if (!managers.isEmpty()) {
             for (String key : managers.keySet()) {
                 m_hotellingManager = managers.get(key);
             }
+        }
     }
 
     public IPage editCallForwarding(Integer userId) {

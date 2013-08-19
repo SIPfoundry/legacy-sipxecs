@@ -58,8 +58,6 @@ import com.davekoelle.AlphanumComparator;
 
 public abstract class UserGroupSettings extends GroupSettings implements PageBeginRenderListener {
     public static final String PAGE = "user/UserGroupSettings";
-    private HotellingManager m_hotellingManager;
-
     public static final String SEPARATOR = ",";
 
     private static final String SCHEDULES = "schedules";
@@ -73,6 +71,8 @@ public abstract class UserGroupSettings extends GroupSettings implements PageBeg
     private static final String TIMEZONE_SETTING = "timezone/timezone";
     private static final String HOTELLING_TAB = "hotelling";
     private static final String HOTELLING_SETTING = "hotelling/enable";
+
+    private HotellingManager m_hotellingManager;
 
     @InjectObject(value = "spring:forwardingContext")
     public abstract ForwardingContext getForwardingContext();
@@ -257,12 +257,12 @@ public abstract class UserGroupSettings extends GroupSettings implements PageBeg
         ListableBeanFactory factory = SpringBeanFactoryHolderImpl.getWebApplicationContext(getWebContext());
 
         Map<String, HotellingManager> managers = factory.getBeansOfType(HotellingManager.class);
-        if (!managers.isEmpty())
+        if (!managers.isEmpty()) {
             for (String key : managers.keySet()) {
                 m_hotellingManager = managers.get(key);
                 setHotellingSetting(getSettings().getSetting(HOTELLING_SETTING));
             }
-
+        }
     }
 
     public IPage addSchedule(IRequestCycle cycle) {
