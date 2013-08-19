@@ -3,8 +3,21 @@ import netsnmp
 import os
 import os.path
 import sys
+import time
+import datetime
 
 if not os.path.isfile('@SIPX_CFDATA@/snmp_fix_dead_processes'):
+    sys.exit(0)
+
+# Do not do anything if cfengine is running because cfengine already ensures services are running
+if os.path.isfile('@SIPX_RUNDIR@/sipxagent.lock'):
+    sys.exit(0)
+
+# check uptime for server to be greater than 5 minutes
+with open('/proc/uptime', 'r') as f:
+    uptime_seconds = float(f.readline().split()[0])
+
+if abs(uptime_seconds) <= 300:
     sys.exit(0)
 
 # http://www.oidview.com/mibs/2021/UCD-SNMP-MIB.html
@@ -13,6 +26,7 @@ proc_status = netsnmp.Varbind(proc_oid, '100') # prErrFlag
 proc_fix = netsnmp.Varbind(proc_oid, '103') # prErrFixCmd
 proc_vars = netsnmp.VarList(proc_status, proc_fix)
 procs = netsnmp.snmpwalk(proc_vars, DestHost = 'localhost', Version = 2, Community = 'public')
+now = datetime.datetime.now()
 # proc_table format : 
 #   0|1, cmd1, 0|1, cmd2, ...
 # where
@@ -21,5 +35,6 @@ procs = netsnmp.snmpwalk(proc_vars, DestHost = 'localhost', Version = 2, Communi
 for i in range(len(procs) / 2):
     if procs[2 * i] == '1':
         cmd = procs[(2 * i ) + 1].split()
-        print "Starting failed process ", cmd[1]
-        os.spawnlp(os.P_WAIT, cmd[0], *cmd)
+        print now.strftime("%Y-%m-%d %H:%M"), "Starting dead process ", cmd[1]
+        # we're going to exercise all cfengine bundles so services to be started in proper order 
+        os.system("@SIPX_BINDIR@/sipxagent")

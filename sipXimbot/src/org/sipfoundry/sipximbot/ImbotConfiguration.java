@@ -155,10 +155,12 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
     }
 
 
+    @Override
     public String getLogLevel() {
         return m_logLevel;
     }
 
+    @Override
     public String getLogFile() {
         return m_logFile;
     }
@@ -168,18 +170,22 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
         return m_httpPort;
     }
 
+    @Override
     public String getDocDirectory() {
         return m_docDirectory;
     }
 
+    @Override
     public String getSipxchangeDomainName() {
         return m_sipxchangeDomainName;
     }
 
+    @Override
     public String getRealm() {
         return m_realm;
     }
 
+    @Override
     public void setRealm(String realm) {
         m_realm = realm;
     }

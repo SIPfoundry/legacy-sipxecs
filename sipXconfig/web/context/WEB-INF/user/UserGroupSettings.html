@@ -123,11 +123,13 @@
 	  <div jwcid="submitTimezone@Submit" value="message:button.apply" listener="listener:onApplyTimeZone" />
 	</form>
   </div>
-  <span jwcid="hotellingTab@Block">
-	<form jwcid="changeHotelling@Form" delegate="bean:validator">
-		<fieldset jwcid="@setting/SettingsFieldset" settings="ognl:hotellingSetting"/>
-	<div jwcid="submitHotelling@Submit" value="message:button.apply" listener="listener:onChangeHotelling" />
-	</form>
+  <span jwcid="hotellingIf@If" condition="ognl:hotellingEnabled" renderTag="false">
+	  <span jwcid="hotellingTab@Block">
+		<form jwcid="changeHotelling@Form" delegate="bean:validator">
+			<fieldset jwcid="@setting/SettingsFieldset" settings="ognl:hotellingSetting"/>
+		<div jwcid="submitHotelling@Submit" value="message:button.apply" listener="listener:onChangeHotelling" />
+		</form>
+	  </span>
   </span>
   <span jwcid="groupNav@common/Plugin" blockId="GroupNavigationBottom"/>
 </div>

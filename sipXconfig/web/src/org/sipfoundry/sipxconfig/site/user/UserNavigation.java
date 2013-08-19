@@ -13,17 +13,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Parameter;
+import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.web.WebContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.device.HotellingManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.site.SpringBeanFactoryHolderImpl;
 import org.sipfoundry.sipxconfig.site.admin.EditHotellingPage;
 import org.sipfoundry.sipxconfig.site.admin.time.EditTimeZonePage;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
@@ -34,10 +40,12 @@ import org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding;
 import org.sipfoundry.sipxconfig.site.user_portal.UserSchedules;
 import org.sipfoundry.sipxconfig.site.vm.MailboxPreferencesPage;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
+import org.springframework.beans.factory.ListableBeanFactory;
 
-public abstract class UserNavigation extends BeanNavigation {
+public abstract class UserNavigation extends BeanNavigation implements PageBeginRenderListener {
 
     private static final String PERSONAL_ATTENDANT = "personal-attendant";
+    private HotellingManager m_hotellingManager;
 
     @Parameter(required = false, defaultValue = "true")
     public abstract void setRenderCondition(boolean renderCondition);
@@ -92,6 +100,21 @@ public abstract class UserNavigation extends BeanNavigation {
 
     @InjectPage(value = EditHotellingPage.PAGE)
     public abstract EditHotellingPage getEditHotellingPage();
+
+    @InjectObject(value = "service:tapestry.globals.WebContext")
+    public abstract WebContext getWebContext();
+
+    @Override
+    public void pageBeginRender(PageEvent event) {
+        ListableBeanFactory factory = SpringBeanFactoryHolderImpl.getWebApplicationContext(getWebContext());
+
+        Map<String, HotellingManager> managers = factory.getBeansOfType(HotellingManager.class);
+        if (!managers.isEmpty()) {
+            for (String key : managers.keySet()) {
+                m_hotellingManager = managers.get(key);
+            }
+        }
+    }
 
     public IPage editCallForwarding(Integer userId) {
         UserCallForwarding page = getUserCallForwardingPage();
@@ -189,6 +212,13 @@ public abstract class UserNavigation extends BeanNavigation {
         page.setUserId(userId);
         page.setReturnPage(EditHotellingPage.PAGE);
         return page;
+    }
+
+    public boolean isHotellingEnabled() {
+        if (m_hotellingManager == null) {
+            return false;
+        }
+        return m_hotellingManager.isActive();
     }
 
     public String getGroupsToHide() {

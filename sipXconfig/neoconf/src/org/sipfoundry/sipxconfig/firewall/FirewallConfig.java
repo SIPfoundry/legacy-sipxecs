@@ -65,7 +65,7 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         FirewallSettings settings = m_firewallManager.getSettings();
         Set<String> blackList = settings.getBlackListSet();
         Set<String> whiteList = settings.getWhiteListSet();
-        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FirewallManager.FEATURE);
+        boolean restrictive = manager.getFeatureManager().isFeatureEnabled(FirewallManager.FEATURE);
         List<FirewallRule> rules = m_firewallManager.getFirewallRules();
         LOG.debug("Firewall rules: " + rules);
         List<ServerGroup> groups = m_firewallManager.getServerGroups();
@@ -78,13 +78,9 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
             Writer sysconf = new FileWriter(new File(dir, "firewall.cfdat"));
             try {
                 Set<String> mods = m_firewallManager.getRequiredModules(location, configRequest);
-                writeCfdat(sysconf, enabled, settings.getSystemSettings(), mods);
+                writeCfdat(sysconf, restrictive, settings.getSystemSettings(), mods);
             } finally {
                 IOUtils.closeQuietly(sysconf);
-            }
-
-            if (!enabled) {
-                continue;
             }
 
             Writer sysctl = new FileWriter(new File(dir, "sysctl.part"));
@@ -97,8 +93,8 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
             List<CustomFirewallRule> custom = m_firewallManager.getCustomRules(location, configRequest);
             Writer config = new FileWriter(new File(dir, "firewall.yaml"));
             try {
-                writeIptables(config, whiteList, blackList, settings, rateRules, rules, custom, groups, locations,
-                        location);
+                writeIptables(config, restrictive, whiteList, blackList, settings, rateRules, rules, custom,
+                        groups, locations, location);
             } finally {
                 IOUtils.closeQuietly(config);
             }
@@ -106,11 +102,12 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
     }
 
     // @formatter:off
-    static void writeCfdat(Writer w, boolean enabled, Setting sysSettings, Collection<String> mods)
+    static void writeCfdat(Writer w, boolean restrictive, Setting sysSettings, Collection<String> mods)
         throws IOException {
         // @formatter:on
         CfengineModuleConfiguration cfg = new CfengineModuleConfiguration(w);
-        cfg.writeClass("firewall", enabled);
+        cfg.writeClass("firewall", true);
+        cfg.writeClass("firewall_restrictive", restrictive);
         cfg.writeSettings("firewall_", sysSettings);
         cfg.write("firewall_modules", StringUtils.join(mods, ' '));
     }
@@ -120,12 +117,14 @@ public class FirewallConfig implements ConfigProvider, FeatureListener {
         c.writeSettings(settings.getSettings().getSetting("sysctl"));
     }
 
-    void writeIptables(Writer w, Set<String> whiteList, Set<String> blackList, FirewallSettings settings,
+    void writeIptables(Writer w, boolean restrictive, Set<String> whiteList, Set<String> blackList,
+            FirewallSettings settings,
             List<CallRateRule> rateRules, List<FirewallRule> rules, List<CustomFirewallRule> custom,
             List<ServerGroup> groups, List<Location> cluster, Location thisLocation) throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
 
         Collection< ? > ips = CollectionUtils.collect(cluster, Location.GET_ADDRESS);
+        c.write("restrictive", restrictive);
         c.write("logdropped", settings.isLogDroppedPacketsEnabled());
         c.write("logdos", settings.isLogDosPacketsEnabled());
         c.write("lograte", settings.isLogRatePacketsEnabled());

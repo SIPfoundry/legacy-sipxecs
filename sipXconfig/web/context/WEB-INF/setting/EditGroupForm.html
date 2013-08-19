@@ -4,7 +4,7 @@
     nameValidator="spring-validators:required,noWhitespace"
     useEnabled="false"
     useExtension="false">
-    <span jwcid="@If" condition="ognl:showBranch">
+    <span jwcid="@If" condition="ognl:showBranch" renderTag="false">
       <span jwcid="@branch/BranchSelection" branch="ognl:group.branch"/>
     </span>
   </div>

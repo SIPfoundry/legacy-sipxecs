@@ -39,9 +39,22 @@
     s
   end
 %>*filter
+<%
+  if restrictive
+%>
 :INPUT DROP [0:0]
 :FORWARD DROP [0:0]
 :OUTPUT ACCEPT [60:6096]
+<%
+  else
+%>
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+<%
+  end
+%>
+
 :syn-flood - [0:0]
 :LOGDROP - [0:0]
 :SIPDOS - [0:0]
@@ -64,17 +77,19 @@
 <%
   end
 
-  unless chains.nil?
-    chains.each { |chain|
+  if restrictive
+    unless chains.nil?
+      chains.each { |chain|
 %>-N <%= chain[:name] %>
 <%
-      chain[:ipv4s].each { |ipv4|
+        chain[:ipv4s].each { |ipv4|
 %>-A <%= chain[:name] %> -s <%= ipv4 %> -j ACCEPT
 <%
-      }
+        }
 %>-A <%= chain[:name] %> -j LOGDROP
 <%
-    }
+      }
+    end
   end
 
   unless raterules.nil?
@@ -84,16 +99,20 @@
     }
   end
 
-  cluster.each { |ipv4|
+  if restrictive
+    cluster.each { |ipv4|
 %>-A INPUT -i $(sipx.iface) -s <%= ipv4 %> -j ACCEPT
 <%
-  }
+    }
+  end
 
-  unless whitelist.nil?
-    whitelist.each { |whiteipv4|
+  if restrictive
+    unless whitelist.nil?
+      whitelist.each { |whiteipv4|
 %>-A INPUT -i $(sipx.iface) -s <%= whiteipv4 %> -j ACCEPT
 <%
-  }
+      }
+    end
   end
 
   unless blacklist.nil?
@@ -139,33 +158,43 @@
 <%
       end
     end
+    if restrictive
 %>-A INPUT -i $(sipx.iface) -p <%= rule[:protocol] %> <%= dports(rule) %> -m state <%= state(rule[:protocol]) %> -m comment --comment "<%= rule[:service] %>" -j <%= rule[:chain] %>
 <%
+    end
   }
 
-  if defined? filter && !filter.nil?
+  if !restrictive && defined?(filter) && !filter.nil?
     filter.each { |rule|
 %><%= rule %>
 <%
     }
   end
 %>
-<%# Simple things like outgoing DNS queries would not work w/o allowing response traffic back in %>
+<%
+  # Simple things like outgoing DNS queries would not work w/o allowing response traffic back in 
+  if restrictive
+%>
 -A INPUT -i $(sipx.iface) -m state --state RELATED,ESTABLISHED -j ACCEPT
 -A INPUT -p icmp -j ACCEPT
 -A INPUT -i lo -j ACCEPT
-<%    unless raterules.nil?
-        raterules.each { |raterule|
-          raterule[:limits].each{ |limit|
+<%
+  end
+
+  if restrictive
+    unless raterules.nil?
+      raterules.each { |raterule|
+        raterule[:limits].each{ |limit|
 %>-A <%= raterule[:rule]%> -i $(sipx.iface) -m string --string "<%= limit[:method]%> sip:" --algo bm --to 65 -m hashlimit --hashlimit-mode srcip,srcport --hashlimit-name "<%= limit[:method]%>" --hashlimit-htable-max 10000 --hashlimit-htable-expire 10000 --hashlimit-burst 4 --hashlimit-above <%= limit[:rate]%>/<%= limit[:interval]%> -j DROP
 <%
-          }
+        }
 %>-A <%= raterule[:rule]%> -j LOGLIMIT
 <%
-        }
-      end
+      }
+    end
+  end
 %>
-<%# log and drop everything else %>
+<% # log and drop everything else %>
 -A INPUT -j LOGDROP
 COMMIT
 
@@ -174,7 +203,7 @@ COMMIT
 :POSTROUTING ACCEPT [1376:92796]
 :OUTPUT ACCEPT [1376:92796]
 <%
-  if defined? nat && !nat.nil?
+  if restrictive && defined?(nat) && !nat.nil?
     nat.each { |rule|
 %><%= rule %>
 <%
@@ -190,18 +219,20 @@ COMMIT
 :OUTPUT ACCEPT [0:0]
 :POSTROUTING ACCEPT [0:0]
 <%
-  rules.each { |rule|
-    if rule[:priority]
+  if restrictive
+    rules.each { |rule|
+      if rule[:priority]
 %>-A OUTPUT -o $(sipx.iface) -p <%= rule[:protocol] %> <%= sports(rule) %> -m comment --comment "<%= rule[:service] %>" -j DSCP --set-dscp-class EF
 <%
-    end
-  }
+      end
+    }
 
-  if defined? mangle && !mangle.nil?
-    mangle.each { |rule|
+    if defined? mangle && !mangle.nil?
+      mangle.each { |rule|
 %><%= rule %>
 <%
-    }
+      }
+    end
   end
 %>
 COMMIT

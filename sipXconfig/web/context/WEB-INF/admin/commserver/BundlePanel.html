@@ -20,13 +20,13 @@ display:none;
           <tr>
             <th class="activeColumnHeader"></th>
             <th class="activeColumnHeader"><span key="all"/></th>
-            <span jwcid="@For" source="ognl:locations" value="ognl:locationObject">
+            <span jwcid="@For" source="ognl:locations" value="ognl:locationObject" renderTag="false">
               <th class="activeColumnHeader"><span jwcid="@Insert" value="ognl:locationObject.hostname"/></th>
             </span>
           </tr>
         </thead>
         <tbody>
-        <span jwcid="@For" source="ognl:sortedFeatures" value="ognl:feature" converter="ognl:featureConverter">
+        <span jwcid="@For" source="ognl:sortedFeatures" value="ognl:feature" converter="ognl:featureConverter" renderTag="false">
           <tr jwcid="@Any" class="ognl:rowClass.next">
               <td><span jwcid="@Any"
                 title="ognl:messages.getMessage('feature.' + feature.id + '.description')"  class="tooltip"><span
@@ -40,7 +40,7 @@ display:none;
             </span>
             <span jwcid="pickAny@Block">
               <td/>
-              <span jwcid="@For" source="ognl:cells" value="ognl:cell" converter="ognl:cellConverter">
+              <span jwcid="@For" source="ognl:cells" value="ognl:cell" converter="ognl:cellConverter" renderTag="false">
                 <td style="text-align:center" class="ognl:cellClass" jwcid="@Any"><input jwcid="@Checkbox" value="ognl:cellPickedFromAnyInRow"  disabled="ognl:!cell.enabled"  onclick="javascript: validateBundle()"/></td>
               </span>
             </span>

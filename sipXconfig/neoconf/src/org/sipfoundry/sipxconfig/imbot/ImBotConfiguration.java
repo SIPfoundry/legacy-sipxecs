@@ -58,7 +58,7 @@ public class ImBotConfiguration implements ConfigProvider {
         FeatureManager featureManager = manager.getFeatureManager();
 
         Address ivr = manager.getAddressManager().getSingleAddress(Ivr.REST_API);
-        Address admin = manager.getAddressManager().getSingleAddress(AdminContext.HTTP_ADDRESS);
+        Address admin = manager.getAddressManager().getSingleAddress(AdminContext.HTTP_ADDRESS_AUTH);
         Address rest = manager.getAddressManager().getSingleAddress(RestServer.HTTP_API);
         Address imApi = manager.getAddressManager().getSingleAddress(ImManager.XMLRPC_ADDRESS);
         Domain domain = manager.getDomainManager().getDomain();

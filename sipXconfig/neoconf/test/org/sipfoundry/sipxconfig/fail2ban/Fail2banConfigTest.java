@@ -52,7 +52,7 @@ public class Fail2banConfigTest {
 
         m_settings.setSettingTypedValue("config/ignoreip", "127.0.0.1");
         m_settings.setSettingTypedValue("config/bantime", 300);
-        m_config.writeConfig(m_actual, m_settings);
+        m_config.writeConfig(m_actual, m_settings, true);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-security.yaml"));
         assertEquals(expected, m_actual.toString());
     }

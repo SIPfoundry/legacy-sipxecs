@@ -17,6 +17,7 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
@@ -86,6 +87,7 @@ public class IMUser {
             // m_atPlace = Place.WORK;
 
             m_chat = m_con.getChatManager().createChat(jabberId, new MessageListener() {
+                @Override
                 public void processMessage(Chat chat, Message message) {
                     if(message.getType() == Message.Type.error) {
                         // ignore error IMs
@@ -563,6 +565,10 @@ public class IMUser {
             HttpURLConnection urlConn;
             try {
                 urlConn = rr.getConnection("phonebook?query=" + findTerm);
+
+                String userpassword = m_user.getUserName() + ":" + m_user.getPintoken();
+                byte [] encodedAuthorization = new Base64().encode( userpassword.getBytes() );
+                urlConn.setRequestProperty("Authorization", "Basic " + new String(encodedAuthorization));
 
                 if (rr.get(urlConn)) {
                     InputStream in = urlConn.getInputStream();

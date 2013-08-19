@@ -207,8 +207,8 @@ AuthPlugin::AuthResult EmergencyLineIdentifier::authorizeAndModify(const UtlStri
         << "<" << fromField.data() << ">"
         << " Contact: " << contactField.data()
         << " ELIN: " << e911
-        << " Addr-Info: '" << address << "'"
-        << " Location: '" << location << "'");
+        << " Addr-Info: " << address << ""
+        << " Location: " << location << "");
     }
   }
 

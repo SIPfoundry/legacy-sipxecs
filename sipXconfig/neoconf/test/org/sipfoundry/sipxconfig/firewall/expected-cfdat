@@ -1,3 +1,4 @@
 +firewall
++firewall_restrictive
 -firewall_unmanaged
 =firewall_modules=mod1 mod2

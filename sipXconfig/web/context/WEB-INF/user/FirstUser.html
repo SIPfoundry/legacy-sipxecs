@@ -15,7 +15,7 @@
             confirmPasswordDisplayName="message:label.confirmNewPin"
             passwordMismatchMessage="message:message.newPinMismatch"
             passwordValidator="spring-validators:validPin,required,minLength=8"/>
-          <div jwcid="@If" condition="ognl:!renderLicense">   
+          <div jwcid="@If" condition="ognl:!renderLicense" renderTag="false">   
           <tr>
 			<td align="left" jwcid="@Any">
 				<input jwcid="@Submit" tag="ognl:true" selected="ognl:licenseAccepted" value="message:button.agree" listener="listener:commit"/>      			

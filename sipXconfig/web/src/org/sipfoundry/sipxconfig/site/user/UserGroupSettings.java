@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IPage;
@@ -22,9 +23,11 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
+import org.apache.tapestry.web.WebContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -41,6 +44,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.site.SpringBeanFactoryHolderImpl;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 import org.sipfoundry.sipxconfig.site.setting.EditSchedule;
 import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
@@ -48,12 +52,12 @@ import org.sipfoundry.sipxconfig.speeddial.SpeedDialGroup;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
 import org.sipfoundry.sipxconfig.time.NtpManager;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
+import org.springframework.beans.factory.ListableBeanFactory;
 
 import com.davekoelle.AlphanumComparator;
 
-public abstract class UserGroupSettings extends GroupSettings {
+public abstract class UserGroupSettings extends GroupSettings implements PageBeginRenderListener {
     public static final String PAGE = "user/UserGroupSettings";
-
     public static final String SEPARATOR = ",";
 
     private static final String SCHEDULES = "schedules";
@@ -67,6 +71,8 @@ public abstract class UserGroupSettings extends GroupSettings {
     private static final String TIMEZONE_SETTING = "timezone/timezone";
     private static final String HOTELLING_TAB = "hotelling";
     private static final String HOTELLING_SETTING = "hotelling/enable";
+
+    private HotellingManager m_hotellingManager;
 
     @InjectObject(value = "spring:forwardingContext")
     public abstract ForwardingContext getForwardingContext();
@@ -143,8 +149,8 @@ public abstract class UserGroupSettings extends GroupSettings {
 
     public abstract void setTab(String tab);
 
-    @InjectObject("spring:hotellingManager")
-    public abstract HotellingManager getHotellingManager();
+    @InjectObject(value = "service:tapestry.globals.WebContext")
+    public abstract WebContext getWebContext();
 
     public Collection<String> getAvailableTabNames() {
         Collection<String> tabNames = new ArrayList<String>();
@@ -152,9 +158,12 @@ public abstract class UserGroupSettings extends GroupSettings {
         if (isVoicemailEnabled()) {
             tabNames.add(VOICEMAIL);
         }
-        tabNames.addAll(Arrays.asList(SCHEDULES, CONFERENCE, EXTCONTACT, SPEEDDIAL, TIMEZONE_TAB, HOTELLING_TAB));
+        tabNames.addAll(Arrays.asList(SCHEDULES, CONFERENCE, EXTCONTACT, SPEEDDIAL, TIMEZONE_TAB));
         if (isVoicemailEnabled()) {
             tabNames.add(MOH);
+        }
+        if (isHotellingEnabled()) {
+            tabNames.add(HOTELLING_TAB);
         }
         return tabNames;
     }
@@ -244,7 +253,16 @@ public abstract class UserGroupSettings extends GroupSettings {
             setParentSetting(parent);
             setIsTabsSelected(false);
         }
-        setHotellingSetting(getSettings().getSetting(HOTELLING_SETTING));
+
+        ListableBeanFactory factory = SpringBeanFactoryHolderImpl.getWebApplicationContext(getWebContext());
+
+        Map<String, HotellingManager> managers = factory.getBeansOfType(HotellingManager.class);
+        if (!managers.isEmpty()) {
+            for (String key : managers.keySet()) {
+                m_hotellingManager = managers.get(key);
+                setHotellingSetting(getSettings().getSetting(HOTELLING_SETTING));
+            }
+        }
     }
 
     public IPage addSchedule(IRequestCycle cycle) {
@@ -395,9 +413,16 @@ public abstract class UserGroupSettings extends GroupSettings {
         return !Permission.isEnabled(setting.getValue());
     }
 
+    public boolean isHotellingEnabled() {
+        if (m_hotellingManager == null) {
+            return false;
+        }
+        return m_hotellingManager.isActive();
+    }
+
     public void onChangeHotelling() {
         getGroup().setSettingValue(HOTELLING_SETTING, getHotellingSetting().getValue());
         apply();
-        getHotellingManager().generate(getGroup());
+        m_hotellingManager.generate(getGroup());
     }
 }

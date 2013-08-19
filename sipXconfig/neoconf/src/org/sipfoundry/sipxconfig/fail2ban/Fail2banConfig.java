@@ -32,7 +32,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -45,8 +44,7 @@ public class Fail2banConfig implements ConfigProvider {
         if (!request.applies(Fail2banManager.FEATURE)) {
             return;
         }
-        boolean enabled = manager.getFeatureManager().isFeatureEnabled(Fail2banManager.FEATURE)
-                && manager.getFeatureManager().isFeatureEnabled(FirewallManager.FEATURE);
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(Fail2banManager.FEATURE);
         File gdir = manager.getGlobalDataDirectory();
         Fail2banSettings settings = m_fail2banManager.getSettings();
         boolean unmanaged = settings.isServiceUnmanaged();
@@ -56,30 +54,28 @@ public class Fail2banConfig implements ConfigProvider {
             File dir = manager.getLocationDataDirectory(location);
             ConfigUtils.enableCfengineClass(dir, "security.cfdat", enabled, "security");
 
-            if (!enabled) {
-                continue;
-            }
-
             Writer config = new FileWriter(new File(dir, "security.yaml"));
             try {
-                writeConfig(config, settings);
+                writeConfig(config, settings, enabled);
             } finally {
                 IOUtils.closeQuietly(config);
             }
         }
     }
 
-    void writeConfig(Writer config, Fail2banSettings settings) throws IOException {
+    void writeConfig(Writer config, Fail2banSettings settings, boolean enabled) throws IOException {
         YamlConfiguration c = new YamlConfiguration(config);
         for (Setting setting : settings.getSettings().getSetting("config").getValues()) {
             writeSettings(c, setting, false);
         }
         c.startArray("siprules");
-        for (Setting setting : settings.getSettings().getSetting("rules").getValues()) {
-            c.nextElement();
-            c.write(":name", setting.getName());
-            for (Setting configSetting : setting.getValues()) {
-                writeSettings(c, configSetting, true);
+        if (enabled) {
+            for (Setting setting : settings.getSettings().getSetting("rules").getValues()) {
+                c.nextElement();
+                c.write(":name", setting.getName());
+                for (Setting configSetting : setting.getValues()) {
+                    writeSettings(c, configSetting, true);
+                }
             }
         }
         c.endArray();
