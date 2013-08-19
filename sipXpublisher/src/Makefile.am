@@ -20,6 +20,7 @@ sipstatus_CXXFLAGS = \
 
 sipstatus_SOURCES =  \
     statusserver/main.cpp \
+    statusserver/DomainValidator.cpp \
     statusserver/MwiPlugin.cpp \
     statusserver/Notifier.cpp \
     statusserver/PluginXmlParser.cpp \
