@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IPage;
@@ -32,11 +31,11 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
-import org.sipfoundry.sipxconfig.device.HotellingManager;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.forwarding.UserGroupSchedule;
+import org.sipfoundry.sipxconfig.hotelling.HotellingLocator;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.permission.Permission;
@@ -44,7 +43,6 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.site.SpringBeanFactoryHolderImpl;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 import org.sipfoundry.sipxconfig.site.setting.EditSchedule;
 import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
@@ -52,7 +50,6 @@ import org.sipfoundry.sipxconfig.speeddial.SpeedDialGroup;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
 import org.sipfoundry.sipxconfig.time.NtpManager;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.springframework.beans.factory.ListableBeanFactory;
 
 import com.davekoelle.AlphanumComparator;
 
@@ -72,7 +69,8 @@ public abstract class UserGroupSettings extends GroupSettings implements PageBeg
     private static final String HOTELLING_TAB = "hotelling";
     private static final String HOTELLING_SETTING = "hotelling/enable";
 
-    private HotellingManager m_hotellingManager;
+    @InjectObject(value = "spring:hotellingLocator")
+    public abstract HotellingLocator getHotellingLocator();
 
     @InjectObject(value = "spring:forwardingContext")
     public abstract ForwardingContext getForwardingContext();
@@ -254,15 +252,6 @@ public abstract class UserGroupSettings extends GroupSettings implements PageBeg
             setIsTabsSelected(false);
         }
 
-        ListableBeanFactory factory = SpringBeanFactoryHolderImpl.getWebApplicationContext(getWebContext());
-
-        Map<String, HotellingManager> managers = factory.getBeansOfType(HotellingManager.class);
-        if (!managers.isEmpty()) {
-            for (String key : managers.keySet()) {
-                m_hotellingManager = managers.get(key);
-                setHotellingSetting(getSettings().getSetting(HOTELLING_SETTING));
-            }
-        }
     }
 
     public IPage addSchedule(IRequestCycle cycle) {
@@ -414,15 +403,12 @@ public abstract class UserGroupSettings extends GroupSettings implements PageBeg
     }
 
     public boolean isHotellingEnabled() {
-        if (m_hotellingManager == null) {
-            return false;
-        }
-        return m_hotellingManager.isActive();
+        return getHotellingLocator().isHotellingEnabled();
     }
 
     public void onChangeHotelling() {
         getGroup().setSettingValue(HOTELLING_SETTING, getHotellingSetting().getValue());
         apply();
-        m_hotellingManager.generate(getGroup());
+        getHotellingLocator().getHotellingBean().generate(getGroup());
     }
 }

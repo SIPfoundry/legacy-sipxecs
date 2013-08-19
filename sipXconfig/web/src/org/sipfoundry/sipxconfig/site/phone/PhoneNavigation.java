@@ -11,25 +11,20 @@ package org.sipfoundry.sipxconfig.site.phone;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
-import org.apache.tapestry.event.PageBeginRenderListener;
-import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.web.WebContext;
-import org.sipfoundry.sipxconfig.device.HotellingManager;
-import org.sipfoundry.sipxconfig.site.SpringBeanFactoryHolderImpl;
+import org.sipfoundry.sipxconfig.hotelling.HotellingLocator;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
-import org.springframework.beans.factory.ListableBeanFactory;
 
 /**
  * Top portion of pages that show tabs, help box, intro text, etc
  */
-public abstract class PhoneNavigation extends BeanNavigation implements PageBeginRenderListener {
-    private HotellingManager m_hotellingManager;
+public abstract class PhoneNavigation extends BeanNavigation {
+    @InjectObject(value = "spring:hotellingLocator")
+    public abstract HotellingLocator getHotellingLocator();
 
     @InjectPage(value = PhoneSettings.PAGE)
     public abstract PhoneSettings getPhoneSettingsPage();
@@ -39,21 +34,6 @@ public abstract class PhoneNavigation extends BeanNavigation implements PageBegi
 
     @InjectPage(value = EditPhone.PAGE)
     public abstract EditPhone getEditPhonePage();
-
-    @InjectObject(value = "service:tapestry.globals.WebContext")
-    public abstract WebContext getWebContext();
-
-    @Override
-    public void pageBeginRender(PageEvent event) {
-        ListableBeanFactory factory = SpringBeanFactoryHolderImpl.getWebApplicationContext(getWebContext());
-
-        Map<String, HotellingManager> managers = factory.getBeansOfType(HotellingManager.class);
-        if (!managers.isEmpty()) {
-            for (String key : managers.keySet()) {
-                m_hotellingManager = managers.get(key);
-            }
-        }
-    }
 
     public IPage editPhone(Integer phoneId) {
         EditPhone page = getEditPhonePage();
@@ -92,9 +72,6 @@ public abstract class PhoneNavigation extends BeanNavigation implements PageBegi
     }
 
     public boolean isHotellingEnabled() {
-        if (m_hotellingManager == null) {
-            return false;
-        }
-        return m_hotellingManager.isActive();
+        return getHotellingLocator().isHotellingEnabled();
     }
 }

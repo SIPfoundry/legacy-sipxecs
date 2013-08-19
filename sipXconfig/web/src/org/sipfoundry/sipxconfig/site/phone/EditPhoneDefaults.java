@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IComponent;
@@ -26,7 +25,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.web.WebContext;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
-import org.sipfoundry.sipxconfig.device.HotellingManager;
+import org.sipfoundry.sipxconfig.hotelling.HotellingLocator;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
@@ -36,8 +35,6 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
-import org.sipfoundry.sipxconfig.site.SpringBeanFactoryHolderImpl;
-import org.springframework.beans.factory.ListableBeanFactory;
 
 public abstract class EditPhoneDefaults extends PhoneBasePage implements PageBeginRenderListener {
     public static final String PAGE = "phone/EditPhoneDefaults";
@@ -48,7 +45,8 @@ public abstract class EditPhoneDefaults extends PhoneBasePage implements PageBeg
 
     private static final int LINE_SETTITNGS = 1;
 
-    private HotellingManager m_hotellingManager;
+    @InjectObject(value = "spring:hotellingLocator")
+    public abstract HotellingLocator getHotellingLocator();
 
     @InjectObject(value = "spring:settingDao")
     public abstract SettingDao getSettingDao();
@@ -173,14 +171,7 @@ public abstract class EditPhoneDefaults extends PhoneBasePage implements PageBeg
             Iterator nav = getPhoneNavigationSettings().iterator();
             setEditFormSettingName(((Setting) nav.next()).getName());
         }
-        ListableBeanFactory factory = SpringBeanFactoryHolderImpl.getWebApplicationContext(getWebContext());
 
-        Map<String, HotellingManager> managers = factory.getBeansOfType(HotellingManager.class);
-        if (!managers.isEmpty()) {
-            for (String key : managers.keySet()) {
-                m_hotellingManager = managers.get(key);
-            }
-        }
         editSettings();
     }
 
@@ -266,9 +257,6 @@ public abstract class EditPhoneDefaults extends PhoneBasePage implements PageBeg
     }
 
     public boolean isHotellingEnabled() {
-        if (m_hotellingManager == null) {
-            return false;
-        }
-        return m_hotellingManager.isActive();
+        return getHotellingLocator().isHotellingEnabled();
     }
 }
