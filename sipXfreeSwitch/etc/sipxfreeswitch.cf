@@ -207,7 +207,7 @@ bundle agent sipxfreeswitch_running {
     sipxfreeswitch.sipxfreeswitch_running.(restart_sipxecs|restart_sipxfreeswitch)::
       "$(sipx.SIPX_SERVICEDIR)/sipxfreeswitch"
         comment => "restart freeswitch",
-        args => "restart";
+        args => "asyncrestart";
 }
 
 

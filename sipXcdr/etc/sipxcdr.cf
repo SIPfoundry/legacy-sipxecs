@@ -72,5 +72,5 @@ bundle agent sipxcdr_running {
     sipxcdr.sipxcdr_running.(restart_sipxecs|restart_sipxcdr)::
       "$(sipx.SIPX_SERVICEDIR)/sipxcdr"
         comment => "restart sipxcdr",
-        args => "restart";
+        args => "asyncrestart";
 }

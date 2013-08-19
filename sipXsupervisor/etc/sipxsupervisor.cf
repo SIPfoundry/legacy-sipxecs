@@ -118,6 +118,6 @@ bundle agent sipxsupervisor_running {
     sipxsupervisor.sipxsupervisor_running.(restart_sipxecs|restart_sipxsupervisor)::
       "$(sipx.SIPX_CFMODULES)/run-later"
         comment => "restart sipxsupervisor in background",
-        args => "60 $(sipx.SIPX_SERVICEDIR)/sipxsupervisor restart";
+        args => "60 $(sipx.SIPX_SERVICEDIR)/sipxsupervisor asyncrestart";
 }
 

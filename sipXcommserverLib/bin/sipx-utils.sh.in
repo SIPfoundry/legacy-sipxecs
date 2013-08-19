@@ -471,12 +471,14 @@ EOF
 ##
 ## functions for process management
 ##
-maxTimeout=10
+maxTimeout=25
+maxListenTimeout=60
 sleepTime=0.5
 runningError="is already running"
 execError="Provided file is not executable"
 invalidFileError="Invalid file "
 noPortError="No listening port found"
+withCheck=1
 
 #check if process is in the process table
 checkRunningInstance () {
@@ -509,7 +511,7 @@ checkRunningInstanceTimeout () {
 checkIfListening() {
   regex=$1
   [ $2 ] && timeout=$2
-  [ $2 ] || timeout=$maxTimeout
+  [ $2 ] || timeout=$maxListenTimeout
   for((i=0; i<$timeout; i++)); do
     result=`netstat -tulpn | awk '$6 == "LISTEN"' | grep $regex | awk '{ print $4 }'` 
     [ "${result}" ] && return 0; 

@@ -258,7 +258,7 @@ bundle agent mongodb_systemctl_running {
     mongod.mongodb_running.(restart_mongod|RESTART_DATABASE)::
       "$(sipx.systemctl)"
         comment => "restart mongo",
-        args => "restart $(service)";
+        args => "asyncrestart $(service)";
 }
 
 # Not working at the momemnt.  Mongod is not creating a pid file

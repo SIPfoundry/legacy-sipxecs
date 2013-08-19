@@ -10,7 +10,7 @@
 # Licensed to the User under the LGPL license.
 
 . /etc/rc.d/init.d/functions || exit 1
-. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || { echo_failure; echo; exit 1; }
 
 prog=sipxsqa
 exec="@SIPX_BINDIR@/${prog}"
@@ -41,15 +41,21 @@ start() {
       --pid-file $pidfile \
       --log-file $logfile \
       --daemonize
-    
-    #check if process was spawned
-    checkRunningInstanceTimeout @SIPXPBXUSER@ $prog
     Status=$?
-    [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
-    checkIfListening $prog
-    Status=$? 
-    [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
-    [ $Status -eq 0 ] && { echo_success; echo; }
+    
+    if [ $# -gt 0 ]; then
+      #check if process was spawned
+      checkRunningInstanceTimeout @SIPXPBXUSER@ $prog
+      Status=$?
+      [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
+      checkIfListening $prog
+      Status=$? 
+      [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
+      [ $Status -eq 0 ] && { echo_success; echo; }
+    else 
+      [ $Status -eq 0 ] && { echo_success; echo; }
+      [ $Status -eq 0 ] || { echo_success; failure; }
+    fi
   fi
 }
 
@@ -63,6 +69,11 @@ stop() {
 }
 
 restart() {
+  stop
+  start $withCheck
+}
+
+asyncrestart() {
   stop
   start
 }
@@ -81,13 +92,16 @@ case "$1" in
     start
     ;;
   start)
-    start
+    start $withCheck
     ;;
   stop)
     stop
     ;;
   restart|reload|force-reload)
     restart
+    ;;
+  asyncrestart)
+    asyncrestart
     ;;
   condrestart)
     checkRunningInstance @SIPXPBXUSER@ $prog > /dev/null
@@ -102,7 +116,7 @@ case "$1" in
     configtest
     ;;
   *)
-    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart|nofork}"
+    echo "Usage: $0 {start|stop|status|restart|asyncrestart|reload|force-reload|condrestart|nofork}"
     Status=1
 esac
 

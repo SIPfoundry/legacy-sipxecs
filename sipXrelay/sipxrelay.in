@@ -19,7 +19,7 @@
 # details.
 
 . /etc/rc.d/init.d/functions || exit 1
-. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || { echo_failure; echo; exit 1; }
 
 prog=sipxrelay
 pidfile="@SIPX_RUNDIR@/sipxrelay.pid"
@@ -53,14 +53,18 @@ start() {
     runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
     echo $! > ${pidfile}
 
-    #check if process was spawned
-    checkRunningInstanceTimeout @SIPXPBXUSER@ $regex
-    Status=$?
-    [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
-    pid=`ps -u @SIPXPBXUSER@ -o pid,args | grep $regex | grep -v "grep" | awk '{print $1 }'`
-    Status=$? 
-    [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
-    [ $Status -eq 0 ] && { echo_success; echo; }
+    if [ $# -gt 0 ]; then
+      #check if process was spawned
+      checkRunningInstanceTimeout @SIPXPBXUSER@ $regex
+      Status=$?
+      [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
+      pid=`ps -u @SIPXPBXUSER@ -o pid,args | grep $regex | grep -v "grep" | awk '{print $1 }'`
+      Status=$? 
+      [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
+      [ $Status -eq 0 ] && { echo_success; echo; }
+    else
+      echo_success; echo;
+    fi
   fi
 }
 
@@ -75,8 +79,14 @@ stop() {
 
 restart() {
   stop
+  start $withCheck
+}
+
+asyncrestart() {
+  stop
   start
 }
+
 
 configtest() {
   Status=0
@@ -101,20 +111,22 @@ configtest() {
   exec $Command
 } 
 
-
 case "$1" in
   nofork)
     NoFork=1
     start
     ;;
   start)
-    start
+    start $withCheck
     ;;
   stop)
     stop
     ;;
   restart|reload|force-reload)
     restart
+    ;;
+  asyncrestart)
+    asyncrestart
     ;;
   condrestart)
     checkRunningInstance @SIPXPBXUSER@ $regex > /dev/null
@@ -129,7 +141,7 @@ case "$1" in
     configtest
     ;;
   *)
-    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart|nofork}"
+    echo "Usage: $0 {start|stop|status|restart|asyncrestart|reload|force-reload|condrestart|nofork}"
     Status=1
 esac
 

@@ -6,7 +6,7 @@
 # description:  Simple Event Correlator script to filter log file entries
 
 . /etc/rc.d/init.d/functions
-. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || { echo_failure; echo; exit 1; }
 
 progName="sipxlogwatcher"
 prog="sec"
@@ -18,11 +18,11 @@ rc=@SIPX_CONFDIR@/sipxlogwatcher-rc
 [ -e $rc ] && . $rc
 
 start() {
-  [ -x $exec ] || { echo -n "$execError"; echo_failure; echo; exit 5; }
+  [ -x $exec ] || { echo -n "$execError"; echo_failure; echo; exit $ENOEXEC; }
   checkRunningInstance "root" $prog > /dev/null 
   Status=$?
-  [ $Status -eq 0 ] && { echo -n "$progName $runningError"; echo_failure; echo; exit $ERUNNING; } 
-     
+  [ $Status -eq 0 ] && { echo -n "$progName $runningError"; echo_failure; echo; exit $ERUNNING; }
+
   for n in `seq 0 $((${#SEC_ARGS[*]} - 1))`; do
     echo -n $"Starting $progName instance "$(($n + 1))": "
     daemon $exec ${SEC_ARGS[$n]}

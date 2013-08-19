@@ -18,8 +18,8 @@
 # FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
 # details.
 
-. /etc/rc.d/init.d/functions || exit 1
-. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+. /etc/rc.d/init.d/functions || exit 1 
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || { echo_failure; echo; exit 1; }
 
 prog=sipstatus
 progName=sipxpublisher
@@ -42,15 +42,21 @@ start() {
     
     echo -n $"Starting $progName: "
     daemon --user @SIPXPBXUSER@ --pidfile $pidfile $exec $pidfile
-    
-    #check if process spawned
-    checkRunningInstanceTimeout @SIPXPBXUSER@ $prog
     Status=$?
-    [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
-    checkIfListening $prog
-    Status=$? 
-    [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
-    [ $Status -eq 0 ] && { echo_success; echo; }
+
+    if [ $# -gt 0 ]; then
+      #check if process spawned
+      checkRunningInstanceTimeout @SIPXPBXUSER@ $prog
+      Status=$?
+      [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
+      checkIfListening $prog
+      Status=$? 
+      [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
+      [ $Status -eq 0 ] && { echo_success; echo; }
+    else
+      [ $Status -eq 0 ] && { echo_success; echo; }
+      [ $Status -eq 0 ] || { echo_failure; echo; }
+    fi
   fi
 }
 
@@ -64,6 +70,11 @@ stop() {
 }
 
 restart() {
+  stop
+  start $withCheck
+}
+
+asyncrestart() {
   stop
   start
 }
@@ -89,13 +100,16 @@ case "$1" in
     start
     ;;
   start)
-    start
+    start $withCheck
     ;;
   stop)
     stop
     ;;
   restart|reload|force-reload)
     restart
+    ;;
+  asyncrestart)
+    asyncrestart
     ;;
   condrestart)
     checkRunningInstance @SIPXPBXUSER@ $prog > /dev/null

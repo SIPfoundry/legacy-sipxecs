@@ -86,5 +86,5 @@ bundle agent sipxpage_running {
     sipxpage.sipxpage_running.(restart_sipxpage|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxpage"
         comment => "restart sipxpage",
-        args => "restart";
+        args => "asyncrestart";
 }

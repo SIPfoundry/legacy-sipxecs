@@ -105,6 +105,6 @@ bundle agent sipxpark_running {
     sipxpark.sipxpark_running.restart_sipxpark::
       "$(sipx.SIPX_SERVICEDIR)/sipxpark"
         comment => "restart sipxpark",
-        args => "restart";
+        args => "asyncrestart";
 }
 

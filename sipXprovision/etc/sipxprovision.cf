@@ -67,5 +67,5 @@ bundle agent sipxprovision_running {
     sipxprovision.sipxprovision_running.(restart_sipxecs|restart_sipxprovision)::
       "$(sipx.SIPX_SERVICEDIR)/sipxprovision"
         comment => "restart sipxprovision",
-        args => "restart";
+        args => "asyncrestart";
 }
