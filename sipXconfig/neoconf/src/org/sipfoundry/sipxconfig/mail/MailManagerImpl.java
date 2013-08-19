@@ -91,7 +91,8 @@ public class MailManagerImpl implements MailManager, SetupListener, FeatureProvi
 
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-        return Collections.singleton(SERVICE);
+        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE);
+        return (enabled ? Collections.singleton(SERVICE) : null);
     }
 
     @Override
