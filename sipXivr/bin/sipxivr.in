@@ -14,57 +14,53 @@
 
 prog=sipxivr
 pidfile="@SIPX_RUNDIR@/sipxivr.pid"
-regex="Dprocname=sipxivr"
 
 [ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
 
-start() {
-  JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
-  Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @ivr_PKGS@`
-  export CLASSPATH=`echo @SIPX_CONFDIR@/sipxivr @SIPX_JAVADIR@/{sipXivr,sipXopenfire/plugins}/*.jar ${Dependencies} | sed -e 's/ /:/g'`
-
-  setJavaSslOpts
-
-  # procname is there so cfengine can find it
-  Command="$JavaCmd \
-    -Dprocname=sipxivr \
-    -Dconf.dir=@SIPX_CONFDIR@ \
-    -Dvar.dir=@SIPX_VARDIR@ \
-    $JavaSslOpts \
-    ${SIPXIVR_OPTS} \
-    org.sipfoundry.sipxivr.SipXivrServer \
-    ${@}"
-  if [ -n "${NoFork}" ] ; then
-    killAnyOrphans @SIPXPBXUSER@ $regex
-    runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"
-  else
-    checkRunningInstance @SIPXPBXUSER@ $regex > /dev/null
-    Status=$?
-    [ $Status -eq 0 ] && { echo -n "$prog $runningError"; echo_failure; echo; exit $ERUNNING; }
-    
-    echo -n $"Starting $prog: "
-    runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
-    echo $! > ${pidfile}
-    
-    #check if process was spawned
-    checkRunningInstanceTimeout @SIPXPBXUSER@ $regex
-    Status=$?
-    [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
-    pid=`ps -u @SIPXPBXUSER@ -o pid,args | grep $regex | grep -v "grep" | awk '{print $1 }'`
-    checkIfListening $pid
-    Status=$? 
-    [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
-    [ $Status -eq 0 ] && { echo_success; echo; }
+checkRunningInstance() {
+  if [ -f "${pidfile}" ]; then
+    pid=`cat ${pidfile}`
+    if checkpid $pid 2>&1; then
+      echo "Process $prog is already running with pid $pid"
+      exit 1
+    fi
   fi
 }
 
+start() {
+    checkRunningInstance
+
+    JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
+    Dependencies=`@SIPX_BINDIR@/java-dep -d @SIPX_JAVADIR@/sipXcommons @ivr_PKGS@`
+    export CLASSPATH=`echo @SIPX_CONFDIR@/sipxivr @SIPX_JAVADIR@/{sipXivr,sipXopenfire/plugins}/*.jar ${Dependencies} | sed -e 's/ /:/g'`
+
+    setJavaSslOpts
+
+    # procname is there so cfengine can find it
+    Command="$JavaCmd \
+      -Dprocname=sipxivr \
+      -Dconf.dir=@SIPX_CONFDIR@ \
+      -Dvar.dir=@SIPX_VARDIR@ \
+      $JavaSslOpts \
+      ${SIPXIVR_OPTS} \
+      org.sipfoundry.sipxivr.SipXivrServer \
+      ${@}"
+    if [ -n "${NoFork}" ] ; then
+      runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}"
+    else
+      echo -n $"Starting $prog: "
+      runuser -s /bin/bash @SIPXPBXUSER@ -c "${Command}" >/dev/null 2>&1 &
+      echo $! > ${pidfile}
+      echo_success
+    fi
+}
+
 stop() {
-  echo -n $"Stopping $prog: "
-  killAnyOrphans @SIPXPBXUSER@ $regex
-  checkRunningInstance @SIPXPBXUSER@ $regex > /dev/null
+  echo -n $"Stopping sipxivr: "
+  killproc -p "${pidfile}" "sipxivr"
   Status=$?
-  [ $Status -eq 0 ] && { echo_failure; echo; exit $ERUNNING; }
-  [ $Status -eq 0 ] || { echo_success; echo; }
+  echo
+  [ $Status -eq 0 ] && rm -f "${pidfile}"
 }
 
 restart() {
@@ -104,13 +100,10 @@ case "$1" in
     restart
     ;;
   condrestart)
-    checkRunningInstance @SIPXPBXUSER@ $regex > /dev/null
-    Status=$?
-    [ $Status -eq 0 ] && restart || :
+    [ -f ${pidfile} ] && restart || :
     ;;
   status)
-    checkRunningInstance @SIPXPBXUSER@ $regex $prog
-    Status=$?
+    status -p ${pidfile} sipxivr
     ;;
   configtest)
     configtest

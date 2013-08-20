@@ -76,8 +76,6 @@ fi
 resolverArgs="--daemon --confdir ${ConfDir} --logdir ${LogDir}"
 Database=SIPXCDR
 Today=`date`
-regex="${CallResolverMain}"
-prog="sipxcdr"
 
 PsqlCmd="${Psql} --tuples-only --no-align --username ${PgUser} --dbname ${Database}"
 
@@ -421,52 +419,37 @@ onSetup() {
 
 # Start CDR call resolver
 start() {
-  onSetup
-  # Check database version - don't run if it's wrong
-  echo $$ > ${PidFile}
-  databasePatch
-  if ! databaseVersionCheck; then
-    exit 1
-  fi
-  if [ -n "${NoFork}" ] ; then
-    killAnyOrphans @SIPXPBXUSER@ $regex
-    runuser -s /bin/bash @SIPXPBXUSER@ -c "${RubyCmd} ${CallResolverMain} ${resolverArgs}"
-  else
-    checkRunningInstance @SIPXPBXUSER@ $regex > /dev/null
-    Status=$?
-    [ $Status -eq 0 ] && { echo -n "$prog $runningError"; echo_failure; echo; exit $ERUNNING; }
- 
-    echo -n $"Starting ${prog}: "
-    runuser -s /bin/bash @SIPXPBXUSER@ -c "${RubyCmd} ${CallResolverMain} ${resolverArgs}" >/dev/null 2>&1 &
-    echo $! > ${PidFile}
-
-    #check if process was spawned
-    checkRunningInstanceTimeout @SIPXPBXUSER@ $regex
-    Status=$?
-    [ $Status -eq 0 ] && { echo_success; echo; exit $ESRCH; }
-    pid=`ps -u @SIPXPBXUSER@ -o pid,args | grep $regex | grep -v "grep" | awk '{print $1 }'`
-    checkIfListening $pid
-    Status=$? 
-    [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
-    [ $Status -eq 0 ] && { echo_success; echo; }
-  fi
+	onSetup
+    # Check database version - don't run if it's wrong
+    echo $$ > ${PidFile}
+    databasePatch
+    if ! databaseVersionCheck; then
+       exit 1
+    fi
+    if [ -n "${NoFork}" ] ; then
+		runuser -s /bin/bash @SIPXPBXUSER@ -c "${RubyCmd} ${CallResolverMain} ${resolverArgs}"
+    else
+      echo -n $"Starting sipxcdr: "
+      runuser -s /bin/bash @SIPXPBXUSER@ -c "${RubyCmd} ${CallResolverMain} ${resolverArgs}" >/dev/null 2>&1 &
+      echo $! > ${PidFile}
+      echo_success
+    fi
 }
 
 stop() {
-  echo -n $"Stopping $prog: "
-  killAnyOrphans @SIPXPBXUSER@ $regex
-  checkRunningInstance @SIPXPBXUSER@ $regex > /dev/null
+  echo -n $"Stopping sipxcdr: "
+  killproc -p "${PidFile}" "sipxcdr"
   Status=$?
-  [ $Status -eq 0 ] && { echo_failure; echo; exit $ERUNNING; }
-  [ $Status -eq 0 ] || { echo_success; echo; }
+  echo
+  [ $Status -eq 0 ] && rm -f "${PidFile}"
 }
 
 restart() {
-  stop
-  # sleep for no good reason. Can be disconcerting if stop/start
-  # switch is too fast IMHO
-  sleep 1
-  start
+    stop
+    # sleep for no good reason. Can be disconcerting if stop/start
+    # switch is too fast IMHO
+    sleep 1
+    start
 }
 
 case "$1" in
@@ -484,13 +467,10 @@ case "$1" in
     restart
     ;;
   condrestart)
-    checkRunningInstance @SIPXPBXUSER@ $regex > /dev/null
-    Status=$?
-    [ $Status -eq 0 ] && restart || :
+    [ -f ${pidfile} ] && restart || :
     ;;
   status)
-    checkRunningInstance @SIPXPBXUSER@ $regex $prog
-    Status=$?
+    status -p ${PidFile} sipxcdr
     ;;
   configtest)
     configCheck
@@ -513,3 +493,4 @@ case "$1" in
 esac
 
 exit $Status
+

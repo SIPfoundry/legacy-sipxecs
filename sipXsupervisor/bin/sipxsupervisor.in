@@ -11,12 +11,10 @@
 
 # Source function library.
 . /etc/init.d/functions
-. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
 config="@SIPX_CFINPUTS@/sipxsupervisord.cf"
 exec="/usr/sbin/cf-serverd"
 prog=$(basename $exec)
-progName="cf-serverd"
 # used to tell which config is in use.
 configid=/var/run/sipxsupervisor-configid
 
@@ -24,93 +22,73 @@ configid=/var/run/sipxsupervisor-configid
 
 lockfile=/var/lock/subsys/$prog
 sipxagentlockfile="@SIPX_RUNDIR@/sipxagent.lock"
-portRegex=
 
 start() {
-  [ -x $exec ] || { echo -n "$execError"; echo_failure; echo; exit $ENOEXEC; }
-  [ -f $config ] || { echo -n "$invalidFileError"; echo_failure; echo; exit $ENOENT; }
-  checkRunningInstance "root" $prog > /dev/null
-  Status=$?
-  [ $Status -eq 0 ] && { echo -n "$prog $runningError"; echo_failure; echo; exit $ERUNNING; }
-	
-  echo -n $config > $configid
-  echo -n $"Starting $progName: "
-  daemon $exec -f $config
-  checkRunningInstanceTimeout "root" $prog $maxTimeout
-  Status=$?
-  [ $Status -eq $ESRCH ] && { echo_failure; echo; exit $ESRCH; }
+	echo -n $config > $configid
+	echo -n $"Starting sipxsupervisor: "
+	daemon $exec -f $config
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && touch $lockfile
 
-  #sipxagent running
-  if [ -f @sipxagentlockfile ]; then
-    checkIfListening $progName
-    Status=$?
-    [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
-    [ $Status -eq 0 ] && { echo_success; echo; return $Status; }
-  fi
+	#if sipxagent is not running make sure the host is pulling the last configuration on startup.
+    #this applies in cases when secondary host starts after master, and master changed configuration
+    #while the secondary is down. sipxagent has to be run as root because we don't want to go through
+    #supervisor again
+	if [ ! -f $sipxagentlockfile ]
+	then
+		runuser - root -s @SIPX_BINDIR@/sipxagent
+	fi		
 
-  #if sipxagent is not running make sure the host is pulling the last configuration on startup.
-  #this applies in cases when secondary host starts after master, and master changed configuration
-  #while the secondary is down. sipxagent has to be run as root because we don't want to go through
-  #supervisor again
-  if [ ! -f $sipxagentlockfile ]; then
-    runuser - root -s @SIPX_BINDIR@/sipxagent
-    checkIfListening $prog 
-    Status=$? 
-    [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
-    [ $Status -eq 0 ] && { echo_success; echo; return 0; }
-  fi		
-
+	return $RETVAL
 }
 
 nofork() {
-  $exec -v -f $config
+	$exec -v -f $config
 }
 
 stop() {
-  echo -n $"Stopping $progName: "
-  killproc $prog
-  RETVAL=$?
-  echo
-  [ $RETVAL -eq 0 ] && rm -f $lockfile
-  killAnyOrphans "root" $prog
-  return $RETVAL
+	echo -n $"Stopping sipxsupervisor: "
+	killproc $prog
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && rm -f $lockfile
+	return $RETVAL
 }
 
 restart() {
-  stop
-  start
+  	stop
+	start
 }
 
 reload() {
-  restart
+    restart
 }
 
 force_reload() {
-  restart
+    restart
 }
 
 fdrstatus() {
-  status $prog
+	status $prog
 }
 
 case "$1" in
-  start|stop|restart|reload|nofork)
-    $1
-    ;;    
-  force-reload)
-    force_reload
-    ;;
-  status)
-    fdrstatus
-    ;;
-  # condrestart - only restarts if service *is* running
-  condrestart)
-    checkRunningInstance @SIPXPBXUSER@ $prog > /dev/null
-    Status=$?
-    [ $Status -eq 0 ] || restart
-    ;;
-  *)
-    echo $"Usage: $0 {start|stop|status|restart|condrestart|condstart|reload|force-reload|nofork}"
-    exit 3
+    start|stop|restart|reload|nofork)
+	$1
+	;;    
+    force-reload)
+        force_reload
+        ;;
+    status)
+  	fdrstatus
+	;;
+    # condrestart - only restarts if service *is* running
+    condrestart)
+        [ ! -f $lockfile ] || restart
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart|condstart|reload|force-reload|nofork}"
+        exit 3
 esac
 exit $?

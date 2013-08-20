@@ -6,9 +6,7 @@
 # description:  Simple Event Correlator script to filter log file entries
 
 . /etc/rc.d/init.d/functions
-. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
-progName="sipxlogwatcher"
 prog="sec"
 exec="/usr/bin/sec"
 lockfile="/var/lock/subsys/sec"
@@ -18,94 +16,89 @@ rc=@SIPX_CONFDIR@/sipxlogwatcher-rc
 [ -e $rc ] && . $rc
 
 start() {
-  [ -x $exec ] || { echo -n "$execError"; echo_failure; echo; exit 5; }
-  checkRunningInstance "root" $prog > /dev/null 
-  Status=$?
-  [ $Status -eq 0 ] && { echo -n "$progName $runningError"; echo_failure; echo; exit $ERUNNING; } 
-     
-  for n in `seq 0 $((${#SEC_ARGS[*]} - 1))`; do
-    echo -n $"Starting $progName instance "$(($n + 1))": "
-    daemon $exec ${SEC_ARGS[$n]}
-    RETVAL=$?
-    echo
-    [ $RETVAL -ne 0 ] && return $RETVAL
-  done
-  touch $lockfile
-  return $RETVAL
+	[ -x $exec ] || exit 5
+	for n in `seq 0 $((${#SEC_ARGS[*]} - 1))`; do
+		echo -n $"Starting sipxlogwatcher instance "$(($n + 1))": "
+		daemon $exec ${SEC_ARGS[$n]}
+		RETVAL=$?
+		echo
+		[ $RETVAL -ne 0 ] && return $RETVAL
+	done
+	touch $lockfile
+	return $RETVAL
 }
 
 stop() {
-  echo -n $"Stopping $progName: "
-  killproc $prog
-  RETVAL=$?
-  echo
-  [ $RETVAL -eq 0 ] && rm -f $lockfile
-  return $RETVAL
-  killAnyOrphans "root" $prog
+	echo -n $"Stopping sipxlogwatcher: "
+	killproc -p "${PidFile}" $prog
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && rm -f $lockfile
+	return $RETVAL
 }
 
 restart() {
-  stop
-  start
+	stop
+	start
 }
 
 reload() {
-  echo -n $"Reloading $progName: "
-  killproc $prog -HUP
-  RETVAL=$?
-  echo
-  return $RETVAL
+	echo -n $"Reloading sipxlogwatcher: "
+	killproc $prog -HUP
+	RETVAL=$?
+	echo
+	return $RETVAL
 }
 
 force_reload() {
-  restart
+	restart
 }
 
 rh_status() {
-  status $prog
+	status -p ${PidFile} sipxlogwatcher
 }
 
 rh_status_q() {
-  rh_status >/dev/null 2>&1
+	rh_status >/dev/null 2>&1
 }
 
 dump() {
-  echo -n $"Dumping state of $progName in /tmp/sec.dump: "
-  killproc $prog -USR1
-  RETVAL=$?
-  echo
-  return $RETVAL
+	echo -n $"Dumping state of sipxlogwatcher in /tmp/sec.dump: "
+	killproc $prog -USR1
+	RETVAL=$?
+	echo
+	return $RETVAL
 }
 
 case "$1" in
   start)
-    start
-  ;;
+	start
+	;;
   stop)
-    stop
-   ;;
+	stop
+	;;
   restart)
-    restart
-  ;;
+	restart
+	;;
   condrestart|try-restart)
-    rh_status_q || exit 0
-    restart
-  ;;
+	rh_status_q || exit 0
+	restart
+	;;
   reload)
-    reload
-  ;;
+	reload
+	;;
   force-reload)
-    force_reload
-  ;;
+	force_reload
+	;;
   status)
-    rh_status
-  ;;
+	rh_status
+	;;
   dump)
-    dump
-  ;;
+	dump
+	;;
   *)
-    echo $"Usage: $0 {start|stop|restart|condrestart|try-restart|reload|force-reload|status|dump}"
-    exit 2
+	echo $"Usage: $0 {start|stop|restart|condrestart|try-restart|reload|force-reload|status|dump}"
+	exit 2
 esac
 
 exit $?
