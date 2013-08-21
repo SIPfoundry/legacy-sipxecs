@@ -18,13 +18,11 @@ package org.sipfoundry.sipxconfig.hotelling;
 
 import java.util.Map;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 public class HotellingLocator implements BeanFactoryAware {
-    private ListableBeanFactory m_beanFactory;
     private HotellingManager m_hotellingManager;
 
     /*
@@ -33,17 +31,7 @@ public class HotellingLocator implements BeanFactoryAware {
      * apply .generate() on each.
      */
     public HotellingManager getHotellingBean() {
-        if (m_hotellingManager != null) {
-            return m_hotellingManager;
-        }
-        Map<String, HotellingManager> managers = m_beanFactory.getBeansOfType(HotellingManager.class);
-        if (!managers.isEmpty()) {
-            for (String key : managers.keySet()) {
-                m_hotellingManager = managers.get(key);
-                return m_hotellingManager;
-            }
-        }
-        return null;
+        return m_hotellingManager;
     }
 
     public boolean isHotellingEnabled() {
@@ -55,8 +43,14 @@ public class HotellingLocator implements BeanFactoryAware {
     }
 
     @Override
-    public void setBeanFactory(BeanFactory bf) throws BeansException {
-        m_beanFactory = (ListableBeanFactory) bf;
+    public void setBeanFactory(BeanFactory bf) {
+        Map<String, HotellingManager> managers = ((ListableBeanFactory) bf).getBeansOfType(HotellingManager.class);
+        if (!managers.isEmpty()) {
+            for (String key : managers.keySet()) {
+                m_hotellingManager = managers.get(key);
+                return;
+            }
+        }
     }
 
 }

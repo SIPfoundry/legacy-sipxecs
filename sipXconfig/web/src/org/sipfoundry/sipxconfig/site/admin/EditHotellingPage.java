@@ -24,7 +24,7 @@ public abstract class EditHotellingPage extends UserBasePage implements PageBegi
 
     public abstract void setEditedUser(User user);
 
-    @InjectObject("spring:hotellingManager")
+    @InjectObject("spring:hotellingLocator")
     public abstract HotellingLocator getHotellingProfileGenerator();
 
     public abstract Setting getHotellingSetting();
