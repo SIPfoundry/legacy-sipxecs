@@ -24,6 +24,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.commons.userdb.profile.Address;
+import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.commons.userdb.profile.UserProfileService;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
@@ -41,13 +42,15 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
+import static org.sipfoundry.commons.userdb.profile.UserProfileService.DISABLED;
+import static org.sipfoundry.commons.userdb.profile.UserProfileService.ENABLED;
+import static org.sipfoundry.commons.userdb.profile.UserProfileService.LDAP;
+
 public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> implements CoreContext,
        ApplicationContextAware, SetupListener {
 
     public static final String ADMIN_GROUP_NAME = "administrators";
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
-    public static final String DISABLED = "DISABLED";
-    public static final String LDAP = "LDAP";
     private static final int SIP_PASSWORD_LEN = 12;
     private static final String USERNAME_PROP_NAME = "userName";
     private static final String VALUE = "value";
@@ -524,39 +527,28 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     @Override
     public List<User> loadUsersByPage(final String search, final Integer groupId, final Integer branchId,
             final int firstRow, final int pageSize, final String orderBy, final boolean orderAscending) {
+        if (StringUtils.equals(search, DISABLED) || StringUtils.equals(search, ENABLED)
+                || StringUtils.equals(search, LDAP)) {
+            return loadUsersByUserProfileAndPage(search, firstRow, pageSize);
+        }
         HibernateCallback callback = new HibernateCallback() {
             @Override
             public Object doInHibernate(Session session) {
                 UserLoader loader = new UserLoader(session);
-                if (StringUtils.equals(search, DISABLED) || StringUtils.equals(search, LDAP)) {
-                    return loader
-                            .loadUsersByPage(StringUtils.EMPTY,
-                                groupId, branchId, firstRow, pageSize, orderBy, orderAscending);
-
-                } else {
-                    return loader
+                return loader
                         .loadUsersByPage(search, groupId, branchId, firstRow, pageSize, orderBy, orderAscending);
-                }
             }
         };
         List<User> users = getHibernateTemplate().executeFind(callback);
-        //We add here two special filters to search for disabled users or for LDAP managed users
-        if (StringUtils.equals(search, DISABLED)) {
-            ArrayList<User> filteredUsers = new ArrayList<User>();
-            for (User user : users) {
-                if (!user.isEnabled()) {
-                    filteredUsers.add(user);
-                }
-            }
-            return filteredUsers;
-        } else if (StringUtils.equals(search, LDAP)) {
-            ArrayList<User> filteredUsers = new ArrayList<User>();
-            for (User user : users) {
-                if (user.isLdapManaged()) {
-                    filteredUsers.add(user);
-                }
-            }
-            return filteredUsers;
+        return users;
+    }
+
+    private List<User> loadUsersByUserProfileAndPage(String search, int firstRow, int pageSize) {
+        List<UserProfile> profiles = getUserProfileService().getUserProfilesByEnabledProperty(search,
+            firstRow, pageSize);
+        List<User> users = new ArrayList<User>();
+        for (UserProfile profile : profiles) {
+            users.add(loadUser(Integer.valueOf(profile.getUserId())));
         }
         return users;
     }
@@ -950,6 +942,16 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             return null;
         }
         return specialUser;
+    }
+
+    @Override
+    public int getEnabledUsersCount() {
+        return getUserProfileService().getEnabledUsersCount();
+    }
+
+    @Override
+    public int getDisabledUsersCount() {
+        return getUserProfileService().getDisabledUsersCount();
     }
 
     @Override

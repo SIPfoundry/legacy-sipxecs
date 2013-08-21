@@ -29,6 +29,7 @@ import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -121,7 +122,8 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Override
     public UserProfile getUserProfileByImId(String imId) {
         if (imId != null) {
-            return m_template.findOne(new Query(Criteria.where(IM_ID).is(imId.toLowerCase())), UserProfile.class, USER_PROFILE_COLLECTION);
+            return m_template.findOne(new Query(Criteria.where(IM_ID).is(imId.toLowerCase())), UserProfile.class,
+                    USER_PROFILE_COLLECTION);
         }
         return null;
     }
@@ -158,7 +160,8 @@ public class UserProfileServiceImpl implements UserProfileService {
         InputStream is = null;
         try {
             BufferedImage originalImage = ImageIO.read(originalIs);
-            BufferedImage thumbnail = Thumbnails.of(originalImage).crop(Positions.CENTER).size(128, 128).asBufferedImage();
+            BufferedImage thumbnail = Thumbnails.of(originalImage).crop(Positions.CENTER).size(128, 128)
+                    .asBufferedImage();
             os = new ByteArrayOutputStream();
             ImageIO.write(thumbnail, "png", os);
             is = new ByteArrayInputStream(os.toByteArray());
@@ -178,7 +181,8 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public void saveAvatar(String userName, InputStream originalIs, boolean overwriteIfExists) throws AvatarUploadException {
+    public void saveAvatar(String userName, InputStream originalIs, boolean overwriteIfExists)
+            throws AvatarUploadException {
         GridFS avatarFS = new GridFS(m_template.getDb());
         GridFSDBFile imageForOutput = avatarFS.findOne(String.format(AVATAR_NAME, userName));
         if (imageForOutput == null || (imageForOutput != null && overwriteIfExists)) {
@@ -195,27 +199,59 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Override
     public void disableUsers(List<String> userNames) {
         m_template.updateMulti(new Query(Criteria.where("m_userName").in(userNames)),
-                new Update()
-                .set("m_enabled", false)
-                .set("m_disabledDate", new Date()), USER_PROFILE_COLLECTION);
+                new Update().set("m_enabled", false).set("m_disabledDate", new Date()), USER_PROFILE_COLLECTION);
     }
 
     @Override
     public List<UserProfile> getUserProfilesToDisable(long age) {
-        return m_template.find(new Query(Criteria.where("m_lastImportedDate")
-                .lt(new Date(new Date().getTime() - age))
-                .and("m_enabled").is(true)
-                .and("m_ldapManaged").is(true)).limit(LIMIT_DISABLE), UserProfile.class, USER_PROFILE_COLLECTION);
+        return m_template.find(
+                new Query(Criteria.where("m_lastImportedDate").lt(new Date(new Date().getTime() - age))
+                        .and("m_enabled").is(true).and("m_ldapManaged").is(true)).limit(LIMIT_DISABLE),
+                UserProfile.class, USER_PROFILE_COLLECTION);
     }
 
     @Override
     public List<UserProfile> getUserProfilesToDelete(long age) {
-        return m_template.find(new Query(Criteria.where("m_lastImportedDate")
-                .lt(new Date(new Date().getTime() - age))
-                .and("m_ldapManaged").is(true)).limit(LIMIT_DELETE), UserProfile.class, USER_PROFILE_COLLECTION);
+        return m_template.find(
+                new Query(Criteria.where("m_lastImportedDate").lt(new Date(new Date().getTime() - age))
+                        .and("m_ldapManaged").is(true)).limit(LIMIT_DELETE), UserProfile.class,
+                USER_PROFILE_COLLECTION);
     }
 
     public void setProfilesDb(MongoTemplate template) {
         m_template = template;
+    }
+
+    @Override
+    public List<UserProfile> getUserProfilesByEnabledProperty(String search, int firstRow, int pageSize) {
+        // default search enabled users
+        boolean enabled = true;
+        String property = "m_enabled";
+        if (StringUtils.equals(search, DISABLED)) {
+            enabled = false;
+        }
+        if (StringUtils.equals(search, LDAP)) {
+            property = "m_ldapManaged";
+        }
+        return getUserProfiles(firstRow, pageSize, property, enabled);
+    }
+
+    private List<UserProfile> getUserProfiles(int firstRow, int pageSize, String property, boolean enabled) {
+        return m_template.find(new Query(Criteria.where(property).is(enabled)).skip(firstRow)
+                .limit(pageSize), UserProfile.class, USER_PROFILE_COLLECTION);
+    }
+
+    @Override
+    public int getEnabledUsersCount() {
+        return countUsers(true).intValue();
+    }
+
+    @Override
+    public int getDisabledUsersCount() {
+        return countUsers(false).intValue();
+    }
+
+    private Long countUsers(boolean active) {
+        return m_template.count(new Query(Criteria.where("m_enabled").is(active)), USER_PROFILE_COLLECTION);
     }
 }

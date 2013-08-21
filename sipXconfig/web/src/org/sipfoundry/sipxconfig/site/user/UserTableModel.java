@@ -12,9 +12,13 @@ package org.sipfoundry.sipxconfig.site.user;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+
+import static org.sipfoundry.commons.userdb.profile.UserProfileService.DISABLED;
+import static org.sipfoundry.commons.userdb.profile.UserProfileService.ENABLED;
 
 public class UserTableModel implements IBasicTableModel {
     private CoreContext m_coreContext;
@@ -38,6 +42,12 @@ public class UserTableModel implements IBasicTableModel {
     }
 
     public int getRowCount() {
+        if (StringUtils.equals(m_searchString, ENABLED)) {
+            return m_coreContext.getEnabledUsersCount();
+        }
+        if (StringUtils.equals(m_searchString, DISABLED)) {
+            return m_coreContext.getDisabledUsersCount();
+        }
         int count = m_coreContext.getUsersInGroupWithSearchCount(m_groupId, m_searchString);
         return count;
     }

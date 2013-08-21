@@ -351,6 +351,34 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         assertEquals(2, next.size());
         User nextUser = (User) next.iterator().next();
         assertEquals("charlie", nextUser.getUserName());
+
+        User user = m_coreContext.newUser();
+        user.setUserName("joe");
+        UserProfile disabledProfile = new UserProfile();
+        disabledProfile.setEnabled(false);
+        user.setUserProfile(disabledProfile);
+        m_coreContext.saveUser(user);
+        Collection disabled = m_coreContext.loadUsersByPage("DISABLED", null, null, 0, 2, "userName", true);
+        assertEquals(1, disabled.size());
+
+        disabledProfile = new UserProfile();
+        disabledProfile.setEnabled(true);
+        user.setUserProfile(disabledProfile);
+        m_coreContext.saveUser(user);
+        Collection enabled = m_coreContext.loadUsersByPage("ENABLED", null, null, 0, 2, "userName", true);
+        assertEquals(1, enabled.size());
+
+        disabledProfile = new UserProfile();
+        disabledProfile.setLdapManaged(false);
+        user.setUserProfile(disabledProfile);
+        m_coreContext.saveUser(user);
+        Collection ldap = m_coreContext.loadUsersByPage("LDAP", null, null, 0, 2, "userName", true);
+        assertEquals(0, ldap.size());
+        disabledProfile.setLdapManaged(true);
+        user.setUserProfile(disabledProfile);
+        m_coreContext.saveUser(user);
+        Collection ldapEnabled = m_coreContext.loadUsersByPage("LDAP", null, null, 0, 2, "userName", true);
+        assertEquals(1, ldapEnabled.size());
     }
 
     public void testLoadUserPageDescending() throws Exception {

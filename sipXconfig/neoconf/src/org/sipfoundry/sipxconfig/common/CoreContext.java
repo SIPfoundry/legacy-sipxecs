@@ -218,4 +218,8 @@ public interface CoreContext extends DataObjectSource<User>, AliasOwner, Replica
     public boolean isAliasInUseForOthers(String alias, String username);
 
     public boolean setup(SetupManager manager);
+
+    int getEnabledUsersCount();
+
+    int getDisabledUsersCount();
 }

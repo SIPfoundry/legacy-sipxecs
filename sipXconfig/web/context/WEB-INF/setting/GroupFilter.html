@@ -1,5 +1,7 @@
 <select jwcid="groupFilter" id="group:filter"/>
 <span jwcid="renderQuery">
+ <span jwcid="@If" renderTag="false" condition="ognl:renderSearchQueryAndButton(queryText)">
   <input id="group:query" jwcid="queryText"/>
   <input id="group:submit" jwcid="searchButton"/>
+ </span>
 </span>

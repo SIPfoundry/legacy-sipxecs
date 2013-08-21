@@ -20,6 +20,10 @@ import java.io.InputStream;
 import java.util.List;
 
 public interface UserProfileService {
+    static final String DISABLED = "DISABLED";
+    static final String ENABLED = "ENABLED";
+    static final String LDAP = "LDAP";
+
     UserProfile getUserProfile(String userId);
 
     void saveUserProfile(UserProfile profile);
@@ -50,6 +54,8 @@ public interface UserProfileService {
 
     List<UserProfile> getAllUserProfiles();
 
+    List<UserProfile> getUserProfilesByEnabledProperty(String search, int firstRow, int pageSearch);
+
     void updateBranchAddress(String branch, Address address);
 
     void disableUsers(List<String> userNames);
@@ -57,4 +63,8 @@ public interface UserProfileService {
     List<UserProfile> getUserProfilesToDisable(long age);
 
     List<UserProfile> getUserProfilesToDelete(long age);
+
+    int getEnabledUsersCount();
+
+    int getDisabledUsersCount();
 }

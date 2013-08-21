@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.Messages;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
@@ -24,12 +25,19 @@ import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
 
+import static org.sipfoundry.commons.userdb.profile.UserProfileService.DISABLED;
+import static org.sipfoundry.commons.userdb.profile.UserProfileService.ENABLED;
+
 public abstract class GroupFilter extends BaseComponent {
     public static final String SEARCH_SELECTED = "label.search";
 
     public static final String ALL_SELECTED = "label.all";
 
     public static final String UNASSIGNED_SELECTED = "label.unassigned";
+
+    public static final String ENABLED_SELECTED = "label.enabled";
+
+    public static final String DISABLED_SELECTED = "label.disabled";
 
     public abstract boolean getSearchMode();
 
@@ -56,6 +64,22 @@ public abstract class GroupFilter extends BaseComponent {
 
     public abstract void setUnassignedOptionAvailable(boolean unassignedOptionAvailable);
 
+    public abstract boolean getEnabledOptionAvailable();
+
+    public abstract void setEnabledOptionAvailable(boolean enabledOptionAvailable);
+
+    public abstract boolean getEnabledMode();
+
+    public abstract void setEnabledMode(boolean enabledMode);
+
+    public abstract boolean getDisabledOptionAvailable();
+
+    public abstract void setDisabledOptionAvailable(boolean disabledOptionAvailable);
+
+    public abstract boolean getDisabledMode();
+
+    public abstract void setDisabledMode(boolean disabledMode);
+
     public abstract boolean getUnassignedMode();
 
     public abstract void setUnassignedMode(boolean unassignedMode);
@@ -64,6 +88,12 @@ public abstract class GroupFilter extends BaseComponent {
         Collection actions = new ArrayList();
 
         actions.add(new LabelOptionAdapter(getMessages(), ALL_SELECTED));
+        if (getEnabledOptionAvailable()) {
+            actions.add(new LabelOptionAdapter(getMessages(), ENABLED_SELECTED));
+        }
+        if (getDisabledOptionAvailable()) {
+            actions.add(new LabelOptionAdapter(getMessages(), DISABLED_SELECTED));
+        }
         if (getUnassignedOptionAvailable()) {
             actions.add(new LabelOptionAdapter(getMessages(), UNASSIGNED_SELECTED));
         }
@@ -89,8 +119,18 @@ public abstract class GroupFilter extends BaseComponent {
             Integer groupId = getSelectedGroupId();
             if (getUnassignedOptionAvailable() && getUnassignedMode()) {
                 setGroupId(UNASSIGNED_SELECTED);
+            } else if (getEnabledOptionAvailable() && getEnabledMode()) {
+                setGroupId(ENABLED_SELECTED);
+            } else if (getDisabledOptionAvailable() && getDisabledMode()) {
+                setGroupId(DISABLED_SELECTED);
             } else if (getSearchMode()) {
-                setGroupId(SEARCH_SELECTED);
+                if (StringUtils.equals(getQueryText(), ENABLED)) {
+                    setGroupId(ENABLED_SELECTED);
+                } else if (StringUtils.equals(getQueryText(), DISABLED)) {
+                    setGroupId(DISABLED_SELECTED);
+                } else {
+                    setGroupId(SEARCH_SELECTED);
+                }
             } else {
                 setGroupId(groupId);
             }
@@ -102,17 +142,42 @@ public abstract class GroupFilter extends BaseComponent {
             Object groupId = option.getValue(null, 0);
             final boolean search = SEARCH_SELECTED.equals(groupId);
             final boolean all = ALL_SELECTED.equals(groupId);
+            final boolean enabled = ENABLED_SELECTED.equals(groupId);
+            final boolean disabled = DISABLED_SELECTED.equals(groupId);
             final boolean unassigned = UNASSIGNED_SELECTED.equals(groupId);
             setSearchMode(search);
             if (getUnassignedOptionAvailable()) {
                 setUnassignedMode(unassigned);
             }
-            if (search || all || unassigned) {
+            if (getEnabledOptionAvailable() && enabled) {
+                setEnabledMode(enabled);
+                setSearchMode(enabled);
+                setQueryText(ENABLED);
+            }
+            if (getDisabledOptionAvailable() && disabled) {
+                setDisabledMode(disabled);
+                setSearchMode(disabled);
+                setQueryText(DISABLED);
+            }
+            if (search
+                    && (StringUtils.equals(getQueryText(), ENABLED) || StringUtils.equals(
+                            getQueryText(), DISABLED))) {
+                setQueryText(null);
+            }
+            if (search || all || unassigned || enabled || disabled) {
                 setSelectedGroupId(null);
             } else {
                 setSelectedGroupId((Integer) groupId);
             }
         }
+    }
+
+    public boolean renderSearchQueryAndButton(String queryText) {
+        if (!StringUtils.equals(queryText, ENABLED)
+                && !StringUtils.equals(queryText, DISABLED)) {
+            return true;
+        }
+        return false;
     }
 
     /**

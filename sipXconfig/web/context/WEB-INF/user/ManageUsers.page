@@ -27,6 +27,8 @@
     <binding name="groups" value="coreContext.groups"/>
     <binding name="queryText" value="queryText"/>
     <binding name="searchMode" value="searchMode"/>
+    <binding name="enabledOptionAvailable" value="ognl:true"/>
+    <binding name="disabledOptionAvailable" value="ognl:true"/>
   </component>
   <component id="userTable" type="user/UserTable">
     <binding name="userListener" value="listener:editUser"/>
