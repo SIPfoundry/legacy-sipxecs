@@ -61,6 +61,9 @@ class Restore < ArchiveBase
     cmd "tar -xz --exclude=version -C #{@sipxdata}/../.. -f #{params[:file]}" or
       raise "Failed to extract database from archive."
 
+    cmd "chown @SIPXPBXUSER@:@SIPXPBXGROUP@ -R #{@sipxdata}/mediaserver/data/mailstore" or
+      raise "Failed to set permissions on mailstore dir."
+
     cmd "#{@initd}/sipxivr start" if params[:restart]
   end
 end
