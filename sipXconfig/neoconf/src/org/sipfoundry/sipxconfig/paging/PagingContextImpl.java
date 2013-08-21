@@ -72,6 +72,9 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
     }
 
     public void saveSettings(PagingSettings settings) {
+        if (StringUtils.isBlank(settings.getSettingValue(PagingSettings.PREFIX))) {
+            throw new UserException("&error.blank.prefix");
+        }
         m_settingsDao.upsert(settings);
     }
 

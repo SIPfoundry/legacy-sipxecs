@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class PagingSettings extends PersistableSettings implements DeployConfigOnEdit {
-    private static final String PREFIX = "page-config/prefix";
+    public static final String PREFIX = "page-config/prefix";
     private static final String SIP_TRACE_LEVEL = "page-config/sip.trace";
 
     @Override
