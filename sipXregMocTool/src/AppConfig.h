@@ -31,7 +31,9 @@ extern const char* pListEntriesConfOpt;      //"list-entries"
 extern const char* pDeleteEntriesConfOpt;    //"delete-entries"
 extern const char* pDatabaseNameConfOpt;     //"select-database"
 extern const char* pMultipleLinesConfOpt;    //"multiple-lines"
-extern const char* pWhereConfOpt;             //"where"
+extern const char* pWhereConfOpt;            //"where"
+extern const char* pNodeRegistrarDbName;     //"node.registrar"
+extern const char* pImdbEntityDbName;        //"imdb.entity"
 
 /**
  * Application configuration class

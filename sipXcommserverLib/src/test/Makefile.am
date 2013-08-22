@@ -1,3 +1,5 @@
+SUBDIRS= . sipdb
+
 INCLUDES = -I$(top_srcdir)/include
 SCHEMA_FILE = $(top_srcdir)/../sipXproxy/etc/database/schema.sql
 
@@ -30,8 +32,6 @@ endif
 check : $(db_SETUP)
 
 TESTS = \
-    MongoDBTest \
-    RegDBTest \
 	ResultSetRpcTest \
 	MappingRulesUrlMappingTest \
 	AuthRulesUrlMappingTest \
@@ -41,9 +41,8 @@ TESTS = \
 	$(db_TESTS)
 
 check_PROGRAMS = $(TESTS)
+			  
 
-MongoDBTest_SOURCES = MongoDBTest.cpp
-RegDBTest_SOURCES = RegDBTest.cpp
 ResultSetRpcTest_SOURCES = ResultSetRpcTest.cpp
 MappingRulesUrlMappingTest_SOURCES = MappingRulesUrlMappingTest.cpp
 AuthRulesUrlMappingTest_SOURCES = AuthRulesUrlMappingTest.cpp
@@ -51,6 +50,7 @@ FallbackRulesUrlMappingTest_SOURCES = FallbackRulesUrlMappingTest.cpp
 SipXecsServiceTest_SOURCES = SipXecsServiceTest.cpp
 SharedSecretTest_SOURCES = SharedSecretTest.cpp
 OdbcWrapperTest_SOURCES = OdbcWrapperTest.cpp
+
 
 EXTRA_DIST = \
 	sharedsecret/domain-config \
@@ -78,3 +78,5 @@ db_setup:
 	  @echo "Schema file $(SCHEMA_FILE) not found"; \
 	fi
 	@echo "Done."
+
+

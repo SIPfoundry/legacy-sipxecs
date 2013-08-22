@@ -24,6 +24,10 @@
 
 class EntityRecord
 {
+  // The unit test classes needs access to private data.
+  friend class EntityRecordTest;
+  friend class EntityDBTest;
+  friend class DbHelperTest;
 public:
 
     //
@@ -89,7 +93,7 @@ public:
 
     void swap(EntityRecord& entity);
 
-    EntityRecord& operator =(const mongo::BSONObj& bsonObj);
+    EntityRecord& operator=(const mongo::BSONObj& bsonObj);
 
     //
     // The unique record object-id
@@ -200,8 +204,8 @@ private:
     std::string _authType;
     std::string _location;
     CallerId _callerId;
-    bool _ignoreUserCallerId;
-    bool _transformCallerExtension;
+    //bool _ignoreUserCallerId;
+    //bool _transformCallerExtension;
     int _callForwardTime;
     std::set<std::string> _permissions;
     std::vector<Alias> _aliases;

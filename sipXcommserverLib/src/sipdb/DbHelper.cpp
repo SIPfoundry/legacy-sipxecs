@@ -16,8 +16,6 @@
 
 const char* pTimeNowMacro                                = "$now";
 
-const char* DbHelper::pNodeRegistrarDbName               = "node.registrar";
-const char* DbHelper::pImdbEntityDbName                  = "imdb.entity";
 
 void DbHelper::printSetElements(std::ostream& strm,
                                 const std::string& setName,
@@ -161,7 +159,7 @@ void DbHelper::printEntityRecordAliases(std::ostream& strm,
    }
    else
    {
-      std::cout << boost::format("\"%s\":[") % aliasesName;
+      strm << boost::format("\"%s\":[") % aliasesName;
 
       for (std::vector<EntityRecord::Alias>::const_iterator iter = aliases.begin();
            iter != aliases.end(); iter++)
@@ -334,8 +332,8 @@ void DbHelper::createQuery(mongo::BSONObj& query,
 }
 
 void DbHelper::deleteDbEntries(const MongoDB::ConnectionInfo* pConnectionInfo,
-                                 std::vector<std::string>& whereOptVector,
-                                 const std::string& databaseName)
+                                 const std::string& databaseName,
+                                 std::vector<std::string>& whereOptVector)
 {
    MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(pConnectionInfo->getConnectionString().toString()));
 
@@ -358,26 +356,27 @@ void DbHelper::deleteDbEntries(const MongoDB::ConnectionInfo* pConnectionInfo,
 
 void DbHelper::printDbEntries(std::ostream& strm,
                                  const MongoDB::ConnectionInfo* pConnectionInfo,
-                                 std::vector<std::string>& whereOptVector,
                                  const std::string& databaseName,
+                                 std::vector<std::string>& whereOptVector,
+                                 const DbType dbType,
                                  bool multipleLines)
 {
    MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(pConnectionInfo->getConnectionString().toString()));
 
    try
    {
-      if (databaseName == pNodeRegistrarDbName)
+      if (dbType == DbTypeRegBinding)
       {
          _pFnPrintEntry = &DbHelper::printRegBindingEntry;
       }
-      else if (databaseName == pImdbEntityDbName)
+      else if (dbType == DbTypeEntityRecord)
       {
          _pFnPrintEntry = &DbHelper::printEntityRecordEntry;
       }
       else
       {
-         BOOST_THROW_EXCEPTION(DbHelperException() <<
-               DbHelperTagInfo(std::string("Unknown database name. Please select one of the following databases: imdb.entity, node.registrar")));
+        BOOST_THROW_EXCEPTION(DbHelperException() <<
+              DbHelperTagInfo(std::string("Unknown database type")));
       }
 
       mongo::BSONObj query;

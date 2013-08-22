@@ -29,6 +29,8 @@ const char* MongoDBTool::pDeleteEntriesConfOpt                        = "delete-
 const char* MongoDBTool::pDatabaseNameConfOpt                         = "select-database";
 const char* MongoDBTool::pMultipleLinesConfOpt                        = "multiple-lines";
 const char* MongoDBTool::pWhereConfOpt                                = "where";
+const char* MongoDBTool::pNodeRegistrarDbName                         = "node.registrar";
+const char* MongoDBTool::pImdbEntityDbName                            = "imdb.entity";
 
 AppConfig::AppConfig(int argc, char** pArgv) : OsServiceOptions(argc, pArgv, "sipXregMocTool", "1.0", "Ezuce Inc. All Rights Reserved"),
                                               _hasOptListEntries(false),
@@ -104,7 +106,7 @@ void AppConfig::checkOptions()
    }
    else
    {
-      _databaseName = DbHelper::pNodeRegistrarDbName;
+      _databaseName = pNodeRegistrarDbName;
    }
 
    if (OsServiceOptions::hasOption(pWhereConfOpt, false))

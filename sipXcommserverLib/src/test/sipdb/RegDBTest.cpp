@@ -2,8 +2,8 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <sipxunit/TestUtilities.h>
 #include <sipdb/RegDB.h>
+#include <sipdb/MongoDB.h>
 #include <os/OsDateTime.h>
-//#include <json/json_spirit.h>
 #include <mongo/util/net/hostandport.h>
 #include <mongo/client/connpool.h>
 
@@ -20,18 +20,21 @@ class RegDBTest: public CppUnit::TestCase
 
 	RegDB* _db;
 	const MongoDB::ConnectionInfo _info;
+  std::string _databaseName;
 public:
-	RegDBTest() : _info(MongoDB::ConnectionInfo(mongo::ConnectionString(mongo::HostAndPort("localhost")), string("test.RegDBTest")))
+	RegDBTest() : _info(MongoDB::ConnectionInfo(mongo::ConnectionString(mongo::HostAndPort("localhost")))),
+	              _databaseName("test.RegDBTest")
 	{
 	}
 
 	void setUp()
 	{
-		_db = new RegDB(_info);
-		mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
-		(*conn)->remove(_info.getNS(), mongo::Query());
-		(*conn).done();
-		delete conn;
+		_db = new RegDB(_info, NULL, _databaseName);
+
+		MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+		//mongo::ScopedDbConnection conn(_info.getConnectionString().toString());
+		pConn->get()->remove(_databaseName, mongo::Query());
+		pConn->done();
 	}
 
 	void tearDown()
@@ -201,6 +204,48 @@ public:
 		CPPUNIT_ASSERT(_db->getUnexpiredContactsUserInstrument("alice@atlanta.com", "instrument-test", timeNow, bindings));
 		CPPUNIT_ASSERT(bindings.size() == 2);
 
+
+    //
+    // alice has two unexpired bindins and bob have 1 unexpired binding for instrument-test
+    //
+    bindings.clear();
+    CPPUNIT_ASSERT(_db->getUnexpiredContactsInstrument("instrument-test", timeNow, bindings));
+    CPPUNIT_ASSERT(bindings.size() == 3);
+
+    //
+    // removed entry with identity='bob@biloxy.com' callId='call-id@bob12345' and cseq<1001
+    // now bob has zero unexpired bindings
+    //
+    bindings.clear();
+    _db->expireOldBindings("bob@biloxy.com", "call-id@bob12345", 1001, timeNow);
+    CPPUNIT_ASSERT(_db->getUnexpiredContactsUser("bob@biloxy.com", timeNow, bindings) == false);
+    CPPUNIT_ASSERT(bindings.size() == 0);
+
+    //
+    // removed all entries with identity='alice@atlanta.com'
+    // now alice has zero unexpired bindings
+    //
+    bindings.clear();
+    _db->expireAllBindings("alice@atlanta.com", "", 0, timeNow);
+    CPPUNIT_ASSERT(_db->getUnexpiredContactsUserInstrument("alice@atlanta.com", "instrument-test", timeNow, bindings) == false);
+    CPPUNIT_ASSERT(bindings.size() == 0);
+
+    //
+    //  we have one expired binding
+    //
+    bindings.clear();
+    CPPUNIT_ASSERT(getAllOldBindings(timeNow, bindings));
+    CPPUNIT_ASSERT(bindings.size() == 1);
+
+
+    //
+    //  we have no expired bindings, after removing all of them
+    //
+    bindings.clear();
+    _db->removeAllExpired();
+    CPPUNIT_ASSERT(getAllOldBindings(timeNow, bindings) == false);
+    CPPUNIT_ASSERT(bindings.size() == 0);
+
 		//
 		// Clean and persist contacts
 		//
@@ -265,8 +310,8 @@ public:
 	bool getAllOldBindings(int timeNow, RegDB::Bindings& bindings)
 	{
 		mongo::BSONObj query = BSON( "expirationTime" << BSON_LESS_THAN(timeNow));
-		mongo::ScopedDbConnection* conn = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
-		auto_ptr<mongo::DBClientCursor> pCursor = (*conn)->query(_info.getNS(), query);
+		MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+		auto_ptr<mongo::DBClientCursor> pCursor = pConn->get()->query(_databaseName, query);
 		if (pCursor.get() && pCursor->more())
 		{
 			while (pCursor->more())
@@ -274,9 +319,12 @@ public:
 				RegBinding binding(pCursor->next());
 				bindings.push_back(binding);
 			}
+			pConn->done();
+			return bindings.size() > 0;;
 		}
-		delete conn;
-		return bindings.size() > 0;
+
+		pConn->done();
+		return false;
 	}
 };
 

@@ -39,7 +39,6 @@ extern const char* pTimeNowMacro;
 class AppPerform : public DbHelper
 {
 public:
-
    // Constructor
    AppPerform();
 
@@ -66,7 +65,7 @@ protected:
 
 private:
    AppConfig* _pAppConfig;                         // Pointer to the AppConfig class
-   const MongoDB::ConnectionInfo* _connectionInfo; // Pointer to a ConnectionInfo class
+   const mongo::ConnectionString _mongoConnectionString; // Mongo connection string
 };
 
 inline void AppPerform::setConfig(AppConfig* pAppConfig){_pAppConfig = pAppConfig;}

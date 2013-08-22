@@ -34,27 +34,39 @@
 
 using namespace MongoDBTool;
 
-AppPerform::AppPerform()
-{
-   const mongo::ConnectionString mongoConnectionString(mongo::HostAndPort("127.0.0.1"));
 
-   _connectionInfo = new MongoDB::ConnectionInfo(mongoConnectionString, std::string());
+AppPerform::AppPerform() : _mongoConnectionString(mongo::HostAndPort("localhost"))
+{
 }
 
 AppPerform::~AppPerform()
 {
-   delete _connectionInfo;
 }
 
 void AppPerform::deleteDbEntries(std::vector<std::string>& whereOptVector,
                                  const std::string& databaseName)
 {
-   DbHelper::deleteDbEntries(_connectionInfo, whereOptVector, databaseName);
+  MongoDB::ConnectionInfo connectionInfo(_mongoConnectionString);
+
+  DbHelper::deleteDbEntries(&connectionInfo, databaseName, whereOptVector);
 }
 
 void AppPerform::printDbEntries(std::vector<std::string>& whereOptVector,
-                                 const std::string& databaseName,
-                                 bool multipleLines)
+                                const std::string& databaseName,
+                                bool multipleLines)
 {
-   DbHelper::printDbEntries(std::cout, _connectionInfo, whereOptVector, databaseName, multipleLines);
+  DbHelper::DbType dbType;
+  if (databaseName == pNodeRegistrarDbName)
+    dbType = DbTypeRegBinding;
+  else if (databaseName == pImdbEntityDbName)
+    dbType = DbTypeEntityRecord;
+  else
+  {
+    BOOST_THROW_EXCEPTION(DbHelperException() <<
+          DbHelperTagInfo(std::string("Unknown database name. Please select one of the following databases: imdb.entity, node.registrar")));
+  }
+
+  MongoDB::ConnectionInfo connectionInfo(_mongoConnectionString);
+
+  DbHelper::printDbEntries(std::cout, &connectionInfo, databaseName, whereOptVector, dbType, multipleLines);
 }

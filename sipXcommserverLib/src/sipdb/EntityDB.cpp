@@ -205,14 +205,11 @@ bool  EntityDB::tail(std::vector<std::string>& opLogs) {
   {
     mongo::Query query = QUERY( "_id" << mongo::GT << _lastTailId
           << "ns" << NS);
-
     mongo::BSONObjBuilder builder;
     BaseDB::nearest(builder, query.obj);
 
     query.sort("$natural");
 
-    mongo::BSONObjBuilder builder;
-    BaseDB::nearest(builder, query.obj);
     std::auto_ptr<mongo::DBClientCursor> c =
       conn->get()->query("local.oplog", builder.obj(), 0, 0, 0,
       mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData | mongo::QueryOption_SlaveOk);
