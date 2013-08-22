@@ -1754,7 +1754,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
       {
          if(isResponse)
          {
-            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,"SipUserAgent::dispatch "
+            Os::Logger::instance().log(FAC_SIP, PRI_INFO,"SipUserAgent::dispatch "
                           "received response without transaction");
 
          }      // end no transaction found for response message
