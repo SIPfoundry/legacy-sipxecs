@@ -251,6 +251,7 @@ public abstract class UserGroupSettings extends GroupSettings implements PageBeg
             setParentSetting(parent);
             setIsTabsSelected(false);
         }
+        setHotellingSetting(getSettings().getSetting(HOTELLING_SETTING));
 
     }
 
