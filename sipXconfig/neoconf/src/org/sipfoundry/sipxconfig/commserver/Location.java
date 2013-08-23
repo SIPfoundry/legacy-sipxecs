@@ -269,7 +269,11 @@ public class Location extends BeanWithId implements DeployConfigOnEdit, Comparab
     }
 
     public String getHostnameInSipDomain() {
-        return getHostname() + DOT + Domain.getDomain().getName();
+        String sipDomainName = Domain.getDomain().getName();
+        if (m_fqdn.equals(sipDomainName)) {
+            return m_fqdn;
+        }
+        return getHostname() + DOT + sipDomainName;
     }
 
     public boolean isPrimary() {

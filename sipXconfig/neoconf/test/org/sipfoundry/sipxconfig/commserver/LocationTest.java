@@ -5,6 +5,9 @@
  */
 package org.sipfoundry.sipxconfig.commserver;
 
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManagerImpl;
+
 import junit.framework.TestCase;
 
 public class LocationTest extends TestCase {
@@ -30,5 +33,55 @@ public class LocationTest extends TestCase {
         out1.setUrl("https://192.168.1.10:8091/cgi-bin/replication/replication.cgi");
         assertEquals("192.168.1.10", out1.getFqdn());
         assertNull(out.getAddress());
+    }
+
+    public void testGetHostnameInSipDomain() {
+        Domain d = new Domain("openuctest.ezuce.ro");
+        d.setNetworkName("ezuce.ro");
+        new DomainManagerImpl().setTestDomain(d);
+        Location location = new Location();
+        location.setFqdn("openuctest.ezuce.ro");
+        assertEquals("openuctest", location.getHostname());
+        assertEquals("openuctest.ezuce.ro", location.getHostnameInSipDomain());
+
+        d = new Domain("sip.ezuce.ro");
+        d.setNetworkName("sip.ezuce.ro");
+        new DomainManagerImpl().setTestDomain(d);
+        Location location1 = new Location();
+        location1.setFqdn("openuctest.sip.ezuce.ro");
+        assertEquals("openuctest", location1.getHostname());
+        assertEquals("openuctest.sip.ezuce.ro", location1.getHostnameInSipDomain());
+
+        d = new Domain("ezuce.ro");
+        d.setNetworkName("ezuce.ro");
+        new DomainManagerImpl().setTestDomain(d);
+        Location location2 = new Location();
+        location2.setFqdn("openuctest.ezuce.ro");
+        assertEquals("openuctest", location2.getHostname());
+        assertEquals("openuctest.ezuce.ro", location2.getHostnameInSipDomain());
+
+        d = new Domain("ezuce.ro");
+        d.setNetworkName("ezuce.ro");
+        new DomainManagerImpl().setTestDomain(d);
+        Location location3 = new Location();
+        location3.setFqdn("openuctest.sample.ezuce.ro");
+        assertEquals("openuctest.sample", location3.getHostname());
+        assertEquals("openuctest.sample.ezuce.ro", location3.getHostnameInSipDomain());
+
+        d = new Domain("sip.ezuce.ro");
+        d.setNetworkName("network.ezuce.ro");
+        new DomainManagerImpl().setTestDomain(d);
+        Location location4 = new Location();
+        location4.setFqdn("openuctest.network.ezuce.ro");
+        assertEquals("openuctest", location4.getHostname());
+        assertEquals("openuctest.sip.ezuce.ro", location4.getHostnameInSipDomain());
+
+        d = new Domain("sip.ezuce.ro");
+        d.setNetworkName("ezuce.ro");
+        new DomainManagerImpl().setTestDomain(d);
+        Location location5 = new Location();
+        location5.setFqdn("openuctest.other.ezuce.ro");
+        assertEquals("openuctest.other", location5.getHostname());
+        assertEquals("openuctest.other.sip.ezuce.ro", location5.getHostnameInSipDomain());
     }
 }
