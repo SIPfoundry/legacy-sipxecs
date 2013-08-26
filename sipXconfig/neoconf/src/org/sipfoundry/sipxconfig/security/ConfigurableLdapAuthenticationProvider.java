@@ -105,11 +105,6 @@ public class ConfigurableLdapAuthenticationProvider extends AbstractUserDetailsA
                         + "is an interface contract violation");
             }
 
-            if (!loaddedUser.isLdapManaged()) {
-                LOG.error("Cannot authenticate: the user " + userLoginName + " is not LDAP managed");
-                throw new AuthenticationServiceException("The user is not managed by LDAP, this ");
-            }
-
             for (SipxLdapAuthenticationProvider provider : m_providers) {
                 String providerDomain = provider.getDomain();
                 // verify if user input domain can be handled by this provider, continue with next
