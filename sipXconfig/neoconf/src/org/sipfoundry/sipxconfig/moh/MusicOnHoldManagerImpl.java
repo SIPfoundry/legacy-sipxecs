@@ -54,6 +54,7 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, ReplicablePro
     private BeanWithSettingsDao<MohSettings> m_settingsDao;
     private ReplicationManager m_replicationManager;
     private SipxReplicationContext m_sipxReplicationContext;
+    private boolean m_highAvailabilitySupport;
 
     /**
      * Music on hold implementation requires that ~~mh~u calls are forwarded to Media Server. We
@@ -208,7 +209,9 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, ReplicablePro
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
         validator.requiredOnSameHost(FEATURE, FreeswitchFeature.FEATURE);
-        validator.singleLocationOnly(FEATURE);
+        if (!m_highAvailabilitySupport) {
+            validator.singleLocationOnly(FEATURE);
+        }
     }
 
     @Override
@@ -217,5 +220,12 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, ReplicablePro
 
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_sipxReplicationContext = sipxReplicationContext;
+    }
+
+    /**
+     * Setting this to true just relaxes the validator, Stock sipXivr will not work in HA mode
+     */
+    public void setHighAvailabilitySupport(boolean highAvailabilitySupport) {
+        m_highAvailabilitySupport = highAvailabilitySupport;
     }
 }
