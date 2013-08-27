@@ -284,7 +284,7 @@ class DataLoader {
     });      
   }
 
-  checkResponse(HttpRequest request) {
+  bool checkResponse(HttpRequest request) {
     if (request.status != 200) {
       String userError;
       try {
@@ -293,9 +293,12 @@ class DataLoader {
       }
       if (userError == null) {
         msg.internalError();
+      } else {
+        msg.error(userError);
       }
-      msg.error(userError);
+      return false;
     }  
+    return true;
   }
 }
 
@@ -316,6 +319,10 @@ class UserMessage {
     message(msg, 'user-error');  
   }
   
+  void warning(String msg) {
+    message(msg, 'user-warning');  
+  }
+
   void internalError() {
     error("Internal Error");
   }

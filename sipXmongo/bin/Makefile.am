@@ -27,6 +27,7 @@ mongodb_TESTS = \
 	two-node-orphaned-arbiter \
 	two-node-db-unaware-of-arbiter \
 	two-node-bad-config-ver \
+	two-node-multiple-primaries \
 	three-node-unavailable-server \
 	three-node-unhealthy-server \
 	three-node-missing-arbiter-and-database \
@@ -36,6 +37,7 @@ mongodb_TESTS = \
 mongodb_admin_primary_COMMANDS = \
 	"--host_port swift.hubler.us:27017 RESET_LOCAL" \
 	"--host_port swift.hubler.us:27017 OBLITERATE" \
+	"--host_port swift.hubler.us:27017 FORCE_SECONDARY" \
 	"--host_port swift.hubler.us:27017 REPAIR" \
 	"--host_port swift.hubler.us:27018 RENAME new_name:27018" \
 	"--host_port swift.hubler.us:27017 INITIALIZE" \
@@ -58,8 +60,8 @@ check-status:
 	  expected="$(srcdir)/test_data/$$t.status.json"; \
 	  input="$(srcdir)/test_data/$$t.json"; \
 	  echo "EXPECTED $$expected"; \
-	  echo "$(srcdir)/mongodb-status.in --parse < $$input"; \
-	  $(srcdir)/mongodb-status.in --parse < $$input  > actual; \
+	  echo "$(srcdir)/mongodb-status.in --full --parse < $$input"; \
+	  $(srcdir)/mongodb-status.in --full --parse < $$input  > actual; \
 	  diff -u $$expected actual || exit 1; \
 	done
 

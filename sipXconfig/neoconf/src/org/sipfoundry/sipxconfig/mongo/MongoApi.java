@@ -38,9 +38,12 @@ import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.StringRepresentation;
 import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.region.Region;
+import org.sipfoundry.sipxconfig.region.RegionManager;
 
 import com.mongodb.util.JSON;
 
@@ -51,6 +54,7 @@ class MongoApi extends Resource {
     private static final String PRIORITY = "priority";
     private MongoManager m_mongoManager;
     private LocationsManager m_locationsManager;
+    private RegionManager m_regionManager;
 
     @Override
     public void init(Context context, Request request, Response response) {
@@ -159,6 +163,9 @@ class MongoApi extends Resource {
         Map<String, Object> arbiters = new HashMap<String, Object>();
         MongoNode primary = meta.getPrimary();
         Map<String, Object> primaryMeta = primary != null ? meta.getMetaData(primary.getHostPort()) : null;
+        
+        List<Region> regions = m_regionManager.getRegions();
+        
         for (MongoNode node : meta.getNodes()) {
             Location l = locationMap.get(node.getFqdn());
             if (l == null) {
@@ -168,7 +175,12 @@ class MongoApi extends Resource {
             Map<String, Object> nmap = new HashMap<String, Object>();
             nmap.put("status", node.getStatus());
             nmap.put(HOST, l.getHostname());
-            nmap.put("region", l.getRegionId());
+            String regionName = null;
+            if (l.getRegionId() != null) {
+                Region region = DataCollectionUtil.findByKey(regions, l.getRegionId());
+                regionName = region.getName();
+           }
+            nmap.put("region", regionName);
             boolean local = m_mongoManager.getFeatureManager().isFeatureEnabled(MongoManager.LOCAL_FEATURE, l);
             nmap.put("local", local);
             nmap.put("required", meta.getRequiredActions(node.getHostPort()));
@@ -218,4 +230,8 @@ class MongoApi extends Resource {
     public void setMongoManager(MongoManager mongoManager) {
         m_mongoManager = mongoManager;
     }
+
+	public void setRegionManager(RegionManager regionManager) {
+		m_regionManager = regionManager;
+	}
 }

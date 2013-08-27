@@ -9,7 +9,7 @@ ManageLocal local = new ManageLocal();
 List<ManageBase> all = [global, local];
 ManageBase manage = global;
 Tabs tabs;
-var api = new Api(test : true);
+var api = new Api(test : false);
 
 main() {
   tabs = new Tabs(query("#leftNav"));
@@ -62,7 +62,7 @@ class ManageGlobal extends ManageBase {
     loader = new DataLoader(msg, loadTable);
     builder = new UiBuilder(this);    
     refresh = new Refresher(query("#globalRefreshWidget"), query("#globalRefreshButton"), () {
-      var url = api.url("rest/mongo", "global-test.json");
+      var url = api.url("rest/mongoGlobal/", "global-test.json");
       loader.load(url);      
     });
   }
@@ -99,10 +99,11 @@ class ManageGlobal extends ManageBase {
   
   void onServerAction(String label, String server, String action) {    
     var httpRequest = new HttpRequest();
-    httpRequest.open('POST', api.url("rest/mongo"));
+    httpRequest.open('POST', api.url("rest/mongoGlobal/"));
     httpRequest.onLoadEnd.listen((e) {
-      loader.checkResponse(httpRequest);
-      load();
+      if (loader.checkResponse(httpRequest)) {
+        load();
+      }
     });
     var post = stringify({'server' : server, 'action' : action });
     httpRequest.send(post);
@@ -126,7 +127,7 @@ class ManageLocal extends ManageBase {
     loader = new DataLoader(msg, loadTable);
     builder = new UiBuilder(this);
     refresh = new Refresher(query("#localRefreshWidget"), query("#localRefreshButton"), () {
-      var url = api.url("rest/mongolocal", "local-test.json");
+      var url = api.url("rest/mongoRegional/", "local-test-2.json");
       loader.load(url);      
     });
   }
@@ -134,9 +135,28 @@ class ManageLocal extends ManageBase {
   void loadTable(data) {
     var meta = parse(data);
     table.children.clear();
-    builder.lastError(meta['lastConfigError']);    
-    builder.addMongoNodeSelect(meta['localCandidates'], query('#localAddDb'), 'NEW_LOCAL', getString('addDatabase'));
-    for (var shard in meta['shards']) {
+    builder.lastError(meta['lastConfigError']);  
+    List candidates = meta['dbCandidates'];
+    builder.addMongoNodeSelect(candidates, query('#localAddDb'), 'NEW_LOCAL', getString('addDatabase'));
+    builder.addMongoNodeSelect(meta['arbiterCandidates'], query('#localAddArbiter'), 'NEW_LOCAL_ARBITER', getString('addArbiter'));
+    
+    List shards = meta['shards'];
+    if ((shards == null || shards.length == 0) && (candidates == null || candidates.length == 0)) {
+      msg.warning('''
+Only servers with regions defined can host a local database. Assign 
+regions to servers if you wish to have a local databbase
+''');
+      builder.inProgress(false);
+      return;
+    }      
+      
+    for (var shard in shards) {
+      var count = 0;
+      for (var type in ['databases', 'arbiters']) {
+        if (shard[type] != null) {
+          count += shard[type].length;
+        }
+      }
       for (var type in ['databases', 'arbiters']) {
         if (shard[type] == null) {
           continue;
@@ -145,14 +165,15 @@ class ManageLocal extends ManageBase {
           var row = builder.row();
           builder.nameColumn(row.addCell(), node, server, type);
           builder.statusColumn(row.addCell(), node, server, type);
-          String region = node['region'];
+          String region = node['region'].toString();
           row.addCell().text = (region == null  ? '' : region);
           var actions = builder.actionColumn(row.addCell(), node, server, type);
-          if (shard[type].length == 1) {
+          if (count == 1) {
             // Delete on last database is different server side command
             // but to user they do not need to know that so keep label
             // the same as removing a database
-            actions.children.add(new OptionElement(getString('action.DELETE'), 'DELETE_LOCAL', false, false));
+            var cmd = (type == 'databases' ? 'DELETE_LOCAL' : 'DELETE_LOCAL_ARBITER'); 
+            actions.children.add(new OptionElement(getString('action.DELETE'), cmd, false, false));
           }
           table.children.add(row);
         });
@@ -163,10 +184,11 @@ class ManageLocal extends ManageBase {
 
   void onServerAction(String label, String server, String action) {    
     var httpRequest = new HttpRequest();
-    httpRequest.open('POST', api.url("rest/mongolocal"));
+    httpRequest.open('POST', api.url("rest/mongoRegional/"));
     httpRequest.onLoadEnd.listen((e) {
-      loader.checkResponse(httpRequest);
-      load();
+      if (loader.checkResponse(httpRequest)) {
+        load();
+      }
     });
     var post = stringify({'server' : server, 'action' : action });
     httpRequest.send(post);
@@ -264,7 +286,7 @@ class UiBuilder {
 
   addMongoNodeSelect(List<String> candidates, Element parent, String action, String noneSelectedLabel) {   
     parent.children.clear();
-    if (candidates.length <= 0) {
+    if (candidates == null || candidates.length <= 0) {
       return;
     }
     var addNode = new SelectElement();

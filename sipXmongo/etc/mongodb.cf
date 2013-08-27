@@ -345,7 +345,7 @@ bundle agent mongo_local_running {
 
   methods:
     any::
-      "any" usebundle => find_service_by_command("$(service_command)", "running", "$(mongodb.user)");
+      "any" usebundle => find_service_by_command("$(service_command)", "mongo_local_running", "$(mongodb.user)");
 
     mongo_local.!src::
       "any" usebundle => rh_chkconfig_status("mongo-local on");
@@ -354,17 +354,17 @@ bundle agent mongo_local_running {
       "any" usebundle => rh_chkconfig_status("mongo-local off");
 
   commands:
-    !mongo_local.running::
+    !mongo_local.mongo_local_running::
       "$(service)"
         comment => "stop mongo local",
         args => "stop";
 
-    mongo_local.!running::
+    mongo_local.!mongo_local_running::
       "$(service)"
         comment => "start mongo local",
         args => "start";
 
-    mongo_local.running.mongo_local_restart::
+    mongo_local.mongo_local_running.mongo_local_restart::
       "$(service)"
         comment => "restart mongo local",
         args => "restart";
@@ -378,7 +378,7 @@ bundle agent mongo_local_arbiter_running {
 
   methods:
     any::
-      "any" usebundle => find_service_by_command("$(service_command)", "running", "$(mongodb.user)");
+      "any" usebundle => find_service_by_command("$(service_command)", "mongo_local_arbiter_running", "$(mongodb.user)");
 
     mongo_local_arbiter.!src::
       "any" usebundle => rh_chkconfig_status("mongo-local-arbiter on");
@@ -387,17 +387,17 @@ bundle agent mongo_local_arbiter_running {
       "any" usebundle => rh_chkconfig_status("mongo-local-arbiter off");
 
   commands:
-    !mongo_local_arbiter.running::
+    !mongo_local_arbiter.mongo_local_arbiter_running::
       "$(service)"
         comment => "stop mongo local arbiter",
         args => "stop";
 
-    mongo_local_arbiter.!running::
+    mongo_local_arbiter.!mongo_local_arbiter_running::
       "$(service)"
         comment => "start mongo local arbiter",
         args => "start";
 
-    mongo_local_arbiter.running.mongo_local_arbiter_restart::
+    mongo_local_arbiter.mongo_local_arbiter_running.mongo_local_arbiter_restart::
       "$(service)"
         comment => "restart mongo local arbiter",
         args => "restart";

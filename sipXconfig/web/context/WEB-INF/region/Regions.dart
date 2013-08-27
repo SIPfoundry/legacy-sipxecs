@@ -3,7 +3,7 @@ import 'dart:json';
 import 'package:sipxconfig/sipxconfig.dart';
 
 ManageRegions regions = new ManageRegions();
-var api = new Api(test : true);
+var api = new Api(test : false);
 
 main() {
   regions.reload();
@@ -23,16 +23,25 @@ class ManageRegions {
   void removeRegion(int region, String name) {
     if (window.confirm("Are you sure you want to remove ${name}?")) {
       HttpRequest req = new HttpRequest();
-      req.open('DELETE', api.url("rest/region/${region}"));
-      req.setRequestHeader("Content-Type", "application/json"); 
+      req.open('DELETE', api.url("rest/region/${region}/"));
+      req.setRequestHeader("Content-Type", "application/json");      
       req.send();
-      req.onLoad.listen(reload).onError((e) {
-        window.alert(e.toString());      
-      });
+      req.onLoad.listen(reload, onError: onError);
     }
   }
   
-  void reload([event]) {
+  void onError(e) {
+    msg.error(e.toString());    
+  }
+  
+  void reload([HttpRequestProgressEvent event]) {
+    if (event != null) {
+      HttpRequest req = event.target; 
+      if (req.status != 200) {
+        var err = parse(req.responseText);
+        msg.error(err['error']);            
+      }
+    }
     loader.load(api.url("rest/region/", 'regions-test.json'));
   }
   

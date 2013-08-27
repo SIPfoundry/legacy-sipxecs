@@ -52,7 +52,7 @@ public class MongoConfig implements ConfigProvider {
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
         if (!request.applies(MongoManager.FEATURE_ID, LocationsManager.FEATURE, MongoManager.ARBITER_FEATURE,
-                MongoManager.LOCAL_FEATURE)) {
+                MongoManager.LOCAL_FEATURE, MongoManager.LOCAL_ARBITER_FEATURE)) {
             return;
         }
         FeatureManager fm = manager.getFeatureManager();
@@ -100,18 +100,31 @@ public class MongoConfig implements ConfigProvider {
         List<Region> regions = m_regionManager.getRegions();
         Map<Integer, String> localModelsByRegion = getLocalModelsByRegion(regions, localServers, localArbiters);
         for (Location location : all) {
+            File dir = manager.getLocationDataDirectory(location);
+    		File modelFile = new File(dir, "mongo-local.json");
+    		String model = null;
         	if (location.getRegionId() != null) {
-                File dir = manager.getLocationDataDirectory(location);
-        		File modelFile = new File(dir, "mongo-local.json");
-        		FileUtils.writeStringToFile(modelFile, localModelsByRegion.get(location.getRegionId()));
-        	}        	
+        		model = localModelsByRegion.get(location.getRegionId());
+        	}
+        	if (model != null) {
+        		FileUtils.writeStringToFile(modelFile, model);
+        	} else {
+        		if (modelFile.exists()) {
+        			modelFile.delete();
+        		}
+        	}
         }
         
         for (Region region : regions) {
-            File dir = manager.getGlobalDataDirectory();
-            String fname = format("mongo-local-%d.json", region.getId());
-    		File modelFile = new File(dir, fname);
-    		FileUtils.writeStringToFile(modelFile, localModelsByRegion.get(region.getId()));        	
+        	File modelFile = getShardModelFile(manager, region);
+        	String model = localModelsByRegion.get(region.getId());
+        	if (model != null) {
+	    		FileUtils.writeStringToFile(modelFile, model);
+        	} else {
+        		if (modelFile.exists()) {
+        			modelFile.delete();
+        		}
+        	}
         }
 
         List<Location> arbiters = fm.getLocationsForEnabledFeature(MongoManager.ARBITER_FEATURE);
@@ -119,10 +132,16 @@ public class MongoConfig implements ConfigProvider {
         try {
             File f = new File(manager.getGlobalDataDirectory(), "mongo.json");
             w = new FileWriter(f);
-            modelFile(w, dbs, arbiters, GLOBAL_REPLSET, MongoSettings.SERVER_PORT, MongoSettings.ARBITER_PORT);
+            modelFile(w, dbs, arbiters, GLOBAL_REPLSET, false, MongoSettings.SERVER_PORT, MongoSettings.ARBITER_PORT);
         } finally {
             IOUtils.closeQuietly(w);
         }
+    }
+    
+    public static File getShardModelFile(ConfigManager configManager, Region r) {
+    	File dir = configManager.getGlobalDataDirectory();
+        String fname = format("mongo-local-%d.json", r.getId());
+		return new File(dir, fname);    	
     }
     
 	Map<Integer, String> getLocalModelsByRegion(Collection<Region> regions,
@@ -135,28 +154,31 @@ public class MongoConfig implements ConfigProvider {
             StringWriter model = new StringWriter();
 	        List<Location> ldbs = localServersByRegion.get(region.getId());
 	        List<Location> larbs = localArbitersByRegion.get(region.getId());
-            modelFile(model, ldbs, larbs, LOCAL_REPLSET,
-                    MongoSettings.LOCAL_PORT, MongoSettings.LOCAL_ARBITER_PORT);
-            models.put(region.getId(), model.toString());
+	        if (ldbs != null || larbs != null) {
+	        	modelFile(model, ldbs, larbs, LOCAL_REPLSET,
+                    true, MongoSettings.LOCAL_PORT, MongoSettings.LOCAL_ARBITER_PORT);
+	            models.put(region.getId(), model.toString());
+	        }
         }
         return models;        
     }
     
-    void modelFile(Writer sb, List<Location> servers, List<Location> arbiters, String replSet, int dbPort,
-            int arbPort) throws IOException {
+	void modelFile(Writer sb, List<Location> servers, List<Location> arbiters,
+			String replSet, boolean isLocal, int dbPort, int arbPort)
+			throws IOException {
         Map<String, Object> model = new HashMap<String, Object>();
-        if (servers.size() > 0) {
-            model.put("servers", serverIdList(servers, dbPort));
-        }
-        if (arbiters != null && arbiters.size() > 0) {
-            model.put("arbiters", serverIdList(arbiters, arbPort));
-        }
+        model.put("servers", serverIdList(servers, dbPort));
+        model.put("arbiters", serverIdList(arbiters, arbPort));
         model.put("replSet", replSet);
+        model.put("local", isLocal);
         String json = JSON.serialize(model);
         sb.write(json);
     }
 
     List<String> serverIdList(Collection<Location> servers, int port) {
+    	if (servers == null) {
+    		return Collections.emptyList();
+    	}
         List<String> ids = new ArrayList<String>(servers.size());
         for (Location l : servers) {
             ids.add(l.getFqdn() + ':' + port);
@@ -174,7 +196,7 @@ public class MongoConfig implements ConfigProvider {
         config.write("mongoArbiterBindIp", bindToAll);
         config.write("mongoArbiterPort", MongoSettings.ARBITER_PORT);
         config.writeClass("mongo_local", local);
-        config.writeClass("mongo_arbiter_local", localArbiter);
+        config.writeClass("mongo_local_arbiter", localArbiter);
     }
 
     void writeClientConfig(Writer w, String connStr, String connUrl) throws IOException {

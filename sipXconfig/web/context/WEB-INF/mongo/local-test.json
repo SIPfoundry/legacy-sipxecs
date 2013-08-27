@@ -1,7 +1,8 @@
 { 
   "inProgress": false,
   "lastConfigError" : "Last configuration error here",
-  "localCandidates" : [ "uc2.ezuce.ro:27019", "uc3.ezuce.ro:27019" ], 
+  "dbCandidates" : [ "uc2.ezuce.ro:27019", "uc3.ezuce.ro:27019" ] ,
+  "arbiterCandidates" : [ "uc2.ezuce.ro:27020", "uc1.ezuce.ro:27020", "uc3.ezuce.ro:27020"],
   "shards" : [
       { 
         "id" : "1" ,

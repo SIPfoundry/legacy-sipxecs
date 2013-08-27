@@ -64,10 +64,8 @@ public class MongoConfigTest {
         Arrays.asList(s1, s2);
         Arrays.asList(s3, s4);
         StringWriter actual = new StringWriter();
-        m_config.modelFile(actual, Arrays.asList(s1, s2), Arrays.asList(s3, s4), "sipxecs", 27017, 27018);
-        assertEquals("{ \"servers\" : [ \"one:27017\" , \"two:27017\"] , \"arbiters\" : "
+        m_config.modelFile(actual, Arrays.asList(s1, s2), Arrays.asList(s3, s4), "sipxecs", true, 27017, 27018);
+        assertEquals("{ \"servers\" : [ \"one:27017\" , \"two:27017\"] , \"local\" : true , \"arbiters\" : "
                 + "[ \"three:27018\" , \"four:27018\"] , \"replSet\" : \"sipxecs\"}", actual.toString());
     }
-    
-
 }
