@@ -14,6 +14,10 @@
  */
 package org.sipfoundry.sipxconfig.mongo;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
@@ -28,6 +32,7 @@ import org.sipfoundry.sipxconfig.region.Region;
 
 public class MongoReplSetManagerImpl implements MongoReplSetManager {
     private static final Log LOG = LogFactory.getLog(MongoReplSetManagerImpl.class);
+    private static final String BLANK_MODEL = "{ \"servers\" : [ ] , \"local\" : true , \"arbiters\" : [ ] , \"replSet\" : \"sipxlocal\"}";
     private int m_timeout = 10000;
     private int m_backgroundTimeout = 120000; // can take a while for fresh mongo to init
     private String m_mongoStatusScript;
@@ -40,13 +45,17 @@ public class MongoReplSetManagerImpl implements MongoReplSetManager {
     private Region m_region;
     private LocationFeature m_dbFeature = MongoManager.FEATURE_ID;
     private LocationFeature m_arbFeature = MongoManager.ARBITER_FEATURE;
+    private LocationFeature m_ldbFeature = MongoManager.LOCAL_FEATURE;
+    private LocationFeature m_larbFeature = MongoManager.LOCAL_ARBITER_FEATURE;
 
     @Override
-    public MongoMeta getMeta() {
-        StringBuilder cmd = new StringBuilder(m_mongoStatusScript).append(" --full");
-        appendModel(cmd);
-        String statusToken = run(new SimpleCommandRunner(), cmd.toString());
+    public MongoMeta getMeta() {    	
         MongoMeta meta = new MongoMeta();
+        StringBuilder cmd = new StringBuilder(m_mongoStatusScript).append(" --full");
+    	if (m_region != null) {
+    		appendModel(cmd);
+    	}
+        String statusToken = run(new SimpleCommandRunner(), cmd.toString());
         meta.setStatusToken(statusToken);
 
         if (statusToken != null) {
@@ -58,14 +67,23 @@ public class MongoReplSetManagerImpl implements MongoReplSetManager {
 
         return meta;
     }
-
+    
     void appendModel(StringBuilder cmd) {
-        if (m_region != null) {
-            cmd.append(" --model ").append(m_region.getId()).append("/mongo-local.json");
-        }
+    	File modelFile = MongoConfig.getShardModelFile(m_configManager, m_region);
+    	// on very first db add, file may not exist
+    	if (!modelFile.exists()) {
+    		try {
+    			FileUtils.writeStringToFile(modelFile, BLANK_MODEL);
+    		} catch (IOException e) {
+    			throw new RuntimeException("Could not generate initial model file", e);
+    		}
+    	}
+        cmd.append(" --model ");
+        cmd.append(modelFile.getName());
     }
 
-    public String newLocalDatabase(String hostPort) {
+    @Override
+    public String addFirstLocalDatabase(String hostPort) {
         checkInProgress();
         String fqdn = MongoNode.fqdn(hostPort);
         Location l = m_configManager.getLocationManager().getLocationByFqdn(fqdn);
@@ -75,14 +93,47 @@ public class MongoReplSetManagerImpl implements MongoReplSetManager {
     }
 
     /**
-     * Only to be used on last local database, otherwise just removeDatabase
+     * Only to be used on last local database or arbiter, otherwise just removeDatabase
      */
-    public String removeLocalDatabase(String hostPort) {
+    @Override
+    public String removeLastLocalDatabase(String hostPort) {
+    	return removeLastLocal(hostPort, m_ldbFeature);    	
+    }
+    	
+    /**
+     * Only to be used on last local database or arbiter, otherwise just removeDatabase
+     */
+    @Override
+    public String removeLastLocalArbiter(String hostPort) {
+    	return removeLastLocal(hostPort, m_larbFeature);    	
+    }
+
+    public String removeLastLocal(String hostPort, LocationFeature f) {
         checkInProgress();
         String fqdn = MongoNode.fqdn(hostPort);
         Location l = m_configManager.getLocationManager().getLocationByFqdn(fqdn);
-        m_featureManager.enableLocationFeature(MongoManager.LOCAL_FEATURE, l, false);
+        m_featureManager.enableLocationFeature(f, l, false);
         return run("removing local db " + hostPort, new ConfigCommandRunner());
+    }
+
+    @Override
+    public String addLocalDatabase(String primary, String hostPort) {
+        return add(primary, hostPort, m_ldbFeature);
+    }
+
+    @Override
+    public String addLocalArbiter(String primary, String hostPort) {
+        return add(primary, hostPort, m_larbFeature);
+    }
+
+    @Override
+    public String removeLocalDatabase(String primary, String hostPort) {
+        return add(primary, hostPort, m_ldbFeature);
+    }
+
+    @Override
+    public String removeLocalArbiter(String primary, String hostPort) {
+        return add(primary, hostPort, m_larbFeature);
     }
 
     @Override
@@ -224,7 +275,9 @@ public class MongoReplSetManagerImpl implements MongoReplSetManager {
         if (primary != null) {
             cmd.append(" --primary ").append(primary);
         }
-        appendModel(cmd);
+        if (m_region != null) {
+        	appendModel(cmd);
+        }
         cmd.append(' ').append(action);
         String command = cmd.toString();
         runner.setRunParameters(command, m_timeout, background);

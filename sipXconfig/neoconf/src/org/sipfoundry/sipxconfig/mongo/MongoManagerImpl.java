@@ -16,7 +16,6 @@
  */
 package org.sipfoundry.sipxconfig.mongo;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,6 +33,8 @@ import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
 import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
@@ -59,9 +60,11 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-public class MongoManagerImpl implements AddressProvider, FeatureProvider, MongoManager, ProcessProvider,
-        SetupListener, FirewallProvider, AlarmProvider, BeanFactoryAware, FeatureListener {
+public class MongoManagerImpl implements AddressProvider, FeatureProvider,
+		MongoManager, ProcessProvider, SetupListener, FirewallProvider,
+		AlarmProvider, BeanFactoryAware, FeatureListener, DaoEventListener {
     private static final Log LOG = LogFactory.getLog(MongoManagerImpl.class);
     private BeanWithSettingsDao<MongoSettings> m_settingsDao;
     private ConfigManager m_configManager;
@@ -69,6 +72,7 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     private Map<Integer, MongoReplSetManager> m_shardManagers;
     private MongoReplSetManager m_globalManager;
     private ListableBeanFactory m_beans;
+    private JdbcTemplate m_configJdbcTemplate;
 
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
@@ -266,16 +270,22 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     }
 
     @Override
-    public String newLocalDatabase(String server) {
+    public String addFirstLocalDatabase(String server) {
         throw new IllegalArgumentException();
     }
 
     @Override
-    public String removeLocalDatabase(String server) {
+    public String removeLastLocalDatabase(String server) {
         throw new IllegalArgumentException();
     }
 
-    @Override
+
+	@Override
+	public String removeLastLocalArbiter(String hostPort) {
+        throw new IllegalArgumentException();
+	}
+
+	@Override
     public String getLastConfigError() {
         return m_globalManager.getLastConfigError();
     }
@@ -331,4 +341,47 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
     }
+
+	@Override
+	public String addLocalDatabase(String primary, String hostPort) {
+        throw new IllegalArgumentException();
+	}
+
+	@Override
+	public String addLocalArbiter(String primary, String hostPort) {
+        throw new IllegalArgumentException();
+	}
+
+	@Override
+	public String removeLocalDatabase(String primary, String hostPort) {
+        throw new IllegalArgumentException();
+	}
+
+	@Override
+	public String removeLocalArbiter(String primary, String hostPort) {
+        throw new IllegalArgumentException();
+	}
+
+	@Override
+	public void onDelete(Object entity) {
+		if (entity instanceof Region) {
+			Region r = (Region) entity;
+			String sql = "select count(*) from feature_local f, location l where "
+					+ "l.region_id = ? and l.location_id = f.location_id and "
+					+ "f.feature_id in (?,?)";
+			int nLocalDbs = m_configJdbcTemplate.queryForInt(sql, r.getId(), LOCAL_FEATURE.getId(), 
+					LOCAL_ARBITER_FEATURE.getId());
+			if (nLocalDbs > 0) {
+				throw new UserException("&error.localDbsWithRegion");
+			}
+		}
+	}
+
+	@Override
+	public void onSave(Object entity) {
+	}
+
+	public void setConfigJdbcTemplate(JdbcTemplate configJdbc) {
+		m_configJdbcTemplate = configJdbc;
+	}
 }

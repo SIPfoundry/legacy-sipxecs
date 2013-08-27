@@ -21,12 +21,14 @@ public interface MongoReplSetManager {
     public MongoMeta getMeta();
 
     /** only makes sense for local database API */
-    public String newLocalDatabase(String server);
+    public String addFirstLocalDatabase(String server);
 
     /**
      * Only to be used on last local database, otherwise just removeDatabase
      */
-    public String removeLocalDatabase(String hostPort);
+    public String removeLastLocalDatabase(String hostPort);
+
+    public String removeLastLocalArbiter(String hostPort);
 
     public String addDatabase(String primary, String server);
 
@@ -36,6 +38,14 @@ public interface MongoReplSetManager {
 
     public String removeArbiter(String primary, String server);
 
+    public String addLocalDatabase(String primary, String hostPort);
+
+    public String addLocalArbiter(String primary, String hostPort);
+
+    public String removeLocalDatabase(String primary, String hostPort);
+
+    public String removeLocalArbiter(String primary, String hostPort);
+    
     public String takeAction(String primary, String server, String action);
 
     public String getLastConfigError();

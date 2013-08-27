@@ -21,8 +21,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.restlet.Context;
@@ -63,7 +65,7 @@ public class MongoLocalApi extends Resource {
         return true;
     }
     
-    // GET
+    // POST
     public void acceptRepresentation(Representation entity) throws ResourceException {
         String json;
         try {
@@ -77,22 +79,37 @@ public class MongoLocalApi extends Resource {
             if (location.getRegionId() != null) {
             	Region region = m_regionManager.getRegion(location.getRegionId());
                 MongoReplSetManager rsMgr = m_mongoManager.getShardManager(region);
-                if (action.equals("NEW_LOCAL")) {
-                    rsMgr.newLocalDatabase(hostPort);
+                MongoMeta meta = rsMgr.getMeta();
+                if (action.startsWith("NEW_")) {
+                    boolean first = (meta.getNodes().size() == 0);
+                    if (action.equals("NEW_LOCAL")) {
+                    	if (first) {
+                            rsMgr.addFirstLocalDatabase(hostPort);                		
+                    	} else {
+                            MongoNode primary = meta.getPrimary();
+                            rsMgr.addLocalDatabase(primary.getHostPort(), hostPort);                		
+                    	}                    	
+                    } else {
+                    	if (first) {
+                    		throw new IllegalStateException("Add servers before you add arbiters");
+                    	}
+                        MongoNode primary = meta.getPrimary();
+                    	rsMgr.addLocalArbiter(primary.getHostPort(), hostPort);
+                    }
                 } else if (action.equals("DELETE_LOCAL")) {
-                    rsMgr.removeLocalDatabase(hostPort);
+                	rsMgr.removeLastLocalDatabase(hostPort);                	
+                } else if (action.equals("DELETE_LOCAL_ARBITER")) {
+                	rsMgr.removeLastLocalArbiter(hostPort);                	
                 } else {
-                    MongoMeta meta = rsMgr.getMeta();
                     m_globalApi.takeAction(rsMgr, meta, action, hostPort);
                 }
             }
-
         } catch (IOException e) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
         }
     };
 
-    // POST
+    // GET
     @Override
     public Representation represent(Variant variant) throws ResourceException {
         Map<String, Object> meta = new HashMap<String, Object>();
@@ -102,8 +119,11 @@ public class MongoLocalApi extends Resource {
                 m_locationsManager.getLocationsList());
         Collection<Location> locals = m_mongoManager.getFeatureManager().getLocationsForEnabledFeature(
                 MongoManager.LOCAL_FEATURE);
+        Collection<Location> localArbs = m_mongoManager.getFeatureManager().getLocationsForEnabledFeature(
+                MongoManager.LOCAL_ARBITER_FEATURE);
 
         List<String> candidateDbs = new ArrayList<String>();
+        List<String> candidateArbs = new ArrayList<String>();
         for (Location location : locations) {
         	// Make strict requirement to define a region for any location otherwise 
         	// logic gets messy w/o region object
@@ -111,14 +131,21 @@ public class MongoLocalApi extends Resource {
 	            if (!locals.contains(location)) {
 	                candidateDbs.add(location.getFqdn() + ':' + MongoSettings.LOCAL_PORT);
 	            }
+	            if (!localArbs.contains(location)) {
+	            	candidateArbs.add(location.getFqdn() + ':' + MongoSettings.LOCAL_ARBITER_PORT);
+	            }
         	}
         }
         Collections.sort(candidateDbs);
-        meta.put("localCandidates", candidateDbs);
+        meta.put("dbCandidates", candidateDbs);
+        meta.put("arbiterCandidates", candidateArbs);
 
         List<Map<String, Object>> shards = new ArrayList<Map<String, Object>>();
+        Set<Location> localsAndArbs = new HashSet<Location>();
+        localsAndArbs.addAll(locals);
+        localsAndArbs.addAll(localArbs);
         boolean inProgress = false;
-        Map<Integer, List<Location>> regionLocations = Region.locationsByRegion(locations);
+        Map<Integer, List<Location>> regionLocations = Region.locationsByRegion(localsAndArbs);
         for (Region region : m_regionManager.getRegions()) {
         	List<Location> miniCluster = regionLocations.get(region.getId());
         	if (miniCluster != null && miniCluster.size() > 0) {
@@ -146,4 +173,8 @@ public class MongoLocalApi extends Resource {
     public void setGlobalApi(MongoApi globalApi) {
         m_globalApi = globalApi;
     }
+
+	public void setRegionManager(RegionManager regionManager) {
+		m_regionManager = regionManager;
+	}
 }

@@ -231,7 +231,8 @@ class MongoAdmin:
         meta = self.loadMeta(model_file)
         sys.stdout.write(json.dumps(meta, cls=MongoJSONEncoder, indent=4, separators=(',', ': ')))
 
-    def parse(self):
+    def parse(self, full = False):
+        self.full = full
         meta = json.load(sys.stdin)
         self.statusFromMeta(meta)
 
@@ -341,7 +342,7 @@ if __name__ == '__main__':
         
         admin = MongoAdmin()
         if args['parse']:
-            admin.parse()
+            admin.parse(args['full'])
         elif args['dump']:
             admin.dump(model_file(args['model']))
         else:

@@ -14,6 +14,7 @@ for a in $@; do
   case $a in
     --prefix*)OPTIONS+=" $a" ;;
     --disable-dep-check*)OPTIONS+=" $a" ;;
+    --enable-debug*)OPTIONS+=" $a" ;;
     PACKAGE_REVISION*)OPTIONS+=" $a" ;;        
   esac
 done
