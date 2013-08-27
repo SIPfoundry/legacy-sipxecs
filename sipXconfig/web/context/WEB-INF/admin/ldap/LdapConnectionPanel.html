@@ -13,6 +13,14 @@
         description="message:description.tls">
       <span jwcid="useTls@Checkbox" id="useTls" value="ognl:lcp.useTls"/>
     </tr>
+    <tr jwcid="@common/FieldPanel" for="timeout" field="component:timeout"
+        label="message:label.timeout"
+        description="message:description.timeout">
+      <span jwcid="timeout@TextField" id="timeout" 
+        translator="translator:integer" 
+		validators="spring-validators:required"
+		value="ognl:lcp.timeout"/>
+    </tr>
     <tr jwcid="portPanel">
       <input jwcid="port" />
     </tr>

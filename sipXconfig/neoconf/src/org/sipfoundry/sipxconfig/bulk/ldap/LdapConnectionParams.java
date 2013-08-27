@@ -33,6 +33,7 @@ import org.springframework.ldap.core.support.LdapContextSource;
  * Used to store LDAP connections in the DB LdapConnectionParams
  */
 public class LdapConnectionParams extends BeanWithId implements DeployConfigOnEdit {
+    public static final String LDAP_TIMEOUT = "com.sun.jndi.ldap.connect.timeout";
     private static final int DEFAULT_PORT = 389;
     private static final int DEFAULT_SSL_PORT = 636;
 
@@ -43,6 +44,8 @@ public class LdapConnectionParams extends BeanWithId implements DeployConfigOnEd
     private String m_principal;
     private String m_secret;
     private boolean m_useTls;
+    // timeout defaults to 10 sec
+    private Integer m_timeout = 10000;
 
     /**
      * Used set Context.REFERRAL property. Needs to be 'follow' for ActiveDirecory.
@@ -74,6 +77,14 @@ public class LdapConnectionParams extends BeanWithId implements DeployConfigOnEd
 
     public void setPort(Integer port) {
         m_port = port;
+    }
+
+    public Integer getTimeout() {
+        return m_timeout;
+    }
+
+    public void setTimeout(Integer timeout) {
+        m_timeout = timeout;
     }
 
     public String getPrincipal() {
@@ -133,6 +144,7 @@ public class LdapConnectionParams extends BeanWithId implements DeployConfigOnEd
         config.setPassword(defaultString(m_secret, EMPTY));
         config.setUrl(getUrl());
         Map<String, String> otherParams = new HashMap<String, String>();
+        otherParams.put(LDAP_TIMEOUT, String.valueOf(m_timeout));
         otherParams.put(Context.REFERRAL, m_referral);
         config.setBaseEnvironmentProperties(otherParams);
     }

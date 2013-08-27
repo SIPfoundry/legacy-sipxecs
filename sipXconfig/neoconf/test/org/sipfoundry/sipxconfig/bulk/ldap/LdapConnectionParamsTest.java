@@ -23,6 +23,7 @@ public class LdapConnectionParamsTest extends TestCase {
 
     public void testAuthentication() {
         Map other = new HashMap();
+        other.put(LdapConnectionParams.LDAP_TIMEOUT, "10000");
         other.put(Context.REFERRAL, "follow");
 
         LdapContextSource config = EasyMock.createMock(LdapContextSource.class);
@@ -47,6 +48,7 @@ public class LdapConnectionParamsTest extends TestCase {
 
     public void testAuthenticationDefaultPort() {
         Map other = new HashMap();
+        other.put(LdapConnectionParams.LDAP_TIMEOUT, "212221");
         other.put(Context.REFERRAL, "follow");
 
         LdapContextSource config = EasyMock.createMock(LdapContextSource.class);
@@ -62,6 +64,7 @@ public class LdapConnectionParamsTest extends TestCase {
         params.setPrincipal("uid=bongo,dc=sipfoundry,dc=com");
         params.setSecret("abc");
         params.setReferral("follow");
+        params.setTimeout(212221);
 
         params.applyToContext(config);
 

@@ -449,6 +449,7 @@
     <antcall target="cisco-to-linksys"/>
   	<antcall target="branch-timezone" />
   	<antcall target="add_value_storage_to_openacdline"/>
+  	<antcall target="add_timeout_to_ldap"/>
     <!-- slot 1 -->
     <!-- slot 2 -->
     <!-- slot 3 -->
@@ -1361,6 +1362,9 @@
   </target>
   <target name="add_value_storage_to_openacdline" unless="add_value_storage_to_openacdline">
 	<db-patch patch="add_value_storage_to_openacdline"/>
+  </target>
+  <target name="add_timeout_to_ldap" unless="add_timeout_to_ldap">
+    <db-patch patch="add_timeout_to_ldap"/>
   </target>
   <!--
     - SUPPORT UTILITIES

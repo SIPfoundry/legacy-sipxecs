@@ -20,7 +20,9 @@ import static org.sipfoundry.commons.security.Util.retrieveDomain;
 import static org.sipfoundry.commons.security.Util.retrieveUsername;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -226,6 +228,9 @@ public class ConfigurableLdapAuthenticationProvider extends AbstractUserDetailsA
         } else {
             dirContextFactory.setAnonymousReadOnly(true);
         }
+        Map<String, String> envProps = new HashMap<String, String>();
+        envProps.put(LdapConnectionParams.LDAP_TIMEOUT, String.valueOf(params.getTimeout()));
+        dirContextFactory.setBaseEnvironmentProperties(envProps);
         try {
             dirContextFactory.afterPropertiesSet();
         } catch (Exception ex) {

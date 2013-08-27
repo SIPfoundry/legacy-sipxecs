@@ -19,6 +19,7 @@
     <property name="fullHost" column="host" />
     <property name="port" />
     <property name="principal" />
+    <property name="timeout" />
     <property name="secret" />
     <property name="useTls" />
     <many-to-one name="schedule" class="org.sipfoundry.sipxconfig.common.CronSchedule"
