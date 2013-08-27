@@ -90,23 +90,37 @@ public class ConfigurableLdapAuthenticationProvider extends AbstractUserDetailsA
     protected UserDetails retrieveUser(String userLoginName, UsernamePasswordAuthenticationToken authentication)
         throws AuthenticationException {
         if (!m_ldapManager.getSystemSettings().isConfigured()) {
-            throw new AuthenticationServiceException("LDAP Authentication not configured");
+            String message = "LDAP Authentication not configured";
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(message);
+            }
+            throw new AuthenticationServiceException(message);
         }
         initialize();
         if (!isEnabled()) {
-            throw new AuthenticationServiceException("LDAP Authentication not enabled");
+            String message = "LDAP Authentication not enabled";
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(message);
+            }
+            throw new AuthenticationServiceException(message);
         } else {
             Authentication result = null;
             String username = retrieveUsername(userLoginName);
             String userDomain = retrieveDomain(userLoginName);
             UserDetailsImpl loaddedUser = (UserDetailsImpl) m_userDetailsService.loadUserByUsername(username);
             if (loaddedUser == null) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("userDetailsService didnt find any user " + username);
+                }
                 throw new AuthenticationServiceException("UserDetailsService returned null, which "
                         + "is an interface contract violation");
             }
 
             for (SipxLdapAuthenticationProvider provider : m_providers) {
                 String providerDomain = provider.getDomain();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("current provider domain is " + providerDomain + " user input domain is " + userDomain);
+                }
                 // verify if user input domain can be handled by this provider, continue with next
                 // provider
                 if (userDomain != null && !userDomain.equals(providerDomain)) {
@@ -119,6 +133,9 @@ public class ConfigurableLdapAuthenticationProvider extends AbstractUserDetailsA
                     String savedDomain = loaddedUser.getUserDomain();
                     if (!StringUtils.equals(StringUtils.defaultString(savedDomain, StringUtils.EMPTY),
                             StringUtils.defaultString(providerDomain, StringUtils.EMPTY))) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("provider domain different than user domain " + savedDomain);
+                        }
                         throw new AuthenticationServiceException(
                                 "The following domain does not belong to the actual user: " + userDomain
                                         + " in the system - is an interface contract violation");
