@@ -21,6 +21,7 @@
 #include "os/OsTask.h"
 #include "os/UnixSignals.h"
 #include "os/OsTimer.h"
+#include "os/OsResourceLimit.h"
 
 #include "net/NameValueTokenizer.h"
 #include "sipXecsService/SipXecsService.h"    // now deregister this process's database references from the IMDB
@@ -242,6 +243,23 @@ main(int argc, char* argv[] )
     }
     initSysLog(&configDb) ;
     std::set_terminate(catch_global);
+
+    //
+    // Raise the file handle limit to maximum allowable
+    //
+    typedef OsResourceLimit::Limit Limit;
+    Limit rescur = 0;
+    Limit resmax = 0;
+    OsResourceLimit resource;
+    if (resource.setApplicationLimits("sipxpublisher"))
+    {
+      resource.getFileDescriptorLimit(rescur, resmax);
+      OS_LOG_NOTICE(FAC_KERNEL, "Maximum file descriptors set to " << rescur);
+    }
+    else
+    {
+      OS_LOG_ERROR(FAC_KERNEL, "Unable to set file descriptor limit");
+    }
 
     std::string errmsg;
     mongo::ConnectionString mongoConn = MongoDB::ConnectionInfo::connectionStringFromFile();

@@ -47,6 +47,7 @@
 
 #include <os/OsLogger.h>
 #include <os/OsLoggerHelper.h>
+#include <os/OsResourceLimit.h>
 
 #include "OrbitListener.h"
 #include "config.h"
@@ -353,6 +354,23 @@ int main(int argc, char* argv[])
 
     // Initialize log file
     initSysLog(&configDb);
+
+    //
+    // Raise the file handle limit to maximum allowable
+    //
+    typedef OsResourceLimit::Limit Limit;
+    Limit rescur = 0;
+    Limit resmax = 0;
+    OsResourceLimit resource;
+    if (resource.setApplicationLimits("sipxpark"))
+    {
+      resource.getFileDescriptorLimit(rescur, resmax);
+      OS_LOG_NOTICE(FAC_KERNEL, "Maximum file descriptors set to " << rescur);
+    }
+    else
+    {
+      OS_LOG_ERROR(FAC_KERNEL, "Unable to set file descriptor limit");
+    }
 
     // Read the user agent parameters from the config file.
     int UdpPort;
