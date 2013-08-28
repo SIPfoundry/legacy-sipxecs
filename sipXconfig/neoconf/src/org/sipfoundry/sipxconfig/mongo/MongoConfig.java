@@ -76,17 +76,7 @@ public class MongoConfig implements ConfigProvider {
             boolean mongod = fm.isFeatureEnabled(MongoManager.FEATURE_ID, location);
             boolean arbiter = fm.isFeatureEnabled(MongoManager.ARBITER_FEATURE, location);
             boolean local = fm.isFeatureEnabled(MongoManager.LOCAL_FEATURE, location);
-            boolean localArbiter = fm.isFeatureEnabled(MongoManager.LOCAL_ARBITER_FEATURE, location);
-            if (local) {
-                File localFile = new File(dir, "mongo-local.ini");
-                FileWriter localConfig = new FileWriter(localFile);
-                try {
-                    writeLocalClientConfig(localConfig, MongoSettings.LOCAL_PORT, location);
-                } finally {
-                    IOUtils.closeQuietly(localConfig);
-                }               
-            }
-            
+            boolean localArbiter = fm.isFeatureEnabled(MongoManager.LOCAL_ARBITER_FEATURE, location);            
             FileWriter server = new FileWriter(new File(dir, "mongodb.cfdat"));
             try {
                 writeServerConfig(server, mongod, arbiter, local, localArbiter);
@@ -95,17 +85,34 @@ public class MongoConfig implements ConfigProvider {
             }
         }
         
+        // Global mongo model for UI
+        List<Location> arbiters = fm.getLocationsForEnabledFeature(MongoManager.ARBITER_FEATURE);
+        Writer w = null;
+        try {
+            File f = new File(manager.getGlobalDataDirectory(), "mongo.json");
+            w = new FileWriter(f);
+            modelFile(w, dbs, arbiters, GLOBAL_REPLSET, false, MongoSettings.SERVER_PORT, MongoSettings.ARBITER_PORT);
+        } finally {
+            IOUtils.closeQuietly(w);
+        }
+        
+        // regional mongo server config and models      
         List<Location> localServers = fm.getLocationsForEnabledFeature(MongoManager.LOCAL_FEATURE);
         List<Location> localArbiters = fm.getLocationsForEnabledFeature(MongoManager.LOCAL_ARBITER_FEATURE);
         List<Region> regions = m_regionManager.getRegions();
         Map<Integer, String> localModelsByRegion = getLocalModelsByRegion(regions, localServers, localArbiters);
+        Map<Integer, String> localInisByRegion = getLocalIniByRegion(regions, localServers);
         for (Location location : all) {
             File dir = manager.getLocationDataDirectory(location);
-    		File modelFile = new File(dir, "mongo-local.json");
     		String model = null;
-        	if (location.getRegionId() != null) {
-        		model = localModelsByRegion.get(location.getRegionId());
+    		String ini = null;
+    		Integer regionId = location.getRegionId();
+        	if (regionId != null) {
+        		model = localModelsByRegion.get(regionId);
+        		ini = localInisByRegion.get(regionId);
         	}
+
+        	File modelFile = new File(dir, "mongo-local.json");
         	if (model != null) {
         		FileUtils.writeStringToFile(modelFile, model);
         	} else {
@@ -113,8 +120,18 @@ public class MongoConfig implements ConfigProvider {
         			modelFile.delete();
         		}
         	}
+
+        	File iniFile = new File(dir, "mongo-local.ini");
+        	if (ini != null) {
+        		FileUtils.writeStringToFile(iniFile, ini);
+        	} else {
+        		if (iniFile.exists()) {
+        			iniFile.delete();
+        		}
+        	}
         }
         
+        // Local models used for UI to display each cluster's status
         for (Region region : regions) {
         	File modelFile = getShardModelFile(manager, region);
         	String model = localModelsByRegion.get(region.getId());
@@ -126,22 +143,27 @@ public class MongoConfig implements ConfigProvider {
         		}
         	}
         }
-
-        List<Location> arbiters = fm.getLocationsForEnabledFeature(MongoManager.ARBITER_FEATURE);
-        Writer w = null;
-        try {
-            File f = new File(manager.getGlobalDataDirectory(), "mongo.json");
-            w = new FileWriter(f);
-            modelFile(w, dbs, arbiters, GLOBAL_REPLSET, false, MongoSettings.SERVER_PORT, MongoSettings.ARBITER_PORT);
-        } finally {
-            IOUtils.closeQuietly(w);
-        }
     }
     
     public static File getShardModelFile(ConfigManager configManager, Region r) {
     	File dir = configManager.getGlobalDataDirectory();
         String fname = format("mongo-local-%d.json", r.getId());
 		return new File(dir, fname);    	
+    }
+    
+	Map<Integer, String> getLocalIniByRegion(Collection<Region> regions,
+			Collection<Location> localServers) throws IOException {
+    	Map<Integer, String> inis = new HashMap<Integer, String>();
+        Map<Integer, List<Location>> localServersByRegion = Region.locationsByRegion(localServers);
+        for (Region region : regions) {    	
+            StringWriter ini = new StringWriter();
+	        List<Location> ldbs = localServersByRegion.get(region.getId());
+	        if (ldbs != null) {
+	        	writeLocalClientConfig(ini, ldbs, region.getId(), MongoSettings.LOCAL_PORT);
+	        	inis.put(region.getId(), ini.toString());
+	        }
+        }
+        return inis;        
     }
     
 	Map<Integer, String> getLocalModelsByRegion(Collection<Region> regions,
@@ -205,13 +227,12 @@ public class MongoConfig implements ConfigProvider {
         config.write("connectionString", connStr);
     }
 
-    void writeLocalClientConfig(Writer w, int port, Location location) throws IOException {
+    void writeLocalClientConfig(Writer w, List<Location> servers, int shardId, int port) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
-        List<Location> ldb = Collections.singletonList(location);
-        String lconnStr = getConnectionString(ldb, LOCAL_REPLSET, port);
-        String lconnUrl = getConnectionUrl(ldb, port);
+        String lconnStr = getConnectionString(servers, LOCAL_REPLSET, port);
+        String lconnUrl = getConnectionUrl(servers, port);
         writeClientConfig(w, lconnStr, lconnUrl);
-        config.write("shardId", location.getId());
+        config.write("shardId", shardId);
     }
 
     String getConnectionString(List<Location> servers, String replSet, int port) {
