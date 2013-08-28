@@ -79,12 +79,22 @@ function start() {
   while true; do
     single_instance
 
-    # synchronizing is broken into 2 parts
-    # 1.) Intial sync where we brute for replace all records in dest and copy
-    #     in new ones
-    # 2.) Watch oplog for any changes going forward.
+    ISPRIMARY=`mongo --quiet $SRC --eval 'db.isMaster().ismaster;' 2>/dev/null`
+
     t1=`date +%s`
-    if [ $t0 -eq 0 ]; then
+    if ! $ISPRIMARY ; then
+
+      # if primary status changes, force an initial full sync if/when primary status
+      # ever comes back to this server..  Other than that, all this sync script does
+      # is keeping checking primary status and assume some other 
+      # regional server that *is* primary is doing the sync to the global database
+      t0=0
+
+    # synchronizing is broken into 2 parts
+    #
+    # P A R T 1
+    # Intial sync where we brute for replace all records in dest and copy in new ones
+    elif [ $t0 -eq 0 ]; then
         # Leave --verbose because it's only logged once at startup and won't fill disk
         # too much
         @SIPX_LIBEXECDIR@/mongodb-initial-sync --src $SRC --dest $DEST_STR --shardId $SHARD --db $DB --verbose &>> $LOG
@@ -96,10 +106,17 @@ function start() {
           echo "Failed to make initial sync. failed w/exit code $? " >> $LOG
         fi
         t0=$t1
+
+    # P A R T 2
+    # Watch oplog for any changes going forward.
     else
       # Due to the rought granularity of time handling in bash, it's possible some attempts 
       # of reapplying oplog is expected. Critical howerver no data is missed.
-      @SIPX_LIBEXECDIR@/mongodb-oplog-sync --starttime $t0 --src $SRC --dest $DEST_STR --db $DB $(MONGO_SYNC_OPTS) 2>> $LOG
+      @SIPX_LIBEXECDIR@/mongodb-oplog-sync \
+          --starttime $t0 \
+          --src $SRC \
+          --dest $DEST_STR \
+          --db $DB $MONGO_SYNC_OPTS 2>> $LOG
       if [ $? -ne 0 ]; then
         echo `date`" - sync failed w/exit code $?." >> $LOG
       else

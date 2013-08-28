@@ -32,10 +32,11 @@ RegDB* RegDB::CreateInstance() {
 
    MongoDB::ConnectionInfo local = MongoDB::ConnectionInfo::localInfo();
    if (!local.isEmpty()) {
+     Os::Logger::instance().log(FAC_SIP, PRI_INFO, "Regional database defined");
      Os::Logger::instance().log(FAC_SIP, PRI_INFO, local.getConnectionString().toString().c_str());
-	   lRegDb = new RegDB(local);
+     lRegDb = new RegDB(local);
    } else {
-           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "Not using local database");
+     Os::Logger::instance().log(FAC_SIP, PRI_INFO, "No regional database found");
    }
 
    MongoDB::ConnectionInfo global = MongoDB::ConnectionInfo::globalInfo();
@@ -88,15 +89,8 @@ void RegDB::updateBinding(RegBinding& binding)
           "instrument" << binding.getInstrument() <<
           "expired" << isExpired );
 
-    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "Writing to database");
-    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, _info.getConnectionString().toString().c_str());
     MongoDB::ScopedDbConnectionPtr connPtr(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     mongo::ScopedDbConnection& conn = *connPtr;
-    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, conn.getHost().c_str());
-    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, conn->getServerAddress().c_str());   
-
-    //mongo::DBClientBase* client = conn->get();
-    //Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, client->getServerAddress().c_str());
 
     conn->remove(_ns, query);
     conn->insert(_ns, update);
