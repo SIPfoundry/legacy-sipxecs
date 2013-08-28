@@ -184,12 +184,14 @@
   if restrictive
     unless raterules.nil?
       raterules.each { |raterule|
-        raterule[:limits].each{ |limit|
+        unless raterule[:limits].nil?
+          raterule[:limits].each{ |limit|
 %>-A <%= raterule[:rule]%> -i $(sipx.iface) -m string --string "<%= limit[:method]%> sip:" --algo bm --to 65 -m hashlimit --hashlimit-mode srcip,srcport --hashlimit-name "<%= limit[:method]%>" --hashlimit-htable-max 10000 --hashlimit-htable-expire 10000 --hashlimit-burst 4 --hashlimit-above <%= limit[:rate]%>/<%= limit[:interval]%> -j DROP
 <%
-        }
+          }
 %>-A <%= raterule[:rule]%> -j LOGLIMIT
 <%
+        end
       }
     end
   end
