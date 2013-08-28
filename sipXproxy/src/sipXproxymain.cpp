@@ -35,6 +35,7 @@
 #include <SipXProxyCseObserver.h>
 #include <utl/Instrumentation.h>
 #include "config.h"
+#include <os/OsResourceLimit.h>
 
 //
 // Exception handling
@@ -244,6 +245,23 @@ int proxy()
     // Initialize the OsSysLog...
     initSysLog(&configDb);
     std::set_terminate(catch_global);
+
+    //
+    // Raise the file handle limit to maximum allowable
+    //
+    typedef OsResourceLimit::Limit Limit;
+    Limit rescur = 0;
+    Limit resmax = 0;
+    OsResourceLimit resource;
+    if (resource.setApplicationLimits("sipxproxy"))
+    {
+      resource.getFileDescriptorLimit(rescur, resmax);
+      OS_LOG_NOTICE(FAC_KERNEL, "Maximum file descriptors set to " << rescur);
+    }
+    else
+    {
+      OS_LOG_ERROR(FAC_KERNEL, "Unable to set file descriptor limit");
+    }
 
     configDb.get(CONFIG_SETTING_BIND_IP, bindIp);
     if ((bindIp.isNull()) || !OsSocket::isIp4Address(bindIp))

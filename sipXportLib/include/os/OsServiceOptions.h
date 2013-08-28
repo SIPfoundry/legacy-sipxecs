@@ -118,6 +118,50 @@ public:
     bool required = false,
     const std::string& altOptionName = std::string() /* alternative option if this option is required and is missing*/);
 
+  template<typename T>
+  void addOption(char shortForm, const std::string& optionName, const std::string description, OptionType type,
+    bool required = false,
+    const std::string& altOptionName = std::string() /* alternative option if this option is required and is missing*/)
+  {
+    boost::program_options::options_description* options;
+    if (type == CommandLineOption)
+      options = &_commandLineOptions;
+    else if (type == DaemonOption)
+      options = &_daemonOptions;
+    else if (type == ConfigOption)
+      options = &_configOptions;
+    else
+      assert(false);
+
+    std::ostringstream strm;
+    strm << optionName << "," << shortForm;
+    options->add_options()(strm.str().c_str(), boost::program_options::value<T>(), description.c_str());
+
+    if (required)
+      registerRequiredParameters(optionName, altOptionName);
+  }
+
+  template<typename T>
+  void addOption(const std::string& optionName, const std::string description, OptionType type,
+    bool required = false,
+    const std::string& altOptionName = std::string() /* alternative option if this option is required and is missing*/)
+  {
+    boost::program_options::options_description* options;
+    if (type == CommandLineOption)
+      options = &_commandLineOptions;
+    else if (type == DaemonOption)
+      options = &_daemonOptions;
+    else if (type == ConfigOption)
+      options = &_configOptions;
+    else
+      assert(false);
+
+    options->add_options()(optionName.c_str(), boost::program_options::value<T>(), description.c_str());
+
+    if (required)
+      registerRequiredParameters(optionName, altOptionName);
+  }
+
   void displayUsage(std::ostream& strm) const;
 
   void displayVersion(std::ostream& strm) const;
@@ -131,9 +175,7 @@ public:
     std::string& value,
     const std::string& defValue = std::string()) const;
 
-  bool getOption(
-    const std::string& optionName,
-    std::vector<std::string>& value) const;
+  bool getOption(const std::string& optionName, std::vector<std::string>& value) const;
 
   bool getOption(const std::string& optionName, int& value) const;
 
@@ -141,10 +183,61 @@ public:
 
   bool getOption(const std::string& optionName, std::vector<int>& value) const;
 
-  bool getOption(
-    const std::string& optionName,
-    bool& value,
-    bool defValue) const;
+  bool getOption(const std::string& optionName, bool& value, bool defValue) const;
+
+  template<typename T>
+  bool getOption(const std::string& optionName, T& value) const
+  {
+    if (!hasOption(optionName, false))
+    {
+      //
+      // Check if ptree has it
+      //
+      if (_hasConfig)
+      {
+        try
+        {
+          value = _ptree.get<T>(optionName.c_str());
+          return true;
+        }catch(...)
+        {
+          return false;
+        }
+      }
+    }
+    value = _options[optionName.c_str()].as<T>();
+    return true;
+  }
+
+  template<typename T>
+  bool getOption(const std::string& optionName, T& value, T defValue) const
+  {
+    if (!hasOption(optionName, false))
+    {
+      //
+      // Check if ptree has it
+      //
+      if (_hasConfig)
+      {
+        try
+        {
+          value = _ptree.get<T>(optionName.c_str());
+          return true;
+        }catch(...)
+        {
+          value = defValue;
+        }
+      }
+      else
+      {
+        value = defValue;
+      }
+    }else
+    {
+      value = _options[optionName.c_str()].as<T>();
+    }
+    return true;
+  }
 
   void addDaemonOptions();
 
@@ -195,6 +288,109 @@ protected:
   bool _unitTestMode;
 };
 
+//
+// Inlines
+//
+
+inline bool OsServiceOptions::getOption(const std::string& optionName, int& value) const
+{
+  return getOption<int>(optionName, value);
+}
+
+inline bool OsServiceOptions::getOption(const std::string& optionName, int& value, int defValue) const
+{
+  return getOption<int>(optionName, value, defValue);
+}
+
+inline bool OsServiceOptions::getOption(const std::string& optionName, std::string& value, const std::string& defValue) const
+{
+  return getOption<std::string>(optionName, value, defValue);
+}
+
+inline void OsServiceOptions::addOptionInt(
+  char shortForm,
+  const std::string& optionName,
+  const std::string description,
+  OptionType type,
+  bool required,
+  const std::string& altOptionName)
+{
+  addOption<int>(shortForm, optionName, description, type, required, altOptionName);
+}
+
+inline void OsServiceOptions::addOptionInt(
+  const std::string& optionName,
+  const std::string description,
+  OptionType type,
+  bool required,
+  const std::string& altOptionName)
+{
+  addOption<int>(optionName, description, type, required, altOptionName);
+}
+
+inline void OsServiceOptions::addOptionString(
+  char shortForm,
+  const std::string& optionName,
+  const std::string description,
+  OptionType type,
+  bool required,
+  const std::string& altOptionName)
+{
+  addOption<std::string>(shortForm, optionName, description, type, required, altOptionName);
+}
+
+inline void OsServiceOptions::addOptionString(
+  const std::string& optionName,
+  const std::string description,
+  OptionType type,
+  bool required,
+  const std::string& altOptionName)
+{
+  addOption<std::string>(optionName, description, type, required, altOptionName);
+}
+
+
+inline void OsServiceOptions::addOptionStringVector(
+  char shortForm,
+  const std::string& optionName,
+  const std::string description,
+  OptionType type,
+  bool required,
+  const std::string& altOptionName)
+{
+  addOption< std::vector<std::string> >(shortForm, optionName, description, type, required, altOptionName);
+}
+
+inline void OsServiceOptions::addOptionStringVector(
+  const std::string& optionName,
+  const std::string description,
+  OptionType type,
+  bool required,
+  const std::string& altOptionName)
+{
+  addOption< std::vector<std::string> >(optionName, description, type, required, altOptionName);
+}
+
+inline void OsServiceOptions::addOptionIntVector(
+  char shortForm,
+  const std::string& optionName,
+  const std::string description,
+  OptionType type,
+  bool required,
+  const std::string& altOptionName)
+{
+  addOption< std::vector<int> >(shortForm, optionName, description, type, required, altOptionName);
+}
+
+inline void OsServiceOptions::addOptionIntVector(
+  const std::string& optionName,
+  const std::string description,
+  OptionType type,
+  bool required,
+  const std::string& altOptionName)
+{
+  addOption< std::vector<int> >(optionName, description, type, required, altOptionName);
+}
 
 
 
