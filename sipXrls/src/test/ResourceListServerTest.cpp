@@ -26,9 +26,6 @@
 #include "../ResourceListServer.h"
 #include "RlsTestFixtures.h"
 
-// GLOBALS
-UtlBoolean    gShutdownFlag = FALSE;
-
 class ResourceListServerTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(ResourceListServerTest);

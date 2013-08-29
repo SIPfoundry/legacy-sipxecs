@@ -25,10 +25,11 @@
 class OsServiceOptionsTest : public CppUnit::TestCase
 {
   CPPUNIT_TEST_SUITE(OsServiceOptionsTest);
-  CPPUNIT_TEST(testServiceOptions);
-  CPPUNIT_TEST(testServiceOptionsConfigOnly);
-  CPPUNIT_TEST(testServiceOptionsVectors);
-  CPPUNIT_TEST(testServiceOptions_parseOptionsFlags);
+//  CPPUNIT_TEST(testServiceOptions);
+//  CPPUNIT_TEST(testServiceOptionsConfigOnly);
+//  CPPUNIT_TEST(testServiceOptionsVectors);
+//  CPPUNIT_TEST(testServiceOptions_parseOptionsFlags);
+  CPPUNIT_TEST(testServiceOptions_ConfigFileTypeConfigDb);
   CPPUNIT_TEST_SUITE_END();
 public:
 
@@ -278,6 +279,16 @@ public:
                   "\nsipXdummyTool Options:\n\n") == stream.str());
   }
 
+  void testServiceOptions_ConfigFileTypeConfigDb()
+  {
+    OsServiceOptions osServiceOptions;
+    osServiceOptions.loadConfigDbFromFile("/usr/local/sipxecs-branch-4.6/etc/sipxpbx/sipxproxy/sipXproxy-config.vm");
+
+    std::string paramString;
+
+    CPPUNIT_ASSERT(osServiceOptions.getOption("SIPX_PROXY_HOOK_LIBRARY.350_calleralertinfo", paramString));
+    CPPUNIT_ASSERT(paramString == "/usr/local/sipxecs-branch-4.6/lib/authplugins/libCallerAlertInfo.so");
+  }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OsServiceOptionsTest);

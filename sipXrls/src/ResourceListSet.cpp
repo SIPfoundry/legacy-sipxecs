@@ -17,6 +17,7 @@
 #include "ResourceListMsg.h"
 #include <os/OsLogger.h>
 #include <os/OsEventMsg.h>
+#include <os/UnixSignals.h>
 #include <utl/XmlContent.h>
 #include <utl/UtlSListIterator.h>
 #include <net/SipDialogEvent.h>
@@ -25,8 +26,6 @@
 #include <net/HttpMessage.h>
 #include <net/SipMessage.h>
 #include <xmlparser/tinyxml.h>
-
-#include "main.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -253,7 +252,7 @@ void ResourceListSet::deleteAllResourceLists(bool abortOnShutdown)
          // Delay to allow the consequent processing to catch up.
          OsTask::delay(changeDelay);
       }
-   } while (rl && !gShutdownFlag);
+   } while (rl && !Os::UnixSignals::instance().isTerminateSignalReceived());
 }
 
 // Delete a resource list.
@@ -298,7 +297,7 @@ void ResourceListSet::deleteResourceList(const char* user)
          // Delay to allow the consequent processing to catch up.
          OsTask::delay(changeDelay);
       }
-   } while (exitLoop && !gShutdownFlag);
+   } while (exitLoop && !Os::UnixSignals::instance().isTerminateSignalReceived());
 }
 
 void ResourceListSet::deleteResourceAt(const char* user,

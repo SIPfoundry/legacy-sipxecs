@@ -30,7 +30,10 @@
 
 #include <os/OsLogger.h>
 #include <os/OsLoggerHelper.h>
-#include <statusserver/CustomExceptionHandlers.h>
+
+//#include <statusserver/CustomExceptionHandlers.h>
+
+#include "sipXecsService/SipXApplication.h"
 
 // DEFINES
 // MACROS
@@ -45,7 +48,6 @@
 // STATIC VARIABLE INITIALIZATIONS
 // GLOBAL VARIABLE INITIALIZATIONS
 OsServerTask* pServerTask   = NULL;
-UtlBoolean     gShutdownFlag = FALSE;
 UtlBoolean     gClosingIMDB  = FALSE;
 OsMutex*       gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
 
@@ -53,187 +55,27 @@ using namespace std;
 
 /* ============================ FUNCTIONS ================================= */
 
-// Initialize the OsSysLog
-void initSysLog(OsConfigDb* pConfig)
-{
-   UtlString logLevel;               // Controls Log Verbosity
-   UtlString consoleLogging;         // Enable console logging by default?
-   UtlString fileTarget;             // Path to store log file.
-   UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
-                                    // exist
-
-   Os::LoggerHelper::instance().processName = "SipStatus";
-
-   //
-   // Get/Apply Log Filename
-   //
-   fileTarget.remove(0) ;
-   if ((pConfig->get(CONFIG_SETTING_LOG_DIR, fileTarget) != OS_SUCCESS) ||
-      fileTarget.isNull() || !OsFileSystem::exists(fileTarget))
-   {
-      bSpecifiedDirError = !fileTarget.isNull() ;
-
-      // If the log file directory exists use that, otherwise place the log
-      // in the current directory
-      OsPath workingDirectory;
-      if (OsFileSystem::exists(CONFIG_LOG_DIR))
-      {
-         fileTarget = CONFIG_LOG_DIR;
-         OsPath path(fileTarget);
-         path.getNativePath(workingDirectory);
-
-         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
-      }
-      else
-      {
-         OsPath path;
-         OsFileSystem::getWorkingDirectory(path);
-         path.getNativePath(workingDirectory);
-
-         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
-      }
-
-      fileTarget = workingDirectory +
-         OsPathBase::separator +
-         CONFIG_LOG_FILE;
-   }
-   else
-   {
-      bSpecifiedDirError = false ;
-      Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, fileTarget.data()) ;
-
-      fileTarget = fileTarget +
-         OsPathBase::separator +
-         CONFIG_LOG_FILE;
-   }
-
-
-   //
-   // Get/Apply Log Level
-   //
-   SipXecsService::setLogPriority(*pConfig, CONFIG_SETTING_PREFIX);
-   Os::Logger::instance().setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
-   Os::LoggerHelper::instance().initialize(fileTarget);
-   //
-   // Get/Apply console logging
-   //
-   UtlBoolean bConsoleLoggingEnabled = false ;
-   if ((pConfig->get(CONFIG_SETTING_LOG_CONSOLE, consoleLogging) ==
-         OS_SUCCESS))
-   {
-      consoleLogging.toUpper();
-      if (consoleLogging == "ENABLE")
-      {
-         Os::Logger::instance().enableConsoleOutput(true);
-         bConsoleLoggingEnabled = true ;
-      }
-   }
-
-   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
-
-   if (bSpecifiedDirError)
-   {
-      Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT, "Cannot access %s directory; please check configuration.", CONFIG_SETTING_LOG_DIR);
-   }
-}
-
-
-void signal_handler(int sig) {
-    switch(sig) {
-    case SIGHUP:
-        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGHUP caught. Ignored.");
-	break;
-
-    case SIGTERM:
-        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGTERM caught. Shutting down.");
-        gShutdownFlag = TRUE;
-	break;
-    }
-}
 
 /** The main entry point to the StatusServer */
 int
 main(int argc, char* argv[] )
 {
-    // register default exception handler methods
-    // abort for all type of exceptions
-    OsExceptionHandler::instance();
-    OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_SOCKET_EXCEPTION, boost::bind(&customMongoSocketExceptionHandling, _1));
-    OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_CONNECT_EXCEPTION, boost::bind(&customMongoConnectExceptionHandling, _1));
+  SipXApplicationData rlsData =
+  {
+      SIPSTATUS_APP_NAME,
+      CONFIG_SETTINGS_FILE,
+      CONFIG_LOG_FILE,
+      "",
+      CONFIG_SETTING_PREFIX,
+      true, // daemonize
+      true, // check mongo connection
+      OsMsgQShared::QUEUE_UNLIMITED,
+  };
 
+  // NOTE: this might exit application in case of failure
+  SipXApplication::instance().init(argc, argv, rlsData);
 
-    char* pidFile = NULL;
-    for(int i = 1; i < argc; i++) {
-        if(strncmp("-v", argv[i], 2) == 0) {
-  	    std::cout << "Version: " << PACKAGE_VERSION << PACKAGE_REVISION << std::endl;
-	    exit(0);
-	} else {
-            pidFile = argv[i];
-	}
-    }
-    if (pidFile) {
-      daemonize(pidFile);
-    }
-    signal(SIGHUP, signal_handler); // catch hangup signal
-    signal(SIGTERM, signal_handler); // catch kill signal
-
-    OsConfigDb  configDb ;  // Params for OsSysLog init
-
-    // initialize log file
-   OsPath workingDirectory;
-   if (OsFileSystem::exists(CONFIG_ETC_DIR))
-   {
-      workingDirectory = CONFIG_ETC_DIR;
-      OsPath path(workingDirectory);
-      path.getNativePath(workingDirectory);
-   }
-   else
-   {
-      OsPath path;
-      OsFileSystem::getWorkingDirectory(path);
-      path.getNativePath(workingDirectory);
-   }
-
-    UtlString fileName =  workingDirectory +
-      OsPathBase::separator +
-      CONFIG_SETTINGS_FILE;
-
-    if (configDb.loadFromFile(fileName) != OS_SUCCESS)
-    {
-       exit(1);
-    }
-    initSysLog(&configDb) ;
-    std::set_terminate(&OsExceptionHandler::catch_global);
-    
-    //
-    // Raise the file handle limit to maximum allowable
-    //
-    typedef OsResourceLimit::Limit Limit;
-    Limit rescur = 0;
-    Limit resmax = 0;
-    OsResourceLimit resource;
-    if (resource.setApplicationLimits("sipxpublisher"))
-    {
-      resource.getFileDescriptorLimit(rescur, resmax);
-      OS_LOG_NOTICE(FAC_KERNEL, "Maximum file descriptors set to " << rescur);
-    }
-    else
-    {
-      OS_LOG_ERROR(FAC_KERNEL, "Unable to set file descriptor limit");
-    }
-
-    std::string errmsg;
-    MongoDB::ConnectionInfo ginfo = MongoDB::ConnectionInfo::globalInfo();    
-    mongo::ConnectionString mongoConn = ginfo.getConnectionString();
-    if (false == MongoDB::ConnectionInfo::testConnection(mongoConn, errmsg))
-    {
-        Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
-                "Failed to connect to '%s' - %s",
-                mongoConn.toString().c_str(), errmsg.c_str());
-
-        mongo::dbexit(mongo::EXIT_CLEAN);
-        return 1;
-    }
+  const OsConfigDb& configDb = SipXApplication::instance().getConfigDb();
 
     // Fetch Pointer to the OsServer task object, note that
     // object uses the IMDB so it is important to shut this thread
@@ -243,14 +85,10 @@ main(int argc, char* argv[] )
     pServerTask = static_cast<OsServerTask*>(pStatusServer);
 
     // Do not exit, let the proxy do its stuff
-    while( !gShutdownFlag )
+    while(!SipXApplication::instance().terminationRequested())
     {
         OsTask::delay(2000);
     }
-
-    // Remove the current process's row from the IMDB
-    // Persisting the database if necessary
-    cout << "Cleaning Up..Start." << endl;
 
     // This is a server task so gracefully shutdown the
     // server task using the waitForShutdown method, this
@@ -264,17 +102,7 @@ main(int argc, char* argv[] )
         pServerTask = NULL;
     }
 
-    //
-    // Terminate the timer thread
-    //
-    OsTimer::terminateTimerService();
-
-    // Flush the log file
-    Os::Logger::instance().flush();
-
-    cout << "Cleanup...Finished" << endl;
-
-    mongo::dbexit(mongo::EXIT_CLEAN);
+    SipXApplication::instance().terminate();
 
     return 0;
 }
