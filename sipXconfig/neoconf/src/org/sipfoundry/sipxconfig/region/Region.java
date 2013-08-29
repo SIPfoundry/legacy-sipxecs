@@ -31,22 +31,12 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Feature;
 
 public class Region extends BeanWithId implements NamedObject, DeployConfigOnEdit {
+    public static final Region DEFAULT = new Region("default");
     private String m_name;
+    private String[] m_addresses;
 
-    public static final Map<Integer, List<Location>> locationsByRegion(Collection<Location> locations) {
-    	Map<Integer, List<Location>> map = new HashMap<Integer, List<Location>>();
-    	for (Location location : locations) {
-    		if (location.getRegionId() != null) {
-    			List<Location> list = map.get(location.getRegionId());
-    			if (list == null) {
-    				list = new ArrayList<Location>();
-    				map.put(location.getRegionId(), list);
-    			}
-				list.add(location);
-    		}    		
-    	}
-    	
-    	return map;
+    static {
+        DEFAULT.setUniqueId(0); // postgres sequences always starts at 1
     }
 
     public Region() {
@@ -56,12 +46,34 @@ public class Region extends BeanWithId implements NamedObject, DeployConfigOnEdi
         m_name = name;
     }
 
+    public static final Map<Integer, List<Location>> locationsByRegion(Collection<Location> locations) {
+        Map<Integer, List<Location>> map = new HashMap<Integer, List<Location>>();
+        for (Location location : locations) {
+            if (location.getRegionId() != null) {
+                List<Location> list = map.get(location.getRegionId());
+                if (list == null) {
+                    list = new ArrayList<Location>();
+                    map.put(location.getRegionId(), list);
+                }
+                list.add(location);
+            }
+        }
+
+        return map;
+    }
+
     public String getName() {
         return m_name;
     }
 
+    public String getConfigFriendlyName() {
+        return m_name.replaceAll("\\W+", "_");
+    }
+
     public void setName(String name) {
-        m_name = name;
+        if (this != DEFAULT) {
+            m_name = name;
+        }
     }
 
     @Override
@@ -73,5 +85,15 @@ public class Region extends BeanWithId implements NamedObject, DeployConfigOnEdi
     public String toString() {
         String s = ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
         return s;
+    }
+
+    public String[] getAddresses() {
+        return m_addresses;
+    }
+
+    public void setAddresses(String[] addresses) {
+        if (this != DEFAULT) {
+            m_addresses = addresses;
+        }
     }
 }

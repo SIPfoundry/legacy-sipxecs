@@ -44,6 +44,7 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 
 public class RegionApi extends Resource {
+    private static final String ID = "id";
     private RegionManager m_regionManager;
     private LocationsManager m_locationsManager;
     private ObjectMapper m_jsonMapper = new ObjectMapper();
@@ -53,17 +54,17 @@ public class RegionApi extends Resource {
     public void init(Context context, Request request, Response response) {
         super.init(context, request, response);
         getVariants().add(new Variant(APPLICATION_JSON));
-        String id = (String) getRequest().getAttributes().get("id");
+        String id = (String) getRequest().getAttributes().get(ID);
         if (id != null) {
             m_regionId = Integer.valueOf(id);
         }
     }
-    
+
     void registerJsonSerilizer() {
         SimpleModule module = new SimpleModule("regionsWithServers", new Version(1, 0, 0, null));
         List<Location> locations = m_locationsManager.getLocationsList();
         module.addSerializer(Region.class, new RegionWithServers(locations));
-        m_jsonMapper.registerModule(module);    	
+        m_jsonMapper.registerModule(module);
     }
 
     @Override
@@ -77,6 +78,11 @@ public class RegionApi extends Resource {
     }
 
     @Override
+    public boolean allowPut() {
+        return true;
+    }
+
+    @Override
     public boolean allowDelete() {
         return true;
     }
@@ -86,8 +92,8 @@ public class RegionApi extends Resource {
     }
 
     public void setLocationsManager(LocationsManager locationsManager) {
-		m_locationsManager = locationsManager;
-	}
+        m_locationsManager = locationsManager;
+    }
 
     // GET : list or specific region
     @Override
@@ -109,41 +115,40 @@ public class RegionApi extends Resource {
         return new StringRepresentation(json.toString());
     }
 
-	/**
-	 * Add server list to region as help aid to caller to know what server are
-	 * in what region.
-	 */    
+    /**
+     * Add server list to region as help aid to caller to know what server are in what region.
+     */
     static final class RegionWithServers extends SerializerBase<Region> {
-		private List<Location> m_locations;
+        private List<Location> m_locations;
 
-    	protected RegionWithServers(List<Location> locations) {
-			super(Region.class);
-			m_locations = locations;
-		}
+        protected RegionWithServers(List<Location> locations) {
+            super(Region.class);
+            m_locations = locations;
+        }
 
-		@Override
-		public void serialize(final Region region, JsonGenerator jgen,
-				SerializerProvider provider) throws IOException,
-				JsonGenerationException {
+        @Override
+        public void serialize(final Region region, JsonGenerator jgen, SerializerProvider provider)
+            throws IOException, JsonGenerationException {
 
-			jgen.writeStartObject();
+            jgen.writeStartObject();
 
-			// Ideally, I ask default implementation to write out all the bean
-			// properties so i do not have to enumerate them here. but i could
-			// not figure this out -- Douglas
-			jgen.writeObjectField("name", region.getName());
-			jgen.writeObjectField("id", region.getId());
-			
-			List<String> servers = new ArrayList<String>();
-			for (Location location : m_locations) {
-				if (region.getId().equals(location.getRegionId())) {
-					servers.add(location.getHostname());
-				}
-			}
-			jgen.writeObjectField("servers", servers);
-			jgen.writeEndObject();
-		}
-    }	
+            // Ideally, I ask default implementation to write out all the bean
+            // properties so i do not have to enumerate them here. but i could
+            // not figure this out -- Douglas
+            jgen.writeObjectField("name", region.getName());
+            jgen.writeObjectField(ID, region.getId());
+            jgen.writeObjectField("addresses", region.getAddresses());
+
+            List<String> servers = new ArrayList<String>();
+            for (Location location : m_locations) {
+                if (region.getId().equals(location.getRegionId())) {
+                    servers.add(location.getHostname());
+                }
+            }
+            jgen.writeObjectField("servers", servers);
+            jgen.writeEndObject();
+        }
+    }
 
     // POST
     @Override
@@ -151,7 +156,8 @@ public class RegionApi extends Resource {
         String json;
         try {
             json = IOUtils.toString(entity.getStream());
-            Region r = m_jsonMapper.readValue(json, new TypeReference<Region>() { });
+            Region r = m_jsonMapper.readValue(json, new TypeReference<Region>() {
+            });
             r.setUniqueId(BeanWithId.UNSAVED_ID);
             m_regionManager.saveRegion(r);
         } catch (IOException e) {
@@ -165,7 +171,8 @@ public class RegionApi extends Resource {
         String json;
         try {
             json = IOUtils.toString(entity.getStream());
-            Region r = m_jsonMapper.readValue(json, new TypeReference<Region>() { });
+            Region r = m_jsonMapper.readValue(json, new TypeReference<Region>() {
+            });
             m_regionManager.saveRegion(r);
         } catch (IOException e) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());

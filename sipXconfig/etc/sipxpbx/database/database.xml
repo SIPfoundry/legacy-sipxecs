@@ -458,6 +458,7 @@
     <!-- slot 6 -->
     <antcall target="shards"/>
     <antcall target="region"/>
+    <antcall target="region-ips"/>
     <!-- slot 7 -->
     <!-- slot 8 -->
     <!-- slot 9 -->
@@ -1373,6 +1374,9 @@
   </target>
   <target name="region" unless="region">
 	<db-patch patch="region"/>
+  </target>
+  <target name="region-ips" unless="region-ips">
+	<db-patch patch="region-ips"/>
   </target>
 
   <!--

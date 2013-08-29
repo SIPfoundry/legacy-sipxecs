@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dns.DnsManager;
 import org.sipfoundry.sipxconfig.dns.DnsProvider;
+import org.sipfoundry.sipxconfig.dns.ResourceRecord;
 import org.sipfoundry.sipxconfig.dns.ResourceRecords;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.feature.Bundle;
@@ -132,11 +133,18 @@ public class MwiImpl implements AddressProvider, FeatureProvider, Mwi, DnsProvid
     }
 
     @Override
-    public List<ResourceRecords> getResourceRecords(DnsManager manager, Location whoIsAsking) {
-        ResourceRecords rr = new ResourceRecords("_sip._tcp", "mwi");
-        Collection<Address> addresses = getAvailableAddresses(manager.getAddressManager(), SIP_TCP, whoIsAsking);
-        rr.addAddresses(addresses);
-        return Collections.singletonList(rr);
+    public Collection<ResourceRecords> getResourceRecords(DnsManager manager) {
+        FeatureManager fm = manager.getAddressManager().getFeatureManager();
+        List<Location> locations = fm.getLocationsForEnabledFeature(FEATURE);
+        if (locations == null || locations.isEmpty()) {
+            return Collections.emptyList();
+        }
+        ResourceRecords records = new ResourceRecords("_sip._tcp", "mwi", true);
+        int port = getSettings().getTcp();
+        for (Location l : locations) {
+            records.addRecord(new ResourceRecord(l.getHostname(), port, l.getRegionId()));
+        }
+        return Collections.singleton(records);
     }
 
     public void setConfigManager(ConfigManager configManager) {

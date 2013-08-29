@@ -85,7 +85,7 @@ public class Location extends BeanWithId implements DeployConfigOnEdit, Comparab
     private String m_hostName;
     private Integer m_regionId;
 
-	public Location() {
+    public Location() {
     }
 
     public Location(String fqdn) {
@@ -314,12 +314,12 @@ public class Location extends BeanWithId implements DeployConfigOnEdit, Comparab
     }
 
     public Integer getRegionId() {
-		return m_regionId;
-	}
+        return m_regionId;
+    }
 
-	public void setRegionId(Integer regionId) {
-		m_regionId = regionId;
-	}
+    public void setRegionId(Integer regionId) {
+        m_regionId = regionId;
+    }
 
     public boolean isInProgressState() {
         return getState().equals(State.PROGRESS);

@@ -9,14 +9,8 @@ sipx_core = \
   sipXmediaAdapterLib \
   sipXcallLib \
   sipXsupervisor \
-  sipXmongo \
   sipXcommserverLib \
   sipXsqa \
-  sipXsnmp \
-  sipXpostgres \
-  sipXtunnel \
-  sipXdns \
-  sipXhttpd \
   sipXcommons \
   sipXrelay \
   sipXbridge \
@@ -181,21 +175,15 @@ sipXmediaAdapterLib_DEPS = $(call deps,sipXmediaLib)
 sipXcallLib_DEPS = $(call deps,sipXmediaAdapterLib)
 sipXcustomCallerId_DEPS = $(call deps,sipXconfig)
 sipXsupervisor_DEPS = $(call deps,sec cfengine rubygem-net-sftp)
-sipXmongo_DEPS = $(call deps,mongodb sipXsupervisor)
-sipXcommserverLib_DEPS = $(call deps,sipXsupervisor sipXtackLib sipXmongo sipXsnmp)
+sipXcommserverLib_DEPS = $(call deps,sipXsupervisor sipXtackLib)
 sipXsqa_DEPS = $(call deps,hiredis sipXcommserverLib)
-sipXsnmp_DEPS = $(call deps,net-snmp sipXsupervisor)
-sipXpostgres_DEPS = $(call deps,sipXsupervisor)
-sipXtunnel_DEPS = $(call deps,sipXsupervisor)
-sipXdns_DEPS = $(call deps,sipXsupervisor)
-sipXhttpd_DEPS = $(call deps,sipXsupervisor)
 sipXcommons_DEPS = $(call deps,sipXsupervisor)
 sipXrelay_DEPS = $(call deps,sipXcommserverLib sipXcommons)
 sipXbridge_DEPS = $(call deps,sipXrelay)
 sipXfreeSwitch_DEPS = $(call deps,freeswitch sipXcommserverLib)
 sipXcdr_DEPS = $(call deps,ruby-dbi ruby-postgres sipXcommserverLib)
 sipXacdStatistics_DEPS = $(call deps,ruby-dbi ruby-postgres sipXcommons)
-sipXconfig_DEPS = $(call deps,sipXcommons sipXsupervisor sipXacdStatistics sipXcdr sipXpostgres sipXcommserverLib sipXhttpd sipXmongo)
+sipXconfig_DEPS = $(call deps,mongodb sipXcommons sipXsupervisor sipXacdStatistics sipXcdr sipXcommserverLib)
 sipXopenfire_DEPS = $(call deps,openfire sipXconfig sipXsqa)
 sipXcounterpath_DEPS = $(call deps,sipXconfig)
 sipXaudiocodes_DEPS = $(call deps,sipXconfig)

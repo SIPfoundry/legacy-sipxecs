@@ -89,6 +89,10 @@ public class YamlConfiguration extends AbstractConfigurationFile {
     public void writeArray(String key, Collection< ? > values) throws IOException {
         m_out.write(indent());
         m_out.write(key);
+        if (values == null) {
+            m_out.write(": null\n");
+            return;
+        }
         m_out.write(":\n");
         up();
         for (Object value : values) {

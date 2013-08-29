@@ -16,13 +16,20 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
-public class DnsRecord {
+public class ResourceRecord {
     private String m_address;
     private int m_port;
+    private Integer m_regionId;
 
-    public DnsRecord(String address, int port) {
+    public ResourceRecord(String address, int port) {
         m_address = address;
         m_port = port;
+    }
+
+    public ResourceRecord(String address, int port, Integer regionId) {
+        m_address = address;
+        m_port = port;
+        m_regionId = regionId;
     }
 
     public String getAddress() {
@@ -31,5 +38,9 @@ public class DnsRecord {
 
     public int getPort() {
         return m_port;
+    }
+
+    public Integer getRegionId() {
+        return m_regionId;
     }
 }

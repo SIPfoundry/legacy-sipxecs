@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
+import org.sipfoundry.sipxconfig.region.Region;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
@@ -99,15 +101,22 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     }
 
     @Override
-    public List<ResourceRecords> getResourceRecords(Location whoIsAsking) {
-        List<ResourceRecords> rrs = new ArrayList<ResourceRecords>();
-        for (DnsProvider p : getProviders()) {
-            List<ResourceRecords> rRecords = p.getResourceRecords(this, whoIsAsking);
-            if (rRecords != null) {
-                rrs.addAll(rRecords);
+    public Collection<DnsSrvRecord> getResourceRecords(Region region) {
+        DnsFailoverPlan plan = new DnsFailoverPlan(region);
+        List<DnsSrvRecord> srvs = new ArrayList<DnsSrvRecord>();
+        for (DnsProvider provider : m_providers) {
+            Collection<ResourceRecords> rrs = provider.getResourceRecords(this);
+            if (rrs != null) {
+                for (ResourceRecords rr : rrs) {
+                    DnsFailoverStrategy stragegy = plan.getFailoverStrategy(rr);
+                    for (ResourceRecord record : rr.getRecords()) {
+                        srvs.addAll(stragegy.getDnsSrvRecords(plan, record, rr));
+                    }
+                }
             }
         }
-        return rrs;
+
+        return srvs;
     }
 
     @Override

@@ -33,8 +33,11 @@ bundle agent sipxdns {
     !src.!sipxdns_unmanaged::
       "any" usebundle => sipxdns_setup;
 
-    !sipxdns_unmanaged::
-      "any" usebundle => named_running;
+    !sipxdns_unmanaged.!fedora16_or_greater::
+      "any" usebundle => named_sysv_running;
+
+    !sipxdns_unmanaged.fedora16_or_greater::
+      "any" usebundle => named_systemctl_running;
 }
 
 bundle agent sipxdns_resolv {
@@ -51,48 +54,22 @@ bundle agent sipxdns_resolv {
 bundle agent sipxdns_config {
   files:
     any::
-      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/zone.yaml$(sipxdns.managed_ext)"
-        comment => "check for updates in DNS zone info file $(this.promiser)",
-        changes => repair_on_change,
-        classes => if_repaired("update_zone"),
-        action => fix;
-
       "/etc/named.conf$(sipxdns.managed_ext)"
         comment => "install DNS config file $(this.promiser)",
         create => "true",
         perms => mog(600, "named", "root"),
-        edit_line => named_conf,
         edit_defaults => empty,
+        transformer => "$(sipx.SIPX_LIBEXECDIR)/sipx-erb --in $(sipx.SIPX_CFDATA)/named.yaml --out $(this.promiser) --template $(sipx.SIPX_CONFDIR)/sipxdns/named.erb",
         classes => if_repaired("reload_named");
-        
-    update_zone::
-      "/var/named/$(sipx.domain).zone$(sipxdns.managed_ext)"
+
+      # NOTE: dnsviews is a list of one or more, one for each region
+      "/var/named/$(sipx.dnsviews).$(sipx.domain).zone$(sipxdns.managed_ext)"
         comment => "install DNS zone file $(this.promiser)",
         create => "true",
         perms => mog(600, "named", "named"),
-        transformer => "$(sipx.SIPX_LIBEXECDIR)/sipx-dns-zone-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/zone.yaml --out /var/named/$(sipx.domain).zone$(sipxdns.managed_ext)",
+        edit_defaults => empty,
+        transformer => "$(sipx.SIPX_LIBEXECDIR)/sipx-erb --in $(sipx.SIPX_CFDATA)/$(sipx.dnsviews).yaml --out $(this.promiser) --template $(sipx.SIPX_CONFDIR)/sipxdns/zone.erb",
         classes => if_repaired("reload_named");
-}
-
-bundle edit_line named_conf {
-  insert_lines:
-    "
-options {
-    directory  \"/var/named\";
-    dump-file \"/var/named/data/cache_dump.db\";
-    statistics-file \"/var/named/data/named_stats.txt\";
-    allow-query { any; };
-    forwarders {
-      $(sipx.sipxdns_forwarders)
-    };
-};
-
-zone \"$(sipx.domain)\"  IN  {
-     type master;
-     file \"$(sipx.domain).zone\";
-     allow-update { none; };
-};
-";
 }
 
 bundle edit_line resolv_conf {
@@ -113,7 +90,7 @@ bundle agent sipxdns_setup {
       "any" usebundle => rh_chkconfig_status("named off");
 }
 
-bundle agent named_running {
+bundle agent named_sysv_running {
   vars:
     any::
       "service" string => "/etc/init.d/named";
@@ -146,4 +123,46 @@ bundle agent named_running {
       "$(service)"
         comment => "reload named",
         args => "reload";
+}
+
+bundle agent named_systemctl_running {
+  vars:
+    any::
+      "service" string => "named.service";
+
+  classes:
+    fedora16_or_greater::
+      "named_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+
+  commands:
+    # NOTE : Not shutting off  explicit stop function because we cannot tell if
+    # admin is configuring and managing DNS on their own (which is the 
+    # case for a lot of ezuce developers anyway)
+    !sipxdns.!src.named_running::
+      "$(sipx.systemctl)"
+        comment => "stop named",
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable named",
+        args => "disable $(service)";
+
+    sipxdns.!named_running::
+      "$(sipx.systemctl)"
+        comment => "start named",
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable named",
+        args => "enable $(service)";
+
+    sipxdns.named_running.restart_named::
+      "$(sipx.systemctl)"
+        comment => "restart named",
+        args => "restart $(service)";
+
+    sipxdns.named_running.reload_named::
+      "$(sipx.systemctl)"
+        comment => "reload named",
+        args => "reload $(service)";
 }

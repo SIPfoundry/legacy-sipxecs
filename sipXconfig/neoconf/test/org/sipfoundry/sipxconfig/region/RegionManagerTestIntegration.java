@@ -31,6 +31,7 @@ public class RegionManagerTestIntegration extends IntegrationTestCase {
     
     public void testCrud() {
         Region r1 = new Region();
+        r1.setAddresses(new String[] {"10.1.1.1"});
         
         // Create
         r1.setName("Bird Bath in Central Park");
@@ -41,13 +42,14 @@ public class RegionManagerTestIntegration extends IntegrationTestCase {
         // Read
         List<Region> regions = m_regionManager.getRegions();
         assertEquals(1, regions.size());
-        String r1Expected = "Region[m_name=Bird Bath in Central Park,ID]";
+        String r1Expected = "Region[m_name=Bird Bath in Central Park,m_addresses={10.1.1.1},ID]";
         assertEquals(r1Expected, dump(regions));
 
         // Find
         Region r2 = new Region();
-        String r2Expected = "Region[m_name=Statue of Liberty,ID]";
+        String r2Expected = "Region[m_name=Statue of Liberty,m_addresses={10.1.1.0/24,10.1.2.[0-255]},ID]";
         r2.setName("Statue of Liberty");
+        r2.setAddresses(new String[] {"10.1.1.0/24", "10.1.2.[0-255]"});
         m_regionManager.saveRegion(r2);
         String actual = dump(m_regionManager.getRegions());
         assertEquals(r1Expected + '|' + r2Expected, actual);
@@ -56,7 +58,7 @@ public class RegionManagerTestIntegration extends IntegrationTestCase {
         r1.setName("Nesting");
         m_regionManager.saveRegion(r1);
         actual = dump(m_regionManager.getRegions());
-        assertEquals("Region[m_name=Nesting,ID]|" + r2Expected, actual);
+        assertEquals("Region[m_name=Nesting,m_addresses={10.1.1.1},ID]|" + r2Expected, actual);
         
         // Delete
         m_regionManager.deleteRegion(r1);

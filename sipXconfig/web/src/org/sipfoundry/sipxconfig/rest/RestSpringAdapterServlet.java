@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
-
 import static org.springframework.web.context.support.WebApplicationContextUtils.getRequiredWebApplicationContext;
 
 import java.io.IOException;
@@ -44,7 +43,7 @@ import com.noelios.restlet.ext.servlet.ServletConverter;
 public class RestSpringAdapterServlet extends HttpServlet {
     private static final Log LOG = LogFactory.getLog(RestSpringAdapterServlet.class);
     private ServletConverter m_converter;
-    private MessageSource m_messageSource;    
+    private MessageSource m_messageSource;
 
     @Override
     public void init() throws ServletException {
@@ -62,24 +61,25 @@ public class RestSpringAdapterServlet extends HttpServlet {
         try {
             m_converter.service(req, res);
         } catch (UserException e) {
-        	String msg = e.getMessage();
-        	if (!msg.isEmpty() && msg.charAt(0) == '&') {
-        		String key = msg.substring(1);
+            String msg = e.getMessage();
+            if (!msg.isEmpty() && msg.charAt(0) == '&') {
+                String key = msg.substring(1);
                 msg = m_messageSource.getMessage(key, e.getRawParams(), req.getLocale());
-        	}
+            }
             onError(req, res, e, msg);
         } catch (Exception re) {
             onError(req, res, re, "Internal error: " + re.getMessage());
         }
     }
-    
-    private void onError(HttpServletRequest req, HttpServletResponse res, Throwable e, String msg) throws IOException {
-    	String where = String.format("%s %s", req.getMethod(), req.getRequestURI());
-    	LOG.error(where, e);
-    	res.setStatus(Status.SERVER_ERROR_INTERNAL.getCode());
+
+    private void onError(HttpServletRequest req, HttpServletResponse res, Throwable e, String msg)
+        throws IOException {
+        String where = String.format("%s %s", req.getMethod(), req.getRequestURI());
+        LOG.error(where, e);
+        res.setStatus(Status.SERVER_ERROR_INTERNAL.getCode());
         res.setContentType(MediaType.APPLICATION_JSON.getName());
         String json = String.format("{\"error\":\"%s\",\"type\":\"%s\"} ", msg, e.getClass().getName());
         res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        res.getWriter().append(json);    	
+        res.getWriter().append(json);
     }
 }

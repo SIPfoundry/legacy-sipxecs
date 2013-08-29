@@ -18,6 +18,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -28,6 +30,7 @@ public class RegionManagerImpl implements RegionManager {
             Region r = new Region();
             r.setUniqueId(rs.getInt("region_id"));
             r.setName(rs.getString("name"));
+            r.setAddresses(decodeAddresses(rs.getString("addresses")));
             return r;
         }
     };
@@ -40,15 +43,36 @@ public class RegionManagerImpl implements RegionManager {
 
     @Override
     public void saveRegion(Region region) {
+        validateRegion(region);
+        String addresses = encodeAddresses(region.getAddresses());
         if (region.getId() == -1) {
             int nextId = m_db.queryForInt("select nextval('region_seq')");
-            String sql = "insert into region (region_id, name) values (?, ?)";
-            m_db.update(sql, new Object[] {nextId, region.getName()});
+            String sql = "insert into region (region_id, name, addresses) values (?, ?, ?)";
+            m_db.update(sql, new Object[] {
+                nextId, region.getName(), addresses
+            });
             region.setUniqueId(nextId);
         } else {
-            String sql = "update region set name = ? where region_id = ?";
-            m_db.update(sql, new Object[] {region.getName(), region.getId()});
+            String sql = "update region set name = ?, addresses = ? where region_id = ?";
+            m_db.update(sql, new Object[] {
+                region.getName(), addresses, region.getId()
+            });
         }
+    }
+
+    void validateRegion(Region region) {
+        String[] addreses = region.getAddresses();
+        if (addreses == null || addreses.length == 0) {
+            throw new UserException("&error.RegionsCannotBeEmpty");
+        }
+    }
+
+    static String encodeAddresses(String[] addresses) {
+        return StringUtils.join(addresses, ' ');
+    }
+
+    static String[] decodeAddresses(String addresses) {
+        return StringUtils.split(addresses, ' ');
     }
 
     @Override
@@ -64,6 +88,9 @@ public class RegionManagerImpl implements RegionManager {
 
     @Override
     public Region getRegion(int id) {
+        if (id == Region.DEFAULT.getId()) {
+            return Region.DEFAULT;
+        }
         Region region = m_db.queryForObject("select * from region where region_id = ?", REGION_MAPPER, id);
         return region;
     }

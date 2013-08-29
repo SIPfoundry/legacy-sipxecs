@@ -23,4 +23,9 @@
   <bean name="editRegionApi" parent="baseRegionApi"/>
   <alias name="editRegionApi" alias="/region/{id}" />
   
+  <bean id="regionStrings" class="org.springframework.context.support.ResourceBundleMessageSource">
+    <property name="basename">
+      <value>org.sipfoundry.sipxconfig.region.region</value>
+    </property>
+  </bean>
 </beans>  

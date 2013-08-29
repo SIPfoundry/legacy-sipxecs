@@ -1,0 +1,82 @@
+[ {
+  "destination" : "l1",
+  "host" : "l1",
+  "leftHandSide" : "_y.test.l1",
+  "port" : 1,
+  "priority" : 10,
+  "protocol" : "_y",
+  "resource" : "test",
+  "weight" : 10
+}, {
+  "destination" : "l2",
+  "host" : "l1",
+  "leftHandSide" : "_y.test.l1",
+  "port" : 2,
+  "priority" : 20,
+  "protocol" : "_y",
+  "resource" : "test",
+  "weight" : 10
+}, {
+  "destination" : "l3",
+  "host" : "l1",
+  "leftHandSide" : "_y.test.l1",
+  "port" : 3,
+  "priority" : 30,
+  "protocol" : "_y",
+  "resource" : "test",
+  "weight" : 10
+}, {
+  "destination" : "l1",
+  "host" : "",
+  "leftHandSide" : "_y.test",
+  "port" : 1,
+  "priority" : 10,
+  "protocol" : "_y",
+  "resource" : "test",
+  "weight" : 10
+}, {
+  "destination" : "l1",
+  "host" : "l2",
+  "leftHandSide" : "_y.test.l2",
+  "port" : 1,
+  "priority" : 20,
+  "protocol" : "_y",
+  "resource" : "test",
+  "weight" : 10
+}, {
+  "destination" : "l2",
+  "host" : "l2",
+  "leftHandSide" : "_y.test.l2",
+  "port" : 2,
+  "priority" : 10,
+  "protocol" : "_y",
+  "resource" : "test",
+  "weight" : 10
+}, {
+  "destination" : "l3",
+  "host" : "l2",
+  "leftHandSide" : "_y.test.l2",
+  "port" : 3,
+  "priority" : 30,
+  "protocol" : "_y",
+  "resource" : "test",
+  "weight" : 10
+}, {
+  "destination" : "l2",
+  "host" : "",
+  "leftHandSide" : "_y.test",
+  "port" : 2,
+  "priority" : 10,
+  "protocol" : "_y",
+  "resource" : "test",
+  "weight" : 10
+}, {
+  "destination" : "l3",
+  "host" : "",
+  "leftHandSide" : "_y.test",
+  "port" : 3,
+  "priority" : 20,
+  "protocol" : "_y",
+  "resource" : "test",
+  "weight" : 10
+} ]

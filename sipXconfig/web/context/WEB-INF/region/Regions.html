@@ -18,13 +18,56 @@
       <span jwcid="@Insert" raw="true" value="message:region.help">Region Help</span>
     </div>      
     <div id="region">
+      <h2><span key="region">Region</span></h2>
       <p id="userMessage"></p>
-      <div id="regionTable">
+      <ul class="component-links">
+        <li><a id="add-region-link" href="#"><span key="region.add">Add Region</span></a></li>
+      </ul>
+      <!-- hidden popup for region editor awaits click to add or edit -->
+      <div style="position:relative;">
+        <span id="add-region-popup" class="popup" style="display:none; padding: .5em;">
+          <p id="editMessage"></p>
+          <table>
+            <thead>
+              <tr>
+                <td><label class="settingLabel" for="region-name"><span key="region.name.label">Name</span> :</label></td>
+                <td><input id="region-name" type="text"></td>
+              </tr>
+              <tr>
+                <td><label class="settingLabel" for="region-ip-0"><span key="region.ipaddr.label">IPv4 Ranges</span></label></td>
+                <td><input id="region-ip-0" type="text"></td>
+              </tr>
+              <tr>
+                <td colspan="2" class="settingDescription"><span key="region.ipaddr.description">Accepted formats: 1.1.1.1, 1.1.1.0/32, 1.1.1.[3-10]</span></td>
+              </tr>
+            </thead>
+            <tbody id="region-additional">
+            </tbody>
+            <tfoot>
+              <tr>
+                <td></td>
+                <td><a href="#" id="region-ip-more"><span key="region.ipaddr.more">...more addresses</span></a></td>
+              </tr>
+            </tfoot>
+          </table>
+          <button id="region-save"><span key="save">Save</span></button>  
+          <button id="region-cancel"><span key="cancel">Cancel</span></button>  
+        </span>
       </div>
+      <!-- Manage list of regions -->
+      <table class="component">
+        <thead>
+          <tr>
+            <th><span key="name">Name</span></th>
+            <th><span key="servers">Servers</span></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="regionTable">
+        </tbody>
+      </table>
     </div>
     <span id="rc" style="display:none">
-      <span jwcid="@common/Message" key="name">Name</span>
-      <span jwcid="@common/Message" key="servers">Servers</span>
     </span>
     <script jwcid="@common/DartCode" type="application/dart"
       src="Regions.dart"></script>

@@ -36,8 +36,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/dbunit-2.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/dnsjava-2.0.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/dom4j-1.6.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/easymock-2.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/easymockclassextension-2.2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ehcache-1.6.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gdata-client-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gdata-contacts-3.0.jar"/>
@@ -173,5 +171,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/mongo-2.11.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackson-core-asl-1.9.13.jar" sourcepath="/home/dhubler/libsrc/jackson-core-asl-1.9.11-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackson-mapper-asl-1.9.13.jar" sourcepath="/home/dhubler/libsrc/jackson-mapper-asl-1.9.11-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/easymock-2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/easymockclassextension-2.2.1.jar"/>
 	<classpathentry kind="output" path="bin.eclipse/classes"/>
 </classpath>

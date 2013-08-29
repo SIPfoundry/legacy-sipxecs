@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,6 +31,8 @@ import org.junit.Test;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.region.Region;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class DnsConfigTest {
@@ -65,10 +68,13 @@ public class DnsConfigTest {
     
     @Test
     public void cfdat() throws IOException {
+        Region r0 = Region.DEFAULT;        
+        Region r1 = new Region("r1");
+        Collection<Region> regions = Arrays.asList(r0, r1);
         DnsSettings settings = new DnsSettings();
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
         StringWriter actual = new StringWriter();
-        m_config.writeSettings(actual, true, true, settings);
+        m_config.writeSettings(actual, true, true, regions, settings);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-named.cfdat"));
         assertEquals(expected, actual.toString());        
     }
@@ -87,7 +93,7 @@ public class DnsConfigTest {
     @Test
     public void emptyZone() throws IOException {
         StringWriter actual = new StringWriter();
-        m_config.writeZoneConfig(actual, "x", m_locations, null, null, null, null, 1, true);
+        m_config.writeZoneConfig(actual, "x", m_locations, null, null, 1, true);
         String expected = IOUtils.toString(getClass().getResourceAsStream("empty-zone.yml"));
         assertEquals(expected, actual.toString());
     }
@@ -95,13 +101,14 @@ public class DnsConfigTest {
     @Test
     public void fullZone() throws IOException {
         StringWriter actual = new StringWriter();
+        DnsSrvRecord[] records = new DnsSrvRecord[] {
+                DnsSrvRecord.domainLevel("_sip._tcp", "rr1", 1, "s1"),
+                DnsSrvRecord.hostLevel("_sip._tcp", "rr2", "h1", 2, "s1"),
+                DnsSrvRecord.hostLevel("_sip._tcp", "rr3", "h2", 3, "s1"),
+        };
         List<Address> all = Arrays.asList(m_a1, m_a2, m_a3);
-        ResourceRecords rr1 = new ResourceRecords("_sip._tcp", "rr1");
-        rr1.addAddress(m_a1);
-        ResourceRecords rr2 = new ResourceRecords("_xyx._abc", "rr2");
-        rr2.addAddress(m_a2);
-        List<ResourceRecords> rrs = Arrays.asList(rr1, rr2);
-        m_config.writeZoneConfig(actual, "x", m_locations, all, all, all, rrs, 1, true);
+        List<DnsSrvRecord> rrs = Arrays.asList(records);
+        m_config.writeZoneConfig(actual, "x", m_locations, all, rrs, 1, true);
         String expected = IOUtils.toString(getClass().getResourceAsStream("full-zone.yml"));
         assertEquals(expected, actual.toString());
     }
@@ -116,12 +123,30 @@ public class DnsConfigTest {
         actual = new StringWriter();
         c = new YamlConfiguration(actual);
         m_config.writeServerYaml(c, m_locations, "robin", Collections.singletonList(m_a1));
-        assertEquals("robin:\n - :name: one.example.org\n   :ipv4: 1.1.1.1\n   :port: 0\n", actual.toString());
+        assertEquals("robin:\n - :name: one\n   :ipv4: 1.1.1.1\n   :port: 0\n", actual.toString());
 
         actual = new StringWriter();
         c = new YamlConfiguration(actual);
         m_config.writeServerYaml(c, m_locations, "robin", Arrays.asList(m_a1, m_a2));   
         String expected = IOUtils.toString(getClass().getResourceAsStream("server.yml"));
+        assertEquals(expected, actual.toString());
+    }
+
+    @Test
+    public void named() throws IOException {
+        Domain d = new Domain("x");
+        Region r0 = Region.DEFAULT;        
+        Region r1 = new Region("r1");
+        r1.setAddresses(new String[] {"1.1.1.1", "1.1.1.2"});
+        Region r2 = new Region("r2");
+        r2.setAddresses(new String[] {"2.2.2.1", "2.2.2.2"});
+        Collection<Address> forwarders = Arrays.asList(
+                new Address(DnsManager.DNS_ADDRESS, "8.8.8.8"),
+                new Address(DnsManager.DNS_ADDRESS, "8.8.8.2")
+        );
+        StringWriter actual = new StringWriter();
+        m_config.writeNamedConfig(actual, d, Arrays.asList(r0, r1, r2), forwarders);
+        String expected = IOUtils.toString(getClass().getResourceAsStream("named.expected.yml"));
         assertEquals(expected, actual.toString());
     }
 }

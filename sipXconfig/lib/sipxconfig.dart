@@ -280,11 +280,11 @@ class DataLoader {
     print("loading data");
     Future<String> request = HttpRequest.getString(url);
     request.then(this.listener, onError: (e) {
-      checkResponse(e.currentTarget);
+      checkResponse(msg, e.currentTarget);
     });      
   }
 
-  bool checkResponse(HttpRequest request) {
+  static bool checkResponse(UserMessage msg, HttpRequest request) {
     if (request.status != 200) {
       String userError;
       try {

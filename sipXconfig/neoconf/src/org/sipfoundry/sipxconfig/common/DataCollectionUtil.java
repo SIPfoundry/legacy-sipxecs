@@ -82,9 +82,9 @@ public final class DataCollectionUtil {
         // mark items to be deleted
         Iterator<T> find = c.iterator();
         while (find.hasNext()) {
-        	T item = find.next();
+            T item = find.next();
             if (item.getPrimaryKey().equals(primaryKey)) {
-            	return item;
+                return item;
             }
         }
 

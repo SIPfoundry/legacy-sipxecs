@@ -33,8 +33,17 @@
   			<li id="globalAddArbiter"></li>
         <li id="globalRefreshWidget"></li>    
   		</ul>		  		
-  		<div id="globalTable">
-  		</div>
+  		<table class="component">
+  		  <thead>
+  		    <tr>
+            <th><span key="service">Service</span></th>
+            <th><span key="status">Status</span></th>
+            <th><span key="action"></span></th>
+           </tr>
+  		  </thead>
+  		  <tbody id="globalTable">
+  		  </tbody>
+  		</table>
       <ul>
         <button id="globalRefreshButton"><span key="button.refresh">Refresh</span></button>
       </ul>
@@ -45,9 +54,19 @@
           <li id="localAddDb"></li>
           <li id="localAddArbiter"></li>
           <li id="localRefreshWidget"></li>    
-        </ul>         
-        <div id="localTable">
-        </div>
+        </ul>
+        <table class="component">
+          <thead>
+            <tr>
+              <th><span key="service">Service</span></th>
+              <th><span key="status">Status</span></th>
+              <th><span key="region">Region</span></th>
+              <th><span key="action"></span></th>
+            </tr>
+          </thead>
+          <tbody id="localTable">
+          </tbody>
+        </table>         
         <ul>
           <button id="localRefreshButton"><span key="button.refresh">Refresh</span></button>
         </ul>
@@ -82,10 +101,6 @@
       <span jwcid="@common/Message" key="label.voting">Voting: </span>
       <span jwcid="@common/Message" key="tab.global">Global Databases</span>
       <span jwcid="@common/Message" key="tab.local">Regional Databases</span>      
-      <span jwcid="@common/Message" key="service">Service</span>      
-      <span jwcid="@common/Message" key="status">Status</span>      
-      <span jwcid="@common/Message" key="shard">Shard</span>      
-      <span jwcid="@common/Message" key="action"></span>      
       <span jwcid="@common/Message" key="refreshEvery">Refresh every</span>      
       <span jwcid="@common/Message" key="seconds">seconds.</span>      
     </span>

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
@@ -32,6 +33,9 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dns.DnsManager;
+import org.sipfoundry.sipxconfig.dns.DnsProvider;
+import org.sipfoundry.sipxconfig.dns.ResourceRecord;
+import org.sipfoundry.sipxconfig.dns.ResourceRecords;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
@@ -52,7 +56,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressProvider, ProcessProvider,
-    AlarmProvider, FirewallProvider {
+    AlarmProvider, FirewallProvider, DnsProvider {
 
     private static final Collection<AddressType> ADDRESS_TYPES = Arrays.asList(new AddressType[] {
         TCP_ADDRESS, UDP_ADDRESS, TLS_ADDRESS
@@ -172,5 +176,40 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
         if (request.hasChanged(FEATURE)) {
             m_configManager.configureEverywhere(DnsManager.FEATURE, DialPlanContext.FEATURE);
         }
+    }
+
+    @Override
+    public Address getAddress(DnsManager manager, AddressType t, Collection<Address> addresses, Location whoIsAsking) {
+        return null;
+    }
+
+    @Override
+    public Collection<ResourceRecords> getResourceRecords(DnsManager manager) {
+        FeatureManager fm = manager.getAddressManager().getFeatureManager();
+        List<Location> locations = fm.getLocationsForEnabledFeature(FEATURE);
+        if (locations == null || locations.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String root = ""; // THE sip root resource and no resource name
+        ResourceRecords[] records = new ResourceRecords[] {
+            new ResourceRecords("_sip._tcp", root, false),
+            new ResourceRecords("_sip._udp", root, false),
+            new ResourceRecords("_sips._tcp", root, false),
+            new ResourceRecords("_sip._tls", root, false)
+        };
+        ProxySettings settings = getSettings();
+        int[] ports = new int[] {
+                settings.getSipTcpPort(),
+                settings.getSipUdpPort(),
+                settings.getSecureSipPort(),
+                settings.getSecureSipPort()
+        };
+        for (int i = 0; i < records.length; i++) {
+            for (Location l : locations) {
+                records[i].addRecord(new ResourceRecord(l.getHostname(), ports[i], l.getRegionId()));
+            }
+        }
+        return Arrays.asList(records);
     }
 }

@@ -132,16 +132,9 @@ class MongoApi extends Resource {
         }
     }
 
-    Map<String, Object> metaMap(MongoReplSetManager rsManager, MongoMeta meta, Collection<Location> locations) {
-        Map<String, Object> map = new HashMap<String, Object>();
-
-        Map<String, Location> locationMap = new HashMap<String, Location>();
-        for (Location l : locations) {
-            locationMap.put(l.getFqdn(), l);
-        }
-        List<String> candidateArbiters = new ArrayList<String>();
-        List<String> candidateDatabases = new ArrayList<String>();
-        Set<String> nodes = new HashSet<String>(meta.getServers());
+    void metaCandidates(List<String> candidateArbiters, List<String> candidateDatabases, Collection<String> servers,
+            Map<String, Location> locationMap) {
+        Set<String> nodes = new HashSet<String>(servers);
         for (Map.Entry<String, Location> entry : locationMap.entrySet()) {
             String arbHostPort = entry.getKey() + ':' + MongoSettings.ARBITER_PORT;
             if (!nodes.contains(arbHostPort)) {
@@ -154,6 +147,49 @@ class MongoApi extends Resource {
         }
         Collections.sort(candidateArbiters);
         Collections.sort(candidateDatabases);
+    }
+
+    Map<String, Object> metaNode(MongoNode node, MongoMeta meta, Location l, boolean local, List<Region> regions) {
+        if (l == null) {
+            LOG.warn("Could not find location for mongo node " + node.getFqdn());
+            return null;
+        }
+        Map<String, Object> nmap = new HashMap<String, Object>();
+        nmap.put("status", node.getStatus());
+        nmap.put(HOST, l.getHostname());
+        String regionName = null;
+        if (l.getRegionId() != null) {
+            Region region = DataCollectionUtil.findByKey(regions, l.getRegionId());
+            regionName = region.getName();
+        }
+        nmap.put("region", regionName);
+        nmap.put("local", local);
+        nmap.put("required", meta.getRequiredActions(node.getHostPort()));
+        nmap.put("available", meta.getAvailableActions(node.getHostPort()));
+        MongoNode primary = meta.getPrimary();
+        Map<String, Object> primaryMeta = primary != null ? meta.getMetaData(primary.getHostPort()) : null;
+        Map<String, Object> config = getMemberConfig(primaryMeta, node.getHostPort());
+        if (config != null) {
+            Integer votes = (Integer) config.get("votes");
+            nmap.put("voting", votes == null || votes >= 1);
+            Double priority = (Double) config.get(PRIORITY);
+            if (priority != null) {
+                nmap.put(PRIORITY, priority);
+            }
+        }
+        return nmap;
+    }
+
+    Map<String, Object> metaMap(MongoReplSetManager rsManager, MongoMeta meta, Collection<Location> locations) {
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        Map<String, Location> locationMap = new HashMap<String, Location>();
+        for (Location l : locations) {
+            locationMap.put(l.getFqdn(), l);
+        }
+        List<String> candidateArbiters = new ArrayList<String>();
+        List<String> candidateDatabases = new ArrayList<String>();
+        metaCandidates(candidateArbiters, candidateDatabases, meta.getServers(), locationMap);
         map.put("inProgress", rsManager.isInProgress());
         map.put("lastConfigError", rsManager.getLastConfigError());
         map.put("arbiterCandidates", candidateArbiters);
@@ -161,43 +197,19 @@ class MongoApi extends Resource {
 
         Map<String, Object> dbs = new HashMap<String, Object>();
         Map<String, Object> arbiters = new HashMap<String, Object>();
-        MongoNode primary = meta.getPrimary();
-        Map<String, Object> primaryMeta = primary != null ? meta.getMetaData(primary.getHostPort()) : null;
-        
+
         List<Region> regions = m_regionManager.getRegions();
-        
+
         for (MongoNode node : meta.getNodes()) {
             Location l = locationMap.get(node.getFqdn());
-            if (l == null) {
-                LOG.warn("Could not find location for mongo node " + node.getFqdn());
-                continue;
-            }
-            Map<String, Object> nmap = new HashMap<String, Object>();
-            nmap.put("status", node.getStatus());
-            nmap.put(HOST, l.getHostname());
-            String regionName = null;
-            if (l.getRegionId() != null) {
-                Region region = DataCollectionUtil.findByKey(regions, l.getRegionId());
-                regionName = region.getName();
-           }
-            nmap.put("region", regionName);
             boolean local = m_mongoManager.getFeatureManager().isFeatureEnabled(MongoManager.LOCAL_FEATURE, l);
-            nmap.put("local", local);
-            nmap.put("required", meta.getRequiredActions(node.getHostPort()));
-            nmap.put("available", meta.getAvailableActions(node.getHostPort()));
-            Map<String, Object> config = getMemberConfig(primaryMeta, node.getHostPort());
-            if (config != null) {
-                Integer votes = (Integer) config.get("votes");
-                nmap.put("voting", votes == null || votes >= 1);
-                Double priority = (Double) config.get(PRIORITY);
-                if (priority != null) {
-                    nmap.put(PRIORITY, priority);
+            Map<String, Object> nmap = metaNode(node, meta, l, local, regions);
+            if (nmap != null) {
+                if (node.isArbiter()) {
+                    arbiters.put(node.getHostPort(), nmap);
+                } else {
+                    dbs.put(node.getHostPort(), nmap);
                 }
-            }
-            if (node.isArbiter()) {
-                arbiters.put(node.getHostPort(), nmap);
-            } else {
-                dbs.put(node.getHostPort(), nmap);
             }
         }
         map.put("databases", dbs);
@@ -231,7 +243,7 @@ class MongoApi extends Resource {
         m_mongoManager = mongoManager;
     }
 
-	public void setRegionManager(RegionManager regionManager) {
-		m_regionManager = regionManager;
-	}
+    public void setRegionManager(RegionManager regionManager) {
+        m_regionManager = regionManager;
+    }
 }

@@ -9,7 +9,7 @@ ManageLocal local = new ManageLocal();
 List<ManageBase> all = [global, local];
 ManageBase manage = global;
 Tabs tabs;
-var api = new Api(test : false);
+var api = new Api(test : true);
 
 main() {
   tabs = new Tabs(query("#leftNav"));
@@ -46,7 +46,6 @@ abstract class ManageBase {
 }
 
 class ManageGlobal extends ManageBase {
-  TableSectionElement table;
   Refresher refresh;
   DataLoader loader;
   UiBuilder builder;
@@ -55,10 +54,6 @@ class ManageGlobal extends ManageBase {
   ManageGlobal() {
     help = "global.help";
     msg = new UserMessage(query("#globalMessage"));    
-    table = dataTable(query("#globalTable"), [
-        getString('service'), 
-        getString('status'), 
-        getString('action')]);
     loader = new DataLoader(msg, loadTable);
     builder = new UiBuilder(this);    
     refresh = new Refresher(query("#globalRefreshWidget"), query("#globalRefreshButton"), () {
@@ -80,7 +75,8 @@ class ManageGlobal extends ManageBase {
     var meta = parse(data);    
     builder.addMongoNodeSelect(meta['dbCandidates'], query('#globalAddDb'), 'NEW_DB', getString('addDatabase'));
     builder.addMongoNodeSelect(meta['arbiterCandidates'], query('#globalAddArbiter'), 'NEW_ARBITER', getString('addArbiter'));
-    table.children.clear();
+    TableSectionElement tbody = query("#globalTable");
+    tbody.children.clear();
     builder.lastError(meta['lastConfigError']);    
     for (var type in ['databases', 'arbiters']) {
       if (meta[type] == null) {
@@ -91,7 +87,7 @@ class ManageGlobal extends ManageBase {
         builder.nameColumn(row.addCell(), node, server, type);                
         builder.statusColumn(row.addCell(), node, server, type);
         builder.actionColumn(row.addCell(), node, server, type);
-        table.children.add(row);
+        tbody.children.add(row);
       });
     }    
     builder.inProgress(meta['inProgress']);
@@ -101,7 +97,7 @@ class ManageGlobal extends ManageBase {
     var httpRequest = new HttpRequest();
     httpRequest.open('POST', api.url("rest/mongoGlobal/"));
     httpRequest.onLoadEnd.listen((e) {
-      if (loader.checkResponse(httpRequest)) {
+      if (DataLoader.checkResponse(msg, httpRequest)) {
         load();
       }
     });
@@ -111,7 +107,6 @@ class ManageGlobal extends ManageBase {
 }
 
 class ManageLocal extends ManageBase {
-  TableSectionElement table;
   Refresher refresh;
   DataLoader loader;
   UiBuilder builder;
@@ -119,11 +114,6 @@ class ManageLocal extends ManageBase {
   ManageLocal() {
     help = "local.help";
     msg = new UserMessage(query("#localMessage"));    
-    table = dataTable(query("#localTable"), [
-        getString('service'), 
-        getString('status'), 
-        getString('region'), 
-        getString('action')]);
     loader = new DataLoader(msg, loadTable);
     builder = new UiBuilder(this);
     refresh = new Refresher(query("#localRefreshWidget"), query("#localRefreshButton"), () {
@@ -134,7 +124,8 @@ class ManageLocal extends ManageBase {
       
   void loadTable(data) {
     var meta = parse(data);
-    table.children.clear();
+    TableSectionElement tbody = query("#localTable");
+    tbody.children.clear();
     builder.lastError(meta['lastConfigError']);  
     List candidates = meta['dbCandidates'];
     builder.addMongoNodeSelect(candidates, query('#localAddDb'), 'NEW_LOCAL', getString('addDatabase'));
@@ -175,7 +166,7 @@ regions to servers if you wish to have a local databbase
             var cmd = (type == 'databases' ? 'DELETE_LOCAL' : 'DELETE_LOCAL_ARBITER'); 
             actions.children.add(new OptionElement(getString('action.DELETE'), cmd, false, false));
           }
-          table.children.add(row);
+          tbody.children.add(row);
         });
       }
     }
@@ -186,7 +177,7 @@ regions to servers if you wish to have a local databbase
     var httpRequest = new HttpRequest();
     httpRequest.open('POST', api.url("rest/mongoRegional/"));
     httpRequest.onLoadEnd.listen((e) {
-      if (loader.checkResponse(httpRequest)) {
+      if (DataLoader.checkResponse(msg, httpRequest)) {
         load();
       }
     });

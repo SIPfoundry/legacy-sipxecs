@@ -62,9 +62,8 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-public class MongoManagerImpl implements AddressProvider, FeatureProvider,
-		MongoManager, ProcessProvider, SetupListener, FirewallProvider,
-		AlarmProvider, BeanFactoryAware, FeatureListener, DaoEventListener {
+public class MongoManagerImpl implements AddressProvider, FeatureProvider, MongoManager, ProcessProvider,
+        SetupListener, FirewallProvider, AlarmProvider, BeanFactoryAware, FeatureListener, DaoEventListener {
     private static final Log LOG = LogFactory.getLog(MongoManagerImpl.class);
     private BeanWithSettingsDao<MongoSettings> m_settingsDao;
     private ConfigManager m_configManager;
@@ -154,8 +153,8 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider,
 
         addProcess(manager, location, procs, ARBITER_FEATURE, "mongod-arbiter",
                 ".*/mongod.*-f.*/mongod-arbiter.conf", "restart_mongo_arbiter");
-        addProcess(manager, location, procs, LOCAL_FEATURE, "mongo-local",
-                ".*/mongod.*-f.*/mongo-local.conf", "restart_mongo_local");
+        addProcess(manager, location, procs, LOCAL_FEATURE, "mongo-local", ".*/mongod.*-f.*/mongo-local.conf",
+                "restart_mongo_local");
         addProcess(manager, location, procs, LOCAL_ARBITER_FEATURE, "mongo-local-arbiter",
                 ".*/mongod.*-f.*/mongo-local-arbiter.conf", "restart_mongo_local_arbiter");
 
@@ -279,13 +278,12 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider,
         throw new IllegalArgumentException();
     }
 
-
-	@Override
-	public String removeLastLocalArbiter(String hostPort) {
+    @Override
+    public String removeLastLocalArbiter(String hostPort) {
         throw new IllegalArgumentException();
-	}
+    }
 
-	@Override
+    @Override
     public String getLastConfigError() {
         return m_globalManager.getLastConfigError();
     }
@@ -342,46 +340,45 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider,
         m_featureManager = featureManager;
     }
 
-	@Override
-	public String addLocalDatabase(String primary, String hostPort) {
+    @Override
+    public String addLocalDatabase(String primary, String hostPort) {
         throw new IllegalArgumentException();
-	}
+    }
 
-	@Override
-	public String addLocalArbiter(String primary, String hostPort) {
+    @Override
+    public String addLocalArbiter(String primary, String hostPort) {
         throw new IllegalArgumentException();
-	}
+    }
 
-	@Override
-	public String removeLocalDatabase(String primary, String hostPort) {
+    @Override
+    public String removeLocalDatabase(String primary, String hostPort) {
         throw new IllegalArgumentException();
-	}
+    }
 
-	@Override
-	public String removeLocalArbiter(String primary, String hostPort) {
+    @Override
+    public String removeLocalArbiter(String primary, String hostPort) {
         throw new IllegalArgumentException();
-	}
+    }
 
-	@Override
-	public void onDelete(Object entity) {
-		if (entity instanceof Region) {
-			Region r = (Region) entity;
-			String sql = "select count(*) from feature_local f, location l where "
-					+ "l.region_id = ? and l.location_id = f.location_id and "
-					+ "f.feature_id in (?,?)";
-			int nLocalDbs = m_configJdbcTemplate.queryForInt(sql, r.getId(), LOCAL_FEATURE.getId(), 
-					LOCAL_ARBITER_FEATURE.getId());
-			if (nLocalDbs > 0) {
-				throw new UserException("&error.localDbsWithRegion");
-			}
-		}
-	}
+    @Override
+    public void onDelete(Object entity) {
+        if (entity instanceof Region) {
+            Region r = (Region) entity;
+            String sql = "select count(*) from feature_local f, location l where "
+                    + "l.region_id = ? and l.location_id = f.location_id and " + "f.feature_id in (?,?)";
+            int nLocalDbs = m_configJdbcTemplate.queryForInt(sql, r.getId(), LOCAL_FEATURE.getId(),
+                    LOCAL_ARBITER_FEATURE.getId());
+            if (nLocalDbs > 0) {
+                throw new UserException("&error.localDbsWithRegion");
+            }
+        }
+    }
 
-	@Override
-	public void onSave(Object entity) {
-	}
+    @Override
+    public void onSave(Object entity) {
+    }
 
-	public void setConfigJdbcTemplate(JdbcTemplate configJdbc) {
-		m_configJdbcTemplate = configJdbc;
-	}
+    public void setConfigJdbcTemplate(JdbcTemplate configJdbc) {
+        m_configJdbcTemplate = configJdbc;
+    }
 }

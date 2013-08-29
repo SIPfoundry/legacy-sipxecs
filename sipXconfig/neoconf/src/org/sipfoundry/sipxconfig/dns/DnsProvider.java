@@ -16,8 +16,8 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
+
 import java.util.Collection;
-import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressType;
@@ -27,5 +27,5 @@ public interface DnsProvider {
 
     public Address getAddress(DnsManager manager, AddressType t, Collection<Address> addresses, Location whoIsAsking);
 
-    public List<ResourceRecords> getResourceRecords(DnsManager manager, Location whoIsAsking);
+    public Collection<ResourceRecords> getResourceRecords(DnsManager manager);
 }

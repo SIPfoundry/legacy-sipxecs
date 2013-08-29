@@ -32,7 +32,8 @@ import org.sipfoundry.sipxconfig.region.Region;
 
 public class MongoReplSetManagerImpl implements MongoReplSetManager {
     private static final Log LOG = LogFactory.getLog(MongoReplSetManagerImpl.class);
-    private static final String BLANK_MODEL = "{ \"servers\" : [ ] , \"local\" : true , \"arbiters\" : [ ] , \"replSet\" : \"sipxlocal\"}";
+    private static final String BLANK_MODEL = "{ \"servers\" : [ ] , \"local\" : true , "
+            + "\"arbiters\" : [ ] , \"replSet\" : \"sipxlocal\"}";
     private int m_timeout = 10000;
     private int m_backgroundTimeout = 120000; // can take a while for fresh mongo to init
     private String m_mongoStatusScript;
@@ -49,12 +50,12 @@ public class MongoReplSetManagerImpl implements MongoReplSetManager {
     private LocationFeature m_larbFeature = MongoManager.LOCAL_ARBITER_FEATURE;
 
     @Override
-    public MongoMeta getMeta() {    	
+    public MongoMeta getMeta() {
         MongoMeta meta = new MongoMeta();
         StringBuilder cmd = new StringBuilder(m_mongoStatusScript).append(" --full");
-    	if (m_region != null) {
-    		appendModel(cmd);
-    	}
+        if (m_region != null) {
+            appendModel(cmd);
+        }
         String statusToken = run(new SimpleCommandRunner(), cmd.toString());
         meta.setStatusToken(statusToken);
 
@@ -67,17 +68,17 @@ public class MongoReplSetManagerImpl implements MongoReplSetManager {
 
         return meta;
     }
-    
+
     void appendModel(StringBuilder cmd) {
-    	File modelFile = MongoConfig.getShardModelFile(m_configManager, m_region);
-    	// on very first db add, file may not exist
-    	if (!modelFile.exists()) {
-    		try {
-    			FileUtils.writeStringToFile(modelFile, BLANK_MODEL);
-    		} catch (IOException e) {
-    			throw new RuntimeException("Could not generate initial model file", e);
-    		}
-    	}
+        File modelFile = MongoConfig.getShardModelFile(m_configManager, m_region);
+        // on very first db add, file may not exist
+        if (!modelFile.exists()) {
+            try {
+                FileUtils.writeStringToFile(modelFile, BLANK_MODEL);
+            } catch (IOException e) {
+                throw new RuntimeException("Could not generate initial model file", e);
+            }
+        }
         cmd.append(" --model ");
         cmd.append(modelFile.getName());
     }
@@ -97,15 +98,15 @@ public class MongoReplSetManagerImpl implements MongoReplSetManager {
      */
     @Override
     public String removeLastLocalDatabase(String hostPort) {
-    	return removeLastLocal(hostPort, m_ldbFeature);    	
+        return removeLastLocal(hostPort, m_ldbFeature);
     }
-    	
+
     /**
      * Only to be used on last local database or arbiter, otherwise just removeDatabase
      */
     @Override
     public String removeLastLocalArbiter(String hostPort) {
-    	return removeLastLocal(hostPort, m_larbFeature);    	
+        return removeLastLocal(hostPort, m_larbFeature);
     }
 
     public String removeLastLocal(String hostPort, LocationFeature f) {
@@ -204,9 +205,8 @@ public class MongoReplSetManagerImpl implements MongoReplSetManager {
 
     /**
      * Nothing fancy because it would never run fast enough to return in the foreground timeout
-     * and even if there were errors, they may not be related to what you're trying to
-     * do and you'd likely have to ignore them anyway.  The error still go into the job
-     * status table
+     * and even if there were errors, they may not be related to what you're trying to do and
+     * you'd likely have to ignore them anyway. The error still go into the job status table
      */
     class ConfigCommandRunner implements CommandRunner {
         private boolean m_inProgress;
@@ -276,7 +276,7 @@ public class MongoReplSetManagerImpl implements MongoReplSetManager {
             cmd.append(" --primary ").append(primary);
         }
         if (m_region != null) {
-        	appendModel(cmd);
+            appendModel(cmd);
         }
         cmd.append(' ').append(action);
         String command = cmd.toString();

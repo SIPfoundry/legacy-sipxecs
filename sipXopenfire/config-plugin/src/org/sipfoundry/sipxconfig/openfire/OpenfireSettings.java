@@ -35,6 +35,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class OpenfireSettings extends PersistableSettings implements DeployConfigOnEdit {
+    public static final int XMPP_PORT = 5222;
     private static final String LOCALE = "settings/locale";
     private static final String LOG_LEVEL = "settings/log.level";
     private static final String ENABLE_PRESENCE = "settings/enable-presence";

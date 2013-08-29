@@ -41,18 +41,17 @@ public class MongoMeta {
         }
         m_meta = (Map<String, Map<String, Object>>) statusData.get("meta");
     }
-    
+
     /**
      * Used when a mongo cluster has no nodes yet
      */
     public void setEmptyStatus() {
-        m_nodes = new TreeMap<String, MongoNode>();    	
+        m_nodes = new TreeMap<String, MongoNode>();
     }
 
     @SuppressWarnings("unchecked")
     public void setAnalysisToken(String analysisToken) {
-        m_analysis = (Map<String, Map<String, List<String>>>) JSON
-                .parse(analysisToken);
+        m_analysis = (Map<String, Map<String, List<String>>>) JSON.parse(analysisToken);
     }
 
     public MongoNode getNode(String id) {

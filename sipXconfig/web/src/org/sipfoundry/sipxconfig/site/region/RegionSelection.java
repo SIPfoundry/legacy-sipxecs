@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2013 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ */
 package org.sipfoundry.sipxconfig.site.region;
 
 import java.util.ArrayList;
@@ -22,108 +36,104 @@ import org.sipfoundry.sipxconfig.region.RegionManager;
 
 public abstract class RegionSelection extends BaseComponent {
 
-	@InjectObject("spring:regionManager")
-	public abstract RegionManager getRegionManager();
+    @InjectObject("spring:regionManager")
+    public abstract RegionManager getRegionManager();
 
-	@InjectObject("spring:tapestry")
-	public abstract TapestryContext getTapestry();
+    @InjectObject("spring:tapestry")
+    public abstract TapestryContext getTapestry();
 
-	public abstract void setRegionId(Integer regionId);
-	
-	@Parameter(required = true)
-	public abstract Integer getRegionId();
+    public abstract void setRegionId(Integer regionId);
 
-	public abstract void setSelectedAction(IActionListener selectedAction);
+    @Parameter(required = true)
+    public abstract Integer getRegionId();
 
-	public abstract IActionListener getSelectedAction();
+    public abstract void setSelectedAction(IActionListener selectedAction);
 
-	@Override
-	protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
-		Region region = null;
-		Integer regionId = getRegionId();
-		if (regionId != null) {
-			region = getRegionManager().getRegion(regionId);
-			if (region != null) {
-				setSelectedAction(new RegionAction(region));			
-			}			
-		} 
-		
-		if (region == null) {
-			setSelectedAction(null);
-		}
+    public abstract IActionListener getSelectedAction();
 
-		super.renderComponent(writer, cycle);
-		if (TapestryUtils.isRewinding(cycle, this)
-				&& TapestryUtils.isValid(this)) {
-			triggerAction(cycle);
-		}
-	}
+    @Override
+    protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
+        Region region = null;
+        Integer regionId = getRegionId();
+        if (regionId != null) {
+            region = getRegionManager().getRegion(regionId);
+            if (region != null) {
+                setSelectedAction(new RegionAction(region));
+            }
+        }
 
-	private void triggerAction(IRequestCycle cycle) {
-		IActionListener a = getSelectedAction();
-		RegionAction action;
-		if (a != null) {
-			if (!(a instanceof RegionAction)) {
-				return;
-			}
+        if (region == null) {
+            setSelectedAction(null);
+        }
 
-			action = (RegionAction) a;
-			Region region = action.getSelectedRegion();
-			if (region != null) {
-				action.setId(region.getId());
-			}
-		} else {
-			// no item is selected
-			action = new RegionAction(null);
-			action.setId(null);
-		}
-		action.actionTriggered(this, cycle);
-	}
+        super.renderComponent(writer, cycle);
+        if (TapestryUtils.isRewinding(cycle, this) && TapestryUtils.isValid(this)) {
+            triggerAction(cycle);
+        }
+    }
 
-	public IPropertySelectionModel getRegionsModel() {
-		List<Region> regiones = getRegionManager().getRegions();
-		Collection<OptionAdapter<Region>> options = new ArrayList<OptionAdapter<Region>>();
-		for (Region region : regiones) {
-			RegionAction adapter = new RegionAction(region);
-			options.add(adapter);
-		}
-		AdaptedSelectionModel regionSelectionModel = new AdaptedSelectionModel();
-		regionSelectionModel.setCollection(options);
-		return getTapestry().instructUserToSelect(regionSelectionModel,
-				getMessages());
-	}
+    private void triggerAction(IRequestCycle cycle) {
+        IActionListener a = getSelectedAction();
+        RegionAction action;
+        if (a != null) {
+            if (!(a instanceof RegionAction)) {
+                return;
+            }
 
-	private class RegionAction extends RegionAdapter {
-		public RegionAction(Region region) {
-			super(region);
-		}
+            action = (RegionAction) a;
+            Region region = action.getSelectedRegion();
+            if (region != null) {
+                action.setId(region.getId());
+            }
+        } else {
+            // no item is selected
+            action = new RegionAction(null);
+            action.setId(null);
+        }
+        action.actionTriggered(this, cycle);
+    }
 
-		public void actionTriggered(IComponent component,
-				final IRequestCycle cycle) {
-			Region selected = getSelectedRegion();
-			Integer id = (selected == null ? null : selected.getId()); 
-			setRegionId(id);
-		}
+    public IPropertySelectionModel getRegionsModel() {
+        List<Region> regiones = getRegionManager().getRegions();
+        Collection<OptionAdapter<Region>> options = new ArrayList<OptionAdapter<Region>>();
+        for (Region region : regiones) {
+            RegionAction adapter = new RegionAction(region);
+            options.add(adapter);
+        }
+        AdaptedSelectionModel regionSelectionModel = new AdaptedSelectionModel();
+        regionSelectionModel.setCollection(options);
+        return getTapestry().instructUserToSelect(regionSelectionModel, getMessages());
+    }
 
-		@Override
-		public Object getValue(Object option, int index) {
-			return this;
-		}
+    private class RegionAction extends RegionAdapter {
+        public RegionAction(Region region) {
+            super(region);
+        }
 
-		@Override
-		public String squeezeOption(Object option, int index) {
-			return getSelectedRegion().getId().toString();
-		}
+        public void actionTriggered(IComponent component, final IRequestCycle cycle) {
+            Region selected = getSelectedRegion();
+            Integer id = (selected == null ? null : selected.getId());
+            setRegionId(id);
+        }
 
-		@Override
-		public boolean equals(Object obj) {
-			return ObjectUtils.equals(this.getSelectedRegion(),
-					((RegionAction) obj).getSelectedRegion());
-		}
+        @Override
+        public Object getValue(Object option, int index) {
+            return this;
+        }
 
-		@Override
-		public int hashCode() {
-			return this.getSelectedRegion().hashCode();
-		}
-	}
+        @Override
+        public String squeezeOption(Object option, int index) {
+            return getSelectedRegion().getId().toString();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return ObjectUtils.equals(this.getSelectedRegion(), ((RegionAction) obj).getSelectedRegion());
+        }
+
+        @Override
+        public int hashCode() {
+            return this.getSelectedRegion().hashCode();
+        }
+    }
 }

@@ -45,7 +45,7 @@ public interface MongoReplSetManager {
     public String removeLocalDatabase(String primary, String hostPort);
 
     public String removeLocalArbiter(String primary, String hostPort);
-    
+
     public String takeAction(String primary, String server, String action);
 
     public String getLastConfigError();

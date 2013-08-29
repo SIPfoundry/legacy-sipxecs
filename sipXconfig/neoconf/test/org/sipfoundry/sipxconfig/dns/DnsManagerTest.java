@@ -16,13 +16,11 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +68,7 @@ public class DnsManagerTest implements DnsProvider {
             }
 
             @Override
-            public List<ResourceRecords> getResourceRecords(DnsManager manager, Location whoIsAsking) {
+            public Collection<ResourceRecords> getResourceRecords(DnsManager manager) {
                 return null;
             }
         };            
@@ -91,7 +89,7 @@ public class DnsManagerTest implements DnsProvider {
             }
 
             @Override
-            public List<ResourceRecords> getResourceRecords(DnsManager manager, Location whoIsAsking) {
+            public Collection<ResourceRecords> getResourceRecords(DnsManager manager) {
                 return null;
             }
         };            
@@ -107,7 +105,7 @@ public class DnsManagerTest implements DnsProvider {
     }
 
     @Override
-    public List<ResourceRecords> getResourceRecords(DnsManager manager, Location whoIsAsking) {
+    public Collection<ResourceRecords> getResourceRecords(DnsManager manager) {
         return null;
     }
 }

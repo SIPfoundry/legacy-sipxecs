@@ -29,6 +29,10 @@ import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.RunRequest;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.dns.DnsManager;
+import org.sipfoundry.sipxconfig.dns.DnsProvider;
+import org.sipfoundry.sipxconfig.dns.ResourceRecord;
+import org.sipfoundry.sipxconfig.dns.ResourceRecords;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
@@ -48,7 +52,7 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.annotation.Required;
 
 public class OpenfireImpl extends ImManager implements FeatureProvider, AddressProvider, ProcessProvider, Openfire,
-    FirewallProvider {
+    FirewallProvider, DnsProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
         XMPP_ADDRESS, XMPP_SECURE_ADDRESS, XMPP_FEDERATION_ADDRESS, XMLRPC_ADDRESS, XMLRPC_VCARD_ADDRESS,
         WATCHER_ADDRESS, XMPP_FILE_TRANSFER_PROXY_ADDRESS, XMPP_ADMIN_CONSOLE_ADDRESS
@@ -179,5 +183,45 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
     @Required
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
+    }
+
+    @Override
+    public Address getAddress(DnsManager manager, AddressType t, Collection<Address> addresses, Location whoIsAsking) {
+        return null;
+    }
+
+    @Override
+    public Collection<ResourceRecords> getResourceRecords(DnsManager manager) {
+        FeatureManager fm = manager.getAddressManager().getFeatureManager();
+        List<Location> locations = fm.getLocationsForEnabledFeature(FEATURE);
+        if (locations == null || locations.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String root = ""; // THE sip root resource and no resource name
+        String conference = "conference";
+        String serverProto = "_xmpp-server._tcp";
+        String clientProto = "_xmpp-client._tcp";
+        ResourceRecords[] records = new ResourceRecords[] {
+            new ResourceRecords(serverProto, root, false),
+            new ResourceRecords(clientProto, root, false),
+            new ResourceRecords(serverProto, conference, false),
+            new ResourceRecords(clientProto, conference, false)
+        };
+        OpenfireSettings settings = getSettings();
+        int clientPort = OpenfireSettings.XMPP_PORT;
+        int federationPort = settings.getXmppFederationPort();
+        int[] ports = new int[] {
+                federationPort,
+                clientPort,
+                federationPort,
+                clientPort
+        };
+        for (int i = 0; i < records.length; i++) {
+            for (Location l : locations) {
+                records[i].addRecord(new ResourceRecord(l.getHostname(), ports[i], l.getRegionId()));
+            }
+        }
+        return Arrays.asList(records);
     }
 }

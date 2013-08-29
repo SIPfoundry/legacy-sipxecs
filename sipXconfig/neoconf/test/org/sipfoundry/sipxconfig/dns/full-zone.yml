@@ -1,59 +1,48 @@
 serialno: 1
-sip_protocols: [ udp, tcp, tls ]
 naptr_protocols: [ udp, tcp ]
 domain: x
-proxy_servers:
- - :name: one.example.org
-   :ipv4: 1.1.1.1
-   :port: 0
- - :name: two.example.org
-   :ipv4: 2.2.2.2
-   :port: 0
- - :name: three.example.org
-   :ipv4: 3.3.3.3
-   :port: 0
 resource_records:
  - :proto: _sip._tcp
+   :lhs: _sip._tcp.rr1
    :resource: rr1
-   :records:
-    - :name: one.example.org
-      :ipv4: 1.1.1.1
-      :port: 0
-      :target: one.example.org
- - :proto: _xyx._abc
+   :priority: 30
+   :weight: 10
+   :port: 1
+   :target: s1
+   :host: 
+ - :proto: _sip._tcp
+   :lhs: _sip._tcp.rr2.h1
    :resource: rr2
-   :records:
-    - :name: two.example.org
-      :ipv4: 2.2.2.2
-      :port: 0
-      :target: two.example.org
+   :priority: 30
+   :weight: 10
+   :port: 2
+   :target: s1
+   :host: h1
+ - :proto: _sip._tcp
+   :lhs: _sip._tcp.rr3.h2
+   :resource: rr3
+   :priority: 30
+   :weight: 10
+   :port: 3
+   :target: s1
+   :host: h2
 dns_servers:
- - :name: one.example.org
+ - :name: one
    :ipv4: 1.1.1.1
    :port: 0
- - :name: two.example.org
+ - :name: two
    :ipv4: 2.2.2.2
    :port: 0
- - :name: three.example.org
-   :ipv4: 3.3.3.3
-   :port: 0
-im_servers:
- - :name: one.example.org
-   :ipv4: 1.1.1.1
-   :port: 0
- - :name: two.example.org
-   :ipv4: 2.2.2.2
-   :port: 0
- - :name: three.example.org
+ - :name: three
    :ipv4: 3.3.3.3
    :port: 0
 all_servers:
- - :name: one.example.org
+ - :name: one
    :ipv4: 1.1.1.1
    :port: 0
- - :name: two.example.org
+ - :name: two
    :ipv4: 2.2.2.2
    :port: 0
- - :name: three.example.org
+ - :name: three
    :ipv4: 3.3.3.3
    :port: 0

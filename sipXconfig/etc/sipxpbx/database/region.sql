@@ -11,3 +11,4 @@ alter table location add constraint fk_users_branch
   foreign key (region_id)
   references region(region_id) match full
   on delete set null;
+
