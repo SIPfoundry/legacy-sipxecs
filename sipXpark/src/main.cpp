@@ -225,7 +225,6 @@ int main(int argc, char* argv[])
   SipXApplication::instance().init(argc, argv, rlsData);
 
   OsConfigDb& configDb = SipXApplication::instance().getConfig().getOsConfigDb();
-
   {
     // Read the user agent parameters from the config file.
     int UdpPort;
