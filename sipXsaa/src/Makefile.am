@@ -42,7 +42,6 @@ noinst_HEADERS = \
 	AppearanceAgent.h \
 	ResourceSubscriptionReceiver.h \
 	ResourceNotifyReceiver.h \
-	ResourceListMsg.h \
-	main.h
-
+	ResourceListMsg.h
+	
 install-exec-hook :

@@ -65,4 +65,5 @@ libsipXcommserver_la_SOURCES = \
     sipXecsService/daemon.cpp \
     sipXecsService/SipXecsService.cpp \
     sipXecsService/SipNonceDb.cpp \
-    sipXecsService/SharedSecret.cpp
+    sipXecsService/SharedSecret.cpp \
+    sipXecsService/SipXApplication.cpp

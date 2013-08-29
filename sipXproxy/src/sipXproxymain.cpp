@@ -35,6 +35,7 @@
 #include <SipXProxyCseObserver.h>
 #include <utl/Instrumentation.h>
 #include "config.h"
+#include "sipXecsService/SipXApplication.h"
 
 //
 // Exception handling
@@ -52,6 +53,7 @@
 #define LOG_FACILITY   FAC_SIP
 
 // Configuration names pulled from config-file
+#define SIPXPROXY_APP_NAME            "SipXProxy"
 #define CONFIG_SETTING_BIND_IP        "SIPX_PROXY_BIND_IP"
 #define CONFIG_SETTINGS_FILE          "sipXproxy-config"
 #define CONFIG_SETTING_LOG_LEVEL      "SIPX_PROXY_LOG_LEVEL"
@@ -79,143 +81,6 @@ UtlBoolean gShutdownFlag = FALSE;
 UtlBoolean gClosingIMDB = FALSE;
 OsMutex* gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
 
-/**
- * Description:
- * closes any open connections to the IMDB safely using a mutex lock
- */
-void initSysLog(OsConfigDb* pConfig)
-{
-   UtlString consoleLogging;         // Enable console logging by default?
-   UtlString fileTarget;             // Path to store log file.
-   UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
-                                    // exist
-
-   Os::LoggerHelper::instance().processName = "SipXProxy";
-
-   //
-   // Get/Apply Log Filename
-   //
-   if ((pConfig->get(CONFIG_SETTING_LOG_DIR, fileTarget) != OS_SUCCESS) ||
-      fileTarget.isNull() || !OsFileSystem::exists(fileTarget))
-   {
-      bSpecifiedDirError = !fileTarget.isNull() ;
-
-      // If the log file directory exists use that, otherwise place the log
-      // in the current directory
-      OsPath workingDirectory;
-      if (OsFileSystem::exists(CONFIG_LOG_DIR))
-      {
-         fileTarget = CONFIG_LOG_DIR;
-         OsPath path(fileTarget);
-         path.getNativePath(workingDirectory);
-
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
-         Os::Logger::instance().log(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
-      }
-      else
-      {
-         OsPath path;
-         OsFileSystem::getWorkingDirectory(path);
-         path.getNativePath(workingDirectory);
-
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
-         Os::Logger::instance().log(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data()) ;
-      }
-
-      fileTarget = workingDirectory + OsPathBase::separator + SIPX_PROXY_LOG_FILE;
-   }
-   else
-   {
-      bSpecifiedDirError = false ;
-      osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, fileTarget.data()) ;
-      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, fileTarget.data()) ;
-
-      fileTarget = fileTarget +
-         OsPathBase::separator +
-         SIPX_PROXY_LOG_FILE;
-   }
-
-   
-
-   //
-   // Get/Apply Log Level
-   //
-   SipXecsService::setLogPriority( CONFIG_SETTINGS_FILE, PROXY_CONFIG_PREFIX );
-   Os::Logger::instance().setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
-   Os::LoggerHelper::instance().initialize(fileTarget.data());
-   //
-   // Get/Apply console logging
-   //
-   UtlBoolean bConsoleLoggingEnabled = false ;
-   if ((pConfig->get(CONFIG_SETTING_LOG_CONSOLE, consoleLogging) ==
-         OS_SUCCESS))
-   {
-      consoleLogging.toUpper();
-      if (consoleLogging == "ENABLE")
-      {
-         Os::Logger::instance().enableConsoleOutput(true);
-         bConsoleLoggingEnabled = true ;
-      }
-   }
-
-   osPrintf("%s : %s\n", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
-   Os::Logger::instance().log(FAC_SIP, PRI_INFO, "%s : %s",
-                 CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
-
-   if (bSpecifiedDirError)
-   {
-      Os::Logger::instance().log(FAC_LOG, PRI_CRIT,
-                    "Cannot access %s directory; please check configuration.",
-                    CONFIG_SETTING_LOG_DIR);
-   }
-}
-
-// copy error information to log. registered only after logger has been configured.
-void catch_global()
-{
-#define catch_global_print(msg)  \
-  std::ostringstream bt; \
-  bt << msg << std::endl; \
-  void* trace_elems[20]; \
-  int trace_elem_count(backtrace( trace_elems, 20 )); \
-  char** stack_syms(backtrace_symbols(trace_elems, trace_elem_count)); \
-  for (int i = 0 ; i < trace_elem_count ; ++i ) \
-    bt << stack_syms[i] << std::endl; \
-  Os::Logger::instance().log(FAC_LOG, PRI_CRIT, bt.str().c_str()); \
-  std::cerr << bt.str().c_str(); \
-  free(stack_syms);
-
-  try
-  {
-      throw;
-  }
-  catch (std::string& e)
-  {
-    catch_global_print(e.c_str());
-  }
-#ifdef MONGO_assert
-  catch (mongo::DBException& e)
-  {
-    catch_global_print(e.toString().c_str());
-  }
-#endif
-  catch (boost::exception& e)
-  {
-    catch_global_print(diagnostic_information(e).c_str());
-  }
-  catch (std::exception& e)
-  {
-    catch_global_print(e.what());
-  }
-  catch (...)
-  {
-    catch_global_print("Error occurred. Unknown exception type.");
-  }
-
-  std::abort();
-}
-
-
 int proxy()
 {
     int proxyTcpPort;
@@ -229,21 +94,9 @@ int proxy()
     UtlString authScheme;    
     UtlString ipAddress;
 
-    OsMsgQShared::setQueuePreference(OsMsgQShared::QUEUE_UNLIMITED);
+    OsConfigDb& configDb = SipXApplication::instance().getConfigDb();
 
     OsSocket::getHostIp(&ipAddress);
-
-    OsPath ConfigfileName = SipXecsService::Path(SipXecsService::ConfigurationDirType,
-                                                 CONFIG_SETTINGS_FILE);
-    OsConfigDb configDb;
-
-    if(OS_SUCCESS != configDb.loadFromFile(ConfigfileName))
-    {      
-       exit(1);
-    }
-    // Initialize the OsSysLog...
-    initSysLog(&configDb);
-    std::set_terminate(catch_global);
 
     configDb.get(CONFIG_SETTING_BIND_IP, bindIp);
     if ((bindIp.isNull()) || !OsSocket::isIp4Address(bindIp))
@@ -687,8 +540,12 @@ int proxy()
     pRouter->start();
 
     // Do not exit, let the proxy do its stuff
-    while( !gShutdownFlag ) {
-        OsTask::delay(1000);
+    if (!gShutdownFlag)
+    {
+      while(!SipXApplication::instance().terminationRequested())
+      {
+          OsTask::delay(1000);
+      }
     }
  
     // This is a server task so gracefully shutdown the
@@ -713,63 +570,31 @@ int proxy()
       }
     }
 
-    // End the singleton threads.
-    OsTimer::terminateTimerService();
     OsStunAgentTask::releaseInstance();
 
     return 0 ;
 }
 
-void signal_handler(int sig) {
-  switch(sig)
-  {
-    case SIGPIPE:
-      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGPIPE caught. Ignored.");
-      break;
-
-    case SIGHUP:
-      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGHUP caught. Ignored.");
-      break;
-
-    case SIGTERM:
-      gShutdownFlag = TRUE;
-      Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGTERM caught. Shutting down.");
-      break;
-
-    case SIGUSR1:
-      system_tap_start_portlib_instrumentation(true/*Bactrace enabled*/);
-      Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "SIGUSR1 caught. Starting instrumentations.");
-      break;
-      
-    case SIGUSR2:
-      system_tap_stop_portlib_instrumentation();
-      Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "SIGUSR2 caught. Starting instrumentations.");
-      break;
-  }
-}
 
 // USAGE:  sipXproxy [-v] [pidfile]
 int main(int argc, char* argv[]) {
-    char* pidFile = NULL;
-    for(int i = 1; i < argc; i++) {
-        if(strncmp("-v", argv[i], 2) == 0) {
-  	    std::cout << "Version: " << PACKAGE_VERSION << PACKAGE_REVISION << std::endl;
-	    exit(0);
-	} else {
-            pidFile = argv[i];
-	}
-    }
-    if (pidFile) {
-      daemonize(pidFile);
-    }
-    signal(SIGHUP, signal_handler); // catch hangup signal
-    signal(SIGTERM, signal_handler); // catch kill signal
-    signal(SIGPIPE, signal_handler); // r/w socket failure
-    signal(SIGUSR1, signal_handler);
-    signal(SIGUSR2, signal_handler);
-    proxy();
-    Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "Exiting") ;
-    Os::Logger::instance().flush();
 
-    mongo::dbexit(mongo::EXIT_CLEAN);
+  SipXApplicationData rlsData =
+  {
+      SIPXPROXY_APP_NAME,
+      CONFIG_SETTINGS_FILE,
+      SIPX_PROXY_LOG_FILE,
+      "",
+      PROXY_CONFIG_PREFIX,
+      true, // daemonize
+      false, // do not check mongo connection
+      OsMsgQShared::QUEUE_UNLIMITED,
+  };
+
+  // NOTE: this might exit application in case of failure
+  SipXApplication::instance().init(argc, argv, rlsData);
+
+  proxy();
+
+  SipXApplication::instance().terminate();
 }

@@ -26,13 +26,14 @@
 #include "utl/UtlString.h"
 #include "xmlparser/tinystr.h"
 #include "AppearanceAgent.h"
-#include "main.h"
 #include <sipXecsService/daemon.h>
+#include "sipXecsService/SipXApplication.h"
 
 // DEFINES
 #include "config.h"
 
 // SIPXSAA User ID
+#define SIPXSAA_APP_NAME              "sipxsaa"
 #define SAASERVER_ID_TOKEN            "~~id~sipXsaa"
 #define CONFIG_SETTINGS_FILE          "sipxsaa-config"
 #define CONFIG_ETC_DIR                SIPX_CONFDIR
@@ -84,145 +85,8 @@
 // STATIC VARIABLE INITIALIZATIONS
 // GLOBAL VARIABLE INITIALIZATIONS
 
-UtlBoolean    gShutdownFlag = FALSE;
-
 
 /* ============================ FUNCTIONS ================================= */
-
-
-// copy error information to log. registered only after logger has been configured.
-void catch_global()
-{
-#define catch_global_print(msg)  \
-  std::ostringstream bt; \
-  bt << msg << std::endl; \
-  void* trace_elems[20]; \
-  int trace_elem_count(backtrace( trace_elems, 20 )); \
-  char** stack_syms(backtrace_symbols(trace_elems, trace_elem_count)); \
-  for (int i = 0 ; i < trace_elem_count ; ++i ) \
-    bt << stack_syms[i] << std::endl; \
-  Os::Logger::instance().log(FAC_LOG, PRI_CRIT, bt.str().c_str()); \
-  std::cerr << bt.str().c_str(); \
-  free(stack_syms);
-
-  try
-  {
-      throw;
-  }
-  catch (std::string& e)
-  {
-    catch_global_print(e.c_str());
-  }
-#ifdef MONGO_assert
-  catch (mongo::DBException& e)
-  {
-    catch_global_print(e.toString().c_str());
-  }
-#endif
-  catch (boost::exception& e)
-  {
-    catch_global_print(diagnostic_information(e).c_str());
-  }
-  catch (std::exception& e)
-  {
-    catch_global_print(e.what());
-  }
-  catch (...)
-  {
-    catch_global_print("Error occurred. Unknown exception type.");
-  }
-
-  std::abort();
-}
-
-// Initialize the OsSysLog
-void initSysLog(OsConfigDb* pConfig)
-{
-   UtlString logLevel;               // Controls Log Verbosity
-   UtlString consoleLogging;         // Enable console logging by default?
-   UtlString fileTarget;             // Path to store log file.
-   UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
-                                    // exist
-   Os::LoggerHelper::instance().processName = "sipxsaa";
-
-   //
-   // Get/Apply Log Filename
-   //
-   fileTarget.remove(0);
-   if ((pConfig->get(CONFIG_SETTING_LOG_DIR, fileTarget) != OS_SUCCESS) ||
-      fileTarget.isNull() || !OsFileSystem::exists(fileTarget))
-   {
-      bSpecifiedDirError = !fileTarget.isNull();
-
-      // If the log file directory exists use that, otherwise place the log
-      // in the current directory
-      OsPath workingDirectory;
-      if (OsFileSystem::exists(CONFIG_LOG_DIR))
-      {
-         fileTarget = CONFIG_LOG_DIR;
-         OsPath path(fileTarget);
-         path.getNativePath(workingDirectory);
-
-         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s",
-                       CONFIG_SETTING_LOG_DIR, workingDirectory.data());
-      }
-      else
-      {
-         OsPath path;
-         OsFileSystem::getWorkingDirectory(path);
-         path.getNativePath(workingDirectory);
-
-         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s",
-                       CONFIG_SETTING_LOG_DIR, workingDirectory.data());
-      }
-
-      fileTarget = workingDirectory +
-         OsPathBase::separator +
-         CONFIG_LOG_FILE;
-   }
-   else
-   {
-      bSpecifiedDirError = false;
-      Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s",
-                    CONFIG_SETTING_LOG_DIR, fileTarget.data());
-
-      fileTarget = fileTarget +
-         OsPathBase::separator +
-         CONFIG_LOG_FILE;
-   }
-
-
-   //
-   // Get/Apply Log Level
-   //
-   SipXecsService::setLogPriority(*pConfig, CONFIG_SETTING_PREFIX);
-   Os::Logger::instance().setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
-   Os::LoggerHelper::instance().initialize(fileTarget);
-
-   //
-   // Get/Apply console logging
-   //
-   UtlBoolean bConsoleLoggingEnabled = false;
-   if ((pConfig->get(CONFIG_SETTING_LOG_CONSOLE, consoleLogging) == OS_SUCCESS))
-   {
-      consoleLogging.toUpper();
-      if (consoleLogging == "ENABLE")
-      {
-         Os::Logger::instance().enableConsoleOutput(true);
-         bConsoleLoggingEnabled = true;
-      }
-   }
-
-   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE,
-                 bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
-
-   if (bSpecifiedDirError)
-   {
-      Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
-                    "Cannot access %s directory; please check configuration.",
-                    CONFIG_SETTING_LOG_DIR);
-   }
-}
 
 // Get and add the credentials for sipXsaa
 SipLineMgr* addCredentials (EntityDB& entityDb, UtlString domain, UtlString realm)
@@ -319,52 +183,22 @@ SipLineMgr* addCredentials (EntityDB& entityDb, UtlString domain, UtlString real
 //
 int main(int argc, char* argv[])
 {
-   // Configuration Database (used for OsSysLog)
-   OsConfigDb configDb;
+  SipXApplicationData rlsData =
+  {
+      SIPXSAA_APP_NAME,
+      CONFIG_SETTINGS_FILE,
+      CONFIG_LOG_FILE,
+      "",
+      CONFIG_SETTING_PREFIX,
+      true, // daemonize
+      true, // check mongo connection
+      OsMsgQShared::QUEUE_UNLIMITED,
+  };
 
-   char* pidFile = NULL;
-   for(int i = 1; i < argc; i++) {
-       if(strncmp("-v", argv[i], 2) == 0) {
-         std::cout << "Version: " << PACKAGE_VERSION << PACKAGE_REVISION << std::endl;
-         exit(0);
-       } else {
-         pidFile = argv[i];
-       }
-   }
-   if (pidFile) {
-     daemonize(pidFile);
-   }
+  // NOTE: this might exit application in case of failure
+  SipXApplication::instance().init(argc, argv, rlsData);
 
-   OsMsgQShared::setQueuePreference(OsMsgQShared::QUEUE_UNLIMITED);
-
-   // Load configuration file.
-   OsPath workingDirectory;
-   if (OsFileSystem::exists(CONFIG_ETC_DIR))
-   {
-      workingDirectory = CONFIG_ETC_DIR;
-      OsPath path(workingDirectory);
-      path.getNativePath(workingDirectory);
-   }
-   else
-   {
-      OsPath path;
-      OsFileSystem::getWorkingDirectory(path);
-      path.getNativePath(workingDirectory);
-   }
-
-   UtlString fileName =  workingDirectory +
-      OsPathBase::separator +
-      CONFIG_SETTINGS_FILE;
-
-   if (configDb.loadFromFile(fileName) != OS_SUCCESS)
-   {
-      fprintf(stderr, "Failed to load %s", fileName.data());
-      exit(1);
-   }
-
-   // Initialize log file
-   initSysLog(&configDb);
-   std::set_terminate(catch_global);
+  OsConfigDb& configDb = SipXApplication::instance().getConfigDb();
 
    // Read the user agent parameters from the config file.
    int udpPort;
@@ -457,29 +291,18 @@ int main(int argc, char* argv[])
        serverMaxExpiration = SAA_DEFAULT_SERVER_MAX_EXPIRATION;
    }
 
-   std::string errmsg;
-   mongo::ConnectionString mongoConn = MongoDB::ConnectionInfo::connectionStringFromFile();
-   if (false == MongoDB::ConnectionInfo::testConnection(mongoConn, errmsg))
-   {
-       Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
-               "Failed to connect to '%s' - %s",
-               mongoConn.toString().c_str(), errmsg.c_str());
-
-       mongo::dbexit(mongo::EXIT_CLEAN);
-       return 1;
-   }
-
    // add the ~~sipXsaa credentials so that sipXsaa can respond to challenges
-   mongoConn = MongoDB::ConnectionInfo::connectionStringFromFile();
+   mongo::ConnectionString mongoConn = MongoDB::ConnectionInfo::connectionStringFromFile();
    SubscribeDB subscribeDb(MongoDB::ConnectionInfo(mongoConn, SubscribeDB::NS));
    EntityDB entityDb(MongoDB::ConnectionInfo(mongoConn, EntityDB::NS));
    SipLineMgr* lineMgr = addCredentials(entityDb, domainName, realm);
    if(NULL == lineMgr)
    {
-      return 1;
+     SipXApplication::instance().terminate();
+     return 1;
    }
 
-   if (!gShutdownFlag)
+   if (!SipXApplication::instance().terminationRequested())
    {
       // Initialize the AppearanceAgent.
       AppearanceAgent saa(domainName, realm, lineMgr,
@@ -497,7 +320,7 @@ int main(int argc, char* argv[])
       saa.start();
 
       // Loop forever until signaled to shut down
-      while (!Os::UnixSignals::instance().isTerminateSignalReceived() && !gShutdownFlag)
+      while (!SipXApplication::instance().terminationRequested())
       {
          OsTask::delay(2 * OsTime::MSECS_PER_SEC);
          // See if the list configuration file has changed.
@@ -508,18 +331,10 @@ int main(int argc, char* argv[])
       saa.shutdown();
    }
 
-   //
-   // Terminate the timer thread
-   //
-   OsTimer::terminateTimerService();
-   
-   // Flush the log file
-   Os::Logger::instance().flush();
-
    // Delete the LineMgr Object
    delete lineMgr;
 
-   mongo::dbexit(mongo::EXIT_CLEAN);
+   SipXApplication::instance().terminate();
 
    // Say goodnight Gracie...
    return 0;

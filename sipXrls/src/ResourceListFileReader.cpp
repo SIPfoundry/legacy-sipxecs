@@ -12,8 +12,8 @@
 
 #include "ResourceListFileReader.h"
 #include "ResourceListSet.h"
-#include "main.h"
 #include <os/OsLogger.h>
+#include <os/UnixSignals.h>
 #include <xmlparser/tinystr.h>
 #include <xmlparser/ExtractContent.h>
 #include <xmlparser/TiXmlUtlStringWriter.h>
@@ -243,7 +243,7 @@ void ResourceListUpdater::finalize()
    if (mChanges)
    {
       for (size_t i = mFirstDifference;
-           i < mInitialEntries && !gShutdownFlag;
+           i < mInitialEntries && !Os::UnixSignals::instance().isTerminateSignalReceived();
            i++)
       {
          // Note: because we're deleting, the element we want to remove
@@ -349,12 +349,11 @@ OsStatus ResourceListFileReader::initialize()
 
          // Find all the <list> elements.
          // Since this loop contains a delay and can run for a long time,
-         // we have to check gShutdownFlag to abort processing when
-         // a shutdown has been requested.
+         // when shutdown has been requested we'll abort processing.
          for (TiXmlNode* list_node = 0;
               (list_node = lists_node->IterateChildren("list",
                                                        list_node)) &&
-              !gShutdownFlag;
+                                                           !Os::UnixSignals::instance().isTerminateSignalReceived();
             )
          {
             if (list_node->Type() == TiXmlNode::ELEMENT)
@@ -426,12 +425,11 @@ OsStatus ResourceListFileReader::initialize()
                   // Find all the <resource> children, parse them, and compare them
                   // to the current resource list.
                   // Since this loop contains a delay and can run for a long time,
-                  // we have to check gShutdownFlag to abort processing when
-                  // a shutdown has been requested.
+                  // when shutdown has been requested we'll abort processing.
                   for (TiXmlNode* resource_node = 0;
                        (resource_node = list_element->IterateChildren("resource",
                                                                       resource_node)) &&
-                       !gShutdownFlag;
+                                                                          !Os::UnixSignals::instance().isTerminateSignalReceived();
                      )
                   {
                      if (resource_node->Type() == TiXmlNode::ELEMENT)
@@ -547,7 +545,7 @@ void ResourceListFileReader::xmlElemList(UtlSList& list,
    for (TiXmlNode* child_node = 0;
         (child_node = list_node->IterateChildren(element,
                                                  child_node)) &&
-         !gShutdownFlag;
+                                                     !Os::UnixSignals::instance().isTerminateSignalReceived();
       )
    {
       if (child_node->Type() == TiXmlNode::ELEMENT)
@@ -633,7 +631,7 @@ void ResourceListFileReader::getDisplayName(TiXmlElement* resource_element,
    for (TiXmlNode* name_node = 0;
         (name_node = resource_element->IterateChildren("name",
                                                        name_node)) &&
-         !gShutdownFlag;
+                                                           !Os::UnixSignals::instance().isTerminateSignalReceived();
       )
    {
       if (name_node->Type() == TiXmlNode::ELEMENT)

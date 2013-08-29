@@ -80,7 +80,7 @@ namespace Os
       _jumpBufferMutex.unlock();
     }
 
-    sigjmp_buf* _getJumpBuffer()
+    static sigjmp_buf* _getJumpBuffer()
     {
       mutex_lock lock(_jumpBufferMutex);
       pthread_t tid = ::pthread_self();
@@ -104,7 +104,8 @@ namespace Os
           sig == 	SIGKILL ||
           sig == 	SIGTERM )
       {
-        _is_termination_signal_received() = true;
+        bool& termination_signal_received = _is_termination_signal_received();
+        termination_signal_received = true;
       }
 
       if (sig == SIGILL ||
