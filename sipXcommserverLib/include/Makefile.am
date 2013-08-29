@@ -7,6 +7,7 @@ nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 # of compile dependencies in other sipX projects
 nobase_include_HEADERS =  \
     sipXecsService/SipXecsService.h \
+    sipXecsService/SipXApplication.h \
     sipXecsService/SharedSecret.h \
     sipXecsService/SipNonceDb.h \
     sipXecsService/daemon.h \

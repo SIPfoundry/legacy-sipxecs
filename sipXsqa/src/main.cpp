@@ -33,8 +33,6 @@ int main(int argc, char** argv)
 
   service.addOptionInt("id", ": Address where to send control commands.");
   service.addOptionFlag("test-driver", ": Set this flag if you want to run the driver unit tests to ensure proper operations.");
-  
-
 
   if (!service.parseOptions() ||
           !service.hasOption("zmq-subscription-address") ||

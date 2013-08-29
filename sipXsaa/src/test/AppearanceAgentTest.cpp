@@ -28,9 +28,6 @@
 #include "../Appearance.h"
 #include "RlsTestFixtures.h"
 
-// GLOBALS
-UtlBoolean    gShutdownFlag = FALSE;
-
 class AppearanceAgentTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(AppearanceAgentTest);

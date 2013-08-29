@@ -14,7 +14,7 @@
 #include "xmlparser/tinystr.h"
 #include "AppearanceGroupFileReader.h"
 #include "AppearanceGroupSet.h"
-#include "main.h"
+#include "os/UnixSignals.h"
 
 // DEFINES
 // EXTERNAL FUNCTIONS
@@ -114,13 +114,12 @@ OsStatus AppearanceGroupFileReader::initialize()
                        mFileName.data());
          // For all groups in the current GroupSet, remove them if not in the new list.
          // Since these loops contain a delay and can run for a long time,
-         // we have to check gShutdownFlag to abort processing when
-         // a shutdown has been requested.
+         // when shutdown has been requested we'll abort processing.
          UtlSList oldGroupList;
          mAppearanceGroupSet->getAllAppearanceGroups(oldGroupList);
          UtlSListIterator oldGroupItor(oldGroupList);
          UtlString* group;
-         while (!gShutdownFlag && (group = dynamic_cast <UtlString*> (oldGroupItor())))
+         while (!Os::UnixSignals::instance().isTerminateSignalReceived() && (group = dynamic_cast <UtlString*> (oldGroupItor())))
          {
             UtlSListIterator newGroupItor(newGroupList);
             UtlString* newGroup;
@@ -140,7 +139,7 @@ OsStatus AppearanceGroupFileReader::initialize()
          }
          // For all groups in the new list, add to GroupSet if they are not there.
          UtlSListIterator groupItor(newGroupList);
-         while (!gShutdownFlag && (group = dynamic_cast <UtlString*> (groupItor())))
+         while (!Os::UnixSignals::instance().isTerminateSignalReceived() && (group = dynamic_cast <UtlString*> (groupItor())))
          {
             if (!mAppearanceGroupSet->findAppearanceGroup(group->data()))
             {

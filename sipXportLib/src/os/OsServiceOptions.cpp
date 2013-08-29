@@ -46,9 +46,24 @@ OsServiceOptions::OsServiceOptions(int argc, char** argv,
   _isDaemon(false),
   _hasConfig(false),
   _isConfigOnly(false),
+  _configFileType(ConfigFileTypeBoost),
   _unitTestMode(false)
 {
 }
+
+OsServiceOptions::OsServiceOptions():
+               _daemonOptions("Daemon"),
+               _commandLineOptions("General"),
+               _configOptions("Configuration"),
+               _optionItems(_daemonName  + " Options"),
+               _isDaemon(false),
+               _hasConfig(false),
+               _isConfigOnly(false),
+               _configFileType(ConfigFileTypeBoost),
+               _unitTestMode(false)
+{
+}
+
 
 OsServiceOptions::OsServiceOptions(const std::string& configFile) :
   _argc(0),
@@ -58,10 +73,11 @@ OsServiceOptions::OsServiceOptions(const std::string& configFile) :
   _commandLineOptions("General"),
   _configOptions("Configuration"),
   _optionItems(_daemonName  + " Options"),
-  _isDaemon(false),
   _configFile(configFile),
+  _isDaemon(false),
   _hasConfig(true),
   _isConfigOnly(true),
+  _configFileType(ConfigFileTypeBoost),
   _unitTestMode(false)
 {
 }
@@ -70,8 +86,37 @@ OsServiceOptions::~OsServiceOptions()
 {
 }
 
+void OsServiceOptions::setCommandLine(int argc, char** argv)
+{
+<<<<<<< HEAD
+=======
+  _argc = argc;
+  _argv = argv;
+}
+
+void OsServiceOptions::setConfigurationFile(const std::string& configFile,
+                                            ConfigFileType configFileType)
+{
+  _configFile = configFile;
+  _configFileType = configFileType;
+  _hasConfig = true;
+
+  if (_argc == 0 && _argv == NULL)
+    _isConfigOnly = true;
+  else
+    _isConfigOnly = false;
+}
+
+bool OsServiceOptions::loadConfigDbFromFile(const char* pFilename)
+{
+  setConfigurationFile(pFilename, ConfigFileTypeConfigDb);
+
+  return parseOptions();
+}
+
 void OsServiceOptions::addOptionFlag(char shortForm, const std::string& optionName, const std::string description, OptionType type)
 {
+>>>>>>> XX-8299 Make log level change dynamic
   boost::program_options::options_description* options;
   if (type == CommandLineOption)
     options = &_commandLineOptions;
@@ -320,7 +365,11 @@ bool OsServiceOptions::checkConfigOptions()
       {
         //boost::program_options::store(boost::program_options::parse_config_file(config, _optionItems, true), _options);
         //boost::program_options::notify(_options);
+<<<<<<< HEAD
         boost::property_tree::ini_parser::read_ini(_configFile.c_str(), _ptree);
+=======
+        readConfiguration();
+>>>>>>> XX-8299 Make log level change dynamic
         _hasConfig = true;
       }
       else
@@ -336,10 +385,17 @@ bool OsServiceOptions::checkConfigOptions()
       }
     }
   }
+<<<<<<< HEAD
 
   return true;
 }
 
+=======
+
+  return true;
+}
+
+>>>>>>> XX-8299 Make log level change dynamic
 bool OsServiceOptions::checkOptions(ParseOptionsFlags parseOptionsFlags,
                                     int& exitCode)
 {
@@ -391,6 +447,7 @@ bool OsServiceOptions::checkOptions(ParseOptionsFlags parseOptionsFlags,
 
   return bRet;
 }
+<<<<<<< HEAD
 
 bool OsServiceOptions::parseOptions(ParseOptionsFlags parseOptionsFlags)
 {
@@ -412,6 +469,69 @@ bool OsServiceOptions::parseOptions(ParseOptionsFlags parseOptionsFlags)
     return true;
   }
 
+=======
+
+void OsServiceOptions::dumpOptions()
+{
+  for(boost::program_options::variables_map::iterator it = _options.begin(); it != _options.end(); ++it)
+  {
+    std::cout << "first - " << it->first << ", second - " << it->second.as< ::std::string >() << "\n";
+  }
+
+//  for(boost::property_tree::ptree::iterator it = _ptree.begin(); it != _ptree.end(); ++it)
+//  {
+//    std::cout << "first - " << it->first<< ", second - " << it->second.data().c_str() << "\n";
+//  }
+}
+
+void OsServiceOptions::readConfiguration()
+{
+  if (_configFileType == ConfigFileTypeBoost)
+  {
+    boost::property_tree::ini_parser::read_ini(_configFile.c_str(), _ptree);
+  }
+  else if (_configFileType == ConfigFileTypeConfigDb)
+  {
+    _configDb.loadFromFile(_configFile.c_str());
+
+    UtlString currentKey = "";
+    UtlString nextKey = "";
+    UtlString nextValue = "";
+
+    while (_configDb.getNext(currentKey, nextKey, nextValue) != OS_NO_MORE_DATA)
+    {
+      _options.insert(std::make_pair(nextKey.str(), boost::program_options::variable_value(nextValue.str(), false)));
+      boost::program_options::notify(_options);
+
+      //_ptree.push_back(std::make_pair(nextKey.str(), nextValue.str()));
+
+      currentKey = nextKey;
+    }
+
+    dumpOptions();
+  }
+}
+
+bool OsServiceOptions::parseOptions(ParseOptionsFlags parseOptionsFlags)
+{
+  if (_isConfigOnly)
+  {
+    try
+    {
+      readConfiguration();
+      _hasConfig = true;
+    }
+    catch(const std::exception& e)
+    {
+      if (!_unitTestMode)
+        OS_LOG_ERROR(FAC_KERNEL, _daemonName << " is not able to parse the options - " << e.what());
+
+      return false;
+    }
+    return true;
+  }
+
+>>>>>>> XX-8299 Make log level change dynamic
   try
   {
     if (parseOptionsFlags & AddComandLineOptionsFlag)

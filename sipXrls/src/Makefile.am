@@ -54,7 +54,6 @@ noinst_HEADERS = \
 	ResourceReference.h \
 	ResourceSubscriptionReceiver.h \
 	RlsSubscribePolicy.h \
-	SubscriptionSet.h \
-	main.h
+	SubscriptionSet.h
 
 install-exec-hook :
