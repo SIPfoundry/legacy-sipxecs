@@ -19,8 +19,6 @@
 #include "sqa/StateQueueAgent.h"
 #include "sqa/StateQueueDriverTest.h"
 #include "sqa/StateQueueConnection.h"
-<<<<<<< HEAD
-
 #include "sipXecsService/SipXApplication.h"
 
 #define SIPXSQA_APP_NAME              "StateQueueAgent"

@@ -245,9 +245,32 @@ void OsServiceOptions::checkDefaultCommandLineOptions(ParseOptionsFlags parseOpt
     {
       _hasConfig = true;
     }
+=======
+void OsServiceOptions::addCommandLineOptions()
+{
+  addOptionFlag('h', "help", ": Display help information.", CommandLineOption);
+  addOptionFlag('v', "version", ": Display version information.", CommandLineOption);
+  addOptionString('C', "config-file", ": Optional daemon config file.", CommandLineOption);
+  addOptionString('L', "log-file", ": Specify the application log file.", CommandLineOption);
+  addOptionInt('l', "log-level",
+    ": Specify the application log priority level."
+    "Valid level is between 0-7.  "
+    "0 (EMERG) 1 (ALERT) 2 (CRIT) 3 (ERR) 4 (WARNING) 5 (NOTICE) 6 (INFO) 7 (DEBUG)"
+          , CommandLineOption);
+}
+
+bool OsServiceOptions::checkCommandLineOptions()
+{
+  if (hasOption("help", false))
+  {
+    if (!_unitTestMode)
+      displayUsage(std::cout);
+    return false;
+>>>>>>> XX-8299 Make log level change dynamic
   }
 }
 
+<<<<<<< HEAD
 bool OsServiceOptions::checkParseConfigurationFile(ParseOptionsFlags parseOptionsFlags, std::ostream& strm)
 {
   bool bRet = false;
@@ -267,9 +290,105 @@ bool OsServiceOptions::checkParseConfigurationFile(ParseOptionsFlags parseOption
       strm.flush();
 
       return false;
+=======
+  if (hasOption("version", false))
+  {
+    displayVersion(std::cout);
+    return false;
+  }
+
+  return true;
+}
+
+bool OsServiceOptions::checkDaemonOptions()
+{
+  if (hasOption("pid-file", false))
+  {
+    getOption("pid-file", _pidFile);
+    std::ofstream pidFile(_pidFile.c_str());
+    pidFile << getpid() << std::endl;
+  }
+
+  if (hasOption("daemonize", false))
+  {
+    if (_pidFile.empty())
+    {
+      if (!_unitTestMode)
+      {
+        displayUsage(std::cerr);
+        std::cerr << std::endl << "ERROR: You must specify pid-file location!" << std::endl;
+        std::cerr.flush();
+      }
+
+      return false;
+    }
+    _isDaemon = true;
+  }
+
+  return true;
+}
+
+bool OsServiceOptions::checkConfigOptions()
+{
+  if (hasOption("config-file", false))
+  {
+    if (getOption("config-file", _configFile) && !_configFile.empty())
+    {
+      std::ifstream config(_configFile.c_str());
+      if (config.good())
+      {
+        //boost::program_options::store(boost::program_options::parse_config_file(config, _optionItems, true), _options);
+        //boost::program_options::notify(_options);
+        readConfiguration();
+        _hasConfig = true;
+      }
+      else
+      {
+        if (!_unitTestMode)
+        {
+          displayUsage(std::cerr);
+          std::cerr << std::endl << "ERROR: Unable to open input file " << _configFile << "!" << std::endl;
+          std::cerr.flush();
+        }
+
+        return false;
+      }
     }
   }
 
+  return true;
+}
+
+bool OsServiceOptions::checkOptions(ParseOptionsFlags parseOptionsFlags,
+                                    int& exitCode)
+{
+  bool bRet = true;
+
+  do
+  {
+    if (parseOptionsFlags & AddComandLineOptionsFlag)
+    {
+      bRet = checkCommandLineOptions();
+      if (bRet == false)
+      {
+        exitCode = 0;
+        break;
+      }
+    }
+
+    if (parseOptionsFlags & AddDaemonOptionsFlag)
+    {
+      bRet = checkDaemonOptions();
+      if (bRet == false)
+      {
+        exitCode = -1;
+        break;
+      }
+>>>>>>> XX-8299 Make log level change dynamic
+    }
+  }
+
+<<<<<<< HEAD
   return true;
 }
 
@@ -288,20 +407,136 @@ bool OsServiceOptions::parseConfigurationFile(ParseOptionsFlags parseOptionsFlag
     OsStatus retval = _configDb.loadFromFile(_configFile.c_str());
     if (retval != OS_SUCCESS)
       return false;
+=======
+    if (parseOptionsFlags & AddConfigOptionsFlag)
+    {
+      bRet = checkConfigOptions();
+      if (bRet == false)
+      {
+        exitCode = -1;
+        break;
+      }
+    }
+
+    if (parseOptionsFlags & ValidateRequiredParametersFlag)
+    {
+      bRet= validateRequiredParameters();
+      if (bRet == false)
+      {
+        exitCode = -1;
+        break;
+      }
+    }
+  }
+  while (false);
+
+  return bRet;
+}
+
+void OsServiceOptions::dumpOptions()
+{
+  for(boost::program_options::variables_map::iterator it = _options.begin(); it != _options.end(); ++it)
+  {
+    std::cout << "first - " << it->first << ", second - " << it->second.as< ::std::string >() << "\n";
+  }
+
+//  for(boost::property_tree::ptree::iterator it = _ptree.begin(); it != _ptree.end(); ++it)
+//  {
+//    std::cout << "first - " << it->first<< ", second - " << it->second.data().c_str() << "\n";
+//  }
+}
+
+void OsServiceOptions::readConfiguration()
+{
+  if (_configFileType == ConfigFileTypeBoost)
+  {
+    boost::property_tree::ini_parser::read_ini(_configFile.c_str(), _ptree);
+  }
+  else if (_configFileType == ConfigFileTypeConfigDb)
+  {
+    _configDb.loadFromFile(_configFile.c_str());
+>>>>>>> XX-8299 Make log level change dynamic
 
     UtlString currentKey = "";
     UtlString nextKey = "";
     UtlString nextValue = "";
 
     while (_configDb.getNext(currentKey, nextKey, nextValue) != OS_NO_MORE_DATA)
+<<<<<<< HEAD
     {
       _configFileOptions.push_back(std::make_pair(nextKey.str(), nextValue.str()));
 
       currentKey = nextKey;
+=======
+    {
+      _options.insert(std::make_pair(nextKey.str(), boost::program_options::variable_value(nextValue.str(), false)));
+      boost::program_options::notify(_options);
+
+      //_ptree.push_back(std::make_pair(nextKey.str(), nextValue.str()));
+
+      currentKey = nextKey;
+    }
+
+    dumpOptions();
+  }
+}
+
+bool OsServiceOptions::parseOptions(ParseOptionsFlags parseOptionsFlags)
+{
+  if (_isConfigOnly)
+  {
+    try
+    {
+      readConfiguration();
+      _hasConfig = true;
+    }
+    catch(const std::exception& e)
+    {
+      if (!_unitTestMode)
+        OS_LOG_ERROR(FAC_KERNEL, _daemonName << " is not able to parse the options - " << e.what());
+
+      return false;
+    }
+    return true;
+  }
+
+  try
+  {
+    if (parseOptionsFlags & AddComandLineOptionsFlag)
+    {
+      addCommandLineOptions();
+      _optionItems.add(_commandLineOptions);
+    }
+
+    if (parseOptionsFlags & AddDaemonOptionsFlag)
+      _optionItems.add(_daemonOptions);
+
+    if (parseOptionsFlags & AddConfigOptionsFlag)
+      _optionItems.add(_configOptions);
+
+    boost::program_options::store(boost::program_options::parse_command_line(_argc, _argv, _optionItems), _options);
+    boost::program_options::notify(_options);
+
+    int exitCode = 0;
+
+    bool bRet = checkOptions(parseOptionsFlags, exitCode);
+    if (bRet == false)
+    {
+      if (!_unitTestMode)
+        exit(exitCode);
+      else
+      {
+        if (exitCode == 0)
+          return true;
+        else
+          return false;
+      }
+>>>>>>> XX-8299 Make log level change dynamic
     }
   }
   else
   {
+<<<<<<< HEAD
     boost::property_tree::ini_parser::read_ini(_configFile.c_str(), _configFileOptions);
   }
 
@@ -310,6 +545,29 @@ bool OsServiceOptions::parseConfigurationFile(ParseOptionsFlags parseOptionsFlag
 
 bool OsServiceOptions::parseOptions(ParseOptionsFlags parseOptionsFlags,
                                     std::ostream& strm)
+=======
+    if (parseOptionsFlags & DisplayExceptionFlag)
+      std::cerr << "Exception: " << e.what() << std::endl;
+
+    return false;
+  }
+
+  if (parseOptionsFlags & InitLoggerFlag)
+    initlogger();
+
+  std::set_terminate(&catch_global);
+
+  if (parseOptionsFlags & DisplayVersionOnInitFlag)
+  {
+    if (!_unitTestMode)
+      displayVersion(std::cout);
+  }
+
+  return true;
+}
+
+void OsServiceOptions::initlogger()
+>>>>>>> XX-8299 Make log level change dynamic
 {
   bool bRet = false;
 
@@ -329,11 +587,45 @@ bool OsServiceOptions::parseOptions(ParseOptionsFlags parseOptionsFlags,
     if (_configFileOptionsDescription.options().size() > 0)
       _allOptionsDescription.add(_configFileOptionsDescription);
 
+<<<<<<< HEAD
     if (_argc != 0 || _pArgv != NULL)
     {
       boost::program_options::store(boost::program_options::parse_command_line(_argc, _pArgv, _allOptionsDescription), _commandLineOptions);
       boost::program_options::notify(_commandLineOptions);
     }
+=======
+      if (!Os::LoggerHelper::instance().initialize(logLevel, logFile.c_str()))
+      {
+        if (!_unitTestMode)
+        {
+          displayUsage(std::cerr);
+          std::cerr << std::endl << "ERROR: Unable to create log file " << logFile << "!" << std::endl;
+          std::cerr.flush();
+        }
+
+        if (!_unitTestMode)
+          _exit(-1);
+        else
+          return;
+      }
+    }
+  }
+  else
+  {
+    if (!_unitTestMode)
+    {
+      displayUsage(std::cerr);
+      std::cerr << std::endl << "ERROR: Log file not specified!" << std::endl;
+      std::cerr.flush();
+    }
+
+    if (!_unitTestMode)
+      _exit(-1);
+    else
+      return;
+  }
+}
+>>>>>>> XX-8299 Make log level change dynamic
 
     if (parseOptionsFlags & AddDefaultComandLineOptionsFlag)
     {

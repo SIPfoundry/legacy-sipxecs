@@ -91,6 +91,7 @@ bool SipXApplication::init(int argc, char* argv[], const SipXApplicationData& ap
 bool SipXApplication::increaseResourceLimits(const std::string& configurationPath)
 {
   bool ret = false;
+
   //
   // Raise the file handle limit to maximum allowable
   //

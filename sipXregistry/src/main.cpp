@@ -38,6 +38,8 @@
 #include <mongo/util/assert_util.h>
 #include "sipXecsService/SipXApplication.h"
 
+#include "sipXecsService/SipXApplication.h"
+
 // DEFINES
 #define SIPREGISTRAR_APP_NAME "SipRegistrar"
 #define CONFIG_SETTINGS_FILE  "registrar-config"
@@ -77,7 +79,6 @@ OsMutex*       gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
  * Description:
  * closes any open connections to the IMDB safely using a mutex lock
  */
-
 
 /** The main entry point to the sipregistrar */
 int

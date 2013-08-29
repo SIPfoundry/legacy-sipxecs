@@ -28,6 +28,7 @@
 #include <boost/property_tree/detail/ptree_utils.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
+
 #include "os/OsLogger.h"
 
 #include "os/OsConfigDb.h"
@@ -37,6 +38,12 @@
 class OsServiceOptions
 {
 public:
+  enum ConfigFileType
+  {
+    ConfigFileTypeBoost,
+    ConfigFileTypeConfigDb
+  };
+
   enum OptionType
   {
     CommandLineOption,  // used for command line options
@@ -82,6 +89,7 @@ public:
     *
     * @param  configFile - Configuration file path
     */
+
   OsServiceOptions(const std::string& configFile);
 
   //Destructor
@@ -303,7 +311,6 @@ public:
       strm << "," << shortForm;
 
     pOptionsDescription->add_options()(strm.str().c_str(), boost::program_options::value<T>(), description.c_str());
-
     if (required)
       registerRequiredParameters(optionName, altOptionName);
   }
@@ -347,6 +354,7 @@ public:
    * @param value - Returned value
    * @param defValue - Default value. If the value for the option is not found it will be set to default value
    */
+
   bool getOption(
     const std::string& optionName,
     std::string& value,

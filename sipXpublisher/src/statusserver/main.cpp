@@ -36,6 +36,10 @@
 
 #include "sipXecsService/SipXApplication.h"
 
+//#include <statusserver/CustomExceptionHandlers.h>
+
+#include "sipXecsService/SipXApplication.h"
+
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -60,19 +64,6 @@ using namespace std;
 int
 main(int argc, char* argv[] )
 {
-    // register default exception handler methods
-    // abort for all type of exceptions
-
-    std::string errmsg;
-    MongoDB::ConnectionInfo ginfo = MongoDB::ConnectionInfo::globalInfo();    
-    mongo::ConnectionString mongoConn = ginfo.getConnectionString();
-    if (false == MongoDB::ConnectionInfo::testConnection(mongoConn, errmsg))
-    {
-        Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
-                "Failed to connect to '%s' - %s",
-                mongoConn.toString().c_str(), errmsg.c_str());
-    }
-
   SipXApplicationData rlsData =
   {
       SIPSTATUS_APP_NAME,

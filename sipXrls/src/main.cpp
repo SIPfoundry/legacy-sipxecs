@@ -35,7 +35,6 @@
 #include <sipXecsService/daemon.h>
 #include <sipdb/EntityDB.h>
 
-#include <os/OsExceptionHandler.h>
 #include "sipXecsService/SipXApplication.h"
 
 // DEFINES
@@ -92,7 +91,6 @@
 // GLOBAL VARIABLE INITIALIZATIONS
 
 /* ============================ FUNCTIONS ================================= */
-
 
 // Get and add the credentials for sipXrls
 SipLineMgr* addCredentials (UtlString domain, UtlString realm, EntityDB& entityDb)
@@ -245,46 +243,6 @@ int main(int argc, char* argv[])
         "Resource domain name is not configured");
     return 1;
   }
-
-  const OsConfigDb& configDb = SipXApplication::instance().getOsServiceOptions().getOsConfigDb();
-
-   // Read the user agent parameters from the config file.
-   int udpPort;
-   if (configDb.get(CONFIG_SETTING_UDP_PORT, udpPort) != OS_SUCCESS)
-   {
-      udpPort = RLS_DEFAULT_UDP_PORT;
-   }
-
-   int tcpPort;
-   if (configDb.get(CONFIG_SETTING_TCP_PORT, tcpPort) != OS_SUCCESS)
-   {
-      tcpPort = RLS_DEFAULT_TCP_PORT;
-   }
-
-    UtlString bindIp;
-    if (configDb.get(CONFIG_SETTING_BIND_IP, bindIp) != OS_SUCCESS ||
-            !OsSocket::isIp4Address(bindIp))
-        bindIp = RLS_DEFAULT_BIND_IP;
-
-   UtlString resourceListFile;
-   if ((configDb.get(CONFIG_SETTING_RLS_FILE, resourceListFile) !=
-        OS_SUCCESS) ||
-       resourceListFile.isNull())
-   {
-      Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
-                    "Resource list file name is not configured");
-      return 1;
-   }
-
-   UtlString domainName;
-   if ((configDb.get(CONFIG_SETTING_DOMAIN_NAME, domainName) !=
-        OS_SUCCESS) ||
-       domainName.isNull())
-   {
-      Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
-                    "Resource domain name is not configured");
-      return 1;
-   }
 
    UtlString realm;
    if ((configDb.get(CONFIG_SETTING_AUTHENTICATE_REALM, realm) !=
