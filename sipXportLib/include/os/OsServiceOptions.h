@@ -26,11 +26,22 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/detail/ptree_utils.hpp>
+#include <boost/lexical_cast.hpp>
 #include "os/OsLogger.h"
+
+#include "os/OsConfigDb.h"
+
+#include "utl/UtlString.h"
 
 class OsServiceOptions
 {
 public:
+  enum ConfigFileType
+  {
+    ConfigFileTypeBoost,
+    ConfigFileTypeConfigDb
+  };
+
   enum OptionType
   {
     CommandLineOption,
@@ -61,9 +72,18 @@ public:
     const std::string& version,
     const std::string& copyright);
 
+  OsServiceOptions();
+
   OsServiceOptions(const std::string& configFile);
 
   ~OsServiceOptions();
+
+  void setCommandLine(int argc, char** argv);
+
+  bool loadConfigDbFromFile(const char* pFileName);
+
+  void setConfigurationFile(const std::string& configFile,
+                            ConfigFileType configFileType);
 
   void addOptionFlag(
     char shortForm,
@@ -188,11 +208,21 @@ public:
 
   size_t hasConfigOption(const std::string& optionName) const;
 
+  OsConfigDb& getOsConfigDb();
+
   bool getOption(
     const std::string& optionName,
     std::string& value,
     const std::string& defValue = std::string()) const;
 
+<<<<<<< HEAD
+=======
+  bool getOption(
+    const std::string& optionName,
+    UtlString& value,
+    const UtlString& defValue = UtlString()) const;
+
+>>>>>>> XX-8299 Make log level change dynamic
   bool getOption(const std::string& optionName, std::vector<std::string>& value) const;
 
   bool getOption(const std::string& optionName, int& value) const;
@@ -215,6 +245,12 @@ public:
       {
         try
         {
+<<<<<<< HEAD
+=======
+          //boost::property_tree::ptree::const_assoc_iterator it = _ptree.find(optionName.c_str());
+          //value = boost::lexical_cast<T>(it->second.data());
+
+>>>>>>> XX-8299 Make log level change dynamic
           value = _ptree.get<T>(optionName.c_str());
           return true;
         }catch(...)
@@ -239,6 +275,12 @@ public:
       {
         try
         {
+<<<<<<< HEAD
+=======
+          //boost::property_tree::ptree::const_assoc_iterator it = _ptree.find(optionName.c_str());
+          //value = boost::lexical_cast<T>(it->second.data());
+
+>>>>>>> XX-8299 Make log level change dynamic
           value = _ptree.get<T>(optionName.c_str());
           return true;
         }catch(...)
@@ -256,6 +298,11 @@ public:
     }
     return true;
   }
+<<<<<<< HEAD
+=======
+
+  void readConfiguration();
+>>>>>>> XX-8299 Make log level change dynamic
 
   void addDaemonOptions();
 
@@ -283,6 +330,8 @@ protected:
   void registerRequiredParameters(const std::string& optionName, const std::string& altOptionName);
   bool validateRequiredParameters();
 
+  void dumpOptions();
+
   int _argc;
   char** _argv;
   std::string _daemonName;
@@ -297,9 +346,9 @@ protected:
   //
   // Pre-parsed values
   //
-  bool _isDaemon;
   std::string _pidFile;
   std::string _configFile;
+  bool _isDaemon;
   boost::property_tree::ptree _ptree;
   bool _hasConfig;
   bool _isConfigOnly;
@@ -312,6 +361,12 @@ protected:
   //
   std::map<std::string, std::string> _alternative;
 
+  /* This tells what method will be used to parse configuration file */
+  ConfigFileType _configFileType;
+
+  /* Configuration Database (used for OsSysLog) */
+  OsConfigDb _configDb;
+
   friend class OsServiceOptionsTest;
   bool _unitTestMode;
 };
@@ -320,6 +375,14 @@ protected:
 // Inlines
 //
 
+<<<<<<< HEAD
+=======
+inline OsConfigDb& OsServiceOptions::getOsConfigDb()
+{
+  return _configDb;
+}
+
+>>>>>>> XX-8299 Make log level change dynamic
 inline bool OsServiceOptions::getOption(const std::string& optionName, int& value) const
 {
   return getOption<int>(optionName, value);
@@ -335,6 +398,20 @@ inline bool OsServiceOptions::getOption(const std::string& optionName, std::stri
   return getOption<std::string>(optionName, value, defValue);
 }
 
+<<<<<<< HEAD
+=======
+inline bool OsServiceOptions::getOption(const std::string& optionName, UtlString& value, const UtlString& defValue) const
+{
+  std::string valueStr(value);
+  std::string defValueStr(defValue);
+
+  bool rc = getOption<std::string>(optionName, valueStr, defValueStr);
+  value = valueStr;
+
+  return rc;
+}
+
+>>>>>>> XX-8299 Make log level change dynamic
 inline void OsServiceOptions::addOptionInt(
   char shortForm,
   const std::string& optionName,

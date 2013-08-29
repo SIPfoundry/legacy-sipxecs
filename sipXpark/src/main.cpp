@@ -51,7 +51,9 @@
 
 #include "OrbitListener.h"
 #include "config.h"
+#include "sipXecsService/SipXApplication.h"
 
+#define SIPXPARK_APP_NAME             "sipxpark"
 #define CONFIG_SETTINGS_FILE          "sipxpark-config"
 #define CONFIG_ETC_DIR                SIPX_CONFDIR
 
@@ -162,100 +164,6 @@ static int computeNumAudioBuffers(int maxSessions)
 	return numAudioBuffers;
 }
 
-
-// Initialize the OsSysLog
-void initSysLog(OsConfigDb* pConfig)
-{
-   UtlString logLevel;               // Controls Log Verbosity
-   UtlString consoleLogging;         // Enable console logging by default?
-   UtlString fileTarget;             // Path to store log file.
-   UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
-                                    // exist
-
-   Os::LoggerHelper::instance().processName = "sipxpark";
-   Os::Logger::instance().log(FAC_SIP, PRI_INFO, ">>>>>>>>>>>>>>>> Starting - version %s build %s",
-                 PACKAGE_VERSION, PACKAGE_REVISION
-                 );
-
-   //
-   // Get/Apply Log Filename
-   //
-   fileTarget.remove(0);
-   if ((pConfig->get(CONFIG_SETTING_LOG_DIR, fileTarget) != OS_SUCCESS) ||
-      fileTarget.isNull() || !OsFileSystem::exists(fileTarget))
-   {
-      bSpecifiedDirError = !fileTarget.isNull();
-
-      // If the log file directory exists use that, otherwise place the log
-      // in the current directory
-      OsPath workingDirectory;
-      if (OsFileSystem::exists(CONFIG_LOG_DIR))
-      {
-         fileTarget = CONFIG_LOG_DIR;
-         OsPath path(fileTarget);
-         path.getNativePath(workingDirectory);
-
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
-         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
-      }
-      else
-      {
-         OsPath path;
-         OsFileSystem::getWorkingDirectory(path);
-         path.getNativePath(workingDirectory);
-
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
-         Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
-      }
-
-      fileTarget = workingDirectory +
-         OsPathBase::separator +
-         CONFIG_LOG_FILE;
-   }
-   else
-   {
-      bSpecifiedDirError = false;
-      osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, fileTarget.data());
-      Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, fileTarget.data());
-
-      fileTarget = fileTarget +
-         OsPathBase::separator +
-         CONFIG_LOG_FILE;
-   }
-   
-
-
-
-   //
-   // Get/Apply Log Level
-   //
-   SipXecsService::setLogPriority(*pConfig, CONFIG_SETTING_PREFIX, PRI_ERR);
-   Os::Logger::instance().setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
-   Os::LoggerHelper::instance().initialize(fileTarget);
-   //
-   // Get/Apply console logging
-   //
-   UtlBoolean bConsoleLoggingEnabled = false;
-   if ((pConfig->get(CONFIG_SETTING_LOG_CONSOLE, consoleLogging) == OS_SUCCESS))
-   {
-      consoleLogging.toUpper();
-      if (consoleLogging == "ENABLE")
-      {
-         Os::Logger::instance().enableConsoleOutput(true);
-         bConsoleLoggingEnabled = true;
-      }
-   }
-
-   osPrintf("%s : %s\n", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
-   Os::Logger::instance().log(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
-
-   if (bSpecifiedDirError)
-   {
-      Os::Logger::instance().log(FAC_LOG, PRI_CRIT, "Cannot access %s directory; please check configuration.", CONFIG_SETTING_LOG_DIR);
-   }
-}
-
-
 /**
  * Description:
  * Build an SdpCodecFactory based upon the codec list specified in the config file.
@@ -297,64 +205,9 @@ void initCodecs(SdpCodecFactory* codecFactory, OsConfigDb* pConfig)
 //
 // The main entry point to the sipXpark
 //
-void signal_handler(int sig) {
-    switch(sig) {
-    case SIGTERM:
-        Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGTERM caught. Shutting down.");
-        gShutdownFlag = TRUE;
-	break;
-    }
-}
 
 int main(int argc, char* argv[])
 {
-    {
-    char* pidFile = NULL;
-    for(int i = 1; i < argc; i++) {
-        if(strncmp("-v", argv[i], 2) == 0) {
-  	    std::cout << "Version: " << PACKAGE_VERSION << PACKAGE_REVISION << std::endl;
-	    exit(0);
-	} else {
-            pidFile = argv[i];
-	}
-    }
-    if (pidFile) {
-      daemonize(pidFile);
-    }
-    signal(SIGHUP, signal_handler); // catch hangup signal
-    signal(SIGTERM, signal_handler); // catch kill signal
-
-    OsMsgQShared::setQueuePreference(OsMsgQShared::QUEUE_LIMITED);
-
-    // Configuration Database (used for OsSysLog)
-    OsConfigDb configDb;
-
-    // Load configuration file file
-    OsPath workingDirectory;
-    if (OsFileSystem::exists(CONFIG_ETC_DIR))
-    {
-        workingDirectory = CONFIG_ETC_DIR;
-        OsPath path(workingDirectory);
-        path.getNativePath(workingDirectory);
-    } else
-    {
-        OsPath path;
-        OsFileSystem::getWorkingDirectory(path);
-        path.getNativePath(workingDirectory);
-    }
-
-    UtlString fileName =  workingDirectory +
-      OsPathBase::separator +
-      CONFIG_SETTINGS_FILE;
-
-    if (configDb.loadFromFile(fileName) != OS_SUCCESS)
-    {
-       exit(1);
-    }
-
-    // Initialize log file
-    initSysLog(&configDb);
-    
     //
     // Raise the file handle limit to maximum allowable
     //
@@ -372,6 +225,24 @@ int main(int argc, char* argv[])
       OS_LOG_ERROR(FAC_KERNEL, "Unable to set file descriptor limit");
     }
 
+  SipXApplicationData rlsData =
+  {
+      SIPXPARK_APP_NAME,
+      CONFIG_SETTINGS_FILE,
+      CONFIG_LOG_FILE,
+      "",
+      CONFIG_SETTING_PREFIX,
+      true, // daemonize
+      false, // do not check mongo connection
+      OsMsgQShared::QUEUE_LIMITED, //park uses limited queue
+  };
+
+  // NOTE: this might exit application in case of failure
+  SipXApplication::instance().init(argc, argv, rlsData);
+
+  OsConfigDb& configDb = SipXApplication::instance().getOsServiceOptions().getOsConfigDb();
+
+  {
     // Read the user agent parameters from the config file.
     int UdpPort;
     if (configDb.get(CONFIG_SETTING_UDP_PORT, UdpPort) != OS_SUCCESS)
@@ -679,7 +550,7 @@ int main(int argc, char* argv[])
     int numTwoSecIntervals = 0;
     int CleanLoopWaitTimeSecs = 10;
 
-    while (!Os::UnixSignals::instance().isTerminateSignalReceived() && !gShutdownFlag)
+    while (!SipXApplication::instance().terminationRequested() && !gShutdownFlag)
     {
        OsTask::delay(2000);
 
@@ -713,16 +584,10 @@ int main(int argc, char* argv[])
 
     // Flush the log file
     Os::Logger::instance().flush();
-    };  //WARN: The code above is put in {} to make sure that all timers are destroyed before
+  };  //WARN: The code above is put in {} to make sure that all timers are destroyed before
         // calling the terminateTimerService. Do not change or otherwise it will leak on exit.
 
-    //
-    // Terminate the timer thread
-    //
-    OsTimer::terminateTimerService();
-
-    mongo::dbexit(mongo::EXIT_CLEAN);
-
+    SipXApplication::instance().terminate();
 
     // Say goodnight Gracie...
     return 0;
