@@ -62,9 +62,9 @@ bundle agent ftp_config {
 	    perms => m("600"),
 	    edit_line => ftp_sshd_config,
 	    classes => if_repaired("reload_sshd");
-	    
-    ftp.fedora16_or_greater::
-      "$(config)"
+
+    ftp.src::
+       "$(config)"
         comment => "Update VSFTP config $(this.promiser)",
         perms => m("600"),
         edit_line => delete_lines_matching('.*reverse_lookup_enable.*');
