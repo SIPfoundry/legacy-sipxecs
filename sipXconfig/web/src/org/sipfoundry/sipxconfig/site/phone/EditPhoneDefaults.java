@@ -252,7 +252,6 @@ public abstract class EditPhoneDefaults extends PhoneBasePage implements PageBeg
         if (!isHotellingEnabled()) {
             names.add("prov");
         }
-        names.add("group.version");
         return StringUtils.join(names, ",");
     }
 
