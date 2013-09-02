@@ -21,6 +21,7 @@ import org.hibernate.EmptyInterceptor;
 import org.hibernate.EntityMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.metadata.ClassMetadata;
+import org.hibernate.type.Type;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -37,6 +38,7 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
     private ListableBeanFactory m_beanFactory;
     private SessionFactory m_sessionFactory;
     private Map m_beanNamesCache;
+    private Map<String, EntityDecorator> m_decorators;
 
     /**
      * This implementation only supports BeanWithId objects with integer ids
@@ -56,11 +58,11 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
         BeanWithId bean = (BeanWithId) m_beanFactory.getBean(beanName, BeanWithId.class);
         bean.setId((Integer) id);
 
-        String decoratorName = clazz.getSimpleName().toLowerCase() + "Decorator";
-        if (m_beanFactory.containsBean(decoratorName)) {
-            EntityDecorator decorator = (EntityDecorator) m_beanFactory.getBean(decoratorName);
+        EntityDecorator decorator = getDecorator(clazz);
+        if (decorator != null) {
             decorator.decorateEntity(bean, id);
         }
+
         return bean;
     }
 
@@ -86,6 +88,44 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
             }
             return null;
         }
+    }
+
+    @Override
+    public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types) {
+        EntityDecorator decorator = getDecorator(entity);
+        if (decorator != null) {
+            decorator.onSave(entity, id);
+        }
+        return super.onSave(entity, id, state, propertyNames, types);
+    }
+
+    @Override
+    public void onDelete(Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types) {
+        EntityDecorator decorator = getDecorator(entity);
+        if (decorator != null) {
+            decorator.onDelete(entity, id);
+        }
+        super.onDelete(entity, id, state, propertyNames, types);
+    }
+
+    private EntityDecorator getDecorator(Object entity) {
+        return getDecorator(entity.getClass());
+    }
+
+    private EntityDecorator getDecorator(Class clazz) {
+        String decoratorName = clazz.getSimpleName().toLowerCase() + "Decorator";
+        if (getEntityDecorators().containsKey(decoratorName)) {
+            EntityDecorator decorator = getEntityDecorators().get(decoratorName);
+            return decorator;
+        }
+        return null;
+    }
+
+    private Map<String, EntityDecorator> getEntityDecorators() {
+        if (m_decorators == null) {
+            m_decorators = m_beanFactory.getBeansOfType(EntityDecorator.class, false, false);
+        }
+        return m_decorators;
     }
 
     /**

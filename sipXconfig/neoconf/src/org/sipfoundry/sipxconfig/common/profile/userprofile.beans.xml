@@ -17,7 +17,7 @@
     <property name="jdbc" ref="configJdbcTemplate"/> 
   </bean>
 
-  <bean id="userDecorator" class="org.sipfoundry.sipxconfig.common.profile.UserProfileDecorator">
+  <bean id="userDecorator" class="org.sipfoundry.sipxconfig.common.profile.UserDecorator">
     <property name="userProfileService" ref="userProfileService"/>
   </bean>
   

@@ -25,8 +25,8 @@ import org.sipfoundry.commons.userdb.profile.UserProfileService;
 import org.sipfoundry.sipxconfig.common.EntityDecorator;
 import org.sipfoundry.sipxconfig.common.User;
 
-public class UserProfileDecorator implements EntityDecorator {
-    private static final Log LOG = LogFactory.getLog(UserProfileDecorator.class);
+public class UserDecorator implements EntityDecorator {
+    private static final Log LOG = LogFactory.getLog(UserDecorator.class);
     private UserProfileService m_userProfileService;
 
     public void decorateEntity(Object entity, Serializable id) {
@@ -45,5 +45,13 @@ public class UserProfileDecorator implements EntityDecorator {
 
     public void setUserProfileService(UserProfileService profileService) {
         m_userProfileService = profileService;
+    }
+
+    @Override
+    public void onSave(Object entity, Serializable id) {
+    }
+
+    @Override
+    public void onDelete(Object entity, Serializable id) {
     }
 }

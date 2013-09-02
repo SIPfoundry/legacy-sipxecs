@@ -22,4 +22,8 @@ public interface EntityDecorator {
 
     void decorateEntity(Object entity, Serializable id);
 
+    void onSave(Object entity, Serializable id);
+
+    void onDelete(Object entity, Serializable id);
+
 }
