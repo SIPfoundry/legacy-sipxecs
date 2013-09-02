@@ -2866,6 +2866,18 @@
         </type>
         <value>0</value>
       </setting>
+      <setting name="etherStormFilter.set" hidden="yes">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="etherStormFilter">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
     </group>
   </group>
   <group name="powerSaving" if="video">
