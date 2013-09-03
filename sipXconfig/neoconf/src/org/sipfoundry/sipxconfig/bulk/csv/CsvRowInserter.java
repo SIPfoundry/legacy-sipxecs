@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
@@ -26,6 +27,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserValidationUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -143,16 +145,14 @@ public class CsvRowInserter extends RowInserter<String[]> {
         Collection<Group> userGroups = null;
         if (user != null) {
             String userGroupName = Index.USER_GROUP.get(row);
-            userGroups = m_settingDao.getGroupsByString(CoreContext.USER_GROUP_RESOURCE_ID,
-                    userGroupName, true);
+            userGroups = m_settingDao.getGroupsByString(CoreContext.USER_GROUP_RESOURCE_ID, userGroupName, true);
         }
 
         Phone phone = phoneFromRow(row);
         Collection<Group> phoneGroups;
         if (phone != null) {
             String phoneGroupName = Index.PHONE_GROUP.get(row);
-            phoneGroups = m_settingDao.getGroupsByString(PhoneContext.GROUP_RESOURCE_ID,
-                    phoneGroupName, true);
+            phoneGroups = m_settingDao.getGroupsByString(PhoneContext.GROUP_RESOURCE_ID, phoneGroupName, true);
         } else {
             phoneGroups = null;
         }
@@ -284,8 +284,8 @@ public class CsvRowInserter extends RowInserter<String[]> {
      * @param userGroup user group to which user will be added
      * @param phoneGroup phone group to which phone will be added
      */
-    private void insertData(User user, Collection<Group> userGroups, Phone phone,
-            Collection<Group> phoneGroups, String settings) {
+    private void insertData(User user, Collection<Group> userGroups, Phone phone, Collection<Group> phoneGroups,
+            String settings) {
 
         if (user != null) {
             for (Group userGroup : userGroups) {
@@ -293,8 +293,8 @@ public class CsvRowInserter extends RowInserter<String[]> {
             }
             // Execute the automatic assignments for the user.
             GroupAutoAssign groupAutoAssign = new GroupAutoAssign(m_conferenceBridgeContext, m_coreContext,
-                                                                  m_forwardingContext, m_mailboxManager);
-            //this method will call coreContext.saveUser
+                    m_forwardingContext, m_mailboxManager);
+            // this method will call coreContext.saveUser
             groupAutoAssign.assignUserData(user);
         }
 
@@ -306,6 +306,17 @@ public class CsvRowInserter extends RowInserter<String[]> {
 
         if (phone != null) {
             addLine(phone, user, settings);
+            Group g = Group.selectGroupWithHighestWeight((List<Group>) phoneGroups);
+            if (g != null) {
+                String fw = g.getSettingValue("group.version/firmware.version");
+                if (fw != null) {
+                    DeviceVersion version = DeviceVersion.getDeviceVersion(String.format("%s%s", phone.getModel()
+                            .getBeanId(), fw));
+                    if (ArrayUtils.contains(phone.getModel().getVersions(), version)) {
+                        phone.setDeviceVersion(version);
+                    }
+                }
+            }
             m_phoneContext.storePhone(phone);
         }
     }

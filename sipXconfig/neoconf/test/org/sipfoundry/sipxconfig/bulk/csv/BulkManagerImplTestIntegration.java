@@ -12,12 +12,27 @@ package org.sipfoundry.sipxconfig.bulk.csv;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.util.Iterator;
+import java.util.List;
 
+import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
 public class BulkManagerImplTestIntegration extends IntegrationTestCase {
     private BulkManager m_bulkManager;
+    private SettingDao m_settingDao;
+    private PhoneContext m_phoneContext;
+
+    public void setPhoneContext(PhoneContext phoneContext) {
+        m_phoneContext = phoneContext;
+    }
+
+    public void setSettingDao(SettingDao settingDao) {
+        m_settingDao = settingDao;
+    }
 
     protected void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
@@ -131,6 +146,30 @@ public class BulkManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals(0, countRowsInTable("user_group"));
     }
 
+    /*
+     * Unfortunately this test can't pass since polycom models
+     * are not loaded.
+     * Consider moving to polycom project, after enabling integration tests from plugins
+     */
+    public void _testImportPhoneInheritGroupVersion() throws Exception {
+        Group g = new Group();
+        g.setName("all");
+        g.setSettingValue("group.version/firmware.version", "4.1.X");
+        m_settingDao.saveGroup(g);
+        InputStream cutsheet = getClass().getResourceAsStream("polycoms_with_groups.csv");
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet), false);
+        
+        List<Phone> phones = m_phoneContext.loadPhones();
+        for (Phone phone : phones) {
+            if (phone.getModelId().equals("polycom560")) {
+                assertEquals("polycom4.0.X", phone.getDeviceVersion().getName());
+            }
+            else if (phone.getModelId().equals("polycomVVX500")) {
+                assertEquals("polycom4.1.X", phone.getDeviceVersion().getName());
+            }
+        }
+    }
+    
     public void setBulkManagerImpl(BulkManager bulkManager) {
         m_bulkManager = bulkManager;
     }
