@@ -1150,6 +1150,19 @@ bool SipRouter::addNatMappingInfoToContacts( SipMessage& sipRequest ) const
         contactNumber++ )
    {
 	   Url newContactUri( contactString );
+     Url::Scheme scheme = newContactUri.getScheme();
+
+     //
+     //  If the scheme is invalid, do not attempt to add NAT information.
+     //  Contact: * is one scenario that this could happen.
+     //  Otherwise, propagate the contact information as is (which
+     //  is what a compliant proxy should do).
+     //
+     if (contactString.compareTo("*") == 0 || scheme != Url::SipUrlScheme || !scheme == Url::SipsUrlScheme)
+     {
+       OS_LOG_NOTICE(FAC_SIP, "SipRouter::addNatMappingInfoToContacts skipping URI: " << contactString.data());
+       continue;
+     }
 
 	   if( bReceivedSet )
 	   {
