@@ -204,7 +204,12 @@ bool  EntityDB::tail(std::vector<std::string>& opLogs) {
   if (!hasLastTailId)
   {
     mongo::Query query = QUERY( "_id" << mongo::GT << _lastTailId
-          << "ns" << NS).sort("$natural");
+          << "ns" << NS);
+
+    mongo::BSONObjBuilder builder;
+    BaseDB::nearest(builder, query.obj);
+
+    query.sort("$natural");
 
     mongo::BSONObjBuilder builder;
     BaseDB::nearest(builder, query.obj);
@@ -231,9 +236,11 @@ bool  EntityDB::tail(std::vector<std::string>& opLogs) {
   }
 
   mongo::Query query = QUERY( "_id" << mongo::GT << _lastTailId
-          << "ns" << NS).sort("$natural");
+          << "ns" << NS);
   mongo::BSONObjBuilder builder;
   BaseDB::nearest(builder, query.obj);
+
+  query.sort("$natural");
 
   // capped collection insertion order
 
