@@ -46,4 +46,5 @@ libsipdb_la_SOURCES =  \
    RegDB.cpp \
    Subscription.cpp \
    SubscribeDB.cpp \
-   ResultSet.cpp
+   ResultSet.cpp \
+   DbHelper.cpp
