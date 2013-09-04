@@ -204,10 +204,14 @@ bool  EntityDB::tail(std::vector<std::string>& opLogs) {
   if (!hasLastTailId)
   {
     mongo::Query query = QUERY( "_id" << mongo::GT << _lastTailId
-          << "ns" << NS).sort("$natural");
+          << "ns" << NS);
 
     mongo::BSONObjBuilder builder;
     BaseDB::nearest(builder, query.obj);
+
+    // natural order
+    //builder.append("orderby", BSON("$natural" << 1));
+
     std::auto_ptr<mongo::DBClientCursor> c =
       conn->get()->query("local.oplog", builder.obj(), 0, 0, 0,
       mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData | mongo::QueryOption_SlaveOk);
@@ -231,9 +235,12 @@ bool  EntityDB::tail(std::vector<std::string>& opLogs) {
   }
 
   mongo::Query query = QUERY( "_id" << mongo::GT << _lastTailId
-          << "ns" << NS).sort("$natural");
+          << "ns" << NS);
   mongo::BSONObjBuilder builder;
   BaseDB::nearest(builder, query.obj);
+
+  // natural order
+  //builder.append("orderby", BSON("$natural" << 1));
 
   // capped collection insertion order
 

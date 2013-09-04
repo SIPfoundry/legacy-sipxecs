@@ -25,6 +25,10 @@
 
 class Subscription
 {
+  // The unit test classes needs access to private data.
+  friend class SubscriptionTest;
+  friend class SubscribeDBTest;
+
 public:
     Subscription();
     Subscription(const Subscription& subscription);
