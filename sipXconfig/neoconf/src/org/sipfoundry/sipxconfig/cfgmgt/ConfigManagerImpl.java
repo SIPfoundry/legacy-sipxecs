@@ -163,9 +163,11 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     // not synchronized so new incoming work can accumulate.
     public void doWork(ConfigRequest request) {
         String jobLabel = "Configuration generation";
-        runProviders(request, jobLabel);
-        runCfengine(request, jobLabel);
-        runPostProviders(request, jobLabel);
+        if (runPreProviders(request, jobLabel)) {
+            runProviders(request, jobLabel);
+            runCfengine(request, jobLabel);
+            runPostProviders(request, jobLabel);
+        }
     }
 
     @Override
@@ -241,6 +243,22 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
                 fail(m_jobContext, jobLabel, jobError, e);
             }
         }
+    }
+
+    private boolean runPreProviders(ConfigRequest request, String jobLabel) {
+        for (ConfigProvider provider : getProviders()) {
+            try {
+                if (provider instanceof PreConfigListener) {
+                    ((PreConfigListener) provider).preReplicate(this, request);
+                }
+            } catch (Exception e) {
+                Serializable jobError = m_jobContext.schedule(jobLabel);
+                m_jobContext.start(jobError);
+                fail(m_jobContext, jobLabel, jobError, e);
+                return false;
+            }
+        }
+        return true;
     }
 
     static void fail(JobContext jc, String label, Serializable job, Exception e) {
