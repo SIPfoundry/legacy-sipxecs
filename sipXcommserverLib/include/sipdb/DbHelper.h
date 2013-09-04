@@ -40,6 +40,9 @@ public:
 
 class DbHelper
 {
+  // The unit test classes needs access to private data.
+  friend class DbHelperTest;
+
 public:
   // database type
   enum DbType
