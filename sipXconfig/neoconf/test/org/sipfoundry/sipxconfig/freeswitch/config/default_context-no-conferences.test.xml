@@ -2,6 +2,7 @@
   <extension name="IVR">
     <condition field="destination_number" expression="^IVR$">
       <action application="socket" data="192.168.1.1:8084 async full"/>
+      <action application="set" data="ignore_display_updates=true"/>
     </condition>
   </extension>
 </context>

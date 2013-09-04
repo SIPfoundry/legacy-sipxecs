@@ -3,17 +3,20 @@
     <condition field="destination_number" expression="^sales$">
       <action application="set" data="supplied_pin=${sip_h_X-ConfPin}"/>
       <action application="conference" data="sales@400+400222"/>
+      <action application="set" data="ignore_display_updates=true"/>
     </condition>
   </extension>
   <extension name="500">
     <condition field="destination_number" expression="^marketing$">
       <action application="set" data="supplied_pin=${sip_h_X-ConfPin}"/>
       <action application="conference" data="marketing@500+500222"/>
+      <action application="set" data="ignore_display_updates=true"/>
     </condition>
   </extension>
   <extension name="IVR">
     <condition field="destination_number" expression="^IVR$">
       <action application="socket" data="192.168.1.1:8084 async full"/>
+      <action application="set" data="ignore_display_updates=true"/>
     </condition>
   </extension>
 </context>
