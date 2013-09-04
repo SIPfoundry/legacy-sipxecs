@@ -65,6 +65,22 @@ public:
     void setTimestamp(int timestamp);
     void setExpired(bool expired);
 
+    static const char* identity_fld();
+    static const char* uri_fld();
+    static const char* callId_fld();
+    static const char* contact_fld();
+    static const char* qvalue_fld();
+    static const char* instanceId_fld();
+    static const char* gruu_fld();
+    static const char* path_fld();
+    static const char* cseq_fld();
+    static const char* expirationTime_fld();
+    static const char* instrument_fld();
+    static const char* localAddress_fld();
+    static const char* timestamp_fld();
+    static const char* expired_fld();
+    static const char* shardId_fld();
+
 private:
     std::string _identity;
     std::string _uri;
