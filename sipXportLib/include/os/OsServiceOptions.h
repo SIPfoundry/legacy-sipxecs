@@ -38,6 +38,24 @@ public:
     ConfigOption
   };
 
+  enum ParseOptionsFlags
+  {
+    NoOptionsFlag = 0,
+    AddComandLineOptionsFlag = 1 << 0,
+    AddDaemonOptionsFlag = 1 << 1,
+    AddConfigOptionsFlag = 1 << 2,
+    InitLoggerFlag = 1 << 3,
+    DisplayVersionOnInitFlag = 1 << 4,
+    DisplayExceptionFlag = 1 << 5,
+    ValidateRequiredParametersFlag = 1 << 6,
+    DefaultOptionsFlag = AddComandLineOptionsFlag |
+                        AddDaemonOptionsFlag |
+                        AddConfigOptionsFlag |
+                        InitLoggerFlag |
+                        DisplayVersionOnInitFlag |
+                        ValidateRequiredParametersFlag
+  };
+
   OsServiceOptions(int argc, char** argv,
     const std::string& daemonName,
     const std::string& version,
@@ -148,7 +166,17 @@ public:
 
   void addDaemonOptions();
 
-  bool parseOptions();
+  void addCommandLineOptions();
+
+  bool checkCommandLineOptions();
+
+  bool checkDaemonOptions();
+
+  bool checkConfigOptions();
+
+  bool checkOptions(ParseOptionsFlags parseOptionsFlags, int& exitCode);
+
+  bool parseOptions(ParseOptionsFlags parseOptionsFlags = DefaultOptionsFlag);
 
   void initlogger();
 

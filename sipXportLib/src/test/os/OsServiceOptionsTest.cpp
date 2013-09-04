@@ -24,6 +24,7 @@ class OsServiceOptionsTest : public CppUnit::TestCase
 {
   CPPUNIT_TEST_SUITE(OsServiceOptionsTest);
   CPPUNIT_TEST(testServiceOptions);
+  CPPUNIT_TEST(testServiceOptions_parseOptionsFlags);
   CPPUNIT_TEST_SUITE_END();
 public:
 
@@ -164,6 +165,23 @@ public:
 
 
     OS_LOG_DEBUG(FAC_KERNEL, "testServiceOptions ENDED");
+  }
+
+  void testServiceOptions_parseOptionsFlags()
+  {
+    char** pArgv = 0;
+    int argc = 0;
+
+    OsServiceOptions osServiceOptions(argc, pArgv, "sipXdummyTool", "1.0", "Ezuce Inc. All Rights Reserved");
+    osServiceOptions.parseOptions(OsServiceOptions::DisplayExceptionFlag);
+
+    std::ostringstream stream;
+    osServiceOptions.displayUsage(stream);
+
+
+    /* check that no other options are present in help */
+    CPPUNIT_ASSERT(std::string("\nsipXdummyTool version 1.0 - Ezuce Inc. All Rights Reserved\n"
+                  "\nsipXdummyTool Options:\n\n") == stream.str());
   }
 };
 
