@@ -14,6 +14,11 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
@@ -23,7 +28,7 @@ import org.springframework.beans.factory.annotation.Required;
  * Does not implement DeployOnEdit because we don't need to replicate to other servers
  * and we don't want to restart config server
  */
-public class AdminSettings extends PersistableSettings {
+public class AdminSettings extends PersistableSettings implements DeployConfigOnEdit {
     private static final String LDAP_MANAGEMENT_DISABLE = "ldap-management/disable";
     private static final String LDAP_MANAGEMENT_DELETE = "ldap-management/delete";
     private static final String LDAP_MANAGEMENT_AGE = "ldap-management/age";
@@ -93,5 +98,10 @@ public class AdminSettings extends PersistableSettings {
         public String getDefaultPolicy() {
             return m_passwordPolicy.getDefaultPolicy();
         }
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) AdminContext.FEATURE);
     }
 }
