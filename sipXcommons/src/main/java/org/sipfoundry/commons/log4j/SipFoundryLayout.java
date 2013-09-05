@@ -6,6 +6,9 @@
  */
 package org.sipfoundry.commons.log4j;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
@@ -14,12 +17,9 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggingEvent;
 
-import org.sipfoundry.commons.util.Hostname;
-
 /**
- * A log4j Layout class that matches the SipFoundry C++ OsSyslog format (within
- * reason)
- *
+ * A log4j Layout class that matches the SipFoundry C++ OsSyslog format (within reason)
+ * 
  * @author Woof!
  */
 public class SipFoundryLayout extends Layout {
@@ -32,16 +32,21 @@ public class SipFoundryLayout extends Layout {
         super();
         dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS000'Z'");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        hostName = Hostname.get();
+        try {
+            Process p = Runtime.getRuntime().exec("hostname");
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            hostName = stdInput.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         facility = "JAVA"; // Can be set from the property
         // log4j.appender.xxx.layout.facility
     }
 
     /**
      * Map the log4j levels to the SipFoundry text (ERROR is ERR)
-     *
-     * @param l
-     *            The level to map
+     * 
+     * @param l The level to map
      * @return The SipFoundry level text if available, otherwise the log4j text
      */
     private String mapLevel2SipFoundry(Level l) {
@@ -58,18 +63,17 @@ public class SipFoundryLayout extends Layout {
             return l.toString();
         }
     }
-    
 
     /**
      * Map the SipFoundry text to the log4j Priority number
-     *
+     * 
      * @param level
      * @return
      */
     public static Level mapSipFoundry2log4j(String level) {
         if (level == null)
             return Level.DEBUG;
-       
+
         if (level.equalsIgnoreCase("DEBUG")) {
             return Level.DEBUG;
         } else if (level.equalsIgnoreCase("INFO")) {
@@ -82,23 +86,22 @@ public class SipFoundryLayout extends Layout {
             return Level.ERROR;
         } else if (level.equalsIgnoreCase("ERROR")) {
             return Level.ERROR;
-        } else if (level.equalsIgnoreCase("CRIT")) { 
+        } else if (level.equalsIgnoreCase("CRIT")) {
             return Level.ERROR;
         } else if (level.equalsIgnoreCase("ALERT")) {
             return Level.ERROR;
         } else if (level.equalsIgnoreCase("EMERG")) {
-             return Level.FATAL;
-        } else return Level.INFO;
-       
+            return Level.FATAL;
+        } else
+            return Level.INFO;
+
     }
 
     /**
-     * Escape any CR or LF in the message with the \r \n escapes. SipFoundry
-     * logging logs multiline messages (like a SIP PDU) on a single log entry by
-     * escaping the CRs and LFs
-     *
-     * @param msg
-     *            The message to escape
+     * Escape any CR or LF in the message with the \r \n escapes. SipFoundry logging logs
+     * multiline messages (like a SIP PDU) on a single log entry by escaping the CRs and LFs
+     * 
+     * @param msg The message to escape
      * @return The escaped message
      */
     String escapeCrlfQuoteAndBackSlash(String msg) {
@@ -109,12 +112,10 @@ public class SipFoundryLayout extends Layout {
 
         StringBuffer sb = new StringBuffer(n + 2);
 
-
-
         // Ignore trailing CR LFs (why?)
         /*
-         * for(int i=n-1; i>0; i--) { char c = msg.charAt(i) ; if (c == '\r' ||
-         * c == '\n') { n-- ; continue ; } break ; }
+         * for(int i=n-1; i>0; i--) { char c = msg.charAt(i) ; if (c == '\r' || c == '\n') { n-- ;
+         * continue ; } break ; }
          */
 
         // escape CR LFs, slashes, and quotes
@@ -127,7 +128,7 @@ public class SipFoundryLayout extends Layout {
             } else if (c == '\"') {
                 sb.append("\\\"");
             } else if (c == '\\') {
-            	sb.append("\\\\");
+                sb.append("\\\\");
             } else {
                 sb.append(c);
             }
@@ -136,22 +137,21 @@ public class SipFoundryLayout extends Layout {
         return sb.toString();
     }
 
-
-
-
     /**
      * Format the timestamp (mS since epoch) in Sipfoundry format
+     * 
      * @param timestamp
      * @return
      */
     String formatTimestamp(long timestamp) {
-        return dateFormat.format(timestamp) ;
+        return dateFormat.format(timestamp);
     }
 
     @Override
     public String format(LoggingEvent arg0) {
         String msg = escapeCrlfQuoteAndBackSlash(arg0.getRenderedMessage());
-        if ( msg == null ) return "";
+        if (msg == null)
+            return "";
         String loggerNames[] = arg0.getLoggerName().split("[.]");
         String loggerName = loggerNames[loggerNames.length - 1];
 
@@ -166,12 +166,10 @@ public class SipFoundryLayout extends Layout {
 
         if (msg.contains(SipFoundryLogRecordFactory.OUTGOING)) {
             localFacility = "OUTGOING";
-            newMessage = msg.replaceFirst(SipFoundryLogRecordFactory.OUTGOING,
-                    "");
+            newMessage = msg.replaceFirst(SipFoundryLogRecordFactory.OUTGOING, "");
         } else if (msg.contains(SipFoundryLogRecordFactory.INCOMING)) {
             localFacility = "INCOMING";
-            newMessage = msg.replaceFirst(SipFoundryLogRecordFactory.INCOMING,
-                    "");
+            newMessage = msg.replaceFirst(SipFoundryLogRecordFactory.INCOMING, "");
         }
 
         // lineNumber is static across all loggers, so must be mutex protected.

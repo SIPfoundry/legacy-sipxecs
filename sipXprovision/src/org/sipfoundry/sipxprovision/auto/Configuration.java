@@ -15,7 +15,6 @@ import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
-import org.sipfoundry.commons.util.Hostname;
 
 /**
  * The configuration object for the sipXprovision service.
@@ -48,6 +47,8 @@ public class Configuration {
     private String m_ConfigurationUri = DEFAULT_STRING;
     
     private String m_PolycomDefaultVersion = POLYCOM_DEFAULT_VERSION;
+    
+    private String m_hostname = DEFAULT_STRING;
 
     private static final String DEBUG_BY_DEFAULT = "false";
 
@@ -74,6 +75,7 @@ public class Configuration {
             m_ProvisionSipPassword = prov_config.getProperty("provision.password", DEFAULT_STRING);
             m_ConfigurationUri = prov_config.getProperty("provision.configUrl", DEFAULT_STRING);
             m_PolycomDefaultVersion =  prov_config.getProperty("polycom.default", POLYCOM_DEFAULT_VERSION);
+            m_hostname = prov_config.getProperty("provision.hostname");
         }
     }
 
@@ -133,10 +135,8 @@ public class Configuration {
         return m_Logfile;
     }
 
-    static final String HOSTNAME = Hostname.get();
-
     public String getHostname() {
-        return HOSTNAME;
+        return m_hostname;
     }
 
     public String getConfigurationUri() {

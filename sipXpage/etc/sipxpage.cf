@@ -49,6 +49,7 @@ bundle edit_line sipxpage_properties {
       "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxpage.properties.part"
         insert_type => "file";
       "log.file : $(sipx.SIPX_LOGDIR)/sipxpage.log";
+      "hostname : $(sipx.host).$(sipx.net_domain)";
 
   delete_lines:
     any::

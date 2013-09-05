@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.siprouter.ProxyRouter;
-import org.sipfoundry.commons.util.Hostname;
 import org.sipfoundry.sipxpage.Configuration.PageGroupConfig;
 
 public class SipXpage implements LegListener
@@ -69,15 +68,7 @@ public class SipXpage implements LegListener
       sipFactory = SipFactory.getInstance();
       sipFactory.setPathName("gov.nist");
       Properties properties = new Properties();
-      String hostName = Hostname.get() ;
 
-      if (hostName == null)
-      {
-         String msg = "Cannot determine system host name!" ;
-         LOG.fatal(msg) ;
-         System.err.println(msg);
-         System.exit(1) ;
-      }
 
       properties.setProperty("javax.sip.STACK_NAME", "sipXpage");
 

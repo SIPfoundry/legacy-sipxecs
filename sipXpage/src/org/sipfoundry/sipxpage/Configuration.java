@@ -37,6 +37,7 @@ public class Configuration
    int tcpSipPort ;           // The SIP Listen port for TCP
    int tlsSipPort ;           // The SIP Listen port for TLS
    int startingRtpPort ;      // The starting RTP port range (4 per page group)
+   String hostname;
 
    Vector<PageGroupConfig> pageGroups ;
 
@@ -140,7 +141,7 @@ public class Configuration
          }
 
          startingRtpPort = Integer.parseInt(props.getProperty(prop="rtp.port"));
-
+         hostname = props.getProperty(prop="hostname") ;
          pageGroups = new Vector<PageGroupConfig>() ;
          for(int i=1;;i++)
          {
