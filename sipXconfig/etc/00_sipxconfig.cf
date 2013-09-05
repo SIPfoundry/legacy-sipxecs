@@ -27,6 +27,12 @@ bundle agent 00_sipxconfig {
       "any" usebundle => sipxsupervisor;
 
   files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/resource-limits.ini"
+        comment => "resource limits ini file",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("resource-limits.ini");
     primary::
       "$(sipx.SIPX_CONFDIR)/sipxconfig.properties"
         comment => "sipXconfig configuration $(this.promiser)",
