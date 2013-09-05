@@ -42,6 +42,7 @@ import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
 import org.sipfoundry.sipxconfig.common.MongoGenerationFinishedEvent;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
@@ -58,7 +59,7 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationListener;
 
 public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFactoryAware, AlarmProvider,
-    ConfigCommands, SetupListener, ApplicationListener<MongoGenerationFinishedEvent> {
+    ConfigCommands, SetupListener, ApplicationListener<MongoGenerationFinishedEvent>, DaoEventListener {
     private static final Log LOG = LogFactory.getLog(ConfigManagerImpl.class);
     private File m_cfDataDir;
     private DomainManager m_domainManager;
@@ -504,5 +505,17 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
 
     public void setRemoteHostsFile(String remoteHostsFile) {
         m_remoteHostsFile = remoteHostsFile;
+    }
+
+    @Override
+    public void onSave(Object entity) {
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        if (entity instanceof Location) {
+            Location deletedLocation = (Location) entity;
+            m_registeredIps.remove(deletedLocation.getAddress());
+        }
     }
 }
