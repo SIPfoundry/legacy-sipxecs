@@ -31,16 +31,6 @@
       </option>
     </enum>
   </type>
-  <type id="true-false">
-	<boolean>
-		<true>
-			<value>true</value>
-		</true>
-		<false>
-			<value>false</value>
-		</false>
-	</boolean>
-  </type>   
   <type id="nonRootPort">
     <integer min="1025" max="65535" required="yes"/>
   </type>
@@ -81,22 +71,4 @@
       <type><string/></type>
     </setting>
   </group>
-  <group name="resource-limits">
-    <setting name="fd-soft">
-      <type>
-    	<integer/>
-      </type>
-      <value>32768</value>
-    </setting> 
-    <setting name="fd-hard">
-      <type>
-    	<integer/>
-      </type>
-      <value>65536</value>
-    </setting>
-    <setting name="core-enabled">
-      <type refid="true-false"/>
-      <value>false</value>
-    </setting>       
-  </group>  
 </model>

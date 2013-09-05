@@ -30,40 +30,4 @@
   <bean id="adminConfig" class="org.sipfoundry.sipxconfig.admin.AdminConfig">
     <property name="adminContext" ref="adminContext"/>
   </bean>
-  
-  <bean id="proxyResLimits" class="org.sipfoundry.sipxconfig.admin.ResLimitsConfigImpl">
-    <property name="prefix" value="sipxproxy-"/>
-  </bean>
-  <bean id="parkResLimits" class="org.sipfoundry.sipxconfig.admin.ResLimitsConfigImpl">
-    <property name="prefix" value="sipxpark-"/>
-  </bean>
-  <bean id="publisherResLimits" class="org.sipfoundry.sipxconfig.admin.ResLimitsConfigImpl">
-    <property name="prefix" value="sipxpublisher-"/>
-  </bean>
-  <bean id="registrarResLimits" class="org.sipfoundry.sipxconfig.admin.ResLimitsConfigImpl">
-    <property name="prefix" value="sipxregistry-"/>
-  </bean>
-  <bean id="rlsResLimits" class="org.sipfoundry.sipxconfig.admin.ResLimitsConfigImpl">
-    <property name="prefix" value="sipxrls-"/>
-  </bean>
-  <bean id="saaResLimits" class="org.sipfoundry.sipxconfig.admin.ResLimitsConfigImpl">
-    <property name="prefix" value="sipxsaa-"/>
-  </bean> 
-
-  <bean id="resLimitsConfiguration" class="org.sipfoundry.sipxconfig.admin.ResLimitsConfiguration">
-    <property name="adminContext" ref="adminContext"/>
-    <property name="mwi" ref="mwi"/>
-    <property name="proxyManager" ref="proxyManager" />
-    <property name="rls" ref="rls" />
-    <property name="saaManager" ref="saaManager" />
-    <property name="registrar" ref="registrar" />
-    <property name="parkOrbitContext" ref="parkOrbitContext" />
-    <property name="proxyLimitsConfig" ref="proxyResLimits" />
-    <property name="parkLimitsConfig" ref="parkResLimits" />
-    <property name="publisherLimitsConfig" ref="publisherResLimits" />
-    <property name="rlsLimitsConfig" ref="rlsResLimits" />
-    <property name="saaLimitsConfig" ref="saaResLimits" />
-    <property name="registrarLimitsConfig" ref="registrarResLimits" />
-  </bean>
-    
 </beans>
