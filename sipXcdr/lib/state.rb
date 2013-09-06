@@ -154,6 +154,14 @@ class State
      return false
   end
 
+  def all_fields_valid(cdr)
+     if cdr.from_tag.nil? || cdr.to_tag.nil? || cdr.caller_aor.nil? || cdr.callee_aor.nil?
+        @log.warn("CDR #{@cdr} not eligible for database, SKIP") if @log
+        return false
+     end
+     return true
+  end
+
   # Some special user calls (i.e. to music on hold) we don't want to report on. If the cdr
   # involves one of these special identities then return that it should be ignored/filtered.
   def filter_cdr_user(cdr)
@@ -239,6 +247,6 @@ class State
   def notify(cdr)
     cdr.retire
     @retired_calls[cdr.call_id] = @generation
-    @cdr_queue << cdr  if !filter_cdr_user(cdr) && !filter_cdr_chained(cdr)
+    @cdr_queue << cdr  if !filter_cdr_user(cdr) && !filter_cdr_chained(cdr) && all_fields_valid(cdr)
   end
 end
