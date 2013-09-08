@@ -44,6 +44,7 @@ public class User extends AbstractUser implements Replicable {
     private static final String ALIAS_RELATION_FAX = "fax";
     private static final String TZ = "timezone/timezone";
     private static final String E911_SETTING_PATH = "e911/location";
+    private static final String PHANTOM_USER = "phantom/enabled";
     private String m_identity;
     private boolean m_validUser = true;
 
@@ -195,6 +196,14 @@ public class User extends AbstractUser implements Replicable {
 
     public String getDid() {
         return getUserProfile().getDidNumber();
+    }
+
+    public boolean isPhantom() {
+        return (Boolean) getSettingTypedValue(PHANTOM_USER);
+    }
+
+    public void setPhantom(boolean phantom) {
+        getSettings().getSetting(PHANTOM_USER).setTypedValue(phantom);
     }
 
     public Integer getE911LocationId() {

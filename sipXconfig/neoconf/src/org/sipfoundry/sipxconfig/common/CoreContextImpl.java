@@ -45,6 +45,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import static org.sipfoundry.commons.userdb.profile.UserProfileService.DISABLED;
 import static org.sipfoundry.commons.userdb.profile.UserProfileService.ENABLED;
 import static org.sipfoundry.commons.userdb.profile.UserProfileService.LDAP;
+import static org.sipfoundry.commons.userdb.profile.UserProfileService.PHANTOM;
 
 public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> implements CoreContext,
        ApplicationContextAware, SetupListener {
@@ -72,6 +73,13 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         + "where (u.user_name= :alias or alias.alias= :alias  "
         + "or (sv.path='voicemail/fax/did' and sv.value = :alias)  "
         + "or (sv.path='voicemail/fax/extension' and sv.value = :alias)) and u.user_name != :username";
+    private static final String SQL_QUERY_PHANTOM_USERS =
+        "select count(u.user_name) from users "
+        + "u inner join setting_value v "
+        + "on u.value_storage_id = v.value_storage_id and v.path='phantom/enabled'";
+    private static final String PHANTOM_USERS_QUERY = "select u from User u join u.valueStorage vs where "
+        + "vs.databaseValues['phantom/enabled'] != null "
+        + "and vs.databaseValues['phantom/enabled'] = '1'";
     private static final String ALIAS = "alias";
     private static final String QUERY_USER = "from AbstractUser";
     private static final String QUERY_PARAM_GROUP_ID = "groupId";
@@ -534,6 +542,13 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         HibernateCallback callback = new HibernateCallback() {
             @Override
             public Object doInHibernate(Session session) {
+                if (StringUtils.equals(search, PHANTOM)) {
+                    Query query = getHibernateTemplate().getSessionFactory().getCurrentSession().
+                        createQuery(PHANTOM_USERS_QUERY);
+                    query.setFirstResult(firstRow);
+                    query.setMaxResults(pageSize);
+                    return query.list();
+                }
                 UserLoader loader = new UserLoader(session);
                 return loader
                         .loadUsersByPage(search, groupId, branchId, firstRow, pageSize, orderBy, orderAscending);
@@ -952,6 +967,13 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     @Override
     public int getDisabledUsersCount() {
         return getUserProfileService().getDisabledUsersCount();
+    }
+
+    @Override
+    public int getPhantomUsersCount() {
+        Query q = getHibernateTemplate().getSessionFactory().getCurrentSession()
+                .createSQLQuery(SQL_QUERY_PHANTOM_USERS);
+        return ((Number) q.uniqueResult()).intValue();
     }
 
     @Override

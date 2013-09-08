@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
 
 import static org.sipfoundry.commons.userdb.profile.UserProfileService.DISABLED;
 import static org.sipfoundry.commons.userdb.profile.UserProfileService.ENABLED;
+import static org.sipfoundry.commons.userdb.profile.UserProfileService.PHANTOM;
 
 public abstract class GroupFilter extends BaseComponent {
     public static final String SEARCH_SELECTED = "label.search";
@@ -38,6 +39,8 @@ public abstract class GroupFilter extends BaseComponent {
     public static final String ENABLED_SELECTED = "label.enabled";
 
     public static final String DISABLED_SELECTED = "label.disabled";
+
+    public static final String PHANTOM_SELECTED = "label.phantom";
 
     public abstract boolean getSearchMode();
 
@@ -80,6 +83,14 @@ public abstract class GroupFilter extends BaseComponent {
 
     public abstract void setDisabledMode(boolean disabledMode);
 
+    public abstract boolean getPhantomOptionAvailable();
+
+    public abstract void setPhantomOptionAvailable(boolean phantomOptionAvailable);
+
+    public abstract boolean getPhantomMode();
+
+    public abstract void setPhantomMode(boolean phantomMode);
+
     public abstract boolean getUnassignedMode();
 
     public abstract void setUnassignedMode(boolean unassignedMode);
@@ -93,6 +104,9 @@ public abstract class GroupFilter extends BaseComponent {
         }
         if (getDisabledOptionAvailable()) {
             actions.add(new LabelOptionAdapter(getMessages(), DISABLED_SELECTED));
+        }
+        if (getPhantomOptionAvailable()) {
+            actions.add(new LabelOptionAdapter(getMessages(), PHANTOM_SELECTED));
         }
         if (getUnassignedOptionAvailable()) {
             actions.add(new LabelOptionAdapter(getMessages(), UNASSIGNED_SELECTED));
@@ -123,11 +137,15 @@ public abstract class GroupFilter extends BaseComponent {
                 setGroupId(ENABLED_SELECTED);
             } else if (getDisabledOptionAvailable() && getDisabledMode()) {
                 setGroupId(DISABLED_SELECTED);
+            } else if (getPhantomOptionAvailable() && getPhantomMode()) {
+                setGroupId(PHANTOM_SELECTED);
             } else if (getSearchMode()) {
                 if (StringUtils.equals(getQueryText(), ENABLED)) {
                     setGroupId(ENABLED_SELECTED);
                 } else if (StringUtils.equals(getQueryText(), DISABLED)) {
                     setGroupId(DISABLED_SELECTED);
+                } else if (StringUtils.equals(getQueryText(), PHANTOM)) {
+                    setGroupId(PHANTOM_SELECTED);
                 } else {
                     setGroupId(SEARCH_SELECTED);
                 }
@@ -144,6 +162,7 @@ public abstract class GroupFilter extends BaseComponent {
             final boolean all = ALL_SELECTED.equals(groupId);
             final boolean enabled = ENABLED_SELECTED.equals(groupId);
             final boolean disabled = DISABLED_SELECTED.equals(groupId);
+            final boolean phantom = PHANTOM_SELECTED.equals(groupId);
             final boolean unassigned = UNASSIGNED_SELECTED.equals(groupId);
             setSearchMode(search);
             if (getUnassignedOptionAvailable()) {
@@ -159,12 +178,17 @@ public abstract class GroupFilter extends BaseComponent {
                 setSearchMode(disabled);
                 setQueryText(DISABLED);
             }
+            if (getPhantomOptionAvailable() && phantom) {
+                setPhantomMode(phantom);
+                setSearchMode(phantom);
+                setQueryText(PHANTOM);
+            }
             if (search
-                    && (StringUtils.equals(getQueryText(), ENABLED) || StringUtils.equals(
-                            getQueryText(), DISABLED))) {
+                    && (StringUtils.equals(getQueryText(), ENABLED) || StringUtils.equals(getQueryText(), DISABLED)
+                            || StringUtils.equals(getQueryText(), PHANTOM))) {
                 setQueryText(null);
             }
-            if (search || all || unassigned || enabled || disabled) {
+            if (search || all || unassigned || enabled || disabled || phantom) {
                 setSelectedGroupId(null);
             } else {
                 setSelectedGroupId((Integer) groupId);
@@ -173,8 +197,8 @@ public abstract class GroupFilter extends BaseComponent {
     }
 
     public boolean renderSearchQueryAndButton(String queryText) {
-        if (!StringUtils.equals(queryText, ENABLED)
-                && !StringUtils.equals(queryText, DISABLED)) {
+        if (!StringUtils.equals(queryText, ENABLED) && !StringUtils.equals(queryText, DISABLED)
+                && !StringUtils.equals(queryText, PHANTOM)) {
             return true;
         }
         return false;

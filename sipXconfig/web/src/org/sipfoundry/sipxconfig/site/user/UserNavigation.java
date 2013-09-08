@@ -20,6 +20,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.hotelling.HotellingLocator;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
@@ -201,6 +202,7 @@ public abstract class UserNavigation extends BeanNavigation {
 
     public String getGroupsToHide() {
         List<String> names = new LinkedList<String>();
+        boolean phantom = isPhantomUser();
         names.add("voicemail");
         names.add(PERSONAL_ATTENDANT);
         names.add("callfwd");
@@ -208,7 +210,11 @@ public abstract class UserNavigation extends BeanNavigation {
         names.add("timezone");
         names.add("hotelling");
         names.add("e911");
-        if (!getFeatureManager().isFeatureEnabled(ImBot.FEATURE)) {
+        if (phantom) {
+            names.add("user-domain");
+            names.add("im");
+        }
+        if (!getFeatureManager().isFeatureEnabled(ImBot.FEATURE) || phantom) {
             names.add("im_notification");
         }
         return StringUtils.join(names, ",");
@@ -273,6 +279,13 @@ public abstract class UserNavigation extends BeanNavigation {
     public Collection<Setting> getNavigationGroups() {
         Setting settings = getBean().getSettings();
         return getUserNavigationGroups(settings);
+    }
+
+    public boolean isPhantomUser() {
+        if (getBean() instanceof User) {
+            return ((User) getBean()).isPhantom();
+        }
+        return false;
     }
 
     /**

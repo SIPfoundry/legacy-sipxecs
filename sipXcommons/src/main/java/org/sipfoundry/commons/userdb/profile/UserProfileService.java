@@ -23,6 +23,7 @@ public interface UserProfileService {
     static final String DISABLED = "DISABLED";
     static final String ENABLED = "ENABLED";
     static final String LDAP = "LDAP";
+    static final String PHANTOM = "PHANTOM";
 
     UserProfile getUserProfile(String userId);
 

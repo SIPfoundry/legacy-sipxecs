@@ -11,6 +11,7 @@
   <parameter name="searchMode" required="yes"/>
   <parameter name="enabledOptionAvailable" required="no"/>
   <parameter name="disabledOptionAvailable" required="no"/>
+  <parameter name="phantomOptionAvailable" required="no"/>
   <parameter name="unassignedOptionAvailable" required="no"/>
   <parameter name="unassignedMode" required="no"/>
 

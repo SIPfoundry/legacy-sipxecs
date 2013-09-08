@@ -39,6 +39,9 @@ public class Credentials extends AbstractDataSetGenerator {
         String realm = getCoreContext().getAuthorizationRealm();
         if (entity instanceof User) {
             User user = (User) entity;
+            if (user.isPhantom()) {
+                realm = "phantom";
+            }
             insertCredential(top, realm, defaultString(user.getSipPassword()), user.getPintoken(), DIGEST);
             insertVoicemailPin(top, user.getVoicemailPintoken());
             return true;

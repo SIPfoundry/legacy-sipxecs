@@ -16,7 +16,6 @@ import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.asse
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.callgroup.CallGroup;
-import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 
 public class CredentialsTestIntegration extends ImdbTestCase {
@@ -40,7 +39,7 @@ public class CredentialsTestIntegration extends ImdbTestCase {
 
     public void testAddUser() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");
-        User user = new User();
+        org.sipfoundry.sipxconfig.common.User user = new User();
         user.setUniqueId(1);
         user.setUserName("superadmin");
         final String PIN = "pin1234";
@@ -59,7 +58,7 @@ public class CredentialsTestIntegration extends ImdbTestCase {
 
     public void testAddUserEmptyPasswords() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");
-        User user = new User();
+        org.sipfoundry.sipxconfig.common.User user = new User();
         user.setUniqueId(1);
         user.setUserName("superadmin");
         user.setPin("");
@@ -73,6 +72,35 @@ public class CredentialsTestIntegration extends ImdbTestCase {
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.PASSTOKEN, "");
         assertObjectWithIdFieldValueNotPresent(getEntityCollection(), "User1", MongoConstants.PINTOKEN, emptyHash);
         assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.REALM, DOMAIN);
+    }
+
+    public void testAddPhantom() throws Exception {
+        loadDataSetXml("domain/DomainSeed.xml");
+        org.sipfoundry.sipxconfig.common.User user = new PhantomUser();
+        user.setUniqueId(1);
+        user.setUserName("superadmin");
+        final String PIN = "pin1234";
+        user.setPin(PIN);
+        user.setSipPassword("pass4321");
+        user.setDomainManager(getDomainManager());
+
+        getReplicationManager().replicateEntity(user, DataSet.CREDENTIAL);
+
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "PhantomUser1", MongoConstants.REALM, "phantom");
+    }
+
+    private static class PhantomUser extends org.sipfoundry.sipxconfig.common.User {
+        @Override
+        public boolean isPhantom() {
+            return true;
+        }
+    }
+
+    private static class User extends org.sipfoundry.sipxconfig.common.User {
+        @Override
+        public boolean isPhantom() {
+            return false;
+        }
     }
 
 }

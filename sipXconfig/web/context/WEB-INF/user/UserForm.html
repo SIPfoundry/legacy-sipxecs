@@ -10,7 +10,15 @@
         <checkbox jwcid="enabled@Checkbox"
           id="user:enabled"
           value="ognl:user.enabled" />
-      </tr> 
+      </tr>
+      <tr jwcid="@common/FieldPanel" for="user:phantom"
+        field="component:phantom"
+        label="message:label.phantom"
+        description="message:desc.phantom">
+          <span jwcid="phantom@Checkbox"
+            id="user:phantom"
+            value="ognl:user.phantom" />
+      </tr>
       <tr jwcid="userIdPanel" for="user:userId">
         <input jwcid="userId" id="user:userId" type="text" autocomplete="off"/>
       </tr>

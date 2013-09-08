@@ -381,6 +381,22 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         assertEquals(1, ldapEnabled.size());
     }
 
+    public void testPhantomUsers() throws Exception {
+        sql("common/SampleUsersSeed.sql");
+        User sam = m_coreContext.loadUser(1001);
+        sam.getSettings().getSetting("phantom/enabled").setTypedValue(true);
+        m_coreContext.saveUser(sam);
+        User jessica = m_coreContext.loadUser(1003);
+        jessica.getSettings().getSetting("phantom/enabled").setTypedValue(true);
+        m_coreContext.saveUser(jessica);
+        assertEquals(2, m_coreContext.getPhantomUsersCount());
+
+        Collection page = m_coreContext.loadUsersByPage("PHANTOM", null, null, 0, 2, "userName", true);
+        assertEquals(2, page.size());
+        User u = (User) page.iterator().next();
+        assertEquals("alpha", u.getUserName());
+    }
+
     public void testLoadUserPageDescending() throws Exception {
         sql("common/SampleUsersSeed.sql");
         // expect third user from bottom

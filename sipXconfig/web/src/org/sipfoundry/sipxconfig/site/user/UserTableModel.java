@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 
 import static org.sipfoundry.commons.userdb.profile.UserProfileService.DISABLED;
 import static org.sipfoundry.commons.userdb.profile.UserProfileService.ENABLED;
+import static org.sipfoundry.commons.userdb.profile.UserProfileService.PHANTOM;
 
 public class UserTableModel implements IBasicTableModel {
     private CoreContext m_coreContext;
@@ -47,6 +48,9 @@ public class UserTableModel implements IBasicTableModel {
         }
         if (StringUtils.equals(m_searchString, DISABLED)) {
             return m_coreContext.getDisabledUsersCount();
+        }
+        if (StringUtils.equals(m_searchString, PHANTOM)) {
+            return m_coreContext.getPhantomUsersCount();
         }
         int count = m_coreContext.getUsersInGroupWithSearchCount(m_groupId, m_searchString);
         return count;

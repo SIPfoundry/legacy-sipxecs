@@ -37,6 +37,9 @@ public abstract class UserTable extends BaseComponent implements PageBeginRender
     @Asset("/images/adminUser.png")
     public abstract IAsset getAdminUserIcon();
 
+    @Asset("/images/phantom.png")
+    public abstract IAsset getPhantomUserIcon();
+
     /** REQUIRED PROPERTY */
     public abstract SelectMap getSelections();
 
@@ -77,10 +80,16 @@ public abstract class UserTable extends BaseComponent implements PageBeginRender
     }
 
     public IAsset getUserIcon() {
+        if (getCurrentUser().isPhantom()) {
+            return getPhantomUserIcon();
+        }
         return getCurrentUser().isAdmin() ? getAdminUserIcon() : getNormalUserIcon();
     }
 
     public String getUserIconTitle() {
+        if (getCurrentUser().isPhantom()) {
+            return getMessages().getMessage("phantomUser");
+        }
         String key = getCurrentUser().isAdmin() ? "adminUser" : "normalUser";
         return getMessages().getMessage(key);
     }

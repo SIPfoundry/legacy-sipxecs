@@ -509,4 +509,12 @@
       <value>0</value>
     </setting>
   </group>
+  <group name="phantom" hidden="yes">
+    <setting name="enabled">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
 </model>
