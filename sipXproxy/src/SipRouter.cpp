@@ -253,6 +253,8 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
 
    SipTransaction::SendTryingForNist = configDb.getBoolean("SIPX_SEND_TRYING_FOR_NIST", TRUE);
 
+   SipTransaction::gEnableHopByHopCancel = configDb.getBoolean("SIPX_PROXY_HOP_BY_HOP_CANCEL", TRUE);
+
    UtlString hostname;
    configDb.get("SIPX_PROXY_HOST_NAME", hostname);
    if (!hostname.isNull())
