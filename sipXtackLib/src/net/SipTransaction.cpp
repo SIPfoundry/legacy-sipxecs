@@ -46,6 +46,7 @@
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 UtlBoolean SipTransaction::enableTcpResend = FALSE;
 UtlBoolean SipTransaction::SendTryingForNist = TRUE;
+UtlBoolean SipTransaction::gEnableHopByHopCancel = TRUE;
 /* ============================ CREATORS ================================== */
 
 // Constructor
@@ -4327,6 +4328,72 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                     // Proxy transaction
                     if(!mIsUaTransaction)
                     {
+                        if(SipTransaction::gEnableHopByHopCancel && mpLastFinalResponse == NULL)
+                        {
+                            //   CANCEL is hop by hop and we must terminate the
+                            //   INVITE transaction with a final response according to paragraph 2 below
+                            //
+                            //
+                            //
+                            //   9.2 Server Behavior
+                            //
+                            //   The CANCEL method requests that the TU at the server side cancel a
+                            //   pending transaction.  The TU determines the transaction to be
+                            //   cancelled by taking the CANCEL request, and then assuming that the
+                            //   request method is anything but CANCEL or ACK and applying the
+                            //   transaction matching procedures of Section 17.2.3.  The matching
+                            //   transaction is the one to be cancelled.
+                            //
+                            //   The processing of a CANCEL request at a server depends on the type of
+                            //   server.  A stateless proxy will forward it, a stateful proxy might
+                            //   respond to it and generate some CANCEL requests of its own, and a UAS
+                            //   will respond to it.  See Section 16.10 for proxy treatment of CANCEL.
+                            //
+                            //   A UAS first processes the CANCEL request according to the general UAS
+                            //   processing described in Section 8.2.  However, since CANCEL requests
+                            //   are hop-by-hop and cannot be resubmitted, they cannot be challenged
+                            //   by the server in order to get proper credentials in an Authorization
+                            //   header field.  Note also that CANCEL requests do not contain a
+                            //   Require header field.
+
+                            //   16.10 CANCEL Processing
+                            //
+                            //   A stateful proxy MAY generate a CANCEL to any other request it has
+                            //   generated at any time (subject to receiving a provisional response to
+                            //   that request as described in section 9.1).  A proxy MUST cancel any
+                            //   pending client transactions associated with a response context when
+                            //   it receives a matching CANCEL request.
+                            //
+                            //   A stateful proxy MAY generate CANCEL requests for pending INVITE
+                            //   client transactions based on the period specified in the INVITE's
+                            //   Expires header field elapsing.  However, this is generally
+                            //   unnecessary since the endpoints involved will take care of signaling
+                            //   the end of the transaction.
+                            //
+                            //   While a CANCEL request is handled in a stateful proxy by its own
+                            //   server transaction, a new response context is not created for it.
+                            //   Instead, the proxy layer searches its existing response contexts for
+                            //   the server transaction handling the request associated with this
+                            //   CANCEL.  If a matching response context is found, the element MUST
+                            //   immediately return a 200 (OK) response to the CANCEL request.  In
+                            //   this case, the element is acting as a user agent server as defined in
+                            //   Section 8.2.  Furthermore, the element MUST generate CANCEL requests
+                            //   for all pending client transactions in the context as described in
+                            //   Section 16.7 step 10.
+                            //
+                            //   If a response context is not found, the element does not have any
+                            //   knowledge of the request to apply the CANCEL to.  It MUST statelessly
+                            //   forward the CANCEL request (it may have statelessly forwarded the
+                            //   associated request previously).
+
+                            SipMessage inviteResponse;
+                            inviteResponse.setResponseData(mpRequest,
+                                                SIP_REQUEST_TERMINATED_CODE,
+                                                SIP_REQUEST_TERMINATED_TEXT);
+                            handleOutgoing(inviteResponse, userAgent, transactionList, MESSAGE_FINAL);
+                        }
+
+
                         // Append the Reason value of the incoming CANCEL
                         // to any value we already have for outgoing CANCELs.
                         UtlString reasonTxt;
@@ -4351,18 +4418,7 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                         shouldDispatch = TRUE;
                     }
 
-                    if(mpLastFinalResponse == NULL)
-                    {
-                        // I think this is wrong only the app. layer of a
-                        // UAS should response with 487
-                        // Respond to the server transaction INVITE
-                        //SipMessage inviteResponse;
-                        //inviteResponse.setResponseData(mpRequest,
-                        //                    SIP_REQUEST_TERMINATED_CODE,
-                        //                    SIP_REQUEST_TERMINATED_TEXT);
-                        //handleOutgoing(inviteResponse, userAgent,
-                        //    MESSAGE_FINAL);
-                    }
+                   
 
                 }
 
