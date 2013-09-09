@@ -93,6 +93,10 @@
       <type><boolean /></type>
       <value>0</value>
     </setting>
+    <setting name="SIPX_PROXY_HOP_BY_HOP_CANCEL">
+      <type><boolean /></type>
+      <value>1</value>
+    </setting>
     <setting name="SIPX_SEND_TRYING_FOR_NIST" advanced="yes">
       <type>
         <boolean>
