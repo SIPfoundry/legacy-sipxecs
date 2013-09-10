@@ -35,4 +35,7 @@
     <property name="target" ref="alarmServerManagerImpl" />
   </bean>
 
+  <bean id="warningManager" class="org.sipfoundry.sipxconfig.alarm.WarningManagerImpl">   
+  </bean>
+
 </beans>

@@ -18,3 +18,9 @@
   <span key="prompt.replicaSetWarning">Replica Set warning. For details click:</span>
   <a jwcid="@DirectLink" listener="listener:getDatabasesPage"><span key="prompt.here">here</span></a>
 </div>
+<div class="user-warning">
+  <span jwcid="@For" source="ognl:warnings" value="ognl:warning" renderTag="false">
+    <span jwcid=@Insert value="ognl:warningLabel">Replica Set warning. For details click:</span>
+    <a jwcid="@DirectLink" listener="listener:getWarningPage" parameters="ognl:warning.page"><span key="prompt.here">here</span></a>
+  </span>
+</div>

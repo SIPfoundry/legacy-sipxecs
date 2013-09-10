@@ -9,10 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import java.util.List;
+
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
+import org.sipfoundry.sipxconfig.alarm.Warning;
+import org.sipfoundry.sipxconfig.alarm.WarningManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.mongo.MongoManager;
@@ -28,6 +32,11 @@ public abstract class StatusWarning extends BaseComponent {
 
     @InjectObject("spring:featureManager")
     public abstract FeatureManager getFeatureManager();
+
+    @InjectObject("spring:warningManager")
+    public abstract WarningManager getWarningManager();
+
+    public abstract Warning getWarning();
 
     /**
      * Show only if there was a failure AND we are NOT on JobStatus page
@@ -52,6 +61,10 @@ public abstract class StatusWarning extends BaseComponent {
         }
     }
 
+    public List<Warning> getWarnings() {
+        return getWarningManager().getWarnings();
+    }
+
     public IPage getDatabasesPage() {
         LocationsPage page =  (LocationsPage) getPage().getRequestCycle().getPage(LocationsPage.PAGE);
         page.setTab("databases");
@@ -62,5 +75,13 @@ public abstract class StatusWarning extends BaseComponent {
         JobStatusPage page =  (JobStatusPage) getPage().getRequestCycle().getPage(JobStatusPage.PAGE);
         page.setTab("failedJobs");
         return page;
+    }
+
+    public IPage getWarningPage(String page) {
+        return getPage().getRequestCycle().getPage(page);
+    }
+
+    public String getWarningLabel() {
+        return getMessages().getMessage(getWarning().getWarning());
     }
 }
