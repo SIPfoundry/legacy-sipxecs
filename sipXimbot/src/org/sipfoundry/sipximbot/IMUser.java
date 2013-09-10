@@ -47,7 +47,7 @@ import org.w3c.dom.NodeList;
 
 public class IMUser {
         public enum UserPresence {
-            UNKOWN,
+            UNKNOWN,
             AVAILABLE,
             ONPHONE,
             INCONFERENCE,

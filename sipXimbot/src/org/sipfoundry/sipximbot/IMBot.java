@@ -21,28 +21,33 @@ import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.packet.VCard;
+import org.sipfoundry.commons.freeswitch.ConfBasicThread;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.sipximbot.IMUser.UserPresence;
 
 public class IMBot {
+    private static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
+
+    // in milliseconds
+    private static final long RETRY_INTERVAL = 30 * 1000;
+    private static final long MAX_RETRIES = 10;
+
     private static Roster m_roster;
-    
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
-            
+
     // key is Jabber Id, value is IMUser
     private static Map<String, IMUser> m_ChatsMap = Collections
             .synchronizedMap(new HashMap<String, IMUser>());
-    
+
     private static class IMClientThread extends Thread {
         private static XMPPConnection m_con;
         private static Localizer m_localizer;
-         
+
         public IMClientThread() {
         }
-        
-        /* IMbot client computes the SHA1 hash of the avatar image data itself. 
-         * Include this hash in the user's presence information 
-         * as the XML character data of the <photo/> child of an <x/> element 
+
+        /* IMbot client computes the SHA1 hash of the avatar image data itself.
+         * Include this hash in the user's presence information
+         * as the XML character data of the <photo/> child of an <x/> element
          * qualified by the 'vcard-temp:x:update' namespace
          */
         private class AvatarUpdateExtension implements PacketExtension {
@@ -52,14 +57,17 @@ public class IMBot {
                 photoHash = hash;
             }
 
+            @Override
             public String getElementName() {
                 return "x";
             }
 
+            @Override
             public String getNamespace() {
                 return "vcard-temp:x:update";
             }
 
+            @Override
             public String toXML() {
                 StringBuffer buf = new StringBuffer();
                 buf.append("<").append(getElementName()).append(" xmlns=\"").append(getNamespace()).append("\">");
@@ -70,9 +78,9 @@ public class IMBot {
                 return buf.toString();
             }
         }
-        
-        private void updateAvatar(ImbotConfiguration config) {
-                
+
+        private void updateAvatar() {
+
             boolean savingAvatar = false;
             VCard vCard = new VCard();
             try {
@@ -85,9 +93,9 @@ public class IMBot {
                     vCard.save(m_con);
                     updateAvatarPresence(vCard);
                 } catch (MalformedURLException e) {
-                    LOG.error("Malformed URL in updateAvatar ");     
-                }    
- 
+                    LOG.error("Malformed URL in updateAvatar ");
+                }
+
             } catch (XMPPException xmppe) {
                 if(savingAvatar) {
                     // google talk doesn't like us saving avatars immediately after login!
@@ -100,12 +108,12 @@ public class IMBot {
                         vCard.save(m_con);
                         updateAvatarPresence(vCard);
                     } catch (XMPPException e) {
-                        LOG.error("could not update Avatar " + e.getMessage());     
+                        LOG.error("could not update Avatar " + e.getMessage());
                     }
-                }        
-            }           
+                }
+            }
         }
-        
+
         private void updateAvatarPresence(VCard vCard) {
             Presence aPresence = new Presence(Presence.Type.available);
             AvatarUpdateExtension AvatarExt = new AvatarUpdateExtension();
@@ -115,25 +123,24 @@ public class IMBot {
             aPresence.setFrom(ImbotConfiguration.get().getMyAsstAcct());
             m_con.sendPacket(aPresence);
         }
-        
-        
-        private boolean connectToXMPPServer() {
-            
+
+
+        private static boolean connectToXMPPServer() {
+
             ImbotConfiguration config;
             ConnectionConfiguration conf;
             config = ImbotConfiguration.get();
             conf = new ConnectionConfiguration(config.getOpenfireHost(), 5222);
             conf.setSASLAuthenticationEnabled(false); // disable SASL to cope with cases where XMPP domain != FQDN (XX-7293)
             Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
-            m_con = new XMPPConnection(conf);   
-            
-            int maxAttempts = 10;
-            for(int i = 0;i < maxAttempts;i++) {
+            m_con = new XMPPConnection(conf);
+
+            for (int i = 0; i < MAX_RETRIES; i++) {
                 try {
-                    m_con.connect();                    
+                    m_con.connect();
                     String username = config.getMyAsstAcct().split("@")[0]; // only keep user part and ditch the @domain part if present
                     m_con.login(username, config.getMyAsstPswd());
-                    return true;  
+                    return true;
                 } catch (Exception e) {
                     // typically get this exception if server is unreachable or login info is wrong
                     // only thing do it is periodically retry just like any other IM client would
@@ -141,136 +148,141 @@ public class IMBot {
                     LOG.error("Could not login to XMPP server " + e.getMessage());
                                     }
                 try {
-                    long waitTime = ((long)Math.pow(2, i)) * 10;
-                    LOG.info("Waiting " + waitTime + " seconds before attempting another connection to XMPP server.");
-                    sleep(waitTime * 1000);
+                    LOG.info("Waiting " + RETRY_INTERVAL
+                            + " seconds before attempting another connection to XMPP server.");
+                    sleep(RETRY_INTERVAL);
                 } catch (InterruptedException e) {
                     return false;
                 }
             }
-            throw new RuntimeException("Could not establish connection to XMPP server after " + maxAttempts + " attempts");
+            throw new RuntimeException("Could not establish connection to XMPP server after " + MAX_RETRIES
+                    + " attempts");
         }
-        
-        public static void AddToRoster(User user) {         
-            Presence presPacket = new Presence(Presence.Type.subscribe); 
+
+        public static void AddToRoster(User user) {
+            Presence presPacket = new Presence(Presence.Type.subscribe);
             presPacket.setFrom(ImbotConfiguration.get().getMyAsstAcct());
-            
-            if(user.getJid() != null) {  
-                presPacket.setTo(user.getJid());                        
+
+            if(user.getJid() != null) {
+                presPacket.setTo(user.getJid());
                 m_con.sendPacket(presPacket);
             }
 
-            if(user.getAltJid() != null) {  
-                presPacket.setTo(user.getAltJid());                                    
+            if(user.getAltJid() != null) {
+                presPacket.setTo(user.getAltJid());
                 m_con.sendPacket(presPacket);
             }
         }
-        
-        public void run() {           
-            
+
+        @Override
+        public void run() {
+
             boolean running = true;
-                               
+
             if(!connectToXMPPServer()) {
                 return;
             }
-            
+
             m_localizer = new Localizer();
 
-            updateAvatar(ImbotConfiguration.get());
+            updateAvatar();
             m_roster = m_con.getRoster();
-                                  
+
             class PresenceListener implements PacketListener {
-                
+
+                @Override
                 public void processPacket(Packet packet) {
                     Presence presence = (Presence) packet;
                     Presence presPacket = null;
-             
+
                     switch (presence.getType()) {
                     case subscribe:
-                        String jid = presence.getFrom();     
+                        String jid = presence.getFrom();
                         if(jid.indexOf('/') > 0) {
                             jid = jid.substring(0, jid.indexOf('/'));
-                        }                   
-                        
+                        }
+
                         User user = findUser(jid);
                         if(user == null) {
-                            LOG.error("Rejected subscription from " + jid);     
-                            presPacket = new Presence(Presence.Type.unsubscribed); 
+                            LOG.error("Rejected subscription from " + jid);
+                            presPacket = new Presence(Presence.Type.unsubscribed);
                         } else {
-                            LOG.info("Accepted subscription from " + jid); 
-                            presPacket = new Presence(Presence.Type.subscribed); 
-                        }                        
+                            LOG.info("Accepted subscription from " + jid);
+                            presPacket = new Presence(Presence.Type.subscribed);
+                        }
                         presPacket.setTo(presence.getFrom());
-                        presPacket.setFrom(presence.getTo()); 
-                        
+                        presPacket.setFrom(presence.getTo());
+
                         m_con.sendPacket(presPacket);
-                        
+
                         try {
                             sleep(1000);
                         } catch (InterruptedException e) {
                         }
-                        
+
                         if((user != null) && (m_ChatsMap.get(jid) == null))  {
                             // now subscribe the sender's presence
                             presPacket.setType(Presence.Type.subscribe);
-                           
+
                             m_con.sendPacket(presPacket);
-                            
+
                             IMUser imuser = new IMUser(user, jid, null, m_con, m_localizer);
                             m_ChatsMap.put(jid, imuser);
                         }
-                        
+
                         break;
                     case unsubscribe:
-                        LOG.error("Received unexpected unsubscribe for " + presence.getFrom());     
+                        LOG.error("Received unexpected unsubscribe for " + presence.getFrom());
                         break;
                     }
                 }
             }
-             
+
             PacketFilter filter = new PacketTypeFilter(Presence.class);
-            m_con.addPacketListener(new PresenceListener(), filter);                       
-            
+            m_con.addPacketListener(new PresenceListener(), filter);
+
             // create map with initial presence and status info
-            
+
             User user;
             Collection<RosterEntry> entries = m_roster.getEntries();
             for (RosterEntry entry : entries) {
                 user = findUser(entry.getUser());
                 if(user != null) {
-                    IMUser imuser = new IMUser(user, entry.getUser(), m_roster.getPresence(entry.getUser()), m_con, m_localizer);                               
+                    IMUser imuser = new IMUser(user, entry.getUser(), m_roster.getPresence(entry.getUser()), m_con, m_localizer);
                     m_ChatsMap.put(entry.getUser(), imuser);
                 } else {
                     try {
                         m_roster.removeEntry(entry);
                         LOG.error("Removing old roster entry " + entry.getUser());
                     } catch (XMPPException e) {
-                        LOG.error("Could not remove roster entry " + entry.getUser());     
+                        LOG.error("Could not remove roster entry " + entry.getUser());
                     }
                 }
-            }            
+            }
 
             m_roster.addRosterListener(new RosterListener() {
 
+                @Override
                 public void entriesAdded(Collection<String> entries) {
                     for(String address : entries) {
                         if(m_ChatsMap.get(address) != null) {
                             // already in chat map, this will happen
                             // if subscription was successful
                             continue;
-                        }          
-                        
+                        }
+
                         User user = findUser(address);
                         if(user == null) {
                             LOG.error("Rejected addition from " + address);
-                        } else {                        
+                        } else {
                             IMUser imuser = new IMUser(user, address, null, m_con, m_localizer);
                             m_ChatsMap.put(address, imuser);
                             LOG.debug("Entry added: " + address);
-                        }                                                             
+                        }
                     }
                 }
 
+                @Override
                 public void entriesDeleted(Collection<String> addresses) {
                     // Contacts have been removed from the roster
                     for(String address : addresses) {
@@ -278,24 +290,26 @@ public class IMBot {
                             if(address.equals(entry.getUser())) {
                                 LOG.debug("Removing from roster: " + entry.getUser());
                                 m_ChatsMap.remove(entry.getUser());
-                            }    
+                            }
                         }
                     }
                 }
-                
-                public void entriesUpdated(Collection<String> arg0) {                
+
+                @Override
+                public void entriesUpdated(Collection<String> arg0) {
                 }
 
+                @Override
                 public void presenceChanged(Presence presence) {
-                    
+
                     String from = presence.getFrom();
                     if(from.indexOf('/') > 0) {
                         from = from.substring(0, from.indexOf('/'));
-                    }                   
+                    }
                     m_ChatsMap.get(from).setPresence(presence);
                 }
             });
-            
+
             while (running) {
                 try {
                     sleep(5000);
@@ -306,101 +320,106 @@ public class IMBot {
             }
             m_con.disconnect();
         }
-    }  
-    
-    static public synchronized User findUser(String jid) {        
+    }
+
+    static public synchronized User findUser(String jid) {
         return(FullUsers.INSTANCE.findByjid(jid));
     }
-    
+
     static private String getjid(User user) {
         String jid = user.getJid();
         if(jid == null) {
             jid = user.getAltJid();
-        }    
+        }
         return jid;
     }
-    
+
     static public String getUserStatus(User user) {
         // return status corresponding to primary IM Id. If not filled in
         // try altId and if not filled in either then assume AVAILABLE
         String jid = getjid(user);
         if(jid == null) {
             return null;
-        } else { 
+        } else {
             Presence pres = m_roster.getPresence(jid);
-            
+
             if(pres != null) {
                 return pres.getStatus();
             } else {
                 return null;
-            }       
+            }
         }
     }
-    
+
     static public UserPresence getUserPresence(User user) {
         // return presence corresponding to primary IM Id. If not filled in
         // try altId and if not filled in either then assume AVAILABLE
-     
-        if(ConfTask.inConferenceSince(user.getUserName()) != null) {
+
+        if (ConfBasicThread.inConferenceSince(user.getUserName()) != null) {
             return UserPresence.INCONFERENCE;
         }
-        
+
         PhonePresence phonePresence;
         try {
             phonePresence = new PhonePresence();
             phonePresence.isUserOnThePhone(user.getUserName());
             if(phonePresence.isUserOnThePhone(user.getUserName())) {
                 return UserPresence.ONPHONE;
-            }    
+            }
         } catch (Exception e) {
 
         }
-        
+
         String jid = getjid(user);
         if(jid == null) {
             return UserPresence.AVAILABLE;
-        } else {            
-            Presence pres = m_roster.getPresence(jid);
-
-            if (pres == null)
-                return UserPresence.UNKOWN;
-            
-            if(pres.getType() == Presence.Type.unavailable)
-                return UserPresence.UNKOWN;
-                
-            Presence.Mode mode = pres.getMode();
-            if(mode == null) 
-                return UserPresence.AVAILABLE;           
-                              
-            if(mode == Presence.Mode.away) {
-                return UserPresence.AWAY;
-            }
-            
-            if(mode == Presence.Mode.chat) 
-                return UserPresence.AVAILABLE;
-            
-            if(mode == Presence.Mode.dnd) 
-                return UserPresence.BUSY;
-            
-            if(mode == Presence.Mode.xa) 
-                return UserPresence.AWAY;
-          
-            return UserPresence.UNKOWN;                
-                     
         }
+        Presence pres = m_roster.getPresence(jid);
+
+        if (pres == null) {
+            return UserPresence.UNKNOWN;
+        }
+
+        if (pres.getType() == Presence.Type.unavailable) {
+            return UserPresence.UNKNOWN;
+        }
+
+        Presence.Mode mode = pres.getMode();
+        if (mode == null) {
+            return UserPresence.AVAILABLE;
+        }
+
+        if (mode == Presence.Mode.away) {
+            return UserPresence.AWAY;
+        }
+
+        if (mode == Presence.Mode.chat) {
+            return UserPresence.AVAILABLE;
+        }
+
+        if (mode == Presence.Mode.dnd) {
+            return UserPresence.BUSY;
+        }
+
+        if (mode == Presence.Mode.xa) {
+            return UserPresence.AWAY;
+        }
+
+        return UserPresence.UNKNOWN;
+
     }
-     
-    public static void sendIM(User user, String msg) {        
+
+    public static void sendIM(User user, String msg) {
         if(user != null) {
             IMUser toIMUser;
-            
+
             String jid = user.getJid();
             if(jid != null) {
-                toIMUser = m_ChatsMap.get(jid);  
+                toIMUser = m_ChatsMap.get(jid);
                 if(toIMUser != null) {
                     toIMUser.sendIM(msg);
                 }
-            }    
+            }
 
             jid = user.getAltJid();
             if(jid != null) {
@@ -408,10 +427,10 @@ public class IMBot {
                 if(toIMUser != null) {
                     toIMUser.sendIM(msg);
                 }
-            }                
-        }         
+            }
+        }
     }
-    
+
     static public IMUser getIMUser(User user) {
         String jid = getjid(user);
         if(jid == null) {
@@ -419,31 +438,31 @@ public class IMBot {
         }
         return m_ChatsMap.get(jid);
     }
-    
-    static public void SendReturnCallIM(User toUser, User fromUser, 
+
+    static public void SendReturnCallIM(User toUser, User fromUser,
                                        String callingName, String callingNumber) {
 
         IMUser toIMuser = getIMUser(toUser);
         IMUser fromIMuser = getIMUser(fromUser);
-        
+
         if(toIMuser != null && fromIMuser != null) {
             toIMuser.setCallingIMUser(fromIMuser);
-        
-            toIMuser.sendIM(callingName + " (" + callingNumber +  
+
+            toIMuser.sendIM(callingName + " (" + callingNumber +
                             ") called and would like you to call back");
         }
     }
-    
+
     public static void AddToRoster(User user) {
         IMClientThread.AddToRoster(user);
     }
 
     static public void init() {
-                      
-        IMClientThread imThread = new IMClientThread();
-        imThread.start();          
-    }
-}           
 
-    
-    
+        IMClientThread imThread = new IMClientThread();
+        imThread.start();
+    }
+}
+
+
+
