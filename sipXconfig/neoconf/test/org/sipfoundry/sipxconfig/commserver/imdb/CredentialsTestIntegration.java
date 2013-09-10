@@ -16,9 +16,11 @@ import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.asse
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.callgroup.CallGroup;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 
 public class CredentialsTestIntegration extends ImdbTestCase {
+    private CoreContext m_coreContext;
 
     public void testAddCallgroup() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");
@@ -39,7 +41,7 @@ public class CredentialsTestIntegration extends ImdbTestCase {
 
     public void testAddUser() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");
-        org.sipfoundry.sipxconfig.common.User user = new User();
+        org.sipfoundry.sipxconfig.common.User user = m_coreContext.newUser();
         user.setUniqueId(1);
         user.setUserName("superadmin");
         final String PIN = "pin1234";
@@ -58,7 +60,7 @@ public class CredentialsTestIntegration extends ImdbTestCase {
 
     public void testAddUserEmptyPasswords() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");
-        org.sipfoundry.sipxconfig.common.User user = new User();
+        org.sipfoundry.sipxconfig.common.User user = m_coreContext.newUser();
         user.setUniqueId(1);
         user.setUserName("superadmin");
         user.setPin("");
@@ -76,7 +78,8 @@ public class CredentialsTestIntegration extends ImdbTestCase {
 
     public void testAddPhantom() throws Exception {
         loadDataSetXml("domain/DomainSeed.xml");
-        org.sipfoundry.sipxconfig.common.User user = new PhantomUser();
+        org.sipfoundry.sipxconfig.common.User user = m_coreContext.newUser();
+        user.setPhantom(true);
         user.setUniqueId(1);
         user.setUserName("superadmin");
         final String PIN = "pin1234";
@@ -86,7 +89,7 @@ public class CredentialsTestIntegration extends ImdbTestCase {
 
         getReplicationManager().replicateEntity(user, DataSet.CREDENTIAL);
 
-        assertObjectWithIdFieldValuePresent(getEntityCollection(), "PhantomUser1", MongoConstants.REALM, "phantom");
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1", MongoConstants.REALM, "phantom");
     }
 
     private static class PhantomUser extends org.sipfoundry.sipxconfig.common.User {
@@ -101,6 +104,10 @@ public class CredentialsTestIntegration extends ImdbTestCase {
         public boolean isPhantom() {
             return false;
         }
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 
 }

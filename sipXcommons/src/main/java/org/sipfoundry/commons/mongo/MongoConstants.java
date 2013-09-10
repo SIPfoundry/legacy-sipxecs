@@ -16,7 +16,6 @@
  */
 package org.sipfoundry.commons.mongo;
 
-
 public interface MongoConstants {
     static final String NODE_COLLECTION = "node";
     static final String STUNNEL_COLLECTION = "registrarnode";
@@ -60,7 +59,7 @@ public interface MongoConstants {
     static final String ASSISTANT_PHONE = "astph";
     static final String FAX_NUMBER = "fax";
     static final String LOCATION = "loctn"; // this is different than loc field in user
-                                                    // location db
+                                            // location db
     static final String HOME_PHONE_NUMBER = "hmph";
     static final String CELL_PHONE_NUMBER = "cell";
     static final String AVATAR = "avt";
@@ -117,20 +116,20 @@ public interface MongoConstants {
     static final String TO_URI = "to";
     static final String CALLID = "cid";
     static final String VMONDND = "vmondnd";
-    //speed dials
+    // speed dials
     static final String SPEEDDIAL = "spdl";
     static final String USER = "usr";
     static final String USER_CONS = "usrcns";
     static final String URI = "uri";
     static final String NAME = "name";
     static final String BUTTONS = "btn";
-    //node registrar
+    // node registrar
     static final String SERVER = "server";
     static final String INTERNAL_ADDRESS = "internalAddress";
     static final String ENABLED = "active";
     static final String TIMESTAMP = "lastUpdated";
     static final String NEXT_NODE = "next";
-    //MAILSTORE
+    // MAILSTORE
     static final String OPERATOR = "opr";
     static final String LANGUAGE = "lng";
     static final String DIALPAD = "dlpd";
@@ -138,7 +137,7 @@ public interface MongoConstants {
     static final String ACTIVEGREETING = "actvgr";
     static final String ITEM = "itm";
     static final String DISTRIB_LISTS = "dlst";
-    //AUTH CODE
+    // AUTH CODE
     static final String AUTH_CODE = "authc";
     // GROUP
     static final String DESCR = "dscr";
@@ -146,18 +145,21 @@ public interface MongoConstants {
     static final String GROUP_RESOURCE = "grprsc";
     static final String PLAY_DEFAULT_VM = "defvmopt";
     static final String MY_BUDDY_GROUP = "imbot";
-    
+
     static final String TIMEZONE = "tz";
-    
-    //e911
+
+    // e911
     static final String EMERGENCY = "e911";
     static final String ELIN = "elin";
     static final String ADDRESS_INFO = "addrinfo";
-    
-    //registrations
+
+    // registrations
     static final String INSTRUMENT = "instrument";
     static final String EXPIRATION_TIME = "expirationTime";
     static final String REG_CONTACT = "contact";
     static final String PRIMARY = "primary";
     static final String CALL_ID = "callId";
+
+    // user voicemail vacation
+    static final String VOICEMAIL_ENABLED = "vmenbld";
 }

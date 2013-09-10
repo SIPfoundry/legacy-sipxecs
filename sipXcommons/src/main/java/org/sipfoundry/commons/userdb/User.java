@@ -10,7 +10,6 @@ package org.sipfoundry.commons.userdb;
 
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.TimeZone;
 import java.util.Vector;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -79,6 +78,7 @@ public class User {
     private Distributions m_distributions;
     private String m_moh;
     private String m_timeZone;
+    private boolean m_depositVoicemail;
 
     public enum EmailFormats {
         FORMAT_NONE("NONE"), FORMAT_FULL("FULL"), FORMAT_MEDIUM("MEDIUM"), FORMAT_BRIEF("BRIEF"), FORMAT_IMAP("IMAP");
@@ -671,5 +671,13 @@ public class User {
 
     public void setTimeZone(String timeZone) {
         m_timeZone = timeZone;
+    }
+
+    public boolean isDepositVoicemail() {
+        return m_depositVoicemail;
+    }
+
+    public void setDepositVoicemail(boolean depositVoicemail) {
+        m_depositVoicemail = depositVoicemail;
     }
 }

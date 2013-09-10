@@ -95,9 +95,11 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     public abstract void setImNotificationSettings(Setting paSetting);
 
     public abstract Setting getParentSetting();
+
     public abstract void setParentSetting(Setting setting);
 
     public abstract User getLoadedUser();
+
     public abstract void setLoadedUser(User user);
 
     public void save() {
@@ -197,5 +199,21 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
     public boolean isVoicemailEnabled() {
         return (getFeatureManager().isFeatureEnabled(Ivr.FEATURE) ? true : false);
+    }
+
+    public boolean isDepositVoicemail() {
+        return getUser().isDepositVoicemail();
+    }
+
+    public void setDepositVoicemail(boolean vm) {
+        getUserForEditing().setDepositVoicemail(vm);
+    }
+
+    public boolean isDefaultVmOption() {
+        return getUser().getPlayVmDefaultOptions();
+    }
+
+    public void setDefaultVmOption(boolean vmopts) {
+        getUserForEditing().setPlayVmDefaultOptions(vmopts);
     }
 }

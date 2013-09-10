@@ -173,7 +173,13 @@ public class Mailstore extends AbstractDataSetGenerator {
         putOnlyIfNotNull(top, IM_ADVERTISE_ON_CALL_STATUS, imAccount.advertiseSipPresence());
         putOnlyIfNotNull(top, IM_SHOW_ON_CALL_DETAILS, imAccount.includeCallInfo());
         // personal attendant
-        putOnlyIfNotNull(top, PLAY_DEFAULT_VM, user.getPlayVmDefaultOptions());
+        //if user chose to not have voicemail deposited, the default VM options prompt is
+        //not played
+        if (user.isDepositVoicemail()) {
+            putOnlyIfNotNull(top, PLAY_DEFAULT_VM, user.getPlayVmDefaultOptions());
+        } else {
+            putOnlyIfNotNull(top, PLAY_DEFAULT_VM, false);
+        }
         PersonalAttendant pa = m_mailboxManager.loadPersonalAttendantForUser(user);
         if (pa != null) {
             DBObject pao = new BasicDBObject();

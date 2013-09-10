@@ -744,6 +744,10 @@ public abstract class AbstractUser extends BeanWithGroups {
         return (Boolean) getSettingTypedValue(DEFAULT_VM_OPTION);
     }
 
+    public void setPlayVmDefaultOptions(boolean value) {
+        setSettingTypedValue(DEFAULT_VM_OPTION, value);
+    }
+
     public void setOperator(String oper) {
         setSettingValue(OPERATOR_SETTING, oper);
     }

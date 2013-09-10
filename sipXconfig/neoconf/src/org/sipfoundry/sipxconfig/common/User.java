@@ -13,6 +13,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
 import static org.sipfoundry.commons.mongo.MongoConstants.TIMESTAMP;
 import static org.sipfoundry.commons.mongo.MongoConstants.TIMEZONE;
 import static org.sipfoundry.commons.mongo.MongoConstants.UID;
+import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAIL_ENABLED;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,6 +41,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
  * Can be user that logs in, can be superadmin, can be user for phone line
  */
 public class User extends AbstractUser implements Replicable {
+    private static final String VM_ENABLED_SETTING_PATH = "voicemail/vacation/vmEnabled";
     private static final String ALIAS_RELATION = "alias";
     private static final String ALIAS_RELATION_FAX = "fax";
     private static final String TZ = "timezone/timezone";
@@ -164,6 +166,7 @@ public class User extends AbstractUser implements Replicable {
         props.put(GROUPS, getGroupsNames().split(" "));
         props.put(TIMEZONE, getTimezone().getID());
         props.put(TIMESTAMP, System.currentTimeMillis());
+        props.put(VOICEMAIL_ENABLED, isDepositVoicemail());
         return props;
     }
 
@@ -222,5 +225,13 @@ public class User extends AbstractUser implements Replicable {
             return;
         }
         setSettingTypedValue(E911_SETTING_PATH, id);
+    }
+
+    public boolean isDepositVoicemail() {
+        return ((Boolean) getSettingTypedValue(VM_ENABLED_SETTING_PATH)).booleanValue();
+    }
+
+    public void setDepositVoicemail(boolean value) {
+        setSettingTypedValue(VM_ENABLED_SETTING_PATH, value);
     }
 }

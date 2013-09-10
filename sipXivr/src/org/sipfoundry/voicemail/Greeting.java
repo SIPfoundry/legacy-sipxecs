@@ -60,7 +60,13 @@ public class Greeting {
      * @param type
      * @return
      */
-    public PromptList getPromptList(PromptList pl, GreetingType type, String greetingFile, boolean playDefaultVmOption) {
+    public PromptList getPromptList(PromptList pl, GreetingType type, String greetingFile,
+            boolean playDefaultVmOption) {
+        return getPromptList(pl, type, greetingFile, playDefaultVmOption, true);
+    }
+
+    public PromptList getPromptList(PromptList pl, GreetingType type, String greetingFile,
+            boolean playDefaultVmOption, boolean vmEnabled) {
         if (greetingFile != null) {
             // A user recorded version exists, use it.
             pl.addPrompts(greetingFile);
@@ -90,8 +96,11 @@ public class Greeting {
                 pl.addFragment("greeting_type_EXTENDED_ABSENCE");
                 break;
             }
-            // Please leave a message.
-            pl.addFragment("greeting_please_leave_message");
+
+            if (vmEnabled) {
+                // Please leave a message.
+                pl.addFragment("greeting_please_leave_message");
+            }
         }
 
         if (playDefaultVmOption) {

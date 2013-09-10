@@ -75,10 +75,37 @@
 			    languageDescription="message:language.description"
 			    defaultLanguage="ognl:null"/>
 	      </tr>
-	      <tr jwcid="@setting/SettingsFieldset" settings="ognl:parentSetting"/>
-	      
+	      <tr jwcid="@setting/SettingsFieldset" settings="ognl:parentSetting" settingsToHide="default-vm-option"/>
+	    </table>
+	    <table>
+          <tr jwcid="@common/FieldPanel" for="user:defaultVmOption"
+              field="component:defaultVmOption"
+              label="message:label.defaultVmOption"
+              description="message:description.defaultVmOption">
+              <span jwcid="@If" condition="ognl:depositVoicemail">
+                <input jwcid="defaultVmOptionDisabled@Checkbox" id="user:defaultVmOption"
+                  value="ognl:defaultVmOption"/>
+              </span>
+              <span jwcid="@Else">
+                <input jwcid="defaultVmOption@Checkbox" id="user:defaultVmOption"
+                  value="ognl:defaultVmOption" disabled="disabled"/>
+              </span>
+          </tr>
+         </table>
+         <table>
+          <tr>
+	        <td colspan="2"><h3><label jwcid="@Insert" value="message:label.vacationSettings"/></h3></td>
+          </tr>
+          <tr jwcid="@common/FieldPanel" for="user:depositVoicemail"
+            field="component:depositVoicemail"
+            label="message:label.depositVoicemail"
+            description="message:description.depositVoicemail">
+            <input jwcid="depositVoicemail@Checkbox" id="user:depositVoicemail"
+              value="ognl:depositVoicemail"/>
+          </tr>
 	    </table>
 	  </fieldset>
+	  <br/><br/>
 	  <fieldset jwcid="@dialplan/AttendantMenuPanel"
 	    menu="ognl:personalAttendant.menu"
 	    minKey="1"

@@ -645,6 +645,7 @@ public class ValidUsers {
         }
 
         user.setPlayDefaultVmOption(Boolean.valueOf(getStringValue(obj, PLAY_DEFAULT_VM)));
+        user.setDepositVoicemail(Boolean.valueOf(getStringValue(obj, VOICEMAIL_ENABLED)));
 
         // personal attendant related data
         if (obj.keySet().contains(PERSONAL_ATT)) {

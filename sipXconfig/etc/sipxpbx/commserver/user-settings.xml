@@ -237,6 +237,17 @@
       <type refid="validPhone" />
       </setting>
     </group>
+    <group name="vacation" hidden="yes">
+      <setting name="vmEnabled">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="transferTo">
+        <type refid="validPhone" />
+      </setting>
+    </group>
     <group name="mailbox" hidden="yes">
       <setting name="active-greeting">
         <type>

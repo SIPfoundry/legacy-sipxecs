@@ -35,7 +35,7 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
 
     /**
      * The depositVoicemail dialog
-     *
+     * 
      * @return
      */
     @Override
@@ -53,7 +53,8 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
 
         Greeting greeting = createGreeting();
         PromptList pl = greeting.getPromptList(getPromptList(), getActiveGreeting(),
-                m_mailboxManager.getGreetingPath(getCurrentUser(), getActiveGreeting()), user.shouldPlayDefaultVmOption());
+                m_mailboxManager.getGreetingPath(getCurrentUser(), getActiveGreeting()),
+                user.shouldPlayDefaultVmOption(), user.isDepositVoicemail());
         try {
 
             LOG.info("Mailbox " + user + " Deposit Voicemail from " + getDisplayUri());
@@ -99,109 +100,113 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
 
                 boolean recorded = false;
                 boolean playMessage = false;
-                for (;;) {
-                    // Record the message
-                    if (!recorded) {
-                        // So if they hang up now, we'll save what we got.
-                        tempMessage.setIsToBeStored(true);
-                        recordMessage(tempMessage);
+                if (user.isDepositVoicemail()) {
+                    for (;;) {
+                        // Record the message
+                        if (!recorded) {
+                            // So if they hang up now, we'll save what we got.
+                            tempMessage.setIsToBeStored(true);
+                            recordMessage(tempMessage);
 
-                        String digit = getDtmfDigit();
-                        if (digit != null && digit.equals("0")) {
-                            if (tempMessage.getDuration() > 2) {
-                                m_mailboxManager.storeInInbox(user, tempMessage);
-                                play("msg_sent", "");
-                            } else {
-                                tempMessage.setIsToBeStored(false);
+                            String digit = getDtmfDigit();
+                            if (digit != null && digit.equals("0")) {
+                                if (tempMessage.getDuration() > 2) {
+                                    m_mailboxManager.storeInInbox(user, tempMessage);
+                                    play("msg_sent", "");
+                                } else {
+                                    tempMessage.setIsToBeStored(false);
+                                }
+
+                                transfer(getOperatorUrl(pa), true, true);
+                                return null;
                             }
 
-                            transfer(getOperatorUrl(pa), true, true);
-                            return null;
+                            if (digit != null && digit.equals("i")) {
+                                tempMessage.setIsToBeStored(true);
+                                play("please_hold", "");
+                                transfer(user.getUri(), true, true);
+                                return null;
+                            }
+
+                            LOG.info("Mailbox " + user.getUserName() + " Deposit Voicemail recorded message");
+                            recorded = true;
                         }
 
-                        if (digit != null && digit.equals("i")) {
-                            tempMessage.setIsToBeStored(true);
-                            play("please_hold", "");
-                            transfer(user.getUri(), true, true);
-                            return null;
+                        // Confirm caller's intent for this message
+
+                        Menu menu = createVmMenu();
+                        if (playMessage) {
+                            // (pre-menu: message)
+                            PromptList messagePl = getPromptList();
+                            messagePl.addPrompts(tempMessage.getTempPath());
+                            menu.setPrePromptPl(messagePl);
+                            playMessage = false; // Only play it once
                         }
 
-                        LOG.info("Mailbox " + user.getUserName() + " Deposit Voicemail recorded message");
-                        recorded = true;
-                    }
+                        // To play this message, press 1. To send this message, press 2.
+                        // To delete this message and try again, press 3. To cancel, press *."
+                        pl = getPromptList("deposit_options");
+                        IvrChoice choice = ((VmMenu) menu).collectDigitIgnoreFailureOrTimeout(pl, "123");
 
-                    // Confirm caller's intent for this message
+                        // bad entry, timeout, canceled
+                        if (!menu.isOkay()) {
+                            if (choice.getIvrChoiceReason().equals(IvrChoiceReason.TIMEOUT)
+                                    || choice.getIvrChoiceReason().equals(IvrChoiceReason.FAILURE)) {
+                                tempMessage.setIsToBeStored(true);
+                                break;
+                            } else {
+                                tempMessage.setIsToBeStored(false);
+                                goodbye();
+                                return null;
+                            }
+                        }
 
-                    Menu menu = createVmMenu();
-                    if (playMessage) {
-                        // (pre-menu: message)
-                        PromptList messagePl = getPromptList();
-                        messagePl.addPrompts(tempMessage.getTempPath());
-                        menu.setPrePromptPl(messagePl);
-                        playMessage = false; // Only play it once
-                    }
+                        String digit = choice.getDigits();
 
-                    // To play this message, press 1. To send this message, press 2.
-                    // To delete this message and try again, press 3. To cancel, press *."
-                    pl = getPromptList("deposit_options");
-                    IvrChoice choice = ((VmMenu) menu).collectDigitIgnoreFailureOrTimeout(pl, "123");
+                        // "1" means play the message
+                        if (digit.equals("1")) {
+                            playMessage = true;
+                            continue;
+                        }
 
-                    // bad entry, timeout, canceled
-                    if (!menu.isOkay()) {
-                        if (choice.getIvrChoiceReason().equals(IvrChoiceReason.TIMEOUT)
-                                || choice.getIvrChoiceReason().equals(IvrChoiceReason.FAILURE)) {
-                            tempMessage.setIsToBeStored(true);
-                            break;
-                        } else {
+                        // "2" means send the message.
+                        if (digit.equals("2")) {
+                            if (tempMessage.getDuration() > 2) {
+                                m_mailboxManager.storeInInbox(user, tempMessage);
+                                break;
+                            }
+                            // Message was too short. Don't save the message.
                             tempMessage.setIsToBeStored(false);
-                            goodbye();
-                            return null;
+
+                            // "Sorry, your message was too short and was not delivered."
+                            play("msg_too_short", "");
+                            continue Greeting;
+                        }
+
+                        // "3" means "erase" and re-record
+                        if (digit.equals("3")) {
+                            // if the user hangs up during playback of this prompt
+                            // we don't want to save the message.
+                            tempMessage.setIsToBeStored(false);
+                            play("send_record_message", "");
+                            recorded = false;
+                            continue;
                         }
                     }
-
-                    String digit = choice.getDigits();
-
-                    // "1" means play the message
-                    if (digit.equals("1")) {
-                        playMessage = true;
-                        continue;
-                    }
-
-                    // "2" means send the message.
-                    if (digit.equals("2")) {
-                        if (tempMessage.getDuration() > 2) {
-                            m_mailboxManager.storeInInbox(user, tempMessage);
-                            break;
-                        }
-                        // Message was too short. Don't save the message.
-                        tempMessage.setIsToBeStored(false);
-
-                        // "Sorry, your message was too short and was not delivered."
-                        play("msg_too_short", "");
-                        continue Greeting;
-                    }
-
-                    // "3" means "erase" and re-record
-                    if (digit.equals("3")) {
-                        // if the user hangs up during playback of this prompt
-                        // we don't want to save the message.
-                        tempMessage.setIsToBeStored(false);
-                        play("send_record_message", "");
-                        recorded = false;
-                        continue;
-                    }
+                    break;
+                } else {
+                    break;
                 }
-                break;
             }
+            if (user.isDepositVoicemail()) {
+                clearChannelUUID(user, tempMessage);
 
-            clearChannelUUID(user, tempMessage);
+                // "Your message has been recorded."
+                play("deposit_recorded", "");
 
-            // "Your message has been recorded."
-            play("deposit_recorded", "");
-
-            // Message sent, now see what else they want to do
-            moreOptions(tempMessage);
-
+                // Message sent, now see what else they want to do
+                moreOptions(tempMessage);
+            }
             goodbye();
 
         } catch (DisconnectException e) {
@@ -236,13 +241,13 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
     private void putChannelUUID(User user, String uuid) {
         m_depositMap.put(user.getUserName(), uuid);
         String instantMsg = getChannelCallerIdName() + " (" + getChannelCallerIdName() + ") "
-            + m_appContext.getMessage("leaving_msg", null, "is leaving a voice message.", user.getLocale());
+                + m_appContext.getMessage("leaving_msg", null, "is leaving a voice message.", user.getLocale());
         try {
             if (user.getVMEntryIM()) {
                 HttpResult result = IMSender.sendVmEntryIM(user, instantMsg, m_sendIMUrl);
                 if (!result.isSuccess()) {
-                    LOG.error("Deposit::sendIM Trouble with RemoteRequest: "
-                        + result.getResponse(), result.getException());
+                    LOG.error("Deposit::sendIM Trouble with RemoteRequest: " + result.getResponse(),
+                            result.getException());
                 }
             }
         } catch (Exception ex) {
@@ -268,8 +273,8 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
                 if (user.getVMExitIM()) {
                     HttpResult result = IMSender.sendVmExitIM(user, instantMsg, m_sendIMUrl);
                     if (!result.isSuccess()) {
-                        LOG.error("Deposit::sendIM Trouble with RemoteRequest: "
-                            + result.getResponse(), result.getException());
+                        LOG.error("Deposit::sendIM Trouble with RemoteRequest: " + result.getResponse(),
+                                result.getException());
                     }
                 }
             } catch (Exception ex) {
@@ -280,7 +285,7 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
 
     /**
      * See if the caller wants to send this message to other mailboxes
-     *
+     * 
      * @param existingMessage the message they want to send
      */
     private void moreOptions(TempMessage message) {
