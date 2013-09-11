@@ -35,9 +35,6 @@ bundle agent ftp_config {
     SuSE::
       "config" string => "/etc/vsftpd.conf";
       
-   fedora16_or_greater::
-      edit_line => delete_lines_matching('reverse_lookup_enable'),
-
   methods:
     any::
       # default user account polycom phones use
