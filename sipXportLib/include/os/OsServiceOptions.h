@@ -259,6 +259,16 @@ public:
 
   void addDaemonOptions();
 
+  void addCommandLineOptions();
+
+  bool checkCommandLineOptions();
+
+  bool checkDaemonOptions();
+
+  bool checkConfigOptions();
+
+  bool checkOptions(ParseOptionsFlags parseOptionsFlags, int& exitCode);
+
   bool parseOptions(ParseOptionsFlags parseOptionsFlags = DefaultOptionsFlag);
 
   void initlogger();
