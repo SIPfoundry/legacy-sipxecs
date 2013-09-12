@@ -28,5 +28,9 @@
     <property name="provision" ref="provision" />
   </bean>
   
-  <bean id="provisionFeatureHook" class="org.sipfoundry.sipxconfig.web.plugin.ProvisionFeatureHook" />  
+  <bean id="provisionFeatureHook" class="org.sipfoundry.sipxconfig.web.plugin.ProvisionFeatureHook" />
+  
+  <bean id="primaryOnlyMigrationTask" class="org.sipfoundry.sipxconfig.provision.PrimaryOnlyMigrationTask">
+    <property name="featureManager" ref="featureManager" />
+  </bean>
 </beans>

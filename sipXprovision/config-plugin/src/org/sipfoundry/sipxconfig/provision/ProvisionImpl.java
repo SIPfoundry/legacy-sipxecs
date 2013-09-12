@@ -28,6 +28,7 @@ import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
+import org.sipfoundry.sipxconfig.feature.BundleConstraint;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
@@ -95,13 +96,14 @@ public class ProvisionImpl implements FeatureProvider, AddressProvider, Provisio
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
         boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
         return (enabled ? Collections.singleton(ProcessDefinition.sipxByRegex("sipxprovision",
-            ".*-Dprocname=sipxprovision.*")) : null);
+                ".*-Dprocname=sipxprovision.*")) : null);
     }
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
         if (b == Bundle.PROVISION) {
-            b.addFeature(FEATURE);
+            // Primary only because of local manipulation of files by sipxconfig
+            b.addFeature(FEATURE, BundleConstraint.PRIMARY_ONLY);
         }
     }
 

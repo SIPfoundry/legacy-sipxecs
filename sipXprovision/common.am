@@ -4,6 +4,7 @@ cfg_PKGS = \
 	velocity \
 	commons-lang \
 	commons-io \
+	commons-logging \
 	dom4j \
 	org.springframework.beans \
 	org.springframework.core \
