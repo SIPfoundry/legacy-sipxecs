@@ -83,7 +83,7 @@ public class DnsFailoverPlan {
     }
 
     public boolean isLocalRegion(Integer regionId) {
-        if (m_region == null) {
+        if (m_region == Region.DEFAULT) {
             return (regionId == null);
         }
         return m_region.getId().equals(regionId);

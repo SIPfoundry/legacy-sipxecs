@@ -1,50 +1,17 @@
 ;; RECORDS: naptr
 -t NAPTR <%= domain %>
 
-;; RECORDS: proxy
-<%
-  sip_protocols.each { |proto|
-    if proxy_servers
-      proxy_servers.each { |server| 
-        if proto == 'tls'
-%>-t SRV _sips._tcp.<%= domain %>
--t SRV _sip._tls.<%= domain %>
-<%
-        else
-
-%>-t SRV _sip._<%= proto %>.<%= domain %>
-<%      end
-      }
-    end
-  }
-
-%>;; RECORDS: rr
+;; RECORDS: rr
 <%
   if resource_records
     resource_records.each { |rr|
       if rr[:records]
         rr[:records].each { |a|
-%>-t SRV <%= rr[:proto] %>.<%= rr[:resource] %>.<%= domain %>
+%>-t SRV <%= rr[:lhs] %>.<%= domain %>
 <%
-          rr[:records].each { |b|
-            # give priority to local registrar
-            rr_priority = (a == b ? '10' : '20')
-%>-t SRV <%= rr[:proto] %>.<%= rr[:resource] %>.<%= a[:name] %>
-<%        } 
         }
       end
     } 
-  end
-
-%>;; RECORDS: im
-<%
-  if im_servers
-    im_servers.each { |server| 
-%>-t SRV _xmpp-server._tcp.<%= domain %>
--t SRV _xmpp-client._tcp.<%= domain %>
--t SRV _xmpp-server._tcp.conference.<%= domain %>
--t SRV _xmpp-client._tcp.conference.<%= domain %>
-<%  } 
   end
 
 %>;; RECORDS: a

@@ -499,6 +499,7 @@ void OsServiceOptions::registerRequiredParameters(const std::string& optionName,
 
 void OsServiceOptions::addCommandLineOptions()
 {
+<<<<<<< HEAD
    addOptionFlag('h', "help", ": Display help information.", CommandLineOption);
    addOptionFlag('v', "version", ": Display version information.", CommandLineOption);
    addOptionString('C', "config-file", ": Optional daemon config file.", CommandLineOption);
@@ -510,10 +511,22 @@ void OsServiceOptions::addCommandLineOptions()
      "Valid level is between 0-7.  "
      "0 (EMERG) 1 (ALERT) 2 (CRIT) 3 (ERR) 4 (WARNING) 5 (NOTICE) 6 (INFO) 7 (DEBUG)"
            , CommandLineOption);
+=======
+  addOptionFlag('h', "help", ": Display help information.", CommandLineOption);
+  addOptionFlag('v', "version", ": Display version information.", CommandLineOption);
+  addOptionString('C', "config-file", ": Optional daemon config file.", CommandLineOption);
+  addOptionString('L', "log-file", ": Specify the application log file.", CommandLineOption);
+  addOptionInt('l', "log-level",
+    ": Specify the application log priority level."
+    "Valid level is between 0-7.  "
+    "0 (EMERG) 1 (ALERT) 2 (CRIT) 3 (ERR) 4 (WARNING) 5 (NOTICE) 6 (INFO) 7 (DEBUG)"
+          , CommandLineOption);
+>>>>>>> 75fa27a... - merged OsServiceOptions with Joegen changes
 }
 
 bool OsServiceOptions::checkCommandLineOptions()
 {
+<<<<<<< HEAD
    if (hasOption("help", false))
    {
      displayUsage(std::cout);
@@ -527,6 +540,22 @@ bool OsServiceOptions::checkCommandLineOptions()
    }
 
    return true;
+=======
+  if (hasOption("help", false))
+  {
+    if (!_unitTestMode)
+      displayUsage(std::cout);
+    return false;
+  }
+
+  if (hasOption("version", false))
+  {
+    displayVersion(std::cout);
+    return false;
+  }
+
+  return true;
+>>>>>>> 75fa27a... - merged OsServiceOptions with Joegen changes
 }
 
 bool OsServiceOptions::checkDaemonOptions()
@@ -542,6 +571,7 @@ bool OsServiceOptions::checkDaemonOptions()
   {
     if (_pidFile.empty())
     {
+<<<<<<< HEAD
       displayUsage(std::cerr);
       std::cerr << std::endl << "ERROR: You must specify pid-file location!" << std::endl;
       std::cerr.flush();
@@ -635,8 +665,108 @@ bool OsServiceOptions::checkOptions(ParseOptionsFlags parseOptionsFlags,
 }
 
 bool OsServiceOptions::parseOptions(ParseOptionsFlags parseOptionsFlags)
-{
+=======
+      if (!_unitTestMode)
+      {
+        displayUsage(std::cerr);
+        std::cerr << std::endl << "ERROR: You must specify pid-file location!" << std::endl;
+        std::cerr.flush();
+      }
 
+      return false;
+    }
+    _isDaemon = true;
+  }
+
+  return true;
+}
+
+bool OsServiceOptions::checkConfigOptions()
+>>>>>>> 75fa27a... - merged OsServiceOptions with Joegen changes
+{
+  if (hasOption("config-file", false))
+  {
+    if (getOption("config-file", _configFile) && !_configFile.empty())
+    {
+      std::ifstream config(_configFile.c_str());
+      if (config.good())
+      {
+        //boost::program_options::store(boost::program_options::parse_config_file(config, _optionItems, true), _options);
+        //boost::program_options::notify(_options);
+        boost::property_tree::ini_parser::read_ini(_configFile.c_str(), _ptree);
+        _hasConfig = true;
+      }
+      else
+      {
+        if (!_unitTestMode)
+        {
+          displayUsage(std::cerr);
+          std::cerr << std::endl << "ERROR: Unable to open input file " << _configFile << "!" << std::endl;
+          std::cerr.flush();
+        }
+
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+bool OsServiceOptions::checkOptions(ParseOptionsFlags parseOptionsFlags,
+                                    int& exitCode)
+{
+  bool bRet = true;
+
+  do
+  {
+    if (parseOptionsFlags & AddComandLineOptionsFlag)
+    {
+      bRet = checkCommandLineOptions();
+      if (bRet == false)
+      {
+        exitCode = 0;
+        break;
+      }
+    }
+
+    if (parseOptionsFlags & AddDaemonOptionsFlag)
+    {
+      bRet = checkDaemonOptions();
+      if (bRet == false)
+      {
+        exitCode = -1;
+        break;
+      }
+    }
+
+    if (parseOptionsFlags & AddConfigOptionsFlag)
+    {
+      bRet = checkConfigOptions();
+      if (bRet == false)
+      {
+        exitCode = -1;
+        break;
+      }
+    }
+
+    if (parseOptionsFlags & ValidateRequiredParametersFlag)
+    {
+      bRet= validateRequiredParameters();
+      if (bRet == false)
+      {
+        exitCode = -1;
+        break;
+      }
+    }
+  }
+  while (false);
+
+  return bRet;
+}
+
+bool OsServiceOptions::parseOptions(ParseOptionsFlags parseOptionsFlags)
+{
   if (_isConfigOnly)
   {
     try
@@ -699,11 +829,17 @@ bool OsServiceOptions::parseOptions(ParseOptionsFlags parseOptionsFlags)
   std::set_terminate(&catch_global);
 
   if (parseOptionsFlags & DisplayVersionOnInitFlag)
+<<<<<<< HEAD
     displayVersion(std::cout);
+=======
+  {
+    if (!_unitTestMode)
+      displayVersion(std::cout);
+  }
+>>>>>>> 75fa27a... - merged OsServiceOptions with Joegen changes
 
   return true;
 }
-
 
 void OsServiceOptions::initlogger()
 {

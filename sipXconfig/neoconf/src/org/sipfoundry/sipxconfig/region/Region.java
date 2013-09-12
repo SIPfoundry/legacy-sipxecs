@@ -35,10 +35,6 @@ public class Region extends BeanWithId implements NamedObject, DeployConfigOnEdi
     private String m_name;
     private String[] m_addresses;
 
-    static {
-        DEFAULT.setUniqueId(0); // postgres sequences always starts at 1
-    }
-
     public Region() {
     }
 
@@ -71,9 +67,7 @@ public class Region extends BeanWithId implements NamedObject, DeployConfigOnEdi
     }
 
     public void setName(String name) {
-        if (this != DEFAULT) {
-            m_name = name;
-        }
+        m_name = name;
     }
 
     @Override
@@ -92,8 +86,6 @@ public class Region extends BeanWithId implements NamedObject, DeployConfigOnEdi
     }
 
     public void setAddresses(String[] addresses) {
-        if (this != DEFAULT) {
-            m_addresses = addresses;
-        }
+        m_addresses = addresses;
     }
 }

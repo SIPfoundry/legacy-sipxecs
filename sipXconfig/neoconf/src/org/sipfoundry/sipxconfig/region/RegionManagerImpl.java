@@ -23,10 +23,12 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 public class RegionManagerImpl implements RegionManager {
+    private static final String ERROR_NAME_IN_USE = "&error.nameInUse";
     private static final RowMapper<Region> REGION_MAPPER = new RowMapper<Region>() {
         @Override
         public Region mapRow(ResultSet rs, int row) throws SQLException {
@@ -48,22 +50,29 @@ public class RegionManagerImpl implements RegionManager {
     public void saveRegion(Region region) {
         validateRegion(region);
         String addresses = encodeAddresses(region.getAddresses());
-        if (region.getId() == -1) {
-            int nextId = m_db.queryForInt("select nextval('region_seq')");
-            String sql = "insert into region (region_id, name, addresses) values (?, ?, ?)";
-            m_db.update(sql, new Object[] {
-                nextId, region.getName(), addresses
-            });
-            region.setUniqueId(nextId);
-        } else {
-            String sql = "update region set name = ?, addresses = ? where region_id = ?";
-            m_db.update(sql, new Object[] {
-                region.getName(), addresses, region.getId()
-            });
+        try {
+            if (region.getId() == -1) {
+                int nextId = m_db.queryForInt("select nextval('region_seq')");
+                String sql = "insert into region (region_id, name, addresses) values (?, ?, ?)";
+                m_db.update(sql, new Object[] {
+                    nextId, region.getName(), addresses
+                });
+                region.setUniqueId(nextId);
+            } else {
+                String sql = "update region set name = ?, addresses = ? where region_id = ?";
+                m_db.update(sql, new Object[] {
+                    region.getName(), addresses, region.getId()
+                });
+            }
+        } catch (DuplicateKeyException e) {
+            throw new UserException(ERROR_NAME_IN_USE, region.getName());
         }
     }
 
     void validateRegion(Region region) {
+        if (Region.DEFAULT.getName().equals(region.getName())) {
+            throw new UserException(ERROR_NAME_IN_USE, region.getName());
+        }
         String[] addresses = region.getAddresses();
         if (addresses == null || addresses.length == 0) {
             throw new UserException("&error.RegionsCannotBeEmpty");
@@ -95,9 +104,6 @@ public class RegionManagerImpl implements RegionManager {
 
     @Override
     public Region getRegion(int id) {
-        if (id == Region.DEFAULT.getId()) {
-            return Region.DEFAULT;
-        }
         Region region = m_db.queryForObject("select * from region where region_id = ?", REGION_MAPPER, id);
         return region;
     }

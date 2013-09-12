@@ -131,9 +131,9 @@ public class DnsConfig implements ConfigProvider {
 
     List<Region> getRegionsInUse(Collection<Location> locations) throws IOException {
         List<Region> regions = new ArrayList<Region>();
+        regions.add(Region.DEFAULT);
         // while the default region can never be selection by a location, it's always
         // in use
-        regions.add(Region.DEFAULT);
         for (Region r : m_regionManager.getRegions()) {
             // get a list of regions that are actually used by one or more locations
             for (Location location : locations) {
@@ -197,7 +197,8 @@ public class DnsConfig implements ConfigProvider {
         CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
         config.writeClass("resolv", resolvOn);
         config.writeClass("sipxdns", namedOn);
-        Collection< ? > zones = CollectionUtils.collect(regions, new Transformer() {
+        @SuppressWarnings("unchecked")
+        Collection<String> zones = CollectionUtils.collect(regions, new Transformer() {
             @Override
             public Object transform(Object arg0) {
                 return format(VIEW_NAME, ((Region) arg0).getConfigFriendlyName());

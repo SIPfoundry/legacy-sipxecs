@@ -23,8 +23,9 @@ require 'yaml'
 $cfdata = '@SIPX_CFDATA@'
 $libexec = '@SIPX_LIBEXECDIR@'
 $confdir = '@SIPX_CONFDIR@'
-load "#{$libexec}/sipx-dns-zone-maker"
+load "#{$libexec}/sipx-erb"
 
+$default_zone_template = "#{$confdir}/sipxdns/zone.erb"
 $verbose = false
 
 def parse_zone(filter, zone)
@@ -95,7 +96,7 @@ def validate_a(metadata, expected, actual)
   #  Test     : A    ? swift.hubler.us
   validate_by_regexp(expected, actual) {|f|
     # response include ttl, allow any number
-    %r[#{f[0]} \d+ #{f[1..-1].join(' ')}]
+    %r[#{f[0]}. \d+ #{f[1..-1].join(' ')}]
   }
 end
 
@@ -126,17 +127,18 @@ end
 
 def validate(dns_server)
   separator = '================================='
-  location_id = File.read($cfdata + '/defaults/location_id').chomp
-  yaml_file = "#{$cfdata}/#{location_id}/zone.yaml"
+  yaml_file = "#{$cfdata}/default.view.yaml"
   metadata = YAML::load_file(yaml_file)
-
-  zone_contents = make_zone(metadata, $default_zone_template, :print_record_ids => true)
+  
+  zone_meta = metadata.clone
+  zone_meta[:print_record_ids] = true
+  zone_contents = render($default_zone_template, zone_meta)
   puts separator if $verbose
   puts zone_contents if $verbose
   records_by_record_id = parse_zone('RECORDS', StringIO.new(zone_contents))
 
   dig_template = "#{$confdir}/sipxdns/digger.erb"
-  dig_query_contents = make_zone(metadata, dig_template)
+  dig_query_contents = render(dig_template, metadata)
   puts separator if $verbose
   puts dig_query_contents if $verbose
   dig_queries_by_records_id = parse_zone('RECORDS', StringIO.new(dig_query_contents))
