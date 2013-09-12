@@ -250,9 +250,150 @@ void OsServiceOptions::registerRequiredParameters(const std::string& optionName,
   }
 }
 
+void OsServiceOptions::addCommandLineOptions()
+{
+  addOptionFlag('h', "help", ": Display help information.", CommandLineOption);
+  addOptionFlag('v', "version", ": Display version information.", CommandLineOption);
+  addOptionString('C', "config-file", ": Optional daemon config file.", CommandLineOption);
+  addOptionString('L', "log-file", ": Specify the application log file.", CommandLineOption);
+  addOptionInt('l', "log-level",
+    ": Specify the application log priority level."
+    "Valid level is between 0-7.  "
+    "0 (EMERG) 1 (ALERT) 2 (CRIT) 3 (ERR) 4 (WARNING) 5 (NOTICE) 6 (INFO) 7 (DEBUG)"
+          , CommandLineOption);
+}
+
+bool OsServiceOptions::checkCommandLineOptions()
+{
+  if (hasOption("help", false))
+  {
+    if (!_unitTestMode)
+      displayUsage(std::cout);
+    return false;
+  }
+
+  if (hasOption("version", false))
+  {
+    displayVersion(std::cout);
+    return false;
+  }
+
+  return true;
+}
+
+bool OsServiceOptions::checkDaemonOptions()
+{
+  if (hasOption("pid-file", false))
+  {
+    getOption("pid-file", _pidFile);
+    std::ofstream pidFile(_pidFile.c_str());
+    pidFile << getpid() << std::endl;
+  }
+
+  if (hasOption("daemonize", false))
+  {
+    if (_pidFile.empty())
+    {
+      if (!_unitTestMode)
+      {
+        displayUsage(std::cerr);
+        std::cerr << std::endl << "ERROR: You must specify pid-file location!" << std::endl;
+        std::cerr.flush();
+      }
+
+      return false;
+    }
+    _isDaemon = true;
+  }
+
+  return true;
+}
+
+bool OsServiceOptions::checkConfigOptions()
+{
+  if (hasOption("config-file", false))
+  {
+    if (getOption("config-file", _configFile) && !_configFile.empty())
+    {
+      std::ifstream config(_configFile.c_str());
+      if (config.good())
+      {
+        //boost::program_options::store(boost::program_options::parse_config_file(config, _optionItems, true), _options);
+        //boost::program_options::notify(_options);
+        boost::property_tree::ini_parser::read_ini(_configFile.c_str(), _ptree);
+        _hasConfig = true;
+      }
+      else
+      {
+        if (!_unitTestMode)
+        {
+          displayUsage(std::cerr);
+          std::cerr << std::endl << "ERROR: Unable to open input file " << _configFile << "!" << std::endl;
+          std::cerr.flush();
+        }
+
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+bool OsServiceOptions::checkOptions(ParseOptionsFlags parseOptionsFlags,
+                                    int& exitCode)
+{
+  bool bRet = true;
+
+  do
+  {
+    if (parseOptionsFlags & AddComandLineOptionsFlag)
+    {
+      bRet = checkCommandLineOptions();
+      if (bRet == false)
+      {
+        exitCode = 0;
+        break;
+      }
+    }
+
+    if (parseOptionsFlags & AddDaemonOptionsFlag)
+    {
+      bRet = checkDaemonOptions();
+      if (bRet == false)
+      {
+        exitCode = -1;
+        break;
+      }
+    }
+
+    if (parseOptionsFlags & AddConfigOptionsFlag)
+    {
+      bRet = checkConfigOptions();
+      if (bRet == false)
+      {
+        exitCode = -1;
+        break;
+      }
+    }
+
+    if (parseOptionsFlags & ValidateRequiredParametersFlag)
+    {
+      bRet= validateRequiredParameters();
+      if (bRet == false)
+      {
+        exitCode = -1;
+        break;
+      }
+    }
+  }
+  while (false);
+
+  return bRet;
+}
+
 bool OsServiceOptions::parseOptions(ParseOptionsFlags parseOptionsFlags)
 {
-
   if (_isConfigOnly)
   {
     try
@@ -275,127 +416,56 @@ bool OsServiceOptions::parseOptions(ParseOptionsFlags parseOptionsFlags)
   {
     if (parseOptionsFlags & AddComandLineOptionsFlag)
     {
-      addOptionFlag('h', "help", ": Display help information.", CommandLineOption);
-      addOptionFlag('v', "version", ": Display version information.", CommandLineOption);
-      addOptionString('C', "config-file", ": Optional daemon config file.", CommandLineOption);
-      addOptionString('L', "log-file", ": Specify the application log file.", CommandLineOption);
-      addOptionInt('l', "log-level",
-        ": Specify the application log priority level."
-        "Valid level is between 0-7.  "
-        "0 (EMERG) 1 (ALERT) 2 (CRIT) 3 (ERR) 4 (WARNING) 5 (NOTICE) 6 (INFO) 7 (DEBUG)"
-              , CommandLineOption);
+      addCommandLineOptions();
       _optionItems.add(_commandLineOptions);
     }
-    
+
     if (parseOptionsFlags & AddDaemonOptionsFlag)
       _optionItems.add(_daemonOptions);
 
     if (parseOptionsFlags & AddConfigOptionsFlag)
       _optionItems.add(_configOptions);
 
-
     boost::program_options::store(boost::program_options::parse_command_line(_argc, _argv, _optionItems), _options);
     boost::program_options::notify(_options);
 
-    if (hasOption("help", false))
+    int exitCode = 0;
+
+    bool bRet = checkOptions(parseOptionsFlags, exitCode);
+    if (bRet == false)
     {
       if (!_unitTestMode)
-        displayUsage(std::cout);
-
-      if (!_unitTestMode)
-        exit(0);
+        exit(exitCode);
       else
-        return true;
-    }
-
-    if (hasOption("version", false))
-    {
-      displayVersion(std::cout);
-      if (!_unitTestMode)
-        exit(0);
-      else
-        return true;
-    }
-
-    if (hasOption("pid-file", false))
-    {
-      getOption("pid-file", _pidFile);
-      std::ofstream pidFile(_pidFile.c_str());
-      pidFile << getpid() << std::endl;
-    }
-
-    if (hasOption("daemonize", false))
-    {
-      if (_pidFile.empty())
       {
-        if (!_unitTestMode)
-        {
-          displayUsage(std::cerr);
-          std::cerr << std::endl << "ERROR: You must specify pid-file location!" << std::endl;
-          std::cerr.flush();
-        }
-
-        if (!_unitTestMode)
-          exit(-1);
+        if (exitCode == 0)
+          return true;
         else
           return false;
       }
-      _isDaemon = true;
-    }
-
-    if (hasOption("config-file", false))
-    {
-      if (getOption("config-file", _configFile) && !_configFile.empty())
-      {
-        std::ifstream config(_configFile.c_str());
-        if (config.good())
-        {
-          //boost::program_options::store(boost::program_options::parse_config_file(config, _optionItems, true), _options);
-          //boost::program_options::notify(_options);
-          boost::property_tree::ini_parser::read_ini(_configFile.c_str(), _ptree);
-          _hasConfig = true;
-        }
-        else
-        {
-          if (!_unitTestMode)
-          {
-            displayUsage(std::cerr);
-            std::cerr << std::endl << "ERROR: Unable to open input file " << _configFile << "!" << std::endl;
-            std::cerr.flush();
-          }
-
-          if (!_unitTestMode)
-            exit(-1);
-          else
-            return false;
-        }
-      }
-    }
-
-    if (!validateRequiredParameters())
-    {
-      if (!_unitTestMode)
-        exit(-1);
-      else
-        return false;
     }
   }
   catch(const std::exception& e)
   {
+    if (parseOptionsFlags & DisplayExceptionFlag)
+      std::cerr << "Exception: " << e.what() << std::endl;
+
     return false;
   }
 
   if (parseOptionsFlags & InitLoggerFlag)
     initlogger();
-  
+
   std::set_terminate(&catch_global);
 
-  if (!_unitTestMode)
-    displayVersion(std::cout);
+  if (parseOptionsFlags & DisplayVersionOnInitFlag)
+  {
+    if (!_unitTestMode)
+      displayVersion(std::cout);
+  }
 
   return true;
 }
-
 
 void OsServiceOptions::initlogger()
 {
