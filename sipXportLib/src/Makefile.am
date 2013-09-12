@@ -109,6 +109,7 @@ libsipXport_la_SOURCES =  \
     os/OsQueuedEvent.cpp \
     os/OsRpcMsg.cpp \
     os/OsRWMutex.cpp \
+    os/OsResourceLimit.cpp \
     os/OsServerSocket.cpp \
     os/OsServerTask.cpp \
     os/OsServerTaskWaitable.cpp \

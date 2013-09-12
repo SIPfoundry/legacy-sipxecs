@@ -13,6 +13,8 @@
  * details.
  */
 
+#include <stdio.h>
+#include <sys/resource.h>
 #include <vector>
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -24,6 +26,8 @@ class OsServiceOptionsTest : public CppUnit::TestCase
 {
   CPPUNIT_TEST_SUITE(OsServiceOptionsTest);
   CPPUNIT_TEST(testServiceOptions);
+  CPPUNIT_TEST(testServiceOptionsConfigOnly);
+  CPPUNIT_TEST(testServiceOptionsVectors);
   CPPUNIT_TEST(testServiceOptions_parseOptionsFlags);
   CPPUNIT_TEST_SUITE_END();
 public:
@@ -167,6 +171,96 @@ public:
     OS_LOG_DEBUG(FAC_KERNEL, "testServiceOptions ENDED");
   }
 
+  void testServiceOptionsConfigOnly()
+  {
+    const char* configFile = "OsServiceOptions.data.1";
+    const rlim_t bigInt = 18446744073709551615;
+    remove(configFile);
+    {
+      std::ofstream config(configFile);
+      config << "paramString = " << "string" << std::endl;
+      config << "paramInt = " << 1234 << std::endl;
+      config << "paramBigInt = " << bigInt << std::endl;
+      config << "paramBool = " << "true" << std::endl;
+    }
+
+    OsServiceOptions options(configFile);
+    CPPUNIT_ASSERT(options.parseOptions());
+
+    std::string paramString;
+    int paramInt = 0;
+    rlim_t paramBigInt = 0;
+    bool paramBool = false;
+
+    CPPUNIT_ASSERT(options.getOption("paramString", paramString));
+    CPPUNIT_ASSERT(options.getOption("paramInt", paramInt));
+    CPPUNIT_ASSERT(options.getOption<rlim_t>("paramBigInt", paramBigInt));
+    CPPUNIT_ASSERT(options.getOption("paramBool", paramBool));
+
+    CPPUNIT_ASSERT(paramString == "string");
+    CPPUNIT_ASSERT(paramInt == 1234);
+    CPPUNIT_ASSERT(paramBigInt == bigInt);
+    CPPUNIT_ASSERT(paramBool == true);
+  }
+
+  void testServiceOptionsVectors()
+  {
+    std::vector<std::string> args;
+    args.push_back("ServiceOptions");
+    args.push_back("--is-test-run");
+
+    args.push_back("-s");
+    args.push_back("s_item_1");
+
+    args.push_back("--stringItem");
+    args.push_back("s_item_2");
+
+    args.push_back("--stringItem");
+    args.push_back("s_item_3");
+
+    args.push_back("-i");
+    args.push_back("1");
+
+    args.push_back("--intItem");
+    args.push_back("2");
+
+    args.push_back("--intItem");
+    args.push_back("3");
+
+    char** argv = 0;
+    vectorToCArray(args, &argv);
+    OsServiceOptions service(args.size(), argv, "ServiceOptions", "1.0", "Ezuce Inc. All Rights Reserved");
+    service._unitTestMode = true;
+
+    
+
+    service.addOptionFlag("is-test-run", ": Flag signifying this is a test run",  OsServiceOptions::ConfigOption);
+    service.addOptionStringVector('s', "stringItem", ": String item",  OsServiceOptions::ConfigOption);
+    service.addOptionIntVector('i', "intItem", ": Int item",  OsServiceOptions::ConfigOption);
+    
+    CPPUNIT_ASSERT(service.parseOptions());
+
+    std::vector<std::string> strings;
+    std::vector<int> ints;
+
+    CPPUNIT_ASSERT(service.getOption("stringItem", strings));
+    CPPUNIT_ASSERT(service.getOption("intItem", ints));
+
+    CPPUNIT_ASSERT(strings.size() == 3);
+    CPPUNIT_ASSERT(ints.size() == 3);
+
+    CPPUNIT_ASSERT(strings[0] == "s_item_1");
+    CPPUNIT_ASSERT(strings[1] == "s_item_2");
+    CPPUNIT_ASSERT(strings[2] == "s_item_3");
+
+    CPPUNIT_ASSERT(ints[0] == 1);
+    CPPUNIT_ASSERT(ints[1] == 2);
+    CPPUNIT_ASSERT(ints[2] == 3);
+
+    freeCArray(args.size(), &argv);
+    args.clear();
+  }
+
   void testServiceOptions_parseOptionsFlags()
   {
     char** pArgv = 0;
@@ -183,6 +277,7 @@ public:
     CPPUNIT_ASSERT(std::string("\nsipXdummyTool version 1.0 - Ezuce Inc. All Rights Reserved\n"
                   "\nsipXdummyTool Options:\n\n") == stream.str());
   }
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OsServiceOptionsTest);
