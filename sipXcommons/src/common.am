@@ -25,7 +25,7 @@ commons_PKGS = \
 	org.springframework.core \
 	org.springframework.transaction \
 	spring-data-mongodb \
-	spring-data-commons-core \
+	spring-data-commons \
 	mongo \
 	spring-data-redis \
 	jedis \

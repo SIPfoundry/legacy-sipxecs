@@ -58,8 +58,10 @@ sipxconfig_neoconf_PKGS = \
 	saxpath \
 	serializer \
 	sipxcommons \
+	slf4j-api \
+	slf4j-log4j12 \
 	snmp4j \
-	spring-data-commons-core \
+	spring-data-commons \
 	spring-data-mongodb \
 	spring-ldap \
 	spring-ws \

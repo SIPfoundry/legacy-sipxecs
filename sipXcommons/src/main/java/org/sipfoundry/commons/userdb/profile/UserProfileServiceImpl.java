@@ -41,7 +41,7 @@ import com.mongodb.gridfs.GridFSInputFile;
 
 public class UserProfileServiceImpl implements UserProfileService {
     private static final String USER_PROFILE_COLLECTION = "userProfile";
-    private static final String USER_ID = "m_userid";
+    private static final String USER_ID = "_id";
     private static final String IM_ID = "m_imId";
     private static final String USERNAME = "m_userName";
     private static final String BRANCH_NAME = "m_branchName";
