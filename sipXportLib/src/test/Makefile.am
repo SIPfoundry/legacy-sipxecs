@@ -63,6 +63,7 @@ testsuite_SOURCES = \
     os/OsMsgQTest.cpp \
     os/OsMsgQSharedTest.cpp \
     os/OsMutexTest.cpp \
+    os/OsResourceLimitTest.cpp \
     os/OsServiceOptionsTest.cpp \
     os/OsSemTest.cpp \
     os/OsSocketTest.cpp \

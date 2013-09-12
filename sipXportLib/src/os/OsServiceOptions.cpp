@@ -53,6 +53,7 @@ OsServiceOptions::OsServiceOptions(int argc, char** argv,
 OsServiceOptions::OsServiceOptions(const std::string& configFile) :
   _argc(0),
   _argv(0),
+  _daemonName("OsServiceOptions"),
   _daemonOptions("Daemon"),
   _commandLineOptions("General"),
   _configOptions("Configuration"),
@@ -101,174 +102,6 @@ void OsServiceOptions::addOptionFlag(const std::string& optionName, const std::s
   options->add_options()(optionName.c_str(), description.c_str());
 }
 
-void OsServiceOptions::addOptionString(char shortForm, const std::string& optionName, 
-    const std::string description, OptionType type, bool required,
-    const std::string& altOptionName /* alternative option if this option is required and is missing*/)
-{
-  boost::program_options::options_description* options;
-  if (type == CommandLineOption)
-    options = &_commandLineOptions;
-  else if (type == DaemonOption)
-    options = &_daemonOptions;
-  else if (type == ConfigOption)
-    options = &_configOptions;
-  else
-    assert(false);
-
-  std::ostringstream strm;
-  strm << optionName << "," << shortForm;
-  options->add_options()(strm.str().c_str(), boost::program_options::value<std::string>(), description.c_str());
-
-  if (required)
-    registerRequiredParameters(optionName, altOptionName);
-}
-
-void OsServiceOptions::addOptionString(const std::string& optionName, 
-    const std::string description, OptionType type, bool required,
-    const std::string& altOptionName /* alternative option if this option is required and is missing*/)
-{
-  boost::program_options::options_description* options;
-  if (type == CommandLineOption)
-    options = &_commandLineOptions;
-  else if (type == DaemonOption)
-    options = &_daemonOptions;
-  else if (type == ConfigOption)
-    options = &_configOptions;
-  else
-    assert(false);
-
-  options->add_options()(optionName.c_str(), boost::program_options::value<std::string>(), description.c_str());
-
-  if (required)
-    registerRequiredParameters(optionName, altOptionName);
-}
-
-void OsServiceOptions::addOptionStringVector(char shortForm, const std::string& optionName, 
-  const std::string description, OptionType type, bool required,
-  const std::string& altOptionName /* alternative option if this option is required and is missing*/)
-{
-  boost::program_options::options_description* options;
-  if (type == CommandLineOption)
-    options = &_commandLineOptions;
-  else if (type == DaemonOption)
-    options = &_daemonOptions;
-  else if (type == ConfigOption)
-    options = &_configOptions;
-  else
-    assert(false);
-
-  std::ostringstream strm;
-  strm << optionName << "," << shortForm;
-  options->add_options()(strm.str().c_str(), boost::program_options::value<std::vector<std::string> >(), description.c_str());
-
-  if (required)
-    registerRequiredParameters(optionName, altOptionName);
-}
-
-void OsServiceOptions::addOptionStringVector(const std::string& optionName, 
-  const std::string description, OptionType type, bool required,
-  const std::string& altOptionName /* alternative option if this option is required and is missing*/)
-{
-  boost::program_options::options_description* options;
-  if (type == CommandLineOption)
-    options = &_commandLineOptions;
-  else if (type == DaemonOption)
-    options = &_daemonOptions;
-  else if (type == ConfigOption)
-    options = &_configOptions;
-  else
-    assert(false);
-
-  options->add_options()(optionName.c_str(), boost::program_options::value<std::vector<std::string> >(), description.c_str());
-
-  if (required)
-    registerRequiredParameters(optionName, altOptionName);
-}
-
-void OsServiceOptions::addOptionInt(char shortForm, const std::string& optionName, 
-  const std::string description, OptionType type, bool required,
-  const std::string& altOptionName /* alternative option if this option is required and is missing*/)
-{
-  boost::program_options::options_description* options;
-  if (type == CommandLineOption)
-    options = &_commandLineOptions;
-  else if (type == DaemonOption)
-    options = &_daemonOptions;
-  else if (type == ConfigOption)
-    options = &_configOptions;
-  else
-    assert(false);
-
-  std::ostringstream strm;
-  strm << optionName << "," << shortForm;
-  options->add_options()(strm.str().c_str(), boost::program_options::value<int>(), description.c_str());
-
-  if (required)
-    registerRequiredParameters(optionName, altOptionName);
-}
-
-void OsServiceOptions::addOptionInt(const std::string& optionName, 
-  const std::string description, OptionType type, bool required,
-  const std::string& altOptionName /* alternative option if this option is required and is missing*/)
-{
-  boost::program_options::options_description* options;
-  if (type == CommandLineOption)
-    options = &_commandLineOptions;
-  else if (type == DaemonOption)
-    options = &_daemonOptions;
-  else if (type == ConfigOption)
-    options = &_configOptions;
-  else
-    assert(false);
-
-  options->add_options()(optionName.c_str(), boost::program_options::value<int>(), description.c_str());
-
-  if (required)
-    registerRequiredParameters(optionName, altOptionName);
-}
-
-void OsServiceOptions::addOptionIntVector(char shortForm, const std::string& optionName, 
-  const std::string description, OptionType type, bool required,
-  const std::string& altOptionName /* alternative option if this option is required and is missing*/)
-{
-  boost::program_options::options_description* options;
-  if (type == CommandLineOption)
-    options = &_commandLineOptions;
-  else if (type == DaemonOption)
-    options = &_daemonOptions;
-  else if (type == ConfigOption)
-    options = &_configOptions;
-  else
-    assert(false);
-
-  std::ostringstream strm;
-  strm << optionName << "," << shortForm;
-  options->add_options()(strm.str().c_str(), boost::program_options::value<std::vector<int> >(), description.c_str());
-
-  if (required)
-    registerRequiredParameters(optionName, altOptionName);
-}
-
-void OsServiceOptions::addOptionIntVector(const std::string& optionName, 
-  const std::string description, OptionType type, bool required,
-  const std::string& altOptionName /* alternative option if this option is required and is missing*/)
-{
-  boost::program_options::options_description* options;
-  if (type == CommandLineOption)
-    options = &_commandLineOptions;
-  else if (type == DaemonOption)
-    options = &_daemonOptions;
-  else if (type == ConfigOption)
-    options = &_configOptions;
-  else
-    assert(false);
-
-  options->add_options()(optionName.c_str(), boost::program_options::value<std::vector<int> >(), description.c_str());
-
-  if (required)
-    registerRequiredParameters(optionName, altOptionName);
-}
-
 void OsServiceOptions::displayUsage(std::ostream& strm) const
 {
   displayVersion(strm);
@@ -308,38 +141,6 @@ size_t OsServiceOptions::hasConfigOption(const std::string& optionName) const
   return _ptree.count(optionName.c_str());
 }
 
-bool OsServiceOptions::getOption(const std::string& optionName, std::string& value, const std::string& defValue) const
-{
-  if (defValue.empty() && !hasOption(optionName, false))
-  {
-    //
-    // Check if ptree has it
-    //
-    if (_hasConfig)
-    {
-      try
-      {
-        value = _ptree.get<std::string>(optionName.c_str());
-        return true;
-      }catch(...)
-      {
-        return false;
-      }
-    }
-    else
-    {
-      return false;
-    }
-  }else if (!hasOption(optionName, false))
-  {
-    value = defValue;
-    return true;
-  }
-
-  value = _options[optionName.c_str()].as<std::string>();
-  return true;
-}
-
 bool OsServiceOptions::getOption(const std::string& optionName, std::vector<std::string>& value) const
 {
   if (!hasOption(optionName, false))
@@ -348,57 +149,6 @@ bool OsServiceOptions::getOption(const std::string& optionName, std::vector<std:
   return true;
 }
 
-bool OsServiceOptions::getOption(const std::string& optionName, int& value) const
-{
-  if (!hasOption(optionName, false))
-  {
-    //
-    // Check if ptree has it
-    //
-    if (_hasConfig)
-    {
-      try
-      {
-        value = _ptree.get<int>(optionName.c_str());
-        return true;
-      }catch(...)
-      {
-        return false;
-      }
-    }
-  }
-  value = _options[optionName.c_str()].as<int>();
-  return true;
-}
-
-bool OsServiceOptions::getOption(const std::string& optionName, int& value, int defValue) const
-{
-  if (!hasOption(optionName, false))
-  {
-    //
-    // Check if ptree has it
-    //
-    if (_hasConfig)
-    {
-      try
-      {
-        value = _ptree.get<int>(optionName.c_str());
-        return true;
-      }catch(...)
-      {
-        value = defValue;
-      }
-    }
-    else
-    {
-      value = defValue;
-    }
-  }else
-  {
-    value = _options[optionName.c_str()].as<int>();
-  }
-  return true;
-}
 
 bool OsServiceOptions::getOption(const std::string& optionName, std::vector<int>& value) const
 {
@@ -467,18 +217,21 @@ bool OsServiceOptions::validateRequiredParameters()
       }
       else
       {
-        displayVersion(std::cerr);
-
-        if (alternate == _alternative.end())
-          std::cerr << "ERROR:  Mising required parameter \"" << *iter << "\"!!! Use --help to display usage." << std::endl;
-        else
-          std::cerr << "ERROR:  Mising required parameter \"" << *iter << "\" or " << "\"" << alternate->second << "\"!!! Use --help to display usage." << std::endl;
-
-        std::cerr << std::endl;
-        std::cerr << "Mandatory Parameters:" << std::endl;
-        for (std::vector<std::string>::const_iterator iter = _required.begin(); iter != _required.end(); iter++)
+        if (!_unitTestMode)
         {
-          std::cerr << "  --" << *iter << std::endl;
+          displayVersion(std::cerr);
+
+          if (alternate == _alternative.end())
+            std::cerr << "ERROR:  Mising required parameter \"" << *iter << "\"!!! Use --help to display usage." << std::endl;
+          else
+            std::cerr << "ERROR:  Mising required parameter \"" << *iter << "\" or " << "\"" << alternate->second << "\"!!! Use --help to display usage." << std::endl;
+
+          std::cerr << std::endl;
+          std::cerr << "Mandatory Parameters:" << std::endl;
+          for (std::vector<std::string>::const_iterator iter = _required.begin(); iter != _required.end(); iter++)
+          {
+            std::cerr << "  --" << *iter << std::endl;
+          }
         }
       }
       return false;
@@ -497,143 +250,6 @@ void OsServiceOptions::registerRequiredParameters(const std::string& optionName,
   }
 }
 
-void OsServiceOptions::addCommandLineOptions()
-{
-   addOptionFlag('h', "help", ": Display help information.", CommandLineOption);
-   addOptionFlag('v', "version", ": Display version information.", CommandLineOption);
-   addOptionString('C', "config-file", ": Optional daemon config file.", CommandLineOption);
-
-
-   addOptionString('L', "log-file", ": Specify the application log file.", CommandLineOption);
-   addOptionInt('l', "log-level",
-     ": Specify the application log priority level."
-     "Valid level is between 0-7.  "
-     "0 (EMERG) 1 (ALERT) 2 (CRIT) 3 (ERR) 4 (WARNING) 5 (NOTICE) 6 (INFO) 7 (DEBUG)"
-           , CommandLineOption);
-}
-
-bool OsServiceOptions::checkCommandLineOptions()
-{
-   if (hasOption("help", false))
-   {
-     displayUsage(std::cout);
-     return false;
-   }
-
-   if (hasOption("version", false))
-   {
-     displayVersion(std::cout);
-     return false;
-   }
-
-   return true;
-}
-
-bool OsServiceOptions::checkDaemonOptions()
-{
-  if (hasOption("pid-file", false))
-  {
-    getOption("pid-file", _pidFile);
-    std::ofstream pidFile(_pidFile.c_str());
-    pidFile << getpid() << std::endl;
-  }
-
-  if (hasOption("daemonize", false))
-  {
-    if (_pidFile.empty())
-    {
-      displayUsage(std::cerr);
-      std::cerr << std::endl << "ERROR: You must specify pid-file location!" << std::endl;
-      std::cerr.flush();
-
-      return false;
-    }
-    _isDaemon = true;
-  }
-
-  return true;
-}
-
-bool OsServiceOptions::checkConfigOptions()
-{
-  if (hasOption("config-file", false))
-  {
-    if (getOption("config-file", _configFile) && !_configFile.empty())
-    {
-      std::ifstream config(_configFile.c_str());
-      if (config.good())
-      {
-        //boost::program_options::store(boost::program_options::parse_config_file(config, _optionItems, true), _options);
-        //boost::program_options::notify(_options);
-        boost::property_tree::ini_parser::read_ini(_configFile.c_str(), _ptree);
-        _hasConfig = true;
-      }
-      else
-      {
-        displayUsage(std::cerr);
-        std::cerr << std::endl << "ERROR: Unable to open input file " << _configFile << "!" << std::endl;
-        std::cerr.flush();
-
-        return false;
-      }
-    }
-  }
-
-  return true;
-}
-
-bool OsServiceOptions::checkOptions(ParseOptionsFlags parseOptionsFlags,
-                                    int& exitCode)
-{
-  bool bRet = true;
-
-  do
-  {
-    if (parseOptionsFlags & AddComandLineOptionsFlag)
-    {
-      bRet = checkCommandLineOptions();
-      if (bRet == false)
-      {
-        exitCode = 0;
-        break;
-      }
-    }
-
-    if (parseOptionsFlags & AddDaemonOptionsFlag)
-    {
-      bRet = checkDaemonOptions();
-      if (bRet == false)
-      {
-        exitCode = -1;
-        break;
-      }
-    }
-
-    if (parseOptionsFlags & AddConfigOptionsFlag)
-    {
-      bRet = checkConfigOptions();
-      if (bRet == false)
-      {
-        exitCode = -1;
-        break;
-      }
-    }
-
-    if (parseOptionsFlags & ValidateRequiredParametersFlag)
-    {
-      bRet= validateRequiredParameters();
-      if (bRet == false)
-      {
-        exitCode = -1;
-        break;
-      }
-    }
-  }
-  while (false);
-
-  return bRet;
-}
-
 bool OsServiceOptions::parseOptions(ParseOptionsFlags parseOptionsFlags)
 {
 
@@ -646,7 +262,10 @@ bool OsServiceOptions::parseOptions(ParseOptionsFlags parseOptionsFlags)
     }
     catch(const std::exception& e)
     {
-      std::cerr << _daemonName << " is not able to parse the options - " << e.what() << std::endl;
+
+      if (!_unitTestMode)
+        OS_LOG_ERROR(FAC_KERNEL, _daemonName << " is not able to parse the options - " << e.what());
+
       return false;
     }
     return true;
@@ -656,49 +275,122 @@ bool OsServiceOptions::parseOptions(ParseOptionsFlags parseOptionsFlags)
   {
     if (parseOptionsFlags & AddComandLineOptionsFlag)
     {
-      addCommandLineOptions();
+      addOptionFlag('h', "help", ": Display help information.", CommandLineOption);
+      addOptionFlag('v', "version", ": Display version information.", CommandLineOption);
+      addOptionString('C', "config-file", ": Optional daemon config file.", CommandLineOption);
+      addOptionString('L', "log-file", ": Specify the application log file.", CommandLineOption);
+      addOptionInt('l', "log-level",
+        ": Specify the application log priority level."
+        "Valid level is between 0-7.  "
+        "0 (EMERG) 1 (ALERT) 2 (CRIT) 3 (ERR) 4 (WARNING) 5 (NOTICE) 6 (INFO) 7 (DEBUG)"
+              , CommandLineOption);
       _optionItems.add(_commandLineOptions);
     }
-
+    
     if (parseOptionsFlags & AddDaemonOptionsFlag)
       _optionItems.add(_daemonOptions);
 
     if (parseOptionsFlags & AddConfigOptionsFlag)
       _optionItems.add(_configOptions);
 
+
     boost::program_options::store(boost::program_options::parse_command_line(_argc, _argv, _optionItems), _options);
     boost::program_options::notify(_options);
 
-    int exitCode = 0;
-
-    bool bRet = checkOptions(parseOptionsFlags, exitCode);
-    if (bRet == false)
+    if (hasOption("help", false))
     {
       if (!_unitTestMode)
-        exit(exitCode);
+        displayUsage(std::cout);
+
+      if (!_unitTestMode)
+        exit(0);
       else
+        return true;
+    }
+
+    if (hasOption("version", false))
+    {
+      displayVersion(std::cout);
+      if (!_unitTestMode)
+        exit(0);
+      else
+        return true;
+    }
+
+    if (hasOption("pid-file", false))
+    {
+      getOption("pid-file", _pidFile);
+      std::ofstream pidFile(_pidFile.c_str());
+      pidFile << getpid() << std::endl;
+    }
+
+    if (hasOption("daemonize", false))
+    {
+      if (_pidFile.empty())
       {
-        if (exitCode == 0)
-          return true;
+        if (!_unitTestMode)
+        {
+          displayUsage(std::cerr);
+          std::cerr << std::endl << "ERROR: You must specify pid-file location!" << std::endl;
+          std::cerr.flush();
+        }
+
+        if (!_unitTestMode)
+          exit(-1);
         else
           return false;
       }
+      _isDaemon = true;
+    }
+
+    if (hasOption("config-file", false))
+    {
+      if (getOption("config-file", _configFile) && !_configFile.empty())
+      {
+        std::ifstream config(_configFile.c_str());
+        if (config.good())
+        {
+          //boost::program_options::store(boost::program_options::parse_config_file(config, _optionItems, true), _options);
+          //boost::program_options::notify(_options);
+          boost::property_tree::ini_parser::read_ini(_configFile.c_str(), _ptree);
+          _hasConfig = true;
+        }
+        else
+        {
+          if (!_unitTestMode)
+          {
+            displayUsage(std::cerr);
+            std::cerr << std::endl << "ERROR: Unable to open input file " << _configFile << "!" << std::endl;
+            std::cerr.flush();
+          }
+
+          if (!_unitTestMode)
+            exit(-1);
+          else
+            return false;
+        }
+      }
+    }
+
+    if (!validateRequiredParameters())
+    {
+      if (!_unitTestMode)
+        exit(-1);
+      else
+        return false;
     }
   }
   catch(const std::exception& e)
   {
-    if (parseOptionsFlags & DisplayExceptionFlag)
-      std::cerr << "Exception: " << e.what() << std::endl;
-
     return false;
   }
 
   if (parseOptionsFlags & InitLoggerFlag)
     initlogger();
-
+  
   std::set_terminate(&catch_global);
 
-  if (parseOptionsFlags & DisplayVersionOnInitFlag)
+  if (!_unitTestMode)
     displayVersion(std::cout);
 
   return true;
@@ -724,9 +416,13 @@ void OsServiceOptions::initlogger()
 
       if (!Os::LoggerHelper::instance().initialize(logLevel, logFile.c_str()))
       {
-        displayUsage(std::cerr);
-        std::cerr << std::endl << "ERROR: Unable to create log file " << logFile << "!" << std::endl;
-        std::cerr.flush();
+        if (!_unitTestMode)
+        {
+          displayUsage(std::cerr);
+          std::cerr << std::endl << "ERROR: Unable to create log file " << logFile << "!" << std::endl;
+          std::cerr.flush();
+        }
+
         if (!_unitTestMode)
           _exit(-1);
         else
@@ -736,9 +432,13 @@ void OsServiceOptions::initlogger()
   }
   else
   {
-    displayUsage(std::cerr);
-    std::cerr << std::endl << "ERROR: Log file not specified!" << std::endl;
-    std::cerr.flush();
+    if (!_unitTestMode)
+    {
+      displayUsage(std::cerr);
+      std::cerr << std::endl << "ERROR: Log file not specified!" << std::endl;
+      std::cerr.flush();
+    }
+
     if (!_unitTestMode)
       _exit(-1);
     else
