@@ -89,8 +89,6 @@ static std::string getResourceString(int resource)
     return "RLIMIT_RSS";
   case RLIMIT_RTPRIO:
     return "RLIMIT_RTPRIO";
-  case RLIMIT_RTTIME:
-    return "RLIMIT_RTTIME";
   case RLIMIT_SIGPENDING:
     return "RLIMIT_SIGPENDING";
   case RLIMIT_STACK:
