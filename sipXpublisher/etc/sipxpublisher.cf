@@ -86,6 +86,6 @@ bundle agent sipxpublisher_running {
     sipxpublisher.sipxpublisher_running.(restart_sipxpublisher|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
         comment => "restart sipxpublisher",
-        args => "restart";
+        args => "asyncrestart";
 }
 

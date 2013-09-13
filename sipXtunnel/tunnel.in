@@ -4,8 +4,8 @@
 # description: sipxtunnel is encrypted communications service
 # processname: tunnel
 
-. /etc/rc.d/init.d/functions || exit 1
-. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+. /etc/rc.d/init.d/functions || exit $ENOENT
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit $ENOENT
 
 # Copyright (c) 2012 eZuce, Inc. All rights reserved.
 # Contributed to SIPfoundry under a Contributor Agreement
@@ -31,14 +31,41 @@ USAGE
 
 Status=0
 PidFile=@SIPX_RUNDIR@/tunnel-@MODE@.pid
+[ @MODE@ = "server" ] && regex=".*/stunnel\\s.*/tunnel-server.ini"
+[ @MODE@ = "client" ] && regex=".*/stunnel\\s.*/tunnel-client.ini"
 
 start() {
-    echo "Starting tunnel service in @MODE@ mode..."
-    /usr/bin/stunnel @SIPX_CONFDIR@/tunnel-@MODE@.ini
+  checkRunningInstance  "root" $regex > /dev/null
+  [ $? -eq 0 ] && { echo -n "@MODE@ $runningError"; echo_failure; echo; exit $ERUNNING; }
+  echo -n "Starting tunnel service in @MODE@ mode..."
+  /usr/bin/stunnel @SIPX_CONFDIR@/tunnel-@MODE@.ini
+
+  if [ $# -gt 0 ]; then
+    #check if process was spawned
+    checkRunningInstanceTimeout "root" $regex
+    Status=$?
+    [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
+    pid=`ps -u "root" -o pid,args | grep $regex | grep -v "grep" | tail -1 | awk '{print $1 }'`
+    checkIfListening $pid
+    Status=$?
+    [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
+    [ $Status -eq 0 ] && { echo_success; echo; }
+  fi
 }
 
 stop() {
-    sipx_stop tunnel ${PidFile}
+  sipx_stop tunnel ${PidFile}
+  killAnyOrphans root $regex
+}
+
+restart() {
+  stop
+  start $withCheck
+}
+
+asyncrestart() {
+  stop
+  start
 }
 
 case "$1" in
@@ -47,27 +74,32 @@ case "$1" in
     start
     ;;
   start)
-    start
+    start $withCheck
     ;;
   stop)
     stop
     ;;
   restart|reload|force-reload)
-    stop
-    start
+    restart
+    ;;
+  asyncrestart)
+    asyncrestart
     ;;
   condrestart)
-    [ -f ${PidFile} ] && restart || :
+    checkRunningInstance  root $regex > /dev/null
+    Status=$?
+    [ $Status -eq 0 ] && restart || :
     ;;
   status)
-    status -p ${PidFile} tunnel-@MODE@
+    checkRunningInstance root $regex tunnel-@MODE@
+    Status=$?
     ;;
   configtest)
     configtest
     ;;
   *)
     usage
-    Status=1
+    Status=$EINCORRECTUSAGE
 esac
 
 exit $Status

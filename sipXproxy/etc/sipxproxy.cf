@@ -133,7 +133,7 @@ bundle agent sipxproxy_running {
     sipxproxy.sipxproxy_running.(restart_sipxproxy|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
         comment => "restart sipxproxy",
-        args => "restart";
+        args => "asyncrestart";
 
     redeploy_nat.sipxrelay::
       "$(sipx.SIPX_SERVICEDIR)/sipxrelay"

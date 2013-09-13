@@ -125,7 +125,7 @@ bundle agent sipxivr_running {
     sipxivr.sipxivr_running.(restart_sipxecs|restart_sipxivr)::
       "$(sipx.SIPX_SERVICEDIR)/sipxivr"
         comment => "restart sipxivr",
-        args => "restart";
+        args => "asyncrestart";
 }
 
 # Install cron schedules for vm cleanup

@@ -70,6 +70,6 @@ bundle agent sipxsqa_running {
     sipxsqa.sipxsqa_running.(restart_sipxsqa|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxsqa"
         comment => "restart sipxsqa",
-        args => "restart";
+        args => "asyncrestart";
 }
 

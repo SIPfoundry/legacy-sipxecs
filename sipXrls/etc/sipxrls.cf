@@ -80,6 +80,6 @@ bundle agent sipxrls_running {
     sipxrls.sipxrls_running.(restart_sipxrls|restart_sipxecs)::
       "$(sipx.SIPX_SERVICEDIR)/sipxrls"
         comment => "restart sipxrls",
-        args => "restart";
+        args => "asyncrestart";
 }
 
