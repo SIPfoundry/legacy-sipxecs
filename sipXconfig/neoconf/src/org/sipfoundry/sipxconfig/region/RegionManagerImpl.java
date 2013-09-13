@@ -14,6 +14,9 @@
  */
 package org.sipfoundry.sipxconfig.region;
 
+import static org.sipfoundry.sipxconfig.validation.Validate.ipv4AddrBlock;
+import static org.sipfoundry.sipxconfig.validation.Validate.maxLen;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -61,9 +64,13 @@ public class RegionManagerImpl implements RegionManager {
     }
 
     void validateRegion(Region region) {
-        String[] addreses = region.getAddresses();
-        if (addreses == null || addreses.length == 0) {
+        String[] addresses = region.getAddresses();
+        if (addresses == null || addresses.length == 0) {
             throw new UserException("&error.RegionsCannotBeEmpty");
+        }
+        maxLen("&region.name", region.getName(), 255);
+        for (String address : addresses) {
+            ipv4AddrBlock("&region.address", address);
         }
     }
 

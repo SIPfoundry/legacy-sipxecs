@@ -101,15 +101,15 @@ public class RegionApi extends Resource {
         getResponse().setStatus(Status.SUCCESS_OK);
         StringWriter json = new StringWriter();
         registerJsonSerilizer();
+        Object o;
+        if (m_regionId != null) {
+            o = m_regionManager.getRegion(m_regionId);
+        } else {
+            o = m_regionManager.getRegions();
+        }
         try {
-            Object o;
-            if (m_regionId != null) {
-                o = m_regionManager.getRegion(m_regionId);
-            } else {
-                o = m_regionManager.getRegions();
-            }
             m_jsonMapper.writeValue(json, o);
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
         }
         return new StringRepresentation(json.toString());

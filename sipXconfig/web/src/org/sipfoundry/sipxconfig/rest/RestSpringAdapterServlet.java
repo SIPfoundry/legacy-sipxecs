@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.rest;
 import static org.springframework.web.context.support.WebApplicationContextUtils.getRequiredWebApplicationContext;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -27,6 +28,7 @@ import org.restlet.data.Status;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 
 import com.noelios.restlet.ext.servlet.ServletConverter;
 
@@ -61,22 +63,47 @@ public class RestSpringAdapterServlet extends HttpServlet {
         try {
             m_converter.service(req, res);
         } catch (UserException e) {
-            String msg = e.getMessage();
-            if (!msg.isEmpty() && msg.charAt(0) == '&') {
-                String key = msg.substring(1);
-                msg = m_messageSource.getMessage(key, e.getRawParams(), req.getLocale());
-            }
-            onError(req, res, e, msg);
+            String msg = l8n(e.getMessage(), e.getRawParams(), req.getLocale());
+            onError(req, res, Status.CLIENT_ERROR_BAD_REQUEST, e, msg);
         } catch (Exception re) {
-            onError(req, res, re, "Internal error: " + re.getMessage());
+            onError(req, res, Status.SERVER_ERROR_INTERNAL, re, "Internal error: " + re.getMessage());
         }
     }
 
-    private void onError(HttpServletRequest req, HttpServletResponse res, Throwable e, String msg)
+    String l8n(String msg, Object[] rawParams, Locale locale) {
+        if (!msg.isEmpty() && msg.charAt(0) == '&') {
+            String key = msg.substring(1);
+            try {
+                // localizing the raw parameters may not be expected but it's incredibly
+                // useful.
+                //  Example:
+                //   throw new UserException("&error.fieldInvalid", "&label.name", obj.getName());
+                if (rawParams != null) {
+                    for (int i = 0; i < rawParams.length; i++) {
+                        if (rawParams[i] instanceof String) {
+                            // NOTE: recursive
+                            // HACK: writing back to rawParams array when probably
+                            // should create new array, but it's unlikely rawParams
+                            // will be used for anything else and localization needs
+                            // to be lightweight.
+                            rawParams[i] = l8n((String) rawParams[i], null, locale);
+                        }
+                    }
+                }
+                return m_messageSource.getMessage(key, rawParams, locale);
+            } catch (NoSuchMessageException badLocalization) {
+                LOG.error("Missing localization key " + key);
+                return key;
+            }
+        }
+        return msg;
+    }
+
+    private void onError(HttpServletRequest req, HttpServletResponse res, Status status, Throwable e, String msg)
         throws IOException {
         String where = String.format("%s %s", req.getMethod(), req.getRequestURI());
         LOG.error(where, e);
-        res.setStatus(Status.SERVER_ERROR_INTERNAL.getCode());
+        res.setStatus(status.getCode());
         res.setContentType(MediaType.APPLICATION_JSON.getName());
         String json = String.format("{\"error\":\"%s\",\"type\":\"%s\"} ", msg, e.getClass().getName());
         res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
