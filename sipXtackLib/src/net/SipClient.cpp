@@ -786,7 +786,7 @@ int SipClient::run(void* runArg)
            }
          }
 
-         if (res == crlfCount)
+         if (res > 0 && res == crlfCount)
          {
              repeatedEOFs = 0;
              // The 'message' was a keepalive (CR-LF or CR-LF-CR-LF).
