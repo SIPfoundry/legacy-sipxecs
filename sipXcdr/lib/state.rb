@@ -156,7 +156,7 @@ class State
 
   def all_fields_valid(cdr)
      if cdr.from_tag.nil? || cdr.to_tag.nil? || cdr.caller_aor.nil? || cdr.callee_aor.nil?
-        @log.warn("CDR #{@cdr} not eligible for database, SKIP") if @log
+        @log.warn("CDR #{cdr} not eligible for database, SKIP") if @log
         return false
      end
      return true
