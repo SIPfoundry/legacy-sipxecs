@@ -21,4 +21,6 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 public interface SystemAuthPolicyVerifier {
 
     void verifyPolicy(String username) throws AuthenticationServiceException;
+
+    boolean isExternalXmppAuthOnly();
 }

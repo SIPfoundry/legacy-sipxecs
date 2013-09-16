@@ -19,5 +19,6 @@
     <property name="syswwwdir" value="${sysdir.www}"/>
     <property name="locationsManager" ref="locationsManager"/>
     <property name="addressManager" ref="addressManager"/>
+    <property name="systemAuthPolicyCollector" ref="systemAuthPolicyCollector"/> 
   </bean>
 </beans>

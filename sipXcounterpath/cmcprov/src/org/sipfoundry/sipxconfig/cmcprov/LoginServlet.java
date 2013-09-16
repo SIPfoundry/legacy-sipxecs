@@ -112,9 +112,9 @@ public class LoginServlet extends ProvisioningServlet {
                 String uploadDirectory = getProvisioningContext().getUploadDirectory();
                 translateINItoXML(new File(uploadDirectory, profileFilenames[0].getName()));
                 attachFile(new File(uploadDirectory, profileFilenames[0].getName().replaceAll(INI, BRIA_MOBILE)),
-                        out);
+                        out, user.getUserName(), parameters.get(PASSWORD));
             } else {
-                uploadPhoneProfile(profileFilenames[0].getName(), out);
+                uploadPhoneProfile(profileFilenames[0].getName(), out, user.getUserName(), parameters.get(PASSWORD));
             }
 
         } catch (FailureDataException e) {

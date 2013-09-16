@@ -32,6 +32,8 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone.CounterpathLineDefaults;
 import org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone.CounterpathPhoneDefaults;
+import org.sipfoundry.sipxconfig.security.SystemAuthPolicyCollectorImpl;
+import org.sipfoundry.sipxconfig.security.SystemAuthPolicyVerifier;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
@@ -121,7 +123,7 @@ public class CounterpathPhoneTest extends TestCase {
         supplyUserData();
         m_line.setUser(m_user);
 
-        CounterpathLineDefaults lineDefaults = new CounterpathPhone.CounterpathLineDefaults(m_line);
+        CounterpathLineDefaults lineDefaults = new CounterpathPhone.CounterpathLineDefaults(m_line, new MockSystemAuthPolicyCollectorImpl());
 
         PhoneContext phoneContextMock = EasyMock.createMock(PhoneContext.class);
         phoneContextMock.getPhoneDefaults();
@@ -246,5 +248,13 @@ public class CounterpathPhoneTest extends TestCase {
         String expected = IOUtils.toString(getClass().getResourceAsStream("cmc-enterprise-without-voicemail-permission.ini"));
 
         assertEquals(expected, location.toString(m_phone.getPhoneFilename()));
+    }
+
+    private static class MockSystemAuthPolicyCollectorImpl extends SystemAuthPolicyCollectorImpl {
+        @Override
+        public boolean isExternalXmppAuthOnly() {
+            return true;
+        }
+        
     }
 }

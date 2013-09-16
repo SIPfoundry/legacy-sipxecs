@@ -42,4 +42,10 @@ public class SystemAuthPolicyVerifierImpl implements SystemAuthPolicyVerifier {
     public LdapManager getLdapManager() {
         return m_ldapManager;
     }
+
+    @Override
+    public boolean isExternalXmppAuthOnly() {
+        LdapSystemSettings ldapSettings = m_ldapManager.getSystemSettings();
+        return ldapSettings.isEnableOpenfireConfiguration() && ldapSettings.isConfigured();
+    }
 }

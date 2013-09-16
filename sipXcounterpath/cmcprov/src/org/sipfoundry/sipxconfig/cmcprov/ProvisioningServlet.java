@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.cmcprov;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
@@ -90,16 +91,19 @@ public abstract class ProvisioningServlet extends HttpServlet {
         }
     }
 
-    public void attachFile(File file, Writer out) throws IOException {
+    public void attachFile(File file, Writer out, String user, String password) throws IOException {
         Reader in = new FileReader(file);
-        IOUtils.copy(in, out);
+        String match = String.format("SIPX_%s_IM_PWD", user);
+        InputStream is = IOUtils.toInputStream(IOUtils.toString(in).replace(match, password));
+        IOUtils.copy(is, out);
+        IOUtils.closeQuietly(is);
         IOUtils.closeQuietly(in);
     }
 
-    public void uploadPhoneProfile(String profileFilename, Writer out) {
+    public void uploadPhoneProfile(String profileFilename, Writer out, String user, String password) {
         String uploadDirectory = getProvisioningContext().getUploadDirectory();
         try {
-            attachFile(new File(uploadDirectory, profileFilename), out);
+            attachFile(new File(uploadDirectory, profileFilename), out, user, password);
         } catch (IOException e) {
             throw new FailureDataException("Error while uploading configuration file: "
                     + e.getMessage());

@@ -35,6 +35,15 @@ public class SystemAuthPolicyCollectorImpl implements BeanFactoryAware {
         }
     }
 
+    public boolean isExternalXmppAuthOnly() {
+        for (SystemAuthPolicyVerifier verifier : getVerifiers()) {
+            if (verifier.isExternalXmppAuthOnly()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         m_beanFactory = (ListableBeanFactory) beanFactory;

@@ -40,6 +40,7 @@ import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
+import org.sipfoundry.sipxconfig.security.SystemAuthPolicyCollectorImpl;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
@@ -67,6 +68,7 @@ public class CounterpathPhone extends Phone {
     private String m_syswwwdir;
     private AddressManager m_addressManager;
     private LocationsManager m_locationsManager;
+    private SystemAuthPolicyCollectorImpl m_authPolicy;
 
     // private static final String WEBDAV_URL = "resources/resource_lists_path";
     public CounterpathPhone() {
@@ -111,7 +113,7 @@ public class CounterpathPhone extends Phone {
 
     @Override
     public void initializeLine(Line line) {
-        line.addDefaultBeanSettingHandler(new CounterpathLineDefaults(line));
+        line.addDefaultBeanSettingHandler(new CounterpathLineDefaults(line, m_authPolicy));
     }
 
     @Override
@@ -182,8 +184,9 @@ public class CounterpathPhone extends Phone {
         private final Line m_line;
         private final User m_user;
         private final ImAccount m_imAccount;
+        private final SystemAuthPolicyCollectorImpl m_authPolicy;
 
-        public CounterpathLineDefaults(Line line) {
+        public CounterpathLineDefaults(Line line, SystemAuthPolicyCollectorImpl authPolicy) {
             m_line = line;
             m_user = m_line.getUser();
             if (m_user != null) {
@@ -191,6 +194,7 @@ public class CounterpathPhone extends Phone {
             } else {
                 m_imAccount = null;
             }
+            m_authPolicy = authPolicy;
         }
 
         @SettingEntry(path = REG_USERNAME)
@@ -247,6 +251,10 @@ public class CounterpathPhone extends Phone {
         public String getImPassword() {
             if (m_imAccount == null) {
                 return null;
+            }
+            if (m_authPolicy.isExternalXmppAuthOnly()) {
+                // add placeholder, provisioning password to be used
+                return String.format("SIPX_%s_IM_PWD", m_user.getUserName());
             }
             return m_user.getPintoken();
         }
@@ -380,5 +388,9 @@ public class CounterpathPhone extends Phone {
 
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
+    }
+
+    public void setSystemAuthPolicyCollector(SystemAuthPolicyCollectorImpl authPolicy) {
+        m_authPolicy = authPolicy;
     }
 }
