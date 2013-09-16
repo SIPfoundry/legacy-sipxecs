@@ -17,8 +17,13 @@ options {
     } 
 %>  };
 };
-
 <%
+  extra = '/etc/named.conf.include'
+  if File.exists?(extra) 
+%>
+<%= File.new(extra).read %><%
+  end 
+
   views.each{|view|
 %>
 view <%=view[:name] %> { <%

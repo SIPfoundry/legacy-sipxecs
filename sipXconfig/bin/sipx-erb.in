@@ -78,7 +78,7 @@ else
 end
 
 $config = YAML::load_file($yaml)
-$io.write render($template)
+$io.write render($template, $config)
 $io.close_write
 
 end
