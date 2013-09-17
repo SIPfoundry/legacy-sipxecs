@@ -83,6 +83,7 @@ UtlBoolean gShutdownFlag = FALSE;
 UtlBoolean gClosingIMDB = FALSE;
 OsMutex* gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
 
+
 int proxy()
 {
     int proxyTcpPort;
@@ -101,7 +102,6 @@ int proxy()
     OsSocket::getHostIp(&ipAddress);
 
     osServiceOptions.getOption(CONFIG_SETTING_BIND_IP, bindIp);
-
     if ((bindIp.isNull()) || !OsSocket::isIp4Address(bindIp))
     {
        bindIp = "0.0.0.0";

@@ -31,10 +31,13 @@
 #include <os/OsLogger.h>
 #include <os/OsLoggerHelper.h>
 #include <statusserver/CustomExceptionHandlers.h>
+<<<<<<< HEAD
 
 //#include <statusserver/CustomExceptionHandlers.h>
 
 #include "sipXecsService/SipXApplication.h"
+=======
+>>>>>>> - added - UC-1155 SIP services crash on Mongo exceptions
 
 //#include <statusserver/CustomExceptionHandlers.h>
 
@@ -80,12 +83,19 @@ main(int argc, char* argv[] )
   // NOTE: this might exit application in case of failure
   SipXApplication::instance().init(argc, argv, rlsData);
 
+<<<<<<< HEAD
   OsExceptionHandler::instance();
+=======
+>>>>>>> - added - UC-1155 SIP services crash on Mongo exceptions
   // register custom exception handling for mongo
   OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_SOCKET_EXCEPTION, boost::bind(&customMongoSocketExceptionHandling, _1));
   OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_CONNECT_EXCEPTION, boost::bind(&customMongoConnectExceptionHandling, _1));
 
+<<<<<<< HEAD
   const OsConfigDb& configDb = SipXApplication::instance().getConfig().getOsConfigDb();
+=======
+  const OsConfigDb& configDb = SipXApplication::instance().getOsServiceOptions().getOsConfigDb();
+>>>>>>> - added - UC-1155 SIP services crash on Mongo exceptions
 
     // Fetch Pointer to the OsServer task object, note that
     // object uses the IMDB so it is important to shut this thread
