@@ -379,5 +379,5 @@ int main(int argc, char* argv[])
 // Stub to avoid pulling in ps library
 int JNI_LightButton(long)
 {
-   return 0;
+  return 0;
 }

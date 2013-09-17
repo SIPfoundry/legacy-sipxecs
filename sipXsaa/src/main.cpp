@@ -361,26 +361,24 @@ int main(int argc, char* argv[])
          saa.getAppearanceGroupFileReader().refresh();
       }
 
-      // Shut down the server.
-      saa.shutdown();
-   }
+    // Shut down the server.
+    saa.shutdown();
+  }
 
-   // Delete the LineMgr Object
-   delete lineMgr;
+  // Delete the LineMgr Object
+  delete lineMgr;
 
-   if (subscribeDb)
-     delete subscribeDb;
+  if (subscribeDb)
+    delete subscribeDb;
 
-   mongo::dbexit(mongo::EXIT_CLEAN);
+  SipXApplication::instance().terminate();
 
-   SipXApplication::instance().terminate();
-
-   // Say goodnight Gracie...
-   return 0;
+  // Say goodnight Gracie...
+  return 0;
 }
 
 // Stub to avoid pulling in ps library
 int JNI_LightButton(long)
 {
-   return 0;
+  return 0;
 }
