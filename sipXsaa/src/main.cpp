@@ -29,9 +29,7 @@
 #include "AppearanceAgent.h"
 #include <sipXecsService/daemon.h>
 #include <os/OsExceptionHandler.h>
-
 #include <sipXecsService/SipXApplication.h>
-
 
 #include <sipXecsService/SipXApplication.h>
 
@@ -197,14 +195,9 @@ int main(int argc, char* argv[])
       CONFIG_LOG_FILE,
       "",
       CONFIG_SETTING_PREFIX,
-<<<<<<< HEAD
       true, // check mongo connection
       true, // increase application file descriptor limits
       SipXApplicationData::ConfigFileFormatConfigDb, // format type for configuration file
-=======
-      true, // daemonize
-      true, // check mongo connection
->>>>>>> XX-8299 Make log level change dynamic
       OsMsgQShared::QUEUE_UNLIMITED,
   };
 
@@ -318,14 +311,8 @@ int main(int argc, char* argv[])
    }
 
    // add the ~~sipXsaa credentials so that sipXsaa can respond to challenges
-<<<<<<< HEAD
    SubscribeDB* subscribeDb = SubscribeDB::CreateInstance();
    EntityDB entityDb(gInfo);
-=======
-   mongoConn = MongoDB::ConnectionInfo::connectionStringFromFile();
-   SubscribeDB subscribeDb(MongoDB::ConnectionInfo(mongoConn, SubscribeDB::NS));
-   EntityDB entityDb(MongoDB::ConnectionInfo(mongoConn, EntityDB::NS));
->>>>>>> XX-8299 Make log level change dynamic
 
    SipLineMgr* lineMgr = addCredentials(entityDb, domainName, realm);
    if(NULL == lineMgr)

@@ -67,7 +67,6 @@ bool SipXApplication::init(int argc, char* argv[], const SipXApplicationData& ap
 
   std::set_terminate(&OsExceptionHandler::catch_global);
 
-
   // Raise the file handle limit to maximum allowable
   if (_appData._increaseResourceLimits)
   {
