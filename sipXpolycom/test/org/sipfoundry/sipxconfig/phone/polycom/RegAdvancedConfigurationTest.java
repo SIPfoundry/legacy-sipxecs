@@ -17,7 +17,6 @@ public class RegAdvancedConfigurationTest extends PolycomXmlTestCase {
     @Override
     protected void setUp() throws Exception {
         setUp4041Tests();
-       
     }
 
     public void testGenerateProfile41() throws Exception {
