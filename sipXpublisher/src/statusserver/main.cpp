@@ -107,6 +107,10 @@ main(int argc, char* argv[] )
   // NOTE: this might exit application in case of failure
   SipXApplication::instance().init(argc, argv, rlsData);
 
+  // register custom exception handling for mongo
+  OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_SOCKET_EXCEPTION, boost::bind(&customMongoSocketExceptionHandling, _1));
+  OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_CONNECT_EXCEPTION, boost::bind(&customMongoConnectExceptionHandling, _1));
+
   const OsConfigDb& configDb = SipXApplication::instance().getOsServiceOptions().getOsConfigDb();
 
     // Fetch Pointer to the OsServer task object, note that

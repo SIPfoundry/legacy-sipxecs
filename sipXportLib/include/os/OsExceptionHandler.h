@@ -119,7 +119,11 @@ public:
   //catch exceptions and call corresponding registered exception handler
   static void catch_global();
 
+<<<<<<< HEAD
 public:
+=======
+private:
+>>>>>>> - added - UC-1155 SIP services crash on Mongo exceptions
   static bool _instantiatedFlag;
   static bool _terminatedFlag;
 

@@ -78,6 +78,7 @@ OsMutex*       gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
  * closes any open connections to the IMDB safely using a mutex lock
  */
 
+
 /** The main entry point to the sipregistrar */
 int
 main(int argc, char* argv[] )
