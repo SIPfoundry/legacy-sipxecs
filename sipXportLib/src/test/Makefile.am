@@ -12,6 +12,7 @@ check_PROGRAMS = testsuite sandbox UtlListPerformance UtlHashMapPerformance
 ## gdb console just before stepping into function in sipXportLib
 testsuite_LDADD = \
     sipxunit/libsipXunit.la \
+    -lmongoclient \
     ../libsipXport.la
 
 testsuite_CXXFLAGS = \
@@ -25,7 +26,7 @@ testsuite_CXXFLAGS = \
 # ORDER NOTE: the utl/UtlLinkTest and utl/UtlChainTest must be before
 #             any test that uses any UtlContainer.
 testsuite_SOURCES = \
-    utl/UtlChainTest.cpp \
+		utl/UtlChainTest.cpp \
     utl/UtlLinkTest.cpp \
     utl/UtlFsmTest.cpp \
     utl/UtlContainableTestStub.cpp \
@@ -59,6 +60,7 @@ testsuite_SOURCES = \
     os/OsCallbackTest.cpp \
     os/OsTimeTest.cpp \
     os/OsEventTest.cpp \
+		os/OsExceptionHandlerTest.cpp \
     os/OsLockTest.cpp \
     os/OsMsgQTest.cpp \
     os/OsMsgQSharedTest.cpp \

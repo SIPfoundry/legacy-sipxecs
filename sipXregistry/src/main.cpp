@@ -36,7 +36,7 @@
 #include <stdexcept>
 #include <execinfo.h>
 #include <mongo/util/assert_util.h>
-
+#include <os/OsExceptionHandler.h>
 // DEFINES
 #define CONFIG_SETTINGS_FILE  "registrar-config"
 #define CONFIG_LOG_FILE       "sipregistrar.log"
@@ -180,55 +180,15 @@ void signal_handler(int sig) {
     }
 }
 
-// copy error information to log. registered only after logger has been configured.
-void catch_global()
-{
-#define catch_global_print(msg)  \
-  std::ostringstream bt; \
-  bt << msg << std::endl; \
-  void* trace_elems[20]; \
-  int trace_elem_count(backtrace( trace_elems, 20 )); \
-  char** stack_syms(backtrace_symbols(trace_elems, trace_elem_count)); \
-  for (int i = 0 ; i < trace_elem_count ; ++i ) \
-    bt << stack_syms[i] << std::endl; \
-  Os::Logger::instance().log(FAC_LOG, PRI_CRIT, bt.str().c_str()); \
-  std::cerr << bt.str().c_str(); \
-  free(stack_syms);
-
-  try
-  {
-      throw;
-  }
-  catch (std::string& e)
-  {
-    catch_global_print(e.c_str());
-  }
-#ifdef MONGO_assert
-  catch (mongo::DBException& e)
-  {
-    catch_global_print(e.toString().c_str());
-  }
-#endif
-  catch (boost::exception& e)
-  {
-    catch_global_print(diagnostic_information(e).c_str());
-  }
-  catch (std::exception& e)
-  {
-    catch_global_print(e.what());
-  }
-  catch (...)
-  {
-    catch_global_print("Error occurred. Unknown exception type.");
-  }
-
-  std::abort();
-}
 
 /** The main entry point to the sipregistrar */
 int
 main(int argc, char* argv[] )
 {
+  // register default exception handler methods
+  // exit for mongo tcp related exceptions, core dump for others
+    OsExceptionHandler::instance();
+
     char* pidFile = NULL;
     for (int i = 1; i < argc; i++) {
         if (strncmp("-v", argv[i], 2) == 0) {
@@ -277,8 +237,7 @@ main(int argc, char* argv[] )
    }
 
    initSysLog(configDb) ;
-
-   std::set_terminate(catch_global);
+   std::set_terminate(&OsExceptionHandler::catch_global);
    
    //
    // Raise the file handle limit to maximum allowable

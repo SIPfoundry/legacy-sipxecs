@@ -44,6 +44,7 @@ nobase_include_HEADERS = \
     os/OsEvent.h \
     os/OsEventMsg.h \
     os/OsExcept.h \
+    os/OsExceptionHandler.h \
     os/OsFileBase.h \
     os/OsFileInfoBase.h \
     os/OsFileIteratorBase.h \

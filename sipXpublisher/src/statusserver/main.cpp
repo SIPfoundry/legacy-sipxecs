@@ -30,6 +30,7 @@
 
 #include <os/OsLogger.h>
 #include <os/OsLoggerHelper.h>
+#include <statusserver/CustomExceptionHandlers.h>
 
 // DEFINES
 // MACROS
@@ -51,53 +52,6 @@ OsMutex*       gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
 using namespace std;
 
 /* ============================ FUNCTIONS ================================= */
-
-// copy error information to log. registered only after logger has been configured.
-void catch_global()
-{
-#define catch_global_print(msg)  \
-  std::ostringstream bt; \
-  bt << msg << std::endl; \
-  void* trace_elems[20]; \
-  int trace_elem_count(backtrace( trace_elems, 20 )); \
-  char** stack_syms(backtrace_symbols(trace_elems, trace_elem_count)); \
-  for (int i = 0 ; i < trace_elem_count ; ++i ) \
-    bt << stack_syms[i] << std::endl; \
-  Os::Logger::instance().log(FAC_LOG, PRI_CRIT, bt.str().c_str()); \
-  std::cerr << bt.str().c_str(); \
-  free(stack_syms);
-
-  try
-  {
-      throw;
-  }
-  catch (std::string& e)
-  {
-    catch_global_print(e.c_str());
-  }
-#ifdef MONGO_assert
-  catch (mongo::DBException& e)
-  {
-    catch_global_print(e.toString().c_str());
-  }
-#endif
-  catch (boost::exception& e)
-  {
-    catch_global_print(diagnostic_information(e).c_str());
-  }
-  catch (std::exception& e)
-  {
-    catch_global_print(e.what());
-  }
-  catch (...)
-  {
-    catch_global_print("Error occurred. Unknown exception type.");
-  }
-
-  std::abort();
-}
-
-
 
 // Initialize the OsSysLog
 void initSysLog(OsConfigDb* pConfig)
@@ -201,6 +155,13 @@ void signal_handler(int sig) {
 int
 main(int argc, char* argv[] )
 {
+    // register default exception handler methods
+    // abort for all type of exceptions
+    OsExceptionHandler::instance();
+    OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_SOCKET_EXCEPTION, boost::bind(&customMongoSocketExceptionHandling, _1));
+    OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_CONNECT_EXCEPTION, boost::bind(&customMongoConnectExceptionHandling, _1));
+
+
     char* pidFile = NULL;
     for(int i = 1; i < argc; i++) {
         if(strncmp("-v", argv[i], 2) == 0) {
@@ -242,7 +203,7 @@ main(int argc, char* argv[] )
        exit(1);
     }
     initSysLog(&configDb) ;
-    std::set_terminate(catch_global);
+    std::set_terminate(&OsExceptionHandler::catch_global);
     
     //
     // Raise the file handle limit to maximum allowable

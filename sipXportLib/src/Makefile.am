@@ -87,6 +87,7 @@ libsipXport_la_SOURCES =  \
     os/OsEvent.cpp \
     os/OsEventMsg.cpp \
     os/OsExcept.cpp \
+    os/OsExceptionHandler.cpp \
     os/OsFileBase.cpp \
     os/OsFileInfoBase.cpp \
     os/OsFileIteratorBase.cpp \
