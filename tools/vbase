@@ -1,0 +1,174 @@
+#!/bin/bash
+
+# vbase - "Virtual" rebase tool to manage dependecies between topic branches
+#
+# Take a topic branch A and roll up all the commits into a single
+# commit and put that commit into a given topic branch B.  We roll up commits
+# so that we can easily track, update or remove the included topic branch.
+#
+# This operation can be conceptualized like a rebase where you rebase one
+# topic branch on another, but it has a few differences:
+#  1. you can add multiple topic branches unlike rebase
+#  2. only direct descendants of a release branch will work in unstable build
+#  3. you can decide where the virtual rebase lives in your topic branch
+#
+# You would use this script if you need changes from another topic branch
+# because your code relies on those changes OR your topic branch conflicts
+# with another branch and it's easier to simply include that other topic 
+# branch.
+#
+# Normally you would only include topic branches if a topic branch is
+# estimated to be merged into the release branch before yours.  If your
+# prediction was wrong and your topic branch goes first, then remove
+# the topic branch before committing to release branch.  The conflict
+# would then move to the other feature branch but they can easily resolve 
+# it by rebasing on the release branch.
+#
+# If you do decide to include another feature branch, then you will need
+# to update the vbase commit on occasion if the topic branch you include
+# changes enough that it introduce conflicts in unstable build again. Much
+# like topic branches rebase against release branch when commits to release
+# branch causes conflicts resolved by rebasing.
+#
+
+declare -a args=($@)
+cmd=${args[0]}
+topic=${args[1]}
+base=${args[2]-release-4.6}
+temp=vbase_temp
+work=`git branch | grep '^*' | cut -c 3-`
+
+# Check CLI args for simple commands operational commands like list
+function checkArgs {
+    if [ "$work" == "$base" ]; then
+	echo "Current branch is same as base directory : ${base}" >&2
+	exit 1
+    fi
+}
+
+# Check CLI args for commands operational commands like add, update or remove
+function checkOperationalArgs {
+    if [ "$work" == "$topic" ]; then
+	echo "Current branch is same as topic branch : ${topic}" >&2
+	exit 1
+    fi
+    
+    if [ "$topic" == "$base" ]; then
+	echo "Topic branch is same as base branch : ${topic}" >&2
+	exit 1
+    fi
+}
+
+# When adding, vbase should not exist
+function checkVbaseDoesntExists {
+    # TODO : Test for any outstanding changes and fail if so
+    if git log ${base}.. | grep "VBASE:${topic}" >/dev/null; then
+	echo "Topic branch ${topic} appears to be already included" >&2
+	vbaseList
+	exit 1
+    fi
+}
+
+function squashTopic {
+    # create a branch with the same name as the topic, but based off
+    # release branch
+    if git branch | grep ${topic}_vbase >/dev/null; then 
+      # CAUTION : No one should be naming branches that end in 
+      # _vbase or this might be a dangerous command
+      git branch -D ${topic}_vbase
+    fi
+    git checkout -b ${topic}_vbase origin/$base || exit 1
+    
+    # otherwise you can commit old gitref
+    git submodule update
+
+    # grab all the commit from topic into one single commit
+    if ! git merge --squash origin/${topic}; then
+	echo "****ERROR: to rebase $topic branch on $base release branch" 1>&2
+      exit 1
+    fi
+
+    git submodule update
+    
+    # save this topic into one commit 
+    git commit -m "VBASE:${topic}" || exit 1
+
+    git checkout $work
+    git submodule update
+}
+
+function rewindOnTempBranch {
+    # TODO : Test for any outstanding changes and fail if so
+    if ! git log ${base}.. | grep "VBASE:${topic}" >/dev/null; then
+	echo "Topic branch ${topic} not found" >&2
+	vbaseList
+	exit 1
+    fi
+ 
+    ref=`git log --pretty=oneline release-4.6.. | grep "VBASE:${topic}" | awk '{print $1}'`
+
+    if git branch | grep ${temp} >/dev/null; then 
+      # CAUTION : No one should be naming branches that end in 
+      # _vbase or this might be a dangerous command
+      git branch -D ${temp}
+    fi
+
+    git checkout -b ${temp} $ref^
+    git submodule update
+}
+
+function cherryPickTopicIntoCurrentBranch {    
+    # ... and bring in the topic. Use cherry-pick do you don't get 
+    # addition merge comment and branches remain detached
+    if ! git cherry-pick `cat .git/refs/heads/${topic}_vbase`; then
+	git status | grep  'both modified' | cut -c 23- | xargs cat
+	cat >&2 <<EOF
+****ERROR: conflict on $topic branch. You cannot edit commit. Instead use
+  rebase -i
+to move commit VBASE:${topic} to first commit on your branch. Use 
+  git checkout ${work}
+to get back to your branch.
+EOF
+	exit 1
+    fi
+}
+
+function rebaseOnTempBranch {
+    git rebase --onto ${temp} $ref $work
+    git submodule update
+}
+
+function vbaseList {
+  git log ${base}..HEAD | grep VBASE
+}
+
+USAGE="USAGE: $0 add|update|remove|list {args...}"
+case $cmd in
+  add )
+    checkOperationalArgs
+    checkVbaseDoesntExists
+    squashTopic
+    cherryPickTopicIntoCurrentBranch
+    ;;
+  update )
+    checkOperationalArgs
+    squashTopic
+    rewindOnTempBranch
+    cherryPickTopicIntoCurrentBranch
+    rebaseOnTempBranch
+    ;;
+  remove )
+    checkOperationalArgs
+    checkVbaseExists
+    rewindOnTempBranch
+    rebaseOnTempBranch
+    ;;
+  list)
+    checkArgs
+    vbaseList
+    ;;
+  *)
+    echo $USAGE >&2
+esac
+
+
