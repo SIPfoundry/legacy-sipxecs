@@ -38,7 +38,7 @@ public class TestAuthenticationProviderTest extends TestCase {
         TestAuthenticationProvider tap = new TestAuthenticationProvider();
         tap.setCoreContext(coreContext);
 
-        TestAuthenticationToken token = new TestAuthenticationToken(new User(), false, false);
+        TestAuthenticationToken token = new TestAuthenticationToken(new UserDetailsImplTest.RegularUser(), false, false);
 
         Authentication authentication = tap.authenticate(token);
         assertNull(authentication);
@@ -67,7 +67,7 @@ public class TestAuthenticationProviderTest extends TestCase {
         TestAuthenticationProvider tap = new TestAuthenticationProvider();
         tap.setCoreContext(coreContext);
 
-        User user = new User();
+        User user = new UserDetailsImplTest.RegularUser();
         user.setUniqueId();
         user.setName("bongo");
 

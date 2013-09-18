@@ -18,18 +18,19 @@ public class UserDetailsImpl implements UserDetails {
     private final String m_canonicalUserName;
     private final Integer m_userId;
     private final String m_userNameOrAlias;
-    private final String m_pintoken;  // MD5-encoded password
+    private final String m_pintoken; // MD5-encoded password
     private final Collection<GrantedAuthority> m_authorities;
     private final String m_userDomain;
     private final boolean m_enabled;
     private final boolean m_ldapManaged;
+    private final boolean m_admin;
 
     /**
      * UserDetails constructor
      *
      * Create an Spring Security UserDetails object based on the sipXconfig User, the
-     * userNameOrAlias that is the userName part of the user's credentials, and the
-     * authorities granted to this user.
+     * userNameOrAlias that is the userName part of the user's credentials, and the authorities
+     * granted to this user.
      */
     public UserDetailsImpl(User user, String userNameOrAlias, Collection<GrantedAuthority> authorities) {
         m_canonicalUserName = user.getUserName();
@@ -40,6 +41,20 @@ public class UserDetailsImpl implements UserDetails {
         m_userDomain = user.getUserDomain();
         m_enabled = user.isEnabled();
         m_ldapManaged = user.isLdapManaged();
+        m_admin = user.isAdmin();
+    }
+
+    public UserDetailsImpl(User user, String userNameOrAlias, Collection<GrantedAuthority> authorities,
+            boolean isAdmin) {
+        m_canonicalUserName = user.getUserName();
+        m_userId = user.getId();
+        m_userNameOrAlias = userNameOrAlias;
+        m_pintoken = user.getPintoken();
+        m_authorities = authorities;
+        m_userDomain = user.getUserDomain();
+        m_enabled = user.isEnabled();
+        m_ldapManaged = user.isLdapManaged();
+        m_admin = isAdmin;
     }
 
     @Override
@@ -85,9 +100,9 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     /**
-     * Return the "canonical" userName.  You can log in with either the canonical userName
-     * or an alias.  To a client of UserDetails, there is no difference, *but* the
-     * canonical userName is used when MD5-encoding the password.
+     * Return the "canonical" userName. You can log in with either the canonical userName or an
+     * alias. To a client of UserDetails, there is no difference, *but* the canonical userName is
+     * used when MD5-encoding the password.
      */
     public String getCanonicalUserName() {
         return m_canonicalUserName;
@@ -99,5 +114,9 @@ public class UserDetailsImpl implements UserDetails {
 
     public boolean isLdapManaged() {
         return m_ldapManaged;
+    }
+
+    public boolean isAdmin() {
+        return m_admin;
     }
 }

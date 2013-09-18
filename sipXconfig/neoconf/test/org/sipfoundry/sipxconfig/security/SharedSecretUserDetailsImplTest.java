@@ -38,7 +38,7 @@ public class SharedSecretUserDetailsImplTest extends TestCase {
 
     }
     public void testSharedSecretUserDetailsImpl() {
-        final User user = new User();
+        final User user = new AdminUser();
         final String userName = "angelina";
         user.setUserName(userName);
 
@@ -58,5 +58,12 @@ public class SharedSecretUserDetailsImplTest extends TestCase {
         assertTrue(actualAuthorities.contains(party));
         assertEquals(userName, details.getUsername());
         assertEquals(hashedSecret, details.getPassword());
+    }
+
+    private static class AdminUser extends User {
+        @Override
+        public boolean isAdmin() {
+            return true;
+        }
     }
 }

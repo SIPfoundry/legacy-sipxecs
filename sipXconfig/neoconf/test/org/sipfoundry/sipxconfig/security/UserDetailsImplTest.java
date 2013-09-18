@@ -21,7 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public class UserDetailsImplTest extends TestCase {
     public void testUserDetailsImpl() {
-        final User user = new User();
+        final User user = new RegularUser();
         final String userName = "angelina";
         user.setUserName(userName);
         final String pintoken = "lara";
@@ -40,5 +40,12 @@ public class UserDetailsImplTest extends TestCase {
         assertTrue(actualAuthorities.contains(party));
         assertEquals(userName, details.getUsername());
         assertEquals(pintoken, details.getPassword());
+    }
+
+    public static class RegularUser extends User {
+        @Override
+        public boolean isAdmin() {
+            return false;
+        }
     }
 }

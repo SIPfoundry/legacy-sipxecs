@@ -112,9 +112,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
     @Override
     protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
             throws AuthenticationException {
-        if (! StringUtils.equals(username, AbstractUser.SUPERADMIN)) {
-            m_systemAuthPolicyCollector.verifyPolicy(username);
-        }
 
         UserDetailsImpl loadedUser;
 
@@ -130,6 +127,11 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         if (loadedUser == null) {
             throw new AuthenticationServiceException(
                     "UserDetailsService returned null, which is an interface contract violation");
+        }
+
+        // all admin users should be able to login with sipXecs password even if LDAP only
+        if (!loadedUser.isAdmin()) {
+            m_systemAuthPolicyCollector.verifyPolicy(username);
         }
 
         if (domain != null && !StringUtils.equals(loadedUser.getUserDomain(), domain)) {

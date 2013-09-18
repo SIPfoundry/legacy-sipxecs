@@ -25,9 +25,10 @@ public class SaltSourceImplTest extends TestCase {
         SaltSource ss = new SaltSourceImpl();
         assertNull(ss.getSalt(new LocationDetailsImpl(new Location())));
 
-        User u = new User();
+        User u = new UserDetailsImplTest.RegularUser();
         u.setUserName("bongo");
         UserDetails user = new UserDetailsImpl(u, "userNameOrAlias", new ArrayList<GrantedAuthority>());
         assertEquals("bongo", ss.getSalt(user));
     }
+
 }

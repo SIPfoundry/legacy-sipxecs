@@ -161,9 +161,9 @@ public class BorderTest extends TestCase {
             authorities.add(User.toAuth());
             if (admin) {
                 authorities.add(Admin.toAuth());
-                m_userDetailsImpl = new UserDetailsImpl(user, "bongo", authorities);
+                m_userDetailsImpl = new UserDetailsImpl(user, "bongo", authorities, true);
             } else {
-                m_userDetailsImpl = new UserDetailsImpl(user, "bongo", authorities);
+                m_userDetailsImpl = new UserDetailsImpl(user, "bongo", authorities, false);
             }
         }
 

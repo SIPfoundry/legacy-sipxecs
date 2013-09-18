@@ -51,7 +51,7 @@ public class TestAuthenticationToken extends AbstractAuthenticationToken {
     public Authentication authenticateToken() {
         User user = (User) getPrincipal();
         Collection<GrantedAuthority> authorities = getAuthorities();
-        UserDetailsImpl detailsImpl = new UserDetailsImpl(user, user.getUserName(), authorities);
+        UserDetailsImpl detailsImpl = new UserDetailsImpl(user, user.getUserName(), authorities, false);
 
         UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(user.getUserName(),
                 null, authorities);

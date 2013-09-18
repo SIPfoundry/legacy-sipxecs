@@ -60,7 +60,7 @@ public class TestAuthenticationProvider implements AuthenticationProvider {
             return null;
         }
 
-        User testUser = new User();
+        User testUser = new RegularUser();
         testUser.setUserName(DUMMY_ADMIN_USER_NAME);
         testUser.setPintoken("");
 
@@ -81,5 +81,12 @@ public class TestAuthenticationProvider implements AuthenticationProvider {
     @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    private static class RegularUser extends User {
+        @Override
+        public boolean isAdmin() {
+            return false;
+        }
     }
 }

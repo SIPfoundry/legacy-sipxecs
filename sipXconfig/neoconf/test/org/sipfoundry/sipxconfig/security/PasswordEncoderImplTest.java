@@ -37,7 +37,7 @@ public class PasswordEncoderImplTest extends TestCase {
         m_passwordEncoder = new PasswordEncoderImpl();
         m_passwordEncoder.setLoginContext(m_loginContext);
 
-        final User user = new User();
+        final User user = new UserDetailsImplTest.RegularUser();
         user.setUserName(USER_NAME);
         m_userDetails = new UserDetailsImpl(user, USER_ALIAS, new ArrayList<GrantedAuthority>());
 

@@ -110,7 +110,7 @@ public class CdrTableTest extends TestCase {
             if (admin) {
                 gas.add(UserRole.Admin.toAuth());
             }
-            m_userDetailsImpl = new UserDetailsImpl(user, "bongo", gas);
+            m_userDetailsImpl = new UserDetailsImpl(user, "bongo", gas, admin);
         }
 
         @Override

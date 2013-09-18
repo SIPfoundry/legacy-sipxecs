@@ -31,7 +31,7 @@ public class UserSessionTest extends TestCase {
                 Collection<GrantedAuthority> gas = new ArrayList<GrantedAuthority>(2);
                 gas.add(UserRole.User.toAuth());
                 gas.add(UserRole.Admin.toAuth());
-                return new UserDetailsImpl(user, "kuku", gas);
+                return new UserDetailsImpl(user, "kuku", gas, true);
             }
         };
 
