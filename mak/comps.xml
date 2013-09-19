@@ -65,6 +65,7 @@
      <packagereq type="mandatory">sipxnortel</packagereq>
      <packagereq type="mandatory">sipxsnom</packagereq>
      <packagereq type="mandatory">sipxunidata</packagereq>
+     <packagereq type="mandatory">sipxcallqueue</packagereq>
    </packagelist>
   </group>
   <group>
