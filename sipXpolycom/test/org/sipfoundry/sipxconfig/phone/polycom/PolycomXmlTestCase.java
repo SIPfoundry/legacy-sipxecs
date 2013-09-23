@@ -9,10 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import static org.easymock.EasyMock.createMock;
+
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.Reader;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,10 +29,20 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Attribute;
 import org.dom4j.Element;
 import org.dom4j.io.DOMReader;
+import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.xml.sax.InputSource;
 
 public abstract class PolycomXmlTestCase extends XMLTestCase {
     private static final String XML_INDENT = "  ";
+    static protected PolycomPhone phone40;
+    static protected PolycomPhone phone41;
+    static protected MemoryProfileLocation location;
+    static protected VelocityProfileGenerator m_pg;
 
     public PolycomXmlTestCase() {
 
@@ -37,6 +52,43 @@ public abstract class PolycomXmlTestCase extends XMLTestCase {
         XMLUnit.setIgnoreAttributeOrder(true);
         XMLUnit.setIgnoreWhitespace(true);
     }
+    
+    protected void setUp4041Tests() {
+        XMLUnit.setIgnoreWhitespace(true);
+
+        PhoneModel model = new PolycomModel();
+        model.setMaxLineCount(6);
+        model.setSupportedFeatures(PolycomXmlTestCase.supportedVVX500);
+        model.setModelId("polycomVVX500");
+        ModelSource<PhoneModel> phoneModelSource = createMock(ModelSource.class);
+
+        phone41 = new PolycomPhone();
+        phone41.setModelId("polycomVVX500");
+        phone41.setPhoneModelSource(phoneModelSource);
+        phone41.setBeanId("polycomVVX500");
+        phone41.setModel(model);
+        phone41.setDeviceVersion(PolycomModel.VER_4_1_X);
+        PhoneTestDriver.supplyTestData(phone41);
+
+        phone40 = new PolycomPhone();
+        phone40.setModelId("polycomVVX500");
+        phone40.setBeanId("polycomVVX500");
+        phone40.setPhoneModelSource(phoneModelSource);
+        phone40.setModel(model);
+        phone40.setDeviceVersion(PolycomModel.VER_4_0_X);
+        PhoneTestDriver.supplyTestData(phone40);
+        
+        location = new MemoryProfileLocation();
+
+        VelocityProfileGenerator pg = new VelocityProfileGenerator();
+        pg.setVelocityEngine(TestHelper.getVelocityEngine());
+        m_pg = pg;
+    }
+    
+    static Set<String> supportedVVX500 = new HashSet<String>(Arrays.asList(new String[] {
+            "disableCallList", "intercom", "voiceQualityMonitoring", "nway-conference", "localConferenceCallHold",
+            "singleKeyPressConference", "VVX_500_CodecPref", "desktopIntegration", "exchangeIntegration", "video"
+        }));
 
     protected void assertPolycomXmlEquals(InputStream controlStream, Reader testReader) throws Exception {
         org.w3c.dom.Document controlDoc = getDocument(controlStream);
@@ -46,6 +98,12 @@ public abstract class PolycomXmlTestCase extends XMLTestCase {
         assertXMLEqual(phoneDiff, true);
     }
 
+    protected void assertPolycomXmlEquals(Reader controlReader, Reader testReader) throws Exception {
+        Diff phoneDiff = new DetailedDiff(new Diff(controlReader, testReader));
+        
+        assertXMLEqual(phoneDiff, true);
+    }
+    
     private org.w3c.dom.Document getDocument(InputStream is) throws Exception {
         DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         org.w3c.dom.Document controlDoc = db.parse(is);

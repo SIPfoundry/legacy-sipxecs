@@ -269,6 +269,10 @@ public class CodecGroupsTest extends TestCase {
         CODECGROUP_SELECTED_MAP.put(CodecGroupType.VVX_1500, VVX_1500_LIST);
         
         ArrayList<String> VVX_500_LIST = new ArrayList<String>();
+        VVX_500_LIST.add("G722");
+        VVX_500_LIST.add("G7221.32kbps");
+        VVX_500_LIST.add("G7221_C.48kbps");
+        VVX_500_LIST.add("G729_AB");
         VVX_500_LIST.add("G711_Mu");
         CODECGROUP_SELECTED_MAP.put(CodecGroupType.VVX_500, VVX_500_LIST);
     }

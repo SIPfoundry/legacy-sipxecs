@@ -346,6 +346,20 @@ device.sec.TLS.customCaCert1.set="1"
 device.sec.TLS.customCaCert1="$cert"
 />
 
+<sec
+sec.TLS.customCaCert.1="$cert"
+sec.TLS.profile.1.deviceCert="Application1"
+sec.TLS.profileSelection.SIP="ApplicationProfile1"
+sec.TLS.profile.1.caCert.application2="0"
+sec.TLS.profile.1.caCert.application3="0"
+sec.TLS.profile.1.caCert.application4="0"
+sec.TLS.profile.1.caCert.application5="0"
+sec.TLS.profile.1.caCert.application6="0"
+sec.TLS.profile.1.caCert.defaultList="0"
+sec.TLS.profile.1.caCert.platform1="0"
+sec.TLS.profile.1.caCert.platform2="0"
+/>
+
 <ptt
 #set ($ptt = $cfg.EndpointSettings.getSetting('ptt'))
 #foreach ($setting in $cfg.getRecursiveSettings($ptt))
@@ -357,4 +371,5 @@ device.sec.TLS.customCaCert1="$cert"
 #foreach ($setting in $cfg.getRecursiveSettings($prov))
           prov.${setting.ProfileName}="$!{setting.Value}"
 #end
+/>
 </polycomConfig>
