@@ -59,5 +59,5 @@ openacd.dist: $(openacd_GIT_SUBMODULE)
 sipxopenacd.dist $(oacd_class_2:=.dist): %.dist : $$($$*_GIT_SUBMODULE)
 	cd $(SRC)/$(PROJ); \
 	  autoreconf -if; \
-	  ./configure; \
+	  ./configure --disable-dep-check; \
 	  make dist

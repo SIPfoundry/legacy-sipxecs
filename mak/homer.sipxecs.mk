@@ -4,5 +4,5 @@ homer_SRPM = homer-$(homer_VER)-$(homer_REV)$(RPM_DIST).src.rpm
 homer_SPEC = $(SRC)/$(PROJ)/homer.spec
 homer_SOURCES = $(BUILDDIR)/$(PROJ)/homer-$(homer_VER).tar.gz
 
-homer.dist : homer.autoreconf homer.configure homer.dist_
-
+homer.dist : homer.autoreconf homer.configure
+	$(MAKE) -C $(PROJ) dist

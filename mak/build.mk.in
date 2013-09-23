@@ -29,12 +29,12 @@ include $(SRC)/*/.sipxecs.mk
 #    $(sipx_core) sipXlang-it
 # - Includes all sipxecs pieces
 #    $(sipx_all)
-$(eval sipx_include = $(shell test -f .modules-include && \
-	cat .modules-include || echo "$(sipx_core)"))
+$(eval sipx_include = \
+	$(if $(wildcard .modules-include),$(shell cat .modules-include),$(sipx_core)))
 
 # Exclude specific packages from building.
-$(eval sipx_exclude = $(shell test -f .modules-exclude && \
-	cat .modules-exclude))
+$(eval sipx_exclude = \
+	$(if $(wildcard .modules-exclude),$(shell cat .modules-exclude)))
 
 sipx := $(filter-out $(sipx_exclude) $(lib),$(sipx_include))
 lib := $(filter-out $(sipx_exclude) $(sipx),$(lib) $(sipx_include))
@@ -42,27 +42,19 @@ lib := $(filter-out $(sipx_exclude) $(sipx),$(lib) $(sipx_include))
 # Only the main rpm
 $(foreach P,$(sipx),$(eval $(P)_TAR = $(P)/$$(call lowercase,$(P))-$(PACKAGE_VERSION).tar.gz))
 
-build_on_change= find $(SRC)/$(PROJ)/ \( ! -regex '.*\/\.git/.*' \) -a  \( -type f -newer $1 -a $(build_on_change_var) \)
-build_on_change_var = $(build_on_change_$(origin $(PROJ)_BUILD_ON_CHANGE))
-build_on_change_file = $($(PROJ)_BUILD_ON_CHANGE)
-DEFAULT_ON_CHANGE = \
-	-not -name configure \
-	-a -not -path '*/autom4te.cache/*' \
-	-a -not -name Makefile.in \
-	-a -not -name ltmain.sh \
-	-a -not -name depcomp \
-	-a -not -name install-sh \
-	-a -not -name config.guess \
-	-a -not -name config.sub \
-	-a -not -name aclocal.m4 \
-	-a -not -name missing \
-	-a -not -name '*~' \
-	-a -not -name config.h.in
-build_on_change_undefined = $(DEFAULT_ON_CHANGE)
+# useful when you have a make command that might not have any targets, this
+# cause no operation. Without it, you trigger make with empty arguments and
+# that triggers help output
+nop :
+	@echo
 
-help.sipx=Build all sipx components including targets autoreconf, configure, all and install targets
-build sipx :
-	$(MAKE) $(foreach P,$(sipx),$(P))
+help.sipx = Build all sipx components starting from autoreconf and finishing with install for each target
+build sipx : $(sipx:=.if-changed);
+
+help-more.sipx.changes = Show which projects have changes since last build.
+sipx.changes:
+	@echo $(foreach P,$(sipx),\
+	   $(shell $(SRC)/tools/dep check $(P) $(SRC)/$(P) $($(P)_DEPS)))
 
 $(foreach P,$(git_custommodules),$(SRC)/$(P)/.git) : $(SRC)/%/.git :
 	cd $(SRC)/custom; \
@@ -78,110 +70,57 @@ $(foreach P,$(git_submodules),$(SRC)/$(P)/.git) : $(SRC)/%/.git :
 	  git submodule init $*; \
 	  git submodule update $*
 
-sipx.git :
-	$(MAKE) -B $(foreach S,$(git_submodules) $(git_custommodules),$($(S)_GIT_SUBMODULE))
-
 .PHONY:$(sipx)
+help.* = Compile and install from source this a specific project. Assumes all dependencies are already compiled and installed.
+$(sipx) : % : %.autoreconf %.configure %.all %.install
+
+help-more.*.changes = Show actual files that have changed for a project that would trigger rebuilding this project.
+$(sipx:=.changes):
+	$(SRC)/tools/dep changes $(PROJ) $(SRC)/$(PROJ) $($(PROJ)_DEPS)
+
+help-more.*.if-changed = Compile project only if files have changed for a project.
 .SECONDEXPANSION:
-help.{sipx}.changes = List changes since last build and install.
-$(sipx:=.changes) :
-	@! test -f $(PROJ)/.installed || $(call build_on_change,$(PROJ)/.installed)
-
-help.{sipx}.only = Compile source for only this project and assume all dependencies are already compiled.  Useful when you want to target specific project and do a full build later on.
-$(sipx:=.only) : %.only : $$($$*_GIT_SUBMODULE)
-	$(MAKE) $*.build && \
-	  touch $(PROJ)/.installed
-
-$(sipx) : $$(filter-out $$(lib),$$($$@_DEPS)) $$($$@_GIT_SUBMODULE) $(SRC)/$$@
-	@if test -f $(PROJ)/.installed ; then \
-	  x=`$(call build_on_change,$(PROJ)/.installed) -printf .`; \
-	  if [ -n "$$x" ] ; then \
-	    rm $(PROJ)/.installed; \
-	  elif [ -n "$($@_DEPS)" ] ; then \
-	    for f in $(addprefix $(PROJ)/,$($@_DEPS=.installed)) ; do \
-	      if test -f $(PROJ)/.installed ; then \
-	        if test -f $$f ; then \
-	          if [ $$f -nt $(PROJ)/.installed ] ; then \
-	            rm $(PROJ)/.installed; \
-	          fi \
-	        fi \
-	      fi \
-	    done \
-	  fi \
-	fi
-	@if ! test -f $(PROJ)/.installed ; then \
-	  $(MAKE) $@.build && \
-	  touch $(PROJ)/.installed; \
-	fi
-
-$(foreach T,$(sipx),$(T).build) : %.build : %.autoreconf %.configure %.all-install;
-
-help.{sipx}.all-install=Run 'make all install' in each target
-$(foreach T,$(sipx),$(T).all-install) : %.all-install : %.all %.install ;
+$(sipx:=.if-changed): %.if-changed :
+	@$(MAKE) nop $(shell $(SRC)/tools/dep check $(PROJ) $(SRC)/$(PROJ) \
+	       $(foreach D,$($(PROJ)_DEPS),$(D)))
 
 # Targets for sipx and lib. Uses pattern %.xyz so libs can implement their own
 # implementation that will override the patterned one. i.e. freeswitch.autoreconf
 # This also means all targets in all other make files cannot create a target that
 # ends in autoreconf, configure or dist.
-help.{sipx}.autoreconf=Run autoreconf on each project
+help-more.*.autoreconf = Run only autoreconf on a single project
 %.autoreconf : $$($$*_GIT_SUBMODULE) $(SRC)/$$*
 	cd $(SRC)/$(PROJ); \
 	  autoreconf -if
 
-help.{sipx}.configure = Run configure on each project
+help-more.*.configure = Run only configure target on a single project
 %.configure :
 	test -d $(PROJ) || mkdir -p $(PROJ)
 	cd $(PROJ); \
 	  $(SRC)/$(PROJ)/configure $(OPTIONS) $(sipx_OPTIONS) $($(PROJ)_OPTIONS)
 
 .SECONDEXPANSION:
-help.{sipx}.dist-only : Force a build of the archive (tarball) for this project
-$(sipx:=.dist-only) : %.dist-only : %.autoreconf %.configure %.dist_;
-%.dist_ :
+help-more.*.dist = Run autoreconf thru to archive (tarball) for a single project
+$(sipx:=.dist) : %.dist : %.autoreconf %.configure
 	$(MAKE) -C $(PROJ) dist
-
-help.{sipx}.dist-changes = List changes since last tarball was built.
-$(sipx:=.dist-changes) :
-	@! test -f $($(PROJ)_TAR) || $(call build_on_change,$($(PROJ)_TAR))
-
-# This first checks if any files have changed in a project, if not, then 
-# checks if any dependent projects were build since this project was
-# build. If so clear the build file
-help.{sipx|lib}.dist = Build archive, typically compressed tar
-$(sipx:=.dist): %.dist : $$(addsuffix .dist,$$(filter-out $$(lib_all),$$($$*_DEPS))) $$($$*_GIT_SUBMODULE)
-	@if test -f $($(PROJ)_TAR) ; then \
-	  x=`$(call build_on_change,$($(PROJ)_TAR)) -printf .`; \
-	  if [ -n "$${x}" ] ; then \
-	    rm $($(PROJ)_TAR); \
-	  fi; \
-	fi
-	@if test -f $($(PROJ)_TAR) ; then \
-	  if [ -n "$($(PROJ)_DEPS)" ]; then \
-	    for t in $(foreach P,$($(PROJ)_DEPS),$($(P)_TAR)) ; do \
-	      if test -f $($(PROJ)_TAR); then \
-	        if [ $$t -nt $($(PROJ)_TAR) ]; then \
-	          rm $($(PROJ)_TAR); \
-	        fi \
-	      fi \
-	    done \
-	  fi \
-	fi
-	@if ! test -f $($(PROJ)_TAR) ; then \
-	  $(MAKE) $(PROJ).dist-only; \
-	fi
 
 # Targets for sipx only. 
 MAKE_COMMANDS = check install clean dist
-$(foreach C,$(MAKE_COMMANDS) all,$(eval help.{sipx}.$(C)=Run make $(C) on each project))
-$(foreach P,$(sipx),$(P).install) :; $(MAKE) -C $(PROJ) install
-$(foreach P,$(sipx),$(P).clean) :
-	$(MAKE) -C $(PROJ) clean
-	! test -f $(PROJ)/.installed || rm $(PROJ)/.installed
+$(foreach C,$(MAKE_COMMANDS) all,$(eval help-more.*.$(C)=Run only the $(C) target for a single project))
+$(sipx:=.install) :
+	$(MAKE) -C $(PROJ) install
+	$(SRC)/tools/dep save $(PROJ) $(SRC)/$(PROJ) $($(PROJ)_DEPS)
 
-$(foreach P,$(sipx),$(P).check) :; $(MAKE) -C $(PROJ) check
+$(sipx:=.clean) :
+	$(MAKE) -C $(PROJ) clean
+	$(SRC)/tools/dep clean $(PROJ)
+
+help.*.check = Run unit tests on for a single project
+$(sipx:=.check) :
+	$(MAKE) -C $(PROJ) check
 
 # projects do not all have an "all" target, they probably should, until then, use
 # no-target default
-$(foreach C,all,$(foreach T,$(sipx),$(T).all)) :
+$(sipx:=.all) :
 	$(MAKE) -C $(PROJ)
 

@@ -42,15 +42,18 @@ test -n "$SIPXPBXUSER" || SIPXPBXUSER=$USER
 AC_ARG_VAR(SIPXPBXGROUP, [The sipX service daemon group name, default is value of SIPXPBXUSER])
 test -n "$SIPXPBXGROUP" || SIPXPBXGROUP=$SIPXPBXUSER
 
-AC_ARG_VAR(PACKAGE_REVISION, [Package revision number, default is pulled from git])
-if test -z "$PACKAGE_REVISION" ; then
-  # Submodules need to add the number of commits of parent plus the number of commits
-  # to their repository. Otherwise a rebuild may not increase revision and fresh rpm
-  # silently not installed.
-  if test -d "${srcdir}/.git" ; then
-    SUBMOD_OPT="-s .."
-  fi
-  PACKAGE_REVISION=`cd ${srcdir} && ./config/revision-gen ${SUBMOD_OPT} ${PACKAGE_VERSION}`
+AC_ARG_VAR(PACKAGE_REVISION, [Package revision number. Default is based on date rpm is built. Allowed values: stable, unstable, developer or supply your own value of command.])
+if test -z "$PACKAGE_REVISION" || test "$PACKAGE_REVISION" == "developer" ; then
+  PACKAGE_REVISION=`date +%Y%m%d%H%M%S`
+else
+  case ${PACKAGE_REVISION} in
+    unstable )
+      PACKAGE_REVISION=0`date +%Y%m%d%H%M%S`
+      ;;
+    stable )
+      PACKAGE_REVISION=`cd ${srcdir} && ./config/revision-gen ${PACKAGE_VERSION}`
+      ;;
+    esac
 fi
 AC_DEFINE_UNQUOTED([PACKAGE_REVISION], "${PACKAGE_REVISION}", [Revion number including git SHA])
 
@@ -61,12 +64,3 @@ AC_SUBST(IFDEF, [ifdef])
 AC_SUBST(IFNDEF, [ifndef])
 AC_SUBST(ENDIF, [endif])
 
-AC_ARG_ENABLE(dep-check,
-  AS_HELP_STRING([--disable-dep-check],
-  [Do not check for dependencies other then those required for dist target]))
-
-AC_DEFUN([SF_MISSING_DEP],[
-  if test "x$enable_dep_check" != "xno"; then
-    AC_MSG_ERROR([$1])
-  fi
-])

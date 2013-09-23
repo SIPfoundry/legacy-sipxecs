@@ -40,10 +40,10 @@ iso-clean: iso-clean-32 iso-clean-64
 	find $(DIST_DIR) -maxdepth 1 \( -name '*.iso' -o -name '*.md5' \) -exec rm {} \;
 	! test -f comps-iso.xml || rm comps-iso.xml
 
-help.iso-clean-all = Delete intermediate files, including files from downloaded from $(ISO_RPM_DOWNLOAD_URL) that will be downloaded again
+help-more.iso-clean-all = Delete intermediate files, including files from downloaded from $(ISO_RPM_DOWNLOAD_URL) that will be downloaded again
 iso-clean-all: iso-clean-32 iso-clean-download-32 iso-clean-64 iso-clean-download-64;
 
-$(foreach B,32 64,$(eval help.iso-$(B) = Build sipXecs $(B)-bit only ISO from base CentOS ISO found in @ISO_DIR@))
+$(foreach B,32 64,$(eval help-more.iso-$(B) = Build sipXecs $(B)-bit only ISO from base CentOS ISO found in @ISO_DIR@))
 iso-% : iso-disc-% \
 	iso-packages-% \
 	iso-update-repo-% \
@@ -82,7 +82,6 @@ iso-update-repo-% : iso-disc-% $(ISO_COMPS)
 	MEDIA_ID=$(shell head -1 $(ISO_DISC)/.discinfo); \
 	  cd $(ISO_DISC); \
 	  @CREATEREPO@ \
-	    @BACKWARD_COMPATIBLE_CREATEREPO_OPTS_FOR_CENTOS@ \
 	    --baseurl="media://$$MEDIA_ID" \
 	    -g $(abspath $(ISO_COMPS)) .
 
@@ -111,7 +110,7 @@ iso-assemble-% :
 iso-md5-% :
 	md5sum $(DIST_DIR)/$(ISO) > $(DIST_DIR)/$(ISO:%.iso=%.md5)
 
-$(foreach B,32 64,$(eval help.iso-check-$(B) = Verify all the rpms on $(B) bit ISO have all nec. rpm according to their specs))
+$(foreach B,32 64,$(eval help-more.iso-check-$(B) = Verify all the rpms on $(B) bit ISO have all nec. rpm according to their specs))
 iso-check-32 : ARCH=i686
 iso-check-% :
 	! test -d $@.test || rm -rf $@.test

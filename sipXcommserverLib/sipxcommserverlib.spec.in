@@ -105,7 +105,6 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc  README   ChangeLog %name.configlog
-%{_datadir}/sipxecs/cfinputs/plugin.d/sipxcommserverlib.cf
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_libdir}/libsipXcommserver.la
 %attr(755,root,root) %{_libdir}/libsipXcommserver.so*
@@ -118,6 +117,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxpackage-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxswadmin-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxcdrpostgres-init
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxcommserverlib.cf
 %{_datadir}/sipxecs/schema/xml.xsd
 %{_datadir}/sipxecs/schema/authrules.xsd
 %{_datadir}/sipxecs/schema/credential.xsd
@@ -125,11 +125,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/sipxecs/schema/subscription.xsd
 %{_datadir}/sipxecs/schema/urlmap.xsd
 
-
 # These should match sipXlib.m4 or at least sent
 # to configure script
 %dir %attr(755,sipx,sipx) %{_sysconfdir}/sipxpbx
-%dir %attr(755,sipx,sipx) %{_datadir}/sipxecs
 %dir %attr(755,sipx,sipx) %{_localstatedir}/log/sipxpbx
 %dir %attr(755,sipx,sipx) %{_localstatedir}/run/sipxpbx
 %dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata

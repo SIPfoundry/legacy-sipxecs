@@ -13,16 +13,16 @@ if test -f ./tarball-revision; then
     cat ./tarball-revision
     exit
 fi
-case $1 in
-  -s )
-    shift
-    sdir=$1
-    shift
-    abs_path=`readlink -f $0`
-    parent=`cd $sdir; $abs_path $@`
-    parent_rev=${parent%.*}
-    ;;
-esac
+
+# projects that are submodules should add to their parent's revision otherwise 
+# if there is a rebuild because a dependency triggered a reinstall then package
+# wouldn't be a new revision number and not trigger reinstall on update
+if test -d ../.git; then
+  abs_path=`readlink -f $0`
+  parent=`cd ..; $abs_path $@`
+  parent_rev=${parent%.*}
+fi
+
 VERSION=$1
 VER_REV=`git describe --abbrev=5 --match="v${VERSION}" HEAD`
 if [ "$?" != "0" ]; then

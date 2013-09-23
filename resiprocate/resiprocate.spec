@@ -11,7 +11,12 @@ Source: %name-%version.tar.gz
 BuildRequires: openssl-devel >= 0.9.7
 BuildRequires: popt
 BuildRequires: boost-devel
+%if 0%{?fedora} >= 19
+#f19 has verison 5
+BuildRequires: libdb-cxx-devel
+%else
 BuildRequires: db4-devel
+%endif
 Requires: openssl >= 0.9.7
 Requires: chkconfig
 Prefix: %_prefix
