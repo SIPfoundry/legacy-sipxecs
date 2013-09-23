@@ -273,7 +273,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
 
 %dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/cfdata
-%{_localstatedir}/sipxdata/cfdata/defaults/apache.cfdat
+%{_localstatedir}/sipxdata/cfdata/defaults/*.cfdat
 %dir %attr(775,sipx,sipx) %{_localstatedir}/sipxdata/reports
 %config(noreplace) %{_localstatedir}/sipxdata/reports/*
 %dir %attr(775,sipx,sipx) %{_localstatedir}/sipxdata/upload

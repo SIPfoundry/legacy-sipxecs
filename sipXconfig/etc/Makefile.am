@@ -39,7 +39,16 @@ dist_cfinputs_DATA = \
 
 cfdefaultsdir = $(SIPX_CFDATA)/defaults
 cfdefaults_DATA = \
-	apache.cfdat
+	apache.cfdat \
+	postgres.cfdat
+
+postgresvars = \
+	$(filter PG%,$(.VARIABLES)) \
+	$(filter POSTGRES%,$(.VARIABLES))
+
+postgres.cfdat : Makefile
+	! test -f $@ || rm $@
+	$(foreach V,$(postgresvars), echo '=$(V)=$($(V))' >> $@;)
 
 apachevars = \
 	$(filter APACHE%,$(.VARIABLES))
@@ -99,4 +108,4 @@ SETTINGS_XML = \
 	  \) \
 	)
 
-CLEANFILES = apache.cfdat
+CLEANFILES = apache.cfdat postgres.cfdat
