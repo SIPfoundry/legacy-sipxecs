@@ -1,25 +1,26 @@
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
 TESTS = \
-	calleralertinfotest \
 	calldestinationtest \
-	msftxferhacktest \
-	nattraversalagenttests \
-	nattraversaltests \
-	transfercontroltest \
-	subscriptionauthtest
+	nattraversaltests
 
 TEST_DEFUNCT = \
 	enforcerulestest \
 	calleraliastest \
 	requestlintertest \
-	emergencyrulestest
+	emergencyrulestest \
+	subscriptionauthtest \
+	transfercontroltest \
+	nattraversalagenttests \
+	msftxferhacktest \
+	calleralertinfotest 
 
 check_PROGRAMS = $(TESTS)
 
 COMMON_CXX_FLAGS = \
 	-DTEST_WORK_DIR=\"@abs_builddir@/work\" \
 	-DTEST_DATA_DIR=\"@abs_top_srcdir@/lib/authplugins/test\" \
+	-DSIPX_LIBDIR=\"@SIPX_LIBDIR@\" \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/lib/authplugins \
 	-I$(top_srcdir)/lib/authplugins/NatTraversalAgent \

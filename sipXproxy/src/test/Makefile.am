@@ -46,15 +46,16 @@ check_PROGRAMS = \
 COMMON_CXX_FLAGS = \
 	-DTEST_WORK_DIR=\"@abs_builddir@/work\" \
 	-DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test\" \
+	-DSIPX_LIBDIR=\"@SIPX_LIBDIR@\" \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/lib/authplugins
 
 COMMON_LIBS = \
    @SIPXUNIT_LIBS@ \
-   @SIPXCOMMSERVERTEST_LIBS@ \
    @SIPXCOMMSERVER_LIBS@ \
-	../libsipXproxy.la
+   -lmongoclient \
+   ../libsipXproxy.la
 
 proxytest_CXXFLAGS = \
 	$(COMMON_CXX_FLAGS)
@@ -63,7 +64,9 @@ proxytest_SOURCES = \
    ForwardRulesTest.cpp \
    CallStateEventBuilder_XMLTest.cpp \
    CallStateEventBuilder_DBTest.cpp \
-   RouteStateTest.cpp \
+   RouteStateTest.cpp
+
+DEFUNCT_proxytest_SOURCES = \
    SipRouterTest.cpp
 
 proxytest_LDFLAGS = \

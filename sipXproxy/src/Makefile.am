@@ -7,7 +7,8 @@ SUBDIRS = . test
 SIPXPROXY_COMMON_CXX_FLAGS = \
 	-I$(top_srcdir)/include \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
-	-DPOSTGRESQL_USER=\"@POSTGRESQL_USER@\"
+	-DPOSTGRESQL_USER=\"@POSTGRESQL_USER@\" \
+	-DSIPX_LIBDIR=\"@SIPX_LIBDIR@\"
 
 bin_PROGRAMS = sipXproxy
 
@@ -65,7 +66,9 @@ libsipXproxy_la_SOURCES = \
    CallStateEventWriter_XML.h \
    CallStateEventWriter_XML.cpp \
    CallStateEventWriter_DB.h \
-   CallStateEventWriter_DB.cpp
+   CallStateEventWriter_DB.cpp \
+   UnifiedProxyPlugin.h \
+   UnifiedProxyPlugin.cpp
 
 libsipXproxy_la_CXXFLAGS = \
 	$(SIPXPROXY_COMMON_CXX_FLAGS)
