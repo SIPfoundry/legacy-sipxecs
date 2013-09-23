@@ -22,6 +22,8 @@
 #include "sipxunit/FileTestContext.h"
 #include "TransferControl.h"
 
+#include "sipXecsService/SipXecsService.h"
+
 class TransferControlTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(TransferControlTest);

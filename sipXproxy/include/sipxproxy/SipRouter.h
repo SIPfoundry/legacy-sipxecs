@@ -18,6 +18,7 @@
 #include <sipXecsService/SipNonceDb.h>
 #include <utl/PluginHooks.h>
 #include <sipxproxy/AuthPlugin.h>
+#include <sipxproxy/UnifiedProxyPlugin.h>
 #include <net/SipBidirectionalProcessorPlugin.h>
 
 // MACROS
@@ -233,6 +234,7 @@ class SipRouter : public OsServerTask
 	 friend class SipBridgeRouter;
 
    EntityDB* mpEntityDb;
+   UnifiedProxyPluginLoader _unifiedPlugin;
 };
 
 /* ============================ INLINE METHODS ============================ */

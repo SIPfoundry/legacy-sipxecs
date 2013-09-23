@@ -19,6 +19,8 @@
 #include "ForwardRules.h"
 #include <sipxproxy/SipRouter.h>
 #include "SubscriptionAuth.h"
+
+#include "sipXecsService/SipXecsService.h"
               
 class SubscriptionAuthTest : public CppUnit::TestCase
 {

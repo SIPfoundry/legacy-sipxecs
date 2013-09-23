@@ -57,108 +57,81 @@ OsPluginContainer::FuncLog OsPluginContainer::logWarning = plugin_log_warning;
 
 
 
-OsPluginLoader::OsPluginLoader()
-{
-  _handle = 0;
-}
-
-OsPluginLoader::~OsPluginLoader()
-{
-  
-  _plugins.cleanUp();
-  unloadPlugin();
-}
-
-bool OsPluginLoader::loadPlugin(const std::string& path)
-{
-  if (_handle)
-  {
-    OS_LOG_ERROR(FAC_PROCESS, path << " is already loaded!");
-    return false;
-  }
-
-  _handle = ::dlopen(path.c_str(), RTLD_LAZY | RTLD_GLOBAL);
-  _path = path;
-  if (_handle)
-  {
-    FuncInitializePlugin initializePlugin = (FuncInitializePlugin)findPluginSymbol("initializePlugin");
-    if (initializePlugin != 0)
-    {
-      OS_LOG_INFO(FAC_PROCESS, "Calling initialize for " << path);
-      return initializePlugin(&_plugins);
-    }
-    else
-    {
-      unloadPlugin();
-      OS_LOG_ERROR(FAC_PROCESS, path << " doesn't have an initialize method exported.");
-      return false;
-    }
-  }
-  return false;
-}
-
-void OsPluginLoader::unloadPlugin()
-{
-  if (_handle)
-  {
-    ::dlclose(_handle);
-    _handle = 0;
-  }
-}
-
-bool OsPluginLoader::isPluginLoaded() const
-{
-  return _handle != 0;
-}
-
-void* OsPluginLoader::findPluginSymbol(const std::string& name)
-{
-  void* result = 0;
-  if (_handle)
-  {
-    result = ::dlsym(_handle, name.c_str());
-  }
-  return result;
-}
-
-const std::string& OsPluginLoader::getPath() const
-{
-  return _path;
-}
-
-OsPluginContainer& OsPluginLoader::plugins()
-{
-  return _plugins;
-}
-
-//
-// The plug-in manager
-//
 OsPluginManager::OsPluginManager()
 {
 }
 
 OsPluginManager::~OsPluginManager()
 {
+  _plugins.cleanUp();
+  
+  for (Handles::iterator iter = _handles.begin(); iter != _handles.end(); iter++)
+    unloadPlugin(*iter);
 }
 
- 
-bool OsPluginManager::loadApplicationPlugin(const std::string& plugin)
+OsApplicationPlugin* OsPluginManager::loadPlugin(const std::string& path)
 {
-  OS_LOG_INFO(FAC_PROCESS, "Loading application plug-in " << plugin)
-  if (!_applicationLoader.loadPlugin(plugin))
+  void* handle = 0;
+  
+  handle = ::dlopen(path.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+  
+  
+  if (handle)
   {
-    OS_LOG_ERROR(FAC_PROCESS, "Unable to load application plug-in " << plugin);
-    return false;
-  }
-
-  if (_applicationLoader.plugins().applications().size() == 0)
-  {
-    OS_LOG_ERROR(FAC_PROCESS, "Unable to load application plug-in. Shared file " << plugin << " registered zero application.");
-    return false;
+    FuncInitializePlugin initializePlugin = (FuncInitializePlugin)findPluginSymbol((intptr_t)handle, "initializePlugin");
+    if (initializePlugin != 0)
+    {
+      OS_LOG_INFO(FAC_PROCESS, "Calling initialize for " << path);
+      
+      OsApplicationPlugin* pPlugin = initializePlugin();
+      if (!pPlugin)
+      {
+        unloadPlugin((intptr_t)handle);
+        OS_LOG_ERROR(FAC_PROCESS, path << " plugin initialization returned false.");
+        return 0;
+      }
+      else
+      {
+        _plugins.registerApplicationPlugin(pPlugin, (intptr_t)handle);
+        _handles.insert((intptr_t)handle);
+        pPlugin->setHandle((intptr_t)handle);
+        pPlugin->setLibraryFile(path);
+        return pPlugin;
+      }
+    }
+    else
+    {
+      unloadPlugin((intptr_t)handle);
+      OS_LOG_ERROR(FAC_PROCESS, path << " doesn't have an initialize method exported.");
+      return 0;
+    }
   }
   
-  return true;
+  return 0;
+}
+
+void OsPluginManager::unloadPlugin(intptr_t handle)
+{
+  if (handle)
+  {
+    ::dlclose((void*)handle);
+    handle = 0;
+  }
+}
+
+void* OsPluginManager::findPluginSymbol(intptr_t handle, const std::string& name)
+{
+  void* result = 0;
+  if (handle)
+  {
+    result = ::dlsym((void*)handle, name.c_str());
+  }
+  return result;
+}
+
+OsPluginContainer& OsPluginManager::plugins()
+{
+  return _plugins;
 }
 
 
