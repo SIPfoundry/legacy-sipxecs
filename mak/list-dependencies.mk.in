@@ -1,10 +1,6 @@
 # Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
 # Licensed to the User under the LGPL license.
 # 
-# Determine software dependencies for building source by analyzing spec files. This does not build 
-# the dependencies themselves, see *-build.mk* for that.
-#
-lib.deps-% : LIB_REWRITE_DEPS = $(foreach P,$(lib),-e '/$(P)/Id')
 
 # grep pulls deps for all distros, here we remove irrellevant ones for each distro
 # some are deps for parts we do not build
@@ -50,35 +46,64 @@ REWRITE_DEPS_suse = \
 	-e '/openldap-devel/d' \
 	-e '/vixiecron/d'
 
+CURRENT_DISTRO := $(shell rpm --eval \
+	'%{?fedora:Fedora}%{!?fedora:%{?suse_version:Suse}%{!?suse_version:CentOS}}')
+
+ifeq ($(CURRENT_DISTRO),CentOS)
+RPMSPEC := $(SRC)/mak/rpmspec-rh6-x86_64
+else
+RPMSPEC := rpmspec
+endif
+
+
+debug:
+	echo $(CURRENT_DISTRO)
+	echo $(RPMSPEC)
+
+# Automatically pull build and runtime deps from a spec file. Caller may need to post
+# process file list to translate/remove/add packages
+SpecDeps = $(shell $(RPMSPEC) -P $1 | \
+	  egrep '^(Build|)Requires:' | \
+	    sed \
+	        -e 's/BuildRequires://' \
+	        -e 's/Requires://' \
+	        -e 's/,/\n/g' | \
+	    awk '{print $$1}' | \
+	    sort -u)
+
 # All fedoras have same dependencies as eachother. Assume future versions do too until proven otherwise.
 $(foreach T,10 11 12 13 14 15 16 17 18 19 20,$(eval REWRITE_DEPS_fedora_$(T) = $(REWRITE_DEPS_fedora)))
 
-help.{1|2}.deps-list = List all dependencies to run a package(s).
-help.{1|2}.deps-build-list = List all dependencies to build package(s).
-help.{1|2}.deps-missing = List all dependencies to run a package(s) that are not currently installed on this system.
-help.{1|2}.deps-missing-build-list = List all dependencies to build a package(s) that are not currently installed on this system.
-
-sipx.deps-% lib.deps-% : DEPS_TARGET=$(lastword $(subst ., ,$@))
-sipx.deps-% lib.deps-% : DEPS_LIST=$(firstword $(subst ., ,$@))
+help.*.deps = List all dependencies to build and run a project.
+help.sipx.deps = List all dependencies for all of sipxecs
+help.*.deps-missing = List all dependencies to build and run a project that are not currently installed on this system.
+help.sipx.deps-missing = List all dependencies for all of sipxecs that are not currently installed on this system.
 # when listing all together, remove interdependencies from the group, make sence when you think about it
-$(foreach T,sipx lib,$(T).deps-list $(T).deps-missing $(T).deps-missing-build-list $(T).deps-build-list) :
-	@$(MAKE) --no-print-directory $(foreach T,$($(DEPS_LIST)),$(T).$(DEPS_TARGET)) | \
-	  sed $(foreach P,$(sipx),-e '/$(P)/Id') $(LIB_REWRITE_DEPS) | \
+sipx.deps sipx.deps-missing : sipx.% :
+	@$(MAKE) --no-print-directory $(sipx:=.$*) 2>/dev/null | \
 	  sort -u
 
-%.deps-missing-build-list : DEPS_LIST_TARGET = deps-build-list
-%.deps-missing : DEPS_LIST_TARGET = deps-list
-$(foreach T,$(all),$(T).deps-missing $(T).deps-missing-build-list):
-	@rpm -q rpm `$(MAKE) --no-print-directory $(PROJ).$(DEPS_LIST_TARGET)` | grep 'is not installed' | awk '{print $$2}'
+$(sipx:=.deps-missing):
+	@rpm -q rpm `$(MAKE) --no-print-directory $(PROJ).deps` | \
+	  grep 'is not installed' | \
+	  awk '{print $$2}'
 
-%.deps-build-list : REQUIRES_TAG = BuildRequires
-%.deps-list : REQUIRES_TAG = Requires
-$(foreach T,$(all),$(T).deps-list $(T).deps-build-list):
-	@proj=$(call lowercase,$(PROJ)); \
-	  grep '^$(REQUIRES_TAG):' $(SRC)/$(PROJ)/$$proj.spec* | \
+.SECONDEXPANSION:
+$(sipx:=.deps): %.deps :
+	@$(MAKE) $($*_GIT_SUBMODULE) $(SRC)/$* &>/dev/null
+	@sed \
+	  -e 's|@PACKAGE\@|SELF|g' \
+	  -e 's|@VERSION\@|0|g' \
+	  -e 's|@PACKAGE_REVISION\@|0|g' \
+	  $(SRC)/$(PROJ)/$(proj).spec* > delme
+	@$(RPMSPEC) -P delme 2>/dev/null | \
+	  egrep '^(Build|)Requires:' | \
 	    sed \
-	        -e 's/$(REQUIRES_TAG)://' \
+	        -e 's/BuildRequires://' \
+	        -e 's/Requires://' \
 	        -e 's/,/\n/g' \
+	        -e '/SELF/d' \
+	        $(foreach P,$(sipx),-e '/$(P)/Id') \
 	        $(REWRITE_DEPS_$(DISTRO_OS)_$(DISTRO_VER)) | \
 	    awk '{print $$1}' | \
 	    sort -u

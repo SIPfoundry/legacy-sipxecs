@@ -20,7 +20,8 @@ AC_SUBST(UPSTREAM)
 
 AC_ARG_VAR(UPSTREAM_URL, [Where to find sipXecs distribution. Default: http://download.sipfoundry.org/pub/sipXecs])
 if test -z "$UPSTREAM_URL"; then
-  UPSTREAM_URL=http://download.sipfoundry.org/pub/sipXecs/${PACKAGE_VERSION}
+  # This repo matches the release branch code slightly more closely then last release
+  UPSTREAM_URL=http://download.sipfoundry.org/pub/release-${PACKAGE_VERSION}-stable/${PACKAGE_VERSION}
 else
   UPSTREAM_URL=`echo $UPSTREAM_URL | sed 's|/$||g'`
 fi
@@ -30,13 +31,13 @@ AC_ARG_WITH(yum-proxy, [--with-yum-proxy send downloads thru caching proxy like 
   AC_SUBST(DOWNLOAD_PROXY_CONFIG_LINE,"proxy=$withval")
   AC_SUBST(WGET_PROXY_OPTS,"http_proxy=$withval")
 
-# Require BASE URL otherwise download proxy will be useless  
+# Require BASE URL otherwise download proxy will be useless
 AC_ARG_VAR(CENTOS_BASE_URL, [Where to find CentOS distribution. Example: http://centos.aol.com])
 if test -z "$CENTOS_BASE_URL"; then
   if test -n "$MIRROR_SITE"; then 
     CENTOS_BASE_URL=$MIRROR_SITE/centos
   else
-    AC_MSG_ERROR([You must provide a value for CENTOS_BASE_URL if you are using a download proxy.\
+    AC_MSG_ERROR([You must provide a value for CENTOS_BASE_URL or MIRROR_SITE if you are using a download proxy.\
  See http://wiki.sipfoundry.org/display/sipXecs/Install+squid+caching+server+to+reduce+build+time for more details.])
   fi
 fi
@@ -46,7 +47,7 @@ if test -z "$FEDORA_BASE_URL"; then
   if test -n "$MIRROR_SITE"; then 
     FEDORA_BASE_URL=$MIRROR_SITE/fedora/linux
   else
-    AC_MSG_ERROR([You must provide a value for FEDORA_BASE_URL if you are using a download proxy.\
+    AC_MSG_ERROR([You must provide a value for FEDORA_BASE_URL or MIRROR_SITE if you are using a download proxy.\
  See http://wiki.sipfoundry.org/display/sipXecs/Install+squid+caching+server+to+reduce+build+time for more details.])
   fi
 fi
@@ -56,7 +57,7 @@ if test -z "$FEDORA_ARCHIVE_BASE_URL"; then
   if test -n "$MIRROR_SITE"; then 
     FEDORA_ARCHIVE_BASE_URL=$MIRROR_SITE/archive/fedora/linux
   else
-    AC_MSG_ERROR([You must provide a value for FEDORA_ARCHIVE_BASE_URL if you are using a download proxy.\
+    AC_MSG_ERROR([You must provide a value for FEDORA_ARCHIVE_BASE_URL or MIRROR_SITE if you are using a download proxy.\
  See http://wiki.sipfoundry.org/display/sipXecs/Install+squid+caching+server+to+reduce+build+time for more details.])
   fi
 fi
@@ -66,11 +67,10 @@ if test -z "$EPEL_BASE_URL"; then
   if test -n "$MIRROR_SITE"; then 
     EPEL_BASE_URL=$MIRROR_SITE/epel
   else
-    AC_MSG_ERROR([You must provide a value for EPEL_BASE_URL if you are using a download proxy.\
+    AC_MSG_ERROR([You must provide a value for EPEL_BASE_URL or MIRROR_SITE if you are using a download proxy.\
  See http://wiki.sipfoundry.org/display/sipXecs/Install+squid+caching+server+to+reduce+build+time for more details.])
   fi
 fi
-
 
 ],)
 
@@ -95,14 +95,22 @@ AC_CHECK_FILE(/bin/rpm,
 ])
 
 AC_ARG_VAR(DISTRO, [What operating system you are compiling for. Default is ${DistroDefault}])
-test -n "${DISTRO}" || DISTRO="${DistroDefault:-centos-6-x86_64}"
+test -n "${DISTRO}" || DISTRO="centos-6-x86_64"
 
-AllDistrosDefault="fedora-16-i386 fedora-16-x86_64 fedora-17-i386 fedora-17-x86_64 centos-6-i386 centos-6-x86_64"
+AllDistrosDefault="fedora-16-i386 fedora-16-x86_64 fedora-17-i386 fedora-17-x86_64 fedora-18-i386 fedora-18-x86_64 fedora-19-i386 fedora-19-x86_64 centos-6-i386 centos-6-x86_64"
 AC_ARG_VAR(ALL_DISTROS, [All distros which using cross distroy compiling (xc.* targets) Default is ${AllDistrosDefault}])
 test -n "${ALL_DISTROS}" || ALL_DISTROS="${AllDistrosDefault}"
 
+SETUP_TARGET=src
+AC_SUBST(SETUP_TARGET)
 AC_ARG_ENABLE(rpm, [--enable-rpm Using mock package to build rpms],
 [
+  SETUP_TARGET=rpm
+
+  # What is installed on host has little to do with what needs to be installed in chroot
+  # so let's automatically disable checking host when building tarballs
+  OPTIONS+=" --disable-dep-check"
+
   AC_ARG_VAR(DOWNLOAD_LIB_CACHE, [When to cache source files that are downloaded, default ~/libsrc])
   test -n "${DOWNLOAD_LIB_CACHE}" || DOWNLOAD_LIB_CACHE=~/libsrc
 
@@ -111,11 +119,6 @@ AC_ARG_ENABLE(rpm, [--enable-rpm Using mock package to build rpms],
 
   AC_ARG_VAR(RPM_DIST_DIR, [Where to assemble final set of RPMs and SRPMs in preparation for publishing to a download server.])
   test -n "${RPM_DIST_DIR}" || RPM_DIST_DIR=repo
-
-  # Allows you to create centos repos on fedora
-  AS_VERSION_COMPARE('0.5.0', [`createrepo --version | awk '{print $NF}'`],
-   [BACKWARD_COMPATIBLE_CREATEREPO_OPTS_FOR_CENTOS="--checksum=sha"],,)
-  AC_SUBST(BACKWARD_COMPATIBLE_CREATEREPO_OPTS_FOR_CENTOS)
 
   if test -n "$CENTOS_BASE_URL"; then
     AC_SUBST(CENTOS_BASE_URL_ON,[])
@@ -149,5 +152,9 @@ AC_ARG_ENABLE(rpm, [--enable-rpm Using mock package to build rpms],
   AC_CONFIG_FILES([mak/mock/fedora-16-x86_64.cfg])
   AC_CONFIG_FILES([mak/mock/fedora-17-i386.cfg])
   AC_CONFIG_FILES([mak/mock/fedora-17-x86_64.cfg])
+  AC_CONFIG_FILES([mak/mock/fedora-18-i386.cfg])
+  AC_CONFIG_FILES([mak/mock/fedora-18-x86_64.cfg])
+  AC_CONFIG_FILES([mak/mock/fedora-19-i386.cfg])
+  AC_CONFIG_FILES([mak/mock/fedora-19-x86_64.cfg])
   AC_CONFIG_FILES([mak/10-rpm.mk:mak/rpm.mk.in])
 ])

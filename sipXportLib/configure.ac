@@ -18,7 +18,7 @@ CHECK_XARGS_REPLACE
 CHECK_MSG_NOSIGNAL
 CHECK_LIBRT
 AX_BOOST_BASE([1.39],,
-  AC_MSG_ERROR([no compatible boost library found]))
+  SF_MISSING_DEP([no compatible boost library found]))
 AC_SEARCH_LIBS([dlopen], [dl])
 CHECK_CPPUNIT
 CHECK_PCRE
