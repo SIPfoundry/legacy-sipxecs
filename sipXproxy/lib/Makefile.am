@@ -1,1 +1,1 @@
-SUBDIRS = authplugins
+SUBDIRS = authplugins unifiedplugins

@@ -18,6 +18,7 @@
 
 
 #include <dlfcn.h>
+#include <stdint.h>
 #include <string>
 #include <vector>
 #include <sstream>
@@ -43,14 +44,22 @@ public:
     _priority = 0;
   }
   virtual ~OsPlugin(){}
-  virtual T* createInstance() = 0;
   const std::string& getPluginName() const{ return _pluginName; };
   const std::string& getPluginSubType() const{ return _pluginSubType; };
   int getPriority(){ return _priority; };
+  
+  void setHandle(intptr_t handle){ _handle = handle; };
+  intptr_t getHandle() const{ return _handle; };
+  
+  void setLibraryFile(const std::string& libraryFile) { _libraryFile = libraryFile; };
+  const std::string& getLibraryFile() const { return _libraryFile; };
+  
 protected:
   std::string _pluginName;
   std::string _pluginSubType;
   int _priority;
+  intptr_t _handle;
+  std::string _libraryFile;
 };
 
 //
@@ -61,7 +70,6 @@ class OsApplicationPluginBase
 public:
   OsApplicationPluginBase(){}
   virtual ~OsApplicationPluginBase(){}
-  virtual bool run(int argc, char** argv) = 0;
 };
 typedef OsPlugin<OsApplicationPluginBase> OsApplicationPlugin;
 typedef std::vector<OsApplicationPlugin*> OsApplicationPluginVector;
@@ -75,7 +83,7 @@ public:
   ~OsPluginContainer()
   {
   }
-  void registerApplicationPlugin(OsApplicationPlugin* pPlugin)
+  void registerApplicationPlugin(OsApplicationPlugin* pPlugin, intptr_t handle)
   {
     _applicationPlugins.push_back(pPlugin);
   }

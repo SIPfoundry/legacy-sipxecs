@@ -4,7 +4,8 @@ SUBDIRS = . NatTraversalAgent test
 
 AUTHPLUGIN_COMMON_CXX_FLAGS = \
 	-I$(top_builddir)/config \
-	-I$(top_srcdir)/include
+	-I$(top_srcdir)/include \
+	-DSIPX_LIBDIR=\"@SIPX_LIBDIR@\"
 
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed

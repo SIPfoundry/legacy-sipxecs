@@ -17,38 +17,12 @@
 #define	OSPLUGINMANAGER_H_INCLUDED
 
 #include <dlfcn.h>
+#include <stdint.h>
 #include <string>
 #include <vector>
+#include <set>
 #include <os/OsPlugin.h>
 
-
-class OsPluginLoader
-{
-public:
-  OsPluginLoader();
-
-  ~OsPluginLoader();
-
-  bool loadPlugin(const std::string& path);
-
-  void unloadPlugin();
-
-  bool isPluginLoaded() const;
-
-  void* findPluginSymbol(const std::string& name);
-
-  const std::string& getPath() const;
-
-  OsPluginContainer& plugins();
-
-protected:
-  OsPluginContainer _plugins;
-
-private:
-  typedef bool (*FuncInitializePlugin)(OsPluginContainer*);
-  std::string _path;
-  void* _handle;
-};
 
 class OsPluginManager
 {
@@ -57,11 +31,29 @@ public:
 
   ~OsPluginManager();
 
-  bool loadApplicationPlugin(const std::string& fileName);
+  OsApplicationPlugin* loadPlugin(const std::string& path);
+
+  void unloadPlugin(intptr_t handle);
+
+
+  void* findPluginSymbol(intptr_t handle, const std::string& name);
+
+  OsPluginContainer& plugins();
+
+protected:
+  OsPluginContainer _plugins;
+  typedef std::set<intptr_t> Handles;
+  Handles _handles;
 
 private:
-  OsPluginLoader _applicationLoader;
+  typedef OsApplicationPlugin* (*FuncInitializePlugin)();
 };
+
+#define EXPORT_APP_PLUGIN(plugin) \
+extern "C" OsApplicationPlugin* initializePlugin() \
+{ \
+  return dynamic_cast<OsApplicationPlugin*>(plugin); \
+} 
 
 #endif	/// OSPLUGINMANAGER_H_INCLUDED
 

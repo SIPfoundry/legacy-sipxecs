@@ -321,6 +321,16 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
       transactionPlugin->announceAssociatedSipUserAgent( this->mpSipUserAgent );
       transactionPlugin->initialize();
    }
+   
+   UtlString unifiedPluginDir;
+   configDb.get("SIPX_PROXY_UNIFIED_PLUGIN_DIR", unifiedPluginDir);
+   if (!unifiedPluginDir.isNull())
+   {
+     //
+     // A unified proxy plug-in directory is configured.  Load it.
+     //
+     _unifiedPlugin.loadUnifiedProxyPlugins(this, mpSipUserAgent, unifiedPluginDir.str());
+   }
 }
 
 // Destructor
@@ -759,6 +769,12 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
             }
             else
             {
+               //
+               // There is no mapping rule.  Let the unified plug-in forwarder
+               // get a handle on where to route the request.
+               //
+               _unifiedPlugin.forwardRequest(normalizedRequestUri, sipRequest);
+              
                // the mapping rules didn't have any route for this,
                // so let the authorization process decide whether or not it can go through
                bRequestShouldBeAuthorized = true;
@@ -876,6 +892,19 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                              );
             }
          }
+         
+         //
+         // Process the unified plug-in authenticators
+         //
+         _unifiedPlugin.authorizeAndModify( authUser,
+                                            normalizedRequestUri,
+                                            routeState,
+                                            method,
+                                            authStatus,
+                                            sipRequest,
+                                            bMessageWillSpiral,                                                          
+                                            rejectReason);
+                
 
          // Based on the authorization decision, either proxy the request or send a response.
          switch (authDecision)
