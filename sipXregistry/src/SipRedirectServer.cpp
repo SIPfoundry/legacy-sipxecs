@@ -124,7 +124,6 @@ SipRedirectServer::initialize(OsConfigDb& configDb
       if( ( mpConfiguredRedirectors[i].bActive =
              ( redirector->initialize(configDb, i, mDefaultDomain) == OS_SUCCESS ) ) )
       {
-         redirector->setUserAgent(mpSipUserAgent);
          int authorityLevel;
          if( bAuthorityLevelDbAvailable         &&
              authorityLevelDb.get( redirectorName, authorityLevel ) == OS_SUCCESS )

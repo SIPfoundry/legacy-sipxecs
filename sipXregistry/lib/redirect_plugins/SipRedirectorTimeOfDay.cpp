@@ -84,8 +84,8 @@ bool SipRedirectorTimeOfDay::from_string(int & value, const UtlString& s)
 RedirectPlugin::LookUpStatus
 SipRedirectorTimeOfDay::lookUp(
    const SipMessage& message,
-   UtlString& requestString,
-   Url& requestUri,
+   const UtlString& requestString,
+   const Url& requestUri,
    const UtlString& method,
    ContactList& contactList,
    RequestSeqNo requestSeqNo,
