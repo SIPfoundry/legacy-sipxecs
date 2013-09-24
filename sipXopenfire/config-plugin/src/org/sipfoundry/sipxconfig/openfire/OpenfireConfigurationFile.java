@@ -40,6 +40,18 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class OpenfireConfigurationFile {
     private static final String SEPARATOR = ", ";
+    //@formatter:off
+    private static final String VCARD_MAPPING_TEMPLATE =
+            "<vCard xmlns\\='vcard-temp'>"
+            + "<FN>{displayName}</FN>"
+            + "<NICKNAME>{%s}</NICKNAME>"
+            + "<TEL><WORK/><VOICE/><NUMBER>{ipPhone}</NUMBER></TEL>"
+            + "<EMAIL><INTERNET/><USERID>{mail}</USERID></EMAIL>"
+            + "<TITLE>{title}</TITLE>"
+            + "<ORG><ORGNAME>{company}</ORGNAME><ORGUNIT>{department}</ORGUNIT></ORG>"
+            + "<PHOTO><TYPE>image/jpeg</TYPE><BINVAL>{jpegPhoto}</BINVAL></PHOTO>"
+            + "</vCard>";
+    //@formatter:on
 
     private Map<String, String> m_properties;
     private Map<String, String> m_nonLdapProperties;
@@ -83,10 +95,12 @@ public class OpenfireConfigurationFile {
             props.put("ldap.host", ldapConnectionParams.getHost());
             props.put("ldap.port", ldapConnectionParams.getPortToUse());
             props.put("ldap.sslEnabled", ldapConnectionParams.getUseTls());
-            props.put("ldap.baseDN", attrMap.getAttribute("searchBase"));
-            props.put("ldap.usernameField", attrMap.getAttribute("imAttributeName"));
-            props.put("ldap.searchFilter", attrMap.getAttribute("searchFilter"));
-
+            props.put("ldap.baseDN", attrMap.getSearchBase());
+            String username = attrMap.getImAttributeName() != null ? attrMap.getImAttributeName() : attrMap
+                    .getIdentityAttributeName();
+            props.put("ldap.usernameField", username);
+            props.put("ldap.searchFilter", attrMap.getSearchFilter());
+            props.put("ldap.vcard-mapping", String.format(VCARD_MAPPING_TEMPLATE, username));
             boolean ldapAnonymousAccess = StringUtils.isBlank(ldapConnectionParams.getPrincipal());
             if (!ldapAnonymousAccess) {
                 props.put("ldap.adminDN", ldapConnectionParams.getPrincipal());
