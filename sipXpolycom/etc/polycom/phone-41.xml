@@ -426,7 +426,7 @@
             <option><value>iLBC.15_2kbps</value></option>
           </multi-enum>
         </type>
-        <value>G722|G7221.32kbps|G7221_C.48kbps|G729_AB</value>
+        <value>G722|G7221.32kbps|G7221_C.48kbps|G729_AB|G711Mu</value>
       </setting>      
     </group>
     <group name="audioProfile">
