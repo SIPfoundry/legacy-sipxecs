@@ -45,18 +45,6 @@
 #define MAX_MEDIA_RELAY_INIT_ATTEMPTS        (3)
 #define NAT_RULES_FILENAME_CONFIG_PARAM      ("NATRULES")
 
-#include <sstream>
-#include <iostream>
-#define LOG_ANY(log, priority) \
-{ \
-  std::ostringstream strm; \
-  strm << log; \
-  Os::Logger::instance().log(FAC_SUPERVISOR, priority, strm.str().c_str()); \
-}
-#define LOG_DEBUG(log) LOG_ANY(log, PRI_DEBUG)
-#define LOG_INFO(log) LOG_ANY(log, PRI_INFO)
-#define LOG_ERROR(log) LOG_ANY(log, PRI_ERR)
-#define LOG_CRITICAL(log) LOG_ANY(log, PRI_CRIT)
 
 // CONSTANTS
 // TYPEDEFS
