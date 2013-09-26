@@ -24,6 +24,7 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -76,7 +77,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     private SipxReplicationContext m_sipxReplicationContext;
     private JobContext m_jobContext;
     private String m_uploadDir;
-    private Set<String> m_registeredIps;
+    private Set<String> m_registeredIps = new HashSet<String>();
     private boolean m_postSetup;
     private final Object m_lock = new Object();
     // No strict host key checking is only for initial handshake. Once that passes, ssh will
