@@ -46,12 +46,23 @@ REWRITE_DEPS_suse = \
 	-e '/openldap-devel/d' \
 	-e '/vixiecron/d'
 
-CURRENT_DISTRO = $(shell rpm --eval \
+CURRENT_DISTRO := $(shell rpm --eval \
 	'%{?fedora:Fedora}%{!?fedora:%{?suse_version:Suse}%{!?suse_version:CentOS}}')
+
+ifeq ($(CURRENT_DISTRO),CentOS)
+RPMSPEC := $(SRC)/mak/rpmspec-rh6-x86_64
+else
+RPMSPEC := rpmspec
+endif
+
+
+debug:
+	echo $(CURRENT_DISTRO)
+	echo $(RPMSPEC)
 
 # Automatically pull build and runtime deps from a spec file. Caller may need to post
 # process file list to translate/remove/add packages
-SpecDeps = $(shell rpmspec -P $1 | \
+SpecDeps = $(shell $(RPMSPEC) -P $1 | \
 	  egrep '^(Build|)Requires:' | \
 	    sed \
 	        -e 's/BuildRequires://' \
@@ -85,7 +96,7 @@ $(sipx:=.deps): %.deps :
 	  -e 's|@VERSION\@|0|g' \
 	  -e 's|@PACKAGE_REVISION\@|0|g' \
 	  $(SRC)/$(PROJ)/$(proj).spec* > delme
-	@rpmspec -P delme 2>/dev/null | \
+	@$(RPMSPEC) -P delme 2>/dev/null | \
 	  egrep '^(Build|)Requires:' | \
 	    sed \
 	        -e 's/BuildRequires://' \

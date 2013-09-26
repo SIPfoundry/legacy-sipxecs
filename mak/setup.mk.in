@@ -80,7 +80,7 @@ rpm-setup-header :
 #   myproject.rpm-setup : fpm-setup
 #
 fpm-setup :
-	echo "gem install --no-document fpm" >> setup.sh
+	echo "gem install --no-rdoc fpm" >> setup.sh
 
 #
 # NOTE: shell fragments below are NOT run by this makefile. These
