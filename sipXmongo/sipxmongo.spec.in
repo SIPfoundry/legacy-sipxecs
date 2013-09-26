@@ -18,7 +18,8 @@ BuildRequires: libxml2
 
 Requires: mongodb >= 2.2
 Requires: sipxsupervisor >= %version
-Requires: pymongo
+# 2.4 is ok, but it was called something different : pymongo
+Requires: python-pymongo >= 2.5
 Requires: python-argparse
 Requires: js
 
