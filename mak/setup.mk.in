@@ -35,18 +35,22 @@ src-setup : $(sipx:=.src-setup);
 
 # If this machine build sipxecs rpms, this file will exists and we should
 # enable installing from it by default
-src-setup-header : BUILD_REPO_ENABLED = $(if $(wildcard /etc/yum.repos.d/build.repo),--enablerepo=build)
-
+BUILD_REPOS =
+src-setup-header : BUILD_REPOS += $(if $(wildcard /etc/yum.repos.d/build.repo),--enablerepo=build)
 # Use the dependency checking targets to assembled yum command line
 src-setup-header : SRC_DEPS = $(shell $(MAKE) --no-print-directory sipx.deps-missing)
 
-src-setup-header :
+src-setup-header : sipxecs.repo
 	echo "$$src_setup_header" > setup.sh
+
+.PHONY: sipxecs.repo
+sipxecs.repo :
+	echo "$$download_sipfoundry_repo_contents" > sipxecs.repo
 
 define src_setup_header
 #!/bin/bash
 
-yum install $(BUILD_REPO_ENABLED) -y $(BUILD_DEPS) $(SRC_DEPS)
+yum install $(BUILD_REPOS) -y $(BUILD_DEPS) $(SRC_DEPS)
 ! test -d @prefix@ && mkdir -p @prefix@
 chown @SIPXPBXUSER@:@SIPXPBXGROUP@ @prefix@
  
@@ -103,6 +107,15 @@ ln -snf $(abspath build.repo) /etc/yum.repos.d/build.repo
 
 endef
 export rpm_setup_header
+
+define download_sipfoundry_repo_contents
+[sipxecs]
+name= sipXecs
+baseurl=http://download.sipfoundry.org/pub/release-$(PACKAGE_VERSION)-stable/$(PACKAGE_VERSION)/$(CURRENT_DISTRO)_$$releasever/$$basearch
+enabled=1
+gpgcheck=0
+endef
+export download_sipfoundry_repo_contents
 
 define build_repo_contents
 [build]
