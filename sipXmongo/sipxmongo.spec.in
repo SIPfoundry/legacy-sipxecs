@@ -18,7 +18,7 @@ BuildRequires: libxml2
 
 Requires: mongodb >= 2.2
 Requires: sipxsupervisor >= %version
-%if 0%{?fedora} <= 17
+%if 0%{?fedora} <= 17 && 0%{?fedora} > 0
 Requires: pymongo 
 %else
 # 2.4 is ok, but it was called something different : pymongo
