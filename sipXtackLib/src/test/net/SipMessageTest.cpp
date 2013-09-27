@@ -25,11 +25,14 @@ class SipMessageTest : public CppUnit::TestCase
 {
       CPPUNIT_TEST_SUITE(SipMessageTest);
       CPPUNIT_TEST(testCopyConstructor);
+      CPPUNIT_TEST(testAddVia);
+      CPPUNIT_TEST(testAddViaField);
       CPPUNIT_TEST(testGetVia);
       CPPUNIT_TEST(testGetViaShort);
       CPPUNIT_TEST(testGetAddrVia);
       CPPUNIT_TEST(testGetNoBranchVia);
       CPPUNIT_TEST(testGetViaPort);
+      CPPUNIT_TEST(testGetViaTransport);
       CPPUNIT_TEST(testGetViaFieldSubField);
       CPPUNIT_TEST(testGetAllowEventField);
       CPPUNIT_TEST(testSetAllowEventField);
@@ -106,6 +109,96 @@ class SipMessageTest : public CppUnit::TestCase
          copiedMsg.getBytes(&msgBytes, &msgLength);
          ASSERT_STR_EQUAL(SimpleMessage, msgBytes.data());
       }
+
+   void testAddVia()
+   {
+     const char* nullMessage = "";
+
+     struct test {
+       const char* domainName;
+       const char* protocol;
+       int port;
+     };
+
+     struct test tests[] = {
+        { "testDomain.com", "WS", 33855},
+        { "testDomain2.com", "WSS", 33856},
+        { "172.90.150.3", "TCP", 6050 },
+        { "10.1.5.6", "UDP", 6050 }
+     };
+
+     SipMessage testMsg( nullMessage, strlen( nullMessage ) );
+
+     UtlString viaAddress;
+     UtlString protocol;
+     int viaPort;
+     int recievedPort;
+     UtlBoolean receivedSet;
+     UtlBoolean maddrSet;
+     UtlBoolean receivePortSet;
+
+     for(unsigned int i = 0; i < sizeof (tests) / sizeof (tests[0]); i++)
+     {
+       testMsg.addVia(tests[i].domainName, tests[i].port, tests[i].protocol);
+       testMsg.getTopVia(&viaAddress,
+                         &viaPort,
+                         &protocol,
+                         &recievedPort,
+                         &receivedSet,
+                         &maddrSet,
+                         &receivePortSet);
+
+       //TEST: check if protocol was correclty added
+       ASSERT_STR_EQUAL(tests[i].protocol,protocol.data());
+
+       //TEST: check if domain name was correclty added
+       ASSERT_STR_EQUAL(tests[i].domainName,viaAddress);
+
+       //TEST: check if port was correclty added
+       CPPUNIT_ASSERT_EQUAL(tests[i].port,viaPort);
+     }
+   }
+
+   void testAddViaField()
+   {
+     struct test {
+       const char* protocol;
+       const char* viaHeader;
+     };
+
+     struct test tests[] = {
+         { "WS", "SIP/2.0/WS sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n" },
+         { "WSS", "SIP/2.0/WSS sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n" },
+         { "TCP", "SIP/2.0/TCP sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n" },
+         { "UDP", "SIP/2.0/UDP sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n" }
+     };
+
+     UtlString viaAddress;
+     UtlString protocol;
+     int viaPort;
+     int recievedPort;
+     UtlBoolean receivedSet;
+     UtlBoolean maddrSet;
+     UtlBoolean receivePortSet;
+
+     const char* nullMessage = "";
+     SipMessage testMsg( nullMessage, strlen( nullMessage ) );
+
+     for(unsigned int i = 0; i < sizeof (tests) / sizeof (tests[0]); i++)
+     {
+       testMsg.addViaField(tests[i].viaHeader);
+       testMsg.getTopVia(&viaAddress,
+                         &viaPort,
+                         &protocol,
+                         &recievedPort,
+                         &receivedSet,
+                         &maddrSet,
+                         &receivePortSet);
+
+       ASSERT_STR_EQUAL(tests[i].protocol, protocol.data());
+     }
+
+   }
 
    void testGetVia()
       {
@@ -361,6 +454,66 @@ class SipMessageTest : public CppUnit::TestCase
          }
       }
 
+   void testGetViaTransport()
+      {
+        struct test {
+          const char* protocol;
+          const char* simpleMessage;
+        };
+
+        struct test tests[]{
+            { "WS","REGISTER sip:sipx.local SIP/2.0\r\n"
+                   "Via: SIP/2.0/WS 10.1.1.3:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n"
+                   "To: sip:sipx.local\r\n"
+                   "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+                   "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+                   "Cseq: 1 REGISTER\r\n"
+                   "Max-Forwards: 20\r\n"
+                   "User-Agent: sipsend/0.01\r\n"
+                   "Contact: me@127.0.0.1\r\n"
+                   "Expires: 300\r\n"
+                   "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+                   "Content-Length: 0\r\n"
+                   "\r\n" },
+            { "WS","REGISTER sip:sipx.local SIP/2.0\r\n"
+                   "Via: SIP/2.0/WS 10.1.1.3:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n"
+                   "To: sip:sipx.local\r\n"
+                   "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+                   "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+                   "Cseq: 1 REGISTER\r\n"
+                   "Max-Forwards: 20\r\n"
+                   "User-Agent: sipsend/0.01\r\n"
+                   "Contact: me@127.0.0.1\r\n"
+                   "Expires: 300\r\n"
+                   "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+                   "Content-Length: 0\r\n"
+                   "\r\n" }
+        };
+
+        UtlString viaAddress;
+        int viaPort;
+        UtlString protocol;
+        int recievedPort;
+        UtlBoolean receivedSet;
+        UtlBoolean maddrSet;
+        UtlBoolean receivePortSet;
+
+        for (unsigned int i = 0; i < sizeof (tests) / sizeof (tests[0]); i++)
+        {
+          SipMessage testMsg( tests[i].simpleMessage, strlen( tests[i].simpleMessage ) );
+          testMsg.getTopVia(&viaAddress,
+                            &viaPort,
+                            &protocol,
+                            &recievedPort,
+                            &receivedSet,
+                            &maddrSet,
+                            &receivePortSet);
+
+          ASSERT_STR_EQUAL(tests[i].protocol, protocol.data());
+
+        }
+      };
+
    void testMultipartBody()
       {
          const char* MultipartBodyMessage =
@@ -459,8 +612,8 @@ class SipMessageTest : public CppUnit::TestCase
             "SIP/2.0 481 Call Leg/Transaction Does Not Exist\r\n"
             "Via: SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-80e0607bee4944e9ecb678caae8638d5;received=10.0.11.37,"
             "SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-379fceb40dc3c5716a3f167d93ceadf4;received=10.0.11.37,"
-            "SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-d05de917f970cd88ea048891ea57f140;received=10.0.11.37,"
-            "SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-09d4d158ad31b82192efa4795b49df90;received=10.0.11.37,"
+            "SIP/2.0/WS 10.0.11.35:5080;branch=z9hG4bK-d05de917f970cd88ea048891ea57f140;received=10.0.11.37,"
+            "SIP/2.0/WSS 10.0.11.35;branch=z9hG4bK-09d4d158ad31b82192efa4795b49df90;received=10.0.11.37,"
             "SIP/2.0/UDP 10.0.8.90:5060;branch=z9hG4bK5fa09267\r\n"
             "From: \"joanne brunet\" <sip:245@jaguar.local>;tag=0002fd3bb5770ab64fcc4d65-34791f85\r\n"
             "To: <sip:*4706@jaguar.local>\r\n"
@@ -475,8 +628,8 @@ class SipMessageTest : public CppUnit::TestCase
             "SIP/2.0 481 Call Leg/Transaction Does Not Exist\r\n"
             "Via: SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-80e0607bee4944e9ecb678caae8638d5;received=10.0.11.37\r\n"
             "Via: SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-379fceb40dc3c5716a3f167d93ceadf4;received=10.0.11.37\r\n"
-            "Via: SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-d05de917f970cd88ea048891ea57f140;received=10.0.11.37\r\n"
-            "Via: SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-09d4d158ad31b82192efa4795b49df90;received=10.0.11.37\r\n"
+            "Via: SIP/2.0/WS 10.0.11.35:5080;branch=z9hG4bK-d05de917f970cd88ea048891ea57f140;received=10.0.11.37\r\n"
+            "Via: SIP/2.0/WSS 10.0.11.35;branch=z9hG4bK-09d4d158ad31b82192efa4795b49df90;received=10.0.11.37\r\n"
             "Via: SIP/2.0/UDP 10.0.8.90:5060;branch=z9hG4bK5fa09267\r\n"
             "From: \"joanne brunet\" <sip:245@jaguar.local>;tag=0002fd3bb5770ab64fcc4d65-34791f85\r\n"
             "To: <sip:*4706@jaguar.local>\r\n"
@@ -490,8 +643,8 @@ class SipMessageTest : public CppUnit::TestCase
          const char* (vias[]) = {
             "SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-80e0607bee4944e9ecb678caae8638d5;received=10.0.11.37",
             "SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-379fceb40dc3c5716a3f167d93ceadf4;received=10.0.11.37",
-            "SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-d05de917f970cd88ea048891ea57f140;received=10.0.11.37",
-            "SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-09d4d158ad31b82192efa4795b49df90;received=10.0.11.37",
+            "SIP/2.0/WS 10.0.11.35:5080;branch=z9hG4bK-d05de917f970cd88ea048891ea57f140;received=10.0.11.37",
+            "SIP/2.0/WSS 10.0.11.35;branch=z9hG4bK-09d4d158ad31b82192efa4795b49df90;received=10.0.11.37",
             "SIP/2.0/UDP 10.0.8.90:5060;branch=z9hG4bK5fa09267",
          };
 

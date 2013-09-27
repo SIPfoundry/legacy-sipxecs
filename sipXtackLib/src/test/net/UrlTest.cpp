@@ -40,6 +40,7 @@ class UrlTest : public CppUnit::TestCase
     CPPUNIT_TEST(testSipBasic);
     CPPUNIT_TEST(testSipBasicWithPort);
     CPPUNIT_TEST(testIpBasicWithBrackets);
+    CPPUNIT_TEST(testTransport);
     CPPUNIT_TEST(testSemiHeaderParam);
     CPPUNIT_TEST(testSipParametersWithComma);
     CPPUNIT_TEST(testSipParametersWithCommaPlusMore);
@@ -347,6 +348,33 @@ public:
         ASSERT_STR_EQUAL_MESSAGE(msg, "sip:rschaaf@sipfoundry.org", getUri(url));
     }
 
+    void testTransport()
+    {
+      struct test
+      {
+        const char* transport;
+        const char* url;
+      };
+
+      struct test tests[] = {
+          { "WS", "<sip:username@10.1.1.225:555;tag=xxxxx;transport=WS;"
+                  "msgId=4?call-Id=call2&cseq=2+INVITE>;fieldParam1=1234;fieldParam2=2345"
+          },
+          { "WSS", "<sip:username@10.1.1.225:555;tag=xxxxx;transport=WSS;"
+                   "msgId=4?call-Id=call2&cseq=2+INVITE>;fieldParam1=1234;fieldParam2=2345"
+          }
+      };
+
+      for(unsigned int i = 0; i < sizeof (tests) / sizeof (tests[0]); i++)
+      {
+        Url url(tests[i].url);
+        sprintf(msg, "%s", tests[i].url);
+
+        //TEST: check if web socket transport was correctly parsed
+        ASSERT_STR_EQUAL_MESSAGE(msg, tests[i].transport, getParam("transport", url));
+      }
+    }
+
    void testSipParametersWithComma()
       {
         Url url;
@@ -430,7 +458,6 @@ public:
         ASSERT_STR_EQUAL_MESSAGE(msg, "sip:user-tester.my/place?&yourplace@sipfoundry.org",
                                  getUri(url));
     }
-
 
     void testLongHostname()
     {
