@@ -14,6 +14,7 @@
  */
 package org.sipfoundry.sipxconfig.dhcp;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -42,7 +43,10 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class DhcpManagerImpl extends SipxHibernateDaoSupport implements DhcpManager, FeatureProvider,
-    ProcessProvider, AddressProvider, FirewallProvider {
+        ProcessProvider, AddressProvider, FirewallProvider {
+    private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
+        DHCPD_ADDRESS
+    });
     private BeanWithSettingsDao<DhcpSettings> m_settingsDao;
 
     @Override
@@ -79,7 +83,7 @@ public class DhcpManagerImpl extends SipxHibernateDaoSupport implements DhcpMana
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
-        if (!type.equals(FEATURE)) {
+        if (!ADDRESSES.contains(type)) {
             return null;
         }
 
