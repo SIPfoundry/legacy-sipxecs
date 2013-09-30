@@ -145,7 +145,7 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
             return result;
         } catch (Exception ex) {
             LOG.error("LDAP preview search failed", ex);
-            throw new UserException("LDAP preview search failed : " + ex.getCause().getMessage());
+            throw new UserException("LDAP preview search failed : " + ex.getMessage());
         }
     }
 

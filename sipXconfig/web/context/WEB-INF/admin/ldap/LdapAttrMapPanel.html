@@ -6,8 +6,15 @@
     <tr jwcid="objectClassPanel">
       <input jwcid="objectClass" />
     </tr>
-    <tr jwcid="filterPanel">
-      <input jwcid="filter" />
+    <tr jwcid="@common/FieldPanel" id="filterPanel"
+    	for="attrMap:filter"
+        field="component:filter"
+        label="message:label.filter"
+        description="message:description.filter">
+    	<input jwcid="filter@TextArea" id="attrMap:filter" 
+    	       value="ognl:attrMap.filter"
+    	       rows="5"
+    	       cols="45"/>
     </tr>
     <tr jwcid="userNamePanel">
       <input jwcid="userName" />
