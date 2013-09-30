@@ -78,6 +78,7 @@ class ManageGlobal extends ManageBase {
     TableSectionElement tbody = query("#globalTable");
     tbody.children.clear();
     builder.lastError(meta['lastConfigError']);    
+    var rows = new List<TableRowElement>();
     for (var type in ['databases', 'arbiters']) {
       if (meta[type] == null) {
         continue;
@@ -87,9 +88,13 @@ class ManageGlobal extends ManageBase {
         builder.nameColumn(row.addCell(), node, server, type);                
         builder.statusColumn(row.addCell(), node, server, type);
         builder.actionColumn(row.addCell(), node, server, type);
-        tbody.children.add(row);
+        rows.add(row);
       });
     }    
+    rows.sort((TableRowElement a, TableRowElement b) {
+      return compare(a.cells[0].text, b.cells[0].text);
+    });    
+    tbody.children.addAll(rows);
     builder.inProgress(meta['inProgress']);
   }
   
@@ -117,7 +122,7 @@ class ManageLocal extends ManageBase {
     loader = new DataLoader(msg, loadTable);
     builder = new UiBuilder(this);
     refresh = new Refresher(query("#localRefreshWidget"), query("#localRefreshButton"), () {
-      var url = api.url("rest/mongoRegional/", "local-test-2.json");
+      var url = api.url("rest/mongoRegional/", "local-test.json");
       loader.load(url);      
     });
   }
@@ -141,6 +146,7 @@ regions to servers if you wish to have a local databbase
       return;
     }      
       
+    var rows = new List<TableRowElement>();
     for (var shard in shards) {
       var count = 0;
       for (var type in ['databases', 'arbiters']) {
@@ -166,13 +172,21 @@ regions to servers if you wish to have a local databbase
             var cmd = (type == 'databases' ? 'DELETE_LOCAL' : 'DELETE_LOCAL_ARBITER'); 
             actions.children.add(new OptionElement(getString('action.DELETE'), cmd, false, false));
           }
-          tbody.children.add(row);
+          rows.add(row);
         });
       }
     }
+    rows.sort((TableRowElement a, TableRowElement b) {
+      int order = compare(a.cells[2].text, b.cells[2].text);
+      if (order != 0) {
+        return order;
+      }
+      return compare(a.cells[0].text, b.cells[0].text);
+    });
+    tbody.children.addAll(rows);
     builder.inProgress(meta['inProgress']);
   }
-
+  
   void onServerAction(String label, String server, String action) {    
     var httpRequest = new HttpRequest();
     httpRequest.open('POST', api.url("rest/mongoRegional/"));
@@ -378,4 +392,12 @@ class UiBuilder {
   }
 }
 
-
+int compare(a, b) {
+  if (a == null) {
+    if (b == null) {
+      return 0;
+    }
+    return -1;
+  }
+  return a.toString().compareTo(b.toString());
+}

@@ -34,7 +34,7 @@ import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
 import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListenerAdvanced;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
@@ -50,6 +50,7 @@ import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.region.Region;
+import org.sipfoundry.sipxconfig.region.RegionManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
@@ -63,13 +64,14 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 public class MongoManagerImpl implements AddressProvider, FeatureProvider, MongoManager, ProcessProvider,
-        SetupListener, FirewallProvider, AlarmProvider, BeanFactoryAware, FeatureListener, DaoEventListener {
+        SetupListener, FirewallProvider, AlarmProvider, BeanFactoryAware, FeatureListener, DaoEventListenerAdvanced {
     private static final Log LOG = LogFactory.getLog(MongoManagerImpl.class);
     private BeanWithSettingsDao<MongoSettings> m_settingsDao;
     private ConfigManager m_configManager;
     private FeatureManager m_featureManager;
     private Map<Integer, MongoReplSetManager> m_shardManagers;
     private MongoReplSetManager m_globalManager;
+    private RegionManager m_regionManager;
     private ListableBeanFactory m_beans;
     private JdbcTemplate m_configJdbcTemplate;
 
@@ -364,13 +366,17 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     public void onDelete(Object entity) {
         if (entity instanceof Region) {
             Region r = (Region) entity;
-            String sql = "select count(*) from feature_local f, location l where "
-                    + "l.region_id = ? and l.location_id = f.location_id and " + "f.feature_id in (?,?)";
-            int nLocalDbs = m_configJdbcTemplate.queryForInt(sql, r.getId(), LOCAL_FEATURE.getId(),
-                    LOCAL_ARBITER_FEATURE.getId());
-            if (nLocalDbs > 0) {
-                throw new UserException("&error.localDbsWithRegion");
-            }
+            checkRegionForDatabase(r);
+        }
+    }
+
+    void checkRegionForDatabase(Region r) {
+        String sql = "select count(*) from feature_local f, location l where "
+                + "l.region_id = ? and l.location_id = f.location_id and " + "f.feature_id in (?,?)";
+        int nLocalDbs = m_configJdbcTemplate.queryForInt(sql, r.getId(), LOCAL_FEATURE.getId(),
+                LOCAL_ARBITER_FEATURE.getId());
+        if (nLocalDbs > 0) {
+            throw new UserException("&error.localDbsWithRegion");
         }
     }
 
@@ -380,5 +386,31 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
 
     public void setConfigJdbcTemplate(JdbcTemplate configJdbc) {
         m_configJdbcTemplate = configJdbc;
+    }
+
+    public void setRegionManager(RegionManager regionManager) {
+        m_regionManager = regionManager;
+    }
+
+    @Override
+    public void onBeforeSave(Object entity) {
+        if (entity instanceof Location) {
+            // Don't allow changing server region if there are regional databases there.
+            // they should be removed first
+            Location l = (Location) entity;
+            Location o = l.getOriginalCopy();
+            if (o != null) {
+                if (o.getRegionId() != null) {
+                    if (!o.getRegionId().equals(l.getRegionId())) {
+                        Region region = m_regionManager.getRegion(o.getRegionId());
+                        checkRegionForDatabase(region);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onAfterDelete(Object entity) {
     }
 }

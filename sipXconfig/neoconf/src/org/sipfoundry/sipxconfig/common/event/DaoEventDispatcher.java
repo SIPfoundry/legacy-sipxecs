@@ -67,11 +67,16 @@ public final class DaoEventDispatcher implements MethodInterceptor {
         switch (m_eventType) {
         case ON_SAVE:
 
-            // XCF-768  Call save first to ensure session initializes correctly (whatever
-            // correctly means) before sending event that may trigger a "redundant object
-            // in session" exception
+            // opportunity to veto by throwing exception here
+            if (entity instanceof Collection) {
+                m_publisher.publishBeforeSaveCollection((Collection) entity);
+            } else {
+                m_publisher.publishBeforeSave(entity);
+            }
+
             response = method.proceed();
 
+            // save happened, live with it now
             if (entity instanceof Collection) {
                 m_publisher.publishSaveCollection((Collection) entity);
             } else {
@@ -80,18 +85,22 @@ public final class DaoEventDispatcher implements MethodInterceptor {
             break;
 
         case ON_DELETE:
+
+            // opportunity to veto by throwing exception here
             if (entity instanceof Collection) {
                 m_publisher.publishDeleteCollection((Collection) entity);
             } else {
                 m_publisher.publishDelete(entity);
             }
 
-            // XCF-768 Delete may have same problem as save, but I wouldn't want to send
-            // an event about an object that has already been deleted, especially in case
-            // there's a listener that wishes to veto delete.  Until there's a problem or
-            // XCF-768 gets resolved once and for all, leave ordering as is.
             response = method.proceed();
 
+            // delete happened, live with it now
+            if (entity instanceof Collection) {
+                m_publisher.publishAfterDeleteCollection((Collection) entity);
+            } else {
+                m_publisher.publishAfterDelete(entity);
+            }
             break;
         default:
             throw new RuntimeException("Unknown event type " + m_eventType);

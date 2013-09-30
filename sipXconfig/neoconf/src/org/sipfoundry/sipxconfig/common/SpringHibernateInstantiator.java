@@ -144,5 +144,4 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
     public void setSessionFactory(SessionFactory sessionFactory) {
         m_sessionFactory = sessionFactory;
     }
-
 }

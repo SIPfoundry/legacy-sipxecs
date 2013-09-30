@@ -73,6 +73,39 @@ public class DaoEventPublisherImpl  implements DaoEventPublisher, BeanFactoryAwa
         }
     }
 
+
+    @Override
+    public void publishBeforeSaveCollection(Collection< ? > entities) {
+        for (Object entity : entities) {
+            publishBeforeSave(entity);
+        }
+    }
+
+    @Override
+    public void publishBeforeSave(Object entity) {
+        for (DaoEventListener i : getListeners()) {
+            if (i instanceof DaoEventListenerAdvanced) {
+                ((DaoEventListenerAdvanced) i).onBeforeSave(entity);
+            }
+        }
+    }
+
+    @Override
+    public void publishAfterDeleteCollection(Collection< ? > entities) {
+        for (Object entity : entities) {
+            publishAfterDelete(entity);
+        }
+    }
+
+    @Override
+    public void publishAfterDelete(Object entity) {
+        for (DaoEventListener i : getListeners()) {
+            if (i instanceof DaoEventListenerAdvanced) {
+                ((DaoEventListenerAdvanced) i).onAfterDelete(entity);
+            }
+        }
+    }
+
     public void publishSave(Object entity) {
         for (Iterator<DaoEventListener> i = getListeners().iterator(); i.hasNext();) {
             DaoEventListener listener = (DaoEventListener) i.next();

@@ -292,7 +292,7 @@ class DataLoader {
       } catch(notJson) {      
       }
       if (userError == null) {
-        msg.internalError();
+        msg.internalError(request.status);
       } else {
         msg.error(userError);
       }
@@ -323,8 +323,8 @@ class UserMessage {
     message(msg, 'user-warning');  
   }
 
-  void internalError() {
-    error("Internal Error");
+  void internalError(int status) {
+    error("${status} Error");
   }
   
   void message(String text, String css) {

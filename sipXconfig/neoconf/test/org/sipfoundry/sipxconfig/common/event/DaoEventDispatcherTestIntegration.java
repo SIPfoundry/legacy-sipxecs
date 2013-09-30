@@ -45,6 +45,7 @@ public class DaoEventDispatcherTestIntegration extends IntegrationTestCase {
     	
     	IMocksControl publisherCtrl = EasyMock.createControl();
 		DaoEventPublisher publisher = publisherCtrl.createMock(DaoEventPublisher.class);
+		publisher.publishBeforeSave(u);
 		publisher.publishSave(u);
         publisherCtrl.replay();
 
