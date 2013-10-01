@@ -232,7 +232,7 @@ public class WatcherConfig {
         return this.locale;
     }
 
-    public void addS2sInfo(XmppS2sInfo xmppS2sInfo) throws Exception {
+    public void setS2sInfo(XmppS2sInfo xmppS2sInfo) throws Exception {
     	this.xmppS2sInfo = xmppS2sInfo;
     }
 

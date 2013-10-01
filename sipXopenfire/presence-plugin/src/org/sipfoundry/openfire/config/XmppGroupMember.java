@@ -5,10 +5,8 @@
  */
 package org.sipfoundry.openfire.config;
 
-import org.apache.log4j.Logger;
 
 public class XmppGroupMember {
-    private static Logger logger = Logger.getLogger(XmppGroupMember.class);    
     private String jid = ""; 
     // NOTE: extend the equals() method if new instance variables get added
     
@@ -26,9 +24,13 @@ public class XmppGroupMember {
     @Override 
     public boolean equals(Object other) {
         //check for self-comparison
-        if ( this == other ) return true;
+        if ( this == other ) {
+            return true;
+        }
 
-        if ( !(other instanceof XmppGroupMember) ) return false;
+        if ( !(other instanceof XmppGroupMember) ) {
+            return false;
+        }
 
         XmppGroupMember otherGroupMember = (XmppGroupMember)other;
         return jid.equals( otherGroupMember.jid );

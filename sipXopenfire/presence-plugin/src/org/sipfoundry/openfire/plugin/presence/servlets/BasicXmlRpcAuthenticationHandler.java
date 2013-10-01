@@ -10,7 +10,7 @@ import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.util.DomainConfiguration;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 
-public class BasicXmlRpcAuthenticationHandler implements AuthenticationHandler{
+public class BasicXmlRpcAuthenticationHandler implements AuthenticationHandler {
 
     private static Logger logger = Logger.getLogger(BasicXmlRpcAuthenticationHandler.class);
     private String m_sharedSecret = null;
@@ -21,23 +21,22 @@ public class BasicXmlRpcAuthenticationHandler implements AuthenticationHandler{
             m_sharedSecret = config.getSharedSecret();
         }
 
-        if(username == null ||password == null) {
+        if (username == null || password == null) {
             logger.warn("Could not authenticate since no username or password was provided");
             return false;
         }
-        if(password.equals(m_sharedSecret)) {
+        if (password.equals(m_sharedSecret)) {
             return true;
         }
         try {
             User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(username);
             if (user == null) {
                 return false;
-            } else {
-                String encodedPassword = Md5Encoder.getEncodedPassword(password);
-                return user.getPintoken().equals(encodedPassword);
             }
+            String encodedPassword = Md5Encoder.getEncodedPassword(password);
+            return user.getPintoken().equals(encodedPassword);
         } catch (Exception ex) {
-            logger.warn("Could not authenticate "+username);
+            logger.warn("Could not authenticate " + username);
             return false;
         }
     }

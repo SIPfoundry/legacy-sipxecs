@@ -13,7 +13,7 @@ plugin_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(plugin_PKGS)) \
 	@OPENFIRE_HOME@/lib/openfire.jar
 	
-plugin_JAR = sipx-openfire-presence-plugin.jar
+plugin_JAR = sipx-openfire-plugin.jar
 
 jardir = @SIPX_JAVADIR@/sipXcommons
 jar_DATA = $(plugin_JAR)

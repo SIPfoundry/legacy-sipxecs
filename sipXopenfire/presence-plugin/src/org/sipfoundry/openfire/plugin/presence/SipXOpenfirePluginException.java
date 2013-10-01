@@ -6,15 +6,20 @@
 package org.sipfoundry.openfire.plugin.presence;
 
 public class SipXOpenfirePluginException extends RuntimeException {
-    
+
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
     public SipXOpenfirePluginException(Exception cause) {
         super(cause);
     }
-    
+
     public SipXOpenfirePluginException(String msg, Exception cause) {
         super(msg,cause);
     }
-    
+
     public SipXOpenfirePluginException(String msg) {
         super(msg);
     }

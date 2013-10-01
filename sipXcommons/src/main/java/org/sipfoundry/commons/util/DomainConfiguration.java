@@ -22,12 +22,12 @@ import org.apache.log4j.Logger;
  *
  */
 public class DomainConfiguration {
-    private static String m_domainConfigFile;
-    private static String m_sipDomainName;
-    private static String m_sipRealm;
-    private static String m_sharedSecret;
+    private static final Logger logger = Logger.getLogger(DomainConfiguration.class);
 
-    private static Logger logger = Logger.getLogger(DomainConfiguration.class);
+    private final String m_domainConfigFile;
+    private String m_sipDomainName;
+    private String m_sipRealm;
+    private String m_sharedSecret;
 
     public DomainConfiguration(String domainConfigFilename) {
         m_domainConfigFile = domainConfigFilename;
@@ -55,31 +55,31 @@ public class DomainConfiguration {
 	}
     }
 
-    public static String getSipRealm() {
+    public String getSipRealm() {
         return m_sipRealm;
     }
 
-    public static String getSipDomainName() {
+    public String getSipDomainName() {
         return m_sipDomainName;
     }
 
-    public static String getSharedSecret() {
+    public String getSharedSecret() {
         return m_sharedSecret;
     }
 
-    private static void setSipRealm(String sipRealm) {
+    private void setSipRealm(String sipRealm) {
         m_sipRealm = sipRealm;
     }
 
-    private static void setSipDomainName(String sipDomainName) {
+    private void setSipDomainName(String sipDomainName) {
         m_sipDomainName = sipDomainName;
     }
 
-    private static void setSharedSecret(String sharedSecret) {
+    private void setSharedSecret(String sharedSecret) {
         m_sharedSecret = sharedSecret;
     }
 
-    private static void parseDomainConfig(Properties domainConfig) {
+    private void parseDomainConfig(Properties domainConfig) {
         setSipRealm(domainConfig.getProperty("SIP_REALM"));
         setSipDomainName(domainConfig.getProperty("SIP_DOMAIN_NAME"));
         setSharedSecret(domainConfig.getProperty("SHARED_SECRET"));

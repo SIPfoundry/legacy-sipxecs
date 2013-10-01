@@ -17,10 +17,10 @@ jardir = @SIPX_JAVADIR@/sipXopenfire/plugins
 jar_DATA = \
 	$(presence_JAR)
 
-plugin_JAR = src/sipx-openfire-presence-plugin.jar
+plugin_JAR = src/sipx-openfire-plugin.jar
 
 # presence jar include other jars. more like a war.
-presence_JAR = sipx-openfire-presence.jar
+presence_JAR = sipx-openfire.jar
 presence_FILES = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(plugin_JAR_RT_PKGS)) \
 	$(plugin_JAR)

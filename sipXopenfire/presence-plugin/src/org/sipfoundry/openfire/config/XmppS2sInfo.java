@@ -25,8 +25,8 @@ public class XmppS2sInfo {
 	private boolean s2sAnyCanConnect;
 	private int s2sSessionIdleTimeInMinutes;
 
-	private Map<String, XmppS2sPolicy> xmppS2sAllowedPolicy = new HashMap<String, XmppS2sPolicy>();
-	private Map<String, XmppS2sPolicy> xmppS2sDisallowedPolicy = new HashMap<String, XmppS2sPolicy>();
+	private final Map<String, XmppS2sPolicy> xmppS2sAllowedPolicy = new HashMap<String, XmppS2sPolicy>();
+	private final Map<String, XmppS2sPolicy> xmppS2sDisallowedPolicy = new HashMap<String, XmppS2sPolicy>();
 
 	private static Logger log = Logger.getLogger(XmppS2sInfo.class);
 
@@ -259,8 +259,8 @@ public class XmppS2sInfo {
 		}
 	}
 
-	public String toString() {
-
+    @Override
+    public String toString() {
 		return new StringBuilder(" active=").append(this.getS2sServerActive()).append(" remPort=")
 				.append(this.getS2sRemotePort()).append(" idleDisc=").append(
 						this.getS2sDisconnectOnIdle()).append(" anyConn=").append(

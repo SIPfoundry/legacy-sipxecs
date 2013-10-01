@@ -27,7 +27,7 @@ public class XmlRpcChatRoomManagementProvider extends XmlRpcProvider {
      * @param userName -- userName
      *
      */
-    public Map<String, Object> getMembers(String subdomain, String roomName) {
+    public static Map<String, Object> getMembers(String subdomain, String roomName) {
         try {
             Collection<JID> members = getPlugin().getMembers(subdomain,roomName);
             Map<String, Object> retval = createSuccessMap();
@@ -44,7 +44,7 @@ public class XmlRpcChatRoomManagementProvider extends XmlRpcProvider {
 
 
 
-    public Map<String, Object> kickMember(String subdomain, String roomName, String password, String member,
+    public static Map<String, Object> kickMember(String subdomain, String roomName, String password, String member,
             String reason) {
         try {
             Map<String, Object> retval = createSuccessMap();
@@ -56,7 +56,7 @@ public class XmlRpcChatRoomManagementProvider extends XmlRpcProvider {
         }
     }
 
-    public Map<String, Object> inviteOccupant(String subdomain, String roomName,
+    public static Map<String, Object> inviteOccupant(String subdomain, String roomName,
             String member, String password, String reason ) {
         try {
             Map<String, Object> retval = createSuccessMap();

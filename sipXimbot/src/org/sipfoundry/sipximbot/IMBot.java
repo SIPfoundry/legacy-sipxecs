@@ -340,15 +340,15 @@ public class IMBot {
         String jid = getjid(user);
         if(jid == null) {
             return null;
-        } else {
-            Presence pres = m_roster.getPresence(jid);
-
-            if(pres != null) {
-                return pres.getStatus();
-            } else {
-                return null;
-            }
         }
+
+        Presence pres = m_roster.getPresence(jid);
+
+        if (pres != null) {
+            return pres.getStatus();
+        }
+
+        return null;
     }
 
     static public UserPresence getUserPresence(User user) {
@@ -357,17 +357,6 @@ public class IMBot {
 
         if (ConfBasicThread.inConferenceSince(user.getUserName()) != null) {
             return UserPresence.INCONFERENCE;
-        }
-
-        PhonePresence phonePresence;
-        try {
-            phonePresence = new PhonePresence();
-            phonePresence.isUserOnThePhone(user.getUserName());
-            if(phonePresence.isUserOnThePhone(user.getUserName())) {
-                return UserPresence.ONPHONE;
-            }
-        } catch (Exception e) {
-
         }
 
         String jid = getjid(user);
@@ -463,6 +452,3 @@ public class IMBot {
         imThread.start();
     }
 }
-
-
-

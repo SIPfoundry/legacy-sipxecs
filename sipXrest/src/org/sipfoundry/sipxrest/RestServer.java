@@ -176,6 +176,7 @@ public class RestServer {
     }
 
     public static String getRealm() {
-        return DomainConfiguration.getSipRealm();
+        DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir") + "/domain-config");
+        return config.getSipRealm();
     }
 }

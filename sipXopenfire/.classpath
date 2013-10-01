@@ -10,24 +10,10 @@
 	<classpathentry kind="src" path="vcard-synchserver/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/activation.jar"/>
-	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/bouncycastle.jar"/>
-	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/commons-el.jar"/>
-	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/hsqldb.jar"/>
-	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/jasper-compiler.jar"/>
-	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/jasper-runtime.jar"/>
-	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/jdic.jar"/>
-	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/jtds.jar"/>
-	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/mail.jar"/>
-	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/mysql.jar"/>
-	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/openfire.jar"/>
-	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/postgres.jar"/>
-	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/servlet.jar"/>
-	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/startup.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-neoconf"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
-	<classpathentry kind="var" path="OPENFIRE_ROOT"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-web"/>
 	<classpathentry kind="var" path="SIPX_JAVADIR/sipXecs/sipXcommons/sipxsqaclient.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/openfire"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

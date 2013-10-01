@@ -15,17 +15,22 @@ import javax.servlet.http.HttpServletResponse;
 import org.sipfoundry.openfire.plugin.presence.XmlRpcChatRoomManagementProvider;
 
 public class ChatRoomManagementServlet extends SipXOpenfireServlet{
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
+    @Override
     public void init(ServletConfig servletConfig) throws ServletException {
-        super.init(servletConfig, 
-                XmlRpcChatRoomManagementProvider.SERVER, 
+        super.init(servletConfig,
+                XmlRpcChatRoomManagementProvider.SERVER,
                 XmlRpcChatRoomManagementProvider.SERVICE_NAME,
                 XmlRpcChatRoomManagementProvider.class);
     }
-    
+
+    @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         super.doPost(request,response);
     }
-
-
 }
