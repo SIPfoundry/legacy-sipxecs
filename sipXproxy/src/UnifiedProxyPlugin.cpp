@@ -59,11 +59,9 @@ bool string_ends_with(const std::string& str, const char* key)
 // 
 std::string boost_file_name(const boost::filesystem::path& path)
 {
-#if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
-  return path.filename().native();
-#else
-  return path.filename();
-#endif
+  std::ostringstream fileName;
+  fileName << path.filename();
+  return fileName.str();
 }
 
 //
@@ -72,11 +70,9 @@ std::string boost_file_name(const boost::filesystem::path& path)
 // 
 std::string boost_path(const boost::filesystem::path& path)
 {
-#if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
-  return path.native();
-#else
-  return path.string();
-#endif
+  std::ostringstream pathStr;
+  pathStr << path;
+  return pathStr.str();
 }
 
 

@@ -5,4 +5,5 @@ nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 nobase_include_HEADERS = \
 	sipxproxy/SipRouter.h \
 	sipxproxy/RouteState.h \
-	sipxproxy/AuthPlugin.h
+	sipxproxy/AuthPlugin.h \
+	sipxproxy/ReproGlue.h

@@ -75,9 +75,9 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    ,mpForwardingRules(&forwardingRules)
    ,mAuthPlugins(AuthPlugin::Factory, AuthPlugin::Prefix)
    ,mTransactionPlugins(SipBidirectionalProcessorPlugin::Factory, SipBidirectionalProcessorPlugin::Prefix)
-   ,mpEntityDb(0)
    ,mEnsureTcpLifetime(FALSE)
    ,mRelayAllowed(TRUE)
+   ,mpEntityDb(0)
 
 {
    // Get Via info to use as defaults for route & realm

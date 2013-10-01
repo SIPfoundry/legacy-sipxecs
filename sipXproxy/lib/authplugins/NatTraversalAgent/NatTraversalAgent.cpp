@@ -178,6 +178,35 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
    mpSubscribeDb = new SubscribeDB(MongoDB::ConnectionInfo::globalInfo());
 }
 
+
+static bool hasWebSocketVia(SipMessage& message)
+{
+  //
+  // Check the bottom via if it is a WS or WSS transport
+  //
+   UtlString viaValue;
+   int viaCount;
+   viaCount = message.getCountHeaderFields(SIP_VIA_FIELD);
+   if ( viaCount && message.getViaFieldSubField( &viaValue, viaCount - 1 ) ) 
+   {
+     viaValue.toUpper();
+     if (viaValue.first("/WS") != UTL_NOT_FOUND)
+       return true;
+   }
+   else
+   {
+     viaCount = message.getCountHeaderFields(SIP_SHORT_VIA_FIELD);
+     if ( viaCount && message.getViaFieldSubField( &viaValue, viaCount - 1 ) ) 
+     {
+       viaValue.toUpper();
+       if (viaValue.first("/WS") != UTL_NOT_FOUND)
+         return true;
+     }
+   }
+   
+   return false;
+}
+
 AuthPlugin::AuthResult
 NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticated identity of the
                                                             *   request originator, if any (the null
@@ -196,10 +225,14 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                                       UtlString&  reason      ///< rejection reason
                                       )
 {
-    bool undoChangesToRequestUri = true;
+   bool undoChangesToRequestUri = true;
    OsWriteLock lock( mMessageProcessingMutex );
 
    AuthResult result = CONTINUE;
+   
+   if (hasWebSocketVia(request))
+     return CONTINUE;
+    
 
    // do not look at request if we are still spiraling.  We are only interested in requests
    // that are about to be sent to the request target.
@@ -452,6 +485,10 @@ void NatTraversalAgent::handleOutputMessage( SipMessage& message,
                                              const char* address,
                                              int port )
 {
+  
+   if (hasWebSocketVia(message))
+     return;
+  
    OsWriteLock lock( mMessageProcessingMutex );
    CallTracker* pCallTracker = 0;
 
