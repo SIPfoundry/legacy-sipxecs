@@ -32,7 +32,7 @@ const char* MongoDBTool::pWhereConfOpt                                = "where";
 const char* MongoDBTool::pNodeRegistrarDbName                         = "node.registrar";
 const char* MongoDBTool::pImdbEntityDbName                            = "imdb.entity";
 
-AppConfig::AppConfig(int argc, char** pArgv) : OsServiceOptions(argc, pArgv, "sipXregMocTool", "1.0", "Ezuce Inc. All Rights Reserved"),
+AppConfig::AppConfig(int argc, char** pArgv) : OsServiceOptions(argc, pArgv, "sipXregTool", "1.0", "Ezuce Inc. All Rights Reserved"),
                                               _hasOptListEntries(false),
                                               _hasOptDeleteEntries(false),
                                               _hasOptMultipleLines(false),
