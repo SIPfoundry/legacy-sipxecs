@@ -49,6 +49,10 @@ public class ResourceRecords {
         m_records.add(record);
     }
 
+    public void addRecords(Collection<ResourceRecord> records) {
+        m_records.addAll(records);
+    }
+
     public void addAddresses(Collection<Address> addresses) {
         if (addresses != null) {
             for (Address a : addresses) {

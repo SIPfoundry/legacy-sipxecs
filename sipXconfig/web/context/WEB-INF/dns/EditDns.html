@@ -1,19 +1,121 @@
-<div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
-  <span jwcid="@common/QuickHelp" value="message:quick.help" />
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'settings', 'test'}" selectedTab="ognl:tab" />
-  <div id="settings-content">
-    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Mongoui</title>
+<link rel="stylesheet"
+  href="../../../src/org/sipfoundry/sipxconfig/site/skin/layout.css">
+<link rel="stylesheet"
+  href="../../../src/org/sipfoundry/sipxconfig/site/skin/colors.css">
+<style>
+  /* only for development - stripped in product*/
+  body {
+    margin-left: 250px;
+    margin-top: 86px;
+  }
+</style>
+</head>
+<body jwcid="$content$">
+  <div jwcid="@common/Border" id="content" restricted="false"
+    borderTitle="ognl:borderTitle">
+    <ul id="leftNavAbsolute" class="htabs">
+      <li id="settings-tab" class="tab active">
+        <a id="settings-tab-link" href="#"><span key="tab.settings">Settings</span></a>
+      </li>
+      <li id="failover-tab" class="tab">
+        <a id="failover-tab-link" href="#"><span key="tab.failover">Fail-over</span></a>
+      </li>
+      <li id="views-tab" class="tab">
+        <a id="views-tab-link" href="#"><span key="tab.views">Record View</span></a>
+      </li>
+      <li id="custom-tab" class="tab">
+        <a id="custom-tab-link" href="#"><span key="tab.custom">Custom</span></a>
+      </li>
+      <li id="advisor-tab" class="tab">
+        <a id="advisor-tab-link" href="#"><span key="tab.advisor">Advisor</span></a>
+      </li>
+    </ul>
+    <div id="settings">
+      <div class="help">
+          <span key="help.settings">Setting help</span>
+      </div>
+      <span jwcid="@common/ErrorMsg"></span>
+      <form jwcid="form@Form" delegate="bean:validator">
+        <fieldset jwcid="@setting/SettingsFieldset"
+            settings="ognl:settings.getSettings()"></fieldset>        
+        <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
+            listener="listener:apply">
+        </ul>
+      </form>
+    </div>
+    <div id="advisor" style="display: none;">
+       <span jwcid="@dns/DnsTest"></span>    
+    </div>
+    <div id="views" style="display: none;">
+      <div class="help">
+          <span key="help.views">Views help</span>
+      </div>
+      <p id="views-message"></p>
+      <ul class="component-links">
+        <li><a id="add-view" href="EditDnsView.html"><span key="button.add-view">Add Record View</span></a></li>
+      </ul>         
+      <table class="component">
+        <thead>
+          <tr>
+            <th class="select-column"></th>
+            <th><span key="name">Name</span></th>
+            <th><span key="label.plan">Plan</span></th>
+            <th><span key="label.region">Region</span></th>
+           </tr>
+        </thead>
+        <tbody id="view-items">
+        </tbody>
+      </table>
+      <ul class="component-links">
+        <li><button id="views-delete"><span key="button.delete">Delete</span></button></li>
+        <li><button id="views-up"><span key="button.moveUp">Move Up</span></button></li>
+        <li><button id="views-down"><span key="button.moveDown">Move Down</span></button></li>
+      </ul>
+    </div>
+    <div id="failover" style="display: none;">
+      <div class="help">
+          <span key="help.failover">Failover help</span>
+      </div>
+      <p id="failover-message"></p>
+      <ul class="component-links">
+        <li><a id="add-failover-plan" href="EditDnsPlan.html"><span key="button.add-failover">Add Fail-over Plan</span></a></li>
+      </ul>
+      <table class="component" id="views-table">
+        <thead>
+          <tr>
+            <th class="select-column"></th>
+            <th><span key="name">Name</span></th>
+            <th><span key="views">Views</span></th>
+           </tr>
+        </thead>
+        <tbody id="failover-items">
+        </tbody>
+      </table>
+      <ul class="component-links">
+        <li><button id="failover-delete"><span key="button.delete">Delete</span></button></li>
+        <li><button id="failover-copy"><span key="button.copy">Copy</span></button></li>
+      </ul>
+    </div>
+    <div id="custom" class="grid" style="display: none;">
+        <div class="help">
+            Custom help
+        </div>
+        <p id="custom-message"></p>
+        Views
+    </div>
+   <span id="rc" style="display:none">
+      <span jwcid="@common/Message" key="msg.deleteViewsConfirm">Are you sure you want to delete the selected record views?</span>
+      <span jwcid="@common/Message" key="msg.deletePlansConfirm">Are you sure you want to delete the selected fail-over plans?</span>
+    </span>
+    <script jwcid="@common/DartCode" type="application/dart"
+      src="EditDns.dart"></script>
+    <script jwcid="@common/DartCode"
+      src="../../../packages/browser/dart.js"></script>
   </div>
-  <div jwcid="settingsTab@Block">
-    <span jwcid="@common/ErrorMsg" />
-    <form jwcid="form@Form" delegate="bean:validator">
-      <fieldset jwcid="@setting/SettingsFieldset"
-          settings="ognl:settings.getSettings()" />
-      <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
-          listener="listener:apply"/>
-    </form>
-  </div>
-  <div jwcid="testTab@Block">
-    <span jwcid="@dns/DnsTest"/>    
-  </div>
-</div>
+</body>
+</html>

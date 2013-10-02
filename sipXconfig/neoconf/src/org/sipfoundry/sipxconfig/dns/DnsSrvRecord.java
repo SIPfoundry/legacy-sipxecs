@@ -36,10 +36,16 @@ public class DnsSrvRecord {
         m_port = port;
     }
 
+    /**
+     * Useful for external traditional SRV records e.g. _sip._tcp.example.org
+     */
     public static final DnsSrvRecord domainLevel(String protocol, String resource, int port, String destination) {
         return new DnsSrvRecord(protocol, resource, "", port, destination);
     }
 
+    /**
+     * Useful for internal "RR" records that select a local host first e.g. _sip._tcp.host1.example.org
+     */
     public static final DnsSrvRecord hostLevel(String protocol, String resource, String host, int port,
             String destination) {
         return new DnsSrvRecord(protocol, resource, host, port, destination);

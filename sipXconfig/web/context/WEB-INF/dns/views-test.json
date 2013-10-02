@@ -1,0 +1,18 @@
+[
+  {
+    "id" : 1,
+    "name" : "Boston Unavailable",
+    "planId" : 1,
+    "plan" : "Maintenance",
+    "regionId" : 1,
+    "region" : "Boston"
+  },
+  {
+    "id": 2,
+    "name" : "External users prefer US",
+    "plan" : "US Preferred",
+    "planId" : 2,
+    "region" : "External users",
+    "regionId" : 2
+  }
+]

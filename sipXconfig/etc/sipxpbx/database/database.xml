@@ -463,6 +463,7 @@
     <!-- slot 7 -->
     <!-- slot 8 -->
     <!-- slot 9 -->
+    <antcall target="dns"/>
     <!-- slot 10 -->
     <!-- slot 11 -->
     <!-- slot 12 -->
@@ -1366,6 +1367,9 @@
   </target>
   <target name="iptables-call-rate-limit" unless="iptables-call-rate-limit">
 	<db-patch patch="iptables-call-rate-limit"/>
+  </target>
+  <target name="dns" unless="dns">
+	<db-patch patch="dns"/>
   </target>
   <target name="branch-timezone" unless="branch-timezone">
     <db-patch patch="branch-timezone"/>

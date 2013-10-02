@@ -16,8 +16,8 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
-
 import static java.lang.String.format;
+import static org.sipfoundry.sipxconfig.common.DataCollectionUtil.idToObjectMap;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -77,10 +78,14 @@ public class DnsConfig implements ConfigProvider {
         List<Location> all = manager.getLocationManager().getLocationsList();
         Set<Location> locations = request.locations(manager);
         List<Address> dns = am.getAddresses(DnsManager.DNS_ADDRESS, null);
+        Collection<DnsView> views = m_dnsManager.getViews();
+        if (views == null || views.isEmpty()) {
+            views = Collections.singleton(new DnsView("default"));
+        }
 
         // 32 bit unsigned runs out in year 2148 which is 136 yrs past july 16, 2012
         long serNo = (System.currentTimeMillis() / 1000) - 1342487870;
-        Collection<Region> regions = getRegionsInUse(all);
+        Collection<Region> regions = m_regionManager.getRegions();
 
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
@@ -99,7 +104,7 @@ public class DnsConfig implements ConfigProvider {
             boolean namedOn = manager.getFeatureManager().isFeatureEnabled(DnsManager.FEATURE, location);
             Writer dat = new FileWriter(new File(dir, "named.cfdat"));
             try {
-                writeSettings(dat, namedOn, resolvOn, regions, settings);
+                writeSettings(dat, namedOn, resolvOn, views, settings);
             } finally {
                 IOUtils.closeQuietly(dat);
             }
@@ -112,15 +117,15 @@ public class DnsConfig implements ConfigProvider {
         File gdir = manager.getGlobalDataDirectory();
         Writer named = new FileWriter(new File(gdir, "named.yaml"));
         try {
-            writeNamedConfig(named, Domain.getDomain(), regions, settings.getDnsForwarders());
+            writeNamedConfig(named, Domain.getDomain(), views, settings.getDnsForwarders(), regions);
         } finally {
             IOUtils.closeQuietly(named);
         }
 
         boolean generateARecords = domain.equals(networkDomain) || domain.equals(all.get(0).getFqdn());
-        for (Region region : regions) {
-            Collection<DnsSrvRecord> records = m_dnsManager.getResourceRecords(region);
-            String file = format(VIEW_NAME + ".yaml", region.getConfigFriendlyName());
+        for (DnsView view : views) {
+            Collection<DnsSrvRecord> records = m_dnsManager.getResourceRecords(view);
+            String file = format(VIEW_NAME + ".yaml", view.getConfigFriendlyName());
             Writer zone = new FileWriter(new File(gdir, file));
             try {
                 writeZoneConfig(zone, domain, all, dns, records, serNo, generateARecords);
@@ -155,16 +160,20 @@ public class DnsConfig implements ConfigProvider {
         return regions;
     }
 
-    void writeNamedConfig(Writer w, Domain d, Collection<Region> regions, Collection<Address> forwarders)
-        throws IOException {
+    void writeNamedConfig(Writer w, Domain d, Collection<DnsView> views, Collection<Address> forwarders,
+            Collection<Region> regionList) throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
+        Map<Integer, Region> regions = idToObjectMap(regionList);
         Collection< ? > forwarderIps = CollectionUtils.collect(forwarders, Address.GET_IP);
         c.write(YML_DOMAIN, d.getName());
         c.writeArray("forwarders", forwarderIps);
         c.startArray("views");
-        for (Region region : regions) {
-            c.write(YML_NAME, format(VIEW_NAME, region.getConfigFriendlyName()));
-            c.writeArray(":match_clients", safeAsList(region.getAddresses()));
+        for (DnsView view : views) {
+            c.write(YML_NAME, format(VIEW_NAME, view.getConfigFriendlyName()));
+            if (view.getRegionId() != null) {
+                Region region = regions.get(view.getRegionId());
+                c.writeArray(":match_clients", safeAsList(region.getAddresses()));
+            }
             c.nextElement();
         }
         c.endArray();
@@ -193,16 +202,16 @@ public class DnsConfig implements ConfigProvider {
         w.write(nm.toString());
     }
 
-    void writeSettings(Writer w, boolean namedOn, boolean resolvOn, Collection<Region> regions, DnsSettings settings)
+    void writeSettings(Writer w, boolean namedOn, boolean resolvOn, Collection<DnsView> views, DnsSettings settings)
         throws IOException {
         CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
         config.writeClass("resolv", resolvOn);
         config.writeClass("sipxdns", namedOn);
         @SuppressWarnings("unchecked")
-        Collection<String> zones = CollectionUtils.collect(regions, new Transformer() {
+        Collection<String> zones = CollectionUtils.collect(views, new Transformer() {
             @Override
             public Object transform(Object arg0) {
-                return format(VIEW_NAME, ((Region) arg0).getConfigFriendlyName());
+                return format(VIEW_NAME, ((DnsView) arg0).getConfigFriendlyName());
             }
         });
         config.writeList("dnsviews", zones);

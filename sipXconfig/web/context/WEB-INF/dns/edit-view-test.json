@@ -1,0 +1,19 @@
+{
+  "regionCandidates" : {
+    "7" : "Bucharest",
+    "6" : "US",
+    "9" : "EU"
+  },
+  "planCandidates" : {
+    "1" : "Austin preferred",
+    "2" : "US preferred",
+    "3" : "Maintenance"
+  },
+  "view" : {
+    "id" : "1",
+    "name" : "Boston",
+    "planId" : 3,
+    "regionId": 6
+  }
+}
+    
