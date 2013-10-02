@@ -69,6 +69,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxregistrar
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxregistrar.cf
 %attr(755,root,root) %{_bindir}/sipregistrar
+%attr(755,root,root) %{_bindir}/sipXregTool
 %attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.so*
 %attr(755,root,root) %{_libdir}/libRedirectorAliasDB.so*
 %attr(755,root,root) %{_libdir}/libRedirectorAuthRouter.so*

@@ -3,12 +3,12 @@ SUBDIRS = .
 
 INCLUDES = -I$(top_srcdir)/include
 
-bin_PROGRAMS = sipXregMocTool
+bin_PROGRAMS = sipXregTool
 
-sipXregMocTool_LDADD = @SIPXCOMMSERVER_LIBS@ \
+sipXregTool_LDADD = @SIPXCOMMSERVER_LIBS@ \
 		   -lmongoclient
 
-sipXregMocTool_SOURCES =  \
+sipXregTool_SOURCES =  \
 	Main.cpp \
 	Main.h \
 	AppConfig.cpp \
@@ -16,6 +16,6 @@ sipXregMocTool_SOURCES =  \
 	AppPerform.cpp \
 	AppPerform.h
 
-sipXregMocTool_CXXFLAGS =
+sipXregTool_CXXFLAGS =
 
 DISTCLEANFILES = Makefile.in
