@@ -1348,6 +1348,15 @@
   <target name="notified" unless="notified">
 	<db-patch patch="notified"/>
   </target>
+  <target name="shards" unless="shards">
+	<db-patch patch="shards"/>
+  </target>
+  <target name="region" unless="region">
+	<db-patch patch="region"/>
+  </target>
+  <target name="region-ips" unless="region-ips">
+	<db-patch patch="region-ips"/>
+  </target>
   <target name="backup-types" unless="backup-types">
 	<db-patch patch="backup-types"/>
   </target>
@@ -1368,15 +1377,6 @@
   </target>
   <target name="add_timeout_to_ldap" unless="add_timeout_to_ldap">
     <db-patch patch="add_timeout_to_ldap"/>
-  </target>
-  <target name="shards" unless="shards">
-	<db-patch patch="shards"/>
-  </target>
-  <target name="region" unless="region">
-	<db-patch patch="region"/>
-  </target>
-  <target name="region-ips" unless="region-ips">
-	<db-patch patch="region-ips"/>
   </target>
 
   <!--
