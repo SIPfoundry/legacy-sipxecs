@@ -1378,7 +1378,6 @@
   <target name="add_timeout_to_ldap" unless="add_timeout_to_ldap">
     <db-patch patch="add_timeout_to_ldap"/>
   </target>
-
   <!--
     - SUPPORT UTILITIES
   -->
