@@ -24,6 +24,7 @@ UNIFIED_COMMON_LD_FLAGS = \
 
 nobase_lib_LTLIBRARIES = \
     unifiedplugins/libsipXwsRouter.la
+    
 
 unifiedplugins_libsipXwsRouter_la_SOURCES = \
     WSRouter.h \
@@ -37,6 +38,11 @@ unifiedplugins_libsipXwsRouter_la_LDFLAGS = \
 
 unifiedplugins_libsipXwsRouter_la_LIBADD = \
     @SIPXCOMMSERVER_LIBS@ \
+    -lsipXrepro \
+    -lrepro \
+    -ldum \
+    -lresip \
+    -lrutil \
     -lmongoclient \
     -lboost_system-mt
 

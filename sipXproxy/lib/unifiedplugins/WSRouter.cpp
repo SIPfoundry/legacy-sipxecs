@@ -16,6 +16,7 @@
  */
 
 
+#include <ReproGlue.h>
 #include "WSRouter.h"
 
 const char* PLUGIN_NAME = "WebSocket Router";

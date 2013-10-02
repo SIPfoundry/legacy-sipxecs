@@ -8,6 +8,7 @@ sipx_core = \
   sipXmediaLib \
   sipXmediaAdapterLib \
   sipXcallLib \
+  sipXrepro \
   sipXsupervisor \
   sipXmongo \
   sipXcommserverLib \
@@ -176,6 +177,7 @@ erlang-ejrpc2_DEPS = $(call deps,erlang-ej)
 #sipx deps
 sipXportLib_DEPS = $(call deps,epel-release)
 sipXtackLib_DEPS = $(call deps,sipXportLib)
+sipXrepro_DEPS = $(call deps,sipXportLib resiprocate)
 sipXmediaLib_DEPS = $(call deps,sipXtackLib)
 sipXmediaAdapterLib_DEPS = $(call deps,sipXmediaLib)
 sipXcallLib_DEPS = $(call deps,sipXmediaAdapterLib)
@@ -201,7 +203,7 @@ sipXcounterpath_DEPS = $(call deps,sipXconfig)
 sipXaudiocodes_DEPS = $(call deps,sipXconfig)
 sipXprompts_DEPS = $(call deps,sipXsupervisor)
 sipXivr_DEPS = $(call deps,sipXconfig)
-sipXproxy_DEPS = $(call deps,sipXcommserverLib)
+sipXproxy_DEPS = $(call deps,sipXcommserverLib sipXrepro)
 sipXpublisher_DEPS = $(call deps,sipXcommserverLib)
 sipXregistry_DEPS = $(call deps,sipXcommserverLib)
 sipXpark_DEPS = $(call deps,sipXcallLib sipXcommserverLib)
