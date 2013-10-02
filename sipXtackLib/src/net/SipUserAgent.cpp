@@ -1754,9 +1754,34 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
       {
          if(isResponse)
          {
-            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,"SipUserAgent::dispatch "
+            Os::Logger::instance().log(FAC_SIP, PRI_INFO,"SipUserAgent::dispatch "
                           "received response without transaction");
 
+            int responseCode = message->getResponseStatusCode();
+
+            UtlString method;
+            int respCseq;
+            message->getCSeqField(&respCseq, &method);
+
+            if (responseCode == SIP_2XX_CLASS_CODE && method.compareTo(SIP_INVITE_METHOD) == 0)
+            {
+              // If there is more than one Via
+              UtlString dummyVia;
+              if (message->getViaField(&dummyVia, 1))
+              {
+                UtlBoolean ret = sendStatelessResponse(*message);
+                if (ret)
+                {
+                  Os::Logger::instance().log(FAC_SIP, PRI_INFO,"SipUserAgent::dispatch "
+                                            "send stateless 200 OK response to INVITE");
+                }
+                else
+                {
+                  Os::Logger::instance().log(FAC_SIP, PRI_WARNING,"SipUserAgent::dispatch "
+                                                            "send stateless 200 OK response to INVITE failed");
+                }
+              }
+            }
          }      // end no transaction found for response message
 
          // New transaction for incoming request
