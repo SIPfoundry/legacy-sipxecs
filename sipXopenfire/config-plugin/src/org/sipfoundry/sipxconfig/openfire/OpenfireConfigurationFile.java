@@ -101,6 +101,9 @@ public class OpenfireConfigurationFile {
             props.put("ldap.usernameField", username);
             props.put("ldap.searchFilter", attrMap.getSearchFilter());
             props.put("ldap.vcard-mapping", String.format(VCARD_MAPPING_TEMPLATE, username));
+            props.put("ldap.connectionTimeout", ldapConnectionParams.getTimeout());
+            props.put("ldap.readTimeout", ldapConnectionParams.getTimeout());
+
             boolean ldapAnonymousAccess = StringUtils.isBlank(ldapConnectionParams.getPrincipal());
             if (!ldapAnonymousAccess) {
                 props.put("ldap.adminDN", ldapConnectionParams.getPrincipal());
