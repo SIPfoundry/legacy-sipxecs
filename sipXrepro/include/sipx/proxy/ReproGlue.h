@@ -23,13 +23,21 @@
 #include <repro/ReproRunner.hxx>
 
 
+namespace sipx {
+namespace proxy {
+
 class ReproGlue : public repro::ReproRunner
 {
 public:
   ReproGlue();
+  
+  bool run(const std::string& path);
+  /// Start the repro subsystem using the configuration specified
+  /// by path
+  ///
 };
 
-
+} } // sipx::proxy
 
 #endif	// REPROGLUE_H_INCLUDED
 

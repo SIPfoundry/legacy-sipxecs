@@ -41,4 +41,5 @@ libsipXrepro_la_LIBADD = \
 	-lstdc++
 
 libsipXrepro_la_SOURCES =  \
-    ReproGlue.cpp
+    ReproGlue.cpp \
+    SipxRepro.cpp

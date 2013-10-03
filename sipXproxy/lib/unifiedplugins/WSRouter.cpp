@@ -16,7 +16,7 @@
  */
 
 
-#include <ReproGlue.h>
+#include <sipx/proxy/ReproGlue.h>
 #include "WSRouter.h"
 
 const char* PLUGIN_NAME = "WebSocket Router";
@@ -24,6 +24,9 @@ const int PLUGIN_AUTH_PRIO = 10;
 const int PLUGIN_IO_PRIO = 10;
 const int PLUGIN_FORWARD_PRIO = 10;
 EXPORT_APP_PLUGIN(new WSRouter(PLUGIN_NAME, PLUGIN_AUTH_PRIO, PLUGIN_IO_PRIO, PLUGIN_FORWARD_PRIO));
+
+using namespace sipx::proxy;
+
 
 WSRouter::WSRouter(const std::string& pluginName, int authPriority, int ioPriority, int forwardPriority) :
   UnifiedProxyPlugin(pluginName, authPriority, ioPriority, forwardPriority)
