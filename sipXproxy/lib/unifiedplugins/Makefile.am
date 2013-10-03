@@ -39,10 +39,6 @@ unifiedplugins_libsipXwsRouter_la_LDFLAGS = \
 unifiedplugins_libsipXwsRouter_la_LIBADD = \
     @SIPXCOMMSERVER_LIBS@ \
     -lsipXrepro \
-    -lrepro \
-    -ldum \
-    -lresip \
-    -lrutil \
     -lmongoclient \
     -lboost_system-mt
 

@@ -73,7 +73,7 @@ OsApplicationPlugin* OsPluginManager::loadPlugin(const std::string& path)
 {
   void* handle = 0;
   
-  handle = ::dlopen(path.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+  handle = ::dlopen(path.c_str(), RTLD_NOW | RTLD_GLOBAL);
   
   
   if (handle)
@@ -105,6 +105,10 @@ OsApplicationPlugin* OsPluginManager::loadPlugin(const std::string& path)
       OS_LOG_ERROR(FAC_PROCESS, path << " doesn't have an initialize method exported.");
       return 0;
     }
+  }
+  else
+  {
+    OS_LOG_ERROR(FAC_PROCESS, "Unable to load " << path << " Error: " << dlerror());
   }
   
   return 0;

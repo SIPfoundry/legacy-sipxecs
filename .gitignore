@@ -27,3 +27,4 @@ lib/dist
 sipXtackLib/src/test/net/SipXauthIdentityTest.cpp
 custom
 build
+/UC-1594-sipXproxy/
