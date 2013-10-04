@@ -54,6 +54,10 @@ public class CodecGroupsTest extends TestCase {
         assertCodecGroup(CodecGroupType.VVX_500, PolycomModel.VER_4_0_X);
     }
 
+    public void test41CodecGroups() throws DocumentException {
+        assertCodecGroup(CodecGroupType.VVX_500, PolycomModel.VER_4_1_X);
+    }
+
     private void assertCodecGroup(CodecGroupType codecGroup, DeviceVersion version) throws DocumentException {
 
         // Initialize a phone with the codec group under test.
