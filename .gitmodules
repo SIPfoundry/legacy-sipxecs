@@ -1,6 +1,6 @@
 [submodule "freeswitch"]
 	path = freeswitch
-	url = git://github.com/dhubler/freeswitch.git
+	url = git://github.com/SIPfoundry/freeswitch.git
 [submodule "sipXcustomCallerId"]
 	path = sipXcustomCallerId
 	url = git://github.com/ezuce/sipXcustomCallerId.git
@@ -9,52 +9,52 @@
 	url = http://code.google.com/p/homer/
 [submodule "sipXhomer"]
 	path = sipXhomer
-	url = git://github.com/dhubler/sipXhomer.git
+	url = git://github.com/SIPfoundry/sipXhomer.git
 [submodule "sipXlang-abitibi-fr_CA"]
 	path = sipXlang-abitibi-fr_CA
-	url = git://github.com/dhubler/sipXlang-abitibi-fr_CA.git
+	url = git://github.com/SIPfoundry/sipXlang-abitibi-fr_CA.git
 [submodule "sipXlang-ch"]
 	path = sipXlang-ch
-	url = git://github.com/dhubler/sipXlang-ch.git
+	url = git://github.com/SIPfoundry/sipXlang-ch.git
 [submodule "sipXlang-cs"]
 	path = sipXlang-cs
-	url = git://github.com/dhubler/sipXlang-cs.git
+	url = git://github.com/SIPfoundry/sipXlang-cs.git
 [submodule "sipXlang-de"]
 	path = sipXlang-de
-	url = git://github.com/dhubler/sipXlang-de.git
+	url = git://github.com/SIPfoundry/sipXlang-de.git
 [submodule "sipXlang-en_GB"]
 	path = sipXlang-en_GB
-	url = git://github.com/dhubler/sipXlang-en_GB.git
+	url = git://github.com/SIPfoundry/sipXlang-en_GB.git
 [submodule "sipXlang-es"]
 	path = sipXlang-es
-	url = git://github.com/dhubler/sipXlang-es.git
+	url = git://github.com/SIPfoundry/sipXlang-es.git
 [submodule "sipXlang-fr_CA"]
 	path = sipXlang-fr_CA
-	url = git://github.com/dhubler/sipXlang-fr_CA.git
+	url = git://github.com/SIPfoundry/sipXlang-fr_CA.git
 [submodule "sipXlang-fr"]
 	path = sipXlang-fr
-	url = git://github.com/dhubler/sipXlang-fr.git
+	url = git://github.com/SIPfoundry/sipXlang-fr.git
 [submodule "sipXlang-it"]
 	path = sipXlang-it
-	url = git://github.com/dhubler/sipXlang-it.git
+	url = git://github.com/SIPfoundry/sipXlang-it.git
 [submodule "sipXlang-ja"]
 	path = sipXlang-ja
-	url = git://github.com/dhubler/sipXlang-ja.git
+	url = git://github.com/SIPfoundry/sipXlang-ja.git
 [submodule "sipXlang-es_MX"]
 	path = sipXlang-es_MX
-	url = git://github.com/dhubler/sipXlang-es_MX.git
+	url = git://github.com/SIPfoundry/sipXlang-es_MX.git
 [submodule "sipXlang-nl"]
 	path = sipXlang-nl
-	url = git://github.com/dhubler/sipXlang-nl.git
+	url = git://github.com/SIPfoundry/sipXlang-nl.git
 [submodule "sipXlang-pl"]
 	path = sipXlang-pl
-	url = git://github.com/dhubler/sipXlang-pl.git
+	url = git://github.com/SIPfoundry/sipXlang-pl.git
 [submodule "sipXlang-pt_BR"]
 	path = sipXlang-pt_BR
-	url = git://github.com/dhubler/sipXlang-pt_BR.git
+	url = git://github.com/SIPfoundry/sipXlang-pt_BR.git
 [submodule "sipXlang-zh"]
 	path = sipXlang-zh
-	url = git://github.com/dhubler/sipXlang-zh.git
+	url = git://github.com/SIPfoundry/sipXlang-zh.git
 [submodule "oss_core"]
 	path = oss_core
 	url = git://github.com/ezuce/oss_core.git
@@ -63,7 +63,7 @@
 	url = git://github.com/ezuce/sipXsbc.git
 [submodule "openfire"]
 	path = openfire
-	url = git://github.com/dhubler/openfire.git
+	url = git://github.com/SIPfoundry/openfire.git
 [submodule "oacd_freeswitch"]
 	path = oacd_freeswitch
 	url = git://github.com/sipxopenacd/oacd_freeswitch.git
@@ -81,4 +81,4 @@
 	url = git://github.com/sipxopenacd/openacd.git
 [submodule "sipXcallQueue"]
 	path = sipXcallQueue
-	url = git://github.com/dhubler/sipXcallQueue.git
+	url = git://github.com/SIPfoundry/sipXcallQueue.git
