@@ -64,9 +64,6 @@
     <property name="localizationContext" ref="localizationContext" />
     <property name="musicOnHoldManager" ref="musicOnHoldManager" />
   </bean>
-  <bean id="openacdDataSet" parent="dataSetGenerator"
-    class="org.sipfoundry.sipxconfig.commserver.imdb.OpenAcd">
-  </bean>
 
   <bean id="replicationManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager"/>

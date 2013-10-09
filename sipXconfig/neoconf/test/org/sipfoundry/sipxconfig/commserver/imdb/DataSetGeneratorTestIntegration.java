@@ -69,9 +69,4 @@ public class DataSetGeneratorTestIntegration extends IntegrationTestCase {
     public void setMailstoreDataSet(Mailstore sd) {
         m_dataSetGeneratorMap.put(DataSet.MAILSTORE.getName(), sd);
     }
-
-    public void setOpenacdDataSet(OpenAcd openacd) {
-        m_dataSetGeneratorMap.put(DataSet.OPENACD.getName(), openacd);
-    }
-    
 }

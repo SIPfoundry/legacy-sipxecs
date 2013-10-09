@@ -4,7 +4,6 @@
 #                can have a better chance to migrate this file properly
 parkConfig.audioDirectory=@SIPX_VARDIR@/parkserver/music
 pagingConfiguration.audioDirectory=@SIPX_VARDIR@/sipxpage/music
-openAcdSettings.audioDirectory=@SIPX_VARDIR@/configserver/phone/acd/audio
 
 sipImpl.port=5180
 

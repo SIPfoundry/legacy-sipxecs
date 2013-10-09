@@ -9,9 +9,6 @@
   <span jwcid="@If" condition="ognl:isOn('page')">
       <span jwcid="@common/AdminNavigationMenu" pagePath="paging/PagingGroupsPage" label="ognl:messages.getMessage('menu.paging.featureMenu')" />
   </span>
-   <span jwcid="@If" condition="ognl:isOn('openacd')">
-     <span jwcid="@common/AdminNavigationMenu" pagePath="openacd/OpenAcdServerPage" label="ognl:messages.getMessage('menu.openAcd')" />
-   </span>
    <span jwcid="@If" condition="ognl:isOn('conference')">
      <span jwcid="@common/AdminNavigationMenu" pagePath="conference/ListBridges" label="ognl:messages.getMessage('menu.conferenceBridge')" />
    </span>

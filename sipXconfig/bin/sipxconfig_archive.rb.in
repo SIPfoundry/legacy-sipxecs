@@ -32,6 +32,9 @@ class ArchiveBase
 end
 
 class Backup < ArchiveBase
+  def add_additional_databases()
+  end
+
   def run(params)
     cmd "pg_dump -U #{@pguser} -F t #{@db} > db.tar" or
       raise "Could not backup postgres database"
@@ -41,6 +44,7 @@ class Backup < ArchiveBase
       raise "Could not backup avatar database"
     cmd "mongodump --db profiles --collection fs.chunks" or
       raise "Could not backup avatar database"
+	add_additional_databases()
     cmd "echo @PACKAGE_VERSION@ > version" or
       raise "Could not generate version file"
     if params.has_key?(:no_device_files)
@@ -70,6 +74,9 @@ class Restore < ArchiveBase
   end
 
   def custom_option(args)
+  end
+
+  def restore_additional_databases()
   end
 
   def run(params)
@@ -110,6 +117,7 @@ class Restore < ArchiveBase
         cmd "echo Failed to restore avatar database"
       cmd "mongorestore --db profiles --collection fs.chunks #{@tmpdir}/dump/profiles/fs.chunks.bson" or
         cmd "echo Failed to restore avatar database"
+	  restore_additional_databases()
     else
       sql_exec(@restoredb, "insert into setup(setup_id) values ('migrate_profiles');") or
           raise "Failed to trigger user profile migration."
