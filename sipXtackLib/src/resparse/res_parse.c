@@ -31,10 +31,10 @@
 
 uint16_t _getshort(const u_char *src);
 uint32_t _getlong(const u_char *src);
-char * expand_cdname(char **cpp, char *msg);
+char * expand_cdname(char **cpp, char *msg, char *tail);
 char * expand_charstring(char **cpp, char *msg);
-s_question * parse_question(char **cpp, char *msg);
-s_rr * parse_rr( char **cpp, char *msg);
+s_question * parse_question(char **cpp, char *msg, char *tail);
+s_rr * parse_rr( char **cpp, char *msg, char *tail);
 
 uint16_t _getshort(const u_char *src)
 {
@@ -67,14 +67,15 @@ extern int dn_expand(const u_char *a,
 char *
 expand_cdname(
         char    **cpp,
-        char    *msg)
+        char    *msg,
+        char    *tail)
 {
         char    name[MAXDNAME];
         int     i;
         char    *ptr;
 
         if ((i = dn_expand((const u_char *) msg,
-                           (const u_char *) msg+512,
+                           (const u_char *) tail,
                            (const u_char *) *cpp,
                            name, MAXDNAME)) < 0)
                 return(NULL);
@@ -133,13 +134,14 @@ expand_charstring(
 s_question *
 parse_question(
         char    **cpp,
-        char    *msg)
+        char    *msg,
+        char    *tail)
 {
         s_question      *ptr;
 
         if ((ptr = (s_question *)malloc(sizeof(s_question))) == NULL )
                 return(NULL);
-        if ((ptr->qname = expand_cdname(cpp,msg)) == NULL ) {
+        if ((ptr->qname = expand_cdname(cpp,msg,tail)) == NULL ) {
                 free( ptr );
                 return(NULL);
         }
@@ -162,7 +164,8 @@ parse_question(
 s_rr *
 parse_rr(
         char    **cpp,
-        char    *msg)
+        char    *msg,
+        char    *tail)
 {
         s_rr            *ptr;
         int             dlen;
@@ -174,7 +177,7 @@ parse_rr(
                  */
         if ((ptr = (s_rr *)malloc(sizeof(s_rr))) == NULL )
                 return(NULL);
-        if ((ptr->name = expand_cdname(cpp,msg)) == NULL ) {
+        if ((ptr->name = expand_cdname(cpp,msg,tail)) == NULL ) {
                 free(ptr);
                 return(NULL);
         }
@@ -216,12 +219,12 @@ parse_rr(
         case T_MD:                              /* Mail Destination (OBS) */
         case T_MF:                              /* Mail Forwarder   (OBS) */
         case T_CNAME:                           /* Canonical Name */
-                rd->string = expand_cdname(cpp, msg);
+                rd->string = expand_cdname(cpp,msg,tail);
                 break;
 
         case T_SOA:                             /* Start of Authority */
-                rd->soa.mname = expand_cdname(cpp, msg);
-                rd->soa.rname = expand_cdname(cpp, msg);
+                rd->soa.mname = expand_cdname(cpp,msg,tail);
+                rd->soa.rname = expand_cdname(cpp,msg,tail);
                 rd->soa.serial = _getlong((const u_char *) *cpp);
                 *cpp += sizeof(uint32_t);
                 rd->soa.refresh = _getlong((const u_char *) *cpp);
@@ -237,7 +240,7 @@ parse_rr(
         case T_MB:                              /* Mail Box  */
         case T_MG:                              /* Mail Group */
         case T_MR:                              /* Mail Rename */
-                rd->string = expand_cdname(cpp, msg);
+                rd->string = expand_cdname(cpp,msg,tail);
                 break;
 
 /* Following modification taken from VxWorks --GAT */
@@ -261,7 +264,7 @@ parse_rr(
                 break;
 
         case T_PTR:                             /* Domain Name Pointer */
-                rd->string = expand_cdname(cpp, msg);
+                rd->string = expand_cdname(cpp,msg,tail);
                 break;
 
         case T_HINFO:                           /* Host Info */
@@ -277,14 +280,14 @@ parse_rr(
                 break;
 
         case T_MINFO:                           /* Mailbox Info */
-                rd->minfo.rmailbx = expand_cdname(cpp, msg);
-                rd->minfo.emailbx = expand_cdname(cpp, msg);
+                rd->minfo.rmailbx = expand_cdname(cpp,msg,tail);
+                rd->minfo.emailbx = expand_cdname(cpp,msg,tail);
                 break;
 
         case T_MX:                              /* Mail Exchanger */
                 rd->mx.preference = _getshort((const u_char *) *cpp);
                 *cpp += sizeof(uint16_t);
-                rd->mx.exchange = expand_cdname(cpp, msg);
+                rd->mx.exchange = expand_cdname(cpp,msg,tail);
                 break;
 
         case T_SRV:                             /* Service location */
@@ -294,7 +297,7 @@ parse_rr(
                 *cpp += sizeof(uint16_t);
                 rd->srv.port = _getshort((const u_char *) *cpp);
                 *cpp += sizeof(uint16_t);
-                rd->srv.target = expand_cdname(cpp, msg);
+                rd->srv.target = expand_cdname(cpp,msg,tail);
                 break;
 
         case T_NAPTR:                           /* Naming authority pointer */
@@ -324,7 +327,7 @@ parse_rr(
                         cpp = cpp_end;
                         break;
                 }
-                rd->naptr.replacement = expand_cdname(cpp, msg);
+                rd->naptr.replacement = expand_cdname(cpp,msg,tail);
         }
                 break;
 
@@ -372,13 +375,13 @@ parse_rr(
         case T_AFSDB:                           /* AFS Server */
                 rd->afsdb.subtype = _getshort((const u_char *) *cpp);
                 *cpp += sizeof(uint16_t);
-                rd->afsdb.hostname = expand_cdname(cpp, msg);
+                rd->afsdb.hostname = expand_cdname(cpp,msg,tail);
                 break;
 
 
         case T_RP:                              /* Responsible Person */
-                rd->rp.mbox_dname = expand_cdname(cpp, msg);
-                rd->rp.txt_dname = expand_cdname(cpp, msg);
+                rd->rp.mbox_dname = expand_cdname(cpp,msg,tail);
+                rd->rp.txt_dname = expand_cdname(cpp,msg,tail);
                 break;
 
         case T_X25:                             /* X25 Address */
@@ -399,7 +402,7 @@ parse_rr(
         case T_RT:                              /* Route Through */
                 rd->rt.preference = _getshort((const u_char *) *cpp);
                 *cpp += sizeof(uint16_t);
-                rd->rt.int_host = expand_cdname(cpp, msg);
+                rd->rt.int_host = expand_cdname(cpp,msg,tail);
                 break;
 
                         /*
@@ -442,7 +445,7 @@ parse_rr(
          *  returns a pointer to the expanded tree (or NULL on failure).
          */
 res_response *
-res_parse(char *msg)
+res_parse(char *msg, char *tail)
 {
         char *cp;
         res_response *resp;
@@ -485,7 +488,7 @@ res_parse(char *msg)
                         resp->question[i] = NULL;
                 resp->header.qdcount = qdcount;  /* Stores swapped byte order!  Requires change to free_response. --GAT */
                 for ( i=0 ; i<qdcount ; i++ )
-                        if ((resp->question[i] = parse_question(&cp, msg)) == NULL ) {
+                        if ((resp->question[i] = parse_question(&cp, msg, tail)) == NULL ) {
                                 free_response(resp);
                                 free(resp);
                                 return(NULL);
@@ -507,7 +510,7 @@ res_parse(char *msg)
                         resp->answer[i] = NULL;
                 resp->header.ancount = ancount;  /* Stores swapped byte order!  Requires change to free_response. --GAT */
                 for ( i=0 ; i<ancount ; i++ )
-                        if ((resp->answer[i] = parse_rr(&cp, msg)) == NULL ) {
+                        if ((resp->answer[i] = parse_rr(&cp, msg, tail)) == NULL ) {
                                 free_response(resp);
                                 free(resp);
                                 return(NULL);
@@ -529,7 +532,7 @@ res_parse(char *msg)
                         resp->authority[i] = NULL;
                 resp->header.nscount = nscount;  /* Stores swapped byte order!  Requires change to free_response. --GAT */
                 for ( i=0 ; i<nscount ; i++ )
-                        if ((resp->authority[i] = parse_rr(&cp, msg)) == NULL ) {
+                        if ((resp->authority[i] = parse_rr(&cp, msg, tail)) == NULL ) {
                                 free_response(resp);
                                 free(resp);
                                 return(NULL);
@@ -551,7 +554,7 @@ res_parse(char *msg)
                         resp->additional[i] = NULL;
                 resp->header.arcount = arcount;  /* Stores swapped byte order!  Requires change to free_response. --GAT */
                 for ( i=0 ; i<arcount ; i++ )
-                        if ((resp->additional[i] = parse_rr(&cp, msg)) == NULL ) {
+                        if ((resp->additional[i] = parse_rr(&cp, msg, tail)) == NULL ) {
                                 free_response(resp);
                                 free(resp);
                                 return(NULL);

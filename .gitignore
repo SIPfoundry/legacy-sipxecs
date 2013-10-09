@@ -27,3 +27,4 @@ lib/dist
 sipXtackLib/src/test/net/SipXauthIdentityTest.cpp
 custom
 build
+/XX-10788-sipXtackLib/

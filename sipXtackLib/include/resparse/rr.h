@@ -264,7 +264,7 @@ typedef struct s_res_response
 
 extern  void free_rr(s_rr *rrp);
 void free_response(res_response *resp);
-extern  res_response *  res_parse(char *msg);
+extern  res_response *  res_parse(char *msg, char *tail);
 extern  res_response *  res_copy(res_response   *resp);
 extern  void            res_print(res_response  *resp);
 extern  void            res_free(res_response   *resp);

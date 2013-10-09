@@ -956,7 +956,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
          break;
       }
 
-      response = res_parse((char*) &answer);
+      response = res_parse((char*) &answer, ((char*) &answer) + r);
       if (response == NULL)
       {
          // res_parse failed, return.
