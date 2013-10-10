@@ -157,7 +157,7 @@ $(sipx:=.rpm) : %.rpm : $$(addsuffix .rpm,$$($$*_DEPS)) %.dist
 repo-comps : $(SRC)/mak/comps.xml
 
 help.repo-chroot-init = Clear mock chroot for $(DISTRO). Requied before first build and useful when you suspect caching is the result of a build error.
-repo-chroot-init : repo-create repo-webserver repo-comps repo-comps
+repo-init repo-chroot-init : repo-create repo-webserver repo-comps repo-comps
 	mock $(MOCK_OPTS) --scrub=all
 	test -d $(MOCK_RESULTS_DIR) || mkdir -p $(MOCK_RESULTS_DIR)
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS) .
