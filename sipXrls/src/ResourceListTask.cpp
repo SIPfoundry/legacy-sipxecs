@@ -28,6 +28,7 @@
 #include <os/OsLogger.h>
 #include <os/OsEventMsg.h>
 #include <os/OsMsg.h>
+#include <os/OsServiceOptions.h>
 
 
 // EXTERNAL FUNCTIONS
@@ -65,7 +66,7 @@ ResourceListTask::ResourceListTask(ResourceListServer* parent) :
                  "ResourceListTask:: this = %p, read SQA notifier configuration from file '%s'",
                  this, sqaconfig.c_str());
 
-   ServiceOptions configOptions(sqaconfig);
+   OsServiceOptions configOptions(sqaconfig);
    if (configOptions.parseOptions())
    {
      bool enabled = false;

@@ -16,6 +16,7 @@
 #include "sqa/StateQueueClient.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <os/OsServiceOptions.h>
 
 StateQueueClient::SQAClientCore::SQAClientCore(
       StateQueueClient* owner,
@@ -935,7 +936,7 @@ bool StateQueueClient::getClientOptions(std::string& serviceAddress, std::string
   OS_LOG_DEBUG(FAC_NET, LOG_TAG_WID(_applicationId)
       << " Reading SQA client options from file '" << _clientConfig << "'");
 
-  ServiceOptions configOptions(_clientConfig);
+  OsServiceOptions configOptions(_clientConfig);
 
   bool enabled = false;
   bool ok = configOptions.parseOptions();

@@ -83,23 +83,6 @@ OsMutex*       gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
 int
 main(int argc, char* argv[] )
 {
-   //
-   // Raise the file handle limit to maximum allowable
-   //
-   typedef OsResourceLimit::Limit Limit;
-   Limit rescur = 0;
-   Limit resmax = 0;
-   OsResourceLimit resource;
-   if (resource.setApplicationLimits("sipxrls"))
-   {
-     resource.getFileDescriptorLimit(rescur, resmax);
-     OS_LOG_NOTICE(FAC_KERNEL, "Maximum file descriptors set to " << rescur);
-   }
-   else
-   {
-     OS_LOG_ERROR(FAC_KERNEL, "Unable to set file descriptor limit");
-   }
-
   SipXApplicationData rlsData =
   {
       SIPREGISTRAR_APP_NAME,
@@ -107,15 +90,16 @@ main(int argc, char* argv[] )
       CONFIG_LOG_FILE,
       CONFIG_NODE_FILE,
       CONFIG_SETTING_PREFIX,
-      true, // daemonize
       false, // do not check mongo connection
+      true, // increase application file descriptor limits
+      SipXApplicationData::ConfigFileFormatConfigDb, // format type for configuration file
       OsMsgQShared::QUEUE_UNLIMITED,
   };
 
   // NOTE: this might exit application in case of failure
   SipXApplication::instance().init(argc, argv, rlsData);
 
-  OsConfigDb& configDb = SipXApplication::instance().getOsServiceOptions().getOsConfigDb();
+  OsConfigDb& configDb = SipXApplication::instance().getConfig().getOsConfigDb();
 
   Os::Logger::instance().log(FAC_SIP, PRI_NOTICE,
       "SipRegistrar >>>>>>>>>>>>>>>> STARTED"

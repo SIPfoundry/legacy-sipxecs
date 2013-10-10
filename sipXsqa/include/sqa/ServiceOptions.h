@@ -175,6 +175,8 @@ struct ServiceLogger
 }
 #endif
 
+// commented because this code is duplicate of sipXportLib/include/os/OsServiceOptions.h
+#if 0
 class ServiceOptions
 {
 public:
@@ -312,7 +314,7 @@ inline bool ServiceOptions::parseOptions()
     return true;
   }
 
-  //displayVersion(std::cout);
+  displayVersion(std::cout);
   
   try
   {
@@ -869,6 +871,7 @@ inline void ServiceOptions::waitForTerminationRequest()
 	sigwait(&sset, &sig);
   std::cout << "Termination Signal RECEIVED" << std::endl;
 }
+#endif
 
 
 #endif	/* SERVICEOPTIONS_H */

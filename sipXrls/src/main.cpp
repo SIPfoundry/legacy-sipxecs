@@ -197,30 +197,54 @@ int main(int argc, char* argv[])
       CONFIG_LOG_FILE,
       "",
       CONFIG_SETTING_PREFIX,
-      true, // daemonize
       true, // check mongo connection
+      true, // increase application file descriptor limits
+      SipXApplicationData::ConfigFileFormatConfigDb, // format type for configuration file
       OsMsgQShared::QUEUE_UNLIMITED,
   };
 
   // NOTE: this might exit application in case of failure
   SipXApplication::instance().init(argc, argv, rlsData);
 
-   //
-   // Raise the file handle limit to maximum allowable
-   //
-   typedef OsResourceLimit::Limit Limit;
-   Limit rescur = 0;
-   Limit resmax = 0;
-   OsResourceLimit resource;
-   if (resource.setApplicationLimits("sipxrls"))
-   {
-     resource.getFileDescriptorLimit(rescur, resmax);
-     OS_LOG_NOTICE(FAC_KERNEL, "Maximum file descriptors set to " << rescur);
-   }
-   else
-   {
-     OS_LOG_ERROR(FAC_KERNEL, "Unable to set file descriptor limit");
-   }
+  const OsConfigDb& configDb = SipXApplication::instance().getConfig().getOsConfigDb();
+
+  // Read the user agent parameters from the config file.
+  int udpPort;
+  if (configDb.get(CONFIG_SETTING_UDP_PORT, udpPort) != OS_SUCCESS)
+  {
+    udpPort = RLS_DEFAULT_UDP_PORT;
+  }
+
+  int tcpPort;
+  if (configDb.get(CONFIG_SETTING_TCP_PORT, tcpPort) != OS_SUCCESS)
+  {
+    tcpPort = RLS_DEFAULT_TCP_PORT;
+  }
+
+  UtlString bindIp;
+  if (configDb.get(CONFIG_SETTING_BIND_IP, bindIp) != OS_SUCCESS ||
+      !OsSocket::isIp4Address(bindIp))
+    bindIp = RLS_DEFAULT_BIND_IP;
+
+  UtlString resourceListFile;
+  if ((configDb.get(CONFIG_SETTING_RLS_FILE, resourceListFile) !=
+      OS_SUCCESS) ||
+      resourceListFile.isNull())
+  {
+    Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
+        "Resource list file name is not configured");
+    return 1;
+  }
+
+  UtlString domainName;
+  if ((configDb.get(CONFIG_SETTING_DOMAIN_NAME, domainName) !=
+      OS_SUCCESS) ||
+      domainName.isNull())
+  {
+    Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
+        "Resource domain name is not configured");
+    return 1;
+  }
 
   const OsConfigDb& configDb = SipXApplication::instance().getOsServiceOptions().getOsConfigDb();
 

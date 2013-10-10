@@ -1,4 +1,4 @@
-SUBDIRS= . sipdb
+SUBDIRS= . sipdb sipXecsService
 
 INCLUDES = -I$(top_srcdir)/include
 SCHEMA_FILE = $(top_srcdir)/../sipXproxy/etc/database/schema.sql

@@ -62,26 +62,6 @@ main(int argc, char* argv[] )
 {
     // register default exception handler methods
     // abort for all type of exceptions
-    OsExceptionHandler::instance();
-    OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_SOCKET_EXCEPTION, boost::bind(&customMongoSocketExceptionHandling, _1));
-    OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_CONNECT_EXCEPTION, boost::bind(&customMongoConnectExceptionHandling, _1));
-
-    //
-    // Raise the file handle limit to maximum allowable
-    //
-    typedef OsResourceLimit::Limit Limit;
-    Limit rescur = 0;
-    Limit resmax = 0;
-    OsResourceLimit resource;
-    if (resource.setApplicationLimits("sipxpublisher"))
-    {
-      resource.getFileDescriptorLimit(rescur, resmax);
-      OS_LOG_NOTICE(FAC_KERNEL, "Maximum file descriptors set to " << rescur);
-    }
-    else
-    {
-      OS_LOG_ERROR(FAC_KERNEL, "Unable to set file descriptor limit");
-    }
 
     std::string errmsg;
     MongoDB::ConnectionInfo ginfo = MongoDB::ConnectionInfo::globalInfo();    
@@ -91,6 +71,7 @@ main(int argc, char* argv[] )
         Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
                 "Failed to connect to '%s' - %s",
                 mongoConn.toString().c_str(), errmsg.c_str());
+    }
 
   SipXApplicationData rlsData =
   {
@@ -99,19 +80,21 @@ main(int argc, char* argv[] )
       CONFIG_LOG_FILE,
       "",
       CONFIG_SETTING_PREFIX,
-      true, // daemonize
       true, // check mongo connection
+      true, // increase application file descriptor limits
+      SipXApplicationData::ConfigFileFormatConfigDb, // format type for configuration file
       OsMsgQShared::QUEUE_UNLIMITED,
   };
 
   // NOTE: this might exit application in case of failure
   SipXApplication::instance().init(argc, argv, rlsData);
 
+  OsExceptionHandler::instance();
   // register custom exception handling for mongo
   OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_SOCKET_EXCEPTION, boost::bind(&customMongoSocketExceptionHandling, _1));
   OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_CONNECT_EXCEPTION, boost::bind(&customMongoConnectExceptionHandling, _1));
 
-  const OsConfigDb& configDb = SipXApplication::instance().getOsServiceOptions().getOsConfigDb();
+  const OsConfigDb& configDb = SipXApplication::instance().getConfig().getOsConfigDb();
 
     // Fetch Pointer to the OsServer task object, note that
     // object uses the IMDB so it is important to shut this thread

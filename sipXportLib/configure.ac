@@ -12,9 +12,9 @@ AC_PROG_LIBTOOL
 AC_LTDL_SHLIBEXT
 AC_PATH_PROG([BASH], [bash])
 
-if test -z $CXXFLAGS; then
-    CXXFLAGS='-g'
-fi
+#if test -z $CXXFLAGS; then
+#    CXXFLAGS='-g'
+#fi
 
 AC_PROG_CXX
 AX_COMPILER_VENDOR

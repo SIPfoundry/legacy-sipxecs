@@ -194,30 +194,14 @@ int main(int argc, char* argv[])
       CONFIG_LOG_FILE,
       "",
       CONFIG_SETTING_PREFIX,
-      true, // daemonize
       true, // check mongo connection
+      true, // increase application file descriptor limits
+      SipXApplicationData::ConfigFileFormatConfigDb, // format type for configuration file
       OsMsgQShared::QUEUE_UNLIMITED,
   };
 
   // NOTE: this might exit application in case of failure
   SipXApplication::instance().init(argc, argv, rlsData);
-
-   //
-   // Raise the file handle limit to maximum allowable
-   //
-   typedef OsResourceLimit::Limit Limit;
-   Limit rescur = 0;
-   Limit resmax = 0;
-   OsResourceLimit resource;
-   if (resource.setApplicationLimits("sipxsaa"))
-   {
-     resource.getFileDescriptorLimit(rescur, resmax);
-     OS_LOG_NOTICE(FAC_KERNEL, "Maximum file descriptors set to " << rescur);
-   }
-   else
-   {
-     OS_LOG_ERROR(FAC_KERNEL, "Unable to set file descriptor limit");
-   }
 
   OsConfigDb& configDb = SipXApplication::instance().getOsServiceOptions().getOsConfigDb();
 

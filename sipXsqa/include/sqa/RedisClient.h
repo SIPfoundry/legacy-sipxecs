@@ -25,7 +25,7 @@ extern "C"
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 #include <map>
-#include "sqa/ServiceOptions.h"
+#include <os/OsServiceOptions.h>
 #include "sqa/StateQueueMessage.h"
 
 
@@ -259,7 +259,7 @@ public:
     {
       std::ostringstream sqaconfig;
       sqaconfig << SIPX_CONFDIR << "/" << "redis-client.ini";
-      ServiceOptions configOptions(sqaconfig.str());
+      OsServiceOptions configOptions(sqaconfig.str());
       if (configOptions.parseOptions())
       {
         bool enabled = false;
