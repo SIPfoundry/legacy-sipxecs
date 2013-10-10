@@ -16,6 +16,7 @@
 #include "net/CallId.h"
 #include "net/Url.h"
 #include "net/SipMessage.h"
+#include "net/NameValueTokenizer.h"
 #include "NatTraversalAgentDataTypes.h"
 
 // DEFINES
@@ -28,7 +29,7 @@ using namespace std;
 // TYPEDEFS
 // STATIC INITIALIZERS
 
-NatMaintainer::NatMaintainer( SipRouter* sipRouter, RegDB* pRegDb, SubscribeDB* pSubscribeDb ) :
+NatMaintainer::NatMaintainer( SipRouter* sipRouter, RegDB* pRegDb, SubscribeDB* pSubscribeDb, const UtlString& externalAddress, int externalPort  ) :
    mRefreshRoundNumber( 0 ),
    mNextSeqValue( 1 ),
    mTimerMutex( OsMutex::Q_FIFO ),
@@ -64,6 +65,34 @@ NatMaintainer::NatMaintainer( SipRouter* sipRouter, RegDB* pRegDb, SubscribeDB* 
    UtlString fromTag;
    CallId::getNewTag( fromTag );
    mpKeepAliveMessage->setFromFieldTag( fromTag );   
+   
+  // adjust the via host and port
+   
+  UtlString topmostVia;
+  if( mpKeepAliveMessage->getViaFieldSubField(&topmostVia, 0 ) )
+  {
+    UtlString viaSentProtocol;
+    NameValueTokenizer::getSubField( topmostVia, 0, SIP_SUBFIELD_SEPARATORS, &viaSentProtocol );
+    UtlString sentByAndViaParams;
+    NameValueTokenizer::getSubField( topmostVia, 1, SIP_SUBFIELD_SEPARATORS, &sentByAndViaParams );
+    UtlString viaParams;
+    NameValueTokenizer::getSubField( sentByAndViaParams, 1, ";", &viaParams );
+
+    mpKeepAliveMessage->removeTopVia();
+
+    UtlString newVia;
+    char portNumericForm[24];
+    sprintf( portNumericForm, "%d", externalPort);
+    newVia += viaSentProtocol;
+    newVia += SIP_SUBFIELD_SEPARATOR;
+    newVia += externalAddress;
+    newVia += ":";
+    newVia += portNumericForm;
+    newVia += ";";
+    newVia += viaParams;
+
+    mpKeepAliveMessage->addViaField( newVia, TRUE );
+  }
 }
 
 NatMaintainer::~NatMaintainer()
