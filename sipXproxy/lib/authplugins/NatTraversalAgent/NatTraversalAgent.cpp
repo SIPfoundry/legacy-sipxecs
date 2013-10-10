@@ -558,7 +558,9 @@ void NatTraversalAgent::announceAssociatedSipRouter( SipRouter* sipRouter )
       }
 
       // launch thread that will maintain NAT keep alives
-      mpNatMaintainer = new NatMaintainer( sipRouter, mpRegDb, mpSubscribeDb );
+      mpNatMaintainer = new NatMaintainer( sipRouter, mpRegDb, mpSubscribeDb, 
+        mNatTraversalRules.getPublicTransportInfo().getAddress(),
+        mNatTraversalRules.getPublicTransportInfo().getPort() );
       mpNatMaintainer->start();
    }
 }
