@@ -204,7 +204,7 @@ int main(int argc, char* argv[])
   // NOTE: this might exit application in case of failure
   SipXApplication::instance().init(argc, argv, rlsData);
 
-  OsConfigDb& configDb = SipXApplication::instance().getOsServiceOptions().getOsConfigDb();
+  OsConfigDb& configDb = SipXApplication::instance().getConfig().getOsConfigDb();
 
    // Read the user agent parameters from the config file.
    int udpPort;

@@ -49,3 +49,4 @@ libsipdb_la_SOURCES =  \
    ResultSet.cpp \
    DbHelper.cpp \
    CustomConnPool.cpp
+   
