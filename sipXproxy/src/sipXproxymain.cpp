@@ -97,28 +97,7 @@ int proxy()
     UtlString authScheme;    
     UtlString ipAddress;
 
-    // register default exception handler methods
-    // exit for mongo tcp related exceptions, core dump for others
-    OsExceptionHandler::instance();
-
-    //
-    // Raise the file handle limit to maximum allowable
-    //
-    typedef OsResourceLimit::Limit Limit;
-    Limit rescur = 0;
-    Limit resmax = 0;
-    OsResourceLimit resource;
-    if (resource.setApplicationLimits("sipxproxy"))
-    {
-      resource.getFileDescriptorLimit(rescur, resmax);
-      OS_LOG_NOTICE(FAC_KERNEL, "Maximum file descriptors set to " << rescur);
-    }
-    else
-    {
-      OS_LOG_ERROR(FAC_KERNEL, "Unable to set file descriptor limit");
-    }
-
-    OsServiceOptions& osServiceOptions = SipXApplication::instance().getOsServiceOptions();
+    OsServiceOptions& osServiceOptions = SipXApplication::instance().getConfig();
 
     OsSocket::getHostIp(&ipAddress);
 
@@ -599,7 +578,6 @@ int proxy()
     return 0 ;
 }
 
-
 // USAGE:  sipXproxy [-v] [pidfile]
 int main(int argc, char* argv[]) {
 
@@ -610,8 +588,9 @@ int main(int argc, char* argv[]) {
       SIPX_PROXY_LOG_FILE,
       "",
       PROXY_CONFIG_PREFIX,
-      true, // daemonize
       false, // do not check mongo connection
+      true, // increase application file descriptor limits
+      SipXApplicationData::ConfigFileFormatConfigDb, // format type for configuration file
       OsMsgQShared::QUEUE_UNLIMITED,
   };
 

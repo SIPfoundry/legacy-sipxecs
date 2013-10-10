@@ -17,7 +17,7 @@
 #define STATEQUEUEAGENT_H_INCLUDED
 
 
-#include "ServiceOptions.h"
+#include <os/OsServiceOptions.h>
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
@@ -36,7 +36,7 @@
 class StateQueueAgent : boost::noncopyable
 {
 public:
-  StateQueueAgent(const std::string& agentId, ServiceOptions& options);
+  StateQueueAgent(const std::string& agentId, OsServiceOptions& options);
   ~StateQueueAgent();
   void run();
   void stop();
@@ -120,7 +120,7 @@ public:
   
   void onQueueTimeout(const std::string& id, const boost::any& data);
 
-  ServiceOptions& options();
+  OsServiceOptions& options();
   StateQueueListener& listener();
   int& inactivityThreshold();
   
@@ -140,7 +140,7 @@ protected:
   void setPublisher(StateQueuePublisher* publisher);
 
   std::string _agentId;
-  ServiceOptions& _options;
+  OsServiceOptions& _options;
   boost::thread* _pIoServiceThread;
   boost::asio::io_service _ioService;
   TimedQueue _cache;
@@ -168,7 +168,7 @@ inline const char* StateQueueAgent::getClassName()
   return "StateQueueAgent";
 }
 
-inline ServiceOptions& StateQueueAgent::options()
+inline OsServiceOptions& StateQueueAgent::options()
 {
   return _options;
 }

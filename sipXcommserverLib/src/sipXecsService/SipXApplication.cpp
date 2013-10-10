@@ -7,6 +7,36 @@
 
 #include <os/OsExceptionHandler.h>
 
+#include <sipdb/MongoDB.h>
+
+
+void SipXApplication::displayVersion(std::ostream& strm) const
+{
+  strm << "Version: " << PACKAGE_VERSION << PACKAGE_REVISION << std::endl;
+  strm.flush();
+}
+
+void SipXApplication::displayUsage(std::ostream& strm)
+{
+  _osServiceOptions.displayUsage(strm);
+}
+
+void SipXApplication::showVersionHelp()
+{
+  if (_osServiceOptions.hasOption(OsServiceOptions::helpOption().pName))
+  {
+    displayVersion(std::cout);
+    displayUsage(std::cout);
+    exit(0);
+  }
+
+  if (_osServiceOptions.hasOption(OsServiceOptions::versionOption().pName))
+  {
+    displayVersion(std::cout);
+    exit(0);
+  }
+}
+
 bool SipXApplication::init(int argc, char* argv[], const SipXApplicationData& appData)
 {
   _appData = appData;
@@ -15,42 +45,33 @@ bool SipXApplication::init(int argc, char* argv[], const SipXApplicationData& ap
   // exit for mongo tcp related exceptions, core dump for others
   OsExceptionHandler::instance();
 
-  if (_appData._daemonize)
-  {
-   doDaemonize(argc, argv);
-  }
+  doDaemonize(argc, argv);
 
   registrerSignalHandlers();
 
   OsMsgQShared::setQueuePreference(_appData._queuePreference);
 
-  if (!loadConfiguration(_appData._configFilename))
-  {
-   fprintf(stderr, "Failed to load config DB from file '%s'", _appData._configFilename.c_str());
+  _osServiceOptions.addDefaultOptions();
 
+  if (!parse(_osServiceOptions, argc, argv, _appData._configFilename))
+  {
+    fprintf(stderr, "Failed to load configuration\n");
     exit(1);
   }
 
+  // checks version or help options
+  showVersionHelp();
+
   // Initialize log file
-  initSysLog(&_osServiceOptions);
+  initLogger();
 
   std::set_terminate(&OsExceptionHandler::catch_global);
 
-  //
+
   // Raise the file handle limit to maximum allowable
-  //
-  typedef OsResourceLimit::Limit Limit;
-  Limit rescur = 0;
-  Limit resmax = 0;
-  OsResourceLimit resource;
-  if (resource.setApplicationLimits(_appData._appName))
+  if (_appData._increaseResourceLimits)
   {
-    resource.getFileDescriptorLimit(rescur, resmax);
-    OS_LOG_NOTICE(FAC_KERNEL, "Maximum file descriptors set to " << rescur);
-  }
-  else
-  {
-    OS_LOG_ERROR(FAC_KERNEL, "Unable to set file descriptor limit");
+    increaseResourceLimits();
   }
 
   if (_appData._checkMongo)
@@ -67,20 +88,48 @@ bool SipXApplication::init(int argc, char* argv[], const SipXApplicationData& ap
   return true;
 }
 
-void SipXApplication::doDaemonize(int argc, char* argv[])
+bool SipXApplication::increaseResourceLimits(const std::string& configurationPath)
+{
+  bool ret = false;
+  //
+  // Raise the file handle limit to maximum allowable
+  //
+  typedef OsResourceLimit::Limit Limit;
+  Limit rescur = 0;
+  Limit resmax = 0;
+  OsResourceLimit resource;
+  ret = resource.setApplicationLimits(_appData._appName, configurationPath);
+  if (ret == true)
+  {
+    resource.getFileDescriptorLimit(rescur, resmax);
+    OS_LOG_NOTICE(FAC_KERNEL, "Maximum file descriptors set to " << rescur);
+  }
+  else
+  {
+    OS_LOG_ERROR(FAC_KERNEL, "Unable to set file descriptor limit");
+  }
+
+  return ret;
+}
+
+void SipXApplication::doDaemonize(int argc, char** pArgv)
 {
   char* pidFile = NULL;
-   for(int i = 1; i < argc; i++) {
-      if(strncmp("-v", argv[i], 2) == 0) {
-       std::cout << "Version: " << PACKAGE_VERSION << PACKAGE_REVISION << std::endl;
-       exit(0);
-      } else {
-       pidFile = argv[i];
-      }
-   }
-   if (pidFile) {
+
+  for (int i = 0; i < argc; i++)
+  {
+    std::string arg = pArgv[i];
+    if (arg == (std::string("--") + OsServiceOptions::pidFileOption().pName) && (i + 1) < argc)
+    {
+      pidFile = pArgv[i + 1];
+      break;
+    }
+  }
+
+  if (pidFile)
+  {
     daemonize(pidFile);
-   }
+  }
 }
 
 void  SipXApplication::registrerSignalHandlers()
@@ -97,32 +146,49 @@ void  SipXApplication::registrerSignalHandlers()
   Os::UnixSignals::instance().registerSignalHandler(SIGUSR2 , boost::bind(&SipXApplication::handleSIGUSR2, this));
 }
 
-bool SipXApplication::loadConfiguration(const std::string& configFilename)
+bool SipXApplication::parse(OsServiceOptions& osServiceOptions, int argc, char** pArgv, const std::string& configFilename)
 {
   bool ret = false;
+  int parseOptionsFlags = OsServiceOptions::NoOptionsFlag;
+  UtlString fileName;
 
-  // Load configuration file.
-  OsPath workingDirectory;
-  if (OsFileSystem::exists(SIPX_CONFDIR))
+  if (_appData._configFileFormat == SipXApplicationData::ConfigFileFormatConfigDb)
   {
-    workingDirectory = SIPX_CONFDIR;
-    OsPath path(workingDirectory);
-    path.getNativePath(workingDirectory);
+    OsPath workingDirectory;
+    if (OsFileSystem::exists(SIPX_CONFDIR))
+    {
+      workingDirectory = SIPX_CONFDIR;
+      OsPath path(workingDirectory);
+      path.getNativePath(workingDirectory);
+    }
+    else
+    {
+      OsPath path;
+      OsFileSystem::getWorkingDirectory(path);
+      path.getNativePath(workingDirectory);
+    }
+
+    if (!configFilename.empty())
+      fileName = workingDirectory + OsPathBase::separator + configFilename.c_str();
+
+    if (!_appData._nodeFilename.empty())
+    {
+      _nodeFilePath = workingDirectory + OsPathBase::separator + _appData._nodeFilename.c_str();
+    }
+
+    parseOptionsFlags |= OsServiceOptions::ParseConfigDbFlag;
   }
-  else
+  else if (_appData._configFileFormat == SipXApplicationData::ConfigFileFormatIni)
   {
-    OsPath path;
-    OsFileSystem::getWorkingDirectory(path);
-    path.getNativePath(workingDirectory);
+    fileName = configFilename;
   }
 
-  UtlString fileName = workingDirectory + OsPathBase::separator + configFilename.c_str();
-  if (!_appData._nodeFilename.empty())
-  {
-    _nodeFilePath = workingDirectory + OsPathBase::separator + _appData._nodeFilename.c_str();
-  }
+  osServiceOptions.setConfigurationFile(fileName.data());
+  osServiceOptions.setCommandLine(argc, pArgv);
 
-  if (OS_SUCCESS == _osServiceOptions.loadConfigDbFromFile(fileName.data()))
+  parseOptionsFlags |= OsServiceOptions::AddDefaultComandLineOptionsFlag;
+
+  if (true == osServiceOptions.parseOptions((OsServiceOptions::ParseOptionsFlags)parseOptionsFlags))
   {
     Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "Loading configuration %s", fileName.data());
     ret = true;
@@ -135,14 +201,14 @@ bool SipXApplication::loadConfiguration(const std::string& configFilename)
   return ret;
 }
 
-bool SipXApplication::reloadConfiguration(const std::string& configFilename)
+bool SipXApplication::loadConfiguration(OsServiceOptions& osServiceOptions, const std::string& configFilename)
 {
   if (configFilename.empty())
   {
-   return loadConfiguration(_appData._configFilename);
+   return parse(osServiceOptions, 0, NULL, _appData._configFilename);
   }
 
-  return loadConfiguration(configFilename);
+  return parse(osServiceOptions, 0, NULL, configFilename);
 }
 
 bool SipXApplication::testMongoDBConnection()
@@ -178,14 +244,18 @@ void SipXApplication::terminate()
   mongo::dbexit(mongo::EXIT_CLEAN);
 }
 
-// Initialize the OsSysLog
-void SipXApplication::initSysLog(OsServiceOptions* pOsServiceOptions)
+void SipXApplication::initLoggerByConfigurationFile()
 {
   UtlString logLevel;          // Controls Log Verbosity
   UtlString consoleLogging;      // Enable console logging by default?
   UtlString fileTarget;         // Path to store log file.
   UtlBoolean bSpecifiedDirError ;  // Set if the specified log dir does not
                         // exist
+
+  // If no log file is given don't start logger
+  if (_appData._logFilename.empty())
+    return;
+
   Os::LoggerHelper::instance().processName = _appData._appName.c_str();
 
   std::string configSettingLogDir = _appData._configPrefix + "_LOG_DIR";
@@ -195,7 +265,7 @@ void SipXApplication::initSysLog(OsServiceOptions* pOsServiceOptions)
   // Get/Apply Log Filename
   //
   fileTarget.remove(0);
-  if ((pOsServiceOptions->getOption(configSettingLogDir.c_str(), fileTarget) != OS_SUCCESS) ||
+  if ((_osServiceOptions.getOption(configSettingLogDir.c_str(), fileTarget) != OS_SUCCESS) ||
     fileTarget.isNull() || !OsFileSystem::exists(fileTarget))
   {
     bSpecifiedDirError = !fileTarget.isNull();
@@ -252,7 +322,7 @@ void SipXApplication::initSysLog(OsServiceOptions* pOsServiceOptions)
   // Get/Apply console logging
   //
   UtlBoolean bConsoleLoggingEnabled = false;
-  if ((pOsServiceOptions->getOption(configSettingLogConsole.c_str(), consoleLogging) == OS_SUCCESS))
+  if ((_osServiceOptions.getOption(configSettingLogConsole.c_str(), consoleLogging) == OS_SUCCESS))
   {
     consoleLogging.toUpper();
     if (consoleLogging == "ENABLE")
@@ -275,7 +345,60 @@ void SipXApplication::initSysLog(OsServiceOptions* pOsServiceOptions)
   }
 }
 
+void SipXApplication::initLoggerByCommandLine(bool& initialized)
+{
+  std::string logFile;
+  int priorityLevel = PRI_INFO;
+  if (_osServiceOptions.hasOption(OsServiceOptions::logFileOption().pName))
+  {
+    if (_osServiceOptions.getOption(OsServiceOptions::logFileOption().pName, logFile) && !logFile.empty())
+    {
+      if (_osServiceOptions.hasOption(OsServiceOptions::logLevelOption().pName))
+        _osServiceOptions.getOption(OsServiceOptions::logLevelOption().pName, priorityLevel, priorityLevel);
+
+      int logLevel = SYSLOG_NUM_PRIORITIES - priorityLevel - 1;
+      if (logLevel < 0)
+        logLevel = 0;
+
+      Os::LoggerHelper::instance().processName = _appData._appName;
+
+      if (!Os::LoggerHelper::instance().initialize(logLevel, logFile.c_str()))
+      {
+        displayVersion(std::cerr);
+        displayUsage(std::cerr);
+        std::cerr << std::endl << "ERROR: Unable to create log file " << logFile << "!" << std::endl;
+        std::cerr.flush();
+
+        _exit(-1);
+      }
+
+      initialized = true;
+    }
+  }
+}
+
+// Initialize the OsSysLog
+void SipXApplication::initLogger()
+{
+  bool initialized = false;
+
+  initLoggerByCommandLine(initialized);
+
+  if (initialized == false)
+    initLoggerByConfigurationFile();
+}
+
 bool& SipXApplication::terminationRequested()
 {
   return Os::UnixSignals::instance().isTerminateSignalReceived();
+}
+
+void SipXApplication::waitForTerminationRequest(int seconds)
+{
+  while (!terminationRequested())
+  {
+    sleep(seconds);
+  }
+
+  std::cout << "Termination Signal RECEIVED" << std::endl;
 }

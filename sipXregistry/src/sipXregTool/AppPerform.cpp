@@ -46,7 +46,11 @@ AppPerform::~AppPerform()
 void AppPerform::deleteDbEntries(std::vector<std::string>& whereOptVector,
                                  const std::string& databaseName)
 {
+<<<<<<< HEAD
   MongoDB::ConnectionInfo connectionInfo(_mongoConnectionString);
+=======
+  MongoDB::ConnectionInfo connectionInfo(_mongoConnectionString, pNodeRegistrarDbName);
+>>>>>>> - UC-1555 - Merge functionality of SipXApplication and OsServiceOptions classes
 
   DbHelper::deleteDbEntries(&connectionInfo, databaseName, whereOptVector);
 }
@@ -66,7 +70,11 @@ void AppPerform::printDbEntries(std::vector<std::string>& whereOptVector,
           DbHelperTagInfo(std::string("Unknown database name. Please select one of the following databases: imdb.entity, node.registrar")));
   }
 
+<<<<<<< HEAD
   MongoDB::ConnectionInfo connectionInfo(_mongoConnectionString);
+=======
+  MongoDB::ConnectionInfo connectionInfo(_mongoConnectionString, pNodeRegistrarDbName);
+>>>>>>> - UC-1555 - Merge functionality of SipXApplication and OsServiceOptions classes
 
   DbHelper::printDbEntries(std::cout, &connectionInfo, databaseName, whereOptVector, dbType, multipleLines);
 }

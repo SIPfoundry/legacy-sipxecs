@@ -88,7 +88,7 @@ public: // Methods
     {
       std::ostringstream sqaconfig;
       sqaconfig << SIPX_CONFDIR << "/" << "redis-client.ini";
-      ServiceOptions configOptions(sqaconfig.str());
+      OsServiceOptions configOptions(sqaconfig.str());
       if (configOptions.parseOptions())
       {
         bool enabled = false;

@@ -208,23 +208,6 @@ void initCodecs(SdpCodecFactory* codecFactory, OsConfigDb* pConfig)
 
 int main(int argc, char* argv[])
 {
-    //
-    // Raise the file handle limit to maximum allowable
-    //
-    typedef OsResourceLimit::Limit Limit;
-    Limit rescur = 0;
-    Limit resmax = 0;
-    OsResourceLimit resource;
-    if (resource.setApplicationLimits("sipxpark"))
-    {
-      resource.getFileDescriptorLimit(rescur, resmax);
-      OS_LOG_NOTICE(FAC_KERNEL, "Maximum file descriptors set to " << rescur);
-    }
-    else
-    {
-      OS_LOG_ERROR(FAC_KERNEL, "Unable to set file descriptor limit");
-    }
-
   SipXApplicationData rlsData =
   {
       SIPXPARK_APP_NAME,
@@ -232,15 +215,16 @@ int main(int argc, char* argv[])
       CONFIG_LOG_FILE,
       "",
       CONFIG_SETTING_PREFIX,
-      true, // daemonize
       false, // do not check mongo connection
+      true, // increase application file descriptor limits
+      SipXApplicationData::ConfigFileFormatConfigDb, // format type for configuration file
       OsMsgQShared::QUEUE_LIMITED, //park uses limited queue
   };
 
   // NOTE: this might exit application in case of failure
   SipXApplication::instance().init(argc, argv, rlsData);
 
-  OsConfigDb& configDb = SipXApplication::instance().getOsServiceOptions().getOsConfigDb();
+  OsConfigDb& configDb = SipXApplication::instance().getConfig().getOsConfigDb();
 
   {
     // Read the user agent parameters from the config file.

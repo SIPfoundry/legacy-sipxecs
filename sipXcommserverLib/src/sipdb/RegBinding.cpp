@@ -31,7 +31,6 @@ const char* RegBinding::localAddress_fld(){ static std::string fld = "localAddre
 const char* RegBinding::timestamp_fld(){ static std::string fld = "timestamp"; return fld.c_str(); }
 const char* RegBinding::expired_fld(){ static std::string fld = "expired"; return fld.c_str(); }
 
-
 RegBinding::RegBinding() :
     _cseq(0),
     _expirationTime(0),

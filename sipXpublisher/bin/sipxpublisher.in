@@ -41,7 +41,7 @@ start() {
     [ $Status -eq 0 ] && { echo -n "$progName $runningError"; echo_failure; echo; exit $ERUNNING; }
 
     echo -n $"Starting $progName: "
-    daemon --user @SIPXPBXUSER@ --pidfile $pidfile $exec $pidfile
+    daemon --user @SIPXPBXUSER@ --pidfile $pidfile $exec --pid-file $pidfile
     Status=$?
 
     if [ $# -gt 0 ]; then

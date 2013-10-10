@@ -20,7 +20,7 @@
 
 static const char* REDIS_CHANNEL = REDIS_EVENT_CHANNEL;
 
-StateQueueAgent::StateQueueAgent(const std::string& agentId, ServiceOptions& options) :
+StateQueueAgent::StateQueueAgent(const std::string& agentId, OsServiceOptions& options) :
     _agentId(agentId),
   _options(options),
   _pIoServiceThread(0),
