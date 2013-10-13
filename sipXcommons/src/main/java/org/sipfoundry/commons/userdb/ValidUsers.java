@@ -58,6 +58,7 @@ public class ValidUsers {
     private static final String IMDB_PERM_VOICEMAIL = "Voicemail";
     private static final String IMDB_PERM_RECPROMPTS = "RecordSystemPrompts";
     private static final String IMDB_PERM_TUICHANGEPIN = "tui-change-pin";
+    private static final String IMDB_PERM_ADMIN = "superadmin";
     private static final String ENTITY_NAME_USER = "user";
     private static final String ENTITY_NAME_GROUP = "group";
     private static final String ENTITY_NAME_IMBOTSETTINGS = "imbotsettings";
@@ -551,6 +552,7 @@ public class ValidUsers {
             user.setHasVoicemail(permissions.contains(IMDB_PERM_VOICEMAIL));
             user.setCanRecordPrompts(permissions.contains(IMDB_PERM_RECPROMPTS));
             user.setCanTuiChangePin(permissions.contains(IMDB_PERM_TUICHANGEPIN));
+            user.setAdmin(permissions.contains(IMDB_PERM_ADMIN));
         }
 
         user.setUserBusyPrompt(Boolean.valueOf(getStringValue(obj, USERBUSYPROMPT)));

@@ -118,7 +118,8 @@ lib_all = \
   rubygem-net-ssh \
   rubygem-net-sftp \
   ruby-postgres \
-  erlang
+  erlang \
+  jasperserver
 
 lib_exclude_fedora_16 = \
   epel \

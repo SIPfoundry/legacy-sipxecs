@@ -80,6 +80,7 @@ public class User {
     private String m_highestWeightGroup;
     private String m_timeZone;
     private boolean m_depositVoicemail;
+    private boolean m_admin;
 
     public enum EmailFormats {
         FORMAT_NONE("NONE"), FORMAT_FULL("FULL"), FORMAT_MEDIUM("MEDIUM"), FORMAT_BRIEF("BRIEF"), FORMAT_IMAP("IMAP");
@@ -689,5 +690,12 @@ public class User {
     public void setDepositVoicemail(boolean depositVoicemail) {
         m_depositVoicemail = depositVoicemail;
     }
-    
+
+    public boolean isAdmin() {
+        return m_admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        m_admin = admin;
+    }
 }
