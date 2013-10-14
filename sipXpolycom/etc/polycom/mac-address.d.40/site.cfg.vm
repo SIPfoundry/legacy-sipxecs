@@ -372,4 +372,24 @@ sec.TLS.profile.1.caCert.platform2="0"
           prov.${setting.ProfileName}="$!{setting.Value}"
 #end
 />
+#if ($phone.getDeviceVersion() == $ver5)
+<keyboard
+#set ($keyboard = $cfg.EndpointSettings.getSetting('keyboard'))
+#foreach ($setting in $cfg.getRecursiveSettings($keyboard))
+          keyboard.${setting.ProfileName}="$!{setting.Value}"
+#end
+/>
+<mwi
+#set ($mwi = $cfg.EndpointSettings.getSetting('mwi'))
+#foreach ($setting in $cfg.getRecursiveSettings($mwi))
+          mwi.${setting.ProfileName}="$!{setting.Value}"
+#end
+/>
+<audioVideoToggle
+#set ($audioVideoToggle = $cfg.EndpointSettings.getSetting('audioVideoToggle'))
+#foreach ($setting in $cfg.getRecursiveSettings($mwi))
+          audioVideoToggle.${setting.ProfileName}="$!{setting.Value}"
+#end
+/>
+#end
 </polycomConfig>

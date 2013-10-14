@@ -112,6 +112,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
         super.setModel(model);
         setDeviceVersion(((PolycomModel) model).getDefaultVersion());
     }
+
     public void setCertificateManager(CertificateManager certificateManager) {
         m_certificateManager = certificateManager;
     }
@@ -122,12 +123,10 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
     }
 
     public String getTemplateDir() {
-        if (getDeviceVersion() == PolycomModel.VER_4_0_X) {
+        if (PolycomModel.is40orLater(getDeviceVersion())) {
             return TEMPLATE_DIR40;
         } else if (getDeviceVersion() == PolycomModel.VER_3_2_X) {
             return TEMPLATE_DIR32;
-        } else if (PolycomModel.is41(getDeviceVersion())) {
-            return TEMPLATE_DIR40;
         }
         return TEMPLATE_DIR;
     }
@@ -136,32 +135,26 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
      * make use of getApplicationFilename?
      */
     public String getAppFile() {
-        if (getDeviceVersion() == PolycomModel.VER_4_0_X) {
+        if (PolycomModel.is40orLater(getDeviceVersion())) {
             return "/mac-address-40.cfg.vm";
         } else if (getDeviceVersion() == PolycomModel.VER_3_2_X) {
             return "/mac-address-32.cfg.vm";
         } else if (getDeviceVersion() == PolycomModel.VER_3_1_X) {
             return "/mac-address-31.cfg.vm";
-        } else if (PolycomModel.is41(getDeviceVersion())) {
-            return "/mac-address-40.cfg.vm";
         }
         return "/mac-address.cfg.vm";
     }
 
     /**
      * Default firmware version for polycom phones. Default is 1.6 right now
-     *
+     * 
      * @param defaultVersionId 1.6 or 2.0
      */
     @Override
     public void setDeviceVersion(DeviceVersion version) {
         super.setDeviceVersion(version);
         DeviceVersion myVersion = getDeviceVersion();
-        if (myVersion == PolycomModel.VER_4_0_X) {
-            getModel().setSettingsFile("phone-40.xml");
-            getModel().setLineSettingsFile("line-40.xml");
-            getModel().setStaticProfileFilenames(new String[] {});
-        } else if (PolycomModel.is41(myVersion)) {
+        if (PolycomModel.is40orLater(myVersion)) {
             getModel().setSettingsFile("phone-40.xml");
             getModel().setLineSettingsFile("line-40.xml");
             getModel().setStaticProfileFilenames(new String[] {});
@@ -192,7 +185,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
     public void initialize() {
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
         PolycomPhoneDefaults phoneDefaults = new PolycomPhoneDefaults(getPhoneContext().getPhoneDefaults(),
-                speedDial);
+                speedDial, getModelId());
         addDefaultBeanSettingHandler(phoneDefaults);
 
         PolycomIntercomDefaults intercomDefaults = new PolycomIntercomDefaults(this);
@@ -213,7 +206,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
     @Override
     public Profile[] getProfileTypes() {
         Profile[] profileTypes;
-        if (getDeviceVersion() == PolycomModel.VER_4_0_X || PolycomModel.is41(getDeviceVersion())) {
+        if (PolycomModel.is40orLater(getDeviceVersion())) {
             profileTypes = new Profile[] {
                 new ApplicationProfile(getAppFilename()), new ApplicationsProfile(getAppsFilename()),
                 new FeaturesProfile(getFeaturesFilename()), new RegAdvancedProfile(getRegAdvancedFilename()),
@@ -698,7 +691,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
         }
         return false;
     }
-    
+
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         m_beanFactory = beanFactory;

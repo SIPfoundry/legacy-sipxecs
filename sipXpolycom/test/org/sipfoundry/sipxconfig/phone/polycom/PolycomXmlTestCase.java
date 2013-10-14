@@ -50,6 +50,7 @@ public abstract class PolycomXmlTestCase extends XMLTestCase {
     private static final String XML_INDENT = "  ";
     static protected PolycomPhone phone40;
     static protected PolycomPhone phone41;
+    static protected PolycomPhone phone50;
     static protected MemoryProfileLocation location;
     static protected VelocityProfileGenerator m_pg;
 
@@ -62,15 +63,9 @@ public abstract class PolycomXmlTestCase extends XMLTestCase {
         XMLUnit.setIgnoreWhitespace(true);
     }
 
-    protected void setUp4041Tests() throws Exception {
+    protected void setUp404150Tests() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
 
-        /*
-         * PolycomModel model = new PolycomModel(); model.setMaxLineCount(6);
-         * model.setDefaultVersion(PolycomModel.VER_4_1_5);
-         * model.setSupportedFeatures(PolycomXmlTestCase.supportedVVX500);
-         * model.setModelId("polycomVVX500");
-         */
         PolycomModel model = phoneModelBuilder("polycomVVX500", getClass());
         ModelSource<PhoneModel> phoneModelSource = createMock(ModelSource.class);
 
@@ -91,6 +86,15 @@ public abstract class PolycomXmlTestCase extends XMLTestCase {
         phone40.setDeviceVersion(PolycomModel.VER_4_0_X);
         PhoneTestDriver.supplyTestData(phone40);
 
+        phone50 = new PolycomPhone();
+
+        phone50.setModelId("polycomVVX500");
+        phone50.setBeanId("polycomVVX500");
+        phone50.setPhoneModelSource(phoneModelSource);
+        phone50.setModel(model);
+        phone50.setDeviceVersion(PolycomModel.VER_5_0_0);
+        PhoneTestDriver.supplyTestData(phone50);
+        
         location = new MemoryProfileLocation();
 
         VelocityProfileGenerator pg = new VelocityProfileGenerator();

@@ -16,7 +16,7 @@ public class FeaturesConfigurationTest extends PolycomXmlTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        setUp4041Tests();
+        setUp404150Tests();
     }
 
     public void testGenerateProfile41() throws Exception {
@@ -42,4 +42,15 @@ public class FeaturesConfigurationTest extends PolycomXmlTestCase {
         expectedPhoneStream.close();
     }
 
+    public void testGenerateProfile50() throws Exception {
+
+        FeaturesConfiguration app = new FeaturesConfiguration(phone50);
+
+        m_pg.generate(location, app, null, "profile");
+
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-sipx-features.cfg");
+        assertPolycomXmlEquals(new InputStreamReader(expectedPhoneStream), location.getReader());
+
+        expectedPhoneStream.close();
+    }
 }

@@ -16,7 +16,7 @@ public class ApplicationsConfigurationTest extends PolycomXmlTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        setUp4041Tests();
+        setUp404150Tests();
     }
 
     public void testGenerateProfile41() throws Exception {
@@ -43,4 +43,17 @@ public class ApplicationsConfigurationTest extends PolycomXmlTestCase {
         expectedPhoneStream.close();
     }
 
+    public void testGenerateProfile50() throws Exception {
+
+        ApplicationsConfiguration app = new ApplicationsConfiguration(phone50);
+
+        m_pg.generate(location, app, null, "profile");
+
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-applications.cfg");
+        assertPolycomXmlEquals(new InputStreamReader(expectedPhoneStream), location.getReader());
+
+        expectedPhoneStream.close();
+    }
+
+    
 }

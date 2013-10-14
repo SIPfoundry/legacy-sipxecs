@@ -24,7 +24,7 @@ public class SiteConfigurationTest extends PolycomXmlTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        setUp4041Tests();
+        setUp404150Tests();
         String cert = "Version: 3 " + "Serial Number: 1378803401547 " + "Signature Algorithm: SHA1WITHRSA "
                 + "Issuer: C=US,ST=AnyState,L=AnyTown,O=ezuce.ro,OU=sipXecs,CN=ca.ezuce.ro,E=root@ezuce.ro "
                 + "Not Before: Tue Sep 10 10:56:41 EEST 2013 " + "Not After: Sun Sep 10 10:56:41 EEST 2023 "
@@ -79,4 +79,15 @@ public class SiteConfigurationTest extends PolycomXmlTestCase {
         expectedPhoneStream.close();
     }
 
+    public void testGenerateProfile50() throws Exception {
+        SiteConfiguration app = new SiteConfiguration(phone50, m_certificateManager);
+
+        m_pg.generate(location, app, null, "profile");
+
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-sipx-site-50.cfg");
+        assertPolycomXmlEquals(new InputStreamReader(expectedPhoneStream), location.getReader());
+        EasyMock.verify(m_certificateManager);
+        expectedPhoneStream.close();
+    }
+    
 }

@@ -29,8 +29,8 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 /**
  * Responsible for generating ipmid.cfg
  */
-public class SiteConfiguration extends ProfileContext {
-    private CertificateManager m_certificateManager;
+public class SiteConfiguration extends ProfileContext<PolycomPhone> {
+    private final CertificateManager m_certificateManager;
 
     public SiteConfiguration(PolycomPhone device, CertificateManager certificateManager) {
         super(device, device.getTemplateDir() + "/site.cfg.vm");
@@ -47,7 +47,7 @@ public class SiteConfiguration extends ProfileContext {
     }
 
     public int getLineCount() {
-        PolycomPhone phone = (PolycomPhone) getDevice();
+        PolycomPhone phone = getDevice();
         List<Line> lines = phone.getLines();
 
         // Phones with no configured lines will register under the sipXprovision special user.
@@ -63,7 +63,7 @@ public class SiteConfiguration extends ProfileContext {
         Map<String, Object> context = super.getContext();
         getDevice().getSettings();
         context.put("lines", getLineCount());
-
+        context.put("ver5", PolycomModel.VER_5_0_0);
         context.put("cert", m_certificateManager.getSelfSigningAuthorityText());
 
         return context;

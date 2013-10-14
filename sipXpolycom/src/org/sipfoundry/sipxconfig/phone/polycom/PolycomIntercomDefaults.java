@@ -34,7 +34,7 @@ public class PolycomIntercomDefaults {
     static final String AUTO_ANSWER_RING_CLASS_40 = "autoAnswer";
     static final String RING_ANSWER_RING_CLASS_40 = "ringAutoAnswer";
 
-    private Phone m_phone;
+    private final Phone m_phone;
 
     public PolycomIntercomDefaults(Phone phone) {
         m_phone = phone;
@@ -60,8 +60,7 @@ public class PolycomIntercomDefaults {
         int timeout = intercom.getTimeout();
         String autoAnswer = AUTO_ANSWER_RING_CLASS_32;
         String ringAnswer = RING_ANSWER_RING_CLASS_32;
-        if (m_phone.getDeviceVersion() == PolycomModel.VER_4_0_X
-                || PolycomModel.is41(m_phone.getDeviceVersion())) {
+        if (PolycomModel.is40orLater(m_phone.getDeviceVersion())) {
             autoAnswer = AUTO_ANSWER_RING_CLASS_40;
             ringAnswer = RING_ANSWER_RING_CLASS_40;
         }

@@ -305,6 +305,12 @@
       </type>
       <value>0</value>
     </setting>
+    <setting name="impossibleMatchHandling.timeOut" if="5.0.0">
+      <type>
+        <integer min="0" max="100" />
+      </type>
+      <value>8</value>
+    </setting>
     <setting name="removeEndOfDial">
       <type>
         <boolean />

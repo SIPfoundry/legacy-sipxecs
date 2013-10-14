@@ -44,7 +44,7 @@ public class PhoneConfiguration extends ProfileContext<PolycomPhone> {
     }
 
     public Collection<Setting> getLines() {
-        PolycomPhone phone = (PolycomPhone) getDevice();
+        PolycomPhone phone = getDevice();
         List<Line> lines = phone.getLines();
 
         // Phones with no configured lines will register under the sipXprovision special user.
@@ -58,11 +58,11 @@ public class PhoneConfiguration extends ProfileContext<PolycomPhone> {
         }
 
         int lineCount = Math.max(lines.size(), TEMPLATE_DEFAULT_LINE_COUNT);
-        if (phone.getDeviceVersion() == PolycomModel.VER_4_0_X || PolycomModel.is41(phone.getDeviceVersion())) {
+        if (PolycomModel.is40orLater(phone.getDeviceVersion())) {
             lineCount = lines.size();
         }
 
-        ArrayList<Setting> linesSettings = new ArrayList<Setting>(lineCount);
+        List<Setting> linesSettings = new ArrayList<Setting>(lineCount);
 
         for (Line line : lines) {
             if (line.getUser() != null && !line.getUser().hasPermission(PermissionName.VOICEMAIL)) {

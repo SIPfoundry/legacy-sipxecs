@@ -20,10 +20,12 @@ import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 public class PolycomPhoneDefaults {
     private final DeviceDefaults m_defaults;
     private final SpeedDial m_speedDial;
+    private final String m_model;
 
-    PolycomPhoneDefaults(DeviceDefaults defaults, SpeedDial speedDial) {
+    PolycomPhoneDefaults(DeviceDefaults defaults, SpeedDial speedDial, String model) {
         m_defaults = defaults;
         m_speedDial = speedDial;
+        m_model = model;
     }
 
     private DeviceTimeZone getZone() {
@@ -141,5 +143,15 @@ public class PolycomPhoneDefaults {
     public String getSyslogServer() {
         Address syslog = m_defaults.getAddressManager().getSingleAddress(PhoneLog.PHONELOG);
         return (syslog != null ? syslog.getAddress() : "");
+    }
+
+    @SettingEntry(path = "up/numOfDisplayColumns/numOfDisplayColumns")
+    public String getNumDisplayColumns() {
+        if (m_model.equals("polycomVVX600")) {
+            return "4";
+        } else if (m_model.equals("polycomVVX500")) {
+            return "3";
+        }
+        return null;
     }
 }

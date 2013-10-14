@@ -44,7 +44,7 @@ public class PolycomPhoneDefaultsTest extends TestCase {
         // Create a fresh new PolycomPhoneDefaults that will use our fresh new DeviceTimeZone.
         DeviceDefaults deviceDefaults = new DeviceDefaults();
         deviceDefaults.setTimeZoneManager(tzm);
-        m_polycomPhoneDefaults = new PolycomPhoneDefaults(deviceDefaults, new SpeedDial());
+        m_polycomPhoneDefaults = new PolycomPhoneDefaults(deviceDefaults, new SpeedDial(), "polycomXXX");
     }
 
     // Negative numeric start/stop DST values would be in poor taste, even if they should
