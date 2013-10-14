@@ -61,11 +61,8 @@ public class PolycomIntercomDefaults {
         String autoAnswer = AUTO_ANSWER_RING_CLASS_32;
         String ringAnswer = RING_ANSWER_RING_CLASS_32;
         if (m_phone.getDeviceVersion() == PolycomModel.VER_4_0_X
-                || m_phone.getDeviceVersion() == PolycomModel.VER_4_1_X) {
+                || PolycomModel.is41(m_phone.getDeviceVersion())) {
             autoAnswer = AUTO_ANSWER_RING_CLASS_40;
-        }
-        if (m_phone.getDeviceVersion() == PolycomModel.VER_4_0_X
-                || m_phone.getDeviceVersion() == PolycomModel.VER_4_1_X) {
             ringAnswer = RING_ANSWER_RING_CLASS_40;
         }
         return timeout > 0 ? ringAnswer : autoAnswer;

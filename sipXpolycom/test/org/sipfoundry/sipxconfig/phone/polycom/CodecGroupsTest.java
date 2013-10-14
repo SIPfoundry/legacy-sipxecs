@@ -62,6 +62,7 @@ public class CodecGroupsTest extends TestCase {
 
         // Initialize a phone with the codec group under test.
         PolycomModel model = new PolycomModel();
+        model.setDefaultVersion(PolycomModel.VER_4_0_X);
         Set<String> features = new HashSet<String>();
         features.add(String.format("%s_CodecPref", codecGroup));
         model.setSupportedFeatures(features);

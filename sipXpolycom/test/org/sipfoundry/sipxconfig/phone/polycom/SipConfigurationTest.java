@@ -40,7 +40,7 @@ public class SipConfigurationTest extends PolycomXmlTestCase {
     }
 
     public void testGenerateProfile20() throws Exception {
-        PolycomModel model = new PolycomModel();
+        PolycomModel model = PolycomXmlTestCase.phoneModelBuilder("polycom600", getClass());
         model.setMaxLineCount(6);
         model.setModelId("polycom600");
         Set<String> features = new HashSet<String>();
@@ -78,46 +78,8 @@ public class SipConfigurationTest extends PolycomXmlTestCase {
 
         InputStream expected = getClass().getResourceAsStream("expected-sip.cfg.xml");
 
-	dumpXml( m_location.getReader(), new PrintStream(new FileOutputStream("/tmp/t1")));
+        dumpXml(m_location.getReader(), new PrintStream(new FileOutputStream("/tmp/t1")));
         assertPolycomXmlEquals(expected, m_location.getReader());
-        expected.close();
-    }
-
-    public void testGenerateVVX1500Profile() throws Exception {
-        PolycomModel model = new PolycomModel();
-        model.setMaxLineCount(6);
-        model.setModelId("polycomVVX1500");
-        Set<String> features = new HashSet<String>();
-        features.add("disableCallList");
-        features.add("intercom");
-        features.add("voiceQualityMonitoring");
-        features.add("nway-conference");
-        features.add("localConferenceCallHold");
-        features.add("singleKeyPressConference");
-        features.add("VVX_1500_CodecPref");
-        features.add("video");
-        model.setSupportedFeatures(features);
-        phone.setModel(model);
-        tester = PhoneTestDriver.supplyTestData(phone);
-        initSettings();
-        phone.setDeviceVersion(PolycomModel.VER_3_1_X);
-        // XCF-3581: No longer automatically generating phone emergency dial routing. These
-        // settings
-        // are as if they'd been manually configured under Phone - Dial Plan - Emergency Routing.
-        phone.setSettingValue("dialplan/digitmap/routing.1/address", "emergency-gateway.example.org");
-        phone.setSettingValue("dialplan/digitmap/routing.1/port", "9999");
-        phone.setSettingValue("dialplan/digitmap/routing.1/emergency.1.value", "911,912");
-        phone.setSettingValue("video/codecPref/videoCodecs", "H264|H2631998");//de-selected testing
-        phone.beforeProfileGeneration();
-        ProfileContext cfg = new SipConfiguration(phone);
-
-        m_pg.generate(m_location, cfg, null, "profile");
-
-        InputStream expected = getClass().getResourceAsStream("expected-VVX1500-sip.cfg.xml");
-
-	dumpXml( m_location.getReader(),  new PrintStream(new FileOutputStream("/tmp/t2")));
-        assertPolycomXmlEquals(expected, m_location.getReader());
-
         expected.close();
     }
 

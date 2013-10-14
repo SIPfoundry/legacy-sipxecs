@@ -506,6 +506,10 @@ public class Servlet extends HttpServlet {
      * @return
      */
     protected static String formatPolycomVersion(String version) {
+        String major = version.substring(0, 3);
+        if(major.equals("4.1")){
+            return version.substring(0, 5);
+        }
         return (new StringBuilder(version.substring(0, 3).concat(".X"))).toString();
     }
 

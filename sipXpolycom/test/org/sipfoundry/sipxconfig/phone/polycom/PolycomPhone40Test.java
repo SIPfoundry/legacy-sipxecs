@@ -52,9 +52,10 @@ public class PolycomPhone40Test extends TestCase {
     protected void setUp() {
         m_phone = new PolycomPhone();
         PolycomModel model = new PolycomModel();
+        model.setModelId("polycomVVX500");
+        model.setDefaultVersion(PolycomModel.VER_4_1_5);
         m_phone.setModel(model);
         m_phone.setDeviceVersion(PolycomModel.VER_4_0_X);
-        model.setModelId("polycomVVX500");
         Set<String> features = new HashSet<String>();
         features.add("disableCallList");
         features.add("intercom");

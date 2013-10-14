@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 /**
  * Responsible for generating MAC_ADDRESS.d/phone.cfg
  */
-public class PhoneConfiguration extends ProfileContext {
+public class PhoneConfiguration extends ProfileContext<PolycomPhone> {
 
     // The number of blank lines in polycom_phone1.cfg.
     public static final int TEMPLATE_DEFAULT_LINE_COUNT = 6;
@@ -38,12 +38,12 @@ public class PhoneConfiguration extends ProfileContext {
 
     @Override
     public Map<String, Object> getContext() {
-        Map context = super.getContext();
+        Map<String, Object> context = super.getContext();
         context.put("lines", getLines());
         return context;
     }
 
-    public Collection getLines() {
+    public Collection<Setting> getLines() {
         PolycomPhone phone = (PolycomPhone) getDevice();
         List<Line> lines = phone.getLines();
 
@@ -58,11 +58,11 @@ public class PhoneConfiguration extends ProfileContext {
         }
 
         int lineCount = Math.max(lines.size(), TEMPLATE_DEFAULT_LINE_COUNT);
-        if (phone.getDeviceVersion() == PolycomModel.VER_4_0_X || phone.getDeviceVersion() == PolycomModel.VER_4_1_X) {
+        if (phone.getDeviceVersion() == PolycomModel.VER_4_0_X || PolycomModel.is41(phone.getDeviceVersion())) {
             lineCount = lines.size();
         }
 
-        ArrayList linesSettings = new ArrayList(lineCount);
+        ArrayList<Setting> linesSettings = new ArrayList<Setting>(lineCount);
 
         for (Line line : lines) {
             if (line.getUser() != null && !line.getUser().hasPermission(PermissionName.VOICEMAIL)) {

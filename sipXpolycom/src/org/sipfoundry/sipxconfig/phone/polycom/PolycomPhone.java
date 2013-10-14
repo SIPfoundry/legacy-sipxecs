@@ -126,7 +126,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
             return TEMPLATE_DIR40;
         } else if (getDeviceVersion() == PolycomModel.VER_3_2_X) {
             return TEMPLATE_DIR32;
-        } else if (getDeviceVersion() == PolycomModel.VER_4_1_X) {
+        } else if (PolycomModel.is41(getDeviceVersion())) {
             return TEMPLATE_DIR40;
         }
         return TEMPLATE_DIR;
@@ -142,7 +142,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
             return "/mac-address-32.cfg.vm";
         } else if (getDeviceVersion() == PolycomModel.VER_3_1_X) {
             return "/mac-address-31.cfg.vm";
-        } else if (getDeviceVersion() == PolycomModel.VER_4_1_X) {
+        } else if (PolycomModel.is41(getDeviceVersion())) {
             return "/mac-address-40.cfg.vm";
         }
         return "/mac-address.cfg.vm";
@@ -161,7 +161,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
             getModel().setSettingsFile("phone-40.xml");
             getModel().setLineSettingsFile("line-40.xml");
             getModel().setStaticProfileFilenames(new String[] {});
-        } else if (myVersion == PolycomModel.VER_4_1_X) {
+        } else if (PolycomModel.is41(myVersion)) {
             getModel().setSettingsFile("phone-40.xml");
             getModel().setLineSettingsFile("line-40.xml");
             getModel().setStaticProfileFilenames(new String[] {});
@@ -213,7 +213,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
     @Override
     public Profile[] getProfileTypes() {
         Profile[] profileTypes;
-        if (getDeviceVersion() == PolycomModel.VER_4_0_X || getDeviceVersion() == PolycomModel.VER_4_1_X) {
+        if (getDeviceVersion() == PolycomModel.VER_4_0_X || PolycomModel.is41(getDeviceVersion())) {
             profileTypes = new Profile[] {
                 new ApplicationProfile(getAppFilename()), new ApplicationsProfile(getAppsFilename()),
                 new FeaturesProfile(getFeaturesFilename()), new RegAdvancedProfile(getRegAdvancedFilename()),
@@ -698,6 +698,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
         }
         return false;
     }
+    
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         m_beanFactory = beanFactory;

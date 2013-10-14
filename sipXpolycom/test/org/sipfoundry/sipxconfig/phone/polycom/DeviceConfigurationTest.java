@@ -31,9 +31,7 @@ public class DeviceConfigurationTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        PolycomModel model = new PolycomModel();
-        model.setMaxLineCount(6);
-        model.setModelId("polycom600");
+        PolycomModel model = PolycomXmlTestCase.phoneModelBuilder("polycom600", getClass());
         phone = new PolycomPhone();
         phone.setModel(model);
         PhoneTestDriver.supplyTestData(phone);

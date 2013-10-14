@@ -47,21 +47,21 @@ public class PhoneUpdateResourceTest extends TestCase {
     protected void setUp() throws Exception {
         
         m_polycom300.setBeanId("polycom");
-        m_polycom300.setModel(new PolycomModel());
+        m_polycom300.setModel(PolycomXmlTestCase.phoneModelBuilder("polycom300", getClass()));
         m_polycom300.setModelId("polycom300");
         m_polycom300.setDeviceVersion(PolycomModel.VER_2_0);
         m_polycom300.setUniqueId(1);
 
         
         m_polycom301.setBeanId("polycom");
-        m_polycom301.setModel(new PolycomModel());
+        m_polycom301.setModel(PolycomXmlTestCase.phoneModelBuilder("polycom300", getClass()));
         m_polycom301.setModelId("polycom300");
         m_polycom301.setDeviceVersion(PolycomModel.VER_2_0);
         m_polycom301.setUniqueId(2);
         
         
         m_polycom335.setBeanId("polycom");
-        m_polycom335.setModel(new PolycomModel());
+        m_polycom335.setModel(PolycomXmlTestCase.phoneModelBuilder("polycom335", getClass()));
         m_polycom335.setModelId("polycom335");
         m_polycom335.setDeviceVersion(PolycomModel.VER_4_0_X);
         m_polycom335.setUniqueId(3);

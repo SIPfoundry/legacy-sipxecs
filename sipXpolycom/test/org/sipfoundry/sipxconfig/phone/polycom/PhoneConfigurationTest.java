@@ -66,6 +66,7 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         location.setParentDir(TestHelper.getTestOutputDirectory());
 
         PolycomModel model = new PolycomModel();
+        model.setDefaultVersion(PolycomModel.VER_3_2_X);
         model.setMaxLineCount(6);
         phone.setModel(model);
 
@@ -107,6 +108,7 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         PolycomModel model = new PolycomModel();
         model.setMaxLineCount(2);
         model.setModelId("polycom330");
+        model.setDefaultVersion(PolycomModel.VER_3_2_X);
         Set<String> features = new HashSet<String>();
         features.add("intercom");
         features.add("voiceQualityMonitoring");
@@ -211,6 +213,7 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
 
     public void testGenerateProfileVersion20WithoutVoicemailPermission() throws Exception {
         PolycomModel model = new PolycomModel();
+        model.setDefaultVersion(PolycomModel.VER_3_1_X);
         model.setMaxLineCount(6);
         phone.setModel(model);
 
@@ -256,9 +259,9 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
     }
 
     public void testGenerateSipxPhoneWithExternalLine() throws Exception {
-        PolycomModel model = new PolycomModel();
-        model.setMaxLineCount(6);
+        PolycomModel model = PolycomXmlTestCase.phoneModelBuilder("polycom335", getClass());
         phone.setModel(model);
+        phone.setDeviceVersion(PolycomModel.VER_3_2_X);
 
         List<User> users = new ArrayList<User>();
 

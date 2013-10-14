@@ -23,7 +23,7 @@ public class PolycomIntercomDefaultsTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         m_phone = new PolycomPhone();
-        PolycomModel model = new PolycomModel();
+        PolycomModel model = PolycomXmlTestCase.phoneModelBuilder("polycomVVX500", getClass());
         m_phone.setModel(model);
         m_phone.setDeviceVersion(PolycomModel.VER_3_2_X);
         m_phone.setModelId("polycomVVX500");
@@ -74,12 +74,12 @@ public class PolycomIntercomDefaultsTest extends TestCase {
         assertEquals(PolycomIntercomDefaults.RING_ANSWER_RING_CLASS_32, defaults.getAlertInfoClass());
     }
     
-    public void testGetAlertInfoClass40() {
+    public void testGetAlertInfoClass40() throws Exception {
         Intercom intercom = new Intercom();
         intercom.setEnabled(true);
 
         Phone phone = new PolycomPhone();
-        PolycomModel model = new PolycomModel();
+        PolycomModel model = PolycomXmlTestCase.phoneModelBuilder("polycomVVX500", getClass());
         phone.setModel(model);
         phone.setDeviceVersion(PolycomModel.VER_4_0_X);
         phone.setModelId("polycomVVX500");

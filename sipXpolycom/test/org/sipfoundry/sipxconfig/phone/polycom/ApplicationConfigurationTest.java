@@ -34,10 +34,9 @@ public class ApplicationConfigurationTest extends PolycomXmlTestCase {
         XMLUnit.setIgnoreWhitespace(true);
         phone32 = new PolycomPhone();
         phone32.setModelId("335");
-        PhoneModel model = new PolycomModel();
+        PolycomModel model = PolycomXmlTestCase.phoneModelBuilder("polycom335", getClass());
         ModelSource<PhoneModel> phoneModelSource = createMock(ModelSource.class);
         phone32.setPhoneModelSource(phoneModelSource);
-        model.setMaxLineCount(6);
         phone32.setModel(model);
         phone32.setDeviceVersion(PolycomModel.VER_3_2_X);
         PhoneTestDriver.supplyTestData(phone32);

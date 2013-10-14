@@ -82,6 +82,7 @@ public class ServletTest extends TestCase {
         assertNotNull(phone.model);
         assertEquals("polycom6000", phone.model.sipxconfig_id);
         assertEquals("3.2.0.0157", phone.version);
+        assertEquals("3.2.X", Servlet.extractPolycomVersion(phone));
 
         // Success
         phone = new DetectedPhone();
@@ -103,6 +104,15 @@ public class ServletTest extends TestCase {
         assertNotNull(phone.model);
         assertEquals("polycomVVX500", phone.model.sipxconfig_id);
         assertEquals("4.0.3.0439", phone.version);
+        assertEquals("4.0.X", Servlet.extractPolycomVersion(phone));
+        
+        // Success
+        phone = new DetectedPhone();
+        assertEquals(true, Servlet.extractPolycomModelAndVersion(phone, "FileTransport PolycomSoundPointIP-VVX_500-UA/4.1.3.0439"));
+        assertNotNull(phone.model);
+        assertEquals("polycomVVX500", phone.model.sipxconfig_id);
+        assertEquals("4.1.3.0439", phone.version);
+        assertEquals("4.1.3", Servlet.extractPolycomVersion(phone));
         // TODO - test case that includes Serial Number string in th UA header.
     }
 
@@ -110,6 +120,8 @@ public class ServletTest extends TestCase {
         assertEquals("3.1.X",Servlet.formatPolycomVersion("3.1.3.0438"));
         assertEquals("3.2.X",Servlet.formatPolycomVersion("3.2.3.0438"));
         assertEquals("4.0.X",Servlet.formatPolycomVersion("4.0.3.0438"));
+        assertEquals("4.1.0",Servlet.formatPolycomVersion("4.1.0.0438"));
+        assertEquals("4.1.5",Servlet.formatPolycomVersion("4.1.5.0438"));
     }
     
     public void testExtractMacFromConfigurationFilePath() {
