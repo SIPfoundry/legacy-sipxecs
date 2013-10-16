@@ -1074,7 +1074,7 @@ EOF
    then
      if [ ${SaveSecrets} = NO ]
      then
-       mongoexport -d imdb -c entity | sed -e 's/"pstk" : ".*", "pntk" : ".\{32\}"/"pstk" : "ELIDED", "pntk" : "ELIDED"/g' -e 's/"pstk" : ".\{10\}",/"pstk" : "ELIDED",/g' > ${Work}/mongo.imdb.entity.json
+       mongoexport -d imdb -c entity | sed -e 's/"pstk" : "[^"]*"/"pstk" : "ELIDED"/g' -e 's/"pntk" : "[^"]*"/"pntk" : "ELIDED"/g' > ${Work}/mongo.imdb.entity.json
      else mongoexport -d imdb -c entity -o ${Work}/mongo.imdb.entity.json
      fi
      mongoexport -d imdb -c node -o ${Work}/mongo.imdb.node.json
