@@ -27,6 +27,7 @@
     <property name="coreContext" ref="coreContext" />
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="configManager" ref="configManager" />
+    <property name="saaLimitsConfig" ref="saaResLimits" />
   </bean>
 
 </beans>

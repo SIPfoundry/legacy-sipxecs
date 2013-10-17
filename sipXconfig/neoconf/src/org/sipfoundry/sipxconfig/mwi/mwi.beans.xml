@@ -25,6 +25,7 @@
   <bean id="mwiConfig" class="org.sipfoundry.sipxconfig.mwi.MwiConfig">
     <property name="mwi" ref="mwi"/>
     <property name="velocityEngine" ref="velocityEngine"/>
+    <property name="publisherLimitsConfig" ref="publisherResLimits" />
   </bean>
 
   <bean id="mwiSettings" class="org.sipfoundry.sipxconfig.mwi.MwiSettings" parent="settingsBean">

@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.admin.AbstractResLimitsConfig;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -54,6 +55,7 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
     private static final String WEIGHT_100 = "100";
     private Registrar m_registrar;
     private ApplicationContext m_context;
+    private AbstractResLimitsConfig m_registrarLimitsConfig;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -79,6 +81,17 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
                     write(w, settings, domain, location, proxy, imApi, presenceApi, park, fm);
                 } finally {
                     IOUtils.closeQuietly(w);
+                }
+                //Write registrar resource limits separately to notify registrar that needs to get restarted
+                //All resource limits for all services are globbaly agregated and replicated
+                //in ResLimitsConfiguration.java
+                //The replication of resource-limits.ini is effective on each node that runs
+                //at least one of the processes: mwi, registrar, proxy, park, rls, saa
+                Writer registrarResLimitsWriter = new FileWriter(new File(dir, "resource-limits-registrar.ini"));
+                try {
+                    m_registrarLimitsConfig.writeResourceLimits(registrarResLimitsWriter, settings);
+                } finally {
+                    IOUtils.closeQuietly(registrarResLimitsWriter);
                 }
             }
         }
@@ -182,5 +195,10 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
     @Override
     public void setApplicationContext(ApplicationContext context) {
         m_context = context;
+    }
+
+    @Required
+    public void setRegistrarLimitsConfig(AbstractResLimitsConfig registrarLimitsConfig) {
+        m_registrarLimitsConfig = registrarLimitsConfig;
     }
 }

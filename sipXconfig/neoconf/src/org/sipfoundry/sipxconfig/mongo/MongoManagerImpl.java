@@ -79,6 +79,7 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
         m_configManager = configManager;
     }
 
+    @Override
     public ConfigManager getConfigManager() {
         return m_configManager;
     }
@@ -215,9 +216,10 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
             }
         }
 
-        // If you're using regional dbs, you should have one global db in each region, but
-        // validation system doesn't have check at this yet. It's also possible there are scenarios
-        // someone might want to do this, so we allow it by not disallowing it here.
+    // If you're using regional dbs, you should have one global db in each region, but
+    //validation system doesn't have check at this yet.
+    //It's also possible there are scenarios
+    // someone might want to do this, so we allow it by not disallowing it here.
     }
 
     @Override
@@ -332,6 +334,7 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
         m_beans = (ListableBeanFactory) factory;
     }
 
+    @Override
     public FeatureManager getFeatureManager() {
         return m_featureManager;
     }

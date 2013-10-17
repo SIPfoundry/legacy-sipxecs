@@ -27,6 +27,7 @@
   <bean id="proxyConfiguration" class="org.sipfoundry.sipxconfig.proxy.ProxyConfiguration">
     <property name="tlsPeerManager" ref="tlsPeerManager" />
     <property name="proxyManager" ref="proxyManager" />
+    <property name="proxyLimitsConfig" ref="proxyResLimits" />
   </bean>
 
   <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">

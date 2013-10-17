@@ -38,6 +38,14 @@ bundle agent sipxsaa_config {
         edit_defaults => empty,
         edit_line => sipXsaa_config_contents(),
         classes => if_repaired("restart_sipxsaa");
+        
+    any::   
+      "$(sipx.SIPX_CONFDIR)/resource-limits-saa.ini"
+        comment => "saa resource limits changed - restart saa",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/resource-limits-saa.ini"),
+        classes => if_repaired("restart_sipxsaa");        
 }
 
 bundle edit_line sipXsaa_config_contents() {

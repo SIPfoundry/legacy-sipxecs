@@ -21,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.sipfoundry.sipxconfig.admin.AbstractResLimitsConfig;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -38,6 +39,7 @@ public class ParkOrbitConfiguration implements ConfigProvider, DaoEventListener 
     private String m_audioDirectory;
     private ParkOrbitContext m_parkOrbitContext;
     private ConfigManager m_configManager;
+    private AbstractResLimitsConfig m_parkLimitsConfig;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -71,6 +73,16 @@ public class ParkOrbitConfiguration implements ConfigProvider, DaoEventListener 
                 write(config, location, settings);
             } finally {
                 IOUtils.closeQuietly(config);
+            }
+            //Write park resource limits separately to notify park that needs to get restarted
+            //All resource limits for all services are globbaly agregated and replicated in ResLimitsConfiguration.java
+            //The replication of resource-limits.ini is effective on each node that runs
+            //at least one of the processes: mwi, registrar, proxy, park, rls, saa
+            Writer parkResLimitsWriter = new FileWriter(new File(dir, "resource-limits-park.ini"));
+            try {
+                m_parkLimitsConfig.writeResourceLimits(parkResLimitsWriter, settings);
+            } finally {
+                IOUtils.closeQuietly(parkResLimitsWriter);
             }
         }
     }
@@ -173,5 +185,10 @@ public class ParkOrbitConfiguration implements ConfigProvider, DaoEventListener 
 
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
+    }
+
+    @Required
+    public void setParkLimitsConfig(AbstractResLimitsConfig parkLimitsConfig) {
+        m_parkLimitsConfig = parkLimitsConfig;
     }
 }

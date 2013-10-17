@@ -32,6 +32,7 @@
     <property name="rls" ref="rls" />
     <property name="rlsLists" ref="rlsLists" />
     <property name="configManager" ref="configManager" />
+    <property name="rlsLimitsConfig" ref="rlsResLimits" />
   </bean>
 
 </beans>

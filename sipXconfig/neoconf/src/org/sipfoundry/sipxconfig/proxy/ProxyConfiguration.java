@@ -22,6 +22,7 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.sipfoundry.sipxconfig.admin.AbstractResLimitsConfig;
 import org.sipfoundry.sipxconfig.cdr.CdrManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
@@ -46,6 +47,7 @@ public class ProxyConfiguration implements ConfigProvider, ApplicationContextAwa
     private TlsPeerManager m_tlsPeerManager;
     private ProxyManager m_proxyManager;
     private ApplicationContext m_context;
+    private AbstractResLimitsConfig m_proxyLimitsConfig;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -86,6 +88,16 @@ public class ProxyConfiguration implements ConfigProvider, ApplicationContextAwa
                 write(proxy, settings, location, domain, isCdrOn);
             } finally {
                 IOUtils.closeQuietly(proxy);
+            }
+            //Write proxy resource limits separately to notify proxy that needs to get restarted
+            //All resource limits for all services are globbaly agregated and replicated in ResLimitsConfiguration.java
+            //The replication is effective on each node that runs
+            //at least one of the processes: mwi, registrar, proxy, park, rls, saa
+            Writer proxyResLimitsWriter = new FileWriter(new File(dir, "resource-limits-proxy.ini"));
+            try {
+                m_proxyLimitsConfig.writeResourceLimits(proxyResLimitsWriter, settings);
+            } finally {
+                IOUtils.closeQuietly(proxyResLimitsWriter);
             }
         }
     }
@@ -166,5 +178,10 @@ public class ProxyConfiguration implements ConfigProvider, ApplicationContextAwa
     @Override
     public void setApplicationContext(ApplicationContext context) {
         m_context = context;
+    }
+
+    @Required
+    public void setProxyLimitsConfig(AbstractResLimitsConfig proxyLimitsConfig) {
+        m_proxyLimitsConfig = proxyLimitsConfig;
     }
 }

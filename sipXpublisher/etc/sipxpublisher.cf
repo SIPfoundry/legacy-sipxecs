@@ -41,6 +41,14 @@ bundle agent sipxpublisher_config {
         perms => m("644"),
         copy_from => copy_from_cfdata("$(sipx.location_id)/status-plugin.xml"),
         classes => if_repaired("restart_sipxpublisher");
+        
+    any::   
+      "$(sipx.SIPX_CONFDIR)/resource-limits-mwi.ini"
+        comment => "MWI resource limits changed - restart mwi",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/resource-limits-mwi.ini"),
+        classes => if_repaired("restart_sipxpublisher");         
 }
 
 bundle edit_line sipstatus_config_contents() {

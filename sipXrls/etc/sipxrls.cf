@@ -37,6 +37,14 @@ bundle agent sipxrls_config {
         edit_defaults => empty,
         edit_line => sipXrls_config_contents(),
         classes => if_repaired("restart_sipxrls");
+        
+    any::   
+      "$(sipx.SIPX_CONFDIR)/resource-limits-rls.ini"
+        comment => "rls resource limits changed - restart rls",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/resource-limits-rls.ini"),
+        classes => if_repaired("restart_sipxrls");        
 }
 
 bundle edit_line sipXrls_config_contents() {

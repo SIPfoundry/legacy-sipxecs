@@ -26,6 +26,7 @@
 
   <bean id="registrarConfiguration" class="org.sipfoundry.sipxconfig.registrar.RegistrarConfiguration">
     <property name="registrar" ref="registrar" />
+    <property name="registrarLimitsConfig" ref="registrarResLimits" />
   </bean>
   
   <bean id="registrationContextImpl" class="org.sipfoundry.sipxconfig.registrar.RegistrationContextImpl">

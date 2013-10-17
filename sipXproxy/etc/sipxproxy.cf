@@ -63,6 +63,14 @@ bundle agent sipxproxy_config {
         perms => m("644"),
         edit_line => sipXproxy_config_contents(),
         classes => if_repaired("restart_sipxproxy");
+    
+    any::   
+      "$(sipx.SIPX_CONFDIR)/resource-limits-proxy.ini"
+        comment => "proxy resource limits changed - restart sipXproxy",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/resource-limits-proxy.ini"),
+        classes => if_repaired("restart_sipxproxy");        
 
     any::
       "$(sipx.SIPX_CONFDIR)/$(xml_file)"

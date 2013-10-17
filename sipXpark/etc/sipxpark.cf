@@ -41,6 +41,14 @@ bundle agent sipxpark_config {
         perms => m("644"),
         copy_from => copy_from_cfdata("$(sipx.location_id)/orbits.xml"),
         classes => if_repaired("restart_sipxpark");
+        
+    any::   
+      "$(sipx.SIPX_CONFDIR)/resource-limits-park.ini"
+        comment => "park resource limits changed - restart park",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/resource-limits-park.ini"),
+        classes => if_repaired("restart_sipxpark");        
 
     !primary::
       "$(sipx.SIPX_VARDIR)/parkserver/music"

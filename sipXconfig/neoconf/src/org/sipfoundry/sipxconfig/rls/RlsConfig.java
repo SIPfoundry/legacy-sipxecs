@@ -23,6 +23,7 @@ import java.io.Writer;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.admin.AbstractResLimitsConfig;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -43,6 +44,7 @@ public class RlsConfig implements ConfigProvider, DaoEventListener, BeanFactoryA
     private ResourceLists m_lists;
     private ConfigManager m_configManager;
     private BeanFactory m_factory;
+    private AbstractResLimitsConfig m_rlsLimitsConfig;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -71,6 +73,17 @@ public class RlsConfig implements ConfigProvider, DaoEventListener, BeanFactoryA
                 write(wtr, settings, location, manager.getDomainManager().getDomain());
             } finally {
                 IOUtils.closeQuietly(wtr);
+            }
+
+            //Write park resource limits separately to notify rls that needs to get restarted
+            //All resource limits for all services are globally aggregated and replicated in ResLimitsConfiguration.java
+            //The replication of resource-limits.ini is effective on each node that runs
+            //at least one of the processes: mwi, registrar, proxy, park, rls, saa
+            Writer rlsResLimitsWriter = new FileWriter(new File(dir, "resource-limits-rls.ini"));
+            try {
+                m_rlsLimitsConfig.writeResourceLimits(rlsResLimitsWriter, settings);
+            } finally {
+                IOUtils.closeQuietly(rlsResLimitsWriter);
             }
 
             FileWriter xmlwtr = new FileWriter(new File(dir, "resource-lists.xml"));
@@ -122,5 +135,10 @@ public class RlsConfig implements ConfigProvider, DaoEventListener, BeanFactoryA
     @Override
     public void setBeanFactory(BeanFactory factory) {
         m_factory = factory;
+    }
+
+    @Required
+    public void setRlsLimitsConfig(AbstractResLimitsConfig rlsLimitsConfig) {
+        m_rlsLimitsConfig = rlsLimitsConfig;
     }
 }

@@ -34,6 +34,14 @@ bundle agent sipxregistrar_config {
         perms => m("644"),
         edit_line => registrar_config_contents(),
         classes => if_repaired("restart_sipxregistrar");
+    
+    any::   
+      "$(sipx.SIPX_CONFDIR)/resource-limits-registrar.ini"
+        comment => "registrar resource limits changed - restart registrar",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/resource-limits-registrar.ini"),
+        classes => if_repaired("restart_sipxregistrar");        
 }
 
 bundle edit_line registrar_config_contents() {

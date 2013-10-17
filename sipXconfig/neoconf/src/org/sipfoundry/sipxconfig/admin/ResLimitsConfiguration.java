@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -78,6 +80,8 @@ import org.springframework.beans.factory.annotation.Required;
  * sipxsaa-core-enabled = false
  */
 public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware {
+    private static final Log LOG = LogFactory.getLog(ResLimitsConfiguration.class);
+
     private Mwi m_mwi;
     private ProxyManager m_proxyManager;
     private Registrar m_registrar;
@@ -97,17 +101,13 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
         if (!request.applies(ProxyManager.FEATURE, Mwi.FEATURE, Registrar.FEATURE,
-                Rls.FEATURE, SaaManager.FEATURE, ParkOrbitContext.FEATURE, AdminContext.FEATURE)) {
+                Rls.FEATURE, SaaManager.FEATURE, ParkOrbitContext.FEATURE)) {
             return;
         }
-        File dir = manager.getGlobalDataDirectory();
-        Writer w = new FileWriter(new File(dir, "resource-limits.ini"));
+        final Writer w = createWriter(manager);
         try {
-            if (!request.applies(AdminContext.FEATURE)) {
-                writeFeaturedResourceLimits(w);
-            } else {
-                writeDefaultsResourceLimits(w);
-            }
+            LOG.info("Write FEATURED resource limits");
+            writeFeaturedResourceLimits(w);
         } finally {
             IOUtils.closeQuietly(w);
         }
@@ -126,6 +126,21 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
         m_saaLimitsConfig.writeResourceLimits(w, m_saaManager.getSettings());
         m_rlsLimitsConfig.writeResourceLimits(w, m_rls.getSettings());
         m_parkLimitsConfig.writeResourceLimits(w, m_parkOrbitContext.getSettings());
+    }
+
+    private Writer createWriter(ConfigManager manager) throws IOException {
+        File dir = manager.getGlobalDataDirectory();
+        return new FileWriter(new File(dir, "resource-limits.ini"));
+    }
+
+    public void writeDefaultsResourceLimits(ConfigManager manager) throws IOException {
+        final Writer w = createWriter(manager);
+        try {
+            LOG.info("Write DEFAULT resource limits");
+            writeDefaultsResourceLimits(w);
+        } finally {
+            IOUtils.closeQuietly(w);
+        }
     }
 
     void writeDefaultsResourceLimits(Writer w) throws IOException {

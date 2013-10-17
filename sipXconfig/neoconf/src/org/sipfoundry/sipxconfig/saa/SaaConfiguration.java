@@ -26,6 +26,7 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.admin.AbstractResLimitsConfig;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -42,6 +43,7 @@ public class SaaConfiguration implements ConfigProvider, DaoEventListener {
     private SaaManager m_saaManager;
     private CoreContext m_coreContext;
     private ConfigManager m_configManager;
+    private AbstractResLimitsConfig m_saaLimitsConfig;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -72,6 +74,17 @@ public class SaaConfiguration implements ConfigProvider, DaoEventListener {
                 writeAppearance(appear, m_coreContext.getSharedUsers(), domainName);
             } finally {
                 IOUtils.closeQuietly(appear);
+            }
+
+            //Write saa resource limits separately to notify saa that needs to get restarted
+            //All resource limits for all services are globbaly agregated and replicated in ResLimitsConfiguration.java
+            //The replication of resource-limits.ini is effective on each node that runs
+            //at least one of the processes: mwi, registrar, proxy, park, rls, saa
+            Writer saaResLimitsWriter = new FileWriter(new File(dir, "resource-limits-saa.ini"));
+            try {
+                m_saaLimitsConfig.writeResourceLimits(saaResLimitsWriter, settings);
+            } finally {
+                IOUtils.closeQuietly(saaResLimitsWriter);
             }
         }
     }
@@ -127,5 +140,8 @@ public class SaaConfiguration implements ConfigProvider, DaoEventListener {
         }
     }
 
-
+    @Required
+    public void setSaaLimitsConfig(AbstractResLimitsConfig saaLimitsConfig) {
+        m_saaLimitsConfig = saaLimitsConfig;
+    }
 }

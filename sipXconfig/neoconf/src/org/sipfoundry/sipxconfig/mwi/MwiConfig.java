@@ -27,6 +27,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.admin.AbstractResLimitsConfig;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigException;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
@@ -41,6 +42,7 @@ import org.springframework.beans.factory.annotation.Required;
 public class MwiConfig implements ConfigProvider {
     private Mwi m_mwi;
     private VelocityEngine m_velocityEngine;
+    private AbstractResLimitsConfig m_publisherLimitsConfig;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -73,6 +75,16 @@ public class MwiConfig implements ConfigProvider {
                 writePlugin(plugin, ivrApi);
             } finally {
                 IOUtils.closeQuietly(plugin);
+            }
+            //Write mwi resource limits separately to notify mwi that needs to get restarted
+            //All resource limits for all services are globbaly agregated and replicated in ResLimitsConfiguration.java
+            //The replication is effective on each node that runs
+            //at least one of the processes: mwi, registrar, proxy, park, rls, saa
+            Writer mwiResLimitsWriter = new FileWriter(new File(dir, "resource-limits-mwi.ini"));
+            try {
+                m_publisherLimitsConfig.writeResourceLimits(mwiResLimitsWriter, settings);
+            } finally {
+                IOUtils.closeQuietly(mwiResLimitsWriter);
             }
         }
     }
@@ -111,5 +123,10 @@ public class MwiConfig implements ConfigProvider {
 
     public void setVelocityEngine(VelocityEngine velocityEngine) {
         m_velocityEngine = velocityEngine;
+    }
+
+    @Required
+    public void setPublisherLimitsConfig(AbstractResLimitsConfig publisherLimitsConfig) {
+        m_publisherLimitsConfig = publisherLimitsConfig;
     }
 }

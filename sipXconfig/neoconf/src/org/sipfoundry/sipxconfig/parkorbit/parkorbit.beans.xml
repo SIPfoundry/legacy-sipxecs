@@ -7,6 +7,7 @@
     <property name="parkOrbitContext" ref="parkOrbitContext" />
     <property name="configManager" ref="configManager" />    
     <property name="audioDirectory" value="${sysdir.var}/parkserver/music"/>
+    <property name="parkLimitsConfig" ref="parkResLimits" />
   </bean>
 
   <bean id="org.sipfoundry.sipxconfig.parkorbit.ParkOrbit"
