@@ -131,7 +131,6 @@ bundle edit_line mongodb_arbiter_config_contents {
 port=27018
 logpath=/var/log/$(mongodb.id)/mongod-arbiter.log
 fork=true
-smallfiles=true
 pidfilepath=/var/run/$(mongodb.id)/mongodb-arbiter.pid
 smallfiles=true
 journal=true
@@ -258,6 +257,8 @@ bind_ip=0.0.0.0
 ";
 }
 
+# mongod.conf is the only file we attempt to merge our settings into
+# to preserve any tweaks to config file admin makes outside sipxconfig
 bundle agent mongodb_config {
   vars:
     any::
@@ -268,13 +269,6 @@ bundle agent mongodb_config {
 
   files:
     any::
-      "$(mongodb.config)"
-        comment => "install mongo config $(this.promiser)",
-        create => "false",
-        perms => m("644"),
-        edit_line => set_variable_values("mongodb_config.server"),
-        classes => if_repaired("restart_mongod");
-
       "$(mongodb.config)"
         comment => "install mongo config $(this.promiser)",
         create => "false",
@@ -297,7 +291,7 @@ bundle edit_line mongo_client_config {
 
     # should only be for very first run
     !has_config::
-       "connectionUrl=mongodb://$(sipx.host).$(sipx.net_domain):27017/?slaveOk=true";
+       "connectionUrl=mongodb://$(sipx.host).$(sipx.net_domain):27017/?readPreference=nearest";
        "connectionString=sipxecs/$(sipx.host).$(sipx.net_domain):27017";
 
   delete_lines:
