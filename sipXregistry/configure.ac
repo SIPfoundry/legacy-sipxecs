@@ -22,6 +22,7 @@ CHECK_GIPSNEQ
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([src/test/Makefile])
+AC_CONFIG_FILES([src/sipXregTool/Makefile])
 AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([meta/Makefile])
 AC_CONFIG_FILES([etc/Makefile])
