@@ -28,7 +28,7 @@ sipxagentlockfile="@SIPX_RUNDIR@/sipxagent.lock"
 start() {
   [ -x $exec ] || { echo -n "$execError"; echo_failure; echo; exit $ENOEXEC; }
   [ -f $config ] || { echo -n "$invalidFileError"; echo_failure; echo; exit $ENOENT; }
-  checkRunningInstance "root" $prog > /dev/null
+  checkRunningInstance "root" $exec > /dev/null
   Status=$?
   [ $Status -eq 0 ] && { echo -n "$prog $runningError"; echo_failure; echo; exit $ERUNNING; }
 
@@ -39,7 +39,7 @@ start() {
   [ $Status -eq 0 ] && touch $lockfile
 
   if [ $# -gt 0 ]; then
-    checkRunningInstanceTimeout "root" $prog $maxTimeout
+    checkRunningInstanceTimeout "root" $exec $maxTimeout
     Status=$?
     [ $Status -eq $ESRCH ] && { echo_failure; echo; exit $ESRCH; }
 
@@ -70,6 +70,7 @@ start() {
 }
 
 nofork() {
+  killAnyOrphans "root" $exec
   $exec -v -f $config
 }
 
@@ -79,7 +80,7 @@ stop() {
   RETVAL=$?
   echo
   [ $RETVAL -eq 0 ] && rm -f $lockfile
-  killAnyOrphans "root" $prog
+  killAnyOrphans "root" $exec
   return $RETVAL
 }
 
@@ -117,11 +118,11 @@ case "$1" in
     force_reload
     ;;
   status)
-    checkRunningInstance "root" $prog
+    checkRunningInstance "root" $exec $prog
     ;;
   # condrestart - only restarts if service *is* running
   condrestart)
-    checkRunningInstance "root" $prog > /dev/null
+    checkRunningInstance "root" $exec > /dev/null
     Status=$?
     [ $Status -eq 0 ] || restart
     ;;

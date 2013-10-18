@@ -67,7 +67,7 @@ LogDir=@SIPX_LOGDIR@
 TmpDir=@SIPX_TMPDIR@
 prog=sipxconfig
 regex="Dprocname=sipxconfig"
-waitForListenPortTime=60
+waitForListenPortTime=100
 
 . /etc/rc.d/init.d/functions || exit 1
 . @SIPX_LIBEXECDIR@/sipx-utils.sh

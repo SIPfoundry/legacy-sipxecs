@@ -51,7 +51,7 @@ chown $MONGO_USER:$MONGO_GROUP $DBPATH
 
 start()
 {
-  checkRunningInstance $MONGO_USER $PROG > /dev/null
+  checkRunningInstance $MONGO_USER $mongod > /dev/null
   Status=$?
   [ $Status -eq 0 ] && { echo -n "$PROG $runningError"; echo_failure; echo; exit $ERUNNING; }
   echo -n $"Starting $PROG: "
@@ -60,10 +60,10 @@ start()
 
   if [ $# -gt 0 ]; then
     #check if process was spawned
-    checkRunningInstanceTimeout $MONGO_USER $PROG
+    checkRunningInstanceTimeout $MONGO_USER $mongod
     RETVAL=$?
     [ $RETVAL -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
-    pid=`ps -u $MONGO_USER -o pid,args | grep $regex | grep -v "grep" | awk '{print $1 }'`
+    pid=`ps -u $MONGO_USER -o pid,args | grep $mongod | grep -v "grep" | awk '{print $1 }'`
     checkIfListening $pid
     RETVAL=$?
     [ $RETVAL -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
@@ -82,7 +82,7 @@ stop()
   RETVAL=$?
   echo
   [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
-  killAnyOrphans $MONGO_USER $PROG
+  killAnyOrphans $MONGO_USER $mongod
 }
 
 restart() {
@@ -112,12 +112,12 @@ case "$1" in
     asyncrestart
     ;;
   condrestart)
-    checkRunningInstance $MONGO_USER $PROG $PROG > /dev/null
+    checkRunningInstance $MONGO_USER $mongod > /dev/null
     RETVAL=$?
     [ $RETVAL -eq 0 ] && [ -f $LOCKFILE ] && restart || :
     ;;
   status)
-    checkRunningInstance $MONGO_USER $PROG
+    checkRunningInstance $MONGO_USER $mongod $PROG
     RETVAL=$?
     ;;
   *)

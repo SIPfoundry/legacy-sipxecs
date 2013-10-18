@@ -489,7 +489,7 @@ checkRunningInstance () {
   [ $3 ] || programName=$regex
 
   #check for pid
-  procs=`ps -u $user -o pid,args | grep "${regex}" | grep -v "grep" | tail -1 | awk '{print $1 }'`
+  procs=`ps -u $user -o pid,args | grep "${regex}" | grep -v "grep" | awk '{print $1 }'| column -c 100`
 
   #check if listening
   isListening=`netstat -tulpn | awk '$6 == "LISTEN"' | grep "${procs}" `
@@ -558,9 +558,9 @@ killAnyOrphans () {
   checkRunningInstance $user $regex > /dev/null
   Status=$?
   [ $Status -eq 0 ] && { procs=`ps -u $1 -o pid,args | grep $regex | grep -v "grep" | awk '{print $1 }'`; \
-			 for pid in $procs; do kill -KILL $pid; done ; \
-		       }
-		       
+                         for pid in $procs; do kill -KILL $pid; done ; \
+                        }
+
   checkRunningInstance $user $regex > /dev/null
   Status=$?
   [ $Status -eq 0 ] && { echo_failure; echo; } 

@@ -80,7 +80,7 @@ do_audio_setup() {
 base=${0##*/}
 
 do_start() {
-  checkRunningInstance @SIPXPBXUSER@ $NAME > /dev/null
+  checkRunningInstance @SIPXPBXUSER@ $DAEMON $NAME > /dev/null
   RETVAL=$?
   [ $RETVAL -eq 0 ] && { echo -n "$NAME $runningError"; echo_failure; echo; exit $ERUNNING; }
   do_setlimits
@@ -91,7 +91,7 @@ do_start() {
 
   if [ $# -gt 0 ]; then
     #check if process spawned
-    checkRunningInstanceTimeout @SIPXPBXUSER@ $NAME
+    checkRunningInstanceTimeout @SIPXPBXUSER@ $DAEMON
     RETVAL=$?
     [ $RETVAL -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
     checkIfListening $NAME
@@ -126,7 +126,7 @@ do_stop() {
   fi
   rm -f $LOCKFILE
   echo
-  killAnyOrphans @SIPXPBXUSER@ $NAME
+  killAnyOrphans @SIPXPBXUSER@ $DAEMON
   return $RETVAL
 }
 
@@ -165,7 +165,7 @@ case "$1" in
     do_asyncrestart
     ;;
   status)
-    checkRunningInstance @SIPXPBXUSER@ $NAME
+    checkRunningInstance @SIPXPBXUSER@ $DAEMON $NAME
     ;;
   *)
     echo $"Usage: $0 {start|stop|status}"

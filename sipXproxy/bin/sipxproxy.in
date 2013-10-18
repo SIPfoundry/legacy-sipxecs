@@ -23,10 +23,10 @@ start() {
   [ -x $exec ] || { echo -n "$execError"; echo_failure; echo; exit $ENOEXEC; }
   [ -f $config ] || { echo -n "$invalidFileError"; echo_failure; echo; exit $ENOENT; }
  if [ -n "${NoFork}" ] ; then
-    killAnyOrphans @SIPXPBXUSER@ $prog
+    killAnyOrphans @SIPXPBXUSER@ $exec
     runuser - @SIPXPBXUSER@ -c $exec
   else
-    checkRunningInstance @SIPXPBXUSER@ $prog > /dev/null
+    checkRunningInstance @SIPXPBXUSER@ $exec > /dev/null
     Status=$?
     [ $Status -eq 0 ] && { echo -n "$prog $runningError"; echo_failure; echo; exit $ERUNNING; } 
       
@@ -36,7 +36,7 @@ start() {
 
     if [ $# -gt 0 ]; then
       #check if process spawned
-      checkRunningInstanceTimeout @SIPXPBXUSER@ $prog
+      checkRunningInstanceTimeout @SIPXPBXUSER@ $exec
       Status=$?
       [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
       checkIfListening $prog
@@ -58,7 +58,7 @@ stop() {
   Status=$?
   echo
   [ $Status -eq 0 ] && rm -f "${pidfile}"
-  killAnyOrphans @SIPXPBXUSER@ $prog
+  killAnyOrphans @SIPXPBXUSER@ $exec
 }
 
 restart() {
@@ -126,12 +126,12 @@ case "$1" in
     asyncrestart
     ;;
   condrestart)
-    checkRunningInstance @SIPXPBXUSER@ $prog > /dev/null
+    checkRunningInstance @SIPXPBXUSER@ $exec > /dev/null
     Status=$?
     [ $Status -eq 0 ] && restart || :
     ;;
   status)
-    checkRunningInstance @SIPXPBXUSER@ $prog
+    checkRunningInstance @SIPXPBXUSER@ $exec $prog
     Status=$?
     ;;
   configtest)
