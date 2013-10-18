@@ -43,10 +43,13 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
      */
     private List<String> m_baseClassBeanIds = Collections.EMPTY_LIST;
 
+    private Configuration m_config;
+
     protected void postProcessConfiguration(Configuration config) {
         for (String baseClassBeanID : m_baseClassBeanIds) {
             bindSubclasses(config, baseClassBeanID);
         }
+        m_config = config;
     }
 
     /**
@@ -127,5 +130,9 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
                 }
             }
         }
+    }
+
+    public Configuration getConfig() {
+        return m_config;
     }
 }

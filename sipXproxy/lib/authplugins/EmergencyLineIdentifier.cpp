@@ -40,7 +40,7 @@ static EmergencyRulesUrlMapping* gpEmergencyRules = 0;
 class DB : public EntityDB
 {
 public:
-  DB() : EntityDB(MongoDB::ConnectionInfo (MongoDB::ConnectionInfo::connectionStringFromFile(), EntityDB::NS)){};
+  DB(const MongoDB::ConnectionInfo& info) : EntityDB(info){};
   bool findE911LineIdentifier(
     const std::string& userId,
     std::string& e911,
@@ -58,8 +58,8 @@ extern "C" AuthPlugin* getAuthPlugin(const UtlString& pluginName)
   {
     assert(!gpEntity);
     assert(!gpEmergencyRules);
-    MongoDB::ConnectionInfo info(MongoDB::ConnectionInfo::connectionStringFromFile(), EntityDB::NS);
-    gpEntity = new DB();
+    MongoDB::ConnectionInfo info = MongoDB::ConnectionInfo::globalInfo();
+    gpEntity = new DB(info);
     return new EmergencyLineIdentifier(pluginName);
   }
   else
@@ -111,7 +111,9 @@ bool DB::findE911LineIdentifier(
 {
   mongo::BSONObj query = BSON(EntityRecord::identity_fld() << userId);
     MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
-	std::auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
+    mongo::BSONObjBuilder builder;
+    BaseDB::nearest(builder, query);
+    std::auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(ns(), builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 	if (pCursor.get() && pCursor->more())
 	{
 	  mongo::BSONObj obj = pCursor->next();
@@ -121,7 +123,10 @@ bool DB::findE911LineIdentifier(
 	    e911 = obj.getStringField("elin");
 	    
 	    mongo::BSONObj e911LocationQuery = BSON("ent" << "e911location" << "elin" << e911);
-	    std::auto_ptr<mongo::DBClientCursor> e911Cursor = conn->get()->query(_info.getNS(), e911LocationQuery);
+	    
+	    mongo::BSONObjBuilder e911LocBuilder;
+	    BaseDB::nearest(e911LocBuilder, e911LocationQuery);
+	    std::auto_ptr<mongo::DBClientCursor> e911Cursor = conn->get()->query(ns(), e911LocBuilder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 	    if (e911Cursor.get() && e911Cursor->more())
 	      {
 		mongo::BSONObj e911LocationObj = e911Cursor->next();

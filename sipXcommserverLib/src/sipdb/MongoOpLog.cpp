@@ -17,11 +17,12 @@
 #include "sipdb/MongoOpLog.h"
 #include <mongo/client/connpool.h>
 
-MongoOpLog::MongoOpLog(const MongoDB::ConnectionInfo& info) :
+MongoOpLog::MongoOpLog(const MongoDB::ConnectionInfo& info, const std::string ns) :
 	MongoDB::BaseDB(info),
   _isRunning(false),
   _pTailThread(0),
-  _pTailConnection(0)
+  _pTailConnection(0),
+  _ns(ns)
 {
 }
 
@@ -89,14 +90,14 @@ void MongoOpLog::internal_run()
   mongo::BSONElement lastTailId = mongo::minKey.firstElement();
 
   mongo::Query query = QUERY( "_id" << mongo::GT << lastTailId
-          << "ns" << _info.getNS()).sort("$natural");
+          << "ns" << _ns).sort("$natural");
 
   _pTailConnection = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
   mongo::ScopedDbConnection& conn = *_pTailConnection;
 
   std::auto_ptr<mongo::DBClientCursor> c =
     conn.get()->query("local.oplog", query, 0, 0, 0,
-               mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData );
+                      mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData | mongo::QueryOption_SlaveOk );
   while(true)
   {
     if(c->isDead())
@@ -119,7 +120,7 @@ void MongoOpLog::internal_run()
   {
     std::auto_ptr<mongo::DBClientCursor> c =
       conn.get()->query("local.oplog", query, 0, 0, 0,
-                 mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData );
+                 mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData | mongo::QueryOption_SlaveOk );
     while(true)
     {
       if(c->isDead())

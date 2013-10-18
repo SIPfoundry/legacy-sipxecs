@@ -1,0 +1,15 @@
+domain: x
+forwarders:
+ - 8.8.8.8
+ - 8.8.8.2
+views:
+ - :name: default.view
+   :match_clients: null
+ - :name: r1.view
+   :match_clients:
+    - 1.1.1.1
+    - 1.1.1.2
+ - :name: r2.view
+   :match_clients:
+    - 2.2.2.1
+    - 2.2.2.2

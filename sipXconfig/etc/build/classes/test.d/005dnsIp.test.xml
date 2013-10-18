@@ -1,0 +1,28 @@
+<test name="dnsIp">
+  <label>DNS IP:Name resolver</label>
+  <description>
+    Checks if DNS servers can properly resolve the name and IP values.
+  </description>
+  <longDescription>
+    DNS server addresses are supplied by the DHCP server: this test checks that those servers can properly
+    resolve the name and IP values.
+  </longDescription>
+  <command>
+    <exec>sipx-test-dnsIp</exec>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful</msg>
+    </result>
+    <result exit="1">
+      <status>Error</status>
+      <msg>
+        SIP route to SIP_DOMAIN_NAME does not match the configured IP address.
+      </msg>
+      <description>
+        See the installation guide on setting the DNS SRV records and domain names.
+      </description>
+    </result>
+  </results>
+</test>

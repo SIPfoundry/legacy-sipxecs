@@ -85,7 +85,13 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
             Set<String> mwiAddresses = new LinkedHashSet<String>();
             mwiAddresses.add(location.getAddress());
             for (Location mwiLocation : mwiLocations) {
-                mwiAddresses.add(mwiLocation.getAddress());
+                StringBuilder address = new StringBuilder();
+                address.append(mwiLocation.getAddress());
+                if (mwiLocation.getRegionId() != null) {
+                    address.append("@");
+                    address.append(mwiLocation.getRegionId());
+                }
+                mwiAddresses.add(address.toString());
             }
             try {
                 write(wtr, settings, domain, location, StringUtils.join(mwiAddresses, ","), mwiPort, restApi,

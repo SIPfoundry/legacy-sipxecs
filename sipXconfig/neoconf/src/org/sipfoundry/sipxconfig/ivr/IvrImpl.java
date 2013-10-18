@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
@@ -38,6 +37,7 @@ import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dns.DnsManager;
 import org.sipfoundry.sipxconfig.dns.DnsProvider;
+import org.sipfoundry.sipxconfig.dns.ResourceRecord;
 import org.sipfoundry.sipxconfig.dns.ResourceRecords;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.feature.Bundle;
@@ -120,6 +120,10 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
+        return getAvailableAddresses(manager, type);
+    }
+
+    Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type) {
         if (!ADDRESSES.contains(type)) {
             return null;
         }
@@ -156,16 +160,18 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
     }
 
     @Override
-    public List<ResourceRecords> getResourceRecords(DnsManager manager, Location whoIsAsking) {
-        ResourceRecords tcpRecords = new ResourceRecords("_sip._tcp", VM);
-        List<ResourceRecords> records = new LinkedList<ResourceRecords>();
-        Collection<Address> addresses = getAvailableAddresses(manager.getAddressManager(), SIP_ADDRESS, whoIsAsking);
-        if (addresses != null && addresses.isEmpty()) {
-            return records;
+    public Collection<ResourceRecords> getResourceRecords(DnsManager manager) {
+        FeatureManager fm = manager.getAddressManager().getFeatureManager();
+        List<Location> locations = fm.getLocationsForEnabledFeature(FEATURE);
+        if (locations == null || locations.isEmpty()) {
+            return Collections.emptyList();
         }
-        tcpRecords.addAddresses(addresses);
-        records.add(tcpRecords);
-        return records;
+        ResourceRecords records = new ResourceRecords("_sip._tcp", VM, true);
+        for (Location l : locations) {
+            int port = m_fsFeature.getSettings(l).getFreeswitchSipPort();
+            records.addRecord(new ResourceRecord(l.getHostname(), port, l.getRegionId()));
+        }
+        return Collections.singleton(records);
     }
 
     public void setPilotSettingsDao(BeanWithSettingsDao<CallPilotSettings> pilotSettingsDao) {

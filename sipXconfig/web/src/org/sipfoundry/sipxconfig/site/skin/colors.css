@@ -215,6 +215,11 @@ tr.odd, tr.odd-unheard
 	background: #fff;
 }
 
+tr.toolbar
+{
+  background: #e6e6e6;    
+}
+
 tr.odd-unheard, tr.even-unheard
 {
         font-weight: bold;

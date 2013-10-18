@@ -24,6 +24,16 @@ public interface DaoEventPublisher {
     public void publishSaveCollection(Collection<?> entities);
 
     /**
+     * Call this to notify listeners that every entity in the collection was saved or updated
+     */
+    public void publishBeforeSaveCollection(Collection<?> entities);
+
+    /**
+     * Call this to notify listeners that every entity in the collection was saved or updated
+     */
+    public void publishAfterDeleteCollection(Collection<?> entities);
+
+    /**
      * Call this to notify listeners that entity is about to be deleted
      */
     public void publishDelete(Object entity);
@@ -33,4 +43,13 @@ public interface DaoEventPublisher {
      */
     public void publishSave(Object entity);
 
+    /**
+     * Call this to notify listeners that entity was saved or updated
+     */
+    public void publishBeforeSave(Object entity);
+
+    /**
+     * Call this to notify listeners that entity was saved or updated
+     */
+    public void publishAfterDelete(Object entity);
 }

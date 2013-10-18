@@ -1,0 +1,84 @@
+#!/usr/bin/ruby
+
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+#
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+#
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+
+#
+# Generated a zone file from data file with know server name and addresses
+#
+
+require 'erb'
+
+# you can put defaults to optional data here so if yaml doesn't define them you get 
+# reasonable defaults
+def render(template, meta)
+  var = binding
+  meta.each_key { |x|
+    eval "#{x} = meta['#{x}']", var
+  }
+
+  erb = ERB.new(File.read(template))
+  erb.filename = template
+  s = erb.result(var)
+  return s
+end
+
+if __FILE__ == $0
+require 'optparse'
+require 'yaml'
+
+$out = nil
+$use_stdout = true
+$yaml = nil
+args = OptionParser.new { |opts|
+  opts.banner = "Usage : sipx-erb [options]"
+
+  opts.separator ""
+  opts.separator "Options:"
+
+  opts.on("--help", "Print this help message.") {
+    puts opts
+    exit
+  }
+
+  opts.on("--template FILE", "ERB formated template. Default is #{$template}") {|f|
+    $template = f
+  }
+
+  opts.on("--in FILE", "YAML formated file for servers. Default is #{$yaml}") {|f|
+    $yaml = f
+  }
+
+  opts.on("--out FILE", "Write to file, otherwise output is sent to stdout") {|f|
+    $use_stdout = false
+    $out = f
+  }
+
+  opts.on("--stdout", "Write output to stdout") {|f|
+    $use_stdout = true
+  }
+}
+args.parse!
+
+if $use_stdout
+  $io = STDOUT
+else
+  $io = File.open($out, 'w')
+end
+
+$config = YAML::load_file($yaml)
+$io.write render($template, $config)
+$io.close_write
+
+end

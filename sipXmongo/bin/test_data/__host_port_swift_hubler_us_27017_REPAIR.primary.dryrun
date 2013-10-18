@@ -1,3 +1,0 @@
-COMMAND:REPAIR
-OS:rm -f /var/lib/mongodb/mongod.lock
-OS:/bin/su -- mongodb /usr/bin/mongod --repair

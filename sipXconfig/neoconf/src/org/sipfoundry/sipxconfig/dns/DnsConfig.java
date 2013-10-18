@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
+
 import static java.lang.String.format;
 
 import java.io.File;
@@ -23,11 +24,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.Address;
@@ -42,16 +48,24 @@ import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
+import org.sipfoundry.sipxconfig.region.Region;
+import org.sipfoundry.sipxconfig.region.RegionManager;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
+import org.springframework.beans.factory.annotation.Required;
 
 public class DnsConfig implements ConfigProvider {
+    private static final String YML_PORT = ":port";
+    private static final String YML_NAME = ":name";
+    private static final String YML_DOMAIN = "domain";
+    private static final String VIEW_NAME = "%s.view";
     private static final Log LOG = LogFactory.getLog(DnsConfig.class);
     private DnsManager m_dnsManager;
+    private RegionManager m_regionManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
         if (!request.applies(DnsManager.FEATURE, LocationsManager.FEATURE, ProxyManager.FEATURE, Registrar.FEATURE,
-                ImManager.FEATURE)) {
+                ImManager.FEATURE, RegionManager.FEATURE_ID)) {
             return;
         }
 
@@ -61,13 +75,14 @@ public class DnsConfig implements ConfigProvider {
         String networkDomain = Domain.getDomain().getNetworkName();
         List<Location> all = manager.getLocationManager().getLocationsList();
         Set<Location> locations = request.locations(manager);
+        List<Address> dns = am.getAddresses(DnsManager.DNS_ADDRESS, null);
 
         // 32 bit unsigned runs out in year 2148 which is 136 yrs past july 16, 2012
         long serNo = (System.currentTimeMillis() / 1000) - 1342487870;
+        Collection<Region> regions = getRegionsInUse(all);
 
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
-            List<Address> dns = am.getAddresses(DnsManager.DNS_ADDRESS, location);
 
             // If there are no dns servers define, there is no reason to touch resolv.conf
             boolean resolvOn = dns.size() > 0;
@@ -83,7 +98,7 @@ public class DnsConfig implements ConfigProvider {
             boolean namedOn = manager.getFeatureManager().isFeatureEnabled(DnsManager.FEATURE, location);
             Writer dat = new FileWriter(new File(dir, "named.cfdat"));
             try {
-                writeSettings(dat, namedOn, resolvOn, settings);
+                writeSettings(dat, namedOn, resolvOn, regions, settings);
             } finally {
                 IOUtils.closeQuietly(dat);
             }
@@ -91,18 +106,74 @@ public class DnsConfig implements ConfigProvider {
             if (!namedOn) {
                 continue;
             }
+        }
 
-            List<Address> proxy = am.getAddresses(ProxyManager.TCP_ADDRESS, location);
-            List<ResourceRecords> rrs = m_dnsManager.getResourceRecords(location);
-            List<Address> im = am.getAddresses(ImManager.XMPP_ADDRESS, location);
-            Writer zone = new FileWriter(new File(dir, "zone.yaml"));
+        File gdir = manager.getGlobalDataDirectory();
+        Writer named = new FileWriter(new File(gdir, "named.yaml"));
+        try {
+            writeNamedConfig(named, Domain.getDomain(), regions, settings.getDnsForwarders());
+        } finally {
+            IOUtils.closeQuietly(named);
+        }
+
+        boolean generateARecords = domain.equals(networkDomain) || domain.equals(all.get(0).getFqdn());
+        for (Region region : regions) {
+            Collection<DnsSrvRecord> records = m_dnsManager.getResourceRecords(region);
+            String file = format(VIEW_NAME + ".yaml", region.getConfigFriendlyName());
+            Writer zone = new FileWriter(new File(gdir, file));
             try {
-                boolean generateARecords = domain.equals(networkDomain) || domain.equals(location.getFqdn());
-                writeZoneConfig(zone, domain, all, proxy, im, dns, rrs, serNo, generateARecords);
+                writeZoneConfig(zone, domain, all, dns, records, serNo, generateARecords);
             } finally {
                 IOUtils.closeQuietly(zone);
             }
         }
+    }
+
+    List<Region> getRegionsInUse(Collection<Location> locations) throws IOException {
+        List<Region> regions = new ArrayList<Region>();
+        regions.add(Region.DEFAULT);
+        // while the default region can never be selection by a location, it's always
+        // in use
+        for (Region r : m_regionManager.getRegions()) {
+            // get a list of regions that are actually used by one or more locations
+            for (Location location : locations) {
+                if (r.getId().equals(location.getRegionId())) {
+                    regions.add(r);
+                    break;
+                }
+            }
+        }
+        Collections.sort(regions, new Comparator<Region>() {
+            @Override
+            public int compare(Region o1, Region o2) {
+                // We need default region last. Eventually use will want to control the order
+                // of the views.
+                return o2.getId() - o1.getId();
+            }
+        });
+        return regions;
+    }
+
+    void writeNamedConfig(Writer w, Domain d, Collection<Region> regions, Collection<Address> forwarders)
+        throws IOException {
+        YamlConfiguration c = new YamlConfiguration(w);
+        Collection< ? > forwarderIps = CollectionUtils.collect(forwarders, Address.GET_IP);
+        c.write(YML_DOMAIN, d.getName());
+        c.writeArray("forwarders", forwarderIps);
+        c.startArray("views");
+        for (Region region : regions) {
+            c.write(YML_NAME, format(VIEW_NAME, region.getConfigFriendlyName()));
+            c.writeArray(":match_clients", safeAsList(region.getAddresses()));
+            c.nextElement();
+        }
+        c.endArray();
+    }
+
+    final <T> List<T> safeAsList(T...a) {
+        if (a == null) {
+            return null;
+        }
+        return Arrays.asList(a);
     }
 
     void writeResolv(Writer w, Location l, String domain, List<Address> dns) throws IOException {
@@ -121,38 +192,37 @@ public class DnsConfig implements ConfigProvider {
         w.write(nm.toString());
     }
 
-    void writeSettings(Writer w, boolean namedOn, boolean resolvOn, DnsSettings settings) throws IOException {
+    void writeSettings(Writer w, boolean namedOn, boolean resolvOn, Collection<Region> regions, DnsSettings settings)
+        throws IOException {
         CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
         config.writeClass("resolv", resolvOn);
         config.writeClass("sipxdns", namedOn);
-        String fwders = "";
-        List<Address> fwd = settings.getDnsForwarders();
-        if (fwd != null && fwd.size() > 0) {
-            fwders = StringUtils.join(fwd, ';') + ';';
-        }
-        config.write("sipxdns_forwarders", fwders);
+        @SuppressWarnings("unchecked")
+        Collection<String> zones = CollectionUtils.collect(regions, new Transformer() {
+            @Override
+            public Object transform(Object arg0) {
+                return format(VIEW_NAME, ((Region) arg0).getConfigFriendlyName());
+            }
+        });
+        config.writeList("dnsviews", zones);
         config.writeSettings("sipxdns_", settings.getSettings());
     }
 
-    void writeZoneConfig(Writer w, String domain, List<Location> all, List<Address> proxy,
-        List<Address> im, List<Address> dns, List<ResourceRecords> rrs, long serNo, boolean generateARecords)
-        throws IOException {
+    void writeZoneConfig(Writer w, String domain, List<Location> all, List<Address> dns,
+            Collection<DnsSrvRecord> rrs, long serNo, boolean generateARecords) throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
         c.write("serialno", serNo);
-        c.write("sip_protocols", "[ udp, tcp, tls ]");
         c.write("naptr_protocols", "[ udp, tcp ]");
-        c.write("domain", domain);
-        writeServerYaml(c, all, "proxy_servers", proxy);
+        c.write(YML_DOMAIN, domain);
         c.startArray("resource_records");
         if (rrs != null) {
-            for (ResourceRecords rr : rrs) {
+            for (DnsSrvRecord rr : rrs) {
                 c.nextElement();
-                writeResourceRecords(c, all, rr);
+                writeSrvRecord(c, rr);
             }
         }
         c.endArray();
         writeServerYaml(c, all, "dns_servers", dns);
-        writeServerYaml(c, all, "im_servers", im);
         List<Address> dnsAddresses = new ArrayList<Address>();
         if (generateARecords) {
             dnsAddresses = Location.toAddresses(DnsManager.DNS_ADDRESS, all);
@@ -169,43 +239,36 @@ public class DnsConfig implements ConfigProvider {
         if (addresses != null) {
             for (Address a : addresses) {
                 c.nextElement();
-                writeAddress(c, all, a.getAddress(), a.getPort(), false);
+                writeAddress(c, all, a.getAddress(), a.getPort());
             }
         }
         c.endArray();
     }
 
-    void writeAddress(YamlConfiguration c, List<Location> all, String address, int port, boolean rewrite)
-        throws IOException {
-        String host = getHostname(all, address, rewrite);
+    void writeAddress(YamlConfiguration c, List<Location> all, String address, int port) throws IOException {
+        String host = getHostname(all, address);
         if (host != null) {
-            c.write(":name", host);
+            c.write(YML_NAME, host);
             c.write(":ipv4", address);
-            c.write(":port", port);
-            if (rewrite) {
-                c.write(":target", getHostname(all, address, false));
-            }
+            c.write(YML_PORT, port);
         }
     }
 
-    void writeResourceRecords(YamlConfiguration c, List<Location> all, ResourceRecords rr) throws IOException {
-        c.write(":proto", rr.getProto());
-        c.write(":resource", rr.getResource());
-        c.startArray(":records");
-        for (DnsRecord r : rr.getRecords()) {
-            c.nextElement();
-            writeAddress(c, all, r.getAddress(), r.getPort(), true);
-        }
-        c.endArray();
+    void writeSrvRecord(YamlConfiguration c, DnsSrvRecord srv) throws IOException {
+        c.write(":proto", srv.getProtocol());
+        c.write(":lhs", srv.getLeftHandSide());
+        c.write(":resource", srv.getResource());
+        c.write(":priority", srv.getPriority());
+        c.write(":weight", srv.getWeight());
+        c.write(YML_PORT, srv.getPort());
+        c.write(":target", srv.getDestination());
+        c.write(":host", srv.getHost());
     }
 
-    String getHostname(List<Location> locations, String ip, boolean rewrite) {
+    String getHostname(List<Location> locations, String ip) {
         for (Location l : locations) {
             if (ip.equals(l.getAddress())) {
-                if (rewrite) {
-                    return l.getHostnameInSipDomain();
-                }
-                return l.getFqdn();
+                return l.getHostname();
             }
         }
         LOG.warn("No hostname found for " + ip + ", could be unmanged service");
@@ -214,5 +277,10 @@ public class DnsConfig implements ConfigProvider {
 
     public void setDnsManager(DnsManager dnsManager) {
         m_dnsManager = dnsManager;
+    }
+
+    @Required
+    public void setRegionManager(RegionManager regionManager) {
+        m_regionManager = regionManager;
     }
 }

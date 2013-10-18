@@ -32,6 +32,7 @@ RegBinding::RegBinding(const RegBinding& binding)
     _qvalue = binding._qvalue;
     _instanceId = binding._instanceId;
     _gruu = binding._gruu;
+    _shardId = binding._shardId;
     _path = binding._path;
     _cseq = binding._cseq;
     _expirationTime = binding._expirationTime;
@@ -54,6 +55,7 @@ void RegBinding::swap(RegBinding& binding)
     std::swap(_qvalue, binding._qvalue);
     std::swap(_instanceId, binding._instanceId);
     std::swap(_gruu, binding._gruu);
+    std::swap(_shardId, binding._shardId);
     std::swap(_path, binding._path);
     std::swap(_cseq, binding._cseq);
     std::swap(_expirationTime, binding._expirationTime);
@@ -85,6 +87,9 @@ RegBinding::RegBinding(const mongo::BSONObj& bson)
 
     if (bson.hasField("gruu"))
       _gruu = bson.getStringField("gruu");
+
+    if (bson.hasField("shardId"))
+      _shardId = bson.getIntField("shardId");
 
     if (bson.hasField("path"))
       _path = bson.getStringField("path");
@@ -130,6 +135,9 @@ RegBinding& RegBinding::operator=(const mongo::BSONObj& bson)
 
     if (bson.hasField("gruu"))
       _gruu = bson.getStringField("gruu");
+
+    if (bson.hasField("shardId"))
+      _shardId = bson.getIntField("shardId");
 
     if (bson.hasField("path"))
       _path = bson.getStringField("path");

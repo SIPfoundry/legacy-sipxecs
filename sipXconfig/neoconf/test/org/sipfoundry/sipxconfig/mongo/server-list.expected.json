@@ -1,0 +1,1 @@
+{ "servers" : { "two:27017" : { "tags" : { "shardId" : "0" , "clusterId" : "1"}} , "one:27017" : { "tags" : { "shardId" : "1" , "clusterId" : "1"}}} , "local" : false , "arbiters" : { "four:27018" : { } , "three:27018" : { }} , "replSet" : "sipxecs"}

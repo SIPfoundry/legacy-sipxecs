@@ -9,7 +9,8 @@ TEST_DB = SIPXCONFIG_TEST
 	@PACKAGE@-rpmlintrc \
 	LICENSE \
 	NOTICE \
-	packages \
+	packages/browser \
+	packages/sipxconfig/sipxconfig.dart \
 	meta
 
 SUBDIRS = \

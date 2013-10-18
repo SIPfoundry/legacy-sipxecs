@@ -29,7 +29,7 @@ public class ProxySettings extends PersistableSettings implements DeployConfigOn
     public static final String LOG_SETTING = "proxy-configuration/SIPX_PROXY_LOG_LEVEL";
     public static final String SIP_PORT_SETTING = "proxy-configuration/SIPX_PROXY_TCP_PORT";
     public static final String SIP_UDP_PORT_SETTING = "proxy-configuration/SIPX_PROXY_UDP_PORT";
-    public static final String SIP_SECURE_PORT_SETTING = "proxy-configuration/TLS_SIP_PORT";
+    public static final String SIP_SECURE_PORT_SETTING = "proxy-configuration/SIPX_PROXY_TLS_PORT";
 
     public int getSipTcpPort() {
         return (Integer) getSettingTypedValue(SIP_PORT_SETTING);

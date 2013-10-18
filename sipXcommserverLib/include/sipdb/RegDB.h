@@ -37,16 +37,34 @@ public:
 	static const std::string NS;
     typedef std::vector<RegBinding> Bindings;
 
-    RegDB(const MongoDB::ConnectionInfo& info) :
-		BaseDB(info)
+ RegDB(const MongoDB::ConnectionInfo& info) :
+    BaseDB(info), _local(NULL), _ns(NS)
 	{
 	}
 	;
 
-	~RegDB()
+ RegDB(const MongoDB::ConnectionInfo& info, RegDB* local) :
+    BaseDB(info), _local(local), _ns(NS)
 	{
 	}
 	;
+
+ RegDB(const MongoDB::ConnectionInfo& info, RegDB* local, const std::string& ns) :
+    BaseDB(info), _local(local), _ns(ns)
+	{
+	}
+	;
+
+ ~RegDB()
+	{
+          if (_local) {
+            delete _local;
+            _local = NULL;
+          }
+	}
+	;
+
+    static RegDB* CreateInstance();
 
     void updateBinding(const RegBinding::Ptr& pBinding);
 
@@ -100,10 +118,18 @@ public:
 
     const std::string& getLocalAddress() const { return _localAddress; };
 
+	const std::string& getNS() const
+	{
+		return _ns;
+	}
+	;
+
 protected:
 
 private:
     std::string _localAddress;
+    RegDB* _local;
+    std::string _ns;
 };
 
 #endif	/* RegDB_H */

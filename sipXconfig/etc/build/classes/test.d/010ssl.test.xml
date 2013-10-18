@@ -1,0 +1,22 @@
+<test name="ssl">
+  <label>SSL certificate</label>
+  <description>
+    SSL certificate validation
+  </description>
+  <command>
+    <exec>sipx-test-ssl</exec>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful</msg>
+    </result>
+    <result exit="1">
+      <status>Error</status>
+      <msg>SSL key and/or certificate not found or not valid</msg>
+      <description>
+        Run the setup wizard or check instructions on recreating SSL certificates.
+      </description>
+    </result>
+  </results>
+</test>

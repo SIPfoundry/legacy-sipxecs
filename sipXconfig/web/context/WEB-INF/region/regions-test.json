@@ -1,0 +1,6 @@
+[
+   {"id" : 1, "name" : "US - Boston", "servers" : ["host1", "host2"] },
+   {"id" : 2, "name" : "Europe - Bucharest", "servers" : ["host4"] },
+   {"id" : 3, "name" : "Philippines - Manila", "servers" : [] },
+   {"id" : 4, "name" : "US - Austin", "servers" : ["host3", "host9"] }
+]

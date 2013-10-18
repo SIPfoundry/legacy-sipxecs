@@ -163,20 +163,19 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
                     " NAT Traversal feature is DISABLED", mInstanceName.data() );
   }
 
-   mongo::ConnectionString mongoConn = MongoDB::ConnectionInfo::connectionStringFromFile();
-
    if (mpRegDb != NULL) {
        delete mpRegDb;
        mpRegDb = NULL;
    }
 
-   mpRegDb = new RegDB(MongoDB::ConnectionInfo(mongoConn, RegDB::NS));
+
+   mpRegDb = RegDB::CreateInstance();
 
    if (mpSubscribeDb != NULL) {
        delete mpSubscribeDb;
        mpSubscribeDb = NULL;
    }
-   mpSubscribeDb = new SubscribeDB(MongoDB::ConnectionInfo(mongoConn, SubscribeDB::NS));
+   mpSubscribeDb = new SubscribeDB(MongoDB::ConnectionInfo::globalInfo());
 }
 
 AuthPlugin::AuthResult

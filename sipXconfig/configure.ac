@@ -18,6 +18,7 @@ CHECK_XARGS_REPLACE
 AC_PROG_JAVA_CC([javac])
 AC_PROG_JAVA([java])
 PROG_JAVA_DEP
+CHECK_APACHE2
 CHECK_CLOVER
 CHECK_RUBY([1.8.2])
 # not avail on ruby 1.9, default on fedora 17

@@ -1,0 +1,305 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="config">
+    <setting name="unmanaged">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="ignoreip">
+      <type>
+        <string multiLine="yes" maxLen="1000"/>
+      </type>
+    </setting>
+    <setting name="bantime">
+      <type>
+        <integer min="-1"/>
+      </type>
+      <value>600</value>
+    </setting>
+    <setting name="maxretry">
+      <type>
+        <integer />
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name="findtime">
+      <type>
+        <integer />
+      </type>
+      <value>600</value>
+    </setting>
+    <setting name="backend" hidden="yes">
+      <type>
+        <string />
+      </type>
+      <value>auto</value>
+    </setting>
+    <setting name="action" hidden="yes">
+      <type>
+        <string />
+      </type>
+      <value>iptables-allports</value>
+    </setting>
+  </group>
+  <group name="rules">
+    <group name="dos">
+      <setting name="enable">
+        <type>
+          <boolean/>
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="ignoreip" advanced="yes">
+        <type>
+          <string multiLine="yes" maxLen="1000"/>
+        </type>
+      </setting>
+      <setting name="bantime">
+        <type>
+          <integer min="-1"/>
+        </type>
+        <value>-1</value>
+      </setting>
+      <setting name="maxretry">
+        <type>
+          <integer />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="findtime">
+        <type>
+          <integer />
+        </type>
+        <value>60</value>
+      </setting>
+      <setting name="log" hidden="yes">
+        <type>
+          <string />
+        </type>
+        <value>$(sipx.SIPX_LOGDIR)/firewall/firewall-sipdos.log</value>
+      </setting>
+    </group>
+    <group name="register">
+      <setting name="enable">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="ignoreip" advanced="yes">
+        <type>
+          <string multiLine="yes" maxLen="1000"/>
+        </type>
+      </setting>
+      <setting name="bantime">
+        <type>
+          <integer />
+        </type>
+        <value>600</value>
+      </setting>
+      <setting name="maxretry">
+        <type>
+          <integer />
+        </type>
+        <value>180</value>
+      </setting>
+      <setting name="findtime">
+        <type>
+          <integer />
+        </type>
+        <value>60</value>
+      </setting>
+      <setting name="log" hidden="yes">
+        <type>
+          <string />
+        </type>
+        <value>$(sipx.SIPX_LOGDIR)/firewall/firewall-sip.log</value>
+      </setting>
+    </group>
+    <group name="invite">
+      <setting name="enable">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="ignoreip" advanced="yes">
+        <type>
+          <string multiLine="yes" maxLen="1000"/>
+        </type>
+      </setting>
+      <setting name="bantime">
+        <type>
+          <integer />
+        </type>
+        <value>600</value>
+      </setting>
+      <setting name="maxretry">
+        <type>
+          <integer />
+        </type>
+        <value>180</value>
+      </setting>
+      <setting name="findtime" advanced="yes">
+        <type>
+          <integer />
+        </type>
+        <value>60</value>
+      </setting>
+      <setting name="log" hidden="yes">
+        <type>
+          <string />
+        </type>
+        <value>$(sipx.SIPX_LOGDIR)/firewall/firewall-sip.log</value>
+      </setting>
+    </group>
+    <group name="ack">
+      <setting name="enable">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="ignoreip" advanced="yes">
+        <type>
+          <string multiLine="yes" maxLen="1000"/>
+        </type>
+      </setting>
+      <setting name="bantime">
+        <type>
+          <integer />
+        </type>
+        <value>600</value>
+      </setting>
+      <setting name="maxretry">
+        <type>
+          <integer />
+        </type>
+        <value>180</value>
+      </setting>
+      <setting name="findtime">
+        <type>
+          <integer />
+        </type>
+        <value>60</value>
+      </setting>
+      <setting name="sendemail" advanced="yes">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="emailto" advanced="yes">
+        <type>
+          <string />
+        </type>
+      </setting>
+      <setting name="log" hidden="yes">
+        <type>
+          <string />
+        </type>
+        <value>$(sipx.SIPX_LOGDIR)/firewall/firewall-sip.log</value>
+      </setting>
+    </group>
+    <group name="options">
+      <setting name="enable">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="ignoreip" advanced="yes">
+        <type>
+          <string multiLine="yes" maxLen="1000"/>
+        </type>
+      </setting>
+      <setting name="bantime">
+        <type>
+          <integer />
+        </type>
+        <value>600</value>
+      </setting>
+      <setting name="maxretry">
+        <type>
+          <integer />
+        </type>
+        <value>180</value>
+      </setting>
+      <setting name="findtime">
+        <type>
+          <integer />
+        </type>
+        <value>60</value>
+      </setting>
+      <setting name="sendemail" advanced="yes">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="emailto" advanced="yes">
+        <type>
+          <string />
+        </type>
+      </setting>
+      <setting name="log" hidden="yes">
+        <type>
+          <string />
+        </type>
+        <value>$(sipx.SIPX_LOGDIR)/firewall/firewall-sip.log</value>
+      </setting>
+    </group>
+    <group name="subscribe">
+      <setting name="enable">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="ignoreip" advanced="yes">
+        <type>
+          <string multiLine="yes" maxLen="1000"/>
+        </type>
+      </setting>
+      <setting name="bantime">
+        <type>
+          <integer />
+        </type>
+        <value>600</value>
+      </setting>
+      <setting name="maxretry">
+        <type>
+          <integer />
+        </type>
+       <value>180</value>
+      </setting>
+      <setting name="findtime">
+        <type>
+          <integer />
+        </type>
+        <value>60</value>
+      </setting>
+      <setting name="sendemail" advanced="yes">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="emailto" advanced="yes">
+        <type>
+          <string />
+        </type>
+      </setting>
+      <setting name="log" hidden="yes">
+        <type>
+          <string />
+        </type>
+        <value>$(sipx.SIPX_LOGDIR)/firewall/firewall-sip.log</value>
+      </setting>
+    </group>
+  </group>
+</model>

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="true-false">
+    <boolean>
+      <true><value>true</value></true>
+      <false><value>false</value></false>
+    </boolean>
+  </type>
+  <type id="nonRootPort">
+    <integer min="1025" max="65535"/>
+  </type>
+  <group name="mongod">
+    <setting name="logappend" hidden="yes" >
+      <type refid="true-false"/>
+      <value>true</value>
+    </setting>
+    <setting name="port" hidden="yes">
+      <type refid="nonRootPort"/>      
+      <value>27017</value>
+    </setting>
+    <setting name="replSet" hidden="yes">
+      <value>sipxecs</value>
+    </setting>
+  </group>
+</model>

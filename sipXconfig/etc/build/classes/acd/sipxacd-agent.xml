@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
+<model>
+  <group name="acd-agent">
+    <setting name="uri" hidden="yes">
+      <type>
+        <string required="yes" />
+      </type>
+      <value />
+    </setting>
+    <setting name="name" hidden="yes">
+      <type />
+      <value />
+    </setting>
+    <setting name="monitor-presence">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="always-available" advanced="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="acd-queue-list" hidden="yes">
+      <type>
+        <string required="yes" />
+      </type>
+      <value />
+    </setting>
+  </group>
+</model>

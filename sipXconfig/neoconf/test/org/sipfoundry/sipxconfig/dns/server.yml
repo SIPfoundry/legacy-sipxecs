@@ -1,7 +1,7 @@
 robin:
- - :name: one.example.org
+ - :name: one
    :ipv4: 1.1.1.1
    :port: 0
- - :name: two.example.org
+ - :name: two
    :ipv4: 2.2.2.2
    :port: 0

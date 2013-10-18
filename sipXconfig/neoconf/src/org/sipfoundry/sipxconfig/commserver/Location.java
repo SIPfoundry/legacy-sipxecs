@@ -30,10 +30,12 @@ import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
+import org.sipfoundry.sipxconfig.common.event.KeepsOriginalCopy;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.feature.Feature;
 
-public class Location extends BeanWithId implements DeployConfigOnEdit, Comparable<Location> {
+public class Location extends BeanWithId implements KeepsOriginalCopy<Location>, DeployConfigOnEdit,
+        Comparable<Location> {
     // security role
     public static final String ROLE_LOCATION = "ROLE_LOCATION";
     public static final int PROCESS_MONITOR_PORT = 8092;
@@ -73,7 +75,6 @@ public class Location extends BeanWithId implements DeployConfigOnEdit, Comparab
     private Timestamp m_lastAttempt;
     private Set<String> m_failedReplications;
     private Branch m_branch;
-    private boolean m_setFqdnOrIpChangedOnSave;
     private boolean m_useStun = true;
     private String m_stunAddress = "stun.ezuce.com";
     private int m_stunInterval = 60; // seconds
@@ -83,6 +84,8 @@ public class Location extends BeanWithId implements DeployConfigOnEdit, Comparab
     private int m_startRtpPort = 30000;
     private int m_stopRtpPort = 31000;
     private String m_hostName;
+    private Integer m_regionId;
+    private Location m_originalCopy;
 
     public Location() {
     }
@@ -236,18 +239,18 @@ public class Location extends BeanWithId implements DeployConfigOnEdit, Comparab
     }
 
     /**
-     * Package protected as only LocationsManagerImpl should determine this.
-     */
-    void fqdnOrIpHasChangedOnSave() {
-        m_setFqdnOrIpChangedOnSave = true;
-    }
-
-    /**
      * DAOEventListeners might only care is an IP address or FQDN changed.  If so, allow them to check the status
      * of that flag.
      */
     public boolean hasFqdnOrIpChangedOnSave() {
-        return m_setFqdnOrIpChangedOnSave;
+        if (m_originalCopy == null) {
+            return true;
+        }
+        return !isSame(m_hostName, m_originalCopy.m_hostName) || !isSame(m_address, m_originalCopy.m_address);
+    }
+
+    boolean isSame(String a, String b) {
+        return a == null ? b == null : a.equals(b);
     }
 
     public String getPassword() {
@@ -310,6 +313,14 @@ public class Location extends BeanWithId implements DeployConfigOnEdit, Comparab
 
     public void setLastAttempt(Timestamp lastAttempt) {
         m_lastAttempt = lastAttempt;
+    }
+
+    public Integer getRegionId() {
+        return m_regionId;
+    }
+
+    public void setRegionId(Integer regionId) {
+        m_regionId = regionId;
     }
 
     public boolean isInProgressState() {
@@ -423,10 +434,24 @@ public class Location extends BeanWithId implements DeployConfigOnEdit, Comparab
                 + m_password + ", m_primary=" + m_primary + ", m_registered=" + m_registered + ", m_callTraffic="
                 + m_callTraffic + ", m_state=" + m_state + ", m_lastAttempt=" + m_lastAttempt
                 + ", m_failedReplications=" + m_failedReplications + ", m_branch=" + m_branch
-                + ", m_setFqdnOrIpChangedOnSave=" + m_setFqdnOrIpChangedOnSave + ", m_useStun=" + m_useStun
+                + ", m_useStun=" + m_useStun
                 + ", m_stunAddress=" + m_stunAddress + ", m_stunInterval=" + m_stunInterval + ", m_publicAddress="
                 + m_publicAddress + ", m_publicPort=" + m_publicPort + ", m_publicTlsPort=" + m_publicTlsPort
                 + ", m_startRtpPort=" + m_startRtpPort + ", m_stopRtpPort=" + m_stopRtpPort + ", m_hostName="
                 + m_hostName + "]";
+    }
+
+    @Override
+    public Location getOriginalCopy() {
+        return m_originalCopy;
+    }
+
+    @Override
+    public void makeBackupAsOriginalCopy() {
+        try {
+            m_originalCopy = (Location) this.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

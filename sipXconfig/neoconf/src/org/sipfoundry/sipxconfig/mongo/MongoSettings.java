@@ -25,8 +25,14 @@ public class MongoSettings extends PersistableSettings {
     // and changing would be rebuilding mongo data base
     public static final int SERVER_PORT = 27017;
 
-    // could potentially be changed but not implements at this time
+    // could potentially be changed but not implemented at this time
     public static final int ARBITER_PORT = 27018;
+
+    // could potentially be changed but not implemented at this time
+    public static final int LOCAL_PORT = 27019;
+
+    // could potentially be changed but not implemented at this time
+    public static final int LOCAL_ARBITER_PORT = 27020;
 
     @Override
     protected Setting loadSettings() {
@@ -35,6 +41,10 @@ public class MongoSettings extends PersistableSettings {
 
     public int getPort() {
         return (Integer) getSettingTypedValue("mongod/port");
+    }
+
+    public boolean disableUseReadTags() {
+        return (Boolean) getSettingTypedValue("replication/disableUseReadTags");
     }
 
     @Override

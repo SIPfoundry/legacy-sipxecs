@@ -62,16 +62,12 @@ public final class DataCollectionUtil {
         return list;
     }
 
-    /**
-     * Return list of items by their primary key. This may not be efficient for large collections.
-     */
     public static Collection findByPrimaryKey(Collection c, Object[] primaryKeys) {
         List list = new ArrayList();
 
-        // mark items to be deleted
-        Iterator remove = c.iterator();
-        while (remove.hasNext()) {
-            PrimaryKeySource item = (PrimaryKeySource) remove.next();
+        Iterator find = c.iterator();
+        while (find.hasNext()) {
+            PrimaryKeySource item = (PrimaryKeySource) find.next();
             for (int j = 0; j < primaryKeys.length; j++) {
                 if (item.getPrimaryKey().equals(primaryKeys[j])) {
                     list.add(item);
@@ -80,6 +76,19 @@ public final class DataCollectionUtil {
         }
 
         return list;
+    }
+
+    public static <T extends PrimaryKeySource> T findByKey(Collection<T> c, Object primaryKey) {
+        // mark items to be deleted
+        Iterator<T> find = c.iterator();
+        while (find.hasNext()) {
+            T item = find.next();
+            if (item.getPrimaryKey().equals(primaryKey)) {
+                return item;
+            }
+        }
+
+        return null;
     }
 
     /**

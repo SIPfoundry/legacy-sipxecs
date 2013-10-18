@@ -16,11 +16,12 @@
  */
 package org.sipfoundry.sipxconfig.mongo;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,14 +33,13 @@ import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
 import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
-import org.sipfoundry.sipxconfig.common.BatchCommandRunner;
-import org.sipfoundry.sipxconfig.common.CommandRunner;
-import org.sipfoundry.sipxconfig.common.SimpleCommandRunner;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListenerAdvanced;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
+import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -49,228 +49,31 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.region.Region;
+import org.sipfoundry.sipxconfig.region.RegionManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 public class MongoManagerImpl implements AddressProvider, FeatureProvider, MongoManager, ProcessProvider,
-        SetupListener, FirewallProvider, AlarmProvider {
+        SetupListener, FirewallProvider, AlarmProvider, BeanFactoryAware, FeatureListener, DaoEventListenerAdvanced {
     private static final Log LOG = LogFactory.getLog(MongoManagerImpl.class);
     private BeanWithSettingsDao<MongoSettings> m_settingsDao;
-    private int m_timeout = 10000;
-    private int m_backgroundTimeout = 120000; // can take a while for fresh mongo to init
-    private String m_mongoStatusScript;
-    private String m_mongoAnalyzerScript;
-    private String m_mongoAdminScript;
-    private CommandRunner m_actionRunner;
-    private Object m_lastErrorToken;
     private ConfigManager m_configManager;
     private FeatureManager m_featureManager;
-
-    public MongoMeta getMeta() {
-        SimpleCommandRunner srunner = new SimpleCommandRunner();
-        String statusToken = run(srunner, m_mongoStatusScript + " --full");
-        MongoMeta meta = new MongoMeta();
-        meta.setStatusToken(statusToken);
-
-        if (statusToken != null) {
-            SimpleCommandRunner arunner = new SimpleCommandRunner();
-            arunner.setStdin(statusToken);
-            String analysisToken = run(arunner, m_mongoAnalyzerScript);
-            meta.setAnalysisToken(analysisToken);
-        }
-
-        return meta;
-    }
-
-    public boolean isInProgress() {
-        return m_actionRunner != null && m_actionRunner.isInProgress();
-    }
-
-    @Override
-    public String getLastConfigError() {
-        if (m_actionRunner != null && !m_actionRunner.isInProgress()) {
-            if (m_actionRunner.getExitCode() != null && m_actionRunner.getExitCode() != 0) {
-                // use token to recall if we've already returned the error once
-                if (m_lastErrorToken != m_actionRunner) {
-                    m_lastErrorToken = m_actionRunner;
-                    return m_actionRunner.getStderr();
-                }
-            }
-        }
-        return null;
-    }
-
-    public String addDatabase(String primary, String hostPort) {
-        return add(primary, hostPort, MongoManager.FEATURE_ID);
-    }
-
-    public String addArbiter(String primary, String hostPort) {
-        return add(primary, hostPort, MongoManager.ARBITER_FEATURE);
-    }
-
-    @Override
-    public String removeDatabase(String primary, String hostPort) {
-        return remove(primary, hostPort, MongoManager.FEATURE_ID);
-    }
-
-    @Override
-    public String removeArbiter(String primary, String hostPort) {
-        return remove(primary, hostPort, MongoManager.ARBITER_FEATURE);
-    }
-
-    String add(String primary, String hostPort, LocationFeature feature) {
-        checkInProgress();
-        String host = MongoNode.fqdn(hostPort);
-        Location l = m_configManager.getLocationManager().getLocationByFqdn(host);
-        m_featureManager.enableLocationFeature(feature, l, true);
-
-        BatchCommandRunner batch = new BatchCommandRunner("adding " + hostPort);
-        batch.setBackgroundTimeout(m_backgroundTimeout);
-        m_actionRunner = batch;
-        batch.add(new ConfigCommandRunner());
-        batch.add(createSimpleAction(primary, hostPort, "ADD", m_backgroundTimeout));
-        boolean done = batch.run();
-        return done ? batch.getStdout() : null;
-    }
-
-    String remove(String primary, String hostPort, LocationFeature feature) {
-        checkInProgress();
-        String host = MongoNode.fqdn(hostPort);
-        Location l = m_configManager.getLocationManager().getLocationByFqdn(host);
-        m_featureManager.enableLocationFeature(feature, l, false);
-
-        BatchCommandRunner batch = new BatchCommandRunner("removing " + hostPort);
-        batch.setBackgroundTimeout(m_backgroundTimeout);
-        m_actionRunner = batch;
-        batch.add(createSimpleAction(primary, hostPort, "REMOVE", m_backgroundTimeout));
-        batch.add(new ConfigCommandRunner());
-        boolean done = batch.run();
-        return done ? batch.getStdout() : null;
-    }
-
-    /**
-     * Nothing fancy because it would never run fast enough to return in the foreground timeout
-     * and even if there were errors, they may not be related to what you're trying to
-     * do and you'd likely have to ignore them anyway.  The error still go into the job
-     * status table
-     */
-    class ConfigCommandRunner implements CommandRunner {
-        private boolean m_inProgress;
-
-        @Override
-        public boolean run() {
-            m_inProgress = true;
-            m_configManager.run();
-            m_inProgress = false;
-            synchronized (this) {
-                ConfigCommandRunner.this.notifyAll();
-            }
-            return true;
-        }
-
-        @Override
-        public boolean isInProgress() {
-            return m_inProgress;
-        }
-
-        @Override
-        public String getStdout() {
-            return null;
-        }
-
-        @Override
-        public String getStderr() {
-            return null;
-        }
-
-        @Override
-        public Integer getExitCode() {
-            return 0;
-        }
-    };
-
-    public void checkInProgress() {
-        if (isInProgress()) {
-            throw new UserException("Operation still in progress");
-        }
-    }
-
-    public String takeAction(String primary, String hostPort, String action) {
-        checkInProgress();
-
-        SimpleCommandRunner runner = createSimpleAction(primary, hostPort, action, 0);
-        m_actionRunner = runner;
-        boolean done = m_actionRunner.run();
-        if (done) {
-            if (m_actionRunner.getExitCode() != 0) {
-                throw new UserException("Command did not complete properly. " + m_actionRunner.getStderr());
-            }
-        }
-
-        return done ? m_actionRunner.getStdout() : null;
-    }
-
-    SimpleCommandRunner createSimpleAction(String primary, String hostPort, String action, int background) {
-        SimpleCommandRunner runner = new SimpleCommandRunner();
-        String fqdn = MongoNode.fqdn(hostPort);
-        String remote = m_configManager.getRemoteCommand(fqdn);
-        StringBuilder cmd = new StringBuilder(remote);
-        cmd.append(' ').append(m_mongoAdminScript);
-        cmd.append(" --host_port ").append(hostPort);
-        if (primary != null) {
-            cmd.append(" --primary ").append(primary);
-        }
-        cmd.append(' ').append(action);
-        String command = cmd.toString();
-        runner.setRunParameters(command, m_timeout, background);
-        return runner;
-    }
-
-    String runBackgroundOk(SimpleCommandRunner runner, String cmd) {
-        if (!runner.run(SimpleCommandRunner.split(cmd), m_timeout, m_backgroundTimeout)) {
-            return null;
-        }
-        return getOutput(cmd, runner.getStdin(), runner);
-    }
-
-    String run(SimpleCommandRunner runner, String cmd) {
-        if (!runner.run(SimpleCommandRunner.split(cmd), m_timeout)) {
-            throw new UserException(cmd + " did not complete in time");
-        }
-        return getOutput(cmd, runner.getStdin(), runner);
-    }
-
-    String getOutput(String cmd, String in, CommandRunner runner) {
-        if (0 != runner.getExitCode()) {
-            String err = runner.getStderr();
-            if (err != null) {
-                err = cmd + " had exit code " + runner.getExitCode();
-            }
-            if (in != null) {
-                LOG.error(in);
-            }
-            throw new UserException(err);
-        }
-
-        return runner.getStdout();
-    }
-
-    public void setBackgroundTimeout(int backgroundTimeout) {
-        m_backgroundTimeout = backgroundTimeout;
-    }
-
-    public void setMongoAdminScript(String mongoAdminScript) {
-        m_mongoAdminScript = mongoAdminScript;
-    }
-
-    public void setFeatureManager(FeatureManager featureManager) {
-        m_featureManager = featureManager;
-    }
+    private Map<Integer, MongoReplSetManager> m_shardManagers;
+    private MongoReplSetManager m_globalManager;
+    private RegionManager m_regionManager;
+    private ListableBeanFactory m_beans;
+    private JdbcTemplate m_configJdbcTemplate;
 
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
@@ -278,20 +81,6 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
 
     public ConfigManager getConfigManager() {
         return m_configManager;
-    }
-
-    public void setTimeout(int timeout) {
-        m_timeout = timeout;
-    }
-
-    @Required
-    public void setMongoStatusScript(String mongoStatusScript) {
-        m_mongoStatusScript = mongoStatusScript;
-    }
-
-    @Required
-    public void setMongoAnalyzerScript(String mongoAnalyzerScript) {
-        m_mongoAnalyzerScript = mongoAnalyzerScript;
     }
 
     @Override
@@ -306,20 +95,34 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        return Arrays.asList(new DefaultFirewallRule(ADDRESS_ID), new DefaultFirewallRule(ARBITOR_ADDRESS_ID));
+        return Arrays.asList(new DefaultFirewallRule(ADDRESS_ID), new DefaultFirewallRule(ARBITOR_ADDRESS_ID),
+                new DefaultFirewallRule(LOCAL_ADDRESS_ID), new DefaultFirewallRule(LOCAL_ARBITOR_ADDRESS_ID));
     }
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
-        if (!type.equalsAnyOf(ADDRESS_ID, ARBITOR_ADDRESS_ID)) {
+        if (!type.equalsAnyOf(ADDRESS_ID, ARBITOR_ADDRESS_ID, LOCAL_ADDRESS_ID, LOCAL_ARBITOR_ADDRESS_ID)) {
             return null;
         }
 
-        LocationFeature feature = (type == ADDRESS_ID ? FEATURE_ID : ARBITER_FEATURE);
+        LocationFeature feature = addressToFeature(type);
         Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(feature);
         Collection<Address> addresses = Location.toAddresses(type, locations);
         LOG.debug("Found " + locations.size() + " locations: " + addresses);
         return addresses;
+    }
+
+    LocationFeature addressToFeature(AddressType type) {
+        if (type == ARBITOR_ADDRESS_ID) {
+            return ARBITER_FEATURE;
+        }
+        if (type == LOCAL_ADDRESS_ID) {
+            return LOCAL_FEATURE;
+        }
+        if (type == LOCAL_ARBITOR_ADDRESS_ID) {
+            return LOCAL_ARBITER_FEATURE;
+        }
+        return FEATURE_ID;
     }
 
     @Override
@@ -349,13 +152,24 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
         if (manager.getFeatureManager().isFeatureEnabled(FEATURE_ID, location) || location.isPrimary()) {
             procs.add(ProcessDefinition.sysvByRegex("mongod", ".*/mongod.*-f.*/mongodb{0,1}.conf", true));
         }
-        if (manager.getFeatureManager().isFeatureEnabled(ARBITER_FEATURE, location)) {
-            ProcessDefinition def = ProcessDefinition.sipxByRegex("mongod-arbiter",
-                    ".*/mongod.*-f.*/mongod-arbiter.conf");
-            def.setRestartClass("restart_mongo_arbiter");
+
+        addProcess(manager, location, procs, ARBITER_FEATURE, "mongod-arbiter",
+                ".*/mongod.*-f.*/mongod-arbiter.conf", "restart_mongo_arbiter");
+        addProcess(manager, location, procs, LOCAL_FEATURE, "mongo-local", ".*/mongod.*-f.*/mongo-local.conf",
+                "restart_mongo_local");
+        addProcess(manager, location, procs, LOCAL_ARBITER_FEATURE, "mongo-local-arbiter",
+                ".*/mongod.*-f.*/mongo-local-arbiter.conf", "restart_mongo_local_arbiter");
+
+        return procs;
+    }
+
+    void addProcess(SnmpManager manager, Location location, Collection<ProcessDefinition> procs, LocationFeature f,
+            String process, String regex, String restart) {
+        if (manager.getFeatureManager().isFeatureEnabled(f, location)) {
+            ProcessDefinition def = ProcessDefinition.sipxByRegex(process, regex);
+            def.setRestartClass(restart);
             procs.add(def);
         }
-        return procs;
     }
 
     @Override
@@ -400,6 +214,10 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
                 validator.getInvalidChanges().add(removeArbiter);
             }
         }
+
+        // If you're using regional dbs, you should have one global db in each region, but
+        // validation system doesn't have check at this yet. It's also possible there are scenarios
+        // someone might want to do this, so we allow it by not disallowing it here.
     }
 
     @Override
@@ -409,7 +227,9 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     @Override
     public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
         if (!manager.getFeatureManager().isFeatureEnabled(MongoManager.FEATURE_ID)
-                || !manager.getFeatureManager().isFeatureEnabled(MongoManager.FEATURE_ID)) {
+                || !manager.getFeatureManager().isFeatureEnabled(MongoManager.FEATURE_ID)
+                || !manager.getFeatureManager().isFeatureEnabled(MongoManager.LOCAL_FEATURE)
+                || !manager.getFeatureManager().isFeatureEnabled(MongoManager.LOCAL_ARBITER_FEATURE)) {
             return null;
         }
         Collection<AlarmDefinition> defs = Arrays.asList(new AlarmDefinition[] {
@@ -423,5 +243,181 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     public boolean isMisconfigured() {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    @Override
+    public MongoReplSetManager getShardManager(Region region) {
+        // we cache manager because rest API needs to know if things are in progress
+        // between requests.
+        MongoReplSetManager manager = getShardManagers().get(region.getId());
+        if (manager != null) {
+            return manager;
+        }
+
+        manager = (MongoReplSetManager) m_beans.getBean("mongoReplSetManager");
+        ((MongoReplSetManagerImpl) manager).setRegion(region);
+        getShardManagers().put(region.getId(), manager);
+        return manager;
+    }
+
+    Map<Integer, MongoReplSetManager> getShardManagers() {
+        if (m_shardManagers != null) {
+            return m_shardManagers;
+        }
+        m_shardManagers = new HashMap<Integer, MongoReplSetManager>();
+        return m_shardManagers;
+    }
+
+    @Override
+    public String addFirstLocalDatabase(String server) {
+        throw new IllegalArgumentException();
+    }
+
+    @Override
+    public String removeLastLocalDatabase(String server) {
+        throw new IllegalArgumentException();
+    }
+
+    @Override
+    public String removeLastLocalArbiter(String hostPort) {
+        throw new IllegalArgumentException();
+    }
+
+    @Override
+    public String getLastConfigError() {
+        return m_globalManager.getLastConfigError();
+    }
+
+    @Override
+    public boolean isInProgress() {
+        return m_globalManager.isInProgress();
+    }
+
+    @Override
+    public MongoMeta getMeta() {
+        return m_globalManager.getMeta();
+    }
+
+    @Override
+    public String addDatabase(String primary, String server) {
+        return m_globalManager.addDatabase(primary, server);
+    }
+
+    @Override
+    public String addArbiter(String primary, String server) {
+        return m_globalManager.addArbiter(primary, server);
+    }
+
+    @Override
+    public String removeDatabase(String primary, String server) {
+        return m_globalManager.removeDatabase(primary, server);
+    }
+
+    @Override
+    public String removeArbiter(String primary, String server) {
+        return m_globalManager.removeArbiter(primary, server);
+    }
+
+    @Override
+    public String takeAction(String primary, String server, String action) {
+        return m_globalManager.takeAction(primary, server, action);
+    }
+
+    public void setGlobalManager(MongoReplSetManager globalManager) {
+        m_globalManager = globalManager;
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory factory) throws BeansException {
+        m_beans = (ListableBeanFactory) factory;
+    }
+
+    public FeatureManager getFeatureManager() {
+        return m_featureManager;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
+    @Override
+    public String addLocalDatabase(String primary, String hostPort) {
+        throw new IllegalArgumentException();
+    }
+
+    @Override
+    public String addLocalArbiter(String primary, String hostPort) {
+        throw new IllegalArgumentException();
+    }
+
+    @Override
+    public String removeLocalDatabase(String primary, String hostPort) {
+        throw new IllegalArgumentException();
+    }
+
+    @Override
+    public String removeLocalArbiter(String primary, String hostPort) {
+        throw new IllegalArgumentException();
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        if (entity instanceof Region) {
+            Region r = (Region) entity;
+            checkRegionForRegionalDatabase(r);
+        }
+    }
+
+    void checkRegionForRegionalDatabase(Region r) {
+        String sql = "select count(*) from feature_local f, location l where "
+                + "l.region_id = ? and l.location_id = f.location_id and f.feature_id in (?,?)";
+        int nLocalDbs = m_configJdbcTemplate.queryForInt(sql, r.getId(), LOCAL_FEATURE.getId(),
+                LOCAL_ARBITER_FEATURE.getId());
+        if (nLocalDbs > 0) {
+            throw new UserException("&error.localDbsWithRegion");
+        }
+    }
+
+    void checkLocationForRegionalDatabase(Location l) {
+        String sql = "select count(*) from feature_local f where "
+                + "f.location_id = ? and f.feature_id in (?,?)";
+        int nLocalDbs = m_configJdbcTemplate.queryForInt(sql, l.getId(), LOCAL_FEATURE.getId(),
+                LOCAL_ARBITER_FEATURE.getId());
+        if (nLocalDbs > 0) {
+            throw new UserException("&error.localDbsWithLocation");
+        }
+    }
+
+    @Override
+    public void onSave(Object entity) {
+    }
+
+    public void setConfigJdbcTemplate(JdbcTemplate configJdbc) {
+        m_configJdbcTemplate = configJdbc;
+    }
+
+    public void setRegionManager(RegionManager regionManager) {
+        m_regionManager = regionManager;
+    }
+
+    @Override
+    public void onBeforeSave(Object entity) {
+        if (entity instanceof Location) {
+            // Don't allow changing server region if there are regional databases there.
+            // they should be removed first
+            Location l = (Location) entity;
+            Location o = l.getOriginalCopy();
+            if (o != null) {
+                if (o.getRegionId() != null) {
+                    if (!o.getRegionId().equals(l.getRegionId())) {
+                        checkLocationForRegionalDatabase(o);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onAfterDelete(Object entity) {
     }
 }

@@ -1,0 +1,16 @@
+{
+  "replSet" : "sipxecs",
+  "servers" : {
+    "swift.hubler.us:27017" : {
+     },
+    "swift.hubler.us:27019" : {
+	"tags" : {
+	    "bird" : "robin",
+	    "species" : "thrush"
+        }	
+    }
+  },
+  "arbiters" : {
+    "swift.hubler.us:27018" : {}
+  }
+}

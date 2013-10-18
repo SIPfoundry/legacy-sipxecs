@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.Transformer;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 /**
@@ -56,6 +57,7 @@ public class BeanWithId implements PrimaryKeySource, Cloneable {
      *
      * @return true if the object has never been saved
      */
+    @JsonIgnore
     public boolean isNew() {
         return UNSAVED_ID.equals(getId());
     }
@@ -149,6 +151,7 @@ public class BeanWithId implements PrimaryKeySource, Cloneable {
     /**
      * Implementation of PrimaryKeySource
      */
+    @JsonIgnore
     public Object getPrimaryKey() {
         return getId();
     }

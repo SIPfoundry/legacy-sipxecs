@@ -27,6 +27,7 @@
 
   <bean id="dnsConfig" class="org.sipfoundry.sipxconfig.dns.DnsConfig">
     <property name="dnsManager" ref="dnsManager"/>
+    <property name="regionManager" ref="regionManager"/>
   </bean>
 
   <bean id="dnsTestContextImpl" class="org.sipfoundry.sipxconfig.dns.DnsTestContextImpl">

@@ -1,0 +1,25 @@
+{
+    "available": {
+        "uc3.rh2.3zuce.com:27019": [
+            "RESTART"
+        ],
+        "uc2.rh2.3zuce.com:27019": [
+            "RESTART"
+        ]
+    },
+    "model": {
+        "replSet": "sipxlocal",
+        "servers": {
+            "uc3.rh2.3zuce.com:27019": {},
+            "uc2.rh2.3zuce.com:27019": {}
+        }
+    },
+    "required": {
+        "uc3.rh2.3zuce.com:27019": [
+            "FORCE_SECONDARY"
+        ],
+        "uc2.rh2.3zuce.com:27019": [
+            "FORCE_SECONDARY"
+        ]
+    }
+}

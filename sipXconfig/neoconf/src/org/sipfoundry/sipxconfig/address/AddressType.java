@@ -22,7 +22,8 @@ public class AddressType {
     private String m_format;
     private Protocol m_protocol = Protocol.tcp;
     private int m_canonicalPort;
-    private boolean m_externalSip;
+    private boolean m_external;
+    private boolean m_sip;
 
     /**
      * There are a lot more types (see /etc/protocol) but these are the only imaginable ones
@@ -56,7 +57,8 @@ public class AddressType {
     public AddressType(String uniqueId, String format, Protocol protocol, boolean externalSip) {
         this(uniqueId, format);
         m_protocol = protocol;
-        m_externalSip = externalSip;
+        m_external = externalSip;
+        m_sip = externalSip;
     }
 
     public AddressType(String uniqueId, String format, int canonicalPort) {
@@ -118,8 +120,12 @@ public class AddressType {
         return m_id;
     }
 
+    public boolean isExternal() {
+        return m_external;
+    }
+
     public boolean isExternalSip() {
-        return m_externalSip;
+        return m_external && m_sip;
     }
 
     public String format(Address address) {
@@ -174,6 +180,7 @@ public class AddressType {
     @Override
     public String toString() {
         return "AddressType [m_id=" + m_id + ", m_format=" + m_format + ", m_protocol=" + m_protocol
-                + ", m_canonicalPort=" + m_canonicalPort + ", m_externalSip=" + m_externalSip + "]";
+                + ", m_canonicalPort=" + m_canonicalPort + ", m_sip=" + m_sip
+                + ", m_external=" + m_external + "]";
     }
 }

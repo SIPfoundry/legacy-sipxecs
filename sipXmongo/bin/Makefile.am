@@ -2,12 +2,19 @@ include $(top_srcdir)/config/utility.am
 
 EXTRA_DIST = \
 	$(bin_SCRIPTS:=.in) \
-	$(initd_SCRIPTS:=.in)
+	$(initd_SCRIPTS:=.in) \
+	$(libexec_SCRIPTS:=.in)
 
 bin_SCRIPTS = \
 	mongodb-status \
 	mongodb-analyzer \
 	mongodb-admin
+
+libexecdir = @SIPX_LIBEXECDIR@
+libexec_SCRIPTS = \
+	mongodb-initial-sync \
+	mongodb-move-sync \
+	mongodb-oplog-sync
 
 mongodb_TESTS = \
 	bad-replset \
@@ -20,6 +27,7 @@ mongodb_TESTS = \
 	two-node-orphaned-arbiter \
 	two-node-db-unaware-of-arbiter \
 	two-node-bad-config-ver \
+	two-node-multiple-primaries \
 	three-node-unavailable-server \
 	three-node-unhealthy-server \
 	three-node-missing-arbiter-and-database \
@@ -29,6 +37,7 @@ mongodb_TESTS = \
 mongodb_admin_primary_COMMANDS = \
 	"--host_port swift.hubler.us:27017 RESET_LOCAL" \
 	"--host_port swift.hubler.us:27017 OBLITERATE" \
+	"--host_port swift.hubler.us:27017 FORCE_SECONDARY" \
 	"--host_port swift.hubler.us:27017 REPAIR" \
 	"--host_port swift.hubler.us:27018 RENAME new_name:27018" \
 	"--host_port swift.hubler.us:27017 INITIALIZE" \
@@ -51,8 +60,8 @@ check-status:
 	  expected="$(srcdir)/test_data/$$t.status.json"; \
 	  input="$(srcdir)/test_data/$$t.json"; \
 	  echo "EXPECTED $$expected"; \
-	  echo "$(srcdir)/mongodb-status.in --parse < $$input"; \
-	  $(srcdir)/mongodb-status.in --parse < $$input  > actual; \
+	  echo "$(srcdir)/mongodb-status.in --full --parse < $$input"; \
+	  $(srcdir)/mongodb-status.in --full --parse < $$input  > actual; \
 	  diff -u $$expected actual || exit 1; \
 	done
 
@@ -96,9 +105,14 @@ check-admin:
 
 initddir = @SIPX_SERVICEDIR@
 initd_SCRIPTS = \
-	mongod-arbiter
+	mongod-arbiter \
+	mongo-local \
+	mongo-local-arbiter \
+	mongodb-sync
 
-$(initd_SCRIPTS) $(bin_SCRIPTS) : % : %.in
+$(libexec_SCRIPTS) $(initd_SCRIPTS) $(bin_SCRIPTS) : % : %.in
 	@$(call SearchAndReplace,$<,$@)
 
-CLEANFILES = $(initd_SCRIPTS) $(bin_SCRIPTS)
+CLEANFILES = \
+	$(initd_SCRIPTS) \
+	$(bin_SCRIPTS)

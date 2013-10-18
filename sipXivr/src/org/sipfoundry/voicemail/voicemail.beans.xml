@@ -43,6 +43,7 @@
   <bean id="mwiManager" class="org.sipfoundry.voicemail.Mwi">
     <property name="mwiAddresses" value="${ivr.mwiAddresses}" />
     <property name="mwiPort" value="${ivr.mwiPort}" />
+    <property name="mwiTimeout" value="${ivr.mwiTimeout}" />
   </bean>
 
 </beans>

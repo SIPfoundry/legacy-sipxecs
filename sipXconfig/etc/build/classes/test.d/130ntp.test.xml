@@ -1,0 +1,38 @@
+<test name="ntp">
+  <label>NTP Test</label>
+  <description>
+    Verify that the NTP server(s) supplied by the DHCP server are
+    properly servicing NTP time requests.
+  </description>
+  <longDescription>
+    Verify that the NTP server(s) supplied by the DHCP server are
+    properly servicing NTP time requests.
+  </longDescription>
+  <command>
+    <exec>preflight</exec>
+    <arg>-v</arg>
+    <arg>--ntp-test</arg>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful</msg>
+    </result>
+    <result exit="128">
+      <status>Error</status>
+      <msg>Network access failure.</msg>
+    </result>
+    <result exit="130">
+      <status>Error</status>
+      <msg>Timeout waiting for network response.</msg>
+    </result>
+    <result exit="146">
+      <status>Error</status>
+      <msg>NTP Server request failure.</msg>
+      <description>
+        The NTP server did not respond to the NTP request. Please see the
+        test log for further information.
+      </description>
+    </result>
+  </results>
+</test>

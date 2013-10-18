@@ -14,6 +14,7 @@
  */
 
 #include <fstream>
+#include <mongo/client/dbclient.h>
 #include <mongo/client/connpool.h>
 #include <os/OsDateTime.h>
 #include <os/OsLogger.h>
@@ -24,6 +25,26 @@ using namespace std;
 
 const string RegDB::NS("node.registrar");
 
+extern mongo::DBConnectionPool pool;
+
+RegDB* RegDB::CreateInstance() {
+   RegDB* lRegDb = NULL;
+
+   MongoDB::ConnectionInfo local = MongoDB::ConnectionInfo::localInfo();
+   if (!local.isEmpty()) {
+     Os::Logger::instance().log(FAC_SIP, PRI_INFO, "Regional database defined");
+     Os::Logger::instance().log(FAC_SIP, PRI_INFO, local.getConnectionString().toString().c_str());
+     lRegDb = new RegDB(local);
+   } else {
+     Os::Logger::instance().log(FAC_SIP, PRI_INFO, "No regional database found");
+   }
+
+   MongoDB::ConnectionInfo global = MongoDB::ConnectionInfo::globalInfo();
+   RegDB* regDb = new RegDB(global, lRegDb);
+
+   return regDb;
+}
+
 void RegDB::updateBinding(const RegBinding::Ptr& pBinding)
 {
 	updateBinding(*(pBinding.get()));
@@ -31,6 +52,10 @@ void RegDB::updateBinding(const RegBinding::Ptr& pBinding)
 
 void RegDB::updateBinding(RegBinding& binding)
 {
+	if (_local != NULL) {
+		_local->updateBinding(binding);
+		return;
+	}
 	if (binding.getTimestamp() == 0)
 		binding.setTimestamp((int) OsDateTime::getSecsSinceEpoch());
 
@@ -42,11 +67,12 @@ void RegDB::updateBinding(RegBinding& binding)
 
 	mongo::BSONObj query = BSON(
 			"identity" << binding.getIdentity() <<
-			"contact" << binding.getContact());
+			"contact" << binding.getContact() <<
+                        "shardId" << getShardId());
 
   bool isExpired = binding.getExpirationTime() <= 0;
 	mongo::BSONObj update;
-  update = BSON("$set" << BSON(
+    update = BSON(
           "timestamp" << binding.getTimestamp() <<
           "localAddress" << binding.getLocalAddress() <<
           "identity" << binding.getIdentity() <<
@@ -56,34 +82,48 @@ void RegDB::updateBinding(RegBinding& binding)
           "qvalue" << binding.getQvalue() <<
           "instanceId" << binding.getInstanceId() <<
           "gruu" << binding.getGruu() <<
+          "shardId" << getShardId() <<
           "path" << binding.getPath() <<
           "cseq" << binding.getCseq() <<
           "expirationTime" << binding.getExpirationTime() <<
           "instrument" << binding.getInstrument() <<
-          "expired" << isExpired ));
+          "expired" << isExpired );
 
-    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
-    mongo::DBClientBase* client = conn->get();
+    MongoDB::ScopedDbConnectionPtr connPtr(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    mongo::ScopedDbConnection& conn = *connPtr;
 
-    client->update(_info.getNS(), query, update, true, false);
-	client->ensureIndex("node.registrar", BSON( "identity" << 1 ));
-	client->ensureIndex("node.registrar", BSON( "expirationTime" << 1 ));
+    conn->remove(_ns, query);
+    conn->insert(_ns, update);
+	conn->ensureIndex("node.registrar", BSON( "identity" << 1 ));
+	conn->ensureIndex("node.registrar", BSON( "expirationTime" << 1 ));
 
-	conn->done();
+        string e = conn->getLastError();
+        if( !e.empty() ) {
+          Os::Logger::instance().log(FAC_SIP, PRI_ERR, e.c_str());
+        } else {
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "Save reg ok");
+        }
+
+	conn.done();
 }
 
 void RegDB::expireOldBindings(const string& identity, const string& callId, unsigned int cseq,
 		unsigned int timeNow)
 {
+	if (_local != NULL) {
+		_local->expireOldBindings(identity, callId, cseq, timeNow);
+		return;
+	}
 	mongo::BSONObj query = BSON(
 			"identity" << identity <<
 			"callId"<< callId <<
-			"cseq" << BSON_LESS_THAN(cseq));
+			"cseq" << BSON_LESS_THAN(cseq) <<
+                        "shardId" << getShardId());
 
     MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     mongo::DBClientBase* client = conn->get();
 
-	client->remove(_info.getNS(), query);
+	client->remove(_ns, query);
 	client->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
 	client->ensureIndex("node.registrar", BSON( "expirationTime" << 1 ));
 
@@ -93,13 +133,18 @@ void RegDB::expireOldBindings(const string& identity, const string& callId, unsi
 void RegDB::expireAllBindings(const string& identity, const string& callId, unsigned int cseq,
 		unsigned int timeNow)
 {
+	if (_local != NULL) {
+		_local->expireAllBindings(identity, callId, cseq, timeNow);
+		return;
+	}
 	mongo::BSONObj query = BSON(
+                        "shardId" << getShardId() <<
 			"identity" << identity);
 
     MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     mongo::DBClientBase* client = conn->get();
 
-    client->remove(_info.getNS(), query);
+    client->remove(_ns, query);
 	client->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
 	client->ensureIndex("node.registrar", BSON( "expirationTime" << 1 ));
 
@@ -108,13 +153,19 @@ void RegDB::expireAllBindings(const string& identity, const string& callId, unsi
 
 void RegDB::removeAllExpired()
 {
+	if (_local != NULL) {
+		_local->removeAllExpired();
+		return;
+	}
     int timeNow = (int) OsDateTime::getSecsSinceEpoch();
-	mongo::BSONObj query = BSON("expirationTime" << BSON_LESS_THAN_EQUAL(timeNow));
+	mongo::BSONObj query = BSON(
+            "shardId" << getShardId() <<
+            "expirationTime" << BSON_LESS_THAN_EQUAL(timeNow));
 
 	MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     mongo::DBClientBase* client = conn->get();
 
-    client->remove(_info.getNS(), query);
+    client->remove(_ns, query);
     client->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
 	client->ensureIndex("node.registrar", BSON( "expirationTime" << 1 ));
 
@@ -123,26 +174,7 @@ void RegDB::removeAllExpired()
 
 bool RegDB::isOutOfSequence(const string& identity, const string& callId, unsigned int cseq) const
 {
-	mongo::BSONObj query = BSON(
-			"identity" << identity <<
-			"callId" << callId);
-
-	MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
-	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
-	if (pCursor.get() && pCursor->more())
-	{
-		while (pCursor->more())
-		{
-			RegBinding binding = pCursor->next();
-			unsigned int a = binding.getCseq();
-			if (a >= cseq) {
-				conn->done();
-				return true;
-			}
-		}
-	}
-
-	conn->done();
+    // Remove this method altogether?!?!? -- Conversation between douglas and joegen on 6/18/13
 	return false;
 }
 
@@ -151,46 +183,60 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, int timeNow, Bindin
 	static string gruuPrefix = GRUU_PREFIX;
 
 	bool isGruu = identity.substr(0, gruuPrefix.size()) == gruuPrefix;
-	mongo::BSONObj query;
 
-	if (isGruu)
-	{
+	mongo::BSONObjBuilder query;
+	if (_local) {
+		_local->getUnexpiredContactsUser(identity, timeNow, bindings);
+		query.append("shardId", BSON("$ne" << _local->getShardId()));
+	} else {
+		query.append("expirationTime", BSON_GREATER_THAN(timeNow));
+	}
+
+	if (isGruu) {
 		string searchString(identity);
 		searchString += ";";
 		searchString += SIP_GRUU_URI_PARAM;
-		query = BSON(
-				"gruu" << searchString <<
-				"expirationTime" << BSON_GREATER_THAN(timeNow));
+		query.append("gruu", searchString);
 	}
-	else
-	{
-		query = BSON(
-				"identity" << identity <<
-				"expirationTime" << BSON_GREATER_THAN(timeNow));
+	else {
+		query.append("identity", identity);
 	}
 
-    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
-	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
+	mongo::BSONObjBuilder builder;
+	BaseDB::nearest(builder, query.obj());
+
+	MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 	if (pCursor.get() && pCursor->more())
 	{
 		while (pCursor->more())
 		{
 			bindings.push_back(RegBinding(pCursor->next()));
 		}
-		conn->done();
-		return true;
 	}
-
 	conn->done();
-	return false;
+
+
+	return bindings.size() > 0;
 }
 
 bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, int timeNow, Bindings& bindings) const
 {
-	mongo::BSONObj query = BSON("expirationTime" << BSON_GREATER_THAN(timeNow));
+	mongo::BSONObjBuilder query;
+
+	if (_local) {
+		_local->getUnexpiredContactsUserContaining(matchIdentity, timeNow, bindings);
+		query.append("shardId", BSON("$ne" << _local->getShardId()));
+	} else {
+		// we only include expired in local because global can be stale.
+		query.append("expirationTime", BSON_GREATER_THAN(timeNow));
+	}
+
+	mongo::BSONObjBuilder builder;
+	BaseDB::nearest(builder, query.obj());
 
 	MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
-	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
+	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 	if (pCursor.get() && pCursor->more())
 	{
 		while (pCursor->more())
@@ -207,16 +253,26 @@ bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, int 
 	return false;
 }
 
+
 bool RegDB::getUnexpiredContactsUserInstrument(const string& identity, const string& instrument, int timeNow,
 		Bindings& bindings) const
 {
-	mongo::BSONObj query = BSON(
-			"identity" << identity <<
-			"instrument" << instrument <<
-			"expirationTime" << BSON_GREATER_THAN(timeNow));
+	mongo::BSONObjBuilder query;
+	query.append("identity", identity);
+	query.append("instrument", instrument);
+	if (_local) {
+		_local->getUnexpiredContactsUserInstrument(identity, instrument, timeNow, bindings);
+		query.append("shardId", BSON("$ne" << _local->getShardId()));
+	} else {
+		// we only include expired in local because global can be stale.
+		query.append("expirationTime", BSON_GREATER_THAN(timeNow));
+	}
 
-    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
-	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
+	mongo::BSONObjBuilder builder;
+	BaseDB::nearest(builder, query.obj());
+
+	MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 	if (pCursor.get() && pCursor->more())
 	{
 		while (pCursor->more())
@@ -234,12 +290,21 @@ bool RegDB::getUnexpiredContactsUserInstrument(const string& identity, const str
 // TODO : Unclear how big this dataset would be, decide if this should be removed
 bool RegDB::getUnexpiredContactsInstrument(const string& instrument, int timeNow, Bindings& bindings) const
 {
-	mongo::BSONObj query = BSON(
-			"instrument" << instrument <<
-			"expirationTime" << BSON_GREATER_THAN(timeNow));
+	mongo::BSONObjBuilder query;
+	query.append("instrument", instrument);
+	if (_local) {
+		_local->getUnexpiredContactsInstrument(instrument, timeNow, bindings);
+		query.append("shardId", BSON("$ne" << _local->getShardId()));
+	} else {
+		// we only include expired in local because global can be stale.
+		query.append("expirationTime", BSON_GREATER_THAN(timeNow));
+	}
+
+	mongo::BSONObjBuilder builder;
+	BaseDB::nearest(builder, query.obj());
 
     MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
-	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
+	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 	if (pCursor.get() && pCursor->more())
 	{
 		while (pCursor->more()) {
@@ -255,16 +320,25 @@ bool RegDB::getUnexpiredContactsInstrument(const string& instrument, int timeNow
 
 void RegDB::cleanAndPersist(int currentExpireTime)
 {
-	mongo::BSONObj query = BSON("expirationTime" << BSON_LESS_THAN(currentExpireTime));
+	if (_local) {
+		_local->cleanAndPersist(currentExpireTime);
+		return;
+	}
+    mongo::BSONObj query = BSON(
+        "expirationTime" << BSON_LESS_THAN(currentExpireTime));
     MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
-    conn->get()->remove(_info.getNS(), query);
+    conn->get()->remove(_ns, query);
 	conn->done();
 }
 
 void RegDB::clearAllBindings()
 {
+	if (_local) {
+		_local->clearAllBindings();
+		return;
+	}
 	mongo::BSONObj all;
     MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
-    conn->get()->remove(_info.getNS(), all);
+    conn->get()->remove(_ns, all);
 	conn->done();
 }

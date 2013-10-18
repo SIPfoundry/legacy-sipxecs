@@ -25,19 +25,27 @@ import org.sipfoundry.sipxconfig.address.Address;
 public class ResourceRecords {
     private String m_proto;
     private String m_resource;
-    private List<DnsRecord> m_records;
+    private List<ResourceRecord> m_records;
+    private boolean m_isInternal;
 
     public ResourceRecords(String proto, String resource) {
         m_resource = resource;
         m_proto = proto;
-        m_records = new ArrayList<DnsRecord>();
+        m_records = new ArrayList<ResourceRecord>();
     }
 
-    public List<DnsRecord> getRecords() {
+    public ResourceRecords(String proto, String resource, boolean isInternal) {
+        m_isInternal = isInternal;
+        m_resource = resource;
+        m_proto = proto;
+        m_records = new ArrayList<ResourceRecord>();
+    }
+
+    public List<ResourceRecord> getRecords() {
         return m_records;
     }
 
-    public void addRecord(DnsRecord record) {
+    public void addRecord(ResourceRecord record) {
         m_records.add(record);
     }
 
@@ -50,7 +58,7 @@ public class ResourceRecords {
     }
 
     public void addAddress(Address address) {
-        addRecord(new DnsRecord(address.getAddress(), address.getPort()));
+        addRecord(new ResourceRecord(address.getAddress(), address.getPort()));
     }
 
     public String getProto() {
@@ -59,5 +67,9 @@ public class ResourceRecords {
 
     public String getResource() {
         return m_resource;
+    }
+
+    public boolean isInternal() {
+        return m_isInternal;
     }
 }

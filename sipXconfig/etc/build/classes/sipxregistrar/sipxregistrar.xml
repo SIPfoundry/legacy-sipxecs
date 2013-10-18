@@ -1,0 +1,249 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="yesNo">
+    <boolean>
+      <true>
+        <value>Y</value>
+      </true>
+      <false>
+        <value>N</value>
+      </false>
+    </boolean>
+  </type>  
+  <type id="loglevel">
+    <enum>
+      <option>
+        <value>DEBUG</value>
+      </option>
+      <option>
+        <value>INFO</value>
+      </option>
+      <option>
+        <value>NOTICE</value>
+      </option>
+      <option>
+        <value>WARNING</value>
+      </option>
+      <option>
+        <value>ERR</value>
+      </option>
+      <option>
+        <value>CRIT</value>
+      </option>
+      <option>
+        <value>ALERT</value>
+      </option>
+      <option>
+        <value>EMERG</value>
+      </option>
+    </enum>
+  </type>
+  <type id="nonRootPort">
+    <integer min="1025" max="65535"/>
+  </type>
+  <type id="feature-code">
+    <string>
+      <pattern>[0-9*#]+</pattern>
+    </string>
+  </type>
+  <type id="true-false">
+	<boolean>
+		<true>
+			<value>true</value>
+		</true>
+		<false>
+			<value>false</value>
+		</false>
+	</boolean>
+  </type>  
+  <group name="registrar-config">
+    <setting name="SIP_REGISTRAR_TCP_PORT" advanced="yes">
+      <type refid="nonRootPort" />
+      <value>5070</value>
+    </setting>  
+    <setting name="SIP_REGISTRAR_UDP_PORT" advanced="yes">
+      <type refid="nonRootPort" />
+      <value>5070</value>
+    </setting>  
+    <setting name="SIP_REGISTRAR_REG_EVENT_PORT" advanced="yes">
+      <type refid="nonRootPort" />
+      <value>5075</value>
+    </setting>  
+    <setting name="SIP_REGISTRAR_XMLRPC_PORT" advanced="yes">
+      <type refid="nonRootPort" />
+      <value>5077</value>
+    </setting>  
+    <setting name="_SIP_REGISTRAR_PRESENCE_PORT" advanced="yes">
+      <type refid="nonRootPort" />
+      <value>9096</value>
+    </setting>  
+    <setting name="SIP_REGISTRAR_LOG_LEVEL">
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>    
+    <setting name="SIP_REGISTRAR_AUTHENTICATE_ALGORITHM" advanced="yes">
+      <type><string/></type>
+    </setting>
+    <setting name="SIP_REGISTRAR_LOG_CONSOLE" advanced="yes">
+      <type><string/></type>
+    </setting>
+    <setting name="SIP_REGISTRAR_MAX_EXPIRES_NORMAL" advanced="yes">
+      <type><integer/></type>
+    </setting>
+    <setting name="SIP_REGISTRAR_MIN_EXPIRES_NORMAL" advanced="yes">
+      <type><integer/></type>
+    </setting>
+    <setting name="SIP_REGISTRAR_MAX_EXPIRES_NATED" advanced="yes">
+      <type><integer/></type>
+    </setting>
+    <setting name="SIP_REGISTRAR_MIN_EXPIRES_NATED" advanced="yes">
+      <type><integer/></type>
+    </setting>
+    <setting name="SIP_REGISTRAR.MWI.UA.CISCO" advanced="yes">
+      <type><string/></type>
+      <value>^(CSCO|Cisco)</value>
+    </setting>
+    <setting name="SIP_REDIRECT.140-FALLBACK.ALLOW_UNBOUND" advanced="yes">
+      <type refid="yesNo"/>
+      <value>N</value>
+    </setting>
+    <setting name="SIP_REGISTRAR_ADD_DIVERSION" advanced="yes">
+      <type refid="yesNo"/>
+      <value>N</value>
+    </setting>
+    <setting name="SIP_REGISTRAR_EARLY_ALIAS_RESOLUTION" advanced="yes">
+      <type refid="yesNo"/>
+      <value>N</value>
+    </setting>
+  </group>
+  <group name="userparam" advanced="yes">
+    <setting name="SIP_REDIRECT.090-USERPARAM.STRIP_ALL" advanced="yes">
+      <type refid="yesNo"/>
+      <value>N</value>
+    </setting>
+  </group>
+  <group name="call-pick-up">
+    <setting name="SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE">
+      <type refid="feature-code" />
+      <value>*78</value>
+    </setting>
+    <setting name="SIP_REDIRECT.100-PICKUP.CALL_RETRIEVE_CODE">
+      <type refid="feature-code" required="yes" />
+      <value>*4</value>
+    </setting>
+    <setting name="SIP_REDIRECT.100-PICKUP.CALL_PICKUP_WAIT" advanced="yes">
+      <type>
+        <real min="1" max="30" required="yes" />
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name="SIP_REDIRECT.100-PICKUP.PICKUP_1_SEC_SUBSCRIBE" advanced="yes">
+      <type refid="yesNo"/>
+      <value>Y</value>
+    </setting>
+    <setting name="SIP_REDIRECT.100-PICKUP.PICKUP_REVERSED_REPLACES" advanced="yes">
+      <type refid="yesNo"/>
+      <value>N</value>
+    </setting>
+    <setting name="SIP_REDIRECT.100-PICKUP.PICKUP_NO_EARLY_ONLY" advanced="yes">
+      <type refid="yesNo"/>
+      <value>Y</value>
+    </setting>
+    <setting name="SIP_REDIRECT.100-PICKUP.GLOBAL_CALL_PICKUP_CODE" advanced="yes">
+      <type><string/></type>
+    </setting>    
+  </group>
+  <group name="mapping">
+    <setting name="MEDIA_SERVER" hidden="yes">
+      <type><string/></type>
+      <value>UNUSED_MEDIASERVER</value>
+    </setting>
+    <setting name="VOICEMAIL_SERVER" hidden="yes">
+      <type><string/></type>
+      <value>UNUSED_MEDIASERVER</value>
+    </setting>
+  </group>
+  <group name="isn">
+    <setting name="SIP_REDIRECT.150-ISN.BASE_DOMAIN">
+      <type>
+        <boolean>
+          <true>
+            <value>freenum.org</value>
+          </true>
+          <false>
+            <value />
+          </false>
+        </boolean>
+      </type>
+      <value />
+    </setting>
+    <setting name="SIP_REDIRECT.150-ISN.PREFIX" advanced="yes">
+      <type refid="feature-code" />
+    </setting>
+  </group>
+  <group name="enum">
+    <setting name="SIP_REDIRECT.160-ENUM.BASE_DOMAIN">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="SIP_REDIRECT.160-ENUM.DIAL_PREFIX">
+      <type refid="feature-code" />
+    </setting>
+    <setting name="SIP_REDIRECT.160-ENUM.ADD_PREFIX">
+      <type refid="feature-code" />
+    </setting>
+    <setting name="SIP_REDIRECT.160-ENUM.PREFIX_PLUS" advanced="yes">
+      <type refid="yesNo"/>
+      <value>Y</value>
+    </setting>
+  </group>
+  <group name="other">
+    <setting name="SIPX_SEND_TRYING_FOR_NIST" advanced="yes">
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>true</value>
+    </setting>
+    <setting name="SIPX_SEND_ALL_CONTACTS" advanced="yes">
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>false</value>
+    </setting>
+  </group>
+  <group name="resource-limits">
+    <setting name="fd-soft">
+      <type>
+    	<integer/>
+      </type>
+      <value>32768</value>
+    </setting> 
+    <setting name="fd-hard">
+      <type>
+    	<integer/>
+      </type>
+      <value>65536</value>
+    </setting>
+    <setting name="core-enabled">
+      <type refid="true-false"/>
+      <value>false</value>
+    </setting>       
+  </group>  
+</model>

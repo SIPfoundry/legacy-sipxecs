@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="services">
+    <setting name="syslog">
+      <type><hostname/></type>
+    </setting>
+    <group name="dns">
+      <setting name="0">
+        <type><hostname/></type>
+      </setting>
+      <setting name="1">
+        <type><hostname/></type>
+      </setting>
+      <setting name="2">
+        <type><hostname/></type>
+      </setting>
+      <setting name="3">
+        <type><hostname/></type>
+      </setting>
+    </group>
+  </group>
+</model>

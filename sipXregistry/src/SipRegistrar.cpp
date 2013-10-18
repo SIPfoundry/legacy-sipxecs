@@ -137,10 +137,10 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
       aliasIndex++;
    }
 
-   mongo::ConnectionString mongoConn = MongoDB::ConnectionInfo::connectionStringFromFile();
-   mpRegDb = new RegDB(MongoDB::ConnectionInfo(mongoConn, RegDB::NS));
-   mpSubscribeDb = new SubscribeDB(MongoDB::ConnectionInfo(mongoConn, SubscribeDB::NS));
-   mpEntityDb = new EntityDB(MongoDB::ConnectionInfo(mongoConn, EntityDB::NS));
+   MongoDB::ConnectionInfo gInfo = MongoDB::ConnectionInfo::globalInfo();
+   mpEntityDb = new EntityDB(gInfo);
+   mpRegDb = RegDB::CreateInstance();
+   mpSubscribeDb = SubscribeDB::CreateInstance();
 
    mConfigDb->get("SIP_REGISTRAR_BIND_IP", mBindIp);
    if ((mBindIp.isNull()) || !OsSocket::isIp4Address(mBindIp))

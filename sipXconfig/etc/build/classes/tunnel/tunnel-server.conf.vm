@@ -1,0 +1,15 @@
+foreground = yes
+CApath = @SIPX_CONFDIR@/ssl/authorities
+cert = @SIPX_CONFDIR@/ssl/ssl.crt
+key = @SIPX_CONFDIR@/ssl/ssl.key
+# verify = 2 means cert. based on client and server side
+verify = 2
+debug = 5
+output = @SIPX_LOGDIR@/stunnel-server.log
+pid = @SIPX_RUNDIR@/stunnel-server.pid
+
+#foreach($t in ${tunnels})
+[${t.Name}]
+accept = ${t.AllowedConnectionsPort}
+connect = ${t.LocalhostPort}
+#end

@@ -14,9 +14,14 @@ Url:      http://www.sipfoundry.org/
 
 BuildRequires: automake
 BuildRequires: java-devel >= 1.6
+
 %if %{_vendor} == redhat
 BuildRequires: shadow-utils
+%if 0%{?fedora} >= 17 || 0%{?rhel} >= 7
+BuildRequires: cronie
+%else
 BuildRequires: vixie-cron
+%endif
 %endif
 %if %{_vendor} == suse
 BuildRequires: pwdutils
@@ -27,6 +32,12 @@ BuildRequires: libxslt
 BuildRequires: ruby-devel
 BuildRequires: dart-sdk
 BuildRequires: rubygems
+BuildRequires: httpd
+BuildRequires: net-snmp-libs >= 5.7.1
+BuildRequires: net-snmp-devel >= 5.7.1
+BuildRequires: net-snmp-agent-libs >= 5.7.1
+BuildRequires: pcre-devel
+
 BuildRequires: sipxcommons >= %version
 BuildRequires: sipxacdstatistics-client >= %version
 BuildRequires: sipxcdr-client >= %version
@@ -47,23 +58,45 @@ BuildRequires: sipxcdr-client >= %version
 
 Source: %name-%version.tar.gz
 
+Requires: postgresql-server
+Requires: mongodb-server >= 2.2.0
+Requires: httpd
+# not installed by default on centos 6
+Requires: mod_ssl
+Requires: mongodb >= 2.2
+%if 0%{?fedora} <= 17 && 0%{?fedora} > 0
+Requires: pymongo 
+%else
+Requires: python-pymongo
+%endif
+Requires: python-argparse
+Requires: js
+Requires: net-snmp >= 5.7.1
+Requires: net-snmp-sysvinit >= 5.7.1
+Requires: net-snmp-utils >= 5.7.1
+Requires: net-snmp-python
+
 Requires: sipxcommons >= %version
 Requires: sipxtacklib >= %version
 Requires: sipxcommserverlib >= %version
 Requires: sipxacdstatistics-client >= %version
 Requires: sipxcdr-client >= %version
-Requires: sipxpostgres >= %version
-Requires: sipxhttpd >= %version
-
-# doesn't really require mongo server on same machine, but 
-# hard to see a reason why this isn't true and there needs
-# to be a mongo server somewhere to might as well be here.
-Requires: sipxmongo-server >= %version
+Requires: sipxsupervisor >= %version
 
 Requires: ruby
 Requires: rubygems
 
 Obsoletes: sipx-jasperreports-deps
+
+# 4.6 packages that turned out to not be useful as separate pkgs so
+# projects merged into sipxconfig
+Obsoletes: sipxpostgres
+Obsoletes: sipxdns
+Obsoletes: sipxmongo
+Obsoletes: sipxmongo-server
+Obsoletes: sipxtunnel
+Obsoletes: sipxsnmp
+Obsoletes: sipxhttpd
 
 %if %{_vendor} == suse
 Requires: apache2-prefork
@@ -88,6 +121,8 @@ Requires: dejavu-serif-fonts
 # only used to serve phone profiles under http devices
 Requires: httpd >= 2.0
 %endif
+
+Requires: bind
 
 # Server. sipxconfig will disable server this by default automatically
 # unless admin specifically turns it on
@@ -159,10 +194,11 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc  README  NOTICE  ChangeLog %name.configlog
-%attr(755,root,root) %{_sysconfdir}/init.d/sipxconfig
+%attr(755,root,root) %{_sysconfdir}/init.d/*
 %{_datadir}/sipxecs/cfinputs/plugin.d/*.cf
 %{_datadir}/sipxecs/cfinputs/plugin.d/lib/*.cf
-%attr(755,sipx, sipx) %{_bindir}/*
+%attr(755,sipx,sipx) %{_bindir}/*
+%attr(755,root,root) %{_libexecdir}/sipXecs/*
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXconfig/.java-dep
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXconfig/*.jar
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXconfig/*.war
@@ -236,12 +272,15 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/unmanaged/*
 %config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
 
+%dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/cfdata
+%{_localstatedir}/sipxdata/cfdata/defaults/*.cfdat
 %dir %attr(775,sipx,sipx) %{_localstatedir}/sipxdata/reports
 %config(noreplace) %{_localstatedir}/sipxdata/reports/*
 %dir %attr(775,sipx,sipx) %{_localstatedir}/sipxdata/upload
 %dir %attr(775,sipx,sipx) %{_localstatedir}/sipxdata/backup
 %dir %attr(775,sipx,sipx) %{_localstatedir}/sipxdata/configserver/web-cert
 %dir %attr(775,sipx,sipx) %{devicefilesdir}
+%{_datadir}/snmp/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.txt
 
 %postun
 # uninstall lucene index and Jetty scratch dir on every install

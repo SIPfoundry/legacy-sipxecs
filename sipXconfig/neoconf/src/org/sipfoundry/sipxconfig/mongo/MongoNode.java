@@ -40,7 +40,8 @@ public class MongoNode {
     }
 
     public boolean isArbiter() {
-        return m_hostPort.endsWith(String.valueOf(MongoSettings.ARBITER_PORT));
+        return m_hostPort.endsWith(String.valueOf(MongoSettings.ARBITER_PORT))
+                || m_hostPort.endsWith(String.valueOf(MongoSettings.LOCAL_ARBITER_PORT));
     }
 
     public static String fqdn(String hostPort) {

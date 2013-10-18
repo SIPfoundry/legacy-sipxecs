@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<rest-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/rest-config-00-00">
+  <ip-address>${location.address}</ip-address>
+  <http-port>$settings.getSetting('httpPort').Value</http-port>
+  <public-http-port>$settings.getSetting('publicHttpPort').Value</public-http-port>
+  <sipx-proxy-domain>${domainName}</sipx-proxy-domain>
+  <log-directory>@SIPX_LOGDIR@</log-directory>
+  <log-level>$settings.getSetting('log.level').Value</log-level>
+  <sip-port>$settings.getSetting('sipPort').Value</sip-port>
+  <sipxcdr-address>${sipxcdrDbAddress}</sipxcdr-address>
+  <db-user>@POSTGRESQL_USER@</db-user>
+</rest-config>

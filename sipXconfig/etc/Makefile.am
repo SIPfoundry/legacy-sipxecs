@@ -5,8 +5,7 @@ include $(top_srcdir)/common.am
 all : $(addprefix out/,$(conf_SOURCE))
 
 EXTRA_DIST = \
-	$(addprefix sipxpbx/,$(conf_SOURCE)) \
-	sipxconfig.cfdat
+	$(addprefix sipxpbx/,$(conf_SOURCE))
 
 # Directories should be created in the application layer to make it more resiliant to IT administation errors
 # but these may exist for historical or special reasons
@@ -27,13 +26,45 @@ emptydirs = \
 cfinputsdir = @SIPX_CFINPUTS@/plugin.d
 dist_cfinputs_DATA = \
 	00_sipxconfig.cf \
+	ftp.cf \
+	mongodb.cf \
+	postgres.cf \
 	sipxconfig.cf \
+	sipxdns.cf \
+	snmp.cf \
+	snmptrap.cf \
 	tftp.cf \
-	ftp.cf
+	tunnel.cf \
+	zz_apache.cf
+
+cfdefaultsdir = $(SIPX_CFDATA)/defaults
+cfdefaults_DATA = \
+	apache.cfdat \
+	postgres.cfdat
+
+postgresvars = \
+	$(filter PG%,$(.VARIABLES)) \
+	$(filter POSTGRES%,$(.VARIABLES))
+
+postgres.cfdat : Makefile
+	! test -f $@ || rm $@
+	$(foreach V,$(postgresvars), echo '=$(V)=$($(V))' >> $@;)
+
+apachevars = \
+	$(filter APACHE%,$(.VARIABLES))
+
+apache.cfdat : Makefile
+	! test -f $@ || rm $@
+	$(foreach V,$(apachevars), echo '=$(V)=$($(V))' >> $@;)
 
 cflibdir = @SIPX_CFINPUTS@/plugin.d/lib
 dist_cflib_DATA = \
-	reset_cfkey.cf
+	reset_cfkey.cf \
+	upload_alarm_log.cf
+
+mibsdir = $(datadir)/snmp/mibs
+dist_mibs_DATA = \
+	SIPXECS-ALARM-NOTIFICATION-MIB.txt
 
 # automatically selects configuration files, but as importantly, also has to distinguish what is NOT
 # a configuration file in the 'find' statement
@@ -76,3 +107,5 @@ SETTINGS_XML = \
 	    -a -not -path '*itspTemplates/*' \
 	  \) \
 	)
+
+CLEANFILES = apache.cfdat postgres.cfdat

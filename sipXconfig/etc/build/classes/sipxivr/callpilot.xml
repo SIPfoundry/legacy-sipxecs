@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="config">
+    <setting name="nameDialPrefix">
+      <value>11</value>
+    </setting>
+    <setting name="defaultTui">
+      <type>
+        <enum>
+          <option>
+            <value>stdui</value>
+          </option>
+          <option>
+            <value>cpui</value>
+          </option>
+        </enum>
+      </type>
+      <value>stdui</value>
+    </setting>
+  </group>
+</model>

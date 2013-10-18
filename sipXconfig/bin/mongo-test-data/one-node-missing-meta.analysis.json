@@ -1,0 +1,23 @@
+{
+    "available": {
+        "swift.hubler.us:27017": [
+            "RESTART"
+        ]
+    },
+    "model": {
+        "replSet": "sipxecs",
+        "servers": {
+            "swift.hubler.us:27017": {
+                "tags": {
+                    "shardId": "1",
+                    "clusterId": "1"
+                }
+            }
+        }
+    },
+    "required": {
+        "swift.hubler.us:27017": [
+            "SET_MEMBER_META"
+        ]
+    }
+}

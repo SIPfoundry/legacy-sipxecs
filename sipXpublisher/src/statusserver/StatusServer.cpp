@@ -121,9 +121,9 @@ StatusServer::StatusServer(
     Url domain(mDefaultDomain);
     domain.getHostAddress(mlocalDomainHost);
 
-    mongo::ConnectionString mongo = MongoDB::ConnectionInfo::connectionStringFromFile();
-    mSubscribeDb = new SubscribeDB(MongoDB::ConnectionInfo(mongo, SubscribeDB::NS));
-    mEntityDb = new EntityDB(MongoDB::ConnectionInfo(mongo, EntityDB::NS));
+    MongoDB::ConnectionInfo info = MongoDB::ConnectionInfo::globalInfo();
+    mSubscribeDb = SubscribeDB::CreateInstance();
+    mEntityDb = new EntityDB(info);
 
     //
     // Run the subscription garbage collector

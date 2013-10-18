@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="binary">
+    <file>
+      <contentType>application/binary</contentType>
+    </file>
+  </type>
+  <group name="files">
+    <label>Files</label>
+    <description>Any set of files.</description>
+    <setting name="file1">
+      <label>file 1</label>
+      <type refid="binary"/>
+    </setting>
+    <setting name="file2" copy-of="file1">
+      <label>file 2</label>
+    </setting>
+    <setting name="file3" copy-of="file1">
+      <label>file 3</label>
+    </setting>
+    <setting name="file4" copy-of="file1">
+      <label>file 4</label>
+    </setting>
+    <setting name="file5" copy-of="file1">
+      <label>file 5</label>
+    </setting>
+    <setting name="file6" copy-of="file1">
+      <label>file 6</label>
+    </setting>
+    <setting name="file7" copy-of="file1">
+      <label>file 7</label>
+    </setting>
+    <setting name="file8" copy-of="file1">
+      <label>file 8</label>
+    </setting>
+    <setting name="file9" copy-of="file1">
+      <label>file 9</label>
+    </setting>
+    <setting name="file10" copy-of="file1">
+      <label>file 10</label>
+    </setting>
+  </group>
+</model>

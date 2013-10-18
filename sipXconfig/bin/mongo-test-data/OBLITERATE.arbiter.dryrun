@@ -1,0 +1,6 @@
+COMMAND:OBLITERATE
+OS:@SIPX_SERVICEDIR@/mongod-arbiter stop
+OS:rm -f [/etc/mongod-arbiter.conf:dbpath]/mongod.lock
+OS:/bin/rm -f [/etc/mongod-arbiter.conf:dbpath]/{,_tmp,journal}/*.*
+OS:/bin/chown mongodb:mongodb [/etc/mongod-arbiter.conf:dbpath]
+OS:@SIPX_SERVICEDIR@/mongod-arbiter start

@@ -93,7 +93,7 @@ public class ApacheManagerImpl extends SipxHibernateDaoSupport<Object> implement
     }
 
     @Override
-    public List<ResourceRecords> getResourceRecords(DnsManager manager, Location whoIsAsking) {
+    public List<ResourceRecords> getResourceRecords(DnsManager manager) {
         return null;
     }
 

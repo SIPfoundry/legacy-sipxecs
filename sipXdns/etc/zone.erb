@@ -14,7 +14,7 @@
 <% 
   unless dns_servers.nil?
     dns_servers.each { |server| 
-%><%= domain %>.            IN     NS     <%= server[:name] %>.
+%><%= domain %>.            IN     NS     <%= server[:name] %>
 <%
     }
   end
@@ -23,60 +23,22 @@
 
   naptr_protocols.each { |proto| 
   protoCode = 'SIP+D2' + proto[0,1].upcase  # SIP+D2T
-%><%= domain %>.               IN      NAPTR   2 0 "s" "<%= protoCode %>" "" _sip._<%= proto %>.<%= domain %>.
-<%} 
-
-%><%= record_id('proxy') %><%
-
-  # distribute traffic equally for now to each proxy
-  sip_protocols.each { |proto|
-    if proxy_servers
-      proxy_servers.each { |server| 
-        if proto == 'tls'
-%>_sips._tcp.<%= domain %>.     IN      SRV     10 10 5061 <%= server[:name] %>.
-_sip._tls.<%= domain %>.     IN      SRV     10 10 5061 <%= server[:name] %>.
-<%
-        else
-
-%>_sip._<%= proto %>.<%= domain %>.     IN      SRV     10 10 5060 <%= server[:name] %>.
-<%      end
-      }
-    end
-  }
+%><%= domain %>.       IN    NAPTR	    2 0 "s" "<%= protoCode %>" "" _sip._<%= proto %>
+<%}
 
 %><%= record_id('rr') %><%
 
   if resource_records
     resource_records.each { |rr|
-      if rr[:records]
-        rr[:records].each { |a|
-%><%= rr[:proto] %>.<%= rr[:resource] %>.<%= domain %>.   IN    SRV   10 10 <%= a[:port] %> <%= a[:target] %>.
+%><%= rr[:lhs] %>	  IN    SRV	<%= rr[:priority] %> <%= rr[:weight] %> <%= rr[:port] %> <%= rr[:target] %>
 <%
-          rr[:records].each { |b|
-            # give priority to local registrar
-            rr_priority = (a == b ? '10' : '20')
-%><%= rr[:proto] %>.<%= rr[:resource] %>.<%= a[:name] %>.   IN    SRV   <%= rr_priority %> 10 <%= b[:port] %> <%= b[:target] %>.
-<%        } 
-        }
-      end
     } 
-  end
-
-%><%= record_id('im') %><%
-
-  if im_servers
-    im_servers.each { |server| 
-%>_xmpp-server._tcp.<%= domain %>.     IN   SRV   10  10  5269  <%= server[:name] %>.
-_xmpp-client._tcp.<%= domain %>.     IN   SRV   10  10  5222  <%= server[:name] %>.
-_xmpp-server._tcp.conference.<%= domain %>.     IN   SRV   10  10  5222  <%= server[:name] %>.
-_xmpp-client._tcp.conference.<%= domain %>.     IN   SRV   10  10  5222  <%= server[:name] %>.
-<%  } 
   end
 
 %><%= record_id('a') %><%
   if all_servers
     all_servers.each { |server| 
-%><%= server[:name] %>.           IN      A       <%= server[:ipv4] %>
+%><%= server[:name] %> 		IN    A	<%= server[:ipv4] %>
 <%  }
   end
 %>

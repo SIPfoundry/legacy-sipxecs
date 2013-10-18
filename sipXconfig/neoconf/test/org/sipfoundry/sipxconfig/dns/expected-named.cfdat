@@ -1,6 +1,6 @@
 +resolv
 +sipxdns
-=sipxdns_forwarders=
+@dnsviews={"default.view", "r1.view"}
 =sipxdns_forwarder_0=
 =sipxdns_forwarder_1=
 =sipxdns_forwarder_2=

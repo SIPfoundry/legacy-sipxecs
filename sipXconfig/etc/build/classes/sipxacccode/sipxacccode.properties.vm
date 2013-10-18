@@ -1,0 +1,11 @@
+#set($authcode=${service.getSettings().getSetting('authcode')})
+#set($acccode=${service.getSettings().getSetting('acccode')})
+log.level=$acccode.getSetting('log.level').Value
+log.file=${service.logDir}/sipxacccode.log
+
+freeswitch.eventSocketPort=$acccode.getSetting('freeswitch.eventSocketPort').Value
+
+acccode.promptsDirectory=${service.promptsDir}
+acccode.docDirectory=${service.docDir}
+acccode.sipxchangeDomainName=${service.domainName}
+acccode.realm=${service.realm}

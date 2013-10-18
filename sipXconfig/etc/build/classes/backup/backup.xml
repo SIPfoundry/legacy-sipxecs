@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="pinLen">
+    <enum>
+      <option><value>3</value></option>
+      <option><value>4</value></option>
+      <option><value>5</value></option>
+      <option><value>6</value></option>
+    </enum>
+  </type>
+  <group name="ftp">  
+    <setting name="url">
+      <type><string required="yes"/></type>
+    </setting>
+    <setting name="user">
+      <type><string required="yes"/></type>
+    </setting>
+    <setting name="password" >
+      <type>
+        <string password="yes"></string>
+      </type>      
+    </setting>   
+  </group>
+  <group name="backup">
+    <setting name="device">
+      <type><boolean/></type>
+      <value>1</value>
+    </setting>
+  </group>
+  <group name="restore">
+    <setting name="keepDomain">
+      <type><boolean/></type>
+      <value>0</value>
+    </setting>
+    <setting name="keepFqdn">
+      <type><boolean/></type>
+      <value>0</value>
+    </setting>
+    <setting name="decodePins">
+      <type><boolean/></type>
+      <value>0</value>
+    </setting>
+    <setting name="decodePinMaxLen">
+      <type refid="pinLen"/>
+      <value>4</value>
+    </setting>
+    <setting name="resetPin">
+      <type><string minLen="4" password="yes"/></type>
+    </setting>
+    <setting name="resetPassword">
+      <type><string minLen="8" password="yes"/></type>
+    </setting>
+  </group>
+</model>

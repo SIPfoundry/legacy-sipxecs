@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="preferred-codecs-type">
+    <multi-enum labelKeyPrefix="codec">
+      <option>
+        <value>G722</value>
+      </option>
+      <option>
+        <value>PCMU@20i</value>
+      </option>
+      <option>
+        <value>PCMA@20i</value>
+      </option>
+      <option>
+        <value>speex</value>
+      </option>
+      <option>
+        <value>L16</value>
+      </option>
+      <option>
+        <value>G729</value>
+      </option>
+      <option>
+        <value>H261</value>
+      </option>
+      <option>
+        <value>H263</value>
+      </option>
+      <option>
+        <value>H263-1998</value>
+      </option>
+      <option>
+        <value>H263-2000</value>
+      </option>
+      <option>
+        <value>H264</value>
+      </option>                                           
+    </multi-enum>
+  </type>
+  <group name="freeswitch-config">
+    <setting name="FREESWITCH_CODECS">
+      <type refid="preferred-codecs-type"/>
+      <value>G722|PCMU@20i|PCMA@20i|speex|L16</value>
+    </setting>
+    <setting name="FREESWITCH_SIP_PORT">
+      <type>
+        <integer />
+      </type>
+      <value>15060</value>
+    </setting>
+    <setting name="FREESWITCH_XMLRPC_PORT">
+      <type>
+        <integer />
+      </type>
+      <value>8080</value>
+    </setting>
+    <setting name="FREESWITCH_MAX_SESSIONS">
+      <type>
+        <integer />
+      </type>
+      <value>1000</value>
+    </setting>
+    <setting name="FREESWITCH_SESSION_PER_SECOND">
+      <type>
+        <integer />
+      </type>
+      <value>30</value>
+    </setting>
+    <setting name="FREESWITCH_SIP_DEBUG">
+      <type>
+        <boolean>
+          <true>
+            <value>1</value>
+          </true>
+          <false>
+            <value>0</value>
+          </false>
+        </boolean>
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+</model>

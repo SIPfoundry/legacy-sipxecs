@@ -28,7 +28,7 @@ import org.apache.tapestry.components.Any;
  *
  * Will render <span key="quick.help">This text will render instead.</span>
  *
- * Equivalent tag <span jwcid="@Insert" element="span" value="messages:fooString"/>
+ * Equivalent tag <span jwcid="@Insert" element="span" value="message:fooString"/>
  */
 public abstract class Message extends Any {
 

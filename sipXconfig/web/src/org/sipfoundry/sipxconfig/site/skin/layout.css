@@ -294,6 +294,15 @@ fieldset#loginForm legend {
 
 }
 
+.popup {
+  z-index: 1001;
+  position: fixed;
+  left: 10%;
+  top: 10%;
+  background-color: #fff;
+  border: 1px solid #ccc;
+}
+
 #contentContainer {
 	width: 100%;
     	float: left;

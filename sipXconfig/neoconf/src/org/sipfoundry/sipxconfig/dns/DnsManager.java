@@ -18,13 +18,13 @@ package org.sipfoundry.sipxconfig.dns;
 
 
 import java.util.Collection;
-import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.region.Region;
 
 public interface DnsManager {
     public static final LocationFeature FEATURE = new LocationFeature("sipxdns");
@@ -36,7 +36,10 @@ public interface DnsManager {
 
     public Address getSingleAddress(AddressType t, Collection<Address> addresses, Location whoIsAsking);
 
-    public List<ResourceRecords> getResourceRecords(Location whoIsAsking);
+    /*
+     * @parameter region - null acceptable for primary region or if regions are not defined
+     */
+    public Collection<DnsSrvRecord> getResourceRecords(Region region);
 
     public AddressManager getAddressManager();
 }

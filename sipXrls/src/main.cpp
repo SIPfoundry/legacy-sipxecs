@@ -475,7 +475,8 @@ int main(int argc, char* argv[])
    }
 
    std::string errmsg;
-   mongo::ConnectionString mongoConnectionString = MongoDB::ConnectionInfo::connectionStringFromFile();
+   MongoDB::ConnectionInfo gInfo = MongoDB::ConnectionInfo::globalInfo();
+   mongo::ConnectionString mongoConnectionString = gInfo.getConnectionString();
    if (false == MongoDB::ConnectionInfo::testConnection(mongoConnectionString, errmsg))
    {
        Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
@@ -486,8 +487,7 @@ int main(int argc, char* argv[])
        return 1;
    }
 
-   mongoConnectionString = MongoDB::ConnectionInfo::connectionStringFromFile();
-   EntityDB entityDb(MongoDB::ConnectionInfo(mongoConnectionString, EntityDB::NS));
+   EntityDB entityDb(gInfo);
 
    // add the ~~sipXrls credentials so that sipXrls can respond to challenges
    SipLineMgr* lineMgr = addCredentials(domainName, realm, entityDb);
@@ -495,12 +495,13 @@ int main(int argc, char* argv[])
    {
       return 1;
    }
+   SubscribeDB* subscribeDb = NULL;
+
 
    if (!gShutdownFlag)
    {
       // Initialize the ResourceListServer.
-      mongoConnectionString = MongoDB::ConnectionInfo::connectionStringFromFile();
-	  SubscribeDB subscribeDb(MongoDB::ConnectionInfo(mongoConnectionString, SubscribeDB::NS));
+      subscribeDb = SubscribeDB::CreateInstance();
       ResourceListServer rls(domainName, realm, lineMgr,
                              DIALOG_EVENT_TYPE, DIALOG_EVENT_CONTENT_TYPE,
                              tcpPort, udpPort, PORT_NONE, bindIp,
@@ -511,7 +512,7 @@ int main(int argc, char* argv[])
                              serverMinExpiration,
                              serverDefaultExpiration,
                              serverMaxExpiration,
-                             subscribeDb,
+                             *subscribeDb,
                              entityDb);
       rls.start();
 
@@ -536,6 +537,9 @@ int main(int argc, char* argv[])
    
    // Delete the LineMgr Object
    delete lineMgr;
+
+   if (subscribeDb)
+     delete subscribeDb;
 
    //
    // Terminate the timer thread

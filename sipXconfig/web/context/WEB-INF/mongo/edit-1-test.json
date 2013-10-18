@@ -1,0 +1,15 @@
+{ 
+  "inProgress": false,
+  "lastConfigError" : "Last configuration error here", 
+  "name" : "Boston",
+  "id" : "1",
+  "dbCandidates" : [ "foo.hubler.us:27017" ],
+  "arbiterCandidates" : [ "foo.hubler.us:27018", "bar.hubler.us:27018"],
+  "databases" : {
+    "uc1.ezuce.ro:27101" : { "host" : "uc1", "status" : [ "PRIMARY"] , "priority":  1, "voting": false, "available" : [ "RESTART"] , "required" : [ "REMOVE_EXTRA orphan:27101" ]} , 
+    "uc2.ezuce.ro:27101" : { "host" : "uc2", "status" : [ "ELSE"] , "priority":  2, "voting": true, "available" : [ "RESTART"] , "required" : [ "START"]}
+  } ,
+  "arbiters" : {  
+    "uc1.ezuce.ro:27201" : { "host" : "uc1", "status" : [ "OK"] , "available" : [ "RESTART"] , "required" : [ ]}
+  }
+}

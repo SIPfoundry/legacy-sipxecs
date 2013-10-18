@@ -1,0 +1,524 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+# Mongo configuration for sipXecs
+
+bundle common mongo {
+  classes:
+    # 10gen and fedora mongo mainatain cannot settle on right file names or
+    # package names for that matter. Support both at this time. 
+    any::
+      "mongodb_10gen" expression => fileexists("/etc/mongod.conf");
+      "mongodb_redhat" not => "mongodb_10gen";
+}
+
+bundle agent mongodb {
+  vars:
+    any::
+      "config_arbiter" string => "/etc/mongod-arbiter.conf";
+      "config_local" string => "/etc/mongo-local.conf";
+      "config_local_arbiter" string => "/etc/mongo-local-arbiter.conf";
+
+    mongodb_redhat::
+      "id" string => "mongodb";
+      "config" string => "/etc/mongodb.conf";
+      "user" string => "mongodb";
+      "group" string => "mongodb";
+
+    mongodb_10gen::
+      "id" string => "mongo";
+      "config" string => "/etc/mongod.conf";
+      "user" string => "mongod";
+      "group" string => "mongod";
+
+  classes:
+    "any_mongo" expression => "mongod|mongod_arbiter|mongo_local|mongo_local_arbiter";
+
+  methods:
+    mongod::
+      "any" usebundle => mongodb_config;
+
+    mongod_arbiter::
+      "any" usebundle => mongodb_arbiter_config;
+
+    mongo_local::
+      "any" usebundle => mongo_local_config;
+
+    any::
+      "any" usebundle => mongo_local_sync;
+
+    mongo_local_arbiter::
+      "any" usebundle => mongo_local_arbiter_config;
+
+    any_mongo::
+      "any" usebundle => allow_ssh_command("mongodb-admin");
+
+    !any_mongo::
+      "any" usebundle => disallow_ssh_command("mongodb-admin");
+
+    fedora16_or_greater.mongodb_redhat::
+      "any" usebundle => mongodb_systemctl_running;
+
+    # assumes 10gen on fedora would never drop sysv scripts
+    !fedora16_or_greater|mongodb_10gen::
+      "any" usebundle => mongodb_sysv_running;
+
+    any::
+      "any" usebundle => mongodb_arbiter_running;
+      "any" usebundle => mongo_local_running;
+      "any" usebundle => mongo_local_arbiter_running;
+
+    primary.setup::
+      "any" usebundle => mongodb_initialize;
+
+    any::
+      # at this moment, all setups get mongo client config
+      "any" usebundle => mongodb_client;
+
+    sipxlogwatcher::
+      "any" usebundle => mongo_logwatcher;
+}
+
+bundle agent mongo_logwatcher {
+  files:
+    "$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/mongo.sec"
+      comment => "mongo log watcher",
+      create => "true",
+      perms => m(644),
+      transformer => "$(sipx.SIPX_LIBEXECDIR)/sipxlogwatcher-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/alarms.yaml --template $(sipx.SIPX_CONFDIR)/mongo/mongo.sec.erb --out $(this.promiser)",
+      classes => if_repaired("reload_sipxlogwatcher");
+}
+
+bundle agent mongodb_arbiter_config {
+  vars:
+    mongod_arbiter::
+      "dirs" slist => {
+        "/var/lib/mongodb-arbiter",
+        "/var/run/$(mongodb.id)"
+      };
+
+  files:
+    mongod_arbiter::
+      "$(dirs)/."
+        comment => "required mongo dirs $(this.promiser)",
+        create => "true",
+        perms => mog(755,"$(mongodb.user)","$(mongodb.group)");
+
+      "$(mongodb.config_arbiter)"
+        comment => "install mongo arbiter config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_defaults => empty,
+        edit_line => mongodb_arbiter_config_contents,
+        classes => if_repaired("restart_mongo_arbiter");
+}
+
+bundle edit_line mongodb_arbiter_config_contents {
+  # bind_ip=0.0.0.0 may not be nec, but if it's anything else
+  # mongo config will not be right so reinforce the default
+  insert_lines:
+"replSet=sipxecs
+port=27018
+logpath=/var/log/$(mongodb.id)/mongod-arbiter.log
+fork=true
+smallfiles=true
+pidfilepath=/var/run/$(mongodb.id)/mongodb-arbiter.pid
+smallfiles=true
+journal=true
+nohttpinterface=true
+dbpath=/var/lib/mongodb-arbiter
+bind_ip=0.0.0.0
+";
+}
+
+bundle agent mongo_local_config {
+  vars:
+    any::
+      "dirs" slist => {
+        "/var/lib/mongo-local",
+        "/var/run/$(mongodb.id)"
+      };
+
+  files:
+    mongo_local::
+      "$(dirs)/."
+        comment => "required mongo local dirs $(this.promiser)",
+        create => "true",
+        perms => mog(755,"$(mongodb.user)","$(mongodb.group)");
+
+      "$(mongodb.config_local)"
+        comment => "install mongo local config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_defaults => empty,
+        edit_line => mongo_local_config_contents,
+        classes => if_repaired("restart_mongo_local");
+}
+
+bundle edit_line mongo_local_config_contents {
+  # bind_ip=0.0.0.0 may not be nec, but if it's anything else
+  # mongo config will not be right so reinforce the default
+  insert_lines:
+"replSet=sipxlocal
+port=27019
+logappend=true
+logpath=/var/log/$(mongodb.id)/local.log
+fork=true
+smallfiles=true
+pidfilepath=/var/run/$(mongodb.id)/local.pid
+journal=true
+nohttpinterface=true
+dbpath=/var/lib/mongo-local
+bind_ip=0.0.0.0
+";
+}
+
+bundle agent mongo_local_sync {
+  vars:
+    any::
+      "service" string => "$(sipx.SIPX_SERVICEDIR)/mongodb-sync";
+      "service_command" string => "bash $(sipx.SIPX_SERVICEDIR)/mongodb-sync nofork";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "mongo_sync_running", "root");
+
+    mongo_local.!src::
+      "any" usebundle => rh_chkconfig_status("mongodb-sync on");
+
+    !mongo_local.!src::
+      "any" usebundle => rh_chkconfig_status("mongodb-sync off");
+
+  commands:
+    !mongo_local.mongo_sync_running::
+      "$(service)"
+        comment => "stop mongo sync",
+        args => "stop";
+
+    mongo_local.!mongo_sync_running::
+      "$(service)"
+        comment => "start mongo sync",
+        args => "start";
+
+    mongo_local.mongo_sync_running.restart_mongo_sync::
+      "$(service)"
+        comment => "restart mongo sync",
+        args => "restart";
+}
+
+bundle agent mongo_local_arbiter_config {
+  vars:
+    any::
+      "dirs" slist => {
+        "/var/lib/mongo-local-arbiter",
+        "/var/run/$(mongodb.id)"
+      };
+
+  files:
+    mongo_local_arbiter::
+      "$(dirs)/."
+        comment => "required mongo arbiter dirs $(this.promiser)",
+        create => "true",
+        perms => mog(755,"$(mongodb.user)","$(mongodb.group)");
+
+      "$(mongodb.config_local_arbiter)"
+        comment => "install mongo local arbiter config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_defaults => empty,
+        edit_line => mongo_local_arbiter_config_contents,
+        classes => if_repaired("restart_mongo_local_arbiter");
+}
+
+bundle edit_line mongo_local_arbiter_config_contents {
+  # bind_ip=0.0.0.0 may not be nec, but if it's anything else
+  # mongo config will not be right so reinforce the default
+  insert_lines:
+"replSet=sipxlocal
+port=27020
+logappend=true
+logpath=/var/log/$(mongodb.id)/local-arbiter.log
+fork=true
+pidfilepath=/var/run/$(mongodb.id)/local-arbiter.pid
+journal=true
+smallfiles=true
+nohttpinterface=true
+dbpath=/var/lib/mongo-local-arbiter
+bind_ip=0.0.0.0
+";
+}
+
+bundle agent mongodb_config {
+  vars:
+    any::
+      "server[replSet]" string => "sipxecs";
+      "server[port]" string => "27017";
+      "server[smallfiles]" string => "true";
+      "server[bind_ip]" string => "0.0.0.0";
+
+  files:
+    any::
+      "$(mongodb.config)"
+        comment => "install mongo config $(this.promiser)",
+        create => "false",
+        perms => m("644"),
+        edit_line => set_variable_values("mongodb_config.server"),
+        classes => if_repaired("restart_mongod");
+
+      "$(mongodb.config)"
+        comment => "install mongo config $(this.promiser)",
+        create => "false",
+        perms => m("644"),
+        edit_line => set_variable_values("mongodb_config.server"),
+        classes => if_repaired("restart_mongod");
+}
+
+bundle edit_line mongo_client_config {
+  vars:
+    "config" string => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/mongo-client.ini";
+
+  classes:
+    "has_config" expression => fileexists("$(config)");
+
+  insert_lines:
+    has_config::
+      "$(config)"
+        insert_type => "file";
+
+    # should only be for very first run
+    !has_config::
+       "connectionUrl=mongodb://$(sipx.host).$(sipx.net_domain):27017/?slaveOk=true";
+       "connectionString=sipxecs/$(sipx.host).$(sipx.net_domain):27017";
+
+  delete_lines:
+    ".*";
+}
+
+bundle agent mongodb_arbiter_running {
+  vars:
+    any::
+      "service" string => "$(sipx.SIPX_SERVICEDIR)/mongod-arbiter";
+      "service_command" string => "/usr/bin/mongod.*-f\s+$(mongodb.config_arbiter)";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "mongo_arbiter_running", "$(mongodb.user)");
+
+    mongod_arbiter.!src::
+      "any" usebundle => rh_chkconfig_status("mongod-arbiter on");
+
+    !mongod_arbiter.!src::
+      "any" usebundle => rh_chkconfig_status("mongod-arbiter off");
+
+  commands:
+    !mongod_arbiter.mongo_arbiter_running::
+      "$(service)"
+        comment => "stop mongo arbiter",
+        args => "stop";
+
+    mongod_arbiter.!mongo_arbiter_running::
+      "$(service)"
+        comment => "start mongo arbiter",
+        args => "start";
+
+    mongod_arbiter.mongo_arbiter_running.restart_mongo_arbiter::
+      "$(service)"
+        comment => "restart mongo arbiter",
+        args => "restart";
+}
+
+bundle agent mongo_local_running {
+  vars:
+    any::
+      "service" string => "$(sipx.SIPX_SERVICEDIR)/mongo-local";
+      "service_command" string => "/usr/bin/mongod.*-f\s+$(mongodb.config_local)";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "mongo_local_running", "$(mongodb.user)");
+
+    mongo_local.!src::
+      "any" usebundle => rh_chkconfig_status("mongo-local on");
+
+    !mongo_local.!src::
+      "any" usebundle => rh_chkconfig_status("mongo-local off");
+
+  commands:
+    !mongo_local.mongo_local_running::
+      "$(service)"
+        comment => "stop mongo local",
+        args => "stop";
+
+    mongo_local.!mongo_local_running::
+      "$(service)"
+        comment => "start mongo local",
+        args => "start";
+
+    mongo_local.mongo_local_running.mongo_local_restart::
+      "$(service)"
+        comment => "restart mongo local",
+        args => "restart";
+}
+
+bundle agent mongo_local_arbiter_running {
+  vars:
+    any::
+      "service" string => "$(sipx.SIPX_SERVICEDIR)/mongo-local-arbiter";
+      "service_command" string => "/usr/bin/mongod.*-f\s+$(mongodb.config_local_arbiter)";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "mongo_local_arbiter_running", "$(mongodb.user)");
+
+    mongo_local_arbiter.!src::
+      "any" usebundle => rh_chkconfig_status("mongo-local-arbiter on");
+
+    !mongo_local_arbiter.!src::
+      "any" usebundle => rh_chkconfig_status("mongo-local-arbiter off");
+
+  commands:
+    !mongo_local_arbiter.mongo_local_arbiter_running::
+      "$(service)"
+        comment => "stop mongo local arbiter",
+        args => "stop";
+
+    mongo_local_arbiter.!mongo_local_arbiter_running::
+      "$(service)"
+        comment => "start mongo local arbiter",
+        args => "start";
+
+    mongo_local_arbiter.mongo_local_arbiter_running.mongo_local_arbiter_restart::
+      "$(service)"
+        comment => "restart mongo local arbiter",
+        args => "restart";
+}
+
+bundle agent mongodb_sysv_running {
+  vars:
+    any::
+      "service" string => "/etc/init.d/mongod";
+      "service_command" string => "/usr/bin/mongod.*-f\s+$(mongodb.config)";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "mongodb_running","$(mongodb.user)");
+
+    mongod::
+      "any" usebundle => rh_chkconfig_status("mongod on");
+
+    !mongod::
+      "any" usebundle => rh_chkconfig_status("mongod off");
+
+  commands:
+    !mongod.mongodb_running::
+      "$(service)"
+        comment => "stop mongo",
+        args => "stop";
+
+    mongod.!mongodb_running::
+      "$(service)"
+        comment => "start mongo",
+        args => "start";
+
+    mongod.mongodb_running.(restart_mongod|RESTART_DATABASE)::
+      "$(service)"
+        comment => "restart mongo",
+        args => "restart";
+}
+
+bundle agent mongodb_systemctl_running {
+  vars:
+    any::
+      "service" string => "mongod.service";
+
+  classes:
+    mongodb_sysctl::
+      "mongodb_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+
+  commands:
+    !mongod.mongodb_running::
+      "$(sipx.systemctl)"
+        comment => "stop mongo",
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable mongo",
+        args => "disable $(service)";
+
+    mongod.!mongodb_running::
+      "$(sipx.systemctl)"
+        comment => "start mongo",
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable iptables",
+        args => "enable $(service)";
+
+    mongod.mongodb_running.(restart_mongod|RESTART_DATABASE)::
+      "$(sipx.systemctl)"
+        comment => "restart mongo",
+        args => "asyncrestart $(service)";
+}
+
+bundle agent mongodb_client {
+  files:
+    any::
+      # should not change often, we don't want to restart mongod unless
+      # absolutely nec..  So sipXconfig should take care the client config
+      # file it generates has the same checksum as the original or not generate
+      # ini file in cfdata unless it's different.
+      "$(sipx.SIPX_CONFDIR)/mongo-client.ini",
+        comment => "install mongo client config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => mongo_client_config,
+        classes => if_repaired("mongo_client_reconnect");
+
+    mongo_local::
+      "$(sipx.SIPX_CONFDIR)/mongo-local.ini",
+        comment => "local mongo db $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_defaults => empty,
+        edit_line => expand_template("$(sipx.SIPX_CFDATA)/$(sipx.location_id)/mongo-local.ini"),
+        classes => if_repaired("mongo_local_reconnect");
+
+    !mongo_local::
+      "$(sipx.SIPX_CONFDIR)/mongo-local.ini",
+        comment => "do not use local mongo db $(this.promiser)",
+        delete => unlink,
+        classes => if_repaired("mongo_local_reconnect");
+}
+
+bundle agent mongodb_initialize {
+  vars:
+    "config" string => "$(sipx.SIPX_CFDATA)/mongo.json";
+    "default_contents" string => "{\"servers\":[\"$(sipx.host).$(sipx.net_domain):27017\"],\"replSet\":\"sipxecs\"}";
+
+  classes:
+    "has_config" expression => fileexists("$(config)");
+
+  files:
+    !has_config::
+      "$(config)",
+        comment => "Create initial mongo cluster db model $(this.promiser)",
+        create => "true",
+        perms => mog("644", "$(sipx.SIPXPBXUSER)", "$(sipx.SIPXPBXGROUP)"),
+        edit_line => insert_lines("$(default_contents)");
+
+  commands:
+    any::
+      "$(sipx.SIPX_BINDIR)/mongodb-admin"
+        comment => "Initialize mongodb if it's not already initialized",
+        args => "--host_port $(sipx.host).$(sipx.net_domain):27017 INITIALIZE";
+}

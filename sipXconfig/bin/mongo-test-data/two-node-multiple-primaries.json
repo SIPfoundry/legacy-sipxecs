@@ -1,0 +1,77 @@
+{
+    "model": {
+        "replSet": "sipxlocal",
+        "servers": {
+            "uc2.rh2.3zuce.com:27019" : {},
+            "uc3.rh2.3zuce.com:27019" : {}
+        }
+    },
+    "meta": {
+        "uc3.rh2.3zuce.com:27019": {
+            "available": true,
+            "status": {
+                "date": "2013-08-16T11:57:10",
+                "myState": 1,
+                "set": "sipxlocal",
+                "ok": 1.0,
+                "members": [
+                    {
+                        "uptime": 161423,
+                        "optime": 1376651176,
+                        "name": "uc3.rh2.3zuce.com:27019",
+                        "self": true,
+                        "optimeDate": "2013-08-16T11:06:16",
+                        "state": 1,
+                        "health": 1.0,
+                        "stateStr": "PRIMARY",
+                        "_id": 0
+                    }
+                ]
+            },
+            "config": {
+                "_id": "sipxlocal",
+                "version": 1,
+                "members": [
+                    {
+                        "host": "uc3.rh2.3zuce.com:27019",
+                        "_id": 0
+                    }
+                ]
+            },
+            "server": "uc3.rh2.3zuce.com:27019"
+        },
+        "uc2.rh2.3zuce.com:27019": {
+            "available": true,
+            "status": {
+                "date": "2013-08-16T11:57:10",
+                "myState": 1,
+                "set": "sipxlocal",
+                "ok": 1.0,
+                "members": [
+                    {
+                        "uptime": 161691,
+                        "optime": 1376651137,
+                        "name": "uc2.rh2.3zuce.com:27019",
+                        "self": true,
+                        "optimeDate": "2013-08-16T11:05:37",
+                        "state": 1,
+                        "health": 1.0,
+                        "stateStr": "PRIMARY",
+                        "_id": 0
+                    }
+                ]
+            },
+            "config": {
+                "_id": "sipxlocal",
+                "version": 1,
+                "members": [
+                    {
+                        "host": "uc2.rh2.3zuce.com:27019",
+                        "_id": 0
+                    }
+                ]
+            },
+            "server": "uc2.rh2.3zuce.com:27019"
+        }
+    }
+}

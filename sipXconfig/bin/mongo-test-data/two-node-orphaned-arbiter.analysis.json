@@ -1,0 +1,22 @@
+{
+    "available": {
+        "goose.hubler.us:27017": [
+            "RESTART"
+        ],
+        "junco.hubler.us:27017": [
+            "RESTART"
+        ]
+    },
+    "model": {
+        "replSet": "sipxecs",
+        "servers": {
+            "goose.hubler.us:27017": {},
+            "junco.hubler.us:27017": {}
+        }
+    },
+    "required": {
+        "junco.hubler.us:27017": [
+            "REMOVE_EXTRA junco.hubler.us:27018"
+        ]
+    }
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="csr">
+    <setting name="country">
+      <type><string/></type>
+      <value>US</value>
+    </setting>
+    <setting name="state">
+      <type><string/></type>
+      <value>AnyState</value>
+    </setting>
+    <setting name="locality">
+      <type><string/></type>
+      <value>AnyTown</value>
+    </setting>
+    <setting name="organization">
+      <type><string/></type>
+      <value></value>
+    </setting>
+    <setting name="organizationUnit">
+      <type><string/></type>
+      <value>sipXecs</value>
+    </setting>
+    <setting name="email">
+      <type><string/></type>
+    </setting>
+  </group>
+</model>

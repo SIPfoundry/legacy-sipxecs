@@ -1,4 +1,0 @@
-COMMAND:RESET_LOCAL
-OS:@SIPX_SERVICEDIR@/mongod-arbiter stop
-OS:/bin/rm -f /var/lib/mongodb-arbiter/local.*
-OS:@SIPX_SERVICEDIR@/mongod-arbiter start

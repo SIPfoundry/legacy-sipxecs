@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
+<model>
+  <type id="server-status">
+    <enum>
+      <option>
+        <value>1</value>
+      </option>
+      <option>
+        <value>2</value>
+      </option>
+      <option>
+        <value>3</value>
+      </option>
+    </enum>
+  </type>
+  <type id="loglevel">
+    <enum>
+      <option>
+        <value>DEBUG</value>
+      </option>
+      <option>
+        <value>INFO</value>
+      </option>
+      <option>
+        <value>NOTICE</value>
+      </option>
+      <option>
+        <value>WARNING</value>
+      </option>
+      <option>
+        <value>ERR</value>
+      </option>
+      <option>
+        <value>CRIT</value>
+      </option>
+      <option>
+        <value>ALERT</value>
+      </option>
+      <option>
+        <value>EMERG</value>
+      </option>
+    </enum>
+  </type>
+  <type id="port-number">
+    <integer required="yes" min="1024" max="65534" />
+  </type>
+  <type id="optional-port-number">
+    <integer min="1024" max="65534" />
+  </type>
+  <group name="acd-server">
+    <setting name="server-name" hidden="yes">
+      <!-- index -->
+      <type required="yes">
+        <string required="yes" />
+      </type>
+      <value>sipxacd</value>
+    </setting>
+    <setting name="log-dir" advanced="yes">
+      <value />
+    </setting>
+    <setting name="log-level" hidden="yes">
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+    <setting name="log-to-console" advanced="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="udp-port" advanced="yes">
+      <type refid="port-number" />
+      <value>5150</value>
+    </setting>
+    <setting name="tcp-port" advanced="yes">
+      <type refid="port-number" />
+      <value>5150</value>
+    </setting>
+    <setting name="rtp-port" advanced="yes">
+      <type refid="port-number" />
+      <value>10000</value>
+    </setting>
+    <setting name="tls-port" advanced="yes">
+      <type refid="port-number" />
+      <value>5151</value>
+    </setting>
+    <setting name="presence-monitor-port" advanced="yes">
+      <type refid="port-number" />
+      <value>5152</value>
+    </setting>
+    <setting name="presence-server-uri" hidden="yes">
+      <value />
+    </setting>
+    <setting name="presence-service-uri" hidden="yes">
+      <value />
+    </setting>
+    <setting name="administrative-state" hidden="yes">
+      <type refid="server-status" />
+      <value>3</value>
+    </setting>
+    <setting name="operational-state" hidden="yes">
+      <type refid="server-status" />
+      <!-- access RO -->
+      <value>3</value>
+    </setting>
+    <setting name="domain" hidden="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="fqdn" hidden="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+
+  </group>
+</model>

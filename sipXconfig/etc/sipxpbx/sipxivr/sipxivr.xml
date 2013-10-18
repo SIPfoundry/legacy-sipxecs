@@ -112,6 +112,11 @@
       </type>
       <value>stdui</value>
     </setting>
-    
+    <setting name="ivr.mwiTimeout" advanced="yes">
+      <type>
+        <integer min="0" />
+      </type>
+      <value>5</value>
+    </setting>
   </group>
 </model>

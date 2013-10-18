@@ -8,9 +8,20 @@
  */
 package org.sipfoundry.voicemail;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -22,8 +33,9 @@ public class Mwi {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     public static final String MessageSummaryContentType = "application/simple-message-summary";
     private static final String MWI_URL = "http://%s:%s/cgi/StatusEvent.cgi";
-    private String[] m_mwiAddresses;
+    private Map<String, List<String>> m_mwiAddresses;
     private String m_mwiPort;
+    private int m_mwiTimeout = 5;
 
     /**
      * Format the status ala RFC-3842
@@ -50,22 +62,49 @@ public class Mwi {
      * @param mailbox
      * @param messages
      */
-    public void sendMWI(User user, MailboxDetails mailbox) {
-        String idUri = user.getIdentity();
+    public void sendMWI(User user, final MailboxDetails mailbox) {
+        final String idUri = user.getIdentity();
 
         String accountUrl = "sip:" + idUri;
         try {
-            String content = "identity=" + URLEncoder.encode(idUri, "UTF-8")
+            final String content = "identity=" + URLEncoder.encode(idUri, "UTF-8")
                     + "&eventType=message-summary&event-data=" + "\r\n" + formatRFC3842(mailbox, accountUrl);
-            for (String mwiAddress : m_mwiAddresses) {
-                LOG.info(String.format("Mwi::SendMWI %s %d/%d to MWI address %s", idUri, mailbox.getUnheardCount(),
-                        mailbox.getHeardCount(), mwiAddress));
-                if (sendMwi(mwiAddress, content)) {
-                    break;
-                }
+
+            for (final String region : m_mwiAddresses.keySet()) {
+                sendMwiToRegion(region, idUri, mailbox, content);
             }
+
         } catch (UnsupportedEncodingException ex) {
             LOG.error("Mwi::sendMWI Trouble with encoding idUri", ex);
+        }
+    }
+
+    private void sendMwiToRegion(final String region, final String idUri, final MailboxDetails mailbox,
+            final String content) {
+        try {
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Callable<Boolean> task = new Callable<Boolean>() {
+                public Boolean call() throws IOException {
+                    List<String> addressesInRegion = m_mwiAddresses.get(region);
+                    for (String mwiAddress : addressesInRegion) {
+                        LOG.info(String.format(
+                                "Mwi::SendMWI %s %d/%d to MWI address %s in region %s with timeout %d", idUri,
+                                mailbox.getUnheardCount(), mailbox.getHeardCount(), mwiAddress, region, m_mwiTimeout));
+                        if (sendMwi(mwiAddress, content)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            };
+            final List<Future<Boolean>> futures = executor.invokeAll(Arrays.asList(task), m_mwiTimeout,
+                    TimeUnit.SECONDS);
+            executor.shutdown();
+            if (futures.get(0).isCancelled()) {
+                LOG.error(String.format("Mwi::SendMWI to region %s timed out", region));
+            }
+        } catch (InterruptedException e) {
+            LOG.error("Unexpected termination of sending MWI action", e);
         }
     }
 
@@ -86,10 +125,40 @@ public class Mwi {
     }
 
     public void setMwiAddresses(String addresses) {
-        m_mwiAddresses = StringUtils.split(addresses, ",");
+        Map<String, List<String>> addrs = new HashMap<String, List<String>>();
+        String[] addressesWithRegion = StringUtils.split(addresses, ",");
+        for (String address : addressesWithRegion) {
+            if (address.contains("@")) {
+                String[] addrValues = StringUtils.split(address, "@");
+                String ip = addrValues[0];
+                String region = addrValues[1];
+                List<String> addrsPerRegion = addrs.get(region);
+                if (addrsPerRegion == null) {
+                    addrsPerRegion = new ArrayList<String>();
+                }
+                addrsPerRegion.add(ip);
+                addrs.put(region, addrsPerRegion);
+            } else {
+                List<String> globalAddrs = addrs.get("global");
+                if (globalAddrs == null) {
+                    globalAddrs = new ArrayList<String>();
+                }
+                globalAddrs.add(address);
+                addrs.put("global", globalAddrs);
+            }
+        }
+        m_mwiAddresses = addrs;
+    }
+
+    public Map<String, List<String>> getSortedAddresses() {
+        return m_mwiAddresses;
     }
 
     public void setMwiPort(String port) {
         m_mwiPort = port;
+    }
+
+    public void setMwiTimeout(int timeout) {
+        m_mwiTimeout = timeout;
     }
 }

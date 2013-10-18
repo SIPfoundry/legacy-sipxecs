@@ -1,0 +1,7 @@
+COMMAND:FORCE_SECONDARY
+OS:/sbin/service mongod stop
+OS:rm -f [/etc/mongodb.conf:dbpath]/mongod.lock
+OS:/bin/rm -f [/etc/mongodb.conf:dbpath]/{,_tmp,journal}/*.*
+OS:/bin/chown mongodb:mongodb [/etc/mongodb.conf:dbpath]
+OS:/sbin/service mongod start
+RS:rs.add("swift.hubler.us:27017")

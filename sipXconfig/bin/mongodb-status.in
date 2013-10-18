@@ -1,0 +1,380 @@
+#!/bin/env python
+
+# Copyright (c) 2013 eZuce, Inc. All rights reserved. 
+# Contributed to SIPfoundry under a Contributor Agreement 
+# 
+# This software is free software; you can redistribute it and/or modify it under 
+# the terms of the Affero General Public License (AGPL) as published by the 
+# Free Software Foundation; either version 3 of the License, or (at your option) 
+# any later version. 
+# 
+# This software is distributed in the hope that it will be useful, but WITHOUT 
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more 
+# details.
+
+# Just gather all the status and configuration of a set of mongo servers and provide
+# a higher level of status of the cluster as whole. 
+
+# Meant to be used as the first part of the set of three mongodb
+# detailed below and in each script:
+#
+# Part 1.) mongodb-status assesses the health of a system
+# Part 2.) mongodb-analyzer takes the results from mongodb-status 
+#  and comes with with a set of recommended tasks to bring the
+#  cluster back into a health state if it decided it's not in a
+#  healthy state. Tasks are broken up into a list of zero or more
+#  tasks for each server.
+# Part 3.) mongodb-admin then takes a set of tasks interpretted by
+#   an admin at the command prompt or fed into a user interface 
+#   for the admin to select which tasks they's like to perform on
+#    which server.  The tasks are then passed to the mongodb-admin
+#    script on the appropriate server to execute.
+
+
+# Deprecation note: intentionally using deprecated Connection class because 
+# class MongoClient is not available yet in pymongo on centos 6
+from pymongo import Connection
+from pymongo.errors import PyMongoError, AutoReconnect
+
+import sys
+import traceback
+import logging
+import argparse
+import json
+import os
+import bson.timestamp
+import datetime
+
+analyzers = []
+
+# Unlikely that replSet attribute is wrong on rs.config unless admin
+# was monkeying around with db, but detection is important because
+# it can be hard to diagnose
+class CheckReplSet:
+    def analyze(self, meta): 
+        for host, host_meta in meta.meta['meta'].items():
+            if 'status' in host_meta and 'set' in host_meta['status']:
+                if host_meta['status']['set'] != meta['model']['replSet']:
+                    meta.states[host].append('BAD_REPLSET')
+                elif 'config' in host_meta and '_id' in host_meta['config']:
+                    if host_meta['config']['_id'] != meta['model']['replSet']:
+                        meta.states[host].append('BAD_REPLSET')
+
+analyzers.append(CheckReplSet())
+
+# Check for common misconfiguration scenarios, mainly when rs.config and model to not match.
+class CheckHostnameOrMissingConfig:
+    def analyze(self, meta):
+        primary_config = meta.primaryConfig()
+        for host, host_meta in meta.meta['meta'].items():
+            status, config = meta.member(host)
+            if not host_meta['available']:
+                meta.states[host].append('UNAVAILABLE')
+                continue
+
+            if config == None:
+                if status and 'status' in status:
+                    if 'startupStatus' in status['status']:
+                        if 3 == status['status']['startupStatus']:
+                            meta.states[host].append('UNINITIALIZED')
+                            continue
+
+                # Treat removed as a special case of missing
+                #if status and 'stateStr' in status and 'REMOVED' == status['stateStr']:
+                #    continue
+
+                meta.states[host].append('MISSING')
+                continue
+
+            # Changing a host name has obvious implications in mongo config            
+            if 'host' in config and config['host'] != host:
+                meta.states[host].append('HOSTNAME_MISMATCH')
+                continue
+
+            # setup to check that each host is in primary config's members as
+            # you could have all healthy servers, but none configures to talk
+            # with each other
+            if primary_config:
+                if 'members' in primary_config:
+                    found = False
+                    for m in primary_config['members']:
+                        if 'host' in m and m['host'] == host:
+                            found = True
+                            break
+                    if not found:
+                        meta.states[host].append('MISSING')
+                        continue
+
+        # Orphaned mongo nodes check, attach status to primary as there
+        # is no other reasonable alternative and because that's where
+        # action will ultimately be to remove node.
+        if primary_config:
+            if 'members' in primary_config:
+                all_servers = meta.meta['model']['servers'].keys()
+                if 'arbiters' in meta.meta['model']:
+                    all_servers += meta.meta['model']['arbiters'].keys()
+                for m in primary_config['members']:
+                    found = False
+                    if m['host'] not in all_servers:
+                        meta.states[meta.primary()].append('EXTRA_NODE ' + m['host'])
+
+analyzers.append(CheckHostnameOrMissingConfig())
+
+class CheckPrimaries:
+    def analyze(self, meta):        
+        primaries = meta.primaries()
+        if len(primaries) == 0:
+            meta.cluster_states.append('NO_PRIMARY')
+        if len(primaries) > 1:
+            meta.cluster_states.append('MULTIPLE_PRIMARIES')
+
+analyzers.append(CheckPrimaries())
+
+class CheckRole:
+    def analyze(self, meta):        
+        for host, host_meta in meta.meta['meta'].items():
+           status, config = meta.member(host)
+           if status and 'stateStr' in status:
+               meta.states[host].append(status['stateStr'])
+
+analyzers.append(CheckRole())
+
+class CheckConfigVersion:
+    def analyze(self, meta):        
+        primary_config = meta.primaryConfig()
+        if not primary_config or 'version' not in primary_config:
+            return
+        logging.debug(primary_config);
+        
+        for host, host_meta in meta.meta['meta'].items():
+            if 'config' in host_meta and host_meta['config']:
+                if 'version' in host_meta['config']:
+                    logging.debug(host_meta['config']['version']);
+                    if host_meta['config']['version'] > primary_config['version']:
+                        meta.states[host].append('BAD_CONFIG_VERSION')
+                        continue
+
+analyzers.append(CheckConfigVersion())
+
+class CheckMemberMeta:
+    def analyze(self, meta):
+        primary_config = meta.primaryConfig()
+        if not primary_config or 'members' not in primary_config:
+            return
+
+        for member in primary_config['members']:
+            host = member['host']
+            model = meta.memberModel(host)
+            # don't bother checking member meta, this server has other issues
+            if model == None:
+                continue
+            logging.debug('MODEL')
+            logging.debug(model)
+            for k, v in model.items():
+                if k not in member or member[k] != v:
+                    meta.states[host].append('MISSING_MEMBER_META')
+                    break
+
+analyzers.append(CheckMemberMeta())
+
+
+class MongoMeta:
+    def __init__(self, meta):
+        self.meta = meta
+        self.cluster_states = []
+        self.states = {}
+        for host in meta['meta'].keys():
+            self.states[host] = []
+
+    def __getitem__(self, host):
+        return self.meta[host]
+
+    def memberModel(self, host_port):
+        model = self.meta['model']
+        for stype in ['servers', 'arbiters']:
+            if stype in model:
+                if host_port in model[stype]:
+                    return model[stype][host_port]
+        return None
+
+    def statusMembers(self, predicate):        
+        return self._configOrStatus(predicate, 'status')
+
+    def configMembers(self, predicate):        
+        return self._configOrStatus(predicate, 'config')
+
+    def member(self, host):
+        myStatus = lambda h, s: 'self' in s and host == h
+        for host, status in self.statusMembers(myStatus):
+            myConfig = lambda h, c: c['host'] == status['name']
+            for host, config in self.configMembers(myConfig):
+                return status, config
+            return status, None
+        # check for status object in uninitialized where config is null but status
+        # still contains useful info
+        if host in self.meta['meta']:
+            return self.meta['meta'][host], None
+        return None, None
+
+    def _configOrStatus(self, predicate, config_or_status):
+        for host, meta in self.meta['meta'].items():
+            if config_or_status in meta:
+                if meta[config_or_status] and 'members' in meta[config_or_status]:
+                    for member in meta[config_or_status]['members']:
+                        if predicate(host, member):
+                            yield host, member
+        return
+
+    def primaries(self):
+        primaries = set()
+        finder = lambda host, status: status['stateStr'] == 'PRIMARY'
+        for host, status in self.statusMembers(finder):
+            primaries.add(status['name'])
+        return list(primaries)
+
+    def primary(self):
+        primaries = self.primaries();
+        if len(primaries) == 1:
+            return primaries[0]
+        return None
+
+    def primaryConfig(self):
+        primary_name = self.primary()
+        if primary_name:
+            if primary_name in self.meta['meta']:
+                if 'config' in self.meta['meta'][primary_name]:
+                    return self.meta['meta'][primary_name]['config']
+        return None
+
+class MongoAdmin:
+    def dump(self, model_file):
+        meta = self.loadMeta(model_file)
+        sys.stdout.write(json.dumps(meta, cls=MongoJSONEncoder, indent=4, separators=(',', ': ')))
+
+    def parse(self, full = False):
+        self.full = full
+        meta = json.load(sys.stdin)
+        self.statusFromMeta(meta)
+
+    def status(self, model_file, full = False):
+        self.full = full
+        self.statusFromMeta(self.loadMeta(model_file))
+
+    def statusFromMeta(self, m):
+        meta = MongoMeta(m)
+        for analyzer in analyzers:
+            analyzer.analyze(meta)
+        out = {"model": meta.meta['model'], "cluster": meta.cluster_states, "states": meta.states}
+        if self.full:
+            out['meta'] = meta.meta['meta']
+        sys.stdout.write(json.dumps(out, cls=MongoJSONEncoder, indent=4, separators=(',', ': ')))
+        print
+
+    def eval(self, db, command):
+        logging.debug(command)
+        return db.eval(command)
+
+    def loadMetaForHost(self, host_port):
+        m = None
+        c = None
+        cfg = None
+        try:
+            c = Connection(host_port)
+            logging.debug('getting status')
+            l = c['local']
+            cfg = self.eval(l, 'rs.config()')
+            status = self.eval(l, 'rs.status()')
+            m = {'server' : host_port, 'available': True, 'status' : status, 'config' : cfg}
+            c.close
+            c = None
+
+        except PyMongoError as e:
+            m = {'server' : host_port, 'available' : False}
+
+        finally:
+            if c != None:
+                logging.debug('closing connection')
+                c.close()
+
+        return m
+    
+    def loadMeta(self, model_file):
+        if not model_file:
+            raise Exception("'--model' parameter is required for this operation")
+        model = json.load(open(model_file))
+        status = {}
+        for stype in ['servers', 'arbiters']:
+            if stype in model:
+                for h in model[stype]:
+                    m = self.loadMetaForHost(h)
+                    status[h] = m
+        meta = {'model' : model, 'meta': status}
+        return meta
+
+class MongoJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, bson.timestamp.Timestamp):
+            return obj.time
+        elif isinstance(obj, datetime.datetime):
+            return obj.isoformat()
+        else:
+            return super(MongoJSONEncoder, self).default(obj)    
+
+# remain fairly flexible on file path because command might come
+# from ssh path
+def model_file(f):
+    if f.startswith('/'):
+        return f
+    if os.path.isfile(f):
+        return f
+    path = "%s/%s" % ("@SIPX_CFDATA@", f)
+    if os.path.isfile(path):
+        return path
+
+if __name__ == '__main__':
+    c = None
+    # Parse arguments
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        description='Mongo/sipXecs administration tools'
+        )
+    parser.formatter_class = argparse.ArgumentDefaultsHelpFormatter
+    parser.add_argument('--dump', action="store_true", default=False,
+                help='Dump the cluster data to JSON format to stdout before any analysis has been done')
+    parser.add_argument('--full', action="store_true", default=False,
+                help='Show meta data and status')
+    parser.add_argument('--parse', action="store_true", default=False,
+                help='Read the dump from stdin from a cluster and then analyze status')
+    parser.add_argument('--verbose', action="store_true", default=False,
+                help='verbose output')
+    parser.add_argument('--model', metavar="file name", default="@SIPX_CFDATA@/mongo.json",
+                help='JSON Model file of cluster server configuration. Required for all but --parse option')
+    args = vars(parser.parse_args())
+
+    try:
+        level = None
+        if args['verbose']:
+            level = logging.DEBUG        
+        logging.basicConfig(
+            level=level,
+            format='.%(message)s'
+        )
+        
+        admin = MongoAdmin()
+        if args['parse']:
+            admin.parse(args['full'])
+        elif args['dump']:
+            admin.dump(model_file(args['model']))
+        else:
+            admin.status(model_file(args['model']), args['full'])
+
+    except :
+        sys.stderr.write(traceback.format_exc())
+        sys.stderr.write('\n')
+        exit(1)
+            
+    finally:
+        if c != None:
+            logging.debug('closing connection')
+            c.close()

@@ -463,7 +463,7 @@ AC_DEFUN([CHECK_APACHE2],
    AC_MSG_RESULT(apache2_version=$apache2_version)
    AC_MSG_CHECKING(which apache host access module to use)
    case $apache2_version in
-   2.2.*)
+   2.2.* | 2.4.*)
       apache2_host_access="authz_host_module"
       apache2_mod_access="mod_authz_host.so"
       ;;

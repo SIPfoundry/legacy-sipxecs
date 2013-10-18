@@ -11,12 +11,15 @@ package org.sipfoundry.sipxconfig.test;
 
 import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.reportMatcher;
+import static org.junit.Assert.assertEquals;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.StringWriter;
 import java.net.URL;
 import java.security.CodeSource;
@@ -30,6 +33,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -38,10 +42,13 @@ import javax.sql.DataSource;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.app.VelocityEngine;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
@@ -79,6 +86,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import com.mongodb.util.JSON;
+
 /**
 * TestHelper: used for unit tests that need Spring instantiated
 */
@@ -90,6 +99,8 @@ public final class TestHelper {
     private static final String EXAMPLE_ORG = "example.org";
 
     private static final String EOL = System.getProperty("line.separator");
+
+    private static final String EMPTY = "";
 
     private static final String FORWARD_SLASH = "/";
 
@@ -459,7 +470,7 @@ public final class TestHelper {
 
     public static final String currentDrive() {
         if (!isWindows()) {
-            return "";
+            return EMPTY;
         }
 
         String drive = new File(FORWARD_SLASH).getAbsolutePath().substring(0, 2);
@@ -640,5 +651,28 @@ public final class TestHelper {
             Assert.fail(e.getMessage());
             return null;
         }
+    }
+
+    public static void assertEquals(String expectedJson, Object actual) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectWriter writer = mapper.writer();
+            String actualJson = writer.withDefaultPrettyPrinter().writeValueAsString(actual);
+            org.junit.Assert.assertEquals(expectedJson, actualJson);
+        } catch (IOException e1) {
+            throw new RuntimeException(e1);
+        }
+    }
+
+    public static void assertEqualJson(String expectedJson, String actualJson) {
+        Map<?, ?> e = (Map<?, ?>) JSON.parse(expectedJson);
+        ByteArrayOutputStream expected = new ByteArrayOutputStream();
+        MapUtils.debugPrint(new PrintStream(expected), EMPTY, e);
+
+        Map< ? , ? > a = (Map< ? , ? >) JSON.parse(actualJson);
+        ByteArrayOutputStream actual = new ByteArrayOutputStream();
+        MapUtils.debugPrint(new PrintStream(actual), EMPTY, a);
+
+        assertEquals(expected.toString(), actual.toString());
     }
 }
