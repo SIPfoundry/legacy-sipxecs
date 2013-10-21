@@ -214,7 +214,7 @@ namespace mongoMod
 
   mongo::DBClientBase* DBConnectionPool::_get(const string& ident , double socketTimeout )
   {
-    OS_LOG_AND_ASSERT((mongo::inShutdown()), FAC_DB, "mongo is in shutdown");
+    OS_LOG_AND_ASSERT((!mongo::inShutdown()), FAC_DB, "mongo is in shutdown");
     mongo::scoped_lock L(_mutex);
     _pool.initializeHostName(ident);
     return _pool.get( this , socketTimeout );

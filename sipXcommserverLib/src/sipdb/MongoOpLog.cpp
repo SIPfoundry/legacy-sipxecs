@@ -92,8 +92,8 @@ void MongoOpLog::internal_run()
   mongo::Query query = QUERY( "_id" << mongo::GT << lastTailId
           << "ns" << _ns).sort("$natural");
 
-  _pTailConnection = mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
-  mongo::ScopedDbConnection& conn = *_pTailConnection;
+  _pTailConnection = mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
+  mongoMod::ScopedDbConnection& conn = *_pTailConnection;
 
   std::auto_ptr<mongo::DBClientCursor> c =
     conn.get()->query("local.oplog", query, 0, 0, 0,

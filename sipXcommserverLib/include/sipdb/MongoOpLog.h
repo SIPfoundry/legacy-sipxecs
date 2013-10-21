@@ -43,7 +43,7 @@ protected:
   void notifyCallBacks(const std::string& type, const std::string& opLog);
   bool _isRunning;
   boost::thread* _pTailThread;
-  mongo::ScopedDbConnection* _pTailConnection;
+  mongoMod::ScopedDbConnection* _pTailConnection;
   std::vector<OpLogCallBack> _allCb;
   std::vector<OpLogCallBack> _insertCb;
   std::vector<OpLogCallBack> _deleteCb;

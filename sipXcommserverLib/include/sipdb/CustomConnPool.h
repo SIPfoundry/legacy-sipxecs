@@ -32,10 +32,10 @@ public:
 
   PoolForHost( const PoolForHost& other )
   {
-    OS_LOG_AND_ASSERT((other._pool.size() != 0), FAC_DB, "cannot copy pool with size > 0");
+    OS_LOG_AND_ASSERT((other._pool.size() == 0), FAC_DB, "cannot copy pool with size > 0");
     _created = other._created;
     _minValidCreationTimeMicroSec = other._minValidCreationTimeMicroSec;
-    OS_LOG_AND_ASSERT((_created > 0), FAC_DB, "cannot copy used pool ");
+    OS_LOG_AND_ASSERT((_created == 0), FAC_DB, "cannot copy used pool ");
   }
 
   ~PoolForHost();
@@ -45,7 +45,7 @@ public:
   void createdOne(mongo::DBClientBase * base );
   long long numCreated() const { return _created; }
 
-  mongo::ConnectionString::ConnectionType type() const { OS_LOG_AND_ASSERT((_created == 0), FAC_DB, "_type not valid for pool with _created 0"); return _type; }
+  mongo::ConnectionString::ConnectionType type() const { OS_LOG_AND_ASSERT((_created > 0), FAC_DB, "_type not valid for pool with _created 0"); return _type; }
 
   /**
    * gets a connection or return NULL
@@ -188,21 +188,21 @@ public:
   /** get the associated connection object */
   mongo::DBClientBase* operator->()
   {
-    OS_LOG_AND_ASSERT((_conn == NULL), FAC_DB, "connection was returned to the pool already");
+    OS_LOG_AND_ASSERT((_conn != NULL), FAC_DB, "connection was returned to the pool already");
     return _conn;
   }
 
   /** get the associated connection object */
   mongo::DBClientBase& conn()
   {
-    OS_LOG_AND_ASSERT((_conn == NULL), FAC_DB, "connection was returned to the pool already");
+    OS_LOG_AND_ASSERT((_conn != NULL), FAC_DB, "connection was returned to the pool already");
     return *_conn;
   }
 
   /** get the associated connection object */
   mongo::DBClientBase* get()
   {
-    OS_LOG_AND_ASSERT((_conn == NULL), FAC_DB, "connection was returned to the pool already");
+    OS_LOG_AND_ASSERT((_conn != NULL), FAC_DB, "connection was returned to the pool already");
     return _conn;
   }
 
