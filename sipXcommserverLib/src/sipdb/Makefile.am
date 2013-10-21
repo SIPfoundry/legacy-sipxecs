@@ -47,4 +47,5 @@ libsipdb_la_SOURCES =  \
    Subscription.cpp \
    SubscribeDB.cpp \
    ResultSet.cpp \
-   DbHelper.cpp
+   DbHelper.cpp \
+   CustomConnPool.cpp

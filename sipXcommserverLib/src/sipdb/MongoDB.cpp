@@ -27,7 +27,7 @@ bool ConnectionInfo::testConnection(const mongo::ConnectionString &connectionStr
 
     try
     {
-        MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(connectionString.toString()));
+        MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(connectionString.toString()));
         ret = conn->ok();
         conn->done();
     }
@@ -109,7 +109,7 @@ void  BaseDB::nearest(mongo::BSONObjBuilder& builder, mongo::BSONObj query) cons
 
 void BaseDB::forEach(mongo::BSONObj& query, const std::string& ns, boost::function<void(mongo::BSONObj)> doSomething)
 {
-    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(ns, query, 0, 0, 0, mongo::QueryOption_SlaveOk);
     if (pCursor.get() && pCursor->more())
     {

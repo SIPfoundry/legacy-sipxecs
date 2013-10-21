@@ -335,7 +335,7 @@ void DbHelper::deleteDbEntries(const MongoDB::ConnectionInfo* pConnectionInfo,
                                  const std::string& databaseName,
                                  std::vector<std::string>& whereOptVector)
 {
-   MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(pConnectionInfo->getConnectionString().toString()));
+   MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(pConnectionInfo->getConnectionString().toString()));
 
    try
    {
@@ -361,7 +361,7 @@ void DbHelper::printDbEntries(std::ostream& strm,
                                  const DbType dbType,
                                  bool multipleLines)
 {
-   MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(pConnectionInfo->getConnectionString().toString()));
+   MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(pConnectionInfo->getConnectionString().toString()));
 
    try
    {
