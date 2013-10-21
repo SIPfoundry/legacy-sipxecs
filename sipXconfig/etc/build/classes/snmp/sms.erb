@@ -1,9 +1,0 @@
-From: <%= from %>
-To: <%= recipients.join(', ') %>
-Subject: <%= id %> on <%= source %>
-
-<%= DateTime.now %> <%= summary %>
-<% if defined?(message)
-%><%= message %>
-<% end 
-%>

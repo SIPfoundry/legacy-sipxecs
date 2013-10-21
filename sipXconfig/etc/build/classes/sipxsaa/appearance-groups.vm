@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<appearanceGroups xmlns="http://www.sipfoundry.org/sipX/schema/xml/appearance-groups-00-00">
-#foreach($sharedUser in ${sharedUsers})
-    <resource uri="sip:${sharedUser.userName}@${domainName}"/>
-#end
-</appearanceGroups>

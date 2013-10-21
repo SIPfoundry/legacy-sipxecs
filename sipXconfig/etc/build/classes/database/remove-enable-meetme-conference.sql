@@ -1,1 +1,0 @@
-alter table meetme_bridge drop column enabled;

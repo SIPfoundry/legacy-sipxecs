@@ -1,1 +1,0 @@
-alter table address_book_entry alter column use_branch_address set default false;

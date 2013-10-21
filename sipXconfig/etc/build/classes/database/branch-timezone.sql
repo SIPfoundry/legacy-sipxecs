@@ -1,1 +1,0 @@
-alter table branch add column time_zone varchar(255);

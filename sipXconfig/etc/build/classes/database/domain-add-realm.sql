@@ -1,1 +1,0 @@
-alter table domain add column sip_realm varchar(255);

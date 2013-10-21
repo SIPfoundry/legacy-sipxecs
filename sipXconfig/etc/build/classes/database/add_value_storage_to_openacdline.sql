@@ -1,1 +1,0 @@
-alter table freeswitch_extension add column value_storage_id int;
