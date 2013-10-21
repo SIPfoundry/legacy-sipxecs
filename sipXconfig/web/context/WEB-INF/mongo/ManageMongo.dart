@@ -54,7 +54,7 @@ class ManageGlobal extends ManageBase {
   ManageGlobal() {
     help = "global.help";
     msg = new UserMessage(query("#globalMessage"));    
-    loader = new DataLoader(msg, loadTable);
+    loader = new DataLoader(msg, loadTable, true);
     builder = new UiBuilder(this);    
     refresh = new Refresher(query("#globalRefreshWidget"), query("#globalRefreshButton"), () {
       var url = api.url("rest/mongoGlobal/", "global-test.json");
@@ -102,7 +102,7 @@ class ManageGlobal extends ManageBase {
     var httpRequest = new HttpRequest();
     httpRequest.open('POST', api.url("rest/mongoGlobal/"));
     httpRequest.onLoadEnd.listen((e) {
-      if (DataLoader.checkResponse(msg, httpRequest)) {
+      if (DataLoader.checkResponse(msg, httpRequest, true)) {
         load();
       }
     });
@@ -119,7 +119,7 @@ class ManageLocal extends ManageBase {
   ManageLocal() {
     help = "local.help";
     msg = new UserMessage(query("#localMessage"));    
-    loader = new DataLoader(msg, loadTable);
+    loader = new DataLoader(msg, loadTable, true);
     builder = new UiBuilder(this);
     refresh = new Refresher(query("#localRefreshWidget"), query("#localRefreshButton"), () {
       var url = api.url("rest/mongoRegional/", "local-test.json");
@@ -191,7 +191,7 @@ regions to servers if you wish to have a local databbase
     var httpRequest = new HttpRequest();
     httpRequest.open('POST', api.url("rest/mongoRegional/"));
     httpRequest.onLoadEnd.listen((e) {
-      if (DataLoader.checkResponse(msg, httpRequest)) {
+      if (DataLoader.checkResponse(msg, httpRequest, true)) {
         load();
       }
     });
@@ -376,7 +376,7 @@ class UiBuilder {
   
   lastError(String err) {
     if (err != null) {
-      manage.msg.error(err);
+      manage.msg.errorConfirm(err);
     } else {  
       manage.msg.success("");
     }    

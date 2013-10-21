@@ -50,7 +50,6 @@ import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.region.Region;
-import org.sipfoundry.sipxconfig.region.RegionManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
@@ -71,7 +70,6 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     private FeatureManager m_featureManager;
     private Map<Integer, MongoReplSetManager> m_shardManagers;
     private MongoReplSetManager m_globalManager;
-    private RegionManager m_regionManager;
     private ListableBeanFactory m_beans;
     private JdbcTemplate m_configJdbcTemplate;
 
@@ -397,10 +395,6 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
 
     public void setConfigJdbcTemplate(JdbcTemplate configJdbc) {
         m_configJdbcTemplate = configJdbc;
-    }
-
-    public void setRegionManager(RegionManager regionManager) {
-        m_regionManager = regionManager;
     }
 
     @Override

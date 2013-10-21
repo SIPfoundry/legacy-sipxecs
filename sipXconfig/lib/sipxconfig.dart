@@ -270,8 +270,9 @@ typedef void DataLoaderCallback(String data);
 class DataLoader {
   UserMessage msg;
   DataLoaderCallback listener;
+  bool confirmErrors;
   
-  DataLoader(UserMessage msg, void listener(String)) {
+  DataLoader(UserMessage msg, void listener(String), [bool this.confirmErrors = false]) {
     this.msg = msg;
     this.listener = listener;
   }
@@ -280,11 +281,11 @@ class DataLoader {
     print("loading data");
     Future<String> request = HttpRequest.getString(url);
     request.then(this.listener, onError: (e) {
-      checkResponse(msg, e.currentTarget);
+      checkResponse(msg, e.currentTarget, confirmErrors);
     });      
   }
 
-  static bool checkResponse(UserMessage msg, HttpRequest request) {
+  static bool checkResponse(UserMessage msg, HttpRequest request, [bool confirmErrors = false]) {
     if (request.status != 200) {
       String userError;
       try {
@@ -294,7 +295,11 @@ class DataLoader {
       if (userError == null) {
         msg.internalError(request.status);
       } else {
-        msg.error(userError);
+        if (confirmErrors) {
+          msg.errorConfirm(userError);
+        } else {
+          msg.error(userError);          
+        }
       }
       return false;
     }  
@@ -306,19 +311,48 @@ class DataLoader {
  * Simple paragraph element that shows success or error messages.
  */
 class UserMessage {
-  Element parent;
-  UserMessage(Element parent) {
-    this.parent = parent;
+  Element msg;
+  Element close;
+  bool confirmError = false;
+  UserMessage(Element parent) {    
+    msg = new SpanElement();
+    parent.children.add(msg);
+    close = new SpanElement();
+    close.classes.add("close-popup");
+    parent.children.add(close);
+    close.style.display = "none";
+    close.text = "x";
+    close.onClick.listen(clearError);
   }
   
   void success(String msg) {
-    message(msg, 'user-success');      
+    if (confirmError == false) {
+      message(msg, 'user-success');
+    }
   }
   
   void error(String msg) {
     message(msg, 'user-error');  
   }
   
+  /**
+   * If you display an error message on a page that gets refreshed automatically
+   * your error message will disappear if subsequent success message is called.
+   * Calling this error message will keep error message on page until user clicks
+   * on close button or leaves page.
+   */
+  void errorConfirm(String msg) {
+    message(msg, 'user-error');
+    close.style.display = "";
+    confirmError = true;
+  }
+  
+  void clearError([e]) {
+    confirmError = false;
+    close.style.display = "none";
+    success('');
+  }
+
   void warning(String msg) {
     message(msg, 'user-warning');  
   }
@@ -328,8 +362,8 @@ class UserMessage {
   }
   
   void message(String text, String css) {
-    parent.text = text;
-    parent.classes.clear();
-    parent.classes.add(css);    
+    msg.text = text;
+    msg.classes.clear();
+    msg.classes.add(css);    
   }  
 }
