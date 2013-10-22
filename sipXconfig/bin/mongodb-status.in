@@ -282,7 +282,7 @@ class MongoAdmin:
         try:
             # Connection default i believe comes from OS and is generally 2 minutes and much
             # too long. We want to support worst case of 11 of 12 nodes all unavailable.
-            c = Connection(host_port, connectionTimeoutMS=1000, socketTimeoutMS=5000)
+            c = Connection(host_port, connecttimeoutms=1000, sockettimeoutms=5000)
             logging.debug('getting status')
             l = c['local']
             cfg = self.eval(l, 'rs.config()')
