@@ -21,7 +21,7 @@ ChecksumFile=.$TargetId.dep-md5
 # the quotes would not be preserved correctly so there are 2 nearly identical
 # copies of the find filter.
 function make-checksum-force {
-    find $Dependency \
+    find $Dependency/ \
 	    -type f \
 	    -a -not -path '*/.git/*' \
 	    -a -not -name '*~' \
@@ -47,7 +47,7 @@ function make-checksum-force {
 
 function make-checksum {
     if test -f $ChecksumFile; then
-	if find $Dependency \
+	if find $Dependency/ \
 	    -newer $ChecksumFile \
 	    -a -type f \
 	    -a -not -path '*/.git/*' \
