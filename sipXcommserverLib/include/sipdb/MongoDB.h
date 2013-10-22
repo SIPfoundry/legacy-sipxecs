@@ -78,13 +78,13 @@ public:
 	;
 
 	ConnectionInfo(const mongo::ConnectionString& connectionString) :
-		_connectionString(connectionString), _shard(0)
+		 _connectionString(connectionString), _shard(0), _useReadTags(false)
 	{
 	}
 	;
 
 	ConnectionInfo(const mongo::ConnectionString& connectionString, const int shard) :
-		_connectionString(connectionString), _shard(shard)
+		 _connectionString(connectionString), _shard(shard), _useReadTags(false)
 	{
 	}
 	;
