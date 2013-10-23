@@ -23,6 +23,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Message;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.admin.AdminSettings;
 import org.sipfoundry.sipxconfig.admin.ResLimitsConfiguration;
@@ -30,6 +31,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class EditAdmin extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "admin/EditAdmin";
@@ -63,6 +65,18 @@ public abstract class EditAdmin extends PageWithCallback implements PageBeginRen
     }
 
     public void apply() {
+        SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils
+                .getValidator(this);
+
+        String fdSoft = getSettings().getSettingValue("resource-limits/fd-soft");
+        String fdHard = getSettings().getSettingValue("resource-limits/fd-hard");
+
+        if (Integer.parseInt(fdSoft) > Integer.parseInt(fdHard)) {
+            validator.record(getMessages().getMessage("error.soft-higher-than-hard-limit"),
+                    ValidationConstraint.CONSISTENCY);
+            return;
+        }
+
         getAdminContext().saveSettings(getSettings());
         //Reset resource limits to default for all processes and restart affected ones
         try {
