@@ -317,11 +317,11 @@ class UserMessage {
   UserMessage(Element parent) {    
     msg = new SpanElement();
     parent.children.add(msg);
-    close = new SpanElement();
+    close = new ButtonElement();
     close.classes.add("close-popup");
     parent.children.add(close);
     close.style.display = "none";
-    close.text = "x";
+    close.text = "ok";
     close.onClick.listen(clearError);
   }
   

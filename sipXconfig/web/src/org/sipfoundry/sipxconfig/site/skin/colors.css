@@ -67,13 +67,6 @@ li.tab .active a:visited
 }
 
 .close-popup {
-  position: relative;
-  top: -12px;
-  border: 1px solid black;
-  border-radius: 10px;
-  height: 10px;
-  font-weight:bold;
-  padding: 1px;
   margin-left: 10px;
   font-size: xx-small;
 }

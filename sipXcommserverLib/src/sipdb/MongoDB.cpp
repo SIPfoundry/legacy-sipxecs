@@ -74,7 +74,8 @@ ConnectionInfo::ConnectionInfo(ifstream& file) : _shard(0), _useReadTags(false)
         	_shard = atoi(i->value[0].c_str());
         }
         if (i->string_key == "useReadTags") {
-	  if (i->value[0] == "true") {
+  	  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, i->value[0].c_str());
+	  if (strncmp(i->value[0].c_str(), "true", 4) == 0) {
     	    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "useReadTags enabled");
 	    _useReadTags = true;
 	  }
