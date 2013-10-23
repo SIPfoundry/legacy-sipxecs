@@ -105,7 +105,6 @@ lib_all = \
   net-snmp \
   homer \
   openfire \
-  openacd \
   erlmongo \
   erlang-ejrpc2 \
   erlang-ej \
