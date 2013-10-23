@@ -10,20 +10,20 @@
 package org.sipfoundry.sipxconfig.cmcprov;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.HashMap;
-import java.io.File;
 import java.util.Scanner;
-import java.util.ArrayList;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,8 +50,6 @@ public class LoginServlet extends ProvisioningServlet {
     private static final String PRESENCE_AGENT = "presenceAgent";
     private static final String OUTPUT_TYPE = "output_type";
     private static final String BRIA_MOBILE = "-briamobile.xml";
-    private static final String USERNAME = "username";
-    private static final String PASSWORD = "password";
     private static final String SILK_1600 = "SILK/1600";
     private static final String SILK_8000 = "SILK/8000";
     private static final String GSM = "GSM";
@@ -74,6 +72,8 @@ public class LoginServlet extends ProvisioningServlet {
     private static final String TAG_CLOSE = "/>\n";
     private static final String CODEC_START_TAG = "\t\t\t\t\t<codec name=\"";
 
+    // we don't close servet's writer
+    @SuppressWarnings("resource")
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws javax.servlet.ServletException,
             java.io.IOException {
@@ -82,7 +82,7 @@ public class LoginServlet extends ProvisioningServlet {
         try {
             Map<String, String> parameters;
             try {
-                parameters = getParameterMapFromBody(req);
+                parameters = getParameterMapFromBody(req.getReader());
             } catch (java.io.IOException error) {
                 throw new FailureDataException("Cannot extract parameters");
             }
@@ -141,6 +141,11 @@ public class LoginServlet extends ProvisioningServlet {
             throw new FailureDataException(USERNAME_PASSWORD_CANNOT_BE_MISSING_ERROR);
         }
         username = parameters.get(USERNAME);
+        // if supplied as email address, strip domain
+        int domainIndex = username.indexOf('@');
+        if (domainIndex >= 0) {
+            username = username.substring(0, domainIndex);
+        }
         password = parameters.get(PASSWORD);
         user = getProvisioningContext().getUser(username, password);
         if (user == null) {
@@ -149,9 +154,8 @@ public class LoginServlet extends ProvisioningServlet {
         return user;
     }
 
-    protected static Map<String, String> getParameterMapFromBody(HttpServletRequest req) throws java.io.IOException {
-        Hashtable<String, String> parameters = new Hashtable<String, String>();
-        BufferedReader br = req.getReader();
+    protected static Map<String, String> getParameterMapFromBody(BufferedReader br) throws java.io.IOException {
+        Map<String, String> parameters = new Hashtable<String, String>();
         String line = br.readLine();
         if (line == null) {
             return parameters;
@@ -159,8 +163,8 @@ public class LoginServlet extends ProvisioningServlet {
 
         if (!line.contains("<?xml version=")) {
             String[] pairs = line.split("\\&");
-            for (int i = 0; i < pairs.length; i++) {
-                String[] fields = pairs[i].split("=");
+            for (String pair : pairs) {
+                String[] fields = pair.split("=");
                 if (fields.length == 2) {
                     String name = URLDecoder.decode(fields[0], PARAMETER_ENCODING);
                     String value = URLDecoder.decode(fields[1], PARAMETER_ENCODING);
@@ -220,88 +224,99 @@ public class LoginServlet extends ProvisioningServlet {
             LOG.debug("Outfile found to be older than input file or non existant... begin update sequence.");
             // Write out header
             BufferedWriter bw = null;
-            try {
-                LOG.debug("Writing header.");
-                bw = new BufferedWriter(new FileWriter(outputfile));
-                bw.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cpc_mobile version=\"1.0\">\n"
-                        + "<login_response>\n\t<status success=\"true\"/>\n</login_response>\n"
-                        + "<branding>\n\t<settings_data>\n\t\t<core_data_list>\n");
-            } catch (IOException e) {
-                LOG.error("XMLTranlation: Failed to write xml header." + e.getMessage());
-            }
+            try { // this is to make sure bw is closed
+                try {
+                    LOG.debug("Writing header.");
+                    bw = new BufferedWriter(new FileWriter(outputfile));
+                    bw.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cpc_mobile version=\"1.0\">\n"
+                            + "<login_response>\n\t<status success=\"true\"/>\n</login_response>\n"
+                            + "<branding>\n\t<settings_data>\n\t\t<core_data_list>\n");
+                } catch (IOException e) {
+                    LOG.error("XMLTranlation: Failed to write xml header." + e.getMessage());
+                }
 
-            List<String> audiocodecs = new ArrayList<String>();
-            Map<Integer, String> audiocodecsPriority = new HashMap<Integer, String>();
-            List<String> videocodecs = new ArrayList<String>();
-            Map<Integer, String> videocodecsPriority = new HashMap<Integer, String>();
-            List<Map<String, String>> proxyList = new ArrayList<Map<String, String>>();
-            String proxyString = EMPTY_STRING;
-            Map<String, String> currentProxy = null;
-            Map<String, String> coreSettings = new HashMap<String, String>();
+                List<String> audiocodecs = new ArrayList<String>();
+                Map<Integer, String> audiocodecsPriority = new HashMap<Integer, String>();
+                List<String> videocodecs = new ArrayList<String>();
+                Map<Integer, String> videocodecsPriority = new HashMap<Integer, String>();
+                List<Map<String, String>> proxyList = new ArrayList<Map<String, String>>();
+                String proxyString = EMPTY_STRING;
+                Map<String, String> currentProxy = new HashMap<String, String>();
+                Map<String, String> coreSettings = new HashMap<String, String>();
 
-            // Ingest INI File
-            try {
-                LOG.debug("INFO: Ingesting ini file.");
-                Scanner s = new Scanner(inputfile);
-                while (s.hasNextLine()) {
-                    String line = s.nextLine();
-                    if (line.contains(":")) {
-                        String[] splitline = line.split(":|=", 4);
-                        if (splitline[0].equals(CODECS) && splitline[2].equals(PRIORITY)
-                                && validAudioCodecs.containsKey(splitline[1])) {
-                            int priority = Integer.parseInt(splitline[3].substring(1, splitline[3].length() - 1)
-                                    .split(FULL_STOP, 2)[0]);
-                            audiocodecsPriority.put(priority, validAudioCodecs.get(splitline[1]));
-                            audiocodecs.add(validAudioCodecs.get(splitline[1]));
-                        }
-                        if (splitline[0].equals(CODECS) && splitline[2].equals(ENABLED)
-                                && validAudioCodecs.containsKey(splitline[1]) && splitline[3].equals("\"true\"")) {
-                            audiocodecs.add(validAudioCodecs.get(splitline[1]));
-                        }
-                        if (splitline[0].equals(CODECS) && splitline[2].equals(PRIORITY)
-                                && validVideoCodecs.contains(splitline[1])) {
-                            int priority = Integer.parseInt(splitline[3].substring(1, splitline[3].length() - 1)
-                                    .split(FULL_STOP, 2)[0]);
-                            videocodecsPriority.put(priority, splitline[1]);
-                        }
-                        if (splitline[0].equals(CODECS) && splitline[2].equals(ENABLED)
-                                && validVideoCodecs.contains(splitline[1]) && splitline[3].equals("\"true\"")) {
-                            videocodecs.add(splitline[1]);
-                        }
-                        if (splitline[0].equals("proxies")) {
-                            // Handle parameters used with setting up accounts.
-                            if (!proxyString.equals(splitline[1])) {
-                                if (!proxyString.equals(EMPTY_STRING)) {
-                                    proxyList.add(currentProxy);
+                // Ingest INI File
+                try {
+                    LOG.debug("INFO: Ingesting ini file.");
+                    Scanner s = new Scanner(inputfile);
+                    while (s.hasNextLine()) {
+                        String line = s.nextLine();
+                        if (line.contains(":")) {
+                            String[] splitline = line.split(":|=", 4);
+                            if (splitline[0].equals(CODECS) && splitline[2].equals(PRIORITY)
+                                    && validAudioCodecs.containsKey(splitline[1])) {
+                                int priority = Integer.parseInt(splitline[3].substring(1, splitline[3].length() - 1)
+                                        .split(FULL_STOP, 2)[0]);
+                                audiocodecsPriority.put(priority, validAudioCodecs.get(splitline[1]));
+                                audiocodecs.add(validAudioCodecs.get(splitline[1]));
+                            }
+                            if (splitline[0].equals(CODECS) && splitline[2].equals(ENABLED)
+                                    && validAudioCodecs.containsKey(splitline[1]) && splitline[3].equals("\"true\"")) {
+                                audiocodecs.add(validAudioCodecs.get(splitline[1]));
+                            }
+                            if (splitline[0].equals(CODECS) && splitline[2].equals(PRIORITY)
+                                    && validVideoCodecs.contains(splitline[1])) {
+                                int priority = Integer.parseInt(splitline[3].substring(1, splitline[3].length() - 1)
+                                        .split(FULL_STOP, 2)[0]);
+                                videocodecsPriority.put(priority, splitline[1]);
+                            }
+                            if (splitline[0].equals(CODECS) && splitline[2].equals(ENABLED)
+                                    && validVideoCodecs.contains(splitline[1]) && splitline[3].equals("\"true\"")) {
+                                videocodecs.add(splitline[1]);
+                            }
+                            if (splitline[0].equals("proxies")) {
+                                // Handle parameters used with setting up accounts.
+                                if (!proxyString.equals(splitline[1])) {
+                                    if (!proxyString.equals(EMPTY_STRING)) {
+                                        proxyList.add(currentProxy);
+                                    }
+                                    currentProxy = new HashMap<String, String>();
+                                    proxyString = splitline[1];
                                 }
-                                currentProxy = new HashMap<String, String>();
-                                proxyString = splitline[1];
+                                if (coreTranslation.containsKey(splitline[2])) {
+                                    coreSettings.put(coreTranslation.get(splitline[2]), splitline[3]);
+                                } else if (parameterTranslation.containsKey(splitline[2])) {
+                                    currentProxy.put(parameterTranslation.get(splitline[2]), splitline[3]);
+                                }
+                                // else
+                                // currentProxy.put(splitline[2],splitline[3]);
                             }
-                            if (coreTranslation.containsKey(splitline[2])) {
-                                coreSettings.put(coreTranslation.get(splitline[2]), splitline[3]);
-                            } else if (parameterTranslation.containsKey(splitline[2])) {
-                                currentProxy.put(parameterTranslation.get(splitline[2]), splitline[3]);
-                            }
-                            // else
-                            // currentProxy.put(splitline[2],splitline[3]);
                         }
                     }
+                } catch (IOException e) {
+                    LOG.error("XMLTranslation: Failed to ingest ini file.\n" + e.getMessage());
                 }
-            } catch (IOException e) {
-                LOG.error("XMLTranslation: Failed to ingest ini file.\n" + e.getMessage());
-            }
 
-            writeCoreSettings(bw, coreSettings);
-            writeCodecs(bw, audiocodecs, audiocodecsPriority, videocodecs, videocodecsPriority);
-            writeAccount(bw, proxyList);
+                writeCoreSettings(bw, coreSettings);
+                writeCodecs(bw, audiocodecs, audiocodecsPriority, videocodecs);
+                writeAccount(bw, proxyList);
 
-            // Write out footer
-            try {
-                LOG.debug("Writing footer.");
-                bw.write("\t\t</core_data_list>\n\t</settings_data>\n</branding>\n</cpc_mobile>");
-                bw.close();
-            } catch (IOException e) {
-                LOG.error("Failed to write xml footer" + e.getMessage());
+                // Write out footer
+                try {
+                    LOG.debug("Writing footer.");
+                    if (bw != null) {
+                        bw.write("\t\t</core_data_list>\n\t</settings_data>\n</branding>\n</cpc_mobile>");
+                    }
+                } catch (IOException e) {
+                    LOG.error("Failed to write xml footer" + e.getMessage());
+                }
+            } finally {
+                try {
+                    if (bw != null) {
+                        bw.close();
+                    }
+                } catch (IOException e) {
+                    LOG.warn("Could not close writer " + outputfilename + ": " + e.getMessage());
+                }
             }
         }
         LOG.debug("XML Translation File Creation Complete");
@@ -329,8 +344,7 @@ public class LoginServlet extends ProvisioningServlet {
     }
 
     private static void writeCodecs(BufferedWriter bw, List<String> audiocodecs,
-            Map<Integer, String> audiocodecsPriority, List<String> videocodecs,
-            Map<Integer, String> videocodecsPriority) {
+            Map<Integer, String> audiocodecsPriority, List<String> videocodecs) {
         // Write out codecs list
         try {
             LOG.debug("Writing codec list... ");
