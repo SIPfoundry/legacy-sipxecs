@@ -135,6 +135,11 @@ public:
   // Removes and deletes all connections from the pool for the host (regardless of timeout)
   void removeHost( const string& host );
 
+  /** compares server namees, but is smart about replica set names */
+  struct serverNameCompare {
+      bool operator()( const string& a , const string& b ) const;
+  };
+
   virtual string taskName() const { return "DBConnectionPool-cleaner"; }
   virtual void taskDoWork();
 
@@ -145,9 +150,22 @@ private:
 
   DBConnectionPool( DBConnectionPool& p );
 
-  std::string _name;
+  struct PoolKey {
+      PoolKey( const std::string& i , double t ) : ident( i ) , timeout( t ) {}
+      string ident;
+      double timeout;
+  };
+
+  struct poolKeyCompare {
+      bool operator()( const PoolKey& a , const PoolKey& b ) const;
+  };
+
+  typedef map<PoolKey,PoolForHost,poolKeyCompare> PoolMap; // servername -> pool
+
   mongo::mutex _mutex;
-  PoolForHost _pool;
+  string _name;
+
+  PoolMap _pools;
 };
 
 extern DBConnectionPool pool;

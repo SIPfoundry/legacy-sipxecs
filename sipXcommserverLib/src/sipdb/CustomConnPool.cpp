@@ -167,13 +167,35 @@ namespace mongoMod
 
   unsigned PoolForHost::_maxPerHost = 50;
 
-
-
   // ------ DBConnectionPool ------
   DBConnectionPool::DBConnectionPool()
-      : _name( "DBConnectionPool" ),
-        _mutex("DBConnectionPool")
+      : _mutex("DBConnectionPool"),
+        _name( "DBConnectionPool" )
   {
+  }
+
+
+  DBConnectionPool::~DBConnectionPool() {
+      // connection closing is handled by ~PoolForHost
+  }
+
+  mongo::DBClientBase* DBConnectionPool::_get(const string& ident , double socketTimeout )
+  {
+    OS_LOG_AND_ASSERT((!mongo::inShutdown()), FAC_DB, "mongo is in shutdown");
+    mongo::scoped_lock L(_mutex);
+    PoolForHost& p = _pools[PoolKey(ident,socketTimeout)];
+    p.initializeHostName(ident);
+    return p.get( this , socketTimeout );
+  }
+
+  mongo::DBClientBase* DBConnectionPool::_finishCreate( const string& host , double socketTimeout , mongo::DBClientBase* conn )
+  {
+    mongo::scoped_lock L(_mutex);
+    PoolForHost& p = _pools[PoolKey(host,socketTimeout)];
+    p.initializeHostName(host);
+    p.createdOne( conn );
+
+    return conn;
   }
 
   mongo::DBClientBase* DBConnectionPool::get(const mongo::ConnectionString& url, double socketTimeout)
@@ -207,53 +229,78 @@ namespace mongoMod
       return _finishCreate( host , socketTimeout , c );
   }
 
-
-  DBConnectionPool::~DBConnectionPool() {
-      // connection closing is handled by ~PoolForHost
-  }
-
-  mongo::DBClientBase* DBConnectionPool::_get(const string& ident , double socketTimeout )
-  {
-    OS_LOG_AND_ASSERT((!mongo::inShutdown()), FAC_DB, "mongo is in shutdown");
-    mongo::scoped_lock L(_mutex);
-    _pool.initializeHostName(ident);
-    return _pool.get( this , socketTimeout );
-  }
-
-  mongo::DBClientBase* DBConnectionPool::_finishCreate( const string& host , double socketTimeout , mongo::DBClientBase* conn )
-  {
-    mongo::scoped_lock L(_mutex);
-    _pool.initializeHostName(host);
-    _pool.createdOne( conn );
-
-    return conn;
-  }
-
   void DBConnectionPool::release(const string& host, mongo::DBClientBase *c)
   {
     mongo::scoped_lock L(_mutex);
-    _pool.done(this,c);
+    _pools[PoolKey(host,c->getSoTimeout())].done(this,c);
   }
 
   void DBConnectionPool::flush()
   {
     mongo::scoped_lock L(_mutex);
-    _pool.flush();
+    for ( PoolMap::iterator i = _pools.begin(); i != _pools.end(); i++ ) {
+        PoolForHost& p = i->second;
+        p.flush();
+    }
   }
 
   void DBConnectionPool::clear()
   {
     mongo::scoped_lock L(_mutex);
-    _pool.clear();
+    for (PoolMap::iterator iter = _pools.begin(); iter != _pools.end(); ++iter) {
+        iter->second.clear();
+    }
   }
 
   void DBConnectionPool::removeHost( const string& host )
   {
     mongo::scoped_lock L(_mutex);
-    LOG(2) << "Removing connections from all pools for host: " << host << endl;
-    _pool.clear();
+    //LOG(2) << "Removing connections from all pools for host: " << host << endl;
+    for ( PoolMap::iterator i = _pools.begin(); i != _pools.end(); ++i ) {
+        const string& poolHost = i->first.ident;
+        if ( !serverNameCompare()(host, poolHost) && !serverNameCompare()(poolHost, host) ) {
+            // hosts are the same
+            i->second.clear();
+        }
+    }
   }
 
+
+  bool DBConnectionPool::serverNameCompare::operator()( const string& a , const string& b ) const{
+      const char* ap = a.c_str();
+      const char* bp = b.c_str();
+
+      while (true){
+          if (*ap == '\0' || *ap == '/'){
+              if (*bp == '\0' || *bp == '/')
+                  return false; // equal strings
+              else
+                  return true; // a is shorter
+          }
+
+          if (*bp == '\0' || *bp == '/')
+              return false; // b is shorter
+
+          if ( *ap < *bp)
+              return true;
+          else if (*ap > *bp)
+              return false;
+
+          ++ap;
+          ++bp;
+      }
+      verify(false);
+  }
+
+  bool DBConnectionPool::poolKeyCompare::operator()( const PoolKey& a , const PoolKey& b ) const {
+      if (DBConnectionPool::serverNameCompare()( a.ident , b.ident ))
+          return true;
+
+      if (DBConnectionPool::serverNameCompare()( b.ident , a.ident ))
+          return false;
+
+      return a.timeout < b.timeout;
+  }
 
   bool DBConnectionPool::isConnectionGood(const string& hostName, mongo::DBClientBase* conn)
   {
@@ -267,7 +314,8 @@ namespace mongoMod
 
     {
       mongo::scoped_lock sl(_mutex);
-      if (_pool.isBadSocketCreationTime(conn->getSockCreationMicroSec()))
+      PoolForHost& pool = _pools[PoolKey(hostName, conn->getSoTimeout())];
+      if (pool.isBadSocketCreationTime(conn->getSockCreationMicroSec())) 
       {
         return false;
       }
@@ -284,7 +332,9 @@ namespace mongoMod
         // we need to get the connections inside the lock
         // but we can actually delete them outside
         mongo::scoped_lock lk(_mutex);
-        _pool.getStaleConnections( toDelete );
+        for ( PoolMap::iterator i=_pools.begin(); i!=_pools.end(); ++i ) {
+            i->second.getStaleConnections( toDelete );
+        }
       }
 
       for ( size_t i=0; i<toDelete.size(); i++ ) {
