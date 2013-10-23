@@ -71,7 +71,7 @@
       <description>Maximum sessions that can be established with park server</description>
     </setting>
   </group>
-  <group name="resource-limits">
+  <group name="resource-limits" advanced="yes">
     <setting name="fd-soft">
       <type>
     	<integer/>
