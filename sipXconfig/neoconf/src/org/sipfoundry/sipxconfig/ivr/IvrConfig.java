@@ -83,7 +83,6 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
             File f = new File(dir, "sipxivr.properties.part");
             Writer wtr = new FileWriter(f);
             Set<String> mwiAddresses = new LinkedHashSet<String>();
-            mwiAddresses.add(location.getAddress());
             for (Location mwiLocation : mwiLocations) {
                 StringBuilder address = new StringBuilder();
                 address.append(mwiLocation.getAddress());
