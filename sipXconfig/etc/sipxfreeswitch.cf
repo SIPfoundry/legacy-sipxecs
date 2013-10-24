@@ -39,7 +39,8 @@ bundle agent sipxfreeswitch_config {
         "autoload_configs/xml_rpc.conf.xml",
          "autoload_configs/switch.conf.xml",
          "autoload_configs/logfile.conf.xml",
-         "autoload_configs/local_stream.conf.xml"
+         "autoload_configs/local_stream.conf.xml",
+        "autoload_configs/ivr.conf.xml"
       };
 
   files:
@@ -151,6 +152,7 @@ any::
     <load module=\"mod_lua\"/>
     <load module=\"mod_say_en\"/>
     <load module=\"mod_say_de\"/>
+    <load module=\"mod_ivr\"/>
 ";
 
   has_mods_part::

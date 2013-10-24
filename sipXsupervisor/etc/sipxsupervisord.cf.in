@@ -58,6 +58,7 @@ bundle server access_rules {
         "@SIPX_VARDIR@/backup",
         "@SIPX_IVRDATADIR@/prompts",
         "@SIPX_IVRDATADIR@/moh",
+        "@SIPX_IVRDATADIR@/ivrscript",
         "@SIPX_VARDIR@/parkserver/music",
         "@SIPX_VARDIR@/sipxpage/music"
      };

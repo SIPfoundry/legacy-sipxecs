@@ -50,6 +50,11 @@ bundle agent sipxivr_config {
         copy_from => copy_prompts("$(sipx.master_address)","$(sipx.SIPX_IVRDATADIR)/prompts"),
         file_select => wav_prompt,
         depth_search => recurse("1");
+
+      "$(sipx.SIPX_IVRDATADIR)/ivrscript"
+        comment => "sync custom ivr scripts",
+        copy_from => copy_prompts("$(sipx.master_address)","$(sipx.SIPX_IVRDATADIR)/ivrscript"),
+        depth_search => recurse("inf");
 }
 
 bundle agent sipxivr_logwatcher {
@@ -155,6 +160,10 @@ body file_select wav_prompt {
   leaf_name => {
     ".*\.wav"
   };
+  file_result => "leaf_name";
+}
+
+body file_select custom_ivr {
   file_result => "leaf_name";
 }
 

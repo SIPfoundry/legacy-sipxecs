@@ -35,4 +35,7 @@
   </bean>
   <bean id="freeswitchXmlRpcConfig" class="org.sipfoundry.sipxconfig.freeswitch.config.XmlRpcConfiguration" parent="freeswitchConfigFile">
   </bean>
+  <bean id="freeswitchIvrConfig" class="org.sipfoundry.sipxconfig.freeswitch.config.IvrConfiguration" parent="freeswitchConfigFile">
+    <property name="mediaServer" value="${sysdir.vxml}" />
+  </bean>
 </beans>
