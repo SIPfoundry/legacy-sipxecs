@@ -68,8 +68,8 @@ public abstract class EditAdmin extends PageWithCallback implements PageBeginRen
         SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils
                 .getValidator(this);
 
-        String fdSoft = getSettings().getSettingValue("resource-limits/fd-soft");
-        String fdHard = getSettings().getSettingValue("resource-limits/fd-hard");
+        String fdSoft = getSettings().getSettingValue("configserver-config/fd-soft");
+        String fdHard = getSettings().getSettingValue("configserver-config/fd-hard");
 
         if (Integer.parseInt(fdSoft) > Integer.parseInt(fdHard)) {
             validator.record(getMessages().getMessage("error.soft-higher-than-hard-limit"),

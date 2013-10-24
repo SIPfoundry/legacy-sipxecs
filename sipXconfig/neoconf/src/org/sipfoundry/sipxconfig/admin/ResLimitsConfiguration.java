@@ -114,9 +114,9 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
     }
 
     private void setResLimitsValues(PersistableSettings settings, Setting fdSoft, Setting fdHard, Setting coreEnabled) {
-        settings.setSettingTypedValue(fdSoft.getPath(), fdSoft.getTypedValue());
-        settings.setSettingTypedValue(fdHard.getPath(), fdHard.getTypedValue());
-        settings.setSettingTypedValue(coreEnabled.getPath(), coreEnabled.getTypedValue());
+        settings.setSettingTypedValue("resource-limits/fd-soft", fdSoft.getTypedValue());
+        settings.setSettingTypedValue("resource-limits/fd-hard", fdHard.getTypedValue());
+        settings.setSettingTypedValue("resource-limits/core-enabled", coreEnabled.getTypedValue());
     }
 
     void writeFeaturedResourceLimits(Writer w) throws IOException {
@@ -146,12 +146,14 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
     void writeDefaultsResourceLimits(Writer w) throws IOException {
         Collection<AbstractResLimitsConfig> resLimitsConfigs = getResLimitsConfigs();
         AdminSettings settings = m_adminContext.getSettings();
+
+        Setting fdSoft = settings.getSettings().getSetting("configserver-config/fd-soft");
+        Setting fdHard = settings.getSettings().getSetting("configserver-config/fd-hard");
+        Setting coreEnabled = settings.getSettings().getSetting("configserver-config/core-enabled");
+
         for (AbstractResLimitsConfig resLimitsConfig : resLimitsConfigs) {
-            resLimitsConfig.writeResourceLimits(w, settings);
+            resLimitsConfig.writeResourceLimits(w, fdSoft, fdHard, coreEnabled);
         }
-        Setting fdSoft = settings.getSettings().getSetting("resource-limits/fd-soft");
-        Setting fdHard = settings.getSettings().getSetting("resource-limits/fd-hard");
-        Setting coreEnabled = settings.getSettings().getSetting("resource-limits/core-enabled");
 
         ProxySettings proxySettings = m_proxyManager.getSettings();
         setResLimitsValues(proxySettings, fdSoft, fdHard, coreEnabled);

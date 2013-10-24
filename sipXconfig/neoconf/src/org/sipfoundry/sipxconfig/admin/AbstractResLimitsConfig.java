@@ -29,10 +29,21 @@ public abstract class AbstractResLimitsConfig {
     public abstract String getPrefix();
 
     public void writeResourceLimits(Writer w, PersistableSettings settings) throws IOException {
+        writeResourceLimits(w, settings,
+                 "resource-limits/fd-soft",
+                 "resource-limits/fd-hard", "resource-limits/core-enabled");
+    }
+
+    public void writeResourceLimits(Writer w, PersistableSettings settings,
+            String fdSoftKey, String fdHardKey, String coreEnabledKey) throws IOException {
+        Setting fdSoft = settings.getSettings().getSetting(fdSoftKey);
+        Setting fdHard = settings.getSettings().getSetting(fdHardKey);
+        Setting coreEnabled = settings.getSettings().getSetting(coreEnabledKey);
+        writeResourceLimits(w, fdSoft, fdHard, coreEnabled);
+    }
+
+    public void writeResourceLimits(Writer w, Setting fdSoft, Setting fdHard, Setting coreEnabled) throws IOException {
         KeyValueConfiguration resLimits = KeyValueConfiguration.equalsSeparated(w);
-        Setting fdSoft = settings.getSettings().getSetting("resource-limits/fd-soft");
-        Setting fdHard = settings.getSettings().getSetting("resource-limits/fd-hard");
-        Setting coreEnabled = settings.getSettings().getSetting("resource-limits/core-enabled");
         resLimits.write(getPrefix(), fdSoft.getName(), fdSoft.getValue());
         resLimits.write(getPrefix(), fdHard.getName(), fdHard.getValue());
         resLimits.write(getPrefix(), coreEnabled.getName(), coreEnabled.getValue());

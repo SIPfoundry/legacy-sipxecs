@@ -4,8 +4,6 @@
   <form jwcid="form@Form" delegate="bean:validator">
     <fieldset jwcid="@setting/SettingsFieldset"
         settings="ognl:settings.settings.getSetting('configserver-config')" />
-    <fieldset jwcid="@setting/SettingsFieldset"
-        settings="ognl:settings.settings.getSetting('resource-limits')" />    
     <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
         listener="listener:apply"/>
   </form>

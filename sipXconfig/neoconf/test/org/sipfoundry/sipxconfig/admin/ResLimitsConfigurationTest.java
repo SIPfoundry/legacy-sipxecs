@@ -75,9 +75,9 @@ public class ResLimitsConfigurationTest {
         AdminSettings settings = new AdminSettings();
         settings.setPasswordPolicy(new PasswordPolicyImpl());
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
-        settings.setSettingTypedValue("resource-limits/fd-soft", "65656");
-        settings.setSettingTypedValue("resource-limits/fd-hard", "65657");
-        settings.setSettingTypedValue("resource-limits/core-enabled", true);
+        settings.setSettingTypedValue("configserver-config/fd-soft", "65656");
+        settings.setSettingTypedValue("configserver-config/fd-hard", "65657");
+        settings.setSettingTypedValue("configserver-config/core-enabled", true);
         AdminContext adminContext = EasyMock.createMock(AdminContext.class);
         adminContext.getSettings();
         EasyMock.expectLastCall().andReturn(settings);
