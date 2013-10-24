@@ -114,6 +114,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 /sbin/ldconfig
+setcap 'CAP_SYS_RESOURCE=+ep' %{_bindir}/sipregistrar
 
 %postun
 /sbin/ldconfig

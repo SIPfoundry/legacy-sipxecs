@@ -60,3 +60,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxrls.cf
 %attr(755,root,root) %{_bindir}/sipxrls
 %{_datadir}/sipxecs/schema/resource-lists.xsd
+
+%post
+setcap 'CAP_SYS_RESOURCE=+ep' %{_bindir}/sipxrls

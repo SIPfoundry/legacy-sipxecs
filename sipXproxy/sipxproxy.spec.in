@@ -119,3 +119,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libsipXproxy.la
 %{_includedir}/sipxproxy/*
 
+%post
+setcap 'CAP_SYS_RESOURCE=+ep' %{_bindir}/sipXproxy
+
