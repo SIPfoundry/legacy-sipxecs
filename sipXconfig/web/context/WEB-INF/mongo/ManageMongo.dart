@@ -9,7 +9,7 @@ ManageLocal local = new ManageLocal();
 List<ManageBase> all = [global, local];
 ManageBase manage = global;
 Tabs tabs;
-var api = new Api(test : true);
+var api = new Api(test : false);
 
 main() {
   tabs = new Tabs(query("#leftNav"));

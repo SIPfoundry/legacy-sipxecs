@@ -286,24 +286,27 @@ class DataLoader {
   }
 
   static bool checkResponse(UserMessage msg, HttpRequest request, [bool confirmErrors = false]) {
-    if (request.status != 200) {
-      String userError;
-      try {
-        userError = parse(request.responseText)['error'];
-      } catch(notJson) {      
-      }
-      if (userError == null) {
-        msg.internalError(request.status);
+    if (request.status == 200) {
+      return true;
+    }
+    String userError;
+    try {
+      userError = parse(request.responseText)['error'];
+    } catch(notJson) {      
+    }
+    if (userError == null) {
+      if (request.status == 0) {
+        userError = "Disconnected from server";
       } else {
-        if (confirmErrors) {
-          msg.errorConfirm(userError);
-        } else {
-          msg.error(userError);          
-        }
+        userError = "${request.status} Error";
       }
-      return false;
-    }  
-    return true;
+    }
+    if (confirmErrors) {
+      msg.errorConfirm(userError);
+    } else {
+      msg.error(userError);          
+    }
+    return false;
   }
 }
 
