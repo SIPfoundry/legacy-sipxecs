@@ -21,6 +21,7 @@
 
 from pymongo.mongo_client import MongoClient
 from pymongo.database import Database
+from pymongo.errors import ConnectionFailure
 
 import sys
 import time
@@ -56,22 +57,27 @@ if __name__ == '__main__':
     logging.debug("Source to %s/%s" % (args['src'], args['db']))
     src = Database(MongoClient(host=args['src']), args['db'])
     logging.debug("Destination %s/%s" % (args['dest'], args['db']))
-    dest = Database(MongoClient(host=args['dest']), args['db'])
+    try:
+        dest = Database(MongoClient(host=args['dest']), args['db'])
 
-    start = datetime.datetime.now()
-    for collection in src.collection_names():
-        if collection.startswith("system."):
-            continue
-        dest_collection = dest[collection]
-        logging.debug("Clearing collection " + collection)
-        dest_collection.remove({"shardId": args['shardId']})
-        logging.debug("Selecting collection " + collection)
-        docs = src[collection].find()
-        count = docs.count()
-        if count == 0:
-            logging.debug("No items found")
-        else:
-            logging.debug("Found %d items " % count)
-            dest_collection.insert(docs)
-            time = datetime.datetime.now() - start
-            logging.debug("Took %dms " % (time.microseconds / 1000))
+        start = datetime.datetime.now()
+        for collection in src.collection_names():
+            if collection.startswith("system."):
+                continue
+            dest_collection = dest[collection]
+            logging.debug("Clearing collection " + collection)
+            dest_collection.remove({"shardId": args['shardId']})
+            logging.debug("Selecting collection " + collection)
+            docs = src[collection].find()
+            count = docs.count()
+            if count == 0:
+                logging.debug("No items found")
+            else:
+                logging.debug("Found %d items " % count)
+                dest_collection.insert(docs)
+                time = datetime.datetime.now() - start
+                logging.debug("Took %dms " % (time.microseconds / 1000))
+    except ConnectionFailure as e:
+        logging.error(e)
+        exit(1)
+

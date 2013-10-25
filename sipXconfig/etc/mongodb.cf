@@ -199,17 +199,17 @@ bundle agent mongo_local_sync {
       "any" usebundle => rh_chkconfig_status("mongodb-sync off");
 
   commands:
-    !mongo_local.mongo_sync_running::
+    (!mongo_local|stop_sipxecs).mongo_sync_running::
       "$(service)"
         comment => "stop mongo sync",
         args => "stop";
 
-    mongo_local.!mongo_sync_running::
+    mongo_local.!mongo_sync_running.!stop_sipxecs::
       "$(service)"
         comment => "start mongo sync",
         args => "start";
 
-    mongo_local.mongo_sync_running.restart_mongo_sync::
+    mongo_local.mongo_sync_running.(restart_mongo_sync|restart_sipxecs)::
       "$(service)"
         comment => "restart mongo sync",
         args => "restart";

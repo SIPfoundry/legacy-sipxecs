@@ -43,6 +43,7 @@ DB=node
 
 #To enable more logging, put MONGO_SYNC_OPTS=--verbose in @SIPX_CONFDIR@/mongodb-sync.conf
 MONGO_SYNC_OPTS=
+MONGO_INIT_SYNC_OPTS=
 
 CONFIG=@SIPX_CONFDIR@/mongodb-sync.conf
 ! test -f "$CONFIG" || . "$CONFIG"
@@ -95,17 +96,19 @@ function start() {
     # P A R T 1
     # Intial sync where we brute for replace all records in dest and copy in new ones
     elif [ $t0 -eq 0 ]; then
-        # Leave --verbose because it's only logged once at startup and won't fill disk
-        # too much
-        @SIPX_LIBEXECDIR@/mongodb-initial-sync --src $SRC --dest $DEST_STR --shardId $SHARD --db $DB --verbose &>> $LOG
-        if [ $? -ne 0 ]; then
-          # we'll enter incremental phase of sync on failures because
-          # it's better than sitting stuck here forever.  at least incremental
-          # will start to replace old records over time.  Every restart of this
-          # script would reattempt a full sync again.
-          echo "Failed to make initial sync. failed w/exit code $? " >> $LOG
+        @SIPX_LIBEXECDIR@/mongodb-initial-sync \
+          --src $SRC \
+          --dest $DEST_STR \
+          --shardId $SHARD \
+          --db $DB $MONGO_INIT_SYNC_OPTS &>> $LOG
+        err=$?
+        if [ $err -ne 0 ]; then
+          echo `date`" ERROR: Full sync failed w/exit code $err. Reattempt in $FREQ seconds." >> $LOG
+	  t0=0
+	else
+          echo `date`" INFO: Full sync complete, starting incremental syncs every $FREQ seconds." >> $LOG
+          t0=$t1
         fi
-        t0=$t1
 
     # P A R T 2
     # Watch oplog for any changes going forward.
@@ -116,9 +119,13 @@ function start() {
           --starttime $t0 \
           --src $SRC \
           --dest $DEST_STR \
-          --db $DB $MONGO_SYNC_OPTS 2>> $LOG
-      if [ $? -ne 0 ]; then
-        echo `date`" - sync failed w/exit code $?." >> $LOG
+          --db $DB $MONGO_SYNC_OPTS &>> $LOG
+      err=$?
+      if [ $err -ne 0 ]; then
+        echo `date`" ERROR: Incremental sync failed w/exit code $err. Reattempt in $FREQ seconds." >> $LOG
+	# UC-1693 If there is a problem syncing to global, you won't know what you missed
+	# so best to start over by reseting t0
+	t0=0
       else
         t0=$t1
       fi
