@@ -118,5 +118,17 @@
       </type>
       <value>5</value>
     </setting>
+    <setting name="ivr.updaterConnectTimeoutMS" advanced="yes">
+      <type>
+        <integer min="0" />
+      </type>
+      <value>5000</value>
+    </setting>
+    <setting name="ivr.updaterSocketTimeoutMS" advanced="yes">
+      <type>
+        <integer min="0" />
+      </type>
+      <value>5000</value>
+    </setting>
   </group>
 </model>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
   <bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
     <property name="scopes">
@@ -21,6 +21,17 @@
     </property>
     <property name="searchSystemEnvironment" value="true" />
     <property name="ignoreUnresolvablePlaceholders" value="true" />
+  </bean>
+
+  <bean id="sysProps" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="targetObject" value="#{@systemProperties}"/>
+    <property name="targetMethod" value="putAll"/>
+    <property name="arguments">
+      <util:properties>
+        <prop key="com.mongodb.updaterConnectTimeoutMS">${ivr.updaterConnectTimeoutMS}</prop>
+        <prop key="com.mongodb.updaterSocketTimeoutMS">${ivr.updaterSocketTimeoutMS}</prop>
+      </util:properties>
+    </property>
   </bean>
 
   <bean id="sipxIvrServer" class="org.sipfoundry.sipxivr.SipXivrServer" init-method="init" >
