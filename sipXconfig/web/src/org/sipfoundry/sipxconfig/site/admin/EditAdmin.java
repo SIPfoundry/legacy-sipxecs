@@ -23,7 +23,6 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Message;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.admin.AdminSettings;
 import org.sipfoundry.sipxconfig.admin.ResLimitsConfiguration;
@@ -65,15 +64,8 @@ public abstract class EditAdmin extends PageWithCallback implements PageBeginRen
     }
 
     public void apply() {
-        SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils
-                .getValidator(this);
 
-        String fdSoft = getSettings().getSettingValue("configserver-config/fd-soft");
-        String fdHard = getSettings().getSettingValue("configserver-config/fd-hard");
-
-        if (Integer.parseInt(fdSoft) > Integer.parseInt(fdHard)) {
-            validator.record(getMessages().getMessage("error.soft-higher-than-hard-limit"),
-                    ValidationConstraint.CONSISTENCY);
+        if (!TapestryUtils.validateFDSoftAndHardLimits(this, getSettings(), "configserver-config")) {
             return;
         }
 
