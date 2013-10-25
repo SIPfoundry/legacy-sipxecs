@@ -37,6 +37,7 @@ import org.apache.tapestry.form.validator.Validator;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.util.ContentType;
 import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidationConstraint;
 import org.apache.tapestry.valid.ValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.apache.tapestry.web.WebResponse;
@@ -44,6 +45,7 @@ import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingVisitor;
 import org.sipfoundry.sipxconfig.setting.SettingsValidator;
@@ -347,5 +349,27 @@ public final class TapestryUtils {
             vs.add(pattern);
         }
         return vs;
+    }
+
+    /**
+     * Validation: FD Soft limit must not be higher that FD Hard limit
+     * @param page
+     * @param settings
+     * @param settingType (example: "configserver-config" or "resource-limits")
+     * @return true if validation was OK, false if it failed
+     */
+    public static boolean validateFDSoftAndHardLimits(IComponent page, PersistableSettings settings, String settingType)
+    {
+        SipxValidationDelegate validator = (SipxValidationDelegate) getValidator(page);
+
+        String fdSoft = settings.getSettingValue(settingType + "/fd-soft");
+        String fdHard = settings.getSettingValue(settingType + "/fd-hard");
+
+        if (Integer.parseInt(fdSoft) > Integer.parseInt(fdHard)) {
+            validator.record(page.getMessages().getMessage("error.soft-higher-than-hard-limit"),
+                    ValidationConstraint.CONSISTENCY);
+            return false;
+        }
+        return true;
     }
 }

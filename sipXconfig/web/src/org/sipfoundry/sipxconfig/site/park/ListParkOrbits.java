@@ -72,6 +72,9 @@ public abstract class ListParkOrbits extends SipxBasePage implements PageBeginRe
     }
 
     public void apply(IRequestCycle cycle) {
+        if (!TapestryUtils.validateFDSoftAndHardLimits(this, getSettings(), "resource-limits")) {
+            return;
+        }
         getParkOrbitContext().saveSettings(getSettings());
     }
 

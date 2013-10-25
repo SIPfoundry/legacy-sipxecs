@@ -22,6 +22,7 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.saa.SaaManager;
 import org.sipfoundry.sipxconfig.saa.SaaSettings;
 
@@ -46,6 +47,9 @@ public abstract class EditSaa extends PageWithCallback implements PageBeginRende
     }
 
     public void apply() {
+        if (!TapestryUtils.validateFDSoftAndHardLimits(this, getSettings(), "resource-limits")) {
+            return;
+        }
         getSaaManager().saveSettings(getSettings());
     }
 }

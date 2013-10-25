@@ -22,6 +22,7 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
 import org.sipfoundry.sipxconfig.registrar.RegistrarSettings;
 
@@ -46,6 +47,9 @@ public abstract class EditRegistrar extends PageWithCallback implements PageBegi
     }
 
     public void apply() {
+        if (!TapestryUtils.validateFDSoftAndHardLimits(this, getSettings(), "resource-limits")) {
+            return;
+        }
         getRegistrar().saveSettings(getSettings());
     }
 }
