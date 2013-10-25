@@ -103,10 +103,10 @@ function start() {
           --db $DB $MONGO_INIT_SYNC_OPTS &>> $LOG
         err=$?
         if [ $err -ne 0 ]; then
-          echo `date`" ERROR: Full sync failed w/exit code $err. Reattempt in $FREQ seconds." >> $LOG
+          echo `date +'%F %T'`" ERROR: Full sync failed. Reattempt in $FREQ seconds." >> $LOG
 	  t0=0
 	else
-          echo `date`" INFO: Full sync complete, starting incremental syncs every $FREQ seconds." >> $LOG
+          echo `date +'%F %T'`" INFO: Full sync complete, starting incremental syncs every $FREQ seconds." >> $LOG
           t0=$t1
         fi
 
@@ -122,7 +122,7 @@ function start() {
           --db $DB $MONGO_SYNC_OPTS &>> $LOG
       err=$?
       if [ $err -ne 0 ]; then
-        echo `date`" ERROR: Incremental sync failed w/exit code $err. Reattempt in $FREQ seconds." >> $LOG
+        echo `date +'%F %T'`" ERROR: Incremental sync failed. Reattempt in $FREQ seconds." >> $LOG
 	# UC-1693 If there is a problem syncing to global, you won't know what you missed
 	# so best to start over by reseting t0
 	t0=0

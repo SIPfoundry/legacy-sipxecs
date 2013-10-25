@@ -27,7 +27,7 @@
 
 from pymongo.mongo_client import MongoClient
 from pymongo.database import Database
-from pymongo.errors import DuplicateKeyError
+from pymongo.errors import DuplicateKeyError, ConnectionFailure
 
 import sys
 import time
@@ -61,31 +61,35 @@ if __name__ == '__main__':
     logging.debug("Source to %s/%s" % (args['src'], args['db']))
     src = Database(MongoClient(host=args['src']), args['db'])
     logging.debug("Destination %s/%s" % (args['dest'], args['db']))
-    dest = Database(MongoClient(host=args['dest']), args['db'])
-
     start = datetime.datetime.now()
-    for collection in src.collection_names():
-        if collection.startswith("system."):
-            continue
-        dest_collection = dest[collection]
-        src_collection = src[collection]        
-        cursor = src_collection.find()
+    try :
+        dest = Database(MongoClient(host=args['dest']), args['db'])
+        for collection in src.collection_names():
+            if collection.startswith("system."):
+                continue
+            dest_collection = dest[collection]
+            src_collection = src[collection]        
+            cursor = src_collection.find()
 
-        # we cycle thru each record even though it's less inefficient then bulk
-        # move because we want the move to be as atomic as it can be. Put another way 
-        # doing it this way makes running this idempotent so we need to remove each
-        # document from the source as it's saved to destination.  I have no empirical
-        # evidence to support this approach but rather it seems like common sense.
-        for i in range(cursor.count()):
-            doc = cursor[i]
-            try:
-                dest_collection.insert(doc)
-            except DuplicateKeyError:
-                # Warning! Only if source alread has document is it safe to continue
-                # otherwise be careful about eating errors that document could not
-                # be inserted and we proceed to delete the original
-                logging.debug("Duplicate ignored %s.%s" % (collection, doc['_id']))
+            # we cycle thru each record even though it's less inefficient then bulk
+            # move because we want the move to be as atomic as it can be. Put another way 
+            # doing it this way makes running this idempotent so we need to remove each
+            # document from the source as it's saved to destination.  I have no empirical
+            # evidence to support this approach but rather it seems like common sense.
+            for i in range(cursor.count()):
+                doc = cursor[i]
+                try:
+                    dest_collection.insert(doc)
+                except DuplicateKeyError:
+                    # Warning! Only if source alread has document is it safe to continue
+                    # otherwise be careful about eating errors that document could not
+                    # be inserted and we proceed to delete the original
+                    logging.debug("Duplicate ignored %s.%s" % (collection, doc['_id']))
+                src_collection.remove(doc['_id'])
 
-            src_collection.remove(doc['_id'])
-        time = datetime.datetime.now() - start
-        logging.debug("Took %dms " % (time.microseconds / 1000))
+            time = datetime.datetime.now() - start
+            logging.debug("Took %dms " % (time.microseconds / 1000))
+    except ConnectionFailure as e:
+        logging.error(e)
+        exit(1)
+
