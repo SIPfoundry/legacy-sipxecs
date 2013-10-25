@@ -52,7 +52,10 @@ CURRENT_DISTRO := $(shell rpm --eval \
 ifeq ($(CURRENT_DISTRO),CentOS)
 RPMSPEC := $(SRC)/mak/rpmspec-rh6-x86_64
 else
-RPMSPEC := rpmspec
+RPMSPEC := $(shell which rpmspec)
+ifeq ($(RPMSPEC), )
+RPMSPEC = $(error Missing rpmspec command. Run 'yum install rpm-build')
+endif
 endif
 
 

@@ -92,7 +92,7 @@ $(sipx:=.rpm.if-changed) $(lib:=.rpm.if-changed) :
 	@$(MAKE) nop $(shell $(SRC)/tools/dep check $(DISTRO).$(PROJ).rpm $(SRC)/$(PROJ) \
 	       $(foreach D,$($(PROJ)_DEPS),$(DISTRO).$(D).rpm))
 
-%.srpm :  %.dist mock/$(DISTRO)/root/ $(MOCK_RESULTS_DIR)
+%.srpm :  %.dist $(MOCK_INIT_TEST) $(MOCK_RESULTS_DIR)
 	test -d @DOWNLOAD_LIB_CACHE@ || mkdir -p @DOWNLOAD_LIB_CACHE@
 	test -d $(MOCK_SRPM_DIR) || mkdir -p $(MOCK_SRPM_DIR)
 	if [ -n "$($(PROJ)_SPEC)" ]; then \
