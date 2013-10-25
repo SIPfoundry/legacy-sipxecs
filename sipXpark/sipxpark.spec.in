@@ -63,3 +63,4 @@ rm -rf $RPM_BUILD_ROOT
 %pre
 
 %post
+setcap 'CAP_SYS_RESOURCE=+ep' %{_bindir}/sipxpark
