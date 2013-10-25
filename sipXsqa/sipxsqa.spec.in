@@ -101,5 +101,5 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libsqaclient.la
 %{_includedir}/sqa/*
 
-%post
+%post server
 setcap 'CAP_SYS_RESOURCE=+ep' %{_bindir}/sipxsqa
