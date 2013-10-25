@@ -21,7 +21,7 @@
 
 from pymongo.mongo_client import MongoClient
 from pymongo.database import Database
-from pymongo.errors import DuplicateKeyError
+from pymongo.errors import DuplicateKeyError, ConnectionFailure
 
 import sys
 import time
@@ -69,23 +69,28 @@ if __name__ == '__main__':
     logging.debug("Source to %s/%s" % (args['src'], db))
     src = Database(MongoClient(host=args['src']), 'local')
     logging.debug("Destination %s/%s" % (args['dest'], db))
-    dest = Database(MongoClient(host=args['dest']), db)
+    try :
+        dest = Database(MongoClient(host=args['dest']), db)
 
-    oplog = src['oplog.rs']
-    ops = [{"op" : OP_DELETE}, {"op" : OP_INSERT}, {"op": OP_UPDATE}]
-    q = {"ns" : {"$regex" : db + '.*'}, "ts" : {"$gt" : starttime}, "$or" : ops}
-    changes = oplog.find(q).sort('$natural', -1) #backwards?
-    for change in changes:
-        collection = change['ns'][ns_chop:]
-        if collection == 'system.indexes':
-            continue
-        logging.debug("%s/%s/%s" % (collection, change['op'], change['o']['_id']))
-        if change['op'] == OP_DELETE:
-            dest[collection].remove(change['o'])
-        elif change['op'] == OP_INSERT:
-            try:
-                dest[collection].insert(change['o'])
-            except DuplicateKeyError:
-                logging.warn('already applied')
-        elif change['op'] == OP_UPDATE:
-            dest[collection].update(change['o2'], change['o'])
+        oplog = src['oplog.rs']
+        ops = [{"op" : OP_DELETE}, {"op" : OP_INSERT}, {"op": OP_UPDATE}]
+        q = {"ns" : {"$regex" : db + '.*'}, "ts" : {"$gt" : starttime}, "$or" : ops}
+        changes = oplog.find(q).sort('$natural', -1) #backwards?
+        for change in changes:
+            collection = change['ns'][ns_chop:]
+            if collection == 'system.indexes':
+                continue
+            logging.debug("%s/%s/%s" % (collection, change['op'], change['o']['_id']))
+            if change['op'] == OP_DELETE:
+                dest[collection].remove(change['o'])
+            elif change['op'] == OP_INSERT:
+                try:
+                    dest[collection].insert(change['o'])
+                except DuplicateKeyError:
+                    logging.debug('already applied')
+            elif change['op'] == OP_UPDATE:
+                dest[collection].update(change['o2'], change['o'])
+
+    except ConnectionFailure as e:
+        logging.error(e)
+        exit(1)
