@@ -348,17 +348,18 @@ void SipXApplication::initLoggerByConfigurationFile()
 void SipXApplication::initLoggerByCommandLine(bool& initialized)
 {
   std::string logFile;
-  int priorityLevel = PRI_INFO;
+  int logLevel = PRI_NOTICE;
   if (_osServiceOptions.hasOption(OsServiceOptions::logFileOption().pName))
   {
     if (_osServiceOptions.getOption(OsServiceOptions::logFileOption().pName, logFile) && !logFile.empty())
     {
       if (_osServiceOptions.hasOption(OsServiceOptions::logLevelOption().pName))
-        _osServiceOptions.getOption(OsServiceOptions::logLevelOption().pName, priorityLevel, priorityLevel);
+        _osServiceOptions.getOption(OsServiceOptions::logLevelOption().pName, logLevel, logLevel);
 
-      int logLevel = SYSLOG_NUM_PRIORITIES - priorityLevel - 1;
-      if (logLevel < 0)
-        logLevel = 0;
+      if (logLevel < PRI_DEBUG)
+        logLevel = PRI_DEBUG;
+      if (logLevel > PRI_CRIT)
+        logLevel = PRI_CRIT;
 
       Os::LoggerHelper::instance().processName = _appData._appName;
 
