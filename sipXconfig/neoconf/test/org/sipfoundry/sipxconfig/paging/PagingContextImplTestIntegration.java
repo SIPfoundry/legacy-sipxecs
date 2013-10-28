@@ -103,6 +103,39 @@ public class PagingContextImplTestIntegration extends IntegrationTestCase {
         }
     }
 
+    public void testInvalidCode() throws Exception {
+        PagingSettings settings = new PagingSettings();
+        settings.setModelFilesContext(TestHelper.getModelFilesContext());
+        assertEquals("*77", settings.getPrefix());
+        settings = m_pagingContext.getSettings();
+        settings.setPrefix("%");
+        try {
+            m_pagingContext.saveSettings(settings);
+            fail();
+        } catch (UserException e) {
+
+        }
+        settings.setPrefix("\\");
+        try {
+            m_pagingContext.saveSettings(settings);
+            fail();
+        } catch (UserException e) {
+
+        }
+        settings.setPrefix("%43");
+        try {
+            m_pagingContext.saveSettings(settings);
+        } catch (UserException e) {
+            fail();
+        }
+        settings.setPrefix("-_.!~*'()=+$,;?a-zA-Z0-9");
+        try {
+            m_pagingContext.saveSettings(settings);
+        } catch (UserException e) {
+            fail();
+        }
+    }
+    
     public void testSavePagingGroup() throws Exception {
         List<PagingGroup> groups = m_pagingContext.getPagingGroups();
         assertEquals(3, groups.size());

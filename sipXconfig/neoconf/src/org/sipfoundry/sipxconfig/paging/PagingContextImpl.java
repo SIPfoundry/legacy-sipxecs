@@ -15,6 +15,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.address.Address;
@@ -61,6 +63,7 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
     private static final String PARAM_PAGING_GROUP_ID = "pagingGroupId";
     private static final String ERROR_ALIAS_IN_USE = "&error.aliasinuse";
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(SIP_TCP, SIP_TLS, SIP_UDP, RTP_PORT);
+    private static final String VALID_SIP_REGEX = "([-_.!~*'\\(\\)=+$,;?/a-zA-Z0-9]|(%[0-9a-fA-F]{2}))+";
     private AliasManager m_aliasManager;
     private BeanWithSettingsDao<PagingSettings> m_settingsDao;
     private ConfigManager m_configManager;
@@ -74,6 +77,11 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
     public void saveSettings(PagingSettings settings) {
         if (StringUtils.isBlank(settings.getSettingValue(PagingSettings.PREFIX))) {
             throw new UserException("&error.blank.prefix");
+        }
+        Pattern p = Pattern.compile(VALID_SIP_REGEX);
+        Matcher m = p.matcher(settings.getSettingValue(PagingSettings.PREFIX));
+        if (!m.matches()) {
+            throw new UserException("&error.invalid.prefix");
         }
         m_settingsDao.upsert(settings);
     }
