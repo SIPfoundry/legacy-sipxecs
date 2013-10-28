@@ -52,16 +52,11 @@ CURRENT_DISTRO := $(shell rpm --eval \
 ifeq ($(CURRENT_DISTRO),CentOS)
 RPMSPEC := $(SRC)/mak/rpmspec-rh6-x86_64
 else
-RPMSPEC := $(shell which rpmspec)
-ifeq ($(RPMSPEC), )
+RPMSPEC := $(wildcard /usr/bin/rpmspec)
+ifeq ($(RPMSPEC),)
 RPMSPEC = $(error Missing rpmspec command. Run 'yum install rpm-build')
 endif
 endif
-
-
-debug:
-	echo $(CURRENT_DISTRO)
-	echo $(RPMSPEC)
 
 # Automatically pull build and runtime deps from a spec file. Caller may need to post
 # process file list to translate/remove/add packages
@@ -83,8 +78,7 @@ help.*.deps-missing = List all dependencies to build and run a project that are 
 help.sipx.deps-missing = List all dependencies for all of sipxecs that are not currently installed on this system.
 # when listing all together, remove interdependencies from the group, make sence when you think about it
 sipx.deps sipx.deps-missing : sipx.% :
-	@$(MAKE) --no-print-directory $(sipx:=.$*) 2>/dev/null | \
-	  sort -u
+	@($(MAKE) --no-print-directory $(sipx:=.$*) && false) | sort -u
 
 $(sipx:=.deps-missing):
 	@rpm -q rpm `$(MAKE) --no-print-directory $(PROJ).deps` | \

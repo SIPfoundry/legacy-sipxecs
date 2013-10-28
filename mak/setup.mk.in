@@ -38,10 +38,9 @@ src-setup : $(sipx:=.src-setup);
 BUILD_REPOS =
 src-setup-header : BUILD_REPOS += $(if $(wildcard /etc/yum.repos.d/build.repo),--enablerepo=build)
 # Use the dependency checking targets to assembled yum command line
-src-setup-header : SRC_DEPS = $(shell $(MAKE) --no-print-directory sipx.deps-missing)
-
 src-setup-header : sipxecs.repo
 	echo "$$src_setup_header" > setup.sh
+	echo "yum install -y "`$(MAKE) --no-print-directory sipx.deps` >> setup.sh
 
 .PHONY: sipxecs.repo
 sipxecs.repo :
@@ -50,10 +49,10 @@ sipxecs.repo :
 define src_setup_header
 #!/bin/bash
 
-yum install $(BUILD_REPOS) -y $(BUILD_DEPS) $(SRC_DEPS)
+yum install $(BUILD_REPOS) -y $(BUILD_DEPS)
 ! test -d @prefix@ && mkdir -p @prefix@
 chown @SIPXPBXUSER@:@SIPXPBXGROUP@ @prefix@
- 
+
 endef
 export src_setup_header
 
