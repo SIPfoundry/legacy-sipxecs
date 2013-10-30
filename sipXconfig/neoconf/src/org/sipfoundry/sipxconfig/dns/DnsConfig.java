@@ -57,6 +57,7 @@ public class DnsConfig implements ConfigProvider {
     private static final String YML_PORT = ":port";
     private static final String YML_NAME = ":name";
     private static final String YML_DOMAIN = "domain";
+    private static final String YML_TARGET = ":target";
     private static final String VIEW_NAME = "%s.view";
     private static final Log LOG = LogFactory.getLog(DnsConfig.class);
     private DnsManager m_dnsManager;
@@ -215,53 +216,68 @@ public class DnsConfig implements ConfigProvider {
         c.write("naptr_protocols", "[ udp, tcp ]");
         c.write(YML_DOMAIN, domain);
         c.startArray("resource_records");
+        String qualifiedTarget = null;
+        boolean domainIsFqdn = domain.equals(all.get(0).getFqdn());
+        if (domainIsFqdn) {
+            qualifiedTarget = domain + ".";
+        }
         if (rrs != null) {
             for (DnsSrvRecord rr : rrs) {
                 c.nextElement();
-                writeSrvRecord(c, rr);
+                writeSrvRecord(c, rr, qualifiedTarget);
             }
         }
         c.endArray();
-        writeServerYaml(c, all, "dns_servers", dns);
+        writeServerYaml(c, all, "dns_servers", dns, qualifiedTarget);
         List<Address> dnsAddresses = new ArrayList<Address>();
         if (generateARecords) {
             dnsAddresses = Location.toAddresses(DnsManager.DNS_ADDRESS, all);
         }
-        writeServerYaml(c, all, "all_servers", dnsAddresses);
+        writeServerYaml(c, all, "all_servers", dnsAddresses, qualifiedTarget);
     }
 
     /**
      * my-id : [ { :name: my-fqdn, :ipv4: 1.1.1.1 }, ... ]
      */
-    void writeServerYaml(YamlConfiguration c, List<Location> all, String id, List<Address> addresses)
+    void writeServerYaml(YamlConfiguration c, List<Location> all, String id, List<Address> addresses,
+            String qualifiedTarget)
         throws IOException {
         c.startArray(id);
         if (addresses != null) {
             for (Address a : addresses) {
                 c.nextElement();
-                writeAddress(c, all, a.getAddress(), a.getPort());
+                writeAddress(c, all, a.getAddress(), a.getPort(), qualifiedTarget);
             }
         }
         c.endArray();
     }
 
-    void writeAddress(YamlConfiguration c, List<Location> all, String address, int port) throws IOException {
+    void writeAddress(YamlConfiguration c, List<Location> all, String address, int port,
+            String qualifiedTarget) throws IOException {
         String host = getHostname(all, address);
         if (host != null) {
-            c.write(YML_NAME, host);
+            if (qualifiedTarget != null) {
+                c.write(YML_NAME, qualifiedTarget);
+            } else {
+                c.write(YML_NAME, host);
+            }
             c.write(":ipv4", address);
             c.write(YML_PORT, port);
         }
     }
 
-    void writeSrvRecord(YamlConfiguration c, DnsSrvRecord srv) throws IOException {
+    void writeSrvRecord(YamlConfiguration c, DnsSrvRecord srv, String qualifiedTarget) throws IOException {
         c.write(":proto", srv.getProtocol());
         c.write(":lhs", srv.getLeftHandSide());
         c.write(":resource", srv.getResource());
         c.write(":priority", srv.getPriority());
         c.write(":weight", srv.getWeight());
         c.write(YML_PORT, srv.getPort());
-        c.write(":target", srv.getDestination());
+        if (qualifiedTarget != null) {
+            c.write(YML_TARGET, qualifiedTarget);
+        } else {
+            c.write(YML_TARGET, srv.getDestination());
+        }
         c.write(":host", srv.getHost());
     }
 

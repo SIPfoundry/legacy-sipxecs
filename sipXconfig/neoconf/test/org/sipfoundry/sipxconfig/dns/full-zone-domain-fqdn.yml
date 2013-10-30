@@ -1,0 +1,20 @@
+serialno: 1
+naptr_protocols: [ udp, tcp ]
+domain: one.example.org
+resource_records:
+ - :proto: _sip._tcp
+   :lhs: _sip._tcp.rr1
+   :resource: rr1
+   :priority: 30
+   :weight: 10
+   :port: 1
+   :target: one.example.org.
+   :host: 
+dns_servers:
+ - :name: one.example.org.
+   :ipv4: 1.1.1.1
+   :port: 0
+all_servers:
+ - :name: one.example.org.
+   :ipv4: 1.1.1.1
+   :port: 0
