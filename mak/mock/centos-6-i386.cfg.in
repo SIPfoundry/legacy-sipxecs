@@ -32,23 +32,11 @@ enabled=1
 @CENTOS_BASE_URL_OFF@mirrorlist=http://mirrorlist.centos.org/?release=6&arch=i386&repo=updates
 failovermethod=priority
 
-[epel]
-name=epel
-@EPEL_BASE_URL_ON@baseurl=@EPEL_BASE_URL@/6/i386
-@EPEL_BASE_URL_OFF@mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-6&arch=i386
-failovermethod=priority
-
-[testing]
-name=epel-testing
-enabled=0
-mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=testing-epel6&arch=i386
-failovermethod=priority
-
-[local]
-name=local
-baseurl=http://kojipkgs.fedoraproject.org/repos/dist-6E-epel-build/latest/i386/
-cost=2000
-enabled=0
+# Normally from EPEL, just a list of rpms to create a basic build system
+[buildsys-build]
+name=buildsys-build
+baseurl=http://download.sipfoundry.org/pub/sipXecs/buildsys-build
+enabled=1
 
 [upstream]
 name=upstream

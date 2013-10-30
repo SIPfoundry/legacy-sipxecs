@@ -1,8 +1,0 @@
-/var/log/sec {
-    missingok
-    notifempty
-    sharedscripts
-    postrotate
-        /sbin/service sec reload >/dev/null 2>&1 || true
-    endscript
-}

@@ -29,6 +29,7 @@ AC_PATH_PROG([WSDL2RUBY], wsd2lruby.rb, $abs_srcdir/meta/wsdl2ruby.rb)
 AC_PATH_PROG([XSLTPROC], xsltproc)
 CHECK_DART_SDK
 CHECK_POSTGRES
+CHECK_FREESWITCH
 CHECK_SERVICEDIR
 AC_SUBST(SIPX_IS_SRC, [true])
 if test "${enable_rpmbuild}" == "yes" ; then

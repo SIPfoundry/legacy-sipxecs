@@ -8,6 +8,7 @@ MOCK_TARGET_PLATFORM = $(DISTRO)
 SRPM_DEFS = --define "_source_filedigest_algorithm md5"
 DOWNLOAD_LIB_CACHE = @DOWNLOAD_LIB_CACHE@
 ALL_DISTROS = @ALL_DISTROS@
+CENTOS_RSYNC_URL = @CENTOS_RSYNC_URL@
 
 # variable not used here, but can be used in */.sipxecs files
 RPM_DIST = @RPM_DIST@
@@ -138,8 +139,6 @@ repo-init : repo-create repo-webserver repo-comps repo-comps
 	test -d $(MOCK_RESULTS_DIR) || mkdir -p $(MOCK_RESULTS_DIR)
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS) .
 	mock $(MOCK_OPTS) --init
-# these files get large, good time to reset them.
-	find $(MOCK_RESULTS_DIR) -name '*.log' -exec rm {} \;
 
 help-more.repo-clean = Delete all RPMs in $(MOCK_RESULTS_DIR) to ensure fresh build. Build knows how to delete previous build results but only if new RPM results exists. 
 repo-clean :
@@ -171,7 +170,8 @@ repo-src : repo-comps
 
 help-more.repo-check = Installs sipXecs in chroot. Tip, run repo-chroot-init first for more thourugh test of all dependencies.
 repo-check : repo-webserver repo-update
-	mock $(MOCK_OPTS) --install sipxecs
+	mock $(MOCK_OPTS) --scrub=cache
+	mock $(MOCK_OPTS) --install @sipxecs
 
 help-more.repo-dedup=If you have built RPMs multiple times between git updates, and therefore have older versions of a package, this will remove all older copies.
 repo-dedup:

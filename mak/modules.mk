@@ -17,7 +17,6 @@ sipx_core = \
   sipXcommons \
   sipXrelay \
   sipXbridge \
-  sipXfreeSwitch \
   sipXcdr \
   sipXacdStatistics \
   sipXconfig \
@@ -97,7 +96,7 @@ sipx_all = \
 # re: ruby-postgres, there's a new one we should be using ruby-pgsql i 
 # think it's called as ruby-postgres is obsoleted.
 lib_all = \
-  epel-release \
+  epel \
   resiprocate \
   rubygem-file-tail \
   freeswitch \
@@ -114,24 +113,15 @@ lib_all = \
   ruby-dbi \
   cfengine \
   oss_core \
-  rrdtool \
   nsis \
   nsis-data \
   rubygem-net-ssh \
   rubygem-net-sftp \
   ruby-postgres \
-  sec \
-  js \
-  v8 \
-  mongodb \
   erlang
 
-lib_exclude_centos_6 = \
-  mongodb \
-  js
-
 lib_exclude_fedora_16 = \
-  epel-release \
+  epel \
   erlang \
   rrdtool \
   nsis \
@@ -141,11 +131,7 @@ lib_exclude_fedora_16 = \
 
 lib_exclude_fedora_17 = \
   $(lib_exclude_fedora_16) \
-  ruby-postgres \
-  sec \
-  js \
-  v8 \
-  mongodb
+  ruby-postgres
 
 lib_exclude_fedora_18 = $(lib_exclude_fedora_17)
 lib_exclude_fedora_19 = $(lib_exclude_fedora_18)
