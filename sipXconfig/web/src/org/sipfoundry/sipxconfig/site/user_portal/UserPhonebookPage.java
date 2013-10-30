@@ -50,7 +50,7 @@ public abstract class UserPhonebookPage extends UserBasePage {
     }
 
     public String getWidgetSrc() {
-        return getRequestCycle().getAbsoluteURL('/' + UserPhonebookWidgetPage.PAGE + ".html");
+        return getRequestCycle().getAbsoluteURL('/' + UserPhonebookWidgetPage.PAGE + ".html").replaceFirst("http://", "https://");
     }
 
     /**
