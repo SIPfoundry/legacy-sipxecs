@@ -40,7 +40,6 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.QueryBuilder;
-import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
 
 /**
@@ -287,7 +286,7 @@ public class ValidUsers {
         user.setConfNum(getStringValue(conference, CONF_EXT));
         user.setConfPin(getStringValue(conference, CONF_PIN));
     }
-
+    
     /**
      * Given a bunch of DTMF digits, return the list of users that matches
      *
@@ -556,6 +555,13 @@ public class ValidUsers {
 
         user.setUserBusyPrompt(Boolean.valueOf(getStringValue(obj, USERBUSYPROMPT)));
         user.setMoh(getStringValue(obj, MOH));
+        
+        // highest weight group is always the last in the list
+        BasicDBList groups = (BasicDBList) obj.get(GROUPS);
+        if (groups != null) {
+        	user.setHighestWeightGroup((String) groups.get(groups.size() - 1));
+        }
+        
         user.setVoicemailTui(getStringValue(obj, VOICEMAILTUI));
         user.setEmailAddress(getStringValue(obj, EMAIL));
         if (obj.keySet().contains(NOTIFICATION)) {
@@ -698,7 +704,7 @@ public class ValidUsers {
         }
         return null;
     }
-
+    
     /**
      * Remove all non-letter characters, convert to upper case Remove diacritical marks if
      * possible

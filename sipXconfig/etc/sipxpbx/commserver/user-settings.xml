@@ -57,6 +57,10 @@
         <type refid="enable-disable" />
         <value>ENABLE</value>
       </setting>
+      <setting name="group-music-on-hold">
+        <type refid="enable-disable" />
+        <value>DISABLE</value>
+      </setting>
       <setting name="subscribe-to-presence">
         <type refid="enable-disable" />
         <value>ENABLE</value>
@@ -477,6 +481,9 @@
           </option>
           <option>
             <value>PERSONAL_FILES_SRC</value>
+          </option>
+          <option>
+            <value>GROUP_FILES_SRC</value>
           </option>
           <option>
             <value>SOUNDCARD_SRC</value>

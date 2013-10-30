@@ -23,6 +23,8 @@ public enum PermissionName {
 
     MUSIC_ON_HOLD(Type.APPLICATION, "music-on-hold"),
 
+    GROUP_MUSIC_ON_HOLD(Type.APPLICATION, "group-music-on-hold"),
+
     SUBSCRIBE_TO_PRESENCE(Type.APPLICATION, "subscribe-to-presence"),
 
     /** call handling */

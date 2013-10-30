@@ -98,12 +98,8 @@
     <fieldset jwcid="@setting/SettingsFieldset"
       settings="ognl:mohSettings"
       renderGroupTitle="ognl:false"/>
-    <ul jwcid="@common/FormActions" listener="listener:apply" callback="ognl:callback">
-      <li><input jwcid="mohUpdatePhones@Submit"
-            listener="listener:onMohUpdatePhones"
-            id="form:updatePhones"
-            value="message:button.updatePhones"/></li>
-    </ul>
+    <span jwcid="@moh/GroupMusicOnHoldComponent" group="ognl:group" callback="ognl:callback"/>
+    <ul jwcid="@common/FormActions" listener="listener:apply" callback="ognl:callback"/>
     </form>
   </div>
   <div jwcid="timezoneTab@Block">

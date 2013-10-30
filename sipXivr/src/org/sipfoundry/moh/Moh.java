@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.commons.util.AudioUtil;
 import org.sipfoundry.sipxivr.SipxIvrApp;
 
 public class Moh extends SipxIvrApp {
@@ -25,6 +26,7 @@ public class Moh extends SipxIvrApp {
     private static final String FILES_SRC = "FILES_SRC";
     private static final String SOUNDCARD_SRC = "SOUNDCARD_SRC";
     private static final String PERSONAL_FILES_SRC = "PERSONAL_FILES_SRC";
+    private static final String GROUP_FILES_SRC = "GROUP_FILES_SRC";
     private static final String NONE = "NONE";
     private static final String SYSTEM_DEFAULT = "SYSTEM_DEFAULT";
 
@@ -94,7 +96,9 @@ public class Moh extends SipxIvrApp {
                     musicPath = "portaudio_stream://";
                 } else if (moh.equalsIgnoreCase(PERSONAL_FILES_SRC)) {
                     musicPath = m_dataDirectory+"/moh/"+user.getUserName();
-                } else {
+                }  else if (moh.equalsIgnoreCase(GROUP_FILES_SRC)) {
+                    musicPath = m_dataDirectory+"/moh/"+AudioUtil.getGroupMoHFolderName(user.getHighestWeightGroup());
+                }  else {
                     musicPath = m_promptsDir+"/../../../parkserver/music/";
                 }
             } else {

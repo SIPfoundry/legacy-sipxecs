@@ -1,6 +1,6 @@
-<table>
+<table style="min-width:300px">
   <tr>
-    <td>
+    <td style="min-width:100px">
       <input id="ognl:id" jwcid="prompt@PropertySelection"
         model="ognl:tapestry.instructUserToSelect(assetSelectionModel, messages)"
         value="ognl:asset"
@@ -8,7 +8,7 @@
         disabled="ognl:disabled"/>
     </td>
     <div  jwcid="@If" condition="ognl:assetExists" renderTag="false">
-      <td>
+      <td style="min-width:40px">
         <a jwcid="downloadLink@common/DownloadLink" id="link:download"
           dirName="ognl:assetDir"
           fileName="ognl:asset"
@@ -16,20 +16,24 @@
           <span jwcid="@Insert" value="ognl:downloadLabel"/>
         </a>
       </td>
-      <td>
-        <a jwcid="deleteLink@LinkSubmit" tag="ognl:asset" selected="ognl:deleteAsset" disabled="ognl:disabled">
-          <span key="label.delete">Delete</span>
-        </a>
+      <td style="min-width:40px">
+	      <div jwcid="@If" condition="ognl:includeDeleteButton" renderTag="false">
+	        <a jwcid="deleteLink@LinkSubmit" tag="ognl:asset" selected="ognl:deleteAsset" disabled="ognl:disabled">
+	          <span key="label.delete">Delete</span>
+	        </a>
+	      </div>
       </td>
     </div>
     <div jwcid="@Else">
       <td colspan="2"/>
     </div>
   </tr>
-  <tr>
-    <td colspan="3">
-        <input type="file" jwcid="promptUpload@Upload"
-          file="ognl:uploadAsset" disabled="ognl:disabled"/>
-    </td>
-  </tr>
+  <div  jwcid="@If" condition="ognl:includeUploadButton" renderTag="false">
+	  <tr>
+	    <td colspan="3">
+	        <input type="file" jwcid="promptUpload@Upload"
+	          file="ognl:uploadAsset" disabled="ognl:disabled"/>
+	    </td>
+	  </tr>
+  </div>
 </table>

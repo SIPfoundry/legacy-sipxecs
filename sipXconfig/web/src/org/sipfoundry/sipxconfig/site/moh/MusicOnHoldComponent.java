@@ -9,60 +9,44 @@
  */
 package org.sipfoundry.sipxconfig.site.moh;
 
-import java.util.Collection;
-
-import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
-import org.apache.tapestry.annotations.Persist;
-import org.apache.tapestry.callback.ICallback;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.commons.util.AudioUtil;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
-import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 @ComponentClass
-public abstract class MusicOnHoldComponent extends BaseComponent {
-    @Parameter(required = true)
-    public abstract User getUser();
-
-    @Parameter
-    public abstract ICallback getCallback();
-
-    @InjectObject(value = "spring:coreContext")
-    public abstract CoreContext getCoreContext();
+public abstract class MusicOnHoldComponent extends AbstractMusicOnHoldComponent {
 
     @InjectObject(value = "spring:musicOnHoldManager")
     public abstract MusicOnHoldManager getMusicOnHoldManager();
 
-    @InjectObject(value = "spring:phoneContext")
-    public abstract PhoneContext getPhoneContext();
+    @Parameter(required = true)
+    public abstract User getUser();
 
-    @InjectObject(value = "spring:eagerPhoneProfileManager")
-    public abstract ProfileManager getEagerProfileManager();
-
-    @InjectObject(value = "spring:phoneProfileManager")
-    public abstract ProfileManager getLazyProfileManager();
-
-    @InjectObject(value = "spring:configManager")
-    public abstract ConfigManager getConfigManager();
-
-    @Persist
-    public abstract String getAsset();
-
-    public String getUserAudioDirectory() {
-        return getMusicOnHoldManager().getUserAudioDirectory(getUser()).toString();
+    public String getAudioDirectory() {
+        String audioDirectoryName = getUser().getName();
+        if (getIsGroupAudioSource()) {
+            Group highestWeightGroup = Group.selectGroupWithHighestWeight(getUser().getGroupsAsList());
+            if (highestWeightGroup != null) {
+                audioDirectoryName = AudioUtil.getGroupMoHFolderName(highestWeightGroup
+                        .getName());
+            }
+        }
+        return getMusicOnHoldManager().getAudioDirectory(audioDirectoryName).toString();
     }
 
     public Setting getMohSettings() {
         return getUser().getSettings().getSetting(User.MOH_SETTING);
+    }
+
+    public Setting getMohAudioSettings() {
+        return getUser().getSettings().getSetting(User.MOH_AUDIO_SOURCE_SETTING);
     }
 
     public void save() {
@@ -73,8 +57,25 @@ public abstract class MusicOnHoldComponent extends BaseComponent {
         getConfigManager().configureEverywhere(MusicOnHoldManager.FEATURE);
     }
 
-    private Collection<Integer> getPhoneIdsForUser(User user) {
-        Collection<Phone> phones = getPhoneContext().getPhonesByUserId(user.getId());
-        return DataCollectionUtil.extractPrimaryKeys(phones);
+    public boolean getIsGroupAudioSource() {
+        String mohAudioSettings = getMohAudioSettings().getValue();
+        if (mohAudioSettings != null) {
+            if (User.MohAudioSource.parseSetting(mohAudioSettings) == User.MohAudioSource.GROUP_FILES_SRC) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * if user is part of a group, check if it has MoH permission
+     */
+    public boolean getHasConfigureMoHPermission() {
+
+        if (getUser().getGroupsAsList().size() > 0) {
+            return getUser().hasPermission(PermissionName.GROUP_MUSIC_ON_HOLD);
+        }
+
+        return true;
     }
 }

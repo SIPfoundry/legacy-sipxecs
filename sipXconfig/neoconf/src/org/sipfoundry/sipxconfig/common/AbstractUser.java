@@ -42,6 +42,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.commons.userdb.profile.UserProfile;
@@ -57,11 +58,12 @@ import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
+import org.sipfoundry.sipxconfig.setting.BeanWithGroupsModel;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
+import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.time.NtpManager;
-import org.apache.commons.logging.Log;
 
 /**
  * Can be user that logs in, can be superadmin, can be user for phone line
@@ -91,7 +93,7 @@ public abstract class AbstractUser extends BeanWithGroups {
     public static final Log LOG = LogFactory.getLog(LdapImportManager.class);
 
     public static enum MohAudioSource {
-        FILES_SRC, PERSONAL_FILES_SRC, SOUNDCARD_SRC, SYSTEM_DEFAULT, NONE;
+        FILES_SRC, PERSONAL_FILES_SRC, GROUP_FILES_SRC, SOUNDCARD_SRC, SYSTEM_DEFAULT, NONE;
 
         public static MohAudioSource parseSetting(String mohSetting) {
             try {
@@ -408,7 +410,27 @@ public abstract class AbstractUser extends BeanWithGroups {
         return null;
     }
 
-
+    @Override
+    protected void initializeSettingModel() {
+         /**
+         * this override is needed for Group MoH permission:
+         * when an user is part of a Group, it's MoH settings should be those of the Group;
+         * if the user has GROUP_MUSIC_ON_HOLD permission then it can have personalized settings for MoH
+         */
+        setSettingModel2(new BeanWithGroupsModel(this) {
+            @Override
+            public SettingValue getSettingValue(Setting setting) {
+                String parentSettings = setting.getParent().getName();
+                if (parentSettings.equals(User.MOH_SETTING)
+                        && !getGroups().isEmpty()
+                        && !hasPermission(PermissionName.GROUP_MUSIC_ON_HOLD)) {
+                    return super.getDefault(setting);
+                } else {
+                    return super.getSettingValue(setting);
+                }
+            }
+        });
+    }
 
     /**
      * Returns the names of all permissions assigned to the user

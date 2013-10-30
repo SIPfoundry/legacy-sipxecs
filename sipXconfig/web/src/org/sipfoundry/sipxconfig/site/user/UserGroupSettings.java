@@ -335,13 +335,6 @@ public abstract class UserGroupSettings extends GroupSettings implements PageBeg
         return getSettings().getSetting(VOICEMAIL);
     }
 
-    public void onMohUpdatePhones() {
-        if (TapestryUtils.isValid(this)) {
-            apply();
-            updatePhones();
-        }
-    }
-
     public Setting getMohSettings() {
         return getSettings().getSetting(MOH);
     }

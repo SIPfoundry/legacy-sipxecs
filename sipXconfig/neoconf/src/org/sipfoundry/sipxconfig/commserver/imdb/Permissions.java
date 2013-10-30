@@ -51,6 +51,7 @@ public class Permissions extends AbstractDataSetGenerator {
         user.setPermission(PermissionName.EXCHANGE_VOICEMAIL, false);
         user.setPermission(PermissionName.TUI_CHANGE_PIN, false);
         user.setPermission(PermissionName.MUSIC_ON_HOLD, false);
+        user.setPermission(PermissionName.GROUP_MUSIC_ON_HOLD, false);
         user.setPermission(PermissionName.PERSONAL_AUTO_ATTENDANT, false);
         user.setPermission(PermissionName.SUBSCRIBE_TO_PRESENCE, false);
     }

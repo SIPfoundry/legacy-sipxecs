@@ -77,6 +77,7 @@ public class User {
     private PersonalAttendant m_personalAttendant;
     private Distributions m_distributions;
     private String m_moh;
+    private String m_highestWeightGroup;
     private String m_timeZone;
     private boolean m_depositVoicemail;
 
@@ -644,6 +645,14 @@ public class User {
     public void setMoh(String moh) {
         m_moh = moh;
     }
+    
+    public String getHighestWeightGroup() {
+        return m_highestWeightGroup;
+    }
+
+    public void setHighestWeightGroup(String highestWeightGroup) {
+        m_highestWeightGroup = highestWeightGroup;
+    }
 
     public String getFirstName() {
         if (m_displayName != null) {
@@ -680,4 +689,5 @@ public class User {
     public void setDepositVoicemail(boolean depositVoicemail) {
         m_depositVoicemail = depositVoicemail;
     }
+    
 }

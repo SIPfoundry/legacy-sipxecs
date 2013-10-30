@@ -69,6 +69,12 @@ public abstract class AssetSelector extends BaseComponent {
     @Parameter(defaultValue = "ognl:true")
     public abstract boolean getCheckForEmptyAssets();
 
+    @Parameter(defaultValue = "ognl:true")
+    public abstract boolean getIncludeUploadButton();
+
+    @Parameter(defaultValue = "ognl:true")
+    public abstract boolean getIncludeDeleteButton();
+
     public abstract void setAsset(String asset);
 
     public abstract IUploadFile getUploadAsset();

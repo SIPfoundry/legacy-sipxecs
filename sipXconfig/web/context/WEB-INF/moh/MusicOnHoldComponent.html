@@ -1,13 +1,28 @@
 <fieldset jwcid="@setting/SettingsFieldset"
     settings="ognl:mohSettings"
-    renderGroupTitle="ognl:false"/>
-<fieldset jwcid="@common/AssetSelectorMultiple"
+    renderGroupTitle="ognl:false"
+    allowEnabledSetting="ognl:true"
+    enabled="ognl:hasConfigureMoHPermission"/>
+
+<span  jwcid="@If" condition="ognl:isGroupAudioSource" renderTag="false">
+	<fieldset jwcid="@common/AssetSelectorMultiple"
           asset="ognl:asset"
-          assetDir="ognl:userAudioDirectory"
+          assetDir="ognl:audioDirectory"
+          errorMsg="message:error.select"
+          contentType="literal:audio/x-wav"
+          includeUploadButton="ognl:false"
+          includeDeleteButton="ognl:false"
+          checkForEmptyAssets="ognl:false" />
+</span>
+<span jwcid="@Else" renderTag="false">
+	<fieldset jwcid="@common/AssetSelectorMultiple"
+          asset="ognl:asset"
+          assetDir="ognl:audioDirectory"
           errorMsg="message:error.select"
           contentType="literal:audio/x-wav"
           includeUploadButton="ognl:true"
+          includeDeleteButton="ognl:true"
           checkForEmptyAssets="ognl:false" />
+</span>
 
-<ul jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback">
-</ul>
+<ul jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback"/>

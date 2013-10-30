@@ -16,11 +16,18 @@
     </property>
   </bean>
 
+  <bean id="groupMusicOnHoldManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.moh.MusicOnHoldManager" />
+    <property name="target">
+      <ref local="groupMusicOnHoldManagerImpl" />
+    </property>
+  </bean>
+
   <bean id="mohSettings" class="org.sipfoundry.sipxconfig.moh.MohSettings" parent="settingsBean">
     <property name="modelFilesContext" ref="modelFilesContext"/>
   </bean>
 
-  <bean id="musicOnHoldManagerImpl" class="org.sipfoundry.sipxconfig.moh.MusicOnHoldManagerImpl">
+  <bean id="abstractMusicOnHoldManagerImpl" abstract="true" class="org.sipfoundry.sipxconfig.moh.AbstractMusicOnHoldManagerImpl">
      <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">
@@ -31,12 +38,17 @@
       </bean>
     </property>
     <property name="audioDirectory" value="${sysdir.vxml.moh}" />
-    <!-- default music-on-hold user -->
-    <property name="mohUser" value="~~mh~" />
     <property name="featureManager" ref="featureManager" />
     <property name="replicationManager" ref="replicationManagerImpl" />
     <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
   </bean>
+  
+  <bean id="musicOnHoldManagerImpl" class="org.sipfoundry.sipxconfig.moh.MusicOnHoldManagerImpl" parent="abstractMusicOnHoldManagerImpl">
+    <!-- default music-on-hold user -->
+    <property name="mohUser" value="~~mh~" />
+  </bean>
+  
+  <bean id="groupMusicOnHoldManagerImpl" class="org.sipfoundry.sipxconfig.moh.GroupMusicOnHoldManagerImpl" parent="abstractMusicOnHoldManagerImpl"/>
 
   <bean id="mohConfig" class="org.sipfoundry.sipxconfig.moh.MohConfig" />
 

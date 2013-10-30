@@ -90,7 +90,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private static final String MS = " ms ";
     private static final DataSet[] GROUP_DATASETS = {
         DataSet.ATTENDANT, DataSet.PERMISSION, DataSet.CALLER_ALIAS, DataSet.SPEED_DIAL, DataSet.USER_FORWARD,
-        DataSet.USER_LOCATION, DataSet.USER_STATIC
+        DataSet.USER_LOCATION, DataSet.USER_STATIC, DataSet.MAILSTORE
     };
     private static final DataSet[] BRANCH_DATASETS = {
         DataSet.USER_LOCATION

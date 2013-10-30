@@ -48,4 +48,17 @@ public class AudioUtil {
             throw new RuntimeException(trouble, e);
         }
     }
+    
+    /**
+     * Utility method to avoid duplicate code.
+     * From this location access is granted from ivr and config
+     * 
+     * @param groupName
+     * @return the name of the playlist folder when MoH is set for Group
+     */
+    public static String getGroupMoHFolderName(String groupName)
+    {
+        String prefix = "group_";
+        return prefix + groupName;
+    }
 }
