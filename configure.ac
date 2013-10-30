@@ -22,7 +22,6 @@ AC_SUBST(OPTIONS)
 
 m4_include([config/autoconf-2.66.m4])
 m4_include([config/sipXlib2.m4])
-m4_include([mak/opensuse-build-service.m4])
 m4_include([mak/rpm.m4])
 m4_include([mak/centos-iso.m4])
 m4_sinclude([custom/custom.m4])

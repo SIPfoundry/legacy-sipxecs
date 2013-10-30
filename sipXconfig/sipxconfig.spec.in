@@ -85,8 +85,14 @@ Requires: sipxsupervisor >= %version
 
 Requires: ruby
 Requires: rubygems
+Requires: freeswitch >= 1.0.7
 
 Obsoletes: sipx-jasperreports-deps
+Obsoletes: sipXfreeswitch
+Obsoletes: sipx-freeswitch
+Obsoletes: sipx-freeswitch-codec-passthru-g723_1
+Obsoletes: sipx-freeswitch-codec-passthru-amr
+Obsoletes: sipx-freeswitch-codec-passthru-g729
 
 # 4.6 packages that turned out to not be useful as separate pkgs so
 # projects merged into sipxconfig
@@ -281,6 +287,16 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(775,sipx,sipx) %{_localstatedir}/sipxdata/configserver/web-cert
 %dir %attr(775,sipx,sipx) %{devicefilesdir}
 %{_datadir}/snmp/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.txt
+
+%post
+if test -e %{_sysconfdir}/logrotate.d/freeswitch; then rm -f %{_sysconfdir}/logrotate.d/freeswitch; fi
+
+%triggerin -- freeswitch
+%if %{_vendor} == redhat
+/sbin/chkconfig freeswitch off
+%endif
+# may not be running, so eat stderr
+/etc/init.d/freeswitch stop 1>/dev/null
 
 %postun
 # uninstall lucene index and Jetty scratch dir on every install

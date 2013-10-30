@@ -12,6 +12,7 @@ EXTRA_DIST = \
 initddir = @SIPX_SERVICEDIR@
 initd_SCRIPTS = \
 	sipxconfig \
+	sipxfreeswitch \
 	mongod-arbiter \
 	mongo-local \
 	mongo-local-arbiter \

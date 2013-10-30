@@ -18,11 +18,8 @@
      <packagereq type="mandatory">sipxopenfire</packagereq>
      <packagereq type="mandatory">sipxopenacd</packagereq>
      <packagereq type="mandatory">sipximbot</packagereq>
-     <packagereq type="mandatory">sipxfreeswitch</packagereq>
-     <packagereq type="mandatory">sipxdns</packagereq>
      <packagereq type="mandatory">sipxpage</packagereq>
      <packagereq type="mandatory">sipxpark</packagereq>
-     <packagereq type="mandatory">sipxtunnel</packagereq>
      <packagereq type="mandatory">sipxrls</packagereq>
      <packagereq type="mandatory">sipxsaa</packagereq>
      <packagereq type="mandatory">sipxsqa-server</packagereq>
@@ -38,7 +35,6 @@
      <!-- 4.4 feature compatibility -->
      <packagereq type="mandatory">sipxconfig-ftp</packagereq>
      <packagereq type="mandatory">sipxconfig-tftp</packagereq>
-     <packagereq type="mandatory">sipxsnmp</packagereq>
      <packagereq type="mandatory">sipxrecording</packagereq>
      <packagereq type="mandatory">sipxcdr</packagereq>
      <packagereq type="mandatory">sipxprovision</packagereq>
@@ -82,9 +78,6 @@
      <packagereq type="mandatory">sipxbridge</packagereq>
      <packagereq type="mandatory">sipxivr</packagereq>
      <packagereq type="mandatory">sipxopenfire</packagereq>
-     <packagereq type="mandatory">sipxfreeswitch</packagereq>
-     <packagereq type="mandatory">sipxdns</packagereq>
-     <packagereq type="mandatory">sipxsnmp</packagereq>
    </packagelist>
   </group>
 </comps>

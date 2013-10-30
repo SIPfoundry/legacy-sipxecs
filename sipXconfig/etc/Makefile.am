@@ -29,6 +29,7 @@ dist_cfinputs_DATA = \
 	ftp.cf \
 	mongodb.cf \
 	postgres.cf \
+	sipxfreeswitch.cf \
 	sipxconfig.cf \
 	sipxdns.cf \
 	snmp.cf \
@@ -39,8 +40,16 @@ dist_cfinputs_DATA = \
 
 cfdefaultsdir = $(SIPX_CFDATA)/defaults
 cfdefaults_DATA = \
+	sipxfreeswitch.cfdat \
 	apache.cfdat \
 	postgres.cfdat
+
+fsvars = \
+	$(filter FREESWITCH%,$(.VARIABLES))
+
+sipxfreeswitch.cfdat : Makefile
+	! test -f $@ || rm $@
+	$(foreach V,$(fsvars), echo '=$(V)=$($(V))' >> $@;)
 
 postgresvars = \
 	$(filter PG%,$(.VARIABLES)) \
@@ -108,4 +117,4 @@ SETTINGS_XML = \
 	  \) \
 	)
 
-CLEANFILES = apache.cfdat postgres.cfdat
+CLEANFILES = apache.cfdat postgres.cfdat sipxfreeswitch.cfdat
