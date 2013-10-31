@@ -26,8 +26,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.upload.Upload;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.ProviderManager;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 public abstract class ProvisioningServlet extends HttpServlet {
@@ -46,6 +46,8 @@ public abstract class ProvisioningServlet extends HttpServlet {
 
     private static ProvisioningContextImpl s_context;
 
+    private ApplicationContext m_webContext;
+
     // private static final Log LOG = LogFactory.getLog(ProvisioningServlet.class);
 
     @Override
@@ -53,14 +55,14 @@ public abstract class ProvisioningServlet extends HttpServlet {
         if (s_context == null) {
             ServletContext ctx = getServletContext();
             ServletContext sipxconfigCtx = ctx.getContext(SIPXCONFIG_SERVLET_PATH);
-            WebApplicationContext webContext = WebApplicationContextUtils
+            m_webContext = WebApplicationContextUtils
                     .getRequiredWebApplicationContext(sipxconfigCtx);
-            CoreContext sipxCoreContext = ((CoreContext) (webContext
+            CoreContext sipxCoreContext = ((CoreContext) (m_webContext
                     .getBean(CORE_CONTEXT_BEAN_NAME)));
-            PhoneContext sipxPhoneContext = ((PhoneContext) (webContext
+            PhoneContext sipxPhoneContext = ((PhoneContext) (m_webContext
                     .getBean(PHONE_CONTEXT_BEAN_NAME)));
-            Upload sipxUpload = ((Upload) (webContext.getBean(UPLOAD_BEAN_NAME)));
-            ProviderManager authManager = (ProviderManager) webContext.getBean(AUTH_MANAGER);
+            Upload sipxUpload = ((Upload) (m_webContext.getBean(UPLOAD_BEAN_NAME)));
+            ProviderManager authManager = (ProviderManager) m_webContext.getBean(AUTH_MANAGER);
             s_context = new ProvisioningContextImpl();
             s_context.setSipxCoreContext(sipxCoreContext);
             s_context.setSipxPhoneContext(sipxPhoneContext);
@@ -69,11 +71,15 @@ public abstract class ProvisioningServlet extends HttpServlet {
         }
     }
 
-    public ProvisioningContext getProvisioningContext() {
+    public static ProvisioningContext getProvisioningContext() {
         return s_context;
     }
 
-    protected void buildSuccessResponse(PrintWriter out, Map<String, String> settings) {
+    protected ApplicationContext getWebContext() {
+        return m_webContext;
+    }
+
+    protected static void buildSuccessResponse(PrintWriter out, Map<String, String> settings) {
         out.println(DATA_SECTION);
         out.println("Success=1");
         out.println(StringUtils.EMPTY);
@@ -83,7 +89,7 @@ public abstract class ProvisioningServlet extends HttpServlet {
         }
     }
 
-    protected void buildFailureResponse(PrintWriter out, String errorMessage) {
+    protected static void buildFailureResponse(PrintWriter out, String errorMessage) {
         out.println(DATA_SECTION);
         out.println("Success=0");
         if (errorMessage != null) {
@@ -91,7 +97,7 @@ public abstract class ProvisioningServlet extends HttpServlet {
         }
     }
 
-    public void attachFile(File file, Writer out, String user, String password) throws IOException {
+    public static void attachFile(File file, Writer out, String user, String password) throws IOException {
         Reader in = new FileReader(file);
         String match = String.format("SIPX_%s_IM_PWD", user);
         InputStream is = IOUtils.toInputStream(IOUtils.toString(in).replace(match, password));
@@ -100,7 +106,7 @@ public abstract class ProvisioningServlet extends HttpServlet {
         IOUtils.closeQuietly(in);
     }
 
-    public void uploadPhoneProfile(String profileFilename, Writer out, String user, String password) {
+    public static void uploadPhoneProfile(String profileFilename, Writer out, String user, String password) {
         String uploadDirectory = getProvisioningContext().getUploadDirectory();
         try {
             attachFile(new File(uploadDirectory, profileFilename), out, user, password);

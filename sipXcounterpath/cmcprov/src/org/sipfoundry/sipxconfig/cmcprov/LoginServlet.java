@@ -33,12 +33,13 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 public class LoginServlet extends ProvisioningServlet {
     public static final String PARAMETER_ENCODING = "UTF-8";
     public static final String USERNAME_PASSWORD_CANNOT_BE_MISSING_ERROR = "Username and password cannot be missing";
     public static final String USERNAME_PASSWORD_ARE_INVALID_ERROR = "Either username or password are invalid";
-    public static final String INVALID_CREDIDENTIALS = "Your credentials are not recognized";
+    public static final String INVALID_CREDENTIALS = "Your credentials are not recognized";
 
     private static final Log LOG = LogFactory.getLog(LoginServlet.class);
     private static final String WWW_DIR_PROPERTY = "www.dir";
@@ -71,8 +72,26 @@ public class LoginServlet extends ProvisioningServlet {
     private static final String VALUE = "\" value=";
     private static final String TAG_CLOSE = "/>\n";
     private static final String CODEC_START_TAG = "\t\t\t\t\t<codec name=\"";
+    private static final String UUID = "uuid";
+    private static final String BRIA_USER = "user";
 
-    // we don't close servet's writer
+    private LoginDelegate delegate;
+
+    @Override
+    public void init() {
+        super.init();
+        LoginDelegate licDelegate = null;
+
+        try {
+            licDelegate = getWebContext().getBean("loginDelegate", LoginDelegate.class);
+        } catch (NoSuchBeanDefinitionException e) {
+            // if not defined, no validation will take place
+        }
+
+        delegate = licDelegate;
+    }
+
+    // we don't close servet's writer, we let the servlet container handle that
     @SuppressWarnings("resource")
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws javax.servlet.ServletException,
@@ -88,11 +107,30 @@ public class LoginServlet extends ProvisioningServlet {
             }
             reqType = parameters.get(OUTPUT_TYPE);
             User user = authenticateRequest(parameters);
+
             Phone phone = getProvisioningContext().getPhoneForUser(user);
             if (phone == null) {
-                throw new FailureDataException(INVALID_CREDIDENTIALS);
+                throw new FailureDataException(INVALID_CREDENTIALS);
             }
             Profile[] profileFilenames = phone.getProfileTypes();
+
+            if (delegate != null) {
+                String uuid = parameters.get(UUID);
+                String deviceLimitStr = phone.getSettingValue("provisioning/deviceLimit");
+                int deviceLimit = -1;
+                try {
+                    deviceLimit = Integer.parseInt(deviceLimitStr);
+                } catch (NumberFormatException e) {
+                    LOG.warn(String.format("Could not parse device limit from [%s]", deviceLimitStr));
+                }
+                try {
+                    delegate.auditLoginRequest(user.getName(), phone.getNiceName(), uuid, deviceLimit);
+                } catch (IllegalArgumentException ex) {
+                    throw new FailureDataException(ex.getMessage());
+                }
+            } else {
+                LOG.debug("Delegate is null");
+            }
 
             FileInputStream fin = new FileInputStream(getProvisioningContext().getConfDir() + CONF_RESOURCE);
             Properties properties = new Properties();
@@ -118,18 +156,22 @@ public class LoginServlet extends ProvisioningServlet {
             }
 
         } catch (FailureDataException e) {
-            LOG.error("Login error: " + e.getMessage());
-            if (reqType == XML) {
-                out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cpc_mobile version=\"1.0\">\n<login_response>\n"
-                        + "<status success=\"false\" error_text=\"No match for username and password.\"/>\n"
-                        + "</login_response>\n</cpc_mobile>");
-            } else {
-                buildFailureResponse(out, e.getMessage());
-            }
+            handleLoginException(out, reqType, e);
         }
     }
 
-    protected User authenticateRequest(Map<String, String> parameters) {
+    private static void handleLoginException(PrintWriter out, String reqType, Exception e) {
+        LOG.error("Login error: " + e.getMessage());
+        if (reqType == XML) {
+            out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cpc_mobile version=\"1.0\">\n<login_response>\n"
+                    + "<status success=\"false\" error_text=" + e.getMessage() + "/>\n"
+                    + "</login_response>\n</cpc_mobile>");
+        } else {
+            buildFailureResponse(out, e.getMessage());
+        }
+    }
+
+    protected static User authenticateRequest(Map<String, String> parameters) {
         /*
          * Authenticates a login requests. Returns a User object representing the authenticated
          * user if succesful, otherwise throws a Exception.
@@ -137,10 +179,10 @@ public class LoginServlet extends ProvisioningServlet {
         User user;
         String username;
         String password;
-        if (!parameters.containsKey(USERNAME) || !parameters.containsKey(PASSWORD)) {
+        if (!parameters.containsKey(BRIA_USER) || !parameters.containsKey(PASSWORD)) {
             throw new FailureDataException(USERNAME_PASSWORD_CANNOT_BE_MISSING_ERROR);
         }
-        username = parameters.get(USERNAME);
+        username = parameters.get(BRIA_USER);
         // if supplied as email address, strip domain
         int domainIndex = username.indexOf('@');
         if (domainIndex >= 0) {
@@ -162,6 +204,7 @@ public class LoginServlet extends ProvisioningServlet {
         }
 
         if (!line.contains("<?xml version=")) {
+            LOG.debug("Parsing line: " + line);
             String[] pairs = line.split("\\&");
             for (String pair : pairs) {
                 String[] fields = pair.split("=");
@@ -178,24 +221,44 @@ public class LoginServlet extends ProvisioningServlet {
                 line = br.readLine();
                 fulltext = fulltext + line;
             }
-            int usrindex = fulltext.indexOf("user=\"");
-            parameters.put(
-                    USERNAME,
-                    fulltext.substring(usrindex + 6, fulltext.substring(usrindex + 6).indexOf(DOUBLE_QUOTE)
-                            + usrindex + 6));
-            int passwdindex = fulltext.indexOf("password=\"");
-            parameters.put(
-                    PASSWORD,
-                    fulltext.substring(passwdindex + 10, fulltext.substring(passwdindex + 10).indexOf(DOUBLE_QUOTE)
-                            + passwdindex + 10));
+            LOG.debug("Parsing fulltext: " + fulltext);
+            String param = parseXmlParam(fulltext, BRIA_USER);
+            if (param != null) {
+                parameters.put(BRIA_USER, param);
+            }
+            param = parseXmlParam(fulltext, PASSWORD);
+            if (param != null) {
+                parameters.put(PASSWORD, param);
+            }
+            param = parseXmlParam(fulltext, UUID);
+            if (param != null) {
+                parameters.put(UUID, param);
+            }
             parameters.put(OUTPUT_TYPE, XML);
         }
+        LOG.debug("Parsed params: " + parameters);
 
         return parameters;
     }
 
-    private void updateContactList(User user, Phone phone, String wwwdir, String phonedir) {
-        String domainName = this.getProvisioningContext().getDomainName();
+    private static String parseXmlParam(String text, String paramName) {
+        String paramPre = paramName + "=\"";
+        int index = text.indexOf(paramPre);
+        LOG.debug(String.format("Looking for [%s], got index %d", paramPre, index));
+        String parsedParam;
+
+        if (index >= 0) {
+            parsedParam = text.substring(index + paramPre.length(), text.substring(index + paramPre.length())
+                    .indexOf(DOUBLE_QUOTE) + index + paramPre.length());
+        } else {
+            parsedParam = null;
+        }
+
+        return parsedParam;
+    }
+
+    private static void updateContactList(User user, Phone phone, String wwwdir, String phonedir) {
+        String domainName = getProvisioningContext().getDomainName();
         String phoneBookName = phone.getSerialNumber() + CONTACTS_LIST_FILE_SUBFIX;
         String contactListFilePath = wwwdir + WEBDAV_DIR + user.getUserName() + DOT + domainName + DOT
                 + phoneBookName;
@@ -245,9 +308,10 @@ public class LoginServlet extends ProvisioningServlet {
                 Map<String, String> coreSettings = new HashMap<String, String>();
 
                 // Ingest INI File
+                Scanner s = null;
                 try {
                     LOG.debug("INFO: Ingesting ini file.");
-                    Scanner s = new Scanner(inputfile);
+                    s = new Scanner(inputfile);
                     while (s.hasNextLine()) {
                         String line = s.nextLine();
                         if (line.contains(":")) {
@@ -294,6 +358,10 @@ public class LoginServlet extends ProvisioningServlet {
                     }
                 } catch (IOException e) {
                     LOG.error("XMLTranslation: Failed to ingest ini file.\n" + e.getMessage());
+                } finally {
+                    if (s != null) {
+                        s.close();
+                    }
                 }
 
                 writeCoreSettings(bw, coreSettings);

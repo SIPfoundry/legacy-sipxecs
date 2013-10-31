@@ -4,7 +4,6 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="var" path="ECLIPSE_HOME"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/sipXconfig-etc"/>
 	<classpathentry kind="var" path="SIPX_BUILDDIR/sipXconfig/neoconf/test"/>
 	<classpathentry kind="var" path="SIPX_JAVADIR/sipXecs/sipXconfig/agent-bindings.jar"/>

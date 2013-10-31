@@ -4,7 +4,6 @@
 	<classpathentry kind="src" path="cmcprov/test"/>
 	<classpathentry kind="src" path="device/src"/>
 	<classpathentry kind="src" path="device/test"/>
-	<classpathentry kind="var" path="SIPX_BUILDDIR/sipXcounterpath/device/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
 	<classpathentry kind="src" path="/sipXconfig-neoconf"/>

@@ -19,16 +19,16 @@ cfg_DATA = \
 
 $(cfg_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)
-	
-emptydirs = \	
-	$(DESTDIR)$(wwwdir)/var \	
-	$(DESTDIR)$(wwwdir)/webdav	
 
-EXTRA_DIST = \ 
+emptydirs = \	
+	$(DESTDIR)$(wwwdir)/var \
+	$(DESTDIR)$(wwwdir)/webdav
+
+EXTRA_DIST = \
 	$(cfg_DATA:=.in) \
 	$(webdav_DATA:=.in)
 
-CLEANFILES = \ 
+CLEANFILES = \
 	$(cfg_DATA)
 
 $(emptydirs) :

@@ -454,6 +454,14 @@
         <description>The key that will be provisioned to the client</description>
         <value></value>
     </setting>
+    <setting name="deviceLimit">
+        <type>
+          <integer/>
+        </type>
+        <label>Device Limit</label>
+        <description>Limits how many devices can use this profile simultaneously. Negative value means unbounded.</description>
+        <value>5</value>
+    </setting>
     <setting name="feature:call:enable_recording">
       <type refid="true-false"/>
       <value>true</value>
