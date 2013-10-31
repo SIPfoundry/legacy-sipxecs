@@ -75,9 +75,17 @@ public class LoginDetailsResourceTest extends TestCase {
 
     public void testRepresentXml() throws Exception {
         LoginDetailsResource resource = new LoginDetailsResource();
-        resource.setCoreContext(m_coreContext);
-        resource.setLdapManager(m_ldapManager);
+        setContexts(resource);
+        assertEqualsXML(resource, "logindetails.rest.test.xml");
+    }
 
+    public void testRepresentJson() throws Exception {
+        LoginDetailsResource resource = new LoginDetailsResource();
+        setContexts(resource);
+        assertEqualsJSON(resource, "logindetails.rest.test.json");
+    }
+
+    protected void assertEqualsXML(LoginDetailsResource resource, String fileName) throws Exception {
         ChallengeResponse challengeResponse = new ChallengeResponse(null, "200", new char[0]);
         Request request = new Request();
         request.setChallengeResponse(challengeResponse);
@@ -87,15 +95,11 @@ public class LoginDetailsResourceTest extends TestCase {
         StringWriter writer = new StringWriter();
         representation.write(writer);
         String generated = writer.toString();
-        String expected = IOUtils.toString(getClass().getResourceAsStream("logindetails.rest.test.xml"));
+        String expected = IOUtils.toString(getClass().getResourceAsStream(fileName));
         assertEquals(expected, generated);
     }
 
-    public void testRepresentJson() throws Exception {
-        LoginDetailsResource resource = new LoginDetailsResource();
-        resource.setCoreContext(m_coreContext);
-        resource.setLdapManager(m_ldapManager);
-
+    protected void assertEqualsJSON(LoginDetailsResource resource, String fileName) throws Exception {
         ChallengeResponse challengeResponse = new ChallengeResponse(null, "200", new char[0]);
         Request request = new Request();
         request.setChallengeResponse(challengeResponse);
@@ -105,8 +109,13 @@ public class LoginDetailsResourceTest extends TestCase {
         StringWriter writer = new StringWriter();
         representation.write(writer);
         String generated = writer.toString();
-        String expected = IOUtils.toString(getClass().getResourceAsStream("logindetails.rest.test.json"));
+        String expected = IOUtils.toString(getClass().getResourceAsStream(fileName));
         assertEquals(expected, generated);
+    }
+
+    protected void setContexts(LoginDetailsResource resource) {
+        resource.setCoreContext(m_coreContext);
+        resource.setLdapManager(m_ldapManager);
     }
 
 }
