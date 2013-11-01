@@ -16,11 +16,16 @@
  */
 package org.sipfoundry.sipxconfig.mongo;
 
+import static java.lang.String.format;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -33,6 +38,7 @@ import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
 import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListenerAdvanced;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -49,6 +55,8 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.health.HealthCheckProvider;
+import org.sipfoundry.sipxconfig.health.HealthManager;
 import org.sipfoundry.sipxconfig.region.Region;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
@@ -63,7 +71,8 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 public class MongoManagerImpl implements AddressProvider, FeatureProvider, MongoManager, ProcessProvider,
-        SetupListener, FirewallProvider, AlarmProvider, BeanFactoryAware, FeatureListener, DaoEventListenerAdvanced {
+        SetupListener, FirewallProvider, AlarmProvider, BeanFactoryAware, FeatureListener, DaoEventListenerAdvanced,
+        HealthCheckProvider {
     private static final Log LOG = LogFactory.getLog(MongoManagerImpl.class);
     private BeanWithSettingsDao<MongoSettings> m_settingsDao;
     private ConfigManager m_configManager;
@@ -179,10 +188,24 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
 
     @Override
     public boolean setup(SetupManager manager) {
-        if (!manager.isTrue(FEATURE_ID.getId())) {
+        if (manager.isFalse(FEATURE_ID.getId())) {
             Location primary = manager.getConfigManager().getLocationManager().getPrimaryLocation();
             manager.getFeatureManager().enableLocationFeature(FEATURE_ID, primary, true);
             manager.setTrue(FEATURE_ID.getId());
+        }
+        String missingMetaId = "missing_meta";
+        if (manager.isFalse(missingMetaId)) {
+            List<Location> mongos = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE_ID);
+            for (Location mongo : mongos) {
+                File dir = manager.getConfigManager().getLocationDataDirectory(mongo);
+                try {
+                    ConfigUtils.enableCfengineClass(dir, "missing_meta.cfdat", true, missingMetaId);
+                } catch (IOException e) {
+                    LOG.error("Could not trigger missing meta create. Non-fatal but user "
+                            + "will need to address in DB UI later.", e);
+                }
+            }
+            manager.setTrue(missingMetaId);
         }
         return true;
     }
@@ -416,5 +439,36 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
 
     @Override
     public void onAfterDelete(Object entity) {
+    }
+
+    @Override
+    public void checkHealth(HealthManager manager) {
+        manager.startCheck("Checking MongoDB cluster status");
+        MongoMeta meta = m_globalManager.getMeta();
+        manager.pass();
+        for (String server : meta.getServers()) {
+            manager.startCheck(format("Checking MongoDB server %s status", server));
+            String err = null;
+            Collection<String> actions = meta.getRequiredActions(server);
+            if (actions != null) {
+                for (String action : actions) {
+                    if (action.equals("SET_MEMBER_META")) {
+                        // XX-10812 This can happen because database was rebuilt using straight
+                        // mongo operations from CLI, or upgrade from any version prior
+                        // to 4.6 update 9. Required action can safely be carried out without
+                        // prompting user unless there was an error.
+                        m_globalManager.takeAction(meta.getPrimary().getHostPort(), server, action);
+                    } else {
+                        err = format("Server %s required action %s", server, action);
+                        break;
+                    }
+                }
+            }
+            if (err == null) {
+                manager.pass();
+            } else {
+                manager.fail(err);
+            }
+        }
     }
 }
