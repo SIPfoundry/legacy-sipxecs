@@ -193,20 +193,6 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
             manager.getFeatureManager().enableLocationFeature(FEATURE_ID, primary, true);
             manager.setTrue(FEATURE_ID.getId());
         }
-        String missingMetaId = "missing_meta";
-        if (manager.isFalse(missingMetaId)) {
-            List<Location> mongos = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE_ID);
-            for (Location mongo : mongos) {
-                File dir = manager.getConfigManager().getLocationDataDirectory(mongo);
-                try {
-                    ConfigUtils.enableCfengineClass(dir, "missing_meta.cfdat", true, missingMetaId);
-                } catch (IOException e) {
-                    LOG.error("Could not trigger missing meta create. Non-fatal but user "
-                            + "will need to address in DB UI later.", e);
-                }
-            }
-            manager.setTrue(missingMetaId);
-        }
         return true;
     }
 
