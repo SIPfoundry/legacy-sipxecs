@@ -6,6 +6,14 @@
 # Postgres configuration for working with sipxecs
 #
 
+bundle common apache {
+  vars:
+    "apache_ver" string => execresult("/usr/bin/rpm -q --queryformat '%{version}' httpd", "noshell");
+
+  classes:
+    "apache_2_2" expression => regcmp("2\.2\..*", "$(apache_ver)");
+}
+
 bundle agent zz_apache {
   methods:
     apache::
@@ -18,13 +26,19 @@ bundle agent zz_apache {
 
 bundle agent apache_config {
   vars:
+    apache_2_2::
+      "ssl_mutex" string => "SSLMutex default";
+
+    !apache_2_2::
+      "ssl_mutex" string => "Mutex sysvsem default";
+
     any::
       "ssl_web" slist => {
         "ssl-web.key",
         "ssl-web.crt",
         "server-chain.crt",
         "ca-bundle.crt"
-      };
+      };    
 
   methods:
     any::
