@@ -6,11 +6,16 @@
 #   See http://track.sipfoundry.org/browse/UC-1664
 # By bundling EPEL rpms into sipXecs, we're more in control of when rpms upgrade but
 # we need to make it easy to stay somewhat in sync w/EPEL.
+
+ifeq ($(DISTRO_ARCH),x86_64)
+EXCLUDE_ARCH='--exclude=*.i686.rpm'
+endif
+
 epel.dist epel.srpm:;
 
 epel.rpm :
 	rsync -av \
-	  '--exclude=*.i686.rpm' \
+	  $(EXCLUDE_ARCH) \
 	  $(addprefix $(CENTOS_RSYNC_URL)/epel/6/$(DISTRO_ARCH)/,$(RUNTIME_EPEL) $(BUILD_EPEL)) \
 	  $(MOCK_RESULTS_DIR)/
 	mock $(MOCK_OPTS) --scrub=cache
