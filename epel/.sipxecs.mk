@@ -87,9 +87,9 @@ RUNTIME_EPEL = \
 	poco-xml-* \
 	poco-zip-* \
 	python-argparse-* \
-	python-bson-* \
+	python-bson-2.5* \
 	python-inotify-0* \
-	python-pymongo-* \
+	python-pymongo-2.5* \
 	redis-* \
 	rubygem-daemons-* \
 	sec-* \
