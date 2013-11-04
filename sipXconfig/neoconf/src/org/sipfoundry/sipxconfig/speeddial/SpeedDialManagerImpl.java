@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.common.UserValidationUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.rls.RlsRule;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -37,7 +38,9 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     private FeatureManager m_featureManager;
     private ConfigManager m_configManager;
     private ValidUsers m_validUsers;
+
     private AliasManager m_aliasManager;
+    private String m_feature = "rls";
 
     @Override
     public SpeedDial getSpeedDialForUserId(Integer userId, boolean create) {
@@ -181,7 +184,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
 
     @Override
     public List<DialingRule> getDialingRules(Location location) {
-        if (!m_featureManager.isFeatureEnabled(Rls.FEATURE)) {
+        if (!m_featureManager.isFeatureEnabled(new LocationFeature(m_feature))) {
             return Collections.emptyList();
         }
 
@@ -226,5 +229,9 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
 
     public void setAliasManager(AliasManager aliasMgr) {
         m_aliasManager = aliasMgr;
+    }
+    
+    public void setFeatureId(String feature) {
+        m_feature = feature;
     }
 }
