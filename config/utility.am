@@ -36,6 +36,7 @@ propercase = $(shell echo $(1) | sed 's/\([a-z]\)/\U\1/')
 #
 empty :=
 space := $(empty) $(empty)
+comma := ,
 
 # work around INSTALL limitations
 # 1.  create directories before installing file 
