@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
@@ -34,6 +36,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
  * that can re-check status.
  */
 public class HealthManagerImpl implements HealthManager, BeanFactoryAware, SetupListener {
+    private static final Log LOG = LogFactory.getLog(HealthManagerImpl.class);
     private static final String HEALTH_CHECK = "Health check";
     private Set<HealthCheckProvider> m_healthCheckProviders;
     private ListableBeanFactory m_beanFactory;
@@ -77,6 +80,7 @@ public class HealthManagerImpl implements HealthManager, BeanFactoryAware, Setup
                 try {
                     provider.checkHealth(HealthManagerImpl.this);
                 } catch (Exception e) {
+                    LOG.error("non fatal exception checking health", e);
                     fail(e);
                 }
             }

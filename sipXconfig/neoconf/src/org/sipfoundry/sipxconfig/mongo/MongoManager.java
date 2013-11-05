@@ -55,4 +55,6 @@ public interface MongoManager extends MongoReplSetManager {
     public ConfigManager getConfigManager();
 
     public FeatureManager getFeatureManager();
+
+    public MongoReplSetManager getGlobalManager();
 }

@@ -53,6 +53,7 @@ public class MongoConfig implements ConfigProvider {
     private static final String SHARD_ID = "shardId";
     private MongoManager m_mongoManager;
     private RegionManager m_regionManager;
+    private ConfigManager m_configManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -108,14 +109,7 @@ public class MongoConfig implements ConfigProvider {
 
         // Global mongo model for UI
         List<Location> arbiters = fm.getLocationsForEnabledFeature(MongoManager.ARBITER_FEATURE);
-        Writer w = null;
-        try {
-            File f = new File(manager.getGlobalDataDirectory(), "mongo.json");
-            w = new FileWriter(f);
-            modelFile(w, dbs, arbiters, GLOBAL_REPLSET, false, MongoSettings.SERVER_PORT, MongoSettings.ARBITER_PORT);
-        } finally {
-            IOUtils.closeQuietly(w);
-        }
+        writeGlobalModel(manager, dbs, arbiters);
 
         for (Location location : all) {
             File dir = manager.getLocationDataDirectory(location);
@@ -157,6 +151,24 @@ public class MongoConfig implements ConfigProvider {
                     modelFile.delete();
                 }
             }
+        }
+    }
+
+    public void writeGlobalModel() throws IOException {
+        FeatureManager fm = m_configManager.getFeatureManager();
+        List<Location> dbs = fm.getLocationsForEnabledFeature(MongoManager.FEATURE_ID);
+        List<Location> arbiters = fm.getLocationsForEnabledFeature(MongoManager.ARBITER_FEATURE);
+        writeGlobalModel(m_configManager, dbs, arbiters);
+    }
+
+    void writeGlobalModel(ConfigManager manager, List<Location> dbs, List<Location> arbiters) throws IOException {
+        Writer w = null;
+        try {
+            File f = new File(manager.getGlobalDataDirectory(), "mongo.json");
+            w = new FileWriter(f);
+            modelFile(w, dbs, arbiters, GLOBAL_REPLSET, false, MongoSettings.SERVER_PORT, MongoSettings.ARBITER_PORT);
+        } finally {
+            IOUtils.closeQuietly(w);
         }
     }
 
@@ -302,5 +314,9 @@ public class MongoConfig implements ConfigProvider {
 
     public void setRegionManager(RegionManager regionManager) {
         m_regionManager = regionManager;
+    }
+
+    public void setConfigManager(ConfigManager configManager) {
+        m_configManager = configManager;
     }
 }

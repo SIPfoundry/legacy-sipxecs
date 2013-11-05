@@ -32,6 +32,7 @@
   <bean id="mongoConfig" class="org.sipfoundry.sipxconfig.mongo.MongoConfig">
     <property name="mongoManager" ref="mongoManager"/>
     <property name="regionManager" ref="regionManager"/>
+    <property name="configManager" ref="configManager"/>
   </bean>
 
   <bean id="mongoReplSetManager" class="org.sipfoundry.sipxconfig.mongo.MongoReplSetManagerImpl" scope="prototype">
@@ -73,4 +74,8 @@
   </bean>
   <alias name="mongoLocalApi" alias="/mongoRegional/"/>  
     
+  <bean id="mongoHealth" class="org.sipfoundry.sipxconfig.mongo.MongoHealthCheck">
+    <property name="mongoManager" ref="mongoManager"/>
+    <property name="mongoConfig" ref="mongoConfig"/>
+  </bean>
 </beans>
