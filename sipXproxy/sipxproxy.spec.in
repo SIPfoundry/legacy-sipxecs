@@ -24,6 +24,7 @@ BuildRequires: shadow-utils
 BuildRequires: sipxcommserverlib-devel  >= %version
 BuildRequires: sipxportlib-devel        >= %version
 BuildRequires: sipxtacklib-devel        >= %version
+BuildRequires: resiprocate-devel
 
 Source:   %name-%version.tar.gz
 
@@ -40,6 +41,7 @@ BuildRequires: vixie-cron
 %endif
 Requires: sipxcommserverlib >= %version
 Requires: sipxrelay >= %version
+Requires: resiprocate
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -90,6 +92,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sysconfdir}/sipxpbx/sipxproxy/sipxproxy.sec.erb
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxproxy.cf
 %attr(755,root,root) %{_bindir}/sipXproxy
+%attr(755,root,root) %{_bindir}/wsrouter
 %attr(755,root,root) %{_datadir}/sipxecs/schema/forwardingrules.xsd
 %attr(755,root,root) %{_datadir}/sipxecs/schema/nattraversalrules.xsd
 %attr(755,root,root) %{_libdir}/authplugins/libCallDestination.so*
@@ -121,4 +124,5 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 setcap 'CAP_SYS_RESOURCE=+ep' %{_bindir}/sipXproxy
+setcap 'CAP_SYS_RESOURCE=+ep' %{_bindir}/wsrouter
 
