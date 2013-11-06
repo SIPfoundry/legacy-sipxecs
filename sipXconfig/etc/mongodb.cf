@@ -461,7 +461,7 @@ bundle agent mongodb_systemctl_running {
     mongod.mongodb_running.(restart_mongod|RESTART_DATABASE)::
       "$(sipx.systemctl)"
         comment => "restart mongo",
-        args => "asyncrestart $(service)";
+        args => "restart $(service)";
 }
 
 bundle agent mongodb_client {
