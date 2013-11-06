@@ -57,7 +57,7 @@ public abstract class UserPhonebookPage extends UserBasePage {
 
     /**
      * Implements click to call link
-     * 
+     *
      * @param number number to call - refer is sent to current user
      */
     public void call(String number) {
