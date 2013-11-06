@@ -25,21 +25,13 @@ start() {
   [ -x $exec ] || { echo -n "$execError"; echo_failure; echo; exit $ENOEXEC; }
   [ -f $config ] || { echo -n "$invalidFileError"; echo_failure; echo; exit $ENOENT; }
   if [ -n "${NoFork}" ] ; then
-<<<<<<< HEAD
     killAnyOrphans @SIPXPBXUSER@ $exec
-=======
-    killAnyOrphans @SIPXPBXUSER@ $prog
->>>>>>> - removed obsolete parameter --daemonize
     runuser - @SIPXPBXUSER@ -c "$exec  \
       --config-file $config \
       --pid-file $pidfile \
       --log-file $logfile"
   else
-<<<<<<< HEAD
     checkRunningInstance @SIPXPBXUSER@ $exec > /dev/null
-=======
-    checkRunningInstance @SIPXPBXUSER@ $prog > /dev/null
->>>>>>> - removed obsolete parameter --daemonize
     Status=$?
     [ $Status -eq 0 ] && { echo -n "$prog $runningError"; echo_failure; echo; exit $ERUNNING; }
 
@@ -52,18 +44,10 @@ start() {
 
     if [ $# -gt 0 ]; then
       #check if process was spawned
-<<<<<<< HEAD
       checkRunningInstanceTimeout @SIPXPBXUSER@ $exec
       Status=$?
       [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
       checkIfListening $prog
-
-=======
-      checkRunningInstanceTimeout @SIPXPBXUSER@ $prog
-      Status=$?
-      [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
-      checkIfListening $prog
->>>>>>> - removed obsolete parameter --daemonize
       Status=$?
       [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
       [ $Status -eq 0 ] && { echo_success; echo; }
