@@ -199,13 +199,13 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessResponse(ReproGlue
   resip::Message* msg = context.getCurrentEvent();
   if(!msg)
   {
-    return Processor::Continue;
+    return ReproGlue::RequestProcessor::Continue;
   }
 
   resip::SipMessage* sip = dynamic_cast<resip::SipMessage*>(msg);
   if(sip && sip->isResponse())
   {
-    addWsContactParams(context.getOriginalRequest());
+    addWsContactParams(*sip);
   }
   return ReproGlue::RequestProcessor::Continue;
 }
