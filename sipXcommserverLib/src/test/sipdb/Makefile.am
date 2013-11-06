@@ -26,12 +26,8 @@ TESTS = \
 	RegExpireThreadTest \
 	SubscribeExpireThreadTest \
 	MongoOpLogTest
-	
-	
 
-
-check_PROGRAMS = $(TESTS)
-			  
+check_PROGRAMS = $(TESTS)	  
 
 RegDBTest_SOURCES = RegDBTest.cpp
 RegBindingTest_SOURCES = RegBindingTest.cpp

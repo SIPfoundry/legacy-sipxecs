@@ -17,13 +17,31 @@
 #include "sipdb/MongoOpLog.h"
 #include <mongo/client/connpool.h>
 
-MongoOpLog::MongoOpLog(const MongoDB::ConnectionInfo& info, const std::string ns) :
+#include <os/OsLogger.h>
+
+const char* MongoOpLog::ts_fld(){static std::string name = "ts"; return name.c_str();}
+const char* MongoOpLog::op_fld(){static std::string name = "op"; return name.c_str();}
+const MongoOpLog::OpLogDataVec& MongoOpLog::opLogDataVec()
+{
+  static OpLogDataVec opLogDataVec = {{Insert, "i"},
+                                      {Delete, "d"},
+                                      {Update, "u"}};
+
+  return opLogDataVec;
+}
+
+MongoOpLog::MongoOpLog(const MongoDB::ConnectionInfo& info,
+                       const mongo::BSONObj& customQuery,
+                       const int querySleepTime,
+                       const unsigned long timeStamp) :
 	MongoDB::BaseDB(info),
   _isRunning(false),
-  _pTailThread(0),
-  _pTailConnection(0),
-  _ns(ns)
+  _pThread(0),
+  _querySleepTime(querySleepTime),
+  _timeStamp(timeStamp),
+  _customQuery(customQuery)
 {
+  _customQuery.getOwned();
 }
 
 MongoOpLog::~MongoOpLog()
@@ -31,143 +49,187 @@ MongoOpLog::~MongoOpLog()
   stop();
 }
 
-void MongoOpLog::registerCallback(OpLog type, OpLogCallBack cb)
+void MongoOpLog::registerCallback(OpLogType type, OpLogCallBack cb)
 {
-  switch(type)
+  if (type < FirstOpLog ||
+      type > LastOpLog)
   {
-    case Insert:
-      _insertCb.push_back(cb);
-      break;
-    case Delete:
-      _deleteCb.push_back(cb);
-      break;
-    case Update:
-      _updateCb.push_back(cb);
-      break;
-    case All:
-      _allCb.push_back(cb);
-      break;
+    return;
   }
+
+  _opLogCbVectors[type].push_back(cb);
 }
 
 void MongoOpLog::run()
 {
-  if (!_pTailThread)
-  {
-    _pTailThread = new boost::thread(boost::bind(&MongoOpLog::internal_run, this));
-  }
-  else if (!_pTailConnection)
-  {
-    //
-    // There is a thread but no connecton
-    //
-    stop();
-    _pTailThread = new boost::thread(boost::bind(&MongoOpLog::internal_run, this));
-  }
+  _isRunning = true;
+  _pThread = new boost::thread(boost::bind(&MongoOpLog::internal_run, this));
 }
 
 void MongoOpLog::stop()
 {
   _isRunning = false;
-  if (_pTailThread)
+
+  if (_pThread)
   {
-    if (_pTailConnection)
-    {
-      (*_pTailConnection).done();
-      (*_pTailConnection).kill();
-    }
-    _pTailThread->join();
+    _pThread->join();
+
+    delete _pThread;
+    _pThread = 0;
   }
-  
-  delete _pTailThread;
-  delete _pTailConnection;
-  _pTailThread = 0;
-  _pTailConnection = 0;
+}
+
+bool MongoOpLog::processQuery(mongo::DBClientCursor* cursor,
+                              mongo::BSONElement& lastTailId)
+{
+  if (!cursor)
+  {
+    OS_LOG_ERROR(FAC_SIP, "MongoOpLog:processQuery - Cursor is NULL");
+    return false;
+  }
+
+  while(_isRunning)
+  {
+    if(!cursor->more())
+    {
+      if (_querySleepTime)
+      {
+        sleep(_querySleepTime);
+      }
+
+      if(cursor->isDead())
+      {
+        break;
+      }
+
+      continue; // we will try more() again
+    }
+
+    const mongo::BSONObj& o = cursor->next();
+    lastTailId = o[ts_fld()];
+    notifyCallBacks(o);
+  }
+
+  return true;
+}
+
+void MongoOpLog::createQuery(mongo::BSONObj& query,
+                             const mongo::BSONElement& lastTailId)
+{
+  mongo::BSONObjBuilder queryBSONObjBuilder;
+
+  queryBSONObjBuilder.appendElements(BSON(ts_fld() << mongo::GT << lastTailId));
+  if (!_customQuery.isEmpty())
+  {
+    queryBSONObjBuilder.appendElements(_customQuery);
+  }
+  query = queryBSONObjBuilder.obj();
+}
+
+bool MongoOpLog::createFirstQuery(mongo::BSONObj& query,
+                                  mongo::BSONElement& lastTailId)
+{
+  if (_timeStamp == 0)
+  {
+    lastTailId = mongo::minKey.firstElement();
+
+    createQuery(query, lastTailId);
+  }
+  else
+  {
+    mongo::BSONObjBuilder builder;
+    unsigned long long timeStamp = (unsigned long long)_timeStamp << 32;
+    builder.appendTimestamp(ts_fld(), timeStamp);
+
+    lastTailId = builder.obj()[ts_fld()];
+
+    // Check that the created BSONElement has the correct timeStamp
+    unsigned long long lastTailIdTimeStamp = lastTailId.timestampTime();
+    if (_timeStamp * 1000 != lastTailIdTimeStamp)
+    {
+      OS_LOG_ERROR(FAC_SIP, "MongoOpLog time stamps are different " <<
+          _timeStamp * 1000 << lastTailIdTimeStamp);
+      return false;
+    }
+
+    // WARNING: BSONObj must stay in scope for the life of the BSONElement
+    createQuery(query, lastTailId);
+  }
+
+  return true;
 }
 
 void MongoOpLog::internal_run()
 {
-  mongo::BSONElement lastTailId = mongo::minKey.firstElement();
+  mongo::BSONElement lastTailId;
+  mongo::BSONObj query;
 
-  mongo::Query query = QUERY( "_id" << mongo::GT << lastTailId
-          << "ns" << _ns).sort("$natural");
-
-  _pTailConnection = mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString());
-  mongoMod::ScopedDbConnection& conn = *_pTailConnection;
-
-  std::auto_ptr<mongo::DBClientCursor> c =
-    conn.get()->query("local.oplog", query, 0, 0, 0,
-                      mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData | mongo::QueryOption_SlaveOk );
-  while(true)
+  bool rc = createFirstQuery(query, lastTailId);
+  if (false == rc)
   {
-    if(c->isDead())
-    {
-      delete _pTailConnection;
-      _pTailConnection = 0;
-      return;
-    }
-
-    if(!c->more())
-      break;
-
-    mongo::BSONObj o = c->next();
-    lastTailId = o["_id"];
+    return;
   }
 
-  _isRunning = true;
+  MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
 
   while (_isRunning)
   {
-    std::auto_ptr<mongo::DBClientCursor> c =
-      conn.get()->query("local.oplog", query, 0, 0, 0,
-                 mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData | mongo::QueryOption_SlaveOk );
-    while(true)
+    // If we are at the end of the data, block for a while rather
+    // than returning no data. After a timeout period, we do return as normal
+    std::auto_ptr<mongo::DBClientCursor> cursor = pConn->get()->query(_info.getNS(), query, 0, 0, 0,
+                 mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData );
+
+    bool rc = processQuery(cursor.get(), lastTailId);
+    if (false == rc)
     {
-      if(c->isDead())
-      {
-        delete _pTailConnection;
-        _pTailConnection = 0;
-        _isRunning = false;
-        return;
-      }
+      return;
+    }
 
-      if(!c->more())
-        break;
+    createQuery(query, lastTailId);
+  }
 
-      mongo::BSONObj o = c->next();
-      lastTailId = o["_id"];
-      notifyCallBacks(o.getStringField("op"), o.toString());
+  pConn->done();
+}
+
+void MongoOpLog::notifyCallBacks(const mongo::BSONObj& bSONObj)
+{
+  std::string type = bSONObj.getStringField(op_fld());
+  std::string opLog = bSONObj.toString();
+
+  if (type.empty() || opLog.empty())
+  {
+    return;
+  }
+
+  OpLogType opLogType;
+  bool found = false;
+
+  for (unsigned int i = 0; i <  sizeof(OpLogDataVec)/sizeof(OpLogData); i++)
+  {
+    if (type == opLogDataVec()[i].opName) // insert
+    {
+      opLogType = opLogDataVec()[i].opLogType;
+      found = true;
+      break;
     }
   }
 
-}
-
-void MongoOpLog::notifyCallBacks(const std::string& type, const std::string& opLog)
-{
-  if (type.empty() || opLog.empty())
-    return;
-  std::vector<OpLogCallBack>* _pCb = 0;
-  if (type == "i") // insert
-     _pCb = &_insertCb;
-  else if (type == "u") // update
-    _pCb = &_updateCb;
-  else if (type == "d") // delete
-    _pCb = &_deleteCb;
-  
-  if (_pCb)
+  if (false == found)
   {
-    //
-    // Notify specific subscribers
-    //
-    for(std::vector<OpLogCallBack>::iterator iter = (*_pCb).begin(); iter != (*_pCb).end(); iter++)
-      (*iter)(opLog);
-    //
-    // Notify all subscribers
-    //
-    for(std::vector<OpLogCallBack>::iterator iter = _allCb.begin(); iter != _allCb.end(); iter++)
-      (*iter)(opLog);
+    return;
+  }
+  
+  // Notify specific subscribers
+  for(OpLogCbVector::iterator iter = _opLogCbVectors[opLogType].begin();
+      iter != _opLogCbVectors[opLogType].end(); iter++)
+  {
+    (*iter)(bSONObj, opLog);
+  }
+
+  // Notify all subscribers
+  for(OpLogCbVector::iterator iter = _opLogCbVectors[All].begin(); iter != _opLogCbVectors[All].end(); iter++)
+  {
+    (*iter)(bSONObj, opLog);
   }
 }
-
-
 
