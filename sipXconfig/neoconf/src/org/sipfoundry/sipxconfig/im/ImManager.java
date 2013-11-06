@@ -23,24 +23,21 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 /**
  * Implementation is in sipXopenfire project
  */
-public abstract class ImManager  {
-    public static final String URL_FORMAT = "http://%s:%d/xmlrpc";
-    public static final String FEATURE_ID = "instantMessage";
-    public static final LocationFeature FEATURE = new LocationFeature(FEATURE_ID);
-    public static final AddressType XMPP_ADDRESS = new AddressType("instantMessageXmpp", 5222, Protocol.tcp);
-    public static final AddressType XMPP_SECURE_ADDRESS = new AddressType("instantMessageSecureXmpp", 5223,
+public interface ImManager {
+    final String URL_FORMAT = "http://%s:%d/xmlrpc";
+    final String FEATURE_ID = "instantMessage";
+    final LocationFeature FEATURE = new LocationFeature(FEATURE_ID);
+    final AddressType XMPP_ADDRESS = new AddressType("instantMessageXmpp", 5222, Protocol.tcp);
+    final AddressType XMPP_SECURE_ADDRESS = new AddressType("instantMessageSecureXmpp", 5223, Protocol.tcp);
+    final AddressType XMPP_FEDERATION_ADDRESS = new AddressType("instantMessageFederation", Protocol.tcp);
+    final AddressType XMPP_FILE_TRANSFER_PROXY_ADDRESS = new AddressType("instantMessageFileTransferProxy",
             Protocol.tcp);
-    public static final AddressType XMPP_FEDERATION_ADDRESS = new AddressType("instantMessageFederation", 5269,
-            Protocol.tcp);
-    public static final AddressType XMPP_FILE_TRANSFER_PROXY_ADDRESS =
-        new AddressType("instantMessageFileTransferProxy", Protocol.tcp);
-    public static final AddressType XMPP_ADMIN_CONSOLE_ADDRESS = new AddressType("instantMessageAdminConsole", 9095,
-            Protocol.tcp);
-    public static final AddressType XMLRPC_ADDRESS = new AddressType("instantMessageXmlrpc",
-        URL_FORMAT);
-    public static final AddressType XMLRPC_VCARD_ADDRESS = new AddressType("instantMessageVcardXmlrpc",
-            URL_FORMAT);
-    public static final AddressType WATCHER_ADDRESS = new AddressType("instantMessageWatcher");
+    final AddressType XMPP_ADMIN_CONSOLE_ADDRESS = new AddressType("instantMessageAdminConsole", Protocol.tcp);
+    final AddressType XMPP_BOSH_ADDRESS = new AddressType("instantMessageHttpBinding", Protocol.tcp);
+    final AddressType XMPP_BOSH_SECURE_ADDRESS = new AddressType("instantMessageHttpBindingSecure", Protocol.tcp);
+    final AddressType XMLRPC_ADDRESS = new AddressType("instantMessageXmlrpc", URL_FORMAT);
+    final AddressType XMLRPC_VCARD_ADDRESS = new AddressType("instantMessageVcardXmlrpc", URL_FORMAT);
+    final AddressType WATCHER_ADDRESS = new AddressType("instantMessageWatcher");
 
-    public abstract boolean isPresenceEnabled();
+    boolean isPresenceEnabled();
 }

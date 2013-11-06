@@ -51,11 +51,12 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.annotation.Required;
 
-public class OpenfireImpl extends ImManager implements FeatureProvider, AddressProvider, ProcessProvider, Openfire,
+public class OpenfireImpl implements ImManager, FeatureProvider, AddressProvider, ProcessProvider, Openfire,
     FirewallProvider, DnsProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
         XMPP_ADDRESS, XMPP_SECURE_ADDRESS, XMPP_FEDERATION_ADDRESS, XMLRPC_ADDRESS, XMLRPC_VCARD_ADDRESS,
-        WATCHER_ADDRESS, XMPP_FILE_TRANSFER_PROXY_ADDRESS, XMPP_ADMIN_CONSOLE_ADDRESS
+        WATCHER_ADDRESS, XMPP_FILE_TRANSFER_PROXY_ADDRESS, XMPP_ADMIN_CONSOLE_ADDRESS, XMPP_BOSH_ADDRESS,
+        XMPP_BOSH_SECURE_ADDRESS
     });
     private BeanWithSettingsDao<OpenfireSettings> m_settingsDao;
     private ConfigManager m_configManager;
@@ -111,6 +112,11 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
                 address = new Address(XMPP_FILE_TRANSFER_PROXY_ADDRESS, location.getAddress(), settings.getFileTransferProxyPort());
             } else if (type.equals(XMPP_ADMIN_CONSOLE_ADDRESS)) {
                 address = new Address(XMPP_ADMIN_CONSOLE_ADDRESS, location.getAddress(), XMPP_ADMIN_CONSOLE_ADDRESS.getCanonicalPort());
+            } else if (type.equals(XMPP_BOSH_ADDRESS)) {
+                address = new Address(XMPP_BOSH_ADDRESS, location.getAddress(), settings.getHttpBindingPort());
+            } else if (type.equals(XMPP_BOSH_SECURE_ADDRESS)) {
+                address = new Address(XMPP_BOSH_SECURE_ADDRESS, location.getAddress(),
+                        settings.getHttpBindingSecurePort());
             }
             addresses.add(address);
         }
@@ -160,6 +166,8 @@ public class OpenfireImpl extends ImManager implements FeatureProvider, AddressP
         rules.add(new DefaultFirewallRule(XMPP_ADDRESS, FirewallRule.SystemId.PUBLIC));
         rules.add(new DefaultFirewallRule(XMPP_SECURE_ADDRESS, FirewallRule.SystemId.PUBLIC));
         rules.add(new DefaultFirewallRule(XMPP_FEDERATION_ADDRESS, FirewallRule.SystemId.PUBLIC));
+        rules.add(new DefaultFirewallRule(XMPP_BOSH_ADDRESS, FirewallRule.SystemId.CLUSTER));
+        rules.add(new DefaultFirewallRule(XMPP_BOSH_SECURE_ADDRESS, FirewallRule.SystemId.CLUSTER));
         return rules;
     }
 

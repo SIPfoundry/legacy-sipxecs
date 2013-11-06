@@ -51,6 +51,9 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
     private static final String DISALLOWED_SERVERS =
         "openfire-server-to-server/disallowed-servers";
     private static final String MESSAGE_LOG_ENABLED = "message-logging/enabled";
+    private static final String BOSH_ENABLED = "http-binding/enabled";
+    private static final String BOSH_PORT = "http-binding/port";
+    private static final String BOSH_SECURE_PORT = "http-binding/secure-port";
     private static final AddressType GENERIC_ADDRESS = new AddressType("generic");
     private LocalizationContext m_localizationContext;
     private String m_logDir;
@@ -125,6 +128,18 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
 
     public String getMessageLogEnabled() {
         return getSettingTypedValue(MESSAGE_LOG_ENABLED).toString();
+    }
+
+    public String getHttpBindingEnabled() {
+        return getSettingTypedValue(BOSH_ENABLED).toString();
+    }
+
+    public Integer getHttpBindingPort() {
+        return (Integer) getSettingTypedValue(BOSH_PORT);
+    }
+
+    public Integer getHttpBindingSecurePort() {
+        return (Integer) getSettingTypedValue(BOSH_SECURE_PORT);
     }
 
     public String getLogDir() {

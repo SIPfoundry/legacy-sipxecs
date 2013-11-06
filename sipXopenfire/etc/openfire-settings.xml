@@ -268,6 +268,25 @@
       </type>
     </setting>
   </group>
+  <group name="http-binding">
+    <setting name="enabled">
+      <type refid="switch" />
+      <!-- if you change this to true, make sure to change the firewall rules, too -->
+      <value>false</value>
+    </setting>
+    <setting name="port" advanced="yes">
+      <type>
+        <integer/>
+      </type>
+      <value>7070</value>
+    </setting>
+    <setting name="secure-port" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>7443</value>
+    </setting>
+  </group>
   <group name="message-logging">
     <setting name="enabled">
       <type refid="switch" />
