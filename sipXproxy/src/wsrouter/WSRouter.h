@@ -28,7 +28,8 @@ class WSRouter : public OsServiceOptions
 public:
   WSRouter(int argc, char** argv, const std::string& daemonName, const std::string& version, const std::string& copyright);
   ~WSRouter();
-  ReproGlue::RequestProcessor::ChainReaction onProcessRequestContext(ReproGlue& repro, RequestContext& context);
+  ReproGlue::RequestProcessor::ChainReaction onProcessRequest(ReproGlue& repro, RequestContext& context);
+  ReproGlue::RequestProcessor::ChainReaction onProcessResponse(ReproGlue& repro, RequestContext& context);
   bool initialize();
   int main();
 protected:

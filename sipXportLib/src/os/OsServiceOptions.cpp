@@ -530,25 +530,45 @@ void  OsServiceOptions::daemonize(int argc, char** argv)
     }
   }
 
+  
   if (isDaemon)
   {
-     int pid = 0;
-   if(getppid() == 1)
-     return;
-   pid=fork();
-   if (pid<0) exit(1); /* fork error */
-   if (pid>0) exit(0); /* parent exits */
-   /* child (daemon) continues */
-   setsid(); /* obtain a new process group */
+    bool hasPID = false;
+    for (int i = 0; i < argc; i++)
+    {
+      std::string arg = argv[i];
+      if (arg == "-P" || arg == "--pid-file")
+      {
+        hasPID = true;
+        break;
+      }
+    }
+    
+    if (hasPID)
+    {
+      int pid = 0;
+      if(getppid() == 1)
+        return;
+      pid=fork();
+      if (pid<0) exit(1); /* fork error */
+      if (pid>0) exit(0); /* parent exits */
+      /* child (daemon) continues */
+      setsid(); /* obtain a new process group */
 
-   for (int descriptor = getdtablesize();descriptor >= 0;--descriptor)
-   {
-     close(descriptor); /* close all descriptors we have inheritted from parent*/
-   }
+      for (int descriptor = getdtablesize();descriptor >= 0;--descriptor)
+      {
+        close(descriptor); /* close all descriptors we have inheritted from parent*/
+      }
 
-   int h = open("/dev/null",O_RDWR); dup(h); dup(h); /* handle standard I/O */
+      int h = open("/dev/null",O_RDWR); dup(h); dup(h); /* handle standard I/O */
 
-   ::close(STDIN_FILENO);
+      ::close(STDIN_FILENO);
+    }
+    else
+    {
+      std::cerr << "Daemonize attempt without setting a PID file (--pid-file).  Aborting ..." << std::endl;
+      exit(-1);
+    }
   }
 }
 

@@ -19,7 +19,6 @@
 #include <os/OsLogger.h>
 #include "WSRouter.h"
 
-
 static bool gEnableReproLogging = false;
 
 void log_callback(int level, const char* message)
@@ -103,7 +102,8 @@ bool WSRouter::initialize()
   //
   // Prepare repro instance
   //
-  _pRepro->setStaticRouteHandler(boost::bind(&WSRouter::onProcessRequestContext, this, _1, _2));
+  _pRepro->setStaticRouteHandler(boost::bind(&WSRouter::onProcessRequest, this, _1, _2));
+  _pRepro->setResponseHandler(boost::bind(&WSRouter::onProcessResponse, this, _1, _2));
   _pRepro->setLogCallBack(boost::bind(log_callback, _1, _2));
   _pRepro->setLogLevel(ReproGlue::ReproLogger::Debug);
   _pRepro->setProxyConfigValue("DisableRegistrar", "true");
@@ -126,7 +126,26 @@ int WSRouter::main()
   return -1;
 }
 
-ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequestContext(ReproGlue& repro, RequestContext& context)
+static void addWsContactParams(resip::SipMessage& msg)
+{
+  if (msg.getSource().getType() == resip::WS)
+  {
+    for (NameAddrs::iterator iter = msg.header(h_Contacts).begin(); 
+         iter != msg.header(h_Contacts).end(); ++iter)
+    {
+       if(iter->isWellFormed())
+       {
+         //
+         // Add SRC IP Here
+         //
+         iter->uri().param(resip::p_wsSrcIp) = resip::Tuple::inet_ntop(msg.getSource());
+         iter->uri().param(resip::p_wsSrcPort) = msg.getSource().getPort();
+       }
+    }
+  }
+}
+
+ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue& repro, RequestContext& context)
 {
   resip::SipMessage& msg = context.getOriginalRequest();
   resip::Uri ruri(msg.header(h_RequestLine).uri());
@@ -151,21 +170,10 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequestContext(Rep
     ruri.port() = _proxyPort;
     ruri.remove(resip::p_transport);
     
+    addWsContactParams(msg);
+    
     if (msg.method() == resip::REGISTER)
     {
-      for (NameAddrs::iterator iter = msg.header(h_Contacts).begin(); 
-           iter != msg.header(h_Contacts).end(); ++iter)
-      {
-         if(iter->isWellFormed())
-         {
-           //
-           // Add SRC IP Here
-           //
-           iter->uri().param(resip::p_wsSrcIp) = resip::Tuple::inet_ntop(msg.getSource());
-           iter->uri().param(resip::p_wsSrcPort) = msg.getSource().getPort();
-         }
-      }
-      
       NameAddr path;
       path.uri().scheme() = "sip";
       path.uri().host() = _address.c_str();
@@ -186,3 +194,8 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequestContext(Rep
   return ReproGlue::RequestProcessor::SkipThisChain;
 }
 
+ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessResponse(ReproGlue& repro, RequestContext& context)
+{
+  addWsContactParams(context.getOriginalRequest());
+  return ReproGlue::RequestProcessor::Continue;
+}
