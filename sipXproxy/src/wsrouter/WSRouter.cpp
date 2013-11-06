@@ -196,6 +196,16 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
 
 ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessResponse(ReproGlue& repro, RequestContext& context)
 {
-  addWsContactParams(context.getOriginalRequest());
+  resip::Message* msg = context.getCurrentEvent();
+  if(!msg)
+  {
+    return Processor::Continue;
+  }
+
+  resip::SipMessage* sip = dynamic_cast<resip::SipMessage*>(msg);
+  if(sip && sip->isResponse())
+  {
+    addWsContactParams(context.getOriginalRequest());
+  }
   return ReproGlue::RequestProcessor::Continue;
 }
