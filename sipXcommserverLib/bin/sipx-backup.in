@@ -197,12 +197,6 @@ then
   done
   confirm_action
 
-  # Create a copy of /etc/ntp.conf file
-  echo -n "Creating a copy of /etc/ntp.conf file..."
-  NTPConfigFile="ntp.conf.backup"
-  @SIPX_BINDIR@/sipx-time-manager --display-configuration > $ARCHIVE_DIR/$NTPConfigFile
-  echo "done."
-
   # Delete the old backup file if it exists.
   delete_old_file $CONFIG_BACKUP_FILE
 
