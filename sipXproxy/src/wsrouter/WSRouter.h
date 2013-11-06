@@ -41,6 +41,7 @@ protected:
   std::string _address;
   int _wsPort;
   int _tcpUdpPort;
+  std::string _dbPath;
 };
 
 

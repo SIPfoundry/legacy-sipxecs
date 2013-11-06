@@ -242,7 +242,7 @@ bool ReproGlue::ReproLogger::initialize()
 // ReproGlue //
 ///////////////
 
-ReproGlue::ReproGlue(const std::string& applicationName) :
+ReproGlue::ReproGlue(const std::string& applicationName, const std::string& databaseDir) :
   _pReproConfig(0),
   _applicationName(applicationName),
   _pStaticRouter(0),
@@ -258,7 +258,7 @@ ReproGlue::ReproGlue(const std::string& applicationName) :
   // Create the data store early so we can allow add/update operations
   // upon construction of ReproGlue.
   //
-  _pReproConfig->setDefaultConfigValue("DatabasePath", SIPX_DBDIR);
+  _pReproConfig->setDefaultConfigValue("DatabasePath", databaseDir.c_str());
   createDatastore();
 
   //

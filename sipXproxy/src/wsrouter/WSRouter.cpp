@@ -61,6 +61,7 @@ WSRouter::WSRouter(int argc, char** argv, const std::string& daemonName, const s
   addOptionString("proxy-address", ": The address of the Proxy.", CommandLineOption, true);
   addOptionInt("proxy-port", ": The port of the Proxy.", CommandLineOption, false);
   addOptionFlag("enable-library-logging", ": Log library level messages.", CommandLineOption);
+  addOptionString("db-path", ": Specify a specific directory where application databases will be saved.", CommandLineOption, false);
 }
 
 WSRouter::~WSRouter()
@@ -72,20 +73,21 @@ bool WSRouter::initialize()
 {
   parseOptions();
   
-  assert(!_pRepro);
-  _pRepro = new ReproGlue(_process);
-  
   assert(getOption("ip-address", _address));
   assert(getOption("ws-port", _wsPort));
   assert(getOption("tcp-udp-port", _tcpUdpPort));
   assert(getOption("proxy-address", _proxyAddress));
   getOption("proxy-port", _proxyPort, 0);
+  getOption("db-path", _dbPath, SIPX_DBDIR);
   assert(getOption("domain", _domains));
   
   if (hasOption("enable-library-logging", true))
   {
     gEnableReproLogging = true;
   }
+  
+  assert(!_pRepro);
+  _pRepro = new ReproGlue(_process, _dbPath);
   
   std::ostringstream transport;
   transport << _address << ":" << _tcpUdpPort;

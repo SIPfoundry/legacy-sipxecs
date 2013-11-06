@@ -189,13 +189,14 @@ public:
     repro::Processor* _pDefaultChain;
   };
    
-  ReproGlue(const std::string& applicationName);
+  ReproGlue(const std::string& applicationName, const std::string& databaseDir = SIPX_DBDIR);
   /// Constructs a new ReproGlue with the given applicationName.
   /// applicationName will be used as a prefix to the dataStore
   /// created for this instance. pLogger is a pointer to the external logger
   /// callback derived from ExternalLogger class.  If set, repro will invoke
-  /// the callback and allow the application to bypass resirocate logging
-  /// subsystem.
+  /// the callback and allow the application to bypass resiprocate logging
+  /// subsystem.  The databaseDir paramater can be set to allow the application
+  /// to store persistent information in a different directory other then the default.
   
   void setProxyConfigValue(const std::string& name, const std::string& value, bool custom = false);
   /// This method allows applications to override the proxy configuration defaults.
