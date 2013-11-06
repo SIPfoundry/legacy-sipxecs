@@ -11,18 +11,16 @@
 # NOTE: This file cloned from /etc/init.d/mongod from mongodb proper
 
 . /etc/rc.d/init.d/functions
-. @SIPX_LIBEXECDIR@/sipx-utils.sh || { echo_failure; echo; exit $ENOENT; }
+
 # things from mongod.conf get there by mongod reading it
 
 
 # NOTE: if you change any OPTIONS here, you get what you pay for:
 # this script assumes all options are in the config file.
-PROG="mongod-arbiter"
 CONFIGFILE="/etc/mongod-arbiter.conf"
 OPTIONS=" -f $CONFIGFILE"
 SYSCONFIG="/etc/sysconfig/mongod-arbiter"
 LOCKFILE=/var/lock/subsys/mongod-arbiter
-regex="mongod"
 
 # 10gen v.s. fedora
 if `id mongodb 1>/dev/null 2>&1` ; then
@@ -35,7 +33,7 @@ else
   MONGO_GROUP=mongod
 fi
 
-test -f $CONFIGFILE || { echo_failure; echo; exit $ENOENT; }
+test -f $CONFIGFILE || exit 5
 
 # FIXME: 1.9.x has a --shutdown flag that parses the config file and
 # shuts down the correct running pid, but that's unavailable in 1.8
@@ -51,48 +49,25 @@ chown $MONGO_USER:$MONGO_GROUP $DBPATH
 
 start()
 {
-  checkRunningInstance $MONGO_USER $mongod > /dev/null
-  Status=$?
-  [ $Status -eq 0 ] && { echo -n "$PROG $runningError"; echo_failure; echo; exit $ERUNNING; }
-  echo -n $"Starting $PROG: "
-  daemon --user "$MONGO_USER" $mongod $OPTIONS > /dev/null
+  echo -n $"Starting mongod-arbiter: "
+  daemon --user "$MONGO_USER" $mongod $OPTIONS
   RETVAL=$?
-
-  if [ $# -gt 0 ]; then
-    #check if process was spawned
-    checkRunningInstanceTimeout $MONGO_USER $mongod
-    RETVAL=$?
-    [ $RETVAL -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
-    pid=`ps -u $MONGO_USER -o pid,args | grep $mongod | grep -v "grep" | awk '{print $1 }'`
-    checkIfListening $pid
-    RETVAL=$?
-    [ $RETVAL -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
-    [ $RETVAL -eq 0 ] && touch $LOCKFILE
-    [ $RETVAL -eq 0 ] && { echo_success; echo; }
-  else
-    [ $RETVAL -eq 0 ] && { echo_success; echo; }
-    [ $RETVAL -eq 0 ] || { echo_failure; echo; }
-  fi
+  echo
+  [ $RETVAL -eq 0 ] && touch $LOCKFILE
 }
 
 stop()
 {
-  echo -n $"Stopping $PROG: "
-  killproc $mongod
+  echo -n $"Stopping mongod-arbiter: "
+  killproc -p $PIDFILE $mongod
   RETVAL=$?
   echo
   [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
-  killAnyOrphans $MONGO_USER $mongod
 }
 
-restart() {
-  stop
-  start $withCheck
-}
-
-asyncrestart() {
-  stop
-  start
+restart () {
+	stop
+	start
 }
 
 ulimit -n 12000
@@ -100,7 +75,7 @@ RETVAL=0
 
 case "$1" in
   start)
-    start $withCheck
+    start
     ;;
   stop)
     stop
@@ -108,21 +83,16 @@ case "$1" in
   restart|reload|force-reload)
     restart
     ;;
-  asyncrestart)
-    asyncrestart
-    ;;
   condrestart)
-    checkRunningInstance $MONGO_USER $mongod > /dev/null
-    RETVAL=$?
-    [ $RETVAL -eq 0 ] && [ -f $LOCKFILE ] && restart || :
+    [ -f $LOCKFILE ] && restart || :
     ;;
   status)
-    checkRunningInstance $MONGO_USER $mongod $PROG
+    status -p $PIDFILE "mongod-arbiter"
     RETVAL=$?
     ;;
   *)
-    echo "Usage: $0 {start|stop|status|restart|asyncrestart|reload|force-reload|condrestart}"
-    RETVAL=$EINCORRECTUSAGE
+    echo "Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart}"
+    RETVAL=1
 esac
 
 exit $RETVAL
