@@ -380,6 +380,8 @@ protected:
   RequestProcessor* _pResponseProcessor; /// Pointer to the response processor
    
   int _currentTransportCount; /// Holds the number of listeners added
+  
+  bool _enableWebAdmin; /// Enables the web-admin gui.  Defaults to false
 };
 
 

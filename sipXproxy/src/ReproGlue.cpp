@@ -248,8 +248,8 @@ ReproGlue::ReproGlue(const std::string& applicationName, const std::string& data
   _pStaticRouter(0),
   _pTargetProcessor(0),
   _pResponseProcessor(0),
-  _currentTransportCount(0)
-  
+  _currentTransportCount(0),
+  _enableWebAdmin(false)
 {
   mProxyConfig = _pReproConfig = new ReproConfig(); // This pointer is owned by ReproRunner.
                                                     // Do not delete it here.
@@ -1508,7 +1508,7 @@ bool ReproGlue::run()
    }
 
    // Create HTTP WebAdmin and Thread
-   if(!createWebAdmin())
+   if(_enableWebAdmin && !createWebAdmin())
    {
       return false;
    }
@@ -1535,7 +1535,7 @@ bool ReproGlue::run()
       mDumThread->run();
    }
    mProxy->run();
-   if(mWebAdminThread)
+   if(_enableWebAdmin && mWebAdminThread)
    {
       mWebAdminThread->run();
    }
