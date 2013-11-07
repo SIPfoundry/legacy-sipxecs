@@ -97,6 +97,7 @@ sipx_all = \
 # think it's called as ruby-postgres is obsoleted.
 lib_all = \
   epel \
+  cajun-jsonapi \
   resiprocate \
   rubygem-file-tail \
   freeswitch \
