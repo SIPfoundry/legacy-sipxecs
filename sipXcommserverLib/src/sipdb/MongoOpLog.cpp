@@ -201,6 +201,12 @@ void MongoOpLog::notifyCallBacks(const mongo::BSONObj& bSONObj)
     return;
   }
 
+  // Notify all subscribers
+  for(OpLogCbVector::iterator iter = _opLogCbVectors[All].begin(); iter != _opLogCbVectors[All].end(); iter++)
+  {
+    (*iter)(bSONObj, opLog);
+  }
+
   OpLogType opLogType;
   bool found = false;
 
@@ -222,12 +228,6 @@ void MongoOpLog::notifyCallBacks(const mongo::BSONObj& bSONObj)
   // Notify specific subscribers
   for(OpLogCbVector::iterator iter = _opLogCbVectors[opLogType].begin();
       iter != _opLogCbVectors[opLogType].end(); iter++)
-  {
-    (*iter)(bSONObj, opLog);
-  }
-
-  // Notify all subscribers
-  for(OpLogCbVector::iterator iter = _opLogCbVectors[All].begin(); iter != _opLogCbVectors[All].end(); iter++)
   {
     (*iter)(bSONObj, opLog);
   }
