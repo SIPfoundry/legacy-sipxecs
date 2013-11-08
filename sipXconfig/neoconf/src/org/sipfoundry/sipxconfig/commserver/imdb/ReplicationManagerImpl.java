@@ -131,7 +131,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private final Closure<User> m_userGroupClosure = new Closure<User>() {
         @Override
         public void execute(User user) {
-            replicateEntity(user, GROUP_DATASETS);
+            replicateEntityDatasets(user, GROUP_DATASETS);
             getHibernateTemplate().clear(); // clear the H session (see XX-9741)
         }
     };
@@ -150,7 +150,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private final Closure<User> m_branchClosure = new Closure<User>() {
         @Override
         public void execute(User user) {
-            replicateEntity(user, BRANCH_DATASETS);
+            replicateEntityDatasets(user, BRANCH_DATASETS);
             getHibernateTemplate().clear(); // clear the H session (see XX-9741)
         }
     };
@@ -346,8 +346,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     /**
      * Replicates an array of {@link DataSet}s for a given {@link Replicable}
      */
-    @Override
-    public void replicateEntity(Replicable entity, DataSet... dataSets) {
+    private void replicateEntityDatasets(Replicable entity, DataSet... dataSets) {
         if (!entity.isEnabled()) {
             removeEntity(entity);
             return;
@@ -359,8 +358,14 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             boolean shouldSave = false;
             for (DataSet dataSet : dataSets) {
                 if (shouldSave) {
+                    if (dataSet == DataSet.SPEED_DIAL)  {
+                        replicateEntity(entity, dataSet);
+                    }
                     replicateEntity(entity, dataSet, top);
                 } else {
+                    if (dataSet == DataSet.SPEED_DIAL)  {
+                        shouldSave = replicateEntity(entity, dataSet);
+                    }
                     shouldSave = replicateEntity(entity, dataSet, top);
                 }
             }
@@ -392,6 +397,19 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         }
     }
 
+    @Override
+    public boolean replicateEntity(Replicable entity, DataSet ds) {
+        String field = ds.getFieldName();
+        DBObject top = findOrCreate(entity, field);
+        BasicDBObject query = new BasicDBObject();
+        query.putAll(top);
+        if (replicateEntity(entity, ds, top)) {
+            BasicDBObject set = new BasicDBObject("$set", new BasicDBObject(field, top.get(field)));
+            getDbCollection().update(query, set);
+        }
+        return true;
+    }
+    
     /**
      * Replicate only a specified DataSet for all entities.
      */
@@ -469,7 +487,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             for (DBObject user : users) {
                 String uid = user.get(MongoConstants.UID).toString();
                 User u = m_coreContext.loadUserByUserName(uid);
-                replicateEntity(u, BRANCH_DATASETS);
+                replicateEntityDatasets(u, BRANCH_DATASETS);
                 getHibernateTemplate().clear(); // clear the H session (see XX-9741)
             }
             LOG.info("End of regeneration of branch members.");
@@ -487,7 +505,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             for (DBObject user : users) {
                 String uid = user.get(MongoConstants.UID).toString();
                 User u = m_coreContext.loadUserByUserName(uid);
-                replicateEntity(u, GROUP_DATASETS);
+                replicateEntityDatasets(u, GROUP_DATASETS);
                 getHibernateTemplate().clear(); // clear the H session (see XX-9741)
             }
             LOG.info("End of regeneration of group members.");
@@ -658,6 +676,31 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         return top;
     }
 
+    protected DBObject findOrCreate(Replicable entity, String fieldName) {
+        DBCollection collection = getDbCollection();
+        String id = getEntityId(entity);
+
+        DBObject search = new BasicDBObject();
+        search.put(ID, id);
+        DBObject top = collection.findOne(search, new BasicDBObject(fieldName, "1"));
+        if (top == null) {
+            top = new BasicDBObject();
+            top.put(ID, id);
+            String sipDomain = m_coreContext.getDomainName();
+            if (entity.getIdentity(sipDomain) != null) {
+                top.put(IDENTITY, entity.getIdentity(sipDomain));
+            }
+            for (String key : entity.getMongoProperties(sipDomain).keySet()) {
+                top.put(key, entity.getMongoProperties(sipDomain).get(key));
+            }
+            if (entity.isValidUser()) {
+                top.put(VALID_USER, true);
+            }
+            top.put(ENTITY_NAME, entity.getEntityName().toLowerCase());
+        }
+        return top;
+    }
+    
     private String getEntityId(Replicable entity) {
         String id = "";
         if (entity instanceof BeanWithId) {

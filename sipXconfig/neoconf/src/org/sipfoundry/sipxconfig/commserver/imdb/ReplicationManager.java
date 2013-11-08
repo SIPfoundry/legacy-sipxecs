@@ -28,14 +28,6 @@ public interface ReplicationManager {
     void replicateEntity(Replicable entity);
 
     /**
-     * Replicate to MongoDB (imdb.entity) a single DataSet of this Replicable
-     *
-     * @param entity
-     * @param ds
-     */
-    void replicateEntity(Replicable entity, DataSet... ds);
-
-    /**
      * Removes from MongoDB (imdb.entity) a single Replicable entity
      *
      * @param entity
@@ -98,4 +90,6 @@ public interface ReplicationManager {
      * @return
      */
     public boolean testDatabaseReady();
+
+    public boolean replicateEntity(Replicable entity, DataSet field);
 }

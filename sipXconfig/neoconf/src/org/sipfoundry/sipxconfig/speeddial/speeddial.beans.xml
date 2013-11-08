@@ -17,6 +17,7 @@
     <property name="coreContext" ref="coreContext" />
     <property name="featureManager" ref="featureManager" />
     <property name="configManager" ref="configManager" />
+    <property name="replicationManager" ref="replicationManager" />
     <property name="validUsers" ref="validUsers" />
     <property name="aliasManager" ref="aliasManagerImpl" />
   </bean>
