@@ -38,6 +38,13 @@
               model="ognl:autoAttendants"
               value="ognl:menuItems.currentMenuItem.parameter"/>
           </span>
+          <span jwcid="@If"
+            condition="ognl:menuItems.currentMenuItem.action.dialByNameParameter">
+             <span jwcid="@common/GroupMultiSelect"
+				value="ognl:menuItems.currentMenuItem.parameter"
+				source="ognl:coreContext.groups"
+				htmlId="ognl:'gms:groups' + menuItems.getCurrentDialPadKey().getName()"/>
+          </span>
         </span>
         <span jwcid="extensionColumnValue@Block">
           <input jwcid="@TextField" value="ognl:menuItems.currentMenuItem.parameter"/>

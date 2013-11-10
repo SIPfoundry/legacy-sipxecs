@@ -21,6 +21,7 @@
       <menuItem>
         <dialPad>9</dialPad>
         <action>dial_by_name</action>
+        <parameter></parameter>
       </menuItem>
     </menuItems>
     <dtmf>

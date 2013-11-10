@@ -52,6 +52,10 @@ public final class AttendantMenuAction extends Enum {
         return (this == AUTO_ATTENDANT);
     }
 
+    public boolean isDialByNameParameter() {
+        return (this == DIAL_BY_NAME);
+    }
+
     public boolean isVoicemailParameter() {
         return (this == VOICEMAIL_LOGIN);
     }

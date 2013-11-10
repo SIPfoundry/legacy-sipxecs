@@ -33,6 +33,7 @@ import org.apache.tapestry.form.validator.Required;
 import org.apache.tapestry.form.validator.Validator;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
@@ -53,6 +54,9 @@ public abstract class AttendantMenuPanel extends BaseComponent {
 
     @InjectObject(value = "spring:autoAttendantManager")
     public abstract AutoAttendantManager getAutoAttendantManager();
+
+    @InjectObject(value = "spring:coreContext")
+    public abstract CoreContext getCoreContext();
 
     @InjectObject(value = "spring:tapestry")
     public abstract TapestryContext getTapestry();
