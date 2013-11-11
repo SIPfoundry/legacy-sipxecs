@@ -69,11 +69,11 @@ public class DialByName {
                 // Collect the digits from the caller.  Use the "*" and "#" keys as terminators
                 // There are a LONG (10 second) digit timers here, as spelling on the phone
                 // is difficult!  The "#" key will terminate any input if the caller is finished.
-                Collect c = new Collect(m_loc.getFreeSwitchEventSocketInterface(), 1, 10000, 0, 0);
+                Collect c = new Collect(m_loc.getFreeSwitchEventSocketInterface(), 3, 10000, 1000, 1000);
                 c.setTermChars("*#");
                 c.go();
                 String digit = c.getDigits();
-                LOG.info("DialByName::dialByName Collected digit=" + digit);
+                LOG.info("DialByName::dialByName Collected digits=" + digit);
                 if (digit.length() == 0) {
                     break ; // Timeout
                 }
