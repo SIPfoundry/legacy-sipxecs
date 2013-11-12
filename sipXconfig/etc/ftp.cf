@@ -83,18 +83,17 @@ bundle edit_line ftp_sshd_config {
 bundle edit_line vsftp_config {
   insert_lines:
 "# vsftpd config created by sipxconfig
-cmds_allowed=TYPE,PASV,RETR,CWD,SIZE,QUIT,STOR,PWD,USER,PASS,APPE,LIST,MKD,NLST
+cmds_allowed=TYPE,PASV,RETR,CWD,SIZE,QUIT,STOR,PWD,USER,PASS,APPE
 xferlog_file=/var/log/vsftpd.log
 local_enable=YES
 write_enable=YES
 local_umask=022
-dirlist_enable=YES
+dirlist_enable=NO
 connect_from_port_20=YES
 xferlog_std_format=YES
 pam_service_name=vsftpd
 listen=YES
 chroot_local_user=YES
-allow_writeable_chroot=YES
 port_enable=YES
 log_ftp_protocol=YES";
     "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/vsftp.config.part"
