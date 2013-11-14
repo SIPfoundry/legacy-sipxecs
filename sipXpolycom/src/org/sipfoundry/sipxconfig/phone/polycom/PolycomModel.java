@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 
@@ -20,6 +22,7 @@ public final class PolycomModel extends PhoneModel {
     public static final DeviceVersion VER_2_0 = new DeviceVersion(PolycomPhone.BEAN_ID, "2.0");
     public static final DeviceVersion VER_3_1_X = new DeviceVersion(PolycomPhone.BEAN_ID, "3.1.X");
     public static final DeviceVersion VER_3_2_X = new DeviceVersion(PolycomPhone.BEAN_ID, "3.2.X");
+    public static final DeviceVersion VER_3_3_X = new DeviceVersion(PolycomPhone.BEAN_ID, "3.3.X");
     public static final DeviceVersion VER_4_0_X = new DeviceVersion(PolycomPhone.BEAN_ID, "4.0.X");
     public static final DeviceVersion VER_4_1_X = new DeviceVersion(PolycomPhone.BEAN_ID, "4.1.X");
     public static final DeviceVersion VER_4_1_0 = new DeviceVersion(PolycomPhone.BEAN_ID, "4.1.0");
@@ -33,6 +36,7 @@ public final class PolycomModel extends PhoneModel {
         VER_3_1_X, VER_3_2_X, VER_4_0_X, VER_4_1_X, VER_4_1_0, VER_4_1_2, VER_4_1_3, VER_4_1_4, VER_4_1_5,
         VER_5_0_0, VER_5_0_1
     };
+    private static final Log LOG = LogFactory.getLog(PolycomModel.class);
     private DeviceVersion m_deviceVersion;
 
     public PolycomModel() {
@@ -53,12 +57,20 @@ public final class PolycomModel extends PhoneModel {
 
     /**
      * generic method to compare versions
+     *
      * @param deviceVersion
      * @param testVersion
-     * @return negative if test version is greater than device version; positive if it is smaller and 0 if it they are equal
+     * @return negative if test version is greater than device version; positive if it is smaller
+     *         and 0 if it they are equal
      */
     protected static int compareVersions(DeviceVersion deviceVersion, Integer[] testVersion) {
-        String versionId = deviceVersion.getVersionId();
+        DeviceVersion deviceVersionCopy = deviceVersion;
+        if (deviceVersionCopy == null) {
+            // This is wrong!! LOG AN ERROR, but assume it's about 3.3
+            deviceVersionCopy = PolycomModel.VER_3_3_X;
+            LOG.error("Phone has NULL version id. It might be that it is has 3.3 firmware. Please correct the db!");
+        }
+        String versionId = deviceVersionCopy.getVersionId();
         String[] tokens = versionId.split("\\.");
         for (int i = 0; i < testVersion.length; i++) {
             Integer ver;

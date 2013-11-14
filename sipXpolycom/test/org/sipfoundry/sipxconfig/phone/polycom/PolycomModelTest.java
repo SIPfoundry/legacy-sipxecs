@@ -37,4 +37,13 @@ public class PolycomModelTest extends TestCase {
             4, 1, 3
         }));
     }
+
+    public void testNullVersion() {
+        assertEquals(-1, PolycomModel.compareVersions(null, new Integer[] {
+                4, 1, 3
+            }));
+        assertEquals(1, PolycomModel.compareVersions(null, new Integer[] {
+                3, 2
+            }));
+    }
 }

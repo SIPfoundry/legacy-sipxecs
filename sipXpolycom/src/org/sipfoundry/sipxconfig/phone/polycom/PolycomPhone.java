@@ -75,7 +75,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
     static final String SUBSCRIBE_PATH = "msg.mwi/subscribe";
     static final String TEMPLATE_DIR = "polycom/mac-address.d";
     static final String TEMPLATE_DIR40 = "polycom/mac-address.d.40";
-    static final String TEMPLATE_DIR41 = "polycom/mac-address.d.40";
+    static final String TEMPLATE_DIR41 = TEMPLATE_DIR40;
     static final String TEMPLATE_DIR32 = "polycom/mac-address.d.32";
     static final String MB_PROXY = "mb/proxy";
     static final String MB_IDLE_DISPLAY_HOME_PAGE = "mb/idleDisplay/home";
@@ -147,7 +147,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
 
     /**
      * Default firmware version for polycom phones. Default is 1.6 right now
-     * 
+     *
      * @param defaultVersionId 1.6 or 2.0
      */
     @Override
@@ -257,6 +257,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
      */
     static class FormatFilter implements ProfileFilter {
 
+        @Override
         public void copy(InputStream in, OutputStream out) throws IOException {
             SAXReader xmlReader = new SAXReader();
             Document doc;
@@ -271,6 +272,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
         }
     }
 
+    @Override
     public String getAdditionalPhoneSettings() {
         List<String> settings = new ArrayList<String>();
         addSetting(settings, MB_PROXY, MB_IDLE_DISPLAY_HOME_PAGE, MB_IDLE_DISPLAY_REFRESH, MB_MAIN_HOME_PAGE,
@@ -279,6 +281,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
         return StringUtils.join(settings, COMMA);
     }
 
+    @Override
     public void setAdditionalPhoneSettings(String additionalSettings) {
         List<String> settings = Arrays.asList(StringUtils.split(additionalSettings, COMMA));
         settings = Arrays.asList(StringUtils.split(additionalSettings, COMMA));
@@ -288,6 +291,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
         }
     }
 
+    @Override
     public List<String> getLinePaths() {
         List<String> paths = new ArrayList<String>();
         paths.add(REGISTRATION_LABEL);
