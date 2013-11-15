@@ -9,25 +9,33 @@
  */
 package org.sipfoundry.sipxconfig.branch;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.dbunit.dataset.ITable;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.time.NtpManager;
 
 public class BranchManagerImplTestIntegration extends IntegrationTestCase {
 
     private static final int NUM_BRANCHES = 5;
 
-    private BranchManager m_branchManager;
+    private BranchManagerImpl m_branchManager;
     private CoreContext m_coreContext;
     private LocationsManager m_locationManager;
 
-    public void setBranchManager(BranchManager branchManager) {
+    public void setBranchManagerImpl(BranchManagerImpl branchManager) {
         m_branchManager = branchManager;
     }
 
@@ -141,4 +149,33 @@ public class BranchManagerImplTestIntegration extends IntegrationTestCase {
     assertEquals("first_", page2.get(1).getDescription());
     assertEquals("second", page2.get(3).getDescription());
     }
+
+    public void testSetup() {
+        loadDataSet("branch/branches.db.xml");
+
+        Branch branch4 = m_branchManager.getBranch("branch4");
+        assertNull(branch4.getTimeZone());
+
+        SetupManager setupManager = createMock(SetupManager.class);
+        setupManager.isFalse("update_branch_tz");
+        expectLastCall().andReturn(true).times(2);
+
+        setupManager.setTrue("update_branch_tz");
+        expectLastCall().once();
+
+        NtpManager ntpManager = EasyMock.createMock(NtpManager.class);
+        ntpManager.getSystemTimezone();
+        expectLastCall().andReturn(TimeZone.getTimeZone("GMT+1").getID()).anyTimes();
+
+        replay(setupManager, ntpManager);
+        m_branchManager.setNtpManager(ntpManager);
+        m_branchManager.setup(setupManager);
+
+        branch4 = m_branchManager.getBranch("branch4");
+        assertTrue(branch4.getTimeZone().equals("GMT+01:00"));
+
+        EasyMock.verify(setupManager, ntpManager);
+
+    }
+
 }

@@ -57,6 +57,7 @@ public abstract class EditBranch extends PageWithCallback implements PageBeginRe
 
     public abstract void setTimezoneTypeModel(IPropertySelectionModel model);
 
+    @Override
     public void pageBeginRender(PageEvent event_) {
         Integer branchId = getBranchId();
         Branch branch;
@@ -75,6 +76,18 @@ public abstract class EditBranch extends PageWithCallback implements PageBeginRe
         setTimezoneTypeModel(model);
 
         setBranch(branch);
+    }
+
+    public String getBranchTimezone() {
+        if (getBranch().getTimeZone() == null) {
+            return getTimeManager().getSystemTimezone();
+        } else {
+            return getBranch().getTimeZone();
+        }
+    }
+
+    public void setBranchTimeZone(String timeZone) {
+        getBranch().setTimeZone(timeZone);
     }
 
     /*

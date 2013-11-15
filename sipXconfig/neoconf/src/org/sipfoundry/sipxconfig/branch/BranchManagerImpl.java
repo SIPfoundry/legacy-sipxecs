@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
@@ -20,13 +23,18 @@ import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
+import org.sipfoundry.sipxconfig.time.NtpManager;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
-public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implements BranchManager {
-
+public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implements BranchManager, SetupListener {
+    private static final Log LOG = LogFactory.getLog(BranchManagerImpl.class);
     private static final String NAME_PROP_NAME = "name";
+    private static final String UPDATE_BRANCH_TIMEZONE = "update_branch_tz";
     private JdbcTemplate m_jdbcTemplate;
+    private NtpManager m_ntpManager;
 
     @Override
     public Branch getBranch(Integer branchId) {
@@ -38,10 +46,12 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
         return getHibernateTemplate().get(Branch.class, branchId);
     }
 
+    @Override
     public Branch getBranch(String branchName) {
         return loadBranchByUniqueProperty(NAME_PROP_NAME, branchName);
     }
 
+    @Override
     public void saveBranch(Branch branch) {
         // Check for duplicate names before saving the branch
         if (branch.isNew() || (!branch.isNew() && isNameChanged(branch))) {
@@ -67,15 +77,15 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
     }
 
     /*
-     * (non-Javadoc)
-     * Use plain sql for increased efficiency when deleting user groups.
-     * A thing to note is that this method breaks the convention established by DaoEventDispatcher,
-     * namely publish delete event first, then proceed with the actual delete. It will actually
-     * manually delete from DB the group associations and the group and then the delete event is published.
-     * In the case of groups now, only ReplicationTrigger will trigger the delete sequence, all other
-     * event listeners that listened to group deletes were removed, and control moved in this method.
-     * This was the price to pay for increased efficiency in saving large groups.
+     * (non-Javadoc) Use plain sql for increased efficiency when deleting user groups. A thing to
+     * note is that this method breaks the convention established by DaoEventDispatcher, namely
+     * publish delete event first, then proceed with the actual delete. It will actually manually
+     * delete from DB the group associations and the group and then the delete event is published.
+     * In the case of groups now, only ReplicationTrigger will trigger the delete sequence, all
+     * other event listeners that listened to group deletes were removed, and control moved in
+     * this method. This was the price to pay for increased efficiency in saving large groups.
      */
+    @Override
     public void deleteBranches(Collection<Integer> branchIds) {
         List<String> sqlUpdates = new ArrayList<String>();
         Collection<Branch> branches = new ArrayList<Branch>(branchIds.size());
@@ -95,6 +105,7 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
         }
     }
 
+    @Override
     public List<Branch> getBranches() {
         List<Branch> branches = getHibernateTemplate().loadAll(Branch.class);
         return branches;
@@ -104,6 +115,7 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
         final Criterion expression = Restrictions.eq(propName, propValue);
 
         HibernateCallback callback = new HibernateCallback() {
+            @Override
             public Object doInHibernate(Session session) {
                 Criteria criteria = session.createCriteria(Branch.class).add(expression);
                 return criteria.list();
@@ -116,6 +128,7 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
         return branch;
     }
 
+    @Override
     public List<Branch> loadBranchesByPage(final int firstRow, final int pageSize, final String[] orderBy,
             final boolean orderAscending) {
         return loadBeansByPage(Branch.class, null, null, firstRow, pageSize, orderBy, orderAscending);
@@ -126,7 +139,31 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
         removeAll(Branch.class);
     }
 
+    @Override
+    public boolean setup(SetupManager manager) {
+        LOG.debug("Entering branch update setup task: " + manager.isFalse(UPDATE_BRANCH_TIMEZONE));
+        if (manager.isFalse(UPDATE_BRANCH_TIMEZONE)) {
+            LOG.info("Running branch update task: setting branch timezone to server timezone.");
+            String systemTz = m_ntpManager.getSystemTimezone();
+            for (Branch branch : getBranches()) {
+                String timezone = branch.getTimeZone();
+                if (StringUtils.isEmpty(timezone)) {
+                    LOG.debug(String.format("Setting branch %s to %s", branch.getName(), systemTz));
+                    branch.setTimeZone(systemTz);
+                    saveBranch(branch);
+                }
+            }
+            manager.setTrue(UPDATE_BRANCH_TIMEZONE);
+        }
+        return true;
+    }
+
     public void setConfigJdbcTemplate(JdbcTemplate jdbcTemplate) {
         m_jdbcTemplate = jdbcTemplate;
     }
+
+    public void setNtpManager(NtpManager ntpManager) {
+        m_ntpManager = ntpManager;
+    }
+
 }
