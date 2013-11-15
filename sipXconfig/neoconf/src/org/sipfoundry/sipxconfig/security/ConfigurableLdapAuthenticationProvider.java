@@ -125,7 +125,12 @@ public class ConfigurableLdapAuthenticationProvider extends AbstractUserDetailsA
                 }
                 // verify if user input domain can be handled by this provider, continue with next
                 // provider
-                if (userDomain != null && !userDomain.equals(providerDomain)) {
+                if (userDomain != null && !userDomain.equalsIgnoreCase(providerDomain)) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(
+                            "User domain which is: " + userDomain + " does not match provider domain which is: "
+                            + providerDomain + " continue with the next provider");
+                    }
                     continue;
                 }
 
@@ -133,14 +138,15 @@ public class ConfigurableLdapAuthenticationProvider extends AbstractUserDetailsA
                 // domain
                 if (userDomain == null) {
                     String savedDomain = loaddedUser.getUserDomain();
-                    if (!StringUtils.equals(StringUtils.defaultString(savedDomain, StringUtils.EMPTY),
+                    if (!StringUtils.equalsIgnoreCase(StringUtils.defaultString(savedDomain, StringUtils.EMPTY),
                             StringUtils.defaultString(providerDomain, StringUtils.EMPTY))) {
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("provider domain different than user domain " + savedDomain);
+                            LOG.debug("provider domain which is: "
+                                + StringUtils.defaultString(providerDomain, "Null")
+                                + " is different than user domain which is: "
+                                + StringUtils.defaultString(savedDomain, "NULL") + " continue with next provider");
                         }
-                        throw new AuthenticationServiceException(
-                                "The following domain does not belong to the actual user: " + userDomain
-                                        + " in the system - is an interface contract violation");
+                        continue;
                     }
                 }
 
