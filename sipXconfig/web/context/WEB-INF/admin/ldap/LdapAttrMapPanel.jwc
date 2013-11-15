@@ -44,7 +44,7 @@
   <component id="userName" type="PropertySelection">
     <binding name="value" value="attrMap.attribute['userName']" />
     <binding name="model" value="attributesSelectionModel" />
-    <binding name="displayName" value="message:label.userTD" />
+    <binding name="displayName" value="message:label.userID" />
   </component>
 
   <component id="firstNamePanel" type="common/FieldPanel">
