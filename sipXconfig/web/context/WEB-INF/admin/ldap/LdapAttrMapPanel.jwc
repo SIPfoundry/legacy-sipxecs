@@ -38,13 +38,13 @@
 
   <component id="userNamePanel" type="common/FieldPanel">
     <binding name="field" value="components.userName" />
-    <binding name="label" value="message:label.userName" />
-    <binding name="description" value="message:description.userName" />
+    <binding name="label" value="message:label.userID" />
+    <binding name="description" value="message:description.userID" />
   </component>
   <component id="userName" type="PropertySelection">
     <binding name="value" value="attrMap.attribute['userName']" />
     <binding name="model" value="attributesSelectionModel" />
-    <binding name="displayName" value="message:label.userName" />
+    <binding name="displayName" value="message:label.userTD" />
   </component>
 
   <component id="firstNamePanel" type="common/FieldPanel">
