@@ -137,7 +137,7 @@ bool MongoOpLog::createFirstQuery(mongo::BSONObj& query,
   }
   else
   {
-    mongo::BSONObjBuilder builder;
+    static mongo::BSONObjBuilder builder;
     unsigned long long timeStamp = (unsigned long long)_timeStamp << 32;
     builder.appendTimestamp(ts_fld(), timeStamp);
 
