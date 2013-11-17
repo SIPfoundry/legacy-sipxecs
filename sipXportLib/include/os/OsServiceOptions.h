@@ -40,7 +40,7 @@ public:
   enum OptionType
   {
     CommandLineOption,  // used for command line options
-    ConfigOption        // used for configuration file options
+    ConfigOption,        // used for configuration file options
   };
 
   enum ParseOptionsFlags
@@ -531,7 +531,7 @@ protected:
 
   /**
    * Function template for returning the value for a given option. It searches at first in command line and if
-   * not found it also searches in configuration file
+   * not found it also searches in configuration file. It searches only in registered options
    *
    * @param optionName - The option name
    * @param value - Returned value
@@ -539,7 +539,7 @@ protected:
    * @return - true if the option was found either in command line or in configuration file or a default value is given and false otherwise
    */
   template<typename T>
-  bool getOption(const std::string& optionName, T& value, const T defValue, bool haveDefaultValue) const
+  bool getRegisteredOption(const std::string& optionName, T& value, const T defValue, bool haveDefaultValue) const
   {
     OptionType optionType;
     bool retCode = false;
@@ -556,9 +556,7 @@ protected:
       {
         try
         {
-           // as our keys contains '.', which is default separator for boost::property_tree::ptree
-           // change that to '\0'
-          value = _configFileOptions.get<T>(boost::property_tree::path(optionName.c_str(), '\0'));
+          value = _configFileOptions[optionName.c_str()].as<T>();
           retCode = true;
           break;
         }
@@ -586,39 +584,28 @@ protected:
     return retCode;
   }
 
+  // Function template for returning the value for a given option. It searched both registered and unregistered options
   template<typename T>
-  bool getOptionVector(const std::string& optionName, std::vector<T>& value) const
+  bool getOption(const std::string& optionName, T& value, const T defValue, bool haveDefaultValue) const
   {
-    OptionType optionType;
+    bool rc = false;
 
-    if (!hasOption(optionName, &optionType))
-      return false;
-
-    if (optionType == CommandLineOption)
+    rc = getRegisteredOption<T>(optionName, value, defValue, haveDefaultValue);
+    if (true == rc)
     {
-      value = _commandLineOptions[optionName.c_str()].as<std::vector<T> >();
-    }
-    else
-    {
-      std::string strValue;
-      bool ret = false;
-
-      ret = getOption<std::string>(optionName, strValue, strValue, false);
-      if (false == ret)
-      {
-        return false;
-      }
-
-      typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-      boost::char_separator<char> sep(";");
-      tokenizer tokens(strValue, sep);
-      for (tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
-      {
-        value.push_back(boost::lexical_cast<T>(*tok_iter));
-      }
+      return true;
     }
 
-    return true;
+    // search also in unregistered options
+    std::map<std::string, std::string>::const_iterator it;
+    it = _unregisteredOptions.find(optionName);
+    if (_unregisteredOptions.end() != it)
+    {
+      value = boost::lexical_cast<T>(it->second);
+      return true;
+    }
+
+    return false;
   }
 
   int _argc;        // Number of arguments
@@ -629,13 +616,15 @@ protected:
   boost::program_options::options_description _configFileOptionsDescription;  // Configuration file options description
   boost::program_options::options_description _allOptionsDescription;         // All options description
 
+  // A map that contains the options that are unregistered before starting parsing.
+  std::map<std::string, std::string> _unregisteredOptions;
   
   boost::program_options::variables_map _commandLineOptions;
 
   std::string _configFile;                                       // Configuration file path
 
   
-  boost::property_tree::ptree _configFileOptions;                // Configuration file options
+  boost::program_options::variables_map _configFileOptions;                // Configuration file options
   bool _hasConfig;                                               // Is set true if configuration file is set
   bool _isParsed;                                                // Is set true if configuration file and command line are already parsed
 
@@ -685,6 +674,17 @@ inline bool OsServiceOptions::getOption(const std::string& optionName, std::stri
 inline bool OsServiceOptions::getOption(const std::string& optionName, std::string& value) const
 {
   return getOption<std::string>(optionName, value, value, false);
+}
+
+inline bool OsServiceOptions::getOption(const std::string& optionName, std::vector<std::string>& value) const
+{
+  return getRegisteredOption<std::vector<std::string> >(optionName, value, value, false);
+}
+
+
+inline bool OsServiceOptions::getOption(const std::string& optionName, std::vector<int>& value) const
+{
+  return getRegisteredOption<std::vector<int> >(optionName, value, value, false);
 }
 
 inline bool OsServiceOptions::getOption(const std::string& optionName, UtlString& value, const UtlString defValue) const

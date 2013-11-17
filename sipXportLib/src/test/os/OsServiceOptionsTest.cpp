@@ -375,8 +375,9 @@ public:
     std::ofstream config(configFile);
     for (size_t row = 0; row < sizeof(optionVectorTestData)/sizeof(OptionVectorTestData); row++)
     {
-      config << optionVectorTestData[row].pOptionName << "=" << optionVectorTestData[row].pOptionValue1 << ";" <<
-          optionVectorTestData[row].pOptionValue2 << ";" << optionVectorTestData[row].pOptionValue3 << std::endl;
+      config << optionVectorTestData[row].pOptionName << "=" << optionVectorTestData[row].pOptionValue1 << std::endl;
+      config << optionVectorTestData[row].pOptionName << "=" << optionVectorTestData[row].pOptionValue2 << std::endl;
+      config << optionVectorTestData[row].pOptionName << "=" << optionVectorTestData[row].pOptionValue3 << std::endl;
     }
 
     osServiceOptions.setConfigurationFile(configFile);

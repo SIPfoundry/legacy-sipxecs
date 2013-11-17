@@ -176,17 +176,6 @@ std::size_t OsServiceOptions::hasOption(const std::string& optionName, OptionTyp
   return ct;
 }
 
-
-bool OsServiceOptions::getOption(const std::string& optionName, std::vector<std::string>& value) const
-{
-  return getOptionVector<std::string>(optionName, value);
-}
-
-bool OsServiceOptions::getOption(const std::string& optionName, std::vector<int>& value) const
-{
-  return getOptionVector<int>(optionName, value);
-}
-
 bool OsServiceOptions::validateRequiredParameters(std::ostream& strm)
 {
   for (std::vector<std::string>::const_iterator iter = _requiredOptionsNames.begin(); iter != _requiredOptionsNames.end(); iter++)
@@ -295,14 +284,25 @@ bool OsServiceOptions::parseConfigurationFile(ParseOptionsFlags parseOptionsFlag
 
     while (_configDb.getNext(currentKey, nextKey, nextValue) != OS_NO_MORE_DATA)
     {
-      _configFileOptions.push_back(std::make_pair(nextKey.str(), nextValue.str()));
+      _unregisteredOptions.insert(std::make_pair(nextKey.str(), nextValue.str()));
 
       currentKey = nextKey;
     }
   }
   else
   {
-    boost::property_tree::ini_parser::read_ini(_configFile.c_str(), _configFileOptions);
+    //boost::property_tree::ini_parser::read_ini(_configFile.c_str(), _configFileOptions);
+    boost::program_options::parsed_options parsedFile = boost::program_options::parse_config_file<char>(_configFile.c_str(), _allOptionsDescription, true);
+    boost::program_options::store(parsedFile, _configFileOptions);
+    boost::program_options::notify(_configFileOptions);
+
+    for (unsigned int i = 0; i < parsedFile.options.size(); ++i)
+    {
+      if (parsedFile.options[i].unregistered)
+      {
+        _unregisteredOptions.insert(std::make_pair(parsedFile.options[i].string_key, parsedFile.options[i].value[0]));
+      }
+    }
   }
 
   return true;
