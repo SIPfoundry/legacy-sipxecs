@@ -86,7 +86,9 @@ protected:
 
   void createQuery(mongo::BSONObj& query, const mongo::BSONElement& lastTailId);
 
-  bool createFirstQuery(mongo::BSONObj& query, mongo::BSONElement& lastTailId);
+  bool createFirstQuery(mongo::BSONObj& timeStampObj,
+                        mongo::BSONObj& query,
+                        mongo::BSONElement& lastTailId);
 
   // Run callbacks
   void notifyCallBacks(const mongo::BSONObj& bSONObj);
