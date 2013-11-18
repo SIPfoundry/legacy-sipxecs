@@ -52,6 +52,7 @@ BUILD_EPEL = \
 	poco-debug-* \
 	python-empy-* \
 	rubygem-mocha-* \
+	v8-devel-* \
 	wxGTK-devel-* \
 	wxGTK-media-* \
 	xemacs-* \
