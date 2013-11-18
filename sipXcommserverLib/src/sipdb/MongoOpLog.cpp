@@ -126,7 +126,8 @@ void MongoOpLog::createQuery(mongo::BSONObj& query,
   query = queryBSONObjBuilder.obj();
 }
 
-bool MongoOpLog::createFirstQuery(mongo::BSONObj& query,
+bool MongoOpLog::createFirstQuery(mongo::BSONObj& timeStampObj,
+                                  mongo::BSONObj& query,
                                   mongo::BSONElement& lastTailId)
 {
   if (_timeStamp == 0)
@@ -137,11 +138,12 @@ bool MongoOpLog::createFirstQuery(mongo::BSONObj& query,
   }
   else
   {
-    static mongo::BSONObjBuilder builder;
+    mongo::BSONObjBuilder builder;
     unsigned long long timeStamp = (unsigned long long)_timeStamp << 32;
     builder.appendTimestamp(ts_fld(), timeStamp);
 
-    lastTailId = builder.obj()[ts_fld()];
+    timeStampObj = builder.obj();
+    lastTailId = timeStampObj[ts_fld()];
 
     // Check that the created BSONElement has the correct timeStamp
     unsigned long long lastTailIdTimeStamp = lastTailId.timestampTime();
@@ -163,8 +165,9 @@ void MongoOpLog::internal_run()
 {
   mongo::BSONElement lastTailId;
   mongo::BSONObj query;
+  mongo::BSONObj timeStampObj;
 
-  bool rc = createFirstQuery(query, lastTailId);
+  bool rc = createFirstQuery(timeStampObj, query, lastTailId);
   if (false == rc)
   {
     return;
