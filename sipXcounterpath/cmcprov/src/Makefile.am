@@ -17,7 +17,8 @@ war_DATA = $(WAR_FILE)
 cmcprov_SRC = $(shell cd $(srcdir); find org -type f -name '*.java')
 
 cmcprov_DEPS = \
-	$(call JavaDep,@SIPX_JAVADIR@/sipXconfig @SIPX_JAVADIR@/sipXcommons,$(cmcprov_PKGS))
+	$(call JavaDep,@SIPX_JAVADIR@/sipXconfig @SIPX_JAVADIR@/sipXcommons,$(cmcprov_PKGS)) \
+	../../device/src/classes
 
 cmcprov_JAVAROOT = out/WEB-INF/classes
 

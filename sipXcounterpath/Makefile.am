@@ -5,4 +5,3 @@ SUBDIRS = \
 	device \
 	cmcprov \
 	etc
-

@@ -18,6 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.User;
@@ -47,20 +48,22 @@ public class UpdateServlet extends ProvisioningServlet {
             LOG.error("Update error: " + e.getMessage());
             buildFailureResponse(out, e.getMessage());
         }
+        IOUtils.closeQuietly(out);
     }
 
     /**
      * Authenticates a provisioning requests. Returns a User object representing the authenticated
      * user if successful, otherwise throws a Exception.
      */
-    protected User authenticateRequest(HttpServletRequest req) {
-        Map parameters = req.getParameterMap();
+    protected static User authenticateRequest(HttpServletRequest req) {
+        @SuppressWarnings("unchecked")
+        Map<String, String[]> parameters = req.getParameterMap();
         if (!parameters.containsKey(USERNAME) || !parameters.containsKey(PASSWORD)) {
             throw new FailureDataException(USERNAME_PASSWORD_CANNOT_BE_MISSING_ERROR);
         }
-        String[] values = (String[]) parameters.get(USERNAME);
+        String[] values = parameters.get(USERNAME);
         String username = values[0];
-        values = (String[]) parameters.get(PASSWORD);
+        values = parameters.get(PASSWORD);
         String password = values[0];
         User user = getProvisioningContext().getUser(username, password);
         if (user == null) {

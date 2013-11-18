@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.cmcprov;
 
+import java.util.Map;
 
 /**
  * Can be used to implement additional verifications for a phone log in attempt
@@ -31,5 +32,6 @@ public interface LoginDelegate {
      *        value means unbounded)
      * @throws IllegalArgumentException In case the log in attempt cannot be honored
      */
-    void auditLoginRequest(String user, String profile, String uuid, int deviceLimit) throws IllegalArgumentException;
+    void auditLoginRequest(Map<String, String> requestParams, String profile, int deviceLimit)
+            throws IllegalArgumentException;
 }

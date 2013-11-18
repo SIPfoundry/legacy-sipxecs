@@ -228,7 +228,7 @@ public class CounterpathPhone extends Phone {
             if (m_user == null) {
                 return null;
             }
-            return m_user.getDisplayName();
+            return m_user.getLabel();
         }
 
         @SettingEntry(path = "xmpp-config/account_name")
@@ -299,7 +299,7 @@ public class CounterpathPhone extends Phone {
         }
 
         @Override
-        protected ProfileContext createContext(Device device) {
+        protected ProfileContext<CounterpathPhone> createContext(Device device) {
             Phone phone = (Phone) device;
             PhoneContext phoneContext = phone.getPhoneContext();
             Collection<PhonebookEntry> entries = phoneContext.getPhonebookEntries(phone);
@@ -318,7 +318,7 @@ public class CounterpathPhone extends Phone {
         }
 
         @Override
-        protected ProfileContext createContext(Device device) {
+        protected ProfileContext<Phone> createContext(Device device) {
             CounterpathPhone phone = (CounterpathPhone) device;
             return new CounterpathProfileContext(phone, phone.getModel().getProfileTemplate());
         }

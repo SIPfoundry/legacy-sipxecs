@@ -13,4 +13,5 @@ cmcprov_PKGS = \
 	org.springframework.core \
 	sipxcommons \
 	sipxconfig-neoconf \
-	velocity
+	velocity \
+	dom4j

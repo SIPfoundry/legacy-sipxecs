@@ -16,13 +16,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -40,11 +38,9 @@ public final class ContactSynchronizer {
     private static final String SIP_ADDRESS_ATTR_NAME = "sip_address";
     private static final String ENTRY_NAME = "entry";
     private static final String VALUE = "value";
-    private static Map<String, HashMap<String, ContactSynchronizer>> s_phoneBook =
-        new HashMap<String, HashMap<String, ContactSynchronizer>>();
-    private String m_userContactListFileName;
-    private String m_phoneBookFileName;
-
+    private static Map<String, Map<String, ContactSynchronizer>> s_phoneBook = new HashMap<String, Map<String, ContactSynchronizer>>();
+    private final String m_userContactListFileName;
+    private final String m_phoneBookFileName;
 
     private ContactSynchronizer(String phoneBookFileName, String userContactListFileName) {
         super();
@@ -54,30 +50,25 @@ public final class ContactSynchronizer {
 
     public static synchronized ContactSynchronizer getInstance(String phonebookName, String contactListName) {
         ContactSynchronizer instance = null;
-        HashMap<String, ContactSynchronizer> cmap = s_phoneBook.get(phonebookName);
+        Map<String, ContactSynchronizer> cmap = s_phoneBook.get(phonebookName);
         if (cmap != null) {
             instance = cmap.get(contactListName);
             if (instance != null) {
                 return instance;
-            } else {
-                instance = new ContactSynchronizer(phonebookName, contactListName);
-                cmap.put(contactListName, instance);
-
-                return instance;
             }
-
-        } else {
-            Map<String, ContactSynchronizer> contactLists = new HashMap<String, ContactSynchronizer>();
             instance = new ContactSynchronizer(phonebookName, contactListName);
-
-            contactLists.put(contactListName, instance);
-            s_phoneBook.put(phonebookName, (HashMap<String, ContactSynchronizer>) contactLists);
+            cmap.put(contactListName, instance);
 
             return instance;
         }
+        Map<String, ContactSynchronizer> contactLists = new HashMap<String, ContactSynchronizer>();
+        instance = new ContactSynchronizer(phonebookName, contactListName);
 
+        contactLists.put(contactListName, instance);
+        s_phoneBook.put(phonebookName, contactLists);
+
+        return instance;
     }
-
 
     /**
      * @param m_phoneBookFileName
@@ -132,13 +123,15 @@ public final class ContactSynchronizer {
         OutputStream out = new FileOutputStream(m_userContactListFileName);
 
         IOUtils.copy(in, out);
+        IOUtils.closeQuietly(out);
+        IOUtils.closeQuietly(in);
     }
 
     /**
      * @param phoneBookDocument
      * @param contactList
      */
-    private void mergeAddressEntries(Document phoneBookDocument, NodeList contactList) {
+    private static void mergeAddressEntries(Document phoneBookDocument, NodeList contactList) {
         Element root = phoneBookDocument.getDocumentElement();
         Element listElement = (Element) root.getElementsByTagName("list").item(0);
         NodeList theList = listElement.getElementsByTagName(ENTRY_NAME);
@@ -156,11 +149,13 @@ public final class ContactSynchronizer {
         }
 
     }
+
     /**
-     * Nodes that have category=Phonebook should not be merged because they are already present
-     * in the configuration file generated during Send Profiles. Only specific BRIA contacts should be merged
+     * Nodes that have category=Phonebook should not be merged because they are already present in
+     * the configuration file generated during Send Profiles. Only specific BRIA contacts should
+     * be merged
      */
-    private boolean canMerge(Node node) {
+    private static boolean canMerge(Node node) {
         Node childNode = null;
         NodeList childNodes = node.getChildNodes();
         NamedNodeMap attributes = null;
@@ -183,7 +178,7 @@ public final class ContactSynchronizer {
      * @param nlist
      * @return
      */
-    private boolean isDuplicated(Element element, NodeList nlist) {
+    private static boolean isDuplicated(Element element, NodeList nlist) {
 
         String theURI = getSipAddress(element);
 
@@ -212,7 +207,7 @@ public final class ContactSynchronizer {
      * @param element
      * @return
      */
-    private String getSipAddress(Element element) {
+    private static String getSipAddress(Element element) {
 
         if (element.getTagName().equals(ENTRY_NAME)) {
             NodeList nList = element.getChildNodes();

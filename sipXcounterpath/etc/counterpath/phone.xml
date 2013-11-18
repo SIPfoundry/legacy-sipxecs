@@ -15,21 +15,6 @@
   <type id="preffered-voice-codecs-type">
     <multi-enum labelKeyPrefix="codec">
       <option>
-        <value>broadvoice32</value>
-      </option>
-      <option>
-        <value>broadvoice32_fec</value>
-      </option>
-      <option>
-        <value>dvi4</value>
-      </option>
-      <option>
-        <value>dvi4_wb</value>
-      </option>
-      <option>
-        <value>evrc</value>
-      </option>
-      <option>
         <value>g711a</value>
       </option>
       <option>
@@ -37,15 +22,6 @@
       </option>
       <option>
         <value>g722</value>
-      </option>
-      <option>
-        <value>g722_2_wb</value>
-      </option>
-      <option>
-        <value>g723</value>
-      </option>
-      <option>
-        <value>g726-32</value>
       </option>
       <option>
         <value>g729</value>
@@ -57,35 +33,26 @@
         <value>ilbc</value>
       </option>
       <option>
-        <value>l16_wb</value>
+        <value>opus</value>
       </option>
       <option>
-        <value>speex</value>
+        <value>silk8000</value>
       </option>
       <option>
-        <value>speex_fec</value>
+        <value>silk16000</value>
       </option>
       <option>
-        <value>speex_wb</value>
-      </option>
-      <option>
-        <value>speex_wb_fec</value>
+        <value>silk32000</value>
       </option>
     </multi-enum>
   </type>
   <type id="preffered-video-codecs-type">
     <multi-enum labelKeyPrefix="codec">
       <option>
-        <value>h263</value>
-      </option>
-      <option>
-        <value>h263_1998</value>
-      </option>
-      <option>
-        <value>h264_unified</value>
-      </option>
-      <option>
         <value>H264</value>
+      </option>
+      <option>
+        <value>VP8</value>
       </option>
     </multi-enum>
   </type>
