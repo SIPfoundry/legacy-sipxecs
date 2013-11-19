@@ -62,12 +62,23 @@ void MongoOpLog::registerCallback(OpLogType type, OpLogCallBack cb)
 
 void MongoOpLog::run()
 {
+  OS_LOG_INFO(FAC_SIP, "MongoOpLog::run" <<
+                        " starting MongoOpLog thread");
+
   _isRunning = true;
   _pThread = new boost::thread(boost::bind(&MongoOpLog::internal_run, this));
 }
 
 void MongoOpLog::stop()
 {
+  if (false == _isRunning)
+  {
+    return;
+  }
+
+  OS_LOG_INFO(FAC_SIP, "MongoOpLog::stop" <<
+                       " stopping MongoOpLog thread");
+
   _isRunning = false;
 
   if (_pThread)
@@ -77,6 +88,9 @@ void MongoOpLog::stop()
     delete _pThread;
     _pThread = 0;
   }
+
+  OS_LOG_INFO(FAC_SIP, "MongoOpLog::stop" <<
+                       " exiting");
 }
 
 bool MongoOpLog::processQuery(mongo::DBClientCursor* cursor,
@@ -149,7 +163,8 @@ bool MongoOpLog::createFirstQuery(mongo::BSONObj& timeStampObj,
     unsigned long long lastTailIdTimeStamp = lastTailId.timestampTime();
     if (_timeStamp * 1000 != lastTailIdTimeStamp)
     {
-      OS_LOG_ERROR(FAC_SIP, "MongoOpLog time stamps are different " <<
+      OS_LOG_ERROR(FAC_SIP, "MongoOpLog::createFirstQuery" <<
+                            " time stamps are different " <<
           _timeStamp * 1000 << lastTailIdTimeStamp);
       return false;
     }
@@ -167,9 +182,14 @@ void MongoOpLog::internal_run()
   mongo::BSONObj query;
   mongo::BSONObj timeStampObj;
 
+  OS_LOG_INFO(FAC_SIP, "MongoOpLog::internal_run"
+              << " entering");
+
   bool rc = createFirstQuery(timeStampObj, query, lastTailId);
   if (false == rc)
   {
+    OS_LOG_ERROR(FAC_SIP, "MongoOpLog::createFirstQuery" <<
+                 " exited with error");
     return;
   }
 
@@ -185,13 +205,16 @@ void MongoOpLog::internal_run()
     bool rc = processQuery(cursor.get(), lastTailId);
     if (false == rc)
     {
-      return;
+      break;
     }
 
     createQuery(query, lastTailId);
   }
 
   pConn->done();
+
+  OS_LOG_INFO(FAC_SIP, "MongoOpLog::internal_run"
+              << " exiting");
 }
 
 void MongoOpLog::notifyCallBacks(const mongo::BSONObj& bSONObj)
@@ -199,8 +222,14 @@ void MongoOpLog::notifyCallBacks(const mongo::BSONObj& bSONObj)
   std::string type = bSONObj.getStringField(op_fld());
   std::string opLog = bSONObj.toString();
 
+  OS_LOG_DEBUG(FAC_SIP, "MongoOpLog::notifyCallBacks"
+                << "type=" << type <<
+                "opLog=" << opLog);
+
   if (type.empty() || opLog.empty())
   {
+    OS_LOG_WARNING(FAC_SIP, "MongoOpLog::notifyCallBacks"
+                << " type or opLog is empty");
     return;
   }
 
