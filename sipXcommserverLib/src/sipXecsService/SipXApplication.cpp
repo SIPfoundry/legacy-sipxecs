@@ -187,16 +187,9 @@ bool SipXApplication::parse(OsServiceOptions& osServiceOptions, int argc, char**
   osServiceOptions.setCommandLine(argc, pArgv);
 
   parseOptionsFlags |= OsServiceOptions::AddDefaultComandLineOptionsFlag;
+  parseOptionsFlags |= OsServiceOptions::StopIfVersionHelpFlag;
 
-  if (true == osServiceOptions.parseOptions((OsServiceOptions::ParseOptionsFlags)parseOptionsFlags))
-  {
-    Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "Loading configuration %s", fileName.data());
-    ret = true;
-  }
-  else
-  {
-    Os::Logger::instance().log(FAC_SIP, PRI_ERR, "Failed loading configuration %s", fileName.data());
-  }
+  ret = osServiceOptions.parseOptions((OsServiceOptions::ParseOptionsFlags)parseOptionsFlags);
 
   return ret;
 }
