@@ -48,6 +48,7 @@ public:
     NoOptionsFlag = 0,
     AddDefaultComandLineOptionsFlag = 1 << 0,
     ParseConfigDbFlag = 1 << 1,
+    StopIfVersionHelpFlag = 1 << 2,    // stops parsing and validating parameters if help or version are present in command line
     DefaultOptionsFlag = AddDefaultComandLineOptionsFlag
   };
 
