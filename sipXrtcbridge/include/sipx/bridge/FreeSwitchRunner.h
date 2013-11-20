@@ -135,6 +135,26 @@ public:
   const std::string& getCodecPreference() const;
     /// Returns the codec preference list
   
+  void setSipPort(int sipPort);
+    /// Set the port where freeswitch would listen for TCP/UDP connections
+    /// Parameters:
+    /// - sipPort : Port number.  
+    /// Defaults:
+    /// - sipPort :  5066
+  
+  int getSipPort() const;
+    /// Returns the port where freeswitch is listening for TCP/UDP connections
+  
+  void setSipAddress(const std::string& sipAddress);
+    /// Set the IP address for the SIP transport
+    /// Parameters:
+    /// - sipAddress : String containing the IP address for SIP.
+    /// Defaults:
+    /// - sipAddress : $${local_ip_v4}
+  
+  const std::string& getSipAddress() const;
+    /// Return the IP address of the SIP transport
+  
 protected:
   void switch_loop(bool noconsole);
     /// Calls the freeswitch run time loop.  This is used internally and is
@@ -164,7 +184,8 @@ private:
   int _eslPort;
   int _fsEslPort;
   std::string _codecPreference;
-  
+  int _sipPort;
+  std::string _sipAddress;
 };
 
 
@@ -266,6 +287,27 @@ inline const std::string& FreeSwitchRunner::getCodecPreference() const
 {
   return _codecPreference;
 }
+
+inline void FreeSwitchRunner::setSipPort(int sipPort)
+{
+  _sipPort = sipPort;
+}
+
+inline int FreeSwitchRunner::getSipPort() const
+{
+  return _sipPort;
+}
+
+inline void FreeSwitchRunner::setSipAddress(const std::string& sipAddress)
+{
+  _sipAddress = sipAddress;
+}
+  
+inline const std::string& FreeSwitchRunner::getSipAddress() const
+{
+  return _sipAddress;
+}
+
 
 
 } } // sipx::bridge

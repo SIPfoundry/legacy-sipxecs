@@ -75,6 +75,7 @@
       <modules>
         <load module="mod_console"/>
         <load module="mod_logfile"/>
+        <load module="mod_dptools"/>
         <load module="mod_event_socket"/>
         <load module="mod_sofia"/>
         <load module="mod_loopback"/>
@@ -215,17 +216,22 @@
             <domain name="all" alias="false" parse="true"/>
           </domains>
           <settings>
+            <param name="user-agent-string" value="@APPLICATION_NAME@"/>
+            <param name="inbound-codec-prefs" value="@CODEC_PREFERENCE@"/>
+            <param name="outbound-codec-prefs" value="@CODEC_PREFERENCE@"/>
+            <param name="sip-port" value="@SIP_PORT@"/>
+            <param name="rtp-ip" value="@SIP_ADDRESS@"/>
+            <param name="sip-ip" value="@SIP_ADDRESS@"/>
+            <param name="ext-rtp-ip" value="@SIP_ADDRESS@"/>
+            <param name="ext-sip-ip" value="@SIP_ADDRESS@"/> 
+            
             <param name="context" value="public"/>
             <param name="debug" value="0"/>
             <param name="sip-trace" value="no"/>
-            <param name="user-agent-string" value="@APPLICATION_NAME@"/>
             <param name="rfc2833-pt" value="101"/>
-            <param name="sip-port" value="$${external_sip_port}"/>
             <param name="dialplan" value="XML"/>
             <param name="dtmf-duration" value="2000"/>
             <param name="inbound-codec-negotiation" value="generous"/>
-            <param name="inbound-codec-prefs" value="@CODEC_PREFERENCE@"/>
-            <param name="outbound-codec-prefs" value="@CODEC_PREFERENCE@"/>
             <param name="hold-music" value="$${hold_music}"/>
             <param name="rtp-timer-name" value="soft"/>
             <param name="enable-100rel" value="false"/>
@@ -233,10 +239,6 @@
             <param name="manage-presence" value="false"/>
             <param name="nonce-ttl" value="60"/>
             <param name="auth-calls" value="false"/>
-            <param name="rtp-ip" value="$${local_ip_v4}"/>
-            <param name="sip-ip" value="$${local_ip_v4}"/>
-            <param name="ext-rtp-ip" value="$${local_ip_v4}"/>
-            <param name="ext-sip-ip" value="$${local_ip_v4}"/> 
             <param name="rtp-timeout-sec" value="300"/>
             <param name="rtp-hold-timeout-sec" value="1800"/>
             <param name="tls" value="$${external_ssl_enable}"/>

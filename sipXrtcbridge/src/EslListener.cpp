@@ -34,7 +34,6 @@ bool EslListener::listenForEvents(ConnectionHandler eventHandler, const std::str
   
   esl_socket_t server_sock = ESL_SOCK_INVALID;
 	struct sockaddr_in addr;
-	esl_status_t status = ESL_SUCCESS;
 
 	if ((server_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
   {
@@ -57,7 +56,6 @@ bool EslListener::listenForEvents(ConnectionHandler eventHandler, const std::str
 
   if (bind(server_sock, (struct sockaddr *) &addr, sizeof(addr)) < 0)
   {
-    status = ESL_FAIL;
     if (server_sock != ESL_SOCK_INVALID)
     {
       closesocket(server_sock);
@@ -69,7 +67,6 @@ bool EslListener::listenForEvents(ConnectionHandler eventHandler, const std::str
 
   if (listen(server_sock, 10000) < 0)
   {
-		status = ESL_FAIL;
 		if (server_sock != ESL_SOCK_INVALID)
     {
       closesocket(server_sock);
@@ -82,9 +79,7 @@ bool EslListener::listenForEvents(ConnectionHandler eventHandler, const std::str
 }
 
 void EslListener::runEventLoop()
-{
-  esl_status_t status = ESL_SUCCESS;
-  
+{ 
   for (;;) {
 		int client_sock = -1;
 		struct sockaddr_in remoteAddress;
@@ -92,7 +87,6 @@ void EslListener::runEventLoop()
 
 		if ((client_sock = accept(_eventServerSocket, (struct sockaddr *) &remoteAddress, &clntLen)) == ESL_SOCK_INVALID)
     {
-			status = ESL_FAIL;
 			if (_eventServerSocket != ESL_SOCK_INVALID)
       {
         closesocket(_eventServerSocket);

@@ -47,11 +47,9 @@ sipXrtcbridge_LDADD = \
 	-lboost_system-mt
 
 sipXrtcbridge_SOURCES =  \
-  WSRouterMain.cpp \
+	WSRouterMain.cpp \
 	WSRouter.h \
 	WSRouter.cpp \
-	WebRtcBridge.h \
-	WebRtcBridge.cpp \
 	freeswitch_xml.cpp
 
 ## Libtool version info - update only immediately before a release
@@ -68,9 +66,7 @@ lib_LTLIBRARIES = libsipXrtcbridge.la
 
 libsipXrtcbridge_la_LDFLAGS = \
     -shared \
-    -version-info ${version_Current}:${version_Revision}:${version_Age} \
-    @RESIP_LIBS@ \
-		@FREESWITCH_LIBS@
+    -version-info ${version_Current}:${version_Revision}:${version_Age}
 
 
 libsipXrtcbridge_la_SOURCES = \

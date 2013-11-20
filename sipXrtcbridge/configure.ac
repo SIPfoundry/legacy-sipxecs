@@ -7,7 +7,7 @@ m4_include([rtcbridge.m4])
 AM_INIT_AUTOMAKE(foreign tar-ustar)
 SFAC_AUTOMAKE_VERSION([1.6])
 AC_DISABLE_STATIC
-AC_CONFIG_SRCDIR([src/WebRtcBridge.cpp])
+AC_CONFIG_SRCDIR([src/FreeSwitchRunner.cpp])
 AM_CONFIG_HEADER([src/config.h])
 AC_PROG_LIBTOOL
 AC_PATH_PROG([BASH], [bash])

@@ -12,25 +12,8 @@
 #include <cstdio>
 #include <iostream>
 #include <fstream>
-
-#define INT8_MIN         (-127-1)
-#define INT16_MIN        (-32767-1)
-#define INT32_MIN        (-2147483647-1)
-#define INT64_MIN        (-9223372036854775807LL-1LL)
-
-#define INT8_MAX         +127
-#define INT16_MAX        +32767
-#define INT32_MAX        +2147483647
-#define INT64_MAX        +9223372036854775807LL
-
-#define UINT8_MAX         255
-#define UINT16_MAX        65535
-#define UINT32_MAX        4294967295U
-#define UINT64_MAX        18446744073709551615ULL
-
 #include <switch.h>
-#include <switch_version.h>
-#include <private/switch_core_pvt.h>
+
    
 #define FS_DEFAULT_CONF_DIR SIPX_DBDIR
 #define FS_DEFAULT_MOD_DIR FREESWITCH_MODDIR
@@ -39,7 +22,9 @@
 #define FS_DEFAULT_DATA_DIR  FS_DEFAULT_CONF_DIR
 #define DEFAULT_ESL_PORT 2022
 #define DEFAULT_FS_ESL_PORT 2020
-#define FS_DEFAULT_CODEC_PREFERENCE "PCMU,PCMA,opus,VP8,H264"
+#define FS_DEFAULT_CODEC_PREFERENCE "PCMU,PCMA,opus" /*"PCMU,PCMA,opus,VP8,H264"*/
+#define FS_DEFAULT_SIP_PORT 5066
+#define FS_DEFAULT_SIP_ADDRESS "$${local_ip_v4}"
 
 
 extern std::string freeswitch_xml;
@@ -49,11 +34,8 @@ namespace bridge {
 
 
 static FreeSwitchRunner* gpInstance = 0;
-static int gSystem_ready = 0;
 static switch_core_flag_t gFlags = SCF_CALIBRATE_CLOCK | SCF_USE_CLOCK_RT;
-static switch_memory_pool_t* gPool = 0;
-switch_file_t* gPid = 0;
-char gPidPath[PATH_MAX] = "";	/* full path to the pid file */
+
 
 FreeSwitchRunner* FreeSwitchRunner::instance()
 {
@@ -67,33 +49,6 @@ void FreeSwitchRunner::delete_instance()
 {
   delete gpInstance;
   gpInstance = 0;
-}
-
-/* signal handler for when freeswitch is running in background mode.
- * signal triggers the shutdown of freeswitch
-# */
-static int check_fd(int fd, int ms)
-{
-	struct pollfd pfds[2] = { { 0 } };
-	int s, r = 0, i = 0;
-
-	pfds[0].fd = fd;
-	pfds[0].events = POLLIN | POLLERR;
-	s = poll(pfds, 1, ms);
-
-	if (s == 0 || s == -1) {
-		r = s;
-	} else {
-		r = -1;
-
-		if ((pfds[0].revents & POLLIN)) {
-			if ((i = read(fd, &r, sizeof(r))) > -1) {
-				i = write(fd, &r, sizeof(r));
-			}
-		}
-	}
-	
-	return r;
 }
 
 static bool verify_directory(const std::string path)
@@ -138,7 +93,9 @@ FreeSwitchRunner::FreeSwitchRunner() :
   _pSwitchThread(0),
   _eslPort(DEFAULT_ESL_PORT),
   _fsEslPort(DEFAULT_FS_ESL_PORT),
-  _codecPreference(FS_DEFAULT_CODEC_PREFERENCE)
+  _codecPreference(FS_DEFAULT_CODEC_PREFERENCE),
+  _sipPort(FS_DEFAULT_SIP_PORT),
+  _sipAddress(FS_DEFAULT_SIP_ADDRESS)
 {
 }
 
@@ -278,61 +235,13 @@ bool FreeSwitchRunner::initialize()
 
 void FreeSwitchRunner::switch_loop(bool noconsole)
 {
-  if (apr_initialize() != SWITCH_STATUS_SUCCESS) 
-  {
-    std::cerr << "apr_initialize FAILURE" << std::endl;
-    _exit(EXIT_FAILURE);
-  }
-   
+
   set_auto_priority();
   
   switch_core_setrlimits();
   
   switch_core_set_globals();
-  
-  char pid_buffer[32] = "";	/* pid string */
-	char old_pid_buffer[32] = "";	/* pid string */
-	switch_size_t pid_len, old_pid_len;
-  
-  pid_t pid = getpid();
-  std::ostringstream pidFile;
-  pidFile << _applicationName << ".pid";
-
-	memset(pid_buffer, 0, sizeof(pid_buffer));
-	switch_snprintf(gPidPath, sizeof(gPidPath), "%s%s%s", SWITCH_GLOBAL_dirs.run_dir, SWITCH_PATH_SEPARATOR, pidFile.str().c_str());
-	switch_snprintf(pid_buffer, sizeof(pid_buffer), "%d", pid);
-	pid_len = strlen(pid_buffer);
-
-	apr_pool_create(&gPool, NULL);
-
-	switch_dir_make_recursive(SWITCH_GLOBAL_dirs.run_dir, SWITCH_DEFAULT_DIR_PERMS, gPool);
-
-	if (switch_file_open(&gPid, gPidPath, SWITCH_FOPEN_READ, SWITCH_FPROT_UREAD | SWITCH_FPROT_UWRITE, gPool) == SWITCH_STATUS_SUCCESS) {
-
-		old_pid_len = sizeof(old_pid_buffer);
-		switch_file_read(gPid, old_pid_buffer, &old_pid_len);
-		switch_file_close(gPid);
-	}
-
-	if (switch_file_open(&gPid,
-						 gPidPath,
-						 SWITCH_FOPEN_WRITE | SWITCH_FOPEN_CREATE | SWITCH_FOPEN_TRUNCATE,
-						 SWITCH_FPROT_UREAD | SWITCH_FPROT_UWRITE, gPool) != SWITCH_STATUS_SUCCESS) {
-		fprintf(stderr, "Cannot open pid file %s.\n", gPidPath);
-		_exit(EXIT_FAILURE);
-	}
-
-	if (switch_file_lock(gPid, SWITCH_FLOCK_EXCLUSIVE | SWITCH_FLOCK_NONBLOCK) != SWITCH_STATUS_SUCCESS) {
-		fprintf(stderr, "Cannot lock pid file %s.\n", gPidPath);
-		old_pid_len = strlen(old_pid_buffer);
-		if (strlen(old_pid_buffer)) {
-			switch_file_write(gPid, old_pid_buffer, &old_pid_len);
-		}
-		_exit(EXIT_FAILURE);
-	}
-
-	switch_file_write(gPid, pid_buffer, &pid_len);
-  
+   
   const char* err = 0;
   if (switch_core_init_and_modload(gFlags, noconsole ? SWITCH_FALSE : SWITCH_TRUE, &err) != SWITCH_STATUS_SUCCESS) 
   {
@@ -343,13 +252,6 @@ void FreeSwitchRunner::switch_loop(bool noconsole)
   switch_core_runtime_loop(noconsole);
   
   switch_core_destroy();
-	switch_file_close(gPid);
-	apr_pool_destroy(gPool);
-
-	if (unlink(gPidPath) != 0) 
-  {
-		std::cerr << "Failed to delete pid file " << gPidPath << std::endl;
-	}
 }
   
 void FreeSwitchRunner::stop()
@@ -361,111 +263,16 @@ void FreeSwitchRunner::stop()
 	return;
 }
 
-void FreeSwitchRunner::daemonize(int *fds)
-{
-	int fd;
-	pid_t pid;
-	unsigned int sanity = 60;
-
-	if (!fds) {
-		switch (fork()) {
-		case 0:		/* child process */
-			break;
-		case -1:
-			fprintf(stderr, "Error Backgrounding (fork)! %d - %s\n", errno, strerror(errno));
-			exit(EXIT_SUCCESS);
-			break;
-		default:	/* parent process */
-			exit(EXIT_SUCCESS);
-		}
-
-		if (setsid() < 0) {
-			fprintf(stderr, "Error Backgrounding (setsid)! %d - %s\n", errno, strerror(errno));
-			exit(EXIT_SUCCESS);
-		}
-	}
-
-	pid = switch_fork();
-
-	switch (pid) {
-	case 0:		/* child process */
-		if (fds) {
-			close(fds[0]);
-		}
-		break;
-	case -1:
-		fprintf(stderr, "Error Backgrounding (fork2)! %d - %s\n", errno, strerror(errno));
-		exit(EXIT_SUCCESS);
-		break;
-	default:	/* parent process */
-		fprintf(stderr, "%d Backgrounding.\n", (int) pid);
-
-		if (fds) {
-			char *o;
-
-			close(fds[1]);
-
-			if ((o = getenv("FREESWITCH_BG_TIMEOUT"))) {
-				int tmp = atoi(o);
-				if (tmp > 0) {
-					sanity = tmp;
-				}
-			}
-
-			do {
-				gSystem_ready = check_fd(fds[0], 2000);
-
-				if (gSystem_ready == 0) {
-					printf("FreeSWITCH[%d] Waiting for background process pid:%d to be ready.....\n", (int)getpid(), (int) pid);
-				}
-
-			} while (--sanity && gSystem_ready == 0);
-
-			shutdown(fds[0], 2);
-			close(fds[0]);
-			fds[0] = -1;
-
-			
-			if (gSystem_ready < 0) {
-				printf("FreeSWITCH[%d] Error starting system! pid:%d\n", (int)getpid(), (int) pid);
-				kill(pid, 9);
-				exit(EXIT_FAILURE);
-			}
-
-			printf("FreeSWITCH[%d] System Ready pid:%d\n", (int) getpid(), (int) pid);
-		}
-
-		exit(EXIT_SUCCESS);
-	}
-
-	if (fds) {
-		setsid();
-	}
-	/* redirect std* to null */
-	fd = open("/dev/null", O_RDONLY);
-	if (fd != 0) {
-		dup2(fd, 0);
-		close(fd);
-	}
-
-	fd = open("/dev/null", O_WRONLY);
-	if (fd != 1) {
-		dup2(fd, 1);
-		close(fd);
-	}
-
-	fd = open("/dev/null", O_WRONLY);
-	if (fd != 2) {
-		dup2(fd, 2);
-		close(fd);
-	}
-	return;
-}
-
 bool FreeSwitchRunner::generateConfig()
 {
   std::string eslPort = boost::lexical_cast<std::string>(_eslPort);
+  std::string sipPort = boost::lexical_cast<std::string>(_sipPort);
+  
   string_replace(freeswitch_xml, "@ESL_PORT@", eslPort.c_str());
+  
+  string_replace(freeswitch_xml, "@SIP_PORT@", sipPort.c_str());
+  
+  string_replace(freeswitch_xml, "@SIP_ADDRESS@", _sipAddress.c_str());
   
   std::string fsEslPort = boost::lexical_cast<std::string>(_fsEslPort);
   string_replace(freeswitch_xml, "@FS_ESL_PORT@", fsEslPort.c_str());

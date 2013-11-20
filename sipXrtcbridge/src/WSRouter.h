@@ -20,18 +20,31 @@
 
 #include <os/OsServiceOptions.h>
 #include "sipx/proxy/ReproGlue.h"
-#include "WebRtcBridge.h"
+#include "sipx/bridge/FreeSwitchRunner.h"
+#include "sipx/bridge/EslListener.h"
 
   
 class WSRouter : public OsServiceOptions
 {
 public:
   WSRouter(int argc, char** argv, const std::string& daemonName, const std::string& version, const std::string& copyright);
+  
   ~WSRouter();
+  
   sipx::proxy::ReproGlue::RequestProcessor::ChainReaction onProcessRequest(sipx::proxy::ReproGlue& repro, RequestContext& context);
+  
   sipx::proxy::ReproGlue::RequestProcessor::ChainReaction onProcessResponse(sipx::proxy::ReproGlue& repro, RequestContext& context);
+  
+  void handleBridgeEvent(const sipx::bridge::EslConnection::Ptr& pConnection, const sipx::bridge::EslEvent::Ptr& pEvent);
+  
   bool initialize();
+  
   int main();
+  
+  void setEslPort(int eslPort);
+  
+  int getEslPort() const;
+  
 protected:
   sipx::proxy::ReproGlue* _pRepro;
   std::string _proxyAddress;
@@ -42,10 +55,21 @@ protected:
   int _wsPort;
   int _tcpUdpPort;
   std::string _dbPath;
-  WebRtcBridge _bridge;
-  
+  sipx::bridge::EslListener _eventListener;
+  sipx::bridge::FreeSwitchRunner* _pSwitch;
+  int _eslPort;
 };
 
+
+inline void WSRouter::setEslPort(int eslPort)
+{
+  _eslPort = eslPort;
+}
+  
+inline int WSRouter::getEslPort() const
+{
+  return _eslPort;
+}
 
 #endif	// WSROUTER_H_INCLUDED
 
