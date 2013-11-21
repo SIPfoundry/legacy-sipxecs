@@ -88,7 +88,7 @@ Requires: rubygems
 Requires: freeswitch >= 1.0.7
 
 Obsoletes: sipx-jasperreports-deps
-Obsoletes: sipXfreeswitch
+Obsoletes: sipxfreeswitch
 Obsoletes: sipx-freeswitch
 Obsoletes: sipx-freeswitch-codec-passthru-g723_1
 Obsoletes: sipx-freeswitch-codec-passthru-amr
