@@ -24,6 +24,9 @@ public final class UserValidationUtils {
     private static final Pattern VALID_USER_NAME = Pattern.compile("([-_.!~*'\\(\\)&amp;=+$,;?/"
             + "a-zA-Z0-9]|(&#37;[0-9a-fA-F]{2}))+");
 
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+            + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
+
     private UserValidationUtils() {
         // Utility class - do not instantiate
     }
@@ -33,6 +36,14 @@ public final class UserValidationUtils {
             return false;
         }
         Matcher m = VALID_USER_NAME.matcher(userName);
+        return m.matches();
+    }
+
+    public static boolean isValidEmail(String email) {
+        if (email == null) {
+            return false;
+        }
+        Matcher m = EMAIL_PATTERN.matcher(email);
         return m.matches();
     }
 }

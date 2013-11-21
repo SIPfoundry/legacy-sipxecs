@@ -24,4 +24,9 @@ public class UserValidationUtilsTest extends TestCase {
         assertEquals(false, UserValidationUtils.isValidUserName("@200"));
         assertEquals(true, UserValidationUtils.isValidUserName("200"));
     }
+
+    public void testEmailValid() {
+        assertEquals(false, UserValidationUtils.isValidEmail("@200"));
+        assertEquals(true, UserValidationUtils.isValidEmail("200@test.ro"));
+    }
 }

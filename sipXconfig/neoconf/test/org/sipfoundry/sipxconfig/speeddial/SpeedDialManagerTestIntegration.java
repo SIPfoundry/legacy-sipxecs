@@ -18,6 +18,7 @@ import java.util.List;
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.test.ImdbTestCase;
@@ -105,6 +106,32 @@ public class SpeedDialManagerTestIntegration extends ImdbTestCase {
         m_speedDialManager.clear();
         result = getEntityCollection().find(QueryBuilder.start(MongoConstants.SPEEDDIAL).exists(true).get()).count();
         assertEquals(0, result);
+    }
+
+    public void testVerifyBlf() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
+        loadDataSet("speeddial/speeddial.db.xml");
+        SpeedDial speedDial = m_speedDialManager.getSpeedDialForUserId(1002, true);
+        Button b = new Button();
+        b.setLabel("testSave");
+        b.setNumber("test@test.org");
+        b.setBlf(true);
+        speedDial.getButtons().add(b);
+        m_speedDialManager.saveSpeedDial(speedDial);
+        Button b1 = new Button();
+        b1.setLabel("testSave1");
+        b1.setNumber("8888");
+        b1.setBlf(true);
+        speedDial.getButtons().add(b1);
+        try {
+            m_speedDialManager.saveSpeedDial(speedDial);
+            fail();
+        } catch (UserException ex) {
+            assertTrue(true);
+        }
+        b1.setBlf(false);
+        m_speedDialManager.saveSpeedDial(speedDial);
     }
 
     public void testSaveSpeedDialForGroup() throws Exception {

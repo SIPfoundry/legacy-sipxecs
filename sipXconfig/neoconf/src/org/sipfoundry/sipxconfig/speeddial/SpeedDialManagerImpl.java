@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.speeddial;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,10 +17,13 @@ import java.util.Set;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.commons.userdb.ValidUsers;
+import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.UserValidationUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
@@ -35,6 +37,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     private FeatureManager m_featureManager;
     private ConfigManager m_configManager;
     private ValidUsers m_validUsers;
+    private AliasManager m_aliasManager;
 
     @Override
     public SpeedDial getSpeedDialForUserId(Integer userId, boolean create) {
@@ -122,14 +125,29 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
 
     @Override
     public void saveSpeedDial(SpeedDial speedDial) {
+        verifyBlfs(speedDial.getButtons());
         getHibernateTemplate().saveOrUpdate(speedDial);
         getHibernateTemplate().flush();
         User user = m_coreContext.loadUser(speedDial.getUser().getId());
         getDaoEventPublisher().publishSave(user);
     }
 
+    private void verifyBlfs(List<Button> buttons) {
+        for (Button button : buttons) {
+            if (button.isBlf()) {
+                String number = button.getNumber();
+                if (UserValidationUtils.isValidEmail(number) || m_aliasManager.isAliasInUse(number)) {
+                    continue;
+                }
+                button.setBlf(false);
+                throw new UserException("&error.notValidBlf", number);
+            }
+        }
+    }
+
     /**
-     * This method starts with "save" because we want to trigger speed dial replication (see ReplicationTrigger.java)
+     * This method starts with "save" because we want to trigger speed dial replication (see
+     * ReplicationTrigger.java)
      */
     @Override
     public void speedDialSynchToGroup(SpeedDial speedDial) {
@@ -140,6 +158,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
 
     @Override
     public void saveSpeedDialGroup(SpeedDialGroup speedDialGroup) {
+        verifyBlfs(speedDialGroup.getButtons());
         getHibernateTemplate().saveOrUpdate(speedDialGroup);
         getDaoEventPublisher().publishSave(speedDialGroup.getUserGroup());
     }
@@ -172,7 +191,6 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         return Arrays.asList(rules);
     }
 
-
     @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
@@ -204,5 +222,9 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
 
     public void setValidUsers(ValidUsers validUsers) {
         m_validUsers = validUsers;
+    }
+
+    public void setAliasManager(AliasManager aliasMgr) {
+        m_aliasManager = aliasMgr;
     }
 }

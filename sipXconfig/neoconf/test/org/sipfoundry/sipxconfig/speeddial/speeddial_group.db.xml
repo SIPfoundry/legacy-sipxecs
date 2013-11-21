@@ -15,4 +15,10 @@
   <speeddial_group_button position="0" speeddial_id="2000" label="A" number="000" blf="false"/>
   <speeddial_group_button position="1" speeddial_id="2000" label="B" number="111" blf="true"/>
   <speeddial_group_button position="2" speeddial_id="2000" label="C" number="222" blf="false"/>
+
+  <users user_name="0" user_id="1004" pintoken="1234" user_type="C"/>
+  <users user_name="1" user_id="1005" pintoken="1234" user_type="C"/>
+  <users user_name="2" user_id="1006" pintoken="1234" user_type="C"/>
+  <users user_name="3" user_id="1007" pintoken="1234" user_type="C"/>
+  <users user_name="4" user_id="1008" pintoken="1234" user_type="C"/>
 </dataset>
