@@ -1517,6 +1517,14 @@ bool ReproGlue::run()
    {
       return false;
    }
+   
+   if (!_enableWebAdmin)
+   {
+     //
+     // Simply create an empty list of webadmins so cleanup won't complain
+     //
+     mWebAdminList = new std::list<WebAdmin*>;
+   }
 
    // Create reg sync components if required
    createRegSync();

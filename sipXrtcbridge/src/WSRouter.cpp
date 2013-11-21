@@ -16,6 +16,7 @@
  */
 
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 #include <os/OsLogger.h>
 #include <resip/stack/ExtensionParameter.hxx>
 #include "WSRouter.h"
@@ -65,6 +66,20 @@ void log_callback(int level, const char* message)
   }
 }
 
+static bool verify_directory(const std::string path)
+{
+  if (!boost::filesystem::exists(path.c_str()))
+  {
+    if (!boost::filesystem::create_directories(path.c_str()))
+    {
+      std::cerr << "Unable to create data directory " << path.c_str();
+      return false;
+    }
+  }
+  
+  return true;
+}
+
 WSRouter::WSRouter(int argc, char** argv, const std::string& daemonName, const std::string& version, const std::string& copyright) :
   OsServiceOptions(argc, argv, daemonName, version, copyright),
   _pRepro(0),
@@ -103,6 +118,10 @@ bool WSRouter::initialize()
   assert(getOption("proxy-address", _proxyAddress));
   getOption("proxy-port", _proxyPort, 0);
   getOption("db-path", _dbPath, SIPX_DBDIR);
+  
+  if (!verify_directory(_dbPath))
+    return false;
+  
   assert(getOption("domain", _domains));
   
   if (hasOption("enable-library-logging", true))
