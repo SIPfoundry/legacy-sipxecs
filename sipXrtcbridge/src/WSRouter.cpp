@@ -37,7 +37,8 @@ static const resip::ExtensionParameter p_xthost("x-thost");
 static const resip::ExtensionParameter p_xtport("x-tport");
 static const resip::ExtensionParameter p_xtscheme("x-tscheme");
 static const resip::ExtensionParameter p_xtrtc("x-trtc");
-
+static const resip::ExtensionParameter p_xtwssrcip("x-twssrcip");
+static const resip::ExtensionParameter p_xtwsercport("x-twssrcport");
 
 static bool gEnableReproLogging = false;
 
@@ -296,21 +297,20 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
   
   if (isLocalDomain)
   {
-    //
-    // If the request is towards a known domain, relay it to the proxy
-    //
-    ruri.scheme() = "sip";
-    ruri.host() = _proxyAddress.c_str();
-    ruri.port() = _proxyPort;
-    ruri.remove(resip::p_transport);
-    
     addWsContactParams(msg);
     
-   
     if (msg.method() == resip::REGISTER)
     {
       //
       // all registers go to the proxy
+      //
+      ruri.scheme() = "sip";
+      ruri.host() = _proxyAddress.c_str();
+      ruri.port() = _proxyPort;
+      ruri.remove(resip::p_transport);
+    
+      //
+      // Insert a path header
       //
       NameAddr path;
       path.uri().scheme() = "sip";
@@ -343,15 +343,33 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
           ruri.remove(p_xtrtc);
         }
         
+        if (ruri.exists(p_xtwssrcip) && ruri.exists(p_xtwsercport))
+        {
+          ruri.param(resip::p_wsSrcIp) = ruri.param(p_xtwssrcip);
+          ruri.param(resip::p_wsSrcPort) = boost::lexical_cast<int>(ruri.param(p_xtwsercport).c_str());
+        }
+
+        
         ruri.host() = thost.c_str();
         ruri.port() = boost::lexical_cast<int>(tport);
         ruri.param(p_transport) = resip::Data("ws");
       }
       else if (isRtcOffer && !isRtcTarget)
-      {
-        //
-        // Offer is webrtc but target is legacy endpoint. bridge it
-        //
+      {       
+        if (ruri.exists(resip::p_wsSrcIp) && ruri.exists(resip::p_wsSrcPort))
+        {
+          //
+          // If these two headers exists, baboons will force the target.
+          // To avoid this, we will be renaming these paramters so baboons
+          // would allow us to route to the bridge
+          //
+          resip::Data& wssrcip = ruri.param(resip::p_wsSrcIp);
+          int wssrcport = ruri.param(resip::p_wsSrcPort);
+          ruri.remove(resip::p_wsSrcIp);
+          ruri.remove(resip::p_wsSrcPort);
+          ruri.param(p_xtwssrcip) = wssrcip;
+          ruri.param(p_xtwsercport) = resip::Data(boost::lexical_cast<std::string>(wssrcport));
+        }
         
         ruri.param(p_xthost) = ruri.host();
         ruri.param(p_xtport) = resip::Data(boost::lexical_cast<std::string>(ruri.port()).c_str());
@@ -364,7 +382,22 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
       {
         //
         // Offer is legacy terminating to a webrtc endpoint
-        //       
+        // 
+        if (ruri.exists(resip::p_wsSrcIp) && ruri.exists(resip::p_wsSrcPort))
+        {
+          //
+          // If these two headers exists, baboons will force the target.
+          // To avoid this, we will be renaming these paramters so baboons
+          // would allow us to route to the bridge
+          //
+          resip::Data& wssrcip = ruri.param(resip::p_wsSrcIp);
+          int wssrcport = ruri.param(resip::p_wsSrcPort);
+          ruri.remove(resip::p_wsSrcIp);
+          ruri.remove(resip::p_wsSrcPort);
+          ruri.param(p_xtwssrcip) = wssrcip;
+          ruri.param(p_xtwsercport) = resip::Data(boost::lexical_cast<std::string>(wssrcport));
+        }
+        
         ruri.param(p_xthost) = ruri.host();
         ruri.param(p_xtport) = resip::Data(boost::lexical_cast<std::string>(ruri.port()).c_str());
         ruri.param(p_xtscheme) = resip::Data("ws");
@@ -372,16 +405,22 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
         ruri.host() = _pSwitch->getSipAddress().c_str();
         ruri.port() = _pSwitch->getSipPort();
       }
-      
-      //
-      // TODO: 
-      // - Do not bridge WS->WS calls
-      //
+      else
+      {
+        //
+        // ws->ws or sip to sip goes to the pbx proxy
+        //
+        ruri.scheme() = "sip";
+        ruri.host() = _proxyAddress.c_str();
+        ruri.port() = _proxyPort;
+        ruri.remove(resip::p_transport);
+      }
+  
     }
     
     context.getResponseContext().addTarget(resip::NameAddr(ruri));
   }
-  else
+  else // non-local domain
   {
     if (msg.method() == resip::INVITE)
     {
@@ -398,6 +437,20 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
         //
         // Offer is webrtc but target is legacy endpoint. bridge it
         //
+        if (ruri.exists(resip::p_wsSrcIp) && ruri.exists(resip::p_wsSrcPort))
+        {
+          //
+          // If these two headers exists, baboons will force the target.
+          // To avoid this, we will be renaming these paramters so baboons
+          // would allow us to route to the bridge
+          //
+          resip::Data& wssrcip = ruri.param(resip::p_wsSrcIp);
+          int wssrcport = ruri.param(resip::p_wsSrcPort);
+          ruri.remove(resip::p_wsSrcIp);
+          ruri.remove(resip::p_wsSrcPort);
+          ruri.param(p_xtwssrcip) = wssrcip;
+          ruri.param(p_xtwsercport) = resip::Data(boost::lexical_cast<std::string>(wssrcport));
+        }
         
         ruri.param(p_xthost) = ruri.host();
         ruri.param(p_xtport) = resip::Data(boost::lexical_cast<std::string>(ruri.port()).c_str());
@@ -408,6 +461,24 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
       }
       else if (!isRtcOffer && isRtcTarget)
       {
+        //
+        // Offer is webrtc but target is legacy endpoint. bridge it
+        //
+        if (ruri.exists(resip::p_wsSrcIp) && ruri.exists(resip::p_wsSrcPort))
+        {
+          //
+          // If these two headers exists, baboons will force the target.
+          // To avoid this, we will be renaming these paramters so baboons
+          // would allow us to route to the bridge
+          //
+          resip::Data& wssrcip = ruri.param(resip::p_wsSrcIp);
+          int wssrcport = ruri.param(resip::p_wsSrcPort);
+          ruri.remove(resip::p_wsSrcIp);
+          ruri.remove(resip::p_wsSrcPort);
+          ruri.param(p_xtwssrcip) = wssrcip;
+          ruri.param(p_xtwsercport) = resip::Data(boost::lexical_cast<std::string>(wssrcport));
+        }
+        
         //
         // Offer is legacy terminating to a webrtc endpoint
         //       
