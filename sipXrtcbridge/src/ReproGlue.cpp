@@ -1610,9 +1610,11 @@ void ReproGlue::makeRequestProcessorChain(ProcessorChain& chain)
       addProcessor(chain, std::auto_ptr<Processor>(da)); 
    }
 
+#if 0
    // Add am I responsible monkey
    addProcessor(chain, std::auto_ptr<Processor>(new AmIResponsible)); 
-
+#endif
+   
    // Add RequestFilter monkey
    if(!mProxyConfig->getConfigBool("DisableRequestFilterProcessor", false))
    {
