@@ -281,7 +281,7 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
   //
   // Check if request-uri contains the ws parameters
   //
-  bool isRtcTarget = ruri.exists(resip::p_wsSrcIp) && ruri.exists(resip::p_wsSrcPort); 
+  bool isRtcTarget = ruri.exists(resip::p_transport) && (ruri.param(resip::p_transport) == "WS" || ruri.param(resip::p_transport) == "ws");
   bool isRtcOffer = false;
   bool isBridgedRtc = ruri.exists(p_xtrtc); 
   //
@@ -352,14 +352,7 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
           ruri.remove(p_xtscheme);
           ruri.remove(p_xtrtc);
         }
-        
-        if (ruri.exists(p_xtwssrcip) && ruri.exists(p_xtwsercport))
-        {
-          ruri.param(resip::p_wsSrcIp) = ruri.param(p_xtwssrcip);
-          ruri.param(resip::p_wsSrcPort) = boost::lexical_cast<int>(ruri.param(p_xtwsercport).c_str());
-        }
-
-        
+                
         ruri.host() = thost.c_str();
         ruri.port() = boost::lexical_cast<int>(tport);
         ruri.param(p_transport) = resip::Data("ws");
@@ -382,19 +375,7 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
         
         OS_LOG_INFO(FAC_SIP, "Local Domain: Detected SIP->RTC INVITE.  Bridging call.");
         
-        //
-        // If these two headers exists, baboons will force the target.
-        // To avoid this, we will be renaming these paramters so baboons
-        // would allow us to route to the bridge
-        //
-        resip::Data& wssrcip = ruri.param(resip::p_wsSrcIp);
-        int wssrcport = ruri.param(resip::p_wsSrcPort);
-        ruri.remove(resip::p_wsSrcIp);
-        ruri.remove(resip::p_wsSrcPort);
-        ruri.param(p_xtwssrcip) = wssrcip;
-        ruri.param(p_xtwsercport) = resip::Data(boost::lexical_cast<std::string>(wssrcport));
-
-        
+       
         ruri.param(p_xthost) = ruri.host();
         ruri.param(p_xtport) = resip::Data(boost::lexical_cast<std::string>(ruri.port()).c_str());
         ruri.param(p_xtscheme) = resip::Data("ws");
@@ -448,17 +429,6 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
         // Offer is webrtc but target is legacy endpoint. bridge it
         //
         OS_LOG_INFO(FAC_SIP, "Non-Local Domain: Detected SIP->RTC INVITE.  Bridging call.");
-        //
-        // If these two headers exists, baboons will force the target.
-        // To avoid this, we will be renaming these paramters so baboons
-        // would allow us to route to the bridge
-        //
-        resip::Data& wssrcip = ruri.param(resip::p_wsSrcIp);
-        int wssrcport = ruri.param(resip::p_wsSrcPort);
-        ruri.remove(resip::p_wsSrcIp);
-        ruri.remove(resip::p_wsSrcPort);
-        ruri.param(p_xtwssrcip) = wssrcip;
-        ruri.param(p_xtwsercport) = resip::Data(boost::lexical_cast<std::string>(wssrcport));
         //
         // Offer is legacy terminating to a webrtc endpoint
         //       
