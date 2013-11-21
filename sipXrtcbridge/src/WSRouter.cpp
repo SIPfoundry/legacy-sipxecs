@@ -293,8 +293,16 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
     std::string sdp = content.c_str();
     boost::to_upper(sdp);
     isRtcOffer = sdp.find("RTP/SAVPF") != std::string::npos;
-    OS_LOG_INFO(FAC_SIP, "Detected RTP/SAVPF in SDP.  Assuming RTC Media stream in OFFER.");
+    
+    if (isRtcOffer)
+      OS_LOG_INFO(FAC_SIP, "Detected RTP/SAVPF in SDP.  Assuming RTC Media stream in OFFER.");
   }
+  
+  OS_LOG_INFO(FAC_SIP, "isRtcTarget=" << isRtcTarget 
+    << " isRtcOffer=" << isRtcOffer
+    << " isBridgedRtc=" << isBridgedRtc
+    << " isMidDialog=" << isMidDialog
+    << " isLocalDomain=" << isLocalDomain)
   
   if (isLocalDomain)
   {
