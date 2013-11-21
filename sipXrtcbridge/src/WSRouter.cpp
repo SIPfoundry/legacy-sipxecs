@@ -253,6 +253,20 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
   resip::SipMessage& msg = context.getOriginalRequest();
   resip::Uri ruri(msg.header(h_RequestLine).uri());
   
+  //
+  // This request is towards an external destination.  
+  // Mid-dialog requests and calls towards registered agents also fall in this category
+  //
+  bool isMidDialog = msg.header(h_To).exists(p_tag);   
+  if (isMidDialog)
+  {
+    //
+    // Relay all mid-dialog request
+    //
+    context.getResponseContext().addTarget(resip::NameAddr(ruri));
+    return ReproGlue::RequestProcessor::SkipThisChain;
+  }
+  
   bool isLocalDomain = false;
   for (std::vector<std::string>::const_iterator iter = _domains.begin(); iter != _domains.end(); iter++)
   {
@@ -369,22 +383,7 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
   }
   else
   {
-    //
-    // This request is towards an external destination.  
-    // Mid-dialog requests and calls towards registered agents also fall in this category
-    //
-    bool isMidDialog = msg.header(h_To).exists(p_tag);
- 
-   
-    if (isMidDialog)
-    {
-      //
-      // Relay all mid-dialog request
-      //
-      context.getResponseContext().addTarget(resip::NameAddr(ruri));
-      return ReproGlue::RequestProcessor::SkipThisChain;
-    }
-    else if (!isMidDialog && msg.method() == resip::INVITE)
+    if (msg.method() == resip::INVITE)
     {
       if (isRtcOffer && isRtcTarget)
       {
