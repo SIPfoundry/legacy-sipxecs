@@ -37,8 +37,7 @@ static const resip::ExtensionParameter p_xthost("x-thost");
 static const resip::ExtensionParameter p_xtport("x-tport");
 static const resip::ExtensionParameter p_xtscheme("x-tscheme");
 static const resip::ExtensionParameter p_xtrtc("x-trtc");
-static const resip::ExtensionParameter p_xtwssrcip("x-twssrcip");
-static const resip::ExtensionParameter p_xtwsercport("x-twssrcport");
+
 
 static bool gEnableReproLogging = false;
 
@@ -352,6 +351,12 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
           ruri.remove(p_xtscheme);
           ruri.remove(p_xtrtc);
         }
+        
+        if (ruri.exists(p_xtrtc))
+        {
+          ruri.remove(p_xtrtc);
+          ruri.param(resip::p_transport) = resip::Data("WS");
+        }
                 
         ruri.host() = thost.c_str();
         ruri.port() = boost::lexical_cast<int>(tport);
@@ -366,6 +371,8 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
         
         ruri.host() = _pSwitch->getSipAddress().c_str();
         ruri.port() = _pSwitch->getSipPort();
+        ruri.remove(resip::p_transport);
+        msg.setForceTarget(ruri);
       }
       else if (!isRtcOffer && isRtcTarget)
       {
@@ -382,6 +389,9 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
         
         ruri.host() = _pSwitch->getSipAddress().c_str();
         ruri.port() = _pSwitch->getSipPort();
+        ruri.remove(resip::p_transport);
+        ruri.param(p_xtrtc) = resip::Data("yes");
+        msg.setForceTarget(ruri);
       }
       else
       {
@@ -422,6 +432,8 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
         
         ruri.host() = _pSwitch->getSipAddress().c_str();
         ruri.port() = _pSwitch->getSipPort();
+        ruri.remove(resip::p_transport);
+        msg.setForceTarget(ruri);
       }
       else if (!isRtcOffer && isRtcTarget)
       {
@@ -438,6 +450,9 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
         
         ruri.host() = _pSwitch->getSipAddress().c_str();
         ruri.port() = _pSwitch->getSipPort();
+        ruri.remove(resip::p_transport);
+        ruri.param(p_xtrtc) = resip::Data("yes");
+        msg.setForceTarget(ruri);
       }
     }
     //
