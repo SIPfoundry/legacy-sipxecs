@@ -22,9 +22,12 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
+import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SameExtensionException;
@@ -49,7 +52,9 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class AuthCodesImpl implements ReplicableProvider, DialingRuleProvider, FeatureProvider, AuthCodes,
         ProcessProvider {
+    private static final Log LOG = LogFactory.getLog(AuthCodesImpl.class);
     private static final String ALIAS_IN_USE = "&error.aliasinuse";
+    private static final String EXTENSION = "extension";
     private AuthCodeManager m_authCodeManager;
     private AddressManager m_addressManager;
     private FeatureManager m_featureManager;
@@ -82,7 +87,7 @@ public class AuthCodesImpl implements ReplicableProvider, DialingRuleProvider, F
 
     public void saveSettings(AuthCodeSettings settings) {
         if (!m_aliasManager.canObjectUseAlias(settings, settings.getAuthCodePrefix())) {
-            throw new UserException(ALIAS_IN_USE, settings.getAuthCodePrefix());
+            throw new ExtensionInUseException(EXTENSION, settings.getAuthCodePrefix());
         }
 
         for (String alias : settings.getAliasesAsSet()) {
@@ -94,6 +99,18 @@ public class AuthCodesImpl implements ReplicableProvider, DialingRuleProvider, F
         }
 
         m_settingsDao.upsert(settings);
+    }
+
+    protected void saveSettingsWithWorkaroundIfInUse(AuthCodeSettings settings) {
+        try {
+            saveSettings(settings);
+        } catch (ExtensionInUseException err) {
+            LOG.error("Extension Conflict. Choosing bogus extension.", err);
+            String ext = settings.getAuthCodePrefix();
+            String newExt = String.format("^*88888888%s$", ext);
+            settings.setAuthCodePrefix(newExt);
+            saveSettings(settings);
+        }
     }
 
     public boolean isEnabled() {
@@ -168,5 +185,11 @@ public class AuthCodesImpl implements ReplicableProvider, DialingRuleProvider, F
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        if (request.getAllNewlyEnabledFeatures().contains(FEATURE)) {
+            AuthCodeSettings settings = getSettings();
+            if (settings.isNew()) {
+                saveSettingsWithWorkaroundIfInUse(settings);
+            }
+        }
     }
 }
