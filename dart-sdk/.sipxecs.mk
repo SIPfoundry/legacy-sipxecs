@@ -5,7 +5,7 @@
 lib_all += dart-sdk
 
 dart-sdk_VER = 1.0.0.3
-dart-sdk_REL = 30184
+dart-sdk_REL = 30539
 dart-sdk_TARBALL = dartsdk-linux-$(DISTRO_ARCH)-$(dart-sdk_VER)-r$(dart-sdk_REL).tar.gz
 dart-sdk_i386_RPM = dart-sdk-$(dart-sdk_VER)-$(dart-sdk_REL).i386.rpm
 dart-sdk_x86_64_RPM = dart-sdk-$(dart-sdk_VER)-$(dart-sdk_REL).x86_64.rpm
