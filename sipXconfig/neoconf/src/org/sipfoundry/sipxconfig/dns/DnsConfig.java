@@ -132,6 +132,27 @@ public class DnsConfig implements ConfigProvider {
             } finally {
                 IOUtils.closeQuietly(zone);
             }
+
+            File customFile = new File(gdir, format("%s.view.custom", view.getConfigFriendlyName()));
+            if (view.getCustomRecordsIds() != null && view.getCustomRecordsIds().size() > 0) {
+                Writer zoneCustom = new FileWriter(customFile);
+                try {
+                    Collection<DnsCustomRecords> customs = m_dnsManager.getCustomRecordsByIds(view
+                            .getCustomRecordsIds());
+                    for (DnsCustomRecords custom : customs) {
+                        zoneCustom.write(custom.getRecords());
+                        if (!custom.getRecords().endsWith(System.lineSeparator())) {
+                            zoneCustom.append(System.lineSeparator());
+                        }
+                    }
+                } finally {
+                    IOUtils.closeQuietly(zoneCustom);
+                }
+            } else {
+                if (customFile.exists()) {
+                    customFile.delete();
+                }
+            }
         }
     }
 

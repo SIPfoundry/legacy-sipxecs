@@ -10,7 +10,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManagerImpl;
 import org.sipfoundry.sipxconfig.region.Region;
@@ -21,6 +20,8 @@ public class DnsViewApiTest {
     private Region m_r2 = new Region("EU");
     private DnsFailoverPlan m_p1 = new DnsFailoverPlan("p1");
     private DnsFailoverPlan m_p2 = new DnsFailoverPlan("p2");
+    private DnsCustomRecords m_c1 = new DnsCustomRecords("c1");
+    private DnsCustomRecords m_c2 = new DnsCustomRecords("c2");
     
     @BeforeClass
     public static void setUpClass() {
@@ -36,6 +37,8 @@ public class DnsViewApiTest {
         m_r2.setUniqueId(2);        
         m_p1.setUniqueId(10);
         m_p2.setUniqueId(20);
+        m_c1.setUniqueId(100);
+        m_c2.setUniqueId(110);
     }
 
     private DnsViewApi m_dnsViewApi;
@@ -48,10 +51,12 @@ public class DnsViewApiTest {
         view.setName("x");
         view.setRegionId(1);
         view.setPlanId(2);
+        view.setCustomRecordsIds(Collections.singletonList(m_c1.getId()));
         m_dnsViewApi = new DnsViewApi();
         Collection<Region> regions = Collections.singleton(m_r1);
         Collection<DnsFailoverPlan> plans = Collections.singleton(m_p1);
-        m_dnsViewApi.writeView(actual, view, plans, regions);
+        Collection<DnsCustomRecords> customs = Arrays.asList(m_c1, m_c2);
+        m_dnsViewApi.writeView(actual, view, plans, regions, customs);
         TestHelper.assertEqualJson2(expected, actual.toString());
     }
     

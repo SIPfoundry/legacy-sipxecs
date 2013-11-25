@@ -467,6 +467,7 @@
     <!-- slot 10 -->
     <!-- slot 11 -->
     <!-- slot 12 -->
+    <antcall target="dns_custom"/>
     <!-- slot 13 -->
     <!-- slot 14 -->
     <!-- slot 15 -->
@@ -1379,6 +1380,9 @@
   </target>
   <target name="add_value_storage_to_openacdline" unless="add_value_storage_to_openacdline">
 	<db-patch patch="add_value_storage_to_openacdline"/>
+  </target>
+  <target name="dns_custom" unless="dns_custom">
+	<db-patch patch="dns_custom"/>
   </target>
   <target name="add_timeout_to_ldap" unless="add_timeout_to_ldap">
     <db-patch patch="add_timeout_to_ldap"/>

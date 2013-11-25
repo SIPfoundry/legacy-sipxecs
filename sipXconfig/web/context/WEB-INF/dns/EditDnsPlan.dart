@@ -17,7 +17,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:sipxconfig/sipxconfig.dart';
 
-var api = new Api(test : false);
+var api = new Api(test : true);
 
 main() {
   new DnsPlanEditor();  

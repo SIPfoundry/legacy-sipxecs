@@ -5,7 +5,12 @@
   "regionCandidates" : {
     "1" : "US"
   },
+  "customRecordsCandidates" : {
+    "100" : "c1",
+    "110" : "c2"
+  },
   "view" : {
+    "customRecordsIds" : [ 100 ],
     "enabled" : true,
     "id" : -1,
     "name" : "x",

@@ -379,6 +379,10 @@ class UserMessage {
     close.onClick.listen(clearError);
   }
   
+  foo() {
+    
+  }
+  
   void success(String msg) {
     if (confirmError == false) {
       message(msg, 'user-success');

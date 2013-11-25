@@ -1,4 +1,5 @@
 [ {
+  "customRecordsIds" : null,
   "enabled" : true,
   "id" : -1,
   "name" : "x",
@@ -7,6 +8,7 @@
   "region" : "US",
   "plan" : "p1"
 }, {
+  "customRecordsIds" : null,
   "enabled" : true,
   "id" : -1,
   "name" : "y",

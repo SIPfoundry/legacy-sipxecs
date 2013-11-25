@@ -47,4 +47,19 @@ insert into dns_view (dns_view_id, dns_plan_id, region_id, name, enabled, positi
    (3, 2, 2, 'v3-p2-r2', true, 2);
 
  alter sequence dns_view_seq restart with 100;
+ 
+ insert into dns_custom (dns_custom_id, name, records) values
+   (1, 'custom1', 'custom1 IN A 10.99.0.1'),
+   (2, 'custom2', 'custom2 IN A 10.99.0.2'),
+   (3, 'custom3', 'custom2 IN A 10.99.0.3');
 
+ alter sequence dns_custom_seq restart with 100;
+ 
+ insert into dns_custom_view_link (dns_view_id, dns_custom_id) values
+   (1, 1),
+   (1, 2),
+   (2, 1),
+   (2, 2),
+   (2, 3);
+   
+ 

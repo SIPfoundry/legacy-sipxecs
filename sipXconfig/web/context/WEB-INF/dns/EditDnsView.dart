@@ -2,7 +2,7 @@ import 'dart:html';
 import 'dart:convert';
 import 'package:sipxconfig/sipxconfig.dart';
 
-var api = new Api(test : false);
+var api = new Api(test : true);
 
 main() {
   new DnsViewEditor();
@@ -47,6 +47,12 @@ class DnsViewEditor {
     meta['planId'] = int.parse((querySelector("#planId") as SelectElement).value);
     meta['name'] = (querySelector("#name") as InputElement).value;
     meta['regionId'] = int.parse((querySelector("#regionId") as SelectElement).value);
+    List<int> customRecordsIds = [];
+    meta['customRecordsIds'] = customRecordsIds;
+    SelectElement customs = querySelector("#customRecordsIds");
+    for (var option in customs.selectedOptions) {
+      customRecordsIds.add(int.parse(option.value));
+    }
     HttpRequest req = new HttpRequest();
     var method;
     var id = '';        
@@ -97,17 +103,34 @@ class DnsViewEditor {
     });
   }
   
+  loadCustomRecords(Map<String, String> customRecordsOptions, List<int> customRecordsIds) {
+    if (customRecordsOptions.length == 0) {
+      // If there are no custom record sets defined, don't bother showing list. It's disconcerting
+      // to show select box where there's nothing to select
+      querySelector("#customRecordsIdsRow").style.display = "none";
+      return;
+    }
+    SelectElement select = querySelector("#customRecordsIds");
+    customRecordsOptions.forEach((id, value) {
+      bool selected = (customRecordsIds != null && customRecordsIds.contains(int.parse(id)));
+      select.append(new OptionElement(data: value, value: id, selected : selected));
+    });    
+  }
+  
   loadForm(json) {
     var data = JSON.decode(json);
     Map<String, Object> view = data['view'];
     int regionId;
     int planId;
+    List<int> customRecordsIds;
     if (view != null) {
       (querySelector("#name") as InputElement).value = view['name'];
       regionId = view['regionId'];
       planId = view['planId'];
+      customRecordsIds = view['customRecordsIds'];
     }
     loadRegionCandidates(data['regionCandidates'], regionId);
     loadPlanOptions(data['planCandidates'], planId);
+    loadCustomRecords(data['customRecordsCandidates'], customRecordsIds);
   }  
 }

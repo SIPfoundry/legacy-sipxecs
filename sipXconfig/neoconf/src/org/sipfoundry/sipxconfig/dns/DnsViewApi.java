@@ -99,7 +99,8 @@ public class DnsViewApi extends Resource {
         try {
             if (m_viewId != null) {
                 DnsView view = m_dnsManager.getViewById(m_viewId);
-                writeView(json, view, m_dnsManager.getPlans(), m_regionManager.getRegions());
+                writeView(json, view, m_dnsManager.getPlans(), m_regionManager.getRegions(),
+                        m_dnsManager.getCustomRecords());
             } else {
                 Collection<DnsView> views = m_dnsManager.getViews();
                 writeViews(json, views, m_regionManager.getRegions(), m_dnsManager.getPlans());
@@ -163,14 +164,17 @@ public class DnsViewApi extends Resource {
         getJsonMapper().writeValue(json, objs);
     }
 
-    void writeView(Writer json, DnsView view, Collection<DnsFailoverPlan> plans, Collection<Region> regions)
-        throws IOException {
+    void writeView(Writer json, DnsView view, Collection<DnsFailoverPlan> plans, Collection<Region> regions,
+            Collection<DnsCustomRecords> customRecords) throws IOException {
         JsonConfigurationFile f = new JsonConfigurationFile(json);
         f.open("planCandidates");
         getJsonMapper().writeValue(json, DataCollectionUtil.idToNameMap(plans));
         f.close();
         f.open("regionCandidates");
         getJsonMapper().writeValue(json, DataCollectionUtil.idToNameMap(regions));
+        f.close();
+        f.open("customRecordsCandidates");
+        getJsonMapper().writeValue(json, DataCollectionUtil.idToNameMap(customRecords));
         f.close();
         f.open("view");
         getJsonMapper().writeValue(json, view);

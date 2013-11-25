@@ -16,7 +16,6 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
-
 import static java.lang.String.format;
 
 import java.io.File;
@@ -80,6 +79,7 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     private static final String BASIC_ID = "basic_id";
     private static final String DNS_PLAN_ID = "dns_plan_id";
     private static final String NAME = "name";
+    private static final String RECORDS = "records";
     private static final String ENABLED = "enabled";
     private BeanWithSettingsDao<DnsSettings> m_settingsDao;
     private List<DnsProvider> m_providers;
@@ -516,7 +516,16 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
                 views.add(view);
             }
         });
+
+        loadCustomIdsForViews(views);
         return views;
+    }
+
+    void loadCustomIdsForViews(Collection<DnsView> views) {
+        for (DnsView view : views) {
+            String sql = "select dns_custom_id from dns_custom_view_link where dns_view_id = ?";
+            view.setCustomRecordsIds(m_db.queryForList(sql, Integer.class, view.getId()));
+        }
     }
 
     @Override
@@ -535,10 +544,27 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
         }
 
         m_db.update(sql, view.getRegionId(), view.isEnabled(), view.getName(), view.getPlanId(), view.getId());
+
+        m_db.update("delete  from dns_custom_view_link where dns_view_id = ?", view.getId());
+        if (view.getCustomRecordsIds() != null && view.getCustomRecordsIds().size() > 0) {
+            StringBuilder customIdsSql = new StringBuilder("insert into dns_custom_view_link "
+                    + "(dns_custom_id, dns_view_id) values ");
+            boolean first = true;
+            for (Integer id : view.getCustomRecordsIds()) {
+                if (!first) {
+                    customIdsSql.append(",");
+                }
+
+                customIdsSql.append(format("(%d,%d)", id, view.getId()));
+                first = false;
+            }
+            m_db.update(customIdsSql.toString());
+        }
     }
 
     @Override
     public void deleteView(DnsView view) {
+        m_db.update("delete from dns_custom_view_link where dns_view_id = ?", view.getId());
         m_db.update("delete from dns_view where dns_view_id = " + view.getId());
     }
 
@@ -592,4 +618,81 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
         return inUse(planInUseSql(LOCATION_ID, location.getId()));
     }
 
+    @Override
+    public Collection<DnsCustomRecords> getCustomRecords() {
+        String sql = "select * from dns_custom order by name";
+        return loadCustomRecords(sql);
+    }
+
+    @Override
+    public DnsCustomRecords getCustomRecordsById(Integer customId) {
+        String sql = "select * from dns_custom where dns_custom_id = " + customId;
+        Collection<DnsCustomRecords> customs = loadCustomRecords(sql);
+        return DaoUtils.requireOneOrZero(customs, sql);
+    }
+
+    @Override
+    public Collection<DnsCustomRecords> getCustomRecordsByIds(Collection<Integer> customIds) {
+        String customIdStr = StringUtils.join(customIds, ',');
+        String sql = format("select * from dns_custom where dns_custom_id in (%s) order by name", customIdStr);
+        return loadCustomRecords(sql);
+    }
+
+    List<DnsCustomRecords> loadCustomRecords(String sql) {
+        final List<DnsCustomRecords> records = new ArrayList<DnsCustomRecords>();
+        m_db.query(sql, new RowCallbackHandler() {
+            @Override
+            public void processRow(ResultSet rs) throws SQLException {
+                DnsCustomRecords record = new DnsCustomRecords();
+                record.setUniqueId(rs.getInt("dns_custom_id"));
+                record.setName(rs.getString(NAME));
+                record.setRecords(rs.getString(RECORDS));
+                records.add(record);
+            }
+        });
+        return records;
+    }
+
+    @Override
+    public void saveCustomRecords(DnsCustomRecords custom) {
+        String sql;
+        if (custom.isNew()) {
+            int id = m_db.queryForInt("select nextval('dns_custom_seq')");
+            custom.setUniqueId(id);
+            sql = "insert into dns_custom (name, records, dns_custom_id) values (?, ?, ?)";
+        } else {
+            sql = "update dns_custom set name = ?, records = ? where dns_custom_id = ?";
+        }
+
+        m_db.update(sql, custom.getName(), custom.getRecords(), custom.getId());
+    }
+
+    @Override
+    public void deleteCustomRecords(DnsCustomRecords custom) {
+        m_db.update("delete from dns_custom where dns_custom_id = " + custom.getId());
+    }
+
+//    @Override
+//    public Collection<DnsCustomRecords> getCustomRecordsForView(Integer viewId) {
+//        String sql = "select c.* from dns_custom as c, dns_custom_view_link lnk, dns_view as v "
+//                + "where c.dns_custom_id = lnk.dns_custom_id and "
+//                + "lnk.dns_view_id = v.dns_view_id order by c.name";
+//        return loadCustomRecords(sql);
+//    }
+//
+//    @Override
+//    public void setCustomRecordsForView(Integer viewId, Collection<DnsCustomRecords> custom) {
+//        m_db.update("delete from dns_custom_view_link where dns_view_id = " + viewId);
+//        StringBuilder update = new StringBuilder("insert into dns_custom_view_link("
+//                + "dns_view_id, dns_custom_id) values ");
+//        boolean first = true;
+//        for (DnsCustomRecords c : custom) {
+//            if (!first) {
+//                update.append(',');
+//            }
+//            update.append(format("(%d, %d)", viewId, c.getId()));
+//            first = false;
+//        }
+//        m_db.update(update.toString());
+//    }
 }
