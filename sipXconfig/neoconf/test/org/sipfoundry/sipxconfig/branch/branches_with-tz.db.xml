@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <branch branch_id="10" name="branch10" description="first_" time_zone=""/>
+  <branch branch_id="20" name="branch20" description="second" />
+  <branch branch_id="30" name="branch30" description="third_" />
+  <branch branch_id="40" name="branch40" description="fourth" time_zone="Africa/Accra"/>
+  <branch branch_id="50" name="branch50" description="fifth_" time_zone="Africa/Abidjan"/>
+</dataset>
