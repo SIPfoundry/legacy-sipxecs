@@ -28,7 +28,11 @@ public abstract class AssetSelectorMultiple extends AssetSelector {
     public abstract boolean getSubmitOnChange();
 
     public IPropertySelectionModel getAssetSelectionModel() {
-        File assetDir = new File(getAssetDir());
+        String assetDirParam = getAssetDir();
+        if (assetDirParam == null) {
+            return new StringPropertySelectionModel(ArrayUtils.EMPTY_STRING_ARRAY);
+        }
+        File assetDir = new File(assetDirParam);
         // make sure it exists
         assetDir.mkdirs();
         // list only files
