@@ -147,7 +147,7 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
             String systemTz = m_ntpManager.getSystemTimezone();
             for (Branch branch : getBranches()) {
                 String timezone = branch.getTimeZone();
-                if (StringUtils.isEmpty(timezone)) {
+                if (StringUtils.isEmpty(timezone) || "Africa/Abidjan".equals(timezone)) {
                     LOG.debug(String.format("Setting branch %s to %s", branch.getName(), systemTz));
                     branch.setTimeZone(systemTz);
                     saveBranch(branch);

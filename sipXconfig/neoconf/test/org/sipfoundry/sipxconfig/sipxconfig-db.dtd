@@ -889,6 +889,7 @@
     phone_number CDATA #IMPLIED
     fax_number CDATA #IMPLIED
     address_id CDATA #IMPLIED
+    time_zone CDATA #IMPLIED
 >
 
 <!ELEMENT address EMPTY>
