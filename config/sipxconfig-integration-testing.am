@@ -22,7 +22,8 @@ sipxconfig_test_integration_PKGS = \
 ant_PKGS = \
 	ant \
 	ant-launcher \
-	postgresql
+	postgresql \
+	ant-contrib
 
 ant_DEPS = $(call JavaDep,@SIPX_JAVADIR@/sipXcommons,$(ant_PKGS))
 sipxconfig-reset-integration-test :
@@ -36,6 +37,15 @@ sipxconfig-reset-integration-test :
 	    -Dlog.dir=$(abspath $(builddir)) \
 	    -Dtmp.dir=$(abspath $(builddir)) \
 	    -f database.xml unittest-reset
+
+plugin-reset-integration-test :
+	cd $(SIPX_CONFDIR)/database; \
+	  $(call JavaCommand,ant) org.apache.tools.ant.launch.Launcher \
+	    -Dsipxconfig.db.name=SIPXCONFIG_TEST \
+	    -Dsipxconfig.db.user=$(POSTGRESQL_USER) \
+	    -Dlog.dir=$(abspath $(builddir)) \
+	    -Dtmp.dir=$(abspath $(builddir)) \
+	    -f database.xml plugin-patches
 
 javac-test : $(SIPXCONFIG_TEST_CONFIG_FILES)
 
