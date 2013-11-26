@@ -6,12 +6,10 @@
  */
 package org.sipfoundry.sipxrelay;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.net.InetAddress;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.log4j.SipFoundryLayout;
 
 public class SymmitronConfig {
 
@@ -21,9 +19,6 @@ public class SymmitronConfig {
 	private int portRangeUpperBound = 15500;
 	private int xmlRpcPort = 8089;
 	private String localAddress;
-	private String logFileName = "sipxrelay.log";
-	private String logFileDirectory = null;
-	private String logLevel = "DEBUG";
 	private String publicAddress;
 	private String stunServerAddress;
 	private int rediscoveryTime = 60;
@@ -117,42 +112,11 @@ public class SymmitronConfig {
 		return portRangeUpperBound;
 	}
 
-	public void setLogFileDirectory(String logFileDirectory) {
-		this.logFileDirectory = logFileDirectory;
-	}
-
-	public String getLogFileDirectory() {
-		return logFileDirectory;
-	}
-
-	/**
-	 * @param logLevel
-	 *            the logLevel to set
-	 */
-	public void setLogLevel(String logLevel) {
-		this.logLevel = logLevel;
-	}
-
 	/**
 	 * @return the logLevel
 	 */
 	public String getLogLevel() {
-		return logLevel;
-	}
-
-	/**
-	 * @param logFileName
-	 *            the logFileName to set
-	 */
-	public void setLogFileName(String logFileName) {
-		this.logFileName = logFileName;
-	}
-
-	/**
-	 * @return the logFileName
-	 */
-	public String getLogFileName() {
-		return logFileName;
+		return SipFoundryLayout.getSipFoundryLogLevel().toString();
 	}
 
 	public void setPublicAddress(String publicAddress) {

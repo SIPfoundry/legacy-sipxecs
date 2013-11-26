@@ -169,28 +169,34 @@
 
     <setting name="route-inbound-calls-to-extension" advanced="yes">
     </setting>
-    <setting name="log-level">
+    <setting name="log.level">
       <label>Logging level</label>
       <type>
         <enum>
-          <option>
-            <value>OFF</value>
-          </option>
-          <option>
-            <value>INFO</value>
-          </option>
-          <option>
-            <value>WARN</value>
-          </option>
-          <option>
-            <value>ERROR</value>
-          </option>
-          <option>
-            <value>DEBUG</value>
-          </option>
-          <option>
-            <value>TRACE</value>
-          </option>
+		  <option>
+	        <value>DEBUG</value>
+	      </option>
+	      <option>
+	        <value>INFO</value>
+	      </option>
+	      <option>
+	        <value>NOTICE</value>
+	      </option>
+	      <option>
+	        <value>WARNING</value>
+	      </option>
+	      <option>
+	        <value>ERR</value>
+	      </option>
+	      <option>
+	        <value>CRIT</value>
+	      </option>
+	      <option>
+	        <value>ALERT</value>
+	      </option>
+	      <option>
+	        <value>EMERG</value>
+	      </option>
         </enum>
       </type>
       <value>INFO</value>

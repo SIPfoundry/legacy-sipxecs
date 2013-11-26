@@ -10,10 +10,10 @@ package org.sipfoundry.sipxivr.common;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.FreeSwitchConfigurationInterface;
+import org.sipfoundry.commons.log4j.SipFoundryLayout;
 
 public class FreeSwitchConfigurationImpl implements FreeSwitchConfigurationInterface {
     private static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
-    private String m_logLevel;
     private String m_logFile;
     private int m_eventSocketPort;
     private String m_docDirectory;
@@ -25,13 +25,9 @@ public class FreeSwitchConfigurationImpl implements FreeSwitchConfigurationInter
         return LOG;
     }
 
-    public void setLogLevel(String logLevel) {
-        m_logLevel = logLevel;
-    }
-
     @Override
     public String getLogLevel() {
-        return m_logLevel;
+        return SipFoundryLayout.getSipFoundryLogLevel().toString();
     }
 
     public void setLogFile(String logFile) {

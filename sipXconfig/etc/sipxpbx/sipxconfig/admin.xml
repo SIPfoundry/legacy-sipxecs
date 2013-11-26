@@ -25,7 +25,39 @@
 		</false>
 	</boolean>
   </type>  
+  <type id="loglevel">
+    <enum>
+      <option>
+        <value>DEBUG</value>
+      </option>
+      <option>
+        <value>INFO</value>
+      </option>
+      <option>
+        <value>NOTICE</value>
+      </option>
+      <option>
+        <value>WARNING</value>
+      </option>
+      <option>
+        <value>ERR</value>
+      </option>
+      <option>
+        <value>CRIT</value>
+      </option>
+      <option>
+        <value>ALERT</value>
+      </option>
+      <option>
+        <value>EMERG</value>
+      </option>
+    </enum>
+  </type>
   <group name="configserver-config">
+    <setting name="log.level">
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
     <setting name="password-policy">
       <type refid="policy-type" />
     </setting>

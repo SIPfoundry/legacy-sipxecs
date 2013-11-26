@@ -9,7 +9,6 @@ package org.sipfoundry.sipxrelay;
 import static java.lang.String.format;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -18,7 +17,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -37,7 +35,6 @@ import net.java.stun4j.client.StunDiscoveryReport;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.apache.xmlrpc.XmlRpcException;
 import org.mortbay.http.HttpConnection;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
@@ -47,7 +44,6 @@ import org.mortbay.http.SslListener;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.util.InetAddrPort;
 import org.mortbay.util.ThreadedServer;
-import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 
 /**
@@ -1576,13 +1572,6 @@ public class SymmitronServer implements Symmitron {
                 + configurationFile);
         SymmitronServer.setSymmitronConfig(config);
 
-        if (config.getLogFileDirectory() == null) {
-            String installRoot = configDir.substring(0, configDir
-                    .indexOf("/etc/sipxpbx"));
-            config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
-        }
-        config.setLogFileName("sipxrelay.log");
-
         if (config.getLocalAddress() == null) {
             System.err.println("Local address not specified");
             System.exit(-1);
@@ -1744,34 +1733,9 @@ public class SymmitronServer implements Symmitron {
 
         InetAddress localAddr = findIpAddress(config.getLocalAddress());
 
-        if (config.getLogFileDirectory() == null) {
-            String installRoot = configDir.substring(0, configDir
-                    .indexOf("/etc/sipxpbx"));
-            config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
-        }
-        config.setLogFileName("sipxrelay.log");
-
         // Configure log4j
-        Properties props = new Properties();
-        props.setProperty("log4j.rootLogger", "warn, file");
-        props.setProperty("log4j.logger.org.sipfoundry.sipxrelay",
-                SipFoundryLayout.mapSipFoundry2log4j(config.getLogLevel()).toString());
-        props.setProperty("log4j.appender.file", SipFoundryAppender.class.getName());
-        props.setProperty("log4j.appender.file.File", config.getLogFileDirectory() + "/" + config.getLogFileName());
-        props.setProperty("log4j.appender.file.layout", SipFoundryLayout.class.getName());
-        props.setProperty("log4j.appender.file.layout.facility", "JAVA");
-        String log4jProps = configDir + "/log4j.properties";
-        if (new File(log4jProps).exists()) {
-            Properties fileProps = new Properties();
-            fileProps.load(new FileInputStream(log4jProps));
-            String level = fileProps
-                    .getProperty("log4j.logger.org.sipfoundry.sipxrelay");
-            if (level != null) {
-                props.setProperty("log4j.logger.org.sipfoundry.sipxrelay",level);
-            }
-        }
-      
-        PropertyConfigurator.configure(props);
+        PropertyConfigurator.configureAndWatch(configDir+"/sipxrelay/log4j.properties", 
+                SipFoundryLayout.LOG4J_MONITOR_FILE_DELAY);
 
         SymmitronServer.setSymmitronConfig(config);
 

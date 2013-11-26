@@ -48,6 +48,8 @@ import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.mwi.Mwi;
 import org.sipfoundry.sipxconfig.restserver.RestServer;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingUtil;
 import org.springframework.beans.factory.annotation.Required;
 
 public class IvrConfig implements ConfigProvider, AlarmProvider {
@@ -80,6 +82,11 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
             if (!enabled) {
                 continue;
             }
+
+            Setting ivrSettings = settings.getSettings().getSetting("ivr");
+            String log4jFileName = "log4j-ivr.properties.part";
+            SettingUtil.writeLog4jSetting(ivrSettings, dir, log4jFileName);
+
             File f = new File(dir, "sipxivr.properties.part");
             Writer wtr = new FileWriter(f);
             Set<String> mwiAddresses = new LinkedHashSet<String>();

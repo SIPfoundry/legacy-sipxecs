@@ -9,13 +9,20 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
+import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 
 public final class SettingUtil {
     private SettingUtil() {
@@ -133,5 +140,43 @@ public final class SettingUtil {
         }
 
         return addresses;
+    }
+
+    /**
+     * Writes log4j log level in a specified file.
+     */
+    public static void writeLog4jSetting(Setting settings, File dir,
+            String fileName) throws IOException {
+        writeLog4jSetting(settings, dir, fileName, true, SipFoundryLayout.LOG4J_SIPFOUNDRY_KEY);
+    }
+
+    /**
+     * Writes log4j log level in a specified file with a given key.
+     */
+    public static void writeLog4jSetting(Setting settings, File dir,
+            String fileName, String logLevelKey) throws IOException {
+        writeLog4jSetting(settings, dir, fileName, true, logLevelKey);
+    }
+
+    /**
+     * Writes log4j log level in a specified file and, if needed,
+     * removes the log.level setting from the settings object.
+     */
+    public static void writeLog4jSetting(Setting settings, File dir,
+            String fileName, boolean removeLogLevelSetting, String logLevelKey) throws IOException {
+        Setting logLevelSettings = settings.getSetting("log.level");
+        File f = new File(dir, fileName);
+        Writer wtr = new FileWriter(f);
+        try {
+            KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
+            String log4jLogLevel = SipFoundryLayout.mapSipFoundry2log4j(logLevelSettings.getValue()).toString();
+            logLevelSettings.setValue(log4jLogLevel);
+            config.writeWithKey(logLevelKey, logLevelSettings);
+            if (removeLogLevelSetting) {
+                settings.getValues().remove(logLevelSettings);
+            }
+        } finally {
+            IOUtils.closeQuietly(wtr);
+        }
     }
 }

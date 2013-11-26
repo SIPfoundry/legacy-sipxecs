@@ -55,7 +55,6 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         String url = "file:" + accountName;
 
         SymmitronConfig symConfig = parser.parse(url);
-        symConfig.setLogLevel("trace");
         SymmitronServer.setSymmitronConfig(symConfig);
         SymmitronServer.startWebServer();
         port = symConfig.getXmlRpcPort();

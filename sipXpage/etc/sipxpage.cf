@@ -32,6 +32,12 @@ bundle agent sipxpage_config {
         perms => m("644"),
         edit_line => sipxpage_properties,
         classes => if_repaired("restart_sipxpage");
+        
+     "$(sipx.SIPX_CONFDIR)/sipxpage/log4j.properties"
+        comment => "configure page log4j $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => sipxpage_log4j_properties_contents;
 
     !primary::
       "$(sipx.SIPX_VARDIR)/sipxpage/music"
@@ -51,6 +57,21 @@ bundle edit_line sipxpage_properties {
       "log.file : $(sipx.SIPX_LOGDIR)/sipxpage.log";
       "hostname : $(sipx.host).$(sipx.net_domain)";
 
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle edit_line sipxpage_log4j_properties_contents {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/log4j-page.properties.part"
+        insert_type => "file";
+      "log4j.rootLogger=warn, file";        
+      "log4j.appender.file=org.sipfoundry.commons.log4j.SipFoundryAppender";
+      "log4j.appender.file.File=$(sipx.SIPX_LOGDIR)/sipxpage.log";
+      "log4j.appender.file.layout=org.sipfoundry.commons.log4j.SipFoundryLayout";
+      "log4j.appender.file.layout.facility=sipXpage";
   delete_lines:
     any::
       ".*";

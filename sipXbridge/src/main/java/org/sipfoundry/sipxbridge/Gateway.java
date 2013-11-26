@@ -35,8 +35,8 @@ import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
 import net.java.stun4j.client.StunDiscoveryReport;
 
 import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.SimpleLayout;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
@@ -226,6 +226,10 @@ public class Gateway {
     }
 
     static void parseConfigurationFile() {
+        // Configure log4j
+        PropertyConfigurator.configureAndWatch(Gateway.configurationPath+"/sipXbridge/log4j.properties", 
+                SipFoundryLayout.LOG4J_MONITOR_FILE_DELAY);
+        
         Gateway.setConfigurationPath();
         Gateway.configurationFile = Gateway.configurationPath
                 + "/sipxbridge.xml";
@@ -284,30 +288,12 @@ public class Gateway {
      */
     static void initializeLogging() throws SipXbridgeException {
         try {
-
-            BridgeConfiguration bridgeConfiguration = Gateway
-                    .getBridgeConfiguration();
-            String logLevel = bridgeConfiguration.getLogLevel();
-
-            java.util.logging.Level level = java.util.logging.Level.OFF;
-            if (logLevel.equals("INFO")) {
-                level = java.util.logging.Level.INFO;
-            } else if (logLevel.equals("DEBUG")) {
-                level = java.util.logging.Level.FINE;
-            } else if (logLevel.equals("TRACE")) {
-                level = java.util.logging.Level.FINER;
-            } else if (logLevel.equals("WARN")) {
-                level = java.util.logging.Level.WARNING;
-            }
-
+            java.util.logging.Logger log = java.util.logging.Logger
+                    .getLogger("net.java.stun4j");
             /*
              * BUGBUG For now turn off Logging on STUN4j. It writes to stdout.
              */
-            level = java.util.logging.Level.OFF;
-
-            java.util.logging.Logger log = java.util.logging.Logger
-                    .getLogger("net.java.stun4j");
-            log.setLevel(level);
+            log.setLevel(java.util.logging.Level.OFF);
             java.util.logging.FileHandler fileHandler = new java.util.logging.FileHandler(
                     Gateway.getLogFile(),true);
 
@@ -323,13 +309,6 @@ public class Gateway {
              */
             log.addHandler(fileHandler);
 
-            Gateway.logAppender = new SipFoundryAppender(
-                    new SipFoundryLayout(), Gateway.getLogFile(),true);
-
-            logger.setLevel(Level.toLevel(logLevel));
-            logger.addAppender(logAppender);
-            commonsLogger.setLevel(Level.toLevel(logLevel));
-            commonsLogger.addAppender(logAppender);
         } catch (Exception ex) {
             throw new SipXbridgeException("Error initializing logging", ex);
         }

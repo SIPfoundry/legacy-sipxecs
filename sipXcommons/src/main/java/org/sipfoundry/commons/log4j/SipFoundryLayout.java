@@ -14,6 +14,7 @@ import java.util.TimeZone;
 
 import org.apache.log4j.Layout;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggingEvent;
 
@@ -23,6 +24,10 @@ import org.apache.log4j.spi.LoggingEvent;
  * @author Woof!
  */
 public class SipFoundryLayout extends Layout {
+    
+    public static final Long LOG4J_MONITOR_FILE_DELAY = 30000L;
+    public static final String LOG4J_SIPFOUNDRY_KEY = "log4j.logger.org.sipfoundry";
+    
     static Long lineNumber = 0L;
     SimpleDateFormat dateFormat;
     String hostName;
@@ -96,7 +101,20 @@ public class SipFoundryLayout extends Layout {
             return Level.INFO;
 
     }
-
+    
+    /**
+     * Returns to logLevel set for log4j.logger.org.sipfoundry.
+     * If it is null, then it will return the log level of the root logger.
+     */
+    public static Level getSipFoundryLogLevel()
+    {
+        Level logLevel = Logger.getLogger(LOG4J_SIPFOUNDRY_KEY).getLevel();
+        if (logLevel == null){
+            logLevel = Logger.getRootLogger().getLevel();
+        }
+        return logLevel;
+    }
+    
     /**
      * Escape any CR or LF in the message with the \r \n escapes. SipFoundry logging logs
      * multiline messages (like a SIP PDU) on a single log entry by escaping the CRs and LFs
@@ -191,7 +209,9 @@ public class SipFoundryLayout extends Layout {
             return out1;
         }
     }
-
+    
+    
+    
     @Override
     public boolean ignoresThrowable() {
         return true;

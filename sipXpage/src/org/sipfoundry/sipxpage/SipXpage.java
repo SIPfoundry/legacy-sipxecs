@@ -53,16 +53,10 @@ public class SipXpage implements LegListener
       config = new Configuration() ;
 
       // Configure log4j
-      Properties props = new Properties() ;
-      props.setProperty("log4j.rootLogger","warn, file") ;
-      props.setProperty("log4j.logger.org.sipfoundry.sipxpage",
-            SipFoundryLayout.mapSipFoundry2log4j(config.logLevel).toString()) ;
-      props.setProperty("log4j.appender.file", "org.sipfoundry.commons.log4j.SipFoundryAppender") ;
-      props.setProperty("log4j.appender.file.File", config.logFile) ;
-      props.setProperty("log4j.appender.file.layout","org.sipfoundry.commons.log4j.SipFoundryLayout") ;
-      props.setProperty("log4j.appender.file.layout.facility","sipXpage") ;
-      PropertyConfigurator.configure(props) ;
-
+      String path = System.getProperty("conf.dir");
+      PropertyConfigurator.configureAndWatch(path+"/sipxpage/log4j.properties", 
+              SipFoundryLayout.LOG4J_MONITOR_FILE_DELAY);
+      
       // Start the SIP stack
       SipFactory sipFactory = null;
       sipFactory = SipFactory.getInstance();
