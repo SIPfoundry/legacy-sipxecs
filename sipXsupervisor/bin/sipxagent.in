@@ -41,13 +41,18 @@ def run(verbose, is_remote, is_raw, hosts, defines, undefines, bundles)
     ok = cmd(verbose, "su - #{$user} sh -c \"#{$bindir}/sipxagent #{$args.join(' ')}\"")
 
   else
+
+    # XX-10858 Log can get very large, so we limit it to 10K lines plus 
+    # size of last run
+    `sed -i -e :a -e '$q;N;100000,$D;ba' #{$logfile}`
+
     dstr = (defines.empty? ? '' : "-D " + defines.join(','))
     nstr = (undefines.empty? ? '' : "-N " + undefines.join(','))
     bstr = (bundles.empty? ? '' : "-b " + bundles.join(','))
     agentstr = "-v #{dstr} #{nstr} #{bstr}"
     hstr = (hosts.empty? ? '-H 127.0.0.1' : "-H " + hosts.join(','))
     vstr = (verbose ? '-v' : '')
-    analyzer = (is_raw ? '' : "| #{$bindir}/sipxagent-log-reader #{vstr}")
+    analyzer = (is_raw ? '' : "| #{$bindir}/sipxagent-log-reader #{vstr}")    
     if (is_remote || Process.uid != 0)
       ok = cmd(verbose, "/usr/sbin/cf-runagent -t #{$timeout} -v #{hstr} -f #{$cfinputs}/sipxagent.cf -o \"#{agentstr} -K\" | tee -a #{$logfile} #{analyzer}")
     else 
