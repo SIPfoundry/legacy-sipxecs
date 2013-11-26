@@ -299,16 +299,6 @@ int main(int argc, char* argv[])
 
    std::string errmsg;
    MongoDB::ConnectionInfo gInfo = MongoDB::ConnectionInfo::globalInfo();
-   mongo::ConnectionString mongoConn = gInfo.getConnectionString();
-   if (false == MongoDB::ConnectionInfo::testConnection(mongoConn, errmsg))
-   {
-       Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
-               "Failed to connect to '%s' - %s",
-               mongoConn.toString().c_str(), errmsg.c_str());
-
-       mongo::dbexit(mongo::EXIT_CLEAN);
-       return 1;
-   }
 
    // add the ~~sipXsaa credentials so that sipXsaa can respond to challenges
    SubscribeDB* subscribeDb = SubscribeDB::CreateInstance();

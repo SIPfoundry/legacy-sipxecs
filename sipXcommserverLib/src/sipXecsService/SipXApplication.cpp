@@ -209,15 +209,15 @@ bool SipXApplication::testMongoDBConnection()
   bool ret = true;
 
   std::string errmsg;
-
-  mongo::ConnectionString mongoConnectionString = MongoDB::ConnectionInfo::connectionStringFromFile();
-  if (false == MongoDB::ConnectionInfo::testConnection(mongoConnectionString, errmsg))
+  MongoDB::ConnectionInfo ginfo = MongoDB::ConnectionInfo::globalInfo();
+  mongo::ConnectionString mongoConn = ginfo.getConnectionString();
+  if (false == MongoDB::ConnectionInfo::testConnection(mongoConn, errmsg))
   {
-    Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
-        "Failed to connect to '%s' - %s",
-        mongoConnectionString.toString().c_str(), errmsg.c_str());
+      Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
+              "Failed to connect to '%s' - %s",
+              mongoConn.toString().c_str(), errmsg.c_str());
 
-    ret = false;
+      ret = false;
   }
 
   return ret;
