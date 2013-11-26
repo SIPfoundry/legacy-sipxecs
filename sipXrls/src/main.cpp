@@ -286,16 +286,6 @@ int main(int argc, char* argv[])
 
    std::string errmsg;
    MongoDB::ConnectionInfo gInfo = MongoDB::ConnectionInfo::globalInfo();
-   mongo::ConnectionString mongoConnectionString = gInfo.getConnectionString();
-   if (false == MongoDB::ConnectionInfo::testConnection(mongoConnectionString, errmsg))
-   {
-       Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
-               "Failed to connect to '%s' - %s",
-               mongoConnectionString.toString().c_str(), errmsg.c_str());
-
-       mongo::dbexit(mongo::EXIT_CLEAN);
-       return 1;
-   }
 
    EntityDB entityDb(gInfo);
 

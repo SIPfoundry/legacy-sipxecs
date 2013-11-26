@@ -38,8 +38,6 @@
 #include <mongo/util/assert_util.h>
 #include "sipXecsService/SipXApplication.h"
 
-#include "sipXecsService/SipXApplication.h"
-
 // DEFINES
 #define SIPREGISTRAR_APP_NAME "SipRegistrar"
 #define CONFIG_SETTINGS_FILE  "registrar-config"

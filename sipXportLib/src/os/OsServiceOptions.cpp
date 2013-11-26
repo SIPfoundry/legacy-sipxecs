@@ -335,14 +335,6 @@ bool OsServiceOptions::parseOptions(ParseOptionsFlags parseOptionsFlags,
       boost::program_options::notify(_commandLineOptions);
     }
 
-    if (parseOptionsFlags & StopIfVersionHelpFlag)
-    {
-      if (hasOption(helpOption().pName) || hasOption(versionOption().pName))
-      {
-        return true;
-      }
-    }
-
     if (parseOptionsFlags & AddDefaultComandLineOptionsFlag)
     {
       checkDefaultCommandLineOptions(parseOptionsFlags, strm);
