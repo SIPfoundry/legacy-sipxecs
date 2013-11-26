@@ -86,7 +86,7 @@
     </setting>
   </group>
   <group name="relay-config">
-    <setting name="SIP_RELAY_LOG_LEVEL">
+    <setting name="log.level">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

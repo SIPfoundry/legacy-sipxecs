@@ -234,28 +234,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             StringBuilder sb = new StringBuilder(javaClassPaths).append(":" + openfireHome + "/plugins/"
                     + SipXOpenfirePlugin.PLUGIN_PATH + "/lib/libhostname.so");
             System.setProperty("java.class.path", sb.toString());
-
-            // Configure log4j
-            Properties props = new Properties();
-            props.setProperty("log4j.rootLogger", "warn, file");
-            props.setProperty("log4j.logger.org.sipfoundry.openfire",
-                    SipFoundryLayout.mapSipFoundry2log4j(watcherConfig.getLogLevel()).toString());
-            props.setProperty("log4j.appender.file", SipFoundryAppender.class.getName());
-            props.setProperty("log4j.appender.file.File", logFile);
-            props.setProperty("log4j.appender.file.layout", SipFoundryLayout.class.getName());
-            props.setProperty("log4j.appender.file.layout.facility", "JAVA");
-            String log4jProps = configurationPath + "/log4j.properties";
-            if (new File(log4jProps).exists()) {
-                Properties fileProps = new Properties();
-                is = new FileInputStream(log4jProps);
-                fileProps.load(is);
-                String level = fileProps.getProperty("log4j.logger.org.sipfoundry.openfire");
-                if (level != null) {
-                    props.setProperty("log4j.logger.org.sipfoundry.openfire", level);
-                }
-            }
-            PropertyConfigurator.configure(props);
-
+            
+            PropertyConfigurator.configureAndWatch(openfireHome+"/conf/log4j.properties", 
+                    SipFoundryLayout.LOG4J_MONITOR_FILE_DELAY);
         } catch (Exception ex) {
             throw new SipXOpenfirePluginException(ex);
         } finally {
@@ -290,6 +271,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     @Override
     public void initializePlugin(PluginManager manager, File pluginDirectory) {
         SipXOpenfirePlugin.instance = this;
+        
+        initializeLogging();
 
         InputStream in = getClass().getResourceAsStream("/config.properties");
         Properties properties = new Properties();
@@ -320,8 +303,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
 
         parseConfigurationFile();
-
-        initializeLogging();
+        
         log.info(">>>>>>>>STARTING " + SipXOpenfirePlugin.class + "<<<<<<<<");
 
         pluginManager = manager;

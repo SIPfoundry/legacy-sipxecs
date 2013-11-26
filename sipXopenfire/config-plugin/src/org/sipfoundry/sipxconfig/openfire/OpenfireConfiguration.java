@@ -23,6 +23,7 @@ import java.io.Writer;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
@@ -39,6 +40,8 @@ import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.rls.Rls;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingUtil;
 import org.springframework.beans.factory.annotation.Required;
 
 public class OpenfireConfiguration implements ConfigProvider {
@@ -81,6 +84,11 @@ public class OpenfireConfiguration implements ConfigProvider {
             boolean presenceEnabled = (Boolean) settings.getSettingTypedValue("settings/enable-presence")
                     && manager.getFeatureManager().isFeatureEnabled(Rls.FEATURE);
             ConfigUtils.enableCfengineClass(dir, "ofconsole.cfdat", consoleEnabled, "ofconsole");
+            
+            Setting openfireSettings = settings.getSettings().getSetting("settings");
+            String log4jFileName = "log4j-openfire.properties.part";
+            SettingUtil.writeLog4jSetting(openfireSettings, dir, log4jFileName, false, SipFoundryLayout.LOG4J_SIPFOUNDRY_KEY);
+
             File f = new File(dir, "sipx.properties.part");
             if (!f.exists()) {
                 f.createNewFile();

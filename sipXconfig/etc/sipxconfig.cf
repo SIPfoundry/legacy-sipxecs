@@ -65,6 +65,13 @@ bundle agent sipxconfig_running {
       "$(sipx.SIPX_SERVICEDIR)/sipxconfig"
         comment => "stop sipxconfig",
         args => "stop";
+        
+  files:
+    "$(sipx.SIPX_CONFDIR)/log4j.properties"
+      comment => "configure log4j $(this.promiser)",
+      create => "true",
+      perms => m("644"),
+      edit_line => sipx_log4j_properties_contents;
 }
 
 bundle agent sipxconfig_apache {
@@ -84,4 +91,33 @@ bundle agent sipxconfig_services {
       create => "true",
       perms => m("644"),
       copy_from => copy_from_cfdata("$(sipx.location_id)/sipxecs-services.ini");
+}
+
+bundle edit_line sipx_log4j_properties_contents {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/log4j.properties.part"
+        insert_type => "file";
+      "log4j.appender.file=org.sipfoundry.commons.log4j.SipFoundryAppender";
+	  "log4j.appender.file.File=${jetty.log.dir}/sipxconfig.log";
+	  "log4j.appender.file.layout=org.sipfoundry.commons.log4j.SipFoundryLayout";
+	  "# legal values (highest to lowest): debug info warn error fatal";
+	  "log4j.rootLogger=warn, file";
+	  "# For logging login attempts...";
+	  "log4j.logger.login=warn,userlogin";
+	  "log4j.additivity.login=false";
+	  "log4j.appender.userlogin=org.sipfoundry.commons.log4j.SipFoundryAppender";
+	  "log4j.appender.userlogin.File=${jetty.log.dir}/sipxconfig-logins.log";
+	  "log4j.appender.userlogin.layout=org.apache.log4j.PatternLayout";
+	  "log4j.appender.userlogin.layout.ConversionPattern=\"%d\":%5p:%c{1}:%L:%m%n";
+	  "# Audit log";
+	  "log4j.appender.auditlog=org.sipfoundry.commons.log4j.SipFoundryAppender";
+	  "log4j.appender.auditlog.File=${jetty.log.dir}/sipxconfig-audit.log";
+	  "log4j.appender.auditlog.layout=org.sipfoundry.commons.log4j.SipFoundryLayout";
+	  "log4j.appender.auditlog.layout.ConversionPattern=\"%d\":%X{username}:%X{eventType}:\"%m\"%n";
+   	  "log4j.logger.org.sipfoundry.sipxconfig.auditlog=info, auditlog";
+	  "log4j.category.javax.sip=warn";
+  delete_lines:
+    any::
+      ".*";
 }

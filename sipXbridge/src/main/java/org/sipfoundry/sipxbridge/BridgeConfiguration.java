@@ -6,13 +6,11 @@
  */
 package org.sipfoundry.sipxbridge;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.net.InetAddress;
 import java.util.HashSet;
-import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 
 /**
@@ -34,7 +32,6 @@ public class BridgeConfiguration {
     private int sipxProxyPort = -1;
     private String sipxProxyDomain;
     private String stunServerAddress = null;
-    private String logLevel = "WARN";
     private String musicOnHoldName = "~~mh~";
     private boolean musicOnHoldEnabled = false;
     private int xmlRpcPort = 0;
@@ -203,37 +200,10 @@ public class BridgeConfiguration {
     }
 
     /**
-     * Set the logLevel to reflect the sipXecs-defined level requested,
-     * unless overridden in the log4j.properties file.
-     * @param logLevel the logLevel to set (one of the sipXecs-defined levels)
-     */
-    public void setLogLevel(String level) {
-        this.logLevel = SipFoundryLayout.mapSipFoundry2log4j(level).toString();
-        if (logLevel.equals("DEBUG")) {
-            try {
-                String log4jProps = Gateway.configurationPath + "/log4j.properties";
-                if (new File(log4jProps).exists()) {
-                    /*
-                     * Override the file configuration setting.
-                     */
-                    Properties props = new Properties();
-                    props.load(new FileInputStream(log4jProps));
-                    String newLevel = props.getProperty("log4j.category.org.sipfoundry.sipxbridge");
-                    if (newLevel != null) {
-                        this.logLevel = newLevel;
-                    }
-                }
-            } catch (Exception ex) {
-                /* Ignore */
-            }
-        }
-    }
-
-    /**
      * @return the logLevel (a log4j level)
      */
     public String getLogLevel() {
-        return logLevel;
+        return SipFoundryLayout.getSipFoundryLogLevel().toString();
     }
 
     /**

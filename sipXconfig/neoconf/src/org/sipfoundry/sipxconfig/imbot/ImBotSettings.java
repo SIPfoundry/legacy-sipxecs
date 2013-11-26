@@ -80,10 +80,6 @@ public class ImBotSettings extends PersistableSettings implements DeployConfigOn
         return getSettingValue(LOCALE_SETTING);
     }
 
-    public String getLogLevel() {
-        return getSettingValue(LOG_LEVEL_SETTING);
-    }
-
     @Override
     public String getBeanId() {
         return "imBotSettings";

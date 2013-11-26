@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * Convert settings into key-value files that are common in configuration files and in files used
@@ -30,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 public class KeyValueConfiguration extends AbstractConfigurationFile {
     private static final String COLON = " : ";
     private static final String EQUALS = "=";
+    private static final String COMMA = ",";
     private String m_valueFormat;
     private String m_delimator;
     private Writer m_out;
@@ -74,6 +76,21 @@ public class KeyValueConfiguration extends AbstractConfigurationFile {
         m_out.write(fullKey);
         m_out.write(m_delimator);
         writeValue(value);
+        m_out.write('\n');
+    }
+
+    /**
+     * This methods uses as key not the settings key, but the one provided as parameter.
+     * Will also add the provided suffix to the end of each written line.
+     * @param key
+     * @param value
+     * @param suffix
+     * @throws IOException
+     */
+    public void writeWithKey(String key, Setting setting) throws IOException {
+        m_out.write(key);
+        m_out.write(m_delimator);
+        writeValue(setting.getValue());
         m_out.write('\n');
     }
 

@@ -25,6 +25,8 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
 public class PagingConfiguration implements ConfigProvider {
     private PagingContext m_pagingContext;
@@ -47,6 +49,11 @@ public class PagingConfiguration implements ConfigProvider {
             if (!enabled) {
                 continue;
             }
+
+            Setting pagingSettings = settings.getSettings().getSetting("page-config");
+            String log4jFileName = "log4j-page.properties.part";
+            SettingUtil.writeLog4jSetting(pagingSettings, dir, log4jFileName);
+
             FileWriter writer = new FileWriter(new File(dir, "sipxpage.properties.part"));
             try {
                 write(writer, location, groups, settings, domainName);
@@ -65,7 +72,6 @@ public class PagingConfiguration implements ConfigProvider {
         config.write("sip.udpPort", settings.getSipUdpPort());
         config.write("sip.tcpPort", settings.getSipTcpPort());
         config.write("sip.trace", settings.getSipTraceLevel());
-        config.write("log.level", settings.getLogLevel());
         for (int i = 0; i < groups.size(); i++) {
             PagingGroup g = groups.get(i);
             if (g.isEnabled()) {

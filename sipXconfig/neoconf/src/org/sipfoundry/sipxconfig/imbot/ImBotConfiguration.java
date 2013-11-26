@@ -38,6 +38,8 @@ import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.restserver.RestServer;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingUtil;
 import org.springframework.beans.factory.annotation.Required;
 
 public class ImBotConfiguration implements ConfigProvider {
@@ -70,6 +72,11 @@ public class ImBotConfiguration implements ConfigProvider {
             if (!enabled) {
                 continue;
             }
+
+            Setting imbotSettings = settings.getSettings().getSetting("imbot");
+            String log4jFileName = "log4j-imbot.properties.part";
+            SettingUtil.writeLog4jSetting(imbotSettings, dir, log4jFileName);
+
             File f = new File(manager.getLocationDataDirectory(location), "sipximbot.properties.part");
             Writer wtr = new FileWriter(f);
             try {
@@ -84,7 +91,6 @@ public class ImBotConfiguration implements ConfigProvider {
         Address rest,
             Address imApi) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
-        config.write("log.level", settings.getLogLevel());
         config.write("imbot.httpport", settings.getHttpPort());
         config.write("imbot.locale", settings.getLocale());
         config.write("imbot.paUserName", settings.getPersonalAssistantImId() + '@' + domain.getName());

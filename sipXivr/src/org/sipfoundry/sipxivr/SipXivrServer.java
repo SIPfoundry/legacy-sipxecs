@@ -19,7 +19,6 @@ package org.sipfoundry.sipxivr;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -32,25 +31,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public abstract class SipXivrServer {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     private int m_eventSocketPort;
-    private String m_logLevel;
-    private String m_logFile;
 
     protected abstract SipXivr getSipxIvrHandler();
-
-    public void init() {
-        // Configure log4j
-        Properties props = new Properties();
-        props.setProperty("log4j.rootLogger", "warn, file");
-        props.setProperty("log4j.logger.org.sipfoundry.sipxivr",
-                SipFoundryLayout.mapSipFoundry2log4j(m_logLevel).toString());
-        //props.setProperty("log4j.logger.org.springframework", "debug");
-        // props.setProperty("log4j.logger.org.mortbay", "debug");
-        props.setProperty("log4j.appender.file", "org.sipfoundry.commons.log4j.SipFoundryAppender");
-        props.setProperty("log4j.appender.file.File", m_logFile);
-        props.setProperty("log4j.appender.file.layout", "org.sipfoundry.commons.log4j.SipFoundryLayout");
-        props.setProperty("log4j.appender.file.layout.facility", "sipXivr");
-        PropertyConfigurator.configure(props);
-    }
 
     public void runServer() {
         try {
@@ -71,14 +53,6 @@ public abstract class SipXivrServer {
 
     public void setEventSocketPort(int port) {
         m_eventSocketPort = port;
-    }
-
-    public void setLogLevel(String logLevel) {
-        m_logLevel = logLevel;
-    }
-
-    public void setLogFile(String logFile) {
-        m_logFile = logFile;
     }
 
     /**
@@ -121,6 +95,9 @@ public abstract class SipXivrServer {
 
     private static void initSystemProperties() {
         String path = System.getProperty("conf.dir");
+        // Configure log4j
+        PropertyConfigurator.configureAndWatch(path+"/sipxivr/log4j.properties", 
+                SipFoundryLayout.LOG4J_MONITOR_FILE_DELAY);
         if (path == null) {
             System.err.println("Cannot get System Property conf.dir!  Check jvm argument -Dconf.dir=") ;
             System.exit(1);

@@ -59,4 +59,27 @@ bundle agent sipxrelay_running {
       "$(sipx.SIPX_SERVICEDIR)/sipxrelay"
         comment => "stop sipxrelay",
         args => "stop";
+       
+  files:      
+    any::  
+      "$(sipx.SIPX_CONFDIR)/sipxrelay/log4j.properties"
+        comment => "configure relay log4j $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => sipxrelay_log4j_properties_contents;
+}
+
+bundle edit_line sipxrelay_log4j_properties_contents {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/log4j-relay.properties.part"
+        insert_type => "file";
+	  "log4j.rootLogger=warn, file";
+      "log4j.appender.file=org.sipfoundry.commons.log4j.SipFoundryAppender";
+      "log4j.appender.file.File=$(sipx.SIPX_LOGDIR)/sipxrelay.log";
+      "log4j.appender.file.layout=org.sipfoundry.commons.log4j.SipFoundryLayout";
+      "log4j.appender.file.layout.facility=sipXrelay";
+  delete_lines:
+    any::
+      ".*";
 }

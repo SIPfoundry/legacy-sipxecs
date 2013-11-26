@@ -15,7 +15,9 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.commons.freeswitch.FreeSwitchConfigurationInterface;
+import org.sipfoundry.commons.log4j.SipFoundryLayout;
 
 /**
  * Holds the configuration data needed for sipXacccode.
@@ -24,7 +26,6 @@ import org.sipfoundry.commons.freeswitch.FreeSwitchConfigurationInterface;
 public class AccCodeConfiguration implements FreeSwitchConfigurationInterface {
 
     private static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxacccode");
-    private String m_logLevel; // The desired logging level in SipFoundry format (not log4j!)
     private String m_logFile; // The file to log into
     private int m_eventSocketPort; // The Event Socket Listen port
     private String m_dataDirectory; // File path to the media server data directory
@@ -66,7 +67,11 @@ public class AccCodeConfiguration implements FreeSwitchConfigurationInterface {
     }
     
     void properties() {
+        // Configure log4j
         String path = System.getProperty("conf.dir");
+        PropertyConfigurator.configureAndWatch(path+"/sipxacccode/log4j.properties", 
+                SipFoundryLayout.LOG4J_MONITOR_FILE_DELAY);
+        
         if (path == null) {
             System.err.println("Cannot get System Property conf.dir!  Check jvm argument -Dconf.dir=") ;
             System.exit(1);
@@ -109,7 +114,6 @@ public class AccCodeConfiguration implements FreeSwitchConfigurationInterface {
 
         String prop = null;
         try {
-            m_logLevel = props.getProperty(prop = "log.level");
             m_logFile = props.getProperty(prop = "log.file");
             m_eventSocketPort = Integer.parseInt(props
                     .getProperty(prop = "freeswitch.eventSocketPort"));
@@ -127,7 +131,7 @@ public class AccCodeConfiguration implements FreeSwitchConfigurationInterface {
     }
 
     public String getLogLevel() {
-        return m_logLevel;
+        return SipFoundryLayout.getSipFoundryLogLevel().toString();
     }
 
     public String getLogFile() {
