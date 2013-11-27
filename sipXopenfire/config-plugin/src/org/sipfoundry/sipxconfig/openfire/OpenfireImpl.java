@@ -102,6 +102,8 @@ public class OpenfireImpl implements ImManager, FeatureProvider, AddressProvider
                 address = new Address(type, location.getAddress());
             } else if (type.equals(XMPP_FEDERATION_ADDRESS)) {
                 address = new Address(XMPP_FEDERATION_ADDRESS, location.getAddress(), settings.getXmppFederationPort());
+            } else if (type.equals(XMLRPC_ADDRESS)) {
+                address = new Address(XMLRPC_ADDRESS, location.getAddress(), settings.getConsolePort());
             } else if (type.equals(XMLRPC_VCARD_ADDRESS)) {
                 address = new Address(XMLRPC_VCARD_ADDRESS, location.getAddress(), settings.getXmlRpcVcardPort());
             } else if (type.equals(WATCHER_ADDRESS)) {
