@@ -33,5 +33,5 @@ public interface LoginDelegate {
      * @throws IllegalArgumentException In case the log in attempt cannot be honored
      */
     void auditLoginRequest(Map<String, String> requestParams, String profile, int deviceLimit)
-            throws IllegalArgumentException;
+        throws IllegalArgumentException;
 }
