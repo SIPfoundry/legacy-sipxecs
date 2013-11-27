@@ -55,6 +55,7 @@ void RpcServer::getSipPassword(const Json::Value& request, Json::Value& response
 
 int main(int argc, char** argv)
 {
+  OsServiceOptions::daemonize(argc, argv);
   OsServiceOptions options(argc, argv, "sipXrtcrpc", "4.6", "(c) EZuce Inc - All Rights Reserved.");
   options.addDaemonOptions();
   options.addOptionInt("http-port", ": The port where the RPC service will listen for connections.", OsServiceOptions::CommandLineOption, true);
