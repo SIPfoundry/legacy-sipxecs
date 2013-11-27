@@ -87,6 +87,10 @@ Requires: ruby
 Requires: rubygems
 Requires: freeswitch >= 1.0.7
 
+# XX-10822 Required EPEL rpms are now found in build. Pointing to this repo has
+# proven to be dangerous
+Obsoletes: epel-release
+
 Obsoletes: sipx-jasperreports-deps
 Obsoletes: sipxfreeswitch
 Obsoletes: sipx-freeswitch
