@@ -25,10 +25,7 @@ freeswitch.xml.inl : freeswitch.xml
 	touch $(top_srcdir)/src/freeswitch_xml.cpp; \
 	rm -f $(top_srcdir)/src/freeswitch.xml.inl
 
-bin_PROGRAMS = sipXrtcbridge
-
-sipXproxy_CXXFLAGS = \
-	$(RTCBRIDGE_COMMON_CXX_FLAGS)
+bin_PROGRAMS = sipXrtcbridge sipXrtcrpc
 
 sipXrtcbridge_CXXFLAGS = \
 	$(RTCBRIDGE_COMMON_CXX_FLAGS)
@@ -42,6 +39,7 @@ sipXrtcbridge_LDADD = \
 	@SIPXCOMMSERVER_LIBS@ \
 	@RESIP_LIBS@ \
 	@FREESWITCH_LIBS@ \
+	@JSONRPC_LIBS@ \
 	-lzmq \
 	-lmongoclient \
 	-lboost_system-mt
@@ -50,7 +48,27 @@ sipXrtcbridge_SOURCES =  \
 	WSRouterMain.cpp \
 	WSRouter.h \
 	WSRouter.cpp \
-	freeswitch_xml.cpp
+	freeswitch_xml.cpp \
+	AuthInformationGrabber.h \
+	AuthInformationGrabber.cpp
+	
+sipXrtcrpc_CXXFLAGS = \
+	$(RTCBRIDGE_COMMON_CXX_FLAGS)
+
+sipXrtcrpc_LDFLAGS = \
+    -shared \
+    -rdynamic
+
+sipXrtcrpc_LDADD = \
+	@SIPXCOMMSERVER_LIBS@ \
+	@RESIP_LIBS@ \
+	@JSONRPC_LIBS@ \
+	-lzmq \
+	-lmongoclient \
+	-lboost_system-mt
+
+sipXrtcrpc_SOURCES =  \
+	rpc/RpcServer.cpp
 
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed
@@ -70,11 +88,12 @@ libsipXrtcbridge_la_LDFLAGS = \
 
 
 libsipXrtcbridge_la_SOURCES = \
-	EslConnection.cpp \
-	EslEvent.cpp \
-	EslListener.cpp \
-	FreeSwitchRunner.cpp \
-	ReproGlue.cpp
+    AuthIdentityEncoder.cpp \
+    EslConnection.cpp \
+    EslEvent.cpp \
+    EslListener.cpp \
+    FreeSwitchRunner.cpp \
+    ReproGlue.cpp
 
 libsipXrtcbridge_la_CXXFLAGS = \
 	$(RTCBRIDGE_COMMON_CXX_FLAGS)

@@ -28,8 +28,8 @@
 
 #undef HAVE_CONFIG_H
 
+#include <rutil/Logger.hxx>
 #include <resip/stack/Transport.hxx>
-
 #include <repro/ReproRunner.hxx>
 #include <repro/AclStore.hxx>
 #include <repro/ProxyConfig.hxx>
@@ -37,6 +37,7 @@
 #include <repro/RequestContext.hxx>
 #include <repro/Proxy.hxx>
 #include <repro/monkeys/StaticRoute.hxx>
+#include <repro/UserAuthGrabber.hxx>
 
 #include <rutil/Log.hxx>
 
@@ -177,7 +178,7 @@ public:
     //
     // Type Definitions
     //
-    typedef boost::function<ChainReaction(ReproGlue&, RequestContext&)> RequestCallBack;
+    typedef boost::function<ChainReaction(RequestProcessor&, RequestContext&)> RequestCallBack;
     
     RequestProcessor(repro::Processor* pDefaultChain,
                      ReproGlue& reproGlue, 
@@ -188,6 +189,8 @@ public:
     
     void setHandler(RequestCallBack callback);
   
+    repro::Processor* defaultChain() {return _pDefaultChain; } 
+    
   protected:
     ReproGlue& _reproGlue;
     RequestCallBack _callback;
@@ -218,10 +221,15 @@ public:
   ///
   
   virtual bool createDatastore();
-  /// Override the default datastore creation to allow ReproRunner
+  /// Override the default datastore creation to allow ReproGlue
   /// to add a different prefix for the databases created.
   ///
  
+  void createDialogUsageManager();
+  /// Override the default DUM creation to allow ReproGlue to customize some
+  /// parameters like authentication grabber
+  ///
+  
   ReproConfig& getReproConfig();
   /// Returns a reference the the current ReproGlue configuration
   
@@ -307,6 +315,14 @@ public:
   /// Remove the domain
   ///
   
+  void setExternalAuthGrabber(UserAuthGrabber* pExternalAuthGrabber);
+  /// Sets an external auth grabber to override the default auth grabber
+  ///
+  
+  UserAuthGrabber* getExternalAuthGrabber();
+  /// Returns a pointer to the external auth grabber
+  ///
+  
   /////////////
   // Logging //
   /////////////
@@ -336,6 +352,10 @@ public:
   
   void setStaticRouteHandler(RequestProcessor::RequestCallBack handler);
   /// Set the custom callback function for StaticRoute (monkey) 
+  ///
+  
+  void setDigestAuthenticatorHandler(RequestProcessor::RequestCallBack handler);
+  /// Set the custom callback function for DigestAuthenticator (monkey) 
   ///
   
   void setTargetHandler(RequestProcessor::RequestCallBack handler);
@@ -380,6 +400,8 @@ protected:
   
   RequestProcessor* _pStaticRouter; /// Pointer to the static router request processor
   
+  RequestProcessor* _pDigestAuthenticator; /// Pointer to the digest authenticator request processor
+  
   RequestProcessor* _pTargetProcessor; /// Pointer to the target processor
   
   RequestProcessor* _pResponseProcessor; /// Pointer to the response processor
@@ -387,6 +409,10 @@ protected:
   int _currentTransportCount; /// Holds the number of listeners added
   
   bool _enableWebAdmin; /// Enables the web-admin gui.  Defaults to false
+  
+  UserAuthGrabber* _pExternalAuthGrabber;  /// External auth grabber.  Will be used to retrieve auth info if set
+  
+  RequestProcessor::RequestCallBack _digestAuthenticatorHandler; /// Handler for the digest authenticator
 };
 
 
@@ -416,6 +442,14 @@ inline void ReproGlue::setStaticRouteHandler(RequestProcessor::RequestCallBack h
   _pStaticRouter->setHandler(handler);
 }
 
+inline void ReproGlue::setDigestAuthenticatorHandler(RequestProcessor::RequestCallBack handler)
+{
+  //
+  // Digest authenticator is optional so we do not use the pointer directly.  it can be null.
+  //
+  _digestAuthenticatorHandler = handler;
+}
+
 inline void ReproGlue::setTargetHandler(RequestProcessor::RequestCallBack handler)
 {
   assert(_pTargetProcessor);
@@ -426,6 +460,17 @@ inline void ReproGlue::setResponseHandler(RequestProcessor::RequestCallBack hand
 {
   assert(_pResponseProcessor);
   _pResponseProcessor->setHandler(handler);
+}
+
+
+inline void ReproGlue::setExternalAuthGrabber(UserAuthGrabber* pExternalAuthGrabber)
+{
+  _pExternalAuthGrabber = pExternalAuthGrabber;
+}
+
+inline UserAuthGrabber* ReproGlue::getExternalAuthGrabber()
+{
+  return _pExternalAuthGrabber;
 }
 
 

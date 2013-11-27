@@ -19,8 +19,12 @@
 #include <boost/filesystem.hpp>
 #include <os/OsLogger.h>
 #include <resip/stack/ExtensionParameter.hxx>
-#include "WSRouter.h"
+#include <resip/stack/ExtensionHeader.hxx>
+#include <resip/stack/Helper.hxx>
 
+#include "WSRouter.h"
+#include "AuthInformationGrabber.h"
+#include "sipx/proxy/AuthIdentityEncoder.h"
 
 using namespace sipx;
 using namespace sipx::proxy;
@@ -37,6 +41,7 @@ static const resip::ExtensionParameter p_xthost("x-thost");
 static const resip::ExtensionParameter p_xtport("x-tport");
 static const resip::ExtensionParameter p_xtscheme("x-tscheme");
 static const resip::ExtensionParameter p_xtrtc("x-trtc");
+static const resip::ExtensionParameter p_xtauthid("x-tauthid");
 
 
 static bool gEnableReproLogging = false;
@@ -80,6 +85,57 @@ static bool verify_directory(const std::string path)
   return true;
 }
 
+template <size_t size>
+bool string_sprintf_string(std::string& str, const char * format, ...)
+  /// Write printf() style formatted data to string.
+  ///
+  /// The size template argument specifies the capacity of
+  /// the internal buffer that will store the string result.
+  /// Take note that if the buffer size is not enough
+  /// the result of vsprintf will result to an overrun
+  /// and will corrupt memory.
+{
+    char buffer[size];
+    va_list args;
+    va_start(args, format);
+    int ret = vsprintf(buffer,format, args);
+    va_end (args);
+    if (ret >= 0)
+    {
+      str = buffer;
+      return true;
+    }
+    return false;
+}
+
+static void escape_url_parameter(std::string& result, const char* _str, const char* validChars)
+{
+  static const char * safeChars = "abcdefghijklmnopqrstuvwxyz"
+                      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                      "0123456789$-_.!*'(),+#";
+
+  int pos = -1;
+  char* offSet = const_cast<char*>(_str);
+  char* str = const_cast<char*>(_str);
+  int len = strlen(str);
+
+  std::string front;
+  while ((pos += (int)(1+strspn(&str[pos+1], validChars == 0 ? safeChars : validChars))) < len)
+  {
+    std::string escaped;
+    if (!string_sprintf_string<4>(escaped, "%%%02X", static_cast<const unsigned char>(str[pos])))
+    {
+      front = str;
+      return;
+    }
+    front += std::string(offSet, str + pos );
+    front += escaped;
+    offSet = const_cast<char*>(str) + pos + 1;
+  }
+  front += std::string(offSet, str + pos );
+  result = front;
+}
+
 WSRouter::WSRouter(int argc, char** argv, const std::string& daemonName, const std::string& version, const std::string& copyright) :
   OsServiceOptions(argc, argv, daemonName, version, copyright),
   _pRepro(0),
@@ -96,6 +152,7 @@ WSRouter::WSRouter(int argc, char** argv, const std::string& daemonName, const s
   addOptionInt("tcp-udp-port", ": UDP/TCP Port the wsrouter would bind to.", CommandLineOption, true);
   addOptionInt("bridge-tcp-udp-port", ": UDP/TCP Port the rtc bridge would bind to.", CommandLineOption, false);
   addOptionString("proxy-address", ": The address of the Proxy.", CommandLineOption, true);
+  addOptionString("rpc-url", ": The JSON-RPC URL for remote procedure calls.", CommandLineOption, true);
   addOptionInt("proxy-port", ": The port of the Proxy.", CommandLineOption, false);
   addOptionFlag("enable-library-logging", ": Log library level messages.", CommandLineOption);
   addOptionString("db-path", ": Specify a specific directory where application databases will be saved.", CommandLineOption, false);
@@ -156,11 +213,19 @@ bool WSRouter::initialize()
   //
   _pRepro->setStaticRouteHandler(boost::bind(&WSRouter::onProcessRequest, this, _1, _2));
   _pRepro->setResponseHandler(boost::bind(&WSRouter::onProcessResponse, this, _1, _2));
+  _pRepro->setDigestAuthenticatorHandler(boost::bind(&WSRouter::onDigestAuthenticate, this, _1, _2));
   _pRepro->setLogCallBack(boost::bind(log_callback, _1, _2));
   _pRepro->setLogLevel(ReproGlue::ReproLogger::Debug);
   _pRepro->setProxyConfigValue("DisableRegistrar", "true");
-  _pRepro->setProxyConfigValue("DisableAuth", "true");
   _pRepro->setProxyConfigValue("EnableCertServer", "false");
+  
+  
+  //
+  // Initialize authentication
+  //
+  _pRepro->setProxyConfigValue("DisableAuth", "false");
+  _pRepro->setProxyConfigValue("DisableAuthInt", "true");
+  _pRepro->setExternalAuthGrabber(new AuthInformationGrabber(this));
   
   //
   // Initialize the switch
@@ -195,9 +260,7 @@ int WSRouter::main()
     
     _pRepro->run();
     
-    //
-    // Run the freeswitch instance
-    //
+ 
     //
     // Run the ESL Event Layer
     //
@@ -206,7 +269,7 @@ int WSRouter::main()
     _eventListener.run();
 
     //
-    // Run the switch
+    // Run the freeswitch instance
     //
     _pSwitch->setApplicationName(SWITCH_APPLICATION_NAME);
     _pSwitch->setEventSocketLayerPort(_eslPort);
@@ -248,7 +311,109 @@ static void addWsContactParams(resip::SipMessage& msg)
   }
 }
 
-ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue& repro, RequestContext& context)
+void WSRouter::routeToBridge(resip::SipMessage& msg, resip::Uri& ruri, bool isRtcTarget)
+{
+  ruri.param(p_xthost) = ruri.host();
+  ruri.param(p_xtport) = resip::Data(boost::lexical_cast<std::string>(ruri.port()).c_str());
+    
+  if (isRtcTarget)
+  {
+    ruri.param(p_xtscheme) = resip::Data("ws");
+    ruri.param(p_xtrtc) = resip::Data("yes");
+  }
+  else
+  {
+    ruri.param(p_xtscheme) = resip::Data("sip");
+  }
+  
+  ruri.remove(resip::p_transport);
+       
+  ruri.host() = _pSwitch->getSipAddress().c_str();
+  ruri.port() = _pSwitch->getSipPort();
+  
+  msg.setForceTarget(ruri);
+}
+
+bool WSRouter::isMyDomain(const char* domain)
+{
+  for(std::vector<std::string>::const_iterator iter = _domains.begin(); iter != _domains.end(); iter++)
+  {
+    if (domain == *iter)
+      return true;
+  }
+  return false;
+}
+
+void WSRouter::insertAuthenticator(resip::SipMessage& request, resip::Uri& requestUri)
+{
+  if (requestUri.exists(p_xtauthid))
+    return;
+  
+  std::string identity;
+  std::string callId;
+  std::string fromTag;
+  std::string authority;
+  std::string realm;
+  std::string user;
+  
+  OS_LOG_INFO(FAC_SIP, ">>>>>>>>>>>>>> Inserting Authenticator");
+  
+  if (!request.exists(resip::h_ProxyAuthorizations))
+    return;
+  
+  if (!request.exists(resip::h_From))
+    return;
+  
+  if (!request.exists(resip::h_CallID))
+    return;
+
+  if (!request.header(resip::h_From).exists(resip::p_tag))
+    return;
+            
+
+  OS_LOG_INFO(FAC_SIP, ">>>>>>>>>>>>> All required paramaters passed");
+  
+  fromTag = request.header(resip::h_From).param(resip::p_tag).c_str();
+  callId = request.header(resip::h_CallID).value().c_str();
+  
+  resip::Auths &authHeaders = request.header(resip::h_ProxyAuthorizations); 
+  
+  for (resip::Auths::iterator iter = authHeaders.begin() ; iter != authHeaders.end() ; iter++)
+  {
+    if (iter->exists(resip::p_realm))
+    {
+      OS_LOG_INFO(FAC_SIP, ">>>>>>>>>>>>> REALM EXISTS: " << iter->param(resip::p_realm).c_str());
+      if (isMyDomain(iter->param(resip::p_realm).c_str()))
+      {
+        OS_LOG_INFO(FAC_SIP, ">>>>>>>>>>>>> REALM IS OUR DOMAIN: " << iter->param(resip::p_realm).c_str());
+        realm = iter->param(resip::p_realm).c_str();
+        if (iter->exists(resip::p_username))
+        {
+          OS_LOG_INFO(FAC_SIP, ">>>>>>>>>>>>> USER EXISTS: " << iter->param(resip::p_username).c_str());
+          user = iter->param(resip::p_username).c_str();
+          std::ostringstream id;
+          id << user << "@" << realm;
+          identity = id.str();
+          if (AuthIdentityEncoder::encodeAuthority(identity, callId, fromTag, authority))
+          {
+            std::string authParam;
+            escape_url_parameter(authParam, authority.c_str(), 0);
+            requestUri.param(p_xtauthid) = resip::Data(authParam.c_str());
+            
+            OS_LOG_INFO(FAC_SIP, ">>>>>>>>>>>>> ENCODE AUTH IDENTITY SUCEEDED: " << requestUri);
+            return;
+          }
+          else
+          {
+            OS_LOG_INFO(FAC_SIP, ">>>>>>>>>>>>> ENCODE AUTH IDENTITY FAILED");
+          }
+        }
+      }
+    }
+  }
+}
+
+ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(sipx::proxy::ReproGlue::RequestProcessor& processor, RequestContext& context)
 {
   resip::SipMessage& msg = context.getOriginalRequest();
   resip::Uri ruri(msg.header(h_RequestLine).uri());
@@ -365,14 +530,7 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
       else if (isRtcOffer && !isRtcTarget)
       {
         OS_LOG_INFO(FAC_SIP, "Local Domain: Detected RTC->SIP INVITE.  Bridging call.");
-        ruri.param(p_xthost) = ruri.host();
-        ruri.param(p_xtport) = resip::Data(boost::lexical_cast<std::string>(ruri.port()).c_str());
-        ruri.param(p_xtscheme) = resip::Data("sip");
-        
-        ruri.host() = _pSwitch->getSipAddress().c_str();
-        ruri.port() = _pSwitch->getSipPort();
-        ruri.remove(resip::p_transport);
-        msg.setForceTarget(ruri);
+        routeToBridge(msg, ruri, isRtcTarget);
       }
       else if (!isRtcOffer && isRtcTarget)
       {
@@ -381,17 +539,7 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
         // 
         
         OS_LOG_INFO(FAC_SIP, "Local Domain: Detected SIP->RTC INVITE.  Bridging call.");
-        
-       
-        ruri.param(p_xthost) = ruri.host();
-        ruri.param(p_xtport) = resip::Data(boost::lexical_cast<std::string>(ruri.port()).c_str());
-        ruri.param(p_xtscheme) = resip::Data("ws");
-        
-        ruri.host() = _pSwitch->getSipAddress().c_str();
-        ruri.port() = _pSwitch->getSipPort();
-        ruri.remove(resip::p_transport);
-        ruri.param(p_xtrtc) = resip::Data("yes");
-        msg.setForceTarget(ruri);
+        routeToBridge(msg, ruri, isRtcTarget);
       }
       else
       {
@@ -426,14 +574,7 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
       else if (isRtcOffer && !isRtcTarget)
       {
         OS_LOG_INFO(FAC_SIP, "Non-Local Domain: Detected RTC->SIP INVITE.  Bridging call.");
-        ruri.param(p_xthost) = ruri.host();
-        ruri.param(p_xtport) = resip::Data(boost::lexical_cast<std::string>(ruri.port()).c_str());
-        ruri.param(p_xtscheme) = resip::Data("sip");
-        
-        ruri.host() = _pSwitch->getSipAddress().c_str();
-        ruri.port() = _pSwitch->getSipPort();
-        ruri.remove(resip::p_transport);
-        msg.setForceTarget(ruri);
+        routeToBridge(msg, ruri, isRtcTarget);
       }
       else if (!isRtcOffer && isRtcTarget)
       {
@@ -444,15 +585,7 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
         //
         // Offer is legacy terminating to a webrtc endpoint
         //       
-        ruri.param(p_xthost) = ruri.host();
-        ruri.param(p_xtport) = resip::Data(boost::lexical_cast<std::string>(ruri.port()).c_str());
-        ruri.param(p_xtscheme) = resip::Data("ws");
-        
-        ruri.host() = _pSwitch->getSipAddress().c_str();
-        ruri.port() = _pSwitch->getSipPort();
-        ruri.remove(resip::p_transport);
-        ruri.param(p_xtrtc) = resip::Data("yes");
-        msg.setForceTarget(ruri);
+        routeToBridge(msg, ruri, isRtcTarget);
       }
     }
     //
@@ -463,7 +596,7 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue&
   return ReproGlue::RequestProcessor::SkipThisChain;
 }
 
-ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessResponse(ReproGlue& repro, RequestContext& context)
+ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessResponse(sipx::proxy::ReproGlue::RequestProcessor& processor, RequestContext& context)
 {
   resip::Message* msg = context.getCurrentEvent();
   if(!msg)
@@ -477,6 +610,138 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessResponse(ReproGlue
     addWsContactParams(*sip);
   }
   return ReproGlue::RequestProcessor::Continue;
+}
+
+sipx::proxy::ReproGlue::RequestProcessor::ChainReaction WSRouter::onDigestAuthenticate(sipx::proxy::ReproGlue::RequestProcessor& processor, RequestContext& context)
+{
+  //
+  // Skip register request but authenticate everything else
+  //
+  Message *message = context.getCurrentEvent();
+  SipMessage *sipMessage = dynamic_cast<SipMessage*>(message);
+
+  //
+  // Do not authenticate REGISTER.  This is sent directly to sipX.
+  // sipX will do the authenticaton for us
+  //
+  if (sipMessage && sipMessage->method() == resip::REGISTER)
+    return ReproGlue::RequestProcessor::Continue;
+   
+  //
+  // ACK and BYE should not be authenticated
+  //
+  if (sipMessage && (sipMessage->method() == resip::BYE || sipMessage->method() == resip::ACK))
+    return ReproGlue::RequestProcessor::Continue;
+  
+#if 0  
+  //
+  // jeb: sipXecs needs a mechanism to trust nodes with x-sipX-authIdentity header
+  // even if route state is not present in the SIP message.
+  // This can be done by maintaining an access list of trusted IP addresses
+  // who have the correct signature.  This would allow the bridge
+  // to send calls through sipx without having to re-authenicate.
+  // For now we will simply use the cache approach and authenticate with sipx
+  //
+  
+  if (sipMessage)
+  {
+    resip::SipMessage& msg = *sipMessage;
+    if (msg.isRequest())
+    {
+      insertAuthenticator(msg, msg.header(h_RequestLine).uri());
+    }
+  }
+#endif
+
+  
+  if (sipMessage)
+  {
+    resip::Data realm;
+    resip::Data user;
+    bool isAuthenticated = false;
+    //
+    // If this is a SIP Message we will try to authenticate it using the cached info
+    //
+    
+    if (sipMessage->exists(resip::h_ProxyAuthorizations))
+    {
+      OS_LOG_DEBUG(FAC_SIP, "Monkey handling request: DigestAuthenticator (CACHED); reqcontext = " << context);
+      
+      Auths &authHeaders = sipMessage->header(resip::h_ProxyAuthorizations);
+
+      // if we find a Proxy-Authorization header for a realm we handle, 
+      // asynchronously fetch the relevant userAuthInfo from the database
+      for (Auths::iterator i = authHeaders.begin() ; i != authHeaders.end() ; ++i)
+      {
+        // !rwm!  TODO sometime we need to have a separate isMyRealm() function
+        if (i->exists(resip::p_realm) && isMyDomain(i->param(resip::p_realm).c_str()) && i->exists(resip::p_username))
+        {
+        
+          //
+          // We have an authentication header. check if the cached a1 matches
+          //
+          resip::Data a1Hash;
+          user = i->param(resip::p_username);
+          realm = i->param(resip::p_realm);
+          AuthInformationGrabber* pAuthGrabber = dynamic_cast<AuthInformationGrabber*>(_pRepro->getExternalAuthGrabber());
+          AuthInformationGrabber::AuthInfoRecord rec;
+          if (pAuthGrabber->getCachedAuthInfo(user, realm, rec))
+          {
+            //
+            // We have the A1 hash in cache
+            //
+            std::pair<Helper::AuthResult,Data> result =
+              Helper::advancedAuthenticateRequest(*sipMessage, realm, rec.a1.c_str(), 3000);
+            
+            if (result.first == Helper::Failed)
+            {
+              InfoLog (<< "Authentication (CACHED) failed for " << user << " at realm " << realm);
+              isAuthenticated = false;
+              break;
+            }
+            else if (result.first == Helper::Authenticated)
+            {
+              isAuthenticated = true;
+              break;
+            }
+          }
+          else
+          {
+            InfoLog (<< "Authentication (CACHED) has no entry for " << user << " at realm " << realm);
+            isAuthenticated = false;
+            break;
+          }
+        }
+      }
+    }
+    
+    if (isAuthenticated)
+    {
+      // Delete the Proxy-Auth header for this realm.  
+      // other Proxy-Auth headers might be needed by a downsteram node
+
+      resip::Auths &authHeaders = sipMessage->header(resip::h_ProxyAuthorizations);
+       // if we find a Proxy-Authorization header for a realm we handle, 
+      // asynchronously fetch the relevant userAuthInfo from the database
+      for (resip::Auths::iterator i = authHeaders.begin(); i != authHeaders.end(); )
+      {
+        if(i->exists(resip::p_realm) && resip::isEqualNoCase(i->param(resip::p_realm), realm))
+        {
+          i = authHeaders.erase(i);
+        }
+        else
+        {
+          ++i;
+        }
+      }
+      
+      InfoLog (<< "Authentication (CACHED) succeeded for " << user << " at realm " << realm);
+      
+      return ReproGlue::RequestProcessor::Continue;
+    }
+  }
+  
+  return ReproGlue::RequestProcessor::CallDefaultChain;
 }
 
 
@@ -495,6 +760,7 @@ void WSRouter::handleBridgeEvent(const sipx::bridge::EslConnection::Ptr& pConnec
   std::string variable_sip_req_params = pEvent->getHeader("variable_sip_req_params");
   std::string variable_sip_req_uri = pEvent->getHeader("variable_sip_req_uri");
   std::string variable_sip_full_to = pEvent->getHeader("variable_sip_full_to");
+  std::string variable_sip_from_user = pEvent->getHeader("variable_sip_from_user");
   std::string variable_sip_from_host = pEvent->getHeader("variable_sip_from_host");
     
   std::ostringstream ruri;
@@ -547,21 +813,45 @@ void WSRouter::handleBridgeEvent(const sipx::bridge::EslConnection::Ptr& pConnec
     requestUri.remove(p_xtport);
     requestUri.remove(p_xtscheme);
   }
+  
+  if (requestUri.exists(p_xtauthid))
+  {
+    std::string authParam;
+    escape_url_parameter(authParam, requestUri.param(p_xtauthid).c_str(), 0);
+    
+    std::ostringstream identity;
+    identity << "sip_h_P-Asserted-Identity=<sip:"
+      << variable_sip_from_user << "@" << variable_sip_from_host
+      << ";signature=" << authParam << ">";
+    
+    pConnection->set(identity.str().c_str());
+    requestUri.remove(p_xtauthid);
+  }
    
   std::ostringstream arg;
   if (tscheme == "ws")
     arg << "{media_webrtc=true}";
-  
-  arg << "{sip_invite_domain=" << variable_sip_from_host << "}";
-  arg << "{sip_invite_to_uri=" << variable_sip_full_to << "}";
 
-#if 1
-        arg << "{sip_auth_username=" << "2017" << "}";
-        arg << "{sip_auth_password=" << "20172010" << "}";
-#endif
-        
+  
+  resip::Data user = variable_sip_from_user.c_str();
+  resip::Data realm = variable_sip_from_host.c_str();
+  
+  AuthInformationGrabber* pAuthGrabber = dynamic_cast<AuthInformationGrabber*>(_pRepro->getExternalAuthGrabber());
+  AuthInformationGrabber::AuthInfoRecord rec;
+  if (pAuthGrabber->getCachedAuthInfo(user, realm, rec))
+  {
+    arg << "{sip_invite_domain=" << user << "}";
+    arg << "{sip_auth_username=" << realm << "}";
+    arg << "{sip_auth_password=" << rec.password << "}";
+  }
+  else
+  {
+    arg << "{sip_invite_domain=anonymous.invalid}";
+  }
+  
+  arg << "{hangup_after_bridge=true}";
+  arg << "{sip_invite_to_uri=" << variable_sip_full_to << "}";
   arg << "sofia/" << SWITCH_APPLICATION_NAME << "/" << requestUri;
 
-  pConnection->execute("set", "hangup_after_bridge=true");
   pConnection->execute("bridge", arg.str().c_str(), 0);
 }

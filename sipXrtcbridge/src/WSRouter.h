@@ -31,11 +31,19 @@ public:
   
   ~WSRouter();
   
-  sipx::proxy::ReproGlue::RequestProcessor::ChainReaction onProcessRequest(sipx::proxy::ReproGlue& repro, RequestContext& context);
+  sipx::proxy::ReproGlue::RequestProcessor::ChainReaction onProcessRequest(sipx::proxy::ReproGlue::RequestProcessor& processor, RequestContext& context);
   
-  sipx::proxy::ReproGlue::RequestProcessor::ChainReaction onProcessResponse(sipx::proxy::ReproGlue& repro, RequestContext& context);
+  sipx::proxy::ReproGlue::RequestProcessor::ChainReaction onProcessResponse(sipx::proxy::ReproGlue::RequestProcessor& processor, RequestContext& context);
+  
+  sipx::proxy::ReproGlue::RequestProcessor::ChainReaction onDigestAuthenticate(sipx::proxy::ReproGlue::RequestProcessor& processor, RequestContext& context);
   
   void handleBridgeEvent(const sipx::bridge::EslConnection::Ptr& pConnection, const sipx::bridge::EslEvent::Ptr& pEvent);
+  
+  void routeToBridge(resip::SipMessage& request, resip::Uri& requestUri, bool isRtcTarget);
+  
+  void insertAuthenticator(resip::SipMessage& request, resip::Uri& requestUri);
+  
+  bool isMyDomain(const char* domain);
   
   bool initialize();
   
@@ -45,6 +53,7 @@ public:
   
   int getEslPort() const;
   
+  sipx::proxy::ReproGlue* repro();
 protected:
   sipx::proxy::ReproGlue* _pRepro;
   std::string _proxyAddress;
@@ -69,6 +78,11 @@ inline void WSRouter::setEslPort(int eslPort)
 inline int WSRouter::getEslPort() const
 {
   return _eslPort;
+}
+
+inline sipx::proxy::ReproGlue* WSRouter::repro()
+{
+  return _pRepro;
 }
 
 #endif	// WSROUTER_H_INCLUDED

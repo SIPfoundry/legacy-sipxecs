@@ -111,7 +111,7 @@ ReproGlue::RequestProcessor::RequestProcessor(
 
 ReproGlue::RequestProcessor::~RequestProcessor()
 {
-  std::cout << "RequestProcessor::~RequestProcessor DESTROEYED" << std::endl;
+  DebugLog(<< "RequestProcessor::~RequestProcessor DESTROYED - " << getName());
   delete _pDefaultChain;
 }
 
@@ -129,11 +129,14 @@ repro::Processor::processor_action_t ReproGlue::RequestProcessor::process(Reques
   
   if (_pDefaultChain || _callback)
   {
-  
+    
+    if (_pDefaultChain)
+      _pDefaultChain->setChainType(getChainType());
+
     if (!_callback)
       return _pDefaultChain->process(context);
     else 
-      reaction = _callback(_reproGlue, context);
+      reaction = _callback(*this, context);
     //
     // If the _callback says that we still need to call the default chain, we obey.
     //
@@ -254,7 +257,8 @@ ReproGlue::ReproGlue(const std::string& applicationName, const std::string& data
   _pTargetProcessor(0),
   _pResponseProcessor(0),
   _currentTransportCount(0),
-  _enableWebAdmin(false)
+  _enableWebAdmin(false),
+  _pExternalAuthGrabber(0)
 {
   mProxyConfig = _pReproConfig = new ReproConfig(); // This pointer is owned by ReproRunner.
                                                     // Do not delete it here.
@@ -269,9 +273,9 @@ ReproGlue::ReproGlue(const std::string& applicationName, const std::string& data
   //
   // Data stores have been created.  We can now create custom processor chains
   //
-  _pStaticRouter = new RequestProcessor(new StaticRoute(*mProxyConfig), *this, "CustomStaticRoute");
-  _pTargetProcessor = new RequestProcessor(0, *this, "CustomOutboundRule");
-  _pResponseProcessor = new RequestProcessor(0, *this, "CustomResponseRule");
+  _pStaticRouter = new RequestProcessor(new StaticRoute(*mProxyConfig), *this, "StaticRoute");
+  _pTargetProcessor = new RequestProcessor(0, *this, "OutboundRule");
+  _pResponseProcessor = new RequestProcessor(0, *this, "ResponseRule");
 }
 
 
@@ -1600,14 +1604,13 @@ void ReproGlue::makeRequestProcessorChain(ProcessorChain& chain)
    {
       addProcessor(chain, std::auto_ptr<Processor>(new CookieAuthenticator(wsCookieAuthSharedSecret, mSipStack)));
    }
-
+   
    // Add digest authenticator monkey - if required
-   if (!mSipAuthDisabled)
+   if (!mSipAuthDisabled && mAuthRequestDispatcher)
    {
-      assert(mAuthRequestDispatcher);
-      DigestAuthenticator* da = new DigestAuthenticator(*mProxyConfig, mAuthRequestDispatcher);
-
-      addProcessor(chain, std::auto_ptr<Processor>(da)); 
+     _pDigestAuthenticator = new RequestProcessor(new DigestAuthenticator(*mProxyConfig, mAuthRequestDispatcher), *this, "DigestAuthenticator");
+     _pDigestAuthenticator->setHandler(_digestAuthenticatorHandler);
+     addProcessor(chain, std::auto_ptr<Processor>(_pDigestAuthenticator)); 
    }
 
 #if 0
@@ -1902,6 +1905,141 @@ bool ReproGlue::getRequestViaAddress(RequestContext& context, std::string& trans
   port = via.sentPort();
   transport = via.transport().c_str();
   return true;
+}
+
+
+void ReproGlue::createDialogUsageManager()
+{
+   // Create Profile settings for DUM Instance that handles ServerRegistration,
+   // and potentially certificate subscription server
+   SharedPtr<MasterProfile> profile(new MasterProfile);
+   profile->clearSupportedMethods();
+   profile->addSupportedMethod(resip::REGISTER);
+#ifdef USE_SSL
+   profile->addSupportedScheme(Symbols::Sips);
+#endif
+   if(InteropHelper::getOutboundSupported())
+   {
+      profile->addSupportedOptionTag(Token(Symbols::Outbound));
+   }
+   profile->addSupportedOptionTag(Token(Symbols::Path));
+   if(mProxyConfig->getConfigBool("AllowBadReg", false))
+   {
+       profile->allowBadRegistrationEnabled() = true;
+   }
+   
+   // Create DialogeUsageManager if Registrar or Certificate Server are enabled
+   assert(!mRegistrar);
+   assert(!mDum);
+   assert(!mDumThread);
+   mRegistrar = new Registrar;
+   resip::MessageFilterRuleList ruleList;
+   bool registrarEnabled = !mProxyConfig->getConfigBool("DisableRegistrar", false);
+   bool certServerEnabled = mProxyConfig->getConfigBool("EnableCertServer", false);
+
+   mDum = new DialogUsageManager(*mSipStack);
+   mDum->setMasterProfile(profile);
+   addDomains(*mDum, false /* log? already logged when adding to Proxy - no need to log again*/);
+   
+
+   // If registrar is enabled, configure DUM to handle REGISTER requests
+   if (registrarEnabled)
+   {   
+      assert(mDum);
+      assert(mRegistrationPersistenceManager);
+      mDum->setServerRegistrationHandler(mRegistrar);
+      mDum->setRegistrationPersistenceManager(mRegistrationPersistenceManager);
+
+      // Install rules so that the registrar only gets REGISTERs
+      resip::MessageFilterRule::MethodList methodList;
+      methodList.push_back(resip::REGISTER);
+      ruleList.push_back(MessageFilterRule(resip::MessageFilterRule::SchemeList(),
+                                           resip::MessageFilterRule::DomainIsMe,
+                                           methodList) );
+   }
+   
+   // If Certificate Server is enabled, configure DUM to handle SUBSCRIBE and 
+   // PUBLISH requests for events: credential and certificate
+   assert(!mCertServer);
+   if (certServerEnabled)
+   {
+#if defined(USE_SSL)
+      mCertServer = new CertServer(*mDum);
+
+      // Install rules so that the cert server receives SUBSCRIBEs and PUBLISHs
+      resip::MessageFilterRule::MethodList methodList;
+      resip::MessageFilterRule::EventList eventList;
+      methodList.push_back(resip::SUBSCRIBE);
+      methodList.push_back(resip::PUBLISH);
+      eventList.push_back(resip::Symbols::Credential);
+      eventList.push_back(resip::Symbols::Certificate);
+      ruleList.push_back(MessageFilterRule(resip::MessageFilterRule::SchemeList(),
+                                           resip::MessageFilterRule::DomainIsMe,
+                                           methodList,
+                                           eventList));
+#endif
+   }
+
+   mSipAuthDisabled = mProxyConfig->getConfigBool("DisableAuth", false);
+
+   if (mDum)
+   {
+      bool enableCertAuth = mProxyConfig->getConfigBool("EnableCertificateAuthenticator", false);
+      // Maintains existing behavior for non-TLS cert auth users
+      bool digestChallengeThirdParties = !enableCertAuth;
+
+      if(enableCertAuth)
+      {
+         // TODO: perhaps this should be initialised from the trusted node
+         // monkey?  Or should the list of trusted TLS peers be independent
+         // from the trusted node list?
+         std::set<Data> trustedPeers;
+         loadCommonNameMappings();
+         SharedPtr<TlsPeerAuthManager> certAuth(new TlsPeerAuthManager(*mDum, mDum->dumIncomingTarget(), trustedPeers, true, mCommonNameMappings));
+         mDum->addIncomingFeature(certAuth);
+      }
+
+      Data wsCookieAuthSharedSecret = mProxyConfig->getConfigData("WSCookieAuthSharedSecret", "");
+      if(mSipAuthDisabled && !wsCookieAuthSharedSecret.empty())
+      {
+         SharedPtr<WsCookieAuthManager> cookieAuth(new WsCookieAuthManager(*mDum, mDum->dumIncomingTarget()));
+         mDum->addIncomingFeature(cookieAuth);
+      }
+
+     
+      // If Authentication is enabled, then configure DUM to authenticate requests
+      if (!mSipAuthDisabled)
+      {
+         // Create UserAuthGrabber Worker Thread Pool if auth is enabled
+         assert(!mAuthRequestDispatcher);
+         int numAuthGrabberWorkerThreads = mProxyConfig->getConfigInt("NumAuthGrabberWorkerThreads", 2);
+         if(numAuthGrabberWorkerThreads < 1) numAuthGrabberWorkerThreads = 1; // must have at least one thread
+         
+         if (_pExternalAuthGrabber)
+         {
+            std::auto_ptr<Worker> grabber(_pExternalAuthGrabber);
+            mAuthRequestDispatcher = new Dispatcher(grabber, mSipStack, numAuthGrabberWorkerThreads);
+         }
+         else
+         {
+            std::auto_ptr<Worker> grabber(new UserAuthGrabber(mProxyConfig->getDataStore()->mUserStore));
+            mAuthRequestDispatcher = new Dispatcher(grabber, mSipStack, numAuthGrabberWorkerThreads);
+         }
+
+         SharedPtr<ServerAuthManager> 
+            uasAuth( new ReproServerAuthManager(*mDum,
+                                                mAuthRequestDispatcher,
+                                                mProxyConfig->getDataStore()->mAclStore,
+                                                !mProxyConfig->getConfigBool("DisableAuthInt", false) /*useAuthInt*/,
+                                                mProxyConfig->getConfigBool("RejectBadNonces", false),
+                                                digestChallengeThirdParties));
+         mDum->setServerAuthManager(uasAuth);
+      }
+
+      // Set the MessageFilterRuleList on DUM and create a thread to run DUM in
+      mDum->setMessageFilterRuleList(ruleList);
+      mDumThread = new DumThread(*mDum);
+   }   
 }
 
 
