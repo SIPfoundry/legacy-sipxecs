@@ -19,6 +19,8 @@
 
 #include <os/OsLogger.h>
 
+const string MongoOpLog::NS("local.oplog.rs");
+
 const char* MongoOpLog::ts_fld(){static std::string name = "ts"; return name.c_str();}
 const char* MongoOpLog::op_fld(){static std::string name = "op"; return name.c_str();}
 const MongoOpLog::OpLogDataVec& MongoOpLog::opLogDataVec()
@@ -39,7 +41,8 @@ MongoOpLog::MongoOpLog(const MongoDB::ConnectionInfo& info,
   _pThread(0),
   _querySleepTime(querySleepTime),
   _timeStamp(timeStamp),
-  _customQuery(customQuery)
+  _customQuery(customQuery),
+  _ns(NS)
 {
   _customQuery.getOwned();
 }
@@ -193,13 +196,13 @@ void MongoOpLog::internal_run()
     return;
   }
 
-  MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+  MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
 
   while (_isRunning)
   {
     // If we are at the end of the data, block for a while rather
     // than returning no data. After a timeout period, we do return as normal
-    std::auto_ptr<mongo::DBClientCursor> cursor = pConn->get()->query(_info.getNS(), query, 0, 0, 0,
+    std::auto_ptr<mongo::DBClientCursor> cursor = pConn->get()->query(_ns, query, 0, 0, 0,
                  mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData );
 
     bool rc = processQuery(cursor.get(), lastTailId);
