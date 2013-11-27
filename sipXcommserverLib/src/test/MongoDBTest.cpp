@@ -72,7 +72,7 @@ public:
     void testForEach()
     {
         _row = 0;
-        MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+        MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
         //mongo::ScopedDbConnection conn(_info.getConnectionString());
         mongo::BSONObj query;
         pConn->get()->remove(_info.getNS(), query);

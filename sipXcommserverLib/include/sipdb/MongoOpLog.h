@@ -25,6 +25,8 @@
 class MongoOpLog : public MongoDB::BaseDB
 {
 public:
+  static const std::string NS;
+
   enum OpLogType
   {
     FirstOpLog = 0,
@@ -115,6 +117,9 @@ protected:
   // An internally used vector that contain a mapping between opLogType and operation name
   //from "local.oplog.rs"
   static const OpLogDataVec& opLogDataVec();
+
+private:
+  std::string _ns;
 };
 
 

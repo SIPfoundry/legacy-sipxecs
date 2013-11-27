@@ -213,7 +213,7 @@ bool SipXApplication::testMongoDBConnection()
   mongo::ConnectionString mongoConn = ginfo.getConnectionString();
   if (false == MongoDB::ConnectionInfo::testConnection(mongoConn, errmsg))
   {
-      Os::Logger::instance().log(LOG_FACILITY, PRI_CRIT,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_CRIT,
               "Failed to connect to '%s' - %s",
               mongoConn.toString().c_str(), errmsg.c_str());
 

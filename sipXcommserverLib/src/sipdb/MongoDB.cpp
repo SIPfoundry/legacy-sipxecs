@@ -21,7 +21,7 @@ BaseDB::BaseDB(const ConnectionInfo& info) :
 {  
 }
 
-bool ConnectionInfo::testConnection(const mongo::ConnectionString &connectionString, const string& errmsg)
+bool ConnectionInfo::testConnection(const mongo::ConnectionString &connectionString, string& errmsg)
 {
     bool ret = false;
 

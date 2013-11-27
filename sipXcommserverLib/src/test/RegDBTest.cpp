@@ -27,7 +27,7 @@ public:
 	void setUp()
 	{
 		_db = new RegDB(_info);
-		MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+		MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
 		pConn->get()->remove(_info.getNS(), mongo::Query());
 		pConn->done();
 	}
@@ -269,7 +269,7 @@ public:
 	bool getAllOldBindings(int timeNow, RegDB::Bindings& bindings)
 	{
 		mongo::BSONObj query = BSON( "expirationTime" << BSON_LESS_THAN(timeNow));
-		MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+		MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
 		auto_ptr<mongo::DBClientCursor> pCursor = pConn->get()->query(_info.getNS(), query);
 		if (pCursor.get() && pCursor->more())
 		{
