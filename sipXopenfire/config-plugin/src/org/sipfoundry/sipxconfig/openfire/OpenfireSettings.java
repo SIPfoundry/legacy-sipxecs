@@ -40,7 +40,8 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
     private static final String LOG_LEVEL = "settings/log.level";
     private static final String ENABLE_PRESENCE = "settings/enable-presence";
     private static final String WATCHER_PORT = "settings/watcher-port";
-    private static final String XML_RPC_PORT = "settings/openfire-xml-rpc-port";
+    private static final String XML_CONSOLE_PORT = "settings/openfire-console-port";
+    private static final String XML_CONSOLE_SECURE_PORT = "settings/openfire-console-secure-port";
     private static final String XML_RPC_VCARD_PORT = "settings/openfire-xml-rpc-vcard-port";
     private static final String SERVER_TO_SERVER_ENABLED = "openfire-server-to-server/enabled";
     private static final String ALLOWED_SERVERS = "openfire-server-to-server/allowed-servers";
@@ -71,8 +72,12 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
         return (Boolean) getSettingTypedValue(ENABLE_PRESENCE);
     }
 
-    public int getXmlRpcPort() {
-        return (Integer) getSettingTypedValue(XML_RPC_PORT);
+    public int getConsolePort() {
+        return (Integer) getSettingTypedValue(XML_CONSOLE_PORT);
+    }
+
+    public int getConsoleSecurePort() {
+        return (Integer) getSettingTypedValue(XML_CONSOLE_SECURE_PORT);
     }
 
     public int getXmlRpcVcardPort() {

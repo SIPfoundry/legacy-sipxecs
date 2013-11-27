@@ -33,9 +33,12 @@ public interface ImManager {
     final AddressType XMPP_FILE_TRANSFER_PROXY_ADDRESS = new AddressType("instantMessageFileTransferProxy",
             Protocol.tcp);
     final AddressType XMPP_ADMIN_CONSOLE_ADDRESS = new AddressType("instantMessageAdminConsole", Protocol.tcp);
+    final AddressType XMPP_ADMIN_CONSOLE_SECURE_ADDRESS = new AddressType("instantMessageSecureAdminConsole",
+        Protocol.tcp);
     final AddressType XMPP_BOSH_ADDRESS = new AddressType("instantMessageHttpBinding", Protocol.tcp);
     final AddressType XMPP_BOSH_SECURE_ADDRESS = new AddressType("instantMessageHttpBindingSecure", Protocol.tcp);
-    final AddressType XMLRPC_ADDRESS = new AddressType("instantMessageXmlrpc", URL_FORMAT);
+    final AddressType XMLRPC_ADDRESS = new AddressType("instantMessageXmlrpc", URL_FORMAT,
+        XMPP_ADMIN_CONSOLE_ADDRESS.getCanonicalPort());
     final AddressType XMLRPC_VCARD_ADDRESS = new AddressType("instantMessageVcardXmlrpc", URL_FORMAT);
     final AddressType WATCHER_ADDRESS = new AddressType("instantMessageWatcher");
 

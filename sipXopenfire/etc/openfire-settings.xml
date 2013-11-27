@@ -85,14 +85,18 @@
       <type refid="switch" />
       <value>false</value>
     </setting>
-    <setting name="openfire-xml-rpc-port">
+    <setting name="openfire-console-port" hidden="yes">
       <type refid="requiredNonRootPort"/>
       <value>9094</value>
+    </setting>
+    <setting name="openfire-console-secure-port" hidden="yes">
+      <type refid="requiredNonRootPort"/>
+      <value>9095</value>
     </setting>
     <setting name="openfire-xml-rpc-vcard-port">
       <type refid="requiredNonRootPort"/>
       <value>9099</value>
-    </setting>    
+    </setting>
     <setting name="locale" hidden="yes">
       <type>
         <string required="yes" />

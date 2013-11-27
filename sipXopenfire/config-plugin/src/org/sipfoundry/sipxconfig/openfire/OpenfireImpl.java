@@ -55,8 +55,8 @@ public class OpenfireImpl implements ImManager, FeatureProvider, AddressProvider
     FirewallProvider, DnsProvider {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
         XMPP_ADDRESS, XMPP_SECURE_ADDRESS, XMPP_FEDERATION_ADDRESS, XMLRPC_ADDRESS, XMLRPC_VCARD_ADDRESS,
-        WATCHER_ADDRESS, XMPP_FILE_TRANSFER_PROXY_ADDRESS, XMPP_ADMIN_CONSOLE_ADDRESS, XMPP_BOSH_ADDRESS,
-        XMPP_BOSH_SECURE_ADDRESS
+        WATCHER_ADDRESS, XMPP_FILE_TRANSFER_PROXY_ADDRESS, XMPP_ADMIN_CONSOLE_ADDRESS,
+        XMPP_ADMIN_CONSOLE_SECURE_ADDRESS, XMPP_BOSH_ADDRESS, XMPP_BOSH_SECURE_ADDRESS
     });
     private BeanWithSettingsDao<OpenfireSettings> m_settingsDao;
     private ConfigManager m_configManager;
@@ -102,8 +102,6 @@ public class OpenfireImpl implements ImManager, FeatureProvider, AddressProvider
                 address = new Address(type, location.getAddress());
             } else if (type.equals(XMPP_FEDERATION_ADDRESS)) {
                 address = new Address(XMPP_FEDERATION_ADDRESS, location.getAddress(), settings.getXmppFederationPort());
-            } else if (type.equals(XMLRPC_ADDRESS)) {
-                address = new Address(XMLRPC_ADDRESS, location.getAddress(), settings.getXmlRpcPort());
             } else if (type.equals(XMLRPC_VCARD_ADDRESS)) {
                 address = new Address(XMLRPC_VCARD_ADDRESS, location.getAddress(), settings.getXmlRpcVcardPort());
             } else if (type.equals(WATCHER_ADDRESS)) {
@@ -111,7 +109,11 @@ public class OpenfireImpl implements ImManager, FeatureProvider, AddressProvider
             } else if (type.equals(XMPP_FILE_TRANSFER_PROXY_ADDRESS)) {
                 address = new Address(XMPP_FILE_TRANSFER_PROXY_ADDRESS, location.getAddress(), settings.getFileTransferProxyPort());
             } else if (type.equals(XMPP_ADMIN_CONSOLE_ADDRESS)) {
-                address = new Address(XMPP_ADMIN_CONSOLE_ADDRESS, location.getAddress(), XMPP_ADMIN_CONSOLE_ADDRESS.getCanonicalPort());
+                address = new Address(XMPP_ADMIN_CONSOLE_ADDRESS, location.getAddress(),
+                    settings.getConsolePort());
+            } else if (type.equals(XMPP_ADMIN_CONSOLE_SECURE_ADDRESS)) {
+                address = new Address(XMPP_ADMIN_CONSOLE_SECURE_ADDRESS, location.getAddress(),
+                    settings.getConsoleSecurePort());
             } else if (type.equals(XMPP_BOSH_ADDRESS)) {
                 address = new Address(XMPP_BOSH_ADDRESS, location.getAddress(), settings.getHttpBindingPort());
             } else if (type.equals(XMPP_BOSH_SECURE_ADDRESS)) {
@@ -161,13 +163,16 @@ public class OpenfireImpl implements ImManager, FeatureProvider, AddressProvider
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
         // cluster-only by default
-        List<DefaultFirewallRule> rules = DefaultFirewallRule.rules(Arrays.asList(XMLRPC_ADDRESS, WATCHER_ADDRESS, XMPP_FILE_TRANSFER_PROXY_ADDRESS, XMPP_ADMIN_CONSOLE_ADDRESS));
+        List<DefaultFirewallRule> rules = DefaultFirewallRule.rules(Arrays.asList(WATCHER_ADDRESS,
+            XMPP_FILE_TRANSFER_PROXY_ADDRESS, XMPP_ADMIN_CONSOLE_ADDRESS, XMPP_ADMIN_CONSOLE_SECURE_ADDRESS,
+            XMPP_BOSH_ADDRESS, XMPP_BOSH_SECURE_ADDRESS));
         // public by default
         rules.add(new DefaultFirewallRule(XMPP_ADDRESS, FirewallRule.SystemId.PUBLIC));
         rules.add(new DefaultFirewallRule(XMPP_SECURE_ADDRESS, FirewallRule.SystemId.PUBLIC));
         rules.add(new DefaultFirewallRule(XMPP_FEDERATION_ADDRESS, FirewallRule.SystemId.PUBLIC));
-        rules.add(new DefaultFirewallRule(XMPP_BOSH_ADDRESS, FirewallRule.SystemId.CLUSTER));
-        rules.add(new DefaultFirewallRule(XMPP_BOSH_SECURE_ADDRESS, FirewallRule.SystemId.CLUSTER));
+        // rules.add(new DefaultFirewallRule(XMPP_BOSH_ADDRESS, FirewallRule.SystemId.CLUSTER));
+        // rules.add(new DefaultFirewallRule(XMPP_BOSH_SECURE_ADDRESS,
+        // FirewallRule.SystemId.CLUSTER));
         return rules;
     }
 
