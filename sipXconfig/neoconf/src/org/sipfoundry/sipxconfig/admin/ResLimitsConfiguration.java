@@ -85,7 +85,7 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
     private Mwi m_mwi;
     private ProxyManager m_proxyManager;
     private Registrar m_registrar;
-    private Rls m_rls;
+    //private Rls m_rls;
     private SaaManager m_saaManager;
     private ParkOrbitContext m_parkOrbitContext;
     private AdminContext m_adminContext;
@@ -124,7 +124,7 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
         m_publisherLimitsConfig.writeResourceLimits(w, m_mwi.getSettings());
         m_registrarLimitsConfig.writeResourceLimits(w, m_registrar.getSettings());
         m_saaLimitsConfig.writeResourceLimits(w, m_saaManager.getSettings());
-        m_rlsLimitsConfig.writeResourceLimits(w, m_rls.getSettings());
+        //m_rlsLimitsConfig.writeResourceLimits(w, m_rls.getSettings());
         m_parkLimitsConfig.writeResourceLimits(w, m_parkOrbitContext.getSettings());
     }
 
@@ -171,9 +171,9 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
         setResLimitsValues(saaSettings, fdSoft, fdHard, coreEnabled);
         m_saaManager.saveSettings(saaSettings);
 
-        RlsSettings rlsSettings = m_rls.getSettings();
-        setResLimitsValues(rlsSettings, fdSoft, fdHard, coreEnabled);
-        m_rls.saveSettings(rlsSettings);
+        //RlsSettings rlsSettings = m_rls.getSettings();
+        //setResLimitsValues(rlsSettings, fdSoft, fdHard, coreEnabled);
+        //m_rls.saveSettings(rlsSettings);
 
         ParkSettings parkSettings = m_parkOrbitContext.getSettings();
         setResLimitsValues(parkSettings, fdSoft, fdHard, coreEnabled);
@@ -212,10 +212,10 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
         m_registrar = registrar;
     }
 
-    @Required
-    public void setRls(Rls rls) {
-        m_rls = rls;
-    }
+    //@Required
+    //public void setRls(Rls rls) {
+        //m_rls = rls;
+    //}
 
     @Required
     public void setSaaManager(SaaManager saaManager) {

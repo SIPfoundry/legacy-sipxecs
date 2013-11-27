@@ -54,7 +54,6 @@
     <property name="adminContext" ref="adminContext"/>
     <property name="mwi" ref="mwi"/>
     <property name="proxyManager" ref="proxyManager" />
-    <property name="rls" ref="rls" />
     <property name="saaManager" ref="saaManager" />
     <property name="registrar" ref="registrar" />
     <property name="parkOrbitContext" ref="parkOrbitContext" />
