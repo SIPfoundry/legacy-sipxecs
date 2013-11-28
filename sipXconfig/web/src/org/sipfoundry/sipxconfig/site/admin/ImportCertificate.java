@@ -20,6 +20,8 @@ import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
@@ -44,6 +46,8 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.common.IntegerPropertySelectionModel;
 
 public abstract class ImportCertificate extends BaseComponent implements PageBeginRenderListener {
+    private static final Log LOG = LogFactory.getLog(ImportCertificate.class);
+
     public static final Integer UPLOAD = new Integer(1);
     public static final Integer TEXT = new Integer(2);
     private static final String WEB = "web";
@@ -267,11 +271,12 @@ public abstract class ImportCertificate extends BaseComponent implements PageBeg
             key = getCertificateManager().getCommunicationsPrivateKey();
         }
 
-        int size;
+        String size;
         try {
-            size = CertificateUtils.getEncryptionStrength(key);
+            size = String.valueOf(CertificateUtils.getEncryptionStrength(key));
         } catch (Exception e) {
-            throw new UserException(e.getMessage());
+            LOG.error("Could not retrieve encryption strength for current key: " + e.getMessage());
+            size = "undetermined";
         }
 
         setKeySizeDescr(getMessages().format("description.keySize", size));

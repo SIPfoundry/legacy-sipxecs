@@ -35,7 +35,7 @@ import org.bouncycastle.util.encoders.Base64;
 public final class CertificateUtils {
 
     private CertificateUtils() {
-        // disable nsstantiation
+        // disable instantiation
     }
 
     /**

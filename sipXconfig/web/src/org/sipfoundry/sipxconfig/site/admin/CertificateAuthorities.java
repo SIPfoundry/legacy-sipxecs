@@ -14,6 +14,8 @@ import java.io.Reader;
 import java.util.Collection;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.ComponentClass;
@@ -33,6 +35,7 @@ import org.sipfoundry.sipxconfig.site.common.IntegerPropertySelectionModel;
 
 @ComponentClass
 public abstract class CertificateAuthorities extends BaseComponent implements PageBeginRenderListener {
+    private static final Log LOG = LogFactory.getLog(CertificateAuthorities.class);
 
     public abstract IUploadFile getUploadFile();
 
@@ -122,14 +125,20 @@ public abstract class CertificateAuthorities extends BaseComponent implements Pa
 
         String webKey = getCertificateManager().getWebPrivateKey();
         String sipKey = getCertificateManager().getCommunicationsPrivateKey();
+        String webSize;
+        String sipSize;
 
-        int webSize;
-        int sipSize;
         try {
-            webSize = CertificateUtils.getEncryptionStrength(webKey);
-            sipSize = CertificateUtils.getEncryptionStrength(sipKey);
+            webSize = String.valueOf(CertificateUtils.getEncryptionStrength(webKey));
         } catch (Exception e) {
-            throw new UserException(e.getMessage(), e);
+            LOG.error("Could not retrieve encryption strength for web key: " + e.getMessage());
+            webSize = "undetermined";
+        }
+        try {
+            sipSize = String.valueOf(CertificateUtils.getEncryptionStrength(sipKey));
+        } catch (Exception e) {
+            LOG.error("Could not retrieve encryption strength for sip key: " + e.getMessage());
+            sipSize = "undetermined";
         }
 
         setKeySizeDescr(getMessages().format("description.keySize", webSize, sipSize));
