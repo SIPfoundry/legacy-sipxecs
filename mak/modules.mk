@@ -99,6 +99,7 @@ lib_all = \
   epel \
   resiprocate \
   rubygem-file-tail \
+  freeswitch \
   hiredis \
   net-snmp \
   homer \
