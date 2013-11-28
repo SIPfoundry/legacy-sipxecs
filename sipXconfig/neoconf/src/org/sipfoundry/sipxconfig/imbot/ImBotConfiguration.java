@@ -38,11 +38,9 @@ import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.restserver.RestServer;
-import org.sipfoundry.sipxconfig.setting.PatternSettingFilter;
 import org.springframework.beans.factory.annotation.Required;
 
 public class ImBotConfiguration implements ConfigProvider {
-    private static final PatternSettingFilter SKIP_UNDERSCORE = new PatternSettingFilter("imbot/_.*");
     private ImBot m_imbot;
 
     @Override
@@ -82,7 +80,8 @@ public class ImBotConfiguration implements ConfigProvider {
         }
     }
 
-    void write(Writer wtr, ImBotSettings settings, Domain domain, Address ivr, Address admin, Address rest,
+    protected static void write(Writer wtr, ImBotSettings settings, Domain domain, Address ivr, Address admin,
+        Address rest,
             Address imApi) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.write("log.level", settings.getLogLevel());
@@ -97,7 +96,7 @@ public class ImBotConfiguration implements ConfigProvider {
             config.write("imbot.callHistoryUrl", rest.toString() + "/cdr/");
         }
         if (imApi != null) {
-            config.write("imbot.openfireHost", imApi.getAddress());
+            config.write("imbot.openfireHost", domain.getNetworkName());
             config.write("imbot.openfireXmlRpcPort", imApi.getPort());
         }
     }

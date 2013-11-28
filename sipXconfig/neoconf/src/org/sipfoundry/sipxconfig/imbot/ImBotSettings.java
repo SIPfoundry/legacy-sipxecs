@@ -105,7 +105,7 @@ public class ImBotSettings extends PersistableSettings implements DeployConfigOn
 
     @Override
     public Set<DataSet> getDataSets() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override

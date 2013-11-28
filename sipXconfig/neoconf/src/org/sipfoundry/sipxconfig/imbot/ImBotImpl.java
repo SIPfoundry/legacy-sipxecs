@@ -57,6 +57,7 @@ public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, Proce
     private FeatureManager m_featureManager;
     private ReplicationManager m_replicationManager;
 
+    @Override
     public ImBotSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
     }
