@@ -443,6 +443,7 @@ public class LoginServlet extends ProvisioningServlet {
             List<String> disabledCodecs, String type, String network) throws IOException {
         bw.write(String.format("\t\t\t\t<codec_list_%s_%s>\n", type, network));
         for (Map.Entry<Integer, String> entry : codecsPriority.entrySet()) {
+            LOG.warn("*** CP: " + entry.getValue());
             if (codecs.contains(entry.getValue())) {
                 bw.write(CODEC_START_TAG + entry.getValue() + "\" enabled=\"true\"/>\n");
             }
@@ -544,16 +545,16 @@ public class LoginServlet extends ProvisioningServlet {
 
     private static Map<String, String> buildAudioCodecsMap() {
         Map<String, String> validAudioCodecs = new HashMap<String, String>();
-        validAudioCodecs.put(SILK_32000, SILK_32000);
-        validAudioCodecs.put(SILK_16000, SILK_16000);
-        validAudioCodecs.put(SILK_8000, SILK_8000);
+        validAudioCodecs.put("silk32000", "SILK/32000");
+        validAudioCodecs.put("silk16000", "SILK/16000");
+        validAudioCodecs.put("silk8000", "SILK/8000");
         validAudioCodecs.put("g711a", "G711a");
         validAudioCodecs.put("g711u", "G711u");
         validAudioCodecs.put("g722", "G722");
         validAudioCodecs.put("g729", "G729");
         validAudioCodecs.put("ilbc", "iLBC");
-        validAudioCodecs.put(GSM, GSM);
-        validAudioCodecs.put(OPUS, OPUS);
+        validAudioCodecs.put("gsm", "GSM");
+        validAudioCodecs.put("opus", "opus");
 
         return validAudioCodecs;
     }
