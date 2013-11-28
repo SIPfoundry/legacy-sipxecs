@@ -11,6 +11,7 @@
 #define _TestRunner_h_
 
 #include <cppunit/TestRunner.h>
+#include <cppunit/XmlOutputter.h>
 #include <sipxunit/TestOutputter.h>
 #include <sipxunit/TestOsSysLogListener.h>
 
@@ -35,6 +36,11 @@ class TestRunner : public CppUnit::TestRunner
     TestOsSysLogListener *m_logger;
 
     CppUnit::TestResult *m_result;
+    CppUnit::TestResultCollector* m_resultCollector;
+
+    CppUnit::XmlOutputter* m_xmlOutputter;
+
+    std::ofstream m_xmlout;
 
     TestOutputter *m_outputter;
 };
