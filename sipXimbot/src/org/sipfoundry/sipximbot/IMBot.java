@@ -20,6 +20,8 @@ import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.util.DNSUtil;
+import org.jivesoftware.smack.util.dns.JavaxResolver;
 import org.jivesoftware.smackx.packet.VCard;
 import org.sipfoundry.commons.freeswitch.ConfBasicThread;
 import org.sipfoundry.commons.userdb.User;
@@ -126,12 +128,10 @@ public class IMBot {
 
         private static boolean connectToXMPPServer() {
 
-            ImbotConfiguration config;
-            ConnectionConfiguration conf;
-            config = ImbotConfiguration.get();
-            conf = new ConnectionConfiguration(config.getOpenfireHost(), 5222);
-            conf.setSASLAuthenticationEnabled(false); // disable SASL to cope with cases where
-                                                      // XMPP domain != FQDN (XX-7293)
+            ImbotConfiguration config = ImbotConfiguration.get();
+            ConnectionConfiguration conf = new ConnectionConfiguration(config.getOpenfireHost());
+            // disable SASL to cope with cases where XMPP domain != FQDN (XX-7293)
+            conf.setSASLAuthenticationEnabled(false);
             Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
             m_con = new XMPPConnection(conf);
 
@@ -151,8 +151,8 @@ public class IMBot {
                 }
                 try {
                     LOG.info(String.format(
-                        "Waiting %.2f seconds before attempting another connection to XMPP server.",
-                        RETRY_INTERVAL / 1000f));
+                        "Waiting %d seconds before attempting another connection to XMPP server.",
+                        RETRY_INTERVAL / 1000));
                     sleep(RETRY_INTERVAL);
                 } catch (InterruptedException e) {
                     return false;
@@ -449,7 +449,7 @@ public class IMBot {
     }
 
     static public void init() {
-
+        DNSUtil.setDNSResolver(JavaxResolver.getInstance());
         IMClientThread imThread = new IMClientThread();
         imThread.start();
     }
