@@ -56,7 +56,7 @@ $(sipx.SIPX_LOGDIR)/sipxconfig-logins.log $(sipx.SIPX_LOGDIR)/snmptrapd.log {
    copytruncate
 }
 
-$(sipx.SIPX_LOGDIR)/phone/*.log {
+$(sipx.SIPX_LOGDIR)/phone/*/phonelog.log {
     sharedscripts
     postrotate
        test -f $(sipx.SIPX_LOGDIR)/phone/var/run/syslog.pid || kill -HUP $(cat $(sipx.SIPX_LOGDIR)/phone/var/run/syslog.pid) 2> /dev/null || true
