@@ -53,6 +53,7 @@ bool AuthInformationGrabber::getSipPassword(const resip::Data& user, const resip
   
   Json::Value params;
   params["user"] = user.c_str();
+  params["realm"] = realm.c_str();
   
   try
   {

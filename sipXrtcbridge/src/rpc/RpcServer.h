@@ -5,6 +5,7 @@
 #include <jsonrpc/rpc.h>
 #include <os/OsServiceOptions.h>
 #include <os/OsLogger.h>
+#include <sipdb/EntityDB.h>
 
 using namespace jsonrpc;
 
@@ -21,6 +22,7 @@ public:
 private:
   OsServiceOptions& _options;
   OsServiceOptions* _pPasswordFile;
+  EntityDB* _pEntityDb;
 };
 
 #endif	/* RPCSERVER_H */
