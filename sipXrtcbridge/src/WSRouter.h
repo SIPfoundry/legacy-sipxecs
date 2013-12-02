@@ -19,6 +19,7 @@
 #define	WSROUTER_H_INCLUDED
 
 #include <os/OsServiceOptions.h>
+#include <jsonrpc/rpc.h>
 #include "sipx/proxy/ReproGlue.h"
 #include "sipx/bridge/FreeSwitchRunner.h"
 #include "sipx/bridge/EslListener.h"
@@ -45,6 +46,8 @@ public:
   
   bool isMyDomain(const char* domain);
   
+  bool isRTCTarget(const resip::Uri& ruri);
+  
   bool initialize();
   
   int main();
@@ -67,6 +70,8 @@ protected:
   sipx::bridge::EslListener _eventListener;
   sipx::bridge::FreeSwitchRunner* _pSwitch;
   int _eslPort;
+  jsonrpc::Client* _pRpc;
+  std::string _rpcUrl;
 };
 
 

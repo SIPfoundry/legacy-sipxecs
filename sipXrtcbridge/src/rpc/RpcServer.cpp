@@ -1,11 +1,14 @@
 #include "RpcServer.h"
 
+#include <net/Url.h>
+
 
 RpcServer::RpcServer(OsServiceOptions& options, int port) :
   AbstractServer<RpcServer>(new HttpServer(port)),
   _options(options),
   _pPasswordFile(0),
-  _pEntityDb(0)
+  _pEntityDb(0),
+  _pRegDb(0)
 {
   if (_options.hasOption("password-file", true))
   {
@@ -19,9 +22,16 @@ RpcServer::RpcServer(OsServiceOptions& options, int port) :
     _pEntityDb = new EntityDB(MongoDB::ConnectionInfo::globalInfo());
   }
   
+  _pRegDb = new RegDB(MongoDB::ConnectionInfo::globalInfo());
+  
   bindAndAddMethod(new Procedure("getSipPassword", PARAMS_BY_NAME, 
     JSON_STRING, "user", 
     JSON_STRING, "realm", 
+    JSON_STRING, 0), 
+    &RpcServer::getSipPassword);
+  
+  bindAndAddMethod(new Procedure("isRtcTarget", PARAMS_BY_NAME, 
+    JSON_STRING, "identity", 
     JSON_STRING, 0), 
     &RpcServer::getSipPassword);
 }  
@@ -30,6 +40,7 @@ RpcServer::~RpcServer()
 {
   delete _pPasswordFile;
   delete _pEntityDb;
+  delete _pRegDb;
 }
 
 void RpcServer::getSipPassword(const Json::Value& request, Json::Value& response)
@@ -80,6 +91,44 @@ void RpcServer::getSipPassword(const Json::Value& request, Json::Value& response
     OS_LOG_INFO(FAC_NET, "RpcServer::getSipPassword user=" << user << " " << errorString);
     response["error"] = "User Not Found";
   }
+}
+
+void RpcServer::isRtcTarget(const Json::Value& request, Json::Value& response)
+{
+  if (request.isMember("identity"))
+  {
+    std::string identity;
+    identity = request["identity"].asString();
+    
+    int timeNow = OsDateTime::getSecsSinceEpoch();
+    RegDB::Bindings bindings;
+    static_cast<RegDB*>(_pRegDb)->getUnexpiredContactsUserContaining(
+        identity,
+        timeNow,
+        bindings);
+
+    if (bindings.size() == 1)
+    {
+      std::string target = bindings[0].getContact();
+      Url contact(target.c_str());
+      UtlString transport;
+      if (contact.getUrlParameter("transport", transport))
+      {
+        if (!transport.isNull())
+        {
+          transport.toLower();
+          if (transport == "ws")
+          {
+            OS_LOG_INFO(FAC_NET, "RpcServer::isRtcTarget contact=" << target);
+            response["contact"] = target;
+            return;
+          }
+        }
+      }
+    }
+  }
+  
+  response["error"] = "Not RTC Target Found";
 }
 
 int main(int argc, char** argv)

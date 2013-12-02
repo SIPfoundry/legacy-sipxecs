@@ -143,7 +143,8 @@ WSRouter::WSRouter(int argc, char** argv, const std::string& daemonName, const s
   _wsPort(0),
   _tcpUdpPort(0),
   _pSwitch(0),
-  _eslPort(DEFAULT_ESL_PORT)
+  _eslPort(DEFAULT_ESL_PORT),
+  _pRpc(0)
 {
   addDaemonOptions();
   addOptionString("ip-address", ": IP Address the wsrouter would bind to.", CommandLineOption, true);
@@ -163,6 +164,7 @@ WSRouter::WSRouter(int argc, char** argv, const std::string& daemonName, const s
 WSRouter::~WSRouter()
 {
   delete _pRepro;
+  delete _pRpc;
 }
 
 bool WSRouter::initialize()
@@ -184,6 +186,12 @@ bool WSRouter::initialize()
   if (hasOption("enable-library-logging", true))
   {
     gEnableReproLogging = true;
+  }
+  
+  if (!_pRpc && getOption("rpc-url", _rpcUrl))
+  {
+    OS_LOG_INFO(FAC_SIP, "WSRouter::initialize - Setting up RPC service to " << _rpcUrl);
+    _pRpc = new jsonrpc::Client(new jsonrpc::HttpClient(_rpcUrl));
   }
   
   assert(!_pRepro);
@@ -225,7 +233,7 @@ bool WSRouter::initialize()
   //
   _pRepro->setProxyConfigValue("DisableAuth", "false");
   _pRepro->setProxyConfigValue("DisableAuthInt", "true");
-  _pRepro->setExternalAuthGrabber(new AuthInformationGrabber(this));
+  _pRepro->setExternalAuthGrabber(new AuthInformationGrabber(this, 0, _pRpc));
   
   //
   // Initialize the switch
@@ -355,9 +363,7 @@ void WSRouter::insertAuthenticator(resip::SipMessage& request, resip::Uri& reque
   std::string authority;
   std::string realm;
   std::string user;
-  
-  OS_LOG_INFO(FAC_SIP, ">>>>>>>>>>>>>> Inserting Authenticator");
-  
+   
   if (!request.exists(resip::h_ProxyAuthorizations))
     return;
   
@@ -370,9 +376,7 @@ void WSRouter::insertAuthenticator(resip::SipMessage& request, resip::Uri& reque
   if (!request.header(resip::h_From).exists(resip::p_tag))
     return;
             
-
-  OS_LOG_INFO(FAC_SIP, ">>>>>>>>>>>>> All required paramaters passed");
-  
+ 
   fromTag = request.header(resip::h_From).param(resip::p_tag).c_str();
   callId = request.header(resip::h_CallID).value().c_str();
   
@@ -382,14 +386,11 @@ void WSRouter::insertAuthenticator(resip::SipMessage& request, resip::Uri& reque
   {
     if (iter->exists(resip::p_realm))
     {
-      OS_LOG_INFO(FAC_SIP, ">>>>>>>>>>>>> REALM EXISTS: " << iter->param(resip::p_realm).c_str());
       if (isMyDomain(iter->param(resip::p_realm).c_str()))
       {
-        OS_LOG_INFO(FAC_SIP, ">>>>>>>>>>>>> REALM IS OUR DOMAIN: " << iter->param(resip::p_realm).c_str());
         realm = iter->param(resip::p_realm).c_str();
         if (iter->exists(resip::p_username))
         {
-          OS_LOG_INFO(FAC_SIP, ">>>>>>>>>>>>> USER EXISTS: " << iter->param(resip::p_username).c_str());
           user = iter->param(resip::p_username).c_str();
           std::ostringstream id;
           id << user << "@" << realm;
@@ -400,17 +401,54 @@ void WSRouter::insertAuthenticator(resip::SipMessage& request, resip::Uri& reque
             escape_url_parameter(authParam, authority.c_str(), 0);
             requestUri.param(p_xtauthid) = resip::Data(authParam.c_str());
             
-            OS_LOG_INFO(FAC_SIP, ">>>>>>>>>>>>> ENCODE AUTH IDENTITY SUCEEDED: " << requestUri);
             return;
-          }
-          else
-          {
-            OS_LOG_INFO(FAC_SIP, ">>>>>>>>>>>>> ENCODE AUTH IDENTITY FAILED");
           }
         }
       }
     }
   }
+}
+
+bool WSRouter::isRTCTarget(const resip::Uri& ruri)
+{
+  if (ruri.exists(resip::p_transport) && (ruri.param(resip::p_transport) == "WS" || ruri.param(resip::p_transport) == "ws"))
+    return true;
+  
+  if (_pRpc)
+  {
+    try
+    {
+      Json::Value result;
+      Json::Value params;
+      params["identity"] = ruri.getAorNoPort().c_str();
+      _pRpc->CallMethod("isRtcTarget", params, result);
+      std::string contact;
+      if (!result.isMember("error") && result.isMember("contact"))
+      {
+        contact = result["contact"].asCString();
+        resip::Uri contactUri(contact.c_str());
+        return contactUri.exists(resip::p_transport) && (contactUri.param(resip::p_transport) == "WS" || contactUri.param(resip::p_transport) == "ws");
+
+      }
+      else if (result.isMember("error"))
+      {
+        OS_LOG_ERROR(FAC_SIP, " WSRouter::isRTCTarget - " << result["error"]);
+      }
+      else
+      {
+        OS_LOG_ERROR(FAC_SIP, " WSRouter::isRTCTarget - User Not Found");
+      }
+
+      return false;
+    }
+    catch (jsonrpc::JsonRpcException e)
+    {
+        OS_LOG_ERROR(FAC_SIP, "WSRouter::isRTCTarget - FAILED with error: "  << e.what());
+        return false;
+    }
+  }
+  
+  return false;
 }
 
 ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(sipx::proxy::ReproGlue::RequestProcessor& processor, RequestContext& context)
@@ -445,9 +483,11 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(sipx::prox
   //
   // Check if request-uri contains the ws parameters
   //
-  bool isRtcTarget = ruri.exists(resip::p_transport) && (ruri.param(resip::p_transport) == "WS" || ruri.param(resip::p_transport) == "ws");
+  bool isRtcTarget = isRTCTarget(ruri); 
   bool isRtcOffer = false;
   bool isBridgedRtc = ruri.exists(p_xtrtc); 
+  
+ 
   //
   // Check if SDP has RTP/SAVPF format.  This means we are being offered RTC media stream
   //
