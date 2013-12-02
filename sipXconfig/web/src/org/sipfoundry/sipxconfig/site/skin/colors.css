@@ -3,6 +3,11 @@ body
 	background:#778da5 url(/sipxconfig/images/layout/backgroundVerticalLine.png) repeat-x scroll left top;
 }
 
+textarea[readonly=readonly]
+{
+  background-color: #ddd;
+}
+
 a:link
 {
 	color: #000099;

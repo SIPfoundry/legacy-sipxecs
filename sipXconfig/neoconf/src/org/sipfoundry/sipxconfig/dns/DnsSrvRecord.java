@@ -27,6 +27,7 @@ public class DnsSrvRecord {
     private String m_protocol;
     private String m_resource;
     private int m_port;
+    private boolean m_internal;
 
     public DnsSrvRecord(String protocol, String resource, String host, int port, String destination) {
         m_destination = destination;
@@ -96,5 +97,13 @@ public class DnsSrvRecord {
 
     public int getPort() {
         return m_port;
+    }
+
+    public boolean isInternal() {
+        return m_internal;
+    }
+
+    public void setInternal(boolean internal) {
+        m_internal = internal;
     }
 }

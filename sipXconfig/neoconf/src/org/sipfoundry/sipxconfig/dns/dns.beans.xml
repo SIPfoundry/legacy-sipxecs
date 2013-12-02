@@ -53,6 +53,14 @@
     </property>
   </bean>
 
+  <bean id="dnsPreview" class="org.sipfoundry.sipxconfig.dns.DnsPreview">
+    <property name="locationsManager" ref="locationsManager"/>    
+    <property name="dnsManager" ref="dnsManager"/>    
+    <property name="dnsConfig" ref="dnsConfig"/>    
+    <property name="addressManager" ref="addressManager"/>    
+    <property name="command" value="${sysdir.libexec}/sipx-erb --in %s --template ${sysdir.etc}/sipxdns/zone.erb --postpend %s"/>
+  </bean>
+
   <!-- DNS PLAN REST API -->
   <bean id="baseDnsApi" class="org.sipfoundry.sipxconfig.dns.DnsApi">
     <property name="regionManager" ref="regionManager"/>
@@ -84,6 +92,15 @@
   </bean>
 
   <alias name="dnsMoveViewApi" alias="/dnsViewMove" />
+
+  <!-- DNS PREVIEW REST API -->
+  <bean id="dnsPreviewApi" class="org.sipfoundry.sipxconfig.dns.DnsPreviewApi">
+    <property name="dnsPreview" ref="dnsPreview"/>
+    <property name="dnsViewApi" ref="dnsViewApi"/>    
+  </bean>
+
+  <!-- See DnsPreview.Show for legal values for show -->
+  <alias name="dnsPreviewApi" alias="/dnsPreview/{show}" />
 
   <!-- DNS CUSTOM REST API -->
   <bean id="baseDnsCustomApi" class="org.sipfoundry.sipxconfig.dns.DnsCustomApi">

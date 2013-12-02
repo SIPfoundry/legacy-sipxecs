@@ -82,11 +82,13 @@ public class DnsFailoverPlan extends BeanWithId implements NamedObject, DeployCo
                         rr.getAddress());
                 srv.setWeight(prioAndPct.getWeight());
                 srv.setPriority(prioAndPct.getPriority());
+                srv.setInternal(true);
                 srvs.add(srv);
             }
             for (ResourceRecord other : rrs.getRecords()) {
                 DnsSrvRecord rrSrv = DnsSrvRecord.hostLevel(rrs.getProto(), rrs.getResource(), rr.getAddress(),
                         other.getPort(), other.getAddress());
+                rrSrv.setInternal(true);
                 if (other == rr) {
                     // SRV records that points local services to other local services
                     rrSrv.setPriority(DnsRecordNumerics.HIGHEST_PRIORITY);
@@ -109,6 +111,7 @@ public class DnsFailoverPlan extends BeanWithId implements NamedObject, DeployCo
                         rr.getAddress());
                 record.setWeight(prioAndPct.getWeight());
                 record.setPriority(prioAndPct.getPriority());
+                record.setInternal(false);
                 srvs.add(record);
             }
         }

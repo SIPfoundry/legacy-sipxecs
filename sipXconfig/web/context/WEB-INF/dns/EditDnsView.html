@@ -71,6 +71,15 @@
         <button id="cancel"><span key="button.cancel">Cancel</span></button>
       </li>
     </ul>    
+    <div>
+      <h2><span key="preview">Preview</span></h2>
+      <div style="float:right">
+        <input type="radio" name="preview-show" value="ALL" checked="checked"/>all records
+        <input type="radio" name="preview-show" value="PUBLIC"/>public records only
+      </div><br/>
+      <textarea id="preview" readonly="readonly" rows="30" cols="90">    
+      </textarea>
+    </div>
     <span id="rc" style="display:none">
     </span>
     <script jwcid="@common/DartCode" type="application/dart"

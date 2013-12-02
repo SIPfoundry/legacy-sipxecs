@@ -2,7 +2,7 @@ import 'dart:html';
 import 'dart:convert';
 import 'package:sipxconfig/sipxconfig.dart';
 
-var api = new Api(test : true);
+var api = new Api(test : false);
 
 main() {
   new DnsViewEditor();
@@ -16,7 +16,11 @@ class DnsViewEditor {
   DnsViewEditor() {
     querySelector("#ok").onClick.listen(ok);
     querySelector("#apply").onClick.listen(apply);
-    querySelector("#cancel").onClick.listen(cancel);    
+    querySelector("#cancel").onClick.listen(cancel);
+    
+    for (var elemId in ["#regionId", "#planId", "#customRecordsIdsRow", "input[name=preview-show]"] ) {
+      querySelectorAll(elemId).onClick.listen(loadPreview);      
+    }
     Location l = document.window.location;
     var params = Uri.parse(l.href).queryParameters;
     if (params['dnsViewId'] != null) {
@@ -38,21 +42,37 @@ class DnsViewEditor {
     close();
   }
   
+  loadPreview([e]) {
+    var elem = querySelector("#preview");
+    if (api.test) {
+      elem.text = 'preview in test mode';
+      return;
+    }
+    var meta = getFormData();
+    String show = 'ALL';
+    for (InputElement e in querySelectorAll("input[name=preview-show]")) {
+      if (e.checked) {
+        show = e.value;
+        break;
+      }
+    }
+    HttpRequest req = new HttpRequest();
+    req.open('POST', api.url("rest/dnsPreview/${show}"));
+    req.setRequestHeader("Content-Type", "application/json"); 
+    req.send(JSON.encode(meta));
+    req.onLoad.listen((e) {
+      if (DataLoader.checkResponse(msg, req)) {
+        elem.text = req.responseText;
+      }
+    });      
+  }
+  
   close() {
     window.location.href = 'EditDns.html';      
   }
 
   save([onOk]) {
-    var meta = new Map<String,Object>();
-    meta['planId'] = int.parse((querySelector("#planId") as SelectElement).value);
-    meta['name'] = (querySelector("#name") as InputElement).value;
-    meta['regionId'] = int.parse((querySelector("#regionId") as SelectElement).value);
-    List<int> customRecordsIds = [];
-    meta['customRecordsIds'] = customRecordsIds;
-    SelectElement customs = querySelector("#customRecordsIds");
-    for (var option in customs.selectedOptions) {
-      customRecordsIds.add(int.parse(option.value));
-    }
+    var meta = getFormData();
     HttpRequest req = new HttpRequest();
     var method;
     var id = '';        
@@ -78,6 +98,24 @@ class DnsViewEditor {
       }
     });      
   }  
+  
+  Map<String, Object> getFormData() {
+    var meta = new Map<String,Object>();
+    meta['planId'] = safeInt((querySelector("#planId") as SelectElement).value);
+    meta['name'] = (querySelector("#name") as InputElement).value;
+    meta['regionId'] = safeInt((querySelector("#regionId") as SelectElement).value);
+    List<int> customRecordsIds = [];
+    meta['customRecordsIds'] = customRecordsIds;
+    SelectElement customs = querySelector("#customRecordsIds");
+    for (var option in customs.selectedOptions) {
+      customRecordsIds.add(int.parse(option.value));
+    }    
+    return meta;
+  }
+  
+  int safeInt(String value) {
+    return value == null || value == "" ? null : int.parse(value);
+  }
   
   load() {
     var id = (dnsViewId != null ? '${dnsViewId}' : 'blank');
@@ -132,5 +170,7 @@ class DnsViewEditor {
     loadRegionCandidates(data['regionCandidates'], regionId);
     loadPlanOptions(data['planCandidates'], planId);
     loadCustomRecords(data['customRecordsCandidates'], customRecordsIds);
+    
+    loadPreview();
   }  
 }
