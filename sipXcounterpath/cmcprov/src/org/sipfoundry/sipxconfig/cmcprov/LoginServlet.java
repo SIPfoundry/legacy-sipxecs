@@ -61,11 +61,6 @@ public class LoginServlet extends ProvisioningServlet {
     private static final String PRESENCE_AGENT = "presenceAgent";
     private static final String OUTPUT_TYPE = "output_type";
     private static final String BRIA_MOBILE = "-briamobile.xml";
-    private static final String OPUS = "OPUS";
-    private static final String SILK_32000 = "SILK/32000";
-    private static final String SILK_16000 = "SILK/16000";
-    private static final String SILK_8000 = "SILK/8000";
-    private static final String GSM = "GSM";
     private static final String DISPLAY = "display";
     private static final String ACCOUNT_NAME = "accountName";
     private static final String DOMAIN = "domain";
@@ -105,7 +100,7 @@ public class LoginServlet extends ProvisioningServlet {
     @SuppressWarnings("resource")
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws javax.servlet.ServletException,
-            java.io.IOException {
+        java.io.IOException {
         PrintWriter out = resp.getWriter();
         String reqType = EMPTY_STRING;
         try {
@@ -155,13 +150,13 @@ public class LoginServlet extends ProvisioningServlet {
             fin.close();
 
             updateContactList(user, phone, properties.getProperty(WWW_DIR_PROPERTY),
-                    properties.getProperty(PHONE_DIR_PROPERTY));
+                properties.getProperty(PHONE_DIR_PROPERTY));
 
             if (reqType == XML) {
                 String uploadDirectory = getProvisioningContext().getUploadDirectory();
                 translateINItoXML(new File(uploadDirectory, profileFilenames[0].getName()));
                 attachFile(new File(uploadDirectory, profileFilenames[0].getName().replaceAll(INI, BRIA_MOBILE)),
-                        out, user.getUserName(), parameters.get(PASSWORD));
+                    out, user.getUserName(), parameters.get(PASSWORD));
             } else {
                 uploadPhoneProfile(profileFilenames[0].getName(), out, user.getUserName(), parameters.get(PASSWORD));
             }
@@ -175,8 +170,8 @@ public class LoginServlet extends ProvisioningServlet {
         LOG.error("Login error: " + e.getMessage());
         if (reqType == XML) {
             out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cpc_mobile version=\"1.0\">\n<login_response>\n"
-                    + "<status success=\"false\" error_text=" + e.getMessage() + "/>\n"
-                    + "</login_response>\n</cpc_mobile>");
+                + "<status success=\"false\" error_text=\"" + e.getMessage() + "\"/>\n"
+                + "</login_response>\n</cpc_mobile>\n");
         } else {
             buildFailureResponse(out, e.getMessage());
         }
@@ -267,7 +262,7 @@ public class LoginServlet extends ProvisioningServlet {
         String domainName = getProvisioningContext().getDomainName();
         String phoneBookName = phone.getSerialNumber() + CONTACTS_LIST_FILE_SUBFIX;
         String contactListFilePath = wwwdir + WEBDAV_DIR + user.getUserName() + DOT + domainName + DOT
-                + phoneBookName;
+            + phoneBookName;
         String phoneBookFilePath = phonedir + TFTP_RELATIVE_PATH + phoneBookName;
 
         ContactSynchronizer synchronizer = ContactSynchronizer.getInstance(phoneBookFilePath, contactListFilePath);
@@ -298,8 +293,8 @@ public class LoginServlet extends ProvisioningServlet {
                     LOG.debug("Writing header.");
                     bw = new BufferedWriter(new FileWriter(outputfile));
                     bw.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cpc_mobile version=\"1.0\">\n"
-                            + "<login_response>\n\t<status success=\"true\"/>\n</login_response>\n"
-                            + "<branding>\n\t<settings_data>\n\t\t<core_data_list>\n");
+                        + "<login_response>\n\t<status success=\"true\"/>\n</login_response>\n"
+                        + "<branding>\n\t<settings_data>\n\t\t<core_data_list>\n");
                 } catch (IOException e) {
                     LOG.error("XMLTranlation: Failed to write xml header." + e.getMessage());
                 }
@@ -323,24 +318,24 @@ public class LoginServlet extends ProvisioningServlet {
                         if (line.contains(":")) {
                             String[] splitline = line.split(":|=", 4);
                             if (splitline[0].equals(CODECS) && splitline[2].equals(PRIORITY)
-                                    && validAudioCodecs.containsKey(splitline[1])) {
+                                && validAudioCodecs.containsKey(splitline[1])) {
                                 int priority = Integer.parseInt(splitline[3].substring(1, splitline[3].length() - 1)
-                                        .split(FULL_STOP, 2)[0]);
+                                    .split(FULL_STOP, 2)[0]);
                                 audiocodecsPriority.put(priority, validAudioCodecs.get(splitline[1]));
                                 audiocodecs.add(validAudioCodecs.get(splitline[1]));
                             }
                             if (splitline[0].equals(CODECS) && splitline[2].equals(ENABLED)
-                                    && validAudioCodecs.containsKey(splitline[1]) && splitline[3].equals("\"true\"")) {
+                                && validAudioCodecs.containsKey(splitline[1]) && splitline[3].equals("\"true\"")) {
                                 audiocodecs.add(validAudioCodecs.get(splitline[1]));
                             }
                             if (splitline[0].equals(CODECS) && splitline[2].equals(PRIORITY)
-                                    && validVideoCodecs.contains(splitline[1])) {
+                                && validVideoCodecs.contains(splitline[1])) {
                                 int priority = Integer.parseInt(splitline[3].substring(1, splitline[3].length() - 1)
-                                        .split(FULL_STOP, 2)[0]);
+                                    .split(FULL_STOP, 2)[0]);
                                 videocodecsPriority.put(priority, splitline[1]);
                             }
                             if (splitline[0].equals(CODECS) && splitline[2].equals(ENABLED)
-                                    && validVideoCodecs.contains(splitline[1]) && splitline[3].equals("\"true\"")) {
+                                && validVideoCodecs.contains(splitline[1]) && splitline[3].equals("\"true\"")) {
                                 videocodecs.add(splitline[1]);
                             }
                             if (splitline[0].equals("proxies")) {
@@ -418,8 +413,8 @@ public class LoginServlet extends ProvisioningServlet {
     }
 
     private static void writeCodecs(BufferedWriter bw, List<String> audiocodecs,
-            SortedMap<Integer, String> audiocodecsPriority, List<String> videocodecs,
-            SortedMap<Integer, String> videocodecsPriority) {
+        SortedMap<Integer, String> audiocodecsPriority, List<String> videocodecs,
+        SortedMap<Integer, String> videocodecsPriority) {
         // Write out codecs list
         try {
             LOG.debug("Writing codec list... ");
@@ -439,8 +434,8 @@ public class LoginServlet extends ProvisioningServlet {
     }
 
     private static void writeCodecsTag(BufferedWriter bw, List<String> codecs,
-            SortedMap<Integer, String> codecsPriority,
-            List<String> disabledCodecs, String type, String network) throws IOException {
+        SortedMap<Integer, String> codecsPriority, List<String> disabledCodecs, String type, String network)
+        throws IOException {
         bw.write(String.format("\t\t\t\t<codec_list_%s_%s>\n", type, network));
         for (Map.Entry<Integer, String> entry : codecsPriority.entrySet()) {
             LOG.warn("*** CP: " + entry.getValue());
@@ -473,9 +468,9 @@ public class LoginServlet extends ProvisioningServlet {
                     account.put(DISPLAY, account.get(PROTOCOL));
                 }
                 if (account.get(ACCOUNT_NAME) == null) {
-                    account.put(ACCOUNT_NAME,
-                            DOUBLE_QUOTE + account.get(DISPLAY).replace(DOUBLE_QUOTE, EMPTY_STRING) + " - "
-                                    + account.get(PROTOCOL).replace(DOUBLE_QUOTE, EMPTY_STRING) + DOUBLE_QUOTE);
+                    account.put(ACCOUNT_NAME, DOUBLE_QUOTE
+                        + account.get(DISPLAY).replace(DOUBLE_QUOTE, EMPTY_STRING) + " - "
+                        + account.get(PROTOCOL).replace(DOUBLE_QUOTE, EMPTY_STRING) + DOUBLE_QUOTE);
                 }
                 if (account.containsKey(PRESENCE)) {
                     if (account.get(PRESENCE).equals("\"0\"")) {
