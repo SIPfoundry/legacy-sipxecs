@@ -81,7 +81,9 @@ public class FirmwareUpdateListener implements DaoEventListener, BeanFactoryAwar
                             LOG.debug("Skipping " + serial + " as it doesn't support " + versionId);
                         }
                     }
-                    m_jdbcTemplate.batchUpdate(updates.toArray(new String[]{}));
+                    if (updates.size() > 0) {
+                        m_jdbcTemplate.batchUpdate(updates.toArray(new String[]{}));
+                    }
                 }
             }
         }
