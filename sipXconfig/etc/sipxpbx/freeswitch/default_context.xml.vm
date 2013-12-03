@@ -5,7 +5,6 @@
     <condition field="destination_number" expression="^${conference.name}${dollar}">
       <action application="set" data="supplied_pin=${dollar}{sip_h_X-ConfPin}"/>
       <action application="conference" data="${conference.dialString}"/>
-      <action application="set" data="ignore_display_updates=true"/>
     </condition>
   </extension>
 #end
@@ -16,7 +15,6 @@
 #foreach($other in $locations)
       <action application="redirect" data="sip:IVR@${other.address}:15060;${sip_req_params}"/>
 #end
-      <action application="set" data="ignore_display_updates=true"/>
     </condition>
   </extension>
 #if ($acccode)
