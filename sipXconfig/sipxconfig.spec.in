@@ -109,6 +109,10 @@ Obsoletes: sipxtunnel
 Obsoletes: sipxsnmp
 Obsoletes: sipxhttpd
 
+# sipxsbc not yet supported
+Obsoletes: sipxsbc-config
+Obsoletes: sipxsbc
+
 %if %{_vendor} == suse
 Requires: apache2-prefork
 Requires: pwdutils
