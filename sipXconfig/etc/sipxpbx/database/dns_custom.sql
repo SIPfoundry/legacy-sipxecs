@@ -11,4 +11,8 @@ create table dns_custom_view_link (
   primary key (dns_custom_id, dns_view_id)	
 );
 
+alter table dns_view add 
+  excluded varchar(32)
+;
+
 create sequence dns_custom_seq;

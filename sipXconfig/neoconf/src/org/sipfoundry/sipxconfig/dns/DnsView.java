@@ -30,8 +30,12 @@ public class DnsView extends BeanWithId implements NamedObject, DeployConfigOnEd
     private Integer m_regionId;
     private String m_name;
     private Integer m_planId;
+    private ExcludedRecords[] m_excluded;
     private boolean m_enabled = true;
     private List<Integer> m_customRecordsIds;
+    public enum ExcludedRecords {
+        NS, NAPTR, A
+    }
 
     public DnsView() {
     }
@@ -99,5 +103,13 @@ public class DnsView extends BeanWithId implements NamedObject, DeployConfigOnEd
 
     public void setCustomRecordsIds(List<Integer> customRecordIds) {
         m_customRecordsIds = customRecordIds;
+    }
+
+    public ExcludedRecords[] getExcluded() {
+        return m_excluded;
+    }
+
+    public void setExcluded(ExcludedRecords[] excluded) {
+        m_excluded = excluded;
     }
 }

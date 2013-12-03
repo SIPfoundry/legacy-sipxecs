@@ -16,6 +16,7 @@
     <div class="help">
         <span key="help.editview">Views help</span>
     </div>
+    <h2><span key="title">DNS View</span></h2>
     <p id="message"></p>
     <fieldset id="edit-plan">
       <table>
@@ -46,6 +47,22 @@
               <option value=""> - select - </option>
             </select>
           </td>
+        </tr>
+        <tr>
+          <td>
+            <label class="settingLabel" for="excluded">
+              <span key="label.excluded">Exclude records </span>:
+            </label>
+          </td>
+          <td>
+            <input type="checkbox" name="excluded" value="NS"/>NS
+            <input type="checkbox" name="excluded" value="A"/>A
+            <input type="checkbox" name="excluded" value="NAPTR"/>NAPTR
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="settingDescription"><span key="includedRecordsDescription">If you do not include A records...</span></td>
         </tr>
         <tr id="customRecordsIdsRow">
           <td>

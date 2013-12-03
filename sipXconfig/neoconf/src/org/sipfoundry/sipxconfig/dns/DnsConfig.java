@@ -35,6 +35,7 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.Address;
@@ -79,10 +80,10 @@ public class DnsConfig implements ConfigProvider {
         List<Location> all = manager.getLocationManager().getLocationsList();
         Set<Location> locations = request.locations(manager);
         List<Address> dns = am.getAddresses(DnsManager.DNS_ADDRESS, null);
-        Collection<DnsView> views = m_dnsManager.getViews();
-        if (views == null || views.isEmpty()) {
-            views = Collections.singleton(new DnsView("default"));
-        }
+        List<DnsView> views = new ArrayList<DnsView>(m_dnsManager.getViews());
+        DnsView fallbackView = new DnsView("default");
+        fallbackView.setPlanId(DnsFailoverPlan.FALLBACK);
+        views.add(fallbackView);
 
         long serNo = getSerNo();
         Collection<Region> regions = m_regionManager.getRegions();
@@ -127,7 +128,7 @@ public class DnsConfig implements ConfigProvider {
             String file = format(VIEW_NAME + ".yaml", view.getConfigFriendlyName());
             Writer zone = new FileWriter(new File(gdir, file));
             try {
-                writeZoneConfig(zone, domain, all, dns, records, serNo);
+                writeZoneConfig(zone, domain, all, dns, records, serNo, view.getExcluded());
             } finally {
                 IOUtils.closeQuietly(zone);
             }
@@ -248,14 +249,16 @@ public class DnsConfig implements ConfigProvider {
     }
 
     void writeZoneConfig(Writer w, Domain domain, List<Location> all, List<Address> dns,
-            Collection<DnsSrvRecord> rrs, long serNo) throws IOException {
+            Collection<DnsSrvRecord> rrs, long serNo, DnsView.ExcludedRecords[] excludes) throws IOException {
         String networkDomain = domain.getNetworkName();
         String domainName = domain.getName();
         boolean generateARecords = domainName.equals(networkDomain) || domainName.equals(all.get(0).getFqdn());
 
         YamlConfiguration c = new YamlConfiguration(w);
         c.write("serialno", serNo);
-        c.write("naptr_protocols", "[ udp, tcp ]");
+        if (!ArrayUtils.contains(excludes, DnsView.ExcludedRecords.NAPTR)) {
+            c.write("naptr_protocols", "[ udp, tcp ]");
+        }
         c.write(YML_DOMAIN, domain.getNetworkName());
         c.startArray("resource_records");
         String qualifiedTarget = null;
@@ -270,9 +273,11 @@ public class DnsConfig implements ConfigProvider {
             }
         }
         c.endArray();
-        writeServerYaml(c, all, "dns_servers", dns, qualifiedTarget);
+        if (!ArrayUtils.contains(excludes, DnsView.ExcludedRecords.NS)) {
+            writeServerYaml(c, all, "dns_servers", dns, qualifiedTarget);
+        }
         List<Address> dnsAddresses = new ArrayList<Address>();
-        if (generateARecords) {
+        if (generateARecords && !ArrayUtils.contains(excludes, DnsView.ExcludedRecords.A)) {
             dnsAddresses = Location.toAddresses(DnsManager.DNS_ADDRESS, all);
         }
         writeServerYaml(c, all, "all_servers", dnsAddresses, qualifiedTarget);
