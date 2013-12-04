@@ -168,6 +168,7 @@ class DnsPlanEditor {
         <span>${label}<span>
         <input type="hidden" id="group-${++uid}"/>
       </td>
+      <td></td>
       <td>
         <button class="subtle" id="${removeId}">-</button>
         <button class="subtle" id="${addId}">+</button>
@@ -178,7 +179,7 @@ class DnsPlanEditor {
 ''').querySelector("tr");
     
     ButtonElement remove = eGroup.querySelector("#${removeId}");
-    //remove.disabled = isFirst;
+    remove.disabled = isFirst;
     remove.onClick.listen((_) {
       removeGroup(eGroup);
     });
@@ -246,6 +247,7 @@ class DnsPlanEditor {
          <button class="subtle" id="${removeId}">-</button>
          <button class="subtle" id="${addId}">+</button>
       </td>
+      <td></td>
     </tr>
   </tbody>
 </table>
@@ -254,7 +256,7 @@ class DnsPlanEditor {
     addTargetOptions(services, targetOptions, target['targetId'].toString(), 'BASIC');
     InputElement percentage = eItem.querySelector("#${percentageId}");
     ButtonElement remove = eItem.querySelector("#${removeId}");
-    //remove.disabled = isFirst;
+    remove.disabled = isFirst;
     remove.onClick.listen((_) {
       juggler.remove(percentage);
       eItem.remove();

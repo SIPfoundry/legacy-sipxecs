@@ -93,9 +93,9 @@ class DnsViewEditor {
           dnsViewId = int.parse(req.responseText);
         }
         if (onOk != null) {
-          msg.success("Save successful");
           onOk();
         }
+        msg.success(getString("msg.actionSuccess"));
       }
     });      
   }  
@@ -180,16 +180,18 @@ class DnsViewEditor {
     int regionId;
     int planId;
     List<int> customRecordsIds;
+    List<String> excluded;
     if (view != null) {
       (querySelector("#name") as InputElement).value = view['name'];
       regionId = view['regionId'];
       planId = view['planId'];
       customRecordsIds = view['customRecordsIds'];
+      excluded = view['excluded'];
     }
     loadRegionCandidates(data['regionCandidates'], regionId);
     loadPlanOptions(data['planCandidates'], planId);
     loadCustomRecords(data['customRecordsCandidates'], customRecordsIds);
-    loadExcluded(data['excluded']);
+    loadExcluded(excluded);
     loadPreview();
   }  
 }

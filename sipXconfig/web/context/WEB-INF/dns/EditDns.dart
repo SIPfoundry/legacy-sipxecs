@@ -148,7 +148,7 @@ class Views {
     <tr>
       <td><input type="checkbox" name="selected-views" value="${view['id'].toString()}"/></td>
       <td><a href="EditDnsView.html?dnsViewId=${view['id'].toString()}">${view['name']}</a></td>
-      <td>${view['plan']}</td>
+      <td>${view['plan'] != null ? view['plan'] : ''}</td>
       <td>${view['region']}</td>
     </tr>
   </tbody>

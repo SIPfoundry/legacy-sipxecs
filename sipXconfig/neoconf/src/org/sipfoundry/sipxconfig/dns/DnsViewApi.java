@@ -158,8 +158,17 @@ public class DnsViewApi extends Resource {
         Iterator<JsonNode> elements = objs.getElements();
         while (elements.hasNext()) {
             ObjectNode view = (ObjectNode) elements.next();
-            view.put("region", regions.get(view.get("regionId").asInt()).getName());
-            view.put("plan", plans.get(view.get("planId").asInt()).getName());
+            JsonNode regionId = view.get("regionId");
+            if (regionId != null) {
+                view.put("region", regions.get(regionId.asInt()).getName());
+            }
+            JsonNode planIdNode = view.get("planId");
+            if (planIdNode != null) {
+                int planId = planIdNode.asInt();
+                if (planId > 0) {
+                    view.put("plan", plans.get(planId).getName());
+                }
+            }
         }
         getJsonMapper().writeValue(json, objs);
     }

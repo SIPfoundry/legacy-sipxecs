@@ -2,12 +2,12 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Mongoui</title>
 <link rel="stylesheet"
   href="../../../src/org/sipfoundry/sipxconfig/site/skin/layout.css">
 <link rel="stylesheet"
   href="../../../src/org/sipfoundry/sipxconfig/site/skin/colors.css">
 <style>
+/* only for development - stripped in product*/
 body {
   margin-top: 100px;
   margin-left: 250px;
@@ -17,7 +17,14 @@ body {
 <body jwcid="$content$">
   <div jwcid="@common/Border" restricted="false"
     borderTitle="ognl:borderTitle">
-    <h2><span key="title">DNS Fail-over Plan</span></h2>
+    <div id="breadcrumbs">
+      <a href="EditDns.html" class=""><span key="title.dns">DNS</span></a>
+      <img src="/sipxconfig/images/breadcrumb_separator.png" align="absmiddle">
+      <span key="title">DNS Fail-over Plan</span>
+    </div>
+    <div class="help">
+        <span jwcid="@Insert" raw="true" value="message:help">Custom DNS help</span>
+    </div>
     <p id="message"></p>
     <fieldset id="edit-plan">
       <table>
