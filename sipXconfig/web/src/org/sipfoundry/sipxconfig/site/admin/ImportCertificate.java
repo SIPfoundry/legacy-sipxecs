@@ -46,10 +46,10 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.common.IntegerPropertySelectionModel;
 
 public abstract class ImportCertificate extends BaseComponent implements PageBeginRenderListener {
-    private static final Log LOG = LogFactory.getLog(ImportCertificate.class);
-
     public static final Integer UPLOAD = new Integer(1);
     public static final Integer TEXT = new Integer(2);
+    private static final Log LOG = LogFactory.getLog(ImportCertificate.class);
+
     private static final String WEB = "web";
 
     public abstract IUploadFile getUploadCrtFile();
