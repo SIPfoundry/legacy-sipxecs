@@ -102,7 +102,7 @@ class MongoOpLogTest: public CppUnit::TestCase
   int _deleteNr;
   const std::string _databaseName;
 public:
-  MongoOpLogTest() : _info(MongoDB::ConnectionInfo(mongo::ConnectionString(mongo::HostAndPort(gLocalHostAddr)), gLocalOplogRs)),
+  MongoOpLogTest() : _info(MongoDB::ConnectionInfo(mongo::ConnectionString(mongo::HostAndPort(gLocalHostAddr)))),
                     _updateNr(0),
                     _insertNr(0),
                     _allNr(0),
@@ -113,7 +113,7 @@ public:
 
   void setUp()
   {
-    MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     pConn->get()->dropCollection(_databaseName);
     pConn->done();
   }
@@ -135,7 +135,7 @@ public:
     mongo::BSONObj update;
     update = BSON(gMongoSetOperator << bsonObjBuilder.obj());
 
-    MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     mongo::DBClientBase* client = pConn->get();
 
     client->update(_databaseName, query, update, true, false);
@@ -146,7 +146,7 @@ public:
 
   void deleteDbData()
   {
-    MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
 
     mongo::BSONObj queryBSONObj;
     pConn->get()->remove(_databaseName, queryBSONObj);
