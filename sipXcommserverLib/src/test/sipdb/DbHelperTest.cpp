@@ -133,11 +133,11 @@ public:
 
   void setUp()
   {
-    MongoDB::ScopedDbConnectionPtr pConnRegBinding(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    MongoDB::ScopedDbConnectionPtr pConnRegBinding(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     pConnRegBinding->get()->remove(_dbHelperTest_RegBinding, mongo::Query());
     pConnRegBinding->done();
 
-    MongoDB::ScopedDbConnectionPtr pConnEntityRecord(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    MongoDB::ScopedDbConnectionPtr pConnEntityRecord(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     pConnEntityRecord->get()->remove(_dbHelperTest_EntityRecord, mongo::Query());
     pConnEntityRecord->done();
   }
@@ -174,7 +174,7 @@ public:
     mongo::BSONObj update;
     update = BSON(gMongoSetOperator << bsonObjBuilder.obj());
 
-    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     mongo::DBClientBase* client = conn->get();
 
     //client->insert(_info.getNS(), update);

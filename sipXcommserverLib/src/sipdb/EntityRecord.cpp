@@ -66,6 +66,7 @@ EntityRecord::EntityRecord(const EntityRecord& entity)
     _password = entity._password;
     _pin = entity._pin;
     _authType = entity._authType;
+    _location = entity._location;
     _permissions = entity._permissions;
     _callerId = entity._callerId;
     _aliases = entity._aliases;
@@ -94,6 +95,7 @@ void EntityRecord::swap(EntityRecord& entity)
     std::swap(_password, entity._password);
     std::swap(_pin, entity._pin);
     std::swap(_authType, entity._authType);
+    std::swap(_location, entity._location);
     std::swap(_permissions, entity._permissions);
     std::swap(_callerId, entity._callerId);
     std::swap(_aliases, entity._aliases);

@@ -90,6 +90,12 @@ public:
     }
   }
 
+  static void terminateMongoConnection()
+  {
+    SipXApplication& sipXApplication = SipXApplication::instance();
+
+    sipXApplication.terminate();
+  }
 
   void testMongoConnection()
   {
@@ -98,7 +104,7 @@ public:
     // TEST: Check that connection to mongo is successful
     CPPUNIT_ASSERT(sipXApplication.testMongoDBConnection());
 
-    sipXApplication.terminate();
+    atexit(&SipXApplicationTest::terminateMongoConnection);
   }
 
   // WARNING: MUST BE RUN AS ROOT
@@ -162,7 +168,7 @@ public:
     stream.str("");// clear the stream
     sipXApplication.displayVersion(stream);
 
-    std::string version = (boost::format("\n%s version %s%s\n\n") % appData._appName % PACKAGE_VERSION % PACKAGE_REVISION).str();
+    std::string version = (boost::format("Version: %s%s\n") % PACKAGE_VERSION % PACKAGE_REVISION).str();
 
     // TEST: Check that the version string is correct
     CPPUNIT_ASSERT(stream.str() == version);
