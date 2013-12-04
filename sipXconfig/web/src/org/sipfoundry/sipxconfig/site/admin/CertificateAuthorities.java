@@ -132,7 +132,7 @@ public abstract class CertificateAuthorities extends BaseComponent implements Pa
             webSize = String.valueOf(CertificateUtils.getEncryptionStrength(webKey));
         } catch (Exception e) {
             LOG.error("Could not retrieve encryption strength for web key: " + e.getMessage());
-            webSize = "undetermined";
+            webSize = "undetermined ";
         }
         try {
             sipSize = String.valueOf(CertificateUtils.getEncryptionStrength(sipKey));
