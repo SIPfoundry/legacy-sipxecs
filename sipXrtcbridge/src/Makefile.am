@@ -8,7 +8,8 @@ RTCBRIDGE_COMMON_CXX_FLAGS = \
 	-I$(top_srcdir)/include \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_DBDIR=\"@SIPX_DBDIR@\" \
-	-DSIPX_RUNDIR=\"@SIPX_RUNDIR@\"
+	-DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 BUILT_SOURCES = freeswitch.xml.inl
 
@@ -50,7 +51,9 @@ sipXrtcbridge_SOURCES =  \
 	WSRouter.cpp \
 	freeswitch_xml.cpp \
 	AuthInformationGrabber.h \
-	AuthInformationGrabber.cpp
+	AuthInformationGrabber.cpp \
+	DomainConfig.h \
+	DomainConfig.cpp
 	
 sipXrtcrpc_CXXFLAGS = \
 	$(RTCBRIDGE_COMMON_CXX_FLAGS)
@@ -63,9 +66,7 @@ sipXrtcrpc_LDADD = \
 	@SIPXCOMMSERVER_LIBS@ \
 	@RESIP_LIBS@ \
 	@JSONRPC_LIBS@ \
-	-lzmq \
-	-lmongoclient \
-	-lboost_system-mt
+	-lmongoclient
 
 sipXrtcrpc_SOURCES =  \
 	rpc/RpcServer.cpp

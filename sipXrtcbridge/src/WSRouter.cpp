@@ -21,9 +21,11 @@
 #include <resip/stack/ExtensionParameter.hxx>
 #include <resip/stack/ExtensionHeader.hxx>
 #include <resip/stack/Helper.hxx>
+#include <resip/stack/ParameterTypes.hxx>
 
 #include "WSRouter.h"
 #include "AuthInformationGrabber.h"
+#include "DomainConfig.h"
 #include "sipx/proxy/AuthIdentityEncoder.h"
 
 using namespace sipx;
@@ -148,11 +150,11 @@ WSRouter::WSRouter(int argc, char** argv, const std::string& daemonName, const s
 {
   addDaemonOptions();
   addOptionString("ip-address", ": IP Address the wsrouter would bind to.", CommandLineOption, true);
-  addOptionStringVector("domain", ": Local domains we are responsible for.  Can be set multiple times", CommandLineOption, true);
+  addOptionStringVector("domain", ": Local domains we are responsible for.  Can be set multiple times", CommandLineOption, false);
   addOptionInt("ws-port", ": WebSocket Port the wsrouter would bind to.", CommandLineOption, true);
   addOptionInt("tcp-udp-port", ": UDP/TCP Port the wsrouter would bind to.", CommandLineOption, true);
   addOptionInt("bridge-tcp-udp-port", ": UDP/TCP Port the rtc bridge would bind to.", CommandLineOption, false);
-  addOptionString("proxy-address", ": The address of the Proxy.", CommandLineOption, true);
+  addOptionString("proxy-address", ": The address of the Proxy.", CommandLineOption, false);
   addOptionString("rpc-url", ": The JSON-RPC URL for remote procedure calls.", CommandLineOption, true);
   addOptionInt("proxy-port", ": The port of the Proxy.", CommandLineOption, false);
   addOptionFlag("enable-library-logging", ": Log library level messages.", CommandLineOption);
@@ -165,6 +167,7 @@ WSRouter::~WSRouter()
 {
   delete _pRepro;
   delete _pRpc;
+  DomainConfig::delete_instance();
 }
 
 bool WSRouter::initialize()
@@ -174,14 +177,42 @@ bool WSRouter::initialize()
   assert(getOption("ip-address", _address));
   assert(getOption("ws-port", _wsPort));
   assert(getOption("tcp-udp-port", _tcpUdpPort));
-  assert(getOption("proxy-address", _proxyAddress));
-  getOption("proxy-port", _proxyPort, 0);
-  getOption("db-path", _dbPath, SIPX_DBDIR);
   
+  getOption("db-path", _dbPath, SIPX_DBDIR);
   if (!verify_directory(_dbPath))
     return false;
   
-  assert(getOption("domain", _domains));
+  getOption("proxy-address", _proxyAddress);
+  getOption("proxy-port", _proxyPort, 0);
+  getOption("domain", _domains);
+  
+  if (_domains.empty())
+  {
+    std::vector<std::string> aliases = DomainConfig::instance()->getAliases();
+    std::string domain = DomainConfig::instance()->getDomainName();
+    
+    if (!domain.empty())
+      _domains.push_back(domain);
+    
+    for (std::vector<std::string>::const_iterator iter = aliases.begin(); iter != aliases.end(); iter++)
+      _domains.push_back(*iter);
+    
+  }
+  
+  if (_domains.empty())
+  {
+    std::cerr << "Unable to determine domain configuration." << std::endl;
+    exit(-1);
+  }
+  
+  if (_proxyAddress.empty())
+    _proxyAddress = DomainConfig::instance()->getDomainName();
+  
+  if (_proxyAddress.empty())
+  {
+    std::cerr << "Unable to determine proxy address configuration." << std::endl;
+    exit(-1);
+  }
   
   if (hasOption("enable-library-logging", true))
   {
@@ -889,9 +920,9 @@ void WSRouter::handleBridgeEvent(const sipx::bridge::EslConnection::Ptr& pConnec
     arg << "{sip_invite_domain=anonymous.invalid}";
   }
   
-  arg << "{hangup_after_bridge=true}";
   arg << "{sip_invite_to_uri=" << variable_sip_full_to << "}";
   arg << "sofia/" << SWITCH_APPLICATION_NAME << "/" << requestUri;
 
+  pConnection->set("hangup_after_bridge=true");
   pConnection->execute("bridge", arg.str().c_str(), 0);
 }

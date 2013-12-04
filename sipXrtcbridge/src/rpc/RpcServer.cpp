@@ -33,7 +33,7 @@ RpcServer::RpcServer(OsServiceOptions& options, int port) :
   bindAndAddMethod(new Procedure("isRtcTarget", PARAMS_BY_NAME, 
     JSON_STRING, "identity", 
     JSON_STRING, 0), 
-    &RpcServer::getSipPassword);
+    &RpcServer::isRtcTarget);
 }  
 
 RpcServer::~RpcServer()
@@ -148,6 +148,11 @@ int main(int argc, char** argv)
   {
     options.waitForTerminationRequest();
     server.StopListening();
+  }
+  else
+  {
+      std::cerr << "RPC Server is unable to bind to port " << port << std::endl;
+      return -1;
   }
   
   return 0;
