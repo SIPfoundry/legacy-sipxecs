@@ -32,7 +32,7 @@ public class IMBot {
 
     // in milliseconds
     private static final long RETRY_INTERVAL = 30 * 1000;
-    private static final long MAX_RETRIES = 10;
+    private static final long MAX_RETRIES = 30;
 
     private static Roster m_roster;
 
