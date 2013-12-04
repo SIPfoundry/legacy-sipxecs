@@ -1,5 +1,5 @@
 define(`sipx_packages',
-@sipxecs
+sipxecs
 )
 
 define(`repo_filename',`sipxecs.repo')

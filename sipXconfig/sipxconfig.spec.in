@@ -109,9 +109,9 @@ Obsoletes: sipxtunnel
 Obsoletes: sipxsnmp
 Obsoletes: sipxhttpd
 
-# sipxsbc not yet supported
-Obsoletes: sipxsbc-config
+# UC-1846 - sipXsbc is not supported, might be enabled later
 Obsoletes: sipxsbc
+Obsoletes: sipxsbc-config
 
 %if %{_vendor} == suse
 Requires: apache2-prefork

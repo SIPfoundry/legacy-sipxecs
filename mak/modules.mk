@@ -32,7 +32,8 @@ sipx_core = \
   sipXpolycom \
   sipXrls \
   sipXsaa \
-  sipXrelease
+  sipXrelease \
+  sipXecs
 
 # sipxecs projects that are NOT essential for a running communication system
 sipx_extra = \
