@@ -65,7 +65,7 @@ import com.mongodb.DBObject;
 public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFactoryAware, Registrar,
         DnsProvider, ProcessProvider, FirewallProvider, SetupListener {
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
-        TCP_ADDRESS, UDP_ADDRESS, EVENT_ADDRESS
+        TCP_ADDRESS, UDP_ADDRESS, PRESENCE_MONITOR_ADDRESS, EVENT_ADDRESS
     });
     private static final String PROCESS = "sipxregistrar";
     private BeanWithSettingsDao<RegistrarSettings> m_settingsDao;
@@ -128,6 +128,8 @@ public class RegistrarImpl implements FeatureProvider, AddressProvider, BeanFact
                 address = new Address(EVENT_ADDRESS, location.getAddress(), settings.getMonitorPort());
             } else if (type.equals(XMLRPC_ADDRESS)) {
                 address = new Address(XMLRPC_ADDRESS, location.getAddress(), settings.getXmlRpcPort());
+            } else if (type.equals(PRESENCE_MONITOR_ADDRESS)) {
+                address = new Address(PRESENCE_MONITOR_ADDRESS, location.getAddress(), settings.getPresencePort());
             }
             addresses.add(address);
         }
