@@ -16,7 +16,7 @@
  */
 int main( int argc, char* argv[] )
 {
-    TestRunner runner;
+    TestRunner runner(argv);
     CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry();
     runner.addTest(registry.makeTest());
     bool wasSucessful = runner.run();
