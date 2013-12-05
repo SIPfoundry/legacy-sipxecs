@@ -57,10 +57,11 @@ public class RegistrarConfigurationTest {
         Domain domain = new Domain("example.org");
         domain.setSipRealm("grapefruit");
         Address imApi = new Address(ImManager.XMLRPC_ADDRESS, "im.example.org", 100);
+        Address presenceApi = new Address(Registrar.PRESENCE_MONITOR_ADDRESS, "presence.example.org", 101);
         Address park = new Address(ParkOrbitContext.SIP_TCP_PORT, "park.example.org", 102);
         Address proxy = new Address(ProxyManager.TCP_ADDRESS, "proxy.example.org", 103);
         Location location = TestHelper.createDefaultLocation();
-        config.write(actual, settings, domain, location, proxy, imApi, park, new FeatureManagerImpl());
+        config.write(actual, settings, domain, location, proxy, imApi, presenceApi, park, new FeatureManagerImpl());
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-registrar-config"));
         assertEquals(expected, actual.toString());
     }
@@ -86,10 +87,11 @@ public class RegistrarConfigurationTest {
         Domain domain = new Domain("example.org");
         domain.setSipRealm("grapefruit");
         Address imApi = new Address(ImManager.XMLRPC_ADDRESS, "im.example.org", 100);
+        Address presenceApi = new Address(Registrar.PRESENCE_MONITOR_ADDRESS, "presence.example.org", 101);
         Address park = new Address(ParkOrbitContext.SIP_TCP_PORT, "park.example.org", 102);
         Address proxy = new Address(ProxyManager.TCP_ADDRESS, "proxy.example.org", 103);
         Location location = TestHelper.createDefaultLocation();
-        config.write(actual, settings, domain, location, proxy, imApi, park, new FeatureManagerImpl());
+        config.write(actual, settings, domain, location, proxy, imApi, presenceApi, park, new FeatureManagerImpl());
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-registrar-config-with-plugins"));
         assertEquals(expected, actual.toString());
     }
@@ -127,10 +129,11 @@ public class RegistrarConfigurationTest {
         Domain domain = new Domain("example.org");
         domain.setSipRealm("grapefruit");
         Address imApi = new Address(ImManager.XMLRPC_ADDRESS, "im.example.org", 100);
+        Address presenceApi = new Address(Registrar.PRESENCE_MONITOR_ADDRESS, "presence.example.org", 101);
         Address park = new Address(ParkOrbitContext.SIP_TCP_PORT, "park.example.org", 102);
         Address proxy = new Address(ProxyManager.TCP_ADDRESS, "proxy.example.org", 103);
         Location location = TestHelper.createDefaultLocation();
-        config.write(actual, settings, domain, location, proxy, imApi, park, fm);
+        config.write(actual, settings, domain, location, proxy, imApi, presenceApi, park, fm);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-registrar-config"));
         assertEquals(expected, actual.toString());
     }
@@ -165,10 +168,11 @@ public class RegistrarConfigurationTest {
         Domain domain = new Domain("example.org");
         domain.setSipRealm("grapefruit");
         Address imApi = new Address(ImManager.XMLRPC_ADDRESS, "im.example.org", 100);
+        Address presenceApi = new Address(Registrar.PRESENCE_MONITOR_ADDRESS, "presence.example.org", 101);
         Address park = new Address(ParkOrbitContext.SIP_TCP_PORT, "park.example.org", 102);
         Address proxy = new Address(ProxyManager.TCP_ADDRESS, "proxy.example.org", 103);
         Location location = TestHelper.createDefaultLocation();
-        config.write(actual, settings, domain, location, proxy, imApi, park, fm);
+        config.write(actual, settings, domain, location, proxy, imApi, presenceApi, park, fm);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-registrar-config-with-plugins"));
         assertEquals(expected, actual.toString());
     }

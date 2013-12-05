@@ -26,7 +26,6 @@ test_DEPS = \
 	$(srcdir) \
 	$(top_srcdir)/etc/sipxpbx \
 	$(call JavaDep, @SIPX_JAVADIR@/sipXcommons $(top_srcdir)/lib, $(test_PKGS)) \
-	@SIPX_JAVADIR@/sipXconfig/agent-bindings.jar \
 	@SIPX_JAVADIR@/sipXconfig/cdr-bindings.jar
 
 test_SRC = $(shell cd $(srcdir); find org \( \

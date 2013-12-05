@@ -14,7 +14,6 @@ sipxconfig_test_integration_core_PKGS = \
 
 sipxconfig_test_integration_PKGS = \
 	$(sipxconfig_test_integration_core_PKGS) \
-	agent-bindings \
 	cdr-bindings \
 	sipxconfig-neoconf \
 	sipxconfig-web

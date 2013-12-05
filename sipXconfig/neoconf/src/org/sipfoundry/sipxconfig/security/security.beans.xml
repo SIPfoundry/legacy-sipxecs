@@ -79,12 +79,10 @@
 
   <bean id="standardUserDetailsService" class="org.sipfoundry.sipxconfig.security.StandardUserDetailsService">
     <property name="coreContext" ref="coreContext" />
-    <property name="acdContext" ref="acdContext" />
   </bean>
 
   <bean id="sharedSecretUserDetailsService" class="org.sipfoundry.sipxconfig.security.SharedSecretUserDetailsService">
     <property name="coreContext" ref="coreContext" />
-    <property name="acdContext" ref="acdContext" />
     <property name="domainManager" ref="domainManager" />
   </bean>
 
