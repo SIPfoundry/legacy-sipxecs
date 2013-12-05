@@ -79,6 +79,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     private String m_uploadDir;
     private Set<String> m_registeredIps = new HashSet<String>();
     private boolean m_postSetup;
+    private boolean m_unregisteredConfigurable;
     private final Object m_lock = new Object();
     // No strict host key checking is only for initial handshake. Once that passes, ssh will
     // check host name with key.
@@ -518,5 +519,18 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
             Location deletedLocation = (Location) entity;
             m_registeredIps.remove(deletedLocation.getAddress());
         }
+    }
+
+    public void setUnregisteredConfigurable(boolean unregisteredConfigurable) {
+        m_unregisteredConfigurable = unregisteredConfigurable;
+    }
+
+    @Override
+    public Collection<Location> getConfigurableLocations() {
+        if (m_unregisteredConfigurable) {
+            return m_locationManager.getLocationsList();
+        }
+        // TODO Auto-generated method stub
+        return getRegisteredLocations();
     }
 }

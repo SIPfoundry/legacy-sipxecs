@@ -1,0 +1,25 @@
+{
+  "regionCandidates" : {
+    "7" : "Bucharest",
+    "6" : "US",
+    "9" : "EU"
+  },
+  "planCandidates" : {
+    "1" : "Austin preferred",
+    "2" : "US preferred",
+    "3" : "Maintenance"
+  },
+  "customRecordsCandidates" : {
+    "1" : "Email records",
+    "2" : "Company servers",
+    "3" : "SBCs"
+  },
+  "view" : {
+    "id" : "1",
+    "name" : "Boston",
+    "planId" : 3,
+    "regionId": 6,
+    "customRecordsIds" : [ 1, 2 ] 
+  }
+}
+    

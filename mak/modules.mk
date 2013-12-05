@@ -100,6 +100,7 @@ lib_all = \
   epel \
   resiprocate \
   rubygem-file-tail \
+  erlang \
   freeswitch \
   hiredis \
   net-snmp \
@@ -119,7 +120,6 @@ lib_all = \
   rubygem-net-ssh \
   rubygem-net-sftp \
   ruby-postgres \
-  erlang \
   jasperserver
 
 lib_exclude_fedora_16 = \

@@ -1,0 +1,13 @@
+[ {
+  "id" : 1,
+  "name" : "custom1",
+  "records" : "custom1 IN A 10.99.0.1"
+}, {
+  "id" : 2,
+  "name" : "custom2",
+  "records" : "custom2 IN A 10.99.0.2"
+}, {
+  "id" : 3,
+  "name" : "custom3",
+  "records" : "custom2 IN A 10.99.0.3"
+} ]

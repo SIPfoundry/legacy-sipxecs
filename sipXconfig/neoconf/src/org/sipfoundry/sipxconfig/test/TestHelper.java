@@ -47,6 +47,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.app.VelocityEngine;
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 import org.dbunit.database.DatabaseConfig;
@@ -659,6 +660,25 @@ public final class TestHelper {
             ObjectWriter writer = mapper.writer();
             String actualJson = writer.withDefaultPrettyPrinter().writeValueAsString(actual);
             org.junit.Assert.assertEquals(expectedJson, actualJson);
+        } catch (IOException e1) {
+            throw new RuntimeException(e1);
+        }
+    }
+
+    /**
+     * Better than assertEqualJson because doesn't include confusing references
+     * to mongo objects in strings.  Will replace assertEqualJson with this one
+     * if i have time --Douglas
+     */
+    public static void assertEqualJson2(String expectedJson, String actualJson) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode expectedNode = mapper.reader().readTree(expectedJson);
+            JsonNode actualNode = mapper.reader().readTree(actualJson);
+            ObjectWriter writer = mapper.writer();
+            String expected = writer.withDefaultPrettyPrinter().writeValueAsString(expectedNode);
+            String actual = writer.withDefaultPrettyPrinter().writeValueAsString(actualNode);
+            org.junit.Assert.assertEquals(expected, actual);
         } catch (IOException e1) {
             throw new RuntimeException(e1);
         }

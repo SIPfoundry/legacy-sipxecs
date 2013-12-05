@@ -1,0 +1,17 @@
+[
+  {
+    "id" : 1,
+    "name" : "Austin preferred",
+    "views" : ["US SBCs"]
+  },
+  {
+    "id" : 2,
+    "name" : "US preferred",
+    "views" : ["External Users", "Seattle"]
+  },
+  {
+    "id" : 3,
+    "name" : "Maintenance",
+    "views" : ["Boston"]
+  }
+]

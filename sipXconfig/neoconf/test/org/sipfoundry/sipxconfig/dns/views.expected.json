@@ -1,0 +1,19 @@
+[ {
+  "customRecordsIds" : null,
+  "enabled" : true,
+  "id" : -1,
+  "name" : "x",
+  "planId" : 10,
+  "regionId" : 1,
+  "region" : "US",
+  "plan" : "p1"
+}, {
+  "customRecordsIds" : null,
+  "enabled" : true,
+  "id" : -1,
+  "name" : "y",
+  "planId" : 20,
+  "regionId" : 2,
+  "region" : "EU",
+  "plan" : "p2"
+} ]

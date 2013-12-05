@@ -156,7 +156,7 @@ public abstract class BundlePanel extends BaseComponent implements PageBeginRend
 
         List<Location> locations = getLocations();
         if (locations == null) {
-            locations = new ArrayList<Location>(getConfigManager().getRegisteredLocations());
+            locations = new ArrayList<Location>(getConfigManager().getConfigurableLocations());
             setLocations(locations);
         }
 
