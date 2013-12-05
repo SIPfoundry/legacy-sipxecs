@@ -9,11 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 import java.util.Collection;
-import java.util.Collections;
 
 import junit.framework.TestCase;
-import org.sipfoundry.sipxconfig.acd.AcdContext;
+
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -22,21 +26,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import static org.apache.commons.lang.ArrayUtils.contains;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-
 public class SharedSecretUserDetailsServiceTest extends TestCase {
     private static final String USER_NAME = "Hjelje";
-    private AcdContext m_acdContext;
     private CoreContext m_coreContext;
     private DomainManager m_domainManager;
 
     public void setUp() {
         m_coreContext = createMock(CoreContext.class);
-        m_acdContext = createMock(AcdContext.class);
     }
 
     public void testLoadUserByUsername() {
@@ -51,12 +47,11 @@ public class SharedSecretUserDetailsServiceTest extends TestCase {
 
         SharedSecretUserDetailsService sharedSecretuds = new SharedSecretUserDetailsService();
         sharedSecretuds.setCoreContext(m_coreContext);
-        sharedSecretuds.setAcdContext(m_acdContext);
 
         m_coreContext.loadUserByUserNameOrAlias(USER_NAME);
         expectLastCall().andReturn(u);
 
-        replay(m_coreContext, m_acdContext);
+        replay(m_coreContext);
 
         // load the user details
         UserDetails details = sharedSecretuds.loadUserByUsername(USER_NAME);
@@ -85,7 +80,6 @@ public class SharedSecretUserDetailsServiceTest extends TestCase {
 
         SharedSecretUserDetailsService sharedSecretuds = new SharedSecretUserDetailsService();
         sharedSecretuds.setCoreContext(m_coreContext);
-        sharedSecretuds.setAcdContext(m_acdContext);
         sharedSecretuds.setDomainManager(m_domainManager);
 
         m_coreContext.loadUserByUserNameOrAlias(USER_NAME);
@@ -100,8 +94,6 @@ public class SharedSecretUserDetailsServiceTest extends TestCase {
 
         assertTrue(authorities.contains(UserRole.Admin.toAuth()));
         assertTrue(authorities.contains(UserRole.User.toAuth()));
-        assertFalse(authorities.contains(UserRole.AcdAgent.toAuth()));
-        assertFalse(authorities.contains(UserRole.AcdSupervisor.toAuth()));
         assertTrue(authorities.contains(UserRole.AttendantAdmin.toAuth()));
 
         verify(m_coreContext);

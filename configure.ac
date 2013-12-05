@@ -16,6 +16,7 @@ for a in $@; do
     --disable-dep-check*)OPTIONS+=" $a" ;;
     --enable-debug*)OPTIONS+=" $a" ;;
     PACKAGE_REVISION*)OPTIONS+=" $a" ;;
+    DART*)OPTIONS+=" $a" ;;
   esac
 done
 AC_SUBST(OPTIONS)

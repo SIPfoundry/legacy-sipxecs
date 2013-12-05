@@ -10,29 +10,26 @@
 
 package org.sipfoundry.sipxconfig.security;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.sipfoundry.sipxconfig.acd.AcdContext;
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.im.ImAccount;
-import org.springframework.beans.factory.annotation.Required;
-
 import static org.sipfoundry.sipxconfig.permission.PermissionName.RECORD_SYSTEM_PROMPTS;
-import static org.sipfoundry.sipxconfig.security.UserRole.AcdSupervisor;
 import static org.sipfoundry.sipxconfig.security.UserRole.Admin;
 import static org.sipfoundry.sipxconfig.security.UserRole.AttendantAdmin;
 import static org.sipfoundry.sipxconfig.security.UserRole.User;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.im.ImAccount;
+import org.springframework.beans.factory.annotation.Required;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 public abstract class AbstractUserDetailsService implements UserDetailsService {
 
     private CoreContext m_coreContext;
-    private AcdContext m_acdContext;
     private AdditionalAuthoritiesLoader m_authLoader;
 
     public final UserDetails loadUserByUsername(String userNameOrAliasOrImId) {
@@ -51,9 +48,6 @@ public abstract class AbstractUserDetailsService implements UserDetailsService {
 
         if (user.isAdmin()) {
             gas.add(Admin.toAuth());
-        }
-        if (user.isSupervisor()) {
-            gas.add(AcdSupervisor.toAuth());
         }
 
         if (user.hasPermission(RECORD_SYSTEM_PROMPTS)) {
@@ -83,11 +77,6 @@ public abstract class AbstractUserDetailsService implements UserDetailsService {
     @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    @Required
-    public void setAcdContext(AcdContext acdContext) {
-        m_acdContext = acdContext;
     }
 
     public void setAdditionalAuthoritiesLoader(AdditionalAuthoritiesLoader loader) {
