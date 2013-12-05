@@ -9,12 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 import java.util.Collection;
 import java.util.Collections;
 
 import junit.framework.TestCase;
+
 import org.sipfoundry.commons.userdb.profile.UserProfile;
-import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -22,12 +27,6 @@ import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
-import static org.apache.commons.lang.ArrayUtils.contains;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 
 public class StandardUserDetailsServiceTest extends TestCase {
     private static final String USER_NAME = "Hjelje";
@@ -47,10 +46,8 @@ public class StandardUserDetailsServiceTest extends TestCase {
         u.setUniqueId();
 
         CoreContext coreContext = createMock(CoreContext.class);
-        AcdContext acdContext = createMock(AcdContext.class);
         StandardUserDetailsService uds = new StandardUserDetailsService();
         uds.setCoreContext(coreContext);
-        uds.setAcdContext(acdContext);
 
         coreContext.loadUserByUserNameOrAlias(USER_NAME);
         expectLastCall().andReturn(u);
@@ -64,8 +61,6 @@ public class StandardUserDetailsServiceTest extends TestCase {
 
         assertTrue(authorities.contains(UserRole.Admin.toAuth()));
         assertTrue(authorities.contains(UserRole.User.toAuth()));
-        assertFalse(authorities.contains(UserRole.AcdAgent.toAuth()));
-        assertFalse(authorities.contains(UserRole.AcdSupervisor.toAuth()));
         assertTrue(authorities.contains(UserRole.AttendantAdmin.toAuth()));
 
         verify(coreContext);
@@ -105,10 +100,8 @@ public class StandardUserDetailsServiceTest extends TestCase {
         u.setSettings(TestHelper.loadSettings("commserver/user-settings.xml"));
         u.setSettingTypedValue("im/im-account", imEnabled);
 
-        AcdContext acdContext = createMock(AcdContext.class);
         StandardUserDetailsService uds = new StandardUserDetailsService();
         uds.setCoreContext(ctx);
-        uds.setAcdContext(acdContext);
 
         ctx.loadUserByUserNameOrAlias(USER_IM_ID);
         expectLastCall().andReturn(null);
@@ -116,10 +109,7 @@ public class StandardUserDetailsServiceTest extends TestCase {
         ctx.loadUserByConfiguredImId(USER_IM_ID);
         expectLastCall().andReturn(u);
 
-        acdContext.getUsersWithAgents();
-        expectLastCall().andReturn(Collections.emptyList());
-
-        replay(ctx, acdContext);
+        replay(ctx);
         return uds;
     }
 
@@ -134,10 +124,8 @@ public class StandardUserDetailsServiceTest extends TestCase {
         u.setUniqueId();
 
         CoreContext coreContext = createMock(CoreContext.class);
-        AcdContext acdContext = createMock(AcdContext.class);
         StandardUserDetailsService uds = new StandardUserDetailsService();
         uds.setCoreContext(coreContext);
-        uds.setAcdContext(acdContext);
 
         coreContext.loadUserByUserNameOrAlias(USER_NAME);
         expectLastCall().andReturn(u);
@@ -151,8 +139,6 @@ public class StandardUserDetailsServiceTest extends TestCase {
 
         assertFalse(authorities.contains(UserRole.Admin.toAuth()));
         assertTrue(authorities.contains(UserRole.User.toAuth()));
-        assertFalse(authorities.contains(UserRole.AcdSupervisor.toAuth()));
-        assertFalse(authorities.contains(UserRole.AttendantAdmin.toAuth()));
 
         verify(coreContext);
     }

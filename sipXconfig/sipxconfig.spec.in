@@ -98,6 +98,7 @@ Obsoletes: sipx-freeswitch-codec-passthru-g723_1
 Obsoletes: sipx-freeswitch-codec-passthru-amr
 Obsoletes: sipx-freeswitch-codec-passthru-g729
 Obsoletes: sipxopenacd
+Obsoletes: sipxacdstatistics
 
 # 4.6 packages that turned out to not be useful as separate pkgs so
 # projects merged into sipxconfig

@@ -68,7 +68,6 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
         RegistrarSettings settings = m_registrar.getSettings();
         Domain domain = manager.getDomainManager().getDomain();
         Address imApi = manager.getAddressManager().getSingleAddress(ImManager.XMLRPC_ADDRESS);
-        Address presenceApi = manager.getAddressManager().getSingleAddress(Registrar.PRESENCE_MONITOR_ADDRESS);
         Address proxy = manager.getAddressManager().getSingleAddress(ProxyManager.TCP_ADDRESS);
         Address park = manager.getAddressManager().getSingleAddress(ParkOrbitContext.SIP_TCP_PORT);
         for (Location location : locations) {
@@ -78,7 +77,7 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
             if (enabled) {
                 Writer w = new FileWriter(new File(dir, "registrar-config.part"));
                 try {
-                    write(w, settings, domain, location, proxy, imApi, presenceApi, park, fm);
+                    write(w, settings, domain, location, proxy, imApi,  park, fm);
                 } finally {
                     IOUtils.closeQuietly(w);
                 }
@@ -98,7 +97,7 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
     }
 
     void write(Writer wtr, RegistrarSettings settings, Domain domain, Location location, Address proxy,
-            Address imApi, Address presenceApi, Address park, FeatureManager fm) throws IOException {
+            Address imApi, Address park, FeatureManager fm) throws IOException {
         KeyValueConfiguration file = KeyValueConfiguration.colonSeparated(wtr);
         Setting root = settings.getSettings();
         file.writeSettings(SettingUtil.filter(NO_UNDERSCORE, root.getSetting("registrar-config")));
@@ -166,7 +165,6 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
             String openfireUrl = format("http://%s:%d/plugins/sipx-openfire-presence/status", imApi.getAddress(),
                     imApi.getPort());
             file.write("SIP_REDIRECT.900-PRESENCE.OPENFIRE_PRESENCE_SERVER_URL", openfireUrl);
-            file.write("SIP_REDIRECT.900-PRESENCE.LOCAL_PRESENCE_MONITOR_SERVER_URL", presenceApi.toString());
             file.write("SIP_REDIRECT.900-PRESENCE.REALM", domain.getSipRealm());
             file.write("SIP_REDIRECT.900-PRESENCE.SIP_DOMAIN", domain.getName());
         }

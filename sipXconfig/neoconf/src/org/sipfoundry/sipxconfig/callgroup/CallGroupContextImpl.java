@@ -15,9 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.acd.AcdContext;
-import org.sipfoundry.sipxconfig.acd.AcdQueue;
-import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -30,6 +27,7 @@ import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 /**
@@ -44,7 +42,6 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     private CoreContext m_coreContext;
     private SipxReplicationContext m_replicationContext;
     private AliasManager m_aliasManager;
-    private AcdContext m_acdContext;
 
     // trivial setters
     public void setCoreContext(CoreContext coreContext) {
@@ -57,10 +54,6 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
 
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
-    }
-
-    public void setAcdContext(AcdContext acdContext) {
-        m_acdContext = acdContext;
     }
 
     @Override
@@ -102,7 +95,6 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
             CallGroup cg = (CallGroup) load(CallGroup.class, id);
             cgs.add(cg);
         }
-        m_acdContext.removeOverflowSettings(ids, AcdQueue.HUNTGROUP_TYPE);
         removeAll(CallGroup.class, ids);
 
         // activate call groups every time the call group is removed

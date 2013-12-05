@@ -116,10 +116,6 @@
   <component id="importLdap" type="DirectLink">
     <binding name="listener" value="listener:importLdap"/>
   </component>
-  <inject property="acdContext" object="spring:acdContext"/>
-  <component id="resetAcdContext" type="DirectLink">
-    <binding name="listener" value="listener:resetAcdContext" />
-  </component>
   <component id="createAdminUserAndAdminGroup" type="DirectLink">
     <binding name="listener" value="listener:createAdminUserAndAdminGroup"/>
   </component>

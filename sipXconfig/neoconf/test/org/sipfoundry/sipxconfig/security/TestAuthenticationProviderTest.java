@@ -9,6 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.sipfoundry.sipxconfig.security.TestAuthenticationProvider.DUMMY_ADMIN_USER_NAME;
+
 import java.util.Collection;
 
 import junit.framework.TestCase;
@@ -18,13 +24,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-
-import static org.apache.commons.lang.ArrayUtils.contains;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.sipfoundry.sipxconfig.security.TestAuthenticationProvider.DUMMY_ADMIN_USER_NAME;
 
 public class TestAuthenticationProviderTest extends TestCase {
     public void testLoadUserByUsernameDebugVsNonDebug() {
@@ -78,8 +77,6 @@ public class TestAuthenticationProviderTest extends TestCase {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         assertFalse(authorities.contains(UserRole.Admin.toAuth()));
         assertTrue(authorities.contains(UserRole.User.toAuth()));
-        assertFalse(authorities.contains(UserRole.AcdAgent.toAuth()));
-        assertTrue(authorities.contains(UserRole.AcdSupervisor.toAuth()));
 
         Object details = authentication.getDetails();
         assertTrue(details instanceof UserDetailsImpl);
@@ -109,8 +106,6 @@ public class TestAuthenticationProviderTest extends TestCase {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         assertTrue(authorities.contains(UserRole.Admin.toAuth()));
         assertTrue(authorities.contains(UserRole.User.toAuth()));
-        assertFalse(authorities.contains(UserRole.AcdAgent.toAuth()));
-        assertFalse(authorities.contains(UserRole.AcdSupervisor.toAuth()));
 
         Object details = authentication.getDetails();
         assertTrue(details instanceof UserDetailsImpl);

@@ -18,7 +18,6 @@ sipx_core = \
   sipXrelay \
   sipXbridge \
   sipXcdr \
-  sipXacdStatistics \
   sipXconfig \
   sipXopenfire \
   sipXcounterpath \
@@ -156,8 +155,7 @@ sipXsqa_DEPS = sipXcommserverLib
 sipXrelay_DEPS = sipXcommons
 sipXbridge_DEPS = sipXcommons
 sipXcdr_DEPS = sipXcommons
-sipXacdStatistics_DEPS = sipXcommons
-sipXconfig_DEPS = sipXcommons sipXacdStatistics sipXcdr
+sipXconfig_DEPS = sipXcommons sipXcdr
 sipXopenfire_DEPS = sipXconfig sipXsqa
 sipXcounterpath_DEPS = sipXconfig
 sipXaudiocodes_DEPS = sipXconfig

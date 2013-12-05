@@ -36,8 +36,6 @@ public class UserSessionTest extends TestCase {
         };
 
         assertTrue(userSession.isAdmin());
-        assertFalse(userSession.isSupervisor());
-        assertFalse(userSession.isAgent());
         assertTrue(userSession.isLoggedIn());
 
         assertSame(user.getId(), userSession.getUserId());
@@ -52,8 +50,6 @@ public class UserSessionTest extends TestCase {
         };
 
         assertFalse(userSession.isAdmin());
-        assertFalse(userSession.isSupervisor());
-        assertFalse(userSession.isAgent());
         assertFalse(userSession.isLoggedIn());
     }
 
