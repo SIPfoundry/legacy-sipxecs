@@ -36,10 +36,43 @@ public interface DnsManager {
 
     public Address getSingleAddress(AddressType t, Collection<Address> addresses, Location whoIsAsking);
 
-    /*
-     * @parameter region - null acceptable for primary region or if regions are not defined
-     */
-    public Collection<DnsSrvRecord> getResourceRecords(Region region);
+    public Collection<DnsSrvRecord> getResourceRecords(DnsView view);
 
     public AddressManager getAddressManager();
+
+    public Collection<DnsFailoverPlan> getPlans();
+
+    public DnsFailoverPlan getPlan(Integer planId);
+
+    public void savePlan(DnsFailoverPlan plan);
+
+    public void deletePlan(DnsFailoverPlan plan);
+
+    public Collection<DnsView> getViews();
+
+    public DnsView getViewById(Integer viewId);
+
+    public void saveView(DnsView view);
+
+    public void deleteView(DnsView view);
+
+    public void moveViewById(Integer[] viewIds, int step);
+
+    public String[] getViewNamesUsingRegion(Region region);
+
+    public String[] getPlanNamesUsingRegion(Region region);
+
+    public String[] getPlanNamesUsingLocation(Location location);
+
+    public String[] getViewNamesUsingPlan(DnsFailoverPlan plan);
+
+    public Collection<DnsCustomRecords> getCustomRecords();
+
+    public DnsCustomRecords getCustomRecordsById(Integer customId);
+
+    public void saveCustomRecords(DnsCustomRecords custom);
+
+    public void deleteCustomRecords(DnsCustomRecords custom);
+
+    public Collection<DnsCustomRecords> getCustomRecordsByIds(Collection<Integer> customIds);
 }

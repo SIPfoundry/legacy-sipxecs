@@ -18,7 +18,6 @@ sipx_core = \
   sipXrelay \
   sipXbridge \
   sipXcdr \
-  sipXacdStatistics \
   sipXconfig \
   sipXopenfire \
   sipXcounterpath \
@@ -100,6 +99,7 @@ lib_all = \
   epel \
   resiprocate \
   rubygem-file-tail \
+  erlang \
   freeswitch \
   hiredis \
   net-snmp \
@@ -119,7 +119,6 @@ lib_all = \
   rubygem-net-ssh \
   rubygem-net-sftp \
   ruby-postgres \
-  erlang \
   jasperserver
 
 lib_exclude_fedora_16 = \
@@ -156,8 +155,7 @@ sipXsqa_DEPS = sipXcommserverLib
 sipXrelay_DEPS = sipXcommons
 sipXbridge_DEPS = sipXcommons
 sipXcdr_DEPS = sipXcommons
-sipXacdStatistics_DEPS = sipXcommons
-sipXconfig_DEPS = sipXcommons sipXacdStatistics sipXcdr
+sipXconfig_DEPS = sipXcommons sipXcdr
 sipXopenfire_DEPS = sipXconfig sipXsqa
 sipXcounterpath_DEPS = sipXconfig
 sipXaudiocodes_DEPS = sipXconfig

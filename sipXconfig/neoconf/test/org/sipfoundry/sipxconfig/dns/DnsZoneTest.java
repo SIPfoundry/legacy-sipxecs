@@ -55,7 +55,9 @@ public class DnsZoneTest {
             }
         };
         m_manager.setProviders(Collections.singletonList(p));
-        Collection<DnsSrvRecord> actual = m_manager.getResourceRecords(m_r1);
+        DnsView v = new DnsView(m_r1.getName());
+        v.setRegionId(m_r1.getId());
+        Collection<DnsSrvRecord> actual = m_manager.getResourceRecords(v);
         String expected = IOUtils.toString(getClass().getResourceAsStream("external-zone.expected.json"));
         TestHelper.assertEquals(expected, actual);
     }
@@ -81,7 +83,9 @@ public class DnsZoneTest {
             }
         };
         m_manager.setProviders(Collections.singletonList(p));
-        Collection<DnsSrvRecord> actual = m_manager.getResourceRecords(m_r1);
+        DnsView v = new DnsView(m_r1.getName());
+        v.setRegionId(m_r1.getId());
+        Collection<DnsSrvRecord> actual = m_manager.getResourceRecords(v);
         String expected = IOUtils.toString(getClass().getResourceAsStream("internal-zone.expected.json"));
         TestHelper.assertEquals(expected, actual);
     }

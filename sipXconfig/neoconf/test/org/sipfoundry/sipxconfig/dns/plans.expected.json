@@ -1,0 +1,78 @@
+[ {
+  "groups" : [ {
+    "id" : 31,
+    "targets" : [ {
+      "percentage" : 10,
+      "targetId" : "1",
+      "targetType" : "LOCATION"
+    }, {
+      "percentage" : 70,
+      "targetId" : "4",
+      "targetType" : "LOCATION"
+    }, {
+      "percentage" : 10,
+      "targetId" : "3",
+      "targetType" : "LOCATION"
+    }, {
+      "percentage" : 10,
+      "targetId" : "2",
+      "targetType" : "LOCATION"
+    } ]
+  } ],
+  "id" : 4,
+  "name" : "four servers unequally"
+}, {
+  "groups" : [ {
+    "id" : 11,
+    "targets" : [ {
+      "percentage" : 100,
+      "targetId" : "1",
+      "targetType" : "REGION"
+    } ]
+  } ],
+  "id" : 2,
+  "name" : "one region"
+}, {
+  "groups" : [ {
+    "id" : 21,
+    "targets" : [ {
+      "percentage" : 100,
+      "targetId" : "LOCAL_REGION",
+      "targetType" : "BASIC"
+    } ]
+  }, {
+    "id" : 22,
+    "targets" : [ {
+      "percentage" : 100,
+      "targetId" : "ALL_OTHER_REGIONS",
+      "targetType" : "BASIC"
+    } ]
+  } ],
+  "id" : 3,
+  "name" : "standard"
+}, {
+  "groups" : [ {
+    "id" : 1,
+    "targets" : [ {
+      "percentage" : 50,
+      "targetId" : "1",
+      "targetType" : "LOCATION"
+    } ]
+  }, {
+    "id" : 2,
+    "targets" : [ {
+      "percentage" : 100,
+      "targetId" : "ALL_OTHER_REGIONS",
+      "targetType" : "BASIC"
+    } ]
+  }, {
+    "id" : 1,
+    "targets" : [ {
+      "percentage" : 50,
+      "targetId" : "2",
+      "targetType" : "LOCATION"
+    } ]
+  } ],
+  "id" : 1,
+  "name" : "typical"
+} ]

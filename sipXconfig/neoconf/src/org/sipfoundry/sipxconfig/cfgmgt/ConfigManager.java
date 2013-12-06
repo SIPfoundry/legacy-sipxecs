@@ -58,6 +58,11 @@ public interface ConfigManager {
     public Collection<Location> getRegisteredLocations();
 
     /**
+     * Of all the locations, only return the registered ones
+     */
+    public Collection<Location> getConfigurableLocations();
+
+    /**
      * Full resync everywhere. Not to be called frivolously.
      */
     public void configureAllFeaturesEverywhere();

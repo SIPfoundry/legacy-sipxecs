@@ -119,7 +119,6 @@ web_DEPS = \
 	$(web_SRCDIR) \
 	$(web_JAVAROOT) \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons $(top_srcdir)/lib,$(web_COMPILE_PKGS)) \
-	@SIPX_JAVADIR@/sipXconfig/agent-bindings.jar \
 	@SIPX_JAVADIR@/sipXconfig/cdr-bindings.jar
 
 # classes from wsdl compilation are refererence in web project source so ensure this is

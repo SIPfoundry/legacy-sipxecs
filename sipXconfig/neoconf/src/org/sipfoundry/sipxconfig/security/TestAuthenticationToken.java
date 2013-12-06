@@ -10,6 +10,9 @@
 
 package org.sipfoundry.sipxconfig.security;
 
+import static org.sipfoundry.sipxconfig.security.UserRole.Admin;
+import static org.sipfoundry.sipxconfig.security.UserRole.User;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -19,10 +22,6 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-
-import static org.sipfoundry.sipxconfig.security.UserRole.AcdSupervisor;
-import static org.sipfoundry.sipxconfig.security.UserRole.Admin;
-import static org.sipfoundry.sipxconfig.security.UserRole.User;
 
 public class TestAuthenticationToken extends AbstractAuthenticationToken {
     private final User m_user;
@@ -65,9 +64,6 @@ public class TestAuthenticationToken extends AbstractAuthenticationToken {
 
         if (isAdmin) {
             gas.add(Admin.toAuth());
-        }
-        if (isSupervisor) {
-            gas.add(AcdSupervisor.toAuth());
         }
         return gas;
     }

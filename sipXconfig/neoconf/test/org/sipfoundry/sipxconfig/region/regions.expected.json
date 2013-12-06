@@ -1,11 +1,9 @@
 [ {
   "addresses" : [ "1.1.1.1", "1.1.2.0/24" ],
-  "configFriendlyName" : "r1",
   "id" : -1,
   "name" : "r1"
 }, {
   "addresses" : null,
-  "configFriendlyName" : "r2",
   "id" : -1,
   "name" : "r2"
 } ]

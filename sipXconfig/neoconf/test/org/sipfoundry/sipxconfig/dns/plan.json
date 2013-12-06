@@ -1,0 +1,38 @@
+{
+  "groups" : [ {
+    "id" : 31,
+    "targets" : [ {
+      "percentage" : 30,
+      "targetId" : "11",
+      "targetType" : "LOCATION"
+    }, {
+      "percentage" : 70,
+      "targetId" : "21",
+      "targetType" : "LOCATION"
+    } ]
+  }, {
+    "id" : 32,
+    "targets" : [ {
+      "percentage" : 50,
+      "targetId" : "1",
+      "targetType" : "REGION"
+    }, {
+      "percentage" : 50,
+      "targetId" : "2",
+      "targetType" : "REGION"
+    } ]
+  }, {
+    "id" : 32,
+    "targets" : [ {
+      "percentage" : 50,
+      "targetId" : "1",
+      "targetType" : "REGION"
+    }, {
+      "percentage" : 50,
+      "targetId" : "2",
+      "targetType" : "REGION"
+    } ]
+  } ],
+  "id" : 4,
+  "name" : "servers"
+}

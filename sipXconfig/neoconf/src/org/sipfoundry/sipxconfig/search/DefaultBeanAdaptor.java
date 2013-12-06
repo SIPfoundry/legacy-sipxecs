@@ -23,10 +23,6 @@ import org.apache.lucene.index.Term;
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
 import org.sipfoundry.sipxconfig.acccode.AuthCode;
-import org.sipfoundry.sipxconfig.acd.AcdAgent;
-import org.sipfoundry.sipxconfig.acd.AcdLine;
-import org.sipfoundry.sipxconfig.acd.AcdQueue;
-import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
@@ -46,8 +42,7 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
     public static final Class[] CLASSES = {
         // TODO: inject externally
         User.class, Phone.class, Group.class, Gateway.class, CallGroup.class, DialingRule.class, Bridge.class,
-        Conference.class, ParkOrbit.class, AutoAttendant.class, Upload.class, AcdServer.class, AcdQueue.class,
-        AcdLine.class, AcdAgent.class, Branch.class, AuthCode.class
+        Conference.class, ParkOrbit.class, AutoAttendant.class, Upload.class, Branch.class, AuthCode.class
     };
 
     private static final Log LOG = LogFactory.getLog(DefaultBeanAdaptor.class);

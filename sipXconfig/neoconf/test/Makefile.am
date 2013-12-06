@@ -26,7 +26,6 @@ test_DEPS = \
 	$(srcdir) \
 	$(top_srcdir)/etc/sipxpbx \
 	$(call JavaDep, @SIPX_JAVADIR@/sipXcommons $(top_srcdir)/lib, $(test_PKGS)) \
-	@SIPX_JAVADIR@/sipXconfig/agent-bindings.jar \
 	@SIPX_JAVADIR@/sipXconfig/cdr-bindings.jar
 
 test_SRC = $(shell cd $(srcdir); find org \( \
@@ -36,7 +35,7 @@ test_SRC = $(shell cd $(srcdir); find org \( \
 precommit : check
 	$(MAKE) reset check-integration
 
-reset : sipxconfig-reset-integration-test reset-acd reset-cdr;
+reset : sipxconfig-reset-integration-test reset-cdr;
 
 # reset-db is a convience target, not nec.
 reset-db : sipxconfig-reset-integration-test
@@ -48,14 +47,3 @@ reset-cdr :
 	$(PG_CREATEDB) SIPXCDR_TEST                                                                                                                       
 	$(PG_SQL) SIPXCDR_TEST -f @SIPX_CONFDIR@/cdr/schema.sql      
 	$(PG_SQL) SIPXCDR_TEST -f $(srcdir)/org/sipfoundry/sipxconfig/cdr/cdr_seed.sql
-
-reset-acd :	    
-	if `$(PG_SQL) -l | grep SIPXACD_HISTORY_TEST > /dev/null` ; then \
-	  $(PG_DROPDB) SIPXACD_HISTORY_TEST; \
-	fi
-	$(PG_CREATEDB) SIPXACD_HISTORY_TEST
-	$(PG_SQL) SIPXACD_HISTORY_TEST -f @SIPX_CONFDIR@/report/schema.sql
-	$(PG_SQL) SIPXACD_HISTORY_TEST -f @SIPX_CONFDIR@/report/enable_upgrades.sql
-	$(PG_SQL) SIPXACD_HISTORY_TEST -f @SIPX_CONFDIR@/report/location_fqdn.sql
-	$(PG_SQL) SIPXACD_HISTORY_TEST -f $(srcdir)/org/sipfoundry/sipxconfig/acd/stats/historical/history-seed.sql
-
