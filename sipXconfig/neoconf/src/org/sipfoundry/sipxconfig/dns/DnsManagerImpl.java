@@ -43,7 +43,6 @@ import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
-import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
@@ -565,9 +564,6 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
 
     @Override
     public void saveView(DnsView view) {
-        if (view.getRegionId() == null) {
-            throw new UserException("&err.regionRequired");
-        }
         String sql;
         String[] fields = new String[] {
             REGION_ID, ENABLED, NAME, DNS_PLAN_ID, EXCLUDED
@@ -584,7 +580,7 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
         m_db.update(sql, view.getRegionId(), view.isEnabled(), view.getName(), view.getPlanId(),
                 encodeExcluded(view.getExcluded()), view.getId());
 
-        m_db.update("delete from dns_custom_view_link where dns_view_id = ? ", view.getId());
+        m_db.update("delete  from dns_custom_view_link where dns_view_id = ?", view.getId());
         if (view.getCustomRecordsIds() != null && view.getCustomRecordsIds().size() > 0) {
             StringBuilder customIdsSql = new StringBuilder("insert into dns_custom_view_link "
                     + "(dns_custom_id, dns_view_id) values ");

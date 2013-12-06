@@ -14,12 +14,5 @@
     "planId" : 2,
     "region" : "External users",
     "regionId" : 2
-  },
-  {
-    "id": 3,
-    "name" : "No plan selected",
-    "planId" : 0,
-    "region" : "External users",
-    "regionId" : 2
   }
 ]

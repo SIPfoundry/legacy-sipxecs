@@ -13,15 +13,8 @@
 <body jwcid="$content$">
   <div jwcid="@common/Border" restricted="false"
     borderTitle="ognl:borderTitle">
-    <div id="breadcrumbs">
-      <a href="EditDns.html" class=""><span key="title.dns">DNS</span></a>
-      <img src="/sipxconfig/images/breadcrumb_separator.png" align="absmiddle">
-      <span key="title">DNS Custom Records</span>
-    </div>
-    <div class="help">
-        <span jwcid="@Insert" raw="true" value="message:help">Custom DNS help</span>
-    </div>
-    <p id="message"></p>    
+    <h2><span key="title">DNS Custom Records</span></h2>
+    <p id="message"></p>
     <fieldset id="edit-custom">
       <table>
         <tbody>
@@ -32,7 +25,7 @@
           </tr>
           <tr>
             <td valign="top"><label class="settingLabel" for="records"><span key="records">Records</span>:</label></td>
-            <td><textarea cols="70" rows="30" id="records"></textarea></td>
+            <td><textarea cols="90" rows="30" id="records"></textarea></td>
             <td colspan="2"></td> 
           </tr>
         </tbody>

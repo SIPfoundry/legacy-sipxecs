@@ -13,14 +13,10 @@
 <body jwcid="$content$">
   <div jwcid="@common/Border" id="content" restricted="false"
     borderTitle="ognl:borderTitle">
-    <div id="breadcrumbs">
-      <a href="EditDns.html" class=""><span key="title.dns">DNS</span></a>
-      <img src="/sipxconfig/images/breadcrumb_separator.png" align="absmiddle">
-      <span key="title">DNS View</span>
-    </div>
     <div class="help">
-        <span jwcid="@Insert" raw="true" value="message:help">DNS view help</span>
+        <span key="help.editview">Views help</span>
     </div>
+    <h2><span key="title">DNS View</span></h2>
     <p id="message"></p>
     <fieldset id="edit-plan">
       <table>
@@ -55,7 +51,7 @@
         <tr>
           <td>
             <label class="settingLabel" for="excluded">
-              <span key="label.excluded">Exclude records</span>:
+              <span key="label.excluded">Exclude records </span>:
             </label>
           </td>
           <td>
@@ -66,7 +62,7 @@
         </tr>
         <tr>
           <td></td>
-          <td class="settingDescription"><span key="excludedRecordsDescription">If you do not include A records...</span></td>
+          <td class="settingDescription"><span key="includedRecordsDescription">If you do not include A records...</span></td>
         </tr>
         <tr id="customRecordsIdsRow">
           <td>
@@ -87,23 +83,21 @@
       </li>
       <li>
         <button id="apply"><span key="button.apply">Apply</span></button>
-      </li>
+      </li>  
       <li>
         <button id="cancel"><span key="button.cancel">Cancel</span></button>
       </li>
-    </ul>
+    </ul>    
     <div>
       <h2><span key="preview">Preview</span></h2>
       <div style="float:right">
         <input type="radio" name="preview-show" value="ALL" checked="checked"/>all records
         <input type="radio" name="preview-show" value="PUBLIC"/>public records only
       </div><br/>
-      <textarea id="preview" readonly="readonly" rows="30" cols="80">    
+      <textarea id="preview" readonly="readonly" rows="30" cols="90">    
       </textarea>
     </div>
     <span id="rc" style="display:none">
-      <span jwcid="@common/Message" key="msg.actionSuccess">save OK</span>      
-    
     </span>
     <script jwcid="@common/DartCode" type="application/dart"
       src="EditDnsView.dart"></script>
