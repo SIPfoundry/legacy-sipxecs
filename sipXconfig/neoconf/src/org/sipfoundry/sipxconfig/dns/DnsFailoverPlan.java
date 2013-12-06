@@ -30,10 +30,6 @@ import org.sipfoundry.sipxconfig.feature.Feature;
 
 @JsonPropertyOrder(alphabetic = true)
 public class DnsFailoverPlan extends BeanWithId implements NamedObject, DeployConfigOnEdit {
-    /**
-     * When you want the default fail-over plan, i.e. want to call DnsManagerImpl.createFairlyTypicalDnsFailoverPlan()
-     */
-    public static final Integer FALLBACK = 0;
     private String m_name;
     private Collection<DnsFailoverGroup> m_groups;
 

@@ -18,8 +18,7 @@ class DnsViewEditor {
     querySelector("#apply").onClick.listen(apply);
     querySelector("#cancel").onClick.listen(cancel);
     
-    for (var elemId in ["#regionId", "#planId", "#customRecordsIdsRow", "input[name=preview-show]", 
-          "input[name=excluded]"]) {
+    for (var elemId in ["#regionId", "#planId", "#customRecordsIdsRow", "input[name=preview-show]"] ) {
       querySelectorAll(elemId).onClick.listen(loadPreview);      
     }
     Location l = document.window.location;
@@ -110,15 +109,7 @@ class DnsViewEditor {
     SelectElement customs = querySelector("#customRecordsIds");
     for (var option in customs.selectedOptions) {
       customRecordsIds.add(int.parse(option.value));
-    }
-    var excludes = new List<String>();
-    for (InputElement e in querySelectorAll("input[name=excluded]")) {      
-      if (e.checked) {
-        excludes.add(e.value);
-      }
-    }
-    meta['excluded'] = excludes;
-    
+    }    
     return meta;
   }
   
@@ -164,16 +155,6 @@ class DnsViewEditor {
     });    
   }
   
-  loadExcluded(List<String> excluded) {
-    if (excluded == null || excluded.length == 0) {
-      return;
-    }
-    
-    for (InputElement e in querySelectorAll("input[name=excluded]")) {
-      e.checked = excluded.contains(e.value); 
-    }    
-  }
-  
   loadForm(json) {
     var data = JSON.decode(json);
     Map<String, Object> view = data['view'];
@@ -189,7 +170,7 @@ class DnsViewEditor {
     loadRegionCandidates(data['regionCandidates'], regionId);
     loadPlanOptions(data['planCandidates'], planId);
     loadCustomRecords(data['customRecordsCandidates'], customRecordsIds);
-    loadExcluded(data['excluded']);
+    
     loadPreview();
   }  
 }

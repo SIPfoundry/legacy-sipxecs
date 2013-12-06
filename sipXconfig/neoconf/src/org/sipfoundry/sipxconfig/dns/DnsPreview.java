@@ -72,7 +72,7 @@ public class DnsPreview {
             Domain domain = Domain.getDomain();
             zoneFile = File.createTempFile("dns_preview", ".yml");
             zoneStream = new FileWriter(zoneFile);
-            m_dnsConfig.writeZoneConfig(zoneStream, domain, all, dns, srvs, serNo, view.getExcluded());
+            m_dnsConfig.writeZoneConfig(zoneStream, domain, all, dns, srvs, serNo);
             customRecordsFile = File.createTempFile("dns_preview_custom", ".dat");
             m_dnsConfig.writeZoneCustomRecords(customRecordsFile, view);
             SimpleCommandRunner commandRunner = new SimpleCommandRunner();

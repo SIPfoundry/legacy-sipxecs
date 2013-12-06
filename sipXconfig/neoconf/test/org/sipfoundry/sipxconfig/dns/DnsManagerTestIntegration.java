@@ -78,14 +78,12 @@ public class DnsManagerTestIntegration extends IntegrationTestCase {
         another.setRegionId(1);
         another.setCustomRecordsIds(Arrays.asList(100, 101));
         another.setName("another");
-        another.setExcluded(new DnsView.ExcludedRecords[] {DnsView.ExcludedRecords.NAPTR});
         m_dnsManager.saveView(another);
         Collection<DnsView> views2 = m_dnsManager.getViews();
         assertEquals(4, views2.size());
         
         DnsView reread = m_dnsManager.getViewById(another.getId());
         assertEquals(2, reread.getCustomRecordsIds().size());
-        assertArrayEquals(reread.getExcluded(), another.getExcluded());
     }
     
     public void testMoveById() {

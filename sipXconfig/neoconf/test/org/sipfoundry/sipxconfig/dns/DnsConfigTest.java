@@ -97,7 +97,7 @@ public class DnsConfigTest {
     @Test
     public void emptyZone() throws IOException {
         StringWriter actual = new StringWriter();
-        m_config.writeZoneConfig(actual, m_d, m_locations, null, null, 1, null);
+        m_config.writeZoneConfig(actual, m_d, m_locations, null, null, 1);
         String expected = IOUtils.toString(getClass().getResourceAsStream("empty-zone.yml"));
         assertEquals(expected, actual.toString());
     }
@@ -112,16 +112,8 @@ public class DnsConfigTest {
         };
         List<Address> all = Arrays.asList(m_a1, m_a2, m_a3);
         List<DnsSrvRecord> rrs = Arrays.asList(records);
-        m_config.writeZoneConfig(actual, m_d, m_locations, all, rrs, 1, null);
+        m_config.writeZoneConfig(actual, m_d, m_locations, all, rrs, 1);
         String expected = IOUtils.toString(getClass().getResourceAsStream("full-zone.yml"));
-        assertEquals(expected, actual.toString());
-
-        DnsView.ExcludedRecords[] excludeAll = new DnsView.ExcludedRecords[] {
-            DnsView.ExcludedRecords.A, DnsView.ExcludedRecords.NAPTR, DnsView.ExcludedRecords.NS
-        };
-        actual = new StringWriter();
-        m_config.writeZoneConfig(actual, m_d, m_locations, all, rrs, 1, excludeAll);
-        expected = IOUtils.toString(getClass().getResourceAsStream("full-zone-with-excludes.yml"));
         assertEquals(expected, actual.toString());
     }
 
@@ -135,7 +127,7 @@ public class DnsConfigTest {
         List<DnsSrvRecord> rrs = Arrays.asList(records);
         Domain d = new Domain("one.example.org");
         d.setNetworkName("one.example.org");
-        m_config.writeZoneConfig(actual, d, Arrays.asList(m_l1), all, rrs, 1, null);
+        m_config.writeZoneConfig(actual, d, Arrays.asList(m_l1), all, rrs, 1);
         String expected = IOUtils.toString(getClass().getResourceAsStream("full-zone-domain-fqdn.yml"));
         assertEquals(expected, actual.toString());
     }

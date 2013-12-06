@@ -72,13 +72,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
 public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvider, BeanFactoryAware,
-        ProcessProvider, FirewallProvider, SetupListener {
+    ProcessProvider, FirewallProvider, SetupListener {
     private static final Log LOG = LogFactory.getLog(DnsManagerImpl.class);
     private static final String LOCATION_ID = "location_id";
     private static final String REGION_ID = "region_id";
     private static final String BASIC_ID = "basic_id";
     private static final String DNS_PLAN_ID = "dns_plan_id";
-    private static final String EXCLUDED = "excluded";
     private static final String NAME = "name";
     private static final String RECORDS = "records";
     private static final String ENABLED = "enabled";
@@ -135,12 +134,12 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     }
 
     List<DnsFailoverPlan> loadPlans(Integer planId) {
-        // select specific cols because left join will cause dns_plan_id
-        // to be 0 when there are no targets defined
-        String sql = "select p.*, g.dns_group_id, g.position, t.percentage, t.region_id,"
-                + " t.location_id, t.basic_id from dns_plan as p"
-                + " left join dns_group as g on p.dns_plan_id = g.dns_plan_id" + " left join dns_target as t on"
-                + " t.dns_group_id = g.dns_group_id" + " %s" + " order by p.name, g.position";
+        String sql = "select * from dns_plan as p"
+                + " left join dns_group as g on p.dns_plan_id = g.dns_plan_id"
+                + " left join dns_target as t on"
+                + " t.dns_group_id = g.dns_group_id"
+                + " %s"
+                + " order by p.name, g.position";
         if (planId != null) {
             sql = format(sql, "where p.dns_plan_id = " + planId);
         } else {
@@ -167,8 +166,8 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
         for (DnsFailoverGroup g : plan.getGroups()) {
             int gid = m_db.queryForInt("select nextval('dns_group_seq')");
             g.setUniqueId(gid);
-            m_db.update("insert into dns_group (dns_plan_id, dns_group_id, position) values (?,?,?)", plan.getId(),
-                    gid, position++);
+            m_db.update("insert into dns_group (dns_plan_id, dns_group_id, position) values (?,?,?)",
+                    plan.getId(), gid, position++);
             for (DnsTarget t : g.getTargets()) {
                 String sql = "insert into dns_target (dns_group_id, percentage, %s) values (?,?,?)";
                 targetParams[0] = gid;
@@ -267,32 +266,6 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
         }
     }
 
-    static DnsView.ExcludedRecords[] decodeExcluded(String rs) {
-        if (StringUtils.isBlank(rs)) {
-            return null;
-        }
-        String[] codes = StringUtils.split(rs, ',');
-        DnsView.ExcludedRecords[] records = new DnsView.ExcludedRecords[codes.length];
-        for (int i = 0; i < codes.length; i++) {
-            records[i] = DnsView.ExcludedRecords.valueOf(codes[i]);
-        }
-        return records;
-    }
-
-    static String encodeExcluded(DnsView.ExcludedRecords[] records) {
-        if (records == null) {
-            return null;
-        }
-        StringBuilder codes = new StringBuilder();
-        for (int i = 0; i < records.length; i++) {
-            if (i != 0) {
-                codes.append(',');
-            }
-            codes.append(records[i].name());
-        }
-        return codes.toString();
-    }
-
     static DnsTarget.BasicType decodeBasicTarget(String rs) {
         switch (rs.charAt(0)) {
         case 'O':
@@ -322,21 +295,19 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     @Override
     public Collection<DnsSrvRecord> getResourceRecords(DnsView view) {
         Integer planId = view.getPlanId();
-        DnsFailoverPlan plan = null;
-        if (DnsFailoverPlan.FALLBACK.equals(planId)) {
+        DnsFailoverPlan plan;
+        if (planId == null || planId <= 0) {
             plan = createFairlyTypicalDnsFailoverPlan();
-        } else if (planId != null) {
+        } else {
             plan = getPlan(planId);
         }
         List<DnsSrvRecord> srvs = new ArrayList<DnsSrvRecord>();
-        if (plan != null) {
-            for (DnsProvider provider : m_providers) {
-                Collection<ResourceRecords> rrs = provider.getResourceRecords(this);
-                if (rrs != null) {
-                    for (ResourceRecords rr : rrs) {
-                        for (ResourceRecord record : rr.getRecords()) {
-                            srvs.addAll(plan.getDnsSrvRecords(view, record, rr));
-                        }
+        for (DnsProvider provider : m_providers) {
+            Collection<ResourceRecords> rrs = provider.getResourceRecords(this);
+            if (rrs != null) {
+                for (ResourceRecords rr : rrs) {
+                    for (ResourceRecord record : rr.getRecords()) {
+                        srvs.addAll(plan.getDnsSrvRecords(view, record, rr));
                     }
                 }
             }
@@ -535,7 +506,8 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     }
 
     List<DnsView> loadViews(String filter) {
-        String sql = format("select * from dns_view as v %s" + " order by v.position", filter);
+        String sql = format("select * from dns_view as v %s"
+                + " order by v.position", filter);
         final List<DnsView> views = new ArrayList<DnsView>();
         m_db.query(sql, new RowCallbackHandler() {
             @Override
@@ -546,7 +518,6 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
                 view.setName(rs.getString(NAME));
                 view.setPlanId(rs.getInt(DNS_PLAN_ID));
                 view.setRegionId(rs.getInt(REGION_ID));
-                view.setExcluded(decodeExcluded(rs.getString(EXCLUDED)));
                 views.add(view);
             }
         });
@@ -566,7 +537,7 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     public void saveView(DnsView view) {
         String sql;
         String[] fields = new String[] {
-            REGION_ID, ENABLED, NAME, DNS_PLAN_ID, EXCLUDED
+            REGION_ID, ENABLED, NAME, DNS_PLAN_ID
         };
         if (view.isNew()) {
             int id = m_db.queryForInt("select nextval('dns_view_seq')");
@@ -577,8 +548,7 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
             sql = format("update dns_view set %s = ? where dns_view_id = ?", StringUtils.join(fields, " = ?, "));
         }
 
-        m_db.update(sql, view.getRegionId(), view.isEnabled(), view.getName(), view.getPlanId(),
-                encodeExcluded(view.getExcluded()), view.getId());
+        m_db.update(sql, view.getRegionId(), view.isEnabled(), view.getName(), view.getPlanId(), view.getId());
 
         m_db.update("delete  from dns_custom_view_link where dns_view_id = ?", view.getId());
         if (view.getCustomRecordsIds() != null && view.getCustomRecordsIds().size() > 0) {
