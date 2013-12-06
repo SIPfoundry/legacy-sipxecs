@@ -136,7 +136,7 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     List<DnsFailoverPlan> loadPlans(Integer planId) {
         String sql = "select * from dns_plan as p"
                 + " left join dns_group as g on p.dns_plan_id = g.dns_plan_id"
-                + " left join dns_target as t on"
+                + " right join dns_target as t on"
                 + " t.dns_group_id = g.dns_group_id"
                 + " %s"
                 + " order by p.name, g.position";
@@ -244,7 +244,7 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
         }
 
         void readTarget(ResultSet rs) throws SQLException {
-            DnsTarget target = null;
+            DnsTarget target;
             Integer locationId = (Integer) rs.getObject(LOCATION_ID);
             if (locationId != null) {
                 target = new DnsTarget(m_locations.get(locationId));
@@ -253,16 +253,11 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
                 if (regionId != null) {
                     target = new DnsTarget(m_regions.get(regionId));
                 } else {
-                    String basic = rs.getString(BASIC_ID);
-                    if (basic != null) {
-                        target = new DnsTarget(decodeBasicTarget(basic));
-                    }
+                    target = new DnsTarget(decodeBasicTarget(rs.getString(BASIC_ID)));
                 }
             }
-            if (target != null) {
-                target.setPercentage(rs.getInt("percentage"));
-                m_targets.add(target);
-            }
+            target.setPercentage(rs.getInt("percentage"));
+            m_targets.add(target);
         }
     }
 
@@ -296,7 +291,7 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     public Collection<DnsSrvRecord> getResourceRecords(DnsView view) {
         Integer planId = view.getPlanId();
         DnsFailoverPlan plan;
-        if (planId == null || planId <= 0) {
+        if (planId == null) {
             plan = createFairlyTypicalDnsFailoverPlan();
         } else {
             plan = getPlan(planId);
@@ -676,4 +671,28 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     public void deleteCustomRecords(DnsCustomRecords custom) {
         m_db.update("delete from dns_custom where dns_custom_id = " + custom.getId());
     }
+
+//    @Override
+//    public Collection<DnsCustomRecords> getCustomRecordsForView(Integer viewId) {
+//        String sql = "select c.* from dns_custom as c, dns_custom_view_link lnk, dns_view as v "
+//                + "where c.dns_custom_id = lnk.dns_custom_id and "
+//                + "lnk.dns_view_id = v.dns_view_id order by c.name";
+//        return loadCustomRecords(sql);
+//    }
+//
+//    @Override
+//    public void setCustomRecordsForView(Integer viewId, Collection<DnsCustomRecords> custom) {
+//        m_db.update("delete from dns_custom_view_link where dns_view_id = " + viewId);
+//        StringBuilder update = new StringBuilder("insert into dns_custom_view_link("
+//                + "dns_view_id, dns_custom_id) values ");
+//        boolean first = true;
+//        for (DnsCustomRecords c : custom) {
+//            if (!first) {
+//                update.append(',');
+//            }
+//            update.append(format("(%d, %d)", viewId, c.getId()));
+//            first = false;
+//        }
+//        m_db.update(update.toString());
+//    }
 }

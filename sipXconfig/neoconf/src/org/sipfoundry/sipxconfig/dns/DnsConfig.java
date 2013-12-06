@@ -74,8 +74,8 @@ public class DnsConfig implements ConfigProvider {
 
         DnsSettings settings = m_dnsManager.getSettings();
         AddressManager am = manager.getAddressManager();
-        Domain domain = Domain.getDomain();
-        String networkName = domain.getNetworkName();
+        String domain = manager.getDomainManager().getDomainName();
+        String networkDomain = Domain.getDomain().getNetworkName();
         List<Location> all = manager.getLocationManager().getLocationsList();
         Set<Location> locations = request.locations(manager);
         List<Address> dns = am.getAddresses(DnsManager.DNS_ADDRESS, null);
@@ -84,7 +84,8 @@ public class DnsConfig implements ConfigProvider {
             views = Collections.singleton(new DnsView("default"));
         }
 
-        long serNo = getSerNo();
+        // 32 bit unsigned runs out in year 2148 which is 136 yrs past july 16, 2012
+        long serNo = (System.currentTimeMillis() / 1000) - 1342487870;
         Collection<Region> regions = m_regionManager.getRegions();
 
         for (Location location : locations) {
@@ -95,7 +96,7 @@ public class DnsConfig implements ConfigProvider {
             if (resolvOn) {
                 Writer resolv = new FileWriter(new File(dir, "resolv.conf.part"));
                 try {
-                    writeResolv(resolv, location, networkName, dns);
+                    writeResolv(resolv, location, networkDomain, dns);
                 } finally {
                     IOUtils.closeQuietly(resolv);
                 }
@@ -122,44 +123,36 @@ public class DnsConfig implements ConfigProvider {
             IOUtils.closeQuietly(named);
         }
 
+        boolean generateARecords = domain.equals(networkDomain) || domain.equals(all.get(0).getFqdn());
         for (DnsView view : views) {
             Collection<DnsSrvRecord> records = m_dnsManager.getResourceRecords(view);
             String file = format(VIEW_NAME + ".yaml", view.getConfigFriendlyName());
             Writer zone = new FileWriter(new File(gdir, file));
             try {
-                writeZoneConfig(zone, domain, all, dns, records, serNo);
+                writeZoneConfig(zone, domain, all, dns, records, serNo, generateARecords);
             } finally {
                 IOUtils.closeQuietly(zone);
             }
 
             File customFile = new File(gdir, format("%s.view.custom", view.getConfigFriendlyName()));
-            writeZoneCustomRecords(customFile, view);
-        }
-    }
-
-    long getSerNo() {
-        // 32 bit unsigned runs out in year 2148 which is 136 yrs past july 16, 2012
-        return (System.currentTimeMillis() / 1000) - 1342487870;
-    }
-
-    void writeZoneCustomRecords(File customFile, DnsView view) throws IOException {
-        if (view.getCustomRecordsIds() != null && view.getCustomRecordsIds().size() > 0) {
-            Writer zoneCustom = new FileWriter(customFile);
-            try {
-                Collection<DnsCustomRecords> customs = m_dnsManager.getCustomRecordsByIds(view
-                        .getCustomRecordsIds());
-                for (DnsCustomRecords custom : customs) {
-                    zoneCustom.write(custom.getRecords());
-                    if (!custom.getRecords().endsWith(LINE_SEP)) {
-                        zoneCustom.append(LINE_SEP);
+            if (view.getCustomRecordsIds() != null && view.getCustomRecordsIds().size() > 0) {
+                Writer zoneCustom = new FileWriter(customFile);
+                try {
+                    Collection<DnsCustomRecords> customs = m_dnsManager.getCustomRecordsByIds(view
+                            .getCustomRecordsIds());
+                    for (DnsCustomRecords custom : customs) {
+                        zoneCustom.write(custom.getRecords());
+                        if (!custom.getRecords().endsWith(LINE_SEP)) {
+                            zoneCustom.append(LINE_SEP);
+                        }
                     }
+                } finally {
+                    IOUtils.closeQuietly(zoneCustom);
                 }
-            } finally {
-                IOUtils.closeQuietly(zoneCustom);
-            }
-        } else {
-            if (customFile.exists()) {
-                customFile.delete();
+            } else {
+                if (customFile.exists()) {
+                    customFile.delete();
+                }
             }
         }
     }
@@ -247,21 +240,17 @@ public class DnsConfig implements ConfigProvider {
         config.writeSettings("sipxdns_", settings.getSettings());
     }
 
-    void writeZoneConfig(Writer w, Domain domain, List<Location> all, List<Address> dns,
-            Collection<DnsSrvRecord> rrs, long serNo) throws IOException {
-        String networkDomain = domain.getNetworkName();
-        String domainName = domain.getName();
-        boolean generateARecords = domainName.equals(networkDomain) || domainName.equals(all.get(0).getFqdn());
-
+    void writeZoneConfig(Writer w, String domain, List<Location> all, List<Address> dns,
+            Collection<DnsSrvRecord> rrs, long serNo, boolean generateARecords) throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
         c.write("serialno", serNo);
         c.write("naptr_protocols", "[ udp, tcp ]");
-        c.write(YML_DOMAIN, domain.getNetworkName());
+        c.write(YML_DOMAIN, domain);
         c.startArray("resource_records");
         String qualifiedTarget = null;
-        boolean domainIsFqdn = domainName.equals(all.get(0).getFqdn());
+        boolean domainIsFqdn = domain.equals(all.get(0).getFqdn());
         if (domainIsFqdn) {
-            qualifiedTarget = domainName + ".";
+            qualifiedTarget = domain + ".";
         }
         if (rrs != null) {
             for (DnsSrvRecord rr : rrs) {

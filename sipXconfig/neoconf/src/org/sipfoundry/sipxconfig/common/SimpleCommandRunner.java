@@ -71,17 +71,6 @@ public class SimpleCommandRunner implements CommandRunner {
         return m_procThread != null && m_procThread.isAlive();
     }
 
-    /**
-     * Command will not go into background
-     */
-    public void setRunParameters(String command, int foregroundTimeout) {
-        setRunParameters(command, foregroundTimeout, 0);
-    }
-
-    /**
-     * If command takes longer then foregroundTimeout, call will return and command
-     * will run in background until  backgroundTimeout at which time it will abort mission
-     */
     public void setRunParameters(String command, int foregroundTimeout, int backgroundTimeout) {
         m_command = split(command);
         m_foregroundTimeout = foregroundTimeout;

@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
+import static java.lang.Integer.reverse;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
@@ -44,7 +45,6 @@ public class DnsConfigTest {
     private Address m_a1; 
     private Address m_a2;
     private Address m_a3;      
-    private Domain m_d = new Domain("x");
     
     @Before
     public void setUp() {
@@ -57,7 +57,6 @@ public class DnsConfigTest {
         m_a1 = new Address(DnsManager.DNS_ADDRESS, "1.1.1.1");
         m_a2 = new Address(DnsManager.DNS_ADDRESS, "2.2.2.2");
         m_a3 = new Address(DnsManager.DNS_ADDRESS, "3.3.3.3");
-        m_d.setNetworkName("x");
     }
     
     @Test
@@ -97,7 +96,7 @@ public class DnsConfigTest {
     @Test
     public void emptyZone() throws IOException {
         StringWriter actual = new StringWriter();
-        m_config.writeZoneConfig(actual, m_d, m_locations, null, null, 1);
+        m_config.writeZoneConfig(actual, "x", m_locations, null, null, 1, true);
         String expected = IOUtils.toString(getClass().getResourceAsStream("empty-zone.yml"));
         assertEquals(expected, actual.toString());
     }
@@ -112,7 +111,7 @@ public class DnsConfigTest {
         };
         List<Address> all = Arrays.asList(m_a1, m_a2, m_a3);
         List<DnsSrvRecord> rrs = Arrays.asList(records);
-        m_config.writeZoneConfig(actual, m_d, m_locations, all, rrs, 1);
+        m_config.writeZoneConfig(actual, "x", m_locations, all, rrs, 1, true);
         String expected = IOUtils.toString(getClass().getResourceAsStream("full-zone.yml"));
         assertEquals(expected, actual.toString());
     }
@@ -125,9 +124,7 @@ public class DnsConfigTest {
         };
         List<Address> all = Arrays.asList(m_a1);
         List<DnsSrvRecord> rrs = Arrays.asList(records);
-        Domain d = new Domain("one.example.org");
-        d.setNetworkName("one.example.org");
-        m_config.writeZoneConfig(actual, d, Arrays.asList(m_l1), all, rrs, 1);
+        m_config.writeZoneConfig(actual, "one.example.org", Arrays.asList(m_l1), all, rrs, 1, true);
         String expected = IOUtils.toString(getClass().getResourceAsStream("full-zone-domain-fqdn.yml"));
         assertEquals(expected, actual.toString());
     }

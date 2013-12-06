@@ -41,13 +41,11 @@ import 'dart:convert';
  *   var url = api.url("rest/myApi/", "my-dummy-data.json");
  */
 class Api {
-  bool test_flag;
+  bool test;
   
   Api({bool test: false}) {
-    this.test_flag = test;
+    this.test = test;
   }
-  
-  bool get test => test_flag && isDartium();
   
   String url(String url, [devUrl]) {
    if (isDartium()) {

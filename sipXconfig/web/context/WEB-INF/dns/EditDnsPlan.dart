@@ -178,7 +178,7 @@ class DnsPlanEditor {
 ''').querySelector("tr");
     
     ButtonElement remove = eGroup.querySelector("#${removeId}");
-    //remove.disabled = isFirst;
+    remove.disabled = isFirst;
     remove.onClick.listen((_) {
       removeGroup(eGroup);
     });
@@ -254,7 +254,7 @@ class DnsPlanEditor {
     addTargetOptions(services, targetOptions, target['targetId'].toString(), 'BASIC');
     InputElement percentage = eItem.querySelector("#${percentageId}");
     ButtonElement remove = eItem.querySelector("#${removeId}");
-    //remove.disabled = isFirst;
+    remove.disabled = isFirst;
     remove.onClick.listen((_) {
       juggler.remove(percentage);
       eItem.remove();
