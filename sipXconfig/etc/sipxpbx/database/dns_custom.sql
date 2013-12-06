@@ -6,8 +6,8 @@ create table dns_custom (
 );
 
 create table dns_custom_view_link (
-  dns_custom_id int4 not null,
-  dns_view_id int4 not null,
+  dns_custom_id int4 not null references dns_custom on delete cascade,
+  dns_view_id int4 not null references dns_view on delete cascade,
   primary key (dns_custom_id, dns_view_id)	
 );
 

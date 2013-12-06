@@ -27,7 +27,8 @@ create table dns_view (
   enabled bool not null default true,
   dns_plan_id int4 references dns_plan,
   region_id int4 references region,
-  position int not null
+  position int not null,
+  primary key (dns_view_id)
 );
 
 create sequence dns_view_seq;
