@@ -3,7 +3,7 @@
   "host" : "",
   "leftHandSide" : "_x.test",
   "port" : 1,
-  "priority" : 20,
+  "priority" : 10,
   "protocol" : "_x",
   "resource" : "test",
   "weight" : 10
@@ -12,7 +12,7 @@
   "host" : "",
   "leftHandSide" : "_x.test",
   "port" : 2,
-  "priority" : 20,
+  "priority" : 10,
   "protocol" : "_x",
   "resource" : "test",
   "weight" : 10
@@ -21,7 +21,7 @@
   "host" : "",
   "leftHandSide" : "_x.test",
   "port" : 3,
-  "priority" : 30,
+  "priority" : 20,
   "protocol" : "_x",
   "resource" : "test",
   "weight" : 10

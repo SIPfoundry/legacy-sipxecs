@@ -1,34 +1,40 @@
 import 'dart:html';
-import 'dart:convert';
+import 'dart:json';
 import 'dart:async';
 import 'package:sipxconfig/sipxconfig.dart';
 
 bool inProgressFlag = false;
 ManageGlobal global = new ManageGlobal();
 ManageLocal local = new ManageLocal();
+List<ManageBase> all = [global, local];
 ManageBase manage = global;
-ManageBase unmanage = local;
+Tabs tabs;
 var api = new Api(test : false);
 
 main() {
-  new Tabs(querySelector("#leftNavAbsolute"), ["global", "local"], onTabClick);
-  reload();
-}
-
-onTabClick(String id) {
-  if (id == "global") {
-    manage = global;
-    unmanage = local;
-  } else {
-    manage = local;
-    unmanage = global;
-  }  
+  tabs = new Tabs(query("#leftNav"));
+  tabs.add('global', getString('tab.global'), query("#global"), global);
+  tabs.add('local', getString('tab.local'), query("#local"), local);
+  tabs.onClick((id, token) {
+    manage = token;
+    for (var base in all) {
+      if (manage == base) {
+        base.load();
+      } else {        
+        base.unload();
+      }
+    }    
+    for (var help in query(".help").children) {
+      help.style.display = (manage.help == help.id ? "" : "none");
+    }
+    reload();
+  });
   reload();
 }
 
 reload() {
+  tabs.render();  
   manage.load();  
-  unmanage.unload();
 }
 
 abstract class ManageBase {
@@ -47,10 +53,10 @@ class ManageGlobal extends ManageBase {
   
   ManageGlobal() {
     help = "global.help";
-    msg = new UserMessage(querySelector("#globalMessage"));    
+    msg = new UserMessage(query("#globalMessage"));    
     loader = new DataLoader(msg, loadTable, true);
     builder = new UiBuilder(this);    
-    refresh = new Refresher(querySelector("#globalRefreshWidget"), querySelector("#globalRefreshButton"), () {
+    refresh = new Refresher(query("#globalRefreshWidget"), query("#globalRefreshButton"), () {
       var url = api.url("rest/mongoGlobal/", "global-test.json");
       loader.load(url);      
     });
@@ -66,10 +72,10 @@ class ManageGlobal extends ManageBase {
   }
   
   void loadTable(data) {    
-    var meta = JSON.decode(data);    
-    builder.addMongoNodeSelect(meta['dbCandidates'], querySelector('#globalAddDb'), 'NEW_DB', getString('addDatabase'));
-    builder.addMongoNodeSelect(meta['arbiterCandidates'], querySelector('#globalAddArbiter'), 'NEW_ARBITER', getString('addArbiter'));
-    TableSectionElement tbody = querySelector("#globalTable");
+    var meta = parse(data);    
+    builder.addMongoNodeSelect(meta['dbCandidates'], query('#globalAddDb'), 'NEW_DB', getString('addDatabase'));
+    builder.addMongoNodeSelect(meta['arbiterCandidates'], query('#globalAddArbiter'), 'NEW_ARBITER', getString('addArbiter'));
+    TableSectionElement tbody = query("#globalTable");
     tbody.children.clear();
     builder.lastError(meta['lastConfigError']);    
     var rows = new List<TableRowElement>();
@@ -100,7 +106,7 @@ class ManageGlobal extends ManageBase {
         load();
       }
     });
-    var post = JSON.encode({'server' : server, 'action' : action });
+    var post = stringify({'server' : server, 'action' : action });
     httpRequest.send(post);
   }  
 }
@@ -112,23 +118,23 @@ class ManageLocal extends ManageBase {
   
   ManageLocal() {
     help = "local.help";
-    msg = new UserMessage(querySelector("#localMessage"));    
+    msg = new UserMessage(query("#localMessage"));    
     loader = new DataLoader(msg, loadTable, true);
     builder = new UiBuilder(this);
-    refresh = new Refresher(querySelector("#localRefreshWidget"), querySelector("#localRefreshButton"), () {
+    refresh = new Refresher(query("#localRefreshWidget"), query("#localRefreshButton"), () {
       var url = api.url("rest/mongoRegional/", "local-test.json");
       loader.load(url);      
     });
   }
       
   void loadTable(data) {
-    var meta = JSON.decode(data);
-    TableSectionElement tbody = querySelector("#localTable");
+    var meta = parse(data);
+    TableSectionElement tbody = query("#localTable");
     tbody.children.clear();
     builder.lastError(meta['lastConfigError']);  
     List candidates = meta['dbCandidates'];
-    builder.addMongoNodeSelect(candidates, querySelector('#localAddDb'), 'NEW_LOCAL', getString('addDatabase'));
-    builder.addMongoNodeSelect(meta['arbiterCandidates'], querySelector('#localAddArbiter'), 'NEW_LOCAL_ARBITER', getString('addArbiter'));
+    builder.addMongoNodeSelect(candidates, query('#localAddDb'), 'NEW_LOCAL', getString('addDatabase'));
+    builder.addMongoNodeSelect(meta['arbiterCandidates'], query('#localAddArbiter'), 'NEW_LOCAL_ARBITER', getString('addArbiter'));
     
     List shards = meta['shards'];
     if ((shards == null || shards.length == 0) && (candidates == null || candidates.length == 0)) {
@@ -164,7 +170,7 @@ regions to servers if you wish to have a local databbase
             // but to user they do not need to know that so keep label
             // the same as removing a database
             var cmd = (type == 'databases' ? 'DELETE_LOCAL' : 'DELETE_LOCAL_ARBITER'); 
-            actions.children.add(new OptionElement(data: getString('action.DELETE'), value: cmd, selected: false));
+            actions.children.add(new OptionElement(getString('action.DELETE'), cmd, false, false));
           }
           rows.add(row);
         });
@@ -189,7 +195,7 @@ regions to servers if you wish to have a local databbase
         load();
       }
     });
-    var post = JSON.encode({'server' : server, 'action' : action });
+    var post = stringify({'server' : server, 'action' : action });
     httpRequest.send(post);
   }  
 
@@ -259,24 +265,24 @@ class UiBuilder {
       onServerAction(label, server, select.value);
     });
 
-    actions.children.add(new OptionElement(data: getString('options'), value: ''));
+    actions.children.add(new OptionElement(getString('options'), '', false, false));
     if (!(node['status'] as List<String>).contains('PRIMARY')) {
-      actions.children.add(new OptionElement(data: getString('action.DELETE'), value: 'DELETE'));
+      actions.children.add(new OptionElement(getString('action.DELETE'), 'DELETE', false, false));
     } else {
-      actions.children.add(new OptionElement(data: getString('action.STEP_DOWN'), value: 'STEP_DOWN 60'));        
+      actions.children.add(new OptionElement(getString('action.STEP_DOWN'), 'STEP_DOWN 60', false, false));        
     }
     if (type != 'arbiters') {
       var priority = 1;
       if (node['priority'] != null) {
         priority = node['priority'];
       }
-      actions.children.add(new OptionElement(data: getString('action.ADD_VOTE'), value: 'ADD_VOTE'));
-      actions.children.add(new OptionElement(data: getString('action.REMOVE_VOTE'), value: 'REMOVE_VOTE'));
-      actions.children.add(new OptionElement(data: getString('action.INCREASE_PRIORITY'), value: 'CHANGE_PRIORITY ${priority + 1}'));
-      actions.children.add(new OptionElement(data: getString('action.DECREASE_PRIORITY'), value: 'CHANGE_PRIORITY ${priority - 1}'));
+      actions.children.add(new OptionElement(getString('action.ADD_VOTE'), 'ADD_VOTE', false, false));
+      actions.children.add(new OptionElement(getString('action.REMOVE_VOTE'), 'REMOVE_VOTE', false, false));
+      actions.children.add(new OptionElement(getString('action.INCREASE_PRIORITY'), 'CHANGE_PRIORITY ${priority + 1}', false, false));
+      actions.children.add(new OptionElement(getString('action.DECREASE_PRIORITY'), 'CHANGE_PRIORITY ${priority - 1}', false, false));
     }
     for (var a in node['available']) {
-      var option = new OptionElement(data: getString('action.${a}'), value: a);
+      var option = new OptionElement(getString('action.${a}'), a, false, false);
       actions.append(option);
     }
     
@@ -293,9 +299,9 @@ class UiBuilder {
     addNode.onChange.listen((e) {
       onServerAction(noneSelectedLabel, addNode.value, action);
     });
-    addNode.append(new OptionElement(data: noneSelectedLabel, value: "", selected: true));
+    addNode.append(new OptionElement(noneSelectedLabel, "", false, true));
     for (var candidate in candidates) {
-      addNode.append(new OptionElement(data: candidate, value: candidate));
+      addNode.append(new OptionElement(candidate, candidate, false, false));
     }
     parent.append(addNode);
   }
@@ -362,8 +368,8 @@ class UiBuilder {
   }
 
   inProgress(bool inProg) {
-    querySelector('#inprogress').hidden = ! inProg;
-    for (var e in querySelectorAll('.action')) {    
+    query('#inprogress').hidden = ! inProg;
+    for (var e in queryAll('.action')) {    
       e.disabled = inProg;
     }
   }

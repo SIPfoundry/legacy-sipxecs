@@ -88,10 +88,6 @@
       <type refid="true-false"/>
       <value>false</value>
     </setting>    
-    <setting name="configManagerImpl.unregisteredConfigurable" advanced="yes">
-      <type refid="true-false"/>
-      <value>false</value>
-    </setting>    
   </group>
   <group name="ldap-management">
     <setting name="age">

@@ -223,14 +223,6 @@ public class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implement
         m_configuredSipDomain = configuredSipDomain;
     }
 
-    /**
-     * Safer way to set domain with somewhat limited test scope
-     *
-     *  Domain domain = new Domain();
-     *  domain.setName("ezuce.ro");
-     *  DomainManagerImpl manager = new DomainManagerImpl();
-     *  manager.setTestDomain(domain);
-     */
     public void setTestDomain(Domain d) {
         m_domain = d;
     }

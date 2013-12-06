@@ -1,45 +1,19 @@
-/**
- * Copyright (c) 2013 eZuce, Inc. All rights reserved.
- * Contributed to SIPfoundry under a Contributor Agreement
- *
- * This software is free software; you can redistribute it and/or modify it under
- * the terms of the Affero General Public License (AGPL) as published by the
- * Free Software Foundation; either version 3 of the License, or (at your option)
- * any later version.
- *
- * This software is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
- * details.
- */
 library sipxconfig;
 
 import 'dart:html';
 import 'dart:async';
 import 'dart:collection';
-import 'dart:convert';
+import 'dart:json';
 
-/**
- * Common utilities for sipxecs-based UIs
- * Implementation Note: This could potentially be split into multiple files
- * but single file is a little easier to expose to plugins.  
- */
+Map<String,String> strings;
 
-/**
- * Useful for scripts that load data from web services that wish to alternatively
- * load static data to render page for development purposes.  By using this utility
- * you can easily flip between getting data from web service and static files.
- * 
- * If page was commited to git with it left in static data mode, page will 
- * automatically use REST api when built into sipxconfig jar so pages can safely 
- * leave themselves in test mode.
- * 
- * Obviously this is only useful for GET requests.
- * 
- * Example:
- *   var api = new Api(test : true);
- *   var url = api.url("rest/myApi/", "my-dummy-data.json");
- */
+loadStrings() {
+  strings = new HashMap<String,String>();
+  for (SpanElement e in query("#rc").children) {
+    strings[e.attributes["key"]] = e.text;    
+  }
+}
+
 class Api {
   bool test;
   
@@ -72,9 +46,6 @@ class Api {
 }
 
 /**
- * S T R I N G  R E S O U R C E S
- */
-/**
  * Gets a resource string from a coresponding tapestry component on the
  * page.
  *   getString("bird");
@@ -86,7 +57,7 @@ class Api {
  */
 String getString(String rcId, [List<String> args]) {
   if (strings == null) {
-    _loadStrings();
+    loadStrings();
   }
   // support non-standard but convenient format where if key has
   // spaces it will split on space and treat everything after first
@@ -107,126 +78,121 @@ String getString(String rcId, [List<String> args]) {
   return rc;
 }
 
-Map<String,String> strings;
-_loadStrings() {
-  strings = new HashMap<String,String>();
-  for (SpanElement e in querySelector("#rc").children) {
-    strings[e.attributes["key"]] = e.text;    
-  }
-}
-
+typedef void TabCallback(String id, Object tabToken);
 /**
- * Manage a set of links in the left-hand side of the page that flips between
- * divs emulating that user is navigating between different pages.  Widget assumes
- * a naming convention.
- * 
- * Convention: For each tab id "foo" passed in constructor, there exists 
- * a.) a clickable html element with id "foo-tab-link" (typically an anchor w/href)
- * b.) an html element with id "foo-tab" (typically an "li") that holds the link 
- * c.) an html element with id "foo" (typically an "div") element that holds the tab content
- * 
- * Features:
- * 1.) Can optionally call callback when a tab is changed, otherwise default behavaior
- * is to simply change CSS to display or not display divs. This is useful if page needs
- * to trigger page refresh or put scripts on the table to sleep on unload
- * 
- * 2.) Can optionally save which tab is active in client web browser storage for an 
- * http session.
- * 
- * NOTE: This does not render any html, only coordinates the on/off state of tabs.
- * 
- * Example html code:
- *  <ul id="mytabs">
- *    <li id=foo-tab><a href=# id=foo-tab-link>Foo</a></li>
- *    <li id=bar-tab><a href=# id=bar-tab-link>Bar</a></li>
- *  <ul>
- *  <div id=foo>
- *  </div>
- *  <div id=bar style="display:none">
- *  </div>
- *  
- * Example dart code
- *  main() {
- *    new Tabs(querySelector("#mytabs"), ["foo", "bar"]);
- *  }
+ * Renders and controls a set of stacked vertical tabs, calls given listener
+ * on tab selection for owner to excute function
  */
 class Tabs {
-  Element root;
-  List<String> ids;
-  TabCallback tabChangeListener;
-  String persistentStateId;
+  Element nav;
+  Map<String, List<Object>> tabs = new LinkedHashMap();
+  String activeTab;
+  TabCallback listener;
   
-  Tabs(Element this.root, Iterable<String> ids, [this.tabChangeListener]) {
-    this.ids = ids.toList(growable: false);
-    for (String id in this.ids) {
-      var linkId = "#${id}-tab-link";
-      AnchorElement link = root.querySelector(linkId);
-      if (link == null) {
-        print("ERROR: Cannot find tab link ${linkId}");
-        continue;
-      }
-      link.onClick.listen((_) {
-        changeTab(id);
-      });      
-    }    
+  Tabs(Element parent) {
+    nav = query("#leftNav");
+    if (nav == null) {
+      print("ERROR: No tabNavigation found on page");
+    }
   }
   
-  changeTab(String selectedId) {    
-    if (tabChangeListener != null) {
-      tabChangeListener(selectedId);
+  void add(String id, String label, Element div, Object token, [void callback(String id, Object tabToken)]) {
+    if (activeTab == null) {
+      activeTab = id;
     }
-    for (String id in this.ids) {
-      var tabId = "${id}-tab";
-      Element tab = root.querySelector("#${tabId}");
-      if (tab == null) {
-        print("ERROR: Cannot find tab with id ${tabId}");
+    tabs[id] = [label, div, token, callback];
+  }
+  
+  void onClick(void callback(String id, Object tabToken)) {
+    this.listener = callback;
+  }
+  
+  void render() {
+    if (nav == null) {
+      return;
+    }
+    nav.children.clear();
+    div(nav, 'roundedNavSectionBoxTopLeft');
+    div(nav, 'roundedNavSectionBoxTopRight');
+    var tabNav = div(nav, 'roundedNavSectionBoxInside');
+    tabNav = span(tabNav, 'roundedSectionBoxInsideContent');
+    var ul = new UListElement();
+    ul.classes.add("htabs");
+    tabNav.append(ul);
+    tabs.forEach((tabId, tab) {
+      var item = new LIElement();
+      item.classes.add("tab");
+      ul.append(item);
+      item = div(item, 'tabLink');      
+      if (activeTab == tabId) {
+        item = div(item, 'shadow');
+        item = div(item, 'active');
+        if (tab[1] != null) {
+          (tab[1] as Element).style.display = "";
+        }
       } else {
-        if (id == selectedId) {
-          tab.classes.add("active");        
-        } else {
-          tab.classes.remove("active");                
+        if (tab[1] != null) {
+          (tab[1] as Element).style.display = "none";
         }
       }
-      
-      Element tabContent = querySelector("#${id}");
-      if (tabContent == null) {
-        print("ERROR: Cannot find tab ${id}");
-      } else {
-        if (id == selectedId) {
-          tabContent.style.display = "";
+      var link = new AnchorElement(href: "#");
+      link.onClick.listen((e) {
+        activeTab = tabId;
+        var token = tab[2];
+        if (tab[3] != null) {
+          (tab[3] as TabCallback)(tabId, token);
         } else {
-          tabContent.style.display = "none";
+          listener(tabId, token);
         }
-      }
-    }
-    persistActiveTabId(selectedId);
-  }
-  
-  persistActiveTabId(String tabId) {
-    if (persistentStateId != null) {
-      window.sessionStorage[persistentStateId] = tabId;      
-    }
-  }
-  
-  setPersistentStateId(String persistenceId) {
-    persistentStateId = persistenceId;
-    var store = window.sessionStorage;
-    if (window.sessionStorage.containsKey(persistentStateId)) {      
-      changeTab(store[persistentStateId]);      
-    }
+      });
+      link.text = tab[0];
+      item.append(link);
+    });  
+    div(nav, 'roundedNavSectionBoxBottomLeft');
+    div(nav, 'roundedNavSectionBoxBottomRight');    
   }
 }
-typedef void TabCallback(String id);
 
+// return tbody in case that's useful
+TableSectionElement dataTable(parent, labels) {
+  parent.children.clear();
+  parent.classes.add('tableDiv');
+  var e = span(parent, 'tableView');
+  TableElement table = child(e, new TableElement(), 'component');
+  var thead = table.append(table.createTHead());
+  var row = thead.addRow();
+  for (var label in labels) {
+    row.append(new Element.html("<th>${label}</th>"));
+  }  
+  var tb = table.createTBody();
+  table.append(tb);
+  return tb;
+}
+
+Element child(parent, child, cls) {
+  child.classes.add(cls);
+  parent.append(child);
+  return child;  
+}
+
+SpanElement span(parent, cls) {
+  var e = new SpanElement();
+  e.classes.add(cls);
+  parent.append(e);
+  return e;
+}
+
+DivElement div(parent, cls) {
+  var e = new DivElement();
+  e.classes.add(cls);
+  parent.append(e);
+  return e;
+}
+
+typedef void RefreshCallback();
 
 /**
- * Calls listener every N seconds. Useful for pages that have a refresh widget
- * that refreshed the page.
- *  
- * Features:
- * 1.) Will update UserMessage object if there are any errors
- * 2.) Save refresh rate in client-side http session
- * 3.) Restart timer of page is refreshed
+ * Calls listener every N seconds. 
  */
 class Refresher {
   CheckboxInputElement on;
@@ -294,9 +260,8 @@ class Refresher {
     }
   }
 }
-typedef void RefreshCallback();
 
-
+typedef void DataLoaderCallback(String data);
 
 /**
  * Makes GET request to REST API and checks for errors, on no
@@ -326,7 +291,7 @@ class DataLoader {
     }
     String userError;
     try {
-      userError = JSON.decode(request.responseText)['error'];
+      userError = parse(request.responseText)['error'];
     } catch(notJson) {      
     }
     if (userError == null) {
@@ -345,24 +310,8 @@ class DataLoader {
   }
 }
 
-typedef void DataLoaderCallback(String data);
-
 /**
  * Simple paragraph element that shows success or error messages.
- * Features:
- * 
- * 1.) Widget can be used as many times as you want on a page w/o conflict typically
- * each element has a unique id, but that's up to you
- * 
- * 2.) Can ask for confirmation for error messages, useful for pages that refresh
- * automatically and error would be flushed.
- * 
- * Example:
- * 
- * main() {
- *    var msg = new UserMessage(querySelector("#my-message"));
- *    msg.success("Have a great day!");
- * }
  */
 class UserMessage {
   Element msg;

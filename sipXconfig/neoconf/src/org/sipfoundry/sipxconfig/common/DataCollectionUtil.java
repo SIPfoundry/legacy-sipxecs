@@ -33,30 +33,6 @@ public final class DataCollectionUtil {
         });
     }
 
-    public static <T extends BeanWithId> Map<Integer, T> idToObjectMap(Collection<T> c) {
-        Map<Integer, T> map = new HashMap<Integer, T>();
-        for (T bean : c) {
-            map.put(bean.getId(), bean);
-        }
-        return map;
-    }
-
-    public static Map<Integer, String> idToNameMap(Collection<? extends BeanWithId> c) {
-        Map<Integer, String> map = new HashMap<Integer, String>();
-        for (BeanWithId bean : c) {
-            map.put(bean.getId(), ((NamedObject) bean).getName());
-        }
-        return map;
-    }
-
-    public static Map<String, String> idAsStringToNameMap(Collection<? extends BeanWithId> c) {
-        Map<String, String> map = new HashMap<String, String>();
-        for (BeanWithId bean : c) {
-            map.put(bean.getId().toString(), ((NamedObject) bean).getName());
-        }
-        return map;
-    }
-
     /**
      * Removes items from collections by their primary key and updates the positions on the items
      *

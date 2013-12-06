@@ -16,7 +16,6 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
-import static java.lang.Integer.reverse;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
@@ -69,15 +68,13 @@ public class DnsConfigTest {
     
     @Test
     public void cfdat() throws IOException {
-//        Region r0 = Region.DEFAULT;
-        DnsView v0 = new DnsView(Region.DEFAULT.getName());
-        DnsView v1 = new DnsView("r1");
-//        Region r1 = new Region("r1");
-        Collection<DnsView> views = Arrays.asList(v0, v1);
+        Region r0 = Region.DEFAULT;        
+        Region r1 = new Region("r1");
+        Collection<Region> regions = Arrays.asList(r0, r1);
         DnsSettings settings = new DnsSettings();
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
         StringWriter actual = new StringWriter();
-        m_config.writeSettings(actual, true, true, views, settings);
+        m_config.writeSettings(actual, true, true, regions, settings);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-named.cfdat"));
         assertEquals(expected, actual.toString());        
     }
@@ -158,25 +155,15 @@ public class DnsConfigTest {
         Domain d = new Domain("x");
         Region r0 = Region.DEFAULT;        
         Region r1 = new Region("r1");
-        r1.setUniqueId(1);
         r1.setAddresses(new String[] {"1.1.1.1", "1.1.1.2"});
         Region r2 = new Region("r2");
-        r2.setUniqueId(2);
         r2.setAddresses(new String[] {"2.2.2.1", "2.2.2.2"});
         Collection<Address> forwarders = Arrays.asList(
                 new Address(DnsManager.DNS_ADDRESS, "8.8.8.8"),
                 new Address(DnsManager.DNS_ADDRESS, "8.8.8.2")
         );
-        DnsView v0 = new DnsView(r0.getName());
-        v0.setRegionId(r0.getId());
-        DnsView v1 = new DnsView(r1.getName());
-        v1.setRegionId(r1.getId());
-        DnsView v2 = new DnsView(r2.getName());
-        v2.setRegionId(r2.getId());
-        
-        
         StringWriter actual = new StringWriter();
-        m_config.writeNamedConfig(actual, d, Arrays.asList(v0, v1, v2), forwarders, Arrays.asList(r0, r1, r2));
+        m_config.writeNamedConfig(actual, d, Arrays.asList(r0, r1, r2), forwarders);
         String expected = IOUtils.toString(getClass().getResourceAsStream("named.expected.yml"));
         assertEquals(expected, actual.toString());
     }

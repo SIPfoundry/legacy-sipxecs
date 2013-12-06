@@ -7,32 +7,26 @@
 	href="../../../src/org/sipfoundry/sipxconfig/site/skin/layout.css">
 <link rel="stylesheet"
 	href="../../../src/org/sipfoundry/sipxconfig/site/skin/colors.css">
-<style>
-body {
-  margin-top: 100px;
-  margin-left: 250px;
-}
-</style>
 </head>
-<body jwcid="$content$">
-  <div jwcid="@common/Border" restricted="false"
+<div id="leftNav">
+  <!-- Devmode only -->
+</div>
+<body id="devmode" jwcid="$content$">
+	<div jwcid="@common/Border" restricted="false"
 		borderTitle="ognl:borderTitle">
-    <ul id="leftNavAbsolute" class="htabs">
-      <li id="global-tab" class="tab active">
-        <a id="global-tab-link" href="#"><span key="tab.global">Global Databases</span></a>
-      </li>
-      <li id="local-tab" class="tab">
-        <a id="local-tab-link" href="#"><span key="tab.local">Regional Databases</span></a>
-      </li>
-    </ul>
+    <div class="help">
+      <div id="global.help">
+        <span jwcid="@Insert" raw="true" value="message:global.help">Global Help</span>
+      </div>
+      <div id="local.help" style="display:none">
+        <span jwcid="@Insert" raw="true" value="message:local.help">Local Help</span>
+      </div>
+    </div>		  
     <p><span id="inprogress" ><img src="/sipxconfig/images/loading.gif"/>
       <span key="label.inprogress">Operation in progress...</span>
     </span>&nbsp;</p>
     
     <div id="global">
-       <div class="help">
-          <span key="global.help">Global Help</span>
-       </div>
        <p id="globalMessage"></p>
   		<ul class="component-links">
   			<li id="globalAddDb"></li>
@@ -55,9 +49,6 @@ body {
         </ul>
     </div>
     <div id="local" style="display: none;">
-       <div class="help">
-          <span key="local.help">Local Help</span>
-       </div>
        <p id="localMessage"></p>
         <ul class="component-links">
           <li id="localAddDb"></li>
@@ -109,6 +100,8 @@ body {
       <span jwcid="@common/Message" key="action.SET_MEMBER_META">Repair queries</span>      
       <span jwcid="@common/Message" key="label.priority">Priority: </span>
       <span jwcid="@common/Message" key="label.voting">Voting: </span>
+      <span jwcid="@common/Message" key="tab.global">Global Databases</span>
+      <span jwcid="@common/Message" key="tab.local">Regional Databases</span>      
       <span jwcid="@common/Message" key="refreshEvery">Refresh every</span>      
       <span jwcid="@common/Message" key="seconds">seconds.</span>      
     </span>

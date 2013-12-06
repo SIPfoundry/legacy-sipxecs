@@ -64,6 +64,10 @@ public class Region extends BeanWithId implements NamedObject, DeployConfigOnEdi
         return m_name;
     }
 
+    public String getConfigFriendlyName() {
+        return m_name.replaceAll("\\W+", "_");
+    }
+
     public void setName(String name) {
         m_name = name;
     }

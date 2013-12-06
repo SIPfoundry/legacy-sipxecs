@@ -72,7 +72,6 @@ class MongoApi extends Resource {
         return true;
     }
 
-    // GET
     @Override
     public Representation represent(Variant variant) throws ResourceException {
         getResponse().setStatus(Status.SUCCESS_OK);
@@ -83,7 +82,6 @@ class MongoApi extends Resource {
         return new StringRepresentation(json);
     }
 
-    // POST
     public void acceptRepresentation(Representation entity) throws ResourceException {
         String json;
         try {
