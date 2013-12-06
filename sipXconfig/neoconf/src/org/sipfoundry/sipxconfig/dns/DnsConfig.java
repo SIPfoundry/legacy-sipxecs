@@ -55,7 +55,6 @@ import org.sipfoundry.sipxconfig.registrar.Registrar;
 import org.springframework.beans.factory.annotation.Required;
 
 public class DnsConfig implements ConfigProvider {
-    private static final String LINE_SEP = "\n";
     private static final String YML_PORT = ":port";
     private static final String YML_NAME = ":name";
     private static final String YML_DOMAIN = "domain";
@@ -142,8 +141,8 @@ public class DnsConfig implements ConfigProvider {
                             .getCustomRecordsIds());
                     for (DnsCustomRecords custom : customs) {
                         zoneCustom.write(custom.getRecords());
-                        if (!custom.getRecords().endsWith(LINE_SEP)) {
-                            zoneCustom.append(LINE_SEP);
+                        if (!custom.getRecords().endsWith(System.lineSeparator())) {
+                            zoneCustom.append(System.lineSeparator());
                         }
                     }
                 } finally {
