@@ -1,7 +1,0 @@
-{
-  "custom" : {
-    "id" : 1,
-    "name" : "Mail records",
-    "records" : "Hello world\nHow are you?"
-  }
-}

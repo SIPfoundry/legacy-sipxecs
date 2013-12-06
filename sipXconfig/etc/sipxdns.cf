@@ -68,7 +68,7 @@ bundle agent sipxdns_config {
         create => "true",
         perms => mog(600, "named", "named"),
         edit_defaults => empty,
-        transformer => "$(sipx.SIPX_LIBEXECDIR)/sipx-erb --in $(sipx.SIPX_CFDATA)/$(sipx.dnsviews).yaml --out $(this.promiser) --template $(sipx.SIPX_CONFDIR)/sipxdns/zone.erb --postpend $(sipx.SIPX_CFDATA)/$(sipx.dnsviews).custom",
+        transformer => "$(sipx.SIPX_LIBEXECDIR)/sipx-erb --in $(sipx.SIPX_CFDATA)/$(sipx.dnsviews).yaml --out $(this.promiser) --template $(sipx.SIPX_CONFDIR)/sipxdns/zone.erb",
         classes => if_repaired("reload_named");
 }
 

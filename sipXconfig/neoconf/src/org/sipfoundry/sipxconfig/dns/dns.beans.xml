@@ -84,16 +84,4 @@
   </bean>
 
   <alias name="dnsMoveViewApi" alias="/dnsViewMove" />
-
-  <!-- DNS CUSTOM REST API -->
-  <bean id="baseDnsCustomApi" class="org.sipfoundry.sipxconfig.dns.DnsCustomApi">
-    <property name="dnsManager" ref="dnsManager"/>    
-  </bean>
-
-  <bean id="dnsCustomApi" parent="baseDnsCustomApi"/>
-  <alias name="dnsCustomApi" alias="/dnsCustom" />
-  
-  <bean name="editDnsCustomApi" parent="baseDnsCustomApi"/>
-  <alias name="editDnsCustomApi" alias="/dnsCustom/{id}" />
-
 </beans>

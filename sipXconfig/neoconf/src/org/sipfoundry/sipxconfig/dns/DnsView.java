@@ -16,7 +16,6 @@ package org.sipfoundry.sipxconfig.dns;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
@@ -31,7 +30,6 @@ public class DnsView extends BeanWithId implements NamedObject, DeployConfigOnEd
     private String m_name;
     private Integer m_planId;
     private boolean m_enabled = true;
-    private List<Integer> m_customRecordsIds;
 
     public DnsView() {
     }
@@ -91,13 +89,5 @@ public class DnsView extends BeanWithId implements NamedObject, DeployConfigOnEd
     @JsonIgnore
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Arrays.asList((Feature) DnsManager.FEATURE);
-    }
-
-    public List<Integer> getCustomRecordsIds() {
-        return m_customRecordsIds;
-    }
-
-    public void setCustomRecordsIds(List<Integer> customRecordIds) {
-        m_customRecordsIds = customRecordIds;
     }
 }

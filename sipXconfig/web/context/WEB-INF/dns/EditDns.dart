@@ -24,7 +24,6 @@ main() {
   tabs.setPersistentStateId("editDns");
   new Views();
   new Failover();
-  new Custom();
 }
 
 class Failover {
@@ -173,64 +172,7 @@ setSelectedIds(String checkboxName, List<int> ids) {
   }  
 }
 
-class Custom {
-  var msg = new UserMessage(querySelector("#custom-message"));
-  DataLoader loader;
 
-  Custom() {
-    querySelector("#custom-delete").onClick.listen(deleteSelected);
-    loader = new DataLoader(this.msg, loadTable);
-    load();        
-  }
-
-  load() {
-    var url = api.url("rest/dnsCustom/", "custom-test.json");
-    loader.load(url);        
-  }
-
-  loadTable(data) {
-    var tbody = querySelector("#custom-items");    
-    tbody.children.clear();
-    var meta = JSON.decode(data);
-    for (var custom in meta) {
-      List views = custom['views'];
-      String viewsHtml = (views == null ? '' : views.join(', '));
-      var e = new Element.html('''
-<table>
-  <tbody>
-    <tr>
-      <td><input type="checkbox" name="selected-custom" value="${custom['id'].toString()}"/></td>
-      <td><a href="EditDnsCustom.html?dnsCustomId=${custom['id'].toString()}">${custom['name']}</a></td>
-      <td>${viewsHtml}</td>
-    </tr>
-  </tbody>
-</table>
-''');
-        tbody.children.add(e.querySelector("tr"));   
-    }
-  }
-
-  deleteSelected(event) {
-    if (!window.confirm(getString("msg.deleteCustomConfirm"))) {
-      return;
-    }
-    var ids = selectedIds("selected-custom");
-    for (int id in ids) {
-      HttpRequest req = new HttpRequest();
-      req.open('DELETE', api.url("rest/dnsCustom/${id}"));
-      req.send();
-      req.onLoadEnd.listen((_) {
-        if (id == ids.last) {
-          load();
-        }
-      });
-    }
-  }
-}
-
-/**
- * Utils
- */
 List<int> selectedIds(String checkboxName) {
   var on = new List<int>();
   List<CheckboxInputElement> all = querySelectorAll("input[name=${checkboxName}]");

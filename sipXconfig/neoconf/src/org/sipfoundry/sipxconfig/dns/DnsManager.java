@@ -65,14 +65,4 @@ public interface DnsManager {
     public String[] getPlanNamesUsingLocation(Location location);
 
     public String[] getViewNamesUsingPlan(DnsFailoverPlan plan);
-
-    public Collection<DnsCustomRecords> getCustomRecords();
-
-    public DnsCustomRecords getCustomRecordsById(Integer customId);
-
-    public void saveCustomRecords(DnsCustomRecords custom);
-
-    public void deleteCustomRecords(DnsCustomRecords custom);
-
-    public Collection<DnsCustomRecords> getCustomRecordsByIds(Collection<Integer> customIds);
 }

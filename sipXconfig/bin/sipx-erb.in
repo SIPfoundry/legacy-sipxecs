@@ -41,7 +41,6 @@ require 'yaml'
 $out = nil
 $use_stdout = true
 $yaml = nil
-$postpend = []
 args = OptionParser.new { |opts|
   opts.banner = "Usage : sipx-erb [options]"
 
@@ -69,10 +68,6 @@ args = OptionParser.new { |opts|
   opts.on("--stdout", "Write output to stdout") {|f|
     $use_stdout = true
   }
-
-  opts.on("--postpend FILE", "Additional files to append to output, if files exist.") {|f|
-    $postpend << f
-  }
 }
 args.parse!
 
@@ -84,11 +79,6 @@ end
 
 $config = YAML::load_file($yaml)
 $io.write render($template, $config)
-$postpend.each{|f|
-  if File.exists?(f)
-    $io.write File.read(f)
-  end
-}
 $io.close_write
 
 end
