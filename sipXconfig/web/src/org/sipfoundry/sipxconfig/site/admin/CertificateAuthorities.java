@@ -125,6 +125,7 @@ public abstract class CertificateAuthorities extends BaseComponent implements Pa
 
         String webKey = getCertificateManager().getWebPrivateKey();
         String sipKey = getCertificateManager().getCommunicationsPrivateKey();
+        String undeterminedSize = "undetermined";
         String webSize;
         String sipSize;
 
@@ -132,13 +133,13 @@ public abstract class CertificateAuthorities extends BaseComponent implements Pa
             webSize = String.valueOf(CertificateUtils.getEncryptionStrength(webKey));
         } catch (Exception e) {
             LOG.error("Could not retrieve encryption strength for web key: " + e.getMessage());
-            webSize = "undetermined";
+            webSize = undeterminedSize;
         }
         try {
             sipSize = String.valueOf(CertificateUtils.getEncryptionStrength(sipKey));
         } catch (Exception e) {
             LOG.error("Could not retrieve encryption strength for sip key: " + e.getMessage());
-            sipSize = "undetermined";
+            sipSize = undeterminedSize;
         }
 
         setKeySizeDescr(getMessages().format("description.keySize", webSize, sipSize));
