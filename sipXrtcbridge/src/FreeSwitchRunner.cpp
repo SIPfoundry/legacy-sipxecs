@@ -1,6 +1,11 @@
 #include "sipx/bridge/FreeSwitchRunner.h"
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+#include <iostream>
+#include <fstream>
+
+#if 0
 
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 600
@@ -10,10 +15,8 @@
 #include <sys/resource.h>
 #include <sys/prctl.h>
 #include <cstdio>
-#include <iostream>
-#include <fstream>
 #include <switch.h>
-
+#endif
    
 #define FS_DEFAULT_CONF_DIR SIPX_DBDIR
 #define FS_DEFAULT_MOD_DIR FREESWITCH_MODDIR
@@ -25,17 +28,18 @@
 #define FS_DEFAULT_CODEC_PREFERENCE "PCMU,PCMA" /*"PCMU,PCMA,opus,VP8,H264"*/
 #define FS_DEFAULT_SIP_PORT 5066
 #define FS_DEFAULT_SIP_ADDRESS "$${local_ip_v4}"
-
-
-extern std::string freeswitch_xml;
+#define FS_INIT_WAIT 5000
+#define FS_PROCESS "freeswitch"
 
 namespace sipx {
 namespace bridge {
 
-
+std::string FreeSwitchRunner::_gFreeswitchXml;
 static FreeSwitchRunner* gpInstance = 0;
-static switch_core_flag_t gFlags = SCF_CALIBRATE_CLOCK | SCF_USE_CLOCK_RT;
 
+#if 0
+static switch_core_flag_t gFlags = SCF_CALIBRATE_CLOCK | SCF_USE_CLOCK_RT;
+#endif
 
 FreeSwitchRunner* FreeSwitchRunner::instance()
 {
@@ -77,7 +81,6 @@ static void string_replace(std::string& str, const char* what, const char* with)
 
 FreeSwitchRunner::FreeSwitchRunner() :
   _applicationName(),
-  _enableCoreDumps(false),
   _configDirectory(FS_DEFAULT_CONF_DIR),
   _modDirectory(FS_DEFAULT_MOD_DIR),
   _logDirectory(FS_DEFAULT_LOG_DIR),
@@ -95,7 +98,8 @@ FreeSwitchRunner::FreeSwitchRunner() :
   _fsEslPort(DEFAULT_FS_ESL_PORT),
   _codecPreference(FS_DEFAULT_CODEC_PREFERENCE),
   _sipPort(FS_DEFAULT_SIP_PORT),
-  _sipAddress(FS_DEFAULT_SIP_ADDRESS)
+  _sipAddress(FS_DEFAULT_SIP_ADDRESS),
+  _pProcess(0)
 {
 }
 
@@ -108,21 +112,42 @@ void FreeSwitchRunner::run(bool noconsole)
 {
   assert(!_pSwitchThread);
   if (noconsole)
-    _pSwitchThread = new boost::thread(boost::bind(&FreeSwitchRunner::switch_loop, this, noconsole));
+  {
+    _startupScript << " -nc";
+    start();
+  }
   else
-    switch_loop(noconsole);
+  {
+    _startupScript << " -c";
+    OSS::Exec::Command cmd;
+    cmd.execute(_startupScript.str());
+  }
+}
+
+void FreeSwitchRunner::start()
+{
+  delete _pProcess;
+  _pProcess = new OSS::Exec::Process(FS_PROCESS, _startupScript.str(), _shutdownScript.str(), _pidFile);
+  _pProcess->deadProcHandler = boost::bind(&FreeSwitchRunner::onDeadProcess, this, _1);
+  _pProcess->setInitializeWait(FS_INIT_WAIT);
+  _pProcess->executeAndMonitor();
+}
+
+OSS::Exec::Process::Action FreeSwitchRunner::onDeadProcess(int consecutiveHits)
+{
+  if (consecutiveHits > 10)
+    return OSS::Exec::Process::ProcessBackoff;
+  else
+    return OSS::Exec::Process::ProcessRestart;
 }
 
 bool FreeSwitchRunner::initialize()
 {  
-  if (_enableCoreDumps)
-  {
-    struct rlimit rlp;
-    memset(&rlp, 0, sizeof(rlp));
-    rlp.rlim_cur = RLIM_INFINITY;
-    rlp.rlim_max = RLIM_INFINITY;
-    setrlimit(RLIMIT_CORE, &rlp);
-  }
+  _startupScript.clear();
+  _startupScript << FREESWITCH_PATH << " ";
+  _startupScript << "-nosql" << " ";
+  _startupScript << "-nonat" << " ";
+  _startupScript << "-nonatmap" << " "; 
   
   if (_applicationName.empty() || _configDirectory.empty())
   {
@@ -130,134 +155,87 @@ bool FreeSwitchRunner::initialize()
     return false;
   }
   
-
   std::ostringstream configPath;
   configPath << _configDirectory << "/" << _applicationName;
-  
   if (!verify_directory(configPath.str()))
     return false;
-
-  SWITCH_GLOBAL_dirs.conf_dir = (char *) malloc(configPath.str().size() + 1);
-  strcpy(SWITCH_GLOBAL_dirs.conf_dir, configPath.str().c_str());
-
-
-  SWITCH_GLOBAL_dirs.mod_dir = (char *) malloc(_modDirectory.size() + 1);
-	strcpy(SWITCH_GLOBAL_dirs.mod_dir, _modDirectory.c_str());
   
-
+  _startupScript << "-conf " << configPath.str() << " ";
+  _startupScript << "-mod " << _modDirectory << " ";
+  
   std::ostringstream logDir;
   logDir << _logDirectory << "/" << _applicationName;
   if (!verify_directory(logDir.str()))
     return false;
+  _startupScript << "-log " << logDir.str() << " ";
   
-  SWITCH_GLOBAL_dirs.log_dir = (char *) malloc(logDir.str().size() + 1);
-	strcpy(SWITCH_GLOBAL_dirs.log_dir, logDir.str().c_str());
- 
-    
   std::ostringstream runDir;
   runDir << _runDirectory << "/" << _applicationName;
   if (!verify_directory(runDir.str()))
     return false;
+  _startupScript << "-run " << runDir.str() << " ";
   
-  SWITCH_GLOBAL_dirs.run_dir = (char *) malloc(runDir.str().size() + 1);
-	strcpy(SWITCH_GLOBAL_dirs.run_dir, runDir.str().c_str());
+  _pidFile = runDir.str() + std::string("/") + std::string(FS_PROCESS ".pid");
   
-
   std::ostringstream dbDir;
   dbDir << _dataDirectory << "/" << _applicationName << "/db";
   if (!verify_directory(dbDir.str()))
     return false;
+  _startupScript << "-db " << dbDir.str() << " ";
   
-  SWITCH_GLOBAL_dirs.db_dir = (char *) malloc(dbDir.str().size() + 1);
-	strcpy(SWITCH_GLOBAL_dirs.db_dir, dbDir.str().c_str());
- 
- 
   std::ostringstream storageDir;
   storageDir << _storageDirectory << "/" << _applicationName << "/storage";
   if (!verify_directory(storageDir.str()))
     return false;
+  _startupScript << "-storage " << storageDir.str() << " ";
   
-  SWITCH_GLOBAL_dirs.storage_dir = (char *) malloc(storageDir.str().size() + 1);
-	strcpy(SWITCH_GLOBAL_dirs.storage_dir, storageDir.str().c_str());
-  
- 
   std::ostringstream scriptsDir;
   scriptsDir << _scriptsDirectory << "/" << _applicationName << "/scripts";
   if (!verify_directory(scriptsDir.str()))
     return false;
-  
-  SWITCH_GLOBAL_dirs.script_dir = (char *) malloc(scriptsDir.str().size() + 1);
-	strcpy(SWITCH_GLOBAL_dirs.script_dir, scriptsDir.str().c_str());
+  _startupScript << "-scripts " << scriptsDir.str() << " ";
   
   std::ostringstream htdocsDir;
   htdocsDir << _htdocsDirectory << "/" << _applicationName << "/htdocs";
   if (!verify_directory(htdocsDir.str()))
     return false;
-  
-  SWITCH_GLOBAL_dirs.htdocs_dir = (char *) malloc(htdocsDir.str().size() + 1);
-	strcpy(SWITCH_GLOBAL_dirs.htdocs_dir, htdocsDir.str().c_str());
+  _startupScript << "-htdocs " << htdocsDir.str() << " ";
   
   std::ostringstream recordingsDir;
   recordingsDir << _recordingsDirectory << "/" << _applicationName << "/recordings";
   if (!verify_directory(recordingsDir.str()))
     return false;
-  
-  SWITCH_GLOBAL_dirs.recordings_dir = (char *) malloc(recordingsDir.str().size() + 1);
-	strcpy(SWITCH_GLOBAL_dirs.recordings_dir, recordingsDir.str().c_str());
+  _startupScript << "-recordings " << recordingsDir.str() << " ";
   
   std::ostringstream grammarDir;
   grammarDir << _grammarDirectory << "/" << _applicationName << "/grammar";
   if (!verify_directory(grammarDir.str()))
     return false;
-  
-  SWITCH_GLOBAL_dirs.grammar_dir = (char *) malloc(grammarDir.str().size() + 1);
-	strcpy(SWITCH_GLOBAL_dirs.grammar_dir, grammarDir.str().c_str());
+  _startupScript << "-grammar " << grammarDir.str() << " ";
   
   std::ostringstream certsDir;
   certsDir << _certsDirectory << "/" << _applicationName << "/certs";
   if (!verify_directory(certsDir.str()))
     return false;
-  
-  SWITCH_GLOBAL_dirs.certs_dir = (char *) malloc(certsDir.str().size() + 1);
-	strcpy(SWITCH_GLOBAL_dirs.certs_dir, certsDir.str().c_str());
+  _startupScript << "-certs " << certsDir.str() << " ";
   
   std::ostringstream soundsDir;
   soundsDir << _soundsDirectory << "/" << _applicationName << "/sounds";
   if (!verify_directory(soundsDir.str()))
     return false;
-  
-  SWITCH_GLOBAL_dirs.sounds_dir = (char *) malloc(soundsDir.str().size() + 1);
-	strcpy(SWITCH_GLOBAL_dirs.sounds_dir, soundsDir.str().c_str());
-
+  _startupScript << "-sounds " << soundsDir.str() << " ";
+     
+  _shutdownScript << "kill -9 `cat " << _pidFile << "`";
   
   return generateConfig();
 }
 
-void FreeSwitchRunner::switch_loop(bool noconsole)
-{
-
-  set_auto_priority();
-  
-  switch_core_setrlimits();
-  
-  switch_core_set_globals();
-   
-  const char* err = 0;
-  if (switch_core_init_and_modload(gFlags, noconsole ? SWITCH_FALSE : SWITCH_TRUE, &err) != SWITCH_STATUS_SUCCESS) 
-  {
-		std::cerr << "Unable to load modules. " << err << std::endl;
-    _exit(EXIT_FAILURE);
-	}
-  
-  switch_core_runtime_loop(noconsole);
-  
-  switch_core_destroy();
-}
-  
+ 
 void FreeSwitchRunner::stop()
 {
-  int32_t arg = 0;
-	switch_core_session_ctl(SCSC_SHUTDOWN, &arg);
+  if (_pProcess)
+    _pProcess->shutDown();
+
   if (_pSwitchThread)
     _pSwitchThread->join();
 	return;
@@ -268,18 +246,18 @@ bool FreeSwitchRunner::generateConfig()
   std::string eslPort = boost::lexical_cast<std::string>(_eslPort);
   std::string sipPort = boost::lexical_cast<std::string>(_sipPort);
   
-  string_replace(freeswitch_xml, "@ESL_PORT@", eslPort.c_str());
+  string_replace(FreeSwitchRunner::_gFreeswitchXml, "@ESL_PORT@", eslPort.c_str());
   
-  string_replace(freeswitch_xml, "@SIP_PORT@", sipPort.c_str());
+  string_replace(FreeSwitchRunner::_gFreeswitchXml, "@SIP_PORT@", sipPort.c_str());
   
-  string_replace(freeswitch_xml, "@SIP_ADDRESS@", _sipAddress.c_str());
+  string_replace(FreeSwitchRunner::_gFreeswitchXml, "@SIP_ADDRESS@", _sipAddress.c_str());
   
   std::string fsEslPort = boost::lexical_cast<std::string>(_fsEslPort);
-  string_replace(freeswitch_xml, "@FS_ESL_PORT@", fsEslPort.c_str());
+  string_replace(FreeSwitchRunner::_gFreeswitchXml, "@FS_ESL_PORT@", fsEslPort.c_str());
   
-  string_replace(freeswitch_xml, "@APPLICATION_NAME@", _applicationName.c_str());
+  string_replace(FreeSwitchRunner::_gFreeswitchXml, "@APPLICATION_NAME@", _applicationName.c_str());
   
-  string_replace(freeswitch_xml, "@CODEC_PREFERENCE@", _codecPreference.c_str());
+  string_replace(FreeSwitchRunner::_gFreeswitchXml, "@CODEC_PREFERENCE@", _codecPreference.c_str());
   
   std::ostringstream configPath;
   configPath << _configDirectory << "/" << _applicationName << "/freeswitch.xml";
@@ -288,7 +266,7 @@ bool FreeSwitchRunner::generateConfig()
   std::ofstream configFile(configPath.str().c_str());
   if (!configFile.is_open())
     return false;
-  configFile << freeswitch_xml;
+  configFile << FreeSwitchRunner::_gFreeswitchXml;
   return true;
 }
 

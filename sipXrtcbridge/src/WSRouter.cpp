@@ -45,6 +45,7 @@ static const resip::ExtensionParameter p_xtscheme("x-tscheme");
 static const resip::ExtensionParameter p_xtrtc("x-trtc");
 static const resip::ExtensionParameter p_xtauthid("x-tauthid");
 
+extern std::string freeswitch_xml;
 
 static bool gEnableReproLogging = false;
 
@@ -269,7 +270,9 @@ bool WSRouter::initialize()
   //
   // Initialize the switch
   //
+  FreeSwitchRunner::_gFreeswitchXml = freeswitch_xml;
   _pSwitch = FreeSwitchRunner::instance();
+  
   if (!_pSwitch)
     return false;
   

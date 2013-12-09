@@ -85,3 +85,9 @@
 [submodule "resiprocate"]
 	path = resiprocate
 	url = git://github.com/SIPfoundry/resiprocate.git
+[submodule "sipXrtcbridge/src/freeswitch"]
+	path = sipXrtcbridge/src/freeswitch
+	url = git://git.freeswitch.org/freeswitch.git
+[submodule "sipXrtcbridge/src/libjsonrpccpp"]
+	path = sipXrtcbridge/src/libjsonrpccpp
+	url = https://github.com/cinemast/libjson-rpc-cpp.git

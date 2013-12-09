@@ -2,7 +2,6 @@
 
 #include <net/Url.h>
 
-
 RpcServer::RpcServer(OsServiceOptions& options, int port) :
   AbstractServer<RpcServer>(new HttpServer(port)),
   _options(options),

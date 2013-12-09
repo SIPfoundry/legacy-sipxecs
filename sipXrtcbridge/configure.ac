@@ -4,7 +4,7 @@ AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
 m4_include([rtcbridge.m4])
-AM_INIT_AUTOMAKE(foreign tar-ustar)
+AM_INIT_AUTOMAKE(foreign tar-pax)
 SFAC_AUTOMAKE_VERSION([1.6])
 AC_DISABLE_STATIC
 AC_CONFIG_SRCDIR([src/FreeSwitchRunner.cpp])
@@ -16,11 +16,15 @@ AX_COMPILER_VENDOR
 AC_PROG_CC
 CHECK_XARGS_REPLACE
 AM_CONDITIONAL(IS_RPMBUILD, test x$enable_rpmbuild = xyes)
+
+SFAC_SUBMODULE_INIT_JSONRPC
+SFAC_SUBMODULE_INIT_FREESWITCH
+
 SFAC_INIT_FLAGS
 SFAC_LIB_COMMSERVER
 SFAC_FREESWITCH_DEVEL
 SFAC_RESIP_DEVEL
-SFAC_JSONRPC_DEVEL
+
 AC_CONFIG_FILES([
   Makefile
   src/Makefile

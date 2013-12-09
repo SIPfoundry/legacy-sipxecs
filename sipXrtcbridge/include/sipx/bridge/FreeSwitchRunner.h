@@ -6,8 +6,8 @@
 
 #include <string>
 #include <sstream>
-
 #include <boost/thread.hpp>
+#include <OSS/Exec/Process.h>
 
 
 namespace sipx {
@@ -17,6 +17,8 @@ namespace bridge {
 class FreeSwitchRunner
 {
 public:
+  static std::string _gFreeswitchXml;
+  
   static FreeSwitchRunner* instance();
     /// Returns the singleton instance of the freeswitch runner
   
@@ -44,14 +46,7 @@ public:
   
   void stop();
     /// Stop the freeswitch instance
-  
-  void enableCoreDumps(bool enable = true);
-    /// Enable or disable core dumps.
-    /// Default:  Disabled
-    /// Parameters:
-    /// - enable : true to enable and false otherwise
-    ///
-  
+   
   void setConfigDirectory(const std::string& configDirectory);
     /// Set the data directory where freesswitch looks for configuration files.
     /// Parameter:
@@ -155,19 +150,18 @@ public:
   const std::string& getSipAddress() const;
     /// Return the IP address of the SIP transport
   
-protected:
-  void switch_loop(bool noconsole);
-    /// Calls the freeswitch run time loop.  This is used internally and is
-    /// not meant to be used outside of the runner
-  
+protected: 
   bool generateConfig();
+  
+  void start(); 
+  
+  OSS::Exec::Process::Action onDeadProcess(int consecutiveHits);
   
 private:
   FreeSwitchRunner();
   ~FreeSwitchRunner();
   std::string _applicationName;
   std::string _configString;
-  bool _enableCoreDumps;
   std::string _configDirectory;
   std::string _modDirectory;
   std::string _logDirectory;
@@ -186,17 +180,16 @@ private:
   std::string _codecPreference;
   int _sipPort;
   std::string _sipAddress;
+  OSS::Exec::Process* _pProcess;
+  std::ostringstream _startupScript;
+  std::ostringstream _shutdownScript;
+  std::string _pidFile;
 };
 
 
 //
 // Inlines
 //
-
-inline void FreeSwitchRunner::enableCoreDumps(bool enable)
-{
-  _enableCoreDumps = enable;
-}
 
 inline void FreeSwitchRunner::setConfigDirectory(const std::string& configDirectory)
 {

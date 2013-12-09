@@ -6,26 +6,47 @@ SUBDIRS = .
 
 RTCBRIDGE_COMMON_CXX_FLAGS = \
 	-I$(top_srcdir)/include \
+	-I$(top_srcdir)/src/libjsonrpccpp/src \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_DBDIR=\"@SIPX_DBDIR@\" \
 	-DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
-BUILT_SOURCES = freeswitch.xml.inl
-
+RTCBRIDGE_COMMON_LIBS = \
+	@RESIP_LIBS@ \
+	@FREESWITCH_LIBS@ \
+	@SIPXCOMMSERVER_LIBS@ \
+	-lzmq \
+	-lmongoclient \
+	-lcurl \
+	-loss_core \
+	-loss_carp \
+	-lboost_date_time-mt \
+	-lboost_filesystem-mt \
+	-lboost_system-mt \
+	-lboost_thread-mt \
+	-lboost_program_options-mt \
+	-lboost_iostreams-mt \
+	-lboost_regex-mt \
+	-lboost_random-mt \
+	-lgtest \
+	-lresolv \
+	-lcrypt \
+	-lrt \
+	-ldl \
+	-lpthread \
+	-lcrypto \
+	-lssl \
+	-lmcrypt \
+	-lltdl \
+	-lv8 \
+	-lconfig++ \
+	-lhiredis \
+	-lPocoXML \
+	-lPocoNet \
+	-lPocoUtil \
+	-lpcap
 	
-freeswitch.xml.inl : freeswitch.xml
-	$(top_srcdir)/src/doublequoteme  $(top_srcdir)/src/freeswitch.xml  $(top_srcdir)/src/freeswitch.xml.inl.tmp; \
-	mv $(top_srcdir)/src/freeswitch.xml.inl.tmp $(top_srcdir)/src/freeswitch.xml.inl
-	echo "#include <string>" > $(top_srcdir)/src/freeswitch_xml.cpp; \
-	echo "" >> $(top_srcdir)/src/freeswitch_xml.cpp; \
-	echo "" >> $(top_srcdir)/src/freeswitch_xml.cpp; \
-	echo "std::string freeswitch_xml(" >> $(top_srcdir)/src/freeswitch_xml.cpp; \
-	cat $(top_srcdir)/src/freeswitch.xml.inl >> $(top_srcdir)/src/freeswitch_xml.cpp; \
-	echo "); // EOF" >> $(top_srcdir)/src/freeswitch_xml.cpp; \
-	touch $(top_srcdir)/src/freeswitch_xml.cpp; \
-	rm -f $(top_srcdir)/src/freeswitch.xml.inl
-
 bin_PROGRAMS = sipXrtcbridge sipXrtcrpc
 
 sipXrtcbridge_CXXFLAGS = \
@@ -37,13 +58,8 @@ sipXrtcbridge_LDFLAGS = \
 
 sipXrtcbridge_LDADD = \
 	libsipXrtcbridge.la \
-	@SIPXCOMMSERVER_LIBS@ \
-	@RESIP_LIBS@ \
-	@FREESWITCH_LIBS@ \
-	@JSONRPC_LIBS@ \
-	-lzmq \
-	-lmongoclient \
-	-lboost_system-mt
+	$(RTCBRIDGE_COMMON_LIBS)
+	
 
 sipXrtcbridge_SOURCES =  \
 	WSRouterMain.cpp \
@@ -60,13 +76,12 @@ sipXrtcrpc_CXXFLAGS = \
 
 sipXrtcrpc_LDFLAGS = \
     -shared \
-    -rdynamic
+    -rdynamic \
+    -lcurl
 
 sipXrtcrpc_LDADD = \
-	@SIPXCOMMSERVER_LIBS@ \
-	@RESIP_LIBS@ \
-	@JSONRPC_LIBS@ \
-	-lmongoclient
+	libsipXrtcbridge.la \
+	$(RTCBRIDGE_COMMON_LIBS)
 
 sipXrtcrpc_SOURCES =  \
 	rpc/RpcServer.cpp
@@ -89,21 +104,63 @@ libsipXrtcbridge_la_LDFLAGS = \
 
 
 libsipXrtcbridge_la_SOURCES = \
-    AuthIdentityEncoder.cpp \
-    EslConnection.cpp \
-    EslEvent.cpp \
-    EslListener.cpp \
-    FreeSwitchRunner.cpp \
-    ReproGlue.cpp
+	AuthIdentityEncoder.cpp \
+	EslConnection.cpp \
+	EslEvent.cpp \
+	EslListener.cpp \
+	FreeSwitchRunner.cpp \
+	ReproGlue.cpp \
+	libjsonrpccpp/src/jsonrpc/json/json_internalarray.inl \
+	libjsonrpccpp/src/jsonrpc/json/json_valueiterator.inl \
+	libjsonrpccpp/src/jsonrpc/json/json_internalmap.inl \
+	libjsonrpccpp/src/jsonrpc/json/json_value.cpp \
+	libjsonrpccpp/src/jsonrpc/json/json_writer.cpp \
+	libjsonrpccpp/src/jsonrpc/json/json_reader.cpp \
+	libjsonrpccpp/src/jsonrpc/connectors/httpserver.cpp \
+	libjsonrpccpp/src/jsonrpc/connectors/httpclient.cpp \
+	libjsonrpccpp/src/jsonrpc/connectors/mongoose.c \
+	libjsonrpccpp/src/jsonrpc/errors.cpp \
+	libjsonrpccpp/src/jsonrpc/rpcprotocolclient.cpp \
+	libjsonrpccpp/src/jsonrpc/specificationwriter.cpp \
+	libjsonrpccpp/src/jsonrpc/server.cpp \
+	libjsonrpccpp/src/jsonrpc/exception.cpp \
+	libjsonrpccpp/src/jsonrpc/procedure.cpp \
+	libjsonrpccpp/src/jsonrpc/rpcprotocolserver.cpp \
+	libjsonrpccpp/src/jsonrpc/client.cpp \
+	libjsonrpccpp/src/jsonrpc/clientconnector.cpp \
+	libjsonrpccpp/src/jsonrpc/serverconnector.cpp \
+	libjsonrpccpp/src/jsonrpc/specificationparser.cpp
 
 libsipXrtcbridge_la_CXXFLAGS = \
 	$(RTCBRIDGE_COMMON_CXX_FLAGS)
 	
 
 EXTRA_DIST = \
-  freeswitch.xml \
-  doublequoteme
+	freeswitch.xml \
+	doublequoteme \
+	freeswitch_modules.conf.in \
+	freeswitch \
+	libjsonrpccpp
 
+BUILT_SOURCES = \
+    build-freeswitch \
+    freeswitch.xml.inl
 
+dist-hook:
+	rm -rf $(distdir)/freeswitch/.git
 
-        
+build-freeswitch:
+	make -C freeswitch; make -C freeswitch install  
+	
+freeswitch.xml.inl : freeswitch.xml
+	$(top_srcdir)/src/doublequoteme  $(top_srcdir)/src/freeswitch.xml  $(top_srcdir)/src/freeswitch.xml.inl.tmp; \
+	mv $(top_srcdir)/src/freeswitch.xml.inl.tmp $(top_srcdir)/src/freeswitch.xml.inl
+	echo "#include <string>" > $(top_srcdir)/src/freeswitch_xml.cpp; \
+	echo "" >> $(top_srcdir)/src/freeswitch_xml.cpp; \
+	echo "" >> $(top_srcdir)/src/freeswitch_xml.cpp; \
+	echo "std::string freeswitch_xml(" >> $(top_srcdir)/src/freeswitch_xml.cpp; \
+	cat $(top_srcdir)/src/freeswitch.xml.inl >> $(top_srcdir)/src/freeswitch_xml.cpp; \
+	echo "); // EOF" >> $(top_srcdir)/src/freeswitch_xml.cpp; \
+	touch $(top_srcdir)/src/freeswitch_xml.cpp; \
+	rm -f $(top_srcdir)/src/freeswitch.xml.inl
+
