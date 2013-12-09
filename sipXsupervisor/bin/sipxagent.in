@@ -44,7 +44,7 @@ def run(verbose, is_remote, is_raw, hosts, defines, undefines, bundles)
 
     # XX-10858 Log can get very large, so we limit it to 10K lines plus 
     # size of last run
-    `test -f #{$logfile} && sed -i -e :a -e '$q;N;100000,$D;ba' #{$logfile}`
+    `sed -i -e :a -e '$q;N;100000,$D;ba' #{$logfile}` if File.exists?($logfile)
 
     dstr = (defines.empty? ? '' : "-D " + defines.join(','))
     nstr = (undefines.empty? ? '' : "-N " + undefines.join(','))
