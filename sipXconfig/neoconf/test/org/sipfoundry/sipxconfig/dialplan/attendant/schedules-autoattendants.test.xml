@@ -16,6 +16,9 @@
       <invalidResponseCount>2</invalidResponseCount>
       <transferOnFailures>false</transferOnFailures>
     </invalidResponse>
+    <onTransfer>
+      <play-prompt>false</play-prompt>
+    </onTransfer>
   </autoattendant>
   <schedules>
     <schedule id="aa_-1">

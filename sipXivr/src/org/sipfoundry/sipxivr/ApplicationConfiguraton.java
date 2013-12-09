@@ -27,7 +27,7 @@ public class ApplicationConfiguraton {
     private boolean m_transferOnFailures; // What to do on failure
     private String m_transferPrompt; // What to say
     private String m_transferUrl; // Where to go
-
+    private boolean m_playPrompt; // Make "Please hold while I transfer your call" prompt optional
 
     public ApplicationConfiguraton() {
         // Global defaults if otherwise not specified
@@ -120,4 +120,11 @@ public class ApplicationConfiguraton {
         m_transferPrompt = transferPrompt;
     }
 
+    public boolean isPlayPrompt() {
+        return m_playPrompt;
+    }
+
+    public void setPlayPrompt(boolean playPrompt) {
+        m_playPrompt = playPrompt;
+    }
 }

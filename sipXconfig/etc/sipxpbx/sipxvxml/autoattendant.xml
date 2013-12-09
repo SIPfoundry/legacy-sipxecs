@@ -56,4 +56,12 @@
       <value />
     </setting>
   </group>
+  <group name="onTransfer">
+    <setting name="play-prompt">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
 </model>
