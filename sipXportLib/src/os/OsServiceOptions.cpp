@@ -292,7 +292,14 @@ bool OsServiceOptions::parseConfigurationFile(ParseOptionsFlags parseOptionsFlag
   else
   {
     //boost::property_tree::ini_parser::read_ini(_configFile.c_str(), _configFileOptions);
-    boost::program_options::parsed_options parsedFile = boost::program_options::parse_config_file<char>(_configFile.c_str(), _allOptionsDescription, true);
+    std::ifstream file(_configFile.c_str());
+    if (!file)
+    {
+      OS_LOG_ERROR(FAC_KERNEL, "Can not open configuration file " << _configFile);
+      return false;
+    }
+
+    boost::program_options::parsed_options parsedFile = boost::program_options::parse_config_file(file, _allOptionsDescription, true);
     boost::program_options::store(parsedFile, _configFileOptions);
     boost::program_options::notify(_configFileOptions);
 
