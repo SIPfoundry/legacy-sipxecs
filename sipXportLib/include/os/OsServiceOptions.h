@@ -535,11 +535,10 @@ protected:
    *
    * @param optionName - The option name
    * @param value - Returned value
-   * @param pDefValue - Default value. If the value for the option is not found it will be set to default value
-   * @return - true if the option was found either in command line or in configuration file or a default value is given and false otherwise
+   * @return - true if the option was found either in command line or in configuration file and false otherwise
    */
   template<typename T>
-  bool getRegisteredOption(const std::string& optionName, T& value, const T defValue, bool haveDefaultValue) const
+  bool getRegisteredOption(const std::string& optionName, T& value) const
   {
     OptionType optionType;
     bool retCode = false;
@@ -575,12 +574,6 @@ protected:
     }
     while (false);
 
-    if (retCode == false && haveDefaultValue)
-    {
-      value = defValue;
-      return true;
-    }
-
     return retCode;
   }
 
@@ -590,7 +583,7 @@ protected:
   {
     bool rc = false;
 
-    rc = getRegisteredOption<T>(optionName, value, defValue, haveDefaultValue);
+    rc = getRegisteredOption<T>(optionName, value);
     if (true == rc)
     {
       return true;
@@ -602,6 +595,12 @@ protected:
     if (_unregisteredOptions.end() != it)
     {
       value = boost::lexical_cast<T>(it->second);
+      return true;
+    }
+
+    if (haveDefaultValue)
+    {
+      value = defValue;
       return true;
     }
 
@@ -678,13 +677,13 @@ inline bool OsServiceOptions::getOption(const std::string& optionName, std::stri
 
 inline bool OsServiceOptions::getOption(const std::string& optionName, std::vector<std::string>& value) const
 {
-  return getRegisteredOption<std::vector<std::string> >(optionName, value, value, false);
+  return getRegisteredOption<std::vector<std::string> >(optionName, value);
 }
 
 
 inline bool OsServiceOptions::getOption(const std::string& optionName, std::vector<int>& value) const
 {
-  return getRegisteredOption<std::vector<int> >(optionName, value, value, false);
+  return getRegisteredOption<std::vector<int> >(optionName, value);
 }
 
 inline bool OsServiceOptions::getOption(const std::string& optionName, UtlString& value, const UtlString defValue) const
