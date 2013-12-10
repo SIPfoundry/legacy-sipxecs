@@ -18,14 +18,4 @@
       <value>false</value>
     </row>
   </table>
-  <table name="acd_server">
-    <column>acd_server_id</column>
-    <column>port</column>
-    <column>location_id</column>
-    <row>
-      <value>2</value>
-      <value>8110</value>
-      <value>101</value>
-    </row>
-  </table>
 </dataset>
