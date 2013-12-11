@@ -5,7 +5,7 @@
     </div>
     <span class="user-error">
       <p/>
-      <p>An internal error has occurred. Click <a jwcid="restart">here</a> to continue.</p>
+      <p>An internal error has occurred. Click <a jwcid="logoutLink@DirectLink" listener="listener:logout"><span key="link.here">Here</span></a> to continue.</p>
     </span>
     <div jwcid="@Any" id="exceptionDisplay" class="ognl:coreContext.debug ? '' : 'hide'">
       <span jwcid="@ExceptionDisplay" exceptions="ognl:exceptions"/>
