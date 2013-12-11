@@ -1,7 +1,11 @@
 <configuration name="local_stream.conf" description="stream files from local dir">
   <!-- fallback to default if requested moh class isn't found -->
   <directory name="default" path="${docDir}/stdprompts/music/8000">
+#if($hd)
+    <param name="rate" value="16000"/>
+#else
     <param name="rate" value="8000"/>
+#end
     <param name="shuffle" value="true"/>
     <param name="channels" value="1"/>
     <param name="interval" value="20"/>
@@ -13,7 +17,11 @@
 #else
   <directory name="moh" path="${docDir}/stdprompts/music/8000">
 #end
+#if($hd)
+    <param name="rate" value="16000"/>
+#else
     <param name="rate" value="8000"/>
+#end
     <param name="shuffle" value="false"/>
     <param name="channels" value="1"/>
     <param name="interval" value="20"/>

@@ -31,7 +31,7 @@ public class LocalStreamConfigurationTest {
     @Test
     public void configCustomPrompts() throws IOException {
         StringWriter actual = new StringWriter();
-        m_configuration.write(actual, "/test/moh/dir");
+        m_configuration.write(actual, "/test/moh/dir", true);
         String expected = IOUtils.toString(getClass().getResourceAsStream("local_stream.conf.test.xml"));
         assertEquals(expected, actual.toString());        
     }
@@ -40,7 +40,7 @@ public class LocalStreamConfigurationTest {
     public void configDefault() throws IOException {
         StringWriter actual = new StringWriter();
         String test = null;
-        m_configuration.write(actual, test);
+        m_configuration.write(actual, test, false);
         String expected = IOUtils.toString(getClass().getResourceAsStream("local_stream_default.conf.test.xml"));
         assertEquals(expected, actual.toString());        
     }

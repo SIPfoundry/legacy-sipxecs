@@ -35,12 +35,13 @@ public class LocalStreamConfiguration extends AbstractFreeswitchConfiguration {
         if (!m_musicOnHoldManager.isAudioDirectoryEmpty()) {
             audioDir =  m_musicOnHoldManager.getAudioDirectoryPath();
         }
-        write(writer, audioDir);
+        write(writer, audioDir, m_musicOnHoldManager.isMohHD());
     }
 
-    void write(Writer writer, String audioDir) throws IOException {
+    void write(Writer writer, String audioDir, boolean hd) throws IOException {
         VelocityContext context = new VelocityContext();
         context.put("moh", m_musicOnHoldManager);
+        context.put("hd", hd);
         context.put("audioDir", audioDir);
         context.put("docDir", m_docDir);
         write(writer, context);

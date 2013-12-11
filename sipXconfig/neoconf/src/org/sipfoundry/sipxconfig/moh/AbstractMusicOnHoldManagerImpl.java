@@ -174,6 +174,10 @@ public abstract class AbstractMusicOnHoldManagerImpl implements MusicOnHoldManag
         return m_settingsDao.findOrCreateOne();
     }
 
+    public boolean isMohHD() {
+        return getSettings().isMohHD();
+    }
+
     @Override
     public void saveSettings(MohSettings settings) {
         m_settingsDao.upsert(settings);

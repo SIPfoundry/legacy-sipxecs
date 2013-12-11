@@ -17,6 +17,7 @@
 package org.sipfoundry.sipxconfig.moh;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.beans.factory.BeanFactory;
@@ -38,6 +40,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 
 public class MohSettings extends PersistableSettings implements Replicable, BeanFactoryAware, DeployConfigOnEdit {
     private static final String MOH_SOURCE = "moh-config/MOH_SOURCE";
+    private static final String MOH_HD = "moh-config/16KHZ_PREFERRED";
     private static final String ALIAS_RELATION = "moh";
     private ListableBeanFactory m_beanFactory;
 
@@ -59,6 +62,10 @@ public class MohSettings extends PersistableSettings implements Replicable, Bean
 
     public String getMusicOnHoldSource() {
         return getSettingValue(MOH_SOURCE);
+    }
+
+    public boolean isMohHD() {
+        return (Boolean) getSettingTypedValue(MOH_HD);
     }
 
     @Override
@@ -137,7 +144,7 @@ public class MohSettings extends PersistableSettings implements Replicable, Bean
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Collections.singleton((Feature) MusicOnHoldManager.FEATURE);
+        return Arrays.asList((Feature) MusicOnHoldManager.FEATURE, (Feature) FreeswitchFeature.FEATURE);
     }
 
     @Override

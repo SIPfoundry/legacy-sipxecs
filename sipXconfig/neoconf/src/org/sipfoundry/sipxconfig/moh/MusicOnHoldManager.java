@@ -29,4 +29,6 @@ public interface MusicOnHoldManager extends DialingRuleProvider, AliasOwner {
     MohSettings getSettings();
 
     void saveSettings(MohSettings settings);
+
+    boolean isMohHD();
 }

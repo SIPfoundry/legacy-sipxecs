@@ -19,5 +19,11 @@
       </type>
       <value>FILES_SRC</value>
     </setting>
+    <setting name="16KHZ_PREFERRED">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
   </group>
 </model>
