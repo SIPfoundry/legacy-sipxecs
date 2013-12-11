@@ -39,6 +39,19 @@
       </option>                                           
     </multi-enum>
   </type>
+  <type id="inbound-codec-negotiation">
+    <enum>
+      <option>
+        <value>generous</value>
+      </option>
+      <option>
+        <value>greedy</value>
+      </option>
+      <option>
+        <value>scrooge</value>
+      </option>
+    </enum>
+  </type>
   <group name="freeswitch-config">
     <setting name="FREESWITCH_CODECS">
       <type refid="preferred-codecs-type"/>
@@ -67,6 +80,10 @@
         <integer />
       </type>
       <value>30</value>
+    </setting>
+    <setting name="FREESWITCH_INBOUND_CODEC_NEGOTIATION">
+      <type refid="inbound-codec-negotiation" />
+      <value>generous</value>
     </setting>
     <setting name="FREESWITCH_SIP_DEBUG">
       <type>

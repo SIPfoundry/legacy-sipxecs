@@ -94,6 +94,10 @@
       </type>
       <value>FILES_SRC</value>
     </setting>
+    <setting name="16khz-rtp">
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
     <setting name="FS_BRIDGE_CONFERENCE.REMOTE_ADMIT.SECRET" hidden="yes" />
   </group>
   <group name="chat-meeting">

@@ -19,7 +19,7 @@
     <profile name="default">
       <param name="domain" value="example.com"/>
       <param name="caller-controls" value="sipx-default"/>
-      <param name="rate" value="8000"/>
+      <param name="rate" value="16000"/>
       <param name="interval" value="20"/>
       <param name="energy-level" value="0"/>
       <param name="member-flags" value="waste"/>
@@ -46,7 +46,7 @@
     <profile name="123">
       <param name="domain" value="example.com"/>
       <param name="caller-controls" value="sipx-default"/>
-      <param name="rate" value="8000"/>
+      <param name="rate" value="16000"/>
       <param name="interval" value="20"/>
       <param name="energy-level" value="0"/>
       <param name="member-flags" value="waste"/>
@@ -104,7 +104,7 @@
     <profile name="345">
       <param name="domain" value="example.com"/>
       <param name="caller-controls" value="sipx-default"/>
-      <param name="rate" value="8000"/>
+      <param name="rate" value="16000"/>
       <param name="interval" value="20"/>
       <param name="energy-level" value="0"/>
       <param name="member-flags" value="waste"/>
@@ -133,7 +133,7 @@
     <profile name="678">
       <param name="domain" value="example.com"/>
       <param name="caller-controls" value="sipx-default"/>
-      <param name="rate" value="8000"/>
+      <param name="rate" value="16000"/>
       <param name="interval" value="20"/>
       <param name="energy-level" value="0"/>
       <param name="member-flags" value="video-bridge"/>

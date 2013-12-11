@@ -106,6 +106,7 @@ public class ConferenceConfigurationTest extends TestCase {
         conf.setOwner(owner);
         conf.setExtension("234");
         conf.setSettingValue(Conference.MAX_LEGS, "4");
+        conf.setSettingValue("fs-conf-conference/16khz-rtp", "no");
         conf.setUniqueId();
         conf.setAutorecorded(true);
         bridge.addConference(conf);
