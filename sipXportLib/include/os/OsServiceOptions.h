@@ -577,34 +577,68 @@ protected:
     return retCode;
   }
 
-  // Function template for returning the value for a given option. It searched both registered and unregistered options
+  // Function template for returning the value for a given option. It searches only in unregistered options
+  template<typename T>
+  bool getUnregisteredOption(const std::string& optionName, T& value) const
+  {
+    bool rc = false;
+
+    do
+    {
+      std::map<std::string, std::string>::const_iterator it;
+      it = _unregisteredOptions.find(optionName);
+      if (_unregisteredOptions.end() == it)
+      {
+        break;
+      }
+
+      try
+      {
+        value = boost::lexical_cast<T>(it->second);
+        rc = true;
+        break;
+      }
+      catch(...)
+      {
+        break;
+      }
+    }
+    while (false);
+
+    return rc;
+  }
+
+  // Function template for returning the value for a given option. It searches both registered and unregistered options
   template<typename T>
   bool getOption(const std::string& optionName, T& value, const T defValue, bool haveDefaultValue) const
   {
     bool rc = false;
 
-    rc = getRegisteredOption<T>(optionName, value);
-    if (true == rc)
+    do
     {
-      return true;
-    }
+      rc = getRegisteredOption<T>(optionName, value);
+      if (true == rc)
+      {
+        break;
+      }
 
-    // search also in unregistered options
-    std::map<std::string, std::string>::const_iterator it;
-    it = _unregisteredOptions.find(optionName);
-    if (_unregisteredOptions.end() != it)
-    {
-      value = boost::lexical_cast<T>(it->second);
-      return true;
-    }
+      // search also in unregistered options
+      rc = getUnregisteredOption<T>(optionName, value);
+      if (true == rc)
+      {
+        break;
+      }
 
-    if (haveDefaultValue)
-    {
-      value = defValue;
-      return true;
+      if (haveDefaultValue)
+      {
+        value = defValue;
+        rc = true;
+        break;
+      }
     }
+    while (false);
 
-    return false;
+    return rc;
   }
 
   int _argc;        // Number of arguments
