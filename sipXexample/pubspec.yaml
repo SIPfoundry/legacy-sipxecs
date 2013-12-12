@@ -1,0 +1,4 @@
+name: sipXexample
+description: A sample application
+dependencies:
+  browser: any

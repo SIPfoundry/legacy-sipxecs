@@ -1,5 +1,6 @@
 include $(top_srcdir)/config/utility.am
 include $(top_srcdir)/config/java.am
+include $(top_srcdir)/config/sipxconfig.am
 
 SUBDIRS = \
 	. \
@@ -20,19 +21,32 @@ plugin_RESOURCES = \
 	$(shell cd $(srcdir); find plugin -type f)
 
 example_PKGS = \
+	$(sipxconfig_web_PKGS) \
 	sipxconfig-neoconf \
-	tapestry-annotations \
-	tapestry-framework \
-	hivemind
+	sipxconfig-web
 
 example_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons @SIPX_JAVADIR@/sipXconfig,$(example_PKGS))
 
-$(JAR_FILE) : javac-example $(example_RESOURCES)
+$(JAR_FILE) : javac-example java-dart $(example_RESOURCES)
 	jar cf $@ \
 	  $(call JarInclude,$(JAVAROOT),.) \
 	  $(call JarInclude,$(srcdir),$(plugin_RESOURCES)) \
 	  $(call JarInclude,$(srcdir)/src,sipxplugin.beans.xml)
+
+# file in packages get compiled in thru compiling page dart files w/main()s
+DART_SRC = $(shell cd $(srcdir); find plugin -name '*.dart' -not -regex '.*/packages/.*')
+
+java-dart : $(addprefix $(JAVAROOT)/,$(DART_SRC:.dart=.js))
+
+$(addprefix $(JAVAROOT)/,$(DART_PKGS)) : $(DART_PKGS)
+	test -d $(dir $@) || mkdir -p $(dir $@)
+	cp $< $@
+
+$(addprefix $(JAVAROOT)/,$(DART_SRC:.dart=.js)) : $(JAVAROOT)/%.js : %.dart $(wildcard $(top_srcdir)/packages/*/*.dart)
+	test -d $(dir $@) || mkdir -p $(dir $@)
+	$(DART_HOME)/bin/dart2js -o$@ $<
+
 
 # style checks java source code coding style agains proper sipxecs conforming. Not nec.
 # but you will probably find very useful
