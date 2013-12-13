@@ -195,6 +195,8 @@ class SipXApplication
     SipXApplicationData _appData;       // SipXApplicationData structure
     bool _initialized;                  // Is set true after this class is initilized by init function
     std::string _nodeFilePath;          // Node file path
+    int _argc;
+    char** _argv;
   };
 
 inline SipXApplication& SipXApplication::instance()
@@ -216,7 +218,9 @@ inline const std::string& SipXApplication::getNodeFilePath()
 }
 
 SipXApplication::SipXApplication()
-  : _initialized(false)
+  : _initialized(false),
+    _argc(0),
+    _argv(0)
 {
 };
 
@@ -227,7 +231,24 @@ inline void SipXApplication::handleSIGHUP()
   {
     OsServiceOptions osServiceOptions;
     Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIGHUP caught. Reloading configuration.");
+
+    osServiceOptions.addDefaultOptions();
     loadConfiguration(osServiceOptions);
+
+    // try first to change level for ConfigFileFormatIni
+    if (osServiceOptions.hasOption(OsServiceOptions::logLevelOption().pName))
+    {
+      int logLevel = PRI_NOTICE;
+
+      osServiceOptions.getOption(OsServiceOptions::logLevelOption().pName, logLevel, logLevel);
+
+      logLevel = SYSLOG_NUM_PRIORITIES - logLevel - 1;
+      Os::Logger::instance().setLogPriority(logLevel);
+
+      return;
+    }
+
+    // if 'log-level' option was not found try then to change level for ConfigFileFormatConfigDb
     SipXecsService::setLogPriority(osServiceOptions.getOsConfigDb(), _appData._configPrefix.c_str());
   }
 }

@@ -40,6 +40,8 @@ void SipXApplication::showVersionHelp()
 bool SipXApplication::init(int argc, char* argv[], const SipXApplicationData& appData)
 {
   _appData = appData;
+  _argc = argc;
+  _argv = argv;
 
   // register default exception handler methods
   // exit for mongo tcp related exceptions, core dump for others
@@ -198,10 +200,10 @@ bool SipXApplication::loadConfiguration(OsServiceOptions& osServiceOptions, cons
 {
   if (configFilename.empty())
   {
-   return parse(osServiceOptions, 0, NULL, _appData._configFilename);
+   return parse(osServiceOptions, _argc, _argv, _appData._configFilename);
   }
 
-  return parse(osServiceOptions, 0, NULL, configFilename);
+  return parse(osServiceOptions, _argc, _argv, configFilename);
 }
 
 bool SipXApplication::testMongoDBConnection()
