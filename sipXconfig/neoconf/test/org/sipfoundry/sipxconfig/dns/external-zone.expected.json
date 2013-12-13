@@ -1,6 +1,7 @@
 [ {
   "destination" : "l1",
   "host" : "",
+  "internal" : false,
   "leftHandSide" : "_x.test",
   "port" : 1,
   "priority" : 20,
@@ -10,6 +11,7 @@
 }, {
   "destination" : "l2",
   "host" : "",
+  "internal" : false,
   "leftHandSide" : "_x.test",
   "port" : 2,
   "priority" : 20,
@@ -19,6 +21,7 @@
 }, {
   "destination" : "l3",
   "host" : "",
+  "internal" : false,
   "leftHandSide" : "_x.test",
   "port" : 3,
   "priority" : 30,

@@ -2,3 +2,4 @@ name: sipxconfig
 description: sipXconfig Admin UI
 dependencies:
   browser: any
+  intl: any

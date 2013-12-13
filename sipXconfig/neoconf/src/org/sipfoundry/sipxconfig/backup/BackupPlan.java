@@ -15,6 +15,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonPropertyOrder;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.feature.Feature;
@@ -22,6 +24,7 @@ import org.sipfoundry.sipxconfig.feature.Feature;
 /**
  * Capture a plan to backup various parts of the system to a backup destination
  */
+@JsonPropertyOrder(alphabetic = true)
 public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
     private Integer m_limitedCount = 50;
     private BackupType m_type = BackupType.local;
@@ -68,7 +71,12 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
         return m_autoModeDefinitionIds;
     }
 
+    public void setAutoModeDefinitionIds(Set<String> ids) {
+        m_autoModeDefinitionIds = ids;
+    }
+
     @Override
+    @JsonIgnore
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) BackupManager.FEATURE);
     }
@@ -76,6 +84,7 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
     /**
      * Only used for hibernate storage. EnumType comes in hibernate 3.7, we're using 3.5 atm
      */
+    @JsonIgnore
     public String getEncodedType() {
         return m_type.toString();
     }
@@ -90,6 +99,7 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
     /**
      * Only used for hibernate storage
      */
+    @JsonIgnore
     public String getEncodedDefinitionString() {
         return m_autoModeDefinitionIds.isEmpty() ? null : StringUtils.join(m_autoModeDefinitionIds, ',');
     }

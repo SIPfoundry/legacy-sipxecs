@@ -94,9 +94,6 @@ $(addprefix $(web_JAVAROOT)/,$(DART_PKGS)) : $(DART_PKGS)
 	test -d $(dir $@) || mkdir -p $(dir $@)
 	cp $< $@
 
-debug:
-	echo $(DART_PKGS)
-
 $(addprefix $(web_JAVAROOT)/,$(DART_SRC:.dart=.js)) : $(web_JAVAROOT)/%.js : context/WEB-INF/%.dart $(wildcard $(top_srcdir)/lib/*.dart)
 	test -d $(dir $@) || mkdir -p $(dir $@)
 	$(DART_HOME)/bin/dart2js -o$@ $<

@@ -9,9 +9,19 @@ TEST_DB = SIPXCONFIG_TEST
 	@PACKAGE@-rpmlintrc \
 	LICENSE \
 	NOTICE \
-	packages/browser \
+	$(PUB_PACKAGES) \
 	packages/sipxconfig/sipxconfig.dart \
 	meta
+
+PUB_PACKAGES = \
+	packages/browser \
+	packages/analyzer \
+	packages/args \
+	packages/collection_helpers \
+	packages/intl \
+	packages/logging \
+	packages/path \
+	packages/unmodifiable_collection
 
 SUBDIRS = \
 	bin \
@@ -22,6 +32,9 @@ SUBDIRS = \
 	web \
 	.
 
-install-data-hook :
+pub-get $(PUB_PACKAGES) :
+	cd $(srcdir); $(DART_HOME)/bin/pub get
+
+install-data-hook : $(PUB_PACKAGES)
 	$(mkdir_p) $(DESTDIR)@SIPX_VARDIR@/upload
 	$(mkdir_p) $(DESTDIR)@SIPX_VARDIR@/backup

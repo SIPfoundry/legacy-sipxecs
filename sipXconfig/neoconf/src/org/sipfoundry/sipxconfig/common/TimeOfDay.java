@@ -20,10 +20,12 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.time.FastDateFormat;
+import org.codehaus.jackson.annotate.JsonPropertyOrder;
 
 /**
  * Time zone independent value of time of day (hh:mm)
  */
+@JsonPropertyOrder(alphabetic = true)
 public class TimeOfDay {
     private int m_hrs = -1;
     private int m_min = -1;

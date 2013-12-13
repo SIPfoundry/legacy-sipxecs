@@ -12,6 +12,7 @@
   "view" : {
     "customRecordsIds" : [ 100 ],
     "enabled" : true,
+    "excluded" : null,
     "id" : -1,
     "name" : "x",
     "planId" : 2,

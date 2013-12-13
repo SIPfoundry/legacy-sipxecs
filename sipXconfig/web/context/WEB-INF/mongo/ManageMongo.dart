@@ -15,7 +15,7 @@ main() {
   reload();
 }
 
-onTabClick(String id) {
+onTabClick(Tabs tabs, String id) {
   if (id == "global") {
     manage = global;
     unmanage = local;
@@ -23,6 +23,7 @@ onTabClick(String id) {
     manage = local;
     unmanage = global;
   }  
+  tabs.showTabContent(id);
   reload();
 }
 

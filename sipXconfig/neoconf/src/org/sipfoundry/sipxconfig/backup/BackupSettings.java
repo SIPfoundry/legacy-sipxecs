@@ -17,6 +17,7 @@ package org.sipfoundry.sipxconfig.backup;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
@@ -35,34 +36,42 @@ public class BackupSettings extends PersistableSettings implements DeployConfigO
     }
 
     @Override
+    @JsonIgnore
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) BackupManager.FEATURE);
     }
 
+    @JsonIgnore
     public boolean isKeepDeviceFiles() {
         return (Boolean) getSettingTypedValue("backup/device");
     }
 
+    @JsonIgnore
     public boolean isKeepDomain() {
         return (Boolean) getSettingTypedValue("restore/keepDomain");
     }
 
+    @JsonIgnore
     public boolean isKeepFqdn() {
         return (Boolean) getSettingTypedValue("restore/keepFqdn");
     }
 
+    @JsonIgnore
     public boolean isDecodePins() {
         return (Boolean) getSettingTypedValue("restore/decodePins");
     }
 
+    @JsonIgnore
     public int getDecodePinLen() {
         return (Integer) getSettingTypedValue("restore/decodePinMaxLen");
     }
 
+    @JsonIgnore
     public String getResetPin() {
         return (String) getSettingTypedValue("restore/resetPin");
     }
 
+    @JsonIgnore
     public String getResetPassword() {
         return (String) getSettingTypedValue("restore/resetPassword");
     }

@@ -1,6 +1,7 @@
 [ {
   "customRecordsIds" : null,
   "enabled" : true,
+  "excluded" : null,
   "id" : -1,
   "name" : "x",
   "planId" : 10,
@@ -10,6 +11,7 @@
 }, {
   "customRecordsIds" : null,
   "enabled" : true,
+  "excluded" : null,
   "id" : -1,
   "name" : "y",
   "planId" : 20,

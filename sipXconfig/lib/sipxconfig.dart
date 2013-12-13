@@ -173,10 +173,19 @@ class Tabs {
     }    
   }
   
-  changeTab(String selectedId) {    
+  changeTab(String selectedId) {
+    highlightActiveTab(selectedId);    
     if (tabChangeListener != null) {
-      tabChangeListener(selectedId);
+      // should call tabs.showTabContent(selectedId) if listener
+      // wants to change body too.
+      tabChangeListener(this, selectedId);
+    } else {
+      showTabContent(selectedId);
     }
+    persistActiveTabId(selectedId);
+  }
+  
+  highlightActiveTab(String selectedId) {
     for (String id in this.ids) {
       var tabId = "${id}-tab";
       Element tab = root.querySelector("#${tabId}");
@@ -189,7 +198,11 @@ class Tabs {
           tab.classes.remove("active");                
         }
       }
-      
+    }        
+  }
+  
+  showTabContent(String selectedId) {
+    for (String id in this.ids) {
       Element tabContent = querySelector("#${id}");
       if (tabContent == null) {
         print("ERROR: Cannot find tab ${id}");
@@ -200,8 +213,7 @@ class Tabs {
           tabContent.style.display = "none";
         }
       }
-    }
-    persistActiveTabId(selectedId);
+    }    
   }
   
   persistActiveTabId(String tabId) {
@@ -218,7 +230,7 @@ class Tabs {
     }
   }
 }
-typedef void TabCallback(String id);
+typedef void TabCallback(Tabs tabs, String id);
 
 
 /**
@@ -381,10 +393,6 @@ class UserMessage {
     close.onClick.listen(clearError);
   }
   
-  foo() {
-    
-  }
-  
   void success(String msg) {
     if (confirmError == false) {
       message(msg, 'user-success');
@@ -426,4 +434,134 @@ class UserMessage {
     msg.classes.clear();
     msg.classes.add(css);    
   }  
+}
+
+class SettingEditor {
+  Map<String,Object> settings;
+  TableSectionElement dom;
+  
+  SettingEditor(TableSectionElement this.dom) {    
+  }
+  
+  Map<String, Object> parseForm() {
+    var meta = new Map<String, Object>();  
+    for (InputElement e in dom.querySelectorAll("input")) {
+      if (e.type == 'checkbox') {
+        var trueFalse = e.value.split('~');
+        if (e.checked) {
+          meta[e.id] = trueFalse[0];          
+        } else {
+          meta[e.id] = trueFalse[1];                    
+        }
+      } else {
+        meta[e.id] = e.value;
+      }
+    }
+    return meta;    
+  }
+  
+  Map<String, Object> getSetting(String path) {
+    Map<String, Object> setting = settings;
+    for (var segment in path.split("/") ) {
+      setting = (setting[segment] as Map)['value'];  
+    }    
+    return setting;
+  }
+  
+  render(Map<String, Object> setting, [basePath = '']) {
+    dom.children.clear();
+    visit(basePath, setting);
+  }
+  
+  visit(String path, Map<String, Object> setting) {
+    Map<String, String> type = setting['type'];
+    if (type == null) {
+      print("ERR : Missing type");
+      return;
+    }
+    if (type['name'] == 'group') {
+      visitGroup(path, setting);  
+    } else {
+      visitSetting(path, type, setting);        
+    }
+  }
+  
+  visitGroup(String path, Map<String, Object> setting) {
+    var e = new Element.html('''
+<table>
+  <tbody>
+    <tr>
+      <td colspan="2">
+        <h3>${setting['label']}</h3>
+        ${toStr(setting['description'])}        
+      </td>
+    </tr>
+  </tbody>
+</table>
+''');
+    dom.children.addAll(e.children.first.children);
+    (setting['value'] as Map<String, Object>).forEach((childName, child) {
+      visit("${path}${childName}/", child as Map<String, Object>);      
+    });
+  }
+
+  visitSetting(String path, Map<String, String> type, Map<String, Object> setting) {
+    String html = '';
+    String defaultValue = setting['default']; 
+    switch(type['name']) {
+      case 'boolean':
+        var checked = (setting['value'] == type['trueValue'] ? "checked" : "");
+        defaultValue = (defaultValue == type['trueValue'] ? "checked" : "unchecked");
+        html = '''<input type="checkbox" id="${path}" value="${type['trueValue']}~${type['falseValue']}" ${checked}/>''';
+        break;
+      case 'string':
+        var inputType = 'text';
+        if (type['password'] as bool) {
+          inputType = 'password';
+        }
+        String value = setting['value'] != null ? setting['value'] : "";
+        html = '''<input type="${inputType}" maxlength="${type['maxLen']}" id="${path}" value="${value}"/>''';
+        break;
+      default:
+        html = '<p>widget not implemented yet</p>';
+        break;
+    }
+    
+    String defaultHtml = "";
+    if (defaultValue != null) {
+      defaultHtml = "(Default : ${defaultValue})";  
+    }; 
+    
+    var e = new Element.html('''
+<table>
+  <tbody>
+    <tr>
+      <td width="25%">
+        <label class="settingLabel" for="${path}">${setting['label']}</label>
+      </td>
+      <td>
+          ${html}
+      </td>
+      <td>
+        <span class="settingDefault">${defaultHtml}</span>
+      </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="2">
+        <span class="settingDescription">${toStr(setting['description'])}</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+''');
+    dom.children.addAll(e.children.first.children);
+  }  
+}
+
+/**
+ * emit blank if object is blank, otherwise the string equivalent.
+ */
+String toStr(Object o) {
+  return (o == null ? '' : o.toString()); 
 }

@@ -76,7 +76,7 @@ public class DnsManagerTestIntegration extends IntegrationTestCase {
         DnsView another = new DnsView();
         another.setPlanId(1);
         another.setRegionId(1);
-        another.setCustomRecordsIds(Arrays.asList(100, 101));
+        another.setCustomRecordsIds(Arrays.asList(1, 2));
         another.setName("another");
         another.setExcluded(new DnsView.ExcludedRecords[] {DnsView.ExcludedRecords.NAPTR});
         m_dnsManager.saveView(another);

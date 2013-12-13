@@ -1,6 +1,7 @@
 [ {
   "destination" : "server-1-no-region",
   "host" : "server-1-no-region",
+  "internal" : true,
   "leftHandSide" : "proto.resource.server-1-no-region",
   "port" : 99,
   "priority" : 10,
@@ -10,6 +11,7 @@
 }, {
   "destination" : "server-1-region-1",
   "host" : "server-1-no-region",
+  "internal" : true,
   "leftHandSide" : "proto.resource.server-1-no-region",
   "port" : 99,
   "priority" : 30,
@@ -19,6 +21,7 @@
 }, {
   "destination" : "server-1-no-region",
   "host" : "",
+  "internal" : true,
   "leftHandSide" : "proto.resource",
   "port" : 99,
   "priority" : 40,
@@ -28,6 +31,7 @@
 }, {
   "destination" : "server-1-region-2",
   "host" : "server-1-no-region",
+  "internal" : true,
   "leftHandSide" : "proto.resource.server-1-no-region",
   "port" : 99,
   "priority" : 40,

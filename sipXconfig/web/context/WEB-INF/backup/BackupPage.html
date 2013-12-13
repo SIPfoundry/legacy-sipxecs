@@ -1,22 +1,125 @@
-<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
-  <span jwcid="@common/TabNavigation"
-    tabNames="ognl:{'localBackup', 'ftpBackup'}"
-    selectedTab="ognl:tab"/>
-  <div id="settings-content">
-    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')"/>
-  </div>
-  <div jwcid="localBackupTab@Block">    
-    <!-- 
-     - Wrapping  forms in block because pageBeginRender is called even on inactive
-     - tabs otherwise
-     -->
-    <span jwcid="@If" condition="ognl:tab == 'localBackup'">
-      <span jwcid="local@backup/BackupForm" backupPlan="ognl:localPlan"/>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>DNS</title>
+<link rel="stylesheet"
+  href="../../../src/org/sipfoundry/sipxconfig/site/skin/layout.css">
+<link rel="stylesheet"
+  href="../../../src/org/sipfoundry/sipxconfig/site/skin/colors.css">
+<style>
+/* only for development - stripped in product*/
+body {
+  margin-left: 250px;
+  margin-top: 86px;
+}
+</style>
+</head>
+<body jwcid="$content$">
+  <div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+    <ul id="leftNavAbsolute" class="htabs">
+      <li id="local-tab" class="tab active"><a
+        id="local-tab-link" href="#"><span key="tab.backup">Backup</span></a>
+      </li>
+      <li id="ftp-tab" class="tab"><a
+        id="ftp-tab-link" href="#"><span key="tab.backup-ftp">Backup to FTP</span></a></li>
+    </ul>
+    <p id="message"></p>
+    <fieldset>
+      <table>
+        <tbody id="settings">
+        </tbody>
+      </table>
+    </fieldset>
+    <span id="local">
+      <!--  non-FTP content only, none at this time -->
     </span>
-  </div>
-  <div jwcid="ftpBackupTab@Block">
-    <span jwcid="@If" condition="ognl:tab == 'ftpBackup'">
-      <span jwcid="ftp@backup/BackupForm" backupPlan="ognl:ftpPlan" settingsPath="ftp"/>
+    <fieldset id="ftp" style="display: none;">
+      <table>
+        <tbody id="ftp-settings">
+        </tbody>
+      </table>
+    </fieldset>  
+    <fieldset>
+      <legend>
+        Files
+      </legend>
+      <ul id="archives">
+      </ul>
+      <table>
+        <tbody>
+          <tr>
+            <td width="25%">
+              <label class="settingLabel" for="backup-limit">Number of backups to keep</label>
+            </td>
+            <td>    
+              <select name="backup-limit" id="backup-limit">
+                <option value="">Unlimited</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>10</option>
+                <option>20</option>
+                <option>30</option>
+                <option>40</option>
+                <option>50</option>
+              </select>
+            </td>
+            <td>            
+            </td>
+          </tr>
+          <tr>
+            <td></td>
+            <td colspan="2">
+              <span class="settingDescription">After the limit is reached, the oldest backup will be deleted as each new backup is performed.</span><br>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <ul class="form-actions">
+      <li>
+        <button id="backup-now">Backup Now</button>
+      </li>
+    </ul>
+    <fieldset>
+      <legend>
+        Schedule
+      </legend>
+      <p>
+        <input type="checkbox" id="dailyScheduleEnabled"> 
+        <select name="dailyScheduledDay" id="dailyScheduledDay">
+          <option jwcid="@common/Message" value="0" key="dayOfWeek.0">Every day</option>
+          <option value="1"><span key="dayOfWeek.1">Sunday</span></option>
+          <option value="2"><span key="dayOfWeek.2">Monday</span></option>
+          <option value="3"><span key="dayOfWeek.3">Tuesday</span></option>
+          <option value="4"><span key="dayOfWeek.4">Wednesday</span></option>
+          <option value="5"><span key="dayOfWeek.5">Thursday</span></option>
+          <option value="6"><span key="dayOfWeek.6">Friday</span></option>
+          <option value="7"><span key="dayOfWeek.7">Saturday</span></option>
+        </select> 
+        <input type="text" id="dailyScheduledTime">
+      </p>
+    </fieldset>
+    <ul class="form-actions">
+      <li>
+        <button id="apply"><span key="button.apply">Apply</span></button>
+      </li>  
+    </ul>    
+    <fieldset>
+      <legend>
+        Last Backup
+      </legend>
+      <p>There are no backup files saved in the backup folder.</p>
+    </fieldset>
+    <span id="rc" style="display: none"> 
+      <!--   span jwcid="@common/Message" key="msg.deleteViewsConfirm"></span -->
     </span>
+    <script jwcid="@common/DartCode" type="application/dart" src="BackupPage.dart"></script>
+    <script jwcid="@common/DartCode"
+      src="../../../packages/browser/dart.js"></script>
   </div>
-</div>
+</body>
+</html>

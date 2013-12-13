@@ -1,0 +1,203 @@
+{
+  "definitions" : {
+    "A" : "Alpha",
+    "B" : "Beta",
+    "C" : "Gamma"
+  },
+  "settings" : {
+    "type" : {
+      "name" : "group"
+    },
+    "label" : null,
+    "description" : null,
+    "value" : {
+      "ftp" : {
+        "type" : {
+          "name" : "group"
+        },
+        "label" : "FTP",
+        "description" : null,
+        "value" : {
+          "url" : {
+            "value" : null,
+            "default" : null,
+            "type" : {
+              "maxLen" : 255,
+              "minLen" : 0,
+              "multiLine" : false,
+              "name" : "string",
+              "password" : false,
+              "pattern" : null,
+              "required" : true
+            },
+            "label" : "FTP connection URL",
+            "description" : "Connection URL including optional path. <br/>Secure FTP example: sftp://ftp.example.org/backups (URL should not include user name or password, directory /home/user/backups will be automatically created on server). <br/>FTP example: ftp://ftp.example.org/backups (backups directory should be an existing directory on server). <br/>It can contain port if it's not the standard port number for FTP or Secure FTP."
+          },
+          "user" : {
+            "value" : null,
+            "default" : null,
+            "type" : {
+              "maxLen" : 255,
+              "minLen" : 0,
+              "multiLine" : false,
+              "name" : "string",
+              "password" : false,
+              "pattern" : null,
+              "required" : true
+            },
+            "label" : "User name",
+            "description" : null
+          },
+          "password" : {
+            "value" : null,
+            "default" : null,
+            "type" : {
+              "maxLen" : 255,
+              "minLen" : 0,
+              "multiLine" : false,
+              "name" : "string",
+              "password" : true,
+              "pattern" : null,
+              "required" : false
+            },
+            "label" : "Password ",
+            "description" : "The user must have read/write permission on the backups directory and permissions to run the following ftp commands: CWD,STOR,LIST,MKD,NLST."
+          }
+        }
+      },
+      "backup" : {
+        "type" : {
+          "name" : "group"
+        },
+        "label" : "Backup Generic Settings",
+        "description" : null,
+        "value" : {
+          "device" : {
+            "value" : "1",
+            "default" : "1",
+            "type" : {
+              "falseValue" : "0",
+              "name" : "boolean",
+              "required" : false,
+              "trueValue" : "1"
+            },
+            "label" : "Include Device Files",
+            "description" : "Do not add uploaded device files into backup, otherwise your backup may get too big"
+          }
+        }
+      },
+      "restore" : {
+        "type" : {
+          "name" : "group"
+        },
+        "label" : null,
+        "description" : null,
+        "value" : {
+          "keepDomain" : {
+            "value" : "0",
+            "default" : "0",
+            "type" : {
+              "falseValue" : "0",
+              "name" : "boolean",
+              "required" : false,
+              "trueValue" : "1"
+            },
+            "label" : "Keep existing SIP domain name",
+            "description" : "Keep existing SIP domain name from the system you're restoring into, not the domain name from the backup."
+          },
+          "keepFqdn" : {
+            "value" : "0",
+            "default" : "0",
+            "type" : {
+              "falseValue" : "0",
+              "name" : "boolean",
+              "required" : false,
+              "trueValue" : "1"
+            },
+            "label" : "Keep existing host name",
+            "description" : "Keep existing fully qualified domain name from the system you're restoring into, not the host name from the backup."
+          },
+          "decodePins" : {
+            "value" : "0",
+            "default" : "0",
+            "type" : {
+              "falseValue" : "0",
+              "name" : "boolean",
+              "required" : false,
+              "trueValue" : "1"
+            },
+            "label" : "Decode PINs",
+            "description" : "When restoring from version 4.4 or older, login and voice mail PINs will not work because PINs are encrypted using a one-way hash algorithm that include the SIP domain. If you enable this option an attempt will be make an attempt to decrypt the PIN and preserve the user's original value. This will not work for PINs of a certain length (length specified below) or PINs that include non-numeric values."
+          },
+          "decodePinMaxLen" : {
+            "value" : "4",
+            "default" : "4",
+            "type" : {
+              "enums" : {
+                "3" : "3",
+                "4" : "4",
+                "5" : "5",
+                "6" : "6"
+              },
+              "listenOnChange" : false,
+              "name" : "enum",
+              "promptSelect" : false,
+              "required" : true
+            },
+            "label" : "Decode PINs of certain length",
+            "description" : "When decoding PINs, only attempt for PINs less then this length. NOTE: values beyond 4 can take considerable time to migrate depending on the CPU available and number of users.   "
+          },
+          "resetPin" : {
+            "value" : null,
+            "default" : null,
+            "type" : {
+              "maxLen" : 255,
+              "minLen" : 4,
+              "multiLine" : false,
+              "name" : "string",
+              "password" : true,
+              "pattern" : null,
+              "required" : false
+            },
+            "label" : "Reset Voicemail PINs",
+            "description" : "Enable this if you want to restore and reset all voice mail PINs at the same time. PIN must be 4 characters or longer and most useful as numbers 0-9."
+          },
+          "resetPassword" : {
+            "value" : null,
+            "default" : null,
+            "type" : {
+              "maxLen" : 255,
+              "minLen" : 8,
+              "multiLine" : false,
+              "name" : "string",
+              "password" : true,
+              "pattern" : null,
+              "required" : false
+            },
+            "label" : "Reset passwords",
+            "description" : "Enable this if you want to restore and reset all user portal/IM/call center passwords at the same time. Password must be 8 characters or longer."
+          }
+        }
+      }
+    }
+  },
+  "backup" : {
+    "autoModeDefinitionIds" : [ "A", "C" ],
+    "id" : -1,
+    "limitedCount" : 10,
+    "schedules" : [ {
+      "enabled" : false,
+      "id" : -1,
+      "scheduledDay" : {
+        "dayOfWeek" : 6,
+        "name" : "Friday"
+      },
+      "timeOfDay" : {
+        "hrs" : 1,
+        "min" : 2
+      }
+    } ],
+    "type" : "local"
+  },
+  "backups" : [ "one", "two", "three" ]
+}
