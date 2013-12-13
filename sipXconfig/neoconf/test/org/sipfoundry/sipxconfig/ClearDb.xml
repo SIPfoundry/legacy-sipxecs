@@ -76,16 +76,6 @@
   <table name="ring"/>
   <table name="schedule_hours"/>
 
-  <!-- ACD -->
-  <table name="acd_server"/>
-  <table name="acd_line"/>
-  <table name="acd_queue"/>
-  <table name="acd_agent"/>
-  <table name="acd_line_queue"/>	
-  <table name="acd_queue_agent"/>	
-  <table name="acd_agent_queue"/>
-
-
   <!-- conference bridge -->
   <table name="meetme_bridge"/>
   <table name="meetme_conference"/>

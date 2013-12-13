@@ -26,7 +26,7 @@ pidfile="@SIPX_RUNDIR@/sipxregistrar.pid"
 
 start() {
   [ -x $exec ] || { echo -n "$execError"; echo_failure; echo; exit $NOEXEC; }
-  [ -f $config ] || { echo -n "$invalidFileError"; echo_failure; echo; exit$ENOENT; }
+  [ -f $config ] || { echo -n "$invalidFileError"; echo_failure; echo; exit $ENOENT; }
   if [ -n "${NoFork}" ] ; then
     killAnyOrphans @SIPXPBXUSER@ $exec
     runuser - @SIPXPBXUSER@ -c $exec

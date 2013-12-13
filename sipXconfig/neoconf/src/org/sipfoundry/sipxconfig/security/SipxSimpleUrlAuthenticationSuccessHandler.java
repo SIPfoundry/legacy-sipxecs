@@ -16,6 +16,8 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
+import java.net.URL;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,6 +29,7 @@ import org.springframework.security.web.savedrequest.SavedRequest;
 public class SipxSimpleUrlAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     public static final String ORIGINAL_REFERER = "originalReferer";
+    private static final String REFERER = "Referer";
 
     @Override
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response) {
@@ -42,7 +45,7 @@ public class SipxSimpleUrlAuthenticationSuccessHandler extends SimpleUrlAuthenti
 
             // if no original http referer saved on session then use current one
             if (referer == null) {
-                referer = request.getHeader("Referer");
+                referer = request.getHeader(REFERER);
             }
 
             // redirect to referer only if mailbox page encoder
@@ -56,7 +59,27 @@ public class SipxSimpleUrlAuthenticationSuccessHandler extends SimpleUrlAuthenti
             }
         }
 
-        return getDefaultTargetUrl();
+        try {
+            String referer = request.getHeader(REFERER);
+            URL refererUrl = new URL(referer);
+            StringBuilder url = new StringBuilder();
+            String protocol = refererUrl.getProtocol();
+            url.append(protocol);
+            url.append("://");
+            url.append(refererUrl.getHost());
+            int port = refererUrl.getPort();
+            if (port > 0
+                    && ((protocol.equalsIgnoreCase("http") && port != 80)
+                    || (protocol.equalsIgnoreCase("https") && port != 443))) {
+                url.append(':');
+                url.append(port);
+            }
+            url.append(request.getContextPath());
+            url.append(getDefaultTargetUrl());
+            return url.toString();
+        } catch (Exception ex) {
+            return getDefaultTargetUrl();
+        }
     }
 
     private String obtainFullRequestUrl(HttpServletRequest request, HttpServletResponse response) {
