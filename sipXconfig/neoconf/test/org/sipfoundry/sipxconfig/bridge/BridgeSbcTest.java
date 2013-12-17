@@ -83,7 +83,6 @@ public class BridgeSbcTest {
         m_sbc.setPort(5090);
         m_sbc.setSettingValue("bridge-configuration/global-port", "5060");
         m_sbc.setSettingValue("bridge-configuration/external-port", "5080");
-        m_sbc.setSettingValue("bridge-configuration/log-level", "INFO");
         m_sbc.setSettingValue("bridge-configuration/route-inbound-calls-to-extension", "operator");
         m_sbc.setSettingValue("bridge-configuration/log-directory", "/var/log/sipxpbx/");
 

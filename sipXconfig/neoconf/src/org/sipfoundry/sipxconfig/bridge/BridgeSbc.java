@@ -34,7 +34,6 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.springframework.beans.factory.annotation.Required;
 
 public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
-    public static final String LOG_SETTING = "bridge-configuration/log-level";
     public static final String LOCATION_ID_SETTING = "bridge-configuration/location-id";
     public static final String ITSP_PROXY_DOMAIN_SETTING = "itsp-account/itsp-proxy-domain";
     public static final String USER_NAME_SETTING = "itsp-account/user-name";

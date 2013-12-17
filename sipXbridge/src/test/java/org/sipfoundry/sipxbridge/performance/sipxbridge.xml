@@ -20,7 +20,6 @@
     <music-on-hold-delay-miliseconds>500</music-on-hold-delay-miliseconds>
     <music-on-hold-supported-codecs>PCMU,PCMA</music-on-hold-supported-codecs>
     <route-inbound-calls-to-extension>201</route-inbound-calls-to-extension>
-    <log-level>INFO</log-level>
     <log-directory>/usr/local/sipx/var/log/sipxpbx/</log-directory>
     <location-id>1</location-id>
     <secure-xml-rpc>false</secure-xml-rpc>

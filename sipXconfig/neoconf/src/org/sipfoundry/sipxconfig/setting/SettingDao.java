@@ -79,4 +79,9 @@ public interface SettingDao extends DataObjectSource {
      * convienence: find and create group if not found
      */
     Group getGroupCreateIfNotFound(String resourceId, String groupName);
+
+    /**
+     * update a setting name
+     */
+    void updateSettingName(String oldName, String newName);
 }

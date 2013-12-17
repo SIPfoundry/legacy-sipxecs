@@ -300,4 +300,10 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
     public void setConfigJdbcTemplate(JdbcTemplate jdbcTemplate) {
         m_jdbcTemplate = jdbcTemplate;
     }
+
+    @Override
+    public void updateSettingName(String oldName, String newName) {
+        String query = "update setting_value set path = '" + newName + "' where path = '" + oldName + "'";
+        m_jdbcTemplate.execute(query);
+    }
 }

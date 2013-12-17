@@ -9,7 +9,6 @@
 	<local-port>5090</local-port>
         <route-inbound-calls-to-extension>501</route-inbound-calls-to-extension>
 	<music-on-hold-support-enabled>true</music-on-hold-support-enabled>
-	<log-level>DEBUG</log-level>
 	<xml-rpc-port>8088</xml-rpc-port>
         <log-directory>/tmp</log-directory>
     	<secure-xml-rpc>false</secure-xml-rpc>

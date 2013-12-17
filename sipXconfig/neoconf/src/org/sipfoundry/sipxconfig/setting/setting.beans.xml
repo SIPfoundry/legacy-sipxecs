@@ -49,4 +49,8 @@
     <property name="configDirectory" value="${sysdir.etc}" />
     <property name="modelBuilder" ref="modelBuilder" />
   </bean>
+  
+  <bean id="logSettingConfig" class="org.sipfoundry.sipxconfig.setting.LogSettingConfig">
+    <property name="settingDao" ref="settingDao" />
+  </bean>
 </beans>

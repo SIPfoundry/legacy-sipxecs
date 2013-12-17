@@ -10,7 +10,6 @@
     <sip-keepalive-seconds>20</sip-keepalive-seconds>
     <media-keepalive-seconds>1</media-keepalive-seconds>
     <music-on-hold-support-enabled>true</music-on-hold-support-enabled>
-    <log-level>DEBUG</log-level>
     <log-directory>/tmp</log-directory>
     <xml-rpc-port>8088</xml-rpc-port>
     <secure-xml-rpc>false</secure-xml-rpc>

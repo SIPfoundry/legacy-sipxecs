@@ -13,7 +13,6 @@
     <xml-rpc-port>8088</xml-rpc-port>
     <music-on-hold-support-enabled>true</music-on-hold-support-enabled>
     <route-inbound-calls-to-extension>201</route-inbound-calls-to-extension>
-    <log-level>DEBUG</log-level>
     <secure-xml-rpc>false</secure-xml-rpc>
     <log-directory>/tmp/</log-directory>
   </bridge-configuration>
