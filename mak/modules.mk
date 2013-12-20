@@ -97,6 +97,7 @@ sipx_all = \
 # re: ruby-postgres, there's a new one we should be using ruby-pgsql i 
 # think it's called as ruby-postgres is obsoleted.
 lib_all = \
+  epel \
   resiprocate \
   rubygem-file-tail \
   freeswitch \
@@ -114,6 +115,7 @@ lib_all = \
   jasperserver
 
 lib_exclude_fedora_16 = \
+  epel \
   erlang \
   rrdtool \
   rubygem-net-ssh \
