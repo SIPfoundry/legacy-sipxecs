@@ -28,3 +28,4 @@ Step 5. To run. NOTE: This will run as the user you are currently looged-in as, 
 
  sudo /usr/local/sipx/bin/sipxecs-setup
  sudo /usr/local/sipx/etc/init.d/sipxecs start
+
