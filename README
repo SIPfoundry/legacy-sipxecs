@@ -5,6 +5,8 @@ Step 1. Build makefile.
 
  autoreconf -if
  ./configure
+ make setup.sh
+ sudo ./setup.sh
 
 Step 2. Add yum repository for dependencies
 There are libraries that are not available in common repositories that you'll need to to install. There's a file you can
