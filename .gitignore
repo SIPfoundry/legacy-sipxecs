@@ -26,3 +26,12 @@ lib/cache-file
 lib/dist
 sipXtackLib/src/test/net/SipXauthIdentityTest.cpp
 custom
+sipXconfig/packages/analyzer
+sipXconfig/packages/args
+sipXconfig/packages/browser
+sipXconfig/packages/collection_helpers
+sipXconfig/packages/intl
+sipXconfig/packages/logging
+sipXconfig/packages/path
+sipXconfig/packages/unmodifiable_collection
+pubspec.lock

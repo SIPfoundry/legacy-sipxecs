@@ -20,9 +20,7 @@ class BackupPage {
   var timeOfDayFormat = new DateFormat("jm");
   
   BackupPage() {
-    querySelector("#backup-now").onClick.listen((_) {
-      window.alert("backing up...");  
-    });
+    querySelector("#backup-now").onClick.listen(backupNow);
     querySelector("#apply").onClick.listen(apply);
     loader = new DataLoader(this.msg, loadForm);
     settings = new SettingEditor(querySelector("#settings"));
@@ -86,10 +84,10 @@ class BackupPage {
     Map<String, String> defs = data['definitions'];
     if (defs != null) {
       defs.forEach((defId, label) {
-        var selected = archiveIds.contains(defId);
+        var checked = archiveIds.contains(defId) ? "checked" : "";
         archives.appendHtml('''
 <li>
-  <input type="checkbox" name="autoModeDefinitionIds" value="${defId}" selected="${selected}"/>
+  <input type="checkbox" name="autoModeDefinitionIds" value="${defId}" ${checked}/>
   ${label}
 </li>
 ''');              
@@ -125,16 +123,25 @@ class BackupPage {
     return form;
   }
   
+  backupNow(e) {
+    postOrPut('POST', 'message.backupCompleted');
+  }
+  
   apply(e) {
+    postOrPut('PUT', 'msg.actionSuccess');
+  }
+  
+  postOrPut(String method, String successMessage) {
     var meta = new Map<String, Object>();
     meta['settings'] = settings.parseForm();
     meta['backup'] = parseForm();    
     HttpRequest req = new HttpRequest();
-    req.open('PUT', api.url("rest/backup/${type}"));
+    req.open(method, api.url("rest/backup/${type}"));
     req.setRequestHeader("Content-Type", "application/json"); 
     req.send(JSON.encode(meta));
     req.onLoad.listen((e) {
       if (DataLoader.checkResponse(msg, req)) {
+        msg.success(getString(successMessage));
         load();
       }
     });      

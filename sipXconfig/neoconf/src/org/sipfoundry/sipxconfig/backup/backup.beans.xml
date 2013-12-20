@@ -60,6 +60,7 @@
   <bean id="backupApi" class="org.sipfoundry.sipxconfig.backup.BackupApi">
     <property name="backupManager" ref="backupManager"/>
     <property name="messages" ref="globalMessageSource" />
+    <property name="manualBackup" ref="manualBackup"/>
   </bean>
 
   <alias name="backupApi" alias="/backup/{type}" />

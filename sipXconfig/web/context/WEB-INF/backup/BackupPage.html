@@ -32,9 +32,15 @@ body {
       </table>
     </fieldset>
     <span id="local">
+      <div class="help">
+        <span key=""></span>
+      </div>
       <!--  non-FTP content only, none at this time -->
     </span>
     <fieldset id="ftp" style="display: none;">
+      <div class="help">
+        <span key=""></span>
+      </div>
       <table>
         <tbody id="ftp-settings">
         </tbody>
@@ -92,13 +98,13 @@ body {
         <input type="checkbox" id="dailyScheduleEnabled"> 
         <select name="dailyScheduledDay" id="dailyScheduledDay">
           <option jwcid="@common/Message" value="0" key="dayOfWeek.0">Every day</option>
-          <option value="1"><span key="dayOfWeek.1">Sunday</span></option>
-          <option value="2"><span key="dayOfWeek.2">Monday</span></option>
-          <option value="3"><span key="dayOfWeek.3">Tuesday</span></option>
-          <option value="4"><span key="dayOfWeek.4">Wednesday</span></option>
-          <option value="5"><span key="dayOfWeek.5">Thursday</span></option>
-          <option value="6"><span key="dayOfWeek.6">Friday</span></option>
-          <option value="7"><span key="dayOfWeek.7">Saturday</span></option>
+          <option jwcid="@common/Message" value="1" key="dayOfWeek.1">Sunday</option>
+          <option jwcid="@common/Message" value="2" key="dayOfWeek.2">Monday</option>
+          <option jwcid="@common/Message" value="3" key="dayOfWeek.3">Tuesday</option>
+          <option jwcid="@common/Message" value="4" key="dayOfWeek.4">Wednesday</option>
+          <option jwcid="@common/Message" value="5" key="dayOfWeek.5">Thursday</option>
+          <option jwcid="@common/Message" value="6" key="dayOfWeek.6">Friday</option>
+          <option jwcid="@common/Message" value="7" key="dayOfWeek.7">Saturday</option>
         </select> 
         <input type="text" id="dailyScheduledTime">
       </p>
@@ -115,7 +121,8 @@ body {
       <p>There are no backup files saved in the backup folder.</p>
     </fieldset>
     <span id="rc" style="display: none"> 
-      <!--   span jwcid="@common/Message" key="msg.deleteViewsConfirm"></span -->
+      <span jwcid="@common/Message" key="message.backupCompleted">Backup Complete</span>
+      <span jwcid="@common/Message" key="msg.actionSuccess">OK</span>
     </span>
     <script jwcid="@common/DartCode" type="application/dart" src="BackupPage.dart"></script>
     <script jwcid="@common/DartCode"

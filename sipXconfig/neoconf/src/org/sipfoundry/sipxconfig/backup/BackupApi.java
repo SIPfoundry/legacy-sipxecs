@@ -72,6 +72,8 @@ public class BackupApi extends Resource {
     private MessageSource m_messages;
     private BackupPlan m_plan;
     private BackupSettings m_settings;
+    private ManualBackup m_manualBackup;
+
     static {
         GROUP_TYPE.put("name", "group");
     }
@@ -99,12 +101,27 @@ public class BackupApi extends Resource {
             List<Preference<Language>> langs = ci.getAcceptedLanguages();
             if (langs != null && langs.size() > 0) {
                 Language lmeta = langs.get(0).getMetadata();
-                if (lmeta != null) {
-                    return Locale.forLanguageTag(lmeta.getName());
+                if (lmeta != null && lmeta.getName() != null) {
+                    // Java 1.7 only
+                    //   Locale.forLanguageTag(lmeta.getName());
+                    return forLanguageTag(lmeta.getName());
                 }
             }
         }
         return Locale.ENGLISH;
+    }
+
+    static Locale forLanguageTag(String id) {
+        String[] segments = StringUtils.split(id, '-');
+        switch (segments.length) {
+        case 3:
+            return new Locale(segments[0], segments[1], segments[2]);
+        case 2:
+            return new Locale(segments[0], segments[1]);
+        default:
+        case 1:
+            return new Locale(id);
+        }
     }
 
     // GET
@@ -243,7 +260,8 @@ public class BackupApi extends Resource {
     @Override
     public void acceptRepresentation(Representation entity) throws ResourceException {
         putOrPost(entity);
-        // RUN BACKUP
+        m_plan.setType(BackupType.manual);
+        m_manualBackup.backup(m_plan, m_settings);
     }
 
     void putOrPost(Representation entity) throws ResourceException {
@@ -274,18 +292,22 @@ public class BackupApi extends Resource {
         }
         plan.setAutoModeDefinitionIds(ids);
         plan.setLimitedCount(node.get("limitedCount").asInt());
-        plan.getSchedules().clear();
         Iterator<JsonNode> nSchedules = node.get("schedules").iterator();
-        while (nSchedules.hasNext()) {
+        for (Iterator<DailyBackupSchedule> i = plan.getSchedules().iterator(); nSchedules.hasNext();) {
             JsonNode nSchedule = nSchedules.next();
             JsonNode nTime = nSchedule.get("timeOfDay");
             TimeOfDay time = new TimeOfDay(nTime.get("hrs").asInt(), nTime.get("min").asInt());
             JsonNode nDay = nSchedule.get("scheduledDay");
             ScheduledDay day = ScheduledDay.getScheduledDay(nDay.get("dayOfWeek").asInt());
-            DailyBackupSchedule schedule = new DailyBackupSchedule();
+            DailyBackupSchedule schedule;
+            if (i.hasNext()) {
+                schedule = i.next();
+            } else {
+                schedule = new DailyBackupSchedule();
+                plan.addSchedule(schedule);
+            }
             schedule.setTimeOfDay(time);
             schedule.setScheduledDay(day);
-            plan.addSchedule(schedule);
             schedule.setEnabled(nSchedule.get("enabled").asBoolean());
         }
     }
@@ -322,5 +344,10 @@ public class BackupApi extends Resource {
     @Required
     public void setMessages(MessageSource messages) {
         m_messages = messages;
+    }
+
+    @Required
+    public void setManualBackup(ManualBackup manualBackup) {
+        m_manualBackup = manualBackup;
     }
 }

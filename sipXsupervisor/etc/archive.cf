@@ -33,9 +33,12 @@ bundle agent archive {
     "plan" slist => { "ftp", "local" };
   methods:
     archive::
+      "archive" usebundle => allow_ssh_command("sipx-archive");
       "archive" usebundle => archive_config("$(plan)");
     archive.primary::
       "archive" usebundle => backup_schedules("$(plan)");
+    !archive::
+      "any" usebundle => disallow_ssh_command("sipx-archive");
 }
 
 bundle agent archive_config(plan) {

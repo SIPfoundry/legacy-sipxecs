@@ -73,8 +73,8 @@ end
 class Backup < ArchiveBase  
   def run(params, args)
     defines = define_param(params)
-    cmd(@bin_dir + "/sipxagent -h #{hosts_param} -b backup #{defines}")
-    cmd(@bin_dir + "/sipxagent -b backup_collect #{defines}")
+    cmd("ssh -o 'StrictHostKeyChecking=no' -i ~/.cfagent/ppkeys/localhost.nopass.priv root@#{hosts_param} sipx-archive backup")
+    cmd("#{@bin_dir}/sipx-archive -b backup_collect #{defines}")
     fs = file_manager(params)
     fs.save(@data['max'])
   end
@@ -429,7 +429,7 @@ Create or restore backups and archives.
 EOF
 
   opts.on("--backup config.yaml",
-      "Restore the specified Configuration archive."){ |v|
+      "Restore the specified Configuration archive."){ |v|    
     operation = Backup.new(v)
   }
 
