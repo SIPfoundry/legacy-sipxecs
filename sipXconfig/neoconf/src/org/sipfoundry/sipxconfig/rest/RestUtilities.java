@@ -27,10 +27,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
+import org.restlet.data.ClientInfo;
 import org.restlet.data.Form;
+import org.restlet.data.Language;
 import org.restlet.data.MediaType;
+import org.restlet.data.Preference;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
@@ -75,6 +79,38 @@ public final class RestUtilities {
 
     private RestUtilities() {
         // hide default constructor
+    }
+
+    /**
+     * TODO: Move this to common rest util package
+     */
+    public static Locale getLocale(Request request) {
+        ClientInfo ci = request.getClientInfo();
+        if (ci != null) {
+            List<Preference<Language>> langs = ci.getAcceptedLanguages();
+            if (langs != null && langs.size() > 0) {
+                Language lmeta = langs.get(0).getMetadata();
+                if (lmeta != null && lmeta.getName() != null) {
+                    // Java 1.7 only
+                    //   Locale.forLanguageTag(lmeta.getName());
+                    return forLanguageTag(lmeta.getName());
+                }
+            }
+        }
+        return Locale.ENGLISH;
+    }
+
+    public static Locale forLanguageTag(String id) {
+        String[] segments = StringUtils.split(id, '-');
+        switch (segments.length) {
+        case 3:
+            return new Locale(segments[0], segments[1], segments[2]);
+        case 2:
+            return new Locale(segments[0], segments[1]);
+        default:
+        case 1:
+            return new Locale(id);
+        }
     }
 
     // Input parameter conversion functions
