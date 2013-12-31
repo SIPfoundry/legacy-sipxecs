@@ -61,6 +61,7 @@
    MISC_FILES=""
    OVERRIDES_DIRECTORY="${optional_root_url_path}"
    CONTACTS_DIRECTORY="${optional_root_url_path}"
-   LOG_FILE_DIRECTORY="">
+   LOG_FILE_DIRECTORY=""
+   USER_PROFILES_DIRECTORY="/hoteling/[PHONE_MAC_ADDRESS]">
 
 </APPLICATION>

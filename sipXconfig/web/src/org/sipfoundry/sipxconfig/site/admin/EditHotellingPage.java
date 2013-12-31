@@ -9,11 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.hotelling.HotellingLocator;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
@@ -24,9 +22,6 @@ public abstract class EditHotellingPage extends UserBasePage implements PageBegi
 
     public abstract void setEditedUser(User user);
 
-    @InjectObject("spring:hotellingLocator")
-    public abstract HotellingLocator getHotellingProfileGenerator();
-
     public abstract Setting getHotellingSetting();
 
     public abstract void setHotellingSetting(Setting value);
@@ -35,11 +30,10 @@ public abstract class EditHotellingPage extends UserBasePage implements PageBegi
         if (getEditedUser() == null) {
             setEditedUser(getUser());
         }
-        setHotellingSetting(getEditedUser().getSettings().getSetting("hotelling/enable"));
+        setHotellingSetting(getEditedUser().getSettings().getSetting("hotelling"));
     }
 
     public void onApply() {
-        getHotellingProfileGenerator().getHotellingBean().generate(getEditedUser());
         getCoreContext().saveUser(getEditedUser());
     }
 

@@ -16,15 +16,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
-import org.sipfoundry.sipxconfig.hotelling.HotellingLocator;
+import org.sipfoundry.sipxconfig.hoteling.HotelingLocator;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
 
 /**
  * Top portion of pages that show tabs, help box, intro text, etc
  */
 public abstract class PhoneNavigation extends BeanNavigation {
-    @InjectObject(value = "spring:hotellingLocator")
-    public abstract HotellingLocator getHotellingLocator();
+    @InjectObject(value = "spring:hotelingLocator")
+    public abstract HotelingLocator getHotellingLocator();
 
     @InjectPage(value = PhoneSettings.PAGE)
     public abstract PhoneSettings getPhoneSettingsPage();

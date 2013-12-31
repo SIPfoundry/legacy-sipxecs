@@ -22,7 +22,7 @@ import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
-import org.sipfoundry.sipxconfig.hotelling.HotellingLocator;
+import org.sipfoundry.sipxconfig.hoteling.HotelingLocator;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -41,8 +41,8 @@ public abstract class UserNavigation extends BeanNavigation {
 
     private static final String PERSONAL_ATTENDANT = "personal-attendant";
 
-    @InjectObject(value = "spring:hotellingLocator")
-    public abstract HotellingLocator getHotellingLocator();
+    @InjectObject(value = "spring:hotelingLocator")
+    public abstract HotelingLocator getHotellingLocator();
 
     @Parameter(required = false, defaultValue = "true")
     public abstract void setRenderCondition(boolean renderCondition);
