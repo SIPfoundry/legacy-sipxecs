@@ -25,7 +25,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.web.WebContext;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
-import org.sipfoundry.sipxconfig.hotelling.HotellingLocator;
+import org.sipfoundry.sipxconfig.hoteling.HotelingLocator;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
@@ -45,8 +45,8 @@ public abstract class EditPhoneDefaults extends PhoneBasePage implements PageBeg
 
     private static final int LINE_SETTITNGS = 1;
 
-    @InjectObject(value = "spring:hotellingLocator")
-    public abstract HotellingLocator getHotellingLocator();
+    @InjectObject(value = "spring:hotelingLocator")
+    public abstract HotelingLocator getHotellingLocator();
 
     @InjectObject(value = "spring:settingDao")
     public abstract SettingDao getSettingDao();

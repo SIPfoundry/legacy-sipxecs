@@ -81,6 +81,7 @@ public class User {
     private String m_timeZone;
     private boolean m_depositVoicemail;
     private boolean m_admin;
+    private boolean m_hotelingEnabled;
 
     public enum EmailFormats {
         FORMAT_NONE("NONE"), FORMAT_FULL("FULL"), FORMAT_MEDIUM("MEDIUM"), FORMAT_BRIEF("BRIEF"), FORMAT_IMAP("IMAP");
@@ -697,5 +698,13 @@ public class User {
 
     public void setAdmin(boolean admin) {
         m_admin = admin;
+    }
+
+    public boolean isHotelingEnabled() {
+        return m_hotelingEnabled;
+    }
+
+    public void setHotelingEnabled(boolean hotelingEnabled) {
+        m_hotelingEnabled = hotelingEnabled;
     }
 }

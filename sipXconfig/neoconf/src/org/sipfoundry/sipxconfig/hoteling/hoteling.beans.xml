@@ -3,7 +3,7 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
   <!-- most phone defaults properties is set in sipxconfig.properties.in -->
 
-  <bean id="hotellingLocator" class="org.sipfoundry.sipxconfig.hotelling.HotellingLocator">
+  <bean id="hotelingLocator" class="org.sipfoundry.sipxconfig.hoteling.HotelingLocator">
   </bean>
 
 </beans>

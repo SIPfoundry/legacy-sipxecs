@@ -14,40 +14,48 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.hotelling;
+package org.sipfoundry.sipxconfig.hoteling;
 
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
-public class HotellingLocator implements BeanFactoryAware {
-    private HotellingManager m_hotellingManager;
+public class HotelingLocator implements BeanFactoryAware {
+    private static final Log LOG = LogFactory.getLog(HotelingLocator.class);
+    private HotelingManager m_hotelingManager;
 
     /*
      * return one instance for now (for polycom). In the future, if there are multiple beans
      * defined, we may provide a list of beans (i.e. for more models), and cycle through them and
      * apply .generate() on each.
      */
-    public HotellingManager getHotellingBean() {
-        return m_hotellingManager;
+    public HotelingManager getHotellingBean() {
+        return m_hotelingManager;
     }
 
     public boolean isHotellingEnabled() {
-        if (m_hotellingManager == null) {
+        if (m_hotelingManager == null) {
             return false;
-        } else {
-            return m_hotellingManager.isActive();
         }
+        return true;
     }
 
     @Override
     public void setBeanFactory(BeanFactory bf) {
-        Map<String, HotellingManager> managers = ((ListableBeanFactory) bf).getBeansOfType(HotellingManager.class);
+        Map<String, HotelingManager> managers = ((ListableBeanFactory) bf).getBeansOfType(HotelingManager.class);
         if (!managers.isEmpty()) {
+            /*
+             * see above comment. Only one manager is supported for now.
+             */
+            if (managers.size() > 1) {
+                LOG.error("Multiple hoteling managers declared, but only one is supported!");
+            }
             for (String key : managers.keySet()) {
-                m_hotellingManager = managers.get(key);
+                m_hotelingManager = managers.get(key);
                 return;
             }
         }

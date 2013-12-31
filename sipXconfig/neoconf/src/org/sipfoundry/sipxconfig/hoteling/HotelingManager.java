@@ -14,17 +14,22 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.hotelling;
+package org.sipfoundry.sipxconfig.hoteling;
 
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
 
-public interface HotellingManager {
+public interface HotelingManager {
 
-    boolean isActive();
-
+    /**
+     * generate the necessary files for the user.
+     * @param user
+     */
     void generate(User user);
-
+    /**
+     * generate the necessary files for the group.
+     * @param user
+     */
     void generate(Group g);
 
 }

@@ -16,7 +16,88 @@
  */
 package org.sipfoundry.commons.userdb;
 
-import static org.sipfoundry.commons.mongo.MongoConstants.*;
+import static org.sipfoundry.commons.mongo.MongoConstants.ACCOUNT;
+import static org.sipfoundry.commons.mongo.MongoConstants.ACTIVEGREETING;
+import static org.sipfoundry.commons.mongo.MongoConstants.ALIAS;
+import static org.sipfoundry.commons.mongo.MongoConstants.ALIASES;
+import static org.sipfoundry.commons.mongo.MongoConstants.ALIAS_ID;
+import static org.sipfoundry.commons.mongo.MongoConstants.ALT_ATTACH_AUDIO;
+import static org.sipfoundry.commons.mongo.MongoConstants.ALT_EMAIL;
+import static org.sipfoundry.commons.mongo.MongoConstants.ALT_IM_ID;
+import static org.sipfoundry.commons.mongo.MongoConstants.ALT_NOTIFICATION;
+import static org.sipfoundry.commons.mongo.MongoConstants.ATTACH_AUDIO;
+import static org.sipfoundry.commons.mongo.MongoConstants.AVATAR;
+import static org.sipfoundry.commons.mongo.MongoConstants.BUTTONS;
+import static org.sipfoundry.commons.mongo.MongoConstants.CALL_FROM_ANY_IM;
+import static org.sipfoundry.commons.mongo.MongoConstants.CALL_IM;
+import static org.sipfoundry.commons.mongo.MongoConstants.CELL_PHONE_NUMBER;
+import static org.sipfoundry.commons.mongo.MongoConstants.COMPANY_NAME;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_ENTRY_IM;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_EXIT_IM;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_EXT;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_NAME;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_OWNER;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_PIN;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
+import static org.sipfoundry.commons.mongo.MongoConstants.DESCR;
+import static org.sipfoundry.commons.mongo.MongoConstants.DIALPAD;
+import static org.sipfoundry.commons.mongo.MongoConstants.DISPLAY_NAME;
+import static org.sipfoundry.commons.mongo.MongoConstants.DISTRIB_LISTS;
+import static org.sipfoundry.commons.mongo.MongoConstants.EMAIL;
+import static org.sipfoundry.commons.mongo.MongoConstants.ENTITY_NAME;
+import static org.sipfoundry.commons.mongo.MongoConstants.FAX_NUMBER;
+import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
+import static org.sipfoundry.commons.mongo.MongoConstants.HASHED_PASSTOKEN;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOME_CITY;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOME_COUNTRY;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOME_PHONE_NUMBER;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOME_STATE;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOME_STREET;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOME_ZIP;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOST;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOTELING;
+import static org.sipfoundry.commons.mongo.MongoConstants.ID;
+import static org.sipfoundry.commons.mongo.MongoConstants.IDENTITY;
+import static org.sipfoundry.commons.mongo.MongoConstants.IM_ADVERTISE_ON_CALL_STATUS;
+import static org.sipfoundry.commons.mongo.MongoConstants.IM_DISPLAY_NAME;
+import static org.sipfoundry.commons.mongo.MongoConstants.IM_ENABLED;
+import static org.sipfoundry.commons.mongo.MongoConstants.IM_GROUP;
+import static org.sipfoundry.commons.mongo.MongoConstants.IM_ID;
+import static org.sipfoundry.commons.mongo.MongoConstants.IM_ON_THE_PHONE_MESSAGE;
+import static org.sipfoundry.commons.mongo.MongoConstants.IM_SHOW_ON_CALL_DETAILS;
+import static org.sipfoundry.commons.mongo.MongoConstants.ITEM;
+import static org.sipfoundry.commons.mongo.MongoConstants.JOB_DEPT;
+import static org.sipfoundry.commons.mongo.MongoConstants.JOB_TITLE;
+import static org.sipfoundry.commons.mongo.MongoConstants.LANGUAGE;
+import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_BEGIN_IM;
+import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_END_IM;
+import static org.sipfoundry.commons.mongo.MongoConstants.MOH;
+import static org.sipfoundry.commons.mongo.MongoConstants.MY_BUDDY_GROUP;
+import static org.sipfoundry.commons.mongo.MongoConstants.NOTIFICATION;
+import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_CITY;
+import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_COUNTRY;
+import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_STATE;
+import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_STREET;
+import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_ZIP;
+import static org.sipfoundry.commons.mongo.MongoConstants.OPERATOR;
+import static org.sipfoundry.commons.mongo.MongoConstants.PASSWD;
+import static org.sipfoundry.commons.mongo.MongoConstants.PERMISSIONS;
+import static org.sipfoundry.commons.mongo.MongoConstants.PERSONAL_ATT;
+import static org.sipfoundry.commons.mongo.MongoConstants.PINTOKEN;
+import static org.sipfoundry.commons.mongo.MongoConstants.PLAY_DEFAULT_VM;
+import static org.sipfoundry.commons.mongo.MongoConstants.PORT;
+import static org.sipfoundry.commons.mongo.MongoConstants.RELATION;
+import static org.sipfoundry.commons.mongo.MongoConstants.SPEEDDIAL;
+import static org.sipfoundry.commons.mongo.MongoConstants.SYNC;
+import static org.sipfoundry.commons.mongo.MongoConstants.TIMEZONE;
+import static org.sipfoundry.commons.mongo.MongoConstants.TLS;
+import static org.sipfoundry.commons.mongo.MongoConstants.UID;
+import static org.sipfoundry.commons.mongo.MongoConstants.USERBUSYPROMPT;
+import static org.sipfoundry.commons.mongo.MongoConstants.USER_LOCATION;
+import static org.sipfoundry.commons.mongo.MongoConstants.VALID_USER;
+import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAILTUI;
+import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAIL_ENABLED;
+import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAIL_PINTOKEN;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,6 +110,7 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.commons.userdb.User.EmailFormats;
@@ -44,7 +126,7 @@ import com.mongodb.util.JSON;
 
 /**
  * Holds the valid user data needed for the AutoAttendant, parsing from mongo db imdb
- *
+ * 
  */
 public class ValidUsers {
     public static String IM_USERNAME_FILTER = "Username";
@@ -66,9 +148,9 @@ public class ValidUsers {
     private DB m_imdb;
 
     /**
-     * Loading all users into memory is an extremely expensive call for large systems (10K-50K user system).
-     * Consider refactoring your code to not call this method.
-     *
+     * Loading all users into memory is an extremely expensive call for large systems (10K-50K
+     * user system). Consider refactoring your code to not call this method.
+     * 
      * @return
      */
     public List<User> getValidUsers() {
@@ -97,9 +179,9 @@ public class ValidUsers {
     }
 
     /**
-     * Loading all users into memory is an extremely expensive call for large systems (10K-50K user system).
-     * Consider refactoring your code to not call this method.
-     *
+     * Loading all users into memory is an extremely expensive call for large systems (10K-50K
+     * user system). Consider refactoring your code to not call this method.
+     * 
      * @return
      */
     public DBCursor getUsers() {
@@ -110,29 +192,27 @@ public class ValidUsers {
 
     public DBCursor getUsersWithSpeedDial() {
         DBCursor cursor = getEntityCollection().find(
-                QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_USER).
-                or(
-                        QueryBuilder.start(SPEEDDIAL).exists(true).get(),
-                        new BasicDBObject(IM_ENABLED, true)
-                  ).get());
+                QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_USER)
+                        .or(QueryBuilder.start(SPEEDDIAL).exists(true).get(), new BasicDBObject(IM_ENABLED, true))
+                        .get());
         return cursor;
     }
 
     /**
-     * Use this method if you need to remove a field from users completely.
-     * This may be achieved by regenerating the entire collection, or a DataSet, but this would be much faster.
+     * Use this method if you need to remove a field from users completely. This may be achieved
+     * by regenerating the entire collection, or a DataSet, but this would be much faster.
+     * 
      * @param field
      */
     public void removeFieldFromUsers(String field) {
-        getEntityCollection().update( new BasicDBObject()
-        , new BasicDBObject( "$unset" , new BasicDBObject( SPEEDDIAL , 1 ) )
-        , false , true ); 
+        getEntityCollection().update(new BasicDBObject(),
+                new BasicDBObject("$unset", new BasicDBObject(SPEEDDIAL, 1)), false, true);
     }
-    
+
     /**
-     * Loading all users into memory is an extremely expensive call for large systems (10K-50K user system).
-     * Consider refactoring your code to not call this method.
-     *
+     * Loading all users into memory is an extremely expensive call for large systems (10K-50K
+     * user system). Consider refactoring your code to not call this method.
+     * 
      * @return
      */
     public List<User> getUsersWithImEnabled() {
@@ -148,7 +228,7 @@ public class ValidUsers {
 
     /**
      * Returns a list of all im ids (of users with im enabled)
-     *
+     * 
      * @return
      */
     public List<String> getAllImIdsInGroup(String group) {
@@ -165,9 +245,9 @@ public class ValidUsers {
 
     /**
      * See if a given user_name is valid (aka it can be dialed and reach a user)
-     *
+     * 
      * @param userNname
-     *
+     * 
      * @return user found or null
      */
     public User getUser(String userName) {
@@ -223,8 +303,8 @@ public class ValidUsers {
         return getUserByJidObject(jid);
     }
 
-    //We might rarely need to search through alternate id. "or" query proved to be pretty heavy
-    //especially on systems with many users, so we might want to limit those if possible
+    // We might rarely need to search through alternate id. "or" query proved to be pretty heavy
+    // especially on systems with many users, so we might want to limit those if possible
     private User getUserByJidObject(Object jid) {
         BasicDBObject jidQuery = new BasicDBObject();
         jidQuery.put(IM_ID, jid);
@@ -248,7 +328,8 @@ public class ValidUsers {
 
     public List<User> getUsersUpdatedAfter(Long ms) {
         List<User> users = new ArrayList<User>();
-        DBObject query = QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_USER).and(MongoConstants.TIMESTAMP).greaterThan(ms).get();
+        DBObject query = QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_USER).and(MongoConstants.TIMESTAMP)
+                .greaterThan(ms).get();
         DBCursor cursor = getEntityCollection().find(query);
         Iterator<DBObject> objects = cursor.iterator();
         while (objects.hasNext()) {
@@ -287,10 +368,10 @@ public class ValidUsers {
         user.setConfNum(getStringValue(conference, CONF_EXT));
         user.setConfPin(getStringValue(conference, CONF_PIN));
     }
-    
+
     /**
      * Given a bunch of DTMF digits, return the list of users that matches
-     *
+     * 
      * @param digits DTMF digits to match against user directory
      * @param onlyVoicemailUsers limit match to users in directory who have voicemail
      * @return a Vector of users that match
@@ -398,7 +479,7 @@ public class ValidUsers {
     }
 
     public Collection<UserGroup> getImGroups() {
-        Collection<UserGroup> groups = new ArrayList<UserGroup> ();
+        Collection<UserGroup> groups = new ArrayList<UserGroup>();
         DBObject queryGroup = QueryBuilder.start(IM_GROUP).is("1").get();
         DBCursor cursor = getEntityCollection().find(queryGroup);
         DBObject groupResult = null;
@@ -432,7 +513,8 @@ public class ValidUsers {
     }
 
     public User getImbotUser() {
-        DBObject queryImbot = QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_IMBOTSETTINGS).and(IM_ENABLED).is(true).get();
+        DBObject queryImbot = QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_IMBOTSETTINGS).and(IM_ENABLED).is(true)
+                .get();
         DBObject imbotResult = getEntityCollection().findOne(queryImbot);
         if (imbotResult != null) {
             User imbotUser = new User();
@@ -445,7 +527,8 @@ public class ValidUsers {
     }
 
     public long getImGroupCount() {
-        return getEntityCollection().count(QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_GROUP).and(IM_GROUP).is("1").get());
+        return getEntityCollection().count(
+                QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_GROUP).and(IM_GROUP).is("1").get());
     }
 
     public Collection<String> getImGroupNames(int startIndex, int numResults) {
@@ -467,7 +550,8 @@ public class ValidUsers {
 
     public List<String> getImGroupNameByQuery(String query, int startIndex, int numResults) {
         Pattern insensitiveQuery = Pattern.compile(query, Pattern.CASE_INSENSITIVE);
-        QueryBuilder mongoQuery = QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_GROUP).and(UID).is(insensitiveQuery);
+        QueryBuilder mongoQuery = QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_GROUP).and(UID)
+                .is(insensitiveQuery);
         DBCursor cursor = getEntityCollection().find(mongoQuery.get()).skip(startIndex).limit(numResults);
         List<String> groups = new ArrayList<String>();
         Iterator<DBObject> objects = cursor.iterator();
@@ -555,6 +639,7 @@ public class ValidUsers {
         user.setPintoken(getStringValue(obj, PINTOKEN));
         user.setVoicemailPintoken(getStringValue(obj, VOICEMAIL_PINTOKEN));
         user.setTimeZone(getStringValue(obj, TIMEZONE));
+        user.setHotelingEnabled(BooleanUtils.toBoolean(getStringValue(obj, HOTELING), "1", "0"));
 
         BasicDBList permissions = (BasicDBList) obj.get(PERMISSIONS);
         if (permissions != null) {
@@ -716,11 +801,11 @@ public class ValidUsers {
         }
         return null;
     }
-    
+
     /**
      * Remove all non-letter characters, convert to upper case Remove diacritical marks if
      * possible
-     *
+     * 
      * @param orig
      */
     protected static String compress(String orig) {
@@ -837,9 +922,9 @@ public class ValidUsers {
 
     /**
      * Parse the Display name into a list of DTMF sequences
-     *
+     * 
      * Do one for Last name first And one for First name first
-     *
+     * 
      * @param u
      */
     protected static void buildDialPatterns(User u) {
