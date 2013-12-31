@@ -136,6 +136,7 @@ lib = $(filter-out $(lib_exclude_$(DISTRO_OS)_$(DISTRO_VER)),$(lib_all))
 
 # Project compile-time dependencies. Only list project that if
 # it's dependecies were recompiled then you'd want to recompile.
+freeswitch_DEPS = erlang
 sipXtackLib_DEPS = sipXportLib
 sipXmediaLib_DEPS = sipXtackLib
 sipXmediaAdapterLib_DEPS = sipXmediaLib
