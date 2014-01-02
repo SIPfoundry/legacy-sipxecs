@@ -29,7 +29,7 @@ custom
 sipXconfig/packages/analyzer
 sipXconfig/packages/args
 sipXconfig/packages/browser
-sipXconfig/packages/collection_helpers
+sipXconfig/packages/collection
 sipXconfig/packages/intl
 sipXconfig/packages/logging
 sipXconfig/packages/path
