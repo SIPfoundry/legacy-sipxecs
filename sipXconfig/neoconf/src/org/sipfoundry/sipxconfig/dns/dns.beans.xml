@@ -10,7 +10,7 @@
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.dns.DnsManager" />
     <property name="target" ref="dnsManagerImpl"/>
   </bean>
-  
+
   <bean id="dnsManagerImpl" class="org.sipfoundry.sipxconfig.dns.DnsManagerImpl">
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
@@ -22,21 +22,13 @@
       </bean>
     </property>
     <property name="addressManager" ref="addressManager"/>
-    <property name="regionManager" ref="regionManager"/>
-    <property name="locationsManager" ref="locationsManager"/>
-    <property name="configJdbcTemplate" ref="configJdbcTemplate"/>
     <property name="externalDnsStash" value="${sysdir.tmp}/.initial-dns-forwarder"/>
-    <property name="daoEventPublisher" ref="daoEventPublisher"/>
   </bean>
 
   <bean id="dnsConfig" class="org.sipfoundry.sipxconfig.dns.DnsConfig">
     <property name="dnsManager" ref="dnsManager"/>
     <property name="regionManager" ref="regionManager"/>
   </bean>
-  
-  <bean id="dnsValidation" class="org.sipfoundry.sipxconfig.dns.DnsValidation">
-    <property name="dnsManager" ref="dnsManager"/>
-  </bean> 
 
   <bean id="dnsTestContextImpl" class="org.sipfoundry.sipxconfig.dns.DnsTestContextImpl">
     <property name="validatorScript" value="${sysdir.libexec}/sipx-dns-validator"/>
@@ -46,71 +38,5 @@
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.dns.DnsTestContext" />
     <property name="target" ref="dnsTestContextImpl" />
   </bean>
-
-  <bean id="dnsStrings" class="org.springframework.context.support.ResourceBundleMessageSource">
-    <property name="basename">
-      <value>org.sipfoundry.sipxconfig.dns.dns</value>
-    </property>
-  </bean>
-
-  <bean id="dnsPreview" class="org.sipfoundry.sipxconfig.dns.DnsPreview">
-    <property name="locationsManager" ref="locationsManager"/>    
-    <property name="dnsManager" ref="dnsManager"/>    
-    <property name="dnsConfig" ref="dnsConfig"/>    
-    <property name="addressManager" ref="addressManager"/>    
-    <property name="command" value="${sysdir.libexec}/sipx-erb --in %s --template ${sysdir.etc}/sipxdns/zone.erb --postpend %s"/>
-  </bean>
-
-  <!-- DNS PLAN REST API -->
-  <bean id="baseDnsApi" class="org.sipfoundry.sipxconfig.dns.DnsApi">
-    <property name="regionManager" ref="regionManager"/>
-    <property name="locationsManager" ref="locationsManager"/>    
-    <property name="dnsManager" ref="dnsManager"/>    
-  </bean>
-
-  <bean id="dnsApi" parent="baseDnsApi"/>
-  <alias name="dnsApi" alias="/dnsPlan" />
-  
-  <bean name="editDnsApi" parent="baseDnsApi"/>
-  <alias name="editDnsApi" alias="/dnsPlan/{id}" />
-
-  <!-- DNS VIEW REST API -->
-  <bean id="baseDnsViewApi" class="org.sipfoundry.sipxconfig.dns.DnsViewApi">
-    <property name="dnsManager" ref="dnsManager"/>    
-    <property name="regionManager" ref="regionManager"/>    
-  </bean>
-
-  <bean id="dnsViewApi" parent="baseDnsViewApi"/>
-  <alias name="dnsViewApi" alias="/dnsView" />
-
-  <bean name="editDnsViewApi" parent="baseDnsViewApi"/>
-  <alias name="editDnsViewApi" alias="/dnsView/{id}" />
-
-  <!-- DNS VIEW MOVE REST API -->
-  <bean id="dnsMoveViewApi" class="org.sipfoundry.sipxconfig.dns.DnsViewMoveApi">
-    <property name="dnsManager" ref="dnsManager"/>    
-  </bean>
-
-  <alias name="dnsMoveViewApi" alias="/dnsViewMove" />
-
-  <!-- DNS PREVIEW REST API -->
-  <bean id="dnsPreviewApi" class="org.sipfoundry.sipxconfig.dns.DnsPreviewApi">
-    <property name="dnsPreview" ref="dnsPreview"/>
-    <property name="dnsViewApi" ref="dnsViewApi"/>    
-  </bean>
-
-  <!-- See DnsPreview.Show for legal values for show -->
-  <alias name="dnsPreviewApi" alias="/dnsPreview/{show}" />
-
-  <!-- DNS CUSTOM REST API -->
-  <bean id="baseDnsCustomApi" class="org.sipfoundry.sipxconfig.dns.DnsCustomApi">
-    <property name="dnsManager" ref="dnsManager"/>    
-  </bean>
-
-  <bean id="dnsCustomApi" parent="baseDnsCustomApi"/>
-  <alias name="dnsCustomApi" alias="/dnsCustom" />
-  
-  <bean name="editDnsCustomApi" parent="baseDnsCustomApi"/>
-  <alias name="editDnsCustomApi" alias="/dnsCustom/{id}" />
 
 </beans>

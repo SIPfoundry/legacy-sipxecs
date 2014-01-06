@@ -454,9 +454,22 @@
     <antcall target="shards"/>
     <antcall target="region"/>
     <antcall target="region-ips"/>
-    <antcall target="dns"/>
-    <antcall target="dns_custom"/>
     <antcall target="drop_acd"/>
+    <!-- slot 7 -->
+    <!-- slot 8 -->
+    <!-- slot 9 -->
+    <!-- slot 10 -->
+    <!-- slot 11 -->
+    <!-- slot 12 -->
+    <!-- slot 13 -->
+    <!-- slot 14 -->
+    <!-- slot 15 -->
+    <!-- slot 16 -->
+    <!-- slot 17 -->
+    <!-- slot 18 -->
+    <!-- slot 19 -->
+    <!-- slot 20 -->
+    <!-- slot 21 -->
   </target>
 
   <target name="plugin-patches">
@@ -1349,9 +1362,6 @@
   <target name="iptables-call-rate-limit" unless="iptables-call-rate-limit">
 	<db-patch patch="iptables-call-rate-limit"/>
   </target>
-  <target name="dns" unless="dns">
-	<db-patch patch="dns"/>
-  </target>
   <target name="branch-timezone" unless="branch-timezone">
     <db-patch patch="branch-timezone"/>
   </target>
@@ -1360,9 +1370,6 @@
   </target>
   <target name="add_value_storage_to_openacdline" unless="add_value_storage_to_openacdline">
 	<db-patch patch="add_value_storage_to_openacdline"/>
-  </target>
-  <target name="dns_custom" unless="dns_custom">
-	<db-patch patch="dns_custom"/>
   </target>
   <target name="add_timeout_to_ldap" unless="add_timeout_to_ldap">
     <db-patch patch="add_timeout_to_ldap"/>

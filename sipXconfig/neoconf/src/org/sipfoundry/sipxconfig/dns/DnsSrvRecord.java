@@ -27,7 +27,6 @@ public class DnsSrvRecord {
     private String m_protocol;
     private String m_resource;
     private int m_port;
-    private boolean m_internal;
 
     public DnsSrvRecord(String protocol, String resource, String host, int port, String destination) {
         m_destination = destination;
@@ -37,16 +36,10 @@ public class DnsSrvRecord {
         m_port = port;
     }
 
-    /**
-     * Useful for external traditional SRV records e.g. _sip._tcp.example.org
-     */
     public static final DnsSrvRecord domainLevel(String protocol, String resource, int port, String destination) {
         return new DnsSrvRecord(protocol, resource, "", port, destination);
     }
 
-    /**
-     * Useful for internal "RR" records that select a local host first e.g. _sip._tcp.host1.example.org
-     */
     public static final DnsSrvRecord hostLevel(String protocol, String resource, String host, int port,
             String destination) {
         return new DnsSrvRecord(protocol, resource, host, port, destination);
@@ -97,13 +90,5 @@ public class DnsSrvRecord {
 
     public int getPort() {
         return m_port;
-    }
-
-    public boolean isInternal() {
-        return m_internal;
-    }
-
-    public void setInternal(boolean internal) {
-        m_internal = internal;
     }
 }

@@ -12,33 +12,31 @@
                        1800            ; expire, seconds
                        1800 )          ; minimum TTL, seconds
 <% 
-  if defined?(dns_servers) and dns_servers
+  unless dns_servers.nil?
     dns_servers.each { |server| 
 %><%= domain %>.            IN     NS     <%= server[:name] %>
 <%
     }
   end
 
-  if defined?(naptr_protocols) and naptr_protocols
 %><%= record_id('naptr') %><%
 
-    naptr_protocols.each { |proto| 
-    protoCode = 'SIP+D2' + proto[0,1].upcase  # SIP+D2T
+  naptr_protocols.each { |proto| 
+  protoCode = 'SIP+D2' + proto[0,1].upcase  # SIP+D2T
 %><%= domain %>.       IN    NAPTR	    2 0 "s" "<%= protoCode %>" "" _sip._<%= proto %>
-<%  }
-  end
+<%}
 
-  if resource_records
 %><%= record_id('rr') %><%
 
+  if resource_records
     resource_records.each { |rr|
 %><%= rr[:lhs] %>	  IN    SRV	<%= rr[:priority] %> <%= rr[:weight] %> <%= rr[:port] %> <%= rr[:target] %>
 <%
     } 
   end
 
-  if all_servers
 %><%= record_id('a') %><%
+  if all_servers
     all_servers.each { |server| 
 %><%= server[:name] %> 		IN    A	<%= server[:ipv4] %>
 <%  }
