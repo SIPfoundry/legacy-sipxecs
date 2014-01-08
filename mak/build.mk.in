@@ -81,7 +81,8 @@ $(sipx:=.changes):
 help-more.*.if-changed = Compile project only if files have changed for a project.
 .SECONDEXPANSION:
 $(sipx:=.if-changed): %.if-changed :
-	@$(MAKE) nop $(shell $(SRC)/tools/dep check $(PROJ) $(SRC)/$(PROJ) \
+	@echo -n 'checking for changes in $*...'
+	@$(MAKE) -s nop $(shell $(SRC)/tools/dep check $(PROJ) $(SRC)/$(PROJ) \
 	       $(foreach D,$($(PROJ)_DEPS),$(D)))
 
 # Targets for sipx and lib. Uses pattern %.xyz so libs can implement their own
