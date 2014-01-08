@@ -18,7 +18,6 @@ package org.sipfoundry.sipxconfig.dialplan.attendant;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -28,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.QName;
+import org.sipfoundry.commons.util.HolidayPeriod;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.dialplan.AttendantMenu;
@@ -46,7 +46,7 @@ import org.springframework.beans.factory.annotation.Required;
 public class AutoAttendantXmlConfig {
     // please note: US locale always...
     private static final Log LOG = LogFactory.getLog(AutoAttendantXmlConfig.class);
-    private static final SimpleDateFormat HOLIDAY_FORMAT = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
+    private static final SimpleDateFormat HOLIDAY_FORMAT = new SimpleDateFormat("dd-MMM-yyyy HH:mm", Locale.US);
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00";
     private static final String ID = "id";
     private static final String PARAMETER = "parameter";
@@ -78,8 +78,12 @@ public class AutoAttendantXmlConfig {
         Element holidayEl = scheduleEl.addElement("holiday");
         if (holidayAttendant.isEnabled()) {
             addId(holidayEl, holidayAttendant.getAttendant());
-            for (Date date : holidayAttendant.getDates()) {
-                holidayEl.addElement("date").setText(HOLIDAY_FORMAT.format(date));
+            for (HolidayPeriod holidayPeriod : holidayAttendant.getPeriods()) {
+                Element holidayPeriodElement = holidayEl.addElement("period");
+                holidayPeriodElement.addElement("startDate").setText(
+                        HOLIDAY_FORMAT.format(holidayPeriod.getStartDate()));
+                holidayPeriodElement.addElement("endDate").setText(
+                        HOLIDAY_FORMAT.format(holidayPeriod.getEndDate()));
             }
         }
         WorkingTime workingTimeAttendant = attendantRule.getWorkingTimeAttendant();

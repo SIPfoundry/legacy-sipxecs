@@ -108,11 +108,14 @@
         <many-to-one name="attendant" column="holiday_attendant_id" class="AutoAttendant"
           cascade="none" foreign-key="fk_holiday_dates_attendant_dialing_rule" />
         <property name="enabled" column="holiday_attendant_enabled" />
-        <list name="dates" table="holiday_dates">
+        <list name="periods" table="holiday_dates">
           <key column="attendant_dialing_rule_id"
             foreign-key="fk_holiday_dates_attendant_dialing_rule" />
           <index column="position" />
-          <element type="date" column="date" not-null="true" />
+		  <composite-element class="org.sipfoundry.commons.util.HolidayPeriod">
+			<property name="startDate" column="start_date" not-null="true"/>
+			<property name="endDate" column="end_date" not-null="true"/>
+		  </composite-element>
         </list>
       </component>
       <component name="workingTimeAttendant"

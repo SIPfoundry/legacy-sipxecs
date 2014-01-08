@@ -10,30 +10,31 @@
 package org.sipfoundry.sipxconfig.dialplan.attendant;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+import org.sipfoundry.commons.util.HolidayPeriod;
+
 public class Holiday extends ScheduledAttendant {
-    private List<Date> m_dates = new ArrayList<Date>();
+    private List<HolidayPeriod> m_periods = new ArrayList<HolidayPeriod>();
 
-    public void addDay(Date day) {
-        m_dates.add(day);
+    public void addPeriod(HolidayPeriod period) {
+        m_periods.add(period);
     }
 
-    public void removeDay(Date day) {
-        m_dates.remove(day);
+    public void removePeriod(HolidayPeriod period) {
+        m_periods.remove(period);
     }
 
-    public List<Date> getDates() {
-        return m_dates;
+    public List<HolidayPeriod> getPeriods() {
+        return m_periods;
     }
 
-    public void setDates(List dates) {
-        m_dates = dates;
+    public void setPeriods(List<HolidayPeriod> holidayPeriods) {
+        m_periods = holidayPeriods;
     }
 
     public void removeDay(int indexToDelete) {
-        m_dates.remove(indexToDelete);
+        m_periods.remove(indexToDelete);
     }
 
     /**
@@ -42,7 +43,7 @@ public class Holiday extends ScheduledAttendant {
     @Override
     public Object clone() throws CloneNotSupportedException {
         Holiday clone = (Holiday) super.clone();
-        clone.setDates(new ArrayList(getDates()));
+        clone.setPeriods(new ArrayList(getPeriods()));
         return clone;
     }
 
@@ -51,11 +52,11 @@ public class Holiday extends ScheduledAttendant {
      *
      * @param i day index
      */
-    public void setDay(int i, Date holidayDay) {
-        if (i >= m_dates.size()) {
-            m_dates.add(holidayDay);
+    public void setDay(int i, HolidayPeriod holidayPeriod) {
+        if (i >= m_periods.size()) {
+            m_periods.add(holidayPeriod);
         } else {
-            m_dates.set(i, holidayDay);
+            m_periods.set(i, holidayPeriod);
         }
     }
 
@@ -64,12 +65,12 @@ public class Holiday extends ScheduledAttendant {
      *
      * @param i day index
      */
-    public Date getDay(int i) {
-        if (i < m_dates.size()) {
-            return m_dates.get(i);
+    public HolidayPeriod getPeriod(int i) {
+        if (i < m_periods.size()) {
+            return m_periods.get(i);
         }
-        Date date = new Date();
-        m_dates.add(date);
+        HolidayPeriod date = new HolidayPeriod();
+        m_periods.add(date);
         return date;
     }
 
@@ -79,8 +80,8 @@ public class Holiday extends ScheduledAttendant {
      * @param maxDayIndex the index of the last objects retained in the list
      */
     public void chop(int maxDayIndex) {
-        if (maxDayIndex < m_dates.size()) {
-            m_dates.subList(maxDayIndex + 1, m_dates.size()).clear();
+        if (maxDayIndex < m_periods.size()) {
+            m_periods.subList(maxDayIndex + 1, m_periods.size()).clear();
         }
     }
 }

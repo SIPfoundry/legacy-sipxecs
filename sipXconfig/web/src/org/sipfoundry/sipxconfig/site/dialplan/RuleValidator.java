@@ -9,11 +9,16 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
+import java.util.List;
+
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.form.IFormComponent;
 import org.apache.tapestry.form.ValidationMessages;
 import org.apache.tapestry.form.validator.BaseValidator;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.commons.util.HolidayPeriod;
+import org.sipfoundry.sipxconfig.dialplan.AttendantRule;
 import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
 
 public class RuleValidator extends BaseValidator {
@@ -33,6 +38,19 @@ public class RuleValidator extends BaseValidator {
             // rule is invalid - external rules have to have gateways
             rule.setEnabled(false);
             throw new ValidatorException(getMessage(), ValidationConstraint.CONSISTENCY);
+        }
+        if (rule instanceof AttendantRule) {
+            AttendantRule attendantRule = (AttendantRule) rule;
+            List<HolidayPeriod> periods = attendantRule.getHolidayAttendant()
+                    .getPeriods();
+            for (HolidayPeriod period : periods) {
+                if (period.getEndDate().before(period.getStartDate())) {
+                    IPage page = field.getPage();
+                    throw new ValidatorException(page.getMessages().getMessage(
+                            "validationMessage.inconsistentHolidayDates"),
+                            ValidationConstraint.CONSISTENCY);
+                }
+            }
         }
     }
 }

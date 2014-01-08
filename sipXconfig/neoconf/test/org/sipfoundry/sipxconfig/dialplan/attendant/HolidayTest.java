@@ -13,84 +13,94 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import org.sipfoundry.commons.util.HolidayPeriod;
+
 import junit.framework.TestCase;
 
 public class HolidayTest extends TestCase {
-    private Date m_now;
-    private Date m_then;
+    private HolidayPeriod m_now;
+    private HolidayPeriod m_then;
 
     protected void setUp() throws Exception {
-        m_now = new Date();
-        m_then = new Timestamp(0);
+        m_now = new HolidayPeriod();
+        m_now.setStartDate(new Date());
+        m_then = new HolidayPeriod();
+        m_then.setStartDate(new Timestamp(0));
     }
 
-    public void testAddDay() {
+    public void testaddPeriod() {
         Holiday holiday = new Holiday();
-        assertTrue(holiday.getDates().isEmpty());
-        holiday.addDay(m_now);
-        holiday.addDay(m_then);
-        holiday.addDay(m_now);
-        assertEquals(3, holiday.getDates().size());
-        assertTrue(holiday.getDates().contains(m_now));
-        assertTrue(holiday.getDates().contains(m_then));
+        assertTrue(holiday.getPeriods().isEmpty());
+        holiday.addPeriod(m_now);
+        holiday.addPeriod(m_then);
+        holiday.addPeriod(m_now);
+        assertEquals(3, holiday.getPeriods().size());
+        assertTrue(holiday.getPeriods().contains(m_now));
+        assertTrue(holiday.getPeriods().contains(m_then));
     }
 
-    public void testRemoveDay() {
+    public void testRemovePeriod() {
         Holiday holiday = new Holiday();
-        holiday.addDay(m_now);
-        assertEquals(1, holiday.getDates().size());
-        holiday.removeDay(m_then);
-        assertEquals(1, holiday.getDates().size());
-        holiday.removeDay(m_now);
-        assertTrue(holiday.getDates().isEmpty());
+        holiday.addPeriod(m_now);
+        assertEquals(1, holiday.getPeriods().size());
+        holiday.removePeriod(m_then);
+        assertEquals(1, holiday.getPeriods().size());
+        holiday.removePeriod(m_now);
+        assertTrue(holiday.getPeriods().isEmpty());
     }
 
     public void testGetDay() {
         Holiday holiday = new Holiday();
-        assertTrue(holiday.getDates().isEmpty());
+        assertTrue(holiday.getPeriods().isEmpty());
         for (int i = 0; i < 3; i++) {
-            assertNotNull(holiday.getDay(i));
-            assertEquals(i + 1, holiday.getDates().size());
+            assertNotNull(holiday.getPeriod(i));
+            assertEquals(i + 1, holiday.getPeriods().size());
         }
     }
 
     public void testChop() {
-        Date[] dates = {
-            m_now, m_then, new Date(), new Date(), new Date()
+        HolidayPeriod[] holidayPeriods = {
+            m_now, m_then, getNewHolidayPeriod(), getNewHolidayPeriod(), getNewHolidayPeriod()
         };
         Holiday holiday = new Holiday();
-        assertTrue(holiday.getDates().isEmpty());
-        for (int i = 0; i < dates.length; i++) {
-            holiday.addDay(dates[i]);
+        assertTrue(holiday.getPeriods().isEmpty());
+        for (int i = 0; i < holidayPeriods.length; i++) {
+            holiday.addPeriod(holidayPeriods[i]);
         }
-        assertEquals(5, holiday.getDates().size());
+        assertEquals(5, holiday.getPeriods().size());
         holiday.chop(2);
-        assertEquals(3, holiday.getDates().size());
-        List days = holiday.getDates();
+        assertEquals(3, holiday.getPeriods().size());
+        List days = holiday.getPeriods();
         for(int i = 0; i < days.size(); i++) {
-            assertSame(dates[i], days.get(i));
+            assertSame(holidayPeriods[i], days.get(i));
         }
     }
 
     public void testChopLast() {
         Holiday holiday = new Holiday();
-        assertTrue(holiday.getDates().isEmpty());
+        assertTrue(holiday.getPeriods().isEmpty());
         for (int i = 0; i < 3; i++) {
-            holiday.addDay(new Date());
+            holiday.addPeriod(getNewHolidayPeriod());
         }
-        assertEquals(3, holiday.getDates().size());
+        assertEquals(3, holiday.getPeriods().size());
         holiday.chop(2);
-        assertEquals(3, holiday.getDates().size());
+        assertEquals(3, holiday.getPeriods().size());
     }
 
     public void testChopOutOfRange() {
         Holiday holiday = new Holiday();
-        assertTrue(holiday.getDates().isEmpty());
+        assertTrue(holiday.getPeriods().isEmpty());
         for (int i = 0; i < 3; i++) {
-            holiday.addDay(new Date());
+            holiday.addPeriod(getNewHolidayPeriod());
         }
-        assertEquals(3, holiday.getDates().size());
+        assertEquals(3, holiday.getPeriods().size());
         holiday.chop(4);
-        assertEquals(3, holiday.getDates().size());
+        assertEquals(3, holiday.getPeriods().size());
+    }
+    
+    private HolidayPeriod getNewHolidayPeriod() {
+        HolidayPeriod holidayPeriod = new HolidayPeriod();
+        holidayPeriod.setStartDate(new Date());
+        return holidayPeriod;
     }
 }

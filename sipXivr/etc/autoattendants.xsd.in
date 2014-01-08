@@ -206,7 +206,13 @@
 			<sequence>
                 <element ref="tns:id" maxOccurs="1" minOccurs="0">
 				</element>
-                <element ref="tns:date" maxOccurs="unbounded" minOccurs="0">
+				<element name="period">
+					<complexType>
+						<sequence>
+			                <element ref="tns:startDate" maxOccurs="unbounded" minOccurs="0">
+			                <element ref="tns:endDate" maxOccurs="unbounded" minOccurs="0">
+						</sequence>
+					</complexType>
 				</element>
 			</sequence>
 		</complexType>

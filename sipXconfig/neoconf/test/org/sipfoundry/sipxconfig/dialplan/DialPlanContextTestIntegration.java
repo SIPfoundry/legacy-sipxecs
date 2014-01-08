@@ -23,6 +23,7 @@ import java.util.TimeZone;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.ArrayUtils;
+import org.sipfoundry.commons.util.HolidayPeriod;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.ScheduledDay;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -211,7 +212,7 @@ public class DialPlanContextTestIntegration extends IntegrationTestCase {
         assertFalse(ar.getWorkingTimeAttendant().isEnabled());
         assertTrue(ar.getHolidayAttendant().isEnabled());
 
-        assertEquals(2, ar.getHolidayAttendant().getDates().size());
+        assertEquals(2, ar.getHolidayAttendant().getPeriods().size());
 
         // This test relies on assumption java and postgres timezones match, which is normally an ok 
         // assumption unless some other unit test in the suite calls TimeZone.setTimeZone...which they do.
@@ -231,13 +232,13 @@ public class DialPlanContextTestIntegration extends IntegrationTestCase {
         ScheduledAttendant sa = new ScheduledAttendant();
         sa.setAttendant(autoAttendant);
 
-        DateFormat format = new SimpleDateFormat("MM/dd/yyy");
+        DateFormat format = new SimpleDateFormat("dd-MMM-yyyy HH:mm");
 
         Holiday holiday = new Holiday();
         holiday.setAttendant(autoAttendant);
-        holiday.addDay(format.parse("01/01/2005"));
-        holiday.addDay(format.parse("06/06/2005"));
-        holiday.addDay(format.parse("12/24/2005"));
+        holiday.addPeriod(getNewHolidayPeriod(format.parse("01-JAN-2005 00:00"), format.parse("01-JAN-2005 23:59")));
+        holiday.addPeriod(getNewHolidayPeriod(format.parse("06-JUN-2005 00:00"), format.parse("06-JUN-2005 23:59")));
+        holiday.addPeriod(getNewHolidayPeriod(format.parse("24-DEC-2005 00:00"), format.parse("24-DEC-2005 23:59")));
 
         WorkingTime wt = new WorkingTime();
         wt.setAttendant(autoAttendant);
@@ -262,7 +263,14 @@ public class DialPlanContextTestIntegration extends IntegrationTestCase {
         assertEquals(7 * 2, countRowsInTable("attendant_working_hours"));
         assertEquals(3, countRowsInTable("holiday_dates"));
     }
-
+    
+    private HolidayPeriod getNewHolidayPeriod(Date startDate, Date endDate) {
+        HolidayPeriod holidayPeriod = new HolidayPeriod();
+        holidayPeriod.setStartDate(startDate);
+        holidayPeriod.setEndDate(endDate);
+        return holidayPeriod;
+    }
+    
     public void testSaveExtensionThatIsDuplicateAlias() throws Exception {
         TestHelper.cleanInsertFlat("dialplan/attendant_rule.db.xml");
         AttendantRule ar = new AttendantRule();

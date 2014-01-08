@@ -3,9 +3,18 @@
   <autoattendant>
     <holidays>
       <filename>afterhour</filename>
-      <date>01-Jan-2005</date>
-      <date>06-Jun-2005</date>
-      <date>24-Dec-2005</date>
+      <period>
+        <startDate>01-Jan-2005 00:00</startDate>
+        <endDate>01-Jan-2005 23:59</endDate>
+      </period>
+      <period>
+        <startDate>06-Jun-2005 00:00</startDate>
+        <endDate>06-Jun-2005 23:59</endDate>
+      </period>
+      <period>
+        <startDate>24-Dec-2005 00:00</startDate>
+        <endDate>24-Dec-2005 23:59</endDate>
+      </period>
     </holidays>
     <regularhours>
       <filename>operator</filename>

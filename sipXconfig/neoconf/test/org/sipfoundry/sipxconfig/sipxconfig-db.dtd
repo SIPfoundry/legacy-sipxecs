@@ -279,7 +279,8 @@
 <!ATTLIST holiday_dates
     attendant_dialing_rule_id CDATA #REQUIRED
     position CDATA #REQUIRED
-    date CDATA #IMPLIED
+    start_date CDATA #IMPLIED
+    end_date CDATA #IMPLIED
 >
 
 <!ELEMENT initialization_task EMPTY>

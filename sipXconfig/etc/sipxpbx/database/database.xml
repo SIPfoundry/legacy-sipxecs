@@ -457,6 +457,7 @@
     <antcall target="dns"/>
     <antcall target="dns_custom"/>
     <antcall target="drop_acd"/>
+  	<antcall target="holiday-dates" />
   </target>
 
   <target name="plugin-patches">
@@ -1373,6 +1374,9 @@
   <target name="remove-ldap-filter-constraint" unless="remove-ldap-filter-constraint">
 	<db-patch patch="remove-ldap-filter-constraint"/>
   </target>		
+  <target name="holiday-dates" unless="holiday-dates">
+    <db-patch patch="holiday-dates"/>
+  </target>
   <!--
     - SUPPORT UTILITIES
   -->

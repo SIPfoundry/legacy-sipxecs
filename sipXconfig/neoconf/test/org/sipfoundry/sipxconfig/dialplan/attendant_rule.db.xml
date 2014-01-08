@@ -29,6 +29,6 @@
   <attendant_working_hours index="6" attendant_dialing_rule_id="2002" day="Sunday" enabled="false"
     start="2005-01-01 00:05:00.0" stop="2005-01-01 00:19:25.0"/>
   
-  <holiday_dates attendant_dialing_rule_id="2002" position="0" date="2005-05-12 00:00:00.0"/>
-  <holiday_dates attendant_dialing_rule_id="2002" position="1" date="2007-10-23 00:00:00.0"/>
+  <holiday_dates attendant_dialing_rule_id="2002" position="0" start_date="2005-05-12 00:00:00.0" end_date="2005-05-12 23:59:00.0"/>
+  <holiday_dates attendant_dialing_rule_id="2002" position="1" start_date="2007-10-23 00:00:00.0" end_date="2007-10-23 23:59:00.0"/>
 </dataset>

@@ -16,6 +16,7 @@ import java.util.Date;
 
 import org.sipfoundry.attendant.Schedule;
 import org.sipfoundry.attendant.Schedule.Day;
+import org.sipfoundry.commons.util.HolidayPeriod;
 
 import junit.framework.TestCase;
 
@@ -29,8 +30,14 @@ public class SchedulesTest extends TestCase {
             Date date = dateTimeFormat.parse("01-jan-2001 12:00");
             assertNull("empty Schedules didn't return null!", s.getAttendant(date));
 
-            Date NewYears = dateFormat.parse("01-JAN-2009");
-            Date Summer = dateFormat.parse("21-JUN-2009");
+            HolidayPeriod NewYears = new HolidayPeriod();
+            NewYears.setStartDate(dateTimeFormat.parse("01-JAN-2009 00:00"));
+            NewYears.setEndDate(dateTimeFormat.parse("01-JAN-2009 23:59"));
+            
+            HolidayPeriod Summer = new HolidayPeriod();
+            Summer.setStartDate(dateTimeFormat.parse("21-JUN-2009 00:00"));
+            Summer.setEndDate(dateTimeFormat.parse("30-JUN-2009 23:59"));
+            
             s.getHolidays().setAttendantId("holiday");
             s.getHolidays().add(NewYears);
             s.getHolidays().add(Summer);
@@ -55,7 +62,7 @@ public class SchedulesTest extends TestCase {
             assertEquals("holiday", s.getAttendant(date));
             date = dateTimeFormat.parse("21-JUN-2009 23:59");
             assertEquals("holiday", s.getAttendant(date));
-            date = dateTimeFormat.parse("22-JUN-2009 00:00");
+            date = dateTimeFormat.parse("01-JUL-2009 00:00");
             assertNull("Post Summer", s.getAttendant(date));
 
         } catch (ParseException e) {
@@ -121,8 +128,17 @@ public class SchedulesTest extends TestCase {
             int holidays = 0;
             int afterhours = 0;
             int regularhours = 0;
-            s.getHolidays().add(dateFormat.parse("01-JAN-1974"));
-            s.getHolidays().add(dateFormat.parse("26-JAN-1974"));
+            
+            HolidayPeriod holiday1 = new HolidayPeriod();
+            holiday1.setStartDate(dateTimeFormat.parse("01-JAN-1974 00:00"));
+            holiday1.setEndDate(dateTimeFormat.parse("02-JAN-1974 23:59"));
+            
+            HolidayPeriod holiday2 = new HolidayPeriod();
+            holiday2.setStartDate(dateTimeFormat.parse("26-JAN-1974 00:00"));
+            holiday2.setEndDate(dateTimeFormat.parse("27-JAN-1974 23:59"));
+            
+            s.getHolidays().add(holiday1);
+            s.getHolidays().add(holiday2);
             Calendar c = Calendar.getInstance();
             c.setTime(dateTimeFormat.parse("01-JAN-1974 00:00"));
             for (int i = 0; i < 31 * 24; i++) {
@@ -136,9 +152,9 @@ public class SchedulesTest extends TestCase {
                 }
                 c.add(Calendar.HOUR_OF_DAY, 1);
             }
-            assertEquals(48, holidays);
-            assertEquals(116, regularhours);
-            assertEquals(580, afterhours);
+            assertEquals(96, holidays);
+            assertEquals(104, regularhours);
+            assertEquals(544, afterhours);
 
         } catch (ParseException e) {
             fail(e.toString());

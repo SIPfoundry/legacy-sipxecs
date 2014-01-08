@@ -16,6 +16,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.util.HolidayPeriod;
 import org.w3c.dom.Node;
 
 public class Schedule {
@@ -56,17 +57,17 @@ public class Schedule {
     }
 
     class Holidays {
-        private ArrayList<Date> m_dates = new ArrayList<Date>(); // Dates that are holidays
+        private ArrayList<HolidayPeriod> m_periods = new ArrayList<HolidayPeriod>(); // Periods that are holidays
         private String m_id; // Attendant id to run
         
-        public void add(Date date) {
-            m_dates.add(date);
+        public void add(HolidayPeriod date) {
+            m_periods.add(date);
         }
-        public ArrayList<Date> getDates() {
-            return m_dates;
+        public ArrayList<HolidayPeriod> getHolidayPeriods() {
+            return m_periods;
         }
-        public void setDates(ArrayList<Date> dates) {
-            m_dates = dates;
+        public void setDates(ArrayList<HolidayPeriod> holidayPeriod) {
+            m_periods = holidayPeriod;
         }
         public String getAttendantId() {
             return m_id;
@@ -150,7 +151,7 @@ public class Schedule {
      */
     void loadSchedule(Node schedule) {
         String parm = "unknown";
-        DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+        DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm");
         try {
         	m_id = schedule.getAttributes().getNamedItem("id").getNodeValue();
 
@@ -168,10 +169,15 @@ public class Schedule {
                             String name = next.getNodeName();
                             if (name.contentEquals("id")) {
                                 m_holidays.m_id = next.getTextContent().trim();
-                            } else if (name.contentEquals("date")) {
-                                String dateString = next.getTextContent().trim();
-                                Date date = dateFormat.parse(dateString);
-                                m_holidays.m_dates.add(date);
+                            } else if (name.contentEquals("period")) {
+                                HolidayPeriod holidayPeriod = new HolidayPeriod();
+                                Node startElement = next.getFirstChild().getNextSibling();
+                                String startDateString = startElement.getTextContent().trim();
+                                holidayPeriod.setStartDate(dateFormat.parse(startDateString));
+                                Node endElement = startElement.getNextSibling().getNextSibling();
+                                String endDateString = endElement.getTextContent().trim();
+                                holidayPeriod.setEndDate(dateFormat.parse(endDateString));
+                                m_holidays.m_periods.add(holidayPeriod);
                             }
                         }
                     }
@@ -243,23 +249,19 @@ public class Schedule {
         nowCalendar.setTime(date);
 
         // First check if date is a holiday
-        for (Date from : m_holidays.m_dates) {
+        for (HolidayPeriod holidayPeriod : m_holidays.m_periods) {
             // Test if date >= from
-            if (!date.before(from)) {
-                // Add a day to the start to get the end
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(from);
-                calendar.add(Calendar.DAY_OF_WEEK, 1);
-                Date to = calendar.getTime();
-                // Test if nowDate < to 
-                if (date.before(to)) {
-                    // Yep, it is
-                    DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+            if (!date.before(holidayPeriod.getStartDate())
+                    && !date.after(holidayPeriod.getEndDate())) {
+                DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
 
-                    LOG.info("Schedule::getAttendant Using holiday AutoAttendant as " + dateFormat.format(from)
-                            + " is a holiday");
-                    return m_holidays.m_id;
-                }
+                LOG.info("Schedule::getAttendant Using holiday AutoAttendant as "
+                        + dateFormat.format(holidayPeriod.getStartDate())
+                        + " to "
+                        + dateFormat.format(holidayPeriod.getEndDate())
+                        + " is a holiday");
+                
+                return m_holidays.m_id;
             }
         }
 

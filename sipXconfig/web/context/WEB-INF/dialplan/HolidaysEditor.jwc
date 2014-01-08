@@ -6,7 +6,7 @@
   <parameter name="holiday"   required="yes"/>
   <property name="dayIndex" />
   <property name="maxDayIndex" />
-  <property name="newDay" />
+  <property name="newPeriod" />
   <property name="listEditMap" />
   <component id="holidaysList" type="ListEdit">
     <binding name="source" value="listEditMap.keys"/>
@@ -14,15 +14,31 @@
     <binding name="index" value="dayIndex"/>
     <binding name="listener" value="listener:onDayRender"/>
   </component>
-  <component id="datePicker" type="DropdownDatePicker">
-    <binding name="value" value="holidayDay"/>
-    <binding name="validators" value="validators:maxDate=01/01/2099,minDate=01/01/2000"/>
+  <component id="startDatePicker" type="DropdownDatePicker">
+    <binding name="value" value="holidayStartDay"/>
+    <binding name="validators" value="validators:required,maxDate=01/01/2099,minDate=01/01/2000"/>
     <binding name="displayName" value="message:label.holiday"/>
     <binding name="adjustWeeks" value="true"/>
   </component>
+  <component id="startTimePicker" type="DropdownTimePicker">
+    <binding name="value" value="holidayStartTime"/>
+    <binding name="validators" value="validators:required"/>
+    <binding name="displayName" value="message:label.holiday"/>
+  </component>
+  <component id="endDatePicker" type="DropdownDatePicker">
+    <binding name="value" value="holidayEndDay"/>
+    <binding name="validators" value="validators:required,maxDate=01/01/2099,minDate=01/01/2000"/>
+    <binding name="displayName" value="message:label.holiday"/>
+    <binding name="adjustWeeks" value="true"/>
+  </component>
+  <component id="endTimePicker" type="DropdownTimePicker">
+    <binding name="value" value="holidayEndTime"/>
+    <binding name="validators" value="validators:required"/>
+    <binding name="displayName" value="message:label.holiday"/>
+  </component>
   <component id="add" type="LinkSubmit">
-    <binding name="tag" value="new java.util.Date()"/>
-    <binding name="selected" value="newDay"/>
+    <binding name="tag" value="new org.sipfoundry.commons.util.HolidayPeriod()"/>
+    <binding name="selected" value="newPeriod"/>
   </component>
   <component id="delete" type="LinkSubmit">
     <binding name="tag" value="true"/>
