@@ -40,6 +40,17 @@
           <fieldset jwcid="@common/ItemCommon" item="ognl:conference"
 			useEnabled="ognl:true" />
       </span>
+      <fieldset>
+        <table>
+	      <tr>
+	        <td jwcid="@common/InstalledLanguages"
+	            language="ognl:conference.language"
+	            languageDescription="message:language.description"
+	            defaultLanguage="ognl:null"
+	            languageLabel="message:label.language"/>
+	      </tr>
+	    </table>
+      </fieldset>
       <fieldset jwcid="@If" condition="ognl:conference.hasOwner">
         <table>
           <tr jwcid="@common/FieldPanel" for="autorecord" field="component:autorecord"

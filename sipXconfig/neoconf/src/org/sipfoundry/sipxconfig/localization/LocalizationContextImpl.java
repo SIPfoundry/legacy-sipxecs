@@ -23,8 +23,9 @@ import org.springframework.dao.support.DataAccessUtils;
 
 public class LocalizationContextImpl extends SipxHibernateDaoSupport<Localization> implements LocalizationContext,
         ApplicationContextAware {
+
+    public static final String PROMPTS_PREFIX = "stdprompts_";
     private static final Log LOG = LogFactory.getLog(LocalizationContextImpl.class);
-    private static final String PROMPTS_PREFIX = "stdprompts_";
     private String m_promptsDir;
     private String m_defaultRegion;
     private String m_defaultLanguage;

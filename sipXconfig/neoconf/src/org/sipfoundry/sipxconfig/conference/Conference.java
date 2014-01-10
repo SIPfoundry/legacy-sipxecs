@@ -21,6 +21,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.CONF_PIN;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_PUBLIC;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONF_URI;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,6 +43,8 @@ import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.localization.LocalizationContextImpl;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.ProfileNameHandler;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -61,6 +64,7 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
     // settings names
     public static final String ORGANIZER_CODE = "fs-conf-conference/organizer-code";
     public static final String PARTICIPANT_CODE = "fs-conf-conference/participant-code";
+    public static final String LANGUAGE = "conference/language";
     public static final String REMOTE_ADMIT_SECRET = "fs-conf-conference/remote-admin-secret";
     public static final String AUTO_RECORDING = "fs-conf-conference/autorecord";
     public static final String AOR_RECORD = "fs-conf-conference/AOR";
@@ -89,6 +93,22 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
     private String m_participantCode;
     private AddressManager m_addressManager;
     private final boolean m_aloneSound = true;
+
+    private String m_audioDirectory;
+    private LocalizationContext m_localizationContext;
+    private String m_promptsDir;
+
+    public void setLocalizationContext(LocalizationContext localizationContext) {
+        m_localizationContext = localizationContext;
+    }
+
+    public void setPromptsDir(String promptsDir) {
+        m_promptsDir = promptsDir;
+    }
+
+    public void setAudioDirectory(String audioDirectory) {
+        m_audioDirectory = audioDirectory;
+    }
 
     @Override
     public void initialize() {
@@ -241,6 +261,14 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
 
     public String getUri() {
         return getSettingValue(AOR_RECORD);
+    }
+
+    public String getLanguage() {
+        return getSettingValue(LANGUAGE);
+    }
+
+    public void setLanguage(String language) {
+        setSettingValue(LANGUAGE, language);
     }
 
     public boolean hasOwner() {
@@ -472,5 +500,23 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
     @Override
     public boolean isReplicationEnabled() {
         return isEnabled();
+    }
+
+    public String getAudioDirectory() {
+        String languageDir = this.getLanguage();
+        if (languageDir == null || languageDir.isEmpty()) {
+            languageDir = m_localizationContext.getCurrentLanguageDir();
+        } else {
+            languageDir = LocalizationContextImpl.PROMPTS_PREFIX + languageDir;
+        }
+        String path = m_promptsDir + Bridge.SLASH + languageDir;
+        String tmpPath = path + Bridge.SLASH + Bridge.CONFERENCE;
+        File testFile = new File(tmpPath);
+        if (testFile.exists()) {
+            m_audioDirectory = path;
+        } else {
+            m_bridge.getAudioDirectory();
+        }
+        return m_audioDirectory;
     }
 }

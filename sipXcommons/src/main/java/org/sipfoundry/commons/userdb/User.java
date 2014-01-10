@@ -84,6 +84,7 @@ public class User {
     private boolean m_admin;
     private boolean m_hotelingEnabled;
     private boolean m_forcePinChange;
+    private String m_vmLanguage;
 
     public enum EmailFormats {
         FORMAT_NONE("NONE"), FORMAT_FULL("FULL"), FORMAT_MEDIUM("MEDIUM"), FORMAT_BRIEF("BRIEF"), FORMAT_IMAP("IMAP");
@@ -724,5 +725,13 @@ public class User {
 
     public void setSipPassword(String sipPassword) {
         m_sipPassword = sipPassword;
+    }
+
+    public String getVmLanguage() {
+        return m_vmLanguage;
+    }
+
+    public void setVmLanguage(String vmLanguage) {
+        m_vmLanguage = vmLanguage;
     }
 }

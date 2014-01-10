@@ -98,7 +98,12 @@ public class ConferenceConfigurationTest extends TestCase {
     private void testConference(Bridge bridge, String file) throws Exception {
         User owner = new User();
 
-        Conference conf = new Conference();
+        Conference conf = new Conference(){
+            @Override
+            public String getAudioDirectory() {
+                return "/audioDirectory";
+            }
+        };
         conf.setModelFilesContext(TestHelper.getModelFilesContext());
         conf.initialize();
         conf.getSettings();
@@ -107,7 +112,12 @@ public class ConferenceConfigurationTest extends TestCase {
         conf.setUniqueId();
         bridge.addConference(conf);
 
-        conf = new Conference();
+        conf = new Conference(){
+            @Override
+            public String getAudioDirectory() {
+                return "/audioDirectory";
+            }
+        };
         conf.setModelFilesContext(TestHelper.getModelFilesContext());
         conf.initialize();
         conf.setOwner(owner);
@@ -117,7 +127,12 @@ public class ConferenceConfigurationTest extends TestCase {
         conf.setAutorecorded(true);
         bridge.addConference(conf);
 
-        conf = new Conference();
+        conf = new Conference(){
+            @Override
+            public String getAudioDirectory() {
+                return "/audioDirectory";
+            }
+        };
         conf.setModelFilesContext(TestHelper.getModelFilesContext());
         conf.initialize();
         conf.setOwner(owner);
@@ -130,7 +145,12 @@ public class ConferenceConfigurationTest extends TestCase {
         conf.setSettingValue(Conference.MOH, "NONE");
         bridge.addConference(conf);
 
-        conf = new Conference();
+        conf = new Conference(){
+            @Override
+            public String getAudioDirectory() {
+                return "/audioDirectory";
+            }
+        };
         conf.setModelFilesContext(TestHelper.getModelFilesContext());
         conf.initialize();
         conf.setOwner(owner);

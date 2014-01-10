@@ -8,7 +8,6 @@
  */
 package org.sipfoundry.voicemail;
 
-import java.util.Locale;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -44,11 +43,8 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
         PersonalAttendant pa = user.getPersonalAttendant();
 
         String localeString = pa.getLanguage();
-        if (localeString != null) {
-            LOG.debug("Changing locale for this call to " + localeString);
-            changeLocale(localeString);
-            user.setLocale(new Locale(localeString));
-        }
+        personalizeLocale(localeString, user);
+
         TempMessage tempMessage = null;
 
         Greeting greeting = createGreeting();

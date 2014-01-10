@@ -1,5 +1,5 @@
 <span jwcid="languageLabel@common/FieldPanel" field="component:language"
-	  label="message:label.language"
+	  label="ognl:languageLabel != null ? languageLabel : messages.getMessage('label.language')"
 	  description="ognl:languageDescription != null ? languageDescription : messages.getMessage('language.description')"
 	  for="localization:language">
 	  <input jwcid="language@PropertySelection" model="ognl:languagesSelectionModel"

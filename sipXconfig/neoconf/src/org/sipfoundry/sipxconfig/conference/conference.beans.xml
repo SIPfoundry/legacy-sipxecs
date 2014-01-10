@@ -12,6 +12,9 @@
   <bean name="conferenceConference" class="org.sipfoundry.sipxconfig.conference.Conference" scope="prototype"
     parent="beanWithSettings">
     <property name="addressManager" ref="addressManager" />
+    <property name="localizationContext" ref="localizationContext"/>
+    <property name="promptsDir" value="${sysdir.doc}"/>
+    <property name="audioDirectory" value="${sysdir.doc}/stdprompts" />
   </bean>
 
   <bean id="activeConferenceContextImpl" class="org.sipfoundry.sipxconfig.conference.ActiveConferenceContextImpl">

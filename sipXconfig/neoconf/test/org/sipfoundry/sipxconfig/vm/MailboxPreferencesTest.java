@@ -16,6 +16,7 @@ import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_HOST;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_PASSWORD;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_PORT;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_TLS;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.UNIFIED_MESSAGING_LANGUAGE;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.VOICEMAIL_TUI;
 
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -48,6 +49,7 @@ public class MailboxPreferencesTest extends XMLTestCase {
         user.setAlternateEmailNotification(MailboxPreferences.AttachType.NO.getValue());
         user.setAlternateEmailFormat(MailboxPreferences.MailFormat.FULL.name());
         user.setAlternateEmailAttachAudio(false);
+        user.setSettingValue(UNIFIED_MESSAGING_LANGUAGE, "en");
 
         MailboxPreferences mailboxPrefs = new MailboxPreferences(user);
 
@@ -63,6 +65,7 @@ public class MailboxPreferencesTest extends XMLTestCase {
         assertEquals(MailboxPreferences.AttachType.NO, mailboxPrefs.getVoicemailToAlternateEmailNotification());
         assertEquals(MailboxPreferences.MailFormat.FULL, mailboxPrefs.getAlternateEmailFormat());
         assertEquals(false, mailboxPrefs.isIncludeAudioAttachmentAlternateEmail());
+        assertEquals("en", mailboxPrefs.getLanguage());
     }
 
     public void testUpdateUser() {
@@ -74,6 +77,7 @@ public class MailboxPreferencesTest extends XMLTestCase {
         mailboxPrefs.setImapTLS(true);
         mailboxPrefs.setImapPassword("4321");
         mailboxPrefs.setActiveGreeting(ActiveGreeting.EXTENDED_ABSENCE);
+        mailboxPrefs.setLanguage("en");
         mailboxPrefs.setAttachVoicemailToEmail(MailboxPreferences.AttachType.YES);
         mailboxPrefs.setEmailFormat(MailboxPreferences.MailFormat.MEDIUM);
         mailboxPrefs.setIncludeAudioAttachment(true);
@@ -94,6 +98,7 @@ public class MailboxPreferencesTest extends XMLTestCase {
         assertTrue((Boolean) user.getSettingTypedValue(IMAP_TLS));
         assertEquals("4321", user.getSettingValue(IMAP_PASSWORD));
         assertEquals(ActiveGreeting.EXTENDED_ABSENCE.getId(), user.getSettingValue(ACTIVE_GREETING));
+        assertEquals("en", user.getSettingValue(UNIFIED_MESSAGING_LANGUAGE));
         assertEquals(MailboxPreferences.AttachType.YES.getValue(), user.getPrimaryEmailNotification());
         assertEquals(MailboxPreferences.MailFormat.MEDIUM.name(), user.getPrimaryEmailFormat());
         assertEquals(new Boolean(true), user.isPrimaryEmailAttachAudio());
