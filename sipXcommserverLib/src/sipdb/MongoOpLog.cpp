@@ -21,13 +21,15 @@
 
 const string MongoOpLog::NS("local.oplog.rs");
 
+const int MongoOpLog::MULTIPLIER = 1000;
+
 const char* MongoOpLog::ts_fld(){static std::string name = "ts"; return name.c_str();}
 const char* MongoOpLog::op_fld(){static std::string name = "op"; return name.c_str();}
-void MongoOpLog::createOpLogDataMap()
+void MongoOpLog::createOpLogDataMap(OpLogDataMap& opLogDataMap)
 {
-  _opLogDataMap.insert(std::pair<std::string, OpLogType>("u", Update));
-  _opLogDataMap.insert(std::pair<std::string, OpLogType>("i", Insert));
-  _opLogDataMap.insert(std::pair<std::string, OpLogType>("d", Delete));
+  opLogDataMap.insert(std::pair<std::string, OpLogType>("u", Update));
+  opLogDataMap.insert(std::pair<std::string, OpLogType>("i", Insert));
+  opLogDataMap.insert(std::pair<std::string, OpLogType>("d", Delete));
 }
 
 MongoOpLog::MongoOpLog(const MongoDB::ConnectionInfo& info,
@@ -48,7 +50,7 @@ MongoOpLog::MongoOpLog(const MongoDB::ConnectionInfo& info,
                         " startFromTimestamp=" << startFromTimestamp);
 
   _customQuery.getOwned();
-  createOpLogDataMap();
+  createOpLogDataMap(_opLogDataMap);
 }
 
 MongoOpLog::~MongoOpLog()
@@ -61,6 +63,9 @@ void MongoOpLog::registerCallback(OpLogType type, OpLogCallBack cb)
   if (type < Insert ||
       type > OpLogTypeNumber)
   {
+    OS_LOG_ERROR(FAC_SIP, "MongoOpLog::registerCallback:" <<
+                          " invalid callback type");
+
     return;
   }
 
@@ -121,7 +126,7 @@ bool MongoOpLog::processQuery(mongo::DBClientCursor* cursor,
     return false;
   }
 
-  while(_isRunning)
+  while (_isRunning)
   {
     if(!cursor->more())
     {
@@ -153,9 +158,7 @@ void MongoOpLog::createQuery(const mongo::BSONObj& lastEntry, mongo::BSONObj& qu
 
   mongo::BSONObjBuilder queryBSONObjBuilder;
 
-  const mongo::BSONElement lastEntryElem = lastEntry[ts_fld()];
-
-  queryBSONObjBuilder.appendElements(BSON(ts_fld() << mongo::GT << lastEntryElem));
+  queryBSONObjBuilder.appendElements(BSON(ts_fld() << mongo::GT << lastEntry[ts_fld()]));
   if (!_customQuery.isEmpty())
   {
     queryBSONObjBuilder.appendElements(_customQuery);
@@ -183,11 +186,11 @@ bool MongoOpLog::createFirstQuery(mongo::BSONObj& lastEntry,
 
     // Check that the created BSONElement has the correct timeStamp
     unsigned long long lastEntryTimeStamp = lastEntry[ts_fld()].timestampTime();
-    if (_startFromTimestamp * 1000 != lastEntryTimeStamp)
+    if (_startFromTimestamp * MULTIPLIER != lastEntryTimeStamp)
     {
       OS_LOG_ERROR(FAC_SIP, "MongoOpLog::createFirstQuery" <<
                             " time stamps are different " <<
-                            _startFromTimestamp * 1000 << lastEntryTimeStamp);
+                            _startFromTimestamp * MULTIPLIER << lastEntryTimeStamp);
       return false;
     }
   }

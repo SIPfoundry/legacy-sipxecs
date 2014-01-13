@@ -35,6 +35,7 @@ class MongoOpLog : public MongoDB::BaseDB
 {
 public:
   static const std::string NS;
+  static const int MULTIPLIER;
 
   enum OpLogType
   {
@@ -109,8 +110,8 @@ protected:
   // Run all registered callbacks
   void runCallBacks(const mongo::BSONObj& bSONObj);
 
-  // initializes _opLogDataMap with the default values
-  void createOpLogDataMap();
+  // initializes opLogDataMap with the default values
+  static void createOpLogDataMap(OpLogDataMap& opLogDataMap);
 
   // returns the corresponding opLogType for a given operationType
   bool getOpLogType(const std::string& operationType,
