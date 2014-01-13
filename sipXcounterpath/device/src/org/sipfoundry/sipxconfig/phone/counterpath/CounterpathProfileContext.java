@@ -41,8 +41,8 @@ public class CounterpathProfileContext extends ProfileContext<Phone> {
         context.put("phone_leaf_settings", ps.getSip());
 
         List<Line> lines = phone.getLines();
-        List<Collection> lineSipSettings = new ArrayList<Collection>();
-        List<Collection> lineXmppSettings = new ArrayList<Collection>();
+        List<Collection<Setting>> lineSipSettings = new ArrayList<Collection<Setting>>();
+        List<Collection<Setting>> lineXmppSettings = new ArrayList<Collection<Setting>>();
         for (Line line : lines) {
             LeafSettings ls = new LeafSettings();
             line.getSettings().acceptVisitor(ls);
@@ -64,7 +64,7 @@ public class CounterpathProfileContext extends ProfileContext<Phone> {
         return context;
     }
 
-    private boolean isImEnabled(Line line) {
+    private static boolean isImEnabled(Line line) {
         User user = line.getUser();
         if (user == null) {
             return false;
@@ -97,7 +97,7 @@ public class CounterpathProfileContext extends ProfileContext<Phone> {
             leaves.add(setting);
         }
 
-        private boolean isXmpp(Setting setting) {
+        private static boolean isXmpp(Setting setting) {
             return "xmpp-config".equals(setting.getParent().getProfileName());
         }
     }
@@ -105,6 +105,7 @@ public class CounterpathProfileContext extends ProfileContext<Phone> {
     public class PriorityCalculator {
         public Map<String, String> getCodecPriorities(Setting setting) {
             Map<String, String> priorities = new LinkedHashMap<String, String>();
+            @SuppressWarnings("unchecked")
             List<String> values = (List<String>) setting.getTypedValue();
             for (String codec : getAllCodecs(setting)) {
                 priorities.put(codec, StringUtils.EMPTY);

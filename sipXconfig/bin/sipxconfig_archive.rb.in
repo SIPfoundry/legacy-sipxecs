@@ -16,6 +16,8 @@ class ArchiveBase
        '@localstatedir@/sipxdata/parkserver/music',
        '@localstatedir@/sipxdata/upload',
        '@localstatedir@/sipxdata/mediaserver/data/moh',
+       '@localstatedir@/sipxdata/mediaserver/data/prompts',
+       '@localstatedir@/sipxdata/mediaserver/data/ivrscript',
        '@localstatedir@/sipxdata/sipxpage/music'
     ];
   end

@@ -6,11 +6,10 @@
 package org.sipfoundry.openfire.config;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipcallwatcher.Subscriber;
 
 public abstract class XmppConfigurationElement
 {
-    private static Logger logger = Logger.getLogger(Subscriber.class);
+    private static Logger logger = Logger.getLogger(XmppConfigurationElement.class);
 
     private XmppAccountStatus status = XmppAccountStatus.NEW;
 

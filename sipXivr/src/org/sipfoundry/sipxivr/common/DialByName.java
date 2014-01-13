@@ -44,6 +44,10 @@ public class DialByName {
      * @return User selected by dialog, else null
      */
     public DialByNameChoice dialByName() {
+        return dialByName(null);
+    }
+
+    public DialByNameChoice dialByName(String groups) {
         int timeoutCount = 0;
         for (;;) {
             
@@ -65,11 +69,11 @@ public class DialByName {
                 // Collect the digits from the caller.  Use the "*" and "#" keys as terminators
                 // There are a LONG (10 second) digit timers here, as spelling on the phone
                 // is difficult!  The "#" key will terminate any input if the caller is finished.
-                Collect c = new Collect(m_loc.getFreeSwitchEventSocketInterface(), 1, 10000, 0, 0);
+                Collect c = new Collect(m_loc.getFreeSwitchEventSocketInterface(), 3, 10000, 1000, 1000);
                 c.setTermChars("*#");
                 c.go();
                 String digit = c.getDigits();
-                LOG.info("DialByName::dialByName Collected digit=" + digit);
+                LOG.info("DialByName::dialByName Collected digits=" + digit);
                 if (digit.length() == 0) {
                     break ; // Timeout
                 }
@@ -81,7 +85,7 @@ public class DialByName {
                     break ; // "enter" key
                 }
                 digits += digit;
-                List<User> matches = m_validUsers.lookupDTMF(digits, m_OnlyVoicemailUsers);
+                List<User> matches = m_validUsers.lookupDTMF(digits, m_OnlyVoicemailUsers, groups);
                 LOG.info(String.format("DialByName::dialByName %s matchs %d users", digits, matches.size()));
                 if (matches.size() < 3) {
                     break ; // Less than 3 (including none!) time to leave
@@ -115,7 +119,7 @@ public class DialByName {
                         
             // See if the digits they dialed matched anyone, and let them select among
             // all the possibilities
-            DialByNameChoice choice = selectChoice(digits);
+            DialByNameChoice choice = selectChoice(digits, groups);
 
             if (choice.getIvrChoiceReason() == IvrChoiceReason.CANCELED) {
                 // They canceled the selectChoice menu, back to dialByName
@@ -138,11 +142,11 @@ public class DialByName {
      * @param digits
      * @return The selected user, null if none
      */
-    private DialByNameChoice selectChoice(String digits){
+    private DialByNameChoice selectChoice(String digits, String groups){
         // Lookup the list of validUsers that match the DTMF digits
-        List<User> matches = m_validUsers.lookupDTMF(digits, false);
+        List<User> matches = m_validUsers.lookupDTMF(digits, false, groups);
         if (matches.size() != 0) {
-            matches = m_validUsers.lookupDTMF(digits, m_OnlyVoicemailUsers);
+            matches = m_validUsers.lookupDTMF(digits, m_OnlyVoicemailUsers, groups);
             if (matches.size() == 0) {
                 // Indicate dose match but user has no voice mail permission
                 m_loc.play("invalid_extension", "");

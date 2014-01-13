@@ -85,14 +85,18 @@
       <type refid="switch" />
       <value>false</value>
     </setting>
-    <setting name="openfire-xml-rpc-port">
+    <setting name="openfire-console-port" hidden="yes">
       <type refid="requiredNonRootPort"/>
       <value>9094</value>
+    </setting>
+    <setting name="openfire-console-secure-port" hidden="yes">
+      <type refid="requiredNonRootPort"/>
+      <value>9095</value>
     </setting>
     <setting name="openfire-xml-rpc-vcard-port">
       <type refid="requiredNonRootPort"/>
       <value>9099</value>
-    </setting>    
+    </setting>
     <setting name="locale" hidden="yes">
       <type>
         <string required="yes" />
@@ -228,6 +232,20 @@
         <string/>
       </type>
       <value>changeit</value>
+    </setting>
+    <setting name="xmpp.component.socket.active" advanced="yes">
+      <type refid="switch" />
+      <value>true</value>
+    </setting>
+    <setting name="xmpp.component.defaultSecret" advanced="yes">
+      <type>
+        <string password="yes" required="yes"></string>
+      </type>
+      <value>1234</value>
+    </setting>
+    <setting name="xmpp.component.socket.port" advanced="yes">
+      <type refid="requiredNonRootPort"/>
+      <value>5275</value>
     </setting>
   </group>
   <group name="openfire-server-to-server">

@@ -7,30 +7,23 @@
 
 package org.sipfoundry.openfire.plugin.presence.servlets;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+
 import org.jivesoftware.openfire.XMPPServer;
 import org.sipfoundry.openfire.plugin.presence.XmlRpcPresenceProvider;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
 public class PresenceStatusServlet extends SipXOpenfireServlet {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
+    @Override
     public void init(ServletConfig servletConfig) throws ServletException {
         XMPPServer.getInstance().getPluginManager().getPlugin("sipx-openfire-presence");
         super.init(servletConfig,XmlRpcPresenceProvider.SERVER,XmlRpcPresenceProvider.SERVICE_NAME,
                 XmlRpcPresenceProvider.class);
     }
-
-  
-    public void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        super.doPost(request,response);
-    }
-
-    
-   
-
 }

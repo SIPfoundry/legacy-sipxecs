@@ -16,15 +16,15 @@ public abstract class AbstractXmppTestCase extends TestCase {
     protected WatcherConfig watcherConfig;
 
     protected XMPPConnection connection1 ;
-    
+
     protected XMPPConnection connection2;
 
+    @Override
     public void setUp() throws Exception {
         super.setUp();
-        ConfigurationParser configurationParser = new ConfigurationParser();
         // Copy the openfire file into the /usr/local/etc/sipxpbx/sipxopenfire.xml location.
         // Copy the xmpp-accounts-info.xml to that same location.
-        this.watcherConfig = configurationParser
+        this.watcherConfig = ConfigurationParser
                 .parse("file:///usr/local/sipx/etc/sipxpbx/sipxopenfire.xml");
         connection1 = new XMPPConnection(watcherConfig.getProxyDomain());
         connection1.connect();
@@ -32,9 +32,10 @@ public abstract class AbstractXmppTestCase extends TestCase {
         connection2 = new XMPPConnection(watcherConfig.getProxyDomain());
         connection2.connect();
         connection2.login("user2", "123" , "user2@" + watcherConfig.getProxyDomain()+ "/Home");
-     
+
     }
-    
+
+    @Override
     public void tearDown() throws Exception {
         connection1.disconnect();
         connection2.disconnect();

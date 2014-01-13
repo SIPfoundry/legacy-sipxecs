@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.phone.counterpath;
 
+import static org.apache.commons.lang.StringEscapeUtils.escapeXml;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -20,13 +22,11 @@ import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 
-import static org.apache.commons.lang.StringEscapeUtils.escapeXml;
-
-public class DirectoryConfiguration extends ProfileContext {
+public class DirectoryConfiguration extends ProfileContext<CounterpathPhone> {
     private static final String EMPTY_STRING = "";
     private static final String SINGLE_SPACE = " ";
     private final Collection<PhonebookEntry> m_entries;
-    private String m_domainName;
+    private final String m_domainName;
 
     public DirectoryConfiguration(Collection<PhonebookEntry> entries, String domainName) {
         super(null, "counterpath/contacts-resource-list.xml.vm");
@@ -57,7 +57,7 @@ public class DirectoryConfiguration extends ProfileContext {
         return size;
     }
 
-    void transformPhoneBook(Collection<PhonebookEntry> phonebookEntries,
+    private static void transformPhoneBook(Collection<PhonebookEntry> phonebookEntries,
             Collection<CounterpathPhonebookEntry> counterpathEntries, String domainName) {
         for (PhonebookEntry entry : phonebookEntries) {
             counterpathEntries.add(new CounterpathPhonebookEntry(entry, domainName));
@@ -70,9 +70,9 @@ public class DirectoryConfiguration extends ProfileContext {
     public static class CounterpathPhonebookEntry {
 
         private static final String ATSIGN = "@";
-        private PhonebookEntry m_entry;
-        private AddressBookEntry m_subEntry;
-        private String m_domainName;
+        private final PhonebookEntry m_entry;
+        private final AddressBookEntry m_subEntry;
+        private final String m_domainName;
 
         public CounterpathPhonebookEntry(PhonebookEntry entry, String domainName) {
             m_entry = entry;
@@ -100,9 +100,8 @@ public class DirectoryConfiguration extends ProfileContext {
             if (m_subEntry != null) {
                 if (m_subEntry.getImId() == null || m_subEntry.getImId().isEmpty()) {
                     return EMPTY_STRING;
-                } else {
-                    return (escapeXml(m_subEntry.getImId()) + ATSIGN + m_domainName);
                 }
+                return (escapeXml(m_subEntry.getImId()) + ATSIGN + m_domainName);
             }
 
             return EMPTY_STRING;
@@ -159,7 +158,7 @@ public class DirectoryConfiguration extends ProfileContext {
             return EMPTY_STRING;
         }
 
-        private String convertToString(Address address) {
+        private static String convertToString(Address address) {
 
             if (address == null) {
                 return EMPTY_STRING;

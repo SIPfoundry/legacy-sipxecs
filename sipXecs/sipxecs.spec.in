@@ -7,7 +7,7 @@ Release: @PACKAGE_REVISION@
 %define debug_package %{nil}
 
 Summary: sipXecs Enterprise Communications Server 
-License: L-GPL
+License: LGPL
 Group: Telecommunications
 Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
@@ -15,65 +15,59 @@ Url: http://www.sipfoundry.org
 
 BuildRequires: automake
 
-%define sipxconfiglib %{_datadir}/java/sipXecs/sipXconfig
-
-Requires: sipxacd >= %version
-Requires: sipxrelay >= %version
-Requires: sipxbridge >= %version
-Requires: sipxconfig >= %version
-Requires: sipxconfig-ftp >= %version
-Requires: sipxconfig-mrtg >= %version
-Requires: sipxconfig-tftp >= %version
-Requires: sipxconfig-tunnel >= %version
-Requires: sipxfreeswitch >= %version
 Requires: freeswitch >= 1.0.7
 Requires: freeswitch-codec-passthru-amr 
 Requires: freeswitch-codec-passthru-g723_1 
 Requires: freeswitch-codec-passthru-g729 
+Requires: sipxaastra >= %version
+Requires: sipxacccode >= %version
+Requires: sipxaudiocodes >= %version
+Requires: sipxbridge >= %version
+Requires: sipxcallcontroller >= %version
+Requires: sipxcdr >= %version
+Requires: sipxcdrlog >= %version
+Requires: sipxcisco >= %version
+Requires: sipxclearone >= %version
+Requires: sipxconfig >= %version
+Requires: sipxconfig-ftp >= %version
+Requires: sipxconfig-tftp >= %version
+Requires: sipxcounterpath >= %version
+Requires: sipxevent >= %version
+Requires: sipxgrandstream >= %version
+Requires: sipxgtek >= %version
+Requires: sipxhitachi >= %version
+Requires: sipxhomer >= %version
+Requires: sipxhomer-config >= %version
+Requires: sipxhomer-proxyplugin >= %version
 Requires: sipximbot >= %version
+Requires: sipxipdialog >= %version
+Requires: sipxisphone >= %version
 Requires: sipxivr >= %version
+Requires: sipxlg-nortel >= %version
+Requires: sipxmitel >= %version
+Requires: sipxnortel >= %version
 Requires: sipxopenfire >= %version
 Requires: sipxpage >= %version
 Requires: sipxpark >= %version
-Requires: sipxpresence >= %version
+Requires: sipxpolycom >= %version
+Requires: sipxprovision >= %version
 Requires: sipxproxy >= %version
 Requires: sipxpublisher >= %version
 Requires: sipxrecording >= %version
 Requires: sipxregistry >= %version
+Requires: sipxrelease >= %version
+Requires: sipxrelay >= %version
+Requires: sipxrest >= %version
 Requires: sipxrls >= %version
 Requires: sipxsaa >= %version
-Requires: sipxsupervisor >= %version
-Requires: sipxtools >= %version
-Requires: sipxrest >= %version
-Requires: sipxcallcontroller >= %version
-Requires: sipxcdrlog >= %version
-Requires: sipxprovision >= %version
-Requires: sipxacccode >= %version
-Requires: sipxacdstatistics >= %version
-Requires: sipxcdr >= %version
-
-# require each plugin for now that existed before because someone might have
-# preconfigured phones and sipxconfig ui throws exception if implementation
-# is not there
-Requires: sipxaudiocodes >= %version
-Requires: sipxcisco >= %version
-Requires: sipxclearone >= %version
-# counter path required because jetty config references cmcprov war. nice if it was made dynamic
-Requires: sipxcounterpath >= %version
-Requires: sipxgrandstream >= %version
-Requires: sipxgtek >= %version
-Requires: sipxhitachi >= %version
-Requires: sipxipdialog >= %version
-Requires: sipxisphone >= %version
-Requires: sipxkarel >= %version
-Requires: sipxlg-nortel >= %version
-Requires: sipxmitel >= %version
-Requires: sipxnortel >= %version
-Requires: sipxpolycom >= %version
 Requires: sipxsnom >= %version
+Requires: sipxsupervisor >= %version
+Requires: sipxsqa-server >= %version
 Requires: sipxunidata >= %version
 
 Obsoletes: %{name}-doc
+Obsoletes: epel-release
+
 Source: %name-%version.tar.gz
 
 Prefix: %_prefix

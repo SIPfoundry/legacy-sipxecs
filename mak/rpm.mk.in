@@ -9,13 +9,13 @@ SRPM_DEFS = --define "_source_filedigest_algorithm md5"
 DOWNLOAD_LIB_CACHE = @DOWNLOAD_LIB_CACHE@
 ALL_DISTROS = @ALL_DISTROS@
 CENTOS_RSYNC_URL = @CENTOS_RSYNC_URL@
+MOCK_CHECK_PRODUCT = sipxecs
 
 # variable not used here, but can be used in */.sipxecs files
 RPM_DIST = @RPM_DIST@
 
 # trick lets you create centos compatible repos from any other distro
-CREATEREPO_COMPS = $(SRC)/mak/comps.xml
-CREATEREPO_OPTS = -g $(abspath $(CREATEREPO_COMPS)) $(CREATEREPO_OPTS_$(DISTRO_OS))
+CREATEREPO_OPTS = $(CREATEREPO_OPTS_$(DISTRO_OS))
 RPM_DIST_DIR = @RPM_DIST_DIR@
 MOCK_RESULTS_DIR = $(RPM_DIST_DIR)/$(DISTRO_RESULTS_DIR)/$(DISTRO_ARCH)
 MOCK_SRPM_DIR = $(RPM_DIST_DIR)/$(DISTRO_RESULTS_DIR)/source
@@ -125,8 +125,6 @@ $(sipx:=.srpm) : %.srpm : %.dist $(MOCK_INIT_TEST) $(MOCK_RESULTS_DIR)
 	$(SRC)/tools/dep save $(DISTRO).$(PROJ).rpm $(SRC)/$(PROJ) \
 	  $(foreach D,$($(PROJ)_DEPS),$(DISTRO).$(D).rpm)
 
-repo-comps : $(SRC)/mak/comps.xml
-
 $(MOCK_INIT_TEST) :
 	$(MAKE) repo-init
 
@@ -134,7 +132,7 @@ $(MOCK_RESULTS_DIR) :
 	$(MAKE) repo-create
 
 help-more.repo-init = Clear mock chroot for $(DISTRO). Requied before first build and useful when you suspect caching is the result of a build error.
-repo-init : repo-create repo-webserver repo-comps repo-comps
+repo-init : repo-create repo-webserver
 	mock $(MOCK_OPTS) --scrub=all
 	test -d $(MOCK_RESULTS_DIR) || mkdir -p $(MOCK_RESULTS_DIR)
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS) .
@@ -164,21 +162,21 @@ repo-webserver :
 	/usr/sbin/thttpd -d $(RPM_DIST_DIR) -p @REPO_PORT@ -M 0
 
 help-more.repo-src = Assemble source rpms into $(RPM_DIST_DIR)/$(DISTRO_RESULTS_DIR)/source
-repo-src : repo-comps
+repo-src :
 	for f in $(shell $(SRC)/mak/list-obsolete-rpms $(MOCK_SRPM_DIR)); do rm $$f; done
 	cd $(MOCK_SRPM_DIR); createrepo $(CREATEREPO_OPTS) .
 
 help-more.repo-check = Installs sipXecs in chroot. Tip, run repo-chroot-init first for more thourugh test of all dependencies.
 repo-check : repo-webserver repo-update
 	mock $(MOCK_OPTS) --scrub=cache
-	mock $(MOCK_OPTS) --install @sipxecs
+	mock $(MOCK_OPTS) --install $(MOCK_CHECK_PRODUCT)
 
 help-more.repo-dedup=If you have built RPMs multiple times between git updates, and therefore have older versions of a package, this will remove all older copies.
 repo-dedup:
 	for f in $(shell $(SRC)/mak/list-obsolete-rpms $(MOCK_RESULTS_DIR)); do rm $$f; done
 
 help-more.repo-create = run createrepo in $(MOCK_RESULTS_DIR)
-repo-create: repo-comps
+repo-create:
 	test -d $(MOCK_RESULTS_DIR) || mkdir -p $(MOCK_RESULTS_DIR)
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS) .
 

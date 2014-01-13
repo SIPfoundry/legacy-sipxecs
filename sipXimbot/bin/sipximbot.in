@@ -2,7 +2,7 @@
 
 # sipximbot - Startup script for sipximbot
 
-# chkconfig: 35 85 15
+# chkconfig: 35 99 15
 # description: sipximbot is an IM Bot subystem that uses FreeSWITCH as a media server.
 # processname: sipximbot
 

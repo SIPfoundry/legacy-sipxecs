@@ -17,7 +17,6 @@ ISO_RPM_DOWNLOAD_URL ?= @CENTOS_BASE_URL@/6
 ISO_M4_OPTS = $(CUSTOM_ISO_M4_OPTS) -D PACKAGE_VERSION=$(PACKAGE_VERSION)
 ISO_PACKAGES_OS=$(ARCH)-os-Packages
 ISO_PACKAGES_EPEL=$(ARCH)-epel-Packages
-ISO_COMPS ?= comps-iso.xml
 
 %-32 : BITS = 32
 %-32 : ARCH = i386
@@ -38,7 +37,6 @@ iso: iso-32 iso-64;
 help.iso-clean = Delete intermediate files, but do not re-download RPMs from $(ISO_RPM_DOWNLOAD_URL)
 iso-clean: iso-clean-32 iso-clean-64
 	find $(DIST_DIR) -maxdepth 1 \( -name '*.iso' -o -name '*.md5' \) -exec rm {} \;
-	! test -f comps-iso.xml || rm comps-iso.xml
 
 help-more.iso-clean-all = Delete intermediate files, including files from downloaded from $(ISO_RPM_DOWNLOAD_URL) that will be downloaded again
 iso-clean-all: iso-clean-32 iso-clean-download-32 iso-clean-64 iso-clean-download-64;
@@ -72,18 +70,12 @@ iso-disc-% :
 	chmod a+rw -R cd.tmp
 	mv cd.tmp $@
 
-# copy sipxecs yum group defs into iso yum group defs
-comps-iso.xml : $(SRC)/mak/comps.xml $(SRC)/mak/centos-iso/comps.xsl
-	xsltproc $(SRC)/mak/centos-iso/comps.xsl $(SRC)/mak/comps.xml > $@.tmp
-	mv $@.tmp $@
-
 # rebuild yum repo after all rpms have been added and removed
-iso-update-repo-% : iso-disc-% $(ISO_COMPS)
+iso-update-repo-% : iso-disc-%
 	MEDIA_ID=$(shell head -1 $(ISO_DISC)/.discinfo); \
 	  cd $(ISO_DISC); \
 	  @CREATEREPO@ \
-	    --baseurl="media://$$MEDIA_ID" \
-	    -g $(abspath $(ISO_COMPS)) .
+	    --baseurl="media://$$MEDIA_ID" .
 
 # add modifications to disc to make it operate
 iso-update-files-% :

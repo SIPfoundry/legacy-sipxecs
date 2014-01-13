@@ -5,9 +5,8 @@
  */
 package org.sipfoundry.openfire.plugin.presence;
 
-import org.sipfoundry.sipcallwatcher.SipResourceState;
-import org.xmpp.packet.Presence;
 import org.jivesoftware.openfire.XMPPServer;
+import org.xmpp.packet.Presence;
 
 public class UnifiedPresence {
     
@@ -40,12 +39,11 @@ public class UnifiedPresence {
     public static final String AVAILABLE_FOR_BOTH = "available-for-both";
 
     private String unifiedPresence = NOT_AVAILABLE;
-    private SipResourceState sipState = SipResourceState.UNDETERMINED;
     private XmppPresence xmppPresence = XmppPresence.OFFLINE;
     private String xmppStatusMessage = ""; 
     private String xmppStatusMessageWithSipState = ""; 
-    private String xmppUsername; // XMPP username that presence info relates to
-    private String jidAsString;
+    private final String xmppUsername; // XMPP username that presence info relates to
+    private final String jidAsString;
     private String remoteSipEndpoint;   
     
     UnifiedPresence( String xmppUsername )
@@ -53,17 +51,6 @@ public class UnifiedPresence {
         xmppPresence = XmppPresence.OFFLINE;
         this.xmppUsername = xmppUsername;
         this.jidAsString = xmppUsername + "@" + XMPPServer.getInstance().getServerInfo().getXMPPDomain();
-    }
-    
-    public SipResourceState getSipState()
-    {
-        return sipState;
-    }
-    
-    public void setSipState( SipResourceState sipState )
-    {
-        this.sipState = sipState;
-        computeUnifiedPresence();
     }
     
     public String getRemoteSipEndpoint()
@@ -167,11 +154,6 @@ public class UnifiedPresence {
             xmppPresence == XmppPresence.CHAT )
         {
             bAvailableForChat = true;
-        }
-             
-        if( sipState == SipResourceState.IDLE )
-        {
-            bAvailableForTelephony = true;
         }
         
         // map the bAvailableForChat and bAvailableForTelephony to a unified presence

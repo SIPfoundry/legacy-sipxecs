@@ -44,7 +44,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
-import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.BeanFactory;
@@ -204,7 +204,7 @@ public abstract class AbstractMusicOnHoldManagerImpl implements MusicOnHoldManag
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
-        validator.requiredOnSameHost(FEATURE, FreeswitchFeature.FEATURE);
+        validator.requiredOnSameHost(FEATURE, Ivr.FEATURE);
         if (!m_highAvailabilitySupport) {
             validator.singleLocationOnly(FEATURE);
         }

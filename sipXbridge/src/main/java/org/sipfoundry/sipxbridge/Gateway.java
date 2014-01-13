@@ -193,7 +193,7 @@ public class Gateway {
     static final String AUTHENTICATION_FAILED_ALARM_ID = "AUTHENTICATION_FAILED %s ";
 
     static final String ITSP_ACCOUNT_CONFIGURATION_ERROR_ALARM_ID = "ITSP_ACCOUNT_CONFIGURATION_ERROR";
-    
+
     static final String TLS_CERTIFICATE_MISMATCH_ALARM_ID = "TLS_CERTIFICATE_MISMATCH";
 
     public static final String ACCOUNT_OK_ALARM_ID = "ACCOUNT_OK : %s (recovery from eariler error)";
@@ -290,14 +290,15 @@ public class Gateway {
             String logLevel = bridgeConfiguration.getLogLevel();
 
             java.util.logging.Level level = java.util.logging.Level.OFF;
-            if (logLevel.equals("INFO"))
+            if (logLevel.equals("INFO")) {
                 level = java.util.logging.Level.INFO;
-            else if (logLevel.equals("DEBUG"))
+            } else if (logLevel.equals("DEBUG")) {
                 level = java.util.logging.Level.FINE;
-            else if (logLevel.equals("TRACE"))
+            } else if (logLevel.equals("TRACE")) {
                 level = java.util.logging.Level.FINER;
-            else if (logLevel.equals("WARN"))
+            } else if (logLevel.equals("WARN")) {
                 level = java.util.logging.Level.WARNING;
+            }
 
             /*
              * BUGBUG For now turn off Logging on STUN4j. It writes to stdout.
@@ -384,7 +385,9 @@ public class Gateway {
 
                 globalAddress = report.getPublicAddress().getSocketAddress()
                         .getAddress().getHostAddress();
-                if ( logger.isDebugEnabled() ) logger.debug("Stun report = " + report);
+                if ( logger.isDebugEnabled() ) {
+                    logger.debug("Stun report = " + report);
+                }
 
                 if ( oldPublicAddress != null && !oldPublicAddress.equals(globalAddress) ||
                     ( oldStunPort != -1 && oldStunPort != report.getPublicAddress().getPort() ) ) {
@@ -416,14 +419,16 @@ public class Gateway {
             }
             return;
         } finally {
-           if ( logger.isDebugEnabled() ) logger.debug("global address = " + globalAddress);
+           if ( logger.isDebugEnabled() ) {
+            logger.debug("global address = " + globalAddress);
+        }
         }
     }
 
     public static void raiseAlarm(String id, Object... args) {
         logger.error("ALARM_BRIDGE_" + format(id, args));
     }
-    
+
     /**
      * Start timer to rediscover our address.
      *
@@ -482,7 +487,9 @@ public class Gateway {
             Collection<Hop> hops = serverFinder.findSipServers(proxyUri);
             PriorityQueue<Hop> proxyAddressTable = new PriorityQueue<Hop>();
             proxyAddressTable.addAll(hops);
-            if ( logger.isDebugEnabled() ) logger.debug("proxy address table = " + proxyAddressTable);
+            if ( logger.isDebugEnabled() ) {
+                logger.debug("proxy address table = " + proxyAddressTable);
+            }
             return proxyAddressTable;
         } catch (Exception ex) {
             logger.error("Cannot do address lookup ", ex);
@@ -518,8 +525,10 @@ public class Gateway {
 
             int externalPort = bridgeConfiguration.getExternalPort();
             String externalAddress = bridgeConfiguration.getExternalAddress();
-            if ( logger.isDebugEnabled() ) logger.debug("External Address:port = " + externalAddress + ":"
-                    + externalPort);
+            if ( logger.isDebugEnabled() ) {
+                logger.debug("External Address:port = " + externalAddress + ":"
+                        + externalPort);
+            }
             ListeningPoint externalUdpListeningPoint = ProtocolObjects
                     .getSipStack().createListeningPoint(externalAddress,
                             externalPort, "udp");
@@ -529,7 +538,9 @@ public class Gateway {
                             externalPort, "tcp");
             Gateway.supportedTransports.add("tcp");
             if (Gateway.isTlsSupportEnabled) {
-                if ( logger.isDebugEnabled() ) logger.debug("tlsSupport is enabled -- creating TLS Listening point and provider");
+                if ( logger.isDebugEnabled() ) {
+                    logger.debug("tlsSupport is enabled -- creating TLS Listening point and provider");
+                }
                 ListeningPoint externalTlsListeningPoint = ProtocolObjects
                         .getSipStack().createListeningPoint(externalAddress,
                                 externalPort + 1, "tls");
@@ -554,8 +565,10 @@ public class Gateway {
             gatewayFromAddress = ProtocolObjects.addressFactory
                     .createAddress(ProtocolObjects.addressFactory.createSipURI(
                             SIPXBRIDGE_USER, domain));
-            if ( logger.isDebugEnabled() ) logger.debug("Local Address:port " + localIpAddress + ":"
-                    + localPort);
+            if ( logger.isDebugEnabled() ) {
+                logger.debug("Local Address:port " + localIpAddress + ":"
+                        + localPort);
+            }
 
             if ( !Gateway.getSipxProxyTransport().equalsIgnoreCase("tls")) {
                 ListeningPoint internalUdpListeningPoint = ProtocolObjects
@@ -571,7 +584,9 @@ public class Gateway {
 
                 internalProvider.addListeningPoint(internalTcpListeningPoint);
             } else {
-                if ( logger.isDebugEnabled() ) logger.debug("tlsSupport is for proxy enabled -- creating TLS Listening point and provider");
+                if ( logger.isDebugEnabled() ) {
+                    logger.debug("tlsSupport is for proxy enabled -- creating TLS Listening point and provider");
+                }
                 ListeningPoint internalTlsListeningPoint = ProtocolObjects
                         .getSipStack().createListeningPoint(localIpAddress,
                                 localPort, "tls");
@@ -987,10 +1002,14 @@ logger.info("FOUND BAD ACCOUNT");
             Gateway.proxyURI = ProtocolObjects.addressFactory.createSipURI(
                     null, getBridgeConfiguration().getSipxProxyDomain());
             if (  getBridgeConfiguration().getSipxProxyPort() > 0  ) {
-                if ( logger.isDebugEnabled() ) logger.debug("setting sipx proxy port " + getBridgeConfiguration().getSipxProxyPort() );
+                if ( logger.isDebugEnabled() ) {
+                    logger.debug("setting sipx proxy port " + getBridgeConfiguration().getSipxProxyPort() );
+                }
                 Gateway.proxyURI.setPort( getBridgeConfiguration().getSipxProxyPort());
             } else {
-                if ( logger.isDebugEnabled() ) logger.debug("sipx proxy port is : " + getBridgeConfiguration().getSipxProxyPort() );
+                if ( logger.isDebugEnabled() ) {
+                    logger.debug("sipx proxy port is : " + getBridgeConfiguration().getSipxProxyPort() );
+                }
 
             }
         } catch (Exception ex) {
@@ -1023,8 +1042,9 @@ logger.info("FOUND BAD ACCOUNT");
         startSipListener();
 
         // Set secret for signing SipXauthIdentity. The null check is for the regression tester's benefit.
-        if ( DomainConfiguration.getSharedSecret() != null ) {
-            SipXauthIdentity.setSecret(DomainConfiguration.getSharedSecret());
+        DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir") + "/domain-config");
+        if (config.getSharedSecret() != null) {
+            SipXauthIdentity.setSecret(config.getSharedSecret());
         } else {
             logger.warn("Shared secret is null!");
         }
@@ -1040,7 +1060,9 @@ logger.info("FOUND BAD ACCOUNT");
                 System.exit(0);
             }
         }
-        if ( logger.isDebugEnabled() ) logger.debug("Global address = " + Gateway.getGlobalAddress());
+        if ( logger.isDebugEnabled() ) {
+            logger.debug("Global address = " + Gateway.getGlobalAddress());
+        }
 
         /*
          * Can start sending outbound calls. Cannot yet make inbound calls.
@@ -1081,7 +1103,9 @@ logger.info("FOUND BAD ACCOUNT");
     static synchronized void stop() {
         Gateway.state = GatewayState.STOPPING;
 
-        if ( logger.isDebugEnabled() ) logger.debug("Stopping Gateway");
+        if ( logger.isDebugEnabled() ) {
+            logger.debug("Stopping Gateway");
+        }
         // Purge the timer.
         getTimer().purge();
         try {
@@ -1133,7 +1157,9 @@ logger.info("FOUND BAD ACCOUNT");
          * Stop bridge, release all resources and exit.
          */
         Gateway.initializeLogging();
-        if ( logger.isDebugEnabled() ) logger.debug("exit()");
+        if ( logger.isDebugEnabled() ) {
+            logger.debug("exit()");
+        }
 
         /*
          * Connect to the sipxbridge server and ask him to exit.

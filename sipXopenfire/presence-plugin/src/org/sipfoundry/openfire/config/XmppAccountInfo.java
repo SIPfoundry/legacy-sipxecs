@@ -8,33 +8,25 @@ package org.sipfoundry.openfire.config;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-import org.jivesoftware.openfire.group.Group;
-import org.jivesoftware.openfire.group.GroupNotFoundException;
 import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePlugin;
-import org.xmpp.packet.JID;
 
 public class XmppAccountInfo {
 
-    private static final Logger logger = Logger.getLogger(XmppAccountInfo.class);
+    private final Map<String, XmppUserAccount> userAccounts = new HashMap<String, XmppUserAccount>();
 
-    private Map<String, XmppUserAccount> userAccounts = new HashMap<String, XmppUserAccount>();
+    private final Map<String, XmppGroup> groups = new HashMap<String, XmppGroup>();
 
-    private Map<String, XmppGroup> groups = new HashMap<String, XmppGroup>();
-
-    private Map<String, XmppChatRoom> chatRooms = new HashMap<String, XmppChatRoom>();
+    private final Map<String, XmppChatRoom> chatRooms = new HashMap<String, XmppChatRoom>();
 
     public static String appendDomain(String userName) {
         if (userName.indexOf("@") == -1) {
             // No @ in the domain so assume this is our domain.
             return userName + "@" + SipXOpenfirePlugin.getInstance().getXmppDomain();
-        } else {
-            return userName;         
         }
+        return userName;
     }
 
     public XmppAccountInfo() {
@@ -83,7 +75,7 @@ public class XmppAccountInfo {
         return this.groups.values();
     }
 
-    public Set<String> getXmppGroupNames    () {
+    public Set<String> getXmppGroupNames() {
         return this.groups.keySet();
     }
 

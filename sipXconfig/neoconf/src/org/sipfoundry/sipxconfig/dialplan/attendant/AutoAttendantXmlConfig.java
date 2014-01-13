@@ -206,6 +206,12 @@ public class AutoAttendantXmlConfig {
             }
             miEl.addElement(PARAMETER).setText(parameter);
         }
+        if (action.isDialByNameParameter()) {
+            if (parameter == null) {
+                parameter = "";
+            }
+            miEl.addElement(PARAMETER).setText(parameter);
+        }
         if (action.isExtensionParameter()) {
             if (parameter == null) {
                 logNullParameterError();

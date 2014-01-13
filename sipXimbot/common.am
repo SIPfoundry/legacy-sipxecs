@@ -2,6 +2,7 @@ imbot_PKGS = \
 	sipxcommons \
 	mongo \
 	log4j \
+	smack \
 	smackx \
 	commons-io \
 	commons-codec \
@@ -12,5 +13,4 @@ imbot_PKGS = \
 	javax.servlet \
 	mongo \
 	xmlrpc-client \
-	sipx-openfire-presence-plugin \
 	ws-commons-util

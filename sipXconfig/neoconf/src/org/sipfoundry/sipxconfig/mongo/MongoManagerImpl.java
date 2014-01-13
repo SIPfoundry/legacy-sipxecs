@@ -214,10 +214,10 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
             }
         }
 
-    // If you're using regional dbs, you should have one global db in each region, but
-    //validation system doesn't have check at this yet.
-    //It's also possible there are scenarios
-    // someone might want to do this, so we allow it by not disallowing it here.
+        // If you're using regional dbs, you should have one global db in each region, but
+        // validation system doesn't have check at this yet.
+        // It's also possible there are scenarios
+        // someone might want to do this, so we allow it by not disallowing it here.
     }
 
     @Override
@@ -226,12 +226,16 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
 
     @Override
     public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
-        if (!manager.getFeatureManager().isFeatureEnabled(MongoManager.FEATURE_ID)
-                || !manager.getFeatureManager().isFeatureEnabled(MongoManager.FEATURE_ID)
-                || !manager.getFeatureManager().isFeatureEnabled(MongoManager.LOCAL_FEATURE)
-                || !manager.getFeatureManager().isFeatureEnabled(MongoManager.LOCAL_ARBITER_FEATURE)) {
+        FeatureManager featureManager = manager.getFeatureManager();
+        boolean mongoConfigured = featureManager.isFeatureEnabled(MongoManager.FEATURE_ID)
+                || featureManager.isFeatureEnabled(MongoManager.ARBITER_FEATURE)
+                || featureManager.isFeatureEnabled(MongoManager.LOCAL_FEATURE)
+                || featureManager.isFeatureEnabled(MongoManager.LOCAL_ARBITER_FEATURE);
+
+        if (!mongoConfigured) {
             return null;
         }
+
         Collection<AlarmDefinition> defs = Arrays.asList(new AlarmDefinition[] {
             MONGO_FATAL_REPLICATION_STOP, MONGO_FAILED_ELECTION, MONGO_MEMBER_DOWN, MONGO_NODE_STATE_CHANGED,
             MONGO_CANNOT_SEE_MAJORITY
@@ -380,8 +384,7 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     }
 
     void checkLocationForRegionalDatabase(Location l) {
-        String sql = "select count(*) from feature_local f where "
-                + "f.location_id = ? and f.feature_id in (?,?)";
+        String sql = "select count(*) from feature_local f where " + "f.location_id = ? and f.feature_id in (?,?)";
         int nLocalDbs = m_configJdbcTemplate.queryForInt(sql, l.getId(), LOCAL_FEATURE.getId(),
                 LOCAL_ARBITER_FEATURE.getId());
         if (nLocalDbs > 0) {

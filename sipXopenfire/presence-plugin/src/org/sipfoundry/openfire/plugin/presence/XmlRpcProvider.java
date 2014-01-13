@@ -59,10 +59,7 @@ public abstract class XmlRpcProvider {
 
     public static final String EMAIL_FIELD = "Email";
 
-    private static SipXOpenfirePlugin plugin ;
-
-
-    protected Map<String, Object> createErrorMap(ErrorCode errorCode, String reason) {
+    protected static Map<String, Object> createErrorMap(ErrorCode errorCode, String reason) {
         Map<String, Object> retval = new HashMap<String, Object>();
         retval.put(STATUS_CODE, ERROR);
         retval.put(ERROR_CODE, errorCode.toString());
@@ -70,26 +67,24 @@ public abstract class XmlRpcProvider {
         return retval;
     }
 
-    protected Map<String, Object> createSuccessMap() {
+    protected static Map<String, Object> createSuccessMap() {
         Map<String, Object> retval = new HashMap<String, Object>();
         retval.put(STATUS_CODE, OK);
         return retval;
     }
 
     protected static String appendDomain(String userName) {
-        if (  userName.indexOf("@") == -1) {
+        if (userName.indexOf("@") == -1) {
             // No @ in the domain so assume this is our domain.
             return userName + "@" + getPlugin().getXmppDomain();
-        } else {
-            return userName;
         }
+        return userName;
     }
-
 
     /**
      * @return the plugin
      */
     protected static SipXOpenfirePlugin getPlugin() {
-        return   (SipXOpenfirePlugin) XMPPServer.getInstance().getPluginManager().getPlugin("sipx-openfire-presence");
+        return (SipXOpenfirePlugin) XMPPServer.getInstance().getPluginManager().getPlugin("sipx-openfire-presence");
     }
 }

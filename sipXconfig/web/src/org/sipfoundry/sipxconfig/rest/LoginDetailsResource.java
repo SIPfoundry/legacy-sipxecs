@@ -75,12 +75,31 @@ public class LoginDetailsResource extends UserResource {
             m_ldapImAuth = ldapAuth;
             m_sipPassword = sipPassword;
         }
+
+        public String getUserName() {
+            return m_userName;
+        }
+
+        public String getImId() {
+            return m_imId;
+        }
+
+        public boolean isLdapImAuth() {
+            return m_ldapImAuth;
+        }
+
+        public String getSipPassword() {
+            return m_sipPassword;
+        }
     }
 
     static class LoginDetails extends XStreamRepresentation<Representable> {
+        @SuppressWarnings("rawtypes")
+        private Class m_representableClass;
 
         public LoginDetails(MediaType mediaType, Representable object) {
             super(mediaType, object);
+            m_representableClass = object.getClass();
         }
 
         public LoginDetails(Representation representation) {
@@ -89,7 +108,7 @@ public class LoginDetailsResource extends UserResource {
 
         @Override
         protected void configureXStream(XStream xstream) {
-            xstream.alias("login-details", Representable.class);
+            xstream.alias("login-details", m_representableClass);
         }
     }
 

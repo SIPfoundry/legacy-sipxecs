@@ -32,7 +32,8 @@ sipx_core = \
   sipXpolycom \
   sipXrls \
   sipXsaa \
-  sipXrelease
+  sipXrelease \
+  sipXecs
 
 # sipxecs projects that are NOT essential for a running communication system
 sipx_extra = \
@@ -104,17 +105,9 @@ lib_all = \
   net-snmp \
   homer \
   openfire \
-  erlmongo \
-  erlang-ejrpc2 \
-  erlang-ej \
-  erlang-cowboy \
-  erlang-gen_server_mock \
-  erlang-mimetypes \
   ruby-dbi \
   cfengine \
   oss_core \
-  nsis \
-  nsis-data \
   rubygem-net-ssh \
   rubygem-net-sftp \
   ruby-postgres \
@@ -125,8 +118,6 @@ lib_exclude_fedora_16 = \
   epel \
   erlang \
   rrdtool \
-  nsis \
-  nsis-data \
   rubygem-net-ssh \
   rubygem-net-sftp
 
@@ -145,6 +136,7 @@ lib = $(filter-out $(lib_exclude_$(DISTRO_OS)_$(DISTRO_VER)),$(lib_all))
 
 # Project compile-time dependencies. Only list project that if
 # it's dependecies were recompiled then you'd want to recompile.
+freeswitch_DEPS = erlang
 sipXtackLib_DEPS = sipXportLib
 sipXmediaLib_DEPS = sipXtackLib
 sipXmediaAdapterLib_DEPS = sipXmediaLib

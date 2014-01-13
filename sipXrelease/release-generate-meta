@@ -24,5 +24,7 @@ for d in $repoDir/*/*; do
     distro="${rel_id[${len} - 2]}"
     test "${arch}" == "source" && continue
     echo "${distro} ${arch}"
-    rpm -qp --queryformat '%{NAME} %{VERSION} %{RELEASE}\n' $d/*.rpm > $destDir/packages-${distro}-${arch}
+    rpm -qp --queryformat '%{NAME} %{VERSION} %{RELEASE}\n' $d/*.rpm | \
+	grep -v sipxrelease |
+	> $destDir/packages-${distro}-${arch}
 done

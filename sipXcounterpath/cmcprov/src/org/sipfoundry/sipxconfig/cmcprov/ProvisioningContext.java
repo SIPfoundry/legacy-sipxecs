@@ -20,7 +20,7 @@ public interface ProvisioningContext {
 
     public String getDomainName();
 
-    public Phone getPhoneForUser(User user);
+    public Phone getPhoneForUser(User user, String[] phoneModels);
 
     String getConfDir();
 }

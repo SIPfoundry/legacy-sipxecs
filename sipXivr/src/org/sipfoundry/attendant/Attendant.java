@@ -228,13 +228,13 @@ public class Attendant extends SipxIvrApp {
         }
         case dial_by_name:
             // Enter the Dial By Name dialog.
-            LOG.info("Attendant::doAction Dial by Name");
+            LOG.info("Attendant::doAction Dial by Name for groups: " + item.getParameter());
             DialByName dbn = new DialByName();
             dbn.setApplicationConfiguration(config);
             dbn.setLocalization(controller.getLocalization());
             dbn.setValidUsers(m_validUsers);
             dbn.setMailboxManager(m_mailboxManager);
-            DialByNameChoice choice = dbn.dialByName();
+            DialByNameChoice choice = dbn.dialByName(item.getParameter());
             if (choice.getIvrChoiceReason() == IvrChoiceReason.CANCELED) {
                 return NextAction.repeat;
             }

@@ -295,7 +295,7 @@ public class ValidUsers {
      * @param onlyVoicemailUsers limit match to users in directory who have voicemail
      * @return a Vector of users that match
      */
-    public List<User> lookupDTMF(String digits, boolean onlyVoicemailUsers) {
+    public List<User> lookupDTMF(String digits, boolean onlyVoicemailUsers, String groups) {
         List<User> matches = new ArrayList<User>();
         BasicDBList permList = new BasicDBList();
         permList.add(IMDB_PERM_AA);
@@ -307,6 +307,16 @@ public class ValidUsers {
         queryAls.put(PERMISSIONS, inDirectory);
         queryAls.put(VALID_USER, Boolean.TRUE);
         queryAls.put(DISPLAY_NAME, hasDisplayName);
+
+        // if user group specified then restrict query
+        if (!StringUtils.isBlank(groups)) {
+            String[] searchGroups = StringUtils.split(groups, " ");
+            BasicDBList groupList = new BasicDBList();
+            for (String searchGroup : searchGroups) {
+                groupList.add(searchGroup);
+            }
+            queryAls.put(GROUPS, new BasicDBObject("$in", groupList));
+        }
         DBCursor aliasResult = getEntityCollection().find(queryAls);
         Iterator<DBObject> objects = aliasResult.iterator();
         while (objects.hasNext()) {

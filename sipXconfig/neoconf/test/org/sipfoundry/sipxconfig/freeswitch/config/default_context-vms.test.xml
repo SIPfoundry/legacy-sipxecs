@@ -4,7 +4,6 @@
       <action application="socket" data="10.1.1.0:8084 async full"/>
       <action application="redirect" data="sip:IVR@10.1.1.1:15060;${sip_req_params}"/>
       <action application="redirect" data="sip:IVR@10.1.1.2:15060;${sip_req_params}"/>
-      <action application="set" data="ignore_display_updates=true"/>
     </condition>
   </extension>
 </context>

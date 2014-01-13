@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.cmcprov;
 
 import java.util.Collection;
 
-import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -23,8 +22,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
 public class ProvisioningContextImpl implements ProvisioningContext {
-    private static final String MODEL_ID = "counterpathCMCEnterprise";
-
     private CoreContext m_sipxCoreContext;
     private ProviderManager m_authManager;
     private PhoneContext m_sipxPhoneContext;
@@ -50,6 +47,7 @@ public class ProvisioningContextImpl implements ProvisioningContext {
      * Returns user if credentials check out. Return null if the user does not exist or the
      * password is wrong.
      */
+    @Override
     public User getUser(String username, String password) {
         User user = m_sipxCoreContext.loadUserByUserNameOrAlias(username);
         if (user != null) {
@@ -60,10 +58,12 @@ public class ProvisioningContextImpl implements ProvisioningContext {
         return null;
     }
 
+    @Override
     public String getDomainName() {
         return m_sipxCoreContext.getDomainName();
     }
 
+    @Override
     public String getUploadDirectory() {
         return m_sipxUpload.getDestinationDirectory();
     }
@@ -80,6 +80,7 @@ public class ProvisioningContextImpl implements ProvisioningContext {
         return m_sipxUpload;
     }
 
+    @Override
     public String getConfDir() {
         return m_sipxPhoneContext.getSystemDirectory();
     }
@@ -94,13 +95,11 @@ public class ProvisioningContextImpl implements ProvisioningContext {
         }
     }
 
-    private String getEncodedPassword(String userName, String password) {
-        return Md5Encoder.getEncodedPassword(password);
-    }
-
-    public Phone getPhoneForUser(User user) {
-        Collection<Phone> phones = getSipxPhoneContext().getPhonesByUserIdAndPhoneModel(user.getId(), MODEL_ID);
-        if (!phones.isEmpty()) {
+    @Override
+    public Phone getPhoneForUser(User user, String[] phoneModels) {
+        for (String phoneModel : phoneModels) {
+            Collection<Phone> phones = getSipxPhoneContext()
+                    .getPhonesByUserIdAndPhoneModel(user.getId(), phoneModel);
             for (Phone phone : phones) {
                 if (phone.getLine(0).getUser().equals(user)) {
                     return phone;

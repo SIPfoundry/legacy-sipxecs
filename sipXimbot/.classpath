@@ -4,7 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/sipXopenfire"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXrest"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
