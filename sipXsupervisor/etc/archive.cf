@@ -61,12 +61,6 @@ bundle agent archive_vars {
     ftp_archive::
       "plan" string => "ftp";
 
-    manual_archive::
-      "mode" string => "manual";
-
-    auto_archive::
-      "mode" string => "auto";
-
     any::
       "config" string => "$(sipx.SIPX_CONFDIR)/archive-$(plan).yaml";
 }
@@ -87,38 +81,6 @@ bundle agent backup_schedules(plan) {
 
     primary.(!archive|!has_cron)::
       "any" usebundle => remove_crontab("$(cron_id)", "$(sipx.SIPXPBXUSER)");
-}
-
-#
-# Entry point #2 for running a backup on a node replacing any previous backups
-# on that node. Typically this is followed by a call to backup_collect to
-# download and backup files
-#
-# Example:
-#   sipxagent [-h host] -b backup -d local_archive
-#
-bundle agent backup {
-  methods:
-    any::
-      "any" usebundle => sipx_module;
-      "any" usebundle => sipx_init;
-    archive::
-      "archive" usebundle => archive_vars;
-      "archive" usebundle => archive_config("$(archive_vars.plan)");
-      "archive" usebundle => backup_run;
-}
-
-bundle agent backup_run {
-  commands:
-    archive::
-      "$(sipx.SIPX_BINDIR)/sipx-archive"
-        comment => "Backup config $(this.promiser)",
-        args => "--backup-called-by-cfengine $(archive_vars.config) --mode $(archive_vars.mode)",
-        classes => on_failed_command("1", "failed_backup");
-
-  reports:
-    failed_backup::
-      "!!! Failed to complete $(archive_vars.plan) backup. See sipxagent.log for more details.";
 }
 
 #

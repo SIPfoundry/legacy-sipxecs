@@ -45,7 +45,6 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
     private BeanWithSettingsDao<BackupSettings> m_settingsDao;
     private LocationsManager m_locationsManager;
     private ConfigManager m_configManager;
-    private String m_backupScript;
     private File m_restoreStagingDir;
 
     @Override
@@ -76,10 +75,10 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
     }
 
     @Override
-    public Collection<ArchiveDefinition> getArchiveDefinitions(Location location, BackupSettings manual) {
+    public Collection<ArchiveDefinition> getArchiveDefinitions(Location location, BackupSettings settings) {
         Set<ArchiveDefinition> defs = new HashSet<ArchiveDefinition>();
         for (ArchiveProvider provider : getArchiveProviders()) {
-            Collection<ArchiveDefinition> locationDefs = provider.getArchiveDefinitions(this, location, manual);
+            Collection<ArchiveDefinition> locationDefs = provider.getArchiveDefinitions(this, location, settings);
             if (locationDefs != null) {
                 defs.addAll(locationDefs);
             }
@@ -140,11 +139,11 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
         return ids;
     }
 
-    @Override
-    public String getBackupLink(BackupPlan plan) {
-        BackupCommandRunner runner = new BackupCommandRunner(getPlanFile(plan), getBackupScript());
-        return runner.getBackupLink();
-    }
+//    @Override
+//    public String getBackupLink(BackupPlan plan) {
+//        BackupCommandRunner runner = new BackupCommandRunner(getPlanFile(plan), getBackupScript());
+//        return runner.getBackupLink();
+//    }
 
     public File getPlanFile(BackupPlan plan) {
         String fname = format("1/archive-%s.yaml", plan.getType());
@@ -153,14 +152,6 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
 
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
-    }
-
-    public String getBackupScript() {
-        return m_backupScript;
-    }
-
-    public void setBackupScript(String backupScript) {
-        m_backupScript = backupScript;
     }
 
     public void setConfigManager(ConfigManager configManager) {

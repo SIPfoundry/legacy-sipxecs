@@ -1,15 +1,11 @@
-backup:
-   d1: b1
-   d2: b2
-   d3: b3
-restore:
-   d1: r1
-   d2: r2
-   d3: r3
-selected_backups:
-   auto:
-    - d1
-    - d2
-   manual:
-    - d2
-    - d3
+hosts:
+   1:
+      host: 1.1.1.1
+      backup:
+         d1: b1
+         d2: b2
+         d3: b3
+      restore:
+         d1: r1
+         d2: r2
+         d3: r3

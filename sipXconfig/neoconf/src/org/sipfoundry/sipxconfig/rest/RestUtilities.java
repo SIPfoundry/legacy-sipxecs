@@ -21,9 +21,14 @@
 
 package org.sipfoundry.sipxconfig.rest;
 
+
 import static org.sipfoundry.sipxconfig.rest.RestUtilities.ResponseCode.ERROR_VALIDATION_FAILED;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +46,7 @@ import org.restlet.data.Status;
 import org.restlet.resource.DomRepresentation;
 import org.restlet.resource.Representation;
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.common.FileDigestSource;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.phonebook.Address;
@@ -98,6 +104,24 @@ public final class RestUtilities {
             }
         }
         return Locale.ENGLISH;
+    }
+
+    /**
+     * This duplicates code in org.sipfoundry.sipxconfig.components.DownloadLink and makes
+     * assumptions that Tapestry will service the file
+     */
+    public static String getLink(File f, Integer userId, String contentType) throws FileNotFoundException {
+        try {
+            String encoding = "UTF-8";
+            StringBuilder link = new StringBuilder("/sipxconfig/download.svc");
+            link.append("?contentType=").append(URLEncoder.encode(contentType, encoding));
+            String digest = new FileDigestSource().getDigestForResource(userId, f.getAbsolutePath());
+            link.append("&digest=").append(digest);
+            link.append("&path=").append(URLEncoder.encode(f.getAbsolutePath(), encoding));
+            return link.toString();
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static Locale forLanguageTag(String id) {

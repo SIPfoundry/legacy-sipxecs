@@ -1,9 +1,10 @@
 import 'dart:html';
 import 'dart:convert'; 
+import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:sipxconfig/sipxconfig.dart';
 
-var api = new Api(test : false);
+var api = new Api(test : true);
 
 main() {
   var backup = new BackupPage();
@@ -18,6 +19,8 @@ class BackupPage {
   SettingEditor settings;
   SettingEditor ftpSettings;
   var timeOfDayFormat = new DateFormat("jm");
+  Timer refresh;
+  bool isInProgress;
   
   BackupPage() {
     querySelector("#backup-now").onClick.listen(backupNow);
@@ -25,20 +28,17 @@ class BackupPage {
     loader = new DataLoader(this.msg, loadForm);
     settings = new SettingEditor(querySelector("#settings"));
     ftpSettings = new SettingEditor(querySelector("#ftp-settings"));
-    load();
+    isInProgress = false;
+    refresh = new Timer.periodic(new Duration(seconds: 30), (e) {
+      if (isInProgress) {                                                                            
+        load();
+      }
+    });
   }
   
   load() {
     var url = api.url("rest/backup/${type}", "backup-test.json");
     loader.load(url);    
-  }
-  
-  Map<String, Object> getSetting(Map<String, Object> settings, String path) {
-    var selected = settings;
-    for (var segment in path.split("/")) {
-      selected = selected['value'][segment];  
-    }
-    return selected;    
   }
   
   loadForm(json) {
@@ -61,7 +61,7 @@ class BackupPage {
       int dow = 0;
       bool enabled = false;
       String timeOfDay = "";
-      archiveIds = plan['autoModeDefinitionIds'];
+      archiveIds = plan['definitionIds'];
       // backend uses array even though we only support a single schedule ATM
       List<Map> schedules = plan['schedules'];
       if (schedules != null && schedules.length > 0) {
@@ -87,24 +87,56 @@ class BackupPage {
         var checked = archiveIds.contains(defId) ? "checked" : "";
         archives.appendHtml('''
 <li>
-  <input type="checkbox" name="autoModeDefinitionIds" value="${defId}" ${checked}/>
+  <input type="checkbox" name="definitionIds" value="${defId}" ${checked}/>
   ${label}
 </li>
 ''');              
       });
     }  
+    
+    Map<String, List<String>> backups = data['backups'];
+    if (backups != null) {
+      UListElement listElem = querySelector("#backups");
+      listElem.children.clear();
+      backups.forEach((backupId, backupFiles) {
+        var html = "<li>${backupId} - ";
+        for (String f in backupFiles) {
+          var decode = f.split('|');
+          html += "<a href='${decode[1]}'>${decode[0]}</a> ";
+        }
+        listElem.appendHtml(html + "</li>");
+      });
+    }
+    
+    inProgress(true == data['inProgress']);
+  }
+  
+  inProgress(bool inProg) {
+    isInProgress = inProg;
+    querySelector('#inprogress').hidden = ! isInProgress;
+    for (var e in querySelectorAll('.action')) {    
+      e.disabled = isInProgress;
+    }
+  }
+
+  Map<String, Object> getSetting(Map<String, Object> settings, String path) {
+    var selected = settings;
+    for (var segment in path.split("/")) {
+      selected = selected['value'][segment];  
+    }
+    return selected;    
   }
   
   parseForm() {
     var form = new Map<String, Object>();
     form['limitedCount'] = int.parse((querySelector("#backup-limit") as SelectElement).value);
-    List<String> autoModeDefinitionIds = new List<String>();
-    for (CheckboxInputElement c in querySelectorAll("input[name=autoModeDefinitionIds]")) {
+    List<String> definitionIds = new List<String>();
+    for (CheckboxInputElement c in querySelectorAll("input[name=definitionIds]")) {
       if (c.checked) {
-        autoModeDefinitionIds.add(c.value);
+        definitionIds.add(c.value);
       }
     }
-    form['autoModeDefinitionIds'] = autoModeDefinitionIds;
+    form['definitionIds'] = definitionIds;
     var timeStr = (querySelector("#dailyScheduledTime") as InputElement).value;
     DateTime timeOfDay = timeOfDayFormat.parse(timeStr);
     int dayOfWeek = int.parse((querySelector("#dailyScheduledDay") as SelectElement).value);
@@ -150,5 +182,6 @@ class BackupPage {
   showContent(Tabs tabs, String selectedId) {    
     type = selectedId;
     tabs.showTabContent(selectedId);    
+    load();
   }
 }

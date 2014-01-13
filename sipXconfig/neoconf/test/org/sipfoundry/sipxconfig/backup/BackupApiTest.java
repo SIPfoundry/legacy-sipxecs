@@ -34,8 +34,9 @@ public class BackupApiTest {
         StringWriter actual = new StringWriter();
         BackupSettings settings = new BackupSettings();
         settings.setSettings(TestHelper.loadSettings("backup/backup.xml"));
-        List<String> backups = Arrays.asList("one", "two", "three");
-        api.writeBackup(actual, plan, backups, settings, archiveIds);
+        Map<String, List<String>> backups = new HashMap<String, List<String>>();
+        backups.put("x", Arrays.asList("one", "two", "three"));
+        api.writeBackup(actual, false, plan, backups, settings, archiveIds);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected.json"));
         TestHelper.assertEqualJson2(expected, actual.toString());
     }

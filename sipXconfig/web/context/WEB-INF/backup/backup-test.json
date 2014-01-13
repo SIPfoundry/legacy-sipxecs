@@ -22,6 +22,11 @@
     } ],
     "type" : "local"
   },
+  "backups": {
+    "201312200100":["configuration.tar.gz|#"],
+    "201312210100":["configuration.tar.gz|#"]
+  },
+  "inProgress" : false,  
   "settings" : {
     "type" : {
       "name" : "group"
@@ -52,7 +57,7 @@
           "user" : {
             "value" : null,
             "default" : null,
-            "label" : "",
+            "label" : "Username",
             "description" : "",
             "type" : {
               "maxLen" : 255,
@@ -67,7 +72,7 @@
           "password" : {
             "value" : null,
             "default" : null,
-            "label" : "",
+            "label" : "Password",
             "description" : "",
             "type" : {
               "maxLen" : 255,

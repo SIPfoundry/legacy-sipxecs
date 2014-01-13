@@ -14,13 +14,16 @@
  */
 package org.sipfoundry.sipxconfig.backup;
 
+
 import static java.lang.String.format;
 import static org.restlet.data.MediaType.APPLICATION_JSON;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,8 +32,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.poi.util.TempFile;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.Version;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -46,7 +52,11 @@ import org.restlet.resource.StringRepresentation;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.ScheduledDay;
 import org.sipfoundry.sipxconfig.common.TimeOfDay;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.rest.RestUtilities;
+import org.sipfoundry.sipxconfig.security.StandardUserDetailsService;
+import org.sipfoundry.sipxconfig.security.UserDetailsImpl;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingJsonReader;
 import org.sipfoundry.sipxconfig.setting.SettingJsonWriter;
@@ -55,13 +65,15 @@ import org.springframework.context.MessageSource;
 
 public class BackupApi extends Resource {
     private BackupManager m_backupManager;
+    private LocationsManager m_locationsManager;
     private BackupType m_backupType;
     private ObjectMapper m_jsonMapper = new ObjectMapper();
     private Locale m_locale;
     private MessageSource m_messages;
     private BackupPlan m_plan;
     private BackupSettings m_settings;
-    private ManualBackup m_manualBackup;
+    private BackupConfig m_backupConfig;
+    private BackupRunner m_backupRunner;
     private SettingJsonWriter m_settingWriter;
 
     public BackupApi() {
@@ -95,10 +107,21 @@ public class BackupApi extends Resource {
             BackupPlan backup = m_backupManager.findOrCreateBackupPlan(m_backupType);
             BackupSettings settings = m_backupManager.getSettings();
             File planFile = m_backupManager.getPlanFile(backup);
-            BackupCommandRunner runner = new BackupCommandRunner(planFile, m_backupManager.getBackupScript());
-            runner.setMode(m_backupType.name());
-            List<String> backups = runner.list();
-            writeBackup(json, backup, backups, settings, archiveIdMap);
+            Map<String, List<String>> backups = m_backupRunner.list(planFile);
+            UserDetailsImpl currentUser = StandardUserDetailsService.getUserDetails();
+            Map<String, List<String>> hyperlinkedList = new TreeMap<String, List<String>>();
+            for (Map.Entry<String, List<String>> entries : backups.entrySet()) {
+                List<String> linkedEntries = new ArrayList<String>(entries.getValue().size());
+                for (String entry : entries.getValue()) {
+                    // encode as "label|url" so that we can keep this from being yet another nested collection
+                    String encode = entry + '|'
+                        + settings.getLink(backup, currentUser.getUserId(), entries.getKey(), entry);
+                    linkedEntries.add(encode);
+                }
+                hyperlinkedList.put(entries.getKey(), linkedEntries);
+            }
+            boolean inProgress = m_backupRunner.isInProgress();
+            writeBackup(json, inProgress, backup, hyperlinkedList, settings, archiveIdMap);
         } catch (IOException e) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
         }
@@ -119,8 +142,8 @@ public class BackupApi extends Resource {
         return map;
     }
 
-    void writeBackup(Writer json, BackupPlan plan, List<String> backups, BackupSettings settings,
-        Map<String, String> archiveIds) throws IOException {
+    void writeBackup(Writer json, boolean inProgress, BackupPlan plan, Map<String, List<String>> backups,
+        BackupSettings settings, Map<String, String> archiveIds) throws IOException {
 
         // every plan has exactly 1 schedule
         if (plan.getSchedules().isEmpty()) {
@@ -137,8 +160,8 @@ public class BackupApi extends Resource {
         // However,
         // WYSIWYG overrules this convenience.
         Collection< ? > invalidOrOff = CollectionUtils.disjunction(archiveIds.keySet(),
-            plan.getAutoModeDefinitionIds());
-        plan.getAutoModeDefinitionIds().removeAll(invalidOrOff);
+            plan.getDefinitionIds());
+        plan.getDefinitionIds().removeAll(invalidOrOff);
 
         json.write("{\"definitions\":");
         m_jsonMapper.writeValue(json, archiveIds);
@@ -148,11 +171,15 @@ public class BackupApi extends Resource {
         m_jsonMapper.writeValue(json, plan);
         json.write(",\"backups\":");
         m_jsonMapper.writeValue(json, backups);
+        json.write(",\"inProgress\":");
+        m_jsonMapper.writeValue(json, inProgress);
         json.write("}");
     }
 
     /**
-     * PUT Save: yes Backup Now: no
+     * PUT
+     *  Save plan: yes
+     *  Backup Now: no
      */
     @Override
     public void storeRepresentation(Representation entity) throws ResourceException {
@@ -162,13 +189,31 @@ public class BackupApi extends Resource {
     }
 
     /**
-     * POST Save: no Backup Now: yes
+     * POST
+     *  Save plan: no
+     *  Backup Now: yes
      */
     @Override
     public void acceptRepresentation(Representation entity) throws ResourceException {
         putOrPost(entity);
-        m_plan.setType(BackupType.manual);
-        m_manualBackup.backup(m_plan, m_settings);
+        File planFile = null;
+        Writer planWtr = null;
+        try {
+            planFile = TempFile.createTempFile("manual-backup", "yaml");
+            planWtr = new FileWriter(planFile);
+            Collection<Location> hosts = m_locationsManager.getLocationsList();
+            m_backupConfig.writeConfig(planWtr, m_plan, hosts, m_settings);
+            IOUtils.closeQuietly(planWtr);
+            planWtr = null;
+            m_backupRunner.backup(planFile);
+        } catch (IOException e) {
+            throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
+        } finally {
+            IOUtils.closeQuietly(planWtr);
+            if (planFile != null) {
+                planFile.delete();
+            }
+        }
     }
 
     void putOrPost(Representation entity) throws ResourceException {
@@ -185,11 +230,11 @@ public class BackupApi extends Resource {
 
     void readPlan(BackupPlan plan, JsonNode node) {
         Set<String> ids = new HashSet<String>();
-        Iterator<JsonNode> nIds = node.get("autoModeDefinitionIds").getElements();
+        Iterator<JsonNode> nIds = node.get("definitionIds").getElements();
         while (nIds.hasNext()) {
             ids.add(nIds.next().asText());
         }
-        plan.setAutoModeDefinitionIds(ids);
+        plan.setDefinitionIds(ids);
         plan.setLimitedCount(node.get("limitedCount").asInt());
         Iterator<JsonNode> nSchedules = node.get("schedules").iterator();
         for (Iterator<DailyBackupSchedule> i = plan.getSchedules().iterator(); nSchedules.hasNext();) {
@@ -246,7 +291,12 @@ public class BackupApi extends Resource {
     }
 
     @Required
-    public void setManualBackup(ManualBackup manualBackup) {
-        m_manualBackup = manualBackup;
+    public void setBackupConfig(BackupConfig backupConfig) {
+        m_backupConfig = backupConfig;
+    }
+
+    @Required
+    public void setBackupRunner(BackupRunner backupRunner) {
+        m_backupRunner = backupRunner;
     }
 }

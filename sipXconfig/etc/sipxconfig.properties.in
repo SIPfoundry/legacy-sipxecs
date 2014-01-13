@@ -50,6 +50,7 @@ sysdir.bin=@SIPX_BINDIR@
 sysdir.etc=@SIPX_CONFDIR@
 sysdir.var=@SIPX_VARDIR@
 sysdir.log=@SIPX_LOGDIR@
+sysdir.service=@SIPX_SERVICEDIR@
 sysdir.share=@SIPX_JAVADIR@
 sysdir.thirdparty=@SIPX_DATADIR@
 sysdir.share.root=@datarootdir@

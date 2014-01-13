@@ -43,8 +43,9 @@ public class BackupConfigTest {
         ArchiveDefinition d2 = new ArchiveDefinition("d2", "b2", "r2");
         ArchiveDefinition d3 = new ArchiveDefinition("d3", "b3", "r3");
         StringWriter actual = new StringWriter();
-        config.writeBackupDefinitions(actual, Arrays.asList(d1, d2, d3), Arrays.asList("d1", "d2"),
-                Arrays.asList("d2", "d3"));
+        Location l1 = new Location("one", "1.1.1.1");
+        l1.setUniqueId(1);
+        config.writeHostDefinitions(actual, l1, Arrays.asList(d1, d2, d3));
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-backup.yaml"));
         assertEquals(expected, actual.toString());
     }
@@ -67,25 +68,11 @@ public class BackupConfigTest {
         
         ArchiveDefinition d1 = new ArchiveDefinition("d1", "backup", "restore");
         ArchiveDefinition d2 = new ArchiveDefinition("d2", "backup", "restore");
+                
+        BackupPlan plan = new BackupPlan(BackupType.ftp);
+        plan.setLimitedCount(20);
         
         BackupManager mgr = createMock(BackupManager.class);
-        mgr.getArchiveDefinitions(l1, null);
-        expectLastCall().andReturn(Collections.singleton(d1)).anyTimes();
-        mgr.getArchiveDefinitions(l2, null);
-        expectLastCall().andReturn(Collections.singleton(d2)).anyTimes();        
-        replay(mgr);
-        config.setBackupManager(mgr);
-        
-        BackupPlan ftpPlan = new BackupPlan(BackupType.ftp);
-        ftpPlan.setLimitedCount(20);
-        
-        StringWriter actual = new StringWriter();
-        config.writePrimaryBackupConfig(actual, ftpPlan, null, hosts, settings, null);        
-        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-auto-backup.yaml"));        
-        verify(mgr);
-        assertEquals(expected, actual.toString());
-        
-        mgr = createMock(BackupManager.class);
         mgr.getArchiveDefinitions(l1, null);
         expectLastCall().andReturn(Arrays.asList(d1, d2));
         mgr.getArchiveDefinitions(l2, null);
@@ -93,17 +80,12 @@ public class BackupConfigTest {
         replay(mgr);
         config.setBackupManager(mgr);
 
-        BackupSettings manual = new BackupSettings();
-        manual.setModelFilesContext(TestHelper.getModelFilesContext());
-        manual.setSettingTypedValue("ftp/url", "sftp://sftp.example.org");
-        manual.setSettingTypedValue("ftp/user", "mary");
-        manual.setSettingTypedValue("ftp/password", "yyy");       
-        manual.setSettingTypedValue("restore/resetPin", "555");
+        StringWriter actual = new StringWriter();
+        config.writeBackupDetails(actual, plan, hosts, settings);
+        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-auto-backup.yaml"));        
+        assertEquals(expected, actual.toString());
         
-        actual = new StringWriter();
-        config.writePrimaryBackupConfig(actual, ftpPlan, ftpPlan, hosts, settings, manual);
-        expected = IOUtils.toString(getClass().getResourceAsStream("expected-manual-backup.yaml"));
-        assertEquals(expected, actual.toString());        
+        verify(mgr);
     }
     
     @Test

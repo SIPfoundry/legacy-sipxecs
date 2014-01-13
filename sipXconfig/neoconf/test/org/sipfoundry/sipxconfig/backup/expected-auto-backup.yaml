@@ -1,15 +1,10 @@
-hosts:
-   1: 1.1.1.1
-   2: 2.2.2.2
 plan: ftp
 max: 20
 settings:
-   auto:
-      ftp:
-         url: ftp://ftp.example.org
-         user: joe
-         password: xxx
-   manual:
+   ftp:
+      url: ftp://ftp.example.org
+      user: joe
+      password: xxx
 correlate_restore:
-   1: [ d1 ]
-   2: [ d2 ]
+   1: [ d1, d2 ]
+   2: [  ]

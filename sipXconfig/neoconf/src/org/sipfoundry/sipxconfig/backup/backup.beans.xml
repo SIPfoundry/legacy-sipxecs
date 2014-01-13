@@ -13,7 +13,11 @@
     <property name="target" ref="backupManagerImpl" />
   </bean>
   
+  <!-- 
+    - ezuce developers beware, openuc project overrides this and you need to update changes there too 
+    -->
   <bean id="backupSettings" class="org.sipfoundry.sipxconfig.backup.BackupSettings" parent="settingsBean">    
+    <property name="localBackupPath" value="${sysdir.var}/backup/local"/>
   </bean>
 
   <bean id="backupManagerImpl" class="org.sipfoundry.sipxconfig.backup.BackupManagerImpl">
@@ -29,7 +33,6 @@
     </property>
     <property name="featureManager" ref="featureManager"/>
     <property name="locationsManager" ref="locationsManager"/>
-    <property name="backupScript" value="${sysdir.bin}/sipx-archive"/>
     <property name="restoreStagingDirectoryPath" value="${sysdir.tmp}/restore"/>
     <property name="configManager" ref="configManager"/>
   </bean>
@@ -42,25 +45,19 @@
 
   <bean id="backupConfig" class="org.sipfoundry.sipxconfig.backup.BackupConfig">
     <property name="backupManager" ref="backupManager"/>
-    <property name="locationsManager" ref="locationsManager"/>
     <property name="configManager" ref="configManager"/>
   </bean>
   
-  <bean id="manualBackup" class="org.sipfoundry.sipxconfig.backup.ManualBackup">
-    <property name="backupManager" ref="backupManager"/>
-    <property name="backupConfig" ref="backupConfig"/>
+  <bean id="backupRunner" class="org.sipfoundry.sipxconfig.backup.BackupRunnerImpl">
+    <property name="backupScript" value="${sysdir.bin}/sipx-archive"/>
   </bean>
   
-  <bean id="manualRestore" class="org.sipfoundry.sipxconfig.backup.ManualRestore">
-    <property name="backupManager" ref="backupManager"/>
-    <property name="backupConfig" ref="backupConfig"/>
-  </bean>
-
-  <!-- DNS CUSTOM REST API -->
+  <!-- BACKUP REST API -->
   <bean id="backupApi" class="org.sipfoundry.sipxconfig.backup.BackupApi">
     <property name="backupManager" ref="backupManager"/>
+    <property name="backupRunner" ref="backupRunner"/>
+    <property name="backupConfig" ref="backupConfig"/>
     <property name="messages" ref="globalMessageSource" />
-    <property name="manualBackup" ref="manualBackup"/>
   </bean>
 
   <alias name="backupApi" alias="/backup/{type}" />

@@ -7,7 +7,8 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.components;
+package org.sipfoundry.sipxconfig.common;
+
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -17,7 +18,6 @@ import java.security.MessageDigest;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
-import org.apache.tapestry.PageNotFoundException;
 
 public class FileDigestSource {
     private static final int BUFFER_SIZE = 5000;
@@ -27,11 +27,11 @@ public class FileDigestSource {
      * Map keyed on resource path of DIGEST checksum (as a string).
      */
 
-    public synchronized String getDigestForResource(Integer userId, String resourcePath) {
+    public synchronized String getDigestForResource(Integer userId, String resourcePath) throws FileNotFoundException {
         return computeMD5(userId, resourcePath);
     }
 
-    private String computeMD5(Integer id, String resourcePath) {
+    private String computeMD5(Integer id, String resourcePath) throws FileNotFoundException {
 
         InputStream stream = null;
 
@@ -51,7 +51,7 @@ public class FileDigestSource {
 
             return new String(encoded);
         } catch (FileNotFoundException ex) {
-            throw new PageNotFoundException("Resource not available. It may have been moved or deleted.");
+            throw ex;
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         } catch (Exception ex) {

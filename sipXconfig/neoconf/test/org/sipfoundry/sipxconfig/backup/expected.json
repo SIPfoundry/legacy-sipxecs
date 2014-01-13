@@ -182,7 +182,7 @@
     }
   },
   "backup" : {
-    "autoModeDefinitionIds" : [ "A", "C" ],
+    "definitionIds" : [ "A", "C" ],
     "id" : -1,
     "limitedCount" : 10,
     "schedules" : [ {
@@ -199,5 +199,8 @@
     } ],
     "type" : "local"
   },
-  "backups" : [ "one", "two", "three" ]
+  "backups" : {
+    "x" : [ "one", "two", "three" ]
+  },
+  "inProgress" : false
 }

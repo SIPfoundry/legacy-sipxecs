@@ -118,7 +118,12 @@ body {
       <legend>
         Last Backup
       </legend>
-      <p>There are no backup files saved in the backup folder.</p>
+      <p><span id="inprogress" ><img src="/sipxconfig/images/loading.gif"/>
+        <span key="label.inprogress">Operation in progress...</span>
+      </span>&nbsp;</p>
+      <ul class="component" id="backups">
+        <li>There are no backup files saved in the backup folder.</li>
+      </ul>
     </fieldset>
     <span id="rc" style="display: none"> 
       <span jwcid="@common/Message" key="message.backupCompleted">Backup Complete</span>

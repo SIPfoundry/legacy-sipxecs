@@ -32,7 +32,6 @@ import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupPlan;
 import org.sipfoundry.sipxconfig.backup.BackupSettings;
 import org.sipfoundry.sipxconfig.backup.DailyBackupSchedule;
-import org.sipfoundry.sipxconfig.backup.ManualBackup;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
@@ -60,11 +59,11 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
     public abstract BackupPlan getBackupPlan();
 
     public boolean isSelectedDefinition() {
-        return getBackupPlan() != null && getBackupPlan().getAutoModeDefinitionIds().contains(getDefinitionId());
+        return getBackupPlan() != null && getBackupPlan().getDefinitionIds().contains(getDefinitionId());
     }
 
     public void setSelectedDefinition(boolean selected) {
-        Set<String> ids = getBackupPlan().getAutoModeDefinitionIds();
+        Set<String> ids = getBackupPlan().getDefinitionIds();
         if (selected) {
             ids.add(getDefinitionId());
         } else {
@@ -83,8 +82,8 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
     @Parameter
     public abstract String getSettingsPath();
 
-    @InjectObject("spring:manualBackup")
-    public abstract ManualBackup getManualBackup();
+//    @InjectObject("spring:manualBackup")
+//    public abstract ManualBackup getManualBackup();
 
     @InjectObject("spring:backupManager")
     public abstract BackupManager getBackupManager();
@@ -118,8 +117,8 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
         // in there as features are re-enabled, they are automatically part of backup plan. Unless they
         // come to the backup page and save before they re-enabled features, we clear them here. However,
         // WYSIWYG overrules this convenience.
-        Collection<?> invalidOrOff = CollectionUtils.disjunction(getDefinitionIds(), plan.getAutoModeDefinitionIds());
-        plan.getAutoModeDefinitionIds().removeAll(invalidOrOff);
+        Collection<?> invalidOrOff = CollectionUtils.disjunction(getDefinitionIds(), plan.getDefinitionIds());
+        plan.getDefinitionIds().removeAll(invalidOrOff);
 
         if (getSettings() == null) {
             setSettings(getBackupManager().getSettings());
@@ -157,7 +156,7 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
             return;
         }
         setMode("manual");
-        getManualBackup().backup(getBackupPlan(), getSettings());
+        //getManualBackup().backup(getBackupPlan(), getSettings());
         BackupTable table = (BackupTable) getComponent("backups");
         table.setMode(getMode());
         table.loadBackups();
@@ -170,7 +169,7 @@ public abstract class BackupForm extends BaseComponent implements PageBeginRende
         }
         validateSettings();
         BackupPlan plan = getBackupPlan();
-        if (plan.getAutoModeDefinitionIds().isEmpty()) {
+        if (plan.getDefinitionIds().isEmpty()) {
             getValidator().record(new UserException("&message.emptySelection"), getMessages());
             return false;
         }

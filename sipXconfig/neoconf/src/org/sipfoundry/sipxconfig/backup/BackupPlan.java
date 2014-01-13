@@ -29,7 +29,7 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
     private Integer m_limitedCount = 50;
     private BackupType m_type = BackupType.local;
     private Collection<DailyBackupSchedule> m_schedules = new ArrayList<DailyBackupSchedule>(0);
-    private Set<String> m_autoModeDefinitionIds = new HashSet<String>();
+    private Set<String> m_definitionIds = new HashSet<String>();
 
     public BackupPlan() {
     }
@@ -67,12 +67,16 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
         m_type = type;
     }
 
-    public Set<String> getAutoModeDefinitionIds() {
-        return m_autoModeDefinitionIds;
+    /**
+     * What backups to perform/restore
+     * @return
+     */
+    public Set<String> getDefinitionIds() {
+        return m_definitionIds;
     }
 
-    public void setAutoModeDefinitionIds(Set<String> ids) {
-        m_autoModeDefinitionIds = ids;
+    public void setDefinitionIds(Set<String> ids) {
+        m_definitionIds = ids;
     }
 
     @Override
@@ -101,18 +105,18 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
      */
     @JsonIgnore
     public String getEncodedDefinitionString() {
-        return m_autoModeDefinitionIds.isEmpty() ? null : StringUtils.join(m_autoModeDefinitionIds, ',');
+        return m_definitionIds.isEmpty() ? null : StringUtils.join(m_definitionIds, ',');
     }
 
     /**
      * Only used for hibernate storage
      */
     public void setEncodedDefinitionString(String encodedDefinitionString) {
-        m_autoModeDefinitionIds = new HashSet<String>();
+        m_definitionIds = new HashSet<String>();
         if (StringUtils.isBlank(encodedDefinitionString)) {
             return;
         }
         String[] split = StringUtils.split(encodedDefinitionString, ',');
-        m_autoModeDefinitionIds.addAll(Arrays.asList(split));
+        m_definitionIds.addAll(Arrays.asList(split));
     }
 }

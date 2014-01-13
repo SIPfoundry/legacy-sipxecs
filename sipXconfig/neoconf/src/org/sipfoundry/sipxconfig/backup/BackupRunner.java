@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2014 eZuce, Inc. All rights reserved.
  * Contributed to SIPfoundry under a Contributor Agreement
  *
  * This software is free software; you can redistribute it and/or modify it under
@@ -14,6 +14,15 @@
  */
 package org.sipfoundry.sipxconfig.backup;
 
-public enum BackupType {
-    local, ftp
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+
+public interface BackupRunner {
+
+    public boolean isInProgress();
+
+    public Map<String, List<String>> list(File plan);
+
+    public boolean backup(File plan);
 }

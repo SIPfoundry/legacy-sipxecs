@@ -27,30 +27,40 @@ require 'net/sftp'
 class ArchiveBase
   attr_writer :verbose
   attr_writer :out
+  attr_writer :dryrun
 
-  def initialize(config)
+  def initialize(config = nil)
     @bin_dir = '@SIPX_BINDIR@'
     @backup_dir = '@SIPX_VARDIR@/backup'
     @backup_tmp_dir = '@SIPX_TMPDIR@/backup'
     @restore_dir = '@SIPX_TMPDIR@/restore'
-    @data = YAML::load_file(config)
     @out = $stdout
+    load_config_file(config) unless config == nil
+  end
+
+  def load_config_file(config_file)
+    @config = config_file
+    @data = YAML::load_file(config_file)
+  end
+
+  def load_config_stream(config_stream)
+    @data = YAML::load(config_stream)
   end
 
   def cmd(cmd)
     puts cmd if @verbose
-    system(cmd)
+    @dryrun ? true : system(cmd)
   end
 
   def fresh_dir(dir)
     # programming safeguard : ensure we do not delete '/'
     raise "Internal error" if dir.strip.empty?
-    FileUtils.rm_rf dir 
-    FileUtils.mkdir_p dir
+    FileUtils.rm_rf dir unless @dryrun
+    FileUtils.mkdir_p dir unless @dryrun
   end
 
   def file_manager(params)
-    settings = @data['settings'][params[:mode]]
+    settings = @data['settings']
     if !settings.nil? && settings.has_key?('ftp')
       remote = nil
       params = settings['ftp']
@@ -62,21 +72,30 @@ class ArchiveBase
       else
         puts("not a known protocol")
       end
-      remote.connect(uri, params)
+      remote.connect(uri, params) unless @dryrun
       return remote
     end
     LocalFileManager.new("#{@backup_dir}/#{@data['plan']}")
   end
 end
 
-# Orchestrate backing up of cluster including uploading if ftp is configured and purging old backups
+# Orchestrate backing up of cluster including uploading if ftp is configured
+# and purging old backups.
 class Backup < ArchiveBase  
   def run(params, args)
-    defines = define_param(params)
-    cmd("ssh -o 'StrictHostKeyChecking=no' -i ~/.cfagent/ppkeys/localhost.nopass.priv root@#{hosts_param} sipx-archive backup")
-    cmd("#{@bin_dir}/sipx-archive -b backup_collect #{defines}")
+    ssh_params = "-o 'StrictHostKeyChecking=no' -i ~/.cfagent/ppkeys/localhost.nopass.priv"
+    @data['hosts'].each { |location_id, meta|
+      host = meta['host']
+      if cmd("ssh #{ssh_params} root@#{host} sipx-archive --backup-host #{location_id} < #{@config}")
+        unless cmd("#{@bin_dir}/sipxagent -h #{host} -b backup_collect -d #{@data['plan']}_archive")
+          raise "Could not collect backup from host #{host}"
+        end
+      else
+        raise "Could not complete backup on host #{host}"
+      end
+    }
     fs = file_manager(params)
-    fs.save(@data['max'])
+    fs.save(@data['max']) unless @dryrun
   end
 
   def hosts_param
@@ -84,7 +103,7 @@ class Backup < ArchiveBase
   end
 
   def define_param(params)
-    "-d #{@data['plan']}_archive -d #{params[:mode]}_archive"
+    ""
   end
 end
 
@@ -128,14 +147,6 @@ class ListBackups < ArchiveBase
       @out.puts "#{backup} #{items.join(' ')}"
     }
   end 
-end
-
-# List current backups to STDOUT in chronological order based on directory name following 
-# YearMonthDayHourMin pattern not based on file timestamp
-class LinkBackups < ArchiveBase
-  def run(params, args)
-    @out.puts file_manager(params).link
-  end
 end
 
 # Common code for managing backup lists
@@ -235,10 +246,6 @@ class SftpFileManager < FileManagerBase
     @ftp.dir.glob("#{@path}/#{b}", '*').collect { |f| f.name }
   end
 
-  def link
-    @uri.to_s
-  end
-
   def stage(dir, file, dst)
     @ftp.download!("#{@path}/#{dir}/#{file}", "#{dst}/#{file}")
   end
@@ -324,10 +331,6 @@ class FtpFileManager < FileManagerBase
     end
   end
 
-  def link
-    @uri.to_s
-  end
-
   def stage(dir, file, dst)
     Net::FTP.open(@uri.host, @params['user'], @params['password']) do |ftp|
       ftp.passive = true
@@ -362,45 +365,40 @@ class LocalFileManager < FileManagerBase
     return Dir["*"]
   end
 
-  def link
-    @backup_dir
-  end
-
   def stage(dir, file, dst)
     FileUtils.cp("#{@backup_dir}/#{dir}/#{file}", "#{dst}/#{file}")
   end
 end
 
-class CfengineBase < ArchiveBase
+class ArchiveHost < ArchiveBase
   attr_writer :verbose
 
-  def initialize(config)
-    super(config)
+  def initialize(config_stream, location_id)
+    super()
+    @location_id = location_id
+    load_config_stream(config_stream)
   end
 
 end
 
-class CfengineBackup < CfengineBase
+class BackupHost < ArchiveHost
   def run(params, args)
     fresh_dir @backup_tmp_dir
-    if !@data['backup'].nil? and ! @data['selected_backups'].nil?
-      selected = @data['selected_backups'][params[:mode]]
-      unless selected.nil? 
-        selected.each {|defId|
-          if @data['backup'].has_key?(defId)
-            template = @data['backup'][defId]
-            file = "#{@backup_tmp_dir}/#{defId}"
-            line = template % file
-            cmd(line) or
-             raise "Failed to backup #{defId} using command #{line}"
-          end
-        }
+    if @data.key?('hosts') and @data['hosts'].key?(@location_id)
+      meta = @data['hosts'][@location_id]
+      if meta.key?('backup')
+        meta['backup'].each do |defId, command|
+          file = "#{@backup_tmp_dir}/#{defId}"
+          line = command % file
+          cmd(line) or
+           raise "Failed to backup #{defId} using command #{line}"
+        end
       end
     end
   end
 end
 
-class CfengineRestore < CfengineBase
+class RestoreHost < ArchiveHost
   def run(params, args)
     if @data.has_key?('restore')
       @data['restore'].each_pair { |defId,template|
@@ -419,8 +417,8 @@ if __FILE__ == $0
 
 require 'optparse'
 params = {}
-params[:mode] = 'auto'
 operation = nil
+dryrun = false
 
 verbose = false
 args = OptionParser.new { |opts|
@@ -436,36 +434,20 @@ EOF
   opts.on("--restore config.yaml",
       "Restore the specified Configuration archive."){ |v|
     operation = Restore.new(v)
-    # because there there is no auto restore
-    params[:mode] = 'manual'
   }
 
   opts.on("--list config.yaml", "List the current backups."){ |v|
     operation = ListBackups.new(v)
   }
 
-  opts.on("--link config.yaml", "Return link to backup storages."){ |v|
-    operation = LinkBackups.new(v)
+  opts.on("--backup-host location_id",
+      "Only to be called internally over ssh by this script. Requires config be passed on stdin") {|location_id|
+    operation = BackupHost.new(STDIN, location_id.to_i())
   }
 
-  opts.on("--backup-called-by-cfengine config.yaml",
-      "Only to be called by CFEngine script."){ |v|
-    operation = CfengineBackup.new(v)
-  }
-
-  opts.on("--mode [manual|auto]",
-      "Manual mode called by user interface when selected specfic files to backup. Default is auto."){|v|
-    params[:mode] = v
-  }
-
-  opts.on("--restore-called-by-cfengine config.yaml",
-      "Only to be called by CFEngine script."){ |v|
-    operation = CfengineRestore.new(v)
-  }
-
-  opts.on("--restore-called-by-cfengine-location-id location_id",
-      "Only to be called by CFEngine script."){ |v|
-    params[:location_id] = v
+  opts.on("--restore-host location_id",
+      "Only to be called internally over ssh by this script. Required config be passed on stdin") {|location_id|
+    operation = RestoreHost.new(STDIN, location_id.to_i())
   }
 
   $output = $stdout
@@ -477,14 +459,19 @@ EOF
       "Restore the specified Configuration archive."){
     verbose = true
   }
+
+  opts.on("--dryrun", "Do not execute any commands."){
+    dryrun = true
+  }
 }
 args.parse!
 
 if operation.nil?
-  raise "Must specify either restore or archive options."
+  raise "Must specify either restore or backup options."
 end
 
 operation.verbose = verbose
+operation.dryrun = dryrun
 operation.out = $output
 operation.run(params, ARGV)
 exit 0
