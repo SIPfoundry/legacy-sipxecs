@@ -29,6 +29,8 @@ import org.junit.Test;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManagerImpl;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
@@ -54,6 +56,10 @@ public class DefaultContextConfigurationTest {
     public void setUp() {
         m_configuration = new DefaultContextConfiguration();
         m_configuration.setVelocityEngine(TestHelper.getVelocityEngine());
+        Domain domain = new Domain();
+        domain.setName("ezuce.ro");
+        DomainManagerImpl manager = new DomainManagerImpl();
+        manager.setTestDomain(domain);
     }
 
     private Bridge createBridge() {
@@ -117,7 +123,7 @@ public class DefaultContextConfigurationTest {
         mc.andReturn(null);
         mc.replay();
         m_configuration.setFeatureManager(mgr);
-        m_configuration.write(actual, location, bridge, false, extensions);
+        m_configuration.write(actual, location, bridge, false, extensions, false);
         String expected = IOUtils.toString(getClass().getResourceAsStream("default_context-no-conferences.test.xml"));
         assertEquals(expected, actual.toString());
     }
@@ -134,7 +140,7 @@ public class DefaultContextConfigurationTest {
         mc.replay();
         m_configuration.setFeatureManager(mgr);
         List<FreeswitchExtension> extensions = getExtensions();
-        m_configuration.write(actual, location, bridge, false, extensions);
+        m_configuration.write(actual, location, bridge, false, extensions, true);
         String expected = IOUtils.toString(getClass().getResourceAsStream("default_context_freeswitch_extensions.test.xml"));
         assertEquals(expected, actual.toString());
     }
@@ -151,7 +157,7 @@ public class DefaultContextConfigurationTest {
         m_configuration.setFeatureManager(mgr);
         Bridge bridge = createBridge();
         List<FreeswitchExtension> extensions = Collections.emptyList();
-        m_configuration.write(actual, location, bridge, false, extensions);
+        m_configuration.write(actual, location, bridge, false, extensions, false);
         String expected = IOUtils.toString(getClass().getResourceAsStream("default_context.test.xml"));
         assertEquals(expected, actual.toString());
     }
@@ -168,7 +174,7 @@ public class DefaultContextConfigurationTest {
         m_configuration.setFeatureManager(mgr);
         Bridge bridge = new Bridge();
         List<FreeswitchExtension> extensions = Collections.emptyList();
-        m_configuration.write(actual, location, bridge, true, extensions);
+        m_configuration.write(actual, location, bridge, true, extensions, false);
         String expected = IOUtils.toString(getClass().getResourceAsStream("default_context-authcodes.test.xml"));
         assertEquals(expected, actual.toString());
     }
@@ -194,7 +200,7 @@ public class DefaultContextConfigurationTest {
         m_configuration.setFeatureManager(mgr);
         Bridge bridge = new Bridge();
         List<FreeswitchExtension> extensions = Collections.emptyList();
-        m_configuration.write(actual, manila, bridge, false, extensions);
+        m_configuration.write(actual, manila, bridge, false, extensions, false);
         String expected = IOUtils.toString(getClass().getResourceAsStream("default_context-vms.test.xml"));
         assertEquals(expected, actual.toString());
     }

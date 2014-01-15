@@ -9,4 +9,11 @@
       <action application="fly" data="away"/>
     </condition>
   </extension>
+  <extension name="going-in"> 
+    <condition> 
+      <action application="set" data="transfer_ringback=$${us-ring}"/> 
+      <action application="bridge" data="sofia/ezuce.ro/${destination_number}@ezuce.ro"/> 
+      <action application="answer"/> 
+    </condition> 
+  </extension>
 </context>

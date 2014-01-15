@@ -33,6 +33,7 @@ public class FreeswitchSettings extends SettingsWithLocation implements DeployCo
     private static final String FREESWITCH_XMLRPC_PORT = "freeswitch-config/FREESWITCH_XMLRPC_PORT";
     private static final String FREESWITCH_SIP_PORT = "freeswitch-config/FREESWITCH_SIP_PORT";
     private static final String FREESWITCH_CODECS = "freeswitch-config/FREESWITCH_CODECS";
+    private static final String FREESWITCH_BLIND_TRANSFER = "freeswitch-config/FREESWITCH_BLIND_TRANSFER";
 
     public int getEventSocketPort() {
         return 8084; // not configurable at this time, no particular reason. --Douglas
@@ -48,6 +49,10 @@ public class FreeswitchSettings extends SettingsWithLocation implements DeployCo
 
     public int getFreeswitchSipPort() {
         return (Integer) getSettingTypedValue(FREESWITCH_SIP_PORT);
+    }
+
+    public boolean isBlindTransferEnabled() {
+        return (Boolean) getSettingTypedValue(FREESWITCH_BLIND_TRANSFER);
     }
 
     public class Defaults {
