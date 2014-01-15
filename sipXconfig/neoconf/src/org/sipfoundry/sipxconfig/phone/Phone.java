@@ -14,6 +14,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -28,7 +30,7 @@ import org.sipfoundry.sipxconfig.sip.SipService;
  * Base class for managed phone subclasses
  */
 public abstract class Phone extends Device {
-
+    public static final Log LOG = LogFactory.getLog(Phone.class);
     public static final String URI_IN_PREFIX = "~~in~";
 
     // public because of checkstyle
@@ -38,6 +40,7 @@ public abstract class Phone extends Device {
 
     private static final String PHONE_SIP_EXCEPTION = "&phone.sip.exception";
     private static final String PHONE_LINE_NOT_VALID = "&phone.line.not.valid";
+    private static final String E911_SETTING_PATH = "e911/location";
 
     private String m_description;
 
@@ -165,21 +168,21 @@ public abstract class Phone extends Device {
         if (getLines().size() == 0) {
             Line line = createSpecialPhoneProvisionUserLine();
             try {
-                m_sip.sendCheckSync(line.getAddrSpec(), line.getUserName(), getSerialNumber(),
-                        line.getUser().getSipPassword());
+                m_sip.sendCheckSync(line.getAddrSpec(), line.getUserName(), getSerialNumber(), line.getUser()
+                        .getSipPassword());
             } catch (RuntimeException ex) {
                 throw new RestartException(PHONE_SIP_EXCEPTION);
             }
         } else {
             Line line = getLine(0);
             try {
-                m_sip.sendCheckSync(line.getAddrSpec(), line.getUserName(), getSerialNumber(),
-                        line.getUser().getSipPassword());
+                m_sip.sendCheckSync(line.getAddrSpec(), line.getUserName(), getSerialNumber(), line.getUser()
+                        .getSipPassword());
             } catch (RuntimeException ex) {
                 /*
-                 * If the previous attempt didn't work, perhaps the phone has been auto-provisioned,
-                 * but has not yet been restarted. If sending a restart to the defined line doesn't
-                 * work, fall back to the auto-provision user.
+                 * If the previous attempt didn't work, perhaps the phone has been
+                 * auto-provisioned, but has not yet been restarted. If sending a restart to the
+                 * defined line doesn't work, fall back to the auto-provision user.
                  */
                 Line linedefault = createSpecialPhoneProvisionUserLine();
                 try {
@@ -302,11 +305,25 @@ public abstract class Phone extends Device {
         return line;
     }
 
-    public Collection<? extends PhoneModel> getModelIdsForSelection(String beanId) {
+    public Collection< ? extends PhoneModel> getModelIdsForSelection(String beanId) {
         return null;
     }
 
     public Integer getE911LocationId() {
-        return (Integer) getSettingTypedValue("e911/location");
+        if (getSettingTypedValue(E911_SETTING_PATH) == null) {
+            return null;
+        }
+        Integer id = (Integer) getSettingTypedValue(E911_SETTING_PATH);
+        if (id < 0) {
+            LOG.error("Database is in bad state, E911 location defined is wrong! Please review!");
+        }
+        return id;
+    }
+
+    public void setE911LocationId(Integer id) {
+        if (id != null && id < 0) {
+            return;
+        }
+        setSettingTypedValue(E911_SETTING_PATH, id);
     }
 }

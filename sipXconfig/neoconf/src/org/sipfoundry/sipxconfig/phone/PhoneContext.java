@@ -140,4 +140,6 @@ public interface PhoneContext extends DataObjectSource, DaoEventListener {
     int getPhonesWithNoLinesCount();
 
     List<Phone> loadPhonesWithNoLinesByPage(int firstRow, int pageSize, String[] orderBy, boolean orderAscending);
+
+    Phone getPhoneBySerialNumber(String serialNumber);
 }

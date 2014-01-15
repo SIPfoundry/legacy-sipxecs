@@ -48,6 +48,10 @@
     <![CDATA[select p.id from Phone p where p.serialNumber = :value]]>
   </query>
 
+  <query name="phoneWithSerialNumber">
+    <![CDATA[select p from Phone as p where p.serialNumber = :value]]>
+  </query>
+
   <query name="phonesByGroupId">
     <![CDATA[select p from Phone as p join p.groups as pgroups where pgroups.id = :groupId]]>
   </query>

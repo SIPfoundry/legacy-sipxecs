@@ -62,6 +62,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         ApplicationListener {
 
     private static final String QUERY_PHONE_ID_BY_SERIAL_NUMBER = "phoneIdsWithSerialNumber";
+    private static final String QUERY_PHONE_BY_SERIAL_NUMBER = "phoneWithSerialNumber";
 
     private static final String USER_ID = "userId";
 
@@ -180,8 +181,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     @Override
-    public List<Phone> loadPhonesByPage(Integer groupId, int firstRow, int pageSize,
-            String[] orderBy, boolean orderAscending) {
+    public List<Phone> loadPhonesByPage(Integer groupId, int firstRow, int pageSize, String[] orderBy,
+            boolean orderAscending) {
         return loadBeansByPage(Phone.class, groupId, firstRow, pageSize, orderBy, orderAscending);
     }
 
@@ -207,6 +208,13 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_PHONE_ID_BY_SERIAL_NUMBER, "value",
                 serialNumber);
         return (Integer) DaoUtils.requireOneOrZero(objs, QUERY_PHONE_ID_BY_SERIAL_NUMBER);
+    }
+
+    @Override
+    public Phone getPhoneBySerialNumber(String serialNumber) {
+        List<Phone> objs = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_PHONE_BY_SERIAL_NUMBER,
+                "value", serialNumber);
+        return DaoUtils.requireOneOrZero(objs, QUERY_PHONE_BY_SERIAL_NUMBER);
     }
 
     @Override
@@ -408,11 +416,11 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         m_jdbcTemplate.query("SELECT u.user_id from users u inner join user_group g "
                 + "on u.user_id = g.user_id WHERE group_id=" + groupId + " AND u.user_type='C' "
                 + "ORDER BY u.user_id;", new RowCallbackHandler() {
-                    @Override
-                    public void processRow(ResultSet rs) throws SQLException {
-                        userIds.add(rs.getInt("user_id"));
-                    }
-                });
+            @Override
+            public void processRow(ResultSet rs) throws SQLException {
+                userIds.add(rs.getInt("user_id"));
+            }
+        });
         Collection<Integer> ids = new ArrayList<Integer>();
 
         for (Integer userId : userIds) {
