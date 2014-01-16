@@ -1767,7 +1767,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             {
               // If there is more than one Via
               UtlString dummyVia;
-              if (message->getViaField(&dummyVia, 1))
+              if (message->getViaFieldSubField(&dummyVia, 1))
               {
                 UtlBoolean ret = sendStatelessResponse(*message);
                 if (ret)

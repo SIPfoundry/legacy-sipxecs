@@ -2201,7 +2201,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                 // The calling UAC should resend the ACK, not the
                 // proxy.
                 UtlString dummyVia;
-                if(incomingMessage.getViaField(&dummyVia, 1))
+                if(incomingMessage.getViaFieldSubField(&dummyVia, 1))
                 {
                     SipTransaction* parent = getTopMostParent();
                     if(parent &&
