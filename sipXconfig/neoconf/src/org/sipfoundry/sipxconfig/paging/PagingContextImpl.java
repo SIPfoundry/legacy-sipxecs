@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,29 +23,17 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.dialplan.PagingRule;
-import org.sipfoundry.sipxconfig.feature.Bundle;
-import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
-import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
-import org.sipfoundry.sipxconfig.feature.FeatureProvider;
-import org.sipfoundry.sipxconfig.feature.GlobalFeature;
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
-import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
@@ -54,8 +41,8 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-public class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext, FeatureProvider,
-        AddressProvider, ProcessProvider, FirewallProvider, DaoEventListener {
+public class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext,
+        AddressProvider, ProcessProvider, FirewallProvider {
 
     /** Default ALERT-INFO - hardcoded in Polycom phone configuration */
     private static final String ALERT_INFO = "sipXpage";
@@ -66,14 +53,16 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
     private static final String VALID_SIP_REGEX = "([-_.!~*'\\(\\)=+$,;?/a-zA-Z0-9]|(%[0-9a-fA-F]{2}))+";
     private AliasManager m_aliasManager;
     private BeanWithSettingsDao<PagingSettings> m_settingsDao;
-    private ConfigManager m_configManager;
+
     private FeatureManager m_featureManager;
     private JdbcTemplate m_jdbc;
 
+    @Override
     public PagingSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
     }
 
+    @Override
     public void saveSettings(PagingSettings settings) {
         if (StringUtils.isBlank(settings.getSettingValue(PagingSettings.PREFIX))) {
             throw new UserException("&error.blank.prefix");
@@ -86,12 +75,14 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
         m_settingsDao.upsert(settings);
     }
 
+    @Override
     public List<PagingGroup> getPagingGroups() {
         return getHibernateTemplate().loadAll(PagingGroup.class);
     }
 
+    @Override
     public PagingGroup getPagingGroupById(Integer pagingGroupId) {
-        return (PagingGroup) getHibernateTemplate().load(PagingGroup.class, pagingGroupId);
+        return getHibernateTemplate().load(PagingGroup.class, pagingGroupId);
     }
 
     void checkAliasUse(PagingGroup group, String prefix) {
@@ -101,6 +92,7 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
         }
     }
 
+    @Override
     public void savePagingGroup(PagingGroup group) {
         checkAliasUse(group, getSettings().getPrefix());
         if (group.isNew()) {
@@ -145,17 +137,12 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
         return DataAccessUtils.intResult(count) == 0;
     }
 
-    public void deletePagingGroupsById(Collection<Integer> groupsIds) {
-        if (groupsIds != null && groupsIds.size() > 0) {
-            removeAll(PagingGroup.class, groupsIds);
-            m_configManager.configureEverywhere(FEATURE);
-        }
-    }
-
+    @Override
     public void clear() {
         removeAll(PagingGroup.class);
     }
 
+    @Override
     public List< ? extends DialingRule> getDialingRules(Location location) {
         if (!m_featureManager.isFeatureEnabled(FEATURE)) {
             return null;
@@ -169,7 +156,7 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
         return Arrays.asList(rule);
     }
 
-    public UserDeleteListener createUserDeleteListener() {
+/*    public UserDeleteListener createUserDeleteListener() {
         return new OnUserDelete();
     }
 
@@ -189,7 +176,7 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
                 m_configManager.configureEverywhere(FEATURE);
             }
         }
-    }
+    }*/
 
     @Override
     public boolean isAliasInUse(String alias) {
@@ -234,26 +221,12 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
         m_settingsDao = settingsDao;
     }
 
-    public void setConfigManager(ConfigManager configManager) {
-        m_configManager = configManager;
-    }
-
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
     }
 
     public void setJdbc(JdbcTemplate jdbc) {
         m_jdbc = jdbc;
-    }
-
-    @Override
-    public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
-        return null;
-    }
-
-    @Override
-    public Collection<LocationFeature> getAvailableLocationFeatures(FeatureManager featureManager, Location l) {
-        return Collections.singleton(FEATURE);
     }
 
     @Override
@@ -302,49 +275,4 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
                 ".*\\s-Dprocname=sipxpage\\s.*")) : null);
     }
 
-    @Override
-    public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.CORE_TELEPHONY) {
-            b.addFeature(FEATURE);
-        }
-    }
-
-    @Override
-    public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
-        validator.requiresAtLeastOne(FEATURE, ProxyManager.FEATURE);
-        validator.singleLocationOnly(FEATURE);
-    }
-
-    @Override
-    public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
-        if (request.getAllNewlyEnabledFeatures().contains(FEATURE)) {
-            PagingSettings settings = getSettings();
-            if (settings.isNew()) {
-                saveSettings(settings);
-            }
-        }
-
-        if (request.hasChanged(FEATURE)) {
-            m_configManager.configureEverywhere(DialPlanContext.FEATURE);
-        }
-    }
-
-    @Override
-    public void onDelete(Object entity) {
-        if (entity instanceof User) {
-            User user = (User) entity;
-            // check if users in any paging group
-            int check = m_jdbc.queryForInt("SELECT count(*) FROM user_paging_group where user_id = ?", user.getId());
-            if (check >= 1) {
-                // cleanup paging group
-                m_jdbc.update("delete from user_paging_group where user_id = ?", user.getId());
-                // reconfigure paging group
-                m_configManager.configureEverywhere(PagingContext.FEATURE);
-            }
-        }
-    }
-
-    @Override
-    public void onSave(Object entity) {
-    }
 }

@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.paging;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.address.AddressType;
@@ -31,8 +30,6 @@ public interface PagingContext extends DialingRuleProvider, AliasOwner {
     List<PagingGroup> getPagingGroups();
 
     PagingGroup getPagingGroupById(Integer id);
-
-    void deletePagingGroupsById(Collection<Integer> groupsIds);
 
     void savePagingGroup(PagingGroup group);
 

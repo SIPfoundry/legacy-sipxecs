@@ -48,8 +48,11 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.VersionInfo;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
@@ -107,6 +110,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private boolean m_useDynamicPageSize;
     private DataSet m_dataSet;
     private ApplicationContext m_applicationContext;
+    private PhoneContext m_phoneContext;
 
     private final Closure<User> m_userClosure = new Closure<User>() {
         @Override
@@ -155,6 +159,14 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         }
     };
 
+    private final Closure<Phone> m_phoneClosure = new Closure<Phone>() {
+        @Override
+        public void execute(Phone phone) {
+            replicateEntity(phone);
+            getHibernateTemplate().clear(); // clear the H session (see XX-9741)
+        }
+    };
+
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
@@ -177,7 +189,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private class ReplicationWorker implements Callable<Void> {
         private final int m_startIndex;
         private final int m_page;
-        private Closure<User> m_closure = m_userClosure;
+        private final Closure<User> m_closure = m_userClosure;
 
         public ReplicationWorker(int index, int pageSize, Object arg) {
             m_startIndex = index;
@@ -212,6 +224,19 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         }
     }
 
+    private class ReplicationWorkerPhone extends ReplicationWorker {
+
+        public ReplicationWorkerPhone(int index, int pageSize, Object arg) {
+            super(index, pageSize, arg);
+        }
+
+        @Override
+        public Void call() {
+            DaoUtils.forAllPhonesDo(m_phoneContext, m_phoneClosure, getStartIndex(), getPage());
+            return null;
+        }
+    }
+
     /*
      * Callable used for the replication of members in a group
      */
@@ -226,6 +251,22 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         @Override
         public Void call() {
             DaoUtils.forAllGroupMembersDo(m_coreContext, m_group, m_userGroupClosure, getStartIndex(), getPage());
+            return null;
+        }
+    }
+
+    private class AllPhoneGroupMembersReplicationWorker extends ReplicationWorker {
+        private final Group m_group;
+
+        public AllPhoneGroupMembersReplicationWorker(int i, int pageSize, Group group) {
+            super(i, pageSize, null);
+            m_group = group;
+        }
+
+        @Override
+        public Void call() {
+            DaoUtils.forAllPhoneGroupMembersDo(m_phoneContext, m_group, m_phoneClosure, getStartIndex(),
+                    getPage());
             return null;
         }
     }
@@ -287,6 +328,8 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             dropDatasetDb();
             int membersCount = m_coreContext.getAllUsersCount();
             doParallelReplication(membersCount, ReplicationWorker.class, null);
+            int phonesCount = m_phoneContext.getPhonesCount();
+            doParallelReplication(phonesCount, ReplicationWorkerPhone.class, null);
             // get the rest of Replicables and replicate them
             Map<String, ReplicableProvider> beanMap = m_beanFactory.getBeansOfType(ReplicableProvider.class);
             for (ReplicableProvider provider : beanMap.values()) {
@@ -428,17 +471,24 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
 
     @Override
     public void replicateGroup(Group group) {
-        replicateGroupWithWorker(group, AllGroupMembersReplicationWorker.class);
+        int membersCount = m_coreContext.getGroupMembersCount(group.getId());
+        replicateGroupWithWorker(group, AllGroupMembersReplicationWorker.class, membersCount);
+    }
+
+    @Override
+    public void replicatePhoneGroup(Group group) {
+        int membersCount = m_phoneContext.getPhonesInGroupCount(group.getId());
+        replicateGroupWithWorker(group, AllPhoneGroupMembersReplicationWorker.class, membersCount);
     }
 
     @Override
     public void replicateSpeedDialGroup(Group group) {
-        replicateGroupWithWorker(group, AllGroupSpeedDialMembersReplicationWorker.class);
+        int membersCount = m_coreContext.getGroupMembersCount(group.getId());
+        replicateGroupWithWorker(group, AllGroupSpeedDialMembersReplicationWorker.class, membersCount);
     }
 
-    private void replicateGroupWithWorker(Group group, Class< ? extends ReplicationWorker> worker) {
+    private void replicateGroupWithWorker(Group group, Class< ? extends ReplicationWorker> worker, int membersCount) {
         try {
-            int membersCount = m_coreContext.getGroupMembersCount(group.getId());
             doParallelReplication(membersCount, worker, group);
             LOG.info("Regeneration of group complete");
         } catch (Exception e) {
@@ -775,5 +825,9 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             manager.setTrue(id);
         }
         return true;
+    }
+
+    public void setPhoneContext(PhoneContext phoneContext) {
+        m_phoneContext = phoneContext;
     }
 }

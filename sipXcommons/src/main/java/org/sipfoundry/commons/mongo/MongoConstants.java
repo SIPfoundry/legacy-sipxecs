@@ -164,4 +164,7 @@ public interface MongoConstants {
     static final String VOICEMAIL_ENABLED = "vmenbld";
     //hoteling
     static final String HOTELING = "htl";
+
+    //phones
+    static final String SERIAL_NUMBER = "mac";
 }

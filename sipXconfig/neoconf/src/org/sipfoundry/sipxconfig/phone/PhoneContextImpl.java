@@ -65,6 +65,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     private static final String QUERY_PHONE_BY_SERIAL_NUMBER = "phoneWithSerialNumber";
 
     private static final String USER_ID = "userId";
+    private static final String VALUE = "value";
 
     private CoreContext m_coreContext;
 
@@ -187,6 +188,11 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     @Override
+    public List<Phone> loadPhonesByPage(int firstRow, int pageSize) {
+        return loadBeansByPage(Phone.class, firstRow, pageSize);
+    }
+
+    @Override
     public List<Phone> loadPhones() {
         return getHibernateTemplate().loadAll(Phone.class);
     }
@@ -205,7 +211,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     @Override
     public Integer getPhoneIdBySerialNumber(String serialNumber) {
-        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_PHONE_ID_BY_SERIAL_NUMBER, "value",
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_PHONE_ID_BY_SERIAL_NUMBER, VALUE,
                 serialNumber);
         return (Integer) DaoUtils.requireOneOrZero(objs, QUERY_PHONE_ID_BY_SERIAL_NUMBER);
     }
@@ -213,7 +219,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     @Override
     public Phone getPhoneBySerialNumber(String serialNumber) {
         List<Phone> objs = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_PHONE_BY_SERIAL_NUMBER,
-                "value", serialNumber);
+                VALUE, serialNumber);
         return DaoUtils.requireOneOrZero(objs, QUERY_PHONE_BY_SERIAL_NUMBER);
     }
 
@@ -416,11 +422,11 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         m_jdbcTemplate.query("SELECT u.user_id from users u inner join user_group g "
                 + "on u.user_id = g.user_id WHERE group_id=" + groupId + " AND u.user_type='C' "
                 + "ORDER BY u.user_id;", new RowCallbackHandler() {
-            @Override
-            public void processRow(ResultSet rs) throws SQLException {
-                userIds.add(rs.getInt("user_id"));
-            }
-        });
+                    @Override
+                    public void processRow(ResultSet rs) throws SQLException {
+                        userIds.add(rs.getInt("user_id"));
+                    }
+                });
         Collection<Integer> ids = new ArrayList<Integer>();
 
         for (Integer userId : userIds) {

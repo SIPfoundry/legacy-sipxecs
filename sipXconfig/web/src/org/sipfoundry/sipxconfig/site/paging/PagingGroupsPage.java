@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
+import org.sipfoundry.sipxconfig.paging.PagingFeatureContext;
 import org.sipfoundry.sipxconfig.paging.PagingGroup;
 import org.sipfoundry.sipxconfig.paging.PagingSettings;
 
@@ -33,6 +34,9 @@ public abstract class PagingGroupsPage extends SipxBasePage implements PageBegin
     @InjectObject(value = "spring:pagingContext")
     public abstract PagingContext getPagingContext();
 
+    @InjectObject(value = "spring:pagingFeatureContext")
+    public abstract PagingFeatureContext getPagingFeatureContext();
+    
     @Bean
     public abstract SelectMap getSelections();
 
@@ -86,7 +90,7 @@ public abstract class PagingGroupsPage extends SipxBasePage implements PageBegin
         if (ids.isEmpty()) {
             return;
         }
-        getPagingContext().deletePagingGroupsById(ids);
+        getPagingFeatureContext().deletePagingGroupsById(ids);
     }
 
     public Collection getAllSelected() {

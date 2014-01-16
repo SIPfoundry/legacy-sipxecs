@@ -22,14 +22,12 @@ public interface ReplicationManager {
     /**
      * Write to MongoDB (imdb.entity) a single entity. This method will replicate all DataSet
      * configured for this Replicable.
-     *
      * @param entity
      */
     void replicateEntity(Replicable entity);
 
     /**
      * Replicate to MongoDB (imdb.entity) a single DataSet of this Replicable
-     *
      * @param entity
      * @param ds
      */
@@ -37,14 +35,13 @@ public interface ReplicationManager {
 
     /**
      * Removes from MongoDB (imdb.entity) a single Replicable entity
-     *
+
      * @param entity
      */
     void removeEntity(Replicable entity);
 
     /**
-     * Regenerates the MongoDB imdb.entity collection which holds the configuration
-     * information.
+     * Regenerates the MongoDB imdb.entity collection which holds the configuration information.
      */
     void replicateAllData();
 
@@ -66,7 +63,7 @@ public interface ReplicationManager {
     void removePermission(Permission perm);
 
     /**
-     * Replicate a {@link Group}. Uses parallel processing
+     * Replicates a user {@link Group}. Uses parallel processing
      */
     void replicateGroup(Group group);
 
@@ -81,15 +78,16 @@ public interface ReplicationManager {
     void replicateBranch(Branch branch);
 
     /**
-     * Deletes a branch. It uses mongo to retrieve members, rather than DaoUtils.
-     * It is done like this b/c after a branch is deleted, the associations are removed,
-     * so no members would be retrieved.
+     * Deletes a branch. It uses mongo to retrieve members, rather than DaoUtils. It is done like
+     * this b/c after a branch is deleted, the associations are removed, so no members would be
+     * retrieved.
      */
     void deleteBranch(Branch branch);
+
     /**
-     * Deletes a group. It uses mongo to retrieve members, rather than DaoUtils.
-     * It is done like this b/c after a branch is deleted, the associations are removed,
-     * so no members would be retrieved.
+     * Deletes a group. It uses mongo to retrieve members, rather than DaoUtils. It is done like
+     * this b/c after a branch is deleted, the associations are removed, so no members would be
+     * retrieved.
      */
     void deleteGroup(Group group);
 
@@ -98,4 +96,9 @@ public interface ReplicationManager {
      * @return
      */
     public boolean testDatabaseReady();
+
+    /**
+     * Replicates a phone {@link Group}. Uses parallel processing
+     */
+    void replicatePhoneGroup(Group group);
 }

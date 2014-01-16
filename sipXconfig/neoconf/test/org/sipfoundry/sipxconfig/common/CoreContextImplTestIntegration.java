@@ -817,7 +817,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         m_coreContext.createAdminGroupAndInitialUser("1234");
         List<Replicable> replicables = m_coreContext.getReplicables();
         assertTrue(replicables.contains(g1));
-        assertTrue(replicables.size() == 11); //9 special users, 2 groups
+        assertEquals(10, replicables.size()); //8 special users, 2 groups
     }
 
     public void setBranchManager(BranchManager branchManager) {

@@ -18,7 +18,6 @@ import java.util.Set;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.conference.DummyAliasConflicter;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
@@ -70,19 +69,6 @@ public class PagingContextImplTestIntegration extends IntegrationTestCase {
         assertEquals(60, group.getTimeout());
         Set<User> users = group.getUsers();
         assertEquals(1, users.size());
-    }
-
-    public void testDeletePagingGroupsById() throws Exception {
-        List<PagingGroup> groups = m_pagingContext.getPagingGroups();
-        assertEquals(3, groups.size());
-        List<Integer> groupsIds = new ArrayList<Integer>();
-        groupsIds.add(101);
-        groupsIds.add(102);
-        m_pagingContext.deletePagingGroupsById(groupsIds);
-        groups = m_pagingContext.getPagingGroups();
-
-        // 2 paging groups should disappear
-        assertEquals(1, groups.size());
     }
 
     public void testSaveCode() throws Exception {

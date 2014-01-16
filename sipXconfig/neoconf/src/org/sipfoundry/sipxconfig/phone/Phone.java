@@ -9,16 +9,26 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.SERIAL_NUMBER;
+import static org.sipfoundry.commons.mongo.MongoConstants.TIMESTAMP;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.device.RestartException;
@@ -29,8 +39,9 @@ import org.sipfoundry.sipxconfig.sip.SipService;
 /**
  * Base class for managed phone subclasses
  */
-public abstract class Phone extends Device {
+public abstract class Phone extends Device implements Replicable {
     public static final Log LOG = LogFactory.getLog(Phone.class);
+
     public static final String URI_IN_PREFIX = "~~in~";
 
     // public because of checkstyle
@@ -325,5 +336,54 @@ public abstract class Phone extends Device {
             return;
         }
         setSettingTypedValue(E911_SETTING_PATH, id);
+    }
+
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
+    public void setName(String name) {
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        Set<DataSet> ds = new HashSet<DataSet>();
+        ds.add(DataSet.E911);
+        return ds;
+    }
+
+    @Override
+    public String getIdentity(String domainName) {
+        return null;
+    }
+
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
+        return null;
+    }
+
+    @Override
+    public boolean isValidUser() {
+        return false;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put(SERIAL_NUMBER, getSerialNumber());
+        props.put(TIMESTAMP, System.currentTimeMillis());
+        return props;
+    }
+
+    @Override
+    public String getEntityName() {
+        return PHONE_CONSTANT;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

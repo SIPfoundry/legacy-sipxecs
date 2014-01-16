@@ -22,18 +22,19 @@ import java.util.Map;
 import org.apache.commons.lang.RandomStringUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
-import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.MongoTestIntegration;
 import org.sipfoundry.sipxconfig.test.ResultDataGrid;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 
-public class PhoneTestIntegration extends IntegrationTestCase {
+public class PhoneTestIntegration extends MongoTestIntegration {
     private PhoneContext context;
     private SettingDao settingDao;
     private CoreContext core;
@@ -43,16 +44,17 @@ public class PhoneTestIntegration extends IntegrationTestCase {
     protected void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
         clear();
+        getImdb().dropCollection("entity");
     }
 
     public void testSave() throws Exception {
         final Phone phone = context.newPhone(new TestPhoneModel());
         phone.setSerialNumber("999123456789");
-        phone.setDescription("unittest-sample phone1");               
+        phone.setDescription("unittest-sample phone1");
         context.storePhone(phone);
         flush();
         final int[] rowCount = new int[] {0};
-        db().query("select * from phone", new RowCallbackHandler() {            
+        db().query("select * from phone", new RowCallbackHandler() {
             @Override
             public void processRow(ResultSet actual) throws SQLException {
                 rowCount[0]++;
@@ -62,8 +64,14 @@ public class PhoneTestIntegration extends IntegrationTestCase {
             }
         });
         assertEquals(1, rowCount[0]);
+
+        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getImdb().getCollection("entity"), new String[] {
+            "ent", "mac"
+        }, new String[] {
+            "phone", "999123456789"
+        });
     }
-    
+
     public void testLoadAndDelete() throws Exception {
         sql("common/TestUserSeed.sql");
         sql("phone/EndpointLineSeed.sql");
@@ -71,6 +79,14 @@ public class PhoneTestIntegration extends IntegrationTestCase {
         Phone p = context.loadPhone(new Integer(1000));
         assertEquals("999123456789", p.getSerialNumber());
 
+        context.storePhone(p);
+        
+        MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getImdb().getCollection("entity"), new String[] {
+            "ent", "mac"
+        }, new String[] {
+            "phone", "999123456789"
+        });
+        
         Integer id = p.getId();
         context.deletePhone(p);
         try {
@@ -82,6 +98,12 @@ public class PhoneTestIntegration extends IntegrationTestCase {
         flush();
         assertEquals(0, db().queryForInt("select count(*) from phone"));
         assertEquals(0, db().queryForInt("select count(*) from line"));
+        
+        MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getImdb().getCollection("entity"), new String[] {
+            "ent", "mac"
+        }, new String[] {
+            "phone", "999123456789"
+        });
     }
 
     public void testUpdateSettings() throws Exception {
@@ -108,12 +130,12 @@ public class PhoneTestIntegration extends IntegrationTestCase {
         Phone p = context.loadPhone(new Integer(1000));
         List groups = context.getGroups();
         p.addGroup((Group) groups.get(0));
-        context.storePhone(p);      
+        context.storePhone(p);
         flush();
         db().queryForInt("select 1 from phone_group where group_id = ? and phone_id = ?", 1000, 1000);
     }
-    
-    public void testRemoveGroupThenAddBackThenAddAnotherGroup() throws Exception {        
+
+    public void testRemoveGroupThenAddBackThenAddAnotherGroup() throws Exception {
         sql("common/TestUserSeed.sql");
         sql("phone/EndpointLineSeed.sql");
         sql("phone/SeedPhoneGroup.sql");
@@ -133,7 +155,7 @@ public class PhoneTestIntegration extends IntegrationTestCase {
                 new Object[] { 1000, 1000 },
                 new Object[] { 1001, 1000 }
         };
-      
+
         ResultDataGrid actual = new ResultDataGrid();
         db().query("select group_id, phone_id from phone_group", actual);
         assertEquals(2, actual.getRowCount());
@@ -147,7 +169,7 @@ public class PhoneTestIntegration extends IntegrationTestCase {
         context.storePhone(subclass);
         flush();
         db().queryForInt("select 1 from phone where serial_number = ? and bean_id = ? and model_id = ?",
-                subclass.getSerialNumber(), model.getBeanId(), model.getModelId());        
+                subclass.getSerialNumber(), model.getBeanId(), model.getModelId());
     }
 
     public void testPhoneSubclassDelete() throws Exception {
