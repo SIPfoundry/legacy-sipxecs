@@ -156,13 +156,16 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
 
     @Override
     public void savePlan(DnsFailoverPlan plan) {
+        String saveSql;
         if (plan.isNew()) {
             int id = m_db.queryForInt("select nextval('dns_plan_seq')");
             plan.setUniqueId(id);
+            saveSql = "insert into dns_plan (name, dns_plan_id) values (?,?)";
         } else {
-            deletePlan(plan);
+            saveSql = "update dns_plan set name = ? where dns_plan_id = ?";
+            m_db.update("delete from dns_group where dns_plan_id = ?", plan.getId()); // cascades to targets
         }
-        m_db.update("insert into dns_plan (dns_plan_id, name) values (?,?)", plan.getId(), plan.getName());
+        m_db.update(saveSql, plan.getName(), plan.getId());
         int position = 0;
         Object[] targetParams = new Object[3];
         for (DnsFailoverGroup g : plan.getGroups()) {
