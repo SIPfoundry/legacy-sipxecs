@@ -24,6 +24,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -46,13 +48,21 @@ public class SipxFilterChainProxy extends FilterChainProxy {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
         throws IOException, ServletException {
         ServletRequest requestToFilter = request;
+        ServletResponse responseToFilter = response;
         int port = AdminContext.HTTP_ADDRESS.getCanonicalPort();
+        int authPort = AdminContext.HTTP_ADDRESS_AUTH.getCanonicalPort();
         if (request.getLocalPort() == port && request instanceof HttpServletRequest) {
             HttpServletRequest httpRequest = (HttpServletRequest) request;
             requestToFilter = new AuthorizedServletRequest(httpRequest);
             LOG.debug("Internal request port: " + port);
         }
-        super.doFilter(requestToFilter, response, chain);
+        if (request.getLocalPort() == authPort
+            && request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
+            HttpServletResponse httpResponse = (HttpServletResponse) response;
+            responseToFilter = new CORSServletResponse(httpResponse);
+            LOG.debug("Internal request authPort: " + port);
+        }
+        super.doFilter(requestToFilter, responseToFilter, chain);
     }
 
     @Required
@@ -72,6 +82,17 @@ public class SipxFilterChainProxy extends FilterChainProxy {
             } else {
                 return super.getHeader(name);
             }
+        }
+    }
+
+    private class CORSServletResponse extends HttpServletResponseWrapper {
+        public CORSServletResponse(HttpServletResponse response) {
+            super(response);
+            response.setHeader("Access-Control-Allow-Origin", "*");
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
+            response.setHeader("Access-Control-Max-Age", "3600");
+            response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
         }
     }
 }
