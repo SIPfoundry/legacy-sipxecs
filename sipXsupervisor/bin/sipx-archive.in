@@ -35,6 +35,7 @@ class ArchiveBase
     @backup_tmp_dir = '@SIPX_TMPDIR@/backup'
     @restore_dir = '@SIPX_TMPDIR@/restore'
     @out = $stdout
+    @ssh_params = "-o 'StrictHostKeyChecking=no' -i ~/.cfagent/ppkeys/localhost.nopass.priv"
     load_config_file(config) unless config == nil
   end
 
@@ -83,10 +84,9 @@ end
 # and purging old backups.
 class Backup < ArchiveBase  
   def run(params, args)
-    ssh_params = "-o 'StrictHostKeyChecking=no' -i ~/.cfagent/ppkeys/localhost.nopass.priv"
     @data['hosts'].each { |location_id, meta|
       host = meta['host']
-      if cmd("ssh #{ssh_params} root@#{host} sipx-archive --backup-host #{location_id} < #{@config}")
+      if cmd("ssh #{@ssh_params} root@#{host} sipx-archive --backup-host #{location_id} < #{@config}")
         unless cmd("#{@bin_dir}/sipxagent -h #{host} -b backup_collect -d #{@data['plan']}_archive")
           raise "Could not collect backup from host #{host}"
         end
@@ -121,7 +121,15 @@ class Restore < Backup
     end
     correlate_by_location
     defines = define_param(params)
-    cmd(@bin_dir + "/sipxagent -h #{hosts_param} -b restore #{defines}")
+    if cmd(@bin_dir + "/sipxagent -h #{hosts_param} -b restore_distribute")
+      raise "Could not distribute files for restore operation"
+    end
+    @data['hosts'].each { |location_id, meta|
+      host = meta['host']
+      unless cmd("ssh #{@ssh_params} root@#{host} sipx-archive --restore-host #{location_id} < #{@config}")
+        raise "Could not complete restore on host #{host}"
+      end
+    }
   end
 
   # organize files by which location has capability to restore them
@@ -129,7 +137,7 @@ class Restore < Backup
     @data['correlate_restore'].each_pair {|locationId, defIds|      
       fresh_dir "#{@restore_dir}/#{locationId}"
       defIds.each {|defId|
-        if File.exists?("#{@restore_dir}/#{defId}")          
+        if File.exists?("#{@restore_dir}/#{defId}")
           FileUtils.mv("#{@restore_dir}/#{defId}", "#{@restore_dir}/#{locationId}/#{defId}")
         end
       }

@@ -8,7 +8,7 @@ var api = new Api(test : true);
 
 main() {
   var backup = new BackupPage();
-  var tabs = new Tabs(querySelector("#leftNavAbsolute"), ["local", "ftp"], backup.showContent);
+  var tabs = new Tabs(querySelector("#leftNavAbsolute"), ["local", "ftp", "restore-upload"], backup.showContent);
   tabs.setPersistentStateId("backup");
 }
 
@@ -25,6 +25,7 @@ class BackupPage {
   BackupPage() {
     querySelector("#backup-now").onClick.listen(backupNow);
     querySelector("#apply").onClick.listen(apply);
+    querySelector("#restore").onClick.listen(restore);
     loader = new DataLoader(this.msg, loadForm);
     settings = new SettingEditor(querySelector("#settings"));
     ftpSettings = new SettingEditor(querySelector("#ftp-settings"));
@@ -39,6 +40,25 @@ class BackupPage {
   load() {
     var url = api.url("rest/backup/${type}", "backup-test.json");
     loader.load(url);    
+  }
+  
+  restore([e]) {
+    List<String> restoreIds = new List<String>();
+    for (CheckboxInputElement c in querySelectorAll("input[name=restoreIds]")) {
+      if (c.checked) {
+        restoreIds.add(c.value);
+      }
+    }
+    HttpRequestUpload req = new HttpRequestUpload();
+    req.open('PUT', api.url("rest/restore/${type}"));
+    req.setRequestHeader("Content-Type", "application/json");
+    req.
+    req.send(JSON.encode(restoreIds));
+    req.onLoad.listen((e) {
+      if (DataLoader.checkResponse(msg, req)) {
+        msg.success(getString("msg.actionSuccess"));
+      }
+    });      
   }
   
   loadForm(json) {
@@ -98,17 +118,30 @@ class BackupPage {
     if (backups != null) {
       UListElement listElem = querySelector("#backups");
       listElem.children.clear();
+      var backupIdFmt = new DateFormat("yyyy-MM-dd-HH-mm");
+      var tstampFmt = new DateFormat.yMd().add_Hm();
       backups.forEach((backupId, backupFiles) {
-        var html = "<li>${backupId} - ";
+        var tstamp = backupIdFmt.parse(fixDateDartBug(backupId));
+        var tstampStr = tstampFmt.format(tstamp);
+        var html = "<li>${tstampStr}<br/>";
         for (String f in backupFiles) {
           var decode = f.split('|');
-          html += "<a href='${decode[1]}'>${decode[0]}</a> ";
+          html += '''
+<input type="checkbox" name="restoreIds" value="${backupId}|${decode[0]}"/> <a href="${decode[1]}">${decode[0]}</a>
+''';
         }
         listElem.appendHtml(html + "</li>");
       });
     }
     
     inProgress(true == data['inProgress']);
+  }
+  
+  // Dart's DateFormat cannot seem to handle date strings that do not have a delimiter
+  // between date numbers.  e.g.  01/01 is ok but 0101 is not. So here we inject delims
+  // as workaround
+  String fixDateDartBug(String s) {
+    return "${s.substring(0, 4)}-${s.substring(4, 6)}-${s.substring(6, 8)}-${s.substring(8, 10)}-${s.substring(10, 12)}";    
   }
   
   inProgress(bool inProg) {
@@ -179,8 +212,13 @@ class BackupPage {
     });      
   }
   
-  showContent(Tabs tabs, String selectedId) {    
-    type = selectedId;
+  showContent(Tabs tabs, String selectedId) {
+    // custom tab listener because we can to show portions of a single div
+    // for both types of backups
+    type = selectedId;    
+    var backupElem = querySelector("#backup");
+    var display = (selectedId == 'local' || selectedId == 'ftp' ? '' : 'none');
+    backupElem.style.display = display;
     tabs.showTabContent(selectedId);    
     load();
   }

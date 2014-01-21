@@ -77,9 +77,18 @@ public class BackupRunnerImpl implements BackupRunner {
 
     @Override
     public boolean backup(File plan) {
+        return op(plan, "--backup");
+    }
+
+    @Override
+    public boolean restore(File plan) {
+        return op(plan, "--restore");
+    }
+
+    boolean op(File plan, String operation) {
         SimpleCommandRunner runner = obtainBackgroundRunner();
         String[] cmd = new String[] {
-            m_backupScript, "--backup", plan.getAbsolutePath()
+            m_backupScript, operation, plan.getAbsolutePath()
         };
         return runner.run(cmd, m_foregroundTimeout);
     }

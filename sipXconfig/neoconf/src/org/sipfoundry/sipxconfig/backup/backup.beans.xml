@@ -61,4 +61,30 @@
   </bean>
 
   <alias name="backupApi" alias="/backup/{type}" />
+
+  <bean id="restoreApi" class="org.sipfoundry.sipxconfig.backup.RestoreApi">
+    <property name="locationsManager" ref="locationsManager"/>
+    <property name="backupRunner" ref="backupRunner"/>
+    <property name="backupConfig" ref="backupConfig"/>
+    <property name="backupApi" ref="backupApi" />
+  </bean>
+
+  <alias name="restoreApi" alias="/restore/" />
+
+  <bean id="baseUploadRestoreApi" class="org.sipfoundry.sipxconfig.backup.UploadRestoreApi">
+    <property name="backupManager" ref="backupManager"/>
+    <property name="restoreApi" ref="restoreApi" />
+  </bean>
+
+  <bean id="uploadRestoreApi" parent="baseUploadRestoreApi"/>
+  <alias name="uploadRestoreApi" alias="/uploadRestore" />
+
+  <!--
+    - This is for upload form of restore.  Ideally we could use multi-form in POST to 
+    -  /restore/ URL but dart doesn't support this yet so we provide a
+    - simple upload URL
+    -->
+  <bean id="uploadFileRestoreApi" parent="baseUploadRestoreApi"/>
+  <alias name="uploadFileRestoreApi" alias="/uploadRestore/{definitionId}/" />
+  
 </beans>

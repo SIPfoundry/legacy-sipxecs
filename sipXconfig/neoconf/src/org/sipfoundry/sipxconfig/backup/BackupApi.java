@@ -64,6 +64,7 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.MessageSource;
 
 public class BackupApi extends Resource {
+    private static final String BACKUP = "backup";
     private BackupManager m_backupManager;
     private LocationsManager m_locationsManager;
     private BackupType m_backupType;
@@ -199,7 +200,7 @@ public class BackupApi extends Resource {
         File planFile = null;
         Writer planWtr = null;
         try {
-            planFile = TempFile.createTempFile("manual-backup", "yaml");
+            planFile = TempFile.createTempFile(BACKUP, "yaml");
             planWtr = new FileWriter(planFile);
             Collection<Location> hosts = m_locationsManager.getLocationsList();
             m_backupConfig.writeConfig(planWtr, m_plan, hosts, m_settings);
@@ -220,7 +221,7 @@ public class BackupApi extends Resource {
         try {
             JsonNode meta = m_jsonMapper.readTree(entity.getReader());
             m_plan = m_backupManager.findOrCreateBackupPlan(m_backupType);
-            readPlan(m_plan, meta.get("backup"));
+            readPlan(m_plan, meta.get(BACKUP));
             m_settings = m_backupManager.getSettings();
             new SettingJsonReader().read(m_settings, meta.get("settings"));
         } catch (IOException e) {

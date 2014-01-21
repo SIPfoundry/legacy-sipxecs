@@ -25,4 +25,6 @@ public interface BackupRunner {
     public Map<String, List<String>> list(File plan);
 
     public boolean backup(File plan);
+
+    public boolean restore(File plan);
 }
