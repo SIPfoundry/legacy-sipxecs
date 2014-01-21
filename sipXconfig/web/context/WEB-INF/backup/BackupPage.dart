@@ -49,10 +49,9 @@ class BackupPage {
         restoreIds.add(c.value);
       }
     }
-    HttpRequestUpload req = new HttpRequestUpload();
+    HttpRequest req = new HttpRequest();
     req.open('PUT', api.url("rest/restore/${type}"));
     req.setRequestHeader("Content-Type", "application/json");
-    req.
     req.send(JSON.encode(restoreIds));
     req.onLoad.listen((e) {
       if (DataLoader.checkResponse(msg, req)) {
