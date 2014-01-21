@@ -86,11 +86,11 @@ java-gwt : $(gwt_SRC)
 
 # file in packages get compiled in thru compiling page dart files w/main()s
 DART_SRC = $(shell cd $(srcdir)/context/WEB-INF; find . -name '*.dart' -not -regex '.*/packages/.*')
-DART_PKGS = $(shell cd $(top_srcdir); find packages -name '*.js')
+DART_PKGS = $(shell cd $(top_srcdir); find packages/*/ -name '*.js')
 
 java-dart : $(addprefix $(web_JAVAROOT)/,$(DART_SRC:.dart=.js) $(DART_PKGS))
 
-$(addprefix $(web_JAVAROOT)/,$(DART_PKGS)) : $(DART_PKGS)
+$(addprefix $(web_JAVAROOT)/,$(DART_PKGS)) : $(web_JAVAROOT)/% : $(top_srcdir)/%
 	test -d $(dir $@) || mkdir -p $(dir $@)
 	cp $< $@
 
