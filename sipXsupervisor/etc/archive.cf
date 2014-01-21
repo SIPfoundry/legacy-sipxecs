@@ -33,9 +33,12 @@ bundle agent archive {
     "plan" slist => { "ftp", "local" };
   methods:
     archive::
+      "archive" usebundle => allow_ssh_command("sipx-archive");
       "archive" usebundle => archive_config("$(plan)");
     archive.primary::
       "archive" usebundle => backup_schedules("$(plan)");
+    !archive::
+      "any" usebundle => disallow_ssh_command("sipx-archive");
 }
 
 bundle agent archive_config(plan) {
@@ -58,12 +61,6 @@ bundle agent archive_vars {
     ftp_archive::
       "plan" string => "ftp";
 
-    manual_archive::
-      "mode" string => "manual";
-
-    auto_archive::
-      "mode" string => "auto";
-
     any::
       "config" string => "$(sipx.SIPX_CONFDIR)/archive-$(plan).yaml";
 }
@@ -84,38 +81,6 @@ bundle agent backup_schedules(plan) {
 
     primary.(!archive|!has_cron)::
       "any" usebundle => remove_crontab("$(cron_id)", "$(sipx.SIPXPBXUSER)");
-}
-
-#
-# Entry point #2 for running a backup on a node replacing any previous backups
-# on that node. Typically this is followed by a call to backup_collect to
-# download and backup files
-#
-# Example:
-#   sipxagent [-h host] -b backup -d local_archive
-#
-bundle agent backup {
-  methods:
-    any::
-      "any" usebundle => sipx_module;
-      "any" usebundle => sipx_init;
-    archive::
-      "archive" usebundle => archive_vars;
-      "archive" usebundle => archive_config("$(archive_vars.plan)");
-      "archive" usebundle => backup_run;
-}
-
-bundle agent backup_run {
-  commands:
-    archive::
-      "$(sipx.SIPX_BINDIR)/sipx-archive"
-        comment => "Backup config $(this.promiser)",
-        args => "--backup-called-by-cfengine $(archive_vars.config) --mode $(archive_vars.mode)",
-        classes => on_failed_command("1", "failed_backup");
-
-  reports:
-    failed_backup::
-      "!!! Failed to complete $(archive_vars.plan) backup. See sipxagent.log for more details.";
 }
 
 #
@@ -175,7 +140,7 @@ bundle agent backup_collect_files(backup_id, node_fqdn) {
 # 1.) files have already been staged into $(sipx.SIPX_TMPDIR)/restore
 # 2.) $(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipx-archive-$(archive_vars.plan).yaml is built
 #
-bundle agent restore {
+bundle agent restore_distribute {
   methods:
     any::
       "any" usebundle => sipx_module;
@@ -186,8 +151,6 @@ bundle agent restore {
       "archive" usebundle => archive_config("$(archive_vars.plan)");
     archive.!primary::
       "archive" usebundle => restore_pull_files;
-    archive::
-      "archive" usebundle => restore_run;
 }
 
 bundle agent restore_pull_files {
@@ -200,19 +163,4 @@ bundle agent restore_pull_files {
         comment => "Download archive to restore $(this.promiser)",
         perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
         copy_from => master_files("$(sipx.master_address)", "$(master_vars.[SIPX_TMPDIR][1])/restore/$(sipx.location_id)");
-}
-
-bundle agent restore_run {
-  commands:
-    archive::
-      "$(sipx.SIPX_BINDIR)/sipx-archive"
-        comment => "Restore from $(restore_id)",
-        args => "--restore-called-by-cfengine $(archive_vars.config) \
-                --restore-called-by-cfengine-location-id $(sipx.location_id) \
-                --mode $(archive_vars.mode)",
-        classes => on_failed_command("1", "failed_restore");
-
-  reports:
-    failed_restore::
-      "!!! Failed to complete restore. See logs for more details.";
 }

@@ -44,6 +44,7 @@ public class DnsConfigTest {
     private Address m_a1; 
     private Address m_a2;
     private Address m_a3;      
+    private Domain m_d = new Domain("x");
     
     @Before
     public void setUp() {
@@ -56,6 +57,7 @@ public class DnsConfigTest {
         m_a1 = new Address(DnsManager.DNS_ADDRESS, "1.1.1.1");
         m_a2 = new Address(DnsManager.DNS_ADDRESS, "2.2.2.2");
         m_a3 = new Address(DnsManager.DNS_ADDRESS, "3.3.3.3");
+        m_d.setNetworkName("x");
     }
     
     @Test
@@ -68,13 +70,15 @@ public class DnsConfigTest {
     
     @Test
     public void cfdat() throws IOException {
-        Region r0 = Region.DEFAULT;        
-        Region r1 = new Region("r1");
-        Collection<Region> regions = Arrays.asList(r0, r1);
+//        Region r0 = Region.DEFAULT;
+        DnsView v0 = new DnsView(Region.DEFAULT.getName());
+        DnsView v1 = new DnsView("r1");
+//        Region r1 = new Region("r1");
+        Collection<DnsView> views = Arrays.asList(v0, v1);
         DnsSettings settings = new DnsSettings();
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
         StringWriter actual = new StringWriter();
-        m_config.writeSettings(actual, true, true, regions, settings);
+        m_config.writeSettings(actual, true, true, views, settings);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-named.cfdat"));
         assertEquals(expected, actual.toString());        
     }
@@ -93,7 +97,7 @@ public class DnsConfigTest {
     @Test
     public void emptyZone() throws IOException {
         StringWriter actual = new StringWriter();
-        m_config.writeZoneConfig(actual, "x", m_locations, null, null, 1, true);
+        m_config.writeZoneConfig(actual, m_d, m_locations, null, null, 1, null);
         String expected = IOUtils.toString(getClass().getResourceAsStream("empty-zone.yml"));
         assertEquals(expected, actual.toString());
     }
@@ -108,8 +112,16 @@ public class DnsConfigTest {
         };
         List<Address> all = Arrays.asList(m_a1, m_a2, m_a3);
         List<DnsSrvRecord> rrs = Arrays.asList(records);
-        m_config.writeZoneConfig(actual, "x", m_locations, all, rrs, 1, true);
+        m_config.writeZoneConfig(actual, m_d, m_locations, all, rrs, 1, null);
         String expected = IOUtils.toString(getClass().getResourceAsStream("full-zone.yml"));
+        assertEquals(expected, actual.toString());
+
+        DnsView.ExcludedRecords[] excludeAll = new DnsView.ExcludedRecords[] {
+            DnsView.ExcludedRecords.A, DnsView.ExcludedRecords.NAPTR, DnsView.ExcludedRecords.NS
+        };
+        actual = new StringWriter();
+        m_config.writeZoneConfig(actual, m_d, m_locations, all, rrs, 1, excludeAll);
+        expected = IOUtils.toString(getClass().getResourceAsStream("full-zone-with-excludes.yml"));
         assertEquals(expected, actual.toString());
     }
 
@@ -121,7 +133,9 @@ public class DnsConfigTest {
         };
         List<Address> all = Arrays.asList(m_a1);
         List<DnsSrvRecord> rrs = Arrays.asList(records);
-        m_config.writeZoneConfig(actual, "one.example.org", Arrays.asList(m_l1), all, rrs, 1, true);
+        Domain d = new Domain("one.example.org");
+        d.setNetworkName("one.example.org");
+        m_config.writeZoneConfig(actual, d, Arrays.asList(m_l1), all, rrs, 1, null);
         String expected = IOUtils.toString(getClass().getResourceAsStream("full-zone-domain-fqdn.yml"));
         assertEquals(expected, actual.toString());
     }
@@ -155,15 +169,25 @@ public class DnsConfigTest {
         Domain d = new Domain("x");
         Region r0 = Region.DEFAULT;        
         Region r1 = new Region("r1");
+        r1.setUniqueId(1);
         r1.setAddresses(new String[] {"1.1.1.1", "1.1.1.2"});
         Region r2 = new Region("r2");
+        r2.setUniqueId(2);
         r2.setAddresses(new String[] {"2.2.2.1", "2.2.2.2"});
         Collection<Address> forwarders = Arrays.asList(
                 new Address(DnsManager.DNS_ADDRESS, "8.8.8.8"),
                 new Address(DnsManager.DNS_ADDRESS, "8.8.8.2")
         );
+        DnsView v0 = new DnsView(r0.getName());
+        v0.setRegionId(r0.getId());
+        DnsView v1 = new DnsView(r1.getName());
+        v1.setRegionId(r1.getId());
+        DnsView v2 = new DnsView(r2.getName());
+        v2.setRegionId(r2.getId());
+        
+        
         StringWriter actual = new StringWriter();
-        m_config.writeNamedConfig(actual, d, Arrays.asList(r0, r1, r2), forwarders);
+        m_config.writeNamedConfig(actual, d, Arrays.asList(v0, v1, v2), forwarders, Arrays.asList(r0, r1, r2));
         String expected = IOUtils.toString(getClass().getResourceAsStream("named.expected.yml"));
         assertEquals(expected, actual.toString());
     }

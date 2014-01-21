@@ -44,9 +44,8 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
         HTTP_ADDRESS, HTTP_ADDRESS_AUTH, SIPXCDR_DB_ADDRESS
     });
-    private StringBuilder m_backup = new StringBuilder("$(sipx.SIPX_BINDIR)/sipxconfig-archive --backup %s");
-    private StringBuilder m_restore = new StringBuilder(
-            "$(sipx.SIPX_BINDIR)/sipxconfig-archive --restore %s --ipaddress $(sipx.bind_ip)");
+    private StringBuilder m_backup = new StringBuilder("sipxconfig-archive --backup %s");
+    private StringBuilder m_restore = new StringBuilder("sipxconfig-archive --restore %s");
     private LocationsManager m_locationsManager;
     private BeanWithSettingsDao<AdminSettings> m_settingsDao;
 

@@ -15,5 +15,5 @@
 package org.sipfoundry.sipxconfig.backup;
 
 public enum BackupType {
-    local, ftp, manual
+    local, ftp
 }

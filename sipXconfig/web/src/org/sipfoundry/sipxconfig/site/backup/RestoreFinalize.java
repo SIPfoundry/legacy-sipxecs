@@ -27,7 +27,6 @@ import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupSettings;
 import org.sipfoundry.sipxconfig.backup.BackupType;
-import org.sipfoundry.sipxconfig.backup.ManualRestore;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -52,8 +51,8 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
 
     public abstract void setUploadedIds(Collection<String> ids);
 
-    @InjectObject("spring:manualRestore")
-    public abstract ManualRestore getManualRestore();
+//    @InjectObject("spring:manualRestore")
+//    public abstract ManualRestore getManualRestore();
 
     @InjectPage(value = WaitingPage.PAGE)
     public abstract WaitingPage getWaitingPage();
@@ -86,16 +85,16 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
 
         Collection<String> restoreFrom = getSelections();
         boolean isAdminRestore = isSelected(AdminContext.ARCHIVE);
-        ManualRestore restore = getManualRestore();
-        if (isAdminRestore) {
-            restore.restore(getBackupType(), getBackupSettings(), restoreFrom, true);
-            WaitingPage waitingPage = getWaitingPage();
-            waitingPage.setWaitingListener(restore);
-            return waitingPage;
-        } else {
-            restore.restore(getBackupType(), getBackupSettings(), restoreFrom);
-            getValidator().recordSuccess(getMessages().getMessage("restore.success"));
-        }
+//        ManualRestore restore = getManualRestore();
+//        if (isAdminRestore) {
+//            restore.restore(getBackupType(), getBackupSettings(), restoreFrom, true);
+//            WaitingPage waitingPage = getWaitingPage();
+//            waitingPage.setWaitingListener(restore);
+//            return waitingPage;
+//        } else {
+//            restore.restore(getBackupType(), getBackupSettings(), restoreFrom);
+//            getValidator().recordSuccess(getMessages().getMessage("restore.success"));
+//        }
 
         return null;
     }

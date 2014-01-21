@@ -14,7 +14,6 @@ sipxconfig_test_integration_core_PKGS = \
 
 sipxconfig_test_integration_PKGS = \
 	$(sipxconfig_test_integration_core_PKGS) \
-	agent-bindings \
 	cdr-bindings \
 	sipxconfig-neoconf \
 	sipxconfig-web
@@ -75,7 +74,6 @@ define sipxconfig_properties
 	domainManagerImpl.domainConfigFilename=$(abspath .)/domain-config
 	dataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXCONFIG_TEST
 	cdrDataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXCDR_TEST
-	acdHistoryDataSource.jdbcUrl=jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST
 	mongoDbFactory.connectionUrl=mongodb://127.0.0.1:27017
 	sysdir.mongo_ns=_TEST
 	setupManagerImpl.enabled=false

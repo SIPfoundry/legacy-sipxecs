@@ -1,4 +1,3 @@
-
 body
 {
 	font-family:Arial, Verdana, Helvetica, sans-serif;
@@ -315,6 +314,17 @@ fieldset#loginForm legend {
 	word-wrap: break-word;
 }
 
+#leftNavAbsolute {
+  position: absolute;
+  background-color: #fff;
+  top: 104px;
+  left: 20px;
+  min-width: 166px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  word-wrap: break-word;
+}
+
 #content
 {	
     margin-left:10px;
@@ -474,6 +484,11 @@ table.component .errorColumnValue
    white-space: -moz-pre-wrap; /* wrap, but preserve newlines (Mozilla) */
    white-space: -o-pre-wrap;   /* wrap, but preserve newlines (Opera 7) */
    white-space: pre-wrap;      /* wrap, but preserve newlines (CSS 2.1) */
+}
+
+.select-column 
+{
+  width : 1%;
 }
 
 
@@ -870,7 +885,7 @@ html, body {
 .roundedSectionBoxInside form {
 	overflow-x:auto;
 } 
-#leftNav li {
+#leftNav-prototype li {
 	margin:0px;
 }
 

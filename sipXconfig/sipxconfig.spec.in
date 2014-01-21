@@ -39,7 +39,6 @@ BuildRequires: net-snmp-agent-libs >= 5.7.1
 BuildRequires: pcre-devel
 
 BuildRequires: sipxcommons >= %version
-BuildRequires: sipxacdstatistics-client >= %version
 BuildRequires: sipxcdr-client >= %version
 
 %define sipxpbxlog %{_localstatedir}/log/sipxpbx
@@ -79,7 +78,6 @@ Requires: net-snmp-python
 Requires: sipxcommons >= %version
 Requires: sipxtacklib >= %version
 Requires: sipxcommserverlib >= %version
-Requires: sipxacdstatistics-client >= %version
 Requires: sipxcdr-client >= %version
 Requires: sipxsupervisor >= %version
 
@@ -98,6 +96,7 @@ Obsoletes: sipx-freeswitch-codec-passthru-g723_1
 Obsoletes: sipx-freeswitch-codec-passthru-amr
 Obsoletes: sipx-freeswitch-codec-passthru-g729
 Obsoletes: sipxopenacd
+Obsoletes: sipxacdstatistics
 
 # 4.6 packages that turned out to not be useful as separate pkgs so
 # projects merged into sipxconfig
@@ -234,7 +233,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %defattr(644,root,root,755)
 %config(noreplace) %{sipxpbxconf}/VM_global_library.vm
-%config(noreplace) %{sipxpbxconf}/acd/*
 %config(noreplace) %{sipxpbxconf}/acme/*
 %config(noreplace) %{sipxpbxconf}/acmePhone/*
 %config(noreplace) %{sipxpbxconf}/apache/*
@@ -257,8 +255,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/setting.dtd
 %config(noreplace) %{sipxpbxconf}/setting.xsl
 %config(noreplace) %{sipxpbxconf}/sipxacccode/*
-%config(noreplace) %{sipxpbxconf}/sipxacdreports/*
-%config(noreplace) %{sipxpbxconf}/sipxacdstats/*
 %config(noreplace) %{sipxpbxconf}/sipxbridge/*
 %config(noreplace) %{sipxpbxconf}/sipxcallresolver/*
 %config(noreplace) %{sipxpbxconf}/sipxconference/*
@@ -299,7 +295,7 @@ rm -rf $RPM_BUILD_ROOT
 %post
 if test -e %{_sysconfdir}/logrotate.d/freeswitch; then rm -f %{_sysconfdir}/logrotate.d/freeswitch; fi
 
-# XX-10812 - Note some centos machines seemed to re-adjust sysv startup orders 
+# XX-10812 - Note some centos machines seemed to re-adjust sysv startup orders
 # automatically, but others did not so we do it here. This was to fix systems
 # that installed 4.6 update 9 or below but harmless for any other machines.
 ! test -f /etc/rc.d/rc3.d/S85sipxconfig || chkconfig sipxconfig resetpriorities

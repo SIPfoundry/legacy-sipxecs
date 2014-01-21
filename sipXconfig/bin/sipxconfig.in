@@ -76,7 +76,7 @@ waitForListenPortTime=100
 Database=SIPXCONFIG
 RequiredDatabaseVersion=13
 IndexDir=${TmpDir}/index
-Dependencies=`@SIPX_BINDIR@/java-dep -d ${CommonsLibDir} -d ${LibDir} sipxconfig sipxconfig-web @web_PKGS@ agent-bindings cdr-binding`
+Dependencies=`@SIPX_BINDIR@/java-dep -d ${CommonsLibDir} -d ${LibDir} sipxconfig sipxconfig-web @web_PKGS@ cdr-binding`
 export CLASSPATH=`echo @SIPX_CONFDIR@ ${Dependencies} ${PluginDir}/*.jar | sed -e 's/ /:/g'`
 
 # Incase system failed suddenly, clear previous locks

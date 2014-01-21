@@ -125,7 +125,7 @@ public abstract class BackupTable extends BaseComponent {
 
     public void loadBackups() {
         File planFile = getBackupManager().getPlanFile(getBackupPlan());
-        BackupCommandRunner runner = new BackupCommandRunner(planFile, getBackupManager().getBackupScript());
+        BackupCommandRunner runner = new BackupCommandRunner(planFile, "BOGUS");
         runner.setMode(getMode());
         List<String> backups = runner.list();
         if (backups.size() > getTableSize()) {

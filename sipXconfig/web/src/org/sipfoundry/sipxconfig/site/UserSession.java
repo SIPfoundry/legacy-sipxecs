@@ -45,14 +45,6 @@ public class UserSession {
         return checkRole(UserRole.Admin);
     }
 
-    public boolean isSupervisor() {
-        return checkRole(UserRole.AcdSupervisor);
-    }
-
-    public boolean isAgent() {
-        return checkRole(UserRole.AcdAgent);
-    }
-
     public Integer getUserId() {
         UserDetailsImpl userDetails = getUserDetails();
         if (userDetails == null) {

@@ -41,7 +41,6 @@ import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupType;
-import org.sipfoundry.sipxconfig.backup.ManualRestore;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.common.AssetSelector;
@@ -51,8 +50,8 @@ public abstract class RestoreUpload extends BaseComponent implements PageBeginRe
     @InjectObject(value = "spring:backupManager")
     public abstract BackupManager getBackupManager();
 
-    @InjectObject(value = "spring:manualRestore")
-    public abstract ManualRestore getManualRestore();
+//    @InjectObject(value = "spring:manualRestore")
+//    public abstract ManualRestore getManualRestore();
 
     public abstract String getDefinitionId();
 

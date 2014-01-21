@@ -14,19 +14,50 @@
  */
 package org.sipfoundry.sipxconfig.backup;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.rest.RestUtilities;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class BackupSettings extends PersistableSettings implements DeployConfigOnEdit {
+    private static final Log LOG = LogFactory.getLog(BackupSettings.class);
+    private String m_localBackupPath;
 
     @Override
     public String getBeanId() {
         return "backupSettings";
+    }
+
+    public String getLink(BackupPlan plan, Integer userId, String backupId, String backupEntry) {
+        String fmt = "%s/%s/%s";
+        switch (plan.getType()) {
+        case ftp:
+            String url = getSettings().getSetting("ftp/url").getValue();
+            return String.format(fmt, url, backupId, backupEntry);
+        default:
+        case local:
+            String file = String.format(fmt, m_localBackupPath, backupId, backupEntry);
+            try {
+                return RestUtilities.getLink(new File(file), userId, "tar/x-gzip");
+            } catch (FileNotFoundException impossible) {
+                // file really should exist because list is built from current file listing
+                LOG.error(impossible);
+                return "file is missing";
+            }
+        }
+    }
+
+    public void setLocalBackupPath(String localBackupPath) {
+        m_localBackupPath = localBackupPath;
     }
 
     @Override
@@ -35,34 +66,42 @@ public class BackupSettings extends PersistableSettings implements DeployConfigO
     }
 
     @Override
+    @JsonIgnore
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) BackupManager.FEATURE);
     }
 
+    @JsonIgnore
     public boolean isKeepDeviceFiles() {
         return (Boolean) getSettingTypedValue("backup/device");
     }
 
+    @JsonIgnore
     public boolean isKeepDomain() {
         return (Boolean) getSettingTypedValue("restore/keepDomain");
     }
 
+    @JsonIgnore
     public boolean isKeepFqdn() {
         return (Boolean) getSettingTypedValue("restore/keepFqdn");
     }
 
+    @JsonIgnore
     public boolean isDecodePins() {
         return (Boolean) getSettingTypedValue("restore/decodePins");
     }
 
+    @JsonIgnore
     public int getDecodePinLen() {
         return (Integer) getSettingTypedValue("restore/decodePinMaxLen");
     }
 
+    @JsonIgnore
     public String getResetPin() {
         return (String) getSettingTypedValue("restore/resetPin");
     }
 
+    @JsonIgnore
     public String getResetPassword() {
         return (String) getSettingTypedValue("restore/resetPassword");
     }

@@ -1,0 +1,21 @@
+{
+  "planCandidates" : {
+    "10" : "p1"
+  },
+  "regionCandidates" : {
+    "1" : "US"
+  },
+  "customRecordsCandidates" : {
+    "100" : "c1",
+    "110" : "c2"
+  },
+  "view" : {
+    "customRecordsIds" : [ 100 ],
+    "enabled" : true,
+    "excluded" : null,
+    "id" : -1,
+    "name" : "x",
+    "planId" : 2,
+    "regionId" : 1
+  }
+}

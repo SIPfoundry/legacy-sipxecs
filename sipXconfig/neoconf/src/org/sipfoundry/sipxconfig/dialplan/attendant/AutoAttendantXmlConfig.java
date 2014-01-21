@@ -151,6 +151,10 @@ public class AutoAttendantXmlConfig {
                 irEl.addElement("transferPrompt").setText(fullPathTransferPromptFile.getPath());
             }
         }
+
+        Element onTransferEl = aaEl.addElement(AutoAttendant.ON_TRANSFER);
+        Boolean playPrompt = (Boolean) autoAttendant.getSettingTypedValue(AutoAttendant.ON_TRANSFER_PLAY_PROMPT);
+        onTransferEl.addElement(AutoAttendant.PLAY_PROMPT).setText(playPrompt.toString());
     }
 
     /**

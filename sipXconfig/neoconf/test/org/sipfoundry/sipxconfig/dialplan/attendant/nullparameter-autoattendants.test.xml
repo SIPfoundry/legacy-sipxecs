@@ -35,6 +35,9 @@
       <invalidResponseCount>2</invalidResponseCount>
       <transferOnFailures>false</transferOnFailures>
     </invalidResponse>
+    <onTransfer>
+      <play-prompt>false</play-prompt>
+    </onTransfer>
   </autoattendant>
   <autoattendant id="xcf-1" special="true">
     <name>abc</name>
@@ -58,6 +61,9 @@
       <transferUrl>sip:999@example.org</transferUrl>
       <transferPrompt>prompts/test.wav</transferPrompt>
     </invalidResponse>
+    <onTransfer>
+      <play-prompt>false</play-prompt>
+    </onTransfer>
   </autoattendant>
   <schedules/>
 </autoattendants>

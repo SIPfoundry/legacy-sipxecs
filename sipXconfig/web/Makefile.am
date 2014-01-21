@@ -86,16 +86,13 @@ java-gwt : $(gwt_SRC)
 
 # file in packages get compiled in thru compiling page dart files w/main()s
 DART_SRC = $(shell cd $(srcdir)/context/WEB-INF; find . -name '*.dart' -not -regex '.*/packages/.*')
-DART_PKGS = $(shell cd $(top_srcdir); find packages -name '*.js')
+DART_PKGS = $(shell cd $(top_srcdir); find packages/*/ -name '*.js')
 
 java-dart : $(addprefix $(web_JAVAROOT)/,$(DART_SRC:.dart=.js) $(DART_PKGS))
 
-$(addprefix $(web_JAVAROOT)/,$(DART_PKGS)) : $(DART_PKGS)
+$(addprefix $(web_JAVAROOT)/,$(DART_PKGS)) : $(web_JAVAROOT)/% : $(top_srcdir)/%
 	test -d $(dir $@) || mkdir -p $(dir $@)
 	cp $< $@
-
-debug:
-	echo $(DART_PKGS)
 
 $(addprefix $(web_JAVAROOT)/,$(DART_SRC:.dart=.js)) : $(web_JAVAROOT)/%.js : context/WEB-INF/%.dart $(wildcard $(top_srcdir)/lib/*.dart)
 	test -d $(dir $@) || mkdir -p $(dir $@)
@@ -119,7 +116,6 @@ web_DEPS = \
 	$(web_SRCDIR) \
 	$(web_JAVAROOT) \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons $(top_srcdir)/lib,$(web_COMPILE_PKGS)) \
-	@SIPX_JAVADIR@/sipXconfig/agent-bindings.jar \
 	@SIPX_JAVADIR@/sipXconfig/cdr-bindings.jar
 
 # classes from wsdl compilation are refererence in web project source so ensure this is

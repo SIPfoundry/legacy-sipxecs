@@ -1,27 +1,30 @@
 [ {
   "destination" : "l1",
   "host" : "",
+  "internal" : false,
   "leftHandSide" : "_x.test",
   "port" : 1,
-  "priority" : 10,
+  "priority" : 20,
   "protocol" : "_x",
   "resource" : "test",
   "weight" : 10
 }, {
   "destination" : "l2",
   "host" : "",
+  "internal" : false,
   "leftHandSide" : "_x.test",
   "port" : 2,
-  "priority" : 10,
+  "priority" : 20,
   "protocol" : "_x",
   "resource" : "test",
   "weight" : 10
 }, {
   "destination" : "l3",
   "host" : "",
+  "internal" : false,
   "leftHandSide" : "_x.test",
   "port" : 3,
-  "priority" : 20,
+  "priority" : 30,
   "protocol" : "_x",
   "resource" : "test",
   "weight" : 10

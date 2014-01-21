@@ -41,7 +41,6 @@ neoconf_COMPILE_PKGS = \
 neoconf_DEPS = \
 	$(JAVAROOT) \
 	$(call JavaDep, @SIPX_JAVADIR@/sipXcommons, $(neoconf_COMPILE_PKGS)) \
-	@SIPX_JAVADIR@/sipXconfig/agent-bindings.jar \
 	@SIPX_JAVADIR@/sipXconfig/cdr-bindings.jar
 
 neoconf_SRC = \

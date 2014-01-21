@@ -32,7 +32,6 @@ import org.sipfoundry.sipxconfig.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
-import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
@@ -105,6 +104,8 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         aa.setSettingValue("onfail/transfer", "1");
         aa.setSettingValue("onfail/transfer-extension", "999");
         aa.setSettingValue("onfail/transfer-prompt", "test.wav");
+
+        aa.setSettingValue(AutoAttendant.ON_TRANSFER_PLAY_PROMPT, "1");
 
         AutoAttendantManager aam = createMock(AutoAttendantManager.class);
         aam.getAutoAttendants();
@@ -209,6 +210,8 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         aa.setSettingValue("onfail/transfer", "1");
         aa.setSettingValue("onfail/transfer-extension", "999");
         aa.setSettingValue("onfail/transfer-prompt", "test.wav");
+
+        aa.setSettingValue(AutoAttendant.ON_TRANSFER_PLAY_PROMPT, "0");
 
         AutoAttendantManager aam = createMock(AutoAttendantManager.class);
         aam.getAutoAttendants();

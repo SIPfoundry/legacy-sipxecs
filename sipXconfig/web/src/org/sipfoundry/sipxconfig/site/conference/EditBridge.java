@@ -40,7 +40,7 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
 
     public abstract Bridge getBridge();
 
-    public abstract void setBridge(Bridge acdServer);
+    public abstract void setBridge(Bridge server);
 
     public abstract boolean getChanged();
 

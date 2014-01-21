@@ -17,11 +17,14 @@ import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonPropertyOrder;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CronSchedule;
 import org.sipfoundry.sipxconfig.common.ScheduledDay;
 import org.sipfoundry.sipxconfig.common.TimeOfDay;
 
+@JsonPropertyOrder(alphabetic = true)
 public class DailyBackupSchedule extends BeanWithId {
 
     public static final DateFormat GMT_TIME_OF_DAY_FORMAT = DateFormat
@@ -57,6 +60,7 @@ public class DailyBackupSchedule extends BeanWithId {
         GMT_TIME_OF_DAY_FORMAT.setTimeZone(GMT);
     }
 
+    @JsonIgnore
     public BackupPlan getBackupPlan() {
         return m_backupPlan;
     }
@@ -92,6 +96,7 @@ public class DailyBackupSchedule extends BeanWithId {
         return new TimeOfDay(getTime(), GMT);
     }
 
+    @JsonIgnore
     public Date getTime() {
         return m_time;
     }

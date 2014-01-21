@@ -12,7 +12,10 @@ package org.sipfoundry.sipxconfig.common;
 import java.util.Calendar;
 
 import org.apache.commons.lang.enums.Enum;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonPropertyOrder;
 
+@JsonPropertyOrder(alphabetic = true)
 public final class ScheduledDay extends Enum {
     public static final ScheduledDay WEEKEND = new ScheduledDay("Weekend", -2);
     public static final ScheduledDay WEEKDAYS = new ScheduledDay("Weekdays", -1);
@@ -50,6 +53,12 @@ public final class ScheduledDay extends Enum {
     private ScheduledDay(String id, int dayOfWeek) {
         super(id);
         m_dayOfWeek = dayOfWeek;
+    }
+
+    @Override
+    @JsonIgnore
+    public Class<?> getEnumClass() {
+        return super.getEnumClass();
     }
 
     /**

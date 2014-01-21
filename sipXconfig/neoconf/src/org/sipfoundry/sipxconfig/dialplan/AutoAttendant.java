@@ -43,6 +43,9 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject, Deploy
     public static final String ONFAIL_TRANSFER = "onfail/transfer";
     public static final String ONFAIL_TRANSFER_EXT = "onfail/transfer-extension";
     public static final String ONFAIL_TRANSFER_PROMPT = "onfail/transfer-prompt";
+    public static final String ON_TRANSFER = "onTransfer";
+    public static final String PLAY_PROMPT = "play-prompt";
+    public static final String ON_TRANSFER_PLAY_PROMPT = "onTransfer/play-prompt";
 
     private static final String SYSTEM_NAME_PREFIX = "xcf";
     private String m_name;
@@ -221,6 +224,7 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject, Deploy
         attendant.setSettingValue(ONFAIL_TRANSFER, getSettingValue(ONFAIL_TRANSFER));
         attendant.setSettingValue(ONFAIL_TRANSFER_EXT, getSettingValue(ONFAIL_TRANSFER_EXT));
         attendant.setSettingValue(ONFAIL_TRANSFER_PROMPT, getSettingValue(ONFAIL_TRANSFER_PROMPT));
+        attendant.setSettingValue(ON_TRANSFER_PLAY_PROMPT, getSettingValue(ON_TRANSFER_PLAY_PROMPT));
         attendant.setGroupsAsList(getGroupsAsList());
     }
 

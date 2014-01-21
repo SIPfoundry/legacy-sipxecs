@@ -65,6 +65,7 @@ public class AutoAttendantTestIntegration extends IntegrationTestCase {
         aa.setSettingTypedValue(AutoAttendant.ONFAIL_TRANSFER, true);
         aa.setSettingTypedValue(AutoAttendant.ONFAIL_TRANSFER_EXT, "1001");
         aa.setSettingTypedValue(AutoAttendant.ONFAIL_TRANSFER_PROMPT, "transfer.wav");
+        aa.setSettingTypedValue(AutoAttendant.ON_TRANSFER_PLAY_PROMPT, true);
 
         m_autoAttendantManager.storeAutoAttendant(aa);
         flush();
@@ -101,6 +102,7 @@ public class AutoAttendantTestIntegration extends IntegrationTestCase {
                 assertTrue((Boolean) attendant.getSettingTypedValue(AutoAttendant.ONFAIL_TRANSFER));
                 assertEquals("1001", attendant.getSettingTypedValue(AutoAttendant.ONFAIL_TRANSFER_EXT));
                 assertEquals("transfer.wav", attendant.getSettingTypedValue(AutoAttendant.ONFAIL_TRANSFER_PROMPT));
+                assertTrue((Boolean) attendant.getSettingTypedValue(AutoAttendant.ON_TRANSFER_PLAY_PROMPT));
             }
         }
     }

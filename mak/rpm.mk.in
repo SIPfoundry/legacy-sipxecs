@@ -89,8 +89,10 @@ $(sipx:=.rpm.changes) $(lib:=.rpm.changes) :
 	$(SRC)/tools/dep changes $(DISTRO).$(PROJ).rpm $(SRC)/$(PROJ) \
 	       $(foreach D,$($(PROJ)_DEPS),$(DISTRO).$(D).rpm)
 
-$(sipx:=.rpm.if-changed) $(lib:=.rpm.if-changed) :
-	@$(MAKE) nop $(shell $(SRC)/tools/dep check $(DISTRO).$(PROJ).rpm $(SRC)/$(PROJ) \
+.SECONDEXPANSION:
+$(sipx:=.rpm.if-changed) $(lib:=.rpm.if-changed) : %.rpm.if-changed : $$($$*_GIT_SUBMODULE) $(addprefix $(SRC)/,$(custommodules))
+	@echo -n 'checking for changes in $*...'
+	@$(MAKE) -s nop $(shell $(SRC)/tools/dep check $(DISTRO).$(PROJ).rpm $(SRC)/$(PROJ) \
 	       $(foreach D,$($(PROJ)_DEPS),$(DISTRO).$(D).rpm))
 
 %.srpm :  %.dist $(MOCK_INIT_TEST) $(MOCK_RESULTS_DIR)

@@ -28,9 +28,9 @@ public class DailyBackupScheduleTestIntegration extends IntegrationTestCase {
     public void testStoreJob() throws Exception {
         //ArchiveDefinition d = new ArchiveDefinition("test.tgz", "backup", "restore");
         BackupPlan plan = m_backupManager.findOrCreateBackupPlan(BackupType.local);
-        plan.getAutoModeDefinitionIds().add("test.tgz");
+        plan.getDefinitionIds().add("test.tgz");
         BackupPlan ftpPlan = m_backupManager.findOrCreateBackupPlan(BackupType.ftp);
-        ftpPlan.getAutoModeDefinitionIds().add("test.tgz");
+        ftpPlan.getDefinitionIds().add("test.tgz");
         DailyBackupSchedule dailySchedule = new DailyBackupSchedule();
         DailyBackupSchedule ftpDailySchedule = new DailyBackupSchedule();
 

@@ -5,7 +5,7 @@ if ! test -f $conf; then
    exit 1
 fi
 
-export PATH=$PATH:@SIPX_BINDIR@:@SIPXLIBEXECDIR@
+export PATH=$PATH:@SIPX_BINDIR@:@SIPX_LIBEXECDIR@
 
 CMD=($@)
 if grep -e "^${CMD[0]}$" -e '^${CMD[0]}\s.*' $conf; then

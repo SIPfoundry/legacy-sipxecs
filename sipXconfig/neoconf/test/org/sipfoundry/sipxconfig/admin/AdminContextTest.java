@@ -39,8 +39,8 @@ public class AdminContextTest {
         Location primary = new Location("one.example.org", "1.1.1.1");
         primary.setPrimary(true);
         ArchiveDefinition def = impl.getArchiveDefinitions(mgr, primary, settings).iterator().next();
-        String base = "$(sipx.SIPX_BINDIR)/sipxconfig-archive --restore %s --ipaddress $(sipx.bind_ip)";
-        String baseBackup = "$(sipx.SIPX_BINDIR)/sipxconfig-archive --backup %s";
+        String base = "sipxconfig-archive --restore %s";
+        String baseBackup = "sipxconfig-archive --backup %s";
         assertEquals(base, def.getRestoreCommand());
         assertEquals(baseBackup, def.getBackupCommand());
         settings.setSettingTypedValue("backup/device", Boolean.FALSE);

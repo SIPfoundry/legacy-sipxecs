@@ -23,4 +23,9 @@
     <property name="coreContext" ref="coreContext"/>
   </bean>
   
+  <bean id="exampleApi" class="org.sipfoundry.ExampleApi">  
+    <property name="example" ref="example"/>
+  </bean>
+  <alias name="exampleApi" alias="/example" />
+  
 </beans>

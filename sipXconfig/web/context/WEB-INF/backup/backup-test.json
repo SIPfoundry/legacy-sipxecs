@@ -1,0 +1,191 @@
+{
+  "definitionIds" : {
+   "A" : "alpha",
+   "B" : "beta",
+   "C" : "gamma"
+  },
+  "backup" : {
+    "autoModeDefinitionIds" : [ "A", "C" ],
+    "id" : -1,
+    "limitedCount" : 10,
+    "schedules" : [ {
+      "timeOfDay" : {
+        "hrs" : 1,
+        "min" : 2
+      },
+      "scheduledDay" : {
+        "dayOfWeek" : 6,
+        "name" : "Friday"
+      },
+      "enabled" : true,
+      "id" : -1
+    } ],
+    "type" : "local"
+  },
+  "backups": {
+    "201312200100":["configuration.tar.gz|#"],
+    "201312210100":["configuration.tar.gz|#"]
+  },
+  "inProgress" : false,  
+  "settings" : {
+    "type" : {
+      "name" : "group"
+    },
+    "value" : {
+      "ftp" : {
+        "type" : {
+          "name" : "group"
+        },
+        "label" : "FTP",
+        "description" : null,
+        "value" : {
+          "url" : {
+            "value" : null,
+            "default" : null,
+            "label" : "URL",
+            "description" : "FTP URL to upload to",
+            "type" : {
+              "maxLen" : 255,
+              "minLen" : 0,
+              "multiLine" : false,
+              "name" : "string",
+              "password" : false,
+              "pattern" : null,
+              "required" : true
+            }
+          },
+          "user" : {
+            "value" : null,
+            "default" : null,
+            "label" : "Username",
+            "description" : "",
+            "type" : {
+              "maxLen" : 255,
+              "minLen" : 0,
+              "multiLine" : false,
+              "name" : "string",
+              "password" : false,
+              "pattern" : null,
+              "required" : true
+            }
+          },
+          "password" : {
+            "value" : null,
+            "default" : null,
+            "label" : "Password",
+            "description" : "",
+            "type" : {
+              "maxLen" : 255,
+              "minLen" : 0,
+              "multiLine" : false,
+              "name" : "string",
+              "password" : true,
+              "pattern" : null,
+              "required" : false
+            }
+          }
+        }
+      },
+      "backup" : {
+        "type" : {
+          "name" : "group"
+        },
+        "label" : "Backup Settings",
+        "description" : null,
+        "value" : {
+          "device" : {
+            "value" : "1",
+            "default" : "1",
+            "label" : "Include device files",
+            "description" : "Do not add uploaded device files into backup, otherwise your backup may get too big",
+            "type" : {
+              "falseValue" : "0",
+              "name" : "boolean",
+              "required" : false,
+              "trueValue" : "1"
+            }
+          }
+        }
+      },
+      "restore" : {
+        "type" : {
+          "name" : "group"
+        },
+        "value" : {
+          "keepDomain" : {
+            "value" : "0",
+            "default" : "0",
+            "type" : {
+              "falseValue" : "0",
+              "name" : "boolean",
+              "required" : false,
+              "trueValue" : "1"
+            }
+          },
+          "keepFqdn" : {
+            "value" : "0",
+            "default" : "0",
+            "type" : {
+              "falseValue" : "0",
+              "name" : "boolean",
+              "required" : false,
+              "trueValue" : "1"
+            }
+          },
+          "decodePins" : {
+            "value" : "0",
+            "default" : "0",
+            "type" : {
+              "falseValue" : "0",
+              "name" : "boolean",
+              "required" : false,
+              "trueValue" : "1"
+            }
+          },
+          "decodePinMaxLen" : {
+            "value" : "4",
+            "default" : "4",
+            "type" : {
+              "enums" : {
+                "3" : "3",
+                "4" : "4",
+                "5" : "5",
+                "6" : "6"
+              },
+              "listenOnChange" : false,
+              "name" : "enum",
+              "promptSelect" : false,
+              "required" : true
+            }
+          },
+          "resetPin" : {
+            "value" : null,
+            "default" : null,
+            "type" : {
+              "maxLen" : 255,
+              "minLen" : 4,
+              "multiLine" : false,
+              "name" : "string",
+              "password" : true,
+              "pattern" : null,
+              "required" : false
+            }
+          },
+          "resetPassword" : {
+            "value" : null,
+            "default" : null,
+            "type" : {
+              "maxLen" : 255,
+              "minLen" : 8,
+              "multiLine" : false,
+              "name" : "string",
+              "password" : true,
+              "pattern" : null,
+              "required" : false
+            }
+          }
+        }
+      }
+    }
+  }
+}

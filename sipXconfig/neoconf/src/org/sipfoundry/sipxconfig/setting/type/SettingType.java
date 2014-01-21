@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.setting.type;
 
+import org.codehaus.jackson.annotate.JsonPropertyOrder;
+
+@JsonPropertyOrder(alphabetic = true)
 public interface SettingType extends Cloneable {
     String getName();
 

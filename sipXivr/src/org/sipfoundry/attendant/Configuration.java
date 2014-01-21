@@ -134,6 +134,8 @@ public class Configuration {
                             parseDtmf(next, c) ;
                         }  else if (name.equals(prop = "invalidResponse")) {
                             parseInvalidResponse(next, c) ;
+                        } else if (name.equals(prop = "onTransfer")) {
+                            parseOnTransfer(next, c) ;
                         }
                     }
                 }
@@ -239,7 +241,15 @@ public class Configuration {
         }
         c.addMenuItem(new AttendantMenuItem(dialPad, Actions.valueOf(action), parameter, extension));
     }
-    
- 
 
+    void parseOnTransfer(Node menuItemNode, AttendantConfig c) {
+        for (Node next = menuItemNode.getFirstChild(); next != null; next = next.getNextSibling()) {
+            if (next.getNodeType() == Node.ELEMENT_NODE) {
+                String name = next.getNodeName();
+                if (name.equals("play-prompt")) {
+                    c.setPlayPrompt(Boolean.parseBoolean(next.getTextContent().trim()));
+                }
+            }
+        }
+    }
 }

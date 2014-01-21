@@ -15,6 +15,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonPropertyOrder;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.feature.Feature;
@@ -22,11 +24,12 @@ import org.sipfoundry.sipxconfig.feature.Feature;
 /**
  * Capture a plan to backup various parts of the system to a backup destination
  */
+@JsonPropertyOrder(alphabetic = true)
 public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
     private Integer m_limitedCount = 50;
     private BackupType m_type = BackupType.local;
     private Collection<DailyBackupSchedule> m_schedules = new ArrayList<DailyBackupSchedule>(0);
-    private Set<String> m_autoModeDefinitionIds = new HashSet<String>();
+    private Set<String> m_definitionIds = new HashSet<String>();
 
     public BackupPlan() {
     }
@@ -64,11 +67,20 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
         m_type = type;
     }
 
-    public Set<String> getAutoModeDefinitionIds() {
-        return m_autoModeDefinitionIds;
+    /**
+     * What backups to perform/restore
+     * @return
+     */
+    public Set<String> getDefinitionIds() {
+        return m_definitionIds;
+    }
+
+    public void setDefinitionIds(Set<String> ids) {
+        m_definitionIds = ids;
     }
 
     @Override
+    @JsonIgnore
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) BackupManager.FEATURE);
     }
@@ -76,6 +88,7 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
     /**
      * Only used for hibernate storage. EnumType comes in hibernate 3.7, we're using 3.5 atm
      */
+    @JsonIgnore
     public String getEncodedType() {
         return m_type.toString();
     }
@@ -90,19 +103,20 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
     /**
      * Only used for hibernate storage
      */
+    @JsonIgnore
     public String getEncodedDefinitionString() {
-        return m_autoModeDefinitionIds.isEmpty() ? null : StringUtils.join(m_autoModeDefinitionIds, ',');
+        return m_definitionIds.isEmpty() ? null : StringUtils.join(m_definitionIds, ',');
     }
 
     /**
      * Only used for hibernate storage
      */
     public void setEncodedDefinitionString(String encodedDefinitionString) {
-        m_autoModeDefinitionIds = new HashSet<String>();
+        m_definitionIds = new HashSet<String>();
         if (StringUtils.isBlank(encodedDefinitionString)) {
             return;
         }
         String[] split = StringUtils.split(encodedDefinitionString, ',');
-        m_autoModeDefinitionIds.addAll(Arrays.asList(split));
+        m_definitionIds.addAll(Arrays.asList(split));
     }
 }

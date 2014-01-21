@@ -14,7 +14,6 @@
  */
 package org.sipfoundry.sipxconfig.feature;
 
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -75,9 +74,11 @@ public class FeatureChangeRequest {
     public static FeatureChangeRequest byBundle(Bundle bundle, Set<GlobalFeature> enable,
             Map<Location, Set<LocationFeature>> enableByLocation) {
         Collection<GlobalFeature> bundleGlobalFeatures = bundle.getGlobalFeatures();
+        Collection<GlobalFeature> enabledBundleGlobalFeatures = CollectionUtils.intersection(enable,
+                bundleGlobalFeatures);
         Collection<LocationFeature> bundleLocationFeatures = bundle.getLocationFeatures();
         Set<GlobalFeature> disable = new HashSet<GlobalFeature>(CollectionUtils.disjunction(bundleGlobalFeatures,
-                enable));
+                enabledBundleGlobalFeatures));
         Map<Location, Set<LocationFeature>> disableByLocation = new HashMap<Location, Set<LocationFeature>>(
                 enableByLocation.size());
         for (Entry<Location, Set<LocationFeature>> entry : enableByLocation.entrySet()) {
@@ -85,7 +86,8 @@ public class FeatureChangeRequest {
                     bundleLocationFeatures, entry.getValue()));
             disableByLocation.put(entry.getKey(), offAtLocation);
         }
-        return new FeatureChangeRequest(enable, disable, enableByLocation, disableByLocation);
+        return new FeatureChangeRequest(new HashSet<GlobalFeature>(enabledBundleGlobalFeatures), disable,
+                enableByLocation, disableByLocation);
     }
 
     public void enableFeature(GlobalFeature f, boolean enable) {

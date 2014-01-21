@@ -10,11 +10,13 @@
 package org.sipfoundry.sipxconfig.components;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.PageNotFoundException;
 import org.apache.tapestry.engine.ILink;
 import org.apache.tapestry.services.ServiceConstants;
 import org.apache.tapestry.util.ContentType;
@@ -64,6 +66,9 @@ public class DownloadService extends FileService {
         return new ContentType(contentType);
     }
 
+    @SuppressWarnings({
+        "rawtypes", "unchecked"
+    })
     public ILink getLink(boolean post, Object parameter) {
         Integer userId = requireUserId();
         DownloadLink.Info info = (DownloadLink.Info) parameter;
@@ -73,10 +78,13 @@ public class DownloadService extends FileService {
         parameters.put(ServiceConstants.SERVICE, getName());
         parameters.put(PARAM_PATH, info.getPath());
         parameters.put(PARAM_CONTENT_TYPE, info.getContentType());
-        String digest = getDigestSource().getDigestForResource(userId, info.getPath());
-        parameters.put(PARAM_DIGEST, digest);
+        try {
+            String digest = getDigestSource().getDigestForResource(userId, info.getPath());
+            parameters.put(PARAM_DIGEST, digest);
+        } catch (FileNotFoundException e) {
+            throw new PageNotFoundException("Resource not available. It may have been moved or deleted.");
+        }
 
         return getLinkFactory().constructLink(this, post, parameters, false);
     }
-
 }

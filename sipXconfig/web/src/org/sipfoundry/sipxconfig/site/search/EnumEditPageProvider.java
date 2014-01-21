@@ -21,10 +21,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.sipfoundry.sipxconfig.acccode.AuthCode;
-import org.sipfoundry.sipxconfig.acd.AcdAgent;
-import org.sipfoundry.sipxconfig.acd.AcdLine;
-import org.sipfoundry.sipxconfig.acd.AcdQueue;
-import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.common.User;
@@ -43,17 +39,14 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.site.acd.EditAcdAgent;
-import org.sipfoundry.sipxconfig.site.acd.EditAcdLine;
-import org.sipfoundry.sipxconfig.site.acd.EditAcdQueue;
 import org.sipfoundry.sipxconfig.site.admin.EditAuthCode;
 import org.sipfoundry.sipxconfig.site.admin.EditCallGroup;
-import org.sipfoundry.sipxconfig.site.park.EditParkOrbit;
 import org.sipfoundry.sipxconfig.site.branch.EditBranch;
 import org.sipfoundry.sipxconfig.site.conference.EditBridge;
 import org.sipfoundry.sipxconfig.site.conference.EditConference;
 import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendant;
 import org.sipfoundry.sipxconfig.site.gateway.EditGateway;
+import org.sipfoundry.sipxconfig.site.park.EditParkOrbit;
 import org.sipfoundry.sipxconfig.site.phone.EditPhone;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 import org.sipfoundry.sipxconfig.site.upload.EditUpload;
@@ -108,14 +101,6 @@ public class EnumEditPageProvider implements EditPageProvider {
             "dialplan/EditSiteToSiteDialRule", RULE_ID
         }, Upload.class, new String[] {
             EditUpload.PAGE, "uploadId"
-        }, AcdServer.class, new String[] {
-            "acd/AcdServerPage", "acdServerId"
-        }, AcdQueue.class, new String[] {
-            EditAcdQueue.PAGE, "acdQueueId"
-        }, AcdLine.class, new String[] {
-            EditAcdLine.PAGE, "acdLineId"
-        }, AcdAgent.class, new String[] {
-            EditAcdAgent.PAGE, "acdAgentId"
         }, Branch.class, new String[] {
             EditBranch.PAGE, "branchId"
         }, AuthCode.class, new String[] {

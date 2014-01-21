@@ -1,5 +1,5 @@
 import 'dart:html';
-import 'dart:json';
+import 'dart:convert';
 import 'package:sipxconfig/sipxconfig.dart';
 
 ManageRegions regions = new ManageRegions();
@@ -19,13 +19,13 @@ class RegionEditor {
   
   RegionEditor(ManageRegions parent) {
     this.parent = parent;
-    query("#add-region-link").onClick.listen(add);
-    query("#region-save").onClick.listen(save);
-    query("#region-cancel").onClick.listen(close);
-    query("#region-ip-more").onClick.listen((_) {
+    querySelector("#add-region-link").onClick.listen(add);
+    querySelector("#region-save").onClick.listen(save);
+    querySelector("#region-cancel").onClick.listen(close);
+    querySelector("#region-ip-more").onClick.listen((_) {
       addIpaddr();
     });
-    msg = new UserMessage(query("#editMessage"));
+    msg = new UserMessage(querySelector("#editMessage"));
   }
   
   toggle([e]) {
@@ -72,7 +72,7 @@ class RegionEditor {
     }
     req.open(method, api.url("rest/region/"));
     req.setRequestHeader("Content-Type", "application/json"); 
-    req.send(stringify(meta));
+    req.send(JSON.encode(meta));
     req.onLoad.listen((e) {
       if (DataLoader.checkResponse(msg, req)) {
         parent.reload();
@@ -96,11 +96,11 @@ class RegionEditor {
   }
   
   reset() {
-    query("#region-additional").children.clear();        
+    querySelector("#region-additional").children.clear();        
   }
   
   Element popup() {
-    return query("#add-region-popup");
+    return querySelector("#add-region-popup");
   }
   
   open([e]) {
@@ -112,19 +112,19 @@ class RegionEditor {
   }
   
   InputElement name() {
-    return query("#region-name") as InputElement;
+    return querySelector("#region-name") as InputElement;
   }
   
   InputElement ipaddr0() {
-    return query("#region-ip-0") as InputElement;    
+    return querySelector("#region-ip-0") as InputElement;    
   }
   
   List<InputElement> ipaddrs() {
-    return (query("#region-additional").queryAll("input") as List<InputElement>);    
+    return (querySelector("#region-additional").querySelectorAll("input"));    
   }
   
   addIpaddr([String address]) {
-    Element rows = query("#region-additional");
+    Element rows = querySelector("#region-additional");
     var addRow = new TableRowElement();
     addRow.addCell();
     var cell = addRow.addCell();
@@ -151,7 +151,7 @@ class ManageRegions {
   RegionEditor editor;
   
   ManageRegions() {
-    msg = new UserMessage(query("#userMessage"));    
+    msg = new UserMessage(querySelector("#userMessage"));    
     loader = new DataLoader(msg, loadTable);
     editor = new RegionEditor(this);
   }
@@ -170,11 +170,11 @@ class ManageRegions {
     msg.error(e.toString());    
   }
   
-  void reload([HttpRequestProgressEvent event]) {
+  void reload([event]) {
     if (event != null) {
       HttpRequest req = event.target; 
       if (req.status != 200) {
-        var err = parse(req.responseText);
+        var err = JSON.decode(req.responseText);
         msg.error(err['error']);            
       }
     }
@@ -182,8 +182,8 @@ class ManageRegions {
   }
      
   void loadTable(data) {    
-    List regions = parse(data);  
-    TableSectionElement tbody = query("#regionTable");
+    List regions = JSON.decode(data);  
+    TableSectionElement tbody = querySelector("#regionTable");
     tbody.children.clear();
     for (var region in regions) {
       TableRowElement row = tbody.addRow();

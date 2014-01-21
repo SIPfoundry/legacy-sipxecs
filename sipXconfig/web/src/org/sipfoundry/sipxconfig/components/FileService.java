@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.components;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,11 +19,13 @@ import java.io.OutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.tapestry.PageNotFoundException;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.engine.state.ApplicationStateManager;
 import org.apache.tapestry.services.LinkFactory;
 import org.apache.tapestry.util.ContentType;
 import org.apache.tapestry.web.WebResponse;
+import org.sipfoundry.sipxconfig.common.FileDigestSource;
 import org.sipfoundry.sipxconfig.site.UserSession;
 
 /**
@@ -54,7 +57,6 @@ public abstract class FileService implements IEngineService {
         m_response = response;
     }
 
-
     public FileDigestSource getDigestSource() {
         return m_digestSource;
     }
@@ -79,10 +81,14 @@ public abstract class FileService implements IEngineService {
             return;
         }
 
-        String actualMd5Digest = m_digestSource.getDigestForResource(userId, file.getPath());
-        if (!actualMd5Digest.equals(expectedMd5Digest)) {
-            m_response.sendError(HttpServletResponse.SC_FORBIDDEN, file.getPath());
-            return;
+        try {
+            String actualMd5Digest = m_digestSource.getDigestForResource(userId, file.getPath());
+            if (!actualMd5Digest.equals(expectedMd5Digest)) {
+                m_response.sendError(HttpServletResponse.SC_FORBIDDEN, file.getPath());
+                return;
+            }
+        } catch (FileNotFoundException ex) {
+            throw new PageNotFoundException("Resource not available. It may have been moved or deleted.");
         }
 
         m_response.setHeader("Expires", "0");

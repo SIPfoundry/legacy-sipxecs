@@ -21,22 +21,32 @@
 
 package org.sipfoundry.sipxconfig.rest;
 
+
 import static org.sipfoundry.sipxconfig.rest.RestUtilities.ResponseCode.ERROR_VALIDATION_FAILED;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
+import org.restlet.data.ClientInfo;
 import org.restlet.data.Form;
+import org.restlet.data.Language;
 import org.restlet.data.MediaType;
+import org.restlet.data.Preference;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.resource.DomRepresentation;
 import org.restlet.resource.Representation;
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.common.FileDigestSource;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.phonebook.Address;
@@ -75,6 +85,56 @@ public final class RestUtilities {
 
     private RestUtilities() {
         // hide default constructor
+    }
+
+    /**
+     * TODO: Move this to common rest util package
+     */
+    public static Locale getLocale(Request request) {
+        ClientInfo ci = request.getClientInfo();
+        if (ci != null) {
+            List<Preference<Language>> langs = ci.getAcceptedLanguages();
+            if (langs != null && langs.size() > 0) {
+                Language lmeta = langs.get(0).getMetadata();
+                if (lmeta != null && lmeta.getName() != null) {
+                    // Java 1.7 only
+                    //   Locale.forLanguageTag(lmeta.getName());
+                    return forLanguageTag(lmeta.getName());
+                }
+            }
+        }
+        return Locale.ENGLISH;
+    }
+
+    /**
+     * This duplicates code in org.sipfoundry.sipxconfig.components.DownloadLink and makes
+     * assumptions that Tapestry will service the file
+     */
+    public static String getLink(File f, Integer userId, String contentType) throws FileNotFoundException {
+        try {
+            String encoding = "UTF-8";
+            StringBuilder link = new StringBuilder("/sipxconfig/download.svc");
+            link.append("?contentType=").append(URLEncoder.encode(contentType, encoding));
+            String digest = new FileDigestSource().getDigestForResource(userId, f.getAbsolutePath());
+            link.append("&digest=").append(digest);
+            link.append("&path=").append(URLEncoder.encode(f.getAbsolutePath(), encoding));
+            return link.toString();
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Locale forLanguageTag(String id) {
+        String[] segments = StringUtils.split(id, '-');
+        switch (segments.length) {
+        case 3:
+            return new Locale(segments[0], segments[1], segments[2]);
+        case 2:
+            return new Locale(segments[0], segments[1]);
+        default:
+        case 1:
+            return new Locale(id);
+        }
     }
 
     // Input parameter conversion functions

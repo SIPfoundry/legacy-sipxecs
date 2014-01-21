@@ -25,10 +25,9 @@ import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 public class SpecialUser extends BeanWithId implements Replicable {
 
     public enum SpecialUserType {
-        PARK_SERVER("~~id~park"), MEDIA_SERVER("~~id~media"), ACD_SERVER("~~id~acd"),
-        CONFIG_SERVER("~~id~config"), RLS_SERVER("~~id~sipXrls"), REGISTRAR_SERVER("~~id~registrar"),
-        APPEAR_AGENT("~~id~sipXsaa"), XMPP_SERVER("~~id~xmpprlsclient"),
-        PHONE_PROVISION("~~id~sipXprovision");
+        PARK_SERVER("~~id~park"), MEDIA_SERVER("~~id~media"), CONFIG_SERVER("~~id~config"), RLS_SERVER(
+                "~~id~sipXrls"), REGISTRAR_SERVER("~~id~registrar"), APPEAR_AGENT("~~id~sipXsaa"), XMPP_SERVER(
+                "~~id~xmpprlsclient"), PHONE_PROVISION("~~id~sipXprovision");
 
         private String m_userName;
 

@@ -34,7 +34,6 @@ import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
-import org.sipfoundry.sipxconfig.presence.PresenceServer;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.context.ApplicationContext;
@@ -58,7 +57,7 @@ public class RegistrarConfigurationTest {
         Domain domain = new Domain("example.org");
         domain.setSipRealm("grapefruit");
         Address imApi = new Address(ImManager.XMLRPC_ADDRESS, "im.example.org", 100);
-        Address presenceApi = new Address(PresenceServer.HTTP_ADDRESS, "presence.example.org", 101);
+        Address presenceApi = new Address(Registrar.PRESENCE_MONITOR_ADDRESS, "presence.example.org", 101);
         Address park = new Address(ParkOrbitContext.SIP_TCP_PORT, "park.example.org", 102);
         Address proxy = new Address(ProxyManager.TCP_ADDRESS, "proxy.example.org", 103);
         Location location = TestHelper.createDefaultLocation();
@@ -88,7 +87,7 @@ public class RegistrarConfigurationTest {
         Domain domain = new Domain("example.org");
         domain.setSipRealm("grapefruit");
         Address imApi = new Address(ImManager.XMLRPC_ADDRESS, "im.example.org", 100);
-        Address presenceApi = new Address(PresenceServer.HTTP_ADDRESS, "presence.example.org", 101);
+        Address presenceApi = new Address(Registrar.PRESENCE_MONITOR_ADDRESS, "presence.example.org", 101);
         Address park = new Address(ParkOrbitContext.SIP_TCP_PORT, "park.example.org", 102);
         Address proxy = new Address(ProxyManager.TCP_ADDRESS, "proxy.example.org", 103);
         Location location = TestHelper.createDefaultLocation();
@@ -130,7 +129,7 @@ public class RegistrarConfigurationTest {
         Domain domain = new Domain("example.org");
         domain.setSipRealm("grapefruit");
         Address imApi = new Address(ImManager.XMLRPC_ADDRESS, "im.example.org", 100);
-        Address presenceApi = new Address(PresenceServer.HTTP_ADDRESS, "presence.example.org", 101);
+        Address presenceApi = new Address(Registrar.PRESENCE_MONITOR_ADDRESS, "presence.example.org", 101);
         Address park = new Address(ParkOrbitContext.SIP_TCP_PORT, "park.example.org", 102);
         Address proxy = new Address(ProxyManager.TCP_ADDRESS, "proxy.example.org", 103);
         Location location = TestHelper.createDefaultLocation();
@@ -169,7 +168,7 @@ public class RegistrarConfigurationTest {
         Domain domain = new Domain("example.org");
         domain.setSipRealm("grapefruit");
         Address imApi = new Address(ImManager.XMLRPC_ADDRESS, "im.example.org", 100);
-        Address presenceApi = new Address(PresenceServer.HTTP_ADDRESS, "presence.example.org", 101);
+        Address presenceApi = new Address(Registrar.PRESENCE_MONITOR_ADDRESS, "presence.example.org", 101);
         Address park = new Address(ParkOrbitContext.SIP_TCP_PORT, "park.example.org", 102);
         Address proxy = new Address(ProxyManager.TCP_ADDRESS, "proxy.example.org", 103);
         Location location = TestHelper.createDefaultLocation();

@@ -35,7 +35,7 @@ public interface BackupManager {
 
     Collection<BackupPlan> getBackupPlans();
 
-    String getBackupLink(BackupPlan plan);
+//    String getBackupLink(BackupPlan plan);
 
     void saveBackupPlan(BackupPlan plan);
 
@@ -48,8 +48,6 @@ public interface BackupManager {
     Collection<String> getArchiveDefinitionIds();
 
     Collection<ArchiveDefinition> getArchiveDefinitions(Location location, BackupSettings manual);
-
-    String getBackupScript();
 
     File getPlanFile(BackupPlan plan);
 }

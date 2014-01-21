@@ -1,12 +1,55 @@
-<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
-	<span jwcid="@common/QuickHelp" value="message:test.quick.help" />
-	<form jwcid="@Form" id="ugbForm">
-		<table>
-			<tr jwcid="@common/FieldPanel" for="test:serialno"
-				field="component:testno" label="message:test.serialno">
-				<td jwcid="testno@TextField" id="test:serialno"
-					value="ognl:testNoValue" displayName="message:test.serialno" />
-			</tr>
-		</table>
-	</form>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>DNS</title>
+<link rel="stylesheet" href="layout.css"></link>
+<link rel="stylesheet" href="colors.css"></link>
+<style>
+  /* only for development - stripped in product*/
+body {
+  margin-top: 100px;
+  margin-left: 250px;
+}  
+</style>
+</head>
+<body jwcid="$content$">
+  <div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+    <div class="help">
+        <span jwcid="@Insert" raw="true" value="message:test.quick.help">Help Here</span>
+    </div>
+    <p id="message"><!-- where success and error message will go --></p>
+  	<form>
+  		<table>
+          <tbody>
+  			<tr>
+               <td>
+                  <label for="fox"><span key="whatDoesTheFoxSay">What does the fox say</span>:
+                  </label>
+                </td>
+                <td>
+                  <input type="text" name="fox" id="fox"/>
+                </td>
+  			</tr>
+          </tbody>
+  		</table>
+  	</form>
+    <ul class="form-actions">
+      <li>
+        <button id="apply"><span key="button.apply">Apply</span></button>
+      </li>  
+    </ul>    
+    <span id="rc" style="display:none">
+      <!-- 
+        - For string resources used in dart code. 
+        - NOTE: What you put in-between span tag is only used in development mode
+        -->
+      <span jwcid="@common/Message" key="confirm.foxMessage">Are you sure you want to ask?</span>
+      <span jwcid="@common/Message" key="msg.actionSuccess">Request successful</span>            
+    </span>
+    <script jwcid="@common/DartCode" type="application/dart" src="PluginTestPage.dart"></script>
+    <script jwcid="@common/DartCode"
+      src="../../packages/browser/dart.js"></script>
+  </div>
+</body>
+</html>

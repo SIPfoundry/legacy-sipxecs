@@ -6,7 +6,6 @@
     <property name="coreContext" ref="coreContextImpl" />
     <property name="replicationContext" ref="sipxReplicationContext" />
     <property name="aliasManager" ref="aliasManager" />
-    <property name="acdContext" ref="acdContext" />
   </bean>
 
   <bean id="callGroupContextUserDelete" factory-bean="callGroupContextImpl" factory-method="createUserDeleteListener" />
