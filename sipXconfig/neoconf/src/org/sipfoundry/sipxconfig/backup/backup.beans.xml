@@ -54,6 +54,7 @@
   
   <!-- BACKUP REST API -->
   <bean id="backupApi" class="org.sipfoundry.sipxconfig.backup.BackupApi">
+    <property name="locationsManager" ref="locationsManager"/>
     <property name="backupManager" ref="backupManager"/>
     <property name="backupRunner" ref="backupRunner"/>
     <property name="backupConfig" ref="backupConfig"/>

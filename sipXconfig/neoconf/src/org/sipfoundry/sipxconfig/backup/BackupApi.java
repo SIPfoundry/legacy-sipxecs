@@ -300,4 +300,8 @@ public class BackupApi extends Resource {
     public void setBackupRunner(BackupRunner backupRunner) {
         m_backupRunner = backupRunner;
     }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
 }
