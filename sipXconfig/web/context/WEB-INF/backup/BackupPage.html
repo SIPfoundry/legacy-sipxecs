@@ -134,27 +134,15 @@ body {
         </li>  
       </ul>    
     </div>
-    <div id="restore-upload" style="display:none;">
-      <span jwcid="@common/ErrorMsg" validator="bean:validator"/>
-      <form jwcid="upload@Form">
-        <fieldset>
-          <table>
-            <span jwcid="@For" source="ognl:backupManager.archiveDefinitionIds" value="ognl:definitionId" renderTag="false">
-              <tr jwcid="@common/FieldPanel"
-                field="component:uploadFile"
-                    label="ognl:messages.getMessage('archive.' + definitionId + '.label')">
-                    <td jwcid="uploadFile@Upload"
-                      file="ognl:uploads[#this.definitionId]" />
-              </tr>
-            </span>
-          </table>
-        </fieldset>
-        <ul class="component-submit">
-          <li>
-            <input jwcid="uploadbutton@Submit" id="backups:uploadbutton" value="message:button.restore" listener="listener:uploadAndRestoreFiles"/>
-          </li>
-        </ul>
-      </form>
+    <div id="restore-upload" style="display:none;">      
+      <fieldset>
+        <p> Restore upload here</p>
+      </fieldset>
+      <ul class="component-submit">
+        <li>
+          <button id="uploadRestore"><span key="button.restore">Restore</span></button>
+        </li>
+      </ul>
     </div>
     <span id="rc" style="display: none"> 
       <span jwcid="@common/Message" key="message.backupCompleted">Backup Complete</span>
