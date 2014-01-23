@@ -66,7 +66,6 @@ strace
 yum-downloadonly
 nano
 wget
-epel-release
 sipx_packages()
 
 #--- Pre-installation script

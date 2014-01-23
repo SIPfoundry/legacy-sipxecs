@@ -56,8 +56,6 @@ iso-clean-download-% :
 # force a rebuild of entire cd
 iso-clean-% :
 	! test -d $(ISO_DISC) || rm -rf $(ISO_DISC)
-	! test -f iso-download-os-$* || rm iso-download-os-$*
-	! test -f iso-download-epel-$* || rm iso-download-epel-$*
 
 # need to make a copy of entire disc so we can modify
 iso-disc-% :
@@ -75,6 +73,7 @@ iso-update-repo-% : iso-disc-%
 	MEDIA_ID=$(shell head -1 $(ISO_DISC)/.discinfo); \
 	  cd $(ISO_DISC); \
 	  @CREATEREPO@ \
+	    -g $(abspath $(ISO_SRC)/comps-iso.xml) \
 	    --baseurl="media://$$MEDIA_ID" .
 
 # add modifications to disc to make it operate
@@ -126,19 +125,34 @@ iso-packages-% : iso-download-os-% iso-download-epel-%
 	rsync -av $(ARCH)-os-Packages/  $(ISO_DISC)/Packages/
 	rsync -av $(ARCH)-epel-Packages/  $(ISO_DISC)/Packages/
 	rsync -av $(realpath $(RPM_DIST_DIR))/CentOS_6/$(ARCH)/ $(ISO_DISC)/Packages/
-	find $(ISO_DISC)/Packages -not -name 'java-1.6.0-openjdk-devel-*.rpm' \
+	find $(ISO_DISC)/Packages \( \
+	    -not -name 'java-1.6.0-openjdk-devel-*.rpm' -a \
+	    -not -name 'perl-devel-*.rpm' \) \
 	   | grep $(foreach REGEX,$(ISO_RM_LIST),-e '.*/$(REGEX)') \
 	   | xargs rm
 
 # Define only packages you want excluded. This means new rpms that should not be on ISO
 # get on and can often cause iso-check failures, but this catches legit dep issues
 ISO_RM_LIST = \
-  freeswitch-[^1].* \
-  net-snmp-gui-.* \
-  .*-static-.* \
-  .*-doc-.* \
   .*-debuginfo-.* \
   .*-devel-.* \
+  .*-doc-.* \
+  .*-static-.* \
+  bakefile-.* \
+  emacs-erlang-.* \
+  freeswitch-freetdm-.* \
+  freeswitch-java-.* \
+  freeswitch-lang-.* \
+  freeswitch-perl-.* \
+  freeswitch-python-.* \
+  freeswitch-skypopen-.* \
+  freeswitch-spidermonkey-.* \
+  oss_core-.* \
+  sipxcustomcallerid.* \
+  sipxsbc.* \
+  sipxtest.* \
+  wxGTK-media-.* \
+  xemacs-.* \
   sipxlang.*  # language packs too big to put on cd
 
 # Note, this list controls 32 and 64 bit lists so if 32 bit does not need
@@ -155,76 +169,19 @@ ISO_RM_LIST = \
 
 # JV believes erlang list can be dramatically reduced but we haven't investigated
 ISO_ADD_EPEL = \
-  erlang-R14B-* \
-  erlang-appmon-* \
-  erlang-asn1-* \
-  erlang-common_test-* \
-  erlang-compiler-* \
-  erlang-cosEventDomain-* \
-  erlang-cosEvent-* \
-  erlang-cosFileTransfer-* \
-  erlang-cosNotification-* \
-  erlang-cosProperty-* \
-  erlang-cosTime-* \
-  erlang-cosTransactions-* \
-  erlang-crypto-* \
-  erlang-debugger-* \
-  erlang-dialyzer-* \
-  erlang-diameter-* \
-  erlang-docbuilder-* \
-  erlang-edoc-* \
-  erlang-erl_docgen-* \
-  erlang-erl_interface-* \
-  erlang-erts-* \
-  erlang-et-* \
-  erlang-eunit-* \
-  erlang-examples-* \
-  erlang-gs-* \
-  erlang-hipe-* \
-  erlang-ic-* \
-  erlang-inets-* \
-  erlang-inviso-* \
-  erlang-jinterface-* \
-  erlang-kernel-* \
-  erlang-megaco-* \
-  erlang-mnesia-* \
-  erlang-observer-* \
-  erlang-odbc-* \
-  erlang-orber-* \
-  erlang-os_mon-* \
-  erlang-otp_mibs-* \
-  erlang-parsetools-* \
-  erlang-percept-* \
-  erlang-pman-* \
-  erlang-public_key-* \
-  erlang-reltool-* \
-  erlang-runtime_tools-* \
-  erlang-sasl-* \
-  erlang-snmp-* \
-  erlang-ssh-* \
-  erlang-ssl-* \
-  erlang-stdlib-* \
-  erlang-syntax_tools-* \
-  erlang-test_server-* \
-  erlang-toolbar-* \
-  erlang-tools-* \
-  erlang-tv-* \
-  erlang-typer-* \
-  erlang-webtool-* \
-  erlang-wx-* \
-  erlang-xmerl-* \
-  fail2ban-* \
+  fail2ban-0.8.10* \
   js-* \
-  gperftools-libs-* \
+  gperftools-libs-2.0-11* \
   gtest-1* \
   libiodbc-3* \
   libev-4.* \
   libmcrypt-* \
-  libmongodb-* \
-  mongodb-2.* \
-  mongodb-server-* \
+  libmongodb-2.4* \
+  mongodb-2.4* \
+  mongodb-server-2.4* \
   openpgm-5* \
-  php-pecl-mongo-* \
+  perl-Tk-804.* \
+  php-pecl-mongo-1.4* \
   poco-crypto-* \
   poco-data-* \
   poco-foundation-* \
@@ -243,7 +200,7 @@ ISO_ADD_EPEL = \
   shorewall-4* \
   shorewall-core-* \
   snappy-* \
-  v8-3* \
+  v8-3.14.5.10* \
   wxBase-* \
   wxGTK-2.* \
   wxGTK-gl-* \
@@ -258,9 +215,11 @@ ISO_ADD_OS = \
   acl-* \
   aic94xx-firmware-* \
   alsa-lib-* \
+  apache-tomcat-apis-0* \
   apr-1.* \
   apr-util-1.* \
   apr-util-ldap-* \
+  at-3* \
   atk-* \
   atmel-firmware-* \
   attr-* \
@@ -269,9 +228,12 @@ ISO_ADD_OS = \
   augeas-* \
   authconfig-6.* \
   avahi-libs-* \
+  axis-1.* \
   b43-openfwwf-* \
   basesystem-* \
   bash-4.* \
+  bc-1.* \
+  bcel-5.* \
   bfa-firmware-* \
   bind-9.* \
   bind-libs-* \
@@ -297,6 +259,8 @@ ISO_ADD_OS = \
   centos-release-* \
   checkpolicy-* \
   chkconfig-* \
+  classpathx-jaf-1* \
+  classpathx-mail-1* \
   compat-readline5-* \
   coreutils-* \
   coreutils-libs-* \
@@ -310,6 +274,7 @@ ISO_ADD_OS = \
   curl-* \
   cyrus-sasl-2.* \
   cyrus-sasl-lib-* \
+  cvs-1.* \
   dash-* \
   db4-cxx-* \
   db4-utils-* \
@@ -329,6 +294,8 @@ ISO_ADD_OS = \
   diffutils-* \
   e2fsprogs-* \
   e2fsprogs-libs-* \
+  ecj-3* \
+  ed-* \
   efibootmgr-* \
   eggdbus-* \
   elfutils-libelf-* \
@@ -348,6 +315,7 @@ ISO_ADD_OS = \
   gawk-* \
   gdb-7.* \
   gdbm-* \
+  gettext-0* \
   giflib-* \
   glibc-2.* \
   glibc-common-* \
@@ -384,9 +352,19 @@ ISO_ADD_OS = \
   iwl6000g2a-firmware-* \
   iwl6000g2b-firmware-* \
   iwl6050-firmware-* \
+  jakarta-commons-collections-* \
+  jakarta-commons-daemon-* \
+  jakarta-commons-dbcp-* \
+  jakarta-commons-discovery-0* \
+  jakarta-commons-httpclient-3.* \
+  jakarta-commons-logging-* \
+  jakarta-commons-pool-1.* \
+  jakarta-taglibs-standard-1.* \
   jasper-libs-* \
+  java-1.5.0-gcj-1* \
   java-1.6.0-openjdk-1.* \
   java-1.6.0-openjdk-devel-* \
+  java_cup-0.* \
   jline-* \
   jpackage-utils-* \
   kbd-1.* \
@@ -396,6 +374,9 @@ ISO_ADD_OS = \
   keyutils-libs-* \
   krb5-libs-* \
   less-* \
+  libart_lgpl-2* \
+  libevent-1.* \
+  libgomp-4.* \
   libICE-* \
   libSM-* \
   libX11-1.* \
@@ -409,6 +390,7 @@ ISO_ADD_OS = \
   libXft-* \
   libXi-* \
   libXinerama-* \
+  libXmu-1.* \
   libXpm-* \
   libXrandr-* \
   libXrender-* \
@@ -428,6 +410,7 @@ ISO_ADD_OS = \
   libertas-usb8388-firmware-* \
   libffi-* \
   libgcc-* \
+  libgcj-4* \
   libgcrypt-* \
   libgpg-error-* \
   libicu-* \
@@ -457,12 +440,16 @@ ISO_ADD_OS = \
   libuuid-* \
   libvorbis-* \
   libxcb-1.* \
+  libXt-1.* \
   lm_sensors-libs-* \
+  log4j-1.* \
   logrotate-* \
   lua-5.* \
   lvm2-libs-* \
   mailcap-* \
+  mailx-12.* \
   make-* \
+  man-1* \
   matahari-0.* \
   mesa-dri-drivers-9.* \
   mesa-dri-filesystem-* \
@@ -476,6 +463,7 @@ ISO_ADD_OS = \
   mysql-connector-odbc-* \
   mysql-libs-* \
   mysql-server-* \
+  mx4j-3.* \
   nano-* \
   ncurses-5.* \
   ncurses-base-* \
@@ -499,18 +487,26 @@ ISO_ADD_OS = \
   pango-* \
   passwd-* \
   patch-* \
+  pax-3.* \
   pciutils-3.* \
   pciutils-libs-* \
   pcre-7.* \
   perl-5.* \
+  perl-devel-5.* \
+  perl-CGI-3.* \
   perl-DBD-MySQL-* \
   perl-DBI-1.* \
   perl-Digest-SHA-* \
+  perl-ExtUtils-MakeMaker-6* \
+  perl-ExtUtils-ParseXS-2.* \
   perl-Module-Pluggable-* \
   perl-Pod-Escapes-* \
   perl-Pod-Simple-* \
+  perl-Test-Harness-3.* \
+  perl-Test-Simple-0.* \
   perl-libs-5.* \
   perl-version-* \
+  pkgconfig-* \
   php-5.* \
   php-cli-* \
   php-common-* \
@@ -547,6 +543,7 @@ ISO_ADD_OS = \
   python-qpid-* \
   python-saslwrapper-* \
   python-urlgrabber-* \
+  rubygem-rake-* \
   ql2100-firmware-* \
   ql2200-firmware-* \
   ql23xx-firmware-* \
@@ -560,6 +557,8 @@ ISO_ADD_OS = \
   qpid-tools-* \
   readline-6.* \
   redhat-logos-* \
+  redhat-lsb-core-4* \
+  regexp-1* \
   rhino-1.* \
   rootfiles-* \
   rpm-4.* \
@@ -582,6 +581,7 @@ ISO_ADD_OS = \
   setup-* \
   shadow-utils-* \
   sigar-* \
+  sinjdoc-0* \
   slang-2.* \
   sqlite-3.* \
   strace-* \
@@ -595,8 +595,15 @@ ISO_ADD_OS = \
   tcp_wrappers-7* \
   tcp_wrappers-libs-* \
   tftp-server-* \
+  time-1.* \
   tk-* \
   tokyocabinet-* \
+  tomcat6-6* \
+  tomcat6-el-2.1-api* \
+  tomcat6-jsp-2.1-api* \
+  tomcat6-servlet-2.5-api* \
+  tomcat6-lib-* \
+  tomcat6-webapps-* \
   tuned-0.* \
   tzdata-* \
   udev-* \
@@ -610,13 +617,20 @@ ISO_ADD_OS = \
   wget-* \
   which-* \
   wireless-tools-* \
+  wsdl4j-1.* \
+  xalan-j2-2.* \
   xerces-c-3.* \
   xinetd-* \
+  xml-commons-apis-1* \
+  xml-commons-resolver-1* \
   xorg-x11-drv-ati-firmware-* \
+  xz-4.* \
   xz-libs-* \
+  xz-lzma-compat-4.* \
   yum-metadata-parser-* \
   yum-plugin-downloadonly-* \
   yum-plugin-fastestmirror-* \
   zd1211-firmware-* \
+  zip-3* \
   zlib-1.*
 
