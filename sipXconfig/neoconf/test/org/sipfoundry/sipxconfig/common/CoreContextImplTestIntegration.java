@@ -812,9 +812,10 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         g1.setName("group1");
         m_settingDao.saveGroup(g1);
         m_coreContext.createAdminGroupAndInitialUser("1234");
+        m_coreContext.initializeSpecialUsers();
         List<Replicable> replicables = m_coreContext.getReplicables();
         assertTrue(replicables.contains(g1));
-        assertTrue(replicables.size() == 11); //9 special users, 2 groups
+        assertTrue(replicables.size() == 10); //9 special users, 2 groups
     }
 
     public void setBranchManager(BranchManager branchManager) {
