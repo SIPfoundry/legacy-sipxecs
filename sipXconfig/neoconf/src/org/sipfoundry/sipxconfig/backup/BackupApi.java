@@ -223,7 +223,9 @@ public class BackupApi extends Resource {
             m_plan = m_backupManager.findOrCreateBackupPlan(m_backupType);
             readPlan(m_plan, meta.get(BACKUP));
             m_settings = m_backupManager.getSettings();
-            new SettingJsonReader().read(m_settings, meta.get("settings"));
+            SettingJsonReader settingJsonReader = new SettingJsonReader();
+            settingJsonReader.read(m_settings, meta.get("settings"));
+            settingJsonReader.read(m_settings.getSettings().getSetting("ftp"), meta.get("ftpSettings"));
         } catch (IOException e) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
         }

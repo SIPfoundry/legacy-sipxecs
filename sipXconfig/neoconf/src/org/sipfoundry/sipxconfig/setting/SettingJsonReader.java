@@ -28,4 +28,12 @@ public class SettingJsonReader {
             settings.setSettingValue(setting.getKey(), setting.getValue().asText());
         }
     }
+
+    public void read(Setting settings, JsonNode node) {
+        Iterator<Entry<String, JsonNode>> fields = node.getFields();
+        while (fields.hasNext()) {
+            Entry<String, JsonNode> setting = fields.next();
+            settings.getSetting(setting.getKey()).setValue(setting.getValue().asText());
+        }
+    }
 }

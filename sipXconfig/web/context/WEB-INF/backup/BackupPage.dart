@@ -198,6 +198,7 @@ class BackupPage {
   postOrPut(String method, String successMessage) {
     var meta = new Map<String, Object>();
     meta['settings'] = settings.parseForm();
+    meta['ftpSettings'] = ftpSettings.parseForm();
     meta['backup'] = parseForm();    
     HttpRequest req = new HttpRequest();
     req.open(method, api.url("rest/backup/${type}"));
