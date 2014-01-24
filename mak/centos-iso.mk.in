@@ -13,7 +13,8 @@ VOLUME_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
 APPLICATION_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
 PUBLISHER_ID ?= sipx-dev@list.sipfoundry.org
 PREPARERER_ID ?= sipx-dev@list.sipfoundry.org
-ISO_RPM_DOWNLOAD_URL ?= @CENTOS_BASE_URL@/6
+CENTOS_VER = 6.5
+ISO_RPM_DOWNLOAD_URL ?= @CENTOS_BASE_URL@/$(CENTOS_VER)
 ISO_M4_OPTS = $(CUSTOM_ISO_M4_OPTS) -D PACKAGE_VERSION=$(PACKAGE_VERSION)
 ISO_PACKAGES_OS=$(ARCH)-os-Packages
 ISO_PACKAGES_EPEL=$(ARCH)-epel-Packages
@@ -61,7 +62,7 @@ iso-clean-% :
 iso-disc-% :
 	test -d cd || mkdir cd
 	! test -d cd.tmp || rm -rf cd.tmp
-	sudo mount -o loop $(wildcard @ISO_DIR@/CentOS-6.*-$(ARCH)-minimal.iso) cd
+	sudo mount -o loop $(wildcard @ISO_DIR@/CentOS-$(CENTOS_VER)-$(ARCH)-minimal.iso) cd
 	@echo "copying contents of disc..."
 	cp -ar cd cd.tmp
 	sudo umount cd
@@ -113,7 +114,7 @@ iso-check-% :
 .SECONDARY: iso-download-os-32 iso-download-os-64 iso-download-epel-32 iso-download-epel-64
 iso-download-os-% : mak/*-centos-iso.mk
 	rsync -av --delete \
-	  $(addprefix @CENTOS_RSYNC_URL@/centos/6/os/$(ARCH)/Packages/, $(ISO_ADD_OS)) \
+	  $(addprefix @CENTOS_RSYNC_URL@/centos/$(CENTOS_VER)/os/$(ARCH)/Packages/, $(ISO_ADD_OS)) \
 	  $(ISO_PACKAGES_OS)/
 
 iso-download-epel-% : mak/*-centos-iso.mk
@@ -127,6 +128,9 @@ iso-packages-% : iso-download-os-% iso-download-epel-%
 	rsync -av $(realpath $(RPM_DIST_DIR))/CentOS_6/$(ARCH)/ $(ISO_DISC)/Packages/
 	find $(ISO_DISC)/Packages \( \
 	    -not -name 'java-1.6.0-openjdk-devel-*.rpm' -a \
+	    -not -name 'db4-devel-*.rpm' -a \
+	    -not -name 'gdbm-devel-*.rpm' -a \
+	    -not -name 'glibc-devel-*.rpm' -a \
 	    -not -name 'perl-devel-*.rpm' \) \
 	   | grep $(foreach REGEX,$(ISO_RM_LIST),-e '.*/$(REGEX)') \
 	   | xargs rm
@@ -151,7 +155,6 @@ ISO_RM_LIST = \
   sipxcustomcallerid.* \
   sipxsbc.* \
   sipxtest.* \
-  wxGTK-media-.* \
   xemacs-.* \
   sipxlang.*  # language packs too big to put on cd
 
@@ -169,7 +172,7 @@ ISO_RM_LIST = \
 
 # JV believes erlang list can be dramatically reduced but we haven't investigated
 ISO_ADD_EPEL = \
-  fail2ban-0.8.10* \
+  fail2ban-0.8.11* \
   js-* \
   gperftools-libs-2.0-11* \
   gtest-1* \
@@ -257,6 +260,7 @@ ISO_ADD_OS = \
   ca-certificates-* \
   cairo-1.* \
   centos-release-* \
+  cdparanoia-libs-* \
   checkpolicy-* \
   chkconfig-* \
   classpathx-jaf-1* \
@@ -277,6 +281,7 @@ ISO_ADD_OS = \
   cvs-1.* \
   dash-* \
   db4-cxx-* \
+  db4-devel-* \
   db4-utils-* \
   dbus-1.* \
   dbus-glib-* \
@@ -313,12 +318,15 @@ ISO_ADD_OS = \
   gamin-0* \
   gamin-python-* \
   gawk-* \
+  GConf2-2* \
   gdb-7.* \
   gdbm-* \
   gettext-0* \
   giflib-* \
   glibc-2.* \
   glibc-common-* \
+  glibc-devel-* \
+  glibc-headers-* \
   gmp-* \
   gnutls-2.* \
   gpgme-* \
@@ -326,6 +334,9 @@ ISO_ADD_OS = \
   groff-1.* \
   grub-* \
   grubby-* \
+  gstreamer-0* \
+  gstreamer-plugins-base-* \
+  gstreamer-tools-* \
   gtk2-2.* \
   gzip-* \
   hesiod-* \
@@ -350,8 +361,8 @@ ISO_ADD_OS = \
   iwl5150-firmware-* \
   iwl6000-firmware-* \
   iwl6000g2a-firmware-* \
-  iwl6000g2b-firmware-* \
   iwl6050-firmware-* \
+  iso-codes-* \
   jakarta-commons-collections-* \
   jakarta-commons-daemon-* \
   jakarta-commons-dbcp-* \
@@ -371,12 +382,14 @@ ISO_ADD_OS = \
   kbd-misc-* \
   kernel-2.* \
   kernel-firmware-* \
+  kernel-headers-* \
   keyutils-libs-* \
   krb5-libs-* \
   less-* \
   libart_lgpl-2* \
   libevent-1.* \
   libgomp-4.* \
+  libgudev1-* \
   libICE-* \
   libSM-* \
   libX11-1.* \
@@ -415,10 +428,12 @@ ISO_ADD_OS = \
   libgpg-error-* \
   libicu-* \
   libidn-* \
+  libIDL-* \
   libjpeg-* \
   libnih-* \
   libnl-* \
   libogg-* \
+  liboil-* \
   libpcap-* \
   libpng-* \
   libselinux-2.* \
@@ -438,9 +453,11 @@ ISO_ADD_OS = \
   libuser-0.* \
   libutempter-* \
   libuuid-* \
+  libvisual-* \
   libvorbis-* \
   libxcb-1.* \
   libXt-1.* \
+  libXv-1.* \
   lm_sensors-libs-* \
   log4j-1.* \
   logrotate-* \
@@ -450,12 +467,12 @@ ISO_ADD_OS = \
   mailx-12.* \
   make-* \
   man-1* \
-  matahari-0.* \
   mesa-dri-drivers-9.* \
   mesa-dri-filesystem-* \
   mesa-dri1-drivers-* \
   mesa-libGL-* \
   mesa-libGLU-* \
+  mesa-private-llvm-* \
   mingetty-* \
   mod_ssl-* \
   module-init-tools-* \
@@ -483,6 +500,7 @@ ISO_ADD_OS = \
   openssh-5.* \
   openssh-server-* \
   openssl-1.* \
+  ORBit2-* \
   pam-* \
   pango-* \
   passwd-* \
@@ -579,6 +597,7 @@ ISO_ADD_OS = \
   sendmail-8.* \
   sendmail-cf-* \
   setup-* \
+  sgml-common-* \
   shadow-utils-* \
   sigar-* \
   sinjdoc-0* \
@@ -621,6 +640,7 @@ ISO_ADD_OS = \
   xalan-j2-2.* \
   xerces-c-3.* \
   xinetd-* \
+  xml-common-0* \
   xml-commons-apis-1* \
   xml-commons-resolver-1* \
   xorg-x11-drv-ati-firmware-* \
