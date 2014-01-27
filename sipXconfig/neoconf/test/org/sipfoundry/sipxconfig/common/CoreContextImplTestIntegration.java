@@ -22,6 +22,7 @@ import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
+import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -318,6 +319,8 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
 
         admin = m_coreContext.loadUserByUserName(User.SUPERADMIN);
         assertTrue(admin.isAdmin());
+        ImAccount imAccount = new ImAccount(admin);
+        assertTrue(imAccount.isEnabled());
     }
 
     public void testCountUsers() throws Exception {
