@@ -16,7 +16,6 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
-
 import static java.lang.String.format;
 
 import java.io.File;
@@ -60,6 +59,7 @@ public class DnsConfig implements ConfigProvider {
     private static final String YML_TARGET = ":target";
     private static final String VIEW_NAME = "%s.view";
     private static final String QUALIFIED = "%s.";
+    private static final String QUALIFIED_HOST = "%s.%s.";
     private static final Log LOG = LogFactory.getLog(DnsConfig.class);
     private DnsManager m_dnsManager;
     private RegionManager m_regionManager;
@@ -171,7 +171,7 @@ public class DnsConfig implements ConfigProvider {
         c.endArray();
     }
 
-    final <T> List<T> safeAsList(T...a) {
+    final <T> List<T> safeAsList(T... a) {
         if (a == null) {
             return null;
         }
@@ -225,7 +225,7 @@ public class DnsConfig implements ConfigProvider {
         if (rrs != null) {
             for (DnsSrvRecord rr : rrs) {
                 c.nextElement();
-                writeSrvRecord(c, rr, qualifiedTarget);
+                writeSrvRecord(c, rr, qualifiedTarget, generateARecords);
             }
         }
         c.endArray();
@@ -241,8 +241,7 @@ public class DnsConfig implements ConfigProvider {
      * my-id : [ { :name: my-fqdn, :ipv4: 1.1.1.1 }, ... ]
      */
     void writeServerYaml(YamlConfiguration c, List<Location> all, String id, List<Address> addresses,
-            String qualifiedTarget, boolean isSameSipNetworkDomain)
-        throws IOException {
+            String qualifiedTarget, boolean isSameSipNetworkDomain) throws IOException {
         c.startArray(id);
         if (addresses != null) {
             for (Address a : addresses) {
@@ -253,8 +252,8 @@ public class DnsConfig implements ConfigProvider {
         c.endArray();
     }
 
-    void writeAddress(YamlConfiguration c, List<Location> all, String address, int port,
-            String qualifiedTarget, boolean isSameSipNetworkDomain) throws IOException {
+    void writeAddress(YamlConfiguration c, List<Location> all, String address, int port, String qualifiedTarget,
+            boolean isSameSipNetworkDomain) throws IOException {
         String host = getHostname(all, address, isSameSipNetworkDomain);
         if (host != null) {
             if (qualifiedTarget != null) {
@@ -267,7 +266,8 @@ public class DnsConfig implements ConfigProvider {
         }
     }
 
-    void writeSrvRecord(YamlConfiguration c, DnsSrvRecord srv, String qualifiedTarget) throws IOException {
+    void writeSrvRecord(YamlConfiguration c, DnsSrvRecord srv, String qualifiedTarget, boolean isSameSipNetworkDomain)
+        throws IOException {
         c.write(":proto", srv.getProtocol());
         c.write(":lhs", srv.getLeftHandSide());
         c.write(":resource", srv.getResource());
@@ -277,7 +277,11 @@ public class DnsConfig implements ConfigProvider {
         if (qualifiedTarget != null) {
             c.write(YML_TARGET, qualifiedTarget);
         } else {
-            c.write(YML_TARGET, srv.getDestination());
+            String destination = srv.getDestination();
+            if (!isSameSipNetworkDomain) {
+                destination = String.format(QUALIFIED_HOST, destination, Domain.getDomain().getNetworkName());
+            }
+            c.write(YML_TARGET, destination);
         }
         c.write(":host", srv.getHost());
     }

@@ -8,7 +8,7 @@ resource_records:
    :priority: 30
    :weight: 10
    :port: 1
-   :target: s1
+   :target: s1.example.org.
    :host: 
  - :proto: _sip._tcp
    :lhs: _sip._tcp.rr2.h1
@@ -16,7 +16,7 @@ resource_records:
    :priority: 30
    :weight: 10
    :port: 2
-   :target: s1
+   :target: s1.example.org.
    :host: h1
  - :proto: _sip._tcp
    :lhs: _sip._tcp.rr3.h2
@@ -24,7 +24,7 @@ resource_records:
    :priority: 30
    :weight: 10
    :port: 3
-   :target: s1
+   :target: s1.example.org.
    :host: h2
 dns_servers:
  - :name: one.example.org.
