@@ -28,8 +28,19 @@ action=shellcmd @SIPX_BINDIR@/sipxtrap ALARM_PHONE_ADDED '%s'
 type=Single
 ptype=RegExp
 pattern=ALARM_PHONE_CHANGED Phone with id: (.*), serial: (.*) was changed.
-desc=Phone with id $1 and serial $2 added. 
+desc=Phone with id $1 and serial $2 changed. 
 action=shellcmd @SIPX_BINDIR@/sipxtrap ALARM_PHONE_CHANGED '%s'
+<% 
+  end 
+%>
+<% 
+  if PHONE_DELETED[:groupName] != 'disabled'
+%>
+type=Single
+ptype=RegExp
+pattern=ALARM_PHONE_DELETED Phone with id: (.*), serial: (.*) was deleted.
+desc=Phone with id $1 and serial $2 deleted. 
+action=shellcmd @SIPX_BINDIR@/sipxtrap ALARM_PHONE_DELETED '%s'
 <% 
   end 
 %>

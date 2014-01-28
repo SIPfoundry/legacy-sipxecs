@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 public interface PhoneContext extends DataObjectSource, DaoEventListener {
     public static final AlarmDefinition ALARM_PHONE_ADDED = new AlarmDefinition("PHONE_ADDED");
     public static final AlarmDefinition ALARM_PHONE_CHANGED = new AlarmDefinition("PHONE_CHANGED");
+    public static final AlarmDefinition ALARM_PHONE_DELETED = new AlarmDefinition("PHONE_DELETED");
     String GROUP_RESOURCE_ID = "phone";
     String CONTEXT_BEAN_NAME = "phoneContext";
 

@@ -35,11 +35,11 @@ public class PhoneContextImplTest extends TestCase {
         m_impl.getIntercomForPhone(phone);
         EasyMock.verify(intercomManager);
     }
-    
+
     public void testGetAlarms() {
         Collection<AlarmDefinition> alarms = m_impl.getAvailableAlarms(new AlarmServerManagerImpl());
         assertTrue(CollectionUtils.isEqualCollection(alarms, Arrays.asList(new AlarmDefinition[] {
-            PhoneContext.ALARM_PHONE_ADDED, PhoneContext.ALARM_PHONE_CHANGED
+            PhoneContext.ALARM_PHONE_ADDED, PhoneContext.ALARM_PHONE_DELETED, PhoneContext.ALARM_PHONE_CHANGED
         })));
     }
 }
