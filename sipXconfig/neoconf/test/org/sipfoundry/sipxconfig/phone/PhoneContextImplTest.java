@@ -5,9 +5,15 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import junit.framework.TestCase;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
+import org.sipfoundry.sipxconfig.alarm.AlarmServerManagerImpl;
 import org.sipfoundry.sipxconfig.intercom.IntercomManager;
 
 public class PhoneContextImplTest extends TestCase {
@@ -28,5 +34,12 @@ public class PhoneContextImplTest extends TestCase {
 
         m_impl.getIntercomForPhone(phone);
         EasyMock.verify(intercomManager);
+    }
+    
+    public void testGetAlarms() {
+        Collection<AlarmDefinition> alarms = m_impl.getAvailableAlarms(new AlarmServerManagerImpl());
+        assertTrue(CollectionUtils.isEqualCollection(alarms, Arrays.asList(new AlarmDefinition[] {
+            PhoneContext.ALARM_PHONE_ADDED, PhoneContext.ALARM_PHONE_CHANGED
+        })));
     }
 }

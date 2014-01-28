@@ -11,3 +11,25 @@ thresh=<%= LOGIN_FAILED[:minThreshold] %>
 <% 
   end 
 %>
+<% 
+  if PHONE_ADDED[:groupName] != 'disabled'
+%>
+type=Single
+ptype=RegExp
+pattern=ALARM_PHONE_ADDED Phone with serial (.*) was added to the system.
+desc=Phone with serial $1 added. 
+action=shellcmd @SIPX_BINDIR@/sipxtrap ALARM_PHONE_ADDED '%s'
+<% 
+  end 
+%>
+<% 
+  if PHONE_CHANGED[:groupName] != 'disabled'
+%>
+type=Single
+ptype=RegExp
+pattern=ALARM_PHONE_CHANGED Phone with id: (.*), serial: (.*) was changed.
+desc=Phone with id $1 and serial $2 added. 
+action=shellcmd @SIPX_BINDIR@/sipxtrap ALARM_PHONE_CHANGED '%s'
+<% 
+  end 
+%>
