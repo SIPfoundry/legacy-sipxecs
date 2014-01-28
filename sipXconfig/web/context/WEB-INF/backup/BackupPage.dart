@@ -29,7 +29,7 @@ class BackupPage {
     loader = new DataLoader(this.msg, loadForm);
     settings = new SettingEditor(querySelector("#settings"));
     ftpSettings = new SettingEditor(querySelector("#ftp-settings"));
-    isInProgress = false;
+    inProgress(false);
     refresh = new Timer.periodic(new Duration(seconds: 30), (e) {
       if (isInProgress) {                                                                            
         load();
@@ -39,7 +39,9 @@ class BackupPage {
   
   load() {
     var url = api.url("rest/backup/${type}", "backup-test.json");
-    loader.load(url);    
+    UListElement listElem = querySelector("#backups");
+    listElem.children.clear();
+    loader.load(url);
   }
   
   restore([e]) {

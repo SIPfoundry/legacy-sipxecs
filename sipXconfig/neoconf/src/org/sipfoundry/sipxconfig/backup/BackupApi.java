@@ -36,6 +36,8 @@ import java.util.TreeMap;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.util.TempFile;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.Version;
@@ -64,6 +66,8 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.MessageSource;
 
 public class BackupApi extends Resource {
+    private static final Log LOG = LogFactory.getLog(BackupApi.class);
+
     private static final String BACKUP = "backup";
     private BackupManager m_backupManager;
     private LocationsManager m_locationsManager;
@@ -108,7 +112,12 @@ public class BackupApi extends Resource {
             BackupPlan backup = m_backupManager.findOrCreateBackupPlan(m_backupType);
             BackupSettings settings = m_backupManager.getSettings();
             File planFile = m_backupManager.getPlanFile(backup);
-            Map<String, List<String>> backups = m_backupRunner.list(planFile);
+            Map<String, List<String>> backups = new HashMap<String, List<String>>();
+            try {
+                backups = m_backupRunner.list(planFile);
+            } catch (Exception ex) {
+                LOG.error("Cannot retrieve backups list ", ex);
+            }
             UserDetailsImpl currentUser = StandardUserDetailsService.getUserDetails();
             Map<String, List<String>> hyperlinkedList = new TreeMap<String, List<String>>();
             for (Map.Entry<String, List<String>> entries : backups.entrySet()) {
@@ -123,7 +132,7 @@ public class BackupApi extends Resource {
             }
             boolean inProgress = m_backupRunner.isInProgress();
             writeBackup(json, inProgress, backup, hyperlinkedList, settings, archiveIdMap);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
         }
         return new StringRepresentation(json.toString());
