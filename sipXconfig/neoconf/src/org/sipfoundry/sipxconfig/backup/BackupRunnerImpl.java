@@ -28,7 +28,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 public class BackupRunnerImpl implements BackupRunner {
     private SimpleCommandRunner m_actionRunner;
     private String m_backupScript;
-    private int m_foregroundTimeout = 1000;
+    private int m_foregroundTimeout = 5000;
 
     @Override
     public boolean isInProgress() {

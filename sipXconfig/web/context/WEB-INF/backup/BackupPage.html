@@ -22,9 +22,7 @@ body {
         id="local-tab-link" href="#"><span key="tab.backup">Backup</span></a>
       </li>
       <li id="ftp-tab" class="tab"><a
-        id="ftp-tab-link" href="#"><span key="tab.backup-ftp">Backup to FTP</span></a></li>
-      <li id="restore-upload-tab" class="tab"><a
-        id="restore-upload-tab-link" href="#"><span key="tab.restore-upload">Restore and Upload</span></a></li>        
+        id="ftp-tab-link" href="#"><span key="tab.backup-ftp">Backup to FTP</span></a></li>       
     </ul>
     <p id="message"></p>
     <div id="backup">
@@ -128,22 +126,7 @@ body {
         <ul class="component" id="backups">
           <li>There are no backup files saved in the backup folder.</li>
         </ul>
-      </fieldset>
-      <ul class="form-actions">
-        <li>
-          <button id="restore"><span key="button.restore">Restore</span></button>
-        </li>  
-      </ul>    
-    </div>
-    <div id="restore-upload" style="display:none;">      
-      <fieldset>
-        <p> Restore upload here</p>
-      </fieldset>
-      <ul class="component-submit">
-        <li>
-          <button id="uploadRestore"><span key="button.restore">Restore</span></button>
-        </li>
-      </ul>
+      </fieldset>    
     </div>
     <span id="rc" style="display: none"> 
       <span jwcid="@common/Message" key="message.backupCompleted">Backup Complete</span>

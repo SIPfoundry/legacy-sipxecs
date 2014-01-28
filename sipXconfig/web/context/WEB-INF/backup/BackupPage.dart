@@ -8,7 +8,7 @@ var api = new Api(test : true);
 
 main() {
   var backup = new BackupPage();
-  var tabs = new Tabs(querySelector("#leftNavAbsolute"), ["local", "ftp", "restore-upload"], backup.showContent);
+  var tabs = new Tabs(querySelector("#leftNavAbsolute"), ["local", "ftp"], backup.showContent);
   tabs.setPersistentStateId("backup");
 }
 
@@ -25,7 +25,6 @@ class BackupPage {
   BackupPage() {
     querySelector("#backup-now").onClick.listen(backupNow);
     querySelector("#apply").onClick.listen(apply);
-    querySelector("#restore").onClick.listen(restore);
     loader = new DataLoader(this.msg, loadForm);
     settings = new SettingEditor(querySelector("#settings"));
     ftpSettings = new SettingEditor(querySelector("#ftp-settings"));
@@ -42,24 +41,6 @@ class BackupPage {
     UListElement listElem = querySelector("#backups");
     listElem.children.clear();
     loader.load(url);
-  }
-  
-  restore([e]) {
-    List<String> restoreIds = new List<String>();
-    for (CheckboxInputElement c in querySelectorAll("input[name=restoreIds]")) {
-      if (c.checked) {
-        restoreIds.add(c.value);
-      }
-    }
-    HttpRequest req = new HttpRequest();
-    req.open('PUT', api.url("rest/restore/${type}"));
-    req.setRequestHeader("Content-Type", "application/json");
-    req.send(JSON.encode(restoreIds));
-    req.onLoad.listen((e) {
-      if (DataLoader.checkResponse(msg, req)) {
-        msg.success(getString("msg.actionSuccess"));
-      }
-    });      
   }
   
   loadForm(json) {
@@ -128,7 +109,7 @@ class BackupPage {
         for (String f in backupFiles) {
           var decode = f.split('|');
           html += '''
-<input type="checkbox" name="restoreIds" value="${backupId}|${decode[0]}"/> <a href="${decode[1]}">${decode[0]}</a>
+<a href="${decode[1]}">${decode[0]}</a>
 ''';
         }
         listElem.appendHtml(html + "</li>");
