@@ -85,6 +85,16 @@ bundle agent sipxopenfire_config {
         perms => m("644"),
         edit_defaults => empty,
         edit_line => openfire_config_contents;
+                
+      "$(sipx.OPENFIRE_HOME)/conf/log4j.properties"
+        comment => "configure sipXopenfire log4j $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => sipxopenfire_log4j_properties_contents;
+        
+      "$(sipx.OPENFIRE_HOME)/lib/log4j.xml"
+        comment => "configure openfire server log4j xml $(this.promiser)",
+        edit_line => sipxopenfire_log4j_xml_contents;
 
       # We have to copy file in 2 phases because we use one phase to tell when there's a
       # config change and another update openfire. This is because openfire oddly
@@ -196,4 +206,54 @@ body copy_from local_cp_by_digest(filename) {
   source => "$(filename)";
   compare => "digest";
   purge => "true";
+}
+
+bundle edit_line sipxopenfire_log4j_properties_contents {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/log4j-openfire.properties.part"
+        insert_type => "file";
+	  "log4j.rootLogger=warn, file";
+      "log4j.appender.file=org.sipfoundry.commons.log4j.SipFoundryAppender";
+      "log4j.appender.file.File=$(sipx.OPENFIRE_HOME)/logs/sipxopenfire.log";
+      "log4j.appender.file.layout=org.sipfoundry.commons.log4j.SipFoundryLayout";
+      "log4j.appender.file.layout.facility=sipXopenfire";
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle edit_line sipxopenfire_log4j_xml_contents {
+  vars:
+    sipxopenfire::
+      "loglevelfile" string => readfile("$(sipx.SIPX_CFDATA)/$(sipx.location_id)/log4j-openfire.properties.part", "100");
+      
+  classes:
+    "sipxopenfire" expression => regextract("(.*)=(.*)",
+                                  "$(loglevelfile)",
+                                  "loglevel");
+  replace_patterns:
+    sipxopenfire::
+      "debug|DEBUG" replace_with => loglevel("$(loglevel[2])"),
+                  	select_region => rootSection;
+	  "info|INFO"  	replace_with => loglevel("$(loglevel[2])"),
+			      	select_region => rootSection;
+	  "warn|WARN" 	replace_with => loglevel("$(loglevel[2])"),
+				  	select_region => rootSection;
+	  "error|ERROR" replace_with => loglevel("$(loglevel[2])"),
+					select_region => rootSection;
+	  "fatal|FATAL" replace_with => loglevel("$(loglevel[2])"),
+					select_region => rootSection;
+}
+
+body replace_with loglevel(x)
+{
+  replace_value => "$(x)";
+  occurrences => "first";
+}
+
+body select_region rootSection
+{
+  select_start => "^\s*?<root>\s*?$";
+  select_end => "^\s*?<appender-ref ref=\"debug-out\" />\s*?$";
 }

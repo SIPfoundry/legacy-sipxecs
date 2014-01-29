@@ -33,7 +33,12 @@ bundle agent sipxacccode_config {
         perms => m("644"),
         edit_line => sipxacccode_properties_contents,
         classes => if_repaired("restart_sipxacccode");
-
+        
+      "$(sipx.SIPX_CONFDIR)/sipxacccode/log4j.properties"
+        comment => "configure acccode log4j $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => sipxacccode_log4j_properties_contents;
 }
 
 bundle edit_line sipxacccode_properties_contents {
@@ -51,6 +56,20 @@ bundle edit_line sipxacccode_properties_contents {
       ".*";
 }
 
+bundle edit_line sipxacccode_log4j_properties_contents {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/log4j-acccode.properties.part"
+        insert_type => "file";
+	  "log4j.rootLogger=warn, file";
+      "log4j.appender.file=org.sipfoundry.commons.log4j.SipFoundryAppender";
+      "log4j.appender.file.File=$(sipx.SIPX_LOGDIR)/sipxacccode.log";
+      "log4j.appender.file.layout=org.sipfoundry.commons.log4j.SipFoundryLayout";
+      "log4j.appender.file.layout.facility=sipXacccode";
+  delete_lines:
+    any::
+      ".*";
+}
 
 bundle agent sipxacccode_setup {
   methods:
@@ -85,6 +104,3 @@ bundle agent sipxacccode_running {
         comment => "restart sipxacccode",
         args => "restart";
 }
-
-
-

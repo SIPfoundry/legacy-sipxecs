@@ -51,10 +51,6 @@ public class PagingSettings extends PersistableSettings implements DeployConfigO
         setSettingValue(SIP_TRACE_LEVEL, level);
     }
 
-    public String getLogLevel() {
-        return getSettingValue("page-config/log.level");
-    }
-
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Arrays.asList((Feature) PagingContext.FEATURE, (Feature) DialPlanContext.FEATURE);

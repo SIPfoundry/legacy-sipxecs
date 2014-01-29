@@ -15,6 +15,7 @@ import javax.sip.message.MessageFactory;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpServer;
 import org.mortbay.http.SocketListener;
@@ -139,15 +140,15 @@ public class RestServer {
             System.err.println("Cannot find the config file");
             System.exit(-1);
         }
-
+        
+        PropertyConfigurator.configureAndWatch(configDir + "/sipxrest/log4j.properties", 
+                SipFoundryLayout.LOG4J_MONITOR_FILE_DELAY);
+        
         restServerConfig = new RestServerConfigFileParser().parse("file://"
                 + configFileName);
-        Logger.getLogger(PACKAGE).setLevel(
-                SipFoundryLayout.mapSipFoundry2log4j(restServerConfig.getLogLevel()));
         setAppender(new SipFoundryAppender(new SipFoundryLayout(),
                 RestServer.getRestServerConfig().getLogDirectory()
                 +"/sipxrest.log"));
-        Logger.getLogger(PACKAGE).addAppender(getAppender());
 
         accountManager = new AccountManagerImpl();
         sipStackBean = new SipStackBean();

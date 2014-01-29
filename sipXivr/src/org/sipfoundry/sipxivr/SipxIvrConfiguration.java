@@ -16,6 +16,9 @@
  */
 package org.sipfoundry.sipxivr;
 
+import org.apache.log4j.Logger;
+import org.sipfoundry.commons.log4j.SipFoundryLayout;
+
 
 /**
  * Holds the configuration data needed for sipXivr.
@@ -23,7 +26,8 @@ package org.sipfoundry.sipxivr;
  */
 public class SipxIvrConfiguration {
 
-    private String m_logLevel; // The desired logging level in SipFoundry format (not log4j!)
+    private static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+    
     private String m_logFile; // The file to log into
     private int m_eventSocketPort; // The Event Socket Listen port
     private String m_dataDirectory; // File path to the media server data directory
@@ -49,11 +53,7 @@ public class SipxIvrConfiguration {
     private String m_backupPath;
 
     public String getLogLevel() {
-        return m_logLevel;
-    }
-
-    public void setLogLevel(String logLevel) {
-        m_logLevel = logLevel;
+        return SipFoundryLayout.getSipFoundryLogLevel().toString();
     }
 
     public String getLogFile() {

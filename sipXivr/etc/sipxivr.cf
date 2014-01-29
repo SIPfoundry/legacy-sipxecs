@@ -35,6 +35,12 @@ bundle agent sipxivr_config {
         perms => m("644"),
         edit_line => sipxivr_properties_contents,
         classes => if_repaired("restart_sipxivr");
+        
+       "$(sipx.SIPX_CONFDIR)/sipxivr/log4j.properties"
+        comment => "configure ivr log4j $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => sipxivr_log4j_properties_contents;
 
       "$(sipx.SIPX_CONFDIR)/autoattendants.xml"
         comment => "install sipxivr config $(this.promiser)",
@@ -102,6 +108,20 @@ bundle edit_line sipxivr_properties_contents {
       ".*";
 }
 
+bundle edit_line sipxivr_log4j_properties_contents {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/log4j-ivr.properties.part"
+        insert_type => "file";
+      "log4j.rootLogger=warn, file";        
+      "log4j.appender.file=org.sipfoundry.commons.log4j.SipFoundryAppender";
+      "log4j.appender.file.File=$(sipx.SIPX_LOGDIR)/sipxivr.log";
+      "log4j.appender.file.layout=org.sipfoundry.commons.log4j.SipFoundryLayout";
+      "log4j.appender.file.layout.facility=sipXivr";
+  delete_lines:
+    any::
+      ".*";
+}
 
 bundle agent sipxivr_running {
   vars:
@@ -166,4 +186,3 @@ body file_select wav_prompt {
 body file_select custom_ivr {
   file_result => "leaf_name";
 }
-

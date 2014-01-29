@@ -26,11 +26,14 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingUtil;
 import org.springframework.beans.factory.annotation.Required;
 
 public class AuthCodesConfig implements ConfigProvider, PostConfigListener {
     private AuthCodesImpl m_authCodes;
     private SipxReplicationContext m_sipxReplicationContext;
+    private String m_accCodeSettingKeyString = "acccode-config";
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -52,6 +55,11 @@ public class AuthCodesConfig implements ConfigProvider, PostConfigListener {
             if (!enabled) {
                 continue;
             }
+
+            Setting acccodeSettings = settings.getSettings().getSetting(m_accCodeSettingKeyString);
+            String log4jFileName = "log4j-acccode.properties.part";
+            SettingUtil.writeLog4jSetting(acccodeSettings, dir, log4jFileName);
+
             Writer flat = new FileWriter(new File(dir, "sipxacccode.properties.part"));
             try {
                 writeConfig(flat, settings, domain, fs.getPort());
@@ -72,7 +80,7 @@ public class AuthCodesConfig implements ConfigProvider, PostConfigListener {
 
     void writeConfig(Writer wtr, AuthCodeSettings settings, Domain domain, int freeswithPort) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
-        config.writeSettings(settings.getSettings().getSetting("acccode-config"));
+        config.writeSettings(settings.getSettings().getSetting(m_accCodeSettingKeyString));
         config.write("freeswitch.eventSocketPort", freeswithPort);
     }
 

@@ -312,18 +312,18 @@ class FtpFileManager < FileManagerBase
   end
 
   def upload(b)
-    Net::FTP.open(@uri.host, @params['user'], @params['password']) do |ftp|
+    Net::FTP.open(@uri.host.to_s, @params['user'].to_s, @params['password'].to_s) do |ftp|
       ftp.passive = true
       ipad_folder = ftp.list("/#{@uri.path}")
       ftp.mkdir("/#{@uri.path}/#{b}") if !ipad_folder.any?{|dir| dir.match(/\s#{b}$/)}
       Dir["#{@backup_dir}/#{b}/*"].each {|f|
-        ftp.putbinaryfile(f, "#{@uri.path}/#{b}/#{File.basename(f)}")
+        ftp.putbinaryfile(f, "/#{@uri.path}/#{b}/#{File.basename(f)}")
       }
     end
   end
 
   def list
-    Net::FTP.open(@uri.host, @params['user'], @params['password']) do |ftp|
+    Net::FTP.open(@uri.host.to_s, @params['user'].to_s, @params['password'].to_s) do |ftp|
       ftp.passive = true
       ftp.chdir("/#{@uri.path}")
       candidates = ftp.nlst("*").collect { |f| f }
@@ -332,7 +332,7 @@ class FtpFileManager < FileManagerBase
   end
 
   def list_items(b)
-    Net::FTP.open(@uri.host, @params['user'], @params['password']) do |ftp|
+    Net::FTP.open(@uri.host.to_s, @params['user'].to_s, @params['password'].to_s) do |ftp|
       ftp.passive = true
       ftp.chdir("/#{@uri.path}/#{b}")
       return ftp.nlst("*").collect { |f| f }
@@ -340,7 +340,7 @@ class FtpFileManager < FileManagerBase
   end
 
   def stage(dir, file, dst)
-    Net::FTP.open(@uri.host, @params['user'], @params['password']) do |ftp|
+    Net::FTP.open(@uri.host.to_s, @params['user'].to_s, @params['password'].to_s) do |ftp|
       ftp.passive = true
       ftp.getbinaryfile("/#{@uri.path}/#{dir}/#{file}", "#{dst}/#{file}", 1024)
     end

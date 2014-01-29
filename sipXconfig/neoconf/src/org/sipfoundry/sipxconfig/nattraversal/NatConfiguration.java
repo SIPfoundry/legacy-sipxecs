@@ -35,6 +35,8 @@ import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.sbc.SbcRoutes;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
 public class NatConfiguration implements ConfigProvider {
     private VelocityEngine m_velocityEngine;
@@ -58,6 +60,11 @@ public class NatConfiguration implements ConfigProvider {
             boolean proxyEnabled = manager.getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE, location);
             boolean enabled = (relayEnabled && proxyEnabled);
             if (enabled) {
+
+                Setting natTraversalSetting = settings.getSettings().getSetting("relay-config");
+                String log4jFileName = "log4j-relay.properties.part";
+                SettingUtil.writeLog4jSetting(natTraversalSetting, dir, log4jFileName);
+
                 Writer writer = new FileWriter(new File(dir, "nattraversalrules.xml"));
                 try {
                     write(writer, settings, location, routes, proxyTcp.getPort(), proxyTls.getPort());

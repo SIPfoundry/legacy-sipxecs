@@ -112,8 +112,6 @@ public class ConfigurationParser {
                     Boolean.class
                 });
 
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "log-level"), "setLogLevel",
-                0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sip-keepalive-seconds"),
                 "setSipKeepalive", 0);
 

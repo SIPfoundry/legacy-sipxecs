@@ -651,6 +651,9 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         admin.addGroup(adminGroup);
         saveUser(admin);
         getDaoEventPublisher().publishSave(admin);
+        // enable IM for superadmin
+        ImAccount imAccount = new ImAccount(admin);
+        imAccount.setEnabled(true);
     }
 
 /*    @Override

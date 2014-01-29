@@ -29,6 +29,12 @@ bundle agent sipxrest_config {
         perms => m("644"),
         copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
         classes => if_repaired("restart_sipxrest");
+        
+      "$(sipx.SIPX_CONFDIR)/sipxrest/log4j.properties"
+        comment => "configure rest log4j $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => sipxrest_log4j_properties_contents;
 }
 
 bundle agent sipxrest_setup {
@@ -62,4 +68,19 @@ bundle agent sipxrest_running {
       "$(sipx.SIPX_SERVICEDIR)/sipxrest"
         comment => "restart sipxrest",
         args => "restart";
+}
+
+bundle edit_line sipxrest_log4j_properties_contents {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/log4j-rest.properties.part"
+        insert_type => "file";
+      "log4j.rootLogger=warn, file";        
+      "log4j.appender.file=org.sipfoundry.commons.log4j.SipFoundryAppender";
+      "log4j.appender.file.File=$(sipx.SIPX_LOGDIR)/sipxrest.log";
+      "log4j.appender.file.layout=org.sipfoundry.commons.log4j.SipFoundryLayout";
+      "log4j.appender.file.layout.facility=sipXrest";
+  delete_lines:
+    any::
+      ".*";
 }

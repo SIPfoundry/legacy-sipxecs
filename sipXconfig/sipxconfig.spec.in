@@ -246,7 +246,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/freeswitch/*
 %config(noreplace) %{sipxpbxconf}/ftp/*
 %config(noreplace) %{sipxpbxconf}/itspTemplates/*
-%config(noreplace) %{sipxpbxconf}/log4j.properties
 %config(noreplace) %{sipxpbxconf}/mailbox/*
 %config(noreplace) %{sipxpbxconf}/moh/*
 %config(noreplace) %{sipxpbxconf}/mongo/*

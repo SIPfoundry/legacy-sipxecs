@@ -44,6 +44,8 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingUtil;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
@@ -71,6 +73,12 @@ public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, 
             boolean bridgeHere = bridge != null ? true : false;
             File dir = manager.getLocationDataDirectory(location);
             ConfigUtils.enableCfengineClass(dir, "sipxbridge.cfdat", bridgeHere, SIPXBRIDGE);
+
+            Setting settings = bridge.getSettings();
+            Setting bridgeSettings = settings.getSetting("bridge-configuration");
+            String log4jFileName = "log4j-bridge.properties.part";
+            SettingUtil.writeLog4jSetting(bridgeSettings, dir, log4jFileName);
+
             if (bridgeHere) {
                 // strange object for profile location to be compatible with device module
                 ProfileLocation profileLocation = bridge.getProfileLocation();

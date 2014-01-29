@@ -39,6 +39,13 @@ bundle agent sipxbridge_config {
         perms => m("644"),
         copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
         classes => if_repaired("restart_sipxbridge");
+                
+      "$(sipx.SIPX_CONFDIR)/sipxbridge/log4j.properties"
+        comment => "configure bridge log4j $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => sipxbridge_log4j_properties_contents;
+        
 }
 
 bundle agent sipxbridge_logwatcher {
@@ -79,4 +86,19 @@ bundle agent sipxbridge_running {
       "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
         comment => "restart sipxbridge",
         args => "asyncrestart";
+}
+
+bundle edit_line sipxbridge_log4j_properties_contents {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/log4j-bridge.properties.part"
+        insert_type => "file";
+      "log4j.rootLogger=warn, file";        
+      "log4j.appender.file=org.sipfoundry.commons.log4j.SipFoundryAppender";
+      "log4j.appender.file.File=$(sipx.SIPX_LOGDIR)/sipxbridge.log";
+      "log4j.appender.file.layout=org.sipfoundry.commons.log4j.SipFoundryLayout";
+      "log4j.appender.file.layout.facility=sipXbridge";
+  delete_lines:
+    any::
+      ".*";
 }

@@ -34,11 +34,9 @@
     </property>
   </bean>
 
-  <bean id="sipxIvrServer" class="org.sipfoundry.sipxivr.SipXivrServer" init-method="init" >
+  <bean id="sipxIvrServer" class="org.sipfoundry.sipxivr.SipXivrServer">
     <lookup-method bean="sipxIvr" name="getSipxIvrHandler"/>
     <property name="eventSocketPort" value="${freeswitch.eventSocketPort}" />
-    <property name="logLevel" value="${log.level}" />
-    <property name="logFile" value="${log.file}" />
   </bean>
 
   <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
@@ -56,7 +54,6 @@
   </bean>
 
   <bean id="fsConfig" class="org.sipfoundry.sipxivr.common.FreeSwitchConfigurationImpl">
-    <property name="logLevel" value="${log.level}" />
     <property name="logFile" value="${log.file}" />
     <property name="eventSocketPort" value="${freeswitch.eventSocketPort}" />
     <property name="docDirectory" value="${ivr.docDirectory}" />
@@ -65,7 +62,6 @@
   </bean>
 
   <bean id="ivrConfig" class="org.sipfoundry.sipxivr.SipxIvrConfiguration">
-    <property name="logLevel" value="${log.level}" />
     <property name="logFile" value="${log.file}" />
     <property name="eventSocketPort" value="${freeswitch.eventSocketPort}" />
     <property name="dataDirectory" value="${ivr.dataDirectory}" />
