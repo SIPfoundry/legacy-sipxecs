@@ -10,6 +10,7 @@ TEST_DB = SIPXCONFIG_TEST
 	LICENSE \
 	NOTICE \
 	$(PUB_PACKAGES) \
+	pubspec.yaml \
 	packages/sipxconfig/sipxconfig.dart \
 	meta
 
