@@ -34,14 +34,14 @@ display:none;
             <span jwcid="@RenderBlock" block="ognl:components.get(constraintBlockId)"/>
             <span jwcid="global@Block">
                <td style="text-align:center" class="ognl:cellClass" jwcid="@Any">
-                 <input jwcid="@Checkbox" value="ognl:globalFeatureEnabled" onclick="javascript: validateBundle()"/>
+                 <input jwcid="@Checkbox" id="ognl:feature.id" value="ognl:globalFeatureEnabled" onclick="javascript: validateBundle()"/>
                </td>                
               <td jwcid="@Any" colspan="ognl:locations.size"/>
             </span>
             <span jwcid="pickAny@Block">
               <td/>
               <span jwcid="@For" source="ognl:cells" value="ognl:cell" converter="ognl:cellConverter" renderTag="false">
-                <td style="text-align:center" class="ognl:cellClass" jwcid="@Any"><input jwcid="@Checkbox" value="ognl:cellPickedFromAnyInRow"  disabled="ognl:!cell.enabled"  onclick="javascript: validateBundle()"/></td>
+                <td style="text-align:center" class="ognl:cellClass" jwcid="@Any"><input jwcid="@Checkbox" id="ognl:feature.id+'_'+cell.location.id" value="ognl:cellPickedFromAnyInRow"  disabled="ognl:!cell.enabled"  onclick="javascript: validateBundle()"/></td>
               </span>
             </span>
           </tr>
