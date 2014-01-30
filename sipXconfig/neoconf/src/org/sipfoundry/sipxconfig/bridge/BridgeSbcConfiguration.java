@@ -74,12 +74,12 @@ public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, 
             File dir = manager.getLocationDataDirectory(location);
             ConfigUtils.enableCfengineClass(dir, "sipxbridge.cfdat", bridgeHere, SIPXBRIDGE);
 
-            Setting settings = bridge.getSettings();
-            Setting bridgeSettings = settings.getSetting("bridge-configuration");
-            String log4jFileName = "log4j-bridge.properties.part";
-            SettingUtil.writeLog4jSetting(bridgeSettings, dir, log4jFileName);
-
             if (bridgeHere) {
+                Setting settings = bridge.getSettings();
+                Setting bridgeSettings = settings.getSetting("bridge-configuration");
+                String log4jFileName = "log4j-bridge.properties.part";
+                SettingUtil.writeLog4jSetting(bridgeSettings, dir, log4jFileName);
+
                 // strange object for profile location to be compatible with device module
                 ProfileLocation profileLocation = bridge.getProfileLocation();
                 bridge.generateFiles(profileLocation);
