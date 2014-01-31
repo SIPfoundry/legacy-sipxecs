@@ -17,7 +17,6 @@
     <mediarelaynativeaddress>192.168.1.1</mediarelaynativeaddress>
     <concurrentrelays>50</concurrentrelays>
     <port-range>30000:31000</port-range>
-    <log-level>NOTICE</log-level>
     <log-directory>@SIPX_LOGDIR@</log-directory>
     <sipx-supervisor-host>sipx.example.org</sipx-supervisor-host>
     <sipx-supervisor-xml-rpc-port>8092</sipx-supervisor-xml-rpc-port>

@@ -28,7 +28,6 @@
     <mediarelaynativeaddress>${location.address}</mediarelaynativeaddress>
     <concurrentrelays>50</concurrentrelays>
     <port-range>${location.startRtpPort}:${location.stopRtpPort}</port-range>
-    <log-level>${relay.getSetting('SIP_RELAY_LOG_LEVEL').Value}</log-level>
     <log-directory>@SIPX_LOGDIR@</log-directory>
     <sipx-supervisor-host>${location.fqdn}</sipx-supervisor-host>
     <sipx-supervisor-xml-rpc-port>8092</sipx-supervisor-xml-rpc-port>

@@ -5,7 +5,6 @@
   <public-http-port>6666</public-http-port>
   <sipx-proxy-domain>example.org</sipx-proxy-domain>
   <log-directory>@SIPX_LOGDIR@</log-directory>
-  <log-level>NOTICE</log-level>
   <sip-port>6050</sip-port>
   <sipxcdr-address>jdbc:postgresql://master.example.com/SIPXCDR</sipxcdr-address>
   <db-user>@POSTGRESQL_USER@</db-user>
