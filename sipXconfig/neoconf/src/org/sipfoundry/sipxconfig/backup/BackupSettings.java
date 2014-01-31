@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.rest.RestUtilities;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.springframework.beans.factory.annotation.Required;
 
 public class BackupSettings extends PersistableSettings implements DeployConfigOnEdit {
     private static final Log LOG = LogFactory.getLog(BackupSettings.class);
@@ -41,8 +42,7 @@ public class BackupSettings extends PersistableSettings implements DeployConfigO
         String fmt = "%s/%s/%s";
         switch (plan.getType()) {
         case ftp:
-            String url = getSettings().getSetting("ftp/url").getValue();
-            return String.format(fmt, url, backupId, backupEntry);
+            return String.format(fmt, getFtpUrl(), backupId, backupEntry);
         default:
         case local:
             String file = String.format(fmt, m_localBackupPath, backupId, backupEntry);
@@ -56,8 +56,23 @@ public class BackupSettings extends PersistableSettings implements DeployConfigO
         }
     }
 
+    public String getPath(BackupPlan plan) {
+        switch (plan.getType()) {
+        case ftp:
+            return getFtpUrl();
+        default:
+        case local:
+            return getLocalBackupPath();
+        }
+    }
+
+    @Required
     public void setLocalBackupPath(String localBackupPath) {
         m_localBackupPath = localBackupPath;
+    }
+
+    public String getLocalBackupPath() {
+        return m_localBackupPath;
     }
 
     @Override
@@ -74,6 +89,11 @@ public class BackupSettings extends PersistableSettings implements DeployConfigO
     @JsonIgnore
     public boolean isKeepDeviceFiles() {
         return (Boolean) getSettingTypedValue("backup/device");
+    }
+
+    @JsonIgnore
+    public String getFtpUrl() {
+        return (String) getSettingTypedValue("ftp/url");
     }
 
     @JsonIgnore

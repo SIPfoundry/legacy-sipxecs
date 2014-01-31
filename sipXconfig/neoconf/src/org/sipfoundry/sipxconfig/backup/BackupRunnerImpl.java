@@ -16,7 +16,9 @@ package org.sipfoundry.sipxconfig.backup;
 
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +26,7 @@ import java.util.TreeMap;
 
 import org.sipfoundry.sipxconfig.common.SimpleCommandRunner;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.springframework.util.StringUtils;
 
 public class BackupRunnerImpl implements BackupRunner {
     private SimpleCommandRunner m_actionRunner;
@@ -81,14 +84,37 @@ public class BackupRunnerImpl implements BackupRunner {
     }
 
     @Override
-    public boolean restore(File plan) {
-        return op(plan, "--restore");
+    public boolean restore(File plan, Collection<String> selections) {
+        Collection<String> params = new ArrayList<String>();
+        params.add(plan.getAbsolutePath());
+        params.addAll(selections);
+        String stringParams = StringUtils.collectionToCommaDelimitedString(params);
+        boolean staged = op("--stage", stringParams);
+        if (staged) {
+            return op(plan, "--restore");
+        }
+        return false;
     }
 
     boolean op(File plan, String operation) {
         SimpleCommandRunner runner = obtainBackgroundRunner();
         String[] cmd = new String[] {
             m_backupScript, operation, plan.getAbsolutePath()
+        };
+        return runner.run(cmd, m_foregroundTimeout);
+    }
+
+    /**
+     * Ruby script accepts parameters like this: a,b,c
+     * @param plan = backup plan config file
+     * @param operation = --stage or --restore etc
+     * @param params = /backup.yaml,201401301800/configuration.tar.gz, 201401301800/voicemail.tar.gz
+     * @return
+     */
+    boolean op(String operation, String params) {
+        SimpleCommandRunner runner = obtainBackgroundRunner();
+        String[] cmd = new String[] {
+            m_backupScript, operation, params
         };
         return runner.run(cmd, m_foregroundTimeout);
     }

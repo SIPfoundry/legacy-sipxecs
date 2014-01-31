@@ -19,16 +19,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
+import org.sipfoundry.sipxconfig.backup.BackupApi;
 import org.sipfoundry.sipxconfig.backup.BackupCommandRunner;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupPlan;
+import org.sipfoundry.sipxconfig.backup.BackupRunner;
+import org.sipfoundry.sipxconfig.backup.BackupSettings;
 import org.sipfoundry.sipxconfig.backup.BackupType;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -49,6 +56,9 @@ public abstract class BackupTable extends BaseComponent {
 
     @InjectObject("spring:backupManager")
     public abstract BackupManager getBackupManager();
+    
+    @InjectObject("spring:backupRunner")
+    public abstract BackupRunner getBackupRunner();   
 
     public abstract void setBackup(String backup);
 
@@ -75,6 +85,8 @@ public abstract class BackupTable extends BaseComponent {
     public abstract String getDownloadLinkBase();
 
     public abstract void setDownloadLinkBase(String base);
+    
+    private static final Log LOG = LogFactory.getLog(BackupTable.class);    
 
     @Parameter(required = false)
     public abstract SipxValidationDelegate getValidator();
@@ -125,16 +137,30 @@ public abstract class BackupTable extends BaseComponent {
 
     public void loadBackups() {
         File planFile = getBackupManager().getPlanFile(getBackupPlan());
-        BackupCommandRunner runner = new BackupCommandRunner(planFile, "BOGUS");
-        runner.setMode(getMode());
-        List<String> backups = runner.list();
+        Map<String, List<String>> backupsMap = new HashMap<String, List<String>>();
+        BackupSettings settings = getBackupManager().getSettings();
+        try {
+            backupsMap = getBackupRunner().list(planFile);
+        } catch (Exception ex) {
+            LOG.error("Cannot retrieve backups list ", ex);
+        }
+        List<String> backups = new ArrayList<String>();
+        for (Map.Entry<String, List<String>> entries : backupsMap.entrySet()) {
+            StringBuilder backup = new StringBuilder();
+            backup.append(entries.getKey());         
+            for (String entry : entries.getValue()) {
+                backup.append(SPACE)
+                      .append(entry);
+            }
+            backups.add(backup.toString());
+        }
         if (backups.size() > getTableSize()) {
             backups = backups.subList(0, getTableSize());
         }
         setBackups(backups);
 
         if (!backups.isEmpty()) {
-            setDownloadLinkBase(runner.getBackupLink());
+            setDownloadLinkBase(settings.getPath(getBackupPlan()));
         }
     }
 }

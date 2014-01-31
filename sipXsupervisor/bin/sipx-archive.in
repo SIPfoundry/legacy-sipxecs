@@ -99,7 +99,12 @@ class Backup < ArchiveBase
   end
 
   def hosts_param
-    @data['hosts'].values.join(' -h ')
+      hosts_array = Array.new 
+      @data['hosts'].each { |location_id, meta|
+        host = meta['host']
+        hosts_array.push(host)
+      }
+    hosts_array.join(' -h ')
   end
 
   def define_param(params)
@@ -110,20 +115,8 @@ end
 # Orchestrate restore a cluster including staging file from local or ftp plan.
 class Restore < Backup
   def run(params, args)
-    mgr = file_manager(params)
-    # nothing specified, assume files are already staged.
-    unless args.empty?
-      fresh_dir @restore_dir
-      args.each {|path|
-        dir, fname = path.split('/')
-        mgr.stage(dir, fname, @restore_dir)
-      }
-    end
     correlate_by_location
     defines = define_param(params)
-    if cmd(@bin_dir + "/sipxagent -h #{hosts_param} -b restore_distribute")
-      raise "Could not distribute files for restore operation"
-    end
     @data['hosts'].each { |location_id, meta|
       host = meta['host']
       unless cmd("ssh #{@ssh_params} root@#{host} sipx-archive --restore-host #{location_id} < #{@config}")
@@ -142,6 +135,21 @@ class Restore < Backup
         end
       }
     }
+  end
+end
+
+class Stage < ArchiveBase
+  def initialize(config = nil, path)
+    super(config)
+    @path = path
+  end
+  def run(params, args)
+    mgr = file_manager(params)
+    unless @path.empty?
+      fresh_dir @restore_dir
+      dir, fname = @path.split('/')
+      mgr.stage(dir, fname, @restore_dir)
+    end
   end
 end
 
@@ -408,15 +416,19 @@ end
 
 class RestoreHost < ArchiveHost
   def run(params, args)
-    if @data.has_key?('restore')
-      @data['restore'].each_pair { |defId,template|
-        file = "#{@restore_dir}/#{params[:location_id]}/#{defId}"
-        if File.exists?(file)
-          line = template % file
-          cmd(line) or
-            raise "Failed to restore #{defId} using command #{line}"
+    if @data.key?('hosts') and @data['hosts'].key?(@location_id)
+      meta = @data['hosts'][@location_id]
+      if meta.key?('restore')
+        meta['restore'].each do |defId, command|     
+          file = "#{@restore_dir}/#{@location_id}/#{defId}"
+          line = command % file 
+          if File.exists?(file)
+            line = command % file
+            cmd(line) or
+             raise "Failed to restore #{defId} using command #{line}"
+          end   
         end
-      }
+      end
     end
   end
 end
@@ -456,6 +468,11 @@ EOF
   opts.on("--restore-host location_id",
       "Only to be called internally over ssh by this script. Required config be passed on stdin") {|location_id|
     operation = RestoreHost.new(STDIN, location_id.to_i())
+  }
+  
+  opts.on("-s", "--stage config.yaml,path", Array,
+      "Stage backup file from local backup or FTP (copy/download it into temp restore directory)") {|s|   
+    operation = Stage.new(s.at(0), s.at(1).to_s()) 
   }
 
   $output = $stdout

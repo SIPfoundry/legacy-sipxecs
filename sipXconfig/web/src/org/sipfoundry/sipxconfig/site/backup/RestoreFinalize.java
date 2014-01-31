@@ -16,6 +16,8 @@ package org.sipfoundry.sipxconfig.site.backup;
 
 import java.util.Collection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
@@ -23,10 +25,14 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.restlet.resource.ResourceException;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
+import org.sipfoundry.sipxconfig.backup.BackupApi;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
+import org.sipfoundry.sipxconfig.backup.BackupRunner;
 import org.sipfoundry.sipxconfig.backup.BackupSettings;
 import org.sipfoundry.sipxconfig.backup.BackupType;
+import org.sipfoundry.sipxconfig.backup.RestoreApi;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -51,8 +57,8 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
 
     public abstract void setUploadedIds(Collection<String> ids);
 
-//    @InjectObject("spring:manualRestore")
-//    public abstract ManualRestore getManualRestore();
+    @InjectObject("spring:restoreApi")
+    public abstract RestoreApi getRestoreApi();
 
     @InjectPage(value = WaitingPage.PAGE)
     public abstract WaitingPage getWaitingPage();
@@ -66,6 +72,8 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
+    
+    private static final Log LOG = LogFactory.getLog(RestoreFinalize.class);
 
     @Override
     public void pageBeginRender(PageEvent event) {
@@ -85,17 +93,24 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
 
         Collection<String> restoreFrom = getSelections();
         boolean isAdminRestore = isSelected(AdminContext.ARCHIVE);
-//        ManualRestore restore = getManualRestore();
-//        if (isAdminRestore) {
-//            restore.restore(getBackupType(), getBackupSettings(), restoreFrom, true);
-//            WaitingPage waitingPage = getWaitingPage();
-//            waitingPage.setWaitingListener(restore);
-//            return waitingPage;
-//        } else {
-//            restore.restore(getBackupType(), getBackupSettings(), restoreFrom);
-//            getValidator().recordSuccess(getMessages().getMessage("restore.success"));
-//        }
-
+        RestoreApi restore = getRestoreApi();
+        if (isAdminRestore) {
+            try {
+                restore.restore(getBackupManager().findOrCreateBackupPlan(getBackupType()), getBackupSettings(), restoreFrom);
+            } catch (ResourceException e) {
+                LOG.error("Cannot restore backup ", e);
+            }
+            WaitingPage waitingPage = getWaitingPage();
+            waitingPage.setWaitingListener(restore);
+            return waitingPage;
+        } else {
+            try {
+                restore.restore(getBackupManager().findOrCreateBackupPlan(getBackupType()), getBackupSettings(), restoreFrom);
+            } catch (ResourceException e) {
+                LOG.error("Cannot restore backup ", e);
+            }
+            getValidator().recordSuccess(getMessages().getMessage("restore.success"));
+        }
         return null;
     }
 
