@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.backup.BackupSettings;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
@@ -34,6 +35,7 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
@@ -44,10 +46,13 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
         HTTP_ADDRESS, HTTP_ADDRESS_AUTH, SIPXCDR_DB_ADDRESS
     });
-    private StringBuilder m_backup = new StringBuilder("sipxconfig-archive --backup %s");
-    private StringBuilder m_restore = new StringBuilder("sipxconfig-archive --restore %s");
+    private static final String BACKUP_COMMAND = "sipxconfig-archive --backup %s";
+    private static final String RESTORE_COMMAND = "sipxconfig-archive --restore %s";
     private LocationsManager m_locationsManager;
+    private DomainManager m_domainManager;
     private BeanWithSettingsDao<AdminSettings> m_settingsDao;
+    private StringBuilder m_backup = new StringBuilder(BACKUP_COMMAND);
+    private StringBuilder m_restore = new StringBuilder(RESTORE_COMMAND);
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
@@ -100,15 +105,20 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     }
 
     protected void buildArchiveCommands(BackupSettings settings) {
+        //Reset backup/restore commands to original values to avoid additional params to be added multiple times
+        m_backup = new StringBuilder(BACKUP_COMMAND);
+        m_restore = new StringBuilder(RESTORE_COMMAND);
         if (settings != null) {
             if (!settings.isKeepDeviceFiles()) {
                 m_backup.append(" --no-device-files");
             }
             if (settings.isKeepDomain()) {
-                m_restore.append(" --domain $(sipx.domain)");
+                m_restore.append(" --domain ")
+                         .append(m_domainManager.getDomain().getName());
             }
             if (settings.isKeepFqdn()) {
-                m_restore.append(" --fqdn $(sipx.host).$(sipx.net_domain)");
+                m_restore.append(" --fqdn ")
+                         .append(m_locationsManager.getPrimaryLocation().getFqdn());
             }
             String resetPin = settings.getResetPin();
             String resetPassword = settings.getResetPassword();
@@ -189,5 +199,10 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     @Override
     public boolean isDelete() {
         return getSettings().isDelete();
+    }
+
+    @Required
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
     }
 }

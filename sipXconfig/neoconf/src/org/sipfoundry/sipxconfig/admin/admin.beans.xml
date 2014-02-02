@@ -19,6 +19,7 @@
     </property>
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="locationsManager" ref="locationsManager"/>
+    <property name="domainManager" ref="domainManager"/>
   </bean>
   
   <bean id="passwordPolicyImpl" class="org.sipfoundry.sipxconfig.admin.PasswordPolicyImpl">
