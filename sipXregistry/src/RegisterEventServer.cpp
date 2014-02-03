@@ -328,7 +328,7 @@ void RegisterEventServer::generateContentUser(const char* entity,
    UtlString identity;
    aorUri.getIdentity(identity);
    RegDB::Bindings bindings;
-   SipRegistrar::getInstance(NULL)->getRegDB()->getUnexpiredContactsUser(identity.str(), 0, bindings);
+   SipRegistrar::getInstance(NULL)->getRegDB()->getUnexpiredContactsUser(identity.str(), 0, bindings, true);
    generateContent(entity, bindings, body);
 }
 
@@ -345,7 +345,7 @@ void RegisterEventServer::generateContentInstrument(const char* entity,
    // AOR, including the ones that have expired but not been purged.
 
    RegDB::Bindings bindings;
-   SipRegistrar::getInstance(NULL)->getRegDB()->getUnexpiredContactsInstrument(instrument.str(), 0, bindings);
+   SipRegistrar::getInstance(NULL)->getRegDB()->getUnexpiredContactsInstrument(instrument.str(), 0, bindings, true);
    generateContent(entity, bindings, body);
 
 }
@@ -366,7 +366,7 @@ void RegisterEventServer::generateContentUserInstrument(const char* entity,
    UtlString identity;
    aorUri.getIdentity(identity);
    RegDB::Bindings bindings;
-   SipRegistrar::getInstance(NULL)->getRegDB()->getUnexpiredContactsUserInstrument(identity.str(), instrument.str(), 0, bindings);
+   SipRegistrar::getInstance(NULL)->getRegDB()->getUnexpiredContactsUserInstrument(identity.str(), instrument.str(), 0, bindings, true);
    generateContent(entity, bindings, body);
 }
 

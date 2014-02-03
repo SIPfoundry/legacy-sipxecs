@@ -876,7 +876,7 @@ void SipRegistrarServer::handleRegister(SipMessage* pMsg)
                   toUri.getIdentity(identity_);
                   RegDB::Bindings registrations;
                   SipRegistrar::getInstance(NULL)->getRegDB()->getUnexpiredContactsUser(identity_.str(),
-                      timeNow, registrations);
+                      timeNow, registrations, true);
                   bool requestSupportsGruu =
                      message.isInSupportedField("gruu");
 #ifdef GRUU_WORKAROUND

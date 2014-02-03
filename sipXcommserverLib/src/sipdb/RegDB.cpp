@@ -178,7 +178,7 @@ bool RegDB::isOutOfSequence(const string& identity, const string& callId, unsign
 	return false;
 }
 
-bool RegDB::getUnexpiredContactsUser(const string& identity, int timeNow, Bindings& bindings) const
+bool RegDB::getUnexpiredContactsUser(const string& identity, int timeNow, Bindings& bindings, bool preferPrimary) const
 {
 	static string gruuPrefix = GRUU_PREFIX;
 
@@ -203,7 +203,10 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, int timeNow, Bindin
 	}
 
 	mongo::BSONObjBuilder builder;
-	BaseDB::nearest(builder, query.obj());
+	if (!preferPrimary)
+	  BaseDB::nearest(builder, query.obj());
+	else
+	  BaseDB::primaryPreferred(builder, query.obj());
 
 	MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
@@ -220,7 +223,7 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, int timeNow, Bindin
 	return bindings.size() > 0;
 }
 
-bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, int timeNow, Bindings& bindings) const
+bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, int timeNow, Bindings& bindings, bool preferPrimary) const
 {
 	mongo::BSONObjBuilder query;
 
@@ -233,7 +236,10 @@ bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, int 
 	}
 
 	mongo::BSONObjBuilder builder;
-	BaseDB::nearest(builder, query.obj());
+	if (!preferPrimary)
+	  BaseDB::nearest(builder, query.obj());
+	else
+	  BaseDB::primaryPreferred(builder, query.obj());
 
 	MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
@@ -255,7 +261,7 @@ bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, int 
 
 
 bool RegDB::getUnexpiredContactsUserInstrument(const string& identity, const string& instrument, int timeNow,
-		Bindings& bindings) const
+		Bindings& bindings, bool preferPrimary) const
 {
 	mongo::BSONObjBuilder query;
 	query.append("identity", identity);
@@ -269,7 +275,10 @@ bool RegDB::getUnexpiredContactsUserInstrument(const string& identity, const str
 	}
 
 	mongo::BSONObjBuilder builder;
-	BaseDB::nearest(builder, query.obj());
+	if (!preferPrimary)
+	  BaseDB::nearest(builder, query.obj());
+	else
+	  BaseDB::primaryPreferred(builder, query.obj());
 
 	MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
@@ -288,7 +297,7 @@ bool RegDB::getUnexpiredContactsUserInstrument(const string& identity, const str
 }
 
 // TODO : Unclear how big this dataset would be, decide if this should be removed
-bool RegDB::getUnexpiredContactsInstrument(const string& instrument, int timeNow, Bindings& bindings) const
+bool RegDB::getUnexpiredContactsInstrument(const string& instrument, int timeNow, Bindings& bindings, bool preferPrimary) const
 {
 	mongo::BSONObjBuilder query;
 	query.append("instrument", instrument);
@@ -301,7 +310,10 @@ bool RegDB::getUnexpiredContactsInstrument(const string& instrument, int timeNow
 	}
 
 	mongo::BSONObjBuilder builder;
-	BaseDB::nearest(builder, query.obj());
+	if (!preferPrimary)
+	  BaseDB::nearest(builder, query.obj());
+	else
+	  BaseDB::primaryPreferred(builder, query.obj());
 
     MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
