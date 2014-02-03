@@ -19,11 +19,15 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 
+import org.easymock.EasyMock;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.backup.ArchiveDefinition;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupSettings;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 
@@ -34,6 +38,18 @@ public class AdminContextTest {
         AdminContextImpl impl = new AdminContextImpl();
         BackupManager mgr = createMock(BackupManager.class);
         replay(mgr);
+        DomainManager domainMgr = createMock(DomainManager.class);
+        Domain domain = new Domain("example.com");
+        domainMgr.getDomain();
+        EasyMock.expectLastCall().andReturn(domain).anyTimes();
+        replay(domainMgr);
+        LocationsManager locationMgr = createMock(LocationsManager.class);
+        Location location = new Location("test.example.com");
+        locationMgr.getPrimaryLocation();
+        EasyMock.expectLastCall().andReturn(location);
+        replay(locationMgr);
+        impl.setDomainManager(domainMgr);
+        impl.setLocationsManager(locationMgr);
         BackupSettings settings = new BackupSettings();
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
         Location primary = new Location("one.example.org", "1.1.1.1");
@@ -51,7 +67,7 @@ public class AdminContextTest {
         settings.setSettingTypedValue("restore/resetPin", "zzz");
         settings.setSettingTypedValue("restore/resetPassword", "yyy");
         def = impl.getArchiveDefinitions(mgr, primary, settings).iterator().next();
-        String options = " --domain $(sipx.domain) --fqdn $(sipx.host).$(sipx.net_domain) --crack-pin zzz --crack-passwd yyy --crack-pin-len 5";
+        String options = " --domain example.com --fqdn test.example.com --crack-pin zzz --crack-passwd yyy --crack-pin-len 5";
         String backupOptions = " --no-device-files";
         assertEquals(base + options, def.getRestoreCommand());
         assertEquals(baseBackup + backupOptions, def.getBackupCommand());
