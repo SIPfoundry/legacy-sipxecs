@@ -15,7 +15,11 @@
 package org.sipfoundry.sipxconfig.site.backup;
 
 import java.util.Collection;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IPage;
@@ -29,6 +33,7 @@ import org.restlet.resource.ResourceException;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.backup.BackupApi;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
+import org.sipfoundry.sipxconfig.backup.BackupPlan;
 import org.sipfoundry.sipxconfig.backup.BackupRunner;
 import org.sipfoundry.sipxconfig.backup.BackupSettings;
 import org.sipfoundry.sipxconfig.backup.BackupType;
@@ -53,9 +58,9 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
     public abstract void setSelections(Collection<String> paths);
 
     @Persist
-    public abstract Collection<String> getUploadedIds();
+    public abstract Set<String> getUploadedIds();
 
-    public abstract void setUploadedIds(Collection<String> ids);
+    public abstract void setUploadedIds(Set<String> ids);
 
     @InjectObject("spring:restoreApi")
     public abstract RestoreApi getRestoreApi();
@@ -91,12 +96,26 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
             return null;
         }
 
-        Collection<String> restoreFrom = getSelections();
+        //configure plan given selected local/ftp definitions or definitions to upload
+        Set<String> selectedDefinitions = CollectionUtils.isEmpty(getSelections()) ? getUploadedIds() : new TreeSet<String>();
+        String[] splittedString = null;
+        if (CollectionUtils.isEmpty(selectedDefinitions)) {
+            for (String def : getSelections()) {
+                splittedString = StringUtils.split(def, '/');
+                selectedDefinitions.add(splittedString[splittedString.length -1]);
+            }
+        }
         boolean isAdminRestore = isSelected(AdminContext.ARCHIVE);
+        //The plan needs to know what archives are to be restored 
+        //in order to corectly create the configuration .yaml file
+        BackupPlan plan = getBackupManager().findOrCreateBackupPlan(getBackupType());
+        plan.setDefinitionIds(selectedDefinitions);
         RestoreApi restore = getRestoreApi();
+        //When restore files are uploaded, selections are empty, we do no need to stage
+        //any archive because the upload process uploads them directly in stage directory
         if (isAdminRestore) {
             try {
-                restore.restore(getBackupManager().findOrCreateBackupPlan(getBackupType()), getBackupSettings(), restoreFrom);
+                restore.restore(plan, getBackupSettings(), getSelections());
             } catch (ResourceException e) {
                 LOG.error("Cannot restore backup ", e);
             }
@@ -105,7 +124,7 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
             return waitingPage;
         } else {
             try {
-                restore.restore(getBackupManager().findOrCreateBackupPlan(getBackupType()), getBackupSettings(), restoreFrom);
+                restore.restore(plan, getBackupSettings(), getSelections());
             } catch (ResourceException e) {
                 LOG.error("Cannot restore backup ", e);
             }

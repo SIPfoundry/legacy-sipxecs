@@ -17,6 +17,7 @@ package org.sipfoundry.sipxconfig.site.backup;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
@@ -66,7 +67,7 @@ public abstract class RestoreForm extends BaseComponent implements PageBeginRend
         RestoreFinalize page = getFinalizePage();
         page.setBackupType(getBackupPlan().getType());
         page.setSelections(restoreFrom);
-        List<String> none = Collections.emptyList();
+        Set<String> none = Collections.emptySet();
         page.setUploadedIds(none);
         page.setCallback(new PageCallback(getPage()));
         return page;

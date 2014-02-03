@@ -89,11 +89,7 @@ public class BackupRunnerImpl implements BackupRunner {
         params.add(plan.getAbsolutePath());
         params.addAll(selections);
         String stringParams = StringUtils.collectionToCommaDelimitedString(params);
-        boolean staged = op("--stage", stringParams);
-        if (staged) {
-            return op(plan, "--restore");
-        }
-        return false;
+        return op("--restore", stringParams);
     }
 
     boolean op(File plan, String operation) {

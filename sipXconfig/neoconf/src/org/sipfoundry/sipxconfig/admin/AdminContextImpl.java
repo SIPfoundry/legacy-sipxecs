@@ -104,10 +104,14 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         return Collections.singleton(def);
     }
 
-    protected void buildArchiveCommands(BackupSettings settings) {
-        //Reset backup/restore commands to original values to avoid additional params to be added multiple times
+    protected void initBaseCommands() {
         m_backup = new StringBuilder(BACKUP_COMMAND);
         m_restore = new StringBuilder(RESTORE_COMMAND);
+    }
+
+    protected void buildArchiveCommands(BackupSettings settings) {
+        //Reset backup/restore commands to original values to avoid additional params to be added multiple times
+        initBaseCommands();
         if (settings != null) {
             if (!settings.isKeepDeviceFiles()) {
                 m_backup.append(" --no-device-files");
