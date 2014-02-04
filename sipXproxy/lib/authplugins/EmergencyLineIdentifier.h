@@ -46,6 +46,10 @@ public:
     bool bSpiralingRequest, ///< request spiraling indication
     UtlString&  reason      ///< rejection reason
   );
+
+  bool getInstrument(const SipMessage& message, std::string& intrument);
+  ///
+  /// Returns true if the intrument Id is found in the Digest authenticator header of the SIP message
 };
 
 

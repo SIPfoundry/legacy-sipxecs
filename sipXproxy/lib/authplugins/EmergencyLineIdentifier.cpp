@@ -23,6 +23,7 @@
 #include "digitmaps/EmergencyRulesUrlMapping.h"
 #include "sipdb/EntityDB.h"
 #include "os/OsLogger.h"
+#include <net/NetAttributeTokenizer.h>
 
 const char DEFAULT_EMERG_RULES_FILENAME[] = "authrules.xml";
 const char EMERGRULES_FILENAME_CONFIG_PARAM[] = "EMERGRULES";
@@ -44,6 +45,18 @@ public:
   bool findE911LineIdentifier(
     const std::string& userId,
     std::string& e911,
+    std::string& address,
+    std::string& location);
+
+  bool findE911InstrumentIdentifier(
+    const std::string& instrument,
+    std::string& e911,
+    std::string& address,
+    std::string& location);
+
+  bool findE911Location(
+    MongoDB::ScopedDbConnectionPtr& conn,
+    const std::string& e911,
     std::string& address,
     std::string& location);
 };
@@ -103,6 +116,36 @@ void EmergencyLineIdentifier::readConfig(OsConfigDb& configDb)
   OS_LOG_NOTICE(FAC_SIP, "E911: Emergency Line Identifier successfully loaded " << fileName.data());
 }
 
+bool DB::findE911Location(
+  MongoDB::ScopedDbConnectionPtr& conn,
+  const std::string& e911,
+  std::string& address,
+  std::string& location)
+{
+  mongo::BSONObj e911LocationQuery = BSON("ent" << "e911location" << "elin" << e911);
+
+  mongo::BSONObjBuilder e911LocBuilder;
+  BaseDB::nearest(e911LocBuilder, e911LocationQuery);
+
+  std::auto_ptr<mongo::DBClientCursor> e911Cursor = conn->get()->query(ns(), e911LocBuilder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
+
+  if (e911Cursor.get() && e911Cursor->more())
+  {
+    mongo::BSONObj e911LocationObj = e911Cursor->next();
+
+    if (e911LocationObj.hasField("addrinfo"))
+    {
+      address = e911LocationObj.getStringField("addrinfo");
+    }
+
+    if (e911LocationObj.hasField("loctn"))
+    {
+      location = e911LocationObj.getStringField("loctn");
+    }
+  }
+  return true;
+}
+
 bool DB::findE911LineIdentifier(
   const std::string& userId,
     std::string& e911,
@@ -117,30 +160,42 @@ bool DB::findE911LineIdentifier(
 	if (pCursor.get() && pCursor->more())
 	{
 	  mongo::BSONObj obj = pCursor->next();
+	  if (obj.hasField("elin"))
+	  {
+	    e911 = obj.getStringField("elin");
+	    findE911Location(conn, e911, address, location);
+	    conn->done();
+	    return true;
+	  }
+	}
+  conn->done();
+	return false;
+}
+
+bool DB::findE911InstrumentIdentifier(
+    const std::string& instrument,
+    std::string& e911,
+    std::string& address,
+    std::string& location)
+{
+
+  OS_LOG_INFO(FAC_SIP, "");
+  mongo::BSONObj query = BSON("mac" << instrument);
+
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+
+  mongo::BSONObjBuilder builder;
+  BaseDB::nearest(builder, query);
+  std::auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(ns(), builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
+
+  if (pCursor.get() && pCursor->more())
+	{
+	  mongo::BSONObj obj = pCursor->next();
 
 	  if (obj.hasField("elin"))
 	  {
 	    e911 = obj.getStringField("elin");
-	    
-	    mongo::BSONObj e911LocationQuery = BSON("ent" << "e911location" << "elin" << e911);
-	    
-	    mongo::BSONObjBuilder e911LocBuilder;
-	    BaseDB::nearest(e911LocBuilder, e911LocationQuery);
-	    std::auto_ptr<mongo::DBClientCursor> e911Cursor = conn->get()->query(ns(), e911LocBuilder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-	    if (e911Cursor.get() && e911Cursor->more())
-	      {
-		mongo::BSONObj e911LocationObj = e911Cursor->next();
-
-		if (e911LocationObj.hasField("addrinfo"))
-		{
-		  address = e911LocationObj.getStringField("addrinfo");
-		}
-		
-		if (e911LocationObj.hasField("loctn"))
-		{
-		  location = e911LocationObj.getStringField("loctn");
-		}
-	      }
+	    findE911Location(conn, e911, address, location);
 	    conn->done();
 	    return true;
 	  }
@@ -169,10 +224,20 @@ AuthPlugin::AuthResult EmergencyLineIdentifier::authorizeAndModify(const UtlStri
   std::string location;
   if (gpEmergencyRules->getMatchedRule(requestUri, nameStr, descriptionStr))
   {
+    std::string instrument;
     if (!request.getHeaderValue( 0, E911LINE))
     {
+      //
+      // Check if the instrument identifier is in the database
+      //
       
-      if (gpEntity->findE911LineIdentifier(id.data(), e911, address, location))
+      if (getInstrument(request, instrument) && gpEntity->findE911InstrumentIdentifier(instrument, e911, address, location))
+      {
+
+        request.setHeaderValue( E911LINE, e911.c_str(), 0 );
+        OS_LOG_NOTICE(FAC_SIP, "E911: Setting Line Identifier for user " << id.data() << "/" << instrument << " to " << e911);
+      }
+      else if (gpEntity->findE911LineIdentifier(id.data(), e911, address, location))
       {
         request.setHeaderValue( E911LINE, e911.c_str(), 0 );
         OS_LOG_NOTICE(FAC_SIP, "E911: Setting Line Identifier for user " << id.data() << " to " << e911);
@@ -201,7 +266,8 @@ AuthPlugin::AuthResult EmergencyLineIdentifier::authorizeAndModify(const UtlStri
         << " (" <<   descriptionStr.data() << ") "
         << "was invoked by " << fromLabel.data()
         << "<" << fromField.data() << ">"
-        << " Contact: " << contactField.data());
+        << " Contact: " << contactField.data()
+        << " MAC: " << instrument);
     }
     else
     {
@@ -213,7 +279,8 @@ AuthPlugin::AuthResult EmergencyLineIdentifier::authorizeAndModify(const UtlStri
         << " Contact: " << contactField.data()
         << " ELIN: " << e911
         << " Addr-Info: " << address << ""
-        << " Location: " << location << "");
+        << " Location: " << location << ""
+        << " MAC: " << instrument);
     }
   }
 
@@ -244,3 +311,33 @@ AuthPlugin::AuthResult EmergencyLineIdentifier::authorizeAndModify(const UtlStri
   return AuthPlugin::CONTINUE;
 }
 
+bool EmergencyLineIdentifier::getInstrument(const SipMessage& message, std::string& instrument)
+{
+  const char* value = NULL;
+  value = message.getHeaderValue(0, HTTP_PROXY_AUTHORIZATION_FIELD);
+
+  if (!value)
+    return false;
+
+  NetAttributeTokenizer tokenizer(value);
+
+  UtlString n;
+  UtlString v;
+  UtlString inst;
+
+  while(tokenizer.getNextAttribute(n, v))
+  {
+    if (n.compareTo(HTTP_AUTHENTICATION_USERNAME_TOKEN, UtlString::ignoreCase) == 0)
+    {
+      ssize_t index = v.last('/');
+      if (index != UTL_NOT_FOUND)
+      {
+        inst.append(v, index+1, v.length() - index-1);
+        instrument = inst.data();
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
