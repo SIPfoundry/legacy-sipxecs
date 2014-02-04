@@ -37,6 +37,7 @@ class ArchiveBase
     @out = $stdout
     @ssh_params = "-o 'StrictHostKeyChecking=no' -i ~/.cfagent/ppkeys/localhost.nopass.priv"
     load_config_file(config) unless config == nil
+    redirect_output
   end
 
   def load_config_file(config_file)
@@ -51,6 +52,19 @@ class ArchiveBase
   def cmd(cmd)
     puts cmd if @verbose
     @dryrun ? true : system(cmd)
+  end
+  
+  def get_log_file
+  end
+  
+  def redirect_output
+    log_file = get_log_file
+    unless log_file == nil
+      $stdout.reopen(log_file, "w")
+      $stderr.reopen(log_file, "w")
+      $stdout.sync = true
+      $stderr.sync = true
+    end
   end
 
   def fresh_dir(dir)
@@ -96,6 +110,10 @@ class Backup < ArchiveBase
     }
     fs = file_manager(params)
     fs.save(@data['max']) unless @dryrun
+  end
+  
+  def get_log_file
+    return '@SIPX_LOGDIR@/backup.log'
   end
 
   def hosts_param
@@ -149,6 +167,10 @@ class Restore < Backup
       }
     }
   end
+  
+  def get_log_file
+    return '@SIPX_LOGDIR@/restore.log'
+  end  
 end
 
 # List current backups in chronological order based on directory name following
