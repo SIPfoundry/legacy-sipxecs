@@ -16,12 +16,10 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.annotations.Message;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.admin.AdminSettings;
-import org.sipfoundry.sipxconfig.admin.ResLimitsConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
@@ -38,15 +36,9 @@ public abstract class EditAdmin extends PageWithCallback implements PageBeginRen
     @InjectObject("spring:configManager")
     public abstract ConfigManager getConfigManager();
 
-    @InjectObject("spring:resLimitsConfiguration")
-    public abstract ResLimitsConfiguration getResLimitsConfiguration();
-
     public abstract AdminSettings getSettings();
 
     public abstract void setSettings(AdminSettings settings);
-
-    @Message(value = "error.resource-limits.default")
-    public abstract String getResourceLimitsError();
 
     @Override
     public void pageBeginRender(PageEvent arg0) {
