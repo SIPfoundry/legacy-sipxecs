@@ -30,8 +30,6 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
-import org.sipfoundry.sipxconfig.backup.BackupApi;
-import org.sipfoundry.sipxconfig.backup.BackupCommandRunner;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupPlan;
 import org.sipfoundry.sipxconfig.backup.BackupRunner;
@@ -43,6 +41,8 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 public abstract class BackupTable extends BaseComponent {
     private static final String SPACE = " ";
+
+    private static final Log LOG = LogFactory.getLog(BackupTable.class);
 
     @Parameter(required = true)
     public abstract void setBackupPlan(BackupPlan plan);
@@ -56,9 +56,9 @@ public abstract class BackupTable extends BaseComponent {
 
     @InjectObject("spring:backupManager")
     public abstract BackupManager getBackupManager();
-    
+
     @InjectObject("spring:backupRunner")
-    public abstract BackupRunner getBackupRunner();   
+    public abstract BackupRunner getBackupRunner();
 
     public abstract void setBackup(String backup);
 
@@ -85,8 +85,6 @@ public abstract class BackupTable extends BaseComponent {
     public abstract String getDownloadLinkBase();
 
     public abstract void setDownloadLinkBase(String base);
-    
-    private static final Log LOG = LogFactory.getLog(BackupTable.class);    
 
     @Parameter(required = false)
     public abstract SipxValidationDelegate getValidator();
@@ -147,7 +145,7 @@ public abstract class BackupTable extends BaseComponent {
         List<String> backups = new ArrayList<String>();
         for (Map.Entry<String, List<String>> entries : backupsMap.entrySet()) {
             StringBuilder backup = new StringBuilder();
-            backup.append(entries.getKey());         
+            backup.append(entries.getKey());
             for (String entry : entries.getValue()) {
                 backup.append(SPACE)
                       .append(entry);

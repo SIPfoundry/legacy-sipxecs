@@ -31,10 +31,8 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.restlet.resource.ResourceException;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
-import org.sipfoundry.sipxconfig.backup.BackupApi;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupPlan;
-import org.sipfoundry.sipxconfig.backup.BackupRunner;
 import org.sipfoundry.sipxconfig.backup.BackupSettings;
 import org.sipfoundry.sipxconfig.backup.BackupType;
 import org.sipfoundry.sipxconfig.backup.RestoreApi;
@@ -46,6 +44,8 @@ import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 
 public abstract class RestoreFinalize extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "backup/RestoreFinalize";
+
+    private static final Log LOG = LogFactory.getLog(RestoreFinalize.class);
 
     @Persist
     public abstract void setBackupType(BackupType type);
@@ -77,8 +77,6 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
-    
-    private static final Log LOG = LogFactory.getLog(RestoreFinalize.class);
 
     @Override
     public void pageBeginRender(PageEvent event) {
@@ -97,16 +95,17 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
         }
 
         //configure plan given selected local/ftp definitions or definitions to upload
-        Set<String> selectedDefinitions = CollectionUtils.isEmpty(getSelections()) ? getUploadedIds() : new TreeSet<String>();
+        Set<String> selectedDefinitions = CollectionUtils.isEmpty(getSelections())
+            ? getUploadedIds() : new TreeSet<String>();
         String[] splittedString = null;
         if (CollectionUtils.isEmpty(selectedDefinitions)) {
             for (String def : getSelections()) {
                 splittedString = StringUtils.split(def, '/');
-                selectedDefinitions.add(splittedString[splittedString.length -1]);
+                selectedDefinitions.add(splittedString[splittedString.length - 1]);
             }
         }
         boolean isAdminRestore = isSelected(AdminContext.ARCHIVE);
-        //The plan needs to know what archives are to be restored 
+        //The plan needs to know what archives are to be restored
         //in order to corectly create the configuration .yaml file
         BackupPlan plan = getBackupManager().findOrCreateBackupPlan(getBackupType());
         plan.setDefinitionIds(selectedDefinitions);
@@ -117,7 +116,7 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
             try {
                 restore.restore(plan, getBackupSettings(), getSelections());
             } catch (ResourceException e) {
-                LOG.error("Cannot restore backup ", e);
+                LOG.error("Cannot restore admin backup ", e);
             }
             WaitingPage waitingPage = getWaitingPage();
             waitingPage.setWaitingListener(restore);

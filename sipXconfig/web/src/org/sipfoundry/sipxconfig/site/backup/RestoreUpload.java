@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
@@ -119,7 +117,6 @@ public abstract class RestoreUpload extends BaseComponent implements PageBeginRe
 
         OutputStream os = null;
         try {
-            String prefix = StringUtils.substringBefore(fileName, ".");
             File archive = new File(restoreDir, defId);
             os = new FileOutputStream(archive);
             IOUtils.copy(uploadFile.getStream(), os);
