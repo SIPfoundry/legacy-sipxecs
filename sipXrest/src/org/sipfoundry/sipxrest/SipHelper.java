@@ -31,6 +31,7 @@ import javax.sip.TransactionUnavailableException;
 import javax.sip.address.Address;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
+import javax.sip.address.URI;
 import javax.sip.header.AcceptHeader;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.CSeqHeader;
@@ -211,18 +212,23 @@ public class SipHelper {
     }
 
     final public void tearDownDialog(Dialog dialog) {
-        tearDownDialog(dialog, null);
+        tearDownDialog(dialog, null, null);
     }
 
 
-    final public void tearDownDialog(Dialog dialog, ReasonHeader reasonHeader) {
-        logger.debug("Tearinging Down Dialog : " + dialog);
+    final public void tearDownDialog(Dialog dialog, ReasonHeader reasonHeader, URI byeUri) {
         if (dialog == null) {
             return;
         }
+        logger.debug("Tearinging Down Dialog : " + dialog.getCallId());
         try {
             if (dialog.getState() == DialogState.CONFIRMED) {
                 Request request = dialog.createRequest(Request.BYE);
+                if (byeUri != null) {
+                    request.setRequestURI(byeUri);
+                }
+                SipURI requestURI = (SipURI)request.getRequestURI();
+                logger.debug("BYE transport: " + requestURI.getTransportParam());
                 if (reasonHeader != null) {
                     request.addHeader(reasonHeader);
                 }

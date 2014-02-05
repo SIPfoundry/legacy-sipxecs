@@ -28,6 +28,7 @@ import javax.sip.RequestEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
+import javax.sip.address.URI;
 import javax.sip.header.AcceptHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentLengthHeader;
@@ -343,6 +344,7 @@ public class DialogContext {
     }
 
     public void processNotify(RequestEvent requestEvent) {
+        logger.debug("Entering method processNotify ");
         try {
             if (this.method.equalsIgnoreCase("refer")) {
                 ServerTransaction serverTransaction = requestEvent.getServerTransaction();
@@ -365,7 +367,8 @@ public class DialogContext {
                                 statusLine);
                     }
                 }
-
+                logger.debug("Is subscription state terminated: " +
+                    subscriptionState.getState().equalsIgnoreCase(SubscriptionStateHeader.TERMINATED));
                 if (subscriptionState.getState().equalsIgnoreCase(
                         SubscriptionStateHeader.TERMINATED)) {
                     String content = new String(request.getRawContent());
@@ -373,8 +376,13 @@ public class DialogContext {
                     if (containsIgnoreCase(content, SipHelper.BUSY_MESSAGE)) {
                         busyHeader = SipListenerImpl.getInstance().getHelper().createBusyReasonHeader(request.getSIPVersion());
                     }
-
-                    SipListenerImpl.getInstance().getHelper().tearDownDialog(dialog, busyHeader);
+                    DialogContext context = (DialogContext)dialog.getApplicationData();
+                    URI byeUri = null;
+                    if (context != null) {
+                        byeUri = context.getRequest(dialog).getRequestURI();
+                        logger.debug("BYE URI is: " + byeUri);
+                    }
+                    SipListenerImpl.getInstance().getHelper().tearDownDialog(dialog, busyHeader, byeUri);
                 }
             } else {
                 this.forwardRequest(requestEvent);
