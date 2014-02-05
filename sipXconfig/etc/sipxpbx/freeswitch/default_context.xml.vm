@@ -35,4 +35,13 @@
 #end
   </extension>
 #end
+#if ($blindTransfer)
+  <extension name="going-in"> 
+    <condition> 
+      <action application="set" data="transfer_ringback=$${us-ring}"/> 
+      <action application="bridge" data="sofia/${domainName}/${destination_number}@${domainName}"/> 
+      <action application="answer"/> 
+    </condition> 
+  </extension>
+#end
 </context>

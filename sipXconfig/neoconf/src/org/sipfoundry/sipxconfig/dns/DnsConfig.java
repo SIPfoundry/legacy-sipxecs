@@ -62,6 +62,8 @@ public class DnsConfig implements ConfigProvider {
     private static final String YML_DOMAIN = "domain";
     private static final String YML_TARGET = ":target";
     private static final String VIEW_NAME = "%s.view";
+    private static final String QUALIFIED = "%s.";
+    private static final String QUALIFIED_HOST = "%s.%s.";
     private static final Log LOG = LogFactory.getLog(DnsConfig.class);
     private DnsManager m_dnsManager;
     private RegionManager m_regionManager;
@@ -209,7 +211,7 @@ public class DnsConfig implements ConfigProvider {
         c.endArray();
     }
 
-    final <T> List<T> safeAsList(T...a) {
+    final <T> List<T> safeAsList(T... a) {
         if (a == null) {
             return null;
         }
@@ -264,44 +266,41 @@ public class DnsConfig implements ConfigProvider {
         String qualifiedTarget = null;
         boolean domainIsFqdn = domainName.equals(all.get(0).getFqdn());
         if (domainIsFqdn) {
-            qualifiedTarget = domainName + ".";
+            qualifiedTarget = String.format(QUALIFIED, domain);
         }
         if (rrs != null) {
             for (DnsSrvRecord rr : rrs) {
                 c.nextElement();
-                writeSrvRecord(c, rr, qualifiedTarget);
+                writeSrvRecord(c, rr, qualifiedTarget, generateARecords);
             }
         }
         c.endArray();
-        if (!ArrayUtils.contains(excludes, DnsView.ExcludedRecords.NS)) {
-            writeServerYaml(c, all, "dns_servers", dns, qualifiedTarget);
-        }
+        writeServerYaml(c, all, "dns_servers", dns, qualifiedTarget, generateARecords);
         List<Address> dnsAddresses = new ArrayList<Address>();
         if (generateARecords && !ArrayUtils.contains(excludes, DnsView.ExcludedRecords.A)) {
             dnsAddresses = Location.toAddresses(DnsManager.DNS_ADDRESS, all);
         }
-        writeServerYaml(c, all, "all_servers", dnsAddresses, qualifiedTarget);
+        writeServerYaml(c, all, "all_servers", dnsAddresses, qualifiedTarget, generateARecords);
     }
 
     /**
      * my-id : [ { :name: my-fqdn, :ipv4: 1.1.1.1 }, ... ]
      */
     void writeServerYaml(YamlConfiguration c, List<Location> all, String id, List<Address> addresses,
-            String qualifiedTarget)
-        throws IOException {
+            String qualifiedTarget, boolean isSameSipNetworkDomain) throws IOException {
         c.startArray(id);
         if (addresses != null) {
             for (Address a : addresses) {
                 c.nextElement();
-                writeAddress(c, all, a.getAddress(), a.getPort(), qualifiedTarget);
+                writeAddress(c, all, a.getAddress(), a.getPort(), qualifiedTarget, isSameSipNetworkDomain);
             }
         }
         c.endArray();
     }
 
-    void writeAddress(YamlConfiguration c, List<Location> all, String address, int port,
-            String qualifiedTarget) throws IOException {
-        String host = getHostname(all, address);
+    void writeAddress(YamlConfiguration c, List<Location> all, String address, int port, String qualifiedTarget,
+            boolean isSameSipNetworkDomain) throws IOException {
+        String host = getHostname(all, address, isSameSipNetworkDomain);
         if (host != null) {
             if (qualifiedTarget != null) {
                 c.write(YML_NAME, qualifiedTarget);
@@ -313,7 +312,8 @@ public class DnsConfig implements ConfigProvider {
         }
     }
 
-    void writeSrvRecord(YamlConfiguration c, DnsSrvRecord srv, String qualifiedTarget) throws IOException {
+    void writeSrvRecord(YamlConfiguration c, DnsSrvRecord srv, String qualifiedTarget, boolean isSameSipNetworkDomain)
+        throws IOException {
         c.write(":proto", srv.getProtocol());
         c.write(":lhs", srv.getLeftHandSide());
         c.write(":resource", srv.getResource());
@@ -323,15 +323,24 @@ public class DnsConfig implements ConfigProvider {
         if (qualifiedTarget != null) {
             c.write(YML_TARGET, qualifiedTarget);
         } else {
-            c.write(YML_TARGET, srv.getDestination());
+            String destination = srv.getDestination();
+            if (!isSameSipNetworkDomain) {
+                destination = String.format(QUALIFIED_HOST, destination, Domain.getDomain().getNetworkName());
+            }
+            c.write(YML_TARGET, destination);
         }
         c.write(":host", srv.getHost());
     }
 
-    String getHostname(List<Location> locations, String ip) {
+    String getHostname(List<Location> locations, String ip, boolean isSameSipNetworkDomain) {
         for (Location l : locations) {
             if (ip.equals(l.getAddress())) {
-                return l.getHostname();
+                if (isSameSipNetworkDomain) {
+                    return l.getHostname();
+                }
+                // cannot use short names if sip domain different than network domain
+                // as DNS will use short name + sip domain as host. Return FQDN qualified for DNS
+                return String.format(QUALIFIED, l.getFqdn());
             }
         }
         LOG.warn("No hostname found for " + ip + ", could be unmanged service");

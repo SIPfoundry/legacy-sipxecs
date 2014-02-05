@@ -115,7 +115,7 @@ public:
 	static const ConnectionInfo globalInfo();
 	static const ConnectionInfo localInfo();
 
-	static bool	testConnection(const mongo::ConnectionString &connectionString, const std::string& errmsg);
+	static bool	testConnection(const mongo::ConnectionString &connectionString, std::string& errmsg);
 
     const mongo::ConnectionString& getConnectionString() const
 	{
@@ -189,6 +189,10 @@ public:
 	void forEach(mongo::BSONObj& query, const std::string& ns, boost::function<void(mongo::BSONObj)> doSomething);
 
 	void  nearest(mongo::BSONObjBuilder& builder, mongo::BSONObj query) const;
+	
+	void  primaryPreferred(mongo::BSONObjBuilder& builder, mongo::BSONObj query) const;
+	
+	void  setReadPreference(mongo::BSONObjBuilder& builder, mongo::BSONObj query, const char* readPreferrence) const;
 
 	const int getShardId() const { return _info.getShardId(); };
 

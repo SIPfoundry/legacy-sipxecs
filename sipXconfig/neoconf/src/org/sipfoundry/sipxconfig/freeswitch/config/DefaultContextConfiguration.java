@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionCollector;
@@ -39,11 +40,11 @@ public class DefaultContextConfiguration extends AbstractFreeswitchConfiguration
         Bridge bridge = m_conferenceContext.getBridgeByServer(location.getFqdn());
         boolean authCodes = m_featureManager.isFeatureEnabled(AuthCodes.FEATURE, location);
         List<FreeswitchExtension> extensions = m_freeswitchExtensionCollector.getExtensions();
-        write(writer, location, bridge, authCodes, extensions);
+        write(writer, location, bridge, authCodes, extensions, settings.isBlindTransferEnabled());
     }
 
     void write(Writer writer, Location location, Bridge bridge, boolean authCodes,
-            List<FreeswitchExtension> extensions) throws IOException {
+            List<FreeswitchExtension> extensions, boolean blindTransfer) throws IOException {
         VelocityContext context = new VelocityContext();
         if (bridge != null) {
             Set<Conference> conferences = bridge.getConferences();
@@ -52,6 +53,10 @@ public class DefaultContextConfiguration extends AbstractFreeswitchConfiguration
         if (authCodes) {
             context.put("acccode", true);
         }
+        if (blindTransfer) {
+            context.put("blindTransfer", true);
+        }
+        context.put("domainName", Domain.getDomain().getName());
         List<FreeswitchExtension> freeswitchExtensions = new ArrayList<FreeswitchExtension>();
         for (FreeswitchExtension extension : extensions) {
             if (extension.isEnabled()) {

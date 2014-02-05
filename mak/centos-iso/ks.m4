@@ -32,6 +32,9 @@ sinclude(`oem.m4')
 install
 cdrom
 
+# Could not figure out how to implant checksum into ISO
+# mediacheck
+
 ifdef(`manual-partition', 
 #--- Manual Partitioning
 # Let installer prompt user w/defaults.
@@ -66,7 +69,6 @@ strace
 yum-downloadonly
 nano
 wget
-epel-release
 sipx_packages()
 
 #--- Pre-installation script

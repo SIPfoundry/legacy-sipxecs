@@ -21,7 +21,7 @@ BaseDB::BaseDB(const ConnectionInfo& info) :
 {  
 }
 
-bool ConnectionInfo::testConnection(const mongo::ConnectionString &connectionString, const string& errmsg)
+bool ConnectionInfo::testConnection(const mongo::ConnectionString &connectionString, string& errmsg)
 {
     bool ret = false;
 
@@ -95,16 +95,26 @@ ConnectionInfo::ConnectionInfo(ifstream& file) : _shard(0), _useReadTags(false)
   	Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "loaded db connection info for %s", connectionString.c_str());
 }
 
-void  BaseDB::nearest(mongo::BSONObjBuilder& builder, mongo::BSONObj query) const {
+void  BaseDB::setReadPreference(mongo::BSONObjBuilder& builder, mongo::BSONObj query, const char* readPreferrence) const {
 	if (_info.useReadTags()) {
 	  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "Using read preferences tags for ");
 	  std::string shardIdStr = boost::to_string(getShardId());
 	  mongo::BSONArray tags = BSON_ARRAY(BSON("shardId" << shardIdStr) << BSON("clusterId" << "1"));
-	  builder.append("$readPreference", BSON("mode" << "nearest" << "tags" << tags));
+	  builder.append("$readPreference", BSON("mode" << readPreferrence << "tags" << tags));
 	} else {
-	  builder.append("$readPreference", BSON("mode" << "nearest"));
+	  builder.append("$readPreference", BSON("mode" << readPreferrence));
 	}
 	builder.append("query", query);
+}
+
+void  BaseDB::nearest(mongo::BSONObjBuilder& builder, mongo::BSONObj query) const
+{
+  setReadPreference(builder, query, "nearest");
+}
+	
+void  BaseDB::primaryPreferred(mongo::BSONObjBuilder& builder, mongo::BSONObj query) const
+{
+  setReadPreference(builder, query, "primaryPreferred");
 }
 
 
