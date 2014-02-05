@@ -48,7 +48,6 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.VersionInfo;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -73,7 +72,7 @@ import com.mongodb.MongoException;
 
 /**
  * This class manages all effective replications.The replication is triggered by
- * {@link ReplicationTrigger} or {@link SipxReplicationContext}, but the ReplicationManager takes
+ * {@link ReplicationTrigger} or SipxReplicationContext, but the ReplicationManager takes
  * care of all the work load needed to replicate {@link Replicable}s in Mongo and
  * {@link ConfigurationFile}s on different locations.
  */

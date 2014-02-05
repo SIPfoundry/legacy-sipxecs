@@ -305,7 +305,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         assertEquals(0, countRowsInTable("address_book_entry"));
         assertEquals(1, countRowsInTable("users"));
         assertEquals(1, countRowsInTable("group_storage"));
-        assertEquals(2, countRowsInTable("setting_value"));
+        assertEquals(3, countRowsInTable("setting_value"));
         Map<String, Object> u = db().queryForMap("select * from users");
         assertEquals("superadmin", u.get("user_name"));
         assertEquals("ENABLE", db().queryForObject("select value from setting_value where path = 'permission/application/superadmin'", String.class));

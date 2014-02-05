@@ -69,6 +69,7 @@ public class MailboxManagerTestIntegration extends IntegrationTestCase {
         Group g = new Group();
         g.setName("group");
         g.setSettingValue(AbstractUser.OPERATOR_SETTING, "111");
+        g.setResource(User.GROUP_RESOURCE_ID);
         m_settingDao.saveGroup(g);
         user.addGroup(g);
         m_coreContext.saveUser(user);

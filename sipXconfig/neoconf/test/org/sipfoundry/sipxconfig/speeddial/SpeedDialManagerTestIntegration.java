@@ -9,24 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.speeddial;
 
-import static org.sipfoundry.commons.mongo.MongoConstants.UID;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.test.ImdbTestCase;
-import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.QueryBuilder;
 
@@ -208,6 +203,7 @@ public class SpeedDialManagerTestIntegration extends ImdbTestCase {
         assertEquals(1, countRowsInTable("speeddial"));
         getDaoEventPublisher().resetListeners();
         m_coreContext.deleteUsers(Collections.singleton(1001));
+        flush();
         assertEquals(0, countRowsInTable("speeddial_button"));
         assertEquals(0, countRowsInTable("speeddial"));
     }
