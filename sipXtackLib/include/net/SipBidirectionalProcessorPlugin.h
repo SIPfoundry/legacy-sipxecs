@@ -58,8 +58,10 @@ public:
     void handleOutputMessage(SipMessage& message, const char* address, int port);
     void handleBufferedOutputMessage(SipMessage& message, const char* address, int port);
     void setEnabled(bool enabled);
+    void setBuffered(bool buffered);
   private:
     bool _enabled;
+    bool _buffered;
     Handler _handler;
     friend class SipBidirectionalProcessorPlugin;
   };
@@ -203,7 +205,8 @@ inline void SipBidirectionalProcessorPlugin::InputProcessor::handleOutputMessage
 //
 inline SipBidirectionalProcessorPlugin::OutputProcessor::OutputProcessor(int priority) :
   SipOutputProcessor(priority),
-  _enabled(true)
+  _enabled(true),
+  _buffered(true)
 {
 }
 
@@ -216,6 +219,11 @@ inline void SipBidirectionalProcessorPlugin::OutputProcessor::setEnabled(bool en
   _enabled = enabled;
 }
 
+inline void SipBidirectionalProcessorPlugin::OutputProcessor::setBuffered(bool buffered)
+{
+  _buffered = buffered;
+}
+
 inline void SipBidirectionalProcessorPlugin::OutputProcessor::handleOutputMessage(SipMessage& message, const char* address, int port)
 {
   if (_enabled && _handler)_handler(message, address, port);
@@ -223,7 +231,7 @@ inline void SipBidirectionalProcessorPlugin::OutputProcessor::handleOutputMessag
 
 inline void SipBidirectionalProcessorPlugin::OutputProcessor::handleBufferedOutputMessage(SipMessage& message, const char* address, int port)
 {
-  handleOutputMessage(message, address, port);
+  if (_buffered) handleOutputMessage(message, address, port);
 }
 
 
