@@ -1,3 +1,18 @@
+hosts:
+   1:
+      host: 1.1.1.1
+      backup:
+         d1: backup
+         d2: backup
+      restore:
+         d1: restore
+         d2: restore
+   2:
+      host: 2.2.2.2
+      backup:
+         d3: backup
+      restore:
+         d3: restore
 plan: ftp
 max: 20
 settings:
@@ -7,4 +22,4 @@ settings:
       password: xxx
 correlate_restore:
    1: [ d1, d2 ]
-   2: [  ]
+   2: [ d3 ]

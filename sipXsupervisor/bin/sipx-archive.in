@@ -132,7 +132,7 @@ end
 
 # Orchestrate restore a cluster including staging file from local or ftp plan.
 class Restore < Backup
-  def initialize(config = nil, paths)
+  def initialize(config, paths)
     super(config)
     @paths = paths
   end

@@ -80,9 +80,11 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
     }
 
     @SuppressWarnings("unchecked")
-    void writeConfig(Writer config, BackupPlan plan, Collection<Location> hosts, BackupSettings settings)
+    void writeConfig(Writer w, BackupPlan plan, Collection<Location> hosts, BackupSettings settings)
         throws IOException {
         final Collection<String> selectedDefIds = plan.getDefinitionIds();
+        YamlConfiguration config = new YamlConfiguration(w);
+        config.startStruct("hosts");
         for (Location host : hosts) {
             Collection<ArchiveDefinition> possibleDefIds = m_backupManager.getArchiveDefinitions(host, settings);
             Collection<ArchiveDefinition> defIds = CollectionUtils.select(possibleDefIds, new Predicate() {
@@ -93,7 +95,8 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
             });
             writeHostDefinitions(config, host, defIds);
         }
-        writeBackupDetails(config, plan, hosts, settings);
+        config.endStruct(); //hosts
+        writeBackupDetails(w, plan, hosts, settings);
     }
 
     void writeBackupSchedules(Writer w, BackupType type, Collection<DailyBackupSchedule> schedules) throws IOException {
@@ -107,11 +110,8 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
         config.writeList(type.toString() + "_backup_schedule", crons);
     }
 
-    void writeHostDefinitions(Writer w, Location host, Collection<ArchiveDefinition> defs)
+    void writeHostDefinitions(YamlConfiguration config, Location host, Collection<ArchiveDefinition> defs)
         throws IOException {
-        YamlConfiguration config = new YamlConfiguration(w);
-        config.startStruct("hosts");
-
         config.startStruct(host.getId().toString());
         config.write("host", host.getAddress());
         config.startStruct("backup");
@@ -127,7 +127,6 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
         config.endStruct();
 
         config.endStruct();
-        //config.endStruct(); //hosts
     }
 
     void writeBackupDetails(Writer w, BackupPlan plan, Collection<Location> hosts, BackupSettings settings)

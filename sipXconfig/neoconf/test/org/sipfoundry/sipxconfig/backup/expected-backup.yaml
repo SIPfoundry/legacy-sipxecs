@@ -1,11 +1,10 @@
-hosts:
-   1:
-      host: 1.1.1.1
-      backup:
-         d1: b1
-         d2: b2
-         d3: b3
-      restore:
-         d1: r1
-         d2: r2
-         d3: r3
+1:
+   host: 1.1.1.1
+   backup:
+      d1: b1
+      d2: b2
+      d3: b3
+   restore:
+      d1: r1
+      d2: r2
+      d3: r3
