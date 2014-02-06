@@ -80,6 +80,9 @@ if __name__ == '__main__':
             collection = change['ns'][ns_chop:]
             if collection == 'system.indexes':
                 continue
+            if '_id' not in change['o']:
+                logging.debug("Ignore operation, no _id")
+                continue
             logging.debug("%s/%s/%s" % (collection, change['op'], change['o']['_id']))
             if change['op'] == OP_DELETE:
                 dest[collection].remove(change['o'])
