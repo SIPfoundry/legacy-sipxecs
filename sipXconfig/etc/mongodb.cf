@@ -54,9 +54,6 @@ bundle agent mongodb {
     mongo_local::
       "any" usebundle => mongo_local_config;
 
-    any::
-      "any" usebundle => mongo_local_sync;
-
     mongo_local_arbiter::
       "any" usebundle => mongo_local_arbiter_config;
 
@@ -84,6 +81,8 @@ bundle agent mongodb {
     any::
       # at this moment, all setups get mongo client config
       "any" usebundle => mongodb_client;
+      # start mongo sync with proper mongo-local.ini and mongo-client.ini config files
+      "any" usebundle => mongo_local_sync;
 
     sipxlogwatcher::
       "any" usebundle => mongo_logwatcher;
@@ -209,7 +208,7 @@ bundle agent mongo_local_sync {
         comment => "start mongo sync",
         args => "start";
 
-    mongo_local.mongo_sync_running.(restart_mongo_sync|restart_sipxecs)::
+    mongo_local.mongo_sync_running.(mongo_local_reconnect|mongo_client_reconnect|restart_mongo_sync|restart_sipxecs)::
       "$(service)"
         comment => "restart mongo sync",
         args => "restart";
