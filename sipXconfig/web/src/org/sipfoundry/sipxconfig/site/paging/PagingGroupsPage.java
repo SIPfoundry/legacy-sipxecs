@@ -36,7 +36,7 @@ public abstract class PagingGroupsPage extends SipxBasePage implements PageBegin
 
     @InjectObject(value = "spring:pagingFeatureContext")
     public abstract PagingFeatureContext getPagingFeatureContext();
-    
+
     @Bean
     public abstract SelectMap getSelections();
 
