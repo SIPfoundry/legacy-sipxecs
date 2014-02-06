@@ -135,7 +135,7 @@ public class DnsConfigTest {
         };
         List<Address> all = Arrays.asList(m_a1, m_a2, m_a3);
         List<DnsSrvRecord> rrs = Arrays.asList(records);
-        m_config.writeZoneConfig(actual, "x", m_locations, all, rrs, 1, false);
+        m_config.writeZoneConfig(actual, m_d, m_locations, all, rrs, 1, null);
         String expected = IOUtils.toString(getClass().getResourceAsStream("full-zone-sip-domain-not-network.yml"));
         assertEquals(expected, actual.toString());
     }
