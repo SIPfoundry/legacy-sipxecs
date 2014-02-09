@@ -159,10 +159,11 @@ sipXpage_DEPS = sipXcommons
 sipXpolycom_DEPS = sipXconfig
 sipXrls_DEPS = sipXsqa sipXcallLib sipXcommserverLib
 sipXsaa_DEPS = sipXcallLib
-sipXhomer_DEPS = sipXsqa
+sipXhomer_DEPS = sipXsqa resiprocate
 sipXsbc_DEPS = sipXconfig sipXsqa sipXregistry
 sipXcallQueue_DEPS = sipXconfig
 sipXexample_DEPS = sipXcommserverLib sipXconfig
+sipXsss_DEPS = sipXsqa sipXcommserverLib resiprocate
 
 all = \
   $(lib) \
