@@ -1,6 +1,6 @@
 Name: resiprocate
 Version: 1.9.0.rc2
-Release: 1%{?dist}
+Release: 1
 Summary: SIP and TURN stacks, with SIP proxy and TURN server implementations
 License: VSL
 Url: http://www.resiprocate.org
@@ -63,7 +63,7 @@ make DESTDIR=%{buildroot} install
 
 %changelog
 * Sat Feb  8 2014 Ionut Slaveanu islaveanu@ezuce.com -
-- Update for new files in 1.9.0-rc2-1 release
+- Update for new files in 1.9.0.rc2-1 release
 * Sat Nov 24 2012 Daniel Pocock <daniel@pocock.com.au> - 1.9.0~rc2-1
 - Produce multiple packages for stack/libs, daemons, sipdialer
 - Initial build based on autotools
