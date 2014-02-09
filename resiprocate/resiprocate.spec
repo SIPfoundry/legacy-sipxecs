@@ -1,5 +1,5 @@
 Name: resiprocate
-Version: 1.9.0-rc2
+Version: 1.9.0.rc2
 Release: 1%{?dist}
 Summary: SIP and TURN stacks, with SIP proxy and TURN server implementations
 License: VSL
