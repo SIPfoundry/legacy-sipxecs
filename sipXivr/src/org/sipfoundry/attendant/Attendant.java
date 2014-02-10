@@ -245,7 +245,7 @@ public class Attendant extends SipxIvrApp {
             }
             LOG.info(String.format("Attendant::doAction Transfer to extension %s (%s) uuid=%s", u.get(0)
                     .getUserName(), u.get(0).getUri(), controller.getUuid()));
-            controller.transfer(u.get(0).getUri(), true);
+            controller.transfer(u.get(0).getUri(), config.isPlayPrompt());
             return NextAction.exit;
 
         case disconnect:
@@ -256,7 +256,7 @@ public class Attendant extends SipxIvrApp {
         case operator:
             // Transfer to the operator's address
             LOG.info("Attendant::doAction Operator.  Transfer to " + m_operatorAddr);
-            controller.transfer(m_operatorAddr, true);
+            controller.transfer(m_operatorAddr, config.isPlayPrompt());
             return NextAction.exit;
 
         case transfer_out:
@@ -270,7 +270,7 @@ public class Attendant extends SipxIvrApp {
                 dest = controller.extensionToUrl(extensionOrOther);
             }
             LOG.info("Attendant::doAction Transfer Out.  Transfer to " + dest);
-            controller.transfer(dest, true);
+            controller.transfer(dest, config.isPlayPrompt());
             return NextAction.exit;
 
         case transfer_to_another_aa_menu:
