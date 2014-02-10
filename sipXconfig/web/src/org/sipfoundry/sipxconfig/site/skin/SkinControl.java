@@ -36,15 +36,14 @@ public class SkinControl implements BeanFactoryAware {
 
     public static final String ASSET_LICENSE = "license.txt";
     static final Pattern IE_REGEX = Pattern.compile(".*(\\s+|\\()MSIE ([0-9]{1,}[\\.0-9]{0,}).*");
-    private static final String ASSET_COLORS = "colors.css";
-    private static final String ASSET_LAYOUT = "layout.css";
+    private static final String ASSET_LAYOUT = "sipxecs.css";
     private static final String ASSET_IE6 = "ie6-hacks.css";
     private static final String ASSET_IE7 = "ie7-hacks.css";
     private static final String ASSET_OPERA = "opera-hacks.css";
 
     private TapestryContext m_tapestryContext;
     // overrideable in skin
-    private Map<String, String> m_assets = new HashMap();
+    private final Map<String, String> m_assets = new HashMap();
     private String m_messageSourceBeanId;
     private Set<MessageSource> m_messageSources;
     private ListableBeanFactory m_beanFactory;
@@ -72,8 +71,7 @@ public class SkinControl implements BeanFactoryAware {
         m_assets.put("leftNav-background.png", pkg + "/leftNav-background.png");
         m_assets.put("setting-bullet.gif", pkg + "/setting-bullet.gif");
         m_assets.put("setting-bullet-active.gif", pkg + "/setting-bullet-active.gif");
-        m_assets.put(ASSET_LAYOUT, pkg + "/layout.css");
-        m_assets.put(ASSET_COLORS, pkg + "/colors.css");
+        m_assets.put(ASSET_LAYOUT, pkg + "/sipxecs.css");
         m_assets.put(ASSET_IE6, pkg + "/ie6-hacks.css");
         m_assets.put(ASSET_IE7, pkg + "/ie7-hacks.css");
         m_assets.put(ASSET_OPERA, pkg + "/opera-hacks.css");
@@ -83,7 +81,6 @@ public class SkinControl implements BeanFactoryAware {
         Matcher ie = IE_REGEX.matcher(userAgent);
         boolean isIe = ie.matches();
         List<IAsset> assets = new ArrayList<IAsset>();
-        assets.add(getAsset(ASSET_COLORS));
         assets.add(getAsset(ASSET_LAYOUT));
         if (isIe) {
             String ver = ie.group(2);
@@ -157,6 +154,7 @@ public class SkinControl implements BeanFactoryAware {
         return defaultString;
     }
 
+    @Override
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = (ListableBeanFactory) beanFactory;
     }
