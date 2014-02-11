@@ -81,6 +81,8 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
     private static final String REPLICATION_FAILED = "Replication: insert/update failed - ";
     private static final String REPLICATION_FAILED_REMOVE = "Replication: delete failed - ";
+    private static final String REPLICATION_BEFORE_FIND = "Replication (before find): ";
+    private static final String REPLICATION_BEFORE_SAVE = "Replication (before save): ";
     private static final String DATABASE_REGENERATION = "Database regeneration";
     private static final String BRANCH_REGENERATION = "Branch regeneration";
     private static final String SECONDS = "s | ";
@@ -134,6 +136,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private final Closure<User> m_userGroupClosure = new Closure<User>() {
         @Override
         public void execute(User user) {
+            LOG.debug("Execute closure for " + user.getUserName());
             replicateEntity(user, GROUP_DATASETS);
             getHibernateTemplate().clear(); // clear the H session (see XX-9741)
         }
@@ -360,7 +363,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         String name = (entity.getName() != null) ? entity.getName() : entity.toString();
         try {
             Long start = System.currentTimeMillis();
-            LOG.debug("Replication (before find): " + name);
+            LOG.debug(REPLICATION_BEFORE_FIND + name);
             DBObject top = findOrCreate(entity);
             Set<DataSet> dataSets = entity.getDataSets();
             if (dataSets != null && !dataSets.isEmpty()) {
@@ -374,7 +377,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
                     }
                 }
                 if (shouldSave) {
-                    LOG.debug("Replication (before save): " + name);
+                    LOG.debug(REPLICATION_BEFORE_SAVE + name);
                     getDbCollection().save(top);
                     Long end = System.currentTimeMillis();
                     LOG.debug(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
@@ -400,6 +403,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         String name = (entity.getName() != null) ? entity.getName() : entity.toString();
         try {
             Long start = System.currentTimeMillis();
+            LOG.debug(REPLICATION_BEFORE_FIND + name);
             DBObject top = findOrCreate(entity);
             boolean shouldSave = false;
             for (DataSet dataSet : dataSets) {
@@ -410,6 +414,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
                 }
             }
             if (shouldSave) {
+                LOG.debug(REPLICATION_BEFORE_SAVE + name);
                 getDbCollection().save(top);
                 Long end = System.currentTimeMillis();
                 LOG.debug(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
@@ -426,7 +431,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         }
         String beanName = dataSet.getBeanName();
         try {
-            LOG.debug("Replication: generation of dataset: " + dataSet.getName());
             final AbstractDataSetGenerator generator = m_beanFactory.getBean(beanName,
                     AbstractDataSetGenerator.class);
             return generator.generate(entity, top);
@@ -475,6 +479,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     @Override
     public void replicateGroup(Group group) {
         int membersCount = m_coreContext.getGroupMembersCount(group.getId());
+        LOG.debug("Replicate user group " + group.getName() + " with " + membersCount + " members");
         replicateGroupWithWorker(group, AllGroupMembersReplicationWorker.class, membersCount);
     }
 
