@@ -360,11 +360,13 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         String name = (entity.getName() != null) ? entity.getName() : entity.toString();
         try {
             Long start = System.currentTimeMillis();
+            LOG.debug("Replication (before find): " + name);
             DBObject top = findOrCreate(entity);
             Set<DataSet> dataSets = entity.getDataSets();
             if (dataSets != null && !dataSets.isEmpty()) {
                 boolean shouldSave = false;
                 for (DataSet dataSet : dataSets) {
+
                     if (shouldSave) {
                         replicateEntity(entity, dataSet, top);
                     } else {
@@ -372,6 +374,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
                     }
                 }
                 if (shouldSave) {
+                    LOG.debug("Replication (before save): " + name);
                     getDbCollection().save(top);
                     Long end = System.currentTimeMillis();
                     LOG.debug(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
@@ -423,6 +426,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         }
         String beanName = dataSet.getBeanName();
         try {
+            LOG.debug("Replication: generation of dataset: " + dataSet.getName());
             final AbstractDataSetGenerator generator = m_beanFactory.getBean(beanName,
                     AbstractDataSetGenerator.class);
             return generator.generate(entity, top);
@@ -440,7 +444,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     @Override
     public void replicateAllData(final DataSet ds) {
         try {
-            Long start = System.currentTimeMillis();
+            long start = System.currentTimeMillis();
             Map<String, ReplicableProvider> beanMap = m_beanFactory.getBeansOfType(ReplicableProvider.class);
             for (ReplicableProvider provider : beanMap.values()) {
                 for (Replicable entity : provider.getReplicables()) {
@@ -458,7 +462,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             int membersCount = m_coreContext.getAllUsersCount();
             m_dataSet = ds;
             doParallelReplication(membersCount, ReplicationWorkerDataSet.class, null);
-            Long end = System.currentTimeMillis();
+            long end = System.currentTimeMillis();
             LOG.info(REGENERATION_OF + ds.getName() + " completed in " + (end - start) / 1000 + SECONDS
                     + (end - start) / 1000 / 60 + MINUTES);
 
