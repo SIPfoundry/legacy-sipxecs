@@ -78,7 +78,8 @@ public:
 	}
 	;
 
-    void getAll(Subscriptions& subscriptions);
+    void getAll(Subscriptions& subscriptions,
+        bool preferPrimary = true);
 
     void upsert (
         const UtlString& component,
@@ -117,23 +118,26 @@ public:
        const UtlString& to,
        const UtlString& from,
        const UtlString& callid,
-       const int timeNow);
+       const unsigned long timeNow,
+        bool preferPrimary = true);
 
 //    void removeRows (const UtlString& key);
 
-    void removeExpired( const UtlString& component, const int timeNow );
+    void removeExpired( const UtlString& component, const unsigned long timeNow );
 
     void getUnexpiredSubscriptions (
         const UtlString& component,
         const UtlString& key,
         const UtlString& eventTypeKey,
-        const int& timeNow,
-        Subscriptions& subscriptions);
+        const unsigned long& timeNow,
+        Subscriptions& subscriptions,
+        bool preferPrimary = true);
 
     void getUnexpiredContactsFieldsContaining(
         UtlString& substringToMatch,
-        const int& timeNow,
-        std::vector<std::string>& matchingContactFields ) const;
+        const unsigned long& timeNow,
+        std::vector<std::string>& matchingContactFields,
+        bool preferPrimary = true ) const;
 
     void updateNotifyUnexpiredSubscription (
         const UtlString& component,
@@ -142,7 +146,7 @@ public:
         const UtlString& callid,
         const UtlString& eventTypeKey,
         const UtlString& id,
-        int timeNow,
+        unsigned long timeNow,
         int updatedNotifyCseq,
         int version) const;
 
@@ -167,16 +171,18 @@ public:
        const UtlString& fromtag,
        const UtlString& totag,
        UtlString& from,
-       UtlString& to) const;
+       UtlString& to,
+       bool preferPrimary = true) const;
 
-    int getMaxVersion(const UtlString& uri) const;
+    int getMaxVersion(const UtlString& uri,
+        bool preferPrimary = true) const;
 
     void removeAllExpired();
 
     static SubscribeDB* CreateInstance();
 
 private:
-    void ensureIndex(mongo::DBClientBase* client);
+    void ensureIndex(mongo::DBClientBase* client) const;
 
     std::string _ns;
     SubscribeDB* _local;

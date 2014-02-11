@@ -123,8 +123,8 @@ UtlBoolean SipNonceDb::isNonceValid(const UtlString& nonce,
       {
          // check for expiration
          char* end;
-         long nonceCreated = strtol(timestamp.data(), &end, 16 /* hex */);
-         long now = OsDateTime::getSecsSinceEpoch();
+         unsigned long nonceCreated = strtol(timestamp.data(), &end, 16 /* hex */);
+         unsigned long now = OsDateTime::getSecsSinceEpoch();
 
          if ( nonceCreated+expiredTime >= now )
          {

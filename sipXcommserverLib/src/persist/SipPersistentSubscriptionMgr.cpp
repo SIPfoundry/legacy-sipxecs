@@ -400,7 +400,7 @@ void SipPersistentSubscriptionMgr::updateVersion(SipMessage& notifyRequest,
    UtlString from;
    UtlString callId;
    UtlString eventHeader, eventId;
-   int now;
+   unsigned long now;
 
    // Note that the "to" and "from" fields of the subscription table
    // are as those URIs appear in the SUBSCRIBE message, which is
@@ -409,7 +409,7 @@ void SipPersistentSubscriptionMgr::updateVersion(SipMessage& notifyRequest,
    notifyRequest.getFromField(&to);
    notifyRequest.getCallIdField(&callId);
    notifyRequest.getEventFieldParts(&eventHeader, &eventId);
-   now = (int) OsDateTime::getSecsSinceEpoch();
+   now = OsDateTime::getSecsSinceEpoch();
 
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipPersistentSubscriptionMgr::updateVersion "
