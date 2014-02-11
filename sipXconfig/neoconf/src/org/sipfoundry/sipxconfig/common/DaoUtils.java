@@ -19,6 +19,8 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.collections.functors.ChainedTransformer;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
@@ -27,6 +29,7 @@ import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.BeanWithId.IdToBean;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
+import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManagerImpl;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
@@ -38,6 +41,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
  * Utilities for Hibernate DAOs
  */
 public final class DaoUtils {
+    private static final Log LOG = LogFactory.getLog(DaoUtils.class);
     public static final int PAGE_SIZE = 1000;
     private static final String ID_PROPERTY_NAME = "id";
 
@@ -269,11 +273,14 @@ public final class DaoUtils {
 
     public static void forAllGroupMembersDo(CoreContext coreContext, Group group, Closure<User> closure, int start,
             int pageSize) {
+        LOG.debug("start: " + start);
         if (start >= coreContext.getGroupMembersCount(group.getId())) {
             return;
         }
         Collection<Integer> users = coreContext.getGroupMembersByPage(group.getId(), start, pageSize);
+        LOG.debug("User collection: " + users);
         for (int id : users) {
+            LOG.debug("Do for user: " + id);
             closure.execute(coreContext.loadUser(id));
         }
     }
