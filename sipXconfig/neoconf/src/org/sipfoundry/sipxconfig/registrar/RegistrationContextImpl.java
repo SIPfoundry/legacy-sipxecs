@@ -79,7 +79,7 @@ public class RegistrationContextImpl implements RegistrationContext {
             RegistrationItem item = new RegistrationItem();
             item.setContact((String) registration.get(REG_CONTACT));
             item.setPrimary((String) registration.get(PRIMARY));
-            item.setExpires((Integer) registration.get(EXPIRATION_TIME));
+            item.setExpires((Long) registration.get(EXPIRATION_TIME));
             item.setUri((String) registration.get(URI));
             item.setInstrument((String) registration.get(INSTRUMENT));
             item.setRegCallId((String) registration.get(CALL_ID));
