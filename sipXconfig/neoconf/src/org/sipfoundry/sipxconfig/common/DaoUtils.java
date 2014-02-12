@@ -29,7 +29,6 @@ import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.BeanWithId.IdToBean;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
-import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManagerImpl;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
@@ -41,8 +40,8 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
  * Utilities for Hibernate DAOs
  */
 public final class DaoUtils {
-    private static final Log LOG = LogFactory.getLog(DaoUtils.class);
     public static final int PAGE_SIZE = 1000;
+    private static final Log LOG = LogFactory.getLog(DaoUtils.class);
     private static final String ID_PROPERTY_NAME = "id";
 
     private DaoUtils() {

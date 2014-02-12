@@ -8,9 +8,12 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -40,6 +43,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 import static org.sipfoundry.commons.userdb.profile.UserProfileService.DISABLED;
@@ -742,18 +746,20 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
     @Override
     public Collection<Integer> getGroupMembersByPage(int gid, int first, int pageSize) {
-        Query q = getHibernateTemplate()
-                .getSessionFactory()
-                .getCurrentSession()
-                .createSQLQuery(
-                        "select users.user_id from users join user_group on user_group.user_id=users.user_id "
-                        + "where user_group.group_id=:gid limit :pageSize offset :first")
-                        .addScalar(USER_ID, Hibernate.INTEGER);
-        q.setInteger("gid", gid);
-        q.setInteger(FIRST, first);
-        q.setInteger(PAGE_SIZE, pageSize);
-        List<Integer> users = q.list();
-        return users;
+        final List<Integer> ids = new LinkedList<Integer>();
+        m_jdbcTemplate.query(String.format("select users.user_id from users join user_group on "
+                + "user_group.user_id=users.user_id "
+                + "where user_group.group_id=%d "
+                + "order by users.user_id limit %d offset %d", gid, pageSize, first),
+                new RowCallbackHandler() {
+
+                    @Override
+                    public void processRow(ResultSet rs) throws SQLException {
+                        ids.add(rs.getInt(USER_ID));
+                    }
+                });
+
+        return ids;
     }
 
     @Override
