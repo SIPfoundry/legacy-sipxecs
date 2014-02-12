@@ -62,7 +62,7 @@ bundle agent sipxproxy_config {
         create => "true",
         perms => m("644"),
         edit_line => sipXproxy_config_contents(),
-        classes => if_repaired("restart_sipxproxy");
+        classes => if_repaired("sipxproxy_properties_changed");
     
     any::   
       "$(sipx.SIPX_CONFDIR)/resource-limits-proxy.ini"
@@ -121,11 +121,19 @@ bundle agent sipxproxy_running {
   classes:
     mongo_local_reconnect::
       "restart_sipxproxy" expression => "any";
+    sipxproxy.sipxproxy_properties_changed::
+  	  "restart_sipxproxy" not => fileexists("$(sipx.SIPX_CONFDIR)/sipXproxy-config.cf-before-edit");
 
   methods:
     any::
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxproxy_running");
 
+	sipxproxy.sipxproxy_properties_changed.!restart_sipxproxy::
+      "sipxproxy_properties_changed" usebundle => refresh_sip_service("SIPX_PROXY_LOG_LEVEL : (DEBUG|INFO|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
+      										 "$(sipx.SIPX_CONFDIR)/sipXproxy-config",
+      										 "$(sipx.SIPX_CONFDIR)/sipXproxy-config.cf-before-edit",
+      										 "sipxproxy"); 
+      										 
   commands:
     (!sipxproxy|stop_sipxecs).sipxproxy_running::
       "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
@@ -167,5 +175,9 @@ bundle agent sipxproxy_running {
         comment => "redeploy NAT config - restart sipxbridge",
         args => "restart";
 
+    sipxproxy.sipxproxy_running.refresh_sipxproxy::
+      "/usr/bin/killall"
+        comment => "refresh sipXproxy",
+        args => "-HUP sipXproxy";
 }
 

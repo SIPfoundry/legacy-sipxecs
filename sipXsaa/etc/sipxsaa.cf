@@ -35,9 +35,8 @@ bundle agent sipxsaa_config {
         comment => "install $(this.promiser)",
         create => "true",
         perms => m("644"),
-        edit_defaults => empty,
         edit_line => sipXsaa_config_contents(),
-        classes => if_repaired("restart_sipxsaa");
+        classes => if_repaired("sipxsaa_properties_changed");
         
     any::   
       "$(sipx.SIPX_CONFDIR)/resource-limits-saa.ini"
@@ -59,6 +58,10 @@ SIP_SAA_FILE_NAME : $(sipx.SIPX_CONFDIR)/appearance-groups.xml
 SIP_SAA_DOMAIN_NAME : $(sipx.domain)
 SIP_SAA_AUTHENTICATE_REALM : $(sipx.realm)
 ";
+
+  delete_lines:
+    any::
+      ".*";
 }
 
 bundle agent sipxsaa_running {
@@ -66,6 +69,10 @@ bundle agent sipxsaa_running {
     any::
       "service_command" string => "$(sipx.SIPX_BINDIR)/sipxsaa";
 
+  classes:
+    sipxsaa.sipxsaa_properties_changed::
+  	  "restart_sipxsaa" not => fileexists("$(sipx.SIPX_CONFDIR)/sipxsaa-config.cf-before-edit");
+					 
   methods:
     any::
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxsaa_running");
@@ -73,6 +80,11 @@ bundle agent sipxsaa_running {
       "any" usebundle => rh_chkconfig_status("sipxsaa on");
     !src.!sipxsaa::
       "any" usebundle => rh_chkconfig_status("sipxsaa off");
+    sipxsaa.sipxsaa_properties_changed.!restart_sipxsaa::
+      "sipxsaa_properties_changed" usebundle => refresh_sip_service("SIP_SAA_LOG_LEVEL : (DEBUG|INFO|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
+      										 "$(sipx.SIPX_CONFDIR)/sipxsaa-config",
+      										 "$(sipx.SIPX_CONFDIR)/sipxsaa-config.cf-before-edit",
+      										 "sipxsaa");
 
   commands:
     (!sipxsaa|stop_sipxecs).sipxsaa_running::
@@ -89,4 +101,9 @@ bundle agent sipxsaa_running {
       "$(sipx.SIPX_SERVICEDIR)/sipxsaa"
         comment => "restart sipxsaa",
         args => "asyncrestart";
+                  
+    sipxsaa.sipxsaa_running.refresh_sipxsaa::
+      "/usr/bin/killall"
+        comment => "refresh sipxsaa",
+        args => "-HUP sipxsaa";
 }

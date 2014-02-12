@@ -32,7 +32,7 @@ bundle agent sipxpublisher_config {
         create => "true",
         perms => m("644"),
         edit_line => sipstatus_config_contents(),
-        classes => if_repaired("restart_sipxpublisher");
+        classes => if_repaired("sipxpublisher_properties_changed");
 
     any::
       "$(sipx.SIPX_CONFDIR)/status-plugin.xml"
@@ -76,7 +76,16 @@ bundle agent sipxpublisher_running {
     any::
       "service_command" string => "$(sipx.SIPX_BINDIR)/sipstatus";
 
+  classes:
+    sipxpublisher.sipxpublisher_properties_changed::
+  	  "restart_sipxpublisher" not => fileexists("$(sipx.SIPX_CONFDIR)/status-config.cf-before-edit");
+					 
   methods:
+    sipxpublisher.sipxpublisher_properties_changed.!restart_sipxpublisher::
+      "sipxpublisher_properties_changed" usebundle => refresh_sip_service("SIP_STATUS_LOG_LEVEL : (DEBUG|INFO|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
+      										 "$(sipx.SIPX_CONFDIR)/status-config",
+      										 "$(sipx.SIPX_CONFDIR)/status-config.cf-before-edit",
+      										 "sipxpublisher");
     any::
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxpublisher_running");
 
@@ -95,5 +104,9 @@ bundle agent sipxpublisher_running {
       "$(sipx.SIPX_SERVICEDIR)/sipxpublisher"
         comment => "restart sipxpublisher",
         args => "asyncrestart";
+        
+    sipxpublisher.sipxpublisher_running.refresh_sipxpublisher::
+      "/usr/bin/killall"
+        comment => "refresh sipxpublisher",
+        args => "-HUP sipstatus";
 }
-

@@ -34,9 +34,8 @@ bundle agent sipxrls_config {
         comment => "install $(this.promiser)",
         create => "true",
         perms => m("644"),
-        edit_defaults => empty,
         edit_line => sipXrls_config_contents(),
-        classes => if_repaired("restart_sipxrls");
+        classes => if_repaired("sipxrls_properties_changed");
         
     any::   
       "$(sipx.SIPX_CONFDIR)/resource-limits-rls.ini"
@@ -59,6 +58,10 @@ SIP_RLS_BIND_IP : $(sipx.bind_ip)
 SIP_RLS_DOMAIN_NAME : $(sipx.domain)
 SIP_RLS_AUTHENTICATE_REALM : $(sipx.realm)
 ";
+
+  delete_lines:
+    any::
+      ".*";
 }
 
 bundle agent sipxrls_running {
@@ -66,6 +69,10 @@ bundle agent sipxrls_running {
     any::
       "service_command" string => "$(sipx.SIPX_BINDIR)/sipxrls";
 
+  classes:
+    sipxrls.sipxrls_properties_changed::
+  	  "restart_sipxrls" not => fileexists("$(sipx.SIPX_CONFDIR)/sipxrls-config.cf-before-edit");
+		
   methods:
     any::
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxrls_running");
@@ -73,6 +80,11 @@ bundle agent sipxrls_running {
       "any" usebundle => rh_chkconfig_status("sipxrls on");
     !src.!sipxrls::
       "any" usebundle => rh_chkconfig_status("sipxrls off");
+    sipxrls.sipxrls_properties_changed.!restart_sipxrls::
+      "sipxrls_properties_changed" usebundle => refresh_sip_service("SIP_RLS_LOG_LEVEL : (DEBUG|INFO|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
+      										 "$(sipx.SIPX_CONFDIR)/sipxrls-config",
+      										 "$(sipx.SIPX_CONFDIR)/sipxrls-config.cf-before-edit",
+      										 "sipxrls");
 
   commands:
     (!sipxrls|stop_sipxecs).sipxrls_running::
@@ -89,5 +101,10 @@ bundle agent sipxrls_running {
       "$(sipx.SIPX_SERVICEDIR)/sipxrls"
         comment => "restart sipxrls",
         args => "asyncrestart";
+                  
+    sipxrls.sipxrls_running.refresh_sipxrls::
+      "/usr/bin/killall"
+        comment => "refresh sipxrls",
+        args => "-HUP sipxrls";
 }
 

@@ -537,3 +537,21 @@ bundle agent disallow_ssh_command(command) {
         perms => mog("600", "root", "root"),
         edit_line => delete_lines_matching("^$(command)$");
 }
+
+#
+# Checks whether the change to the properties file requires a service restart or just refresh.
+# (ex. if only the LOG_LEVEL changed, decide that only a refresh is in order)
+#
+bundle common refresh_sip_service(regex, file, filebefore, service_name) {
+	vars:
+      any::
+        "props_list" slist => readstringlist("$(file)", "$(regex)", "(\n|\r|\r\n)", 99999999999, 9999999999);
+        "propsbefore_list" slist => readstringlist("$(filebefore)", "$(regex)", "(\n|\r|\r\n)", 99999999999, 9999999999);
+		"props" string => join("","props_list");
+		"propsbefore" string => join("","propsbefore_list");
+          
+    classes:
+      any::
+	  	"refresh_$(service_name)" and => {strcmp("$(props)","$(propsbefore)")};
+	  	"restart_$(service_name)" not => "refresh_$(service_name)";
+}

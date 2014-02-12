@@ -29,9 +29,8 @@ bundle agent sipxsqa_config {
         comment => "install sipxsqa config $(this.promiser)",
         create => "true",
         perms => m("644"),
-        edit_defaults => empty,
         edit_line => sipxsqa_config_contents(),
-        classes => if_repaired("restart_sipxsqa");
+        classes => if_repaired("sipxsqa_properties_changed");
 }
 
 bundle edit_line sipxsqa_config_contents {
@@ -41,12 +40,20 @@ bundle edit_line sipxsqa_config_contents {
         insert_type => "file";
       "sqa-control-address = $(sipx.bind_ip)";
       "zmq-subscription-address = $(sipx.bind_ip)";
+      
+  delete_lines:
+    any::
+      ".*";
 }
 
 bundle agent sipxsqa_running {
   vars:
     any::
       "service_command" string => "$(sipx.SIPX_BINDIR)/sipxsqa";
+
+  classes:
+    sipxsqa.sipxsqa_properties_changed::
+  	  "restart_sipxsqa" not => fileexists("$(sipx.SIPX_CONFDIR)/sipxsqa-config.cf-before-edit");			 
 
   methods:
     any::
@@ -55,6 +62,11 @@ bundle agent sipxsqa_running {
       "any" usebundle => rh_chkconfig_status("sipxsqa on");
     !src.!sipxsqa::
       "any" usebundle => rh_chkconfig_status("sipxsqa off");
+    sipxsqa.sipxsqa_properties_changed.!restart_sipxsqa::
+      "sipxsqa_properties_changed" usebundle => refresh_sip_service("log-level=\d",
+      										 "$(sipx.SIPX_CONFDIR)/sipxsqa-config",
+      										 "$(sipx.SIPX_CONFDIR)/sipxsqa-config.cf-before-edit",
+      										 "sipxsqa");
 
   commands:
     (!sipxsqa|stop_sipxecs).sipxsqa_running::
@@ -71,5 +83,10 @@ bundle agent sipxsqa_running {
       "$(sipx.SIPX_SERVICEDIR)/sipxsqa"
         comment => "restart sipxsqa",
         args => "asyncrestart";
+                
+    sipxsqa.sipxsqa_running.refresh_sipxsqa::
+      "/usr/bin/killall"
+        comment => "refresh sipxsqa",
+        args => "-HUP sipxsqa";
 }
 
