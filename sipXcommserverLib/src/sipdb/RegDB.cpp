@@ -195,7 +195,8 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, unsigned long timeN
 
 	if (_local)
   {
-		_local->getUnexpiredContactsUser(identity, timeNow, bindings);
+		preferPrimary = false;
+		_local->getUnexpiredContactsUser(identity, timeNow, bindings, preferPrimary);
 		query.append("shardId", BSON("$ne" << _local->getShardId()));
 	}
 
@@ -259,7 +260,8 @@ bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, unsi
 
 	if (_local)
   {
-		_local->getUnexpiredContactsUserContaining(matchIdentity, timeNow, bindings);
+		preferPrimary = false;
+		_local->getUnexpiredContactsUserContaining(matchIdentity, timeNow, bindings, preferPrimary);
 		query.append("shardId", BSON("$ne" << _local->getShardId()));
 	} 
 
@@ -298,7 +300,8 @@ bool RegDB::getUnexpiredContactsUserInstrument(const string& identity, const str
 
 	if (_local)
   {
-		_local->getUnexpiredContactsUserInstrument(identity, instrument, timeNow, bindings);
+		preferPrimary = false;
+		_local->getUnexpiredContactsUserInstrument(identity, instrument, timeNow, bindings, preferPrimary);
 		query.append("shardId", BSON("$ne" << _local->getShardId()));
 	} 
 
@@ -333,7 +336,8 @@ bool RegDB::getUnexpiredContactsInstrument(const string& instrument, unsigned lo
 
 	if (_local)
   {
-		_local->getUnexpiredContactsInstrument(instrument, timeNow, bindings);
+  		preferPrimary = false;
+		_local->getUnexpiredContactsInstrument(instrument, timeNow, bindings, preferPrimary);
 		query.append("shardId", BSON("$ne" << _local->getShardId()));
 	} 
 

@@ -45,7 +45,8 @@ void SubscribeDB::getAll(Subscriptions& subscriptions, bool preferPrimary)
     mongo::BSONObjBuilder query;
     MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     if (_local) {
-      _local->getAll(subscriptions);
+      preferPrimary = false;
+      _local->getAll(subscriptions, preferPrimary);
       query.append(Subscription::shardId_fld(), BSON("$ne" << getShardId()));
     }
 
@@ -217,7 +218,8 @@ bool SubscribeDB::subscriptionExists (
 
   if (_local)
   {
-    if (_local->subscriptionExists(component, toUri, fromUri, callId, timeNow))
+	preferPrimary = false;
+    if (_local->subscriptionExists(component, toUri, fromUri, callId, timeNow, preferPrimary))
     {
       return true;
     }
@@ -273,7 +275,8 @@ void SubscribeDB::getUnexpiredSubscriptions (
     removeAllExpired();    
     //query="key=",key,"and eventtypekey=",eventTypeKey;
     if (_local) {
-      _local->getUnexpiredSubscriptions(component, key, eventTypeKey, timeNow, subscriptions);
+      preferPrimary = false;
+      _local->getUnexpiredSubscriptions(component, key, eventTypeKey, timeNow, subscriptions, preferPrimary);
       return;
     }
     mongo::BSONObjBuilder query;
@@ -308,7 +311,8 @@ void SubscribeDB::getUnexpiredContactsFieldsContaining(
     query.append(Subscription::expires_fld(), BSON_GREATER_THAN((long long)timeNow));
     if (_local)
     {
-      _local->getUnexpiredContactsFieldsContaining(substringToMatch, timeNow, matchingContactFields);
+      preferPrimary = false;
+      _local->getUnexpiredContactsFieldsContaining(substringToMatch, timeNow, matchingContactFields, preferPrimary);
       query.append(Subscription::shardId_fld(), BSON("$ne" << getShardId()));
     } 
 
@@ -493,7 +497,8 @@ bool SubscribeDB::findFromAndTo(
     mongo::BSONObjBuilder query;
     query.append(Subscription::callId_fld(), callid.str());
     if (_local) {
-      if (_local->findFromAndTo(callid, fromtag, totag, from, to)) {
+      preferPrimary = false;
+      if (_local->findFromAndTo(callid, fromtag, totag, from, to, preferPrimary)) {
         return true;
       }
       query.append(Subscription::shardId_fld(), BSON("$ne" << getShardId()));
@@ -545,7 +550,8 @@ int SubscribeDB::getMaxVersion(const UtlString& uri, bool preferPrimary) const
     query.append(Subscription::uri_fld(), uri.str());
     unsigned int value = 0;
     if (_local) {
-      value = _local->getMaxVersion(uri);
+      preferPrimary = false;
+      value = _local->getMaxVersion(uri, preferPrimary);
       query.append(Subscription::shardId_fld(), BSON("$ne" << getShardId()));
     }
 
