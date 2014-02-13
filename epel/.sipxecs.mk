@@ -56,6 +56,7 @@ BUILD_EPEL = \
 	wxGTK-devel-* \
 	wxGTK-media-* \
 	xemacs-* \
+	cajun-jsonapi-devel-* \
 
 # Technincally these could be build and runtime requirements
 RUNTIME_EPEL = \

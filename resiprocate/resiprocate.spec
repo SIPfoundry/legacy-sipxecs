@@ -7,6 +7,8 @@ Url: http://www.resiprocate.org
 Source: https://www.resiprocate.org/files/pub/reSIProcate/releases/%name-%version.tar.gz
 BuildRequires: libtool automake autoconf
 BuildRequires: boost-devel
+BuildRequires: cajun-jsonapi-devel
+BuildRequires: c-ares-devel
 %if 0%{?fedora} >= 18
 BuildRequires: db4-cxx-devel
 %endif
@@ -36,7 +38,7 @@ Resiprocate SIP Stack development files.
 
 %build
 export LDFLAGS="${LDFLAGS} -L%{_libdir}/libdb4"
-CXXFLAGS="%{optflags} -I%{_includedir}/libdb4" %configure
+CXXFLAGS="%{optflags} -I%{_includedir}/libdb4" %configure --with-c-ares --with-repro
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 make %{?_smp_mflags}
@@ -51,14 +53,18 @@ make DESTDIR=%{buildroot} install
 %files
 %defattr(644,root,root,755)
 %{_libdir}/*.so
+%{_sbindir}/repro
+%{_sbindir}/reprocmd
+%{_sbindir}/queuetostream
 
 %files devel
 %defattr(644,root,root,755)
 %{_includedir}/rutil/*
 %{_includedir}/resip/*
+%{_includedir}/repro/*
 %{_libdir}/*.a
 %{_libdir}/*.la
-%{_mandir}/man3/*.gz
+%{_mandir}/man8/*.gz
 
 
 %changelog
