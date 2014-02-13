@@ -25,11 +25,10 @@ import org.restlet.data.Status;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
-import org.sipfoundry.sipxconfig.common.WaitingListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 
-public class RestoreApi extends Resource implements WaitingListener {
+public class RestoreApi extends Resource {
     private BackupRunner m_backupRunner;
     private LocationsManager m_locationsManager;
     private BackupConfig m_backupConfig;
@@ -85,11 +84,5 @@ public class RestoreApi extends Resource implements WaitingListener {
 
     public void setBackupApi(BackupApi backupApi) {
         m_backupApi = backupApi;
-    }
-
-    @Override
-    public void afterResponseSent() {
-        // TODO Auto-generated method stub
-
     }
 }

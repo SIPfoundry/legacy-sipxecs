@@ -36,6 +36,7 @@ import org.sipfoundry.sipxconfig.backup.BackupPlan;
 import org.sipfoundry.sipxconfig.backup.BackupSettings;
 import org.sipfoundry.sipxconfig.backup.BackupType;
 import org.sipfoundry.sipxconfig.backup.RestoreApi;
+import org.sipfoundry.sipxconfig.common.WaitingListener;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -113,13 +114,9 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
         //When restore files are uploaded, selections are empty, we do no need to stage
         //any archive because the upload process uploads them directly in stage directory
         if (isAdminRestore) {
-            try {
-                restore.restore(plan, getBackupSettings(), getSelections());
-            } catch (ResourceException e) {
-                LOG.error("Cannot restore admin backup ", e);
-            }
             WaitingPage waitingPage = getWaitingPage();
-            waitingPage.setWaitingListener(restore);
+            waitingPage.setWaitingListener(new RestoreWaitingListener(restore,
+                plan, getBackupSettings(), getSelections()));
             return waitingPage;
         } else {
             try {
@@ -151,5 +148,30 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
         }
 
         return false;
+    }
+
+    private static class RestoreWaitingListener implements WaitingListener {
+        private RestoreApi m_restoreApi;
+        private BackupPlan m_backupPlan;
+        private BackupSettings m_backupSettings;
+        private Collection<String> m_selections;
+
+        public RestoreWaitingListener(RestoreApi restoreApi, BackupPlan backupPlan, BackupSettings backupSettings,
+            Collection<String> selections) {
+            m_restoreApi = restoreApi;
+            m_backupPlan = backupPlan;
+            m_backupSettings = backupSettings;
+            m_selections = selections;
+        }
+
+        @Override
+        public void afterResponseSent() {
+            try {
+                LOG.info("Initiate configuration restore...");
+                m_restoreApi.restore(m_backupPlan, m_backupSettings, m_selections);
+            } catch (ResourceException e) {
+                LOG.error("Cannot restore admin backup ", e);
+            }
+        }
     }
 }
