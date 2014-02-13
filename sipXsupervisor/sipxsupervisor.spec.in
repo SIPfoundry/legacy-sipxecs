@@ -104,3 +104,11 @@ fi
 %dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/cfdata
 # defaults are static, only root should write
 %{_localstatedir}/sipxdata/cfdata/defaults/*
+
+%post
+if grep -q :on <<<`/sbin/chkconfig sipxsupervisor --list 2>&1`; then
+    /sbin/chkconfig sipxsupervisor reset
+fi
+if grep -q :on <<<`/sbin/chkconfig sipxlogwatcher --list 2>&1`; then
+    /sbin/chkconfig sipxlogwatcher reset
+fi

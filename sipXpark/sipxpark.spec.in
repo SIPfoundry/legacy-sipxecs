@@ -26,6 +26,7 @@ Source:   %name-%version.tar.gz
 
 Requires: sipxcalllib >= %version
 Requires: sipxcommserverlib >= %version
+Requires: chkconfig
 Obsoletes: %{name}-devel
 
 Prefix:    %_prefix
@@ -64,3 +65,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 setcap 'CAP_SYS_RESOURCE=+ep' %{_bindir}/sipxpark
+if grep -q :on <<<`/sbin/chkconfig sipxpark --list 2>&1`; then
+    /sbin/chkconfig sipxpark reset
+fi

@@ -18,6 +18,7 @@ Source: %name-%version.tar.gz
 
 Requires: sipxcommserverlib >= %version
 Requires: sipxcommons >= %version
+Requires: chkconfig
 
 %if %{?use_ibm_jvm}0
 Requires: java-ibm >= 1.6
@@ -53,3 +54,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxacccode.cf
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXacccode
 %attr(644,root,root) %{_datadir}/sipxecs/schema/authcodes.xsd
+
+%post
+if grep -q :on <<<`/sbin/chkconfig sipxacccode --list 2>&1`; then
+    /sbin/chkconfig sipxacccode reset
+fi

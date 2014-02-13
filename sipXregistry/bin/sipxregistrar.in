@@ -6,7 +6,7 @@
 
 # sipxregistrard - Startup script for sipxregistrard
 
-# chkconfig: 35 85 15
+# chkconfig: 35 97 15
 # description: sipxregistrar is a SIP registrar for telecommunications
 # processname: sipXregistrar
 

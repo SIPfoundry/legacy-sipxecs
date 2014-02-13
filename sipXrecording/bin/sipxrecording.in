@@ -1,7 +1,7 @@
 #!/bin/bash
 # sipXrecording - Startup script for sipxrecording
 
-# chkconfig: 35 85 15
+# chkconfig: 35 98 15
 # description: sipxrecording is an recording service that works with freeswitch
 # processname: sipxrecording
 

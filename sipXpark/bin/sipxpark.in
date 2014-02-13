@@ -1,7 +1,7 @@
 #!@BASH@
 # sipxpark - Startup script for sipxpark
 
-# chkconfig: 35 85 15
+# chkconfig: 35 98 15
 # description: sipxpark is a SIP park for telecommunications
 # processname: sipXpark
 

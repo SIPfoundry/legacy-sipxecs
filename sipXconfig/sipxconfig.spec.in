@@ -80,6 +80,7 @@ Requires: sipxtacklib >= %version
 Requires: sipxcommserverlib >= %version
 Requires: sipxcdr-client >= %version
 Requires: sipxsupervisor >= %version
+Requires: chkconfig
 
 Requires: ruby
 Requires: rubygems
@@ -298,7 +299,9 @@ if test -e %{_sysconfdir}/logrotate.d/freeswitch; then rm -f %{_sysconfdir}/logr
 # XX-10812 - Note some centos machines seemed to re-adjust sysv startup orders
 # automatically, but others did not so we do it here. This was to fix systems
 # that installed 4.6 update 9 or below but harmless for any other machines.
-! test -f /etc/rc.d/rc3.d/S85sipxconfig || chkconfig sipxconfig resetpriorities
+if grep -q :on <<<`/sbin/chkconfig sipxconfig --list 2>&1`; then
+    /sbin/chkconfig sipxconfig reset
+fi
 
 %triggerin -- freeswitch
 %if %{_vendor} == redhat

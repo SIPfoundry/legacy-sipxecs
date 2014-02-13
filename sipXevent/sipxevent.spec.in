@@ -19,6 +19,7 @@ Source: %name-%version.tar.gz
 Obsoletes: sipxvxml
 
 Requires: sipxcommons >= %version
+Requires: chkconfig
 
 %if %{?use_ibm_jvm}0
 Requires: java-ibm >= 1.6
@@ -53,3 +54,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxevent
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxevent.cf
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXevent
+
+%post
+if grep -q :on <<<`/sbin/chkconfig sipxevent --list 2>&1`; then
+    /sbin/chkconfig sipxevent reset
+fi
