@@ -21,6 +21,7 @@ Obsoletes: sipxvxml
 
 Requires: sipxcommserverlib >= %version
 Requires: sipxcommons >= %version
+Requires: chkconfig
 BuildRequires: sipxconfig >= %version
 
 %if %{?use_ibm_jvm}0
@@ -58,3 +59,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXrecording
 %{_datadir}/java/sipXecs/sipXrecording/sipXrecording.jar
 %{_datadir}/java/sipXecs/sipXconfig/plugins/recording-cfg-service.jar
+
+%post
+if grep -q :on <<<`/sbin/chkconfig sipxrecording --list 2>&1`; then
+    /sbin/chkconfig sipxrecording reset
+fi

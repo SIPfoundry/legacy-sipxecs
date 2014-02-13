@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# chkconfig: 35 85 15
+# chkconfig: 35 97 15
 # description: sipxprovision is a device auto provisioning system
 # processname: sipxprovision
 

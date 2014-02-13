@@ -40,6 +40,7 @@ BuildRequires: vixie-cron
 %endif
 Requires: sipxcommserverlib >= %version
 Requires: sipxrelay >= %version
+Requires: chkconfig
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -121,4 +122,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 setcap 'CAP_SYS_RESOURCE=+ep' %{_bindir}/sipXproxy
-
+if grep -q :on <<<`/sbin/chkconfig sipxproxy --list 2>&1`; then
+    /sbin/chkconfig sipxproxy reset
+fi

@@ -18,6 +18,7 @@ Source: %name-%version.tar.gz
 
 Requires: sipxcommserverlib >= %version
 Requires: sipxcommons >= %version
+Requires: chkconfig
 
 %if %{?use_ibm_jvm}0
 Requires: java-ibm >= 1.6
@@ -53,4 +54,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxrelay
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXbridge
 
-
+%post
+if grep -q :on <<<`/sbin/chkconfig sipxrelay --list 2>&1`; then
+    /sbin/chkconfig sipxrelay reset
+fi

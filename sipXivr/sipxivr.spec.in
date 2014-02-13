@@ -22,6 +22,7 @@ Obsoletes: sipxvxml
 Requires: sipxcommserverlib >= %version
 Requires: sipxcommons >= %version
 Requires: sipxprompts >= %version
+Requires: chkconfig
 
 %if %{?use_ibm_jvm}0
 Requires: java-ibm >= 1.6
@@ -63,3 +64,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,root,root) %{_datadir}/sipxecs/schema/autoattendants.xsd
 %attr(644,root,root) %{_datadir}/sipxecs/schema/validusers.xsd
 %config(noreplace) %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/mediaserver/data/moh
+
+%post
+if grep -q :on <<<`/sbin/chkconfig sipxivr --list 2>&1`; then
+    /sbin/chkconfig sipxivr reset
+fi

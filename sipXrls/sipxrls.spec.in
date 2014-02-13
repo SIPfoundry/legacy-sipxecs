@@ -28,6 +28,7 @@ Obsoletes: %name-devel
 
 Requires: sipxcalllib >= %version
 Requires: sipxcommserverlib >= %version
+Requires: chkconfig
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -63,3 +64,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 setcap 'CAP_SYS_RESOURCE=+ep' %{_bindir}/sipxrls
+if grep -q :on <<<`/sbin/chkconfig sipxrls --list 2>&1`; then
+    /sbin/chkconfig sipxrls reset
+fi

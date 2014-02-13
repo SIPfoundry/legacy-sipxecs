@@ -1,7 +1,7 @@
 #!/bin/bash
 # sipxpublisher - Startup script for sipxpublisher
 
-# chkconfig: 35 85 15
+# chkconfig: 35 98 15
 # description: sipxpublisher is a SIP MWI server for telecommunications
 # processname: sipxpublisher
 

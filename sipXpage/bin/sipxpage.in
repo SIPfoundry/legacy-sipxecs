@@ -1,7 +1,7 @@
 #!/bin/bash
 # sipxpage - Startup script for sipxpage
 
-# chkconfig: 35 85 15
+# chkconfig: 35 97 15
 # description: sipxpage is a SIP proxy for telecommunications
 # processname: sipxpage
 

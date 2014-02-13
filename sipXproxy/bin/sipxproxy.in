@@ -1,7 +1,7 @@
 #!@BASH@
 # sipxproxy - Startup script for sipxproxy
 
-# chkconfig: 35 85 15
+# chkconfig: 35 97 15
 # description: sipxproxy is a SIP proxy for telecommunications
 # processname: sipXproxy
 

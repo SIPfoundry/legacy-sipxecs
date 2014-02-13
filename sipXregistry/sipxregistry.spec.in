@@ -20,6 +20,7 @@ BuildRequires: sipxtacklib-devel        >= %version
 Source:   %name-%version.tar.gz
 
 Requires: sipxcommserverlib >= %version
+Requires: chkconfig
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -115,6 +116,9 @@ rm -rf $RPM_BUILD_ROOT
 %post
 /sbin/ldconfig
 setcap 'CAP_SYS_RESOURCE=+ep' %{_bindir}/sipregistrar
+if grep -q :on <<<`/sbin/chkconfig sipxregistrar --list 2>&1`; then
+    /sbin/chkconfig sipxregistrar reset
+fi
 
 %postun
 /sbin/ldconfig

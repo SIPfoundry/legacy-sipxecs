@@ -2,7 +2,7 @@
 #
 # sipxlogwatcher   Start and stop sipxecs logwatch based on SEC tool
 #
-# chkconfig:    - 20 80
+# chkconfig:    - 91 80
 # description:  Simple Event Correlator script to filter log file entries
 
 . /etc/rc.d/init.d/functions

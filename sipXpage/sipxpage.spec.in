@@ -19,6 +19,7 @@ Source: %name-%version.tar.gz
 
 Requires: sipxcommserverlib >= %version
 Requires: sipxcommons >= %version
+Requires: chkconfig
 
 %if %{?use_ibm_jvm}0
 Requires: java-ibm >= 1.6
@@ -53,3 +54,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/java/sipXecs/sipXpage/sipXpage.jar
 %dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata
 %config(noreplace) %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/sipxpage
+
+%post
+if grep -q :on <<<`/sbin/chkconfig sipxpage --list 2>&1`; then
+    /sbin/chkconfig sipxpage reset
+fi

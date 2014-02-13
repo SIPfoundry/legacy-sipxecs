@@ -20,6 +20,7 @@ Source: %name-%version.tar.gz
 Obsoletes: sipxvxml
 
 Requires: sipxcommons >= %version
+Requires: chkconfig
 BuildRequires: sipxconfig >= %version
 
 %if %{?use_ibm_jvm}0
@@ -57,3 +58,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXprovision
 %{_datadir}/java/sipXecs/sipXprovision/sipXprovision.jar
 %{_datadir}/java/sipXecs/sipXconfig/plugins/provision-cfg-service.jar
+
+%post
+if grep -q :on <<<`/sbin/chkconfig sipxprovision --list 2>&1`; then
+    /sbin/chkconfig sipxprovision reset
+fi
