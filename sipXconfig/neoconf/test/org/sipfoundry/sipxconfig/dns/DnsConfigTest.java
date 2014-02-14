@@ -102,7 +102,7 @@ public class DnsConfigTest {
         assertEquals(expected, actual.toString());
     }
 
-    //@Test
+    @Test
     public void fullZone() throws IOException {
         StringWriter actual = new StringWriter();
         DnsSrvRecord[] records = new DnsSrvRecord[] {

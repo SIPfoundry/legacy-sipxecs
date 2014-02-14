@@ -275,7 +275,9 @@ public class DnsConfig implements ConfigProvider {
             }
         }
         c.endArray();
-        writeServerYaml(c, all, "dns_servers", dns, qualifiedTarget, generateARecords);
+        if (!ArrayUtils.contains(excludes, DnsView.ExcludedRecords.NS)) {
+            writeServerYaml(c, all, "dns_servers", dns, qualifiedTarget, generateARecords);
+        }
         List<Address> dnsAddresses = new ArrayList<Address>();
         if (generateARecords && !ArrayUtils.contains(excludes, DnsView.ExcludedRecords.A)) {
             dnsAddresses = Location.toAddresses(DnsManager.DNS_ADDRESS, all);
