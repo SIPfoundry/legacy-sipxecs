@@ -77,7 +77,6 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
     private boolean m_enabled;
     private String m_name;
     private String m_description;
-    private String m_identity;
     private String m_extension;
     private String m_did;
     private Bridge m_bridge;
@@ -86,6 +85,7 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
     private String m_remoteSecretAgent;
     private String m_participantCode;
     private AddressManager m_addressManager;
+    private boolean m_aloneSound = true;
 
     @Override
     public void initialize() {
@@ -268,6 +268,14 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
     @SettingEntry(path = REMOTE_ADMIT_SECRET)
     public String getRemoteAdmitSecret() {
         return m_remoteSecretAgent;
+    }
+
+    public boolean isAloneSound() {
+        return m_aloneSound;
+    }
+
+    public Integer getConfMaxMembers() {
+        return (Integer) getSettingTypedValue(MAX_LEGS);
     }
 
     public static class ConferenceProfileName implements ProfileNameHandler {

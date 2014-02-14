@@ -80,7 +80,9 @@
 #else
       <param name="member-flags" value="waste"/>
 #end
+#if(${conference.getConferenceFlags()})
       <param name="conference-flags" value="${conference.getConferenceFlags()}"/>
+#end
 #if(${conference.getModeratorAccessCode()})
       <param name="moderator-pin" value="${conference.getModeratorAccessCode()}"/>
 #end
@@ -89,7 +91,9 @@
       <param name="nack-sound" value="beep.wav"/>
       <param name="muted-sound" value="conf/mutingYourself.wav"/>
       <param name="unmuted-sound" value="conf/unMutingYourself.wav"/>
+#if(${conference.isAloneSound()})
       <param name="alone-sound" value="conf/rollcallYouAreTheOnly.wav"/>
+#end
       <param name="enter-sound" value="conf/JoinTone.wav"/>
       <param name="exit-sound" value="conf/ExitTone.wav"/>
       <param name="kicked-sound" value="conf/ByeBye.wav"/>
@@ -102,9 +106,8 @@
       <param name="caller-id-name" value="$${outbound_caller_name}"/>
       <param name="caller-id-number" value="$${outbound_caller_id}"/>
       <param name="comfort-noise" value="0"/>
-#set($conf_max_members = ${conference.getSettingTypedValue(${Conference.MAX_LEGS})})
-#if($conf_max_members)
-      <param name="max-members" value="$conf_max_members"/>
+#if(${conference.getConfMaxMembers()})
+      <param name="max-members" value="$conference.getConfMaxMembers()"/>
 #end
 #if(${conference.mohPortAudioEnabled})
       <param name="moh-sound" value="$portAudioUrl"/>

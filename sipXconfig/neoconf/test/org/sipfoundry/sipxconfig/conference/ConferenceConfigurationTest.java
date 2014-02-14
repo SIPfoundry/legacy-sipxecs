@@ -21,10 +21,12 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.test.TestHelper;
+import org.springframework.beans.factory.ListableBeanFactory;
 
 public class ConferenceConfigurationTest extends TestCase {
 
     private DomainManager m_domainManager;
+    private ListableBeanFactory m_beanFactory;
     private final Location m_location = new Location();
     private final Domain m_domain = new Domain("example.com");
     private final ConferenceConfiguration m_config = new ConferenceConfiguration();
@@ -36,6 +38,11 @@ public class ConferenceConfigurationTest extends TestCase {
         m_config.setVelocityEngine(TestHelper.getVelocityEngine());
         m_config.setMohLocalStreamUrl("local_stream://moh");
         m_config.setPortAudioUrl("portaudio_stream://");
+
+        m_beanFactory = EasyMock.createNiceMock(ListableBeanFactory.class);
+        m_beanFactory.getBeansOfType(ConferenceProfileProvider.class);
+        EasyMock.expectLastCall().andReturn(null);
+        m_config.setBeanFactory(m_beanFactory);
     }
 
     public void testGenerate() throws Exception {

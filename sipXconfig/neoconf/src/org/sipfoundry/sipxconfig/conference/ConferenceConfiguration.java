@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
@@ -29,12 +30,16 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
 
-public class ConferenceConfiguration implements ConfigProvider {
+public class ConferenceConfiguration implements ConfigProvider, BeanFactoryAware {
     private ConferenceBridgeContext m_conferenceBridgeContext;
     private VelocityEngine m_velocityEngine;
     private DomainManager m_domainManager;
+    private ListableBeanFactory m_beanFactory;
     private String m_mohLocalStreamUrl;
     private String m_portAudioUrl;
 
@@ -65,7 +70,7 @@ public class ConferenceConfiguration implements ConfigProvider {
         }
     }
 
-    void writeXml(Writer wtr, Location location, Domain domain, Bridge bridge) throws IOException {
+    public void writeXml(Writer wtr, Location location, Domain domain, Bridge bridge) throws IOException {
         VelocityContext context = new VelocityContext();
         context.put("domain", domain);
         // FieldMethodizer is used to allow for easy access to static fields (string constants)
@@ -77,6 +82,15 @@ public class ConferenceConfiguration implements ConfigProvider {
         context.put("bridge", bridge);
         if (bridge != null) {
             Set<Conference> conferences = bridge.getConferences();
+            Map<String, ConferenceProfileProvider> beans = m_beanFactory
+                    .getBeansOfType(ConferenceProfileProvider.class);
+            if (beans != null) {
+                for (ConferenceProfileProvider bean : beans.values()) {
+                    for (Conference conf : bean.getConferenceProfiles()) {
+                        conferences.add(conf);
+                    }
+                }
+            }
 
             context.put("conferences", conferences);
         }
@@ -109,5 +123,10 @@ public class ConferenceConfiguration implements ConfigProvider {
 
     public void setVelocityEngine(VelocityEngine velocityEngine) {
         m_velocityEngine = velocityEngine;
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = (ListableBeanFactory) beanFactory;
     }
 }
