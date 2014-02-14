@@ -266,7 +266,7 @@ public class DnsConfig implements ConfigProvider {
         String qualifiedTarget = null;
         boolean domainIsFqdn = domainName.equals(all.get(0).getFqdn());
         if (domainIsFqdn) {
-            qualifiedTarget = String.format(QUALIFIED, domain);
+            qualifiedTarget = String.format(QUALIFIED, domainName);
         }
         if (rrs != null) {
             for (DnsSrvRecord rr : rrs) {
