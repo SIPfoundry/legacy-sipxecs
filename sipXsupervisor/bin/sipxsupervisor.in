@@ -2,7 +2,7 @@
 #
 # sipxsupervisor         Start/Stop the cfengine server daemon.
 #
-# chkconfig: 35 91 20
+# chkconfig: 35 99 20
 # description: sipxsupervisor is responsible from giving out configuration files to
 #              those cfengine clients, who wish to update their configs.
 #              For more information, visit http://www.cfengine.org
