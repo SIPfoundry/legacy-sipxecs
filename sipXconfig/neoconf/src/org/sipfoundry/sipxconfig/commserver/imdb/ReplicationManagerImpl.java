@@ -29,6 +29,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.commons.mongo.MongoConstants;
@@ -355,8 +356,8 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             Long start = System.currentTimeMillis();
             LOG.debug(REPLICATION_BEFORE_FIND + name);
             DBObject top = new BasicDBObject();
-            boolean isNew = findOrCreate(entity, top);
-            DBObject cleanCopy = new BasicDBObject(top.toMap());
+            DBObject cleanCopy = new BasicDBObject();
+            boolean isNew = findOrCreate(entity, top, cleanCopy);
             for (DataSet dataSet : dataSets) {
                 replicateEntity(entity, dataSet, top);
             }
@@ -367,15 +368,30 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
                 DBObject toUpdate = new BasicDBObject();
                 toUpdate.put(ID, top.get(ID));
                 DBObject updateQ = new BasicDBObject();
-                for (String field : top.keySet()) {
+                DBObject removeQ = new BasicDBObject();
+                for (String field : cleanCopy.keySet()) {
                     Object oldValue = cleanCopy.get(field);
-                    LOG.debug("field: " + field + ";old: " + oldValue + "; new: " + top.get(field));
-                    if (oldValue == null || !oldValue.equals(top.get(field))) {
-                        updateQ.put(field, top.get(field));
-                        LOG.debug(updateQ);
+                    Object newValue = top.get(field);
+                    LOG.debug("field: " + field + ";old: " + oldValue + "; new: " + newValue);
+                    if (oldValue == null || !oldValue.equals(newValue)) {
+                        if (newValue == null) {
+                            removeQ.put(field, StringUtils.EMPTY);
+                        } else {
+                            updateQ.put(field, newValue);
+                        }
                     }
                 }
-                DBObject set = new BasicDBObject("$set", updateQ);
+                for (String field : top.keySet()) {
+                    Object oldValue = cleanCopy.get(field);
+                    Object newValue = top.get(field);
+
+                    if (newValue != null && (oldValue == null || !oldValue.equals(newValue))) {
+                        updateQ.put(field, newValue);
+                    }
+                }
+                LOG.debug(updateQ);
+                LOG.debug(removeQ);
+                DBObject set = new BasicDBObject("$set", updateQ).append("$unset", removeQ);
                 getDbCollection().update(toUpdate, set);
             }
             Long end = System.currentTimeMillis();
@@ -661,7 +677,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
      * @param obj
      * @return
      */
-    protected boolean findOrCreate(Replicable entity, DBObject obj) {
+    protected boolean findOrCreate(Replicable entity, DBObject obj, DBObject cleanCopy) {
         DBCollection collection = getDbCollection();
         String id = getEntityId(entity);
         boolean isNew = false;
@@ -673,6 +689,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             top = new BasicDBObject();
             top.put(ID, id);
         }
+        cleanCopy.putAll(top.toMap());
         String sipDomain = m_coreContext.getDomainName();
         if (entity.getIdentity(sipDomain) != null) {
             top.put(IDENTITY, entity.getIdentity(sipDomain));

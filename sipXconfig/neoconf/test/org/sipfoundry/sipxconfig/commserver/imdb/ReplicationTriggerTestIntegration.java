@@ -42,13 +42,14 @@ public class ReplicationTriggerTestIntegration extends ImdbTestCase {
     private BranchManager m_branchManager;
     private TlsPeerManager m_tlsPeerManager;
     private ReplicationManagerImpl m_replicationManager;
-    
+
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
         clear();
+        getImdb().getCollection("entity").drop();
     }
-    
+
     @Override
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
@@ -106,7 +107,7 @@ public class ReplicationTriggerTestIntegration extends ImdbTestCase {
         replay(executorService);
         m_trigger.setExecutorService(executorService);
         m_branchManager.deleteBranches(Collections.singletonList(b.getId()));
-        
+
         verify(executorService);
         //verify that the user-branch relationship no longer exists and correct
         //entry is inserted in mongo
@@ -120,6 +121,7 @@ public class ReplicationTriggerTestIntegration extends ImdbTestCase {
         m_tlsPeerManager = peerManager;
     }
 
+    @Override
     public void setReplicationManagerImpl(ReplicationManagerImpl replicationManager) {
         m_replicationManager = replicationManager;
     }

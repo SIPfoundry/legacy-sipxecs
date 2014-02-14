@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.branch;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValueNotPresent;
+import static org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper.assertObjectWithIdFieldValuePresent;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,15 +22,20 @@ import java.util.TimeZone;
 
 import org.dbunit.dataset.ITable;
 import org.easymock.EasyMock;
+import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
+import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.MongoTestIntegration;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.sipfoundry.sipxconfig.time.NtpManager;
 
-public class BranchManagerImplTestIntegration extends IntegrationTestCase {
+public class BranchManagerImplTestIntegration extends ImdbTestCase {
 
     private static final int NUM_BRANCHES = 5;
 
@@ -44,6 +51,7 @@ public class BranchManagerImplTestIntegration extends IntegrationTestCase {
         m_locationManager = locationManager;
     }
 
+    @Override
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
@@ -196,5 +204,26 @@ public class BranchManagerImplTestIntegration extends IntegrationTestCase {
 
         EasyMock.verify(setupManager, ntpManager);
 
+    }
+
+    public void testReplicateUserWithBranch() throws Exception {
+        loadDataSet("branch/attached_branches.db.xml");
+        Branch branch1 = m_branchManager.getBranch("branch1");
+        assertNotNull(branch1);
+
+        User u = m_coreContext.loadUser(1000);
+        assertSame(branch1, u.getBranch());
+        assertSame(branch1, m_locationManager.getLocation(1000).getBranch());
+
+        m_coreContext.saveUser(u);
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1000", MongoConstants.USER_LOCATION, "branch1");
+
+        u.setBranch(null);
+        m_coreContext.saveUser(u);
+        assertObjectWithIdFieldValueNotPresent(getEntityCollection(), "User1000", MongoConstants.USER_LOCATION, "branch1");
+
+        u.setBranch(branch1);
+        m_coreContext.saveUser(u);
+        assertObjectWithIdFieldValuePresent(getEntityCollection(), "User1000", MongoConstants.USER_LOCATION, "branch1");
     }
 }
