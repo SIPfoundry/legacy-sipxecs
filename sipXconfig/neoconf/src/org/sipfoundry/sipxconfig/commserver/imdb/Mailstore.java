@@ -86,9 +86,9 @@ public class Mailstore extends AbstractDataSetGenerator {
     private MusicOnHoldManager m_mohManager;
 
     @Override
-    public boolean generate(Replicable entity, DBObject top) {
+    public void generate(Replicable entity, DBObject top) {
         if (!(entity instanceof User)) {
-            return false;
+            return;
         }
         User user = (User) entity;
         // The following settings used to be in validusers.xml
@@ -222,7 +222,6 @@ public class Mailstore extends AbstractDataSetGenerator {
         } else {
             removeField(top, DISTRIB_LISTS);
         }
-        return true;
     }
 
     @Override

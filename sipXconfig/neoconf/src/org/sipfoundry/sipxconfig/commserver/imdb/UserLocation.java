@@ -56,7 +56,7 @@ public class UserLocation extends AbstractDataSetGenerator {
     }
 
     @Override
-    public boolean generate(Replicable entity, DBObject top) {
+    public void generate(Replicable entity, DBObject top) {
         if (entity instanceof User) {
             User user = (User) entity;
             Branch site = user.getSite();
@@ -111,9 +111,7 @@ public class UserLocation extends AbstractDataSetGenerator {
                     putOnlyIfNotNull(top, OFFICE_DESIGNATION, officeAddress.getOfficeDesignation());
                 }
             }
-            return true;
         }
-        return false;
     }
 
 }

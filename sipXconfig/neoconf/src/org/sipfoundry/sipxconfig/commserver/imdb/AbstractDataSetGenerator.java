@@ -25,7 +25,7 @@ import com.mongodb.DBObject;
 public abstract class AbstractDataSetGenerator {
     private CoreContext m_coreContext;
 
-    public abstract boolean generate(Replicable entity, DBObject top);
+    public abstract void generate(Replicable entity, DBObject top);
 
     protected abstract DataSet getType();
 
@@ -44,7 +44,7 @@ public abstract class AbstractDataSetGenerator {
         return m_coreContext.getDomainName();
     }
 
-    protected void putOnlyIfNotNull(DBObject obj, String propName, Object prop) {
+    protected static void putOnlyIfNotNull(DBObject obj, String propName, Object prop) {
         if (prop instanceof String) {
             if (StringUtils.isNotBlank((String) prop)) {
                 obj.put(propName, prop);
@@ -56,7 +56,7 @@ public abstract class AbstractDataSetGenerator {
         }
     }
 
-    protected void removeField(DBObject top, String field) {
+    protected static void removeField(DBObject top, String field) {
         if (top.containsField(field)) {
             top.removeField(field);
         }

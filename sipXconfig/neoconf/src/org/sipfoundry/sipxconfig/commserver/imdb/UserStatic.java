@@ -24,7 +24,8 @@ public class UserStatic extends AbstractDataSetGenerator {
         return DataSet.USER_STATIC;
     }
 
-    public boolean generate(Replicable entity, DBObject top) {
+    @Override
+    public void generate(Replicable entity, DBObject top) {
         if (entity instanceof User) {
             User user = (User) entity;
             String domainName = getSipDomain();
@@ -34,9 +35,7 @@ public class UserStatic extends AbstractDataSetGenerator {
             } else {
                 top.removeField(STATIC);
             }
-            return true;
         }
-        return false;
     }
 
 }

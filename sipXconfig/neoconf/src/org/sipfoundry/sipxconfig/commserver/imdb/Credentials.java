@@ -35,7 +35,7 @@ public class Credentials extends AbstractDataSetGenerator {
     }
 
     @Override
-    public boolean generate(Replicable entity, DBObject top) {
+    public void generate(Replicable entity, DBObject top) {
         String realm = getCoreContext().getAuthorizationRealm();
         if (entity instanceof User) {
             User user = (User) entity;
@@ -44,24 +44,20 @@ public class Credentials extends AbstractDataSetGenerator {
             }
             insertCredential(top, realm, defaultString(user.getSipPassword()), user.getPintoken(), DIGEST);
             insertVoicemailPin(top, user.getVoicemailPintoken());
-            return true;
         } else if (entity instanceof CallGroup) {
             CallGroup callGroup = (CallGroup) entity;
             insertCredential(top, realm, callGroup.getSipPassword(), callGroup.getSipPasswordHash(realm), DIGEST);
-            return true;
         } else if (entity instanceof SpecialUser) {
             SpecialUser user = (SpecialUser) entity;
             insertCredential(top, realm, defaultString(user.getSipPassword()), null, DIGEST);
-            return true;
         } else if (entity instanceof BeanWithUserPermissions) {
             InternalUser user = ((BeanWithUserPermissions) entity).getInternalUser();
             insertCredential(top, realm, defaultString(user.getSipPassword()), user.getPintoken(), DIGEST);
-            return true;
         }
-        return false;
     }
 
-    private void insertCredential(DBObject top, String realm, String passtoken, String pintoken, String authtype) {
+    private static void insertCredential(DBObject top, String realm, String passtoken, String pintoken,
+            String authtype) {
         top.put(REALM, realm);
         top.put(PASSTOKEN, passtoken);
         if (!StringUtils.isEmpty(pintoken)) {
@@ -70,7 +66,7 @@ public class Credentials extends AbstractDataSetGenerator {
         top.put(AUTHTYPE, authtype);
     }
 
-    private void insertVoicemailPin(DBObject top, String vpintoken) {
+    private static void insertVoicemailPin(DBObject top, String vpintoken) {
         if (!StringUtils.isEmpty(vpintoken)) {
             top.put(VOICEMAIL_PINTOKEN, vpintoken);
         }

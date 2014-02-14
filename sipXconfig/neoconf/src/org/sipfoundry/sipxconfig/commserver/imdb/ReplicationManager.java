@@ -68,11 +68,6 @@ public interface ReplicationManager {
     void replicateGroup(Group group);
 
     /**
-     * Replicate a {@link Group}. Uses parallel processing
-     */
-    void replicateSpeedDialGroup(Group group);
-
-    /**
      * Replicate a {@link Branch}
      */
     void replicateBranch(Branch branch);

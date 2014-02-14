@@ -26,15 +26,13 @@ public class UserForward extends AbstractDataSetGenerator {
     }
 
     @Override
-    public boolean generate(Replicable entity, DBObject top) {
+    public void generate(Replicable entity, DBObject top) {
         if (entity instanceof User) {
             generateUser((User) entity, top);
-            return true;
         }
-        return false;
     }
 
-    private void generateUser(User user, DBObject top) {
+    private static void generateUser(User user, DBObject top) {
         top.put(CFWDTIME, user.getSettingTypedValue(CallSequence.CALL_FWD_TIMER_SETTING));
     }
 

@@ -21,13 +21,15 @@ public class Aliases extends AbstractDataSetGenerator {
     public Aliases() {
     }
 
+    @Override
     protected DataSet getType() {
         return DataSet.ALIAS;
     }
 
-    public boolean generate(Replicable entity, DBObject top) {
+    @Override
+    public void generate(Replicable entity, DBObject top) {
         top.put(ALIASES, entity.getAliasMappings(getCoreContext().getDomainName()));
-        return true;
+        return;
     }
 
 }

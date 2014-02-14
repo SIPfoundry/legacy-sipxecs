@@ -35,7 +35,7 @@ public class CallerAliases extends AbstractDataSetGenerator {
     }
 
     @Override
-    public boolean generate(Replicable entity, DBObject top) {
+    public void generate(Replicable entity, DBObject top) {
         if (entity instanceof User) {
             User user = (User) entity;
             if (StringUtils.isNotBlank(user.getSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER))) {
@@ -44,8 +44,7 @@ public class CallerAliases extends AbstractDataSetGenerator {
             } else {
                 removeField(top, CALLERALIAS);
             }
-            top.put(ANONYMOUS, (Boolean) user.getSettingTypedValue(UserCallerAliasInfo.ANONYMOUS_CALLER_ALIAS));
-            return true;
+            top.put(ANONYMOUS, user.getSettingTypedValue(UserCallerAliasInfo.ANONYMOUS_CALLER_ALIAS));
         } else if (entity instanceof Gateway) {
             Gateway gateway = (Gateway) entity;
             final GatewayCallerAliasInfo gatewayInfo = gateway.getCallerAliasInfo();
@@ -61,8 +60,6 @@ public class CallerAliases extends AbstractDataSetGenerator {
             top.put(KEEP_DIGITS, gatewayInfo.getKeepDigits());
             top.put(TRANSFORM_EXT, gatewayInfo.isTransformUserExtension());
             top.put(ANONYMOUS, gatewayInfo.isAnonymous());
-            return true;
         }
-        return false;
     }
 }

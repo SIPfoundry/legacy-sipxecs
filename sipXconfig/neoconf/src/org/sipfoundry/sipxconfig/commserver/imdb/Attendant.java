@@ -59,9 +59,9 @@ import com.mongodb.DBObject;
 public class Attendant extends AbstractDataSetGenerator {
 
     @Override
-    public boolean generate(Replicable entity, DBObject top) {
+    public void generate(Replicable entity, DBObject top) {
         if (!(entity instanceof User)) {
-            return false;
+            return;
         }
         User user = (User) entity;
         // The following settings used to be in validusers.xml
@@ -144,7 +144,6 @@ public class Attendant extends AbstractDataSetGenerator {
         top.put(IM_ON_THE_PHONE_MESSAGE, imAccount.getOnThePhoneMessage());
         top.put(IM_ADVERTISE_ON_CALL_STATUS, imAccount.advertiseSipPresence());
         top.put(IM_SHOW_ON_CALL_DETAILS, imAccount.includeCallInfo());
-        return true;
     }
 
     @Override
