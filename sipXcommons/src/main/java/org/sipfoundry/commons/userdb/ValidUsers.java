@@ -126,7 +126,7 @@ import com.mongodb.util.JSON;
 
 /**
  * Holds the valid user data needed for the AutoAttendant, parsing from mongo db imdb
- * 
+ *
  */
 public class ValidUsers {
     public static String IM_USERNAME_FILTER = "Username";
@@ -150,7 +150,7 @@ public class ValidUsers {
     /**
      * Loading all users into memory is an extremely expensive call for large systems (10K-50K
      * user system). Consider refactoring your code to not call this method.
-     * 
+     *
      * @return
      */
     public List<User> getValidUsers() {
@@ -181,7 +181,7 @@ public class ValidUsers {
     /**
      * Loading all users into memory is an extremely expensive call for large systems (10K-50K
      * user system). Consider refactoring your code to not call this method.
-     * 
+     *
      * @return
      */
     public DBCursor getUsers() {
@@ -201,7 +201,7 @@ public class ValidUsers {
     /**
      * Use this method if you need to remove a field from users completely. This may be achieved
      * by regenerating the entire collection, or a DataSet, but this would be much faster.
-     * 
+     *
      * @param field
      */
     public void removeFieldFromUsers(String field) {
@@ -212,7 +212,7 @@ public class ValidUsers {
     /**
      * Loading all users into memory is an extremely expensive call for large systems (10K-50K
      * user system). Consider refactoring your code to not call this method.
-     * 
+     *
      * @return
      */
     public List<User> getUsersWithImEnabled() {
@@ -228,7 +228,7 @@ public class ValidUsers {
 
     /**
      * Returns a list of all im ids (of users with im enabled)
-     * 
+     *
      * @return
      */
     public List<String> getAllImIdsInGroup(String group) {
@@ -245,9 +245,9 @@ public class ValidUsers {
 
     /**
      * See if a given user_name is valid (aka it can be dialed and reach a user)
-     * 
+     *
      * @param userNname
-     * 
+     *
      * @return user found or null
      */
     public User getUser(String userName) {
@@ -371,7 +371,7 @@ public class ValidUsers {
 
     /**
      * Given a bunch of DTMF digits, return the list of users that matches
-     * 
+     *
      * @param digits DTMF digits to match against user directory
      * @param onlyVoicemailUsers limit match to users in directory who have voicemail
      * @return a Vector of users that match
@@ -639,7 +639,10 @@ public class ValidUsers {
         user.setPintoken(getStringValue(obj, PINTOKEN));
         user.setVoicemailPintoken(getStringValue(obj, VOICEMAIL_PINTOKEN));
         user.setTimeZone(getStringValue(obj, TIMEZONE));
-        user.setHotelingEnabled(BooleanUtils.toBoolean(getStringValue(obj, HOTELING), "1", "0"));
+        String htl = getStringValue(obj, HOTELING);
+        if (htl != null) {
+            user.setHotelingEnabled(BooleanUtils.toBoolean(getStringValue(obj, HOTELING), "1", "0"));
+        }
 
         BasicDBList permissions = (BasicDBList) obj.get(PERMISSIONS);
         if (permissions != null) {
@@ -652,13 +655,13 @@ public class ValidUsers {
 
         user.setUserBusyPrompt(Boolean.valueOf(getStringValue(obj, USERBUSYPROMPT)));
         user.setMoh(getStringValue(obj, MOH));
-        
+
         // highest weight group is always the last in the list
         BasicDBList groups = (BasicDBList) obj.get(GROUPS);
         if (groups != null) {
         	user.setHighestWeightGroup((String) groups.get(groups.size() - 1));
         }
-        
+
         user.setVoicemailTui(getStringValue(obj, VOICEMAILTUI));
         user.setEmailAddress(getStringValue(obj, EMAIL));
         if (obj.keySet().contains(NOTIFICATION)) {
@@ -805,7 +808,7 @@ public class ValidUsers {
     /**
      * Remove all non-letter characters, convert to upper case Remove diacritical marks if
      * possible
-     * 
+     *
      * @param orig
      */
     protected static String compress(String orig) {
@@ -922,9 +925,9 @@ public class ValidUsers {
 
     /**
      * Parse the Display name into a list of DTMF sequences
-     * 
+     *
      * Do one for Last name first And one for First name first
-     * 
+     *
      * @param u
      */
     protected static void buildDialPatterns(User u) {
