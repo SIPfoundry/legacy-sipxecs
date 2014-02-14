@@ -77,6 +77,9 @@ class ArchiveBase
   def file_manager(params)
     settings = @data['settings']
     if !settings.nil? && settings.has_key?('ftp')
+      # ftp mode: make sure to clean any previous ftp backups
+      local = LocalFileManager.new("#{@backup_dir}/#{@data['plan']}")
+      local.save(1)
       remote = nil
       params = settings['ftp']
       uri = URI.parse(params['url'])
@@ -328,7 +331,7 @@ class FtpFileManager < FileManagerBase
   end
 
   def purge(b)
-    Net::FTP.open(@uri.host, @params['user'], @params['password']) do |ftp|
+    Net::FTP.open(@uri.host.to_s, @params['user'].to_s, @params['password'].to_s) do |ftp|
       ftp.passive = true
       ftp.chdir("/#{@uri.path}/#{b}")
       ftp.nlst("*").each{ |entry|
