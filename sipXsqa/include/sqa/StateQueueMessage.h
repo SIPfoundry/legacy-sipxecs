@@ -21,13 +21,7 @@
 #include <cassert>
 #include <map>
 #include <string>
-#include <iostream>
-#include <iomanip>
-#include <sstream>
 #include <boost/noncopyable.hpp>
-
-#include "sqa/SQADefines.h"
-#include "sqa/SQAUtils.h"
 
 class StateQueueMessage
 {
@@ -38,7 +32,7 @@ public:
     Signin,
     Logout,
     Publish, /// publish an event
-    PublishAndSet, /// Publish an event a persist it right after
+    PublishAndPersist, /// Publish an event a persist it right after
     Enqueue, /// enqueue a state
     EnqueueAndPublish, /// Enqueue the message then publish it as watcher data
     Pop, /// Pop the state from the queue
@@ -63,8 +57,6 @@ public:
   StateQueueMessage();
   StateQueueMessage(const StateQueueMessage& data);
   StateQueueMessage(Type type);
-  StateQueueMessage(Type type, int serviceType);
-  StateQueueMessage(Type type, int serviceType, const std::string &eventId);
   StateQueueMessage(const std::string& rawData);
   ~StateQueueMessage();
 
@@ -72,8 +64,6 @@ public:
 
   Type getType() const;
   void setType(Type type);
-  void setServiceType(int serviceType);
-  int getServiceType() const;
   cJSON* object();
 
   bool get(const char* name, std::string& value) const;
@@ -86,14 +76,13 @@ public:
   void set(const char* name, double value);
   void set(const char* name, bool value);
 
+
   std::string data() const;
   bool parseData(const std::string& rawData, bool ignoreType = true);
   bool getMap(std::map<std::string, std::string>& smap);
   void clone(StateQueueMessage& data) const;
-
 protected:
   mutable Type _type;
-  mutable int _serviceType;
   cJSON* _pObject;
 };
 
@@ -119,34 +108,6 @@ inline StateQueueMessage::StateQueueMessage(Type type) :
 {
   _pObject = cJSON_CreateObject();
   setType(type);
-}
-
-inline StateQueueMessage::StateQueueMessage(Type type, int serviceType) :
-  _type(type),
-  _serviceType(serviceType),
-  _pObject(0)
-{
-  _pObject = cJSON_CreateObject();
-  setType(type);
-  setServiceType(serviceType);
-
-  std::string id;
-  SQAUtil::generateId(id, serviceType, "");
-  set("message-id", id.c_str());
-}
-
-inline StateQueueMessage::StateQueueMessage(Type type, int serviceType, const std::string &eventId) :
-  _type(type),
-  _serviceType(serviceType),
-  _pObject(0)
-{
-  _pObject = cJSON_CreateObject();
-  setType(type);
-  setServiceType(serviceType);
-
-  std::string id;
-  SQAUtil::generateId(id, serviceType, eventId);
-  set("message-id", id.c_str());
 }
 
 inline StateQueueMessage::StateQueueMessage(const std::string& rawData) :
@@ -247,7 +208,7 @@ inline StateQueueMessage::Type StateQueueMessage::getType() const
     }
     else if (messageType == "pap")
     {
-      _type = PublishAndSet;
+      _type = PublishAndPersist;
     }
     else if (messageType == "enqueue")
     {
@@ -351,7 +312,7 @@ inline void StateQueueMessage::setType(Type type)
     case Publish:
       newType = "publish";
       break;
-    case PublishAndSet:
+    case PublishAndPersist:
       newType = "pap";
       break;
     case Enqueue:
@@ -418,69 +379,6 @@ inline void StateQueueMessage::setType(Type type)
     cJSON_DeleteItemFromObject(_pObject, "message-type");
     cJSON_AddItemToObject(_pObject,"message-type", cJSON_CreateString(newType.c_str()));
   }
-}
-
-inline int StateQueueMessage::getServiceType() const
-{
-    if (!_pObject)
-    {
-        return SQAUtil::SQAClientUnknown;
-    }
-
-    if (_serviceType != SQAUtil::SQAClientUnknown)
-    {
-        return _serviceType;
-    }
-
-    _serviceType = SQAUtil::SQAClientUnknown;
-    try
-    {
-        cJSON *ssource = cJSON_GetObjectItem(_pObject,"message-serviceType");
-
-        if (ssource || ssource->type != cJSON_String || !ssource->valuestring)
-        {
-            _serviceType = SQAUtil::SQAClientUnknown;
-        }
-        else
-        {
-            std::string sserviceType = ssource->valuestring;
-
-
-            if ("dealer" == sserviceType)
-            {
-              _serviceType = SQAUtil::SQAClientDealer;
-            }
-            else if ("publisher" == sserviceType)
-            {
-              _serviceType = SQAUtil::SQAClientPublisher;
-            }
-            else if ("worker")
-            {
-              _serviceType = SQAUtil::SQAClientWorker;
-            }
-            else if ("watcher")
-            {
-              _serviceType = SQAUtil::SQAClientWatcher;
-            }
-        }
-
-    }catch(...)
-    {
-        //do nothing
-    }
-
-    return _serviceType;
-}
-
-inline void StateQueueMessage::setServiceType(int serviceType)
-{
-  _serviceType = serviceType;
-
-  assert(_pObject);
-  std::string newServiceType = SQAUtil::getClientStr(serviceType);
-
-  cJSON_DeleteItemFromObject(_pObject, "message-serviceType");
-  cJSON_AddItemToObject(_pObject,"message-serviceType", cJSON_CreateString(newServiceType.c_str()));
 }
 
 inline bool StateQueueMessage::get(const char* name, std::string& value) const
@@ -603,8 +501,6 @@ inline bool StateQueueMessage::getMap(std::map<std::string, std::string>& smap)
   assert(false);
   return false;
 }
-
-
 
 #endif	/* STATEQUEUEMESSAGE_H */
 

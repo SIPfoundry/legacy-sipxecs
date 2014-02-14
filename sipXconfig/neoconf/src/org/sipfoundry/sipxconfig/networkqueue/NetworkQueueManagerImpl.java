@@ -21,15 +21,10 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-
-import org.sipfoundry.commons.util.PermutationCalculator;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
@@ -60,8 +55,6 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements NetworkQueueManager, ConfigProvider,
     AddressProvider, FeatureProvider, FirewallProvider, ProcessProvider {
-
-    private static final String ALL_CONTROL_ADDRESSES = "sqa-control-address-all";
     private BeanWithSettingsDao<NetworkQueueSettings> m_settingsDao;
 
     @Override
@@ -72,33 +65,20 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
 
         NetworkQueueSettings settings = getSettings();
         Set<Location> locations = request.locations(manager);
-        List<String> addresses = new LinkedList<String>();
         for (Location location : locations) {
-            addresses.add(location.getAddress());
-        }
-
-        List<Location> sqaLocations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
-        Collection<String> sqaAddresses = CollectionUtils.collect(sqaLocations, Location.GET_ADDRESS);
-        Collection<String> nonSqaLocations = CollectionUtils.subtract(addresses, sqaAddresses);
-        PermutationCalculator<String> permCalc = new PermutationCalculator<String>(addresses);
-
-        int index = 0;
-        for (Location location : locations) {
-            List<String> sqaCombination =  permCalc.getPermutation(index++, nonSqaLocations.toArray(new String[nonSqaLocations.size()]));
-
             File dir = manager.getLocationDataDirectory(location);
-            boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
 
             // CLIENT
             Address queue = manager.getAddressManager().getSingleAddress(CONTROL_ADDRESS, location);
             Writer client = new FileWriter(new File(dir, "sipxsqa-client.ini"));
             try {
-                writeClientConfig(client, queue, sqaCombination, enabled);
+                writeClientConfig(client, queue);
             } finally {
                 IOUtils.closeQuietly(client);
             }
 
             // SERVER
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
             ConfigUtils.enableCfengineClass(dir, "sipxsqa.cfdat", enabled, FEATURE.getId());
             if (enabled) {
                 Writer server = new FileWriter(new File(dir, "sipxsqa-config.part"));
@@ -116,17 +96,12 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
         config.writeSettings(settings.getSettings().getSetting("sqa-config"));
     }
 
-    void writeClientConfig(Writer w, Address queue, List<String> addresses, boolean isSqaEnabled) throws IOException {
+    void writeClientConfig(Writer w, Address queue) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
         config.write("enabled", queue != null);
         if (queue != null) {
             config.write("sqa-control-port", queue.getCanonicalPort());
-            if (isSqaEnabled) {
-                config.write("sqa-control-address", queue.getAddress());
-            }
-        }
-        if (!addresses.isEmpty()) {
-            config.write(ALL_CONTROL_ADDRESSES, StringUtils.join(addresses, ", "));
+            config.write("sqa-control-address", queue.getAddress());
         }
     }
 
@@ -154,7 +129,10 @@ public class NetworkQueueManagerImpl extends SipxHibernateDaoSupport implements 
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
-        validator.requiresAtLeastOne(FEATURE, Redis.FEATURE);
+        validator.singleLocationOnly(FEATURE);
+
+        // ATM sipxsqa assumes redis is on localhost, otherwise no restrictions
+        validator.requiredOnSameHost(FEATURE, Redis.FEATURE);
     }
 
     @Override

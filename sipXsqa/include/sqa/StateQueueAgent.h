@@ -30,27 +30,19 @@
 #include "StateQueueMessage.h"
 #include "StateQueueListener.h"
 #include "zmq.hpp"
+#include "sipdb/MongoOpLog.h"
 #include "RedisClientAsync.h"
 
 
 class StateQueueAgent : boost::noncopyable
 {
 public:
-  StateQueueAgent(const std::string& agentId, OsServiceOptions& options);
+  StateQueueAgent(OsServiceOptions& options);
   ~StateQueueAgent();
   void run();
   void stop();
   void onIncomingConnection(StateQueueConnection::Ptr conn);
   void onIncomingRequest(StateQueueConnection& conn, const char* bytes, std::size_t bytes_transferred);
-
-  void fillEventRecord(StateQueueRecord &record, StateQueueConnection& conn, ConnectionEvent connnectionEvent);
-  void fillEventRecord(
-          StateQueueRecord &record,
-          const std::string &messageId,
-          const std::string &messageData,
-          int expires = 0,
-          bool watcherData = true
-          );
 
   void handleSignin(StateQueueConnection& conn, StateQueueMessage& message,
     const std::string& id, const std::string& appId);
@@ -67,10 +59,9 @@ public:
 
   void handlePublish(StateQueueConnection& conn, StateQueueMessage& message,
     const std::string& id, const std::string& appId);
-
   void publish(StateQueueRecord& record);
 
-  void handlePublishAndSet(StateQueueConnection& conn, StateQueueMessage& message,
+  void handlePublishAndPersist(StateQueueConnection& conn, StateQueueMessage& message,
     const std::string& id, const std::string& appId);
 
   void handlePop(StateQueueConnection& conn, StateQueueMessage& message,
@@ -116,7 +107,7 @@ public:
     const std::string& id, const std::string& appId);
   void erase(const std::string& id);
 
-  void handlePing(StateQueueConnection& conn, StateQueueMessage& message, const std::string& appId);
+  void handlePing(StateQueueConnection& conn, StateQueueMessage& message);
   
   void onQueueTimeout(const std::string& id, const boost::any& data);
 
@@ -125,8 +116,6 @@ public:
   int& inactivityThreshold();
   
   void onDestroyConnection(StateQueueConnection::Ptr conn);
-
-  const char* getClassName();
 protected:
   void internal_run_io_service();
   void sendErrorResponse(StateQueueMessage::Type type, StateQueueConnection& conn, const std::string& messageId, const std::string& error);
@@ -135,38 +124,31 @@ protected:
   void onRedisWatcherEvent(const std::vector<std::string>& event);
   void onRedisWatcherConnect(int status);
   void onRedisWatcherDisconnect(int status);
-  /// Set a publisher to be used instead of the internally created one.
-  /// After set the publisher pointer is owned by this class.
-  void setPublisher(StateQueuePublisher* publisher);
 
-  std::string _agentId;
   OsServiceOptions& _options;
   boost::thread* _pIoServiceThread;
   boost::asio::io_service _ioService;
   TimedQueue _cache;
-  StateQueuePublisher* _publisher;
+  StateQueuePublisher _publisher;
   StateQueuePersistence _dataStore;
   unsigned _queueWorkSpaceIndex;
   StateQueueListener _listener;
   int _inactivityThreshold;
   std::string _publisherAddress;
-  boost::thread* _pRedisWatcherThread;
   //RedisClientAsync _redisWatcher;
   bool _terminated;
   friend class StateQueueListener;
   friend class StateQueueConnection;
-  friend class StateQueueConnectionTest;
-  friend class StateQueueAgentTest;
 };
 
 
 //
 // Inlines
 //
-inline const char* StateQueueAgent::getClassName()
-{
-  return "StateQueueAgent";
-}
+//inline const char* StateQueueAgent::getClassName()
+//{
+//  return "StateQueueAgent";
+//}
 
 inline OsServiceOptions& StateQueueAgent::options()
 {

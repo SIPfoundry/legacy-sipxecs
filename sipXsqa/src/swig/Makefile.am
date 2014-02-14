@@ -36,10 +36,8 @@ libsqaclient_la_LIBADD = \
 	-lboost_program_options-mt \
 	-lpthread \
 	-lzmq \
-	-lmongoclient \
-	../libsipXsqa.la \
 	@SIPXPORT_LIBS@
-	
+
 sqaclient_wrap.cxx : sipxsqaclient-src
 
 nodist_libsqaclient_la_SOURCES = \

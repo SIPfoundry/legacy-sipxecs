@@ -65,17 +65,6 @@ public:
     _queue.pop();
     return true;
   }
-
-  bool dequeue(T& data, int milliseconds)
-  {
-    _semaphore.wait(milliseconds);
-    mutex_lock lock(_mutex);
-    if (_queue.empty() || _terminating)
-      return false;
-    data = _queue.front();
-    _queue.pop();
-    return true;
-  }
   
   void enqueue(const T& data)
   {
@@ -90,13 +79,8 @@ public:
     _semaphore.signal();
   }
 
-  int size()
-  {
-    _mutex.lock();
-    int size_ = (int) _queue.size();
-    _mutex.unlock();
-    return size_;
-  }
+
+
 };
 
 #endif	/* BLOCKINGQUEUE_H */

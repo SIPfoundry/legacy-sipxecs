@@ -72,14 +72,10 @@ ResourceListTask::ResourceListTask(ResourceListServer* parent) :
      bool enabled = false;
      if (configOptions.getOption("enabled", enabled, enabled) && enabled)
      {
-       _pSqaNotifier = new StateQueueNotification();
+       _pSqaNotifier = new StateQueueNotification(configOptions);
        _pSqaNotifier->run();
      }
    }
-
-   Os::Logger::instance().log(FAC_RLS, PRI_DEBUG,
-                 "ResourceListTask:: this = %p, SQA notifier is %s",
-                 this, ((_pSqaNotifier) ? "UP" : "DOWN"));
 }
 
 // Destructor
