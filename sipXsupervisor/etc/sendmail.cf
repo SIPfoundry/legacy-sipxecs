@@ -108,8 +108,6 @@ bundle agent sendmail_sysv_running {
       "any" usebundle => rh_chkconfig_status("postfix off");
     !src.!sendmail::
       "any" usebundle => rh_chkconfig_status("sendmail off");
-    !src.postfix_installed::
-      "any" usebundle => rh_chkconfig_status("postfix on");
 
   commands:
     !sendmail.sendmail_running::
@@ -120,7 +118,11 @@ bundle agent sendmail_sysv_running {
     sendmail.postfix_running::
       "/sbin/service"
         comment => "stop postfix",
-        args => "postfix stop";         
+        args => "postfix stop";
+
+      "/sbin/service"
+        comment => "restart sendmail",
+        args => "sendmail restart";         
 
     sendmail.!sendmail_running::
       "/sbin/service"
