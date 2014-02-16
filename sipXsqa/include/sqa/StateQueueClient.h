@@ -27,7 +27,7 @@
 #include "BlockingQueue.h"
 #include <os/OsLogger.h>
 #include <boost/lexical_cast.hpp>
-#include "ServiceOptions.h"
+#include <os/OsServiceOptions.h>
 
 #define SQA_LINGER_TIME_MILLIS 5000
 #define SQA_TERMINATE_STRING "__TERMINATE__"
@@ -266,7 +266,44 @@ public:
     }
 
     
-    bool connect();
+    bool connect()
+    {
+      //
+      // Initialize State Queue Agent Publisher if an address is provided
+      //
+      if (_serviceAddress.empty() || _servicePort.empty())
+      {
+        std::string sqaControlAddress;
+        std::string sqaControlPort;
+        std::ostringstream sqaconfig;
+        sqaconfig << SIPX_CONFDIR << "/" << "sipxsqa-client.ini";
+        OsServiceOptions configOptions(sqaconfig.str());
+        std::string controlAddress;
+        std::string controlPort;
+        if (configOptions.parseOptions())
+        {
+          bool enabled = false;
+          if (configOptions.getOption("enabled", enabled, enabled) && enabled)
+          {
+            configOptions.getOption("sqa-control-address", _serviceAddress);
+            configOptions.getOption("sqa-control-port", _servicePort);
+          }
+          else
+          {
+            OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::connect() this:" << this << " Unable to read connection information from " << sqaconfig.str());
+            return false;
+          }
+        }
+      }
+
+      if(_serviceAddress.empty() || _servicePort.empty())
+      {
+        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::connect() this:" << this << " remote address is not set");
+        return false;
+      }
+      
+      return connect(_serviceAddress, _servicePort);
+    }
 
     bool send(const StateQueueMessage& request)
     {
