@@ -19,7 +19,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
+
 public interface BackupRunner {
+
+    public static final AlarmDefinition BACKUP_FAILED = new AlarmDefinition("BACKUP_FAILED");
 
     public boolean isInProgress();
 

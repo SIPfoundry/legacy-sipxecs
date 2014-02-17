@@ -35,7 +35,9 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.util.TempFile;
@@ -208,6 +210,7 @@ public class BackupApi extends Resource {
         putOrPost(entity);
         File planFile = null;
         Writer planWtr = null;
+        String configuration = StringUtils.EMPTY;
         try {
             planFile = TempFile.createTempFile(BACKUP, "yaml");
             planWtr = new FileWriter(planFile);
@@ -215,8 +218,12 @@ public class BackupApi extends Resource {
             m_backupConfig.writeConfig(planWtr, m_plan, hosts, m_settings);
             IOUtils.closeQuietly(planWtr);
             planWtr = null;
-            m_backupRunner.backup(planFile);
-        } catch (IOException e) {
+            configuration = FileUtils.readFileToString(planFile);
+            if (m_backupRunner.backup(planFile)) {
+                LOG.info("Backup SUCCEEDED for configuration: " + configuration);
+            }
+        } catch (Exception e) {
+            LOG.error("Backup FAILED for configuration: " + configuration, e);
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
         } finally {
             IOUtils.closeQuietly(planWtr);

@@ -24,11 +24,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
+import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
+import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.common.SimpleCommandRunner;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.util.StringUtils;
 
-public class BackupRunnerImpl implements BackupRunner {
+public class BackupRunnerImpl implements BackupRunner, AlarmProvider {
     private SimpleCommandRunner m_actionRunner;
     private String m_backupScript;
     private int m_foregroundTimeout = 5000;
@@ -51,11 +54,7 @@ public class BackupRunnerImpl implements BackupRunner {
         String[] cmd = new String[] {
             m_backupScript, "--list", plan.getAbsolutePath()
         };
-        if (!runner.run(cmd, m_foregroundTimeout)) {
-            throw new RuntimeException("Timeout getting backup listing");
-        } else if (runner.getExitCode() != 0) {
-            throw new RuntimeException(runner.getStderr());
-        }
+        op(runner, cmd);
         Map<String, List<String>> list = new TreeMap<String, List<String>>();
         String[] lines = runner.getStdout().split("\\n+");
         for (String line : lines) {
@@ -97,7 +96,7 @@ public class BackupRunnerImpl implements BackupRunner {
         String[] cmd = new String[] {
             m_backupScript, operation, plan.getAbsolutePath()
         };
-        return runner.run(cmd, m_foregroundTimeout);
+        return op(runner, cmd);
     }
 
     /**
@@ -112,6 +111,25 @@ public class BackupRunnerImpl implements BackupRunner {
         String[] cmd = new String[] {
             m_backupScript, operation, params
         };
-        return runner.run(cmd, m_foregroundTimeout);
+        return op(runner, cmd);
+    }
+    /**
+     * Generic command call with exception handling. Any ruby script exception is kept in runner.getStderr()
+     * @param runner
+     * @param cmd
+     * @return
+     */
+    private boolean op(SimpleCommandRunner runner, String[] cmd) {
+        if (!runner.run(cmd, m_foregroundTimeout)) {
+            throw new RuntimeException("Timeout running operation ");
+        } else if (runner.getExitCode() != 0) {
+            throw new RuntimeException(runner.getStderr());
+        }
+        return true;
+    }
+
+    @Override
+    public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
+        return Collections.singleton(BACKUP_FAILED);
     }
 }

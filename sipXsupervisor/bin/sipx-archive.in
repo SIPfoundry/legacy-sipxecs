@@ -61,9 +61,7 @@ class ArchiveBase
     log_file = get_log_file
     unless log_file == nil
       $stdout.reopen(log_file, "w")
-      $stderr.reopen(log_file, "w")
       $stdout.sync = true
-      $stderr.sync = true
     end
   end
 

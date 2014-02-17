@@ -44,3 +44,14 @@ action=shellcmd @SIPX_BINDIR@/sipxtrap ALARM_PHONE_DELETED '%s'
 <% 
   end 
 %>
+<% 
+  if BACKUP_FAILED[:groupName] != 'disabled'
+%>
+type=Single
+ptype=RegExp
+pattern=Backup FAILED for configuration: (.*)
+desc=Backup with configuration $1 failed
+action=shellcmd @SIPX_BINDIR@/sipxtrap BACKUP_FAILED '%s'
+<% 
+  end 
+%>
