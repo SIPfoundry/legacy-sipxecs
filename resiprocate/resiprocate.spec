@@ -1,5 +1,5 @@
 Name: resiprocate
-Version: 1.9.0.rc2
+Version: 1.9.0
 Release: 1
 Summary: SIP and TURN stacks, with SIP proxy and TURN server implementations
 License: VSL
@@ -35,8 +35,8 @@ Resiprocate SIP Stack development files.
 %setup -q
 
 %build
-export LDFLAGS="${LDFLAGS} -L%{_libdir}/libdb4"
-CXXFLAGS="%{optflags} -I%{_includedir}/libdb4" %configure
+export LDFLAGS="${LDFLAGS} -L%{_libdir}/libdb4 -Wl,-rpath-link,${PWD}/rutil/dns/ares/.libs"
+CXXFLAGS="%{optflags} -I%{_includedir}/libdb4 -I${PWD}/contrib/cajun/include" %configure --with-repro
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 make %{?_smp_mflags}
@@ -51,20 +51,25 @@ make DESTDIR=%{buildroot} install
 %files
 %defattr(644,root,root,755)
 %{_libdir}/*.so
+%{_sbindir}/repro
+%{_sbindir}/reprocmd
+%{_sbindir}/queuetostream
 
 %files devel
 %defattr(644,root,root,755)
 %{_includedir}/rutil/*
 %{_includedir}/resip/*
+%{_includedir}/repro/*
 %{_libdir}/*.a
 %{_libdir}/*.la
+%{_mandir}/man8/*.gz
 %{_mandir}/man3/*.gz
 
 
 %changelog
-* Sat Feb  8 2014 Ionut Slaveanu islaveanu@ezuce.com -
-- Update for new files in 1.9.0.rc2-1 release
-* Sat Nov 24 2012 Daniel Pocock <daniel@pocock.com.au> - 1.9.0~rc2-1
+* Sat Feb 12 2014 Ionut Slaveanu islaveanu@ezuce.com -
+- Update for new files in 1.9.0-1 release
+* Sat Nov 24 2012 Daniel Pocock <daniel@pocock.com.au> - 1.9.0-1
 - Produce multiple packages for stack/libs, daemons, sipdialer
 - Initial build based on autotools
 
