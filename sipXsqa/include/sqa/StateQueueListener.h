@@ -28,7 +28,6 @@ class StateQueueListener : boost::noncopyable
 public:
   typedef boost::recursive_mutex mutex;
   typedef boost::lock_guard<mutex> mutex_lock;
-  //TODO: Decouple this class from StateQueueAgent as it makes testing of this class difficult
   StateQueueListener(StateQueueAgent* agent);
   ~StateQueueListener();
   void run();

@@ -41,8 +41,7 @@ DEFINE_TEST(TestDriver, TestSimplePop)
   pPublisher->enqueue("Hello SQA!");
   std::string messageId;
   std::string messageData;
-  int serviceId;
-  ASSERT_COND(pClient->pop(messageId, messageData, serviceId));
+  ASSERT_COND(pClient->pop(messageId, messageData));
   ASSERT_STR_EQ(messageData, "Hello SQA!");
   ASSERT_COND(pClient->erase(messageId));
 }
@@ -114,8 +113,7 @@ DEFINE_TEST(TestDriver, TestSimplePersistGetErase)
 
   std::string eventId;
   std::string eventData;
-  int serviceId;
-  ASSERT_COND(pClient->pop(eventId, eventData, serviceId));
+  ASSERT_COND(pClient->pop(eventId, eventData));
   ASSERT_COND(pClient->persist(1, eventId, 10));
   std::string sampleData;
   ASSERT_COND(pClient->get(1, eventId, sampleData));
@@ -127,17 +125,13 @@ DEFINE_TEST(TestDriver, TestSimplePersistGetErase)
 DEFINE_TEST(TestDriver, TestWatcher)
 {
   StateQueueAgent* _pAgent = GET_RESOURCE(TestDriver, StateQueueAgent*, "state_agent");
-
   std::string address;
   std::string port;
   _pAgent->options().getOption("sqa-control-address", address);
   _pAgent->options().getOption("sqa-control-port", port);
-
   StateQueueClient* pPublisher = GET_RESOURCE(TestDriver, StateQueueClient*, "simple_publisher");
-  StateQueueClient watcher(SQAUtil::SQAClientWatcher, "StateQueueDriverTest", address, port, "watcher-data", 1);
-
+  StateQueueClient watcher(StateQueueClient::Watcher, "StateQueueDriverTest", address, port, "watcher-data",  1);
   boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-
   ASSERT_COND(pPublisher->publish("watcher-data-sample", "Hello SQA!", false));
   std::string watcherData;
   std::string eventId;
@@ -145,7 +139,7 @@ DEFINE_TEST(TestDriver, TestWatcher)
   ASSERT_STR_EQ(watcherData, "Hello SQA!");
 }
 
-DEFINE_TEST(TestDriver, TestPublishAndSet)
+DEFINE_TEST(TestDriver, TestPublishAndPersist)
 {
   StateQueueAgent* _pAgent = GET_RESOURCE(TestDriver, StateQueueAgent*, "state_agent");
   std::string address;
@@ -153,10 +147,10 @@ DEFINE_TEST(TestDriver, TestPublishAndSet)
   _pAgent->options().getOption("sqa-control-address", address);
   _pAgent->options().getOption("sqa-control-port", port);
 
-  SQAPublisher publisher("TestPublishAndSet", address.c_str(), port.c_str(), 1, 100, 100);
-  SQAWatcher watcher("TestPublishAndSet", address.c_str(), port.c_str(), "pub&persist", 1, 100, 100);
+  SQAPublisher publisher("TestPublishAndPersist", address.c_str(), port.c_str(), 1, 100, 100);
+  SQAWatcher watcher("TestPublishAndPersist", address.c_str(), port.c_str(), "pub&persist", 1, 100, 100);
   boost::this_thread::sleep(boost::posix_time::milliseconds(100));
-  ASSERT_COND(publisher.publishAndSet(5, "pub&persist", "test-data", 10));
+  ASSERT_COND(publisher.publishAndPersist(5, "pub&persist", "test-data", 10));
   SQAEvent* pEvent = watcher.watch();
   ASSERT_COND(pEvent);
   ASSERT_STR_EQ(pEvent->data, "test-data");
@@ -189,11 +183,12 @@ DEFINE_TEST(TestDriver, TestDealAndPublish)
   SQAWorker worker("TestDealAndPublish", address.c_str(), port.c_str(), "not", 1, 100, 100);
   boost::this_thread::sleep(boost::posix_time::milliseconds(100));
   ASSERT_COND(dealer.dealAndPublish("test-data", 20));
-  SQAEventEx* pEventEx = worker.fetchTask();
-  ASSERT_COND(pEventEx);
-  ASSERT_STR_EQ(pEventEx->data, "test-data");
-  delete pEventEx;
-  SQAEvent* pEvent = watcher.watch();
+  SQAEvent* pEvent = worker.fetchTask();
+  ASSERT_COND(pEvent);
+  ASSERT_STR_EQ(pEvent->data, "test-data");
+  delete pEvent;
+  pEvent = 0;
+  pEvent = watcher.watch();
   ASSERT_COND(pEvent);
   ASSERT_STR_EQ(pEvent->data, "test-data");
   delete pEvent;
@@ -269,6 +264,7 @@ DEFINE_TEST(TestDriver, TestMapGetSetPlugin)
 
 bool StateQueueDriverTest::runTests()
 {
+  
   std::string address;
   std::string port;
 
@@ -279,12 +275,11 @@ bool StateQueueDriverTest::runTests()
   // Define common resource accessible by all unit tests
   //
   DEFINE_RESOURCE(TestDriver, "state_agent", &_agent);
-  DEFINE_RESOURCE(TestDriver, "simple_pop_client", new StateQueueClient(SQAUtil::SQAClientWorker, "StateQueueDriverTest", address, port, "reg", 2));
-  DEFINE_RESOURCE(TestDriver, "simple_publisher", new StateQueueClient(SQAUtil::SQAClientPublisher, "StateQueueDriverTest", address, port, "reg", 2));
-
+  DEFINE_RESOURCE(TestDriver, "simple_pop_client", new StateQueueClient(StateQueueClient::Worker, "StateQueueDriverTest", address, port, "reg",  2));
+  DEFINE_RESOURCE(TestDriver, "simple_publisher", new StateQueueClient(StateQueueClient::Publisher, "StateQueueDriverTest", address, port, "reg",  2));
 
   boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-
+  
   //
   // Run the unit tests
   //
@@ -296,10 +291,8 @@ bool StateQueueDriverTest::runTests()
   VERIFY_TEST(TestDriver, TestGetSetErase);
   VERIFY_TEST(TestDriver, TestSimplePersistGetErase);
   VERIFY_TEST(TestDriver, TestWatcher);
-  VERIFY_TEST(TestDriver, TestPublishAndSet);
+  VERIFY_TEST(TestDriver, TestPublishAndPersist);
   VERIFY_TEST(TestDriver, TestDealAndPublish)
-
-
   //
   // Delete simple_pop_client so it does not participate in popping events
   //
@@ -317,3 +310,4 @@ bool StateQueueDriverTest::runTests()
 
   return TEST_RESULT(TestDriver);
 }
+

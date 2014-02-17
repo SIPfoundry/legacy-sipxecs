@@ -205,14 +205,7 @@ void StateQueuePublisher::addSubscriber(const std::string& ev, const std::string
   if (iter == _eventSubscribers.end())
     _eventSubscribers[ev] = Subscribers();
   Subscribers& subscribers = _eventSubscribers[ev];
-  std::pair<std::set<std::string>::iterator,bool> ret = subscribers.insert(applicationId);
-  if (!ret.second)
-  {
-    subscribers.erase(applicationId);
-    _subscriptionTimer.erase(applicationId);
-    ret = subscribers.insert(applicationId);
-    assert(ret.second);
-  }
+  subscribers.insert(applicationId);
   }
   //
   // Register the timer for this subscription based on expires

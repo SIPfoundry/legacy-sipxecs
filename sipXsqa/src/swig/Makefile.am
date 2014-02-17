@@ -23,6 +23,7 @@ sipxsqaclient-src : sqaclient.h
 	$(SWIG) -c++ -java -package org.sipfoundry.sqaclient -outcurrentdir $<
 
 libsqaclient_la_CXXFLAGS = \
+	-D__int64_already_defined \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
         -DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
         -DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
@@ -36,10 +37,8 @@ libsqaclient_la_LIBADD = \
 	-lboost_program_options-mt \
 	-lpthread \
 	-lzmq \
-	-lmongoclient \
-	../libsipXsqa.la \
 	@SIPXPORT_LIBS@
-	
+
 sqaclient_wrap.cxx : sipxsqaclient-src
 
 nodist_libsqaclient_la_SOURCES = \

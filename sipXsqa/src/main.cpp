@@ -18,7 +18,7 @@
 #include "sqa/ServiceOptions.h"
 #include "sqa/StateQueueAgent.h"
 #include "sqa/StateQueueDriverTest.h"
-#include "sqa/StateQueueConnection.h"
+//#include "sqa/StateQueueConnection.h"
 #include "sipXecsService/SipXApplication.h"
 
 #define SIPXSQA_APP_NAME              "StateQueueAgent"
@@ -64,7 +64,7 @@ int main(int argc, char** argv)
     return -1;
   }
 
-  StateQueueAgent sqa("main", osServiceOptions);
+  StateQueueAgent sqa(osServiceOptions);
   sqa.run();
 
   if (osServiceOptions.hasOption("test-driver"))
