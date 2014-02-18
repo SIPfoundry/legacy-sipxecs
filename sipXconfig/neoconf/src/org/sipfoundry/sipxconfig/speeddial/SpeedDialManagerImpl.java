@@ -25,8 +25,11 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.UserValidationUtils;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.rls.RlsRule;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -37,7 +40,10 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     private FeatureManager m_featureManager;
     private ConfigManager m_configManager;
     private ValidUsers m_validUsers;
+
     private AliasManager m_aliasManager;
+    private String m_feature = "rls";
+    private ReplicationManager m_replicationManager;
 
     @Override
     public SpeedDial getSpeedDialForUserId(Integer userId, boolean create) {
@@ -129,7 +135,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         getHibernateTemplate().saveOrUpdate(speedDial);
         getHibernateTemplate().flush();
         User user = m_coreContext.loadUser(speedDial.getUser().getId());
-        getDaoEventPublisher().publishSave(user);
+        m_replicationManager.replicateEntity(user, DataSet.SPEED_DIAL);
     }
 
     private void verifyBlfs(List<Button> buttons) {
@@ -151,9 +157,10 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
      */
     @Override
     public void speedDialSynchToGroup(SpeedDial speedDial) {
+        User user = m_coreContext.loadUser(speedDial.getUser().getId());
         deleteSpeedDialsForUser(speedDial.getUser().getId());
         getHibernateTemplate().flush();
-        getDaoEventPublisher().publishSave(speedDial.getUser());
+        m_replicationManager.replicateEntity(user, DataSet.SPEED_DIAL);
     }
 
     @Override
@@ -181,7 +188,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
 
     @Override
     public List<DialingRule> getDialingRules(Location location) {
-        if (!m_featureManager.isFeatureEnabled(Rls.FEATURE)) {
+        if (!m_featureManager.isFeatureEnabled(new LocationFeature(m_feature))) {
             return Collections.emptyList();
         }
 
@@ -226,5 +233,12 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
 
     public void setAliasManager(AliasManager aliasMgr) {
         m_aliasManager = aliasMgr;
+    }
+    
+    public void setFeatureId(String feature) {
+        m_feature = feature;
+    }
+    public void setReplicationManager(ReplicationManager replicationManager) {
+        m_replicationManager = replicationManager;
     }
 }

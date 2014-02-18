@@ -23,7 +23,7 @@
 #include <cassert>
 #include <boost/thread.hpp>
 #include <zmq.hpp>
-#include "ServiceOptions.h"
+#include <os/OsServiceOptions.h>
 #include "sqaclient.h"
 
 class StateQueueNotification
@@ -37,7 +37,7 @@ public:
     std::string key;
   };
 
-  StateQueueNotification(ServiceOptions& options);
+  StateQueueNotification(OsServiceOptions& options);
 
   StateQueueNotification(
     const std::string& sqaControlAddress,
@@ -69,7 +69,7 @@ private:
 // Inlines
 //
 
-inline StateQueueNotification::StateQueueNotification(ServiceOptions& options) :
+inline StateQueueNotification::StateQueueNotification(OsServiceOptions& options) :
   _queueThread(0),
   _isRunning(false),
   _pPublisher(0)

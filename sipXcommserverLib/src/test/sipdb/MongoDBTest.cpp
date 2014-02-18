@@ -80,7 +80,7 @@ public:
   void testForEach()
   {
     _row = 0;
-    MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     mongo::BSONObj query;
     pConn->get()->remove(_databaseName, query);
     pConn->get()->insert(_databaseName, BSON(FIELD_NAME << 0));

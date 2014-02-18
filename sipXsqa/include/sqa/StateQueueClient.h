@@ -27,7 +27,7 @@
 #include "BlockingQueue.h"
 #include <os/OsLogger.h>
 #include <boost/lexical_cast.hpp>
-#include "ServiceOptions.h"
+#include <os/OsServiceOptions.h>
 
 #define SQA_LINGER_TIME_MILLIS 5000
 #define SQA_TERMINATE_STRING "__TERMINATE__"
@@ -277,7 +277,7 @@ public:
         std::string sqaControlPort;
         std::ostringstream sqaconfig;
         sqaconfig << SIPX_CONFDIR << "/" << "sipxsqa-client.ini";
-        ServiceOptions configOptions(sqaconfig.str());
+        OsServiceOptions configOptions(sqaconfig.str());
         std::string controlAddress;
         std::string controlPort;
         if (configOptions.parseOptions())

@@ -1,26 +1,22 @@
 Name: resiprocate
-Version: 1.8.4
+Version: 1.9.0
 Release: 1
-Summary: Resiprocate SIP Stack
-License: Vovida Software License http://opensource.org/licenses/vovidapl.php
-Group: Productivity/Telephony/SIP/Servers
-Vendor: resiprocate.org
-Packager: Daniel Pocock <daniel@pocock.com.au>
+Summary: SIP and TURN stacks, with SIP proxy and TURN server implementations
+License: VSL
 Url: http://www.resiprocate.org
-Source: %name-%version.tar.gz
-BuildRequires: openssl-devel >= 0.9.7
-BuildRequires: popt
+Source: https://www.resiprocate.org/files/pub/reSIProcate/releases/%name-%version.tar.gz
+BuildRequires: libtool automake autoconf
 BuildRequires: boost-devel
-%if 0%{?fedora} >= 19
-#f19 has verison 5
-BuildRequires: libdb-cxx-devel
-%else
-BuildRequires: db4-devel
+%if 0%{?fedora} >= 18
+BuildRequires: db4-cxx-devel
 %endif
-Requires: openssl >= 0.9.7
+BuildRequires: db4-devel
+BuildRequires: openssl-devel >= 0.9.8
+Requires: openssl >= 0.9.8
 Requires: chkconfig
-Prefix: %_prefix
-BuildRoot: %{_tmppath}/%name-%version-root
+%if 0%{?fedora} < 17
+Requires(preun): initscripts
+%endif
 
 %description
 The reSIProcate components, particularly the SIP stack, are in use in both
@@ -29,9 +25,8 @@ a complete, correct, and commercially usable implementation of SIP and a few
 related protocols.
 
 %package devel
-Summary: Resiprocate development files
-Group: Development/Libraries
-Requires: %{name} = %{version}
+Summary: reSIProcate development files
+Requires: %{name} = %{version}-%{release}
 
 %description devel
 Resiprocate SIP Stack development files.
@@ -40,37 +35,41 @@ Resiprocate SIP Stack development files.
 %setup -q
 
 %build
-%configure
-make
+export LDFLAGS="${LDFLAGS} -L%{_libdir}/libdb4 -Wl,-rpath-link,${PWD}/rutil/dns/ares/.libs"
+CXXFLAGS="%{optflags} -I%{_includedir}/libdb4 -I${PWD}/contrib/cajun/include" %configure --with-repro
+sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
+sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
+make %{?_smp_mflags}
 
 %install
-make DESTDIR=%buildroot install
-
-%clean
-[ ${RPM_BUILD_ROOT} != "/" ] && rm -rf ${RPM_BUILD_ROOT}
+make DESTDIR=%{buildroot} install
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
+
 %files
 %defattr(644,root,root,755)
-%{_sysconfdir}/repro.conf
 %{_libdir}/*.so
-%{_sbindir}/*
+%{_sbindir}/repro
+%{_sbindir}/reprocmd
+%{_sbindir}/queuetostream
 
 %files devel
 %defattr(644,root,root,755)
 %{_includedir}/rutil/*
-%{_includedir}/repro/*
 %{_includedir}/resip/*
+%{_includedir}/repro/*
 %{_libdir}/*.a
 %{_libdir}/*.la
-%{_mandir}/man3/*.gz
 %{_mandir}/man8/*.gz
+%{_mandir}/man3/*.gz
+
 
 %changelog
-* Wed Jul  25 2012 Douglas Hubler <douglas@hubler.us> -
-- Update for new files in 1.8.4 release
-* Sun Aug  7 2011 Daniel Pocock <daniel@pocock.com.au> -
+* Sat Feb 12 2014 Ionut Slaveanu islaveanu@ezuce.com -
+- Update for new files in 1.9.0-1 release
+* Sat Nov 24 2012 Daniel Pocock <daniel@pocock.com.au> - 1.9.0-1
+- Produce multiple packages for stack/libs, daemons, sipdialer
 - Initial build based on autotools
 

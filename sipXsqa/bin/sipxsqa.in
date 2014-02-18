@@ -39,8 +39,7 @@ start() {
     daemon --user @SIPXPBXUSER@ --pidfile $pidfile $exec \
       --config-file $config \
       --pid-file $pidfile \
-      --log-file $logfile \
-      --daemonize
+      --log-file $logfile
     Status=$?
 
     if [ $# -gt 0 ]; then

@@ -18,35 +18,56 @@
 #include "sqa/ServiceOptions.h"
 #include "sqa/StateQueueAgent.h"
 #include "sqa/StateQueueDriverTest.h"
+//#include "sqa/StateQueueConnection.h"
+#include "sipXecsService/SipXApplication.h"
+
+#define SIPXSQA_APP_NAME              "StateQueueAgent"
+
+#include "sipXecsService/SipXApplication.h"
+
+#define SIPXSQA_APP_NAME              "StateQueueAgent"
 
 int main(int argc, char** argv)
 {
-  ServiceOptions::daemonize(argc, argv);
-
-  ServiceOptions service(argc, argv, "StateQueueAgent", "1.0.0", "Copyright Ezuce Inc. (All Rights Reserved)");
-  service.addDaemonOptions();
-  service.addOptionString("zmq-subscription-address", ": Address where to subscribe for events.");
-  service.addOptionString("zmq-subscription-port", ": Port where to send subscription for events.");
-  service.addOptionString("sqa-control-port", ": Port where to send control commands.");
-  service.addOptionString("sqa-control-address", ": Address where to send control commands.");
-  service.addOptionFlag("test-driver", ": Set this flag if you want to run the driver unit tests to ensure proper operations.");
-  
-
-
-  if (!service.parseOptions() ||
-          !service.hasOption("zmq-subscription-address") ||
-          !service.hasOption("zmq-subscription-port") ||
-          !service.hasOption("sqa-control-port") ||
-          !service.hasOption("sqa-control-address") )
+  SipXApplicationData sqaData =
   {
-    service.displayUsage(std::cerr);
+      SIPXSQA_APP_NAME,
+      "",
+      "",
+      "",
+      "",
+      false, // do not check mongo connection
+      true, // increase application file descriptor limits
+      SipXApplicationData::ConfigFileFormatIni, // format type for configuration file
+      OsMsgQShared::QUEUE_LIMITED, //limited queue
+  };
+
+  SipXApplication& sipXApplication = SipXApplication::instance();
+  OsServiceOptions& osServiceOptions = sipXApplication.getConfig();
+
+  osServiceOptions.addOptionString("zmq-subscription-address", ": Address where to subscribe for events.", OsServiceOptions::ConfigOption);
+  osServiceOptions.addOptionString("zmq-subscription-port", ": Port where to send subscription for events.", OsServiceOptions::ConfigOption);
+  osServiceOptions.addOptionString("sqa-control-port", ": Port where to send control commands.", OsServiceOptions::ConfigOption);
+  osServiceOptions.addOptionString("sqa-control-address", ": Address where to send control commands.", OsServiceOptions::ConfigOption);
+  osServiceOptions.addOptionInt("id", ": Address where to send control commands.", OsServiceOptions::ConfigOption);
+  osServiceOptions.addOptionFlag("test-driver", ": Set this flag if you want to run the driver unit tests to ensure proper operations.", OsServiceOptions::ConfigOption);
+
+  // NOTE: this might exit application in case of failure
+  sipXApplication.init(argc, argv, sqaData);
+
+  if (!osServiceOptions.hasOption("zmq-subscription-address") ||
+      !osServiceOptions.hasOption("zmq-subscription-port") ||
+      !osServiceOptions.hasOption("sqa-control-port") ||
+      !osServiceOptions.hasOption("sqa-control-address") )
+  {
+    sipXApplication.displayUsage(std::cerr);
     return -1;
   }
 
-  StateQueueAgent sqa(service);
+  StateQueueAgent sqa(osServiceOptions);
   sqa.run();
 
-  if (service.hasOption("test-driver"))
+  if (osServiceOptions.hasOption("test-driver"))
   {
     StateQueueDriverTest test(sqa);
     if (!test.runTests())
@@ -55,7 +76,7 @@ int main(int argc, char** argv)
     return 0;
   }
   OS_LOG_INFO(FAC_NET, "State Queue Agent process STARTED.");
-  service.waitForTerminationRequest();
+  sipXApplication.waitForTerminationRequest(1);
   OS_LOG_INFO(FAC_NET, "State Queue Agent process TERMINATED.");
   return 0;
 }

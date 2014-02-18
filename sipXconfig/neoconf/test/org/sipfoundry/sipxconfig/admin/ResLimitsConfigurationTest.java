@@ -154,7 +154,7 @@ public class ResLimitsConfigurationTest {
         m_config.setMwi(mwi);
         m_config.setRegistrar(registrar);
         m_config.setParkOrbitContext(parkOrbitContext);
-        m_config.setRls(rls);
+        //m_config.setRls(rls);
         m_config.setSaaManager(saaManager);
         m_config.setProxyManager(proxyManager);
     }

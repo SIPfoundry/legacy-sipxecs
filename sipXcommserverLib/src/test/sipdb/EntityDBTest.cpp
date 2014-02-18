@@ -204,12 +204,12 @@ public:
   // this function is called before the run of each test
   void setUp()
   {
-    MongoDB::ScopedDbConnectionPtr pOpLogConn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    MongoDB::ScopedDbConnectionPtr pOpLogConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     pOpLogConn->get()->dropCollection(_oplogDbName);
     pOpLogConn->done();
 
     _db = new EntityDB(_info, _entityDbName);
-    MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     //mongo::ScopedDbConnection conn(_info.getConnectionString().toString());
     pConn->get()->remove(_entityDbName, mongo::Query());
     pConn->done();
@@ -271,7 +271,7 @@ public:
     mongo::BSONObj update;
     update = BSON(gMongoSetOperator << bsonObjBuilder.obj());
 
-    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     mongo::DBClientBase* client = conn->get();
 
     //client->insert(_info.getNS(), update);
@@ -377,7 +377,7 @@ public:
     mongo::BSONObj update;
     update = BSON(gMongoSetOperator << bsonObjBuilder.obj());
 
-    MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     mongo::DBClientBase* client = conn->get();
 
     // create a capped collect in order to work with tailer cursor

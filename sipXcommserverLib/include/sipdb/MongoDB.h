@@ -24,6 +24,12 @@
 //   /usr/include/mongo/client/../pch.h:116:15: error: expected unqualified-id before string constant
 #undef VERSION
 
+// Avoids this error
+//.../usr/include/mongo/util/net/sock.h:62:15: error: expected unqualified-id before '-' token
+#ifdef INVALID_SOCKET
+#undef INVALID_SOCKET
+#endif
+
 #include <mongo/client/dbclient.h>
 
 

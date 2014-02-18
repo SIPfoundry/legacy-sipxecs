@@ -103,7 +103,7 @@ public:
     _timeNow = (int) OsDateTime::getSecsSinceEpoch();
 
     _db = new SubscribeDB(_info, NULL, _databaseName);
-    MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     pConn->get()->remove(_databaseName, mongo::Query());
     pConn->done();
   }

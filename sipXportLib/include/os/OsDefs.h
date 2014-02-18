@@ -53,6 +53,7 @@ void osPrintf(const char* format , ...)
 
 // @TODO clean up definition of 64 bit integer types - see also UtlDefs.h
 #ifdef __pingtel_on_posix__
+#ifndef __int64_already_defined
 #  if defined(__linux__)
 #     include <stdlib.h>
 #     include <inttypes.h>
@@ -72,6 +73,7 @@ void osPrintf(const char* format , ...)
 #  else
 #     error "Need a definition of __int64 for this platform"
 #  endif
+#endif // __int64_already_defined
 #endif
 
 // A special value for "port number" which means that no port is specified.

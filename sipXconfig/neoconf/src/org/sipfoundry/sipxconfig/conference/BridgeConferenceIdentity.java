@@ -12,5 +12,6 @@ package org.sipfoundry.sipxconfig.conference;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 
 public interface BridgeConferenceIdentity extends DataObjectSource<Conference> {
+
     public void setBridge(Bridge bridge);
 }

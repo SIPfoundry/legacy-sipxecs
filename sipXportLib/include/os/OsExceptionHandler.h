@@ -119,7 +119,7 @@ public:
   //catch exceptions and call corresponding registered exception handler
   static void catch_global();
 
-public:
+private:
   static bool _instantiatedFlag;
   static bool _terminatedFlag;
 

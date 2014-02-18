@@ -62,6 +62,7 @@ Subscription::Subscription(const Subscription& subscription)
     _key = subscription._key;
     _recordRoute = subscription._recordRoute;
     _accept = subscription._accept;
+    _file = subscription._file;
     _version = subscription._version;
     _expires = subscription._expires;
 }
@@ -200,6 +201,7 @@ void Subscription::swap(Subscription& subscription)
     std::swap(_key, subscription._key);
     std::swap(_recordRoute, subscription._recordRoute);
     std::swap(_accept, subscription._accept);
+    std::swap(_file, subscription._file);
     std::swap(_version, subscription._version);
     std::swap(_expires, subscription._expires);
 }
