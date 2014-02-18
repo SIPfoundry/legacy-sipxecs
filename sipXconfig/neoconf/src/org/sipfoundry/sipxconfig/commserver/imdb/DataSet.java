@@ -34,8 +34,7 @@ public class DataSet extends Enum {
     public static final DataSet E911 = new DataSet("e911");
 
     private String m_fieldName;
-    
-    
+
     public DataSet(String dataSet) {
         super(dataSet);
     }
@@ -44,7 +43,7 @@ public class DataSet extends Enum {
         super(dataSet);
         m_fieldName = field;
     }
-    
+
     /**
      * @return name that is used in spring to register the bean of this type
      */
@@ -67,8 +66,8 @@ public class DataSet extends Enum {
     public static Iterator iterator() {
         return iterator(DataSet.class);
     }
-    
+
     public String getFieldName() {
-        return m_fieldName;        
+        return m_fieldName;
     }
 }

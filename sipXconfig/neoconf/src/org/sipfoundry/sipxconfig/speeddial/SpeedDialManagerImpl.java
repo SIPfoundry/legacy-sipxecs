@@ -234,7 +234,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     public void setAliasManager(AliasManager aliasMgr) {
         m_aliasManager = aliasMgr;
     }
-    
+
     public void setFeatureId(String feature) {
         m_feature = feature;
     }
