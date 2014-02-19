@@ -15,7 +15,8 @@ body {
 <body jwcid="$content$">
   <div jwcid="@common/Border" restricted="false"
 		borderTitle="ognl:borderTitle">
-    <ul id="leftNavAbsolute" class="htabs">
+	<div jwcid="@common/LeftNavigation">
+    <ul class="htabs">
       <li id="global-tab" class="tab active">
         <a id="global-tab-link" href="#"><span key="tab.global">Global Databases</span></a>
       </li>
@@ -23,6 +24,7 @@ body {
         <a id="local-tab-link" href="#"><span key="tab.local">Regional Databases</span></a>
       </li>
     </ul>
+    </div>
     <p><span id="inprogress" ><img src="/sipxconfig/images/loading.gif"/>
       <span key="label.inprogress">Operation in progress...</span>
     </span>&nbsp;</p>

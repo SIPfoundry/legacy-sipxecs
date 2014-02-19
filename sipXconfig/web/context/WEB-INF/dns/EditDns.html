@@ -16,7 +16,8 @@
 <body jwcid="$content$">
   <div jwcid="@common/Border" id="content" restricted="false"
     borderTitle="ognl:borderTitle">
-    <ul id="leftNavAbsolute" class="htabs">
+    <div jwcid="@common/LeftNavigation">
+    <ul class="htabs">
       <li id="settings-tab" class="tab active">
         <a id="settings-tab-link" href="#"><span key="tab.settings">Setting</span></a>
       </li>
@@ -33,6 +34,7 @@
         <a id="advisor-tab-link" href="#"><span key="tab.advisor">Advisor</span></a>
       </li>
     </ul>
+    </div>
     <div id="settings">
       <div class="help">
           <span key="help.settings">Setting help</span>

@@ -299,6 +299,10 @@ fieldset#loginForm legend {
 	margin: 0;
 }
 
+.userPortal ul#nav li {
+  width:140px;
+}
+
 #navigation li li {
     	min-width:113px;
     	padding-right:0px;
@@ -371,17 +375,6 @@ fieldset#loginForm legend {
     margin-left: 10px;
     min-width: 166px;
     word-wrap: break-word;
-}
-
-#leftNavAbsolute {
-  position: absolute;
-  background-color: #fff;
-  top: 104px;
-  left: 20px;
-  min-width: 166px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  word-wrap: break-word;
 }
 
 #contentWithoutLeftNav
