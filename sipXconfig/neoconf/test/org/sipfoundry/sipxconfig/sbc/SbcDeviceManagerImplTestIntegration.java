@@ -127,6 +127,7 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
     public void testMaxAllowedLimitReached() throws IOException {
         sql("sbc/sbc-device.sql");
         SbcDescriptor bridgeModel = m_modelSource.getModel("sipXbridgeSbcModel");
+        bridgeModel.setMaxAllowed(1);
         assertTrue(m_sbcDeviceManager.maxAllowedLimitReached(bridgeModel));
         SbcDescriptor sbcModel = m_modelSource.getModel("sbcGenericModel");
         assertFalse(m_sbcDeviceManager.maxAllowedLimitReached(sbcModel));

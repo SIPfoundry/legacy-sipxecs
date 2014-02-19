@@ -36,7 +36,7 @@ import org.sipfoundry.sipxconfig.proxy.ProxySettings;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
 import org.sipfoundry.sipxconfig.registrar.RegistrarSettings;
 import org.sipfoundry.sipxconfig.rls.Rls;
-import org.sipfoundry.sipxconfig.rls.RlsSettings;
+//import org.sipfoundry.sipxconfig.rls.RlsSettings;
 import org.sipfoundry.sipxconfig.saa.SaaManager;
 import org.sipfoundry.sipxconfig.saa.SaaSettings;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
