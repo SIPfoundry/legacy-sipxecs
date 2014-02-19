@@ -372,7 +372,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
                 for (String field : cleanCopy.keySet()) {
                     Object oldValue = cleanCopy.get(field);
                     Object newValue = top.get(field);
-                    LOG.debug("field: " + field + ";old: " + oldValue + "; new: " + newValue);
+                    LOG.debug(String.format("field: %s;old: %s; new: %s"));
                     if (oldValue == null || !oldValue.equals(newValue)) {
                         if (newValue == null) {
                             removeQ.put(field, StringUtils.EMPTY);
@@ -389,8 +389,8 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
                         updateQ.put(field, newValue);
                     }
                 }
-                LOG.debug(updateQ);
-                LOG.debug(removeQ);
+                LOG.debug(String.format("Update query: %s: ", updateQ));
+                LOG.debug(String.format("Remove query: %s: ", removeQ));
                 DBObject set = new BasicDBObject("$set", updateQ).append("$unset", removeQ);
                 getDbCollection().update(toUpdate, set);
             }

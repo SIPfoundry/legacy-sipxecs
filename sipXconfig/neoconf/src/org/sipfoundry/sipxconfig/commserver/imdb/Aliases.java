@@ -29,7 +29,6 @@ public class Aliases extends AbstractDataSetGenerator {
     @Override
     public void generate(Replicable entity, DBObject top) {
         top.put(ALIASES, entity.getAliasMappings(getCoreContext().getDomainName()));
-        return;
     }
 
 }
