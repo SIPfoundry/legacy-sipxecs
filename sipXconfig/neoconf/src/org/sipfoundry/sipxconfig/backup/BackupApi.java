@@ -40,7 +40,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.util.TempFile;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.Version;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -212,7 +211,10 @@ public class BackupApi extends Resource {
         Writer planWtr = null;
         String configuration = StringUtils.EMPTY;
         try {
-            planFile = TempFile.createTempFile(BACKUP, "yaml");
+            //reuse archive-<plan_type>.yaml to write selections
+            //we cannot use a temp file because if HA setup
+            //when backup runs on many nodes, a timeout may be returned and the temp file gets silently deleted
+            planFile = m_backupManager.getPlanFile(m_plan);
             planWtr = new FileWriter(planFile);
             Collection<Location> hosts = m_locationsManager.getLocationsList();
             m_backupConfig.writeConfig(planWtr, m_plan, hosts, m_settings);
@@ -224,12 +226,13 @@ public class BackupApi extends Resource {
             }
         } catch (Exception e) {
             LOG.error("Backup FAILED for configuration: " + configuration, e);
-            throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
+            if (e instanceof BackupRunnerImpl.TimeoutException) {
+                throw new ResourceException(Status.CLIENT_ERROR_REQUEST_TIMEOUT, e);
+            } else {
+                throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+            }
         } finally {
             IOUtils.closeQuietly(planWtr);
-            if (planFile != null) {
-                planFile.delete();
-            }
         }
     }
 
@@ -302,6 +305,10 @@ public class BackupApi extends Resource {
     @Required
     public void setBackupManager(BackupManager backupManager) {
         m_backupManager = backupManager;
+    }
+
+    public BackupManager getBackupManager() {
+        return m_backupManager;
     }
 
     @Required

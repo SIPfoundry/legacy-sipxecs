@@ -251,8 +251,8 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
             return null;
         }
 
-        String script = "$(sipx.SIPX_BINDIR)/" + m_archiveScript;
-        ArchiveDefinition def = new ArchiveDefinition(ARCHIVE, script + " --backup %s", script + " --restore %s");
+        ArchiveDefinition def = new ArchiveDefinition(ARCHIVE, m_archiveScript + " --backup %s",
+            m_archiveScript + " --restore %s");
         return Collections.singleton(def);
     }
 

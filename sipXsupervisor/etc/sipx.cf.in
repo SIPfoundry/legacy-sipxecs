@@ -158,6 +158,12 @@ body copy_from master_files(server,dir) {
   copy_backup => "false";
 }
 
+body copy_from file_remote_cp(from,server) {
+  servers  => { "$(server)" };
+  source   => "$(from)";
+  compare  => "mtime";
+}
+
 bundle agent sipx_init {
   vars:
 

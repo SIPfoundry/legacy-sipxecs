@@ -121,9 +121,9 @@ public class BackupRunnerImpl implements BackupRunner, AlarmProvider {
      */
     private boolean op(SimpleCommandRunner runner, String[] cmd) {
         if (!runner.run(cmd, m_foregroundTimeout)) {
-            throw new RuntimeException("Timeout running operation ");
+            throw new TimeoutException();
         } else if (runner.getExitCode() != 0) {
-            throw new RuntimeException(runner.getStderr());
+            throw new StdErrException(runner.getStderr());
         }
         return true;
     }
@@ -132,4 +132,17 @@ public class BackupRunnerImpl implements BackupRunner, AlarmProvider {
     public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
         return Collections.singleton(BACKUP_FAILED);
     }
+
+    public static class TimeoutException extends RuntimeException {
+        public TimeoutException() {
+            super("Timeout running operation ");
+        }
+    }
+
+    public static class StdErrException extends RuntimeException {
+        public StdErrException(String errMessage) {
+            super(errMessage);
+        }
+    }
+
 }

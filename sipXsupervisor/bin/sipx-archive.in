@@ -62,6 +62,8 @@ class ArchiveBase
     unless log_file == nil
       $stdout.reopen(log_file, "w")
       $stdout.sync = true
+      $stderr.reopen(log_file, "w")
+      $stderr.sync = true
     end
   end
 
@@ -99,11 +101,23 @@ end
 # and purging old backups.
 class Backup < ArchiveBase  
   def run(params, args)
-    @data['hosts'].each { |location_id, meta|
+      #create directory to hold backups
+      date_dir = Time.now.strftime("%Y%m%d%H%M")
+      fresh_dir "#{@backup_dir}/#{@data['plan']}/#{date_dir}"
+      @data['hosts'].each { |location_id, meta|
       host = meta['host']
       if cmd("ssh #{@ssh_params} root@#{host} sipx-archive --backup-host #{location_id} < #{@config}")
-        unless cmd("#{@bin_dir}/sipxagent -h #{host} -b backup_collect -d #{@data['plan']}_archive")
-          raise "Could not collect backup from host #{host}"
+        if meta.key?('backup')
+          meta['backup'].each do |defId, command|
+            #cfengine does not accept '.' characters to be sent as variable values
+            defId_name = defId.split('.')[0]
+            unless cmd("#{@bin_dir}/sipxagent -b backup_collect -d #{defId_name}_definition")
+              raise "Could not collect backup from host #{host}"
+            end
+            if File.exists?("#{@backup_tmp_dir}/#{defId}")
+              FileUtils.mv("#{@backup_tmp_dir}/#{defId}", "#{@backup_dir}/#{@data['plan']}/#{date_dir}/#{defId}")
+            end
+          end
         end
       else
         raise "Could not complete backup on host #{host}"
@@ -146,26 +160,23 @@ class Restore < Backup
         dir, fname = path.split('/')
         mgr.stage(dir, fname, @restore_dir)
       }
-    end    
-    correlate_by_location
+    end
     defines = define_param(params)
     @data['hosts'].each { |location_id, meta|
       host = meta['host']
+      #pull archive on restore location
+      if meta.key?('restore')
+        meta['restore'].each do |defId, command|
+          #cfengine does not accept '.' characters to be sent as variable values
+          defId_name = defId.split('.')[0]
+          unless cmd("#{@bin_dir}/sipxagent -h #{host} -b restore_collect -d #{defId_name}_definition")
+            raise "Could not collect backup from host #{host}"
+          end
+        end
+      end
       unless cmd("ssh #{@ssh_params} root@#{host} sipx-archive --restore-host #{location_id} < #{@config}")
         raise "Could not complete restore on host #{host}"
       end
-    }
-  end
-
-  # organize files by which location has capability to restore them
-  def correlate_by_location
-    @data['correlate_restore'].each_pair {|locationId, defIds|      
-      fresh_dir "#{@restore_dir}/#{locationId}"
-      defIds.each {|defId|
-        if File.exists?("#{@restore_dir}/#{defId}")
-          FileUtils.mv("#{@restore_dir}/#{defId}", "#{@restore_dir}/#{locationId}/#{defId}")
-        end
-      }
     }
   end
   
@@ -441,7 +452,7 @@ class RestoreHost < ArchiveHost
       meta = @data['hosts'][@location_id]
       if meta.key?('restore')
         meta['restore'].each do |defId, command|     
-          file = "#{@restore_dir}/#{@location_id}/#{defId}"
+          file = "#{@restore_dir}/#{defId}"
           line = command % file 
           if File.exists?(file)
             line = command % file

@@ -18,13 +18,11 @@
 #  a.) Configures backup plan for each node
 #  b.) Configures backup schedules on primary
 #
-# 2.) backup_node
-# Runs a backup on this node
+# 2.) backup_collect
+# Collect backups from nodes to primary
 #
-# 3.) backup_collect
-# Collect backups from nodes to promary
-#
-# 4.) download restore from primary and use plan to restore it
+# 3.) restore_collect 
+# Download restore from primary
 #
 
 # Entry point #1 - configure backups
@@ -60,9 +58,25 @@ bundle agent archive_vars {
 
     ftp_archive::
       "plan" string => "ftp";
-
+                
     any::
       "config" string => "$(sipx.SIPX_CONFDIR)/archive-$(plan).yaml";
+}
+
+bundle agent definition_vars {
+  vars:
+    configuration_definition::
+      "defId" string => "configuration.tar.gz";
+      "host"  string => "$(sipx.configuration_tar_gz)";
+    voicemail_definition::
+      "defId" string => "voicemail.tar.gz";
+      "host"  string => "$(sipx.voicemail_tar_gz)";
+    cdr_definition::
+      "defId" string => "cdr.tar.gz";
+      "host"  string => "$(sipx.cdr_tar_gz)";
+    homer_definition::
+      "defId" string => "homer.tar.gz";
+      "host"  string => "$(sipx.homer_tar_gz)";
 }
 
 # Install cron schedules
@@ -83,14 +97,14 @@ bundle agent backup_schedules(plan) {
       "any" usebundle => remove_crontab("$(cron_id)", "$(sipx.SIPXPBXUSER)");
 }
 
-#
-# Entry point for collecting all backups on the primary machine from all nodes
-# on the network including itself.
+# Entry point for collecting one backup archive on the primary machine from
+# the node where the backup was executed
 #
 # Example:
-#   sipxagent -b backup_collect -d local_archive
+#   sipxagent -b backup_collect -d configuration_definition
+#   sipxagent -b backup_collect -d voicemail_definition
 #
-# NOTE: This does assume that backup ran successfully on *all* machines or at least cleared
+# NOTE: This does assume that backup ran successfully or at least cleared
 # the old backups before failing. If that is not the case, we unknowingly collect old backups
 # here.
 bundle agent backup_collect {
@@ -99,68 +113,48 @@ bundle agent backup_collect {
       "any" usebundle => sipx_module;
       "any" usebundle => sipx_init;
     archive::
-      "archive" usebundle => archive_vars;
-      "archive" usebundle => archive_config("$(archive_vars.plan)");
-      "archive" usebundle => backup_collect_run;
+      "archive" usebundle => pull_backup("$(definition_vars.defId)", "$(definition_vars.host)");
 }
 
-bundle agent backup_collect_run {
-  vars:
-    archive::
-      "fqdn" slist => readstringlist("$(sipx.SIPX_CFDATA)/servers", "=(.*?)end", "\n", 100, 4000);
-      "dim_servers" int => readstringarray("server", "$(sipx.SIPX_CFDATA)/servers", "#[^\n]*", "[\s=]", 100, 4000);
-      "backup_id" string => execresult("/bin/date +%Y%m%d%H%M", "noshell");
-
-  methods:
-    archive::
-      "archive" usebundle => backup_collect_files("$(backup_id)", "$(server[$(fqdn)][2])");
-}
-
-bundle agent backup_collect_files(backup_id, node_fqdn) {
-  files:
-    any::
-      "$(sipx.SIPX_VARDIR)/backup/$(archive_vars.plan)/."
-        create => "true",
-        perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)");
-
-      "$(sipx.SIPX_VARDIR)/backup/$(archive_vars.plan)/$(backup_id)/."
-        create => "true",
-        perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)");
-
-      "$(sipx.SIPX_VARDIR)/backup/$(archive_vars.plan)/$(backup_id)"
-        comment => "Collecting backups $(node_fqdn)",
-        perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
-        copy_from => master_files("$(node_fqdn)", "$(sipx.SIPX_TMPDIR)/backup"),
-        depth_search => recurse("1");
-}
-
-
-# Run restore
-# This assumes following on primary node
-# 1.) files have already been staged into $(sipx.SIPX_TMPDIR)/restore
-# 2.) $(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipx-archive-$(archive_vars.plan).yaml is built
+# Entry point for collecting one backup archive from the master node on the node where
+# the restore should take place
 #
-bundle agent restore_distribute {
+# Example:
+#   sipxagent -h 192.168.7.102 -b restore_collect -d configuration_archive
+#
+# NOTE: This does assume that backup ran successfully or at least cleared
+# the old backups before failing. If that is not the case, we unknowingly collect old backups
+# here.
+bundle agent restore_collect {
   methods:
     any::
       "any" usebundle => sipx_module;
       "any" usebundle => sipx_init;
     archive::
-      # this refreshes config
-      "archive" usebundle => archive_vars;
-      "archive" usebundle => archive_config("$(archive_vars.plan)");
-    archive.!primary::
-      "archive" usebundle => restore_pull_files;
+      "archive" usebundle => pull_restore("$(definition_vars.defId)");
 }
 
-bundle agent restore_pull_files {
+bundle agent pull_backup(defId, host) {
   files:
-    archive.!primary::
-      "$(sipx.SIPX_TMPDIR)/restore/$(sipx.location_id)/."
-        create => "true";
+    archive::
+       "$(sipx.SIPX_TMPDIR)/backup/."
+       create => "true",
+       perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)");
 
-      "$(sipx.SIPX_TMPDIR)/restore/$(sipx.location_id)"
-        comment => "Download archive to restore $(this.promiser)",
-        perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
-        copy_from => master_files("$(sipx.master_address)", "$(master_vars.[SIPX_TMPDIR][1])/restore/$(sipx.location_id)");
+      "$(sipx.SIPX_TMPDIR)/backup/$(defId)"
+       comment => "Download archive $(sipx.SIPX_TMPDIR)/backup/$(defId) from host $(host)",
+       perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
+       copy_from => file_remote_cp("$(sipx.SIPX_TMPDIR)/backup/$(defId)", "$(host)");
+}
+
+bundle agent pull_restore(defId) {
+  files:
+    archive::
+       "$(sipx.SIPX_TMPDIR)/restore/."
+       create => "true";
+
+      "$(sipx.SIPX_TMPDIR)/restore/$(defId)"
+       comment => "Download archive $(sipx.SIPX_TMPDIR)/restore/$(defId) from master node $(sipx.master_address)",
+       perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
+       copy_from => file_remote_cp("$(sipx.SIPX_TMPDIR)/restore/$(defId)", "$(sipx.master_address)");
 }

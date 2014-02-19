@@ -33,7 +33,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
@@ -56,7 +55,9 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
         BackupSettings settings = m_backupManager.getSettings();
         Collection<BackupPlan> plans = m_backupManager.getBackupPlans();
         List<Location> hosts = manager.getLocationManager().getLocationsList();
-        ConfigUtils.enableCfengineClass(manager.getGlobalDataDirectory(), "1/archive.cfdat", true, "archive");
+
+        writeCfConfig(manager.getGlobalDataDirectory(), hosts, settings);
+
         for (BackupPlan plan : plans) {
             File f = m_backupManager.getPlanFile(plan);
             Writer fout = new FileWriter(f);
@@ -79,6 +80,28 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
         m_dirty = false;
     }
 
+    void writeCfConfig(File dir, List<Location> hosts, BackupSettings settings) throws IOException {
+        Writer cfdat = new FileWriter(new File(dir, "archive.cfdat"));
+        try {
+            CfengineModuleConfiguration cfg = new CfengineModuleConfiguration(cfdat);
+            cfg.writeClass("archive", true);
+            for (Location host : hosts) {
+                Collection<ArchiveDefinition> possibleDefIds = m_backupManager.getArchiveDefinitions(host, settings);
+                for (ArchiveDefinition definition : possibleDefIds) {
+                    //CFengine does not accept "." characters in variable names
+                    //Write definition ids where backup should take place (we can have restore to take place on one node
+                    //and backup on other node, therefore we need to check if backup command is not null,
+                    //otherwise we might end up with duplicates)
+                    if (definition.getBackupCommand() != null) {
+                        cfg.write(StringUtils.replace(definition.getId(), ".", "_"), host.getAddress());
+                    }
+                }
+            }
+        } finally {
+            IOUtils.closeQuietly(cfdat);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     void writeConfig(Writer w, BackupPlan plan, Collection<Location> hosts, BackupSettings settings)
         throws IOException {
@@ -93,7 +116,9 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
                     return selectedDefIds.contains(((ArchiveDefinition) arg0).getId());
                 }
             });
-            writeHostDefinitions(config, host, defIds);
+            if (!defIds.isEmpty()) {
+                writeHostDefinitions(config, host, defIds);
+            }
         }
         config.endStruct(); //hosts
         writeBackupDetails(w, plan, hosts, settings);
@@ -144,15 +169,6 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
             }
         }
 
-        config.endStruct();
-
-        config.startStruct("correlate_restore");
-        for (Location host : hosts) {
-            Collection<ArchiveDefinition> defs = m_backupManager.getArchiveDefinitions(host, null);
-            @SuppressWarnings("unchecked")
-            Collection<String> defIds = CollectionUtils.collect(defs, ArchiveDefinition.GET_IDS);
-            config.writeInlineArray(host.getId().toString(), defIds);
-        }
         config.endStruct();
     }
 

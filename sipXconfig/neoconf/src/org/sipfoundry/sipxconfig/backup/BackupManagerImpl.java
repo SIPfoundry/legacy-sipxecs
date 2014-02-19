@@ -27,18 +27,21 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class BackupManagerImpl extends HibernateDaoSupport implements BackupManager,
-        BeanFactoryAware {
+        BeanFactoryAware, SetupListener {
     private FeatureManager m_featureManager;
     private Collection<ArchiveProvider> m_providers;
     private ListableBeanFactory m_beanFactory;
@@ -66,6 +69,11 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
         }
         BackupPlan plan = new BackupPlan();
         plan.setType(type);
+        //Make sure to have at least one definition checked. when system is first installed
+        //configuration is always a proposed selectable
+        if (plan.getDefinitionIds().isEmpty()) {
+            plan.getDefinitionIds().add(AdminContext.ARCHIVE);
+        }
         return plan;
     }
 
@@ -177,6 +185,23 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
         }
         dir.mkdirs();
         return dir;
+    }
+    /**
+     * We need to make sure that archive-local.yaml and archive-ftp.yaml are created when system initializes
+     * so we can proper list any existing backup
+     * saveBackupPlan automatically triggers replication via BackupPlan.deployConfigOnEdit
+     */
+    @Override
+    public boolean setup(SetupManager manager) {
+        String id = "backup_initialized";
+        if (manager.isFalse(id)) {
+            BackupPlan local = findOrCreateBackupPlan(BackupType.local);
+            saveBackupPlan(local);
+            BackupPlan ftp = findOrCreateBackupPlan(BackupType.ftp);
+            saveBackupPlan(ftp);
+            manager.setTrue(id);
+        }
+        return true;
     }
 
 }

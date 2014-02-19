@@ -20,6 +20,3 @@ settings:
       url: ftp://ftp.example.org
       user: joe
       password: xxx
-correlate_restore:
-   1: [ d1, d2 ]
-   2: [ d3 ]

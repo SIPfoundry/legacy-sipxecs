@@ -19,8 +19,11 @@ import java.io.FileWriter;
 import java.io.Writer;
 import java.util.Collection;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.poi.util.TempFile;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.data.Status;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Resource;
@@ -29,6 +32,8 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 
 public class RestoreApi extends Resource {
+    private static final Log LOG = LogFactory.getLog(RestoreApi.class);
+
     private BackupRunner m_backupRunner;
     private LocationsManager m_locationsManager;
     private BackupConfig m_backupConfig;
@@ -52,21 +57,30 @@ public class RestoreApi extends Resource {
 
         File planFile = null;
         Writer planWtr = null;
+        String configuration = StringUtils.EMPTY;
         try {
-            planFile = TempFile.createTempFile("restore", "yaml");
+            //reuse archive-<plan_type>.yaml to write selections
+            //we cannot use a temp file because if HA setup
+            //when backup runs on many nodes, a timeout may be returned and the temp file gets silently deleted
+            planFile = m_backupApi.getBackupManager().getPlanFile(plan);
             planWtr = new FileWriter(planFile);
             Collection<Location> hosts = m_locationsManager.getLocationsList();
             m_backupConfig.writeConfig(planWtr, plan, hosts, settings);
             IOUtils.closeQuietly(planWtr);
             planWtr = null;
-            m_backupRunner.restore(planFile, selections);
+            configuration = FileUtils.readFileToString(planFile);
+            if (m_backupRunner.restore(planFile, selections)) {
+                LOG.info("Restore SUCCEEDED for configuration: " + configuration);
+            }
         } catch (Exception e) {
-            throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
+            LOG.error("Restore FAILED for configuration: " + configuration, e);
+            if (e instanceof BackupRunnerImpl.TimeoutException) {
+                throw new ResourceException(Status.CLIENT_ERROR_REQUEST_TIMEOUT, e);
+            } else {
+                throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+            }
         } finally {
             IOUtils.closeQuietly(planWtr);
-            if (planFile != null) {
-                planFile.delete();
-            }
         }
     }
 

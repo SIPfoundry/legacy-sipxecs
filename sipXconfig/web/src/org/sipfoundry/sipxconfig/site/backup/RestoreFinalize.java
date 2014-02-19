@@ -29,10 +29,12 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.valid.ValidatorException;
 import org.restlet.resource.ResourceException;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
 import org.sipfoundry.sipxconfig.backup.BackupPlan;
+import org.sipfoundry.sipxconfig.backup.BackupRunnerImpl;
 import org.sipfoundry.sipxconfig.backup.BackupSettings;
 import org.sipfoundry.sipxconfig.backup.BackupType;
 import org.sipfoundry.sipxconfig.backup.RestoreApi;
@@ -122,7 +124,11 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
             try {
                 restore.restore(plan, getBackupSettings(), getSelections());
             } catch (ResourceException e) {
-                LOG.error("Cannot restore backup ", e);
+                if (e.getCause() instanceof BackupRunnerImpl.TimeoutException) {
+                    getValidator().record(new ValidatorException(getMessages().getMessage("err.timeout")));
+                } else {
+                    getValidator().record(new ValidatorException(e.getMessage()));
+                }
             }
             getValidator().recordSuccess(getMessages().getMessage("restore.success"));
         }
