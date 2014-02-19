@@ -339,4 +339,52 @@ public class ValidatorsTest extends TestCase {
             assertTrue(true);
         }
     }
+
+    public void testValidDecimalValue() throws ValidatorException {
+        Pattern p = (Pattern) m_context.getBean("maxOneDecimalValue");
+        p.validate(m_field, m_validationMessages, "1");
+        p.validate(m_field, m_validationMessages, "1.1");
+        p.validate(m_field, m_validationMessages, "6.8");
+        p.validate(m_field, m_validationMessages, "0.7");
+        p.validate(m_field, m_validationMessages, "12.7");
+        p.validate(m_field, m_validationMessages, "1234567890");
+        p.validate(m_field, m_validationMessages, "1234567890.9");
+
+        try {
+            p.validate(m_field, m_validationMessages, "-1");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "1.");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "!@##$");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "123abc");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "2.34");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "12345678901.9");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            assertTrue(true);
+        }
+    }
 }
