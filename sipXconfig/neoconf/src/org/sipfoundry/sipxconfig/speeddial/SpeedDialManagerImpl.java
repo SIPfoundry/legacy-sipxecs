@@ -43,7 +43,6 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
 
     private AliasManager m_aliasManager;
     private String m_feature = "rls";
-    private ReplicationManager m_replicationManager;
 
     @Override
     public SpeedDial getSpeedDialForUserId(Integer userId, boolean create) {
@@ -135,7 +134,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         getHibernateTemplate().saveOrUpdate(speedDial);
         getHibernateTemplate().flush();
         User user = m_coreContext.loadUser(speedDial.getUser().getId());
-        m_replicationManager.replicateEntity(user, DataSet.SPEED_DIAL);
+        getDaoEventPublisher().publishSave(user);
     }
 
     private void verifyBlfs(List<Button> buttons) {
@@ -160,7 +159,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         User user = m_coreContext.loadUser(speedDial.getUser().getId());
         deleteSpeedDialsForUser(speedDial.getUser().getId());
         getHibernateTemplate().flush();
-        m_replicationManager.replicateEntity(user, DataSet.SPEED_DIAL);
+        getDaoEventPublisher().publishSave(user);
     }
 
     @Override
@@ -237,8 +236,5 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
 
     public void setFeatureId(String feature) {
         m_feature = feature;
-    }
-    public void setReplicationManager(ReplicationManager replicationManager) {
-        m_replicationManager = replicationManager;
     }
 }
