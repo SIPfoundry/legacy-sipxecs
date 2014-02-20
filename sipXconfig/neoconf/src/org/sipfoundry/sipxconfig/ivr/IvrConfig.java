@@ -82,23 +82,35 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
             }
             File f = new File(dir, "sipxivr.properties.part");
             Writer wtr = new FileWriter(f);
-            Set<String> mwiAddresses = new LinkedHashSet<String>();
-            for (Location mwiLocation : mwiLocations) {
-                StringBuilder address = new StringBuilder();
-                address.append(mwiLocation.getAddress());
-                if (mwiLocation.getRegionId() != null) {
-                    address.append("@");
-                    address.append(mwiLocation.getRegionId());
-                }
-                mwiAddresses.add(address.toString());
-            }
             try {
-                write(wtr, settings, domain, location, StringUtils.join(mwiAddresses, ","), mwiPort, restApi,
+                write(wtr, settings, domain, location, getMwiLocations(mwiLocations, location), mwiPort, restApi,
                         adminApi, apacheApi, imApi, imbotApi, fsEvent);
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
         }
+    }
+
+    public String getMwiLocations(List<Location> mwiLocations, Location currentLocation) {
+        Set<String> mwiAddresses = new LinkedHashSet<String>();
+        // always append current location first
+        if (mwiLocations.remove(currentLocation)) {
+            mwiAddresses.add(getMwiAddress(currentLocation));
+        }
+        for (Location mwiLocation : mwiLocations) {
+            mwiAddresses.add(getMwiAddress(mwiLocation));
+        }
+        return StringUtils.join(mwiAddresses, ",");
+    }
+
+    private String getMwiAddress(Location location) {
+        StringBuilder address = new StringBuilder();
+        address.append(location.getAddress());
+        if (location.getRegionId() != null) {
+            address.append("@");
+            address.append(location.getRegionId());
+        }
+        return address.toString();
     }
 
     void write(Writer wtr, IvrSettings settings, Domain domain, Location location, String mwiAddresses, int mwiPort,
