@@ -28,11 +28,8 @@ body {
     <p><span id="inprogress" ><img src="/sipxconfig/images/loading.gif"/>
       <span key="label.inprogress">Operation in progress...</span>
     </span>&nbsp;</p>
-    
     <div id="global">
-       <div class="help">
-          <span key="global.help">Global Help</span>
-       </div>
+	   <span jwcid="@common/QuickHelp" value="message:global.help"/>
        <p id="globalMessage"></p>
   		<ul class="component-links">
   			<li id="globalAddDb"></li>
@@ -110,7 +107,7 @@ body {
       <span jwcid="@common/Message" key="label.priority">Priority: </span>
       <span jwcid="@common/Message" key="label.voting">Voting: </span>
       <span jwcid="@common/Message" key="refreshEvery">Refresh every</span>      
-      <span jwcid="@common/Message" key="seconds">seconds.</span>      
+      <span jwcid="@common/Message" key="seconds">seconds.</span>
     </span>
 		<script jwcid="@common/DartCode" type="application/dart"
 			src="ManageMongo.dart"></script>
