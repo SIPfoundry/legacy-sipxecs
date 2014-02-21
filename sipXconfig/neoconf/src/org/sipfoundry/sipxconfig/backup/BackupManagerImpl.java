@@ -38,6 +38,7 @@ import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class BackupManagerImpl extends HibernateDaoSupport implements BackupManager,
@@ -48,6 +49,7 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
     private BeanWithSettingsDao<BackupSettings> m_settingsDao;
     private LocationsManager m_locationsManager;
     private ConfigManager m_configManager;
+    private String m_tmpDirectoryPath;
     private File m_restoreStagingDir;
 
     @Override
@@ -147,15 +149,19 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
         return ids;
     }
 
-//    @Override
-//    public String getBackupLink(BackupPlan plan) {
-//        BackupCommandRunner runner = new BackupCommandRunner(getPlanFile(plan), getBackupScript());
-//        return runner.getBackupLink();
-//    }
-
     public File getPlanFile(BackupPlan plan) {
         String fname = format("1/archive-%s.yaml", plan.getType());
         return new File(m_configManager.getGlobalDataDirectory(), fname);
+    }
+
+    public File getTmpBackupFile(BackupPlan plan) {
+        String fname = format("archive-backup-tmp-%s.yaml", plan.getType());
+        return new File(m_tmpDirectoryPath, fname);
+    }
+
+    public File getTmpRestoreFile(BackupPlan plan) {
+        String fname = format("archive-restore-tmp-%s.yaml", plan.getType());
+        return new File(m_tmpDirectoryPath, fname);
     }
 
     public void setLocationsManager(LocationsManager locationsManager) {
@@ -166,6 +172,12 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
         m_configManager = configManager;
     }
 
+    @Required
+    public void setTmpDirectoryPath(String tmpDirectoryPath) {
+        m_tmpDirectoryPath = tmpDirectoryPath;
+    }
+
+    @Required
     public void setRestoreStagingDirectoryPath(String dir) {
         m_restoreStagingDir = new File(dir);
     }

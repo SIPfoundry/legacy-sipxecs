@@ -34,6 +34,7 @@
     <property name="featureManager" ref="featureManager"/>
     <property name="locationsManager" ref="locationsManager"/>
     <property name="restoreStagingDirectoryPath" value="${sysdir.tmp}/restore"/>
+    <property name="tmpDirectoryPath" value="${sysdir.tmp}"/>
     <property name="configManager" ref="configManager"/>
   </bean>
 

@@ -59,10 +59,10 @@ public class RestoreApi extends Resource {
         Writer planWtr = null;
         String configuration = StringUtils.EMPTY;
         try {
-            //reuse archive-<plan_type>.yaml to write selections
+            //write user selection in a dedicated temp file : archive-backup-tmp-local.yaml/archive-backup-tmp-ftp.yaml
             //we cannot use a temp file because if HA setup
             //when backup runs on many nodes, a timeout may be returned and the temp file gets silently deleted
-            planFile = m_backupApi.getBackupManager().getPlanFile(plan);
+            planFile = m_backupApi.getBackupManager().getTmpRestoreFile(plan);
             planWtr = new FileWriter(planFile);
             Collection<Location> hosts = m_locationsManager.getLocationsList();
             m_backupConfig.writeConfig(planWtr, plan, hosts, settings);

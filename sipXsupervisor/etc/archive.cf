@@ -21,7 +21,7 @@
 # 2.) backup_collect
 # Collect backups from nodes to primary
 #
-# 3.) restore_collect 
+# 3.) restore_collect
 # Download restore from primary
 #
 
@@ -58,7 +58,7 @@ bundle agent archive_vars {
 
     ftp_archive::
       "plan" string => "ftp";
-                
+
     any::
       "config" string => "$(sipx.SIPX_CONFDIR)/archive-$(plan).yaml";
 }
