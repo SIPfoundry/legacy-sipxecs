@@ -87,7 +87,7 @@ public class UserPhonebookResource extends UserPhonebookSearchResource {
         String converted = "";
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         try {
-            m_phonebookManager.exportPhonebook(entries, stream, fmt);
+            getPhonebookManager().exportPhonebook(entries, stream, fmt);
             converted = stream.toString("UTF-8");
         } catch (IOException e) {
             LOG.error(String.format("Failed to convert phonebook to %s format: %s", fmt, e.getMessage()));

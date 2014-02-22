@@ -33,7 +33,7 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import com.thoughtworks.xstream.XStream;
 
 public class UserPhonebookSearchResource extends UserResource {
-    protected PhonebookManager m_phonebookManager;
+    private PhonebookManager m_phonebookManager;
     private String m_searchTerm;
 
     @Override
