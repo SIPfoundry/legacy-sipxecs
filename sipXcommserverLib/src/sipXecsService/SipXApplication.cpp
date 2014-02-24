@@ -351,7 +351,7 @@ void SipXApplication::initLoggerByCommandLine(bool& initialized)
       if (_osServiceOptions.hasOption(OsServiceOptions::logLevelOption().pName))
         _osServiceOptions.getOption(OsServiceOptions::logLevelOption().pName, logLevel, logLevel);
 
-      logLevel = SYSLOG_NUM_PRIORITIES - logLevel - 1;
+      logLevel = normalizeLogLevel(logLevel);
 
       Os::LoggerHelper::instance().processName = _appData._appName;
 

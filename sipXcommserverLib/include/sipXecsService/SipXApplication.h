@@ -127,6 +127,8 @@ class SipXApplication
      */
     void doDaemonize(int argc, char** pArgv);
 
+    static int normalizeLogLevel(int logLevel);
+
   private:
     SipXApplication();                                       // SipXApplication constructor
     ~SipXApplication() {}                                    // SipXApplication destructor
@@ -275,6 +277,11 @@ inline void SipXApplication::handleSIGUSR2()
 {
       system_tap_stop_portlib_instrumentation();
       Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "SIGUSR2 caught. Starting instrumentations.");
+}
+
+inline int SipXApplication::normalizeLogLevel(int logLevel)
+{
+  return SYSLOG_NUM_PRIORITIES - logLevel - 1;
 }
 
 #endif /* _SIPXECS_APPLICATION_H_ */
