@@ -14,14 +14,13 @@ import static org.sipfoundry.sipxconfig.permission.PermissionName.TUI_CHANGE_PIN
 import org.restlet.Context;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
+import org.restlet.data.Status;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
+import org.sipfoundry.sipxconfig.common.AbstractUser;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.springframework.beans.factory.annotation.Required;
 
 public class VoicemailPinResource extends UserResource {
-    private DomainManager m_domainManager;
     private String m_newPin;
 
     @Override
@@ -41,13 +40,13 @@ public class VoicemailPinResource extends UserResource {
 
     @Override
     public void storeRepresentation(Representation entity) throws ResourceException {
-        User user = getUser();
-        user.setVoicemailPin(m_newPin);
-        getCoreContext().saveUser(user);
-    }
-
-    @Required
-    public void setDomainManager(DomainManager domainManager) {
-        m_domainManager = domainManager;
+        if (!(m_newPin == null) && m_newPin.length() >= AbstractUser.VOICEMAIL_PIN_LEN) {
+            User user = getUser();
+            user.setVoicemailPin(m_newPin);
+            getCoreContext().saveUser(user);
+        } else {
+            throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, String.format(
+                "Voicemail PIN must be at least %d characters long", AbstractUser.VOICEMAIL_PIN_LEN));
+        }
     }
 }

@@ -80,8 +80,14 @@
   </bean>
   <alias name="callResource" alias="/my/call/{to}" />
 
+  <bean id="passwordResource" class="org.sipfoundry.sipxconfig.rest.PasswordResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="passwordResource" alias="/my/portal/password/{password}" />
+
   <bean id="voicemailPinResource" class="org.sipfoundry.sipxconfig.rest.VoicemailPinResource" scope="prototype">
-    <property name="domainManager" ref="domainManager" />
     <property name="coreContext" ref="coreContext" />
     <property name="available" value="false" />
     <property name="readable" value="false" />
