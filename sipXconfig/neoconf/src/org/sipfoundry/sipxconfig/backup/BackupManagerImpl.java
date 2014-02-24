@@ -77,7 +77,7 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
             plan.getDefinitionIds().add(AdminContext.ARCHIVE);
         }
         plan.setIncludeDeviceFiles(
-            (boolean) getSettings().getIncludeDeviceFiles().getTypedValue());
+            (Boolean) getSettings().getIncludeDeviceFiles().getTypedValue());
         return plan;
     }
 

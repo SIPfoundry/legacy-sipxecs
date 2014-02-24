@@ -248,7 +248,7 @@ public class BackupApi extends Resource {
             m_settings = m_backupManager.getSettings();
             SettingJsonReader settingJsonReader = new SettingJsonReader();
             settingJsonReader.read(m_settings.getDb(), meta.get("dbSettings"));
-            m_plan.setIncludeDeviceFiles((boolean) m_settings.getIncludeDeviceFiles().getTypedValue());
+            m_plan.setIncludeDeviceFiles((Boolean) m_settings.getIncludeDeviceFiles().getTypedValue());
             settingJsonReader.read(m_settings.getSettings().getSetting("ftp"), meta.get("ftpSettings"));
         } catch (IOException e) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
