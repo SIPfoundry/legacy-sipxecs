@@ -30,6 +30,7 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
     private BackupType m_type = BackupType.local;
     private Collection<DailyBackupSchedule> m_schedules = new ArrayList<DailyBackupSchedule>(0);
     private Set<String> m_definitionIds = new HashSet<String>();
+    private boolean m_includeDeviceFiles;
 
     public BackupPlan() {
     }
@@ -118,5 +119,13 @@ public class BackupPlan extends BeanWithId implements DeployConfigOnEdit {
         }
         String[] split = StringUtils.split(encodedDefinitionString, ',');
         m_definitionIds.addAll(Arrays.asList(split));
+    }
+
+    public boolean isIncludeDeviceFiles() {
+        return m_includeDeviceFiles;
+    }
+
+    public void setIncludeDeviceFiles(boolean includeDeviceFiles) {
+        m_includeDeviceFiles = includeDeviceFiles;
     }
 }

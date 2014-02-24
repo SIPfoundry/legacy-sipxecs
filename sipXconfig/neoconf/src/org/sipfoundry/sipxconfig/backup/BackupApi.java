@@ -112,6 +112,8 @@ public class BackupApi extends Resource {
             Map<String, String> archiveIdMap = getArchiveIdMap();
             BackupPlan backup = m_backupManager.findOrCreateBackupPlan(m_backupType);
             BackupSettings settings = m_backupManager.getSettings();
+            //set saved includeDeviceFiles value
+            settings.getIncludeDeviceFiles().setTypedValue(backup.isIncludeDeviceFiles());
             File planFile = m_backupManager.getPlanFile(backup);
             Map<String, List<String>> backups = new HashMap<String, List<String>>();
             try {
@@ -176,6 +178,8 @@ public class BackupApi extends Resource {
 
         json.write("{\"definitions\":");
         m_jsonMapper.writeValue(json, archiveIds);
+        json.write(",\"dbSettings\":");
+        m_jsonMapper.writeValue(json, settings.getDbSettings());
         json.write(",\"settings\":");
         m_jsonMapper.writeValue(json, settings.getSettings());
         json.write(",\"backup\":");
@@ -243,7 +247,8 @@ public class BackupApi extends Resource {
             readPlan(m_plan, meta.get(BACKUP));
             m_settings = m_backupManager.getSettings();
             SettingJsonReader settingJsonReader = new SettingJsonReader();
-            settingJsonReader.read(m_settings, meta.get("settings"));
+            settingJsonReader.read(m_settings.getDb(), meta.get("dbSettings"));
+            m_plan.setIncludeDeviceFiles((boolean) m_settings.getIncludeDeviceFiles().getTypedValue());
             settingJsonReader.read(m_settings.getSettings().getSetting("ftp"), meta.get("ftpSettings"));
         } catch (IOException e) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());

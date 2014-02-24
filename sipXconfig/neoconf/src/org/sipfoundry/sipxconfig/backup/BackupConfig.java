@@ -86,7 +86,8 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
             CfengineModuleConfiguration cfg = new CfengineModuleConfiguration(cfdat);
             cfg.writeClass("archive", true);
             for (Location host : hosts) {
-                Collection<ArchiveDefinition> possibleDefIds = m_backupManager.getArchiveDefinitions(host, settings);
+                Collection<ArchiveDefinition> possibleDefIds = m_backupManager.getArchiveDefinitions(
+                    host, null, settings);
                 for (ArchiveDefinition definition : possibleDefIds) {
                     //CFengine does not accept "." characters in variable names
                     //Write definition ids where backup should take place (we can have restore to take place on one node
@@ -109,7 +110,7 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
         YamlConfiguration config = new YamlConfiguration(w);
         config.startStruct("hosts");
         for (Location host : hosts) {
-            Collection<ArchiveDefinition> possibleDefIds = m_backupManager.getArchiveDefinitions(host, settings);
+            Collection<ArchiveDefinition> possibleDefIds = m_backupManager.getArchiveDefinitions(host, plan, settings);
             Collection<ArchiveDefinition> defIds = CollectionUtils.select(possibleDefIds, new Predicate() {
                 @Override
                 public boolean evaluate(Object arg0) {

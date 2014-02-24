@@ -45,7 +45,7 @@ public interface BackupManager {
 
     Collection<String> getArchiveDefinitionIds();
 
-    Collection<ArchiveDefinition> getArchiveDefinitions(Location location, BackupSettings manual);
+    Collection<ArchiveDefinition> getArchiveDefinitions(Location location, BackupPlan plan, BackupSettings manual);
 
     File getPlanFile(BackupPlan plan);
 

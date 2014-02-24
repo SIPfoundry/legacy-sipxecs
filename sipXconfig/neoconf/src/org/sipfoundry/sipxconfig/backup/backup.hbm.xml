@@ -14,6 +14,7 @@
     </id>
     <property column="backup_type" name="encodedType" not-null="true"/>
     <property column="def" name="encodedDefinitionString" not-null="true"/> 
+    <property column="include_device_files" name="includeDeviceFiles" not-null="true"/>
     <property name="limitedCount" />    
     <bag name="schedules" inverse="true" table="daily_backup_schedule" cascade="all">
       <key column="backup_plan_id" />

@@ -34,6 +34,7 @@ public class BackupApiTest {
         StringWriter actual = new StringWriter();
         BackupSettings settings = new BackupSettings();
         settings.setSettings(TestHelper.loadSettings("backup/backup.xml"));
+        settings.setModelFilesContext(TestHelper.getModelFilesContext(TestHelper.getSystemEtcDir()));
         Map<String, List<String>> backups = new HashMap<String, List<String>>();
         backups.put("x", Arrays.asList("one", "two", "three"));
         api.writeBackup(actual, false, plan, backups, settings, archiveIds);

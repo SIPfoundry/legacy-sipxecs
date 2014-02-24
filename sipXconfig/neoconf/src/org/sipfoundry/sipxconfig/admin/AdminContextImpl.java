@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.backup.ArchiveDefinition;
 import org.sipfoundry.sipxconfig.backup.ArchiveProvider;
 import org.sipfoundry.sipxconfig.backup.BackupManager;
+import org.sipfoundry.sipxconfig.backup.BackupPlan;
 import org.sipfoundry.sipxconfig.backup.BackupSettings;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -94,12 +95,12 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     @Override
     public Collection<ArchiveDefinition> getArchiveDefinitions(BackupManager manager, Location location,
-            BackupSettings settings) {
+            BackupPlan plan, BackupSettings settings) {
         if (!location.isPrimary()) {
             return null;
         }
 
-        buildArchiveCommands(settings);
+        buildArchiveCommands(plan, settings);
         ArchiveDefinition def = new ArchiveDefinition(ARCHIVE, m_backup.toString(), m_restore.toString());
         return Collections.singleton(def);
     }
@@ -109,11 +110,11 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         m_restore = new StringBuilder(RESTORE_COMMAND);
     }
 
-    protected void buildArchiveCommands(BackupSettings settings) {
+    protected void buildArchiveCommands(BackupPlan plan, BackupSettings settings) {
         //Reset backup/restore commands to original values to avoid additional params to be added multiple times
         initBaseCommands();
-        if (settings != null) {
-            if (!settings.isKeepDeviceFiles()) {
+        if (plan != null && settings != null) {
+            if (!plan.isIncludeDeviceFiles()) {
                 m_backup.append(" --no-device-files");
             }
             if (settings.isKeepDomain()) {

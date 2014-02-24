@@ -458,6 +458,7 @@
     <antcall target="dns_custom"/>
     <antcall target="drop_acd"/>
   	<antcall target="holiday-dates" />
+  	<antcall target="add-backup-device-files-column" />
   </target>
 
   <target name="plugin-patches">
@@ -1376,6 +1377,9 @@
   </target>		
   <target name="holiday-dates" unless="holiday-dates">
     <db-patch patch="holiday-dates"/>
+  </target>
+  <target name="add-backup-device-files-column" unless="add-backup-device-files-column">
+  	<plsql-patch patch="add-backup-device-files-column"/>
   </target>
   <!--
     - SUPPORT UTILITIES

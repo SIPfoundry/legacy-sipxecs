@@ -76,13 +76,13 @@ public class BackupConfigTest {
         plan.setLimitedCount(20);
         
         BackupManager mgr = createMock(BackupManager.class);
-        mgr.getArchiveDefinitions(l1, null);
+        mgr.getArchiveDefinitions(l1, null, null);
         expectLastCall().andReturn(Arrays.asList(d1, d2)).anyTimes();
-        mgr.getArchiveDefinitions(l2, null);
+        mgr.getArchiveDefinitions(l2, null, null);
         expectLastCall().andReturn(Arrays.asList(d3)).anyTimes();
-        mgr.getArchiveDefinitions(l1, settings);
+        mgr.getArchiveDefinitions(l1, plan, settings);
         expectLastCall().andReturn(Arrays.asList(d1, d2)).anyTimes();
-        mgr.getArchiveDefinitions(l2, settings);
+        mgr.getArchiveDefinitions(l2, plan, settings);
         expectLastCall().andReturn(Arrays.asList(d3)).anyTimes();         
         replay(mgr);
         config.setBackupManager(mgr);

@@ -23,12 +23,6 @@
       </type>      
     </setting>   
   </group>
-  <group name="backup">
-    <setting name="device">
-      <type><boolean/></type>
-      <value>1</value>
-    </setting>
-  </group>
   <group name="restore">
     <setting name="keepDomain">
       <type><boolean/></type>

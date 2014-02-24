@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Required;
 public class BackupSettings extends PersistableSettings implements DeployConfigOnEdit {
     private static final Log LOG = LogFactory.getLog(BackupSettings.class);
     private String m_localBackupPath;
+    private Setting m_dbSettings;
 
     @Override
     public String getBeanId() {
@@ -75,20 +76,40 @@ public class BackupSettings extends PersistableSettings implements DeployConfigO
         return m_localBackupPath;
     }
 
+    public Setting getDbSettings() {
+        if (m_dbSettings != null) {
+            return m_dbSettings;
+        }
+        m_dbSettings = loadDbSettings();
+        return m_dbSettings;
+    }
+
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("backup/backup.xml");
+    }
+    /**
+     * This holds database specific settings. the user saved values are kept in database: backup_plan table
+     * and this setting will keep only default values
+     * We always need to keep setting in sync with database (see BackupApi.java)
+     * @return
+     */
+    protected Setting loadDbSettings() {
+        return getModelFilesContext().loadModelFile("backup/backup-db.xml");
+    }
+
+    public Setting getIncludeDeviceFiles() {
+        return m_dbSettings.getSetting("db/includeDeviceFiles");
+    }
+
+    public Setting getDb() {
+        return m_dbSettings.getSetting("db");
     }
 
     @Override
     @JsonIgnore
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) BackupManager.FEATURE);
-    }
-
-    @JsonIgnore
-    public boolean isKeepDeviceFiles() {
-        return (Boolean) getSettingTypedValue("backup/device");
     }
 
     @JsonIgnore

@@ -16,7 +16,7 @@ class BackupPage {
   var msg = new UserMessage(querySelector("#message"));
   DataLoader loader;
   String type = 'local';
-  SettingEditor settings;
+  SettingEditor dbSettings;
   SettingEditor ftpSettings;
   var timeOfDayFormat = new DateFormat("jm");
   Timer refresh;
@@ -26,7 +26,7 @@ class BackupPage {
     querySelector("#backup-now").onClick.listen(backupNow);
     querySelector("#apply").onClick.listen(apply);
     loader = new DataLoader(this.msg, loadForm);
-    settings = new SettingEditor(querySelector("#settings"));
+    dbSettings = new SettingEditor(querySelector("#db-settings"));
     ftpSettings = new SettingEditor(querySelector("#ftp-settings"));
     inProgress(false);
     refresh = new Timer.periodic(new Duration(seconds: 30), (e) {
@@ -45,8 +45,8 @@ class BackupPage {
   
   loadForm(json) {
     var data = JSON.decode(json);
-    Map <String, Object> backupSettings = getSetting(data['settings'], "backup");
-    settings.render(backupSettings, 'backup/');
+    Map <String, Object> backupSettings = getSetting(data['dbSettings'], "db");
+    dbSettings.render(backupSettings);
     Map <String, Object> ftpSettings = getSetting(data['settings'], "ftp");
     this.ftpSettings.render(ftpSettings);
     var archiveIds = new List<String>();
@@ -180,7 +180,7 @@ class BackupPage {
   
   postOrPut(String method, String successMessage) {
     var meta = new Map<String, Object>();
-    meta['settings'] = settings.parseForm();
+    meta['dbSettings'] = dbSettings.parseForm();
     meta['ftpSettings'] = ftpSettings.parseForm();
     meta['backup'] = parseForm();    
     HttpRequest req = new HttpRequest();

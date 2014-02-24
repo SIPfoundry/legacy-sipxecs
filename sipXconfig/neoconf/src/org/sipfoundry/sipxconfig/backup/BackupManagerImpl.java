@@ -76,6 +76,8 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
         if (plan.getDefinitionIds().isEmpty()) {
             plan.getDefinitionIds().add(AdminContext.ARCHIVE);
         }
+        plan.setIncludeDeviceFiles(
+            (boolean) getSettings().getIncludeDeviceFiles().getTypedValue());
         return plan;
     }
 
@@ -85,10 +87,11 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
     }
 
     @Override
-    public Collection<ArchiveDefinition> getArchiveDefinitions(Location location, BackupSettings settings) {
+    public Collection<ArchiveDefinition> getArchiveDefinitions(Location location, BackupPlan plan,
+        BackupSettings settings) {
         Set<ArchiveDefinition> defs = new HashSet<ArchiveDefinition>();
         for (ArchiveProvider provider : getArchiveProviders()) {
-            Collection<ArchiveDefinition> locationDefs = provider.getArchiveDefinitions(this, location, settings);
+            Collection<ArchiveDefinition> locationDefs = provider.getArchiveDefinitions(this, location, plan, settings);
             if (locationDefs != null) {
                 defs.addAll(locationDefs);
             }
@@ -137,7 +140,7 @@ public class BackupManagerImpl extends HibernateDaoSupport implements BackupMana
         Set<String> ids = new HashSet<String>();
         for (Location location : m_locationsManager.getLocationsList()) {
             for (ArchiveProvider provider : getArchiveProviders()) {
-                Collection<ArchiveDefinition> defs = provider.getArchiveDefinitions(this, location, null);
+                Collection<ArchiveDefinition> defs = provider.getArchiveDefinitions(this, location, null, null);
                 if (defs != null) {
                     for (ArchiveDefinition def : defs) {
                         ids.add(def.getId());

@@ -4,6 +4,36 @@
     "B" : "Beta",
     "C" : "Gamma"
   },
+  "dbSettings" : {
+    "type" : {
+      "name" : "group"
+    },
+    "label" : null,
+    "description" : null,
+    "value" : {
+      "db" : {
+        "type" : {
+          "name" : "group"
+        },
+        "label" : "Settings",
+        "description" : null,
+        "value" : {
+          "includeDeviceFiles" : {
+            "value" : "0",
+            "default" : "0",
+            "type" : {
+              "falseValue" : "0",
+              "name" : "boolean",
+              "required" : false,
+              "trueValue" : "1"
+            },
+            "label" : "Include device files",
+            "description" : "Do not add uploaded device files into backup, otherwise your backup may get too big"
+          }
+        }
+      }
+    }
+  },  
   "settings" : {
     "type" : {
       "name" : "group"
@@ -62,27 +92,6 @@
             },
             "label" : "Password ",
             "description" : "The user must have read/write permission on the backups directory and permissions to run the following ftp commands: CWD,STOR,LIST,MKD,NLST."
-          }
-        }
-      },
-      "backup" : {
-        "type" : {
-          "name" : "group"
-        },
-        "label" : "Backup Generic Settings",
-        "description" : null,
-        "value" : {
-          "device" : {
-            "value" : "1",
-            "default" : "1",
-            "type" : {
-              "falseValue" : "0",
-              "name" : "boolean",
-              "required" : false,
-              "trueValue" : "1"
-            },
-            "label" : "Include Device Files",
-            "description" : "Do not add uploaded device files into backup, otherwise your backup may get too big"
           }
         }
       },
@@ -184,6 +193,7 @@
   "backup" : {
     "definitionIds" : [ "A", "C" ],
     "id" : -1,
+    "includeDeviceFiles" : false,
     "limitedCount" : 10,
     "schedules" : [ {
       "enabled" : false,
