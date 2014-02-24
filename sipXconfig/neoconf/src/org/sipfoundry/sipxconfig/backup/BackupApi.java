@@ -28,11 +28,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -122,7 +122,7 @@ public class BackupApi extends Resource {
                 LOG.error("Cannot retrieve backups list ", ex);
             }
             UserDetailsImpl currentUser = StandardUserDetailsService.getUserDetails();
-            Map<String, List<String>> hyperlinkedList = new TreeMap<String, List<String>>();
+            Map<String, List<String>> hyperlinkedList = new LinkedHashMap<String, List<String>>();
             for (Map.Entry<String, List<String>> entries : backups.entrySet()) {
                 List<String> linkedEntries = new ArrayList<String>(entries.getValue().size());
                 for (String entry : entries.getValue()) {

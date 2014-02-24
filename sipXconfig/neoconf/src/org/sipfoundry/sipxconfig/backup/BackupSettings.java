@@ -99,11 +99,11 @@ public class BackupSettings extends PersistableSettings implements DeployConfigO
     }
 
     public Setting getIncludeDeviceFiles() {
-        return m_dbSettings.getSetting("db/includeDeviceFiles");
+        return getDbSettings().getSetting("db/includeDeviceFiles");
     }
 
     public Setting getDb() {
-        return m_dbSettings.getSetting("db");
+        return getDbSettings().getSetting("db");
     }
 
     @Override

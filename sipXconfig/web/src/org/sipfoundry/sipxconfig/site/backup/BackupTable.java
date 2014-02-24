@@ -15,10 +15,13 @@
 package org.sipfoundry.sipxconfig.site.backup;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +43,7 @@ import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 public abstract class BackupTable extends BaseComponent {
-    private static final String SPACE = " ";
+    private static final String SEPARATOR = "|";
 
     private static final Log LOG = LogFactory.getLog(BackupTable.class);
 
@@ -90,11 +93,11 @@ public abstract class BackupTable extends BaseComponent {
     public abstract SipxValidationDelegate getValidator();
 
     public String getBackupId() {
-        return StringUtils.split(getBackup(), SPACE)[0];
+        return StringUtils.split(getBackup(), SEPARATOR)[0];
     }
 
     public Collection<String> getBackupFiles() {
-        String[] row = StringUtils.split(getBackup(), SPACE);
+        String[] row = StringUtils.split(getBackup(), SEPARATOR);
         if (row.length <= 1) {
             return Collections.emptyList();
         }
@@ -145,9 +148,9 @@ public abstract class BackupTable extends BaseComponent {
         List<String> backups = new ArrayList<String>();
         for (Map.Entry<String, List<String>> entries : backupsMap.entrySet()) {
             StringBuilder backup = new StringBuilder();
-            backup.append(entries.getKey());
+            backup.append(getFormattedKey(entries.getKey()));
             for (String entry : entries.getValue()) {
-                backup.append(SPACE)
+                backup.append(SEPARATOR)
                       .append(entry);
             }
             backups.add(backup.toString());
@@ -160,5 +163,17 @@ public abstract class BackupTable extends BaseComponent {
         if (!backups.isEmpty()) {
             setDownloadLinkBase(settings.getPath(getBackupPlan()));
         }
+    }
+
+    private String getFormattedKey(String key) {
+        final DateFormat currentFormat = new SimpleDateFormat("yyyyMMddHHmm");
+        final DateFormat newFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+        try {
+            Date date = currentFormat.parse(key);
+            return newFormat.format(date);
+        } catch (Exception e) {
+            LOG.debug("Cannot format: " + key, e);
+        }
+        return key;
     }
 }

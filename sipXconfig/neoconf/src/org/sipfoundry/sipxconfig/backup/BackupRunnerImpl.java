@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
@@ -55,7 +55,7 @@ public class BackupRunnerImpl implements BackupRunner, AlarmProvider {
             m_backupScript, "--list", plan.getAbsolutePath()
         };
         op(runner, cmd);
-        Map<String, List<String>> list = new TreeMap<String, List<String>>();
+        Map<String, List<String>> list = new LinkedHashMap<String, List<String>>();
         String[] lines = runner.getStdout().split("\\n+");
         for (String line : lines) {
             String[] backup = line.split("\\s+");
