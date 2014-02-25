@@ -27,6 +27,8 @@ import java.util.TimeZone;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
@@ -42,6 +44,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
  * Can be user that logs in, can be superadmin, can be user for phone line
  */
 public class User extends AbstractUser implements Replicable {
+    private static final Log LOG = LogFactory.getLog(User.class);
     private static final String VM_ENABLED_SETTING_PATH = "voicemail/vacation/vmEnabled";
     private static final String ALIAS_RELATION = "alias";
     private static final String ALIAS_RELATION_FAX = "fax";
@@ -74,11 +77,7 @@ public class User extends AbstractUser implements Replicable {
 
     @SuppressWarnings("unchecked")
     public Collection<String> getPermissions() {
-        if (isEnabled()) {
-            return getUserPermissionNames();
-        } else {
-            return CollectionUtils.EMPTY_COLLECTION;
-        }
+        return isEnabled() ? getUserPermissionNames() : CollectionUtils.EMPTY_COLLECTION;
     }
 
     public String getContactUri(String domain) {

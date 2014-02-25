@@ -10,13 +10,13 @@ package org.sipfoundry.sipxconfig.common;
 
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.apache.commons.lang.StringUtils.join;
 import static org.apache.commons.lang.StringUtils.lowerCase;
 import static org.apache.commons.lang.StringUtils.split;
 import static org.apache.commons.lang.StringUtils.trim;
 import static org.apache.commons.lang.StringUtils.trimToNull;
-import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sipfoundry.sipxconfig.common.UserCallerAliasInfo.ANONYMOUS_CALLER_ALIAS;
 import static org.sipfoundry.sipxconfig.common.UserCallerAliasInfo.EXTERNAL_NUMBER;
 import static org.sipfoundry.sipxconfig.permission.PermissionName.EXCHANGE_VOICEMAIL;
@@ -42,13 +42,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
-import org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
@@ -90,7 +87,10 @@ public abstract class AbstractUser extends BeanWithGroups {
     public static final String CALLFWD_TIMER = "callfwd/timer";
     public static final String OPERATOR_SETTING = "personal-attendant/operator";
     public static final String DEFAULT_VM_OPTION = "personal-attendant/default-vm-option";
-    public static final Log LOG = LogFactory.getLog(LdapImportManager.class);
+    public static final String ON_THE_PHONE_MESSAGE = "im/on-the-phone-message";
+    public static final String INCLUDE_CALL_INFO = "im/include-call-info";
+    public static final String FWD_TO_VM_ON_DND = "im/fwd-vm-on-dnd";
+    public static final String ADVERTISE_SIP_PRESENCE = "im/advertise-sip-presence";
 
     public static enum MohAudioSource {
         FILES_SRC, PERSONAL_FILES_SRC, GROUP_FILES_SRC, SOUNDCARD_SRC, SYSTEM_DEFAULT, NONE;
@@ -135,7 +135,7 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     private Set<String> m_aliases = new LinkedHashSet<String>(0);
 
-    private Set m_supervisorForGroups;
+    private Set<Group> m_supervisorForGroups;
 
     private UserProfile m_userProfile = new UserProfile();
 
@@ -421,13 +421,12 @@ public abstract class AbstractUser extends BeanWithGroups {
             @Override
             public SettingValue getSettingValue(Setting setting) {
                 String parentSettings = setting.getParent().getName();
-                if (parentSettings.equals(User.MOH_SETTING)
+                if (parentSettings.equals(AbstractUser.MOH_SETTING)
                         && !getGroups().isEmpty()
                         && !hasPermission(PermissionName.GROUP_MUSIC_ON_HOLD)) {
                     return super.getDefault(setting);
-                } else {
-                    return super.getSettingValue(setting);
                 }
+                return super.getSettingValue(setting);
             }
         });
     }
@@ -643,7 +642,7 @@ public abstract class AbstractUser extends BeanWithGroups {
         return m_supervisorForGroups != null && m_supervisorForGroups.size() > 0;
     }
 
-    public Set getSupervisorForGroups() {
+    public Set<Group> getSupervisorForGroups() {
         return m_supervisorForGroups;
     }
 
@@ -670,7 +669,7 @@ public abstract class AbstractUser extends BeanWithGroups {
             throw new RuntimeException("Group needs to be saved before it can be added to the set.");
         }
         if (m_supervisorForGroups == null) {
-            m_supervisorForGroups = new HashSet();
+            m_supervisorForGroups = new HashSet<Group>();
         }
         m_supervisorForGroups.add(group);
     }
@@ -833,9 +832,8 @@ public abstract class AbstractUser extends BeanWithGroups {
         if (getBranch() != null && group.getBranch() != null
                 && !StringUtils.equals(getBranch().getName(), group.getBranch().getName())) {
             return false;
-        } else {
-            return super.isGroupAvailable(group);
         }
+        return super.isGroupAvailable(group);
     }
 
     @SettingEntry(path = CALLFWD_TIMER)

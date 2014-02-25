@@ -8,6 +8,14 @@
   -->
   <bean id="restletSpringBeanRouter" class="org.sipfoundry.sipxconfig.rest.SipxSpringBeanRouter" />
 
+  <bean id="jsonMediaType" class="org.restlet.data.MediaType">
+	<constructor-arg type="java.lang.String" value="application/json"/>
+  </bean>
+
+  <bean id="jsonFormat" class="org.restlet.resource.Variant">
+  	<property name="mediaType" ref="jsonMediaType" />
+  </bean>
+
   <bean id="phonesResource" class="org.sipfoundry.sipxconfig.rest.PhonesResource" scope="prototype">
     <property name="phoneContext" ref="phoneContext" />
     <property name="phoneModelSource" ref="phoneModelSource" />
@@ -105,6 +113,17 @@
     <property name="readable" value="false" />
   </bean>
   <alias name="voicemailPinResource" alias="/my/voicemail/pin/{pin}" />
+
+  <bean id="imprefsResource" class="org.sipfoundry.sipxconfig.rest.ImSettingsResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="modifiable" value="true" />
+    <property name="variants">
+    	<list>
+    		<ref bean="jsonFormat"/>
+    	</list>
+    </property>
+  </bean>
+  <alias name="imprefsResource" alias="/my/im/prefs" />
 
   <bean id="personalAttendantOperatorResource" class="org.sipfoundry.sipxconfig.rest.PersonalAttendantOperatorResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
