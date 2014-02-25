@@ -219,7 +219,7 @@ inline const std::string& SipXApplication::getNodeFilePath()
   return _nodeFilePath;
 }
 
-SipXApplication::SipXApplication()
+inline SipXApplication::SipXApplication()
   : _initialized(false),
     _argc(0),
     _argv(0)
