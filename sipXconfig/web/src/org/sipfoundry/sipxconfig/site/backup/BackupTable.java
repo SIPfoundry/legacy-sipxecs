@@ -44,6 +44,8 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 public abstract class BackupTable extends BaseComponent {
     private static final String SEPARATOR = "|";
+    private static final String SAVED_BACKUP_ID_FORMAT = "yyyyMMddHHmm";
+    private static final String DISPLAYED_BACKUP_ID_FORMAT = "MM/dd/yyyy HH:mm";
 
     private static final Log LOG = LogFactory.getLog(BackupTable.class);
 
@@ -106,7 +108,7 @@ public abstract class BackupTable extends BaseComponent {
     }
 
     public String getBackupPath() {
-        return getBackupId() + '/' + getBackupFile();
+        return getSavedBackupId(getBackupId()) + '/' + getBackupFile();
     }
 
     public String getRemoteDownloadLink() {
@@ -148,7 +150,7 @@ public abstract class BackupTable extends BaseComponent {
         List<String> backups = new ArrayList<String>();
         for (Map.Entry<String, List<String>> entries : backupsMap.entrySet()) {
             StringBuilder backup = new StringBuilder();
-            backup.append(getFormattedKey(entries.getKey()));
+            backup.append(getBackupIdToDisplay(entries.getKey()));
             for (String entry : entries.getValue()) {
                 backup.append(SEPARATOR)
                       .append(entry);
@@ -165,9 +167,7 @@ public abstract class BackupTable extends BaseComponent {
         }
     }
 
-    private String getFormattedKey(String key) {
-        final DateFormat currentFormat = new SimpleDateFormat("yyyyMMddHHmm");
-        final DateFormat newFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+    private String getFormattedKey(String key, DateFormat currentFormat, DateFormat newFormat) {
         try {
             Date date = currentFormat.parse(key);
             return newFormat.format(date);
@@ -175,5 +175,15 @@ public abstract class BackupTable extends BaseComponent {
             LOG.debug("Cannot format: " + key, e);
         }
         return key;
+    }
+
+    private String getBackupIdToDisplay(String backupIdToSave) {
+        return getFormattedKey(backupIdToSave,
+            new SimpleDateFormat(SAVED_BACKUP_ID_FORMAT), new SimpleDateFormat(DISPLAYED_BACKUP_ID_FORMAT));
+    }
+
+    private String getSavedBackupId(String backupIdToDisplay) {
+        return getFormattedKey(backupIdToDisplay,
+            new SimpleDateFormat(DISPLAYED_BACKUP_ID_FORMAT), new SimpleDateFormat(SAVED_BACKUP_ID_FORMAT));
     }
 }
