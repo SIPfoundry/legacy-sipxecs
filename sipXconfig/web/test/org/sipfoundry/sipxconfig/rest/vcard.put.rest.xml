@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<pb>
+<internalId>privatePhonebook_1</internalId>
+<uid>1</uid>
+<vcard>BEGIN:VCARD
+VERSION:3.0
+SOURCE:privatePhonebook_1
+SOURCE:
+ORG:;
+IMPP;TYPE=PERSONAL:
+TEL;TYPE=HOME:165611111166
+TEL;TYPE=FAX:
+TEL;TYPE=WORK;TYPE=PREF:
+EMAIL;TYPE=WORK;TYPE=PREF:aa.cc@cc.cc
+EMAIL;TYPE=HOME:
+ADR;TYPE=WORK:;;;;;;
+ADR;TYPE=HOME:;;;;;;
+AGENT:BEGIN:VCARD\\nVERSION:3.0\\nTEL\\;TYPE=cell\\,pref:\\nFN:\\nEND:VCARD\\n
+NOTE:private contact
+UID:d5506041-522b-4810-8c31-5457be334d53
+TEL;TYPE=CELL:333333
+FN:DDDDD EEEEE
+N:EEEEE;DDDDD;;;
+PRODID:-//dmfs.org//mimedir.vcard//EN
+REV:20140224T153000Z
+END:VCARD
+</vcard>
+<userName>200</userName>
+</pb>

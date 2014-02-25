@@ -92,6 +92,7 @@ sipxconfig_web_PKGS = \
 	cglib-nodep \
 	commons-fileupload \
 	commons-pool \
+	ez-vcard \
 	hivemind \
 	hivemind-lib \
 	jasper-compiler \
