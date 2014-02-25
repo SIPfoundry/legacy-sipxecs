@@ -95,16 +95,8 @@ public class IvrConfigTest {
         
         assertEquals("192.168.0.1,192.168.0.2,192.168.0.3@1", m_config.getMwiLocations(locations, location1));
 
-        locations = new LinkedList<Location>();
-        locations.add(location1);
-        locations.add(location2);
-        locations.add(location3);
         assertEquals("192.168.0.2,192.168.0.1,192.168.0.3@1", m_config.getMwiLocations(locations, location2));
 
-        locations = new LinkedList<Location>();
-        locations.add(location1);
-        locations.add(location2);
-        locations.add(location3);
         assertEquals("192.168.0.3@1,192.168.0.1,192.168.0.2", m_config.getMwiLocations(locations, location3));
     }
 }

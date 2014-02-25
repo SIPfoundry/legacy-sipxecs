@@ -94,11 +94,13 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
     public String getMwiLocations(List<Location> mwiLocations, Location currentLocation) {
         Set<String> mwiAddresses = new LinkedHashSet<String>();
         // always append current location first
-        if (mwiLocations.remove(currentLocation)) {
+        if (mwiLocations.contains(currentLocation)) {
             mwiAddresses.add(getMwiAddress(currentLocation));
         }
         for (Location mwiLocation : mwiLocations) {
-            mwiAddresses.add(getMwiAddress(mwiLocation));
+            if (mwiLocation != currentLocation) {
+                mwiAddresses.add(getMwiAddress(mwiLocation));
+            }
         }
         return StringUtils.join(mwiAddresses, ",");
     }
