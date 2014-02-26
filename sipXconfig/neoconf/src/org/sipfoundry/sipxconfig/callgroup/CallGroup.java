@@ -159,7 +159,7 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
      */
     public List<AliasMapping> getAliasMappings(String domainName) {
         if (!isEnabled()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         String myIdentity = AliasMapping.createUri(m_name, domainName);
 
@@ -245,11 +245,19 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
 
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
     }
 
     @Override
     public String getEntityName() {
         return getClass().getSimpleName();
+    }
+
+    /**
+     * CallGroup entity must be replicated only when m_enabled is set to true
+     */
+    @Override
+    public boolean isReplicationEnabled() {
+        return isEnabled();
     }
 }

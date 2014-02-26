@@ -37,7 +37,7 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
  * @author dhubler
  *
  */
-public class Group extends ValueStorage implements Comparable, NamedObject, Replicable {
+public class Group extends ValueStorage implements Comparable<Group>, NamedObject, Replicable {
     private String m_name;
     private String m_description;
     private String m_resource;
@@ -92,8 +92,7 @@ public class Group extends ValueStorage implements Comparable, NamedObject, Repl
     }
 
     @Override
-    public int compareTo(Object arg0) {
-        Group b = (Group) arg0;
+    public int compareTo(Group b) {
         int w1 = defaultWeight(m_weight);
         int w2 = defaultWeight(b.getWeight());
         int cmp = w1 - w2;
@@ -207,7 +206,7 @@ public class Group extends ValueStorage implements Comparable, NamedObject, Repl
 
     @Override
     public Set<DataSet> getDataSets() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
     @Override
@@ -250,7 +249,7 @@ public class Group extends ValueStorage implements Comparable, NamedObject, Repl
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isReplicationEnabled() {
         return true;
     }
 }

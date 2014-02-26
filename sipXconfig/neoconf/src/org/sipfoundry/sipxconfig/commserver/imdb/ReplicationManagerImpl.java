@@ -326,7 +326,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
      */
     @Override
     public void replicateEntity(Replicable entity) {
-        if (!entity.isEnabled()) {
+        if (!entity.isReplicationEnabled()) {
             removeEntity(entity);
             return;
         }
@@ -347,7 +347,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
      */
     @Override
     public void replicateEntity(Replicable entity, DataSet... dataSets) {
-        if (!entity.isEnabled()) {
+        if (!entity.isReplicationEnabled()) {
             removeEntity(entity);
             return;
         }
@@ -403,9 +403,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     }
 
     private void replicateEntity(Replicable entity, DataSet dataSet, DBObject top) {
-        if (!entity.isEnabled()) {
-            return;
-        }
         String beanName = dataSet.getBeanName();
         try {
             final AbstractDataSetGenerator generator = m_beanFactory.getBean(beanName,

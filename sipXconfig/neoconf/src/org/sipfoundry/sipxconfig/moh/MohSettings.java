@@ -146,7 +146,7 @@ public class MohSettings extends PersistableSettings implements Replicable, Bean
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isReplicationEnabled() {
         return true;
     }
 }

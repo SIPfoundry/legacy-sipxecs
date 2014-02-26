@@ -139,7 +139,7 @@ public class ExternalAlias implements Replicable {
 
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
     }
 
     @Override
@@ -148,7 +148,7 @@ public class ExternalAlias implements Replicable {
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isReplicationEnabled() {
         return true;
     }
 }

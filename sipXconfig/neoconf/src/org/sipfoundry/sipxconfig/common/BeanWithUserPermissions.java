@@ -74,7 +74,7 @@ public class BeanWithUserPermissions extends BeanWithId implements Replicable {
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isReplicationEnabled() {
         return true;
     }
 }

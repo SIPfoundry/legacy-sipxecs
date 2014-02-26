@@ -383,7 +383,7 @@ public abstract class Phone extends Device implements Replicable {
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isReplicationEnabled() {
         return true;
     }
 }

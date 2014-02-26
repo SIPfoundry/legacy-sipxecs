@@ -162,7 +162,7 @@ public class AuthCodeSettings extends PersistableSettings implements DeployConfi
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isReplicationEnabled() {
         return true;
     }
 }

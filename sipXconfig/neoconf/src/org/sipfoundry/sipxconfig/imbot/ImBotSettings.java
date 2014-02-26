@@ -137,7 +137,7 @@ public class ImBotSettings extends PersistableSettings implements DeployConfigOn
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isReplicationEnabled() {
         return true;
     }
 }

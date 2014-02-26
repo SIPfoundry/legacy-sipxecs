@@ -32,43 +32,43 @@ public interface Replicable extends NamedObject {
      * Set of {@link DataSet}s to be considered for this entity
      * @return
      */
-    public Set<DataSet> getDataSets();
+    Set<DataSet> getDataSets();
     /**
      * Identity of the Mongo entity. It will go in the "ident" field.
      * Not all entities require it.
      * @param domainName
      * @return
      */
-    public String getIdentity(String domainName);
+    String getIdentity(String domainName);
     /**
      * Returns a collection of aliases to go in the "als" field.
      * @param domainName
      * @return
      */
-    public Collection<AliasMapping> getAliasMappings(String domainName);
+    Collection<AliasMapping> getAliasMappings(String domainName);
 
     /**
      * Return true if this entity is to be considered by {link ValidUsers.getValidUsers()}
      * (required by IVR)
      * @return
      */
-    public boolean isValidUser();
+    boolean isValidUser();
     /**
      * Returns a Map of properties to be inserted in Mongo as is.
      * Key is the name of the field, the value is the object to be inserted.
      * @param domain
      * @return
      */
-    public Map<String, Object> getMongoProperties(String domain);
+    Map<String, Object> getMongoProperties(String domain);
 
     /**
      * @return the name of the entity to be persisted
      */
-    public String getEntityName();
+    String getEntityName();
 
     /**
      * @return true if the entity is enabled, meaning is going to be replicated in mongo. If false
      * no mongo replication
      */
-    public boolean isEnabled();
+    boolean isReplicationEnabled();
 }

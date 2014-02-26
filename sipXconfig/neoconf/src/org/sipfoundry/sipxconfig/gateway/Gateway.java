@@ -345,7 +345,7 @@ public class Gateway extends Device implements Replicable, DeployConfigOnEdit {
 
     @Override
     public Collection<AliasMapping> getAliasMappings(String domain) {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
@@ -376,5 +376,13 @@ public class Gateway extends Device implements Replicable, DeployConfigOnEdit {
     @Override
     public String getEntityName() {
         return getClass().getSimpleName();
+    }
+
+    /**
+     * Gateway entity must be replicated only when m_enabled is set to true
+     */
+    @Override
+    public boolean isReplicationEnabled() {
+        return isEnabled();
     }
 }

@@ -38,8 +38,6 @@ import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
-//import static org.sipfoundry.commons.mongo.MongoConstants.TIMEZONE;
-
 /**
  * Can be user that logs in, can be superadmin, can be user for phone line
  */
@@ -96,7 +94,6 @@ public class User extends AbstractUser implements Replicable {
         m_identity = identity;
     }
 
-    @Override
     public boolean isEnabled() {
         return getUserProfile().isEnabled();
     }
@@ -174,6 +171,14 @@ public class User extends AbstractUser implements Replicable {
     @Override
     public String getEntityName() {
         return getClass().getSimpleName();
+    }
+
+    /**
+     * User entity must be replicated only when UserProfile.m_enabled is set to true
+     */
+    @Override
+    public boolean isReplicationEnabled() {
+        return isEnabled();
     }
 
     /**

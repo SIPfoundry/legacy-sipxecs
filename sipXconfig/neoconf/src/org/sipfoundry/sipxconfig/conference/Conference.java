@@ -401,4 +401,12 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
     public String getEntityName() {
         return getClass().getSimpleName();
     }
+
+    /**
+     * Conference entity must be replicated only when m_enabled is set to true
+     */
+    @Override
+    public boolean isReplicationEnabled() {
+        return isEnabled();
+    }
 }
