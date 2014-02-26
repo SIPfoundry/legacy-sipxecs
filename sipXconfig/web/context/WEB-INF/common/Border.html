@@ -21,11 +21,11 @@
               <span class="bannerLinkDivider">&nbsp;</span>
           </span>
           <div jwcid="dateComponent@Any" renderTag="true" class="date" ></div>
-          <span class="bannerLinkDivider">&nbsp;</span>
+          &nbsp;&nbsp;|&nbsp;&nbsp;
           <span class="linkHome"><a jwcid="@PageLink" class="linkHome" id="link.home" page="Home"><span key="link.home">Home</span></a></span>
-          <span class="bannerLinkDivider">&nbsp;</span>
+          &nbsp;&nbsp;|&nbsp;&nbsp;
           <span class="linkHelp"><a jwcid="helpLink@GenericLink" class="linkHelp" id="link.help" target="sipxconfig-help" href="ognl:helpLink"><span key="link.help">Online Help</span></a></span>
-          <span class="bannerLinkDivider">&nbsp;</span>
+          &nbsp;&nbsp;|&nbsp;&nbsp;
           <span class="linkLogout"><a jwcid="logoutLink@DirectLink" class="linkLogout" id="link.logout" listener="listener:logout"><span key="link.logout">Logout</span></a></span>
           <span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
             <span jwcid="@search/SearchPanel"/>
