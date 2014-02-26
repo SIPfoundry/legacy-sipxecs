@@ -369,7 +369,7 @@ public class MailboxServlet extends HttpServlet {
                 message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder,
                 descriptor.getDurationSecsLong(), StringUtils.defaultIfEmpty(descriptor.getContentLength(),
                 StringUtils.EMPTY), descriptor.getTimeStampDate().getTime(), fromUri,
-                HtmlUtils.htmlEscapeHex(authorDisplayName), HtmlUtils.htmlEscapeHex(authorExtension) ,descriptor.getSubject(),
+                HtmlUtils.htmlEscapeHex(authorDisplayName), HtmlUtils.htmlEscapeHex(authorExtension) ,HtmlUtils.htmlEscapeHex(descriptor.getSubject()),
                 message.getUserName(), descriptor.getAudioFormat());
     }
 
