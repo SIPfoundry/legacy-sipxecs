@@ -708,6 +708,10 @@ fieldset#loginForm legend {
   margin-right: 3px;
 }
 
+.userPortal ul#nav li:nth-child(n+1):nth-child(-n+7) {
+  margin-right: 3px;
+}
+
 #navigation li {
 	float: left;
 	position: relative;
@@ -1348,11 +1352,8 @@ div.sectionTitle {
 }
 
 #tabNavigation {
-  border-bottom: 1px solid #545454;
   display: block;
 }
-
-
 
 #refreshRate
 {
