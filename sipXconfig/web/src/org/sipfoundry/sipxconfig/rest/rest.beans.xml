@@ -63,17 +63,12 @@
   </bean>
   <alias name="userPhonebookEntry" alias="/my/phonebook/entry/{entryId}" />
 
-  <bean id="phonebookEntryUpdateResource" class="org.sipfoundry.sipxconfig.rest.PhonebookEntryResource" scope="prototype">
+  <bean id="phonebookEntryResource" class="org.sipfoundry.sipxconfig.rest.PhonebookEntryResource" scope="prototype">
     <property name="phonebookManager" ref="phonebookManager" />
+    <property name="readable" value="false" />
     <property name="modifiable" value="true" />
   </bean>
-  <alias name="phonebookEntryUpdateResource" alias="/my/phonebookentry/update" />
-
-  <bean id="phonebookEntryDeleteResource" class="org.sipfoundry.sipxconfig.rest.PhonebookEntryResource" scope="prototype">
-    <property name="phonebookManager" ref="phonebookManager" />
-    <property name="modifiable" value="true" />
-  </bean>
-  <alias name="phonebookEntryDeleteResource" alias="/my/phonebookentry/delete/{internalId}" />
+  <alias name="phonebookEntryResource" alias="/my/phonebookentry/{internalId}" />
 
   <bean id="showContactsOnPhone" class="org.sipfoundry.sipxconfig.rest.ShowContactsOnPhoneResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />

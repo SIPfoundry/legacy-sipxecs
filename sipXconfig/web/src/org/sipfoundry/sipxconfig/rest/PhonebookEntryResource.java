@@ -65,7 +65,7 @@ public class PhonebookEntryResource extends Resource {
             pbe = m_phonebookManager.getPhonebookEntry(uid);
         }
         if (pbe == null) {
-            getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+            getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
             return;
         }
         m_phonebookManager.deletePhonebookEntry(pbe);
@@ -123,9 +123,9 @@ public class PhonebookEntryResource extends Resource {
         if (vcard.getImpps() != null) {
             for (Impp impp : vcard.getImpps()) {
                 for (ImppType p : impp.getTypes()) {
-                    if (p == ImppType.WORK) {
+                    if (p.equals(ImppType.WORK)) {
                         abe.setImId(impp.getHandle());
-                    } else if (p == ImppType.PERSONAL) {
+                    } else if (p.equals(ImppType.PERSONAL)) {
                         abe.setAlternateImId(impp.getHandle());
                     }
                 }
@@ -137,17 +137,17 @@ public class PhonebookEntryResource extends Resource {
                 if (tel.getTypes() != null) {
                     // we need to have the phone number set
                     for (TelephoneType t : tel.getTypes()) {
-                        if (t == TelephoneType.CELL) {
+                        if (t.equals(TelephoneType.CELL)) {
                             abe.setCellPhoneNumber(tel.getText());
                             if (pbe.getNumber() == null) {
                                 pbe.setNumber(tel.getText());
                             }
-                        } else if (t == TelephoneType.HOME) {
+                        } else if (t.equals(TelephoneType.HOME)) {
                             abe.setHomePhoneNumber(tel.getText());
                             if (pbe.getNumber() == null) {
                                 pbe.setNumber(tel.getText());
                             }
-                        } else if (t == TelephoneType.FAX) {
+                        } else if (t.equals(TelephoneType.FAX)) {
                             abe.setFaxNumber(tel.getText());
                         } else {
                             pbe.setNumber(tel.getText());
@@ -160,9 +160,9 @@ public class PhonebookEntryResource extends Resource {
         if (vcard.getEmails() != null) {
             for (Email email : vcard.getEmails()) {
                 for (EmailType e : email.getTypes()) {
-                    if (e == EmailType.WORK) {
+                    if (e.equals(EmailType.WORK)) {
                         abe.setEmailAddress(email.getValue());
-                    } else if (e == EmailType.HOME) {
+                    } else if (e.equals(EmailType.HOME)) {
                         abe.setAlternateEmailAddress(email.getValue());
                     }
                 }
@@ -173,7 +173,7 @@ public class PhonebookEntryResource extends Resource {
             for (ezvcard.property.Address address : vcard.getAddresses()) {
                 if (address.getTypes() != null) {
                     for (AddressType a : address.getTypes()) {
-                        if (a == AddressType.HOME) {
+                        if (a.equals(AddressType.HOME)) {
                             Address addr = abe.getHomeAddress();
                             if (addr == null) {
                                 addr = new Address();
@@ -184,7 +184,7 @@ public class PhonebookEntryResource extends Resource {
                             addr.setStreet(address.getStreetAddress());
                             addr.setZip(address.getPostalCode());
                             abe.setHomeAddress(addr);
-                        } else if (a == AddressType.WORK) {
+                        } else if (a.equals(AddressType.WORK)) {
                             Address addr = abe.getOfficeAddress();
                             if (addr == null) {
                                 addr = new Address();
@@ -222,7 +222,7 @@ public class PhonebookEntryResource extends Resource {
 
     }
 
-    static class PrivatePhonebookEntry {
+    private static class PrivatePhonebookEntry {
         private String m_internalId;
         private String m_uid;
         private String m_userName;
