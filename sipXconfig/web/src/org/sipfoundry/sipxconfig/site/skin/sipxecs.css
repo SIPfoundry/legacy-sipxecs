@@ -250,7 +250,7 @@ input,
 optgroup,
 select,
 textarea {
-  color: inherit; /* 1 */
+  color: black; /* 1 */
   font: inherit; /* 2 */
   margin: 0; /* 3 */
 }
@@ -298,6 +298,7 @@ input[type="submit"] {
 button[disabled],
 html input[disabled] {
   cursor: default;
+  color:#837e84;
 }
 
 /**
