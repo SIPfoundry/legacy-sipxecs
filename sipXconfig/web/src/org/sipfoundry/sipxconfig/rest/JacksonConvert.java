@@ -33,7 +33,7 @@ import org.restlet.resource.StringRepresentation;
  *
  * @param <T> Type of the source/target class
  */
-public class JacksonConvert {
+public final class JacksonConvert {
     private static final Logger LOG = Logger.getLogger(JacksonConvert.class);
     private static final String ACCEPTED_ENCODING = "UTF-8";
 
