@@ -14,19 +14,13 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
-import java.io.IOException;
+import static org.sipfoundry.sipxconfig.rest.JacksonConvert.fromRepresentation;
+import static org.sipfoundry.sipxconfig.rest.JacksonConvert.toRepresentation;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.restlet.data.Status;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
-import org.restlet.resource.StringRepresentation;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.AbstractUser;
 import org.sipfoundry.sipxconfig.common.User;
@@ -55,43 +49,22 @@ public class ImSettingsResource extends UserResource {
         settings.setOtpMessage((String) user.getSettingTypedValue(AbstractUser.ON_THE_PHONE_MESSAGE));
         settings.setVoicemailOnDnd((Boolean) user.getSettingTypedValue(AbstractUser.FWD_TO_VM_ON_DND));
 
-        LOG.debug("Returning IM prefs:\n\t" + settings);
+        LOG.debug("Returning IM prefs:\t" + settings);
 
-        String jsonStr;
-        try {
-            jsonStr = new ObjectMapper().writeValueAsString(settings);
-        } catch (JsonGenerationException e) {
-            throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
-        } catch (JsonMappingException e) {
-            throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
-        } catch (IOException e) {
-            throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
-        }
-
-        return new StringRepresentation(jsonStr);
+        return toRepresentation(settings);
     }
 
     // PUT
     @Override
     public void storeRepresentation(Representation entity) throws ResourceException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        ImSettingsBean settings;
-        try {
-            String inStr = IOUtils.toString(entity.getStream(), "UTF-8");
-            LOG.debug("Converting: " + inStr);
-            settings = mapper.readValue(inStr, ImSettingsBean.class);
-            LOG.debug("Converted: " + settings);
-        } catch (IOException e) {
-            throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
-        }
+        ImSettingsBean settings = fromRepresentation(entity, ImSettingsBean.class);
 
         Boolean statusPhonePresence = settings.getStatusPhonePresence();
         Boolean statusCallInfo = settings.getStatusCallInfo();
         String otpMessage = settings.getOtpMessage();
         Boolean voicemailOnDnd = settings.getVoicemailOnDnd();
 
-        LOG.debug("Saving IM prefs:\n\t" + settings);
+        LOG.debug("Saving IM prefs:\t" + settings);
 
         if (statusPhonePresence != null || statusCallInfo != null || otpMessage != null || voicemailOnDnd != null) {
             User user = getUser();
@@ -111,6 +84,7 @@ public class ImSettingsResource extends UserResource {
         }
     }
 
+    // the JSON representation of this is sent to/from the client
     private static class ImSettingsBean {
         private Boolean m_statusPhonePresence;
         private Boolean m_statusCallInfo;

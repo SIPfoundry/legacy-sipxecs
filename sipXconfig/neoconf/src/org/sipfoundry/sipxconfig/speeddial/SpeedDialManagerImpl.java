@@ -33,7 +33,7 @@ import org.sipfoundry.sipxconfig.rls.RlsRule;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
-public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements SpeedDialManager {
+public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> implements SpeedDialManager {
     private CoreContext m_coreContext;
     private FeatureManager m_featureManager;
     private ConfigManager m_configManager;
@@ -63,6 +63,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         return getGroupSpeedDialForUser(user, create);
     }
 
+    @Override
     public SpeedDial getGroupSpeedDialForUser(User user, boolean create) {
         Set<Group> groups = user.getGroups();
         if (groups.isEmpty() && !create) {
@@ -114,7 +115,8 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         return false;
     }
 
-    private List<SpeedDial> findSpeedDialForUserId(Integer userId) {
+    @Override
+    public List<SpeedDial> findSpeedDialForUserId(Integer userId) {
         List<SpeedDial> speeddials = getHibernateTemplate().findByNamedQueryAndNamedParam("speedDialForUserId",
                 "userId", userId);
         return speeddials;

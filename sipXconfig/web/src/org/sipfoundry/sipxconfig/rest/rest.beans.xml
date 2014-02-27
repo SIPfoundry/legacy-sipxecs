@@ -120,6 +120,18 @@
   </bean>
   <alias name="imprefsResource" alias="/my/im/prefs" />
 
+  <bean id="speedDialResource" class="org.sipfoundry.sipxconfig.rest.SpeedDialResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="modifiable" value="true" />
+    <property name="variants">
+      <list>
+        <ref bean="jsonFormat"/>
+      </list>
+    </property>
+    <property name="mgr" ref="speedDialManager"/>
+  </bean>
+  <alias name="speedDialResource" alias="/my/speeddial" />
+
   <bean id="personalAttendantOperatorResource" class="org.sipfoundry.sipxconfig.rest.PersonalAttendantOperatorResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="available" value="false" />

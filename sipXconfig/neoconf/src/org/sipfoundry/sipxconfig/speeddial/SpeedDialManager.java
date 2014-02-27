@@ -9,8 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.speeddial;
 
-import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
 
 public interface SpeedDialManager extends DialingRuleProvider {
     String CONTEXT_BEAN_NAME = "speedDialManager";
@@ -33,4 +35,8 @@ public interface SpeedDialManager extends DialingRuleProvider {
     void speedDialSynchToGroup(SpeedDial speedDial);
 
     boolean isSpeedDialDefinedForUserId(Integer userId);
+
+    List<SpeedDial> findSpeedDialForUserId(Integer userId);
+
+    SpeedDial getGroupSpeedDialForUser(User user, boolean create);
 }
