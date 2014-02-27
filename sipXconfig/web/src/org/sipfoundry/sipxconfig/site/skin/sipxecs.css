@@ -759,7 +759,6 @@ fieldset#loginForm legend {
 #navigation a
 {
 	font-weight: bold;
-	font-family: Arial, Verdana, sans-serif;
 	display: block;
 	text-decoration: none;
 	padding: 2px 0;
@@ -771,11 +770,15 @@ fieldset#loginForm legend {
 	color: #003333;
 	background: #E7EEF8;
 }
-
-#navigation A.heading:hover,
-#navigation A.heading.over
+#navigation a.heading {
+  color:#ffffff;
+}
+#navigation a.heading:hover,
+#navigation a.heading.over
 {
 	background:none;
+	cursor:pointer;
+	color: #ffffff;
 }
 
 .popup {
