@@ -41,7 +41,7 @@ public class SipXOpenfireServlet extends HttpServlet {
                 provider.getCanonicalName()));
 
         // Exclude this servlet from requiring the user to login
-        this.path = "sipx-openfire-presence/" + serviceName;
+        this.path = "sipx-openfire/" + serviceName;
         AuthCheckFilter.addExclude(path);
 
         PropertyHandlerMapping handlerMapping = new PropertyHandlerMapping();

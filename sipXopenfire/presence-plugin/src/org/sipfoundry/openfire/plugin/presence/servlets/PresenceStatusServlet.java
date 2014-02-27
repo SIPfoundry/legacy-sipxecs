@@ -22,7 +22,7 @@ public class PresenceStatusServlet extends SipXOpenfireServlet {
 
     @Override
     public void init(ServletConfig servletConfig) throws ServletException {
-        XMPPServer.getInstance().getPluginManager().getPlugin("sipx-openfire-presence");
+        XMPPServer.getInstance().getPluginManager().getPlugin("sipx-openfire");
         super.init(servletConfig,XmlRpcPresenceProvider.SERVER,XmlRpcPresenceProvider.SERVICE_NAME,
                 XmlRpcPresenceProvider.class);
     }

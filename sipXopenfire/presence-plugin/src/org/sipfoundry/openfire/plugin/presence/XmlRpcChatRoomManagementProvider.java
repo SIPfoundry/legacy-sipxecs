@@ -14,7 +14,7 @@ import org.xmpp.packet.JID;
 public class XmlRpcChatRoomManagementProvider extends XmlRpcProvider {
 
     private static Logger log = Logger.getLogger(XmlRpcChatRoomManagementProvider.class);
-    public final static String SERVICE_PATH = "/plugins/sipx-openfire-presence/chatroom";
+    public final static String SERVICE_PATH = "/plugins/sipx-openfire/chatroom";
     public final static String SERVICE_NAME = "chatroom";
     public final static String SERVER = "chatRoomManagementServer";
 
