@@ -15,8 +15,6 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
@@ -24,6 +22,8 @@ import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.DidInUseException;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -40,15 +40,13 @@ import org.springframework.dao.support.DataAccessUtils;
 /**
  * DialPlanContextImpl is an implementation of DialPlanContext with hibernate support.
  */
-public class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
-        DialPlanContext {
+public class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware, DialPlanContext,
+    ReplicableProvider {
 
     private static final String AUDIT_LOG_CONFIG_TYPE = "Dialing Rule";
-    private static final Log LOG = LogFactory.getLog(DialPlanContextImpl.class);
     private static final String DIALING_RULE_IDS_WITH_NAME_QUERY = "dialingRuleIdsWithName";
     private static final String VALUE = "value";
     private static final String DIALING_RULE = "&label.dialingRule";
-    private static final String DIAL_PLAN = "Dial-plan: ";
     private static final String VOICEMAIL = "&label.voicemail";
     private AliasManager m_aliasManager;
     private ListableBeanFactory m_beanFactory;
@@ -108,9 +106,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.ADDED, AUDIT_LOG_CONFIG_TYPE, rule.getName());
         } else {
             getHibernateTemplate().saveOrUpdate(rule);
-            getDaoEventPublisher().publishSave(rule);
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.MODIFIED, AUDIT_LOG_CONFIG_TYPE, rule.getName());
         }
+        getDaoEventPublisher().publishSave(rule);
     }
 
     /**
@@ -440,6 +438,14 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     private Collection getAttendantRulesWithExtensionOrDid(String extension) {
         return getHibernateTemplate().findByNamedQueryAndNamedParam("attendantRuleIdsWithExtensionOrDid", VALUE,
                 extension);
+    }
+
+    @Override
+    public List<Replicable> getReplicables() {
+        List<Replicable> replicables = new ArrayList<Replicable>();
+        replicables.addAll(getAttendantRules());
+
+        return replicables;
     }
 
     @Required

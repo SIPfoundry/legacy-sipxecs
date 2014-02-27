@@ -14,7 +14,7 @@
       <userPattern>operator</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:IVR@zzz.example.org:4444;action=autoattendant;schedule_id=aa_-1;locale=en_US&gt;</url>
+          <url>&lt;sip:IVR@ivr.example.org:3333;action=autoattendant;schedule_id=aa_-1;locale=en_US&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>

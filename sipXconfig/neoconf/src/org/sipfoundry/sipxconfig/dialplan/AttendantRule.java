@@ -9,12 +9,26 @@
  */
 package org.sipfoundry.sipxconfig.dialplan;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.ALIAS;
+import static org.sipfoundry.commons.mongo.MongoConstants.UID;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
+import static org.sipfoundry.sipxconfig.callgroup.AbstractCallSequence.ALIAS_RELATION;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.dialplan.attendant.Holiday;
 import org.sipfoundry.sipxconfig.dialplan.attendant.ScheduledAttendant;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
@@ -24,18 +38,26 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.springframework.beans.factory.annotation.Required;
 
-public class AttendantRule extends DialingRule {
-    private static final String SYSTEM_NAME_PREFIX = "aa_";
+public class AttendantRule extends DialingRule implements Replicable {
 
+    private static final String SYSTEM_NAME_PREFIX = "aa_";
+    private static final String LIVE_ATTENDANT_CONTACT = "<sip:%s@%s;sipx-noroute=Voicemail?expires=%d>;q=0.933";
+    private static final String LIVE_ATTENDANT_CONTACT_FWD = "<sip:%s@%s;sipx-noroute=Voicemail"
+        + ";sipx-userforward=false?expires=%d>;q=0.933";
+    private static final String ATTENDANT_CONTACT = "<sip:%s@%s;sipx-noroute=Voicemail?expires=30>;q=0.867";
+
+    private FeatureManager m_featureManager;
+    private MediaServer m_mediaServer;
     private ScheduledAttendant m_afterHoursAttendant = new ScheduledAttendant();
     private Holiday m_holidayAttendant = new Holiday();
     private WorkingTime m_workingTimeAttendant = new WorkingTime();
     private String m_attendantAliases;
     private String m_extension;
     private String m_did;
-    private FeatureManager m_featureManager;
-
-    private MediaServer m_mediaServer;
+    private boolean m_liveAttendant;
+    private String m_liveAttendantExtension;
+    private Integer m_liveAttendantRingFor;
+    private boolean m_followUserCallForward;
 
     @Override
     public void appendToGenerationRules(List<DialingRule> rules) {
@@ -46,9 +68,16 @@ public class AttendantRule extends DialingRule {
         if (!StringUtils.isEmpty(m_did)) {
             aliases = (String[]) ArrayUtils.add(aliases, m_did);
         }
+
         m_mediaServer.setLocation(getLocation());
-        DialingRule attendantRule = new MappingRule.Operator(getName(), getDescription(), getSystemName(),
-                m_extension, aliases, m_mediaServer);
+        DialingRule attendantRule = null;
+        if (isLiveAttendant()) {
+            attendantRule = new MappingRule.Operator(getName(), getDescription(), getSystemName(),
+                getAttendantIdentity(), ArrayUtils.EMPTY_STRING_ARRAY, m_mediaServer);
+        } else {
+            attendantRule = new MappingRule.Operator(getName(), getDescription(), getSystemName(), m_extension,
+                aliases, m_mediaServer);
+        }
         rules.add(attendantRule);
     }
 
@@ -132,6 +161,46 @@ public class AttendantRule extends DialingRule {
         m_extension = extension;
     }
 
+    public String getDid() {
+        return m_did;
+    }
+
+    public void setDid(String did) {
+        m_did = did;
+    }
+
+    public boolean isLiveAttendant() {
+        return m_liveAttendant;
+    }
+
+    public void setLiveAttendant(boolean liveAttendant) {
+        m_liveAttendant = liveAttendant;
+    }
+
+    public String getLiveAttendantExtension() {
+        return m_liveAttendantExtension;
+    }
+
+    public void setLiveAttendantExtension(String liveAttendantExtension) {
+        m_liveAttendantExtension = liveAttendantExtension;
+    }
+
+    public Integer getLiveAttendantRingFor() {
+        return m_liveAttendantRingFor;
+    }
+
+    public void setLiveAttendantRingFor(Integer liveAttendantRingFor) {
+        m_liveAttendantRingFor = liveAttendantRingFor;
+    }
+
+    public boolean isFollowUserCallForward() {
+        return m_followUserCallForward;
+    }
+
+    public void setFollowUserCallForward(boolean followUserCallForward) {
+        m_followUserCallForward = followUserCallForward;
+    }
+
     @Required
     public void setMediaServer(MediaServer mediaServer) {
         m_mediaServer = mediaServer;
@@ -162,15 +231,88 @@ public class AttendantRule extends DialingRule {
         return StringUtils.split(aliasesString);
     }
 
-    public String getDid() {
-        return m_did;
-    }
-
-    public void setDid(String did) {
-        m_did = did;
-    }
-
+    @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Arrays.asList((Feature) DialPlanContext.FEATURE, (Feature) AutoAttendantManager.FEATURE);
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        Set<DataSet> dataSets = new HashSet<DataSet>();
+        dataSets.add(DataSet.ALIAS);
+        dataSets.add(DataSet.USER_FORWARD);
+
+        return dataSets;
+    }
+
+    @Override
+    public String getIdentity(String domainName) {
+        if (isLiveAttendant()) {
+            return SipUri.stripSipPrefix(SipUri.format(null, getExtension(), domainName));
+        }
+
+        return null;
+    }
+
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
+        List<AliasMapping> mappings = new ArrayList<AliasMapping>();
+
+        String liveContact;
+        if (m_followUserCallForward) {
+            liveContact = String.format(LIVE_ATTENDANT_CONTACT, getLiveAttendantExtension(), domainName,
+                m_liveAttendantRingFor);
+        } else {
+            liveContact = String.format(LIVE_ATTENDANT_CONTACT_FWD, getLiveAttendantExtension(), domainName,
+                m_liveAttendantRingFor);
+        }
+        AliasMapping liveAttendantAlias = new AliasMapping(getExtension(), liveContact, ALIAS_RELATION);
+        AliasMapping attendantAlias = new AliasMapping(getExtension(), String.format(ATTENDANT_CONTACT,
+            getAttendantIdentity(), domainName), ALIAS_RELATION);
+        mappings.add(liveAttendantAlias);
+        mappings.add(attendantAlias);
+
+        String[] aliases = getAttendantAliasesAsArray(getAttendantAliases());
+        if (!StringUtils.isEmpty(m_did)) {
+            aliases = (String[]) ArrayUtils.add(aliases, m_did);
+        }
+        for (String alias : aliases) {
+            AliasMapping aliasMapping = new AliasMapping(alias, SipUri.format(getExtension(), domainName, false),
+                ALIAS);
+            mappings.add(aliasMapping);
+        }
+
+        return mappings;
+    }
+
+    private String getAttendantIdentity() {
+        return String.format("aa_live_%d", getId());
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put(UID, m_liveAttendant);
+        props.put(CONTACT, SipUri.format(StringUtils.EMPTY, getExtension(), domain));
+
+        return props;
+    }
+
+    @Override
+    public boolean isValidUser() {
+        return true;
+    }
+
+    @Override
+    public String getEntityName() {
+        return getClass().getSimpleName();
+    }
+
+    /**
+     * AttendantRule entity must be replicated only when both m_enabled and m_liveAttendant is set to true
+     */
+    @Override
+    public boolean isReplicationEnabled() {
+        return isEnabled() && isLiveAttendant();
     }
 }
