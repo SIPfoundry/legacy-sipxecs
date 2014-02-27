@@ -120,6 +120,17 @@
   </bean>
   <alias name="imprefsResource" alias="/my/im/prefs" />
 
+  <bean id="imbotprefsResource" class="org.sipfoundry.sipxconfig.rest.ImBotSettingsResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="modifiable" value="true" />
+    <property name="variants">
+    	<list>
+    		<ref bean="jsonFormat"/>
+    	</list>
+    </property>
+  </bean>
+  <alias name="imbotprefsResource" alias="/my/imbot/prefs" />
+
   <bean id="speedDialResource" class="org.sipfoundry.sipxconfig.rest.SpeedDialResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="modifiable" value="true" />

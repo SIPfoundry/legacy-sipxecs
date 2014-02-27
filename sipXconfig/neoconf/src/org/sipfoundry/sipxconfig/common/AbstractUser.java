@@ -91,6 +91,10 @@ public abstract class AbstractUser extends BeanWithGroups {
     public static final String INCLUDE_CALL_INFO = "im/include-call-info";
     public static final String FWD_TO_VM_ON_DND = "im/fwd-vm-on-dnd";
     public static final String ADVERTISE_SIP_PRESENCE = "im/advertise-sip-presence";
+    public static final String NOTIFICATION_CONF_ENTERED = "im_notification/conferenceEntryIM";
+    public static final String NOTIFICATION_CONF_EXITED = "im_notification/conferenceExitIM";
+    public static final String NOTIFICATION_VM_BEGIN = "im_notification/leaveMsgBeginIM";
+    public static final String NOTIFICATION_VM_END = "im_notification/leaveMsgEndIM";
 
     public static enum MohAudioSource {
         FILES_SRC, PERSONAL_FILES_SRC, GROUP_FILES_SRC, SOUNDCARD_SRC, SYSTEM_DEFAULT, NONE;
