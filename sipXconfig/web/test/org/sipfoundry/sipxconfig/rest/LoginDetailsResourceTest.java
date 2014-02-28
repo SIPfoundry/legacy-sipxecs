@@ -64,7 +64,7 @@ public class LoginDetailsResourceTest extends TestCase {
         LdapSystemSettings settings = new LdapSystemSettings();
         settings.setEnableOpenfireConfiguration(false);
         m_ldapManager.getSystemSettings();
-        expectLastCall().andReturn(settings).once();
+        expectLastCall().andReturn(settings).times(2);
         replay(m_coreContext, m_ldapManager);
     }
 

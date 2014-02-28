@@ -49,8 +49,22 @@ public class LoginDetailsResource extends UserResource {
     public Representation represent(Variant variant) throws ResourceException {
         User user = getUser();
         boolean ldapAuth = m_ldapManager.getSystemSettings().isEnableOpenfireConfiguration();
-        return new LoginDetails(variant.getMediaType(), new Representable(user.getUserName(),
-                user.getImId(), ldapAuth, user.getSipPassword()));
+        String pin = getUserPin(ldapAuth);
+        return new LoginDetails(variant.getMediaType(), new Representable(user.getUserName(), user.getImId(),
+            ldapAuth, user.getSipPassword(), pin));
+    }
+
+    protected String getUserPin(boolean ldapAuth) {
+        String pin;
+
+        // for security reasons, include the pin only when it can be different
+        // that is when authentication is done against LDAP for portal, but not for IM
+        if (m_ldapManager.getSystemSettings().isLdapOnly() && !ldapAuth) {
+            pin = getUser().getPintoken();
+        } else {
+            pin = null;
+        }
+        return pin;
     }
 
     @Required
@@ -58,22 +72,21 @@ public class LoginDetailsResource extends UserResource {
         m_ldapManager = ldapManager;
     }
 
-    @SuppressWarnings("serial")
-    static class Representable implements Serializable {
-        @SuppressWarnings("unused")
-        private String m_userName;
-        @SuppressWarnings("unused")
-        private String m_imId;
-        @SuppressWarnings("unused")
-        private boolean m_ldapImAuth;
-        @SuppressWarnings("unused")
-        private String m_sipPassword;
+    protected static class Representable implements Serializable {
+        private static final long serialVersionUID = 1L;
 
-        public Representable(String userName, String imId, boolean ldapAuth, String sipPassword) {
+        private final String m_userName;
+        private final String m_imId;
+        private final boolean m_ldapImAuth;
+        private final String m_sipPassword;
+        private final String m_pin;
+
+        public Representable(String userName, String imId, boolean ldapAuth, String sipPassword, String pin) {
             m_userName = userName;
             m_imId = imId;
             m_ldapImAuth = ldapAuth;
             m_sipPassword = sipPassword;
+            m_pin = pin;
         }
 
         public String getUserName() {
@@ -91,11 +104,14 @@ public class LoginDetailsResource extends UserResource {
         public String getSipPassword() {
             return m_sipPassword;
         }
+
+        public String getPin() {
+            return m_pin;
+        }
     }
 
-    static class LoginDetails extends XStreamRepresentation<Representable> {
-        @SuppressWarnings("rawtypes")
-        private Class m_representableClass;
+    protected static class LoginDetails extends XStreamRepresentation<Representable> {
+        private Class< ? > m_representableClass;
 
         public LoginDetails(MediaType mediaType, Representable object) {
             super(mediaType, object);
