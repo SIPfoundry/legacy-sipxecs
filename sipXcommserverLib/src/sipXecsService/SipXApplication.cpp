@@ -38,7 +38,7 @@ void SipXApplication::showVersionHelp()
   }
 }
 
-bool SipXApplication::init(int argc, char* argv[], const SipXApplicationData& appData)
+bool SipXApplication::init(int argc, char* argv[], const SipXApplicationData& appData, OsServiceOptions* pOptions)
 {
   _appData = appData;
   _argc = argc;
@@ -54,12 +54,24 @@ bool SipXApplication::init(int argc, char* argv[], const SipXApplicationData& ap
 
   OsMsgQShared::setQueuePreference(_appData._queuePreference);
 
-  _pOsServiceOptions->addDefaultOptions();
-
-  if (!parse(*_pOsServiceOptions, argc, argv, _appData._configFilename))
+  if (!pOptions)
   {
-    fprintf(stderr, "Failed to load configuration\n");
-    exit(1);
+    _pOsServiceOptions->addDefaultOptions();
+
+    if (!parse(*_pOsServiceOptions, argc, argv, _appData._configFilename))
+    {
+      fprintf(stderr, "Failed to load configuration\n");
+      exit(1);
+    }
+  }
+  else
+  {
+    //
+    // The application owns config.  It should take care of doing the stuff above
+    //
+    delete _pOsServiceOptions;
+    _pOsServiceOptions = pOptions;
+    _autoDeleteConfig = false;
   }
 
   // checks version or help options

@@ -58,7 +58,7 @@ class SipXApplication
      * @param pOptions - A pointer to an external OsServiveOptions instance
      * @return - True in case of success or exits with error code 1 otherwise
      */
-    bool init(int argc, char* argv[], const SipXApplicationData& appData);
+    bool init(int argc, char* argv[], const SipXApplicationData& appData, OsServiceOptions* pOptions = 0);
 
     /*
      * Loads configuration file.
@@ -104,9 +104,6 @@ class SipXApplication
 
     // Returns a reference to OsServiceOptions class
     OsServiceOptions& getConfig();
-
-    // Set a custom config instead of the internal instance
-    void setConfig(OsServiceOptions* pConfig, bool autodelete);
 
     // Returns a reference to _nodeFilePath string
     const std::string& getNodeFilePath();
@@ -217,14 +214,6 @@ inline OsServiceOptions& SipXApplication::getConfig()
 {
   return *_pOsServiceOptions;
 }
-
-inline void SipXApplication::setConfig(OsServiceOptions* pConfig, bool autodelete)
-{
-  delete _pOsServiceOptions;
- _autoDeleteConfig = autodelete;
-  _pOsServiceOptions = pConfig;
-}
-
 
 inline const std::string& SipXApplication::getNodeFilePath()
 {
