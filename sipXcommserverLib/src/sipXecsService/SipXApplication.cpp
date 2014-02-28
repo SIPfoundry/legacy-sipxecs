@@ -9,6 +9,7 @@
 
 #include <sipdb/MongoDB.h>
 
+static bool gHasDaemonized = false;
 
 void SipXApplication::displayVersion(std::ostream& strm) const
 {
@@ -18,19 +19,19 @@ void SipXApplication::displayVersion(std::ostream& strm) const
 
 void SipXApplication::displayUsage(std::ostream& strm)
 {
-  _osServiceOptions.displayUsage(strm);
+  _pOsServiceOptions->displayUsage(strm);
 }
 
 void SipXApplication::showVersionHelp()
 {
-  if (_osServiceOptions.hasOption(OsServiceOptions::helpOption().pName))
+  if (_pOsServiceOptions->hasOption(OsServiceOptions::helpOption().pName))
   {
     displayVersion(std::cout);
     displayUsage(std::cout);
     exit(0);
   }
 
-  if (_osServiceOptions.hasOption(OsServiceOptions::versionOption().pName))
+  if (_pOsServiceOptions->hasOption(OsServiceOptions::versionOption().pName))
   {
     displayVersion(std::cout);
     exit(0);
@@ -53,9 +54,9 @@ bool SipXApplication::init(int argc, char* argv[], const SipXApplicationData& ap
 
   OsMsgQShared::setQueuePreference(_appData._queuePreference);
 
-  _osServiceOptions.addDefaultOptions();
+  _pOsServiceOptions->addDefaultOptions();
 
-  if (!parse(_osServiceOptions, argc, argv, _appData._configFilename))
+  if (!parse(*_pOsServiceOptions, argc, argv, _appData._configFilename))
   {
     fprintf(stderr, "Failed to load configuration\n");
     exit(1);
@@ -116,6 +117,9 @@ bool SipXApplication::increaseResourceLimits(const std::string& configurationPat
 
 void SipXApplication::doDaemonize(int argc, char** pArgv)
 {
+  if (gHasDaemonized)
+    return;
+
   char* pidFile = NULL;
 
   for (int i = 0; i < argc; i++)
@@ -131,6 +135,7 @@ void SipXApplication::doDaemonize(int argc, char** pArgv)
   if (pidFile)
   {
     daemonize(pidFile);
+    gHasDaemonized = true;
   }
 }
 
@@ -260,7 +265,7 @@ void SipXApplication::initLoggerByConfigurationFile()
   // Get/Apply Log Filename
   //
   fileTarget.remove(0);
-  if ((_osServiceOptions.getOption(configSettingLogDir.c_str(), fileTarget) != OS_SUCCESS) ||
+  if ((_pOsServiceOptions->getOption(configSettingLogDir.c_str(), fileTarget) != OS_SUCCESS) ||
     fileTarget.isNull() || !OsFileSystem::exists(fileTarget))
   {
     bSpecifiedDirError = !fileTarget.isNull();
@@ -309,7 +314,7 @@ void SipXApplication::initLoggerByConfigurationFile()
   //
   // Get/Apply Log Level
   //
-  SipXecsService::setLogPriority(_osServiceOptions.getOsConfigDb(), _appData._configPrefix.c_str());
+  SipXecsService::setLogPriority(_pOsServiceOptions->getOsConfigDb(), _appData._configPrefix.c_str());
   Os::Logger::instance().setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
   Os::LoggerHelper::instance().initialize(fileTarget);
 
@@ -317,7 +322,7 @@ void SipXApplication::initLoggerByConfigurationFile()
   // Get/Apply console logging
   //
   UtlBoolean bConsoleLoggingEnabled = false;
-  if ((_osServiceOptions.getOption(configSettingLogConsole.c_str(), consoleLogging) == OS_SUCCESS))
+  if ((_pOsServiceOptions->getOption(configSettingLogConsole.c_str(), consoleLogging) == OS_SUCCESS))
   {
     consoleLogging.toUpper();
     if (consoleLogging == "ENABLE")
@@ -344,12 +349,12 @@ void SipXApplication::initLoggerByCommandLine(bool& initialized)
 {
   std::string logFile;
   int logLevel = PRI_NOTICE;
-  if (_osServiceOptions.hasOption(OsServiceOptions::logFileOption().pName))
+  if (_pOsServiceOptions->hasOption(OsServiceOptions::logFileOption().pName))
   {
-    if (_osServiceOptions.getOption(OsServiceOptions::logFileOption().pName, logFile) && !logFile.empty())
+    if (_pOsServiceOptions->getOption(OsServiceOptions::logFileOption().pName, logFile) && !logFile.empty())
     {
-      if (_osServiceOptions.hasOption(OsServiceOptions::logLevelOption().pName))
-        _osServiceOptions.getOption(OsServiceOptions::logLevelOption().pName, logLevel, logLevel);
+      if (_pOsServiceOptions->hasOption(OsServiceOptions::logLevelOption().pName))
+        _pOsServiceOptions->getOption(OsServiceOptions::logLevelOption().pName, logLevel, logLevel);
 
       logLevel = normalizeLogLevel(logLevel);
 

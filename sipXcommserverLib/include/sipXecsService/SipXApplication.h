@@ -55,6 +55,7 @@ class SipXApplication
      * @param argc - Number of arguments
      * @param argv - Array of command line arguments
      * @param appData - Reference to SipXApplicationData initialization structure
+     * @param pOptions - A pointer to an external OsServiveOptions instance
      * @return - True in case of success or exits with error code 1 otherwise
      */
     bool init(int argc, char* argv[], const SipXApplicationData& appData);
@@ -104,6 +105,9 @@ class SipXApplication
     // Returns a reference to OsServiceOptions class
     OsServiceOptions& getConfig();
 
+    // Set a custom config instead of the internal instance
+    void setConfig(OsServiceOptions* pConfig, bool autodelete);
+
     // Returns a reference to _nodeFilePath string
     const std::string& getNodeFilePath();
 
@@ -125,13 +129,13 @@ class SipXApplication
      * @param argc - Number of arguments
      * @param argv - Array of command line arguments
      */
-    void doDaemonize(int argc, char** pArgv);
+    static void doDaemonize(int argc, char** pArgv);
 
     static int normalizeLogLevel(int logLevel);
 
   private:
     SipXApplication();                                       // SipXApplication constructor
-    ~SipXApplication() {}                                    // SipXApplication destructor
+    ~SipXApplication();                                      // SipXApplication destructor
     SipXApplication(const SipXApplication&);                 // Copy constructor disabled
     SipXApplication& operator=(const SipXApplication&);      // Assignment operator disabled
 
@@ -193,12 +197,13 @@ class SipXApplication
       */
     void handleSIGUSR2();
 
-    OsServiceOptions _osServiceOptions; // Configuration Database (used for OsSysLog)
+    OsServiceOptions* _pOsServiceOptions; // Configuration Database (used for OsSysLog)
     SipXApplicationData _appData;       // SipXApplicationData structure
     bool _initialized;                  // Is set true after this class is initilized by init function
     std::string _nodeFilePath;          // Node file path
     int _argc;
     char** _argv;
+    bool _autoDeleteConfig;
   };
 
 inline SipXApplication& SipXApplication::instance()
@@ -210,7 +215,14 @@ inline SipXApplication& SipXApplication::instance()
 
 inline OsServiceOptions& SipXApplication::getConfig()
 {
-  return _osServiceOptions;
+  return *_pOsServiceOptions;
+}
+
+inline void SipXApplication::setConfig(OsServiceOptions* pConfig, bool autodelete)
+{
+  delete _pOsServiceOptions;
+ _autoDeleteConfig = autodelete;
+  _pOsServiceOptions = pConfig;
 }
 
 
@@ -222,9 +234,17 @@ inline const std::string& SipXApplication::getNodeFilePath()
 inline SipXApplication::SipXApplication()
   : _initialized(false),
     _argc(0),
-    _argv(0)
+    _argv(0),
+    _autoDeleteConfig(true)
 {
-};
+  _pOsServiceOptions = new OsServiceOptions();
+}
+
+inline SipXApplication::~SipXApplication()
+{
+  if (_autoDeleteConfig)
+    delete _pOsServiceOptions;
+}
 
 // reload config on sighup
 inline void SipXApplication::handleSIGHUP()

@@ -8,8 +8,8 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
-#ifndef _REGEX_H
-#define _REGEX_H
+#ifndef _UTL_REGEX_H
+#define _UTL_REGEX_H
 
 #include <string.h>
 #include <pcre.h>
@@ -469,4 +469,4 @@ class RegEx : public UtlContainableAtomic
   const char * * matchlist;// string cache for Match
 };
 
-#endif // _REGEX_H
+#endif // _UTL_REGEX_H
