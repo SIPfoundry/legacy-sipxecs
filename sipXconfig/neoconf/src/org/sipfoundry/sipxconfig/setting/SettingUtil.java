@@ -147,7 +147,7 @@ public final class SettingUtil {
      */
     public static void writeLog4jSetting(Setting settings, File dir,
             String fileName) throws IOException {
-        writeLog4jSetting(settings, dir, fileName, true, SipFoundryLayout.LOG4J_SIPFOUNDRY_KEY);
+        writeLog4jSetting(settings, dir, fileName, SipFoundryLayout.LOG4J_SIPFOUNDRY_KEY);
     }
 
     /**
@@ -155,15 +155,6 @@ public final class SettingUtil {
      */
     public static void writeLog4jSetting(Setting settings, File dir,
             String fileName, String logLevelKey) throws IOException {
-        writeLog4jSetting(settings, dir, fileName, true, logLevelKey);
-    }
-
-    /**
-     * Writes log4j log level in a specified file and, if needed,
-     * removes the log.level setting from the settings object.
-     */
-    public static void writeLog4jSetting(Setting settings, File dir,
-            String fileName, boolean removeLogLevelSetting, String logLevelKey) throws IOException {
         Setting logLevelSettings = settings.getSetting("log.level");
         File f = new File(dir, fileName);
         Writer wtr = new FileWriter(f);
@@ -172,9 +163,6 @@ public final class SettingUtil {
             String log4jLogLevel = SipFoundryLayout.mapSipFoundry2log4j(logLevelSettings.getValue()).toString();
             logLevelSettings.setValue(log4jLogLevel);
             config.writeWithKey(logLevelKey, logLevelSettings);
-            if (removeLogLevelSetting) {
-                settings.getValues().remove(logLevelSettings);
-            }
         } finally {
             IOUtils.closeQuietly(wtr);
         }

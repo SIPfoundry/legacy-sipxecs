@@ -74,6 +74,7 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
         Domain domain = manager.getDomainManager().getDomain();
         List<Location> mwiLocations = manager.getFeatureManager().getLocationsForEnabledFeature(Mwi.FEATURE);
         int mwiPort = m_mwi.getSettings().getHttpApiPort();
+        Setting ivrSettings = settings.getSettings().getSetting("ivr");
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = featureManager.isFeatureEnabled(Ivr.FEATURE, location);
@@ -83,7 +84,6 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
                 continue;
             }
 
-            Setting ivrSettings = settings.getSettings().getSetting("ivr");
             String log4jFileName = "log4j-ivr.properties.part";
             SettingUtil.writeLog4jSetting(ivrSettings, dir, log4jFileName);
 

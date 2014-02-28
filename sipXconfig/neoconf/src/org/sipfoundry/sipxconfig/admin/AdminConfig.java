@@ -40,14 +40,14 @@ public class AdminConfig implements ConfigProvider {
         }
 
         Set<Location> locations = request.locations(manager);
+        AdminSettings settings = m_adminContext.getSettings();
+        Setting adminSettings = settings.getSettings().getSetting(m_adminSettingsKey);
         for (Location l : locations) {
             if (!l.isPrimary()) {
                 continue;
             }
             File dir = manager.getLocationDataDirectory(l);
-            AdminSettings settings = m_adminContext.getSettings();
 
-            Setting adminSettings = settings.getSettings().getSetting(m_adminSettingsKey);
             String log4jFileName = "log4j.properties.part";
             SettingUtil.writeLog4jSetting(adminSettings, dir, log4jFileName);
 

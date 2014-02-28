@@ -52,6 +52,7 @@ public class NatConfiguration implements ConfigProvider {
         boolean relayEnabled = manager.getFeatureManager().isFeatureEnabled(NatTraversal.FEATURE);
         Set<Location> locations = request.locations(manager);
         NatSettings settings = m_nat.getSettings();
+        Setting natTraversalSetting = settings.getSettings().getSetting("relay-config");
         Address proxyTcp = manager.getAddressManager().getSingleAddress(ProxyManager.TCP_ADDRESS);
         Address proxyTls = manager.getAddressManager().getSingleAddress(ProxyManager.TLS_ADDRESS);
         SbcRoutes routes = m_sbcManager.getRoutes();
@@ -61,7 +62,6 @@ public class NatConfiguration implements ConfigProvider {
             boolean enabled = (relayEnabled && proxyEnabled);
             if (enabled) {
 
-                Setting natTraversalSetting = settings.getSettings().getSetting("relay-config");
                 String log4jFileName = "log4j-relay.properties.part";
                 SettingUtil.writeLog4jSetting(natTraversalSetting, dir, log4jFileName);
 

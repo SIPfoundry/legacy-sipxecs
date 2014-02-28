@@ -63,6 +63,7 @@ public class ImBotConfiguration implements ConfigProvider {
         Address imApi = manager.getAddressManager().getSingleAddress(ImManager.XMLRPC_ADDRESS);
         Domain domain = manager.getDomainManager().getDomain();
         ImBotSettings settings = m_imbot.getSettings();
+        Setting imbotSettings = settings.getSettings().getSetting("imbot");
         Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
@@ -73,7 +74,6 @@ public class ImBotConfiguration implements ConfigProvider {
                 continue;
             }
 
-            Setting imbotSettings = settings.getSettings().getSetting("imbot");
             String log4jFileName = "log4j-imbot.properties.part";
             SettingUtil.writeLog4jSetting(imbotSettings, dir, log4jFileName);
 

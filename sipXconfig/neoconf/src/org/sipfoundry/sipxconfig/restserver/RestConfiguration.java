@@ -49,6 +49,7 @@ public class RestConfiguration implements ConfigProvider {
         }
 
         RestServerSettings settings = m_restServer.getSettings();
+        Setting restSettings = settings.getSettings().getSetting(m_restSettingKey);
         Address sipxcdrApi = manager.getAddressManager().getSingleAddress(AdminContext.SIPXCDR_DB_ADDRESS);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
@@ -58,7 +59,6 @@ public class RestConfiguration implements ConfigProvider {
                 continue;
             }
 
-            Setting restSettings = settings.getSettings().getSetting(m_restSettingKey);
             String log4jFileName = "log4j-rest.properties.part";
             SettingUtil.writeLog4jSetting(restSettings, dir, log4jFileName);
 

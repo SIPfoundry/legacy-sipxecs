@@ -47,8 +47,9 @@ public class AuthCodesConfig implements ConfigProvider, PostConfigListener {
         Set<Location> locations = request.locations(manager);
         Address fs = manager.getAddressManager().getSingleAddress(FreeswitchFeature.ACC_EVENT_ADDRESS);
         Domain domain = manager.getDomainManager().getDomain();
+        AuthCodeSettings settings = m_authCodes.getSettings();
+        Setting acccodeSettings = settings.getSettings().getSetting(m_accCodeSettingKeyString);
         for (Location location : locations) {
-            AuthCodeSettings settings = m_authCodes.getSettings();
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(AuthCodes.FEATURE, location);
             ConfigUtils.enableCfengineClass(dir, "sipxacccode.cfdat", enabled, "sipxacccode");
@@ -56,7 +57,6 @@ public class AuthCodesConfig implements ConfigProvider, PostConfigListener {
                 continue;
             }
 
-            Setting acccodeSettings = settings.getSettings().getSetting(m_accCodeSettingKeyString);
             String log4jFileName = "log4j-acccode.properties.part";
             SettingUtil.writeLog4jSetting(acccodeSettings, dir, log4jFileName);
 

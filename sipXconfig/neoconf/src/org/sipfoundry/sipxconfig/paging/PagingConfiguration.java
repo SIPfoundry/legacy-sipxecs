@@ -40,6 +40,7 @@ public class PagingConfiguration implements ConfigProvider {
 
         Set<Location> locations = request.locations(manager);
         PagingSettings settings = m_pagingContext.getSettings();
+        Setting pagingSettings = settings.getSettings().getSetting("page-config");
         String domainName = manager.getDomainManager().getDomainName();
         List<PagingGroup> groups = m_pagingContext.getPagingGroups();
         for (Location location : locations) {
@@ -50,7 +51,6 @@ public class PagingConfiguration implements ConfigProvider {
                 continue;
             }
 
-            Setting pagingSettings = settings.getSettings().getSetting("page-config");
             String log4jFileName = "log4j-page.properties.part";
             SettingUtil.writeLog4jSetting(pagingSettings, dir, log4jFileName);
 
