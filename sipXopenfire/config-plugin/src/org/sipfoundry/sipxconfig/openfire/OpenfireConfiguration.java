@@ -87,7 +87,7 @@ public class OpenfireConfiguration implements ConfigProvider {
             
             Setting openfireSettings = settings.getSettings().getSetting("settings");
             String log4jFileName = "log4j-openfire.properties.part";
-            SettingUtil.writeLog4jSetting(openfireSettings, dir, log4jFileName, false, SipFoundryLayout.LOG4J_SIPFOUNDRY_KEY);
+            SettingUtil.writeLog4jSetting(openfireSettings, dir, log4jFileName, SipFoundryLayout.LOG4J_SIPFOUNDRY_KEY);
 
             File f = new File(dir, "sipx.properties.part");
             if (!f.exists()) {
