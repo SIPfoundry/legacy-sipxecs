@@ -1,0 +1,16 @@
+hosts:
+   1:
+      host: 1.1.1.1
+      backup:
+         archive.tar.gz: backup
+   2:
+      host: 2.2.2.2
+      restore:
+         archive.tar.gz: restore
+plan: ftp
+max: 20
+settings:
+   ftp:
+      url: ftp://ftp.example.org
+      user: joe
+      password: xxx

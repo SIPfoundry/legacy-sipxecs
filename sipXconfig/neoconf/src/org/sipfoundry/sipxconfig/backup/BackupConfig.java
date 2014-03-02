@@ -111,14 +111,27 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
         config.startStruct("hosts");
         for (Location host : hosts) {
             Collection<ArchiveDefinition> possibleDefIds = m_backupManager.getArchiveDefinitions(host, plan, settings);
+            final BackupRestore execBackupRestore = new BackupRestore();
+
             Collection<ArchiveDefinition> defIds = CollectionUtils.select(possibleDefIds, new Predicate() {
                 @Override
                 public boolean evaluate(Object arg0) {
-                    return selectedDefIds.contains(((ArchiveDefinition) arg0).getId());
+                    ArchiveDefinition def = (ArchiveDefinition) arg0;
+                    //at least one backup command
+                    if (!execBackupRestore.isBackup() && !StringUtils.isEmpty(def.getBackupCommand())) {
+                        execBackupRestore.setBackup(true);
+                    }
+                    //at least one restore command
+                    if (!execBackupRestore.isRestore() && !StringUtils.isEmpty(def.getRestoreCommand())) {
+                        execBackupRestore.setRestore(true);
+                    }
+                    return selectedDefIds.contains((def).getId());
                 }
             });
-            if (!defIds.isEmpty()) {
-                writeHostDefinitions(config, host, defIds);
+            //write host definitions if we have:
+            //at least one definition id and at least one backup/restore command to execute
+            if (!defIds.isEmpty() && (execBackupRestore.isBackup() || execBackupRestore.isRestore())) {
+                writeHostDefinitions(config, host, defIds, execBackupRestore);
             }
         }
         config.endStruct(); //hosts
@@ -136,21 +149,27 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
         config.writeList(type.toString() + "_backup_schedule", crons);
     }
 
-    void writeHostDefinitions(YamlConfiguration config, Location host, Collection<ArchiveDefinition> defs)
-        throws IOException {
+    void writeHostDefinitions(YamlConfiguration config, Location host, Collection<ArchiveDefinition> defs,
+        BackupRestore execBackupRestore) throws IOException {
+
         config.startStruct(host.getId().toString());
         config.write("host", host.getAddress());
-        config.startStruct("backup");
-        for (ArchiveDefinition def : defs) {
-            writeCommand(config, def, def.getBackupCommand());
+        //write backup struct if at least one backup command is available
+        if (execBackupRestore.isBackup()) {
+            config.startStruct("backup");
+            for (ArchiveDefinition def : defs) {
+                writeCommand(config, def, def.getBackupCommand());
+            }
+            config.endStruct();
         }
-        config.endStruct();
-
-        config.startStruct(RESTORE);
-        for (ArchiveDefinition def : defs) {
-            writeCommand(config, def, def.getRestoreCommand());
+        //write restore struct if at least one restore command is available
+        if (execBackupRestore.isRestore()) {
+            config.startStruct(RESTORE);
+            for (ArchiveDefinition def : defs) {
+                writeCommand(config, def, def.getRestoreCommand());
+            }
+            config.endStruct();
         }
-        config.endStruct();
 
         config.endStruct();
     }
@@ -195,5 +214,22 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
         // enabling/disabling features can impact backup metadata
         m_dirty = true;
+    }
+    public static class BackupRestore {
+        private boolean m_backup;
+        private boolean m_restore;
+
+        public boolean isBackup() {
+            return m_backup;
+        }
+        public void setBackup(boolean backup) {
+            m_backup = backup;
+        }
+        public boolean isRestore() {
+            return m_restore;
+        }
+        public void setRestore(boolean restore) {
+            m_restore = restore;
+        }
     }
 }
