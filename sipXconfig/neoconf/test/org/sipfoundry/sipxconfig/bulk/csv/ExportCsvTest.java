@@ -71,7 +71,7 @@ public class ExportCsvTest extends TestCase {
         assertEquals(
                 "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\","
                         + "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\","
-                        + "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
+                        + "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -121,7 +121,7 @@ public class ExportCsvTest extends TestCase {
         assertEquals(
                 "\"jlennon\",\"1234\",\"f09e0cfc1dc0f8852ad731e79230225b\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"jlennon@gmail.com\",\"ug1 ug2 ug3\",\"665544332211\",\"testPhoneModel\",\"phonegroup1 phonegroup2 phonegroup3, phonegroup4\",\"phone description\",\"imid\","
                         + "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\","
-                        + "\"standard\",\"1\",\"MEDIUM\",\"true\",\"0\",\"FULL\",\"false\",\"true\",\"\",\"false\",\"\",\"\"\n",
+                        + "\"standard\",\"1\",\"MEDIUM\",\"true\",\"0\",\"FULL\",\"false\",\"true\",\"\",\"false\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -148,7 +148,7 @@ public class ExportCsvTest extends TestCase {
         assertEquals(
                 "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\",\"\""
                         + ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\","
-                        + "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
+                        + "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -161,7 +161,7 @@ public class ExportCsvTest extends TestCase {
         assertEquals(
                 "\"jlennon\",\"1234\",\"f09e0cfc1dc0f8852ad731e79230225b\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\""
                         + ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\","
-                        + "\"standard\",\"1\",\"MEDIUM\",\"true\",\"0\",\"FULL\",\"false\",\"true\",\"\",\"false\",\"\",\"\"\n",
+                        + "\"standard\",\"1\",\"MEDIUM\",\"true\",\"0\",\"FULL\",\"false\",\"true\",\"\",\"false\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -218,7 +218,7 @@ public class ExportCsvTest extends TestCase {
                         + "\"001122\",\"112233\",\"223344\",\"33445566\",\"44556677\",\"alternate@gmail.com\",\"alternateImId\",\"location\","
                         + "\"home street\",\"home city\",\"home state\",\"home country\",\"34001\","
                         + "\"office street\",\"office city\",\"office state\",\"office country\",\"34342\",\"office designation\",\"Twitter Name\",\"Linkedin Name\",\"Facebook Name\",\"Xing Name\","
-                        + "\"standard\",\"1\",\"MEDIUM\",\"true\",\"0\",\"FULL\",\"false\",\"true\",\"\",\"false\",\"\",\"\"\n",
+                        + "\"standard\",\"1\",\"MEDIUM\",\"true\",\"0\",\"FULL\",\"false\",\"true\",\"\",\"false\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 }

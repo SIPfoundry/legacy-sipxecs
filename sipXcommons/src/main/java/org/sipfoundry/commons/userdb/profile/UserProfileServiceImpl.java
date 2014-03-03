@@ -20,6 +20,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -43,6 +44,10 @@ public class UserProfileServiceImpl implements UserProfileService {
     private static final String USER_PROFILE_COLLECTION = "userProfile";
     private static final String USER_ID = "_id";
     private static final String IM_ID = "m_imId";
+    private static final String AUTH_ACCOUNT_NAME = "m_authAccountName";
+    private static final String PRIMARY_EMAIL = "m_emailAddress";
+    private static final String ALTERNATE_EMAIL = "m_alternateEmailAddress";
+    private static final String ALIASES_EMAIL_SET = "m_emailAddressAliasesSet";
     private static final String USERNAME = "m_userName";
     private static final String BRANCH_NAME = "m_branchName";
     private static final String BRANCH_ADDRESS = "m_branchAddress";
@@ -126,6 +131,49 @@ public class UserProfileServiceImpl implements UserProfileService {
                     USER_PROFILE_COLLECTION);
         }
         return null;
+    }
+    
+    @Override
+    public List<UserProfile> getUserProfileByAuthAccountName(String authAccountName) {
+        if (authAccountName != null) {
+            return m_template.find(new Query(Criteria.where(AUTH_ACCOUNT_NAME).is(authAccountName.toLowerCase())),
+                UserProfile.class,
+                    USER_PROFILE_COLLECTION);
+        }
+        return null;
+    }
+    
+    @Override
+    public List<UserProfile> getUserProfileByEmail(String email) {
+        if (email != null) {
+            Query query = new Query(
+                new Criteria().orOperator(
+                    Criteria.where(PRIMARY_EMAIL).is(email.toLowerCase()),
+                    Criteria.where(ALTERNATE_EMAIL).is(email.toLowerCase()), 
+                    Criteria.where(ALIASES_EMAIL_SET).is(email.toLowerCase())));                        
+            return m_template.find(query, UserProfile.class,
+                    USER_PROFILE_COLLECTION);
+        }
+        return null;
+    }
+    @Override
+    public List<Integer> getUserIdsByAuthAccountName(String authAccountName) {
+        List<Integer> ids = new ArrayList<Integer>();
+        List<UserProfile> userProfiles = getUserProfileByAuthAccountName(authAccountName);
+        for (UserProfile userProfile : userProfiles) {
+            ids.add(Integer.valueOf(userProfile.getUserId()));
+        }
+        return ids;
+    }
+    
+    @Override
+    public List<Integer> getUserIdsByEmail(String email) {
+        List<Integer> ids = new ArrayList<Integer>();
+        List<UserProfile> userProfiles = getUserProfileByEmail(email);
+        for (UserProfile userProfile : userProfiles) {
+            ids.add(Integer.valueOf(userProfile.getUserId()));
+        }
+        return ids;
     }
 
     @Override

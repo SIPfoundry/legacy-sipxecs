@@ -735,6 +735,22 @@ public abstract class AbstractUser extends BeanWithGroups {
         }
     }
 
+    public String getAuthAccountName() {
+        return m_userProfile.getAuthAccountName();
+    }
+
+    public void setAuthAccountName(String authAccountName) {
+        m_userProfile.setAuthAccountName(authAccountName);
+    }
+
+    public String getEmailAddressAliases() {
+        return m_userProfile.getEmailAddressAliases();
+    }
+
+    public void setEmailAddressAliases(String emailAddressAliases) {
+        m_userProfile.setEmailAddressAliases(emailAddressAliases);
+    }
+
     public Date getLastImportedDate() {
         return m_userProfile.getLastImportedDate();
     }

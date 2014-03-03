@@ -19,6 +19,15 @@
     <tr jwcid="userNamePanel">
       <input jwcid="userName" />
     </tr>
+    <tr jwcid="@common/FieldPanel" id="authAccountName"
+    	for="user:authAccountName"
+        field="component:authAccountName"
+        label="message:label.authAccountName"
+        description="message:description.authAccountName">
+    	<input jwcid="authAccountName@PropertySelection" id="user: authAccountName", value="ognl:attrMap.attribute['userProfile.authAccountName']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.authAccountName"/>
+    </tr>     
     <tr jwcid="firstNamePanel">
       <input jwcid="firstName" />
     </tr>
@@ -138,6 +147,15 @@
     	<input jwcid="alternateEmail@PropertySelection" id="user:alternateEmail", value="ognl:attrMap.attribute['userProfile.alternateEmailAddress']"
     		model="ognl:attributesOptionalSelectionModel"
     		displayName="message:label.alternateEmail"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="emailAddressAliases"
+    	for="user:emailAddressAliases"
+        field="component:emailAddressAliases"
+        label="message:label.emailAddressAliases"
+        description="message:description.emailAddressAliases">
+    	<input jwcid="emailAddressAliases@PropertySelection" id="user: emailAddressAliases", value="ognl:attrMap.attribute['userProfile.emailAddressAliases']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.emailAddressAliases"/>
     </tr>
     <tr jwcid="@common/FieldPanel" id="alternateImIdPanel"
     	for="user:alternateImId"

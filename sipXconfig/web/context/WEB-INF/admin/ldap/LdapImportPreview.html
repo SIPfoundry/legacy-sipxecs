@@ -14,6 +14,14 @@
         <tr jwcid="userIdPanel" for="user:userId">
           <input jwcid="userId" id="user:userId" type="text" />
         </tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="authAccountName"
+          field="component:authAccountName"
+          label="message:label.authAccountName">
+          <td jwcid="authAccountName@TextField"
+            value="ognl:user.userProfile.authAccountName"
+            displayName="message:label.authAccountName" disabled="true"/>
+		</tr>        
         <tr jwcid="lastNamePanel" for="user:lastName">
           <input jwcid="lastName" id="user:lastName" type="text" />
         </tr>
@@ -22,7 +30,7 @@
         </tr>
         <tr jwcid="emailPanel" for="user:email">
           <input jwcid="email" id="user:emailAddress" type="text" />
-        </tr>
+        </tr>        
 		<tr jwcid="sipPasswordPanel@common/FieldPanel"
 		    field="component:sipPassword"
 		    label="message:label.sipPassword">
@@ -120,6 +128,14 @@
             value="ognl:user.userProfile.alternateEmailAddress"
             displayName="message:label.alternateEmailAddress" disabled="true"/>
 		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="emailAddressAliases"
+          field="component:emailAddressAliases"
+          label="message:label.emailAddressAliases">
+          <td jwcid="emailAddressAliases@TextField"
+            value="ognl:user.userProfile.emailAddressAliases"
+            displayName="message:label.emailAddressAliases" disabled="true"/>
+		</tr>		
 		<tr jwcid="@common/FieldPanel"
 		  for="alternateImId"
           field="component:alternateImId"

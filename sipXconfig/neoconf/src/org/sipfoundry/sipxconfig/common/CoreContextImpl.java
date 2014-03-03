@@ -348,6 +348,26 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     @Override
+    public List<User> loadUsersByAuthAccountName(String authAccountName) {
+        List<User> users = new ArrayList<User>();
+        List<Integer> userIds = getUserProfileService().getUserIdsByAuthAccountName(authAccountName);
+        for (Integer userId : userIds) {
+            users.add(loadUser(userId));
+        }
+        return users;
+    }
+
+    @Override
+    public List<User> loadUsersByEmail(String email) {
+        List<User> users = new ArrayList<User>();
+        List<Integer> userIds = getUserProfileService().getUserIdsByEmail(email);
+        for (Integer userId : userIds) {
+            users.add(loadUser(userId));
+        }
+        return users;
+    }
+
+    @Override
     public List<User> loadUserByAdmin() {
         return getHibernateTemplate().findByNamedQuery(USER_ADMIN);
     }

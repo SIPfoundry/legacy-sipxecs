@@ -25,7 +25,7 @@ public class Util {
     private static final Pattern MD5_HASH_PATTERN = Pattern.compile("(?i)(?<![a-z0-9])[a-f0-9]{32}(?![a-z0-9])");
 
     public static String retrieveUsername(String loginEntry) {
-        String[] userArray = split(loginEntry, '@');
+        String[] userArray = split(loginEntry, '/');
         String userLoginName = loginEntry;
         if (userArray.length == 2) {
             userLoginName = userArray[0];
@@ -39,7 +39,7 @@ public class Util {
     }
 
     public static String retrieveDomain(String loginEntry) {
-        String[] userArray = split(loginEntry, '@');
+        String[] userArray = split(loginEntry, '/');
         String domain = null;
         if (userArray.length == 2) {
             domain = userArray[1];

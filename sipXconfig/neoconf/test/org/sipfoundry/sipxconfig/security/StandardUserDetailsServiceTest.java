@@ -14,12 +14,14 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
 import junit.framework.TestCase;
 
 import org.sipfoundry.commons.userdb.profile.UserProfile;
+import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -68,24 +70,28 @@ public class StandardUserDetailsServiceTest extends TestCase {
 
     public void testLoadUserByConfiguredImId() {
         CoreContext coreContext = createMock(CoreContext.class);
+        AdminContext adminContext = createMock(AdminContext.class);
+
         UserDetails details = null;
         try {
-            details = getUserDetailsTestService(coreContext, false).loadUserByUsername(USER_IM_ID);
+            details = getUserDetailsTestService(coreContext, adminContext, false).loadUserByUsername(USER_IM_ID);
             fail();
         } catch (UsernameNotFoundException e) {
             assertTrue(e.getMessage().contains(USER_IM_ID));
         }
 
-        verify(coreContext);
+        verify(coreContext, adminContext);
 
         CoreContext coreContext1 = createMock(CoreContext.class);
-        details = getUserDetailsTestService(coreContext1, true).loadUserByUsername(USER_IM_ID);
+        AdminContext adminContext1 = createMock(AdminContext.class);
+        details = getUserDetailsTestService(coreContext1, adminContext1, true).loadUserByUsername(USER_IM_ID);
         assertEquals(USER_IM_ID, details.getUsername());
 
-        verify(coreContext);
+        verify(coreContext, adminContext);
     }
 
-    private StandardUserDetailsService getUserDetailsTestService(CoreContext ctx, boolean imEnabled) {
+    private StandardUserDetailsService getUserDetailsTestService(CoreContext ctx, AdminContext adminCtx, 
+        boolean imEnabled) {
         User u = new User() {
             @Override
             public boolean hasPermission(PermissionName permission) {
@@ -102,14 +108,26 @@ public class StandardUserDetailsServiceTest extends TestCase {
 
         StandardUserDetailsService uds = new StandardUserDetailsService();
         uds.setCoreContext(ctx);
+        uds.setAdminContext(adminCtx);
 
         ctx.loadUserByUserNameOrAlias(USER_IM_ID);
         expectLastCall().andReturn(null);
-
+        
         ctx.loadUserByConfiguredImId(USER_IM_ID);
-        expectLastCall().andReturn(u);
-
-        replay(ctx);
+        expectLastCall().andReturn(u);   
+        
+        ctx.loadUsersByAuthAccountName(USER_IM_ID);
+        expectLastCall().andReturn(new ArrayList<User>());
+        
+        ctx.loadUsersByEmail(USER_IM_ID);
+        expectLastCall().andReturn(new ArrayList<User>());
+        
+        adminCtx.isAuthAccName();
+        expectLastCall().andReturn(true);
+        
+        adminCtx.isAuthEmailAddress();
+        expectLastCall().andReturn(true);        
+        replay(ctx, adminCtx);
         return uds;
     }
 
@@ -145,16 +163,30 @@ public class StandardUserDetailsServiceTest extends TestCase {
 
     public void testNoUser() {
         CoreContext coreContext = createMock(CoreContext.class);
+        AdminContext adminContext = createMock(AdminContext.class);
         StandardUserDetailsService uds = new StandardUserDetailsService();
         uds.setCoreContext(coreContext);
+        uds.setAdminContext(adminContext);
 
         coreContext.loadUserByUserNameOrAlias(USER_NAME);
         expectLastCall().andReturn(null);
 
         coreContext.loadUserByConfiguredImId(USER_NAME);
         expectLastCall().andReturn(null);
+        
+        coreContext.loadUsersByAuthAccountName(USER_NAME);
+        expectLastCall().andReturn(new ArrayList<User>());
+        
+        coreContext.loadUsersByEmail(USER_NAME);
+        expectLastCall().andReturn(new ArrayList<User>()); 
+        
+        adminContext.isAuthAccName();
+        expectLastCall().andReturn(true);
+        
+        adminContext.isAuthEmailAddress();
+        expectLastCall().andReturn(true);
 
-        replay(coreContext);
+        replay(coreContext, adminContext);
 
         try {
             uds.loadUserByUsername(USER_NAME);

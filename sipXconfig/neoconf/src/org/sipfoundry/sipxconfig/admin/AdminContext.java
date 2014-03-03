@@ -45,4 +45,8 @@ public interface AdminContext {
     boolean isDisable();
 
     boolean isDelete();
+
+    boolean isAuthAccName();
+
+    boolean isAuthEmailAddress();
 }

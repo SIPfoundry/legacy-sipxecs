@@ -44,6 +44,14 @@ public interface UserProfileService {
     String getUsernameByImId(String imId);
 
     UserProfile getUserProfileByImId(String imId);
+    
+    List<UserProfile> getUserProfileByAuthAccountName(String authAccountName);
+    
+    List<UserProfile> getUserProfileByEmail(String email);
+    
+    List<Integer> getUserIdsByAuthAccountName(String authAccountName);
+    
+    List<Integer> getUserIdsByEmail(String email);    
 
     InputStream getAvatar(String userName);
 

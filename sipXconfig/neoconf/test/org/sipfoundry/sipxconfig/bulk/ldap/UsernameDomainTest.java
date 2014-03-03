@@ -23,8 +23,8 @@ import junit.framework.TestCase;
 public class UsernameDomainTest extends TestCase {
 
     public void testRetrieveUsernameDomain() {
-        String username = retrieveUsername("joe@example.com");
-        String domain = retrieveDomain("joe@example.com");
+        String username = retrieveUsername("joe/example.com");
+        String domain = retrieveDomain("joe/example.com");
         assertEquals("joe", username);
         assertEquals("example.com", domain);
 

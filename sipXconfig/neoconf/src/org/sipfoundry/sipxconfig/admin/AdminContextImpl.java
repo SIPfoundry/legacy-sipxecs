@@ -206,6 +206,15 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         return getSettings().isDelete();
     }
 
+    @Override
+    public boolean isAuthAccName() {
+        return getSettings().isAuthAccName();
+    }
+
+    public boolean isAuthEmailAddress() {
+        return getSettings().isAuthEmailAddress();
+    }
+
     @Required
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;

@@ -18,10 +18,15 @@ package org.sipfoundry.sipxconfig.security;
 import static org.sipfoundry.commons.security.Util.retrieveDomain;
 import static org.sipfoundry.commons.security.Util.retrieveUsername;
 
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
 import org.sipfoundry.sipxconfig.common.AbstractUser;
+import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.DataAccessException;
 import org.springframework.util.Assert;
@@ -52,7 +57,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
     // ~ Instance fields
     // ================================================================================================
 
-
+    private static final Log LOG = LogFactory.getLog(DaoAuthenticationProvider.class);
 
     private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
 
@@ -113,12 +118,37 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
     protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
             throws AuthenticationException {
 
-        UserDetailsImpl loadedUser;
+        UserDetailsImpl loadedUser = null;
 
         String userLoginName = retrieveUsername(username);
         String domain = retrieveDomain(username);
         try {
             loadedUser = (UserDetailsImpl)getUserDetailsService().loadUserByUsername(userLoginName);
+        }
+        catch (DuplicateUserException dupEx) {
+            if (StringUtils.isEmpty(domain)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Duplicate user exception: " + dupEx.getMessage());
+                }
+                throw new AuthenticationServiceException(dupEx.getMessage());
+            } else {
+                List<User> users = dupEx.getUsers();
+                boolean loaded = false;
+                for (User user : users) {
+                    if (loaded && StringUtils.equals(user.getUserDomain(), domain)) {
+                        String message = "duplicate user and domain";
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Duplicate user exception: " + message);
+                        }
+                        throw new AuthenticationServiceException(message);
+                    }
+                    if (!loaded && StringUtils.equals(user.getUserDomain(), domain)) {
+                        loadedUser = (UserDetailsImpl) ((AbstractUserDetailsService) getUserDetailsService()).
+                            createUserDetails(userLoginName, user);
+                        loaded = true;
+                    }
+                }
+            }
         }
         catch (DataAccessException repositoryProblem) {
             throw new AuthenticationServiceException(repositoryProblem.getMessage(), repositoryProblem);

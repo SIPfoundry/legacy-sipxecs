@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.bulk.ldap.AttrMap;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
@@ -109,10 +110,38 @@ public class ConfigurableLdapAuthenticationProvider extends AbstractUserDetailsA
             Authentication result = null;
             String username = retrieveUsername(userLoginName);
             String userDomain = retrieveDomain(userLoginName);
-            UserDetailsImpl loaddedUser = (UserDetailsImpl) m_userDetailsService.loadUserByUsername(username);
+            UserDetailsImpl loaddedUser = null;
+            try {
+                loaddedUser = (UserDetailsImpl) getUserDetailsService().loadUserByUsername(userLoginName);
+            } catch (DuplicateUserException dupEx) {
+                if (StringUtils.isEmpty(userDomain)) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Duplicate user exception: " + dupEx.getMessage());
+                    }
+                    throw new AuthenticationServiceException(dupEx.getMessage());
+                } else {
+                    List<User> users = dupEx.getUsers();
+                    boolean loaded = false;
+                    for (User user : users) {
+                        if (loaded && StringUtils.equals(user.getUserDomain(), userDomain)) {
+                            String message = "Duplicate user and domain";
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug(message);
+                            }
+                            throw new AuthenticationServiceException(message);
+                        }
+                        if (!loaded && StringUtils.equals(user.getUserDomain(), userDomain)) {
+                            loaddedUser = (UserDetailsImpl) ((AbstractUserDetailsService) getUserDetailsService()).
+                                createUserDetails(userLoginName, user);
+                            loaded = true;
+                        }
+                    }
+                }
+            }
             if (loaddedUser == null) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("userDetailsService didnt find any user " + username);
+                    LOG.debug("userDetailsService didnt find any user: " + username
+                        + "domain: " + StringUtils.defaultIfEmpty(userDomain, ""));
                 }
                 throw new AuthenticationServiceException("UserDetailsService returned null, which "
                         + "is an interface contract violation");

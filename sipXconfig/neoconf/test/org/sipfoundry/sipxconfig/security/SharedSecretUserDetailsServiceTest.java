@@ -14,10 +14,12 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -29,10 +31,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 public class SharedSecretUserDetailsServiceTest extends TestCase {
     private static final String USER_NAME = "Hjelje";
     private CoreContext m_coreContext;
+    private AdminContext m_adminContext;
     private DomainManager m_domainManager;
 
     public void setUp() {
         m_coreContext = createMock(CoreContext.class);
+        m_adminContext = createMock(AdminContext.class);
     }
 
     public void testLoadUserByUsername() {
@@ -47,11 +51,18 @@ public class SharedSecretUserDetailsServiceTest extends TestCase {
 
         SharedSecretUserDetailsService sharedSecretuds = new SharedSecretUserDetailsService();
         sharedSecretuds.setCoreContext(m_coreContext);
+        sharedSecretuds.setAdminContext(m_adminContext);
 
         m_coreContext.loadUserByUserNameOrAlias(USER_NAME);
         expectLastCall().andReturn(u);
-
-        replay(m_coreContext);
+        
+        m_adminContext.isAuthAccName();
+        expectLastCall().andReturn(true);
+        
+        m_adminContext.isAuthEmailAddress();
+        expectLastCall().andReturn(true);
+        
+        replay(m_coreContext, m_adminContext);
 
         // load the user details
         UserDetails details = sharedSecretuds.loadUserByUsername(USER_NAME);
@@ -102,14 +113,27 @@ public class SharedSecretUserDetailsServiceTest extends TestCase {
     public void testNoUser() {
         SharedSecretUserDetailsService sharedSecretuds = new SharedSecretUserDetailsService();
         sharedSecretuds.setCoreContext(m_coreContext);
+        sharedSecretuds.setAdminContext(m_adminContext);
 
         m_coreContext.loadUserByUserNameOrAlias(USER_NAME);
         expectLastCall().andReturn(null);
 
         m_coreContext.loadUserByConfiguredImId(USER_NAME);
         expectLastCall().andReturn(null);
-
-        replay(m_coreContext);
+        
+        m_coreContext.loadUsersByAuthAccountName(USER_NAME);
+        expectLastCall().andReturn(new ArrayList<User>());
+        
+        m_coreContext.loadUsersByEmail(USER_NAME);
+        expectLastCall().andReturn(new ArrayList<User>());
+        
+        m_adminContext.isAuthAccName();
+        expectLastCall().andReturn(true);
+        
+        m_adminContext.isAuthEmailAddress();
+        expectLastCall().andReturn(true);        
+        
+        replay(m_coreContext, m_adminContext);
 
         try {
             sharedSecretuds.loadUserByUsername(USER_NAME);

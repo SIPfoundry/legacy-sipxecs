@@ -22,6 +22,14 @@
       <tr jwcid="userIdPanel" for="user:userId">
         <input jwcid="userId" id="user:userId" type="text" autocomplete="off"/>
       </tr>
+      <tr jwcid="@common/FieldPanel" for="authAccountName"
+        field="component:authAccountName"
+        label="message:label.authAccountName"
+        description="message:desc.authAccountName">
+       <span jwcid="authAccountName@TextField" id="authAccountName" maxlength="255"
+         value="ognl:user.userProfile.authAccountName"
+         type="text" autocomplete="off"/>
+      </tr>      
       <tr jwcid="@common/FieldPanel" for="salutation"
         field="component:salutation"
         label="message:label.salutation">

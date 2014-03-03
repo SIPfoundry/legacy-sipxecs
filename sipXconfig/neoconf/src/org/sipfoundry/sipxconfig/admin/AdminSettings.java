@@ -33,6 +33,9 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
     private static final String LDAP_MANAGEMENT_DELETE = "ldap-management/delete";
     private static final String LDAP_MANAGEMENT_AGE = "ldap-management/age";
     private static final String LDAP_MANAGEMENT_PAGE_SIZE = "ldap-management/pageImportSize";
+    private static final String AUTHENTICATION_AUTH_ACC_NAME = "configserver-config/account-name";
+    private static final String AUTHENTICATION_EMAIL_ADDRESS = "configserver-config/email-address";
+
     private PasswordPolicy m_passwordPolicy;
 
     @Override
@@ -86,6 +89,22 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
 
     public void setDelete(boolean delete) {
         setSettingTypedValue(LDAP_MANAGEMENT_DELETE, delete);
+    }
+
+    public boolean isAuthAccName() {
+        return (Boolean) getSettingTypedValue(AUTHENTICATION_AUTH_ACC_NAME);
+    }
+
+    public void setAuthAccName(boolean authAccName) {
+        setSettingTypedValue(AUTHENTICATION_AUTH_ACC_NAME, authAccName);
+    }
+
+    public boolean isAuthEmailAddress() {
+        return (Boolean) getSettingTypedValue(AUTHENTICATION_EMAIL_ADDRESS);
+    }
+
+    public void setEmailAddress(boolean authEmailAddress) {
+        setSettingTypedValue(AUTHENTICATION_EMAIL_ADDRESS, authEmailAddress);
     }
 
     @Required

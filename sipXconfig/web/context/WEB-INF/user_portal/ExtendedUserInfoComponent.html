@@ -87,6 +87,14 @@
       value="ognl:userProfile.alternateEmailAddress"
       type="text" autocomplete="off"/>
     </tr>
+    <tr jwcid="@common/FieldPanel" for="emailAddressAliases"
+      field="component:emailAddressAliases"
+      label="message:label.emailAddressAliases"
+      description="message:desc.emailAddressAliases">
+    <span jwcid="emailAddressAliases@TextField" id="emailAddressAliases" maxlength="255"
+      value="ognl:userProfile.emailAddressAliases"
+      type="text" autocomplete="off"/>
+    </tr>    
     <tr jwcid="@common/FieldPanel" for="alternateImId"
       field="component:alternateImId"
       label="message:label.alternateImId">

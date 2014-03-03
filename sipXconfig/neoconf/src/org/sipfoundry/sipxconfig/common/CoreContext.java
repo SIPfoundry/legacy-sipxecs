@@ -108,6 +108,10 @@ public interface CoreContext extends DataObjectSource<User>, AliasOwner, Replica
 
     User loadUserByUserNameOrAlias(String userNameOrAlias);
 
+    List<User> loadUsersByAuthAccountName(String authAccountName);
+
+    List<User> loadUsersByEmail(String email);
+
     List<User> getSharedUsers();
 
     /**

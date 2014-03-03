@@ -15,7 +15,6 @@ import org.apache.commons.collections.Closure;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.bulk.csv.CsvRowInserter;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -30,7 +29,7 @@ public abstract class RowInserter<T> extends HibernateDaoSupport implements Clos
         FAILURE, SUCCESS, WARNING_PIN_RESET, WARNING_ALIAS_COLLISION;
     }
 
-    public static final Log LOG = LogFactory.getLog(CsvRowInserter.class);
+    public static final Log LOG = LogFactory.getLog(RowInserter.class);
 
     private JobContext m_jobContext;
 
