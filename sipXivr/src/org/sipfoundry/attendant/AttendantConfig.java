@@ -25,6 +25,7 @@ public class AttendantConfig extends ApplicationConfiguraton {
     private String m_id; // The ID of this attendant
     private String m_name; // The name of this attendant
     private String m_prompt; // The top level prompt
+    private String m_lang; // AA lang
     private List<AttendantMenuItem> m_menuItems = new LinkedList<AttendantMenuItem>();;
 
     public AttendantConfig() {
@@ -61,6 +62,14 @@ public class AttendantConfig extends ApplicationConfiguraton {
 
     public List<AttendantMenuItem> getMenuItems() {
         return m_menuItems;
+    }
+
+    public String getLang() {
+        return m_lang;
+    }
+
+    public void setLang(String lang) {
+        m_lang = lang;
     }
 
 }

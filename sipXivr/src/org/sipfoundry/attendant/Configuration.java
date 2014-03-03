@@ -136,6 +136,8 @@ public class Configuration {
                             parseInvalidResponse(next, c) ;
                         } else if (name.equals(prop = "onTransfer")) {
                             parseOnTransfer(next, c) ;
+                        } else if (name.equals(prop = "lang")) {
+                            c.setLang(next.getTextContent().trim());
                         }
                     }
                 }

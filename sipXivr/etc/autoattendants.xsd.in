@@ -20,6 +20,14 @@
 		</annotation>
 	</element>
 
+	<element name="lang" type="normalizedString">
+		<annotation>
+			<documentation>
+				Lang to be used when playing AA
+			</documentation>
+		</annotation>
+	</element>
+
 	<element name="prompt" type="normalizedString">
 		<annotation>
 			<documentation>

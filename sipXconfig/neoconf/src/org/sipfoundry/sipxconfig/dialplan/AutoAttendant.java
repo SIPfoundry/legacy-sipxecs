@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -54,6 +55,8 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject, Deploy
     private AttendantMenu m_menu = new AttendantMenu();
     private String m_systemId;
     private String m_promptsDirectory;
+    private String m_sysDirectory;
+    private String m_lang = LocalizationContext.DEFAULT;
 
     @Override
     protected Setting loadSettings() {
@@ -139,6 +142,18 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject, Deploy
         return m_menu;
     }
 
+    public String getLanguage() {
+        if (StringUtils.isEmpty(m_lang)) {
+            return LocalizationContext.DEFAULT;
+        }
+        return m_lang;
+    }
+
+    public void setLanguage(String lang) {
+        m_lang = lang;
+    }
+
+
     public void resetToFactoryDefault() {
         setDescription(null);
         m_menu.reset(isPermanent());
@@ -149,12 +164,27 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject, Deploy
         m_promptsDirectory = promptsDirectory;
     }
 
+    @Required
+    public void setSysDirectory(String sysDirectory) {
+        m_sysDirectory = sysDirectory;
+    }
+
     public String getPromptsDirectory() {
         return m_promptsDirectory;
     }
 
     public File getPromptFile() {
+        if (StringUtils.isNotBlank(m_lang) && !StringUtils.equals(m_lang, LocalizationContext.DEFAULT)) {
+            File localizedPrompt = new File(getLocaleSysDirectory(), m_prompt);
+            if (localizedPrompt.exists()) {
+                return localizedPrompt;
+            }
+        }
         return new File(m_promptsDirectory, m_prompt);
+    }
+
+    private String getLocaleSysDirectory() {
+        return String.format("%s/stdprompts_%s", m_sysDirectory, m_lang);
     }
 
     /**

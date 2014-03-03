@@ -457,8 +457,9 @@
     <antcall target="dns"/>
     <antcall target="dns_custom"/>
     <antcall target="drop_acd"/>
-  	<antcall target="holiday-dates" />
-  	<antcall target="add-backup-device-files-column" />
+    <antcall target="holiday-dates" />
+    <antcall target="add-backup-device-files-column" />
+    <antcall target="add_attendant_lang" />
   </target>
 
   <target name="plugin-patches">
@@ -1380,6 +1381,9 @@
   </target>
   <target name="add-backup-device-files-column" unless="add-backup-device-files-column">
   	<plsql-patch patch="add-backup-device-files-column"/>
+  </target>
+  <target name="add_attendant_lang" unless="add_attendant_lang">
+    <db-patch patch="add_attendant_lang"/>
   </target>
   <!--
     - SUPPORT UTILITIES

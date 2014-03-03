@@ -3,6 +3,7 @@
 <autoattendants xmlns="http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00">
   <autoattendant id="operator">
     <name>operator</name>
+    <lang>default</lang>
     <prompt>prompts/operator.wav</prompt>
     <menuItems />
     <dtmf>

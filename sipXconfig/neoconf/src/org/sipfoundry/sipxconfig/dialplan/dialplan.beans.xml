@@ -138,6 +138,7 @@
   <bean id="autoAttendant" class="org.sipfoundry.sipxconfig.dialplan.AutoAttendant" scope="prototype"
     parent="beanWithSettings">
     <property name="promptsDirectory" value="${sysdir.vxml.prompts}" />
+    <property name="sysDirectory" value="${sysdir.doc}" />
   </bean>
 
   <bean id="operatorPrototype" parent="autoAttendant" class="org.sipfoundry.sipxconfig.dialplan.AutoAttendant">

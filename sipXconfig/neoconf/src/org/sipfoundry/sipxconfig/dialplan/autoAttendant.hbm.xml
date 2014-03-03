@@ -10,6 +10,7 @@
       </generator>
     </id>
     <property name="name" />
+    <property name="language" />
     <property name="prompt" />
     <property name="systemId" />
     <property name="description" />

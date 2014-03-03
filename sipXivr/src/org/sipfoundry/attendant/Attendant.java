@@ -13,6 +13,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.User;
@@ -95,6 +96,10 @@ public class Attendant extends SipxIvrApp {
 
         // Find the configuration for the named attendant
         AttendantConfig config = controller.getAttendantConfig(id);
+        String lang = config.getLang();
+        if (StringUtils.isNotBlank(lang) && !StringUtils.equals(config.getLang(), "default")) {
+            controller.changeLocale(lang);
+        }
 
         if (config == null) {
             LOG.error(String.format("Attendant::attendant Unable to determine which configuration to use from (%s)",

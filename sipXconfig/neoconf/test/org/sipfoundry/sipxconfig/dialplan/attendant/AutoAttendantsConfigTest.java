@@ -95,6 +95,7 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         aa.setName("abc");
         aa.setModelFilesContext(TestHelper.getModelFilesContext());
         aa.setPromptsDirectory("prompts/");
+        aa.setLanguage("en");
         aa.setPrompt("prompt.wav");
 
         AttendantMenu menu = new AttendantMenu();

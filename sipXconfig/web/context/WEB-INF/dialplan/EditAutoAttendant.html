@@ -36,6 +36,12 @@
       <table>
         <tr jwcid="common@common/ItemCommon" item="ognl:attendant"
           useEnabled="ognl:false" useFieldset="ognl:false"/>
+        <tr>
+          <td jwcid="@common/InstalledLanguages"
+              language="ognl:attendant.language"
+              languageDescription="message:language.description"
+              defaultLanguage="ognl:null"/>
+        </tr>
         <tr jwcid="attendantPromptLabel@common/FieldPanel"
           label="message:attendant.prompt"
           field="ognl:components.attendantPromptSelector.prompt">

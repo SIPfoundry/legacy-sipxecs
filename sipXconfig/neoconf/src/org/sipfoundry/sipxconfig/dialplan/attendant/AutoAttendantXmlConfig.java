@@ -116,6 +116,7 @@ public class AutoAttendantXmlConfig {
         }
 
         aaEl.addElement("name").setText(autoAttendant.getName());
+        aaEl.addElement("lang").setText(autoAttendant.getLanguage());
         aaEl.addElement("prompt").setText(autoAttendant.getPromptFile().getPath());
 
         Element miEl = aaEl.addElement("menuItems");
