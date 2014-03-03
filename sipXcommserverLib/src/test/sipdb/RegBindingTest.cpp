@@ -59,7 +59,7 @@ class RegBindingTest: public CppUnit::TestCase
 
    RegBinding* _db;
 
-   int _timeNow;
+   unsigned long _timeNow;
 public:
 
    RegBindingTest()
@@ -108,7 +108,7 @@ public:
 
    void setUp()
    {
-      _timeNow = (int) OsDateTime::getSecsSinceEpoch();
+      _timeNow = OsDateTime::getSecsSinceEpoch();
    }
 
    void tearDown()

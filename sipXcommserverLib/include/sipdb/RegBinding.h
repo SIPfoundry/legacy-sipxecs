@@ -43,10 +43,10 @@ public:
     unsigned int getShardId() const;
     const std::string& getPath() const;
     unsigned int getCseq() const;
-    unsigned int getExpirationTime() const;
+    unsigned long getExpirationTime() const;
     const std::string& getInstrument() const;
     const std::string& getLocalAddress()const;
-    int getTimestamp() const;
+    unsigned long getTimestamp() const;
     bool getExpired() const;
 
     void setIdentity(const std::string& identity);
@@ -59,10 +59,10 @@ public:
     void setShardId(unsigned int shardId);
     void setPath(const std::string& path);
     void setCseq(unsigned int cseq);
-    void setExpirationTime(unsigned int expirationTime);
+    void setExpirationTime(unsigned long expirationTime);
     void setInstrument(const std::string& intrument);
     void setLocalAddress(const std::string& localAddress);
-    void setTimestamp(int timestamp);
+    void setTimestamp(unsigned long timestamp);
     void setExpired(bool expired);
 
     static const char* identity_fld();
@@ -92,10 +92,10 @@ private:
     unsigned int _shardId;
     std::string _path;
     unsigned int _cseq;
-    unsigned int _expirationTime;
+    unsigned long _expirationTime;
     std::string _instrument;
     std::string _localAddress;
-    int _timestamp;
+    unsigned long _timestamp;
     bool _expired;
 };
 
@@ -154,7 +154,7 @@ inline unsigned int RegBinding::getCseq() const
   return _cseq;
 }
 
-inline unsigned int RegBinding::getExpirationTime() const
+inline unsigned long RegBinding::getExpirationTime() const
 {
   return _expirationTime;
 }
@@ -169,7 +169,7 @@ inline const std::string& RegBinding::getLocalAddress()const
     return _localAddress;
 }
 
-inline int RegBinding::getTimestamp() const
+inline unsigned long RegBinding::getTimestamp() const
 {
     return _timestamp;
 }
@@ -229,7 +229,7 @@ inline void RegBinding::setCseq(unsigned int cseq)
   _cseq = cseq;
 }
 
-inline void RegBinding::setExpirationTime(unsigned int expirationTime)
+inline void RegBinding::setExpirationTime(unsigned long expirationTime)
 {
   _expirationTime = expirationTime;
 }
@@ -244,7 +244,7 @@ inline void RegBinding::setLocalAddress(const std::string& localAddress)
     _localAddress = localAddress;
 }
 
-inline void RegBinding::setTimestamp(int timestamp)
+inline void RegBinding::setTimestamp(unsigned long timestamp)
 {
     _timestamp = timestamp;
 }

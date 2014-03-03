@@ -162,7 +162,7 @@ class SubscribeDBTest: public CppUnit::TestCase
 
   SubscribeDB* _db;
   const MongoDB::ConnectionInfo _info;
-  int _timeNow;
+  unsigned long _timeNow;
   const std::string _databaseName;
 public:
   SubscribeDBTest() : _info(MongoDB::ConnectionInfo(mongo::ConnectionString(mongo::HostAndPort(gLocalHostAddr)))),
@@ -172,7 +172,7 @@ public:
 
   void setUp()
   {
-    _timeNow = (int) OsDateTime::getSecsSinceEpoch();
+    _timeNow = OsDateTime::getSecsSinceEpoch();
 
     _db = new SubscribeDB(_info, NULL, _databaseName);
     MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));

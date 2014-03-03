@@ -75,10 +75,13 @@ if __name__ == '__main__':
         oplog = src['oplog.rs']
         ops = [{"op" : OP_DELETE}, {"op" : OP_INSERT}, {"op": OP_UPDATE}]
         q = {"ns" : {"$regex" : db + '.*'}, "ts" : {"$gt" : starttime}, "$or" : ops}
-        changes = oplog.find(q).sort('$natural', -1) #backwards?
+        changes = oplog.find(q).sort('$natural', 1)
         for change in changes:
             collection = change['ns'][ns_chop:]
             if collection == 'system.indexes':
+                continue
+            if '_id' not in change['o']:
+                logging.debug("Ignore operation, no _id")
                 continue
             logging.debug("%s/%s/%s" % (collection, change['op'], change['o']['_id']))
             if change['op'] == OP_DELETE:

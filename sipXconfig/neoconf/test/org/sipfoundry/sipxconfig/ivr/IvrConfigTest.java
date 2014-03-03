@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.ivr;
 import static org.junit.Assert.assertEquals;
 
 import java.io.StringWriter;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -69,5 +71,32 @@ public class IvrConfigTest {
         m_config.write(actual, m_settings, m_domain, m_location, "192.168.0.1,192.168.0.2", 8100, m_restApi, m_adminApi, m_apacheApi, null, null, m_fsEvent);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-sipxivr-without-openfire.properties"));
         assertEquals(expected, actual.toString());
+    }
+
+    @Test
+    public void testGetMwiLocation() throws Exception {
+        Location location1 = new Location();
+        location1.setAddress("192.168.0.1");
+        location1.setUniqueId(1);
+
+        Location location2 = new Location();
+        location2.setAddress("192.168.0.2");
+        location2.setUniqueId(2);
+
+        Location location3 = new Location();
+        location3.setAddress("192.168.0.3");
+        location3.setRegionId(1);
+        location3.setUniqueId(3);
+
+        List<Location> locations = new LinkedList<Location>();
+        locations.add(location1);
+        locations.add(location2);
+        locations.add(location3);
+        
+        assertEquals("192.168.0.1,192.168.0.2,192.168.0.3@1", m_config.getMwiLocations(locations, location1));
+
+        assertEquals("192.168.0.2,192.168.0.1,192.168.0.3@1", m_config.getMwiLocations(locations, location2));
+
+        assertEquals("192.168.0.3@1,192.168.0.1,192.168.0.2", m_config.getMwiLocations(locations, location3));
     }
 }

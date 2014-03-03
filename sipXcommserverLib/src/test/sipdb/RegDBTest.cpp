@@ -120,7 +120,7 @@ class RegDBTest: public CppUnit::TestCase
   RegDB* _db;
   const MongoDB::ConnectionInfo _info;
   std::string _databaseName;
-  int _timeNow;
+  unsigned long _timeNow;
 public:
   RegDBTest() : _info(MongoDB::ConnectionInfo(mongo::ConnectionString(mongo::HostAndPort(gLocalHostAddr)))),
   _databaseName(gTestRegDbName)
@@ -129,7 +129,7 @@ public:
 
   void setUp()
   {
-    _timeNow = (int) OsDateTime::getSecsSinceEpoch();
+    _timeNow = OsDateTime::getSecsSinceEpoch();
     _db = new RegDB(_info, NULL, _databaseName);
 
     MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
@@ -324,10 +324,10 @@ public:
     std::cout << "Computing time elapsed inserting 1000 bindings.  This will take a while." << std::endl;
     std::cout.flush();
 
-    int startTime = (int) OsDateTime::getSecsSinceEpoch();
+    unsigned long startTime = OsDateTime::getSecsSinceEpoch();
     for (int i = 1; i <= 1000; i++)
     {
-      _timeNow = (int) OsDateTime::getSecsSinceEpoch();
+      _timeNow = OsDateTime::getSecsSinceEpoch();
       RegBinding::Ptr binding = RegBinding::Ptr(new RegBinding());
       bool expired = i % 2;
 
@@ -361,7 +361,7 @@ public:
     - startTime << " seconds" << std::endl;
     std::cout.flush();
 
-    startTime = (int) OsDateTime::getSecsSinceEpoch();
+    startTime = OsDateTime::getSecsSinceEpoch();
     bindings.clear();
 
     // TEST: Check that number of unexpired bindings is 500
@@ -375,8 +375,8 @@ public:
 
   bool getAllOldBindings(int timeNow, RegDB::Bindings& bindings)
   {
-    mongo::BSONObj query = BSON( RegBinding::expirationTime_fld() << BSON_LESS_THAN(timeNow));
-    MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    mongo::BSONObj query = BSON( RegBinding::expirationTime_fld() << BSON_LESS_THAN((long long)timeNow));
+    MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     auto_ptr<mongo::DBClientCursor> pCursor = pConn->get()->query(_databaseName, query);
     if (pCursor.get() && pCursor->more())
     {

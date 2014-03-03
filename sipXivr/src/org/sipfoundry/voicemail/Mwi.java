@@ -15,6 +15,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -125,7 +126,7 @@ public class Mwi {
     }
 
     public void setMwiAddresses(String addresses) {
-        Map<String, List<String>> addrs = new HashMap<String, List<String>>();
+        Map<String, List<String>> addrs = new LinkedHashMap<String, List<String>>();
         String[] addressesWithRegion = StringUtils.split(addresses, ",");
         for (String address : addressesWithRegion) {
             if (address.contains("@")) {

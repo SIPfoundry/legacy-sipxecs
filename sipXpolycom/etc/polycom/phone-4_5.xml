@@ -2821,7 +2821,7 @@
           </type>
           <!-- This checks the URL included in the Alert-Info field, if it isn't a bogus URL 
                other phones (e.g. Snom) will refuse to work and it will violate RFC 3261-->
-          <value>external</value>
+          <value>http://external.call</value>
         </setting>
         <setting name="class">
           <type refid="ringtones"/>
@@ -2836,7 +2836,7 @@
           </type>
           <!-- This checks the URL included in the Alert-Info field, if it isn't a bogus URL 
                other phones (e.g. Snom) will refuse to work and it will violate RFC 3261-->
-          <value>internal</value>
+          <value>http://internal.call</value>
         </setting>
         <setting name="class">
           <type refid="ringtones"/>

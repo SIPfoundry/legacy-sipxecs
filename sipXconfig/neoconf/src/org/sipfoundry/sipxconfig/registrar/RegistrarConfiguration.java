@@ -163,7 +163,7 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
         file.writeSettings(root.getSetting("enum"));
 
         if (imApi != null) {
-            String openfireUrl = format("http://%s:%d/plugins/sipx-openfire-presence/status", imApi.getAddress(),
+            String openfireUrl = format("http://%s:%d/plugins/sipx-openfire/status", imApi.getAddress(),
                     imApi.getPort());
             file.write("SIP_REDIRECT.900-PRESENCE.OPENFIRE_PRESENCE_SERVER_URL", openfireUrl);
             file.write("SIP_REDIRECT.900-PRESENCE.LOCAL_PRESENCE_MONITOR_SERVER_URL", presenceApi.toString());

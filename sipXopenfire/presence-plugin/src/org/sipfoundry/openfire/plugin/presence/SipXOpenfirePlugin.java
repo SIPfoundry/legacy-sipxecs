@@ -119,7 +119,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
     public static final String CONFERENCE_EXTENSION = "conferenceExtension";
 
-    private static final String PLUGIN_PATH = "sipx-openfire-presence";
+    private static final String PLUGIN_PATH = "sipx-openfire";
 
     private static Logger log = Logger.getLogger(SipXOpenfirePlugin.class);
 

@@ -369,8 +369,12 @@ bool CallerAlias::getCallerAlias (
     std::string callerAlias;
     OS_LOG_INFO(FAC_SIP, "CallerID::getCallerAlias - EntityDB::findByIdentity for identity=" << identity.str() << " domain=" << domain.str());
 
-    hasUserEntity = mpEntityDb->findByIdentity(identity.str(), userEntity);
-    hasGatewayEntity = mpEntityDb->findByIdentity(domain.str(), gatewayEntity);
+    // check if external gateway, that is contains "sipxecs-lineid". If not then this is an internal call and we should not apply caller alias
+    size_t lineid = domain.str().find("sipxecs-lineid");
+    if (lineid != std::string::npos) {
+      OS_LOG_INFO(FAC_SIP, "CallerID::getCallerAlias - External Gateway, try to set caller id");
+      hasGatewayEntity = mpEntityDb->findByIdentity(domain.str(), gatewayEntity);
+    }
 
     // if call is not routed through gw then nothing to do, return empty
     if (!hasGatewayEntity) {
@@ -409,6 +413,7 @@ bool CallerAlias::getCallerAlias (
     else
     {
       // apply user settings in case gateway not configured to ignore them
+      hasUserEntity = mpEntityDb->findByIdentity(identity.str(), userEntity);
       if (hasUserEntity && !gatewayEntity.callerId().ignoreUserCalleId) {
           if (userEntity.callerId().enforcePrivacy)
           {

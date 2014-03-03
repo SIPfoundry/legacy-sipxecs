@@ -424,7 +424,7 @@ void DbHelper::expandMacro(std::string& macro)
 
 std::string DbHelper::getTimeNowMacro()
 {
-   int timeNow = (int) OsDateTime::getSecsSinceEpoch();
+   unsigned long timeNow = OsDateTime::getSecsSinceEpoch();
 
    return boost::lexical_cast<std::string>(timeNow);
 }

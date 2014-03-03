@@ -133,7 +133,7 @@ Notifier::sendNotifyForeachSubscription (
 {
     SubscribeDB::Subscriptions subscriptions;
 
-    int timeNow = (int)OsDateTime::getSecsSinceEpoch();
+    unsigned long timeNow = OsDateTime::getSecsSinceEpoch();
 
     // Get all subscriptions associated with this identity
     StatusServer* server = StatusServer::getInstance();

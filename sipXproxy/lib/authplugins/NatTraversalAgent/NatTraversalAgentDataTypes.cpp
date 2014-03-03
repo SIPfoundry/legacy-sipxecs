@@ -322,7 +322,7 @@ LocationCode EndpointDescriptor::computeLocationFromRegDbData( const Url& url,
     UtlString stringToMatch;
     url.getIdentity(stringToMatch);
 
-    int timeNow = OsDateTime::getSecsSinceEpoch();
+    unsigned long timeNow = OsDateTime::getSecsSinceEpoch();
     RegDB::Bindings bindings;
     mpRegDb->getUnexpiredContactsUserContaining(stringToMatch.str(), timeNow, bindings);
 

@@ -55,7 +55,7 @@ class RegExpireThreadTest: public CppUnit::TestCase
   RegDB* _db;
   const MongoDB::ConnectionInfo _info;
   const std::string _databaseName;
-  int _timeNow;
+  unsigned long _timeNow;
 public:
   RegExpireThreadTest() : _info(MongoDB::ConnectionInfo(mongo::ConnectionString(mongo::HostAndPort(gLocalHostAddr)))),
                           _databaseName(gDatabaseName)
@@ -64,7 +64,7 @@ public:
 
   void setUp()
   {
-    _timeNow = (int) OsDateTime::getSecsSinceEpoch();
+    _timeNow = OsDateTime::getSecsSinceEpoch();
     _db = new RegDB(_info, NULL, _databaseName);
     MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     //mongo::ScopedDbConnection conn(_info.getConnectionString().toString());
@@ -125,8 +125,8 @@ public:
 
   bool getAllOldBindings(int timeNow, RegDB::Bindings& bindings)
   {
-    mongo::BSONObj query = BSON(RegBinding::expirationTime_fld() << BSON_LESS_THAN(timeNow));
-    MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    mongo::BSONObj query = BSON(RegBinding::expirationTime_fld() << BSON_LESS_THAN((long long)timeNow));
+    MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     auto_ptr<mongo::DBClientCursor> pCursor = pConn->get()->query(_databaseName, query);
     if (pCursor.get() && pCursor->more())
     {
