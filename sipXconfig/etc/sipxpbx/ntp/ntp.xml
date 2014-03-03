@@ -38,7 +38,7 @@
       <type>
         <boolean />
       </type>
-      <value>0</value>
+      <value>1</value>
     </setting>
     <setting name="provide-time" advanced="yes">
       <type>
