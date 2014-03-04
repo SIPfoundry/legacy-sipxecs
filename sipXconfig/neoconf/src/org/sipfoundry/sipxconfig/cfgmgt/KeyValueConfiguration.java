@@ -29,9 +29,9 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  * in cfengine scripts to feed into final configurations files.
  */
 public class KeyValueConfiguration extends AbstractConfigurationFile {
-    private static final String COLON = " : ";
-    private static final String EQUALS = "=";
-    private static final String COMMA = ",";
+    protected static final String COLON = " : ";
+    protected static final String EQUALS = "=";
+    protected static final String COMMA = ",";
     private String m_valueFormat;
     private String m_delimator;
     private Writer m_out;

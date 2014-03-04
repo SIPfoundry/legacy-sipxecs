@@ -60,7 +60,8 @@ public class RestConfiguration implements ConfigProvider {
             }
 
             String log4jFileName = "log4j-rest.properties.part";
-            SettingUtil.writeLog4jSetting(restSettings, dir, log4jFileName);
+            String[] logLevelKeys = {"log4j.logger.org.sipfoundry.sipxrest"};
+            SettingUtil.writeLog4jSetting(restSettings, dir, log4jFileName, logLevelKeys);
 
             Writer wtr = new FileWriter(new File(dir, "sipxrest-config.xml"));
             try {

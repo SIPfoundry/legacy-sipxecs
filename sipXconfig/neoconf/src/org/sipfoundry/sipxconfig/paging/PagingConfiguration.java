@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
-import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
+import org.sipfoundry.sipxconfig.cfgmgt.LoggerKeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
@@ -52,7 +52,8 @@ public class PagingConfiguration implements ConfigProvider {
             }
 
             String log4jFileName = "log4j-page.properties.part";
-            SettingUtil.writeLog4jSetting(pagingSettings, dir, log4jFileName);
+            String[] logLevelKeys = {"log4j.logger.org.sipfoundry.sipxpage"};
+            SettingUtil.writeLog4jSetting(pagingSettings, dir, log4jFileName, logLevelKeys);
 
             FileWriter writer = new FileWriter(new File(dir, "sipxpage.properties.part"));
             try {
@@ -65,7 +66,7 @@ public class PagingConfiguration implements ConfigProvider {
 
     void write(Writer writer, Location location, List<PagingGroup> groups, PagingSettings settings, String domainName)
         throws IOException {
-        KeyValueConfiguration config = KeyValueConfiguration.colonSeparated(writer);
+        LoggerKeyValueConfiguration config = LoggerKeyValueConfiguration.colonSeparated(writer);
         config.write("sip.address", location.getAddress());
         config.write("rtp.port", settings.getRtpPort());
         config.write("sip.tlsPort", settings.getSipTlsPort());

@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
-import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
+import org.sipfoundry.sipxconfig.cfgmgt.LoggerKeyValueConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.PostConfigListener;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -58,7 +58,9 @@ public class AuthCodesConfig implements ConfigProvider, PostConfigListener {
             }
 
             String log4jFileName = "log4j-acccode.properties.part";
-            SettingUtil.writeLog4jSetting(acccodeSettings, dir, log4jFileName);
+            String[] logLevelKeys = {"log4j.logger.org.sipfoundry.authcode",
+                                     "log4j.logger.org.sipfoundry.sipxacccode"};
+            SettingUtil.writeLog4jSetting(acccodeSettings, dir, log4jFileName, logLevelKeys);
 
             Writer flat = new FileWriter(new File(dir, "sipxacccode.properties.part"));
             try {
@@ -79,7 +81,7 @@ public class AuthCodesConfig implements ConfigProvider, PostConfigListener {
     }
 
     void writeConfig(Writer wtr, AuthCodeSettings settings, Domain domain, int freeswithPort) throws IOException {
-        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
+        LoggerKeyValueConfiguration config = LoggerKeyValueConfiguration.equalsSeparated(wtr);
         config.writeSettings(settings.getSettings().getSetting(m_accCodeSettingKeyString));
         config.write("freeswitch.eventSocketPort", freeswithPort);
     }
