@@ -26,6 +26,8 @@ public class AttendantConfig extends ApplicationConfiguraton {
     private String m_name; // The name of this attendant
     private String m_prompt; // The top level prompt
     private String m_lang; // AA lang
+    private String m_allowDial;
+    private String m_denyDial;
     private List<AttendantMenuItem> m_menuItems = new LinkedList<AttendantMenuItem>();;
 
     public AttendantConfig() {
@@ -54,6 +56,22 @@ public class AttendantConfig extends ApplicationConfiguraton {
 
     public void setPrompt(String prompt) {
         m_prompt = prompt;
+    }
+
+    public String getAllowDial() {
+        return m_allowDial;
+    }
+
+    public void setAllowDial(String dial) {
+        m_allowDial = dial;
+    }
+
+    public String getDenyDial() {
+        return m_denyDial;
+    }
+
+    public void setDenyDial(String dial) {
+        m_denyDial = dial;
     }
 
     public void addMenuItem(AttendantMenuItem item) {

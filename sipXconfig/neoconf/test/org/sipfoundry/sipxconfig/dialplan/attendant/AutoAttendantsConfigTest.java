@@ -97,6 +97,8 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         aa.setPromptsDirectory("prompts/");
         aa.setLanguage("en");
         aa.setPrompt("prompt.wav");
+        aa.setAllowDial("2[5-9][0-9]|3[0-4][0-9]|350");
+        aa.setDenyDial("345");
 
         AttendantMenu menu = new AttendantMenu();
         menu.addMenuItem(DialPad.NUM_0, AttendantMenuAction.AUTO_ATTENDANT, "afterhours");

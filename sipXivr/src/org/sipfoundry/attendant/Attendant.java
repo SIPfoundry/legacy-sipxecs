@@ -12,6 +12,8 @@ package org.sipfoundry.attendant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -174,14 +176,36 @@ public class Attendant extends SipxIvrApp {
             // See if the entered digits matches a dialable extension
             // (keeps AA users from entering long distance numbers, 900 numbers,
             // call pickup, paging, etc.)
-            User user = m_validUsers.getUser(digits);
-            if (user != null) {
-                String uri = user.getUri();
-                LOG.info(String.format("Attendant::attendant Transfer to extension %s (%s) uuid=%s", digits, uri,
-                        controller.getUuid()));
-                // It's valid, transfer the call there.
-                controller.transfer(uri, config.isPlayPrompt());
-                break;
+
+            boolean isDialAllowed = true;
+            // if configured validate against regular expression for deny
+            if (StringUtils.isNotEmpty(config.getDenyDial())) {
+                if (matchExpression(config.getDenyDial(), digits)) {
+                    LOG.info(String.format("Attendant::attendant dial to extension %s denied by rule %s", digits,
+                            config.getDenyDial()));
+                    isDialAllowed = false;
+                }
+            }
+
+            // if configured validate against regular expression for allow only if it wasn't
+            // previously denied
+            if (isDialAllowed && StringUtils.isNotEmpty(config.getAllowDial())) {
+                isDialAllowed = matchExpression(config.getAllowDial(), digits);
+                LOG.info(String.format("Attendant::attendant extension %s checked against rule %s returned %s", digits,
+                        config.getAllowDial(), isDialAllowed));
+            }
+
+            // proceed with user verification only if dial allowed
+            if (isDialAllowed) {
+                User user = m_validUsers.getUser(digits);
+                if (user != null) {
+                    String uri = user.getUri();
+                    LOG.info(String.format("Attendant::attendant Transfer to extension %s (%s) uuid=%s", digits, uri,
+                            controller.getUuid()));
+                    // It's valid, transfer the call there.
+                    controller.transfer(uri, true);
+                    break;
+                }
             }
 
             LOG.info("Attendant::attendant Extension " + digits + " is not valid");
@@ -193,6 +217,14 @@ public class Attendant extends SipxIvrApp {
 
         LOG.info("Attendant::attendant Ending attendant " + config.getName());
         return nextAttendant;
+    }
+
+    private boolean matchExpression(String pattern, String digits) {
+        try {
+            return Pattern.matches(pattern, digits);
+        } catch (PatternSyntaxException ex) {
+            return false;
+        }
     }
 
     /**

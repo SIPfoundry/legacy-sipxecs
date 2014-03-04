@@ -57,6 +57,8 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject, Deploy
     private String m_promptsDirectory;
     private String m_sysDirectory;
     private String m_lang = LocalizationContext.DEFAULT;
+    private String m_allowDial = StringUtils.EMPTY;
+    private String m_denyDial = StringUtils.EMPTY;
 
     @Override
     protected Setting loadSettings() {
@@ -138,6 +140,28 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject, Deploy
         m_menu = menu;
     }
 
+    public String getAllowDial() {
+        if (StringUtils.isEmpty(m_allowDial)) {
+            return StringUtils.EMPTY;
+        }
+        return m_allowDial;
+    }
+
+    public void setAllowDial(String allowDial) {
+        m_allowDial = allowDial;
+    }
+
+    public String getDenyDial() {
+        if (StringUtils.isEmpty(m_denyDial)) {
+            return StringUtils.EMPTY;
+        }
+        return m_denyDial;
+    }
+
+    public void setDenyDial(String denyDial) {
+        m_denyDial = denyDial;
+    }
+
     public AttendantMenu getMenu() {
         return m_menu;
     }
@@ -156,6 +180,8 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject, Deploy
 
     public void resetToFactoryDefault() {
         setDescription(null);
+        setAllowDial(StringUtils.EMPTY);
+        setDenyDial(StringUtils.EMPTY);
         m_menu.reset(isPermanent());
     }
 
@@ -246,6 +272,8 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject, Deploy
         }
         attendant.setMenu(menu);
         attendant.setPrompt(getPrompt());
+        attendant.setAllowDial(getAllowDial());
+        attendant.setDenyDial(getDenyDial());
         attendant.setSettingValue(DTMF_INTERDIGIT_TIMEOUT, getSettingValue(DTMF_INTERDIGIT_TIMEOUT));
         attendant.setSettingValue(MAX_DIGITS, getSettingValue(MAX_DIGITS));
         attendant.setSettingValue(OVERALL_DIGIT_TIMEOUT, getSettingValue(OVERALL_DIGIT_TIMEOUT));

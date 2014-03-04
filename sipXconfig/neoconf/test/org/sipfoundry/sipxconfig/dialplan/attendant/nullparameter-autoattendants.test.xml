@@ -5,6 +5,8 @@
     <name>operator</name>
     <lang>default</lang>
     <prompt>prompts/operator.wav</prompt>
+    <allowDial></allowDial>
+    <denyDial></denyDial>
     <menuItems>
       <menuItem>
         <dialPad>#</dialPad>
@@ -44,6 +46,8 @@
     <name>abc</name>
     <lang>default</lang>
     <prompt>prompts/prompt.wav</prompt>
+    <allowDial></allowDial>
+    <denyDial></denyDial>
     <menuItems>
       <menuItem>
         <dialPad>1</dialPad>

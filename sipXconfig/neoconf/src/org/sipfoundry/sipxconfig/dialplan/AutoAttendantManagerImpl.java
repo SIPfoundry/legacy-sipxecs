@@ -16,6 +16,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -25,6 +27,7 @@ import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -52,10 +55,24 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
             throw new NameInUseException(AUTO_ATTENDANT, name);
         }
 
+        // check if valid reg ex for allow / deny dialing extensions
+        checkRegEx(aa.getDenyDial(), "&error.invalid.denyDialExpression");
+        checkRegEx(aa.getAllowDial(), "&error.invalid.allowDialExpression");
+
         clearUnsavedValueStorage(aa.getValueStorage());
         getHibernateTemplate().saveOrUpdate(aa);
         getHibernateTemplate().flush();
         getDaoEventPublisher().publishSave(aa);
+    }
+
+    private void checkRegEx(String regEx, String errMessage) {
+        if (StringUtils.isNotEmpty(regEx)) {
+            try {
+                Pattern.compile(regEx);
+            } catch (PatternSyntaxException ex) {
+                throw new UserException(errMessage);
+            }
+        }
     }
 
     public AutoAttendant getOperator() {

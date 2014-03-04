@@ -14,6 +14,8 @@
     <property name="prompt" />
     <property name="systemId" />
     <property name="description" />
+    <property name="allowDial" />
+    <property name="denyDial" />
     <component name="menu" class="AttendantMenu">
       <map name="menuItems" cascade="all" table="attendant_menu_item" order-by="dialpad_key asc">
         <key column="auto_attendant_id" />

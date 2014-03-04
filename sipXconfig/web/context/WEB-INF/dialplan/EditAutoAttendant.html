@@ -49,6 +49,18 @@
             asset="ognl:attendant.prompt" assetDir="ognl:attendant.promptsDirectory"
             errorMsg="message:error.select" contentType="literal:audio/x-wav"/>
         </tr>
+        <tr jwcid="@common/FieldPanel" for="item:allowDial" field="component:allowDial" label="message:allowDial" description="message:allowDial.description">
+          <input jwcid="allowDial@TextField" id="item:allowDial"
+            value="ognl:attendant.allowDial"
+            displayName="message:allowDial"
+            maxlength="1024"/>
+        </tr>
+        <tr jwcid="@common/FieldPanel" for="item:denyDial" field="component:denyDial" label="message:denyDial" description="message:denyDial.description">
+          <input jwcid="denyDial@TextField" id="item:denyDial"
+            value="ognl:attendant.denyDial"
+            displayName="message:denyDial"
+            maxlength="1024"/>
+        </tr>
       </table>
     </fieldset>
     <fieldset jwcid="@dialplan/AttendantMenuPanel" menu="ognl:attendant.menu">

@@ -5,6 +5,8 @@
     <name>operator</name>
     <lang>default</lang>
     <prompt>prompts/operator.wav</prompt>
+    <allowDial></allowDial>
+    <denyDial></denyDial>
     <menuItems />
     <dtmf>
       <initialTimeout>7000</initialTimeout>

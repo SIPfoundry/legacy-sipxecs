@@ -460,6 +460,7 @@
     <antcall target="holiday-dates" />
     <antcall target="add-backup-device-files-column" />
     <antcall target="add_attendant_lang" />
+    <antcall target="add_attendant_dial_regex" />
   </target>
 
   <target name="plugin-patches">
@@ -1375,6 +1376,9 @@
   </target>
   <target name="remove-ldap-filter-constraint" unless="remove-ldap-filter-constraint">
 	<db-patch patch="remove-ldap-filter-constraint"/>
+  </target>
+  <target name="add_attendant_dial_regex" unless="add_attendant_dial_regex">
+	<db-patch patch="add_attendant_dial_regex"/>
   </target>		
   <target name="holiday-dates" unless="holiday-dates">
     <db-patch patch="holiday-dates"/>

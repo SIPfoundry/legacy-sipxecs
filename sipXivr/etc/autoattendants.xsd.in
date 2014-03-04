@@ -36,6 +36,22 @@
 		</annotation>
 	</element>
 
+	<element name="allowDial" type="normalizedString">
+		<annotation>
+			<documentation>
+				Regex to allow extension dial
+			</documentation>
+		</annotation>
+	</element>
+
+	<element name="denyDial" type="normalizedString">
+		<annotation>
+			<documentation>
+				Regex to deny extension dial
+			</documentation>
+		</annotation>
+	</element>
+
 	<element name="dialPad">
 		<annotation>
 			<documentation>Digit</documentation>
