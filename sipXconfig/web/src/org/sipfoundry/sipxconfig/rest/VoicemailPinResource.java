@@ -43,6 +43,7 @@ public class VoicemailPinResource extends UserResource {
         if (!(m_newPin == null) && m_newPin.length() >= AbstractUser.VOICEMAIL_PIN_LEN) {
             User user = getUser();
             user.setVoicemailPin(m_newPin);
+            user.setForcePinChange(false);
             getCoreContext().saveUser(user);
         } else {
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, String.format(

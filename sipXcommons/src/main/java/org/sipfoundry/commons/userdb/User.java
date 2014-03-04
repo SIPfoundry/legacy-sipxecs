@@ -82,6 +82,7 @@ public class User {
     private boolean m_depositVoicemail;
     private boolean m_admin;
     private boolean m_hotelingEnabled;
+    private boolean m_forcePinChange;
 
     public enum EmailFormats {
         FORMAT_NONE("NONE"), FORMAT_FULL("FULL"), FORMAT_MEDIUM("MEDIUM"), FORMAT_BRIEF("BRIEF"), FORMAT_IMAP("IMAP");
@@ -706,5 +707,13 @@ public class User {
 
     public void setHotelingEnabled(boolean hotelingEnabled) {
         m_hotelingEnabled = hotelingEnabled;
+    }
+
+    public boolean isForcePinChange() {
+        return m_forcePinChange;
+    }
+        
+    public void setForcePinChange(String value) {
+       m_forcePinChange = value.equals("1") || value.equals("true");
     }
 }
