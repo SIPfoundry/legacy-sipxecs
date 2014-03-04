@@ -8,6 +8,7 @@
 sipx_core = \
   sipXportLib \
   sipXtackLib \
+  sipXresiprocate \
   sipXmediaLib \
   sipXmediaAdapterLib \
   sipXcallLib \
@@ -33,6 +34,9 @@ sipx_core = \
   sipXsaa \
   sipXrelease \
   sipXecs
+
+#additional configure options for sipXresiprocate package
+sipXresiprocate_OPTIONS = --with-c-ares --with-ssl --with-repro --enable-ipv6
 
 # sipxecs projects that are NOT essential for a running communication system
 sipx_extra = \
@@ -97,7 +101,6 @@ sipx_all = \
 # think it's called as ruby-postgres is obsoleted.
 lib_all = \
   epel \
-  resiprocate \
   rubygem-file-tail \
   erlang \
   freeswitch \
@@ -159,11 +162,11 @@ sipXpage_DEPS = sipXcommons
 sipXpolycom_DEPS = sipXconfig
 sipXrls_DEPS = sipXsqa sipXcallLib sipXcommserverLib
 sipXsaa_DEPS = sipXsqa sipXcallLib sipXcommserverLib
-sipXhomer_DEPS = sipXsqa resiprocate
+sipXhomer_DEPS = sipXsqa sipXresiprocate
 sipXsbc_DEPS = sipXconfig sipXsqa sipXregistry
 sipXcallQueue_DEPS = sipXconfig
 sipXexample_DEPS = sipXcommserverLib sipXconfig
-sipXsss_DEPS = sipXsqa sipXcommserverLib resiprocate
+sipXsss_DEPS = sipXsqa sipXcommserverLib sipXresiprocate
 
 all = \
   $(lib) \

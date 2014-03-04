@@ -82,3 +82,6 @@
 [submodule "sipXcallQueue"]
 	path = sipXcallQueue
 	url = git://github.com/SIPfoundry/sipXcallQueue.git
+[submodule "sipXresiprocate"]
+	path = sipXresiprocate
+	url = git://github.com/SIPfoundry/resiprocate.git
