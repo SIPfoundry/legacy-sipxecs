@@ -165,24 +165,14 @@ SipRedirectorRegDB::lookUp(
 
    if (method.compareTo(SIP_INVITE_METHOD) == 0)
    {
-      UtlString noRoute;
-      requestUriCopy.getUrlParameter("sipx-noroute", noRoute);
+       UtlString identity;
+       requestUriCopy.getIdentity(identity);
+       EntityRecord entity;
 
-      if ((!noRoute.isNull()) && (noRoute.compareTo("Voicemail") == 0))
-      {
-          // This is not a call scenerio controlled by this users "forward to voicemail" timer
-      }
-      else
-      {
-          UtlString identity;
-          requestUriCopy.getIdentity(identity);
-          EntityRecord entity;
-
-          EntityDB* entityDb = SipRegistrar::getInstance(NULL)->getEntityDB();
-          foundUserCfwdTimer = entityDb->findByIdentity(identity.str(), entity);
-          if (foundUserCfwdTimer)
-            userCfwdTimer << entity.callForwardTime();
-      }
+       EntityDB* entityDb = SipRegistrar::getInstance(NULL)->getEntityDB();
+       foundUserCfwdTimer = entityDb->findByIdentity(identity.str(), entity);
+       if (foundUserCfwdTimer)
+         userCfwdTimer << entity.callForwardTime();
    }
 
    for (RegDB::Bindings::const_iterator iter = registrations.begin(); iter != registrations.end(); iter++)
