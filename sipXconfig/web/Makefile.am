@@ -12,7 +12,8 @@ EXTRA_DIST = \
 	context \
 	packages \
 	$(web_SRC) \
-	$(addprefix src/,$(web_RESOURCES))
+	$(addprefix src/,$(web_RESOURCES)) \
+	unitelite
 
 noinst_DATA = javac-wsdl java-gwt javac-web 
 
@@ -157,6 +158,13 @@ context_SRC = $(shell cd $(srcdir)/context; find . -type f \( \
 	  $(context_TESTPAGE) \
 	\))
 
+#UNITE WEB LITE
+unitelite:
+	mkdir -p $(DESTDIR)/@SIPX_VARDIR@/unitelite && \
+	cd $(srcdir) && \
+	cp -r unitelite $(DESTDIR)/@SIPX_VARDIR@/
+.PHONY: unitelite
+
 # W A R
 wardir = @SIPX_JAVADIR@/sipXconfig
 war_DATA = sipxconfig.war sipxconfig-web.jar
@@ -214,3 +222,7 @@ clean :
 		server-config.wsdd \
 		server-config-no-spring.wsdd.dirty \
 	)	
+
+#local hook to install unite web
+install-data-local: 
+	$(MAKE) unitelite

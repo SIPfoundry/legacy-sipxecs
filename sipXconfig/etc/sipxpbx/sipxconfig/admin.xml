@@ -134,7 +134,7 @@
       <type>
     	<boolean/>
       </type>
-      <value>false</value>
+      <value>0</value>
     </setting>    
     <setting name="delete">
       <type>
@@ -142,5 +142,13 @@
       </type>
       <value>false</value>
     </setting>     
+  </group>
+  <group name="user-portal">
+    <setting name="old-portal">
+      <type>
+    	<boolean/>
+      </type>
+      <value>1</value>
+    </setting>
   </group>
 </model>

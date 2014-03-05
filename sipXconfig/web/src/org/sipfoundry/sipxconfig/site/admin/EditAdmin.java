@@ -14,6 +14,7 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -26,6 +27,9 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 public abstract class EditAdmin extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "admin/EditAdmin";
+    private static final String OLD = "old";
+    private static final String NEW = "new";
+    private static final String USER_PORTAL_PATH = "user-portal/old-portal";
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -40,14 +44,24 @@ public abstract class EditAdmin extends PageWithCallback implements PageBeginRen
 
     public abstract void setSettings(AdminSettings settings);
 
+    public abstract String getWebPortal();
+
+    public abstract void setWebPortal(String portal);
+
     @Override
     public void pageBeginRender(PageEvent arg0) {
         if (getSettings() == null) {
             setSettings(getAdminContext().getSettings());
         }
+        if (getWebPortal() == null) {
+            setWebPortal((Boolean) getAdminContext().getSettings().getSettingTypedValue(USER_PORTAL_PATH) ? OLD
+                    : NEW);
+        }
     }
 
     public void apply() {
+        getSettings().setSettingTypedValue(USER_PORTAL_PATH,
+                BooleanUtils.toBoolean(getWebPortal(), OLD, NEW));
         getAdminContext().saveSettings(getSettings());
     }
 }

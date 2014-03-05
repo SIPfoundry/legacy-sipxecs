@@ -222,6 +222,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(775,sipx,sipx) %{phonedir}/profile
 %dir %attr(775,sipx,sipx) %{phonedir}/profile/docroot
 %dir %attr(775,sipx,sipx) %{phonedir}/profile/tftproot
+%dir %attr(775,sipx,sipx) %{_localstatedir}/sipxdata/unitelite
 %dir %{_localstatedir}
 
 # Install configserver config files, directory only is created by pbx
@@ -281,6 +282,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/tunnel/*
 %config(noreplace) %{sipxpbxconf}/unmanaged/*
 %config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
+%config(noreplace) %{sipxpbxconf}/unite/*
 
 %dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/cfdata
 %{_localstatedir}/sipxdata/cfdata/defaults/*.cfdat
@@ -291,7 +293,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(775,sipx,sipx) %{_localstatedir}/sipxdata/configserver/web-cert
 %dir %attr(775,sipx,sipx) %{devicefilesdir}
 %{_datadir}/snmp/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.txt
-
+%{_localstatedir}/sipxdata/unitelite/*
 %post
 if test -e %{_sysconfdir}/logrotate.d/freeswitch; then rm -f %{_sysconfdir}/logrotate.d/freeswitch; fi
 

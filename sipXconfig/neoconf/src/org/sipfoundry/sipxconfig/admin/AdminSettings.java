@@ -123,4 +123,8 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) AdminContext.FEATURE);
     }
+
+    public PasswordPolicy getPasswordPolicy() {
+        return m_passwordPolicy;
+    }
 }

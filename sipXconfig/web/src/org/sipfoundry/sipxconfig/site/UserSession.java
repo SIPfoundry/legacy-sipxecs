@@ -80,6 +80,10 @@ public class UserSession {
         SecurityContextHolder.clearContext();
     }
 
+    public boolean isImEnabled(CoreContext coreContext) {
+        return getUser(coreContext).isImEnabled();
+    }
+
     /**
      * Checks if currently logged user has a requested role.
      *

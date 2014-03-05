@@ -4,6 +4,17 @@
   <form jwcid="form@Form" delegate="bean:validator">
     <fieldset jwcid="@setting/SettingsFieldset"
         settings="ognl:settings.settings.getSetting('configserver-config')" />
+	<h3><span key="label.webPortal"/></h3>
+    <div jwcid="webPortal@RadioGroup" selected="ognl:webPortal">
+    	<div jwcid="webPortalOld@Radio"
+            value="old"/>
+        <span jwcid="webPortalOldLabel@FieldLabel" field="component:webPortalOld"
+            displayName="message:label.webPortalOld" />
+    	<div jwcid="webPortalNew@Radio"
+            value="new"/>
+        <span jwcid="webPortalNewLabel@FieldLabel" field="component:webPortalNew"
+            displayName="message:label.webPortalNew" />
+    </div>
     <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
         listener="listener:apply"/>
   </form>

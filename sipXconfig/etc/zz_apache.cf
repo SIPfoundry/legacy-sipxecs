@@ -67,6 +67,13 @@ bundle agent apache_config {
         edit_line => expand_template("$(sipx.SIPX_CFDATA)/ssl.conf"),
         classes => if_repaired("restart_apache");
 
+      "$(sipx.APACHE2_CONFDIR)/unitelite.conf"
+        comment => "add apache unite conf $(this.promiser)",
+        create => "true",
+        edit_defaults => empty,
+        edit_line => expand_template("$(sipx.SIPX_CONFDIR)/unite/unitelite.conf"),
+        classes => if_repaired("restart_apache");
+
       "$(sipx.APACHE2_CONFDIR)/ssl/."
         create => "true",
         perms => mog("700","root","root");
