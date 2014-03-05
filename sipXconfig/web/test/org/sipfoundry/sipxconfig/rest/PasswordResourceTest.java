@@ -14,6 +14,10 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createMock;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +33,32 @@ import org.restlet.resource.InputRepresentation;
 import org.restlet.resource.ResourceException;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 public class PasswordResourceTest extends TestCase {
+    private CoreContext m_coreContext;
+    private User m_user;
+
+    @Override
+    protected void setUp() throws Exception {
+        m_user = new User();
+        m_user.setUniqueId();
+        m_user.setUserName("200");
+        m_user.setFirstName("John");
+        m_user.setLastName("Doe");
+        m_user.setImId("JohnIM");
+        m_user.setSipPassword("12345678");
+
+        Authentication token = new TestAuthenticationToken(m_user, false, false).authenticateToken();
+        SecurityContextHolder.getContext().setAuthentication(token);
+
+        m_coreContext = createMock(CoreContext.class);
+        m_coreContext.loadUser(m_user.getId());
+        expectLastCall().andReturn(m_user);
+        replay(m_coreContext);
+    }
 
     // can't test this, because I can't mock <br/>
     // UserDetailsImpl userDetails = StandardUserDetailsService.getUserDetails();
@@ -63,6 +91,7 @@ public class PasswordResourceTest extends TestCase {
     @Test
     public void testPasswordTooShort() throws IOException {
         PasswordResource res = new PasswordResource();
+        res.setCoreContext(m_coreContext);
         boolean exceptionThrown = false;
         InputRepresentation rep = new InputRepresentation(null, MediaType.TEXT_PLAIN);
         Request request = new Request();

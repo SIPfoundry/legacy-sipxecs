@@ -101,6 +101,9 @@
       <property name="liveAttendantExtension" />
       <property name="liveAttendantRingFor" />
       <property name="followUserCallForward" />
+      <property name="liveAttendantCode" />
+      <property name="liveAttendantEnabled" />
+      <property name="liveAttendantExpire" />
       <component name="afterHoursAttendant"
         class="org.sipfoundry.sipxconfig.dialplan.attendant.ScheduledAttendant">
         <many-to-one name="attendant" column="after_hours_attendant_id" class="AutoAttendant"
@@ -198,5 +201,13 @@
 
   <query name="dialingRulesForScheduleId">
     <![CDATA[from DialingRule dialingRule where dialingRule.schedule.id = :scheduleId]]>
+  </query>
+
+  <query name="aaRulesForCode">
+    <![CDATA[from AttendantRule rule where concat(rule.extension, rule.liveAttendantCode) = :code]]>
+  </query>
+
+  <query name="disabledLiveAaRules">
+    <![CDATA[from AttendantRule rule where rule.liveAttendant = true and rule.liveAttendantEnabled = false]]>
   </query>
 </hibernate-mapping>

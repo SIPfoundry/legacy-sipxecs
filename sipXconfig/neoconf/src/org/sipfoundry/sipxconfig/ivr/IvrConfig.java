@@ -40,7 +40,9 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.LoggerKeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.dialplan.attendant.AutoAttendantSettings;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
@@ -55,6 +57,7 @@ import org.springframework.beans.factory.annotation.Required;
 public class IvrConfig implements ConfigProvider, AlarmProvider {
     private Ivr m_ivr;
     private Mwi m_mwi;
+    private AutoAttendantManager m_aaManager;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -75,6 +78,7 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
         List<Location> mwiLocations = manager.getFeatureManager().getLocationsForEnabledFeature(Mwi.FEATURE);
         int mwiPort = m_mwi.getSettings().getHttpApiPort();
         Setting ivrSettings = settings.getSettings().getSetting("ivr");
+        AutoAttendantSettings aaSettings = m_aaManager.getSettings();
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = featureManager.isFeatureEnabled(Ivr.FEATURE, location);
@@ -85,20 +89,19 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
             }
 
             String log4jFileName = "log4j-ivr.properties.part";
-            String[] logLevelKeys = {"log4j.logger.org.sipfoundry.attendant",
-                                     "log4j.logger.org.sipfoundry.bridge",
-                                     "log4j.logger.org.sipfoundry.conference",
-                                     "log4j.logger.org.sipfoundry.faxrx",
-                                     "log4j.logger.org.sipfoundry.moh",
-                                     "log4j.logger.org.sipfoundry.sipxivr",
-                                     "log4j.logger.org.sipfoundry.voicemail"};
+            String[] logLevelKeys = {
+                "log4j.logger.org.sipfoundry.attendant", "log4j.logger.org.sipfoundry.bridge",
+                "log4j.logger.org.sipfoundry.conference", "log4j.logger.org.sipfoundry.faxrx",
+                "log4j.logger.org.sipfoundry.moh", "log4j.logger.org.sipfoundry.sipxivr",
+                "log4j.logger.org.sipfoundry.voicemail"
+            };
             SettingUtil.writeLog4jSetting(ivrSettings, dir, log4jFileName, logLevelKeys);
 
             File f = new File(dir, "sipxivr.properties.part");
             Writer wtr = new FileWriter(f);
             try {
                 write(wtr, settings, domain, location, getMwiLocations(mwiLocations, location), mwiPort, restApi,
-                        adminApi, apacheApi, imApi, imbotApi, fsEvent);
+                        adminApi, apacheApi, imApi, imbotApi, fsEvent, aaSettings);
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
@@ -130,7 +133,8 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
     }
 
     void write(Writer wtr, IvrSettings settings, Domain domain, Location location, String mwiAddresses, int mwiPort,
-            Address restApi, Address adminApi, Address apacheApi, Address imApi, Address imbotApi, Address fsEvent)
+            Address restApi, Address adminApi, Address apacheApi, Address imApi, Address imbotApi, Address fsEvent,
+            AutoAttendantSettings aaSettings)
         throws IOException {
         LoggerKeyValueConfiguration config = LoggerKeyValueConfiguration.equalsSeparated(wtr);
         config.writeSettings(settings.getSettings());
@@ -166,6 +170,9 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
         if (imbotApi != null) {
             config.write("ivr.sendIMUrl", imbotApi.toString());
         }
+        config.write("aa.liveAaEnablePrefix", aaSettings.getEnablePrefix());
+        config.write("aa.liveAaDisablePrefix", aaSettings.getDisablePrefix());
+        config.write("aa.liveAaDid", aaSettings.getLiveDid());
     }
 
     @Override
@@ -188,5 +195,10 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
     @Required
     public void setMwi(Mwi mwi) {
         m_mwi = mwi;
+    }
+
+    @Required
+    public void setAutoAttendantManager(AutoAttendantManager aaManager) {
+        m_aaManager = aaManager;
     }
 }

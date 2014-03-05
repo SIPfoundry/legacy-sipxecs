@@ -32,6 +32,17 @@
       </permissionMatch>
     </userMatch>
     <userMatch>
+      <callTag>AAM</callTag>
+      <userPattern>*87</userPattern>
+      <userPattern>*88</userPattern>
+      <userPattern>123456</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:IVR@192.168.1.1:102;dialed={digits};action=aamgmt&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
       <!--Operator-->
       <callTag>AA</callTag>
       <userPattern>100</userPattern>

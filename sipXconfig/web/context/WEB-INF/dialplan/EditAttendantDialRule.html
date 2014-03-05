@@ -38,6 +38,13 @@
 				displayName="message:label.liveAttendantExtension"
 				validators="spring-validators:required,validSipUserId,validFieldSize"/>
 		  </tr>
+		  <tr jwcid="@common/FieldPanel" field="component:liveAttendantCode"
+			  label="message:label.liveAttendantCode"
+			  description="message:description.liveAttendantCode">
+			<span jwcid="liveAttendantCode@TextField" id="liveAttendantCode"
+				value="ognl:rule.liveAttendantCode"
+				displayName="message:label.liveAttendantCode"/>
+		  </tr>
 		  <tr jwcid="@common/FieldPanel" field="component:liveAttendantRingFor"
 			  label="message:label.liveAttendantRingFor">
 			<span jwcid="liveAttendantRingFor@TextField" id="liveAttendantRingFor"

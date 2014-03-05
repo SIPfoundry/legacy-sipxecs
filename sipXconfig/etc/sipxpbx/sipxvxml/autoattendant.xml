@@ -6,6 +6,12 @@
   <type id="upload-prompt">
     <file variable="yes" />
   </type>
+  <group name="liveAttendant">
+    <setting name="code">
+      <phonepadpin/>
+      <value />
+    </setting>
+  </group>
   <group name="dtmf">
     <setting name="interDigitTimeout">
       <type>

@@ -36,7 +36,8 @@ public enum CallTag {
     DPUP("Directed Pickup", "DPUP"), // Directed Pickup
     AUTH("Authorization Code", "AUTH"), // Authorization Code
     UNK("Unknown", "UNK"), // unknown
-    FAX("Fax", "FAX"); //Fax extension
+    FAX("Fax", "FAX"), //Fax extension
+    AAM("Aut Attendant Management", "AAM"); //auto-attendant management
 
     private String m_name;
     private String m_shortname;

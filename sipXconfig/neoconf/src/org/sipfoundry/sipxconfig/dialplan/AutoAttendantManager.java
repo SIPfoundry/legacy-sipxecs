@@ -14,10 +14,11 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
+import org.sipfoundry.sipxconfig.dialplan.attendant.AutoAttendantSettings;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.setting.Group;
 
-public interface AutoAttendantManager extends AliasOwner {
+public interface AutoAttendantManager extends DialingRuleProvider, AliasOwner {
     final GlobalFeature FEATURE = new GlobalFeature("autoAttendant");
     String ATTENDANT_GROUP_ID = "auto_attendant";
 
@@ -61,4 +62,10 @@ public interface AutoAttendantManager extends AliasOwner {
     boolean getSpecialMode();
 
     AutoAttendant getSelectedSpecialAttendant();
+
+    AutoAttendantSettings getSettings();
+
+    void saveSettings(AutoAttendantSettings settings);
+
+    boolean manageLiveAttendant(String code, boolean enable);
 }

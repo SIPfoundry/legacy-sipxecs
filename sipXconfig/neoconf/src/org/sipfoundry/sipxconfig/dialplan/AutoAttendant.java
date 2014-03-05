@@ -177,7 +177,6 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject, Deploy
         m_lang = lang;
     }
 
-
     public void resetToFactoryDefault() {
         setDescription(null);
         setAllowDial(StringUtils.EMPTY);

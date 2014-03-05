@@ -6,7 +6,7 @@
 
   <bean id="freeswitchMediaServer" class="org.sipfoundry.sipxconfig.freeswitch.FreeswitchMediaServer" scope="prototype">
     <property name="label" value="Internal Voicemail Server" />
-    <property name="localizationContext" ref="localizationContext" />
+    <property name="localizationContext" ref="localizationContextImpl" />
     <property name="addressManager" ref="addressManager" />
   </bean>
   

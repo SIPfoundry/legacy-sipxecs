@@ -57,6 +57,8 @@ public class FreeswitchMediaServer extends MediaServer {
             f.format("mailbox={%s};action=deposit", userDigits.getName());
         } else if (operation == Operation.FaxForward) {
             f.format("mailbox={%s};action=faxrx", userDigits.getName());
+        } else if (operation == Operation.LiveAttendantManagement) {
+            f.format("dialed={%s};action=aamgmt", userDigits.getName());
         } else {
             params.append("action=retrieve");
         }
