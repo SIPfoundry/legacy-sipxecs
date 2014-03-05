@@ -1,0 +1,108 @@
+
+===========================================================
+Introduction
+===========================================================
+
+The home page for this project is : http://code.google.com/p/csv-parser-cplusplus/
+
+The source documentation is available on this page http://www.israelekpo.com/csv-parser-documentation/
+
+This is a C++ library for parsing text files.
+
+The records could be comma delimited, tab delimited or delimited with any set of characters.
+
+The csv_parser class is used to parse text files to extract records and fields.
+
+We are making the following assumptions :
+
+* The record terminator is only one character in length.
+* The field terminator is only one character in length.
+* The fields are enclosed by single characters, if any. 
+
+* The parser can handle documents where fields are always enclosed, not enclosed at all or optionally enclosed.
+* When fields are strictly all enclosed, there is an assumption that any enclosure characters within the field are escaped by placing a backslash in front of the enclosure character. 
+
+The CSV files can be parsed in 3 modes.
+
+* (a) No enclosures
+* (b) Fields always enclosed.
+* (c) Fields optionally enclosed. 
+
+For option (c) when the enclosure character is optional, if an enclosure character is spotted at either the beginning or the end of the string, it is assumed that the field is enclosed.
+
+The csv_parser::init() method can accept a character array as the path to the CSV file. Since it is overloaded, it can also accept a FILE pointer to a stream that is already open for reading.
+
+The set_enclosed_char() method accepts the field enclosure character as the first parameter and the enclosure mode as the second parameter which controls how the text file is going to be parsed.
+
+More documentation of the souce is available in the doc folder
+
+============================================================
+LIBRARY INSTALLATION
+============================================================
+
+Decompress the tarball
+
+tar -zxvf csv_parser-x.x.x.tar.gz
+
+cd csv_parser
+
+Configure, compile and install
+
+./configure
+
+make
+
+make all install 
+
+==============================================================
+COMPILING SOURCE PROGRAMS AND LINKING TO THE LIBRARY
+==============================================================
+g++ -Wall -O2 -g `csv_parser-config --cxxflags --libs` example.cpp -o example 
+
+==============================================================
+EXAMPLE USAGE :
+==============================================================
+
+#include <csv_parser/csv_parser.hpp>
+
+int main(void)
+{
+        const char * filename = "example_input.csv";
+        const char field_terminator = ',';
+        const char line_terminator  = '\n';
+        const char enclosure_char   = '"';
+
+        csv_parser file_parser;
+
+        file_parser.set_skip_lines(1);
+
+        file_parser.init(filename);
+        file_parser.set_enclosed_char(enclosure_char, ENCLOSURE_OPTIONAL);
+        file_parser.set_field_term_char(field_terminator);
+        file_parser.set_line_term_char(line_terminator);
+
+        unsigned int row_count = 1U;
+
+        while(file_parser.has_more_rows())
+        {
+                unsigned int i = 0;
+
+                csv_row row = file_parser.get_row();
+
+                for (i = 0; i < row.size(); i++)
+                {
+                        printf("COLUMN %02d : %s\n", i + 1U, row[i].c_str());
+                }
+
+                printf("====================================================================\n");
+                printf("END OF ROW %02d\n", row_count);
+                printf("====================================================================\n");
+
+                row_count++;
+        }
+
+        return 0;
+}
+
+
+

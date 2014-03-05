@@ -1,0 +1,47 @@
+#! /bin/sh
+
+pkgincludedir="@prefix@/include/csv_parser"
+
+pkglibdir="@prefix@/lib"
+
+version=@PACKAGE_VERSION@
+
+cxxflags="-I$pkgincludedir"
+
+include="-I$pkgincludedir"
+
+libs="-L$pkglibdir -lcsv_parser"
+
+# Displays how csv_parser-config is used
+usage () {
+        cat <<EOF
+
+Usage: $0 [OPTIONS]
+
+Available values for OPTIONS include the following :
+
+        --cflags         [$cxxflags]
+        --cxxflags       [$cxxflags]
+        --include        [$include]
+        --libs           [$libs]
+        --version        [$version]
+EOF
+        exit 1
+}
+
+if test $# -le 0; then usage; fi
+
+while test $# -gt 0; do
+        case $1 in
+        --cflags)     echo "$cxxflags" ;;
+        --cxxflags)   echo "$cxxflags" ;;
+        --include)    echo "$include" ;;
+        --libs)       echo "$libs" ;;
+        --version)    echo "$version" ;;
+        *)         usage ;;
+        esac
+
+        shift
+done
+
+exit 0

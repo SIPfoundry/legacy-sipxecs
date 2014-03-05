@@ -85,3 +85,9 @@
 [submodule "sipXresiprocate"]
 	path = sipXresiprocate
 	url = git://github.com/SIPfoundry/resiprocate.git
+[submodule "sipXedgeServices/libs/freeswitch"]
+	path = sipXedgeServices/libs/freeswitch
+	url = git://git.freeswitch.org/freeswitch.git
+[submodule "sipXedgeServices/libs/libjson-rpc-cpp"]
+	path = sipXedgeServices/libs/libjson-rpc-cpp
+	url = git://github.com/cinemast/libjson-rpc-cpp.git
