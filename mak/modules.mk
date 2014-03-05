@@ -36,7 +36,7 @@ sipx_core = \
   sipXecs
 
 #additional configure options for sipXresiprocate package
-sipXresiprocate_OPTIONS = --with-c-ares --with-ssl --with-repro --enable-ipv6
+sipXresiprocate_OPTIONS = --with-c-ares --with-ssl --with-repro --enable-ipv6 --with-tfm
 
 # sipxecs projects that are NOT essential for a running communication system
 sipx_extra = \
