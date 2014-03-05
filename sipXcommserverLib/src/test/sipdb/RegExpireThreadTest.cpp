@@ -126,7 +126,7 @@ public:
   bool getAllOldBindings(int timeNow, RegDB::Bindings& bindings)
   {
     mongo::BSONObj query = BSON(RegBinding::expirationTime_fld() << BSON_LESS_THAN((long long)timeNow));
-    MongoDB::ScopedDbConnectionPtr pConn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+    MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     auto_ptr<mongo::DBClientCursor> pCursor = pConn->get()->query(_databaseName, query);
     if (pCursor.get() && pCursor->more())
     {
