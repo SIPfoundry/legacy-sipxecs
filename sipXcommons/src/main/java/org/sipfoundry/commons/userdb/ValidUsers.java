@@ -46,6 +46,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.DISTRIB_LISTS;
 import static org.sipfoundry.commons.mongo.MongoConstants.EMAIL;
 import static org.sipfoundry.commons.mongo.MongoConstants.ENTITY_NAME;
 import static org.sipfoundry.commons.mongo.MongoConstants.FAX_NUMBER;
+import static org.sipfoundry.commons.mongo.MongoConstants.FORCE_PIN_CHANGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
 import static org.sipfoundry.commons.mongo.MongoConstants.HASHED_PASSTOKEN;
 import static org.sipfoundry.commons.mongo.MongoConstants.HOME_CITY;
@@ -674,6 +675,10 @@ public class ValidUsers {
             user.setAltEmailFormat(getStringValue(obj, ALT_NOTIFICATION));
         }
         user.setAltAttachAudioToEmail(Boolean.valueOf(getStringValue(obj, ALT_ATTACH_AUDIO)));
+
+        if (getStringValue(obj, FORCE_PIN_CHANGE) != null) {
+            user.setForcePinChange(getStringValue(obj, FORCE_PIN_CHANGE));
+        }
 
         BasicDBList aliasesObj = (BasicDBList) obj.get(ALIASES);
         if (aliasesObj != null) {

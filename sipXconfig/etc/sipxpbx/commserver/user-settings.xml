@@ -233,6 +233,14 @@
     </setting>
   </group>  
   <group name="voicemail">
+    <group name="security" hidden="yes">
+      <setting name="force-pin-change" advanced="yes">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
     <group name="fax" hidden="yes">
       <setting name="extension">
       <type refid="validPhone" />

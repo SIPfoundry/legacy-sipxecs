@@ -1,0 +1,13 @@
+<fieldset jwcid="@If" condition="ognl:advanced" renderTag="false">
+  <table>
+    <tr><td colspan="2"><h3><label jwcid="@Insert" value="message:label.security"/></h3></td></tr>
+      <tr jwcid="@common/FieldPanel" 
+      field="component:forcePinChange"
+      label="message:label.forcePinChange"
+      description="message:description.forcePinChange">
+       <checkbox jwcid="forcePinChange@Checkbox"
+        id="voicemail:forcePinChange"
+        value="ognl:forcePinChange" />  
+    </tr>
+  </table>
+</fieldset>

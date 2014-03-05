@@ -49,6 +49,7 @@ public class User extends AbstractUser implements Replicable {
     private static final String TZ = "timezone/timezone";
     private static final String E911_SETTING_PATH = "e911/location";
     private static final String PHANTOM_USER = "phantom/enabled";
+    private static final String FORCE_PIN_CHANGE = "voicemail/security/force-pin-change";
     private String m_identity;
     private boolean m_validUser = true;
 
@@ -213,6 +214,14 @@ public class User extends AbstractUser implements Replicable {
 
     public void setPhantom(boolean phantom) {
         getSettings().getSetting(PHANTOM_USER).setTypedValue(phantom);
+    }
+
+    public boolean isForcePinChange() {
+        return (Boolean) getSettingTypedValue(FORCE_PIN_CHANGE);
+    }
+
+    public void setForcePinChange(boolean force) {
+        getSettings().getSetting(FORCE_PIN_CHANGE).setTypedValue(force);
     }
 
     public Integer getE911LocationId() {
