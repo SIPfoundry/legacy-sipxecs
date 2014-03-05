@@ -121,31 +121,31 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
 
         // Check that a user with a duplicate name is found to be a duplicate
         user.setUserName("userseed4");
-        assertEquals("userseed4", m_coreContext.checkForDuplicateNameOrAlias(user));
+        assertEquals("userseed4", m_coreContext.checkForDuplicateNameOrAlias(user).getValue());
 
         // Check that a user with an alias that matches an existing username
         // is found to be a duplicate
         user.setUserName(UNIQUE_NAME);
         user.setAliasesString("userseed6");
-        assertEquals("userseed6", m_coreContext.checkForDuplicateNameOrAlias(user));
+        assertEquals("userseed6", m_coreContext.checkForDuplicateNameOrAlias(user).getValue());
 
         // Check that a user with an alias that matches an existing alias
         // is found to be a duplicate
         user.setAliasesString("two");
-        assertEquals("two", m_coreContext.checkForDuplicateNameOrAlias(user));
+        assertEquals("two", m_coreContext.checkForDuplicateNameOrAlias(user).getValue());
 
         // Check that duplicate checking doesn't get confused by multiple collisions
         // with both usernames and aliases
         user.setUserName("userseed4");
         user.setAliasesString("two,1");
-        assertNotNull(m_coreContext.checkForDuplicateNameOrAlias(user));
+        assertNotNull(m_coreContext.checkForDuplicateNameOrAlias(user).getValue());
 
         // Check that collisions internal to the user are caught.
         // Note that duplicates within the aliases list are ignored.
         final String WASAWUSU = "wasawusu";
         user.setUserName(WASAWUSU);
         user.setAliasesString(WASAWUSU);
-        assertEquals(WASAWUSU, m_coreContext.checkForDuplicateNameOrAlias(user));
+        assertEquals(WASAWUSU, m_coreContext.checkForDuplicateNameOrAlias(user).getValue());
         user.setUserName(UNIQUE_NAME);
         user.setAliasesString(WASAWUSU + "," + WASAWUSU);
         assertNull(m_coreContext.checkForDuplicateNameOrAlias(user));
@@ -354,7 +354,6 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         assertEquals(2, next.size());
         User nextUser = (User) next.iterator().next();
         assertEquals("charlie", nextUser.getUserName());
-
         User user = m_coreContext.newUser();
         user.setUserName("joe");
         UserProfile disabledProfile = new UserProfile();
@@ -612,20 +611,20 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         User user = new User();
         user.setUserName("testUser");
         user.setUniqueId();
-        assertTrue("ImId unique when no IM ID configured", m_coreContext.isImIdUnique(user));
+        assertTrue("ImId unique when no IM ID configured", m_coreContext.getBeanIdsOfObjectsWithAlias(new ImAccount(user).getImId()).size()==0);
         user.setImId("openfire1");
-        assertFalse(m_coreContext.isImIdUnique(user));
+        assertFalse(m_coreContext.getBeanIdsOfObjectsWithAlias(new ImAccount(user).getImId()).size() == 0);
         user.setImId("OpenFire1");
-        assertFalse(m_coreContext.isImIdUnique(user));
+        assertFalse(m_coreContext.getBeanIdsOfObjectsWithAlias(new ImAccount(user).getImId()).size() == 0);
         user.setImId("userseed3");
-        assertFalse(m_coreContext.isImIdUnique(user));
+        assertFalse(m_coreContext.getBeanIdsOfObjectsWithAlias(new ImAccount(user).getImId()).size() == 0);
         user.setImId("alias1");
-        assertFalse(m_coreContext.isImIdUnique(user));
+        assertFalse(m_coreContext.getBeanIdsOfObjectsWithAlias(new ImAccount(user).getImId()).size() == 0);
         user.setImId("openfire22");
-        assertTrue(m_coreContext.isImIdUnique(user));
+        assertTrue(m_coreContext.getBeanIdsOfObjectsWithAlias(new ImAccount(user).getImId()).size() == 0);
         // check im id uniqueness for an existing user
         User existingUser = m_coreContext.loadUser(1001);
-        assertTrue(m_coreContext.isImIdUnique(existingUser));
+        assertTrue(m_coreContext.getBeanIdsOfObjectsWithAlias(new ImAccount(user).getImId()).size() == 0);
     }
 
     private void initUsersImIdsSeed() {
@@ -651,7 +650,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         // check im id uniqueness for a new user
         User user = new User();
         user.setImId("Alias1");
-        assertEquals("alias1", m_coreContext.checkForDuplicateNameOrAlias(user));
+        assertEquals("alias1", m_coreContext.checkForDuplicateNameOrAlias(user).getValue());
         assertEquals(1, m_coreContext.getBeanIdsOfObjectsWithAlias("openfire1").size());
     }
 
