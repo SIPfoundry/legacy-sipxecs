@@ -64,7 +64,7 @@ public class ImBotSettingsResource extends UserResource {
         Boolean vmBegin = settings.getVmBegin();
         Boolean vmEnd = settings.getVmEnd();
 
-        LOG.warn("Saving IM bot prefs:\t" + settings);
+        LOG.debug("Saving IM bot prefs:\t" + settings);
 
         if (confEnter != null || confExit != null || vmBegin != null || vmEnd != null) {
             User user = getUser();

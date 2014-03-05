@@ -461,6 +461,7 @@
     <antcall target="add-backup-device-files-column" />
     <antcall target="add_attendant_lang" />
     <antcall target="add_attendant_dial_regex" />
+    <antcall target="live-attendant" />
   </target>
 
   <target name="plugin-patches">
@@ -1389,6 +1390,10 @@
   <target name="add_attendant_lang" unless="add_attendant_lang">
     <db-patch patch="add_attendant_lang"/>
   </target>
+  <target name="live-attendant" unless="live-attendant">
+	<db-patch patch="live-attendant"/>
+  </target>
+
   <!--
     - SUPPORT UTILITIES
   -->

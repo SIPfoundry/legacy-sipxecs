@@ -26,7 +26,7 @@ import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
  */
 public class AbstractCallSequence extends BeanWithId {
     public static final String RINGS_PROP = "rings";
-    static final String ALIAS_RELATION = "userforward";
+    public static final String ALIAS_RELATION = "userforward";
 
     private List<AbstractRing> m_rings = new ArrayList<AbstractRing>();
 

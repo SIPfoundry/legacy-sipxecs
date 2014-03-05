@@ -97,6 +97,10 @@
       <property name="attendantAliases" />
       <property name="extension" />
       <property name="did" />
+      <property name="liveAttendant" />
+      <property name="liveAttendantExtension" />
+      <property name="liveAttendantRingFor" />
+      <property name="followUserCallForward" />
       <component name="afterHoursAttendant"
         class="org.sipfoundry.sipxconfig.dialplan.attendant.ScheduledAttendant">
         <many-to-one name="attendant" column="after_hours_attendant_id" class="AutoAttendant"

@@ -24,7 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
-import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
+import org.sipfoundry.sipxconfig.cfgmgt.LoggerKeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
@@ -49,7 +49,8 @@ public class AdminConfig implements ConfigProvider {
             File dir = manager.getLocationDataDirectory(l);
 
             String log4jFileName = "log4j.properties.part";
-            SettingUtil.writeLog4jSetting(adminSettings, dir, log4jFileName);
+            String[] logLevelKeys = {"log4j.logger.org.sipfoundry.sipxconfig"};
+            SettingUtil.writeLog4jSetting(adminSettings, dir, log4jFileName, logLevelKeys);
 
             Writer w = new FileWriter(new File(dir, "sipxconfig.properties.ui"));
             try {
@@ -61,7 +62,7 @@ public class AdminConfig implements ConfigProvider {
     }
 
     void writeConfig(Writer w, AdminSettings settings) throws IOException {
-        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
+        LoggerKeyValueConfiguration config = LoggerKeyValueConfiguration.equalsSeparated(w);
         config.writeSettings(settings.getSettings().getSetting(m_adminSettingsKey));
     }
 

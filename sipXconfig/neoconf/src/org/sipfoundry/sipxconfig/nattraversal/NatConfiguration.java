@@ -63,7 +63,8 @@ public class NatConfiguration implements ConfigProvider {
             if (enabled) {
 
                 String log4jFileName = "log4j-relay.properties.part";
-                SettingUtil.writeLog4jSetting(natTraversalSetting, dir, log4jFileName);
+                String[] logLevelKeys = {"log4j.logger.org.sipfoundry.sipxrelay"};
+                SettingUtil.writeLog4jSetting(natTraversalSetting, dir, log4jFileName, logLevelKeys);
 
                 Writer writer = new FileWriter(new File(dir, "nattraversalrules.xml"));
                 try {

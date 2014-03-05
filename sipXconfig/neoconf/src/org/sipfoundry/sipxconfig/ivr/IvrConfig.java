@@ -38,7 +38,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
-import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
+import org.sipfoundry.sipxconfig.cfgmgt.LoggerKeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.domain.Domain;
@@ -85,7 +85,14 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
             }
 
             String log4jFileName = "log4j-ivr.properties.part";
-            SettingUtil.writeLog4jSetting(ivrSettings, dir, log4jFileName);
+            String[] logLevelKeys = {"log4j.logger.org.sipfoundry.attendant",
+                                     "log4j.logger.org.sipfoundry.bridge",
+                                     "log4j.logger.org.sipfoundry.conference",
+                                     "log4j.logger.org.sipfoundry.faxrx",
+                                     "log4j.logger.org.sipfoundry.moh",
+                                     "log4j.logger.org.sipfoundry.sipxivr",
+                                     "log4j.logger.org.sipfoundry.voicemail"};
+            SettingUtil.writeLog4jSetting(ivrSettings, dir, log4jFileName, logLevelKeys);
 
             File f = new File(dir, "sipxivr.properties.part");
             Writer wtr = new FileWriter(f);
@@ -125,7 +132,7 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
     void write(Writer wtr, IvrSettings settings, Domain domain, Location location, String mwiAddresses, int mwiPort,
             Address restApi, Address adminApi, Address apacheApi, Address imApi, Address imbotApi, Address fsEvent)
         throws IOException {
-        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
+        LoggerKeyValueConfiguration config = LoggerKeyValueConfiguration.equalsSeparated(wtr);
         config.writeSettings(settings.getSettings());
         config.write("freeswitch.eventSocketPort", fsEvent.getPort());
 

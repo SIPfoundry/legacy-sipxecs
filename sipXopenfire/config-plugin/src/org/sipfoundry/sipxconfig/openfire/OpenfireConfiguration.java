@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
+import org.sipfoundry.sipxconfig.cfgmgt.LoggerKeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.event.WebSocket;
@@ -84,10 +85,12 @@ public class OpenfireConfiguration implements ConfigProvider {
             boolean presenceEnabled = (Boolean) settings.getSettingTypedValue("settings/enable-presence")
                     && manager.getFeatureManager().isFeatureEnabled(Rls.FEATURE);
             ConfigUtils.enableCfengineClass(dir, "ofconsole.cfdat", consoleEnabled, "ofconsole");
-            
+
             Setting openfireSettings = settings.getSettings().getSetting("settings");
             String log4jFileName = "log4j-openfire.properties.part";
-            SettingUtil.writeLog4jSetting(openfireSettings, dir, log4jFileName, SipFoundryLayout.LOG4J_SIPFOUNDRY_KEY);
+            String[] logLevelKeys = {"log4j.logger.org.sipfoundry.openfire",
+                                     "log4j.logger.org.sipfoundry.sipxconfig"};
+            SettingUtil.writeLog4jSetting(openfireSettings, dir, log4jFileName, logLevelKeys);
 
             File f = new File(dir, "sipx.properties.part");
             if (!f.exists()) {
@@ -141,7 +144,7 @@ public class OpenfireConfiguration implements ConfigProvider {
 
     private static void write(Writer wtr, boolean presence, boolean wsEnabled, String wsAddress, int wsPort,
             String adminRestUrl) throws IOException {
-        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
+        LoggerKeyValueConfiguration config = LoggerKeyValueConfiguration.equalsSeparated(wtr);
         config.write("openfire.presence", presence);
         if (wsEnabled) {
             config.write("websocket.address", wsAddress);

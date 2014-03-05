@@ -165,10 +165,10 @@ SipRedirectorRegDB::lookUp(
 
    if (method.compareTo(SIP_INVITE_METHOD) == 0)
    {
-      UtlString noRoute;
-      requestUriCopy.getUrlParameter("sipx-noroute", noRoute);
+      UtlString userforwardParam;
+      requestUriCopy.getUrlParameter("sipx-userforward", userforwardParam);
 
-      if ((!noRoute.isNull()) && (noRoute.compareTo("Voicemail") == 0))
+      if ((!userforwardParam.isNull()) && (userforwardParam.compareTo("false", UtlString::ignoreCase) ) == 0)
       {
           // This is not a call scenerio controlled by this users "forward to voicemail" timer
       }
