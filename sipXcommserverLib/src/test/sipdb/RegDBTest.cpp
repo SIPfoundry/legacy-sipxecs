@@ -17,7 +17,7 @@ const char* gAtlantaDotCom = "atlanta.com";
 typedef struct
 {
   const char* pContact;
-  unsigned int expirationTime;
+  int expirationTimeDelta;
   const char* pQValue;
   const char* pInstanceId;
   const char* pGruu;
@@ -147,7 +147,7 @@ public:
   void updateRegBindingTestData(RegBinding::Ptr& binding, int index)
   {
     binding->setContact(regBindingTestData[index].pContact);
-    binding->setExpirationTime(_timeNow + regBindingTestData[index].expirationTime);
+    binding->setExpirationTime(_timeNow + regBindingTestData[index].expirationTimeDelta);
     binding->setQvalue(regBindingTestData[index].pQValue);
     binding->setInstanceId(regBindingTestData[index].pInstanceId);
     binding->setGruu(regBindingTestData[index].pGruu);
@@ -336,9 +336,9 @@ public:
       binding->setContact(contact.str());
 
       if (!expired)
-        binding->setExpirationTime(_timeNow + regBindingTestData[5].expirationTime);
+        binding->setExpirationTime(_timeNow + regBindingTestData[5].expirationTimeDelta);
       else
-        binding->setExpirationTime(_timeNow - regBindingTestData[5].expirationTime);
+        binding->setExpirationTime(_timeNow - regBindingTestData[5].expirationTimeDelta);
 
       binding->setPath(regBindingTestData[5].pPath);
 
