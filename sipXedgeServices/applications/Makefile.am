@@ -40,7 +40,6 @@ sipxwebrtc_LDADD = @BOOST_LIBS@ \
 	$(RESIPROCATE_LIBS) \
 	@SIPXCOMMSERVER_LIBS@ \
 	-lsipXesl \
-	-lzmq \
 	-lmongoclient \
 	-ljsonrpccpp
 
