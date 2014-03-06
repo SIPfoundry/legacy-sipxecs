@@ -29,31 +29,37 @@
 			  value="ognl:rule.liveAttendant"
 			  onchange="javascript:this.form.submit();" />
 		</tr>
-		<tr jwcid="@common/FieldPanel" field="component:liveAttendantExtension"
-			label="message:label.liveAttendantExtension"
-			description="message:description.liveAttendantExtension">
-		  <span jwcid="liveAttendantExtension@TextField" id="liveAttendantExtension"
-			  value="ognl:rule.liveAttendantExtension"
-			  disabled="ognl:!rule.liveAttendant"
-			  displayName="message:label.liveAttendantExtension"
-			  validators="spring-validators:required,validSipUserId,validFieldSize"/>
-		</tr>
-		<tr jwcid="@common/FieldPanel" field="component:liveAttendantRingFor"
-			label="message:label.liveAttendantRingFor">
-		  <span jwcid="liveAttendantRingFor@TextField" id="liveAttendantRingFor"
-			  value="ognl:rule.liveAttendantRingFor"
-			  disabled="ognl:!rule.liveAttendant"
-			  translator="translator:integer" validators="spring-validators:required,min=0,max=1200"
-			  displayName="message:label.liveAttendantRingFor"/>
-		  <span jwcid="@Insert" value="message:label.seconds"/>
-		</tr>
-		<tr jwcid="@common/FieldPanel" field="component:followUserCallForward"
-			label="message:label.followUserCallForward"
-			description="message:description.followUserCallForward">
-		  <input jwcid="followUserCallForward@Checkbox" id="followUserCallForward"
-			  value="ognl:rule.followUserCallForward"
-			  disabled="ognl:!rule.liveAttendant" />
-		</tr>
+		<span jwcid="@If" condition="ognl:rule.liveAttendant">
+		  <tr jwcid="@common/FieldPanel" field="component:liveAttendantExtension"
+			  label="message:label.liveAttendantExtension"
+			  description="message:description.liveAttendantExtension">
+			<span jwcid="liveAttendantExtension@TextField" id="liveAttendantExtension"
+				value="ognl:rule.liveAttendantExtension"
+				displayName="message:label.liveAttendantExtension"
+				validators="spring-validators:required,validSipUserId,validFieldSize"/>
+		  </tr>
+		  <tr jwcid="@common/FieldPanel" field="component:liveAttendantRingFor"
+			  label="message:label.liveAttendantRingFor">
+			<span jwcid="liveAttendantRingFor@TextField" id="liveAttendantRingFor"
+				value="ognl:rule.liveAttendantRingFor"
+				translator="translator:integer" validators="spring-validators:required,min=0,max=1200"
+				displayName="message:label.liveAttendantRingFor"/>
+			<span jwcid="@Insert" value="message:label.seconds"/>
+		  </tr>
+		  <tr jwcid="@common/FieldPanel" field="component:followUserCallForward"
+			  label="message:label.followUserCallForward"
+			  description="message:description.followUserCallForward">
+			<input jwcid="followUserCallForward@Checkbox" id="followUserCallForward"
+				value="ognl:rule.followUserCallForward" />
+		  </tr>
+		  <tr jwcid="@common/FieldPanel" for="schedule" field="ognl:null"
+			  label="message:label.schedule"
+			  description="message:description.schedule">
+			<span jwcid="schedule@user_portal/ScheduleSelector"
+				scheduleContainer="ognl:rule"
+				availableSchedules="ognl:availableSchedules" />
+		  </tr>
+		</span>
 	  </tbody>
 	</table>
   </fieldset>

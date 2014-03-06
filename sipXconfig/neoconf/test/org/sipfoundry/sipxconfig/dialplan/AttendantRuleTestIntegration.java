@@ -19,10 +19,20 @@ package org.sipfoundry.sipxconfig.dialplan;
 import static org.sipfoundry.commons.mongo.MongoConstants.ALIASES;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
+import org.sipfoundry.sipxconfig.common.ScheduledDay;
 import org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
+import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
+import org.sipfoundry.sipxconfig.forwarding.GeneralSchedule;
+import org.sipfoundry.sipxconfig.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.test.MongoTestIntegration;
+import org.springframework.beans.factory.annotation.Required;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -32,6 +42,7 @@ public class AttendantRuleTestIntegration extends MongoTestIntegration {
 
     private DialPlanContext m_dialPlanContext;
     private DialPlanSetup m_dialPlanSetup;
+    private ForwardingContext m_forwardingContext;
 
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
@@ -131,6 +142,51 @@ public class AttendantRuleTestIntegration extends MongoTestIntegration {
         liveAttendantUserCallFwd.put(ALIASES, aliasesList);
         MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), liveAttendantUserCallFwd);
 
+        // add live attendant schedule
+        Schedule schedule = new GeneralSchedule();
+        WorkingHours[] hours = new WorkingHours[1];
+        WorkingTime wt = new WorkingTime();
+        hours[0] = new WorkingHours();
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        cal.set(2014, Calendar.MARCH, 7, 10, 00);
+        hours[0].setStart(cal.getTime());
+        Integer startHour = Integer.valueOf(cal.get(Calendar.HOUR_OF_DAY));
+        Integer startMinute = Integer.valueOf(cal.get(Calendar.MINUTE));
+        cal.set(2014, Calendar.MARCH, 7, 11, 00);
+        hours[0].setStop(cal.getTime());
+        Integer stopHour = Integer.valueOf(cal.get(Calendar.HOUR_OF_DAY));
+        Integer stopMinute = Integer.valueOf(cal.get(Calendar.MINUTE));
+        hours[0].setEnabled(true);
+        hours[0].setDay(ScheduledDay.FRIDAY);
+        wt.setWorkingHours(hours);
+        wt.setEnabled(true);
+        schedule.setWorkingTime(wt);
+        schedule.setName("live attendant schedule");
+        m_forwardingContext.saveSchedule(schedule);
+        rule.setSchedule(schedule);
+        m_dialPlanContext.storeRule(rule);
+
+        int offset = TimeZone.getDefault().getOffset((new Date()).getTime()) / 60000;
+        Integer minutesFromSunday = (hours[0].getDay().getDayOfWeek() - 1) * 24 * 60;
+        Integer startWithTimezone = minutesFromSunday + startHour * 60 + startMinute - offset;
+        Integer stopWithTimezone = minutesFromSunday + stopHour * 60 + stopMinute - offset;
+        String expected = Integer.toHexString(startWithTimezone) + ":" + Integer.toHexString(stopWithTimezone);
+
+        aliasesList = new ArrayList<DBObject>();
+        als = new BasicDBObject();
+        als.put("id", "160");
+        als.put("cnt", "<sip:201@example.org;sipx-noroute=Voicemail?expires=10>;q=0.933;sipx-ValidTime=\""
+            + expected + "\"");
+        als.put("rln", "userforward");
+        aliasesList.add(als);
+        aliasesList.add(als2);
+        aliasesList.add(als3);
+        aliasesList.add(als4);
+        aliasesList.add(als5);
+        DBObject liveAttendantSchedule = new BasicDBObject();
+        liveAttendantSchedule.put(ALIASES, aliasesList);
+        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), liveAttendantSchedule);
+
         // disable live attendant
         rule.setLiveAttendant(false);
         m_dialPlanContext.storeRule(rule);
@@ -145,11 +201,18 @@ public class AttendantRuleTestIntegration extends MongoTestIntegration {
         return getImdb().getCollection("entity");
     }
 
+    @Required
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
     }
 
+    @Required
     public void setDialPlanSetup(DialPlanSetup dialPlanSetup) {
         m_dialPlanSetup = dialPlanSetup;
+    }
+
+    @Required
+    public void setForwardingContext(ForwardingContext forwardingContext) {
+        m_forwardingContext = forwardingContext;
     }
 }
