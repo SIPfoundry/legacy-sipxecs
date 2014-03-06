@@ -85,3 +85,6 @@
 [submodule "sipXresiprocate"]
 	path = sipXresiprocate
 	url = git://github.com/SIPfoundry/resiprocate.git
+[submodule "freeswitch_edge"]
+	path = freeswitch_edge
+	url = git://github.com/SIPfoundry/freeswitch.git
