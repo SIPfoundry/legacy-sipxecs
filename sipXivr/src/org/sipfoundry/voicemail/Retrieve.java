@@ -41,6 +41,7 @@ public class Retrieve extends AbstractVmAction {
     static final int SKIPDURATION_SEC = 5;
     static final int DURATION_TO_END_SEC = 2;
     private List<String> m_tempRecordings;
+    private boolean m_isFirstLogin = false;
 
     @Override
     public String runAction() {
@@ -50,6 +51,14 @@ public class Retrieve extends AbstractVmAction {
         try {
             if (user.hasVoicemail()) {
                 // Those with voicemail permissions get the whole menu
+                m_isFirstLogin = user.isForcePinChange() && user.canTuiChangePin();
+                if (m_isFirstLogin) {
+                    forcePinChange(user);
+                    // exit if pin wasn't changed
+                    if (m_isFirstLogin) {
+                        goodbye();
+                    }
+                }
                 playMainMenu();
             } else {
                 // Those without (thus are just in the directory), get to record their name
@@ -73,9 +82,9 @@ public class Retrieve extends AbstractVmAction {
 
     /**
      * Collect the mailbox status prompts
-     *
+     * 
      * like "You have 2 unheard messages, 5 heard messages and 1 saved message"
-     *
+     * 
      * @return
      */
     PromptList status(MailboxDetails details) {
@@ -340,7 +349,8 @@ public class Retrieve extends AbstractVmAction {
                     }
 
                     // If we need to play the message, add it as a prePrompt to the menu.
-                    // This is so we can barge it with a digit press and act on the digit in the menu.
+                    // This is so we can barge it with a digit press and act on the digit in the
+                    // menu.
                     if (playMessage) {
                         prePromptPl.addPrompts(messagePl);
                         prePromptPl.setOffset(startPos);
@@ -452,14 +462,14 @@ public class Retrieve extends AbstractVmAction {
 
     /**
      * Play the "envelope information" about the message
-     *
+     * 
      * @param md
      */
     PromptList messageInfo(MessageDescriptor md) {
         DateFormat ttsDateFormat = TextToPrompts.ttsDateFormat();
-        
+
         Calendar rxCal = Calendar.getInstance();
-        
+
         rxCal.setTime(TimeZoneUtils.convertJodaTimezone(new LocalDateTime(md.getTimeStampDate()), DateTimeZone
                 .getDefault().getID(), getCurrentUser().getTimeZone()));
         Calendar nowCal = Calendar.getInstance();
@@ -544,7 +554,7 @@ public class Retrieve extends AbstractVmAction {
 
     /**
      * Forward a message, optionally add a recorded comment
-     *
+     * 
      * @param vmMessage
      */
     void forward(org.sipfoundry.voicemail.mailbox.VmMessage vmMessage) {
@@ -624,7 +634,7 @@ public class Retrieve extends AbstractVmAction {
 
     /**
      * Reply to a message, with a recorded comment back to the sender
-     *
+     * 
      * @param vmMessage
      */
     void reply(org.sipfoundry.voicemail.mailbox.VmMessage vmMessage, User sendingUser) {
@@ -651,7 +661,7 @@ public class Retrieve extends AbstractVmAction {
 
     /**
      * Record a new message and send to a selected destination
-     *
+     * 
      * @param vmMessage
      */
     void sendMessage() {
@@ -840,17 +850,20 @@ public class Retrieve extends AbstractVmAction {
                         greetings.addFragment(
                                 "play_greetings",
                                 greeting.getPromptList(greetings, GreetingType.STANDARD,
-                                        m_mailboxManager.getGreetingPath(user, GreetingType.STANDARD), playVmOption).toString(),
+                                        m_mailboxManager.getGreetingPath(user, GreetingType.STANDARD), playVmOption)
+                                        .toString(),
                                 greeting.getPromptList(greetings, GreetingType.OUT_OF_OFFICE,
-                                        m_mailboxManager.getGreetingPath(user, GreetingType.OUT_OF_OFFICE), playVmOption)
-                                        .toString(),
+                                        m_mailboxManager.getGreetingPath(user, GreetingType.OUT_OF_OFFICE),
+                                        playVmOption).toString(),
                                 greeting.getPromptList(greetings, GreetingType.EXTENDED_ABSENCE,
-                                        m_mailboxManager.getGreetingPath(user, GreetingType.EXTENDED_ABSENCE), playVmOption)
-                                        .toString(),
+                                        m_mailboxManager.getGreetingPath(user, GreetingType.EXTENDED_ABSENCE),
+                                        playVmOption).toString(),
                                 greeting.getPromptList(greetings, GreetingType.NONE,
-                                        m_mailboxManager.getGreetingPath(user, GreetingType.NONE), playVmOption).toString(),
+                                        m_mailboxManager.getGreetingPath(user, GreetingType.NONE), playVmOption)
+                                        .toString(),
                                 greeting.getPromptList(greetings, getActiveGreeting(),
-                                        m_mailboxManager.getGreetingPath(user, getActiveGreeting()), playVmOption).toString());
+                                        m_mailboxManager.getGreetingPath(user, getActiveGreeting()), playVmOption)
+                                        .toString());
                         continue;
                     }
 
@@ -982,6 +995,66 @@ public class Retrieve extends AbstractVmAction {
         }
     }
 
+    void forcePinChange(User user) {
+        int errorCount = 0;
+        forcePinChangeOption: for (;;) {
+            LOG.info("Retrieve::forceChangePin " + user.getUserName());
+
+            if (errorCount > getInvalidResponseCount()) {
+                failure();
+                return;
+            }
+
+            String newPin = "";
+
+            for (;;) {
+                // "Enter your new personal identification number, and then press #."
+                PromptList pl1 = getPromptList("new_pin");
+                VmMenu menu1 = createVmMenu();
+                menu1.setOperatorOn0(false);
+                setRedactDTMF(true);
+                IvrChoice choice1 = menu1.collectDigits(pl1, 10);
+                setRedactDTMF(false);
+
+                if (!menu1.isOkay()) {
+                    continue forcePinChangeOption;
+                }
+                newPin = choice1.getDigits();
+
+                // "Enter your new personal identification number again, and then press #."
+                pl1 = getPromptList("new_pin2");
+                menu1 = createVmMenu();
+                menu1.setOperatorOn0(false);
+                setRedactDTMF(true);
+                choice1 = menu1.collectDigits(pl1, 10);
+                setRedactDTMF(false);
+
+                if (!menu1.isOkay()) {
+                    continue forcePinChangeOption;
+                }
+                String newPin2 = choice1.getDigits();
+
+                if (newPin.equals(newPin2)) {
+                    break;
+                }
+                errorCount++;
+                LOG.info("Retrieve::forceChangePin " + user.getUserName() + " Pins do not match.");
+                // "The two personal identification numbers you have entered do not match."
+                play("pin_mismatch", "");
+                continue forcePinChangeOption;
+            }
+            if (m_mailboxManager.changePin(user, newPin)) {
+                play("pin_changed", "");
+                m_isFirstLogin = false;
+                return;
+            }
+            // "An error occurred while processing your request."
+            // "Your personal identification number is not changed."
+            play("pin_change_failed", "");
+            return;
+        }
+    }
+
     void adminOptions() {
         adminOptions: for (;;) {
             LOG.info("Retrieve::adminOptions " + getCurrentUser().getUserName());
@@ -1077,7 +1150,7 @@ public class Retrieve extends AbstractVmAction {
 
     /**
      * Record a wav / mp3 file with confirmation dialog.
-     *
+     * 
      * @param recordFragment To play before the recording
      * @param confirmMenuFragment To play after the recording
      * @return the temporary wav / mp3 file. null if recording is to be tossed

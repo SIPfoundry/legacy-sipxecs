@@ -15,6 +15,9 @@
       <span jwcid="voicemailServer@vm/VoicemailServerComponent" id="voicemailServer"
         settings="ognl:editedUser.settings"/>
       <span jwcid="faxServicePanel@common/FaxServicePanel" mailboxPreferences="ognl:mailboxPreferences" user="ognl:editedUser"/>
+      <span jwcid="mailboxSecurity@vm/MailboxSecurity" id="mailboxSecurity"
+         advanced="ognl:advanced"
+         user="ognl:editedUser"/>
     </table>
     <span jwcid="@common/FormActions" listener="listener:onApply" callback="ognl:callback"/>
   </form>

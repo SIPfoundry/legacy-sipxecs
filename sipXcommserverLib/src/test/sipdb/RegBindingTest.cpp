@@ -97,10 +97,10 @@ public:
                regBinding.gruu_fld() << regBinding.getGruu() <<                           // "gruu"
                regBinding.path_fld() << regBinding.getPath() <<                           // "path"
                regBinding.cseq_fld() << regBinding.getCseq() <<                           // "cseq"
-               regBinding.expirationTime_fld() << regBinding.getExpirationTime() <<       // "expirationTime"
+               regBinding.expirationTime_fld() << (unsigned int)regBinding.getExpirationTime() <<       // "expirationTime"
                regBinding.instrument_fld() << regBinding.getInstrument() <<               // "instrument"
                regBinding.localAddress_fld() << regBinding.getLocalAddress() <<           // "localAddress"
-               regBinding.timestamp_fld() << regBinding.getTimestamp() <<                 // "timestamp"
+               regBinding.timestamp_fld() << (unsigned int)regBinding.getTimestamp() <<                 // "timestamp"
                regBinding.expired_fld() << regBinding.getExpired();                       // "expired"
 
       bsonObj = bsonObjBuilder.obj();
