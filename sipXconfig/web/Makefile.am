@@ -158,13 +158,6 @@ context_SRC = $(shell cd $(srcdir)/context; find . -type f \( \
 	  $(context_TESTPAGE) \
 	\))
 
-#UNITE WEB LITE
-unitelite:
-	mkdir -p $(DESTDIR)/@SIPX_VARDIR@/unitelite && \
-	cd $(srcdir) && \
-	cp -r unitelite $(DESTDIR)/@SIPX_VARDIR@/
-.PHONY: unitelite
-
 # W A R
 wardir = @SIPX_JAVADIR@/sipXconfig
 war_DATA = sipxconfig.war sipxconfig-web.jar
@@ -184,6 +177,10 @@ sipxconfig.war : java-gwt $(WSDD) $(addprefix context/,$(context_SRC))
 style_SRC = $(filter-out src/com/%,$(web_SRC))
 style_DEPS = \
 	$(call JavaDep,@SIPX_JAVADIR@/sipXcommons $(top_srcdir)/lib,$(web_PKGS))
+
+unitelitedir=@SIPX_VARDIR@/unitelite
+install-data-hook :
+	cp -r unitelite $(DESTDIR)@SIPX_VARDIR@/ 
 
 precommit : style validate-xml
 
@@ -223,6 +220,3 @@ clean :
 		server-config-no-spring.wsdd.dirty \
 	)	
 
-#local hook to install unite web
-install-data-local: 
-	$(MAKE) unitelite
