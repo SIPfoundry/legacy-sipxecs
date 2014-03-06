@@ -143,6 +143,18 @@
   </bean>
   <alias name="speedDialResource" alias="/my/speeddial" />
 
+  <bean id="personalAttendantResource" class="org.sipfoundry.sipxconfig.rest.PersonalAttendantResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="modifiable" value="true" />
+    <property name="variants">
+      <list>
+        <ref bean="jsonFormat"/>
+      </list>
+    </property>
+    <property name="mgr" ref="remoteMailboxManagerImpl"/>
+  </bean>
+  <alias name="personalAttendantResource" alias="/my/voicemail/attendant" />
+
   <bean id="personalAttendantOperatorResource" class="org.sipfoundry.sipxconfig.rest.PersonalAttendantOperatorResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="available" value="false" />
