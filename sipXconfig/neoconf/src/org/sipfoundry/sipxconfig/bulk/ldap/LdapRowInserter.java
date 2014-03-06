@@ -23,12 +23,15 @@ import javax.naming.directory.SearchResult;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.DuplicateType;
+import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.UserValidationUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
+
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.GroupAutoAssign;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
@@ -61,12 +64,11 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         m_userMapper.setAttrMap(m_attrMap);
         // get all the users from LDAP group
         m_existingUserNames = new HashSet<String>();
-        //initialize imported username set -
-        //this will contain usernames successfuly imported in the current import session
-        //we will use it to check for duplicated usernames
+        // initialize imported username set -
+        // this will contain usernames successfuly imported in the current import session
+        // we will use it to check for duplicated usernames
         m_importedUserNames = new HashSet<String>();
-        Group defaultGroup = m_coreContext.getGroupByName(m_attrMap.getDefaultGroupName(),
-                false);
+        Group defaultGroup = m_coreContext.getGroupByName(m_attrMap.getDefaultGroupName(), false);
         if (defaultGroup != null) {
             Collection<String> userNames = m_coreContext.getGroupMembersNames(defaultGroup);
             m_existingUserNames.addAll(userNames);
@@ -92,22 +94,24 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
     }
 
     void insertRow(SearchResult searchResult, Attributes attrs) {
+        User user = null;
+        boolean newUser = false;
         try {
             String userName = m_userMapper.getUserName(attrs);
-            User user = m_coreContext.loadUserByUserName(userName);
-            boolean newUser = user == null;
+            user = m_coreContext.loadUserByUserName(userName);
+            newUser = (user == null);
             if (newUser) {
                 user = m_coreContext.newUser();
                 user.setUserName(userName);
             } else if (!user.isLdapManaged()) {
-                //this user was already created but it is not supposed to be managed by LDAP
+                // this user was already created but it is not supposed to be managed by LDAP
                 LOG.info("STOP Inserting:" + attrs.toString()
                     + " as this is an existing user which is not LDAP managed");
                 return;
             }
             user.setEnabled(true);
             user.setPermissionManager(m_permissionManager);
-            //set ldap import information
+            // set ldap import information
             user.setLdapManaged(true);
             user.setLastImportedDate(new Date());
             // disable user email notification
@@ -124,7 +128,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
 
             Collection<String> groupNames = m_userMapper.getGroupNames(searchResult);
 
-            //remove previous ldap groups
+            // remove previous ldap groups
             Set<Group> groups = user.getGroups();
             List<Group> groupsToDelete = new ArrayList<Group>();
             for (Group group : groups) {
@@ -141,20 +145,39 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
             }
 
             user.setSettingValue(User.DOMAIN_SETTING, m_domain);
-
-            if (newUser) {
-                // Execute the automatic assignments for the user.
-                GroupAutoAssign groupAutoAssign = new GroupAutoAssign(m_conferenceBridgeContext, m_coreContext,
-                                                                      m_forwardingContext, m_mailboxManager);
-                groupAutoAssign.assignUserData(user);
-            } else {
-                m_coreContext.saveUser(user);
-            }
-            m_importedUserNames.add(userName);
+            saveRow(newUser, user);
         } catch (Exception e) {
-            LOG.error("Failed inserting row", e);
-            throw new UserException(e);
+            if (e instanceof NameInUseException
+                && ((NameInUseException) e).getDuplicateEntity().getType() == DuplicateType.USER_IM
+                && user != null
+                && !StringUtils.isEmpty(user.getUserDomain())) {
+                LOG.error("Duplicate IM ID");
+                user.setImId(user.getImId() + "." + user.getUserDomain() + "_" + m_importedUserNames.size());
+                try {
+                    saveRow(newUser, user);
+                } catch (Exception ex) {
+                    LOG.error(
+                        "Failed inserting row with IM ID: "
+                            + StringUtils.defaultIfEmpty(user.getImId(), StringUtils.EMPTY), e);
+                    throw new UserException(e);
+                }
+            } else {
+                LOG.error("Failed inserting row", e);
+                throw new UserException(e);
+            }
         }
+    }
+
+    private void saveRow(boolean newUser, User user) {
+        if (newUser) {
+            // Execute the automatic assignments for the user.
+            GroupAutoAssign groupAutoAssign = new GroupAutoAssign(m_conferenceBridgeContext, m_coreContext,
+                m_forwardingContext, m_mailboxManager);
+            groupAutoAssign.assignUserData(user);
+        } else {
+            m_coreContext.saveUser(user);
+        }
+        m_importedUserNames.add(user.getUserName());
     }
 
     /**

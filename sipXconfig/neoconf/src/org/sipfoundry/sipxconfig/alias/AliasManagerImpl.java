@@ -35,8 +35,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 /**
  * AliasManagerImpl: manages all SIP aliases
  */
-public class AliasManagerImpl extends SipxHibernateDaoSupport implements AliasManager,
-        BeanFactoryAware {
+public class AliasManagerImpl extends SipxHibernateDaoSupport implements AliasManager, BeanFactoryAware {
     public static final String CONTEXT_BEAN_NAME = "aliasManagerImpl";
     private static final Log LOG = LogFactory.getLog(AliasManagerImpl.class);
     private Collection<AliasOwner> m_aliasOwners;
@@ -74,7 +73,13 @@ public class AliasManagerImpl extends SipxHibernateDaoSupport implements AliasMa
         if (bean.isNew()) {
             // For a new bean, if there is any database object that has already claimed
             // the alias, then this bean cannot use it
-            return !isAliasInUse(alias);
+            boolean canUseAlias = !isAliasInUse(alias);
+            if (LOG.isInfoEnabled() && !canUseAlias) {
+                String msg = MessageFormat.format("NEW bean; Alias \"{0}\" is in use by an existing bean",
+                    new Object[] {alias});
+                LOG.info(msg);
+            }
+            return canUseAlias;
         }
 
         boolean canUseAlias = false;
@@ -89,10 +94,8 @@ public class AliasManagerImpl extends SipxHibernateDaoSupport implements AliasMa
             BeanId bid = (BeanId) bids.iterator().next();
             canUseAlias = bid.isIdOfBean(bean);
             if (LOG.isInfoEnabled() && !canUseAlias) {
-                String msg = MessageFormat.format("Alias \"{0}\" is in use by: {1}",
-                        new Object[] {
-                            alias, bid.toString()
-                        });
+                String msg = MessageFormat.format("Existing bean; Alias \"{0}\" is in use by: {1}",
+                    new Object[] {alias, bid.toString()});
                 LOG.info(msg);
             }
         } else {
@@ -108,9 +111,7 @@ public class AliasManagerImpl extends SipxHibernateDaoSupport implements AliasMa
             }
             if (LOG.isErrorEnabled()) {
                 String msg = MessageFormat.format("Alias \"{0}\" is in use multiple objects:",
-                        new Object[] {
-                            alias
-                        });
+                    new Object[] {alias});
                 LOG.error(msg + StringUtils.join(bids.iterator(), ' '));
             }
         }

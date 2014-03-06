@@ -160,7 +160,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     @Override
     public boolean saveUser(User user) {
         boolean newUserName = user.isNew();
-        String dup = null;
+        DuplicateEntity dup = null;
         try {
             dup = checkForDuplicateNameOrAlias(user);
         } catch (Exception ex) {
@@ -170,7 +170,6 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             throw new NameInUseException(dup);
         }
 
-        checkImIdUnique(user);
         checkMaxUsers(user, m_maxUserCount);
         checkBranch(user);
         String origUserName = null;
@@ -372,13 +371,6 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return getHibernateTemplate().findByNamedQuery(USER_ADMIN);
     }
 
-    private void checkImIdUnique(User user) {
-        if (!isImIdUnique(user)) {
-            ImAccount accountToSave = new ImAccount(user);
-            throw new UserException("&duplicate.imid.error", accountToSave.getImId());
-        }
-    }
-
     /**
      * Checks if the inherited branch is the same with the actual branch when they are not null
      *
@@ -412,8 +404,9 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
      * @return name that collides
      */
     @Override
-    public String checkForDuplicateNameOrAlias(User user) {
+    public DuplicateEntity checkForDuplicateNameOrAlias(User user) {
         String result = null;
+        DuplicateEntity duplicateEntity = null;
 
         // Check for duplication within the user itself
         List names = new ArrayList(user.getAliases());
@@ -428,15 +421,19 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             names.add(faxDid);
         }
         result = checkForDuplicateString(names);
+        duplicateEntity = result != null ? new DuplicateEntity(DuplicateType.USER_INTERNAL, result) : null;
         if (result == null) {
             // Check whether the userName is a duplicate.
             if (!m_aliasManager.canObjectUseAlias(user, userName)) {
                 result = userName;
+                duplicateEntity = result != null ? new DuplicateEntity(DuplicateType.USER_NAME, result) : null;
             } else {
                 // Check the aliases and return any duplicate as a bad name.
                 for (String alias : user.getAliases()) {
                     if (!m_aliasManager.canObjectUseAlias(user, alias)) {
                         result = alias;
+                        duplicateEntity = result != null
+                            ? new DuplicateEntity(DuplicateType.USER_ALIAS, result) : null;
                         break;
                     }
                 }
@@ -444,23 +441,28 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                 ImAccount imAccount = new ImAccount(user);
                 if (!m_aliasManager.canObjectUseAlias(user, imAccount.getImId())) {
                     result = imAccount.getImId();
+                    duplicateEntity = result != null ? new DuplicateEntity(DuplicateType.USER_IM, result) : null;
                 }
 
                 // check if the user's fax extension and DID areunique in the alias namespace
                 if (!faxExtension.isEmpty()) {
                     if (!m_aliasManager.canObjectUseAlias(user, faxExtension)) {
                         result = faxExtension;
+                        duplicateEntity = result != null
+                            ? new DuplicateEntity(DuplicateType.USER_FAX_EXTENSION, result) : null;
                     }
                 }
                 if (!faxDid.isEmpty()) {
                     if (!m_aliasManager.canObjectUseAlias(user, faxDid)) {
                         result = faxDid;
+                        duplicateEntity = result != null
+                            ? new DuplicateEntity(DuplicateType.USER_FAX_DID, result) : null;
                     }
                 }
             }
         }
 
-        return result;
+        return duplicateEntity;
     }
 
     /**
@@ -821,31 +823,6 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         q.setInteger(PAGE_SIZE, pageSize);
         List<Integer> users = q.list();
         return users;
-    }
-
-    @Override
-    public boolean isImIdUnique(User user) {
-        ImAccount accountToSave = new ImAccount(user);
-        // check ImId to save against persisted ImIds
-        if (getUserProfileService().isImIdInUse(accountToSave.getImId(), user.getId())) {
-            return false;
-        }
-
-        // check ImId to save against potential default ImIds
-        List<ImAccount> imAccounts = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "potentialImAccountsByUserNameOrAlias", new String[] {
-                    QUERY_IM_ID, QUERY_USER_ID
-                }, new Object[] {
-                    accountToSave.getImId(), user.getId()
-                });
-
-        for (ImAccount imAccount : imAccounts) {
-            if (imAccount.getImId().equalsIgnoreCase(accountToSave.getImId())) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     @Override
