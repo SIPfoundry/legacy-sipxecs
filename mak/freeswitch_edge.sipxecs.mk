@@ -1,5 +1,6 @@
 freeswitch_edge_VER = 1.5.11b
-freeswitch_edge_PACKAGE_REVISION = $(shell cd $(SRC)/$(PROJ); ../config/revision-gen $(freeswitch_edge_VER))
+freeswitch_edge_TAG = 1.5.11
+freeswitch_edge_PACKAGE_REVISION = $(shell cd $(SRC)/$(PROJ); ../config/revision-gen $(freeswitch_edge_TAG))
 freeswitch_edge_SRPM = freeswitch_edge-$(freeswitch_edge_VER)-$(freeswitch_edge_PACKAGE_REVISION).src.rpm
 freeswitch_edge_SPEC = $(SRC)/$(PROJ)/freeswitch_edge.spec
 freeswitch_edge_TARBALL = $(BUILDDIR)/$(PROJ)/freeswitch_edge-$(freeswitch_edge_VER).tar.bz2
