@@ -2,26 +2,24 @@ SUBDIRS = .
 
 AM_CPPFLAGS =  \
 	$(SIPXPROXY_COMMON_CXX_FLAGS) \
-	-I$(top_srcdir)/include \
-	-I${srcdir}/common/esl/include/esl \
-	-I${top_srcdir}/libs/resiprocate \
-	-I${top_srcdir}/libs/libjson-rpc-cpp/src/jsonrpc \
-	-I${top_srcdir}/libs/csv_parser/include
+	-I$(top_srcdir)/include
 
 RESIPROCATE_LIBS = \
-  -lcares \ 
-  -ldb_cxx \
-  -lrepro \ 
-  -ldum \
-  -lresip \
-  -lrutil
+	-lcares \
+	-ldb_cxx \
+	-lrepro \
+	-ldum \
+	-lresip \
+	-lrutil
 
 
-bin_PROGRAMS = sipxcallgen_fs sipxwebrtc
+bin_PROGRAMS = sipxcallgen_fs sipxwebrtc sipxedgerpc
 
-sipxcallgen_fs_CFLAGS = -I${srcdir}/common/esl/include
 
-sipxcallgen_fs_LDADD = @BOOST_LIBS@ -lpthread -lsipXesl
+sipxcallgen_fs_LDADD = \
+	@BOOST_LIBS@ \
+	-lpthread \
+	-lsipXesl
 
 sipxcallgen_fs_SOURCES =  \
 	callgen/CallManager.h \
@@ -61,5 +59,19 @@ sipxwebrtc_SOURCES =  \
 	webrtc/WSRouter.h \
 	webrtc/WSRouter.cpp
 
+sipxedgerpc_CXXFLAGS = \
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
+	-DSIPX_DBDIR=\"@SIPX_DBDIR@\"
 
+
+sipxedgerpc_LDADD = @BOOST_LIBS@ \
+	-lpthread \
+	@SIPXCOMMSERVER_LIBS@ \
+	-lzmq \
+	-lmongoclient \
+	-ljsonrpccpp
+
+sipxedgerpc_SOURCES =  \
+	rpcserver/RpcServer.h \
+	rpcserver/RpcServer.cpp
 
