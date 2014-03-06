@@ -66,7 +66,6 @@ sipxedgerpc_CXXFLAGS = \
 sipxedgerpc_LDADD = @BOOST_LIBS@ \
 	-lpthread \
 	@SIPXCOMMSERVER_LIBS@ \
-	-lzmq \
 	-lmongoclient \
 	-ljsonrpccpp
 
