@@ -1,0 +1,76 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: @PACKAGE_REVISION@
+
+Summary:  This project provides a C++ wrapper for FreeSwitch Event Socket Layer
+License: AGPL
+Group: Development/Libraries
+Vendor: Ezuce Inc
+Url: http://www.ezuce.com
+
+BuildRequires: automake
+BuildRequires: gcc-c++
+BuildRequires: cppunit-devel
+BuildRequires: pcre-devel >= 4.5
+BuildRequires: boost-devel
+Requires: boost
+
+Source: %name-%version.tar.gz
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+This project provides a C++ wrapper for FreeSwitch Event Socket Layer
+
+%if %{_vendor} == suse
+%debug_package
+%endif
+
+# Install header files
+%package devel
+Requires: %name
+
+Group: Development/Libraries
+Vendor: Ezuce Inc
+Summary: Header files for %name
+
+%description devel
+This project provides a C++ wrapper for FreeSwitch Event Socket Layer
+
+%prep
+%setup -q
+
+%build
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
+make %{_smp_mflags} all
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libsipXesl.la
+%attr(755,root,root) %{_libdir}/libsipXesl.so*
+
+
+%files devel
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libsipXesl.a
+%dir %attr(755,root,root) %{_includedir}/esl
+%{_includedir}/esl/*
+
+
+%changelog
+
