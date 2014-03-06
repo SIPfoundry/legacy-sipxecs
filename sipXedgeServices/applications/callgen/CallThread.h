@@ -11,7 +11,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <string>
 #include <sstream>
-#include <EslConnection.h>
+#include <esl/EslConnection.h>
 
 
 #if defined(__LP64__)

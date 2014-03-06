@@ -1,5 +1,5 @@
 AC_PREREQ(2.57)
-AC_INIT(sipXedgeServices, 14.4, https://github.com/SIPFoundry)
+AC_INIT(sipXedgeServices, 4.6.0, https://github.com/SIPFoundry)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR([applications/webrtc])
 AC_PATH_PROG([BASH], [bash])
@@ -17,8 +17,6 @@ AM_CONDITIONAL(IS_RPMBUILD, test x$enable_rpmbuild = xyes)
 SFAC_INIT_FLAGS
 SFAC_LIB_PORT
 SFAC_LIB_COMMSERVER
-
-m4_include([libs/libs.m4])
 
 AC_ARG_ENABLE(dep-check,
   AS_HELP_STRING([--disable-dep-check],
@@ -39,17 +37,9 @@ AC_SUBST(PACKAGE_REVISION)
 
 AC_CHECK_LIB(boost_thread, main, [BOOST_LIBS="-lboost_date_time -lboost_filesystem -lboost_system -lboost_thread -lboost_program_options -lboost_iostreams -lboost_random -lboost_regex"],
     [AC_CHECK_LIB(boost_thread-mt, main,
-    [BOOST_LIBS="-lboost_date_time-mt -lboost_filesystem-mt -lboost_system-mt -lboost_thread-mt -lboost_program_options-mt -lboost_iostreams-mt -lboost_random-mt -lboost_regex-mt"],
+    [BOOST_LIBS="-lboost_date_time-mt -lboost_filesystem-mt -lboost_system-mt -lboost_thread-mt -lboost_program_options-mt -lboost_iostreams-mt -lboost_regex-mt"],
     [AC_MSG_ERROR("no boost thread found")])])
 AC_SUBST(BOOST_LIBS)
-
-SFAC_MONIT_CONFIGURE
-SFAC_FREESWITCH_CONFIGURE
-SFAC_RESIPROCATE_CONFIGURE
-SFAC_CSV_PARSER_CONFIGURE
-SFAC_JSON_RPC_CONFIGURE
-
-
 
 
 LIBVERSION_CURRENT="1"
@@ -64,11 +54,7 @@ AC_SUBST(LIBVERSION_FULL)
 AC_SUBST(LIBVERSION_INFO)
 
 AC_CONFIG_FILES([
-	libs/Makefile
   applications/Makefile
-  applications/common/esl/Makefile
-  applications/common/esl/src/Makefile
-  applications/common/esl/include/Makefile
   Makefile
 ])
 

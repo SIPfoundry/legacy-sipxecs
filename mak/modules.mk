@@ -12,6 +12,7 @@ sipx_core = \
   sipXmediaLib \
   sipXmediaAdapterLib \
   sipXcallLib \
+  sipXeslLib \
   sipXsupervisor \
   sipXcommserverLib \
   sipXsqa \
@@ -115,7 +116,8 @@ lib_all = \
   rubygem-net-ssh \
   rubygem-net-sftp \
   ruby-postgres \
-  jasperserver
+  jasperserver \
+  libjsonrpccpp
 
 lib_exclude_fedora_16 = \
   epel \
@@ -168,7 +170,7 @@ sipXsbc_DEPS = sipXconfig sipXsqa sipXregistry
 sipXcallQueue_DEPS = sipXconfig
 sipXexample_DEPS = sipXcommserverLib sipXconfig
 sipXsss_DEPS = sipXsqa sipXcommserverLib sipXresiprocate
-sipXedgeServices_DEPS =  sipXresiprocate sipXcommserverLib
+sipXedgeServices_DEPS =  sipXeslLib sipXresiprocate sipXcommserverLib
 
 all = \
   $(lib) \

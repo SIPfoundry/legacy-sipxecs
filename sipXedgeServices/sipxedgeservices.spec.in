@@ -1,0 +1,110 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: @PACKAGE_REVISION@
+
+Summary: SIP Bridging Solutions for sipXecs
+License: AGPL
+Url: http://www.sipfoundry.org
+
+
+BuildRequires: automake
+BuildRequires: gcc-c++
+BuildRequires: cppunit-devel
+BuildRequires: zeromq-devel
+BuildRequires: pcre-devel >= 4.5
+BuildRequires: unixODBC-devel
+BuildRequires: zip
+%if %{_vendor} == suse
+BuildRequires: pwdutils
+%else
+BuildRequires: shadow-utils
+%endif
+BuildRequires: sipxcommserverlib-devel  >= %version
+BuildRequires: sipxportlib-devel        >= %version
+BuildRequires: sipxtacklib-devel        >= %version
+BuildRequires: sipxresiprocate-devel    >= %version
+
+%if 0%{?suse_version} > 100
+BuildRequires: lzo-devel
+%endif
+BuildRequires: autoconf
+BuildRequires: automake
+BuildRequires: curl-devel
+BuildRequires: gcc-c++
+BuildRequires: gnutls-devel
+BuildRequires: libtool >= 1.5.17
+BuildRequires: ncurses-devel
+BuildRequires: openssl-devel
+BuildRequires: perl
+%if 0%{?fedora_version} >= 8 || 0%{?rhel} >= 6
+BuildRequires: perl-ExtUtils-Embed
+%endif
+BuildRequires: pkgconfig
+%if 0%{?rhel} < 6 && 0%{?fedora} <= 6
+BuildRequires: termcap
+%endif
+BuildRequires: unixODBC-devel
+BuildRequires: gdbm-devel
+BuildRequires: db4-devel
+BuildRequires: python-devel
+BuildRequires: libogg-devel
+BuildRequires: libvorbis-devel
+BuildRequires: libjpeg-devel
+#BuildRequires: mono-devel
+BuildRequires: alsa-lib-devel
+BuildRequires: which
+BuildRequires: zlib-devel
+BuildRequires: e2fsprogs-devel
+BuildRequires: libtheora-devel
+BuildRequires: libxml2-devel
+BuildRequires: bison
+BuildRequires: libjsonrpccpp-devel
+BuildRequires: sipxesllib-devel
+Requires: alsa-lib
+Requires: libogg
+Requires: libvorbis
+Requires: curl
+Requires: ncurses
+Requires: openssl
+Requires: unixODBC
+Requires: libjpeg
+Requires: db4
+Requires: gdbm
+Requires: zlib
+Requires: libtiff
+Requires: python
+Requires: libtheora
+Requires: libxml2
+Requires: monit
+Requires: libjsonrpccpp
+Requires: sipxesllib
+
+
+Source:   %name-%version.tar.gz
+
+%description
+SIP Bridging Solutions for sipXecs
+
+%prep
+%setup -q
+
+%build
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make %{_smp_mflags}
+
+%install
+make DESTDIR=%{buildroot} install
+rm -rf %{buildroot}/include/esl
+rm -rf %{buildroot}/usr/opt/sipxpbx/edge/include
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/sipxwebrtc
+%attr(755,root,root) %{_bindir}/sipxcallgen_fs
+
+
+

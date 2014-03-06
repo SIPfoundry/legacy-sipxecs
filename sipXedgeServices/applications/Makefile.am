@@ -1,21 +1,29 @@
-SUBDIRS = common/esl . 
+SUBDIRS = . 
 
 AM_CPPFLAGS =  \
 	$(SIPXPROXY_COMMON_CXX_FLAGS) \
 	-I$(top_srcdir)/include \
-	-I${srcdir}/common/esl/include \
+	-I${srcdir}/common/esl/include/esl \
 	-I${top_srcdir}/libs/resiprocate \
 	-I${top_srcdir}/libs/libjson-rpc-cpp/src/jsonrpc \
 	-I${top_srcdir}/libs/csv_parser/include
 
+RESIPROCATE_LIBS = \
+  -lcares \ 
+  -ldb_cxx \
+  -lrepro \ 
+  -ldum \
+  -lresip \
+  -lrutil
 
-bin_PROGRAMS = sipxcallgen sipxwebrtc
 
-sipxcallgen_CFLAGS = -I${srcdir}/common/esl/include
+bin_PROGRAMS = sipxcallgen_fs sipxwebrtc
 
-sipxcallgen_LDADD = @BOOST_LIBS@ -lpthread @SIPX_EDGE_BUILD_DIR@/applications/common/esl/src/.libs/libsipxedge_esl.a
+sipxcallgen_fs_CFLAGS = -I${srcdir}/common/esl/include
 
-sipxcallgen_SOURCES =  \
+sipxcallgen_fs_LDADD = @BOOST_LIBS@ -lpthread -lsipXesl
+
+sipxcallgen_fs_SOURCES =  \
 	callgen/CallManager.h \
 	callgen/CallManager.cpp \
 	callgen/CallThread.h \
@@ -30,15 +38,17 @@ sipxwebrtc_CXXFLAGS = \
 	
 
 sipxwebrtc_LDADD = @BOOST_LIBS@ \
-	-lpthread @SIPX_EDGE_BUILD_DIR@/applications/common/esl/src/.libs/libsipxedge_esl.a \
-	@RESIPROCATE_LIBS@ \
-	@JSON_RPC_LIBS@ \
-	@CSV_PARSER_LIBS@ \
+	-lpthread \
+	$(RESIPROCATE_LIBS) \
 	@SIPXCOMMSERVER_LIBS@ \
+	-lsipXesl \
 	-lzmq \
-	-lmongoclient
+	-lmongoclient \
+	-ljsonrpccpp
 
 sipxwebrtc_SOURCES =  \
+	webrtc/csv_parser.cpp \
+	webrtc/csv_parser.hpp \
 	webrtc/WSRouterMain.cpp \
 	webrtc/AuthIdentityEncoder.h \
 	webrtc/AuthIdentityEncoder.cpp \

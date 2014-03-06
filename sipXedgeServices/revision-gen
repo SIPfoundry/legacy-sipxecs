@@ -16,9 +16,9 @@ fi
 
 
 VERSION=$1
-VER_REV=`git describe --abbrev=5 --tags --match="${VERSION}" HEAD`
+VER_REV=`git describe --abbrev=5 --tags --match="v${VERSION}" HEAD`
 if [ "$?" != "0" ]; then
-    echo "Could not find tag $VERSION" 1>&2
+    echo "Could not find tag v$VERSION" 1>&2
     exit 1
 fi
 

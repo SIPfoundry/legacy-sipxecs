@@ -10,7 +10,7 @@
 
 #include "WSRouter.h"
 #include "AuthInformationGrabber.h"
-#include "csv_parser/csv_parser.hpp"
+#include "csv_parser.hpp"
 
 #define DEFAULT_CACHE_LIFETIME 3600 * 24
 #define USER_CACHE_FILE "/edge/user-cache.csv"
