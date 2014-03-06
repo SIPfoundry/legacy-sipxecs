@@ -235,6 +235,11 @@ public class User extends AbstractUser implements Replicable {
         return id;
     }
 
+    public boolean isImEnabled() {
+        ImAccount account = new ImAccount(this);
+        return account.isEnabled();
+    }
+
     public void setE911LocationId(Integer id) {
         if (id != null && id < 0) {
             return;
