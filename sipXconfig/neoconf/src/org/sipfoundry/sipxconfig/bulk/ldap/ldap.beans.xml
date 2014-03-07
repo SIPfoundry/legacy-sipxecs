@@ -68,12 +68,8 @@
     <property name="coreContext" ref="coreContext" />
     <property name="forwardingContext" ref="forwardingContext" />
     <property name="mailboxManager" ref="mailboxManager" />
-    <property name="preserveMissingUsers" value="false" />
     <property name="userMapper">
       <ref local="ldapUserMapper" />
-    </property>
-    <property name="ldapManager">
-      <ref local="ldapManager" />
     </property>
     <property name="permissionManager" ref="permissionManager" />
   </bean>

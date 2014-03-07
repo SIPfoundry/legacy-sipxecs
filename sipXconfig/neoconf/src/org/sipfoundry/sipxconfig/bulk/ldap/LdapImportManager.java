@@ -12,9 +12,12 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 import java.io.Writer;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.bulk.UserPreview;
 
 public interface LdapImportManager {
+    public static final AlarmDefinition LDAP_IMPORT_FAILED = new AlarmDefinition("LDAP_IMPORT_FAILED");
+
     void insert(int connectionId);
 
     /**

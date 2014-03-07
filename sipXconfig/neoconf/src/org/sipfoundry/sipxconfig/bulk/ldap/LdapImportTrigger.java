@@ -12,21 +12,30 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CronSchedule;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
+
 public class LdapImportTrigger implements ApplicationListener {
+    private static final Log LOG = LogFactory.getLog("ldap");
+
     private LdapManager m_ldapManager;
 
     private LdapImportManager m_ldapImportManager;
 
-    private Map<Integer, Timer> m_timerHash = new HashMap<Integer, Timer>();
+    private Map<Integer, ScheduledFuture<?>> m_taskHash = new HashMap<Integer, ScheduledFuture<?>>();
+
+    private ScheduledExecutorService m_executor = Executors.newSingleThreadScheduledExecutor();
 
     public void setLdapManager(LdapManager ldapManager) {
         m_ldapManager = ldapManager;
@@ -56,21 +65,30 @@ public class LdapImportTrigger implements ApplicationListener {
     }
 
     private synchronized void onScheduleChanged(CronSchedule schedule, int connectionId) {
-        Timer timer = m_timerHash.get(connectionId);
-        if (timer != null) {
-            timer.cancel();
+        ScheduledFuture<?> currentFuture = m_taskHash.get(connectionId);
+        if (currentFuture != null) {
+            currentFuture.cancel(false);
         }
-        TimerTask ldapImportTask = new LdapImportTask(m_ldapImportManager, connectionId);
-        timer = schedule.schedule(ldapImportTask);
-        m_timerHash.put(connectionId, timer);
+        Runnable ldapImportTask = new LdapImportTask(m_ldapImportManager, connectionId);
+        ScheduledFuture<?> newFuture = schedule.schedule(m_executor, ldapImportTask);
+        m_taskHash.put(connectionId, newFuture);
     }
 
     private synchronized void onScheduleDeleted(int connectionId) {
-        Timer timer = m_timerHash.get(connectionId);
-        if (timer != null) {
-            timer.cancel();
+        ScheduledFuture<?> timerTask = m_taskHash.get(connectionId);
+        if (timerTask != null) {
+            timerTask.cancel(false);
         }
-        m_timerHash.remove(connectionId);
+        m_taskHash.remove(connectionId);
+    }
+
+    public boolean isScheduledImportRunning() {
+        for (ScheduledFuture<?> future : m_taskHash.values()) {
+            if (future.getDelay(TimeUnit.MILLISECONDS) <= 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static final class ScheduleChangedEvent extends ApplicationEvent {
@@ -105,7 +123,7 @@ public class LdapImportTrigger implements ApplicationListener {
         }
     }
 
-    private static final class LdapImportTask extends TimerTask {
+    private static final class LdapImportTask implements Runnable {
         private LdapImportManager m_ldapImportManager;
         private int m_connectionId;
 
@@ -115,8 +133,8 @@ public class LdapImportTrigger implements ApplicationListener {
         }
 
         public void run() {
+            LOG.info("Ready to start scheduled import");
             m_ldapImportManager.insert(m_connectionId);
         }
     }
-
 }

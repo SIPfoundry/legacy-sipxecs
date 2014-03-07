@@ -45,7 +45,7 @@ $(sipx.SIPX_LOGDIR)/sipregistrar.log $(sipx.SIPX_LOGDIR)/sipstatus.log $(sipx.SI
 }
 
 # Java does not reopen log file periodically, make a copy and truncate current log file. May lose some data, but this will be addressed in future release.
-$(sipx.SIPX_LOGDIR)/sipxacccode.log $(sipx.SIPX_LOGDIR)/sipxprovision.log $(sipx.SIPX_LOGDIR)/sipxbridge.log $(sipx.SIPX_LOGDIR)/sipxcallresolver.log $(sipx.SIPX_LOGDIR)/sipximbot.log $(sipx.SIPX_LOGDIR)/sipxivr.log $(sipx.SIPX_LOGDIR)/sipxopenfire.log  $(sipx.SIPX_LOGDIR)/sipxrecording.log $(sipx.SIPX_LOGDIR)/sipxrelay.log $(sipx.SIPX_LOGDIR)/sipxrest.log $(sipx.SIPX_LOGDIR)/sipxconfig.log  $(sipx.SIPX_LOGDIR)/sipxconfig-audit.log {
+$(sipx.SIPX_LOGDIR)/sipxacccode.log $(sipx.SIPX_LOGDIR)/sipxprovision.log $(sipx.SIPX_LOGDIR)/sipxbridge.log $(sipx.SIPX_LOGDIR)/sipxcallresolver.log $(sipx.SIPX_LOGDIR)/sipximbot.log $(sipx.SIPX_LOGDIR)/sipxivr.log $(sipx.SIPX_LOGDIR)/sipxopenfire.log  $(sipx.SIPX_LOGDIR)/sipxrecording.log $(sipx.SIPX_LOGDIR)/sipxrelay.log $(sipx.SIPX_LOGDIR)/sipxrest.log $(sipx.SIPX_LOGDIR)/sipxconfig.log  $(sipx.SIPX_LOGDIR)/sipxconfig-audit.log $(sipx.SIPX_LOGDIR)/sipxconfig-ldap.log {
    copytruncate
 }
 

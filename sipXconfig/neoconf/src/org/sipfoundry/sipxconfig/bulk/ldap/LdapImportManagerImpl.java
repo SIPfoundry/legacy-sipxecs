@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -23,6 +25,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
+import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
+import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.bulk.UserPreview;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.bulk.csv.SimpleCsvWriter;
@@ -35,8 +40,8 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.NameClassPairMapper;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapImportManager {
-    public static final Log LOG = LogFactory.getLog(LdapImportManager.class);
+public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapImportManager, AlarmProvider {
+    private static final Log LOG = LogFactory.getLog("ldap");
     private LdapTemplateFactory m_templateFactory;
     private LdapManager m_ldapManager;
     private LdapRowInserter m_rowInserter;
@@ -57,9 +62,18 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
             m_rowInserter.beforeInserting(null);
             CollectingNameClassPairCallbackHandler handler = new NameClassPairMapperClosureAdapter(m_rowInserter);
             runSearch(0, handler, connectionId);
-            m_rowInserter.afterInserting();
+            int notImportedSize = m_rowInserter.getNotImportedUserNames().size();
+            int importedSize = m_rowInserter.getImportedUserNames().size();
+            if (notImportedSize > 0) {
+                LOG.info("LDAP users imported: " + importedSize + " rejected: " + notImportedSize);
+            } else {
+                LOG.info("All LDAP users are successfully imported... " + importedSize);
+            }
+            LOG.info("***** FINISHED INSERTING DATA *****");
         } catch (Exception ex) {
             LOG.error("***** FAILURE DURING INSERTING DATA *****", ex);
+        } finally {
+            m_rowInserter.afterInserting();
         }
     }
 
@@ -236,5 +250,10 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
     @Required
     public void setAdminContext(AdminContext adminContext) {
         m_adminContext = adminContext;
+    }
+
+    @Override
+    public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
+        return Collections.singleton(LDAP_IMPORT_FAILED);
     }
 }
