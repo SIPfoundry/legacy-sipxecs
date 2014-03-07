@@ -257,7 +257,7 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
         if (isVideoConference()) {
             flags.append(" | video-bridge");
         }
-        if ((Boolean) getSettingTypedValue("fs-conf-conference/video-toogle-floor")) {
+        if ((Boolean) getSettingTypedValue(VIDEO_TOGGLE_FLOOR)) {
             flags.append(" | video-floor-only");
         }
         if (!(Boolean) getSettingTypedValue(QUICKSTART)) {
@@ -438,8 +438,8 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
             props.put(CONF_OWNER, StringUtils.EMPTY);
         }
         props.put(CONF_PIN, getParticipantAccessCode());
-        props.put(CONF_MODERATED, getSettingValue("chat-meeting/moderated"));
-        props.put(CONF_PUBLIC, getSettingValue("chat-meeting/public"));
+        props.put(CONF_MODERATED, getSettingValue(MODERATED_ROOM));
+        props.put(CONF_PUBLIC, getSettingValue(PUBLIC_ROOM));
         props.put(CONF_MEMBERS_ONLY, getSettingValue("chat-meeting/members-only"));
         props.put(CONF_AUTORECORD, isAutorecorded());
         props.put(CONF_URI, getUri());

@@ -39,6 +39,8 @@ import org.springframework.beans.factory.annotation.Required;
 import com.thoughtworks.xstream.XStream;
 
 public class UserConferenceResource extends UserResource {
+    private static final String NAME = "name";
+
     private ConferenceBridgeContext m_conferenceBridgeContext;
 
     @Override
@@ -127,7 +129,7 @@ public class UserConferenceResource extends UserResource {
     }
 
     private String getNameFromRequest() {
-        return (String) getRequest().getAttributes().get("name");
+        return (String) getRequest().getAttributes().get(NAME);
     }
 
     @Required
@@ -209,7 +211,6 @@ public class UserConferenceResource extends UserResource {
     private static class ConferencesRepresentation extends XStreamRepresentation<Collection<Representable>> {
         private static final String ID = "m_id";
         private static final String ENABLED = "enabled";
-        private static final String NAME = "name";
         private static final String DESCRIPTION = "description";
         private static final String EXTENSION = "extension";
 
