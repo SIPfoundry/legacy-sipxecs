@@ -169,6 +169,17 @@
   </bean>
   <alias name="resetPersonalAttendantOperatorResource" alias="/my/voicemail/operator/" />
 
+  <bean id="faxSettingsResource" class="org.sipfoundry.sipxconfig.rest.FaxSettingsResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="modifiable" value="false" />
+    <property name="variants">
+      <list>
+        <ref bean="jsonFormat"/>
+      </list>
+    </property>
+  </bean>
+  <alias name="faxSettingsResource" alias="/my/faxprefs" />
+
   <bean id="forwardingResource" class="org.sipfoundry.sipxconfig.rest.ForwardingResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="forwardingContext" ref="forwardingContext" />
