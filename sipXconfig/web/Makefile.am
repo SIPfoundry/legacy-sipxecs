@@ -180,7 +180,7 @@ style_DEPS = \
 
 unitelitedir=@SIPX_VARDIR@/unitelite
 install-data-hook :
-	cp -r unitelite $(DESTDIR)@SIPX_VARDIR@/ 
+	cp -r $(srcdir)/unitelite $(DESTDIR)@SIPX_VARDIR@/ 
 
 precommit : style validate-xml
 
