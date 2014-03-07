@@ -43,6 +43,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         sql("commserver/SeedLocations.sql");
         sql("domain/DomainSeed.sql");
     }
+
     public void testLoadByUserName() throws Exception {
         sql("common/UserSearchSeed.sql");
         assertNotNull(m_coreContext.loadUserByUserName("userseed5"));
@@ -354,6 +355,9 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         assertEquals(2, next.size());
         User nextUser = (User) next.iterator().next();
         assertEquals("charlie", nextUser.getUserName());
+    }
+
+    public void testUserProfileSearchProperties() {
         User user = m_coreContext.newUser();
         user.setUserName("joe");
         UserProfile disabledProfile = new UserProfile();
@@ -391,6 +395,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         User jessica = m_coreContext.loadUser(1003);
         jessica.getSettings().getSetting("phantom/enabled").setTypedValue(true);
         m_coreContext.saveUser(jessica);
+        flush();
         assertEquals(2, m_coreContext.getPhantomUsersCount());
 
         Collection page = m_coreContext.loadUsersByPage("PHANTOM", null, null, 0, 2, "userName", true);
