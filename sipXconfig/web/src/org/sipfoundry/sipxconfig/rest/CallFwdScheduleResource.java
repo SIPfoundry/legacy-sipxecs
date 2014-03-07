@@ -46,21 +46,20 @@ public class CallFwdScheduleResource extends UserResource {
     // GET
     @Override
     public Representation represent(Variant variant) throws ResourceException {
-        LOG.warn("GET");
         Representation r;
         Integer id = getIdFromRequest();
         if (id == null) {
             List<Schedule> schedules = m_forwardingContext.getAllAvailableSchedulesForUser(getUser());
             List<ScheduleBean> beans = toScheduleBeanList(schedules);
 
-            LOG.warn("Returning call fwd schedules:\t" + beans);
+            LOG.debug("Returning call fwd schedules:\t" + beans);
 
             r = toRepresentation(beans);
         } else {
             Schedule sch = m_forwardingContext.getScheduleById(id);
             ScheduleBean bean = toScheduleBean(sch);
 
-            LOG.warn("Returning call fwd schedule:\t" + bean);
+            LOG.debug("Returning call fwd schedule:\t" + bean);
 
             r = toRepresentation(bean);
         }
@@ -75,7 +74,7 @@ public class CallFwdScheduleResource extends UserResource {
 
         if (id != null) {
             ScheduleBean bean = fromRepresentation(entity, ScheduleBean.class);
-            LOG.warn("Saving call fwd schedule bean:\t" + bean);
+            LOG.debug("Saving call fwd schedule bean:\t" + bean);
 
             Schedule sch = m_forwardingContext.getScheduleById(id);
             sch.setName(bean.getName());
@@ -94,7 +93,7 @@ public class CallFwdScheduleResource extends UserResource {
                 throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY);
             }
 
-            LOG.warn("Saving call fwd schedule:\t" + sch);
+            LOG.debug("Saving call fwd schedule:\t" + sch);
 
             m_forwardingContext.saveSchedule(sch);
         } else {
@@ -145,7 +144,7 @@ public class CallFwdScheduleResource extends UserResource {
             }
         } catch (NumberFormatException e) {
             // I'd just ignore this, but precommit won't let me
-            LOG.debug("id attribut not found");
+            LOG.debug("id attribute not found");
         }
 
         return id;
