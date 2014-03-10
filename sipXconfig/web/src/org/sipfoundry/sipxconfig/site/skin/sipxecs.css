@@ -414,7 +414,6 @@ optgroup {
  */
 
 table {
-  border-collapse: collapse;
   border-spacing: 0;
 }
 
@@ -670,7 +669,8 @@ fieldset#loginForm legend {
 }
 
 #banner-links a:hover,
-#banner-links a:active
+#banner-links a:active,
+#banner-links a:visited
 {
 	color: #837e84;
 }
@@ -684,6 +684,7 @@ fieldset#loginForm legend {
 {
  background-color:white;
  padding-bottom:2px;
+ height:30px;
 }
 
 #navigation ul,
@@ -700,9 +701,12 @@ fieldset#loginForm legend {
   text-transform: uppercase;
   color: white;
   font-size: 10pt;
-  height:15px;
-  padding-top:7px;
-  padding-bottom:7px;
+  height:30px;
+  width:120px;
+}
+
+.navigationMenuItemTop ul a {
+  height:13px;
 }
 
 .adminPortal ul#nav li:nth-child(n+1):nth-child(-n+5) {
@@ -715,7 +719,6 @@ fieldset#loginForm legend {
 
 #navigation li {
 	float: left;
-	position: relative;
 	min-width:115px;
 	width:120px;
 	text-align:center;
@@ -735,19 +738,20 @@ fieldset#loginForm legend {
     	border-left:1px solid #bebebe;
     	border-right:1px solid #bebebe;
 	border-top:1px solid #bebebe;
+	width:118px;
 }
 
 #navigation li ul {
 	display: none;
-	position: absolute;
 	border-bottom:1px solid #bebebe;
-	margin-right:2px;
-	margin-top:3px;
+	margin-right:0px;
+	width:120px;
+	position:relative
 }
 
 #navigation li:hover ul,
 #navigation li.over ul { 
-	display: block; 
+	display: inline-block; 
     	z-index: 500;
 }
 
@@ -765,16 +769,21 @@ fieldset#loginForm legend {
 }
 
 #navigation a:hover,
-#navigation a.over
+#navigation a.over,
+#navigation a.visited,
 {
 	color: #003333;
 	background: #E7EEF8;
 }
 #navigation a.heading {
   color:#ffffff;
+  height:14px;
+  padding-top:8px;
+  padding-bottom:8px;
 }
 #navigation a.heading:hover,
-#navigation a.heading.over
+#navigation a.heading.over,
+#navigation a.heading.visited,
 {
 	background:none;
 	cursor:pointer;
@@ -1382,7 +1391,7 @@ a:visited
 	color: #660099;
 }
 
-a:hover,a:active
+a:hover,a:active,a:visited
 {
 	color: #006699;
 }
@@ -1412,7 +1421,9 @@ li.active, li.active:hover
 	background-color: #fde6a1;
 }
 
-li.active a, li.active a:hover
+li.active a,
+li.active a:hover,
+li.active a:visited
 {
 	color: #000;
 	font-weight: 700;
