@@ -519,18 +519,14 @@ ul.vtabs li
 	margin: 0;
 }
 
-li.tab
-{
-	padding: 5px	 0;
-}
-
 li.tab a:link,
 li.tab a:hover,
 li.tab a:visited
 {
         text-decoration: none;
-    	padding-left:10px;
+    	padding:5px 0px 5px 10px;
     	display: block;
+    	height:15px;
 }
 
 li div.tabLink
